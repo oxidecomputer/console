@@ -3257,6 +3257,18 @@ export const CertificateDeleteParams = z.preprocess(
   })
 )
 
+export const PhysicalDiskListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      sortBy: IdSortMode.optional(),
+    }),
+  })
+)
+
 export const RackListParams = z.preprocess(
   processResponseBody,
   z.object({
@@ -3301,7 +3313,7 @@ export const SledViewParams = z.preprocess(
   })
 )
 
-export const PhysicalDisksListParams = z.preprocess(
+export const SledPhysicalDiskListParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({

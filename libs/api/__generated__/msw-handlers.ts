@@ -453,6 +453,10 @@ export interface MSWHandlers {
   }) => HandlerResult<Api.Certificate>
   /** `DELETE /system/certificates/:certificate` */
   certificateDelete: (params: { path: Api.CertificateDeletePathParams }) => StatusCode
+  /** `GET /system/hardware/disks` */
+  physicalDiskList: (params: {
+    query: Api.PhysicalDiskListQueryParams
+  }) => HandlerResult<Api.PhysicalDiskResultsPage>
   /** `GET /system/hardware/racks` */
   rackList: (params: {
     query: Api.RackListQueryParams
@@ -466,9 +470,9 @@ export interface MSWHandlers {
   /** `GET /system/hardware/sleds/:sledId` */
   sledView: (params: { path: Api.SledViewPathParams }) => HandlerResult<Api.Sled>
   /** `GET /system/hardware/sleds/:sledId/disks` */
-  physicalDisksList: (params: {
-    path: Api.PhysicalDisksListPathParams
-    query: Api.PhysicalDisksListQueryParams
+  sledPhysicalDiskList: (params: {
+    path: Api.SledPhysicalDiskListPathParams
+    query: Api.SledPhysicalDiskListQueryParams
   }) => HandlerResult<Api.PhysicalDiskResultsPage>
   /** `GET /system/images` */
   systemImageList: (params: {
@@ -817,16 +821,10 @@ function validateParams<S extends ZodSchema>(schema: S, req: RestRequest) {
     path: req.params,
     query: Object.fromEntries(params),
   })
-
   if (result.success) {
     return { params: result.data }
   }
-
-  // if any of the errors come from path params, just 404 — the resource cannot
-  // exist if there's no valid name
-  const { issues } = result.error
-  const status = issues.some((e) => e.path[0] === 'path') ? 404 : 400
-  return { paramsErr: json(issues, { status }) }
+  return { paramsErr: json(result.error.issues, { status: 400 }) }
 }
 
 const handler =
@@ -1371,6 +1369,10 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
       handler(handlers['certificateDelete'], schema.CertificateDeleteParams, null)
     ),
     rest.get(
+      '/system/hardware/disks',
+      handler(handlers['physicalDiskList'], schema.PhysicalDiskListParams, null)
+    ),
+    rest.get(
       '/system/hardware/racks',
       handler(handlers['rackList'], schema.RackListParams, null)
     ),
@@ -1388,7 +1390,7 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
     ),
     rest.get(
       '/system/hardware/sleds/:sledId/disks',
-      handler(handlers['physicalDisksList'], schema.PhysicalDisksListParams, null)
+      handler(handlers['sledPhysicalDiskList'], schema.SledPhysicalDiskListParams, null)
     ),
     rest.get(
       '/system/images',

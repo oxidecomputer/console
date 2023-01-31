@@ -2582,6 +2582,12 @@ export interface CertificateDeletePathParams {
   certificate: NameOrId
 }
 
+export interface PhysicalDiskListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: IdSortMode
+}
+
 export interface RackListQueryParams {
   limit?: number
   pageToken?: string
@@ -2602,11 +2608,11 @@ export interface SledViewPathParams {
   sledId: string
 }
 
-export interface PhysicalDisksListPathParams {
+export interface SledPhysicalDiskListPathParams {
   sledId: string
 }
 
-export interface PhysicalDisksListQueryParams {
+export interface SledPhysicalDiskListQueryParams {
   limit?: number
   pageToken?: string
   sortBy?: IdSortMode
@@ -3073,9 +3079,10 @@ export type ApiListMethods = Pick<
   | 'roleList'
   | 'sessionSshkeyList'
   | 'certificateList'
+  | 'physicalDiskList'
   | 'rackList'
   | 'sledList'
-  | 'physicalDisksList'
+  | 'sledPhysicalDiskList'
   | 'systemImageList'
   | 'ipPoolList'
   | 'ipPoolRangeList'
@@ -4619,6 +4626,20 @@ export class Api extends HttpClient {
       })
     },
     /**
+     * List physical disks
+     */
+    physicalDiskList: (
+      { query = {} }: { query?: PhysicalDiskListQueryParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<PhysicalDiskResultsPage>({
+        path: `/system/hardware/disks`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
      * List racks
      */
     rackList: (
@@ -4671,11 +4692,11 @@ export class Api extends HttpClient {
     /**
      * List physical disks attached to sleds
      */
-    physicalDisksList: (
+    sledPhysicalDiskList: (
       {
         path,
         query = {},
-      }: { path: PhysicalDisksListPathParams; query?: PhysicalDisksListQueryParams },
+      }: { path: SledPhysicalDiskListPathParams; query?: SledPhysicalDiskListQueryParams },
       params: RequestParams = {}
     ) => {
       const { sledId } = path

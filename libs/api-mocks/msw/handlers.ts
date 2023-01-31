@@ -767,10 +767,13 @@ export const handlers = makeHandlers({
     const nics = db.networkInterfaces.filter((n) => n.subnet_id === subnet.id)
     return paginated(params.query, nics)
   },
-  physicalDisksList(params) {
+  sledPhysicalDiskList(params) {
     const sled = lookupSled({ id: params.path.sledId })
-    const disks = db.physicalDisks.filter((n) => (n as any).sled_id === sled.id)
+    const disks = db.physicalDisks.filter((n) => n.sled_id === sled.id)
     return paginated(params.query, disks)
+  },
+  physicalDiskList(params) {
+    return paginated(params.query, db.physicalDisks)
   },
   policyView() {
     // assume we're in the default silo

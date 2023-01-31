@@ -1,10 +1,6 @@
-import type { LoaderFunctionArgs } from 'react-router-dom'
-
 import { apiQueryClient } from '@oxide/api'
-import { idCell, useIdExpandToggle, useQueryTable } from '@oxide/table'
+import { IdCell, useQueryTable } from '@oxide/table'
 import { EmptyMessage, Racks24Icon } from '@oxide/ui'
-
-import { requireSledParams, useRequiredParams } from 'app/hooks'
 
 const EmptyState = () => {
   return (
@@ -16,24 +12,23 @@ const EmptyState = () => {
   )
 }
 
-DisksTab.loader = async ({ params }: LoaderFunctionArgs) => {
-  await apiQueryClient.prefetchQuery('physicalDisksList', {
-    path: requireSledParams(params),
+DisksTab.loader = async () => {
+  await apiQueryClient.prefetchQuery('physicalDiskList', {
     query: { limit: 10 },
   })
 }
 
 export function DisksTab() {
-  const { sledId } = useRequiredParams('sledId')
-  const [idExpanded, toggleIdExpanded] = useIdExpandToggle()
-
-  const { Table, Column } = useQueryTable('physicalDisksList', { path: { sledId } })
+  const { Table, Column } = useQueryTable('physicalDiskList', {})
 
   return (
     <>
       <Table emptyState={<EmptyState />}>
-        <Column accessor="id" cell={idCell(idExpanded, toggleIdExpanded)} />
-        <Column accessor={(_, index) => index} header="location" />
+        <Column accessor="id" cell={IdCell} />
+        <Column accessor="sledId" header="sled" cell={IdCell} />
+        <Column id="slot" accessor={(_, index) => index} header="slot" />
+        <Column accessor="model" header="model number" />
+        <Column accessor="serial" header="serial number" />
       </Table>
     </>
   )

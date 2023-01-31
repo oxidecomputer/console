@@ -11,7 +11,6 @@ export const physicalDisks: Json<PhysicalDisk>[] = [
     vendor: '0634',
     time_created: new Date().toISOString(),
     time_modified: new Date().toISOString(),
-    // @ts-expect-error
     sled_id: 'c2519937-44a4-493b-9b38-5c337c597d08',
   },
   {
@@ -22,7 +21,6 @@ export const physicalDisks: Json<PhysicalDisk>[] = [
     vendor: '0634',
     time_created: new Date().toISOString(),
     time_modified: new Date().toISOString(),
-    // @ts-expect-error
     sled_id: 'c2519937-44a4-493b-9b38-5c337c597d08',
   },
   {
@@ -33,7 +31,6 @@ export const physicalDisks: Json<PhysicalDisk>[] = [
     vendor: '0634',
     time_created: new Date().toISOString(),
     time_modified: new Date().toISOString(),
-    // @ts-expect-error
     sled_id: 'c2519937-44a4-493b-9b38-5c337c597d08',
   },
   {
@@ -44,7 +41,6 @@ export const physicalDisks: Json<PhysicalDisk>[] = [
     vendor: '0634',
     time_created: new Date().toISOString(),
     time_modified: new Date().toISOString(),
-    // @ts-expect-error
     sled_id: 'c2519937-44a4-493b-9b38-5c337c597d08',
   },
 ]
