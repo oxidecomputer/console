@@ -64,7 +64,6 @@ export const pb = {
   systemNetworking: () => '/sys/networking',
   systemSettings: () => '/sys/settings',
 
-  inventory: () => pb.rackInventory(),
   rackInventory: () => '/sys/inventory/racks',
   sledInventory: () => '/sys/inventory/sleds',
   diskInventory: () => '/sys/inventory/disks',
