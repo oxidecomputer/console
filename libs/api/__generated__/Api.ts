@@ -12,6 +12,11 @@ export type {
 } from './http-client'
 
 /**
+ * Describes properties that should uniquely identify a Gimlet.
+ */
+export type Baseboard = { part: string; revision: number; serial: string }
+
+/**
  * A type storing a range over `T`.
  *
  * This type supports ranges similar to the `RangeTo`, `Range` and `RangeFrom` types in the standard library. Those cover `(..end)`, `(start..end)`, and `(start..)` respectively.
@@ -988,6 +993,36 @@ export type OrganizationUpdate = { description?: string; name?: Name }
  */
 export type Password = string
 
+export type PhysicalDiskType = 'internal' | 'external'
+
+/**
+ * Client view of a {@link PhysicalDisk}
+ */
+export type PhysicalDisk = {
+  diskType: PhysicalDiskType
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  model: string
+  serial: string
+  /** The sled to which this disk is attached, if any. */
+  sledId?: string
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+  vendor: string
+}
+
+/**
+ * A single page of results
+ */
+export type PhysicalDiskResultsPage = {
+  /** list of items on this page of results */
+  items: PhysicalDisk[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
 /**
  * Client view of a {@link Project}
  */
@@ -1350,9 +1385,10 @@ export type SiloRolePolicy = {
 }
 
 /**
- * Client view of an {@link Sled}
+ * Client view of a {@link Sled}
  */
 export type Sled = {
+  baseboard: Baseboard
   /** unique, immutable, system-controlled identifier for each resource */
   id: string
   serviceAddress: string
@@ -2546,6 +2582,12 @@ export interface CertificateDeletePathParams {
   certificate: NameOrId
 }
 
+export interface PhysicalDiskListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: IdSortMode
+}
+
 export interface RackListQueryParams {
   limit?: number
   pageToken?: string
@@ -2564,6 +2606,16 @@ export interface SledListQueryParams {
 
 export interface SledViewPathParams {
   sledId: string
+}
+
+export interface SledPhysicalDiskListPathParams {
+  sledId: string
+}
+
+export interface SledPhysicalDiskListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: IdSortMode
 }
 
 export interface SystemImageListQueryParams {
@@ -3027,8 +3079,10 @@ export type ApiListMethods = Pick<
   | 'roleList'
   | 'sessionSshkeyList'
   | 'certificateList'
+  | 'physicalDiskList'
   | 'rackList'
   | 'sledList'
+  | 'sledPhysicalDiskList'
   | 'systemImageList'
   | 'ipPoolList'
   | 'ipPoolRangeList'
@@ -4572,6 +4626,20 @@ export class Api extends HttpClient {
       })
     },
     /**
+     * List physical disks
+     */
+    physicalDiskList: (
+      { query = {} }: { query?: PhysicalDiskListQueryParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<PhysicalDiskResultsPage>({
+        path: `/system/hardware/disks`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
      * List racks
      */
     rackList: (
@@ -4618,6 +4686,24 @@ export class Api extends HttpClient {
       return this.request<Sled>({
         path: `/system/hardware/sleds/${sledId}`,
         method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * List physical disks attached to sleds
+     */
+    sledPhysicalDiskList: (
+      {
+        path,
+        query = {},
+      }: { path: SledPhysicalDiskListPathParams; query?: SledPhysicalDiskListQueryParams },
+      params: RequestParams = {}
+    ) => {
+      const { sledId } = path
+      return this.request<PhysicalDiskResultsPage>({
+        path: `/system/hardware/sleds/${sledId}/disks`,
+        method: 'GET',
+        query,
         ...params,
       })
     },
@@ -5291,6 +5377,9 @@ export class Api extends HttpClient {
         ...params,
       })
     },
+    /**
+     * List an instance's disks
+     */
     instanceDiskListV1: (
       {
         path,
@@ -5306,6 +5395,9 @@ export class Api extends HttpClient {
         ...params,
       })
     },
+    /**
+     * Attach a disk to an instance
+     */
     instanceDiskAttachV1: (
       {
         path,
@@ -5327,6 +5419,9 @@ export class Api extends HttpClient {
         ...params,
       })
     },
+    /**
+     * Detach a disk from an instance
+     */
     instanceDiskDetachV1: (
       {
         path,

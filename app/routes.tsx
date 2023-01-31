@@ -48,6 +48,10 @@ import { StorageTab } from './pages/project/instances/instance/tabs/StorageTab'
 import { ProfilePage } from './pages/settings/ProfilePage'
 import { SSHKeysPage } from './pages/settings/SSHKeysPage'
 import { CapacityUtilizationPage } from './pages/system/CapacityUtilizationPage'
+import { DisksTab } from './pages/system/InventoryPage/DisksTab'
+import { InventoryPage } from './pages/system/InventoryPage/InventoryPage'
+import { RacksTab } from './pages/system/InventoryPage/RacksTab'
+import { SledsTab } from './pages/system/InventoryPage/SledsTab'
 import { SiloPage } from './pages/system/SiloPage'
 import SilosPage from './pages/system/SilosPage'
 import { UpdateDetailSideModal } from './pages/system/UpdateDetailSideModal'
@@ -106,7 +110,12 @@ export const routes = createRoutesFromElements(
           element={<CapacityUtilizationPage />}
           loader={CapacityUtilizationPage.loader}
         />
-        <Route path="inventory" element={null} />
+        <Route path="inventory" element={<InventoryPage />}>
+          <Route index element={<Navigate to="racks" replace />} />
+          <Route path="racks" element={<RacksTab />} loader={RacksTab.loader} />
+          <Route path="sleds" element={<SledsTab />} loader={SledsTab.loader} />
+          <Route path="disks" element={<DisksTab />} loader={DisksTab.loader} />
+        </Route>
         <Route path="health" element={null} />
         <Route path="update" element={<UpdatePage />} loader={UpdatePage.loader}>
           <Route index element={<Navigate to="updates" replace />} />

@@ -53,7 +53,6 @@ export const pb = {
   system: () => '/sys',
   systemIssues: () => '/sys/issues',
   systemUtilization: () => '/sys/utilization',
-  systemInventory: () => '/sys/inventory',
   systemHealth: () => '/sys/health',
 
   systemUpdates: () => '/sys/update/updates',
@@ -64,6 +63,10 @@ export const pb = {
 
   systemNetworking: () => '/sys/networking',
   systemSettings: () => '/sys/settings',
+
+  rackInventory: () => '/sys/inventory/racks',
+  sledInventory: () => '/sys/inventory/sleds',
+  diskInventory: () => '/sys/inventory/disks',
 
   silos: () => '/sys/silos',
   siloNew: () => '/sys/silos-new',

@@ -1,5 +1,5 @@
-export * from './Cell'
 export * from './BooleanCell'
+export * from './Cell'
 export * from './DateCell'
 export * from './DefaultCell'
 export * from './EnabledCell'

@@ -19,6 +19,14 @@ const IntEnum = <T extends readonly number[]>(values: T) =>
   z.number().refine((v) => values.includes(v)) as ZodType<T[number]>
 
 /**
+ * Describes properties that should uniquely identify a Gimlet.
+ */
+export const Baseboard = z.preprocess(
+  processResponseBody,
+  z.object({ part: z.string(), revision: z.number(), serial: z.string() })
+)
+
+/**
  * A type storing a range over `T`.
  *
  * This type supports ranges similar to the `RangeTo`, `Range` and `RangeFrom` types in the standard library. Those cover `(..end)`, `(start..end)`, and `(start..)` respectively.
@@ -1042,6 +1050,36 @@ export const OrganizationUpdate = z.preprocess(
  */
 export const Password = z.preprocess(processResponseBody, z.string().max(512))
 
+export const PhysicalDiskType = z.preprocess(
+  processResponseBody,
+  z.enum(['internal', 'external'])
+)
+
+/**
+ * Client view of a {@link PhysicalDisk}
+ */
+export const PhysicalDisk = z.preprocess(
+  processResponseBody,
+  z.object({
+    diskType: PhysicalDiskType,
+    id: z.string().uuid(),
+    model: z.string(),
+    serial: z.string(),
+    sledId: z.string().uuid().optional(),
+    timeCreated: DateType,
+    timeModified: DateType,
+    vendor: z.string(),
+  })
+)
+
+/**
+ * A single page of results
+ */
+export const PhysicalDiskResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: PhysicalDisk.array(), nextPage: z.string().optional() })
+)
+
 /**
  * Client view of a {@link Project}
  */
@@ -1398,11 +1436,12 @@ export const SiloRolePolicy = z.preprocess(
 )
 
 /**
- * Client view of an {@link Sled}
+ * Client view of a {@link Sled}
  */
 export const Sled = z.preprocess(
   processResponseBody,
   z.object({
+    baseboard: Baseboard,
     id: z.string().uuid(),
     serviceAddress: z.string(),
     timeCreated: DateType,
@@ -3218,6 +3257,18 @@ export const CertificateDeleteParams = z.preprocess(
   })
 )
 
+export const PhysicalDiskListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      sortBy: IdSortMode.optional(),
+    }),
+  })
+)
+
 export const RackListParams = z.preprocess(
   processResponseBody,
   z.object({
@@ -3259,6 +3310,20 @@ export const SledViewParams = z.preprocess(
       sledId: z.string().uuid(),
     }),
     query: z.object({}),
+  })
+)
+
+export const SledPhysicalDiskListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      sledId: z.string().uuid(),
+    }),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      sortBy: IdSortMode.optional(),
+    }),
   })
 )
 

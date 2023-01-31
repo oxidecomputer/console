@@ -453,6 +453,10 @@ export interface MSWHandlers {
   }) => HandlerResult<Api.Certificate>
   /** `DELETE /system/certificates/:certificate` */
   certificateDelete: (params: { path: Api.CertificateDeletePathParams }) => StatusCode
+  /** `GET /system/hardware/disks` */
+  physicalDiskList: (params: {
+    query: Api.PhysicalDiskListQueryParams
+  }) => HandlerResult<Api.PhysicalDiskResultsPage>
   /** `GET /system/hardware/racks` */
   rackList: (params: {
     query: Api.RackListQueryParams
@@ -465,6 +469,11 @@ export interface MSWHandlers {
   }) => HandlerResult<Api.SledResultsPage>
   /** `GET /system/hardware/sleds/:sledId` */
   sledView: (params: { path: Api.SledViewPathParams }) => HandlerResult<Api.Sled>
+  /** `GET /system/hardware/sleds/:sledId/disks` */
+  sledPhysicalDiskList: (params: {
+    path: Api.SledPhysicalDiskListPathParams
+    query: Api.SledPhysicalDiskListQueryParams
+  }) => HandlerResult<Api.PhysicalDiskResultsPage>
   /** `GET /system/images` */
   systemImageList: (params: {
     query: Api.SystemImageListQueryParams
@@ -1360,6 +1369,10 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
       handler(handlers['certificateDelete'], schema.CertificateDeleteParams, null)
     ),
     rest.get(
+      '/system/hardware/disks',
+      handler(handlers['physicalDiskList'], schema.PhysicalDiskListParams, null)
+    ),
+    rest.get(
       '/system/hardware/racks',
       handler(handlers['rackList'], schema.RackListParams, null)
     ),
@@ -1374,6 +1387,10 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
     rest.get(
       '/system/hardware/sleds/:sledId',
       handler(handlers['sledView'], schema.SledViewParams, null)
+    ),
+    rest.get(
+      '/system/hardware/sleds/:sledId/disks',
+      handler(handlers['sledPhysicalDiskList'], schema.SledPhysicalDiskListParams, null)
     ),
     rest.get(
       '/system/images',
