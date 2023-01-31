@@ -22,6 +22,7 @@ import {
   lookupProject,
   lookupSamlIdp,
   lookupSilo,
+  lookupSled,
   lookupSnapshot,
   lookupSshKey,
   lookupVpc,
@@ -766,6 +767,11 @@ export const handlers = makeHandlers({
     const nics = db.networkInterfaces.filter((n) => n.subnet_id === subnet.id)
     return paginated(params.query, nics)
   },
+  physicalDisksList(params) {
+    const sled = lookupSled({ id: params.path.sledId })
+    const disks = db.physicalDisks.filter((n) => (n as any).sled_id === sled.id)
+    return paginated(params.query, disks)
+  },
   policyView() {
     // assume we're in the default silo
     const siloId = defaultSilo.id
@@ -790,6 +796,9 @@ export const handlers = makeHandlers({
     db.roleAssignments = [...unrelatedAssignments, ...newAssignments]
 
     return body
+  },
+  rackList(params) {
+    return paginated(params.query, db.racks)
   },
   sessionMe() {
     return user1
@@ -822,6 +831,7 @@ export const handlers = makeHandlers({
     db.sshKeys = db.sshKeys.filter((i) => i.id !== sshKey.id)
     return 204
   },
+  sledList: (params) => paginated(params.query, db.sleds),
   systemImageList: (params) => paginated(params.query, db.globalImages),
   systemImageCreate({ body }) {
     errIfExists(db.globalImages, { name: body.name })
@@ -972,7 +982,6 @@ export const handlers = makeHandlers({
   loginSamlBegin: NotImplemented,
   loginSpoof: NotImplemented,
   logout: NotImplemented,
-  rackList: NotImplemented,
   rackView: NotImplemented,
   roleList: NotImplemented,
   roleView: NotImplemented,
@@ -983,7 +992,6 @@ export const handlers = makeHandlers({
   siloPolicyView: NotImplemented,
   siloUsersList: NotImplemented,
   siloUserView: NotImplemented,
-  sledList: NotImplemented,
   sledView: NotImplemented,
   systemPolicyUpdate: NotImplemented,
   systemUserList: NotImplemented,

@@ -53,11 +53,15 @@ export const pb = {
   system: () => '/sys',
   systemIssues: () => '/sys/issues',
   systemUtilization: () => '/sys/utilization',
-  systemInventory: () => '/sys/inventory',
   systemHealth: () => '/sys/health',
   systemUpdate: () => '/sys/update',
   systemNetworking: () => '/sys/networking',
   systemSettings: () => '/sys/settings',
+
+  inventory: () => pb.rackInventory(),
+  rackInventory: () => '/sys/inventory/racks',
+  sledInventory: () => '/sys/inventory/sleds',
+  diskInventory: () => '/sys/inventory/disks',
 
   silos: () => '/sys/silos',
   siloNew: () => '/sys/silos-new',

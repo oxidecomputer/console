@@ -48,6 +48,10 @@ import { StorageTab } from './pages/project/instances/instance/tabs/StorageTab'
 import { ProfilePage } from './pages/settings/ProfilePage'
 import { SSHKeysPage } from './pages/settings/SSHKeysPage'
 import { CapacityUtilizationPage } from './pages/system/CapacityUtilizationPage'
+import { DisksTab } from './pages/system/InventoryPage/DisksTab'
+import { InventoryPage } from './pages/system/InventoryPage/InventoryPage'
+import { RacksTab } from './pages/system/InventoryPage/RacksTab'
+import { SledsTab } from './pages/system/InventoryPage/SledsTab'
 import { SiloPage } from './pages/system/SiloPage'
 import SilosPage from './pages/system/SilosPage'
 import { pb } from './util/path-builder'
@@ -99,7 +103,11 @@ export const routes = createRoutesFromElements(
           element={<CapacityUtilizationPage />}
           loader={CapacityUtilizationPage.loader}
         />
-        <Route path="inventory" element={null} />
+        <Route path="inventory" element={<InventoryPage />}>
+          <Route path="racks" element={<RacksTab />} />
+          <Route path="sleds" element={<SledsTab />} />
+          <Route path="disks" element={<DisksTab />} />
+        </Route>
         <Route path="health" element={null} />
         <Route path="update" element={null} />
         <Route path="networking" element={null} />

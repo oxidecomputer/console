@@ -12,6 +12,11 @@ export type {
 } from './http-client'
 
 /**
+ * Describes properties that should uniquely identify a Gimlet.
+ */
+export type Baseboard = { part: string; revision: number; serial: string }
+
+/**
  * A type storing a range over `T`.
  *
  * This type supports ranges similar to the `RangeTo`, `Range` and `RangeFrom` types in the standard library. Those cover `(..end)`, `(start..end)`, and `(start..)` respectively.
@@ -118,6 +123,46 @@ export type CertificateCreate = {
 export type CertificateResultsPage = {
   /** list of items on this page of results */
   items: Certificate[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+export type UpdateableComponentType =
+  | 'bootloader_for_rot'
+  | 'bootloader_for_sp'
+  | 'bootloader_for_host_proc'
+  | 'hubris_for_psc_rot'
+  | 'hubris_for_psc_sp'
+  | 'hubris_for_sidecar_rot'
+  | 'hubris_for_sidecar_sp'
+  | 'hubris_for_gimlet_rot'
+  | 'hubris_for_gimlet_sp'
+  | 'helios_host_phase1'
+  | 'helios_host_phase2'
+  | 'host_omicron'
+
+export type SemverVersion = string
+
+/**
+ * Identity-related metadata that's included in "asset" public API objects (which generally have no name or description)
+ */
+export type ComponentUpdate = {
+  componentType: UpdateableComponentType
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+  version: SemverVersion
+}
+
+/**
+ * A single page of results
+ */
+export type ComponentUpdateResultsPage = {
+  /** list of items on this page of results */
+  items: ComponentUpdate[]
   /** token used to fetch the next page of results (if any) */
   nextPage?: string
 }
@@ -948,6 +993,36 @@ export type OrganizationUpdate = { description?: string; name?: Name }
  */
 export type Password = string
 
+export type PhysicalDiskType = 'internal' | 'external'
+
+/**
+ * Client view of a {@link PhysicalDisk}
+ */
+export type PhysicalDisk = {
+  diskType: PhysicalDiskType
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  model: string
+  serial: string
+  /** The sled to which this disk is attached, if any. */
+  sledId?: string
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+  vendor: string
+}
+
+/**
+ * A single page of results
+ */
+export type PhysicalDiskResultsPage = {
+  /** list of items on this page of results */
+  items: PhysicalDisk[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
 /**
  * Client view of a {@link Project}
  */
@@ -1310,16 +1385,13 @@ export type SiloRolePolicy = {
 }
 
 /**
- * Client view of an {@link Sled}
+ * Client view of a {@link Sled}
  */
 export type Sled = {
+  baseboard: Baseboard
   /** unique, immutable, system-controlled identifier for each resource */
   id: string
-  partNumber?: string
-  revision?: number
-  serialNumber?: string
   serviceAddress: string
-  slot?: number
   /** timestamp when this resource was created */
   timeCreated: Date
   /** timestamp when this resource was last modified */
@@ -1421,6 +1493,37 @@ export type SshKeyResultsPage = {
 }
 
 /**
+ * Identity-related metadata that's included in "asset" public API objects (which generally have no name or description)
+ */
+export type SystemUpdate = {
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+  version: SemverVersion
+}
+
+/**
+ * A single page of results
+ */
+export type SystemUpdateResultsPage = {
+  /** list of items on this page of results */
+  items: SystemUpdate[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+export type SystemUpdateStart = { version: SemverVersion }
+
+export type UpdateStatus = { status: 'updating' } | { status: 'steady' }
+
+export type VersionRange = { high: SemverVersion; low: SemverVersion }
+
+export type SystemVersion = { status: UpdateStatus; versionRange: VersionRange }
+
+/**
  * The name of a timeseries
  *
  * Names are constructed by concatenating the target and metric names with ':'. Target and metric names must be lowercase alphanumeric characters with '_' separating words.
@@ -1445,6 +1548,57 @@ export type TimeseriesSchema = {
 export type TimeseriesSchemaResultsPage = {
   /** list of items on this page of results */
   items: TimeseriesSchema[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
+ * Identity-related metadata that's included in "asset" public API objects (which generally have no name or description)
+ */
+export type UpdateDeployment = {
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  status: UpdateStatus
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+  version: SemverVersion
+}
+
+/**
+ * A single page of results
+ */
+export type UpdateDeploymentResultsPage = {
+  /** list of items on this page of results */
+  items: UpdateDeployment[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
+ * Identity-related metadata that's included in "asset" public API objects (which generally have no name or description)
+ */
+export type UpdateableComponent = {
+  componentType: UpdateableComponentType
+  deviceId: string
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  status: UpdateStatus
+  systemVersion: SemverVersion
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+  version: SemverVersion
+}
+
+/**
+ * A single page of results
+ */
+export type UpdateableComponentResultsPage = {
+  /** list of items on this page of results */
+  items: UpdateableComponent[]
   /** token used to fetch the next page of results (if any) */
   nextPage?: string
 }
@@ -2448,6 +2602,16 @@ export interface SledViewPathParams {
   sledId: string
 }
 
+export interface PhysicalDisksListPathParams {
+  sledId: string
+}
+
+export interface PhysicalDisksListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: IdSortMode
+}
+
 export interface SystemImageListQueryParams {
   limit?: number
   pageToken?: string
@@ -2841,6 +3005,36 @@ export interface ProjectPolicyUpdateV1QueryParams {
   organization?: NameOrId
 }
 
+export interface SystemComponentVersionListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: IdSortMode
+}
+
+export interface UpdateDeploymentsListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: IdSortMode
+}
+
+export interface UpdateDeploymentViewPathParams {
+  id: string
+}
+
+export interface SystemUpdateListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: IdSortMode
+}
+
+export interface SystemUpdateViewPathParams {
+  version: SemverVersion
+}
+
+export interface SystemUpdateComponentsListPathParams {
+  version: SemverVersion
+}
+
 export type ApiViewByIdMethods = Pick<
   InstanceType<typeof Api>['methods'],
   | 'diskViewById'
@@ -2881,6 +3075,7 @@ export type ApiListMethods = Pick<
   | 'certificateList'
   | 'rackList'
   | 'sledList'
+  | 'physicalDisksList'
   | 'systemImageList'
   | 'ipPoolList'
   | 'ipPoolRangeList'
@@ -2891,6 +3086,10 @@ export type ApiListMethods = Pick<
   | 'siloUsersList'
   | 'systemUserList'
   | 'userList'
+  | 'systemComponentVersionList'
+  | 'updateDeploymentsList'
+  | 'systemUpdateList'
+  | 'systemUpdateComponentsList'
 >
 
 type EmptyObj = Record<string, never>
@@ -4470,6 +4669,24 @@ export class Api extends HttpClient {
       })
     },
     /**
+     * List physical disks attached to sleds
+     */
+    physicalDisksList: (
+      {
+        path,
+        query = {},
+      }: { path: PhysicalDisksListPathParams; query?: PhysicalDisksListQueryParams },
+      params: RequestParams = {}
+    ) => {
+      const { sledId } = path
+      return this.request<PhysicalDiskResultsPage>({
+        path: `/system/hardware/sleds/${sledId}/disks`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
      * List system-wide images
      */
     systemImageList: (
@@ -4957,16 +5174,6 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Refresh update data
-     */
-    updatesRefresh: (_: EmptyObj, params: RequestParams = {}) => {
-      return this.request<void>({
-        path: `/system/updates/refresh`,
-        method: 'POST',
-        ...params,
-      })
-    },
-    /**
      * List built-in users
      */
     systemUserList: (
@@ -5149,6 +5356,9 @@ export class Api extends HttpClient {
         ...params,
       })
     },
+    /**
+     * List an instance's disks
+     */
     instanceDiskListV1: (
       {
         path,
@@ -5164,6 +5374,9 @@ export class Api extends HttpClient {
         ...params,
       })
     },
+    /**
+     * Attach a disk to an instance
+     */
     instanceDiskAttachV1: (
       {
         path,
@@ -5185,6 +5398,9 @@ export class Api extends HttpClient {
         ...params,
       })
     },
+    /**
+     * Detach a disk from an instance
+     */
     instanceDiskDetachV1: (
       {
         path,
@@ -5557,6 +5773,134 @@ export class Api extends HttpClient {
         method: 'PUT',
         body,
         query,
+        ...params,
+      })
+    },
+    /**
+     * View version and update status of component tree
+     */
+    systemComponentVersionList: (
+      { query = {} }: { query?: SystemComponentVersionListQueryParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<UpdateableComponentResultsPage>({
+        path: `/v1/system/update/components`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List all update deployments
+     */
+    updateDeploymentsList: (
+      { query = {} }: { query?: UpdateDeploymentsListQueryParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<UpdateDeploymentResultsPage>({
+        path: `/v1/system/update/deployments`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch a system update deployment
+     */
+    updateDeploymentView: (
+      { path }: { path: UpdateDeploymentViewPathParams },
+      params: RequestParams = {}
+    ) => {
+      const { id } = path
+      return this.request<UpdateDeployment>({
+        path: `/v1/system/update/deployments/${id}`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Refresh update data
+     */
+    systemUpdateRefresh: (_: EmptyObj, params: RequestParams = {}) => {
+      return this.request<void>({
+        path: `/v1/system/update/refresh`,
+        method: 'POST',
+        ...params,
+      })
+    },
+    /**
+     * Start system update
+     */
+    systemUpdateStart: (
+      { body }: { body: SystemUpdateStart },
+      params: RequestParams = {}
+    ) => {
+      return this.request<UpdateDeployment>({
+        path: `/v1/system/update/start`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Stop system update
+     */
+    systemUpdateStop: (_: EmptyObj, params: RequestParams = {}) => {
+      return this.request<void>({
+        path: `/v1/system/update/stop`,
+        method: 'POST',
+        ...params,
+      })
+    },
+    /**
+     * List all updates
+     */
+    systemUpdateList: (
+      { query = {} }: { query?: SystemUpdateListQueryParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<SystemUpdateResultsPage>({
+        path: `/v1/system/update/updates`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * View system update
+     */
+    systemUpdateView: (
+      { path }: { path: SystemUpdateViewPathParams },
+      params: RequestParams = {}
+    ) => {
+      const { version } = path
+      return this.request<SystemUpdate>({
+        path: `/v1/system/update/updates/${version}`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * View system update component tree
+     */
+    systemUpdateComponentsList: (
+      { path }: { path: SystemUpdateComponentsListPathParams },
+      params: RequestParams = {}
+    ) => {
+      const { version } = path
+      return this.request<ComponentUpdateResultsPage>({
+        path: `/v1/system/update/updates/${version}/components`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * View system version and update status
+     */
+    systemVersion: (_: EmptyObj, params: RequestParams = {}) => {
+      return this.request<SystemVersion>({
+        path: `/v1/system/update/version`,
+        method: 'GET',
         ...params,
       })
     },
