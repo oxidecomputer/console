@@ -20,7 +20,7 @@ RacksTab.loader = async () => {
 }
 
 export function RacksTab() {
-  const { Table, Column } = useQueryTable('rackList', {}, { keepPreviousData: true })
+  const { Table, Column } = useQueryTable('rackList', {})
 
   return (
     <>

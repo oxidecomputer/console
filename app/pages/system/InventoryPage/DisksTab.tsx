@@ -16,6 +16,7 @@ DisksTab.loader = async () => {
   await apiQueryClient.prefetchQuery('physicalDiskList', {
     query: { limit: 10 },
   })
+  return null
 }
 
 export function DisksTab() {

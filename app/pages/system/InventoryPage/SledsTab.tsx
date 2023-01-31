@@ -16,6 +16,7 @@ SledsTab.loader = async () => {
   await apiQueryClient.prefetchQuery('sledList', {
     query: { limit: 10 },
   })
+  return null
 }
 
 export function SledsTab() {

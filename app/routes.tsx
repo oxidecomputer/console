@@ -111,6 +111,7 @@ export const routes = createRoutesFromElements(
           loader={CapacityUtilizationPage.loader}
         />
         <Route path="inventory" element={<InventoryPage />}>
+          <Route index element={<Navigate to="racks" replace />} />
           <Route path="racks" element={<RacksTab />} loader={RacksTab.loader} />
           <Route path="sleds" element={<SledsTab />} loader={SledsTab.loader} />
           <Route path="disks" element={<DisksTab />} loader={DisksTab.loader} />
