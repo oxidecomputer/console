@@ -111,9 +111,9 @@ export const routes = createRoutesFromElements(
           loader={CapacityUtilizationPage.loader}
         />
         <Route path="inventory" element={<InventoryPage />}>
-          <Route path="racks" element={<RacksTab />} />
-          <Route path="sleds" element={<SledsTab />} />
-          <Route path="disks" element={<DisksTab />} />
+          <Route path="racks" element={<RacksTab />} loader={RacksTab.loader} />
+          <Route path="sleds" element={<SledsTab />} loader={SledsTab.loader} />
+          <Route path="disks" element={<DisksTab />} loader={DisksTab.loader} />
         </Route>
         <Route path="health" element={null} />
         <Route path="update" element={<UpdatePage />} loader={UpdatePage.loader}>
