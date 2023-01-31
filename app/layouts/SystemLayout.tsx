@@ -62,25 +62,25 @@ export default function SystemLayout() {
           <NavLinkItem to={pb.silos()}>
             <Cloud16Icon /> Silos
           </NavLinkItem>
-          <NavLinkItem to={pb.systemIssues()}>
+          <NavLinkItem to={pb.systemIssues()} disabled>
             <Instances16Icon /> Issues
           </NavLinkItem>
           <NavLinkItem to={pb.systemUtilization()}>
             <Snapshots16Icon /> Utilization
           </NavLinkItem>
-          <NavLinkItem to={pb.inventory()}>
+          <NavLinkItem to={pb.inventory()} disabled>
             <Storage16Icon /> Inventory
           </NavLinkItem>
-          <NavLinkItem to={pb.systemHealth()}>
+          <NavLinkItem to={pb.systemHealth()} disabled>
             <Health16Icon /> Health
           </NavLinkItem>
-          <NavLinkItem to={pb.systemUpdate()}>
+          <NavLinkItem to={pb.systemUpdates()}>
             <SoftwareUpdate16Icon /> System Update
           </NavLinkItem>
-          <NavLinkItem to={pb.systemNetworking()}>
+          <NavLinkItem to={pb.systemNetworking()} disabled>
             <Networking16Icon /> Networking
           </NavLinkItem>
-          <NavLinkItem to={pb.systemSettings()}>
+          <NavLinkItem to={pb.systemSettings()} disabled>
             <Settings16Icon /> Settings
           </NavLinkItem>
         </Sidebar.Nav>

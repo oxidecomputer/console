@@ -54,6 +54,13 @@ import { RacksTab } from './pages/system/InventoryPage/RacksTab'
 import { SledsTab } from './pages/system/InventoryPage/SledsTab'
 import { SiloPage } from './pages/system/SiloPage'
 import SilosPage from './pages/system/SilosPage'
+import { UpdateDetailSideModal } from './pages/system/UpdateDetailSideModal'
+import {
+  UpdatePage,
+  UpdatePageComponents,
+  UpdatePageHistory,
+  UpdatePageUpdates,
+} from './pages/system/UpdatePage'
 import { pb } from './util/path-builder'
 
 const orgCrumb: CrumbFunc = (m) => m.params.orgName!
@@ -109,7 +116,26 @@ export const routes = createRoutesFromElements(
           <Route path="disks" element={<DisksTab />} />
         </Route>
         <Route path="health" element={null} />
-        <Route path="update" element={null} />
+        <Route path="update" element={<UpdatePage />} loader={UpdatePage.loader}>
+          <Route index element={<Navigate to="updates" replace />} />
+          <Route
+            path="updates"
+            element={<UpdatePageUpdates />}
+            loader={UpdatePageUpdates.loader}
+          >
+            <Route
+              path=":version"
+              element={<UpdateDetailSideModal />}
+              loader={UpdateDetailSideModal.loader}
+            />
+          </Route>
+          <Route path="components" element={<UpdatePageComponents />} />
+          <Route
+            path="history"
+            element={<UpdatePageHistory />}
+            loader={UpdatePageHistory.loader}
+          />
+        </Route>
         <Route path="networking" element={null} />
         <Route path="settings" element={null} />
       </Route>

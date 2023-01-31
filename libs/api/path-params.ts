@@ -19,3 +19,4 @@ export type IdentityProvider = Merge<Silo, { providerName: string }>
 export type Id = { id: string }
 export type SystemMetric = { resourceName: string }
 export type PhysicalDisk = { sledId: string }
+export type SystemUpdate = { version: string }
