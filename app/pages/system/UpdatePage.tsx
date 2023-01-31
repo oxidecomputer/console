@@ -15,10 +15,6 @@ import {
 import { RouteTabs, Tab } from 'app/components/RouteTabs'
 import { pb } from 'app/util/path-builder'
 
-const EmptyState = () => (
-  <EmptyMessage icon={<SoftwareUpdate16Icon />} title="No updates available" />
-)
-
 const StatusBadge = ({ status }: { status: UpdateStatus['status'] | undefined }) => {
   if (!status) return <Badge color="neutral">Unknown</Badge>
 
@@ -39,7 +35,11 @@ export function UpdatePageUpdates() {
   return (
     <>
       <Outlet />
-      <Table emptyState={<EmptyState />}>
+      <Table
+        emptyState={
+          <EmptyMessage icon={<SoftwareUpdate16Icon />} title="No updates available" />
+        }
+      >
         <Column
           accessor="version"
           cell={linkCell((version) => pb.systemUpdateDetail({ version }))}
@@ -63,7 +63,11 @@ export function UpdatePageComponents() {
   return (
     <>
       <Outlet />
-      <Table emptyState={<EmptyState />}>
+      <Table
+        emptyState={
+          <EmptyMessage icon={<SoftwareUpdate16Icon />} title="No components available" />
+        }
+      >
         <Column
           accessor="componentType"
           header="Type"
@@ -92,7 +96,11 @@ export function UpdatePageHistory() {
   return (
     <>
       <Outlet />
-      <Table emptyState={<EmptyState />}>
+      <Table
+        emptyState={
+          <EmptyMessage icon={<SoftwareUpdate16Icon />} title="No history available" />
+        }
+      >
         <Column accessor="version" />
         <Column
           accessor="status.status"
