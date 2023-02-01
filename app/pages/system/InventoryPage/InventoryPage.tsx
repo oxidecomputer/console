@@ -15,9 +15,11 @@ InventoryPage.loader = async () => {
 
 export function InventoryPage() {
   const { data: racks } = useApiQuery('rackList', { query: { limit: 10 } })
-  console.log(racks)
-  // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-  const rack = racks?.items[0]!
+  const rack = racks?.items[0]
+
+  // TODO: Add loading state
+  if (!rack) return null
+
   return (
     <>
       <PageHeader>
