@@ -130,7 +130,11 @@ export const routes = createRoutesFromElements(
               loader={UpdateDetailSideModal.loader}
             />
           </Route>
-          <Route path="components" element={<UpdatePageComponents />} />
+          <Route
+            path="components"
+            element={<UpdatePageComponents />}
+            loader={UpdatePageComponents.loader}
+          />
           <Route
             path="history"
             element={<UpdatePageHistory />}
