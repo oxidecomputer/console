@@ -79,7 +79,7 @@ export const NavLinkItem = (props: {
       className={({ isActive }) =>
         cn(linkStyles, {
           'text-accent !bg-accent-secondary svg:!text-accent-tertiary': isActive,
-          'pointer-events-none': props.disabled,
+          'pointer-events-none text-disabled': props.disabled,
         })
       }
       end={props.end}
