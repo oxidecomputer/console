@@ -1,8 +1,17 @@
+import { useMemo } from 'react'
 import { Outlet } from 'react-router-dom'
 
-import type { UpdateStatus, UpdateableComponentType } from '@oxide/api'
+import type { UpdateDeployment, UpdateableComponentType } from '@oxide/api'
 import { apiQueryClient, componentTypeNames, useApiQuery } from '@oxide/api'
-import { DateCell, linkCell, useQueryTable } from '@oxide/table'
+import { Pagination } from '@oxide/pagination'
+import {
+  Table as CustomTable,
+  DateCell,
+  createColumnHelper,
+  linkCell,
+  useQueryTable,
+  useReactTable,
+} from '@oxide/table'
 import {
   Badge,
   EmptyMessage,
@@ -10,20 +19,15 @@ import {
   PageTitle,
   PropertiesTable,
   SoftwareUpdate16Icon,
+  Success12Icon,
+  TableEmptyBox,
+  Unauthorized12Icon,
 } from '@oxide/ui'
+import { sortBy } from '@oxide/util'
 
 import { RouteTabs, Tab } from 'app/components/RouteTabs'
 import { pb } from 'app/util/path-builder'
 
-const StatusBadge = ({ status }: { status: UpdateStatus['status'] | undefined }) => {
-  if (!status) return <Badge color="neutral">Unknown</Badge>
-
-  return status === 'steady' ? (
-    <Badge color="neutral">Steady</Badge>
-  ) : (
-    <Badge color="notice">Updating</Badge>
-  )
-}
 UpdatePageUpdates.loader = async () => {
   await apiQueryClient.prefetchQuery('systemUpdateList', { query: { limit: 10 } })
   return null
@@ -51,14 +55,22 @@ export function UpdatePageUpdates() {
 }
 
 UpdatePageComponents.loader = async () => {
-  await apiQueryClient.prefetchQuery('systemComponentVersionList', {
-    query: { limit: 10 },
-  })
+  await Promise.all([
+    apiQueryClient.prefetchQuery('systemComponentVersionList', {
+      query: { limit: 10 },
+    }),
+    apiQueryClient.prefetchQuery('updateDeploymentsList', {
+      query: { limit: 10 },
+    }),
+  ])
   return null
 }
 
 export function UpdatePageComponents() {
   const { Table, Column } = useQueryTable('systemComponentVersionList', {})
+  const latestDeployment = useUpdateDeployments()[0]
+  const targetVersion =
+    latestDeployment?.status.status === 'updating' ? latestDeployment.version : null
 
   return (
     <>
@@ -77,6 +89,22 @@ export function UpdatePageComponents() {
         />
         <Column accessor="version" />
         <Column accessor="systemVersion" header="System version" />
+        <Column
+          accessor="systemVersion"
+          header="Status"
+          // this is going to need to be a lot more complicated
+          cell={({ value }) =>
+            targetVersion === value ? (
+              <span className="flex items-center text-secondary">
+                <Success12Icon className="mr-2 text-accent" /> Updated
+              </span>
+            ) : (
+              <span className="flex items-center text-secondary">
+                <Unauthorized12Icon className="mr-2 text-quinary" /> Waiting
+              </span>
+            )
+          }
+        />
         <Column accessor="timeCreated" header="Created" cell={DateCell} />
       </Table>
     </>
@@ -90,37 +118,84 @@ UpdatePageHistory.loader = async () => {
   return null
 }
 
+const colHelper = createColumnHelper<UpdateDeployment>()
+
+const columns = [
+  colHelper.accessor('version', { header: 'Version' }),
+  colHelper.accessor('status.status', {
+    header: 'Status',
+    cell: (info) =>
+      info.getValue() === 'updating' ? (
+        <Badge color="notice">Updating</Badge>
+      ) : (
+        <Badge color="neutral">Complete</Badge>
+      ),
+  }),
+  colHelper.accessor('timeCreated', {
+    header: 'Created',
+    cell: (info) => <DateCell value={info.getValue()} />,
+  }),
+  colHelper.accessor('timeModified', {
+    header: 'Created',
+    cell: (info) => <DateCell value={info.getValue()} />,
+  }),
+]
+
+// sort client-side as a stopgap because we aren't sorting this list by most
+// recent in the API yet
+function useUpdateDeployments() {
+  const { data } = useApiQuery('updateDeploymentsList', { query: { limit: 10 } })
+  return useMemo(() => sortBy(data?.items || [], (d) => d.timeCreated).reverse(), [data])
+}
+
+const fakePagParams = {
+  pageSize: 10,
+  hasNext: false,
+  hasPrev: false,
+  nextPage: undefined,
+  onNext: () => {},
+  onPrev: () => {},
+}
+
 export function UpdatePageHistory() {
-  const { Table, Column } = useQueryTable('updateDeploymentsList', {})
+  const updateDeployments = useUpdateDeployments()
+  const tableInstance = useReactTable({ columns, data: updateDeployments })
 
   return (
     <>
       <Outlet />
-      <Table
-        emptyState={
+      {updateDeployments.length > 0 ? (
+        <>
+          {/* need to use this instead of QueryTable because we need to sort the items client-side */}
+          <CustomTable table={tableInstance} />
+          {/* fake pagination! */}
+          <Pagination {...fakePagParams} />
+        </>
+      ) : (
+        <TableEmptyBox>
           <EmptyMessage icon={<SoftwareUpdate16Icon />} title="No history available" />
-        }
-      >
-        <Column accessor="version" />
-        <Column
-          accessor="status.status"
-          header="Status"
-          cell={({ value }) => <StatusBadge status={value} />}
-        />
-        <Column accessor="timeCreated" header="Created" cell={DateCell} />
-        <Column accessor="timeModified" header="Updated" cell={DateCell} />
-      </Table>
+        </TableEmptyBox>
+      )}
     </>
   )
 }
 
 UpdatePage.loader = async () => {
-  await apiQueryClient.prefetchQuery('systemVersion', {}) // not used yet
+  await Promise.all([
+    apiQueryClient.prefetchQuery('systemVersion', {}),
+    apiQueryClient.prefetchQuery('updateDeploymentsList', {
+      query: { limit: 10 },
+    }),
+  ])
   return null
 }
 
 export function UpdatePage() {
   const { data: version } = useApiQuery('systemVersion', {})
+  const latestDeployment = useUpdateDeployments()[0]
+  const targetVersion =
+    latestDeployment?.status.status === 'updating' ? latestDeployment.version : null
+  const status = version?.status.status
 
   // TODO: turn this back on once we can expect it to work on the API side
   // invariant(version, 'System version must be prefetched')
@@ -141,17 +216,23 @@ export function UpdatePage() {
       <PageHeader>
         <PageTitle icon={<SoftwareUpdate16Icon />}>System Update</PageTitle>
       </PageHeader>
-      {/* <TableActions>
-        <Link to={pb.siloIdpNew({ siloName })} className={buttonStyle({ size: 'sm' })}>
-          New provider
-        </Link>
-      </TableActions> */}
 
       <PropertiesTable className="mb-8">
         <PropertiesTable.Row label="status">
-          <StatusBadge status={version?.status.status} />
+          {status ? (
+            status === 'steady' ? (
+              <Badge color="neutral">Steady</Badge>
+            ) : (
+              <Badge color="notice">Updating</Badge>
+            )
+          ) : (
+            <Badge color="neutral">Unknown</Badge>
+          )}
+          {targetVersion ? (
+            <span className="ml-2 text-secondary">to {targetVersion}</span>
+          ) : null}
         </PropertiesTable.Row>
-        {/* TODO: ? icone with tooltip explaining why version is a range */}
+        {/* TODO: ? icon with tooltip explaining why version is a range */}
         <PropertiesTable.Row label="version">
           <span className="text-secondary">{low === high ? low : low + '—' + high}</span>
         </PropertiesTable.Row>

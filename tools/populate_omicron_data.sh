@@ -12,14 +12,7 @@ set -o xtrace
 
 ./tools/populate/populate-alpine.sh
 
-oxide api /system/ip-pools --method POST --input - <<EOF
-{
-  "name": "mypool",
-  "description": "an IP pool"
-}
-EOF
-
-oxide api /system/ip-pools/mypool/ranges/add --method POST --input - <<EOF
+oxide api /system/ip-pools/default/ranges/add --method POST --input - <<EOF
 {
   "first": "172.20.15.227",
   "last": "172.20.15.239"
