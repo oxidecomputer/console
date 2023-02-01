@@ -1,6 +1,7 @@
 import type { DateValue } from '@internationalized/date'
 import { createCalendar } from '@internationalized/date'
 import type { TimeValue } from '@react-types/datepicker'
+import cn from 'classnames'
 import { useRef } from 'react'
 import { useDateField, useDateSegment, useLocale, useTimeField } from 'react-aria'
 import type { AriaDateFieldProps, AriaTimeFieldProps } from 'react-aria'
@@ -27,7 +28,11 @@ export function DateField(props: AriaDateFieldProps<DateValue>) {
   )
 }
 
-export function TimeField(props: AriaTimeFieldProps<TimeValue>) {
+interface TimeFieldProps extends AriaTimeFieldProps<TimeValue> {
+  className?: string
+}
+
+export function TimeField(props: TimeFieldProps) {
   const { locale } = useLocale()
   const state = useTimeFieldState({
     ...props,
@@ -38,7 +43,11 @@ export function TimeField(props: AriaTimeFieldProps<TimeValue>) {
   const { fieldProps } = useTimeField(props, state, ref)
 
   return (
-    <div {...fieldProps} ref={ref} className="flex items-center">
+    <div
+      {...fieldProps}
+      ref={ref}
+      className={cn('flex items-center rounded border p-2 border-default', props.className)}
+    >
       {state.segments.map((segment, i) => (
         <DateSegment key={i} segment={segment} state={state} />
       ))}
@@ -73,6 +82,8 @@ function DateSegment({
     placeholder = segment.placeholder
   }
 
+  const readOnly = segmentProps['aria-readonly'] ? true : false
+
   return (
     <div
       {...segmentProps}
@@ -82,12 +93,20 @@ function DateSegment({
         minWidth:
           (segment.maxValue != null && String(segment.maxValue).length + 'ch') || undefined,
       }}
-      className="group group box-content rounded px-[1px] text-right tabular-nums outline-none text-sans-md focus:text-default focus:bg-accent-secondary-hover"
+      className={cn(
+        'group group box-content rounded px-[1px] text-right tabular-nums outline-none',
+        !readOnly && 'focus:text-default focus:bg-accent-secondary-hover',
+        segment.type === 'timeZoneName' ? 'ml-1 text-sans-sm' : 'text-sans-md'
+      )}
+      disabled={readOnly ? true : false}
     >
       {/* Always reserve space for the placeholder, to prevent layout shift when editing. */}
       <span
         aria-hidden="true"
-        className="block w-full text-center text-quinary group-focus:text-accent"
+        className={cn(
+          'block w-full text-center text-quinary',
+          !readOnly && 'focus:text-default'
+        )}
         style={{
           visibility: segment.isPlaceholder ? undefined : 'hidden',
           height: segment.isPlaceholder ? '' : 0,
@@ -97,9 +116,12 @@ function DateSegment({
         {placeholder}
       </span>
       <span
-        className={
-          segment.text === '/' ? 'text-quinary' : 'text-default group-focus:text-accent'
-        }
+        className={cn(
+          segment.type === 'literal' || segment.type === 'timeZoneName'
+            ? 'text-quaternary'
+            : 'text-default',
+          !readOnly && 'group-focus:text-accent'
+        )}
       >
         {segment.isPlaceholder ? '' : segment.text}
       </span>

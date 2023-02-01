@@ -23,7 +23,7 @@ export function CalendarGrid({ state, ...props }: CalendarGridProps) {
         <thead {...headerProps} className="text-gray-600">
           <tr>
             {weekDays.map((day, index) => (
-              <th className="h-8 w-8 text-center text-mono-md text-quaternary" key={index}>
+              <th className="h-8 w-10 text-center text-mono-md text-quaternary" key={index}>
                 {day}
               </th>
             ))}

@@ -16,7 +16,7 @@ interface DatePickerProps extends DatePickerStateOptions<DateValue> {
 }
 
 export function DatePicker(props: DatePickerProps) {
-  const state = useDatePickerState(props)
+  const state = useDatePickerState({ ...props, shouldCloseOnSelect: false })
   const ref = useRef<HTMLDivElement>(null)
   const { groupProps, fieldProps, dialogProps, calendarProps } = useDatePicker(
     props,
@@ -27,7 +27,7 @@ export function DatePicker(props: DatePickerProps) {
   return (
     <div aria-label={props.label} className="relative inline-flex flex-col text-left">
       <div {...groupProps} ref={ref} className="group flex">
-        <div className="relative flex h-10 items-center rounded-l border p-3 pr-10 border-default focus-within:ring-2 focus-within:ring-accent-secondary">
+        <div className="relative flex h-10 items-center rounded-l border p-2 pr-10 border-default focus-within:ring-2 focus-within:ring-accent-secondary">
           <DateField {...fieldProps} />
           {state.validationState === 'invalid' && (
             <div className="absolute right-2 top-0 bottom-0 flex items-center text-error">
@@ -49,12 +49,14 @@ export function DatePicker(props: DatePickerProps) {
         <Popover triggerRef={ref} state={state} placement="bottom start">
           <Dialog {...dialogProps}>
             <Calendar {...calendarProps} />
-            <TimeField
-              value={state.timeValue}
-              onChange={state.setTimeValue}
-              hourCycle={24}
-              hideTimeZone
-            />
+            <div className="flex items-center border-t p-4 border-t-secondary">
+              <TimeField
+                value={state.timeValue}
+                onChange={state.setTimeValue}
+                hourCycle={24}
+                className="flex-grow"
+              />
+            </div>
           </Dialog>
         </Popover>
       )}

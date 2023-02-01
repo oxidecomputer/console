@@ -1,5 +1,5 @@
 import type { CalendarDate } from '@internationalized/date'
-import { getDayOfWeek, isSameDay } from '@internationalized/date'
+import { getDayOfWeek, getLocalTimeZone, isSameDay, isToday } from '@internationalized/date'
 import cn from 'classnames'
 import { useRef } from 'react'
 import { mergeProps, useCalendarCell, useFocusRing, useLocale } from 'react-aria'
@@ -45,6 +45,8 @@ export function CalendarCell({ state, date }: CalendarCellProps) {
 
   const { focusProps } = useFocusRing()
 
+  const cellIsToday = isToday(date, getLocalTimeZone())
+
   return (
     <td {...cellProps} className="relative">
       <div
@@ -52,7 +54,7 @@ export function CalendarCell({ state, date }: CalendarCellProps) {
         ref={ref}
         hidden={isOutsideVisibleRange}
         className={cn(
-          'group',
+          'group relative',
           'focus:outline-none',
           'my-0.5 h-8 w-10 text-center text-mono-md',
           isSelectionStart || isSelectionEnd
@@ -73,7 +75,7 @@ export function CalendarCell({ state, date }: CalendarCellProps) {
       >
         <div
           className={cn(
-            'pointer-events-none absolute top-[2px] left-[1px] right-[1px] bottom-[2px] rounded',
+            'pointer-events-none absolute top-[0] left-[0] right-[0] bottom-[0] rounded',
             isSelectionStart || isSelectionEnd
               ? isInvalid
                 ? 'border border-error-secondary'
@@ -97,6 +99,10 @@ export function CalendarCell({ state, date }: CalendarCellProps) {
         >
           {formattedDate}
         </div>
+
+        {cellIsToday && (
+          <div className="absolute left-1/2 bottom-[3px] h-1 w-1 -translate-x-1/2 rounded-full bg-[var(--content-accent-tertiary)] content-['']" />
+        )}
       </div>
     </td>
   )

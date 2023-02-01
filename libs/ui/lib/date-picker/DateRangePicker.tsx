@@ -27,12 +27,14 @@ export function DateRangePicker(props: DateRangePickerProps) {
     calendarProps,
   } = useDateRangePicker(props, state, ref)
 
+  state.isOpen = true
+
   return (
     <div aria-label={props.label} className="relative flex-col text-left">
       <div {...groupProps} ref={ref} className="group flex">
         <div
           className={cn(
-            'relative flex h-10 items-center rounded-l border pl-3 pr-8 border-default focus-within:ring-2 focus-within:ring-accent-secondary',
+            'relative flex h-10 items-center rounded-l border pl-2 pr-8 border-default focus-within:ring-2 focus-within:ring-accent-secondary',
             state.validationState === 'invalid' ? 'border-error' : 'border-default'
           )}
         >
@@ -66,19 +68,19 @@ export function DateRangePicker(props: DateRangePickerProps) {
         <Popover triggerRef={ref} state={state} placement="bottom start">
           <Dialog {...dialogProps}>
             <RangeCalendar {...calendarProps} />
-            <div className="flex border-t p-3 border-t-secondary">
+            <div className="flex items-center space-x-2 border-t p-4 border-t-secondary">
               <TimeField
                 value={state.timeRange?.start || null}
                 onChange={(v: TimeValue) => state.setTime('start', v)}
                 hourCycle={24}
-                hideTimeZone
+                className="flex-shrink-0 flex-grow basis-0"
               />
-              –
+              <div className="text-quinary">–</div>
               <TimeField
                 value={state.timeRange?.end || null}
                 onChange={(v: TimeValue) => state.setTime('end', v)}
                 hourCycle={24}
-                hideTimeZone
+                className="flex-shrink-0 flex-grow basis-0"
               />
             </div>
           </Dialog>
