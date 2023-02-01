@@ -1,5 +1,5 @@
 import { apiQueryClient } from '@oxide/api'
-import { useQueryTable } from '@oxide/table'
+import { LabelCell, useQueryTable } from '@oxide/table'
 import { EmptyMessage, Racks24Icon } from '@oxide/ui'
 
 const EmptyState = () => {
@@ -26,7 +26,8 @@ export function SledsTab() {
     <>
       <Table emptyState={<EmptyState />}>
         <Column accessor="id" />
-        <Column id="location" accessor={(_, index) => index} header="cubby" />
+        <Column id="location" accessor={(_, index) => `SLD${index}`} header="location" />
+        <Column id="status" accessor={() => 'active'} header="status" cell={LabelCell} />
         <Column accessor="serviceAddress" header="service address" />
         <Column accessor="baseboard.part" header="part number" />
         <Column accessor="baseboard.serial" header="serial number" />
