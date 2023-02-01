@@ -20,7 +20,7 @@ export function CalendarGrid({ state, ...props }: CalendarGridProps) {
   return (
     <div className="pl-4 pr-4 pb-4">
       <table {...gridProps} cellPadding="0" className="flex-1">
-        <thead {...headerProps} className="text-gray-600">
+        <thead {...headerProps}>
           <tr>
             {weekDays.map((day, index) => (
               <th className="h-8 w-10 text-center text-mono-md text-quaternary" key={index}>

@@ -27,8 +27,6 @@ export function DateRangePicker(props: DateRangePickerProps) {
     calendarProps,
   } = useDateRangePicker(props, state, ref)
 
-  state.isOpen = true
-
   return (
     <div aria-label={props.label} className="relative flex-col text-left">
       <div {...groupProps} ref={ref} className="group flex">

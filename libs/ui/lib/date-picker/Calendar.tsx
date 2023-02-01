@@ -4,9 +4,8 @@ import type { CalendarProps } from 'react-aria'
 import { useCalendar, useLocale } from 'react-aria'
 import { useCalendarState } from 'react-stately'
 
-import { DirectionLeftIcon, DirectionRightIcon } from '../icons'
 import { CalendarGrid } from './CalendarGrid'
-import { CalendarButton } from './RangeCalendar'
+import { CalendarHeader } from './RangeCalendar'
 
 export function Calendar(props: CalendarProps<DateValue>) {
   const { locale } = useLocale()
@@ -22,22 +21,13 @@ export function Calendar(props: CalendarProps<DateValue>) {
   )
 
   return (
-    <div {...calendarProps} className="text-gray-800 inline-block">
-      <div className="flex items-center p-4">
-        <CalendarButton
-          handleClick={state.focusPreviousPage}
-          isDisabled={prevButtonProps.isDisabled || false}
-        >
-          <DirectionLeftIcon />
-        </CalendarButton>
-        <h2 className="text-xl ml-2 flex-1 text-center text-sans-md">{title}</h2>
-        <CalendarButton
-          handleClick={state.focusNextPage}
-          isDisabled={nextButtonProps.isDisabled || false}
-        >
-          <DirectionRightIcon />
-        </CalendarButton>
-      </div>
+    <div {...calendarProps}>
+      <CalendarHeader
+        state={state}
+        title={title}
+        prevButtonProps={prevButtonProps}
+        nextButtonProps={nextButtonProps}
+      />
       <CalendarGrid state={state} />
     </div>
   )
