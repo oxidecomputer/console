@@ -62,7 +62,7 @@ export function SystemMetric({
 
   return (
     <div>
-      <h2 className="flex items-center text-mono-sm text-secondary">
+      <h2 className="flex items-center text-mono-md text-secondary">
         {title} {isLoading && <Spinner className="ml-2" />}
       </h2>
       {/* TODO: proper skeleton for empty chart */}
