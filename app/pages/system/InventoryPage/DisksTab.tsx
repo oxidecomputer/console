@@ -1,5 +1,5 @@
 import { apiQueryClient } from '@oxide/api'
-import { useQueryTable } from '@oxide/table'
+import { LabelCell, useQueryTable } from '@oxide/table'
 import { EmptyMessage, Racks24Icon } from '@oxide/ui'
 
 const EmptyState = () => {
@@ -26,8 +26,9 @@ export function DisksTab() {
     <>
       <Table emptyState={<EmptyState />}>
         <Column accessor="id" />
-        <Column accessor="sledId" header="sled" />
-        <Column id="slot" accessor={(_, index) => index} header="slot" />
+        <Column id="sled" accessor={() => `SLD0`} header="sled" />
+        <Column id="location" accessor={(_, index) => `N${index}`} header="location" />
+        <Column id="status" accessor={() => 'active'} header="status" cell={LabelCell} />
         <Column accessor="model" header="model number" />
         <Column accessor="serial" header="serial number" />
       </Table>

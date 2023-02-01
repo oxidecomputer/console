@@ -68,7 +68,7 @@ export default function SystemLayout() {
           <NavLinkItem to={pb.systemUtilization()}>
             <Snapshots16Icon /> Utilization
           </NavLinkItem>
-          <NavLinkItem to={pb.rackInventory()}>
+          <NavLinkItem to={pb.sledInventory()}>
             <Storage16Icon /> Inventory
           </NavLinkItem>
           <NavLinkItem to={pb.systemHealth()} disabled>
