@@ -1443,6 +1443,7 @@ export const Sled = z.preprocess(
   z.object({
     baseboard: Baseboard,
     id: z.string().uuid(),
+    rackId: z.string().uuid(),
     serviceAddress: z.string(),
     timeCreated: DateType,
     timeModified: DateType,

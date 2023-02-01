@@ -1391,6 +1391,7 @@ export type Sled = {
   baseboard: Baseboard
   /** unique, immutable, system-controlled identifier for each resource */
   id: string
+  rackId: string
   serviceAddress: string
   /** timestamp when this resource was created */
   timeCreated: Date
