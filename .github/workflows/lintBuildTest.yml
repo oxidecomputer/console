@@ -49,14 +49,13 @@ jobs:
       - name: Build for Nexus
         run: npm run build-for-nexus
   playwright:
-    name: Playwright (${{ matrix.type }}-${{ matrix.browser }})
+    name: Playwright (${{ matrix.browser }})
     timeout-minutes: 10
     runs-on: ubuntu-latest
     needs: install
     strategy:
       fail-fast: false
       matrix:
-        type: ['smoke', 'validate']
         browser: ['chrome', 'firefox', 'safari']
     steps:
       - uses: actions/checkout@v3
@@ -70,8 +69,10 @@ jobs:
           key: modules-${{ hashFiles('package-lock.json') }}
       - name: Install Playwright
         run: npx playwright install --with-deps
-      - name: Run Playwright tests
-        run: npx playwright test --workers=2 --project=${{matrix.type}}-${{matrix.browser}}
+      - name: Run Playwright browser tests
+        run: npx playwright test --workers=2 --project=${{matrix.browser}}
+      - name: Run Playwright smoke tests
+        run: npx playwright test --workers=2 --project=${{matrix.browser}} -c playwright.config.smoke.ts
       - uses: actions/upload-artifact@v2
         if: always()
         with:

@@ -134,7 +134,7 @@ To debug end-to-end failures on CI checkout the branch with the failure and run 
 | ------------------------ | ---------------------------------------------------------------------------------- |
 | `npm test run`           | Vitest tests                                                                       |
 | `npm test`               | Vitest tests in watch mode                                                         |
-| `npm run e2ec`           | Only run end-to-end tests in chromium                                              |
+| `npm run e2ec`           | Only run end-to-end tests in chrome                                                |
 | `npm run lint`           | ESLint                                                                             |
 | `npx tsc`                | Check types                                                                        |
 | `npm run ci`             | Lint, tests, and types                                                             |
