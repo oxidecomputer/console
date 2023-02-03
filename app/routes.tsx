@@ -228,11 +228,13 @@ export const routes = createRoutesFromElements(
                 <Route
                   path="storage"
                   element={<StorageTab />}
+                  loader={StorageTab.loader}
                   handle={{ crumb: 'storage' }}
                 />
                 <Route
                   path="network-interfaces"
                   element={<NetworkingTab />}
+                  loader={NetworkingTab.loader}
                   handle={{ crumb: 'network-interfaces' }}
                 />
                 <Route
