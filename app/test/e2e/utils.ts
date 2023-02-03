@@ -55,13 +55,14 @@ export async function expectRowVisible(
   const rowLoc = table.locator('tbody >> role=row')
   await rowLoc.locator('nth=0').waitFor()
 
-  const headerKeys = await map(
-    table.locator('thead >> role=cell'),
-    async (cell) => await cell.textContent()
-  )
-
-  const getRows = async () =>
-    await map(table.locator('tbody >> role=row'), async (row) => {
+  async function getRows() {
+    // need to pull header keys every time because the whole page can change
+    // while we're polling
+    const headerKeys = await map(
+      table.locator('thead >> role=cell'),
+      async (cell) => await cell.textContent()
+    )
+    return map(table.locator('tbody >> role=row'), async (row) => {
       const rowPairs = await map(row.locator('role=cell'), async (cell, i) => [
         headerKeys[i],
         // accessible name would be better but it's not in yet
@@ -70,6 +71,7 @@ export async function expectRowVisible(
       ])
       return Object.fromEntries(rowPairs.filter(([k]) => k && k.length > 0))
     })
+  }
 
   // wait up to 5s for the row to be there
   // https://playwright.dev/docs/test-assertions#polling
