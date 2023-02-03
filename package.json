@@ -5,7 +5,6 @@
   "scripts": {
     "start": "vite",
     "start:msw": "MSW=1 vite",
-    "dev": "MSW=1 vite",
     "start:mock-api": "node -r esbuild-register ./tools/start_mock_api.ts",
     "build": "vite build",
     "build-for-nexus": "API_URL='' vite build",
@@ -13,9 +12,7 @@
     "tsc": "tsc",
     "test": "vitest",
     "e2e": "playwright test && playwright test -c playwright.config.smoke.ts",
-    "e2ec": "npm run e2ecb && npm run e2ecs",
-    "e2ecb": "playwright test --project=chrome",
-    "e2ecs": "playwright test --project=chrome -c playwright.config.smoke.ts",
+    "e2ec": "playwright test --project=chrome && playwright test --project=chrome -c playwright.config.smoke.ts",
     "lint": "eslint --ext .js,.ts,.tsx,.json .",
     "fmt": "prettier --cache --write . && npm run lint -- --fix",
     "gen-api": "./tools/generate_api_client.sh",
