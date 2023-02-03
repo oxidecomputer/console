@@ -21,14 +21,7 @@ export async function map<T>(
 
 export async function expectVisible(page: Page, selectors: string[]) {
   for (const selector of selectors) {
-    /**
-     * We want to pass if _at least_ one element is visible matching the given
-     * selector. `expect(locator).toBeVisible()` will fail if more than one
-     * element is found. To work around this, we filter by visible and then
-     * select the first element. The filter is important otherwise first might
-     * not actually be a visible element.
-     */
-    await expect(page.locator(selector).locator('visible=true').first()).toBeVisible()
+    await expect(page.locator(selector)).toBeVisible()
   }
 }
 
