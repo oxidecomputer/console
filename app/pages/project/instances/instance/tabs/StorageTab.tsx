@@ -1,8 +1,6 @@
 import { useCallback, useMemo, useState } from 'react'
-import type { LoaderFunctionArgs } from 'react-router-dom'
 
 import type { Disk } from '@oxide/api'
-import { apiQueryClient } from '@oxide/api'
 import { useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
 import type { MenuAction } from '@oxide/table'
 import {
@@ -18,7 +16,7 @@ import { Button, EmptyMessage, Error16Icon, OpenLink12Icon, TableEmptyBox } from
 import { DiskStatusBadge } from 'app/components/StatusBadge'
 import AttachDiskSideModalForm from 'app/forms/disk-attach'
 import { CreateDiskSideModalForm } from 'app/forms/disk-create'
-import { requireInstanceParams, useRequiredParams, useToast } from 'app/hooks'
+import { useRequiredParams, useToast } from 'app/hooks'
 
 const OtherDisksEmpty = () => (
   <TableEmptyBox>
@@ -50,17 +48,6 @@ const staticCols = [
     cell: (info) => <DateCell value={info.getValue()} />,
   }),
 ]
-
-StorageTab.loader = async ({ params }: LoaderFunctionArgs) => {
-  const path = requireInstanceParams(params)
-  await Promise.all([
-    apiQueryClient.prefetchQuery('instanceDiskList', { path }),
-    // This is covered by the InstancePage loader but there's no downside to
-    // being redundant. If it were removed there, we'd still want it here.
-    apiQueryClient.prefetchQuery('instanceView', { path }),
-  ])
-  return null
-}
 
 export function StorageTab() {
   const [showDiskCreate, setShowDiskCreate] = useState(false)
