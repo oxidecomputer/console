@@ -58,25 +58,26 @@ export async function expectRowVisible(
   async function getRows() {
     // need to pull header keys every time because the whole page can change
     // while we're polling
-    const headerKeys = await map(
-      table.locator('thead >> role=cell'),
-      async (cell) => await cell.textContent()
-    )
-    return map(table.locator('tbody >> role=row'), async (row) => {
-      const rowPairs = await map(row.locator('role=cell'), async (cell, i) => [
-        headerKeys[i],
-        // accessible name would be better but it's not in yet
-        // https://github.com/microsoft/playwright/issues/13517
-        await cell.textContent(),
-      ])
-      return Object.fromEntries(rowPairs.filter(([k]) => k && k.length > 0))
+    const headerKeys = await table.locator('thead >> role=cell').allTextContents()
+    const rows = await map(table.locator('tbody >> role=row'), async (row) => {
+      // accessible name would be better than cell text but it's not in yet
+      // https://github.com/microsoft/playwright/issues/13517
+      const textContents = await row.locator('role=cell').allTextContents()
+      const rowPairs = textContents
+        .map((text, i) => [headerKeys[i], text])
+        // filter out empty header keys (e.g., checkbox or more button column)
+        .filter(([headerKey]) => headerKey && headerKey.length > 0)
+      return Object.fromEntries(rowPairs)
     })
+    // console.log(rows)
+    return rows
   }
 
   // wait up to 5s for the row to be there
   // https://playwright.dev/docs/test-assertions#polling
   await expect
-    .poll(getRows)
+    // poll slowly because getRows is slow. usually under 200ms but still
+    .poll(getRows, { intervals: [500] })
     .toEqual(expect.arrayContaining([expect.objectContaining(expectedRow)]))
 }
 
