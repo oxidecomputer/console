@@ -1,7 +1,9 @@
 import { useState } from 'react'
+import type { LoaderFunctionArgs } from 'react-router-dom'
 import { Link } from 'react-router-dom'
 
 import type { NetworkInterface } from '@oxide/api'
+import { apiQueryClient } from '@oxide/api'
 import { useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
 import type { MenuAction } from '@oxide/table'
 import { useQueryTable } from '@oxide/table'
@@ -17,7 +19,7 @@ import {
 
 import CreateNetworkInterfaceForm from 'app/forms/network-interface-create'
 import EditNetworkInterfaceForm from 'app/forms/network-interface-edit'
-import { useRequiredParams, useToast } from 'app/hooks'
+import { requireInstanceParams, useRequiredParams, useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 const VpcNameFromId = ({ value }: { value: string }) => {
@@ -45,6 +47,20 @@ function ExternalIpsFromInstanceName({ value: primary }: { value: boolean }) {
   const { data } = useApiQuery('instanceExternalIpList', { path: instanceParams })
   const ips = data?.items.map((eip) => eip.ip).join(', ')
   return <span className="text-secondary">{primary ? ips : <>&mdash;</>}</span>
+}
+
+NetworkingTab.loader = async ({ params }: LoaderFunctionArgs) => {
+  const path = requireInstanceParams(params)
+  await Promise.all([
+    await apiQueryClient.prefetchQuery('instanceNetworkInterfaceList', {
+      path,
+      query: { limit: 10 },
+    }),
+    // This is covered by the InstancePage loader but there's no downside to
+    // being redundant. If it were removed there, we'd still want it here.
+    apiQueryClient.prefetchQuery('instanceView', { path }),
+  ])
+  return null
 }
 
 export function NetworkingTab() {
