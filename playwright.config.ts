@@ -8,6 +8,7 @@ import { common } from './playwright.common.config'
  */
 const config: PlaywrightTestConfig = {
   ...common,
+  fullyParallel: true,
   testMatch: /pages\/.*\.e2e\.ts/,
   // use different port so it doesn't conflict with local dev server
   webServer: {

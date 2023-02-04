@@ -26,7 +26,8 @@ test.describe('Project create', () => {
     await page.fill('role=textbox[name="Name"]', 'Invalid name')
 
     await page.click('role=textbox[name="Description"]') // just to blur name input
-    await expectVisible(page, ['text="Must start with a lower-case letter"'])
+    // role=dialog to distinguish from reach alert
+    await expectVisible(page, ['role=dialog >> text="Must start with a lower-case letter"'])
   })
 
   test('shows form-level error for known server error', async ({ page }) => {
