@@ -2,9 +2,11 @@ import { test } from '@playwright/test'
 
 import { expectNotVisible, expectVisible } from 'app/test/e2e'
 
-test('Click through instance page', async ({ page }) => {
+test.beforeEach(async ({ page }) => {
   await page.goto('/orgs/maze-war/projects/mock-project')
+})
 
+test('Click through instance page', async ({ page }) => {
   await expectVisible(page, ['role=heading[name*="Instances"]', 'role=cell[name="db1"]'])
 
   await page.click('role=link[name="db1"]')
@@ -24,7 +26,6 @@ test('Click through instance page', async ({ page }) => {
 })
 
 test('Click through snapshots page', async ({ page }) => {
-  await page.goto('/orgs/maze-war/projects/mock-project')
   await page.click('role=link[name*="Snapshots"]')
   await expectVisible(page, [
     'role=heading[name*="Snapshots"]',
@@ -36,7 +37,6 @@ test('Click through snapshots page', async ({ page }) => {
 })
 
 test('Click through disks page', async ({ page }) => {
-  await page.goto('/orgs/maze-war/projects/mock-project')
   await page.click('role=link[name*="Disks"]')
   await expectVisible(page, [
     'role=heading[name*="Disks"]',
@@ -77,15 +77,11 @@ test('Click through disks page', async ({ page }) => {
 })
 
 test.skip('Click through access & IAM', async ({ page }) => {
-  await page.goto('/orgs/maze-war/projects/mock-project')
-
   await page.click('role=link[name*="Access & IAM"]')
   // not implemented
 })
 
 test('Click through images', async ({ page }) => {
-  await page.goto('/orgs/maze-war/projects/mock-project')
-
   await page.click('role=link[name*="Images"]')
   await expectVisible(page, [
     'role=heading[name*="Images"]',
