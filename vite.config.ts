@@ -23,27 +23,13 @@ export default defineConfig(({ mode }) => ({
     sourcemap: true,
     // minify: false, // uncomment for debugging
 
-    /**
-     * The below configuration is required for enabling MSW to be ran on a built
-     * bundle. It ensures the contents of `mockServiceWorker.js` are served from
-     * the root instead of from the assets directory like other scripts.
-     *
-     * We disable it on vercel because it's not needed there and it that build
-     * to fail.
-     */
+    // Vercel is only used for Storybook. Including the options causes that
+    // deploy to fail.
     rollupOptions: process.env.VERCEL
       ? {}
       : {
           input: {
             app: 'index.html',
-            msw: 'mockServiceWorker.js',
-          },
-          output: {
-            entryFileNames: (assetInfo) => {
-              return assetInfo.name === 'msw'
-                ? 'mockServiceWorker.js' // put msw service worker in root
-                : 'assets/[name]-[hash].js' // others in `assets`
-            },
           },
         },
   },
