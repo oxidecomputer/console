@@ -7,12 +7,12 @@ import tsConfig from './tsconfig.json'
 
 // exclamation point required to not get minified out
 const banner = `/*!
-* This Source Code Form is subject to the terms of the Mozilla Public
-* License, v. 2.0. If a copy of the MPL was not distributed with this
-* file, You can obtain one at https://mozilla.org/MPL/2.0/.
-*
-* Copyright 2023 Oxide Computer Company
-*/`
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright 2023 Oxide Computer Company
+ */`
 
 const mapObj = <V0, V>(
   obj: Record<string, V0>,
@@ -31,14 +31,13 @@ export default defineConfig(({ mode }) => ({
     emptyOutDir: true,
     sourcemap: true,
     // minify: false, // uncomment for debugging
-    rollupOptions: {
-      input: {
-        app: 'index.html',
-      },
-      output: {
-        banner,
-      },
-    },
+    // we still need this for the storybook deploy
+    rollupOptions: process.env.VERCEL
+      ? {}
+      : {
+          input: { app: 'index.html' },
+          output: { banner },
+        },
   },
   define: {
     'process.env.API_URL': JSON.stringify(process.env.API_URL ?? '/api'),
