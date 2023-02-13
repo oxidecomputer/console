@@ -2,6 +2,7 @@ import react from '@vitejs/plugin-react'
 import { resolve } from 'path'
 import { defineConfig } from 'vite'
 
+import { dotPathFixPlugin } from './libs/vite-plugin-dot-path-fix'
 import tsConfig from './tsconfig.json'
 
 const mapObj = <V0, V>(
@@ -11,6 +12,9 @@ const mapObj = <V0, V>(
 ): Record<string, V> =>
   Object.fromEntries(Object.entries(obj).map(([k, v]) => [kf(k), vf(v)]))
 
+/** Match a semver string like 1.0.0-abc */
+const semverRegex = '\\d+\\.\\d+\\.\\d+([\\-\\+].+)?'
+
 // see https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   build: {
@@ -19,27 +23,13 @@ export default defineConfig(({ mode }) => ({
     sourcemap: true,
     // minify: false, // uncomment for debugging
 
-    /**
-     * The below configuration is required for enabling MSW to be ran on a built
-     * bundle. It ensures the contents of `mockServiceWorker.js` are served from
-     * the root instead of from the assets directory like other scripts.
-     *
-     * We disable it on vercel because it's not needed there and it that build
-     * to fail.
-     */
+    // Vercel is only used for Storybook. Including the options causes that
+    // deploy to fail.
     rollupOptions: process.env.VERCEL
       ? {}
       : {
           input: {
             app: 'index.html',
-            msw: 'mockServiceWorker.js',
-          },
-          output: {
-            entryFileNames: (assetInfo) => {
-              return assetInfo.name === 'msw'
-                ? 'mockServiceWorker.js' // put msw service worker in root
-                : 'assets/[name]-[hash].js' // others in `assets`
-            },
           },
         },
   },
@@ -57,6 +47,7 @@ export default defineConfig(({ mode }) => ({
           mode === 'development' ? ['./libs/babel-transform-react-display-name'] : [],
       },
     }),
+    dotPathFixPlugin([new RegExp('^/sys/update/updates/' + semverRegex)]),
   ],
   resolve: {
     // turn relative paths from tsconfig into absolute paths

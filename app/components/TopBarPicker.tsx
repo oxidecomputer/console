@@ -141,7 +141,7 @@ export function SiloSystemPicker({ value }: { value: 'silo' | 'system' }) {
       {...commonProps}
       category="System"
       current="System"
-      display="Happy Customer, Inc."
+      display="Oxide Computer Co."
     />
   ) : (
     // TODO: actual silo name

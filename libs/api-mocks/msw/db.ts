@@ -166,6 +166,18 @@ export function lookupSshKey(params: PP.SshKey): Json<Api.SshKey> {
   return sshKey
 }
 
+export function lookupSled(params: PP.Id): Json<Api.Sled> {
+  const sled = db.sleds.find((sled) => sled.id === params.id)
+  if (!sled) throw notFoundErr
+  return sled
+}
+
+export function lookupSystemUpdate(params: PP.SystemUpdate): Json<Api.SystemUpdate> {
+  const update = db.systemUpdates.find((o) => o.version === params.version)
+  if (!update) throw notFoundErr
+  return update
+}
+
 const initDb = {
   disks: [...mock.disks],
   globalImages: [...mock.globalImages],
@@ -176,13 +188,21 @@ const initDb = {
   instances: [mock.instance],
   networkInterfaces: [mock.networkInterface],
   orgs: [...mock.orgs],
+  physicalDisks: [...mock.physicalDisks],
   projects: [...mock.projects],
+  racks: [...mock.racks],
   roleAssignments: [...mock.roleAssignments],
   /** Join table for `silos` and `identityProviders` */
   silos: [...mock.silos],
   identityProviders: [...mock.identityProviders],
+  sleds: [...mock.sleds],
   snapshots: [...mock.snapshots],
   sshKeys: [...mock.sshKeys],
+  componentUpdates: [...mock.componentUpdates],
+  systemUpdates: [...mock.systemUpdates],
+  systemUpdateComponentUpdates: [...mock.systemUpdateComponentUpdates],
+  updateableComponents: [...mock.updateableComponents],
+  updateDeployments: [...mock.updateDeployments],
   users: [...mock.users],
   vpcFirewallRules: [...mock.defaultFirewallRules],
   vpcRouterRoutes: [mock.vpcRouterRoute],

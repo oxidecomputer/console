@@ -45,16 +45,7 @@ function render() {
   )
 }
 
-/**
- * The `MSW` prefix to the user agent comes from our playwright config.
- * Currently it's not possible to provide different environment variables
- * via test configuration so this method is used to differentiate between
- * smoke tests that don't need MSW and validation tests that do.
- */
-if (
-  process.env.NODE_ENV !== 'production' &&
-  (process.env.MSW || window.navigator.userAgent.endsWith('MSW'))
-) {
+if (process.env.NODE_ENV !== 'production' && process.env.MSW) {
   // MSW has NODE_ENV !== prod built into it, but let's be extra safe
   // need to defer requests until after the mock server starts up
   startMockAPI().then(render)

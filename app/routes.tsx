@@ -48,8 +48,18 @@ import { StorageTab } from './pages/project/instances/instance/tabs/StorageTab'
 import { ProfilePage } from './pages/settings/ProfilePage'
 import { SSHKeysPage } from './pages/settings/SSHKeysPage'
 import { CapacityUtilizationPage } from './pages/system/CapacityUtilizationPage'
+import { DisksTab } from './pages/system/InventoryPage/DisksTab'
+import { InventoryPage } from './pages/system/InventoryPage/InventoryPage'
+import { SledsTab } from './pages/system/InventoryPage/SledsTab'
 import { SiloPage } from './pages/system/SiloPage'
 import SilosPage from './pages/system/SilosPage'
+import { UpdateDetailSideModal } from './pages/system/UpdateDetailSideModal'
+import {
+  UpdatePage,
+  UpdatePageComponents,
+  UpdatePageHistory,
+  UpdatePageUpdates,
+} from './pages/system/UpdatePage'
 import { pb } from './util/path-builder'
 
 const orgCrumb: CrumbFunc = (m) => m.params.orgName!
@@ -99,9 +109,36 @@ export const routes = createRoutesFromElements(
           element={<CapacityUtilizationPage />}
           loader={CapacityUtilizationPage.loader}
         />
-        <Route path="inventory" element={null} />
+        <Route path="inventory" element={<InventoryPage />} loader={InventoryPage.loader}>
+          <Route index element={<Navigate to="sleds" replace />} />
+          <Route path="sleds" element={<SledsTab />} loader={SledsTab.loader} />
+          <Route path="disks" element={<DisksTab />} loader={DisksTab.loader} />
+        </Route>
         <Route path="health" element={null} />
-        <Route path="update" element={null} />
+        <Route path="update" element={<UpdatePage />} loader={UpdatePage.loader}>
+          <Route index element={<Navigate to="updates" replace />} />
+          <Route
+            path="updates"
+            element={<UpdatePageUpdates />}
+            loader={UpdatePageUpdates.loader}
+          >
+            <Route
+              path=":version"
+              element={<UpdateDetailSideModal />}
+              loader={UpdateDetailSideModal.loader}
+            />
+          </Route>
+          <Route
+            path="components"
+            element={<UpdatePageComponents />}
+            loader={UpdatePageComponents.loader}
+          />
+          <Route
+            path="history"
+            element={<UpdatePageHistory />}
+            loader={UpdatePageHistory.loader}
+          />
+        </Route>
         <Route path="networking" element={null} />
         <Route path="settings" element={null} />
       </Route>
@@ -191,11 +228,13 @@ export const routes = createRoutesFromElements(
                 <Route
                   path="storage"
                   element={<StorageTab />}
+                  loader={StorageTab.loader}
                   handle={{ crumb: 'storage' }}
                 />
                 <Route
                   path="network-interfaces"
                   element={<NetworkingTab />}
+                  loader={NetworkingTab.loader}
                   handle={{ crumb: 'network-interfaces' }}
                 />
                 <Route

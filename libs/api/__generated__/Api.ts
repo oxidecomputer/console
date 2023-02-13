@@ -12,6 +12,11 @@ export type {
 } from './http-client'
 
 /**
+ * Describes properties that should uniquely identify a Gimlet.
+ */
+export type Baseboard = { part: string; revision: number; serial: string }
+
+/**
  * A type storing a range over `T`.
  *
  * This type supports ranges similar to the `RangeTo`, `Range` and `RangeFrom` types in the standard library. Those cover `(..end)`, `(start..end)`, and `(start..)` respectively.
@@ -68,6 +73,99 @@ export type BlockSize = 512 | 2048 | 4096
  * The maximum supported byte count is `i64::MAX`.  This makes it somewhat inconvenient to define constructors: a u32 constructor can be infallible, but an i64 constructor can fail (if the value is negative) and a u64 constructor can fail (if the value is larger than i64::MAX).  We provide all of these for consumers' convenience.
  */
 export type ByteCount = number
+
+/**
+ * A name unique within the parent collection
+ *
+ * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. Names cannot be a UUID though they may contain a UUID.
+ */
+export type Name = string
+
+/**
+ * The service intended to use this certificate.
+ */
+export type ServiceUsingCertificate = 'external_api'
+
+/**
+ * Client view of a {@link Certificate}
+ */
+export type Certificate = {
+  /** human-readable free-form text about a resource */
+  description: string
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  service: ServiceUsingCertificate
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+}
+
+/**
+ * Create-time parameters for a {@link Certificate}
+ */
+export type CertificateCreate = {
+  /** PEM file containing public certificate chain */
+  cert: number[]
+  description: string
+  /** PEM file containing private key */
+  key: number[]
+  name: Name
+  /** The service using this certificate */
+  service: ServiceUsingCertificate
+}
+
+/**
+ * A single page of results
+ */
+export type CertificateResultsPage = {
+  /** list of items on this page of results */
+  items: Certificate[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+export type UpdateableComponentType =
+  | 'bootloader_for_rot'
+  | 'bootloader_for_sp'
+  | 'bootloader_for_host_proc'
+  | 'hubris_for_psc_rot'
+  | 'hubris_for_psc_sp'
+  | 'hubris_for_sidecar_rot'
+  | 'hubris_for_sidecar_sp'
+  | 'hubris_for_gimlet_rot'
+  | 'hubris_for_gimlet_sp'
+  | 'helios_host_phase1'
+  | 'helios_host_phase2'
+  | 'host_omicron'
+
+export type SemverVersion = string
+
+/**
+ * Identity-related metadata that's included in "asset" public API objects (which generally have no name or description)
+ */
+export type ComponentUpdate = {
+  componentType: UpdateableComponentType
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+  version: SemverVersion
+}
+
+/**
+ * A single page of results
+ */
+export type ComponentUpdateResultsPage = {
+  /** list of items on this page of results */
+  items: ComponentUpdate[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
 
 /**
  * A cumulative or counter data type.
@@ -171,13 +269,6 @@ export type DeviceAuthRequest = { clientId: string }
 export type DeviceAuthVerify = { userCode: string }
 
 export type Digest = { type: 'sha256'; value: string }
-
-/**
- * A name unique within the parent collection
- *
- * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. Names cannot be a UUID though they may contain a UUID.
- */
-export type Name = string
 
 /**
  * State of a Disk (primarily: attached or not)
@@ -902,6 +993,36 @@ export type OrganizationUpdate = { description?: string; name?: Name }
  */
 export type Password = string
 
+export type PhysicalDiskType = 'internal' | 'external'
+
+/**
+ * Client view of a {@link PhysicalDisk}
+ */
+export type PhysicalDisk = {
+  diskType: PhysicalDiskType
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  model: string
+  serial: string
+  /** The sled to which this disk is attached, if any. */
+  sledId?: string
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+  vendor: string
+}
+
+/**
+ * A single page of results
+ */
+export type PhysicalDiskResultsPage = {
+  /** list of items on this page of results */
+  items: PhysicalDisk[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
 /**
  * Client view of a {@link Project}
  */
@@ -1264,11 +1385,13 @@ export type SiloRolePolicy = {
 }
 
 /**
- * Client view of an {@link Sled}
+ * Client view of a {@link Sled}
  */
 export type Sled = {
+  baseboard: Baseboard
   /** unique, immutable, system-controlled identifier for each resource */
   id: string
+  rackId: string
   serviceAddress: string
   /** timestamp when this resource was created */
   timeCreated: Date
@@ -1371,6 +1494,37 @@ export type SshKeyResultsPage = {
 }
 
 /**
+ * Identity-related metadata that's included in "asset" public API objects (which generally have no name or description)
+ */
+export type SystemUpdate = {
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+  version: SemverVersion
+}
+
+/**
+ * A single page of results
+ */
+export type SystemUpdateResultsPage = {
+  /** list of items on this page of results */
+  items: SystemUpdate[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+export type SystemUpdateStart = { version: SemverVersion }
+
+export type UpdateStatus = { status: 'updating' } | { status: 'steady' }
+
+export type VersionRange = { high: SemverVersion; low: SemverVersion }
+
+export type SystemVersion = { status: UpdateStatus; versionRange: VersionRange }
+
+/**
  * The name of a timeseries
  *
  * Names are constructed by concatenating the target and metric names with ':'. Target and metric names must be lowercase alphanumeric characters with '_' separating words.
@@ -1395,6 +1549,57 @@ export type TimeseriesSchema = {
 export type TimeseriesSchemaResultsPage = {
   /** list of items on this page of results */
   items: TimeseriesSchema[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
+ * Identity-related metadata that's included in "asset" public API objects (which generally have no name or description)
+ */
+export type UpdateDeployment = {
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  status: UpdateStatus
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+  version: SemverVersion
+}
+
+/**
+ * A single page of results
+ */
+export type UpdateDeploymentResultsPage = {
+  /** list of items on this page of results */
+  items: UpdateDeployment[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
+ * Identity-related metadata that's included in "asset" public API objects (which generally have no name or description)
+ */
+export type UpdateableComponent = {
+  componentType: UpdateableComponentType
+  deviceId: string
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  status: UpdateStatus
+  systemVersion: SemverVersion
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+  version: SemverVersion
+}
+
+/**
+ * A single page of results
+ */
+export type UpdateableComponentResultsPage = {
+  /** list of items on this page of results */
+  items: UpdateableComponent[]
   /** token used to fetch the next page of results (if any) */
   nextPage?: string
 }
@@ -2364,6 +2569,26 @@ export interface SiloViewByIdPathParams {
   id: string
 }
 
+export interface CertificateListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: NameSortMode
+}
+
+export interface CertificateViewPathParams {
+  certificate: NameOrId
+}
+
+export interface CertificateDeletePathParams {
+  certificate: NameOrId
+}
+
+export interface PhysicalDiskListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: IdSortMode
+}
+
 export interface RackListQueryParams {
   limit?: number
   pageToken?: string
@@ -2382,6 +2607,16 @@ export interface SledListQueryParams {
 
 export interface SledViewPathParams {
   sledId: string
+}
+
+export interface SledPhysicalDiskListPathParams {
+  sledId: string
+}
+
+export interface SledPhysicalDiskListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: IdSortMode
 }
 
 export interface SystemImageListQueryParams {
@@ -2777,6 +3012,36 @@ export interface ProjectPolicyUpdateV1QueryParams {
   organization?: NameOrId
 }
 
+export interface SystemComponentVersionListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: IdSortMode
+}
+
+export interface UpdateDeploymentsListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: IdSortMode
+}
+
+export interface UpdateDeploymentViewPathParams {
+  id: string
+}
+
+export interface SystemUpdateListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: IdSortMode
+}
+
+export interface SystemUpdateViewPathParams {
+  version: SemverVersion
+}
+
+export interface SystemUpdateComponentsListPathParams {
+  version: SemverVersion
+}
+
 export type ApiViewByIdMethods = Pick<
   InstanceType<typeof Api>['methods'],
   | 'diskViewById'
@@ -2814,8 +3079,11 @@ export type ApiListMethods = Pick<
   | 'vpcSubnetList'
   | 'roleList'
   | 'sessionSshkeyList'
+  | 'certificateList'
+  | 'physicalDiskList'
   | 'rackList'
   | 'sledList'
+  | 'sledPhysicalDiskList'
   | 'systemImageList'
   | 'ipPoolList'
   | 'ipPoolRangeList'
@@ -2826,6 +3094,10 @@ export type ApiListMethods = Pick<
   | 'siloUsersList'
   | 'systemUserList'
   | 'userList'
+  | 'systemComponentVersionList'
+  | 'updateDeploymentsList'
+  | 'systemUpdateList'
+  | 'systemUpdateComponentsList'
 >
 
 type EmptyObj = Record<string, never>
@@ -4299,6 +4571,76 @@ export class Api extends HttpClient {
       })
     },
     /**
+     * List system-wide certificates
+     */
+    certificateList: (
+      { query = {} }: { query?: CertificateListQueryParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<CertificateResultsPage>({
+        path: `/system/certificates`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create a new system-wide x.509 certificate.
+     */
+    certificateCreate: (
+      { body }: { body: CertificateCreate },
+      params: RequestParams = {}
+    ) => {
+      return this.request<Certificate>({
+        path: `/system/certificates`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Fetch a certificate
+     */
+    certificateView: (
+      { path }: { path: CertificateViewPathParams },
+      params: RequestParams = {}
+    ) => {
+      const { certificate } = path
+      return this.request<Certificate>({
+        path: `/system/certificates/${certificate}`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Delete a certificate
+     */
+    certificateDelete: (
+      { path }: { path: CertificateDeletePathParams },
+      params: RequestParams = {}
+    ) => {
+      const { certificate } = path
+      return this.request<void>({
+        path: `/system/certificates/${certificate}`,
+        method: 'DELETE',
+        ...params,
+      })
+    },
+    /**
+     * List physical disks
+     */
+    physicalDiskList: (
+      { query = {} }: { query?: PhysicalDiskListQueryParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<PhysicalDiskResultsPage>({
+        path: `/system/hardware/disks`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
      * List racks
      */
     rackList: (
@@ -4345,6 +4687,24 @@ export class Api extends HttpClient {
       return this.request<Sled>({
         path: `/system/hardware/sleds/${sledId}`,
         method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * List physical disks attached to sleds
+     */
+    sledPhysicalDiskList: (
+      {
+        path,
+        query = {},
+      }: { path: SledPhysicalDiskListPathParams; query?: SledPhysicalDiskListQueryParams },
+      params: RequestParams = {}
+    ) => {
+      const { sledId } = path
+      return this.request<PhysicalDiskResultsPage>({
+        path: `/system/hardware/sleds/${sledId}/disks`,
+        method: 'GET',
+        query,
         ...params,
       })
     },
@@ -4836,16 +5196,6 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Refresh update data
-     */
-    updatesRefresh: (_: EmptyObj, params: RequestParams = {}) => {
-      return this.request<void>({
-        path: `/system/updates/refresh`,
-        method: 'POST',
-        ...params,
-      })
-    },
-    /**
      * List built-in users
      */
     systemUserList: (
@@ -5028,6 +5378,9 @@ export class Api extends HttpClient {
         ...params,
       })
     },
+    /**
+     * List an instance's disks
+     */
     instanceDiskListV1: (
       {
         path,
@@ -5043,6 +5396,9 @@ export class Api extends HttpClient {
         ...params,
       })
     },
+    /**
+     * Attach a disk to an instance
+     */
     instanceDiskAttachV1: (
       {
         path,
@@ -5064,6 +5420,9 @@ export class Api extends HttpClient {
         ...params,
       })
     },
+    /**
+     * Detach a disk from an instance
+     */
     instanceDiskDetachV1: (
       {
         path,
@@ -5436,6 +5795,134 @@ export class Api extends HttpClient {
         method: 'PUT',
         body,
         query,
+        ...params,
+      })
+    },
+    /**
+     * View version and update status of component tree
+     */
+    systemComponentVersionList: (
+      { query = {} }: { query?: SystemComponentVersionListQueryParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<UpdateableComponentResultsPage>({
+        path: `/v1/system/update/components`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List all update deployments
+     */
+    updateDeploymentsList: (
+      { query = {} }: { query?: UpdateDeploymentsListQueryParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<UpdateDeploymentResultsPage>({
+        path: `/v1/system/update/deployments`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch a system update deployment
+     */
+    updateDeploymentView: (
+      { path }: { path: UpdateDeploymentViewPathParams },
+      params: RequestParams = {}
+    ) => {
+      const { id } = path
+      return this.request<UpdateDeployment>({
+        path: `/v1/system/update/deployments/${id}`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Refresh update data
+     */
+    systemUpdateRefresh: (_: EmptyObj, params: RequestParams = {}) => {
+      return this.request<void>({
+        path: `/v1/system/update/refresh`,
+        method: 'POST',
+        ...params,
+      })
+    },
+    /**
+     * Start system update
+     */
+    systemUpdateStart: (
+      { body }: { body: SystemUpdateStart },
+      params: RequestParams = {}
+    ) => {
+      return this.request<UpdateDeployment>({
+        path: `/v1/system/update/start`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Stop system update
+     */
+    systemUpdateStop: (_: EmptyObj, params: RequestParams = {}) => {
+      return this.request<void>({
+        path: `/v1/system/update/stop`,
+        method: 'POST',
+        ...params,
+      })
+    },
+    /**
+     * List all updates
+     */
+    systemUpdateList: (
+      { query = {} }: { query?: SystemUpdateListQueryParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<SystemUpdateResultsPage>({
+        path: `/v1/system/update/updates`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * View system update
+     */
+    systemUpdateView: (
+      { path }: { path: SystemUpdateViewPathParams },
+      params: RequestParams = {}
+    ) => {
+      const { version } = path
+      return this.request<SystemUpdate>({
+        path: `/v1/system/update/updates/${version}`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * View system update component tree
+     */
+    systemUpdateComponentsList: (
+      { path }: { path: SystemUpdateComponentsListPathParams },
+      params: RequestParams = {}
+    ) => {
+      const { version } = path
+      return this.request<ComponentUpdateResultsPage>({
+        path: `/v1/system/update/updates/${version}/components`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * View system version and update status
+     */
+    systemVersion: (_: EmptyObj, params: RequestParams = {}) => {
+      return this.request<SystemVersion>({
+        path: `/v1/system/update/version`,
+        method: 'GET',
         ...params,
       })
     },

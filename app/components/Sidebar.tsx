@@ -71,6 +71,7 @@ export const NavLinkItem = (props: {
   to: string
   children: React.ReactNode
   end?: boolean
+  disabled?: boolean
 }) => (
   <li>
     <NavLink
@@ -78,6 +79,7 @@ export const NavLinkItem = (props: {
       className={({ isActive }) =>
         cn(linkStyles, {
           'text-accent !bg-accent-secondary svg:!text-accent-tertiary': isActive,
+          'pointer-events-none text-disabled': props.disabled,
         })
       }
       end={props.end}

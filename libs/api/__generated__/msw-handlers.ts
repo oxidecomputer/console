@@ -439,6 +439,24 @@ export interface MSWHandlers {
   }) => HandlerResult<Api.IpPool>
   /** `GET /system/by-id/silos/:id` */
   siloViewById: (params: { path: Api.SiloViewByIdPathParams }) => HandlerResult<Api.Silo>
+  /** `GET /system/certificates` */
+  certificateList: (params: {
+    query: Api.CertificateListQueryParams
+  }) => HandlerResult<Api.CertificateResultsPage>
+  /** `POST /system/certificates` */
+  certificateCreate: (params: {
+    body: Json<Api.CertificateCreate>
+  }) => HandlerResult<Api.Certificate>
+  /** `GET /system/certificates/:certificate` */
+  certificateView: (params: {
+    path: Api.CertificateViewPathParams
+  }) => HandlerResult<Api.Certificate>
+  /** `DELETE /system/certificates/:certificate` */
+  certificateDelete: (params: { path: Api.CertificateDeletePathParams }) => StatusCode
+  /** `GET /system/hardware/disks` */
+  physicalDiskList: (params: {
+    query: Api.PhysicalDiskListQueryParams
+  }) => HandlerResult<Api.PhysicalDiskResultsPage>
   /** `GET /system/hardware/racks` */
   rackList: (params: {
     query: Api.RackListQueryParams
@@ -451,6 +469,11 @@ export interface MSWHandlers {
   }) => HandlerResult<Api.SledResultsPage>
   /** `GET /system/hardware/sleds/:sledId` */
   sledView: (params: { path: Api.SledViewPathParams }) => HandlerResult<Api.Sled>
+  /** `GET /system/hardware/sleds/:sledId/disks` */
+  sledPhysicalDiskList: (params: {
+    path: Api.SledPhysicalDiskListPathParams
+    query: Api.SledPhysicalDiskListQueryParams
+  }) => HandlerResult<Api.PhysicalDiskResultsPage>
   /** `GET /system/images` */
   systemImageList: (params: {
     query: Api.SystemImageListQueryParams
@@ -576,8 +599,6 @@ export interface MSWHandlers {
   }) => HandlerResult<Api.UserResultsPage>
   /** `GET /system/silos/:siloName/users/id/:userId` */
   siloUserView: (params: { path: Api.SiloUserViewPathParams }) => HandlerResult<Api.User>
-  /** `POST /system/updates/refresh` */
-  updatesRefresh: () => StatusCode
   /** `GET /system/user` */
   systemUserList: (params: {
     query: Api.SystemUserListQueryParams
@@ -744,6 +765,40 @@ export interface MSWHandlers {
     query: Api.ProjectPolicyUpdateV1QueryParams
     body: Json<Api.ProjectRolePolicy>
   }) => HandlerResult<Api.ProjectRolePolicy>
+  /** `GET /v1/system/update/components` */
+  systemComponentVersionList: (params: {
+    query: Api.SystemComponentVersionListQueryParams
+  }) => HandlerResult<Api.UpdateableComponentResultsPage>
+  /** `GET /v1/system/update/deployments` */
+  updateDeploymentsList: (params: {
+    query: Api.UpdateDeploymentsListQueryParams
+  }) => HandlerResult<Api.UpdateDeploymentResultsPage>
+  /** `GET /v1/system/update/deployments/:id` */
+  updateDeploymentView: (params: {
+    path: Api.UpdateDeploymentViewPathParams
+  }) => HandlerResult<Api.UpdateDeployment>
+  /** `POST /v1/system/update/refresh` */
+  systemUpdateRefresh: () => StatusCode
+  /** `POST /v1/system/update/start` */
+  systemUpdateStart: (params: {
+    body: Json<Api.SystemUpdateStart>
+  }) => HandlerResult<Api.UpdateDeployment>
+  /** `POST /v1/system/update/stop` */
+  systemUpdateStop: () => StatusCode
+  /** `GET /v1/system/update/updates` */
+  systemUpdateList: (params: {
+    query: Api.SystemUpdateListQueryParams
+  }) => HandlerResult<Api.SystemUpdateResultsPage>
+  /** `GET /v1/system/update/updates/:version` */
+  systemUpdateView: (params: {
+    path: Api.SystemUpdateViewPathParams
+  }) => HandlerResult<Api.SystemUpdate>
+  /** `GET /v1/system/update/updates/:version/components` */
+  systemUpdateComponentsList: (params: {
+    path: Api.SystemUpdateComponentsListPathParams
+  }) => HandlerResult<Api.ComponentUpdateResultsPage>
+  /** `GET /v1/system/update/version` */
+  systemVersion: () => HandlerResult<Api.SystemVersion>
 }
 
 function validateBody<S extends ZodSchema>(schema: S, body: unknown) {
@@ -1304,6 +1359,26 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
       handler(handlers['siloViewById'], schema.SiloViewByIdParams, null)
     ),
     rest.get(
+      '/system/certificates',
+      handler(handlers['certificateList'], schema.CertificateListParams, null)
+    ),
+    rest.post(
+      '/system/certificates',
+      handler(handlers['certificateCreate'], null, schema.CertificateCreate)
+    ),
+    rest.get(
+      '/system/certificates/:certificate',
+      handler(handlers['certificateView'], schema.CertificateViewParams, null)
+    ),
+    rest.delete(
+      '/system/certificates/:certificate',
+      handler(handlers['certificateDelete'], schema.CertificateDeleteParams, null)
+    ),
+    rest.get(
+      '/system/hardware/disks',
+      handler(handlers['physicalDiskList'], schema.PhysicalDiskListParams, null)
+    ),
+    rest.get(
       '/system/hardware/racks',
       handler(handlers['rackList'], schema.RackListParams, null)
     ),
@@ -1318,6 +1393,10 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
     rest.get(
       '/system/hardware/sleds/:sledId',
       handler(handlers['sledView'], schema.SledViewParams, null)
+    ),
+    rest.get(
+      '/system/hardware/sleds/:sledId/disks',
+      handler(handlers['sledPhysicalDiskList'], schema.SledPhysicalDiskListParams, null)
     ),
     rest.get(
       '/system/images',
@@ -1471,7 +1550,6 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
       '/system/silos/:siloName/users/id/:userId',
       handler(handlers['siloUserView'], schema.SiloUserViewParams, null)
     ),
-    rest.post('/system/updates/refresh', handler(handlers['updatesRefresh'], null, null)),
     rest.get(
       '/system/user',
       handler(handlers['systemUserList'], schema.SystemUserListParams, null)
@@ -1654,5 +1732,47 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
         schema.ProjectRolePolicy
       )
     ),
+    rest.get(
+      '/v1/system/update/components',
+      handler(
+        handlers['systemComponentVersionList'],
+        schema.SystemComponentVersionListParams,
+        null
+      )
+    ),
+    rest.get(
+      '/v1/system/update/deployments',
+      handler(handlers['updateDeploymentsList'], schema.UpdateDeploymentsListParams, null)
+    ),
+    rest.get(
+      '/v1/system/update/deployments/:id',
+      handler(handlers['updateDeploymentView'], schema.UpdateDeploymentViewParams, null)
+    ),
+    rest.post(
+      '/v1/system/update/refresh',
+      handler(handlers['systemUpdateRefresh'], null, null)
+    ),
+    rest.post(
+      '/v1/system/update/start',
+      handler(handlers['systemUpdateStart'], null, schema.SystemUpdateStart)
+    ),
+    rest.post('/v1/system/update/stop', handler(handlers['systemUpdateStop'], null, null)),
+    rest.get(
+      '/v1/system/update/updates',
+      handler(handlers['systemUpdateList'], schema.SystemUpdateListParams, null)
+    ),
+    rest.get(
+      '/v1/system/update/updates/:version',
+      handler(handlers['systemUpdateView'], schema.SystemUpdateViewParams, null)
+    ),
+    rest.get(
+      '/v1/system/update/updates/:version/components',
+      handler(
+        handlers['systemUpdateComponentsList'],
+        schema.SystemUpdateComponentsListParams,
+        null
+      )
+    ),
+    rest.get('/v1/system/update/version', handler(handlers['systemVersion'], null, null)),
   ]
 }

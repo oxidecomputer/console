@@ -7,6 +7,7 @@ const params = {
   instanceName: 'c',
   vpcName: 'd',
   siloName: 's',
+  version: 'v',
 }
 
 test('path builder', () => {
@@ -14,6 +15,7 @@ test('path builder', () => {
     .toMatchInlineSnapshot(`
       {
         "deviceSuccess": "/device/success",
+        "diskInventory": "/sys/inventory/disks",
         "diskNew": "/orgs/a/projects/b/disks-new",
         "disks": "/orgs/a/projects/b/disks",
         "instance": "/orgs/a/projects/b/instances/c",
@@ -35,6 +37,7 @@ test('path builder', () => {
         "projectImages": "/orgs/a/projects/b/images",
         "projectNew": "/orgs/a/projects-new",
         "projects": "/orgs/a/projects",
+        "rackInventory": "/sys/inventory/racks",
         "serialConsole": "/orgs/a/projects/b/instances/c/serial-console",
         "settings": "/settings",
         "silo": "/sys/silos/s",
@@ -43,18 +46,21 @@ test('path builder', () => {
         "siloNew": "/sys/silos-new",
         "siloUtilization": "/utilization",
         "silos": "/sys/silos",
+        "sledInventory": "/sys/inventory/sleds",
         "snapshotNew": "/orgs/a/projects/b/snapshots-new",
         "snapshots": "/orgs/a/projects/b/snapshots",
         "sshKeyNew": "/settings/ssh-keys-new",
         "sshKeys": "/settings/ssh-keys",
         "system": "/sys",
         "systemHealth": "/sys/health",
-        "systemInventory": "/sys/inventory",
         "systemIssues": "/sys/issues",
         "systemNetworking": "/sys/networking",
         "systemSettings": "/sys/settings",
-        "systemUpdate": "/sys/update",
+        "systemUpdateDetail": "/sys/update/updates/v",
+        "systemUpdateHistory": "/sys/update/history",
+        "systemUpdates": "/sys/update/updates",
         "systemUtilization": "/sys/utilization",
+        "updateableComponents": "/sys/update/components",
         "vpc": "/orgs/a/projects/b/vpcs/d",
         "vpcEdit": "/orgs/a/projects/b/vpcs/d/edit",
         "vpcNew": "/orgs/a/projects/b/vpcs-new",

@@ -21,7 +21,7 @@ export function SerialConsoleTab() {
   return (
     <>
       <div className="relative -mb-10 !w-[calc(100%-var(--content-gutter))]">
-        <Suspense fallback={<>Loading</>}>
+        <Suspense fallback={<></>}>
           <Terminal className="mb-2 w-full" data={data?.data} />
         </Suspense>
       </div>
