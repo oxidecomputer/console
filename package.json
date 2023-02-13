@@ -30,7 +30,7 @@
   "private": true,
   "dependencies": {
     "@floating-ui/react-dom-interactions": "^0.10.3",
-    "@oxide/design-system": "^0.6.2",
+    "@oxide/design-system": "^0.8.0",
     "@oxide/identicon": "0.0.4",
     "@reach/alert": "^0.16.0",
     "@reach/dialog": "^0.16.2",
