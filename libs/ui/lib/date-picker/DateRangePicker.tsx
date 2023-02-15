@@ -1,7 +1,7 @@
 import type { TimeValue } from '@react-types/datepicker'
 import cn from 'classnames'
 import { useRef } from 'react'
-import { useDateRangePicker } from 'react-aria'
+import { useButton, useDateRangePicker } from 'react-aria'
 import { useDateRangePickerState } from 'react-stately'
 import type { DateRangePickerStateOptions } from 'react-stately'
 
@@ -25,7 +25,11 @@ export function DateRangePicker(props: DateRangePickerProps) {
     errorMessageProps,
     dialogProps,
     calendarProps,
+    buttonProps,
   } = useDateRangePicker(props, state, ref)
+
+  const buttonRef = useRef<HTMLButtonElement>(null)
+  const { buttonProps: realButtonProps } = useButton(buttonProps, buttonRef)
 
   return (
     <div aria-label={props.label} className="relative flex-col text-left">
@@ -48,7 +52,8 @@ export function DateRangePicker(props: DateRangePickerProps) {
           )}
         </div>
         <button
-          onClick={state.open}
+          {...realButtonProps}
+          type="button"
           className={cn(
             '-ml-px flex w-10 items-center justify-center rounded-r border outline-none border-default hover:bg-secondary focus:z-10',
             state.isOpen && 'z-10 ring-2 ring-accent-secondary'

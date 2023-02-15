@@ -1,7 +1,7 @@
 import type { DateValue } from '@internationalized/date'
 import cn from 'classnames'
 import { useRef } from 'react'
-import { useDatePicker } from 'react-aria'
+import { useButton, useDatePicker } from 'react-aria'
 import { useDatePickerState } from 'react-stately'
 import type { DatePickerStateOptions } from 'react-stately'
 
@@ -18,11 +18,14 @@ interface DatePickerProps extends DatePickerStateOptions<DateValue> {
 export function DatePicker(props: DatePickerProps) {
   const state = useDatePickerState({ ...props, shouldCloseOnSelect: false })
   const ref = useRef<HTMLDivElement>(null)
-  const { groupProps, fieldProps, dialogProps, calendarProps } = useDatePicker(
+  const { groupProps, fieldProps, dialogProps, calendarProps, buttonProps } = useDatePicker(
     props,
     state,
     ref
   )
+
+  const buttonRef = useRef<HTMLButtonElement>(null)
+  const { buttonProps: realButtonProps } = useButton(buttonProps, buttonRef)
 
   return (
     <div aria-label={props.label} className="relative inline-flex flex-col text-left">
@@ -36,6 +39,8 @@ export function DatePicker(props: DatePickerProps) {
           )}
         </div>
         <button
+          {...realButtonProps}
+          type="button"
           onClick={state.open}
           className={cn(
             '-ml-px flex w-10 items-center justify-center rounded-r border outline-none border-default hover:bg-secondary focus:z-10',

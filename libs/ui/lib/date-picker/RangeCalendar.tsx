@@ -39,6 +39,7 @@ export function RangeCalendar(props: RangeCalendarProps<DateValue>) {
   )
 }
 
+// TODO: use useButton here too?
 export const CalendarButton = ({
   handleClick,
   children,
