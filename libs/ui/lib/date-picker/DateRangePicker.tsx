@@ -73,6 +73,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
             <RangeCalendar {...calendarProps} />
             <div className="flex items-center space-x-2 border-t p-4 border-t-secondary">
               <TimeField
+                label="Start time"
                 value={state.timeRange?.start || null}
                 onChange={(v: TimeValue) => state.setTime('start', v)}
                 hourCycle={24}
@@ -80,6 +81,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
               />
               <div className="text-quinary">–</div>
               <TimeField
+                label="End time"
                 value={state.timeRange?.end || null}
                 onChange={(v: TimeValue) => state.setTime('end', v)}
                 hourCycle={24}
