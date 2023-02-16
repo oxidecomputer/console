@@ -111,7 +111,7 @@ export function DateTimeRangePicker({
         className="mr-4 w-48" // in addition to gap-4
         name="preset"
         defaultValue={initialPreset}
-        aria-label="Choose a time range"
+        aria-label="Choose a time range preset"
         items={rangePresets}
         onChange={(item) => {
           if (item) {
@@ -125,7 +125,7 @@ export function DateTimeRangePicker({
       <div>
         <DateRangePicker
           isDisabled={!enableInputs}
-          label="label"
+          label="Choose a date range"
           value={inputRange}
           onChange={setInputRange}
         />
