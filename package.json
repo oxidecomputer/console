@@ -122,7 +122,7 @@
     "patch-package": "^6.4.7",
     "postcss": "^8.2.9",
     "postcss-import": "^14.0.2",
-    "postcss-nesting": "^10.1.4",
+    "postcss-nesting": "^11.2.1",
     "postcss-pseudo-classes": "^0.2.1",
     "prettier": "^2.7.1",
     "prettier-plugin-tailwindcss": "^0.1.13",
