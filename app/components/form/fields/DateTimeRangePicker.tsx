@@ -2,7 +2,14 @@ import type { DateValue } from '@internationalized/date'
 import { getLocalTimeZone, now as getNow } from '@internationalized/date'
 import { useMemo, useState } from 'react'
 
-import { Button, DateRangePicker, Listbox, useInterval } from '@oxide/ui'
+import {
+  Button,
+  Checkmark12Icon,
+  Close12Icon,
+  DateRangePicker,
+  Listbox,
+  useInterval,
+} from '@oxide/ui'
 
 const rangePresets = [
   { label: 'Last hour', value: 'lastHour' as const },
@@ -53,14 +60,6 @@ export function useDateTimeRangePicker(initialPreset: RangeKey) {
   }
 }
 
-function validateRange(startTime: DateValue, endTime: DateValue): string | null {
-  if (startTime.compare(endTime) > 0) {
-    return 'Start time must be earlier than end time'
-  }
-
-  return null
-}
-
 /** Interval for sliding range forward when using a relative time preset */
 const SLIDE_INTERVAL = 10_000
 
@@ -82,9 +81,6 @@ export function DateTimeRangePicker({
   // needs a separate pair of values because they can be edited without
   // submitting and updating the graphs
   const [inputRange, setInputRange] = useState<DateTimeRange>(range)
-
-  // TODO: validate inputs on change and display error someplace
-  const error = validateRange(inputRange.start, inputRange.end)
 
   const customInputsDirty =
     range.start.compare(inputRange.start) !== 0 || range.end.compare(inputRange.end) !== 0
@@ -127,25 +123,23 @@ export function DateTimeRangePicker({
       />
 
       <div>
-        <DateRangePicker label="label" value={inputRange} onChange={setInputRange} />
+        <DateRangePicker
+          isDisabled={!enableInputs}
+          label="label"
+          value={inputRange}
+          onChange={setInputRange}
+        />
       </div>
-      {/* {error && <div className="mt-2 text-center text-error">{error}</div>} */}
-      {/* TODO: fix goofy ass button text. use icons? tooltips to explain? lord */}
+      {/* TODO: fix goofy ass buttons. tooltips to explain? lord */}
       {enableInputs && (
-        <Button
-          disabled={!customInputsDirty}
-          // reset inputs back to whatever they were
-          onClick={() => setInputRange(range)}
-        >
-          Reset
+        // reset inputs back to whatever they were
+        <Button disabled={!customInputsDirty} onClick={() => setInputRange(range)}>
+          <Close12Icon />
         </Button>
       )}
       {enableInputs && (
-        <Button
-          disabled={!customInputsDirty || !!error}
-          onClick={() => setRange(inputRange)}
-        >
-          Load
+        <Button disabled={!customInputsDirty} onClick={() => setRange(inputRange)}>
+          <Checkmark12Icon />
         </Button>
       )}
     </form>
