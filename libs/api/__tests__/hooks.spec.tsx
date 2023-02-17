@@ -95,6 +95,7 @@ describe('useApiQuery', () => {
 
       await waitFor(() => {
         const error = result.current.error
+        console.log(error)
         expect(error).toMatchObject({
           type: 'error',
           statusCode: 503,
