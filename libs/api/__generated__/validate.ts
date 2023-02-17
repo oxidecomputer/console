@@ -3994,7 +3994,7 @@ export const InstanceNetworkInterfaceViewV1Params = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
-      iface: NameOrId,
+      interface: NameOrId,
     }),
     query: z.object({
       instance: NameOrId.optional(),
@@ -4008,7 +4008,7 @@ export const InstanceNetworkInterfaceUpdateV1Params = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
-      iface: NameOrId,
+      interface: NameOrId,
     }),
     query: z.object({
       instance: NameOrId.optional(),
@@ -4022,7 +4022,7 @@ export const InstanceNetworkInterfaceDeleteV1Params = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
-      iface: NameOrId,
+      interface: NameOrId,
     }),
     query: z.object({
       instance: NameOrId.optional(),

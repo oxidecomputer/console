@@ -2953,7 +2953,7 @@ export interface InstanceNetworkInterfaceCreateV1QueryParams {
 }
 
 export interface InstanceNetworkInterfaceViewV1PathParams {
-  iface: NameOrId
+  interface: NameOrId
 }
 
 export interface InstanceNetworkInterfaceViewV1QueryParams {
@@ -2963,7 +2963,7 @@ export interface InstanceNetworkInterfaceViewV1QueryParams {
 }
 
 export interface InstanceNetworkInterfaceUpdateV1PathParams {
-  iface: NameOrId
+  interface: NameOrId
 }
 
 export interface InstanceNetworkInterfaceUpdateV1QueryParams {
@@ -2973,7 +2973,7 @@ export interface InstanceNetworkInterfaceUpdateV1QueryParams {
 }
 
 export interface InstanceNetworkInterfaceDeleteV1PathParams {
-  iface: NameOrId
+  interface: NameOrId
 }
 
 export interface InstanceNetworkInterfaceDeleteV1QueryParams {
@@ -3428,9 +3428,8 @@ export class Api extends HttpClient {
       { path }: { path: DiskViewByIdPathParams },
       params: RequestParams = {}
     ) => {
-      const { id } = path
       return this.request<Disk>({
-        path: `/by-id/disks/${id}`,
+        path: `/by-id/disks/${path.id}`,
         method: 'GET',
         ...params,
       })
@@ -3442,9 +3441,8 @@ export class Api extends HttpClient {
       { path }: { path: ImageViewByIdPathParams },
       params: RequestParams = {}
     ) => {
-      const { id } = path
       return this.request<Image>({
-        path: `/by-id/images/${id}`,
+        path: `/by-id/images/${path.id}`,
         method: 'GET',
         ...params,
       })
@@ -3456,9 +3454,8 @@ export class Api extends HttpClient {
       { path }: { path: InstanceViewByIdPathParams },
       params: RequestParams = {}
     ) => {
-      const { id } = path
       return this.request<Instance>({
-        path: `/by-id/instances/${id}`,
+        path: `/by-id/instances/${path.id}`,
         method: 'GET',
         ...params,
       })
@@ -3470,9 +3467,8 @@ export class Api extends HttpClient {
       { path }: { path: InstanceNetworkInterfaceViewByIdPathParams },
       params: RequestParams = {}
     ) => {
-      const { id } = path
       return this.request<NetworkInterface>({
-        path: `/by-id/network-interfaces/${id}`,
+        path: `/by-id/network-interfaces/${path.id}`,
         method: 'GET',
         ...params,
       })
@@ -3484,9 +3480,8 @@ export class Api extends HttpClient {
       { path }: { path: OrganizationViewByIdPathParams },
       params: RequestParams = {}
     ) => {
-      const { id } = path
       return this.request<Organization>({
-        path: `/by-id/organizations/${id}`,
+        path: `/by-id/organizations/${path.id}`,
         method: 'GET',
         ...params,
       })
@@ -3498,9 +3493,8 @@ export class Api extends HttpClient {
       { path }: { path: ProjectViewByIdPathParams },
       params: RequestParams = {}
     ) => {
-      const { id } = path
       return this.request<Project>({
-        path: `/by-id/projects/${id}`,
+        path: `/by-id/projects/${path.id}`,
         method: 'GET',
         ...params,
       })
@@ -3512,9 +3506,8 @@ export class Api extends HttpClient {
       { path }: { path: SnapshotViewByIdPathParams },
       params: RequestParams = {}
     ) => {
-      const { id } = path
       return this.request<Snapshot>({
-        path: `/by-id/snapshots/${id}`,
+        path: `/by-id/snapshots/${path.id}`,
         method: 'GET',
         ...params,
       })
@@ -3526,9 +3519,8 @@ export class Api extends HttpClient {
       { path }: { path: VpcRouterRouteViewByIdPathParams },
       params: RequestParams = {}
     ) => {
-      const { id } = path
       return this.request<RouterRoute>({
-        path: `/by-id/vpc-router-routes/${id}`,
+        path: `/by-id/vpc-router-routes/${path.id}`,
         method: 'GET',
         ...params,
       })
@@ -3540,9 +3532,8 @@ export class Api extends HttpClient {
       { path }: { path: VpcRouterViewByIdPathParams },
       params: RequestParams = {}
     ) => {
-      const { id } = path
       return this.request<VpcRouter>({
-        path: `/by-id/vpc-routers/${id}`,
+        path: `/by-id/vpc-routers/${path.id}`,
         method: 'GET',
         ...params,
       })
@@ -3554,9 +3545,8 @@ export class Api extends HttpClient {
       { path }: { path: VpcSubnetViewByIdPathParams },
       params: RequestParams = {}
     ) => {
-      const { id } = path
       return this.request<VpcSubnet>({
-        path: `/by-id/vpc-subnets/${id}`,
+        path: `/by-id/vpc-subnets/${path.id}`,
         method: 'GET',
         ...params,
       })
@@ -3568,9 +3558,8 @@ export class Api extends HttpClient {
       { path }: { path: VpcViewByIdPathParams },
       params: RequestParams = {}
     ) => {
-      const { id } = path
       return this.request<Vpc>({
-        path: `/by-id/vpcs/${id}`,
+        path: `/by-id/vpcs/${path.id}`,
         method: 'GET',
         ...params,
       })
@@ -3638,9 +3627,8 @@ export class Api extends HttpClient {
       { path, body }: { path: LoginLocalPathParams; body: UsernamePasswordCredentials },
       params: RequestParams = {}
     ) => {
-      const { siloName } = path
       return this.request<void>({
-        path: `/login/${siloName}/local`,
+        path: `/login/${path.siloName}/local`,
         method: 'POST',
         body,
         ...params,
@@ -3653,9 +3641,8 @@ export class Api extends HttpClient {
       { path }: { path: LoginSamlBeginPathParams },
       params: RequestParams = {}
     ) => {
-      const { providerName, siloName } = path
       return this.request<void>({
-        path: `/login/${siloName}/saml/${providerName}`,
+        path: `/login/${path.siloName}/saml/${path.providerName}`,
         method: 'GET',
         ...params,
       })
@@ -3664,9 +3651,8 @@ export class Api extends HttpClient {
      * Authenticate a user (i.e., log in) via SAML
      */
     loginSaml: ({ path }: { path: LoginSamlPathParams }, params: RequestParams = {}) => {
-      const { providerName, siloName } = path
       return this.request<void>({
-        path: `/login/${siloName}/saml/${providerName}`,
+        path: `/login/${path.siloName}/saml/${path.providerName}`,
         method: 'POST',
         ...params,
       })
@@ -3713,9 +3699,8 @@ export class Api extends HttpClient {
       { path }: { path: OrganizationViewPathParams },
       params: RequestParams = {}
     ) => {
-      const { orgName } = path
       return this.request<Organization>({
-        path: `/organizations/${orgName}`,
+        path: `/organizations/${path.orgName}`,
         method: 'GET',
         ...params,
       })
@@ -3727,9 +3712,8 @@ export class Api extends HttpClient {
       { path, body }: { path: OrganizationUpdatePathParams; body: OrganizationUpdate },
       params: RequestParams = {}
     ) => {
-      const { orgName } = path
       return this.request<Organization>({
-        path: `/organizations/${orgName}`,
+        path: `/organizations/${path.orgName}`,
         method: 'PUT',
         body,
         ...params,
@@ -3742,9 +3726,8 @@ export class Api extends HttpClient {
       { path }: { path: OrganizationDeletePathParams },
       params: RequestParams = {}
     ) => {
-      const { orgName } = path
       return this.request<void>({
-        path: `/organizations/${orgName}`,
+        path: `/organizations/${path.orgName}`,
         method: 'DELETE',
         ...params,
       })
@@ -3756,9 +3739,8 @@ export class Api extends HttpClient {
       { path }: { path: OrganizationPolicyViewPathParams },
       params: RequestParams = {}
     ) => {
-      const { orgName } = path
       return this.request<OrganizationRolePolicy>({
-        path: `/organizations/${orgName}/policy`,
+        path: `/organizations/${path.orgName}/policy`,
         method: 'GET',
         ...params,
       })
@@ -3773,9 +3755,8 @@ export class Api extends HttpClient {
       }: { path: OrganizationPolicyUpdatePathParams; body: OrganizationRolePolicy },
       params: RequestParams = {}
     ) => {
-      const { orgName } = path
       return this.request<OrganizationRolePolicy>({
-        path: `/organizations/${orgName}/policy`,
+        path: `/organizations/${path.orgName}/policy`,
         method: 'PUT',
         body,
         ...params,
@@ -3788,9 +3769,8 @@ export class Api extends HttpClient {
       { path, query = {} }: { path: ProjectListPathParams; query?: ProjectListQueryParams },
       params: RequestParams = {}
     ) => {
-      const { orgName } = path
       return this.request<ProjectResultsPage>({
-        path: `/organizations/${orgName}/projects`,
+        path: `/organizations/${path.orgName}/projects`,
         method: 'GET',
         query,
         ...params,
@@ -3803,9 +3783,8 @@ export class Api extends HttpClient {
       { path, body }: { path: ProjectCreatePathParams; body: ProjectCreate },
       params: RequestParams = {}
     ) => {
-      const { orgName } = path
       return this.request<Project>({
-        path: `/organizations/${orgName}/projects`,
+        path: `/organizations/${path.orgName}/projects`,
         method: 'POST',
         body,
         ...params,
@@ -3818,9 +3797,8 @@ export class Api extends HttpClient {
       { path }: { path: ProjectViewPathParams },
       params: RequestParams = {}
     ) => {
-      const { orgName, projectName } = path
       return this.request<Project>({
-        path: `/organizations/${orgName}/projects/${projectName}`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}`,
         method: 'GET',
         ...params,
       })
@@ -3832,9 +3810,8 @@ export class Api extends HttpClient {
       { path, body }: { path: ProjectUpdatePathParams; body: ProjectUpdate },
       params: RequestParams = {}
     ) => {
-      const { orgName, projectName } = path
       return this.request<Project>({
-        path: `/organizations/${orgName}/projects/${projectName}`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}`,
         method: 'PUT',
         body,
         ...params,
@@ -3847,9 +3824,8 @@ export class Api extends HttpClient {
       { path }: { path: ProjectDeletePathParams },
       params: RequestParams = {}
     ) => {
-      const { orgName, projectName } = path
       return this.request<void>({
-        path: `/organizations/${orgName}/projects/${projectName}`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}`,
         method: 'DELETE',
         ...params,
       })
@@ -3861,9 +3837,8 @@ export class Api extends HttpClient {
       { path, query = {} }: { path: DiskListPathParams; query?: DiskListQueryParams },
       params: RequestParams = {}
     ) => {
-      const { orgName, projectName } = path
       return this.request<DiskResultsPage>({
-        path: `/organizations/${orgName}/projects/${projectName}/disks`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/disks`,
         method: 'GET',
         query,
         ...params,
@@ -3876,9 +3851,8 @@ export class Api extends HttpClient {
       { path, body }: { path: DiskCreatePathParams; body: DiskCreate },
       params: RequestParams = {}
     ) => {
-      const { orgName, projectName } = path
       return this.request<Disk>({
-        path: `/organizations/${orgName}/projects/${projectName}/disks`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/disks`,
         method: 'POST',
         body,
         ...params,
@@ -3888,9 +3862,8 @@ export class Api extends HttpClient {
      * Fetch a disk
      */
     diskView: ({ path }: { path: DiskViewPathParams }, params: RequestParams = {}) => {
-      const { diskName, orgName, projectName } = path
       return this.request<Disk>({
-        path: `/organizations/${orgName}/projects/${projectName}/disks/${diskName}`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/disks/${path.diskName}`,
         method: 'GET',
         ...params,
       })
@@ -3899,9 +3872,8 @@ export class Api extends HttpClient {
      * Use `DELETE /v1/disks/{disk}` instead
      */
     diskDelete: ({ path }: { path: DiskDeletePathParams }, params: RequestParams = {}) => {
-      const { diskName, orgName, projectName } = path
       return this.request<void>({
-        path: `/organizations/${orgName}/projects/${projectName}/disks/${diskName}`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/disks/${path.diskName}`,
         method: 'DELETE',
         ...params,
       })
@@ -3916,9 +3888,8 @@ export class Api extends HttpClient {
       }: { path: DiskMetricsListPathParams; query?: DiskMetricsListQueryParams },
       params: RequestParams = {}
     ) => {
-      const { diskName, metricName, orgName, projectName } = path
       return this.request<MeasurementResultsPage>({
-        path: `/organizations/${orgName}/projects/${projectName}/disks/${diskName}/metrics/${metricName}`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/disks/${path.diskName}/metrics/${path.metricName}`,
         method: 'GET',
         query,
         ...params,
@@ -3931,9 +3902,8 @@ export class Api extends HttpClient {
       { path, query = {} }: { path: ImageListPathParams; query?: ImageListQueryParams },
       params: RequestParams = {}
     ) => {
-      const { orgName, projectName } = path
       return this.request<ImageResultsPage>({
-        path: `/organizations/${orgName}/projects/${projectName}/images`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/images`,
         method: 'GET',
         query,
         ...params,
@@ -3946,9 +3916,8 @@ export class Api extends HttpClient {
       { path, body }: { path: ImageCreatePathParams; body: ImageCreate },
       params: RequestParams = {}
     ) => {
-      const { orgName, projectName } = path
       return this.request<Image>({
-        path: `/organizations/${orgName}/projects/${projectName}/images`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/images`,
         method: 'POST',
         body,
         ...params,
@@ -3958,9 +3927,8 @@ export class Api extends HttpClient {
      * Fetch an image
      */
     imageView: ({ path }: { path: ImageViewPathParams }, params: RequestParams = {}) => {
-      const { imageName, orgName, projectName } = path
       return this.request<Image>({
-        path: `/organizations/${orgName}/projects/${projectName}/images/${imageName}`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/images/${path.imageName}`,
         method: 'GET',
         ...params,
       })
@@ -3972,9 +3940,8 @@ export class Api extends HttpClient {
       { path }: { path: ImageDeletePathParams },
       params: RequestParams = {}
     ) => {
-      const { imageName, orgName, projectName } = path
       return this.request<void>({
-        path: `/organizations/${orgName}/projects/${projectName}/images/${imageName}`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/images/${path.imageName}`,
         method: 'DELETE',
         ...params,
       })
@@ -3989,9 +3956,8 @@ export class Api extends HttpClient {
       }: { path: InstanceListPathParams; query?: InstanceListQueryParams },
       params: RequestParams = {}
     ) => {
-      const { orgName, projectName } = path
       return this.request<InstanceResultsPage>({
-        path: `/organizations/${orgName}/projects/${projectName}/instances`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/instances`,
         method: 'GET',
         query,
         ...params,
@@ -4004,9 +3970,8 @@ export class Api extends HttpClient {
       { path, body }: { path: InstanceCreatePathParams; body: InstanceCreate },
       params: RequestParams = {}
     ) => {
-      const { orgName, projectName } = path
       return this.request<Instance>({
-        path: `/organizations/${orgName}/projects/${projectName}/instances`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/instances`,
         method: 'POST',
         body,
         ...params,
@@ -4019,9 +3984,8 @@ export class Api extends HttpClient {
       { path }: { path: InstanceViewPathParams },
       params: RequestParams = {}
     ) => {
-      const { instanceName, orgName, projectName } = path
       return this.request<Instance>({
-        path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/instances/${path.instanceName}`,
         method: 'GET',
         ...params,
       })
@@ -4033,9 +3997,8 @@ export class Api extends HttpClient {
       { path }: { path: InstanceDeletePathParams },
       params: RequestParams = {}
     ) => {
-      const { instanceName, orgName, projectName } = path
       return this.request<void>({
-        path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/instances/${path.instanceName}`,
         method: 'DELETE',
         ...params,
       })
@@ -4050,9 +4013,8 @@ export class Api extends HttpClient {
       }: { path: InstanceDiskListPathParams; query?: InstanceDiskListQueryParams },
       params: RequestParams = {}
     ) => {
-      const { instanceName, orgName, projectName } = path
       return this.request<DiskResultsPage>({
-        path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/disks`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/instances/${path.instanceName}/disks`,
         method: 'GET',
         query,
         ...params,
@@ -4065,9 +4027,8 @@ export class Api extends HttpClient {
       { path, body }: { path: InstanceDiskAttachPathParams; body: DiskIdentifier },
       params: RequestParams = {}
     ) => {
-      const { instanceName, orgName, projectName } = path
       return this.request<Disk>({
-        path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/disks/attach`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/instances/${path.instanceName}/disks/attach`,
         method: 'POST',
         body,
         ...params,
@@ -4080,9 +4041,8 @@ export class Api extends HttpClient {
       { path, body }: { path: InstanceDiskDetachPathParams; body: DiskIdentifier },
       params: RequestParams = {}
     ) => {
-      const { instanceName, orgName, projectName } = path
       return this.request<Disk>({
-        path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/disks/detach`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/instances/${path.instanceName}/disks/detach`,
         method: 'POST',
         body,
         ...params,
@@ -4095,9 +4055,8 @@ export class Api extends HttpClient {
       { path }: { path: InstanceExternalIpListPathParams },
       params: RequestParams = {}
     ) => {
-      const { instanceName, orgName, projectName } = path
       return this.request<ExternalIpResultsPage>({
-        path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/external-ips`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/instances/${path.instanceName}/external-ips`,
         method: 'GET',
         ...params,
       })
@@ -4109,9 +4068,8 @@ export class Api extends HttpClient {
       { path, body }: { path: InstanceMigratePathParams; body: InstanceMigrate },
       params: RequestParams = {}
     ) => {
-      const { instanceName, orgName, projectName } = path
       return this.request<Instance>({
-        path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/migrate`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/instances/${path.instanceName}/migrate`,
         method: 'POST',
         body,
         ...params,
@@ -4130,9 +4088,8 @@ export class Api extends HttpClient {
       },
       params: RequestParams = {}
     ) => {
-      const { instanceName, orgName, projectName } = path
       return this.request<NetworkInterfaceResultsPage>({
-        path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/network-interfaces`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/instances/${path.instanceName}/network-interfaces`,
         method: 'GET',
         query,
         ...params,
@@ -4148,9 +4105,8 @@ export class Api extends HttpClient {
       }: { path: InstanceNetworkInterfaceCreatePathParams; body: NetworkInterfaceCreate },
       params: RequestParams = {}
     ) => {
-      const { instanceName, orgName, projectName } = path
       return this.request<NetworkInterface>({
-        path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/network-interfaces`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/instances/${path.instanceName}/network-interfaces`,
         method: 'POST',
         body,
         ...params,
@@ -4163,9 +4119,8 @@ export class Api extends HttpClient {
       { path }: { path: InstanceNetworkInterfaceViewPathParams },
       params: RequestParams = {}
     ) => {
-      const { instanceName, interfaceName, orgName, projectName } = path
       return this.request<NetworkInterface>({
-        path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/network-interfaces/${interfaceName}`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/instances/${path.instanceName}/network-interfaces/${path.interfaceName}`,
         method: 'GET',
         ...params,
       })
@@ -4180,9 +4135,8 @@ export class Api extends HttpClient {
       }: { path: InstanceNetworkInterfaceUpdatePathParams; body: NetworkInterfaceUpdate },
       params: RequestParams = {}
     ) => {
-      const { instanceName, interfaceName, orgName, projectName } = path
       return this.request<NetworkInterface>({
-        path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/network-interfaces/${interfaceName}`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/instances/${path.instanceName}/network-interfaces/${path.interfaceName}`,
         method: 'PUT',
         body,
         ...params,
@@ -4195,9 +4149,8 @@ export class Api extends HttpClient {
       { path }: { path: InstanceNetworkInterfaceDeletePathParams },
       params: RequestParams = {}
     ) => {
-      const { instanceName, interfaceName, orgName, projectName } = path
       return this.request<void>({
-        path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/network-interfaces/${interfaceName}`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/instances/${path.instanceName}/network-interfaces/${path.interfaceName}`,
         method: 'DELETE',
         ...params,
       })
@@ -4209,9 +4162,8 @@ export class Api extends HttpClient {
       { path }: { path: InstanceRebootPathParams },
       params: RequestParams = {}
     ) => {
-      const { instanceName, orgName, projectName } = path
       return this.request<Instance>({
-        path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/reboot`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/instances/${path.instanceName}/reboot`,
         method: 'POST',
         ...params,
       })
@@ -4229,9 +4181,8 @@ export class Api extends HttpClient {
       },
       params: RequestParams = {}
     ) => {
-      const { instanceName, orgName, projectName } = path
       return this.request<InstanceSerialConsoleData>({
-        path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/serial-console`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/instances/${path.instanceName}/serial-console`,
         method: 'GET',
         query,
         ...params,
@@ -4244,9 +4195,8 @@ export class Api extends HttpClient {
       { path }: { path: InstanceSerialConsoleStreamPathParams },
       params: RequestParams = {}
     ) => {
-      const { instanceName, orgName, projectName } = path
       return this.request<void>({
-        path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/serial-console/stream`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/instances/${path.instanceName}/serial-console/stream`,
         method: 'GET',
         ...params,
       })
@@ -4258,9 +4208,8 @@ export class Api extends HttpClient {
       { path }: { path: InstanceStartPathParams },
       params: RequestParams = {}
     ) => {
-      const { instanceName, orgName, projectName } = path
       return this.request<Instance>({
-        path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/start`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/instances/${path.instanceName}/start`,
         method: 'POST',
         ...params,
       })
@@ -4272,9 +4221,8 @@ export class Api extends HttpClient {
       { path }: { path: InstanceStopPathParams },
       params: RequestParams = {}
     ) => {
-      const { instanceName, orgName, projectName } = path
       return this.request<Instance>({
-        path: `/organizations/${orgName}/projects/${projectName}/instances/${instanceName}/stop`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/instances/${path.instanceName}/stop`,
         method: 'POST',
         ...params,
       })
@@ -4286,9 +4234,8 @@ export class Api extends HttpClient {
       { path }: { path: ProjectPolicyViewPathParams },
       params: RequestParams = {}
     ) => {
-      const { orgName, projectName } = path
       return this.request<ProjectRolePolicy>({
-        path: `/organizations/${orgName}/projects/${projectName}/policy`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/policy`,
         method: 'GET',
         ...params,
       })
@@ -4300,9 +4247,8 @@ export class Api extends HttpClient {
       { path, body }: { path: ProjectPolicyUpdatePathParams; body: ProjectRolePolicy },
       params: RequestParams = {}
     ) => {
-      const { orgName, projectName } = path
       return this.request<ProjectRolePolicy>({
-        path: `/organizations/${orgName}/projects/${projectName}/policy`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/policy`,
         method: 'PUT',
         body,
         ...params,
@@ -4318,9 +4264,8 @@ export class Api extends HttpClient {
       }: { path: SnapshotListPathParams; query?: SnapshotListQueryParams },
       params: RequestParams = {}
     ) => {
-      const { orgName, projectName } = path
       return this.request<SnapshotResultsPage>({
-        path: `/organizations/${orgName}/projects/${projectName}/snapshots`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/snapshots`,
         method: 'GET',
         query,
         ...params,
@@ -4333,9 +4278,8 @@ export class Api extends HttpClient {
       { path, body }: { path: SnapshotCreatePathParams; body: SnapshotCreate },
       params: RequestParams = {}
     ) => {
-      const { orgName, projectName } = path
       return this.request<Snapshot>({
-        path: `/organizations/${orgName}/projects/${projectName}/snapshots`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/snapshots`,
         method: 'POST',
         body,
         ...params,
@@ -4348,9 +4292,8 @@ export class Api extends HttpClient {
       { path }: { path: SnapshotViewPathParams },
       params: RequestParams = {}
     ) => {
-      const { orgName, projectName, snapshotName } = path
       return this.request<Snapshot>({
-        path: `/organizations/${orgName}/projects/${projectName}/snapshots/${snapshotName}`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/snapshots/${path.snapshotName}`,
         method: 'GET',
         ...params,
       })
@@ -4362,9 +4305,8 @@ export class Api extends HttpClient {
       { path }: { path: SnapshotDeletePathParams },
       params: RequestParams = {}
     ) => {
-      const { orgName, projectName, snapshotName } = path
       return this.request<void>({
-        path: `/organizations/${orgName}/projects/${projectName}/snapshots/${snapshotName}`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/snapshots/${path.snapshotName}`,
         method: 'DELETE',
         ...params,
       })
@@ -4376,9 +4318,8 @@ export class Api extends HttpClient {
       { path, query = {} }: { path: VpcListPathParams; query?: VpcListQueryParams },
       params: RequestParams = {}
     ) => {
-      const { orgName, projectName } = path
       return this.request<VpcResultsPage>({
-        path: `/organizations/${orgName}/projects/${projectName}/vpcs`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/vpcs`,
         method: 'GET',
         query,
         ...params,
@@ -4391,9 +4332,8 @@ export class Api extends HttpClient {
       { path, body }: { path: VpcCreatePathParams; body: VpcCreate },
       params: RequestParams = {}
     ) => {
-      const { orgName, projectName } = path
       return this.request<Vpc>({
-        path: `/organizations/${orgName}/projects/${projectName}/vpcs`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/vpcs`,
         method: 'POST',
         body,
         ...params,
@@ -4403,9 +4343,8 @@ export class Api extends HttpClient {
      * Fetch a VPC
      */
     vpcView: ({ path }: { path: VpcViewPathParams }, params: RequestParams = {}) => {
-      const { orgName, projectName, vpcName } = path
       return this.request<Vpc>({
-        path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/vpcs/${path.vpcName}`,
         method: 'GET',
         ...params,
       })
@@ -4417,9 +4356,8 @@ export class Api extends HttpClient {
       { path, body }: { path: VpcUpdatePathParams; body: VpcUpdate },
       params: RequestParams = {}
     ) => {
-      const { orgName, projectName, vpcName } = path
       return this.request<Vpc>({
-        path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/vpcs/${path.vpcName}`,
         method: 'PUT',
         body,
         ...params,
@@ -4429,9 +4367,8 @@ export class Api extends HttpClient {
      * Delete a VPC
      */
     vpcDelete: ({ path }: { path: VpcDeletePathParams }, params: RequestParams = {}) => {
-      const { orgName, projectName, vpcName } = path
       return this.request<void>({
-        path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/vpcs/${path.vpcName}`,
         method: 'DELETE',
         ...params,
       })
@@ -4443,9 +4380,8 @@ export class Api extends HttpClient {
       { path }: { path: VpcFirewallRulesViewPathParams },
       params: RequestParams = {}
     ) => {
-      const { orgName, projectName, vpcName } = path
       return this.request<VpcFirewallRules>({
-        path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/firewall/rules`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/vpcs/${path.vpcName}/firewall/rules`,
         method: 'GET',
         ...params,
       })
@@ -4460,9 +4396,8 @@ export class Api extends HttpClient {
       }: { path: VpcFirewallRulesUpdatePathParams; body: VpcFirewallRuleUpdateParams },
       params: RequestParams = {}
     ) => {
-      const { orgName, projectName, vpcName } = path
       return this.request<VpcFirewallRules>({
-        path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/firewall/rules`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/vpcs/${path.vpcName}/firewall/rules`,
         method: 'PUT',
         body,
         ...params,
@@ -4478,9 +4413,8 @@ export class Api extends HttpClient {
       }: { path: VpcRouterListPathParams; query?: VpcRouterListQueryParams },
       params: RequestParams = {}
     ) => {
-      const { orgName, projectName, vpcName } = path
       return this.request<VpcRouterResultsPage>({
-        path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/routers`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/vpcs/${path.vpcName}/routers`,
         method: 'GET',
         query,
         ...params,
@@ -4493,9 +4427,8 @@ export class Api extends HttpClient {
       { path, body }: { path: VpcRouterCreatePathParams; body: VpcRouterCreate },
       params: RequestParams = {}
     ) => {
-      const { orgName, projectName, vpcName } = path
       return this.request<VpcRouter>({
-        path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/routers`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/vpcs/${path.vpcName}/routers`,
         method: 'POST',
         body,
         ...params,
@@ -4508,9 +4441,8 @@ export class Api extends HttpClient {
       { path }: { path: VpcRouterViewPathParams },
       params: RequestParams = {}
     ) => {
-      const { orgName, projectName, routerName, vpcName } = path
       return this.request<VpcRouter>({
-        path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/routers/${routerName}`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/vpcs/${path.vpcName}/routers/${path.routerName}`,
         method: 'GET',
         ...params,
       })
@@ -4522,9 +4454,8 @@ export class Api extends HttpClient {
       { path, body }: { path: VpcRouterUpdatePathParams; body: VpcRouterUpdate },
       params: RequestParams = {}
     ) => {
-      const { orgName, projectName, routerName, vpcName } = path
       return this.request<VpcRouter>({
-        path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/routers/${routerName}`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/vpcs/${path.vpcName}/routers/${path.routerName}`,
         method: 'PUT',
         body,
         ...params,
@@ -4537,9 +4468,8 @@ export class Api extends HttpClient {
       { path }: { path: VpcRouterDeletePathParams },
       params: RequestParams = {}
     ) => {
-      const { orgName, projectName, routerName, vpcName } = path
       return this.request<void>({
-        path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/routers/${routerName}`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/vpcs/${path.vpcName}/routers/${path.routerName}`,
         method: 'DELETE',
         ...params,
       })
@@ -4554,9 +4484,8 @@ export class Api extends HttpClient {
       }: { path: VpcRouterRouteListPathParams; query?: VpcRouterRouteListQueryParams },
       params: RequestParams = {}
     ) => {
-      const { orgName, projectName, routerName, vpcName } = path
       return this.request<RouterRouteResultsPage>({
-        path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/routers/${routerName}/routes`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/vpcs/${path.vpcName}/routers/${path.routerName}/routes`,
         method: 'GET',
         query,
         ...params,
@@ -4569,9 +4498,8 @@ export class Api extends HttpClient {
       { path, body }: { path: VpcRouterRouteCreatePathParams; body: RouterRouteCreate },
       params: RequestParams = {}
     ) => {
-      const { orgName, projectName, routerName, vpcName } = path
       return this.request<RouterRoute>({
-        path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/routers/${routerName}/routes`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/vpcs/${path.vpcName}/routers/${path.routerName}/routes`,
         method: 'POST',
         body,
         ...params,
@@ -4584,9 +4512,8 @@ export class Api extends HttpClient {
       { path }: { path: VpcRouterRouteViewPathParams },
       params: RequestParams = {}
     ) => {
-      const { orgName, projectName, routeName, routerName, vpcName } = path
       return this.request<RouterRoute>({
-        path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/routers/${routerName}/routes/${routeName}`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/vpcs/${path.vpcName}/routers/${path.routerName}/routes/${path.routeName}`,
         method: 'GET',
         ...params,
       })
@@ -4598,9 +4525,8 @@ export class Api extends HttpClient {
       { path, body }: { path: VpcRouterRouteUpdatePathParams; body: RouterRouteUpdate },
       params: RequestParams = {}
     ) => {
-      const { orgName, projectName, routeName, routerName, vpcName } = path
       return this.request<RouterRoute>({
-        path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/routers/${routerName}/routes/${routeName}`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/vpcs/${path.vpcName}/routers/${path.routerName}/routes/${path.routeName}`,
         method: 'PUT',
         body,
         ...params,
@@ -4613,9 +4539,8 @@ export class Api extends HttpClient {
       { path }: { path: VpcRouterRouteDeletePathParams },
       params: RequestParams = {}
     ) => {
-      const { orgName, projectName, routeName, routerName, vpcName } = path
       return this.request<void>({
-        path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/routers/${routerName}/routes/${routeName}`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/vpcs/${path.vpcName}/routers/${path.routerName}/routes/${path.routeName}`,
         method: 'DELETE',
         ...params,
       })
@@ -4630,9 +4555,8 @@ export class Api extends HttpClient {
       }: { path: VpcSubnetListPathParams; query?: VpcSubnetListQueryParams },
       params: RequestParams = {}
     ) => {
-      const { orgName, projectName, vpcName } = path
       return this.request<VpcSubnetResultsPage>({
-        path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/subnets`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/vpcs/${path.vpcName}/subnets`,
         method: 'GET',
         query,
         ...params,
@@ -4645,9 +4569,8 @@ export class Api extends HttpClient {
       { path, body }: { path: VpcSubnetCreatePathParams; body: VpcSubnetCreate },
       params: RequestParams = {}
     ) => {
-      const { orgName, projectName, vpcName } = path
       return this.request<VpcSubnet>({
-        path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/subnets`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/vpcs/${path.vpcName}/subnets`,
         method: 'POST',
         body,
         ...params,
@@ -4660,9 +4583,8 @@ export class Api extends HttpClient {
       { path }: { path: VpcSubnetViewPathParams },
       params: RequestParams = {}
     ) => {
-      const { orgName, projectName, subnetName, vpcName } = path
       return this.request<VpcSubnet>({
-        path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/subnets/${subnetName}`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/vpcs/${path.vpcName}/subnets/${path.subnetName}`,
         method: 'GET',
         ...params,
       })
@@ -4674,9 +4596,8 @@ export class Api extends HttpClient {
       { path, body }: { path: VpcSubnetUpdatePathParams; body: VpcSubnetUpdate },
       params: RequestParams = {}
     ) => {
-      const { orgName, projectName, subnetName, vpcName } = path
       return this.request<VpcSubnet>({
-        path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/subnets/${subnetName}`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/vpcs/${path.vpcName}/subnets/${path.subnetName}`,
         method: 'PUT',
         body,
         ...params,
@@ -4689,9 +4610,8 @@ export class Api extends HttpClient {
       { path }: { path: VpcSubnetDeletePathParams },
       params: RequestParams = {}
     ) => {
-      const { orgName, projectName, subnetName, vpcName } = path
       return this.request<void>({
-        path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/subnets/${subnetName}`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/vpcs/${path.vpcName}/subnets/${path.subnetName}`,
         method: 'DELETE',
         ...params,
       })
@@ -4709,9 +4629,8 @@ export class Api extends HttpClient {
       },
       params: RequestParams = {}
     ) => {
-      const { orgName, projectName, subnetName, vpcName } = path
       return this.request<NetworkInterfaceResultsPage>({
-        path: `/organizations/${orgName}/projects/${projectName}/vpcs/${vpcName}/subnets/${subnetName}/network-interfaces`,
+        path: `/organizations/${path.orgName}/projects/${path.projectName}/vpcs/${path.vpcName}/subnets/${path.subnetName}/network-interfaces`,
         method: 'GET',
         query,
         ...params,
@@ -4756,9 +4675,8 @@ export class Api extends HttpClient {
      * Fetch a built-in role
      */
     roleView: ({ path }: { path: RoleViewPathParams }, params: RequestParams = {}) => {
-      const { roleName } = path
       return this.request<Role>({
-        path: `/roles/${roleName}`,
+        path: `/roles/${path.roleName}`,
         method: 'GET',
         ...params,
       })
@@ -4819,9 +4737,8 @@ export class Api extends HttpClient {
       { path }: { path: SessionSshkeyViewPathParams },
       params: RequestParams = {}
     ) => {
-      const { sshKeyName } = path
       return this.request<SshKey>({
-        path: `/session/me/sshkeys/${sshKeyName}`,
+        path: `/session/me/sshkeys/${path.sshKeyName}`,
         method: 'GET',
         ...params,
       })
@@ -4833,9 +4750,8 @@ export class Api extends HttpClient {
       { path }: { path: SessionSshkeyDeletePathParams },
       params: RequestParams = {}
     ) => {
-      const { sshKeyName } = path
       return this.request<void>({
-        path: `/session/me/sshkeys/${sshKeyName}`,
+        path: `/session/me/sshkeys/${path.sshKeyName}`,
         method: 'DELETE',
         ...params,
       })
@@ -4847,9 +4763,8 @@ export class Api extends HttpClient {
       { path }: { path: SystemImageViewByIdPathParams },
       params: RequestParams = {}
     ) => {
-      const { id } = path
       return this.request<GlobalImage>({
-        path: `/system/by-id/images/${id}`,
+        path: `/system/by-id/images/${path.id}`,
         method: 'GET',
         ...params,
       })
@@ -4861,9 +4776,8 @@ export class Api extends HttpClient {
       { path }: { path: IpPoolViewByIdPathParams },
       params: RequestParams = {}
     ) => {
-      const { id } = path
       return this.request<IpPool>({
-        path: `/system/by-id/ip-pools/${id}`,
+        path: `/system/by-id/ip-pools/${path.id}`,
         method: 'GET',
         ...params,
       })
@@ -4875,9 +4789,8 @@ export class Api extends HttpClient {
       { path }: { path: SiloViewByIdPathParams },
       params: RequestParams = {}
     ) => {
-      const { id } = path
       return this.request<Silo>({
-        path: `/system/by-id/silos/${id}`,
+        path: `/system/by-id/silos/${path.id}`,
         method: 'GET',
         ...params,
       })
@@ -4917,9 +4830,8 @@ export class Api extends HttpClient {
       { path }: { path: CertificateViewPathParams },
       params: RequestParams = {}
     ) => {
-      const { certificate } = path
       return this.request<Certificate>({
-        path: `/system/certificates/${certificate}`,
+        path: `/system/certificates/${path.certificate}`,
         method: 'GET',
         ...params,
       })
@@ -4931,9 +4843,8 @@ export class Api extends HttpClient {
       { path }: { path: CertificateDeletePathParams },
       params: RequestParams = {}
     ) => {
-      const { certificate } = path
       return this.request<void>({
-        path: `/system/certificates/${certificate}`,
+        path: `/system/certificates/${path.certificate}`,
         method: 'DELETE',
         ...params,
       })
@@ -4970,9 +4881,8 @@ export class Api extends HttpClient {
      * Fetch a rack
      */
     rackView: ({ path }: { path: RackViewPathParams }, params: RequestParams = {}) => {
-      const { rackId } = path
       return this.request<Rack>({
-        path: `/system/hardware/racks/${rackId}`,
+        path: `/system/hardware/racks/${path.rackId}`,
         method: 'GET',
         ...params,
       })
@@ -4995,9 +4905,8 @@ export class Api extends HttpClient {
      * Fetch a sled
      */
     sledView: ({ path }: { path: SledViewPathParams }, params: RequestParams = {}) => {
-      const { sledId } = path
       return this.request<Sled>({
-        path: `/system/hardware/sleds/${sledId}`,
+        path: `/system/hardware/sleds/${path.sledId}`,
         method: 'GET',
         ...params,
       })
@@ -5012,9 +4921,8 @@ export class Api extends HttpClient {
       }: { path: SledPhysicalDiskListPathParams; query?: SledPhysicalDiskListQueryParams },
       params: RequestParams = {}
     ) => {
-      const { sledId } = path
       return this.request<PhysicalDiskResultsPage>({
-        path: `/system/hardware/sleds/${sledId}/disks`,
+        path: `/system/hardware/sleds/${path.sledId}/disks`,
         method: 'GET',
         query,
         ...params,
@@ -5055,9 +4963,8 @@ export class Api extends HttpClient {
       { path }: { path: SystemImageViewPathParams },
       params: RequestParams = {}
     ) => {
-      const { imageName } = path
       return this.request<GlobalImage>({
-        path: `/system/images/${imageName}`,
+        path: `/system/images/${path.imageName}`,
         method: 'GET',
         ...params,
       })
@@ -5069,9 +4976,8 @@ export class Api extends HttpClient {
       { path }: { path: SystemImageDeletePathParams },
       params: RequestParams = {}
     ) => {
-      const { imageName } = path
       return this.request<void>({
-        path: `/system/images/${imageName}`,
+        path: `/system/images/${path.imageName}`,
         method: 'DELETE',
         ...params,
       })
@@ -5105,9 +5011,8 @@ export class Api extends HttpClient {
      * Fetch an IP pool
      */
     ipPoolView: ({ path }: { path: IpPoolViewPathParams }, params: RequestParams = {}) => {
-      const { poolName } = path
       return this.request<IpPool>({
-        path: `/system/ip-pools/${poolName}`,
+        path: `/system/ip-pools/${path.poolName}`,
         method: 'GET',
         ...params,
       })
@@ -5119,9 +5024,8 @@ export class Api extends HttpClient {
       { path, body }: { path: IpPoolUpdatePathParams; body: IpPoolUpdate },
       params: RequestParams = {}
     ) => {
-      const { poolName } = path
       return this.request<IpPool>({
-        path: `/system/ip-pools/${poolName}`,
+        path: `/system/ip-pools/${path.poolName}`,
         method: 'PUT',
         body,
         ...params,
@@ -5134,9 +5038,8 @@ export class Api extends HttpClient {
       { path }: { path: IpPoolDeletePathParams },
       params: RequestParams = {}
     ) => {
-      const { poolName } = path
       return this.request<void>({
-        path: `/system/ip-pools/${poolName}`,
+        path: `/system/ip-pools/${path.poolName}`,
         method: 'DELETE',
         ...params,
       })
@@ -5151,9 +5054,8 @@ export class Api extends HttpClient {
       }: { path: IpPoolRangeListPathParams; query?: IpPoolRangeListQueryParams },
       params: RequestParams = {}
     ) => {
-      const { poolName } = path
       return this.request<IpPoolRangeResultsPage>({
-        path: `/system/ip-pools/${poolName}/ranges`,
+        path: `/system/ip-pools/${path.poolName}/ranges`,
         method: 'GET',
         query,
         ...params,
@@ -5166,9 +5068,8 @@ export class Api extends HttpClient {
       { path, body }: { path: IpPoolRangeAddPathParams; body: IpRange },
       params: RequestParams = {}
     ) => {
-      const { poolName } = path
       return this.request<IpPoolRange>({
-        path: `/system/ip-pools/${poolName}/ranges/add`,
+        path: `/system/ip-pools/${path.poolName}/ranges/add`,
         method: 'POST',
         body,
         ...params,
@@ -5181,9 +5082,8 @@ export class Api extends HttpClient {
       { path, body }: { path: IpPoolRangeRemovePathParams; body: IpRange },
       params: RequestParams = {}
     ) => {
-      const { poolName } = path
       return this.request<void>({
-        path: `/system/ip-pools/${poolName}/ranges/remove`,
+        path: `/system/ip-pools/${path.poolName}/ranges/remove`,
         method: 'POST',
         body,
         ...params,
@@ -5245,9 +5145,8 @@ export class Api extends HttpClient {
       }: { path: SystemMetricPathParams; query?: SystemMetricQueryParams },
       params: RequestParams = {}
     ) => {
-      const { metricName } = path
       return this.request<MeasurementResultsPage>({
-        path: `/system/metrics/${metricName}`,
+        path: `/system/metrics/${path.metricName}`,
         method: 'GET',
         query,
         ...params,
@@ -5295,9 +5194,8 @@ export class Api extends HttpClient {
      * Fetch a saga
      */
     sagaView: ({ path }: { path: SagaViewPathParams }, params: RequestParams = {}) => {
-      const { sagaId } = path
       return this.request<Saga>({
-        path: `/system/sagas/${sagaId}`,
+        path: `/system/sagas/${path.sagaId}`,
         method: 'GET',
         ...params,
       })
@@ -5331,9 +5229,8 @@ export class Api extends HttpClient {
      * Fetch a silo
      */
     siloView: ({ path }: { path: SiloViewPathParams }, params: RequestParams = {}) => {
-      const { siloName } = path
       return this.request<Silo>({
-        path: `/system/silos/${siloName}`,
+        path: `/system/silos/${path.siloName}`,
         method: 'GET',
         ...params,
       })
@@ -5342,9 +5239,8 @@ export class Api extends HttpClient {
      * Delete a silo
      */
     siloDelete: ({ path }: { path: SiloDeletePathParams }, params: RequestParams = {}) => {
-      const { siloName } = path
       return this.request<void>({
-        path: `/system/silos/${siloName}`,
+        path: `/system/silos/${path.siloName}`,
         method: 'DELETE',
         ...params,
       })
@@ -5362,9 +5258,8 @@ export class Api extends HttpClient {
       },
       params: RequestParams = {}
     ) => {
-      const { siloName } = path
       return this.request<IdentityProviderResultsPage>({
-        path: `/system/silos/${siloName}/identity-providers`,
+        path: `/system/silos/${path.siloName}/identity-providers`,
         method: 'GET',
         query,
         ...params,
@@ -5377,9 +5272,8 @@ export class Api extends HttpClient {
       { path, body }: { path: LocalIdpUserCreatePathParams; body: UserCreate },
       params: RequestParams = {}
     ) => {
-      const { siloName } = path
       return this.request<User>({
-        path: `/system/silos/${siloName}/identity-providers/local/users`,
+        path: `/system/silos/${path.siloName}/identity-providers/local/users`,
         method: 'POST',
         body,
         ...params,
@@ -5392,9 +5286,8 @@ export class Api extends HttpClient {
       { path }: { path: LocalIdpUserDeletePathParams },
       params: RequestParams = {}
     ) => {
-      const { siloName, userId } = path
       return this.request<void>({
-        path: `/system/silos/${siloName}/identity-providers/local/users/${userId}`,
+        path: `/system/silos/${path.siloName}/identity-providers/local/users/${path.userId}`,
         method: 'DELETE',
         ...params,
       })
@@ -5406,9 +5299,8 @@ export class Api extends HttpClient {
       { path, body }: { path: LocalIdpUserSetPasswordPathParams; body: UserPassword },
       params: RequestParams = {}
     ) => {
-      const { siloName, userId } = path
       return this.request<void>({
-        path: `/system/silos/${siloName}/identity-providers/local/users/${userId}/set-password`,
+        path: `/system/silos/${path.siloName}/identity-providers/local/users/${path.userId}/set-password`,
         method: 'POST',
         body,
         ...params,
@@ -5424,9 +5316,8 @@ export class Api extends HttpClient {
       }: { path: SamlIdentityProviderCreatePathParams; body: SamlIdentityProviderCreate },
       params: RequestParams = {}
     ) => {
-      const { siloName } = path
       return this.request<SamlIdentityProvider>({
-        path: `/system/silos/${siloName}/identity-providers/saml`,
+        path: `/system/silos/${path.siloName}/identity-providers/saml`,
         method: 'POST',
         body,
         ...params,
@@ -5439,9 +5330,8 @@ export class Api extends HttpClient {
       { path }: { path: SamlIdentityProviderViewPathParams },
       params: RequestParams = {}
     ) => {
-      const { providerName, siloName } = path
       return this.request<SamlIdentityProvider>({
-        path: `/system/silos/${siloName}/identity-providers/saml/${providerName}`,
+        path: `/system/silos/${path.siloName}/identity-providers/saml/${path.providerName}`,
         method: 'GET',
         ...params,
       })
@@ -5453,9 +5343,8 @@ export class Api extends HttpClient {
       { path }: { path: SiloPolicyViewPathParams },
       params: RequestParams = {}
     ) => {
-      const { siloName } = path
       return this.request<SiloRolePolicy>({
-        path: `/system/silos/${siloName}/policy`,
+        path: `/system/silos/${path.siloName}/policy`,
         method: 'GET',
         ...params,
       })
@@ -5467,9 +5356,8 @@ export class Api extends HttpClient {
       { path, body }: { path: SiloPolicyUpdatePathParams; body: SiloRolePolicy },
       params: RequestParams = {}
     ) => {
-      const { siloName } = path
       return this.request<SiloRolePolicy>({
-        path: `/system/silos/${siloName}/policy`,
+        path: `/system/silos/${path.siloName}/policy`,
         method: 'PUT',
         body,
         ...params,
@@ -5485,9 +5373,8 @@ export class Api extends HttpClient {
       }: { path: SiloUsersListPathParams; query?: SiloUsersListQueryParams },
       params: RequestParams = {}
     ) => {
-      const { siloName } = path
       return this.request<UserResultsPage>({
-        path: `/system/silos/${siloName}/users/all`,
+        path: `/system/silos/${path.siloName}/users/all`,
         method: 'GET',
         query,
         ...params,
@@ -5500,9 +5387,8 @@ export class Api extends HttpClient {
       { path }: { path: SiloUserViewPathParams },
       params: RequestParams = {}
     ) => {
-      const { siloName, userId } = path
       return this.request<User>({
-        path: `/system/silos/${siloName}/users/id/${userId}`,
+        path: `/system/silos/${path.siloName}/users/id/${path.userId}`,
         method: 'GET',
         ...params,
       })
@@ -5528,9 +5414,8 @@ export class Api extends HttpClient {
       { path }: { path: SystemUserViewPathParams },
       params: RequestParams = {}
     ) => {
-      const { userName } = path
       return this.request<UserBuiltin>({
-        path: `/system/user/${userName}`,
+        path: `/system/user/${path.userName}`,
         method: 'GET',
         ...params,
       })
@@ -5599,9 +5484,8 @@ export class Api extends HttpClient {
       { path, query = {} }: { path: DiskViewV1PathParams; query?: DiskViewV1QueryParams },
       params: RequestParams = {}
     ) => {
-      const { disk } = path
       return this.request<Disk>({
-        path: `/v1/disks/${disk}`,
+        path: `/v1/disks/${path.disk}`,
         method: 'GET',
         query,
         ...params,
@@ -5617,9 +5501,8 @@ export class Api extends HttpClient {
       }: { path: DiskDeleteV1PathParams; query?: DiskDeleteV1QueryParams },
       params: RequestParams = {}
     ) => {
-      const { disk } = path
       return this.request<void>({
-        path: `/v1/disks/${disk}`,
+        path: `/v1/disks/${path.disk}`,
         method: 'DELETE',
         query,
         ...params,
@@ -5664,9 +5547,8 @@ export class Api extends HttpClient {
       }: { path: InstanceViewV1PathParams; query?: InstanceViewV1QueryParams },
       params: RequestParams = {}
     ) => {
-      const { instance } = path
       return this.request<Instance>({
-        path: `/v1/instances/${instance}`,
+        path: `/v1/instances/${path.instance}`,
         method: 'GET',
         query,
         ...params,
@@ -5682,9 +5564,8 @@ export class Api extends HttpClient {
       }: { path: InstanceDeleteV1PathParams; query?: InstanceDeleteV1QueryParams },
       params: RequestParams = {}
     ) => {
-      const { instance } = path
       return this.request<void>({
-        path: `/v1/instances/${instance}`,
+        path: `/v1/instances/${path.instance}`,
         method: 'DELETE',
         query,
         ...params,
@@ -5700,9 +5581,8 @@ export class Api extends HttpClient {
       }: { path: InstanceDiskListV1PathParams; query?: InstanceDiskListV1QueryParams },
       params: RequestParams = {}
     ) => {
-      const { instance } = path
       return this.request<DiskResultsPage>({
-        path: `/v1/instances/${instance}/disks`,
+        path: `/v1/instances/${path.instance}/disks`,
         method: 'GET',
         query,
         ...params,
@@ -5723,9 +5603,8 @@ export class Api extends HttpClient {
       },
       params: RequestParams = {}
     ) => {
-      const { instance } = path
       return this.request<Disk>({
-        path: `/v1/instances/${instance}/disks/attach`,
+        path: `/v1/instances/${path.instance}/disks/attach`,
         method: 'POST',
         body,
         query,
@@ -5747,9 +5626,8 @@ export class Api extends HttpClient {
       },
       params: RequestParams = {}
     ) => {
-      const { instance } = path
       return this.request<Disk>({
-        path: `/v1/instances/${instance}/disks/detach`,
+        path: `/v1/instances/${path.instance}/disks/detach`,
         method: 'POST',
         body,
         query,
@@ -5771,9 +5649,8 @@ export class Api extends HttpClient {
       },
       params: RequestParams = {}
     ) => {
-      const { instance } = path
       return this.request<Instance>({
-        path: `/v1/instances/${instance}/migrate`,
+        path: `/v1/instances/${path.instance}/migrate`,
         method: 'POST',
         body,
         query,
@@ -5790,9 +5667,8 @@ export class Api extends HttpClient {
       }: { path: InstanceRebootV1PathParams; query?: InstanceRebootV1QueryParams },
       params: RequestParams = {}
     ) => {
-      const { instance } = path
       return this.request<Instance>({
-        path: `/v1/instances/${instance}/reboot`,
+        path: `/v1/instances/${path.instance}/reboot`,
         method: 'POST',
         query,
         ...params,
@@ -5811,9 +5687,8 @@ export class Api extends HttpClient {
       },
       params: RequestParams = {}
     ) => {
-      const { instance } = path
       return this.request<InstanceSerialConsoleData>({
-        path: `/v1/instances/${instance}/serial-console`,
+        path: `/v1/instances/${path.instance}/serial-console`,
         method: 'GET',
         query,
         ...params,
@@ -5832,9 +5707,8 @@ export class Api extends HttpClient {
       },
       params: RequestParams = {}
     ) => {
-      const { instance } = path
       return this.request<void>({
-        path: `/v1/instances/${instance}/serial-console/stream`,
+        path: `/v1/instances/${path.instance}/serial-console/stream`,
         method: 'GET',
         query,
         ...params,
@@ -5850,9 +5724,8 @@ export class Api extends HttpClient {
       }: { path: InstanceStartV1PathParams; query?: InstanceStartV1QueryParams },
       params: RequestParams = {}
     ) => {
-      const { instance } = path
       return this.request<Instance>({
-        path: `/v1/instances/${instance}/start`,
+        path: `/v1/instances/${path.instance}/start`,
         method: 'POST',
         query,
         ...params,
@@ -5868,9 +5741,8 @@ export class Api extends HttpClient {
       }: { path: InstanceStopV1PathParams; query?: InstanceStopV1QueryParams },
       params: RequestParams = {}
     ) => {
-      const { instance } = path
       return this.request<Instance>({
-        path: `/v1/instances/${instance}/stop`,
+        path: `/v1/instances/${path.instance}/stop`,
         method: 'POST',
         query,
         ...params,
@@ -5924,9 +5796,8 @@ export class Api extends HttpClient {
       },
       params: RequestParams = {}
     ) => {
-      const { iface } = path
       return this.request<NetworkInterface>({
-        path: `/v1/network-interfaces/${iface}`,
+        path: `/v1/network-interfaces/${path.interface}`,
         method: 'GET',
         query,
         ...params,
@@ -5947,9 +5818,8 @@ export class Api extends HttpClient {
       },
       params: RequestParams = {}
     ) => {
-      const { iface } = path
       return this.request<NetworkInterface>({
-        path: `/v1/network-interfaces/${iface}`,
+        path: `/v1/network-interfaces/${path.interface}`,
         method: 'PUT',
         body,
         query,
@@ -5969,9 +5839,8 @@ export class Api extends HttpClient {
       },
       params: RequestParams = {}
     ) => {
-      const { iface } = path
       return this.request<void>({
-        path: `/v1/network-interfaces/${iface}`,
+        path: `/v1/network-interfaces/${path.interface}`,
         method: 'DELETE',
         query,
         ...params,
@@ -6012,9 +5881,8 @@ export class Api extends HttpClient {
       { path }: { path: OrganizationViewV1PathParams },
       params: RequestParams = {}
     ) => {
-      const { organization } = path
       return this.request<Organization>({
-        path: `/v1/organizations/${organization}`,
+        path: `/v1/organizations/${path.organization}`,
         method: 'GET',
         ...params,
       })
@@ -6026,9 +5894,8 @@ export class Api extends HttpClient {
       { path, body }: { path: OrganizationUpdateV1PathParams; body: OrganizationUpdate },
       params: RequestParams = {}
     ) => {
-      const { organization } = path
       return this.request<Organization>({
-        path: `/v1/organizations/${organization}`,
+        path: `/v1/organizations/${path.organization}`,
         method: 'PUT',
         body,
         ...params,
@@ -6041,9 +5908,8 @@ export class Api extends HttpClient {
       { path }: { path: OrganizationDeleteV1PathParams },
       params: RequestParams = {}
     ) => {
-      const { organization } = path
       return this.request<void>({
-        path: `/v1/organizations/${organization}`,
+        path: `/v1/organizations/${path.organization}`,
         method: 'DELETE',
         ...params,
       })
@@ -6055,9 +5921,8 @@ export class Api extends HttpClient {
       { path }: { path: OrganizationPolicyViewV1PathParams },
       params: RequestParams = {}
     ) => {
-      const { organization } = path
       return this.request<OrganizationRolePolicy>({
-        path: `/v1/organizations/${organization}/policy`,
+        path: `/v1/organizations/${path.organization}/policy`,
         method: 'GET',
         ...params,
       })
@@ -6072,9 +5937,8 @@ export class Api extends HttpClient {
       }: { path: OrganizationPolicyUpdateV1PathParams; body: OrganizationRolePolicy },
       params: RequestParams = {}
     ) => {
-      const { organization } = path
       return this.request<OrganizationRolePolicy>({
-        path: `/v1/organizations/${organization}/policy`,
+        path: `/v1/organizations/${path.organization}/policy`,
         method: 'PUT',
         body,
         ...params,
@@ -6140,9 +6004,8 @@ export class Api extends HttpClient {
       }: { path: ProjectViewV1PathParams; query?: ProjectViewV1QueryParams },
       params: RequestParams = {}
     ) => {
-      const { project } = path
       return this.request<Project>({
-        path: `/v1/projects/${project}`,
+        path: `/v1/projects/${path.project}`,
         method: 'GET',
         query,
         ...params,
@@ -6163,9 +6026,8 @@ export class Api extends HttpClient {
       },
       params: RequestParams = {}
     ) => {
-      const { project } = path
       return this.request<Project>({
-        path: `/v1/projects/${project}`,
+        path: `/v1/projects/${path.project}`,
         method: 'PUT',
         body,
         query,
@@ -6182,9 +6044,8 @@ export class Api extends HttpClient {
       }: { path: ProjectDeleteV1PathParams; query?: ProjectDeleteV1QueryParams },
       params: RequestParams = {}
     ) => {
-      const { project } = path
       return this.request<void>({
-        path: `/v1/projects/${project}`,
+        path: `/v1/projects/${path.project}`,
         method: 'DELETE',
         query,
         ...params,
@@ -6200,9 +6061,8 @@ export class Api extends HttpClient {
       }: { path: ProjectPolicyViewV1PathParams; query?: ProjectPolicyViewV1QueryParams },
       params: RequestParams = {}
     ) => {
-      const { project } = path
       return this.request<ProjectRolePolicy>({
-        path: `/v1/projects/${project}/policy`,
+        path: `/v1/projects/${path.project}/policy`,
         method: 'GET',
         query,
         ...params,
@@ -6223,9 +6083,8 @@ export class Api extends HttpClient {
       },
       params: RequestParams = {}
     ) => {
-      const { project } = path
       return this.request<ProjectRolePolicy>({
-        path: `/v1/projects/${project}/policy`,
+        path: `/v1/projects/${path.project}/policy`,
         method: 'PUT',
         body,
         query,
@@ -6271,9 +6130,8 @@ export class Api extends HttpClient {
       }: { path: SnapshotViewV1PathParams; query?: SnapshotViewV1QueryParams },
       params: RequestParams = {}
     ) => {
-      const { snapshot } = path
       return this.request<Snapshot>({
-        path: `/v1/snapshots/${snapshot}`,
+        path: `/v1/snapshots/${path.snapshot}`,
         method: 'GET',
         query,
         ...params,
@@ -6289,9 +6147,8 @@ export class Api extends HttpClient {
       }: { path: SnapshotDeleteV1PathParams; query?: SnapshotDeleteV1QueryParams },
       params: RequestParams = {}
     ) => {
-      const { snapshot } = path
       return this.request<void>({
-        path: `/v1/snapshots/${snapshot}`,
+        path: `/v1/snapshots/${path.snapshot}`,
         method: 'DELETE',
         query,
         ...params,
@@ -6332,9 +6189,8 @@ export class Api extends HttpClient {
       { path }: { path: CertificateViewV1PathParams },
       params: RequestParams = {}
     ) => {
-      const { certificate } = path
       return this.request<Certificate>({
-        path: `/v1/system/certificates/${certificate}`,
+        path: `/v1/system/certificates/${path.certificate}`,
         method: 'GET',
         ...params,
       })
@@ -6346,9 +6202,8 @@ export class Api extends HttpClient {
       { path }: { path: CertificateDeleteV1PathParams },
       params: RequestParams = {}
     ) => {
-      const { certificate } = path
       return this.request<void>({
-        path: `/v1/system/certificates/${certificate}`,
+        path: `/v1/system/certificates/${path.certificate}`,
         method: 'DELETE',
         ...params,
       })
@@ -6385,9 +6240,8 @@ export class Api extends HttpClient {
      * Fetch a rack
      */
     rackViewV1: ({ path }: { path: RackViewV1PathParams }, params: RequestParams = {}) => {
-      const { rackId } = path
       return this.request<Rack>({
-        path: `/v1/system/hardware/racks/${rackId}`,
+        path: `/v1/system/hardware/racks/${path.rackId}`,
         method: 'GET',
         ...params,
       })
@@ -6410,9 +6264,8 @@ export class Api extends HttpClient {
      * Fetch a sled
      */
     sledViewV1: ({ path }: { path: SledViewV1PathParams }, params: RequestParams = {}) => {
-      const { sledId } = path
       return this.request<Sled>({
-        path: `/v1/system/hardware/sleds/${sledId}`,
+        path: `/v1/system/hardware/sleds/${path.sledId}`,
         method: 'GET',
         ...params,
       })
@@ -6430,9 +6283,8 @@ export class Api extends HttpClient {
       },
       params: RequestParams = {}
     ) => {
-      const { sledId } = path
       return this.request<PhysicalDiskResultsPage>({
-        path: `/v1/system/hardware/sleds/${sledId}/disks`,
+        path: `/v1/system/hardware/sleds/${path.sledId}/disks`,
         method: 'GET',
         query,
         ...params,
@@ -6480,9 +6332,8 @@ export class Api extends HttpClient {
      * Fetch a saga
      */
     sagaViewV1: ({ path }: { path: SagaViewV1PathParams }, params: RequestParams = {}) => {
-      const { sagaId } = path
       return this.request<Saga>({
-        path: `/v1/system/sagas/${sagaId}`,
+        path: `/v1/system/sagas/${path.sagaId}`,
         method: 'GET',
         ...params,
       })
@@ -6522,9 +6373,8 @@ export class Api extends HttpClient {
       { path }: { path: UpdateDeploymentViewPathParams },
       params: RequestParams = {}
     ) => {
-      const { id } = path
       return this.request<UpdateDeployment>({
-        path: `/v1/system/update/deployments/${id}`,
+        path: `/v1/system/update/deployments/${path.id}`,
         method: 'GET',
         ...params,
       })
@@ -6584,9 +6434,8 @@ export class Api extends HttpClient {
       { path }: { path: SystemUpdateViewPathParams },
       params: RequestParams = {}
     ) => {
-      const { version } = path
       return this.request<SystemUpdate>({
-        path: `/v1/system/update/updates/${version}`,
+        path: `/v1/system/update/updates/${path.version}`,
         method: 'GET',
         ...params,
       })
@@ -6598,9 +6447,8 @@ export class Api extends HttpClient {
       { path }: { path: SystemUpdateComponentsListPathParams },
       params: RequestParams = {}
     ) => {
-      const { version } = path
       return this.request<ComponentUpdateResultsPage>({
-        path: `/v1/system/update/updates/${version}/components`,
+        path: `/v1/system/update/updates/${path.version}/components`,
         method: 'GET',
         ...params,
       })
@@ -6657,9 +6505,8 @@ export class Api extends HttpClient {
       }: { path: VpcRouterRouteViewV1PathParams; query?: VpcRouterRouteViewV1QueryParams },
       params: RequestParams = {}
     ) => {
-      const { route } = path
       return this.request<RouterRoute>({
-        path: `/v1/vpc-router-routes/${route}`,
+        path: `/v1/vpc-router-routes/${path.route}`,
         method: 'GET',
         query,
         ...params,
@@ -6680,9 +6527,8 @@ export class Api extends HttpClient {
       },
       params: RequestParams = {}
     ) => {
-      const { route } = path
       return this.request<RouterRoute>({
-        path: `/v1/vpc-router-routes/${route}`,
+        path: `/v1/vpc-router-routes/${path.route}`,
         method: 'PUT',
         body,
         query,
@@ -6702,9 +6548,8 @@ export class Api extends HttpClient {
       },
       params: RequestParams = {}
     ) => {
-      const { route } = path
       return this.request<void>({
-        path: `/v1/vpc-router-routes/${route}`,
+        path: `/v1/vpc-router-routes/${path.route}`,
         method: 'DELETE',
         query,
         ...params,
@@ -6749,9 +6594,8 @@ export class Api extends HttpClient {
       }: { path: VpcRouterViewV1PathParams; query?: VpcRouterViewV1QueryParams },
       params: RequestParams = {}
     ) => {
-      const { router } = path
       return this.request<VpcRouter>({
-        path: `/v1/vpc-routers/${router}`,
+        path: `/v1/vpc-routers/${path.router}`,
         method: 'GET',
         query,
         ...params,
@@ -6772,9 +6616,8 @@ export class Api extends HttpClient {
       },
       params: RequestParams = {}
     ) => {
-      const { router } = path
       return this.request<VpcRouter>({
-        path: `/v1/vpc-routers/${router}`,
+        path: `/v1/vpc-routers/${path.router}`,
         method: 'PUT',
         body,
         query,
@@ -6791,9 +6634,8 @@ export class Api extends HttpClient {
       }: { path: VpcRouterDeleteV1PathParams; query?: VpcRouterDeleteV1QueryParams },
       params: RequestParams = {}
     ) => {
-      const { router } = path
       return this.request<void>({
-        path: `/v1/vpc-routers/${router}`,
+        path: `/v1/vpc-routers/${path.router}`,
         method: 'DELETE',
         query,
         ...params,
@@ -6838,9 +6680,8 @@ export class Api extends HttpClient {
       }: { path: VpcSubnetViewV1PathParams; query?: VpcSubnetViewV1QueryParams },
       params: RequestParams = {}
     ) => {
-      const { subnet } = path
       return this.request<VpcSubnet>({
-        path: `/v1/vpc-subnets/${subnet}`,
+        path: `/v1/vpc-subnets/${path.subnet}`,
         method: 'GET',
         query,
         ...params,
@@ -6861,9 +6702,8 @@ export class Api extends HttpClient {
       },
       params: RequestParams = {}
     ) => {
-      const { subnet } = path
       return this.request<VpcSubnet>({
-        path: `/v1/vpc-subnets/${subnet}`,
+        path: `/v1/vpc-subnets/${path.subnet}`,
         method: 'PUT',
         body,
         query,
@@ -6880,9 +6720,8 @@ export class Api extends HttpClient {
       }: { path: VpcSubnetDeleteV1PathParams; query?: VpcSubnetDeleteV1QueryParams },
       params: RequestParams = {}
     ) => {
-      const { subnet } = path
       return this.request<void>({
-        path: `/v1/vpc-subnets/${subnet}`,
+        path: `/v1/vpc-subnets/${path.subnet}`,
         method: 'DELETE',
         query,
         ...params,
@@ -6924,9 +6763,8 @@ export class Api extends HttpClient {
       { path, query = {} }: { path: VpcViewV1PathParams; query?: VpcViewV1QueryParams },
       params: RequestParams = {}
     ) => {
-      const { vpc } = path
       return this.request<Vpc>({
-        path: `/v1/vpcs/${vpc}`,
+        path: `/v1/vpcs/${path.vpc}`,
         method: 'GET',
         query,
         ...params,
@@ -6943,9 +6781,8 @@ export class Api extends HttpClient {
       }: { path: VpcUpdateV1PathParams; query?: VpcUpdateV1QueryParams; body: VpcUpdate },
       params: RequestParams = {}
     ) => {
-      const { vpc } = path
       return this.request<Vpc>({
-        path: `/v1/vpcs/${vpc}`,
+        path: `/v1/vpcs/${path.vpc}`,
         method: 'PUT',
         body,
         query,
@@ -6959,9 +6796,8 @@ export class Api extends HttpClient {
       { path, query = {} }: { path: VpcDeleteV1PathParams; query?: VpcDeleteV1QueryParams },
       params: RequestParams = {}
     ) => {
-      const { vpc } = path
       return this.request<void>({
-        path: `/v1/vpcs/${vpc}`,
+        path: `/v1/vpcs/${path.vpc}`,
         method: 'DELETE',
         query,
         ...params,
