@@ -1,3 +1,4 @@
+import { getLocalTimeZone } from '@internationalized/date'
 import { useMemo, useState } from 'react'
 
 import { apiQueryClient, useApiQuery } from '@oxide/api'
@@ -47,7 +48,11 @@ export function SiloUtilizationPage() {
 
   const filterId = projectId || orgId
 
-  const commonProps = { startTime, endTime, filterId }
+  const commonProps = {
+    startTime: startTime.toDate(getLocalTimeZone()),
+    endTime: endTime.toDate(getLocalTimeZone()),
+    filterId,
+  }
 
   return (
     <>

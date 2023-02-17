@@ -1,10 +1,15 @@
-import { format, subDays, subHours } from 'date-fns'
-import { useCallback, useMemo, useState } from 'react'
+import type { DateValue } from '@internationalized/date'
+import { getLocalTimeZone, now as getNow } from '@internationalized/date'
+import { useMemo, useState } from 'react'
 
-import { Listbox, useInterval } from '@oxide/ui'
-import { Button, TextInput } from '@oxide/ui'
-
-export const dateForInput = (d: Date) => format(d, "yyyy-MM-dd'T'HH:mm")
+import {
+  Button,
+  Checkmark12Icon,
+  Close12Icon,
+  DateRangePicker,
+  Listbox,
+  useInterval,
+} from '@oxide/ui'
 
 const rangePresets = [
   { label: 'Last hour', value: 'lastHour' as const },
@@ -20,12 +25,12 @@ type RangeKeyAll = typeof rangePresets[number]['value']
 export type RangeKey = Exclude<RangeKeyAll, 'custom'>
 
 // Record ensures we have an entry for every preset
-const computeStart: Record<RangeKey, (now: Date) => Date> = {
-  lastHour: (now) => subHours(now, 1),
-  last3Hours: (now) => subHours(now, 3),
-  lastDay: (now) => subDays(now, 1),
-  lastWeek: (now) => subDays(now, 7),
-  last30Days: (now) => subDays(now, 30),
+const computeStart: Record<RangeKey, (now: DateValue) => DateValue> = {
+  lastHour: (now) => now.subtract({ hours: 1 }),
+  last3Hours: (now) => now.subtract({ hours: 3 }),
+  lastDay: (now) => now.subtract({ days: 1 }),
+  lastWeek: (now) => now.subtract({ days: 7 }),
+  last30Days: (now) => now.subtract({ days: 30 }),
 }
 
 // Limitations:
@@ -39,79 +44,63 @@ const computeStart: Record<RangeKey, (now: Date) => Date> = {
  * have `endTime` of _now_ every `SLIDE_INTERVAL` ms.
  */
 export function useDateTimeRangePicker(initialPreset: RangeKey) {
-  const now = useMemo(() => new Date(), [])
+  const now = useMemo(() => getNow(getLocalTimeZone()), [])
 
-  const [startTime, setStartTime] = useState(computeStart[initialPreset](now))
-  const [endTime, setEndTime] = useState(now)
+  const start = computeStart[initialPreset](now)
+  const end = now
 
-  const props = { initialPreset, startTime, endTime, setStartTime, setEndTime }
+  const [range, setRange] = useState<DateTimeRange>({ start, end })
+
+  const props = { initialPreset, range, setRange }
 
   return {
-    startTime,
-    endTime,
+    startTime: range.start,
+    endTime: range.end,
     dateTimeRangePicker: <DateTimeRangePicker {...props} />,
   }
-}
-
-function validateRange(startTime: Date, endTime: Date): string | null {
-  if (startTime >= endTime) {
-    return 'Start time must be earlier than end time'
-  }
-
-  return null
 }
 
 /** Interval for sliding range forward when using a relative time preset */
 const SLIDE_INTERVAL = 10_000
 
+type DateTimeRange = { start: DateValue; end: DateValue }
+
 type DateTimeRangePickerProps = {
   initialPreset: RangeKey
-  startTime: Date
-  endTime: Date
-  setStartTime: (startTime: Date) => void
-  setEndTime: (endTime: Date) => void
+  range: DateTimeRange
+  setRange: (v: DateTimeRange) => void
 }
 
 export function DateTimeRangePicker({
   initialPreset,
-  startTime,
-  endTime,
-  setStartTime,
-  setEndTime,
+  range,
+  setRange,
 }: DateTimeRangePickerProps) {
   const [preset, setPreset] = useState<RangeKeyAll>(initialPreset)
 
   // needs a separate pair of values because they can be edited without
   // submitting and updating the graphs
-  const [startTimeInput, setStartTimeInput] = useState(startTime)
-  const [endTimeInput, setEndTimeInput] = useState(endTime)
+  const [inputRange, setInputRange] = useState<DateTimeRange>(range)
 
-  // TODO: validate inputs on change and display error someplace
-  const error = validateRange(startTimeInput, endTimeInput)
-
-  const customInputsDirty = startTime !== startTimeInput || endTime !== endTimeInput
+  const customInputsDirty =
+    range.start.compare(inputRange.start) !== 0 || range.end.compare(inputRange.end) !== 0
 
   const enableInputs = preset === 'custom'
 
   // could handle this in a useEffect that looks at `preset`, but that would
   // also run on initial render, which is silly. Instead explicitly call it on
   // preset change and in useInterval.
-  const setRange = useCallback(
-    (preset: RangeKeyAll) => {
-      if (preset !== 'custom') {
-        const now = new Date()
-        const newStartTime = computeStart[preset](now)
-        setStartTime(newStartTime)
-        setEndTime(now)
-        setStartTimeInput(newStartTime)
-        setEndTimeInput(now)
-      }
-    },
-    [setStartTime, setEndTime]
-  )
+  const onRangeChange = (preset: RangeKeyAll) => {
+    if (preset !== 'custom') {
+      const now = getNow(getLocalTimeZone())
+      const newStartTime = computeStart[preset](now)
+      setRange({ start: newStartTime, end: now })
+      setInputRange({ start: newStartTime, end: now })
+    }
+  }
 
   useInterval({
-    fn: () => setRange(preset),
+    fn: () => onRangeChange(preset),
     delay: preset !== 'custom' ? SLIDE_INTERVAL : null,
     key: preset, // force a render which clears current interval
   })
@@ -122,69 +111,35 @@ export function DateTimeRangePicker({
         className="mr-4 w-48" // in addition to gap-4
         name="preset"
         defaultValue={initialPreset}
-        aria-label="Choose a time range"
+        aria-label="Choose a time range preset"
         items={rangePresets}
         onChange={(item) => {
           if (item) {
             const newPreset = item.value as RangeKeyAll
             setPreset(newPreset)
-            setRange(newPreset)
+            onRangeChange(newPreset)
           }
         }}
       />
 
-      {/* TODO: real React date picker lib instead of native for consistent styling across browsers */}
       <div>
-        <div className="flex gap-4">
-          <TextInput
-            id="startTime"
-            type="datetime-local"
-            className="h-10"
-            // TODO: figure out error
-            error={false}
-            aria-label="Start time"
-            disabled={!enableInputs}
-            required
-            value={dateForInput(startTimeInput)}
-            onChange={(e) => setStartTimeInput(new Date(e.target.value))}
-          />
-          <TextInput
-            id="endTime"
-            type="datetime-local"
-            className="h-10"
-            // TODO: figure out error
-            error={false}
-            aria-label="End time"
-            disabled={!enableInputs}
-            required
-            value={dateForInput(endTimeInput)}
-            onChange={(e) => setEndTimeInput(new Date(e.target.value))}
-          />
-        </div>
-        {error && <div className="mt-2 text-center text-error">{error}</div>}
+        <DateRangePicker
+          isDisabled={!enableInputs}
+          label="Choose a date range"
+          value={inputRange}
+          onChange={setInputRange}
+        />
       </div>
-      {/* TODO: fix goofy ass button text. use icons? tooltips to explain? lord */}
+      {/* TODO: fix goofy ass buttons. tooltips to explain? lord */}
       {enableInputs && (
-        <Button
-          disabled={!customInputsDirty}
-          // reset inputs back to whatever they were
-          onClick={() => {
-            setStartTimeInput(startTime)
-            setEndTimeInput(endTime)
-          }}
-        >
-          Reset
+        // reset inputs back to whatever they were
+        <Button disabled={!customInputsDirty} onClick={() => setInputRange(range)}>
+          <Close12Icon />
         </Button>
       )}
       {enableInputs && (
-        <Button
-          disabled={!customInputsDirty || !!error}
-          onClick={() => {
-            setStartTime(startTimeInput)
-            setEndTime(endTimeInput)
-          }}
-        >
-          Load
+        <Button disabled={!customInputsDirty} onClick={() => setRange(inputRange)}>
+          <Checkmark12Icon />
         </Button>
       )}
     </form>
