@@ -34,6 +34,7 @@ const DISK_COLORS: Record<DiskStateStr, BadgeColor> = {
   detached: 'neutral',
   destroyed: 'neutral', // should we ever see this?
   faulted: 'destructive',
+  maintenance: 'notice',
 }
 
 export const DiskStatusBadge = (props: { status: DiskStateStr; className?: string }) => (

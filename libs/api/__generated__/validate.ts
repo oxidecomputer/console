@@ -327,6 +327,7 @@ export const DiskState = z.preprocess(
   z.union([
     z.object({ state: z.enum(['creating']) }),
     z.object({ state: z.enum(['detached']) }),
+    z.object({ state: z.enum(['maintenance']) }),
     z.object({ instance: z.string().uuid(), state: z.enum(['attaching']) }),
     z.object({ instance: z.string().uuid(), state: z.enum(['attached']) }),
     z.object({ instance: z.string().uuid(), state: z.enum(['detaching']) }),
@@ -1251,9 +1252,9 @@ export const RouterRoute = z.preprocess(
 )
 
 /**
- * Create-time parameters for a {@link RouterRoute}
+ * Create-time parameters for a `omicron_common::api::external::RouterRoute`
  */
-export const RouterRouteCreateParams = z.preprocess(
+export const RouterRouteCreate = z.preprocess(
   processResponseBody,
   z.object({
     description: z.string(),
@@ -1272,9 +1273,9 @@ export const RouterRouteResultsPage = z.preprocess(
 )
 
 /**
- * Updateable properties of a {@link RouterRoute}
+ * Updateable properties of a `omicron_common::api::external::RouterRoute`
  */
-export const RouterRouteUpdateParams = z.preprocess(
+export const RouterRouteUpdate = z.preprocess(
   processResponseBody,
   z.object({
     description: z.string().optional(),
@@ -3225,7 +3226,7 @@ export const CertificateListParams = z.preprocess(
     query: z.object({
       limit: z.number().min(1).max(4294967295).optional(),
       pageToken: z.string().optional(),
-      sortBy: NameSortMode.optional(),
+      sortBy: NameOrIdSortMode.optional(),
     }),
   })
 )
@@ -3962,6 +3963,75 @@ export const InstanceStopV1Params = z.preprocess(
   })
 )
 
+export const InstanceNetworkInterfaceListV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      instance: NameOrId.optional(),
+      limit: z.number().min(1).max(4294967295).optional(),
+      organization: NameOrId.optional(),
+      pageToken: z.string().optional(),
+      project: NameOrId.optional(),
+      sortBy: NameOrIdSortMode.optional(),
+    }),
+  })
+)
+
+export const InstanceNetworkInterfaceCreateV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      instance: NameOrId.optional(),
+      organization: NameOrId.optional(),
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const InstanceNetworkInterfaceViewV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      interface: NameOrId,
+    }),
+    query: z.object({
+      instance: NameOrId.optional(),
+      organization: NameOrId.optional(),
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const InstanceNetworkInterfaceUpdateV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      interface: NameOrId,
+    }),
+    query: z.object({
+      instance: NameOrId.optional(),
+      organization: NameOrId.optional(),
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const InstanceNetworkInterfaceDeleteV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      interface: NameOrId,
+    }),
+    query: z.object({
+      instance: NameOrId.optional(),
+      organization: NameOrId.optional(),
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
 export const OrganizationListV1Params = z.preprocess(
   processResponseBody,
   z.object({
@@ -4028,6 +4098,22 @@ export const OrganizationPolicyUpdateV1Params = z.preprocess(
     path: z.object({
       organization: NameOrId,
     }),
+    query: z.object({}),
+  })
+)
+
+export const PolicyViewV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
+  })
+)
+
+export const PolicyUpdateV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
     query: z.object({}),
   })
 )
@@ -4112,6 +4198,205 @@ export const ProjectPolicyUpdateV1Params = z.preprocess(
     query: z.object({
       organization: NameOrId.optional(),
     }),
+  })
+)
+
+export const SnapshotListV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      organization: NameOrId.optional(),
+      pageToken: z.string().optional(),
+      project: NameOrId.optional(),
+      sortBy: NameOrIdSortMode.optional(),
+    }),
+  })
+)
+
+export const SnapshotCreateV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      organization: NameOrId.optional(),
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const SnapshotViewV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      snapshot: NameOrId,
+    }),
+    query: z.object({
+      organization: NameOrId.optional(),
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const SnapshotDeleteV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      snapshot: NameOrId,
+    }),
+    query: z.object({
+      organization: NameOrId.optional(),
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const CertificateListV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      sortBy: NameOrIdSortMode.optional(),
+    }),
+  })
+)
+
+export const CertificateCreateV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
+  })
+)
+
+export const CertificateViewV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      certificate: NameOrId,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const CertificateDeleteV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      certificate: NameOrId,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const PhysicalDiskListV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      sortBy: IdSortMode.optional(),
+    }),
+  })
+)
+
+export const RackListV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      sortBy: IdSortMode.optional(),
+    }),
+  })
+)
+
+export const RackViewV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      rackId: z.string().uuid(),
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SledListV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      sortBy: IdSortMode.optional(),
+    }),
+  })
+)
+
+export const SledViewV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      sledId: z.string().uuid(),
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SledPhysicalDiskListV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      sledId: z.string().uuid(),
+    }),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      sortBy: IdSortMode.optional(),
+    }),
+  })
+)
+
+export const SystemPolicyViewV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
+  })
+)
+
+export const SystemPolicyUpdateV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
+  })
+)
+
+export const SagaListV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      sortBy: IdSortMode.optional(),
+    }),
+  })
+)
+
+export const SagaViewV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      sagaId: z.string().uuid(),
+    }),
+    query: z.object({}),
   })
 )
 
@@ -4210,5 +4495,281 @@ export const SystemVersionParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({}),
+  })
+)
+
+export const VpcRouterRouteListV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      organization: NameOrId.optional(),
+      pageToken: z.string().optional(),
+      project: NameOrId.optional(),
+      router: NameOrId.optional(),
+      sortBy: NameOrIdSortMode.optional(),
+      vpc: NameOrId.optional(),
+    }),
+  })
+)
+
+export const VpcRouterRouteCreateV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      organization: NameOrId.optional(),
+      project: NameOrId.optional(),
+      router: NameOrId.optional(),
+      vpc: NameOrId.optional(),
+    }),
+  })
+)
+
+export const VpcRouterRouteViewV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      route: NameOrId,
+    }),
+    query: z.object({
+      organization: NameOrId.optional(),
+      project: NameOrId.optional(),
+      router: NameOrId.optional(),
+      vpc: NameOrId.optional(),
+    }),
+  })
+)
+
+export const VpcRouterRouteUpdateV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      route: NameOrId,
+    }),
+    query: z.object({
+      organization: NameOrId.optional(),
+      project: NameOrId.optional(),
+      router: NameOrId.optional(),
+      vpc: NameOrId.optional(),
+    }),
+  })
+)
+
+export const VpcRouterRouteDeleteV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      route: NameOrId,
+    }),
+    query: z.object({
+      organization: NameOrId.optional(),
+      project: NameOrId.optional(),
+      router: NameOrId.optional(),
+      vpc: NameOrId.optional(),
+    }),
+  })
+)
+
+export const VpcRouterListV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      organization: NameOrId.optional(),
+      pageToken: z.string().optional(),
+      project: NameOrId.optional(),
+      sortBy: NameOrIdSortMode.optional(),
+      vpc: NameOrId.optional(),
+    }),
+  })
+)
+
+export const VpcRouterCreateV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      organization: NameOrId.optional(),
+      project: NameOrId.optional(),
+      vpc: NameOrId.optional(),
+    }),
+  })
+)
+
+export const VpcRouterViewV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      router: NameOrId,
+    }),
+    query: z.object({
+      organization: NameOrId.optional(),
+      project: NameOrId.optional(),
+      vpc: NameOrId.optional(),
+    }),
+  })
+)
+
+export const VpcRouterUpdateV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      router: NameOrId,
+    }),
+    query: z.object({
+      organization: NameOrId.optional(),
+      project: NameOrId.optional(),
+      vpc: NameOrId.optional(),
+    }),
+  })
+)
+
+export const VpcRouterDeleteV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      router: NameOrId,
+    }),
+    query: z.object({
+      organization: NameOrId.optional(),
+      project: NameOrId.optional(),
+      vpc: NameOrId.optional(),
+    }),
+  })
+)
+
+export const VpcSubnetListV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      organization: NameOrId.optional(),
+      pageToken: z.string().optional(),
+      project: NameOrId.optional(),
+      sortBy: NameOrIdSortMode.optional(),
+      vpc: NameOrId.optional(),
+    }),
+  })
+)
+
+export const VpcSubnetCreateV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      organization: NameOrId.optional(),
+      project: NameOrId.optional(),
+      vpc: NameOrId.optional(),
+    }),
+  })
+)
+
+export const VpcSubnetViewV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      subnet: NameOrId,
+    }),
+    query: z.object({
+      organization: NameOrId.optional(),
+      project: NameOrId.optional(),
+      vpc: NameOrId.optional(),
+    }),
+  })
+)
+
+export const VpcSubnetUpdateV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      subnet: NameOrId,
+    }),
+    query: z.object({
+      organization: NameOrId.optional(),
+      project: NameOrId.optional(),
+      vpc: NameOrId.optional(),
+    }),
+  })
+)
+
+export const VpcSubnetDeleteV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      subnet: NameOrId,
+    }),
+    query: z.object({
+      organization: NameOrId.optional(),
+      project: NameOrId.optional(),
+      vpc: NameOrId.optional(),
+    }),
+  })
+)
+
+export const VpcListV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      organization: NameOrId.optional(),
+      pageToken: z.string().optional(),
+      project: NameOrId.optional(),
+      sortBy: NameOrIdSortMode.optional(),
+    }),
+  })
+)
+
+export const VpcCreateV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      organization: NameOrId.optional(),
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const VpcViewV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      vpc: NameOrId,
+    }),
+    query: z.object({
+      organization: NameOrId.optional(),
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const VpcUpdateV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      vpc: NameOrId,
+    }),
+    query: z.object({
+      organization: NameOrId.optional(),
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const VpcDeleteV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      vpc: NameOrId,
+    }),
+    query: z.object({
+      organization: NameOrId.optional(),
+      project: NameOrId.optional(),
+    }),
   })
 )
