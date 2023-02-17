@@ -32,9 +32,9 @@ const EmptyState = () => (
 )
 
 ProjectsPage.loader = async ({ params }: LoaderFunctionArgs) => {
-  await apiQueryClient.prefetchQuery('projectList', {
-    path: requireOrgParams(params),
-    query: { limit: 10 },
+  const { orgName } = requireOrgParams(params)
+  await apiQueryClient.prefetchQuery('projectListV1', {
+    query: { organization: orgName, limit: 10 },
   })
   return null
 }
@@ -44,18 +44,22 @@ export default function ProjectsPage() {
 
   const queryClient = useApiQueryClient()
   const { orgName } = useOrgParams()
-  const { Table, Column } = useQueryTable('projectList', {
-    path: { orgName },
+  const { Table, Column } = useQueryTable('projectListV1', {
+    query: { organization: orgName },
   })
 
-  const { data: projects } = useApiQuery('projectList', {
-    path: { orgName },
-    query: { limit: 10 }, // to have same params as QueryTable
+  const { data: projects } = useApiQuery('projectListV1', {
+    query: {
+      organization: orgName,
+      limit: 10, // to have same params as QueryTable
+    },
   })
 
   const deleteProject = useApiMutation('projectDelete', {
     onSuccess() {
-      queryClient.invalidateQueries('projectList', { path: { orgName } })
+      // TODO: figure out if this is invalidating as expected, can we leave out the query
+      // altogether, etc. Look at whether limit param matters.
+      queryClient.invalidateQueries('projectListV1', { query: { organization: orgName } })
     },
   })
 

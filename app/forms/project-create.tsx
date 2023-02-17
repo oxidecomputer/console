@@ -26,7 +26,7 @@ export function CreateProjectSideModalForm() {
   const createProject = useApiMutation('projectCreate', {
     onSuccess(project) {
       // refetch list of projects in sidebar
-      queryClient.invalidateQueries('projectList', { path: { orgName } })
+      queryClient.invalidateQueries('projectListV1', { query: { organization: orgName } })
       // avoid the project fetch when the project page loads since we have the data
       const projectParams = { orgName, projectName: project.name }
       queryClient.setQueryData('projectView', { path: projectParams }, project)

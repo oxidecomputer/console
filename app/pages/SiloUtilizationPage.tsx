@@ -29,8 +29,8 @@ export function SiloUtilizationPage() {
   const orgName = orgs?.items.find((o) => orgId && o.id === orgId)?.name
 
   const { data: projects } = useApiQuery(
-    'projectList',
-    { path: { orgName: orgName! } }, // only enabled if it's there
+    'projectListV1',
+    { query: { organization: orgName! } }, // only enabled if it's there
     { enabled: !!orgName }
   )
 

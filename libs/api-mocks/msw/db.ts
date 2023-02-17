@@ -1,5 +1,7 @@
+import { validate as isUuid } from 'uuid'
+
 import * as mock from '@oxide/api-mocks'
-import type { ApiTypes as Api, PathParams as PP } from '@oxide/api'
+import type { ApiTypes as Api, PathParams as PP, PathParamsV1 as PPv1 } from '@oxide/api'
 import { user1 } from '@oxide/api-mocks'
 
 import type { Json } from '../json-type'
@@ -19,6 +21,14 @@ export const lookupById =
 
 export function lookupOrg(params: PP.Org): Json<Api.Organization> {
   const org = db.orgs.find((o) => o.name === params.orgName)
+  if (!org) throw notFoundErr
+  return org
+}
+
+export function lookupOrgV1({ organization }: PPv1.Org): Json<Api.Organization> {
+  const org = isUuid(organization)
+    ? db.orgs.find((o) => o.id === organization)
+    : db.orgs.find((o) => o.name === organization)
   if (!org) throw notFoundErr
   return org
 }

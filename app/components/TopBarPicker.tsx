@@ -195,7 +195,9 @@ export function OrgPicker() {
 export function ProjectPicker() {
   // picker only shows up when a project is in scope
   const { orgName, projectName } = useProjectParams()
-  const { data } = useApiQuery('projectList', { path: { orgName }, query: { limit: 20 } })
+  const { data } = useApiQuery('projectListV1', {
+    query: { organization: orgName, limit: 20 },
+  })
   const items = (data?.items || []).map(({ name }) => ({
     label: name,
     to: pb.instances({ orgName, projectName: name }),

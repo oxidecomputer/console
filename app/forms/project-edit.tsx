@@ -30,7 +30,8 @@ export function EditProjectSideModalForm() {
   const editProject = useApiMutation('projectUpdate', {
     onSuccess(project) {
       // refetch list of projects in sidebar
-      queryClient.invalidateQueries('projectList', { path: { orgName } })
+      // TODO: check this invalidation
+      queryClient.invalidateQueries('projectListV1', { query: { organization: orgName } })
       // avoid the project fetch when the project page loads since we have the data
       queryClient.setQueryData(
         'projectView',

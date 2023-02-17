@@ -20,6 +20,7 @@ import {
   lookupInstance,
   lookupNetworkInterface,
   lookupOrg,
+  lookupOrgV1,
   lookupProject,
   lookupSamlIdp,
   lookupSilo,
@@ -31,6 +32,7 @@ import {
   lookupVpcRouter,
   lookupVpcRouterRoute,
   lookupVpcSubnet,
+  notFoundErr,
 } from './db'
 import {
   NotImplemented,
@@ -114,10 +116,13 @@ export const handlers = makeHandlers({
 
     return body
   },
-  projectList(params) {
-    const org = lookupOrg(params.path)
-    const projects = db.projects.filter((p) => p.organization_id === org.id)
+  projectListV1(params) {
+    // TODO: helper like requireOrgParams to do the check and throw if not
+    const { organization } = params.query
+    if (!organization) throw notFoundErr
 
+    const org = lookupOrgV1({ organization })
+    const projects = db.projects.filter((p) => p.organization_id === org.id)
     return paginated(params.query, projects)
   },
   projectCreate({ body, ...params }) {
@@ -1097,7 +1102,6 @@ export const handlers = makeHandlers({
   policyViewV1: NotImplemented,
   projectCreateV1: NotImplemented,
   projectDeleteV1: NotImplemented,
-  projectListV1: NotImplemented,
   projectPolicyUpdateV1: NotImplemented,
   projectPolicyViewV1: NotImplemented,
   projectUpdateV1: NotImplemented,
@@ -1139,4 +1143,5 @@ export const handlers = makeHandlers({
   // Deprecated endpoints
 
   organizationList: NotImplemented,
+  projectList: NotImplemented,
 })
