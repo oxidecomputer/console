@@ -174,7 +174,7 @@ export function SiloPicker() {
 
 export function OrgPicker() {
   const { orgName } = useParams()
-  const { data } = useApiQuery('organizationList', { query: { limit: 20 } })
+  const { data } = useApiQuery('organizationListV1', { query: { limit: 20 } })
   const items = (data?.items || []).map(({ name }) => ({
     label: name,
     to: pb.projects({ orgName: name }),

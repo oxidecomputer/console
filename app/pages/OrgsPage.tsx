@@ -31,23 +31,23 @@ const EmptyState = () => (
 )
 
 OrgsPage.loader = async () => {
-  await apiQueryClient.prefetchQuery('organizationList', { query: { limit: 10 } })
+  await apiQueryClient.prefetchQuery('organizationListV1', { query: { limit: 10 } })
   return null
 }
 
 export default function OrgsPage() {
   const navigate = useNavigate()
 
-  const { Table, Column } = useQueryTable('organizationList', {})
+  const { Table, Column } = useQueryTable('organizationListV1', {})
   const queryClient = useApiQueryClient()
 
-  const { data: orgs } = useApiQuery('organizationList', {
+  const { data: orgs } = useApiQuery('organizationListV1', {
     query: { limit: 10 }, // to have same params as QueryTable
   })
 
   const deleteOrg = useApiMutation('organizationDelete', {
     onSuccess() {
-      queryClient.invalidateQueries('organizationList', {})
+      queryClient.invalidateQueries('organizationListV1', {})
     },
   })
 

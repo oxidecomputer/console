@@ -53,7 +53,7 @@ export const handlers = makeHandlers({
   deviceAccessToken: () => 200,
   groupList: (params) => paginated(params.query, db.userGroups),
 
-  organizationList: (params) => paginated(params.query, db.orgs),
+  organizationListV1: (params) => paginated(params.query, db.orgs),
   organizationCreate({ body }) {
     errIfExists(db.orgs, { name: body.name })
 
@@ -1088,7 +1088,6 @@ export const handlers = makeHandlers({
   instanceViewV1: NotImplemented,
   organizationCreateV1: NotImplemented,
   organizationDeleteV1: NotImplemented,
-  organizationListV1: NotImplemented,
   organizationPolicyUpdateV1: NotImplemented,
   organizationPolicyViewV1: NotImplemented,
   organizationUpdateV1: NotImplemented,
@@ -1136,4 +1135,8 @@ export const handlers = makeHandlers({
   vpcSubnetViewV1: NotImplemented,
   vpcUpdateV1: NotImplemented,
   vpcViewV1: NotImplemented,
+
+  // Deprecated endpoints
+
+  organizationList: NotImplemented,
 })

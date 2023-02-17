@@ -20,7 +20,7 @@ export function CreateOrgSideModalForm() {
 
   const createOrg = useApiMutation('organizationCreate', {
     onSuccess(org) {
-      queryClient.invalidateQueries('organizationList', {})
+      queryClient.invalidateQueries('organizationListV1', {})
       // avoid the org fetch when the org page loads since we have the data
       const orgParams = { orgName: org.name }
       queryClient.setQueryData('organizationView', { path: orgParams }, org)

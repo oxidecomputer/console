@@ -28,7 +28,7 @@ export function EditOrgSideModalForm() {
 
   const updateOrg = useApiMutation('organizationUpdate', {
     onSuccess(org) {
-      queryClient.invalidateQueries('organizationList', {})
+      queryClient.invalidateQueries('organizationListV1', {})
       // avoid the org fetch when the org page loads since we have the data
       queryClient.setQueryData('organizationView', { path: { orgName: org.name } }, org)
       addToast({

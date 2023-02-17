@@ -26,7 +26,7 @@ export function Wrapper({ children }: { children: React.ReactNode }) {
 
 const config = { wrapper: Wrapper }
 
-const renderGetOrgs = () => renderHook(() => useApiQuery('organizationList', {}), config)
+const renderGetOrgs = () => renderHook(() => useApiQuery('organizationListV1', {}), config)
 
 // 503 is a special key in the MSW server that returns a 503
 const renderGetOrg503 = () =>
@@ -71,7 +71,7 @@ describe('useApiQuery', () => {
     })
 
     it('contains client_error if error body is not json', async () => {
-      overrideOnce('get', '/api/organizations', 503, 'not json')
+      overrideOnce('get', '/api/v1/organizations', 503, 'not json')
 
       const { result } = renderGetOrgs()
 
@@ -89,7 +89,7 @@ describe('useApiQuery', () => {
     })
 
     it('does not client_error if response body is empty', async () => {
-      overrideOnce('get', '/api/organizations', 503, '')
+      overrideOnce('get', '/api/v1/organizations', 503, '')
 
       const { result } = renderGetOrgs()
 
@@ -156,7 +156,7 @@ describe('useApiQuery', () => {
 
     // RQ doesn't like a value of undefined for data, so we're using {} for now
     it('returns success with empty object if response body is empty', async () => {
-      overrideOnce('get', '/api/organizations', 204, '')
+      overrideOnce('get', '/api/v1/organizations', 204, '')
 
       const { result } = renderGetOrgs()
 
