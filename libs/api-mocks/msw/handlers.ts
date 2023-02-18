@@ -134,8 +134,8 @@ export const handlers = makeHandlers({
     return json(newProject, { status: 201 })
   },
   projectViewV1: ({ path, query }) => lookup.project({ ...path, ...query }),
-  projectUpdate({ body, ...params }) {
-    const project = lookupProject(params.path)
+  projectUpdateV1({ body, path, query }) {
+    const project = lookup.project({ ...path, ...query })
     if (body.name) {
       project.name = body.name
     }
@@ -1092,7 +1092,6 @@ export const handlers = makeHandlers({
   projectDeleteV1: NotImplemented,
   projectPolicyUpdateV1: NotImplemented,
   projectPolicyViewV1: NotImplemented,
-  projectUpdateV1: NotImplemented,
   rackListV1: NotImplemented,
   rackViewV1: NotImplemented,
   sagaListV1: NotImplemented,
@@ -1138,5 +1137,6 @@ export const handlers = makeHandlers({
   organizationView: NotImplemented,
   projectCreate: NotImplemented,
   projectList: NotImplemented,
+  projectUpdate: NotImplemented,
   projectView: NotImplemented,
 })

@@ -32,7 +32,7 @@ export function EditProjectSideModalForm() {
     query: { organization: orgName },
   })
 
-  const editProject = useApiMutation('projectUpdate', {
+  const editProject = useApiMutation('projectUpdateV1', {
     onSuccess(project) {
       // refetch list of projects in sidebar
       // TODO: check this invalidation
@@ -63,7 +63,8 @@ export function EditProjectSideModalForm() {
       onDismiss={onDismiss}
       onSubmit={({ name, description }) => {
         editProject.mutate({
-          path: { orgName, projectName },
+          path: { project: projectName },
+          query: { organization: orgName },
           body: { name, description },
         })
       }}
