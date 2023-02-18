@@ -178,12 +178,12 @@ describe('useApiMutation', () => {
 
   describe('on error response', () => {
     const projectPost404Params = {
-      path: { orgName: 'nonexistent' },
+      query: { organization: 'nonexistent' },
       body: { name: 'will-fail', description: '' },
     }
 
     it('passes through raw response', async () => {
-      const { result } = renderHook(() => useApiMutation('projectCreate'), config)
+      const { result } = renderHook(() => useApiMutation('projectCreateV1'), config)
 
       act(() => result.current.mutate(projectPost404Params))
 
@@ -194,7 +194,7 @@ describe('useApiMutation', () => {
     })
 
     it('parses error json if possible', async () => {
-      const { result } = renderHook(() => useApiMutation('projectCreate'), config)
+      const { result } = renderHook(() => useApiMutation('projectCreateV1'), config)
 
       act(() => result.current.mutate(projectPost404Params))
 

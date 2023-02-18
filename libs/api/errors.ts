@@ -2,6 +2,14 @@ import { camelCaseToWords, capitalize } from '@oxide/util'
 
 import type { ErrorBody, ErrorResult } from '.'
 
+// assume a nice short resource name is the word before create
+export function getResourceName(method: string) {
+  const words = camelCaseToWords(method)
+  const i = words.indexOf('create')
+  if (i < 1) return null
+  return words[i - 1].replace(/s$/, '')
+}
+
 const msgFromCode = (
   method: string,
   errorCode: string,
@@ -12,12 +20,13 @@ const msgFromCode = (
       return 'Action not authorized'
 
     // TODO: This is a temporary fix for the API; better messages should be provided from there
-    case 'ObjectAlreadyExists':
-      if (method.endsWith('Create')) {
-        const resource = camelCaseToWords(method).slice(-2)[0].replace(/s$/, '')
+    case 'ObjectAlreadyExists': {
+      const resource = getResourceName(method)
+      if (resource) {
         return `${capitalize(resource)} name already exists`
       }
       return undefined
+    }
     default:
       return undefined
   }
@@ -127,5 +136,15 @@ if (import.meta.vitest) {
     it('falls back to server error message if code not found', () => {
       expect(formatServerError('', alreadyExists()).error.message).toEqual('whatever')
     })
+  })
+
+  it.each([
+    ['projectCreate', 'project'],
+    ['projectCreateV1', 'project'],
+    ['instanceNetworkInterfaceCreate', 'interface'],
+    ['instanceNetworkInterfaceCreateV1', 'interface'],
+    ['doesNotContainC-reate', null],
+  ])('getResourceName gets resource names', (method, resource) => {
+    expect(getResourceName(method)).toEqual(resource)
   })
 }
