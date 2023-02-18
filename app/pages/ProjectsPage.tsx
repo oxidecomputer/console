@@ -55,7 +55,7 @@ export default function ProjectsPage() {
     },
   })
 
-  const deleteProject = useApiMutation('projectDelete', {
+  const deleteProject = useApiMutation('projectDeleteV1', {
     onSuccess() {
       // TODO: figure out if this is invalidating as expected, can we leave out the query
       // altogether, etc. Look at whether limit param matters.
@@ -84,7 +84,10 @@ export default function ProjectsPage() {
     {
       label: 'Delete',
       onActivate: () => {
-        deleteProject.mutate({ path: { orgName, projectName: project.name } })
+        deleteProject.mutate({
+          path: { project: project.name },
+          query: { organization: orgName },
+        })
       },
     },
   ]

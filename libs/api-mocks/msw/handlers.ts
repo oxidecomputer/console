@@ -143,8 +143,8 @@ export const handlers = makeHandlers({
 
     return project
   },
-  projectDelete(params) {
-    const project = lookupProject(params.path)
+  projectDeleteV1({ path, query }) {
+    const project = lookup.project({ ...path, ...query })
 
     db.projects = db.projects.filter((p) => p.id !== project.id)
 
@@ -1089,7 +1089,6 @@ export const handlers = makeHandlers({
   physicalDiskListV1: NotImplemented,
   policyUpdateV1: NotImplemented,
   policyViewV1: NotImplemented,
-  projectDeleteV1: NotImplemented,
   projectPolicyUpdateV1: NotImplemented,
   projectPolicyViewV1: NotImplemented,
   rackListV1: NotImplemented,
@@ -1136,6 +1135,7 @@ export const handlers = makeHandlers({
   organizationList: NotImplemented,
   organizationView: NotImplemented,
   projectCreate: NotImplemented,
+  projectDelete: NotImplemented,
   projectList: NotImplemented,
   projectUpdate: NotImplemented,
   projectView: NotImplemented,
