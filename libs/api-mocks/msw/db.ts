@@ -1,3 +1,5 @@
+// note that isUuid checks for any kind of UUID. strictly speaking, we should
+// only be checking for v4
 import { validate as isUuid } from 'uuid'
 
 import * as mock from '@oxide/api-mocks'
@@ -19,68 +21,55 @@ export const lookupById =
     return item
   }
 
-export const lookup = {
-  org({ organization }: PPv1.Org): Json<Api.Organization> {
-    if (!organization) throw notFoundErr
+// TODO: obviously lookupById2 is not the final name
+export const lookupById2 = <T extends { id: string }>(table: T[], id: string) => {
+  const item = table.find((i) => i.id === id)
+  if (!item) throw notFoundErr
+  return item
+}
 
-    const org = isUuid(organization)
-      ? db.orgs.find((o) => o.id === organization)
-      : db.orgs.find((o) => o.name === organization)
+export const lookup = {
+  org({ organization: id }: PPv1.Org): Json<Api.Organization> {
+    if (!id) throw notFoundErr
+
+    if (isUuid(id)) return lookupById2(db.orgs, id)
+
+    const org = db.orgs.find((o) => o.name === id)
     if (!org) throw notFoundErr
 
     return org
   },
-  project(params: PPv1.Project): Json<Api.Project> {
-    const { project: id, ...orgParams } = params
-    // if we have a project ID, look it up directly, otherwise call lookup org
-    // with the other params to get an org ID, then look it up by org ID and name
+  project({ project: id, ...orgSelector }: PPv1.Project): Json<Api.Project> {
     if (!id) throw notFoundErr
 
-    if (isUuid(id)) {
-      const project = db.projects.find((p) => p.id === id)
-      if (!project) throw notFoundErr
-      return project
-    }
+    if (isUuid(id)) return lookupById2(db.projects, id)
 
-    const org = lookup.org(orgParams)
-
+    const org = lookup.org(orgSelector)
     const project = db.projects.find((p) => p.organization_id === org.id && p.name === id)
     if (!project) throw notFoundErr
 
     return project
   },
-  instance(params: PPv1.Instance): Json<Api.Instance> {
-    const { instance: id, ...projectParams } = params
-    // if we have a project ID, look it up directly, otherwise call lookup org
-    // with the other params to get an org ID, then look it up by org ID and name
+  instance({ instance: id, ...projectSelector }: PPv1.Instance): Json<Api.Instance> {
     if (!id) throw notFoundErr
 
-    if (isUuid(id)) {
-      const instance = db.instances.find((p) => p.id === id)
-      if (!instance) throw notFoundErr
-      return instance
-    }
+    if (isUuid(id)) return lookupById2(db.instances, id)
 
-    const project = lookup.project(projectParams)
-
+    const project = lookup.project(projectSelector)
     const instance = db.instances.find((i) => i.project_id === project.id && i.name === id)
     if (!instance) throw notFoundErr
 
     return instance
   },
-  networkInterface(params: PPv1.NetworkInterface): Json<Api.NetworkInterface> {
-    const { interface: id, ...instanceParams } = params
-    // if we have a project ID, look it up directly, otherwise call lookup org
-    // with the other params to get an org ID, then look it up by org ID and name
+  networkInterface({
+    interface: id,
+    ...instanceSelector
+  }: PPv1.NetworkInterface): Json<Api.NetworkInterface> {
     if (!id) throw notFoundErr
 
-    if (isUuid(id)) {
-      const nic = db.networkInterfaces.find((p) => p.id === id)
-      if (!nic) throw notFoundErr
-      return nic
-    }
+    if (isUuid(id)) return lookupById2(db.networkInterfaces, id)
 
-    const instance = lookup.instance(instanceParams)
+    const instance = lookup.instance(instanceSelector)
 
     const nic = db.networkInterfaces.find(
       (n) => n.instance_id === instance.id && n.name === id
