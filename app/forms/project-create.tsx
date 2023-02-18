@@ -23,7 +23,7 @@ export function CreateProjectSideModalForm() {
 
   const onDismiss = () => navigate(pb.projects({ orgName }))
 
-  const createProject = useApiMutation('projectCreate', {
+  const createProject = useApiMutation('projectCreateV1', {
     onSuccess(project) {
       // refetch list of projects in sidebar
       queryClient.invalidateQueries('projectListV1', { query: { organization: orgName } })
@@ -54,7 +54,7 @@ export function CreateProjectSideModalForm() {
       onDismiss={onDismiss}
       onSubmit={({ name, description }) => {
         createProject.mutate({
-          path: { orgName },
+          query: { organization: orgName },
           body: { name, description },
         })
       }}

@@ -119,8 +119,8 @@ export const handlers = makeHandlers({
     const projects = db.projects.filter((p) => p.organization_id === org.id)
     return paginated(params.query, projects)
   },
-  projectCreate({ body, ...params }) {
-    const org = lookupOrg(params.path)
+  projectCreateV1({ body, query }) {
+    const org = lookup.org(query)
     errIfExists(db.projects, { name: body.name, organization_id: org.id })
 
     const newProject: Json<Api.Project> = {
@@ -1089,7 +1089,6 @@ export const handlers = makeHandlers({
   physicalDiskListV1: NotImplemented,
   policyUpdateV1: NotImplemented,
   policyViewV1: NotImplemented,
-  projectCreateV1: NotImplemented,
   projectDeleteV1: NotImplemented,
   projectPolicyUpdateV1: NotImplemented,
   projectPolicyViewV1: NotImplemented,
@@ -1130,13 +1129,14 @@ export const handlers = makeHandlers({
 
   // Deprecated endpoints
 
-  instanceView: NotImplemented,
   instanceNetworkInterfaceDelete: NotImplemented,
   instanceNetworkInterfaceList: NotImplemented,
   instanceNetworkInterfaceUpdate: NotImplemented,
   instanceNetworkInterfaceView: NotImplemented,
+  instanceView: NotImplemented,
   organizationList: NotImplemented,
   organizationView: NotImplemented,
+  projectCreate: NotImplemented,
   projectList: NotImplemented,
   projectView: NotImplemented,
 })
