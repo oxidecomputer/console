@@ -55,8 +55,11 @@ export default function OrgsPage() {
     {
       label: 'Edit',
       onActivate() {
-        const path = { orgName: org.name }
-        apiQueryClient.setQueryData('organizationView', { path }, org)
+        apiQueryClient.setQueryData(
+          'organizationViewV1',
+          { path: { organization: org.name } },
+          org
+        )
         navigate(pb.orgEdit({ orgName: org.name }))
       },
     },

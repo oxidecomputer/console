@@ -68,12 +68,12 @@ export const handlers = makeHandlers({
 
     return json(newOrg, { status: 201 })
   },
-  organizationView(params) {
-    if (params.path.orgName.endsWith('-error-503')) {
+  organizationViewV1(params) {
+    if (params.path.organization.endsWith('-error-503')) {
       throw unavailableErr
     }
 
-    return lookupOrg(params.path)
+    return lookupOrgV1(params.path)
   },
   organizationUpdate({ body, ...params }) {
     const org = lookupOrg(params.path)
@@ -1096,7 +1096,6 @@ export const handlers = makeHandlers({
   organizationPolicyUpdateV1: NotImplemented,
   organizationPolicyViewV1: NotImplemented,
   organizationUpdateV1: NotImplemented,
-  organizationViewV1: NotImplemented,
   physicalDiskListV1: NotImplemented,
   policyUpdateV1: NotImplemented,
   policyViewV1: NotImplemented,
@@ -1144,4 +1143,5 @@ export const handlers = makeHandlers({
 
   organizationList: NotImplemented,
   projectList: NotImplemented,
+  organizationView: NotImplemented,
 })

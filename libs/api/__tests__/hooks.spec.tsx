@@ -31,7 +31,7 @@ const renderGetOrgs = () => renderHook(() => useApiQuery('organizationListV1', {
 // 503 is a special key in the MSW server that returns a 503
 const renderGetOrg503 = () =>
   renderHook(
-    () => useApiQuery('organizationView', { path: { orgName: 'org-error-503' } }),
+    () => useApiQuery('organizationViewV1', { path: { organization: 'org-error-503' } }),
     config
   )
 
@@ -110,8 +110,8 @@ describe('useApiQuery', () => {
     it('throws by default', async () => {
       const { result } = renderHook(
         () =>
-          useApiQuery('organizationView', {
-            path: { orgName: 'nonexistent' },
+          useApiQuery('organizationViewV1', {
+            path: { organization: 'nonexistent' },
           }),
         config
       )
@@ -129,8 +129,8 @@ describe('useApiQuery', () => {
       const { result } = renderHook(
         () =>
           useApiQuery(
-            'organizationView',
-            { path: { orgName: 'nonexistent' } },
+            'organizationViewV1',
+            { path: { organization: 'nonexistent' } },
             { useErrorBoundary: false } // <----- the point
           ),
         config

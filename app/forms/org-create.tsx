@@ -23,7 +23,11 @@ export function CreateOrgSideModalForm() {
       queryClient.invalidateQueries('organizationListV1', {})
       // avoid the org fetch when the org page loads since we have the data
       const orgParams = { orgName: org.name }
-      queryClient.setQueryData('organizationView', { path: orgParams }, org)
+      queryClient.setQueryData(
+        'organizationViewV1',
+        { path: { organization: org.name } },
+        org
+      )
       addToast({
         icon: <Success16Icon />,
         title: 'Success!',

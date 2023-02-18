@@ -9,8 +9,9 @@ import { requireOrgParams, useOrgParams, useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 EditOrgSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
-  await apiQueryClient.prefetchQuery('organizationView', {
-    path: requireOrgParams(params),
+  const { orgName } = requireOrgParams(params)
+  await apiQueryClient.prefetchQuery('organizationViewV1', {
+    path: { organization: orgName },
   })
   return null
 }
@@ -24,13 +25,19 @@ export function EditOrgSideModalForm() {
 
   const onDismiss = () => navigate(pb.orgs())
 
-  const { data: org } = useApiQuery('organizationView', { path: { orgName } })
+  const { data: org } = useApiQuery('organizationViewV1', {
+    path: { organization: orgName },
+  })
 
   const updateOrg = useApiMutation('organizationUpdate', {
     onSuccess(org) {
       queryClient.invalidateQueries('organizationListV1', {})
       // avoid the org fetch when the org page loads since we have the data
-      queryClient.setQueryData('organizationView', { path: { orgName: org.name } }, org)
+      queryClient.setQueryData(
+        'organizationViewV1',
+        { path: { organization: org.name } },
+        org
+      )
       addToast({
         icon: <Success16Icon />,
         title: 'Success!',
