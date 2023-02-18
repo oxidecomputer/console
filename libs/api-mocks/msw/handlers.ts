@@ -32,7 +32,6 @@ import {
   lookupVpcRouter,
   lookupVpcRouterRoute,
   lookupVpcSubnet,
-  notFoundErr,
 } from './db'
 import {
   NotImplemented,
@@ -117,11 +116,7 @@ export const handlers = makeHandlers({
     return body
   },
   projectListV1(params) {
-    // TODO: helper like requireOrgParams to do the check and throw if not
-    const { organization } = params.query
-    if (!organization) throw notFoundErr
-
-    const org = lookup.org({ organization })
+    const org = lookup.org(params.query)
     const projects = db.projects.filter((p) => p.organization_id === org.id)
     return paginated(params.query, projects)
   },

@@ -2,6 +2,6 @@
 // this file
 import type { Merge } from 'type-fest'
 
-export type Org = { organization: string }
-export type Project = Merge<Partial<Org>, { project: string }>
-export type Instance = Merge<Partial<Project>, { instance: string }>
+export type Org = { organization?: string }
+export type Project = Merge<Org, { project?: string }>
+export type Instance = Merge<Project, { instance?: string }>
