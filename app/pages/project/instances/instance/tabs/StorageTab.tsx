@@ -53,11 +53,15 @@ const staticCols = [
 
 StorageTab.loader = async ({ params }: LoaderFunctionArgs) => {
   const path = requireInstanceParams(params)
+  const { instanceName, projectName, orgName } = path
   await Promise.all([
     apiQueryClient.prefetchQuery('instanceDiskList', { path }),
     // This is covered by the InstancePage loader but there's no downside to
     // being redundant. If it were removed there, we'd still want it here.
-    apiQueryClient.prefetchQuery('instanceView', { path }),
+    apiQueryClient.prefetchQuery('instanceViewV1', {
+      path: { instance: instanceName },
+      query: { project: projectName, organization: orgName },
+    }),
   ])
   return null
 }
@@ -69,13 +73,17 @@ export function StorageTab() {
   const addToast = useToast()
   const queryClient = useApiQueryClient()
   const instanceParams = useRequiredParams('orgName', 'projectName', 'instanceName')
+  const { instanceName, projectName, orgName } = instanceParams
 
   const { data } = useApiQuery('instanceDiskList', { path: instanceParams })
 
   const detachDisk = useApiMutation('instanceDiskDetach', {})
 
   const instanceStopped =
-    useApiQuery('instanceView', { path: instanceParams }).data?.runState === 'stopped'
+    useApiQuery('instanceViewV1', {
+      path: { instance: instanceName },
+      query: { project: projectName, organization: orgName },
+    }).data?.runState === 'stopped'
 
   const makeActions = useCallback(
     (disk: Disk): MenuAction[] => [
