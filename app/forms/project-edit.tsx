@@ -10,8 +10,10 @@ import { pb } from 'app/util/path-builder'
 import { requireProjectParams, useRequiredParams, useToast } from '../hooks'
 
 EditProjectSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
-  await apiQueryClient.prefetchQuery('projectView', {
-    path: requireProjectParams(params),
+  const { projectName, orgName } = requireProjectParams(params)
+  await apiQueryClient.prefetchQuery('projectViewV1', {
+    path: { project: projectName },
+    query: { organization: orgName },
   })
   return null
 }
@@ -25,7 +27,10 @@ export function EditProjectSideModalForm() {
 
   const onDismiss = () => navigate(pb.projects({ orgName }))
 
-  const { data: project } = useApiQuery('projectView', { path: { orgName, projectName } })
+  const { data: project } = useApiQuery('projectViewV1', {
+    path: { project: projectName },
+    query: { organization: orgName },
+  })
 
   const editProject = useApiMutation('projectUpdate', {
     onSuccess(project) {
@@ -34,8 +39,11 @@ export function EditProjectSideModalForm() {
       queryClient.invalidateQueries('projectListV1', { query: { organization: orgName } })
       // avoid the project fetch when the project page loads since we have the data
       queryClient.setQueryData(
-        'projectView',
-        { path: { orgName, projectName: project.name } },
+        'projectViewV1',
+        {
+          path: { project: project.name },
+          query: { organization: orgName },
+        },
         project
       )
       addToast({

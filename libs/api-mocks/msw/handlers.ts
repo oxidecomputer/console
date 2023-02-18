@@ -13,6 +13,7 @@ import { sortBySemverDesc } from '../update'
 import { user1 } from '../user'
 import {
   db,
+  lookup,
   lookupById,
   lookupDisk,
   lookupGlobalImage,
@@ -20,7 +21,6 @@ import {
   lookupInstance,
   lookupNetworkInterface,
   lookupOrg,
-  lookupOrgV1,
   lookupProject,
   lookupSamlIdp,
   lookupSilo,
@@ -73,7 +73,7 @@ export const handlers = makeHandlers({
       throw unavailableErr
     }
 
-    return lookupOrgV1(params.path)
+    return lookup.org(params.path)
   },
   organizationUpdate({ body, ...params }) {
     const org = lookupOrg(params.path)
@@ -121,7 +121,7 @@ export const handlers = makeHandlers({
     const { organization } = params.query
     if (!organization) throw notFoundErr
 
-    const org = lookupOrgV1({ organization })
+    const org = lookup.org({ organization })
     const projects = db.projects.filter((p) => p.organization_id === org.id)
     return paginated(params.query, projects)
   },
@@ -139,7 +139,7 @@ export const handlers = makeHandlers({
 
     return json(newProject, { status: 201 })
   },
-  projectView: (params) => lookupProject(params.path),
+  projectViewV1: ({ path, query }) => lookup.project({ ...path, ...query }),
   projectUpdate({ body, ...params }) {
     const project = lookupProject(params.path)
     if (body.name) {
@@ -1104,7 +1104,6 @@ export const handlers = makeHandlers({
   projectPolicyUpdateV1: NotImplemented,
   projectPolicyViewV1: NotImplemented,
   projectUpdateV1: NotImplemented,
-  projectViewV1: NotImplemented,
   rackListV1: NotImplemented,
   rackViewV1: NotImplemented,
   sagaListV1: NotImplemented,
@@ -1142,6 +1141,7 @@ export const handlers = makeHandlers({
   // Deprecated endpoints
 
   organizationList: NotImplemented,
-  projectList: NotImplemented,
   organizationView: NotImplemented,
+  projectList: NotImplemented,
+  projectView: NotImplemented,
 })

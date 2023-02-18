@@ -70,7 +70,14 @@ export default function ProjectsPage() {
         const path = { orgName, projectName: project.name }
         // the edit view has its own loader, but we can make the modal open
         // instantaneously by preloading the fetch result
-        apiQueryClient.setQueryData('projectView', { path }, project)
+        apiQueryClient.setQueryData(
+          'projectViewV1',
+          {
+            path: { project: project.name },
+            query: { organization: orgName },
+          },
+          project
+        )
         navigate(pb.projectEdit(path))
       },
     },

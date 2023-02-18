@@ -29,7 +29,14 @@ export function CreateProjectSideModalForm() {
       queryClient.invalidateQueries('projectListV1', { query: { organization: orgName } })
       // avoid the project fetch when the project page loads since we have the data
       const projectParams = { orgName, projectName: project.name }
-      queryClient.setQueryData('projectView', { path: projectParams }, project)
+      queryClient.setQueryData(
+        'projectViewV1',
+        {
+          path: { project: project.name },
+          query: { organization: orgName },
+        },
+        project
+      )
       addToast({
         icon: <Success16Icon />,
         title: 'Success!',

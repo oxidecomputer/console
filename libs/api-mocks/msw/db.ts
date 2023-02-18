@@ -19,16 +19,38 @@ export const lookupById =
     return item
   }
 
-export function lookupOrg(params: PP.Org): Json<Api.Organization> {
-  const org = db.orgs.find((o) => o.name === params.orgName)
-  if (!org) throw notFoundErr
-  return org
+export const lookup = {
+  org({ organization }: PPv1.Org): Json<Api.Organization> {
+    const org = isUuid(organization)
+      ? db.orgs.find((o) => o.id === organization)
+      : db.orgs.find((o) => o.name === organization)
+    if (!org) throw notFoundErr
+    return org
+  },
+  project(params: PPv1.Project): Json<Api.Project> {
+    const { project: id, ...orgParams } = params
+    // if we have a project ID, look it up directly, otherwise call lookup org
+    // with the other params to get an org ID, then look it up by org ID and name
+    if (isUuid(id)) {
+      const project = db.projects.find((p) => p.id === id)
+      if (!project) throw notFoundErr
+      return project
+    }
+
+    const { organization } = orgParams
+    if (!organization) throw notFoundErr
+
+    const org = lookup.org({ organization })
+
+    const project = db.projects.find((p) => p.organization_id === org.id && p.name === id)
+    if (!project) throw notFoundErr
+
+    return project
+  },
 }
 
-export function lookupOrgV1({ organization }: PPv1.Org): Json<Api.Organization> {
-  const org = isUuid(organization)
-    ? db.orgs.find((o) => o.id === organization)
-    : db.orgs.find((o) => o.name === organization)
+export function lookupOrg(params: PP.Org): Json<Api.Organization> {
+  const org = db.orgs.find((o) => o.name === params.orgName)
   if (!org) throw notFoundErr
   return org
 }
