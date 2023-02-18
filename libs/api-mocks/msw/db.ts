@@ -49,6 +49,25 @@ export const lookup = {
 
     return project
   },
+  instance(params: PPv1.Instance): Json<Api.Instance> {
+    const { instance: id, ...projectParams } = params
+    // if we have a project ID, look it up directly, otherwise call lookup org
+    // with the other params to get an org ID, then look it up by org ID and name
+    if (!id) throw notFoundErr
+
+    if (isUuid(id)) {
+      const instance = db.instances.find((p) => p.id === id)
+      if (!instance) throw notFoundErr
+      return instance
+    }
+
+    const project = lookup.project(projectParams)
+
+    const instance = db.instances.find((p) => p.project_id === project.id && p.name === id)
+    if (!instance) throw notFoundErr
+
+    return instance
+  },
 }
 
 export function lookupOrg(params: PP.Org): Json<Api.Organization> {

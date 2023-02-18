@@ -50,28 +50,36 @@ function ExternalIpsFromInstanceName({ value: primary }: { value: boolean }) {
 }
 
 NetworkingTab.loader = async ({ params }: LoaderFunctionArgs) => {
-  const path = requireInstanceParams(params)
+  const { instanceName, projectName, orgName } = requireInstanceParams(params)
+  // TODO: helper to construct this out of the names, probably
+  const instance = { instance: instanceName }
+  const project = { project: projectName, organization: orgName }
+
   await Promise.all([
-    await apiQueryClient.prefetchQuery('instanceNetworkInterfaceList', {
-      path,
-      query: { limit: 10 },
+    await apiQueryClient.prefetchQuery('instanceNetworkInterfaceListV1', {
+      query: { ...instance, ...project, limit: 10 },
     }),
     // This is covered by the InstancePage loader but there's no downside to
     // being redundant. If it were removed there, we'd still want it here.
-    apiQueryClient.prefetchQuery('instanceView', { path }),
+    apiQueryClient.prefetchQuery('instanceViewV1', { path: instance, query: project }),
   ])
   return null
 }
 
 export function NetworkingTab() {
   const instanceParams = useRequiredParams('orgName', 'projectName', 'instanceName')
+  const { orgName, projectName, instanceName } = instanceParams
+
   const queryClient = useApiQueryClient()
   const addToast = useToast()
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [editing, setEditing] = useState<NetworkInterface | null>(null)
 
-  const getQuery = ['instanceNetworkInterfaceList', { path: instanceParams }] as const
+  const getQuery = [
+    'instanceNetworkInterfaceListV1',
+    { query: { organization: orgName, project: projectName, instance: instanceName } },
+  ] as const
 
   const deleteNic = useApiMutation('instanceNetworkInterfaceDelete', {
     onSuccess() {

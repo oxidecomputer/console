@@ -346,7 +346,7 @@ export const handlers = makeHandlers({
     db.instances.push(newInstance)
     return json(newInstance, { status: 201 })
   },
-  instanceView: (params) => lookupInstance(params.path),
+  instanceViewV1: ({ path, query }) => lookup.instance({ ...path, ...query }),
   instanceDelete(params) {
     const instance = lookupInstance(params.path)
     db.instances = db.instances.filter((i) => i.id !== instance.id)
@@ -396,10 +396,10 @@ export const handlers = makeHandlers({
       ],
     }
   },
-  instanceNetworkInterfaceList(params) {
-    const instance = lookupInstance(params.path)
+  instanceNetworkInterfaceListV1({ query }) {
+    const instance = lookup.instance(query)
     const nics = db.networkInterfaces.filter((n) => n.instance_id === instance.id)
-    return paginated(params.query, nics)
+    return paginated(query, nics)
   },
   instanceNetworkInterfaceCreate({ body, ...params }) {
     const instance = lookupInstance(params.path)
@@ -1077,7 +1077,6 @@ export const handlers = makeHandlers({
   instanceMigrateV1: NotImplemented,
   instanceNetworkInterfaceCreateV1: NotImplemented,
   instanceNetworkInterfaceDeleteV1: NotImplemented,
-  instanceNetworkInterfaceListV1: NotImplemented,
   instanceNetworkInterfaceUpdateV1: NotImplemented,
   instanceNetworkInterfaceViewV1: NotImplemented,
   instanceRebootV1: NotImplemented,
@@ -1085,7 +1084,6 @@ export const handlers = makeHandlers({
   instanceSerialConsoleV1: NotImplemented,
   instanceStartV1: NotImplemented,
   instanceStopV1: NotImplemented,
-  instanceViewV1: NotImplemented,
   organizationCreateV1: NotImplemented,
   organizationDeleteV1: NotImplemented,
   organizationPolicyUpdateV1: NotImplemented,
@@ -1135,6 +1133,8 @@ export const handlers = makeHandlers({
 
   // Deprecated endpoints
 
+  instanceView: NotImplemented,
+  instanceNetworkInterfaceList: NotImplemented,
   organizationList: NotImplemented,
   organizationView: NotImplemented,
   projectList: NotImplemented,

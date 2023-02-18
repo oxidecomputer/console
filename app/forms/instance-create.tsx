@@ -85,8 +85,14 @@ export function CreateInstanceForm() {
       queryClient.invalidateQueries('instanceList', { path: pageParams })
       // avoid the instance fetch when the instance page loads since we have the data
       queryClient.setQueryData(
-        'instanceView',
-        { path: { ...pageParams, instanceName: instance.name } },
+        'instanceViewV1',
+        {
+          path: { instance: instance.name },
+          query: {
+            project: pageParams.projectName,
+            organization: pageParams.orgName,
+          },
+        },
         instance
       )
       addToast({

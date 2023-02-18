@@ -39,8 +39,8 @@ export default function CreateNetworkInterfaceForm({
   const createNetworkInterface = useApiMutation('instanceNetworkInterfaceCreate', {
     onSuccess() {
       invariant(instanceName, 'instanceName is required when posting a network interface')
-      queryClient.invalidateQueries('instanceNetworkInterfaceList', {
-        path: { instanceName, projectName, orgName },
+      queryClient.invalidateQueries('instanceNetworkInterfaceListV1', {
+        query: { instance: instanceName, project: projectName, organization: orgName },
       })
       onDismiss()
     },

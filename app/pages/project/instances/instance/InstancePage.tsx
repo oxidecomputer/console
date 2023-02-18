@@ -16,27 +16,35 @@ import { pb } from 'app/util/path-builder'
 import { useMakeInstanceActions } from '../actions'
 
 InstancePage.loader = async ({ params }: LoaderFunctionArgs) => {
-  await apiQueryClient.prefetchQuery('instanceView', {
-    path: requireInstanceParams(params),
+  const { instanceName, projectName, orgName } = requireInstanceParams(params)
+  await apiQueryClient.prefetchQuery('instanceViewV1', {
+    path: { instance: instanceName },
+    query: { project: projectName, organization: orgName },
   })
   return null
 }
 
 export function InstancePage() {
   const instanceParams = useRequiredParams('orgName', 'projectName', 'instanceName')
+  const { instanceName, projectName, orgName } = instanceParams
+  // TODO: helper to construct this out of the names, probably
+  const instanceSelector = {
+    path: { instance: instanceName },
+    query: { project: projectName, organization: orgName },
+  }
 
   const navigate = useNavigate()
   const queryClient = useApiQueryClient()
   const projectParams = pick(instanceParams, 'projectName', 'orgName')
   const makeActions = useMakeInstanceActions(projectParams, {
     onSuccess: () => {
-      queryClient.invalidateQueries('instanceView', { path: instanceParams })
+      queryClient.invalidateQueries('instanceViewV1', instanceSelector)
     },
     // go to project instances list since there's no more instance
     onDelete: () => navigate(pb.instances(projectParams)),
   })
 
-  const { data: instance } = useApiQuery('instanceView', { path: instanceParams })
+  const { data: instance } = useApiQuery('instanceViewV1', instanceSelector)
   const actions = useMemo(
     () => (instance ? makeActions(instance) : []),
     [instance, makeActions]

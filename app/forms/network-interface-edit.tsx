@@ -22,8 +22,8 @@ export default function EditNetworkInterfaceForm({
   const editNetworkInterface = useApiMutation('instanceNetworkInterfaceUpdate', {
     onSuccess() {
       invariant(instanceName, 'instanceName is required when posting a network interface')
-      queryClient.invalidateQueries('instanceNetworkInterfaceList', {
-        path: { orgName, projectName, instanceName },
+      queryClient.invalidateQueries('instanceNetworkInterfaceListV1', {
+        query: { organization: orgName, project: projectName, instance: instanceName },
       })
       onDismiss()
     },
