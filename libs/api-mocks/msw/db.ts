@@ -63,10 +63,31 @@ export const lookup = {
 
     const project = lookup.project(projectParams)
 
-    const instance = db.instances.find((p) => p.project_id === project.id && p.name === id)
+    const instance = db.instances.find((i) => i.project_id === project.id && i.name === id)
     if (!instance) throw notFoundErr
 
     return instance
+  },
+  networkInterface(params: PPv1.NetworkInterface): Json<Api.NetworkInterface> {
+    const { interface: id, ...instanceParams } = params
+    // if we have a project ID, look it up directly, otherwise call lookup org
+    // with the other params to get an org ID, then look it up by org ID and name
+    if (!id) throw notFoundErr
+
+    if (isUuid(id)) {
+      const nic = db.networkInterfaces.find((p) => p.id === id)
+      if (!nic) throw notFoundErr
+      return nic
+    }
+
+    const instance = lookup.instance(instanceParams)
+
+    const nic = db.networkInterfaces.find(
+      (n) => n.instance_id === instance.id && n.name === id
+    )
+    if (!nic) throw notFoundErr
+
+    return nic
   },
 }
 
@@ -105,19 +126,6 @@ export function lookupInstance(params: PP.Instance): Json<Api.Instance> {
   if (!instance) throw notFoundErr
 
   return instance
-}
-
-export function lookupNetworkInterface(
-  params: PP.NetworkInterface
-): Json<Api.NetworkInterface> {
-  const instance = lookupInstance(params)
-
-  const nic = db.networkInterfaces.find(
-    (n) => n.instance_id === instance.id && n.name === params.interfaceName
-  )
-  if (!nic) throw notFoundErr
-
-  return nic
 }
 
 export function lookupDisk(params: PP.Disk): Json<Api.Disk> {

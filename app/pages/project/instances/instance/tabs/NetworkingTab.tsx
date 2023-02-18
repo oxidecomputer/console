@@ -69,6 +69,11 @@ NetworkingTab.loader = async ({ params }: LoaderFunctionArgs) => {
 export function NetworkingTab() {
   const instanceParams = useRequiredParams('orgName', 'projectName', 'instanceName')
   const { orgName, projectName, instanceName } = instanceParams
+  const instanceSelector = {
+    organization: orgName,
+    project: projectName,
+    instance: instanceName,
+  }
 
   const queryClient = useApiQueryClient()
   const addToast = useToast()
@@ -76,12 +81,9 @@ export function NetworkingTab() {
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [editing, setEditing] = useState<NetworkInterface | null>(null)
 
-  const getQuery = [
-    'instanceNetworkInterfaceListV1',
-    { query: { organization: orgName, project: projectName, instance: instanceName } },
-  ] as const
+  const getQuery = ['instanceNetworkInterfaceListV1', { query: instanceSelector }] as const
 
-  const deleteNic = useApiMutation('instanceNetworkInterfaceDelete', {
+  const deleteNic = useApiMutation('instanceNetworkInterfaceDeleteV1', {
     onSuccess() {
       queryClient.invalidateQueries(...getQuery)
       addToast({
@@ -91,7 +93,7 @@ export function NetworkingTab() {
     },
   })
 
-  const editNic = useApiMutation('instanceNetworkInterfaceUpdate', {
+  const editNic = useApiMutation('instanceNetworkInterfaceUpdateV1', {
     onSuccess() {
       queryClient.invalidateQueries(...getQuery)
     },
@@ -105,7 +107,8 @@ export function NetworkingTab() {
       label: 'Make primary',
       onActivate() {
         editNic.mutate({
-          path: { ...instanceParams, interfaceName: nic.name },
+          path: { interface: nic.name },
+          query: instanceSelector,
           body: { ...nic, primary: true },
         })
       },
@@ -126,7 +129,7 @@ export function NetworkingTab() {
     {
       label: 'Delete',
       onActivate: () => {
-        deleteNic.mutate({ path: { ...instanceParams, interfaceName: nic.name } })
+        deleteNic.mutate({ path: { interface: nic.name }, query: instanceSelector })
       },
       disabled:
         !instanceStopped && 'The instance must be stopped to delete a network interface.',

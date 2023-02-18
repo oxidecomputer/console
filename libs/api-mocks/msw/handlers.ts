@@ -19,7 +19,6 @@ import {
   lookupGlobalImage,
   lookupImage,
   lookupInstance,
-  lookupNetworkInterface,
   lookupOrg,
   lookupProject,
   lookupSamlIdp,
@@ -435,9 +434,10 @@ export const handlers = makeHandlers({
 
     return newNic
   },
-  instanceNetworkInterfaceView: (params) => lookupNetworkInterface(params.path),
-  instanceNetworkInterfaceUpdate({ body, ...params }) {
-    const nic = lookupNetworkInterface(params.path)
+  instanceNetworkInterfaceViewV1: ({ path, query }) =>
+    lookup.networkInterface({ ...path, ...query }),
+  instanceNetworkInterfaceUpdateV1({ body, path, query }) {
+    const nic = lookup.networkInterface({ ...path, ...query })
 
     if (body.name) {
       nic.name = body.name
@@ -460,8 +460,8 @@ export const handlers = makeHandlers({
 
     return nic
   },
-  instanceNetworkInterfaceDelete(params) {
-    const nic = lookupNetworkInterface(params.path)
+  instanceNetworkInterfaceDeleteV1({ path, query }) {
+    const nic = lookup.networkInterface({ ...path, ...query })
     db.networkInterfaces = db.networkInterfaces.filter((n) => n.id !== nic.id)
     return 204
   },
@@ -1076,9 +1076,6 @@ export const handlers = makeHandlers({
   instanceListV1: NotImplemented,
   instanceMigrateV1: NotImplemented,
   instanceNetworkInterfaceCreateV1: NotImplemented,
-  instanceNetworkInterfaceDeleteV1: NotImplemented,
-  instanceNetworkInterfaceUpdateV1: NotImplemented,
-  instanceNetworkInterfaceViewV1: NotImplemented,
   instanceRebootV1: NotImplemented,
   instanceSerialConsoleStreamV1: NotImplemented,
   instanceSerialConsoleV1: NotImplemented,
@@ -1134,7 +1131,10 @@ export const handlers = makeHandlers({
   // Deprecated endpoints
 
   instanceView: NotImplemented,
+  instanceNetworkInterfaceDelete: NotImplemented,
   instanceNetworkInterfaceList: NotImplemented,
+  instanceNetworkInterfaceUpdate: NotImplemented,
+  instanceNetworkInterfaceView: NotImplemented,
   organizationList: NotImplemented,
   organizationView: NotImplemented,
   projectList: NotImplemented,
