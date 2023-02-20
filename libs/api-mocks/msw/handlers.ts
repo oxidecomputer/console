@@ -51,7 +51,7 @@ export const handlers = makeHandlers({
   groupList: (params) => paginated(params.query, db.userGroups),
 
   organizationListV1: (params) => paginated(params.query, db.orgs),
-  organizationCreate({ body }) {
+  organizationCreateV1({ body }) {
     errIfExists(db.orgs, { name: body.name })
 
     const newOrg: Json<Api.Organization> = {
@@ -1051,7 +1051,6 @@ export const handlers = makeHandlers({
   instanceSerialConsoleV1: NotImplemented,
   instanceStartV1: NotImplemented,
   instanceStopV1: NotImplemented,
-  organizationCreateV1: NotImplemented,
   organizationDeleteV1: NotImplemented,
   organizationPolicyUpdateV1: NotImplemented,
   organizationPolicyViewV1: NotImplemented,
@@ -1120,6 +1119,7 @@ export const handlers = makeHandlers({
   instanceNetworkInterfaceUpdate: NotImplemented,
   instanceNetworkInterfaceView: NotImplemented,
   instanceView: NotImplemented,
+  organizationCreate: NotImplemented,
   organizationList: NotImplemented,
   organizationView: NotImplemented,
   projectCreate: NotImplemented,

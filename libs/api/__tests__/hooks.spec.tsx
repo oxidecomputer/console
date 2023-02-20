@@ -35,7 +35,8 @@ const renderGetOrg503 = () =>
     config
   )
 
-const renderCreateOrg = () => renderHook(() => useApiMutation('organizationCreate'), config)
+const renderCreateOrg = () =>
+  renderHook(() => useApiMutation('organizationCreateV1'), config)
 
 const createParams = {
   body: { name: 'abc', description: '', hello: 'a' },
@@ -206,7 +207,7 @@ describe('useApiMutation', () => {
     })
 
     it('contains client_error if error body is not json', async () => {
-      overrideOnce('post', '/api/organizations', 404, 'not json')
+      overrideOnce('post', '/api/v1/organizations', 404, 'not json')
 
       const { result } = renderCreateOrg()
       act(() => result.current.mutate(createParams))
@@ -223,7 +224,7 @@ describe('useApiMutation', () => {
     })
 
     it('does not client_error if response body is empty', async () => {
-      overrideOnce('post', '/api/organizations', 503, '')
+      overrideOnce('post', '/api/v1/organizations', 503, '')
 
       const { result } = renderCreateOrg()
       act(() => result.current.mutate(createParams))
@@ -255,7 +256,7 @@ describe('useApiMutation', () => {
 
     // RQ doesn't like a value of undefined for data, so we're using {} for now
     it('returns success with empty object if response body is empty', async () => {
-      overrideOnce('post', '/api/organizations', 204, '')
+      overrideOnce('post', '/api/v1/organizations', 204, '')
 
       const { result } = renderCreateOrg()
       act(() => result.current.mutate(createParams))

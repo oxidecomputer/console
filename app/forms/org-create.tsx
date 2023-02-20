@@ -18,11 +18,10 @@ export function CreateOrgSideModalForm() {
   const queryClient = useApiQueryClient()
   const addToast = useToast()
 
-  const createOrg = useApiMutation('organizationCreate', {
+  const createOrg = useApiMutation('organizationCreateV1', {
     onSuccess(org) {
       queryClient.invalidateQueries('organizationListV1', {})
       // avoid the org fetch when the org page loads since we have the data
-      const orgParams = { orgName: org.name }
       queryClient.setQueryData(
         'organizationViewV1',
         { path: { organization: org.name } },
@@ -33,7 +32,7 @@ export function CreateOrgSideModalForm() {
         title: 'Success!',
         content: 'Your organization has been created.',
       })
-      navigate(pb.projects(orgParams))
+      navigate(pb.projects({ orgName: org.name }))
     },
   })
 

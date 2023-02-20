@@ -3,6 +3,7 @@ import invariant from 'tiny-invariant'
 import type { SetRequired } from 'type-fest'
 
 import type { InstanceCreate } from '@oxide/api'
+import { toApiSelector } from '@oxide/api'
 import { apiQueryClient } from '@oxide/api'
 import { genName } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
@@ -76,23 +77,18 @@ CreateInstanceForm.loader = async () => {
 export function CreateInstanceForm() {
   const queryClient = useApiQueryClient()
   const addToast = useToast()
-  const pageParams = useRequiredParams('orgName', 'projectName')
+  const projectParams = useRequiredParams('orgName', 'projectName')
+  const projectSelector = toApiSelector(projectParams)
   const navigate = useNavigate()
 
-  const createInstance = useApiMutation('instanceCreate', {
+  const createInstance = useApiMutation('instanceCreateV1', {
     onSuccess(instance) {
       // refetch list of instances
-      queryClient.invalidateQueries('instanceList', { path: pageParams })
+      queryClient.invalidateQueries('instanceList', { path: projectParams })
       // avoid the instance fetch when the instance page loads since we have the data
       queryClient.setQueryData(
         'instanceViewV1',
-        {
-          path: { instance: instance.name },
-          query: {
-            project: pageParams.projectName,
-            organization: pageParams.orgName,
-          },
-        },
+        { path: { instance: instance.name }, query: projectSelector },
         instance
       )
       addToast({
@@ -100,7 +96,7 @@ export function CreateInstanceForm() {
         title: 'Success!',
         content: 'Your instance has been created.',
       })
-      navigate(pb.instancePage({ ...pageParams, instanceName: instance.name }))
+      navigate(pb.instancePage({ ...projectParams, instanceName: instance.name }))
     },
   })
 
@@ -134,11 +130,11 @@ export function CreateInstanceForm() {
         const bootDiskName = values.bootDiskName || genName(values.name, image.name)
 
         createInstance.mutate({
-          path: pageParams,
+          query: projectSelector,
           body: {
             name: values.name,
             hostname: values.hostname || values.name,
-            description: `An instance in project: ${pageParams.projectName}`,
+            description: `An instance in project: ${projectParams.projectName}`,
             memory: instance.memory * GiB,
             ncpus: instance.ncpus,
             disks: [
@@ -269,7 +265,7 @@ export function CreateInstanceForm() {
 
           <Form.Actions>
             <Form.Submit loading={createInstance.isLoading}>Create instance</Form.Submit>
-            <Form.Cancel onClick={() => navigate(pb.instances(pageParams))} />
+            <Form.Cancel onClick={() => navigate(pb.instances(projectParams))} />
           </Form.Actions>
         </>
       )}
