@@ -1,12 +1,10 @@
 import { getLocalTimeZone } from '@internationalized/date'
-import { Suspense, useMemo, useState } from 'react'
-import React from 'react'
+import React, { Suspense, useMemo, useState } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 import invariant from 'tiny-invariant'
 
 import type { Cumulativeint64, DiskMetricName } from '@oxide/api'
-import { apiQueryClient } from '@oxide/api'
-import { useApiQuery } from '@oxide/api'
+import { apiQueryClient, toApiSelector, toPathQuery, useApiQuery } from '@oxide/api'
 import { Listbox, Spinner } from '@oxide/ui'
 
 import { useDateTimeRangePicker } from 'app/components/form'
@@ -76,22 +74,27 @@ function DiskMetric({
 // date range, I'm inclined to punt.
 
 MetricsTab.loader = async ({ params }: LoaderFunctionArgs) => {
-  await apiQueryClient.prefetchQuery('instanceDiskList', {
-    path: requireInstanceParams(params),
-  })
+  const instanceParams = requireInstanceParams(params)
+  await apiQueryClient.prefetchQuery(
+    'instanceDiskListV1',
+    toPathQuery('instance', toApiSelector(instanceParams))
+  )
   return null
 }
 
 export function MetricsTab() {
   const instanceParams = useRequiredParams('orgName', 'projectName', 'instanceName')
-  const { data } = useApiQuery('instanceDiskList', { path: instanceParams })
+  const { data } = useApiQuery(
+    'instanceDiskListV1',
+    toPathQuery('instance', toApiSelector(instanceParams))
+  )
   const disks = useMemo(() => data?.items || [], [data])
 
   // because of prefetch in the loader and because an instance should always
   // have a disk, we should never see an empty list here
   invariant(disks.length > 0, 'Instance disks list should never be empty')
 
-  const { orgName, projectName } = useRequiredParams('orgName', 'projectName')
+  const { orgName, projectName } = instanceParams
 
   const { startTime, endTime, dateTimeRangePicker } = useDateTimeRangePicker('lastDay')
 

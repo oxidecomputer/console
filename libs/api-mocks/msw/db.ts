@@ -78,6 +78,18 @@ export const lookup = {
 
     return nic
   },
+  disk({ disk: id, ...projectSelector }: PPv1.Disk): Json<Api.Disk> {
+    if (!id) throw notFoundErr
+
+    if (isUuid(id)) return lookupById2(db.disks, id)
+
+    const project = lookup.project(projectSelector)
+
+    const disk = db.disks.find((d) => d.project_id === project.id && d.name === id)
+    if (!disk) throw notFoundErr
+
+    return disk
+  },
 }
 
 export function lookupOrg(params: PP.Org): Json<Api.Organization> {

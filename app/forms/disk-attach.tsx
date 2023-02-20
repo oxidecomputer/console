@@ -1,7 +1,13 @@
 import invariant from 'tiny-invariant'
 
 import type { Disk, DiskIdentifier } from '@oxide/api'
-import { useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
+import {
+  toApiSelector,
+  toPathQuery,
+  useApiMutation,
+  useApiQuery,
+  useApiQueryClient,
+} from '@oxide/api'
 
 import { ListboxField, SideModalForm } from 'app/components/form'
 import { useAllParams } from 'app/hooks'
@@ -23,12 +29,13 @@ export function AttachDiskSideModalForm({
   const queryClient = useApiQueryClient()
   const { orgName, projectName, instanceName } = useAllParams('orgName', 'projectName')
 
-  const attachDisk = useApiMutation('instanceDiskAttach', {
+  const attachDisk = useApiMutation('instanceDiskAttachV1', {
     onSuccess(data) {
       invariant(instanceName, 'instanceName is required')
-      queryClient.invalidateQueries('instanceDiskList', {
-        path: { orgName, projectName, instanceName },
-      })
+      queryClient.invalidateQueries(
+        'instanceDiskListV1',
+        toPathQuery('instance', toApiSelector({ orgName, projectName, instanceName }))
+      )
       onSuccess?.(data)
       onDismiss()
     },
@@ -53,8 +60,11 @@ export function AttachDiskSideModalForm({
         (({ name }) => {
           invariant(instanceName, 'instanceName is required')
           attachDisk.mutate({
-            path: { orgName, projectName, instanceName },
-            body: { name },
+            ...toPathQuery(
+              'instance',
+              toApiSelector({ orgName, projectName, instanceName })
+            ),
+            body: { disk: name },
           })
         })
       }

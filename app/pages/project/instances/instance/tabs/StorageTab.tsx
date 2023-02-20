@@ -1,9 +1,15 @@
 import { useCallback, useMemo, useState } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 
-import type { Disk } from '@oxide/api'
-import { apiQueryClient } from '@oxide/api'
-import { useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
+import {
+  type Disk,
+  apiQueryClient,
+  toApiSelector,
+  toPathQuery,
+  useApiMutation,
+  useApiQuery,
+  useApiQueryClient,
+} from '@oxide/api'
 import type { MenuAction } from '@oxide/table'
 import {
   DateCell,
@@ -52,16 +58,13 @@ const staticCols = [
 ]
 
 StorageTab.loader = async ({ params }: LoaderFunctionArgs) => {
-  const path = requireInstanceParams(params)
-  const { instanceName, projectName, orgName } = path
+  const instanceParams = requireInstanceParams(params)
+  const instanceSelector = toPathQuery('instance', toApiSelector(instanceParams))
   await Promise.all([
-    apiQueryClient.prefetchQuery('instanceDiskList', { path }),
+    apiQueryClient.prefetchQuery('instanceDiskListV1', instanceSelector),
     // This is covered by the InstancePage loader but there's no downside to
     // being redundant. If it were removed there, we'd still want it here.
-    apiQueryClient.prefetchQuery('instanceViewV1', {
-      path: { instance: instanceName },
-      query: { project: projectName, organization: orgName },
-    }),
+    apiQueryClient.prefetchQuery('instanceViewV1', instanceSelector),
   ])
   return null
 }
@@ -73,17 +76,14 @@ export function StorageTab() {
   const addToast = useToast()
   const queryClient = useApiQueryClient()
   const instanceParams = useRequiredParams('orgName', 'projectName', 'instanceName')
-  const { instanceName, projectName, orgName } = instanceParams
+  const instanceSelector = toPathQuery('instance', toApiSelector(instanceParams))
 
-  const { data } = useApiQuery('instanceDiskList', { path: instanceParams })
+  const { data } = useApiQuery('instanceDiskListV1', instanceSelector)
 
-  const detachDisk = useApiMutation('instanceDiskDetach', {})
+  const detachDisk = useApiMutation('instanceDiskDetachV1', {})
 
   const instanceStopped =
-    useApiQuery('instanceViewV1', {
-      path: { instance: instanceName },
-      query: { project: projectName, organization: orgName },
-    }).data?.runState === 'stopped'
+    useApiQuery('instanceViewV1', instanceSelector).data?.runState === 'stopped'
 
   const makeActions = useCallback(
     (disk: Disk): MenuAction[] => [
@@ -93,22 +93,23 @@ export function StorageTab() {
           !instanceStopped && 'Instance must be stopped before disk can be detached',
         onActivate() {
           detachDisk.mutate(
-            { body: { name: disk.name }, path: instanceParams },
+            { body: { disk: disk.name }, ...instanceSelector },
             {
               onSuccess: () => {
-                queryClient.invalidateQueries('instanceDiskList', { path: instanceParams })
+                queryClient.invalidateQueries('instanceDiskListV1', instanceSelector)
               },
             }
           )
         },
       },
     ],
-    [detachDisk, instanceParams, instanceStopped, queryClient]
+    [detachDisk, instanceStopped, queryClient, instanceSelector]
   )
 
-  const attachDisk = useApiMutation('instanceDiskAttach', {
+  const attachDisk = useApiMutation('instanceDiskAttachV1', {
     onSuccess() {
-      queryClient.invalidateQueries('instanceDiskList', { path: instanceParams })
+      console.log('disk atttach success')
+      queryClient.invalidateQueries('instanceDiskListV1', instanceSelector)
     },
     onError(err) {
       addToast({
@@ -190,7 +191,7 @@ export function StorageTab() {
           onSuccess={({ name }) => {
             // TODO: this should probably be done with `mutateAsync` and
             // awaited, but it's a pain, so punt for now
-            attachDisk.mutate({ path: instanceParams, body: { name } })
+            attachDisk.mutate({ ...instanceSelector, body: { disk: name } })
           }}
         />
       )}

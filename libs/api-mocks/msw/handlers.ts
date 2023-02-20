@@ -351,35 +351,34 @@ export const handlers = makeHandlers({
     db.instances = db.instances.filter((i) => i.id !== instance.id)
     return 204
   },
-  instanceDiskList(params) {
-    const instance = lookupInstance(params.path)
+  instanceDiskListV1({ path, query }) {
+    const instance = lookup.instance({ ...path, ...query })
     // TODO: Should disk instance state be `instance_id` instead of `instance`?
     const disks = db.disks.filter(
       (d) => 'instance' in d.state && d.state.instance === instance.id
     )
-    return paginated(params.query, disks)
+    return paginated(query, disks)
   },
-  instanceDiskAttach({ body, ...params }) {
-    const instance = lookupInstance(params.path)
+  instanceDiskAttachV1({ body, path, query: projectParams }) {
+    const instance = lookup.instance({ ...path, ...projectParams })
     if (instance.run_state !== 'stopped') {
       throw 'Cannot attach disk to instance that is not stopped'
     }
-    const disk = lookupDisk({ ...params.path, diskName: body.name })
+    const disk = lookup.disk({ ...projectParams, disk: body.disk })
     disk.state = {
       state: 'attached',
       instance: instance.id,
     }
+    console.log(disk)
     return disk
   },
-  instanceDiskDetach({ body, ...params }) {
-    const instance = lookupInstance(params.path)
+  instanceDiskDetachV1({ body, path, query: projectParams }) {
+    const instance = lookup.instance({ ...path, ...projectParams })
     if (instance.run_state !== 'stopped') {
       throw 'Cannot detach disk to instance that is not stopped'
     }
-    const disk = lookupDisk({ ...params.path, diskName: body.name })
-    disk.state = {
-      state: 'detached',
-    }
+    const disk = lookup.disk({ ...projectParams, disk: body.disk })
+    disk.state = { state: 'detached' }
     return disk
   },
   instanceExternalIpList(params) {
@@ -1070,9 +1069,6 @@ export const handlers = makeHandlers({
   diskViewV1: NotImplemented,
   instanceCreateV1: NotImplemented,
   instanceDeleteV1: NotImplemented,
-  instanceDiskAttachV1: NotImplemented,
-  instanceDiskDetachV1: NotImplemented,
-  instanceDiskListV1: NotImplemented,
   instanceListV1: NotImplemented,
   instanceMigrateV1: NotImplemented,
   instanceNetworkInterfaceCreateV1: NotImplemented,
@@ -1127,6 +1123,9 @@ export const handlers = makeHandlers({
 
   // Deprecated endpoints
 
+  instanceDiskAttach: NotImplemented,
+  instanceDiskDetach: NotImplemented,
+  instanceDiskList: NotImplemented,
   instanceNetworkInterfaceDelete: NotImplemented,
   instanceNetworkInterfaceList: NotImplemented,
   instanceNetworkInterfaceUpdate: NotImplemented,
