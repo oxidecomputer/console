@@ -2,6 +2,7 @@ import type { LoaderFunctionArgs } from 'react-router-dom'
 import { Link, Outlet } from 'react-router-dom'
 
 import type { Snapshot } from '@oxide/api'
+import { toApiSelector } from '@oxide/api'
 import { apiQueryClient, useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
 import type { MenuAction } from '@oxide/table'
 import { DateCell, SizeCell, useQueryTable } from '@oxide/table'
@@ -19,7 +20,7 @@ import { requireProjectParams, useProjectParams, useRequiredParams } from 'app/h
 import { pb } from 'app/util/path-builder'
 
 const DiskNameFromId = ({ value }: { value: string }) => {
-  const { data: disk } = useApiQuery('diskViewById', { path: { id: value } })
+  const { data: disk } = useApiQuery('diskViewV1', { path: { disk: value } })
   if (!disk) return null
   return <>{disk.name}</>
 }
@@ -35,9 +36,9 @@ const EmptyState = () => (
 )
 
 SnapshotsPage.loader = async ({ params }: LoaderFunctionArgs) => {
-  await apiQueryClient.prefetchQuery('snapshotList', {
-    path: requireProjectParams(params),
-    query: { limit: 10 },
+  const projectSelector = toApiSelector(requireProjectParams(params))
+  await apiQueryClient.prefetchQuery('snapshotListV1', {
+    query: { ...projectSelector, limit: 10 },
   })
   return null
 }
@@ -45,11 +46,12 @@ SnapshotsPage.loader = async ({ params }: LoaderFunctionArgs) => {
 export function SnapshotsPage() {
   const queryClient = useApiQueryClient()
   const projectParams = useRequiredParams('orgName', 'projectName')
-  const { Table, Column } = useQueryTable('snapshotList', { path: projectParams })
+  const projectSelector = toApiSelector(projectParams)
+  const { Table, Column } = useQueryTable('snapshotListV1', { query: projectSelector })
 
-  const deleteSnapshot = useApiMutation('snapshotDelete', {
+  const deleteSnapshot = useApiMutation('snapshotDeleteV1', {
     onSuccess() {
-      queryClient.invalidateQueries('snapshotList', { path: projectParams })
+      queryClient.invalidateQueries('snapshotListV1', { query: projectSelector })
     },
   })
 
@@ -57,7 +59,7 @@ export function SnapshotsPage() {
     {
       label: 'Delete',
       onActivate() {
-        deleteSnapshot.mutate({ path: { ...projectParams, snapshotName: snapshot.name } })
+        deleteSnapshot.mutate({ path: { snapshot: snapshot.name }, query: projectSelector })
       },
     },
   ]

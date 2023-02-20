@@ -3,14 +3,15 @@ import { Outlet } from 'react-router-dom'
 import { Link } from 'react-router-dom'
 
 import type { Disk } from '@oxide/api'
-import { genName } from '@oxide/api'
-import { apiQueryClient } from '@oxide/api'
-import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import { useApiQuery } from '@oxide/api'
-import type { MenuAction } from '@oxide/table'
-import { DateCell } from '@oxide/table'
-import { SizeCell } from '@oxide/table'
-import { useQueryTable } from '@oxide/table'
+import {
+  apiQueryClient,
+  genName,
+  toApiSelector,
+  useApiMutation,
+  useApiQuery,
+  useApiQueryClient,
+} from '@oxide/api'
+import { DateCell, type MenuAction, SizeCell, useQueryTable } from '@oxide/table'
 import {
   EmptyMessage,
   PageHeader,
@@ -39,7 +40,9 @@ function AttachedInstance({
   projectName: string
   instanceId: string
 }) {
-  const { data: instance } = useApiQuery('instanceViewById', { path: { id: instanceId } })
+  const { data: instance } = useApiQuery('instanceViewV1', {
+    path: { instance: instanceId },
+  })
   return instance ? (
     <Link
       className="text-sans-semi-md text-accent hover:underline"
@@ -70,7 +73,9 @@ DisksPage.loader = async ({ params }: LoaderFunctionArgs) => {
 
 export function DisksPage() {
   const queryClient = useApiQueryClient()
-  const { orgName, projectName } = useRequiredParams('orgName', 'projectName')
+  const projectParams = useRequiredParams('orgName', 'projectName')
+  const { orgName, projectName } = projectParams
+  const projectSelector = toApiSelector(projectParams)
   const { Table, Column } = useQueryTable('diskList', { path: { orgName, projectName } })
   const addToast = useToast()
 
@@ -80,9 +85,9 @@ export function DisksPage() {
     },
   })
 
-  const createSnapshot = useApiMutation('snapshotCreate', {
+  const createSnapshot = useApiMutation('snapshotCreateV1', {
     onSuccess() {
-      queryClient.invalidateQueries('snapshotList', { path: { orgName, projectName } })
+      queryClient.invalidateQueries('snapshotListV1', { query: projectSelector })
       addToast({
         icon: <Success16Icon />,
         title: 'Success!',
@@ -96,7 +101,7 @@ export function DisksPage() {
       label: 'Snapshot',
       onActivate() {
         createSnapshot.mutate({
-          path: { orgName, projectName },
+          query: projectSelector,
           body: {
             name: genName(disk.name),
             disk: disk.name,

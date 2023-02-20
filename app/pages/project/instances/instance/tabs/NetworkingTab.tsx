@@ -30,7 +30,7 @@ import { pb } from 'app/util/path-builder'
 
 const VpcNameFromId = ({ value }: { value: string }) => {
   const { orgName, projectName } = useRequiredParams('orgName', 'projectName')
-  const { data: vpc } = useApiQuery('vpcViewById', { path: { id: value } })
+  const { data: vpc } = useApiQuery('vpcViewV1', { path: { vpc: value } })
   if (!vpc) return null
   return (
     <Link
@@ -44,7 +44,7 @@ const VpcNameFromId = ({ value }: { value: string }) => {
 
 const SubnetNameFromId = ({ value }: { value: string }) => (
   <span className="text-secondary">
-    {useApiQuery('vpcSubnetViewById', { path: { id: value } }).data?.name}
+    {useApiQuery('vpcSubnetViewV1', { path: { subnet: value } }).data?.name}
   </span>
 )
 

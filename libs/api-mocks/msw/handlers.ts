@@ -24,7 +24,6 @@ import {
   lookupSamlIdp,
   lookupSilo,
   lookupSled,
-  lookupSnapshot,
   lookupSshKey,
   lookupSystemUpdate,
   lookupVpc,
@@ -179,7 +178,7 @@ export const handlers = makeHandlers({
 
     return json(newDisk, { status: 201 })
   },
-  diskView: (params) => lookupDisk(params.path),
+  diskViewV1: ({ path, query }) => lookup.disk({ ...path, ...query }),
   diskDelete(params) {
     const disk = lookupDisk(params.path)
 
@@ -517,17 +516,17 @@ export const handlers = makeHandlers({
     // TODO: Is this the right thing to return?
     return body
   },
-  snapshotList(params) {
-    const project = lookupProject(params.path)
+  snapshotListV1(params) {
+    const project = lookup.project(params.query)
     const snapshots = db.snapshots.filter((i) => i.project_id === project.id)
     return paginated(params.query, snapshots)
   },
-  snapshotCreate({ body, ...params }) {
-    const project = lookupProject(params.path)
+  snapshotCreateV1({ body, query }) {
+    const project = lookup.project(query)
 
     errIfExists(db.snapshots, { name: body.name })
 
-    const disk = lookupDisk({ ...params.path, diskName: body.disk })
+    const disk = lookup.disk({ ...query, disk: body.disk })
 
     const newSnapshot: Json<Api.Snapshot> = {
       id: uuid(),
@@ -542,9 +541,9 @@ export const handlers = makeHandlers({
 
     return json(newSnapshot, { status: 201 })
   },
-  snapshotView: (params) => lookupSnapshot(params.path),
-  snapshotDelete(params) {
-    const snapshot = lookupSnapshot(params.path)
+  snapshotViewV1: ({ path, query }) => lookup.snapshot({ ...path, ...query }),
+  snapshotDeleteV1({ path, query }) {
+    const snapshot = lookup.snapshot({ ...path, ...query })
     db.snapshots = db.snapshots.filter((s) => s.id !== snapshot.id)
     return 204
   },
@@ -583,6 +582,7 @@ export const handlers = makeHandlers({
     return json(newVpc, { status: 201 })
   },
   vpcView: (params) => lookupVpc(params.path),
+  vpcViewV1: ({ path, query }) => lookup.vpc({ ...path, ...query }),
   vpcUpdate({ body, ...params }) {
     const vpc = lookupVpc(params.path)
 
@@ -744,7 +744,7 @@ export const handlers = makeHandlers({
     db.vpcSubnets.push(newSubnet)
     return json(newSubnet, { status: 201 })
   },
-  vpcSubnetView: (params) => lookupVpcSubnet(params.path),
+  vpcSubnetViewV1: ({ path, query }) => lookup.vpcSubnet({ ...path, ...query }),
   vpcSubnetUpdate({ body, ...params }) {
     const subnet = lookupVpcSubnet(params.path)
 
@@ -972,7 +972,7 @@ export const handlers = makeHandlers({
     }
   },
   updateDeploymentsList: (params) => paginated(params.query, db.updateDeployments),
-  updateDeploymentView: lookupById(db.updateDeployments),
+  updateDeploymentView: ({ path: { id } }) => lookupById(db.updateDeployments, id),
 
   systemMetric: (params) => {
     // const result = ZVal.ResourceName.safeParse(req.params.resourceName)
@@ -996,22 +996,6 @@ export const handlers = makeHandlers({
       ),
     }
   },
-
-  // by ID endpoints (will be gone soon)
-
-  diskViewById: lookupById(db.disks),
-  imageViewById: lookupById(db.images),
-  instanceNetworkInterfaceViewById: lookupById(db.networkInterfaces),
-  instanceViewById: lookupById(db.instances),
-  organizationViewById: lookupById(db.orgs),
-  projectViewById: lookupById(db.projects),
-  siloViewById: lookupById(db.silos),
-  snapshotViewById: lookupById(db.snapshots),
-  systemImageViewById: lookupById(db.globalImages),
-  vpcRouterRouteViewById: lookupById(db.vpcRouterRoutes),
-  vpcRouterViewById: lookupById(db.vpcRouters),
-  vpcSubnetViewById: lookupById(db.vpcSubnets),
-  vpcViewById: lookupById(db.vpcs),
 
   // Misc endpoints we're not using yet in the console
 
@@ -1066,7 +1050,6 @@ export const handlers = makeHandlers({
   diskCreateV1: NotImplemented,
   diskDeleteV1: NotImplemented,
   diskListV1: NotImplemented,
-  diskViewV1: NotImplemented,
   instanceCreateV1: NotImplemented,
   instanceDeleteV1: NotImplemented,
   instanceListV1: NotImplemented,
@@ -1094,10 +1077,6 @@ export const handlers = makeHandlers({
   sledListV1: NotImplemented,
   sledPhysicalDiskListV1: NotImplemented,
   sledViewV1: NotImplemented,
-  snapshotCreateV1: NotImplemented,
-  snapshotDeleteV1: NotImplemented,
-  snapshotListV1: NotImplemented,
-  snapshotViewV1: NotImplemented,
   systemPolicyUpdateV1: NotImplemented,
   systemPolicyViewV1: NotImplemented,
   vpcCreateV1: NotImplemented,
@@ -1117,12 +1096,27 @@ export const handlers = makeHandlers({
   vpcSubnetDeleteV1: NotImplemented,
   vpcSubnetListV1: NotImplemented,
   vpcSubnetUpdateV1: NotImplemented,
-  vpcSubnetViewV1: NotImplemented,
   vpcUpdateV1: NotImplemented,
-  vpcViewV1: NotImplemented,
+
+  // deprecated by ID endpoints
+
+  diskViewById: NotImplemented,
+  imageViewById: NotImplemented,
+  instanceNetworkInterfaceViewById: NotImplemented,
+  instanceViewById: NotImplemented,
+  organizationViewById: NotImplemented,
+  projectViewById: NotImplemented,
+  siloViewById: NotImplemented,
+  snapshotViewById: NotImplemented,
+  systemImageViewById: NotImplemented,
+  vpcRouterRouteViewById: NotImplemented,
+  vpcRouterViewById: NotImplemented,
+  vpcSubnetViewById: NotImplemented,
+  vpcViewById: NotImplemented,
 
   // Deprecated endpoints
 
+  diskView: NotImplemented,
   instanceDiskAttach: NotImplemented,
   instanceDiskDetach: NotImplemented,
   instanceDiskList: NotImplemented,
@@ -1138,4 +1132,9 @@ export const handlers = makeHandlers({
   projectList: NotImplemented,
   projectUpdate: NotImplemented,
   projectView: NotImplemented,
+  snapshotCreate: NotImplemented,
+  snapshotDelete: NotImplemented,
+  snapshotList: NotImplemented,
+  snapshotView: NotImplemented,
+  vpcSubnetView: NotImplemented,
 })

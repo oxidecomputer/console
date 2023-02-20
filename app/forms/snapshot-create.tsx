@@ -1,9 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 
 import type { PathParams, SnapshotCreate } from '@oxide/api'
-import { useApiQuery } from '@oxide/api'
-import { useApiMutation } from '@oxide/api'
-import { useApiQueryClient } from '@oxide/api'
+import { toApiSelector, useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
 import { Success16Icon } from '@oxide/ui'
 
 import {
@@ -32,17 +30,18 @@ const defaultValues: SnapshotCreate = {
 
 export function CreateSnapshotSideModalForm() {
   const queryClient = useApiQueryClient()
-  const pathParams = useRequiredParams('orgName', 'projectName')
+  const projectParams = useRequiredParams('orgName', 'projectName')
+  const projectSelector = toApiSelector(projectParams)
   const addToast = useToast()
   const navigate = useNavigate()
 
-  const diskItems = useSnapshotDiskItems(pathParams)
+  const diskItems = useSnapshotDiskItems(projectParams)
 
-  const onDismiss = () => navigate(pb.snapshots(pathParams))
+  const onDismiss = () => navigate(pb.snapshots(projectParams))
 
-  const createSnapshot = useApiMutation('snapshotCreate', {
+  const createSnapshot = useApiMutation('snapshotCreateV1', {
     onSuccess() {
-      queryClient.invalidateQueries('snapshotList', { path: pathParams })
+      queryClient.invalidateQueries('snapshotListV1', { query: projectSelector })
       addToast({
         icon: <Success16Icon />,
         title: 'Success!',
@@ -59,10 +58,7 @@ export function CreateSnapshotSideModalForm() {
       formOptions={{ defaultValues }}
       onDismiss={onDismiss}
       onSubmit={(values) => {
-        createSnapshot.mutate({
-          path: pathParams,
-          body: values,
-        })
+        createSnapshot.mutate({ query: projectSelector, body: values })
       }}
       submitError={createSnapshot.error}
     >

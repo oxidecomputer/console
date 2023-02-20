@@ -13,16 +13,7 @@ const notFoundBody = { error_code: 'ObjectNotFound' } as const
 export type NotFound = typeof notFoundBody
 export const notFoundErr = json({ error_code: 'ObjectNotFound' } as const, { status: 404 })
 
-export const lookupById =
-  <T extends { id: string }>(table: T[]) =>
-  (params: { path: PP.Id }) => {
-    const item = table.find((i) => i.id === params.path.id)
-    if (!item) throw notFoundErr
-    return item
-  }
-
-// TODO: obviously lookupById2 is not the final name
-export const lookupById2 = <T extends { id: string }>(table: T[], id: string) => {
+export const lookupById = <T extends { id: string }>(table: T[], id: string) => {
   const item = table.find((i) => i.id === id)
   if (!item) throw notFoundErr
   return item
@@ -32,7 +23,7 @@ export const lookup = {
   org({ organization: id }: PPv1.Org): Json<Api.Organization> {
     if (!id) throw notFoundErr
 
-    if (isUuid(id)) return lookupById2(db.orgs, id)
+    if (isUuid(id)) return lookupById(db.orgs, id)
 
     const org = db.orgs.find((o) => o.name === id)
     if (!org) throw notFoundErr
@@ -42,7 +33,7 @@ export const lookup = {
   project({ project: id, ...orgSelector }: PPv1.Project): Json<Api.Project> {
     if (!id) throw notFoundErr
 
-    if (isUuid(id)) return lookupById2(db.projects, id)
+    if (isUuid(id)) return lookupById(db.projects, id)
 
     const org = lookup.org(orgSelector)
     const project = db.projects.find((p) => p.organization_id === org.id && p.name === id)
@@ -53,7 +44,7 @@ export const lookup = {
   instance({ instance: id, ...projectSelector }: PPv1.Instance): Json<Api.Instance> {
     if (!id) throw notFoundErr
 
-    if (isUuid(id)) return lookupById2(db.instances, id)
+    if (isUuid(id)) return lookupById(db.instances, id)
 
     const project = lookup.project(projectSelector)
     const instance = db.instances.find((i) => i.project_id === project.id && i.name === id)
@@ -67,7 +58,7 @@ export const lookup = {
   }: PPv1.NetworkInterface): Json<Api.NetworkInterface> {
     if (!id) throw notFoundErr
 
-    if (isUuid(id)) return lookupById2(db.networkInterfaces, id)
+    if (isUuid(id)) return lookupById(db.networkInterfaces, id)
 
     const instance = lookup.instance(instanceSelector)
 
@@ -81,7 +72,7 @@ export const lookup = {
   disk({ disk: id, ...projectSelector }: PPv1.Disk): Json<Api.Disk> {
     if (!id) throw notFoundErr
 
-    if (isUuid(id)) return lookupById2(db.disks, id)
+    if (isUuid(id)) return lookupById(db.disks, id)
 
     const project = lookup.project(projectSelector)
 
@@ -89,6 +80,39 @@ export const lookup = {
     if (!disk) throw notFoundErr
 
     return disk
+  },
+  snapshot({ snapshot: id, ...projectSelector }: PPv1.Snapshot): Json<Api.Snapshot> {
+    if (!id) throw notFoundErr
+
+    if (isUuid(id)) return lookupById(db.snapshots, id)
+
+    const project = lookup.project(projectSelector)
+    const snapshot = db.snapshots.find((i) => i.project_id === project.id && i.name === id)
+    if (!snapshot) throw notFoundErr
+
+    return snapshot
+  },
+  vpc({ vpc: id, ...projectSelector }: PPv1.Vpc): Json<Api.Vpc> {
+    if (!id) throw notFoundErr
+
+    if (isUuid(id)) return lookupById(db.vpcs, id)
+
+    const project = lookup.project(projectSelector)
+    const vpc = db.vpcs.find((v) => v.project_id === project.id && v.name === id)
+    if (!vpc) throw notFoundErr
+
+    return vpc
+  },
+  vpcSubnet({ subnet: id, ...vpcSelector }: PPv1.VpcSubnet): Json<Api.VpcSubnet> {
+    if (!id) throw notFoundErr
+
+    if (isUuid(id)) return lookupById(db.vpcSubnets, id)
+
+    const vpc = lookup.vpc(vpcSelector)
+    const subnet = db.vpcSubnets.find((s) => s.vpc_id === vpc.id && s.name === id)
+    if (!subnet) throw notFoundErr
+
+    return subnet
   },
 }
 
@@ -149,17 +173,6 @@ export function lookupImage(params: PP.Image): Json<Api.Image> {
   if (!image) throw notFoundErr
 
   return image
-}
-
-export function lookupSnapshot(params: PP.Snapshot): Json<Api.Snapshot> {
-  const project = lookupProject(params)
-
-  const snapshot = db.snapshots.find(
-    (s) => s.project_id === project.id && s.name === params.snapshotName
-  )
-  if (!snapshot) throw notFoundErr
-
-  return snapshot
 }
 
 export function lookupVpcSubnet(params: PP.VpcSubnet): Json<Api.VpcSubnet> {
