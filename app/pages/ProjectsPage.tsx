@@ -19,7 +19,7 @@ import {
 
 import { pb } from 'app/util/path-builder'
 
-import { requireOrgParams, useOrgParams, useQuickActions } from '../hooks'
+import { requireOrgParams, useOrgParams, useOrgSelector, useQuickActions } from '../hooks'
 
 const EmptyState = () => (
   <EmptyMessage
@@ -44,15 +44,11 @@ export default function ProjectsPage() {
 
   const queryClient = useApiQueryClient()
   const { orgName } = useOrgParams()
-  const { Table, Column } = useQueryTable('projectListV1', {
-    query: { organization: orgName },
-  })
+  const orgSelector = useOrgSelector()
+  const { Table, Column } = useQueryTable('projectListV1', { query: orgSelector })
 
   const { data: projects } = useApiQuery('projectListV1', {
-    query: {
-      organization: orgName,
-      limit: 10, // to have same params as QueryTable
-    },
+    query: { ...orgSelector, limit: 10 }, // limit to match QueryTable
   })
 
   const deleteProject = useApiMutation('projectDeleteV1', {
@@ -74,7 +70,7 @@ export default function ProjectsPage() {
           'projectViewV1',
           {
             path: { project: project.name },
-            query: { organization: orgName },
+            query: orgSelector,
           },
           project
         )
@@ -86,7 +82,7 @@ export default function ProjectsPage() {
       onActivate: () => {
         deleteProject.mutate({
           path: { project: project.name },
-          query: { organization: orgName },
+          query: orgSelector,
         })
       },
     },

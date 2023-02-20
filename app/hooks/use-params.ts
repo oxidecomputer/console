@@ -2,6 +2,8 @@ import type { Params } from 'react-router-dom'
 import { useParams } from 'react-router-dom'
 import invariant from 'tiny-invariant'
 
+import { toApiSelector } from '@oxide/api'
+
 const err = (param: string) =>
   `Param '${param}' not found in route. You might be rendering a component under the wrong route.`
 
@@ -34,6 +36,10 @@ export const useVpcParams = () => requireVpcParams(useParams())
 export const useSiloParams = () => requireSiloParams(useParams())
 export const useSledParams = () => requireSledParams(useParams())
 export const useUpdateParams = () => requireUpdateParams(useParams())
+
+export const useOrgSelector = () => toApiSelector(useOrgParams())
+export const useProjectSelector = () => toApiSelector(useProjectParams())
+export const useInstanceSelector = () => toApiSelector(useInstanceParams())
 
 /**
  * Wrapper for RR's `useParams` that guarantees (in dev) that the specified

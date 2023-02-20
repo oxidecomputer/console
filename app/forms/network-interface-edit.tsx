@@ -5,7 +5,7 @@ import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { pick } from '@oxide/util'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
-import { useInstanceParams } from 'app/hooks'
+import { useInstanceSelector } from 'app/hooks'
 
 type EditNetworkInterfaceFormProps = {
   editing: NetworkInterface
@@ -17,13 +17,16 @@ export default function EditNetworkInterfaceForm({
   editing,
 }: EditNetworkInterfaceFormProps) {
   const queryClient = useApiQueryClient()
-  const { orgName, projectName, instanceName } = useInstanceParams()
+  const instanceSelector = useInstanceSelector()
 
   const editNetworkInterface = useApiMutation('instanceNetworkInterfaceUpdateV1', {
     onSuccess() {
-      invariant(instanceName, 'instanceName is required when posting a network interface')
+      invariant(
+        instanceSelector.instance,
+        'instanceName is required when posting a network interface'
+      )
       queryClient.invalidateQueries('instanceNetworkInterfaceListV1', {
-        query: { organization: orgName, project: projectName, instance: instanceName },
+        query: instanceSelector,
       })
       onDismiss()
     },
@@ -41,7 +44,7 @@ export default function EditNetworkInterfaceForm({
         const interfaceName = defaultValues.name
         editNetworkInterface.mutate({
           path: { interface: interfaceName },
-          query: { organization: orgName, project: projectName, instance: instanceName },
+          query: instanceSelector,
           body,
         })
       }}

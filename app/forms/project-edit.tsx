@@ -1,13 +1,20 @@
 import type { LoaderFunctionArgs } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 
-import { apiQueryClient, useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
+import {
+  apiQueryClient,
+  toApiSelector,
+  toPathQuery,
+  useApiMutation,
+  useApiQuery,
+  useApiQueryClient,
+} from '@oxide/api'
 import { Success16Icon } from '@oxide/ui'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
 import { pb } from 'app/util/path-builder'
 
-import { requireProjectParams, useRequiredParams, useToast } from '../hooks'
+import { requireProjectParams, useProjectParams, useToast } from '../hooks'
 
 EditProjectSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
   const { projectName, orgName } = requireProjectParams(params)
@@ -23,14 +30,19 @@ export function EditProjectSideModalForm() {
   const addToast = useToast()
   const navigate = useNavigate()
 
-  const { orgName, projectName } = useRequiredParams('orgName', 'projectName')
+  const projectParams = useProjectParams()
+  const { orgName } = projectParams
 
   const onDismiss = () => navigate(pb.projects({ orgName }))
 
-  const { data: project } = useApiQuery('projectViewV1', {
-    path: { project: projectName },
-    query: { organization: orgName },
-  })
+  const { data: project } = useApiQuery(
+    'projectViewV1',
+    // ok, I immediately feel this is a bad idea and want to change course. too
+    // many function calls. type inference on hover helps show what you're doing
+    // but it's still very alienating from the simple objects actually being
+    // passed around
+    toPathQuery('project', toApiSelector(projectParams))
+  )
 
   const editProject = useApiMutation('projectUpdateV1', {
     onSuccess(project) {
@@ -63,8 +75,7 @@ export function EditProjectSideModalForm() {
       onDismiss={onDismiss}
       onSubmit={({ name, description }) => {
         editProject.mutate({
-          path: { project: projectName },
-          query: { organization: orgName },
+          ...toPathQuery('project', toApiSelector(projectParams)),
           body: { name, description },
         })
       }}

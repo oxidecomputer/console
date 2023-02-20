@@ -3,8 +3,14 @@ import type { LoaderFunctionArgs } from 'react-router-dom'
 import { Link } from 'react-router-dom'
 
 import type { NetworkInterface } from '@oxide/api'
-import { apiQueryClient } from '@oxide/api'
-import { useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
+import {
+  apiQueryClient,
+  toApiSelector,
+  toPathQuery,
+  useApiMutation,
+  useApiQuery,
+  useApiQueryClient,
+} from '@oxide/api'
 import type { MenuAction } from '@oxide/table'
 import { useQueryTable } from '@oxide/table'
 import {
@@ -50,18 +56,17 @@ function ExternalIpsFromInstanceName({ value: primary }: { value: boolean }) {
 }
 
 NetworkingTab.loader = async ({ params }: LoaderFunctionArgs) => {
-  const { instanceName, projectName, orgName } = requireInstanceParams(params)
-  // TODO: helper to construct this out of the names, probably
-  const instance = { instance: instanceName }
-  const project = { project: projectName, organization: orgName }
-
+  const instanceSelector = toApiSelector(requireInstanceParams(params))
   await Promise.all([
-    await apiQueryClient.prefetchQuery('instanceNetworkInterfaceListV1', {
-      query: { ...instance, ...project, limit: 10 },
+    apiQueryClient.prefetchQuery('instanceNetworkInterfaceListV1', {
+      query: { ...instanceSelector, limit: 10 },
     }),
     // This is covered by the InstancePage loader but there's no downside to
     // being redundant. If it were removed there, we'd still want it here.
-    apiQueryClient.prefetchQuery('instanceViewV1', { path: instance, query: project }),
+    apiQueryClient.prefetchQuery(
+      'instanceViewV1',
+      toPathQuery('instance', instanceSelector)
+    ),
   ])
   return null
 }

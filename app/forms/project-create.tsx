@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 
 import type { ProjectCreate } from '@oxide/api'
-import { useApiMutation, useApiQueryClient } from '@oxide/api'
+import { toApiSelector, toPathQuery, useApiMutation, useApiQueryClient } from '@oxide/api'
 import { Success16Icon } from '@oxide/ui'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
@@ -31,10 +31,7 @@ export function CreateProjectSideModalForm() {
       const projectParams = { orgName, projectName: project.name }
       queryClient.setQueryData(
         'projectViewV1',
-        {
-          path: { project: project.name },
-          query: { organization: orgName },
-        },
+        toPathQuery('project', toApiSelector(projectParams)),
         project
       )
       addToast({

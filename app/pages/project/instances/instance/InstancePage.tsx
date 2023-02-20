@@ -3,7 +3,13 @@ import { useMemo } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 
-import { apiQueryClient, useApiQuery, useApiQueryClient } from '@oxide/api'
+import {
+  apiQueryClient,
+  toApiSelector,
+  toPathQuery,
+  useApiQuery,
+  useApiQueryClient,
+} from '@oxide/api'
 import { Instances24Icon, PageHeader, PageTitle, PropertiesTable } from '@oxide/ui'
 import { pick } from '@oxide/util'
 
@@ -16,22 +22,16 @@ import { pb } from 'app/util/path-builder'
 import { useMakeInstanceActions } from '../actions'
 
 InstancePage.loader = async ({ params }: LoaderFunctionArgs) => {
-  const { instanceName, projectName, orgName } = requireInstanceParams(params)
-  await apiQueryClient.prefetchQuery('instanceViewV1', {
-    path: { instance: instanceName },
-    query: { project: projectName, organization: orgName },
-  })
+  await apiQueryClient.prefetchQuery(
+    'instanceViewV1',
+    toPathQuery('instance', toApiSelector(requireInstanceParams(params)))
+  )
   return null
 }
 
 export function InstancePage() {
   const instanceParams = useRequiredParams('orgName', 'projectName', 'instanceName')
-  const { instanceName, projectName, orgName } = instanceParams
-  // TODO: helper to construct this out of the names, probably
-  const instanceSelector = {
-    path: { instance: instanceName },
-    query: { project: projectName, organization: orgName },
-  }
+  const instanceSelector = toPathQuery('instance', toApiSelector(instanceParams))
 
   const navigate = useNavigate()
   const queryClient = useApiQueryClient()
