@@ -73,9 +73,7 @@ NetworkingTab.loader = async ({ params }: LoaderFunctionArgs) => {
 
 export function NetworkingTab() {
   const instanceParams = useRequiredParams('orgName', 'projectName', 'instanceName')
-  const { orgName, projectName, instanceName } = instanceParams
-  const projectSelector = { organization: orgName, project: projectName }
-  const instanceSelector = { instance: instanceName, ...projectSelector }
+  const instanceSelector = toApiSelector(instanceParams)
 
   const queryClient = useApiQueryClient()
   const addToast = useToast()
@@ -102,10 +100,8 @@ export function NetworkingTab() {
   })
 
   const instanceStopped =
-    useApiQuery('instanceViewV1', {
-      path: { instance: instanceName },
-      query: projectSelector,
-    }).data?.runState === 'stopped'
+    useApiQuery('instanceViewV1', toPathQuery('instance', instanceSelector)).data
+      ?.runState === 'stopped'
 
   const makeActions = (nic: NetworkInterface): MenuAction[] => [
     {

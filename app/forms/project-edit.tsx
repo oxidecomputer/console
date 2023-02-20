@@ -17,11 +17,10 @@ import { pb } from 'app/util/path-builder'
 import { requireProjectParams, useProjectParams, useToast } from '../hooks'
 
 EditProjectSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
-  const { projectName, orgName } = requireProjectParams(params)
-  await apiQueryClient.prefetchQuery('projectViewV1', {
-    path: { project: projectName },
-    query: { organization: orgName },
-  })
+  await apiQueryClient.prefetchQuery(
+    'projectViewV1',
+    toPathQuery('project', toApiSelector(requireProjectParams(params)))
+  )
   return null
 }
 
