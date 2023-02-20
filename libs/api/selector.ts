@@ -2,32 +2,6 @@ import type { Replace } from 'type-fest'
 
 import { exclude } from '@oxide/util'
 
-// notes on needed helpers: sometimes you need to select an instance with
-//
-//   { path: { instance }, query: { project, organization } }
-//
-// and sometimes you need
-//
-//   { query: { instance, project, organization } }
-//
-// so converting between those two forms probably makes sense. Having a name for
-// each form will probably be necessary. Another thing we often need to do is
-// extract a selector from the RR path params
-//
-// PathBuilder probably also needs to change to take the selector form instead
-// of the names
-//
-// We may also want to change the names of the params in the URL? on the other
-// hand it's nice to be explcit that they're names if that's what they are, and
-// the helpers will make it tolerable. If we plan on keeping the route structure
-// in the console, then maybe we actually want the helpers to go the other way:
-// the canonical form is `{ orgName, projectName, instanceName }`, and we have
-// helpers `toQuery` and `toPathQuery` for converting to the API forms. In order
-// to do this cleanly, we should probably make it so the names can be converted
-// trivially by stripping `-Name` off the end. Does this mean we need to change
-// `orgName` to `organizationName`? That would be huge headache so it might be
-// better to handle that one specially for now. However, that messes up the types.
-
 /**
  * Convert a selector to API params with one key in `path` and the rest in
  * `query`. To add extra query params like `limit`, just include them in

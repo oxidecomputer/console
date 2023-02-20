@@ -2,6 +2,7 @@ import type { NavigateFunction } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 
 import type { BlockSize, Disk, DiskCreate } from '@oxide/api'
+import { toApiSelector } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { Divider, Success16Icon } from '@oxide/ui'
 import { GiB } from '@oxide/util'
@@ -46,13 +47,13 @@ export function CreateDiskSideModalForm({
   onDismiss,
 }: CreateSideModalFormProps) {
   const queryClient = useApiQueryClient()
-  const pathParams = useRequiredParams('orgName', 'projectName')
+  const projectSelector = toApiSelector(useRequiredParams('orgName', 'projectName'))
   const addToast = useToast()
   const navigate = useNavigate()
 
-  const createDisk = useApiMutation('diskCreate', {
+  const createDisk = useApiMutation('diskCreateV1', {
     onSuccess(data) {
-      queryClient.invalidateQueries('diskList', { path: pathParams })
+      queryClient.invalidateQueries('diskListV1', { query: projectSelector })
       addToast({
         icon: <Success16Icon />,
         title: 'Success!',
@@ -71,7 +72,7 @@ export function CreateDiskSideModalForm({
       onDismiss={() => onDismiss(navigate)}
       onSubmit={({ size, ...rest }) => {
         const body = { size: size * GiB, ...rest }
-        onSubmit ? onSubmit(body) : createDisk.mutate({ path: pathParams, body })
+        onSubmit ? onSubmit(body) : createDisk.mutate({ query: projectSelector, body })
       }}
       loading={createDisk.isLoading}
       submitError={createDisk.error}

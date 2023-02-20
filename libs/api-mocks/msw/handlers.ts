@@ -15,7 +15,6 @@ import {
   db,
   lookup,
   lookupById,
-  lookupDisk,
   lookupGlobalImage,
   lookupImage,
   lookupInstance,
@@ -25,7 +24,6 @@ import {
   lookupSilo,
   lookupSled,
   lookupSshKey,
-  lookupSystemUpdate,
   lookupVpc,
   lookupVpcRouter,
   lookupVpcRouterRoute,
@@ -149,14 +147,14 @@ export const handlers = makeHandlers({
 
     return 204
   },
-  diskList(params) {
-    const project = lookupProject(params.path)
+  diskListV1({ query }) {
+    const project = lookup.project(query)
     const disks = db.disks.filter((d) => d.project_id === project.id)
 
-    return paginated(params.query, disks)
+    return paginated(query, disks)
   },
-  diskCreate({ body, ...params }) {
-    const project = lookupProject(params.path)
+  diskCreateV1({ body, query }) {
+    const project = lookup.project(query)
 
     errIfExists(db.disks, { name: body.name, project_id: project.id })
 
@@ -179,8 +177,8 @@ export const handlers = makeHandlers({
     return json(newDisk, { status: 201 })
   },
   diskViewV1: ({ path, query }) => lookup.disk({ ...path, ...query }),
-  diskDelete(params) {
-    const disk = lookupDisk(params.path)
+  diskDeleteV1({ path, query }) {
+    const disk = lookup.disk({ ...path, ...query })
 
     // Governed by https://github.com/oxidecomputer/omicron/blob/e5704d7f343fa0633751527dedf276409647ad4e/nexus/src/db/datastore.rs#L2103
     switch (disk.state.state) {
@@ -194,10 +192,14 @@ export const handlers = makeHandlers({
     db.disks = db.disks.filter((d) => d.id !== disk.id)
     return 204
   },
-  diskMetricsList(params) {
-    lookupDisk(params.path)
+  diskMetricsList({ path, query }) {
+    lookup.disk({
+      organization: path.orgName,
+      project: path.projectName,
+      disk: path.diskName,
+    })
 
-    const { startTime, endTime } = getStartAndEndTime(params.query)
+    const { startTime, endTime } = getStartAndEndTime(query)
 
     if (endTime <= startTime) return { items: [] }
 
@@ -241,8 +243,8 @@ export const handlers = makeHandlers({
     const instances = db.instances.filter((i) => i.project_id === project.id)
     return paginated(params.query, instances)
   },
-  instanceCreate({ body, ...params }) {
-    const project = lookupProject(params.path)
+  instanceCreateV1({ body, query }) {
+    const project = lookup.project(query)
 
     errIfExists(db.instances, { name: body.name, project_id: project.id })
 
@@ -255,9 +257,9 @@ export const handlers = makeHandlers({
     for (const diskParams of body.disks || []) {
       if (diskParams.type === 'create') {
         errIfExists(db.disks, { name: diskParams.name, project_id: project.id })
-        errIfInvalidDiskSize(params.path, diskParams)
+        errIfInvalidDiskSize(diskParams)
       } else {
-        lookupDisk({ ...params.path, diskName: diskParams.name })
+        lookup.disk({ ...query, disk: diskParams.name })
       }
     }
 
@@ -267,12 +269,8 @@ export const handlers = makeHandlers({
      */
     if (body.network_interfaces?.type === 'create') {
       body.network_interfaces.params.forEach(({ vpc_name, subnet_name }) => {
-        lookupVpc({ ...params.path, vpcName: vpc_name })
-        lookupVpcSubnet({
-          ...params.path,
-          vpcName: vpc_name,
-          subnetName: subnet_name,
-        })
+        lookup.vpc({ ...query, vpc: vpc_name })
+        lookup.vpcSubnet({ ...query, vpc: vpc_name, subnet: subnet_name })
       })
     }
 
@@ -292,7 +290,7 @@ export const handlers = makeHandlers({
         }
         db.disks.push(newDisk)
       } else {
-        const disk = lookupDisk({ ...params.path, diskName: diskParams.name })
+        const disk = lookup.disk({ ...query, disk: diskParams.name })
         disk.state = { state: 'attached', instance: instanceId }
       }
     }
@@ -321,12 +319,9 @@ export const handlers = makeHandlers({
             primary: i === 0 ? true : false,
             mac: '00:00:00:00:00:00',
             ip: ip || '127.0.0.1',
-            vpc_id: lookupVpc({ ...params.path, vpcName: vpc_name }).id,
-            subnet_id: lookupVpcSubnet({
-              ...params.path,
-              vpcName: vpc_name,
-              subnetName: subnet_name,
-            }).id,
+            vpc_id: lookup.vpc({ ...query, vpc: vpc_name }).id,
+            subnet_id: lookup.vpcSubnet({ ...query, vpc: vpc_name, subnet: subnet_name })
+              .id,
             ...getTimestamps(),
           })
         }
@@ -925,9 +920,9 @@ export const handlers = makeHandlers({
   },
 
   systemUpdateList: (params) => paginated(params.query, db.systemUpdates),
-  systemUpdateView: ({ path }) => lookupSystemUpdate(path),
+  systemUpdateView: ({ path }) => lookup.systemUpdate(path),
   systemUpdateComponentsList: (params) => {
-    const systemUpdate = lookupSystemUpdate(params.path)
+    const systemUpdate = lookup.systemUpdate(params.path)
     const ids = new Set(
       db.systemUpdateComponentUpdates
         .filter((o) => o.system_update_id === systemUpdate.id)
@@ -1047,10 +1042,6 @@ export const handlers = makeHandlers({
   certificateDeleteV1: NotImplemented,
   certificateListV1: NotImplemented,
   certificateViewV1: NotImplemented,
-  diskCreateV1: NotImplemented,
-  diskDeleteV1: NotImplemented,
-  diskListV1: NotImplemented,
-  instanceCreateV1: NotImplemented,
   instanceDeleteV1: NotImplemented,
   instanceListV1: NotImplemented,
   instanceMigrateV1: NotImplemented,
@@ -1116,7 +1107,11 @@ export const handlers = makeHandlers({
 
   // Deprecated endpoints
 
+  diskCreate: NotImplemented,
+  diskDelete: NotImplemented,
+  diskList: NotImplemented,
   diskView: NotImplemented,
+  instanceCreate: NotImplemented,
   instanceDiskAttach: NotImplemented,
   instanceDiskDetach: NotImplemented,
   instanceDiskList: NotImplemented,

@@ -10,3 +10,6 @@ export type NetworkInterface = Merge<Instance, { interface?: string }>
 export type Snapshot = Merge<Project, { snapshot?: string }>
 export type Vpc = Merge<Project, { vpc?: string }>
 export type VpcSubnet = Merge<Vpc, { subnet?: string }>
+export type SystemUpdate = { version: string }
+
+export type Id = { id: string }

@@ -114,6 +114,11 @@ export const lookup = {
 
     return subnet
   },
+  systemUpdate({ version }: PPv1.SystemUpdate): Json<Api.SystemUpdate> {
+    const update = db.systemUpdates.find((o) => o.version === version)
+    if (!update) throw notFoundErr
+    return update
+  },
 }
 
 export function lookupOrg(params: PP.Org): Json<Api.Organization> {
@@ -151,17 +156,6 @@ export function lookupInstance(params: PP.Instance): Json<Api.Instance> {
   if (!instance) throw notFoundErr
 
   return instance
-}
-
-export function lookupDisk(params: PP.Disk): Json<Api.Disk> {
-  const project = lookupProject(params)
-
-  const disk = db.disks.find(
-    (d) => d.project_id === project.id && d.name === params.diskName
-  )
-  if (!disk) throw notFoundErr
-
-  return disk
 }
 
 export function lookupImage(params: PP.Image): Json<Api.Image> {
@@ -245,12 +239,6 @@ export function lookupSled(params: PP.Id): Json<Api.Sled> {
   const sled = db.sleds.find((sled) => sled.id === params.id)
   if (!sled) throw notFoundErr
   return sled
-}
-
-export function lookupSystemUpdate(params: PP.SystemUpdate): Json<Api.SystemUpdate> {
-  const update = db.systemUpdates.find((o) => o.version === params.version)
-  if (!update) throw notFoundErr
-  return update
 }
 
 const initDb = {

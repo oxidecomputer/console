@@ -64,9 +64,9 @@ const EmptyState = () => (
 )
 
 DisksPage.loader = async ({ params }: LoaderFunctionArgs) => {
-  await apiQueryClient.prefetchQuery('diskList', {
-    path: requireProjectParams(params),
-    query: { limit: 10 },
+  const projectSelector = toApiSelector(requireProjectParams(params))
+  await apiQueryClient.prefetchQuery('diskListV1', {
+    query: { ...projectSelector, limit: 10 },
   })
   return null
 }
@@ -74,14 +74,13 @@ DisksPage.loader = async ({ params }: LoaderFunctionArgs) => {
 export function DisksPage() {
   const queryClient = useApiQueryClient()
   const projectParams = useRequiredParams('orgName', 'projectName')
-  const { orgName, projectName } = projectParams
   const projectSelector = toApiSelector(projectParams)
-  const { Table, Column } = useQueryTable('diskList', { path: { orgName, projectName } })
+  const { Table, Column } = useQueryTable('diskListV1', { query: projectSelector })
   const addToast = useToast()
 
-  const deleteDisk = useApiMutation('diskDelete', {
+  const deleteDisk = useApiMutation('diskDeleteV1', {
     onSuccess() {
-      queryClient.invalidateQueries('diskList', { path: { orgName, projectName } })
+      queryClient.invalidateQueries('diskListV1', { query: projectSelector })
     },
   })
 
@@ -116,7 +115,7 @@ export function DisksPage() {
     {
       label: 'Delete',
       onActivate: () => {
-        deleteDisk.mutate({ path: { orgName, projectName, diskName: disk.name } })
+        deleteDisk.mutate({ path: { disk: disk.name }, query: projectSelector })
       },
       disabled:
         !['detached', 'creating', 'faulted'].includes(disk.state.state) &&
@@ -132,10 +131,7 @@ export function DisksPage() {
         <PageTitle icon={<Storage24Icon />}>Disks</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link
-          to={pb.diskNew({ orgName, projectName })}
-          className={buttonStyle({ size: 'sm' })}
-        >
+        <Link to={pb.diskNew(projectParams)} className={buttonStyle({ size: 'sm' })}>
           New Disk
         </Link>
       </TableActions>
@@ -151,13 +147,7 @@ export function DisksPage() {
             'instance' in disk.state ? disk.state.instance : null
           }
           cell={({ value }: { value: string | undefined }) =>
-            value ? (
-              <AttachedInstance
-                orgName={orgName}
-                projectName={projectName}
-                instanceId={value}
-              />
-            ) : null
+            value ? <AttachedInstance {...projectParams} instanceId={value} /> : null
           }
         />
         <Column header="Size" accessor="size" cell={SizeCell} />
