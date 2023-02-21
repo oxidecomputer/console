@@ -27,7 +27,7 @@ import { groupBy, isTruthy } from '@oxide/util'
 import { AccessNameCell } from 'app/components/AccessNameCell'
 import { RoleBadgeCell } from 'app/components/RoleBadgeCell'
 import { OrgAccessAddUserSideModal, OrgAccessEditUserSideModal } from 'app/forms/org-access'
-import { getProjectSelector, useOrgSelector } from 'app/hooks'
+import { getOrgSelector, useOrgSelector } from 'app/hooks'
 
 const EmptyState = ({ onClick }: { onClick: () => void }) => (
   <TableEmptyBox>
@@ -45,7 +45,7 @@ OrgAccessPage.loader = async ({ params }: LoaderFunctionArgs) => {
   await Promise.all([
     apiQueryClient.prefetchQuery('policyViewV1', {}),
     apiQueryClient.prefetchQuery('organizationPolicyViewV1', {
-      path: getProjectSelector(params),
+      path: getOrgSelector(params),
     }),
     // used to resolve user names
     apiQueryClient.prefetchQuery('userList', {}),
