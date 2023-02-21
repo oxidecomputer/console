@@ -542,13 +542,13 @@ export const handlers = makeHandlers({
     db.snapshots = db.snapshots.filter((s) => s.id !== snapshot.id)
     return 204
   },
-  vpcList(params) {
-    const project = lookupProject(params.path)
+  vpcListV1({ query }) {
+    const project = lookup.project(query)
     const vpcs = db.vpcs.filter((v) => v.project_id === project.id)
-    return paginated(params.query, vpcs)
+    return paginated(query, vpcs)
   },
-  vpcCreate({ body, ...params }) {
-    const project = lookupProject(params.path)
+  vpcCreateV1({ body, query }) {
+    const project = lookup.project(query)
     errIfExists(db.vpcs, { name: body.name })
 
     const newVpc: Json<Api.Vpc> = {
@@ -576,10 +576,9 @@ export const handlers = makeHandlers({
 
     return json(newVpc, { status: 201 })
   },
-  vpcView: (params) => lookupVpc(params.path),
   vpcViewV1: ({ path, query }) => lookup.vpc({ ...path, ...query }),
-  vpcUpdate({ body, ...params }) {
-    const vpc = lookupVpc(params.path)
+  vpcUpdateV1({ body, path, query }) {
+    const vpc = lookup.vpc({ ...path, ...query })
 
     if (body.name) {
       vpc.name = body.name
@@ -594,8 +593,8 @@ export const handlers = makeHandlers({
     }
     return vpc
   },
-  vpcDelete(params) {
-    const vpc = lookupVpc(params.path)
+  vpcDeleteV1({ path, query }) {
+    const vpc = lookup.vpc({ ...path, ...query })
 
     db.vpcs = db.vpcs.filter((v) => v.id !== vpc.id)
     db.vpcSubnets = db.vpcSubnets.filter((s) => s.vpc_id !== vpc.id)
@@ -1068,9 +1067,6 @@ export const handlers = makeHandlers({
   sledViewV1: NotImplemented,
   systemPolicyUpdateV1: NotImplemented,
   systemPolicyViewV1: NotImplemented,
-  vpcCreateV1: NotImplemented,
-  vpcDeleteV1: NotImplemented,
-  vpcListV1: NotImplemented,
   vpcRouterCreateV1: NotImplemented,
   vpcRouterDeleteV1: NotImplemented,
   vpcRouterListV1: NotImplemented,
@@ -1085,7 +1081,6 @@ export const handlers = makeHandlers({
   vpcSubnetDeleteV1: NotImplemented,
   vpcSubnetListV1: NotImplemented,
   vpcSubnetUpdateV1: NotImplemented,
-  vpcUpdateV1: NotImplemented,
 
   // deprecated by ID endpoints
 
@@ -1131,5 +1126,10 @@ export const handlers = makeHandlers({
   snapshotDelete: NotImplemented,
   snapshotList: NotImplemented,
   snapshotView: NotImplemented,
+  vpcCreate: NotImplemented,
+  vpcDelete: NotImplemented,
+  vpcList: NotImplemented,
   vpcSubnetView: NotImplemented,
+  vpcUpdate: NotImplemented,
+  vpcView: NotImplemented,
 })

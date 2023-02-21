@@ -24,7 +24,7 @@ export const requireParams =
 export const requireOrgParams = requireParams('orgName')
 export const requireProjectParams = requireParams('orgName', 'projectName')
 export const requireInstanceParams = requireParams('orgName', 'projectName', 'instanceName')
-export const requireVpcParams = requireParams('orgName', 'projectName', 'vpcName')
+const requireVpcParams = requireParams('orgName', 'projectName', 'vpcName')
 export const requireSiloParams = requireParams('siloName')
 export const requireSledParams = requireParams('sledId')
 export const requireUpdateParams = requireParams('version')
@@ -32,7 +32,7 @@ export const requireUpdateParams = requireParams('version')
 export const useOrgParams = () => requireOrgParams(useParams())
 const useProjectParams = () => requireProjectParams(useParams())
 export const useInstanceParams = () => requireInstanceParams(useParams())
-export const useVpcParams = () => requireVpcParams(useParams())
+const useVpcParams = () => requireVpcParams(useParams())
 export const useSiloParams = () => requireSiloParams(useParams())
 export const useSledParams = () => requireSledParams(useParams())
 export const useUpdateParams = () => requireUpdateParams(useParams())
@@ -41,9 +41,12 @@ export const getProjectSelector = (p: Readonly<Params<string>>) =>
   toApiSelector(requireProjectParams(p))
 export const getInstanceSelector = (p: Readonly<Params<string>>) =>
   toApiSelector(requireInstanceParams(p))
+export const getVpcSelector = (p: Readonly<Params<string>>) =>
+  toApiSelector(requireVpcParams(p))
 
 export const useOrgSelector = () => toApiSelector(useOrgParams())
 export const useProjectSelector = () => toApiSelector(useProjectParams())
+export const useVpcSelector = () => toApiSelector(useVpcParams())
 export const useInstanceSelector = () => toApiSelector(useInstanceParams())
 
 /**

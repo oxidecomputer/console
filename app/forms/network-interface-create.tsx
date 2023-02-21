@@ -2,8 +2,7 @@ import { useMemo } from 'react'
 import invariant from 'tiny-invariant'
 
 import type { NetworkInterfaceCreate } from '@oxide/api'
-import { useApiQuery } from '@oxide/api'
-import { useApiMutation, useApiQueryClient } from '@oxide/api'
+import { useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
 import { Divider } from '@oxide/ui'
 
 import {
@@ -14,7 +13,7 @@ import {
   SubnetListbox,
   TextField,
 } from 'app/components/form'
-import { useAllParams } from 'app/hooks'
+import { useAllParams, useProjectSelector } from 'app/hooks'
 
 const defaultValues: NetworkInterfaceCreate = {
   name: '',
@@ -35,18 +34,19 @@ export default function CreateNetworkInterfaceForm({
 }: CreateNetworkInterfaceFormProps) {
   const queryClient = useApiQueryClient()
   const { orgName, projectName, instanceName } = useAllParams('orgName', 'projectName')
+  const projectSelector = useProjectSelector()
 
   const createNetworkInterface = useApiMutation('instanceNetworkInterfaceCreate', {
     onSuccess() {
       invariant(instanceName, 'instanceName is required when posting a network interface')
       queryClient.invalidateQueries('instanceNetworkInterfaceListV1', {
-        query: { instance: instanceName, project: projectName, organization: orgName },
+        query: { instance: instanceName, ...projectSelector },
       })
       onDismiss()
     },
   })
 
-  const { data: vpcsData } = useApiQuery('vpcList', { path: { orgName, projectName } })
+  const { data: vpcsData } = useApiQuery('vpcListV1', { query: projectSelector })
   const vpcs = useMemo(() => vpcsData?.items || [], [vpcsData])
 
   return (

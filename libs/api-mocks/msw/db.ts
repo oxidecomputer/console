@@ -93,6 +93,7 @@ export const lookup = {
     return snapshot
   },
   vpc({ vpc: id, ...projectSelector }: PPv1.Vpc): Json<Api.Vpc> {
+    console.log({ id, ...projectSelector })
     if (!id) throw notFoundErr
 
     if (isUuid(id)) return lookupById(db.vpcs, id)

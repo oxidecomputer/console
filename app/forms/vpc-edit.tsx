@@ -1,38 +1,41 @@
 import type { LoaderFunctionArgs } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 
-import { useApiQuery } from '@oxide/api'
+import { toPathQuery, useApiQuery } from '@oxide/api'
 import { apiQueryClient, useApiMutation, useApiQueryClient } from '@oxide/api'
 import { Success16Icon } from '@oxide/ui'
+import { pick } from '@oxide/util'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
-import { requireVpcParams, useToast, useVpcParams } from 'app/hooks'
-import { pb } from 'app/util/path-builder'
+import { getVpcSelector, useToast, useVpcSelector } from 'app/hooks'
+import { pb2 } from 'app/util/path-builder'
 
 EditVpcSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
-  await apiQueryClient.prefetchQuery('vpcView', {
-    path: requireVpcParams(params),
-  })
+  await apiQueryClient.prefetchQuery(
+    'vpcViewV1',
+    toPathQuery('vpc', getVpcSelector(params))
+  )
   return null
 }
 
 export function EditVpcSideModalForm() {
-  const vpcParams = useVpcParams()
-  const parentNames = { orgName: vpcParams.orgName, projectName: vpcParams.projectName }
+  const vpcSelector = useVpcSelector()
+  const vpcPathQuery = toPathQuery('vpc', vpcSelector)
+  const projectSelector = pick(vpcSelector, 'organization', 'project')
   const queryClient = useApiQueryClient()
   const addToast = useToast()
   const navigate = useNavigate()
 
-  const { data: vpc } = useApiQuery('vpcView', { path: vpcParams })
+  const { data: vpc } = useApiQuery('vpcViewV1', vpcPathQuery)
 
-  const onDismiss = () => navigate(pb.vpcs(parentNames))
+  const onDismiss = () => navigate(pb2.vpcs(projectSelector))
 
-  const editVpc = useApiMutation('vpcUpdate', {
+  const editVpc = useApiMutation('vpcUpdateV1', {
     async onSuccess(vpc) {
-      queryClient.invalidateQueries('vpcList', { path: parentNames })
+      queryClient.invalidateQueries('vpcListV1', { query: projectSelector })
       queryClient.setQueryData(
-        'vpcView',
-        { path: { ...parentNames, vpcName: vpc.name } },
+        'vpcViewV1',
+        { path: { vpc: vpc.name }, query: projectSelector },
         vpc
       )
       addToast({
@@ -52,7 +55,7 @@ export function EditVpcSideModalForm() {
       onDismiss={onDismiss}
       onSubmit={({ name, description, dnsName }) => {
         editVpc.mutate({
-          path: vpcParams,
+          ...vpcPathQuery,
           body: { name, description, dnsName },
         })
       }}
