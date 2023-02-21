@@ -5,13 +5,12 @@ import { apiQueryClient, useApiMutation, useApiQuery, useApiQueryClient } from '
 import { Success16Icon } from '@oxide/ui'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
-import { requireOrgParams, useOrgSelector, useToast } from 'app/hooks'
+import { getOrgSelector, useOrgSelector, useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 EditOrgSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
-  const { orgName } = requireOrgParams(params)
   await apiQueryClient.prefetchQuery('organizationViewV1', {
-    path: { organization: orgName },
+    path: getOrgSelector(params),
   })
   return null
 }

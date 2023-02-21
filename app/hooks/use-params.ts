@@ -21,9 +21,9 @@ export const requireParams =
     return requiredParams as { readonly [k in K]: string }
   }
 
-export const requireOrgParams = requireParams('orgName')
+const requireOrgParams = requireParams('orgName')
 export const requireProjectParams = requireParams('orgName', 'projectName')
-export const requireInstanceParams = requireParams('orgName', 'projectName', 'instanceName')
+const requireInstanceParams = requireParams('orgName', 'projectName', 'instanceName')
 const requireVpcParams = requireParams('orgName', 'projectName', 'vpcName')
 export const requireSiloParams = requireParams('siloName')
 export const requireSledParams = requireParams('sledId')

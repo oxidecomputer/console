@@ -10,7 +10,6 @@ type Vpc = Required<PPv1.Vpc>
 type SystemUpdate = Required<PPv1.SystemUpdate>
 type Silo = Required<PPv1.Silo>
 
-// TODO: obviously the plan is pb becomes pb
 export const pb = {
   orgs: () => '/orgs',
   orgNew: () => '/orgs-new',

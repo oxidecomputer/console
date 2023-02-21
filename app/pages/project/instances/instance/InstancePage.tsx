@@ -30,7 +30,6 @@ export function InstancePage() {
 
   const navigate = useNavigate()
   const queryClient = useApiQueryClient()
-  // TODO: change the interface here to take projectSelector directly
   const makeActions = useMakeInstanceActions(
     { project, organization },
     {
