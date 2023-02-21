@@ -22,19 +22,20 @@ import EditNetworkInterfaceForm from 'app/forms/network-interface-edit'
 import {
   getInstanceSelector,
   useInstanceSelector,
+  useProjectSelector,
   useRequiredParams,
   useToast,
 } from 'app/hooks'
-import { pb } from 'app/util/path-builder'
+import { pb2 } from 'app/util/path-builder'
 
 const VpcNameFromId = ({ value }: { value: string }) => {
-  const { orgName, projectName } = useRequiredParams('orgName', 'projectName')
+  const projectSelector = useProjectSelector()
   const { data: vpc } = useApiQuery('vpcViewV1', { path: { vpc: value } })
   if (!vpc) return null
   return (
     <Link
       className="text-sans-semi-md text-default hover:underline"
-      to={pb.vpc({ orgName, projectName, vpcName: vpc.name })}
+      to={pb2.vpc({ ...projectSelector, vpc: vpc.name })}
     >
       {vpc.name}
     </Link>

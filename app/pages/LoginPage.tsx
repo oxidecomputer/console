@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useApiMutation } from '@oxide/api'
 import { Button, Success16Icon, Warning12Icon } from '@oxide/ui'
 
-import { pb } from 'app/util/path-builder'
+import { pb2 } from 'app/util/path-builder'
 
 import { useToast } from '../hooks'
 
@@ -30,7 +30,7 @@ export default function LoginPage() {
         title: 'Logged in',
         icon: <Success16Icon />,
       })
-      navigate(searchParams.get('state') || pb.orgs())
+      navigate(searchParams.get('state') || pb2.orgs())
     },
     onError: () => {
       addToast({

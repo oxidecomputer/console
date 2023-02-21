@@ -15,7 +15,7 @@ import {
 } from '@oxide/ui'
 
 import { requireSiloParams, useSiloParams } from 'app/hooks'
-import { pb } from 'app/util/path-builder'
+import { pb2 } from 'app/util/path-builder'
 
 const EmptyState = () => (
   <EmptyMessage icon={<Cloud16Icon />} title="No identity providers" />
@@ -46,7 +46,10 @@ export function SiloPage() {
       </PageHeader>
       <h2 className="mb-2 text-sans-2xl">Identity providers</h2>
       <TableActions>
-        <Link to={pb.siloIdpNew({ siloName })} className={buttonStyle({ size: 'sm' })}>
+        <Link
+          to={pb2.siloIdpNew({ silo: siloName })}
+          className={buttonStyle({ size: 'sm' })}
+        >
           New provider
         </Link>
       </TableActions>

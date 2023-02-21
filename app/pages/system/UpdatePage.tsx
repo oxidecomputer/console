@@ -26,7 +26,7 @@ import {
 import { sortBy } from '@oxide/util'
 
 import { RouteTabs, Tab } from 'app/components/RouteTabs'
-import { pb } from 'app/util/path-builder'
+import { pb2 } from 'app/util/path-builder'
 
 UpdatePageUpdates.loader = async () => {
   await apiQueryClient.prefetchQuery('systemUpdateList', { query: { limit: 10 } })
@@ -46,7 +46,7 @@ export function UpdatePageUpdates() {
       >
         <Column
           accessor="version"
-          cell={linkCell((version) => pb.systemUpdateDetail({ version }))}
+          cell={linkCell((version) => pb2.systemUpdateDetail({ version }))}
         />
         <Column accessor="timeCreated" header="Created" cell={DateCell} />
       </Table>
@@ -242,9 +242,9 @@ export function UpdatePage() {
       </PropertiesTable>
 
       <RouteTabs fullWidth>
-        <Tab to={pb.systemUpdates()}>Updates</Tab>
-        <Tab to={pb.updateableComponents()}>Components</Tab>
-        <Tab to={pb.systemUpdateHistory()}>History</Tab>
+        <Tab to={pb2.systemUpdates()}>Updates</Tab>
+        <Tab to={pb2.updateableComponents()}>Components</Tab>
+        <Tab to={pb2.systemUpdateHistory()}>History</Tab>
       </RouteTabs>
     </>
   )

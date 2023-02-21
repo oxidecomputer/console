@@ -6,7 +6,7 @@ import { Divider, Key16Icon, Profile16Icon } from '@oxide/ui'
 import { TopBar } from 'app/components/TopBar'
 import { OrgPicker, useSiloSystemPicker } from 'app/components/TopBarPicker'
 import { useQuickActions } from 'app/hooks'
-import { pb } from 'app/util/path-builder'
+import { pb2 } from 'app/util/path-builder'
 
 import { DocsLinkItem, NavLinkItem, Sidebar } from '../components/Sidebar'
 import { ContentPane, PageContainer } from './helpers'
@@ -47,10 +47,10 @@ const SettingsLayout = () => {
         </Sidebar.Nav>
         <Divider />
         <Sidebar.Nav heading="User">
-          <NavLinkItem to={pb.profile()}>
+          <NavLinkItem to={pb2.profile()}>
             <Profile16Icon /> Profile
           </NavLinkItem>
-          <NavLinkItem to={pb.sshKeys()}>
+          <NavLinkItem to={pb2.sshKeys()}>
             <Key16Icon /> SSH Keys
           </NavLinkItem>
         </Sidebar.Nav>

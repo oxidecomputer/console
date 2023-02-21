@@ -17,7 +17,7 @@ import { trigger404 } from 'app/components/ErrorBoundary'
 import { DocsLinkItem, NavLinkItem, Sidebar } from 'app/components/Sidebar'
 import { TopBar } from 'app/components/TopBar'
 import { SiloPicker, SiloSystemPicker } from 'app/components/TopBarPicker'
-import { pb } from 'app/util/path-builder'
+import { pb2 } from 'app/util/path-builder'
 
 import { ContentPane, PageContainer } from './helpers'
 
@@ -59,28 +59,28 @@ export default function SystemLayout() {
         </Sidebar.Nav>
         <Divider />
         <Sidebar.Nav heading="System">
-          <NavLinkItem to={pb.silos()}>
+          <NavLinkItem to={pb2.silos()}>
             <Cloud16Icon /> Silos
           </NavLinkItem>
-          <NavLinkItem to={pb.systemIssues()} disabled>
+          <NavLinkItem to={pb2.systemIssues()} disabled>
             <Instances16Icon /> Issues
           </NavLinkItem>
-          <NavLinkItem to={pb.systemUtilization()}>
+          <NavLinkItem to={pb2.systemUtilization()}>
             <Snapshots16Icon /> Utilization
           </NavLinkItem>
-          <NavLinkItem to={pb.sledInventory()}>
+          <NavLinkItem to={pb2.sledInventory()}>
             <Storage16Icon /> Inventory
           </NavLinkItem>
-          <NavLinkItem to={pb.systemHealth()} disabled>
+          <NavLinkItem to={pb2.systemHealth()} disabled>
             <Health16Icon /> Health
           </NavLinkItem>
-          <NavLinkItem to={pb.systemUpdates()}>
+          <NavLinkItem to={pb2.systemUpdates()}>
             <SoftwareUpdate16Icon /> System Update
           </NavLinkItem>
-          <NavLinkItem to={pb.systemNetworking()} disabled>
+          <NavLinkItem to={pb2.systemNetworking()} disabled>
             <Networking16Icon /> Networking
           </NavLinkItem>
-          <NavLinkItem to={pb.systemSettings()} disabled>
+          <NavLinkItem to={pb2.systemSettings()} disabled>
             <Settings16Icon /> Settings
           </NavLinkItem>
         </Sidebar.Nav>

@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { matchPath, useLocation, useNavigate } from 'react-router-dom'
+import { matchPath, useLocation, useNavigate, useParams } from 'react-router-dom'
 
 import {
   Access16Icon,
@@ -19,8 +19,8 @@ import {
   ProjectPicker,
   useSiloSystemPicker,
 } from 'app/components/TopBarPicker'
-import { useAllParams, useQuickActions } from 'app/hooks'
-import { pb } from 'app/util/path-builder'
+import { useProjectSelector, useQuickActions } from 'app/hooks'
+import { pb2 } from 'app/util/path-builder'
 
 import { DocsLinkItem, NavLinkItem, Sidebar } from '../components/Sidebar'
 import { ContentPane, PageContainer } from './helpers'
@@ -28,8 +28,9 @@ import { ContentPane, PageContainer } from './helpers'
 const ProjectLayout = () => {
   const navigate = useNavigate()
   // org and project will always be there, instance may not
-  const { instanceName, orgName, projectName } = useAllParams('orgName', 'projectName')
-  const projectParams = { orgName, projectName }
+  const projectSelector = useProjectSelector()
+  const { project: projectName } = projectSelector
+  const { instanceName } = useParams()
   const currentPath = useLocation().pathname
   useQuickActions(
     useMemo(
@@ -64,7 +65,7 @@ const ProjectLayout = () => {
       </TopBar>
       <Sidebar>
         <Sidebar.Nav>
-          <NavLinkItem to={pb.projects({ orgName })} end>
+          <NavLinkItem to={pb2.projects(projectSelector)} end>
             <Folder16Icon />
             Projects
           </NavLinkItem>
@@ -72,22 +73,22 @@ const ProjectLayout = () => {
         </Sidebar.Nav>
         <Divider />
         <Sidebar.Nav heading={projectName}>
-          <NavLinkItem to={pb.instances(projectParams)}>
+          <NavLinkItem to={pb2.instances(projectSelector)}>
             <Instances16Icon /> Instances
           </NavLinkItem>
-          <NavLinkItem to={pb.snapshots(projectParams)}>
+          <NavLinkItem to={pb2.snapshots(projectSelector)}>
             <Snapshots16Icon /> Snapshots
           </NavLinkItem>
-          <NavLinkItem to={pb.disks(projectParams)}>
+          <NavLinkItem to={pb2.disks(projectSelector)}>
             <Storage16Icon /> Disks
           </NavLinkItem>
-          <NavLinkItem to={pb.projectAccess(projectParams)}>
+          <NavLinkItem to={pb2.projectAccess(projectSelector)}>
             <Access16Icon title="Access & IAM" /> Access &amp; IAM
           </NavLinkItem>
-          <NavLinkItem to={pb.projectImages(projectParams)}>
+          <NavLinkItem to={pb2.projectImages(projectSelector)}>
             <Images16Icon title="images" /> Images
           </NavLinkItem>
-          <NavLinkItem to={pb.vpcs(projectParams)}>
+          <NavLinkItem to={pb2.vpcs(projectSelector)}>
             <Networking16Icon /> Networking
           </NavLinkItem>
         </Sidebar.Nav>

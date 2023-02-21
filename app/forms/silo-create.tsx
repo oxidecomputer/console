@@ -12,7 +12,7 @@ import {
   SideModalForm,
 } from 'app/components/form'
 import { useToast } from 'app/hooks'
-import { pb } from 'app/util/path-builder'
+import { pb2 } from 'app/util/path-builder'
 
 const defaultValues: SiloCreate = {
   name: '',
@@ -26,7 +26,7 @@ export function CreateSiloSideModalForm() {
   const queryClient = useApiQueryClient()
   const addToast = useToast()
 
-  const onDismiss = () => navigate(pb.silos())
+  const onDismiss = () => navigate(pb2.silos())
 
   const createSilo = useApiMutation('siloCreate', {
     onSuccess(silo) {

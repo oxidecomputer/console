@@ -16,7 +16,7 @@ import {
   buttonStyle,
 } from '@oxide/ui'
 
-import { pb } from 'app/util/path-builder'
+import { pb2 } from 'app/util/path-builder'
 
 SSHKeysPage.loader = async () => {
   await apiQueryClient.prefetchQuery('sessionSshkeyList', { query: { limit: 10 } })
@@ -53,7 +53,7 @@ export function SSHKeysPage() {
         <PageTitle icon={<Key24Icon />}>SSH Keys</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link className={buttonStyle({ size: 'sm' })} to={pb.sshKeyNew()}>
+        <Link className={buttonStyle({ size: 'sm' })} to={pb2.sshKeyNew()}>
           Add SSH key
         </Link>
       </TableActions>
@@ -65,7 +65,7 @@ export function SSHKeysPage() {
             title="No SSH keys"
             body="You need to create an ssh key to be able to see it here"
             buttonText="Add SSH key"
-            onClick={() => navigate(pb.sshKeyNew())}
+            onClick={() => navigate(pb2.sshKeyNew())}
           />
         }
       >

@@ -148,7 +148,7 @@ export const lookup = {
     if (!update) throw notFoundErr
     return update
   },
-  sled(params: PP.Id): Json<Api.Sled> {
+  sled(params: PPv1.Id): Json<Api.Sled> {
     const sled = db.sleds.find((sled) => sled.id === params.id)
     if (!sled) throw notFoundErr
     return sled
