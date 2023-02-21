@@ -5,7 +5,6 @@ import { Link } from 'react-router-dom'
 import type { NetworkInterface } from '@oxide/api'
 import {
   apiQueryClient,
-  toApiSelector,
   toPathQuery,
   useApiMutation,
   useApiQuery,
@@ -25,7 +24,12 @@ import {
 
 import CreateNetworkInterfaceForm from 'app/forms/network-interface-create'
 import EditNetworkInterfaceForm from 'app/forms/network-interface-edit'
-import { requireInstanceParams, useRequiredParams, useToast } from 'app/hooks'
+import {
+  getInstanceSelector,
+  useInstanceSelector,
+  useRequiredParams,
+  useToast,
+} from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 const VpcNameFromId = ({ value }: { value: string }) => {
@@ -56,7 +60,7 @@ function ExternalIpsFromInstanceName({ value: primary }: { value: boolean }) {
 }
 
 NetworkingTab.loader = async ({ params }: LoaderFunctionArgs) => {
-  const instanceSelector = toApiSelector(requireInstanceParams(params))
+  const instanceSelector = getInstanceSelector(params)
   await Promise.all([
     apiQueryClient.prefetchQuery('instanceNetworkInterfaceListV1', {
       query: { ...instanceSelector, limit: 10 },
@@ -72,8 +76,7 @@ NetworkingTab.loader = async ({ params }: LoaderFunctionArgs) => {
 }
 
 export function NetworkingTab() {
-  const instanceParams = useRequiredParams('orgName', 'projectName', 'instanceName')
-  const instanceSelector = toApiSelector(instanceParams)
+  const instanceSelector = useInstanceSelector()
 
   const queryClient = useApiQueryClient()
   const addToast = useToast()

@@ -2,7 +2,6 @@ import type { NavigateFunction } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 
 import type { BlockSize, Disk, DiskCreate } from '@oxide/api'
-import { toApiSelector } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { Divider, Success16Icon } from '@oxide/ui'
 import { GiB } from '@oxide/util'
@@ -14,7 +13,7 @@ import {
   RadioField,
   SideModalForm,
 } from 'app/components/form'
-import { useRequiredParams, useToast } from 'app/hooks'
+import { useProjectSelector, useToast } from 'app/hooks'
 
 const defaultValues: DiskCreate = {
   name: '',
@@ -47,7 +46,7 @@ export function CreateDiskSideModalForm({
   onDismiss,
 }: CreateSideModalFormProps) {
   const queryClient = useApiQueryClient()
-  const projectSelector = toApiSelector(useRequiredParams('orgName', 'projectName'))
+  const projectSelector = useProjectSelector()
   const addToast = useToast()
   const navigate = useNavigate()
 

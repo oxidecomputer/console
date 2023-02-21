@@ -3,48 +3,45 @@ import { useMemo } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 
-import {
-  apiQueryClient,
-  toApiSelector,
-  toPathQuery,
-  useApiQuery,
-  useApiQueryClient,
-} from '@oxide/api'
+import { apiQueryClient, toPathQuery, useApiQuery, useApiQueryClient } from '@oxide/api'
 import { Instances24Icon, PageHeader, PageTitle, PropertiesTable } from '@oxide/ui'
-import { pick } from '@oxide/util'
 
 import { MoreActionsMenu } from 'app/components/MoreActionsMenu'
 import { RouteTabs, Tab } from 'app/components/RouteTabs'
 import { InstanceStatusBadge } from 'app/components/StatusBadge'
-import { requireInstanceParams, useQuickActions, useRequiredParams } from 'app/hooks'
-import { pb } from 'app/util/path-builder'
+import { getInstanceSelector, useInstanceSelector, useQuickActions } from 'app/hooks'
+import { pb2 } from 'app/util/path-builder'
 
 import { useMakeInstanceActions } from '../actions'
 
 InstancePage.loader = async ({ params }: LoaderFunctionArgs) => {
   await apiQueryClient.prefetchQuery(
     'instanceViewV1',
-    toPathQuery('instance', toApiSelector(requireInstanceParams(params)))
+    toPathQuery('instance', getInstanceSelector(params))
   )
   return null
 }
 
 export function InstancePage() {
-  const instanceParams = useRequiredParams('orgName', 'projectName', 'instanceName')
-  const instanceSelector = toPathQuery('instance', toApiSelector(instanceParams))
+  const instanceSelector = useInstanceSelector()
+  const { project, organization } = instanceSelector
+  const instancePathQuery = toPathQuery('instance', instanceSelector)
 
   const navigate = useNavigate()
   const queryClient = useApiQueryClient()
-  const projectParams = pick(instanceParams, 'projectName', 'orgName')
-  const makeActions = useMakeInstanceActions(projectParams, {
-    onSuccess: () => {
-      queryClient.invalidateQueries('instanceViewV1', instanceSelector)
-    },
-    // go to project instances list since there's no more instance
-    onDelete: () => navigate(pb.instances(projectParams)),
-  })
+  // TODO: change the interface here to take projectSelector directly
+  const makeActions = useMakeInstanceActions(
+    { projectName: project, orgName: organization },
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('instanceViewV1', instancePathQuery)
+      },
+      // go to project instances list since there's no more instance
+      onDelete: () => navigate(pb2.instances(instanceSelector)),
+    }
+  )
 
-  const { data: instance } = useApiQuery('instanceViewV1', instanceSelector)
+  const { data: instance } = useApiQuery('instanceViewV1', instancePathQuery)
   const actions = useMemo(
     () => (instance ? makeActions(instance) : []),
     [instance, makeActions]
@@ -93,10 +90,10 @@ export function InstancePage() {
         </PropertiesTable>
       </PropertiesTable.Group>
       <RouteTabs fullWidth>
-        <Tab to={pb.instanceStorage(instanceParams)}>Storage</Tab>
-        <Tab to={pb.instanceMetrics(instanceParams)}>Metrics</Tab>
-        <Tab to={pb.nics(instanceParams)}>Network Interfaces</Tab>
-        <Tab to={pb.serialConsole(instanceParams)}>Serial Console</Tab>
+        <Tab to={pb2.instanceStorage(instanceSelector)}>Storage</Tab>
+        <Tab to={pb2.instanceMetrics(instanceSelector)}>Metrics</Tab>
+        <Tab to={pb2.nics(instanceSelector)}>Network Interfaces</Tab>
+        <Tab to={pb2.serialConsole(instanceSelector)}>Serial Console</Tab>
       </RouteTabs>
     </>
   )

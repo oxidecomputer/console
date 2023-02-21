@@ -2,7 +2,6 @@ import type { LoaderFunctionArgs } from 'react-router-dom'
 import { Link, Outlet } from 'react-router-dom'
 
 import type { Snapshot } from '@oxide/api'
-import { toApiSelector } from '@oxide/api'
 import { apiQueryClient, useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
 import type { MenuAction } from '@oxide/table'
 import { DateCell, SizeCell, useQueryTable } from '@oxide/table'
@@ -16,8 +15,8 @@ import {
 } from '@oxide/ui'
 
 import { SnapshotStatusBadge } from 'app/components/StatusBadge'
-import { requireProjectParams, useProjectParams, useRequiredParams } from 'app/hooks'
-import { pb } from 'app/util/path-builder'
+import { getProjectSelector, useProjectSelector } from 'app/hooks'
+import { pb2 } from 'app/util/path-builder'
 
 const DiskNameFromId = ({ value }: { value: string }) => {
   const { data: disk } = useApiQuery('diskViewV1', { path: { disk: value } })
@@ -31,22 +30,20 @@ const EmptyState = () => (
     title="No snapshots"
     body="You need to create a snapshot to be able to see it here"
     buttonText="New snapshot"
-    buttonTo={pb.snapshotNew(useProjectParams())}
+    buttonTo={pb2.snapshotNew(useProjectSelector())}
   />
 )
 
 SnapshotsPage.loader = async ({ params }: LoaderFunctionArgs) => {
-  const projectSelector = toApiSelector(requireProjectParams(params))
   await apiQueryClient.prefetchQuery('snapshotListV1', {
-    query: { ...projectSelector, limit: 10 },
+    query: { ...getProjectSelector(params), limit: 10 },
   })
   return null
 }
 
 export function SnapshotsPage() {
   const queryClient = useApiQueryClient()
-  const projectParams = useRequiredParams('orgName', 'projectName')
-  const projectSelector = toApiSelector(projectParams)
+  const projectSelector = useProjectSelector()
   const { Table, Column } = useQueryTable('snapshotListV1', { query: projectSelector })
 
   const deleteSnapshot = useApiMutation('snapshotDeleteV1', {
@@ -70,7 +67,7 @@ export function SnapshotsPage() {
         <PageTitle icon={<Snapshots24Icon />}>Snapshots</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link to={pb.snapshotNew(projectParams)} className={buttonStyle({ size: 'sm' })}>
+        <Link to={pb2.snapshotNew(projectSelector)} className={buttonStyle({ size: 'sm' })}>
           New Snapshot
         </Link>
       </TableActions>

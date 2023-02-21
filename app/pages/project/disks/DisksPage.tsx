@@ -6,7 +6,6 @@ import type { Disk } from '@oxide/api'
 import {
   apiQueryClient,
   genName,
-  toApiSelector,
   useApiMutation,
   useApiQuery,
   useApiQueryClient,
@@ -23,21 +22,15 @@ import {
 } from '@oxide/ui'
 
 import { DiskStatusBadge } from 'app/components/StatusBadge'
-import {
-  requireProjectParams,
-  useProjectParams,
-  useRequiredParams,
-  useToast,
-} from 'app/hooks'
-import { pb } from 'app/util/path-builder'
+import { getProjectSelector, useProjectSelector, useToast } from 'app/hooks'
+import { pb2 } from 'app/util/path-builder'
 
 function AttachedInstance({
-  orgName,
-  projectName,
   instanceId,
+  ...projectSelector
 }: {
-  orgName: string
-  projectName: string
+  organization: string
+  project: string
   instanceId: string
 }) {
   const { data: instance } = useApiQuery('instanceViewV1', {
@@ -46,7 +39,7 @@ function AttachedInstance({
   return instance ? (
     <Link
       className="text-sans-semi-md text-accent hover:underline"
-      to={pb.instancePage({ orgName, projectName, instanceName: instance.name })}
+      to={pb2.instancePage({ ...projectSelector, instance: instance.name })}
     >
       {instance.name}
     </Link>
@@ -59,22 +52,20 @@ const EmptyState = () => (
     title="No disks"
     body="You need to create a disk to be able to see it here"
     buttonText="New disk"
-    buttonTo={pb.diskNew(useProjectParams())}
+    buttonTo={pb2.diskNew(useProjectSelector())}
   />
 )
 
 DisksPage.loader = async ({ params }: LoaderFunctionArgs) => {
-  const projectSelector = toApiSelector(requireProjectParams(params))
   await apiQueryClient.prefetchQuery('diskListV1', {
-    query: { ...projectSelector, limit: 10 },
+    query: { ...getProjectSelector(params), limit: 10 },
   })
   return null
 }
 
 export function DisksPage() {
   const queryClient = useApiQueryClient()
-  const projectParams = useRequiredParams('orgName', 'projectName')
-  const projectSelector = toApiSelector(projectParams)
+  const projectSelector = useProjectSelector()
   const { Table, Column } = useQueryTable('diskListV1', { query: projectSelector })
   const addToast = useToast()
 
@@ -131,7 +122,7 @@ export function DisksPage() {
         <PageTitle icon={<Storage24Icon />}>Disks</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link to={pb.diskNew(projectParams)} className={buttonStyle({ size: 'sm' })}>
+        <Link to={pb2.diskNew(projectSelector)} className={buttonStyle({ size: 'sm' })}>
           New Disk
         </Link>
       </TableActions>
@@ -147,7 +138,7 @@ export function DisksPage() {
             'instance' in disk.state ? disk.state.instance : null
           }
           cell={({ value }: { value: string | undefined }) =>
-            value ? <AttachedInstance {...projectParams} instanceId={value} /> : null
+            value ? <AttachedInstance {...projectSelector} instanceId={value} /> : null
           }
         />
         <Column header="Size" accessor="size" cell={SizeCell} />

@@ -37,6 +37,11 @@ export const useSiloParams = () => requireSiloParams(useParams())
 export const useSledParams = () => requireSledParams(useParams())
 export const useUpdateParams = () => requireUpdateParams(useParams())
 
+export const getProjectSelector = (p: Readonly<Params<string>>) =>
+  toApiSelector(requireProjectParams(p))
+export const getInstanceSelector = (p: Readonly<Params<string>>) =>
+  toApiSelector(requireInstanceParams(p))
+
 export const useOrgSelector = () => toApiSelector(useOrgParams())
 export const useProjectSelector = () => toApiSelector(useProjectParams())
 export const useInstanceSelector = () => toApiSelector(useInstanceParams())

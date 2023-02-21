@@ -1,13 +1,13 @@
 import { useNavigate } from 'react-router-dom'
 
 import type { ProjectCreate } from '@oxide/api'
-import { toApiSelector, toPathQuery, useApiMutation, useApiQueryClient } from '@oxide/api'
+import { toPathQuery, useApiMutation, useApiQueryClient } from '@oxide/api'
 import { Success16Icon } from '@oxide/ui'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
-import { pb } from 'app/util/path-builder'
+import { pb2 } from 'app/util/path-builder'
 
-import { useRequiredParams, useToast } from '../hooks'
+import { useOrgSelector, useToast } from '../hooks'
 
 const defaultValues: ProjectCreate = {
   name: '',
@@ -19,19 +19,19 @@ export function CreateProjectSideModalForm() {
   const queryClient = useApiQueryClient()
   const addToast = useToast()
 
-  const { orgName } = useRequiredParams('orgName')
+  const { organization } = useOrgSelector()
 
-  const onDismiss = () => navigate(pb.projects({ orgName }))
+  const onDismiss = () => navigate(pb2.projects({ organization }))
 
   const createProject = useApiMutation('projectCreateV1', {
     onSuccess(project) {
       // refetch list of projects in sidebar
-      queryClient.invalidateQueries('projectListV1', { query: { organization: orgName } })
+      queryClient.invalidateQueries('projectListV1', { query: { organization } })
       // avoid the project fetch when the project page loads since we have the data
-      const projectParams = { orgName, projectName: project.name }
+      const projectSelector = { organization, project: project.name }
       queryClient.setQueryData(
         'projectViewV1',
-        toPathQuery('project', toApiSelector(projectParams)),
+        toPathQuery('project', projectSelector),
         project
       )
       addToast({
@@ -39,7 +39,7 @@ export function CreateProjectSideModalForm() {
         title: 'Success!',
         content: 'Your project has been created.',
       })
-      navigate(pb.instances(projectParams))
+      navigate(pb2.instances(projectSelector))
     },
   })
 
@@ -51,7 +51,7 @@ export function CreateProjectSideModalForm() {
       onDismiss={onDismiss}
       onSubmit={({ name, description }) => {
         createProject.mutate({
-          query: { organization: orgName },
+          query: { organization },
           body: { name, description },
         })
       }}

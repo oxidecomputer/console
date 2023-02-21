@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom'
 
 import {
   apiQueryClient,
-  toApiSelector,
   toPathQuery,
   useApiMutation,
   useApiQuery,
@@ -12,14 +11,14 @@ import {
 import { Success16Icon } from '@oxide/ui'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
-import { pb } from 'app/util/path-builder'
+import { pb2 } from 'app/util/path-builder'
 
-import { requireProjectParams, useProjectParams, useToast } from '../hooks'
+import { getProjectSelector, useProjectSelector, useToast } from '../hooks'
 
 EditProjectSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
   await apiQueryClient.prefetchQuery(
     'projectViewV1',
-    toPathQuery('project', toApiSelector(requireProjectParams(params)))
+    toPathQuery('project', getProjectSelector(params))
   )
   return null
 }
@@ -29,32 +28,23 @@ export function EditProjectSideModalForm() {
   const addToast = useToast()
   const navigate = useNavigate()
 
-  const projectParams = useProjectParams()
-  const { orgName } = projectParams
+  const projectSelector = useProjectSelector()
+  const projectPathQuery = toPathQuery('project', projectSelector)
+  const { organization } = projectSelector
 
-  const onDismiss = () => navigate(pb.projects({ orgName }))
+  const onDismiss = () => navigate(pb2.projects(projectSelector))
 
-  const { data: project } = useApiQuery(
-    'projectViewV1',
-    // ok, I immediately feel this is a bad idea and want to change course. too
-    // many function calls. type inference on hover helps show what you're doing
-    // but it's still very alienating from the simple objects actually being
-    // passed around
-    toPathQuery('project', toApiSelector(projectParams))
-  )
+  const { data: project } = useApiQuery('projectViewV1', projectPathQuery)
 
   const editProject = useApiMutation('projectUpdateV1', {
     onSuccess(project) {
       // refetch list of projects in sidebar
       // TODO: check this invalidation
-      queryClient.invalidateQueries('projectListV1', { query: { organization: orgName } })
+      queryClient.invalidateQueries('projectListV1', { query: { organization } })
       // avoid the project fetch when the project page loads since we have the data
       queryClient.setQueryData(
         'projectViewV1',
-        {
-          path: { project: project.name },
-          query: { organization: orgName },
-        },
+        { path: { project: project.name }, query: { organization } },
         project
       )
       addToast({
@@ -73,10 +63,7 @@ export function EditProjectSideModalForm() {
       title="Edit project"
       onDismiss={onDismiss}
       onSubmit={({ name, description }) => {
-        editProject.mutate({
-          ...toPathQuery('project', toApiSelector(projectParams)),
-          body: { name, description },
-        })
+        editProject.mutate({ ...projectPathQuery, body: { name, description } })
       }}
       loading={editProject.isLoading}
       submitError={editProject.error}
