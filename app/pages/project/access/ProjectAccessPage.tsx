@@ -3,10 +3,11 @@ import { useMemo, useState } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 
 import type { IdentityType, RoleKey } from '@oxide/api'
-import { deleteRole } from '@oxide/api'
+import { toPathQuery } from '@oxide/api'
 import {
   apiQueryClient,
   byGroupThenName,
+  deleteRole,
   getEffectiveRole,
   useApiMutation,
   useApiQuery,
@@ -31,12 +32,7 @@ import {
   ProjectAccessAddUserSideModal,
   ProjectAccessEditUserSideModal,
 } from 'app/forms/project-access'
-import {
-  getProjectSelector,
-  requireProjectParams,
-  useProjectSelector,
-  useRequiredParams,
-} from 'app/hooks'
+import { getProjectSelector, useProjectSelector } from 'app/hooks'
 
 const EmptyState = ({ onClick }: { onClick: () => void }) => (
   <TableEmptyBox>
@@ -51,12 +47,14 @@ const EmptyState = ({ onClick }: { onClick: () => void }) => (
 )
 
 ProjectAccessPage.loader = async ({ params }: LoaderFunctionArgs) => {
-  const { orgName, projectName } = requireProjectParams(params)
-  const { organization } = getProjectSelector(params)
+  const { organization, project } = getProjectSelector(params)
   await Promise.all([
-    apiQueryClient.prefetchQuery('policyView', {}),
+    apiQueryClient.prefetchQuery('policyViewV1', {}),
     apiQueryClient.prefetchQuery('organizationPolicyViewV1', { path: { organization } }),
-    apiQueryClient.prefetchQuery('projectPolicyView', { path: { orgName, projectName } }),
+    apiQueryClient.prefetchQuery('projectPolicyViewV1', {
+      path: { project },
+      query: { organization },
+    }),
     // used to resolve user names
     apiQueryClient.prefetchQuery('userList', {}),
     apiQueryClient.prefetchQuery('groupList', {}),
@@ -80,10 +78,10 @@ export function ProjectAccessPage() {
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [editingUserRow, setEditingUserRow] = useState<UserRow | null>(null)
   const projectSelector = useProjectSelector()
+  const projectPathQuery = toPathQuery('project', projectSelector)
   const { organization } = projectSelector
-  const projectParams = useRequiredParams('orgName', 'projectName')
 
-  const { data: siloPolicy } = useApiQuery('policyView', {})
+  const { data: siloPolicy } = useApiQuery('policyViewV1', {})
   const siloRows = useUserRows(siloPolicy?.roleAssignments, 'silo')
 
   const { data: orgPolicy } = useApiQuery('organizationPolicyViewV1', {
@@ -91,7 +89,7 @@ export function ProjectAccessPage() {
   })
   const orgRows = useUserRows(orgPolicy?.roleAssignments, 'org')
 
-  const { data: projectPolicy } = useApiQuery('projectPolicyView', { path: projectParams })
+  const { data: projectPolicy } = useApiQuery('projectPolicyViewV1', projectPathQuery)
   const projectRows = useUserRows(projectPolicy?.roleAssignments, 'project')
 
   const rows = useMemo(() => {
@@ -124,9 +122,8 @@ export function ProjectAccessPage() {
   }, [siloRows, orgRows, projectRows])
 
   const queryClient = useApiQueryClient()
-  const updatePolicy = useApiMutation('projectPolicyUpdate', {
-    onSuccess: () =>
-      queryClient.invalidateQueries('projectPolicyView', { path: projectParams }),
+  const updatePolicy = useApiMutation('projectPolicyUpdateV1', {
+    onSuccess: () => queryClient.invalidateQueries('projectPolicyViewV1', projectPathQuery),
     // TODO: handle 403
   })
 
@@ -163,7 +160,7 @@ export function ProjectAccessPage() {
           onActivate() {
             // TODO: confirm delete
             updatePolicy.mutate({
-              path: projectParams,
+              ...projectPathQuery,
               // we know policy is there, otherwise there's no row to display
               body: deleteRole(row.id, projectPolicy!),
             })
@@ -172,7 +169,7 @@ export function ProjectAccessPage() {
         },
       ]),
     ],
-    [projectPolicy, projectParams, updatePolicy]
+    [projectPolicy, projectPathQuery, updatePolicy]
   )
 
   const tableInstance = useReactTable({ columns, data: rows })

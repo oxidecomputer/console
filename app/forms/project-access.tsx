@@ -1,4 +1,5 @@
 import {
+  toPathQuery,
   updateRole,
   useActorsNotInPolicy,
   useApiMutation,
@@ -6,20 +7,20 @@ import {
 } from '@oxide/api'
 
 import { ListboxField, SideModalForm } from 'app/components/form'
-import { useRequiredParams } from 'app/hooks'
+import { useProjectSelector } from 'app/hooks'
 
 import type { AddRoleModalProps, EditRoleModalProps } from './access-util'
 import { actorToItem, defaultValues, roleItems } from './access-util'
 
 export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalProps) {
-  const projectParams = useRequiredParams('orgName', 'projectName')
+  const projectPathQuery = toPathQuery('project', useProjectSelector())
 
   const actors = useActorsNotInPolicy(policy)
 
   const queryClient = useApiQueryClient()
-  const updatePolicy = useApiMutation('projectPolicyUpdate', {
+  const updatePolicy = useApiMutation('projectPolicyUpdateV1', {
     onSuccess: () => {
-      queryClient.invalidateQueries('projectPolicyView', { path: projectParams })
+      queryClient.invalidateQueries('projectPolicyViewV1', projectPathQuery)
       onDismiss()
     },
   })
@@ -38,7 +39,7 @@ export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModa
         const identityType = actors.find((a) => a.id === identityId)!.identityType
 
         updatePolicy.mutate({
-          path: projectParams,
+          ...projectPathQuery,
           body: updateRole({ identityId, identityType, roleName }, policy),
         })
       }}
@@ -76,12 +77,12 @@ export function ProjectAccessEditUserSideModal({
   policy,
   defaultValues,
 }: EditRoleModalProps) {
-  const projectParams = useRequiredParams('orgName', 'projectName')
+  const projectPathQuery = toPathQuery('project', useProjectSelector())
 
   const queryClient = useApiQueryClient()
-  const updatePolicy = useApiMutation('projectPolicyUpdate', {
+  const updatePolicy = useApiMutation('projectPolicyUpdateV1', {
     onSuccess: () => {
-      queryClient.invalidateQueries('projectPolicyView', { path: projectParams })
+      queryClient.invalidateQueries('projectPolicyViewV1', projectPathQuery)
       onDismiss()
     },
   })
@@ -94,7 +95,7 @@ export function ProjectAccessEditUserSideModal({
       formOptions={{ defaultValues }}
       onSubmit={({ roleName }) => {
         updatePolicy.mutate({
-          path: projectParams,
+          ...projectPathQuery,
           body: updateRole({ identityId, identityType, roleName }, policy),
         })
       }}

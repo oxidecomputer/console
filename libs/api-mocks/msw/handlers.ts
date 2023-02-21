@@ -18,7 +18,6 @@ import {
   lookupById,
   lookupGlobalImage,
   lookupImage,
-  lookupProject,
   lookupSamlIdp,
   lookupSilo,
   lookupSled,
@@ -210,12 +209,12 @@ export const handlers = makeHandlers({
     }
   },
   imageList(params) {
-    const project = lookupProject(params.path)
+    const project = lookup.project(toApiSelector(params.path))
     const images = db.images.filter((i) => i.project_id === project.id)
     return paginated(params.query, images)
   },
   imageCreate({ body, ...params }) {
-    const project = lookupProject(params.path)
+    const project = lookup.project(toApiSelector(params.path))
     errIfExists(db.images, { name: body.name, project_id: project.id })
 
     const newImage: Json<Api.Image> = {
@@ -477,8 +476,8 @@ export const handlers = makeHandlers({
 
     return json(instance, { status: 202 })
   },
-  projectPolicyView(params) {
-    const project = lookupProject(params.path)
+  projectPolicyViewV1({ path, query }) {
+    const project = lookup.project({ ...path, ...query })
 
     const role_assignments = db.roleAssignments
       .filter((r) => r.resource_type === 'project' && r.resource_id === project.id)
@@ -486,8 +485,8 @@ export const handlers = makeHandlers({
 
     return { role_assignments }
   },
-  projectPolicyUpdate({ body, ...params }) {
-    const project = lookupProject(params.path)
+  projectPolicyUpdateV1({ body, path, query }) {
+    const project = lookup.project({ ...path, ...query })
 
     const newAssignments = body.role_assignments.map((r) => ({
       resource_type: 'project' as const,
@@ -763,7 +762,7 @@ export const handlers = makeHandlers({
   physicalDiskList(params) {
     return paginated(params.query, db.physicalDisks)
   },
-  policyView() {
+  policyViewV1() {
     // assume we're in the default silo
     const siloId = defaultSilo.id
     const role_assignments = db.roleAssignments
@@ -772,7 +771,7 @@ export const handlers = makeHandlers({
 
     return { role_assignments }
   },
-  policyUpdate({ body }) {
+  policyUpdateV1({ body }) {
     const siloId = defaultSilo.id
     const newAssignments = body.role_assignments.map((r) => ({
       resource_type: 'silo' as const,
@@ -1038,10 +1037,6 @@ export const handlers = makeHandlers({
   instanceSerialConsoleStreamV1: NotImplemented,
   instanceSerialConsoleV1: NotImplemented,
   physicalDiskListV1: NotImplemented,
-  policyUpdateV1: NotImplemented,
-  policyViewV1: NotImplemented,
-  projectPolicyUpdateV1: NotImplemented,
-  projectPolicyViewV1: NotImplemented,
   rackListV1: NotImplemented,
   rackViewV1: NotImplemented,
   sagaListV1: NotImplemented,
@@ -1110,9 +1105,13 @@ export const handlers = makeHandlers({
   organizationPolicyView: NotImplemented,
   organizationUpdate: NotImplemented,
   organizationView: NotImplemented,
+  policyUpdate: NotImplemented,
+  policyView: NotImplemented,
   projectCreate: NotImplemented,
   projectDelete: NotImplemented,
   projectList: NotImplemented,
+  projectPolicyUpdate: NotImplemented,
+  projectPolicyView: NotImplemented,
   projectUpdate: NotImplemented,
   projectView: NotImplemented,
   snapshotCreate: NotImplemented,

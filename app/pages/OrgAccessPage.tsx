@@ -43,7 +43,7 @@ const EmptyState = ({ onClick }: { onClick: () => void }) => (
 
 OrgAccessPage.loader = async ({ params }: LoaderFunctionArgs) => {
   await Promise.all([
-    apiQueryClient.prefetchQuery('policyView', {}),
+    apiQueryClient.prefetchQuery('policyViewV1', {}),
     apiQueryClient.prefetchQuery('organizationPolicyViewV1', {
       path: getProjectSelector(params),
     }),
@@ -71,7 +71,7 @@ export function OrgAccessPage() {
   const [editingUserRow, setEditingUserRow] = useState<UserRow | null>(null)
   const { organization } = useOrgSelector()
 
-  const { data: siloPolicy } = useApiQuery('policyView', {})
+  const { data: siloPolicy } = useApiQuery('policyViewV1', {})
   const siloRows = useUserRows(siloPolicy?.roleAssignments, 'silo')
 
   const { data: orgPolicy } = useApiQuery('organizationPolicyViewV1', {

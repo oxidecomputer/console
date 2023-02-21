@@ -14,9 +14,9 @@ export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalPr
   const actors = useActorsNotInPolicy(policy)
 
   const queryClient = useApiQueryClient()
-  const updatePolicy = useApiMutation('policyUpdate', {
+  const updatePolicy = useApiMutation('policyUpdateV1', {
     onSuccess: () => {
-      queryClient.invalidateQueries('policyView', {})
+      queryClient.invalidateQueries('policyViewV1', {})
       onDismiss()
     },
   })
@@ -74,9 +74,9 @@ export function SiloAccessEditUserSideModal({
   defaultValues,
 }: EditRoleModalProps) {
   const queryClient = useApiQueryClient()
-  const updatePolicy = useApiMutation('policyUpdate', {
+  const updatePolicy = useApiMutation('policyUpdateV1', {
     onSuccess: () => {
-      queryClient.invalidateQueries('policyView', {})
+      queryClient.invalidateQueries('policyViewV1', {})
       onDismiss()
     },
   })
