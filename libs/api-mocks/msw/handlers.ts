@@ -710,13 +710,13 @@ export const handlers = makeHandlers({
     db.vpcRouterRoutes = db.vpcRouterRoutes.filter((r) => r.id !== route.id)
     return 204
   },
-  vpcSubnetList(params) {
-    const vpc = lookupVpc(params.path)
+  vpcSubnetListV1({ query }) {
+    const vpc = lookup.vpc(query)
     const subnets = db.vpcSubnets.filter((s) => s.vpc_id === vpc.id)
-    return paginated(params.query, subnets)
+    return paginated(query, subnets)
   },
-  vpcSubnetCreate({ body, ...params }) {
-    const vpc = lookupVpc(params.path)
+  vpcSubnetCreateV1({ body, query }) {
+    const vpc = lookup.vpc(query)
     errIfExists(db.vpcSubnets, { vpc_id: vpc.id, name: body.name })
 
     // TODO: Create a route for the subnet in the default router
@@ -734,8 +734,8 @@ export const handlers = makeHandlers({
     return json(newSubnet, { status: 201 })
   },
   vpcSubnetViewV1: ({ path, query }) => lookup.vpcSubnet({ ...path, ...query }),
-  vpcSubnetUpdate({ body, ...params }) {
-    const subnet = lookupVpcSubnet(params.path)
+  vpcSubnetUpdateV1({ body, path, query }) {
+    const subnet = lookup.vpcSubnet({ ...path, ...query })
 
     if (body.name) {
       subnet.name = body.name
@@ -746,8 +746,8 @@ export const handlers = makeHandlers({
 
     return subnet
   },
-  vpcSubnetDelete(params) {
-    const subnet = lookupVpcSubnet(params.path)
+  vpcSubnetDeleteV1({ path, query }) {
+    const subnet = lookup.vpcSubnet({ ...path, ...query })
     db.vpcSubnets = db.vpcSubnets.filter((s) => s.id !== subnet.id)
 
     return 204
@@ -1071,10 +1071,10 @@ export const handlers = makeHandlers({
   vpcRouterRouteViewV1: NotImplemented,
   vpcRouterUpdateV1: NotImplemented,
   vpcRouterViewV1: NotImplemented,
-  vpcSubnetCreateV1: NotImplemented,
-  vpcSubnetDeleteV1: NotImplemented,
-  vpcSubnetListV1: NotImplemented,
-  vpcSubnetUpdateV1: NotImplemented,
+  vpcSubnetCreate: NotImplemented,
+  vpcSubnetDelete: NotImplemented,
+  vpcSubnetList: NotImplemented,
+  vpcSubnetUpdate: NotImplemented,
 
   // deprecated by ID endpoints
 

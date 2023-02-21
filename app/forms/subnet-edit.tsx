@@ -3,7 +3,7 @@ import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { pick } from '@oxide/util'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
-import { useRequiredParams } from 'app/hooks'
+import { useVpcSelector } from 'app/hooks'
 
 type EditSubnetFormProps = {
   onDismiss: () => void
@@ -11,12 +11,12 @@ type EditSubnetFormProps = {
 }
 
 export function EditSubnetForm({ onDismiss, editing }: EditSubnetFormProps) {
-  const parentNames = useRequiredParams('orgName', 'projectName', 'vpcName')
+  const vpcSelector = useVpcSelector()
   const queryClient = useApiQueryClient()
 
-  const updateSubnet = useApiMutation('vpcSubnetUpdate', {
+  const updateSubnet = useApiMutation('vpcSubnetUpdateV1', {
     onSuccess() {
-      queryClient.invalidateQueries('vpcSubnetList', { path: parentNames })
+      queryClient.invalidateQueries('vpcSubnetListV1', { query: vpcSelector })
       onDismiss()
     },
   })
@@ -31,7 +31,8 @@ export function EditSubnetForm({ onDismiss, editing }: EditSubnetFormProps) {
       formOptions={{ defaultValues }}
       onSubmit={(body) => {
         updateSubnet.mutate({
-          path: { ...parentNames, subnetName: editing.name },
+          path: { subnet: editing.name },
+          query: vpcSelector,
           body,
         })
       }}

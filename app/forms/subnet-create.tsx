@@ -3,7 +3,7 @@ import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { Divider } from '@oxide/ui'
 
 import { DescriptionField, NameField, SideModalForm, TextField } from 'app/components/form'
-import { useRequiredParams } from 'app/hooks'
+import { useVpcSelector } from 'app/hooks'
 
 const defaultValues: VpcSubnetCreate = {
   name: '',
@@ -16,12 +16,12 @@ type CreateSubnetFormProps = {
 }
 
 export function CreateSubnetForm({ onDismiss }: CreateSubnetFormProps) {
-  const parentNames = useRequiredParams('orgName', 'projectName', 'vpcName')
+  const vpcSelector = useVpcSelector()
   const queryClient = useApiQueryClient()
 
-  const createSubnet = useApiMutation('vpcSubnetCreate', {
+  const createSubnet = useApiMutation('vpcSubnetCreateV1', {
     onSuccess() {
-      queryClient.invalidateQueries('vpcSubnetList', { path: parentNames })
+      queryClient.invalidateQueries('vpcSubnetListV1', { query: vpcSelector })
       onDismiss()
     },
   })
@@ -31,7 +31,7 @@ export function CreateSubnetForm({ onDismiss }: CreateSubnetFormProps) {
       title="Create subnet"
       formOptions={{ defaultValues }}
       onDismiss={onDismiss}
-      onSubmit={(body) => createSubnet.mutate({ path: parentNames, body })}
+      onSubmit={(body) => createSubnet.mutate({ query: vpcSelector, body })}
       loading={createSubnet.isLoading}
       submitError={createSubnet.error}
     >
