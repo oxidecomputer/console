@@ -355,7 +355,6 @@ export const handlers = makeHandlers({
       state: 'attached',
       instance: instance.id,
     }
-    console.log(disk)
     return disk
   },
   instanceDiskDetachV1({ body, path, query: projectParams }) {
