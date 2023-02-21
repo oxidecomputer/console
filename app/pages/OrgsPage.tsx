@@ -16,7 +16,7 @@ import {
   buttonStyle,
 } from '@oxide/ui'
 
-import { pb } from 'app/util/path-builder'
+import { pb2 } from 'app/util/path-builder'
 
 import { useQuickActions } from '../hooks'
 
@@ -26,7 +26,7 @@ const EmptyState = () => (
     title="No organizations"
     body="You need to create an organization to be able to see it here"
     buttonText="New organization"
-    buttonTo={pb.orgNew()}
+    buttonTo={pb2.orgNew()}
   />
 )
 
@@ -45,7 +45,7 @@ export default function OrgsPage() {
     query: { limit: 10 }, // to have same params as QueryTable
   })
 
-  const deleteOrg = useApiMutation('organizationDelete', {
+  const deleteOrg = useApiMutation('organizationDeleteV1', {
     onSuccess() {
       queryClient.invalidateQueries('organizationListV1', {})
     },
@@ -60,13 +60,13 @@ export default function OrgsPage() {
           { path: { organization: org.name } },
           org
         )
-        navigate(pb.orgEdit({ orgName: org.name }))
+        navigate(pb2.orgEdit({ organization: org.name }))
       },
     },
     {
       label: 'Delete',
       onActivate: () => {
-        deleteOrg.mutate({ path: { orgName: org.name } })
+        deleteOrg.mutate({ path: { organization: org.name } })
       },
     },
   ]
@@ -74,10 +74,10 @@ export default function OrgsPage() {
   useQuickActions(
     useMemo(
       () => [
-        { value: 'New organization', onSelect: () => navigate(pb.orgNew()) },
+        { value: 'New organization', onSelect: () => navigate(pb2.orgNew()) },
         ...(orgs?.items || []).map((o) => ({
           value: o.name,
-          onSelect: () => navigate(pb.org({ orgName: o.name })),
+          onSelect: () => navigate(pb2.org({ organization: o.name })),
           navGroup: 'Go to organization',
         })),
       ],
@@ -91,12 +91,15 @@ export default function OrgsPage() {
         <PageTitle icon={<Folder24Icon />}>Organizations</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link to={pb.orgNew()} className={buttonStyle({ size: 'sm' })}>
+        <Link to={pb2.orgNew()} className={buttonStyle({ size: 'sm' })}>
           New Organization
         </Link>
       </TableActions>
       <Table emptyState={<EmptyState />} makeActions={makeActions}>
-        <Column accessor="name" cell={linkCell((orgName) => pb.projects({ orgName }))} />
+        <Column
+          accessor="name"
+          cell={linkCell((organization) => pb2.projects({ organization }))}
+        />
         <Column accessor="description" />
         <Column accessor="timeModified" header="Last updated" cell={DateCell} />
       </Table>

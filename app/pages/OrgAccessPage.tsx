@@ -27,7 +27,7 @@ import { groupBy, isTruthy } from '@oxide/util'
 import { AccessNameCell } from 'app/components/AccessNameCell'
 import { RoleBadgeCell } from 'app/components/RoleBadgeCell'
 import { OrgAccessAddUserSideModal, OrgAccessEditUserSideModal } from 'app/forms/org-access'
-import { requireOrgParams, useRequiredParams } from 'app/hooks'
+import { getProjectSelector, useOrgSelector } from 'app/hooks'
 
 const EmptyState = ({ onClick }: { onClick: () => void }) => (
   <TableEmptyBox>
@@ -44,8 +44,8 @@ const EmptyState = ({ onClick }: { onClick: () => void }) => (
 OrgAccessPage.loader = async ({ params }: LoaderFunctionArgs) => {
   await Promise.all([
     apiQueryClient.prefetchQuery('policyView', {}),
-    apiQueryClient.prefetchQuery('organizationPolicyView', {
-      path: requireOrgParams(params),
+    apiQueryClient.prefetchQuery('organizationPolicyViewV1', {
+      path: getProjectSelector(params),
     }),
     // used to resolve user names
     apiQueryClient.prefetchQuery('userList', {}),
@@ -69,12 +69,14 @@ const colHelper = createColumnHelper<UserRow>()
 export function OrgAccessPage() {
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [editingUserRow, setEditingUserRow] = useState<UserRow | null>(null)
-  const orgParams = useRequiredParams('orgName')
+  const { organization } = useOrgSelector()
 
   const { data: siloPolicy } = useApiQuery('policyView', {})
   const siloRows = useUserRows(siloPolicy?.roleAssignments, 'silo')
 
-  const { data: orgPolicy } = useApiQuery('organizationPolicyView', { path: orgParams })
+  const { data: orgPolicy } = useApiQuery('organizationPolicyViewV1', {
+    path: { organization },
+  })
   const orgRows = useUserRows(orgPolicy?.roleAssignments, 'org')
 
   const rows = useMemo(() => {
@@ -103,9 +105,9 @@ export function OrgAccessPage() {
   }, [siloRows, orgRows])
 
   const queryClient = useApiQueryClient()
-  const updatePolicy = useApiMutation('organizationPolicyUpdate', {
+  const updatePolicy = useApiMutation('organizationPolicyUpdateV1', {
     onSuccess: () =>
-      queryClient.invalidateQueries('organizationPolicyView', { path: orgParams }),
+      queryClient.invalidateQueries('organizationPolicyViewV1', { path: { organization } }),
     // TODO: handle 403
   })
 
@@ -137,7 +139,7 @@ export function OrgAccessPage() {
           onActivate() {
             // TODO: confirm delete
             updatePolicy.mutate({
-              path: orgParams,
+              path: { organization },
               // we know policy is there, otherwise there's no row to display
               body: deleteRole(row.id, orgPolicy!),
             })
@@ -146,7 +148,7 @@ export function OrgAccessPage() {
         },
       ]),
     ],
-    [orgPolicy, orgParams, updatePolicy]
+    [orgPolicy, organization, updatePolicy]
   )
 
   const tableInstance = useReactTable({ columns, data: rows })

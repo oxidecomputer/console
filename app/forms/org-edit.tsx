@@ -5,7 +5,7 @@ import { apiQueryClient, useApiMutation, useApiQuery, useApiQueryClient } from '
 import { Success16Icon } from '@oxide/ui'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
-import { requireOrgParams, useOrgParams, useToast } from 'app/hooks'
+import { requireOrgParams, useOrgSelector, useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 EditOrgSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
@@ -21,15 +21,13 @@ export function EditOrgSideModalForm() {
   const addToast = useToast()
   const navigate = useNavigate()
 
-  const { orgName } = useOrgParams()
+  const { organization } = useOrgSelector()
 
   const onDismiss = () => navigate(pb.orgs())
 
-  const { data: org } = useApiQuery('organizationViewV1', {
-    path: { organization: orgName },
-  })
+  const { data: org } = useApiQuery('organizationViewV1', { path: { organization } })
 
-  const updateOrg = useApiMutation('organizationUpdate', {
+  const updateOrg = useApiMutation('organizationUpdateV1', {
     onSuccess(org) {
       queryClient.invalidateQueries('organizationListV1', {})
       // avoid the org fetch when the org page loads since we have the data
@@ -56,7 +54,7 @@ export function EditOrgSideModalForm() {
       onDismiss={onDismiss}
       onSubmit={({ name, description }) =>
         updateOrg.mutate({
-          path: { orgName },
+          path: { organization },
           body: { name, description },
         })
       }

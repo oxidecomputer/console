@@ -18,7 +18,6 @@ import {
   lookupById,
   lookupGlobalImage,
   lookupImage,
-  lookupOrg,
   lookupProject,
   lookupSamlIdp,
   lookupSilo,
@@ -69,8 +68,8 @@ export const handlers = makeHandlers({
 
     return lookup.org(params.path)
   },
-  organizationUpdate({ body, ...params }) {
-    const org = lookupOrg(params.path)
+  organizationUpdateV1({ body, path }) {
+    const org = lookup.org(path)
 
     if (typeof body.name === 'string') {
       org.name = body.name
@@ -79,13 +78,13 @@ export const handlers = makeHandlers({
 
     return org
   },
-  organizationDelete(params) {
-    const org = lookupOrg(params.path)
+  organizationDeleteV1({ path }) {
+    const org = lookup.org(path)
     db.orgs = db.orgs.filter((o) => o.id !== org.id)
     return 204
   },
-  organizationPolicyView(params) {
-    const org = lookupOrg(params.path)
+  organizationPolicyViewV1({ path }) {
+    const org = lookup.org(path)
 
     const role_assignments = db.roleAssignments
       .filter((r) => r.resource_type === 'organization' && r.resource_id === org.id)
@@ -93,8 +92,8 @@ export const handlers = makeHandlers({
 
     return { role_assignments }
   },
-  organizationPolicyUpdate({ body, ...params }) {
-    const org = lookupOrg(params.path)
+  organizationPolicyUpdateV1({ body, path }) {
+    const org = lookup.org(path)
 
     const newAssignments = body.role_assignments.map((r) => ({
       resource_type: 'organization' as const,
@@ -1038,10 +1037,6 @@ export const handlers = makeHandlers({
   instanceMigrateV1: NotImplemented,
   instanceSerialConsoleStreamV1: NotImplemented,
   instanceSerialConsoleV1: NotImplemented,
-  organizationDeleteV1: NotImplemented,
-  organizationPolicyUpdateV1: NotImplemented,
-  organizationPolicyViewV1: NotImplemented,
-  organizationUpdateV1: NotImplemented,
   physicalDiskListV1: NotImplemented,
   policyUpdateV1: NotImplemented,
   policyViewV1: NotImplemented,
@@ -1109,7 +1104,11 @@ export const handlers = makeHandlers({
   instanceStop: NotImplemented,
   instanceView: NotImplemented,
   organizationCreate: NotImplemented,
+  organizationDelete: NotImplemented,
   organizationList: NotImplemented,
+  organizationPolicyUpdate: NotImplemented,
+  organizationPolicyView: NotImplemented,
+  organizationUpdate: NotImplemented,
   organizationView: NotImplemented,
   projectCreate: NotImplemented,
   projectDelete: NotImplemented,

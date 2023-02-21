@@ -31,7 +31,12 @@ import {
   ProjectAccessAddUserSideModal,
   ProjectAccessEditUserSideModal,
 } from 'app/forms/project-access'
-import { requireProjectParams, useRequiredParams } from 'app/hooks'
+import {
+  getProjectSelector,
+  requireProjectParams,
+  useProjectSelector,
+  useRequiredParams,
+} from 'app/hooks'
 
 const EmptyState = ({ onClick }: { onClick: () => void }) => (
   <TableEmptyBox>
@@ -47,9 +52,10 @@ const EmptyState = ({ onClick }: { onClick: () => void }) => (
 
 ProjectAccessPage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { orgName, projectName } = requireProjectParams(params)
+  const { organization } = getProjectSelector(params)
   await Promise.all([
     apiQueryClient.prefetchQuery('policyView', {}),
-    apiQueryClient.prefetchQuery('organizationPolicyView', { path: { orgName } }),
+    apiQueryClient.prefetchQuery('organizationPolicyViewV1', { path: { organization } }),
     apiQueryClient.prefetchQuery('projectPolicyView', { path: { orgName, projectName } }),
     // used to resolve user names
     apiQueryClient.prefetchQuery('userList', {}),
@@ -73,13 +79,16 @@ const colHelper = createColumnHelper<UserRow>()
 export function ProjectAccessPage() {
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [editingUserRow, setEditingUserRow] = useState<UserRow | null>(null)
+  const projectSelector = useProjectSelector()
+  const { organization } = projectSelector
   const projectParams = useRequiredParams('orgName', 'projectName')
-  const { orgName } = projectParams
 
   const { data: siloPolicy } = useApiQuery('policyView', {})
   const siloRows = useUserRows(siloPolicy?.roleAssignments, 'silo')
 
-  const { data: orgPolicy } = useApiQuery('organizationPolicyView', { path: { orgName } })
+  const { data: orgPolicy } = useApiQuery('organizationPolicyViewV1', {
+    path: { organization },
+  })
   const orgRows = useUserRows(orgPolicy?.roleAssignments, 'org')
 
   const { data: projectPolicy } = useApiQuery('projectPolicyView', { path: projectParams })
