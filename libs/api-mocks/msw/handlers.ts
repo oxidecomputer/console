@@ -238,10 +238,10 @@ export const handlers = makeHandlers({
 
     return 204
   },
-  instanceList(params) {
-    const project = lookupProject(params.path)
+  instanceListV1({ query }) {
+    const project = lookup.project(query)
     const instances = db.instances.filter((i) => i.project_id === project.id)
-    return paginated(params.query, instances)
+    return paginated(query, instances)
   },
   instanceCreateV1({ body, query }) {
     const project = lookup.project(query)
@@ -1043,7 +1043,6 @@ export const handlers = makeHandlers({
   certificateListV1: NotImplemented,
   certificateViewV1: NotImplemented,
   instanceDeleteV1: NotImplemented,
-  instanceListV1: NotImplemented,
   instanceMigrateV1: NotImplemented,
   instanceNetworkInterfaceCreateV1: NotImplemented,
   instanceRebootV1: NotImplemented,
@@ -1114,6 +1113,7 @@ export const handlers = makeHandlers({
   instanceDiskAttach: NotImplemented,
   instanceDiskDetach: NotImplemented,
   instanceDiskList: NotImplemented,
+  instanceList: NotImplemented,
   instanceNetworkInterfaceDelete: NotImplemented,
   instanceNetworkInterfaceList: NotImplemented,
   instanceNetworkInterfaceUpdate: NotImplemented,

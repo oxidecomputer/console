@@ -5,8 +5,8 @@ import { Link, useParams } from 'react-router-dom'
 import { useApiQuery } from '@oxide/api'
 import { Identicon, Organization16Icon, SelectArrows6Icon, Success12Icon } from '@oxide/ui'
 
-import { useInstanceParams, useProjectParams, useSiloParams } from 'app/hooks'
-import { pb } from 'app/util/path-builder'
+import { useInstanceSelector, useProjectSelector, useSiloParams } from 'app/hooks'
+import { pb, pb2 } from 'app/util/path-builder'
 
 type TopBarPickerItem = {
   label: string
@@ -194,20 +194,20 @@ export function OrgPicker() {
 
 export function ProjectPicker() {
   // picker only shows up when a project is in scope
-  const { orgName, projectName } = useProjectParams()
+  const { organization, project } = useProjectSelector()
   const { data } = useApiQuery('projectListV1', {
-    query: { organization: orgName, limit: 20 },
+    query: { organization, limit: 20 },
   })
   const items = (data?.items || []).map(({ name }) => ({
     label: name,
-    to: pb.instances({ orgName, projectName: name }),
+    to: pb2.instances({ organization, project: name }),
   }))
 
   return (
     <TopBarPicker
       aria-label="Switch project"
       category="Project"
-      current={projectName}
+      current={project}
       items={items}
       noItemsText="No projects found"
     />
@@ -216,21 +216,20 @@ export function ProjectPicker() {
 
 export function InstancePicker() {
   // picker only shows up when an instance is in scope
-  const { orgName, projectName, instanceName } = useInstanceParams()
-  const { data } = useApiQuery('instanceList', {
-    path: { orgName, projectName },
-    query: { limit: 50 },
+  const { organization, project, instance } = useInstanceSelector()
+  const { data } = useApiQuery('instanceListV1', {
+    query: { organization, project, limit: 50 },
   })
   const items = (data?.items || []).map(({ name }) => ({
     label: name,
-    to: pb.instance({ orgName, projectName, instanceName: name }),
+    to: pb2.instance({ organization, project, instance: name }),
   }))
 
   return (
     <TopBarPicker
       aria-label="Switch instance"
       category="Instance"
-      current={instanceName}
+      current={instance}
       items={items}
       noItemsText="No instances found"
     />

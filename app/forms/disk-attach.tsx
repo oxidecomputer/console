@@ -2,10 +2,10 @@ import { useParams } from 'react-router-dom'
 import invariant from 'tiny-invariant'
 
 import type { Disk, DiskIdentifier } from '@oxide/api'
-import { toApiSelector, useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
+import { useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
 
 import { ListboxField, SideModalForm } from 'app/components/form'
-import { useProjectParams } from 'app/hooks'
+import { useProjectSelector } from 'app/hooks'
 
 const defaultValues = { name: '' }
 
@@ -25,7 +25,7 @@ export function AttachDiskSideModalForm({
   // instance name undefined when this form is called from DisksTableField on
   // instance create, which passes in its own onSubmit, bypassing the attachDisk mutation
   const { instanceName } = useParams()
-  const projectSelector = toApiSelector(useProjectParams())
+  const projectSelector = useProjectSelector()
 
   const attachDisk = useApiMutation('instanceDiskAttachV1', {
     onSuccess(data) {

@@ -30,7 +30,7 @@ export const requireSledParams = requireParams('sledId')
 export const requireUpdateParams = requireParams('version')
 
 export const useOrgParams = () => requireOrgParams(useParams())
-export const useProjectParams = () => requireProjectParams(useParams())
+const useProjectParams = () => requireProjectParams(useParams())
 export const useInstanceParams = () => requireInstanceParams(useParams())
 export const useVpcParams = () => requireVpcParams(useParams())
 export const useSiloParams = () => requireSiloParams(useParams())

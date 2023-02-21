@@ -18,11 +18,11 @@ import {
 
 import {
   requireProjectParams,
-  useProjectParams,
+  useProjectSelector,
   useQuickActions,
   useRequiredParams,
 } from 'app/hooks'
-import { pb } from 'app/util/path-builder'
+import { pb, pb2 } from 'app/util/path-builder'
 
 const EmptyState = () => (
   <EmptyMessage
@@ -30,7 +30,7 @@ const EmptyState = () => (
     title="No VPCs"
     body="You need to create a VPC to be able to see it here"
     buttonText="New VPC"
-    buttonTo={pb.vpcNew(useProjectParams())}
+    buttonTo={pb2.vpcNew(useProjectSelector())}
   />
 )
 
