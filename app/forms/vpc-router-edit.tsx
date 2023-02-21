@@ -3,7 +3,7 @@ import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { pick } from '@oxide/util'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
-import { useRequiredParams } from 'app/hooks'
+import { useVpcSelector } from 'app/hooks'
 
 type EditVpcRouterFormProps = {
   onDismiss: () => void
@@ -11,12 +11,12 @@ type EditVpcRouterFormProps = {
 }
 
 export function EditVpcRouterForm({ onDismiss, editing }: EditVpcRouterFormProps) {
-  const parentNames = useRequiredParams('orgName', 'projectName', 'vpcName')
+  const vpcSelector = useVpcSelector()
   const queryClient = useApiQueryClient()
 
-  const updateRouter = useApiMutation('vpcRouterUpdate', {
+  const updateRouter = useApiMutation('vpcRouterUpdateV1', {
     onSuccess() {
-      queryClient.invalidateQueries('vpcRouterList', { path: parentNames })
+      queryClient.invalidateQueries('vpcRouterListV1', { query: vpcSelector })
       onDismiss()
     },
   })
@@ -31,7 +31,8 @@ export function EditVpcRouterForm({ onDismiss, editing }: EditVpcRouterFormProps
       onDismiss={onDismiss}
       onSubmit={({ name, description }) => {
         updateRouter.mutate({
-          path: { ...parentNames, routerName: editing.name },
+          path: { router: editing.name },
+          query: vpcSelector,
           body: { name, description },
         })
       }}

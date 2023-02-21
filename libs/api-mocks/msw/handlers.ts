@@ -626,13 +626,13 @@ export const handlers = makeHandlers({
 
     return { rules: sortBy(rules, (r) => r.name) }
   },
-  vpcRouterList(params) {
-    const vpc = lookupVpc(params.path)
+  vpcRouterListV1({ query }) {
+    const vpc = lookup.vpc(query)
     const routers = db.vpcRouters.filter((r) => r.vpc_id === vpc.id)
-    return paginated(params.query, routers)
+    return paginated(query, routers)
   },
-  vpcRouterCreate({ body, ...params }) {
-    const vpc = lookupVpc(params.path)
+  vpcRouterCreateV1({ body, query }) {
+    const vpc = lookup.vpc(query)
     errIfExists(db.vpcRouters, { vpc_id: vpc.id, name: body.name })
 
     const newRouter: Json<Api.VpcRouter> = {
@@ -645,9 +645,9 @@ export const handlers = makeHandlers({
     db.vpcRouters.push(newRouter)
     return json(newRouter, { status: 201 })
   },
-  vpcRouterView: (params) => lookupVpcRouter(params.path),
-  vpcRouterUpdate({ body, ...params }) {
-    const router = lookupVpcRouter(params.path)
+  vpcRouterViewV1: ({ path, query }) => lookup.vpcRouter({ ...path, ...query }),
+  vpcRouterUpdateV1({ body, path, query }) {
+    const router = lookup.vpcRouter({ ...path, ...query })
 
     if (body.name) {
       router.name = body.name
@@ -658,8 +658,8 @@ export const handlers = makeHandlers({
 
     return router
   },
-  vpcRouterDelete(params) {
-    const router = lookupVpcRouter(params.path)
+  vpcRouterDeleteV1({ path, query }) {
+    const router = lookup.vpcRouter({ ...path, ...query })
 
     // TODO: Are there routers that can't be deleted?
     db.vpcRouters = db.vpcRouters.filter((r) => r.id !== router.id)
@@ -1044,16 +1044,11 @@ export const handlers = makeHandlers({
   sledPhysicalDiskListV1: NotImplemented,
   sledViewV1: NotImplemented,
   systemPolicyUpdateV1: NotImplemented,
-  vpcRouterCreateV1: NotImplemented,
-  vpcRouterDeleteV1: NotImplemented,
-  vpcRouterListV1: NotImplemented,
   vpcRouterRouteCreateV1: NotImplemented,
   vpcRouterRouteDeleteV1: NotImplemented,
   vpcRouterRouteListV1: NotImplemented,
   vpcRouterRouteUpdateV1: NotImplemented,
   vpcRouterRouteViewV1: NotImplemented,
-  vpcRouterUpdateV1: NotImplemented,
-  vpcRouterViewV1: NotImplemented,
 
   // deprecated by ID endpoints
 
@@ -1117,6 +1112,11 @@ export const handlers = makeHandlers({
   vpcCreate: NotImplemented,
   vpcDelete: NotImplemented,
   vpcList: NotImplemented,
+  vpcRouterCreate: NotImplemented,
+  vpcRouterDelete: NotImplemented,
+  vpcRouterList: NotImplemented,
+  vpcRouterUpdate: NotImplemented,
+  vpcRouterView: NotImplemented,
   vpcSubnetCreate: NotImplemented,
   vpcSubnetDelete: NotImplemented,
   vpcSubnetList: NotImplemented,

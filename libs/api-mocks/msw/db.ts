@@ -104,6 +104,17 @@ export const lookup = {
 
     return vpc
   },
+  vpcRouter({ router: id, ...vpcSelector }: PPv1.VpcRouter): Json<Api.VpcRouter> {
+    if (!id) throw notFoundErr
+
+    if (isUuid(id)) return lookupById(db.vpcRouters, id)
+
+    const vpc = lookup.vpc(vpcSelector)
+    const router = db.vpcRouters.find((s) => s.vpc_id === vpc.id && s.name === id)
+    if (!router) throw notFoundErr
+
+    return router
+  },
   vpcSubnet({ subnet: id, ...vpcSelector }: PPv1.VpcSubnet): Json<Api.VpcSubnet> {
     if (!id) throw notFoundErr
 

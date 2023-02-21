@@ -3,7 +3,7 @@ import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { Success16Icon } from '@oxide/ui'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
-import { useRequiredParams, useToast } from 'app/hooks'
+import { useToast, useVpcSelector } from 'app/hooks'
 
 const defaultValues: VpcRouterCreate = {
   name: '',
@@ -15,17 +15,17 @@ type CreateVpcRouterFormProps = {
 }
 
 export function CreateVpcRouterForm({ onDismiss }: CreateVpcRouterFormProps) {
-  const parentNames = useRequiredParams('orgName', 'projectName', 'vpcName')
+  const vpcSelector = useVpcSelector()
   const queryClient = useApiQueryClient()
   const addToast = useToast()
 
-  const createRouter = useApiMutation('vpcRouterCreate', {
+  const createRouter = useApiMutation('vpcRouterCreateV1', {
     onSuccess(router) {
-      queryClient.invalidateQueries('vpcRouterList', { path: parentNames })
+      queryClient.invalidateQueries('vpcRouterListV1', { query: vpcSelector })
       // avoid the vpc fetch when the vpc page loads since we have the data
       queryClient.setQueryData(
-        'vpcRouterView',
-        { path: { ...parentNames, routerName: router.name } },
+        'vpcRouterViewV1',
+        { path: { router: router.name }, query: vpcSelector },
         router
       )
       addToast({
@@ -44,7 +44,7 @@ export function CreateVpcRouterForm({ onDismiss }: CreateVpcRouterFormProps) {
       formOptions={{ defaultValues }}
       onDismiss={onDismiss}
       onSubmit={({ name, description }) =>
-        createRouter.mutate({ path: parentNames, body: { name, description } })
+        createRouter.mutate({ query: vpcSelector, body: { name, description } })
       }
       loading={createRouter.isLoading}
       submitError={createRouter.error}
