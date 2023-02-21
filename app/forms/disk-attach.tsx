@@ -14,6 +14,10 @@ type AttachDiskProps = {
   submitError?: ErrorResult | null
 }
 
+/**
+ * Can be used with either a `setState` or a real mutation as `onSubmit`, hence
+ * the optional `loading` and `submitError`
+ */
 export function AttachDiskSideModalForm({
   onSubmit,
   onDismiss,
