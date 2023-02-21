@@ -6,7 +6,7 @@ import { Success16Icon } from '@oxide/ui'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
 import { useToast } from 'app/hooks'
-import { pb2 } from 'app/util/path-builder'
+import { pb } from 'app/util/path-builder'
 
 const defaultValues: OrganizationCreate = {
   name: '',
@@ -32,7 +32,7 @@ export function CreateOrgSideModalForm() {
         title: 'Success!',
         content: 'Your organization has been created.',
       })
-      navigate(pb2.projects({ organization: org.name }))
+      navigate(pb.projects({ organization: org.name }))
     },
   })
 
@@ -41,7 +41,7 @@ export function CreateOrgSideModalForm() {
       id="create-org-form"
       formOptions={{ defaultValues }}
       title="Create organization"
-      onDismiss={() => navigate(pb2.orgs())}
+      onDismiss={() => navigate(pb.orgs())}
       onSubmit={(values) => createOrg.mutate({ body: values })}
       loading={createOrg.isLoading}
       submitError={createOrg.error}

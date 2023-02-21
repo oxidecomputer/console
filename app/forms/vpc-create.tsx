@@ -7,7 +7,7 @@ import { toPathQuery } from '@oxide/util'
 
 import { DescriptionField, NameField, SideModalForm, TextField } from 'app/components/form'
 import { useProjectSelector, useToast } from 'app/hooks'
-import { pb2 } from 'app/util/path-builder'
+import { pb } from 'app/util/path-builder'
 
 const defaultValues: VpcCreate = {
   name: '',
@@ -32,7 +32,7 @@ export function CreateVpcSideModalForm() {
         title: 'Success!',
         content: 'Your VPC has been created.',
       })
-      navigate(pb2.vpc(vpcSelector))
+      navigate(pb.vpc(vpcSelector))
     },
   })
 
@@ -42,7 +42,7 @@ export function CreateVpcSideModalForm() {
       title="Create VPC"
       formOptions={{ defaultValues }}
       onSubmit={(values) => createVpc.mutate({ query: projectSelector, body: values })}
-      onDismiss={() => navigate(pb2.vpcs(projectSelector))}
+      onDismiss={() => navigate(pb.vpcs(projectSelector))}
       loading={createVpc.isLoading}
       submitError={createVpc.error}
     >

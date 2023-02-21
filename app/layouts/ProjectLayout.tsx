@@ -20,7 +20,7 @@ import {
   useSiloSystemPicker,
 } from 'app/components/TopBarPicker'
 import { useProjectSelector, useQuickActions } from 'app/hooks'
-import { pb2 } from 'app/util/path-builder'
+import { pb } from 'app/util/path-builder'
 
 import { DocsLinkItem, NavLinkItem, Sidebar } from '../components/Sidebar'
 import { ContentPane, PageContainer } from './helpers'
@@ -65,7 +65,7 @@ const ProjectLayout = () => {
       </TopBar>
       <Sidebar>
         <Sidebar.Nav>
-          <NavLinkItem to={pb2.projects(projectSelector)} end>
+          <NavLinkItem to={pb.projects(projectSelector)} end>
             <Folder16Icon />
             Projects
           </NavLinkItem>
@@ -73,22 +73,22 @@ const ProjectLayout = () => {
         </Sidebar.Nav>
         <Divider />
         <Sidebar.Nav heading={projectName}>
-          <NavLinkItem to={pb2.instances(projectSelector)}>
+          <NavLinkItem to={pb.instances(projectSelector)}>
             <Instances16Icon /> Instances
           </NavLinkItem>
-          <NavLinkItem to={pb2.snapshots(projectSelector)}>
+          <NavLinkItem to={pb.snapshots(projectSelector)}>
             <Snapshots16Icon /> Snapshots
           </NavLinkItem>
-          <NavLinkItem to={pb2.disks(projectSelector)}>
+          <NavLinkItem to={pb.disks(projectSelector)}>
             <Storage16Icon /> Disks
           </NavLinkItem>
-          <NavLinkItem to={pb2.projectAccess(projectSelector)}>
+          <NavLinkItem to={pb.projectAccess(projectSelector)}>
             <Access16Icon title="Access & IAM" /> Access &amp; IAM
           </NavLinkItem>
-          <NavLinkItem to={pb2.projectImages(projectSelector)}>
+          <NavLinkItem to={pb.projectImages(projectSelector)}>
             <Images16Icon title="images" /> Images
           </NavLinkItem>
-          <NavLinkItem to={pb2.vpcs(projectSelector)}>
+          <NavLinkItem to={pb.vpcs(projectSelector)}>
             <Networking16Icon /> Networking
           </NavLinkItem>
         </Sidebar.Nav>

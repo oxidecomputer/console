@@ -1,4 +1,4 @@
-import { pb2 } from './path-builder'
+import { pb } from './path-builder'
 
 // params can be the same for all of them because they only use what they need
 const params = {
@@ -11,7 +11,7 @@ const params = {
 }
 
 test('path builder', () => {
-  expect(Object.fromEntries(Object.entries(pb2).map(([key, fn]) => [key, fn(params)])))
+  expect(Object.fromEntries(Object.entries(pb).map(([key, fn]) => [key, fn(params)])))
     .toMatchInlineSnapshot(`
       {
         "deviceSuccess": "/device/success",

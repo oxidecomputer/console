@@ -11,7 +11,7 @@ import {
   Profile16Icon,
 } from '@oxide/ui'
 
-import { pb2 } from 'app/util/path-builder'
+import { pb } from 'app/util/path-builder'
 
 export function TopBar({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate()
@@ -71,7 +71,7 @@ export function TopBar({ children }: { children: React.ReactNode }) {
                 <DirectionDownIcon className="!w-2.5" />
               </MenuButton>
               <MenuList className="mt-2 min-w-[12.8125rem]">
-                <MenuItem onSelect={() => navigate(pb2.settings())}>Settings</MenuItem>
+                <MenuItem onSelect={() => navigate(pb.settings())}>Settings</MenuItem>
                 {loggedIn ? (
                   <MenuItem onSelect={() => logout.mutate({})}>Sign out</MenuItem>
                 ) : (

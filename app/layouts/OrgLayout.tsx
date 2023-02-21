@@ -3,7 +3,7 @@ import { Access16Icon, Divider, Folder16Icon, Organization16Icon } from '@oxide/
 import { TopBar } from 'app/components/TopBar'
 import { OrgPicker, useSiloSystemPicker } from 'app/components/TopBarPicker'
 import { useOrgSelector } from 'app/hooks'
-import { pb2 } from 'app/util/path-builder'
+import { pb } from 'app/util/path-builder'
 
 import { DocsLinkItem, NavLinkItem, Sidebar } from '../components/Sidebar'
 import { ContentPane, PageContainer } from './helpers'
@@ -19,7 +19,7 @@ const OrgLayout = () => {
       </TopBar>
       <Sidebar>
         <Sidebar.Nav>
-          <NavLinkItem to={pb2.orgs()} end>
+          <NavLinkItem to={pb.orgs()} end>
             <Organization16Icon />
             Organizations
           </NavLinkItem>
@@ -27,11 +27,11 @@ const OrgLayout = () => {
         </Sidebar.Nav>
         <Divider />
         <Sidebar.Nav heading={organization}>
-          <NavLinkItem to={pb2.projects({ organization })}>
+          <NavLinkItem to={pb.projects({ organization })}>
             <Folder16Icon title="Projects" />
             Projects
           </NavLinkItem>
-          <NavLinkItem to={pb2.orgAccess({ organization })}>
+          <NavLinkItem to={pb.orgAccess({ organization })}>
             <Access16Icon title="Access & IAM" />
             Access &amp; IAM
           </NavLinkItem>

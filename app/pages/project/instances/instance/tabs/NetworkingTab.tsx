@@ -26,7 +26,7 @@ import {
   useRequiredParams,
   useToast,
 } from 'app/hooks'
-import { pb2 } from 'app/util/path-builder'
+import { pb } from 'app/util/path-builder'
 
 const VpcNameFromId = ({ value }: { value: string }) => {
   const projectSelector = useProjectSelector()
@@ -35,7 +35,7 @@ const VpcNameFromId = ({ value }: { value: string }) => {
   return (
     <Link
       className="text-sans-semi-md text-default hover:underline"
-      to={pb2.vpc({ ...projectSelector, vpc: vpc.name })}
+      to={pb.vpc({ ...projectSelector, vpc: vpc.name })}
     >
       {vpc.name}
     </Link>

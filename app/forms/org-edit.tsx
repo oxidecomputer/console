@@ -6,7 +6,7 @@ import { Success16Icon } from '@oxide/ui'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
 import { requireOrgParams, useOrgSelector, useToast } from 'app/hooks'
-import { pb2 } from 'app/util/path-builder'
+import { pb } from 'app/util/path-builder'
 
 EditOrgSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
   const { orgName } = requireOrgParams(params)
@@ -23,7 +23,7 @@ export function EditOrgSideModalForm() {
 
   const { organization } = useOrgSelector()
 
-  const onDismiss = () => navigate(pb2.orgs())
+  const onDismiss = () => navigate(pb.orgs())
 
   const { data: org } = useApiQuery('organizationViewV1', { path: { organization } })
 

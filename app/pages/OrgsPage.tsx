@@ -16,7 +16,7 @@ import {
   buttonStyle,
 } from '@oxide/ui'
 
-import { pb2 } from 'app/util/path-builder'
+import { pb } from 'app/util/path-builder'
 
 import { useQuickActions } from '../hooks'
 
@@ -26,7 +26,7 @@ const EmptyState = () => (
     title="No organizations"
     body="You need to create an organization to be able to see it here"
     buttonText="New organization"
-    buttonTo={pb2.orgNew()}
+    buttonTo={pb.orgNew()}
   />
 )
 
@@ -60,7 +60,7 @@ export default function OrgsPage() {
           { path: { organization: org.name } },
           org
         )
-        navigate(pb2.orgEdit({ organization: org.name }))
+        navigate(pb.orgEdit({ organization: org.name }))
       },
     },
     {
@@ -74,10 +74,10 @@ export default function OrgsPage() {
   useQuickActions(
     useMemo(
       () => [
-        { value: 'New organization', onSelect: () => navigate(pb2.orgNew()) },
+        { value: 'New organization', onSelect: () => navigate(pb.orgNew()) },
         ...(orgs?.items || []).map((o) => ({
           value: o.name,
-          onSelect: () => navigate(pb2.org({ organization: o.name })),
+          onSelect: () => navigate(pb.org({ organization: o.name })),
           navGroup: 'Go to organization',
         })),
       ],
@@ -91,14 +91,14 @@ export default function OrgsPage() {
         <PageTitle icon={<Folder24Icon />}>Organizations</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link to={pb2.orgNew()} className={buttonStyle({ size: 'sm' })}>
+        <Link to={pb.orgNew()} className={buttonStyle({ size: 'sm' })}>
           New Organization
         </Link>
       </TableActions>
       <Table emptyState={<EmptyState />} makeActions={makeActions}>
         <Column
           accessor="name"
-          cell={linkCell((organization) => pb2.projects({ organization }))}
+          cell={linkCell((organization) => pb.projects({ organization }))}
         />
         <Column accessor="description" />
         <Column accessor="timeModified" header="Last updated" cell={DateCell} />

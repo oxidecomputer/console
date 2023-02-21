@@ -10,26 +10,26 @@ type Vpc = Required<PPv1.Vpc>
 type SystemUpdate = Required<PPv1.SystemUpdate>
 type Silo = Required<PPv1.Silo>
 
-// TODO: obviously the plan is pb2 becomes pb
-export const pb2 = {
+// TODO: obviously the plan is pb becomes pb
+export const pb = {
   orgs: () => '/orgs',
   orgNew: () => '/orgs-new',
-  org: ({ organization }: Org) => `${pb2.orgs()}/${organization}`,
-  orgEdit: (params: Org) => `${pb2.org(params)}/edit`,
-  orgAccess: (params: Org) => `${pb2.org(params)}/access`,
+  org: ({ organization }: Org) => `${pb.orgs()}/${organization}`,
+  orgEdit: (params: Org) => `${pb.org(params)}/edit`,
+  orgAccess: (params: Org) => `${pb.org(params)}/access`,
 
-  projects: (params: Org) => `${pb2.org(params)}/projects`,
-  projectNew: (params: Org) => `${pb2.org(params)}/projects-new`,
+  projects: (params: Org) => `${pb.org(params)}/projects`,
+  projectNew: (params: Org) => `${pb.org(params)}/projects-new`,
   project: ({ organization, project }: Project) =>
-    `${pb2.projects({ organization })}/${project}`,
-  projectEdit: (params: Project) => `${pb2.project(params)}/edit`,
+    `${pb.projects({ organization })}/${project}`,
+  projectEdit: (params: Project) => `${pb.project(params)}/edit`,
 
-  projectAccess: (params: Project) => `${pb2.project(params)}/access`,
-  projectImages: (params: Project) => `${pb2.project(params)}/images`,
+  projectAccess: (params: Project) => `${pb.project(params)}/access`,
+  projectImages: (params: Project) => `${pb.project(params)}/images`,
 
-  instances: (params: Project) => `${pb2.project(params)}/instances`,
-  instanceNew: (params: Project) => `${pb2.project(params)}/instances-new`,
-  instance: (params: Instance) => `${pb2.instances(params)}/${params.instance}`,
+  instances: (params: Project) => `${pb.project(params)}/instances`,
+  instanceNew: (params: Project) => `${pb.project(params)}/instances-new`,
+  instance: (params: Instance) => `${pb.instances(params)}/${params.instance}`,
 
   /**
    * This route exists as a direct link to the default tab of the instance page. Unfortunately
@@ -38,25 +38,25 @@ export const pb2 = {
    *
    * @see https://github.com/oxidecomputer/console/pull/1267#discussion_r1016766205
    */
-  instancePage: (params: Instance) => pb2.instanceStorage(params),
+  instancePage: (params: Instance) => pb.instanceStorage(params),
 
-  instanceMetrics: (params: Instance) => `${pb2.instance(params)}/metrics`,
-  instanceStorage: (params: Instance) => `${pb2.instance(params)}/storage`,
+  instanceMetrics: (params: Instance) => `${pb.instance(params)}/metrics`,
+  instanceStorage: (params: Instance) => `${pb.instance(params)}/storage`,
 
-  nics: (params: Instance) => `${pb2.instance(params)}/network-interfaces`,
+  nics: (params: Instance) => `${pb.instance(params)}/network-interfaces`,
 
-  serialConsole: (params: Instance) => `${pb2.instance(params)}/serial-console`,
+  serialConsole: (params: Instance) => `${pb.instance(params)}/serial-console`,
 
-  diskNew: (params: Project) => `${pb2.project(params)}/disks-new`,
-  disks: (params: Project) => `${pb2.project(params)}/disks`,
+  diskNew: (params: Project) => `${pb.project(params)}/disks-new`,
+  disks: (params: Project) => `${pb.project(params)}/disks`,
 
-  snapshotNew: (params: Project) => `${pb2.project(params)}/snapshots-new`,
-  snapshots: (params: Project) => `${pb2.project(params)}/snapshots`,
+  snapshotNew: (params: Project) => `${pb.project(params)}/snapshots-new`,
+  snapshots: (params: Project) => `${pb.project(params)}/snapshots`,
 
-  vpcNew: (params: Project) => `${pb2.project(params)}/vpcs-new`,
-  vpcs: (params: Project) => `${pb2.project(params)}/vpcs`,
-  vpc: (params: Vpc) => `${pb2.vpcs(params)}/${params.vpc}`,
-  vpcEdit: (params: Vpc) => `${pb2.vpc(params)}/edit`,
+  vpcNew: (params: Project) => `${pb.project(params)}/vpcs-new`,
+  vpcs: (params: Project) => `${pb.project(params)}/vpcs`,
+  vpc: (params: Vpc) => `${pb.vpcs(params)}/${params.vpc}`,
+  vpcEdit: (params: Vpc) => `${pb.vpc(params)}/edit`,
 
   siloUtilization: () => '/utilization',
   siloAccess: () => '/access',
@@ -67,7 +67,7 @@ export const pb2 = {
   systemHealth: () => '/sys/health',
 
   systemUpdates: () => '/sys/update/updates',
-  systemUpdateDetail: ({ version }: SystemUpdate) => `${pb2.systemUpdates()}/${version}`,
+  systemUpdateDetail: ({ version }: SystemUpdate) => `${pb.systemUpdates()}/${version}`,
   systemUpdateHistory: () => '/sys/update/history',
   updateableComponents: () => '/sys/update/components',
 
@@ -81,7 +81,7 @@ export const pb2 = {
   silos: () => '/sys/silos',
   siloNew: () => '/sys/silos-new',
   silo: ({ silo }: Silo) => `/sys/silos/${silo}`,
-  siloIdpNew: (params: Silo) => `${pb2.silo(params)}/idps-new`,
+  siloIdpNew: (params: Silo) => `${pb.silo(params)}/idps-new`,
 
   settings: () => '/settings',
   profile: () => '/settings/profile',

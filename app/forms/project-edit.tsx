@@ -6,7 +6,7 @@ import { Success16Icon } from '@oxide/ui'
 import { toPathQuery } from '@oxide/util'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
-import { pb2 } from 'app/util/path-builder'
+import { pb } from 'app/util/path-builder'
 
 import { getProjectSelector, useProjectSelector, useToast } from '../hooks'
 
@@ -27,7 +27,7 @@ export function EditProjectSideModalForm() {
   const projectPathQuery = toPathQuery('project', projectSelector)
   const { organization } = projectSelector
 
-  const onDismiss = () => navigate(pb2.projects(projectSelector))
+  const onDismiss = () => navigate(pb.projects(projectSelector))
 
   const { data: project } = useApiQuery('projectViewV1', projectPathQuery)
 

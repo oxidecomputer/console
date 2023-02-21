@@ -16,7 +16,7 @@ import {
   buttonStyle,
 } from '@oxide/ui'
 
-import { pb2 } from 'app/util/path-builder'
+import { pb } from 'app/util/path-builder'
 
 import { getOrgSelector, useOrgSelector, useQuickActions } from '../hooks'
 
@@ -26,7 +26,7 @@ const EmptyState = () => (
     title="No projects"
     body="You need to create a project to be able to see it here"
     buttonText="New project"
-    buttonTo={pb2.projectNew(useOrgSelector())}
+    buttonTo={pb.projectNew(useOrgSelector())}
   />
 )
 
@@ -71,7 +71,7 @@ export default function ProjectsPage() {
           },
           project
         )
-        navigate(pb2.projectEdit({ organization, project: project.name }))
+        navigate(pb.projectEdit({ organization, project: project.name }))
       },
     },
     {
@@ -90,11 +90,11 @@ export default function ProjectsPage() {
       () => [
         {
           value: 'New project',
-          onSelect: () => navigate(pb2.projectNew({ organization })),
+          onSelect: () => navigate(pb.projectNew({ organization })),
         },
         ...(projects?.items || []).map((p) => ({
           value: p.name,
-          onSelect: () => navigate(pb2.instances({ organization, project: p.name })),
+          onSelect: () => navigate(pb.instances({ organization, project: p.name })),
           navGroup: 'Go to project',
         })),
       ],
@@ -108,14 +108,14 @@ export default function ProjectsPage() {
         <PageTitle icon={<Folder24Icon />}>Projects</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link to={pb2.projectNew({ organization })} className={buttonStyle({ size: 'sm' })}>
+        <Link to={pb.projectNew({ organization })} className={buttonStyle({ size: 'sm' })}>
           New Project
         </Link>
       </TableActions>
       <Table emptyState={<EmptyState />} makeActions={makeActions}>
         <Column
           accessor="name"
-          cell={linkCell((project) => pb2.instances({ organization, project }))}
+          cell={linkCell((project) => pb.instances({ organization, project }))}
         />
         <Column accessor="description" />
         <Column accessor="timeModified" header="Last updated" cell={DateCell} />

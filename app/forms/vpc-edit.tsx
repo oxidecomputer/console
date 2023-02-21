@@ -7,7 +7,7 @@ import { pick, toPathQuery } from '@oxide/util'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
 import { getVpcSelector, useToast, useVpcSelector } from 'app/hooks'
-import { pb2 } from 'app/util/path-builder'
+import { pb } from 'app/util/path-builder'
 
 EditVpcSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
   await apiQueryClient.prefetchQuery(
@@ -27,7 +27,7 @@ export function EditVpcSideModalForm() {
 
   const { data: vpc } = useApiQuery('vpcViewV1', vpcPathQuery)
 
-  const onDismiss = () => navigate(pb2.vpcs(projectSelector))
+  const onDismiss = () => navigate(pb.vpcs(projectSelector))
 
   const editVpc = useApiMutation('vpcUpdateV1', {
     async onSuccess(vpc) {

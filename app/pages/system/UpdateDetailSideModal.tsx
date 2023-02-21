@@ -7,7 +7,7 @@ import { formatDateTime } from '@oxide/util'
 
 import { SideModalForm } from 'app/components/form'
 import { requireUpdateParams, useToast, useUpdateParams } from 'app/hooks'
-import { pb2 } from 'app/util/path-builder'
+import { pb } from 'app/util/path-builder'
 
 UpdateDetailSideModal.loader = async ({ params }: LoaderFunctionArgs) => {
   const path = requireUpdateParams(params)
@@ -28,7 +28,7 @@ export function UpdateDetailSideModal() {
     path: useUpdateParams(),
   })
 
-  const dismiss = () => navigate(pb2.systemUpdates())
+  const dismiss = () => navigate(pb.systemUpdates())
 
   const startUpdate = useApiMutation('systemUpdateStart', {
     onSuccess() {

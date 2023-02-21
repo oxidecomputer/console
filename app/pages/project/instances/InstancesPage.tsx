@@ -22,7 +22,7 @@ import {
 } from '@oxide/ui'
 
 import { getProjectSelector, useProjectSelector, useQuickActions } from 'app/hooks'
-import { pb2 } from 'app/util/path-builder'
+import { pb } from 'app/util/path-builder'
 
 import { useMakeInstanceActions } from './actions'
 
@@ -32,7 +32,7 @@ const EmptyState = () => (
     title="No instances"
     body="You need to create an instance to be able to see it here"
     buttonText="New instance"
-    buttonTo={pb2.instanceNew(useProjectSelector())}
+    buttonTo={pb.instanceNew(useProjectSelector())}
   />
 )
 
@@ -64,12 +64,12 @@ export function InstancesPage() {
       () => [
         {
           value: 'New instance',
-          onSelect: () => navigate(pb2.instanceNew(projectSelector)),
+          onSelect: () => navigate(pb.instanceNew(projectSelector)),
         },
         ...(instances?.items || []).map((i) => ({
           value: i.name,
           onSelect: () =>
-            navigate(pb2.instancePage({ ...projectSelector, instance: i.name })),
+            navigate(pb.instancePage({ ...projectSelector, instance: i.name })),
           navGroup: 'Go to instance',
         })),
       ],
@@ -94,14 +94,14 @@ export function InstancesPage() {
         <Button size="icon" variant="ghost" onClick={refetchInstances}>
           <Refresh16Icon />
         </Button>
-        <Link to={pb2.instanceNew(projectSelector)} className={buttonStyle({ size: 'sm' })}>
+        <Link to={pb.instanceNew(projectSelector)} className={buttonStyle({ size: 'sm' })}>
           New Instance
         </Link>
       </TableActions>
       <Table makeActions={makeActions} emptyState={<EmptyState />}>
         <Column
           accessor="name"
-          cell={linkCell((instance) => pb2.instancePage({ ...projectSelector, instance }))}
+          cell={linkCell((instance) => pb.instancePage({ ...projectSelector, instance }))}
         />
         <Column
           id="resources"

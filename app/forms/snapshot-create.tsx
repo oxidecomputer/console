@@ -11,7 +11,7 @@ import {
   SideModalForm,
 } from 'app/components/form'
 import { useProjectSelector, useToast } from 'app/hooks'
-import { pb2 } from 'app/util/path-builder'
+import { pb } from 'app/util/path-builder'
 
 const useSnapshotDiskItems = (projectSelector: PathParamsV1.Project) => {
   const { data: disks } = useApiQuery('diskListV1', {
@@ -38,7 +38,7 @@ export function CreateSnapshotSideModalForm() {
 
   const diskItems = useSnapshotDiskItems(projectSelector)
 
-  const onDismiss = () => navigate(pb2.snapshots(projectSelector))
+  const onDismiss = () => navigate(pb.snapshots(projectSelector))
 
   const createSnapshot = useApiMutation('snapshotCreateV1', {
     onSuccess() {

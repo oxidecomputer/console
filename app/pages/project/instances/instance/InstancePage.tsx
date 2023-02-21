@@ -11,7 +11,7 @@ import { MoreActionsMenu } from 'app/components/MoreActionsMenu'
 import { RouteTabs, Tab } from 'app/components/RouteTabs'
 import { InstanceStatusBadge } from 'app/components/StatusBadge'
 import { getInstanceSelector, useInstanceSelector, useQuickActions } from 'app/hooks'
-import { pb2 } from 'app/util/path-builder'
+import { pb } from 'app/util/path-builder'
 
 import { useMakeInstanceActions } from '../actions'
 
@@ -38,7 +38,7 @@ export function InstancePage() {
         queryClient.invalidateQueries('instanceViewV1', instancePathQuery)
       },
       // go to project instances list since there's no more instance
-      onDelete: () => navigate(pb2.instances(instanceSelector)),
+      onDelete: () => navigate(pb.instances(instanceSelector)),
     }
   )
 
@@ -91,10 +91,10 @@ export function InstancePage() {
         </PropertiesTable>
       </PropertiesTable.Group>
       <RouteTabs fullWidth>
-        <Tab to={pb2.instanceStorage(instanceSelector)}>Storage</Tab>
-        <Tab to={pb2.instanceMetrics(instanceSelector)}>Metrics</Tab>
-        <Tab to={pb2.nics(instanceSelector)}>Network Interfaces</Tab>
-        <Tab to={pb2.serialConsole(instanceSelector)}>Serial Console</Tab>
+        <Tab to={pb.instanceStorage(instanceSelector)}>Storage</Tab>
+        <Tab to={pb.instanceMetrics(instanceSelector)}>Metrics</Tab>
+        <Tab to={pb.nics(instanceSelector)}>Network Interfaces</Tab>
+        <Tab to={pb.serialConsole(instanceSelector)}>Serial Console</Tab>
       </RouteTabs>
     </>
   )

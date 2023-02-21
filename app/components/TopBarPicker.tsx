@@ -6,7 +6,7 @@ import { useApiQuery } from '@oxide/api'
 import { Identicon, Organization16Icon, SelectArrows6Icon, Success12Icon } from '@oxide/ui'
 
 import { useInstanceSelector, useProjectSelector, useSiloParams } from 'app/hooks'
-import { pb2 } from 'app/util/path-builder'
+import { pb } from 'app/util/path-builder'
 
 type TopBarPickerItem = {
   label: string
@@ -130,8 +130,8 @@ export function useSiloSystemPicker(value: 'silo' | 'system') {
 export function SiloSystemPicker({ value }: { value: 'silo' | 'system' }) {
   const commonProps = {
     items: [
-      { label: 'System', to: pb2.silos() },
-      { label: 'Silo', to: pb2.orgs() },
+      { label: 'System', to: pb.silos() },
+      { label: 'Silo', to: pb.orgs() },
     ],
     'aria-label': 'Switch between system and silo',
   }
@@ -157,7 +157,7 @@ export function SiloPicker() {
   const { data } = useApiQuery('siloList', { query: { limit: 10 } })
   const items = (data?.items || []).map((silo) => ({
     label: silo.name,
-    to: pb2.silo({ silo: silo.name }),
+    to: pb.silo({ silo: silo.name }),
   }))
 
   return (
@@ -177,7 +177,7 @@ export function OrgPicker() {
   const { data } = useApiQuery('organizationListV1', { query: { limit: 20 } })
   const items = (data?.items || []).map(({ name }) => ({
     label: name,
-    to: pb2.projects({ organization: name }),
+    to: pb.projects({ organization: name }),
   }))
 
   return (
@@ -200,7 +200,7 @@ export function ProjectPicker() {
   })
   const items = (data?.items || []).map(({ name }) => ({
     label: name,
-    to: pb2.instances({ organization, project: name }),
+    to: pb.instances({ organization, project: name }),
   }))
 
   return (
@@ -222,7 +222,7 @@ export function InstancePicker() {
   })
   const items = (data?.items || []).map(({ name }) => ({
     label: name,
-    to: pb2.instance({ organization, project, instance: name }),
+    to: pb.instance({ organization, project, instance: name }),
   }))
 
   return (

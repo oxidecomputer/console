@@ -4,7 +4,7 @@ import type { SshKeyCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 
 import { DescriptionField, NameField, SideModalForm, TextField } from 'app/components/form'
-import { pb2 } from 'app/util/path-builder'
+import { pb } from 'app/util/path-builder'
 
 const defaultValues: SshKeyCreate = {
   name: '',
@@ -16,7 +16,7 @@ export function CreateSSHKeySideModalForm() {
   const queryClient = useApiQueryClient()
   const navigate = useNavigate()
 
-  const onDismiss = () => navigate(pb2.sshKeys())
+  const onDismiss = () => navigate(pb.sshKeys())
 
   const createSshKey = useApiMutation('sessionSshkeyCreate', {
     onSuccess() {

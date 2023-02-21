@@ -4,7 +4,7 @@ import { apiQueryClient, useApiQuery } from '@oxide/api'
 import { Badge, PageHeader, PageTitle, PropertiesTable, Racks24Icon } from '@oxide/ui'
 
 import { RouteTabs, Tab } from 'app/components/RouteTabs'
-import { pb2 } from 'app/util/path-builder'
+import { pb } from 'app/util/path-builder'
 
 InventoryPage.loader = async () => {
   await apiQueryClient.prefetchQuery('rackListV1', {
@@ -49,8 +49,8 @@ export function InventoryPage() {
       </PropertiesTable.Group>
 
       <RouteTabs fullWidth>
-        <Tab to={pb2.sledInventory()}>Sleds</Tab>
-        <Tab to={pb2.diskInventory()}>Disks</Tab>
+        <Tab to={pb.sledInventory()}>Sleds</Tab>
+        <Tab to={pb.diskInventory()}>Disks</Tab>
       </RouteTabs>
     </>
   )

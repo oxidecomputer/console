@@ -17,7 +17,7 @@ import {
 } from '@oxide/ui'
 
 import { getProjectSelector, useProjectSelector, useQuickActions } from 'app/hooks'
-import { pb2 } from 'app/util/path-builder'
+import { pb } from 'app/util/path-builder'
 
 const EmptyState = () => (
   <EmptyMessage
@@ -25,7 +25,7 @@ const EmptyState = () => (
     title="No VPCs"
     body="You need to create a VPC to be able to see it here"
     buttonText="New VPC"
-    buttonTo={pb2.vpcNew(useProjectSelector())}
+    buttonTo={pb.vpcNew(useProjectSelector())}
   />
 )
 
@@ -56,7 +56,7 @@ export function VpcsPage() {
     {
       label: 'Edit',
       onActivate() {
-        navigate(pb2.vpcEdit({ ...projectSelector, vpc: vpc.name }), { state: vpc })
+        navigate(pb.vpcEdit({ ...projectSelector, vpc: vpc.name }), { state: vpc })
       },
     },
     {
@@ -72,7 +72,7 @@ export function VpcsPage() {
       () =>
         (vpcs?.items || []).map((v) => ({
           value: v.name,
-          onSelect: () => navigate(pb2.vpc({ ...projectSelector, vpc: v.name })),
+          onSelect: () => navigate(pb.vpc({ ...projectSelector, vpc: v.name })),
           navGroup: 'Go to VPC',
         })),
       [projectSelector, vpcs, navigate]
@@ -86,14 +86,14 @@ export function VpcsPage() {
         <PageTitle icon={<Networking24Icon />}>VPCs</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link to={pb2.vpcNew(projectSelector)} className={buttonStyle({ size: 'sm' })}>
+        <Link to={pb.vpcNew(projectSelector)} className={buttonStyle({ size: 'sm' })}>
           New Vpc
         </Link>
       </TableActions>
       <Table emptyState={<EmptyState />} makeActions={makeActions}>
         <Column
           accessor="name"
-          cell={linkCell((vpc) => pb2.vpc({ ...projectSelector, vpc }))}
+          cell={linkCell((vpc) => pb.vpc({ ...projectSelector, vpc }))}
         />
         <Column accessor="dnsName" header="dns name" />
         <Column accessor="description" />

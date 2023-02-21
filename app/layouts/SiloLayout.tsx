@@ -3,7 +3,7 @@ import { Access16Icon, Divider, Organization16Icon, Snapshots16Icon } from '@oxi
 import { DocsLinkItem, NavLinkItem, Sidebar } from 'app/components/Sidebar'
 import { TopBar } from 'app/components/TopBar'
 import { OrgPicker, useSiloSystemPicker } from 'app/components/TopBarPicker'
-import { pb2 } from 'app/util/path-builder'
+import { pb } from 'app/util/path-builder'
 
 import { ContentPane, PageContainer } from './helpers'
 
@@ -21,13 +21,13 @@ export default function SiloLayout() {
         <Divider />
         {/* TODO: silo name in heading */}
         <Sidebar.Nav heading="Silo">
-          <NavLinkItem to={pb2.orgs()}>
+          <NavLinkItem to={pb.orgs()}>
             <Organization16Icon /> Organizations
           </NavLinkItem>
-          <NavLinkItem to={pb2.siloUtilization()}>
+          <NavLinkItem to={pb.siloUtilization()}>
             <Snapshots16Icon /> Utilization
           </NavLinkItem>
-          <NavLinkItem to={pb2.siloAccess()}>
+          <NavLinkItem to={pb.siloAccess()}>
             <Access16Icon /> Access & IAM
           </NavLinkItem>
         </Sidebar.Nav>

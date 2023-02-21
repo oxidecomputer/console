@@ -35,7 +35,7 @@ import {
   TextField,
 } from 'app/components/form'
 import { useProjectSelector, useToast } from 'app/hooks'
-import { pb2 } from 'app/util/path-builder'
+import { pb } from 'app/util/path-builder'
 
 export type InstanceCreateInput = Assign<
   // API accepts undefined but it's easier if we don't
@@ -97,7 +97,7 @@ export function CreateInstanceForm() {
         title: 'Success!',
         content: 'Your instance has been created.',
       })
-      navigate(pb2.instancePage({ ...projectSelector, instance: instance.name }))
+      navigate(pb.instancePage({ ...projectSelector, instance: instance.name }))
     },
   })
 
@@ -266,7 +266,7 @@ export function CreateInstanceForm() {
 
           <Form.Actions>
             <Form.Submit loading={createInstance.isLoading}>Create instance</Form.Submit>
-            <Form.Cancel onClick={() => navigate(pb2.instances(projectSelector))} />
+            <Form.Cancel onClick={() => navigate(pb.instances(projectSelector))} />
           </Form.Actions>
         </>
       )}

@@ -6,7 +6,7 @@ import { Success16Icon } from '@oxide/ui'
 import { toPathQuery } from '@oxide/util'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
-import { pb2 } from 'app/util/path-builder'
+import { pb } from 'app/util/path-builder'
 
 import { useOrgSelector, useToast } from '../hooks'
 
@@ -22,7 +22,7 @@ export function CreateProjectSideModalForm() {
 
   const { organization } = useOrgSelector()
 
-  const onDismiss = () => navigate(pb2.projects({ organization }))
+  const onDismiss = () => navigate(pb.projects({ organization }))
 
   const createProject = useApiMutation('projectCreateV1', {
     onSuccess(project) {
@@ -40,7 +40,7 @@ export function CreateProjectSideModalForm() {
         title: 'Success!',
         content: 'Your project has been created.',
       })
-      navigate(pb2.instances(projectSelector))
+      navigate(pb.instances(projectSelector))
     },
   })
 

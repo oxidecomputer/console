@@ -13,7 +13,7 @@ import {
   TextField,
   TextFieldInner,
 } from 'app/components/form'
-import { pb2 } from 'app/util/path-builder'
+import { pb } from 'app/util/path-builder'
 
 import { useSiloParams, useToast } from '../hooks'
 
@@ -43,7 +43,7 @@ export function CreateIdpSideModalForm() {
 
   const { siloName } = useSiloParams()
 
-  const onDismiss = () => navigate(pb2.silo({ silo: siloName }))
+  const onDismiss = () => navigate(pb.silo({ silo: siloName }))
 
   const createIdp = useApiMutation('samlIdentityProviderCreate', {
     onSuccess() {

@@ -1,10 +1,10 @@
 import { test } from '@playwright/test'
 
 import { expectSimultaneous } from 'app/test/e2e'
-import { pb2 } from 'app/util/path-builder'
+import { pb } from 'app/util/path-builder'
 
 test('Silo/system picker does not pop in', async ({ page }) => {
-  await page.goto(pb2.orgs())
+  await page.goto(pb.orgs())
 
   // make sure the system policy call is prefetched properly so that the
   // silo/system picker doesn't pop in. if this turns out to be flaky, just

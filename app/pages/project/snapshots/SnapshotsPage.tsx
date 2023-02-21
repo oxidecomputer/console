@@ -16,7 +16,7 @@ import {
 
 import { SnapshotStatusBadge } from 'app/components/StatusBadge'
 import { getProjectSelector, useProjectSelector } from 'app/hooks'
-import { pb2 } from 'app/util/path-builder'
+import { pb } from 'app/util/path-builder'
 
 const DiskNameFromId = ({ value }: { value: string }) => {
   const { data: disk } = useApiQuery('diskViewV1', { path: { disk: value } })
@@ -30,7 +30,7 @@ const EmptyState = () => (
     title="No snapshots"
     body="You need to create a snapshot to be able to see it here"
     buttonText="New snapshot"
-    buttonTo={pb2.snapshotNew(useProjectSelector())}
+    buttonTo={pb.snapshotNew(useProjectSelector())}
   />
 )
 
@@ -67,7 +67,7 @@ export function SnapshotsPage() {
         <PageTitle icon={<Snapshots24Icon />}>Snapshots</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link to={pb2.snapshotNew(projectSelector)} className={buttonStyle({ size: 'sm' })}>
+        <Link to={pb.snapshotNew(projectSelector)} className={buttonStyle({ size: 'sm' })}>
           New Snapshot
         </Link>
       </TableActions>

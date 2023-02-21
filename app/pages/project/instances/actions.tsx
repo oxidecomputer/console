@@ -7,7 +7,7 @@ import { Success16Icon } from '@oxide/ui'
 import { toPathQuery } from '@oxide/util'
 
 import { useToast } from 'app/hooks'
-import { pb2 } from 'app/util/path-builder'
+import { pb } from 'app/util/path-builder'
 
 const instanceCan: Record<string, (i: Instance) => boolean> = {
   start: (i) => i.runState === 'stopped',
@@ -76,7 +76,7 @@ export const useMakeInstanceActions = (
       {
         label: 'View serial console',
         onActivate() {
-          navigate(pb2.serialConsole(instanceSelector))
+          navigate(pb.serialConsole(instanceSelector))
         },
       },
       {

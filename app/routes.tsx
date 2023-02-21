@@ -60,7 +60,7 @@ import {
   UpdatePageHistory,
   UpdatePageUpdates,
 } from './pages/system/UpdatePage'
-import { pb2 } from './util/path-builder'
+import { pb } from './util/path-builder'
 
 const orgCrumb: CrumbFunc = (m) => m.params.orgName!
 const projectCrumb: CrumbFunc = (m) => m.params.projectName!
@@ -143,7 +143,7 @@ export const routes = createRoutesFromElements(
         <Route path="settings" element={null} />
       </Route>
 
-      <Route index element={<Navigate to={pb2.orgs()} replace />} />
+      <Route index element={<Navigate to={pb.orgs()} replace />} />
 
       {/* These are done here instead of nested so we don't flash a layout on 404s */}
       <Route path="orgs/:orgName" element={<Navigate to="projects" replace />} />

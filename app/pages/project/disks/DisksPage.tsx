@@ -23,7 +23,7 @@ import {
 
 import { DiskStatusBadge } from 'app/components/StatusBadge'
 import { getProjectSelector, useProjectSelector, useToast } from 'app/hooks'
-import { pb2 } from 'app/util/path-builder'
+import { pb } from 'app/util/path-builder'
 
 function AttachedInstance({
   instanceId,
@@ -39,7 +39,7 @@ function AttachedInstance({
   return instance ? (
     <Link
       className="text-sans-semi-md text-accent hover:underline"
-      to={pb2.instancePage({ ...projectSelector, instance: instance.name })}
+      to={pb.instancePage({ ...projectSelector, instance: instance.name })}
     >
       {instance.name}
     </Link>
@@ -52,7 +52,7 @@ const EmptyState = () => (
     title="No disks"
     body="You need to create a disk to be able to see it here"
     buttonText="New disk"
-    buttonTo={pb2.diskNew(useProjectSelector())}
+    buttonTo={pb.diskNew(useProjectSelector())}
   />
 )
 
@@ -122,7 +122,7 @@ export function DisksPage() {
         <PageTitle icon={<Storage24Icon />}>Disks</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link to={pb2.diskNew(projectSelector)} className={buttonStyle({ size: 'sm' })}>
+        <Link to={pb.diskNew(projectSelector)} className={buttonStyle({ size: 'sm' })}>
           New Disk
         </Link>
       </TableActions>
