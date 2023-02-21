@@ -1,9 +1,7 @@
 import { useMemo } from 'react'
-import { useParams } from 'react-router-dom'
-import invariant from 'tiny-invariant'
 
-import type { NetworkInterfaceCreate } from '@oxide/api'
-import { useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
+import type { ErrorResult, NetworkInterfaceCreate } from '@oxide/api'
+import { useApiQuery } from '@oxide/api'
 import { Divider } from '@oxide/ui'
 
 import {
@@ -26,27 +24,22 @@ const defaultValues: NetworkInterfaceCreate = {
 
 type CreateNetworkInterfaceFormProps = {
   onDismiss: () => void
-  onSubmit?: (values: NetworkInterfaceCreate) => void
+  onSubmit: (values: NetworkInterfaceCreate) => void
+  loading?: boolean
+  submitError?: ErrorResult | null
 }
 
+/**
+ * Can be used with either a `setState` or a real mutation as `onSubmit`, hence
+ * the optional `loading` and `submitError`
+ */
 export default function CreateNetworkInterfaceForm({
   onSubmit,
   onDismiss,
+  loading,
+  submitError = null,
 }: CreateNetworkInterfaceFormProps) {
-  const queryClient = useApiQueryClient()
-  const { instanceName } = useParams()
   const projectSelector = useProjectSelector()
-
-  // TODO: pass in this mutation from outside so we don't have to do the instanceName check
-  const createNetworkInterface = useApiMutation('instanceNetworkInterfaceCreateV1', {
-    onSuccess() {
-      invariant(instanceName, 'instanceName is required when posting a network interface')
-      queryClient.invalidateQueries('instanceNetworkInterfaceListV1', {
-        query: { instance: instanceName, ...projectSelector },
-      })
-      onDismiss()
-    },
-  })
 
   const { data: vpcsData } = useApiQuery('vpcListV1', { query: projectSelector })
   const vpcs = useMemo(() => vpcsData?.items || [], [vpcsData])
@@ -57,22 +50,9 @@ export default function CreateNetworkInterfaceForm({
       title="Add network interface"
       formOptions={{ defaultValues }}
       onDismiss={onDismiss}
-      onSubmit={
-        onSubmit ||
-        ((body) => {
-          invariant(
-            instanceName,
-            'instanceName is required when posting a network interface'
-          )
-
-          createNetworkInterface.mutate({
-            query: { ...projectSelector, instance: instanceName },
-            body,
-          })
-        })
-      }
-      loading={createNetworkInterface.isLoading}
-      submitError={createNetworkInterface.error}
+      onSubmit={onSubmit}
+      loading={loading}
+      submitError={submitError}
     >
       {({ control }) => (
         <>

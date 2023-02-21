@@ -105,8 +105,10 @@ export function StorageTab() {
 
   const attachDisk = useApiMutation('instanceDiskAttachV1', {
     onSuccess() {
-      console.log('disk atttach success')
       queryClient.invalidateQueries('instanceDiskListV1', instancePathQuery)
+      // cover all our bases. this is called by both modals
+      setShowDiskCreate(false)
+      setShowDiskAttach(false)
     },
     onError(err) {
       addToast({
@@ -193,7 +195,14 @@ export function StorageTab() {
         />
       )}
       {showDiskAttach && (
-        <AttachDiskSideModalForm onDismiss={() => setShowDiskAttach(false)} />
+        <AttachDiskSideModalForm
+          onDismiss={() => setShowDiskAttach(false)}
+          onSubmit={({ name }) => {
+            attachDisk.mutate({ ...instancePathQuery, body: { disk: name } })
+          }}
+          loading={attachDisk.isLoading}
+          submitError={attachDisk.error}
+        />
       )}
     </>
   )

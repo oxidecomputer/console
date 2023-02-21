@@ -82,6 +82,15 @@ export function NetworkingTab() {
 
   const getQuery = ['instanceNetworkInterfaceListV1', { query: instanceSelector }] as const
 
+  const createNic = useApiMutation('instanceNetworkInterfaceCreateV1', {
+    onSuccess() {
+      queryClient.invalidateQueries('instanceNetworkInterfaceListV1', {
+        query: instanceSelector,
+      })
+      setCreateModalOpen(false)
+    },
+  })
+
   const deleteNic = useApiMutation('instanceNetworkInterfaceDeleteV1', {
     onSuccess() {
       queryClient.invalidateQueries(...getQuery)
@@ -200,7 +209,10 @@ export function NetworkingTab() {
       </div>
 
       {createModalOpen && (
-        <CreateNetworkInterfaceForm onDismiss={() => setCreateModalOpen(false)} />
+        <CreateNetworkInterfaceForm
+          onDismiss={() => setCreateModalOpen(false)}
+          onSubmit={(body) => createNic.mutate({ query: instanceSelector, body })}
+        />
       )}
       {editing && (
         <EditNetworkInterfaceForm editing={editing} onDismiss={() => setEditing(null)} />
