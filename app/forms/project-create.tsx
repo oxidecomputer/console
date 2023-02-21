@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import type { ProjectCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { Success16Icon } from '@oxide/ui'
-import { toPathQuery } from '@oxide/util'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
 import { pb } from 'app/util/path-builder'
@@ -29,10 +28,9 @@ export function CreateProjectSideModalForm() {
       // refetch list of projects in sidebar
       queryClient.invalidateQueries('projectListV1', { query: { organization } })
       // avoid the project fetch when the project page loads since we have the data
-      const projectSelector = { organization, project: project.name }
       queryClient.setQueryData(
         'projectViewV1',
-        toPathQuery('project', projectSelector),
+        { path: { project: project.name }, query: { organization } },
         project
       )
       addToast({
@@ -40,7 +38,7 @@ export function CreateProjectSideModalForm() {
         title: 'Success!',
         content: 'Your project has been created.',
       })
-      navigate(pb.instances(projectSelector))
+      navigate(pb.instances({ organization, project: project.name }))
     },
   })
 
