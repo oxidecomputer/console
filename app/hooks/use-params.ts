@@ -29,14 +29,16 @@ export const requireSiloParams = requireParams('siloName')
 export const requireSledParams = requireParams('sledId')
 export const requireUpdateParams = requireParams('version')
 
-export const useOrgParams = () => requireOrgParams(useParams())
+const useOrgParams = () => requireOrgParams(useParams())
 const useProjectParams = () => requireProjectParams(useParams())
-export const useInstanceParams = () => requireInstanceParams(useParams())
+const useInstanceParams = () => requireInstanceParams(useParams())
 const useVpcParams = () => requireVpcParams(useParams())
 export const useSiloParams = () => requireSiloParams(useParams())
 export const useSledParams = () => requireSledParams(useParams())
 export const useUpdateParams = () => requireUpdateParams(useParams())
 
+export const getOrgSelector = (p: Readonly<Params<string>>) =>
+  toApiSelector(requireOrgParams(p))
 export const getProjectSelector = (p: Readonly<Params<string>>) =>
   toApiSelector(requireProjectParams(p))
 export const getInstanceSelector = (p: Readonly<Params<string>>) =>
