@@ -460,7 +460,7 @@ export const handlers = makeHandlers({
 
     return json(instance, { status: 202 })
   },
-  instanceSerialConsole(_params) {
+  instanceSerialConsoleV1(_params) {
     // TODO: Add support for params
     return serial
   },
@@ -902,7 +902,7 @@ export const handlers = makeHandlers({
 
   userList: (params) => paginated(params.query, db.users),
 
-  systemPolicyView() {
+  systemPolicyViewV1() {
     const role_assignments = db.roleAssignments
       .filter((r) => r.resource_type === 'fleet' && r.resource_id === FLEET_ID)
       .map((r) => pick(r, 'identity_id', 'identity_type', 'role_name'))
@@ -1035,7 +1035,6 @@ export const handlers = makeHandlers({
   certificateViewV1: NotImplemented,
   instanceMigrateV1: NotImplemented,
   instanceSerialConsoleStreamV1: NotImplemented,
-  instanceSerialConsoleV1: NotImplemented,
   physicalDiskListV1: NotImplemented,
   rackListV1: NotImplemented,
   rackViewV1: NotImplemented,
@@ -1045,7 +1044,6 @@ export const handlers = makeHandlers({
   sledPhysicalDiskListV1: NotImplemented,
   sledViewV1: NotImplemented,
   systemPolicyUpdateV1: NotImplemented,
-  systemPolicyViewV1: NotImplemented,
   vpcRouterCreateV1: NotImplemented,
   vpcRouterDeleteV1: NotImplemented,
   vpcRouterListV1: NotImplemented,
@@ -1056,10 +1054,6 @@ export const handlers = makeHandlers({
   vpcRouterRouteViewV1: NotImplemented,
   vpcRouterUpdateV1: NotImplemented,
   vpcRouterViewV1: NotImplemented,
-  vpcSubnetCreate: NotImplemented,
-  vpcSubnetDelete: NotImplemented,
-  vpcSubnetList: NotImplemented,
-  vpcSubnetUpdate: NotImplemented,
 
   // deprecated by ID endpoints
 
@@ -1095,6 +1089,7 @@ export const handlers = makeHandlers({
   instanceNetworkInterfaceUpdate: NotImplemented,
   instanceNetworkInterfaceView: NotImplemented,
   instanceReboot: NotImplemented,
+  instanceSerialConsole: NotImplemented,
   instanceStart: NotImplemented,
   instanceStop: NotImplemented,
   instanceView: NotImplemented,
@@ -1118,9 +1113,14 @@ export const handlers = makeHandlers({
   snapshotDelete: NotImplemented,
   snapshotList: NotImplemented,
   snapshotView: NotImplemented,
+  systemPolicyView: NotImplemented,
   vpcCreate: NotImplemented,
   vpcDelete: NotImplemented,
   vpcList: NotImplemented,
+  vpcSubnetCreate: NotImplemented,
+  vpcSubnetDelete: NotImplemented,
+  vpcSubnetList: NotImplemented,
+  vpcSubnetUpdate: NotImplemented,
   vpcSubnetView: NotImplemented,
   vpcUpdate: NotImplemented,
   vpcView: NotImplemented,

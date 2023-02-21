@@ -122,7 +122,7 @@ export function useSiloSystemPicker(value: 'silo' | 'system') {
   // this request in the loader. If that prefetch were removed, fleet viewers
   // would see the silo picker pop in when the request resolves, which would be
   // bad.
-  const { data: systemPolicy } = useApiQuery('systemPolicyView', {})
+  const { data: systemPolicy } = useApiQuery('systemPolicyViewV1', {})
   return systemPolicy ? <SiloSystemPicker value={value} /> : null
 }
 

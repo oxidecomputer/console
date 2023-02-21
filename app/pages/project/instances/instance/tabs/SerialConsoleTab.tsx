@@ -5,16 +5,20 @@ import { Button } from '@oxide/ui'
 import { MiB } from '@oxide/util'
 
 import { PageActions } from 'app/components/PageActions'
-import { useRequiredParams } from 'app/hooks'
+import { useInstanceSelector } from 'app/hooks'
 
 const Terminal = lazy(() => import('app/components/Terminal'))
 
 export function SerialConsoleTab() {
-  const instanceParams = useRequiredParams('orgName', 'projectName', 'instanceName')
+  const { organization, project, instance } = useInstanceSelector()
 
   const { data, refetch } = useApiQuery(
-    'instanceSerialConsole',
-    { path: instanceParams, query: { maxBytes: 10 * MiB, fromStart: 0 } },
+    'instanceSerialConsoleV1',
+    {
+      path: { instance },
+      // holding off on using toPathQuery for now because it doesn't like numbers
+      query: { organization, project, maxBytes: 10 * MiB, fromStart: 0 },
+    },
     { refetchOnWindowFocus: false }
   )
 
