@@ -131,6 +131,11 @@ export const lookup = {
     if (!update) throw notFoundErr
     return update
   },
+  sled(params: PP.Id): Json<Api.Sled> {
+    const sled = db.sleds.find((sled) => sled.id === params.id)
+    if (!sled) throw notFoundErr
+    return sled
+  },
 }
 
 export function lookupOrg(params: PP.Org): Json<Api.Organization> {
@@ -223,12 +228,6 @@ export function lookupSshKey(params: PP.SshKey): Json<Api.SshKey> {
   )
   if (!sshKey) throw notFoundErr
   return sshKey
-}
-
-export function lookupSled(params: PP.Id): Json<Api.Sled> {
-  const sled = db.sleds.find((sled) => sled.id === params.id)
-  if (!sled) throw notFoundErr
-  return sled
 }
 
 const initDb = {

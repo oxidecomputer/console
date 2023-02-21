@@ -13,14 +13,14 @@ const EmptyState = () => {
 }
 
 RacksTab.loader = async () => {
-  await apiQueryClient.prefetchQuery('rackList', {
+  await apiQueryClient.prefetchQuery('rackListV1', {
     query: { limit: 10 },
   })
   return null
 }
 
 export function RacksTab() {
-  const { Table, Column } = useQueryTable('rackList', {})
+  const { Table, Column } = useQueryTable('rackListV1', {})
 
   return (
     <>

@@ -19,7 +19,6 @@ import {
   lookupImage,
   lookupSamlIdp,
   lookupSilo,
-  lookupSled,
   lookupSshKey,
   lookupVpc,
   lookupVpcRouter,
@@ -753,14 +752,12 @@ export const handlers = makeHandlers({
     const nics = db.networkInterfaces.filter((n) => n.subnet_id === subnet.id)
     return paginated(params.query, nics)
   },
-  sledPhysicalDiskList(params) {
-    const sled = lookupSled({ id: params.path.sledId })
+  sledPhysicalDiskListV1({ path, query }) {
+    const sled = lookup.sled({ id: path.sledId })
     const disks = db.physicalDisks.filter((n) => n.sled_id === sled.id)
-    return paginated(params.query, disks)
+    return paginated(query, disks)
   },
-  physicalDiskList(params) {
-    return paginated(params.query, db.physicalDisks)
-  },
+  physicalDiskListV1: ({ query }) => paginated(query, db.physicalDisks),
   policyViewV1() {
     // assume we're in the default silo
     const siloId = defaultSilo.id
@@ -786,9 +783,7 @@ export const handlers = makeHandlers({
 
     return body
   },
-  rackList(params) {
-    return paginated(params.query, db.racks)
-  },
+  rackListV1: ({ query }) => paginated(query, db.racks),
   sessionMe() {
     return user1
   },
@@ -820,7 +815,7 @@ export const handlers = makeHandlers({
     db.sshKeys = db.sshKeys.filter((i) => i.id !== sshKey.id)
     return 204
   },
-  sledList: (params) => paginated(params.query, db.sleds),
+  sledListV1: (params) => paginated(params.query, db.sleds),
   systemImageList: (params) => paginated(params.query, db.globalImages),
   systemImageCreate({ body }) {
     errIfExists(db.globalImages, { name: body.name })
@@ -1011,7 +1006,6 @@ export const handlers = makeHandlers({
   loginSamlBegin: NotImplemented,
   loginSpoof: NotImplemented,
   logout: NotImplemented,
-  rackView: NotImplemented,
   roleList: NotImplemented,
   roleView: NotImplemented,
   sagaList: NotImplemented,
@@ -1026,7 +1020,7 @@ export const handlers = makeHandlers({
   systemUserView: NotImplemented,
   timeseriesSchemaGet: NotImplemented,
 
-  // V1 endpoints
+  //  V1 endpoints we're not using in the console yet
 
   certificateCreateV1: NotImplemented,
   certificateDeleteV1: NotImplemented,
@@ -1034,15 +1028,12 @@ export const handlers = makeHandlers({
   certificateViewV1: NotImplemented,
   instanceMigrateV1: NotImplemented,
   instanceSerialConsoleStreamV1: NotImplemented,
-  physicalDiskListV1: NotImplemented,
-  rackListV1: NotImplemented,
   rackViewV1: NotImplemented,
   sagaListV1: NotImplemented,
   sagaViewV1: NotImplemented,
-  sledListV1: NotImplemented,
-  sledPhysicalDiskListV1: NotImplemented,
   sledViewV1: NotImplemented,
   systemPolicyUpdateV1: NotImplemented,
+
   vpcRouterRouteCreateV1: NotImplemented,
   vpcRouterRouteDeleteV1: NotImplemented,
   vpcRouterRouteListV1: NotImplemented,
@@ -1094,6 +1085,7 @@ export const handlers = makeHandlers({
   organizationPolicyView: NotImplemented,
   organizationUpdate: NotImplemented,
   organizationView: NotImplemented,
+  physicalDiskList: NotImplemented,
   policyUpdate: NotImplemented,
   policyView: NotImplemented,
   projectCreate: NotImplemented,
@@ -1103,6 +1095,10 @@ export const handlers = makeHandlers({
   projectPolicyView: NotImplemented,
   projectUpdate: NotImplemented,
   projectView: NotImplemented,
+  rackList: NotImplemented,
+  rackView: NotImplemented,
+  sledList: NotImplemented,
+  sledPhysicalDiskList: NotImplemented,
   snapshotCreate: NotImplemented,
   snapshotDelete: NotImplemented,
   snapshotList: NotImplemented,
