@@ -31,7 +31,7 @@ export function InstancePage() {
   const queryClient = useApiQueryClient()
   // TODO: change the interface here to take projectSelector directly
   const makeActions = useMakeInstanceActions(
-    { projectName: project, orgName: organization },
+    { project, organization },
     {
       onSuccess: () => {
         queryClient.invalidateQueries('instanceViewV1', instancePathQuery)

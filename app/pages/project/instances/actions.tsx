@@ -1,13 +1,12 @@
 import { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import type { Instance } from '@oxide/api'
-import { useApiMutation } from '@oxide/api'
+import { type Instance, toPathQuery, useApiMutation } from '@oxide/api'
 import type { MakeActions } from '@oxide/table'
 import { Success16Icon } from '@oxide/ui'
 
 import { useToast } from 'app/hooks'
-import { pb } from 'app/util/path-builder'
+import { pb2 } from 'app/util/path-builder'
 
 const instanceCan: Record<string, (i: Instance) => boolean> = {
   start: (i) => i.runState === 'stopped',
@@ -26,7 +25,7 @@ type Options = {
 }
 
 export const useMakeInstanceActions = (
-  projectParams: { orgName: string; projectName: string },
+  projectSelector: { organization: string; project: string },
   options: Options = {}
 ): MakeActions<Instance> => {
   const navigate = useNavigate()
@@ -36,14 +35,15 @@ export const useMakeInstanceActions = (
   // if you also pass onSuccess to mutate(), this one is not overridden — this
   // one runs first, then the one passed to mutate()
   const opts = { onSuccess: options.onSuccess }
-  const startInstance = useApiMutation('instanceStart', opts)
-  const stopInstance = useApiMutation('instanceStop', opts)
-  const rebootInstance = useApiMutation('instanceReboot', opts)
-  const deleteInstance = useApiMutation('instanceDelete', opts)
+  const startInstance = useApiMutation('instanceStartV1', opts)
+  const stopInstance = useApiMutation('instanceStopV1', opts)
+  const rebootInstance = useApiMutation('instanceRebootV1', opts)
+  const deleteInstance = useApiMutation('instanceDeleteV1', opts)
 
   return useCallback((instance) => {
-    const { name: instanceName } = instance
-    const instanceParams = { path: { ...projectParams, instanceName } }
+    const instanceName = instance.name
+    const instanceSelector = { ...projectSelector, instance: instanceName }
+    const instanceParams = toPathQuery('instance', instanceSelector)
     return [
       {
         label: 'Start',
@@ -75,7 +75,7 @@ export const useMakeInstanceActions = (
       {
         label: 'View serial console',
         onActivate() {
-          navigate(pb.serialConsole(instanceParams.path))
+          navigate(pb2.serialConsole(instanceSelector))
         },
       },
       {

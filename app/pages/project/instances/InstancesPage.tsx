@@ -45,18 +45,14 @@ InstancesPage.loader = async ({ params }: LoaderFunctionArgs) => {
 
 export function InstancesPage() {
   const projectSelector = useProjectSelector()
-  const { organization, project } = projectSelector
 
   const queryClient = useApiQueryClient()
   const refetchInstances = () =>
     queryClient.invalidateQueries('instanceListV1', { query: projectSelector })
 
-  const makeActions = useMakeInstanceActions(
-    { orgName: organization, projectName: project },
-    {
-      onSuccess: refetchInstances,
-    }
-  )
+  const makeActions = useMakeInstanceActions(projectSelector, {
+    onSuccess: refetchInstances,
+  })
 
   const { data: instances } = useApiQuery('instanceListV1', {
     query: { ...projectSelector, limit: 10 }, // to have same params as QueryTable

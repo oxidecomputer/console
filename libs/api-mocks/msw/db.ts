@@ -148,17 +148,6 @@ export function lookupVpc(params: PP.Vpc): Json<Api.Vpc> {
   return vpc
 }
 
-export function lookupInstance(params: PP.Instance): Json<Api.Instance> {
-  const project = lookupProject(params)
-
-  const instance = db.instances.find(
-    (p) => p.project_id === project.id && p.name === params.instanceName
-  )
-  if (!instance) throw notFoundErr
-
-  return instance
-}
-
 export function lookupImage(params: PP.Image): Json<Api.Image> {
   const project = lookupProject(params)
 
@@ -168,17 +157,6 @@ export function lookupImage(params: PP.Image): Json<Api.Image> {
   if (!image) throw notFoundErr
 
   return image
-}
-
-export function lookupVpcSubnet(params: PP.VpcSubnet): Json<Api.VpcSubnet> {
-  const vpc = lookupVpc(params)
-
-  const subnet = db.vpcSubnets.find(
-    (p) => p.vpc_id === vpc.id && p.name === params.subnetName
-  )
-  if (!subnet) throw notFoundErr
-
-  return subnet
 }
 
 export function lookupVpcRouter(params: PP.VpcRouter): Json<Api.VpcRouter> {

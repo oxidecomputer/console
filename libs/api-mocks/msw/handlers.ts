@@ -1,6 +1,7 @@
 import { v4 as uuid } from 'uuid'
 
 import type { ApiTypes as Api, UpdateDeployment } from '@oxide/api'
+import { toApiSelector } from '@oxide/api'
 import type { Json } from '@oxide/gen/msw-handlers'
 import { json, makeHandlers } from '@oxide/gen/msw-handlers'
 import { pick, sortBy } from '@oxide/util'
@@ -17,7 +18,6 @@ import {
   lookupById,
   lookupGlobalImage,
   lookupImage,
-  lookupInstance,
   lookupOrg,
   lookupProject,
   lookupSamlIdp,
@@ -27,7 +27,6 @@ import {
   lookupVpc,
   lookupVpcRouter,
   lookupVpcRouterRoute,
-  lookupVpcSubnet,
 } from './db'
 import {
   NotImplemented,
@@ -340,8 +339,8 @@ export const handlers = makeHandlers({
     return json(newInstance, { status: 201 })
   },
   instanceViewV1: ({ path, query }) => lookup.instance({ ...path, ...query }),
-  instanceDelete(params) {
-    const instance = lookupInstance(params.path)
+  instanceDeleteV1({ path, query }) {
+    const instance = lookup.instance({ ...path, ...query })
     db.instances = db.instances.filter((i) => i.id !== instance.id)
     return 204
   },
@@ -376,7 +375,7 @@ export const handlers = makeHandlers({
     return disk
   },
   instanceExternalIpList(params) {
-    lookupInstance(params.path)
+    lookup.instance(toApiSelector(params.path)) // temporary
 
     // TODO: proper mock table
     return {
@@ -453,8 +452,8 @@ export const handlers = makeHandlers({
     db.networkInterfaces = db.networkInterfaces.filter((n) => n.id !== nic.id)
     return 204
   },
-  instanceReboot(params) {
-    const instance = lookupInstance(params.path)
+  instanceRebootV1({ path, query }) {
+    const instance = lookup.instance({ ...path, ...query })
     instance.run_state = 'rebooting'
 
     setTimeout(() => {
@@ -467,14 +466,14 @@ export const handlers = makeHandlers({
     // TODO: Add support for params
     return serial
   },
-  instanceStart(params) {
-    const instance = lookupInstance(params.path)
+  instanceStartV1({ path, query }) {
+    const instance = lookup.instance({ ...path, ...query })
     instance.run_state = 'running'
 
     return json(instance, { status: 202 })
   },
-  instanceStop(params) {
-    const instance = lookupInstance(params.path)
+  instanceStopV1({ path, query }) {
+    const instance = lookup.instance({ ...path, ...query })
     instance.run_state = 'stopped'
 
     return json(instance, { status: 202 })
@@ -753,7 +752,7 @@ export const handlers = makeHandlers({
     return 204
   },
   vpcSubnetListNetworkInterfaces(params) {
-    const subnet = lookupVpcSubnet(params.path)
+    const subnet = lookup.vpcSubnet(toApiSelector(params.path))
     const nics = db.networkInterfaces.filter((n) => n.subnet_id === subnet.id)
     return paginated(params.query, nics)
   },
@@ -1036,13 +1035,9 @@ export const handlers = makeHandlers({
   certificateDeleteV1: NotImplemented,
   certificateListV1: NotImplemented,
   certificateViewV1: NotImplemented,
-  instanceDeleteV1: NotImplemented,
   instanceMigrateV1: NotImplemented,
-  instanceRebootV1: NotImplemented,
   instanceSerialConsoleStreamV1: NotImplemented,
   instanceSerialConsoleV1: NotImplemented,
-  instanceStartV1: NotImplemented,
-  instanceStopV1: NotImplemented,
   organizationDeleteV1: NotImplemented,
   organizationPolicyUpdateV1: NotImplemented,
   organizationPolicyViewV1: NotImplemented,
@@ -1099,6 +1094,7 @@ export const handlers = makeHandlers({
   diskList: NotImplemented,
   diskView: NotImplemented,
   instanceCreate: NotImplemented,
+  instanceDelete: NotImplemented,
   instanceDiskAttach: NotImplemented,
   instanceDiskDetach: NotImplemented,
   instanceDiskList: NotImplemented,
@@ -1108,6 +1104,9 @@ export const handlers = makeHandlers({
   instanceNetworkInterfaceList: NotImplemented,
   instanceNetworkInterfaceUpdate: NotImplemented,
   instanceNetworkInterfaceView: NotImplemented,
+  instanceReboot: NotImplemented,
+  instanceStart: NotImplemented,
+  instanceStop: NotImplemented,
   instanceView: NotImplemented,
   organizationCreate: NotImplemented,
   organizationList: NotImplemented,
