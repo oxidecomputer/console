@@ -20,9 +20,6 @@ import {
   lookupSamlIdp,
   lookupSilo,
   lookupSshKey,
-  lookupVpc,
-  lookupVpcRouter,
-  lookupVpcRouterRoute,
 } from './db'
 import {
   NotImplemented,
@@ -601,13 +598,13 @@ export const handlers = makeHandlers({
     return 204
   },
   vpcFirewallRulesView(params) {
-    const vpc = lookupVpc(params.path)
+    const vpc = lookup.vpc(toApiSelector(params.path))
     const rules = db.vpcFirewallRules.filter((r) => r.vpc_id === vpc.id)
 
     return { rules: sortBy(rules, (r) => r.name) }
   },
   vpcFirewallRulesUpdate({ body, ...params }) {
-    const vpc = lookupVpc(params.path)
+    const vpc = lookup.vpc(toApiSelector(params.path))
 
     const rules = body.rules.map((rule) => ({
       vpc_id: vpc.id,
@@ -664,13 +661,13 @@ export const handlers = makeHandlers({
 
     return 204
   },
-  vpcRouterRouteList(params) {
-    const router = lookupVpcRouter(params.path)
+  vpcRouterRouteListV1({ query }) {
+    const router = lookup.vpcRouter(query)
     const routers = db.vpcRouterRoutes.filter((s) => s.vpc_router_id === router.id)
-    return paginated(params.query, routers)
+    return paginated(query, routers)
   },
-  vpcRouterRouteCreate({ body, ...params }) {
-    const router = lookupVpcRouter(params.path)
+  vpcRouterRouteCreateV1({ body, query }) {
+    const router = lookup.vpcRouter(query)
 
     errIfExists(db.vpcRouterRoutes, { vpc_router_id: router.id, name: body.name })
 
@@ -683,9 +680,9 @@ export const handlers = makeHandlers({
     }
     return json(newRoute, { status: 201 })
   },
-  vpcRouterRouteView: (params) => lookupVpcRouterRoute(params.path),
-  vpcRouterRouteUpdate({ body, ...params }) {
-    const route = lookupVpcRouterRoute(params.path)
+  vpcRouterRouteViewV1: ({ path, query }) => lookup.vpcRouterRoute({ ...path, ...query }),
+  vpcRouterRouteUpdateV1({ body, path, query }) {
+    const route = lookup.vpcRouterRoute({ ...path, ...query })
     if (route.kind !== 'custom') {
       throw 'Only custom routes may be modified'
     }
@@ -697,8 +694,8 @@ export const handlers = makeHandlers({
     }
     return route
   },
-  vpcRouterRouteDelete(params) {
-    const route = lookupVpcRouterRoute(params.path)
+  vpcRouterRouteDeleteV1({ path, query }) {
+    const route = lookup.vpcRouterRoute({ ...path, ...query })
     if (route.kind !== 'custom') {
       throw 'Only custom routes may be modified'
     }
@@ -1034,12 +1031,6 @@ export const handlers = makeHandlers({
   sledViewV1: NotImplemented,
   systemPolicyUpdateV1: NotImplemented,
 
-  vpcRouterRouteCreateV1: NotImplemented,
-  vpcRouterRouteDeleteV1: NotImplemented,
-  vpcRouterRouteListV1: NotImplemented,
-  vpcRouterRouteUpdateV1: NotImplemented,
-  vpcRouterRouteViewV1: NotImplemented,
-
   // deprecated by ID endpoints
 
   diskViewById: NotImplemented,
@@ -1112,6 +1103,11 @@ export const handlers = makeHandlers({
   vpcRouterList: NotImplemented,
   vpcRouterUpdate: NotImplemented,
   vpcRouterView: NotImplemented,
+  vpcRouterRouteCreate: NotImplemented,
+  vpcRouterRouteDelete: NotImplemented,
+  vpcRouterRouteList: NotImplemented,
+  vpcRouterRouteUpdate: NotImplemented,
+  vpcRouterRouteView: NotImplemented,
   vpcSubnetCreate: NotImplemented,
   vpcSubnetDelete: NotImplemented,
   vpcSubnetList: NotImplemented,

@@ -5,6 +5,7 @@ import { validate as isUuid } from 'uuid'
 import * as mock from '@oxide/api-mocks'
 import type { ApiTypes as Api, PathParams as PP, PathParamsV1 as PPv1 } from '@oxide/api'
 import { user1 } from '@oxide/api-mocks'
+import { toApiSelector } from '@oxide/util'
 
 import type { Json } from '../json-type'
 import { clone, json } from './util'
@@ -115,6 +116,22 @@ export const lookup = {
 
     return router
   },
+  vpcRouterRoute({
+    route: id,
+    ...routerSelector
+  }: PPv1.RouterRoute): Json<Api.RouterRoute> {
+    if (!id) throw notFoundErr
+
+    if (isUuid(id)) return lookupById(db.vpcRouterRoutes, id)
+
+    const router = lookup.vpcRouter(routerSelector)
+    const route = db.vpcRouterRoutes.find(
+      (s) => s.vpc_router_id === router.id && s.name === id
+    )
+    if (!route) throw notFoundErr
+
+    return route
+  },
   vpcSubnet({ subnet: id, ...vpcSelector }: PPv1.VpcSubnet): Json<Api.VpcSubnet> {
     if (!id) throw notFoundErr
 
@@ -138,34 +155,8 @@ export const lookup = {
   },
 }
 
-export function lookupOrg(params: PP.Org): Json<Api.Organization> {
-  const org = db.orgs.find((o) => o.name === params.orgName)
-  if (!org) throw notFoundErr
-  return org
-}
-
-export function lookupProject(params: PP.Project): Json<Api.Project> {
-  const org = lookupOrg(params)
-
-  const project = db.projects.find(
-    (p) => p.organization_id === org.id && p.name === params.projectName
-  )
-  if (!project) throw notFoundErr
-
-  return project
-}
-
-export function lookupVpc(params: PP.Vpc): Json<Api.Vpc> {
-  const project = lookupProject(params)
-
-  const vpc = db.vpcs.find((p) => p.project_id === project.id && p.name === params.vpcName)
-  if (!vpc) throw notFoundErr
-
-  return vpc
-}
-
 export function lookupImage(params: PP.Image): Json<Api.Image> {
-  const project = lookupProject(params)
+  const project = lookup.project(toApiSelector(params))
 
   const image = db.images.find(
     (d) => d.project_id === project.id && d.name === params.imageName
@@ -173,28 +164,6 @@ export function lookupImage(params: PP.Image): Json<Api.Image> {
   if (!image) throw notFoundErr
 
   return image
-}
-
-export function lookupVpcRouter(params: PP.VpcRouter): Json<Api.VpcRouter> {
-  const vpc = lookupVpc(params)
-
-  const router = db.vpcRouters.find(
-    (r) => r.vpc_id === vpc.id && r.name === params.routerName
-  )
-  if (!router) throw notFoundErr
-
-  return router
-}
-
-export function lookupVpcRouterRoute(params: PP.VpcRouterRoute): Json<Api.RouterRoute> {
-  const router = lookupVpcRouter(params)
-
-  const route = db.vpcRouterRoutes.find(
-    (r) => r.vpc_router_id === router.id && r.name === params.routeName
-  )
-  if (!route) throw notFoundErr
-
-  return route
 }
 
 export function lookupGlobalImage(params: PP.GlobalImage): Json<Api.GlobalImage> {
