@@ -393,8 +393,8 @@ export const handlers = makeHandlers({
     const nics = db.networkInterfaces.filter((n) => n.instance_id === instance.id)
     return paginated(query, nics)
   },
-  instanceNetworkInterfaceCreate({ body, ...params }) {
-    const instance = lookupInstance(params.path)
+  instanceNetworkInterfaceCreateV1({ body, query }) {
+    const instance = lookup.instance(query)
     const nicsForInstance = db.networkInterfaces.filter(
       (n) => n.instance_id === instance.id
     )
@@ -402,13 +402,8 @@ export const handlers = makeHandlers({
 
     const { name, description, subnet_name, vpc_name, ip } = body
 
-    const vpc = lookupVpc({ ...params.path, vpcName: vpc_name })
-
-    const subnet = lookupVpcSubnet({
-      ...params.path,
-      vpcName: vpc_name,
-      subnetName: subnet_name,
-    })
+    const vpc = lookup.vpc({ ...query, vpc: vpc_name })
+    const subnet = lookup.vpcSubnet({ ...query, vpc: vpc_name, subnet: subnet_name })
 
     const newNic: Json<Api.NetworkInterface> = {
       id: uuid(),
@@ -1043,7 +1038,6 @@ export const handlers = makeHandlers({
   certificateViewV1: NotImplemented,
   instanceDeleteV1: NotImplemented,
   instanceMigrateV1: NotImplemented,
-  instanceNetworkInterfaceCreateV1: NotImplemented,
   instanceRebootV1: NotImplemented,
   instanceSerialConsoleStreamV1: NotImplemented,
   instanceSerialConsoleV1: NotImplemented,
@@ -1109,6 +1103,7 @@ export const handlers = makeHandlers({
   instanceDiskDetach: NotImplemented,
   instanceDiskList: NotImplemented,
   instanceList: NotImplemented,
+  instanceNetworkInterfaceCreate: NotImplemented,
   instanceNetworkInterfaceDelete: NotImplemented,
   instanceNetworkInterfaceList: NotImplemented,
   instanceNetworkInterfaceUpdate: NotImplemented,

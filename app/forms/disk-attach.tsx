@@ -27,6 +27,7 @@ export function AttachDiskSideModalForm({
   const { instanceName } = useParams()
   const projectSelector = useProjectSelector()
 
+  // TODO: pass in this mutation from outside so we don't have to do the instanceName check
   const attachDisk = useApiMutation('instanceDiskAttachV1', {
     onSuccess(data) {
       invariant(instanceName, 'instanceName is required')

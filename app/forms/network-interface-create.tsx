@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { useParams } from 'react-router-dom'
 import invariant from 'tiny-invariant'
 
 import type { NetworkInterfaceCreate } from '@oxide/api'
@@ -13,7 +14,7 @@ import {
   SubnetListbox,
   TextField,
 } from 'app/components/form'
-import { useAllParams, useProjectSelector } from 'app/hooks'
+import { useProjectSelector } from 'app/hooks'
 
 const defaultValues: NetworkInterfaceCreate = {
   name: '',
@@ -33,10 +34,11 @@ export default function CreateNetworkInterfaceForm({
   onDismiss,
 }: CreateNetworkInterfaceFormProps) {
   const queryClient = useApiQueryClient()
-  const { orgName, projectName, instanceName } = useAllParams('orgName', 'projectName')
+  const { instanceName } = useParams()
   const projectSelector = useProjectSelector()
 
-  const createNetworkInterface = useApiMutation('instanceNetworkInterfaceCreate', {
+  // TODO: pass in this mutation from outside so we don't have to do the instanceName check
+  const createNetworkInterface = useApiMutation('instanceNetworkInterfaceCreateV1', {
     onSuccess() {
       invariant(instanceName, 'instanceName is required when posting a network interface')
       queryClient.invalidateQueries('instanceNetworkInterfaceListV1', {
@@ -64,7 +66,7 @@ export default function CreateNetworkInterfaceForm({
           )
 
           createNetworkInterface.mutate({
-            path: { instanceName, projectName, orgName },
+            query: { ...projectSelector, instance: instanceName },
             body,
           })
         })
