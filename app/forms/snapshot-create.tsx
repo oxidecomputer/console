@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 
-import type { PathParamsV1, SnapshotCreate } from '@oxide/api'
+import type { PathParams as PP, SnapshotCreate } from '@oxide/api'
 import { useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
 import { Success16Icon } from '@oxide/ui'
 
@@ -13,7 +13,7 @@ import {
 import { useProjectSelector, useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
-const useSnapshotDiskItems = (projectSelector: PathParamsV1.Project) => {
+const useSnapshotDiskItems = (projectSelector: PP.Project) => {
   const { data: disks } = useApiQuery('diskListV1', {
     query: { ...projectSelector, limit: 1000 },
   })

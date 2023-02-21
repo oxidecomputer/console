@@ -3,7 +3,7 @@
 import { validate as isUuid } from 'uuid'
 
 import * as mock from '@oxide/api-mocks'
-import type { ApiTypes as Api, PathParams as PP, PathParamsV1 as PPv1 } from '@oxide/api'
+import type { ApiTypes as Api, PathParams as PP } from '@oxide/api'
 import { user1 } from '@oxide/api-mocks'
 import { toApiSelector } from '@oxide/util'
 
@@ -21,7 +21,7 @@ export const lookupById = <T extends { id: string }>(table: T[], id: string) => 
 }
 
 export const lookup = {
-  org({ organization: id }: PPv1.Org): Json<Api.Organization> {
+  org({ organization: id }: PP.Org): Json<Api.Organization> {
     if (!id) throw notFoundErr
 
     if (isUuid(id)) return lookupById(db.orgs, id)
@@ -31,7 +31,7 @@ export const lookup = {
 
     return org
   },
-  project({ project: id, ...orgSelector }: PPv1.Project): Json<Api.Project> {
+  project({ project: id, ...orgSelector }: PP.Project): Json<Api.Project> {
     if (!id) throw notFoundErr
 
     if (isUuid(id)) return lookupById(db.projects, id)
@@ -42,7 +42,7 @@ export const lookup = {
 
     return project
   },
-  instance({ instance: id, ...projectSelector }: PPv1.Instance): Json<Api.Instance> {
+  instance({ instance: id, ...projectSelector }: PP.Instance): Json<Api.Instance> {
     if (!id) throw notFoundErr
 
     if (isUuid(id)) return lookupById(db.instances, id)
@@ -56,7 +56,7 @@ export const lookup = {
   networkInterface({
     interface: id,
     ...instanceSelector
-  }: PPv1.NetworkInterface): Json<Api.NetworkInterface> {
+  }: PP.NetworkInterface): Json<Api.NetworkInterface> {
     if (!id) throw notFoundErr
 
     if (isUuid(id)) return lookupById(db.networkInterfaces, id)
@@ -70,7 +70,7 @@ export const lookup = {
 
     return nic
   },
-  disk({ disk: id, ...projectSelector }: PPv1.Disk): Json<Api.Disk> {
+  disk({ disk: id, ...projectSelector }: PP.Disk): Json<Api.Disk> {
     if (!id) throw notFoundErr
 
     if (isUuid(id)) return lookupById(db.disks, id)
@@ -82,7 +82,7 @@ export const lookup = {
 
     return disk
   },
-  snapshot({ snapshot: id, ...projectSelector }: PPv1.Snapshot): Json<Api.Snapshot> {
+  snapshot({ snapshot: id, ...projectSelector }: PP.Snapshot): Json<Api.Snapshot> {
     if (!id) throw notFoundErr
 
     if (isUuid(id)) return lookupById(db.snapshots, id)
@@ -93,7 +93,7 @@ export const lookup = {
 
     return snapshot
   },
-  vpc({ vpc: id, ...projectSelector }: PPv1.Vpc): Json<Api.Vpc> {
+  vpc({ vpc: id, ...projectSelector }: PP.Vpc): Json<Api.Vpc> {
     console.log({ id, ...projectSelector })
     if (!id) throw notFoundErr
 
@@ -105,7 +105,7 @@ export const lookup = {
 
     return vpc
   },
-  vpcRouter({ router: id, ...vpcSelector }: PPv1.VpcRouter): Json<Api.VpcRouter> {
+  vpcRouter({ router: id, ...vpcSelector }: PP.VpcRouter): Json<Api.VpcRouter> {
     if (!id) throw notFoundErr
 
     if (isUuid(id)) return lookupById(db.vpcRouters, id)
@@ -116,10 +116,7 @@ export const lookup = {
 
     return router
   },
-  vpcRouterRoute({
-    route: id,
-    ...routerSelector
-  }: PPv1.RouterRoute): Json<Api.RouterRoute> {
+  vpcRouterRoute({ route: id, ...routerSelector }: PP.RouterRoute): Json<Api.RouterRoute> {
     if (!id) throw notFoundErr
 
     if (isUuid(id)) return lookupById(db.vpcRouterRoutes, id)
@@ -132,7 +129,7 @@ export const lookup = {
 
     return route
   },
-  vpcSubnet({ subnet: id, ...vpcSelector }: PPv1.VpcSubnet): Json<Api.VpcSubnet> {
+  vpcSubnet({ subnet: id, ...vpcSelector }: PP.VpcSubnet): Json<Api.VpcSubnet> {
     if (!id) throw notFoundErr
 
     if (isUuid(id)) return lookupById(db.vpcSubnets, id)
@@ -143,12 +140,12 @@ export const lookup = {
 
     return subnet
   },
-  systemUpdate({ version }: PPv1.SystemUpdate): Json<Api.SystemUpdate> {
+  systemUpdate({ version }: PP.SystemUpdate): Json<Api.SystemUpdate> {
     const update = db.systemUpdates.find((o) => o.version === version)
     if (!update) throw notFoundErr
     return update
   },
-  sled(params: PPv1.Id): Json<Api.Sled> {
+  sled(params: PP.Id): Json<Api.Sled> {
     const sled = db.sleds.find((sled) => sled.id === params.id)
     if (!sled) throw notFoundErr
     return sled

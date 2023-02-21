@@ -46,7 +46,6 @@ export * as ZVal from './__generated__/validate'
 export type { ApiTypes }
 
 export * as PathParams from './path-params'
-export * as PathParamsV1 from './path-params-v1'
 
 export type { Params, Result, ResultItem } from './hooks'
 export { navToLogin } from './nav-to-login'

@@ -1,14 +1,14 @@
-import type { PathParamsV1 as PPv1 } from '@oxide/api'
+import type { PathParams as PP } from '@oxide/api'
 
 // TODO: required versions of path params probably belong somewhere else,
 // they're useful
 
-type Org = Required<PPv1.Org>
-type Project = Required<PPv1.Project>
-type Instance = Required<PPv1.Instance>
-type Vpc = Required<PPv1.Vpc>
-type SystemUpdate = Required<PPv1.SystemUpdate>
-type Silo = Required<PPv1.Silo>
+type Org = Required<PP.Org>
+type Project = Required<PP.Project>
+type Instance = Required<PP.Instance>
+type Vpc = Required<PP.Vpc>
+type SystemUpdate = Required<PP.SystemUpdate>
+type Silo = Required<PP.SiloV1>
 
 export const pb = {
   orgs: () => '/orgs',
