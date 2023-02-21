@@ -1,6 +1,6 @@
 import { subHours } from 'date-fns'
 
-import type { DiskCreate, DiskCreatePathParams } from '@oxide/api'
+import type { DiskCreate } from '@oxide/api'
 import type { Json } from '@oxide/gen/msw-handlers'
 import { json } from '@oxide/gen/msw-handlers'
 import { GiB } from '@oxide/util'
@@ -92,10 +92,7 @@ export const errIfExists = <T extends Record<string, unknown>>(
   }
 }
 
-export const errIfInvalidDiskSize = (
-  params: DiskCreatePathParams,
-  disk: Json<DiskCreate>
-) => {
+export const errIfInvalidDiskSize = (disk: Json<DiskCreate>) => {
   const source = disk.disk_source
   if (source.type === 'snapshot') {
     const snapshotSize = db.snapshots.find((s) => source.snapshot_id === s.id)?.size ?? 0

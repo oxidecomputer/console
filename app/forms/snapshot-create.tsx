@@ -1,9 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 
-import type { PathParams, SnapshotCreate } from '@oxide/api'
-import { useApiQuery } from '@oxide/api'
-import { useApiMutation } from '@oxide/api'
-import { useApiQueryClient } from '@oxide/api'
+import type { PathParams as PP, SnapshotCreate } from '@oxide/api'
+import { useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
 import { Success16Icon } from '@oxide/ui'
 
 import {
@@ -12,11 +10,13 @@ import {
   NameField,
   SideModalForm,
 } from 'app/components/form'
-import { useRequiredParams, useToast } from 'app/hooks'
+import { useProjectSelector, useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
-const useSnapshotDiskItems = (params: PathParams.Project) => {
-  const { data: disks } = useApiQuery('diskList', { path: params, query: { limit: 1000 } })
+const useSnapshotDiskItems = (projectSelector: PP.Project) => {
+  const { data: disks } = useApiQuery('diskListV1', {
+    query: { ...projectSelector, limit: 1000 },
+  })
   return (
     disks?.items
       .filter((disk) => disk.state.state === 'attached')
@@ -32,17 +32,17 @@ const defaultValues: SnapshotCreate = {
 
 export function CreateSnapshotSideModalForm() {
   const queryClient = useApiQueryClient()
-  const pathParams = useRequiredParams('orgName', 'projectName')
+  const projectSelector = useProjectSelector()
   const addToast = useToast()
   const navigate = useNavigate()
 
-  const diskItems = useSnapshotDiskItems(pathParams)
+  const diskItems = useSnapshotDiskItems(projectSelector)
 
-  const onDismiss = () => navigate(pb.snapshots(pathParams))
+  const onDismiss = () => navigate(pb.snapshots(projectSelector))
 
-  const createSnapshot = useApiMutation('snapshotCreate', {
+  const createSnapshot = useApiMutation('snapshotCreateV1', {
     onSuccess() {
-      queryClient.invalidateQueries('snapshotList', { path: pathParams })
+      queryClient.invalidateQueries('snapshotListV1', { query: projectSelector })
       addToast({
         icon: <Success16Icon />,
         title: 'Success!',
@@ -59,10 +59,7 @@ export function CreateSnapshotSideModalForm() {
       formOptions={{ defaultValues }}
       onDismiss={onDismiss}
       onSubmit={(values) => {
-        createSnapshot.mutate({
-          path: pathParams,
-          body: values,
-        })
+        createSnapshot.mutate({ query: projectSelector, body: values })
       }}
       submitError={createSnapshot.error}
     >

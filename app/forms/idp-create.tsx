@@ -43,7 +43,7 @@ export function CreateIdpSideModalForm() {
 
   const { siloName } = useSiloParams()
 
-  const onDismiss = () => navigate(pb.silo({ siloName }))
+  const onDismiss = () => navigate(pb.silo({ silo: siloName }))
 
   const createIdp = useApiMutation('samlIdentityProviderCreate', {
     onSuccess() {

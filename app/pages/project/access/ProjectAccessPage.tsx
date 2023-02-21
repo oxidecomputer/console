@@ -3,10 +3,10 @@ import { useMemo, useState } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 
 import type { IdentityType, RoleKey } from '@oxide/api'
-import { deleteRole } from '@oxide/api'
 import {
   apiQueryClient,
   byGroupThenName,
+  deleteRole,
   getEffectiveRole,
   useApiMutation,
   useApiQuery,
@@ -23,7 +23,7 @@ import {
   TableActions,
   TableEmptyBox,
 } from '@oxide/ui'
-import { groupBy, isTruthy } from '@oxide/util'
+import { groupBy, isTruthy, toPathQuery } from '@oxide/util'
 
 import { AccessNameCell } from 'app/components/AccessNameCell'
 import { RoleBadgeCell } from 'app/components/RoleBadgeCell'
@@ -31,7 +31,7 @@ import {
   ProjectAccessAddUserSideModal,
   ProjectAccessEditUserSideModal,
 } from 'app/forms/project-access'
-import { requireProjectParams, useRequiredParams } from 'app/hooks'
+import { getProjectSelector, useProjectSelector } from 'app/hooks'
 
 const EmptyState = ({ onClick }: { onClick: () => void }) => (
   <TableEmptyBox>
@@ -46,11 +46,14 @@ const EmptyState = ({ onClick }: { onClick: () => void }) => (
 )
 
 ProjectAccessPage.loader = async ({ params }: LoaderFunctionArgs) => {
-  const { orgName, projectName } = requireProjectParams(params)
+  const { organization, project } = getProjectSelector(params)
   await Promise.all([
-    apiQueryClient.prefetchQuery('policyView', {}),
-    apiQueryClient.prefetchQuery('organizationPolicyView', { path: { orgName } }),
-    apiQueryClient.prefetchQuery('projectPolicyView', { path: { orgName, projectName } }),
+    apiQueryClient.prefetchQuery('policyViewV1', {}),
+    apiQueryClient.prefetchQuery('organizationPolicyViewV1', { path: { organization } }),
+    apiQueryClient.prefetchQuery('projectPolicyViewV1', {
+      path: { project },
+      query: { organization },
+    }),
     // used to resolve user names
     apiQueryClient.prefetchQuery('userList', {}),
     apiQueryClient.prefetchQuery('groupList', {}),
@@ -73,16 +76,19 @@ const colHelper = createColumnHelper<UserRow>()
 export function ProjectAccessPage() {
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [editingUserRow, setEditingUserRow] = useState<UserRow | null>(null)
-  const projectParams = useRequiredParams('orgName', 'projectName')
-  const { orgName } = projectParams
+  const projectSelector = useProjectSelector()
+  const projectPathQuery = toPathQuery('project', projectSelector)
+  const { organization } = projectSelector
 
-  const { data: siloPolicy } = useApiQuery('policyView', {})
+  const { data: siloPolicy } = useApiQuery('policyViewV1', {})
   const siloRows = useUserRows(siloPolicy?.roleAssignments, 'silo')
 
-  const { data: orgPolicy } = useApiQuery('organizationPolicyView', { path: { orgName } })
+  const { data: orgPolicy } = useApiQuery('organizationPolicyViewV1', {
+    path: { organization },
+  })
   const orgRows = useUserRows(orgPolicy?.roleAssignments, 'org')
 
-  const { data: projectPolicy } = useApiQuery('projectPolicyView', { path: projectParams })
+  const { data: projectPolicy } = useApiQuery('projectPolicyViewV1', projectPathQuery)
   const projectRows = useUserRows(projectPolicy?.roleAssignments, 'project')
 
   const rows = useMemo(() => {
@@ -115,9 +121,8 @@ export function ProjectAccessPage() {
   }, [siloRows, orgRows, projectRows])
 
   const queryClient = useApiQueryClient()
-  const updatePolicy = useApiMutation('projectPolicyUpdate', {
-    onSuccess: () =>
-      queryClient.invalidateQueries('projectPolicyView', { path: projectParams }),
+  const updatePolicy = useApiMutation('projectPolicyUpdateV1', {
+    onSuccess: () => queryClient.invalidateQueries('projectPolicyViewV1', projectPathQuery),
     // TODO: handle 403
   })
 
@@ -154,7 +159,7 @@ export function ProjectAccessPage() {
           onActivate() {
             // TODO: confirm delete
             updatePolicy.mutate({
-              path: projectParams,
+              ...projectPathQuery,
               // we know policy is there, otherwise there's no row to display
               body: deleteRole(row.id, projectPolicy!),
             })
@@ -163,7 +168,7 @@ export function ProjectAccessPage() {
         },
       ]),
     ],
-    [projectPolicy, projectParams, updatePolicy]
+    [projectPolicy, projectPathQuery, updatePolicy]
   )
 
   const tableInstance = useReactTable({ columns, data: rows })

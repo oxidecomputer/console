@@ -3,14 +3,14 @@ import { Outlet } from 'react-router-dom'
 import { Link } from 'react-router-dom'
 
 import type { Disk } from '@oxide/api'
-import { genName } from '@oxide/api'
-import { apiQueryClient } from '@oxide/api'
-import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import { useApiQuery } from '@oxide/api'
-import type { MenuAction } from '@oxide/table'
-import { DateCell } from '@oxide/table'
-import { SizeCell } from '@oxide/table'
-import { useQueryTable } from '@oxide/table'
+import {
+  apiQueryClient,
+  genName,
+  useApiMutation,
+  useApiQuery,
+  useApiQueryClient,
+} from '@oxide/api'
+import { DateCell, type MenuAction, SizeCell, useQueryTable } from '@oxide/table'
 import {
   EmptyMessage,
   PageHeader,
@@ -22,28 +22,24 @@ import {
 } from '@oxide/ui'
 
 import { DiskStatusBadge } from 'app/components/StatusBadge'
-import {
-  requireProjectParams,
-  useProjectParams,
-  useRequiredParams,
-  useToast,
-} from 'app/hooks'
+import { getProjectSelector, useProjectSelector, useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 function AttachedInstance({
-  orgName,
-  projectName,
   instanceId,
+  ...projectSelector
 }: {
-  orgName: string
-  projectName: string
+  organization: string
+  project: string
   instanceId: string
 }) {
-  const { data: instance } = useApiQuery('instanceViewById', { path: { id: instanceId } })
+  const { data: instance } = useApiQuery('instanceViewV1', {
+    path: { instance: instanceId },
+  })
   return instance ? (
     <Link
       className="text-sans-semi-md text-accent hover:underline"
-      to={pb.instancePage({ orgName, projectName, instanceName: instance.name })}
+      to={pb.instancePage({ ...projectSelector, instance: instance.name })}
     >
       {instance.name}
     </Link>
@@ -56,33 +52,32 @@ const EmptyState = () => (
     title="No disks"
     body="You need to create a disk to be able to see it here"
     buttonText="New disk"
-    buttonTo={pb.diskNew(useProjectParams())}
+    buttonTo={pb.diskNew(useProjectSelector())}
   />
 )
 
 DisksPage.loader = async ({ params }: LoaderFunctionArgs) => {
-  await apiQueryClient.prefetchQuery('diskList', {
-    path: requireProjectParams(params),
-    query: { limit: 10 },
+  await apiQueryClient.prefetchQuery('diskListV1', {
+    query: { ...getProjectSelector(params), limit: 10 },
   })
   return null
 }
 
 export function DisksPage() {
   const queryClient = useApiQueryClient()
-  const { orgName, projectName } = useRequiredParams('orgName', 'projectName')
-  const { Table, Column } = useQueryTable('diskList', { path: { orgName, projectName } })
+  const projectSelector = useProjectSelector()
+  const { Table, Column } = useQueryTable('diskListV1', { query: projectSelector })
   const addToast = useToast()
 
-  const deleteDisk = useApiMutation('diskDelete', {
+  const deleteDisk = useApiMutation('diskDeleteV1', {
     onSuccess() {
-      queryClient.invalidateQueries('diskList', { path: { orgName, projectName } })
+      queryClient.invalidateQueries('diskListV1', { query: projectSelector })
     },
   })
 
-  const createSnapshot = useApiMutation('snapshotCreate', {
+  const createSnapshot = useApiMutation('snapshotCreateV1', {
     onSuccess() {
-      queryClient.invalidateQueries('snapshotList', { path: { orgName, projectName } })
+      queryClient.invalidateQueries('snapshotListV1', { query: projectSelector })
       addToast({
         icon: <Success16Icon />,
         title: 'Success!',
@@ -96,7 +91,7 @@ export function DisksPage() {
       label: 'Snapshot',
       onActivate() {
         createSnapshot.mutate({
-          path: { orgName, projectName },
+          query: projectSelector,
           body: {
             name: genName(disk.name),
             disk: disk.name,
@@ -111,7 +106,7 @@ export function DisksPage() {
     {
       label: 'Delete',
       onActivate: () => {
-        deleteDisk.mutate({ path: { orgName, projectName, diskName: disk.name } })
+        deleteDisk.mutate({ path: { disk: disk.name }, query: projectSelector })
       },
       disabled:
         !['detached', 'creating', 'faulted'].includes(disk.state.state) &&
@@ -127,10 +122,7 @@ export function DisksPage() {
         <PageTitle icon={<Storage24Icon />}>Disks</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link
-          to={pb.diskNew({ orgName, projectName })}
-          className={buttonStyle({ size: 'sm' })}
-        >
+        <Link to={pb.diskNew(projectSelector)} className={buttonStyle({ size: 'sm' })}>
           New Disk
         </Link>
       </TableActions>
@@ -146,13 +138,7 @@ export function DisksPage() {
             'instance' in disk.state ? disk.state.instance : null
           }
           cell={({ value }: { value: string | undefined }) =>
-            value ? (
-              <AttachedInstance
-                orgName={orgName}
-                projectName={projectName}
-                instanceId={value}
-              />
-            ) : null
+            value ? <AttachedInstance {...projectSelector} instanceId={value} /> : null
           }
         />
         <Column header="Size" accessor="size" cell={SizeCell} />

@@ -3,7 +3,7 @@ import { useWatch } from 'react-hook-form'
 
 import { useApiQuery } from '@oxide/api'
 
-import { useRequiredParams } from 'app/hooks'
+import { useProjectSelector } from 'app/hooks'
 
 import type { ListboxFieldProps } from './ListboxField'
 import { ListboxField } from './ListboxField'
@@ -26,7 +26,7 @@ export function SubnetListbox<
   TFieldValues extends FieldValues,
   TName extends FieldPath<TFieldValues>
 >({ vpcNameField, control, ...fieldProps }: SubnetListboxProps<TFieldValues, TName>) {
-  const pathParams = useRequiredParams('orgName', 'projectName')
+  const projectSelector = useProjectSelector()
 
   const [vpcName] = useWatch({ control, name: [vpcNameField] })
 
@@ -36,8 +36,8 @@ export function SubnetListbox<
   // TODO: error handling other than fallback to empty list?
   const subnets =
     useApiQuery(
-      'vpcSubnetList',
-      { path: { ...pathParams, vpcName } },
+      'vpcSubnetListV1',
+      { query: { ...projectSelector, vpc: vpcName } },
       {
         enabled: vpcExists,
         useErrorBoundary: false,

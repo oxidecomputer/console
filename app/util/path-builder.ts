@@ -1,24 +1,34 @@
 import type { PathParams as PP } from '@oxide/api'
 
+// TODO: required versions of path params probably belong somewhere else,
+// they're useful
+
+type Org = Required<PP.Org>
+type Project = Required<PP.Project>
+type Instance = Required<PP.Instance>
+type Vpc = Required<PP.Vpc>
+type SystemUpdate = Required<PP.SystemUpdate>
+type Silo = Required<PP.SiloV1>
+
 export const pb = {
   orgs: () => '/orgs',
   orgNew: () => '/orgs-new',
-  org: ({ orgName }: PP.Org) => `${pb.orgs()}/${orgName}`,
-  orgEdit: (params: PP.Org) => `${pb.org(params)}/edit`,
-  orgAccess: (params: PP.Org) => `${pb.org(params)}/access`,
+  org: ({ organization }: Org) => `${pb.orgs()}/${organization}`,
+  orgEdit: (params: Org) => `${pb.org(params)}/edit`,
+  orgAccess: (params: Org) => `${pb.org(params)}/access`,
 
-  projects: (params: PP.Org) => `${pb.org(params)}/projects`,
-  projectNew: (params: PP.Org) => `${pb.org(params)}/projects-new`,
-  project: ({ orgName, projectName }: PP.Project) =>
-    `${pb.projects({ orgName })}/${projectName}`,
-  projectEdit: (params: PP.Project) => `${pb.project(params)}/edit`,
+  projects: (params: Org) => `${pb.org(params)}/projects`,
+  projectNew: (params: Org) => `${pb.org(params)}/projects-new`,
+  project: ({ organization, project }: Project) =>
+    `${pb.projects({ organization })}/${project}`,
+  projectEdit: (params: Project) => `${pb.project(params)}/edit`,
 
-  projectAccess: (params: PP.Project) => `${pb.project(params)}/access`,
-  projectImages: (params: PP.Project) => `${pb.project(params)}/images`,
+  projectAccess: (params: Project) => `${pb.project(params)}/access`,
+  projectImages: (params: Project) => `${pb.project(params)}/images`,
 
-  instances: (params: PP.Project) => `${pb.project(params)}/instances`,
-  instanceNew: (params: PP.Project) => `${pb.project(params)}/instances-new`,
-  instance: (params: PP.Instance) => `${pb.instances(params)}/${params.instanceName}`,
+  instances: (params: Project) => `${pb.project(params)}/instances`,
+  instanceNew: (params: Project) => `${pb.project(params)}/instances-new`,
+  instance: (params: Instance) => `${pb.instances(params)}/${params.instance}`,
 
   /**
    * This route exists as a direct link to the default tab of the instance page. Unfortunately
@@ -27,25 +37,25 @@ export const pb = {
    *
    * @see https://github.com/oxidecomputer/console/pull/1267#discussion_r1016766205
    */
-  instancePage: (params: PP.Instance) => pb.instanceStorage(params),
+  instancePage: (params: Instance) => pb.instanceStorage(params),
 
-  instanceMetrics: (params: PP.Instance) => `${pb.instance(params)}/metrics`,
-  instanceStorage: (params: PP.Instance) => `${pb.instance(params)}/storage`,
+  instanceMetrics: (params: Instance) => `${pb.instance(params)}/metrics`,
+  instanceStorage: (params: Instance) => `${pb.instance(params)}/storage`,
 
-  nics: (params: PP.Instance) => `${pb.instance(params)}/network-interfaces`,
+  nics: (params: Instance) => `${pb.instance(params)}/network-interfaces`,
 
-  serialConsole: (params: PP.Instance) => `${pb.instance(params)}/serial-console`,
+  serialConsole: (params: Instance) => `${pb.instance(params)}/serial-console`,
 
-  diskNew: (params: PP.Project) => `${pb.project(params)}/disks-new`,
-  disks: (params: PP.Project) => `${pb.project(params)}/disks`,
+  diskNew: (params: Project) => `${pb.project(params)}/disks-new`,
+  disks: (params: Project) => `${pb.project(params)}/disks`,
 
-  snapshotNew: (params: PP.Project) => `${pb.project(params)}/snapshots-new`,
-  snapshots: (params: PP.Project) => `${pb.project(params)}/snapshots`,
+  snapshotNew: (params: Project) => `${pb.project(params)}/snapshots-new`,
+  snapshots: (params: Project) => `${pb.project(params)}/snapshots`,
 
-  vpcNew: (params: PP.Project) => `${pb.project(params)}/vpcs-new`,
-  vpcs: (params: PP.Project) => `${pb.project(params)}/vpcs`,
-  vpc: (params: PP.Vpc) => `${pb.vpcs(params)}/${params.vpcName}`,
-  vpcEdit: (params: PP.Vpc) => `${pb.vpc(params)}/edit`,
+  vpcNew: (params: Project) => `${pb.project(params)}/vpcs-new`,
+  vpcs: (params: Project) => `${pb.project(params)}/vpcs`,
+  vpc: (params: Vpc) => `${pb.vpcs(params)}/${params.vpc}`,
+  vpcEdit: (params: Vpc) => `${pb.vpc(params)}/edit`,
 
   siloUtilization: () => '/utilization',
   siloAccess: () => '/access',
@@ -56,8 +66,7 @@ export const pb = {
   systemHealth: () => '/sys/health',
 
   systemUpdates: () => '/sys/update/updates',
-  systemUpdateDetail: (params: PP.SystemUpdate) =>
-    `${pb.systemUpdates()}/${params.version}`,
+  systemUpdateDetail: ({ version }: SystemUpdate) => `${pb.systemUpdates()}/${version}`,
   systemUpdateHistory: () => '/sys/update/history',
   updateableComponents: () => '/sys/update/components',
 
@@ -70,8 +79,8 @@ export const pb = {
 
   silos: () => '/sys/silos',
   siloNew: () => '/sys/silos-new',
-  silo: ({ siloName }: PP.Silo) => `/sys/silos/${siloName}`,
-  siloIdpNew: (params: PP.Silo) => `${pb.silo(params)}/idps-new`,
+  silo: ({ silo }: Silo) => `/sys/silos/${silo}`,
+  siloIdpNew: (params: Silo) => `${pb.silo(params)}/idps-new`,
 
   settings: () => '/settings',
   profile: () => '/settings/profile',

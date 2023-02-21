@@ -3,8 +3,7 @@ import type { LoaderFunctionArgs } from 'react-router-dom'
 import { Link } from 'react-router-dom'
 
 import type { NetworkInterface } from '@oxide/api'
-import { apiQueryClient } from '@oxide/api'
-import { useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
+import { apiQueryClient, useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
 import type { MenuAction } from '@oxide/table'
 import { useQueryTable } from '@oxide/table'
 import {
@@ -16,20 +15,27 @@ import {
   OpenLink12Icon,
   Success12Icon,
 } from '@oxide/ui'
+import { toPathQuery } from '@oxide/util'
 
 import CreateNetworkInterfaceForm from 'app/forms/network-interface-create'
 import EditNetworkInterfaceForm from 'app/forms/network-interface-edit'
-import { requireInstanceParams, useRequiredParams, useToast } from 'app/hooks'
+import {
+  getInstanceSelector,
+  useInstanceSelector,
+  useProjectSelector,
+  useRequiredParams,
+  useToast,
+} from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 const VpcNameFromId = ({ value }: { value: string }) => {
-  const { orgName, projectName } = useRequiredParams('orgName', 'projectName')
-  const { data: vpc } = useApiQuery('vpcViewById', { path: { id: value } })
+  const projectSelector = useProjectSelector()
+  const { data: vpc } = useApiQuery('vpcViewV1', { path: { vpc: value } })
   if (!vpc) return null
   return (
     <Link
       className="text-sans-semi-md text-default hover:underline"
-      to={pb.vpc({ orgName, projectName, vpcName: vpc.name })}
+      to={pb.vpc({ ...projectSelector, vpc: vpc.name })}
     >
       {vpc.name}
     </Link>
@@ -38,7 +44,7 @@ const VpcNameFromId = ({ value }: { value: string }) => {
 
 const SubnetNameFromId = ({ value }: { value: string }) => (
   <span className="text-secondary">
-    {useApiQuery('vpcSubnetViewById', { path: { id: value } }).data?.name}
+    {useApiQuery('vpcSubnetViewV1', { path: { subnet: value } }).data?.name}
   </span>
 )
 
@@ -50,30 +56,33 @@ function ExternalIpsFromInstanceName({ value: primary }: { value: boolean }) {
 }
 
 NetworkingTab.loader = async ({ params }: LoaderFunctionArgs) => {
-  const path = requireInstanceParams(params)
+  const instanceSelector = getInstanceSelector(params)
   await Promise.all([
-    await apiQueryClient.prefetchQuery('instanceNetworkInterfaceList', {
-      path,
-      query: { limit: 10 },
+    apiQueryClient.prefetchQuery('instanceNetworkInterfaceListV1', {
+      query: { ...instanceSelector, limit: 10 },
     }),
     // This is covered by the InstancePage loader but there's no downside to
     // being redundant. If it were removed there, we'd still want it here.
-    apiQueryClient.prefetchQuery('instanceView', { path }),
+    apiQueryClient.prefetchQuery(
+      'instanceViewV1',
+      toPathQuery('instance', instanceSelector)
+    ),
   ])
   return null
 }
 
 export function NetworkingTab() {
-  const instanceParams = useRequiredParams('orgName', 'projectName', 'instanceName')
+  const instanceSelector = useInstanceSelector()
+
   const queryClient = useApiQueryClient()
   const addToast = useToast()
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [editing, setEditing] = useState<NetworkInterface | null>(null)
 
-  const getQuery = ['instanceNetworkInterfaceList', { path: instanceParams }] as const
+  const getQuery = ['instanceNetworkInterfaceListV1', { query: instanceSelector }] as const
 
-  const deleteNic = useApiMutation('instanceNetworkInterfaceDelete', {
+  const deleteNic = useApiMutation('instanceNetworkInterfaceDeleteV1', {
     onSuccess() {
       queryClient.invalidateQueries(...getQuery)
       addToast({
@@ -83,21 +92,23 @@ export function NetworkingTab() {
     },
   })
 
-  const editNic = useApiMutation('instanceNetworkInterfaceUpdate', {
+  const editNic = useApiMutation('instanceNetworkInterfaceUpdateV1', {
     onSuccess() {
       queryClient.invalidateQueries(...getQuery)
     },
   })
 
   const instanceStopped =
-    useApiQuery('instanceView', { path: instanceParams }).data?.runState === 'stopped'
+    useApiQuery('instanceViewV1', toPathQuery('instance', instanceSelector)).data
+      ?.runState === 'stopped'
 
   const makeActions = (nic: NetworkInterface): MenuAction[] => [
     {
       label: 'Make primary',
       onActivate() {
         editNic.mutate({
-          path: { ...instanceParams, interfaceName: nic.name },
+          path: { interface: nic.name },
+          query: instanceSelector,
           body: { ...nic, primary: true },
         })
       },
@@ -118,7 +129,7 @@ export function NetworkingTab() {
     {
       label: 'Delete',
       onActivate: () => {
-        deleteNic.mutate({ path: { ...instanceParams, interfaceName: nic.name } })
+        deleteNic.mutate({ path: { interface: nic.name }, query: instanceSelector })
       },
       disabled:
         !instanceStopped && 'The instance must be stopped to delete a network interface.',

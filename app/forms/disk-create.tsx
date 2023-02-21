@@ -13,7 +13,7 @@ import {
   RadioField,
   SideModalForm,
 } from 'app/components/form'
-import { useRequiredParams, useToast } from 'app/hooks'
+import { useProjectSelector, useToast } from 'app/hooks'
 
 const defaultValues: DiskCreate = {
   name: '',
@@ -46,13 +46,13 @@ export function CreateDiskSideModalForm({
   onDismiss,
 }: CreateSideModalFormProps) {
   const queryClient = useApiQueryClient()
-  const pathParams = useRequiredParams('orgName', 'projectName')
+  const projectSelector = useProjectSelector()
   const addToast = useToast()
   const navigate = useNavigate()
 
-  const createDisk = useApiMutation('diskCreate', {
+  const createDisk = useApiMutation('diskCreateV1', {
     onSuccess(data) {
-      queryClient.invalidateQueries('diskList', { path: pathParams })
+      queryClient.invalidateQueries('diskListV1', { query: projectSelector })
       addToast({
         icon: <Success16Icon />,
         title: 'Success!',
@@ -71,7 +71,7 @@ export function CreateDiskSideModalForm({
       onDismiss={() => onDismiss(navigate)}
       onSubmit={({ size, ...rest }) => {
         const body = { size: size * GiB, ...rest }
-        onSubmit ? onSubmit(body) : createDisk.mutate({ path: pathParams, body })
+        onSubmit ? onSubmit(body) : createDisk.mutate({ query: projectSelector, body })
       }}
       loading={createDisk.isLoading}
       submitError={createDisk.error}

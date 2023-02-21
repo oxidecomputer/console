@@ -13,14 +13,14 @@ const EmptyState = () => {
 }
 
 SledsTab.loader = async () => {
-  await apiQueryClient.prefetchQuery('sledList', {
+  await apiQueryClient.prefetchQuery('sledListV1', {
     query: { limit: 10 },
   })
   return null
 }
 
 export function SledsTab() {
-  const { Table, Column } = useQueryTable('sledList', {}, { keepPreviousData: true })
+  const { Table, Column } = useQueryTable('sledListV1', {}, { keepPreviousData: true })
 
   return (
     <>

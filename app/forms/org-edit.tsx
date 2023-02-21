@@ -5,12 +5,12 @@ import { apiQueryClient, useApiMutation, useApiQuery, useApiQueryClient } from '
 import { Success16Icon } from '@oxide/ui'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
-import { requireOrgParams, useOrgParams, useToast } from 'app/hooks'
+import { getOrgSelector, useOrgSelector, useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 EditOrgSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
-  await apiQueryClient.prefetchQuery('organizationView', {
-    path: requireOrgParams(params),
+  await apiQueryClient.prefetchQuery('organizationViewV1', {
+    path: getOrgSelector(params),
   })
   return null
 }
@@ -20,17 +20,21 @@ export function EditOrgSideModalForm() {
   const addToast = useToast()
   const navigate = useNavigate()
 
-  const { orgName } = useOrgParams()
+  const { organization } = useOrgSelector()
 
   const onDismiss = () => navigate(pb.orgs())
 
-  const { data: org } = useApiQuery('organizationView', { path: { orgName } })
+  const { data: org } = useApiQuery('organizationViewV1', { path: { organization } })
 
-  const updateOrg = useApiMutation('organizationUpdate', {
+  const updateOrg = useApiMutation('organizationUpdateV1', {
     onSuccess(org) {
-      queryClient.invalidateQueries('organizationList', {})
+      queryClient.invalidateQueries('organizationListV1', {})
       // avoid the org fetch when the org page loads since we have the data
-      queryClient.setQueryData('organizationView', { path: { orgName: org.name } }, org)
+      queryClient.setQueryData(
+        'organizationViewV1',
+        { path: { organization: org.name } },
+        org
+      )
       addToast({
         icon: <Success16Icon />,
         title: 'Success!',
@@ -49,7 +53,7 @@ export function EditOrgSideModalForm() {
       onDismiss={onDismiss}
       onSubmit={({ name, description }) =>
         updateOrg.mutate({
-          path: { orgName },
+          path: { organization },
           body: { name, description },
         })
       }

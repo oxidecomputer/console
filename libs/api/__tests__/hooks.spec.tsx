@@ -26,16 +26,17 @@ export function Wrapper({ children }: { children: React.ReactNode }) {
 
 const config = { wrapper: Wrapper }
 
-const renderGetOrgs = () => renderHook(() => useApiQuery('organizationList', {}), config)
+const renderGetOrgs = () => renderHook(() => useApiQuery('organizationListV1', {}), config)
 
 // 503 is a special key in the MSW server that returns a 503
 const renderGetOrg503 = () =>
   renderHook(
-    () => useApiQuery('organizationView', { path: { orgName: 'org-error-503' } }),
+    () => useApiQuery('organizationViewV1', { path: { organization: 'org-error-503' } }),
     config
   )
 
-const renderCreateOrg = () => renderHook(() => useApiMutation('organizationCreate'), config)
+const renderCreateOrg = () =>
+  renderHook(() => useApiMutation('organizationCreateV1'), config)
 
 const createParams = {
   body: { name: 'abc', description: '', hello: 'a' },
@@ -71,7 +72,7 @@ describe('useApiQuery', () => {
     })
 
     it('contains client_error if error body is not json', async () => {
-      overrideOnce('get', '/api/organizations', 503, 'not json')
+      overrideOnce('get', '/api/v1/organizations', 503, 'not json')
 
       const { result } = renderGetOrgs()
 
@@ -89,7 +90,7 @@ describe('useApiQuery', () => {
     })
 
     it('does not client_error if response body is empty', async () => {
-      overrideOnce('get', '/api/organizations', 503, '')
+      overrideOnce('get', '/api/v1/organizations', 503, '')
 
       const { result } = renderGetOrgs()
 
@@ -110,8 +111,8 @@ describe('useApiQuery', () => {
     it('throws by default', async () => {
       const { result } = renderHook(
         () =>
-          useApiQuery('organizationView', {
-            path: { orgName: 'nonexistent' },
+          useApiQuery('organizationViewV1', {
+            path: { organization: 'nonexistent' },
           }),
         config
       )
@@ -129,8 +130,8 @@ describe('useApiQuery', () => {
       const { result } = renderHook(
         () =>
           useApiQuery(
-            'organizationView',
-            { path: { orgName: 'nonexistent' } },
+            'organizationViewV1',
+            { path: { organization: 'nonexistent' } },
             { useErrorBoundary: false } // <----- the point
           ),
         config
@@ -156,7 +157,7 @@ describe('useApiQuery', () => {
 
     // RQ doesn't like a value of undefined for data, so we're using {} for now
     it('returns success with empty object if response body is empty', async () => {
-      overrideOnce('get', '/api/organizations', 204, '')
+      overrideOnce('get', '/api/v1/organizations', 204, '')
 
       const { result } = renderGetOrgs()
 
@@ -178,12 +179,12 @@ describe('useApiMutation', () => {
 
   describe('on error response', () => {
     const projectPost404Params = {
-      path: { orgName: 'nonexistent' },
+      query: { organization: 'nonexistent' },
       body: { name: 'will-fail', description: '' },
     }
 
     it('passes through raw response', async () => {
-      const { result } = renderHook(() => useApiMutation('projectCreate'), config)
+      const { result } = renderHook(() => useApiMutation('projectCreateV1'), config)
 
       act(() => result.current.mutate(projectPost404Params))
 
@@ -194,7 +195,7 @@ describe('useApiMutation', () => {
     })
 
     it('parses error json if possible', async () => {
-      const { result } = renderHook(() => useApiMutation('projectCreate'), config)
+      const { result } = renderHook(() => useApiMutation('projectCreateV1'), config)
 
       act(() => result.current.mutate(projectPost404Params))
 
@@ -206,7 +207,7 @@ describe('useApiMutation', () => {
     })
 
     it('contains client_error if error body is not json', async () => {
-      overrideOnce('post', '/api/organizations', 404, 'not json')
+      overrideOnce('post', '/api/v1/organizations', 404, 'not json')
 
       const { result } = renderCreateOrg()
       act(() => result.current.mutate(createParams))
@@ -223,7 +224,7 @@ describe('useApiMutation', () => {
     })
 
     it('does not client_error if response body is empty', async () => {
-      overrideOnce('post', '/api/organizations', 503, '')
+      overrideOnce('post', '/api/v1/organizations', 503, '')
 
       const { result } = renderCreateOrg()
       act(() => result.current.mutate(createParams))
@@ -255,7 +256,7 @@ describe('useApiMutation', () => {
 
     // RQ doesn't like a value of undefined for data, so we're using {} for now
     it('returns success with empty object if response body is empty', async () => {
-      overrideOnce('post', '/api/organizations', 204, '')
+      overrideOnce('post', '/api/v1/organizations', 204, '')
 
       const { result } = renderCreateOrg()
       act(() => result.current.mutate(createParams))

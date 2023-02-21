@@ -2,10 +2,10 @@ import type { LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, useApiQuery } from '@oxide/api'
 import { Networking24Icon, PageHeader, PageTitle, PropertiesTable } from '@oxide/ui'
-import { formatDateTime } from '@oxide/util'
+import { formatDateTime, toPathQuery } from '@oxide/util'
 
 import { Tab, Tabs } from 'app/components/Tabs'
-import { requireVpcParams, useVpcParams } from 'app/hooks'
+import { getVpcSelector, useVpcSelector } from 'app/hooks'
 
 import { VpcFirewallRulesTab } from './tabs/VpcFirewallRulesTab'
 import { VpcRoutersTab } from './tabs/VpcRoutersTab'
@@ -13,13 +13,16 @@ import { VpcSubnetsTab } from './tabs/VpcSubnetsTab'
 import { VpcSystemRoutesTab } from './tabs/VpcSystemRoutesTab'
 
 VpcPage.loader = async ({ params }: LoaderFunctionArgs) => {
-  await apiQueryClient.prefetchQuery('vpcView', { path: requireVpcParams(params) })
+  await apiQueryClient.prefetchQuery(
+    'vpcViewV1',
+    toPathQuery('vpc', getVpcSelector(params))
+  )
   return null
 }
 
 export function VpcPage() {
-  const vpcParams = useVpcParams()
-  const { data: vpc } = useApiQuery('vpcView', { path: vpcParams })
+  const vpcSelector = useVpcSelector()
+  const { data: vpc } = useApiQuery('vpcViewV1', toPathQuery('vpc', vpcSelector))
 
   return (
     <>

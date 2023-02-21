@@ -1,10 +1,11 @@
+import { useParams } from 'react-router-dom'
 import invariant from 'tiny-invariant'
 
 import type { Disk, DiskIdentifier } from '@oxide/api'
 import { useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
 
 import { ListboxField, SideModalForm } from 'app/components/form'
-import { useAllParams } from 'app/hooks'
+import { useProjectSelector } from 'app/hooks'
 
 const defaultValues = { name: '' }
 
@@ -21,13 +22,18 @@ export function AttachDiskSideModalForm({
   onDismiss,
 }: AttachDiskProps) {
   const queryClient = useApiQueryClient()
-  const { orgName, projectName, instanceName } = useAllParams('orgName', 'projectName')
+  // instance name undefined when this form is called from DisksTableField on
+  // instance create, which passes in its own onSubmit, bypassing the attachDisk mutation
+  const { instanceName } = useParams()
+  const projectSelector = useProjectSelector()
 
-  const attachDisk = useApiMutation('instanceDiskAttach', {
+  // TODO: pass in this mutation from outside so we don't have to do the instanceName check
+  const attachDisk = useApiMutation('instanceDiskAttachV1', {
     onSuccess(data) {
       invariant(instanceName, 'instanceName is required')
-      queryClient.invalidateQueries('instanceDiskList', {
-        path: { orgName, projectName, instanceName },
+      queryClient.invalidateQueries('instanceDiskListV1', {
+        path: { instance: instanceName },
+        query: projectSelector,
       })
       onSuccess?.(data)
       onDismiss()
@@ -39,7 +45,7 @@ export function AttachDiskSideModalForm({
   // click in
   // TODO: error handling
   const detachedDisks =
-    useApiQuery('diskList', { path: { orgName, projectName } }).data?.items.filter(
+    useApiQuery('diskListV1', { query: projectSelector }).data?.items.filter(
       (d) => d.state.state === 'detached'
     ) || []
 
@@ -53,8 +59,9 @@ export function AttachDiskSideModalForm({
         (({ name }) => {
           invariant(instanceName, 'instanceName is required')
           attachDisk.mutate({
-            path: { orgName, projectName, instanceName },
-            body: { name },
+            path: { instance: instanceName },
+            query: projectSelector,
+            body: { disk: name },
           })
         })
       }

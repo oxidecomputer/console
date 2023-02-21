@@ -31,23 +31,23 @@ const EmptyState = () => (
 )
 
 OrgsPage.loader = async () => {
-  await apiQueryClient.prefetchQuery('organizationList', { query: { limit: 10 } })
+  await apiQueryClient.prefetchQuery('organizationListV1', { query: { limit: 10 } })
   return null
 }
 
 export default function OrgsPage() {
   const navigate = useNavigate()
 
-  const { Table, Column } = useQueryTable('organizationList', {})
+  const { Table, Column } = useQueryTable('organizationListV1', {})
   const queryClient = useApiQueryClient()
 
-  const { data: orgs } = useApiQuery('organizationList', {
+  const { data: orgs } = useApiQuery('organizationListV1', {
     query: { limit: 10 }, // to have same params as QueryTable
   })
 
-  const deleteOrg = useApiMutation('organizationDelete', {
+  const deleteOrg = useApiMutation('organizationDeleteV1', {
     onSuccess() {
-      queryClient.invalidateQueries('organizationList', {})
+      queryClient.invalidateQueries('organizationListV1', {})
     },
   })
 
@@ -55,15 +55,18 @@ export default function OrgsPage() {
     {
       label: 'Edit',
       onActivate() {
-        const path = { orgName: org.name }
-        apiQueryClient.setQueryData('organizationView', { path }, org)
-        navigate(pb.orgEdit({ orgName: org.name }))
+        apiQueryClient.setQueryData(
+          'organizationViewV1',
+          { path: { organization: org.name } },
+          org
+        )
+        navigate(pb.orgEdit({ organization: org.name }))
       },
     },
     {
       label: 'Delete',
       onActivate: () => {
-        deleteOrg.mutate({ path: { orgName: org.name } })
+        deleteOrg.mutate({ path: { organization: org.name } })
       },
     },
   ]
@@ -74,7 +77,7 @@ export default function OrgsPage() {
         { value: 'New organization', onSelect: () => navigate(pb.orgNew()) },
         ...(orgs?.items || []).map((o) => ({
           value: o.name,
-          onSelect: () => navigate(pb.org({ orgName: o.name })),
+          onSelect: () => navigate(pb.org({ organization: o.name })),
           navGroup: 'Go to organization',
         })),
       ],
@@ -93,7 +96,10 @@ export default function OrgsPage() {
         </Link>
       </TableActions>
       <Table emptyState={<EmptyState />} makeActions={makeActions}>
-        <Column accessor="name" cell={linkCell((orgName) => pb.projects({ orgName }))} />
+        <Column
+          accessor="name"
+          cell={linkCell((organization) => pb.projects({ organization }))}
+        />
         <Column accessor="description" />
         <Column accessor="timeModified" header="Last updated" cell={DateCell} />
       </Table>

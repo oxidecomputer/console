@@ -5,7 +5,7 @@ import { Link, useParams } from 'react-router-dom'
 import { useApiQuery } from '@oxide/api'
 import { Identicon, Organization16Icon, SelectArrows6Icon, Success12Icon } from '@oxide/ui'
 
-import { useInstanceParams, useProjectParams, useSiloParams } from 'app/hooks'
+import { useInstanceSelector, useProjectSelector, useSiloParams } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 type TopBarPickerItem = {
@@ -122,7 +122,7 @@ export function useSiloSystemPicker(value: 'silo' | 'system') {
   // this request in the loader. If that prefetch were removed, fleet viewers
   // would see the silo picker pop in when the request resolves, which would be
   // bad.
-  const { data: systemPolicy } = useApiQuery('systemPolicyView', {})
+  const { data: systemPolicy } = useApiQuery('systemPolicyViewV1', {})
   return systemPolicy ? <SiloSystemPicker value={value} /> : null
 }
 
@@ -157,7 +157,7 @@ export function SiloPicker() {
   const { data } = useApiQuery('siloList', { query: { limit: 10 } })
   const items = (data?.items || []).map((silo) => ({
     label: silo.name,
-    to: pb.silo({ siloName: silo.name }),
+    to: pb.silo({ silo: silo.name }),
   }))
 
   return (
@@ -174,10 +174,10 @@ export function SiloPicker() {
 
 export function OrgPicker() {
   const { orgName } = useParams()
-  const { data } = useApiQuery('organizationList', { query: { limit: 20 } })
+  const { data } = useApiQuery('organizationListV1', { query: { limit: 20 } })
   const items = (data?.items || []).map(({ name }) => ({
     label: name,
-    to: pb.projects({ orgName: name }),
+    to: pb.projects({ organization: name }),
   }))
 
   return (
@@ -194,18 +194,20 @@ export function OrgPicker() {
 
 export function ProjectPicker() {
   // picker only shows up when a project is in scope
-  const { orgName, projectName } = useProjectParams()
-  const { data } = useApiQuery('projectList', { path: { orgName }, query: { limit: 20 } })
+  const { organization, project } = useProjectSelector()
+  const { data } = useApiQuery('projectListV1', {
+    query: { organization, limit: 20 },
+  })
   const items = (data?.items || []).map(({ name }) => ({
     label: name,
-    to: pb.instances({ orgName, projectName: name }),
+    to: pb.instances({ organization, project: name }),
   }))
 
   return (
     <TopBarPicker
       aria-label="Switch project"
       category="Project"
-      current={projectName}
+      current={project}
       items={items}
       noItemsText="No projects found"
     />
@@ -214,21 +216,20 @@ export function ProjectPicker() {
 
 export function InstancePicker() {
   // picker only shows up when an instance is in scope
-  const { orgName, projectName, instanceName } = useInstanceParams()
-  const { data } = useApiQuery('instanceList', {
-    path: { orgName, projectName },
-    query: { limit: 50 },
+  const { organization, project, instance } = useInstanceSelector()
+  const { data } = useApiQuery('instanceListV1', {
+    query: { organization, project, limit: 50 },
   })
   const items = (data?.items || []).map(({ name }) => ({
     label: name,
-    to: pb.instance({ orgName, projectName, instanceName: name }),
+    to: pb.instance({ organization, project, instance: name }),
   }))
 
   return (
     <TopBarPicker
       aria-label="Switch instance"
       category="Instance"
-      current={instanceName}
+      current={instance}
       items={items}
       noItemsText="No instances found"
     />

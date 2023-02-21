@@ -3,16 +3,18 @@ import { useNavigate } from 'react-router-dom'
 
 import { apiQueryClient, useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
 import { Success16Icon } from '@oxide/ui'
+import { toPathQuery } from '@oxide/util'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
 import { pb } from 'app/util/path-builder'
 
-import { requireProjectParams, useRequiredParams, useToast } from '../hooks'
+import { getProjectSelector, useProjectSelector, useToast } from '../hooks'
 
 EditProjectSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
-  await apiQueryClient.prefetchQuery('projectView', {
-    path: requireProjectParams(params),
-  })
+  await apiQueryClient.prefetchQuery(
+    'projectViewV1',
+    toPathQuery('project', getProjectSelector(params))
+  )
   return null
 }
 
@@ -21,20 +23,23 @@ export function EditProjectSideModalForm() {
   const addToast = useToast()
   const navigate = useNavigate()
 
-  const { orgName, projectName } = useRequiredParams('orgName', 'projectName')
+  const projectSelector = useProjectSelector()
+  const projectPathQuery = toPathQuery('project', projectSelector)
+  const { organization } = projectSelector
 
-  const onDismiss = () => navigate(pb.projects({ orgName }))
+  const onDismiss = () => navigate(pb.projects(projectSelector))
 
-  const { data: project } = useApiQuery('projectView', { path: { orgName, projectName } })
+  const { data: project } = useApiQuery('projectViewV1', projectPathQuery)
 
-  const editProject = useApiMutation('projectUpdate', {
+  const editProject = useApiMutation('projectUpdateV1', {
     onSuccess(project) {
       // refetch list of projects in sidebar
-      queryClient.invalidateQueries('projectList', { path: { orgName } })
+      // TODO: check this invalidation
+      queryClient.invalidateQueries('projectListV1', { query: { organization } })
       // avoid the project fetch when the project page loads since we have the data
       queryClient.setQueryData(
-        'projectView',
-        { path: { orgName, projectName: project.name } },
+        'projectViewV1',
+        { path: { project: project.name }, query: { organization } },
         project
       )
       addToast({
@@ -53,10 +58,7 @@ export function EditProjectSideModalForm() {
       title="Edit project"
       onDismiss={onDismiss}
       onSubmit={({ name, description }) => {
-        editProject.mutate({
-          path: { orgName, projectName },
-          body: { name, description },
-        })
+        editProject.mutate({ ...projectPathQuery, body: { name, description } })
       }}
       loading={editProject.isLoading}
       submitError={editProject.error}

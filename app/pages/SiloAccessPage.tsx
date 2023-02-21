@@ -44,7 +44,7 @@ const EmptyState = ({ onClick }: { onClick: () => void }) => (
 
 SiloAccessPage.loader = async () => {
   await Promise.all([
-    apiQueryClient.prefetchQuery('policyView', {}),
+    apiQueryClient.prefetchQuery('policyViewV1', {}),
     // used to resolve user names
     apiQueryClient.prefetchQuery('userList', {}),
     apiQueryClient.prefetchQuery('groupList', {}),
@@ -66,7 +66,7 @@ export function SiloAccessPage() {
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [editingUserRow, setEditingUserRow] = useState<UserRow | null>(null)
 
-  const { data: siloPolicy } = useApiQuery('policyView', {})
+  const { data: siloPolicy } = useApiQuery('policyViewV1', {})
   const siloRows = useUserRows(siloPolicy?.roleAssignments, 'silo')
 
   const rows = useMemo(() => {
@@ -93,8 +93,8 @@ export function SiloAccessPage() {
   }, [siloRows])
 
   const queryClient = useApiQueryClient()
-  const updatePolicy = useApiMutation('policyUpdate', {
-    onSuccess: () => queryClient.invalidateQueries('policyView', {}),
+  const updatePolicy = useApiMutation('policyUpdateV1', {
+    onSuccess: () => queryClient.invalidateQueries('policyViewV1', {}),
     // TODO: handle 403
   })
 

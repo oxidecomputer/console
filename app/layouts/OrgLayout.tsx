@@ -2,14 +2,14 @@ import { Access16Icon, Divider, Folder16Icon, Organization16Icon } from '@oxide/
 
 import { TopBar } from 'app/components/TopBar'
 import { OrgPicker, useSiloSystemPicker } from 'app/components/TopBarPicker'
-import { useRequiredParams } from 'app/hooks'
+import { useOrgSelector } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 import { DocsLinkItem, NavLinkItem, Sidebar } from '../components/Sidebar'
 import { ContentPane, PageContainer } from './helpers'
 
 const OrgLayout = () => {
-  const { orgName } = useRequiredParams('orgName')
+  const { organization } = useOrgSelector()
 
   return (
     <PageContainer>
@@ -26,12 +26,12 @@ const OrgLayout = () => {
           <DocsLinkItem />
         </Sidebar.Nav>
         <Divider />
-        <Sidebar.Nav heading={orgName}>
-          <NavLinkItem to={pb.projects({ orgName })}>
+        <Sidebar.Nav heading={organization}>
+          <NavLinkItem to={pb.projects({ organization })}>
             <Folder16Icon title="Projects" />
             Projects
           </NavLinkItem>
-          <NavLinkItem to={pb.orgAccess({ orgName })}>
+          <NavLinkItem to={pb.orgAccess({ organization })}>
             <Access16Icon title="Access & IAM" />
             Access &amp; IAM
           </NavLinkItem>

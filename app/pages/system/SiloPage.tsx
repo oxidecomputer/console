@@ -46,7 +46,10 @@ export function SiloPage() {
       </PageHeader>
       <h2 className="mb-2 text-sans-2xl">Identity providers</h2>
       <TableActions>
-        <Link to={pb.siloIdpNew({ siloName })} className={buttonStyle({ size: 'sm' })}>
+        <Link
+          to={pb.siloIdpNew({ silo: siloName })}
+          className={buttonStyle({ size: 'sm' })}
+        >
           New provider
         </Link>
       </TableActions>

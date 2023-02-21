@@ -15,11 +15,11 @@ import {
 } from '@oxide/ui'
 
 import { SnapshotStatusBadge } from 'app/components/StatusBadge'
-import { requireProjectParams, useProjectParams, useRequiredParams } from 'app/hooks'
+import { getProjectSelector, useProjectSelector } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 const DiskNameFromId = ({ value }: { value: string }) => {
-  const { data: disk } = useApiQuery('diskViewById', { path: { id: value } })
+  const { data: disk } = useApiQuery('diskViewV1', { path: { disk: value } })
   if (!disk) return null
   return <>{disk.name}</>
 }
@@ -30,26 +30,25 @@ const EmptyState = () => (
     title="No snapshots"
     body="You need to create a snapshot to be able to see it here"
     buttonText="New snapshot"
-    buttonTo={pb.snapshotNew(useProjectParams())}
+    buttonTo={pb.snapshotNew(useProjectSelector())}
   />
 )
 
 SnapshotsPage.loader = async ({ params }: LoaderFunctionArgs) => {
-  await apiQueryClient.prefetchQuery('snapshotList', {
-    path: requireProjectParams(params),
-    query: { limit: 10 },
+  await apiQueryClient.prefetchQuery('snapshotListV1', {
+    query: { ...getProjectSelector(params), limit: 10 },
   })
   return null
 }
 
 export function SnapshotsPage() {
   const queryClient = useApiQueryClient()
-  const projectParams = useRequiredParams('orgName', 'projectName')
-  const { Table, Column } = useQueryTable('snapshotList', { path: projectParams })
+  const projectSelector = useProjectSelector()
+  const { Table, Column } = useQueryTable('snapshotListV1', { query: projectSelector })
 
-  const deleteSnapshot = useApiMutation('snapshotDelete', {
+  const deleteSnapshot = useApiMutation('snapshotDeleteV1', {
     onSuccess() {
-      queryClient.invalidateQueries('snapshotList', { path: projectParams })
+      queryClient.invalidateQueries('snapshotListV1', { query: projectSelector })
     },
   })
 
@@ -57,7 +56,7 @@ export function SnapshotsPage() {
     {
       label: 'Delete',
       onActivate() {
-        deleteSnapshot.mutate({ path: { ...projectParams, snapshotName: snapshot.name } })
+        deleteSnapshot.mutate({ path: { snapshot: snapshot.name }, query: projectSelector })
       },
     },
   ]
@@ -68,7 +67,7 @@ export function SnapshotsPage() {
         <PageTitle icon={<Snapshots24Icon />}>Snapshots</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link to={pb.snapshotNew(projectParams)} className={buttonStyle({ size: 'sm' })}>
+        <Link to={pb.snapshotNew(projectSelector)} className={buttonStyle({ size: 'sm' })}>
           New Snapshot
         </Link>
       </TableActions>

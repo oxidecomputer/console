@@ -13,7 +13,7 @@ test('can invoke instance create form from instances page', async ({
   projectName,
   genName,
 }) => {
-  await page.goto(pb.instances({ orgName, projectName }))
+  await page.goto(pb.instances({ organization: orgName, project: projectName }))
   await page.locator('text="New Instance"').click()
 
   await expectVisible(page, [
@@ -42,7 +42,13 @@ test('can invoke instance create form from instances page', async ({
 
   await page.locator('button:has-text("Create instance")').click()
 
-  await page.waitForURL(pb.instancePage({ orgName, projectName, instanceName }))
+  await page.waitForURL(
+    pb.instancePage({
+      organization: orgName,
+      project: projectName,
+      instance: instanceName,
+    })
+  )
 
   await expectVisible(page, [
     `h1:has-text("${instanceName}")`,

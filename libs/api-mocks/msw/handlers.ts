@@ -3,7 +3,7 @@ import { v4 as uuid } from 'uuid'
 import type { ApiTypes as Api, UpdateDeployment } from '@oxide/api'
 import type { Json } from '@oxide/gen/msw-handlers'
 import { json, makeHandlers } from '@oxide/gen/msw-handlers'
-import { pick, sortBy } from '@oxide/util'
+import { pick, sortBy, toApiSelector } from '@oxide/util'
 
 import { genCumulativeI64Data, genI64Data } from '../metrics'
 import { FLEET_ID } from '../role-assignment'
@@ -13,24 +13,13 @@ import { sortBySemverDesc } from '../update'
 import { user1 } from '../user'
 import {
   db,
+  lookup,
   lookupById,
-  lookupDisk,
   lookupGlobalImage,
   lookupImage,
-  lookupInstance,
-  lookupNetworkInterface,
-  lookupOrg,
-  lookupProject,
   lookupSamlIdp,
   lookupSilo,
-  lookupSled,
-  lookupSnapshot,
   lookupSshKey,
-  lookupSystemUpdate,
-  lookupVpc,
-  lookupVpcRouter,
-  lookupVpcRouterRoute,
-  lookupVpcSubnet,
 } from './db'
 import {
   NotImplemented,
@@ -53,8 +42,8 @@ export const handlers = makeHandlers({
   deviceAccessToken: () => 200,
   groupList: (params) => paginated(params.query, db.userGroups),
 
-  organizationList: (params) => paginated(params.query, db.orgs),
-  organizationCreate({ body }) {
+  organizationListV1: (params) => paginated(params.query, db.orgs),
+  organizationCreateV1({ body }) {
     errIfExists(db.orgs, { name: body.name })
 
     const newOrg: Json<Api.Organization> = {
@@ -66,15 +55,15 @@ export const handlers = makeHandlers({
 
     return json(newOrg, { status: 201 })
   },
-  organizationView(params) {
-    if (params.path.orgName.endsWith('-error-503')) {
+  organizationViewV1(params) {
+    if (params.path.organization.endsWith('-error-503')) {
       throw unavailableErr
     }
 
-    return lookupOrg(params.path)
+    return lookup.org(params.path)
   },
-  organizationUpdate({ body, ...params }) {
-    const org = lookupOrg(params.path)
+  organizationUpdateV1({ body, path }) {
+    const org = lookup.org(path)
 
     if (typeof body.name === 'string') {
       org.name = body.name
@@ -83,13 +72,13 @@ export const handlers = makeHandlers({
 
     return org
   },
-  organizationDelete(params) {
-    const org = lookupOrg(params.path)
+  organizationDeleteV1({ path }) {
+    const org = lookup.org(path)
     db.orgs = db.orgs.filter((o) => o.id !== org.id)
     return 204
   },
-  organizationPolicyView(params) {
-    const org = lookupOrg(params.path)
+  organizationPolicyViewV1({ path }) {
+    const org = lookup.org(path)
 
     const role_assignments = db.roleAssignments
       .filter((r) => r.resource_type === 'organization' && r.resource_id === org.id)
@@ -97,8 +86,8 @@ export const handlers = makeHandlers({
 
     return { role_assignments }
   },
-  organizationPolicyUpdate({ body, ...params }) {
-    const org = lookupOrg(params.path)
+  organizationPolicyUpdateV1({ body, path }) {
+    const org = lookup.org(path)
 
     const newAssignments = body.role_assignments.map((r) => ({
       resource_type: 'organization' as const,
@@ -114,14 +103,13 @@ export const handlers = makeHandlers({
 
     return body
   },
-  projectList(params) {
-    const org = lookupOrg(params.path)
+  projectListV1(params) {
+    const org = lookup.org(params.query)
     const projects = db.projects.filter((p) => p.organization_id === org.id)
-
     return paginated(params.query, projects)
   },
-  projectCreate({ body, ...params }) {
-    const org = lookupOrg(params.path)
+  projectCreateV1({ body, query }) {
+    const org = lookup.org(query)
     errIfExists(db.projects, { name: body.name, organization_id: org.id })
 
     const newProject: Json<Api.Project> = {
@@ -134,9 +122,9 @@ export const handlers = makeHandlers({
 
     return json(newProject, { status: 201 })
   },
-  projectView: (params) => lookupProject(params.path),
-  projectUpdate({ body, ...params }) {
-    const project = lookupProject(params.path)
+  projectViewV1: ({ path, query }) => lookup.project({ ...path, ...query }),
+  projectUpdateV1({ body, path, query }) {
+    const project = lookup.project({ ...path, ...query })
     if (body.name) {
       project.name = body.name
     }
@@ -144,21 +132,21 @@ export const handlers = makeHandlers({
 
     return project
   },
-  projectDelete(params) {
-    const project = lookupProject(params.path)
+  projectDeleteV1({ path, query }) {
+    const project = lookup.project({ ...path, ...query })
 
     db.projects = db.projects.filter((p) => p.id !== project.id)
 
     return 204
   },
-  diskList(params) {
-    const project = lookupProject(params.path)
+  diskListV1({ query }) {
+    const project = lookup.project(query)
     const disks = db.disks.filter((d) => d.project_id === project.id)
 
-    return paginated(params.query, disks)
+    return paginated(query, disks)
   },
-  diskCreate({ body, ...params }) {
-    const project = lookupProject(params.path)
+  diskCreateV1({ body, query }) {
+    const project = lookup.project(query)
 
     errIfExists(db.disks, { name: body.name, project_id: project.id })
 
@@ -180,9 +168,9 @@ export const handlers = makeHandlers({
 
     return json(newDisk, { status: 201 })
   },
-  diskView: (params) => lookupDisk(params.path),
-  diskDelete(params) {
-    const disk = lookupDisk(params.path)
+  diskViewV1: ({ path, query }) => lookup.disk({ ...path, ...query }),
+  diskDeleteV1({ path, query }) {
+    const disk = lookup.disk({ ...path, ...query })
 
     // Governed by https://github.com/oxidecomputer/omicron/blob/e5704d7f343fa0633751527dedf276409647ad4e/nexus/src/db/datastore.rs#L2103
     switch (disk.state.state) {
@@ -196,10 +184,14 @@ export const handlers = makeHandlers({
     db.disks = db.disks.filter((d) => d.id !== disk.id)
     return 204
   },
-  diskMetricsList(params) {
-    lookupDisk(params.path)
+  diskMetricsList({ path, query }) {
+    lookup.disk({
+      organization: path.orgName,
+      project: path.projectName,
+      disk: path.diskName,
+    })
 
-    const { startTime, endTime } = getStartAndEndTime(params.query)
+    const { startTime, endTime } = getStartAndEndTime(query)
 
     if (endTime <= startTime) return { items: [] }
 
@@ -212,12 +204,12 @@ export const handlers = makeHandlers({
     }
   },
   imageList(params) {
-    const project = lookupProject(params.path)
+    const project = lookup.project(toApiSelector(params.path))
     const images = db.images.filter((i) => i.project_id === project.id)
     return paginated(params.query, images)
   },
   imageCreate({ body, ...params }) {
-    const project = lookupProject(params.path)
+    const project = lookup.project(toApiSelector(params.path))
     errIfExists(db.images, { name: body.name, project_id: project.id })
 
     const newImage: Json<Api.Image> = {
@@ -238,13 +230,13 @@ export const handlers = makeHandlers({
 
     return 204
   },
-  instanceList(params) {
-    const project = lookupProject(params.path)
+  instanceListV1({ query }) {
+    const project = lookup.project(query)
     const instances = db.instances.filter((i) => i.project_id === project.id)
-    return paginated(params.query, instances)
+    return paginated(query, instances)
   },
-  instanceCreate({ body, ...params }) {
-    const project = lookupProject(params.path)
+  instanceCreateV1({ body, query }) {
+    const project = lookup.project(query)
 
     errIfExists(db.instances, { name: body.name, project_id: project.id })
 
@@ -257,9 +249,9 @@ export const handlers = makeHandlers({
     for (const diskParams of body.disks || []) {
       if (diskParams.type === 'create') {
         errIfExists(db.disks, { name: diskParams.name, project_id: project.id })
-        errIfInvalidDiskSize(params.path, diskParams)
+        errIfInvalidDiskSize(diskParams)
       } else {
-        lookupDisk({ ...params.path, diskName: diskParams.name })
+        lookup.disk({ ...query, disk: diskParams.name })
       }
     }
 
@@ -269,12 +261,8 @@ export const handlers = makeHandlers({
      */
     if (body.network_interfaces?.type === 'create') {
       body.network_interfaces.params.forEach(({ vpc_name, subnet_name }) => {
-        lookupVpc({ ...params.path, vpcName: vpc_name })
-        lookupVpcSubnet({
-          ...params.path,
-          vpcName: vpc_name,
-          subnetName: subnet_name,
-        })
+        lookup.vpc({ ...query, vpc: vpc_name })
+        lookup.vpcSubnet({ ...query, vpc: vpc_name, subnet: subnet_name })
       })
     }
 
@@ -294,7 +282,7 @@ export const handlers = makeHandlers({
         }
         db.disks.push(newDisk)
       } else {
-        const disk = lookupDisk({ ...params.path, diskName: diskParams.name })
+        const disk = lookup.disk({ ...query, disk: diskParams.name })
         disk.state = { state: 'attached', instance: instanceId }
       }
     }
@@ -323,12 +311,9 @@ export const handlers = makeHandlers({
             primary: i === 0 ? true : false,
             mac: '00:00:00:00:00:00',
             ip: ip || '127.0.0.1',
-            vpc_id: lookupVpc({ ...params.path, vpcName: vpc_name }).id,
-            subnet_id: lookupVpcSubnet({
-              ...params.path,
-              vpcName: vpc_name,
-              subnetName: subnet_name,
-            }).id,
+            vpc_id: lookup.vpc({ ...query, vpc: vpc_name }).id,
+            subnet_id: lookup.vpcSubnet({ ...query, vpc: vpc_name, subnet: subnet_name })
+              .id,
             ...getTimestamps(),
           })
         }
@@ -346,45 +331,44 @@ export const handlers = makeHandlers({
     db.instances.push(newInstance)
     return json(newInstance, { status: 201 })
   },
-  instanceView: (params) => lookupInstance(params.path),
-  instanceDelete(params) {
-    const instance = lookupInstance(params.path)
+  instanceViewV1: ({ path, query }) => lookup.instance({ ...path, ...query }),
+  instanceDeleteV1({ path, query }) {
+    const instance = lookup.instance({ ...path, ...query })
     db.instances = db.instances.filter((i) => i.id !== instance.id)
     return 204
   },
-  instanceDiskList(params) {
-    const instance = lookupInstance(params.path)
+  instanceDiskListV1({ path, query }) {
+    const instance = lookup.instance({ ...path, ...query })
     // TODO: Should disk instance state be `instance_id` instead of `instance`?
     const disks = db.disks.filter(
       (d) => 'instance' in d.state && d.state.instance === instance.id
     )
-    return paginated(params.query, disks)
+    return paginated(query, disks)
   },
-  instanceDiskAttach({ body, ...params }) {
-    const instance = lookupInstance(params.path)
+  instanceDiskAttachV1({ body, path, query: projectParams }) {
+    const instance = lookup.instance({ ...path, ...projectParams })
     if (instance.run_state !== 'stopped') {
       throw 'Cannot attach disk to instance that is not stopped'
     }
-    const disk = lookupDisk({ ...params.path, diskName: body.name })
+    const disk = lookup.disk({ ...projectParams, disk: body.disk })
     disk.state = {
       state: 'attached',
       instance: instance.id,
     }
+    console.log(disk)
     return disk
   },
-  instanceDiskDetach({ body, ...params }) {
-    const instance = lookupInstance(params.path)
+  instanceDiskDetachV1({ body, path, query: projectParams }) {
+    const instance = lookup.instance({ ...path, ...projectParams })
     if (instance.run_state !== 'stopped') {
       throw 'Cannot detach disk to instance that is not stopped'
     }
-    const disk = lookupDisk({ ...params.path, diskName: body.name })
-    disk.state = {
-      state: 'detached',
-    }
+    const disk = lookup.disk({ ...projectParams, disk: body.disk })
+    disk.state = { state: 'detached' }
     return disk
   },
   instanceExternalIpList(params) {
-    lookupInstance(params.path)
+    lookup.instance(toApiSelector(params.path)) // temporary
 
     // TODO: proper mock table
     return {
@@ -396,13 +380,13 @@ export const handlers = makeHandlers({
       ],
     }
   },
-  instanceNetworkInterfaceList(params) {
-    const instance = lookupInstance(params.path)
+  instanceNetworkInterfaceListV1({ query }) {
+    const instance = lookup.instance(query)
     const nics = db.networkInterfaces.filter((n) => n.instance_id === instance.id)
-    return paginated(params.query, nics)
+    return paginated(query, nics)
   },
-  instanceNetworkInterfaceCreate({ body, ...params }) {
-    const instance = lookupInstance(params.path)
+  instanceNetworkInterfaceCreateV1({ body, query }) {
+    const instance = lookup.instance(query)
     const nicsForInstance = db.networkInterfaces.filter(
       (n) => n.instance_id === instance.id
     )
@@ -410,13 +394,8 @@ export const handlers = makeHandlers({
 
     const { name, description, subnet_name, vpc_name, ip } = body
 
-    const vpc = lookupVpc({ ...params.path, vpcName: vpc_name })
-
-    const subnet = lookupVpcSubnet({
-      ...params.path,
-      vpcName: vpc_name,
-      subnetName: subnet_name,
-    })
+    const vpc = lookup.vpc({ ...query, vpc: vpc_name })
+    const subnet = lookup.vpcSubnet({ ...query, vpc: vpc_name, subnet: subnet_name })
 
     const newNic: Json<Api.NetworkInterface> = {
       id: uuid(),
@@ -435,9 +414,10 @@ export const handlers = makeHandlers({
 
     return newNic
   },
-  instanceNetworkInterfaceView: (params) => lookupNetworkInterface(params.path),
-  instanceNetworkInterfaceUpdate({ body, ...params }) {
-    const nic = lookupNetworkInterface(params.path)
+  instanceNetworkInterfaceViewV1: ({ path, query }) =>
+    lookup.networkInterface({ ...path, ...query }),
+  instanceNetworkInterfaceUpdateV1({ body, path, query }) {
+    const nic = lookup.networkInterface({ ...path, ...query })
 
     if (body.name) {
       nic.name = body.name
@@ -460,13 +440,13 @@ export const handlers = makeHandlers({
 
     return nic
   },
-  instanceNetworkInterfaceDelete(params) {
-    const nic = lookupNetworkInterface(params.path)
+  instanceNetworkInterfaceDeleteV1({ path, query }) {
+    const nic = lookup.networkInterface({ ...path, ...query })
     db.networkInterfaces = db.networkInterfaces.filter((n) => n.id !== nic.id)
     return 204
   },
-  instanceReboot(params) {
-    const instance = lookupInstance(params.path)
+  instanceRebootV1({ path, query }) {
+    const instance = lookup.instance({ ...path, ...query })
     instance.run_state = 'rebooting'
 
     setTimeout(() => {
@@ -475,24 +455,24 @@ export const handlers = makeHandlers({
 
     return json(instance, { status: 202 })
   },
-  instanceSerialConsole(_params) {
+  instanceSerialConsoleV1(_params) {
     // TODO: Add support for params
     return serial
   },
-  instanceStart(params) {
-    const instance = lookupInstance(params.path)
+  instanceStartV1({ path, query }) {
+    const instance = lookup.instance({ ...path, ...query })
     instance.run_state = 'running'
 
     return json(instance, { status: 202 })
   },
-  instanceStop(params) {
-    const instance = lookupInstance(params.path)
+  instanceStopV1({ path, query }) {
+    const instance = lookup.instance({ ...path, ...query })
     instance.run_state = 'stopped'
 
     return json(instance, { status: 202 })
   },
-  projectPolicyView(params) {
-    const project = lookupProject(params.path)
+  projectPolicyViewV1({ path, query }) {
+    const project = lookup.project({ ...path, ...query })
 
     const role_assignments = db.roleAssignments
       .filter((r) => r.resource_type === 'project' && r.resource_id === project.id)
@@ -500,8 +480,8 @@ export const handlers = makeHandlers({
 
     return { role_assignments }
   },
-  projectPolicyUpdate({ body, ...params }) {
-    const project = lookupProject(params.path)
+  projectPolicyUpdateV1({ body, path, query }) {
+    const project = lookup.project({ ...path, ...query })
 
     const newAssignments = body.role_assignments.map((r) => ({
       resource_type: 'project' as const,
@@ -518,17 +498,17 @@ export const handlers = makeHandlers({
     // TODO: Is this the right thing to return?
     return body
   },
-  snapshotList(params) {
-    const project = lookupProject(params.path)
+  snapshotListV1(params) {
+    const project = lookup.project(params.query)
     const snapshots = db.snapshots.filter((i) => i.project_id === project.id)
     return paginated(params.query, snapshots)
   },
-  snapshotCreate({ body, ...params }) {
-    const project = lookupProject(params.path)
+  snapshotCreateV1({ body, query }) {
+    const project = lookup.project(query)
 
     errIfExists(db.snapshots, { name: body.name })
 
-    const disk = lookupDisk({ ...params.path, diskName: body.disk })
+    const disk = lookup.disk({ ...query, disk: body.disk })
 
     const newSnapshot: Json<Api.Snapshot> = {
       id: uuid(),
@@ -543,19 +523,19 @@ export const handlers = makeHandlers({
 
     return json(newSnapshot, { status: 201 })
   },
-  snapshotView: (params) => lookupSnapshot(params.path),
-  snapshotDelete(params) {
-    const snapshot = lookupSnapshot(params.path)
+  snapshotViewV1: ({ path, query }) => lookup.snapshot({ ...path, ...query }),
+  snapshotDeleteV1({ path, query }) {
+    const snapshot = lookup.snapshot({ ...path, ...query })
     db.snapshots = db.snapshots.filter((s) => s.id !== snapshot.id)
     return 204
   },
-  vpcList(params) {
-    const project = lookupProject(params.path)
+  vpcListV1({ query }) {
+    const project = lookup.project(query)
     const vpcs = db.vpcs.filter((v) => v.project_id === project.id)
-    return paginated(params.query, vpcs)
+    return paginated(query, vpcs)
   },
-  vpcCreate({ body, ...params }) {
-    const project = lookupProject(params.path)
+  vpcCreateV1({ body, query }) {
+    const project = lookup.project(query)
     errIfExists(db.vpcs, { name: body.name })
 
     const newVpc: Json<Api.Vpc> = {
@@ -583,9 +563,9 @@ export const handlers = makeHandlers({
 
     return json(newVpc, { status: 201 })
   },
-  vpcView: (params) => lookupVpc(params.path),
-  vpcUpdate({ body, ...params }) {
-    const vpc = lookupVpc(params.path)
+  vpcViewV1: ({ path, query }) => lookup.vpc({ ...path, ...query }),
+  vpcUpdateV1({ body, path, query }) {
+    const vpc = lookup.vpc({ ...path, ...query })
 
     if (body.name) {
       vpc.name = body.name
@@ -600,8 +580,8 @@ export const handlers = makeHandlers({
     }
     return vpc
   },
-  vpcDelete(params) {
-    const vpc = lookupVpc(params.path)
+  vpcDeleteV1({ path, query }) {
+    const vpc = lookup.vpc({ ...path, ...query })
 
     db.vpcs = db.vpcs.filter((v) => v.id !== vpc.id)
     db.vpcSubnets = db.vpcSubnets.filter((s) => s.vpc_id !== vpc.id)
@@ -618,13 +598,13 @@ export const handlers = makeHandlers({
     return 204
   },
   vpcFirewallRulesView(params) {
-    const vpc = lookupVpc(params.path)
+    const vpc = lookup.vpc(toApiSelector(params.path))
     const rules = db.vpcFirewallRules.filter((r) => r.vpc_id === vpc.id)
 
     return { rules: sortBy(rules, (r) => r.name) }
   },
   vpcFirewallRulesUpdate({ body, ...params }) {
-    const vpc = lookupVpc(params.path)
+    const vpc = lookup.vpc(toApiSelector(params.path))
 
     const rules = body.rules.map((rule) => ({
       vpc_id: vpc.id,
@@ -641,13 +621,13 @@ export const handlers = makeHandlers({
 
     return { rules: sortBy(rules, (r) => r.name) }
   },
-  vpcRouterList(params) {
-    const vpc = lookupVpc(params.path)
+  vpcRouterListV1({ query }) {
+    const vpc = lookup.vpc(query)
     const routers = db.vpcRouters.filter((r) => r.vpc_id === vpc.id)
-    return paginated(params.query, routers)
+    return paginated(query, routers)
   },
-  vpcRouterCreate({ body, ...params }) {
-    const vpc = lookupVpc(params.path)
+  vpcRouterCreateV1({ body, query }) {
+    const vpc = lookup.vpc(query)
     errIfExists(db.vpcRouters, { vpc_id: vpc.id, name: body.name })
 
     const newRouter: Json<Api.VpcRouter> = {
@@ -660,9 +640,9 @@ export const handlers = makeHandlers({
     db.vpcRouters.push(newRouter)
     return json(newRouter, { status: 201 })
   },
-  vpcRouterView: (params) => lookupVpcRouter(params.path),
-  vpcRouterUpdate({ body, ...params }) {
-    const router = lookupVpcRouter(params.path)
+  vpcRouterViewV1: ({ path, query }) => lookup.vpcRouter({ ...path, ...query }),
+  vpcRouterUpdateV1({ body, path, query }) {
+    const router = lookup.vpcRouter({ ...path, ...query })
 
     if (body.name) {
       router.name = body.name
@@ -673,21 +653,21 @@ export const handlers = makeHandlers({
 
     return router
   },
-  vpcRouterDelete(params) {
-    const router = lookupVpcRouter(params.path)
+  vpcRouterDeleteV1({ path, query }) {
+    const router = lookup.vpcRouter({ ...path, ...query })
 
     // TODO: Are there routers that can't be deleted?
     db.vpcRouters = db.vpcRouters.filter((r) => r.id !== router.id)
 
     return 204
   },
-  vpcRouterRouteList(params) {
-    const router = lookupVpcRouter(params.path)
+  vpcRouterRouteListV1({ query }) {
+    const router = lookup.vpcRouter(query)
     const routers = db.vpcRouterRoutes.filter((s) => s.vpc_router_id === router.id)
-    return paginated(params.query, routers)
+    return paginated(query, routers)
   },
-  vpcRouterRouteCreate({ body, ...params }) {
-    const router = lookupVpcRouter(params.path)
+  vpcRouterRouteCreateV1({ body, query }) {
+    const router = lookup.vpcRouter(query)
 
     errIfExists(db.vpcRouterRoutes, { vpc_router_id: router.id, name: body.name })
 
@@ -700,9 +680,9 @@ export const handlers = makeHandlers({
     }
     return json(newRoute, { status: 201 })
   },
-  vpcRouterRouteView: (params) => lookupVpcRouterRoute(params.path),
-  vpcRouterRouteUpdate({ body, ...params }) {
-    const route = lookupVpcRouterRoute(params.path)
+  vpcRouterRouteViewV1: ({ path, query }) => lookup.vpcRouterRoute({ ...path, ...query }),
+  vpcRouterRouteUpdateV1({ body, path, query }) {
+    const route = lookup.vpcRouterRoute({ ...path, ...query })
     if (route.kind !== 'custom') {
       throw 'Only custom routes may be modified'
     }
@@ -714,21 +694,21 @@ export const handlers = makeHandlers({
     }
     return route
   },
-  vpcRouterRouteDelete(params) {
-    const route = lookupVpcRouterRoute(params.path)
+  vpcRouterRouteDeleteV1({ path, query }) {
+    const route = lookup.vpcRouterRoute({ ...path, ...query })
     if (route.kind !== 'custom') {
       throw 'Only custom routes may be modified'
     }
     db.vpcRouterRoutes = db.vpcRouterRoutes.filter((r) => r.id !== route.id)
     return 204
   },
-  vpcSubnetList(params) {
-    const vpc = lookupVpc(params.path)
+  vpcSubnetListV1({ query }) {
+    const vpc = lookup.vpc(query)
     const subnets = db.vpcSubnets.filter((s) => s.vpc_id === vpc.id)
-    return paginated(params.query, subnets)
+    return paginated(query, subnets)
   },
-  vpcSubnetCreate({ body, ...params }) {
-    const vpc = lookupVpc(params.path)
+  vpcSubnetCreateV1({ body, query }) {
+    const vpc = lookup.vpc(query)
     errIfExists(db.vpcSubnets, { vpc_id: vpc.id, name: body.name })
 
     // TODO: Create a route for the subnet in the default router
@@ -745,9 +725,9 @@ export const handlers = makeHandlers({
     db.vpcSubnets.push(newSubnet)
     return json(newSubnet, { status: 201 })
   },
-  vpcSubnetView: (params) => lookupVpcSubnet(params.path),
-  vpcSubnetUpdate({ body, ...params }) {
-    const subnet = lookupVpcSubnet(params.path)
+  vpcSubnetViewV1: ({ path, query }) => lookup.vpcSubnet({ ...path, ...query }),
+  vpcSubnetUpdateV1({ body, path, query }) {
+    const subnet = lookup.vpcSubnet({ ...path, ...query })
 
     if (body.name) {
       subnet.name = body.name
@@ -758,26 +738,24 @@ export const handlers = makeHandlers({
 
     return subnet
   },
-  vpcSubnetDelete(params) {
-    const subnet = lookupVpcSubnet(params.path)
+  vpcSubnetDeleteV1({ path, query }) {
+    const subnet = lookup.vpcSubnet({ ...path, ...query })
     db.vpcSubnets = db.vpcSubnets.filter((s) => s.id !== subnet.id)
 
     return 204
   },
   vpcSubnetListNetworkInterfaces(params) {
-    const subnet = lookupVpcSubnet(params.path)
+    const subnet = lookup.vpcSubnet(toApiSelector(params.path))
     const nics = db.networkInterfaces.filter((n) => n.subnet_id === subnet.id)
     return paginated(params.query, nics)
   },
-  sledPhysicalDiskList(params) {
-    const sled = lookupSled({ id: params.path.sledId })
+  sledPhysicalDiskListV1({ path, query }) {
+    const sled = lookup.sled({ id: path.sledId })
     const disks = db.physicalDisks.filter((n) => n.sled_id === sled.id)
-    return paginated(params.query, disks)
+    return paginated(query, disks)
   },
-  physicalDiskList(params) {
-    return paginated(params.query, db.physicalDisks)
-  },
-  policyView() {
+  physicalDiskListV1: ({ query }) => paginated(query, db.physicalDisks),
+  policyViewV1() {
     // assume we're in the default silo
     const siloId = defaultSilo.id
     const role_assignments = db.roleAssignments
@@ -786,7 +764,7 @@ export const handlers = makeHandlers({
 
     return { role_assignments }
   },
-  policyUpdate({ body }) {
+  policyUpdateV1({ body }) {
     const siloId = defaultSilo.id
     const newAssignments = body.role_assignments.map((r) => ({
       resource_type: 'silo' as const,
@@ -802,9 +780,7 @@ export const handlers = makeHandlers({
 
     return body
   },
-  rackList(params) {
-    return paginated(params.query, db.racks)
-  },
+  rackListV1: ({ query }) => paginated(query, db.racks),
   sessionMe() {
     return user1
   },
@@ -836,7 +812,7 @@ export const handlers = makeHandlers({
     db.sshKeys = db.sshKeys.filter((i) => i.id !== sshKey.id)
     return 204
   },
-  sledList: (params) => paginated(params.query, db.sleds),
+  sledListV1: (params) => paginated(params.query, db.sleds),
   systemImageList: (params) => paginated(params.query, db.globalImages),
   systemImageCreate({ body }) {
     errIfExists(db.globalImages, { name: body.name })
@@ -917,7 +893,7 @@ export const handlers = makeHandlers({
 
   userList: (params) => paginated(params.query, db.users),
 
-  systemPolicyView() {
+  systemPolicyViewV1() {
     const role_assignments = db.roleAssignments
       .filter((r) => r.resource_type === 'fleet' && r.resource_id === FLEET_ID)
       .map((r) => pick(r, 'identity_id', 'identity_type', 'role_name'))
@@ -926,9 +902,9 @@ export const handlers = makeHandlers({
   },
 
   systemUpdateList: (params) => paginated(params.query, db.systemUpdates),
-  systemUpdateView: ({ path }) => lookupSystemUpdate(path),
+  systemUpdateView: ({ path }) => lookup.systemUpdate(path),
   systemUpdateComponentsList: (params) => {
-    const systemUpdate = lookupSystemUpdate(params.path)
+    const systemUpdate = lookup.systemUpdate(params.path)
     const ids = new Set(
       db.systemUpdateComponentUpdates
         .filter((o) => o.system_update_id === systemUpdate.id)
@@ -973,7 +949,7 @@ export const handlers = makeHandlers({
     }
   },
   updateDeploymentsList: (params) => paginated(params.query, db.updateDeployments),
-  updateDeploymentView: lookupById(db.updateDeployments),
+  updateDeploymentView: ({ path: { id } }) => lookupById(db.updateDeployments, id),
 
   systemMetric: (params) => {
     // const result = ZVal.ResourceName.safeParse(req.params.resourceName)
@@ -997,22 +973,6 @@ export const handlers = makeHandlers({
       ),
     }
   },
-
-  // by ID endpoints (will be gone soon)
-
-  diskViewById: lookupById(db.disks),
-  imageViewById: lookupById(db.images),
-  instanceNetworkInterfaceViewById: lookupById(db.networkInterfaces),
-  instanceViewById: lookupById(db.instances),
-  organizationViewById: lookupById(db.orgs),
-  projectViewById: lookupById(db.projects),
-  siloViewById: lookupById(db.silos),
-  snapshotViewById: lookupById(db.snapshots),
-  systemImageViewById: lookupById(db.globalImages),
-  vpcRouterRouteViewById: lookupById(db.vpcRouterRoutes),
-  vpcRouterViewById: lookupById(db.vpcRouters),
-  vpcSubnetViewById: lookupById(db.vpcSubnets),
-  vpcViewById: lookupById(db.vpcs),
 
   // Misc endpoints we're not using yet in the console
 
@@ -1043,7 +1003,6 @@ export const handlers = makeHandlers({
   loginSamlBegin: NotImplemented,
   loginSpoof: NotImplemented,
   logout: NotImplemented,
-  rackView: NotImplemented,
   roleList: NotImplemented,
   roleView: NotImplemented,
   sagaList: NotImplemented,
@@ -1058,82 +1017,102 @@ export const handlers = makeHandlers({
   systemUserView: NotImplemented,
   timeseriesSchemaGet: NotImplemented,
 
-  // V1 endpoints
+  //  V1 endpoints we're not using in the console yet
 
   certificateCreateV1: NotImplemented,
   certificateDeleteV1: NotImplemented,
   certificateListV1: NotImplemented,
   certificateViewV1: NotImplemented,
-  diskCreateV1: NotImplemented,
-  diskDeleteV1: NotImplemented,
-  diskListV1: NotImplemented,
-  diskViewV1: NotImplemented,
-  instanceCreateV1: NotImplemented,
-  instanceDeleteV1: NotImplemented,
-  instanceDiskAttachV1: NotImplemented,
-  instanceDiskDetachV1: NotImplemented,
-  instanceDiskListV1: NotImplemented,
-  instanceListV1: NotImplemented,
   instanceMigrateV1: NotImplemented,
-  instanceNetworkInterfaceCreateV1: NotImplemented,
-  instanceNetworkInterfaceDeleteV1: NotImplemented,
-  instanceNetworkInterfaceListV1: NotImplemented,
-  instanceNetworkInterfaceUpdateV1: NotImplemented,
-  instanceNetworkInterfaceViewV1: NotImplemented,
-  instanceRebootV1: NotImplemented,
   instanceSerialConsoleStreamV1: NotImplemented,
-  instanceSerialConsoleV1: NotImplemented,
-  instanceStartV1: NotImplemented,
-  instanceStopV1: NotImplemented,
-  instanceViewV1: NotImplemented,
-  organizationCreateV1: NotImplemented,
-  organizationDeleteV1: NotImplemented,
-  organizationListV1: NotImplemented,
-  organizationPolicyUpdateV1: NotImplemented,
-  organizationPolicyViewV1: NotImplemented,
-  organizationUpdateV1: NotImplemented,
-  organizationViewV1: NotImplemented,
-  physicalDiskListV1: NotImplemented,
-  policyUpdateV1: NotImplemented,
-  policyViewV1: NotImplemented,
-  projectCreateV1: NotImplemented,
-  projectDeleteV1: NotImplemented,
-  projectListV1: NotImplemented,
-  projectPolicyUpdateV1: NotImplemented,
-  projectPolicyViewV1: NotImplemented,
-  projectUpdateV1: NotImplemented,
-  projectViewV1: NotImplemented,
-  rackListV1: NotImplemented,
   rackViewV1: NotImplemented,
   sagaListV1: NotImplemented,
   sagaViewV1: NotImplemented,
-  sledListV1: NotImplemented,
-  sledPhysicalDiskListV1: NotImplemented,
   sledViewV1: NotImplemented,
-  snapshotCreateV1: NotImplemented,
-  snapshotDeleteV1: NotImplemented,
-  snapshotListV1: NotImplemented,
-  snapshotViewV1: NotImplemented,
   systemPolicyUpdateV1: NotImplemented,
-  systemPolicyViewV1: NotImplemented,
-  vpcCreateV1: NotImplemented,
-  vpcDeleteV1: NotImplemented,
-  vpcListV1: NotImplemented,
-  vpcRouterCreateV1: NotImplemented,
-  vpcRouterDeleteV1: NotImplemented,
-  vpcRouterListV1: NotImplemented,
-  vpcRouterRouteCreateV1: NotImplemented,
-  vpcRouterRouteDeleteV1: NotImplemented,
-  vpcRouterRouteListV1: NotImplemented,
-  vpcRouterRouteUpdateV1: NotImplemented,
-  vpcRouterRouteViewV1: NotImplemented,
-  vpcRouterUpdateV1: NotImplemented,
-  vpcRouterViewV1: NotImplemented,
-  vpcSubnetCreateV1: NotImplemented,
-  vpcSubnetDeleteV1: NotImplemented,
-  vpcSubnetListV1: NotImplemented,
-  vpcSubnetUpdateV1: NotImplemented,
-  vpcSubnetViewV1: NotImplemented,
-  vpcUpdateV1: NotImplemented,
-  vpcViewV1: NotImplemented,
+
+  // deprecated by ID endpoints
+
+  diskViewById: NotImplemented,
+  imageViewById: NotImplemented,
+  instanceNetworkInterfaceViewById: NotImplemented,
+  instanceViewById: NotImplemented,
+  organizationViewById: NotImplemented,
+  projectViewById: NotImplemented,
+  siloViewById: NotImplemented,
+  snapshotViewById: NotImplemented,
+  systemImageViewById: NotImplemented,
+  vpcRouterRouteViewById: NotImplemented,
+  vpcRouterViewById: NotImplemented,
+  vpcSubnetViewById: NotImplemented,
+  vpcViewById: NotImplemented,
+
+  // Deprecated endpoints
+
+  diskCreate: NotImplemented,
+  diskDelete: NotImplemented,
+  diskList: NotImplemented,
+  diskView: NotImplemented,
+  instanceCreate: NotImplemented,
+  instanceDelete: NotImplemented,
+  instanceDiskAttach: NotImplemented,
+  instanceDiskDetach: NotImplemented,
+  instanceDiskList: NotImplemented,
+  instanceList: NotImplemented,
+  instanceNetworkInterfaceCreate: NotImplemented,
+  instanceNetworkInterfaceDelete: NotImplemented,
+  instanceNetworkInterfaceList: NotImplemented,
+  instanceNetworkInterfaceUpdate: NotImplemented,
+  instanceNetworkInterfaceView: NotImplemented,
+  instanceReboot: NotImplemented,
+  instanceSerialConsole: NotImplemented,
+  instanceStart: NotImplemented,
+  instanceStop: NotImplemented,
+  instanceView: NotImplemented,
+  organizationCreate: NotImplemented,
+  organizationDelete: NotImplemented,
+  organizationList: NotImplemented,
+  organizationPolicyUpdate: NotImplemented,
+  organizationPolicyView: NotImplemented,
+  organizationUpdate: NotImplemented,
+  organizationView: NotImplemented,
+  physicalDiskList: NotImplemented,
+  policyUpdate: NotImplemented,
+  policyView: NotImplemented,
+  projectCreate: NotImplemented,
+  projectDelete: NotImplemented,
+  projectList: NotImplemented,
+  projectPolicyUpdate: NotImplemented,
+  projectPolicyView: NotImplemented,
+  projectUpdate: NotImplemented,
+  projectView: NotImplemented,
+  rackList: NotImplemented,
+  rackView: NotImplemented,
+  sledList: NotImplemented,
+  sledPhysicalDiskList: NotImplemented,
+  snapshotCreate: NotImplemented,
+  snapshotDelete: NotImplemented,
+  snapshotList: NotImplemented,
+  snapshotView: NotImplemented,
+  systemPolicyView: NotImplemented,
+  vpcCreate: NotImplemented,
+  vpcDelete: NotImplemented,
+  vpcList: NotImplemented,
+  vpcRouterCreate: NotImplemented,
+  vpcRouterDelete: NotImplemented,
+  vpcRouterList: NotImplemented,
+  vpcRouterUpdate: NotImplemented,
+  vpcRouterView: NotImplemented,
+  vpcRouterRouteCreate: NotImplemented,
+  vpcRouterRouteDelete: NotImplemented,
+  vpcRouterRouteList: NotImplemented,
+  vpcRouterRouteUpdate: NotImplemented,
+  vpcRouterRouteView: NotImplemented,
+  vpcSubnetCreate: NotImplemented,
+  vpcSubnetDelete: NotImplemented,
+  vpcSubnetList: NotImplemented,
+  vpcSubnetUpdate: NotImplemented,
+  vpcSubnetView: NotImplemented,
+  vpcUpdate: NotImplemented,
+  vpcView: NotImplemented,
 })

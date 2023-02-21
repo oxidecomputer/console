@@ -68,7 +68,7 @@ export default function SilosPage() {
         { value: 'New silo', onSelect: () => navigate(pb.siloNew()) },
         ...(silos?.items || []).map((o) => ({
           value: o.name,
-          onSelect: () => navigate(pb.silo({ siloName: o.name })),
+          onSelect: () => navigate(pb.silo({ silo: o.name })),
           navGroup: 'Go to silo',
         })),
       ],
@@ -87,7 +87,7 @@ export default function SilosPage() {
         </Link>
       </TableActions>
       <Table emptyState={<EmptyState />} makeActions={makeActions}>
-        <Column accessor="name" cell={linkCell((siloName) => pb.silo({ siloName }))} />
+        <Column accessor="name" cell={linkCell((silo) => pb.silo({ silo }))} />
         <Column accessor="description" />
         <Column accessor="discoverable" cell={BooleanCell} />
         <Column

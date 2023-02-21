@@ -1,16 +1,15 @@
 import { getLocalTimeZone } from '@internationalized/date'
-import { Suspense, useMemo, useState } from 'react'
-import React from 'react'
+import React, { Suspense, useMemo, useState } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 import invariant from 'tiny-invariant'
 
 import type { Cumulativeint64, DiskMetricName } from '@oxide/api'
-import { apiQueryClient } from '@oxide/api'
-import { useApiQuery } from '@oxide/api'
+import { apiQueryClient, useApiQuery } from '@oxide/api'
 import { Listbox, Spinner } from '@oxide/ui'
+import { toPathQuery } from '@oxide/util'
 
 import { useDateTimeRangePicker } from 'app/components/form'
-import { requireInstanceParams, useRequiredParams } from 'app/hooks'
+import { getInstanceSelector, useInstanceSelector } from 'app/hooks'
 
 const TimeSeriesChart = React.lazy(() => import('app/components/TimeSeriesChart'))
 
@@ -76,29 +75,32 @@ function DiskMetric({
 // date range, I'm inclined to punt.
 
 MetricsTab.loader = async ({ params }: LoaderFunctionArgs) => {
-  await apiQueryClient.prefetchQuery('instanceDiskList', {
-    path: requireInstanceParams(params),
-  })
+  await apiQueryClient.prefetchQuery(
+    'instanceDiskListV1',
+    toPathQuery('instance', getInstanceSelector(params))
+  )
   return null
 }
 
 export function MetricsTab() {
-  const instanceParams = useRequiredParams('orgName', 'projectName', 'instanceName')
-  const { data } = useApiQuery('instanceDiskList', { path: instanceParams })
+  const instanceSelector = useInstanceSelector()
+  const { organization, project } = instanceSelector
+  const { data } = useApiQuery(
+    'instanceDiskListV1',
+    toPathQuery('instance', instanceSelector)
+  )
   const disks = useMemo(() => data?.items || [], [data])
 
   // because of prefetch in the loader and because an instance should always
   // have a disk, we should never see an empty list here
   invariant(disks.length > 0, 'Instance disks list should never be empty')
 
-  const { orgName, projectName } = useRequiredParams('orgName', 'projectName')
-
   const { startTime, endTime, dateTimeRangePicker } = useDateTimeRangePicker('lastDay')
 
   const [diskName, setDiskName] = useState<string>(disks[0].name)
   const diskItems = disks.map(({ name }) => ({ label: name, value: name }))
 
-  const diskParams = { orgName, projectName, diskName }
+  const diskParams = { orgName: organization, projectName: project, diskName }
   const commonProps = {
     startTime: startTime.toDate(getLocalTimeZone()),
     endTime: endTime.toDate(getLocalTimeZone()),

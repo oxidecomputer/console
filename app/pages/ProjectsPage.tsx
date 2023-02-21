@@ -4,8 +4,7 @@ import { Outlet } from 'react-router-dom'
 import { Link, useNavigate } from 'react-router-dom'
 
 import type { Project } from '@oxide/api'
-import { apiQueryClient } from '@oxide/api'
-import { useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
+import { apiQueryClient, useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
 import type { MenuAction } from '@oxide/table'
 import { DateCell, linkCell, useQueryTable } from '@oxide/table'
 import {
@@ -19,7 +18,7 @@ import {
 
 import { pb } from 'app/util/path-builder'
 
-import { requireOrgParams, useOrgParams, useQuickActions } from '../hooks'
+import { getOrgSelector, useOrgSelector, useQuickActions } from '../hooks'
 
 const EmptyState = () => (
   <EmptyMessage
@@ -27,14 +26,14 @@ const EmptyState = () => (
     title="No projects"
     body="You need to create a project to be able to see it here"
     buttonText="New project"
-    buttonTo={pb.projectNew(useOrgParams())}
+    buttonTo={pb.projectNew(useOrgSelector())}
   />
 )
 
 ProjectsPage.loader = async ({ params }: LoaderFunctionArgs) => {
-  await apiQueryClient.prefetchQuery('projectList', {
-    path: requireOrgParams(params),
-    query: { limit: 10 },
+  const { organization } = getOrgSelector(params)
+  await apiQueryClient.prefetchQuery('projectListV1', {
+    query: { organization, limit: 10 },
   })
   return null
 }
@@ -43,19 +42,18 @@ export default function ProjectsPage() {
   const navigate = useNavigate()
 
   const queryClient = useApiQueryClient()
-  const { orgName } = useOrgParams()
-  const { Table, Column } = useQueryTable('projectList', {
-    path: { orgName },
+  const { organization } = useOrgSelector()
+  const { Table, Column } = useQueryTable('projectListV1', { query: { organization } })
+
+  const { data: projects } = useApiQuery('projectListV1', {
+    query: { ...{ organization }, limit: 10 }, // limit to match QueryTable
   })
 
-  const { data: projects } = useApiQuery('projectList', {
-    path: { orgName },
-    query: { limit: 10 }, // to have same params as QueryTable
-  })
-
-  const deleteProject = useApiMutation('projectDelete', {
+  const deleteProject = useApiMutation('projectDeleteV1', {
     onSuccess() {
-      queryClient.invalidateQueries('projectList', { path: { orgName } })
+      // TODO: figure out if this is invalidating as expected, can we leave out the query
+      // altogether, etc. Look at whether limit param matters.
+      queryClient.invalidateQueries('projectListV1', { query: { organization } })
     },
   })
 
@@ -63,17 +61,26 @@ export default function ProjectsPage() {
     {
       label: 'Edit',
       onActivate: () => {
-        const path = { orgName, projectName: project.name }
         // the edit view has its own loader, but we can make the modal open
         // instantaneously by preloading the fetch result
-        apiQueryClient.setQueryData('projectView', { path }, project)
-        navigate(pb.projectEdit(path))
+        apiQueryClient.setQueryData(
+          'projectViewV1',
+          {
+            path: { project: project.name },
+            query: { organization },
+          },
+          project
+        )
+        navigate(pb.projectEdit({ organization, project: project.name }))
       },
     },
     {
       label: 'Delete',
       onActivate: () => {
-        deleteProject.mutate({ path: { orgName, projectName: project.name } })
+        deleteProject.mutate({
+          path: { project: project.name },
+          query: { organization },
+        })
       },
     },
   ]
@@ -81,14 +88,17 @@ export default function ProjectsPage() {
   useQuickActions(
     useMemo(
       () => [
-        { value: 'New project', onSelect: () => navigate(pb.projectNew({ orgName })) },
+        {
+          value: 'New project',
+          onSelect: () => navigate(pb.projectNew({ organization })),
+        },
         ...(projects?.items || []).map((p) => ({
           value: p.name,
-          onSelect: () => navigate(pb.instances({ orgName, projectName: p.name })),
+          onSelect: () => navigate(pb.instances({ organization, project: p.name })),
           navGroup: 'Go to project',
         })),
       ],
-      [orgName, navigate, projects]
+      [organization, navigate, projects]
     )
   )
 
@@ -98,14 +108,14 @@ export default function ProjectsPage() {
         <PageTitle icon={<Folder24Icon />}>Projects</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link to={pb.projectNew({ orgName })} className={buttonStyle({ size: 'sm' })}>
+        <Link to={pb.projectNew({ organization })} className={buttonStyle({ size: 'sm' })}>
           New Project
         </Link>
       </TableActions>
       <Table emptyState={<EmptyState />} makeActions={makeActions}>
         <Column
           accessor="name"
-          cell={linkCell((projectName) => pb.instances({ orgName, projectName }))}
+          cell={linkCell((project) => pb.instances({ organization, project }))}
         />
         <Column accessor="description" />
         <Column accessor="timeModified" header="Last updated" cell={DateCell} />

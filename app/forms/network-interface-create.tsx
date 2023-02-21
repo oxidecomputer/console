@@ -1,9 +1,9 @@
 import { useMemo } from 'react'
+import { useParams } from 'react-router-dom'
 import invariant from 'tiny-invariant'
 
 import type { NetworkInterfaceCreate } from '@oxide/api'
-import { useApiQuery } from '@oxide/api'
-import { useApiMutation, useApiQueryClient } from '@oxide/api'
+import { useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
 import { Divider } from '@oxide/ui'
 
 import {
@@ -14,7 +14,7 @@ import {
   SubnetListbox,
   TextField,
 } from 'app/components/form'
-import { useAllParams } from 'app/hooks'
+import { useProjectSelector } from 'app/hooks'
 
 const defaultValues: NetworkInterfaceCreate = {
   name: '',
@@ -34,19 +34,21 @@ export default function CreateNetworkInterfaceForm({
   onDismiss,
 }: CreateNetworkInterfaceFormProps) {
   const queryClient = useApiQueryClient()
-  const { orgName, projectName, instanceName } = useAllParams('orgName', 'projectName')
+  const { instanceName } = useParams()
+  const projectSelector = useProjectSelector()
 
-  const createNetworkInterface = useApiMutation('instanceNetworkInterfaceCreate', {
+  // TODO: pass in this mutation from outside so we don't have to do the instanceName check
+  const createNetworkInterface = useApiMutation('instanceNetworkInterfaceCreateV1', {
     onSuccess() {
       invariant(instanceName, 'instanceName is required when posting a network interface')
-      queryClient.invalidateQueries('instanceNetworkInterfaceList', {
-        path: { instanceName, projectName, orgName },
+      queryClient.invalidateQueries('instanceNetworkInterfaceListV1', {
+        query: { instance: instanceName, ...projectSelector },
       })
       onDismiss()
     },
   })
 
-  const { data: vpcsData } = useApiQuery('vpcList', { path: { orgName, projectName } })
+  const { data: vpcsData } = useApiQuery('vpcListV1', { query: projectSelector })
   const vpcs = useMemo(() => vpcsData?.items || [], [vpcsData])
 
   return (
@@ -64,7 +66,7 @@ export default function CreateNetworkInterfaceForm({
           )
 
           createNetworkInterface.mutate({
-            path: { instanceName, projectName, orgName },
+            query: { ...projectSelector, instance: instanceName },
             body,
           })
         })

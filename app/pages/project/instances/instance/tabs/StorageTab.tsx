@@ -1,9 +1,13 @@
 import { useCallback, useMemo, useState } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 
-import type { Disk } from '@oxide/api'
-import { apiQueryClient } from '@oxide/api'
-import { useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
+import {
+  type Disk,
+  apiQueryClient,
+  useApiMutation,
+  useApiQuery,
+  useApiQueryClient,
+} from '@oxide/api'
 import type { MenuAction } from '@oxide/table'
 import {
   DateCell,
@@ -14,11 +18,12 @@ import {
   useReactTable,
 } from '@oxide/table'
 import { Button, EmptyMessage, Error16Icon, OpenLink12Icon, TableEmptyBox } from '@oxide/ui'
+import { toPathQuery } from '@oxide/util'
 
 import { DiskStatusBadge } from 'app/components/StatusBadge'
 import AttachDiskSideModalForm from 'app/forms/disk-attach'
 import { CreateDiskSideModalForm } from 'app/forms/disk-create'
-import { requireInstanceParams, useRequiredParams, useToast } from 'app/hooks'
+import { getInstanceSelector, useInstanceSelector, useToast } from 'app/hooks'
 
 const OtherDisksEmpty = () => (
   <TableEmptyBox>
@@ -52,12 +57,12 @@ const staticCols = [
 ]
 
 StorageTab.loader = async ({ params }: LoaderFunctionArgs) => {
-  const path = requireInstanceParams(params)
+  const instancePathQuery = toPathQuery('instance', getInstanceSelector(params))
   await Promise.all([
-    apiQueryClient.prefetchQuery('instanceDiskList', { path }),
+    apiQueryClient.prefetchQuery('instanceDiskListV1', instancePathQuery),
     // This is covered by the InstancePage loader but there's no downside to
     // being redundant. If it were removed there, we'd still want it here.
-    apiQueryClient.prefetchQuery('instanceView', { path }),
+    apiQueryClient.prefetchQuery('instanceViewV1', instancePathQuery),
   ])
   return null
 }
@@ -68,14 +73,14 @@ export function StorageTab() {
 
   const addToast = useToast()
   const queryClient = useApiQueryClient()
-  const instanceParams = useRequiredParams('orgName', 'projectName', 'instanceName')
+  const instancePathQuery = toPathQuery('instance', useInstanceSelector())
 
-  const { data } = useApiQuery('instanceDiskList', { path: instanceParams })
+  const { data } = useApiQuery('instanceDiskListV1', instancePathQuery)
 
-  const detachDisk = useApiMutation('instanceDiskDetach', {})
+  const detachDisk = useApiMutation('instanceDiskDetachV1', {})
 
   const instanceStopped =
-    useApiQuery('instanceView', { path: instanceParams }).data?.runState === 'stopped'
+    useApiQuery('instanceViewV1', instancePathQuery).data?.runState === 'stopped'
 
   const makeActions = useCallback(
     (disk: Disk): MenuAction[] => [
@@ -85,22 +90,23 @@ export function StorageTab() {
           !instanceStopped && 'Instance must be stopped before disk can be detached',
         onActivate() {
           detachDisk.mutate(
-            { body: { name: disk.name }, path: instanceParams },
+            { body: { disk: disk.name }, ...instancePathQuery },
             {
               onSuccess: () => {
-                queryClient.invalidateQueries('instanceDiskList', { path: instanceParams })
+                queryClient.invalidateQueries('instanceDiskListV1', instancePathQuery)
               },
             }
           )
         },
       },
     ],
-    [detachDisk, instanceParams, instanceStopped, queryClient]
+    [detachDisk, instanceStopped, queryClient, instancePathQuery]
   )
 
-  const attachDisk = useApiMutation('instanceDiskAttach', {
+  const attachDisk = useApiMutation('instanceDiskAttachV1', {
     onSuccess() {
-      queryClient.invalidateQueries('instanceDiskList', { path: instanceParams })
+      console.log('disk atttach success')
+      queryClient.invalidateQueries('instanceDiskListV1', instancePathQuery)
     },
     onError(err) {
       addToast({
@@ -182,7 +188,7 @@ export function StorageTab() {
           onSuccess={({ name }) => {
             // TODO: this should probably be done with `mutateAsync` and
             // awaited, but it's a pain, so punt for now
-            attachDisk.mutate({ path: instanceParams, body: { name } })
+            attachDisk.mutate({ ...instancePathQuery, body: { disk: name } })
           }}
         />
       )}

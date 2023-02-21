@@ -21,7 +21,7 @@ import {
   buttonStyle,
 } from '@oxide/ui'
 
-import { requireProjectParams, useProjectParams, useQuickActions } from 'app/hooks'
+import { getProjectSelector, useProjectSelector, useQuickActions } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 import { useMakeInstanceActions } from './actions'
@@ -32,54 +32,54 @@ const EmptyState = () => (
     title="No instances"
     body="You need to create an instance to be able to see it here"
     buttonText="New instance"
-    buttonTo={pb.instanceNew(useProjectParams())}
+    buttonTo={pb.instanceNew(useProjectSelector())}
   />
 )
 
 InstancesPage.loader = async ({ params }: LoaderFunctionArgs) => {
-  await apiQueryClient.prefetchQuery('instanceList', {
-    path: requireProjectParams(params),
-    query: { limit: 10 },
+  await apiQueryClient.prefetchQuery('instanceListV1', {
+    query: { ...getProjectSelector(params), limit: 10 },
   })
   return null
 }
 
 export function InstancesPage() {
-  const projectParams = useProjectParams()
-  const { orgName, projectName } = projectParams
+  const projectSelector = useProjectSelector()
 
   const queryClient = useApiQueryClient()
   const refetchInstances = () =>
-    queryClient.invalidateQueries('instanceList', { path: projectParams })
+    queryClient.invalidateQueries('instanceListV1', { query: projectSelector })
 
-  const makeActions = useMakeInstanceActions(projectParams, {
+  const makeActions = useMakeInstanceActions(projectSelector, {
     onSuccess: refetchInstances,
   })
 
-  const { data: instances } = useApiQuery('instanceList', {
-    path: projectParams,
-    query: { limit: 10 }, // to have same params as QueryTable
+  const { data: instances } = useApiQuery('instanceListV1', {
+    query: { ...projectSelector, limit: 10 }, // to have same params as QueryTable
   })
 
   const navigate = useNavigate()
   useQuickActions(
     useMemo(
       () => [
-        { value: 'New instance', onSelect: () => navigate(pb.instanceNew(projectParams)) },
+        {
+          value: 'New instance',
+          onSelect: () => navigate(pb.instanceNew(projectSelector)),
+        },
         ...(instances?.items || []).map((i) => ({
           value: i.name,
           onSelect: () =>
-            navigate(pb.instancePage({ ...projectParams, instanceName: i.name })),
+            navigate(pb.instancePage({ ...projectSelector, instance: i.name })),
           navGroup: 'Go to instance',
         })),
       ],
-      [projectParams, instances, navigate]
+      [projectSelector, instances, navigate]
     )
   )
 
   const { Table, Column } = useQueryTable(
-    'instanceList',
-    { path: projectParams },
+    'instanceListV1',
+    { query: projectSelector },
     { keepPreviousData: true }
   )
 
@@ -94,19 +94,14 @@ export function InstancesPage() {
         <Button size="icon" variant="ghost" onClick={refetchInstances}>
           <Refresh16Icon />
         </Button>
-        <Link
-          to={pb.instanceNew({ orgName, projectName })}
-          className={buttonStyle({ size: 'sm' })}
-        >
+        <Link to={pb.instanceNew(projectSelector)} className={buttonStyle({ size: 'sm' })}>
           New Instance
         </Link>
       </TableActions>
       <Table makeActions={makeActions} emptyState={<EmptyState />}>
         <Column
           accessor="name"
-          cell={linkCell((instanceName) =>
-            pb.instancePage({ orgName, projectName, instanceName })
-          )}
+          cell={linkCell((instance) => pb.instancePage({ ...projectSelector, instance }))}
         />
         <Column
           id="resources"

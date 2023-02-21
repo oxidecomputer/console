@@ -16,12 +16,7 @@ import {
   buttonStyle,
 } from '@oxide/ui'
 
-import {
-  requireProjectParams,
-  useProjectParams,
-  useQuickActions,
-  useRequiredParams,
-} from 'app/hooks'
+import { getProjectSelector, useProjectSelector, useQuickActions } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 const EmptyState = () => (
@@ -30,32 +25,30 @@ const EmptyState = () => (
     title="No VPCs"
     body="You need to create a VPC to be able to see it here"
     buttonText="New VPC"
-    buttonTo={pb.vpcNew(useProjectParams())}
+    buttonTo={pb.vpcNew(useProjectSelector())}
   />
 )
 
 // just as in the vpcList call for the quick actions menu, include limit: 10 to make
 // sure it matches the call in the QueryTable
 VpcsPage.loader = async ({ params }: LoaderFunctionArgs) => {
-  await apiQueryClient.prefetchQuery('vpcList', {
-    path: requireProjectParams(params),
-    query: { limit: 10 },
+  await apiQueryClient.prefetchQuery('vpcListV1', {
+    query: { ...getProjectSelector(params), limit: 10 },
   })
   return null
 }
 
 export function VpcsPage() {
   const queryClient = useApiQueryClient()
-  const { orgName, projectName } = useRequiredParams('orgName', 'projectName')
-  const { data: vpcs } = useApiQuery('vpcList', {
-    path: { orgName, projectName },
-    query: { limit: 10 }, // to have same params as QueryTable
+  const projectSelector = useProjectSelector()
+  const { data: vpcs } = useApiQuery('vpcListV1', {
+    query: { ...projectSelector, limit: 10 }, // to have same params as QueryTable
   })
   const navigate = useNavigate()
 
-  const deleteVpc = useApiMutation('vpcDelete', {
+  const deleteVpc = useApiMutation('vpcDeleteV1', {
     onSuccess() {
-      queryClient.invalidateQueries('vpcList', { path: { orgName, projectName } })
+      queryClient.invalidateQueries('vpcListV1', { query: projectSelector })
     },
   })
 
@@ -63,13 +56,13 @@ export function VpcsPage() {
     {
       label: 'Edit',
       onActivate() {
-        navigate(pb.vpcEdit({ orgName, projectName, vpcName: vpc.name }), { state: vpc })
+        navigate(pb.vpcEdit({ ...projectSelector, vpc: vpc.name }), { state: vpc })
       },
     },
     {
       label: 'Delete',
       onActivate() {
-        deleteVpc.mutate({ path: { orgName, projectName, vpcName: vpc.name } })
+        deleteVpc.mutate({ path: { vpc: vpc.name }, query: projectSelector })
       },
     },
   ]
@@ -79,31 +72,28 @@ export function VpcsPage() {
       () =>
         (vpcs?.items || []).map((v) => ({
           value: v.name,
-          onSelect: () => navigate(pb.vpc({ orgName, projectName, vpcName: v.name })),
+          onSelect: () => navigate(pb.vpc({ ...projectSelector, vpc: v.name })),
           navGroup: 'Go to VPC',
         })),
-      [orgName, projectName, vpcs, navigate]
+      [projectSelector, vpcs, navigate]
     )
   )
 
-  const { Table, Column } = useQueryTable('vpcList', { path: { orgName, projectName } })
+  const { Table, Column } = useQueryTable('vpcListV1', { query: projectSelector })
   return (
     <>
       <PageHeader>
         <PageTitle icon={<Networking24Icon />}>VPCs</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link
-          to={pb.vpcNew({ orgName, projectName })}
-          className={buttonStyle({ size: 'sm' })}
-        >
+        <Link to={pb.vpcNew(projectSelector)} className={buttonStyle({ size: 'sm' })}>
           New Vpc
         </Link>
       </TableActions>
       <Table emptyState={<EmptyState />} makeActions={makeActions}>
         <Column
           accessor="name"
-          cell={linkCell((vpcName) => pb.vpc({ orgName, projectName, vpcName }))}
+          cell={linkCell((vpc) => pb.vpc({ ...projectSelector, vpc }))}
         />
         <Column accessor="dnsName" header="dns name" />
         <Column accessor="description" />

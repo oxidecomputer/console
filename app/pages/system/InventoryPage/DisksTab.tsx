@@ -13,14 +13,12 @@ const EmptyState = () => {
 }
 
 DisksTab.loader = async () => {
-  await apiQueryClient.prefetchQuery('physicalDiskList', {
-    query: { limit: 10 },
-  })
+  await apiQueryClient.prefetchQuery('physicalDiskListV1', { query: { limit: 10 } })
   return null
 }
 
 export function DisksTab() {
-  const { Table, Column } = useQueryTable('physicalDiskList', {})
+  const { Table, Column } = useQueryTable('physicalDiskListV1', {})
 
   return (
     <>

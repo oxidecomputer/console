@@ -6,20 +6,20 @@ import {
 } from '@oxide/api'
 
 import { ListboxField, SideModalForm } from 'app/components/form'
-import { useRequiredParams } from 'app/hooks'
+import { useOrgSelector } from 'app/hooks'
 
 import type { AddRoleModalProps, EditRoleModalProps } from './access-util'
 import { actorToItem, defaultValues, roleItems } from './access-util'
 
 export function OrgAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalProps) {
-  const orgParams = useRequiredParams('orgName')
+  const { organization } = useOrgSelector()
 
   const actors = useActorsNotInPolicy(policy)
 
   const queryClient = useApiQueryClient()
-  const updatePolicy = useApiMutation('organizationPolicyUpdate', {
+  const updatePolicy = useApiMutation('organizationPolicyUpdateV1', {
     onSuccess: () => {
-      queryClient.invalidateQueries('organizationPolicyView', { path: orgParams })
+      queryClient.invalidateQueries('organizationPolicyViewV1', { path: { organization } })
       onDismiss()
     },
   })
@@ -39,7 +39,7 @@ export function OrgAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalPro
         const identityType = actors.find((a) => a.id === identityId)!.identityType
 
         updatePolicy.mutate({
-          path: orgParams,
+          path: { organization },
           body: updateRole({ identityId, identityType, roleName }, policy),
         })
       }}
@@ -76,12 +76,12 @@ export function OrgAccessEditUserSideModal({
   policy,
   defaultValues,
 }: EditRoleModalProps) {
-  const orgParams = useRequiredParams('orgName')
+  const { organization } = useOrgSelector()
 
   const queryClient = useApiQueryClient()
-  const updatePolicy = useApiMutation('organizationPolicyUpdate', {
+  const updatePolicy = useApiMutation('organizationPolicyUpdateV1', {
     onSuccess: () => {
-      queryClient.invalidateQueries('organizationPolicyView', { path: orgParams })
+      queryClient.invalidateQueries('organizationPolicyViewV1', { path: { organization } })
       onDismiss()
     },
   })
@@ -94,7 +94,7 @@ export function OrgAccessEditUserSideModal({
       formOptions={{ defaultValues }}
       onSubmit={({ roleName }) => {
         updatePolicy.mutate({
-          path: orgParams,
+          path: { organization },
           body: updateRole({ identityId, identityType, roleName }, policy),
         })
       }}
