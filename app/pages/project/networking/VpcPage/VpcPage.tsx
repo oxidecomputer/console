@@ -1,8 +1,8 @@
 import type { LoaderFunctionArgs } from 'react-router-dom'
 
-import { apiQueryClient, toPathQuery, useApiQuery } from '@oxide/api'
+import { apiQueryClient, useApiQuery } from '@oxide/api'
 import { Networking24Icon, PageHeader, PageTitle, PropertiesTable } from '@oxide/ui'
-import { formatDateTime } from '@oxide/util'
+import { formatDateTime, toPathQuery } from '@oxide/util'
 
 import { Tab, Tabs } from 'app/components/Tabs'
 import { getVpcSelector, useVpcSelector } from 'app/hooks'

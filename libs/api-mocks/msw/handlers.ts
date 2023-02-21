@@ -1,10 +1,9 @@
 import { v4 as uuid } from 'uuid'
 
 import type { ApiTypes as Api, UpdateDeployment } from '@oxide/api'
-import { toApiSelector } from '@oxide/api'
 import type { Json } from '@oxide/gen/msw-handlers'
 import { json, makeHandlers } from '@oxide/gen/msw-handlers'
-import { pick, sortBy } from '@oxide/util'
+import { pick, sortBy, toApiSelector } from '@oxide/util'
 
 import { genCumulativeI64Data, genI64Data } from '../metrics'
 import { FLEET_ID } from '../role-assignment'

@@ -1,9 +1,10 @@
 import { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { type Instance, toPathQuery, useApiMutation } from '@oxide/api'
+import { type Instance, useApiMutation } from '@oxide/api'
 import type { MakeActions } from '@oxide/table'
 import { Success16Icon } from '@oxide/ui'
+import { toPathQuery } from '@oxide/util'
 
 import { useToast } from 'app/hooks'
 import { pb2 } from 'app/util/path-builder'

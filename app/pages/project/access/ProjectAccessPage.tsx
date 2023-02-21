@@ -3,7 +3,6 @@ import { useMemo, useState } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 
 import type { IdentityType, RoleKey } from '@oxide/api'
-import { toPathQuery } from '@oxide/api'
 import {
   apiQueryClient,
   byGroupThenName,
@@ -24,7 +23,7 @@ import {
   TableActions,
   TableEmptyBox,
 } from '@oxide/ui'
-import { groupBy, isTruthy } from '@oxide/util'
+import { groupBy, isTruthy, toPathQuery } from '@oxide/util'
 
 import { AccessNameCell } from 'app/components/AccessNameCell'
 import { RoleBadgeCell } from 'app/components/RoleBadgeCell'

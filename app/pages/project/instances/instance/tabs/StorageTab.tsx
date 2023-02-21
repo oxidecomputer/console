@@ -4,7 +4,6 @@ import type { LoaderFunctionArgs } from 'react-router-dom'
 import {
   type Disk,
   apiQueryClient,
-  toPathQuery,
   useApiMutation,
   useApiQuery,
   useApiQueryClient,
@@ -19,6 +18,7 @@ import {
   useReactTable,
 } from '@oxide/table'
 import { Button, EmptyMessage, Error16Icon, OpenLink12Icon, TableEmptyBox } from '@oxide/ui'
+import { toPathQuery } from '@oxide/util'
 
 import { DiskStatusBadge } from 'app/components/StatusBadge'
 import AttachDiskSideModalForm from 'app/forms/disk-attach'

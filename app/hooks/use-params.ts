@@ -2,7 +2,7 @@ import type { Params } from 'react-router-dom'
 import { useParams } from 'react-router-dom'
 import invariant from 'tiny-invariant'
 
-import { toApiSelector } from '@oxide/api'
+import { toApiSelector } from '@oxide/util'
 
 const err = (param: string) =>
   `Param '${param}' not found in route. You might be rendering a component under the wrong route.`

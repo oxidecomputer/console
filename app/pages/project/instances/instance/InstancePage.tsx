@@ -3,8 +3,9 @@ import { useMemo } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 
-import { apiQueryClient, toPathQuery, useApiQuery, useApiQueryClient } from '@oxide/api'
+import { apiQueryClient, useApiQuery, useApiQueryClient } from '@oxide/api'
 import { Instances24Icon, PageHeader, PageTitle, PropertiesTable } from '@oxide/ui'
+import { toPathQuery } from '@oxide/util'
 
 import { MoreActionsMenu } from 'app/components/MoreActionsMenu'
 import { RouteTabs, Tab } from 'app/components/RouteTabs'

@@ -4,8 +4,9 @@ import type { LoaderFunctionArgs } from 'react-router-dom'
 import invariant from 'tiny-invariant'
 
 import type { Cumulativeint64, DiskMetricName } from '@oxide/api'
-import { apiQueryClient, toPathQuery, useApiQuery } from '@oxide/api'
+import { apiQueryClient, useApiQuery } from '@oxide/api'
 import { Listbox, Spinner } from '@oxide/ui'
+import { toPathQuery } from '@oxide/util'
 
 import { useDateTimeRangePicker } from 'app/components/form'
 import { getInstanceSelector, useInstanceSelector } from 'app/hooks'

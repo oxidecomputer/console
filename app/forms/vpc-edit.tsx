@@ -1,10 +1,9 @@
 import type { LoaderFunctionArgs } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 
-import { toPathQuery, useApiQuery } from '@oxide/api'
-import { apiQueryClient, useApiMutation, useApiQueryClient } from '@oxide/api'
+import { apiQueryClient, useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
 import { Success16Icon } from '@oxide/ui'
-import { pick } from '@oxide/util'
+import { pick, toPathQuery } from '@oxide/util'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
 import { getVpcSelector, useToast, useVpcSelector } from 'app/hooks'

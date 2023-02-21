@@ -1,10 +1,10 @@
 import {
-  toPathQuery,
   updateRole,
   useActorsNotInPolicy,
   useApiMutation,
   useApiQueryClient,
 } from '@oxide/api'
+import { toPathQuery } from '@oxide/util'
 
 import { ListboxField, SideModalForm } from 'app/components/form'
 import { useProjectSelector } from 'app/hooks'

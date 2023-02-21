@@ -1,8 +1,9 @@
 import { useNavigate } from 'react-router-dom'
 
 import type { ProjectCreate } from '@oxide/api'
-import { toPathQuery, useApiMutation, useApiQueryClient } from '@oxide/api'
+import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { Success16Icon } from '@oxide/ui'
+import { toPathQuery } from '@oxide/util'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
 import { pb2 } from 'app/util/path-builder'

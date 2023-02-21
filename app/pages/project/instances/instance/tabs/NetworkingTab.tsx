@@ -3,13 +3,7 @@ import type { LoaderFunctionArgs } from 'react-router-dom'
 import { Link } from 'react-router-dom'
 
 import type { NetworkInterface } from '@oxide/api'
-import {
-  apiQueryClient,
-  toPathQuery,
-  useApiMutation,
-  useApiQuery,
-  useApiQueryClient,
-} from '@oxide/api'
+import { apiQueryClient, useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
 import type { MenuAction } from '@oxide/table'
 import { useQueryTable } from '@oxide/table'
 import {
@@ -21,6 +15,7 @@ import {
   OpenLink12Icon,
   Success12Icon,
 } from '@oxide/ui'
+import { toPathQuery } from '@oxide/util'
 
 import CreateNetworkInterfaceForm from 'app/forms/network-interface-create'
 import EditNetworkInterfaceForm from 'app/forms/network-interface-edit'

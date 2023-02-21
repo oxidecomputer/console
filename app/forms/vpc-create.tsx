@@ -1,8 +1,9 @@
 import { useNavigate } from 'react-router-dom'
 
 import type { VpcCreate } from '@oxide/api'
-import { toPathQuery, useApiMutation, useApiQueryClient } from '@oxide/api'
+import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { Success16Icon } from '@oxide/ui'
+import { toPathQuery } from '@oxide/util'
 
 import { DescriptionField, NameField, SideModalForm, TextField } from 'app/components/form'
 import { useProjectSelector, useToast } from 'app/hooks'
