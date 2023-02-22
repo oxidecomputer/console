@@ -1,5 +1,5 @@
 import { v4 as uuid } from 'uuid'
-import create from 'zustand'
+import { create } from 'zustand'
 
 import type { ToastProps } from '@oxide/ui'
 
