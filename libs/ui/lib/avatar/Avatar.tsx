@@ -2,10 +2,10 @@ import cn from 'classnames'
 import { useMemo } from 'react'
 
 export const avatarSizes = ['sm', 'base', 'lg'] as const
-export type AvatarSize = typeof avatarSizes[number]
+export type AvatarSize = (typeof avatarSizes)[number]
 
 export const avatarColors = ['default', 'notice', 'destructive'] as const
-type AvatarColor = typeof avatarColors[number]
+type AvatarColor = (typeof avatarColors)[number]
 
 export interface AvatarProps {
   name: string // Name of person, team, project, org, etc.

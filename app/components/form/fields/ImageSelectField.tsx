@@ -97,7 +97,7 @@ function ImageSelect({
   // of distros. default to first distro in the list
   const currentDistro = distros.find((d) => d.id === imageField.value)?.id || distros[0].id
 
-  function onChange(selectedItem: typeof distros[number] | undefined | null) {
+  function onChange(selectedItem: (typeof distros)[number] | undefined | null) {
     if (selectedItem) {
       imageField.onChange(selectedItem.id)
       // if the current disk size is less than 2x the image size, bump it up
