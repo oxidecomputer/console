@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useCallback, useState } from 'react'
 import invariant from 'tiny-invariant'
-import create from 'zustand'
+import { create } from 'zustand'
 
 import { ActionMenu } from '@oxide/ui'
 import type { QuickActionItem } from '@oxide/ui'

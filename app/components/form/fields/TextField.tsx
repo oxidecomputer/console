@@ -48,7 +48,7 @@ export interface TextFieldProps<
   placeholder?: string
   units?: string
   // TODO: think about this doozy of a type
-  validate?: Validate<FieldPathValue<TFieldValues, TName>>
+  validate?: Validate<FieldPathValue<TFieldValues, TName>, TFieldValues>
   control: Control<TFieldValues>
 }
 

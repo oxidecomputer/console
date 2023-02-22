@@ -21,7 +21,7 @@ const rangePresets = [
 ]
 
 // custom doesn't have an associated range
-type RangeKeyAll = typeof rangePresets[number]['value']
+type RangeKeyAll = (typeof rangePresets)[number]['value']
 export type RangeKey = Exclude<RangeKeyAll, 'custom'>
 
 // Record ensures we have an entry for every preset

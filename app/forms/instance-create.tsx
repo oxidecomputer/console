@@ -41,7 +41,7 @@ export type InstanceCreateInput = Assign<
   // API accepts undefined but it's easier if we don't
   SetRequired<InstanceCreate, 'networkInterfaces'>,
   {
-    type: typeof INSTANCE_SIZES[number]['id']
+    type: (typeof INSTANCE_SIZES)[number]['id']
     disks: DiskTableItem[]
     bootDiskName: string
     bootDiskSize: number
