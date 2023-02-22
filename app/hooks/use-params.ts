@@ -61,21 +61,3 @@ export const useInstanceSelector = () => toApiSelector(useInstanceParams())
 export function useRequiredParams<K extends string = never>(...requiredKeys: K[]) {
   return requireParams(...requiredKeys)(useParams())
 }
-
-/**
- * Wrapper for RR's `useParams` that guarantees (in dev) that the specified
- * params are present. Includes all other string keys optionally — caller
- * has to check if they're undefined.
- */
-// default of never is required to prevent the highly undesirable property that if
-// you don't pass any arguments, the result object thinks every property is defined
-export function useAllParams<K extends string = never>(...requiredKeys: K[]) {
-  const params = useParams()
-  if (process.env.NODE_ENV !== 'production') {
-    for (const k of requiredKeys) {
-      invariant(k in params, err(k))
-    }
-  }
-  // same as above except we return everything useParams() gives us
-  return params as { readonly [k in K]: string } & Params
-}
