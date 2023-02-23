@@ -103,7 +103,6 @@ export function SiloAccessPage() {
 
   const columns = useMemo(
     () => [
-      colHelper.accessor('id', { header: 'ID' }),
       colHelper.accessor('name', { header: 'Name', cell: AccessNameCell }),
       colHelper.accessor('siloRole', {
         header: 'Silo role',
