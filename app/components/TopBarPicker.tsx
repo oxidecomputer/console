@@ -29,7 +29,11 @@ const TopBarPicker = (props: TopBarPickerProps) => (
   <Menu>
     <MenuButton
       aria-label={props['aria-label']}
-      className="group flex w-full items-center justify-between"
+      // Important trick: we never want the separator to show up after the top
+      // left corner picker. The separator starts from the leftmost of "other
+      // pickers". But the leftmost corner one is in its own container and
+      // therefore always last-of-type, so it will never get one.
+      className="after:text-mono-lg group flex w-full items-center justify-between after:mx-4 after:content-['/'] after:text-quinary last-of-type:after:content-none"
     >
       <div className="flex items-center">
         {props.icon ? <div className="mr-2 flex items-center">{props.icon}</div> : null}

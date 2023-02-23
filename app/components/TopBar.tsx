@@ -43,9 +43,7 @@ export function TopBar({ children }: { children: React.ReactNode }) {
       {/* shrink-0 is needed to prevent getting squished by body content */}
       <div className="border-b bg-default border-secondary">
         <div className="mx-3 flex h-[60px] shrink-0 items-center justify-between">
-          <div className="between:before:text-mono-lg flex items-center between:before:mx-4 between:before:content-['/'] between:before:text-quinary">
-            {otherPickers}
-          </div>
+          <div className="flex items-center">{otherPickers}</div>
           <div>
             <Button variant="secondary" size="icon" title="Info">
               <Info16Icon className="text-quaternary" />
