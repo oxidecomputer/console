@@ -3180,6 +3180,18 @@ export interface SystemUpdateComponentsListPathParams {
   version: SemverVersion
 }
 
+export interface VpcFirewallRulesViewV1QueryParams {
+  organization?: NameOrId
+  project?: NameOrId
+  vpc?: NameOrId
+}
+
+export interface VpcFirewallRulesUpdateV1QueryParams {
+  organization?: NameOrId
+  project?: NameOrId
+  vpc?: NameOrId
+}
+
 export interface VpcRouterRouteListV1QueryParams {
   limit?: number
   organization?: NameOrId
@@ -6481,7 +6493,39 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * List the routes associated with a router in a particular VPC.
+     * List firewall rules
+     */
+    vpcFirewallRulesViewV1: (
+      { query = {} }: { query?: VpcFirewallRulesViewV1QueryParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<VpcFirewallRules>({
+        path: `/v1/vpc-firewall-rules`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Replace firewall rules
+     */
+    vpcFirewallRulesUpdateV1: (
+      {
+        query = {},
+        body,
+      }: { query?: VpcFirewallRulesUpdateV1QueryParams; body: VpcFirewallRuleUpdateParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<VpcFirewallRules>({
+        path: `/v1/vpc-firewall-rules`,
+        method: 'PUT',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List routes
      */
     vpcRouterRouteListV1: (
       { query = {} }: { query?: VpcRouterRouteListV1QueryParams },
