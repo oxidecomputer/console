@@ -16,7 +16,7 @@ import { Button, EmptyMessage, TableEmptyBox } from '@oxide/ui'
 
 import { CreateFirewallRuleForm } from 'app/forms/firewall-rules-create'
 import { EditFirewallRuleForm } from 'app/forms/firewall-rules-edit'
-import { useRequiredParams } from 'app/hooks'
+import { useVpcSelector } from 'app/hooks'
 
 const colHelper = createColumnHelper<VpcFirewallRule>()
 
@@ -45,17 +45,17 @@ const staticColumns = [
 
 export const VpcFirewallRulesTab = () => {
   const queryClient = useApiQueryClient()
-  const vpcParams = useRequiredParams('orgName', 'projectName', 'vpcName')
+  const vpcSelector = useVpcSelector()
 
-  const { data, isLoading } = useApiQuery('vpcFirewallRulesView', { path: vpcParams })
+  const { data, isLoading } = useApiQuery('vpcFirewallRulesViewV1', { query: vpcSelector })
   const rules = useMemo(() => data?.rules || [], [data])
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [editing, setEditing] = useState<VpcFirewallRule | null>(null)
 
-  const updateRules = useApiMutation('vpcFirewallRulesUpdate', {
+  const updateRules = useApiMutation('vpcFirewallRulesUpdateV1', {
     onSuccess() {
-      queryClient.invalidateQueries('vpcFirewallRulesView', { path: vpcParams })
+      queryClient.invalidateQueries('vpcFirewallRulesViewV1', { query: vpcSelector })
     },
   })
 
@@ -69,7 +69,7 @@ export const VpcFirewallRulesTab = () => {
           label: 'Delete',
           onActivate: () => {
             updateRules.mutate({
-              path: vpcParams,
+              query: vpcSelector,
               body: {
                 rules: rules.filter((r) => r.id !== rule.id),
               },
@@ -78,7 +78,7 @@ export const VpcFirewallRulesTab = () => {
         },
       ]),
     ]
-  }, [setEditing, rules, updateRules, vpcParams])
+  }, [setEditing, rules, updateRules, vpcSelector])
 
   const table = useReactTable({ columns, data: rules })
 

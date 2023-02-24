@@ -26,7 +26,7 @@ import {
   SideModalForm,
   TextField,
 } from 'app/components/form'
-import { useRequiredParams } from 'app/hooks'
+import { useVpcSelector } from 'app/hooks'
 
 export type FirewallRuleValues = {
   enabled: boolean
@@ -422,12 +422,12 @@ export function CreateFirewallRuleForm({
   onDismiss,
   existingRules,
 }: CreateFirewallRuleFormProps) {
-  const parentNames = useRequiredParams('orgName', 'projectName', 'vpcName')
+  const vpcSelector = useVpcSelector()
   const queryClient = useApiQueryClient()
 
-  const updateRules = useApiMutation('vpcFirewallRulesUpdate', {
+  const updateRules = useApiMutation('vpcFirewallRulesUpdateV1', {
     onSuccess() {
-      queryClient.invalidateQueries('vpcFirewallRulesView', { path: parentNames })
+      queryClient.invalidateQueries('vpcFirewallRulesViewV1', { query: vpcSelector })
       onDismiss()
     },
   })
@@ -445,7 +445,7 @@ export function CreateFirewallRuleForm({
           .filter((r) => r.name !== values.name)
           .map(firewallRuleGetToPut)
         updateRules.mutate({
-          path: parentNames,
+          query: vpcSelector,
           body: {
             rules: [...otherRules, valuesToRuleUpdate(values)],
           },

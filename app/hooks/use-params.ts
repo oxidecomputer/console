@@ -7,6 +7,8 @@ import { toApiSelector } from '@oxide/util'
 const err = (param: string) =>
   `Param '${param}' not found in route. You might be rendering a component under the wrong route.`
 
+// default of never is required to prevent the highly undesirable property that if
+// you don't pass any arguments, the result object thinks every property is defined
 export const requireParams =
   <K extends string = never>(...requiredKeys: K[]) =>
   (params: Readonly<Params<string>>) => {
