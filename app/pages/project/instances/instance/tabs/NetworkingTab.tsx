@@ -23,7 +23,6 @@ import {
   getInstanceSelector,
   useInstanceSelector,
   useProjectSelector,
-  useRequiredParams,
   useToast,
 } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
@@ -49,8 +48,10 @@ const SubnetNameFromId = ({ value }: { value: string }) => (
 )
 
 function ExternalIpsFromInstanceName({ value: primary }: { value: boolean }) {
-  const instanceParams = useRequiredParams('orgName', 'projectName', 'instanceName')
-  const { data } = useApiQuery('instanceExternalIpList', { path: instanceParams })
+  const { organization, project, instance } = useInstanceSelector()
+  const { data } = useApiQuery('instanceExternalIpList', {
+    path: { orgName: organization, projectName: project, instanceName: instance },
+  })
   const ips = data?.items.map((eip) => eip.ip).join(', ')
   return <span className="text-secondary">{primary ? ips : <>&mdash;</>}</span>
 }

@@ -4,7 +4,7 @@ import { apiQueryClient } from '@oxide/api'
 import { DateCell, SizeCell, useQueryTable } from '@oxide/table'
 import { EmptyMessage, Images24Icon, PageHeader, PageTitle } from '@oxide/ui'
 
-import { requireProjectParams, useRequiredParams } from 'app/hooks'
+import { getProjectSelector, useProjectSelector } from 'app/hooks'
 
 const EmptyState = () => (
   <EmptyMessage
@@ -17,16 +17,19 @@ const EmptyState = () => (
 )
 
 ImagesPage.loader = async ({ params }: LoaderFunctionArgs) => {
+  const { project, organization } = getProjectSelector(params)
   await apiQueryClient.prefetchQuery('imageList', {
-    path: requireProjectParams(params),
+    path: { projectName: project, orgName: organization },
     query: { limit: 10 },
   })
   return null
 }
 
 export function ImagesPage() {
-  const projectParams = useRequiredParams('orgName', 'projectName')
-  const { Table, Column } = useQueryTable('imageList', { path: projectParams })
+  const { organization, project } = useProjectSelector()
+  const { Table, Column } = useQueryTable('imageList', {
+    path: { projectName: project, orgName: organization },
+  })
   return (
     <>
       <PageHeader>
