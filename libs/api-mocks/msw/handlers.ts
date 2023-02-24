@@ -596,14 +596,14 @@ export const handlers = makeHandlers({
 
     return 204
   },
-  vpcFirewallRulesView(params) {
-    const vpc = lookup.vpc(toApiSelector(params.path))
+  vpcFirewallRulesViewV1({ query }) {
+    const vpc = lookup.vpc(query)
     const rules = db.vpcFirewallRules.filter((r) => r.vpc_id === vpc.id)
 
     return { rules: sortBy(rules, (r) => r.name) }
   },
-  vpcFirewallRulesUpdate({ body, ...params }) {
-    const vpc = lookup.vpc(toApiSelector(params.path))
+  vpcFirewallRulesUpdateV1({ body, query }) {
+    const vpc = lookup.vpc(query)
 
     const rules = body.rules.map((rule) => ({
       vpc_id: vpc.id,
@@ -1096,6 +1096,8 @@ export const handlers = makeHandlers({
   systemPolicyView: NotImplemented,
   vpcCreate: NotImplemented,
   vpcDelete: NotImplemented,
+  vpcFirewallRulesView: NotImplemented,
+  vpcFirewallRulesUpdate: NotImplemented,
   vpcList: NotImplemented,
   vpcRouterCreate: NotImplemented,
   vpcRouterDelete: NotImplemented,

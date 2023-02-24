@@ -4498,6 +4498,30 @@ export const SystemVersionParams = z.preprocess(
   })
 )
 
+export const VpcFirewallRulesViewV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      organization: NameOrId.optional(),
+      project: NameOrId.optional(),
+      vpc: NameOrId.optional(),
+    }),
+  })
+)
+
+export const VpcFirewallRulesUpdateV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      organization: NameOrId.optional(),
+      project: NameOrId.optional(),
+      vpc: NameOrId.optional(),
+    }),
+  })
+)
+
 export const VpcRouterRouteListV1Params = z.preprocess(
   processResponseBody,
   z.object({

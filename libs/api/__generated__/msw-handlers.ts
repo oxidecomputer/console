@@ -896,6 +896,15 @@ export interface MSWHandlers {
   }) => HandlerResult<Api.ComponentUpdateResultsPage>
   /** `GET /v1/system/update/version` */
   systemVersion: () => HandlerResult<Api.SystemVersion>
+  /** `GET /v1/vpc-firewall-rules` */
+  vpcFirewallRulesViewV1: (params: {
+    query: Api.VpcFirewallRulesViewV1QueryParams
+  }) => HandlerResult<Api.VpcFirewallRules>
+  /** `PUT /v1/vpc-firewall-rules` */
+  vpcFirewallRulesUpdateV1: (params: {
+    query: Api.VpcFirewallRulesUpdateV1QueryParams
+    body: Json<Api.VpcFirewallRuleUpdateParams>
+  }) => HandlerResult<Api.VpcFirewallRules>
   /** `GET /v1/vpc-router-routes` */
   vpcRouterRouteListV1: (params: {
     query: Api.VpcRouterRouteListV1QueryParams
@@ -2089,6 +2098,18 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
       )
     ),
     rest.get('/v1/system/update/version', handler(handlers['systemVersion'], null, null)),
+    rest.get(
+      '/v1/vpc-firewall-rules',
+      handler(handlers['vpcFirewallRulesViewV1'], schema.VpcFirewallRulesViewV1Params, null)
+    ),
+    rest.put(
+      '/v1/vpc-firewall-rules',
+      handler(
+        handlers['vpcFirewallRulesUpdateV1'],
+        schema.VpcFirewallRulesUpdateV1Params,
+        schema.VpcFirewallRuleUpdateParams
+      )
+    ),
     rest.get(
       '/v1/vpc-router-routes',
       handler(handlers['vpcRouterRouteListV1'], schema.VpcRouterRouteListV1Params, null)

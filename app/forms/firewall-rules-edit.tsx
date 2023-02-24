@@ -2,7 +2,7 @@ import type { VpcFirewallRule } from '@oxide/api'
 import { firewallRuleGetToPut, useApiMutation, useApiQueryClient } from '@oxide/api'
 
 import { SideModalForm } from 'app/components/form'
-import { useRequiredParams } from 'app/hooks'
+import { useVpcSelector } from 'app/hooks'
 
 import { CommonFields, valuesToRuleUpdate } from './firewall-rules-create'
 import type { FirewallRuleValues } from './firewall-rules-create'
@@ -18,12 +18,12 @@ export function EditFirewallRuleForm({
   existingRules,
   originalRule,
 }: EditFirewallRuleFormProps) {
-  const parentNames = useRequiredParams('orgName', 'projectName', 'vpcName')
+  const vpcSelector = useVpcSelector()
   const queryClient = useApiQueryClient()
 
-  const updateRules = useApiMutation('vpcFirewallRulesUpdate', {
+  const updateRules = useApiMutation('vpcFirewallRulesUpdateV1', {
     onSuccess() {
-      queryClient.invalidateQueries('vpcFirewallRulesView', { path: parentNames })
+      queryClient.invalidateQueries('vpcFirewallRulesViewV1', { query: vpcSelector })
       onDismiss()
     },
   })
@@ -59,7 +59,7 @@ export function EditFirewallRuleForm({
           .filter((r) => r.name !== originalRule.name)
           .map(firewallRuleGetToPut)
         updateRules.mutate({
-          path: parentNames,
+          query: vpcSelector,
           body: {
             rules: [...otherRules, valuesToRuleUpdate(values)],
           },
