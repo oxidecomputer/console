@@ -16,16 +16,15 @@ const VERSION_FILE = path.join(OMICRON_DIR, 'tools/console_version')
 const GH_MISSING = 'GitHub CLI not found. Please install it and try again.'
 const VERSION_FILE_MISSING = `Omicron console version file at '${VERSION_FILE}' not found. This script assumes Omicron is cloned in a sibling directory next to Console.`
 
-/** Wrap Deno.run, get output as string */
-async function run(cmd: string[]): Promise<string> {
-  const proc = Deno.run({ cmd, stdout: 'piped' })
-  const { code } = await proc.status()
+/** Run shell command, get output as string */
+function run(cmd: string, args: string[]): string {
+  const { success, stdout } = new Deno.Command(cmd, { args, stdout: 'piped' }).outputSync()
 
-  // stderr is not piped so it'll show up automatically
-  if (code !== 0) throw Error(`Shell command '${cmd.join(' ')}' failed`)
+  if (!success) {
+    throw Error(`Shell command '${cmd} ${args.join(' ')}' failed`)
+  }
 
-  const output = await proc.output()
-  return new TextDecoder().decode(output).trim()
+  return new TextDecoder().decode(stdout).trim()
 }
 
 // script starts here
@@ -35,7 +34,7 @@ const { dryRun } = flags.parse(Deno.args, {
   boolean: ['dryRun'],
 })
 
-const newCommit = await run(['git', 'rev-parse', 'HEAD'])
+const newCommit = run('git', ['rev-parse', 'HEAD'])
 const shaUrl = `https://dl.oxide.computer/releases/console/${newCommit}.sha256.txt`
 const newSha2 = (await fetch(shaUrl).then((resp) => resp.text())).trim()
 
@@ -46,9 +45,11 @@ if (dryRun) {
   Deno.exit()
 }
 
-await run(['which', 'gh']).catch(() => {
+try {
+  run('which', ['gh'])
+} catch (_e) {
   throw Error(GH_MISSING)
-})
+}
 
 const oldVersionFile = await Deno.readTextFile(VERSION_FILE).catch(() => {
   throw Error(VERSION_FILE_MISSING)
@@ -66,12 +67,12 @@ const prBody = `Changes: https://github.com/oxidecomputer/console/compare/${oldC
 // cd to omicron, pull main, create new branch, commit changes, push, PR it, go back to
 // main, delete branch
 Deno.chdir(OMICRON_DIR)
-await run(['git', 'checkout', 'main'])
-await run(['git', 'pull'])
-await run(['git', 'checkout', '-b', branchName])
-await run(['git', 'add', '--all'])
-await run(['git', 'commit', '-m', prTitle, '-m', prBody])
-await run(['git', 'push', '--set-upstream', 'origin', branchName])
-await run(['gh', 'pr', 'create', '--title', prTitle, '--body', prBody])
-await run(['git', 'checkout', 'main'])
-await run(['git', 'branch', '-D', branchName])
+run('git', ['checkout', 'main'])
+run('git', ['pull'])
+run('git', ['checkout', '-b', branchName])
+run('git', ['add', '--all'])
+run('git', ['commit', '-m', prTitle, '-m', prBody])
+run('git', ['push', '--set-upstream', 'origin', branchName])
+run('gh', ['pr', 'create', '--title', prTitle, '--body', prBody])
+run('git', ['checkout', 'main'])
+run('git', ['branch', '-D', branchName])
