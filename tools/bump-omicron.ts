@@ -18,9 +18,11 @@ const VERSION_FILE_MISSING = `Omicron console version file at '${VERSION_FILE}' 
 
 /** Run shell command, get output as string */
 function run(cmd: string, args: string[]): string {
-  const { code, stdout } = new Deno.Command(cmd, { args, stdout: 'piped' }).outputSync()
+  const { success, stdout } = new Deno.Command(cmd, { args, stdout: 'piped' }).outputSync()
 
-  if (code !== 0) throw Error(`Shell command '${args.join(' ')}' failed`)
+  if (!success) {
+    throw Error(`Shell command '${cmd} ${args.join(' ')}' failed`)
+  }
 
   return new TextDecoder().decode(stdout).trim()
 }
