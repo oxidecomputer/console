@@ -9,6 +9,7 @@ type Instance = Required<PP.Instance>
 type Vpc = Required<PP.Vpc>
 type SystemUpdate = Required<PP.SystemUpdate>
 type Silo = Required<PP.SiloV1>
+type Group = Required<PP.Group>
 
 export const pb = {
   orgs: () => '/orgs',
@@ -59,6 +60,9 @@ export const pb = {
 
   siloUtilization: () => '/utilization',
   siloAccess: () => '/access',
+  users: () => '/users',
+  groups: () => '/groups',
+  group: ({ group }: Group) => `${pb.groups()}/${group}`,
 
   system: () => '/sys',
   systemIssues: () => '/sys/issues',

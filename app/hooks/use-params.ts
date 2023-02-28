@@ -31,14 +31,6 @@ export const requireSiloParams = requireParams('siloName')
 const requireSledParams = requireParams('sledId')
 export const requireUpdateParams = requireParams('version')
 
-const useOrgParams = () => requireOrgParams(useParams())
-const useProjectParams = () => requireProjectParams(useParams())
-const useInstanceParams = () => requireInstanceParams(useParams())
-const useVpcParams = () => requireVpcParams(useParams())
-export const useSiloParams = () => requireSiloParams(useParams())
-export const useSledParams = () => requireSledParams(useParams())
-export const useUpdateParams = () => requireUpdateParams(useParams())
-
 // non-hook versions for use in loaders
 
 export const getOrgSelector = (p: Readonly<Params<string>>) =>
@@ -49,6 +41,7 @@ export const getInstanceSelector = (p: Readonly<Params<string>>) =>
   toApiSelector(requireInstanceParams(p))
 export const getVpcSelector = (p: Readonly<Params<string>>) =>
   toApiSelector(requireVpcParams(p))
+export const getGroupSelector = requireParams('group')
 
 // Wrappers for RR's `useParams` that guarantee (in dev) that the specified
 // params are present. Only the specified keys end up in the result object, but
@@ -58,3 +51,12 @@ export const useOrgSelector = () => toApiSelector(useOrgParams())
 export const useProjectSelector = () => toApiSelector(useProjectParams())
 export const useVpcSelector = () => toApiSelector(useVpcParams())
 export const useInstanceSelector = () => toApiSelector(useInstanceParams())
+export const useGroupSelector = () => getGroupSelector(useParams())
+
+const useOrgParams = () => requireOrgParams(useParams())
+const useProjectParams = () => requireProjectParams(useParams())
+const useInstanceParams = () => requireInstanceParams(useParams())
+const useVpcParams = () => requireVpcParams(useParams())
+export const useSiloParams = () => requireSiloParams(useParams())
+export const useSledParams = () => requireSledParams(useParams())
+export const useUpdateParams = () => requireUpdateParams(useParams())

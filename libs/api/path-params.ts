@@ -12,6 +12,7 @@ export type VpcRouter = Merge<Vpc, { router?: string }>
 export type RouterRoute = Merge<VpcRouter, { route?: string }>
 export type SystemUpdate = { version: string }
 export type SiloV1 = { silo: string }
+export type Group = { group: string }
 
 export type Id = { id: string }
 

@@ -81,7 +81,7 @@ async function timeToAppear(page: Page, selector: string): Promise<number> {
 }
 
 /**
- * Assert a set of elements all appeared within a 20ms range
+ * Assert a set of elements all appeared at about the same time
  */
 export async function expectSimultaneous(page: Page, selectors: string[]) {
   const times = await Promise.all(selectors.map((sel) => timeToAppear(page, sel)))

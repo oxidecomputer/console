@@ -30,6 +30,14 @@ export default function SiloLayout() {
           <NavLinkItem to={pb.siloAccess()}>
             <Access16Icon /> Access & IAM
           </NavLinkItem>
+          {/* <NavLinkItem to={pb.users()}>
+            <Access16Icon title="Users" />
+            Users
+          </NavLinkItem> */}
+          <NavLinkItem to={pb.groups()}>
+            <Access16Icon title="Groups" />
+            Groups
+          </NavLinkItem>
         </Sidebar.Nav>
       </Sidebar>
       <ContentPane />

@@ -24,6 +24,8 @@ import SystemLayout from './layouts/SystemLayout'
 import { userLoader } from './layouts/helpers'
 import DeviceAuthSuccessPage from './pages/DeviceAuthSuccessPage'
 import DeviceAuthVerifyPage from './pages/DeviceAuthVerifyPage'
+import { GroupPage } from './pages/GroupPage'
+import { GroupsPage } from './pages/GroupsPage'
 import LoginPage from './pages/LoginPage'
 import NotFound from './pages/NotFound'
 import { OrgAccessPage } from './pages/OrgAccessPage'
@@ -66,6 +68,7 @@ const orgCrumb: CrumbFunc = (m) => m.params.orgName!
 const projectCrumb: CrumbFunc = (m) => m.params.projectName!
 const instanceCrumb: CrumbFunc = (m) => m.params.instanceName!
 const vpcCrumb: CrumbFunc = (m) => m.params.vpcName!
+const groupCrumb: CrumbFunc = (m) => m.params.groupId!
 
 export const routes = createRoutesFromElements(
   <Route element={<RootLayout />}>
@@ -178,6 +181,21 @@ export const routes = createRoutesFromElements(
           loader={SiloAccessPage.loader}
           handle={{ crumb: 'Access & IAM' }}
         />
+        {/* <Route
+            path="users-groups"
+            element={<ProjectAccessPage />}
+            loader={ProjectAccessPage.loader}
+            handle={{ crumb: 'Access & IAM' }}
+          /> */}
+        <Route path="groups">
+          <Route index element={<GroupsPage />} loader={GroupsPage.loader} />
+          <Route
+            path=":group"
+            element={<GroupPage />}
+            loader={GroupPage.loader}
+            handle={{ crumb: groupCrumb }}
+          />
+        </Route>
       </Route>
 
       <Route path="orgs/:orgName" handle={{ crumb: orgCrumb }}>
