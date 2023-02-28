@@ -98,6 +98,10 @@ table.ox-table {
     @apply pointer-events-none absolute top-0 left-0 right-0 bottom-0 border-b border-r content-[''] border-default;
   }
 
+  & tr:last-of-type td:last-of-type:not(.action-col) {
+    border-bottom-right-radius: var(--border-radius-lg);
+  }
+
   & tr:last-of-type td:first-of-type {
     @apply !border-l-0 !border-b-0;
   }
@@ -133,6 +137,11 @@ table.ox-table {
   & th:last-of-type.action-col:after {
     border-top-right-radius: var(--border-radius-lg);
     @apply pointer-events-none absolute top-0 left-0 right-0 bottom-0 border-t border-r content-[''] border-default;
+  }
+
+  & th:last-of-type:not(.action-col) {
+    border-top-right-radius: var(--border-radius-lg);
+    @apply border-r;
   }
 
   /* === Begin table selection styles === */
