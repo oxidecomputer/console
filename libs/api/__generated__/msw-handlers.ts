@@ -634,6 +634,10 @@ export interface MSWHandlers {
     path: Api.DiskDeleteV1PathParams
     query: Api.DiskDeleteV1QueryParams
   }) => StatusCode
+  /** `GET /v1/groups` */
+  groupListV1: (params: {
+    query: Api.GroupListV1QueryParams
+  }) => HandlerResult<Api.GroupResultsPage>
   /** `GET /v1/instances` */
   instanceListV1: (params: {
     query: Api.InstanceListV1QueryParams
@@ -896,6 +900,10 @@ export interface MSWHandlers {
   }) => HandlerResult<Api.ComponentUpdateResultsPage>
   /** `GET /v1/system/update/version` */
   systemVersion: () => HandlerResult<Api.SystemVersion>
+  /** `GET /v1/users` */
+  userListV1: (params: {
+    query: Api.UserListV1QueryParams
+  }) => HandlerResult<Api.UserResultsPage>
   /** `GET /v1/vpc-firewall-rules` */
   vpcFirewallRulesViewV1: (params: {
     query: Api.VpcFirewallRulesViewV1QueryParams
@@ -1783,6 +1791,10 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
       handler(handlers['diskDeleteV1'], schema.DiskDeleteV1Params, null)
     ),
     rest.get(
+      '/v1/groups',
+      handler(handlers['groupListV1'], schema.GroupListV1Params, null)
+    ),
+    rest.get(
       '/v1/instances',
       handler(handlers['instanceListV1'], schema.InstanceListV1Params, null)
     ),
@@ -2098,6 +2110,7 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
       )
     ),
     rest.get('/v1/system/update/version', handler(handlers['systemVersion'], null, null)),
+    rest.get('/v1/users', handler(handlers['userListV1'], schema.UserListV1Params, null)),
     rest.get(
       '/v1/vpc-firewall-rules',
       handler(handlers['vpcFirewallRulesViewV1'], schema.VpcFirewallRulesViewV1Params, null)

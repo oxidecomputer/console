@@ -55,8 +55,8 @@ ProjectAccessPage.loader = async ({ params }: LoaderFunctionArgs) => {
       query: { organization },
     }),
     // used to resolve user names
-    apiQueryClient.prefetchQuery('userList', {}),
-    apiQueryClient.prefetchQuery('groupList', {}),
+    apiQueryClient.prefetchQuery('userListV1', {}),
+    apiQueryClient.prefetchQuery('groupListV1', {}),
   ])
   return null
 }
