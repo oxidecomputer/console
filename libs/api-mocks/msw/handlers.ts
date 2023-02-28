@@ -40,7 +40,7 @@ export const handlers = makeHandlers({
   deviceAuthRequest: () => 200,
   deviceAuthConfirm: () => 200,
   deviceAccessToken: () => 200,
-  groupList: (params) => paginated(params.query, db.userGroups),
+  groupListV1: (params) => paginated(params.query, db.userGroups),
 
   organizationListV1: (params) => paginated(params.query, db.orgs),
   organizationCreateV1({ body }) {
@@ -890,7 +890,7 @@ export const handlers = makeHandlers({
   },
   samlIdentityProviderView: (params) => lookupSamlIdp(params.path),
 
-  userList: (params) => paginated(params.query, db.users),
+  userListV1: (params) => paginated(params.query, db.users),
 
   systemPolicyViewV1() {
     const role_assignments = db.roleAssignments
@@ -1052,6 +1052,7 @@ export const handlers = makeHandlers({
   diskDelete: NotImplemented,
   diskList: NotImplemented,
   diskView: NotImplemented,
+  groupList: NotImplemented,
   instanceCreate: NotImplemented,
   instanceDelete: NotImplemented,
   instanceDiskAttach: NotImplemented,
@@ -1094,6 +1095,7 @@ export const handlers = makeHandlers({
   snapshotList: NotImplemented,
   snapshotView: NotImplemented,
   systemPolicyView: NotImplemented,
+  userList: NotImplemented,
   vpcCreate: NotImplemented,
   vpcDelete: NotImplemented,
   vpcFirewallRulesView: NotImplemented,
