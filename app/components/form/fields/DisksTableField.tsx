@@ -4,6 +4,7 @@ import { useController } from 'react-hook-form'
 
 import type { DiskCreate, DiskIdentifier } from '@oxide/api'
 import { Button, Error16Icon, FieldLabel, MiniTable } from '@oxide/ui'
+import { bytesToGiB } from '@oxide/util'
 
 import AttachDiskSideModalForm from 'app/forms/disk-attach'
 import { CreateDiskSideModalForm } from 'app/forms/disk-create'
@@ -33,7 +34,8 @@ export function DisksTableField({ control }: { control: Control<InstanceCreateIn
           <MiniTable.Table className="mb-4">
             <MiniTable.Header>
               <MiniTable.HeadCell>Name</MiniTable.HeadCell>
-              <MiniTable.HeadCell>Type</MiniTable.HeadCell>
+              <MiniTable.HeadCell>Source</MiniTable.HeadCell>
+              <MiniTable.HeadCell>Size</MiniTable.HeadCell>
               {/* For remove button */}
               <MiniTable.HeadCell className="w-12" />
             </MiniTable.Header>
@@ -46,7 +48,19 @@ export function DisksTableField({ control }: { control: Control<InstanceCreateIn
                   key={item.name}
                 >
                   <MiniTable.Cell>{item.name}</MiniTable.Cell>
-                  <MiniTable.Cell>{item.type}</MiniTable.Cell>
+                  <MiniTable.Cell>
+                    {item.type === 'attach' ? 'Existing' : 'New'}
+                  </MiniTable.Cell>
+                  <MiniTable.Cell>
+                    {item.type === 'attach' ? (
+                      '-'
+                    ) : (
+                      <>
+                        <span>{bytesToGiB(item.size)}</span>
+                        <span className="ml-1 inline-block text-accent-secondary">GiB</span>
+                      </>
+                    )}
+                  </MiniTable.Cell>
                   <MiniTable.Cell>
                     <button
                       onClick={() => onChange(items.filter((i) => i.name !== item.name))}
