@@ -96,8 +96,8 @@ export function useUserRows(
 ): UserAccessRow[] {
   // HACK: because the policy has no names, we are fetching ~all the users,
   // putting them in a dictionary, and adding the names to the rows
-  const { data: users } = useApiQuery('userListV1', {})
-  const { data: groups } = useApiQuery('groupListV1', {})
+  const { data: users } = useApiQuery('userList', {})
+  const { data: groups } = useApiQuery('groupList', {})
   return useMemo(() => {
     const userItems = users?.items || []
     const groupItems = groups?.items || []
@@ -138,8 +138,8 @@ export function useActorsNotInPolicy(
   // allow undefined because this is fetched with RQ
   policy: Policy | undefined
 ): Actor[] {
-  const { data: users } = useApiQuery('userListV1', {})
-  const { data: groups } = useApiQuery('groupListV1', {})
+  const { data: users } = useApiQuery('userList', {})
+  const { data: groups } = useApiQuery('groupList', {})
   return useMemo(() => {
     // IDs are UUIDs, so no need to include identity type in set value to disambiguate
     const actorsInPolicy = new Set(policy?.roleAssignments.map((ra) => ra.identityId) || [])

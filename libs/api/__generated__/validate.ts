@@ -94,10 +94,9 @@ export const Name = z.preprocess(
   processResponseBody,
   z
     .string()
-    .min(1)
     .max(63)
     .regex(
-      /^(?![0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$)^[a-z][a-z0-9-]*[a-zA-Z0-9]*$/
+      /^(?![0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$)^[a-z][a-z0-9-]*[a-zA-Z0-9]$/
     )
 )
 
@@ -1699,10 +1698,9 @@ export const UserId = z.preprocess(
   processResponseBody,
   z
     .string()
-    .min(1)
     .max(63)
     .regex(
-      /^(?![0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$)^[a-z][a-z0-9-]*[a-zA-Z0-9]*$/
+      /^(?![0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$)^[a-z][a-z0-9-]*[a-zA-Z0-9]$/
     )
 )
 
@@ -3791,18 +3789,6 @@ export const DiskDeleteV1Params = z.preprocess(
   })
 )
 
-export const GroupListV1Params = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({}),
-    query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
-      sortBy: IdSortMode.optional(),
-    }),
-  })
-)
-
 export const InstanceListV1Params = z.preprocess(
   processResponseBody,
   z.object({
@@ -4509,19 +4495,6 @@ export const SystemVersionParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({}),
-  })
-)
-
-export const UserListV1Params = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({}),
-    query: z.object({
-      group: z.string().uuid().optional(),
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
-      sortBy: IdSortMode.optional(),
-    }),
   })
 )
 

@@ -40,7 +40,7 @@ export const handlers = makeHandlers({
   deviceAuthRequest: () => 200,
   deviceAuthConfirm: () => 200,
   deviceAccessToken: () => 200,
-  groupListV1: (params) => paginated(params.query, db.userGroups),
+  groupList: (params) => paginated(params.query, db.userGroups),
 
   organizationListV1: (params) => paginated(params.query, db.orgs),
   organizationCreateV1({ body }) {
@@ -890,18 +890,7 @@ export const handlers = makeHandlers({
   },
   samlIdentityProviderView: (params) => lookupSamlIdp(params.path),
 
-  userListV1: ({ query }) => {
-    // query.group is validated by generated code to be a UUID if present
-    if (query.group) {
-      const group = lookupById(db.userGroups, query.group) // 404 if doesn't exist
-      const memberships = db.groupMemberships.filter((gm) => gm.groupId === group.id)
-      const userIds = new Set(memberships.map((gm) => gm.userId))
-      const users = db.users.filter((u) => userIds.has(u.id))
-      return paginated(query, users)
-    }
-
-    return paginated(query, db.users)
-  },
+  userList: (params) => paginated(params.query, db.users),
 
   systemPolicyViewV1() {
     const role_assignments = db.roleAssignments
@@ -1063,7 +1052,6 @@ export const handlers = makeHandlers({
   diskDelete: NotImplemented,
   diskList: NotImplemented,
   diskView: NotImplemented,
-  groupList: NotImplemented,
   instanceCreate: NotImplemented,
   instanceDelete: NotImplemented,
   instanceDiskAttach: NotImplemented,
@@ -1106,7 +1094,6 @@ export const handlers = makeHandlers({
   snapshotList: NotImplemented,
   snapshotView: NotImplemented,
   systemPolicyView: NotImplemented,
-  userList: NotImplemented,
   vpcCreate: NotImplemented,
   vpcDelete: NotImplemented,
   vpcFirewallRulesView: NotImplemented,
