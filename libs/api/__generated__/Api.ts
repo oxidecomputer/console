@@ -2819,6 +2819,12 @@ export interface DiskDeleteV1QueryParams {
   project?: NameOrId
 }
 
+export interface GroupListV1QueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: IdSortMode
+}
+
 export interface InstanceListV1QueryParams {
   limit?: number
   organization?: NameOrId
@@ -3180,6 +3186,13 @@ export interface SystemUpdateComponentsListPathParams {
   version: SemverVersion
 }
 
+export interface UserListV1QueryParams {
+  group?: string
+  limit?: number
+  pageToken?: string
+  sortBy?: IdSortMode
+}
+
 export interface VpcFirewallRulesViewV1QueryParams {
   organization?: NameOrId
   project?: NameOrId
@@ -3425,6 +3438,7 @@ export type ApiListMethods = Pick<
   | 'systemUserList'
   | 'userList'
   | 'diskListV1'
+  | 'groupListV1'
   | 'instanceListV1'
   | 'instanceDiskListV1'
   | 'instanceNetworkInterfaceListV1'
@@ -3441,6 +3455,7 @@ export type ApiListMethods = Pick<
   | 'updateDeploymentsList'
   | 'systemUpdateList'
   | 'systemUpdateComponentsList'
+  | 'userListV1'
   | 'vpcRouterRouteListV1'
   | 'vpcRouterListV1'
   | 'vpcSubnetListV1'
@@ -5538,6 +5553,20 @@ export class Api extends HttpClient {
       })
     },
     /**
+     * List groups
+     */
+    groupListV1: (
+      { query = {} }: { query?: GroupListV1QueryParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<GroupResultsPage>({
+        path: `/v1/groups`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
      * List instances
      */
     instanceListV1: (
@@ -6489,6 +6518,20 @@ export class Api extends HttpClient {
       return this.request<SystemVersion>({
         path: `/v1/system/update/version`,
         method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * List users
+     */
+    userListV1: (
+      { query = {} }: { query?: UserListV1QueryParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<UserResultsPage>({
+        path: `/v1/users`,
+        method: 'GET',
+        query,
         ...params,
       })
     },
