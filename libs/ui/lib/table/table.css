@@ -43,7 +43,7 @@ table.ox-table {
   /*
   Last column is sticky if it
   is a more actions cell
-*/
+  */
   & th:last-of-type.action-col,
   & td:last-of-type.action-col {
     @apply sticky right-0 bg-default;
@@ -53,12 +53,10 @@ table.ox-table {
   }
 
   /*
-  Rows have a raised bg on hover as it can make it
-  easier to read across to other cells
-*/
-  & tr:hover td,
-  & tr:hover td.action-col {
-    @apply bg-raise;
+    Highlight when hovering over the action-col cell
+  */
+  & td.action-col:hover > div {
+    @apply bg-hover;
   }
 
   /*
@@ -72,21 +70,8 @@ table.ox-table {
     @apply border-r-0 border-b-0 !bg-default;
   }
 
-  & tr:hover td:last-of-type.action-col > div {
-    @apply bg-raise;
-  }
-
   & tr:last-of-type td:last-of-type.action-col > div {
     border-bottom-right-radius: var(--border-radius-lg);
-  }
-
-  & tr:hover td:first-of-type {
-    @apply !bg-default;
-  }
-
-  /* Fixes an issue where border is not visible when not scrolled */
-  & tr:hover td:first-of-type > div {
-    @apply w-[calc(100%+1px)] bg-hover;
   }
 
   & tr:last-of-type td:first-of-type > div {
