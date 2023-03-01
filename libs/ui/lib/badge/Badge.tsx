@@ -1,8 +1,14 @@
 import cn from 'classnames'
 import invariant from 'tiny-invariant'
 
-export type BadgeColor = 'default' | 'destructive' | 'notice' | 'neutral'
-export type BadgeVariant = 'default' | 'secondary' | 'ghost'
+export type BadgeColor =
+  | 'default'
+  | 'destructive'
+  | 'notice'
+  | 'neutral'
+  | 'purple'
+  | 'blue'
+export type BadgeVariant = 'default' | 'solid'
 
 export interface BadgeProps {
   color?: BadgeColor
@@ -11,24 +17,24 @@ export interface BadgeProps {
   variant?: BadgeVariant
 }
 
+const defaultStyles = 'ring-1 ring-inset'
+
 export const badgeColors: Record<BadgeVariant, Partial<Record<BadgeColor, string>>> = {
   default: {
+    default: `${defaultStyles} bg-accent-secondary text-accent ring-[rgba(var(--base-green-800-rgb),0.15)]`,
+    destructive: `${defaultStyles} bg-destructive-secondary text-destructive ring-[rgba(var(--base-red-800-rgb),0.15)]`,
+    notice: `${defaultStyles} bg-notice-secondary text-notice ring-[rgba(var(--base-yellow-800-rgb),0.15)]`,
+    neutral: `${defaultStyles} bg-secondary text-secondary ring-[rgba(var(--base-neutral-700-rgb),0.15)]`,
+    purple: `${defaultStyles} bg-[var(--base-purple-200)] text-[var(--base-purple-700)] ring-[rgba(var(--base-purple-700-rgb),0.15)]`,
+    blue: `${defaultStyles} bg-[var(--base-blue-200)] text-[var(--base-blue-700)] ring-[rgba(var(--base-blue-700-rgb),0.15)]`,
+  },
+  solid: {
     default: 'bg-accent text-inverse',
     destructive: 'bg-destructive text-inverse',
     notice: 'bg-notice text-inverse',
     neutral: 'bg-inverse-tertiary text-inverse',
-  },
-  secondary: {
-    default: 'bg-accent-secondary text-accent',
-    destructive: 'bg-destructive-secondary text-destructive',
-    notice: 'bg-notice-secondary text-notice',
-    neutral: 'bg-secondary text-secondary',
-  },
-  ghost: {
-    default: 'ring-1 ring-inset bg-accent-secondary ring-accent-tertiary text-accent',
-    destructive:
-      'ring-1 ring-inset bg-destructive-secondary ring-destructive-tertiary text-destructive',
-    notice: 'ring-1 ring-inset bg-notice-secondary ring-notice-tertiary text-notice',
+    purple: 'bg-[var(--base-purple-700)] text-[var(--base-purple-200)]',
+    blue: 'bg-[var(--base-blue-700)] text-[var(--base-blue-200)]',
   },
 }
 
@@ -36,7 +42,7 @@ export const Badge = ({
   className,
   children,
   color = 'default',
-  variant = 'secondary',
+  variant = 'default',
 }: BadgeProps) => {
   invariant(
     badgeColors[variant][color],
