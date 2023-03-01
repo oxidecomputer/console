@@ -39,7 +39,6 @@ const TopBarPicker = (props: TopBarPickerProps) => {
   return (
     <Menu>
       <div
-        aria-label={props['aria-label']}
         // Important trick: we never want the separator to show up after the top
         // left corner picker. The separator starts from the leftmost of "other
         // pickers". But the leftmost corner one is in its own container and
@@ -70,7 +69,7 @@ const TopBarPicker = (props: TopBarPickerProps) => {
         {/* aria-hidden is a tip from the Reach docs */}
         {props.items && (
           <div className="ml-4">
-            <MenuButton className="group">
+            <MenuButton className="group" aria-label={props['aria-label']}>
               <div className="flex h-[2rem] w-[1.125rem] flex-shrink-0 items-center justify-center rounded border border-default group-hover:bg-hover">
                 <SelectArrows6Icon className="text-secondary" aria-hidden />
               </div>
