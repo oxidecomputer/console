@@ -3,7 +3,13 @@ import cn from 'classnames'
 import { Link, useParams } from 'react-router-dom'
 
 import { useApiQuery } from '@oxide/api'
-import { Identicon, Organization16Icon, SelectArrows6Icon, Success12Icon } from '@oxide/ui'
+import {
+  Identicon,
+  Organization16Icon,
+  SelectArrows6Icon,
+  Success12Icon,
+  Wrap,
+} from '@oxide/ui'
 
 import { useInstanceSelector, useProjectSelector, useSiloParams } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
@@ -23,19 +29,10 @@ type TopBarPickerProps = {
   items?: TopBarPickerItem[]
   noItemsText?: string
   icon?: React.ReactElement
+  to?: string
 }
 
 const TopBarPicker = (props: TopBarPickerProps) => {
-  const { orgName, projectName, instanceName } = useParams()
-  let crumbUrl
-  if (props.category === 'Instance') {
-    crumbUrl = `/orgs/${orgName}/projects/${projectName}/instances/${instanceName}`
-  } else if (props.category === 'Project') {
-    crumbUrl = `/orgs/${orgName}/projects/${projectName}`
-  } else if (props.category === 'Organization') {
-    crumbUrl = `/orgs/${orgName}`
-  }
-
   return (
     <Menu>
       <div
@@ -45,7 +42,7 @@ const TopBarPicker = (props: TopBarPickerProps) => {
         // therefore always last-of-type, so it will never get one.
         className="after:text-mono-lg flex w-full items-center justify-between after:mx-4 after:content-['/'] after:text-quinary last-of-type:after:content-none"
       >
-        <Link to={crumbUrl || ''}>
+        <Wrap when={props.to} with={<Link to={props.to!} />}>
           <div className="flex items-center">
             {props.icon ? <div className="mr-2 flex items-center">{props.icon}</div> : null}
             {props.current ? (
@@ -65,7 +62,7 @@ const TopBarPicker = (props: TopBarPickerProps) => {
               </div>
             )}
           </div>
-        </Link>
+        </Wrap>
         {/* aria-hidden is a tip from the Reach docs */}
         {props.items && (
           <div className="ml-4">
@@ -198,7 +195,7 @@ export function SiloPicker() {
 }
 
 export function OrgPicker() {
-  const { orgName } = useParams()
+  const { orgName: organization } = useParams()
   const { data } = useApiQuery('organizationListV1', { query: { limit: 20 } })
   const items = (data?.items || []).map(({ name }) => ({
     label: name,
@@ -208,9 +205,10 @@ export function OrgPicker() {
   return (
     <TopBarPicker
       aria-label="Switch organization"
-      icon={orgName ? <OrgLogo name={orgName} /> : <NoOrgLogo />}
+      icon={organization ? <OrgLogo name={organization} /> : <NoOrgLogo />}
       category="Organization"
-      current={orgName}
+      current={organization}
+      to={organization ? pb.projects({ organization }) : undefined}
       items={items}
       noItemsText="No organizations found"
     />
@@ -233,6 +231,7 @@ export function ProjectPicker() {
       aria-label="Switch project"
       category="Project"
       current={project}
+      to={pb.instances({ organization, project })}
       items={items}
       noItemsText="No projects found"
     />
@@ -241,13 +240,15 @@ export function ProjectPicker() {
 
 export function InstancePicker() {
   // picker only shows up when an instance is in scope
-  const { instance } = useInstanceSelector()
+  const instanceSelector = useInstanceSelector()
+  const { instance } = instanceSelector
 
   return (
     <TopBarPicker
       aria-label="Switch instance"
       category="Instance"
       current={instance}
+      to={pb.instanceStorage(instanceSelector)}
       noItemsText="No instances found"
     />
   )
