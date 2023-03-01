@@ -8,6 +8,7 @@ const params = {
   vpc: 'd',
   silo: 's',
   version: 'v',
+  group: 'g',
 }
 
 test('path builder', () => {
@@ -18,6 +19,8 @@ test('path builder', () => {
         "diskInventory": "/sys/inventory/disks",
         "diskNew": "/orgs/a/projects/b/disks-new",
         "disks": "/orgs/a/projects/b/disks",
+        "group": "/groups/g",
+        "groups": "/groups",
         "instance": "/orgs/a/projects/b/instances/c",
         "instanceMetrics": "/orgs/a/projects/b/instances/c/metrics",
         "instanceNew": "/orgs/a/projects/b/instances-new",
@@ -61,6 +64,7 @@ test('path builder', () => {
         "systemUpdates": "/sys/update/updates",
         "systemUtilization": "/sys/utilization",
         "updateableComponents": "/sys/update/components",
+        "users": "/users",
         "vpc": "/orgs/a/projects/b/vpcs/d",
         "vpcEdit": "/orgs/a/projects/b/vpcs/d/edit",
         "vpcNew": "/orgs/a/projects/b/vpcs-new",
