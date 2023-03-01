@@ -22,7 +22,7 @@ export const getActionsCol = <TData extends { id?: string }>(
     header: '',
     meta: {
       thClassName: 'action-col',
-      tdClassName: 'action-col children:p-0 w-[0.1%]',
+      tdClassName: 'action-col children:p-0 w-10',
     },
 
     cell: ({ row }) => {
