@@ -1,6 +1,6 @@
 import { test } from '@playwright/test'
 
-import { user1, user3, user4, userGroup3 } from '@oxide/api-mocks'
+import { user3, user4 } from '@oxide/api-mocks'
 
 import {
   expectNotVisible,
@@ -20,25 +20,22 @@ test('Click through silo access page', async ({ page }) => {
   // has to be before anything else is checked. ensures we've prefetched
   // users list and groups list properly
   await expectSimultaneous(page, [
-    `role=cell[name="${userGroup3.id}"]`,
+    'role=button[name="Add user or group"]', // important to include a static element
     'role=cell[name="real-estate-devs Group"]',
-    `role=cell[name="${user1.id}"]`,
     'role=cell[name="Hannah Arendt"]',
   ])
 
   await expectVisible(page, ['role=heading[name*="Access & IAM"]'])
   await expectRowVisible(table, {
-    ID: userGroup3.id,
     // no space because expectRowVisible uses textContent, not accessible name
     Name: 'real-estate-devsGroup',
     'Silo role': 'admin',
   })
   await expectRowVisible(table, {
-    ID: user1.id,
     Name: 'Hannah Arendt',
     'Silo role': 'admin',
   })
-  await expectNotVisible(page, [`role=cell[name="${user4.id}"]`])
+  await expectNotVisible(page, [`role=cell[name="${user4.display_name}"]`])
 
   // Add user 2 as collab
   await page.click('role=button[name="Add user or group"]')
@@ -67,14 +64,13 @@ test('Click through silo access page', async ({ page }) => {
 
   // User 3 shows up in the table
   await expectRowVisible(table, {
-    ID: user3.id,
     Name: 'Jacob Klein',
     'Silo role': 'collaborator',
   })
 
   // now change user 3's role from collab to viewer
   await page
-    .locator('role=row', { hasText: user3.id })
+    .locator('role=row', { hasText: user3.display_name })
     .locator('role=button[name="Row actions"]')
     .click()
   await page.click('role=menuitem[name="Change role"]')
@@ -86,14 +82,14 @@ test('Click through silo access page', async ({ page }) => {
   await page.click('role=option[name="Viewer"]')
   await page.click('role=button[name="Update role"]')
 
-  await expectRowVisible(table, { ID: user3.id, 'Silo role': 'viewer' })
+  await expectRowVisible(table, { Name: user3.display_name, 'Silo role': 'viewer' })
 
   // now delete user 3
   await page
-    .locator('role=row', { hasText: user3.id })
+    .locator('role=row', { hasText: user3.display_name })
     .locator('role=button[name="Row actions"]')
     .click()
-  await expectVisible(page, [`role=cell[name="${user3.id}"]`])
+  await expectVisible(page, [`role=cell[name="${user3.display_name}"]`])
   await page.click('role=menuitem[name="Delete"]')
-  await expectNotVisible(page, [`role=cell[name="${user3.id}"]`])
+  await expectNotVisible(page, [`role=cell[name="${user3.display_name}"]`])
 })
