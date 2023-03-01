@@ -20,76 +20,98 @@ type TopBarPickerProps = {
   display?: string
   /** The actively selected option. Used as display if display isn't present. */
   current: string | null | undefined
-  items: TopBarPickerItem[]
+  items?: TopBarPickerItem[]
   noItemsText?: string
   icon?: React.ReactElement
 }
 
-const TopBarPicker = (props: TopBarPickerProps) => (
-  <Menu>
-    <MenuButton
-      aria-label={props['aria-label']}
-      // Important trick: we never want the separator to show up after the top
-      // left corner picker. The separator starts from the leftmost of "other
-      // pickers". But the leftmost corner one is in its own container and
-      // therefore always last-of-type, so it will never get one.
-      className="after:text-mono-lg group flex w-full items-center justify-between after:mx-4 after:content-['/'] after:text-quinary last-of-type:after:content-none"
-    >
-      <div className="flex items-center">
-        {props.icon ? <div className="mr-2 flex items-center">{props.icon}</div> : null}
-        {props.current ? (
-          <div className="text-left">
-            <div className="text-mono-xs text-quaternary">{props.category}</div>
-            <div className="overflow-hidden text-ellipsis whitespace-nowrap text-sans-md text-secondary">
-              {props.display ?? props.current}
-            </div>
+const TopBarPicker = (props: TopBarPickerProps) => {
+  const { orgName, projectName, instanceName } = useParams()
+  let crumbUrl
+  if (props.category === 'Instance') {
+    crumbUrl = `/orgs/${orgName}/projects/${projectName}/instances/${instanceName}`
+  } else if (props.category === 'Project') {
+    crumbUrl = `/orgs/${orgName}/projects/${projectName}`
+  } else if (props.category === 'Organization') {
+    crumbUrl = `/orgs/${orgName}`
+  }
+
+  return (
+    <Menu>
+      <div
+        aria-label={props['aria-label']}
+        // Important trick: we never want the separator to show up after the top
+        // left corner picker. The separator starts from the leftmost of "other
+        // pickers". But the leftmost corner one is in its own container and
+        // therefore always last-of-type, so it will never get one.
+        className="after:text-mono-lg flex w-full items-center justify-between after:mx-4 after:content-['/'] after:text-quinary last-of-type:after:content-none"
+      >
+        <Link to={crumbUrl || ''}>
+          <div className="flex items-center">
+            {props.icon ? <div className="mr-2 flex items-center">{props.icon}</div> : null}
+            {props.current ? (
+              <div className="text-left">
+                <div className="text-mono-xs text-quaternary">{props.category}</div>
+                <div className="overflow-hidden text-ellipsis whitespace-nowrap text-sans-md text-secondary">
+                  {props.display ?? props.current}
+                </div>
+              </div>
+            ) : (
+              <div className="text-left">
+                <div className="text-mono-xs text-quaternary">
+                  Select
+                  <br />
+                  {props.category}
+                </div>
+              </div>
+            )}
           </div>
-        ) : (
-          <div className="text-left">
-            <div className="text-mono-xs text-quaternary">
-              Select
-              <br />
-              {props.category}
-            </div>
+        </Link>
+        {/* aria-hidden is a tip from the Reach docs */}
+        {props.items && (
+          <div className="ml-4">
+            <MenuButton className="group">
+              <div className="flex h-[2rem] w-[1.125rem] flex-shrink-0 items-center justify-center rounded border border-default group-hover:bg-hover">
+                <SelectArrows6Icon className="text-secondary" aria-hidden />
+              </div>
+            </MenuButton>
           </div>
         )}
       </div>
-      {/* aria-hidden is a tip from the Reach docs */}
-      <div className="ml-4 flex h-[2rem] w-[1.125rem] flex-shrink-0 items-center justify-center rounded border border-default group-hover:bg-hover">
-        <SelectArrows6Icon className="text-secondary" aria-hidden />
-      </div>
-    </MenuButton>
-    {/* TODO: item size and focus highlight */}
-    {/* TODO: popover position should be further right */}
-    <MenuList className="mt-2 min-w-[12.8125rem]">
-      {props.items.length > 0 ? (
-        props.items.map(({ label, to }) => {
-          const isSelected = props.current === label
-          return (
-            <MenuLink
-              key={label}
-              as={Link}
-              to={to}
-              className={cn('ox-menu-item', { 'is-selected': isSelected })}
+      {/* TODO: item size and focus highlight */}
+      {/* TODO: popover position should be further right */}
+      {props.items && (
+        <MenuList className="mt-2 min-w-[12.8125rem]">
+          {props.items.length > 0 ? (
+            props.items.map(({ label, to }) => {
+              const isSelected = props.current === label
+              return (
+                <MenuLink
+                  key={label}
+                  as={Link}
+                  to={to}
+                  className={cn('ox-menu-item', { 'is-selected': isSelected })}
+                >
+                  <span className="flex w-full items-center justify-between">
+                    {label} {isSelected && <Success12Icon className="-mr-3 block" />}
+                  </span>
+                </MenuLink>
+              )
+            })
+          ) : (
+            <MenuItem
+              className="!pr-3 !text-center !text-secondary hover:cursor-default"
+              onSelect={() => {}}
+              disabled
             >
-              <span className="flex w-full items-center justify-between">
-                {label} {isSelected && <Success12Icon className="-mr-3 block" />}
-              </span>
-            </MenuLink>
-          )
-        })
-      ) : (
-        <MenuItem
-          className="!pr-3 !text-center !text-secondary hover:cursor-default"
-          onSelect={() => {}}
-          disabled
-        >
-          {props.noItemsText || 'No items found'}
-        </MenuItem>
+              {props.noItemsText || 'No items found'}
+            </MenuItem>
+          )}
+        </MenuList>
       )}
-    </MenuList>
-  </Menu>
-)
+    </Menu>
+  )
+}
 
 /**
  * Uses the @oxide/identicon library to generate an identicon based on a hash of the org name
@@ -220,21 +242,13 @@ export function ProjectPicker() {
 
 export function InstancePicker() {
   // picker only shows up when an instance is in scope
-  const { organization, project, instance } = useInstanceSelector()
-  const { data } = useApiQuery('instanceListV1', {
-    query: { organization, project, limit: 50 },
-  })
-  const items = (data?.items || []).map(({ name }) => ({
-    label: name,
-    to: pb.instance({ organization, project, instance: name }),
-  }))
+  const { instance } = useInstanceSelector()
 
   return (
     <TopBarPicker
       aria-label="Switch instance"
       category="Instance"
       current={instance}
-      items={items}
       noItemsText="No instances found"
     />
   )
