@@ -203,7 +203,7 @@ export function NetworkingTab() {
             A network interface cannot be created or edited without{' '}
             <a href="#/" className="text-accent-secondary">
               stopping the instance
-              <OpenLink12Icon className="ml-1 pt-[1px]" />
+              <OpenLink12Icon className="ml-1 align-middle" />
             </a>
           </span>
         )}
