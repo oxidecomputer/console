@@ -3803,6 +3803,16 @@ export const GroupListV1Params = z.preprocess(
   })
 )
 
+export const GroupViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      group: z.string().uuid(),
+    }),
+    query: z.object({}),
+  })
+)
+
 export const InstanceListV1Params = z.preprocess(
   processResponseBody,
   z.object({

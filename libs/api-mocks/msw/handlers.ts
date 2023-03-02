@@ -41,6 +41,7 @@ export const handlers = makeHandlers({
   deviceAuthConfirm: () => 200,
   deviceAccessToken: () => 200,
   groupListV1: (params) => paginated(params.query, db.userGroups),
+  groupView: (params) => lookupById(db.userGroups, params.path.group),
 
   organizationListV1: (params) => paginated(params.query, db.orgs),
   organizationCreateV1({ body }) {
