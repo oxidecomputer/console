@@ -34,7 +34,7 @@ export function DisksTableField({ control }: { control: Control<InstanceCreateIn
           <MiniTable.Table className="mb-4">
             <MiniTable.Header>
               <MiniTable.HeadCell>Name</MiniTable.HeadCell>
-              <MiniTable.HeadCell>Source</MiniTable.HeadCell>
+              <MiniTable.HeadCell>Type</MiniTable.HeadCell>
               <MiniTable.HeadCell>Size</MiniTable.HeadCell>
               {/* For remove button */}
               <MiniTable.HeadCell className="w-12" />
@@ -48,9 +48,7 @@ export function DisksTableField({ control }: { control: Control<InstanceCreateIn
                   key={item.name}
                 >
                   <MiniTable.Cell>{item.name}</MiniTable.Cell>
-                  <MiniTable.Cell>
-                    {item.type === 'attach' ? 'Existing' : 'New'}
-                  </MiniTable.Cell>
+                  <MiniTable.Cell>{item.type}</MiniTable.Cell>
                   <MiniTable.Cell>
                     {item.type === 'attach' ? (
                       '-'
