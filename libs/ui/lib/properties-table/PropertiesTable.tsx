@@ -36,7 +36,7 @@ interface PropertiesTableRowProps {
 PropertiesTable.Row = ({ label, children }: PropertiesTableRowProps) => (
   <>
     <span className="flex items-center">
-      <Badge variant="ghost">{label}</Badge>
+      <Badge>{label}</Badge>
     </span>
     <div className="flex items-center whitespace-nowrap pr-4 text-sans-md">{children}</div>
   </>
