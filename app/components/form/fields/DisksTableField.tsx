@@ -3,7 +3,7 @@ import type { Control } from 'react-hook-form'
 import { useController } from 'react-hook-form'
 
 import type { DiskCreate, DiskIdentifier } from '@oxide/api'
-import { Button, Error16Icon, FieldLabel, MiniTable } from '@oxide/ui'
+import { Badge, Button, Error16Icon, FieldLabel, MiniTable } from '@oxide/ui'
 import { bytesToGiB } from '@oxide/util'
 
 import AttachDiskSideModalForm from 'app/forms/disk-attach'
@@ -48,7 +48,9 @@ export function DisksTableField({ control }: { control: Control<InstanceCreateIn
                   key={item.name}
                 >
                   <MiniTable.Cell>{item.name}</MiniTable.Cell>
-                  <MiniTable.Cell>{item.type}</MiniTable.Cell>
+                  <MiniTable.Cell>
+                    <Badge variant="solid">{item.type}</Badge>
+                  </MiniTable.Cell>
                   <MiniTable.Cell>
                     {item.type === 'attach' ? (
                       '-'
