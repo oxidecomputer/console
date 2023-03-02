@@ -638,6 +638,8 @@ export interface MSWHandlers {
   groupListV1: (params: {
     query: Api.GroupListV1QueryParams
   }) => HandlerResult<Api.GroupResultsPage>
+  /** `GET /v1/groups/:group` */
+  groupView: (params: { path: Api.GroupViewPathParams }) => HandlerResult<Api.Group>
   /** `GET /v1/instances` */
   instanceListV1: (params: {
     query: Api.InstanceListV1QueryParams
@@ -1793,6 +1795,10 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
     rest.get(
       '/v1/groups',
       handler(handlers['groupListV1'], schema.GroupListV1Params, null)
+    ),
+    rest.get(
+      '/v1/groups/:group',
+      handler(handlers['groupView'], schema.GroupViewParams, null)
     ),
     rest.get(
       '/v1/instances',

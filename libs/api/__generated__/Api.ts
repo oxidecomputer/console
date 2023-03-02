@@ -2825,6 +2825,10 @@ export interface GroupListV1QueryParams {
   sortBy?: IdSortMode
 }
 
+export interface GroupViewPathParams {
+  group: string
+}
+
 export interface InstanceListV1QueryParams {
   limit?: number
   organization?: NameOrId
@@ -5563,6 +5567,16 @@ export class Api extends HttpClient {
         path: `/v1/groups`,
         method: 'GET',
         query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch group
+     */
+    groupView: ({ path }: { path: GroupViewPathParams }, params: RequestParams = {}) => {
+      return this.request<Group>({
+        path: `/v1/groups/${path.group}`,
+        method: 'GET',
         ...params,
       })
     },
