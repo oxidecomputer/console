@@ -3,16 +3,16 @@ import type { BadgeColor, BadgeProps } from '@oxide/ui'
 import { Badge } from '@oxide/ui'
 
 const INSTANCE_COLORS: Record<InstanceState, Pick<BadgeProps, 'color' | 'variant'>> = {
-  creating: { color: 'notice', variant: 'default' },
-  starting: { color: 'notice' },
+  creating: { color: 'purple', variant: 'solid' },
+  starting: { color: 'blue', variant: 'solid' },
   running: { color: 'default' },
   rebooting: { color: 'notice' },
   stopping: { color: 'notice' },
-  stopped: { color: 'neutral', variant: 'default' },
-  repairing: { color: 'notice' },
-  migrating: { color: 'notice' },
-  failed: { color: 'destructive' },
-  destroyed: { color: 'neutral' },
+  stopped: { color: 'neutral', variant: 'solid' },
+  repairing: { color: 'notice', variant: 'solid' },
+  migrating: { color: 'notice', variant: 'solid' },
+  failed: { color: 'destructive', variant: 'solid' },
+  destroyed: { color: 'neutral', variant: 'solid' },
 }
 
 export const InstanceStatusBadge = (props: {
@@ -26,19 +26,19 @@ export const InstanceStatusBadge = (props: {
 
 type DiskStateStr = DiskState['state']
 
-const DISK_COLORS: Record<DiskStateStr, BadgeColor> = {
-  attached: 'default',
-  attaching: 'notice',
-  creating: 'notice',
-  detaching: 'notice',
-  detached: 'neutral',
-  destroyed: 'neutral', // should we ever see this?
-  faulted: 'destructive',
-  maintenance: 'notice',
+const DISK_COLORS: Record<DiskStateStr, Pick<BadgeProps, 'color' | 'variant'>> = {
+  attached: { color: 'default' },
+  attaching: { color: 'blue', variant: 'solid' },
+  creating: { color: 'purple', variant: 'solid' },
+  detaching: { color: 'notice', variant: 'solid' },
+  detached: { color: 'neutral', variant: 'solid' },
+  destroyed: { color: 'destructive', variant: 'solid' }, // should we ever see this?
+  faulted: { color: 'destructive', variant: 'solid' },
+  maintenance: { color: 'notice', variant: 'solid' },
 }
 
 export const DiskStatusBadge = (props: { status: DiskStateStr; className?: string }) => (
-  <Badge color={DISK_COLORS[props.status]} className={props.className}>
+  <Badge {...DISK_COLORS[props.status]} className={props.className}>
     {props.status}
   </Badge>
 )
@@ -54,11 +54,7 @@ export const SnapshotStatusBadge = (props: {
   status: SnapshotState
   className?: string
 }) => (
-  <Badge
-    variant="default"
-    color={SNAPSHOT_COLORS[props.status]}
-    className={props.className}
-  >
+  <Badge color={SNAPSHOT_COLORS[props.status]} className={props.className}>
     {props.status}
   </Badge>
 )

@@ -1,47 +1,67 @@
 .ox-mini-table {
-  border-spacing: 0px;
-}
+  & {
+    border-spacing: 0px;
+  }
 
-.ox-mini-table td {
-  @apply relative px-0 pt-2;
-}
+  & td {
+    @apply relative px-0 pt-2;
+  }
 
-.ox-mini-table tr {
-  @apply relative;
-}
+  & tr {
+    @apply relative;
+  }
 
-.ox-mini-table td + td:before {
-  @apply absolute top-[calc(0.5rem+1px)] bottom-[2px] block w-[1px] border-l border-secondary;
-  content: ' ';
-}
+  & td + td:before {
+    @apply absolute top-[calc(0.5rem+1px)] bottom-[2px] block w-[1px] border-l border-secondary;
+    content: ' ';
+  }
 
-.ox-mini-table tr:last-child td + td:before {
-  @apply bottom-[calc(0.5rem+2px)];
-}
+  & tr:last-child td + td:before {
+    @apply bottom-[calc(0.5rem+2px)];
+  }
 
-.ox-mini-table td > div {
-  @apply flex h-11 items-center border-y py-3 pl-3 text-accent bg-accent-secondary border-accent;
-}
+  & td > div {
+    @apply flex h-11 items-center border-y py-3 pl-3 text-accent bg-accent-secondary border-accent-secondary;
+  }
 
-.ox-mini-table td:last-child > div {
-  @apply w-12 justify-center pl-0 pr-0;
-}
-.ox-mini-table td:last-child > div > button {
-  @apply -mx-3 -my-3 flex items-center justify-center px-3 py-3;
-}
+  & td:last-child > div {
+    @apply w-12 justify-center pl-0 pr-0;
+  }
+  & td:last-child > div > button {
+    @apply -mx-3 -my-3 flex items-center justify-center px-3 py-3;
+  }
 
-.ox-mini-table tr:hover td > div {
-  @apply bg-accent-secondary-hover;
-}
+  & tr:hover td > div {
+    @apply bg-accent-secondary-hover;
+  }
 
-.ox-mini-table tr:last-child td {
-  @apply pb-2;
-}
+  & tr:last-child td {
+    @apply pb-2;
+  }
 
-.ox-mini-table td:first-child > div {
-  @apply ml-2 rounded-l border-l;
-}
+  & td:first-child > div {
+    @apply ml-2 rounded-l border-l;
+  }
 
-.ox-mini-table td:last-child > div {
-  @apply mr-2 rounded-r border-r;
+  & td:last-child > div {
+    @apply mr-2 rounded-r border-r;
+  }
+
+  & thead tr:first-of-type th:first-of-type {
+    border-top-left-radius: var(--border-radius-lg);
+    @apply border-l;
+  }
+
+  & thead tr:first-of-type th:last-of-type {
+    border-top-right-radius: var(--border-radius-lg);
+    @apply border-r;
+  }
+
+  & tbody tr:last-of-type td:first-of-type {
+    border-bottom-left-radius: var(--border-radius-lg);
+  }
+
+  & tbody tr:last-of-type td:last-of-type {
+    border-bottom-right-radius: var(--border-radius-lg);
+  }
 }
