@@ -1,6 +1,6 @@
-import { test } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 
-import { user2, user3 } from '@oxide/api-mocks'
+import { user2, user3, userGroup1 } from '@oxide/api-mocks'
 
 import {
   expectNotVisible,
@@ -129,4 +129,19 @@ test('Click through org access page', async ({ page }) => {
     'Silo role': '',
     'Org role': 'collaborator',
   })
+})
+
+test('Click through to group detail from access page', async ({ page }) => {
+  await page.goto('/orgs/maze-war')
+
+  await page.click('role=link[name*="Access & IAM"]')
+  await page.click('role=link[name="web-devs"]')
+
+  // groups are linked by ID
+  await expect(page).toHaveURL(`/groups/${userGroup1.id}`)
+
+  await expectVisible(page, [
+    'role=heading[name*="web-devs"]',
+    'role=cell[name="Hannah Arendt"]',
+  ])
 })

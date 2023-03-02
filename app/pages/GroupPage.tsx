@@ -1,6 +1,7 @@
 import type { LoaderFunctionArgs } from 'react-router-dom'
+import invariant from 'tiny-invariant'
 
-import { apiQueryClient } from '@oxide/api'
+import { apiQueryClient, useApiQuery } from '@oxide/api'
 import { useQueryTable } from '@oxide/table'
 import { EmptyMessage, PageHeader, PageTitle, Person24Icon } from '@oxide/ui'
 
@@ -14,21 +15,21 @@ GroupPage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { group } = getGroupSelector(params)
   await Promise.all([
     apiQueryClient.prefetchQuery('userListV1', { query: { group, limit: 10 } }),
-    // fetch group detail
+    apiQueryClient.prefetchQuery('groupView', { path: { group } }),
   ])
   return null
 }
 
-// No group name until we have a fetch group by ID endpoint
-// See: https://github.com/oxidecomputer/omicron/pull/2455
-
 export function GroupPage() {
-  const { group } = useGroupSelector()
-  const { Table, Column } = useQueryTable('userListV1', { query: { group } })
+  const groupSel = useGroupSelector()
+  const { Table, Column } = useQueryTable('userListV1', { query: groupSel })
+  const { data: group } = useApiQuery('groupView', { path: groupSel })
+  invariant(group, 'group should be prefetched')
+
   return (
     <>
       <PageHeader>
-        <PageTitle /* TODO: icon */>&lt;group name&gt;</PageTitle>
+        <PageTitle /* TODO: icon */>{group.displayName}</PageTitle>
       </PageHeader>
       <Table emptyState={<EmptyState />}>
         <Column accessor="displayName" header="Name" />
