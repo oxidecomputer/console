@@ -1,0 +1,7 @@
+main {
+  @apply h-full;
+}
+
+#content-pane > div.pb-8 {
+  @apply pb-0;
+}

@@ -4,6 +4,8 @@ import { Terminal as XTerm } from 'xterm'
 import { FitAddon } from 'xterm-addon-fit'
 import 'xterm/css/xterm.css'
 
+import { DirectionDownIcon, DirectionUpIcon } from '@oxide/ui'
+
 interface TerminalProps {
   data?: number[]
   className?: string
@@ -14,9 +16,8 @@ const options: ITerminalOptions = {
   screenReaderMode: true,
   rendererType: 'dom',
   fontFamily: '"GT America Mono", monospace',
-  fontSize: 14,
+  fontSize: 13,
   lineHeight: 1.2,
-  minimumContrastRatio: 21,
   windowOptions: {
     fullscreenWin: true,
     refreshWin: true,
@@ -83,7 +84,30 @@ export const Terminal = ({ data, className }: TerminalProps) => {
     }
   }, [term, data])
 
-  return <div className={className} ref={terminalRef} />
+  return (
+    <>
+      <div className={`${className} pr-12`} ref={terminalRef} />
+      <div className="absolute right-0 top-0 space-y-2">
+        <button
+          onClick={() => {
+            term && term.scrollToTop()
+          }}
+          className="ml-4 flex h-8 w-8 items-center justify-center rounded border border-secondary hover:bg-hover"
+        >
+          <DirectionUpIcon className="text-secondary" />
+        </button>
+
+        <button
+          onClick={() => {
+            term && term.scrollToBottom()
+          }}
+          className="ml-4 flex h-8 w-8 items-center justify-center rounded border border-secondary hover:bg-hover"
+        >
+          <DirectionDownIcon className="text-secondary" />
+        </button>
+      </div>
+    </>
+  )
 }
 
 export default Terminal

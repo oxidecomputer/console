@@ -41,6 +41,7 @@ import {
   VpcPage,
   VpcsPage,
 } from './pages/project'
+import { SerialConsolePage } from './pages/project/instances/instance/SerialConsolePage'
 import { MetricsTab } from './pages/project/instances/instance/tabs/MetricsTab'
 import { NetworkingTab } from './pages/project/instances/instance/tabs/NetworkingTab'
 import { SerialConsoleTab } from './pages/project/instances/instance/tabs/SerialConsoleTab'
@@ -249,6 +250,11 @@ export const routes = createRoutesFromElements(
                   handle={{ crumb: 'serial-console' }}
                 />
               </Route>
+              <Route
+                path="serial-console-new"
+                element={<SerialConsolePage />}
+                handle={{ crumb: 'serial-console-new' }}
+              />
             </Route>
           </Route>
 
