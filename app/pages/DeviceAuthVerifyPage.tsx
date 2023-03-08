@@ -1,9 +1,8 @@
 import { useState } from 'react'
-import AuthCode from 'react-auth-code-input'
 import { useNavigate } from 'react-router-dom'
 
 import { useApiMutation } from '@oxide/api'
-import { Button, Warning12Icon } from '@oxide/ui'
+import { AuthCodeInput, Button, Warning12Icon } from '@oxide/ui'
 
 import 'app/components/auth-code.css'
 import { pb } from 'app/util/path-builder'
@@ -55,7 +54,7 @@ export default function DeviceAuthVerifyPage() {
       <p className="mb-8 text-sans-lg text-tertiary">
         Make sure this code matches the one shown on the device you are authenticating
       </p>
-      <AuthCode
+      <AuthCodeInput
         onChange={handleOnChange}
         containerClassName="flex space-x-2 auth-code-wrapper mb-6"
         inputClassName="rounded border border-default bg-default w-full aspect-square flex items-center justify-center text-center text-secondary uppercase text-mono-md"
