@@ -38,7 +38,7 @@ import {
 
 export const handlers = makeHandlers({
   deviceAuthRequest: () => 200,
-  deviceAuthConfirm: () => 200,
+  deviceAuthConfirm: ({ body }) => (body.user_code === 'error123' ? 400 : 200),
   deviceAccessToken: () => 200,
   groupListV1: (params) => paginated(params.query, db.userGroups),
   groupView: (params) => lookupById(db.userGroups, params.path.group),
