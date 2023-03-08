@@ -1,0 +1,16 @@
+.auth-code-wrapper {
+  @apply relative;
+}
+
+.auth-code-wrapper::after {
+  content: '–';
+  @apply absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-quinary;
+}
+
+.auth-code-wrapper input:nth-of-type(4) {
+  @apply !mr-4;
+}
+
+.auth-code-wrapper input:nth-of-type(5) {
+  @apply !ml-4;
+}
