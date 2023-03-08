@@ -10,41 +10,24 @@ import { pb } from 'app/util/path-builder'
  * Device authorization verification page
  */
 export default function DeviceAuthVerifyPage() {
-  const [hasError, setHasError] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-
   const navigate = useNavigate()
   const confirmPost = useApiMutation('deviceAuthConfirm', {
     onSuccess: () => {
       navigate(pb.deviceSuccess())
     },
-    onError: () => {
-      setHasError(true)
-      setIsLoading(false)
-    },
   })
 
-  const [userCode, setUserCode] = useState<string>('')
-  const handleOnChange = (res: string) => {
-    setUserCode(res)
-  }
-
-  const isFilled = userCode.length === 8
+  const [userCode, setUserCode] = useState('')
 
   return (
     <form
       className="w-full max-w-[470px] rounded-lg border p-9 text-center !bg-raise border-secondary elevation-3"
       onSubmit={(event) => {
         event.preventDefault()
-        // Reset the error when the user tweaks the code
-        if (hasError) {
-          setHasError(false)
-        }
 
         // we know `userCode` is non-null because the button is disabled
         // otherwise, but let's make TS happy
         if (userCode) {
-          setIsLoading(true)
           confirmPost.mutate({ body: { userCode } })
         }
       }}
@@ -54,7 +37,7 @@ export default function DeviceAuthVerifyPage() {
         Make sure this code matches the one shown on the device you are authenticating
       </p>
       <AuthCodeInput
-        onChange={handleOnChange}
+        onChange={(code) => setUserCode(code)}
         containerClassName="flex space-x-2 mb-6"
         inputClassName="rounded border border-default bg-default w-full aspect-square flex items-center justify-center text-center text-secondary uppercase text-mono-md"
         length={8}
@@ -63,12 +46,12 @@ export default function DeviceAuthVerifyPage() {
       <Button
         className="w-full !text-mono-sm"
         type="submit"
-        loading={isLoading}
-        disabled={confirmPost.isLoading || confirmPost.isSuccess || !isFilled}
+        loading={confirmPost.isLoading}
+        disabled={confirmPost.isLoading || confirmPost.isSuccess || userCode.length < 8}
       >
         Log in on device
       </Button>
-      {hasError && (
+      {confirmPost.isError && (
         <div className="mt-3 flex items-center justify-center text-sans-md text-error">
           <Warning12Icon /> <div className="ml-1">Code is invalid</div>
         </div>
