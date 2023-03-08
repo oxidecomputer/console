@@ -48,6 +48,13 @@ function getPrevInputSibling(el: Element): HTMLInputElement | null {
   return null
 }
 
+const Dash = () => (
+  <span className="flex items-center px-1 text-quinary">
+    {/* sorry about this margin. it must be done */}
+    <span className="mb-0.5">&ndash;</span>
+  </span>
+)
+
 export const AuthCodeInput = forwardRef<AuthCodeRef, AuthCodeProps>(
   (
     {
@@ -65,8 +72,8 @@ export const AuthCodeInput = forwardRef<AuthCodeRef, AuthCodeProps>(
   ) => {
     invariant(!isNaN(length) || length > 0, 'Length must be a number greater than 0')
     invariant(
-      dashAfterIdxs.every((i) => 0 <= i && i < length),
-      'Dash after indices must be valid indices, i.e., 0 <= i < length'
+      dashAfterIdxs.every((i) => 0 <= i && i < length - 1),
+      '"Dash after" indices must mark spots between inputs, i.e., 0 <= i < length - 1'
     )
 
     const inputsRef = useRef<Array<HTMLInputElement>>([])
@@ -148,15 +155,13 @@ export const AuthCodeInput = forwardRef<AuthCodeRef, AuthCodeProps>(
       for (let i = 0; i < pastedValue.length; i++) {
         const pastedCharacter = pastedValue.charAt(i)
         const currentValue = inputsRef.current[currentInput].value
-        if (pastedCharacter.match(INPUT_PATTERN)) {
-          if (!currentValue) {
-            const input = inputsRef.current[currentInput]
-            input.value = pastedCharacter
-            const nextInput = getNextInputSibling(input)
-            if (nextInput !== null) {
-              nextInput.focus()
-              currentInput++
-            }
+        if (pastedCharacter.match(INPUT_PATTERN) && !currentValue) {
+          const input = inputsRef.current[currentInput]
+          input.value = pastedCharacter
+          const nextInput = getNextInputSibling(input)
+          if (nextInput !== null) {
+            nextInput.focus()
+            currentInput++
           }
         }
       }
@@ -192,12 +197,7 @@ export const AuthCodeInput = forwardRef<AuthCodeRef, AuthCodeProps>(
       )
 
       if (dashAfterIdxs.includes(i)) {
-        inputs.push(
-          <span key={`${i}-dash`} className="flex items-center px-1 text-quinary">
-            {/* sorry about this margin. it must be done */}
-            <span className="mb-0.5">&ndash;</span>
-          </span>
-        )
+        inputs.push(<Dash key={`${i}-dash`} />)
       }
     }
 
