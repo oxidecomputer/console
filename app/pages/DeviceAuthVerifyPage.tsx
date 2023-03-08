@@ -22,6 +22,7 @@ export default function DeviceAuthVerifyPage() {
     },
     onError: () => {
       setHasError(true)
+      setIsLoading(false)
     },
   })
 
