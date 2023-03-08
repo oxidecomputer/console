@@ -1,30 +1,18 @@
+// Borrowed with modification from https://github.com/drac94/react-auth-code-input
+// Copyright (c) 2020-present Luis Guerrero
+// MIT license
 import React, { forwardRef, useEffect, useImperativeHandle, useRef } from 'react'
-
-const allowedCharactersValues = ['alpha', 'numeric', 'alphanumeric'] as const
+import invariant from 'tiny-invariant'
 
 export type AuthCodeProps = {
-  allowedCharacters?: (typeof allowedCharactersValues)[number]
   ariaLabel?: string
   autoFocus?: boolean
   containerClassName?: string
   disabled?: boolean
   inputClassName?: string
-  isPassword?: boolean
   length?: number
   placeholder?: string
   onChange: (res: string) => void
-}
-
-type InputMode = 'text' | 'numeric'
-
-type InputType = 'text' | 'tel' | 'password'
-
-type InputProps = {
-  type: InputType
-  inputMode: InputMode
-  pattern: string
-  min?: string
-  max?: string
 }
 
 export type AuthCodeRef = {
@@ -32,56 +20,25 @@ export type AuthCodeRef = {
   clear: () => void
 }
 
-const propsMap: { [key: string]: InputProps } = {
-  alpha: {
-    type: 'text',
-    inputMode: 'text',
-    pattern: '[a-zA-Z]{1}',
-  },
-
-  alphanumeric: {
-    type: 'text',
-    inputMode: 'text',
-    pattern: '[a-zA-Z0-9]{1}',
-  },
-
-  numeric: {
-    type: 'tel',
-    inputMode: 'numeric',
-    pattern: '[0-9]{1}',
-    min: '0',
-    max: '9',
-  },
-}
+const INPUT_PATTERN = '[a-zA-Z0-9]{1}'
 
 export const AuthCodeInput = forwardRef<AuthCodeRef, AuthCodeProps>(
   (
     {
-      allowedCharacters = 'alphanumeric',
       ariaLabel,
       autoFocus = true,
       containerClassName,
       disabled,
       inputClassName,
-      isPassword = false,
       length = 6,
       placeholder,
       onChange,
     },
     ref
   ) => {
-    if (isNaN(length) || length < 1) {
-      throw new Error('Length should be a number and greater than 0')
-    }
-
-    if (!allowedCharactersValues.some((value) => value === allowedCharacters)) {
-      throw new Error(
-        'Invalid value for allowedCharacters. Use alpha, numeric, or alphanumeric'
-      )
-    }
+    invariant(!isNaN(length) || length > 0, 'Length must be a number greater than 0')
 
     const inputsRef = useRef<Array<HTMLInputElement>>([])
-    const inputProps = propsMap[allowedCharacters]
 
     useImperativeHandle(ref, () => ({
       focus: () => {
@@ -121,7 +78,7 @@ export const AuthCodeInput = forwardRef<AuthCodeRef, AuthCodeProps>(
           ;(nextElementSibling as HTMLInputElement).focus()
         }
       } else {
-        if (value.match(inputProps.pattern)) {
+        if (value.match(INPUT_PATTERN)) {
           if (nextElementSibling !== null) {
             ;(nextElementSibling as HTMLInputElement).focus()
           }
@@ -162,7 +119,7 @@ export const AuthCodeInput = forwardRef<AuthCodeRef, AuthCodeProps>(
       for (let i = 0; i < pastedValue.length; i++) {
         const pastedCharacter = pastedValue.charAt(i)
         const currentValue = inputsRef.current[currentInput].value
-        if (pastedCharacter.match(inputProps.pattern)) {
+        if (pastedCharacter.match(INPUT_PATTERN)) {
           if (!currentValue) {
             inputsRef.current[currentInput].value = pastedCharacter
             if (inputsRef.current[currentInput].nextElementSibling !== null) {
@@ -184,18 +141,19 @@ export const AuthCodeInput = forwardRef<AuthCodeRef, AuthCodeProps>(
       inputs.push(
         <input
           key={i}
+          type="text"
+          inputMode="text"
           onChange={handleOnChange}
           onKeyDown={handleOnKeyDown}
           onFocus={handleOnFocus}
           onPaste={handleOnPaste}
-          {...inputProps}
-          type={isPassword ? 'password' : inputProps.type}
+          pattern={INPUT_PATTERN}
           ref={(el: HTMLInputElement) => {
             inputsRef.current[i] = el
           }}
           maxLength={1}
           className={inputClassName}
-          autoComplete={i === 0 ? 'one-time-code' : 'off'}
+          autoComplete="off"
           aria-label={
             ariaLabel ? `${ariaLabel}. Character ${i + 1}.` : `Character ${i + 1}.`
           }
