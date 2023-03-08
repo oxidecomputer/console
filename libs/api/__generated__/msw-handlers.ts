@@ -634,12 +634,36 @@ export interface MSWHandlers {
     path: Api.DiskDeleteV1PathParams
     query: Api.DiskDeleteV1QueryParams
   }) => StatusCode
+  /** `GET /v1/disks/:disk/metrics/:metric` */
+  diskMetricsListV1: (params: {
+    path: Api.DiskMetricsListV1PathParams
+    query: Api.DiskMetricsListV1QueryParams
+  }) => HandlerResult<Api.MeasurementResultsPage>
   /** `GET /v1/groups` */
   groupListV1: (params: {
     query: Api.GroupListV1QueryParams
   }) => HandlerResult<Api.GroupResultsPage>
   /** `GET /v1/groups/:group` */
   groupView: (params: { path: Api.GroupViewPathParams }) => HandlerResult<Api.Group>
+  /** `GET /v1/images` */
+  imageListV1: (params: {
+    query: Api.ImageListV1QueryParams
+  }) => HandlerResult<Api.ImageResultsPage>
+  /** `POST /v1/images` */
+  imageCreateV1: (params: {
+    query: Api.ImageCreateV1QueryParams
+    body: Json<Api.ImageCreate>
+  }) => HandlerResult<Api.Image>
+  /** `GET /v1/images/:image` */
+  imageViewV1: (params: {
+    path: Api.ImageViewV1PathParams
+    query: Api.ImageViewV1QueryParams
+  }) => HandlerResult<Api.Image>
+  /** `DELETE /v1/images/:image` */
+  imageDeleteV1: (params: {
+    path: Api.ImageDeleteV1PathParams
+    query: Api.ImageDeleteV1QueryParams
+  }) => StatusCode
   /** `GET /v1/instances` */
   instanceListV1: (params: {
     query: Api.InstanceListV1QueryParams
@@ -676,6 +700,11 @@ export interface MSWHandlers {
     query: Api.InstanceDiskDetachV1QueryParams
     body: Json<Api.DiskPath>
   }) => HandlerResult<Api.Disk>
+  /** `GET /v1/instances/:instance/external-ips` */
+  instanceExternalIpListV1: (params: {
+    path: Api.InstanceExternalIpListV1PathParams
+    query: Api.InstanceExternalIpListV1QueryParams
+  }) => HandlerResult<Api.ExternalIpResultsPage>
   /** `POST /v1/instances/:instance/migrate` */
   instanceMigrateV1: (params: {
     path: Api.InstanceMigrateV1PathParams
@@ -856,6 +885,78 @@ export interface MSWHandlers {
     path: Api.SledPhysicalDiskListV1PathParams
     query: Api.SledPhysicalDiskListV1QueryParams
   }) => HandlerResult<Api.PhysicalDiskResultsPage>
+  /** `GET /v1/system/identity-providers` */
+  siloIdentityProviderListV1: (params: {
+    query: Api.SiloIdentityProviderListV1QueryParams
+  }) => HandlerResult<Api.IdentityProviderResultsPage>
+  /** `POST /v1/system/identity-providers/local/users` */
+  localIdpUserCreateV1: (params: {
+    query: Api.LocalIdpUserCreateV1QueryParams
+    body: Json<Api.UserCreate>
+  }) => HandlerResult<Api.User>
+  /** `DELETE /v1/system/identity-providers/local/users/:userId` */
+  localIdpUserDeleteV1: (params: {
+    path: Api.LocalIdpUserDeleteV1PathParams
+    query: Api.LocalIdpUserDeleteV1QueryParams
+  }) => StatusCode
+  /** `POST /v1/system/identity-providers/local/users/:userId/set-password` */
+  localIdpUserSetPasswordV1: (params: {
+    path: Api.LocalIdpUserSetPasswordV1PathParams
+    query: Api.LocalIdpUserSetPasswordV1QueryParams
+    body: Json<Api.UserPassword>
+  }) => StatusCode
+  /** `POST /v1/system/identity-providers/saml` */
+  samlIdentityProviderCreateV1: (params: {
+    query: Api.SamlIdentityProviderCreateV1QueryParams
+    body: Json<Api.SamlIdentityProviderCreate>
+  }) => HandlerResult<Api.SamlIdentityProvider>
+  /** `GET /v1/system/identity-providers/saml/:provider` */
+  samlIdentityProviderViewV1: (params: {
+    path: Api.SamlIdentityProviderViewV1PathParams
+    query: Api.SamlIdentityProviderViewV1QueryParams
+  }) => HandlerResult<Api.SamlIdentityProvider>
+  /** `GET /v1/system/ip-pools` */
+  ipPoolListV1: (params: {
+    query: Api.IpPoolListV1QueryParams
+  }) => HandlerResult<Api.IpPoolResultsPage>
+  /** `POST /v1/system/ip-pools` */
+  ipPoolCreateV1: (params: { body: Json<Api.IpPoolCreate> }) => HandlerResult<Api.IpPool>
+  /** `GET /v1/system/ip-pools/:pool` */
+  ipPoolViewV1: (params: { path: Api.IpPoolViewV1PathParams }) => HandlerResult<Api.IpPool>
+  /** `PUT /v1/system/ip-pools/:pool` */
+  ipPoolUpdateV1: (params: {
+    path: Api.IpPoolUpdateV1PathParams
+    body: Json<Api.IpPoolUpdate>
+  }) => HandlerResult<Api.IpPool>
+  /** `DELETE /v1/system/ip-pools/:pool` */
+  ipPoolDeleteV1: (params: { path: Api.IpPoolDeleteV1PathParams }) => StatusCode
+  /** `GET /v1/system/ip-pools/:pool/ranges` */
+  ipPoolRangeListV1: (params: {
+    path: Api.IpPoolRangeListV1PathParams
+    query: Api.IpPoolRangeListV1QueryParams
+  }) => HandlerResult<Api.IpPoolRangeResultsPage>
+  /** `POST /v1/system/ip-pools/:pool/ranges/add` */
+  ipPoolRangeAddV1: (params: {
+    path: Api.IpPoolRangeAddV1PathParams
+    body: Json<Api.IpRange>
+  }) => HandlerResult<Api.IpPoolRange>
+  /** `POST /v1/system/ip-pools/:pool/ranges/remove` */
+  ipPoolRangeRemoveV1: (params: {
+    path: Api.IpPoolRangeRemoveV1PathParams
+    body: Json<Api.IpRange>
+  }) => StatusCode
+  /** `GET /v1/system/ip-pools-service` */
+  ipPoolServiceViewV1: () => HandlerResult<Api.IpPool>
+  /** `GET /v1/system/ip-pools-service/ranges` */
+  ipPoolServiceRangeListV1: (params: {
+    query: Api.IpPoolServiceRangeListV1QueryParams
+  }) => HandlerResult<Api.IpPoolRangeResultsPage>
+  /** `POST /v1/system/ip-pools-service/ranges/add` */
+  ipPoolServiceRangeAddV1: (params: {
+    body: Json<Api.IpRange>
+  }) => HandlerResult<Api.IpPoolRange>
+  /** `POST /v1/system/ip-pools-service/ranges/remove` */
+  ipPoolServiceRangeRemoveV1: (params: { body: Json<Api.IpRange> }) => StatusCode
   /** `GET /v1/system/policy` */
   systemPolicyViewV1: () => HandlerResult<Api.FleetRolePolicy>
   /** `PUT /v1/system/policy` */
@@ -868,6 +969,25 @@ export interface MSWHandlers {
   }) => HandlerResult<Api.SagaResultsPage>
   /** `GET /v1/system/sagas/:sagaId` */
   sagaViewV1: (params: { path: Api.SagaViewV1PathParams }) => HandlerResult<Api.Saga>
+  /** `GET /v1/system/silos` */
+  siloListV1: (params: {
+    query: Api.SiloListV1QueryParams
+  }) => HandlerResult<Api.SiloResultsPage>
+  /** `POST /v1/system/silos` */
+  siloCreateV1: (params: { body: Json<Api.SiloCreate> }) => HandlerResult<Api.Silo>
+  /** `GET /v1/system/silos/:silo` */
+  siloViewV1: (params: { path: Api.SiloViewV1PathParams }) => HandlerResult<Api.Silo>
+  /** `DELETE /v1/system/silos/:silo` */
+  siloDeleteV1: (params: { path: Api.SiloDeleteV1PathParams }) => StatusCode
+  /** `GET /v1/system/silos/:silo/policy` */
+  siloPolicyViewV1: (params: {
+    path: Api.SiloPolicyViewV1PathParams
+  }) => HandlerResult<Api.SiloRolePolicy>
+  /** `PUT /v1/system/silos/:silo/policy` */
+  siloPolicyUpdateV1: (params: {
+    path: Api.SiloPolicyUpdateV1PathParams
+    body: Json<Api.SiloRolePolicy>
+  }) => HandlerResult<Api.SiloRolePolicy>
   /** `GET /v1/system/update/components` */
   systemComponentVersionList: (params: {
     query: Api.SystemComponentVersionListQueryParams
@@ -902,6 +1022,15 @@ export interface MSWHandlers {
   }) => HandlerResult<Api.ComponentUpdateResultsPage>
   /** `GET /v1/system/update/version` */
   systemVersion: () => HandlerResult<Api.SystemVersion>
+  /** `GET /v1/system/users` */
+  siloUsersListV1: (params: {
+    query: Api.SiloUsersListV1QueryParams
+  }) => HandlerResult<Api.UserResultsPage>
+  /** `GET /v1/system/users/:userId` */
+  siloUserViewV1: (params: {
+    path: Api.SiloUserViewV1PathParams
+    query: Api.SiloUserViewV1QueryParams
+  }) => HandlerResult<Api.User>
   /** `GET /v1/users` */
   userListV1: (params: {
     query: Api.UserListV1QueryParams
@@ -990,6 +1119,11 @@ export interface MSWHandlers {
     path: Api.VpcSubnetDeleteV1PathParams
     query: Api.VpcSubnetDeleteV1QueryParams
   }) => StatusCode
+  /** `GET /v1/vpc-subnets/:subnet/network-interfaces` */
+  vpcSubnetListNetworkInterfacesV1: (params: {
+    path: Api.VpcSubnetListNetworkInterfacesV1PathParams
+    query: Api.VpcSubnetListNetworkInterfacesV1QueryParams
+  }) => HandlerResult<Api.NetworkInterfaceResultsPage>
   /** `GET /v1/vpcs` */
   vpcListV1: (params: {
     query: Api.VpcListV1QueryParams
@@ -1793,12 +1927,32 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
       handler(handlers['diskDeleteV1'], schema.DiskDeleteV1Params, null)
     ),
     rest.get(
+      '/v1/disks/:disk/metrics/:metric',
+      handler(handlers['diskMetricsListV1'], schema.DiskMetricsListV1Params, null)
+    ),
+    rest.get(
       '/v1/groups',
       handler(handlers['groupListV1'], schema.GroupListV1Params, null)
     ),
     rest.get(
       '/v1/groups/:group',
       handler(handlers['groupView'], schema.GroupViewParams, null)
+    ),
+    rest.get(
+      '/v1/images',
+      handler(handlers['imageListV1'], schema.ImageListV1Params, null)
+    ),
+    rest.post(
+      '/v1/images',
+      handler(handlers['imageCreateV1'], schema.ImageCreateV1Params, schema.ImageCreate)
+    ),
+    rest.get(
+      '/v1/images/:image',
+      handler(handlers['imageViewV1'], schema.ImageViewV1Params, null)
+    ),
+    rest.delete(
+      '/v1/images/:image',
+      handler(handlers['imageDeleteV1'], schema.ImageDeleteV1Params, null)
     ),
     rest.get(
       '/v1/instances',
@@ -1838,6 +1992,14 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
         handlers['instanceDiskDetachV1'],
         schema.InstanceDiskDetachV1Params,
         schema.DiskPath
+      )
+    ),
+    rest.get(
+      '/v1/instances/:instance/external-ips',
+      handler(
+        handlers['instanceExternalIpListV1'],
+        schema.InstanceExternalIpListV1Params,
+        null
       )
     ),
     rest.post(
@@ -2061,6 +2223,106 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
       '/v1/system/hardware/sleds/:sledId/disks',
       handler(handlers['sledPhysicalDiskListV1'], schema.SledPhysicalDiskListV1Params, null)
     ),
+    rest.get(
+      '/v1/system/identity-providers',
+      handler(
+        handlers['siloIdentityProviderListV1'],
+        schema.SiloIdentityProviderListV1Params,
+        null
+      )
+    ),
+    rest.post(
+      '/v1/system/identity-providers/local/users',
+      handler(
+        handlers['localIdpUserCreateV1'],
+        schema.LocalIdpUserCreateV1Params,
+        schema.UserCreate
+      )
+    ),
+    rest.delete(
+      '/v1/system/identity-providers/local/users/:userId',
+      handler(handlers['localIdpUserDeleteV1'], schema.LocalIdpUserDeleteV1Params, null)
+    ),
+    rest.post(
+      '/v1/system/identity-providers/local/users/:userId/set-password',
+      handler(
+        handlers['localIdpUserSetPasswordV1'],
+        schema.LocalIdpUserSetPasswordV1Params,
+        schema.UserPassword
+      )
+    ),
+    rest.post(
+      '/v1/system/identity-providers/saml',
+      handler(
+        handlers['samlIdentityProviderCreateV1'],
+        schema.SamlIdentityProviderCreateV1Params,
+        schema.SamlIdentityProviderCreate
+      )
+    ),
+    rest.get(
+      '/v1/system/identity-providers/saml/:provider',
+      handler(
+        handlers['samlIdentityProviderViewV1'],
+        schema.SamlIdentityProviderViewV1Params,
+        null
+      )
+    ),
+    rest.get(
+      '/v1/system/ip-pools',
+      handler(handlers['ipPoolListV1'], schema.IpPoolListV1Params, null)
+    ),
+    rest.post(
+      '/v1/system/ip-pools',
+      handler(handlers['ipPoolCreateV1'], null, schema.IpPoolCreate)
+    ),
+    rest.get(
+      '/v1/system/ip-pools/:pool',
+      handler(handlers['ipPoolViewV1'], schema.IpPoolViewV1Params, null)
+    ),
+    rest.put(
+      '/v1/system/ip-pools/:pool',
+      handler(handlers['ipPoolUpdateV1'], schema.IpPoolUpdateV1Params, schema.IpPoolUpdate)
+    ),
+    rest.delete(
+      '/v1/system/ip-pools/:pool',
+      handler(handlers['ipPoolDeleteV1'], schema.IpPoolDeleteV1Params, null)
+    ),
+    rest.get(
+      '/v1/system/ip-pools/:pool/ranges',
+      handler(handlers['ipPoolRangeListV1'], schema.IpPoolRangeListV1Params, null)
+    ),
+    rest.post(
+      '/v1/system/ip-pools/:pool/ranges/add',
+      handler(handlers['ipPoolRangeAddV1'], schema.IpPoolRangeAddV1Params, schema.IpRange)
+    ),
+    rest.post(
+      '/v1/system/ip-pools/:pool/ranges/remove',
+      handler(
+        handlers['ipPoolRangeRemoveV1'],
+        schema.IpPoolRangeRemoveV1Params,
+        schema.IpRange
+      )
+    ),
+    rest.get(
+      '/v1/system/ip-pools-service',
+      handler(handlers['ipPoolServiceViewV1'], null, null)
+    ),
+    rest.get(
+      '/v1/system/ip-pools-service/ranges',
+      handler(
+        handlers['ipPoolServiceRangeListV1'],
+        schema.IpPoolServiceRangeListV1Params,
+        null
+      )
+    ),
+    rest.post(
+      '/v1/system/ip-pools-service/ranges/add',
+      handler(handlers['ipPoolServiceRangeAddV1'], null, schema.IpRange)
+    ),
+    rest.post(
+      '/v1/system/ip-pools-service/ranges/remove',
+      handler(handlers['ipPoolServiceRangeRemoveV1'], null, schema.IpRange)
+    ),
     rest.get('/v1/system/policy', handler(handlers['systemPolicyViewV1'], null, null)),
     rest.put(
       '/v1/system/policy',
@@ -2073,6 +2335,34 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
     rest.get(
       '/v1/system/sagas/:sagaId',
       handler(handlers['sagaViewV1'], schema.SagaViewV1Params, null)
+    ),
+    rest.get(
+      '/v1/system/silos',
+      handler(handlers['siloListV1'], schema.SiloListV1Params, null)
+    ),
+    rest.post(
+      '/v1/system/silos',
+      handler(handlers['siloCreateV1'], null, schema.SiloCreate)
+    ),
+    rest.get(
+      '/v1/system/silos/:silo',
+      handler(handlers['siloViewV1'], schema.SiloViewV1Params, null)
+    ),
+    rest.delete(
+      '/v1/system/silos/:silo',
+      handler(handlers['siloDeleteV1'], schema.SiloDeleteV1Params, null)
+    ),
+    rest.get(
+      '/v1/system/silos/:silo/policy',
+      handler(handlers['siloPolicyViewV1'], schema.SiloPolicyViewV1Params, null)
+    ),
+    rest.put(
+      '/v1/system/silos/:silo/policy',
+      handler(
+        handlers['siloPolicyUpdateV1'],
+        schema.SiloPolicyUpdateV1Params,
+        schema.SiloRolePolicy
+      )
     ),
     rest.get(
       '/v1/system/update/components',
@@ -2116,6 +2406,14 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
       )
     ),
     rest.get('/v1/system/update/version', handler(handlers['systemVersion'], null, null)),
+    rest.get(
+      '/v1/system/users',
+      handler(handlers['siloUsersListV1'], schema.SiloUsersListV1Params, null)
+    ),
+    rest.get(
+      '/v1/system/users/:userId',
+      handler(handlers['siloUserViewV1'], schema.SiloUserViewV1Params, null)
+    ),
     rest.get('/v1/users', handler(handlers['userListV1'], schema.UserListV1Params, null)),
     rest.get(
       '/v1/vpc-firewall-rules',
@@ -2212,6 +2510,14 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
     rest.delete(
       '/v1/vpc-subnets/:subnet',
       handler(handlers['vpcSubnetDeleteV1'], schema.VpcSubnetDeleteV1Params, null)
+    ),
+    rest.get(
+      '/v1/vpc-subnets/:subnet/network-interfaces',
+      handler(
+        handlers['vpcSubnetListNetworkInterfacesV1'],
+        schema.VpcSubnetListNetworkInterfacesV1Params,
+        null
+      )
     ),
     rest.get('/v1/vpcs', handler(handlers['vpcListV1'], schema.VpcListV1Params, null)),
     rest.post(
