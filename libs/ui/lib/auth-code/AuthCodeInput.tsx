@@ -13,6 +13,8 @@ export type AuthCodeProps = {
   length?: number
   placeholder?: string
   onChange: (res: string) => void
+  /** Insert separator dashes after these indices */
+  dashAfterIdxs?: number[]
 }
 
 export type AuthCodeRef = {
@@ -21,6 +23,30 @@ export type AuthCodeRef = {
 }
 
 const INPUT_PATTERN = '[a-zA-Z0-9]{1}'
+
+// the reason these helpers are here is we to skip the dashes when we're looking
+// to focus the next or previous input
+
+const isInput = (el: Element): el is HTMLInputElement =>
+  el.tagName.toLowerCase() === 'input'
+
+function getNextInputSibling(el: Element): HTMLInputElement | null {
+  let elt = el
+  while (elt.nextElementSibling) {
+    if (isInput(elt.nextElementSibling)) return elt.nextElementSibling
+    elt = elt.nextElementSibling
+  }
+  return null
+}
+
+function getPrevInputSibling(el: Element): HTMLInputElement | null {
+  let elt = el
+  while (elt.previousElementSibling) {
+    if (isInput(elt.previousElementSibling)) return elt.previousElementSibling
+    elt = elt.previousElementSibling
+  }
+  return null
+}
 
 export const AuthCodeInput = forwardRef<AuthCodeRef, AuthCodeProps>(
   (
@@ -33,10 +59,15 @@ export const AuthCodeInput = forwardRef<AuthCodeRef, AuthCodeProps>(
       length = 6,
       placeholder,
       onChange,
+      dashAfterIdxs = [],
     },
     ref
   ) => {
     invariant(!isNaN(length) || length > 0, 'Length must be a number greater than 0')
+    invariant(
+      dashAfterIdxs.every((i) => 0 <= i && i < length),
+      'Dash after indices must be valid indices, i.e., 0 <= i < length'
+    )
 
     const inputsRef = useRef<Array<HTMLInputElement>>([])
 
@@ -69,18 +100,17 @@ export const AuthCodeInput = forwardRef<AuthCodeRef, AuthCodeProps>(
     }
 
     const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const {
-        target: { value, nextElementSibling },
-      } = e
+      const { value } = e.target
+      const nextInput = getNextInputSibling(e.target)
       if (value.length > 1) {
         e.target.value = value.charAt(0)
-        if (nextElementSibling !== null) {
-          ;(nextElementSibling as HTMLInputElement).focus()
+        if (nextInput) {
+          nextInput.focus()
         }
       } else {
         if (value.match(INPUT_PATTERN)) {
-          if (nextElementSibling !== null) {
-            ;(nextElementSibling as HTMLInputElement).focus()
+          if (nextInput) {
+            nextInput.focus()
           }
         } else {
           e.target.value = ''
@@ -90,14 +120,13 @@ export const AuthCodeInput = forwardRef<AuthCodeRef, AuthCodeProps>(
     }
 
     const handleOnKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-      const { key } = e
       const target = e.target as HTMLInputElement
-      if (key === 'Backspace') {
+      if (e.key === 'Backspace') {
         if (target.value === '') {
-          if (target.previousElementSibling !== null) {
-            const t = target.previousElementSibling as HTMLInputElement
-            t.value = ''
-            t.focus()
+          const prevInput = getPrevInputSibling(target)
+          if (prevInput !== null) {
+            prevInput.value = ''
+            prevInput.focus()
             e.preventDefault()
           }
         } else {
@@ -121,11 +150,11 @@ export const AuthCodeInput = forwardRef<AuthCodeRef, AuthCodeProps>(
         const currentValue = inputsRef.current[currentInput].value
         if (pastedCharacter.match(INPUT_PATTERN)) {
           if (!currentValue) {
-            inputsRef.current[currentInput].value = pastedCharacter
-            if (inputsRef.current[currentInput].nextElementSibling !== null) {
-              ;(
-                inputsRef.current[currentInput].nextElementSibling as HTMLInputElement
-              ).focus()
+            const input = inputsRef.current[currentInput]
+            input.value = pastedCharacter
+            const nextInput = getNextInputSibling(input)
+            if (nextInput !== null) {
+              nextInput.focus()
               currentInput++
             }
           }
@@ -161,6 +190,15 @@ export const AuthCodeInput = forwardRef<AuthCodeRef, AuthCodeProps>(
           placeholder={placeholder}
         />
       )
+
+      if (dashAfterIdxs.includes(i)) {
+        inputs.push(
+          <span key={`${i}-dash`} className="flex items-center px-1 text-quinary">
+            {/* sorry about this margin. it must be done */}
+            <span className="mb-0.5">&ndash;</span>
+          </span>
+        )
+      }
     }
 
     return <div className={containerClassName}>{inputs}</div>
