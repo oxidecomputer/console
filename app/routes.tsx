@@ -62,10 +62,10 @@ import {
 } from './pages/system/UpdatePage'
 import { pb } from './util/path-builder'
 
-const orgCrumb: CrumbFunc = (m) => m.params.orgName!
-const projectCrumb: CrumbFunc = (m) => m.params.projectName!
-const instanceCrumb: CrumbFunc = (m) => m.params.instanceName!
-const vpcCrumb: CrumbFunc = (m) => m.params.vpcName!
+const orgCrumb: CrumbFunc = (m) => m.params.organization!
+const projectCrumb: CrumbFunc = (m) => m.params.project!
+const instanceCrumb: CrumbFunc = (m) => m.params.instance!
+const vpcCrumb: CrumbFunc = (m) => m.params.vpc!
 
 export const routes = createRoutesFromElements(
   <Route element={<RootLayout />}>
@@ -99,7 +99,7 @@ export const routes = createRoutesFromElements(
           <Route path="silos" />
           <Route path="silos-new" element={<CreateSiloSideModalForm />} />
         </Route>
-        <Route path="silos/:siloName" element={<SiloPage />} loader={SiloPage.loader}>
+        <Route path="silos/:silo" element={<SiloPage />} loader={SiloPage.loader}>
           <Route index />
           <Route path="idps-new" element={<CreateIdpSideModalForm />} />
         </Route>
@@ -146,9 +146,9 @@ export const routes = createRoutesFromElements(
       <Route index element={<Navigate to={pb.orgs()} replace />} />
 
       {/* These are done here instead of nested so we don't flash a layout on 404s */}
-      <Route path="orgs/:orgName" element={<Navigate to="projects" replace />} />
+      <Route path="orgs/:organization" element={<Navigate to="projects" replace />} />
       <Route
-        path="orgs/:orgName/projects/:projectName"
+        path="orgs/:organization/projects/:project"
         element={<Navigate to="instances" replace />}
       />
 
@@ -166,7 +166,7 @@ export const routes = createRoutesFromElements(
             handle={{ crumb: 'New org' }}
           />
           <Route
-            path="orgs/:orgName/edit"
+            path="orgs/:organization/edit"
             element={<EditOrgSideModalForm />}
             loader={EditOrgSideModalForm.loader}
             handle={{ crumb: 'Edit org' }}
@@ -180,7 +180,7 @@ export const routes = createRoutesFromElements(
         />
       </Route>
 
-      <Route path="orgs/:orgName" handle={{ crumb: orgCrumb }}>
+      <Route path="orgs/:organization" handle={{ crumb: orgCrumb }}>
         <Route element={<OrgLayout />}>
           <Route
             path="access"
@@ -197,7 +197,7 @@ export const routes = createRoutesFromElements(
               handle={{ crumb: 'New project' }}
             />
             <Route
-              path="projects/:projectName/edit"
+              path="projects/:project/edit"
               element={<EditProjectSideModalForm />}
               loader={EditProjectSideModalForm.loader}
               handle={{ crumb: 'Edit project' }}
@@ -207,7 +207,7 @@ export const routes = createRoutesFromElements(
 
         {/* PROJECT */}
         <Route
-          path="projects/:projectName"
+          path="projects/:project"
           element={<ProjectLayout />}
           handle={{ crumb: projectCrumb }}
         >
@@ -217,13 +217,10 @@ export const routes = createRoutesFromElements(
             loader={CreateInstanceForm.loader}
             handle={{ crumb: 'New instance' }}
           />
-          <Route
-            path="instances/:instanceName"
-            element={<Navigate to="storage" replace />}
-          />
+          <Route path="instances/:instance" element={<Navigate to="storage" replace />} />
           <Route path="instances" handle={{ crumb: 'Instances' }}>
             <Route index element={<InstancesPage />} loader={InstancesPage.loader} />
-            <Route path=":instanceName" handle={{ crumb: instanceCrumb }}>
+            <Route path=":instance" handle={{ crumb: instanceCrumb }}>
               <Route element={<InstancePage />} loader={InstancePage.loader}>
                 <Route
                   path="storage"
@@ -260,7 +257,7 @@ export const routes = createRoutesFromElements(
               handle={{ crumb: 'New VPC' }}
             />
             <Route
-              path="vpcs/:vpcName/edit"
+              path="vpcs/:vpc/edit"
               element={<EditVpcSideModalForm />}
               loader={EditVpcSideModalForm.loader}
               handle={{ crumb: 'Edit VPC' }}
@@ -269,7 +266,7 @@ export const routes = createRoutesFromElements(
 
           <Route path="vpcs" handle={{ crumb: 'VPCs' }}>
             <Route
-              path=":vpcName"
+              path=":vpc"
               element={<VpcPage />}
               loader={VpcPage.loader}
               handle={{ crumb: vpcCrumb }}
