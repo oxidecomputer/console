@@ -11,7 +11,7 @@ import {
   Wrap,
 } from '@oxide/ui'
 
-import { useInstanceSelector, useProjectSelector, useSiloParams } from 'app/hooks'
+import { useInstanceSelector, useProjectSelector, useSiloSelector } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 type TopBarPickerItem = {
@@ -175,8 +175,8 @@ export function SiloSystemPicker({ value }: { value: 'silo' | 'system' }) {
 /** Used when drilling down into a silo from the System view. */
 export function SiloPicker() {
   // picker only shows up when a silo is in scope
-  const { siloName } = useSiloParams()
-  const { data } = useApiQuery('siloList', { query: { limit: 10 } })
+  const { silo: siloName } = useSiloSelector()
+  const { data } = useApiQuery('siloListV1', { query: { limit: 10 } })
   const items = (data?.items || []).map((silo) => ({
     label: silo.name,
     to: pb.silo({ silo: silo.name }),

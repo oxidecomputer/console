@@ -8,7 +8,7 @@ type Project = Required<PP.Project>
 type Instance = Required<PP.Instance>
 type Vpc = Required<PP.Vpc>
 type SystemUpdate = Required<PP.SystemUpdate>
-type Silo = Required<PP.SiloV1>
+type Silo = Required<PP.Silo>
 
 export const pb = {
   orgs: () => '/orgs',

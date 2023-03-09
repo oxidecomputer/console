@@ -15,7 +15,7 @@ import {
 } from 'app/components/form'
 import { pb } from 'app/util/path-builder'
 
-import { useSiloParams, useToast } from '../hooks'
+import { useSiloSelector, useToast } from '../hooks'
 
 type IdpCreateFormValues = { type: 'saml' } & SamlIdentityProviderCreate
 
@@ -41,13 +41,13 @@ export function CreateIdpSideModalForm() {
   const queryClient = useApiQueryClient()
   const addToast = useToast()
 
-  const { siloName } = useSiloParams()
+  const { silo } = useSiloSelector()
 
-  const onDismiss = () => navigate(pb.silo({ silo: siloName }))
+  const onDismiss = () => navigate(pb.silo({ silo }))
 
-  const createIdp = useApiMutation('samlIdentityProviderCreate', {
+  const createIdp = useApiMutation('samlIdentityProviderCreateV1', {
     onSuccess() {
-      queryClient.invalidateQueries('siloIdentityProviderList', { path: { siloName } })
+      queryClient.invalidateQueries('siloIdentityProviderListV1', { query: { silo } })
       addToast({
         icon: <Success16Icon />,
         title: 'Success!',
@@ -65,7 +65,7 @@ export function CreateIdpSideModalForm() {
       onDismiss={onDismiss}
       onSubmit={(values) => {
         createIdp.mutate({
-          path: { siloName },
+          query: { silo },
           body: {
             ...values,
             // convert empty string to undefined so it remains unset

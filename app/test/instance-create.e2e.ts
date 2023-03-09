@@ -1,4 +1,4 @@
-import { globalImages } from '@oxide/api-mocks'
+import { images } from '@oxide/api-mocks'
 
 import { expectVisible, test } from 'app/test/e2e'
 import { pb } from 'app/util/path-builder'
@@ -38,7 +38,10 @@ test('can invoke instance create form from instances page', async ({
   await page.fill('input[name=bootDiskName]', genName('my-boot-disk'))
   await page.fill('input[name=bootDiskSize]', '20')
 
-  await page.locator(`input[value="${globalImages[0].id}"] ~ .ox-radio-card`).click()
+  // TODO: image is not found because images are no longer global, and the
+  // project used in this test is created for the test, so the mock images in
+  // the MSW DB are not in that project.
+  await page.locator(`input[value="${images[0].id}"] ~ .ox-radio-card`).click()
 
   await page.locator('button:has-text("Create instance")').click()
 
