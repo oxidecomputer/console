@@ -18,8 +18,12 @@ type DiskMetricParams = {
   unit?: string
   startTime: Date
   endTime: Date
-  metricName: DiskMetricName
-  diskParams: { orgName: string; projectName: string; diskName: string }
+  metric: DiskMetricName
+  diskSelector: {
+    organization: string
+    project: string
+    disk: string
+  }
 }
 
 function DiskMetric({
@@ -27,16 +31,16 @@ function DiskMetric({
   unit,
   startTime,
   endTime,
-  metricName,
-  diskParams,
+  metric,
+  diskSelector: { organization, project, disk },
 }: DiskMetricParams) {
   // TODO: we're only pulling the first page. Should we bump the cap to 10k?
   // Fetch multiple pages if 10k is not enough? That's a bit much.
   const { data: metrics, isLoading } = useApiQuery(
-    'diskMetricsList',
+    'diskMetricsListV1',
     {
-      path: { ...diskParams, metricName },
-      query: { startTime, endTime, limit: 1000 },
+      path: { disk, metric },
+      query: { organization, project, startTime, endTime, limit: 1000 },
     },
     // avoid graphs flashing blank while loading when you change the time
     { keepPreviousData: true }
@@ -100,11 +104,10 @@ export function MetricsTab() {
   const [diskName, setDiskName] = useState<string>(disks[0].name)
   const diskItems = disks.map(({ name }) => ({ label: name, value: name }))
 
-  const diskParams = { orgName: organization, projectName: project, diskName }
   const commonProps = {
     startTime: startTime.toDate(getLocalTimeZone()),
     endTime: endTime.toDate(getLocalTimeZone()),
-    diskParams,
+    diskSelector: { organization, project, disk: diskName },
   }
 
   return (
@@ -130,27 +133,17 @@ export function MetricsTab() {
         {/* see the following link for the source of truth on what these mean
             https://github.com/oxidecomputer/crucible/blob/258f162b/upstairs/src/stats.rs#L9-L50 */}
         <div className="flex w-full space-x-4">
-          <DiskMetric {...commonProps} title="Reads" unit="(Count)" metricName="read" />
-          <DiskMetric
-            {...commonProps}
-            title="Read"
-            unit="(Bytes)"
-            metricName="read_bytes"
-          />
+          <DiskMetric {...commonProps} title="Reads" unit="(Count)" metric="read" />
+          <DiskMetric {...commonProps} title="Read" unit="(Bytes)" metric="read_bytes" />
         </div>
 
         <div className="flex w-full space-x-4">
-          <DiskMetric {...commonProps} title="Writes" unit="(Count)" metricName="write" />
-          <DiskMetric
-            {...commonProps}
-            title="Write"
-            unit="(Bytes)"
-            metricName="write_bytes"
-          />
+          <DiskMetric {...commonProps} title="Writes" unit="(Count)" metric="write" />
+          <DiskMetric {...commonProps} title="Write" unit="(Bytes)" metric="write_bytes" />
         </div>
 
         <div className="flex w-full space-x-4">
-          <DiskMetric {...commonProps} title="Flushes" unit="(Count)" metricName="flush" />
+          <DiskMetric {...commonProps} title="Flushes" unit="(Count)" metric="flush" />
         </div>
       </div>
     </>

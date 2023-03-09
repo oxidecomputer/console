@@ -3,7 +3,7 @@ import { v4 as uuid } from 'uuid'
 import type { ApiTypes as Api, UpdateDeployment } from '@oxide/api'
 import type { Json } from '@oxide/gen/msw-handlers'
 import { json, makeHandlers } from '@oxide/gen/msw-handlers'
-import { pick, sortBy, toApiSelector } from '@oxide/util'
+import { pick, sortBy } from '@oxide/util'
 
 import { genCumulativeI64Data, genI64Data } from '../metrics'
 import { FLEET_ID } from '../role-assignment'
@@ -11,16 +11,7 @@ import { serial } from '../serial'
 import { defaultSilo, toIdp } from '../silo'
 import { sortBySemverDesc } from '../update'
 import { user1 } from '../user'
-import {
-  db,
-  lookup,
-  lookupById,
-  lookupGlobalImage,
-  lookupImage,
-  lookupSamlIdp,
-  lookupSilo,
-  lookupSshKey,
-} from './db'
+import { db, lookup, lookupById, lookupGlobalImage, lookupSshKey } from './db'
 import {
   NotImplemented,
   errIfExists,
@@ -185,12 +176,8 @@ export const handlers = makeHandlers({
     db.disks = db.disks.filter((d) => d.id !== disk.id)
     return 204
   },
-  diskMetricsList({ path, query }) {
-    lookup.disk({
-      organization: path.orgName,
-      project: path.projectName,
-      disk: path.diskName,
-    })
+  diskMetricsListV1({ path, query }) {
+    lookup.disk({ ...path, ...query })
 
     const { startTime, endTime } = getStartAndEndTime(query)
 
@@ -204,13 +191,13 @@ export const handlers = makeHandlers({
       ),
     }
   },
-  imageList(params) {
-    const project = lookup.project(toApiSelector(params.path))
+  imageListV1({ query }) {
+    const project = lookup.project(query)
     const images = db.images.filter((i) => i.project_id === project.id)
-    return paginated(params.query, images)
+    return paginated(query, images)
   },
-  imageCreate({ body, ...params }) {
-    const project = lookup.project(toApiSelector(params.path))
+  imageCreateV1({ body, query }) {
+    const project = lookup.project(query)
     errIfExists(db.images, { name: body.name, project_id: project.id })
 
     const newImage: Json<Api.Image> = {
@@ -224,9 +211,9 @@ export const handlers = makeHandlers({
     db.images.push(newImage)
     return json(newImage, { status: 201 })
   },
-  imageView: (params) => lookupImage(params.path),
-  imageDelete(params) {
-    const image = lookupImage(params.path)
+  imageViewV1: ({ path, query }) => lookup.image({ ...path, ...query }),
+  imageDeleteV1({ path, query }) {
+    const image = lookup.image({ ...path, ...query })
     db.images = db.images.filter((i) => i.id !== image.id)
 
     return 204
@@ -367,8 +354,8 @@ export const handlers = makeHandlers({
     disk.state = { state: 'detached' }
     return disk
   },
-  instanceExternalIpList(params) {
-    lookup.instance(toApiSelector(params.path)) // temporary
+  instanceExternalIpListV1({ path, query }) {
+    lookup.instance({ ...path, ...query })
 
     // TODO: proper mock table
     return {
@@ -744,10 +731,10 @@ export const handlers = makeHandlers({
 
     return 204
   },
-  vpcSubnetListNetworkInterfaces(params) {
-    const subnet = lookup.vpcSubnet(toApiSelector(params.path))
+  vpcSubnetListNetworkInterfacesV1({ path, query }) {
+    const subnet = lookup.vpcSubnet({ ...path, ...query })
     const nics = db.networkInterfaces.filter((n) => n.subnet_id === subnet.id)
-    return paginated(params.query, nics)
+    return paginated(query, nics)
   },
   sledPhysicalDiskListV1({ path, query }) {
     const sled = lookup.sled({ id: path.sledId })
@@ -835,8 +822,8 @@ export const handlers = makeHandlers({
     db.globalImages = db.globalImages.filter((i) => i.id !== image.id)
     return 204
   },
-  siloList: (params) => paginated(params.query, db.silos),
-  siloCreate({ body }) {
+  siloListV1: (params) => paginated(params.query, db.silos),
+  siloCreateV1({ body }) {
     errIfExists(db.silos, { name: body.name })
     const newSilo: Json<Api.Silo> = {
       id: uuid(),
@@ -846,20 +833,20 @@ export const handlers = makeHandlers({
     db.silos.push(newSilo)
     return json(newSilo, { status: 201 })
   },
-  siloView: (params) => lookupSilo(params.path),
-  siloDelete(params) {
-    const silo = lookupSilo(params.path)
+  siloViewV1: ({ path }) => lookup.silo(path),
+  siloDeleteV1({ path }) {
+    const silo = lookup.silo(path)
     db.silos = db.silos.filter((i) => i.id !== silo.id)
     return 204
   },
-  siloIdentityProviderList(params) {
-    const silo = lookupSilo(params.path)
+  siloIdentityProviderListV1({ query }) {
+    const silo = lookup.silo(query)
     const idps = db.identityProviders.filter(({ siloId }) => siloId === silo.id).map(toIdp)
     return { items: idps }
   },
 
-  samlIdentityProviderCreate(params) {
-    const silo = lookupSilo(params.path)
+  samlIdentityProviderCreateV1(params) {
+    const silo = lookup.silo(params.query)
 
     // this is a bit silly, but errIfExists doesn't handle nested keys like
     // provider.name, so to do the check we make a flatter object
@@ -889,7 +876,7 @@ export const handlers = makeHandlers({
     })
     return provider
   },
-  samlIdentityProviderView: (params) => lookupSamlIdp(params.path),
+  samlIdentityProviderViewV1: ({ path, query }) => lookup.samlIdp({ ...path, ...query }),
 
   userListV1: ({ query }) => {
     // query.group is validated by generated code to be a UUID if present
@@ -1036,9 +1023,25 @@ export const handlers = makeHandlers({
   certificateViewV1: NotImplemented,
   instanceMigrateV1: NotImplemented,
   instanceSerialConsoleStreamV1: NotImplemented,
+  ipPoolCreateV1: NotImplemented,
+  ipPoolDeleteV1: NotImplemented,
+  ipPoolListV1: NotImplemented,
+  ipPoolRangeAddV1: NotImplemented,
+  ipPoolRangeListV1: NotImplemented,
+  ipPoolRangeRemoveV1: NotImplemented,
+  ipPoolServiceRangeAddV1: NotImplemented,
+  ipPoolServiceRangeListV1: NotImplemented,
+  ipPoolServiceRangeRemoveV1: NotImplemented,
+  ipPoolServiceViewV1: NotImplemented,
+  ipPoolUpdateV1: NotImplemented,
+  ipPoolViewV1: NotImplemented,
   rackViewV1: NotImplemented,
   sagaListV1: NotImplemented,
   sagaViewV1: NotImplemented,
+  siloPolicyUpdateV1: NotImplemented,
+  siloPolicyViewV1: NotImplemented,
+  siloUsersListV1: NotImplemented,
+  siloUserViewV1: NotImplemented,
   sledViewV1: NotImplemented,
   systemPolicyUpdateV1: NotImplemented,
 
@@ -1063,13 +1066,19 @@ export const handlers = makeHandlers({
   diskCreate: NotImplemented,
   diskDelete: NotImplemented,
   diskList: NotImplemented,
+  diskMetricsList: NotImplemented,
   diskView: NotImplemented,
   groupList: NotImplemented,
+  imageCreate: NotImplemented,
+  imageList: NotImplemented,
+  imageView: NotImplemented,
+  imageDelete: NotImplemented,
   instanceCreate: NotImplemented,
   instanceDelete: NotImplemented,
   instanceDiskAttach: NotImplemented,
   instanceDiskDetach: NotImplemented,
   instanceDiskList: NotImplemented,
+  instanceExternalIpList: NotImplemented,
   instanceList: NotImplemented,
   instanceNetworkInterfaceCreate: NotImplemented,
   instanceNetworkInterfaceDelete: NotImplemented,
@@ -1081,6 +1090,9 @@ export const handlers = makeHandlers({
   instanceStart: NotImplemented,
   instanceStop: NotImplemented,
   instanceView: NotImplemented,
+  localIdpUserCreateV1: NotImplemented,
+  localIdpUserDeleteV1: NotImplemented,
+  localIdpUserSetPasswordV1: NotImplemented,
   organizationCreate: NotImplemented,
   organizationDelete: NotImplemented,
   organizationList: NotImplemented,
@@ -1100,6 +1112,13 @@ export const handlers = makeHandlers({
   projectView: NotImplemented,
   rackList: NotImplemented,
   rackView: NotImplemented,
+  samlIdentityProviderCreate: NotImplemented,
+  samlIdentityProviderView: NotImplemented,
+  siloCreate: NotImplemented,
+  siloDelete: NotImplemented,
+  siloIdentityProviderList: NotImplemented,
+  siloList: NotImplemented,
+  siloView: NotImplemented,
   sledList: NotImplemented,
   sledPhysicalDiskList: NotImplemented,
   snapshotCreate: NotImplemented,
@@ -1126,6 +1145,7 @@ export const handlers = makeHandlers({
   vpcSubnetCreate: NotImplemented,
   vpcSubnetDelete: NotImplemented,
   vpcSubnetList: NotImplemented,
+  vpcSubnetListNetworkInterfaces: NotImplemented,
   vpcSubnetUpdate: NotImplemented,
   vpcSubnetView: NotImplemented,
   vpcUpdate: NotImplemented,

@@ -5,7 +5,6 @@ import { validate as isUuid } from 'uuid'
 import * as mock from '@oxide/api-mocks'
 import type { ApiTypes as Api, PathParams as PP } from '@oxide/api'
 import { user1 } from '@oxide/api-mocks'
-import { toApiSelector } from '@oxide/util'
 
 import type { Json } from '../json-type'
 import { clone, json } from './util'
@@ -139,6 +138,44 @@ export const lookup = {
 
     return subnet
   },
+  image({ image: id, ...projectSelector }: PP.Image): Json<Api.Image> {
+    if (!id) throw notFoundErr
+
+    const project = lookup.project(projectSelector)
+
+    if (isUuid(id)) return lookupById(db.images, id)
+
+    const image = db.images.find((d) => d.project_id === project.id && d.name === id)
+    if (!image) throw notFoundErr
+
+    return image
+  },
+  samlIdp({
+    provider: id,
+    ...siloSelector
+  }: PP.IdentityProvider): Json<Api.SamlIdentityProvider> {
+    if (!id) throw notFoundErr
+
+    const silo = lookup.silo(siloSelector)
+
+    const dbIdp = db.identityProviders.find(
+      ({ type, siloId, provider }) =>
+        type === 'saml' && siloId === silo.id && provider.name === id
+    )
+
+    if (!dbIdp) throw notFoundErr
+
+    return dbIdp.provider
+  },
+  silo({ silo: id }: PP.Silo): Json<Api.Silo> {
+    if (!id) throw notFoundErr
+
+    if (isUuid(id)) return lookupById(db.silos, id)
+
+    const silo = db.silos.find((o) => o.name === id)
+    if (!silo) throw notFoundErr
+    return silo
+  },
   systemUpdate({ version }: PP.SystemUpdate): Json<Api.SystemUpdate> {
     const update = db.systemUpdates.find((o) => o.version === version)
     if (!update) throw notFoundErr
@@ -151,40 +188,10 @@ export const lookup = {
   },
 }
 
-export function lookupImage(params: PP.Image): Json<Api.Image> {
-  const project = lookup.project(toApiSelector(params))
-
-  const image = db.images.find(
-    (d) => d.project_id === project.id && d.name === params.imageName
-  )
-  if (!image) throw notFoundErr
-
-  return image
-}
-
 export function lookupGlobalImage(params: PP.GlobalImage): Json<Api.GlobalImage> {
   const image = db.globalImages.find((o) => o.name === params.imageName)
   if (!image) throw notFoundErr
   return image
-}
-
-export function lookupSilo(params: PP.Silo): Json<Api.Silo> {
-  const silo = db.silos.find((o) => o.name === params.siloName)
-  if (!silo) throw notFoundErr
-  return silo
-}
-
-export function lookupSamlIdp(params: PP.IdentityProvider): Json<Api.SamlIdentityProvider> {
-  const silo = lookupSilo(params)
-
-  const dbIdp = db.identityProviders.find(
-    ({ type, siloId, provider }) =>
-      type === 'saml' && siloId === silo.id && provider.name === params.providerName
-  )
-
-  if (!dbIdp) throw notFoundErr
-
-  return dbIdp.provider
 }
 
 export function lookupSshKey(params: PP.SshKey): Json<Api.SshKey> {

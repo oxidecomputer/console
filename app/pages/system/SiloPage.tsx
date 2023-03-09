@@ -14,7 +14,7 @@ import {
   buttonStyle,
 } from '@oxide/ui'
 
-import { requireSiloParams, useSiloParams } from 'app/hooks'
+import { getSiloSelector, useSiloSelector } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 const EmptyState = () => (
@@ -22,34 +22,31 @@ const EmptyState = () => (
 )
 
 SiloPage.loader = async ({ params }: LoaderFunctionArgs) => {
+  const { silo } = getSiloSelector(params)
   await Promise.all([
-    apiQueryClient.prefetchQuery('siloView', { path: requireSiloParams(params) }),
-    apiQueryClient.prefetchQuery('siloIdentityProviderList', {
-      path: requireSiloParams(params),
-      query: { limit: 10 }, // same as query table
+    apiQueryClient.prefetchQuery('siloViewV1', { path: { silo } }),
+    apiQueryClient.prefetchQuery('siloIdentityProviderListV1', {
+      query: { silo, limit: 10 }, // same as query table
     }),
   ])
   return null
 }
 
 export function SiloPage() {
-  const { siloName } = useSiloParams()
+  const { silo } = useSiloSelector()
 
-  const { Table, Column } = useQueryTable('siloIdentityProviderList', {
-    path: { siloName },
+  const { Table, Column } = useQueryTable('siloIdentityProviderListV1', {
+    query: { silo },
   })
 
   return (
     <>
       <PageHeader>
-        <PageTitle /*icon={icon}*/>{siloName}</PageTitle>
+        <PageTitle /*icon={icon}*/>{silo}</PageTitle>
       </PageHeader>
       <h2 className="mb-2 text-sans-2xl">Identity providers</h2>
       <TableActions>
-        <Link
-          to={pb.siloIdpNew({ silo: siloName })}
-          className={buttonStyle({ size: 'sm' })}
-        >
+        <Link to={pb.siloIdpNew({ silo })} className={buttonStyle({ size: 'sm' })}>
           New provider
         </Link>
       </TableActions>

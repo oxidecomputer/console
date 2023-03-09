@@ -27,7 +27,7 @@ const requireOrgParams = requireParams('orgName')
 const requireProjectParams = requireParams('orgName', 'projectName')
 const requireInstanceParams = requireParams('orgName', 'projectName', 'instanceName')
 const requireVpcParams = requireParams('orgName', 'projectName', 'vpcName')
-export const requireSiloParams = requireParams('siloName')
+const requireSiloParams = requireParams('siloName')
 const requireSledParams = requireParams('sledId')
 export const requireUpdateParams = requireParams('version')
 
@@ -35,12 +35,14 @@ const useOrgParams = () => requireOrgParams(useParams())
 const useProjectParams = () => requireProjectParams(useParams())
 const useInstanceParams = () => requireInstanceParams(useParams())
 const useVpcParams = () => requireVpcParams(useParams())
-export const useSiloParams = () => requireSiloParams(useParams())
+const useSiloParams = () => requireSiloParams(useParams())
 export const useSledParams = () => requireSledParams(useParams())
 export const useUpdateParams = () => requireUpdateParams(useParams())
 
 // non-hook versions for use in loaders
 
+export const getSiloSelector = (p: Readonly<Params<string>>) =>
+  toApiSelector(requireSiloParams(p))
 export const getOrgSelector = (p: Readonly<Params<string>>) =>
   toApiSelector(requireOrgParams(p))
 export const getProjectSelector = (p: Readonly<Params<string>>) =>
@@ -54,6 +56,7 @@ export const getVpcSelector = (p: Readonly<Params<string>>) =>
 // params are present. Only the specified keys end up in the result object, but
 // we do not error if there are other params present in the query string.
 
+export const useSiloSelector = () => toApiSelector(useSiloParams())
 export const useOrgSelector = () => toApiSelector(useOrgParams())
 export const useProjectSelector = () => toApiSelector(useProjectParams())
 export const useVpcSelector = () => toApiSelector(useVpcParams())
