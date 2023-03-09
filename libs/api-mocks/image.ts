@@ -8,8 +8,6 @@ const base = {
   time_created: new Date().toISOString(),
   time_modified: new Date().toISOString(),
   block_size: 4096,
-  os: 'alpine',
-  version: 'edge',
 }
 
 export const images: Json<Image>[] = [
@@ -18,6 +16,8 @@ export const images: Json<Image>[] = [
     name: 'image-1',
     description: "it's an image",
     size: 1024,
+    os: 'alpine',
+    version: 'edge1',
     ...base,
   },
 
@@ -26,6 +26,8 @@ export const images: Json<Image>[] = [
     name: 'image-2',
     description: "it's a second image",
     size: 2048,
+    os: 'alpine',
+    version: 'edge2',
     ...base,
   },
   {
@@ -33,6 +35,8 @@ export const images: Json<Image>[] = [
     name: 'image-3',
     description: "it's a third image",
     size: 3072,
+    os: 'alpine',
+    version: 'edge3',
     ...base,
   },
   {
@@ -40,6 +44,35 @@ export const images: Json<Image>[] = [
     name: 'image-4',
     description: "it's a fourth image",
     size: 4096,
+    os: 'alpine',
+    version: 'edge4',
+    ...base,
+  },
+  {
+    id: 'ae46ddf5-a8d5-40fa-bcda-fcac606e3f9b',
+    name: 'ubuntu-22-04',
+    description: 'Latest Ubuntu LTS',
+    os: 'ubuntu',
+    version: '22.04',
+    size: 1024,
+    ...base,
+  },
+  {
+    id: 'a2ea1d7a-cc5a-4fda-a400-e2d2b18f53c5',
+    name: 'ubuntu-20-04',
+    description: 'Previous LTS',
+    os: 'ubuntu',
+    version: '20.04',
+    size: 2048,
+    ...base,
+  },
+  {
+    id: 'bd6aa051-8075-421d-a641-fae54a0ce8ef',
+    name: 'arch-2022-06-01',
+    description: 'Latest Arch Linux',
+    os: 'arch',
+    version: '2022.06.01',
+    size: 3072,
     ...base,
   },
 ]

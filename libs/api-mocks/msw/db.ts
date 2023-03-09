@@ -188,12 +188,6 @@ export const lookup = {
   },
 }
 
-export function lookupGlobalImage(params: PP.GlobalImage): Json<Api.GlobalImage> {
-  const image = db.globalImages.find((o) => o.name === params.imageName)
-  if (!image) throw notFoundErr
-  return image
-}
-
 export function lookupSshKey(params: PP.SshKey): Json<Api.SshKey> {
   const sshKey = db.sshKeys.find(
     (key) => key.name === params.sshKeyName && key.silo_user_id === user1.id
@@ -204,7 +198,6 @@ export function lookupSshKey(params: PP.SshKey): Json<Api.SshKey> {
 
 const initDb = {
   disks: [...mock.disks],
-  globalImages: [...mock.globalImages],
   userGroups: [...mock.userGroups],
   /** Join table for `users` and `userGroups` */
   groupMemberships: [...mock.groupMemberships],

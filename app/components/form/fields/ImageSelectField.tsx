@@ -4,7 +4,7 @@ import type { ComponentType } from 'react'
 import type { Control } from 'react-hook-form'
 import { useController } from 'react-hook-form'
 
-import type { GlobalImage } from '@oxide/api'
+import type { Image } from '@oxide/api'
 import {
   CentosDistroIcon,
   DebianDistroIcon,
@@ -33,11 +33,11 @@ const ArchDistroIcon = (props: { className?: string }) => {
   )
 }
 
-function distroDisplay(image: GlobalImage): {
+function distroDisplay(image: Image): {
   label: string
   Icon: ComponentType<{ className?: string }>
 } {
-  const distro = image.distribution.toLowerCase()
+  const distro = image.os.toLowerCase()
   if (distro.includes('ubuntu')) {
     return { label: 'Ubuntu', Icon: UbuntuDistroIcon }
   }
@@ -64,14 +64,14 @@ function distroDisplay(image: GlobalImage): {
 
 type ImageSelectFieldProps = {
   required: boolean
-  images: GlobalImage[]
+  images: Image[]
   control: Control<InstanceCreateInput>
 }
 
 export function ImageSelectField({ images, control, required }: ImageSelectFieldProps) {
   return (
     <RadioGroup name="globalImage" aria-label="Global image" required={required}>
-      {groupBy(images, (i) => i.distribution).map(([distroName, distroValues]) => (
+      {groupBy(images, (i) => i.os).map(([distroName, distroValues]) => (
         <ImageSelect key={distroName} images={distroValues} control={control} />
       ))}
     </RadioGroup>
@@ -84,7 +84,7 @@ function ImageSelect({
   images,
   control,
 }: {
-  images: GlobalImage[]
+  images: Image[]
   control: Control<InstanceCreateInput>
 }) {
   const distros = images.map((image) => ({ ...image, ...distroDisplay(image) }))

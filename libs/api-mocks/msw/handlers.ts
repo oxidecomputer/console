@@ -11,7 +11,7 @@ import { serial } from '../serial'
 import { defaultSilo, toIdp } from '../silo'
 import { sortBySemverDesc } from '../update'
 import { user1 } from '../user'
-import { db, lookup, lookupById, lookupGlobalImage, lookupSshKey } from './db'
+import { db, lookup, lookupById, lookupSshKey } from './db'
 import {
   NotImplemented,
   errIfExists,
@@ -800,28 +800,6 @@ export const handlers = makeHandlers({
     return 204
   },
   sledListV1: (params) => paginated(params.query, db.sleds),
-  systemImageList: (params) => paginated(params.query, db.globalImages),
-  systemImageCreate({ body }) {
-    errIfExists(db.globalImages, { name: body.name })
-
-    const newImage: Json<Api.GlobalImage> = {
-      id: uuid(),
-      // TODO: This should be calculated based off of the source
-      size: 100,
-      ...body,
-      ...getTimestamps(),
-      distribution: body.distribution.name,
-      version: body.distribution.version,
-    }
-    db.globalImages.push(newImage)
-    return json(newImage, { status: 201 })
-  },
-  systemImageView: (params) => lookupGlobalImage(params.path),
-  systemImageDelete(params) {
-    const image = lookupGlobalImage(params.path)
-    db.globalImages = db.globalImages.filter((i) => i.id !== image.id)
-    return 204
-  },
   siloListV1: (params) => paginated(params.query, db.silos),
   siloCreateV1({ body }) {
     errIfExists(db.silos, { name: body.name })
@@ -1125,20 +1103,24 @@ export const handlers = makeHandlers({
   snapshotDelete: NotImplemented,
   snapshotList: NotImplemented,
   snapshotView: NotImplemented,
+  systemImageCreate: NotImplemented,
+  systemImageDelete: NotImplemented,
+  systemImageList: NotImplemented,
+  systemImageView: NotImplemented,
   systemPolicyView: NotImplemented,
   userList: NotImplemented,
   vpcCreate: NotImplemented,
   vpcDelete: NotImplemented,
-  vpcFirewallRulesView: NotImplemented,
   vpcFirewallRulesUpdate: NotImplemented,
+  vpcFirewallRulesView: NotImplemented,
   vpcList: NotImplemented,
   vpcRouterCreate: NotImplemented,
   vpcRouterDelete: NotImplemented,
   vpcRouterList: NotImplemented,
-  vpcRouterUpdate: NotImplemented,
-  vpcRouterView: NotImplemented,
   vpcRouterRouteCreate: NotImplemented,
   vpcRouterRouteDelete: NotImplemented,
+  vpcRouterUpdate: NotImplemented,
+  vpcRouterView: NotImplemented,
   vpcRouterRouteList: NotImplemented,
   vpcRouterRouteUpdate: NotImplemented,
   vpcRouterRouteView: NotImplemented,
