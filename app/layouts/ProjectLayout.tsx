@@ -29,8 +29,8 @@ const ProjectLayout = () => {
   const navigate = useNavigate()
   // org and project will always be there, instance may not
   const projectSelector = useProjectSelector()
-  const { project: projectName } = projectSelector
-  const { instanceName } = useParams()
+  const { project } = projectSelector
+  const { instance } = useParams()
   const currentPath = useLocation().pathname
   useQuickActions(
     useMemo(
@@ -46,12 +46,12 @@ const ProjectLayout = () => {
           // filter out the entry for the path we're currently on
           .filter((i) => !matchPath(`/orgs/:org/projects/:project/${i.path}`, currentPath))
           .map((i) => ({
-            navGroup: `Project '${projectName}'`,
+            navGroup: `Project '${project}'`,
             value: i.value,
             // TODO: Update this to use the new path builder
             onSelect: () => navigate(i.path),
           })),
-      [currentPath, navigate, projectName]
+      [currentPath, navigate, project]
     )
   )
 
@@ -61,7 +61,7 @@ const ProjectLayout = () => {
         {useSiloSystemPicker('silo')}
         <OrgPicker />
         <ProjectPicker />
-        {instanceName && <InstancePicker />}
+        {instance && <InstancePicker />}
       </TopBar>
       <Sidebar>
         <Sidebar.Nav>
@@ -72,7 +72,7 @@ const ProjectLayout = () => {
           <DocsLinkItem />
         </Sidebar.Nav>
         <Divider />
-        <Sidebar.Nav heading={projectName}>
+        <Sidebar.Nav heading={project}>
           <NavLinkItem to={pb.instances(projectSelector)}>
             <Instances16Icon /> Instances
           </NavLinkItem>
