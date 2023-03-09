@@ -51,7 +51,6 @@ test('Click through org access page', async ({ page }) => {
   await page.click('role=button[name="User or group"]')
   // only users not already on the org should be visible
   await expectNotVisible(page, ['role=option[name="Hans Jonas"]'])
-  await page.pause()
   await expectVisible(page, [
     'role=option[name="Hannah Arendt"]',
     'role=option[name="Jacob Klein"]',

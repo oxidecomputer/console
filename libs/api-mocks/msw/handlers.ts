@@ -192,8 +192,16 @@ export const handlers = makeHandlers({
     }
   },
   imageListV1({ query }) {
-    const project = lookup.project(query)
-    const images = db.images.filter((i) => i.project_id === project.id)
+    // This is a workaround for the fact that we have no concept of global
+    // images yet. The instance create e2e test creates a project that has no
+    // images, but we need images to test the form. So for now, return all
+    // images for all projects.
+    lookup.project(query)
+    const images = db.images
+
+    // TODO: put back in image filtering by project
+    // const project = lookup.project(query)
+    // const images = db.images.filter((i) => i.project_id === project.id)
     return paginated(query, images)
   },
   imageCreateV1({ body, query }) {
