@@ -1,6 +1,6 @@
 import { assertType } from 'vitest'
 
-import { toApiSelector, toPathQuery } from './selector'
+import { toPathQuery } from './selector'
 
 describe('toPathQuery', () => {
   it('works in the base case', () => {
@@ -32,20 +32,5 @@ describe('toPathQuery', () => {
     // type error if key is not in the object
     // @ts-expect-error
     toPathQuery('instance', { instanc: 'i', project: 'p', organization: 'o' })
-  })
-})
-
-describe('toApiSelector', () => {
-  it('converts xName to x, handling orgName specially', () => {
-    const result = toApiSelector({ orgName: 'abc', projectName: 'def' })
-    expect(result).toEqual({ organization: 'abc', project: 'def' })
-
-    // make sure it gets the type right
-    assertType<{ organization: string; project: string }>(result)
-  })
-
-  it('type errors on keys that do not end in Name', () => {
-    // @ts-expect-error keys must end in 'Name'
-    toApiSelector({ projectNam: 'abc' })
   })
 })

@@ -21,7 +21,7 @@ import RootLayout from './layouts/RootLayout'
 import SettingsLayout from './layouts/SettingsLayout'
 import SiloLayout from './layouts/SiloLayout'
 import SystemLayout from './layouts/SystemLayout'
-import { userLoader } from './layouts/helpers'
+import { SerialConsoleContentPane, userLoader } from './layouts/helpers'
 import DeviceAuthSuccessPage from './pages/DeviceAuthSuccessPage'
 import DeviceAuthVerifyPage from './pages/DeviceAuthVerifyPage'
 import { GroupPage } from './pages/GroupPage'
@@ -43,9 +43,10 @@ import {
   VpcPage,
   VpcsPage,
 } from './pages/project'
+import { SerialConsolePage } from './pages/project/instances/instance/SerialConsolePage'
+import { ConnectTab } from './pages/project/instances/instance/tabs/ConnectTab'
 import { MetricsTab } from './pages/project/instances/instance/tabs/MetricsTab'
 import { NetworkingTab } from './pages/project/instances/instance/tabs/NetworkingTab'
-import { SerialConsoleTab } from './pages/project/instances/instance/tabs/SerialConsoleTab'
 import { StorageTab } from './pages/project/instances/instance/tabs/StorageTab'
 import { ProfilePage } from './pages/settings/ProfilePage'
 import { SSHKeysPage } from './pages/settings/SSHKeysPage'
@@ -64,11 +65,11 @@ import {
 } from './pages/system/UpdatePage'
 import { pb } from './util/path-builder'
 
-const orgCrumb: CrumbFunc = (m) => m.params.orgName!
-const projectCrumb: CrumbFunc = (m) => m.params.projectName!
-const instanceCrumb: CrumbFunc = (m) => m.params.instanceName!
-const vpcCrumb: CrumbFunc = (m) => m.params.vpcName!
-const groupCrumb: CrumbFunc = (m) => m.params.groupId!
+const orgCrumb: CrumbFunc = (m) => m.params.organization!
+const projectCrumb: CrumbFunc = (m) => m.params.project!
+const instanceCrumb: CrumbFunc = (m) => m.params.instance!
+const vpcCrumb: CrumbFunc = (m) => m.params.vpc!
+const groupCrumb: CrumbFunc = (m) => m.params.group!
 
 export const routes = createRoutesFromElements(
   <Route element={<RootLayout />}>
@@ -102,7 +103,7 @@ export const routes = createRoutesFromElements(
           <Route path="silos" />
           <Route path="silos-new" element={<CreateSiloSideModalForm />} />
         </Route>
-        <Route path="silos/:siloName" element={<SiloPage />} loader={SiloPage.loader}>
+        <Route path="silos/:silo" element={<SiloPage />} loader={SiloPage.loader}>
           <Route index />
           <Route path="idps-new" element={<CreateIdpSideModalForm />} />
         </Route>
@@ -149,9 +150,9 @@ export const routes = createRoutesFromElements(
       <Route index element={<Navigate to={pb.orgs()} replace />} />
 
       {/* These are done here instead of nested so we don't flash a layout on 404s */}
-      <Route path="orgs/:orgName" element={<Navigate to="projects" replace />} />
+      <Route path="orgs/:organization" element={<Navigate to="projects" replace />} />
       <Route
-        path="orgs/:orgName/projects/:projectName"
+        path="orgs/:organization/projects/:project"
         element={<Navigate to="instances" replace />}
       />
 
@@ -169,7 +170,7 @@ export const routes = createRoutesFromElements(
             handle={{ crumb: 'New org' }}
           />
           <Route
-            path="orgs/:orgName/edit"
+            path="orgs/:organization/edit"
             element={<EditOrgSideModalForm />}
             loader={EditOrgSideModalForm.loader}
             handle={{ crumb: 'Edit org' }}
@@ -198,7 +199,7 @@ export const routes = createRoutesFromElements(
         </Route>
       </Route>
 
-      <Route path="orgs/:orgName" handle={{ crumb: orgCrumb }}>
+      <Route path="orgs/:organization" handle={{ crumb: orgCrumb }}>
         <Route element={<OrgLayout />}>
           <Route
             path="access"
@@ -215,7 +216,7 @@ export const routes = createRoutesFromElements(
               handle={{ crumb: 'New project' }}
             />
             <Route
-              path="projects/:projectName/edit"
+              path="projects/:project/edit"
               element={<EditProjectSideModalForm />}
               loader={EditProjectSideModalForm.loader}
               handle={{ crumb: 'Edit project' }}
@@ -224,8 +225,27 @@ export const routes = createRoutesFromElements(
         </Route>
 
         {/* PROJECT */}
+
+        {/* Serial console page gets its own little section here because it
+            cannot use the normal <ContentPane>.*/}
         <Route
-          path="projects/:projectName"
+          path="projects/:project"
+          element={<ProjectLayout overrideContentPane={<SerialConsoleContentPane />} />}
+          handle={{ crumb: projectCrumb }}
+        >
+          <Route path="instances" handle={{ crumb: 'Instances' }}>
+            <Route path=":instance" handle={{ crumb: instanceCrumb }}>
+              <Route
+                path="serial-console"
+                element={<SerialConsolePage />}
+                handle={{ crumb: 'Serial Console' }}
+              />
+            </Route>
+          </Route>
+        </Route>
+
+        <Route
+          path="projects/:project"
           element={<ProjectLayout />}
           handle={{ crumb: projectCrumb }}
         >
@@ -235,25 +255,22 @@ export const routes = createRoutesFromElements(
             loader={CreateInstanceForm.loader}
             handle={{ crumb: 'New instance' }}
           />
-          <Route
-            path="instances/:instanceName"
-            element={<Navigate to="storage" replace />}
-          />
           <Route path="instances" handle={{ crumb: 'Instances' }}>
             <Route index element={<InstancesPage />} loader={InstancesPage.loader} />
-            <Route path=":instanceName" handle={{ crumb: instanceCrumb }}>
+            <Route path=":instance" handle={{ crumb: instanceCrumb }}>
+              <Route index element={<Navigate to="storage" replace />} />
               <Route element={<InstancePage />} loader={InstancePage.loader}>
                 <Route
                   path="storage"
                   element={<StorageTab />}
                   loader={StorageTab.loader}
-                  handle={{ crumb: 'storage' }}
+                  handle={{ crumb: 'Storage' }}
                 />
                 <Route
                   path="network-interfaces"
                   element={<NetworkingTab />}
                   loader={NetworkingTab.loader}
-                  handle={{ crumb: 'network-interfaces' }}
+                  handle={{ crumb: 'Network interfaces' }}
                 />
                 <Route
                   path="metrics"
@@ -262,9 +279,9 @@ export const routes = createRoutesFromElements(
                   handle={{ crumb: 'metrics' }}
                 />
                 <Route
-                  path="serial-console"
-                  element={<SerialConsoleTab />}
-                  handle={{ crumb: 'serial-console' }}
+                  path="connect"
+                  element={<ConnectTab />}
+                  handle={{ crumb: 'Connect' }}
                 />
               </Route>
             </Route>
@@ -278,7 +295,7 @@ export const routes = createRoutesFromElements(
               handle={{ crumb: 'New VPC' }}
             />
             <Route
-              path="vpcs/:vpcName/edit"
+              path="vpcs/:vpc/edit"
               element={<EditVpcSideModalForm />}
               loader={EditVpcSideModalForm.loader}
               handle={{ crumb: 'Edit VPC' }}
@@ -287,7 +304,7 @@ export const routes = createRoutesFromElements(
 
           <Route path="vpcs" handle={{ crumb: 'VPCs' }}>
             <Route
-              path=":vpcName"
+              path=":vpc"
               element={<VpcPage />}
               loader={VpcPage.loader}
               handle={{ crumb: vpcCrumb }}

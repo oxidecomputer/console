@@ -8,7 +8,7 @@ type Project = Required<PP.Project>
 type Instance = Required<PP.Instance>
 type Vpc = Required<PP.Vpc>
 type SystemUpdate = Required<PP.SystemUpdate>
-type Silo = Required<PP.SiloV1>
+type Silo = Required<PP.Silo>
 type Group = Required<PP.Group>
 
 export const pb = {
@@ -42,6 +42,7 @@ export const pb = {
 
   instanceMetrics: (params: Instance) => `${pb.instance(params)}/metrics`,
   instanceStorage: (params: Instance) => `${pb.instance(params)}/storage`,
+  instanceConnect: (params: Instance) => `${pb.instance(params)}/connect`,
 
   nics: (params: Instance) => `${pb.instance(params)}/network-interfaces`,
 
