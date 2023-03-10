@@ -1,5 +1,4 @@
-import throttle from 'lodash.throttle'
-import { Suspense, lazy, useEffect, useRef, useState } from 'react'
+import { Suspense, lazy } from 'react'
 import { Link } from 'react-router-dom'
 
 import { useApiQuery } from '@oxide/api'
@@ -75,34 +74,12 @@ export function SerialConsolePage() {
 }
 
 function SerialSkeleton() {
-  const { organization, project, instance } = useInstanceSelector()
-
-  const skeletonEl = useRef<HTMLDivElement>(null)
-  const [skeletonCount, setSkeletonCount] = useState(80)
-
-  const addBlocks = throttle(
-    () => {
-      if (!skeletonEl || !skeletonEl.current) {
-        return
-      }
-
-      setSkeletonCount(Math.floor(skeletonEl.current.offsetHeight / 24) + 1)
-    },
-    125,
-    { leading: true, trailing: true }
-  )
-
-  useEffect(() => {
-    window.addEventListener('resize', addBlocks)
-    return () => {
-      window.removeEventListener('resize', addBlocks)
-    }
-  }, [skeletonEl, addBlocks])
+  const instanceSelector = useInstanceSelector()
 
   return (
     <div className="relative h-full flex-shrink flex-grow overflow-hidden">
-      <div ref={skeletonEl} className="h-full space-y-2 overflow-hidden">
-        {[...Array(skeletonCount)].map((_e, i) => (
+      <div className="h-full space-y-2 overflow-hidden">
+        {[...Array(200)].map((_e, i) => (
           <div
             key={i}
             className="h-4 rounded bg-tertiary motion-safe:animate-pulse"
@@ -125,11 +102,8 @@ function SerialSkeleton() {
         <div className="space-y-2">
           <p className="text-center text-sans-xl text-default">
             Connecting to{' '}
-            <Link
-              to={pb.instance({ organization, project, instance })}
-              className="text-accent-secondary"
-            >
-              {instance}
+            <Link to={pb.instance(instanceSelector)} className="text-accent-secondary">
+              {instanceSelector.instance}
             </Link>
           </p>
         </div>
