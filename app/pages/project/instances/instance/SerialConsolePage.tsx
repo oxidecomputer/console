@@ -16,13 +16,6 @@ const Terminal = lazy(() => import('app/components/Terminal'))
 
 export function SerialConsolePage() {
   const { organization, project, instance } = useInstanceSelector()
-  const [isLoaded, setIsLoaded] = useState(false)
-
-  useEffect(() => {
-    setTimeout(() => {
-      setIsLoaded(true)
-    }, 3000)
-  }, [])
 
   const { isRefetching, data, refetch } = useApiQuery(
     'instanceSerialConsoleV1',
@@ -47,13 +40,15 @@ export function SerialConsolePage() {
       </Link>
 
       <div className="gutter relative w-full flex-shrink flex-grow overflow-hidden">
-        {isLoaded ? (
-          <Suspense fallback={<></>}>
+        {!data && <SerialSkeleton />}
+        {/* This is a bit silly but we want to get this going as early as possible
+            because it's downloading the Terminal component. We can probably expect
+            it to be done before the API call, so we'll never see the fallback. */}
+        <div className={data ? '' : 'hidden'}>
+          <Suspense fallback={null}>
             <Terminal className="h-full w-full" data={data?.data} />
           </Suspense>
-        ) : (
-          <SerialSkeleton />
-        )}
+        </div>
       </div>
       <div className="flex-shrink-0 justify-between overflow-hidden border-t bg-default border-secondary empty:border-t-0">
         <div className="gutter flex h-20 items-center justify-between">
@@ -62,17 +57,17 @@ export function SerialConsolePage() {
               loading={isRefetching}
               size="sm"
               onClick={() => refetch()}
-              disabled={!isLoaded}
+              disabled={!data}
             >
               Refresh
             </Button>
 
-            <Button variant="ghost" size="sm" disabled={!isLoaded} className="ml-2">
+            <Button variant="ghost" size="sm" disabled={!data} className="ml-2">
               Equivalent CLI Command
             </Button>
           </div>
 
-          <SerialConsoleStatusBadge status={isLoaded ? 'connected' : 'connecting'} />
+          <SerialConsoleStatusBadge status={data ? 'connected' : 'connecting'} />
         </div>
       </div>
     </div>
