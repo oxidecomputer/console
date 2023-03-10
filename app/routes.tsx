@@ -21,7 +21,7 @@ import RootLayout from './layouts/RootLayout'
 import SettingsLayout from './layouts/SettingsLayout'
 import SiloLayout from './layouts/SiloLayout'
 import SystemLayout from './layouts/SystemLayout'
-import { userLoader } from './layouts/helpers'
+import { SerialConsoleContentPane, userLoader } from './layouts/helpers'
 import DeviceAuthSuccessPage from './pages/DeviceAuthSuccessPage'
 import DeviceAuthVerifyPage from './pages/DeviceAuthVerifyPage'
 import LoginPage from './pages/LoginPage'
@@ -41,9 +41,10 @@ import {
   VpcPage,
   VpcsPage,
 } from './pages/project'
+import { SerialConsolePage } from './pages/project/instances/instance/SerialConsolePage'
+import { ConnectTab } from './pages/project/instances/instance/tabs/ConnectTab'
 import { MetricsTab } from './pages/project/instances/instance/tabs/MetricsTab'
 import { NetworkingTab } from './pages/project/instances/instance/tabs/NetworkingTab'
-import { SerialConsoleTab } from './pages/project/instances/instance/tabs/SerialConsoleTab'
 import { StorageTab } from './pages/project/instances/instance/tabs/StorageTab'
 import { ProfilePage } from './pages/settings/ProfilePage'
 import { SSHKeysPage } from './pages/settings/SSHKeysPage'
@@ -206,6 +207,25 @@ export const routes = createRoutesFromElements(
         </Route>
 
         {/* PROJECT */}
+
+        {/* Serial console page gets its own little section here because it
+            cannot use the normal <ContentPane>.*/}
+        <Route
+          path="projects/:project"
+          element={<ProjectLayout overrideContentPane={<SerialConsoleContentPane />} />}
+          handle={{ crumb: projectCrumb }}
+        >
+          <Route path="instances" handle={{ crumb: 'Instances' }}>
+            <Route path=":instance" handle={{ crumb: instanceCrumb }}>
+              <Route
+                path="serial-console"
+                element={<SerialConsolePage />}
+                handle={{ crumb: 'Serial Console' }}
+              />
+            </Route>
+          </Route>
+        </Route>
+
         <Route
           path="projects/:project"
           element={<ProjectLayout />}
@@ -217,22 +237,22 @@ export const routes = createRoutesFromElements(
             loader={CreateInstanceForm.loader}
             handle={{ crumb: 'New instance' }}
           />
-          <Route path="instances/:instance" element={<Navigate to="storage" replace />} />
           <Route path="instances" handle={{ crumb: 'Instances' }}>
             <Route index element={<InstancesPage />} loader={InstancesPage.loader} />
             <Route path=":instance" handle={{ crumb: instanceCrumb }}>
+              <Route index element={<Navigate to="storage" replace />} />
               <Route element={<InstancePage />} loader={InstancePage.loader}>
                 <Route
                   path="storage"
                   element={<StorageTab />}
                   loader={StorageTab.loader}
-                  handle={{ crumb: 'storage' }}
+                  handle={{ crumb: 'Storage' }}
                 />
                 <Route
                   path="network-interfaces"
                   element={<NetworkingTab />}
                   loader={NetworkingTab.loader}
-                  handle={{ crumb: 'network-interfaces' }}
+                  handle={{ crumb: 'Network interfaces' }}
                 />
                 <Route
                   path="metrics"
@@ -241,9 +261,9 @@ export const routes = createRoutesFromElements(
                   handle={{ crumb: 'metrics' }}
                 />
                 <Route
-                  path="serial-console"
-                  element={<SerialConsoleTab />}
-                  handle={{ crumb: 'serial-console' }}
+                  path="connect"
+                  element={<ConnectTab />}
+                  handle={{ crumb: 'Connect' }}
                 />
               </Route>
             </Route>

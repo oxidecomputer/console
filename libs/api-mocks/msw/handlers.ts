@@ -452,7 +452,7 @@ export const handlers = makeHandlers({
   },
   instanceSerialConsoleV1(_params) {
     // TODO: Add support for params
-    return serial
+    return json(serial, { delay: 3000 })
   },
   instanceStartV1({ path, query }) {
     const instance = lookup.instance({ ...path, ...query })
