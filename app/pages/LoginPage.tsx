@@ -44,15 +44,6 @@ export default function LoginPage() {
     },
   })
 
-  const logout = useApiMutation('logout', {
-    onSuccess: () => {
-      addToast({
-        title: 'Logged out',
-        icon: <Success16Icon />,
-      })
-    },
-  })
-
   return (
     <main className="layout relative flex h-screen">
       <div className="hero-bg relative flex w-1/2 justify-end text-accent sm-:hidden">
@@ -74,7 +65,12 @@ export default function LoginPage() {
             <hr className="my-6 w-full border-0 border-b border-b-secondary" />
 
             <div className="w-full space-y-3">
-              <Button type="submit" className="w-full">
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={loginPost.isLoading}
+                onClick={() => loginPost.mutate({ body: { username: 'privileged' } })}
+              >
                 Sign in with SSO
               </Button>
               {/* <Button variant="secondary" type="submit" className="w-full">
@@ -96,45 +92,5 @@ export default function LoginPage() {
       </div>
       <Logo className="absolute bottom-8 left-1/2 hidden -translate-x-1/2 sm-:block" />
     </main>
-  )
-
-  return (
-    <div className="space-y-4 bg-default">
-      <h3 className="mb-2 text-center text-sans-2xl">Log in as</h3>
-      <Button
-        type="submit"
-        className="w-full"
-        disabled={loginPost.isLoading}
-        onClick={() => loginPost.mutate({ body: { username: 'privileged' } })}
-      >
-        Privileged
-      </Button>
-      <Button
-        type="submit"
-        className="w-full"
-        disabled={loginPost.isLoading}
-        onClick={() => loginPost.mutate({ body: { username: 'unprivileged' } })}
-      >
-        Unprivileged
-      </Button>
-      <Button
-        type="submit"
-        variant="danger"
-        className="w-full"
-        disabled={loginPost.isLoading}
-        onClick={() => loginPost.mutate({ body: { username: 'other' } })}
-      >
-        Bad Request
-      </Button>
-      <Button
-        type="submit"
-        variant="ghost"
-        className="w-full"
-        disabled={loginPost.isLoading}
-        onClick={() => logout.mutate({})}
-      >
-        Log out
-      </Button>
-    </div>
   )
 }
