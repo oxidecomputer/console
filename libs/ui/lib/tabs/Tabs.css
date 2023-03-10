@@ -29,6 +29,7 @@
 }
 
 .ox-tab[data-selected],
+.ox-tab[data-state='active'],
 .ox-tab.is-selected {
   @apply text-accent border-accent;
 }
@@ -45,11 +46,13 @@
 }
 
 .ox-tab:not([data-selected]) > .ox-badge,
+.ox-tab[data-state='inactive'] > .ox-badge,
 .ox-tab:not(.is-selected) > .ox-badge {
   @apply bg-disabled;
 }
 
 .ox-tab[data-selected] > .ox-badge,
+.ox-tab[data-state='active'] > .ox-badge,
 .ox-tab.is-selected > .ox-badge {
   @apply bg-accent-secondary;
 }
