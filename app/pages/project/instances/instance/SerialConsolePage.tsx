@@ -40,14 +40,9 @@ export function SerialConsolePage() {
 
       <div className="gutter relative w-full flex-shrink flex-grow overflow-hidden">
         {!data && <SerialSkeleton />}
-        {/* This is a bit silly but we want to get this going as early as possible
-            because it's downloading the Terminal component. We can probably expect
-            it to be done before the API call, so we'll never see the fallback. */}
-        <div className={data ? '' : 'hidden'}>
-          <Suspense fallback={null}>
-            <Terminal className="h-full w-full" data={data?.data} />
-          </Suspense>
-        </div>
+        <Suspense fallback={null}>
+          <Terminal className="h-full w-full" data={data?.data} />
+        </Suspense>
       </div>
       <div className="flex-shrink-0 justify-between overflow-hidden border-t bg-default border-secondary empty:border-t-0">
         <div className="gutter flex h-20 items-center justify-between">
