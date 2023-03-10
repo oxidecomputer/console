@@ -1,35 +1,20 @@
 import { Link } from 'react-router-dom'
 
-import { Button, OpenLink12Icon, Wrap } from '@oxide/ui'
+import { Button, OpenLink12Icon, buttonStyle } from '@oxide/ui'
 
-type PropsBasics = {
+type Props = {
   title: string
   docs?: {
     text: string
     link: string
   }
   children: React.ReactNode
+  /** String action is a link */
+  cta: string | (() => void)
+  ctaText: string
 }
 
-interface PropsWithAction extends PropsBasics {
-  cta: {
-    text?: string
-    action?: () => void
-    link: never
-  }
-}
-
-interface PropsWithLink extends PropsBasics {
-  cta: {
-    text?: string
-    action?: never
-    link: string
-  }
-}
-
-type Props = PropsWithAction | PropsWithLink
-
-export const SettingsGroup = ({ title, docs, children, cta }: Props) => {
+export const SettingsGroup = ({ title, docs, children, cta, ctaText }: Props) => {
   return (
     <div className="w-full max-w-[660px] rounded-lg border text-sans-md text-secondary border-default">
       <div className="p-6">
@@ -37,6 +22,7 @@ export const SettingsGroup = ({ title, docs, children, cta }: Props) => {
         {children}
       </div>
       <div className="flex items-center justify-between border-t px-6 py-3 border-default">
+        {/* div always present to keep the button right-aligned */}
         <div className="text-tertiary">
           {docs && (
             <>
@@ -49,11 +35,15 @@ export const SettingsGroup = ({ title, docs, children, cta }: Props) => {
           )}
         </div>
 
-        <Wrap when={cta.link} with={<Link to={cta.link} />}>
-          <Button size="sm" onClick={cta.action ? cta.action : () => {}}>
-            {cta.text || 'Save'}
+        {typeof cta === 'string' ? (
+          <Link to={cta} className={buttonStyle({ size: 'sm' })}>
+            {ctaText}
+          </Link>
+        ) : (
+          <Button size="sm" onClick={cta}>
+            {ctaText}
           </Button>
-        </Wrap>
+        )}
       </div>
     </div>
   )

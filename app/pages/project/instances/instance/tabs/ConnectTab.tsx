@@ -10,9 +10,10 @@ export function ConnectTab() {
     <SettingsGroup
       title="Serial Console"
       docs={{ text: 'Serial Console', link: '/' }}
-      cta={{ link: pb.serialConsole({ organization, project, instance }), text: 'Connect' }}
+      cta={pb.serialConsole({ organization, project, instance })}
+      ctaText="Connect"
     >
-      Connect to your instance’s serial console
+      Connect to your instance&rsquo;s serial console
     </SettingsGroup>
   )
 }
