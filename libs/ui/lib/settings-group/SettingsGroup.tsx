@@ -4,7 +4,7 @@ import { Button, OpenLink12Icon, Wrap } from '@oxide/ui'
 
 type PropsBasics = {
   title: string
-  docs: {
+  docs?: {
     text: string
     link: string
   }
@@ -38,11 +38,15 @@ export const SettingsGroup = ({ title, docs, children, cta }: Props) => {
       </div>
       <div className="flex items-center justify-between border-t px-6 py-3 border-default">
         <div className="text-tertiary">
-          Learn more about{' '}
-          <a href={docs.link} className="text-accent-secondary hover:text-accent">
-            {docs.text}
-            <OpenLink12Icon className="ml-1 align-middle" />
-          </a>
+          {docs && (
+            <>
+              Learn more about{' '}
+              <a href={docs.link} className="text-accent-secondary hover:text-accent">
+                {docs.text}
+                <OpenLink12Icon className="ml-1 align-middle" />
+              </a>
+            </>
+          )}
         </div>
 
         <Wrap when={cta.link} with={<Link to={cta.link} />}>
