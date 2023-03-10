@@ -1,0 +1,31 @@
+.hero-rack {
+  @apply absolute top-[15%] left-[calc(50%+40px)] h-[115%] max-h-[1080px] -translate-x-1/2 object-contain md:-mr-10;
+}
+
+.hero-rack-wrapper {
+  @apply relative h-full w-full max-w-[720px];
+}
+
+@media (min-height: 1000px), (max-width: 1100px) and (max-aspect-ratio: 12/9) {
+  .hero-rack {
+    @apply top-[calc(50%+32px)] -translate-y-1/2;
+  }
+
+  .hero-rack-wrapper {
+    @apply max-w-[640px];
+  }
+}
+
+.hero-bg {
+  background: linear-gradient(90deg, rgba(42, 46, 49, 0.7) 12.5%, rgba(8, 15, 17, 1) 100%);
+}
+
+@media (max-width: 767px) {
+  .layout {
+    background: radial-gradient(
+      200% 100% at 50% 100%,
+      var(--surface-default) 0%,
+      #161b1d 100%
+    );
+  }
+}
