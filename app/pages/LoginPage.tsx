@@ -68,7 +68,7 @@ export default function LoginPage() {
                 className="flex h-[34px] w-[34px] items-center justify-center rounded text-accent bg-accent-secondary-hover"
                 name="maze-war"
               />
-              <div className="text-sans-2xl text-default">Maze War</div>
+              <div className="text-sans-2xl text-default">maze-war</div>
             </div>
             <div className="text-sans-lg text-secondary">maze-war.bitmapbros.com</div>
             <hr className="my-6 w-full border-0 border-b border-b-secondary" />
@@ -82,13 +82,15 @@ export default function LoginPage() {
             </Button> */}
             </div>
 
+            {/* todo: we might want to collect an operator email
+                and insert it in here as a mailto
             <div className="mt-6 text-sans-sm text-quaternary">
               Don&apos;t have an account
-              {/* todo: collect an operator email for MVP and insert it in here as a mailto */}
               <a href="/" className="ml-1 underline text-tertiary">
                 Request access
               </a>
             </div>
+            */}
           </div>
         </div>
       </div>
