@@ -1,6 +1,6 @@
 /**
  * The selection theme overrides certain styles such that the selected state of components can be displayed without
- * requiring each individual component to implement styles for it 
+ * requiring each individual component to implement styles for it
  *
  * This file is _not_ automatically generated
  */
@@ -14,7 +14,7 @@
   --stroke-surface: var(--surface-default);
   --surface-raise: var(--theme-accent-4);
 
-  & .ox-badge:not(.variant-ghost),
+  & .ox-badge,
   & .ox-tag,
   & .ox-button:not(.btn-ghost),
   & .ox-avatar,

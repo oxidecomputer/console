@@ -20,57 +20,58 @@ export const getActionsCol = <TData extends { id?: string }>(
   return {
     id: 'menu',
     header: '',
-    meta: { thClassName: 'w-12 action-col', tdClassName: 'action-col' },
+    meta: {
+      thClassName: 'action-col',
+      tdClassName: 'action-col children:p-0 w-10',
+    },
 
     cell: ({ row }) => {
       // TODO: control flow here has always confused me, would like to straighten it out
       const actions = makeActions(row.original)
       const id = row.original.id
       return (
-        <div className="flex w-full justify-center">
-          <Menu>
-            {/* TODO: This name should not suck; future us, make it so! */}
-            {/* stopPropagation prevents clicks from toggling row select in a single select table */}
-            <MenuButton
-              className="-m-3 p-3"
-              aria-label="Row actions"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <More12Icon className="text-tertiary" />
-            </MenuButton>
-            <MenuList>
-              {id && (
-                <MenuItem
-                  onSelect={() => {
-                    window.navigator.clipboard.writeText(id)
-                  }}
+        <Menu>
+          {/* TODO: This name should not suck; future us, make it so! */}
+          {/* stopPropagation prevents clicks from toggling row select in a single select table */}
+          <MenuButton
+            className="flex h-full w-10 items-center justify-center"
+            aria-label="Row actions"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <More12Icon className="text-tertiary" />
+          </MenuButton>
+          <MenuList>
+            {id && (
+              <MenuItem
+                onSelect={() => {
+                  window.navigator.clipboard.writeText(id)
+                }}
+              >
+                Copy ID
+              </MenuItem>
+            )}
+            {actions.map((action) => {
+              return (
+                <Wrap
+                  when={!!action.disabled}
+                  with={<Tooltip content={action.disabled} />}
+                  key={kebabCase(`action-${action.label}`)}
                 >
-                  Copy ID
-                </MenuItem>
-              )}
-              {actions.map((action) => {
-                return (
-                  <Wrap
-                    when={!!action.disabled}
-                    with={<Tooltip content={action.disabled} />}
-                    key={kebabCase(`action-${action.label}`)}
+                  <MenuItem
+                    className={cn(action.className, {
+                      destructive:
+                        action.label.toLowerCase() === 'delete' && !action.disabled,
+                    })}
+                    onSelect={action.onActivate}
+                    disabled={!!action.disabled}
                   >
-                    <MenuItem
-                      className={cn(action.className, {
-                        destructive:
-                          action.label.toLowerCase() === 'delete' && !action.disabled,
-                      })}
-                      onSelect={action.onActivate}
-                      disabled={!!action.disabled}
-                    >
-                      {action.label}
-                    </MenuItem>
-                  </Wrap>
-                )
-              })}
-            </MenuList>
-          </Menu>
-        </div>
+                    {action.label}
+                  </MenuItem>
+                </Wrap>
+              )
+            })}
+          </MenuList>
+        </Menu>
       )
     },
   }

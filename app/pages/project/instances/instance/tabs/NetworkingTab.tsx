@@ -49,8 +49,9 @@ const SubnetNameFromId = ({ value }: { value: string }) => (
 
 function ExternalIpsFromInstanceName({ value: primary }: { value: boolean }) {
   const { organization, project, instance } = useInstanceSelector()
-  const { data } = useApiQuery('instanceExternalIpList', {
-    path: { orgName: organization, projectName: project, instanceName: instance },
+  const { data } = useApiQuery('instanceExternalIpListV1', {
+    path: { instance },
+    query: { organization, project },
   })
   const ips = data?.items.map((eip) => eip.ip).join(', ')
   return <span className="text-secondary">{primary ? ips : <>&mdash;</>}</span>
@@ -203,7 +204,7 @@ export function NetworkingTab() {
             A network interface cannot be created or edited without{' '}
             <a href="#/" className="text-accent-secondary">
               stopping the instance
-              <OpenLink12Icon className="ml-1 pt-[1px]" />
+              <OpenLink12Icon className="ml-1 align-middle" />
             </a>
           </span>
         )}

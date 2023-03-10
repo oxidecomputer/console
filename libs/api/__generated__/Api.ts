@@ -567,7 +567,9 @@ export type Image = {
   id: string
   /** unique, mutable, user-controlled identifier for each resource */
   name: Name
-  /** The project the disk belongs to */
+  /** The family of the operating system like Debian, Ubuntu, etc. */
+  os: string
+  /** The project the image belongs to */
   projectId: string
   /** total size in bytes */
   size: ByteCount
@@ -577,8 +579,8 @@ export type Image = {
   timeModified: Date
   /** URL source of this image, if any */
   url?: string
-  /** Version of this, if any */
-  version?: string
+  /** Version of the operating system */
+  version: string
 }
 
 /**
@@ -589,8 +591,12 @@ export type ImageCreate = {
   blockSize: BlockSize
   description: string
   name: Name
+  /** The family of the operating system (e.g. Debian, Ubuntu, etc.) */
+  os: string
   /** The source of the image's contents. */
   source: ImageSource
+  /** The version of the operating system (e.g. 18.04, 20.04, etc.) */
+  version: string
 }
 
 /**
@@ -2527,7 +2533,7 @@ export interface VpcSubnetListNetworkInterfacesPathParams {
 export interface VpcSubnetListNetworkInterfacesQueryParams {
   limit?: number
   pageToken?: string
-  sortBy?: NameSortMode
+  sortBy?: NameOrIdSortMode
 }
 
 export interface RoleListQueryParams {
@@ -2819,10 +2825,59 @@ export interface DiskDeleteV1QueryParams {
   project?: NameOrId
 }
 
+export interface DiskMetricsListV1PathParams {
+  disk: NameOrId
+  metric: DiskMetricName
+}
+
+export interface DiskMetricsListV1QueryParams {
+  endTime?: Date
+  limit?: number
+  pageToken?: string
+  startTime?: Date
+  organization?: NameOrId
+  project?: NameOrId
+}
+
 export interface GroupListV1QueryParams {
   limit?: number
   pageToken?: string
   sortBy?: IdSortMode
+}
+
+export interface GroupViewPathParams {
+  group: string
+}
+
+export interface ImageListV1QueryParams {
+  limit?: number
+  organization?: NameOrId
+  pageToken?: string
+  project?: NameOrId
+  sortBy?: NameOrIdSortMode
+}
+
+export interface ImageCreateV1QueryParams {
+  organization?: NameOrId
+  project?: NameOrId
+}
+
+export interface ImageViewV1PathParams {
+  image: NameOrId
+}
+
+export interface ImageViewV1QueryParams {
+  organization?: NameOrId
+  project?: NameOrId
+}
+
+export interface ImageDeleteV1PathParams {
+  image: NameOrId
+}
+
+export interface ImageDeleteV1QueryParams {
+  organization?: NameOrId
+  project?: NameOrId
 }
 
 export interface InstanceListV1QueryParams {
@@ -2882,6 +2937,15 @@ export interface InstanceDiskDetachV1PathParams {
 }
 
 export interface InstanceDiskDetachV1QueryParams {
+  organization?: NameOrId
+  project?: NameOrId
+}
+
+export interface InstanceExternalIpListV1PathParams {
+  instance: NameOrId
+}
+
+export interface InstanceExternalIpListV1QueryParams {
   organization?: NameOrId
   project?: NameOrId
 }
@@ -3146,6 +3210,85 @@ export interface SledPhysicalDiskListV1QueryParams {
   sortBy?: IdSortMode
 }
 
+export interface SiloIdentityProviderListV1QueryParams {
+  limit?: number
+  pageToken?: string
+  silo?: NameOrId
+  sortBy?: NameOrIdSortMode
+}
+
+export interface LocalIdpUserCreateV1QueryParams {
+  silo?: NameOrId
+}
+
+export interface LocalIdpUserDeleteV1PathParams {
+  userId: string
+}
+
+export interface LocalIdpUserDeleteV1QueryParams {
+  silo?: NameOrId
+}
+
+export interface LocalIdpUserSetPasswordV1PathParams {
+  userId: string
+}
+
+export interface LocalIdpUserSetPasswordV1QueryParams {
+  silo?: NameOrId
+}
+
+export interface SamlIdentityProviderCreateV1QueryParams {
+  silo?: NameOrId
+}
+
+export interface SamlIdentityProviderViewV1PathParams {
+  provider: NameOrId
+}
+
+export interface SamlIdentityProviderViewV1QueryParams {
+  silo?: NameOrId
+}
+
+export interface IpPoolListV1QueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: NameOrIdSortMode
+}
+
+export interface IpPoolViewV1PathParams {
+  pool: NameOrId
+}
+
+export interface IpPoolUpdateV1PathParams {
+  pool: NameOrId
+}
+
+export interface IpPoolDeleteV1PathParams {
+  pool: NameOrId
+}
+
+export interface IpPoolRangeListV1PathParams {
+  pool: NameOrId
+}
+
+export interface IpPoolRangeListV1QueryParams {
+  limit?: number
+  pageToken?: string
+}
+
+export interface IpPoolRangeAddV1PathParams {
+  pool: NameOrId
+}
+
+export interface IpPoolRangeRemoveV1PathParams {
+  pool: NameOrId
+}
+
+export interface IpPoolServiceRangeListV1QueryParams {
+  limit?: number
+  pageToken?: string
+}
+
 export interface SagaListV1QueryParams {
   limit?: number
   pageToken?: string
@@ -3154,6 +3297,28 @@ export interface SagaListV1QueryParams {
 
 export interface SagaViewV1PathParams {
   sagaId: string
+}
+
+export interface SiloListV1QueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: NameOrIdSortMode
+}
+
+export interface SiloViewV1PathParams {
+  silo: NameOrId
+}
+
+export interface SiloDeleteV1PathParams {
+  silo: NameOrId
+}
+
+export interface SiloPolicyViewV1PathParams {
+  silo: NameOrId
+}
+
+export interface SiloPolicyUpdateV1PathParams {
+  silo: NameOrId
 }
 
 export interface SystemComponentVersionListQueryParams {
@@ -3184,6 +3349,21 @@ export interface SystemUpdateViewPathParams {
 
 export interface SystemUpdateComponentsListPathParams {
   version: SemverVersion
+}
+
+export interface SiloUsersListV1QueryParams {
+  limit?: number
+  pageToken?: string
+  silo?: NameOrId
+  sortBy?: IdSortMode
+}
+
+export interface SiloUserViewV1PathParams {
+  userId: string
+}
+
+export interface SiloUserViewV1QueryParams {
+  silo?: NameOrId
 }
 
 export interface UserListV1QueryParams {
@@ -3345,6 +3525,19 @@ export interface VpcSubnetDeleteV1QueryParams {
   vpc?: NameOrId
 }
 
+export interface VpcSubnetListNetworkInterfacesV1PathParams {
+  subnet: NameOrId
+}
+
+export interface VpcSubnetListNetworkInterfacesV1QueryParams {
+  limit?: number
+  organization?: NameOrId
+  pageToken?: string
+  project?: NameOrId
+  sortBy?: NameOrIdSortMode
+  vpc?: NameOrId
+}
+
 export interface VpcListV1QueryParams {
   limit?: number
   organization?: NameOrId
@@ -3438,9 +3631,12 @@ export type ApiListMethods = Pick<
   | 'systemUserList'
   | 'userList'
   | 'diskListV1'
+  | 'diskMetricsListV1'
   | 'groupListV1'
+  | 'imageListV1'
   | 'instanceListV1'
   | 'instanceDiskListV1'
+  | 'instanceExternalIpListV1'
   | 'instanceNetworkInterfaceListV1'
   | 'organizationListV1'
   | 'projectListV1'
@@ -3450,11 +3646,17 @@ export type ApiListMethods = Pick<
   | 'rackListV1'
   | 'sledListV1'
   | 'sledPhysicalDiskListV1'
+  | 'siloIdentityProviderListV1'
+  | 'ipPoolListV1'
+  | 'ipPoolRangeListV1'
+  | 'ipPoolServiceRangeListV1'
   | 'sagaListV1'
+  | 'siloListV1'
   | 'systemComponentVersionList'
   | 'updateDeploymentsList'
   | 'systemUpdateList'
   | 'systemUpdateComponentsList'
+  | 'siloUsersListV1'
   | 'userListV1'
   | 'vpcRouterRouteListV1'
   | 'vpcRouterListV1'
@@ -4661,7 +4863,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * List network interfaces
+     * List network interfaces for a VPC subnet
      */
     vpcSubnetListNetworkInterfaces: (
       {
@@ -5553,6 +5755,23 @@ export class Api extends HttpClient {
       })
     },
     /**
+     * Fetch disk metrics
+     */
+    diskMetricsListV1: (
+      {
+        path,
+        query = {},
+      }: { path: DiskMetricsListV1PathParams; query?: DiskMetricsListV1QueryParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<MeasurementResultsPage>({
+        path: `/v1/disks/${path.disk}/metrics/${path.metric}`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
      * List groups
      */
     groupListV1: (
@@ -5562,6 +5781,76 @@ export class Api extends HttpClient {
       return this.request<GroupResultsPage>({
         path: `/v1/groups`,
         method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch group
+     */
+    groupView: ({ path }: { path: GroupViewPathParams }, params: RequestParams = {}) => {
+      return this.request<Group>({
+        path: `/v1/groups/${path.group}`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * List images
+     */
+    imageListV1: (
+      { query = {} }: { query?: ImageListV1QueryParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<ImageResultsPage>({
+        path: `/v1/images`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create an image
+     */
+    imageCreateV1: (
+      { query = {}, body }: { query?: ImageCreateV1QueryParams; body: ImageCreate },
+      params: RequestParams = {}
+    ) => {
+      return this.request<Image>({
+        path: `/v1/images`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch an image
+     */
+    imageViewV1: (
+      { path, query = {} }: { path: ImageViewV1PathParams; query?: ImageViewV1QueryParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<Image>({
+        path: `/v1/images/${path.image}`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Delete an image
+     */
+    imageDeleteV1: (
+      {
+        path,
+        query = {},
+      }: { path: ImageDeleteV1PathParams; query?: ImageDeleteV1QueryParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/images/${path.image}`,
+        method: 'DELETE',
         query,
         ...params,
       })
@@ -5688,6 +5977,26 @@ export class Api extends HttpClient {
         path: `/v1/instances/${path.instance}/disks/detach`,
         method: 'POST',
         body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List external IP addresses
+     */
+    instanceExternalIpListV1: (
+      {
+        path,
+        query = {},
+      }: {
+        path: InstanceExternalIpListV1PathParams
+        query?: InstanceExternalIpListV1QueryParams
+      },
+      params: RequestParams = {}
+    ) => {
+      return this.request<ExternalIpResultsPage>({
+        path: `/v1/instances/${path.instance}/external-ips`,
+        method: 'GET',
         query,
         ...params,
       })
@@ -6349,6 +6658,275 @@ export class Api extends HttpClient {
       })
     },
     /**
+     * List a silo's IDPs_name
+     */
+    siloIdentityProviderListV1: (
+      { query = {} }: { query?: SiloIdentityProviderListV1QueryParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<IdentityProviderResultsPage>({
+        path: `/v1/system/identity-providers`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create a user
+     */
+    localIdpUserCreateV1: (
+      { query = {}, body }: { query?: LocalIdpUserCreateV1QueryParams; body: UserCreate },
+      params: RequestParams = {}
+    ) => {
+      return this.request<User>({
+        path: `/v1/system/identity-providers/local/users`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Delete a user
+     */
+    localIdpUserDeleteV1: (
+      {
+        path,
+        query = {},
+      }: { path: LocalIdpUserDeleteV1PathParams; query?: LocalIdpUserDeleteV1QueryParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/identity-providers/local/users/${path.userId}`,
+        method: 'DELETE',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Set or invalidate a user's password
+     */
+    localIdpUserSetPasswordV1: (
+      {
+        path,
+        query = {},
+        body,
+      }: {
+        path: LocalIdpUserSetPasswordV1PathParams
+        query?: LocalIdpUserSetPasswordV1QueryParams
+        body: UserPassword
+      },
+      params: RequestParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/identity-providers/local/users/${path.userId}/set-password`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create a SAML IDP
+     */
+    samlIdentityProviderCreateV1: (
+      {
+        query = {},
+        body,
+      }: {
+        query?: SamlIdentityProviderCreateV1QueryParams
+        body: SamlIdentityProviderCreate
+      },
+      params: RequestParams = {}
+    ) => {
+      return this.request<SamlIdentityProvider>({
+        path: `/v1/system/identity-providers/saml`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch a SAML IDP
+     */
+    samlIdentityProviderViewV1: (
+      {
+        path,
+        query = {},
+      }: {
+        path: SamlIdentityProviderViewV1PathParams
+        query?: SamlIdentityProviderViewV1QueryParams
+      },
+      params: RequestParams = {}
+    ) => {
+      return this.request<SamlIdentityProvider>({
+        path: `/v1/system/identity-providers/saml/${path.provider}`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List IP pools
+     */
+    ipPoolListV1: (
+      { query = {} }: { query?: IpPoolListV1QueryParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<IpPoolResultsPage>({
+        path: `/v1/system/ip-pools`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create an IP pool
+     */
+    ipPoolCreateV1: ({ body }: { body: IpPoolCreate }, params: RequestParams = {}) => {
+      return this.request<IpPool>({
+        path: `/v1/system/ip-pools`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Fetch an IP pool
+     */
+    ipPoolViewV1: (
+      { path }: { path: IpPoolViewV1PathParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<IpPool>({
+        path: `/v1/system/ip-pools/${path.pool}`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Update an IP Pool
+     */
+    ipPoolUpdateV1: (
+      { path, body }: { path: IpPoolUpdateV1PathParams; body: IpPoolUpdate },
+      params: RequestParams = {}
+    ) => {
+      return this.request<IpPool>({
+        path: `/v1/system/ip-pools/${path.pool}`,
+        method: 'PUT',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Delete an IP Pool
+     */
+    ipPoolDeleteV1: (
+      { path }: { path: IpPoolDeleteV1PathParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/ip-pools/${path.pool}`,
+        method: 'DELETE',
+        ...params,
+      })
+    },
+    /**
+     * List ranges for an IP pool
+     */
+    ipPoolRangeListV1: (
+      {
+        path,
+        query = {},
+      }: { path: IpPoolRangeListV1PathParams; query?: IpPoolRangeListV1QueryParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<IpPoolRangeResultsPage>({
+        path: `/v1/system/ip-pools/${path.pool}/ranges`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Add a range to an IP pool
+     */
+    ipPoolRangeAddV1: (
+      { path, body }: { path: IpPoolRangeAddV1PathParams; body: IpRange },
+      params: RequestParams = {}
+    ) => {
+      return this.request<IpPoolRange>({
+        path: `/v1/system/ip-pools/${path.pool}/ranges/add`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Remove a range from an IP pool
+     */
+    ipPoolRangeRemoveV1: (
+      { path, body }: { path: IpPoolRangeRemoveV1PathParams; body: IpRange },
+      params: RequestParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/ip-pools/${path.pool}/ranges/remove`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Fetch the IP pool used for Oxide services.
+     */
+    ipPoolServiceViewV1: (_: EmptyObj, params: RequestParams = {}) => {
+      return this.request<IpPool>({
+        path: `/v1/system/ip-pools-service`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * List ranges for the IP pool used for Oxide services.
+     */
+    ipPoolServiceRangeListV1: (
+      { query = {} }: { query?: IpPoolServiceRangeListV1QueryParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<IpPoolRangeResultsPage>({
+        path: `/v1/system/ip-pools-service/ranges`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Add a range to an IP pool used for Oxide services.
+     */
+    ipPoolServiceRangeAddV1: ({ body }: { body: IpRange }, params: RequestParams = {}) => {
+      return this.request<IpPoolRange>({
+        path: `/v1/system/ip-pools-service/ranges/add`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Remove a range from an IP pool used for Oxide services.
+     */
+    ipPoolServiceRangeRemoveV1: (
+      { body }: { body: IpRange },
+      params: RequestParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/ip-pools-service/ranges/remove`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
      * Fetch the top-level IAM policy
      */
     systemPolicyViewV1: (_: EmptyObj, params: RequestParams = {}) => {
@@ -6393,6 +6971,81 @@ export class Api extends HttpClient {
       return this.request<Saga>({
         path: `/v1/system/sagas/${path.sagaId}`,
         method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * List silos
+     */
+    siloListV1: (
+      { query = {} }: { query?: SiloListV1QueryParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<SiloResultsPage>({
+        path: `/v1/system/silos`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create a silo
+     */
+    siloCreateV1: ({ body }: { body: SiloCreate }, params: RequestParams = {}) => {
+      return this.request<Silo>({
+        path: `/v1/system/silos`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Fetch a silo
+     */
+    siloViewV1: ({ path }: { path: SiloViewV1PathParams }, params: RequestParams = {}) => {
+      return this.request<Silo>({
+        path: `/v1/system/silos/${path.silo}`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Delete a silo
+     */
+    siloDeleteV1: (
+      { path }: { path: SiloDeleteV1PathParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/silos/${path.silo}`,
+        method: 'DELETE',
+        ...params,
+      })
+    },
+    /**
+     * Fetch a silo's IAM policy
+     */
+    siloPolicyViewV1: (
+      { path }: { path: SiloPolicyViewV1PathParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<SiloRolePolicy>({
+        path: `/v1/system/silos/${path.silo}/policy`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Update a silo's IAM policy
+     */
+    siloPolicyUpdateV1: (
+      { path, body }: { path: SiloPolicyUpdateV1PathParams; body: SiloRolePolicy },
+      params: RequestParams = {}
+    ) => {
+      return this.request<SiloRolePolicy>({
+        path: `/v1/system/silos/${path.silo}/policy`,
+        method: 'PUT',
+        body,
         ...params,
       })
     },
@@ -6518,6 +7171,37 @@ export class Api extends HttpClient {
       return this.request<SystemVersion>({
         path: `/v1/system/update/version`,
         method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * List users in a silo
+     */
+    siloUsersListV1: (
+      { query = {} }: { query?: SiloUsersListV1QueryParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<UserResultsPage>({
+        path: `/v1/system/users`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch a user
+     */
+    siloUserViewV1: (
+      {
+        path,
+        query = {},
+      }: { path: SiloUserViewV1PathParams; query?: SiloUserViewV1QueryParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<User>({
+        path: `/v1/system/users/${path.userId}`,
+        method: 'GET',
+        query,
         ...params,
       })
     },
@@ -6827,6 +7511,26 @@ export class Api extends HttpClient {
       return this.request<void>({
         path: `/v1/vpc-subnets/${path.subnet}`,
         method: 'DELETE',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List network interfaces
+     */
+    vpcSubnetListNetworkInterfacesV1: (
+      {
+        path,
+        query = {},
+      }: {
+        path: VpcSubnetListNetworkInterfacesV1PathParams
+        query?: VpcSubnetListNetworkInterfacesV1QueryParams
+      },
+      params: RequestParams = {}
+    ) => {
+      return this.request<NetworkInterfaceResultsPage>({
+        path: `/v1/vpc-subnets/${path.subnet}/network-interfaces`,
+        method: 'GET',
         query,
         ...params,
       })

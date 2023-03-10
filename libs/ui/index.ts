@@ -4,6 +4,7 @@ import './styles/index.css'
 export { useInterval }
 
 export * from './lib/action-menu/ActionMenu'
+export * from './lib/auth-code/AuthCodeInput'
 export * from './lib/avatar/Avatar'
 export * from './lib/badge/Badge'
 export * from './lib/button/Button'

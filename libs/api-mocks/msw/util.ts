@@ -104,11 +104,6 @@ export const errIfInvalidDiskSize = (disk: Json<DiskCreate>) => {
     if (disk.size >= imageSize) return
     throw 'Disk size must be greater than or equal to the image size'
   }
-  if (source.type === 'global_image') {
-    const globalImageSize = db.globalImages.find((i) => source.image_id === i.id)?.size ?? 0
-    if (disk.size >= globalImageSize) return
-    throw 'Disk size must be greater than or equal to the global image size'
-  }
   if (source.type === 'blank') {
     if (disk.size >= 1 * GiB) return
     // TODO: this is a bit arbitrary, should match whatever the API does

@@ -613,12 +613,13 @@ export const Image = z.preprocess(
     digest: Digest.optional(),
     id: z.string().uuid(),
     name: Name,
+    os: z.string(),
     projectId: z.string().uuid(),
     size: ByteCount,
     timeCreated: DateType,
     timeModified: DateType,
     url: z.string().optional(),
-    version: z.string().optional(),
+    version: z.string(),
   })
 )
 
@@ -631,7 +632,9 @@ export const ImageCreate = z.preprocess(
     blockSize: BlockSize,
     description: z.string(),
     name: Name,
+    os: z.string(),
     source: ImageSource,
+    version: z.string(),
   })
 )
 
@@ -3089,7 +3092,7 @@ export const VpcSubnetListNetworkInterfacesParams = z.preprocess(
     query: z.object({
       limit: z.number().min(1).max(4294967295).optional(),
       pageToken: z.string().optional(),
-      sortBy: NameSortMode.optional(),
+      sortBy: NameOrIdSortMode.optional(),
     }),
   })
 )
@@ -3791,6 +3794,24 @@ export const DiskDeleteV1Params = z.preprocess(
   })
 )
 
+export const DiskMetricsListV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      disk: NameOrId,
+      metric: DiskMetricName,
+    }),
+    query: z.object({
+      endTime: DateType.optional(),
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      startTime: DateType.optional(),
+      organization: NameOrId.optional(),
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
 export const GroupListV1Params = z.preprocess(
   processResponseBody,
   z.object({
@@ -3799,6 +3820,67 @@ export const GroupListV1Params = z.preprocess(
       limit: z.number().min(1).max(4294967295).optional(),
       pageToken: z.string().optional(),
       sortBy: IdSortMode.optional(),
+    }),
+  })
+)
+
+export const GroupViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      group: z.string().uuid(),
+    }),
+    query: z.object({}),
+  })
+)
+
+export const ImageListV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      organization: NameOrId.optional(),
+      pageToken: z.string().optional(),
+      project: NameOrId.optional(),
+      sortBy: NameOrIdSortMode.optional(),
+    }),
+  })
+)
+
+export const ImageCreateV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      organization: NameOrId.optional(),
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const ImageViewV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      image: NameOrId,
+    }),
+    query: z.object({
+      organization: NameOrId.optional(),
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const ImageDeleteV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      image: NameOrId,
+    }),
+    query: z.object({
+      organization: NameOrId.optional(),
+      project: NameOrId.optional(),
     }),
   })
 )
@@ -3884,6 +3966,19 @@ export const InstanceDiskAttachV1Params = z.preprocess(
 )
 
 export const InstanceDiskDetachV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      instance: NameOrId,
+    }),
+    query: z.object({
+      organization: NameOrId.optional(),
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const InstanceExternalIpListV1Params = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
@@ -4376,6 +4471,193 @@ export const SledPhysicalDiskListV1Params = z.preprocess(
   })
 )
 
+export const SiloIdentityProviderListV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      silo: NameOrId.optional(),
+      sortBy: NameOrIdSortMode.optional(),
+    }),
+  })
+)
+
+export const LocalIdpUserCreateV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      silo: NameOrId.optional(),
+    }),
+  })
+)
+
+export const LocalIdpUserDeleteV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      userId: z.string().uuid(),
+    }),
+    query: z.object({
+      silo: NameOrId.optional(),
+    }),
+  })
+)
+
+export const LocalIdpUserSetPasswordV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      userId: z.string().uuid(),
+    }),
+    query: z.object({
+      silo: NameOrId.optional(),
+    }),
+  })
+)
+
+export const SamlIdentityProviderCreateV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      silo: NameOrId.optional(),
+    }),
+  })
+)
+
+export const SamlIdentityProviderViewV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      provider: NameOrId,
+    }),
+    query: z.object({
+      silo: NameOrId.optional(),
+    }),
+  })
+)
+
+export const IpPoolListV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      sortBy: NameOrIdSortMode.optional(),
+    }),
+  })
+)
+
+export const IpPoolCreateV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
+  })
+)
+
+export const IpPoolViewV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      pool: NameOrId,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const IpPoolUpdateV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      pool: NameOrId,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const IpPoolDeleteV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      pool: NameOrId,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const IpPoolRangeListV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      pool: NameOrId,
+    }),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+    }),
+  })
+)
+
+export const IpPoolRangeAddV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      pool: NameOrId,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const IpPoolRangeRemoveV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      pool: NameOrId,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const IpPoolServiceViewV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
+  })
+)
+
+export const IpPoolServiceRangeListV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+    }),
+  })
+)
+
+export const IpPoolServiceRangeAddV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
+  })
+)
+
+export const IpPoolServiceRangeRemoveV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
+  })
+)
+
 export const SystemPolicyViewV1Params = z.preprocess(
   processResponseBody,
   z.object({
@@ -4409,6 +4691,66 @@ export const SagaViewV1Params = z.preprocess(
   z.object({
     path: z.object({
       sagaId: z.string().uuid(),
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SiloListV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      sortBy: NameOrIdSortMode.optional(),
+    }),
+  })
+)
+
+export const SiloCreateV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
+  })
+)
+
+export const SiloViewV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      silo: NameOrId,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SiloDeleteV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      silo: NameOrId,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SiloPolicyViewV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      silo: NameOrId,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SiloPolicyUpdateV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      silo: NameOrId,
     }),
     query: z.object({}),
   })
@@ -4509,6 +4851,31 @@ export const SystemVersionParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({}),
+  })
+)
+
+export const SiloUsersListV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      silo: NameOrId.optional(),
+      sortBy: IdSortMode.optional(),
+    }),
+  })
+)
+
+export const SiloUserViewV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      userId: z.string().uuid(),
+    }),
+    query: z.object({
+      silo: NameOrId.optional(),
+    }),
   })
 )
 
@@ -4756,6 +5123,23 @@ export const VpcSubnetDeleteV1Params = z.preprocess(
     query: z.object({
       organization: NameOrId.optional(),
       project: NameOrId.optional(),
+      vpc: NameOrId.optional(),
+    }),
+  })
+)
+
+export const VpcSubnetListNetworkInterfacesV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      subnet: NameOrId,
+    }),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      organization: NameOrId.optional(),
+      pageToken: z.string().optional(),
+      project: NameOrId.optional(),
+      sortBy: NameOrIdSortMode.optional(),
       vpc: NameOrId.optional(),
     }),
   })

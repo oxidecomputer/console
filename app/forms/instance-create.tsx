@@ -1,3 +1,4 @@
+import type { LoaderFunctionArgs } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 import invariant from 'tiny-invariant'
 import type { SetRequired } from 'type-fest'
@@ -34,7 +35,7 @@ import {
   RadioFieldDyn,
   TextField,
 } from 'app/components/form'
-import { useProjectSelector, useToast } from 'app/hooks'
+import { getProjectSelector, useProjectSelector, useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 export type InstanceCreateInput = Assign<
@@ -71,8 +72,10 @@ const baseDefaultValues: InstanceCreateInput = {
   start: true,
 }
 
-CreateInstanceForm.loader = async () => {
-  await apiQueryClient.prefetchQuery('systemImageList', {})
+CreateInstanceForm.loader = async ({ params }: LoaderFunctionArgs) => {
+  await apiQueryClient.prefetchQuery('imageListV1', {
+    query: getProjectSelector(params),
+  })
   return null
 }
 
@@ -101,7 +104,7 @@ export function CreateInstanceForm() {
     },
   })
 
-  const images = useApiQuery('systemImageList', {}).data?.items || []
+  const images = useApiQuery('imageListV1', { query: projectSelector }).data?.items || []
 
   const defaultValues: InstanceCreateInput = {
     ...baseDefaultValues,
