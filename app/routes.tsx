@@ -42,6 +42,7 @@ import {
   VpcsPage,
 } from './pages/project'
 import { SerialConsolePage } from './pages/project/instances/instance/SerialConsolePage'
+import { ConnectTab } from './pages/project/instances/instance/tabs/ConnectTab'
 import { MetricsTab } from './pages/project/instances/instance/tabs/MetricsTab'
 import { NetworkingTab } from './pages/project/instances/instance/tabs/NetworkingTab'
 import { StorageTab } from './pages/project/instances/instance/tabs/StorageTab'
@@ -258,6 +259,11 @@ export const routes = createRoutesFromElements(
                   element={<MetricsTab />}
                   loader={MetricsTab.loader}
                   handle={{ crumb: 'metrics' }}
+                />
+                <Route
+                  path="connect"
+                  element={<ConnectTab />}
+                  handle={{ crumb: 'Connect' }}
                 />
               </Route>
             </Route>

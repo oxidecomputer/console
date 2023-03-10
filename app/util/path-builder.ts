@@ -41,6 +41,7 @@ export const pb = {
 
   instanceMetrics: (params: Instance) => `${pb.instance(params)}/metrics`,
   instanceStorage: (params: Instance) => `${pb.instance(params)}/storage`,
+  instanceConnect: (params: Instance) => `${pb.instance(params)}/connect`,
 
   nics: (params: Instance) => `${pb.instance(params)}/network-interfaces`,
 
