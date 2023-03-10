@@ -19,6 +19,7 @@ test('path builder', () => {
         "diskNew": "/orgs/a/projects/b/disks-new",
         "disks": "/orgs/a/projects/b/disks",
         "instance": "/orgs/a/projects/b/instances/c",
+        "instanceConnect": "/orgs/a/projects/b/instances/c/connect",
         "instanceMetrics": "/orgs/a/projects/b/instances/c/metrics",
         "instanceNew": "/orgs/a/projects/b/instances-new",
         "instancePage": "/orgs/a/projects/b/instances/c/storage",
