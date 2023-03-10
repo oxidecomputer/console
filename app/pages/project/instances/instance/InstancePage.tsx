@@ -93,7 +93,6 @@ export function InstancePage() {
         <Tab to={pb.instanceStorage(instanceSelector)}>Storage</Tab>
         <Tab to={pb.instanceMetrics(instanceSelector)}>Metrics</Tab>
         <Tab to={pb.nics(instanceSelector)}>Network Interfaces</Tab>
-        <Tab to={pb.serialConsole(instanceSelector)}>Serial Console</Tab>
       </RouteTabs>
     </>
   )

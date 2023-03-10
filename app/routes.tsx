@@ -44,7 +44,6 @@ import {
 import { SerialConsolePage } from './pages/project/instances/instance/SerialConsolePage'
 import { MetricsTab } from './pages/project/instances/instance/tabs/MetricsTab'
 import { NetworkingTab } from './pages/project/instances/instance/tabs/NetworkingTab'
-import { SerialConsoleTab } from './pages/project/instances/instance/tabs/SerialConsoleTab'
 import { StorageTab } from './pages/project/instances/instance/tabs/StorageTab'
 import { ProfilePage } from './pages/settings/ProfilePage'
 import { SSHKeysPage } from './pages/settings/SSHKeysPage'
@@ -230,13 +229,13 @@ export const routes = createRoutesFromElements(
                   path="storage"
                   element={<StorageTab />}
                   loader={StorageTab.loader}
-                  handle={{ crumb: 'storage' }}
+                  handle={{ crumb: 'Storage' }}
                 />
                 <Route
                   path="network-interfaces"
                   element={<NetworkingTab />}
                   loader={NetworkingTab.loader}
-                  handle={{ crumb: 'network-interfaces' }}
+                  handle={{ crumb: 'Network interfaces' }}
                 />
                 <Route
                   path="metrics"
@@ -244,16 +243,11 @@ export const routes = createRoutesFromElements(
                   loader={MetricsTab.loader}
                   handle={{ crumb: 'metrics' }}
                 />
-                <Route
-                  path="serial-console"
-                  element={<SerialConsoleTab />}
-                  handle={{ crumb: 'serial-console' }}
-                />
               </Route>
               <Route
-                path="serial-console-new"
+                path="serial-console"
                 element={<SerialConsolePage />}
-                handle={{ crumb: 'serial-console-new' }}
+                handle={{ crumb: 'Serial console' }}
               />
             </Route>
           </Route>
