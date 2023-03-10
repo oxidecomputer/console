@@ -21,7 +21,7 @@ import RootLayout from './layouts/RootLayout'
 import SettingsLayout from './layouts/SettingsLayout'
 import SiloLayout from './layouts/SiloLayout'
 import SystemLayout from './layouts/SystemLayout'
-import { userLoader } from './layouts/helpers'
+import { SerialConsoleContentPane, userLoader } from './layouts/helpers'
 import DeviceAuthSuccessPage from './pages/DeviceAuthSuccessPage'
 import DeviceAuthVerifyPage from './pages/DeviceAuthVerifyPage'
 import LoginPage from './pages/LoginPage'
@@ -206,6 +206,25 @@ export const routes = createRoutesFromElements(
         </Route>
 
         {/* PROJECT */}
+
+        {/* Serial console page gets its own little section here because it
+            cannot use the normal <ContentPane>.*/}
+        <Route
+          path="projects/:project"
+          element={<ProjectLayout overrideContentPane={<SerialConsoleContentPane />} />}
+          handle={{ crumb: projectCrumb }}
+        >
+          <Route path="instances" handle={{ crumb: 'Instances' }}>
+            <Route path=":instance" handle={{ crumb: instanceCrumb }}>
+              <Route
+                path="serial-console"
+                element={<SerialConsolePage />}
+                handle={{ crumb: 'Serial Console' }}
+              />
+            </Route>
+          </Route>
+        </Route>
+
         <Route
           path="projects/:project"
           element={<ProjectLayout />}
@@ -241,11 +260,6 @@ export const routes = createRoutesFromElements(
                   handle={{ crumb: 'metrics' }}
                 />
               </Route>
-              <Route
-                path="serial-console"
-                element={<SerialConsolePage />}
-                handle={{ crumb: 'Serial console' }}
-              />
             </Route>
           </Route>
 

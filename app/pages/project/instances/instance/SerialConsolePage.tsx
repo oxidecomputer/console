@@ -7,7 +7,6 @@ import { DirectionLeftIcon, Spinner } from '@oxide/ui'
 import { MiB } from '@oxide/util'
 
 import { SerialConsoleStatusBadge } from 'app/components/StatusBadge'
-import 'app/components/serial-console.css'
 import { useInstanceSelector } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 

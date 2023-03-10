@@ -1,3 +1,4 @@
+import type { ReactElement } from 'react'
 import { useMemo } from 'react'
 import { matchPath, useLocation, useNavigate, useParams } from 'react-router-dom'
 
@@ -25,7 +26,14 @@ import { pb } from 'app/util/path-builder'
 import { DocsLinkItem, NavLinkItem, Sidebar } from '../components/Sidebar'
 import { ContentPane, PageContainer } from './helpers'
 
-const ProjectLayout = () => {
+type ProjectLayoutProps = {
+  /** Sometimes we need a different layout for the content pane. Like
+   * `<ContentPane />`, the element passed here should contain an `<Outlet />`.
+   */
+  overrideContentPane?: ReactElement
+}
+
+const ProjectLayout = ({ overrideContentPane }: ProjectLayoutProps) => {
   const navigate = useNavigate()
   // org and project will always be there, instance may not
   const projectSelector = useProjectSelector()
@@ -93,7 +101,7 @@ const ProjectLayout = () => {
           </NavLinkItem>
         </Sidebar.Nav>
       </Sidebar>
-      <ContentPane />
+      {overrideContentPane || <ContentPane />}
     </PageContainer>
   )
 }

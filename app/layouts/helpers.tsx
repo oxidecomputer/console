@@ -27,6 +27,23 @@ export const ContentPane = () => (
   </div>
 )
 
+/**
+ * Special content pane for the serial console that lets us break out of the
+ * usual layout. Main differences: no `pb-8` and `<main>` is locked at `h-full`
+ * to avoid page-level scroll. We also leave off the pagination and page actions
+ * `<div>` because we don't need it.
+ */
+export const SerialConsoleContentPane = () => (
+  <div id="content-pane" className="flex flex-col overflow-auto">
+    <div className="flex flex-grow flex-col">
+      <SkipLinkTarget />
+      <main className="[&>*]:gutter h-full">
+        <Outlet />
+      </main>
+    </div>
+  </div>
+)
+
 /** Loader for the `<Route>` that wraps all authenticated routes. */
 export const userLoader = async () => {
   await Promise.all([
