@@ -40,7 +40,7 @@ export function SerialConsolePage() {
       <div className="gutter relative w-full flex-shrink flex-grow overflow-hidden">
         {!data && <SerialSkeleton />}
         <Suspense fallback={null}>
-          <Terminal className="h-full w-full" data={data?.data} />
+          <Terminal data={data?.data} />
         </Suspense>
       </div>
       <div className="flex-shrink-0 justify-between overflow-hidden border-t bg-default border-secondary empty:border-t-0">
