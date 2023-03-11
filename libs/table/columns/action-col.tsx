@@ -1,8 +1,7 @@
-import { Menu, MenuButton, MenuItem, MenuList } from '@reach/menu-button'
 import type { ColumnDef } from '@tanstack/react-table'
 import cn from 'classnames'
 
-import { More12Icon, Tooltip, Wrap } from '@oxide/ui'
+import { DropdownMenu, More12Icon, Tooltip, Wrap } from '@oxide/ui'
 import { kebabCase } from '@oxide/util'
 
 export type MakeActions<Item> = (item: Item) => Array<MenuAction>
@@ -30,48 +29,51 @@ export const getActionsCol = <TData extends { id?: string }>(
       const actions = makeActions(row.original)
       const id = row.original.id
       return (
-        <Menu>
+        <DropdownMenu.Root>
           {/* TODO: This name should not suck; future us, make it so! */}
           {/* stopPropagation prevents clicks from toggling row select in a single select table */}
-          <MenuButton
+          <DropdownMenu.Trigger
             className="flex h-full w-10 items-center justify-center"
             aria-label="Row actions"
             onClick={(e) => e.stopPropagation()}
           >
             <More12Icon className="text-tertiary" />
-          </MenuButton>
-          <MenuList>
-            {id && (
-              <MenuItem
-                onSelect={() => {
-                  window.navigator.clipboard.writeText(id)
-                }}
-              >
-                Copy ID
-              </MenuItem>
-            )}
-            {actions.map((action) => {
-              return (
-                <Wrap
-                  when={!!action.disabled}
-                  with={<Tooltip content={action.disabled} />}
-                  key={kebabCase(`action-${action.label}`)}
+          </DropdownMenu.Trigger>
+          {/* portal fixes mysterious z-index issue where menu is behind button */}
+          <DropdownMenu.Portal>
+            <DropdownMenu.Content align="end">
+              {id && (
+                <DropdownMenu.Item
+                  onSelect={() => {
+                    window.navigator.clipboard.writeText(id)
+                  }}
                 >
-                  <MenuItem
-                    className={cn(action.className, {
-                      destructive:
-                        action.label.toLowerCase() === 'delete' && !action.disabled,
-                    })}
-                    onSelect={action.onActivate}
-                    disabled={!!action.disabled}
+                  Copy ID
+                </DropdownMenu.Item>
+              )}
+              {actions.map((action) => {
+                return (
+                  <Wrap
+                    when={!!action.disabled}
+                    with={<Tooltip content={action.disabled} />}
+                    key={kebabCase(`action-${action.label}`)}
                   >
-                    {action.label}
-                  </MenuItem>
-                </Wrap>
-              )
-            })}
-          </MenuList>
-        </Menu>
+                    <DropdownMenu.Item
+                      className={cn(action.className, {
+                        destructive:
+                          action.label.toLowerCase() === 'delete' && !action.disabled,
+                      })}
+                      onSelect={action.onActivate}
+                      disabled={!!action.disabled}
+                    >
+                      {action.label}
+                    </DropdownMenu.Item>
+                  </Wrap>
+                )
+              })}
+            </DropdownMenu.Content>
+          </DropdownMenu.Portal>
+        </DropdownMenu.Root>
       )
     },
   }
