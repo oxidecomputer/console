@@ -65,7 +65,7 @@ export function UpdateDetailSideModal() {
             </PropertiesTable.Row>
           </PropertiesTable>
           {/* TODO: 40px offset for full width tabs for main page doesn't work here, should be 32px */}
-          <Tabs.Root className="full-width">
+          <Tabs.Root defaultValue="updates" className="full-width">
             <Tabs.List>
               <Tabs.Trigger value="updates">Contained updates</Tabs.Trigger>
             </Tabs.List>

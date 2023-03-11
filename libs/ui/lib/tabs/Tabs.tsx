@@ -1,19 +1,33 @@
-import type { TabsTriggerProps } from '@radix-ui/react-tabs'
+import type {
+  TabsContentProps,
+  TabsListProps,
+  TabsProps,
+  TabsTriggerProps,
+} from '@radix-ui/react-tabs'
 import { Content, List, Root, Trigger } from '@radix-ui/react-tabs'
 import cn from 'classnames'
-
-import { classed } from '@oxide/util'
+import type { SetRequired } from 'type-fest'
 
 import './Tabs.css'
 
+// They don't require a default value, but without it there is no tab selected
+// by default.
+export type TabsRootProps = SetRequired<TabsProps, 'defaultValue'>
+
 export const Tabs = {
-  Root: classed.inject(Root, 'ox-tabs'),
+  Root: ({ className, ...props }: TabsRootProps) => (
+    <Root {...props} className={cn('ox-tabs', className)} />
+  ),
   Trigger: ({ children, className, ...props }: TabsTriggerProps) => (
     <Trigger {...props} className={cn('ox-tab', className)}>
       {/* this div needs to be here for the background on `ox-tab:hover > *` */}
       <div>{children}</div>
     </Trigger>
   ),
-  List: classed.inject(List, 'ox-tabs-list'),
-  Content: classed.inject(Content, 'ox-tabs-panel'),
+  List: ({ className, ...props }: TabsListProps) => (
+    <List {...props} className={cn('ox-tabs-list', className)} />
+  ),
+  Content: ({ className, ...props }: TabsContentProps) => (
+    <Content {...props} className={cn('ox-tabs-panel', className)} />
+  ),
 }
