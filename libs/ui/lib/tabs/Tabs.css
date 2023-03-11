@@ -7,7 +7,7 @@
 }
 
 .ox-tabs-list {
-  @apply mb-8 bg-transparent;
+  @apply mb-8 flex bg-transparent;
 }
 
 .ox-tabs-list:after {
