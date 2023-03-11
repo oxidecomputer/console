@@ -1,4 +1,4 @@
-import { Menu, MenuButton, MenuItem, MenuLink, MenuList } from '@reach/menu-button'
+import * as Menu from '@radix-ui/react-dropdown-menu'
 import cn from 'classnames'
 import { Link, useParams } from 'react-router-dom'
 
@@ -34,7 +34,7 @@ type TopBarPickerProps = {
 
 const TopBarPicker = (props: TopBarPickerProps) => {
   return (
-    <Menu>
+    <Menu.Root>
       <div
         // Important trick: we never want the separator to show up after the top
         // left corner picker. The separator starts from the leftmost of "other
@@ -66,46 +66,52 @@ const TopBarPicker = (props: TopBarPickerProps) => {
         {/* aria-hidden is a tip from the Reach docs */}
         {props.items && (
           <div className="ml-4">
-            <MenuButton className="group" aria-label={props['aria-label']}>
+            <Menu.Trigger className="group" aria-label={props['aria-label']}>
               <div className="flex h-[2rem] w-[1.125rem] flex-shrink-0 items-center justify-center rounded border border-default group-hover:bg-hover">
                 <SelectArrows6Icon className="text-secondary" aria-hidden />
               </div>
-            </MenuButton>
+            </Menu.Trigger>
           </div>
         )}
       </div>
       {/* TODO: item size and focus highlight */}
       {/* TODO: popover position should be further right */}
       {props.items && (
-        <MenuList className="mt-2 min-w-[12.8125rem]">
-          {props.items.length > 0 ? (
-            props.items.map(({ label, to }) => {
-              const isSelected = props.current === label
-              return (
-                <MenuLink
-                  key={label}
-                  as={Link}
-                  to={to}
-                  className={cn('ox-menu-item', { 'is-selected': isSelected })}
-                >
-                  <span className="flex w-full items-center justify-between">
-                    {label} {isSelected && <Success12Icon className="-mr-3 block" />}
-                  </span>
-                </MenuLink>
-              )
-            })
-          ) : (
-            <MenuItem
-              className="!pr-3 !text-center !text-secondary hover:cursor-default"
-              onSelect={() => {}}
-              disabled
-            >
-              {props.noItemsText || 'No items found'}
-            </MenuItem>
-          )}
-        </MenuList>
+        // portal is necessary to avoid the menu popover getting its own after:
+        // separator thing
+        <Menu.Portal>
+          <Menu.Content className="MenuContent mt-2 min-w-[12.8125rem]" align="start">
+            {props.items.length > 0 ? (
+              props.items.map(({ label, to }) => {
+                const isSelected = props.current === label
+                return (
+                  <Menu.Item asChild key={label}>
+                    <Link
+                      to={to}
+                      className={cn('MenuItem ox-menu-item', { 'is-selected': isSelected })}
+                      // TODO: pull in the styling for this from reach CSS and get rid of the data attr
+                      data-reach-menu-item
+                    >
+                      <span className="flex w-full items-center justify-between">
+                        {label} {isSelected && <Success12Icon className="-mr-3 block" />}
+                      </span>
+                    </Link>
+                  </Menu.Item>
+                )
+              })
+            ) : (
+              <Menu.Item
+                className="MenuItem !pr-3 !text-center !text-secondary hover:cursor-default"
+                onSelect={() => {}}
+                disabled
+              >
+                {props.noItemsText || 'No items found'}
+              </Menu.Item>
+            )}
+          </Menu.Content>
+        </Menu.Portal>
       )}
-    </Menu>
+    </Menu.Root>
   )
 }
 
