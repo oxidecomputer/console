@@ -4,7 +4,7 @@ import { apiQueryClient, useApiQuery } from '@oxide/api'
 import { Networking24Icon, PageHeader, PageTitle, PropertiesTable, Tabs } from '@oxide/ui'
 import { formatDateTime, toPathQuery } from '@oxide/util'
 
-import { QueryTabs } from 'app/components/QueryTabs'
+import { QueryParamTabs } from 'app/components/QueryParamTabs'
 import { getVpcSelector, useVpcSelector } from 'app/hooks'
 
 import { VpcFirewallRulesTab } from './tabs/VpcFirewallRulesTab'
@@ -44,7 +44,7 @@ export function VpcPage() {
         </PropertiesTable>
       </PropertiesTable.Group>
 
-      <QueryTabs id="tabs-vpc-sections" className="full-width" defaultValue="subnets">
+      <QueryParamTabs id="tabs-vpc-sections" className="full-width" defaultValue="subnets">
         <Tabs.List>
           <Tabs.Trigger value="subnets">Subnets</Tabs.Trigger>
           <Tabs.Trigger value="system-routes">System Routes</Tabs.Trigger>
@@ -63,7 +63,7 @@ export function VpcPage() {
         <Tabs.Content value="firewall-rules">
           <VpcFirewallRulesTab />
         </Tabs.Content>
-      </QueryTabs>
+      </QueryParamTabs>
     </>
   )
 }

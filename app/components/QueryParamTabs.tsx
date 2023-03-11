@@ -8,7 +8,7 @@ import { Tabs, type TabsRootProps } from '@oxide/ui'
  * If you don't want the query arg functionality, e.g., if you have multiple
  * sets of tabs on the same page, use `Tabs.Root` directly.
  */
-export function QueryTabs(props: TabsRootProps) {
+export function QueryParamTabs(props: TabsRootProps) {
   const [searchParams, setSearchParams] = useSearchParams()
   const value = searchParams.get('tab') || props.defaultValue
 
