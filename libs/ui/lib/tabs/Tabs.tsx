@@ -15,5 +15,5 @@ export const Tabs = {
     </Trigger>
   ),
   List: classed.inject(List, 'ox-tabs-list'),
-  Content: classed.inject(Content, 'ox-tab-panel ox-tabs-panel'),
+  Content: classed.inject(Content, 'ox-tabs-panel'),
 }

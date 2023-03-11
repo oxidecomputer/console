@@ -10,7 +10,7 @@
 }
 
 .ox-form,
-.ox-form .ox-tab-panel {
+.ox-form .ox-tabs-panel {
   @apply space-y-7;
 }
 
