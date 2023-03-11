@@ -2,7 +2,7 @@ import type { LoaderFunctionArgs } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 
 import { apiQueryClient, componentTypeNames, useApiMutation, useApiQuery } from '@oxide/api'
-import { Badge, Hourglass16Icon, PropertiesTable, Tab, Tabs } from '@oxide/ui'
+import { Badge, Hourglass16Icon, PropertiesTable, Tabs2 as Tabs } from '@oxide/ui'
 import { formatDateTime } from '@oxide/util'
 
 import { SideModalForm } from 'app/components/form'
@@ -65,9 +65,11 @@ export function UpdateDetailSideModal() {
             </PropertiesTable.Row>
           </PropertiesTable>
           {/* TODO: 40px offset for full width tabs for main page doesn't work here, should be 32px */}
-          <Tabs id="system-update-detail-tabs" fullWidth>
-            <Tab>Contained updates</Tab>
-            <Tab.Panel>
+          <Tabs.Root className="full-width">
+            <Tabs.List>
+              <Tabs.Trigger value="updates">Contained updates</Tabs.Trigger>
+            </Tabs.List>
+            <Tabs.Content value="updates">
               <ul className="ml-8 list-disc">
                 {(components?.items || []).map((node) => (
                   <li key={node.id}>
@@ -75,8 +77,8 @@ export function UpdateDetailSideModal() {
                   </li>
                 ))}
               </ul>
-            </Tab.Panel>
-          </Tabs>
+            </Tabs.Content>
+          </Tabs.Root>
         </>
       )}
     </SideModalForm>

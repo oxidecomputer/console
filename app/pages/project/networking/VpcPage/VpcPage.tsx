@@ -1,10 +1,16 @@
 import type { LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, useApiQuery } from '@oxide/api'
-import { Networking24Icon, PageHeader, PageTitle, PropertiesTable } from '@oxide/ui'
+import {
+  Networking24Icon,
+  PageHeader,
+  PageTitle,
+  PropertiesTable,
+  Tabs2 as Tabs,
+} from '@oxide/ui'
 import { formatDateTime, toPathQuery } from '@oxide/util'
 
-import { Tab, Tabs } from 'app/components/Tabs'
+import { QueryTabs } from 'app/components/QueryTabs'
 import { getVpcSelector, useVpcSelector } from 'app/hooks'
 
 import { VpcFirewallRulesTab } from './tabs/VpcFirewallRulesTab'
@@ -44,24 +50,26 @@ export function VpcPage() {
         </PropertiesTable>
       </PropertiesTable.Group>
 
-      <Tabs id="tabs-vpc-sections" fullWidth>
-        <Tab>Subnets</Tab>
-        <Tab.Panel>
+      <QueryTabs id="tabs-vpc-sections" className="full-width" defaultValue="subnets">
+        <Tabs.List>
+          <Tabs.Trigger value="subnets">Subnets</Tabs.Trigger>
+          <Tabs.Trigger value="system-routes">System Routes</Tabs.Trigger>
+          <Tabs.Trigger value="routers">Routers</Tabs.Trigger>
+          <Tabs.Trigger value="firewall-rules">Firewall Rules</Tabs.Trigger>
+        </Tabs.List>
+        <Tabs.Content value="subnets">
           <VpcSubnetsTab />
-        </Tab.Panel>
-        <Tab>System Routes</Tab>
-        <Tab.Panel>
+        </Tabs.Content>
+        <Tabs.Content value="system-routes">
           <VpcSystemRoutesTab />
-        </Tab.Panel>
-        <Tab>Routers</Tab>
-        <Tab.Panel>
+        </Tabs.Content>
+        <Tabs.Content value="routers">
           <VpcRoutersTab />
-        </Tab.Panel>
-        <Tab>Firewall Rules</Tab>
-        <Tab.Panel>
+        </Tabs.Content>
+        <Tabs.Content value="firewall-rules">
           <VpcFirewallRulesTab />
-        </Tab.Panel>
-      </Tabs>
+        </Tabs.Content>
+      </QueryTabs>
     </>
   )
 }
