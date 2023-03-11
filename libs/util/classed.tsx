@@ -3,7 +3,7 @@
  * avoid build failures with the `vite:react-babel` plugin.
  */
 import cn from 'classnames'
-import React from 'react'
+import React, { type ComponentType } from 'react'
 
 // all the cuteness of tw.span`text-green-500 uppercase` with zero magic
 
@@ -42,6 +42,19 @@ export const classed = {
   td: make('td'),
   th: make('th'),
   tr: make('tr'),
+  /** Inject classes into a component that already takes a `className`. */
+  inject,
 } as const
+
+function inject<P extends { className?: string }>(
+  Comp: ComponentType<P>,
+  className: string
+) {
+  const NewComp = function (props: P) {
+    return <Comp {...props} className={cn(className, props.className)} />
+  }
+  NewComp.displayName = 'Classed' + (Comp.displayName || '')
+  return NewComp
+}
 
 // result: classed.button`text-green-500 uppercase` returns a component with those classes
