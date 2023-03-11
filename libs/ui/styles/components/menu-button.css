@@ -1,9 +1,9 @@
 [data-reach-menu-list],
-.MenuContent {
+.DropdownMenuContent {
   @apply min-w-[14rem] rounded border p-0 bg-raise border-secondary;
 
   & [data-reach-menu-item],
-  & .MenuItem {
+  & .DropdownMenuItem {
     @apply cursor-pointer select-none border-b py-2 pl-3 pr-6 text-left
            text-sans-md text-secondary border-secondary last-of-type:border-b-0;
 

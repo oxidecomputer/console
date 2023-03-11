@@ -1,9 +1,9 @@
-import * as Menu from '@radix-ui/react-dropdown-menu'
 import cn from 'classnames'
 import { Link, useParams } from 'react-router-dom'
 
 import { useApiQuery } from '@oxide/api'
 import {
+  DropdownMenu,
   Identicon,
   Organization16Icon,
   SelectArrows6Icon,
@@ -34,7 +34,7 @@ type TopBarPickerProps = {
 
 const TopBarPicker = (props: TopBarPickerProps) => {
   return (
-    <Menu.Root>
+    <DropdownMenu.Root>
       <div
         // Important trick: we never want the separator to show up after the top
         // left corner picker. The separator starts from the leftmost of "other
@@ -66,11 +66,11 @@ const TopBarPicker = (props: TopBarPickerProps) => {
         {/* aria-hidden is a tip from the Reach docs */}
         {props.items && (
           <div className="ml-4">
-            <Menu.Trigger className="group" aria-label={props['aria-label']}>
+            <DropdownMenu.Trigger className="group" aria-label={props['aria-label']}>
               <div className="flex h-[2rem] w-[1.125rem] flex-shrink-0 items-center justify-center rounded border border-default group-hover:bg-hover">
                 <SelectArrows6Icon className="text-secondary" aria-hidden />
               </div>
-            </Menu.Trigger>
+            </DropdownMenu.Trigger>
           </div>
         )}
       </div>
@@ -79,39 +79,34 @@ const TopBarPicker = (props: TopBarPickerProps) => {
       {props.items && (
         // portal is necessary to avoid the menu popover getting its own after:
         // separator thing
-        <Menu.Portal>
-          <Menu.Content className="MenuContent mt-2 min-w-[12.8125rem]" align="start">
+        <DropdownMenu.Portal>
+          <DropdownMenu.Content className="mt-2 min-w-[12.8125rem]" align="start">
             {props.items.length > 0 ? (
               props.items.map(({ label, to }) => {
                 const isSelected = props.current === label
                 return (
-                  <Menu.Item asChild key={label}>
-                    <Link
-                      to={to}
-                      className={cn('MenuItem ox-menu-item', { 'is-selected': isSelected })}
-                      // TODO: pull in the styling for this from reach CSS and get rid of the data attr
-                      data-reach-menu-item
-                    >
+                  <DropdownMenu.Item asChild key={label}>
+                    <Link to={to} className={cn({ 'is-selected': isSelected })}>
                       <span className="flex w-full items-center justify-between">
                         {label} {isSelected && <Success12Icon className="-mr-3 block" />}
                       </span>
                     </Link>
-                  </Menu.Item>
+                  </DropdownMenu.Item>
                 )
               })
             ) : (
-              <Menu.Item
-                className="MenuItem !pr-3 !text-center !text-secondary hover:cursor-default"
+              <DropdownMenu.Item
+                className="!pr-3 !text-center !text-secondary hover:cursor-default"
                 onSelect={() => {}}
                 disabled
               >
                 {props.noItemsText || 'No items found'}
-              </Menu.Item>
+              </DropdownMenu.Item>
             )}
-          </Menu.Content>
-        </Menu.Portal>
+          </DropdownMenu.Content>
+        </DropdownMenu.Portal>
       )}
-    </Menu.Root>
+    </DropdownMenu.Root>
   )
 }
 

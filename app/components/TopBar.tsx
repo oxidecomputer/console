@@ -1,4 +1,3 @@
-import * as Menu from '@radix-ui/react-dropdown-menu'
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -6,6 +5,7 @@ import { navToLogin, useApiMutation, useApiQuery } from '@oxide/api'
 import {
   Button,
   DirectionDownIcon,
+  DropdownMenu,
   Info16Icon,
   Notifications16Icon,
   Profile16Icon,
@@ -51,8 +51,8 @@ export function TopBar({ children }: { children: React.ReactNode }) {
             <Button variant="secondary" size="icon" className="ml-2" title="Notifications">
               <Notifications16Icon className="text-quaternary" />
             </Button>
-            <Menu.Root>
-              <Menu.Trigger asChild>
+            <DropdownMenu.Root>
+              <DropdownMenu.Trigger asChild>
                 <Button
                   size="sm"
                   variant="secondary"
@@ -66,25 +66,22 @@ export function TopBar({ children }: { children: React.ReactNode }) {
                   </span>
                   <DirectionDownIcon className="!w-2.5" />
                 </Button>
-              </Menu.Trigger>
-              <Menu.Content className="MenuContent" align="end" sideOffset={8}>
-                <Menu.Item className="MenuItem" onSelect={() => navigate(pb.settings())}>
+              </DropdownMenu.Trigger>
+              <DropdownMenu.Content align="end" sideOffset={8}>
+                <DropdownMenu.Item onSelect={() => navigate(pb.settings())}>
                   Settings
-                </Menu.Item>
+                </DropdownMenu.Item>
                 {loggedIn ? (
-                  <Menu.Item className="MenuItem" onSelect={() => logout.mutate({})}>
+                  <DropdownMenu.Item onSelect={() => logout.mutate({})}>
                     Sign out
-                  </Menu.Item>
+                  </DropdownMenu.Item>
                 ) : (
-                  <Menu.Item
-                    className="MenuItem"
-                    onSelect={() => navToLogin({ includeCurrent: true })}
-                  >
+                  <DropdownMenu.Item onSelect={() => navToLogin({ includeCurrent: true })}>
                     Sign In
-                  </Menu.Item>
+                  </DropdownMenu.Item>
                 )}
-              </Menu.Content>
-            </Menu.Root>
+              </DropdownMenu.Content>
+            </DropdownMenu.Root>
           </div>
         </div>
       </div>
