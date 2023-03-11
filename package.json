@@ -32,6 +32,7 @@
     "@floating-ui/react-dom-interactions": "^0.10.3",
     "@oxide/design-system": "^0.8.0",
     "@oxide/identicon": "0.0.4",
+    "@radix-ui/react-dropdown-menu": "^2.0.4",
     "@radix-ui/react-tabs": "^1.0.3",
     "@reach/alert": "^0.16.0",
     "@reach/dialog": "^0.16.2",

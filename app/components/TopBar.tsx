@@ -1,4 +1,4 @@
-import { Menu, MenuButton, MenuItem, MenuList } from '@reach/menu-button'
+import * as Menu from '@radix-ui/react-dropdown-menu'
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -51,34 +51,40 @@ export function TopBar({ children }: { children: React.ReactNode }) {
             <Button variant="secondary" size="icon" className="ml-2" title="Notifications">
               <Notifications16Icon className="text-quaternary" />
             </Button>
-            <Menu>
-              <MenuButton
-                as={Button}
-                size="sm"
-                variant="secondary"
-                aria-label="User menu"
-                className="ml-2"
-                innerClassName="space-x-2"
-                title="User menu"
-              >
-                <Profile16Icon className="text-quaternary" />
-                {/* TODO: the name pops in — use a loader to hold up the whole page instead? */}
-                <span className="normal-case text-sans-md text-secondary">
-                  {user?.displayName || 'User'}
-                </span>
-                <DirectionDownIcon className="!w-2.5" />
-              </MenuButton>
-              <MenuList className="mt-2 min-w-[12.8125rem]">
-                <MenuItem onSelect={() => navigate(pb.settings())}>Settings</MenuItem>
+            <Menu.Root>
+              <Menu.Trigger asChild>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  aria-label="User menu"
+                  className="ml-2"
+                  innerClassName="space-x-2"
+                >
+                  <Profile16Icon className="text-quaternary" />
+                  <span className="normal-case text-sans-md text-secondary">
+                    {user?.displayName || 'User'}
+                  </span>
+                  <DirectionDownIcon className="!w-2.5" />
+                </Button>
+              </Menu.Trigger>
+              <Menu.Content className="MenuContent" align="end" sideOffset={8}>
+                <Menu.Item className="MenuItem" onSelect={() => navigate(pb.settings())}>
+                  Settings
+                </Menu.Item>
                 {loggedIn ? (
-                  <MenuItem onSelect={() => logout.mutate({})}>Sign out</MenuItem>
+                  <Menu.Item className="MenuItem" onSelect={() => logout.mutate({})}>
+                    Sign out
+                  </Menu.Item>
                 ) : (
-                  <MenuItem onSelect={() => navToLogin({ includeCurrent: true })}>
+                  <Menu.Item
+                    className="MenuItem"
+                    onSelect={() => navToLogin({ includeCurrent: true })}
+                  >
                     Sign In
-                  </MenuItem>
+                  </Menu.Item>
                 )}
-              </MenuList>
-            </Menu>
+              </Menu.Content>
+            </Menu.Root>
           </div>
         </div>
       </div>
