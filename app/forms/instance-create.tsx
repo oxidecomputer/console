@@ -176,7 +176,11 @@ export function CreateInstanceForm() {
           <Divider />
 
           <Form.Heading id="hardware">Hardware</Form.Heading>
-          <Tabs.Root id="choose-cpu-ram" className="full-width">
+          <Tabs.Root
+            id="choose-cpu-ram"
+            className="full-width"
+            defaultValue="general-purpose"
+          >
             <Tabs.List aria-labelledby="hardware">
               <Tabs.Trigger value="general-purpose">General Purpose</Tabs.Trigger>
               <Tabs.Trigger value="cpu-optimized">CPU Optimized</Tabs.Trigger>
@@ -228,7 +232,7 @@ export function CreateInstanceForm() {
           <Divider />
 
           <Form.Heading id="boot-disk">Boot disk</Form.Heading>
-          <Tabs.Root id="boot-disk-tabs" className="full-width">
+          <Tabs.Root id="boot-disk-tabs" className="full-width" defaultValue="distros">
             <Tabs.List aria-describedby="boot-disk">
               <Tabs.Trigger value="distros">Distros</Tabs.Trigger>
               <Tabs.Trigger value="images">Images</Tabs.Trigger>
