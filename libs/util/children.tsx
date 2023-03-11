@@ -1,5 +1,4 @@
 import type {
-  Component,
   ComponentProps,
   ComponentType,
   ReactChildren,
@@ -11,19 +10,6 @@ import React from 'react'
 export type ChildrenProp = { children?: ReactNode }
 type ChildArray = ReturnType<ReactChildren['toArray']>
 type ChildSelector = Parameters<ChildArray['findIndex']>[0]
-
-/**
- * A helper intended to be provided to a map call on an array of elements to iterate
- * each and provide it with a key
- *
- * @example
- *
- * [<div/>, <div/>, <div/>].map(addKey(i => `div-${i}`))
- */
-export const addKey =
-  (makeKey: (i: number) => string) =>
-  (child: Component | ReactElement, index: number): ReactElement =>
-    React.cloneElement(child as ReactElement, { key: makeKey(index) })
 
 export const addProps =
   <C extends React.ComponentType<unknown>, P = ComponentProps<C>>(
