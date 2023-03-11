@@ -1,23 +1,27 @@
 import { Badge } from '@oxide/ui'
 
-import { Tab, Tabs } from './Tabs'
+import { Tabs } from './Tabs'
 
 export const Default = () => (
-  <Tabs id="default" aria-label="A simple example of the tabs component">
-    <Tab>hello</Tab>
-    <Tab.Panel>tab view 1</Tab.Panel>
-    <Tab>world</Tab>
-    <Tab.Panel>tab view 2</Tab.Panel>
-  </Tabs>
+  <Tabs.Root id="default" defaultValue="hello">
+    <Tabs.List aria-label="A simple example of the tabs component">
+      <Tabs.Trigger value="hello">hello</Tabs.Trigger>
+      <Tabs.Trigger value="world">world</Tabs.Trigger>
+    </Tabs.List>
+    <Tabs.Content value="hello">tab view 1</Tabs.Content>
+    <Tabs.Content value="world">tab view 2</Tabs.Content>
+  </Tabs.Root>
 )
 
 export const WithItemCount = () => (
-  <Tabs id="default" aria-label="An example of the tabs component with a badge">
-    <Tab>no items</Tab>
-    <Tab.Panel>Nothing to see here</Tab.Panel>
-    <Tab>
-      items <Badge>1</Badge>
-    </Tab>
-    <Tab.Panel>You have 4 unread messages</Tab.Panel>
-  </Tabs>
+  <Tabs.Root id="with-item-count" defaultValue="no-items">
+    <Tabs.List aria-label="An example of the tabs component with a badge">
+      <Tabs.Trigger value="no-items">no items</Tabs.Trigger>
+      <Tabs.Trigger value="items">
+        items <Badge>1</Badge>
+      </Tabs.Trigger>
+    </Tabs.List>
+    <Tabs.Content value="no-items">Nothing to see here</Tabs.Content>
+    <Tabs.Content value="items">You have 4 unread messages</Tabs.Content>
+  </Tabs.Root>
 )

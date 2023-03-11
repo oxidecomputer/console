@@ -2,7 +2,7 @@ import type { LoaderFunctionArgs } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 
 import { apiQueryClient, componentTypeNames, useApiMutation, useApiQuery } from '@oxide/api'
-import { Badge, Hourglass16Icon, PropertiesTable, Tabs2 as Tabs } from '@oxide/ui'
+import { Badge, Hourglass16Icon, PropertiesTable, Tabs } from '@oxide/ui'
 import { formatDateTime } from '@oxide/util'
 
 import { SideModalForm } from 'app/components/form'

@@ -16,7 +16,6 @@ import {
   Instances24Icon,
   RadioCard,
   Success16Icon,
-  Tab,
   Tabs,
   TextInputHint,
 } from '@oxide/ui'
@@ -177,9 +176,14 @@ export function CreateInstanceForm() {
           <Divider />
 
           <Form.Heading id="hardware">Hardware</Form.Heading>
-          <Tabs id="choose-cpu-ram" fullWidth aria-labelledby="hardware">
-            <Tab>General Purpose</Tab>
-            <Tab.Panel>
+          <Tabs.Root id="choose-cpu-ram" className="full-width">
+            <Tabs.List aria-labelledby="hardware">
+              <Tabs.Trigger value="general-purpose">General Purpose</Tabs.Trigger>
+              <Tabs.Trigger value="cpu-optimized">CPU Optimized</Tabs.Trigger>
+              <Tabs.Trigger value="memory-optimized">Memory optimized</Tabs.Trigger>
+              <Tabs.Trigger value="custom">Custom</Tabs.Trigger>
+            </Tabs.List>
+            <Tabs.Content value="general-purpose">
               <TextInputHint id="hw-gp-help-text" className="mb-12 max-w-xl text-sans-md">
                 General purpose instances provide a good balance of CPU, memory, and high
                 performance storage; well suited for a wide range of use cases.
@@ -187,30 +191,27 @@ export function CreateInstanceForm() {
               <RadioFieldDyn name="type" label="" control={control}>
                 {renderLargeRadioCards('general')}
               </RadioFieldDyn>
-            </Tab.Panel>
+            </Tabs.Content>
 
-            <Tab>CPU Optimized</Tab>
-            <Tab.Panel>
+            <Tabs.Content value="cpu-optimized">
               <TextInputHint id="hw-cpu-help-text" className="mb-12 max-w-xl  text-sans-md">
                 CPU optimized instances provide a good balance of...
               </TextInputHint>
               <RadioFieldDyn name="type" label="" control={control}>
                 {renderLargeRadioCards('cpuOptimized')}
               </RadioFieldDyn>
-            </Tab.Panel>
+            </Tabs.Content>
 
-            <Tab>Memory optimized</Tab>
-            <Tab.Panel>
+            <Tabs.Content value="memory-optimized">
               <TextInputHint id="hw-mem-help-text" className="mb-12 max-w-xl  text-sans-md">
                 CPU optimized instances provide a good balance of...
               </TextInputHint>
               <RadioFieldDyn name="type" label="" control={control}>
                 {renderLargeRadioCards('memoryOptimized')}
               </RadioFieldDyn>
-            </Tab.Panel>
+            </Tabs.Content>
 
-            <Tab>Custom</Tab>
-            <Tab.Panel>
+            <Tabs.Content value="custom">
               <TextInputHint
                 // TODO: is this getting hooked up to the field with describedby?
                 id="hw-custom-help-text"
@@ -221,15 +222,19 @@ export function CreateInstanceForm() {
               <RadioFieldDyn name="type" label="" control={control}>
                 {renderLargeRadioCards('custom')}
               </RadioFieldDyn>
-            </Tab.Panel>
-          </Tabs>
+            </Tabs.Content>
+          </Tabs.Root>
 
           <Divider />
 
           <Form.Heading id="boot-disk">Boot disk</Form.Heading>
-          <Tabs id="boot-disk-tabs" aria-describedby="boot-disk" fullWidth>
-            <Tab>Distros</Tab>
-            <Tab.Panel className="space-y-4">
+          <Tabs.Root id="boot-disk-tabs" className="full-width">
+            <Tabs.List aria-describedby="boot-disk">
+              <Tabs.Trigger value="distros">Distros</Tabs.Trigger>
+              <Tabs.Trigger value="images">Images</Tabs.Trigger>
+              <Tabs.Trigger value="snapshots">Snapshots</Tabs.Trigger>
+            </Tabs.List>
+            <Tabs.Content value="distros" className="space-y-4">
               {images.length === 0 && <span>No images found</span>}
               <ImageSelectField images={images} required control={control} />
 
@@ -241,16 +246,14 @@ export function CreateInstanceForm() {
                 control={control}
               />
               <DiskSizeField label="Disk size" name="bootDiskSize" control={control} />
-            </Tab.Panel>
-            <Tab>Images</Tab>
-            <Tab.Panel>
+            </Tabs.Content>
+            <Tabs.Content value="images">
               <span>No images found</span>
-            </Tab.Panel>
-            <Tab>Snapshots</Tab>
-            <Tab.Panel>
+            </Tabs.Content>
+            <Tabs.Content value="snapshots">
               <span>No snapshots found</span>
-            </Tab.Panel>
-          </Tabs>
+            </Tabs.Content>
+          </Tabs.Root>
           <Divider />
           <Form.Heading id="additional-disks">Additional disks</Form.Heading>
 

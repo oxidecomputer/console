@@ -1,13 +1,7 @@
 import type { LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, useApiQuery } from '@oxide/api'
-import {
-  Networking24Icon,
-  PageHeader,
-  PageTitle,
-  PropertiesTable,
-  Tabs2 as Tabs,
-} from '@oxide/ui'
+import { Networking24Icon, PageHeader, PageTitle, PropertiesTable, Tabs } from '@oxide/ui'
 import { formatDateTime, toPathQuery } from '@oxide/util'
 
 import { QueryTabs } from 'app/components/QueryTabs'

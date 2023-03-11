@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import type { SetRequired } from 'type-fest'
 
-import { Tabs2 as Tabs } from '@oxide/ui'
+import { Tabs } from '@oxide/ui'
 
 type QueryTabsProps = SetRequired<
   React.ComponentPropsWithoutRef<typeof Tabs.Root>,
