@@ -52,6 +52,7 @@ export const getActionsCol = <TData extends { id?: string }>(
                 </DropdownMenu.Item>
               )}
               {actions.map((action) => {
+                // TODO: Tooltip on disabled button broke, probably due to portal
                 return (
                   <Wrap
                     when={!!action.disabled}
