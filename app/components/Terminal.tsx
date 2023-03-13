@@ -14,7 +14,6 @@ interface TerminalProps {
 const options: ITerminalOptions = {
   allowTransparency: false,
   screenReaderMode: true,
-  rendererType: 'dom',
   fontFamily: '"GT America Mono", monospace',
   fontSize: 13,
   lineHeight: 1.2,
