@@ -1,7 +1,7 @@
 import cn from 'classnames'
 import { NavLink } from 'react-router-dom'
 
-import { Action16Icon, Button, Document16Icon, truncate } from '@oxide/ui'
+import { Action16Icon, Button, Document16Icon, Truncate } from '@oxide/ui'
 
 const linkStyles =
   'flex h-7 items-center rounded px-2 text-sans-md hover:bg-hover svg:mr-2 svg:text-quinary text-secondary'
@@ -61,7 +61,9 @@ interface SidebarNav {
 Sidebar.Nav = ({ children, heading }: SidebarNav) => (
   <div className="my-4 mx-3 space-y-1">
     {heading && (
-      <div className="mb-2 text-mono-sm text-quaternary">{truncate(heading, 24)}</div>
+      <div className="mb-2 text-mono-sm text-quaternary">
+        <Truncate text={heading} maxLength={24} />
+      </div>
     )}
     <nav>
       <ul className="space-y-0.5">{children}</ul>

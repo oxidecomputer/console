@@ -37,8 +37,9 @@ export interface UseTooltipOptions {
   content: string | React.ReactNode
   /** Defaults to auto if not supplied */
   placement?: PlacementOrAuto
+  delay?: number
 }
-export const useTooltip = ({ content, placement }: UseTooltipOptions) => {
+export const useTooltip = ({ delay = 250, content, placement }: UseTooltipOptions) => {
   const [open, setOpen] = useState(false)
   const arrowRef = useRef(null)
 
@@ -58,7 +59,7 @@ export const useTooltip = ({ content, placement }: UseTooltipOptions) => {
     whileElementsMounted: autoUpdate,
     middleware: [
       /**
-       * `autoPlacement` and `flip` are mututally excusive behaviors. If we manually provide a placement we want to make sure
+       * `autoPlacement` and `flip` are mutually excusive behaviors. If we manually provide a placement we want to make sure
        * it flips to the other side if there is not enough space for it to be displayed in that position.
        */
       placement === 'auto' ? autoPlacement() : flip(),
@@ -70,7 +71,7 @@ export const useTooltip = ({ content, placement }: UseTooltipOptions) => {
   const { x: arrowX, y: arrowY } = middlewareData.arrow || {}
 
   const { getReferenceProps, getFloatingProps } = useInteractions([
-    useHover(context, { move: false }),
+    useHover(context, { move: false, delay: { open: delay, close: 0 } }),
     useFocus(context),
     useDismiss(context),
     useRole(context, { role: 'tooltip' }),
@@ -108,6 +109,7 @@ export const useTooltip = ({ content, placement }: UseTooltipOptions) => {
   }
 }
 export interface TooltipProps {
+  delay?: number
   children?: React.ReactNode
   /** The text to appear on hover/focus */
   content: string | React.ReactNode
@@ -116,7 +118,7 @@ export interface TooltipProps {
 }
 
 export const Tooltip = forwardRef(
-  ({ children, content, placement = 'auto' }: TooltipProps, elRef) => {
+  ({ delay, children, content, placement = 'auto' }: TooltipProps, elRef) => {
     const {
       ref,
       props,
@@ -124,6 +126,7 @@ export const Tooltip = forwardRef(
     } = useTooltip({
       content,
       placement,
+      delay,
     })
 
     let child = Children.only(children)

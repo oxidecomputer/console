@@ -11,6 +11,7 @@ interface TruncateProps {
   maxLength: number
   position?: TruncatePosition
   hasCopyButton?: boolean
+  tooltipDelay?: number
 }
 
 export const Truncate = ({
@@ -18,6 +19,7 @@ export const Truncate = ({
   maxLength,
   position = 'end',
   hasCopyButton,
+  tooltipDelay = 500,
 }: TruncateProps) => {
   const [hasCopied, setHasCopied] = useState(false)
 
@@ -36,7 +38,7 @@ export const Truncate = ({
   // Only use the tooltip if the text is longer than maxLength
   return (
     <div className="flex items-center space-x-2">
-      <Tooltip content={text}>
+      <Tooltip content={text} delay={tooltipDelay}>
         <div>{truncate(text, maxLength, position)}</div>
       </Tooltip>
       {hasCopyButton &&
