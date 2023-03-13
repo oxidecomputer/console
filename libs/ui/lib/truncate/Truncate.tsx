@@ -39,7 +39,7 @@ export const Truncate = ({
   return (
     <div className="flex items-center space-x-2">
       <Tooltip content={text} delay={tooltipDelay}>
-        <div>{truncate(text, maxLength, position)}</div>
+        <div aria-label={text}>{truncate(text, maxLength, position)}</div>
       </Tooltip>
       {hasCopyButton &&
         (hasCopied ? (
