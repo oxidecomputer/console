@@ -97,6 +97,6 @@ export const TextInputHint = ({ id, children, className }: HintProps) => (
 )
 
 export const TextInputError = ({ children }: { children: string }) => {
-  useEffect(() => announce(children, 'polite'), [children])
+  useEffect(() => announce(children, 'assertive'), [children])
   return <div className="ml-px py-2 text-sans-md text-destructive">{children}</div>
 }

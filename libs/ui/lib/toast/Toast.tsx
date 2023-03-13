@@ -43,6 +43,7 @@ export const Toast = ({
   variant = 'success',
   timeout = 5000,
 }: ToastProps) => {
+  // TODO: consider assertive announce for error toasts
   useEffect(() => announce(title + ' ' + content, 'polite'), [title, content])
   return (
     <div
