@@ -86,7 +86,7 @@ export const Terminal = ({ data }: TerminalProps) => {
 
   return (
     <>
-      <div className="h-full w-full pr-12" ref={terminalRef} />
+      <div className="h-full w-[calc(100%-3rem)]" ref={terminalRef} />
       <div className="absolute right-0 top-0 space-y-2 text-secondary">
         <ScrollButton onClick={() => term?.scrollToTop()}>
           <DirectionUpIcon />
