@@ -3,10 +3,12 @@ import { useState } from 'react'
 import { Clipboard16Icon, Success12Icon } from '../icons'
 import { Tooltip } from '../tooltip/Tooltip'
 
+type TruncatePosition = 'middle' | 'end'
+
 interface TruncateProps {
   text: string
   maxLength: number
-  position?: 'middle' | 'end'
+  position?: TruncatePosition
   hasCopyButton?: boolean
 }
 
@@ -19,22 +21,6 @@ export const Truncate = ({
   const [hasCopied, setHasCopied] = useState(false)
   if (text.length <= maxLength) {
     return <div>{text}</div>
-  }
-
-  let newText = text
-
-  // We remove a little to compensate for the extra width
-  // added by the ellipse character
-  const truncateAmount = maxLength - 2
-
-  if (position === 'end') {
-    newText = `${newText.substring(0, truncateAmount)}…`
-  } else {
-    const halfLength = Math.floor(truncateAmount / 2)
-    newText = `${newText.substring(0, halfLength)}…${newText.substring(
-      newText.length - halfLength,
-      newText.length
-    )}`
   }
 
   const handleCopy = () => {
@@ -52,7 +38,7 @@ export const Truncate = ({
   return (
     <div className="flex items-center space-x-2">
       <Tooltip content={text}>
-        <button>{newText}</button>
+        <div>{truncate(text, maxLength, position)}</div>
       </Tooltip>
       {hasCopyButton &&
         (hasCopied ? (
@@ -67,4 +53,28 @@ export const Truncate = ({
         ))}
     </div>
   )
+}
+
+export function truncate(text: string, maxLength: number, position?: TruncatePosition) {
+  if (text.length <= maxLength) {
+    return text
+  }
+
+  let newText = text
+
+  // We remove a little to compensate for the extra width
+  // added by the ellipse character
+  const truncateAmount = maxLength - 2
+
+  if (position === 'end' || !position) {
+    newText = `${text.substring(0, truncateAmount)}…`
+  } else {
+    const halfLength = Math.floor(truncateAmount / 2)
+    newText = `${text.substring(0, halfLength)}…${text.substring(
+      text.length - halfLength,
+      text.length
+    )}`
+  }
+
+  return newText
 }
