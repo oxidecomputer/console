@@ -1,5 +1,6 @@
 import { useState } from 'react'
 
+import useTimeout from '../hooks/use-timeout'
 import { Clipboard16Icon, Success12Icon } from '../icons'
 import { Tooltip } from '../tooltip/Tooltip'
 
@@ -19,6 +20,9 @@ export const Truncate = ({
   hasCopyButton,
 }: TruncateProps) => {
   const [hasCopied, setHasCopied] = useState(false)
+
+  useTimeout(() => setHasCopied(false), hasCopied ? 2000 : null)
+
   if (text.length <= maxLength) {
     return <div>{text}</div>
   }
@@ -26,11 +30,6 @@ export const Truncate = ({
   const handleCopy = () => {
     window.navigator.clipboard.writeText(text).then(() => {
       setHasCopied(true)
-
-      // Unset hasCopied to revert back to the clipboard icon
-      setTimeout(() => {
-        setHasCopied(false)
-      }, 2000)
     })
   }
 
