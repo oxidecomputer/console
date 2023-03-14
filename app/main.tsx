@@ -1,7 +1,7 @@
 import { QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { StrictMode } from 'react'
-import ReactDOM from 'react-dom'
+import { createRoot } from 'react-dom/client'
 import { RouterProvider, createBrowserRouter } from 'react-router-dom'
 
 import { queryClient } from '@oxide/api'
@@ -21,6 +21,8 @@ if (process.env.SHA) {
   )
 }
 
+const root = createRoot(document.getElementById('root')!)
+
 function render() {
   // createBrowserRouter kicks off the loaders, which is weird because you'd
   // think route matching hasn't happened yet, but apparently it does its own
@@ -28,7 +30,7 @@ function render() {
   // This means RR is best thought of as an external store that runs
   // independently of the React render lifecycle.
   const router = createBrowserRouter(routes)
-  ReactDOM.render(
+  root.render(
     <StrictMode>
       <QueryClientProvider client={queryClient}>
         <ErrorBoundary>
@@ -40,8 +42,7 @@ function render() {
         <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
       <ToastStack />
-    </StrictMode>,
-    document.getElementById('root')
+    </StrictMode>
   )
 }
 
