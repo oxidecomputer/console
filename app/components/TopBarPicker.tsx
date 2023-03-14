@@ -8,6 +8,7 @@ import {
   Organization16Icon,
   SelectArrows6Icon,
   Success12Icon,
+  Truncate,
   Wrap,
 } from '@oxide/ui'
 
@@ -49,7 +50,7 @@ const TopBarPicker = (props: TopBarPickerProps) => {
               <div className="text-left">
                 <div className="text-mono-xs text-quaternary">{props.category}</div>
                 <div className="overflow-hidden text-ellipsis whitespace-nowrap text-sans-md text-secondary">
-                  {props.display ?? props.current}
+                  <Truncate text={props.display ?? props.current} maxLength={24} />
                 </div>
               </div>
             ) : (
@@ -89,7 +90,8 @@ const TopBarPicker = (props: TopBarPickerProps) => {
                   className={cn('ox-menu-item', { 'is-selected': isSelected })}
                 >
                   <span className="flex w-full items-center justify-between">
-                    {label} {isSelected && <Success12Icon className="-mr-3 block" />}
+                    <Truncate text={label} maxLength={24} />
+                    {isSelected && <Success12Icon className="-mr-3 block" />}
                   </span>
                 </MenuLink>
               )
