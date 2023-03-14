@@ -26,7 +26,7 @@ test.describe('Project create', () => {
     await page.fill('role=textbox[name="Name"]', 'Invalid name')
 
     await page.click('role=textbox[name="Description"]') // just to blur name input
-    // role=dialog to distinguish from reach alert
+    // role=dialog to distinguish from live announce
     await expectVisible(page, ['role=dialog >> text="Must start with a lower-case letter"'])
   })
 
