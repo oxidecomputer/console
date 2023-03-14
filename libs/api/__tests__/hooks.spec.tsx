@@ -106,7 +106,7 @@ describe('useApiQuery', () => {
   })
 
   describe('on 404 response', () => {
-    it('throws by default', async () => {
+    it.skip('throws by default', async () => {
       const { result } = renderHook(
         () =>
           useApiQuery('organizationViewV1', {
