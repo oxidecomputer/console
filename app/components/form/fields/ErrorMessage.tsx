@@ -10,9 +10,8 @@ type ErrorMessageProps = {
 export function ErrorMessage({ error, label }: ErrorMessageProps) {
   if (!error) return null
 
-  return (
-    <TextInputError>
-      {error.type === 'required' ? `${label} is required` : error.message}
-    </TextInputError>
-  )
+  const message = error.type === 'required' ? `${label} is required` : error.message
+  if (!message) return null
+
+  return <TextInputError>{message}</TextInputError>
 }

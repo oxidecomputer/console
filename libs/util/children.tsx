@@ -7,7 +7,6 @@ import type {
 } from 'react'
 import React from 'react'
 
-export type ChildrenProp = { children?: ReactNode }
 type ChildArray = ReturnType<ReactChildren['toArray']>
 type ChildSelector = Parameters<ChildArray['findIndex']>[0]
 
