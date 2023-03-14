@@ -1,3 +1,15 @@
-[data-reach-dialog-overlay] {
-  @apply z-10 bg-scrim;
+[data-reach-dialog-overlay],
+.DialogOverlay {
+  /* background: hsla(0, 0%, 0%, 0.33); */
+  @apply fixed inset-0 z-10 overflow-auto bg-scrim;
+}
+
+[data-reach-dialog-content],
+.DialogContent {
+  z-index: 20;
+  width: 50vw;
+  margin: 10vh auto;
+  background: white;
+  padding: 2rem;
+  outline: none;
 }
