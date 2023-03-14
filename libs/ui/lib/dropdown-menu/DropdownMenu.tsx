@@ -11,7 +11,12 @@ export const DropdownMenu = {
   Trigger,
   Portal,
   Content: ({ className, ...props }: DropdownMenuContentProps) => (
-    <Content {...props} className={cn('DropdownMenuContent', className)} />
+    <Content
+      // prevents focus ring showing up on trigger when you close the menu
+      onCloseAutoFocus={(e) => e.preventDefault()}
+      className={cn('DropdownMenuContent', className)}
+      {...props}
+    />
   ),
   // need to forward ref because of tooltips on disabled menu buttons
   Item: forwardRef(
