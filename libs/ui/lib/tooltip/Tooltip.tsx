@@ -119,15 +119,7 @@ export interface TooltipProps {
 
 export const Tooltip = forwardRef(
   ({ delay, children, content, placement = 'auto' }: TooltipProps, elRef) => {
-    const {
-      ref,
-      props,
-      Tooltip: TooltipPopup,
-    } = useTooltip({
-      content,
-      placement,
-      delay,
-    })
+    const { ref, props, Tooltip: TooltipPopup } = useTooltip({ content, placement, delay })
 
     let child = Children.only(children)
     invariant(child, 'Tooltip must have a single child')
