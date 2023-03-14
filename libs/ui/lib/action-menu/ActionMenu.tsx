@@ -80,7 +80,7 @@ export function ActionMenu(props: ActionMenuProps) {
     >
       <Dialog.Portal>
         <Dialog.Overlay className="DialogOverlay" />
-        <Dialog.Content className="DialogContent mt-[20vh] !w-[46rem] bg-transparent p-0">
+        <Dialog.Content className="DialogContent fixed inset-0 mt-[20vh] !w-[46rem] bg-transparent p-0">
           <div
             onKeyDown={(e) => {
               const lastIdx = itemsInOrder.length - 1
