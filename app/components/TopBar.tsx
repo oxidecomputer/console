@@ -67,7 +67,11 @@ export function TopBar({ children }: { children: React.ReactNode }) {
                   <DirectionDownIcon className="!w-2.5" />
                 </Button>
               </DropdownMenu.Trigger>
-              <DropdownMenu.Content align="end" sideOffset={8}>
+              <DropdownMenu.Content
+                align="end"
+                sideOffset={8}
+                className="min-w-[12.8125rem]"
+              >
                 <DropdownMenu.Item onSelect={() => navigate(pb.settings())}>
                   Settings
                 </DropdownMenu.Item>
