@@ -1,5 +1,4 @@
 .DropdownMenuContent {
-  z-index: 200;
   @apply min-w-[14rem] rounded border p-0 bg-raise border-secondary;
 
   & .DropdownMenuItem {
