@@ -56,26 +56,23 @@ export const Truncate = ({
   )
 }
 
-export function truncate(text: string, maxLength: number, position?: TruncatePosition) {
-  if (text.length <= maxLength) {
-    return text
-  }
-
-  let newText = text
+export function truncate(
+  text: string,
+  maxLength: number,
+  position: TruncatePosition = 'end'
+) {
+  if (text.length <= maxLength) return text
 
   // We remove a little to compensate for the extra width
   // added by the ellipse character
-  const truncateAmount = maxLength - 2
+  const truncatedLength = maxLength - 2
 
-  if (position === 'end' || !position) {
-    newText = `${text.substring(0, truncateAmount)}…`
-  } else {
-    const halfLength = Math.floor(truncateAmount / 2)
-    newText = `${text.substring(0, halfLength)}…${text.substring(
-      text.length - halfLength,
-      text.length
-    )}`
+  if (position === 'end') {
+    return text.substring(0, truncatedLength) + '…'
   }
 
-  return newText
+  const halfLength = Math.floor(truncatedLength / 2)
+  const firstHalf = text.substring(0, halfLength)
+  const secondHalf = text.substring(text.length - halfLength)
+  return `${firstHalf}…${secondHalf}`
 }
