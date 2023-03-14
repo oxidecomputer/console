@@ -1,28 +1,10 @@
-import type {
-  ComponentProps,
-  ComponentType,
-  ReactChildren,
-  ReactElement,
-  ReactNode,
-} from 'react'
+import type { ComponentType, ReactElement, ReactNode } from 'react'
 import React from 'react'
+
+type ReactChildren = typeof React.Children
 
 type ChildArray = ReturnType<ReactChildren['toArray']>
 type ChildSelector = Parameters<ChildArray['findIndex']>[0]
-
-export const addProps =
-  <C extends React.ComponentType<unknown>, P = ComponentProps<C>>(
-    makeProps: (
-      i: number,
-      props: P,
-      children: Array<C & { props: P }>
-    ) => Record<string, unknown>
-  ) =>
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (child: any, index: number, children: any): ReactElement =>
-    React.cloneElement(child as ReactElement, {
-      ...makeProps(index, child?.props, children),
-    })
 
 /**
  * Collapses down children that are nested inside of a fragment

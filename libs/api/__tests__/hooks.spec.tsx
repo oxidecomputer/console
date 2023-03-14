@@ -1,12 +1,10 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { waitFor } from '@testing-library/react'
-import { act, renderHook } from '@testing-library/react-hooks'
+import { act, renderHook, waitFor } from '@testing-library/react'
 
 import { org } from '@oxide/api-mocks'
 
 import { overrideOnce } from 'app/test/unit'
 
-import type { ApiError } from '..'
 import { useApiMutation, useApiQuery } from '..'
 
 // because useApiQuery and useApiMutation are almost entirely typed wrappers
@@ -120,7 +118,7 @@ describe('useApiQuery', () => {
       // The error is thrown asynchronously by the hook so it can propagate up
       // the tree. Fortunately result.error exists for precisely this use case.
       await waitFor(() => {
-        const error = result.error as ApiError | undefined
+        const error = result.current.error
         expect(error?.statusCode).toEqual(404)
         expect(error?.error).toMatchObject({ errorCode: 'ObjectNotFound' })
       })
