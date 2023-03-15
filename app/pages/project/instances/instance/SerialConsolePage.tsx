@@ -110,11 +110,12 @@ function EquivalentCliCommand() {
             <>
               <span className={hasCopied ? 'invisible' : ''}>Copy command</span>
               <span
-                className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 ${
+                className={`absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center ${
                   hasCopied ? '' : 'invisible'
                 }`}
               >
-                <Success12Icon className="text-accent" />
+                <Success12Icon className="mr-2 text-accent" />
+                Copied
               </span>
             </>
           }
