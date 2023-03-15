@@ -166,7 +166,11 @@ export const UpdateableComponentType = z.preprocess(
 
 export const SemverVersion = z.preprocess(
   processResponseBody,
-  z.string().regex(/^\d+\.\d+\.\d+([\-\+].+)?$/)
+  z
+    .string()
+    .regex(
+      /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/
+    )
 )
 
 /**
@@ -4072,6 +4076,66 @@ export const InstanceStopV1Params = z.preprocess(
   })
 )
 
+export const CurrentUserViewV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
+  })
+)
+
+export const CurrentUserGroupsV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      sortBy: IdSortMode.optional(),
+    }),
+  })
+)
+
+export const CurrentUserSshKeyListV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      sortBy: NameOrIdSortMode.optional(),
+    }),
+  })
+)
+
+export const CurrentUserSshKeyCreateV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
+  })
+)
+
+export const CurrentUserSshKeyViewV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      sshKey: NameOrId,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const CurrentUserSshKeyDeleteV1Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      sshKey: NameOrId,
+    }),
+    query: z.object({}),
+  })
+)
+
 export const InstanceNetworkInterfaceListV1Params = z.preprocess(
   processResponseBody,
   z.object({
@@ -4854,7 +4918,7 @@ export const SystemVersionParams = z.preprocess(
   })
 )
 
-export const SiloUsersListV1Params = z.preprocess(
+export const SiloUserListV1Params = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({}),

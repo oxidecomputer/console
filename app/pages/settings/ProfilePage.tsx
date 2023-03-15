@@ -15,8 +15,8 @@ const columns = [
 ]
 
 export function ProfilePage() {
-  const { data: user } = useApiQuery('sessionMe', {})
-  const { data: groups } = useApiQuery('sessionMeGroups', {})
+  const { data: user } = useApiQuery('currentUserViewV1', {})
+  const { data: groups } = useApiQuery('currentUserGroupsV1', {})
 
   const groupRows = useMemo(() => groups?.items || [], [groups])
 
