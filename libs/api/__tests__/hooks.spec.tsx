@@ -1,6 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { act, render, renderHook, waitFor } from '@testing-library/react'
-import { ErrorBoundary } from 'react-error-boundary'
 import { vi } from 'vitest'
 
 import { org } from '@oxide/api-mocks'
@@ -108,21 +107,26 @@ describe('useApiQuery', () => {
   })
 
   describe('on 404 response', () => {
+    // This is a weird test. react-hooks-testing-library's renderHook used to
+    // catch the error for us, so it was easy to assert about. Without that, I
+    // wanted to render an ErrorBoundary, using the `onError` prop for the spy
+    // and asserting that it got called. That worked, but jsdom considered the
+    // error unhandled for some reason and filled the terminal with garbage. So
+    // instead we just catch the exception directly in a way you would never
+    // want to do in real code. Dubious!
     it('throws by default', async () => {
+      const onError = vi.fn()
+
       function BadApiCall() {
-        useApiQuery('organizationViewV1', { path: { organization: 'nonexistent' } })
+        try {
+          useApiQuery('organizationViewV1', { path: { organization: 'nonexistent' } })
+        } catch (e) {
+          onError(e)
+        }
         return null
       }
 
-      const onError = vi.fn()
-
-      render(
-        <ErrorBoundary fallback={<span>error</span>} onError={onError}>
-          <Wrapper>
-            <BadApiCall />
-          </Wrapper>
-        </ErrorBoundary>
-      )
+      render(<BadApiCall />, config)
 
       await waitFor(() => {
         const error = onError.mock.lastCall?.[0]
