@@ -74,6 +74,16 @@ export default defineConfig(({ mode }) => ({
         },
         rewrite: (path) => path.replace(/^\/api/, ''),
       },
+      '/ws-api': {
+        target: 'ws://localhost:12220',
+        ws: true,
+        configure(proxy) {
+          proxy.on('error', (_, req) => {
+            console.error('    to', '/api' + req.url)
+          })
+        },
+        rewrite: (path) => path.replace(/^\/ws-api/, ''),
+      },
       // We want to actually hit Nexus for this because it gives us a login redirect
       '/login': {
         target: 'http://localhost:12220',

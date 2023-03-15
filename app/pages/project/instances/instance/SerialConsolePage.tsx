@@ -1,6 +1,7 @@
 import { Suspense, lazy, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 
+import type { PathParams } from '@oxide/api'
 import { Button } from '@oxide/ui'
 import { DirectionLeftIcon, Spinner } from '@oxide/ui'
 
@@ -10,28 +11,35 @@ import { pb } from 'app/util/path-builder'
 
 const Terminal = lazy(() => import('app/components/Terminal'))
 
+// TODO: janky to do this url construction here. maybe we can have oxide.ts
+// detect websocket endpoints and give us a helper that constructs a WebSocket
+// instead of calling fetch
+function serialConsoleUrl(sel: Required<PathParams.Instance>) {
+  // TODO: is there a better way to get the current host in there (or leave it implicit like with fetch)
+  const base = 'ws://' + window.location.host
+  const vitePrefix = process.env.NODE_ENV === 'development' ? '/ws-api' : ''
+  const route = `/v1/instances/${sel.instance}/serial-console/stream?organization=${sel.organization}&project=${sel.project}`
+  return base + vitePrefix + route
+}
+
 export function SerialConsolePage() {
-  const { organization, project, instance } = useInstanceSelector()
+  const instanceSelector = useInstanceSelector()
 
   // unclear if this should be a ref, it could be normal state or even a useMemo
   const wsRef = useRef<WebSocket | null>(null)
 
   useEffect(() => {
-    // TODO: janky to do this url construction here. maybe we can have oxide.ts
-    // detect websocket endpoints and give us a helper that constructs a WebSocket
-    // instead of calling fetch
     // TODO: error handling if this connection fails
-    const wsUrl = `ws://${window.location.host}/v1/instances/${instance}/serial-console/stream?organization=${organization}&project=${project}`
-    wsRef.current = new WebSocket(wsUrl)
+    wsRef.current = new WebSocket(serialConsoleUrl(instanceSelector))
     return () => wsRef.current?.close()
-  }, [organization, project, instance])
+  }, [instanceSelector])
 
   const connected = wsRef.current?.readyState === WebSocket.OPEN
 
   return (
     <div className="!mx-0 flex h-full max-h-[calc(100vh-60px)] !w-full flex-col">
       <Link
-        to={pb.instance({ organization, project, instance })}
+        to={pb.instance(instanceSelector)}
         className="mx-3 mt-3 mb-6 flex h-10 flex-shrink-0 items-center rounded px-3 bg-accent-secondary"
       >
         <DirectionLeftIcon className="text-accent-tertiary" />
