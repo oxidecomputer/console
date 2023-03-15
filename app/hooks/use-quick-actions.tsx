@@ -58,7 +58,7 @@ export function QuickActions() {
 
   // only memoized to avoid render churn in useKey
   const openDialog = useCallback(
-    (e) => {
+    (e: Mousetrap.ExtendedKeyboardEvent) => {
       if (anyItems && !isOpen) {
         e.preventDefault()
         setIsOpen(true)

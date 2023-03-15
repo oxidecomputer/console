@@ -153,7 +153,7 @@ const makeQueryTable = <Item extends Record<string, unknown>>(
 
     const tableData: any[] = useMemo(() => (data as any)?.items || [], [data])
 
-    const getRowId = useCallback((row) => row.name, [])
+    const getRowId = useCallback((row: any) => row.name, [])
 
     const table = useReactTable({
       columns,
