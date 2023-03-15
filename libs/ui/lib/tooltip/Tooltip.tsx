@@ -38,7 +38,6 @@ export const Tooltip = forwardRef(
   ({ delay = 250, children, content, placement }: TooltipProps, elRef) => {
     const [open, setOpen] = useState(false)
     const arrowRef = useRef(null)
-    console.count('render')
 
     const {
       x,
