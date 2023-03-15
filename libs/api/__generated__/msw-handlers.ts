@@ -736,6 +736,28 @@ export interface MSWHandlers {
     path: Api.InstanceStopV1PathParams
     query: Api.InstanceStopV1QueryParams
   }) => HandlerResult<Api.Instance>
+  /** `GET /v1/me` */
+  currentUserViewV1: () => HandlerResult<Api.User>
+  /** `GET /v1/me/groups` */
+  currentUserGroupsV1: (params: {
+    query: Api.CurrentUserGroupsV1QueryParams
+  }) => HandlerResult<Api.GroupResultsPage>
+  /** `GET /v1/me/ssh-keys` */
+  currentUserSshKeyListV1: (params: {
+    query: Api.CurrentUserSshKeyListV1QueryParams
+  }) => HandlerResult<Api.SshKeyResultsPage>
+  /** `POST /v1/me/ssh-keys` */
+  currentUserSshKeyCreateV1: (params: {
+    body: Json<Api.SshKeyCreate>
+  }) => HandlerResult<Api.SshKey>
+  /** `GET /v1/me/ssh-keys/:sshKey` */
+  currentUserSshKeyViewV1: (params: {
+    path: Api.CurrentUserSshKeyViewV1PathParams
+  }) => HandlerResult<Api.SshKey>
+  /** `DELETE /v1/me/ssh-keys/:sshKey` */
+  currentUserSshKeyDeleteV1: (params: {
+    path: Api.CurrentUserSshKeyDeleteV1PathParams
+  }) => StatusCode
   /** `GET /v1/network-interfaces` */
   instanceNetworkInterfaceListV1: (params: {
     query: Api.InstanceNetworkInterfaceListV1QueryParams
@@ -1023,8 +1045,8 @@ export interface MSWHandlers {
   /** `GET /v1/system/update/version` */
   systemVersion: () => HandlerResult<Api.SystemVersion>
   /** `GET /v1/system/users` */
-  siloUsersListV1: (params: {
-    query: Api.SiloUsersListV1QueryParams
+  siloUserListV1: (params: {
+    query: Api.SiloUserListV1QueryParams
   }) => HandlerResult<Api.UserResultsPage>
   /** `GET /v1/system/users/:userId` */
   siloUserViewV1: (params: {
@@ -2038,6 +2060,39 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
       '/v1/instances/:instance/stop',
       handler(handlers['instanceStopV1'], schema.InstanceStopV1Params, null)
     ),
+    rest.get('/v1/me', handler(handlers['currentUserViewV1'], null, null)),
+    rest.get(
+      '/v1/me/groups',
+      handler(handlers['currentUserGroupsV1'], schema.CurrentUserGroupsV1Params, null)
+    ),
+    rest.get(
+      '/v1/me/ssh-keys',
+      handler(
+        handlers['currentUserSshKeyListV1'],
+        schema.CurrentUserSshKeyListV1Params,
+        null
+      )
+    ),
+    rest.post(
+      '/v1/me/ssh-keys',
+      handler(handlers['currentUserSshKeyCreateV1'], null, schema.SshKeyCreate)
+    ),
+    rest.get(
+      '/v1/me/ssh-keys/:sshKey',
+      handler(
+        handlers['currentUserSshKeyViewV1'],
+        schema.CurrentUserSshKeyViewV1Params,
+        null
+      )
+    ),
+    rest.delete(
+      '/v1/me/ssh-keys/:sshKey',
+      handler(
+        handlers['currentUserSshKeyDeleteV1'],
+        schema.CurrentUserSshKeyDeleteV1Params,
+        null
+      )
+    ),
     rest.get(
       '/v1/network-interfaces',
       handler(
@@ -2408,7 +2463,7 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
     rest.get('/v1/system/update/version', handler(handlers['systemVersion'], null, null)),
     rest.get(
       '/v1/system/users',
-      handler(handlers['siloUsersListV1'], schema.SiloUsersListV1Params, null)
+      handler(handlers['siloUserListV1'], schema.SiloUserListV1Params, null)
     ),
     rest.get(
       '/v1/system/users/:userId',

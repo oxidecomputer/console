@@ -186,14 +186,16 @@ export const lookup = {
     if (!sled) throw notFoundErr
     return sled
   },
-}
+  sshKey({ sshKey: id }: PP.SshKey): Json<Api.SshKey> {
+    // we don't have a concept of mock session. assume the user is user1
+    const userSshKeys = db.sshKeys.filter((key) => key.silo_user_id === user1.id)
 
-export function lookupSshKey(params: PP.SshKey): Json<Api.SshKey> {
-  const sshKey = db.sshKeys.find(
-    (key) => key.name === params.sshKeyName && key.silo_user_id === user1.id
-  )
-  if (!sshKey) throw notFoundErr
-  return sshKey
+    if (isUuid(id)) return lookupById(userSshKeys, id)
+
+    const sshKey = userSshKeys.find((key) => key.name === id)
+    if (!sshKey) throw notFoundErr
+    return sshKey
+  },
 }
 
 const initDb = {

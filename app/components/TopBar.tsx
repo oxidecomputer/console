@@ -23,7 +23,7 @@ export function TopBar({ children }: { children: React.ReactNode }) {
       navToLogin({ includeCurrent: false })
     },
   })
-  const { data: user } = useApiQuery('sessionMe', {}, { cacheTime: 0 })
+  const { data: user } = useApiQuery('currentUserViewV1', {}, { cacheTime: 0 })
 
   const loggedIn = !!user
 
