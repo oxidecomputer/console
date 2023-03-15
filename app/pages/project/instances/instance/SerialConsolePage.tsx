@@ -1,4 +1,4 @@
-import { Suspense, lazy } from 'react'
+import { Suspense, lazy, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 
 import { Button } from '@oxide/ui'
@@ -13,14 +13,20 @@ const Terminal = lazy(() => import('app/components/Terminal'))
 export function SerialConsolePage() {
   const { organization, project, instance } = useInstanceSelector()
 
-  // TODO: might want to initialize websocket here and pass it into the terminal
-  // instead so we can do error handling and status management here
+  // unclear if this should be a ref, it could be normal state or even a useMemo
+  const wsRef = useRef<WebSocket | null>(null)
 
-  // TODO: janky to do this url construction here. maybe we can have oxide.ts
-  // detect websocket endpoints and give us a helper that constructs a WebSocket
-  // instead of calling fetch
-  const wsUrl = `ws://${window.location.host}/v1/instances/${instance}/serial-console/stream?organization=${organization}&project=${project}`
-  const status = 'connected' // TODO
+  useEffect(() => {
+    // TODO: janky to do this url construction here. maybe we can have oxide.ts
+    // detect websocket endpoints and give us a helper that constructs a WebSocket
+    // instead of calling fetch
+    // TODO: error handling if this connection fails
+    const wsUrl = `ws://${window.location.host}/v1/instances/${instance}/serial-console/stream?organization=${organization}&project=${project}`
+    wsRef.current = new WebSocket(wsUrl)
+    return () => wsRef.current?.close()
+  }, [organization, project, instance])
+
+  const connected = wsRef.current?.readyState === WebSocket.OPEN
 
   return (
     <div className="!mx-0 flex h-full max-h-[calc(100vh-60px)] !w-full flex-col">
@@ -35,9 +41,9 @@ export function SerialConsolePage() {
       </Link>
 
       <div className="gutter relative w-full flex-shrink flex-grow overflow-hidden">
-        {status !== 'connected' && <SerialSkeleton />}
+        {!connected && <SerialSkeleton />}
         <Suspense fallback={null}>
-          <Terminal wsUrl={wsUrl} />
+          {wsRef.current && <Terminal ws={wsRef.current} />}
         </Suspense>
       </div>
       <div className="flex-shrink-0 justify-between overflow-hidden border-t bg-default border-secondary empty:border-t-0">
@@ -48,7 +54,7 @@ export function SerialConsolePage() {
             </Button>
           </div>
 
-          <SerialConsoleStatusBadge status={status} />
+          <SerialConsoleStatusBadge status={connected ? 'connected' : 'connecting'} />
         </div>
       </div>
     </div>

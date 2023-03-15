@@ -9,7 +9,7 @@ import { DirectionDownIcon, DirectionUpIcon } from '@oxide/ui'
 import { classed } from '@oxide/util'
 
 interface TerminalProps {
-  wsUrl: string
+  ws: WebSocket
 }
 
 const options: ITerminalOptions = {
@@ -48,7 +48,7 @@ function getTheme() {
   }
 }
 
-export const Terminal = ({ wsUrl }: TerminalProps) => {
+export const Terminal = ({ ws }: TerminalProps) => {
   const [term, setTerm] = useState<XTerm | null>(null)
   const terminalRef = useRef(null)
 
@@ -65,8 +65,6 @@ export const Terminal = ({ wsUrl }: TerminalProps) => {
     const fitAddon = new FitAddon()
     newTerm.loadAddon(fitAddon)
 
-    // TODO: error handling if this connection fails
-    const ws = new WebSocket(wsUrl)
     const attachAddon = new AttachAddon(ws)
     newTerm.loadAddon(attachAddon)
 
@@ -77,7 +75,6 @@ export const Terminal = ({ wsUrl }: TerminalProps) => {
     window.addEventListener('resize', resize)
     return () => {
       newTerm.dispose()
-      ws.close() // TODO: is this necessary
       window.removeEventListener('resize', resize)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
