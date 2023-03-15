@@ -1,10 +1,8 @@
 import { Suspense, lazy } from 'react'
 import { Link } from 'react-router-dom'
 
-import { useApiQuery } from '@oxide/api'
 import { Button } from '@oxide/ui'
 import { DirectionLeftIcon, Spinner } from '@oxide/ui'
-import { MiB } from '@oxide/util'
 
 import { SerialConsoleStatusBadge } from 'app/components/StatusBadge'
 import { useInstanceSelector } from 'app/hooks'
@@ -15,15 +13,14 @@ const Terminal = lazy(() => import('app/components/Terminal'))
 export function SerialConsolePage() {
   const { organization, project, instance } = useInstanceSelector()
 
-  const { isRefetching, data, refetch } = useApiQuery(
-    'instanceSerialConsoleV1',
-    {
-      path: { instance },
-      // holding off on using toPathQuery for now because it doesn't like numbers
-      query: { organization, project, maxBytes: 10 * MiB, fromStart: 0 },
-    },
-    { refetchOnWindowFocus: false }
-  )
+  // TODO: might want to initialize websocket here and pass it into the terminal
+  // instead so we can do error handling and status management here
+
+  // TODO: janky to do this url construction here. maybe we can have oxide.ts
+  // detect websocket endpoints and give us a helper that constructs a WebSocket
+  // instead of calling fetch
+  const wsUrl = `ws://${window.location.host}/v1/instances/${instance}/serial-console/stream?organization=${organization}&project=${project}`
+  const status = 'connected' // TODO
 
   return (
     <div className="!mx-0 flex h-full max-h-[calc(100vh-60px)] !w-full flex-col">
@@ -38,29 +35,20 @@ export function SerialConsolePage() {
       </Link>
 
       <div className="gutter relative w-full flex-shrink flex-grow overflow-hidden">
-        {!data && <SerialSkeleton />}
+        {status !== 'connected' && <SerialSkeleton />}
         <Suspense fallback={null}>
-          <Terminal data={data?.data} />
+          <Terminal wsUrl={wsUrl} />
         </Suspense>
       </div>
       <div className="flex-shrink-0 justify-between overflow-hidden border-t bg-default border-secondary empty:border-t-0">
         <div className="gutter flex h-20 items-center justify-between">
           <div>
-            <Button
-              loading={isRefetching}
-              size="sm"
-              onClick={() => refetch()}
-              disabled={!data}
-            >
-              Refresh
-            </Button>
-
-            <Button variant="ghost" size="sm" disabled={!data} className="ml-2">
+            <Button variant="ghost" size="sm" className="ml-2">
               Equivalent CLI Command
             </Button>
           </div>
 
-          <SerialConsoleStatusBadge status={data ? 'connected' : 'connecting'} />
+          <SerialConsoleStatusBadge status={status} />
         </div>
       </div>
     </div>

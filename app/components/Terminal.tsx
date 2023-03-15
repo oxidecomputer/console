@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { ITerminalOptions } from 'xterm'
 import { Terminal as XTerm } from 'xterm'
+import { AttachAddon } from 'xterm-addon-attach'
 import { FitAddon } from 'xterm-addon-fit'
 import 'xterm/css/xterm.css'
 
@@ -8,7 +9,7 @@ import { DirectionDownIcon, DirectionUpIcon } from '@oxide/ui'
 import { classed } from '@oxide/util'
 
 interface TerminalProps {
-  data?: number[]
+  wsUrl: string
 }
 
 const options: ITerminalOptions = {
@@ -47,7 +48,7 @@ function getTheme() {
   }
 }
 
-export const Terminal = ({ data }: TerminalProps) => {
+export const Terminal = ({ wsUrl }: TerminalProps) => {
   const [term, setTerm] = useState<XTerm | null>(null)
   const terminalRef = useRef(null)
 
@@ -64,6 +65,11 @@ export const Terminal = ({ data }: TerminalProps) => {
     const fitAddon = new FitAddon()
     newTerm.loadAddon(fitAddon)
 
+    // TODO: error handling if this connection fails
+    const ws = new WebSocket(wsUrl)
+    const attachAddon = new AttachAddon(ws)
+    newTerm.loadAddon(attachAddon)
+
     // Handle window resizing
     const resize = () => fitAddon.fit()
 
@@ -71,17 +77,11 @@ export const Terminal = ({ data }: TerminalProps) => {
     window.addEventListener('resize', resize)
     return () => {
       newTerm.dispose()
+      ws.close() // TODO: is this necessary
       window.removeEventListener('resize', resize)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-
-  useEffect(() => {
-    if (data) {
-      term?.clear()
-      term?.write(new Uint8Array(data))
-    }
-  }, [term, data])
 
   return (
     <>
