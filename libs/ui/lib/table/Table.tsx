@@ -1,9 +1,10 @@
 import cn from 'classnames'
+import type { ReactElement } from 'react'
 import React, { useRef } from 'react'
 import SimpleBar from 'simplebar-react'
 import 'simplebar-react/dist/simplebar.min.css'
 
-import { addProps, classed } from '@oxide/util'
+import { classed } from '@oxide/util'
 
 import { useIsOverflow } from 'app/hooks'
 
@@ -66,23 +67,21 @@ Table.Row = ({ className, selected, ...props }: TableRowProps) => (
 
 export type TableBodyProps = JSX.IntrinsicElements['tbody']
 Table.Body = ({ className, children, ...props }: TableBodyProps) => {
-  const rows = React.Children.toArray(children).map(
-    addProps<typeof Table.Row>((i, props, siblings) => {
-      const beforeSelected = siblings[i - 1]?.props.selected
-      const afterSelected = siblings[i + 1]?.props.selected
-      if (props.selected && (beforeSelected || afterSelected)) {
-        return {
-          className: cn(
-            props.className,
+  const rows = React.Children.toArray(children).map((c, i, siblings) => {
+    const child = c as ReactElement
+    const beforeSelected = (siblings[i - 1] as ReactElement | undefined)?.props.selected
+    const afterSelected = (siblings[i + 1] as ReactElement | undefined)?.props.selected
+    const className =
+      child.props.selected && (beforeSelected || afterSelected)
+        ? cn(
+            child.props.className,
             'multi-selection',
             !beforeSelected && 'selection-start',
             !afterSelected && 'selection-end'
-          ),
-        }
-      }
-      return {}
-    })
-  )
+          )
+        : child.props.className
+    return React.cloneElement(child, { ...child.props, className })
+  })
   return (
     <tbody className={className} {...props}>
       {rows}

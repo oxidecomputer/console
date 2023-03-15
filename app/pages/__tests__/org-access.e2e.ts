@@ -95,11 +95,11 @@ test('Click through org access page', async ({ page }) => {
   await expectRowVisible(table, { Name: user3.display_name, 'Org role': 'viewer' })
 
   // now delete user 2
+  await expectVisible(page, [`role=cell[name="${user2.display_name}"]`])
   await page
     .locator('role=row', { hasText: user2.display_name })
     .locator('role=button[name="Row actions"]')
     .click()
-  await expectVisible(page, [`role=cell[name="${user2.display_name}"]`])
   await page.click('role=menuitem[name="Delete"]')
   await expectNotVisible(page, [`role=cell[name="${user2.display_name}"]`])
 

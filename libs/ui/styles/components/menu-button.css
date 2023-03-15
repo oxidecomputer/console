@@ -1,23 +1,26 @@
-[data-reach-menu-list] {
+.DropdownMenuContent {
   @apply min-w-[14rem] rounded border p-0 bg-raise border-secondary;
 
-  & [data-reach-menu-item] {
-    @apply border-b py-2 pl-3 pr-6 text-left text-sans-md text-secondary border-secondary last-of-type:border-b-0;
+  & .DropdownMenuItem {
+    @apply block cursor-pointer select-none border-b py-2 pl-3 pr-6 text-left
+           text-sans-md text-secondary border-secondary last-of-type:border-b-0;
 
     &.destructive {
       @apply text-destructive;
     }
 
-    &[aria-disabled] {
-      @apply opacity-100 text-disabled;
+    &[data-disabled] {
+      @apply cursor-not-allowed text-disabled;
     }
 
-    &.destructive[aria-disabled] {
+    &.destructive[data-disabled] {
       @apply text-destructive-disabled;
     }
 
-    &[data-selected] {
-      @apply bg-secondary;
+    &[data-highlighted] {
+      /* background: hsl(211, 81%, 36%); */
+      outline: none;
+      @apply bg-raise-hover;
     }
   }
 }
@@ -33,13 +36,12 @@
   }
 }
 
-/*
-  CSS animation for dropdown (only works on first open)
-  Could narrow down with a class if we have other non-dropdown MenuLists in the future
-*/
-@media (prefers-reduced-motion: no-preference) {
-  [data-reach-menu-list],
-  [data-reach-menu-items] {
-    animation: slide-down 0.2s ease;
+.DropdownMenuContent {
+  animation: slide-down 0.2s ease;
+}
+
+@media (prefers-reduced-motion) {
+  .DropdownMenuContent {
+    animation-name: none;
   }
 }

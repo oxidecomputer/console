@@ -11,7 +11,7 @@ import { serial } from '../serial'
 import { defaultSilo, toIdp } from '../silo'
 import { sortBySemverDesc } from '../update'
 import { user1 } from '../user'
-import { db, lookup, lookupById, lookupSshKey } from './db'
+import { db, lookup, lookupById } from './db'
 import {
   NotImplemented,
   errIfExists,
@@ -776,20 +776,20 @@ export const handlers = makeHandlers({
     return body
   },
   rackListV1: ({ query }) => paginated(query, db.racks),
-  sessionMe() {
+  currentUserViewV1() {
     return user1
   },
-  sessionMeGroups() {
+  currentUserGroupsV1() {
     const memberships = db.groupMemberships.filter((gm) => gm.userId === user1.id)
     const groupIds = new Set(memberships.map((gm) => gm.groupId))
     const groups = db.userGroups.filter((g) => groupIds.has(g.id))
     return { items: groups }
   },
-  sessionSshkeyList(params) {
+  currentUserSshKeyListV1({ query }) {
     const keys = db.sshKeys.filter((k) => k.silo_user_id === user1.id)
-    return paginated(params.query, keys)
+    return paginated(query, keys)
   },
-  sessionSshkeyCreate({ body }) {
+  currentUserSshKeyCreateV1({ body }) {
     errIfExists(db.sshKeys, { silo_user_id: user1.id, name: body.name })
 
     const newSshKey: Json<Api.SshKey> = {
@@ -801,9 +801,9 @@ export const handlers = makeHandlers({
     db.sshKeys.push(newSshKey)
     return json(newSshKey, { status: 201 })
   },
-  sessionSshkeyView: (params) => lookupSshKey(params.path),
-  sessionSshkeyDelete(params) {
-    const sshKey = lookupSshKey(params.path)
+  currentUserSshKeyViewV1: ({ path }) => lookup.sshKey(path),
+  currentUserSshKeyDeleteV1({ path }) {
+    const sshKey = lookup.sshKey(path)
     db.sshKeys = db.sshKeys.filter((i) => i.id !== sshKey.id)
     return 204
   },
@@ -1026,7 +1026,7 @@ export const handlers = makeHandlers({
   sagaViewV1: NotImplemented,
   siloPolicyUpdateV1: NotImplemented,
   siloPolicyViewV1: NotImplemented,
-  siloUsersListV1: NotImplemented,
+  siloUserListV1: NotImplemented,
   siloUserViewV1: NotImplemented,
   sledViewV1: NotImplemented,
   systemPolicyUpdateV1: NotImplemented,
@@ -1056,9 +1056,9 @@ export const handlers = makeHandlers({
   diskView: NotImplemented,
   groupList: NotImplemented,
   imageCreate: NotImplemented,
+  imageDelete: NotImplemented,
   imageList: NotImplemented,
   imageView: NotImplemented,
-  imageDelete: NotImplemented,
   instanceCreate: NotImplemented,
   instanceDelete: NotImplemented,
   instanceDiskAttach: NotImplemented,
@@ -1100,6 +1100,12 @@ export const handlers = makeHandlers({
   rackView: NotImplemented,
   samlIdentityProviderCreate: NotImplemented,
   samlIdentityProviderView: NotImplemented,
+  sessionMe: NotImplemented,
+  sessionMeGroups: NotImplemented,
+  sessionSshkeyCreate: NotImplemented,
+  sessionSshkeyDelete: NotImplemented,
+  sessionSshkeyList: NotImplemented,
+  sessionSshkeyView: NotImplemented,
   siloCreate: NotImplemented,
   siloDelete: NotImplemented,
   siloIdentityProviderList: NotImplemented,
@@ -1127,11 +1133,11 @@ export const handlers = makeHandlers({
   vpcRouterList: NotImplemented,
   vpcRouterRouteCreate: NotImplemented,
   vpcRouterRouteDelete: NotImplemented,
-  vpcRouterUpdate: NotImplemented,
-  vpcRouterView: NotImplemented,
   vpcRouterRouteList: NotImplemented,
   vpcRouterRouteUpdate: NotImplemented,
   vpcRouterRouteView: NotImplemented,
+  vpcRouterUpdate: NotImplemented,
+  vpcRouterView: NotImplemented,
   vpcSubnetCreate: NotImplemented,
   vpcSubnetDelete: NotImplemented,
   vpcSubnetList: NotImplemented,

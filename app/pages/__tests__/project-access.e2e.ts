@@ -107,11 +107,11 @@ test('Click through project access page', async ({ page }) => {
 
   // now delete user 3. has to be 3 or 4 because they're the only ones that come
   // from the project policy
+  await expectVisible(page, [`role=cell[name="${user3.display_name}"]`])
   await page
     .locator('role=row', { hasText: user3.display_name })
     .locator('role=button[name="Row actions"]')
     .click()
-  await expectVisible(page, [`role=cell[name="${user3.display_name}"]`])
   await page.click('role=menuitem[name="Delete"]')
   await expectNotVisible(page, [`role=cell[name="${user3.display_name}"]`])
 

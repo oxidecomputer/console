@@ -80,7 +80,7 @@ export function ActionMenu(props: ActionMenuProps) {
     >
       <Dialog.Portal>
         <Dialog.Overlay className="DialogOverlay" />
-        <Dialog.Content className="DialogContent ActionMenu mt-[20vh] !w-[46rem] bg-transparent p-0">
+        <Dialog.Content className="DialogContent fixed inset-0 mt-[20vh] !w-[46rem] bg-transparent p-0">
           <div
             onKeyDown={(e) => {
               const lastIdx = itemsInOrder.length - 1
@@ -192,9 +192,7 @@ export function ActionMenu(props: ActionMenuProps) {
                 </div>
                 <div className="flex justify-between rounded-b-[3px] px-4 py-2 text-secondary bg-tertiary">
                   <ActionMenuHotkey keys={['Enter']} action="submit" />
-
                   <ActionMenuHotkey keys={['Arrow Up', 'Arrow Down']} action="select" />
-
                   <ActionMenuHotkey keys={['Esc']} action="close" />
                 </div>
               </div>

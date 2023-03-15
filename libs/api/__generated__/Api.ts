@@ -3007,6 +3007,26 @@ export interface InstanceStopV1QueryParams {
   project?: NameOrId
 }
 
+export interface CurrentUserGroupsV1QueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: IdSortMode
+}
+
+export interface CurrentUserSshKeyListV1QueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: NameOrIdSortMode
+}
+
+export interface CurrentUserSshKeyViewV1PathParams {
+  sshKey: NameOrId
+}
+
+export interface CurrentUserSshKeyDeleteV1PathParams {
+  sshKey: NameOrId
+}
+
 export interface InstanceNetworkInterfaceListV1QueryParams {
   instance?: NameOrId
   limit?: number
@@ -3351,7 +3371,7 @@ export interface SystemUpdateComponentsListPathParams {
   version: SemverVersion
 }
 
-export interface SiloUsersListV1QueryParams {
+export interface SiloUserListV1QueryParams {
   limit?: number
   pageToken?: string
   silo?: NameOrId
@@ -3637,6 +3657,7 @@ export type ApiListMethods = Pick<
   | 'instanceListV1'
   | 'instanceDiskListV1'
   | 'instanceExternalIpListV1'
+  | 'currentUserSshKeyListV1'
   | 'instanceNetworkInterfaceListV1'
   | 'organizationListV1'
   | 'projectListV1'
@@ -3656,7 +3677,7 @@ export type ApiListMethods = Pick<
   | 'updateDeploymentsList'
   | 'systemUpdateList'
   | 'systemUpdateComponentsList'
-  | 'siloUsersListV1'
+  | 'siloUserListV1'
   | 'userListV1'
   | 'vpcRouterRouteListV1'
   | 'vpcRouterListV1'
@@ -6116,6 +6137,84 @@ export class Api extends HttpClient {
       })
     },
     /**
+     * Fetch the user associated with the current session
+     */
+    currentUserViewV1: (_: EmptyObj, params: RequestParams = {}) => {
+      return this.request<User>({
+        path: `/v1/me`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Fetch the silo groups the current user belongs to
+     */
+    currentUserGroupsV1: (
+      { query = {} }: { query?: CurrentUserGroupsV1QueryParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<GroupResultsPage>({
+        path: `/v1/me/groups`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List SSH public keys
+     */
+    currentUserSshKeyListV1: (
+      { query = {} }: { query?: CurrentUserSshKeyListV1QueryParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<SshKeyResultsPage>({
+        path: `/v1/me/ssh-keys`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create an SSH public key
+     */
+    currentUserSshKeyCreateV1: (
+      { body }: { body: SshKeyCreate },
+      params: RequestParams = {}
+    ) => {
+      return this.request<SshKey>({
+        path: `/v1/me/ssh-keys`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Fetch an SSH public key
+     */
+    currentUserSshKeyViewV1: (
+      { path }: { path: CurrentUserSshKeyViewV1PathParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<SshKey>({
+        path: `/v1/me/ssh-keys/${path.sshKey}`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Delete an SSH public key
+     */
+    currentUserSshKeyDeleteV1: (
+      { path }: { path: CurrentUserSshKeyDeleteV1PathParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/me/ssh-keys/${path.sshKey}`,
+        method: 'DELETE',
+        ...params,
+      })
+    },
+    /**
      * List network interfaces
      */
     instanceNetworkInterfaceListV1: (
@@ -7177,8 +7276,8 @@ export class Api extends HttpClient {
     /**
      * List users in a silo
      */
-    siloUsersListV1: (
-      { query = {} }: { query?: SiloUsersListV1QueryParams },
+    siloUserListV1: (
+      { query = {} }: { query?: SiloUserListV1QueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<UserResultsPage>({
