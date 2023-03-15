@@ -1,9 +1,9 @@
-import { Suspense, lazy } from 'react'
+import { Suspense, lazy, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import { useApiQuery } from '@oxide/api'
 import { Button } from '@oxide/ui'
-import { DirectionLeftIcon, Spinner } from '@oxide/ui'
+import { DirectionLeftIcon, Modal, Spinner } from '@oxide/ui'
 import { MiB } from '@oxide/util'
 
 import { SerialConsoleStatusBadge } from 'app/components/StatusBadge'
@@ -55,15 +55,58 @@ export function SerialConsolePage() {
               Refresh
             </Button>
 
-            <Button variant="ghost" size="sm" disabled={!data} className="ml-2">
-              Equivalent CLI Command
-            </Button>
+            <EquivalentCliCommand />
           </div>
 
           <SerialConsoleStatusBadge status={data ? 'connected' : 'connecting'} />
         </div>
       </div>
     </div>
+  )
+}
+
+function EquivalentCliCommand() {
+  const [isOpen, setIsOpen] = useState(false)
+  const { organization, project, instance } = useInstanceSelector()
+
+  const code = `oxide instance serial
+  -p ${project}
+  -o ${organization}
+  ${instance}
+  --continuous`
+
+  function handleDismiss() {
+    setIsOpen(false)
+  }
+
+  // todo: add successfully copied state to button
+  // can setup like loading but use checkmark roundel icon
+  function handleAction() {
+    window.navigator.clipboard.writeText(code)
+  }
+
+  return (
+    <>
+      <Button variant="ghost" size="sm" className="ml-2" onClick={() => setIsOpen(true)}>
+        Equivalent CLI Command
+      </Button>
+      <Modal isOpen={isOpen} onDismiss={handleDismiss}>
+        <Modal.Title>CLI Command</Modal.Title>
+
+        <Modal.Section>
+          {/* todo: fix the token to disable contextual alternates in the mono font */}
+          <pre className="flex w-full rounded border px-4 py-3 !normal-case !tracking-normal text-mono-md bg-default border-secondary [font-feature-settings:_'calt'_off]">
+            <div className="mr-2 select-none text-quaternary">$</div>
+            {code}
+          </pre>
+        </Modal.Section>
+        <Modal.Footer
+          onDismiss={handleDismiss}
+          onAction={handleAction}
+          actionText="Copy to clipboard"
+        />
+      </Modal>
+    </>
   )
 }
 
