@@ -1,12 +1,11 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { waitFor } from '@testing-library/react'
-import { act, renderHook } from '@testing-library/react-hooks'
+import { act, render, renderHook, waitFor } from '@testing-library/react'
+import { vi } from 'vitest'
 
 import { org } from '@oxide/api-mocks'
 
 import { overrideOnce } from 'app/test/unit'
 
-import type { ApiError } from '..'
 import { useApiMutation, useApiQuery } from '..'
 
 // because useApiQuery and useApiMutation are almost entirely typed wrappers
@@ -108,21 +107,31 @@ describe('useApiQuery', () => {
   })
 
   describe('on 404 response', () => {
+    // This is a weird test. react-hooks-testing-library's renderHook used to
+    // catch the error for us, so it was easy to assert about. Without that, I
+    // wanted to render an ErrorBoundary, using the `onError` prop for the spy
+    // and asserting that it got called. That worked, but jsdom considered the
+    // error unhandled for some reason and filled the terminal with garbage. So
+    // instead we just catch the exception directly in a way you would never
+    // want to do in real code. Dubious!
     it('throws by default', async () => {
-      const { result } = renderHook(
-        () =>
-          useApiQuery('organizationViewV1', {
-            path: { organization: 'nonexistent' },
-          }),
-        config
-      )
+      const onError = vi.fn()
 
-      // The error is thrown asynchronously by the hook so it can propagate up
-      // the tree. Fortunately result.error exists for precisely this use case.
+      function BadApiCall() {
+        try {
+          useApiQuery('organizationViewV1', { path: { organization: 'nonexistent' } })
+        } catch (e) {
+          onError(e)
+        }
+        return null
+      }
+
+      render(<BadApiCall />, config)
+
       await waitFor(() => {
-        const error = result.error as ApiError | undefined
-        expect(error?.statusCode).toEqual(404)
+        const error = onError.mock.lastCall?.[0]
         expect(error?.error).toMatchObject({ errorCode: 'ObjectNotFound' })
+        expect(error?.statusCode).toEqual(404)
       })
     })
 

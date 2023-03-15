@@ -1,4 +1,4 @@
-import Dialog from '@reach/dialog'
+import * as Dialog from '@radix-ui/react-dialog'
 import cn from 'classnames'
 import { matchSorter } from 'match-sorter'
 import React, { useState } from 'react'
@@ -71,129 +71,136 @@ export function ActionMenu(props: ActionMenuProps) {
   }
 
   return (
-    <Dialog
-      className="ActionMenu mt-[20vh] !w-[46rem] bg-transparent p-0"
+    <Dialog.Root
       aria-label={props['aria-label']}
-      isOpen={props.isOpen}
-      onDismiss={onDismiss}
+      open={props.isOpen}
+      onOpenChange={(open) => {
+        if (!open) onDismiss()
+      }}
     >
-      <div
-        onKeyDown={(e) => {
-          const lastIdx = itemsInOrder.length - 1
-          if (e.key === 'Enter') {
-            if (selectedItem) {
-              selectedItem.onSelect()
-              onDismiss()
-            }
-          } else if (e.key === 'ArrowDown') {
-            const newIdx = selectedIdx === lastIdx ? 0 : selectedIdx + 1
-            setSelectedIdx(newIdx)
-          } else if (e.key === 'ArrowUp') {
-            const newIdx = selectedIdx === 0 ? lastIdx : selectedIdx - 1
-            setSelectedIdx(newIdx)
-          }
-        }}
-        role="combobox"
-        tabIndex={-1}
-        aria-controls="TODO"
-        aria-expanded
-      >
-        <div
-          className={cn(
-            'flex h-14 w-full overflow-y-auto rounded-lg border bg-raise border-secondary elevation-3'
-          )}
-        >
-          <input
-            ref={inputRef}
-            className={cn(
-              'mousetrap caret-gray-100 w-full bg-transparent px-4 text-sans-xl focus:outline-none',
-              props.inputClassName
-            )}
-            value={input}
-            onChange={(e) => {
-              setSelectedIdx(0)
-              setInput(e.target.value)
+      <Dialog.Portal>
+        <Dialog.Overlay className="DialogOverlay" />
+        <Dialog.Content className="DialogContent fixed inset-0 mt-[20vh] !w-[46rem] bg-transparent p-0">
+          <div
+            onKeyDown={(e) => {
+              const lastIdx = itemsInOrder.length - 1
+              if (e.key === 'Enter') {
+                if (selectedItem) {
+                  selectedItem.onSelect()
+                  onDismiss()
+                }
+              } else if (e.key === 'ArrowDown') {
+                const newIdx = selectedIdx === lastIdx ? 0 : selectedIdx + 1
+                setSelectedIdx(newIdx)
+              } else if (e.key === 'ArrowUp') {
+                const newIdx = selectedIdx === 0 ? lastIdx : selectedIdx - 1
+                setSelectedIdx(newIdx)
+              }
             }}
-            placeholder="Search"
-            spellCheck="false"
-          />
-
-          {input.length > 0 && (
-            <button
-              className="flex items-center py-6 pl-6 pr-4 text-secondary"
-              onClick={() => {
-                setInput('')
-                inputRef.current?.focus()
-              }}
-            >
-              <Close12Icon />
-            </button>
-          )}
-
-          <button
-            onClick={onDismiss}
-            className="flex h-full items-center border-l px-6 align-middle text-mono-sm text-secondary border-secondary"
+            role="combobox"
+            tabIndex={-1}
+            aria-controls="TODO"
+            aria-expanded
           >
-            Dismiss
-          </button>
-        </div>
-
-        {items.length > 0 && (
-          <div className="relative mt-5 transform-gpu overflow-hidden rounded-lg elevation-3">
             <div
-              className="overflow-y-auto"
-              ref={divRef}
-              style={{ maxHeight: LIST_HEIGHT }}
+              className={cn(
+                'flex h-14 w-full overflow-y-auto rounded-lg border bg-raise border-secondary elevation-3'
+              )}
             >
-              <ul ref={ulRef}>
-                {allGroups.map(([label, items]) => (
-                  <div key={label}>
-                    <h3 className="sticky top-0 z-20 h-[32px] px-4 py-2 text-mono-sm text-secondary bg-tertiary">
-                      {label}
-                    </h3>
-                    {items.map((item) => (
-                      <div key={item.value} className="relative -mt-px first-of-type:mt-0">
-                        {item.value === selectedItem?.value && <Outline />}
+              <input
+                ref={inputRef}
+                className={cn(
+                  'mousetrap caret-gray-100 w-full bg-transparent px-4 text-sans-xl focus:outline-none',
+                  props.inputClassName
+                )}
+                value={input}
+                onChange={(e) => {
+                  setSelectedIdx(0)
+                  setInput(e.target.value)
+                }}
+                placeholder="Search"
+                spellCheck="false"
+              />
 
-                        {/*
+              {input.length > 0 && (
+                <button
+                  className="flex items-center py-6 pl-6 pr-4 text-secondary"
+                  onClick={() => {
+                    setInput('')
+                    inputRef.current?.focus()
+                  }}
+                >
+                  <Close12Icon />
+                </button>
+              )}
+
+              <button
+                onClick={onDismiss}
+                className="flex h-full items-center border-l px-6 align-middle text-mono-sm text-secondary border-secondary"
+              >
+                Dismiss
+              </button>
+            </div>
+
+            {items.length > 0 && (
+              <div className="relative mt-5 transform-gpu overflow-hidden rounded-lg elevation-3">
+                <div
+                  className="overflow-y-auto"
+                  ref={divRef}
+                  style={{ maxHeight: LIST_HEIGHT }}
+                >
+                  <ul ref={ulRef}>
+                    {allGroups.map(([label, items]) => (
+                      <div key={label}>
+                        <h3 className="sticky top-0 z-20 h-[32px] px-4 py-2 text-mono-sm text-secondary bg-tertiary">
+                          {label}
+                        </h3>
+                        {items.map((item) => (
+                          <div
+                            key={item.value}
+                            className="relative -mt-px first-of-type:mt-0"
+                          >
+                            {item.value === selectedItem?.value && <Outline />}
+
+                            {/*
                           TODO: there is probably a more correct way of fixing this reasonable lint error.
                           Putting a button inside the <li> is not a great solution because it becomes
                           focusable separate from the item selection
                         */}
 
-                        {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events */}
-                        <li
-                          role="option"
-                          className={cn(
-                            'box-border block h-full w-full cursor-pointer select-none overflow-visible border p-4 text-sans-md text-secondary bg-raise border-secondary hover:bg-raise-hover',
-                            item.value === selectedItem?.value &&
-                              'text-accent bg-accent-secondary hover:bg-accent-secondary-hover'
-                          )}
-                          aria-selected={item.value === selectedItem?.value}
-                          onClick={() => {
-                            item.onSelect()
-                            onDismiss()
-                          }}
-                        >
-                          {item.value}
-                        </li>
+                            {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events */}
+                            <li
+                              role="option"
+                              className={cn(
+                                'box-border block h-full w-full cursor-pointer select-none overflow-visible border p-4 text-sans-md text-secondary bg-raise border-secondary hover:bg-raise-hover',
+                                item.value === selectedItem?.value &&
+                                  'text-accent bg-accent-secondary hover:bg-accent-secondary-hover'
+                              )}
+                              aria-selected={item.value === selectedItem?.value}
+                              onClick={() => {
+                                item.onSelect()
+                                onDismiss()
+                              }}
+                            >
+                              {item.value}
+                            </li>
+                          </div>
+                        ))}
                       </div>
                     ))}
-                  </div>
-                ))}
-              </ul>
-            </div>
-            <div className="flex justify-between rounded-b-[3px] px-4 py-2 text-secondary bg-tertiary">
-              <ActionMenuHotkey keys={['Enter']} action="submit" />
-
-              <ActionMenuHotkey keys={['Arrow Up', 'Arrow Down']} action="select" />
-
-              <ActionMenuHotkey keys={['Esc']} action="close" />
-            </div>
+                  </ul>
+                </div>
+                <div className="flex justify-between rounded-b-[3px] px-4 py-2 text-secondary bg-tertiary">
+                  <ActionMenuHotkey keys={['Enter']} action="submit" />
+                  <ActionMenuHotkey keys={['Arrow Up', 'Arrow Down']} action="select" />
+                  <ActionMenuHotkey keys={['Esc']} action="close" />
+                </div>
+              </div>
+            )}
           </div>
-        )}
-      </div>
-    </Dialog>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
   )
 }
 

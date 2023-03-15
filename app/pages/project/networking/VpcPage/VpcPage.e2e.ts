@@ -12,7 +12,7 @@ test.describe('VpcPage', () => {
     await expect(page.locator('text=mock-subnet')).toBeVisible()
   })
 
-  test('can create subnet', async ({ page }) => {
+  test('can create and delete subnet', async ({ page }) => {
     await page.goto('/orgs/maze-war/projects/mock-project/vpcs/mock-vpc')
     // only one row in table, the default mock-subnet
     const rows = await page.locator('tbody >> tr')
@@ -32,6 +32,17 @@ test.describe('VpcPage', () => {
 
     await expect(rows.nth(1).locator('text="mock-subnet-2"')).toBeVisible()
     await expect(rows.nth(1).locator('text="10.1.1.2/24"')).toBeVisible()
+
+    // click more button on row to get menu, then click Delete
+    await page
+      .locator('role=row', { hasText: 'mock-subnet-2' })
+      .locator('role=button[name="Row actions"]')
+      .click()
+
+    // filter visible to distinguish from all the hidden menus' Edit button
+    await page.locator('text="Delete" >> visible=true').click()
+
+    await expect(rows).toHaveCount(1)
   })
 
   const defaultRules = ['allow-internal-inbound', 'allow-ssh', 'allow-icmp', 'allow-rdp']

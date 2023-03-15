@@ -35,7 +35,7 @@ export function RouteTabs({ children, fullWidth }: RouteTabsProps) {
   return (
     <div className={cn('ox-tabs', { 'full-width': fullWidth })}>
       {/* eslint-disable-next-line jsx-a11y/interactive-supports-focus */}
-      <div role="tablist" className="ox-tabs-list flex" onKeyDown={selectTab}>
+      <div role="tablist" className="ox-tabs-list" onKeyDown={selectTab}>
         {children}
       </div>
       {/* TODO: Add aria-describedby for active tab */}

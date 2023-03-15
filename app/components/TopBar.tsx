@@ -1,4 +1,3 @@
-import { Menu, MenuButton, MenuItem, MenuList } from '@reach/menu-button'
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -6,6 +5,7 @@ import { navToLogin, useApiMutation, useApiQuery } from '@oxide/api'
 import {
   Button,
   DirectionDownIcon,
+  DropdownMenu,
   Info16Icon,
   Notifications16Icon,
   Profile16Icon,
@@ -51,34 +51,41 @@ export function TopBar({ children }: { children: React.ReactNode }) {
             <Button variant="secondary" size="icon" className="ml-2" title="Notifications">
               <Notifications16Icon className="text-quaternary" />
             </Button>
-            <Menu>
-              <MenuButton
-                as={Button}
-                size="sm"
-                variant="secondary"
-                aria-label="User menu"
-                className="ml-2"
-                innerClassName="space-x-2"
-                title="User menu"
+            <DropdownMenu.Root>
+              <DropdownMenu.Trigger asChild>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  aria-label="User menu"
+                  className="ml-2"
+                  innerClassName="space-x-2"
+                >
+                  <Profile16Icon className="text-quaternary" />
+                  <span className="normal-case text-sans-md text-secondary">
+                    {user?.displayName || 'User'}
+                  </span>
+                  <DirectionDownIcon className="!w-2.5" />
+                </Button>
+              </DropdownMenu.Trigger>
+              <DropdownMenu.Content
+                align="end"
+                sideOffset={8}
+                className="min-w-[12.8125rem]"
               >
-                <Profile16Icon className="text-quaternary" />
-                {/* TODO: the name pops in — use a loader to hold up the whole page instead? */}
-                <span className="normal-case text-sans-md text-secondary">
-                  {user?.displayName || 'User'}
-                </span>
-                <DirectionDownIcon className="!w-2.5" />
-              </MenuButton>
-              <MenuList className="mt-2 min-w-[12.8125rem]">
-                <MenuItem onSelect={() => navigate(pb.settings())}>Settings</MenuItem>
+                <DropdownMenu.Item onSelect={() => navigate(pb.settings())}>
+                  Settings
+                </DropdownMenu.Item>
                 {loggedIn ? (
-                  <MenuItem onSelect={() => logout.mutate({})}>Sign out</MenuItem>
+                  <DropdownMenu.Item onSelect={() => logout.mutate({})}>
+                    Sign out
+                  </DropdownMenu.Item>
                 ) : (
-                  <MenuItem onSelect={() => navToLogin({ includeCurrent: true })}>
+                  <DropdownMenu.Item onSelect={() => navToLogin({ includeCurrent: true })}>
                     Sign In
-                  </MenuItem>
+                  </DropdownMenu.Item>
                 )}
-              </MenuList>
-            </Menu>
+              </DropdownMenu.Content>
+            </DropdownMenu.Root>
           </div>
         </div>
       </div>
