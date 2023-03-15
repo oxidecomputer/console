@@ -105,7 +105,7 @@ Modal.Footer = ({
   onDismiss: () => void
   onAction: () => void
   actionType?: 'primary' | 'danger'
-  actionText: string
+  actionText: React.ReactNode
 }) => (
   <footer className="mt-2 flex justify-end border-t px-3 py-3 border-secondary">
     <div>{children}</div>

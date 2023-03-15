@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 
 import { useApiQuery } from '@oxide/api'
 import { Button } from '@oxide/ui'
-import { DirectionLeftIcon, Modal, Spinner } from '@oxide/ui'
+import { DirectionLeftIcon, Modal, Spinner, Success12Icon, useTimeout } from '@oxide/ui'
 import { MiB } from '@oxide/util'
 
 import { SerialConsoleStatusBadge } from 'app/components/StatusBadge'
@@ -68,6 +68,7 @@ export function SerialConsolePage() {
 function EquivalentCliCommand() {
   const [isOpen, setIsOpen] = useState(false)
   const { organization, project, instance } = useInstanceSelector()
+  const [hasCopied, setHasCopied] = useState(false)
 
   const code = `oxide instance serial
   -p ${project}
@@ -79,10 +80,12 @@ function EquivalentCliCommand() {
     setIsOpen(false)
   }
 
-  // todo: add successfully copied state to button
-  // can setup like loading but use checkmark roundel icon
-  function handleAction() {
-    window.navigator.clipboard.writeText(code)
+  useTimeout(() => setHasCopied(false), hasCopied ? 2000 : null)
+
+  const handleCopy = () => {
+    window.navigator.clipboard.writeText(code).then(() => {
+      setHasCopied(true)
+    })
   }
 
   return (
@@ -102,8 +105,19 @@ function EquivalentCliCommand() {
         </Modal.Section>
         <Modal.Footer
           onDismiss={handleDismiss}
-          onAction={handleAction}
-          actionText="Copy to clipboard"
+          onAction={handleCopy}
+          actionText={
+            <>
+              <span className={hasCopied ? 'invisible' : ''}>Copy command</span>
+              <span
+                className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 ${
+                  hasCopied ? '' : 'invisible'
+                }`}
+              >
+                <Success12Icon className="text-accent" />
+              </span>
+            </>
+          }
         />
       </Modal>
     </>

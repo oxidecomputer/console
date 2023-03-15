@@ -1,7 +1,8 @@
 import useInterval from './lib/hooks/use-interval'
+import useTimeout from './lib/hooks/use-timeout'
 import './styles/index.css'
 
-export { useInterval }
+export { useInterval, useTimeout }
 
 export * from './lib/action-menu/ActionMenu'
 export * from './lib/auth-code/AuthCodeInput'
