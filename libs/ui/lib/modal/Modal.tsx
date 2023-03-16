@@ -68,13 +68,15 @@ export function Modal({ children, onDismiss, title, isOpen }: ModalProps) {
 }
 
 Modal.Title = ({ children }: { children?: React.ReactNode }) => (
-  <div className="mb-2 flex items-center justify-between border-b py-4 px-4 bg-secondary border-b-secondary">
+  <div className="flex items-center justify-between border-b py-4 px-4 bg-secondary border-b-secondary">
     <h2 className="text-sans-semi-lg">{children}</h2>
     <Dialog.Close className="-m-2 flex rounded p-2 hover:bg-secondary-hover">
       <Close12Icon />
     </Dialog.Close>
   </div>
 )
+
+Modal.Body = classed.div`py-2 overflow-y-scroll`
 
 Modal.Section = classed.div`p-4 space-y-6 border-b border-secondary text-secondary last-of-type:border-none text-sans-md`
 
@@ -107,7 +109,7 @@ Modal.Footer = ({
   actionType?: 'primary' | 'danger'
   actionText: React.ReactNode
 }) => (
-  <footer className="mt-2 flex justify-end border-t px-3 py-3 border-secondary">
+  <footer className="flex justify-end border-t px-3 py-3 border-secondary">
     <div>{children}</div>
     <div className="space-x-2">
       <Button variant="secondary" size="sm" onClick={onDismiss}>
