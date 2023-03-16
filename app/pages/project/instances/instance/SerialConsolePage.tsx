@@ -15,19 +15,22 @@ const Terminal = lazy(() => import('app/components/Terminal'))
 export function SerialConsolePage() {
   const { organization, project, instance } = useInstanceSelector()
 
+  const maxBytes = 10 * MiB
+
   const { isRefetching, data, refetch } = useApiQuery(
     'instanceSerialConsoleV1',
     {
       path: { instance },
       // holding off on using toPathQuery for now because it doesn't like numbers
-      query: { organization, project, maxBytes: 10 * MiB, fromStart: 0 },
+      query: { organization, project, maxBytes, fromStart: 0 },
     },
     { refetchOnWindowFocus: false }
   )
 
   const command = `oxide instance serial
-  -p ${project}
-  -o ${organization}
+  --project ${project}
+  --organization ${organization}
+  --max-bytes ${maxBytes}
   ${instance}
   --continuous`
 
