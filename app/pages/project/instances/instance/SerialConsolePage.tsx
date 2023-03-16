@@ -25,6 +25,12 @@ export function SerialConsolePage() {
     { refetchOnWindowFocus: false }
   )
 
+  const command = `oxide instance serial
+  -p ${project}
+  -o ${organization}
+  ${instance}
+  --continuous`
+
   return (
     <div className="!mx-0 flex h-full max-h-[calc(100vh-60px)] !w-full flex-col">
       <Link
@@ -55,7 +61,7 @@ export function SerialConsolePage() {
               Refresh
             </Button>
 
-            <EquivalentCliCommand />
+            <EquivalentCliCommand command={command} />
           </div>
 
           <SerialConsoleStatusBadge status={data ? 'connected' : 'connecting'} />
@@ -65,16 +71,9 @@ export function SerialConsolePage() {
   )
 }
 
-function EquivalentCliCommand() {
+function EquivalentCliCommand({ command }: { command: string }) {
   const [isOpen, setIsOpen] = useState(false)
-  const { organization, project, instance } = useInstanceSelector()
   const [hasCopied, setHasCopied] = useState(false)
-
-  const code = `oxide instance serial
-  -p ${project}
-  -o ${organization}
-  ${instance}
-  --continuous`
 
   function handleDismiss() {
     setIsOpen(false)
@@ -83,7 +82,7 @@ function EquivalentCliCommand() {
   useTimeout(() => setHasCopied(false), hasCopied ? 2000 : null)
 
   const handleCopy = () => {
-    window.navigator.clipboard.writeText(code).then(() => {
+    window.navigator.clipboard.writeText(command).then(() => {
       setHasCopied(true)
     })
   }
@@ -100,7 +99,7 @@ function EquivalentCliCommand() {
           {/* todo: fix the token to disable contextual alternates in the mono font */}
           <pre className="flex w-full rounded border px-4 py-3 !normal-case !tracking-normal text-mono-md bg-default border-secondary [font-feature-settings:_'calt'_off]">
             <div className="mr-2 select-none text-quaternary">$</div>
-            {code}
+            {command}
           </pre>
         </Modal.Section>
         <Modal.Footer
