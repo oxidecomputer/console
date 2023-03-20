@@ -20,6 +20,7 @@
       "@oxide/gen/*": ["libs/api/__generated__/*"],
       "@oxide/api": ["libs/api/index.ts"],
       "@oxide/api-mocks": ["libs/api-mocks/index.ts"],
+      "@oxide/icons": ["libs/icons/index.ts"],
       "@oxide/ui": ["libs/ui/index.ts"],
       "@oxide/util": ["libs/util/index.ts"],
       "@oxide/table": ["libs/table/index.ts"],

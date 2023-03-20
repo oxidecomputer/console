@@ -30,7 +30,7 @@
   "private": true,
   "dependencies": {
     "@floating-ui/react": "^0.21.1",
-    "@oxide/design-system": "^0.8.0",
+    "@oxide/design-system": "^0.8.1",
     "@oxide/identicon": "0.0.4",
     "@radix-ui/react-dialog": "^1.0.3",
     "@radix-ui/react-dropdown-menu": "^2.0.4",
@@ -64,6 +64,7 @@
     "tslib": "^2.5.0",
     "tunnel-rat": "^0.0.4",
     "uuid": "^8.3.2",
+    "vite-plugin-svgr": "^2.4.0",
     "xterm": "^5.1.0",
     "xterm-addon-fit": "^0.7.0",
     "zod": "^3.19.1",

@@ -1,6 +1,7 @@
 import react from '@vitejs/plugin-react'
 import { resolve } from 'path'
 import { defineConfig } from 'vite'
+import svgr from 'vite-plugin-svgr'
 
 import { dotPathFixPlugin } from './libs/vite-plugin-dot-path-fix'
 import tsConfig from './tsconfig.json'
@@ -48,6 +49,10 @@ export default defineConfig(({ mode }) => ({
       },
     }),
     dotPathFixPlugin([new RegExp('^/sys/update/updates/' + semverRegex)]),
+    svgr({
+      exportAsDefault: false,
+      include: '**/*.svg',
+    }),
   ],
   resolve: {
     // turn relative paths from tsconfig into absolute paths

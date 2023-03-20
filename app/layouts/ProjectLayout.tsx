@@ -2,16 +2,8 @@ import type { ReactElement } from 'react'
 import { useMemo } from 'react'
 import { matchPath, useLocation, useNavigate, useParams } from 'react-router-dom'
 
-import {
-  Access16Icon,
-  Divider,
-  Folder16Icon,
-  Images16Icon,
-  Instances16Icon,
-  Networking16Icon,
-  Snapshots16Icon,
-  Storage16Icon,
-} from '@oxide/ui'
+import Icon from '@oxide/icons'
+import { Divider } from '@oxide/ui'
 
 import { TopBar } from 'app/components/TopBar'
 import {
@@ -74,7 +66,7 @@ const ProjectLayout = ({ overrideContentPane }: ProjectLayoutProps) => {
       <Sidebar>
         <Sidebar.Nav>
           <NavLinkItem to={pb.projects(projectSelector)} end>
-            <Folder16Icon />
+            <Icon.Folder16 />
             Projects
           </NavLinkItem>
           <DocsLinkItem />
@@ -82,22 +74,22 @@ const ProjectLayout = ({ overrideContentPane }: ProjectLayoutProps) => {
         <Divider />
         <Sidebar.Nav heading={project}>
           <NavLinkItem to={pb.instances(projectSelector)}>
-            <Instances16Icon /> Instances
+            <Icon.Instances16 /> Instances
           </NavLinkItem>
           <NavLinkItem to={pb.snapshots(projectSelector)}>
-            <Snapshots16Icon /> Snapshots
+            <Icon.Snapshots16 /> Snapshots
           </NavLinkItem>
           <NavLinkItem to={pb.disks(projectSelector)}>
-            <Storage16Icon /> Disks
+            <Icon.Storage16 /> Disks
           </NavLinkItem>
           <NavLinkItem to={pb.projectAccess(projectSelector)}>
-            <Access16Icon title="Access & IAM" /> Access &amp; IAM
+            <Icon.Access16 /> Access &amp; IAM
           </NavLinkItem>
           <NavLinkItem to={pb.projectImages(projectSelector)}>
-            <Images16Icon title="images" /> Images
+            <Icon.Images16 /> Images
           </NavLinkItem>
           <NavLinkItem to={pb.vpcs(projectSelector)}>
-            <Networking16Icon /> Networking
+            <Icon.Networking16 /> Networking
           </NavLinkItem>
         </Sidebar.Nav>
       </Sidebar>
