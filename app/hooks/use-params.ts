@@ -1,3 +1,5 @@
+import { hashQueryKey } from '@tanstack/react-query'
+import { useMemo } from 'react'
 import type { Params } from 'react-router-dom'
 import { useParams } from 'react-router-dom'
 import invariant from 'tiny-invariant'
@@ -33,10 +35,13 @@ export const requireUpdateParams = requireParams('version')
 // params are present. Only the specified keys end up in the result object, but
 // we do not error if there are other params present in the query string.
 
-export const useOrgSelector = () => getOrgSelector(useParams())
-export const useProjectSelector = () => getProjectSelector(useParams())
-export const useInstanceSelector = () => getInstanceSelector(useParams())
-export const useVpcSelector = () => getVpcSelector(useParams())
-export const useSiloSelector = () => getSiloSelector(useParams())
-export const useSledParams = () => requireSledParams(useParams())
-export const useUpdateParams = () => requireUpdateParams(useParams())
+// eslint-disable-next-line react-hooks/exhaustive-deps
+const useMemoized = <T>(sel: T) => useMemo(() => sel, [hashQueryKey([sel])])
+
+export const useOrgSelector = () => useMemoized(getOrgSelector(useParams()))
+export const useProjectSelector = () => useMemoized(getProjectSelector(useParams()))
+export const useInstanceSelector = () => useMemoized(getInstanceSelector(useParams()))
+export const useVpcSelector = () => useMemoized(getVpcSelector(useParams()))
+export const useSiloSelector = () => useMemoized(getSiloSelector(useParams()))
+export const useSledParams = () => useMemoized(requireSledParams(useParams()))
+export const useUpdateParams = () => useMemoized(requireUpdateParams(useParams()))
