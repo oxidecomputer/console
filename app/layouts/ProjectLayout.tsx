@@ -16,7 +16,6 @@ import {
 import { TopBar } from 'app/components/TopBar'
 import {
   InstancePicker,
-  OrgPicker,
   ProjectPicker,
   useSiloSystemPicker,
 } from 'app/components/TopBarPicker'
@@ -67,7 +66,6 @@ const ProjectLayout = ({ overrideContentPane }: ProjectLayoutProps) => {
     <PageContainer>
       <TopBar>
         {useSiloSystemPicker('silo')}
-        <OrgPicker />
         <ProjectPicker />
         {instance && <InstancePicker />}
       </TopBar>

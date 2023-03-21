@@ -8,20 +8,14 @@ import { useMemo } from 'react'
 import { lowestBy, sortBy } from '@oxide/util'
 
 import { useApiQuery } from '.'
-import type {
-  FleetRole,
-  IdentityType,
-  OrganizationRole,
-  ProjectRole,
-  SiloRole,
-} from './__generated__/Api'
+import type { FleetRole, IdentityType, ProjectRole, SiloRole } from './__generated__/Api'
 
 /**
  * Union of all the specific roles, which are all the same, which makes making
  * our methods generic on the *Role type is pointless (until they stop being the same).
  * Only named `RoleName` because the API client already exports `Role`.
  */
-export type RoleKey = FleetRole | SiloRole | OrganizationRole | ProjectRole
+export type RoleKey = FleetRole | SiloRole | ProjectRole
 
 /** Turn a role order record into a sorted array of strings. */
 // used for displaying lists of roles, like in a <select>

@@ -9,12 +9,11 @@ import { SystemMetric } from 'app/components/SystemMetric'
 import { useDateTimeRangePicker } from 'app/components/form'
 
 const DEFAULT_SILO_ID = '001de000-5110-4000-8000-000000000000'
-const ALL_PROJECTS = '|ALL_PROJECTS|'
 
 const toListboxItem = (x: { name: string; id: string }) => ({ label: x.name, value: x.id })
 
 SiloUtilizationPage.loader = async () => {
-  await apiQueryClient.prefetchQuery('organizationList', {})
+  await apiQueryClient.prefetchQuery('projectList', {})
   return null
 }
 
@@ -22,31 +21,17 @@ export function SiloUtilizationPage() {
   // this will come from /session/me
   const siloId = DEFAULT_SILO_ID
 
-  const [orgId, setOrgId] = useState<string>(siloId)
-  const [projectId, setProjectId] = useState<string | null>(null)
-  const { data: orgs } = useApiQuery('organizationList', {})
+  // silo ID or project ID
+  const [filterId, setFilterId] = useState<string>(siloId)
 
-  const orgName = orgs?.items.find((o) => orgId && o.id === orgId)?.name
-
-  const { data: projects } = useApiQuery(
-    'projectList',
-    { query: { organization: orgName! } }, // only enabled if it's there
-    { enabled: !!orgName }
-  )
+  const { data: projects } = useApiQuery('projectList', {})
 
   const { startTime, endTime, dateTimeRangePicker } = useDateTimeRangePicker('lastHour')
 
-  const orgItems = useMemo(() => {
-    const items = orgs?.items.map(toListboxItem) || []
-    return [{ label: 'All orgs', value: siloId }, ...items]
-  }, [orgs, siloId])
-
   const projectItems = useMemo(() => {
     const items = projects?.items.map(toListboxItem) || []
-    return [{ label: 'All projects', value: ALL_PROJECTS }, ...items]
-  }, [projects])
-
-  const filterId = projectId || orgId
+    return [{ label: 'All projects', value: siloId }, ...items]
+  }, [projects, siloId])
 
   const commonProps = {
     startTime: startTime.toDate(getLocalTimeZone()),
@@ -66,7 +51,7 @@ export function SiloUtilizationPage() {
             <div className="mb-2">
               {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
               <label id="org-id-label" className="flex text-sans-sm">
-                Choose org
+                Choose project
               </label>
             </div>
             <Listbox
@@ -74,40 +59,15 @@ export function SiloUtilizationPage() {
               className="w-36"
               aria-labelledby="org-id-label"
               name="org-id"
-              items={orgItems}
+              items={projectItems}
               onChange={(item) => {
                 if (item) {
-                  setOrgId(item.value)
-                  setProjectId(null)
+                  setFilterId(item.value)
                 }
               }}
             />
             {/* TODO: need a button to clear the silo */}
           </div>
-
-          {orgId !== DEFAULT_SILO_ID && (
-            <div className="mr-8">
-              <div className="mb-2">
-                {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-                <label id="project-id-label" className="flex text-sans-sm">
-                  Choose project
-                </label>
-              </div>
-              <Listbox
-                key={orgId}
-                defaultValue={ALL_PROJECTS}
-                className="w-48"
-                aria-labelledby="project-id-label"
-                name="project-id-id"
-                items={projectItems}
-                onChange={(item) => {
-                  if (item) {
-                    setProjectId(item.value === ALL_PROJECTS ? null : item.value)
-                  }
-                }}
-              />
-            </div>
-          )}
         </div>
 
         {dateTimeRangePicker}

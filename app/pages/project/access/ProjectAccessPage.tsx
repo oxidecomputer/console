@@ -46,14 +46,10 @@ const EmptyState = ({ onClick }: { onClick: () => void }) => (
 )
 
 ProjectAccessPage.loader = async ({ params }: LoaderFunctionArgs) => {
-  const { organization, project } = getProjectSelector(params)
+  const { project } = getProjectSelector(params)
   await Promise.all([
     apiQueryClient.prefetchQuery('policyView', {}),
-    apiQueryClient.prefetchQuery('organizationPolicyView', { path: { organization } }),
-    apiQueryClient.prefetchQuery('projectPolicyView', {
-      path: { project },
-      query: { organization },
-    }),
+    apiQueryClient.prefetchQuery('projectPolicyView', { path: { project } }),
     // used to resolve user names
     apiQueryClient.prefetchQuery('userList', {}),
     apiQueryClient.prefetchQuery('groupList', {}),
@@ -66,7 +62,6 @@ type UserRow = {
   identityType: IdentityType
   name: string
   siloRole: RoleKey | undefined
-  orgRole: RoleKey | undefined
   projectRole: RoleKey | undefined
   effectiveRole: RoleKey
 }
@@ -78,29 +73,22 @@ export function ProjectAccessPage() {
   const [editingUserRow, setEditingUserRow] = useState<UserRow | null>(null)
   const projectSelector = useProjectSelector()
   const projectPathQuery = toPathQuery('project', projectSelector)
-  const { organization } = projectSelector
 
   const { data: siloPolicy } = useApiQuery('policyView', {})
   const siloRows = useUserRows(siloPolicy?.roleAssignments, 'silo')
-
-  const { data: orgPolicy } = useApiQuery('organizationPolicyView', {
-    path: { organization },
-  })
-  const orgRows = useUserRows(orgPolicy?.roleAssignments, 'org')
 
   const { data: projectPolicy } = useApiQuery('projectPolicyView', projectPathQuery)
   const projectRows = useUserRows(projectPolicy?.roleAssignments, 'project')
 
   const rows = useMemo(() => {
-    return groupBy(siloRows.concat(orgRows, projectRows), (u) => u.id)
+    return groupBy(siloRows.concat(projectRows), (u) => u.id)
       .map(([userId, userAssignments]) => {
         const siloRole = userAssignments.find((a) => a.roleSource === 'silo')?.roleName
-        const orgRole = userAssignments.find((a) => a.roleSource === 'org')?.roleName
         const projectRole = userAssignments.find(
           (a) => a.roleSource === 'project'
         )?.roleName
 
-        const roles = [siloRole, orgRole, projectRole].filter(isTruthy)
+        const roles = [siloRole, projectRole].filter(isTruthy)
 
         const { name, identityType } = userAssignments[0]
 
@@ -109,7 +97,6 @@ export function ProjectAccessPage() {
           identityType,
           name,
           siloRole,
-          orgRole,
           projectRole,
           // we know there has to be at least one
           effectiveRole: getEffectiveRole(roles)!,
@@ -118,7 +105,7 @@ export function ProjectAccessPage() {
         return row
       })
       .sort(byGroupThenName)
-  }, [siloRows, orgRows, projectRows])
+  }, [siloRows, projectRows])
 
   const queryClient = useApiQueryClient()
   const updatePolicy = useApiMutation('projectPolicyUpdate', {
@@ -134,10 +121,6 @@ export function ProjectAccessPage() {
       colHelper.accessor('name', { header: 'Name', cell: AccessNameCell }),
       colHelper.accessor('siloRole', {
         header: 'Silo role',
-        cell: RoleBadgeCell,
-      }),
-      colHelper.accessor('orgRole', {
-        header: 'Org role',
         cell: RoleBadgeCell,
       }),
       colHelper.accessor('projectRole', {

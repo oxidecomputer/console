@@ -2,7 +2,7 @@ import { Access16Icon, Divider, Organization16Icon, Snapshots16Icon } from '@oxi
 
 import { DocsLinkItem, NavLinkItem, Sidebar } from 'app/components/Sidebar'
 import { TopBar } from 'app/components/TopBar'
-import { OrgPicker, useSiloSystemPicker } from 'app/components/TopBarPicker'
+import { ProjectPicker, useSiloSystemPicker } from 'app/components/TopBarPicker'
 import { pb } from 'app/util/path-builder'
 
 import { ContentPane, PageContainer } from './helpers'
@@ -12,7 +12,7 @@ export default function SiloLayout() {
     <PageContainer>
       <TopBar>
         {useSiloSystemPicker('silo')}
-        <OrgPicker />
+        <ProjectPicker />
       </TopBar>
       <Sidebar>
         <Sidebar.Nav>

@@ -5,14 +5,13 @@ import { useApiQuery } from '@oxide/api'
 import {
   DropdownMenu,
   Identicon,
-  Organization16Icon,
   SelectArrows6Icon,
   Success12Icon,
   Truncate,
   Wrap,
 } from '@oxide/ui'
 
-import { useInstanceSelector, useProjectSelector, useSiloSelector } from 'app/hooks'
+import { useInstanceSelector, useSiloSelector } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 type TopBarPickerItem = {
@@ -123,12 +122,6 @@ const OrgLogo = ({ name }: { name: string }) => (
   />
 )
 
-const NoOrgLogo = () => (
-  <div className="flex h-[34px] w-[34px] items-center justify-center rounded text-secondary bg-secondary">
-    <Organization16Icon />
-  </div>
-)
-
 /**
  * Return `null` instead of the picker when the user doesn't have fleet viewer
  * perms so it can get filtered out of the children array in `<TopBar>`. Having
@@ -197,36 +190,13 @@ export function SiloPicker() {
   )
 }
 
-export function OrgPicker() {
-  const { organization } = useParams()
-  const { data } = useApiQuery('organizationList', { query: { limit: 20 } })
-  const items = (data?.items || []).map(({ name }) => ({
-    label: name,
-    to: pb.projects({ organization: name }),
-  }))
-
-  return (
-    <TopBarPicker
-      aria-label="Switch organization"
-      icon={organization ? <OrgLogo name={organization} /> : <NoOrgLogo />}
-      category="Organization"
-      current={organization}
-      to={organization ? pb.projects({ organization }) : undefined}
-      items={items}
-      noItemsText="No organizations found"
-    />
-  )
-}
-
 export function ProjectPicker() {
   // picker only shows up when a project is in scope
-  const { organization, project } = useProjectSelector()
-  const { data } = useApiQuery('projectList', {
-    query: { organization, limit: 20 },
-  })
+  const { project } = useParams()
+  const { data } = useApiQuery('projectList', { query: { limit: 20 } })
   const items = (data?.items || []).map(({ name }) => ({
     label: name,
-    to: pb.instances({ organization, project: name }),
+    to: pb.instances({ project: name }),
   }))
 
   return (
@@ -234,7 +204,7 @@ export function ProjectPicker() {
       aria-label="Switch project"
       category="Project"
       current={project}
-      to={pb.instances({ organization, project })}
+      to={project ? pb.projects() : undefined}
       items={items}
       noItemsText="No projects found"
     />

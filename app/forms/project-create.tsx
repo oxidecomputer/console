@@ -7,7 +7,7 @@ import { Success16Icon } from '@oxide/ui'
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
 import { pb } from 'app/util/path-builder'
 
-import { useOrgSelector, useToast } from '../hooks'
+import { useToast } from '../hooks'
 
 const defaultValues: ProjectCreate = {
   name: '',
@@ -19,26 +19,20 @@ export function CreateProjectSideModalForm() {
   const queryClient = useApiQueryClient()
   const addToast = useToast()
 
-  const { organization } = useOrgSelector()
-
-  const onDismiss = () => navigate(pb.projects({ organization }))
+  const onDismiss = () => navigate(pb.projects())
 
   const createProject = useApiMutation('projectCreate', {
     onSuccess(project) {
       // refetch list of projects in sidebar
-      queryClient.invalidateQueries('projectList', { query: { organization } })
+      queryClient.invalidateQueries('projectList', {})
       // avoid the project fetch when the project page loads since we have the data
-      queryClient.setQueryData(
-        'projectView',
-        { path: { project: project.name }, query: { organization } },
-        project
-      )
+      queryClient.setQueryData('projectView', { path: { project: project.name } }, project)
       addToast({
         icon: <Success16Icon />,
         title: 'Success!',
         content: 'Your project has been created.',
       })
-      navigate(pb.instances({ organization, project: project.name }))
+      navigate(pb.instances({ project: project.name }))
     },
   })
 
@@ -49,10 +43,7 @@ export function CreateProjectSideModalForm() {
       title="Create project"
       onDismiss={onDismiss}
       onSubmit={({ name, description }) => {
-        createProject.mutate({
-          query: { organization },
-          body: { name, description },
-        })
+        createProject.mutate({ body: { name, description } })
       }}
       loading={createProject.isLoading}
       submitError={createProject.error}

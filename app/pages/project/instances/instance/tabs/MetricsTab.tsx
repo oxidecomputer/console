@@ -32,7 +32,7 @@ function DiskMetric({
   startTime,
   endTime,
   metric,
-  diskSelector: { organization, project, disk },
+  diskSelector: { project, disk },
 }: DiskMetricParams) {
   // TODO: we're only pulling the first page. Should we bump the cap to 10k?
   // Fetch multiple pages if 10k is not enough? That's a bit much.
@@ -40,7 +40,7 @@ function DiskMetric({
     'diskMetricsList',
     {
       path: { disk, metric },
-      query: { organization, project, startTime, endTime, limit: 1000 },
+      query: { project, startTime, endTime, limit: 1000 },
     },
     // avoid graphs flashing blank while loading when you change the time
     { keepPreviousData: true }

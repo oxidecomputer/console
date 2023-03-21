@@ -28,7 +28,8 @@ export function SledsTab() {
         <Column accessor="id" />
         <Column id="location" accessor={(_, index) => `SLD${index}`} header="location" />
         <Column id="status" accessor={() => 'active'} header="status" cell={LabelCell} />
-        <Column accessor="serviceAddress" header="service address" />
+        {/* TODO */}
+        {/* <Column accessor="serviceAddress" header="service address" /> */}
         <Column accessor="baseboard.part" header="part number" />
         <Column accessor="baseboard.serial" header="serial number" />
         <Column accessor="baseboard.revision" header="revision" />
