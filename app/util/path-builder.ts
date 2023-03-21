@@ -3,7 +3,6 @@ import type { PathParams as PP } from '@oxide/api'
 // TODO: required versions of path params probably belong somewhere else,
 // they're useful
 
-type Org = Required<PP.Org>
 type Project = Required<PP.Project>
 type Instance = Required<PP.Instance>
 type Vpc = Required<PP.Vpc>
@@ -13,14 +12,13 @@ type Silo = Required<PP.Silo>
 export const pb = {
   orgs: () => '/orgs',
   orgNew: () => '/orgs-new',
-  org: ({ organization }: Org) => `${pb.orgs()}/${organization}`,
-  orgEdit: (params: Org) => `${pb.org(params)}/edit`,
-  orgAccess: (params: Org) => `${pb.org(params)}/access`,
+  org: () => `${pb.orgs()}/abc`,
+  orgEdit: () => `${pb.org()}/edit`,
+  orgAccess: () => `${pb.org()}/access`,
 
-  projects: (params: Org) => `${pb.org(params)}/projects`,
-  projectNew: (params: Org) => `${pb.org(params)}/projects-new`,
-  project: ({ organization, project }: Project) =>
-    `${pb.projects({ organization })}/${project}`,
+  projects: () => `${pb.org()}/projects`,
+  projectNew: () => `${pb.org()}/projects-new`,
+  project: ({ project }: Project) => `${pb.projects()}/${project}`,
   projectEdit: (params: Project) => `${pb.project(params)}/edit`,
 
   projectAccess: (params: Project) => `${pb.project(params)}/access`,
