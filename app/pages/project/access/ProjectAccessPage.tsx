@@ -48,15 +48,15 @@ const EmptyState = ({ onClick }: { onClick: () => void }) => (
 ProjectAccessPage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { organization, project } = getProjectSelector(params)
   await Promise.all([
-    apiQueryClient.prefetchQuery('policyViewV1', {}),
-    apiQueryClient.prefetchQuery('organizationPolicyViewV1', { path: { organization } }),
-    apiQueryClient.prefetchQuery('projectPolicyViewV1', {
+    apiQueryClient.prefetchQuery('policyView', {}),
+    apiQueryClient.prefetchQuery('organizationPolicyView', { path: { organization } }),
+    apiQueryClient.prefetchQuery('projectPolicyView', {
       path: { project },
       query: { organization },
     }),
     // used to resolve user names
-    apiQueryClient.prefetchQuery('userListV1', {}),
-    apiQueryClient.prefetchQuery('groupListV1', {}),
+    apiQueryClient.prefetchQuery('userList', {}),
+    apiQueryClient.prefetchQuery('groupList', {}),
   ])
   return null
 }
@@ -80,15 +80,15 @@ export function ProjectAccessPage() {
   const projectPathQuery = toPathQuery('project', projectSelector)
   const { organization } = projectSelector
 
-  const { data: siloPolicy } = useApiQuery('policyViewV1', {})
+  const { data: siloPolicy } = useApiQuery('policyView', {})
   const siloRows = useUserRows(siloPolicy?.roleAssignments, 'silo')
 
-  const { data: orgPolicy } = useApiQuery('organizationPolicyViewV1', {
+  const { data: orgPolicy } = useApiQuery('organizationPolicyView', {
     path: { organization },
   })
   const orgRows = useUserRows(orgPolicy?.roleAssignments, 'org')
 
-  const { data: projectPolicy } = useApiQuery('projectPolicyViewV1', projectPathQuery)
+  const { data: projectPolicy } = useApiQuery('projectPolicyView', projectPathQuery)
   const projectRows = useUserRows(projectPolicy?.roleAssignments, 'project')
 
   const rows = useMemo(() => {
@@ -121,8 +121,8 @@ export function ProjectAccessPage() {
   }, [siloRows, orgRows, projectRows])
 
   const queryClient = useApiQueryClient()
-  const updatePolicy = useApiMutation('projectPolicyUpdateV1', {
-    onSuccess: () => queryClient.invalidateQueries('projectPolicyViewV1', projectPathQuery),
+  const updatePolicy = useApiMutation('projectPolicyUpdate', {
+    onSuccess: () => queryClient.invalidateQueries('projectPolicyView', projectPathQuery),
     // TODO: handle 403
   })
 

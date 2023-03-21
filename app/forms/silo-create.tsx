@@ -28,10 +28,10 @@ export function CreateSiloSideModalForm() {
 
   const onDismiss = () => navigate(pb.silos())
 
-  const createSilo = useApiMutation('siloCreateV1', {
+  const createSilo = useApiMutation('siloCreate', {
     onSuccess(silo) {
-      queryClient.invalidateQueries('siloListV1', {})
-      queryClient.setQueryData('siloViewV1', { path: { silo: silo.name } }, silo)
+      queryClient.invalidateQueries('siloList', {})
+      queryClient.setQueryData('siloView', { path: { silo: silo.name } }, silo)
       addToast({
         icon: <Success16Icon />,
         title: 'Success!',

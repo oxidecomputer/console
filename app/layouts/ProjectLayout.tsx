@@ -73,7 +73,7 @@ const ProjectLayout = ({ overrideContentPane }: ProjectLayoutProps) => {
       </TopBar>
       <Sidebar>
         <Sidebar.Nav>
-          <NavLinkItem to={pb.projects(projectSelector)} end>
+          <NavLinkItem to={pb.projects()} end>
             <Folder16Icon />
             Projects
           </NavLinkItem>

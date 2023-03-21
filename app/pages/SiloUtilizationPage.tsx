@@ -14,7 +14,7 @@ const ALL_PROJECTS = '|ALL_PROJECTS|'
 const toListboxItem = (x: { name: string; id: string }) => ({ label: x.name, value: x.id })
 
 SiloUtilizationPage.loader = async () => {
-  await apiQueryClient.prefetchQuery('organizationListV1', {})
+  await apiQueryClient.prefetchQuery('organizationList', {})
   return null
 }
 
@@ -24,12 +24,12 @@ export function SiloUtilizationPage() {
 
   const [orgId, setOrgId] = useState<string>(siloId)
   const [projectId, setProjectId] = useState<string | null>(null)
-  const { data: orgs } = useApiQuery('organizationListV1', {})
+  const { data: orgs } = useApiQuery('organizationList', {})
 
   const orgName = orgs?.items.find((o) => orgId && o.id === orgId)?.name
 
   const { data: projects } = useApiQuery(
-    'projectListV1',
+    'projectList',
     { query: { organization: orgName! } }, // only enabled if it's there
     { enabled: !!orgName }
   )

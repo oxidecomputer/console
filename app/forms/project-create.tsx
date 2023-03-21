@@ -23,13 +23,13 @@ export function CreateProjectSideModalForm() {
 
   const onDismiss = () => navigate(pb.projects({ organization }))
 
-  const createProject = useApiMutation('projectCreateV1', {
+  const createProject = useApiMutation('projectCreate', {
     onSuccess(project) {
       // refetch list of projects in sidebar
-      queryClient.invalidateQueries('projectListV1', { query: { organization } })
+      queryClient.invalidateQueries('projectList', { query: { organization } })
       // avoid the project fetch when the project page loads since we have the data
       queryClient.setQueryData(
-        'projectViewV1',
+        'projectView',
         { path: { project: project.name }, query: { organization } },
         project
       )

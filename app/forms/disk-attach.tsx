@@ -31,7 +31,7 @@ export function AttachDiskSideModalForm({
   // click in
   // TODO: error handling
   const detachedDisks =
-    useApiQuery('diskListV1', { query: projectSelector }).data?.items.filter(
+    useApiQuery('diskList', { query: projectSelector }).data?.items.filter(
       (d) => d.state.state === 'detached'
     ) || []
 

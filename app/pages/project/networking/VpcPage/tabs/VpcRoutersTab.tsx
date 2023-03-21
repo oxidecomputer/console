@@ -12,7 +12,7 @@ import { useVpcSelector } from 'app/hooks'
 export const VpcRoutersTab = () => {
   const vpcSelector = useVpcSelector()
 
-  const { Table, Column } = useQueryTable('vpcRouterListV1', { query: vpcSelector })
+  const { Table, Column } = useQueryTable('vpcRouterList', { query: vpcSelector })
 
   const [creating, setCreating] = useState(false)
   const [editing, setEditing] = useState<VpcRouter | null>(null)

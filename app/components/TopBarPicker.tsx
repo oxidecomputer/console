@@ -147,7 +147,7 @@ export function useSiloSystemPicker(value: 'silo' | 'system') {
   // this request in the loader. If that prefetch were removed, fleet viewers
   // would see the silo picker pop in when the request resolves, which would be
   // bad.
-  const { data: systemPolicy } = useApiQuery('systemPolicyViewV1', {})
+  const { data: systemPolicy } = useApiQuery('systemPolicyView', {})
   return systemPolicy ? <SiloSystemPicker value={value} /> : null
 }
 
@@ -179,7 +179,7 @@ export function SiloSystemPicker({ value }: { value: 'silo' | 'system' }) {
 export function SiloPicker() {
   // picker only shows up when a silo is in scope
   const { silo: siloName } = useSiloSelector()
-  const { data } = useApiQuery('siloListV1', { query: { limit: 10 } })
+  const { data } = useApiQuery('siloList', { query: { limit: 10 } })
   const items = (data?.items || []).map((silo) => ({
     label: silo.name,
     to: pb.silo({ silo: silo.name }),
@@ -199,7 +199,7 @@ export function SiloPicker() {
 
 export function OrgPicker() {
   const { organization } = useParams()
-  const { data } = useApiQuery('organizationListV1', { query: { limit: 20 } })
+  const { data } = useApiQuery('organizationList', { query: { limit: 20 } })
   const items = (data?.items || []).map(({ name }) => ({
     label: name,
     to: pb.projects({ organization: name }),
@@ -221,7 +221,7 @@ export function OrgPicker() {
 export function ProjectPicker() {
   // picker only shows up when a project is in scope
   const { organization, project } = useProjectSelector()
-  const { data } = useApiQuery('projectListV1', {
+  const { data } = useApiQuery('projectList', {
     query: { organization, limit: 20 },
   })
   const items = (data?.items || []).map(({ name }) => ({

@@ -16,7 +16,7 @@ export function SerialConsolePage() {
   const { organization, project, instance } = useInstanceSelector()
 
   const { isRefetching, data, refetch } = useApiQuery(
-    'instanceSerialConsoleV1',
+    'instanceSerialConsole',
     {
       path: { instance },
       // holding off on using toPathQuery for now because it doesn't like numbers

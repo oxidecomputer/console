@@ -17,9 +17,9 @@ export function OrgAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalPro
   const actors = useActorsNotInPolicy(policy)
 
   const queryClient = useApiQueryClient()
-  const updatePolicy = useApiMutation('organizationPolicyUpdateV1', {
+  const updatePolicy = useApiMutation('organizationPolicyUpdate', {
     onSuccess: () => {
-      queryClient.invalidateQueries('organizationPolicyViewV1', { path: { organization } })
+      queryClient.invalidateQueries('organizationPolicyView', { path: { organization } })
       onDismiss()
     },
   })
@@ -79,9 +79,9 @@ export function OrgAccessEditUserSideModal({
   const { organization } = useOrgSelector()
 
   const queryClient = useApiQueryClient()
-  const updatePolicy = useApiMutation('organizationPolicyUpdateV1', {
+  const updatePolicy = useApiMutation('organizationPolicyUpdate', {
     onSuccess: () => {
-      queryClient.invalidateQueries('organizationPolicyViewV1', { path: { organization } })
+      queryClient.invalidateQueries('organizationPolicyView', { path: { organization } })
       onDismiss()
     },
   })

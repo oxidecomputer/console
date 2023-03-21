@@ -37,7 +37,7 @@ function DiskMetric({
   // TODO: we're only pulling the first page. Should we bump the cap to 10k?
   // Fetch multiple pages if 10k is not enough? That's a bit much.
   const { data: metrics, isLoading } = useApiQuery(
-    'diskMetricsListV1',
+    'diskMetricsList',
     {
       path: { disk, metric },
       query: { organization, project, startTime, endTime, limit: 1000 },
@@ -80,7 +80,7 @@ function DiskMetric({
 
 MetricsTab.loader = async ({ params }: LoaderFunctionArgs) => {
   await apiQueryClient.prefetchQuery(
-    'instanceDiskListV1',
+    'instanceDiskList',
     toPathQuery('instance', getInstanceSelector(params))
   )
   return null
@@ -90,7 +90,7 @@ export function MetricsTab() {
   const instanceSelector = useInstanceSelector()
   const { organization, project } = instanceSelector
   const { data } = useApiQuery(
-    'instanceDiskListV1',
+    'instanceDiskList',
     toPathQuery('instance', instanceSelector)
   )
   const disks = useMemo(() => data?.items || [], [data])

@@ -17,7 +17,7 @@ import { useMakeInstanceActions } from '../actions'
 
 InstancePage.loader = async ({ params }: LoaderFunctionArgs) => {
   await apiQueryClient.prefetchQuery(
-    'instanceViewV1',
+    'instanceView',
     toPathQuery('instance', getInstanceSelector(params))
   )
   return null
@@ -34,14 +34,14 @@ export function InstancePage() {
     { project, organization },
     {
       onSuccess: () => {
-        queryClient.invalidateQueries('instanceViewV1', instancePathQuery)
+        queryClient.invalidateQueries('instanceView', instancePathQuery)
       },
       // go to project instances list since there's no more instance
       onDelete: () => navigate(pb.instances(instanceSelector)),
     }
   )
 
-  const { data: instance } = useApiQuery('instanceViewV1', instancePathQuery)
+  const { data: instance } = useApiQuery('instanceView', instancePathQuery)
   const actions = useMemo(
     () => (instance ? makeActions(instance) : []),
     [instance, makeActions]

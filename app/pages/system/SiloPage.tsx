@@ -24,8 +24,8 @@ const EmptyState = () => (
 SiloPage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { silo } = getSiloSelector(params)
   await Promise.all([
-    apiQueryClient.prefetchQuery('siloViewV1', { path: { silo } }),
-    apiQueryClient.prefetchQuery('siloIdentityProviderListV1', {
+    apiQueryClient.prefetchQuery('siloView', { path: { silo } }),
+    apiQueryClient.prefetchQuery('siloIdentityProviderList', {
       query: { silo, limit: 10 }, // same as query table
     }),
   ])
@@ -35,7 +35,7 @@ SiloPage.loader = async ({ params }: LoaderFunctionArgs) => {
 export function SiloPage() {
   const { silo } = useSiloSelector()
 
-  const { Table, Column } = useQueryTable('siloIdentityProviderListV1', {
+  const { Table, Column } = useQueryTable('siloIdentityProviderList', {
     query: { silo },
   })
 

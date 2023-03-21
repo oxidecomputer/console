@@ -10,10 +10,7 @@ import { getVpcSelector, useToast, useVpcSelector } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 EditVpcSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
-  await apiQueryClient.prefetchQuery(
-    'vpcViewV1',
-    toPathQuery('vpc', getVpcSelector(params))
-  )
+  await apiQueryClient.prefetchQuery('vpcView', toPathQuery('vpc', getVpcSelector(params)))
   return null
 }
 
@@ -25,15 +22,15 @@ export function EditVpcSideModalForm() {
   const addToast = useToast()
   const navigate = useNavigate()
 
-  const { data: vpc } = useApiQuery('vpcViewV1', vpcPathQuery)
+  const { data: vpc } = useApiQuery('vpcView', vpcPathQuery)
 
   const onDismiss = () => navigate(pb.vpcs(projectSelector))
 
-  const editVpc = useApiMutation('vpcUpdateV1', {
+  const editVpc = useApiMutation('vpcUpdate', {
     async onSuccess(vpc) {
-      queryClient.invalidateQueries('vpcListV1', { query: projectSelector })
+      queryClient.invalidateQueries('vpcList', { query: projectSelector })
       queryClient.setQueryData(
-        'vpcViewV1',
+        'vpcView',
         { path: { vpc: vpc.name }, query: projectSelector },
         vpc
       )
