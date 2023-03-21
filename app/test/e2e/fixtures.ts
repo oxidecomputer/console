@@ -4,8 +4,6 @@ import { test as base } from '@playwright/test'
 import type {
   InstanceCreate,
   InstanceDeletePathParams,
-  OrganizationCreate,
-  OrganizationDeletePathParams,
   ProjectCreate,
   ProjectDeletePathParams,
   VpcCreate,
@@ -36,21 +34,9 @@ interface Fixtures {
    * Useful for creating non-conflicting resource names that are also hint at their context.
    */
   genName: (prefix: string) => string
-  orgName: string
   projectName: string
   instanceName: string
   vpcName: string
-  /**
-   * Creates an organization with the given name. When the test is complete, the organization will be deleted.
-   *
-   * @param orgName The name of the organization to create.
-   * @param body The body payload for the organization create request.
-   */
-  createOrg: (orgName: string, body?: Body<OrganizationCreate>) => Promise<void>
-  /**
-   * Deletes an organization with the given name. Typically this shouldn't be called directly. Instead, use `createOrg` to create an organization and have it deleted automatically when the test is complete.
-   */
-  deleteOrg: (params: OrganizationDeletePathParams) => Promise<void>
   /**
    * Creates a project with the given name. When the test is complete, the project will be deleted.
    *
@@ -58,11 +44,7 @@ interface Fixtures {
    * @param projectName The name of the project to create.
    * @param body The body payload for the project create request.
    **/
-  createProject: (
-    orgName: string,
-    projectName: string,
-    body?: Body<ProjectCreate>
-  ) => Promise<void>
+  createProject: (projectName: string, body?: Body<ProjectCreate>) => Promise<void>
   /**
    * Deletes a project with the given name. Typically this shouldn't be called directly. Instead, use `createProject` to create a project and have it deleted automatically when the test is complete.
    */
@@ -76,7 +58,6 @@ interface Fixtures {
    * @param body The body payload for the instance create request.
    */
   createInstance: (
-    orgName: string,
     projectName: string,
     instanceName: string,
     body?: Body<InstanceCreate>
@@ -93,12 +74,7 @@ interface Fixtures {
    * @param vpcName The name of the VPC to create.
    * @param body The body payload for the VPC create request.
    */
-  createVpc: (
-    orgName: string,
-    projectName: string,
-    vpcName: string,
-    body?: Body<VpcCreate>
-  ) => Promise<void>
+  createVpc: (projectName: string, vpcName: string, body?: Body<VpcCreate>) => Promise<void>
   /**
    * Deletes a VPC with the given name. Typically this shouldn't be called directly. Instead, use `createVpc` to create a VPC and have it deleted automatically when the test is complete.
    */
@@ -126,9 +102,6 @@ export const test = base.extend<Fixtures>({
         )
     )
   },
-  async orgName({ genName }, use) {
-    await use(genName('org'))
-  },
   async projectName({ genName }, use) {
     await use(genName('proj'))
   },
@@ -138,54 +111,21 @@ export const test = base.extend<Fixtures>({
   async vpcName({ genName }, use) {
     await use(genName('vpc'))
   },
-  async createOrg({ page, deleteOrg }, use) {
-    const orgsToRemove: string[] = []
 
-    await use(async (orgName, body = {}) => {
-      if (orgsToRemove.includes(orgName)) {
-        return
-      }
-
-      const back = await goto(page, '/orgs-new')
-
-      await page.fill('role=textbox[name="Name"]', orgName)
-      await page.fill('role=textbox[name="Description"]', body.description || '')
-      await page.click('role=button[name="Create organization"]')
-      orgsToRemove.push(orgName)
-      await back()
-    })
-
-    for (const org of orgsToRemove) {
-      await deleteOrg({ orgName: org })
-    }
-  },
-
-  async deleteOrg({ page, deleteTableRow }, use) {
-    await use(async (params: OrganizationDeletePathParams) => {
-      const back = await goto(page, '/orgs')
-      await deleteTableRow(params.orgName)
-      await back()
-    })
-  },
-
-  async createProject({ page, createOrg, deleteProject }, use) {
+  async createProject({ page, deleteProject }, use) {
     const projectsToRemove: ProjectDeletePathParams[] = []
 
     await use(async (orgName, projectName, body = {}) => {
-      if (
-        projectsToRemove.find((p) => p.orgName === orgName && p.projectName === projectName)
-      ) {
+      if (projectsToRemove.find((p) => p.projectName === projectName)) {
         return
       }
-
-      await createOrg(orgName)
 
       const back = await goto(page, `/orgs/${orgName}/projects-new`)
       await page.fill('role=textbox[name="Name"]', projectName)
       await page.fill('role=textbox[name="Description"]', body.description || '')
       await page.click('role=button[name="Create project"]')
 
-      projectsToRemove.push({ orgName, projectName })
+      projectsToRemove.push({ projectName })
       await back()
     })
 
@@ -196,7 +136,7 @@ export const test = base.extend<Fixtures>({
 
   async deleteProject({ page, deleteTableRow }, use) {
     await use(async (params: ProjectDeletePathParams) => {
-      const back = await goto(page, `/orgs/${params.orgName}/projects`)
+      const back = await goto(page, `/orgs/abc/projects`)
       await deleteTableRow(params.projectName)
       await back()
     })
@@ -208,16 +148,13 @@ export const test = base.extend<Fixtures>({
     await use(async (orgName, projectName, instanceName, _body = {}) => {
       if (
         instancesToRemove.find(
-          (i) =>
-            i.orgName === orgName &&
-            i.projectName === projectName &&
-            i.instanceName === instanceName
+          (i) => i.projectName === projectName && i.instanceName === instanceName
         )
       ) {
         return
       }
 
-      await createProject(orgName, projectName)
+      await createProject(projectName)
 
       const back = await goto(
         page,

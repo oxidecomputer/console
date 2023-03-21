@@ -14,13 +14,13 @@ export const VpcSubnetsTab = () => {
   const vpcSelector = useVpcSelector()
   const queryClient = useApiQueryClient()
 
-  const { Table, Column } = useQueryTable('vpcSubnetListV1', { query: vpcSelector })
+  const { Table, Column } = useQueryTable('vpcSubnetList', { query: vpcSelector })
   const [creating, setCreating] = useState(false)
   const [editing, setEditing] = useState<VpcSubnet | null>(null)
 
-  const deleteSubnet = useApiMutation('vpcSubnetDeleteV1', {
+  const deleteSubnet = useApiMutation('vpcSubnetDelete', {
     onSuccess() {
-      queryClient.invalidateQueries('vpcSubnetListV1')
+      queryClient.invalidateQueries('vpcSubnetList')
     },
   })
 

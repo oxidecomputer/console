@@ -33,7 +33,7 @@ function AttachedInstance({
   project: string
   instanceId: string
 }) {
-  const { data: instance } = useApiQuery('instanceViewV1', {
+  const { data: instance } = useApiQuery('instanceView', {
     path: { instance: instanceId },
   })
   return instance ? (
@@ -57,7 +57,7 @@ const EmptyState = () => (
 )
 
 DisksPage.loader = async ({ params }: LoaderFunctionArgs) => {
-  await apiQueryClient.prefetchQuery('diskListV1', {
+  await apiQueryClient.prefetchQuery('diskList', {
     query: { ...getProjectSelector(params), limit: 10 },
   })
   return null
@@ -66,18 +66,18 @@ DisksPage.loader = async ({ params }: LoaderFunctionArgs) => {
 export function DisksPage() {
   const queryClient = useApiQueryClient()
   const projectSelector = useProjectSelector()
-  const { Table, Column } = useQueryTable('diskListV1', { query: projectSelector })
+  const { Table, Column } = useQueryTable('diskList', { query: projectSelector })
   const addToast = useToast()
 
-  const deleteDisk = useApiMutation('diskDeleteV1', {
+  const deleteDisk = useApiMutation('diskDelete', {
     onSuccess() {
-      queryClient.invalidateQueries('diskListV1', { query: projectSelector })
+      queryClient.invalidateQueries('diskList', { query: projectSelector })
     },
   })
 
-  const createSnapshot = useApiMutation('snapshotCreateV1', {
+  const createSnapshot = useApiMutation('snapshotCreate', {
     onSuccess() {
-      queryClient.invalidateQueries('snapshotListV1', { query: projectSelector })
+      queryClient.invalidateQueries('snapshotList', { query: projectSelector })
       addToast({
         icon: <Success16Icon />,
         title: 'Success!',

@@ -13,7 +13,7 @@ test('can invoke instance create form from instances page', async ({
   projectName,
   genName,
 }) => {
-  await page.goto(pb.instances({ organization: orgName, project: projectName }))
+  await page.goto(pb.instances({ project: projectName }))
   await page.locator('text="New Instance"').click()
 
   await expectVisible(page, [

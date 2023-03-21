@@ -27,11 +27,11 @@ const OrgLayout = () => {
         </Sidebar.Nav>
         <Divider />
         <Sidebar.Nav heading={organization}>
-          <NavLinkItem to={pb.projects({ organization })}>
+          <NavLinkItem to={pb.projects()}>
             <Folder16Icon title="Projects" />
             Projects
           </NavLinkItem>
-          <NavLinkItem to={pb.orgAccess({ organization })}>
+          <NavLinkItem to={pb.orgAccess()}>
             <Access16Icon title="Access & IAM" />
             Access &amp; IAM
           </NavLinkItem>
