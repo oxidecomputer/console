@@ -7,6 +7,7 @@ import { project } from '@oxide/api-mocks'
 import { overrideOnce } from 'app/test/unit'
 
 import { useApiMutation, useApiQuery } from '..'
+import type { DiskCreate } from '../__generated__/Api'
 
 // because useApiQuery and useApiMutation are almost entirely typed wrappers
 // around React Query's useQuery and useMutation, these tests are mostly about
@@ -186,15 +187,21 @@ describe('useApiMutation', () => {
   })
 
   describe('on error response', () => {
-    const projectPost404Params = {
+    const diskCreate: DiskCreate = {
+      name: 'will-fail',
+      description: '',
+      diskSource: { type: 'blank', blockSize: 4096 },
+      size: 10,
+    }
+    const diskCreate404Params = {
       query: { project: 'nonexistent' },
-      body: { name: 'will-fail', description: '' },
+      body: diskCreate,
     }
 
     it('passes through raw response', async () => {
-      const { result } = renderHook(() => useApiMutation('projectCreate'), config)
+      const { result } = renderHook(() => useApiMutation('diskCreate'), config)
 
-      act(() => result.current.mutate(projectPost404Params))
+      act(() => result.current.mutate(diskCreate404Params))
 
       await waitFor(() => expect(result.current.error).not.toBeNull())
 
@@ -203,9 +210,9 @@ describe('useApiMutation', () => {
     })
 
     it('parses error json if possible', async () => {
-      const { result } = renderHook(() => useApiMutation('projectCreate'), config)
+      const { result } = renderHook(() => useApiMutation('diskCreate'), config)
 
-      act(() => result.current.mutate(projectPost404Params))
+      act(() => result.current.mutate(diskCreate404Params))
 
       await waitFor(() =>
         expect(result.current.error?.error).toMatchObject({
@@ -215,7 +222,7 @@ describe('useApiMutation', () => {
     })
 
     it('contains client_error if error body is not json', async () => {
-      overrideOnce('post', '/api/v1/organizations', 404, 'not json')
+      overrideOnce('post', '/api/v1/projects', 404, 'not json')
 
       const { result } = renderCreateProject()
       act(() => result.current.mutate(createParams))
@@ -232,7 +239,7 @@ describe('useApiMutation', () => {
     })
 
     it('does not client_error if response body is empty', async () => {
-      overrideOnce('post', '/api/v1/organizations', 503, '')
+      overrideOnce('post', '/api/v1/projects', 503, '')
 
       const { result } = renderCreateProject()
       act(() => result.current.mutate(createParams))
@@ -264,7 +271,7 @@ describe('useApiMutation', () => {
 
     // RQ doesn't like a value of undefined for data, so we're using {} for now
     it('returns success with empty object if response body is empty', async () => {
-      overrideOnce('post', '/api/v1/organizations', 204, '')
+      overrideOnce('post', '/api/v1/projects', 204, '')
 
       const { result } = renderCreateProject()
       act(() => result.current.mutate(createParams))
