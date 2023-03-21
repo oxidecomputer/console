@@ -871,9 +871,9 @@ export const MacAddr = z.preprocess(
   processResponseBody,
   z
     .string()
-    .min(17)
+    .min(5)
     .max(17)
-    .regex(/^([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}$/)
+    .regex(/^([0-9a-fA-F]{0,2}:){5}[0-9a-fA-F]{0,2}$/)
 )
 
 /**
