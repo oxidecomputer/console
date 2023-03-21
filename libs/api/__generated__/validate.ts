@@ -1861,13 +1861,6 @@ export const VpcUpdate = z.preprocess(
 )
 
 /**
- * Supported set of sort modes for scanning by id only.
- *
- * Currently, we only support scanning in ascending order.
- */
-export const IdSortMode = z.preprocess(processResponseBody, z.enum(['id_ascending']))
-
-/**
  * Supported set of sort modes for scanning by name only
  *
  * Currently, we only support scanning in ascending order.
@@ -1886,6 +1879,13 @@ export const DiskMetricName = z.preprocess(
   processResponseBody,
   z.enum(['activated', 'flush', 'read', 'read_bytes', 'write', 'write_bytes'])
 )
+
+/**
+ * Supported set of sort modes for scanning by id only.
+ *
+ * Currently, we only support scanning in ascending order.
+ */
+export const IdSortMode = z.preprocess(processResponseBody, z.enum(['id_ascending']))
 
 export const SystemMetricName = z.preprocess(
   processResponseBody,
@@ -1974,86 +1974,6 @@ export const SystemImageViewByIdParams = z.preprocess(
   })
 )
 
-export const SiloViewByIdParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      id: z.string().uuid(),
-    }),
-    query: z.object({}),
-  })
-)
-
-export const PhysicalDiskListParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({}),
-    query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
-      sortBy: IdSortMode.optional(),
-    }),
-  })
-)
-
-export const RackListParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({}),
-    query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
-      sortBy: IdSortMode.optional(),
-    }),
-  })
-)
-
-export const RackViewParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      rackId: z.string().uuid(),
-    }),
-    query: z.object({}),
-  })
-)
-
-export const SledListParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({}),
-    query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
-      sortBy: IdSortMode.optional(),
-    }),
-  })
-)
-
-export const SledViewParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      sledId: z.string().uuid(),
-    }),
-    query: z.object({}),
-  })
-)
-
-export const SledPhysicalDiskListParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      sledId: z.string().uuid(),
-    }),
-    query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
-      sortBy: IdSortMode.optional(),
-    }),
-  })
-)
-
 export const SystemImageListParams = z.preprocess(
   processResponseBody,
   z.object({
@@ -2089,88 +2009,6 @@ export const SystemImageDeleteParams = z.preprocess(
   z.object({
     path: z.object({
       imageName: Name,
-    }),
-    query: z.object({}),
-  })
-)
-
-export const SagaListParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({}),
-    query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
-      sortBy: IdSortMode.optional(),
-    }),
-  })
-)
-
-export const SagaViewParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      sagaId: z.string().uuid(),
-    }),
-    query: z.object({}),
-  })
-)
-
-export const SiloListParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({}),
-    query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
-      sortBy: NameOrIdSortMode.optional(),
-    }),
-  })
-)
-
-export const SiloCreateParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({}),
-    query: z.object({}),
-  })
-)
-
-export const SiloViewParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      siloName: Name,
-    }),
-    query: z.object({}),
-  })
-)
-
-export const SiloDeleteParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      siloName: Name,
-    }),
-    query: z.object({}),
-  })
-)
-
-export const SiloPolicyViewParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      siloName: Name,
-    }),
-    query: z.object({}),
-  })
-)
-
-export const SiloPolicyUpdateParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      siloName: Name,
     }),
     query: z.object({}),
   })
@@ -2240,7 +2078,7 @@ export const DiskMetricsListParams = z.preprocess(
   })
 )
 
-export const GroupListV1Params = z.preprocess(
+export const GroupListParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({}),
@@ -2779,7 +2617,7 @@ export const CertificateDeleteParams = z.preprocess(
   })
 )
 
-export const PhysicalDiskListV1Params = z.preprocess(
+export const PhysicalDiskListParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({}),
@@ -2791,7 +2629,7 @@ export const PhysicalDiskListV1Params = z.preprocess(
   })
 )
 
-export const RackListV1Params = z.preprocess(
+export const RackListParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({}),
@@ -2803,7 +2641,7 @@ export const RackListV1Params = z.preprocess(
   })
 )
 
-export const RackViewV1Params = z.preprocess(
+export const RackViewParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
@@ -2813,7 +2651,7 @@ export const RackViewV1Params = z.preprocess(
   })
 )
 
-export const SledListV1Params = z.preprocess(
+export const SledListParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({}),
@@ -2825,7 +2663,7 @@ export const SledListV1Params = z.preprocess(
   })
 )
 
-export const SledViewV1Params = z.preprocess(
+export const SledViewParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
@@ -2835,7 +2673,7 @@ export const SledViewV1Params = z.preprocess(
   })
 )
 
-export const SledPhysicalDiskListV1Params = z.preprocess(
+export const SledPhysicalDiskListParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
@@ -3089,7 +2927,7 @@ export const RoleViewParams = z.preprocess(
   })
 )
 
-export const SagaListV1Params = z.preprocess(
+export const SagaListParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({}),
@@ -3101,7 +2939,7 @@ export const SagaListV1Params = z.preprocess(
   })
 )
 
-export const SagaViewV1Params = z.preprocess(
+export const SagaViewParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
@@ -3111,7 +2949,7 @@ export const SagaViewV1Params = z.preprocess(
   })
 )
 
-export const SiloListV1Params = z.preprocess(
+export const SiloListParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({}),
@@ -3123,7 +2961,7 @@ export const SiloListV1Params = z.preprocess(
   })
 )
 
-export const SiloCreateV1Params = z.preprocess(
+export const SiloCreateParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({}),
@@ -3131,7 +2969,7 @@ export const SiloCreateV1Params = z.preprocess(
   })
 )
 
-export const SiloViewV1Params = z.preprocess(
+export const SiloViewParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
@@ -3141,7 +2979,7 @@ export const SiloViewV1Params = z.preprocess(
   })
 )
 
-export const SiloDeleteV1Params = z.preprocess(
+export const SiloDeleteParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
@@ -3151,7 +2989,7 @@ export const SiloDeleteV1Params = z.preprocess(
   })
 )
 
-export const SiloPolicyViewV1Params = z.preprocess(
+export const SiloPolicyViewParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
@@ -3161,7 +2999,7 @@ export const SiloPolicyViewV1Params = z.preprocess(
   })
 )
 
-export const SiloPolicyUpdateV1Params = z.preprocess(
+export const SiloPolicyUpdateParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
@@ -3269,7 +3107,7 @@ export const SystemVersionParams = z.preprocess(
   })
 )
 
-export const SiloUserListV1Params = z.preprocess(
+export const SiloUserListParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({}),
@@ -3282,7 +3120,7 @@ export const SiloUserListV1Params = z.preprocess(
   })
 )
 
-export const SiloUserViewV1Params = z.preprocess(
+export const SiloUserViewParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
@@ -3316,7 +3154,7 @@ export const UserBuiltinViewParams = z.preprocess(
   })
 )
 
-export const UserListV1Params = z.preprocess(
+export const UserListParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({}),

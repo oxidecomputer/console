@@ -31,7 +31,7 @@ export const handlers = makeHandlers({
   deviceAuthRequest: () => 200,
   deviceAuthConfirm: ({ body }) => (body.user_code === 'error123' ? 400 : 200),
   deviceAccessToken: () => 200,
-  groupListV1: (params) => paginated(params.query, db.userGroups),
+  groupList: (params) => paginated(params.query, db.userGroups),
   groupView: (params) => lookupById(db.userGroups, params.path.group),
 
   projectList: (params) => paginated(params.query, db.projects),
@@ -758,8 +758,8 @@ export const handlers = makeHandlers({
     db.silos.push(newSilo)
     return json(newSilo, { status: 201 })
   },
-  siloViewV1: ({ path }) => lookup.silo(path),
-  siloDeleteV1({ path }) {
+  siloView: ({ path }) => lookup.silo(path),
+  siloDelete({ path }) {
     const silo = lookup.silo(path)
     db.silos = db.silos.filter((i) => i.id !== silo.id)
     return 204
@@ -803,7 +803,7 @@ export const handlers = makeHandlers({
   },
   samlIdentityProviderView: ({ path, query }) => lookup.samlIdp({ ...path, ...query }),
 
-  userListV1: ({ query }) => {
+  userList: ({ query }) => {
     // query.group is validated by generated code to be a UUID if present
     if (query.group) {
       const group = lookupById(db.userGroups, query.group) // 404 if doesn't exist
@@ -932,32 +932,17 @@ export const handlers = makeHandlers({
   sagaView: NotImplemented,
   siloPolicyUpdate: NotImplemented,
   siloPolicyView: NotImplemented,
-  siloUserListV1: NotImplemented,
-  siloUserViewV1: NotImplemented,
+  siloUserList: NotImplemented,
+  siloUserView: NotImplemented,
   sledView: NotImplemented,
   systemPolicyUpdate: NotImplemented,
 
   systemImageViewById: NotImplemented,
-  siloViewById: NotImplemented,
   systemImageList: NotImplemented,
   systemImageCreate: NotImplemented,
 
   systemImageView: NotImplemented,
   systemImageDelete: NotImplemented,
-  siloView: NotImplemented,
-  siloDelete: NotImplemented,
-  physicalDiskListV1: NotImplemented,
-  rackListV1: NotImplemented,
-  rackViewV1: NotImplemented,
-  sledListV1: NotImplemented,
-  sledViewV1: NotImplemented,
-  sledPhysicalDiskListV1: NotImplemented,
-  sagaListV1: NotImplemented,
-  sagaViewV1: NotImplemented,
-  siloListV1: NotImplemented,
-  siloCreateV1: NotImplemented,
-  siloPolicyViewV1: NotImplemented,
-  siloPolicyUpdateV1: NotImplemented,
   userBuiltinList: NotImplemented,
   userBuiltinView: NotImplemented,
 })

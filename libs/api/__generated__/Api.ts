@@ -1833,13 +1833,6 @@ export type VpcSubnetUpdate = { description?: string; name?: Name }
 export type VpcUpdate = { description?: string; dnsName?: Name; name?: Name }
 
 /**
- * Supported set of sort modes for scanning by id only.
- *
- * Currently, we only support scanning in ascending order.
- */
-export type IdSortMode = 'id_ascending'
-
-/**
  * Supported set of sort modes for scanning by name only
  *
  * Currently, we only support scanning in ascending order.
@@ -1865,6 +1858,13 @@ export type DiskMetricName =
   | 'write'
   | 'write_bytes'
 
+/**
+ * Supported set of sort modes for scanning by id only.
+ *
+ * Currently, we only support scanning in ascending order.
+ */
+export type IdSortMode = 'id_ascending'
+
 export type SystemMetricName =
   | 'virtual_disk_space_provisioned'
   | 'cpus_provisioned'
@@ -1888,46 +1888,6 @@ export interface SystemImageViewByIdPathParams {
   id: string
 }
 
-export interface SiloViewByIdPathParams {
-  id: string
-}
-
-export interface PhysicalDiskListQueryParams {
-  limit?: number
-  pageToken?: string
-  sortBy?: IdSortMode
-}
-
-export interface RackListQueryParams {
-  limit?: number
-  pageToken?: string
-  sortBy?: IdSortMode
-}
-
-export interface RackViewPathParams {
-  rackId: string
-}
-
-export interface SledListQueryParams {
-  limit?: number
-  pageToken?: string
-  sortBy?: IdSortMode
-}
-
-export interface SledViewPathParams {
-  sledId: string
-}
-
-export interface SledPhysicalDiskListPathParams {
-  sledId: string
-}
-
-export interface SledPhysicalDiskListQueryParams {
-  limit?: number
-  pageToken?: string
-  sortBy?: IdSortMode
-}
-
 export interface SystemImageListQueryParams {
   limit?: number
   pageToken?: string
@@ -1940,38 +1900,6 @@ export interface SystemImageViewPathParams {
 
 export interface SystemImageDeletePathParams {
   imageName: Name
-}
-
-export interface SagaListQueryParams {
-  limit?: number
-  pageToken?: string
-  sortBy?: IdSortMode
-}
-
-export interface SagaViewPathParams {
-  sagaId: string
-}
-
-export interface SiloListQueryParams {
-  limit?: number
-  pageToken?: string
-  sortBy?: NameOrIdSortMode
-}
-
-export interface SiloViewPathParams {
-  siloName: Name
-}
-
-export interface SiloDeletePathParams {
-  siloName: Name
-}
-
-export interface SiloPolicyViewPathParams {
-  siloName: Name
-}
-
-export interface SiloPolicyUpdatePathParams {
-  siloName: Name
 }
 
 export interface DiskListQueryParams {
@@ -2014,7 +1942,7 @@ export interface DiskMetricsListQueryParams {
   project?: NameOrId
 }
 
-export interface GroupListV1QueryParams {
+export interface GroupListQueryParams {
   limit?: number
   pageToken?: string
   sortBy?: IdSortMode
@@ -2291,37 +2219,37 @@ export interface CertificateDeletePathParams {
   certificate: NameOrId
 }
 
-export interface PhysicalDiskListV1QueryParams {
+export interface PhysicalDiskListQueryParams {
   limit?: number
   pageToken?: string
   sortBy?: IdSortMode
 }
 
-export interface RackListV1QueryParams {
+export interface RackListQueryParams {
   limit?: number
   pageToken?: string
   sortBy?: IdSortMode
 }
 
-export interface RackViewV1PathParams {
+export interface RackViewPathParams {
   rackId: string
 }
 
-export interface SledListV1QueryParams {
+export interface SledListQueryParams {
   limit?: number
   pageToken?: string
   sortBy?: IdSortMode
 }
 
-export interface SledViewV1PathParams {
+export interface SledViewPathParams {
   sledId: string
 }
 
-export interface SledPhysicalDiskListV1PathParams {
+export interface SledPhysicalDiskListPathParams {
   sledId: string
 }
 
-export interface SledPhysicalDiskListV1QueryParams {
+export interface SledPhysicalDiskListQueryParams {
   limit?: number
   pageToken?: string
   sortBy?: IdSortMode
@@ -2427,35 +2355,35 @@ export interface RoleViewPathParams {
   roleName: string
 }
 
-export interface SagaListV1QueryParams {
+export interface SagaListQueryParams {
   limit?: number
   pageToken?: string
   sortBy?: IdSortMode
 }
 
-export interface SagaViewV1PathParams {
+export interface SagaViewPathParams {
   sagaId: string
 }
 
-export interface SiloListV1QueryParams {
+export interface SiloListQueryParams {
   limit?: number
   pageToken?: string
   sortBy?: NameOrIdSortMode
 }
 
-export interface SiloViewV1PathParams {
+export interface SiloViewPathParams {
   silo: NameOrId
 }
 
-export interface SiloDeleteV1PathParams {
+export interface SiloDeletePathParams {
   silo: NameOrId
 }
 
-export interface SiloPolicyViewV1PathParams {
+export interface SiloPolicyViewPathParams {
   silo: NameOrId
 }
 
-export interface SiloPolicyUpdateV1PathParams {
+export interface SiloPolicyUpdatePathParams {
   silo: NameOrId
 }
 
@@ -2489,18 +2417,18 @@ export interface SystemUpdateComponentsListPathParams {
   version: SemverVersion
 }
 
-export interface SiloUserListV1QueryParams {
+export interface SiloUserListQueryParams {
   limit?: number
   pageToken?: string
   silo?: NameOrId
   sortBy?: IdSortMode
 }
 
-export interface SiloUserViewV1PathParams {
+export interface SiloUserViewPathParams {
   userId: string
 }
 
-export interface SiloUserViewV1QueryParams {
+export interface SiloUserViewQueryParams {
   silo?: NameOrId
 }
 
@@ -2514,7 +2442,7 @@ export interface UserBuiltinViewPathParams {
   user: NameOrId
 }
 
-export interface UserListV1QueryParams {
+export interface UserListQueryParams {
   group?: string
   limit?: number
   pageToken?: string
@@ -2705,21 +2633,15 @@ export interface VpcDeleteQueryParams {
 
 export type ApiViewByIdMethods = Pick<
   InstanceType<typeof Api>['methods'],
-  'systemImageViewById' | 'siloViewById'
+  'systemImageViewById'
 >
 
 export type ApiListMethods = Pick<
   InstanceType<typeof Api>['methods'],
-  | 'physicalDiskList'
-  | 'rackList'
-  | 'sledList'
-  | 'sledPhysicalDiskList'
   | 'systemImageList'
-  | 'sagaList'
-  | 'siloList'
   | 'diskList'
   | 'diskMetricsList'
-  | 'groupListV1'
+  | 'groupList'
   | 'imageList'
   | 'instanceList'
   | 'instanceDiskList'
@@ -2729,24 +2651,24 @@ export type ApiListMethods = Pick<
   | 'projectList'
   | 'snapshotList'
   | 'certificateList'
-  | 'physicalDiskListV1'
-  | 'rackListV1'
-  | 'sledListV1'
-  | 'sledPhysicalDiskListV1'
+  | 'physicalDiskList'
+  | 'rackList'
+  | 'sledList'
+  | 'sledPhysicalDiskList'
   | 'siloIdentityProviderList'
   | 'ipPoolList'
   | 'ipPoolRangeList'
   | 'ipPoolServiceRangeList'
   | 'roleList'
-  | 'sagaListV1'
-  | 'siloListV1'
+  | 'sagaList'
+  | 'siloList'
   | 'systemComponentVersionList'
   | 'updateDeploymentsList'
   | 'systemUpdateList'
   | 'systemUpdateComponentsList'
-  | 'siloUserListV1'
+  | 'siloUserList'
   | 'userBuiltinList'
-  | 'userListV1'
+  | 'userList'
   | 'vpcRouterRouteList'
   | 'vpcRouterList'
   | 'vpcSubnetList'
@@ -2856,98 +2778,6 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Fetch a silo by id
-     */
-    siloViewById: (
-      { path }: { path: SiloViewByIdPathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<Silo>({
-        path: `/system/by-id/silos/${path.id}`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * List physical disks
-     */
-    physicalDiskList: (
-      { query = {} }: { query?: PhysicalDiskListQueryParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<PhysicalDiskResultsPage>({
-        path: `/system/hardware/disks`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * List racks
-     */
-    rackList: (
-      { query = {} }: { query?: RackListQueryParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<RackResultsPage>({
-        path: `/system/hardware/racks`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Fetch a rack
-     */
-    rackView: ({ path }: { path: RackViewPathParams }, params: RequestParams = {}) => {
-      return this.request<Rack>({
-        path: `/system/hardware/racks/${path.rackId}`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * List sleds
-     */
-    sledList: (
-      { query = {} }: { query?: SledListQueryParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<SledResultsPage>({
-        path: `/system/hardware/sleds`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Fetch a sled
-     */
-    sledView: ({ path }: { path: SledViewPathParams }, params: RequestParams = {}) => {
-      return this.request<Sled>({
-        path: `/system/hardware/sleds/${path.sledId}`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * List physical disks attached to sleds
-     */
-    sledPhysicalDiskList: (
-      {
-        path,
-        query = {},
-      }: { path: SledPhysicalDiskListPathParams; query?: SledPhysicalDiskListQueryParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<PhysicalDiskResultsPage>({
-        path: `/system/hardware/sleds/${path.sledId}/disks`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
      * List system-wide images
      */
     systemImageList: (
@@ -2998,102 +2828,6 @@ export class Api extends HttpClient {
       return this.request<void>({
         path: `/system/images/${path.imageName}`,
         method: 'DELETE',
-        ...params,
-      })
-    },
-    /**
-     * List sagas
-     */
-    sagaList: (
-      { query = {} }: { query?: SagaListQueryParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<SagaResultsPage>({
-        path: `/system/sagas`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Fetch a saga
-     */
-    sagaView: ({ path }: { path: SagaViewPathParams }, params: RequestParams = {}) => {
-      return this.request<Saga>({
-        path: `/system/sagas/${path.sagaId}`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * List silos
-     */
-    siloList: (
-      { query = {} }: { query?: SiloListQueryParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<SiloResultsPage>({
-        path: `/system/silos`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Create a silo
-     */
-    siloCreate: ({ body }: { body: SiloCreate }, params: RequestParams = {}) => {
-      return this.request<Silo>({
-        path: `/system/silos`,
-        method: 'POST',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * Fetch a silo
-     */
-    siloView: ({ path }: { path: SiloViewPathParams }, params: RequestParams = {}) => {
-      return this.request<Silo>({
-        path: `/system/silos/${path.siloName}`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * Delete a silo
-     */
-    siloDelete: ({ path }: { path: SiloDeletePathParams }, params: RequestParams = {}) => {
-      return this.request<void>({
-        path: `/system/silos/${path.siloName}`,
-        method: 'DELETE',
-        ...params,
-      })
-    },
-    /**
-     * Fetch a silo's IAM policy
-     */
-    siloPolicyView: (
-      { path }: { path: SiloPolicyViewPathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<SiloRolePolicy>({
-        path: `/system/silos/${path.siloName}/policy`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * Update a silo's IAM policy
-     */
-    siloPolicyUpdate: (
-      { path, body }: { path: SiloPolicyUpdatePathParams; body: SiloRolePolicy },
-      params: RequestParams = {}
-    ) => {
-      return this.request<SiloRolePolicy>({
-        path: `/system/silos/${path.siloName}/policy`,
-        method: 'PUT',
-        body,
         ...params,
       })
     },
@@ -3174,8 +2908,8 @@ export class Api extends HttpClient {
     /**
      * List groups
      */
-    groupListV1: (
-      { query = {} }: { query?: GroupListV1QueryParams },
+    groupList: (
+      { query = {} }: { query?: GroupListQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<GroupResultsPage>({
@@ -3901,8 +3635,8 @@ export class Api extends HttpClient {
     /**
      * List physical disks
      */
-    physicalDiskListV1: (
-      { query = {} }: { query?: PhysicalDiskListV1QueryParams },
+    physicalDiskList: (
+      { query = {} }: { query?: PhysicalDiskListQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<PhysicalDiskResultsPage>({
@@ -3915,8 +3649,8 @@ export class Api extends HttpClient {
     /**
      * List racks
      */
-    rackListV1: (
-      { query = {} }: { query?: RackListV1QueryParams },
+    rackList: (
+      { query = {} }: { query?: RackListQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<RackResultsPage>({
@@ -3929,7 +3663,7 @@ export class Api extends HttpClient {
     /**
      * Fetch a rack
      */
-    rackViewV1: ({ path }: { path: RackViewV1PathParams }, params: RequestParams = {}) => {
+    rackView: ({ path }: { path: RackViewPathParams }, params: RequestParams = {}) => {
       return this.request<Rack>({
         path: `/v1/system/hardware/racks/${path.rackId}`,
         method: 'GET',
@@ -3939,8 +3673,8 @@ export class Api extends HttpClient {
     /**
      * List sleds
      */
-    sledListV1: (
-      { query = {} }: { query?: SledListV1QueryParams },
+    sledList: (
+      { query = {} }: { query?: SledListQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<SledResultsPage>({
@@ -3953,7 +3687,7 @@ export class Api extends HttpClient {
     /**
      * Fetch a sled
      */
-    sledViewV1: ({ path }: { path: SledViewV1PathParams }, params: RequestParams = {}) => {
+    sledView: ({ path }: { path: SledViewPathParams }, params: RequestParams = {}) => {
       return this.request<Sled>({
         path: `/v1/system/hardware/sleds/${path.sledId}`,
         method: 'GET',
@@ -3963,14 +3697,11 @@ export class Api extends HttpClient {
     /**
      * List physical disks attached to sleds
      */
-    sledPhysicalDiskListV1: (
+    sledPhysicalDiskList: (
       {
         path,
         query = {},
-      }: {
-        path: SledPhysicalDiskListV1PathParams
-        query?: SledPhysicalDiskListV1QueryParams
-      },
+      }: { path: SledPhysicalDiskListPathParams; query?: SledPhysicalDiskListQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<PhysicalDiskResultsPage>({
@@ -4311,8 +4042,8 @@ export class Api extends HttpClient {
     /**
      * List sagas
      */
-    sagaListV1: (
-      { query = {} }: { query?: SagaListV1QueryParams },
+    sagaList: (
+      { query = {} }: { query?: SagaListQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<SagaResultsPage>({
@@ -4325,7 +4056,7 @@ export class Api extends HttpClient {
     /**
      * Fetch a saga
      */
-    sagaViewV1: ({ path }: { path: SagaViewV1PathParams }, params: RequestParams = {}) => {
+    sagaView: ({ path }: { path: SagaViewPathParams }, params: RequestParams = {}) => {
       return this.request<Saga>({
         path: `/v1/system/sagas/${path.sagaId}`,
         method: 'GET',
@@ -4335,8 +4066,8 @@ export class Api extends HttpClient {
     /**
      * List silos
      */
-    siloListV1: (
-      { query = {} }: { query?: SiloListV1QueryParams },
+    siloList: (
+      { query = {} }: { query?: SiloListQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<SiloResultsPage>({
@@ -4349,7 +4080,7 @@ export class Api extends HttpClient {
     /**
      * Create a silo
      */
-    siloCreateV1: ({ body }: { body: SiloCreate }, params: RequestParams = {}) => {
+    siloCreate: ({ body }: { body: SiloCreate }, params: RequestParams = {}) => {
       return this.request<Silo>({
         path: `/v1/system/silos`,
         method: 'POST',
@@ -4360,7 +4091,7 @@ export class Api extends HttpClient {
     /**
      * Fetch a silo
      */
-    siloViewV1: ({ path }: { path: SiloViewV1PathParams }, params: RequestParams = {}) => {
+    siloView: ({ path }: { path: SiloViewPathParams }, params: RequestParams = {}) => {
       return this.request<Silo>({
         path: `/v1/system/silos/${path.silo}`,
         method: 'GET',
@@ -4370,10 +4101,7 @@ export class Api extends HttpClient {
     /**
      * Delete a silo
      */
-    siloDeleteV1: (
-      { path }: { path: SiloDeleteV1PathParams },
-      params: RequestParams = {}
-    ) => {
+    siloDelete: ({ path }: { path: SiloDeletePathParams }, params: RequestParams = {}) => {
       return this.request<void>({
         path: `/v1/system/silos/${path.silo}`,
         method: 'DELETE',
@@ -4383,8 +4111,8 @@ export class Api extends HttpClient {
     /**
      * Fetch a silo's IAM policy
      */
-    siloPolicyViewV1: (
-      { path }: { path: SiloPolicyViewV1PathParams },
+    siloPolicyView: (
+      { path }: { path: SiloPolicyViewPathParams },
       params: RequestParams = {}
     ) => {
       return this.request<SiloRolePolicy>({
@@ -4396,8 +4124,8 @@ export class Api extends HttpClient {
     /**
      * Update a silo's IAM policy
      */
-    siloPolicyUpdateV1: (
-      { path, body }: { path: SiloPolicyUpdateV1PathParams; body: SiloRolePolicy },
+    siloPolicyUpdate: (
+      { path, body }: { path: SiloPolicyUpdatePathParams; body: SiloRolePolicy },
       params: RequestParams = {}
     ) => {
       return this.request<SiloRolePolicy>({
@@ -4535,8 +4263,8 @@ export class Api extends HttpClient {
     /**
      * List users in a silo
      */
-    siloUserListV1: (
-      { query = {} }: { query?: SiloUserListV1QueryParams },
+    siloUserList: (
+      { query = {} }: { query?: SiloUserListQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<UserResultsPage>({
@@ -4549,11 +4277,11 @@ export class Api extends HttpClient {
     /**
      * Fetch a user
      */
-    siloUserViewV1: (
+    siloUserView: (
       {
         path,
         query = {},
-      }: { path: SiloUserViewV1PathParams; query?: SiloUserViewV1QueryParams },
+      }: { path: SiloUserViewPathParams; query?: SiloUserViewQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<User>({
@@ -4593,8 +4321,8 @@ export class Api extends HttpClient {
     /**
      * List users
      */
-    userListV1: (
-      { query = {} }: { query?: UserListV1QueryParams },
+    userList: (
+      { query = {} }: { query?: UserListQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<UserResultsPage>({

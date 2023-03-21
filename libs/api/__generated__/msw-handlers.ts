@@ -74,29 +74,6 @@ export interface MSWHandlers {
   systemImageViewById: (params: {
     path: Api.SystemImageViewByIdPathParams
   }) => HandlerResult<Api.GlobalImage>
-  /** `GET /system/by-id/silos/:id` */
-  siloViewById: (params: { path: Api.SiloViewByIdPathParams }) => HandlerResult<Api.Silo>
-  /** `GET /system/hardware/disks` */
-  physicalDiskList: (params: {
-    query: Api.PhysicalDiskListQueryParams
-  }) => HandlerResult<Api.PhysicalDiskResultsPage>
-  /** `GET /system/hardware/racks` */
-  rackList: (params: {
-    query: Api.RackListQueryParams
-  }) => HandlerResult<Api.RackResultsPage>
-  /** `GET /system/hardware/racks/:rackId` */
-  rackView: (params: { path: Api.RackViewPathParams }) => HandlerResult<Api.Rack>
-  /** `GET /system/hardware/sleds` */
-  sledList: (params: {
-    query: Api.SledListQueryParams
-  }) => HandlerResult<Api.SledResultsPage>
-  /** `GET /system/hardware/sleds/:sledId` */
-  sledView: (params: { path: Api.SledViewPathParams }) => HandlerResult<Api.Sled>
-  /** `GET /system/hardware/sleds/:sledId/disks` */
-  sledPhysicalDiskList: (params: {
-    path: Api.SledPhysicalDiskListPathParams
-    query: Api.SledPhysicalDiskListQueryParams
-  }) => HandlerResult<Api.PhysicalDiskResultsPage>
   /** `GET /system/images` */
   systemImageList: (params: {
     query: Api.SystemImageListQueryParams
@@ -111,31 +88,6 @@ export interface MSWHandlers {
   }) => HandlerResult<Api.GlobalImage>
   /** `DELETE /system/images/:imageName` */
   systemImageDelete: (params: { path: Api.SystemImageDeletePathParams }) => StatusCode
-  /** `GET /system/sagas` */
-  sagaList: (params: {
-    query: Api.SagaListQueryParams
-  }) => HandlerResult<Api.SagaResultsPage>
-  /** `GET /system/sagas/:sagaId` */
-  sagaView: (params: { path: Api.SagaViewPathParams }) => HandlerResult<Api.Saga>
-  /** `GET /system/silos` */
-  siloList: (params: {
-    query: Api.SiloListQueryParams
-  }) => HandlerResult<Api.SiloResultsPage>
-  /** `POST /system/silos` */
-  siloCreate: (params: { body: Json<Api.SiloCreate> }) => HandlerResult<Api.Silo>
-  /** `GET /system/silos/:siloName` */
-  siloView: (params: { path: Api.SiloViewPathParams }) => HandlerResult<Api.Silo>
-  /** `DELETE /system/silos/:siloName` */
-  siloDelete: (params: { path: Api.SiloDeletePathParams }) => StatusCode
-  /** `GET /system/silos/:siloName/policy` */
-  siloPolicyView: (params: {
-    path: Api.SiloPolicyViewPathParams
-  }) => HandlerResult<Api.SiloRolePolicy>
-  /** `PUT /system/silos/:siloName/policy` */
-  siloPolicyUpdate: (params: {
-    path: Api.SiloPolicyUpdatePathParams
-    body: Json<Api.SiloRolePolicy>
-  }) => HandlerResult<Api.SiloRolePolicy>
   /** `GET /v1/disks` */
   diskList: (params: {
     query: Api.DiskListQueryParams
@@ -161,8 +113,8 @@ export interface MSWHandlers {
     query: Api.DiskMetricsListQueryParams
   }) => HandlerResult<Api.MeasurementResultsPage>
   /** `GET /v1/groups` */
-  groupListV1: (params: {
-    query: Api.GroupListV1QueryParams
+  groupList: (params: {
+    query: Api.GroupListQueryParams
   }) => HandlerResult<Api.GroupResultsPage>
   /** `GET /v1/groups/:group` */
   groupView: (params: { path: Api.GroupViewPathParams }) => HandlerResult<Api.Group>
@@ -368,25 +320,25 @@ export interface MSWHandlers {
   /** `DELETE /v1/system/certificates/:certificate` */
   certificateDelete: (params: { path: Api.CertificateDeletePathParams }) => StatusCode
   /** `GET /v1/system/hardware/disks` */
-  physicalDiskListV1: (params: {
-    query: Api.PhysicalDiskListV1QueryParams
+  physicalDiskList: (params: {
+    query: Api.PhysicalDiskListQueryParams
   }) => HandlerResult<Api.PhysicalDiskResultsPage>
   /** `GET /v1/system/hardware/racks` */
-  rackListV1: (params: {
-    query: Api.RackListV1QueryParams
+  rackList: (params: {
+    query: Api.RackListQueryParams
   }) => HandlerResult<Api.RackResultsPage>
   /** `GET /v1/system/hardware/racks/:rackId` */
-  rackViewV1: (params: { path: Api.RackViewV1PathParams }) => HandlerResult<Api.Rack>
+  rackView: (params: { path: Api.RackViewPathParams }) => HandlerResult<Api.Rack>
   /** `GET /v1/system/hardware/sleds` */
-  sledListV1: (params: {
-    query: Api.SledListV1QueryParams
+  sledList: (params: {
+    query: Api.SledListQueryParams
   }) => HandlerResult<Api.SledResultsPage>
   /** `GET /v1/system/hardware/sleds/:sledId` */
-  sledViewV1: (params: { path: Api.SledViewV1PathParams }) => HandlerResult<Api.Sled>
+  sledView: (params: { path: Api.SledViewPathParams }) => HandlerResult<Api.Sled>
   /** `GET /v1/system/hardware/sleds/:sledId/disks` */
-  sledPhysicalDiskListV1: (params: {
-    path: Api.SledPhysicalDiskListV1PathParams
-    query: Api.SledPhysicalDiskListV1QueryParams
+  sledPhysicalDiskList: (params: {
+    path: Api.SledPhysicalDiskListPathParams
+    query: Api.SledPhysicalDiskListQueryParams
   }) => HandlerResult<Api.PhysicalDiskResultsPage>
   /** `GET /v1/system/identity-providers` */
   siloIdentityProviderList: (params: {
@@ -478,28 +430,28 @@ export interface MSWHandlers {
   /** `GET /v1/system/roles/:roleName` */
   roleView: (params: { path: Api.RoleViewPathParams }) => HandlerResult<Api.Role>
   /** `GET /v1/system/sagas` */
-  sagaListV1: (params: {
-    query: Api.SagaListV1QueryParams
+  sagaList: (params: {
+    query: Api.SagaListQueryParams
   }) => HandlerResult<Api.SagaResultsPage>
   /** `GET /v1/system/sagas/:sagaId` */
-  sagaViewV1: (params: { path: Api.SagaViewV1PathParams }) => HandlerResult<Api.Saga>
+  sagaView: (params: { path: Api.SagaViewPathParams }) => HandlerResult<Api.Saga>
   /** `GET /v1/system/silos` */
-  siloListV1: (params: {
-    query: Api.SiloListV1QueryParams
+  siloList: (params: {
+    query: Api.SiloListQueryParams
   }) => HandlerResult<Api.SiloResultsPage>
   /** `POST /v1/system/silos` */
-  siloCreateV1: (params: { body: Json<Api.SiloCreate> }) => HandlerResult<Api.Silo>
+  siloCreate: (params: { body: Json<Api.SiloCreate> }) => HandlerResult<Api.Silo>
   /** `GET /v1/system/silos/:silo` */
-  siloViewV1: (params: { path: Api.SiloViewV1PathParams }) => HandlerResult<Api.Silo>
+  siloView: (params: { path: Api.SiloViewPathParams }) => HandlerResult<Api.Silo>
   /** `DELETE /v1/system/silos/:silo` */
-  siloDeleteV1: (params: { path: Api.SiloDeleteV1PathParams }) => StatusCode
+  siloDelete: (params: { path: Api.SiloDeletePathParams }) => StatusCode
   /** `GET /v1/system/silos/:silo/policy` */
-  siloPolicyViewV1: (params: {
-    path: Api.SiloPolicyViewV1PathParams
+  siloPolicyView: (params: {
+    path: Api.SiloPolicyViewPathParams
   }) => HandlerResult<Api.SiloRolePolicy>
   /** `PUT /v1/system/silos/:silo/policy` */
-  siloPolicyUpdateV1: (params: {
-    path: Api.SiloPolicyUpdateV1PathParams
+  siloPolicyUpdate: (params: {
+    path: Api.SiloPolicyUpdatePathParams
     body: Json<Api.SiloRolePolicy>
   }) => HandlerResult<Api.SiloRolePolicy>
   /** `GET /v1/system/update/components` */
@@ -537,13 +489,13 @@ export interface MSWHandlers {
   /** `GET /v1/system/update/version` */
   systemVersion: () => HandlerResult<Api.SystemVersion>
   /** `GET /v1/system/users` */
-  siloUserListV1: (params: {
-    query: Api.SiloUserListV1QueryParams
+  siloUserList: (params: {
+    query: Api.SiloUserListQueryParams
   }) => HandlerResult<Api.UserResultsPage>
   /** `GET /v1/system/users/:userId` */
-  siloUserViewV1: (params: {
-    path: Api.SiloUserViewV1PathParams
-    query: Api.SiloUserViewV1QueryParams
+  siloUserView: (params: {
+    path: Api.SiloUserViewPathParams
+    query: Api.SiloUserViewQueryParams
   }) => HandlerResult<Api.User>
   /** `GET /v1/system/users-builtin` */
   userBuiltinList: (params: {
@@ -554,8 +506,8 @@ export interface MSWHandlers {
     path: Api.UserBuiltinViewPathParams
   }) => HandlerResult<Api.UserBuiltin>
   /** `GET /v1/users` */
-  userListV1: (params: {
-    query: Api.UserListV1QueryParams
+  userList: (params: {
+    query: Api.UserListQueryParams
   }) => HandlerResult<Api.UserResultsPage>
   /** `GET /v1/vpc-firewall-rules` */
   vpcFirewallRulesView: (params: {
@@ -780,34 +732,6 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
       handler(handlers['systemImageViewById'], schema.SystemImageViewByIdParams, null)
     ),
     rest.get(
-      '/system/by-id/silos/:id',
-      handler(handlers['siloViewById'], schema.SiloViewByIdParams, null)
-    ),
-    rest.get(
-      '/system/hardware/disks',
-      handler(handlers['physicalDiskList'], schema.PhysicalDiskListParams, null)
-    ),
-    rest.get(
-      '/system/hardware/racks',
-      handler(handlers['rackList'], schema.RackListParams, null)
-    ),
-    rest.get(
-      '/system/hardware/racks/:rackId',
-      handler(handlers['rackView'], schema.RackViewParams, null)
-    ),
-    rest.get(
-      '/system/hardware/sleds',
-      handler(handlers['sledList'], schema.SledListParams, null)
-    ),
-    rest.get(
-      '/system/hardware/sleds/:sledId',
-      handler(handlers['sledView'], schema.SledViewParams, null)
-    ),
-    rest.get(
-      '/system/hardware/sleds/:sledId/disks',
-      handler(handlers['sledPhysicalDiskList'], schema.SledPhysicalDiskListParams, null)
-    ),
-    rest.get(
       '/system/images',
       handler(handlers['systemImageList'], schema.SystemImageListParams, null)
     ),
@@ -823,33 +747,6 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
       '/system/images/:imageName',
       handler(handlers['systemImageDelete'], schema.SystemImageDeleteParams, null)
     ),
-    rest.get('/system/sagas', handler(handlers['sagaList'], schema.SagaListParams, null)),
-    rest.get(
-      '/system/sagas/:sagaId',
-      handler(handlers['sagaView'], schema.SagaViewParams, null)
-    ),
-    rest.get('/system/silos', handler(handlers['siloList'], schema.SiloListParams, null)),
-    rest.post('/system/silos', handler(handlers['siloCreate'], null, schema.SiloCreate)),
-    rest.get(
-      '/system/silos/:siloName',
-      handler(handlers['siloView'], schema.SiloViewParams, null)
-    ),
-    rest.delete(
-      '/system/silos/:siloName',
-      handler(handlers['siloDelete'], schema.SiloDeleteParams, null)
-    ),
-    rest.get(
-      '/system/silos/:siloName/policy',
-      handler(handlers['siloPolicyView'], schema.SiloPolicyViewParams, null)
-    ),
-    rest.put(
-      '/system/silos/:siloName/policy',
-      handler(
-        handlers['siloPolicyUpdate'],
-        schema.SiloPolicyUpdateParams,
-        schema.SiloRolePolicy
-      )
-    ),
     rest.get('/v1/disks', handler(handlers['diskList'], schema.DiskListParams, null)),
     rest.post(
       '/v1/disks',
@@ -864,10 +761,7 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
       '/v1/disks/:disk/metrics/:metric',
       handler(handlers['diskMetricsList'], schema.DiskMetricsListParams, null)
     ),
-    rest.get(
-      '/v1/groups',
-      handler(handlers['groupListV1'], schema.GroupListV1Params, null)
-    ),
+    rest.get('/v1/groups', handler(handlers['groupList'], schema.GroupListParams, null)),
     rest.get(
       '/v1/groups/:group',
       handler(handlers['groupView'], schema.GroupViewParams, null)
@@ -1098,27 +992,27 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
     ),
     rest.get(
       '/v1/system/hardware/disks',
-      handler(handlers['physicalDiskListV1'], schema.PhysicalDiskListV1Params, null)
+      handler(handlers['physicalDiskList'], schema.PhysicalDiskListParams, null)
     ),
     rest.get(
       '/v1/system/hardware/racks',
-      handler(handlers['rackListV1'], schema.RackListV1Params, null)
+      handler(handlers['rackList'], schema.RackListParams, null)
     ),
     rest.get(
       '/v1/system/hardware/racks/:rackId',
-      handler(handlers['rackViewV1'], schema.RackViewV1Params, null)
+      handler(handlers['rackView'], schema.RackViewParams, null)
     ),
     rest.get(
       '/v1/system/hardware/sleds',
-      handler(handlers['sledListV1'], schema.SledListV1Params, null)
+      handler(handlers['sledList'], schema.SledListParams, null)
     ),
     rest.get(
       '/v1/system/hardware/sleds/:sledId',
-      handler(handlers['sledViewV1'], schema.SledViewV1Params, null)
+      handler(handlers['sledView'], schema.SledViewParams, null)
     ),
     rest.get(
       '/v1/system/hardware/sleds/:sledId/disks',
-      handler(handlers['sledPhysicalDiskListV1'], schema.SledPhysicalDiskListV1Params, null)
+      handler(handlers['sledPhysicalDiskList'], schema.SledPhysicalDiskListParams, null)
     ),
     rest.get(
       '/v1/system/identity-providers',
@@ -1231,37 +1125,34 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
     ),
     rest.get(
       '/v1/system/sagas',
-      handler(handlers['sagaListV1'], schema.SagaListV1Params, null)
+      handler(handlers['sagaList'], schema.SagaListParams, null)
     ),
     rest.get(
       '/v1/system/sagas/:sagaId',
-      handler(handlers['sagaViewV1'], schema.SagaViewV1Params, null)
+      handler(handlers['sagaView'], schema.SagaViewParams, null)
     ),
     rest.get(
       '/v1/system/silos',
-      handler(handlers['siloListV1'], schema.SiloListV1Params, null)
+      handler(handlers['siloList'], schema.SiloListParams, null)
     ),
-    rest.post(
-      '/v1/system/silos',
-      handler(handlers['siloCreateV1'], null, schema.SiloCreate)
-    ),
+    rest.post('/v1/system/silos', handler(handlers['siloCreate'], null, schema.SiloCreate)),
     rest.get(
       '/v1/system/silos/:silo',
-      handler(handlers['siloViewV1'], schema.SiloViewV1Params, null)
+      handler(handlers['siloView'], schema.SiloViewParams, null)
     ),
     rest.delete(
       '/v1/system/silos/:silo',
-      handler(handlers['siloDeleteV1'], schema.SiloDeleteV1Params, null)
+      handler(handlers['siloDelete'], schema.SiloDeleteParams, null)
     ),
     rest.get(
       '/v1/system/silos/:silo/policy',
-      handler(handlers['siloPolicyViewV1'], schema.SiloPolicyViewV1Params, null)
+      handler(handlers['siloPolicyView'], schema.SiloPolicyViewParams, null)
     ),
     rest.put(
       '/v1/system/silos/:silo/policy',
       handler(
-        handlers['siloPolicyUpdateV1'],
-        schema.SiloPolicyUpdateV1Params,
+        handlers['siloPolicyUpdate'],
+        schema.SiloPolicyUpdateParams,
         schema.SiloRolePolicy
       )
     ),
@@ -1309,11 +1200,11 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
     rest.get('/v1/system/update/version', handler(handlers['systemVersion'], null, null)),
     rest.get(
       '/v1/system/users',
-      handler(handlers['siloUserListV1'], schema.SiloUserListV1Params, null)
+      handler(handlers['siloUserList'], schema.SiloUserListParams, null)
     ),
     rest.get(
       '/v1/system/users/:userId',
-      handler(handlers['siloUserViewV1'], schema.SiloUserViewV1Params, null)
+      handler(handlers['siloUserView'], schema.SiloUserViewParams, null)
     ),
     rest.get(
       '/v1/system/users-builtin',
@@ -1323,7 +1214,7 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
       '/v1/system/users-builtin/:user',
       handler(handlers['userBuiltinView'], schema.UserBuiltinViewParams, null)
     ),
-    rest.get('/v1/users', handler(handlers['userListV1'], schema.UserListV1Params, null)),
+    rest.get('/v1/users', handler(handlers['userList'], schema.UserListParams, null)),
     rest.get(
       '/v1/vpc-firewall-rules',
       handler(handlers['vpcFirewallRulesView'], schema.VpcFirewallRulesViewParams, null)
