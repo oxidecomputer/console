@@ -4,7 +4,6 @@ interface SVGRProps {
   title?: string
   titleId?: string
 }
-
 const Person24Icon = ({
   title,
   titleId,
@@ -25,11 +24,10 @@ const Person24Icon = ({
         id="Union"
         fillRule="evenodd"
         clipRule="evenodd"
-        d="M19 9C19 12.866 15.866 16 12 16C8.13401 16 5 12.866 5 9C5 5.13401 8.13401 2 12 2C15.866 2 19 5.13401 19 9ZM1 22V18H23V22H1Z"
+        d="M18 8C18 11.3137 15.3137 14 12 14C8.68629 14 6 11.3137 6 8C6 4.68629 8.68629 2 12 2C15.3137 2 18 4.68629 18 8ZM1 21.4545C1 18.4421 3.44208 16 6.45455 16H17.5455C20.5579 16 23 18.4421 23 21.4545C23 21.7558 22.7558 22 22.4545 22H1.54545C1.24421 22 1 21.7558 1 21.4545Z"
         fill="currentColor"
       />
     </g>
   </svg>
 )
-
 export default Person24Icon

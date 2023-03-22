@@ -5,7 +5,7 @@ import { useButton, useDatePicker } from 'react-aria'
 import { useDatePickerState } from 'react-stately'
 import type { DatePickerStateOptions } from 'react-stately'
 
-import { Calendar16TempIcon, Error12Icon } from '../icons'
+import { Calendar16Icon, Error12Icon } from '../icons'
 import { Calendar } from './Calendar'
 import { DateField, TimeField } from './DateField'
 import { Dialog } from './Dialog'
@@ -47,7 +47,7 @@ export function DatePicker(props: DatePickerProps) {
             state.isOpen && 'z-10 ring-2 ring-accent-secondary'
           )}
         >
-          <Calendar16TempIcon className="h-4 w-4 text-tertiary" />
+          <Calendar16Icon className="h-4 w-4 text-tertiary" />
         </button>
       </div>
       {state.isOpen && (

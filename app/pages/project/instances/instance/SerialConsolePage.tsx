@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 
 import { useApiQuery } from '@oxide/api'
 import { Button } from '@oxide/ui'
-import { DirectionLeftIcon, Spinner } from '@oxide/ui'
+import { PrevArrow12Icon, Spinner } from '@oxide/ui'
 import { MiB } from '@oxide/util'
 
 import { SerialConsoleStatusBadge } from 'app/components/StatusBadge'
@@ -31,7 +31,7 @@ export function SerialConsolePage() {
         to={pb.instance({ organization, project, instance })}
         className="mx-3 mt-3 mb-6 flex h-10 flex-shrink-0 items-center rounded px-3 bg-accent-secondary"
       >
-        <DirectionLeftIcon className="text-accent-tertiary" />
+        <PrevArrow12Icon className="text-accent-tertiary" />
         <div className="ml-2 text-mono-sm text-accent">
           <span className="text-accent-tertiary">Back to</span> instance
         </div>

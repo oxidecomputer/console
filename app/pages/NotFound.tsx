@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 
-import { DirectionLeftIcon, Error12Icon } from '@oxide/ui'
+import { Error12Icon, PrevArrow12Icon } from '@oxide/ui'
 
 export default function NotFound() {
   return (
@@ -17,7 +17,7 @@ export default function NotFound() {
           to="/"
           className="flex items-center p-6 text-mono-sm text-secondary hover:text-default"
         >
-          <DirectionLeftIcon title="Select" className="mr-2 w-2 text-tertiary" />
+          <PrevArrow12Icon title="Select" className="mr-2 w-2 text-tertiary" />
           Back to console
         </Link>
       </div>

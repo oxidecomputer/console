@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom'
 
 import type { PathParams as PP, SnapshotCreate } from '@oxide/api'
 import { useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
-import { Success16Icon } from '@oxide/ui'
+import { Success12Icon } from '@oxide/ui'
 
 import {
   DescriptionField,
@@ -44,7 +44,7 @@ export function CreateSnapshotSideModalForm() {
     onSuccess() {
       queryClient.invalidateQueries('snapshotListV1', { query: projectSelector })
       addToast({
-        icon: <Success16Icon />,
+        icon: <Success12Icon />,
         title: 'Success!',
         content: 'Your snapshot has been created.',
       })

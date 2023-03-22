@@ -4,7 +4,6 @@ interface SVGRProps {
   title?: string
   titleId?: string
 }
-
 const FedoraDistroIcon = ({
   title,
   titleId,
@@ -29,5 +28,4 @@ const FedoraDistroIcon = ({
     </g>
   </svg>
 )
-
 export default FedoraDistroIcon

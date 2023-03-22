@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 
 import type { IdpMetadataSource, SamlIdentityProviderCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import { Radio, RadioGroup, Success16Icon } from '@oxide/ui'
+import { Radio, RadioGroup, Success12Icon } from '@oxide/ui'
 
 import {
   DescriptionField,
@@ -49,7 +49,7 @@ export function CreateIdpSideModalForm() {
     onSuccess() {
       queryClient.invalidateQueries('siloIdentityProviderListV1', { query: { silo } })
       addToast({
-        icon: <Success16Icon />,
+        icon: <Success12Icon />,
         title: 'Success!',
         content: 'Your identity provider has been created.',
       })

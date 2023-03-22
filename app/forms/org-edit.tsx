@@ -2,7 +2,7 @@ import type { LoaderFunctionArgs } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 
 import { apiQueryClient, useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
-import { Success16Icon } from '@oxide/ui'
+import { Success12Icon } from '@oxide/ui'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
 import { getOrgSelector, useOrgSelector, useToast } from 'app/hooks'
@@ -36,7 +36,7 @@ export function EditOrgSideModalForm() {
         org
       )
       addToast({
-        icon: <Success16Icon />,
+        icon: <Success12Icon />,
         title: 'Success!',
         content: 'Your organization has been updated.',
         timeout: 5000,
