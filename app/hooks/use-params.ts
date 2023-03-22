@@ -33,11 +33,11 @@ const requireSledParams = requireParams('sledId')
 export const requireUpdateParams = requireParams('version')
 
 /**
- * Turn `getOrgSelector`, a pure function on a params object, into a hook that
- * pulls the params off `useParams()` and
+ * Turn `getThingSelector`, a pure function on a params object, into a hook
+ * that pulls the params off `useParams()` and
  *
  * 1. throws an error if the desired params are missing (this is just what
- *    `getOrgSelector` does), and
+ *    `getThingSelector` does), and
  * 2. more importantly, memoizes the result in a sneaky way, using React Query's
  *    `hashQueryKey` in the deps to only re-render if the contents actually
  *    change.
@@ -47,8 +47,8 @@ export const requireUpdateParams = requireParams('version')
  * all strings) but it's much more convenient not to have it silently go wrong
  * if you use the object as a whole.
  */
-function useSelectedParams<T>(requireSelector: (params: AllParams) => T) {
-  const sel = requireSelector(useParams())
+function useSelectedParams<T>(getSelector: (params: AllParams) => T) {
+  const sel = getSelector(useParams())
   // eslint-disable-next-line react-hooks/exhaustive-deps
   return useMemo(() => sel, [hashQueryKey([sel])])
 }
