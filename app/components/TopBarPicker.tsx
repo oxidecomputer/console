@@ -4,6 +4,7 @@ import { Link, useParams } from 'react-router-dom'
 import { useApiQuery } from '@oxide/api'
 import {
   DropdownMenu,
+  Folder16Icon,
   Identicon,
   SelectArrows6Icon,
   Success12Icon,
@@ -54,7 +55,7 @@ const TopBarPicker = (props: TopBarPickerProps) => {
               </div>
             ) : (
               <div className="text-left">
-                <div className="text-mono-xs text-quaternary">
+                <div className="min-w-[5rem] text-mono-xs text-quaternary">
                   Select
                   <br />
                   {props.category}
@@ -115,7 +116,7 @@ const TopBarPicker = (props: TopBarPickerProps) => {
  * Uses the @oxide/identicon library to generate an identicon based on a hash of the org name
  * Will eventually need to support user uploaded org avatars and fallback to this if there isn't one
  */
-const OrgLogo = ({ name }: { name: string }) => (
+const BigIdenticon = ({ name }: { name: string }) => (
   <Identicon
     className="flex h-[34px] w-[34px] items-center justify-center rounded text-accent bg-accent-secondary-hover"
     name={name}
@@ -182,13 +183,19 @@ export function SiloPicker() {
     <TopBarPicker
       aria-label="Switch silo"
       category="Silo"
-      icon={<OrgLogo name={siloName} />}
+      icon={<BigIdenticon name={siloName} />}
       current={siloName}
       items={items}
       noItemsText="No silos found"
     />
   )
 }
+
+const NoProjectLogo = () => (
+  <div className="flex h-[34px] w-[34px] items-center justify-center rounded text-secondary bg-secondary">
+    <Folder16Icon />
+  </div>
+)
 
 export function ProjectPicker() {
   // picker only shows up when a project is in scope
@@ -202,9 +209,10 @@ export function ProjectPicker() {
   return (
     <TopBarPicker
       aria-label="Switch project"
+      icon={project ? <BigIdenticon name={project} /> : <NoProjectLogo />}
       category="Project"
       current={project}
-      to={project ? pb.projects() : undefined}
+      to={project ? pb.project({ project }) : undefined}
       items={items}
       noItemsText="No projects found"
     />
