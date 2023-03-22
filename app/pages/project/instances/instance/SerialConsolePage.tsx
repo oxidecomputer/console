@@ -13,14 +13,14 @@ import { pb } from 'app/util/path-builder'
 const Terminal = lazy(() => import('app/components/Terminal'))
 
 export function SerialConsolePage() {
-  const { organization, project, instance } = useInstanceSelector()
+  const { project, instance } = useInstanceSelector()
 
   const { isRefetching, data, refetch } = useApiQuery(
-    'instanceSerialConsoleV1',
+    'instanceSerialConsole',
     {
       path: { instance },
       // holding off on using toPathQuery for now because it doesn't like numbers
-      query: { organization, project, maxBytes: 10 * MiB, fromStart: 0 },
+      query: { project, maxBytes: 10 * MiB, fromStart: 0 },
     },
     { refetchOnWindowFocus: false }
   )
@@ -28,7 +28,7 @@ export function SerialConsolePage() {
   return (
     <div className="!mx-0 flex h-full max-h-[calc(100vh-60px)] !w-full flex-col">
       <Link
-        to={pb.instance({ organization, project, instance })}
+        to={pb.instance({ project, instance })}
         className="mx-3 mt-3 mb-6 flex h-10 flex-shrink-0 items-center rounded px-3 bg-accent-secondary"
       >
         <DirectionLeftIcon className="text-accent-tertiary" />

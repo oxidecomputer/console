@@ -8,20 +8,14 @@ import { useMemo } from 'react'
 import { lowestBy, sortBy } from '@oxide/util'
 
 import { useApiQuery } from '.'
-import type {
-  FleetRole,
-  IdentityType,
-  OrganizationRole,
-  ProjectRole,
-  SiloRole,
-} from './__generated__/Api'
+import type { FleetRole, IdentityType, ProjectRole, SiloRole } from './__generated__/Api'
 
 /**
  * Union of all the specific roles, which are all the same, which makes making
  * our methods generic on the *Role type is pointless (until they stop being the same).
  * Only named `RoleName` because the API client already exports `Role`.
  */
-export type RoleKey = FleetRole | SiloRole | OrganizationRole | ProjectRole
+export type RoleKey = FleetRole | SiloRole | ProjectRole
 
 /** Turn a role order record into a sorted array of strings. */
 // used for displaying lists of roles, like in a <select>
@@ -96,8 +90,8 @@ export function useUserRows(
 ): UserAccessRow[] {
   // HACK: because the policy has no names, we are fetching ~all the users,
   // putting them in a dictionary, and adding the names to the rows
-  const { data: users } = useApiQuery('userListV1', {})
-  const { data: groups } = useApiQuery('groupListV1', {})
+  const { data: users } = useApiQuery('userList', {})
+  const { data: groups } = useApiQuery('groupList', {})
   return useMemo(() => {
     const userItems = users?.items || []
     const groupItems = groups?.items || []
@@ -138,8 +132,8 @@ export function useActorsNotInPolicy(
   // allow undefined because this is fetched with RQ
   policy: Policy | undefined
 ): Actor[] {
-  const { data: users } = useApiQuery('userListV1', {})
-  const { data: groups } = useApiQuery('groupListV1', {})
+  const { data: users } = useApiQuery('userList', {})
+  const { data: groups } = useApiQuery('groupList', {})
   return useMemo(() => {
     // IDs are UUIDs, so no need to include identity type in set value to disambiguate
     const actorsInPolicy = new Set(policy?.roleAssignments.map((ra) => ra.identityId) || [])

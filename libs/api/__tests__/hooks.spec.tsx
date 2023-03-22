@@ -2,11 +2,12 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { act, render, renderHook, waitFor } from '@testing-library/react'
 import { vi } from 'vitest'
 
-import { org } from '@oxide/api-mocks'
+import { project } from '@oxide/api-mocks'
 
 import { overrideOnce } from 'app/test/unit'
 
 import { useApiMutation, useApiQuery } from '..'
+import type { DiskCreate } from '../__generated__/Api'
 
 // because useApiQuery and useApiMutation are almost entirely typed wrappers
 // around React Query's useQuery and useMutation, these tests are mostly about
@@ -25,17 +26,16 @@ export function Wrapper({ children }: { children: React.ReactNode }) {
 
 const config = { wrapper: Wrapper }
 
-const renderGetOrgs = () => renderHook(() => useApiQuery('organizationListV1', {}), config)
+const renderProjectList = () => renderHook(() => useApiQuery('projectList', {}), config)
 
 // 503 is a special key in the MSW server that returns a 503
-const renderGetOrg503 = () =>
+const renderGetProject503 = () =>
   renderHook(
-    () => useApiQuery('organizationViewV1', { path: { organization: 'org-error-503' } }),
+    () => useApiQuery('projectView', { path: { project: 'project-error-503' } }),
     config
   )
 
-const renderCreateOrg = () =>
-  renderHook(() => useApiMutation('organizationCreateV1'), config)
+const renderCreateProject = () => renderHook(() => useApiMutation('projectCreate'), config)
 
 const createParams = {
   body: { name: 'abc', description: '', hello: 'a' },
@@ -43,7 +43,7 @@ const createParams = {
 
 describe('useApiQuery', () => {
   it('has correct initial state', () => {
-    const { result } = renderGetOrgs()
+    const { result } = renderProjectList()
 
     expect(result.current.data).toBeFalsy()
     expect(result.current.error).toBeFalsy()
@@ -52,7 +52,7 @@ describe('useApiQuery', () => {
 
   describe('on error response', () => {
     it('passes through raw response', async () => {
-      const { result } = renderGetOrg503()
+      const { result } = renderGetProject503()
 
       await waitFor(() => expect(result.current.error).not.toBeNull())
 
@@ -61,7 +61,7 @@ describe('useApiQuery', () => {
     })
 
     it('parses error json if possible', async () => {
-      const { result } = renderGetOrg503()
+      const { result } = renderGetProject503()
 
       await waitFor(() =>
         expect(result.current.error?.error).toMatchObject({
@@ -71,9 +71,9 @@ describe('useApiQuery', () => {
     })
 
     it('contains client_error if error body is not json', async () => {
-      overrideOnce('get', '/api/v1/organizations', 503, 'not json')
+      overrideOnce('get', '/api/v1/projects', 503, 'not json')
 
-      const { result } = renderGetOrgs()
+      const { result } = renderProjectList()
 
       await waitFor(() => {
         const error = result.current.error
@@ -89,9 +89,9 @@ describe('useApiQuery', () => {
     })
 
     it('does not client_error if response body is empty', async () => {
-      overrideOnce('get', '/api/v1/organizations', 503, '')
+      overrideOnce('get', '/api/v1/projects', 503, '')
 
-      const { result } = renderGetOrgs()
+      const { result } = renderProjectList()
 
       await waitFor(() => {
         const error = result.current.error
@@ -119,7 +119,7 @@ describe('useApiQuery', () => {
 
       function BadApiCall() {
         try {
-          useApiQuery('organizationViewV1', { path: { organization: 'nonexistent' } })
+          useApiQuery('projectView', { path: { project: 'nonexistent' } })
         } catch (e) {
           onError(e)
         }
@@ -139,8 +139,8 @@ describe('useApiQuery', () => {
       const { result } = renderHook(
         () =>
           useApiQuery(
-            'organizationViewV1',
-            { path: { organization: 'nonexistent' } },
+            'projectView',
+            { path: { project: 'nonexistent' } },
             { useErrorBoundary: false } // <----- the point
           ),
         config
@@ -156,19 +156,19 @@ describe('useApiQuery', () => {
 
   describe('on success response', () => {
     it('returns data', async () => {
-      const { result } = renderGetOrgs()
+      const { result } = renderProjectList()
       await waitFor(() => {
         const items = result.current.data?.items
         expect(items?.length).toEqual(2)
-        expect(items?.[0].id).toEqual(org.id)
+        expect(items?.[0].id).toEqual(project.id)
       })
     })
 
     // RQ doesn't like a value of undefined for data, so we're using {} for now
     it('returns success with empty object if response body is empty', async () => {
-      overrideOnce('get', '/api/v1/organizations', 204, '')
+      overrideOnce('get', '/api/v1/projects', 204, '')
 
-      const { result } = renderGetOrgs()
+      const { result } = renderProjectList()
 
       await waitFor(() => {
         expect(result.current.data).toEqual({})
@@ -179,7 +179,7 @@ describe('useApiQuery', () => {
 
 describe('useApiMutation', () => {
   it('has correct initial state', () => {
-    const { result } = renderCreateOrg()
+    const { result } = renderCreateProject()
 
     expect(result.current.data).toBeFalsy()
     expect(result.current.error).toBeFalsy()
@@ -187,15 +187,21 @@ describe('useApiMutation', () => {
   })
 
   describe('on error response', () => {
-    const projectPost404Params = {
-      query: { organization: 'nonexistent' },
-      body: { name: 'will-fail', description: '' },
+    const diskCreate: DiskCreate = {
+      name: 'will-fail',
+      description: '',
+      diskSource: { type: 'blank', blockSize: 4096 },
+      size: 10,
+    }
+    const diskCreate404Params = {
+      query: { project: 'nonexistent' },
+      body: diskCreate,
     }
 
     it('passes through raw response', async () => {
-      const { result } = renderHook(() => useApiMutation('projectCreateV1'), config)
+      const { result } = renderHook(() => useApiMutation('diskCreate'), config)
 
-      act(() => result.current.mutate(projectPost404Params))
+      act(() => result.current.mutate(diskCreate404Params))
 
       await waitFor(() => expect(result.current.error).not.toBeNull())
 
@@ -204,9 +210,9 @@ describe('useApiMutation', () => {
     })
 
     it('parses error json if possible', async () => {
-      const { result } = renderHook(() => useApiMutation('projectCreateV1'), config)
+      const { result } = renderHook(() => useApiMutation('diskCreate'), config)
 
-      act(() => result.current.mutate(projectPost404Params))
+      act(() => result.current.mutate(diskCreate404Params))
 
       await waitFor(() =>
         expect(result.current.error?.error).toMatchObject({
@@ -216,9 +222,9 @@ describe('useApiMutation', () => {
     })
 
     it('contains client_error if error body is not json', async () => {
-      overrideOnce('post', '/api/v1/organizations', 404, 'not json')
+      overrideOnce('post', '/api/v1/projects', 404, 'not json')
 
-      const { result } = renderCreateOrg()
+      const { result } = renderCreateProject()
       act(() => result.current.mutate(createParams))
 
       await waitFor(() => {
@@ -233,9 +239,9 @@ describe('useApiMutation', () => {
     })
 
     it('does not client_error if response body is empty', async () => {
-      overrideOnce('post', '/api/v1/organizations', 503, '')
+      overrideOnce('post', '/api/v1/projects', 503, '')
 
-      const { result } = renderCreateOrg()
+      const { result } = renderCreateProject()
       act(() => result.current.mutate(createParams))
 
       await waitFor(() => {
@@ -253,7 +259,7 @@ describe('useApiMutation', () => {
 
   describe('on success response', () => {
     it('returns data', async () => {
-      const { result } = renderCreateOrg()
+      const { result } = renderCreateProject()
       act(() => result.current.mutate(createParams))
 
       await waitFor(() =>
@@ -265,9 +271,9 @@ describe('useApiMutation', () => {
 
     // RQ doesn't like a value of undefined for data, so we're using {} for now
     it('returns success with empty object if response body is empty', async () => {
-      overrideOnce('post', '/api/v1/organizations', 204, '')
+      overrideOnce('post', '/api/v1/projects', 204, '')
 
-      const { result } = renderCreateOrg()
+      const { result } = renderCreateProject()
       act(() => result.current.mutate(createParams))
 
       await waitFor(() => {

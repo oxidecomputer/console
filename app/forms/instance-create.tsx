@@ -72,7 +72,7 @@ const baseDefaultValues: InstanceCreateInput = {
 }
 
 CreateInstanceForm.loader = async ({ params }: LoaderFunctionArgs) => {
-  await apiQueryClient.prefetchQuery('imageListV1', {
+  await apiQueryClient.prefetchQuery('imageList', {
     query: getProjectSelector(params),
   })
   return null
@@ -84,13 +84,13 @@ export function CreateInstanceForm() {
   const projectSelector = useProjectSelector()
   const navigate = useNavigate()
 
-  const createInstance = useApiMutation('instanceCreateV1', {
+  const createInstance = useApiMutation('instanceCreate', {
     onSuccess(instance) {
       // refetch list of instances
-      queryClient.invalidateQueries('instanceListV1', { query: projectSelector })
+      queryClient.invalidateQueries('instanceList', { query: projectSelector })
       // avoid the instance fetch when the instance page loads since we have the data
       queryClient.setQueryData(
-        'instanceViewV1',
+        'instanceView',
         { path: { instance: instance.name }, query: projectSelector },
         instance
       )
@@ -103,7 +103,7 @@ export function CreateInstanceForm() {
     },
   })
 
-  const images = useApiQuery('imageListV1', { query: projectSelector }).data?.items || []
+  const images = useApiQuery('imageList', { query: projectSelector }).data?.items || []
 
   const defaultValues: InstanceCreateInput = {
     ...baseDefaultValues,

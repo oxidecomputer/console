@@ -18,9 +18,9 @@ export function CreateSSHKeySideModalForm() {
 
   const onDismiss = () => navigate(pb.sshKeys())
 
-  const createSshKey = useApiMutation('currentUserSshKeyCreateV1', {
+  const createSshKey = useApiMutation('currentUserSshKeyCreate', {
     onSuccess() {
-      queryClient.invalidateQueries('currentUserSshKeyListV1', {})
+      queryClient.invalidateQueries('currentUserSshKeyList', {})
       onDismiss()
     },
   })

@@ -1,7 +1,6 @@
 import type { Merge } from 'type-fest'
 
-export type Org = { organization?: string }
-export type Project = Merge<Org, { project?: string }>
+export type Project = { project?: string }
 export type Instance = Merge<Project, { instance?: string }>
 export type Disk = Merge<Project, { disk?: string }>
 export type Image = Merge<Project, { image?: string }>

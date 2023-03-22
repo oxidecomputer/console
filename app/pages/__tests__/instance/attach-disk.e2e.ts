@@ -5,7 +5,7 @@ import { expectVisible } from 'app/test/e2e'
 import { stopInstance } from './util'
 
 test('Attach disk', async ({ page }) => {
-  await page.goto('/orgs/maze-war/projects/mock-project/instances/db1')
+  await page.goto('/projects/mock-project/instances/db1')
 
   // Have to stop instance to edit disks
   await stopInstance(page)

@@ -32,7 +32,7 @@ const EmptyState = () => (
 // just as in the vpcList call for the quick actions menu, include limit: 10 to make
 // sure it matches the call in the QueryTable
 VpcsPage.loader = async ({ params }: LoaderFunctionArgs) => {
-  await apiQueryClient.prefetchQuery('vpcListV1', {
+  await apiQueryClient.prefetchQuery('vpcList', {
     query: { ...getProjectSelector(params), limit: 10 },
   })
   return null
@@ -41,14 +41,14 @@ VpcsPage.loader = async ({ params }: LoaderFunctionArgs) => {
 export function VpcsPage() {
   const queryClient = useApiQueryClient()
   const projectSelector = useProjectSelector()
-  const { data: vpcs } = useApiQuery('vpcListV1', {
+  const { data: vpcs } = useApiQuery('vpcList', {
     query: { ...projectSelector, limit: 10 }, // to have same params as QueryTable
   })
   const navigate = useNavigate()
 
-  const deleteVpc = useApiMutation('vpcDeleteV1', {
+  const deleteVpc = useApiMutation('vpcDelete', {
     onSuccess() {
-      queryClient.invalidateQueries('vpcListV1', { query: projectSelector })
+      queryClient.invalidateQueries('vpcList', { query: projectSelector })
     },
   })
 
@@ -79,7 +79,7 @@ export function VpcsPage() {
     )
   )
 
-  const { Table, Column } = useQueryTable('vpcListV1', { query: projectSelector })
+  const { Table, Column } = useQueryTable('vpcList', { query: projectSelector })
   return (
     <>
       <PageHeader>

@@ -1,10 +1,8 @@
 import { expect, expectNotVisible, expectVisible, test } from 'app/test/e2e'
 
-test.beforeEach(async ({ page, createVpc, orgName, projectName, vpcName }) => {
-  await createVpc(orgName, projectName, vpcName)
-  await page.goto(
-    `/orgs/${orgName}/projects/${projectName}/vpcs/${vpcName}?tab=firewall-rules`
-  )
+test.beforeEach(async ({ page, createVpc, projectName, vpcName }) => {
+  await createVpc(projectName, vpcName)
+  await page.goto(`/projects/${projectName}/vpcs/${vpcName}?tab=firewall-rules`)
 })
 
 test.fixme('Expect no firewall rules by default', async ({ page }) => {
