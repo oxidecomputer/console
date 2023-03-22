@@ -3,7 +3,7 @@ import { test } from '@playwright/test'
 import { expectNotVisible, expectVisible } from 'app/test/e2e'
 
 test.beforeEach(async ({ page }) => {
-  await page.goto('/orgs/maze-war/projects/mock-project')
+  await page.goto('/projects/mock-project')
 })
 
 test('Click through instance page', async ({ page }) => {

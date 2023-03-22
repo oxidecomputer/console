@@ -5,7 +5,6 @@ import { expectNotVisible, expectVisible } from 'app/test/e2e'
 test.describe('VpcPage', () => {
   test('can nav to VpcPage from /', async ({ page }) => {
     await page.goto('/')
-    await page.click('table :text("maze-war")')
     await page.click('table :text("mock-project")')
     await page.click('a:has-text("Networking")')
     await page.click('a:has-text("mock-vpc")')
@@ -13,7 +12,7 @@ test.describe('VpcPage', () => {
   })
 
   test('can create and delete subnet', async ({ page }) => {
-    await page.goto('/orgs/maze-war/projects/mock-project/vpcs/mock-vpc')
+    await page.goto('/projects/mock-project/vpcs/mock-vpc')
     // only one row in table, the default mock-subnet
     const rows = await page.locator('tbody >> tr')
     await expect(rows).toHaveCount(1)
@@ -48,7 +47,7 @@ test.describe('VpcPage', () => {
   const defaultRules = ['allow-internal-inbound', 'allow-ssh', 'allow-icmp', 'allow-rdp']
 
   test('can create firewall rule', async ({ page }) => {
-    await page.goto('/orgs/maze-war/projects/mock-project/vpcs/mock-vpc')
+    await page.goto('/projects/mock-project/vpcs/mock-vpc')
     await page.locator('text="Firewall Rules"').click()
 
     // default rules are all there
@@ -120,7 +119,7 @@ test.describe('VpcPage', () => {
   })
 
   test('can update firewall rule', async ({ page }) => {
-    await page.goto('/orgs/maze-war/projects/mock-project/vpcs/mock-vpc')
+    await page.goto('/projects/mock-project/vpcs/mock-vpc')
     await page.locator('text="Firewall Rules"').click()
 
     const rows = await page.locator('tbody >> tr')

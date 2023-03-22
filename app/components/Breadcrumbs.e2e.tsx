@@ -37,17 +37,17 @@ test.describe('Breadcrumbs', () => {
   })
 
   test('works on VPC detail', async ({ page }) => {
-    await page.goto('/orgs/maze-war/projects/mock-project/vpcs/mock-vpc/')
+    await page.goto('/projects/mock-project/vpcs/mock-vpc/')
     await expectCrumbs(page, [
-      { text: 'maze-war', href: '/orgs/maze-war' },
-      { text: 'Projects', href: '/orgs/maze-war/projects' },
+      { text: 'maze-war', href: '/' },
+      { text: 'Projects', href: '/projects' },
       {
         text: 'mock-project',
-        href: '/orgs/maze-war/projects/mock-project',
+        href: '/projects/mock-project',
       },
       {
         text: 'VPCs',
-        href: '/orgs/maze-war/projects/mock-project/vpcs',
+        href: '/projects/mock-project/vpcs',
       },
       { text: 'mock-vpc' },
     ])

@@ -128,7 +128,7 @@ export const test = base.extend<Fixtures>({
         return
       }
 
-      const back = await goto(page, `/orgs/abc/projects-new`)
+      const back = await goto(page, `/projects-new`)
       await page.fill('role=textbox[name="Name"]', projectName)
       await page.fill('role=textbox[name="Description"]', body.description || '')
       await page.click('role=button[name="Create project"]')
@@ -144,7 +144,7 @@ export const test = base.extend<Fixtures>({
 
   async deleteProject({ page, deleteTableRow }, use) {
     await use(async (params: ProjectDeletePathParams) => {
-      const back = await goto(page, `/orgs/abc/projects`)
+      const back = await goto(page, `/projects`)
       await deleteTableRow(params.projectName)
       await back()
     })

@@ -32,6 +32,8 @@ type ProjectLayoutProps = {
   overrideContentPane?: ReactElement
 }
 
+const projectPathPattern = pb.project({ project: ':project' })
+
 const ProjectLayout = ({ overrideContentPane }: ProjectLayoutProps) => {
   const navigate = useNavigate()
   // org and project will always be there, instance may not
@@ -51,7 +53,7 @@ const ProjectLayout = ({ overrideContentPane }: ProjectLayoutProps) => {
           { value: 'Networking', path: 'vpcs' },
         ]
           // filter out the entry for the path we're currently on
-          .filter((i) => !matchPath(`/orgs/:org/projects/:project/${i.path}`, currentPath))
+          .filter((i) => !matchPath(`${projectPathPattern}/${i.path}`, currentPath))
           .map((i) => ({
             navGroup: `Project '${project}'`,
             value: i.value,

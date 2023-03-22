@@ -141,11 +141,7 @@ export const routes = createRoutesFromElements(
       <Route index element={<Navigate to={pb.projects()} replace />} />
 
       {/* These are done here instead of nested so we don't flash a layout on 404s */}
-      <Route path="orgs/:organization" element={<Navigate to="projects" replace />} />
-      <Route
-        path="orgs/:organization/projects/:project"
-        element={<Navigate to="instances" replace />}
-      />
+      <Route path="projects/:project" element={<Navigate to="instances" replace />} />
 
       <Route element={<SiloLayout />}>
         <Route
