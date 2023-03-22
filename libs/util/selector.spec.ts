@@ -7,17 +7,16 @@ describe('toPathQuery', () => {
     const result = toPathQuery('instance', {
       instance: 'i',
       project: 'p',
-      organization: 'o',
     })
     expect(result).toEqual({
       path: { instance: 'i' },
-      query: { project: 'p', organization: 'o' },
+      query: { project: 'p' },
     })
 
     // with nice type inference
     assertType<{
       path: { instance: string }
-      query: { project: string; organization: string }
+      query: { project: string }
     }>(result)
   })
 
@@ -31,6 +30,6 @@ describe('toPathQuery', () => {
   it('type errors on missing key', () => {
     // type error if key is not in the object
     // @ts-expect-error
-    toPathQuery('instance', { instanc: 'i', project: 'p', organization: 'o' })
+    toPathQuery('instance', { instanc: 'i', project: 'p' })
   })
 })

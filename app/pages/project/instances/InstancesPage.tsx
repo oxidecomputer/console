@@ -37,7 +37,7 @@ const EmptyState = () => (
 )
 
 InstancesPage.loader = async ({ params }: LoaderFunctionArgs) => {
-  await apiQueryClient.prefetchQuery('instanceListV1', {
+  await apiQueryClient.prefetchQuery('instanceList', {
     query: { ...getProjectSelector(params), limit: 10 },
   })
   return null
@@ -48,13 +48,13 @@ export function InstancesPage() {
 
   const queryClient = useApiQueryClient()
   const refetchInstances = () =>
-    queryClient.invalidateQueries('instanceListV1', { query: projectSelector })
+    queryClient.invalidateQueries('instanceList', { query: projectSelector })
 
   const makeActions = useMakeInstanceActions(projectSelector, {
     onSuccess: refetchInstances,
   })
 
-  const { data: instances } = useApiQuery('instanceListV1', {
+  const { data: instances } = useApiQuery('instanceList', {
     query: { ...projectSelector, limit: 10 }, // to have same params as QueryTable
   })
 
@@ -78,7 +78,7 @@ export function InstancesPage() {
   )
 
   const { Table, Column } = useQueryTable(
-    'instanceListV1',
+    'instanceList',
     { query: projectSelector },
     { keepPreviousData: true }
   )

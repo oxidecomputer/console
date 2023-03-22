@@ -19,12 +19,12 @@ export function CreateVpcRouterForm({ onDismiss }: CreateVpcRouterFormProps) {
   const queryClient = useApiQueryClient()
   const addToast = useToast()
 
-  const createRouter = useApiMutation('vpcRouterCreateV1', {
+  const createRouter = useApiMutation('vpcRouterCreate', {
     onSuccess(router) {
-      queryClient.invalidateQueries('vpcRouterListV1', { query: vpcSelector })
+      queryClient.invalidateQueries('vpcRouterList', { query: vpcSelector })
       // avoid the vpc fetch when the vpc page loads since we have the data
       queryClient.setQueryData(
-        'vpcRouterViewV1',
+        'vpcRouterView',
         { path: { router: router.name }, query: vpcSelector },
         router
       )

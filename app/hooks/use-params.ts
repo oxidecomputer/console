@@ -21,10 +21,9 @@ export const requireParams =
     return requiredParams as { readonly [k in K]: string }
   }
 
-export const getOrgSelector = requireParams('organization')
-export const getProjectSelector = requireParams('organization', 'project')
-export const getInstanceSelector = requireParams('organization', 'project', 'instance')
-export const getVpcSelector = requireParams('organization', 'project', 'vpc')
+export const getProjectSelector = requireParams('project')
+export const getInstanceSelector = requireParams('project', 'instance')
+export const getVpcSelector = requireParams('project', 'vpc')
 export const getSiloSelector = requireParams('silo')
 const requireSledParams = requireParams('sledId')
 export const requireUpdateParams = requireParams('version')
@@ -33,7 +32,6 @@ export const requireUpdateParams = requireParams('version')
 // params are present. Only the specified keys end up in the result object, but
 // we do not error if there are other params present in the query string.
 
-export const useOrgSelector = () => getOrgSelector(useParams())
 export const useProjectSelector = () => getProjectSelector(useParams())
 export const useInstanceSelector = () => getInstanceSelector(useParams())
 export const useVpcSelector = () => getVpcSelector(useParams())

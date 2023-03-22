@@ -1,4 +1,4 @@
-import type { DiskIdentifier, ErrorResult } from '@oxide/api'
+import type { ErrorResult } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 
 import { ListboxField, SideModalForm } from 'app/components/form'
@@ -8,7 +8,7 @@ const defaultValues = { name: '' }
 
 type AttachDiskProps = {
   /** If defined, this overrides the usual mutation */
-  onSubmit: (diskAttach: DiskIdentifier) => void
+  onSubmit: (diskAttach: { name: string }) => void
   onDismiss: () => void
   loading?: boolean
   submitError?: ErrorResult | null
@@ -31,7 +31,7 @@ export function AttachDiskSideModalForm({
   // click in
   // TODO: error handling
   const detachedDisks =
-    useApiQuery('diskListV1', { query: projectSelector }).data?.items.filter(
+    useApiQuery('diskList', { query: projectSelector }).data?.items.filter(
       (d) => d.state.state === 'detached'
     ) || []
 

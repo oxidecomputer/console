@@ -4,15 +4,15 @@ import { Link, useParams } from 'react-router-dom'
 import { useApiQuery } from '@oxide/api'
 import {
   DropdownMenu,
+  Folder16Icon,
   Identicon,
-  Organization16Icon,
   SelectArrows6Icon,
   Success12Icon,
   Truncate,
   Wrap,
 } from '@oxide/ui'
 
-import { useInstanceSelector, useProjectSelector, useSiloSelector } from 'app/hooks'
+import { useInstanceSelector, useSiloSelector } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 type TopBarPickerItem = {
@@ -55,7 +55,7 @@ const TopBarPicker = (props: TopBarPickerProps) => {
               </div>
             ) : (
               <div className="text-left">
-                <div className="text-mono-xs text-quaternary">
+                <div className="min-w-[5rem] text-mono-xs text-quaternary">
                   Select
                   <br />
                   {props.category}
@@ -116,17 +116,11 @@ const TopBarPicker = (props: TopBarPickerProps) => {
  * Uses the @oxide/identicon library to generate an identicon based on a hash of the org name
  * Will eventually need to support user uploaded org avatars and fallback to this if there isn't one
  */
-const OrgLogo = ({ name }: { name: string }) => (
+const BigIdenticon = ({ name }: { name: string }) => (
   <Identicon
     className="flex h-[34px] w-[34px] items-center justify-center rounded text-accent bg-accent-secondary-hover"
     name={name}
   />
-)
-
-const NoOrgLogo = () => (
-  <div className="flex h-[34px] w-[34px] items-center justify-center rounded text-secondary bg-secondary">
-    <Organization16Icon />
-  </div>
 )
 
 /**
@@ -147,7 +141,7 @@ export function useSiloSystemPicker(value: 'silo' | 'system') {
   // this request in the loader. If that prefetch were removed, fleet viewers
   // would see the silo picker pop in when the request resolves, which would be
   // bad.
-  const { data: systemPolicy } = useApiQuery('systemPolicyViewV1', {})
+  const { data: systemPolicy } = useApiQuery('systemPolicyView', {})
   return systemPolicy ? <SiloSystemPicker value={value} /> : null
 }
 
@@ -156,7 +150,7 @@ export function SiloSystemPicker({ value }: { value: 'silo' | 'system' }) {
   const commonProps = {
     items: [
       { label: 'System', to: pb.silos() },
-      { label: 'Silo', to: pb.orgs() },
+      { label: 'Silo', to: pb.projects() },
     ],
     'aria-label': 'Switch between system and silo',
   }
@@ -179,7 +173,7 @@ export function SiloSystemPicker({ value }: { value: 'silo' | 'system' }) {
 export function SiloPicker() {
   // picker only shows up when a silo is in scope
   const { silo: siloName } = useSiloSelector()
-  const { data } = useApiQuery('siloListV1', { query: { limit: 10 } })
+  const { data } = useApiQuery('siloList', { query: { limit: 10 } })
   const items = (data?.items || []).map((silo) => ({
     label: silo.name,
     to: pb.silo({ silo: silo.name }),
@@ -189,7 +183,7 @@ export function SiloPicker() {
     <TopBarPicker
       aria-label="Switch silo"
       category="Silo"
-      icon={<OrgLogo name={siloName} />}
+      icon={<BigIdenticon name={siloName} />}
       current={siloName}
       items={items}
       noItemsText="No silos found"
@@ -197,44 +191,28 @@ export function SiloPicker() {
   )
 }
 
-export function OrgPicker() {
-  const { organization } = useParams()
-  const { data } = useApiQuery('organizationListV1', { query: { limit: 20 } })
-  const items = (data?.items || []).map(({ name }) => ({
-    label: name,
-    to: pb.projects({ organization: name }),
-  }))
-
-  return (
-    <TopBarPicker
-      aria-label="Switch organization"
-      icon={organization ? <OrgLogo name={organization} /> : <NoOrgLogo />}
-      category="Organization"
-      current={organization}
-      to={organization ? pb.projects({ organization }) : undefined}
-      items={items}
-      noItemsText="No organizations found"
-    />
-  )
-}
+const NoProjectLogo = () => (
+  <div className="flex h-[34px] w-[34px] items-center justify-center rounded text-secondary bg-secondary">
+    <Folder16Icon />
+  </div>
+)
 
 export function ProjectPicker() {
   // picker only shows up when a project is in scope
-  const { organization, project } = useProjectSelector()
-  const { data } = useApiQuery('projectListV1', {
-    query: { organization, limit: 20 },
-  })
+  const { project } = useParams()
+  const { data } = useApiQuery('projectList', { query: { limit: 20 } })
   const items = (data?.items || []).map(({ name }) => ({
     label: name,
-    to: pb.instances({ organization, project: name }),
+    to: pb.instances({ project: name }),
   }))
 
   return (
     <TopBarPicker
       aria-label="Switch project"
+      icon={project ? <BigIdenticon name={project} /> : <NoProjectLogo />}
       category="Project"
       current={project}
-      to={pb.instances({ organization, project })}
+      to={project ? pb.project({ project }) : undefined}
       items={items}
       noItemsText="No projects found"
     />

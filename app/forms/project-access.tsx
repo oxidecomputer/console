@@ -18,9 +18,9 @@ export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModa
   const actors = useActorsNotInPolicy(policy)
 
   const queryClient = useApiQueryClient()
-  const updatePolicy = useApiMutation('projectPolicyUpdateV1', {
+  const updatePolicy = useApiMutation('projectPolicyUpdate', {
     onSuccess: () => {
-      queryClient.invalidateQueries('projectPolicyViewV1', projectPathQuery)
+      queryClient.invalidateQueries('projectPolicyView', projectPathQuery)
       onDismiss()
     },
   })
@@ -80,9 +80,9 @@ export function ProjectAccessEditUserSideModal({
   const projectPathQuery = toPathQuery('project', useProjectSelector())
 
   const queryClient = useApiQueryClient()
-  const updatePolicy = useApiMutation('projectPolicyUpdateV1', {
+  const updatePolicy = useApiMutation('projectPolicyUpdate', {
     onSuccess: () => {
-      queryClient.invalidateQueries('projectPolicyViewV1', projectPathQuery)
+      queryClient.invalidateQueries('projectPolicyView', projectPathQuery)
       onDismiss()
     },
   })

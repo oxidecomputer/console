@@ -17,9 +17,9 @@ export default function EditNetworkInterfaceForm({
   const queryClient = useApiQueryClient()
   const instanceSelector = useInstanceSelector()
 
-  const editNetworkInterface = useApiMutation('instanceNetworkInterfaceUpdateV1', {
+  const editNetworkInterface = useApiMutation('instanceNetworkInterfaceUpdate', {
     onSuccess() {
-      queryClient.invalidateQueries('instanceNetworkInterfaceListV1', {
+      queryClient.invalidateQueries('instanceNetworkInterfaceList', {
         query: instanceSelector,
       })
       onDismiss()

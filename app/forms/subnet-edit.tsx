@@ -14,9 +14,9 @@ export function EditSubnetForm({ onDismiss, editing }: EditSubnetFormProps) {
   const vpcSelector = useVpcSelector()
   const queryClient = useApiQueryClient()
 
-  const updateSubnet = useApiMutation('vpcSubnetUpdateV1', {
+  const updateSubnet = useApiMutation('vpcSubnetUpdate', {
     onSuccess() {
-      queryClient.invalidateQueries('vpcSubnetListV1', { query: vpcSelector })
+      queryClient.invalidateQueries('vpcSubnetList', { query: vpcSelector })
       onDismiss()
     },
   })

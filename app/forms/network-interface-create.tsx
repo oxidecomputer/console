@@ -41,7 +41,7 @@ export default function CreateNetworkInterfaceForm({
 }: CreateNetworkInterfaceFormProps) {
   const projectSelector = useProjectSelector()
 
-  const { data: vpcsData } = useApiQuery('vpcListV1', { query: projectSelector })
+  const { data: vpcsData } = useApiQuery('vpcList', { query: projectSelector })
   const vpcs = useMemo(() => vpcsData?.items || [], [vpcsData])
 
   return (

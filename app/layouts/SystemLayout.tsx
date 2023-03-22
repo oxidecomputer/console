@@ -31,7 +31,7 @@ import { ContentPane, PageContainer } from './helpers'
  */
 SystemLayout.loader = async () => {
   const isFleetViewer = await apiQueryClient
-    .fetchQuery('systemPolicyViewV1', {})
+    .fetchQuery('systemPolicyView', {})
     .then(() => true)
     .catch(() => false)
 
