@@ -1,17 +1,11 @@
 import * as Dialog from '@radix-ui/react-dialog'
 import { animated, useTransition } from '@react-spring/web'
-import React, { createContext, useContext } from 'react'
+import React from 'react'
 
 import { classed } from '@oxide/util'
 
 import { OpenLink12Icon } from '../icons'
 import './side-modal.css'
-
-const SideModalContext = createContext(false)
-
-export const useIsInSideModal = () => {
-  return useContext(SideModalContext)
-}
 
 export type SideModalProps = {
   title?: string
@@ -44,38 +38,34 @@ export function SideModal({
     config: isOpen && animate ? config : { duration: 0 },
   })
 
-  return (
-    <SideModalContext.Provider value>
-      {transitions(
-        ({ x }, item) =>
-          item && (
-            <Dialog.Root
-              open
-              onOpenChange={(open) => {
-                if (!open) onDismiss()
+  return transitions(
+    ({ x }, item) =>
+      item && (
+        <Dialog.Root
+          open
+          onOpenChange={(open) => {
+            if (!open) onDismiss()
+          }}
+        >
+          <Dialog.Portal>
+            <Dialog.Overlay className="DialogOverlay" />
+            <AnimatedDialogContent
+              className="DialogContent ox-side-modal fixed right-0 top-0 bottom-0 m-0 flex w-[32rem] flex-col justify-between border-l p-0 bg-raise border-secondary elevation-2"
+              aria-labelledby={titleId}
+              style={{
+                transform: x.to((value) => `translate3d(${value}%, 0px, 0px)`),
               }}
             >
-              <Dialog.Portal>
-                <Dialog.Overlay className="DialogOverlay" />
-                <AnimatedDialogContent
-                  className="DialogContent ox-side-modal fixed right-0 top-0 bottom-0 m-0 flex w-[32rem] flex-col justify-between border-l p-0 bg-raise border-secondary elevation-2"
-                  aria-labelledby={titleId}
-                  style={{
-                    transform: x.to((value) => `translate3d(${value}%, 0px, 0px)`),
-                  }}
-                >
-                  {title && (
-                    <Dialog.Title asChild>
-                      <SideModal.Title id={titleId}>{title}</SideModal.Title>
-                    </Dialog.Title>
-                  )}
-                  {children}
-                </AnimatedDialogContent>
-              </Dialog.Portal>
-            </Dialog.Root>
-          )
-      )}
-    </SideModalContext.Provider>
+              {title && (
+                <Dialog.Title asChild>
+                  <SideModal.Title id={titleId}>{title}</SideModal.Title>
+                </Dialog.Title>
+              )}
+              {children}
+            </AnimatedDialogContent>
+          </Dialog.Portal>
+        </Dialog.Root>
+      )
   )
 }
 
