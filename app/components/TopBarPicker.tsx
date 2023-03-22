@@ -149,7 +149,7 @@ export function SiloSystemPicker({ value }: { value: 'silo' | 'system' }) {
   const commonProps = {
     items: [
       { label: 'System', to: pb.silos() },
-      { label: 'Silo', to: pb.orgs() },
+      { label: 'Silo', to: pb.projects() },
     ],
     'aria-label': 'Switch between system and silo',
   }

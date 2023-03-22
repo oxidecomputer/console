@@ -25,21 +25,17 @@ InstancePage.loader = async ({ params }: LoaderFunctionArgs) => {
 
 export function InstancePage() {
   const instanceSelector = useInstanceSelector()
-  const { project, organization } = instanceSelector
   const instancePathQuery = toPathQuery('instance', instanceSelector)
 
   const navigate = useNavigate()
   const queryClient = useApiQueryClient()
-  const makeActions = useMakeInstanceActions(
-    { project, organization },
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries('instanceView', instancePathQuery)
-      },
-      // go to project instances list since there's no more instance
-      onDelete: () => navigate(pb.instances(instanceSelector)),
-    }
-  )
+  const makeActions = useMakeInstanceActions(instanceSelector, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('instanceView', instancePathQuery)
+    },
+    // go to project instances list since there's no more instance
+    onDelete: () => navigate(pb.instances(instanceSelector)),
+  })
 
   const { data: instance } = useApiQuery('instanceView', instancePathQuery)
   const actions = useMemo(

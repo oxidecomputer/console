@@ -26,7 +26,7 @@ type Options = {
 }
 
 export const useMakeInstanceActions = (
-  projectSelector: { organization: string; project: string },
+  projectSelector: { project: string },
   options: Options = {}
 ): MakeActions<Instance> => {
   const navigate = useNavigate()

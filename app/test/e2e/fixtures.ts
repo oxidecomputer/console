@@ -4,13 +4,22 @@ import { test as base } from '@playwright/test'
 import type {
   InstanceCreate,
   InstanceDeletePathParams,
+  InstanceDeleteQueryParams,
+  PathParams as PP,
   ProjectCreate,
   ProjectDeletePathParams,
   VpcCreate,
   VpcDeletePathParams,
+  VpcDeleteQueryParams,
 } from '@oxide/api'
 
 import { expectNotVisible } from './utils'
+
+type Project = Required<PP.Project>
+// type Instance = Required<PP.Instance>
+// type Vpc = Required<PP.Vpc>
+// type SystemUpdate = Required<PP.SystemUpdate>
+// type Silo = Required<PP.Silo>
 
 /**
  * Returns a callback to result position and fails if response code over 400.
@@ -48,11 +57,10 @@ interface Fixtures {
   /**
    * Deletes a project with the given name. Typically this shouldn't be called directly. Instead, use `createProject` to create a project and have it deleted automatically when the test is complete.
    */
-  deleteProject: (params: ProjectDeletePathParams) => Promise<void>
+  deleteProject: (params: Project) => Promise<void>
   /**
    * Creates an instance with the given name. When the test is complete, the instance will be deleted.
    *
-   * @param orgName The name of the organization to create the instance in.
    * @param projectName The name of the project to create the instance in.
    * @param instanceName The name of the instance to create.
    * @param body The body payload for the instance create request.
@@ -113,14 +121,14 @@ export const test = base.extend<Fixtures>({
   },
 
   async createProject({ page, deleteProject }, use) {
-    const projectsToRemove: ProjectDeletePathParams[] = []
+    const projectsToRemove: { project: string }[] = []
 
-    await use(async (orgName, projectName, body = {}) => {
-      if (projectsToRemove.find((p) => p.projectName === projectName)) {
+    await use(async (projectName, body = {}) => {
+      if (projectsToRemove.find((p) => p.project === projectName)) {
         return
       }
 
-      const back = await goto(page, `/orgs/${orgName}/projects-new`)
+      const back = await goto(page, `/orgs/abc/projects-new`)
       await page.fill('role=textbox[name="Name"]', projectName)
       await page.fill('role=textbox[name="Description"]', body.description || '')
       await page.click('role=button[name="Create project"]')
@@ -144,7 +152,7 @@ export const test = base.extend<Fixtures>({
 
   // TODO: Wire up all create options
   async createInstance({ page, createProject, deleteInstance }, use) {
-    const instancesToRemove: InstanceDeletePathParams[] = []
+    const instancesToRemove: (InstanceDeletePathParams & InstanceDeleteQueryParams)[] = []
     await use(async (orgName, projectName, instanceName, _body = {}) => {
       if (
         instancesToRemove.find(
@@ -187,7 +195,7 @@ export const test = base.extend<Fixtures>({
   },
 
   async createVpc({ page, createProject, deleteVpc }, use) {
-    const vpcsToRemove: VpcDeletePathParams[] = []
+    const vpcsToRemove: (VpcDeletePathParams & VpcDeleteQueryParams)[] = []
 
     await use(async (orgName, projectName, vpcName, body = {}) => {
       if (
@@ -199,9 +207,9 @@ export const test = base.extend<Fixtures>({
         return
       }
 
-      await createProject(orgName, projectName)
+      await createProject(projectName)
 
-      const back = await goto(page, `/orgs/${orgName}/projects/${projectName}/vpcs-new`)
+      const back = await goto(page, `/orgs/abc/projects/${projectName}/vpcs-new`)
       await page.fill('role=textbox[name="Name"]', vpcName)
       await page.fill('role=textbox[name="Description"]', body.description || '')
       await page.fill('role=textbox[name="DNS name"]', body.dnsName || vpcName)
@@ -218,10 +226,7 @@ export const test = base.extend<Fixtures>({
 
   async deleteVpc({ page, deleteTableRow }, use) {
     await use(async (params: VpcDeletePathParams) => {
-      const back = await goto(
-        page,
-        `/orgs/${params.orgName}/projects/${params.projectName}/vpcs`
-      )
+      const back = await goto(page, `/orgs/abc/projects/${params.projectName}/vpcs`)
       await deleteTableRow(params.vpcName)
       await back()
     })

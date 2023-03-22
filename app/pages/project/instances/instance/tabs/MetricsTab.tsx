@@ -20,7 +20,6 @@ type DiskMetricParams = {
   endTime: Date
   metric: DiskMetricName
   diskSelector: {
-    organization: string
     project: string
     disk: string
   }
@@ -88,7 +87,7 @@ MetricsTab.loader = async ({ params }: LoaderFunctionArgs) => {
 
 export function MetricsTab() {
   const instanceSelector = useInstanceSelector()
-  const { organization, project } = instanceSelector
+  const { project } = instanceSelector
   const { data } = useApiQuery(
     'instanceDiskList',
     toPathQuery('instance', instanceSelector)
@@ -107,7 +106,7 @@ export function MetricsTab() {
   const commonProps = {
     startTime: startTime.toDate(getLocalTimeZone()),
     endTime: endTime.toDate(getLocalTimeZone()),
-    diskSelector: { organization, project, disk: diskName },
+    diskSelector: { project, disk: diskName },
   }
 
   return (

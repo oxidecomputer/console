@@ -17,7 +17,7 @@ import {
 
 import { pb } from 'app/util/path-builder'
 
-import { useOrgSelector, useQuickActions } from '../hooks'
+import { useQuickActions } from '../hooks'
 
 const EmptyState = () => (
   <EmptyMessage
@@ -40,11 +40,10 @@ export default function ProjectsPage() {
   const navigate = useNavigate()
 
   const queryClient = useApiQueryClient()
-  const { organization } = useOrgSelector()
   const { Table, Column } = useQueryTable('projectList', {})
 
   const { data: projects } = useApiQuery('projectList', {
-    query: { ...{ organization }, limit: 10 }, // limit to match QueryTable
+    query: { limit: 10 }, // limit to match QueryTable
   })
 
   const deleteProject = useApiMutation('projectDelete', {

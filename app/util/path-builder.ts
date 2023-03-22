@@ -10,14 +10,8 @@ type SystemUpdate = Required<PP.SystemUpdate>
 type Silo = Required<PP.Silo>
 
 export const pb = {
-  orgs: () => '/orgs',
-  orgNew: () => '/orgs-new',
-  org: () => `${pb.orgs()}/abc`,
-  orgEdit: () => `${pb.org()}/edit`,
-  orgAccess: () => `${pb.org()}/access`,
-
-  projects: () => `${pb.org()}/projects`,
-  projectNew: () => `${pb.org()}/projects-new`,
+  projects: () => `/projects`,
+  projectNew: () => `/projects-new`,
   project: ({ project }: Project) => `${pb.projects()}/${project}`,
   projectEdit: (params: Project) => `${pb.project(params)}/edit`,
 
