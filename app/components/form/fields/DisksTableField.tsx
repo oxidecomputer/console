@@ -2,7 +2,7 @@ import { useState } from 'react'
 import type { Control } from 'react-hook-form'
 import { useController } from 'react-hook-form'
 
-import type { DiskCreate, DiskIdentifier } from '@oxide/api'
+import type { DiskCreate } from '@oxide/api'
 import { Badge, Button, Error16Icon, FieldLabel, MiniTable } from '@oxide/ui'
 import { bytesToGiB } from '@oxide/util'
 
@@ -12,7 +12,7 @@ import type { InstanceCreateInput } from 'app/forms/instance-create'
 
 export type DiskTableItem =
   | (DiskCreate & { type: 'create' })
-  | (DiskIdentifier & { type: 'attach' })
+  | { name: string; type: 'attach' }
 
 /**
  * Designed less for reuse, more to encapsulate logic that would otherwise

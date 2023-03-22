@@ -50,15 +50,15 @@ export function SiloUtilizationPage() {
           <div className="mr-8">
             <div className="mb-2">
               {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-              <label id="org-id-label" className="flex text-sans-sm">
+              <label id="project-id-label" className="flex text-sans-sm">
                 Choose project
               </label>
             </div>
             <Listbox
               defaultValue={DEFAULT_SILO_ID}
               className="w-36"
-              aria-labelledby="org-id-label"
-              name="org-id"
+              aria-labelledby="project-id-label"
+              name="project-id"
               items={projectItems}
               onChange={(item) => {
                 if (item) {

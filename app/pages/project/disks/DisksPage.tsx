@@ -29,7 +29,6 @@ function AttachedInstance({
   instanceId,
   ...projectSelector
 }: {
-  organization: string
   project: string
   instanceId: string
 }) {

@@ -9,6 +9,9 @@ test.describe('VpcPage', () => {
     await page.click('a:has-text("Networking")')
     await page.click('a:has-text("mock-vpc")')
     await expect(page.locator('text=mock-subnet')).toBeVisible()
+    await expect(await page.title()).toEqual(
+      'mock-vpc / VPCs / mock-project / Oxide Console'
+    )
   })
 
   test('can create and delete subnet', async ({ page }) => {
