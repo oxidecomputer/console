@@ -1,25 +1,13 @@
 import type { Page } from '@playwright/test'
 import { test as base } from '@playwright/test'
 
-import type {
-  InstanceCreate,
-  InstanceDeletePathParams,
-  InstanceDeleteQueryParams,
-  PathParams as PP,
-  ProjectCreate,
-  ProjectDeletePathParams,
-  VpcCreate,
-  VpcDeletePathParams,
-  VpcDeleteQueryParams,
-} from '@oxide/api'
+import type { InstanceCreate, PathParams as PP, ProjectCreate, VpcCreate } from '@oxide/api'
 
 import { expectNotVisible } from './utils'
 
 type Project = Required<PP.Project>
-// type Instance = Required<PP.Instance>
-// type Vpc = Required<PP.Vpc>
-// type SystemUpdate = Required<PP.SystemUpdate>
-// type Silo = Required<PP.Silo>
+type Instance = Required<PP.Instance>
+type Vpc = Required<PP.Vpc>
 
 /**
  * Returns a callback to result position and fails if response code over 400.
@@ -49,11 +37,10 @@ interface Fixtures {
   /**
    * Creates a project with the given name. When the test is complete, the project will be deleted.
    *
-   * @param orgName The name of the organization to create the project in.
-   * @param projectName The name of the project to create.
+   * @param project The name of the project to create.
    * @param body The body payload for the project create request.
    **/
-  createProject: (projectName: string, body?: Body<ProjectCreate>) => Promise<void>
+  createProject: (project: string, body?: Body<ProjectCreate>) => Promise<void>
   /**
    * Deletes a project with the given name. Typically this shouldn't be called directly. Instead, use `createProject` to create a project and have it deleted automatically when the test is complete.
    */
@@ -61,32 +48,31 @@ interface Fixtures {
   /**
    * Creates an instance with the given name. When the test is complete, the instance will be deleted.
    *
-   * @param projectName The name of the project to create the instance in.
-   * @param instanceName The name of the instance to create.
+   * @param project The name of the project to create the instance in.
+   * @param instance The name of the instance to create.
    * @param body The body payload for the instance create request.
    */
   createInstance: (
-    projectName: string,
-    instanceName: string,
+    project: string,
+    instance: string,
     body?: Body<InstanceCreate>
   ) => Promise<void>
   /**
    * Deletes an instance with the given name. Typically this shouldn't be called directly. Instead, use `createInstance` to create an instance and have it deleted automatically when the test is complete.
    */
-  deleteInstance: (params: InstanceDeletePathParams) => Promise<void>
+  deleteInstance: (params: Instance) => Promise<void>
   /**
    * Creates a VPC with the given name. When the test is complete, the VPC will be deleted.
    *
-   * @param orgName The name of the organization to create the VPC in.
-   * @param projectName The name of the project to create the VPC in.
-   * @param vpcName The name of the VPC to create.
+   * @param project The name of the project to create the VPC in.
+   * @param vpc The name of the VPC to create.
    * @param body The body payload for the VPC create request.
    */
-  createVpc: (projectName: string, vpcName: string, body?: Body<VpcCreate>) => Promise<void>
+  createVpc: (project: string, vpc: string, body?: Body<VpcCreate>) => Promise<void>
   /**
    * Deletes a VPC with the given name. Typically this shouldn't be called directly. Instead, use `createVpc` to create a VPC and have it deleted automatically when the test is complete.
    */
-  deleteVpc: (params: VpcDeletePathParams) => Promise<void>
+  deleteVpc: (params: Vpc) => Promise<void>
   deleteTableRow: (rowText: string) => Promise<void>
 }
 
@@ -121,19 +107,19 @@ export const test = base.extend<Fixtures>({
   },
 
   async createProject({ page, deleteProject }, use) {
-    const projectsToRemove: { project: string }[] = []
+    const projectsToRemove: Project[] = []
 
-    await use(async (projectName, body = {}) => {
-      if (projectsToRemove.find((p) => p.project === projectName)) {
+    await use(async (project, body = {}) => {
+      if (projectsToRemove.find((p) => p.project === project)) {
         return
       }
 
       const back = await goto(page, `/projects-new`)
-      await page.fill('role=textbox[name="Name"]', projectName)
+      await page.fill('role=textbox[name="Name"]', project)
       await page.fill('role=textbox[name="Description"]', body.description || '')
       await page.click('role=button[name="Create project"]')
 
-      projectsToRemove.push({ projectName })
+      projectsToRemove.push({ project })
       await back()
     })
 
@@ -143,38 +129,31 @@ export const test = base.extend<Fixtures>({
   },
 
   async deleteProject({ page, deleteTableRow }, use) {
-    await use(async (params: ProjectDeletePathParams) => {
+    await use(async (params: Project) => {
       const back = await goto(page, `/projects`)
-      await deleteTableRow(params.projectName)
+      await deleteTableRow(params.project)
       await back()
     })
   },
 
   // TODO: Wire up all create options
   async createInstance({ page, createProject, deleteInstance }, use) {
-    const instancesToRemove: (InstanceDeletePathParams & InstanceDeleteQueryParams)[] = []
-    await use(async (orgName, projectName, instanceName, _body = {}) => {
-      if (
-        instancesToRemove.find(
-          (i) => i.projectName === projectName && i.instanceName === instanceName
-        )
-      ) {
+    const instancesToRemove: Instance[] = []
+    await use(async (project, instance, _body = {}) => {
+      if (instancesToRemove.find((i) => i.project === project && i.instance === instance)) {
         return
       }
 
-      await createProject(projectName)
+      await createProject(project)
 
-      const back = await goto(
-        page,
-        `/orgs/${orgName}/projects/${projectName}/instances-new`
-      )
+      const back = await goto(page, `/projects/${project}/instances-new`)
 
-      await page.fill('input[name=name]', instanceName)
+      await page.fill('input[name=name]', instance)
       await page.locator('.ox-radio-card').nth(3).click()
       await page.locator('input[value=ubuntu-1] ~ .ox-radio-card').click()
       await page.locator('button:has-text("Create instance")').click()
 
-      instancesToRemove.push({ orgName, projectName, instanceName })
+      instancesToRemove.push({ project, instance })
       await back()
     })
 
@@ -184,38 +163,30 @@ export const test = base.extend<Fixtures>({
   },
 
   async deleteInstance({ page, deleteTableRow }, use) {
-    await use(async (params: InstanceDeletePathParams) => {
-      const back = await goto(
-        page,
-        `/orgs/${params.orgName}/projects/${params.projectName}/instances`
-      )
-      await deleteTableRow(params.instanceName)
+    await use(async (params: Instance) => {
+      const back = await goto(page, `/projects/${params.project}/instances`)
+      await deleteTableRow(params.instance)
       await back()
     })
   },
 
   async createVpc({ page, createProject, deleteVpc }, use) {
-    const vpcsToRemove: (VpcDeletePathParams & VpcDeleteQueryParams)[] = []
+    const vpcsToRemove: Vpc[] = []
 
-    await use(async (orgName, projectName, vpcName, body = {}) => {
-      if (
-        vpcsToRemove.find(
-          (v) =>
-            v.orgName === orgName && v.projectName === projectName && v.vpcName === vpcName
-        )
-      ) {
+    await use(async (project, vpc, body = {}) => {
+      if (vpcsToRemove.find((v) => v.project === project && v.vpc === vpc)) {
         return
       }
 
-      await createProject(projectName)
+      await createProject(project)
 
-      const back = await goto(page, `/orgs/abc/projects/${projectName}/vpcs-new`)
-      await page.fill('role=textbox[name="Name"]', vpcName)
+      const back = await goto(page, `/projects/${project}/vpcs-new`)
+      await page.fill('role=textbox[name="Name"]', vpc)
       await page.fill('role=textbox[name="Description"]', body.description || '')
-      await page.fill('role=textbox[name="DNS name"]', body.dnsName || vpcName)
+      await page.fill('role=textbox[name="DNS name"]', body.dnsName || vpc)
       await page.click('role=button[name="Create VPC"]')
 
-      vpcsToRemove.push({ orgName, projectName, vpcName })
+      vpcsToRemove.push({ project, vpc })
       await back()
     })
 
@@ -225,9 +196,9 @@ export const test = base.extend<Fixtures>({
   },
 
   async deleteVpc({ page, deleteTableRow }, use) {
-    await use(async (params: VpcDeletePathParams) => {
-      const back = await goto(page, `/orgs/abc/projects/${params.projectName}/vpcs`)
-      await deleteTableRow(params.vpcName)
+    await use(async (params: Vpc) => {
+      const back = await goto(page, `/projects/${params.project}/vpcs`)
+      await deleteTableRow(params.vpc)
       await back()
     })
   },

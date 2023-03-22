@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { apiQueryClient, useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
 import { Success16Icon } from '@oxide/ui'
-import { pick, toPathQuery } from '@oxide/util'
+import { toPathQuery } from '@oxide/util'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
 import { getVpcSelector, useToast, useVpcSelector } from 'app/hooks'
@@ -17,7 +17,7 @@ EditVpcSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
 export function EditVpcSideModalForm() {
   const vpcSelector = useVpcSelector()
   const vpcPathQuery = toPathQuery('vpc', vpcSelector)
-  const projectSelector = pick(vpcSelector, 'organization', 'project')
+  const projectSelector = { project: vpcSelector.project }
   const queryClient = useApiQueryClient()
   const addToast = useToast()
   const navigate = useNavigate()
