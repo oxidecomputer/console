@@ -44,6 +44,15 @@ export default function LoginPage() {
     },
   })
 
+  const logout = useApiMutation('logout', {
+    onSuccess: () => {
+      addToast({
+        title: 'Logged out',
+        icon: <Success16Icon />,
+      })
+    },
+  })
+
   return (
     <main className="layout relative flex h-screen">
       <div className="hero-bg relative flex w-1/2 justify-end text-accent sm-:hidden">
@@ -71,11 +80,35 @@ export default function LoginPage() {
                 disabled={loginPost.isLoading}
                 onClick={() => loginPost.mutate({ body: { username: 'privileged' } })}
               >
-                Sign in with SSO
+                Privileged
               </Button>
-              {/* <Button variant="secondary" type="submit" className="w-full">
-              Continue with email
-            </Button> */}
+              <Button
+                variant="secondary"
+                type="submit"
+                className="w-full"
+                disabled={loginPost.isLoading}
+                onClick={() => loginPost.mutate({ body: { username: 'unprivileged' } })}
+              >
+                Unprivileged
+              </Button>
+              <Button
+                variant="secondary"
+                type="submit"
+                className="w-full"
+                disabled={loginPost.isLoading}
+                onClick={() => logout.mutate({})}
+              >
+                Sign out
+              </Button>
+              <Button
+                variant="danger"
+                type="submit"
+                className="w-full"
+                disabled={loginPost.isLoading}
+                onClick={() => loginPost.mutate({ body: { username: 'other' } })}
+              >
+                Bad request
+              </Button>
             </div>
 
             {/* todo: we might want to collect an operator email
