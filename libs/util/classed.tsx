@@ -3,7 +3,7 @@
  * avoid build failures with the `vite:react-babel` plugin.
  */
 import cn from 'classnames'
-import React from 'react'
+import React, { forwardRef } from 'react'
 
 // all the cuteness of tw.span`text-green-500 uppercase` with zero magic
 
@@ -11,8 +11,14 @@ const make =
   <T extends keyof JSX.IntrinsicElements>(tag: T) =>
   // only one argument here means string interpolations are not allowed
   (strings: TemplateStringsArray) => {
-    const Comp = ({ className, children, ...rest }: JSX.IntrinsicElements[T]) =>
-      React.createElement(tag, { className: cn(strings[0], className), ...rest }, children)
+    const Comp = forwardRef(
+      ({ className, children, ...rest }: JSX.IntrinsicElements[T], ref) =>
+        React.createElement(
+          tag,
+          { className: cn(strings[0], className), ...rest, ref },
+          children
+        )
+    )
     Comp.displayName = `classed.${tag}`
     return Comp
   }
