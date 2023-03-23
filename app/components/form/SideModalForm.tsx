@@ -46,7 +46,7 @@ export function SideModalForm<TFieldValues extends FieldValues>({
   // change
   const form = useForm({ mode: 'all', ...formOptions })
 
-  const { isSubmitting, isSubmitSuccessful } = form.formState
+  const { isSubmitting } = form.formState
 
   /**
    * Only animate the modal in when we're navigating by a client-side click.
@@ -93,7 +93,7 @@ export function SideModalForm<TFieldValues extends FieldValues>({
             size="sm"
             disabled={!!submitDisabled}
             disabledReason={submitDisabled}
-            loading={loading || isSubmitting || isSubmitSuccessful}
+            loading={loading || isSubmitting}
             form={id}
           >
             {submitLabel || title}
