@@ -1,17 +1,18 @@
-import { Menu, MenuButton, MenuItem, MenuLink, MenuList } from '@reach/menu-button'
 import cn from 'classnames'
 import { Link, useParams } from 'react-router-dom'
 
 import { useApiQuery } from '@oxide/api'
 import {
+  DropdownMenu,
+  Folder16Icon,
   Identicon,
-  Organization16Icon,
   SelectArrows6Icon,
   Success12Icon,
+  Truncate,
   Wrap,
 } from '@oxide/ui'
 
-import { useInstanceSelector, useProjectSelector, useSiloSelector } from 'app/hooks'
+import { useInstanceSelector, useSiloSelector } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 type TopBarPickerItem = {
@@ -34,7 +35,7 @@ type TopBarPickerProps = {
 
 const TopBarPicker = (props: TopBarPickerProps) => {
   return (
-    <Menu>
+    <DropdownMenu.Root>
       <div
         // Important trick: we never want the separator to show up after the top
         // left corner picker. The separator starts from the leftmost of "other
@@ -49,12 +50,12 @@ const TopBarPicker = (props: TopBarPickerProps) => {
               <div className="text-left">
                 <div className="text-mono-xs text-quaternary">{props.category}</div>
                 <div className="overflow-hidden text-ellipsis whitespace-nowrap text-sans-md text-secondary">
-                  {props.display ?? props.current}
+                  <Truncate text={props.display ?? props.current} maxLength={24} />
                 </div>
               </div>
             ) : (
               <div className="text-left">
-                <div className="text-mono-xs text-quaternary">
+                <div className="min-w-[5rem] text-mono-xs text-quaternary">
                   Select
                   <br />
                   {props.category}
@@ -66,46 +67,48 @@ const TopBarPicker = (props: TopBarPickerProps) => {
         {/* aria-hidden is a tip from the Reach docs */}
         {props.items && (
           <div className="ml-4">
-            <MenuButton className="group" aria-label={props['aria-label']}>
+            <DropdownMenu.Trigger className="group" aria-label={props['aria-label']}>
               <div className="flex h-[2rem] w-[1.125rem] flex-shrink-0 items-center justify-center rounded border border-default group-hover:bg-hover">
                 <SelectArrows6Icon className="text-secondary" aria-hidden />
               </div>
-            </MenuButton>
+            </DropdownMenu.Trigger>
           </div>
         )}
       </div>
       {/* TODO: item size and focus highlight */}
       {/* TODO: popover position should be further right */}
       {props.items && (
-        <MenuList className="mt-2 min-w-[12.8125rem]">
-          {props.items.length > 0 ? (
-            props.items.map(({ label, to }) => {
-              const isSelected = props.current === label
-              return (
-                <MenuLink
-                  key={label}
-                  as={Link}
-                  to={to}
-                  className={cn('ox-menu-item', { 'is-selected': isSelected })}
-                >
-                  <span className="flex w-full items-center justify-between">
-                    {label} {isSelected && <Success12Icon className="-mr-3 block" />}
-                  </span>
-                </MenuLink>
-              )
-            })
-          ) : (
-            <MenuItem
-              className="!pr-3 !text-center !text-secondary hover:cursor-default"
-              onSelect={() => {}}
-              disabled
-            >
-              {props.noItemsText || 'No items found'}
-            </MenuItem>
-          )}
-        </MenuList>
+        // portal is necessary to avoid the menu popover getting its own after:
+        // separator thing
+        <DropdownMenu.Portal>
+          <DropdownMenu.Content className="mt-2 min-w-[12.8125rem]" align="start">
+            {props.items.length > 0 ? (
+              props.items.map(({ label, to }) => {
+                const isSelected = props.current === label
+                return (
+                  <DropdownMenu.Item asChild key={label}>
+                    <Link to={to} className={cn({ 'is-selected': isSelected })}>
+                      <span className="flex w-full items-center justify-between">
+                        <Truncate text={label} maxLength={24} />
+                        {isSelected && <Success12Icon className="-mr-3 block" />}
+                      </span>
+                    </Link>
+                  </DropdownMenu.Item>
+                )
+              })
+            ) : (
+              <DropdownMenu.Item
+                className="!pr-3 !text-center !text-secondary hover:cursor-default"
+                onSelect={() => {}}
+                disabled
+              >
+                {props.noItemsText || 'No items found'}
+              </DropdownMenu.Item>
+            )}
+          </DropdownMenu.Content>
+        </DropdownMenu.Portal>
       )}
-    </Menu>
+    </DropdownMenu.Root>
   )
 }
 
@@ -113,17 +116,11 @@ const TopBarPicker = (props: TopBarPickerProps) => {
  * Uses the @oxide/identicon library to generate an identicon based on a hash of the org name
  * Will eventually need to support user uploaded org avatars and fallback to this if there isn't one
  */
-const OrgLogo = ({ name }: { name: string }) => (
+const BigIdenticon = ({ name }: { name: string }) => (
   <Identicon
     className="flex h-[34px] w-[34px] items-center justify-center rounded text-accent bg-accent-secondary-hover"
     name={name}
   />
-)
-
-const NoOrgLogo = () => (
-  <div className="flex h-[34px] w-[34px] items-center justify-center rounded text-secondary bg-secondary">
-    <Organization16Icon />
-  </div>
 )
 
 /**
@@ -144,7 +141,7 @@ export function useSiloSystemPicker(value: 'silo' | 'system') {
   // this request in the loader. If that prefetch were removed, fleet viewers
   // would see the silo picker pop in when the request resolves, which would be
   // bad.
-  const { data: systemPolicy } = useApiQuery('systemPolicyViewV1', {})
+  const { data: systemPolicy } = useApiQuery('systemPolicyView', {})
   return systemPolicy ? <SiloSystemPicker value={value} /> : null
 }
 
@@ -153,7 +150,7 @@ export function SiloSystemPicker({ value }: { value: 'silo' | 'system' }) {
   const commonProps = {
     items: [
       { label: 'System', to: pb.silos() },
-      { label: 'Silo', to: pb.orgs() },
+      { label: 'Silo', to: pb.projects() },
     ],
     'aria-label': 'Switch between system and silo',
   }
@@ -176,7 +173,7 @@ export function SiloSystemPicker({ value }: { value: 'silo' | 'system' }) {
 export function SiloPicker() {
   // picker only shows up when a silo is in scope
   const { silo: siloName } = useSiloSelector()
-  const { data } = useApiQuery('siloListV1', { query: { limit: 10 } })
+  const { data } = useApiQuery('siloList', { query: { limit: 10 } })
   const items = (data?.items || []).map((silo) => ({
     label: silo.name,
     to: pb.silo({ silo: silo.name }),
@@ -186,7 +183,7 @@ export function SiloPicker() {
     <TopBarPicker
       aria-label="Switch silo"
       category="Silo"
-      icon={<OrgLogo name={siloName} />}
+      icon={<BigIdenticon name={siloName} />}
       current={siloName}
       items={items}
       noItemsText="No silos found"
@@ -194,44 +191,28 @@ export function SiloPicker() {
   )
 }
 
-export function OrgPicker() {
-  const { orgName: organization } = useParams()
-  const { data } = useApiQuery('organizationListV1', { query: { limit: 20 } })
-  const items = (data?.items || []).map(({ name }) => ({
-    label: name,
-    to: pb.projects({ organization: name }),
-  }))
-
-  return (
-    <TopBarPicker
-      aria-label="Switch organization"
-      icon={organization ? <OrgLogo name={organization} /> : <NoOrgLogo />}
-      category="Organization"
-      current={organization}
-      to={organization ? pb.projects({ organization }) : undefined}
-      items={items}
-      noItemsText="No organizations found"
-    />
-  )
-}
+const NoProjectLogo = () => (
+  <div className="flex h-[34px] w-[34px] items-center justify-center rounded text-secondary bg-secondary">
+    <Folder16Icon />
+  </div>
+)
 
 export function ProjectPicker() {
   // picker only shows up when a project is in scope
-  const { organization, project } = useProjectSelector()
-  const { data } = useApiQuery('projectListV1', {
-    query: { organization, limit: 20 },
-  })
+  const { project } = useParams()
+  const { data } = useApiQuery('projectList', { query: { limit: 20 } })
   const items = (data?.items || []).map(({ name }) => ({
     label: name,
-    to: pb.instances({ organization, project: name }),
+    to: pb.instances({ project: name }),
   }))
 
   return (
     <TopBarPicker
       aria-label="Switch project"
+      icon={project ? <BigIdenticon name={project} /> : <NoProjectLogo />}
       category="Project"
       current={project}
-      to={pb.instances({ organization, project })}
+      to={project ? pb.project({ project }) : undefined}
       items={items}
       noItemsText="No projects found"
     />

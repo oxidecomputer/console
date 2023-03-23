@@ -1,5 +1,4 @@
 import { useMemo } from 'react'
-import type { LoaderFunctionArgs } from 'react-router-dom'
 import { Outlet } from 'react-router-dom'
 import { Link, useNavigate } from 'react-router-dom'
 
@@ -18,7 +17,7 @@ import {
 
 import { pb } from 'app/util/path-builder'
 
-import { getOrgSelector, useOrgSelector, useQuickActions } from '../hooks'
+import { useQuickActions } from '../hooks'
 
 const EmptyState = () => (
   <EmptyMessage
@@ -26,14 +25,13 @@ const EmptyState = () => (
     title="No projects"
     body="You need to create a project to be able to see it here"
     buttonText="New project"
-    buttonTo={pb.projectNew(useOrgSelector())}
+    buttonTo={pb.projectNew()}
   />
 )
 
-ProjectsPage.loader = async ({ params }: LoaderFunctionArgs) => {
-  const { organization } = getOrgSelector(params)
-  await apiQueryClient.prefetchQuery('projectListV1', {
-    query: { organization, limit: 10 },
+ProjectsPage.loader = async () => {
+  await apiQueryClient.prefetchQuery('projectList', {
+    query: { limit: 10 },
   })
   return null
 }
@@ -42,18 +40,17 @@ export default function ProjectsPage() {
   const navigate = useNavigate()
 
   const queryClient = useApiQueryClient()
-  const { organization } = useOrgSelector()
-  const { Table, Column } = useQueryTable('projectListV1', { query: { organization } })
+  const { Table, Column } = useQueryTable('projectList', {})
 
-  const { data: projects } = useApiQuery('projectListV1', {
-    query: { ...{ organization }, limit: 10 }, // limit to match QueryTable
+  const { data: projects } = useApiQuery('projectList', {
+    query: { limit: 10 }, // limit to match QueryTable
   })
 
-  const deleteProject = useApiMutation('projectDeleteV1', {
+  const deleteProject = useApiMutation('projectDelete', {
     onSuccess() {
       // TODO: figure out if this is invalidating as expected, can we leave out the query
       // altogether, etc. Look at whether limit param matters.
-      queryClient.invalidateQueries('projectListV1', { query: { organization } })
+      queryClient.invalidateQueries('projectList', {})
     },
   })
 
@@ -64,23 +61,17 @@ export default function ProjectsPage() {
         // the edit view has its own loader, but we can make the modal open
         // instantaneously by preloading the fetch result
         apiQueryClient.setQueryData(
-          'projectViewV1',
-          {
-            path: { project: project.name },
-            query: { organization },
-          },
+          'projectView',
+          { path: { project: project.name } },
           project
         )
-        navigate(pb.projectEdit({ organization, project: project.name }))
+        navigate(pb.projectEdit({ project: project.name }))
       },
     },
     {
       label: 'Delete',
       onActivate: () => {
-        deleteProject.mutate({
-          path: { project: project.name },
-          query: { organization },
-        })
+        deleteProject.mutate({ path: { project: project.name } })
       },
     },
   ]
@@ -90,15 +81,15 @@ export default function ProjectsPage() {
       () => [
         {
           value: 'New project',
-          onSelect: () => navigate(pb.projectNew({ organization })),
+          onSelect: () => navigate(pb.projectNew()),
         },
         ...(projects?.items || []).map((p) => ({
           value: p.name,
-          onSelect: () => navigate(pb.instances({ organization, project: p.name })),
+          onSelect: () => navigate(pb.instances({ project: p.name })),
           navGroup: 'Go to project',
         })),
       ],
-      [organization, navigate, projects]
+      [navigate, projects]
     )
   )
 
@@ -108,15 +99,12 @@ export default function ProjectsPage() {
         <PageTitle icon={<Folder24Icon />}>Projects</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link to={pb.projectNew({ organization })} className={buttonStyle({ size: 'sm' })}>
+        <Link to={pb.projectNew()} className={buttonStyle({ size: 'sm' })}>
           New Project
         </Link>
       </TableActions>
       <Table emptyState={<EmptyState />} makeActions={makeActions}>
-        <Column
-          accessor="name"
-          cell={linkCell((project) => pb.instances({ organization, project }))}
-        />
+        <Column accessor="name" cell={linkCell((project) => pb.instances({ project }))} />
         <Column accessor="description" />
         <Column accessor="timeModified" header="Last updated" cell={DateCell} />
       </Table>

@@ -10,7 +10,7 @@ import {
 } from 'app/test/e2e'
 
 test('Click through silo access page', async ({ page }) => {
-  await page.goto('/orgs')
+  await page.goto('/')
 
   const table = page.locator('role=table')
 
@@ -85,11 +85,11 @@ test('Click through silo access page', async ({ page }) => {
   await expectRowVisible(table, { Name: user3.display_name, 'Silo role': 'viewer' })
 
   // now delete user 3
+  await expectVisible(page, [`role=cell[name="${user3.display_name}"]`])
   await page
     .locator('role=row', { hasText: user3.display_name })
     .locator('role=button[name="Row actions"]')
     .click()
-  await expectVisible(page, [`role=cell[name="${user3.display_name}"]`])
   await page.click('role=menuitem[name="Delete"]')
   await expectNotVisible(page, [`role=cell[name="${user3.display_name}"]`])
 })

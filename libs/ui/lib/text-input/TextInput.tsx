@@ -1,8 +1,6 @@
-import { Alert } from '@reach/alert'
+import { announce } from '@react-aria/live-announcer'
 import cn from 'classnames'
-import React from 'react'
-
-import type { ChildrenProp } from '@oxide/util'
+import React, { useEffect } from 'react'
 
 /**
  * This is a little complicated. We only want to allow the `rows` prop if
@@ -98,8 +96,7 @@ export const TextInputHint = ({ id, children, className }: HintProps) => (
   </div>
 )
 
-export const TextInputError = ({ children }: ChildrenProp) => (
-  <div className="ml-px">
-    {children && <Alert className="py-2 text-sans-md text-destructive">{children}</Alert>}
-  </div>
-)
+export const TextInputError = ({ children }: { children: string }) => {
+  useEffect(() => announce(children, 'assertive'), [children])
+  return <div className="ml-px py-2 text-sans-md text-destructive">{children}</div>
+}

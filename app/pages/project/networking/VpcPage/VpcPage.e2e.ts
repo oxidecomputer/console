@@ -5,15 +5,17 @@ import { expectNotVisible, expectVisible } from 'app/test/e2e'
 test.describe('VpcPage', () => {
   test('can nav to VpcPage from /', async ({ page }) => {
     await page.goto('/')
-    await page.click('table :text("maze-war")')
     await page.click('table :text("mock-project")')
     await page.click('a:has-text("Networking")')
     await page.click('a:has-text("mock-vpc")')
     await expect(page.locator('text=mock-subnet')).toBeVisible()
+    await expect(await page.title()).toEqual(
+      'mock-vpc / VPCs / mock-project / Oxide Console'
+    )
   })
 
-  test('can create subnet', async ({ page }) => {
-    await page.goto('/orgs/maze-war/projects/mock-project/vpcs/mock-vpc')
+  test('can create and delete subnet', async ({ page }) => {
+    await page.goto('/projects/mock-project/vpcs/mock-vpc')
     // only one row in table, the default mock-subnet
     const rows = await page.locator('tbody >> tr')
     await expect(rows).toHaveCount(1)
@@ -32,12 +34,23 @@ test.describe('VpcPage', () => {
 
     await expect(rows.nth(1).locator('text="mock-subnet-2"')).toBeVisible()
     await expect(rows.nth(1).locator('text="10.1.1.2/24"')).toBeVisible()
+
+    // click more button on row to get menu, then click Delete
+    await page
+      .locator('role=row', { hasText: 'mock-subnet-2' })
+      .locator('role=button[name="Row actions"]')
+      .click()
+
+    // filter visible to distinguish from all the hidden menus' Edit button
+    await page.locator('text="Delete" >> visible=true').click()
+
+    await expect(rows).toHaveCount(1)
   })
 
   const defaultRules = ['allow-internal-inbound', 'allow-ssh', 'allow-icmp', 'allow-rdp']
 
   test('can create firewall rule', async ({ page }) => {
-    await page.goto('/orgs/maze-war/projects/mock-project/vpcs/mock-vpc')
+    await page.goto('/projects/mock-project/vpcs/mock-vpc')
     await page.locator('text="Firewall Rules"').click()
 
     // default rules are all there
@@ -109,7 +122,7 @@ test.describe('VpcPage', () => {
   })
 
   test('can update firewall rule', async ({ page }) => {
-    await page.goto('/orgs/maze-war/projects/mock-project/vpcs/mock-vpc')
+    await page.goto('/projects/mock-project/vpcs/mock-vpc')
     await page.locator('text="Firewall Rules"').click()
 
     const rows = await page.locator('tbody >> tr')

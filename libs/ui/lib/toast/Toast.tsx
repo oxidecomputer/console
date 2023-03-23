@@ -1,6 +1,7 @@
-import Alert from '@reach/alert'
+import { announce } from '@react-aria/live-announcer'
 import cn from 'classnames'
 import type { ReactElement } from 'react'
+import { useEffect } from 'react'
 
 import { Close12Icon } from '../icons'
 import { TimeoutIndicator } from '../timeout-indicator/TimeoutIndicator'
@@ -42,8 +43,10 @@ export const Toast = ({
   variant = 'success',
   timeout = 5000,
 }: ToastProps) => {
+  // TODO: consider assertive announce for error toasts
+  useEffect(() => announce(title + ' ' + content, 'polite'), [title, content])
   return (
-    <Alert
+    <div
       className={cn(
         'relative flex w-96 items-start overflow-hidden rounded-lg p-4',
         color[variant],
@@ -70,6 +73,6 @@ export const Toast = ({
           className={progressColor[variant]}
         />
       )}
-    </Alert>
+    </div>
   )
 }

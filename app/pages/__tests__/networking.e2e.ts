@@ -3,7 +3,7 @@ import { test } from '@playwright/test'
 import { expectNotVisible, expectVisible } from 'app/test/e2e'
 
 test('Click through networking', async ({ page }) => {
-  await page.goto('/orgs/maze-war/projects/mock-project')
+  await page.goto('/projects/mock-project')
 
   await page.click('role=link[name*="Networking"]')
   await expectVisible(page, [

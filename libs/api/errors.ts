@@ -140,9 +140,9 @@ if (import.meta.vitest) {
 
   it.each([
     ['projectCreate', 'project'],
-    ['projectCreateV1', 'project'],
+    ['projectCreate', 'project'],
     ['instanceNetworkInterfaceCreate', 'interface'],
-    ['instanceNetworkInterfaceCreateV1', 'interface'],
+    ['instanceNetworkInterfaceCreate', 'interface'],
     ['doesNotContainC-reate', null],
   ])('getResourceName gets resource names', (method, resource) => {
     expect(getResourceName(method)).toEqual(resource)

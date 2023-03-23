@@ -47,15 +47,15 @@ export const VpcFirewallRulesTab = () => {
   const queryClient = useApiQueryClient()
   const vpcSelector = useVpcSelector()
 
-  const { data, isLoading } = useApiQuery('vpcFirewallRulesViewV1', { query: vpcSelector })
+  const { data, isLoading } = useApiQuery('vpcFirewallRulesView', { query: vpcSelector })
   const rules = useMemo(() => data?.rules || [], [data])
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [editing, setEditing] = useState<VpcFirewallRule | null>(null)
 
-  const updateRules = useApiMutation('vpcFirewallRulesUpdateV1', {
+  const updateRules = useApiMutation('vpcFirewallRulesUpdate', {
     onSuccess() {
-      queryClient.invalidateQueries('vpcFirewallRulesViewV1', { query: vpcSelector })
+      queryClient.invalidateQueries('vpcFirewallRulesView', { query: vpcSelector })
     },
   })
 

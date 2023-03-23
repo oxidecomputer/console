@@ -17,7 +17,7 @@ import { useMakeInstanceActions } from '../actions'
 
 InstancePage.loader = async ({ params }: LoaderFunctionArgs) => {
   await apiQueryClient.prefetchQuery(
-    'instanceViewV1',
+    'instanceView',
     toPathQuery('instance', getInstanceSelector(params))
   )
   return null
@@ -25,23 +25,19 @@ InstancePage.loader = async ({ params }: LoaderFunctionArgs) => {
 
 export function InstancePage() {
   const instanceSelector = useInstanceSelector()
-  const { project, organization } = instanceSelector
   const instancePathQuery = toPathQuery('instance', instanceSelector)
 
   const navigate = useNavigate()
   const queryClient = useApiQueryClient()
-  const makeActions = useMakeInstanceActions(
-    { project, organization },
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries('instanceViewV1', instancePathQuery)
-      },
-      // go to project instances list since there's no more instance
-      onDelete: () => navigate(pb.instances(instanceSelector)),
-    }
-  )
+  const makeActions = useMakeInstanceActions(instanceSelector, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('instanceView', instancePathQuery)
+    },
+    // go to project instances list since there's no more instance
+    onDelete: () => navigate(pb.instances(instanceSelector)),
+  })
 
-  const { data: instance } = useApiQuery('instanceViewV1', instancePathQuery)
+  const { data: instance } = useApiQuery('instanceView', instancePathQuery)
   const actions = useMemo(
     () => (instance ? makeActions(instance) : []),
     [instance, makeActions]
@@ -93,7 +89,7 @@ export function InstancePage() {
         <Tab to={pb.instanceStorage(instanceSelector)}>Storage</Tab>
         <Tab to={pb.instanceMetrics(instanceSelector)}>Metrics</Tab>
         <Tab to={pb.nics(instanceSelector)}>Network Interfaces</Tab>
-        <Tab to={pb.serialConsole(instanceSelector)}>Serial Console</Tab>
+        <Tab to={pb.instanceConnect(instanceSelector)}>Connect</Tab>
       </RouteTabs>
     </>
   )

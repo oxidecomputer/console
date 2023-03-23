@@ -1,10 +1,10 @@
 import type { LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, useApiQuery } from '@oxide/api'
-import { Networking24Icon, PageHeader, PageTitle, PropertiesTable } from '@oxide/ui'
+import { Networking24Icon, PageHeader, PageTitle, PropertiesTable, Tabs } from '@oxide/ui'
 import { formatDateTime, toPathQuery } from '@oxide/util'
 
-import { Tab, Tabs } from 'app/components/Tabs'
+import { QueryParamTabs } from 'app/components/QueryParamTabs'
 import { getVpcSelector, useVpcSelector } from 'app/hooks'
 
 import { VpcFirewallRulesTab } from './tabs/VpcFirewallRulesTab'
@@ -13,16 +13,13 @@ import { VpcSubnetsTab } from './tabs/VpcSubnetsTab'
 import { VpcSystemRoutesTab } from './tabs/VpcSystemRoutesTab'
 
 VpcPage.loader = async ({ params }: LoaderFunctionArgs) => {
-  await apiQueryClient.prefetchQuery(
-    'vpcViewV1',
-    toPathQuery('vpc', getVpcSelector(params))
-  )
+  await apiQueryClient.prefetchQuery('vpcView', toPathQuery('vpc', getVpcSelector(params)))
   return null
 }
 
 export function VpcPage() {
   const vpcSelector = useVpcSelector()
-  const { data: vpc } = useApiQuery('vpcViewV1', toPathQuery('vpc', vpcSelector))
+  const { data: vpc } = useApiQuery('vpcView', toPathQuery('vpc', vpcSelector))
 
   return (
     <>
@@ -44,24 +41,26 @@ export function VpcPage() {
         </PropertiesTable>
       </PropertiesTable.Group>
 
-      <Tabs id="tabs-vpc-sections" fullWidth>
-        <Tab>Subnets</Tab>
-        <Tab.Panel>
+      <QueryParamTabs id="tabs-vpc-sections" className="full-width" defaultValue="subnets">
+        <Tabs.List>
+          <Tabs.Trigger value="subnets">Subnets</Tabs.Trigger>
+          <Tabs.Trigger value="system-routes">System Routes</Tabs.Trigger>
+          <Tabs.Trigger value="routers">Routers</Tabs.Trigger>
+          <Tabs.Trigger value="firewall-rules">Firewall Rules</Tabs.Trigger>
+        </Tabs.List>
+        <Tabs.Content value="subnets">
           <VpcSubnetsTab />
-        </Tab.Panel>
-        <Tab>System Routes</Tab>
-        <Tab.Panel>
+        </Tabs.Content>
+        <Tabs.Content value="system-routes">
           <VpcSystemRoutesTab />
-        </Tab.Panel>
-        <Tab>Routers</Tab>
-        <Tab.Panel>
+        </Tabs.Content>
+        <Tabs.Content value="routers">
           <VpcRoutersTab />
-        </Tab.Panel>
-        <Tab>Firewall Rules</Tab>
-        <Tab.Panel>
+        </Tabs.Content>
+        <Tabs.Content value="firewall-rules">
           <VpcFirewallRulesTab />
-        </Tab.Panel>
-      </Tabs>
+        </Tabs.Content>
+      </QueryParamTabs>
     </>
   )
 }

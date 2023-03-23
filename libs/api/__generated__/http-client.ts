@@ -76,9 +76,9 @@ function encodeQueryParam(key: string, value: unknown) {
   )}`
 }
 
-// params with null value are filtered out
-const toQueryString = (rawQuery?: QueryParamsType): string =>
-  Object.entries(rawQuery || {})
+/** Query params with null values filtered out. `"?"` included. */
+export function toQueryString(rawQuery?: QueryParamsType): string {
+  const qs = Object.entries(rawQuery || {})
     .filter(([_key, value]) => isNotNull(value))
     .map(([key, value]) =>
       Array.isArray(value)
@@ -86,6 +86,8 @@ const toQueryString = (rawQuery?: QueryParamsType): string =>
         : encodeQueryParam(key, value)
     )
     .join('&')
+  return qs ? '?' + qs : ''
+}
 
 export async function handleResponse<Data>(response: Response): Promise<ApiResult<Data>> {
   const common = { statusCode: response.status, headers: response.headers }
@@ -156,13 +158,8 @@ export class HttpClient {
     ...params
   }: FullRequestParams): Promise<ApiResult<Data>> => {
     const requestParams = this.mergeRequestParams(params)
-    const queryString = query && toQueryString(query)
 
-    let url = baseUrl || this.baseUrl || ''
-    url += path
-    if (queryString) {
-      url += '?' + queryString
-    }
+    const url = (baseUrl || this.baseUrl || '') + path + toQueryString(query)
 
     const response = await fetch(url, {
       ...requestParams,

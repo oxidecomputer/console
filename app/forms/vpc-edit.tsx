@@ -3,37 +3,34 @@ import { useNavigate } from 'react-router-dom'
 
 import { apiQueryClient, useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
 import { Success16Icon } from '@oxide/ui'
-import { pick, toPathQuery } from '@oxide/util'
+import { toPathQuery } from '@oxide/util'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
 import { getVpcSelector, useToast, useVpcSelector } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 EditVpcSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
-  await apiQueryClient.prefetchQuery(
-    'vpcViewV1',
-    toPathQuery('vpc', getVpcSelector(params))
-  )
+  await apiQueryClient.prefetchQuery('vpcView', toPathQuery('vpc', getVpcSelector(params)))
   return null
 }
 
 export function EditVpcSideModalForm() {
   const vpcSelector = useVpcSelector()
   const vpcPathQuery = toPathQuery('vpc', vpcSelector)
-  const projectSelector = pick(vpcSelector, 'organization', 'project')
+  const projectSelector = { project: vpcSelector.project }
   const queryClient = useApiQueryClient()
   const addToast = useToast()
   const navigate = useNavigate()
 
-  const { data: vpc } = useApiQuery('vpcViewV1', vpcPathQuery)
+  const { data: vpc } = useApiQuery('vpcView', vpcPathQuery)
 
   const onDismiss = () => navigate(pb.vpcs(projectSelector))
 
-  const editVpc = useApiMutation('vpcUpdateV1', {
+  const editVpc = useApiMutation('vpcUpdate', {
     async onSuccess(vpc) {
-      queryClient.invalidateQueries('vpcListV1', { query: projectSelector })
+      queryClient.invalidateQueries('vpcList', { query: projectSelector })
       queryClient.setQueryData(
-        'vpcViewV1',
+        'vpcView',
         { path: { vpc: vpc.name }, query: projectSelector },
         vpc
       )

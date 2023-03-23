@@ -71,8 +71,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       disabled,
       onClick,
       disabledReason,
-      // needs to be a spread because we pass this component to Reach
-      // <MenuButton> with the `as` prop and get passed arbitrary <button> props
+      // needs to be a spread because we sometimes get passed arbitrary <button>
+      // props by the parent
       ...rest
     },
     ref

@@ -4,7 +4,7 @@ import { matchPath, useLocation, useNavigate } from 'react-router-dom'
 import { Divider, Key16Icon, Profile16Icon } from '@oxide/ui'
 
 import { TopBar } from 'app/components/TopBar'
-import { OrgPicker, useSiloSystemPicker } from 'app/components/TopBarPicker'
+import { ProjectPicker, useSiloSystemPicker } from 'app/components/TopBarPicker'
 import { useQuickActions } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
@@ -38,7 +38,7 @@ const SettingsLayout = () => {
     <PageContainer>
       <TopBar>
         {useSiloSystemPicker('silo')}
-        <OrgPicker />
+        <ProjectPicker />
       </TopBar>
       <Sidebar>
         <Sidebar.Nav>

@@ -20,7 +20,6 @@ type DiskMetricParams = {
   endTime: Date
   metric: DiskMetricName
   diskSelector: {
-    organization: string
     project: string
     disk: string
   }
@@ -32,15 +31,15 @@ function DiskMetric({
   startTime,
   endTime,
   metric,
-  diskSelector: { organization, project, disk },
+  diskSelector: { project, disk },
 }: DiskMetricParams) {
   // TODO: we're only pulling the first page. Should we bump the cap to 10k?
   // Fetch multiple pages if 10k is not enough? That's a bit much.
   const { data: metrics, isLoading } = useApiQuery(
-    'diskMetricsListV1',
+    'diskMetricsList',
     {
       path: { disk, metric },
-      query: { organization, project, startTime, endTime, limit: 1000 },
+      query: { project, startTime, endTime, limit: 1000 },
     },
     // avoid graphs flashing blank while loading when you change the time
     { keepPreviousData: true }
@@ -80,7 +79,7 @@ function DiskMetric({
 
 MetricsTab.loader = async ({ params }: LoaderFunctionArgs) => {
   await apiQueryClient.prefetchQuery(
-    'instanceDiskListV1',
+    'instanceDiskList',
     toPathQuery('instance', getInstanceSelector(params))
   )
   return null
@@ -88,9 +87,9 @@ MetricsTab.loader = async ({ params }: LoaderFunctionArgs) => {
 
 export function MetricsTab() {
   const instanceSelector = useInstanceSelector()
-  const { organization, project } = instanceSelector
+  const { project } = instanceSelector
   const { data } = useApiQuery(
-    'instanceDiskListV1',
+    'instanceDiskList',
     toPathQuery('instance', instanceSelector)
   )
   const disks = useMemo(() => data?.items || [], [data])
@@ -107,7 +106,7 @@ export function MetricsTab() {
   const commonProps = {
     startTime: startTime.toDate(getLocalTimeZone()),
     endTime: endTime.toDate(getLocalTimeZone()),
-    diskSelector: { organization, project, disk: diskName },
+    diskSelector: { project, disk: diskName },
   }
 
   return (

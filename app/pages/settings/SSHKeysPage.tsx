@@ -19,27 +19,27 @@ import {
 import { pb } from 'app/util/path-builder'
 
 SSHKeysPage.loader = async () => {
-  await apiQueryClient.prefetchQuery('sessionSshkeyList', { query: { limit: 10 } })
+  await apiQueryClient.prefetchQuery('currentUserSshKeyList', { query: { limit: 10 } })
   return null
 }
 
 export function SSHKeysPage() {
   const navigate = useNavigate()
 
-  const { Table, Column } = useQueryTable('sessionSshkeyList', {})
+  const { Table, Column } = useQueryTable('currentUserSshKeyList', {})
   const queryClient = useApiQueryClient()
 
-  const deleteSshKey = useApiMutation('sessionSshkeyDelete', {})
+  const deleteSshKey = useApiMutation('currentUserSshKeyDelete', {})
 
   const makeActions = (sshKey: SshKey): MenuAction[] => [
     {
       label: 'Delete',
       onActivate() {
         deleteSshKey.mutate(
-          { path: { sshKeyName: sshKey.name } },
+          { path: { sshKey: sshKey.name } },
           {
             onSuccess: () => {
-              queryClient.invalidateQueries('sessionSshkeyList', {})
+              queryClient.invalidateQueries('currentUserSshKeyList', {})
             },
           }
         )

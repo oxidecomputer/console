@@ -20,23 +20,12 @@ export const lookupById = <T extends { id: string }>(table: T[], id: string) => 
 }
 
 export const lookup = {
-  org({ organization: id }: PP.Org): Json<Api.Organization> {
-    if (!id) throw notFoundErr
-
-    if (isUuid(id)) return lookupById(db.orgs, id)
-
-    const org = db.orgs.find((o) => o.name === id)
-    if (!org) throw notFoundErr
-
-    return org
-  },
-  project({ project: id, ...orgSelector }: PP.Project): Json<Api.Project> {
+  project({ project: id }: PP.Project): Json<Api.Project> {
     if (!id) throw notFoundErr
 
     if (isUuid(id)) return lookupById(db.projects, id)
 
-    const org = lookup.org(orgSelector)
-    const project = db.projects.find((p) => p.organization_id === org.id && p.name === id)
+    const project = db.projects.find((p) => p.name === id)
     if (!project) throw notFoundErr
 
     return project
@@ -186,14 +175,16 @@ export const lookup = {
     if (!sled) throw notFoundErr
     return sled
   },
-}
+  sshKey({ sshKey: id }: PP.SshKey): Json<Api.SshKey> {
+    // we don't have a concept of mock session. assume the user is user1
+    const userSshKeys = db.sshKeys.filter((key) => key.silo_user_id === user1.id)
 
-export function lookupSshKey(params: PP.SshKey): Json<Api.SshKey> {
-  const sshKey = db.sshKeys.find(
-    (key) => key.name === params.sshKeyName && key.silo_user_id === user1.id
-  )
-  if (!sshKey) throw notFoundErr
-  return sshKey
+    if (isUuid(id)) return lookupById(userSshKeys, id)
+
+    const sshKey = userSshKeys.find((key) => key.name === id)
+    if (!sshKey) throw notFoundErr
+    return sshKey
+  },
 }
 
 const initDb = {
@@ -204,7 +195,6 @@ const initDb = {
   images: [...mock.images],
   instances: [mock.instance],
   networkInterfaces: [mock.networkInterface],
-  orgs: [...mock.orgs],
   physicalDisks: [...mock.physicalDisks],
   projects: [...mock.projects],
   racks: [...mock.racks],

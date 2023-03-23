@@ -1,6 +1,6 @@
 /* eslint-disable */
 import type { RequestParams } from './http-client'
-import { HttpClient } from './http-client'
+import { HttpClient, toQueryString } from './http-client'
 
 export type {
   ApiConfig,
@@ -12,7 +12,7 @@ export type {
 } from './http-client'
 
 /**
- * Describes properties that should uniquely identify a Gimlet.
+ * Properties that should uniquely identify a Sled.
  */
 export type Baseboard = { part: string; revision: number; serial: string }
 
@@ -237,20 +237,6 @@ export type Datum =
   | { datum: Histogramint64; type: 'histogram_i64' }
   | { datum: Histogramdouble; type: 'histogram_f64' }
 
-/**
- * The type of an individual datum of a metric.
- */
-export type DatumType =
-  | 'bool'
-  | 'i64'
-  | 'f64'
-  | 'string'
-  | 'bytes'
-  | 'cumulative_i64'
-  | 'cumulative_f64'
-  | 'histogram_i64'
-  | 'histogram_f64'
-
 export type DerEncodedKeyPair = {
   /** request signing private key (base64 encoded der file) */
   privateKey: string
@@ -343,11 +329,6 @@ export type DiskCreate = {
   size: ByteCount
 }
 
-/**
- * TODO-v1: Delete this Parameters for the {@link Disk} to be attached or detached to an instance
- */
-export type DiskIdentifier = { name: Name }
-
 export type NameOrId = string | Name
 
 export type DiskPath = { disk: NameOrId }
@@ -393,21 +374,6 @@ export type ExternalIpResultsPage = {
   /** token used to fetch the next page of results (if any) */
   nextPage?: string
 }
-
-/**
- * The source from which a field is derived, the target or metric.
- */
-export type FieldSource = 'target' | 'metric'
-
-/**
- * The `FieldType` identifies the data type of a target or metric field.
- */
-export type FieldType = 'string' | 'i64' | 'ip_addr' | 'uuid' | 'bool'
-
-/**
- * The name and type information for a field of a timeseries schema.
- */
-export type FieldSchema = { name: string; source: FieldSource; ty: FieldType }
 
 export type FleetRole = 'admin' | 'collaborator' | 'viewer'
 
@@ -936,65 +902,6 @@ Note that this can only be used to select a new primary interface for an instanc
 export type NodeName = string
 
 /**
- * Client view of an {@link Organization}
- */
-export type Organization = {
-  /** human-readable free-form text about a resource */
-  description: string
-  /** unique, immutable, system-controlled identifier for each resource */
-  id: string
-  /** unique, mutable, user-controlled identifier for each resource */
-  name: Name
-  /** timestamp when this resource was created */
-  timeCreated: Date
-  /** timestamp when this resource was last modified */
-  timeModified: Date
-}
-
-/**
- * Create-time parameters for an {@link Organization}
- */
-export type OrganizationCreate = { description: string; name: Name }
-
-/**
- * A single page of results
- */
-export type OrganizationResultsPage = {
-  /** list of items on this page of results */
-  items: Organization[]
-  /** token used to fetch the next page of results (if any) */
-  nextPage?: string
-}
-
-export type OrganizationRole = 'admin' | 'collaborator' | 'viewer'
-
-/**
- * Describes the assignment of a particular role on a particular resource to a particular identity (user, group, etc.)
- *
- * The resource is not part of this structure.  Rather, `RoleAssignment`s are put into a `Policy` and that Policy is applied to a particular resource.
- */
-export type OrganizationRoleRoleAssignment = {
-  identityId: string
-  identityType: IdentityType
-  roleName: OrganizationRole
-}
-
-/**
- * Client view of a `Policy`, which describes how this resource may be accessed
- *
- * Note that the Policy only describes access granted explicitly for this resource.  The policies of parent resources can also cause a user to have access to this resource.
- */
-export type OrganizationRolePolicy = {
-  /** Roles directly assigned on this resource */
-  roleAssignments: OrganizationRoleRoleAssignment[]
-}
-
-/**
- * Updateable properties of an {@link Organization}
- */
-export type OrganizationUpdate = { description?: string; name?: Name }
-
-/**
  * A password used to authenticate a user
  *
  * Passwords may be subject to additional constraints.
@@ -1041,7 +948,6 @@ export type Project = {
   id: string
   /** unique, mutable, user-controlled identifier for each resource */
   name: Name
-  organizationId: string
   /** timestamp when this resource was created */
   timeCreated: Date
   /** timestamp when this resource was last modified */
@@ -1393,18 +1299,22 @@ export type SiloRolePolicy = {
 }
 
 /**
- * Client view of a {@link Sled}
+ * An operator's view of a Sled.
  */
 export type Sled = {
   baseboard: Baseboard
   /** unique, immutable, system-controlled identifier for each resource */
   id: string
+  /** The rack to which this Sled is currently attached */
   rackId: string
-  serviceAddress: string
   /** timestamp when this resource was created */
   timeCreated: Date
   /** timestamp when this resource was last modified */
   timeModified: Date
+  /** The number of hardware threads which can execute on this sled */
+  usableHardwareThreads: number
+  /** Amount of RAM which may be used by the Sled's OS */
+  usablePhysicalRam: ByteCount
 }
 
 /**
@@ -1531,35 +1441,6 @@ export type UpdateStatus = { status: 'updating' } | { status: 'steady' }
 export type VersionRange = { high: SemverVersion; low: SemverVersion }
 
 export type SystemVersion = { status: UpdateStatus; versionRange: VersionRange }
-
-/**
- * The name of a timeseries
- *
- * Names are constructed by concatenating the target and metric names with ':'. Target and metric names must be lowercase alphanumeric characters with '_' separating words.
- */
-export type TimeseriesName = string
-
-/**
- * The schema for a timeseries.
- *
- * This includes the name of the timeseries, as well as the datum type of its metric and the schema for each field.
- */
-export type TimeseriesSchema = {
-  created: Date
-  datumType: DatumType
-  fieldSchema: FieldSchema[]
-  timeseriesName: TimeseriesName
-}
-
-/**
- * A single page of results
- */
-export type TimeseriesSchemaResultsPage = {
-  /** list of items on this page of results */
-  items: TimeseriesSchema[]
-  /** token used to fetch the next page of results (if any) */
-  nextPage?: string
-}
 
 /**
  * Identity-related metadata that's included in "asset" public API objects (which generally have no name or description)
@@ -1952,11 +1833,11 @@ export type VpcSubnetUpdate = { description?: string; name?: Name }
 export type VpcUpdate = { description?: string; dnsName?: Name; name?: Name }
 
 /**
- * Supported set of sort modes for scanning by id only.
+ * Supported set of sort modes for scanning by name only
  *
  * Currently, we only support scanning in ascending order.
  */
-export type IdSortMode = 'id_ascending'
+export type NameSortMode = 'name_ascending'
 
 /**
  * Supported set of sort modes for scanning by name or id
@@ -1969,13 +1850,6 @@ export type NameOrIdSortMode =
   /** sort in increasing order of "id" */
   | 'id_ascending'
 
-/**
- * Supported set of sort modes for scanning by name only
- *
- * Currently, we only support scanning in ascending order.
- */
-export type NameSortMode = 'name_ascending'
-
 export type DiskMetricName =
   | 'activated'
   | 'flush'
@@ -1984,60 +1858,17 @@ export type DiskMetricName =
   | 'write'
   | 'write_bytes'
 
+/**
+ * Supported set of sort modes for scanning by id only.
+ *
+ * Currently, we only support scanning in ascending order.
+ */
+export type IdSortMode = 'id_ascending'
+
 export type SystemMetricName =
   | 'virtual_disk_space_provisioned'
   | 'cpus_provisioned'
   | 'ram_provisioned'
-
-export interface DiskViewByIdPathParams {
-  id: string
-}
-
-export interface ImageViewByIdPathParams {
-  id: string
-}
-
-export interface InstanceViewByIdPathParams {
-  id: string
-}
-
-export interface InstanceNetworkInterfaceViewByIdPathParams {
-  id: string
-}
-
-export interface OrganizationViewByIdPathParams {
-  id: string
-}
-
-export interface ProjectViewByIdPathParams {
-  id: string
-}
-
-export interface SnapshotViewByIdPathParams {
-  id: string
-}
-
-export interface VpcRouterRouteViewByIdPathParams {
-  id: string
-}
-
-export interface VpcRouterViewByIdPathParams {
-  id: string
-}
-
-export interface VpcSubnetViewByIdPathParams {
-  id: string
-}
-
-export interface VpcViewByIdPathParams {
-  id: string
-}
-
-export interface GroupListQueryParams {
-  limit?: number
-  pageToken?: string
-  sortBy?: IdSortMode
-}
 
 export interface LoginLocalPathParams {
   siloName: Name
@@ -2053,34 +1884,272 @@ export interface LoginSamlPathParams {
   siloName: Name
 }
 
-export interface OrganizationListQueryParams {
+export interface SystemImageViewByIdPathParams {
+  id: string
+}
+
+export interface SystemImageListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: NameSortMode
+}
+
+export interface SystemImageViewPathParams {
+  imageName: Name
+}
+
+export interface SystemImageDeletePathParams {
+  imageName: Name
+}
+
+export interface DiskListQueryParams {
+  limit?: number
+  pageToken?: string
+  project?: NameOrId
+  sortBy?: NameOrIdSortMode
+}
+
+export interface DiskCreateQueryParams {
+  project?: NameOrId
+}
+
+export interface DiskViewPathParams {
+  disk: NameOrId
+}
+
+export interface DiskViewQueryParams {
+  project?: NameOrId
+}
+
+export interface DiskDeletePathParams {
+  disk: NameOrId
+}
+
+export interface DiskDeleteQueryParams {
+  project?: NameOrId
+}
+
+export interface DiskMetricsListPathParams {
+  disk: NameOrId
+  metric: DiskMetricName
+}
+
+export interface DiskMetricsListQueryParams {
+  endTime?: Date
+  limit?: number
+  pageToken?: string
+  startTime?: Date
+  project?: NameOrId
+}
+
+export interface GroupListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: IdSortMode
+}
+
+export interface GroupViewPathParams {
+  group: string
+}
+
+export interface ImageListQueryParams {
+  limit?: number
+  pageToken?: string
+  project?: NameOrId
+  sortBy?: NameOrIdSortMode
+}
+
+export interface ImageCreateQueryParams {
+  project?: NameOrId
+}
+
+export interface ImageViewPathParams {
+  image: NameOrId
+}
+
+export interface ImageViewQueryParams {
+  project?: NameOrId
+}
+
+export interface ImageDeletePathParams {
+  image: NameOrId
+}
+
+export interface ImageDeleteQueryParams {
+  project?: NameOrId
+}
+
+export interface InstanceListQueryParams {
+  limit?: number
+  pageToken?: string
+  project?: NameOrId
+  sortBy?: NameOrIdSortMode
+}
+
+export interface InstanceCreateQueryParams {
+  project?: NameOrId
+}
+
+export interface InstanceViewPathParams {
+  instance: NameOrId
+}
+
+export interface InstanceViewQueryParams {
+  project?: NameOrId
+}
+
+export interface InstanceDeletePathParams {
+  instance: NameOrId
+}
+
+export interface InstanceDeleteQueryParams {
+  project?: NameOrId
+}
+
+export interface InstanceDiskListPathParams {
+  instance: NameOrId
+}
+
+export interface InstanceDiskListQueryParams {
+  limit?: number
+  pageToken?: string
+  project?: NameOrId
+  sortBy?: NameOrIdSortMode
+}
+
+export interface InstanceDiskAttachPathParams {
+  instance: NameOrId
+}
+
+export interface InstanceDiskAttachQueryParams {
+  project?: NameOrId
+}
+
+export interface InstanceDiskDetachPathParams {
+  instance: NameOrId
+}
+
+export interface InstanceDiskDetachQueryParams {
+  project?: NameOrId
+}
+
+export interface InstanceExternalIpListPathParams {
+  instance: NameOrId
+}
+
+export interface InstanceExternalIpListQueryParams {
+  project?: NameOrId
+}
+
+export interface InstanceMigratePathParams {
+  instance: NameOrId
+}
+
+export interface InstanceMigrateQueryParams {
+  project?: NameOrId
+}
+
+export interface InstanceRebootPathParams {
+  instance: NameOrId
+}
+
+export interface InstanceRebootQueryParams {
+  project?: NameOrId
+}
+
+export interface InstanceSerialConsolePathParams {
+  instance: NameOrId
+}
+
+export interface InstanceSerialConsoleQueryParams {
+  fromStart?: number
+  maxBytes?: number
+  mostRecent?: number
+  project?: NameOrId
+}
+
+export interface InstanceSerialConsoleStreamPathParams {
+  instance: NameOrId
+}
+
+export interface InstanceSerialConsoleStreamQueryParams {
+  project?: NameOrId
+}
+
+export interface InstanceStartPathParams {
+  instance: NameOrId
+}
+
+export interface InstanceStartQueryParams {
+  project?: NameOrId
+}
+
+export interface InstanceStopPathParams {
+  instance: NameOrId
+}
+
+export interface InstanceStopQueryParams {
+  project?: NameOrId
+}
+
+export interface CurrentUserGroupsQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: IdSortMode
+}
+
+export interface CurrentUserSshKeyListQueryParams {
   limit?: number
   pageToken?: string
   sortBy?: NameOrIdSortMode
 }
 
-export interface OrganizationViewPathParams {
-  orgName: Name
+export interface CurrentUserSshKeyViewPathParams {
+  sshKey: NameOrId
 }
 
-export interface OrganizationUpdatePathParams {
-  orgName: Name
+export interface CurrentUserSshKeyDeletePathParams {
+  sshKey: NameOrId
 }
 
-export interface OrganizationDeletePathParams {
-  orgName: Name
+export interface InstanceNetworkInterfaceListQueryParams {
+  instance?: NameOrId
+  limit?: number
+  pageToken?: string
+  project?: NameOrId
+  sortBy?: NameOrIdSortMode
 }
 
-export interface OrganizationPolicyViewPathParams {
-  orgName: Name
+export interface InstanceNetworkInterfaceCreateQueryParams {
+  instance?: NameOrId
+  project?: NameOrId
 }
 
-export interface OrganizationPolicyUpdatePathParams {
-  orgName: Name
+export interface InstanceNetworkInterfaceViewPathParams {
+  interface: NameOrId
 }
 
-export interface ProjectListPathParams {
-  orgName: Name
+export interface InstanceNetworkInterfaceViewQueryParams {
+  instance?: NameOrId
+  project?: NameOrId
+}
+
+export interface InstanceNetworkInterfaceUpdatePathParams {
+  interface: NameOrId
+}
+
+export interface InstanceNetworkInterfaceUpdateQueryParams {
+  instance?: NameOrId
+  project?: NameOrId
+}
+
+export interface InstanceNetworkInterfaceDeletePathParams {
+  interface: NameOrId
+}
+
+export interface InstanceNetworkInterfaceDeleteQueryParams {
+  instance?: NameOrId
+  project?: NameOrId
 }
 
 export interface ProjectListQueryParams {
@@ -2089,492 +2158,51 @@ export interface ProjectListQueryParams {
   sortBy?: NameOrIdSortMode
 }
 
-export interface ProjectCreatePathParams {
-  orgName: Name
-}
-
 export interface ProjectViewPathParams {
-  orgName: Name
-  projectName: Name
+  project: NameOrId
 }
 
 export interface ProjectUpdatePathParams {
-  orgName: Name
-  projectName: Name
+  project: NameOrId
 }
 
 export interface ProjectDeletePathParams {
-  orgName: Name
-  projectName: Name
-}
-
-export interface DiskListPathParams {
-  orgName: Name
-  projectName: Name
-}
-
-export interface DiskListQueryParams {
-  limit?: number
-  pageToken?: string
-  sortBy?: NameSortMode
-}
-
-export interface DiskCreatePathParams {
-  orgName: Name
-  projectName: Name
-}
-
-export interface DiskViewPathParams {
-  diskName: Name
-  orgName: Name
-  projectName: Name
-}
-
-export interface DiskDeletePathParams {
-  diskName: Name
-  orgName: Name
-  projectName: Name
-}
-
-export interface DiskMetricsListPathParams {
-  diskName: Name
-  metricName: DiskMetricName
-  orgName: Name
-  projectName: Name
-}
-
-export interface DiskMetricsListQueryParams {
-  endTime?: Date
-  limit?: number
-  pageToken?: string
-  startTime?: Date
-}
-
-export interface ImageListPathParams {
-  orgName: Name
-  projectName: Name
-}
-
-export interface ImageListQueryParams {
-  limit?: number
-  pageToken?: string
-  sortBy?: NameSortMode
-}
-
-export interface ImageCreatePathParams {
-  orgName: Name
-  projectName: Name
-}
-
-export interface ImageViewPathParams {
-  imageName: Name
-  orgName: Name
-  projectName: Name
-}
-
-export interface ImageDeletePathParams {
-  imageName: Name
-  orgName: Name
-  projectName: Name
-}
-
-export interface InstanceListPathParams {
-  orgName: Name
-  projectName: Name
-}
-
-export interface InstanceListQueryParams {
-  limit?: number
-  pageToken?: string
-  sortBy?: NameSortMode
-}
-
-export interface InstanceCreatePathParams {
-  orgName: Name
-  projectName: Name
-}
-
-export interface InstanceViewPathParams {
-  instanceName: Name
-  orgName: Name
-  projectName: Name
-}
-
-export interface InstanceDeletePathParams {
-  instanceName: Name
-  orgName: Name
-  projectName: Name
-}
-
-export interface InstanceDiskListPathParams {
-  instanceName: Name
-  orgName: Name
-  projectName: Name
-}
-
-export interface InstanceDiskListQueryParams {
-  limit?: number
-  pageToken?: string
-  sortBy?: NameSortMode
-}
-
-export interface InstanceDiskAttachPathParams {
-  instanceName: Name
-  orgName: Name
-  projectName: Name
-}
-
-export interface InstanceDiskDetachPathParams {
-  instanceName: Name
-  orgName: Name
-  projectName: Name
-}
-
-export interface InstanceExternalIpListPathParams {
-  instanceName: Name
-  orgName: Name
-  projectName: Name
-}
-
-export interface InstanceMigratePathParams {
-  instanceName: Name
-  orgName: Name
-  projectName: Name
-}
-
-export interface InstanceNetworkInterfaceListPathParams {
-  instanceName: Name
-  orgName: Name
-  projectName: Name
-}
-
-export interface InstanceNetworkInterfaceListQueryParams {
-  limit?: number
-  pageToken?: string
-  sortBy?: NameSortMode
-}
-
-export interface InstanceNetworkInterfaceCreatePathParams {
-  instanceName: Name
-  orgName: Name
-  projectName: Name
-}
-
-export interface InstanceNetworkInterfaceViewPathParams {
-  instanceName: Name
-  interfaceName: Name
-  orgName: Name
-  projectName: Name
-}
-
-export interface InstanceNetworkInterfaceUpdatePathParams {
-  instanceName: Name
-  interfaceName: Name
-  orgName: Name
-  projectName: Name
-}
-
-export interface InstanceNetworkInterfaceDeletePathParams {
-  instanceName: Name
-  interfaceName: Name
-  orgName: Name
-  projectName: Name
-}
-
-export interface InstanceRebootPathParams {
-  instanceName: Name
-  orgName: Name
-  projectName: Name
-}
-
-export interface InstanceSerialConsolePathParams {
-  instanceName: Name
-  orgName: Name
-  projectName: Name
-}
-
-export interface InstanceSerialConsoleQueryParams {
-  fromStart?: number
-  maxBytes?: number
-  mostRecent?: number
-}
-
-export interface InstanceSerialConsoleStreamPathParams {
-  instanceName: Name
-  orgName: Name
-  projectName: Name
-}
-
-export interface InstanceStartPathParams {
-  instanceName: Name
-  orgName: Name
-  projectName: Name
-}
-
-export interface InstanceStopPathParams {
-  instanceName: Name
-  orgName: Name
-  projectName: Name
+  project: NameOrId
 }
 
 export interface ProjectPolicyViewPathParams {
-  orgName: Name
-  projectName: Name
+  project: NameOrId
 }
 
 export interface ProjectPolicyUpdatePathParams {
-  orgName: Name
-  projectName: Name
-}
-
-export interface SnapshotListPathParams {
-  orgName: Name
-  projectName: Name
+  project: NameOrId
 }
 
 export interface SnapshotListQueryParams {
   limit?: number
   pageToken?: string
-  sortBy?: NameSortMode
-}
-
-export interface SnapshotCreatePathParams {
-  orgName: Name
-  projectName: Name
-}
-
-export interface SnapshotViewPathParams {
-  orgName: Name
-  projectName: Name
-  snapshotName: Name
-}
-
-export interface SnapshotDeletePathParams {
-  orgName: Name
-  projectName: Name
-  snapshotName: Name
-}
-
-export interface VpcListPathParams {
-  orgName: Name
-  projectName: Name
-}
-
-export interface VpcListQueryParams {
-  limit?: number
-  pageToken?: string
-  sortBy?: NameSortMode
-}
-
-export interface VpcCreatePathParams {
-  orgName: Name
-  projectName: Name
-}
-
-export interface VpcViewPathParams {
-  orgName: Name
-  projectName: Name
-  vpcName: Name
-}
-
-export interface VpcUpdatePathParams {
-  orgName: Name
-  projectName: Name
-  vpcName: Name
-}
-
-export interface VpcDeletePathParams {
-  orgName: Name
-  projectName: Name
-  vpcName: Name
-}
-
-export interface VpcFirewallRulesViewPathParams {
-  orgName: Name
-  projectName: Name
-  vpcName: Name
-}
-
-export interface VpcFirewallRulesUpdatePathParams {
-  orgName: Name
-  projectName: Name
-  vpcName: Name
-}
-
-export interface VpcRouterListPathParams {
-  orgName: Name
-  projectName: Name
-  vpcName: Name
-}
-
-export interface VpcRouterListQueryParams {
-  limit?: number
-  pageToken?: string
-  sortBy?: NameSortMode
-}
-
-export interface VpcRouterCreatePathParams {
-  orgName: Name
-  projectName: Name
-  vpcName: Name
-}
-
-export interface VpcRouterViewPathParams {
-  orgName: Name
-  projectName: Name
-  routerName: Name
-  vpcName: Name
-}
-
-export interface VpcRouterUpdatePathParams {
-  orgName: Name
-  projectName: Name
-  routerName: Name
-  vpcName: Name
-}
-
-export interface VpcRouterDeletePathParams {
-  orgName: Name
-  projectName: Name
-  routerName: Name
-  vpcName: Name
-}
-
-export interface VpcRouterRouteListPathParams {
-  orgName: Name
-  projectName: Name
-  routerName: Name
-  vpcName: Name
-}
-
-export interface VpcRouterRouteListQueryParams {
-  limit?: number
-  pageToken?: string
-  sortBy?: NameSortMode
-}
-
-export interface VpcRouterRouteCreatePathParams {
-  orgName: Name
-  projectName: Name
-  routerName: Name
-  vpcName: Name
-}
-
-export interface VpcRouterRouteViewPathParams {
-  orgName: Name
-  projectName: Name
-  routeName: Name
-  routerName: Name
-  vpcName: Name
-}
-
-export interface VpcRouterRouteUpdatePathParams {
-  orgName: Name
-  projectName: Name
-  routeName: Name
-  routerName: Name
-  vpcName: Name
-}
-
-export interface VpcRouterRouteDeletePathParams {
-  orgName: Name
-  projectName: Name
-  routeName: Name
-  routerName: Name
-  vpcName: Name
-}
-
-export interface VpcSubnetListPathParams {
-  orgName: Name
-  projectName: Name
-  vpcName: Name
-}
-
-export interface VpcSubnetListQueryParams {
-  limit?: number
-  pageToken?: string
-  sortBy?: NameSortMode
-}
-
-export interface VpcSubnetCreatePathParams {
-  orgName: Name
-  projectName: Name
-  vpcName: Name
-}
-
-export interface VpcSubnetViewPathParams {
-  orgName: Name
-  projectName: Name
-  subnetName: Name
-  vpcName: Name
-}
-
-export interface VpcSubnetUpdatePathParams {
-  orgName: Name
-  projectName: Name
-  subnetName: Name
-  vpcName: Name
-}
-
-export interface VpcSubnetDeletePathParams {
-  orgName: Name
-  projectName: Name
-  subnetName: Name
-  vpcName: Name
-}
-
-export interface VpcSubnetListNetworkInterfacesPathParams {
-  orgName: Name
-  projectName: Name
-  subnetName: Name
-  vpcName: Name
-}
-
-export interface VpcSubnetListNetworkInterfacesQueryParams {
-  limit?: number
-  pageToken?: string
+  project?: NameOrId
   sortBy?: NameOrIdSortMode
 }
 
-export interface RoleListQueryParams {
-  limit?: number
-  pageToken?: string
+export interface SnapshotCreateQueryParams {
+  project?: NameOrId
 }
 
-export interface RoleViewPathParams {
-  roleName: string
+export interface SnapshotViewPathParams {
+  snapshot: NameOrId
 }
 
-export interface SessionMeGroupsQueryParams {
-  limit?: number
-  pageToken?: string
-  sortBy?: IdSortMode
+export interface SnapshotViewQueryParams {
+  project?: NameOrId
 }
 
-export interface SessionSshkeyListQueryParams {
-  limit?: number
-  pageToken?: string
-  sortBy?: NameSortMode
+export interface SnapshotDeletePathParams {
+  snapshot: NameOrId
 }
 
-export interface SessionSshkeyViewPathParams {
-  sshKeyName: Name
-}
-
-export interface SessionSshkeyDeletePathParams {
-  sshKeyName: Name
-}
-
-export interface SystemImageViewByIdPathParams {
-  id: string
-}
-
-export interface IpPoolViewByIdPathParams {
-  id: string
-}
-
-export interface SiloViewByIdPathParams {
-  id: string
+export interface SnapshotDeleteQueryParams {
+  project?: NameOrId
 }
 
 export interface CertificateListQueryParams {
@@ -2627,18 +2255,43 @@ export interface SledPhysicalDiskListQueryParams {
   sortBy?: IdSortMode
 }
 
-export interface SystemImageListQueryParams {
+export interface SiloIdentityProviderListQueryParams {
   limit?: number
   pageToken?: string
-  sortBy?: NameSortMode
+  silo?: NameOrId
+  sortBy?: NameOrIdSortMode
 }
 
-export interface SystemImageViewPathParams {
-  imageName: Name
+export interface LocalIdpUserCreateQueryParams {
+  silo?: NameOrId
 }
 
-export interface SystemImageDeletePathParams {
-  imageName: Name
+export interface LocalIdpUserDeletePathParams {
+  userId: string
+}
+
+export interface LocalIdpUserDeleteQueryParams {
+  silo?: NameOrId
+}
+
+export interface LocalIdpUserSetPasswordPathParams {
+  userId: string
+}
+
+export interface LocalIdpUserSetPasswordQueryParams {
+  silo?: NameOrId
+}
+
+export interface SamlIdentityProviderCreateQueryParams {
+  silo?: NameOrId
+}
+
+export interface SamlIdentityProviderViewPathParams {
+  provider: NameOrId
+}
+
+export interface SamlIdentityProviderViewQueryParams {
+  silo?: NameOrId
 }
 
 export interface IpPoolListQueryParams {
@@ -2648,19 +2301,19 @@ export interface IpPoolListQueryParams {
 }
 
 export interface IpPoolViewPathParams {
-  poolName: Name
+  pool: NameOrId
 }
 
 export interface IpPoolUpdatePathParams {
-  poolName: Name
+  pool: NameOrId
 }
 
 export interface IpPoolDeletePathParams {
-  poolName: Name
+  pool: NameOrId
 }
 
 export interface IpPoolRangeListPathParams {
-  poolName: Name
+  pool: NameOrId
 }
 
 export interface IpPoolRangeListQueryParams {
@@ -2669,11 +2322,11 @@ export interface IpPoolRangeListQueryParams {
 }
 
 export interface IpPoolRangeAddPathParams {
-  poolName: Name
+  pool: NameOrId
 }
 
 export interface IpPoolRangeRemovePathParams {
-  poolName: Name
+  pool: NameOrId
 }
 
 export interface IpPoolServiceRangeListQueryParams {
@@ -2693,6 +2346,15 @@ export interface SystemMetricQueryParams {
   startTime?: Date
 }
 
+export interface RoleListQueryParams {
+  limit?: number
+  pageToken?: string
+}
+
+export interface RoleViewPathParams {
+  roleName: string
+}
+
 export interface SagaListQueryParams {
   limit?: number
   pageToken?: string
@@ -2710,614 +2372,18 @@ export interface SiloListQueryParams {
 }
 
 export interface SiloViewPathParams {
-  siloName: Name
+  silo: NameOrId
 }
 
 export interface SiloDeletePathParams {
-  siloName: Name
-}
-
-export interface SiloIdentityProviderListPathParams {
-  siloName: Name
-}
-
-export interface SiloIdentityProviderListQueryParams {
-  limit?: number
-  pageToken?: string
-  sortBy?: NameSortMode
-}
-
-export interface LocalIdpUserCreatePathParams {
-  siloName: Name
-}
-
-export interface LocalIdpUserDeletePathParams {
-  siloName: Name
-  userId: string
-}
-
-export interface LocalIdpUserSetPasswordPathParams {
-  siloName: Name
-  userId: string
-}
-
-export interface SamlIdentityProviderCreatePathParams {
-  siloName: Name
-}
-
-export interface SamlIdentityProviderViewPathParams {
-  providerName: Name
-  siloName: Name
+  silo: NameOrId
 }
 
 export interface SiloPolicyViewPathParams {
-  siloName: Name
+  silo: NameOrId
 }
 
 export interface SiloPolicyUpdatePathParams {
-  siloName: Name
-}
-
-export interface SiloUsersListPathParams {
-  siloName: Name
-}
-
-export interface SiloUsersListQueryParams {
-  limit?: number
-  pageToken?: string
-  sortBy?: IdSortMode
-}
-
-export interface SiloUserViewPathParams {
-  siloName: Name
-  userId: string
-}
-
-export interface SystemUserListQueryParams {
-  limit?: number
-  pageToken?: string
-  sortBy?: NameSortMode
-}
-
-export interface SystemUserViewPathParams {
-  userName: Name
-}
-
-export interface TimeseriesSchemaGetQueryParams {
-  limit?: number
-  pageToken?: string
-}
-
-export interface UserListQueryParams {
-  limit?: number
-  pageToken?: string
-  sortBy?: IdSortMode
-}
-
-export interface DiskListV1QueryParams {
-  limit?: number
-  organization?: NameOrId
-  pageToken?: string
-  project?: NameOrId
-  sortBy?: NameOrIdSortMode
-}
-
-export interface DiskCreateV1QueryParams {
-  organization?: NameOrId
-  project?: NameOrId
-}
-
-export interface DiskViewV1PathParams {
-  disk: NameOrId
-}
-
-export interface DiskViewV1QueryParams {
-  organization?: NameOrId
-  project?: NameOrId
-}
-
-export interface DiskDeleteV1PathParams {
-  disk: NameOrId
-}
-
-export interface DiskDeleteV1QueryParams {
-  organization?: NameOrId
-  project?: NameOrId
-}
-
-export interface DiskMetricsListV1PathParams {
-  disk: NameOrId
-  metric: DiskMetricName
-}
-
-export interface DiskMetricsListV1QueryParams {
-  endTime?: Date
-  limit?: number
-  pageToken?: string
-  startTime?: Date
-  organization?: NameOrId
-  project?: NameOrId
-}
-
-export interface GroupListV1QueryParams {
-  limit?: number
-  pageToken?: string
-  sortBy?: IdSortMode
-}
-
-export interface GroupViewPathParams {
-  group: string
-}
-
-export interface ImageListV1QueryParams {
-  limit?: number
-  organization?: NameOrId
-  pageToken?: string
-  project?: NameOrId
-  sortBy?: NameOrIdSortMode
-}
-
-export interface ImageCreateV1QueryParams {
-  organization?: NameOrId
-  project?: NameOrId
-}
-
-export interface ImageViewV1PathParams {
-  image: NameOrId
-}
-
-export interface ImageViewV1QueryParams {
-  organization?: NameOrId
-  project?: NameOrId
-}
-
-export interface ImageDeleteV1PathParams {
-  image: NameOrId
-}
-
-export interface ImageDeleteV1QueryParams {
-  organization?: NameOrId
-  project?: NameOrId
-}
-
-export interface InstanceListV1QueryParams {
-  limit?: number
-  organization?: NameOrId
-  pageToken?: string
-  project?: NameOrId
-  sortBy?: NameOrIdSortMode
-}
-
-export interface InstanceCreateV1QueryParams {
-  organization?: NameOrId
-  project?: NameOrId
-}
-
-export interface InstanceViewV1PathParams {
-  instance: NameOrId
-}
-
-export interface InstanceViewV1QueryParams {
-  organization?: NameOrId
-  project?: NameOrId
-}
-
-export interface InstanceDeleteV1PathParams {
-  instance: NameOrId
-}
-
-export interface InstanceDeleteV1QueryParams {
-  organization?: NameOrId
-  project?: NameOrId
-}
-
-export interface InstanceDiskListV1PathParams {
-  instance: NameOrId
-}
-
-export interface InstanceDiskListV1QueryParams {
-  limit?: number
-  organization?: NameOrId
-  pageToken?: string
-  project?: NameOrId
-  sortBy?: NameOrIdSortMode
-}
-
-export interface InstanceDiskAttachV1PathParams {
-  instance: NameOrId
-}
-
-export interface InstanceDiskAttachV1QueryParams {
-  organization?: NameOrId
-  project?: NameOrId
-}
-
-export interface InstanceDiskDetachV1PathParams {
-  instance: NameOrId
-}
-
-export interface InstanceDiskDetachV1QueryParams {
-  organization?: NameOrId
-  project?: NameOrId
-}
-
-export interface InstanceExternalIpListV1PathParams {
-  instance: NameOrId
-}
-
-export interface InstanceExternalIpListV1QueryParams {
-  organization?: NameOrId
-  project?: NameOrId
-}
-
-export interface InstanceMigrateV1PathParams {
-  instance: NameOrId
-}
-
-export interface InstanceMigrateV1QueryParams {
-  organization?: NameOrId
-  project?: NameOrId
-}
-
-export interface InstanceRebootV1PathParams {
-  instance: NameOrId
-}
-
-export interface InstanceRebootV1QueryParams {
-  organization?: NameOrId
-  project?: NameOrId
-}
-
-export interface InstanceSerialConsoleV1PathParams {
-  instance: NameOrId
-}
-
-export interface InstanceSerialConsoleV1QueryParams {
-  fromStart?: number
-  maxBytes?: number
-  mostRecent?: number
-  organization?: NameOrId
-  project?: NameOrId
-}
-
-export interface InstanceSerialConsoleStreamV1PathParams {
-  instance: NameOrId
-}
-
-export interface InstanceSerialConsoleStreamV1QueryParams {
-  organization?: NameOrId
-  project?: NameOrId
-}
-
-export interface InstanceStartV1PathParams {
-  instance: NameOrId
-}
-
-export interface InstanceStartV1QueryParams {
-  organization?: NameOrId
-  project?: NameOrId
-}
-
-export interface InstanceStopV1PathParams {
-  instance: NameOrId
-}
-
-export interface InstanceStopV1QueryParams {
-  organization?: NameOrId
-  project?: NameOrId
-}
-
-export interface InstanceNetworkInterfaceListV1QueryParams {
-  instance?: NameOrId
-  limit?: number
-  organization?: NameOrId
-  pageToken?: string
-  project?: NameOrId
-  sortBy?: NameOrIdSortMode
-}
-
-export interface InstanceNetworkInterfaceCreateV1QueryParams {
-  instance?: NameOrId
-  organization?: NameOrId
-  project?: NameOrId
-}
-
-export interface InstanceNetworkInterfaceViewV1PathParams {
-  interface: NameOrId
-}
-
-export interface InstanceNetworkInterfaceViewV1QueryParams {
-  instance?: NameOrId
-  organization?: NameOrId
-  project?: NameOrId
-}
-
-export interface InstanceNetworkInterfaceUpdateV1PathParams {
-  interface: NameOrId
-}
-
-export interface InstanceNetworkInterfaceUpdateV1QueryParams {
-  instance?: NameOrId
-  organization?: NameOrId
-  project?: NameOrId
-}
-
-export interface InstanceNetworkInterfaceDeleteV1PathParams {
-  interface: NameOrId
-}
-
-export interface InstanceNetworkInterfaceDeleteV1QueryParams {
-  instance?: NameOrId
-  organization?: NameOrId
-  project?: NameOrId
-}
-
-export interface OrganizationListV1QueryParams {
-  limit?: number
-  pageToken?: string
-  sortBy?: NameOrIdSortMode
-}
-
-export interface OrganizationViewV1PathParams {
-  organization: NameOrId
-}
-
-export interface OrganizationUpdateV1PathParams {
-  organization: NameOrId
-}
-
-export interface OrganizationDeleteV1PathParams {
-  organization: NameOrId
-}
-
-export interface OrganizationPolicyViewV1PathParams {
-  organization: NameOrId
-}
-
-export interface OrganizationPolicyUpdateV1PathParams {
-  organization: NameOrId
-}
-
-export interface ProjectListV1QueryParams {
-  limit?: number
-  organization?: NameOrId
-  pageToken?: string
-  sortBy?: NameOrIdSortMode
-}
-
-export interface ProjectCreateV1QueryParams {
-  organization?: NameOrId
-}
-
-export interface ProjectViewV1PathParams {
-  project: NameOrId
-}
-
-export interface ProjectViewV1QueryParams {
-  organization?: NameOrId
-}
-
-export interface ProjectUpdateV1PathParams {
-  project: NameOrId
-}
-
-export interface ProjectUpdateV1QueryParams {
-  organization?: NameOrId
-}
-
-export interface ProjectDeleteV1PathParams {
-  project: NameOrId
-}
-
-export interface ProjectDeleteV1QueryParams {
-  organization?: NameOrId
-}
-
-export interface ProjectPolicyViewV1PathParams {
-  project: NameOrId
-}
-
-export interface ProjectPolicyViewV1QueryParams {
-  organization?: NameOrId
-}
-
-export interface ProjectPolicyUpdateV1PathParams {
-  project: NameOrId
-}
-
-export interface ProjectPolicyUpdateV1QueryParams {
-  organization?: NameOrId
-}
-
-export interface SnapshotListV1QueryParams {
-  limit?: number
-  organization?: NameOrId
-  pageToken?: string
-  project?: NameOrId
-  sortBy?: NameOrIdSortMode
-}
-
-export interface SnapshotCreateV1QueryParams {
-  organization?: NameOrId
-  project?: NameOrId
-}
-
-export interface SnapshotViewV1PathParams {
-  snapshot: NameOrId
-}
-
-export interface SnapshotViewV1QueryParams {
-  organization?: NameOrId
-  project?: NameOrId
-}
-
-export interface SnapshotDeleteV1PathParams {
-  snapshot: NameOrId
-}
-
-export interface SnapshotDeleteV1QueryParams {
-  organization?: NameOrId
-  project?: NameOrId
-}
-
-export interface CertificateListV1QueryParams {
-  limit?: number
-  pageToken?: string
-  sortBy?: NameOrIdSortMode
-}
-
-export interface CertificateViewV1PathParams {
-  certificate: NameOrId
-}
-
-export interface CertificateDeleteV1PathParams {
-  certificate: NameOrId
-}
-
-export interface PhysicalDiskListV1QueryParams {
-  limit?: number
-  pageToken?: string
-  sortBy?: IdSortMode
-}
-
-export interface RackListV1QueryParams {
-  limit?: number
-  pageToken?: string
-  sortBy?: IdSortMode
-}
-
-export interface RackViewV1PathParams {
-  rackId: string
-}
-
-export interface SledListV1QueryParams {
-  limit?: number
-  pageToken?: string
-  sortBy?: IdSortMode
-}
-
-export interface SledViewV1PathParams {
-  sledId: string
-}
-
-export interface SledPhysicalDiskListV1PathParams {
-  sledId: string
-}
-
-export interface SledPhysicalDiskListV1QueryParams {
-  limit?: number
-  pageToken?: string
-  sortBy?: IdSortMode
-}
-
-export interface SiloIdentityProviderListV1QueryParams {
-  limit?: number
-  pageToken?: string
-  silo?: NameOrId
-  sortBy?: NameOrIdSortMode
-}
-
-export interface LocalIdpUserCreateV1QueryParams {
-  silo?: NameOrId
-}
-
-export interface LocalIdpUserDeleteV1PathParams {
-  userId: string
-}
-
-export interface LocalIdpUserDeleteV1QueryParams {
-  silo?: NameOrId
-}
-
-export interface LocalIdpUserSetPasswordV1PathParams {
-  userId: string
-}
-
-export interface LocalIdpUserSetPasswordV1QueryParams {
-  silo?: NameOrId
-}
-
-export interface SamlIdentityProviderCreateV1QueryParams {
-  silo?: NameOrId
-}
-
-export interface SamlIdentityProviderViewV1PathParams {
-  provider: NameOrId
-}
-
-export interface SamlIdentityProviderViewV1QueryParams {
-  silo?: NameOrId
-}
-
-export interface IpPoolListV1QueryParams {
-  limit?: number
-  pageToken?: string
-  sortBy?: NameOrIdSortMode
-}
-
-export interface IpPoolViewV1PathParams {
-  pool: NameOrId
-}
-
-export interface IpPoolUpdateV1PathParams {
-  pool: NameOrId
-}
-
-export interface IpPoolDeleteV1PathParams {
-  pool: NameOrId
-}
-
-export interface IpPoolRangeListV1PathParams {
-  pool: NameOrId
-}
-
-export interface IpPoolRangeListV1QueryParams {
-  limit?: number
-  pageToken?: string
-}
-
-export interface IpPoolRangeAddV1PathParams {
-  pool: NameOrId
-}
-
-export interface IpPoolRangeRemoveV1PathParams {
-  pool: NameOrId
-}
-
-export interface IpPoolServiceRangeListV1QueryParams {
-  limit?: number
-  pageToken?: string
-}
-
-export interface SagaListV1QueryParams {
-  limit?: number
-  pageToken?: string
-  sortBy?: IdSortMode
-}
-
-export interface SagaViewV1PathParams {
-  sagaId: string
-}
-
-export interface SiloListV1QueryParams {
-  limit?: number
-  pageToken?: string
-  sortBy?: NameOrIdSortMode
-}
-
-export interface SiloViewV1PathParams {
-  silo: NameOrId
-}
-
-export interface SiloDeleteV1PathParams {
-  silo: NameOrId
-}
-
-export interface SiloPolicyViewV1PathParams {
-  silo: NameOrId
-}
-
-export interface SiloPolicyUpdateV1PathParams {
   silo: NameOrId
 }
 
@@ -3351,43 +2417,50 @@ export interface SystemUpdateComponentsListPathParams {
   version: SemverVersion
 }
 
-export interface SiloUsersListV1QueryParams {
+export interface SiloUserListQueryParams {
   limit?: number
   pageToken?: string
   silo?: NameOrId
   sortBy?: IdSortMode
 }
 
-export interface SiloUserViewV1PathParams {
+export interface SiloUserViewPathParams {
   userId: string
 }
 
-export interface SiloUserViewV1QueryParams {
+export interface SiloUserViewQueryParams {
   silo?: NameOrId
 }
 
-export interface UserListV1QueryParams {
+export interface UserBuiltinListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: NameSortMode
+}
+
+export interface UserBuiltinViewPathParams {
+  user: NameOrId
+}
+
+export interface UserListQueryParams {
   group?: string
   limit?: number
   pageToken?: string
   sortBy?: IdSortMode
 }
 
-export interface VpcFirewallRulesViewV1QueryParams {
-  organization?: NameOrId
+export interface VpcFirewallRulesViewQueryParams {
   project?: NameOrId
   vpc?: NameOrId
 }
 
-export interface VpcFirewallRulesUpdateV1QueryParams {
-  organization?: NameOrId
+export interface VpcFirewallRulesUpdateQueryParams {
   project?: NameOrId
   vpc?: NameOrId
 }
 
-export interface VpcRouterRouteListV1QueryParams {
+export interface VpcRouterRouteListQueryParams {
   limit?: number
-  organization?: NameOrId
   pageToken?: string
   project?: NameOrId
   router?: NameOrId
@@ -3395,421 +2468,216 @@ export interface VpcRouterRouteListV1QueryParams {
   vpc?: NameOrId
 }
 
-export interface VpcRouterRouteCreateV1QueryParams {
-  organization?: NameOrId
+export interface VpcRouterRouteCreateQueryParams {
   project?: NameOrId
   router?: NameOrId
   vpc?: NameOrId
 }
 
-export interface VpcRouterRouteViewV1PathParams {
+export interface VpcRouterRouteViewPathParams {
   route: NameOrId
 }
 
-export interface VpcRouterRouteViewV1QueryParams {
-  organization?: NameOrId
+export interface VpcRouterRouteViewQueryParams {
   project?: NameOrId
   router?: NameOrId
   vpc?: NameOrId
 }
 
-export interface VpcRouterRouteUpdateV1PathParams {
+export interface VpcRouterRouteUpdatePathParams {
   route: NameOrId
 }
 
-export interface VpcRouterRouteUpdateV1QueryParams {
-  organization?: NameOrId
+export interface VpcRouterRouteUpdateQueryParams {
   project?: NameOrId
   router?: NameOrId
   vpc?: NameOrId
 }
 
-export interface VpcRouterRouteDeleteV1PathParams {
+export interface VpcRouterRouteDeletePathParams {
   route: NameOrId
 }
 
-export interface VpcRouterRouteDeleteV1QueryParams {
-  organization?: NameOrId
+export interface VpcRouterRouteDeleteQueryParams {
   project?: NameOrId
   router?: NameOrId
   vpc?: NameOrId
 }
 
-export interface VpcRouterListV1QueryParams {
+export interface VpcRouterListQueryParams {
   limit?: number
-  organization?: NameOrId
   pageToken?: string
   project?: NameOrId
   sortBy?: NameOrIdSortMode
   vpc?: NameOrId
 }
 
-export interface VpcRouterCreateV1QueryParams {
-  organization?: NameOrId
+export interface VpcRouterCreateQueryParams {
   project?: NameOrId
   vpc?: NameOrId
 }
 
-export interface VpcRouterViewV1PathParams {
+export interface VpcRouterViewPathParams {
   router: NameOrId
 }
 
-export interface VpcRouterViewV1QueryParams {
-  organization?: NameOrId
+export interface VpcRouterViewQueryParams {
   project?: NameOrId
   vpc?: NameOrId
 }
 
-export interface VpcRouterUpdateV1PathParams {
+export interface VpcRouterUpdatePathParams {
   router: NameOrId
 }
 
-export interface VpcRouterUpdateV1QueryParams {
-  organization?: NameOrId
+export interface VpcRouterUpdateQueryParams {
   project?: NameOrId
   vpc?: NameOrId
 }
 
-export interface VpcRouterDeleteV1PathParams {
+export interface VpcRouterDeletePathParams {
   router: NameOrId
 }
 
-export interface VpcRouterDeleteV1QueryParams {
-  organization?: NameOrId
+export interface VpcRouterDeleteQueryParams {
   project?: NameOrId
   vpc?: NameOrId
 }
 
-export interface VpcSubnetListV1QueryParams {
+export interface VpcSubnetListQueryParams {
   limit?: number
-  organization?: NameOrId
   pageToken?: string
   project?: NameOrId
   sortBy?: NameOrIdSortMode
   vpc?: NameOrId
 }
 
-export interface VpcSubnetCreateV1QueryParams {
-  organization?: NameOrId
+export interface VpcSubnetCreateQueryParams {
   project?: NameOrId
   vpc?: NameOrId
 }
 
-export interface VpcSubnetViewV1PathParams {
+export interface VpcSubnetViewPathParams {
   subnet: NameOrId
 }
 
-export interface VpcSubnetViewV1QueryParams {
-  organization?: NameOrId
+export interface VpcSubnetViewQueryParams {
   project?: NameOrId
   vpc?: NameOrId
 }
 
-export interface VpcSubnetUpdateV1PathParams {
+export interface VpcSubnetUpdatePathParams {
   subnet: NameOrId
 }
 
-export interface VpcSubnetUpdateV1QueryParams {
-  organization?: NameOrId
+export interface VpcSubnetUpdateQueryParams {
   project?: NameOrId
   vpc?: NameOrId
 }
 
-export interface VpcSubnetDeleteV1PathParams {
+export interface VpcSubnetDeletePathParams {
   subnet: NameOrId
 }
 
-export interface VpcSubnetDeleteV1QueryParams {
-  organization?: NameOrId
+export interface VpcSubnetDeleteQueryParams {
   project?: NameOrId
   vpc?: NameOrId
 }
 
-export interface VpcSubnetListNetworkInterfacesV1PathParams {
+export interface VpcSubnetListNetworkInterfacesPathParams {
   subnet: NameOrId
 }
 
-export interface VpcSubnetListNetworkInterfacesV1QueryParams {
+export interface VpcSubnetListNetworkInterfacesQueryParams {
   limit?: number
-  organization?: NameOrId
   pageToken?: string
   project?: NameOrId
   sortBy?: NameOrIdSortMode
   vpc?: NameOrId
 }
 
-export interface VpcListV1QueryParams {
+export interface VpcListQueryParams {
   limit?: number
-  organization?: NameOrId
   pageToken?: string
   project?: NameOrId
   sortBy?: NameOrIdSortMode
 }
 
-export interface VpcCreateV1QueryParams {
-  organization?: NameOrId
+export interface VpcCreateQueryParams {
   project?: NameOrId
 }
 
-export interface VpcViewV1PathParams {
+export interface VpcViewPathParams {
   vpc: NameOrId
 }
 
-export interface VpcViewV1QueryParams {
-  organization?: NameOrId
+export interface VpcViewQueryParams {
   project?: NameOrId
 }
 
-export interface VpcUpdateV1PathParams {
+export interface VpcUpdatePathParams {
   vpc: NameOrId
 }
 
-export interface VpcUpdateV1QueryParams {
-  organization?: NameOrId
+export interface VpcUpdateQueryParams {
   project?: NameOrId
 }
 
-export interface VpcDeleteV1PathParams {
+export interface VpcDeletePathParams {
   vpc: NameOrId
 }
 
-export interface VpcDeleteV1QueryParams {
-  organization?: NameOrId
+export interface VpcDeleteQueryParams {
   project?: NameOrId
 }
 
 export type ApiViewByIdMethods = Pick<
   InstanceType<typeof Api>['methods'],
-  | 'diskViewById'
-  | 'imageViewById'
-  | 'instanceViewById'
-  | 'instanceNetworkInterfaceViewById'
-  | 'organizationViewById'
-  | 'projectViewById'
-  | 'snapshotViewById'
-  | 'vpcRouterRouteViewById'
-  | 'vpcRouterViewById'
-  | 'vpcSubnetViewById'
-  | 'vpcViewById'
-  | 'systemImageViewById'
-  | 'ipPoolViewById'
-  | 'siloViewById'
+  'systemImageViewById'
 >
 
 export type ApiListMethods = Pick<
   InstanceType<typeof Api>['methods'],
-  | 'groupList'
-  | 'organizationList'
-  | 'projectList'
+  | 'systemImageList'
   | 'diskList'
   | 'diskMetricsList'
+  | 'groupList'
   | 'imageList'
   | 'instanceList'
   | 'instanceDiskList'
   | 'instanceExternalIpList'
+  | 'currentUserSshKeyList'
   | 'instanceNetworkInterfaceList'
+  | 'projectList'
   | 'snapshotList'
-  | 'vpcList'
-  | 'vpcRouterList'
-  | 'vpcRouterRouteList'
-  | 'vpcSubnetList'
-  | 'roleList'
-  | 'sessionSshkeyList'
   | 'certificateList'
   | 'physicalDiskList'
   | 'rackList'
   | 'sledList'
   | 'sledPhysicalDiskList'
-  | 'systemImageList'
+  | 'siloIdentityProviderList'
   | 'ipPoolList'
   | 'ipPoolRangeList'
   | 'ipPoolServiceRangeList'
+  | 'roleList'
   | 'sagaList'
   | 'siloList'
-  | 'siloIdentityProviderList'
-  | 'siloUsersList'
-  | 'systemUserList'
-  | 'userList'
-  | 'diskListV1'
-  | 'diskMetricsListV1'
-  | 'groupListV1'
-  | 'imageListV1'
-  | 'instanceListV1'
-  | 'instanceDiskListV1'
-  | 'instanceExternalIpListV1'
-  | 'instanceNetworkInterfaceListV1'
-  | 'organizationListV1'
-  | 'projectListV1'
-  | 'snapshotListV1'
-  | 'certificateListV1'
-  | 'physicalDiskListV1'
-  | 'rackListV1'
-  | 'sledListV1'
-  | 'sledPhysicalDiskListV1'
-  | 'siloIdentityProviderListV1'
-  | 'ipPoolListV1'
-  | 'ipPoolRangeListV1'
-  | 'ipPoolServiceRangeListV1'
-  | 'sagaListV1'
-  | 'siloListV1'
   | 'systemComponentVersionList'
   | 'updateDeploymentsList'
   | 'systemUpdateList'
   | 'systemUpdateComponentsList'
-  | 'siloUsersListV1'
-  | 'userListV1'
-  | 'vpcRouterRouteListV1'
-  | 'vpcRouterListV1'
-  | 'vpcSubnetListV1'
-  | 'vpcListV1'
+  | 'siloUserList'
+  | 'userBuiltinList'
+  | 'userList'
+  | 'vpcRouterRouteList'
+  | 'vpcRouterList'
+  | 'vpcSubnetList'
+  | 'vpcList'
 >
 
 type EmptyObj = Record<string, never>
 export class Api extends HttpClient {
   methods = {
-    /**
-     * Fetch a disk by id
-     */
-    diskViewById: (
-      { path }: { path: DiskViewByIdPathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<Disk>({
-        path: `/by-id/disks/${path.id}`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * Fetch an image by id
-     */
-    imageViewById: (
-      { path }: { path: ImageViewByIdPathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<Image>({
-        path: `/by-id/images/${path.id}`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * Fetch an instance by id
-     */
-    instanceViewById: (
-      { path }: { path: InstanceViewByIdPathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<Instance>({
-        path: `/by-id/instances/${path.id}`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * Fetch a network interface by id
-     */
-    instanceNetworkInterfaceViewById: (
-      { path }: { path: InstanceNetworkInterfaceViewByIdPathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<NetworkInterface>({
-        path: `/by-id/network-interfaces/${path.id}`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * Fetch an organization by id
-     */
-    organizationViewById: (
-      { path }: { path: OrganizationViewByIdPathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<Organization>({
-        path: `/by-id/organizations/${path.id}`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * Fetch a project by id
-     */
-    projectViewById: (
-      { path }: { path: ProjectViewByIdPathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<Project>({
-        path: `/by-id/projects/${path.id}`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * Fetch a snapshot by id
-     */
-    snapshotViewById: (
-      { path }: { path: SnapshotViewByIdPathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<Snapshot>({
-        path: `/by-id/snapshots/${path.id}`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * Fetch a route by id
-     */
-    vpcRouterRouteViewById: (
-      { path }: { path: VpcRouterRouteViewByIdPathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<RouterRoute>({
-        path: `/by-id/vpc-router-routes/${path.id}`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * Get a router by id
-     */
-    vpcRouterViewById: (
-      { path }: { path: VpcRouterViewByIdPathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<VpcRouter>({
-        path: `/by-id/vpc-routers/${path.id}`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * Fetch a subnet by id
-     */
-    vpcSubnetViewById: (
-      { path }: { path: VpcSubnetViewByIdPathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<VpcSubnet>({
-        path: `/by-id/vpc-subnets/${path.id}`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * Fetch a VPC
-     */
-    vpcViewById: (
-      { path }: { path: VpcViewByIdPathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<Vpc>({
-        path: `/by-id/vpcs/${path.id}`,
-        method: 'GET',
-        ...params,
-      })
-    },
     /**
      * Start an OAuth 2.0 Device Authorization Grant
      */
@@ -3841,20 +2709,6 @@ export class Api extends HttpClient {
       return this.request<void>({
         path: `/device/token`,
         method: 'POST',
-        ...params,
-      })
-    },
-    /**
-     * List groups
-     */
-    groupList: (
-      { query = {} }: { query?: GroupListQueryParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<GroupResultsPage>({
-        path: `/groups`,
-        method: 'GET',
-        query,
         ...params,
       })
     },
@@ -3911,1098 +2765,6 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * List organizations
-     */
-    organizationList: (
-      { query = {} }: { query?: OrganizationListQueryParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<OrganizationResultsPage>({
-        path: `/organizations`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Create an organization
-     */
-    organizationCreate: (
-      { body }: { body: OrganizationCreate },
-      params: RequestParams = {}
-    ) => {
-      return this.request<Organization>({
-        path: `/organizations`,
-        method: 'POST',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * Fetch an organization
-     */
-    organizationView: (
-      { path }: { path: OrganizationViewPathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<Organization>({
-        path: `/organizations/${path.orgName}`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * Update an organization
-     */
-    organizationUpdate: (
-      { path, body }: { path: OrganizationUpdatePathParams; body: OrganizationUpdate },
-      params: RequestParams = {}
-    ) => {
-      return this.request<Organization>({
-        path: `/organizations/${path.orgName}`,
-        method: 'PUT',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * Delete an organization
-     */
-    organizationDelete: (
-      { path }: { path: OrganizationDeletePathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<void>({
-        path: `/organizations/${path.orgName}`,
-        method: 'DELETE',
-        ...params,
-      })
-    },
-    /**
-     * Fetch an organization's IAM policy
-     */
-    organizationPolicyView: (
-      { path }: { path: OrganizationPolicyViewPathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<OrganizationRolePolicy>({
-        path: `/organizations/${path.orgName}/policy`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * Update an organization's IAM policy
-     */
-    organizationPolicyUpdate: (
-      {
-        path,
-        body,
-      }: { path: OrganizationPolicyUpdatePathParams; body: OrganizationRolePolicy },
-      params: RequestParams = {}
-    ) => {
-      return this.request<OrganizationRolePolicy>({
-        path: `/organizations/${path.orgName}/policy`,
-        method: 'PUT',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * List projects
-     */
-    projectList: (
-      { path, query = {} }: { path: ProjectListPathParams; query?: ProjectListQueryParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<ProjectResultsPage>({
-        path: `/organizations/${path.orgName}/projects`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Create a project
-     */
-    projectCreate: (
-      { path, body }: { path: ProjectCreatePathParams; body: ProjectCreate },
-      params: RequestParams = {}
-    ) => {
-      return this.request<Project>({
-        path: `/organizations/${path.orgName}/projects`,
-        method: 'POST',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * Fetch a project
-     */
-    projectView: (
-      { path }: { path: ProjectViewPathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<Project>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * Update a project
-     */
-    projectUpdate: (
-      { path, body }: { path: ProjectUpdatePathParams; body: ProjectUpdate },
-      params: RequestParams = {}
-    ) => {
-      return this.request<Project>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}`,
-        method: 'PUT',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * Delete a project
-     */
-    projectDelete: (
-      { path }: { path: ProjectDeletePathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<void>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}`,
-        method: 'DELETE',
-        ...params,
-      })
-    },
-    /**
-     * List disks
-     */
-    diskList: (
-      { path, query = {} }: { path: DiskListPathParams; query?: DiskListQueryParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<DiskResultsPage>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/disks`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Use `POST /v1/disks` instead
-     */
-    diskCreate: (
-      { path, body }: { path: DiskCreatePathParams; body: DiskCreate },
-      params: RequestParams = {}
-    ) => {
-      return this.request<Disk>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/disks`,
-        method: 'POST',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * Fetch a disk
-     */
-    diskView: ({ path }: { path: DiskViewPathParams }, params: RequestParams = {}) => {
-      return this.request<Disk>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/disks/${path.diskName}`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * Use `DELETE /v1/disks/{disk}` instead
-     */
-    diskDelete: ({ path }: { path: DiskDeletePathParams }, params: RequestParams = {}) => {
-      return this.request<void>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/disks/${path.diskName}`,
-        method: 'DELETE',
-        ...params,
-      })
-    },
-    /**
-     * Fetch disk metrics
-     */
-    diskMetricsList: (
-      {
-        path,
-        query = {},
-      }: { path: DiskMetricsListPathParams; query?: DiskMetricsListQueryParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<MeasurementResultsPage>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/disks/${path.diskName}/metrics/${path.metricName}`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * List images
-     */
-    imageList: (
-      { path, query = {} }: { path: ImageListPathParams; query?: ImageListQueryParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<ImageResultsPage>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/images`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Create an image
-     */
-    imageCreate: (
-      { path, body }: { path: ImageCreatePathParams; body: ImageCreate },
-      params: RequestParams = {}
-    ) => {
-      return this.request<Image>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/images`,
-        method: 'POST',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * Fetch an image
-     */
-    imageView: ({ path }: { path: ImageViewPathParams }, params: RequestParams = {}) => {
-      return this.request<Image>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/images/${path.imageName}`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * Delete an image
-     */
-    imageDelete: (
-      { path }: { path: ImageDeletePathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<void>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/images/${path.imageName}`,
-        method: 'DELETE',
-        ...params,
-      })
-    },
-    /**
-     * List instances
-     */
-    instanceList: (
-      {
-        path,
-        query = {},
-      }: { path: InstanceListPathParams; query?: InstanceListQueryParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<InstanceResultsPage>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/instances`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Create an instance
-     */
-    instanceCreate: (
-      { path, body }: { path: InstanceCreatePathParams; body: InstanceCreate },
-      params: RequestParams = {}
-    ) => {
-      return this.request<Instance>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/instances`,
-        method: 'POST',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * Fetch an instance
-     */
-    instanceView: (
-      { path }: { path: InstanceViewPathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<Instance>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/instances/${path.instanceName}`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * Delete an instance
-     */
-    instanceDelete: (
-      { path }: { path: InstanceDeletePathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<void>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/instances/${path.instanceName}`,
-        method: 'DELETE',
-        ...params,
-      })
-    },
-    /**
-     * List an instance's disks
-     */
-    instanceDiskList: (
-      {
-        path,
-        query = {},
-      }: { path: InstanceDiskListPathParams; query?: InstanceDiskListQueryParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<DiskResultsPage>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/instances/${path.instanceName}/disks`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Attach a disk to an instance
-     */
-    instanceDiskAttach: (
-      { path, body }: { path: InstanceDiskAttachPathParams; body: DiskIdentifier },
-      params: RequestParams = {}
-    ) => {
-      return this.request<Disk>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/instances/${path.instanceName}/disks/attach`,
-        method: 'POST',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * Detach a disk from an instance
-     */
-    instanceDiskDetach: (
-      { path, body }: { path: InstanceDiskDetachPathParams; body: DiskIdentifier },
-      params: RequestParams = {}
-    ) => {
-      return this.request<Disk>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/instances/${path.instanceName}/disks/detach`,
-        method: 'POST',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * List external IP addresses
-     */
-    instanceExternalIpList: (
-      { path }: { path: InstanceExternalIpListPathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<ExternalIpResultsPage>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/instances/${path.instanceName}/external-ips`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * Migrate an instance
-     */
-    instanceMigrate: (
-      { path, body }: { path: InstanceMigratePathParams; body: InstanceMigrate },
-      params: RequestParams = {}
-    ) => {
-      return this.request<Instance>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/instances/${path.instanceName}/migrate`,
-        method: 'POST',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * List network interfaces
-     */
-    instanceNetworkInterfaceList: (
-      {
-        path,
-        query = {},
-      }: {
-        path: InstanceNetworkInterfaceListPathParams
-        query?: InstanceNetworkInterfaceListQueryParams
-      },
-      params: RequestParams = {}
-    ) => {
-      return this.request<NetworkInterfaceResultsPage>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/instances/${path.instanceName}/network-interfaces`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Create a network interface
-     */
-    instanceNetworkInterfaceCreate: (
-      {
-        path,
-        body,
-      }: { path: InstanceNetworkInterfaceCreatePathParams; body: NetworkInterfaceCreate },
-      params: RequestParams = {}
-    ) => {
-      return this.request<NetworkInterface>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/instances/${path.instanceName}/network-interfaces`,
-        method: 'POST',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * Fetch a network interface
-     */
-    instanceNetworkInterfaceView: (
-      { path }: { path: InstanceNetworkInterfaceViewPathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<NetworkInterface>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/instances/${path.instanceName}/network-interfaces/${path.interfaceName}`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * Update a network interface
-     */
-    instanceNetworkInterfaceUpdate: (
-      {
-        path,
-        body,
-      }: { path: InstanceNetworkInterfaceUpdatePathParams; body: NetworkInterfaceUpdate },
-      params: RequestParams = {}
-    ) => {
-      return this.request<NetworkInterface>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/instances/${path.instanceName}/network-interfaces/${path.interfaceName}`,
-        method: 'PUT',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * Delete a network interface
-     */
-    instanceNetworkInterfaceDelete: (
-      { path }: { path: InstanceNetworkInterfaceDeletePathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<void>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/instances/${path.instanceName}/network-interfaces/${path.interfaceName}`,
-        method: 'DELETE',
-        ...params,
-      })
-    },
-    /**
-     * Reboot an instance
-     */
-    instanceReboot: (
-      { path }: { path: InstanceRebootPathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<Instance>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/instances/${path.instanceName}/reboot`,
-        method: 'POST',
-        ...params,
-      })
-    },
-    /**
-     * Fetch an instance's serial console
-     */
-    instanceSerialConsole: (
-      {
-        path,
-        query = {},
-      }: {
-        path: InstanceSerialConsolePathParams
-        query?: InstanceSerialConsoleQueryParams
-      },
-      params: RequestParams = {}
-    ) => {
-      return this.request<InstanceSerialConsoleData>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/instances/${path.instanceName}/serial-console`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Connect to an instance's serial console
-     */
-    instanceSerialConsoleStream: (
-      { path }: { path: InstanceSerialConsoleStreamPathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<void>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/instances/${path.instanceName}/serial-console/stream`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * Boot an instance
-     */
-    instanceStart: (
-      { path }: { path: InstanceStartPathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<Instance>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/instances/${path.instanceName}/start`,
-        method: 'POST',
-        ...params,
-      })
-    },
-    /**
-     * Halt an instance
-     */
-    instanceStop: (
-      { path }: { path: InstanceStopPathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<Instance>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/instances/${path.instanceName}/stop`,
-        method: 'POST',
-        ...params,
-      })
-    },
-    /**
-     * Fetch a project's IAM policy
-     */
-    projectPolicyView: (
-      { path }: { path: ProjectPolicyViewPathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<ProjectRolePolicy>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/policy`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * Update a project's IAM policy
-     */
-    projectPolicyUpdate: (
-      { path, body }: { path: ProjectPolicyUpdatePathParams; body: ProjectRolePolicy },
-      params: RequestParams = {}
-    ) => {
-      return this.request<ProjectRolePolicy>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/policy`,
-        method: 'PUT',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * List snapshots
-     */
-    snapshotList: (
-      {
-        path,
-        query = {},
-      }: { path: SnapshotListPathParams; query?: SnapshotListQueryParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<SnapshotResultsPage>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/snapshots`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Create a snapshot
-     */
-    snapshotCreate: (
-      { path, body }: { path: SnapshotCreatePathParams; body: SnapshotCreate },
-      params: RequestParams = {}
-    ) => {
-      return this.request<Snapshot>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/snapshots`,
-        method: 'POST',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * Fetch a snapshot
-     */
-    snapshotView: (
-      { path }: { path: SnapshotViewPathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<Snapshot>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/snapshots/${path.snapshotName}`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * Delete a snapshot
-     */
-    snapshotDelete: (
-      { path }: { path: SnapshotDeletePathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<void>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/snapshots/${path.snapshotName}`,
-        method: 'DELETE',
-        ...params,
-      })
-    },
-    /**
-     * List VPCs
-     */
-    vpcList: (
-      { path, query = {} }: { path: VpcListPathParams; query?: VpcListQueryParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<VpcResultsPage>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/vpcs`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Create a VPC
-     */
-    vpcCreate: (
-      { path, body }: { path: VpcCreatePathParams; body: VpcCreate },
-      params: RequestParams = {}
-    ) => {
-      return this.request<Vpc>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/vpcs`,
-        method: 'POST',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * Fetch a VPC
-     */
-    vpcView: ({ path }: { path: VpcViewPathParams }, params: RequestParams = {}) => {
-      return this.request<Vpc>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/vpcs/${path.vpcName}`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * Update a VPC
-     */
-    vpcUpdate: (
-      { path, body }: { path: VpcUpdatePathParams; body: VpcUpdate },
-      params: RequestParams = {}
-    ) => {
-      return this.request<Vpc>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/vpcs/${path.vpcName}`,
-        method: 'PUT',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * Delete a VPC
-     */
-    vpcDelete: ({ path }: { path: VpcDeletePathParams }, params: RequestParams = {}) => {
-      return this.request<void>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/vpcs/${path.vpcName}`,
-        method: 'DELETE',
-        ...params,
-      })
-    },
-    /**
-     * List firewall rules
-     */
-    vpcFirewallRulesView: (
-      { path }: { path: VpcFirewallRulesViewPathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<VpcFirewallRules>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/vpcs/${path.vpcName}/firewall/rules`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * Replace firewall rules
-     */
-    vpcFirewallRulesUpdate: (
-      {
-        path,
-        body,
-      }: { path: VpcFirewallRulesUpdatePathParams; body: VpcFirewallRuleUpdateParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<VpcFirewallRules>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/vpcs/${path.vpcName}/firewall/rules`,
-        method: 'PUT',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * List routers
-     */
-    vpcRouterList: (
-      {
-        path,
-        query = {},
-      }: { path: VpcRouterListPathParams; query?: VpcRouterListQueryParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<VpcRouterResultsPage>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/vpcs/${path.vpcName}/routers`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Create a router
-     */
-    vpcRouterCreate: (
-      { path, body }: { path: VpcRouterCreatePathParams; body: VpcRouterCreate },
-      params: RequestParams = {}
-    ) => {
-      return this.request<VpcRouter>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/vpcs/${path.vpcName}/routers`,
-        method: 'POST',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * Get a router
-     */
-    vpcRouterView: (
-      { path }: { path: VpcRouterViewPathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<VpcRouter>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/vpcs/${path.vpcName}/routers/${path.routerName}`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * Update a router
-     */
-    vpcRouterUpdate: (
-      { path, body }: { path: VpcRouterUpdatePathParams; body: VpcRouterUpdate },
-      params: RequestParams = {}
-    ) => {
-      return this.request<VpcRouter>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/vpcs/${path.vpcName}/routers/${path.routerName}`,
-        method: 'PUT',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * Delete a router
-     */
-    vpcRouterDelete: (
-      { path }: { path: VpcRouterDeletePathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<void>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/vpcs/${path.vpcName}/routers/${path.routerName}`,
-        method: 'DELETE',
-        ...params,
-      })
-    },
-    /**
-     * List routes
-     */
-    vpcRouterRouteList: (
-      {
-        path,
-        query = {},
-      }: { path: VpcRouterRouteListPathParams; query?: VpcRouterRouteListQueryParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<RouterRouteResultsPage>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/vpcs/${path.vpcName}/routers/${path.routerName}/routes`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Create a router
-     */
-    vpcRouterRouteCreate: (
-      { path, body }: { path: VpcRouterRouteCreatePathParams; body: RouterRouteCreate },
-      params: RequestParams = {}
-    ) => {
-      return this.request<RouterRoute>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/vpcs/${path.vpcName}/routers/${path.routerName}/routes`,
-        method: 'POST',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * Fetch a route
-     */
-    vpcRouterRouteView: (
-      { path }: { path: VpcRouterRouteViewPathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<RouterRoute>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/vpcs/${path.vpcName}/routers/${path.routerName}/routes/${path.routeName}`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * Update a route
-     */
-    vpcRouterRouteUpdate: (
-      { path, body }: { path: VpcRouterRouteUpdatePathParams; body: RouterRouteUpdate },
-      params: RequestParams = {}
-    ) => {
-      return this.request<RouterRoute>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/vpcs/${path.vpcName}/routers/${path.routerName}/routes/${path.routeName}`,
-        method: 'PUT',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * Delete a route
-     */
-    vpcRouterRouteDelete: (
-      { path }: { path: VpcRouterRouteDeletePathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<void>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/vpcs/${path.vpcName}/routers/${path.routerName}/routes/${path.routeName}`,
-        method: 'DELETE',
-        ...params,
-      })
-    },
-    /**
-     * List subnets
-     */
-    vpcSubnetList: (
-      {
-        path,
-        query = {},
-      }: { path: VpcSubnetListPathParams; query?: VpcSubnetListQueryParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<VpcSubnetResultsPage>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/vpcs/${path.vpcName}/subnets`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Create a subnet
-     */
-    vpcSubnetCreate: (
-      { path, body }: { path: VpcSubnetCreatePathParams; body: VpcSubnetCreate },
-      params: RequestParams = {}
-    ) => {
-      return this.request<VpcSubnet>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/vpcs/${path.vpcName}/subnets`,
-        method: 'POST',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * Fetch a subnet
-     */
-    vpcSubnetView: (
-      { path }: { path: VpcSubnetViewPathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<VpcSubnet>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/vpcs/${path.vpcName}/subnets/${path.subnetName}`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * Update a subnet
-     */
-    vpcSubnetUpdate: (
-      { path, body }: { path: VpcSubnetUpdatePathParams; body: VpcSubnetUpdate },
-      params: RequestParams = {}
-    ) => {
-      return this.request<VpcSubnet>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/vpcs/${path.vpcName}/subnets/${path.subnetName}`,
-        method: 'PUT',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * Delete a subnet
-     */
-    vpcSubnetDelete: (
-      { path }: { path: VpcSubnetDeletePathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<void>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/vpcs/${path.vpcName}/subnets/${path.subnetName}`,
-        method: 'DELETE',
-        ...params,
-      })
-    },
-    /**
-     * List network interfaces for a VPC subnet
-     */
-    vpcSubnetListNetworkInterfaces: (
-      {
-        path,
-        query = {},
-      }: {
-        path: VpcSubnetListNetworkInterfacesPathParams
-        query?: VpcSubnetListNetworkInterfacesQueryParams
-      },
-      params: RequestParams = {}
-    ) => {
-      return this.request<NetworkInterfaceResultsPage>({
-        path: `/organizations/${path.orgName}/projects/${path.projectName}/vpcs/${path.vpcName}/subnets/${path.subnetName}/network-interfaces`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Fetch the current silo's IAM policy
-     */
-    policyView: (_: EmptyObj, params: RequestParams = {}) => {
-      return this.request<SiloRolePolicy>({
-        path: `/policy`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * Update the current silo's IAM policy
-     */
-    policyUpdate: ({ body }: { body: SiloRolePolicy }, params: RequestParams = {}) => {
-      return this.request<SiloRolePolicy>({
-        path: `/policy`,
-        method: 'PUT',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * List built-in roles
-     */
-    roleList: (
-      { query = {} }: { query?: RoleListQueryParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<RoleResultsPage>({
-        path: `/roles`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Fetch a built-in role
-     */
-    roleView: ({ path }: { path: RoleViewPathParams }, params: RequestParams = {}) => {
-      return this.request<Role>({
-        path: `/roles/${path.roleName}`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * Fetch the user associated with the current session
-     */
-    sessionMe: (_: EmptyObj, params: RequestParams = {}) => {
-      return this.request<User>({
-        path: `/session/me`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * Fetch the silo groups the current user belongs to
-     */
-    sessionMeGroups: (
-      { query = {} }: { query?: SessionMeGroupsQueryParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<GroupResultsPage>({
-        path: `/session/me/groups`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * List SSH public keys
-     */
-    sessionSshkeyList: (
-      { query = {} }: { query?: SessionSshkeyListQueryParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<SshKeyResultsPage>({
-        path: `/session/me/sshkeys`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Create an SSH public key
-     */
-    sessionSshkeyCreate: ({ body }: { body: SshKeyCreate }, params: RequestParams = {}) => {
-      return this.request<SshKey>({
-        path: `/session/me/sshkeys`,
-        method: 'POST',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * Fetch an SSH public key
-     */
-    sessionSshkeyView: (
-      { path }: { path: SessionSshkeyViewPathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<SshKey>({
-        path: `/session/me/sshkeys/${path.sshKeyName}`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * Delete an SSH public key
-     */
-    sessionSshkeyDelete: (
-      { path }: { path: SessionSshkeyDeletePathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<void>({
-        path: `/session/me/sshkeys/${path.sshKeyName}`,
-        method: 'DELETE',
-        ...params,
-      })
-    },
-    /**
      * Fetch a system-wide image by id
      */
     systemImageViewById: (
@@ -5012,165 +2774,6 @@ export class Api extends HttpClient {
       return this.request<GlobalImage>({
         path: `/system/by-id/images/${path.id}`,
         method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * Fetch an IP pool by id
-     */
-    ipPoolViewById: (
-      { path }: { path: IpPoolViewByIdPathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<IpPool>({
-        path: `/system/by-id/ip-pools/${path.id}`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * Fetch a silo by id
-     */
-    siloViewById: (
-      { path }: { path: SiloViewByIdPathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<Silo>({
-        path: `/system/by-id/silos/${path.id}`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * List system-wide certificates
-     */
-    certificateList: (
-      { query = {} }: { query?: CertificateListQueryParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<CertificateResultsPage>({
-        path: `/system/certificates`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Create a new system-wide x.509 certificate.
-     */
-    certificateCreate: (
-      { body }: { body: CertificateCreate },
-      params: RequestParams = {}
-    ) => {
-      return this.request<Certificate>({
-        path: `/system/certificates`,
-        method: 'POST',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * Fetch a certificate
-     */
-    certificateView: (
-      { path }: { path: CertificateViewPathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<Certificate>({
-        path: `/system/certificates/${path.certificate}`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * Delete a certificate
-     */
-    certificateDelete: (
-      { path }: { path: CertificateDeletePathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<void>({
-        path: `/system/certificates/${path.certificate}`,
-        method: 'DELETE',
-        ...params,
-      })
-    },
-    /**
-     * List physical disks
-     */
-    physicalDiskList: (
-      { query = {} }: { query?: PhysicalDiskListQueryParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<PhysicalDiskResultsPage>({
-        path: `/system/hardware/disks`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * List racks
-     */
-    rackList: (
-      { query = {} }: { query?: RackListQueryParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<RackResultsPage>({
-        path: `/system/hardware/racks`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Fetch a rack
-     */
-    rackView: ({ path }: { path: RackViewPathParams }, params: RequestParams = {}) => {
-      return this.request<Rack>({
-        path: `/system/hardware/racks/${path.rackId}`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * List sleds
-     */
-    sledList: (
-      { query = {} }: { query?: SledListQueryParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<SledResultsPage>({
-        path: `/system/hardware/sleds`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Fetch a sled
-     */
-    sledView: ({ path }: { path: SledViewPathParams }, params: RequestParams = {}) => {
-      return this.request<Sled>({
-        path: `/system/hardware/sleds/${path.sledId}`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * List physical disks attached to sleds
-     */
-    sledPhysicalDiskList: (
-      {
-        path,
-        query = {},
-      }: { path: SledPhysicalDiskListPathParams; query?: SledPhysicalDiskListQueryParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<PhysicalDiskResultsPage>({
-        path: `/system/hardware/sleds/${path.sledId}/disks`,
-        method: 'GET',
-        query,
         ...params,
       })
     },
@@ -5229,476 +2832,10 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * List IP pools
-     */
-    ipPoolList: (
-      { query = {} }: { query?: IpPoolListQueryParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<IpPoolResultsPage>({
-        path: `/system/ip-pools`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Create an IP pool
-     */
-    ipPoolCreate: ({ body }: { body: IpPoolCreate }, params: RequestParams = {}) => {
-      return this.request<IpPool>({
-        path: `/system/ip-pools`,
-        method: 'POST',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * Fetch an IP pool
-     */
-    ipPoolView: ({ path }: { path: IpPoolViewPathParams }, params: RequestParams = {}) => {
-      return this.request<IpPool>({
-        path: `/system/ip-pools/${path.poolName}`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * Update an IP Pool
-     */
-    ipPoolUpdate: (
-      { path, body }: { path: IpPoolUpdatePathParams; body: IpPoolUpdate },
-      params: RequestParams = {}
-    ) => {
-      return this.request<IpPool>({
-        path: `/system/ip-pools/${path.poolName}`,
-        method: 'PUT',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * Delete an IP Pool
-     */
-    ipPoolDelete: (
-      { path }: { path: IpPoolDeletePathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<void>({
-        path: `/system/ip-pools/${path.poolName}`,
-        method: 'DELETE',
-        ...params,
-      })
-    },
-    /**
-     * List ranges for an IP pool
-     */
-    ipPoolRangeList: (
-      {
-        path,
-        query = {},
-      }: { path: IpPoolRangeListPathParams; query?: IpPoolRangeListQueryParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<IpPoolRangeResultsPage>({
-        path: `/system/ip-pools/${path.poolName}/ranges`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Add a range to an IP pool
-     */
-    ipPoolRangeAdd: (
-      { path, body }: { path: IpPoolRangeAddPathParams; body: IpRange },
-      params: RequestParams = {}
-    ) => {
-      return this.request<IpPoolRange>({
-        path: `/system/ip-pools/${path.poolName}/ranges/add`,
-        method: 'POST',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * Remove a range from an IP pool
-     */
-    ipPoolRangeRemove: (
-      { path, body }: { path: IpPoolRangeRemovePathParams; body: IpRange },
-      params: RequestParams = {}
-    ) => {
-      return this.request<void>({
-        path: `/system/ip-pools/${path.poolName}/ranges/remove`,
-        method: 'POST',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * Fetch the IP pool used for Oxide services.
-     */
-    ipPoolServiceView: (_: EmptyObj, params: RequestParams = {}) => {
-      return this.request<IpPool>({
-        path: `/system/ip-pools-service`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * List ranges for the IP pool used for Oxide services.
-     */
-    ipPoolServiceRangeList: (
-      { query = {} }: { query?: IpPoolServiceRangeListQueryParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<IpPoolRangeResultsPage>({
-        path: `/system/ip-pools-service/ranges`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Add a range to an IP pool used for Oxide services.
-     */
-    ipPoolServiceRangeAdd: ({ body }: { body: IpRange }, params: RequestParams = {}) => {
-      return this.request<IpPoolRange>({
-        path: `/system/ip-pools-service/ranges/add`,
-        method: 'POST',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * Remove a range from an IP pool used for Oxide services.
-     */
-    ipPoolServiceRangeRemove: ({ body }: { body: IpRange }, params: RequestParams = {}) => {
-      return this.request<void>({
-        path: `/system/ip-pools-service/ranges/remove`,
-        method: 'POST',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * Access metrics data
-     */
-    systemMetric: (
-      {
-        path,
-        query = {},
-      }: { path: SystemMetricPathParams; query?: SystemMetricQueryParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<MeasurementResultsPage>({
-        path: `/system/metrics/${path.metricName}`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Fetch the top-level IAM policy
-     */
-    systemPolicyView: (_: EmptyObj, params: RequestParams = {}) => {
-      return this.request<FleetRolePolicy>({
-        path: `/system/policy`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * Update the top-level IAM policy
-     */
-    systemPolicyUpdate: (
-      { body }: { body: FleetRolePolicy },
-      params: RequestParams = {}
-    ) => {
-      return this.request<FleetRolePolicy>({
-        path: `/system/policy`,
-        method: 'PUT',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * List sagas
-     */
-    sagaList: (
-      { query = {} }: { query?: SagaListQueryParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<SagaResultsPage>({
-        path: `/system/sagas`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Fetch a saga
-     */
-    sagaView: ({ path }: { path: SagaViewPathParams }, params: RequestParams = {}) => {
-      return this.request<Saga>({
-        path: `/system/sagas/${path.sagaId}`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * List silos
-     */
-    siloList: (
-      { query = {} }: { query?: SiloListQueryParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<SiloResultsPage>({
-        path: `/system/silos`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Create a silo
-     */
-    siloCreate: ({ body }: { body: SiloCreate }, params: RequestParams = {}) => {
-      return this.request<Silo>({
-        path: `/system/silos`,
-        method: 'POST',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * Fetch a silo
-     */
-    siloView: ({ path }: { path: SiloViewPathParams }, params: RequestParams = {}) => {
-      return this.request<Silo>({
-        path: `/system/silos/${path.siloName}`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * Delete a silo
-     */
-    siloDelete: ({ path }: { path: SiloDeletePathParams }, params: RequestParams = {}) => {
-      return this.request<void>({
-        path: `/system/silos/${path.siloName}`,
-        method: 'DELETE',
-        ...params,
-      })
-    },
-    /**
-     * List a silo's IDPs
-     */
-    siloIdentityProviderList: (
-      {
-        path,
-        query = {},
-      }: {
-        path: SiloIdentityProviderListPathParams
-        query?: SiloIdentityProviderListQueryParams
-      },
-      params: RequestParams = {}
-    ) => {
-      return this.request<IdentityProviderResultsPage>({
-        path: `/system/silos/${path.siloName}/identity-providers`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Create a user
-     */
-    localIdpUserCreate: (
-      { path, body }: { path: LocalIdpUserCreatePathParams; body: UserCreate },
-      params: RequestParams = {}
-    ) => {
-      return this.request<User>({
-        path: `/system/silos/${path.siloName}/identity-providers/local/users`,
-        method: 'POST',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * Delete a user
-     */
-    localIdpUserDelete: (
-      { path }: { path: LocalIdpUserDeletePathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<void>({
-        path: `/system/silos/${path.siloName}/identity-providers/local/users/${path.userId}`,
-        method: 'DELETE',
-        ...params,
-      })
-    },
-    /**
-     * Set or invalidate a user's password
-     */
-    localIdpUserSetPassword: (
-      { path, body }: { path: LocalIdpUserSetPasswordPathParams; body: UserPassword },
-      params: RequestParams = {}
-    ) => {
-      return this.request<void>({
-        path: `/system/silos/${path.siloName}/identity-providers/local/users/${path.userId}/set-password`,
-        method: 'POST',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * Create a SAML IDP
-     */
-    samlIdentityProviderCreate: (
-      {
-        path,
-        body,
-      }: { path: SamlIdentityProviderCreatePathParams; body: SamlIdentityProviderCreate },
-      params: RequestParams = {}
-    ) => {
-      return this.request<SamlIdentityProvider>({
-        path: `/system/silos/${path.siloName}/identity-providers/saml`,
-        method: 'POST',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * Fetch a SAML IDP
-     */
-    samlIdentityProviderView: (
-      { path }: { path: SamlIdentityProviderViewPathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<SamlIdentityProvider>({
-        path: `/system/silos/${path.siloName}/identity-providers/saml/${path.providerName}`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * Fetch a silo's IAM policy
-     */
-    siloPolicyView: (
-      { path }: { path: SiloPolicyViewPathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<SiloRolePolicy>({
-        path: `/system/silos/${path.siloName}/policy`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * Update a silo's IAM policy
-     */
-    siloPolicyUpdate: (
-      { path, body }: { path: SiloPolicyUpdatePathParams; body: SiloRolePolicy },
-      params: RequestParams = {}
-    ) => {
-      return this.request<SiloRolePolicy>({
-        path: `/system/silos/${path.siloName}/policy`,
-        method: 'PUT',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * List users in a silo
-     */
-    siloUsersList: (
-      {
-        path,
-        query = {},
-      }: { path: SiloUsersListPathParams; query?: SiloUsersListQueryParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<UserResultsPage>({
-        path: `/system/silos/${path.siloName}/users/all`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Fetch a user
-     */
-    siloUserView: (
-      { path }: { path: SiloUserViewPathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<User>({
-        path: `/system/silos/${path.siloName}/users/id/${path.userId}`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * List built-in users
-     */
-    systemUserList: (
-      { query = {} }: { query?: SystemUserListQueryParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<UserBuiltinResultsPage>({
-        path: `/system/user`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Fetch a built-in user
-     */
-    systemUserView: (
-      { path }: { path: SystemUserViewPathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<UserBuiltin>({
-        path: `/system/user/${path.userName}`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * List timeseries schema
-     */
-    timeseriesSchemaGet: (
-      { query = {} }: { query?: TimeseriesSchemaGetQueryParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<TimeseriesSchemaResultsPage>({
-        path: `/timeseries/schema`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * List users
-     */
-    userList: (
-      { query = {} }: { query?: UserListQueryParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<UserResultsPage>({
-        path: `/users`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
      * List disks
      */
-    diskListV1: (
-      { query = {} }: { query?: DiskListV1QueryParams },
+    diskList: (
+      { query = {} }: { query?: DiskListQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<DiskResultsPage>({
@@ -5711,8 +2848,8 @@ export class Api extends HttpClient {
     /**
      * Create a disk
      */
-    diskCreateV1: (
-      { query = {}, body }: { query?: DiskCreateV1QueryParams; body: DiskCreate },
+    diskCreate: (
+      { query = {}, body }: { query?: DiskCreateQueryParams; body: DiskCreate },
       params: RequestParams = {}
     ) => {
       return this.request<Disk>({
@@ -5726,8 +2863,8 @@ export class Api extends HttpClient {
     /**
      * Fetch a disk
      */
-    diskViewV1: (
-      { path, query = {} }: { path: DiskViewV1PathParams; query?: DiskViewV1QueryParams },
+    diskView: (
+      { path, query = {} }: { path: DiskViewPathParams; query?: DiskViewQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<Disk>({
@@ -5740,11 +2877,8 @@ export class Api extends HttpClient {
     /**
      * Delete a disk
      */
-    diskDeleteV1: (
-      {
-        path,
-        query = {},
-      }: { path: DiskDeleteV1PathParams; query?: DiskDeleteV1QueryParams },
+    diskDelete: (
+      { path, query = {} }: { path: DiskDeletePathParams; query?: DiskDeleteQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<void>({
@@ -5757,11 +2891,11 @@ export class Api extends HttpClient {
     /**
      * Fetch disk metrics
      */
-    diskMetricsListV1: (
+    diskMetricsList: (
       {
         path,
         query = {},
-      }: { path: DiskMetricsListV1PathParams; query?: DiskMetricsListV1QueryParams },
+      }: { path: DiskMetricsListPathParams; query?: DiskMetricsListQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<MeasurementResultsPage>({
@@ -5774,8 +2908,8 @@ export class Api extends HttpClient {
     /**
      * List groups
      */
-    groupListV1: (
-      { query = {} }: { query?: GroupListV1QueryParams },
+    groupList: (
+      { query = {} }: { query?: GroupListQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<GroupResultsPage>({
@@ -5798,8 +2932,8 @@ export class Api extends HttpClient {
     /**
      * List images
      */
-    imageListV1: (
-      { query = {} }: { query?: ImageListV1QueryParams },
+    imageList: (
+      { query = {} }: { query?: ImageListQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<ImageResultsPage>({
@@ -5812,8 +2946,8 @@ export class Api extends HttpClient {
     /**
      * Create an image
      */
-    imageCreateV1: (
-      { query = {}, body }: { query?: ImageCreateV1QueryParams; body: ImageCreate },
+    imageCreate: (
+      { query = {}, body }: { query?: ImageCreateQueryParams; body: ImageCreate },
       params: RequestParams = {}
     ) => {
       return this.request<Image>({
@@ -5827,8 +2961,8 @@ export class Api extends HttpClient {
     /**
      * Fetch an image
      */
-    imageViewV1: (
-      { path, query = {} }: { path: ImageViewV1PathParams; query?: ImageViewV1QueryParams },
+    imageView: (
+      { path, query = {} }: { path: ImageViewPathParams; query?: ImageViewQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<Image>({
@@ -5841,11 +2975,8 @@ export class Api extends HttpClient {
     /**
      * Delete an image
      */
-    imageDeleteV1: (
-      {
-        path,
-        query = {},
-      }: { path: ImageDeleteV1PathParams; query?: ImageDeleteV1QueryParams },
+    imageDelete: (
+      { path, query = {} }: { path: ImageDeletePathParams; query?: ImageDeleteQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<void>({
@@ -5858,8 +2989,8 @@ export class Api extends HttpClient {
     /**
      * List instances
      */
-    instanceListV1: (
-      { query = {} }: { query?: InstanceListV1QueryParams },
+    instanceList: (
+      { query = {} }: { query?: InstanceListQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<InstanceResultsPage>({
@@ -5872,8 +3003,8 @@ export class Api extends HttpClient {
     /**
      * Create an instance
      */
-    instanceCreateV1: (
-      { query = {}, body }: { query?: InstanceCreateV1QueryParams; body: InstanceCreate },
+    instanceCreate: (
+      { query = {}, body }: { query?: InstanceCreateQueryParams; body: InstanceCreate },
       params: RequestParams = {}
     ) => {
       return this.request<Instance>({
@@ -5887,11 +3018,11 @@ export class Api extends HttpClient {
     /**
      * Fetch an instance
      */
-    instanceViewV1: (
+    instanceView: (
       {
         path,
         query = {},
-      }: { path: InstanceViewV1PathParams; query?: InstanceViewV1QueryParams },
+      }: { path: InstanceViewPathParams; query?: InstanceViewQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<Instance>({
@@ -5904,11 +3035,11 @@ export class Api extends HttpClient {
     /**
      * Delete an instance
      */
-    instanceDeleteV1: (
+    instanceDelete: (
       {
         path,
         query = {},
-      }: { path: InstanceDeleteV1PathParams; query?: InstanceDeleteV1QueryParams },
+      }: { path: InstanceDeletePathParams; query?: InstanceDeleteQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<void>({
@@ -5921,11 +3052,11 @@ export class Api extends HttpClient {
     /**
      * List an instance's disks
      */
-    instanceDiskListV1: (
+    instanceDiskList: (
       {
         path,
         query = {},
-      }: { path: InstanceDiskListV1PathParams; query?: InstanceDiskListV1QueryParams },
+      }: { path: InstanceDiskListPathParams; query?: InstanceDiskListQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<DiskResultsPage>({
@@ -5938,14 +3069,14 @@ export class Api extends HttpClient {
     /**
      * Attach a disk to an instance
      */
-    instanceDiskAttachV1: (
+    instanceDiskAttach: (
       {
         path,
         query = {},
         body,
       }: {
-        path: InstanceDiskAttachV1PathParams
-        query?: InstanceDiskAttachV1QueryParams
+        path: InstanceDiskAttachPathParams
+        query?: InstanceDiskAttachQueryParams
         body: DiskPath
       },
       params: RequestParams = {}
@@ -5961,14 +3092,14 @@ export class Api extends HttpClient {
     /**
      * Detach a disk from an instance
      */
-    instanceDiskDetachV1: (
+    instanceDiskDetach: (
       {
         path,
         query = {},
         body,
       }: {
-        path: InstanceDiskDetachV1PathParams
-        query?: InstanceDiskDetachV1QueryParams
+        path: InstanceDiskDetachPathParams
+        query?: InstanceDiskDetachQueryParams
         body: DiskPath
       },
       params: RequestParams = {}
@@ -5984,13 +3115,13 @@ export class Api extends HttpClient {
     /**
      * List external IP addresses
      */
-    instanceExternalIpListV1: (
+    instanceExternalIpList: (
       {
         path,
         query = {},
       }: {
-        path: InstanceExternalIpListV1PathParams
-        query?: InstanceExternalIpListV1QueryParams
+        path: InstanceExternalIpListPathParams
+        query?: InstanceExternalIpListQueryParams
       },
       params: RequestParams = {}
     ) => {
@@ -6004,14 +3135,14 @@ export class Api extends HttpClient {
     /**
      * Migrate an instance
      */
-    instanceMigrateV1: (
+    instanceMigrate: (
       {
         path,
         query = {},
         body,
       }: {
-        path: InstanceMigrateV1PathParams
-        query?: InstanceMigrateV1QueryParams
+        path: InstanceMigratePathParams
+        query?: InstanceMigrateQueryParams
         body: InstanceMigrate
       },
       params: RequestParams = {}
@@ -6027,11 +3158,11 @@ export class Api extends HttpClient {
     /**
      * Reboot an instance
      */
-    instanceRebootV1: (
+    instanceReboot: (
       {
         path,
         query = {},
-      }: { path: InstanceRebootV1PathParams; query?: InstanceRebootV1QueryParams },
+      }: { path: InstanceRebootPathParams; query?: InstanceRebootQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<Instance>({
@@ -6044,13 +3175,13 @@ export class Api extends HttpClient {
     /**
      * Fetch an instance's serial console
      */
-    instanceSerialConsoleV1: (
+    instanceSerialConsole: (
       {
         path,
         query = {},
       }: {
-        path: InstanceSerialConsoleV1PathParams
-        query?: InstanceSerialConsoleV1QueryParams
+        path: InstanceSerialConsolePathParams
+        query?: InstanceSerialConsoleQueryParams
       },
       params: RequestParams = {}
     ) => {
@@ -6062,33 +3193,13 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Stream an instance's serial console
-     */
-    instanceSerialConsoleStreamV1: (
-      {
-        path,
-        query = {},
-      }: {
-        path: InstanceSerialConsoleStreamV1PathParams
-        query?: InstanceSerialConsoleStreamV1QueryParams
-      },
-      params: RequestParams = {}
-    ) => {
-      return this.request<void>({
-        path: `/v1/instances/${path.instance}/serial-console/stream`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
      * Boot an instance
      */
-    instanceStartV1: (
+    instanceStart: (
       {
         path,
         query = {},
-      }: { path: InstanceStartV1PathParams; query?: InstanceStartV1QueryParams },
+      }: { path: InstanceStartPathParams; query?: InstanceStartQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<Instance>({
@@ -6101,11 +3212,11 @@ export class Api extends HttpClient {
     /**
      * Stop an instance
      */
-    instanceStopV1: (
+    instanceStop: (
       {
         path,
         query = {},
-      }: { path: InstanceStopV1PathParams; query?: InstanceStopV1QueryParams },
+      }: { path: InstanceStopPathParams; query?: InstanceStopQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<Instance>({
@@ -6116,10 +3227,88 @@ export class Api extends HttpClient {
       })
     },
     /**
+     * Fetch the user associated with the current session
+     */
+    currentUserView: (_: EmptyObj, params: RequestParams = {}) => {
+      return this.request<User>({
+        path: `/v1/me`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Fetch the silo groups the current user belongs to
+     */
+    currentUserGroups: (
+      { query = {} }: { query?: CurrentUserGroupsQueryParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<GroupResultsPage>({
+        path: `/v1/me/groups`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List SSH public keys
+     */
+    currentUserSshKeyList: (
+      { query = {} }: { query?: CurrentUserSshKeyListQueryParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<SshKeyResultsPage>({
+        path: `/v1/me/ssh-keys`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create an SSH public key
+     */
+    currentUserSshKeyCreate: (
+      { body }: { body: SshKeyCreate },
+      params: RequestParams = {}
+    ) => {
+      return this.request<SshKey>({
+        path: `/v1/me/ssh-keys`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Fetch an SSH public key
+     */
+    currentUserSshKeyView: (
+      { path }: { path: CurrentUserSshKeyViewPathParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<SshKey>({
+        path: `/v1/me/ssh-keys/${path.sshKey}`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Delete an SSH public key
+     */
+    currentUserSshKeyDelete: (
+      { path }: { path: CurrentUserSshKeyDeletePathParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/me/ssh-keys/${path.sshKey}`,
+        method: 'DELETE',
+        ...params,
+      })
+    },
+    /**
      * List network interfaces
      */
-    instanceNetworkInterfaceListV1: (
-      { query = {} }: { query?: InstanceNetworkInterfaceListV1QueryParams },
+    instanceNetworkInterfaceList: (
+      { query = {} }: { query?: InstanceNetworkInterfaceListQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<NetworkInterfaceResultsPage>({
@@ -6132,12 +3321,12 @@ export class Api extends HttpClient {
     /**
      * Create a network interface
      */
-    instanceNetworkInterfaceCreateV1: (
+    instanceNetworkInterfaceCreate: (
       {
         query = {},
         body,
       }: {
-        query?: InstanceNetworkInterfaceCreateV1QueryParams
+        query?: InstanceNetworkInterfaceCreateQueryParams
         body: NetworkInterfaceCreate
       },
       params: RequestParams = {}
@@ -6153,13 +3342,13 @@ export class Api extends HttpClient {
     /**
      * Fetch a network interface
      */
-    instanceNetworkInterfaceViewV1: (
+    instanceNetworkInterfaceView: (
       {
         path,
         query = {},
       }: {
-        path: InstanceNetworkInterfaceViewV1PathParams
-        query?: InstanceNetworkInterfaceViewV1QueryParams
+        path: InstanceNetworkInterfaceViewPathParams
+        query?: InstanceNetworkInterfaceViewQueryParams
       },
       params: RequestParams = {}
     ) => {
@@ -6173,14 +3362,14 @@ export class Api extends HttpClient {
     /**
      * Update a network interface
      */
-    instanceNetworkInterfaceUpdateV1: (
+    instanceNetworkInterfaceUpdate: (
       {
         path,
         query = {},
         body,
       }: {
-        path: InstanceNetworkInterfaceUpdateV1PathParams
-        query?: InstanceNetworkInterfaceUpdateV1QueryParams
+        path: InstanceNetworkInterfaceUpdatePathParams
+        query?: InstanceNetworkInterfaceUpdateQueryParams
         body: NetworkInterfaceUpdate
       },
       params: RequestParams = {}
@@ -6196,13 +3385,13 @@ export class Api extends HttpClient {
     /**
      * Delete a network interface
      */
-    instanceNetworkInterfaceDeleteV1: (
+    instanceNetworkInterfaceDelete: (
       {
         path,
         query = {},
       }: {
-        path: InstanceNetworkInterfaceDeleteV1PathParams
-        query?: InstanceNetworkInterfaceDeleteV1QueryParams
+        path: InstanceNetworkInterfaceDeletePathParams
+        query?: InstanceNetworkInterfaceDeleteQueryParams
       },
       params: RequestParams = {}
     ) => {
@@ -6214,107 +3403,9 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * List organizations
-     */
-    organizationListV1: (
-      { query = {} }: { query?: OrganizationListV1QueryParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<OrganizationResultsPage>({
-        path: `/v1/organizations`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Create an organization
-     */
-    organizationCreateV1: (
-      { body }: { body: OrganizationCreate },
-      params: RequestParams = {}
-    ) => {
-      return this.request<Organization>({
-        path: `/v1/organizations`,
-        method: 'POST',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * Fetch an organization
-     */
-    organizationViewV1: (
-      { path }: { path: OrganizationViewV1PathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<Organization>({
-        path: `/v1/organizations/${path.organization}`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * Update an organization
-     */
-    organizationUpdateV1: (
-      { path, body }: { path: OrganizationUpdateV1PathParams; body: OrganizationUpdate },
-      params: RequestParams = {}
-    ) => {
-      return this.request<Organization>({
-        path: `/v1/organizations/${path.organization}`,
-        method: 'PUT',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * Delete an organization
-     */
-    organizationDeleteV1: (
-      { path }: { path: OrganizationDeleteV1PathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<void>({
-        path: `/v1/organizations/${path.organization}`,
-        method: 'DELETE',
-        ...params,
-      })
-    },
-    /**
-     * Fetch an organization's IAM policy
-     */
-    organizationPolicyViewV1: (
-      { path }: { path: OrganizationPolicyViewV1PathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<OrganizationRolePolicy>({
-        path: `/v1/organizations/${path.organization}/policy`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * Update an organization's IAM policy
-     */
-    organizationPolicyUpdateV1: (
-      {
-        path,
-        body,
-      }: { path: OrganizationPolicyUpdateV1PathParams; body: OrganizationRolePolicy },
-      params: RequestParams = {}
-    ) => {
-      return this.request<OrganizationRolePolicy>({
-        path: `/v1/organizations/${path.organization}/policy`,
-        method: 'PUT',
-        body,
-        ...params,
-      })
-    },
-    /**
      * Fetch the current silo's IAM policy
      */
-    policyViewV1: (_: EmptyObj, params: RequestParams = {}) => {
+    policyView: (_: EmptyObj, params: RequestParams = {}) => {
       return this.request<SiloRolePolicy>({
         path: `/v1/policy`,
         method: 'GET',
@@ -6324,7 +3415,7 @@ export class Api extends HttpClient {
     /**
      * Update the current silo's IAM policy
      */
-    policyUpdateV1: ({ body }: { body: SiloRolePolicy }, params: RequestParams = {}) => {
+    policyUpdate: ({ body }: { body: SiloRolePolicy }, params: RequestParams = {}) => {
       return this.request<SiloRolePolicy>({
         path: `/v1/policy`,
         method: 'PUT',
@@ -6335,8 +3426,8 @@ export class Api extends HttpClient {
     /**
      * List projects
      */
-    projectListV1: (
-      { query = {} }: { query?: ProjectListV1QueryParams },
+    projectList: (
+      { query = {} }: { query?: ProjectListQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<ProjectResultsPage>({
@@ -6349,120 +3440,86 @@ export class Api extends HttpClient {
     /**
      * Create a project
      */
-    projectCreateV1: (
-      { query = {}, body }: { query?: ProjectCreateV1QueryParams; body: ProjectCreate },
-      params: RequestParams = {}
-    ) => {
+    projectCreate: ({ body }: { body: ProjectCreate }, params: RequestParams = {}) => {
       return this.request<Project>({
         path: `/v1/projects`,
         method: 'POST',
         body,
-        query,
         ...params,
       })
     },
     /**
      * Fetch a project
      */
-    projectViewV1: (
-      {
-        path,
-        query = {},
-      }: { path: ProjectViewV1PathParams; query?: ProjectViewV1QueryParams },
+    projectView: (
+      { path }: { path: ProjectViewPathParams },
       params: RequestParams = {}
     ) => {
       return this.request<Project>({
         path: `/v1/projects/${path.project}`,
         method: 'GET',
-        query,
         ...params,
       })
     },
     /**
      * Update a project
      */
-    projectUpdateV1: (
-      {
-        path,
-        query = {},
-        body,
-      }: {
-        path: ProjectUpdateV1PathParams
-        query?: ProjectUpdateV1QueryParams
-        body: ProjectUpdate
-      },
+    projectUpdate: (
+      { path, body }: { path: ProjectUpdatePathParams; body: ProjectUpdate },
       params: RequestParams = {}
     ) => {
       return this.request<Project>({
         path: `/v1/projects/${path.project}`,
         method: 'PUT',
         body,
-        query,
         ...params,
       })
     },
     /**
      * Delete a project
      */
-    projectDeleteV1: (
-      {
-        path,
-        query = {},
-      }: { path: ProjectDeleteV1PathParams; query?: ProjectDeleteV1QueryParams },
+    projectDelete: (
+      { path }: { path: ProjectDeletePathParams },
       params: RequestParams = {}
     ) => {
       return this.request<void>({
         path: `/v1/projects/${path.project}`,
         method: 'DELETE',
-        query,
         ...params,
       })
     },
     /**
      * Fetch a project's IAM policy
      */
-    projectPolicyViewV1: (
-      {
-        path,
-        query = {},
-      }: { path: ProjectPolicyViewV1PathParams; query?: ProjectPolicyViewV1QueryParams },
+    projectPolicyView: (
+      { path }: { path: ProjectPolicyViewPathParams },
       params: RequestParams = {}
     ) => {
       return this.request<ProjectRolePolicy>({
         path: `/v1/projects/${path.project}/policy`,
         method: 'GET',
-        query,
         ...params,
       })
     },
     /**
      * Update a project's IAM policy
      */
-    projectPolicyUpdateV1: (
-      {
-        path,
-        query = {},
-        body,
-      }: {
-        path: ProjectPolicyUpdateV1PathParams
-        query?: ProjectPolicyUpdateV1QueryParams
-        body: ProjectRolePolicy
-      },
+    projectPolicyUpdate: (
+      { path, body }: { path: ProjectPolicyUpdatePathParams; body: ProjectRolePolicy },
       params: RequestParams = {}
     ) => {
       return this.request<ProjectRolePolicy>({
         path: `/v1/projects/${path.project}/policy`,
         method: 'PUT',
         body,
-        query,
         ...params,
       })
     },
     /**
      * List snapshots
      */
-    snapshotListV1: (
-      { query = {} }: { query?: SnapshotListV1QueryParams },
+    snapshotList: (
+      { query = {} }: { query?: SnapshotListQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<SnapshotResultsPage>({
@@ -6475,8 +3532,8 @@ export class Api extends HttpClient {
     /**
      * Create a snapshot
      */
-    snapshotCreateV1: (
-      { query = {}, body }: { query?: SnapshotCreateV1QueryParams; body: SnapshotCreate },
+    snapshotCreate: (
+      { query = {}, body }: { query?: SnapshotCreateQueryParams; body: SnapshotCreate },
       params: RequestParams = {}
     ) => {
       return this.request<Snapshot>({
@@ -6490,11 +3547,11 @@ export class Api extends HttpClient {
     /**
      * Fetch a snapshot
      */
-    snapshotViewV1: (
+    snapshotView: (
       {
         path,
         query = {},
-      }: { path: SnapshotViewV1PathParams; query?: SnapshotViewV1QueryParams },
+      }: { path: SnapshotViewPathParams; query?: SnapshotViewQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<Snapshot>({
@@ -6507,11 +3564,11 @@ export class Api extends HttpClient {
     /**
      * Delete a snapshot
      */
-    snapshotDeleteV1: (
+    snapshotDelete: (
       {
         path,
         query = {},
-      }: { path: SnapshotDeleteV1PathParams; query?: SnapshotDeleteV1QueryParams },
+      }: { path: SnapshotDeletePathParams; query?: SnapshotDeleteQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<void>({
@@ -6524,8 +3581,8 @@ export class Api extends HttpClient {
     /**
      * List system-wide certificates
      */
-    certificateListV1: (
-      { query = {} }: { query?: CertificateListV1QueryParams },
+    certificateList: (
+      { query = {} }: { query?: CertificateListQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<CertificateResultsPage>({
@@ -6538,7 +3595,7 @@ export class Api extends HttpClient {
     /**
      * Create a new system-wide x.509 certificate.
      */
-    certificateCreateV1: (
+    certificateCreate: (
       { body }: { body: CertificateCreate },
       params: RequestParams = {}
     ) => {
@@ -6552,8 +3609,8 @@ export class Api extends HttpClient {
     /**
      * Fetch a certificate
      */
-    certificateViewV1: (
-      { path }: { path: CertificateViewV1PathParams },
+    certificateView: (
+      { path }: { path: CertificateViewPathParams },
       params: RequestParams = {}
     ) => {
       return this.request<Certificate>({
@@ -6565,8 +3622,8 @@ export class Api extends HttpClient {
     /**
      * Delete a certificate
      */
-    certificateDeleteV1: (
-      { path }: { path: CertificateDeleteV1PathParams },
+    certificateDelete: (
+      { path }: { path: CertificateDeletePathParams },
       params: RequestParams = {}
     ) => {
       return this.request<void>({
@@ -6578,8 +3635,8 @@ export class Api extends HttpClient {
     /**
      * List physical disks
      */
-    physicalDiskListV1: (
-      { query = {} }: { query?: PhysicalDiskListV1QueryParams },
+    physicalDiskList: (
+      { query = {} }: { query?: PhysicalDiskListQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<PhysicalDiskResultsPage>({
@@ -6592,8 +3649,8 @@ export class Api extends HttpClient {
     /**
      * List racks
      */
-    rackListV1: (
-      { query = {} }: { query?: RackListV1QueryParams },
+    rackList: (
+      { query = {} }: { query?: RackListQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<RackResultsPage>({
@@ -6606,7 +3663,7 @@ export class Api extends HttpClient {
     /**
      * Fetch a rack
      */
-    rackViewV1: ({ path }: { path: RackViewV1PathParams }, params: RequestParams = {}) => {
+    rackView: ({ path }: { path: RackViewPathParams }, params: RequestParams = {}) => {
       return this.request<Rack>({
         path: `/v1/system/hardware/racks/${path.rackId}`,
         method: 'GET',
@@ -6616,8 +3673,8 @@ export class Api extends HttpClient {
     /**
      * List sleds
      */
-    sledListV1: (
-      { query = {} }: { query?: SledListV1QueryParams },
+    sledList: (
+      { query = {} }: { query?: SledListQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<SledResultsPage>({
@@ -6630,7 +3687,7 @@ export class Api extends HttpClient {
     /**
      * Fetch a sled
      */
-    sledViewV1: ({ path }: { path: SledViewV1PathParams }, params: RequestParams = {}) => {
+    sledView: ({ path }: { path: SledViewPathParams }, params: RequestParams = {}) => {
       return this.request<Sled>({
         path: `/v1/system/hardware/sleds/${path.sledId}`,
         method: 'GET',
@@ -6640,14 +3697,11 @@ export class Api extends HttpClient {
     /**
      * List physical disks attached to sleds
      */
-    sledPhysicalDiskListV1: (
+    sledPhysicalDiskList: (
       {
         path,
         query = {},
-      }: {
-        path: SledPhysicalDiskListV1PathParams
-        query?: SledPhysicalDiskListV1QueryParams
-      },
+      }: { path: SledPhysicalDiskListPathParams; query?: SledPhysicalDiskListQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<PhysicalDiskResultsPage>({
@@ -6660,8 +3714,8 @@ export class Api extends HttpClient {
     /**
      * List a silo's IDPs_name
      */
-    siloIdentityProviderListV1: (
-      { query = {} }: { query?: SiloIdentityProviderListV1QueryParams },
+    siloIdentityProviderList: (
+      { query = {} }: { query?: SiloIdentityProviderListQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<IdentityProviderResultsPage>({
@@ -6674,8 +3728,8 @@ export class Api extends HttpClient {
     /**
      * Create a user
      */
-    localIdpUserCreateV1: (
-      { query = {}, body }: { query?: LocalIdpUserCreateV1QueryParams; body: UserCreate },
+    localIdpUserCreate: (
+      { query = {}, body }: { query?: LocalIdpUserCreateQueryParams; body: UserCreate },
       params: RequestParams = {}
     ) => {
       return this.request<User>({
@@ -6689,11 +3743,11 @@ export class Api extends HttpClient {
     /**
      * Delete a user
      */
-    localIdpUserDeleteV1: (
+    localIdpUserDelete: (
       {
         path,
         query = {},
-      }: { path: LocalIdpUserDeleteV1PathParams; query?: LocalIdpUserDeleteV1QueryParams },
+      }: { path: LocalIdpUserDeletePathParams; query?: LocalIdpUserDeleteQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<void>({
@@ -6706,14 +3760,14 @@ export class Api extends HttpClient {
     /**
      * Set or invalidate a user's password
      */
-    localIdpUserSetPasswordV1: (
+    localIdpUserSetPassword: (
       {
         path,
         query = {},
         body,
       }: {
-        path: LocalIdpUserSetPasswordV1PathParams
-        query?: LocalIdpUserSetPasswordV1QueryParams
+        path: LocalIdpUserSetPasswordPathParams
+        query?: LocalIdpUserSetPasswordQueryParams
         body: UserPassword
       },
       params: RequestParams = {}
@@ -6729,12 +3783,12 @@ export class Api extends HttpClient {
     /**
      * Create a SAML IDP
      */
-    samlIdentityProviderCreateV1: (
+    samlIdentityProviderCreate: (
       {
         query = {},
         body,
       }: {
-        query?: SamlIdentityProviderCreateV1QueryParams
+        query?: SamlIdentityProviderCreateQueryParams
         body: SamlIdentityProviderCreate
       },
       params: RequestParams = {}
@@ -6750,13 +3804,13 @@ export class Api extends HttpClient {
     /**
      * Fetch a SAML IDP
      */
-    samlIdentityProviderViewV1: (
+    samlIdentityProviderView: (
       {
         path,
         query = {},
       }: {
-        path: SamlIdentityProviderViewV1PathParams
-        query?: SamlIdentityProviderViewV1QueryParams
+        path: SamlIdentityProviderViewPathParams
+        query?: SamlIdentityProviderViewQueryParams
       },
       params: RequestParams = {}
     ) => {
@@ -6770,8 +3824,8 @@ export class Api extends HttpClient {
     /**
      * List IP pools
      */
-    ipPoolListV1: (
-      { query = {} }: { query?: IpPoolListV1QueryParams },
+    ipPoolList: (
+      { query = {} }: { query?: IpPoolListQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<IpPoolResultsPage>({
@@ -6784,7 +3838,7 @@ export class Api extends HttpClient {
     /**
      * Create an IP pool
      */
-    ipPoolCreateV1: ({ body }: { body: IpPoolCreate }, params: RequestParams = {}) => {
+    ipPoolCreate: ({ body }: { body: IpPoolCreate }, params: RequestParams = {}) => {
       return this.request<IpPool>({
         path: `/v1/system/ip-pools`,
         method: 'POST',
@@ -6795,10 +3849,7 @@ export class Api extends HttpClient {
     /**
      * Fetch an IP pool
      */
-    ipPoolViewV1: (
-      { path }: { path: IpPoolViewV1PathParams },
-      params: RequestParams = {}
-    ) => {
+    ipPoolView: ({ path }: { path: IpPoolViewPathParams }, params: RequestParams = {}) => {
       return this.request<IpPool>({
         path: `/v1/system/ip-pools/${path.pool}`,
         method: 'GET',
@@ -6808,8 +3859,8 @@ export class Api extends HttpClient {
     /**
      * Update an IP Pool
      */
-    ipPoolUpdateV1: (
-      { path, body }: { path: IpPoolUpdateV1PathParams; body: IpPoolUpdate },
+    ipPoolUpdate: (
+      { path, body }: { path: IpPoolUpdatePathParams; body: IpPoolUpdate },
       params: RequestParams = {}
     ) => {
       return this.request<IpPool>({
@@ -6822,8 +3873,8 @@ export class Api extends HttpClient {
     /**
      * Delete an IP Pool
      */
-    ipPoolDeleteV1: (
-      { path }: { path: IpPoolDeleteV1PathParams },
+    ipPoolDelete: (
+      { path }: { path: IpPoolDeletePathParams },
       params: RequestParams = {}
     ) => {
       return this.request<void>({
@@ -6835,11 +3886,11 @@ export class Api extends HttpClient {
     /**
      * List ranges for an IP pool
      */
-    ipPoolRangeListV1: (
+    ipPoolRangeList: (
       {
         path,
         query = {},
-      }: { path: IpPoolRangeListV1PathParams; query?: IpPoolRangeListV1QueryParams },
+      }: { path: IpPoolRangeListPathParams; query?: IpPoolRangeListQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<IpPoolRangeResultsPage>({
@@ -6852,8 +3903,8 @@ export class Api extends HttpClient {
     /**
      * Add a range to an IP pool
      */
-    ipPoolRangeAddV1: (
-      { path, body }: { path: IpPoolRangeAddV1PathParams; body: IpRange },
+    ipPoolRangeAdd: (
+      { path, body }: { path: IpPoolRangeAddPathParams; body: IpRange },
       params: RequestParams = {}
     ) => {
       return this.request<IpPoolRange>({
@@ -6866,8 +3917,8 @@ export class Api extends HttpClient {
     /**
      * Remove a range from an IP pool
      */
-    ipPoolRangeRemoveV1: (
-      { path, body }: { path: IpPoolRangeRemoveV1PathParams; body: IpRange },
+    ipPoolRangeRemove: (
+      { path, body }: { path: IpPoolRangeRemovePathParams; body: IpRange },
       params: RequestParams = {}
     ) => {
       return this.request<void>({
@@ -6880,7 +3931,7 @@ export class Api extends HttpClient {
     /**
      * Fetch the IP pool used for Oxide services.
      */
-    ipPoolServiceViewV1: (_: EmptyObj, params: RequestParams = {}) => {
+    ipPoolServiceView: (_: EmptyObj, params: RequestParams = {}) => {
       return this.request<IpPool>({
         path: `/v1/system/ip-pools-service`,
         method: 'GET',
@@ -6890,8 +3941,8 @@ export class Api extends HttpClient {
     /**
      * List ranges for the IP pool used for Oxide services.
      */
-    ipPoolServiceRangeListV1: (
-      { query = {} }: { query?: IpPoolServiceRangeListV1QueryParams },
+    ipPoolServiceRangeList: (
+      { query = {} }: { query?: IpPoolServiceRangeListQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<IpPoolRangeResultsPage>({
@@ -6904,7 +3955,7 @@ export class Api extends HttpClient {
     /**
      * Add a range to an IP pool used for Oxide services.
      */
-    ipPoolServiceRangeAddV1: ({ body }: { body: IpRange }, params: RequestParams = {}) => {
+    ipPoolServiceRangeAdd: ({ body }: { body: IpRange }, params: RequestParams = {}) => {
       return this.request<IpPoolRange>({
         path: `/v1/system/ip-pools-service/ranges/add`,
         method: 'POST',
@@ -6915,10 +3966,7 @@ export class Api extends HttpClient {
     /**
      * Remove a range from an IP pool used for Oxide services.
      */
-    ipPoolServiceRangeRemoveV1: (
-      { body }: { body: IpRange },
-      params: RequestParams = {}
-    ) => {
+    ipPoolServiceRangeRemove: ({ body }: { body: IpRange }, params: RequestParams = {}) => {
       return this.request<void>({
         path: `/v1/system/ip-pools-service/ranges/remove`,
         method: 'POST',
@@ -6927,9 +3975,26 @@ export class Api extends HttpClient {
       })
     },
     /**
+     * Access metrics data
+     */
+    systemMetric: (
+      {
+        path,
+        query = {},
+      }: { path: SystemMetricPathParams; query?: SystemMetricQueryParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<MeasurementResultsPage>({
+        path: `/v1/system/metrics/${path.metricName}`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
      * Fetch the top-level IAM policy
      */
-    systemPolicyViewV1: (_: EmptyObj, params: RequestParams = {}) => {
+    systemPolicyView: (_: EmptyObj, params: RequestParams = {}) => {
       return this.request<FleetRolePolicy>({
         path: `/v1/system/policy`,
         method: 'GET',
@@ -6939,7 +4004,7 @@ export class Api extends HttpClient {
     /**
      * Update the top-level IAM policy
      */
-    systemPolicyUpdateV1: (
+    systemPolicyUpdate: (
       { body }: { body: FleetRolePolicy },
       params: RequestParams = {}
     ) => {
@@ -6951,10 +4016,34 @@ export class Api extends HttpClient {
       })
     },
     /**
+     * List built-in roles
+     */
+    roleList: (
+      { query = {} }: { query?: RoleListQueryParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<RoleResultsPage>({
+        path: `/v1/system/roles`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch a built-in role
+     */
+    roleView: ({ path }: { path: RoleViewPathParams }, params: RequestParams = {}) => {
+      return this.request<Role>({
+        path: `/v1/system/roles/${path.roleName}`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
      * List sagas
      */
-    sagaListV1: (
-      { query = {} }: { query?: SagaListV1QueryParams },
+    sagaList: (
+      { query = {} }: { query?: SagaListQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<SagaResultsPage>({
@@ -6967,7 +4056,7 @@ export class Api extends HttpClient {
     /**
      * Fetch a saga
      */
-    sagaViewV1: ({ path }: { path: SagaViewV1PathParams }, params: RequestParams = {}) => {
+    sagaView: ({ path }: { path: SagaViewPathParams }, params: RequestParams = {}) => {
       return this.request<Saga>({
         path: `/v1/system/sagas/${path.sagaId}`,
         method: 'GET',
@@ -6977,8 +4066,8 @@ export class Api extends HttpClient {
     /**
      * List silos
      */
-    siloListV1: (
-      { query = {} }: { query?: SiloListV1QueryParams },
+    siloList: (
+      { query = {} }: { query?: SiloListQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<SiloResultsPage>({
@@ -6991,7 +4080,7 @@ export class Api extends HttpClient {
     /**
      * Create a silo
      */
-    siloCreateV1: ({ body }: { body: SiloCreate }, params: RequestParams = {}) => {
+    siloCreate: ({ body }: { body: SiloCreate }, params: RequestParams = {}) => {
       return this.request<Silo>({
         path: `/v1/system/silos`,
         method: 'POST',
@@ -7002,7 +4091,7 @@ export class Api extends HttpClient {
     /**
      * Fetch a silo
      */
-    siloViewV1: ({ path }: { path: SiloViewV1PathParams }, params: RequestParams = {}) => {
+    siloView: ({ path }: { path: SiloViewPathParams }, params: RequestParams = {}) => {
       return this.request<Silo>({
         path: `/v1/system/silos/${path.silo}`,
         method: 'GET',
@@ -7012,10 +4101,7 @@ export class Api extends HttpClient {
     /**
      * Delete a silo
      */
-    siloDeleteV1: (
-      { path }: { path: SiloDeleteV1PathParams },
-      params: RequestParams = {}
-    ) => {
+    siloDelete: ({ path }: { path: SiloDeletePathParams }, params: RequestParams = {}) => {
       return this.request<void>({
         path: `/v1/system/silos/${path.silo}`,
         method: 'DELETE',
@@ -7025,8 +4111,8 @@ export class Api extends HttpClient {
     /**
      * Fetch a silo's IAM policy
      */
-    siloPolicyViewV1: (
-      { path }: { path: SiloPolicyViewV1PathParams },
+    siloPolicyView: (
+      { path }: { path: SiloPolicyViewPathParams },
       params: RequestParams = {}
     ) => {
       return this.request<SiloRolePolicy>({
@@ -7038,8 +4124,8 @@ export class Api extends HttpClient {
     /**
      * Update a silo's IAM policy
      */
-    siloPolicyUpdateV1: (
-      { path, body }: { path: SiloPolicyUpdateV1PathParams; body: SiloRolePolicy },
+    siloPolicyUpdate: (
+      { path, body }: { path: SiloPolicyUpdatePathParams; body: SiloRolePolicy },
       params: RequestParams = {}
     ) => {
       return this.request<SiloRolePolicy>({
@@ -7177,8 +4263,8 @@ export class Api extends HttpClient {
     /**
      * List users in a silo
      */
-    siloUsersListV1: (
-      { query = {} }: { query?: SiloUsersListV1QueryParams },
+    siloUserList: (
+      { query = {} }: { query?: SiloUserListQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<UserResultsPage>({
@@ -7191,11 +4277,11 @@ export class Api extends HttpClient {
     /**
      * Fetch a user
      */
-    siloUserViewV1: (
+    siloUserView: (
       {
         path,
         query = {},
-      }: { path: SiloUserViewV1PathParams; query?: SiloUserViewV1QueryParams },
+      }: { path: SiloUserViewPathParams; query?: SiloUserViewQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<User>({
@@ -7206,10 +4292,37 @@ export class Api extends HttpClient {
       })
     },
     /**
+     * List built-in users
+     */
+    userBuiltinList: (
+      { query = {} }: { query?: UserBuiltinListQueryParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<UserBuiltinResultsPage>({
+        path: `/v1/system/users-builtin`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch a built-in user
+     */
+    userBuiltinView: (
+      { path }: { path: UserBuiltinViewPathParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<UserBuiltin>({
+        path: `/v1/system/users-builtin/${path.user}`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
      * List users
      */
-    userListV1: (
-      { query = {} }: { query?: UserListV1QueryParams },
+    userList: (
+      { query = {} }: { query?: UserListQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<UserResultsPage>({
@@ -7222,8 +4335,8 @@ export class Api extends HttpClient {
     /**
      * List firewall rules
      */
-    vpcFirewallRulesViewV1: (
-      { query = {} }: { query?: VpcFirewallRulesViewV1QueryParams },
+    vpcFirewallRulesView: (
+      { query = {} }: { query?: VpcFirewallRulesViewQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<VpcFirewallRules>({
@@ -7236,11 +4349,11 @@ export class Api extends HttpClient {
     /**
      * Replace firewall rules
      */
-    vpcFirewallRulesUpdateV1: (
+    vpcFirewallRulesUpdate: (
       {
         query = {},
         body,
-      }: { query?: VpcFirewallRulesUpdateV1QueryParams; body: VpcFirewallRuleUpdateParams },
+      }: { query?: VpcFirewallRulesUpdateQueryParams; body: VpcFirewallRuleUpdateParams },
       params: RequestParams = {}
     ) => {
       return this.request<VpcFirewallRules>({
@@ -7254,8 +4367,8 @@ export class Api extends HttpClient {
     /**
      * List routes
      */
-    vpcRouterRouteListV1: (
-      { query = {} }: { query?: VpcRouterRouteListV1QueryParams },
+    vpcRouterRouteList: (
+      { query = {} }: { query?: VpcRouterRouteListQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<RouterRouteResultsPage>({
@@ -7268,11 +4381,11 @@ export class Api extends HttpClient {
     /**
      * Create a router
      */
-    vpcRouterRouteCreateV1: (
+    vpcRouterRouteCreate: (
       {
         query = {},
         body,
-      }: { query?: VpcRouterRouteCreateV1QueryParams; body: RouterRouteCreate },
+      }: { query?: VpcRouterRouteCreateQueryParams; body: RouterRouteCreate },
       params: RequestParams = {}
     ) => {
       return this.request<RouterRoute>({
@@ -7286,11 +4399,11 @@ export class Api extends HttpClient {
     /**
      * Fetch a route
      */
-    vpcRouterRouteViewV1: (
+    vpcRouterRouteView: (
       {
         path,
         query = {},
-      }: { path: VpcRouterRouteViewV1PathParams; query?: VpcRouterRouteViewV1QueryParams },
+      }: { path: VpcRouterRouteViewPathParams; query?: VpcRouterRouteViewQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<RouterRoute>({
@@ -7303,14 +4416,14 @@ export class Api extends HttpClient {
     /**
      * Update a route
      */
-    vpcRouterRouteUpdateV1: (
+    vpcRouterRouteUpdate: (
       {
         path,
         query = {},
         body,
       }: {
-        path: VpcRouterRouteUpdateV1PathParams
-        query?: VpcRouterRouteUpdateV1QueryParams
+        path: VpcRouterRouteUpdatePathParams
+        query?: VpcRouterRouteUpdateQueryParams
         body: RouterRouteUpdate
       },
       params: RequestParams = {}
@@ -7326,14 +4439,11 @@ export class Api extends HttpClient {
     /**
      * Delete a route
      */
-    vpcRouterRouteDeleteV1: (
+    vpcRouterRouteDelete: (
       {
         path,
         query = {},
-      }: {
-        path: VpcRouterRouteDeleteV1PathParams
-        query?: VpcRouterRouteDeleteV1QueryParams
-      },
+      }: { path: VpcRouterRouteDeletePathParams; query?: VpcRouterRouteDeleteQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<void>({
@@ -7346,8 +4456,8 @@ export class Api extends HttpClient {
     /**
      * List routers
      */
-    vpcRouterListV1: (
-      { query = {} }: { query?: VpcRouterListV1QueryParams },
+    vpcRouterList: (
+      { query = {} }: { query?: VpcRouterListQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<VpcRouterResultsPage>({
@@ -7360,8 +4470,8 @@ export class Api extends HttpClient {
     /**
      * Create a VPC router
      */
-    vpcRouterCreateV1: (
-      { query = {}, body }: { query?: VpcRouterCreateV1QueryParams; body: VpcRouterCreate },
+    vpcRouterCreate: (
+      { query = {}, body }: { query?: VpcRouterCreateQueryParams; body: VpcRouterCreate },
       params: RequestParams = {}
     ) => {
       return this.request<VpcRouter>({
@@ -7375,11 +4485,11 @@ export class Api extends HttpClient {
     /**
      * Get a router
      */
-    vpcRouterViewV1: (
+    vpcRouterView: (
       {
         path,
         query = {},
-      }: { path: VpcRouterViewV1PathParams; query?: VpcRouterViewV1QueryParams },
+      }: { path: VpcRouterViewPathParams; query?: VpcRouterViewQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<VpcRouter>({
@@ -7392,14 +4502,14 @@ export class Api extends HttpClient {
     /**
      * Update a router
      */
-    vpcRouterUpdateV1: (
+    vpcRouterUpdate: (
       {
         path,
         query = {},
         body,
       }: {
-        path: VpcRouterUpdateV1PathParams
-        query?: VpcRouterUpdateV1QueryParams
+        path: VpcRouterUpdatePathParams
+        query?: VpcRouterUpdateQueryParams
         body: VpcRouterUpdate
       },
       params: RequestParams = {}
@@ -7415,11 +4525,11 @@ export class Api extends HttpClient {
     /**
      * Delete a router
      */
-    vpcRouterDeleteV1: (
+    vpcRouterDelete: (
       {
         path,
         query = {},
-      }: { path: VpcRouterDeleteV1PathParams; query?: VpcRouterDeleteV1QueryParams },
+      }: { path: VpcRouterDeletePathParams; query?: VpcRouterDeleteQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<void>({
@@ -7432,8 +4542,8 @@ export class Api extends HttpClient {
     /**
      * Fetch a subnet
      */
-    vpcSubnetListV1: (
-      { query = {} }: { query?: VpcSubnetListV1QueryParams },
+    vpcSubnetList: (
+      { query = {} }: { query?: VpcSubnetListQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<VpcSubnetResultsPage>({
@@ -7446,8 +4556,8 @@ export class Api extends HttpClient {
     /**
      * Create a subnet
      */
-    vpcSubnetCreateV1: (
-      { query = {}, body }: { query?: VpcSubnetCreateV1QueryParams; body: VpcSubnetCreate },
+    vpcSubnetCreate: (
+      { query = {}, body }: { query?: VpcSubnetCreateQueryParams; body: VpcSubnetCreate },
       params: RequestParams = {}
     ) => {
       return this.request<VpcSubnet>({
@@ -7461,11 +4571,11 @@ export class Api extends HttpClient {
     /**
      * Fetch a subnet
      */
-    vpcSubnetViewV1: (
+    vpcSubnetView: (
       {
         path,
         query = {},
-      }: { path: VpcSubnetViewV1PathParams; query?: VpcSubnetViewV1QueryParams },
+      }: { path: VpcSubnetViewPathParams; query?: VpcSubnetViewQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<VpcSubnet>({
@@ -7478,14 +4588,14 @@ export class Api extends HttpClient {
     /**
      * Update a subnet
      */
-    vpcSubnetUpdateV1: (
+    vpcSubnetUpdate: (
       {
         path,
         query = {},
         body,
       }: {
-        path: VpcSubnetUpdateV1PathParams
-        query?: VpcSubnetUpdateV1QueryParams
+        path: VpcSubnetUpdatePathParams
+        query?: VpcSubnetUpdateQueryParams
         body: VpcSubnetUpdate
       },
       params: RequestParams = {}
@@ -7501,11 +4611,11 @@ export class Api extends HttpClient {
     /**
      * Delete a subnet
      */
-    vpcSubnetDeleteV1: (
+    vpcSubnetDelete: (
       {
         path,
         query = {},
-      }: { path: VpcSubnetDeleteV1PathParams; query?: VpcSubnetDeleteV1QueryParams },
+      }: { path: VpcSubnetDeletePathParams; query?: VpcSubnetDeleteQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<void>({
@@ -7518,13 +4628,13 @@ export class Api extends HttpClient {
     /**
      * List network interfaces
      */
-    vpcSubnetListNetworkInterfacesV1: (
+    vpcSubnetListNetworkInterfaces: (
       {
         path,
         query = {},
       }: {
-        path: VpcSubnetListNetworkInterfacesV1PathParams
-        query?: VpcSubnetListNetworkInterfacesV1QueryParams
+        path: VpcSubnetListNetworkInterfacesPathParams
+        query?: VpcSubnetListNetworkInterfacesQueryParams
       },
       params: RequestParams = {}
     ) => {
@@ -7538,8 +4648,8 @@ export class Api extends HttpClient {
     /**
      * List VPCs
      */
-    vpcListV1: (
-      { query = {} }: { query?: VpcListV1QueryParams },
+    vpcList: (
+      { query = {} }: { query?: VpcListQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<VpcResultsPage>({
@@ -7552,8 +4662,8 @@ export class Api extends HttpClient {
     /**
      * Create a VPC
      */
-    vpcCreateV1: (
-      { query = {}, body }: { query?: VpcCreateV1QueryParams; body: VpcCreate },
+    vpcCreate: (
+      { query = {}, body }: { query?: VpcCreateQueryParams; body: VpcCreate },
       params: RequestParams = {}
     ) => {
       return this.request<Vpc>({
@@ -7567,8 +4677,8 @@ export class Api extends HttpClient {
     /**
      * Fetch a VPC
      */
-    vpcViewV1: (
-      { path, query = {} }: { path: VpcViewV1PathParams; query?: VpcViewV1QueryParams },
+    vpcView: (
+      { path, query = {} }: { path: VpcViewPathParams; query?: VpcViewQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<Vpc>({
@@ -7581,12 +4691,12 @@ export class Api extends HttpClient {
     /**
      * Update a VPC
      */
-    vpcUpdateV1: (
+    vpcUpdate: (
       {
         path,
         query = {},
         body,
-      }: { path: VpcUpdateV1PathParams; query?: VpcUpdateV1QueryParams; body: VpcUpdate },
+      }: { path: VpcUpdatePathParams; query?: VpcUpdateQueryParams; body: VpcUpdate },
       params: RequestParams = {}
     ) => {
       return this.request<Vpc>({
@@ -7600,8 +4710,8 @@ export class Api extends HttpClient {
     /**
      * Delete a VPC
      */
-    vpcDeleteV1: (
-      { path, query = {} }: { path: VpcDeleteV1PathParams; query?: VpcDeleteV1QueryParams },
+    vpcDelete: (
+      { path, query = {} }: { path: VpcDeletePathParams; query?: VpcDeleteQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<void>({
@@ -7610,6 +4720,24 @@ export class Api extends HttpClient {
         query,
         ...params,
       })
+    },
+  }
+  ws = {
+    /**
+     * Stream an instance's serial console
+     */
+    instanceSerialConsoleStream: (
+      host: string,
+      {
+        path,
+        query = {},
+      }: {
+        path: InstanceSerialConsoleStreamPathParams
+        query?: InstanceSerialConsoleStreamQueryParams
+      }
+    ) => {
+      let route = `/v1/instances/${path.instance}/serial-console/stream`
+      return new WebSocket('ws://' + host + route + toQueryString(query))
     },
   }
 }

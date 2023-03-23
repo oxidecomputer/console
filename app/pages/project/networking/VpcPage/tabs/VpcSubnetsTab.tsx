@@ -1,6 +1,7 @@
 import { useState } from 'react'
 
 import type { VpcSubnet } from '@oxide/api'
+import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import type { MenuAction } from '@oxide/table'
 import { DateCell, TwoLineCell, useQueryTable } from '@oxide/table'
 import { Button, EmptyMessage } from '@oxide/ui'
@@ -11,15 +12,30 @@ import { useVpcSelector } from 'app/hooks'
 
 export const VpcSubnetsTab = () => {
   const vpcSelector = useVpcSelector()
+  const queryClient = useApiQueryClient()
 
-  const { Table, Column } = useQueryTable('vpcSubnetListV1', { query: vpcSelector })
+  const { Table, Column } = useQueryTable('vpcSubnetList', { query: vpcSelector })
   const [creating, setCreating] = useState(false)
   const [editing, setEditing] = useState<VpcSubnet | null>(null)
+
+  const deleteSubnet = useApiMutation('vpcSubnetDelete', {
+    onSuccess() {
+      queryClient.invalidateQueries('vpcSubnetList')
+    },
+  })
 
   const makeActions = (subnet: VpcSubnet): MenuAction[] => [
     {
       label: 'Edit',
       onActivate: () => setEditing(subnet),
+    },
+    // TODO: only show if you have permission to do this
+    {
+      label: 'Delete',
+      onActivate() {
+        // TODO: confirm delete
+        deleteSubnet.mutate({ path: { subnet: subnet.id } })
+      },
     },
   ]
 

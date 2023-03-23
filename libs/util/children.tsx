@@ -1,43 +1,10 @@
-import type {
-  Component,
-  ComponentProps,
-  ComponentType,
-  ReactChildren,
-  ReactElement,
-  ReactNode,
-} from 'react'
+import type { ComponentType, ReactElement, ReactNode } from 'react'
 import React from 'react'
 
-export type ChildrenProp = { children?: ReactNode }
+type ReactChildren = typeof React.Children
+
 type ChildArray = ReturnType<ReactChildren['toArray']>
 type ChildSelector = Parameters<ChildArray['findIndex']>[0]
-
-/**
- * A helper intended to be provided to a map call on an array of elements to iterate
- * each and provide it with a key
- *
- * @example
- *
- * [<div/>, <div/>, <div/>].map(addKey(i => `div-${i}`))
- */
-export const addKey =
-  (makeKey: (i: number) => string) =>
-  (child: Component | ReactElement, index: number): ReactElement =>
-    React.cloneElement(child as ReactElement, { key: makeKey(index) })
-
-export const addProps =
-  <C extends React.ComponentType<unknown>, P = ComponentProps<C>>(
-    makeProps: (
-      i: number,
-      props: P,
-      children: Array<C & { props: P }>
-    ) => Record<string, unknown>
-  ) =>
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (child: any, index: number, children: any): ReactElement =>
-    React.cloneElement(child as ReactElement, {
-      ...makeProps(index, child?.props, children),
-    })
 
 /**
  * Collapses down children that are nested inside of a fragment

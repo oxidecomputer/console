@@ -31,7 +31,7 @@ import { ContentPane, PageContainer } from './helpers'
  */
 SystemLayout.loader = async () => {
   const isFleetViewer = await apiQueryClient
-    .fetchQuery('systemPolicyViewV1', {})
+    .fetchQuery('systemPolicyView', {})
     .then(() => true)
     .catch(() => false)
 
@@ -46,12 +46,12 @@ export default function SystemLayout() {
   // robust way of doing this would be to make a separate layout for the
   // silo-specific routes in the route config, but it's overkill considering
   // this is a one-liner. Switch to that approach at the first sign of trouble.
-  const { siloName } = useParams()
+  const { silo } = useParams()
   return (
     <PageContainer>
       <TopBar>
         <SiloSystemPicker value="system" />
-        {siloName && <SiloPicker />}
+        {silo && <SiloPicker />}
       </TopBar>
       <Sidebar>
         <Sidebar.Nav>

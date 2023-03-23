@@ -33,7 +33,7 @@ export default function LoginPage() {
         title: 'Logged in',
         icon: <Success16Icon />,
       })
-      navigate(searchParams.get('state') || pb.orgs())
+      navigate(searchParams.get('state') || pb.projects())
     },
     onError: () => {
       addToast({

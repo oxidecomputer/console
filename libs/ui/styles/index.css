@@ -1,9 +1,6 @@
 @import './fonts.css';
-@import '@reach/dialog/styles.css';
 @import './components/dialog.css';
-@import '@reach/menu-button/styles.css';
 @import './components/menu-button.css';
-@import '@reach/tabs/styles.css';
 @import './components/menu-list.css';
 @import './components/loading-bar.css';
 
@@ -58,7 +55,7 @@
  */
 a:focus-visible,
 button:focus-visible,
-[data-reach-tab-panel]:focus-visible,
+.ox-tabs-panel:focus-visible,
 [role='listbox']:focus-visible,
 [role='option']:focus-visible,
 [role='button']:focus-visible,
@@ -74,7 +71,7 @@ input[type='checkbox']:focus-visible {
 
 a:focus,
 button:focus,
-[data-reach-tab-panel]:focus,
+.ox-tabs-panel:focus,
 [role='listbox']:focus,
 [role='option']:focus,
 [role='button']:focus,
@@ -90,7 +87,7 @@ input[type='checkbox']:focus {
 
 a:focus:not(:focus-visible),
 button:focus:not(:focus-visible),
-[data-reach-tab-panel]:focus:not(:focus-visible),
+.ox-tabs-panel:focus:not(:focus-visible),
 [role='listbox']:focus:not(:focus-visible),
 [role='option']:focus:not(:focus-visible),
 [role='button']:focus:not(:focus-visible),
