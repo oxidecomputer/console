@@ -33,23 +33,23 @@ const EmptyState = () => (
 )
 
 SilosPage.loader = async () => {
-  await apiQueryClient.prefetchQuery('siloListV1', { query: { limit: 10 } })
+  await apiQueryClient.prefetchQuery('siloList', { query: { limit: 10 } })
   return null
 }
 
 export default function SilosPage() {
   const navigate = useNavigate()
 
-  const { Table, Column } = useQueryTable('siloListV1', {})
+  const { Table, Column } = useQueryTable('siloList', {})
   const queryClient = useApiQueryClient()
 
-  const { data: silos } = useApiQuery('siloListV1', {
+  const { data: silos } = useApiQuery('siloList', {
     query: { limit: 10 },
   })
 
-  const deleteSilo = useApiMutation('siloDeleteV1', {
+  const deleteSilo = useApiMutation('siloDelete', {
     onSuccess() {
-      queryClient.invalidateQueries('siloListV1', {})
+      queryClient.invalidateQueries('siloList', {})
     },
   })
 

@@ -5,7 +5,7 @@ import { expectNotVisible, expectRowVisible, expectVisible } from 'app/test/e2e'
 import { stopInstance } from './util'
 
 test('Instance networking tab', async ({ page }) => {
-  await page.goto('/orgs/maze-war/projects/mock-project/instances/db1')
+  await page.goto('/projects/mock-project/instances/db1')
 
   // Instance networking tab
   await page.click('role=tab[name="Network Interfaces"]')
@@ -16,7 +16,7 @@ test('Instance networking tab', async ({ page }) => {
   // check VPC link in table points to the right page
   await expect(page.locator('role=cell >> role=link[name="mock-vpc"]')).toHaveAttribute(
     'href',
-    '/orgs/maze-war/projects/mock-project/vpcs/mock-vpc'
+    '/projects/mock-project/vpcs/mock-vpc'
   )
 
   // Have to stop instance to edit NICs

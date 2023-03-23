@@ -19,17 +19,17 @@ import {
 import { pb } from 'app/util/path-builder'
 
 SSHKeysPage.loader = async () => {
-  await apiQueryClient.prefetchQuery('currentUserSshKeyListV1', { query: { limit: 10 } })
+  await apiQueryClient.prefetchQuery('currentUserSshKeyList', { query: { limit: 10 } })
   return null
 }
 
 export function SSHKeysPage() {
   const navigate = useNavigate()
 
-  const { Table, Column } = useQueryTable('currentUserSshKeyListV1', {})
+  const { Table, Column } = useQueryTable('currentUserSshKeyList', {})
   const queryClient = useApiQueryClient()
 
-  const deleteSshKey = useApiMutation('currentUserSshKeyDeleteV1', {})
+  const deleteSshKey = useApiMutation('currentUserSshKeyDelete', {})
 
   const makeActions = (sshKey: SshKey): MenuAction[] => [
     {
@@ -39,7 +39,7 @@ export function SSHKeysPage() {
           { path: { sshKey: sshKey.name } },
           {
             onSuccess: () => {
-              queryClient.invalidateQueries('currentUserSshKeyListV1', {})
+              queryClient.invalidateQueries('currentUserSshKeyList', {})
             },
           }
         )

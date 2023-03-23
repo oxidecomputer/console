@@ -50,9 +50,9 @@ export function CreateDiskSideModalForm({
   const addToast = useToast()
   const navigate = useNavigate()
 
-  const createDisk = useApiMutation('diskCreateV1', {
+  const createDisk = useApiMutation('diskCreate', {
     onSuccess(data) {
-      queryClient.invalidateQueries('diskListV1', { query: projectSelector })
+      queryClient.invalidateQueries('diskList', { query: projectSelector })
       addToast({
         icon: <Success12Icon />,
         title: 'Success!',

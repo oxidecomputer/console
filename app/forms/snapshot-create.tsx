@@ -14,7 +14,7 @@ import { useProjectSelector, useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 const useSnapshotDiskItems = (projectSelector: PP.Project) => {
-  const { data: disks } = useApiQuery('diskListV1', {
+  const { data: disks } = useApiQuery('diskList', {
     query: { ...projectSelector, limit: 1000 },
   })
   return (
@@ -40,9 +40,9 @@ export function CreateSnapshotSideModalForm() {
 
   const onDismiss = () => navigate(pb.snapshots(projectSelector))
 
-  const createSnapshot = useApiMutation('snapshotCreateV1', {
+  const createSnapshot = useApiMutation('snapshotCreate', {
     onSuccess() {
-      queryClient.invalidateQueries('snapshotListV1', { query: projectSelector })
+      queryClient.invalidateQueries('snapshotList', { query: projectSelector })
       addToast({
         icon: <Success12Icon />,
         title: 'Success!',

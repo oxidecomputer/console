@@ -12,7 +12,7 @@ import { getProjectSelector, useProjectSelector, useToast } from '../hooks'
 
 EditProjectSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
   await apiQueryClient.prefetchQuery(
-    'projectViewV1',
+    'projectView',
     toPathQuery('project', getProjectSelector(params))
   )
   return null
@@ -25,23 +25,18 @@ export function EditProjectSideModalForm() {
 
   const projectSelector = useProjectSelector()
   const projectPathQuery = toPathQuery('project', projectSelector)
-  const { organization } = projectSelector
 
-  const onDismiss = () => navigate(pb.projects(projectSelector))
+  const onDismiss = () => navigate(pb.projects())
 
-  const { data: project } = useApiQuery('projectViewV1', projectPathQuery)
+  const { data: project } = useApiQuery('projectView', projectPathQuery)
 
-  const editProject = useApiMutation('projectUpdateV1', {
+  const editProject = useApiMutation('projectUpdate', {
     onSuccess(project) {
       // refetch list of projects in sidebar
       // TODO: check this invalidation
-      queryClient.invalidateQueries('projectListV1', { query: { organization } })
+      queryClient.invalidateQueries('projectList', {})
       // avoid the project fetch when the project page loads since we have the data
-      queryClient.setQueryData(
-        'projectViewV1',
-        { path: { project: project.name }, query: { organization } },
-        project
-      )
+      queryClient.setQueryData('projectView', { path: { project: project.name } }, project)
       addToast({
         icon: <Success12Icon />,
         title: 'Success!',
