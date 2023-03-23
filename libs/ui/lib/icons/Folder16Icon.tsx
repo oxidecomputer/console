@@ -4,7 +4,6 @@ interface SVGRProps {
   title?: string
   titleId?: string
 }
-
 const Folder16Icon = ({
   title,
   titleId,
@@ -25,11 +24,10 @@ const Folder16Icon = ({
         id="Union"
         fillRule="evenodd"
         clipRule="evenodd"
-        d="M1 2H9.27273V3.90909H1V2ZM1 5H15V14H1V5Z"
+        d="M1.75 2H8.52273C8.93694 2 9.27273 2.33579 9.27273 2.75V3.90909H1V2.75C1 2.33579 1.33579 2 1.75 2ZM1 5H14.25C14.6642 5 15 5.33579 15 5.75V13.25C15 13.6642 14.6642 14 14.25 14H1.75C1.33579 14 1 13.6642 1 13.25V5Z"
         fill="currentColor"
       />
     </g>
   </svg>
 )
-
 export default Folder16Icon

@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom'
 
 import type { VpcCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import { Success16Icon } from '@oxide/ui'
+import { Success12Icon } from '@oxide/ui'
 import { toPathQuery } from '@oxide/util'
 
 import { DescriptionField, NameField, SideModalForm, TextField } from 'app/components/form'
@@ -28,7 +28,7 @@ export function CreateVpcSideModalForm() {
       // avoid the vpc fetch when the vpc page loads since we have the data
       queryClient.setQueryData('vpcView', toPathQuery('vpc', vpcSelector), vpc)
       addToast({
-        icon: <Success16Icon />,
+        icon: <Success12Icon />,
         title: 'Success!',
         content: 'Your VPC has been created.',
       })

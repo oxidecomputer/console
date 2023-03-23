@@ -4,7 +4,6 @@ interface SVGRProps {
   title?: string
   titleId?: string
 }
-
 const DebianDistroIcon = ({
   title,
   titleId,
@@ -29,5 +28,4 @@ const DebianDistroIcon = ({
     </g>
   </svg>
 )
-
 export default DebianDistroIcon

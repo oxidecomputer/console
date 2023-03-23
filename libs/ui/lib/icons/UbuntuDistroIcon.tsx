@@ -4,7 +4,6 @@ interface SVGRProps {
   title?: string
   titleId?: string
 }
-
 const UbuntuDistroIcon = ({
   title,
   titleId,
@@ -31,5 +30,4 @@ const UbuntuDistroIcon = ({
     </g>
   </svg>
 )
-
 export default UbuntuDistroIcon

@@ -4,7 +4,6 @@ interface SVGRProps {
   title?: string
   titleId?: string
 }
-
 const Cloud24Icon = ({ title, titleId, ...props }: SVGProps<SVGSVGElement> & SVGRProps) => (
   <svg
     width={24}
@@ -27,5 +26,4 @@ const Cloud24Icon = ({ title, titleId, ...props }: SVGProps<SVGSVGElement> & SVG
     </g>
   </svg>
 )
-
 export default Cloud24Icon

@@ -4,7 +4,6 @@ interface SVGRProps {
   title?: string
   titleId?: string
 }
-
 const Compatibility24Icon = ({
   title,
   titleId,
@@ -25,11 +24,10 @@ const Compatibility24Icon = ({
         id="Union"
         fillRule="evenodd"
         clipRule="evenodd"
-        d="M2 11V2H22V11H16V7H8V11H2ZM16 13V17H22V22H2V17H8V13H16Z"
+        d="M2 3C2 2.44772 2.44772 2 3 2H21C21.5523 2 22 2.44772 22 3V11H16V7H8V11H2V3ZM16 13V17H22V21C22 21.5523 21.5523 22 21 22H3C2.44772 22 2 21.5523 2 21V17H8V13H16Z"
         fill="currentColor"
       />
     </g>
   </svg>
 )
-
 export default Compatibility24Icon

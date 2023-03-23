@@ -4,8 +4,11 @@ interface SVGRProps {
   title?: string
   titleId?: string
 }
-
-const Group16Icon = ({ title, titleId, ...props }: SVGProps<SVGSVGElement> & SVGRProps) => (
+const Compability16Icon = ({
+  title,
+  titleId,
+  ...props
+}: SVGProps<SVGSVGElement> & SVGRProps) => (
   <svg
     width={16}
     height={16}
@@ -16,16 +19,15 @@ const Group16Icon = ({ title, titleId, ...props }: SVGProps<SVGSVGElement> & SVG
     {...props}
   >
     {title ? <title id={titleId}>{title}</title> : null}
-    <g id="16/group">
+    <g id="16/compability">
       <path
         id="Union"
         fillRule="evenodd"
         clipRule="evenodd"
-        d="M6 4C6 5.10457 5.10457 6 4 6C2.89543 6 2 5.10457 2 4C2 2.89543 2.89543 2 4 2C5.10457 2 6 2.89543 6 4ZM1 14V7H7V14H1ZM15 14V7H9V14H15ZM14 4C14 5.10457 13.1046 6 12 6C10.8954 6 10 5.10457 10 4C10 2.89543 10.8954 2 12 2C13.1046 2 14 2.89543 14 4Z"
+        d="M1 1.75C1 1.33579 1.33579 1 1.75 1H14.25C14.6642 1 15 1.33579 15 1.75V7H11V4H5V7H1V1.75ZM11 8.99999V12H15V14.25C15 14.6642 14.6642 15 14.25 15H1.75C1.33579 15 1 14.6642 1 14.25V12H5V8.99999H11Z"
         fill="currentColor"
       />
     </g>
   </svg>
 )
-
-export default Group16Icon
+export default Compability16Icon

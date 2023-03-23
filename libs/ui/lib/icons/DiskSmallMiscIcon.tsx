@@ -4,7 +4,6 @@ interface SVGRProps {
   title?: string
   titleId?: string
 }
-
 const DiskSmallMiscIcon = ({
   title,
   titleId,
@@ -31,5 +30,4 @@ const DiskSmallMiscIcon = ({
     </g>
   </svg>
 )
-
 export default DiskSmallMiscIcon

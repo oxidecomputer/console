@@ -15,7 +15,7 @@ import {
   Divider,
   Instances24Icon,
   RadioCard,
-  Success16Icon,
+  Success12Icon,
   Tabs,
   TextInputHint,
 } from '@oxide/ui'
@@ -95,7 +95,7 @@ export function CreateInstanceForm() {
         instance
       )
       addToast({
-        icon: <Success16Icon />,
+        icon: <Success12Icon />,
         title: 'Success!',
         content: 'Your instance has been created.',
       })
