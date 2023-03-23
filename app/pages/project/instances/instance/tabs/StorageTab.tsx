@@ -59,10 +59,10 @@ const staticCols = [
 StorageTab.loader = async ({ params }: LoaderFunctionArgs) => {
   const instancePathQuery = toPathQuery('instance', getInstanceSelector(params))
   await Promise.all([
-    apiQueryClient.prefetchQuery('instanceDiskListV1', instancePathQuery),
+    apiQueryClient.prefetchQuery('instanceDiskList', instancePathQuery),
     // This is covered by the InstancePage loader but there's no downside to
     // being redundant. If it were removed there, we'd still want it here.
-    apiQueryClient.prefetchQuery('instanceViewV1', instancePathQuery),
+    apiQueryClient.prefetchQuery('instanceView', instancePathQuery),
   ])
   return null
 }
@@ -75,12 +75,12 @@ export function StorageTab() {
   const queryClient = useApiQueryClient()
   const instancePathQuery = toPathQuery('instance', useInstanceSelector())
 
-  const { data } = useApiQuery('instanceDiskListV1', instancePathQuery)
+  const { data } = useApiQuery('instanceDiskList', instancePathQuery)
 
-  const detachDisk = useApiMutation('instanceDiskDetachV1', {})
+  const detachDisk = useApiMutation('instanceDiskDetach', {})
 
   const instanceStopped =
-    useApiQuery('instanceViewV1', instancePathQuery).data?.runState === 'stopped'
+    useApiQuery('instanceView', instancePathQuery).data?.runState === 'stopped'
 
   const makeActions = useCallback(
     (disk: Disk): MenuAction[] => [
@@ -93,7 +93,7 @@ export function StorageTab() {
             { body: { disk: disk.name }, ...instancePathQuery },
             {
               onSuccess: () => {
-                queryClient.invalidateQueries('instanceDiskListV1', instancePathQuery)
+                queryClient.invalidateQueries('instanceDiskList', instancePathQuery)
               },
             }
           )
@@ -103,9 +103,9 @@ export function StorageTab() {
     [detachDisk, instanceStopped, queryClient, instancePathQuery]
   )
 
-  const attachDisk = useApiMutation('instanceDiskAttachV1', {
+  const attachDisk = useApiMutation('instanceDiskAttach', {
     onSuccess() {
-      queryClient.invalidateQueries('instanceDiskListV1', instancePathQuery)
+      queryClient.invalidateQueries('instanceDiskList', instancePathQuery)
       // cover all our bases. this is called by both modals
       setShowDiskCreate(false)
       setShowDiskAttach(false)

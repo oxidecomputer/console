@@ -14,7 +14,7 @@ const EmptyState = () => (
 
 export const VpcSystemRoutesTab = () => {
   const vpcSelector = useVpcSelector()
-  const { Table, Column } = useQueryTable('vpcRouterRouteListV1', {
+  const { Table, Column } = useQueryTable('vpcRouterRouteList', {
     query: { ...vpcSelector, router: 'system' },
   })
 

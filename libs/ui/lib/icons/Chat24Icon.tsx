@@ -4,7 +4,6 @@ interface SVGRProps {
   title?: string
   titleId?: string
 }
-
 const Chat24Icon = ({ title, titleId, ...props }: SVGProps<SVGSVGElement> & SVGRProps) => (
   <svg
     width={24}
@@ -21,11 +20,10 @@ const Chat24Icon = ({ title, titleId, ...props }: SVGProps<SVGSVGElement> & SVGR
         id="Subtract"
         fillRule="evenodd"
         clipRule="evenodd"
-        d="M22 2H2V18H4V22L8 18H22V2ZM6 7H18V9H6V7ZM6 11H18V13H6V11Z"
+        d="M12 2C6.47715 2 2 6.47715 2 12V21.0476C2 21.5736 2.4264 22 2.95238 22H12C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2ZM6 10C6 9.44772 6.44772 9 7 9H17C17.5523 9 18 9.44772 18 10C18 10.5523 17.5523 11 17 11H7C6.44771 11 6 10.5523 6 10ZM6 14C6 13.4477 6.44772 13 7 13H13C13.5523 13 14 13.4477 14 14C14 14.5523 13.5523 15 13 15H7C6.44772 15 6 14.5523 6 14Z"
         fill="currentColor"
       />
     </g>
   </svg>
 )
-
 export default Chat24Icon

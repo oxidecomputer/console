@@ -10,7 +10,7 @@ import {
 } from 'app/test/e2e'
 
 test('Click through silo access page', async ({ page }) => {
-  await page.goto('/orgs')
+  await page.goto('/')
 
   const table = page.locator('role=table')
 

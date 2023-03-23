@@ -1,26 +1,15 @@
 import { Suspense, lazy, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 
-import type { PathParams } from '@oxide/api'
-import { Button } from '@oxide/ui'
-import { DirectionLeftIcon, Spinner } from '@oxide/ui'
+import { api } from '@oxide/api'
+import { Button, PrevArrow12Icon, Spinner } from '@oxide/ui'
+import { toPathQuery } from '@oxide/util'
 
 import { SerialConsoleStatusBadge } from 'app/components/StatusBadge'
 import { useInstanceSelector } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 const Terminal = lazy(() => import('app/components/Terminal'))
-
-// TODO: janky to do this url construction here. maybe we can have oxide.ts
-// detect websocket endpoints and give us a helper that constructs a WebSocket
-// instead of calling fetch
-function serialConsoleUrl(sel: Required<PathParams.Instance>) {
-  // TODO: is there a better way to get the current host in there (or leave it implicit like with fetch)
-  const base = 'ws://' + window.location.host
-  const vitePrefix = process.env.NODE_ENV === 'development' ? '/ws-api' : ''
-  const route = `/v1/instances/${sel.instance}/serial-console/stream?organization=${sel.organization}&project=${sel.project}`
-  return base + vitePrefix + route
-}
 
 export function SerialConsolePage() {
   const instanceSelector = useInstanceSelector()
@@ -30,7 +19,10 @@ export function SerialConsolePage() {
 
   useEffect(() => {
     // TODO: error handling if this connection fails
-    wsRef.current = new WebSocket(serialConsoleUrl(instanceSelector))
+    wsRef.current = api.ws.instanceSerialConsoleStream(
+      window.location.host,
+      toPathQuery('instance', instanceSelector)
+    )
     return () => wsRef.current?.close()
   }, [instanceSelector])
 
@@ -42,7 +34,7 @@ export function SerialConsolePage() {
         to={pb.instance(instanceSelector)}
         className="mx-3 mt-3 mb-6 flex h-10 flex-shrink-0 items-center rounded px-3 bg-accent-secondary"
       >
-        <DirectionLeftIcon className="text-accent-tertiary" />
+        <PrevArrow12Icon className="text-accent-tertiary" />
         <div className="ml-2 text-mono-sm text-accent">
           <span className="text-accent-tertiary">Back to</span> instance
         </div>

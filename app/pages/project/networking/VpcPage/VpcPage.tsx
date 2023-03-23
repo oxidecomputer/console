@@ -13,16 +13,13 @@ import { VpcSubnetsTab } from './tabs/VpcSubnetsTab'
 import { VpcSystemRoutesTab } from './tabs/VpcSystemRoutesTab'
 
 VpcPage.loader = async ({ params }: LoaderFunctionArgs) => {
-  await apiQueryClient.prefetchQuery(
-    'vpcViewV1',
-    toPathQuery('vpc', getVpcSelector(params))
-  )
+  await apiQueryClient.prefetchQuery('vpcView', toPathQuery('vpc', getVpcSelector(params)))
   return null
 }
 
 export function VpcPage() {
   const vpcSelector = useVpcSelector()
-  const { data: vpc } = useApiQuery('vpcViewV1', toPathQuery('vpc', vpcSelector))
+  const { data: vpc } = useApiQuery('vpcView', toPathQuery('vpc', vpcSelector))
 
   return (
     <>

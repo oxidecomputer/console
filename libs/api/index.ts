@@ -10,7 +10,7 @@ import {
   wrapQueryClient,
 } from './hooks'
 
-const api = new Api({
+export const api = new Api({
   baseUrl: process.env.API_URL,
 })
 

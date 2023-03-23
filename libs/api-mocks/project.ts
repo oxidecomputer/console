@@ -1,7 +1,6 @@
 import type { Project, ProjectRolePolicy } from '@oxide/api'
 
 import type { Json } from './json-type'
-import { org } from './org'
 import { user1 } from './user'
 
 export const project: Json<Project> = {
@@ -10,7 +9,6 @@ export const project: Json<Project> = {
   description: 'a fake project',
   time_created: new Date(2021, 0, 1).toISOString(),
   time_modified: new Date(2021, 0, 2).toISOString(),
-  organization_id: org.id,
 }
 
 export const project2: Json<Project> = {
@@ -19,7 +17,6 @@ export const project2: Json<Project> = {
   description: 'another fake project',
   time_created: new Date(2021, 0, 15).toISOString(),
   time_modified: new Date(2021, 0, 16).toISOString(),
-  organization_id: org.id,
 }
 
 export const projects: Json<Project[]> = [project, project2]

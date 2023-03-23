@@ -29,7 +29,7 @@ import { pb } from 'app/util/path-builder'
 
 const VpcNameFromId = ({ value }: { value: string }) => {
   const projectSelector = useProjectSelector()
-  const { data: vpc } = useApiQuery('vpcViewV1', { path: { vpc: value } })
+  const { data: vpc } = useApiQuery('vpcView', { path: { vpc: value } })
   if (!vpc) return null
   return (
     <Link
@@ -43,15 +43,15 @@ const VpcNameFromId = ({ value }: { value: string }) => {
 
 const SubnetNameFromId = ({ value }: { value: string }) => (
   <span className="text-secondary">
-    {useApiQuery('vpcSubnetViewV1', { path: { subnet: value } }).data?.name}
+    {useApiQuery('vpcSubnetView', { path: { subnet: value } }).data?.name}
   </span>
 )
 
 function ExternalIpsFromInstanceName({ value: primary }: { value: boolean }) {
-  const { organization, project, instance } = useInstanceSelector()
-  const { data } = useApiQuery('instanceExternalIpListV1', {
+  const { project, instance } = useInstanceSelector()
+  const { data } = useApiQuery('instanceExternalIpList', {
     path: { instance },
-    query: { organization, project },
+    query: { project },
   })
   const ips = data?.items.map((eip) => eip.ip).join(', ')
   return <span className="text-secondary">{primary ? ips : <>&mdash;</>}</span>
@@ -60,15 +60,12 @@ function ExternalIpsFromInstanceName({ value: primary }: { value: boolean }) {
 NetworkingTab.loader = async ({ params }: LoaderFunctionArgs) => {
   const instanceSelector = getInstanceSelector(params)
   await Promise.all([
-    apiQueryClient.prefetchQuery('instanceNetworkInterfaceListV1', {
+    apiQueryClient.prefetchQuery('instanceNetworkInterfaceList', {
       query: { ...instanceSelector, limit: 10 },
     }),
     // This is covered by the InstancePage loader but there's no downside to
     // being redundant. If it were removed there, we'd still want it here.
-    apiQueryClient.prefetchQuery(
-      'instanceViewV1',
-      toPathQuery('instance', instanceSelector)
-    ),
+    apiQueryClient.prefetchQuery('instanceView', toPathQuery('instance', instanceSelector)),
   ])
   return null
 }
@@ -82,18 +79,18 @@ export function NetworkingTab() {
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [editing, setEditing] = useState<NetworkInterface | null>(null)
 
-  const getQuery = ['instanceNetworkInterfaceListV1', { query: instanceSelector }] as const
+  const getQuery = ['instanceNetworkInterfaceList', { query: instanceSelector }] as const
 
-  const createNic = useApiMutation('instanceNetworkInterfaceCreateV1', {
+  const createNic = useApiMutation('instanceNetworkInterfaceCreate', {
     onSuccess() {
-      queryClient.invalidateQueries('instanceNetworkInterfaceListV1', {
+      queryClient.invalidateQueries('instanceNetworkInterfaceList', {
         query: instanceSelector,
       })
       setCreateModalOpen(false)
     },
   })
 
-  const deleteNic = useApiMutation('instanceNetworkInterfaceDeleteV1', {
+  const deleteNic = useApiMutation('instanceNetworkInterfaceDelete', {
     onSuccess() {
       queryClient.invalidateQueries(...getQuery)
       addToast({
@@ -103,14 +100,14 @@ export function NetworkingTab() {
     },
   })
 
-  const editNic = useApiMutation('instanceNetworkInterfaceUpdateV1', {
+  const editNic = useApiMutation('instanceNetworkInterfaceUpdate', {
     onSuccess() {
       queryClient.invalidateQueries(...getQuery)
     },
   })
 
   const instanceStopped =
-    useApiQuery('instanceViewV1', toPathQuery('instance', instanceSelector)).data
+    useApiQuery('instanceView', toPathQuery('instance', instanceSelector)).data
       ?.runState === 'stopped'
 
   const makeActions = (nic: NetworkInterface): MenuAction[] => [

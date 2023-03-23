@@ -4,7 +4,6 @@ interface SVGRProps {
   title?: string
   titleId?: string
 }
-
 const ArchDistroIcon = ({
   title,
   titleId,
@@ -29,5 +28,4 @@ const ArchDistroIcon = ({
     </g>
   </svg>
 )
-
 export default ArchDistroIcon

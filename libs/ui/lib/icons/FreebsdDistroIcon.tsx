@@ -4,7 +4,6 @@ interface SVGRProps {
   title?: string
   titleId?: string
 }
-
 const FreebsdDistroIcon = ({
   title,
   titleId,
@@ -29,5 +28,4 @@ const FreebsdDistroIcon = ({
     </g>
   </svg>
 )
-
 export default FreebsdDistroIcon

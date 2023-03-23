@@ -7,14 +7,14 @@ import { RouteTabs, Tab } from 'app/components/RouteTabs'
 import { pb } from 'app/util/path-builder'
 
 InventoryPage.loader = async () => {
-  await apiQueryClient.prefetchQuery('rackListV1', {
+  await apiQueryClient.prefetchQuery('rackList', {
     query: { limit: 10 },
   })
   return null
 }
 
 export function InventoryPage() {
-  const { data: racks } = useApiQuery('rackListV1', { query: { limit: 10 } })
+  const { data: racks } = useApiQuery('rackList', { query: { limit: 10 } })
   const rack = racks?.items[0]
 
   // TODO: Add loading state

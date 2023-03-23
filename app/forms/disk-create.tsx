@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 
 import type { BlockSize, Disk, DiskCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import { Divider, Success16Icon } from '@oxide/ui'
+import { Divider, Success12Icon } from '@oxide/ui'
 import { GiB } from '@oxide/util'
 
 import {
@@ -50,11 +50,11 @@ export function CreateDiskSideModalForm({
   const addToast = useToast()
   const navigate = useNavigate()
 
-  const createDisk = useApiMutation('diskCreateV1', {
+  const createDisk = useApiMutation('diskCreate', {
     onSuccess(data) {
-      queryClient.invalidateQueries('diskListV1', { query: projectSelector })
+      queryClient.invalidateQueries('diskList', { query: projectSelector })
       addToast({
-        icon: <Success16Icon />,
+        icon: <Success12Icon />,
         title: 'Success!',
         content: 'Your disk has been created.',
       })

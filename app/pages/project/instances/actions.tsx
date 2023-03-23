@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { type Instance, useApiMutation } from '@oxide/api'
 import type { MakeActions } from '@oxide/table'
-import { Success16Icon } from '@oxide/ui'
+import { Success12Icon } from '@oxide/ui'
 import { toPathQuery } from '@oxide/util'
 
 import { useToast } from 'app/hooks'
@@ -26,20 +26,20 @@ type Options = {
 }
 
 export const useMakeInstanceActions = (
-  projectSelector: { organization: string; project: string },
+  projectSelector: { project: string },
   options: Options = {}
 ): MakeActions<Instance> => {
   const navigate = useNavigate()
   const addToast = useToast()
-  const successToast = (title: string) => addToast({ icon: <Success16Icon />, title })
+  const successToast = (title: string) => addToast({ icon: <Success12Icon />, title })
 
   // if you also pass onSuccess to mutate(), this one is not overridden — this
   // one runs first, then the one passed to mutate()
   const opts = { onSuccess: options.onSuccess }
-  const startInstance = useApiMutation('instanceStartV1', opts)
-  const stopInstance = useApiMutation('instanceStopV1', opts)
-  const rebootInstance = useApiMutation('instanceRebootV1', opts)
-  const deleteInstance = useApiMutation('instanceDeleteV1', opts)
+  const startInstance = useApiMutation('instanceStart', opts)
+  const stopInstance = useApiMutation('instanceStop', opts)
+  const rebootInstance = useApiMutation('instanceReboot', opts)
+  const deleteInstance = useApiMutation('instanceDelete', opts)
 
   return useCallback((instance) => {
     const instanceName = instance.name
