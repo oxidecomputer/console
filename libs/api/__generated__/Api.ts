@@ -2073,6 +2073,9 @@ export interface InstanceSerialConsoleStreamPathParams {
 }
 
 export interface InstanceSerialConsoleStreamQueryParams {
+  fromStart?: number
+  maxBytes?: number
+  mostRecent?: number
   project?: NameOrId
 }
 

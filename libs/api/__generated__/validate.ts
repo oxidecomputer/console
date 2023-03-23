@@ -2291,6 +2291,9 @@ export const InstanceSerialConsoleStreamParams = z.preprocess(
       instance: NameOrId,
     }),
     query: z.object({
+      fromStart: z.number().min(0).optional(),
+      maxBytes: z.number().min(0).optional(),
+      mostRecent: z.number().min(0).optional(),
       project: NameOrId.optional(),
     }),
   })
