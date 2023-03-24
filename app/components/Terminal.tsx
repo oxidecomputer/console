@@ -57,9 +57,6 @@ export const Terminal = ({ ws }: TerminalProps) => {
 
     // Persist terminal instance, initialize terminal
     setTerm(newTerm)
-    if (terminalRef.current) {
-      newTerm.open(terminalRef.current)
-    }
 
     // Setup terminal addons
     const fitAddon = new FitAddon()
@@ -71,7 +68,11 @@ export const Terminal = ({ ws }: TerminalProps) => {
     // Handle window resizing
     const resize = () => fitAddon.fit()
 
-    resize()
+    if (terminalRef.current) {
+      newTerm.open(terminalRef.current)
+      resize()
+    }
+
     window.addEventListener('resize', resize)
     return () => {
       newTerm.dispose()

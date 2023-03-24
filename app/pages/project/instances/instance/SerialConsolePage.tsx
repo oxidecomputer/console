@@ -1,17 +1,17 @@
-import { Suspense, lazy, useEffect, useRef } from 'react'
+import { Suspense, lazy, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import { api } from '@oxide/api'
 import { Button, PrevArrow12Icon, Spinner } from '@oxide/ui'
-import { toPathQuery } from '@oxide/util'
 
+// import { toPathQuery } from '@oxide/util'
 import { SerialConsoleStatusBadge } from 'app/components/StatusBadge'
 import { useInstanceSelector } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 const Terminal = lazy(() => import('app/components/Terminal'))
 
-const pathPrefix = process.env.NODE_ENV === 'development' ? '/ws-api' : ''
+// const pathPrefix = process.env.NODE_ENV === 'development' ? '/ws-api' : ''
 
 export function SerialConsolePage() {
   const instanceSelector = useInstanceSelector()
@@ -19,16 +19,30 @@ export function SerialConsolePage() {
   // unclear if this should be a ref, it could be normal state or even a useMemo
   const wsRef = useRef<WebSocket | null>(null)
 
+  const [connectionStatus, setConnectionStatus] = useState<
+    'connecting' | 'open' | 'closed' | 'error'
+  >('connecting')
+
   useEffect(() => {
     // TODO: error handling if this connection fails
+    const { project, instance } = instanceSelector
     wsRef.current = api.ws.instanceSerialConsoleStream(
-      window.location.host + pathPrefix,
-      toPathQuery('instance', instanceSelector)
+      // window.location.host + pathPrefix,
+      'localhost:12220',
+      { path: { instance }, query: { project, fromStart: 0 } }
     )
-    return () => wsRef.current?.close()
-  }, [instanceSelector])
-
-  const connected = wsRef.current?.readyState === WebSocket.OPEN
+    // TODO: add listeners for other statuses?
+    wsRef.current.addEventListener('open', () => {
+      setConnectionStatus('open')
+    })
+    // this is pretty important :|
+    wsRef.current.binaryType = 'arraybuffer'
+    // TODO: uh when do we close this
+    // return () => wsRef.current?.close()
+    // TODO: why is instanceSelector not stable?!?!?!?!? it's memoized!
+    // }, [instanceSelector])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <div className="!mx-0 flex h-full max-h-[calc(100vh-60px)] !w-full flex-col">
@@ -43,7 +57,7 @@ export function SerialConsolePage() {
       </Link>
 
       <div className="gutter relative w-full flex-shrink flex-grow overflow-hidden">
-        {!connected && <SerialSkeleton />}
+        {connectionStatus !== 'open' && <SerialSkeleton />}
         <Suspense fallback={null}>
           {wsRef.current && <Terminal ws={wsRef.current} />}
         </Suspense>
@@ -56,7 +70,9 @@ export function SerialConsolePage() {
             </Button>
           </div>
 
-          <SerialConsoleStatusBadge status={connected ? 'connected' : 'connecting'} />
+          <SerialConsoleStatusBadge
+            status={connectionStatus === 'open' ? 'connected' : 'connecting'}
+          />
         </div>
       </div>
     </div>
