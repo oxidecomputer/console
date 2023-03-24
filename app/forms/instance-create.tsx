@@ -45,7 +45,7 @@ export type InstanceCreateInput = Assign<
     disks: DiskTableItem[]
     bootDiskName: string
     bootDiskSize: number
-    globalImage: string
+    image: string
   }
 >
 
@@ -63,7 +63,7 @@ const baseDefaultValues: InstanceCreateInput = {
 
   bootDiskName: '',
   bootDiskSize: 10,
-  globalImage: '',
+  image: '',
 
   disks: [],
   networkInterfaces: { type: 'default' },
@@ -110,7 +110,7 @@ export function CreateInstanceForm() {
 
   const defaultValues: InstanceCreateInput = {
     ...baseDefaultValues,
-    globalImage: projectImages[0]?.id || '',
+    image: projectImages[0]?.id || '',
     // Use 2x the image size as the default boot disk size
     bootDiskSize: Math.ceil(projectImages[0]?.size / GiB) * 2 || 10,
   }
@@ -121,16 +121,13 @@ export function CreateInstanceForm() {
       formOptions={{ defaultValues }}
       title="Create instance"
       icon={<Instances24Icon />}
-      // validationSchema={Yup.object({
-      //   // needed to cover case where there are no images, in which case there
-      //   // are no individual radio fields marked required, which unfortunately
-      //   // is how required radio fields work
-      //   globalImage: Yup.string().required(),
-      // })}
       onSubmit={(values) => {
         const instance = INSTANCE_SIZES.find((option) => option.id === values['type'])
         invariant(instance, 'Expected instance type to be defined')
-        const image = projectImages.find((i) => values.globalImage === i.id)
+
+        const projectImage = projectImages.find((i) => values.image === i.id)
+        const systemImage = systemImages.find((i) => values.image === i.id)
+        const image = projectImage || systemImage
         invariant(image, 'Expected image to be defined')
 
         const bootDiskName = values.bootDiskName || genName(values.name, image.name)
@@ -153,8 +150,8 @@ export function CreateInstanceForm() {
                 // TODO: Verify size is larger than the minimum image size
                 size: values.bootDiskSize * GiB,
                 diskSource: {
-                  type: 'global_image',
-                  imageId: values.globalImage,
+                  type: projectImage ? 'image' : 'global_image',
+                  imageId: values.image,
                 },
               },
               ...values.disks,
@@ -235,14 +232,14 @@ export function CreateInstanceForm() {
           <Divider />
 
           <Form.Heading id="boot-disk">Boot disk</Form.Heading>
-          <Tabs.Root id="boot-disk-tabs" className="full-width" defaultValue="system">
+          <Tabs.Root id="boot-disk-tabs" className="full-width" defaultValue="project">
             <Tabs.List aria-describedby="boot-disk">
               <Tabs.Trigger value="system">System images</Tabs.Trigger>
               <Tabs.Trigger value="project">Project images</Tabs.Trigger>
             </Tabs.List>
             <Tabs.Content value="system" className="space-y-4">
               {systemImages.length === 0 && <span>No images found</span>}
-              <ImageSelectField images={systemImages} required control={control} />
+              {/* <ImageSelectField images={systemImages} required control={control} /> */}
             </Tabs.Content>
             <Tabs.Content value="project">
               {projectImages.length === 0 && <span>No images found</span>}
