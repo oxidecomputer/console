@@ -28,7 +28,9 @@ export default function DeviceAuthVerifyPage() {
         // we know `userCode` is non-null because the button is disabled
         // otherwise, but let's make TS happy
         if (userCode) {
-          confirmPost.mutate({ body: { userCode } })
+          // nexus wants the dash. we plan on changing that so it doesn't care
+          const code = userCode.slice(0, 4) + '-' + userCode.slice(4)
+          confirmPost.mutate({ body: { userCode: code } })
         }
       }}
     >
