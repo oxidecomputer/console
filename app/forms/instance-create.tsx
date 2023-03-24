@@ -108,11 +108,13 @@ export function CreateInstanceForm() {
   const projectImages =
     useApiQuery('imageList', { query: projectSelector }).data?.items || []
 
+  const defaultImage = systemImages[0]
+
   const defaultValues: InstanceCreateInput = {
     ...baseDefaultValues,
-    image: projectImages[0]?.id || '',
+    image: defaultImage?.id || '',
     // Use 2x the image size as the default boot disk size
-    bootDiskSize: Math.ceil(projectImages[0]?.size / GiB) * 2 || 10,
+    bootDiskSize: Math.ceil(defaultImage?.size / GiB) * 2 || 10,
   }
 
   return (
@@ -232,14 +234,14 @@ export function CreateInstanceForm() {
           <Divider />
 
           <Form.Heading id="boot-disk">Boot disk</Form.Heading>
-          <Tabs.Root id="boot-disk-tabs" className="full-width" defaultValue="project">
+          <Tabs.Root id="boot-disk-tabs" className="full-width" defaultValue="system">
             <Tabs.List aria-describedby="boot-disk">
               <Tabs.Trigger value="system">System images</Tabs.Trigger>
               <Tabs.Trigger value="project">Project images</Tabs.Trigger>
             </Tabs.List>
             <Tabs.Content value="system" className="space-y-4">
               {systemImages.length === 0 && <span>No images found</span>}
-              {/* <ImageSelectField images={systemImages} required control={control} /> */}
+              <ImageSelectField images={systemImages} required control={control} />
             </Tabs.Content>
             <Tabs.Content value="project">
               {projectImages.length === 0 && <span>No images found</span>}

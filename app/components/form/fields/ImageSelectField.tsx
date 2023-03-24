@@ -2,15 +2,17 @@ import cn from 'classnames'
 import type { Control } from 'react-hook-form'
 import { useController } from 'react-hook-form'
 
-import type { Image } from '@oxide/api'
+import type { GlobalImage, Image } from '@oxide/api'
 import { RadioCard, RadioGroup } from '@oxide/ui'
 import { GiB } from '@oxide/util'
 
 import type { InstanceCreateInput } from 'app/forms/instance-create'
 
+type Img = Image | GlobalImage
+
 type ImageSelectFieldProps = {
   required: boolean
-  images: Image[]
+  images: Img[]
   control: Control<InstanceCreateInput>
 }
 
@@ -25,7 +27,7 @@ export function ImageSelectField({ images, control, required }: ImageSelectField
 }
 
 type ImageCardProps = {
-  image: Image
+  image: Img
   control: Control<InstanceCreateInput>
 }
 
@@ -35,7 +37,7 @@ function ImageCard({ image, control }: ImageCardProps) {
 
   const selected = imageField.value === image.id
 
-  function onChange(selectedItem: Image | undefined | null) {
+  function onChange(selectedItem: Img) {
     if (selectedItem) {
       imageField.onChange(selectedItem.id)
       // if the current disk size is less than 2x the image size, bump it up
@@ -57,7 +59,7 @@ function ImageCard({ image, control }: ImageCardProps) {
       )}
     >
       <div>{image.name}</div>
-      <div>{image.os}</div>
+      <div>{'os' in image ? image.os : image.distribution}</div>
       <div>{image.version}</div>
     </RadioCard>
   )
