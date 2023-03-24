@@ -165,7 +165,13 @@ export function SiloSystemPicker({ value }: { value: 'silo' | 'system' }) {
   ) : (
     // TODO: actual silo name
     // TODO: when silo name is too long, it overflows sidebar
-    <TopBarPicker {...commonProps} category="Silo" current="Silo" display="corp.dev" />
+    <TopBarPicker
+      {...commonProps}
+      icon={<BigIdenticon name="corp.dev" />}
+      category="Silo"
+      current="Silo"
+      display="corp.dev"
+    />
   )
 }
 
@@ -209,7 +215,7 @@ export function ProjectPicker() {
   return (
     <TopBarPicker
       aria-label="Switch project"
-      icon={project ? <BigIdenticon name={project} /> : <NoProjectLogo />}
+      icon={project ? undefined : <NoProjectLogo />}
       category="Project"
       current={project}
       to={project ? pb.project({ project }) : undefined}
