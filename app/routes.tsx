@@ -65,9 +65,7 @@ const vpcCrumb: CrumbFunc = (m) => m.params.vpc!
 export const routes = createRoutesFromElements(
   <Route element={<RootLayout />}>
     <Route path="*" element={<NotFound />} />
-    <Route path="spoof_login" element={<AuthLayout />}>
-      <Route index element={<LoginPage />} />
-    </Route>
+    <Route path="spoof_login" element={<LoginPage />} />
 
     <Route path="device" element={<AuthLayout />}>
       <Route path="verify" element={<DeviceAuthVerifyPage />} />
