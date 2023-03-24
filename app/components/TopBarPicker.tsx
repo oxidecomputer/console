@@ -215,7 +215,7 @@ export function ProjectPicker() {
   return (
     <TopBarPicker
       aria-label="Switch project"
-      icon={project ? null : <NoProjectLogo />}
+      icon={project ? undefined : <NoProjectLogo />}
       category="Project"
       current={project}
       to={project ? pb.project({ project }) : undefined}
