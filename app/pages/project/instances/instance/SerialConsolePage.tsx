@@ -11,6 +11,8 @@ import { pb } from 'app/util/path-builder'
 
 const Terminal = lazy(() => import('app/components/Terminal'))
 
+const pathPrefix = process.env.NODE_ENV === 'development' ? '/ws-api' : ''
+
 export function SerialConsolePage() {
   const instanceSelector = useInstanceSelector()
 
@@ -20,7 +22,7 @@ export function SerialConsolePage() {
   useEffect(() => {
     // TODO: error handling if this connection fails
     wsRef.current = api.ws.instanceSerialConsoleStream(
-      window.location.host,
+      window.location.host + pathPrefix,
       toPathQuery('instance', instanceSelector)
     )
     return () => wsRef.current?.close()

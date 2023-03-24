@@ -66,7 +66,7 @@ run_in_pane 2 "$UTILS"
 run_in_pane 2 "set_pane_title nexus"
 run_in_pane 2 "wait_for_up 32221" # cockroach
 run_in_pane 2 "cargo run --bin=omicron-dev -- db-populate --database-url postgresql://root@127.0.0.1:32221/omicron"
-run_in_pane 2 "cargo run --bin=nexus -- nexus/examples/config.toml"
+run_in_pane 2 "SKIP_ASIC_CONFIG=1 cargo run --bin=nexus -- nexus/examples/config.toml"
 
 run_in_pane 3 "$UTILS"
 run_in_pane 3 "set_pane_title sled-agent-sim"
