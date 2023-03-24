@@ -2,7 +2,7 @@ import type { LoaderFunctionArgs } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 
 import { apiQueryClient, useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
-import { Success16Icon } from '@oxide/ui'
+import { Success12Icon } from '@oxide/ui'
 import { toPathQuery } from '@oxide/util'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
@@ -38,7 +38,7 @@ export function EditProjectSideModalForm() {
       // avoid the project fetch when the project page loads since we have the data
       queryClient.setQueryData('projectView', { path: { project: project.name } }, project)
       addToast({
-        icon: <Success16Icon />,
+        icon: <Success12Icon />,
         title: 'Success!',
         content: 'Your project has been updated.',
       })

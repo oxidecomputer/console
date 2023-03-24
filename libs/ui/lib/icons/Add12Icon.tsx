@@ -4,7 +4,6 @@ interface SVGRProps {
   title?: string
   titleId?: string
 }
-
 const Add12Icon = ({ title, titleId, ...props }: SVGProps<SVGSVGElement> & SVGRProps) => (
   <svg
     width={12}
@@ -21,11 +20,10 @@ const Add12Icon = ({ title, titleId, ...props }: SVGProps<SVGSVGElement> & SVGRP
         id="Union"
         fillRule="evenodd"
         clipRule="evenodd"
-        d="M6.5 5.5L6.5 0H5.5L5.5 5.5L0 5.5V6.5L5.5 6.5L5.5 12H6.5L6.5 6.5L12 6.5V5.5L6.5 5.5Z"
+        d="M6.75 0.667C6.75 0.298626 6.45137 0 6.083 0H5.917C5.54863 0 5.25 0.298626 5.25 0.666999V5.25H0.667C0.298626 5.25 0 5.54863 0 5.917V6.083C0 6.45137 0.298626 6.75 0.667 6.75H5.25V11.333C5.25 11.7014 5.54863 12 5.917 12H6.083C6.45137 12 6.75 11.7014 6.75 11.333V6.75H11.333C11.7014 6.75 12 6.45137 12 6.083V5.917C12 5.54863 11.7014 5.25 11.333 5.25H6.75V0.667Z"
         fill="currentColor"
       />
     </g>
   </svg>
 )
-
 export default Add12Icon

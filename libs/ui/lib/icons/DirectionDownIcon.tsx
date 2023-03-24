@@ -4,7 +4,6 @@ interface SVGRProps {
   title?: string
   titleId?: string
 }
-
 const DirectionDownIcon = ({
   title,
   titleId,
@@ -22,10 +21,13 @@ const DirectionDownIcon = ({
     {title ? <title id={titleId}>{title}</title> : null}
     <g id="Direction=Down">
       <g id="12/small-arrow">
-        <path id="\xE2\x96\xB6" d="M6 10L10 2L2 2L6 10Z" fill="currentColor" />
+        <path
+          id="\xE2\x96\xB6"
+          d="M5.40342 8.80683C5.64922 9.29844 6.35078 9.29844 6.59658 8.80683L9.51735 2.96529C9.7391 2.5218 9.41661 2 8.92077 2L3.07923 2C2.58339 2 2.2609 2.5218 2.48265 2.96529L5.40342 8.80683Z"
+          fill="currentColor"
+        />
       </g>
     </g>
   </svg>
 )
-
 export default DirectionDownIcon

@@ -4,7 +4,6 @@ interface SVGRProps {
   title?: string
   titleId?: string
 }
-
 const Prohibited24Icon = ({
   title,
   titleId,
@@ -31,5 +30,4 @@ const Prohibited24Icon = ({
     </g>
   </svg>
 )
-
 export default Prohibited24Icon

@@ -1,7 +1,7 @@
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import { useApiMutation } from '@oxide/api'
-import { Button, Identicon, Success16Icon, Warning12Icon } from '@oxide/ui'
+import { Button, Identicon, Success12Icon, Warning12Icon } from '@oxide/ui'
 
 import heroRackImg from 'app/assets/oxide-hero-rack.webp'
 import 'app/components/login-page.css'
@@ -31,7 +31,7 @@ export default function LoginPage() {
     onSuccess: () => {
       addToast({
         title: 'Logged in',
-        icon: <Success16Icon />,
+        icon: <Success12Icon />,
       })
       navigate(searchParams.get('state') || pb.projects())
     },
@@ -48,7 +48,7 @@ export default function LoginPage() {
     onSuccess: () => {
       addToast({
         title: 'Logged out',
-        icon: <Success16Icon />,
+        icon: <Success12Icon />,
       })
     },
   })

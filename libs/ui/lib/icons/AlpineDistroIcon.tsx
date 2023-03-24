@@ -4,7 +4,6 @@ interface SVGRProps {
   title?: string
   titleId?: string
 }
-
 const AlpineDistroIcon = ({
   title,
   titleId,
@@ -31,5 +30,4 @@ const AlpineDistroIcon = ({
     </g>
   </svg>
 )
-
 export default AlpineDistroIcon

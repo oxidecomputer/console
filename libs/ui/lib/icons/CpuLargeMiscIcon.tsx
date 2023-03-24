@@ -4,7 +4,6 @@ interface SVGRProps {
   title?: string
   titleId?: string
 }
-
 const CpuLargeMiscIcon = ({
   title,
   titleId,
@@ -31,5 +30,4 @@ const CpuLargeMiscIcon = ({
     </g>
   </svg>
 )
-
 export default CpuLargeMiscIcon

@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom'
 
 import type { ProjectCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import { Success16Icon } from '@oxide/ui'
+import { Success12Icon } from '@oxide/ui'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
 import { pb } from 'app/util/path-builder'
@@ -28,7 +28,7 @@ export function CreateProjectSideModalForm() {
       // avoid the project fetch when the project page loads since we have the data
       queryClient.setQueryData('projectView', { path: { project: project.name } }, project)
       addToast({
-        icon: <Success16Icon />,
+        icon: <Success12Icon />,
         title: 'Success!',
         content: 'Your project has been created.',
       })

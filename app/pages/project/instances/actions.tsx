@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { type Instance, useApiMutation } from '@oxide/api'
 import type { MakeActions } from '@oxide/table'
-import { Success16Icon } from '@oxide/ui'
+import { Success12Icon } from '@oxide/ui'
 import { toPathQuery } from '@oxide/util'
 
 import { useToast } from 'app/hooks'
@@ -31,7 +31,7 @@ export const useMakeInstanceActions = (
 ): MakeActions<Instance> => {
   const navigate = useNavigate()
   const addToast = useToast()
-  const successToast = (title: string) => addToast({ icon: <Success16Icon />, title })
+  const successToast = (title: string) => addToast({ icon: <Success12Icon />, title })
 
   // if you also pass onSuccess to mutate(), this one is not overridden — this
   // one runs first, then the one passed to mutate()

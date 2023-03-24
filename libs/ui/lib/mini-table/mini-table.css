@@ -12,7 +12,7 @@
   }
 
   & td + td:before {
-    @apply absolute top-[calc(0.5rem+1px)] bottom-[2px] block w-[1px] border-l border-secondary;
+    @apply absolute top-[calc(0.5rem+1px)] bottom-[2px] block w-[1px] border-l opacity-40 border-accent-tertiary;
     content: ' ';
   }
 
@@ -21,7 +21,7 @@
   }
 
   & td > div {
-    @apply flex h-11 items-center border-y py-3 pl-3 text-accent bg-accent-secondary border-accent-secondary;
+    @apply flex h-11 items-center border-y py-3 pl-3 text-accent bg-accent-secondary border-accent-tertiary;
   }
 
   & td:last-child > div {

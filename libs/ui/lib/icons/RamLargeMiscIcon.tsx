@@ -4,7 +4,6 @@ interface SVGRProps {
   title?: string
   titleId?: string
 }
-
 const RamLargeMiscIcon = ({
   title,
   titleId,
@@ -31,5 +30,4 @@ const RamLargeMiscIcon = ({
     </g>
   </svg>
 )
-
 export default RamLargeMiscIcon

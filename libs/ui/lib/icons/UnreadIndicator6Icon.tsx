@@ -4,7 +4,6 @@ interface SVGRProps {
   title?: string
   titleId?: string
 }
-
 const UnreadIndicator6Icon = ({
   title,
   titleId,
@@ -25,5 +24,4 @@ const UnreadIndicator6Icon = ({
     </g>
   </svg>
 )
-
 export default UnreadIndicator6Icon
