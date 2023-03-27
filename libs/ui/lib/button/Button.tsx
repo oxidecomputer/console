@@ -9,14 +9,14 @@ import './button.css'
 export const buttonSizes = ['sm', 'icon', 'base'] as const
 export const variants = ['primary', 'secondary', 'ghost', 'danger'] as const
 
-export type ButtonSize = (typeof buttonSizes)[number]
-export type Variant = (typeof variants)[number]
+export type ButtonSize = typeof buttonSizes[number]
+export type Variant = typeof variants[number]
 
 const sizeStyle: Record<ButtonSize, string> = {
   sm: 'h-8 px-3 text-mono-sm svg:w-4',
   // meant for buttons that only contain a single icon
   icon: 'h-8 w-8 text-mono-sm svg:w-4',
-  base: 'h-10 px-3 text-mono-md svg:w-5',
+  base: 'h-10 px-4 text-mono-sm svg:w-5',
 }
 
 type ButtonStyleProps = {

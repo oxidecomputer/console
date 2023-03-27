@@ -10,14 +10,14 @@ import {
 } from 'app/test/e2e'
 
 test('Click through project access page', async ({ page }) => {
-  await page.goto('/orgs/maze-war/projects/mock-project')
+  await page.goto('/projects/mock-project')
   await page.click('role=link[name*="Access & IAM"]')
 
   // has to be before anything else is checked. ensures we've prefetched
   // users list and groups list properly
   await expectSimultaneous(page, [
     'role=button[name="Add user or group"]', // important to include a static element
-    'role=cell[name="web-devs Group"]',
+    'role=cell[name="real-estate-devs Group"]',
     'role=cell[name="Hannah Arendt"]',
   ])
 
@@ -27,32 +27,22 @@ test('Click through project access page', async ({ page }) => {
   await expectRowVisible(table, {
     Name: 'Hannah Arendt',
     'Silo role': 'admin',
-    'Org role': '',
-    'Project role': '',
-  })
-  await expectRowVisible(table, {
-    Name: 'Hans Jonas',
-    'Silo role': '',
-    'Org role': 'viewer',
     'Project role': '',
   })
   await expectRowVisible(table, {
     Name: 'Jacob Klein',
     'Silo role': '',
-    'Org role': '',
     'Project role': 'collaborator',
   })
   await expectRowVisible(table, {
     // no space because expectRowVisible uses textContent, not accessible name
-    Name: 'web-devsGroup',
-    'Silo role': '',
-    'Org role': 'collaborator',
+    Name: 'real-estate-devsGroup',
+    'Silo role': 'admin',
   })
   await expectRowVisible(table, {
     // no space because expectRowVisible uses textContent, not accessible name
     Name: 'kernel-devsGroup',
     'Silo role': '',
-    'Org role': '',
     'Project role': 'viewer',
   })
 
@@ -125,7 +115,6 @@ test('Click through project access page', async ({ page }) => {
   await expectRowVisible(table, {
     Name: 'Hannah Arendt',
     'Silo role': 'admin',
-    'Org role': '',
     'Project role': 'viewer',
   })
 })

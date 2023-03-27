@@ -11,7 +11,7 @@ type SystemMetricProps = {
   startTime: Date
   endTime: Date
   metricName: SystemMetricName
-  /** Resource to filter data by. Can be fleet, silo, org, project. */
+  /** Resource to filter data by. Can be fleet, silo, project. */
   filterId: string
   valueTransform?: (n: number) => number
 }

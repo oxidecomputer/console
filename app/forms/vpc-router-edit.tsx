@@ -14,9 +14,9 @@ export function EditVpcRouterForm({ onDismiss, editing }: EditVpcRouterFormProps
   const vpcSelector = useVpcSelector()
   const queryClient = useApiQueryClient()
 
-  const updateRouter = useApiMutation('vpcRouterUpdateV1', {
+  const updateRouter = useApiMutation('vpcRouterUpdate', {
     onSuccess() {
-      queryClient.invalidateQueries('vpcRouterListV1', { query: vpcSelector })
+      queryClient.invalidateQueries('vpcRouterList', { query: vpcSelector })
       onDismiss()
     },
   })

@@ -4,7 +4,7 @@ import { expectVisible } from 'app/test/e2e'
 
 test.describe('Project create', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/orgs/maze-war/projects-new')
+    await page.goto('/projects-new')
   })
 
   test('contains expected elements', async ({ page }) => {
@@ -19,7 +19,7 @@ test.describe('Project create', () => {
   test('navigates back to project instances page on success', async ({ page }) => {
     await page.fill('role=textbox[name="Name"]', 'mock-project-2')
     await page.click('role=button[name="Create project"]')
-    await expect(page).toHaveURL('/orgs/maze-war/projects/mock-project-2/instances')
+    await expect(page).toHaveURL('/projects/mock-project-2/instances')
   })
 
   test('shows field-level validation error and does not POST', async ({ page }) => {

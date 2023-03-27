@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom'
 
 import type { VpcCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import { Success16Icon } from '@oxide/ui'
+import { Success12Icon } from '@oxide/ui'
 import { toPathQuery } from '@oxide/util'
 
 import { DescriptionField, NameField, SideModalForm, TextField } from 'app/components/form'
@@ -21,14 +21,14 @@ export function CreateVpcSideModalForm() {
   const addToast = useToast()
   const navigate = useNavigate()
 
-  const createVpc = useApiMutation('vpcCreateV1', {
+  const createVpc = useApiMutation('vpcCreate', {
     onSuccess(vpc) {
       const vpcSelector = { ...projectSelector, vpc: vpc.name }
-      queryClient.invalidateQueries('vpcListV1', { query: projectSelector })
+      queryClient.invalidateQueries('vpcList', { query: projectSelector })
       // avoid the vpc fetch when the vpc page loads since we have the data
-      queryClient.setQueryData('vpcViewV1', toPathQuery('vpc', vpcSelector), vpc)
+      queryClient.setQueryData('vpcView', toPathQuery('vpc', vpcSelector), vpc)
       addToast({
-        icon: <Success16Icon />,
+        icon: <Success12Icon />,
         title: 'Success!',
         content: 'Your VPC has been created.',
       })

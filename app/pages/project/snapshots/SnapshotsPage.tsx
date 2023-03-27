@@ -19,7 +19,7 @@ import { getProjectSelector, useProjectSelector } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 const DiskNameFromId = ({ value }: { value: string }) => {
-  const { data: disk } = useApiQuery('diskViewV1', { path: { disk: value } })
+  const { data: disk } = useApiQuery('diskView', { path: { disk: value } })
   if (!disk) return null
   return <>{disk.name}</>
 }
@@ -35,7 +35,7 @@ const EmptyState = () => (
 )
 
 SnapshotsPage.loader = async ({ params }: LoaderFunctionArgs) => {
-  await apiQueryClient.prefetchQuery('snapshotListV1', {
+  await apiQueryClient.prefetchQuery('snapshotList', {
     query: { ...getProjectSelector(params), limit: 10 },
   })
   return null
@@ -44,11 +44,11 @@ SnapshotsPage.loader = async ({ params }: LoaderFunctionArgs) => {
 export function SnapshotsPage() {
   const queryClient = useApiQueryClient()
   const projectSelector = useProjectSelector()
-  const { Table, Column } = useQueryTable('snapshotListV1', { query: projectSelector })
+  const { Table, Column } = useQueryTable('snapshotList', { query: projectSelector })
 
-  const deleteSnapshot = useApiMutation('snapshotDeleteV1', {
+  const deleteSnapshot = useApiMutation('snapshotDelete', {
     onSuccess() {
-      queryClient.invalidateQueries('snapshotListV1', { query: projectSelector })
+      queryClient.invalidateQueries('snapshotList', { query: projectSelector })
     },
   })
 

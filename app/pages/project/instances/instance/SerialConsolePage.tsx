@@ -2,8 +2,14 @@ import { Suspense, lazy, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import { useApiQuery } from '@oxide/api'
-import { Button } from '@oxide/ui'
-import { DirectionLeftIcon, Modal, Spinner, Success12Icon, useTimeout } from '@oxide/ui'
+import {
+  Button,
+  Modal,
+  PrevArrow12Icon,
+  Spinner,
+  Success12Icon,
+  useTimeout,
+} from '@oxide/ui'
 import { MiB } from '@oxide/util'
 
 import { SerialConsoleStatusBadge } from 'app/components/StatusBadge'
@@ -13,23 +19,22 @@ import { pb } from 'app/util/path-builder'
 const Terminal = lazy(() => import('app/components/Terminal'))
 
 export function SerialConsolePage() {
-  const { organization, project, instance } = useInstanceSelector()
+  const { project, instance } = useInstanceSelector()
 
   const maxBytes = 10 * MiB
 
   const { isRefetching, data, refetch } = useApiQuery(
-    'instanceSerialConsoleV1',
+    'instanceSerialConsole',
     {
       path: { instance },
       // holding off on using toPathQuery for now because it doesn't like numbers
-      query: { organization, project, maxBytes, fromStart: 0 },
+      query: { project, maxBytes, fromStart: 0 },
     },
     { refetchOnWindowFocus: false }
   )
 
   const command = `oxide instance serial
   --project ${project}
-  --organization ${organization}
   --max-bytes ${maxBytes}
   ${instance}
   --continuous`
@@ -37,10 +42,10 @@ export function SerialConsolePage() {
   return (
     <div className="!mx-0 flex h-full max-h-[calc(100vh-60px)] !w-full flex-col">
       <Link
-        to={pb.instance({ organization, project, instance })}
+        to={pb.instance({ project, instance })}
         className="mx-3 mt-3 mb-6 flex h-10 flex-shrink-0 items-center rounded px-3 bg-accent-secondary"
       >
-        <DirectionLeftIcon className="text-accent-tertiary" />
+        <PrevArrow12Icon className="text-accent-tertiary" />
         <div className="ml-2 text-mono-sm text-accent">
           <span className="text-accent-tertiary">Back to</span> instance
         </div>

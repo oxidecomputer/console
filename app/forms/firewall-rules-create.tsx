@@ -15,7 +15,7 @@ import type {
   VpcFirewallRuleTarget,
   VpcFirewallRuleUpdate,
 } from '@oxide/api'
-import { Button, Delete10Icon, Divider, Table } from '@oxide/ui'
+import { Button, Close12Icon, Divider, Table } from '@oxide/ui'
 
 import {
   CheckboxField,
@@ -221,7 +221,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
               <Table.Cell>{t.type}</Table.Cell>
               <Table.Cell>{t.value}</Table.Cell>
               <Table.Cell>
-                <Delete10Icon
+                <Close12Icon
                   className="cursor-pointer"
                   onClick={() => {
                     targets.onChange(
@@ -307,7 +307,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
               <Table.Cell>{h.type}</Table.Cell>
               <Table.Cell>{h.value}</Table.Cell>
               <Table.Cell>
-                <Delete10Icon
+                <Close12Icon
                   className="cursor-pointer"
                   onClick={() => {
                     hosts.onChange(
@@ -365,7 +365,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
               {/* TODO: should be the pretty type label, not the type key */}
               <Table.Cell>{p}</Table.Cell>
               <Table.Cell>
-                <Delete10Icon
+                <Close12Icon
                   className="cursor-pointer"
                   onClick={() => {
                     ports.onChange(ports.value.filter((p1) => p1 !== p))
@@ -425,9 +425,9 @@ export function CreateFirewallRuleForm({
   const vpcSelector = useVpcSelector()
   const queryClient = useApiQueryClient()
 
-  const updateRules = useApiMutation('vpcFirewallRulesUpdateV1', {
+  const updateRules = useApiMutation('vpcFirewallRulesUpdate', {
     onSuccess() {
-      queryClient.invalidateQueries('vpcFirewallRulesViewV1', { query: vpcSelector })
+      queryClient.invalidateQueries('vpcFirewallRulesView', { query: vpcSelector })
       onDismiss()
     },
   })

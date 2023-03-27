@@ -3,7 +3,7 @@ import { test } from '@playwright/test'
 import { expectNotVisible, expectVisible } from 'app/test/e2e'
 
 test.beforeEach(async ({ page }) => {
-  await page.goto('/orgs/maze-war/projects/mock-project')
+  await page.goto('/projects/mock-project')
 })
 
 test('Click through instance page', async ({ page }) => {
@@ -15,8 +15,8 @@ test('Click through instance page', async ({ page }) => {
     'role=tab[name="Storage"]',
     'role=tab[name="Metrics"]',
     'role=tab[name="Network Interfaces"]',
-    'role=table[name="Boot disk"] >> role=cell[name="disk-1"]',
-    'role=table[name="Attached disks"] >> role=cell[name="disk-2"]',
+    'role=table[name="Disks"] >> role=cell[name="disk-1"]',
+    'role=table[name="Disks"] >> role=cell[name="disk-2"]',
     // buttons disabled while instance is running
     'role=button[name="Create new disk"][disabled]',
     'role=button[name="Attach existing disk"][disabled]',

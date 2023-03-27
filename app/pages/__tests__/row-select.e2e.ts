@@ -33,7 +33,7 @@ test.skip('Row multiselect works as expected', async ({ page }) => {
 
   // ACTUAL TEST
 
-  await page.goto('/orgs/maze-war/projects/mock-project/vpcs/mock-vpc?tab=firewall-rules')
+  await page.goto('/projects/mock-project/vpcs/mock-vpc?tab=firewall-rules')
 
   // baseline empty state
   await expect(headCheckbox).toHaveCount(1)

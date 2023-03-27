@@ -3,17 +3,16 @@ import { images } from '@oxide/api-mocks'
 import { expectVisible, test } from 'app/test/e2e'
 import { pb } from 'app/util/path-builder'
 
-test.beforeEach(async ({ createProject, orgName, projectName }) => {
-  await createProject(orgName, projectName)
+test.beforeEach(async ({ createProject, projectName }) => {
+  await createProject(projectName)
 })
 
 test('can invoke instance create form from instances page', async ({
   page,
-  orgName,
   projectName,
   genName,
 }) => {
-  await page.goto(pb.instances({ organization: orgName, project: projectName }))
+  await page.goto(pb.instances({ project: projectName }))
   await page.locator('text="New Instance"').click()
 
   await expectVisible(page, [
@@ -38,20 +37,14 @@ test('can invoke instance create form from instances page', async ({
   await page.fill('input[name=bootDiskName]', genName('my-boot-disk'))
   await page.fill('input[name=bootDiskSize]', '20')
 
-  // TODO: image is not found because images are no longer global, and the
-  // project used in this test is created for the test, so the mock images in
-  // the MSW DB are not in that project.
-  await page.locator(`input[value="${images[0].id}"] ~ .ox-radio-card`).click()
+  // pick a project image just to show we can
+  await page.getByRole('tab', { name: 'Project images' }).click()
+  await page.getByRole('button', { name: 'Image' }).click()
+  await page.getByRole('option', { name: images[2].name }).click()
 
   await page.locator('button:has-text("Create instance")').click()
 
-  await page.waitForURL(
-    pb.instancePage({
-      organization: orgName,
-      project: projectName,
-      instance: instanceName,
-    })
-  )
+  await page.waitForURL(pb.instancePage({ project: projectName, instance: instanceName }))
 
   await expectVisible(page, [
     `h1:has-text("${instanceName}")`,

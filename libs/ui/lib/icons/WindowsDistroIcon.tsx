@@ -4,7 +4,6 @@ interface SVGRProps {
   title?: string
   titleId?: string
 }
-
 const WindowsDistroIcon = ({
   title,
   titleId,
@@ -29,5 +28,4 @@ const WindowsDistroIcon = ({
     </g>
   </svg>
 )
-
 export default WindowsDistroIcon

@@ -4,7 +4,6 @@ interface SVGRProps {
   title?: string
   titleId?: string
 }
-
 const Progress24Icon = ({
   title,
   titleId,
@@ -25,11 +24,10 @@ const Progress24Icon = ({
         id="Union"
         fillRule="evenodd"
         clipRule="evenodd"
-        d="M21 1H17V23H21V1ZM10 8H14V23H10V8ZM3 15H7V23H3V15Z"
+        d="M18 1C17.4477 1 17 1.44772 17 2V22C17 22.5523 17.4477 23 18 23H20C20.5523 23 21 22.5523 21 22V2C21 1.44772 20.5523 1 20 1H18ZM10 9C10 8.44772 10.4477 8 11 8H13C13.5523 8 14 8.44772 14 9V22C14 22.5523 13.5523 23 13 23H11C10.4477 23 10 22.5523 10 22V9ZM3 16C3 15.4477 3.44772 15 4 15H6C6.55228 15 7 15.4477 7 16V22C7 22.5523 6.55228 23 6 23H4C3.44772 23 3 22.5523 3 22V16Z"
         fill="currentColor"
       />
     </g>
   </svg>
 )
-
 export default Progress24Icon

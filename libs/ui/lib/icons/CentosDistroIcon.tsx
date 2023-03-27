@@ -4,7 +4,6 @@ interface SVGRProps {
   title?: string
   titleId?: string
 }
-
 const CentosDistroIcon = ({
   title,
   titleId,
@@ -29,5 +28,4 @@ const CentosDistroIcon = ({
     </g>
   </svg>
 )
-
 export default CentosDistroIcon

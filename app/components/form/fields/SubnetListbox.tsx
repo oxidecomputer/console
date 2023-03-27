@@ -36,7 +36,7 @@ export function SubnetListbox<
   // TODO: error handling other than fallback to empty list?
   const subnets =
     useApiQuery(
-      'vpcSubnetListV1',
+      'vpcSubnetList',
       { query: { ...projectSelector, vpc: vpcName } },
       {
         enabled: vpcExists,

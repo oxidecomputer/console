@@ -4,7 +4,6 @@ interface SVGRProps {
   title?: string
   titleId?: string
 }
-
 const IpLocal24Icon = ({
   title,
   titleId,
@@ -31,5 +30,4 @@ const IpLocal24Icon = ({
     </g>
   </svg>
 )
-
 export default IpLocal24Icon

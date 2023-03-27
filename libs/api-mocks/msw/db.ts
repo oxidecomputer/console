@@ -20,23 +20,12 @@ export const lookupById = <T extends { id: string }>(table: T[], id: string) => 
 }
 
 export const lookup = {
-  org({ organization: id }: PP.Org): Json<Api.Organization> {
-    if (!id) throw notFoundErr
-
-    if (isUuid(id)) return lookupById(db.orgs, id)
-
-    const org = db.orgs.find((o) => o.name === id)
-    if (!org) throw notFoundErr
-
-    return org
-  },
-  project({ project: id, ...orgSelector }: PP.Project): Json<Api.Project> {
+  project({ project: id }: PP.Project): Json<Api.Project> {
     if (!id) throw notFoundErr
 
     if (isUuid(id)) return lookupById(db.projects, id)
 
-    const org = lookup.org(orgSelector)
-    const project = db.projects.find((p) => p.organization_id === org.id && p.name === id)
+    const project = db.projects.find((p) => p.name === id)
     if (!project) throw notFoundErr
 
     return project
@@ -203,10 +192,10 @@ const initDb = {
   userGroups: [...mock.userGroups],
   /** Join table for `users` and `userGroups` */
   groupMemberships: [...mock.groupMemberships],
+  globalImages: [...mock.globalImages],
   images: [...mock.images],
   instances: [mock.instance],
   networkInterfaces: [mock.networkInterface],
-  orgs: [...mock.orgs],
   physicalDisks: [...mock.physicalDisks],
   projects: [...mock.projects],
   racks: [...mock.racks],

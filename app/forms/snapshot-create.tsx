@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom'
 
 import type { PathParams as PP, SnapshotCreate } from '@oxide/api'
 import { useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
-import { Success16Icon } from '@oxide/ui'
+import { Success12Icon } from '@oxide/ui'
 
 import {
   DescriptionField,
@@ -14,7 +14,7 @@ import { useProjectSelector, useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 const useSnapshotDiskItems = (projectSelector: PP.Project) => {
-  const { data: disks } = useApiQuery('diskListV1', {
+  const { data: disks } = useApiQuery('diskList', {
     query: { ...projectSelector, limit: 1000 },
   })
   return (
@@ -40,11 +40,11 @@ export function CreateSnapshotSideModalForm() {
 
   const onDismiss = () => navigate(pb.snapshots(projectSelector))
 
-  const createSnapshot = useApiMutation('snapshotCreateV1', {
+  const createSnapshot = useApiMutation('snapshotCreate', {
     onSuccess() {
-      queryClient.invalidateQueries('snapshotListV1', { query: projectSelector })
+      queryClient.invalidateQueries('snapshotList', { query: projectSelector })
       addToast({
-        icon: <Success16Icon />,
+        icon: <Success12Icon />,
         title: 'Success!',
         content: 'Your snapshot has been created.',
       })

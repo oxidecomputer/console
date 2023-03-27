@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom'
 
 import type { SiloCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import { Success16Icon } from '@oxide/ui'
+import { Success12Icon } from '@oxide/ui'
 
 import {
   CheckboxField,
@@ -28,12 +28,12 @@ export function CreateSiloSideModalForm() {
 
   const onDismiss = () => navigate(pb.silos())
 
-  const createSilo = useApiMutation('siloCreateV1', {
+  const createSilo = useApiMutation('siloCreate', {
     onSuccess(silo) {
-      queryClient.invalidateQueries('siloListV1', {})
-      queryClient.setQueryData('siloViewV1', { path: { silo: silo.name } }, silo)
+      queryClient.invalidateQueries('siloList', {})
+      queryClient.setQueryData('siloView', { path: { silo: silo.name } }, silo)
       addToast({
-        icon: <Success16Icon />,
+        icon: <Success12Icon />,
         title: 'Success!',
         content: 'Your silo has been created.',
       })

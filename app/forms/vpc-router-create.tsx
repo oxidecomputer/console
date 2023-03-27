@@ -1,6 +1,6 @@
 import type { VpcRouterCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import { Success16Icon } from '@oxide/ui'
+import { Success12Icon } from '@oxide/ui'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
 import { useToast, useVpcSelector } from 'app/hooks'
@@ -19,17 +19,17 @@ export function CreateVpcRouterForm({ onDismiss }: CreateVpcRouterFormProps) {
   const queryClient = useApiQueryClient()
   const addToast = useToast()
 
-  const createRouter = useApiMutation('vpcRouterCreateV1', {
+  const createRouter = useApiMutation('vpcRouterCreate', {
     onSuccess(router) {
-      queryClient.invalidateQueries('vpcRouterListV1', { query: vpcSelector })
+      queryClient.invalidateQueries('vpcRouterList', { query: vpcSelector })
       // avoid the vpc fetch when the vpc page loads since we have the data
       queryClient.setQueryData(
-        'vpcRouterViewV1',
+        'vpcRouterView',
         { path: { router: router.name }, query: vpcSelector },
         router
       )
       addToast({
-        icon: <Success16Icon />,
+        icon: <Success12Icon />,
         title: 'Success!',
         content: 'Your VPC router has been created.',
       })
