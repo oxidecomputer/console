@@ -11,7 +11,8 @@ import { pb } from 'app/util/path-builder'
 
 const Terminal = lazy(() => import('app/components/Terminal'))
 
-// const pathPrefix = process.env.NODE_ENV === 'development' ? '/ws-api' : ''
+// need prefix so Vite dev server can handle it specially
+const pathPrefix = process.env.NODE_ENV === 'development' ? '/ws-serial-console' : ''
 
 export function SerialConsolePage() {
   const instanceSelector = useInstanceSelector()
@@ -26,19 +27,17 @@ export function SerialConsolePage() {
   useEffect(() => {
     // TODO: error handling if this connection fails
     const { project, instance } = instanceSelector
-    wsRef.current = api.ws.instanceSerialConsoleStream(
-      // window.location.host + pathPrefix,
-      'localhost:12220',
-      { path: { instance }, query: { project, fromStart: 0 } }
-    )
+    wsRef.current = api.ws.instanceSerialConsoleStream(window.location.host + pathPrefix, {
+      path: { instance },
+      query: { project, fromStart: 0 },
+    })
     // TODO: add listeners for other statuses?
     wsRef.current.addEventListener('open', () => {
       setConnectionStatus('open')
     })
     // this is pretty important :|
     wsRef.current.binaryType = 'arraybuffer'
-    // TODO: uh when do we close this
-    // return () => wsRef.current?.close()
+    return () => wsRef.current?.close()
     // TODO: why is instanceSelector not stable?!?!?!?!? it's memoized!
     // }, [instanceSelector])
     // eslint-disable-next-line react-hooks/exhaustive-deps

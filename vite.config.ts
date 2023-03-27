@@ -74,15 +74,16 @@ export default defineConfig(({ mode }) => ({
         },
         rewrite: (path) => path.replace(/^\/api/, ''),
       },
-      '/ws-api': {
-        target: 'ws://localhost:12220',
+      '/ws-serial-console': {
+        // local mock server vs Nexus
+        target: 'ws://localhost:' + (process.env.MSW ? 6036 : 12220),
         ws: true,
         configure(proxy) {
           proxy.on('error', (_, req) => {
-            console.error('    to', '/api' + req.url)
+            console.error('    to', '/ws-serial-console' + req.url)
           })
         },
-        rewrite: (path) => path.replace(/^\/ws-api/, ''),
+        rewrite: (path) => path.replace(/^\/ws-serial-console/, ''),
       },
       // We want to actually hit Nexus for this because it gives us a login redirect
       '/login': {
