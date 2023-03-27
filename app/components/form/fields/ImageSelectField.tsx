@@ -23,7 +23,18 @@ export function ImageSelectField({ images, control }: ImageSelectFieldProps) {
       name="image"
       items={images.map((i) => {
         const os = 'distribution' in i ? i.distribution : i.os
-        return { value: i.id, label: `${i.name} (os: ${os}, version: ${i.version})` }
+        return {
+          value: i.id,
+          labelString: `${i.name} (os: ${os}, version: ${i.version})`,
+          label: (
+            <>
+              <div>{i.name}</div>
+              <div className="text-secondary">
+                os: {os} / version: {i.version}
+              </div>
+            </>
+          ),
+        }
       })}
       required
       onChange={(id) => {

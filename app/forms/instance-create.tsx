@@ -249,6 +249,7 @@ export function CreateInstanceForm() {
             </Tabs.Content>
           </Tabs.Root>
 
+          <DiskSizeField label="Disk size" name="bootDiskSize" control={control} />
           <NameField
             name="bootDiskName"
             label="Disk name"
@@ -256,7 +257,6 @@ export function CreateInstanceForm() {
             required={false}
             control={control}
           />
-          <DiskSizeField label="Disk size" name="bootDiskSize" control={control} />
           <Divider />
           <Form.Heading id="additional-disks">Additional disks</Form.Heading>
 
