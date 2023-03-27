@@ -1,5 +1,6 @@
 export * from './disk'
 export * from './image'
+export * from './global-image'
 export * from './instance'
 export * from './network-interface'
 export * from './physical-disk'
