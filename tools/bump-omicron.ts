@@ -35,9 +35,19 @@ const { dryRun } = flags.parse(Deno.args, {
 })
 
 const newCommit = run('git', ['rev-parse', 'HEAD'])
-const shaUrl = `https://dl.oxide.computer/releases/console/${newCommit}.sha256.txt`
-const newSha2 = (await fetch(shaUrl).then((resp) => resp.text())).trim()
 
+const shaUrl = `https://dl.oxide.computer/releases/console/${newCommit}.sha256.txt`
+const shaResp = await fetch(shaUrl)
+
+if (!shaResp.ok) {
+  // most likely the CI job that builds and uploads the file hasn't finished
+  console.error('Failed to fetch', shaUrl)
+  console.error('Status:', shaResp.status)
+  console.error('Body:', await shaResp.text())
+  Deno.exit()
+}
+
+const newSha2 = (await shaResp.text()).trim()
 const newVersionFile = `COMMIT="${newCommit}"\nSHA2="${newSha2}"\n`
 
 if (dryRun) {
@@ -73,6 +83,7 @@ run('git', ['checkout', '-b', branchName])
 run('git', ['add', '--all'])
 run('git', ['commit', '-m', prTitle, '-m', prBody])
 run('git', ['push', '--set-upstream', 'origin', branchName])
-run('gh', ['pr', 'create', '--title', prTitle, '--body', prBody])
+const prUrl = run('gh', ['pr', 'create', '--title', prTitle, '--body', prBody])
+console.log('PR created:', prUrl)
 run('git', ['checkout', 'main'])
 run('git', ['branch', '-D', branchName])
