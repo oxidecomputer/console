@@ -31,7 +31,6 @@ export const useMakeInstanceActions = (
 ): MakeActions<Instance> => {
   const navigate = useNavigate()
   const addToast = useToast()
-  const successToast = (title: string) => addToast({ icon: <Success12Icon />, title })
 
   // if you also pass onSuccess to mutate(), this one is not overridden — this
   // one runs first, then the one passed to mutate()
@@ -43,6 +42,7 @@ export const useMakeInstanceActions = (
 
   return useCallback(
     (instance) => {
+      const successToast = (title: string) => addToast({ icon: <Success12Icon />, title })
       const instanceName = instance.name
       const instanceSelector = { ...projectSelector, instance: instanceName }
       const instanceParams = toPathQuery('instance', instanceSelector)
@@ -97,8 +97,15 @@ export const useMakeInstanceActions = (
         },
       ]
     },
-    // TODO: fix this lol
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [projectSelector]
+    [
+      projectSelector,
+      deleteInstance,
+      navigate,
+      options,
+      rebootInstance,
+      startInstance,
+      stopInstance,
+      addToast,
+    ]
   )
 }
