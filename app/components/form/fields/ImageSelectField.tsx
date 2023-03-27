@@ -39,7 +39,6 @@ export function ImageSelectField({ images, control }: ImageSelectFieldProps) {
       required
       onChange={(id) => {
         const image = images.find((i) => i.id === id)! // if it's selected, it must be present
-        console.log({ id, image, diskSize: diskSizeField.value })
         if (diskSizeField.value < (2 * image.size) / GiB) {
           diskSizeField.onChange(Math.ceil(image.size / GiB) * 2)
         }
