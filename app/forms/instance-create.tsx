@@ -241,11 +241,11 @@ export function CreateInstanceForm() {
             </Tabs.List>
             <Tabs.Content value="system" className="space-y-4">
               {systemImages.length === 0 && <span>No images found</span>}
-              <ImageSelectField images={systemImages} required control={control} />
+              <ImageSelectField images={systemImages} control={control} />
             </Tabs.Content>
             <Tabs.Content value="project">
               {projectImages.length === 0 && <span>No images found</span>}
-              <ImageSelectField images={projectImages} required control={control} />
+              <ImageSelectField images={projectImages} control={control} />
             </Tabs.Content>
           </Tabs.Root>
 

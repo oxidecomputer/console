@@ -1,4 +1,5 @@
 import type { GlobalImage } from '@oxide/api'
+import { GiB } from '@oxide/util'
 
 import type { Json } from './json-type'
 
@@ -11,7 +12,7 @@ export const globalImages: Json<GlobalImage>[] = [
     version: '22.04',
     time_created: new Date().toISOString(),
     time_modified: new Date().toISOString(),
-    size: 1024,
+    size: 1 * GiB,
     block_size: 4096,
   },
   {
@@ -22,7 +23,7 @@ export const globalImages: Json<GlobalImage>[] = [
     time_modified: new Date().toISOString(),
     distribution: 'ubuntu',
     version: '20.04',
-    size: 2048,
+    size: 2 * GiB,
     block_size: 4096,
   },
   {
@@ -33,7 +34,7 @@ export const globalImages: Json<GlobalImage>[] = [
     time_modified: new Date().toISOString(),
     distribution: 'arch',
     version: '2022.06.01',
-    size: 3072,
+    size: 3 * GiB,
     block_size: 4096,
   },
 ]

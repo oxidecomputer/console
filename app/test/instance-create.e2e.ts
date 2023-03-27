@@ -37,10 +37,10 @@ test('can invoke instance create form from instances page', async ({
   await page.fill('input[name=bootDiskName]', genName('my-boot-disk'))
   await page.fill('input[name=bootDiskSize]', '20')
 
-  // TODO: image is not found because images are no longer global, and the
-  // project used in this test is created for the test, so the mock images in
-  // the MSW DB are not in that project.
-  await page.locator(`input[value="${images[0].id}"] ~ .ox-radio-card`).click()
+  // pick a project image just to show we can
+  await page.getByRole('tab', { name: 'Project images' }).click()
+  await page.getByRole('button', { name: 'Image' }).click()
+  await page.getByRole('option', { name: images[2].name }).click()
 
   await page.locator('button:has-text("Create instance")').click()
 
