@@ -6,6 +6,20 @@ import { AuthCodeInput, Button, Warning12Icon } from '@oxide/ui'
 
 import { pb } from 'app/util/path-builder'
 
+const DASH_AFTER_IDXS = [3]
+
+// nexus wants the dash. we plan on changing that so it doesn't care
+export function addDashes(dashAfterIdxs: number[], code: string) {
+  let result = ''
+  for (let i = 0; i < code.length; i++) {
+    result += code[i]
+    if (dashAfterIdxs.includes(i)) {
+      result += '-'
+    }
+  }
+  return result
+}
+
 /**
  * Device authorization verification page
  */
@@ -28,7 +42,7 @@ export default function DeviceAuthVerifyPage() {
         // we know `userCode` is non-null because the button is disabled
         // otherwise, but let's make TS happy
         if (userCode) {
-          confirmPost.mutate({ body: { userCode } })
+          confirmPost.mutate({ body: { userCode: addDashes(DASH_AFTER_IDXS, userCode) } })
         }
       }}
     >
@@ -41,7 +55,7 @@ export default function DeviceAuthVerifyPage() {
         containerClassName="flex space-x-2 mb-6"
         inputClassName="rounded border border-default bg-default w-full aspect-square flex items-center justify-center text-center text-secondary uppercase text-mono-md"
         length={8}
-        dashAfterIdxs={[3]}
+        dashAfterIdxs={DASH_AFTER_IDXS}
       />
       <Button
         className="w-full !text-mono-sm"

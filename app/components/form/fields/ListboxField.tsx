@@ -23,6 +23,7 @@ export type ListboxFieldProps<
   control: Control<TFieldValues>
   disabled?: boolean
   items: ListboxItem[]
+  onChange?: (value: string) => void
 }
 
 export function ListboxField<
@@ -38,6 +39,7 @@ export function ListboxField<
   helpText,
   className,
   control,
+  onChange,
 }: ListboxFieldProps<TFieldValues, TName>) {
   // TODO: recreate this logic
   //   validate: (v) => (required && !v ? `${name} is required` : undefined),
@@ -54,16 +56,19 @@ export function ListboxField<
         name={name}
         rules={{ required }}
         control={control}
-        render={({ field: { onBlur, onChange, value }, fieldState: { error } }) => (
+        render={({ field, fieldState: { error } }) => (
           <>
             <Listbox
-              defaultValue={value}
+              defaultValue={field.value}
               items={items}
               onChange={(i) => {
-                if (i) onChange(i.value)
+                if (i) {
+                  field.onChange(i.value)
+                  onChange?.(i.value)
+                }
               }}
               // required to get required error to trigger on blur
-              onBlur={onBlur}
+              onBlur={field.onBlur}
               disabled={disabled}
               aria-labelledby={cn(`${id}-label`, {
                 [`${id}-help-text`]: !!description,

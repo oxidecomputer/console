@@ -53,7 +53,7 @@ export const Toast = ({
         textColor[variant]
       )}
     >
-      {icon}
+      <div className="mt-[2px] flex svg:h-3 svg:w-3">{icon}</div>
       <div className="flex-1 pl-2.5">
         <div className="text-sans-semi-md">{title}</div>
         <div className="text-sans-md text-accent-secondary">{content}</div>

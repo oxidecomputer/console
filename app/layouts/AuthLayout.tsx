@@ -1,6 +1,6 @@
 import { Outlet } from 'react-router-dom'
 
-const Logo = ({ className = '' }) => {
+export const Logo = ({ className = '' }) => {
   return (
     <svg
       width="100"
