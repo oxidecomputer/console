@@ -89,11 +89,11 @@ export const routes = createRoutesFromElements(
 
       <Route path="sys" element={<SystemLayout />} loader={SystemLayout.loader}>
         <Route element={<SilosPage />} loader={SilosPage.loader}>
-          <Route path="silos" />
+          <Route path="silos" element={null} />
           <Route path="silos-new" element={<CreateSiloSideModalForm />} />
         </Route>
         <Route path="silos/:silo" element={<SiloPage />} loader={SiloPage.loader}>
-          <Route index />
+          <Route index element={null} />
           <Route path="idps-new" element={<CreateIdpSideModalForm />} />
         </Route>
         <Route path="issues" element={null} />
@@ -148,7 +148,7 @@ export const routes = createRoutesFromElements(
           loader={SiloUtilizationPage.loader}
         />
         <Route loader={ProjectsPage.loader} element={<ProjectsPage />}>
-          <Route path="projects" handle={{ crumb: 'Projects' }} />
+          <Route path="projects" handle={{ crumb: 'Projects' }} element={null} />
           <Route
             path="projects-new"
             element={<CreateProjectSideModalForm />}
@@ -233,7 +233,7 @@ export const routes = createRoutesFromElements(
         </Route>
 
         <Route loader={VpcsPage.loader} element={<VpcsPage />}>
-          <Route path="vpcs" handle={{ crumb: 'VPCs' }} />
+          <Route path="vpcs" handle={{ crumb: 'VPCs' }} element={null} />
           <Route
             path="vpcs-new"
             element={<CreateVpcSideModalForm />}
@@ -267,11 +267,11 @@ export const routes = createRoutesFromElements(
             handle={{ crumb: 'New disk' }}
           />
 
-          <Route path="disks" handle={{ crumb: 'Disks' }} />
+          <Route path="disks" handle={{ crumb: 'Disks' }} element={null} />
         </Route>
 
         <Route element={<SnapshotsPage />} loader={SnapshotsPage.loader}>
-          <Route path="snapshots" handle={{ crumb: 'Snapshots' }} />
+          <Route path="snapshots" handle={{ crumb: 'Snapshots' }} element={null} />
           <Route
             path="snapshots-new"
             element={<CreateSnapshotSideModalForm />}
