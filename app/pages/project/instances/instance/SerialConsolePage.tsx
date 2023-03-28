@@ -2,9 +2,9 @@ import { Suspense, lazy, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import { api } from '@oxide/api'
-import { Button, PrevArrow12Icon, Spinner } from '@oxide/ui'
+import { PrevArrow12Icon, Spinner } from '@oxide/ui'
 
-// import { toPathQuery } from '@oxide/util'
+import EquivalentCliCommand from 'app/components/EquivalentCliCommand'
 import { SerialConsoleStatusBadge } from 'app/components/StatusBadge'
 import { useInstanceSelector } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
@@ -16,6 +16,7 @@ const pathPrefix = process.env.NODE_ENV === 'development' ? '/ws-serial-console'
 
 export function SerialConsolePage() {
   const instanceSelector = useInstanceSelector()
+  const { project, instance } = instanceSelector
 
   // unclear if this should be a ref, it could be normal state or even a useMemo
   const wsRef = useRef<WebSocket | null>(null)
@@ -43,6 +44,11 @@ export function SerialConsolePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  const command = `oxide instance serial
+  --project ${project}
+  ${instance}
+  --continuous`
+
   return (
     <div className="!mx-0 flex h-full max-h-[calc(100vh-60px)] !w-full flex-col">
       <Link
@@ -64,9 +70,7 @@ export function SerialConsolePage() {
       <div className="flex-shrink-0 justify-between overflow-hidden border-t bg-default border-secondary empty:border-t-0">
         <div className="gutter flex h-20 items-center justify-between">
           <div>
-            <Button variant="ghost" size="sm" className="ml-2">
-              Equivalent CLI Command
-            </Button>
+            <EquivalentCliCommand command={command} />
           </div>
 
           <SerialConsoleStatusBadge
