@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect, useRef, useState } from 'react'
+import { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import { api } from '@oxide/api'
@@ -14,35 +14,54 @@ const Terminal = lazy(() => import('app/components/Terminal'))
 // need prefix so Vite dev server can handle it specially
 const pathPrefix = process.env.NODE_ENV === 'development' ? '/ws-serial-console' : ''
 
+type WsState = 'connecting' | 'open' | 'closed' | 'error'
+
 export function SerialConsolePage() {
   const instanceSelector = useInstanceSelector()
   const { project, instance } = instanceSelector
 
-  // unclear if this should be a ref, it could be normal state or even a useMemo
-  const wsRef = useRef<WebSocket | null>(null)
+  const ws = useRef<WebSocket | null>(null)
 
-  const [connectionStatus, setConnectionStatus] = useState<
-    'connecting' | 'open' | 'closed' | 'error'
-  >('connecting')
+  const [connectionStatus, setConnectionStatus] = useState<WsState>('connecting')
+
+  const setOpen = useCallback(() => setConnectionStatus('open'), [])
+  const setClosed = useCallback(() => setConnectionStatus('closed'), [])
+  const setError = useCallback(() => setConnectionStatus('error'), [])
 
   useEffect(() => {
     // TODO: error handling if this connection fails
-    const { project, instance } = instanceSelector
-    wsRef.current = api.ws.instanceSerialConsoleStream(window.location.host + pathPrefix, {
-      path: { instance },
-      query: { project, fromStart: 0 },
-    })
-    // TODO: add listeners for other statuses?
-    wsRef.current.addEventListener('open', () => {
-      setConnectionStatus('open')
-    })
-    // this is pretty important :|
-    wsRef.current.binaryType = 'arraybuffer'
-    return () => wsRef.current?.close()
-    // TODO: why is instanceSelector not stable?!?!?!?!? it's memoized!
-    // }, [instanceSelector])
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    if (!ws.current) {
+      const { project, instance } = instanceSelector
+      ws.current = api.ws.instanceSerialConsoleStream(window.location.host + pathPrefix, {
+        path: { instance },
+        query: { project, fromStart: 0 },
+      })
+      ws.current.binaryType = 'arraybuffer'
+
+      ws.current.addEventListener('open', setOpen)
+      ws.current.addEventListener('closed', setClosed)
+      ws.current.addEventListener('error', setError)
+      // this is pretty important :|
+    }
+    // In dev, React 18 strict mode fires all effects twice for lulz, even ones
+    // with no dependencies. In order to prevent the websocket from being killed
+    // before it's even connected, we check not only that it is non-null, but
+    // also that it is OPEN before trying to kill it. This allows the effect to
+    // run twice with no ill effect.
+    //
+    // 1.  effect runs, WS connection initialized and starts connecting
+    // 1a. cleanup runs, but nothing happens because socket was not open yet
+    // 2.  effect runs, but `ws.current` is truthy, so nothing happens
+    return () => {
+      if (ws.current?.readyState === WebSocket.OPEN) {
+        ws.current.close()
+        ws.current.removeEventListener('open', setOpen)
+        ws.current.removeEventListener('closed', setClosed)
+        ws.current.removeEventListener('error', setError)
+        ws.current = null
+      }
+    }
+  }, [instanceSelector, setOpen, setClosed, setError])
 
   const command = `oxide instance serial
   --project ${project}
@@ -63,9 +82,7 @@ export function SerialConsolePage() {
 
       <div className="gutter relative w-full flex-shrink flex-grow overflow-hidden">
         {connectionStatus !== 'open' && <SerialSkeleton />}
-        <Suspense fallback={null}>
-          {wsRef.current && <Terminal ws={wsRef.current} />}
-        </Suspense>
+        <Suspense fallback={null}>{ws.current && <Terminal ws={ws.current} />}</Suspense>
       </div>
       <div className="flex-shrink-0 justify-between overflow-hidden border-t bg-default border-secondary empty:border-t-0">
         <div className="gutter flex h-20 items-center justify-between">
