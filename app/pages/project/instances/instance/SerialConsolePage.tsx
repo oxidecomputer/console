@@ -2,10 +2,10 @@ import { Suspense, lazy } from 'react'
 import { Link } from 'react-router-dom'
 
 import { useApiQuery } from '@oxide/api'
-import { Button } from '@oxide/ui'
-import { PrevArrow12Icon, Spinner } from '@oxide/ui'
+import { Button, PrevArrow12Icon, Spinner } from '@oxide/ui'
 import { MiB } from '@oxide/util'
 
+import EquivalentCliCommand from 'app/components/EquivalentCliCommand'
 import { SerialConsoleStatusBadge } from 'app/components/StatusBadge'
 import { useInstanceSelector } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
@@ -15,15 +15,23 @@ const Terminal = lazy(() => import('app/components/Terminal'))
 export function SerialConsolePage() {
   const { project, instance } = useInstanceSelector()
 
+  const maxBytes = 10 * MiB
+
   const { isRefetching, data, refetch } = useApiQuery(
     'instanceSerialConsole',
     {
       path: { instance },
       // holding off on using toPathQuery for now because it doesn't like numbers
-      query: { project, maxBytes: 10 * MiB, fromStart: 0 },
+      query: { project, maxBytes, fromStart: 0 },
     },
     { refetchOnWindowFocus: false }
   )
+
+  const command = `oxide instance serial
+  --project ${project}
+  --max-bytes ${maxBytes}
+  ${instance}
+  --continuous`
 
   return (
     <div className="!mx-0 flex h-full max-h-[calc(100vh-60px)] !w-full flex-col">
@@ -55,9 +63,7 @@ export function SerialConsolePage() {
               Refresh
             </Button>
 
-            <Button variant="ghost" size="sm" disabled={!data} className="ml-2">
-              Equivalent CLI Command
-            </Button>
+            <EquivalentCliCommand command={command} />
           </div>
 
           <SerialConsoleStatusBadge status={data ? 'connected' : 'connecting'} />

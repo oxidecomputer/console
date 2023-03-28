@@ -1,7 +1,8 @@
 import useInterval from './lib/hooks/use-interval'
+import useTimeout from './lib/hooks/use-timeout'
 import './styles/index.css'
 
-export { useInterval }
+export { useInterval, useTimeout }
 
 export * from './lib/action-menu/ActionMenu'
 export * from './lib/auth-code/AuthCodeInput'
@@ -17,6 +18,7 @@ export * from './lib/field-label/FieldLabel'
 export * from './lib/icons'
 export * from './lib/identicon/Identicon'
 export * from './lib/listbox/Listbox'
+export * from './lib/modal/Modal'
 export * as MiniTable from './lib/mini-table/MiniTable'
 export * from './lib/multi-select/MultiSelect'
 export * from './lib/page-header/PageHeader'
