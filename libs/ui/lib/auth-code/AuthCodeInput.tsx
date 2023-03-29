@@ -22,7 +22,7 @@ export type AuthCodeRef = {
   clear: () => void
 }
 
-const INPUT_PATTERN = '[a-zA-Z0-9]{1}'
+const INPUT_PATTERN = '[a-zA-Z]{1}'
 
 // the reason these helpers are here is we to skip the dashes when we're looking
 // to focus the next or previous input
@@ -102,7 +102,9 @@ export const AuthCodeInput = forwardRef<AuthCodeRef, AuthCodeProps>(
     }, [autoFocus])
 
     const sendResult = () => {
-      const res = inputsRef.current.map((input) => input.value).join('')
+      // user_code is always uppercase
+      // https://github.com/oxidecomputer/omicron/blob/c63fe1658674186d974e3287afdce09b07912afd/nexus/db-model/src/device_auth.rs#L72-L77
+      const res = inputsRef.current.map((input) => input.value.toUpperCase()).join('')
       onChange && onChange(res)
     }
 
