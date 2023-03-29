@@ -49,12 +49,21 @@ interface TerminalProps {
 
 export const Terminal = ({ ws }: TerminalProps) => {
   const [term, setTerm] = useState<XTerm | null>(null)
-  const terminalRef = useRef(null)
+  const terminalRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const newTerm = new XTerm(getOptions())
 
-    // Persist terminal instance, initialize terminal
+    // TODO: the render triggered by this call is load-bearing and should not
+    // be. Moving initialization out to a useMemo like it should be
+    //
+    //   const term = useMemo(() => new XTerm(getOptions()), [])
+    //
+    // introduces a bug where the serial console text does not show up until you
+    // click the terminal area or resize the window. It cannot be about making
+    // this effect run again, because the deps don't include newTerm. It must be
+    // something internal to XTerm. Overall I do not feel particularly good
+    // about this whole section.
     setTerm(newTerm)
 
     const fitAddon = new FitAddon()
@@ -64,6 +73,7 @@ export const Terminal = ({ ws }: TerminalProps) => {
     // Handle window resizing
     const resize = () => fitAddon.fit()
 
+    // ref will always be defined by the time the effect runs, but make TS happy
     if (terminalRef.current) {
       newTerm.open(terminalRef.current)
       resize()
@@ -74,8 +84,7 @@ export const Terminal = ({ ws }: TerminalProps) => {
       newTerm.dispose()
       window.removeEventListener('resize', resize)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [ws])
 
   return (
     <>
