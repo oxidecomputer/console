@@ -15,7 +15,7 @@ interface FormActionsProps {
   /** Must be provided with a reason why the submit button is disabled */
   submitDisabled?: string
   loading?: boolean
-  error?: Error | null
+  error?: { message: string } | null
   className?: string
 }
 
