@@ -11,16 +11,12 @@ import { useDateTimeRangePicker } from 'app/components/form'
 const FLEET_ID = '001de000-1334-4000-8000-000000000000'
 const DEFAULT_SILO_ID = '001de000-5110-4000-8000-000000000000'
 
-export const handle = { crumb: 'Utilization' }
-
-export const loader = async () => {
+CapacityUtilizationPage.loader = async () => {
   await apiQueryClient.prefetchQuery('siloList', {})
   return null
 }
 
-Component.displayName = 'CapacityUtilizationPage'
-
-export function Component() {
+export function CapacityUtilizationPage() {
   /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
   const [siloId, setSiloId] = useState<string>(FLEET_ID)
   const { data: silos } = useApiQuery('siloList', {})

@@ -1,6 +1,5 @@
 import { Navigate, Route, createRoutesFromElements } from 'react-router-dom'
 
-import * as CapacityUtilizationPage from './pages/system/CapacityUtilizationPage'
 import { RouterDataErrorBoundary } from './components/ErrorBoundary'
 import { CreateDiskSideModalForm } from './forms/disk-create'
 import { CreateIdpSideModalForm } from './forms/idp-create'
@@ -44,6 +43,7 @@ import { NetworkingTab } from './pages/project/instances/instance/tabs/Networkin
 import { StorageTab } from './pages/project/instances/instance/tabs/StorageTab'
 import { ProfilePage } from './pages/settings/ProfilePage'
 import { SSHKeysPage } from './pages/settings/SSHKeysPage'
+import { CapacityUtilizationPage } from './pages/system/CapacityUtilizationPage'
 import { DisksTab } from './pages/system/InventoryPage/DisksTab'
 import { InventoryPage } from './pages/system/InventoryPage/InventoryPage'
 import { SledsTab } from './pages/system/InventoryPage/SledsTab'
@@ -109,7 +109,12 @@ export const routes = createRoutesFromElements(
           </Route>
         </Route>
         <Route path="issues" element={null} />
-        <Route path="utilization" {...CapacityUtilizationPage} />
+        <Route
+          path="utilization"
+          element={<CapacityUtilizationPage />}
+          loader={CapacityUtilizationPage.loader}
+          handle={{ crumb: 'Utilization' }}
+        />
         <Route
           path="inventory"
           element={<InventoryPage />}
