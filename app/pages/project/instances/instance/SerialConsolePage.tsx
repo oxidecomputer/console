@@ -1,11 +1,12 @@
-import { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react'
+import { Suspense, lazy, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import { api } from '@oxide/api'
+import type { BadgeColor } from '@oxide/ui'
+import { Badge } from '@oxide/ui'
 import { PrevArrow12Icon, Spinner } from '@oxide/ui'
 
 import EquivalentCliCommand from 'app/components/EquivalentCliCommand'
-import { SerialConsoleStatusBadge } from 'app/components/StatusBadge'
 import { useInstanceSelector } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
@@ -16,6 +17,20 @@ const pathPrefix = process.env.NODE_ENV === 'development' ? '/ws-serial-console'
 
 type WsState = 'connecting' | 'open' | 'closed' | 'error'
 
+const statusColor: Record<WsState, BadgeColor> = {
+  connecting: 'notice',
+  open: 'default',
+  closed: 'notice',
+  error: 'destructive',
+}
+
+const statusMessage: Record<WsState, string> = {
+  connecting: 'connecting',
+  open: 'connected',
+  closed: 'disconnected',
+  error: 'error',
+}
+
 export function SerialConsolePage() {
   const instanceSelector = useInstanceSelector()
   const { project, instance } = instanceSelector
@@ -24,10 +39,15 @@ export function SerialConsolePage() {
 
   const [connectionStatus, setConnectionStatus] = useState<WsState>('connecting')
 
-  const setOpen = useCallback(() => setConnectionStatus('open'), [])
-  const setClosed = useCallback(() => setConnectionStatus('closed'), [])
-  const setError = useCallback(() => setConnectionStatus('error'), [])
-
+  // In dev, React 18 strict mode fires all effects twice for lulz, even ones
+  // with no dependencies. In order to prevent the websocket from being killed
+  // before it's even connected, in the cleanup callback we check not only that
+  // it is non-null, but also that it is OPEN before trying to kill it. This
+  // allows the effect to run twice with no ill effect.
+  //
+  // 1.  effect runs, WS connection initialized and starts connecting
+  // 1a. cleanup runs, nothing happens because socket was not open yet
+  // 2.  effect runs, but `ws.current` is truthy, so nothing happens
   useEffect(() => {
     // TODO: error handling if this connection fails
     if (!ws.current) {
@@ -36,32 +56,38 @@ export function SerialConsolePage() {
         path: { instance },
         query: { project, fromStart: 0 },
       })
-      ws.current.binaryType = 'arraybuffer'
-
-      ws.current.addEventListener('open', setOpen)
-      ws.current.addEventListener('closed', setClosed)
-      ws.current.addEventListener('error', setError)
-      // this is pretty important :|
+      ws.current.binaryType = 'arraybuffer' // important!
     }
-    // In dev, React 18 strict mode fires all effects twice for lulz, even ones
-    // with no dependencies. In order to prevent the websocket from being killed
-    // before it's even connected, we check not only that it is non-null, but
-    // also that it is OPEN before trying to kill it. This allows the effect to
-    // run twice with no ill effect.
-    //
-    // 1.  effect runs, WS connection initialized and starts connecting
-    // 1a. cleanup runs, but nothing happens because socket was not open yet
-    // 2.  effect runs, but `ws.current` is truthy, so nothing happens
     return () => {
       if (ws.current?.readyState === WebSocket.OPEN) {
         ws.current.close()
-        ws.current.removeEventListener('open', setOpen)
-        ws.current.removeEventListener('closed', setClosed)
-        ws.current.removeEventListener('error', setError)
-        ws.current = null
       }
     }
-  }, [instanceSelector, setOpen, setClosed, setError])
+  }, [instanceSelector])
+
+  // Because this one does not look at ready state, just whether the thing is
+  // defined, it will remove the event listeners before the spurious second
+  // render. But that's fine, we can add and remove listeners all day.
+  //
+  // 1.  effect runs, ws connection is there because the other effect has run,
+  //     so listeners are attached
+  // 1a. cleanup runs, event listeners removed
+  // 2.  effect runs again, event listeners attached again
+  useEffect(() => {
+    const setOpen = () => setConnectionStatus('open')
+    const setClosed = () => setConnectionStatus('closed')
+    const setError = () => setConnectionStatus('error')
+
+    ws.current?.addEventListener('open', setOpen)
+    ws.current?.addEventListener('closed', setClosed)
+    ws.current?.addEventListener('error', setError)
+
+    return () => {
+      ws.current?.removeEventListener('open', setOpen)
+      ws.current?.removeEventListener('closed', setClosed)
+      ws.current?.removeEventListener('error', setError)
+    }
+  }, [])
 
   const command = `oxide instance serial
   --project ${project}
@@ -90,9 +116,9 @@ export function SerialConsolePage() {
             <EquivalentCliCommand command={command} />
           </div>
 
-          <SerialConsoleStatusBadge
-            status={connectionStatus === 'open' ? 'connected' : 'connecting'}
-          />
+          <Badge color={statusColor[connectionStatus]}>
+            {statusMessage[connectionStatus]}
+          </Badge>
         </div>
       </div>
     </div>

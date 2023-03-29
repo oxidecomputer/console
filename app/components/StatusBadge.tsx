@@ -58,20 +58,3 @@ export const SnapshotStatusBadge = (props: {
     {props.status}
   </Badge>
 )
-
-export type SerialConsoleState = 'connecting' | 'connected' | 'disconnected'
-
-const SERIAL_CONSOLE_COLORS: Record<SerialConsoleState, BadgeColor> = {
-  connecting: 'notice',
-  connected: 'default',
-  disconnected: 'destructive',
-}
-
-export const SerialConsoleStatusBadge = (props: {
-  status: SerialConsoleState
-  className?: string
-}) => (
-  <Badge color={SERIAL_CONSOLE_COLORS[props.status]} className={props.className}>
-    {props.status}
-  </Badge>
-)
