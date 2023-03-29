@@ -1,5 +1,6 @@
 import { Navigate, Route, createRoutesFromElements } from 'react-router-dom'
 
+import * as CapacityUtilizationPage from './pages/system/CapacityUtilizationPage'
 import { RouterDataErrorBoundary } from './components/ErrorBoundary'
 import { CreateDiskSideModalForm } from './forms/disk-create'
 import { CreateIdpSideModalForm } from './forms/idp-create'
@@ -43,7 +44,6 @@ import { NetworkingTab } from './pages/project/instances/instance/tabs/Networkin
 import { StorageTab } from './pages/project/instances/instance/tabs/StorageTab'
 import { ProfilePage } from './pages/settings/ProfilePage'
 import { SSHKeysPage } from './pages/settings/SSHKeysPage'
-import { CapacityUtilizationPage } from './pages/system/CapacityUtilizationPage'
 import { DisksTab } from './pages/system/InventoryPage/DisksTab'
 import { InventoryPage } from './pages/system/InventoryPage/InventoryPage'
 import { SledsTab } from './pages/system/InventoryPage/SledsTab'
@@ -61,6 +61,7 @@ import { pb } from './util/path-builder'
 const projectCrumb: CrumbFunc = (m) => m.params.project!
 const instanceCrumb: CrumbFunc = (m) => m.params.instance!
 const vpcCrumb: CrumbFunc = (m) => m.params.vpc!
+const siloCrumb: CrumbFunc = (m) => m.params.silo!
 
 export const routes = createRoutesFromElements(
   <Route element={<RootLayout />}>
@@ -88,27 +89,44 @@ export const routes = createRoutesFromElements(
       </Route>
 
       <Route path="sys" element={<SystemLayout />} loader={SystemLayout.loader}>
-        <Route element={<SilosPage />} loader={SilosPage.loader}>
+        <Route
+          element={<SilosPage />}
+          loader={SilosPage.loader}
+          handle={{ crumb: 'Silos' }}
+        >
           <Route path="silos" element={null} />
           <Route path="silos-new" element={<CreateSiloSideModalForm />} />
         </Route>
-        <Route path="silos/:silo" element={<SiloPage />} loader={SiloPage.loader}>
-          <Route index element={null} />
-          <Route path="idps-new" element={<CreateIdpSideModalForm />} />
+        <Route path="silos" handle={{ crumb: 'Silos' }}>
+          <Route
+            path=":silo"
+            element={<SiloPage />}
+            loader={SiloPage.loader}
+            handle={{ crumb: siloCrumb }}
+          >
+            <Route index element={null} />
+            <Route path="idps-new" element={<CreateIdpSideModalForm />} />
+          </Route>
         </Route>
         <Route path="issues" element={null} />
+        <Route path="utilization" {...CapacityUtilizationPage} />
         <Route
-          path="utilization"
-          element={<CapacityUtilizationPage />}
-          loader={CapacityUtilizationPage.loader}
-        />
-        <Route path="inventory" element={<InventoryPage />} loader={InventoryPage.loader}>
+          path="inventory"
+          element={<InventoryPage />}
+          loader={InventoryPage.loader}
+          handle={{ crumb: 'Inventory' }}
+        >
           <Route index element={<Navigate to="sleds" replace />} />
           <Route path="sleds" element={<SledsTab />} loader={SledsTab.loader} />
           <Route path="disks" element={<DisksTab />} loader={DisksTab.loader} />
         </Route>
-        <Route path="health" element={null} />
-        <Route path="update" element={<UpdatePage />} loader={UpdatePage.loader}>
+        <Route path="health" element={null} handle={{ crumb: 'Health' }} />
+        <Route
+          path="update"
+          element={<UpdatePage />}
+          loader={UpdatePage.loader}
+          handle={{ crumb: 'Update' }}
+        >
           <Route index element={<Navigate to="updates" replace />} />
           <Route
             path="updates"
@@ -132,8 +150,8 @@ export const routes = createRoutesFromElements(
             loader={UpdatePageHistory.loader}
           />
         </Route>
-        <Route path="networking" element={null} />
-        <Route path="settings" element={null} />
+        <Route path="networking" element={null} handle={{ crumb: 'Networking' }} />
+        <Route path="settings" element={null} handle={{ crumb: 'Settings' }} />
       </Route>
 
       <Route index element={<Navigate to={pb.projects()} replace />} />
@@ -146,6 +164,7 @@ export const routes = createRoutesFromElements(
           path="utilization"
           element={<SiloUtilizationPage />}
           loader={SiloUtilizationPage.loader}
+          handle={{ crumb: 'Utilization' }}
         />
         <Route loader={ProjectsPage.loader} element={<ProjectsPage />}>
           <Route path="projects" handle={{ crumb: 'Projects' }} element={null} />
