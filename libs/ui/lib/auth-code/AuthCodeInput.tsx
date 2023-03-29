@@ -104,7 +104,10 @@ export const AuthCodeInput = forwardRef<AuthCodeRef, AuthCodeProps>(
     const sendResult = () => {
       // user_code is always uppercase
       // https://github.com/oxidecomputer/omicron/blob/c63fe1658674186d974e3287afdce09b07912afd/nexus/db-model/src/device_auth.rs#L72-L77
-      const res = inputsRef.current.map((input) => input.value.toUpperCase()).join('')
+      const res = inputsRef.current
+        .map((input) => input.value)
+        .join('')
+        .toUpperCase()
       onChange && onChange(res)
     }
 
