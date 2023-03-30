@@ -20,10 +20,7 @@ export const flattenChildren = (children: ReactNode): ChildArray => {
   }, [])
 }
 
-const matchType = <P extends unknown>(
-  child: ReactElement,
-  componentType: ComponentType<P>
-) => {
+const matchType = <P,>(child: ReactElement, componentType: ComponentType<P>) => {
   if (!child?.type) return false
   // This exists because during react fast-refresh the component types
   // are swizzled out for a new reference. So the component imported from a module
@@ -53,7 +50,7 @@ export const isOneOf = (
   return React.Children.toArray(children).every(childIsOneOf)
 }
 
-const pluck = <P extends unknown>(
+const pluck = <P,>(
   children: ChildArray,
   selector: ChildSelector
 ): React.ReactElement<P, ComponentType<P>> | null => {
@@ -63,12 +60,12 @@ const pluck = <P extends unknown>(
     : null
 }
 
-export const pluckFirstOfType = <P extends unknown>(
+export const pluckFirstOfType = <P,>(
   children: ChildArray,
   componentType: ComponentType<P>
 ) => pluck<P>(children, (child) => matchType(child as ReactElement, componentType))
 
-export const pluckAllOfType = <P extends unknown>(
+export const pluckAllOfType = <P,>(
   children: ChildArray,
   componentType: ComponentType<P>
 ) => {

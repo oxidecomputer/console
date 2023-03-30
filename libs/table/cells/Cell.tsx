@@ -1,3 +1,3 @@
-export interface Cell<C extends unknown> {
+export interface Cell<C> {
   value: C
 }
