@@ -1,31 +1,37 @@
 import { useMatches } from 'react-router-dom'
 import invariant from 'tiny-invariant'
-import type { Merge, SetRequired } from 'type-fest'
+import type { Spread } from 'type-fest'
 
 type UseMatchesMatch = ReturnType<typeof useMatches>[number]
 
-export type CrumbFunc = (m: UseMatchesMatch) => string
+// Merge has a bug where it makes `data` optional for no reason
+type MatchWithCrumb = Spread<UseMatchesMatch, { handle: { crumb: string | CrumbFunc } }>
 
-type ValidatedMatch = Merge<UseMatchesMatch, { handle?: { crumb: string | CrumbFunc } }>
+export type CrumbFunc = (m: MatchWithCrumb) => string
 
-function hasCrumb(m: ValidatedMatch): m is SetRequired<ValidatedMatch, 'handle'> {
-  return !!(m.handle && m.handle.crumb)
+function hasCrumb(m: UseMatchesMatch): m is MatchWithCrumb {
+  return !!(m.handle && typeof m.handle === 'object' && 'crumb' in m.handle)
 }
 
-// TODO: memoize this
+/**
+ * Throw if crumb is not a string or function. It would be nice if TS enforced
+ * this at the `<Route>` call, but overriding the type declarations is hard and
+ * `createRoutesFromChildren` rejects a custom Route component.
+ */
+function checkCrumbType(m: MatchWithCrumb): MatchWithCrumb {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const crumbType = typeof (m.handle as any).crumb
+  invariant(
+    crumbType === 'string' || crumbType === 'function',
+    `Route crumb must be a string or function if present. Check <Route> for ${m.pathname}.`
+  )
+  return m
+}
+
 export const useCrumbs = () =>
   useMatches()
-    .map((m) => {
-      invariant(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        !m.handle || ['string', 'function'].includes(typeof (m.handle as any).crumb),
-        `Route crumb must be a string or function if present. Check Route for ${m.pathname}.`
-      )
-      return m as ValidatedMatch
-    })
-    // hasCrumb could be inline (m) => m.handle?.crumb, but it's extracted so we can
-    // give it a guard type so the typing is nice around filter()
     .filter(hasCrumb)
+    .map(checkCrumbType)
     .map((m) => ({
       label: typeof m.handle.crumb === 'function' ? m.handle.crumb(m) : m.handle.crumb,
       href: m.pathname,
