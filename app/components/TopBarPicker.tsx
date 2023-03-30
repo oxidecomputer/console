@@ -1,5 +1,6 @@
 import cn from 'classnames'
 import { Link, useParams } from 'react-router-dom'
+import invariant from 'tiny-invariant'
 
 import { useApiQuery } from '@oxide/api'
 import {
@@ -147,6 +148,8 @@ export function useSiloSystemPicker(value: 'silo' | 'system') {
 
 /** Choose between System and Silo-scoped route trees */
 export function SiloSystemPicker({ value }: { value: 'silo' | 'system' }) {
+  const { data: me } = useApiQuery('currentUserView', {})
+  invariant(me, 'Current user should be prefetched')
   const commonProps = {
     items: [
       { label: 'System', to: pb.silos() },
@@ -170,7 +173,7 @@ export function SiloSystemPicker({ value }: { value: 'silo' | 'system' }) {
       icon={<BigIdenticon name="corp.dev" />}
       category="Silo"
       current="Silo"
-      display="corp.dev"
+      display={me.siloName}
     />
   )
 }

@@ -107,6 +107,33 @@ export interface MSWHandlers {
     path: Api.DiskDeletePathParams
     query: Api.DiskDeleteQueryParams
   }) => StatusCode
+  /** `POST /v1/disks/:disk/bulk-write` */
+  diskBulkWriteImport: (params: {
+    path: Api.DiskBulkWriteImportPathParams
+    query: Api.DiskBulkWriteImportQueryParams
+    body: Json<Api.ImportBlocksBulkWrite>
+  }) => StatusCode
+  /** `POST /v1/disks/:disk/bulk-write-start` */
+  diskBulkWriteImportStart: (params: {
+    path: Api.DiskBulkWriteImportStartPathParams
+    query: Api.DiskBulkWriteImportStartQueryParams
+  }) => StatusCode
+  /** `POST /v1/disks/:disk/bulk-write-stop` */
+  diskBulkWriteImportStop: (params: {
+    path: Api.DiskBulkWriteImportStopPathParams
+    query: Api.DiskBulkWriteImportStopQueryParams
+  }) => StatusCode
+  /** `POST /v1/disks/:disk/finalize` */
+  diskFinalizeImport: (params: {
+    path: Api.DiskFinalizeImportPathParams
+    query: Api.DiskFinalizeImportQueryParams
+  }) => StatusCode
+  /** `POST /v1/disks/:disk/import` */
+  diskImportBlocksFromUrl: (params: {
+    path: Api.DiskImportBlocksFromUrlPathParams
+    query: Api.DiskImportBlocksFromUrlQueryParams
+    body: Json<Api.ImportBlocksFromUrl>
+  }) => StatusCode
   /** `GET /v1/disks/:disk/metrics/:metric` */
   diskMetricsList: (params: {
     path: Api.DiskMetricsListPathParams
@@ -210,7 +237,7 @@ export interface MSWHandlers {
     query: Api.InstanceStopQueryParams
   }) => HandlerResult<Api.Instance>
   /** `GET /v1/me` */
-  currentUserView: () => HandlerResult<Api.User>
+  currentUserView: () => HandlerResult<Api.CurrentUser>
   /** `GET /v1/me/groups` */
   currentUserGroups: (params: {
     query: Api.CurrentUserGroupsQueryParams
@@ -756,6 +783,42 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
     rest.delete(
       '/v1/disks/:disk',
       handler(handlers['diskDelete'], schema.DiskDeleteParams, null)
+    ),
+    rest.post(
+      '/v1/disks/:disk/bulk-write',
+      handler(
+        handlers['diskBulkWriteImport'],
+        schema.DiskBulkWriteImportParams,
+        schema.ImportBlocksBulkWrite
+      )
+    ),
+    rest.post(
+      '/v1/disks/:disk/bulk-write-start',
+      handler(
+        handlers['diskBulkWriteImportStart'],
+        schema.DiskBulkWriteImportStartParams,
+        null
+      )
+    ),
+    rest.post(
+      '/v1/disks/:disk/bulk-write-stop',
+      handler(
+        handlers['diskBulkWriteImportStop'],
+        schema.DiskBulkWriteImportStopParams,
+        null
+      )
+    ),
+    rest.post(
+      '/v1/disks/:disk/finalize',
+      handler(handlers['diskFinalizeImport'], schema.DiskFinalizeImportParams, null)
+    ),
+    rest.post(
+      '/v1/disks/:disk/import',
+      handler(
+        handlers['diskImportBlocksFromUrl'],
+        schema.DiskImportBlocksFromUrlParams,
+        schema.ImportBlocksFromUrl
+      )
     ),
     rest.get(
       '/v1/disks/:disk/metrics/:metric',
