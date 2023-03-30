@@ -71,7 +71,8 @@ run_in_pane 2 "cargo run --bin=nexus -- nexus/examples/config.toml"
 run_in_pane 3 "$UTILS"
 run_in_pane 3 "set_pane_title sled-agent-sim"
 run_in_pane 3 "wait_for_up 12221" # nexus internal
-run_in_pane 3 "cargo run --bin=sled-agent-sim -- $(uuidgen) '[::1]:12345' 127.0.0.1:12221"
+# env var explanation: https://github.com/oxidecomputer/omicron/issues/2629
+run_in_pane 3 "SKIP_ASIC_CONFIG=1 cargo run --bin=sled-agent-sim -- $(uuidgen) '[::1]:12345' 127.0.0.1:12221"
 
 run_in_pane 4 "$UTILS"
 run_in_pane 4 "set_pane_title oximeter"
