@@ -45,9 +45,10 @@ export function FullPageForm<TFieldValues extends FieldValues>({
   loading,
   formOptions,
   onSubmit,
+  submitError,
 }: FullPageFormProps<TFieldValues>) {
   const form = useForm(formOptions)
-  const { isSubmitting, isSubmitSuccessful } = form.formState
+  const { isSubmitting } = form.formState
 
   const childArray = flattenChildren(children(form))
   const actions = pluckFirstOfType(childArray, Form.Actions)
@@ -71,8 +72,8 @@ export function FullPageForm<TFieldValues extends FieldValues>({
             {cloneElement(actions, {
               formId: id,
               submitDisabled,
-              loading: loading || isSubmitting || isSubmitSuccessful,
-              error,
+              loading: loading || isSubmitting,
+              error: error || submitError?.error,
             })}
           </PageActionsContainer>
         </PageActions>

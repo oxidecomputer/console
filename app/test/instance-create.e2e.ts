@@ -51,4 +51,12 @@ test('can invoke instance create form from instances page', async ({
     'text=6 vCPUs',
     'text=24 GiB',
   ])
+
+  // trying to create another instance with the same name produces a visible
+  // error
+  await page.goto(pb.instances({ project: projectName }))
+  await page.locator('text="New Instance"').click()
+  await page.fill('input[name=name]', instanceName)
+  await page.locator('button:has-text("Create instance")').click()
+  await page.getByText('Instance name already exists')
 })
