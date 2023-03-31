@@ -212,6 +212,19 @@ export const Cumulativeint64 = z.preprocess(
 )
 
 /**
+ * Info about the current user
+ */
+export const CurrentUser = z.preprocess(
+  processResponseBody,
+  z.object({
+    displayName: z.string(),
+    id: z.string().uuid(),
+    siloId: z.string().uuid(),
+    siloName: Name,
+  })
+)
+
+/**
  * A simple type for managing a histogram metric.
  *
  * A histogram maintains the count of any number of samples, over a set of bins. Bins are specified on construction via their _left_ edges, inclusive. There can't be any "gaps" in the bins, and an additional bin may be added to the left, right, or both so that the bins extend to the entire range of the support.
@@ -314,6 +327,10 @@ export const DiskState = z.preprocess(
   z.union([
     z.object({ state: z.enum(['creating']) }),
     z.object({ state: z.enum(['detached']) }),
+    z.object({ state: z.enum(['import_ready']) }),
+    z.object({ state: z.enum(['importing_from_url']) }),
+    z.object({ state: z.enum(['importing_from_bulk_writes']) }),
+    z.object({ state: z.enum(['finalizing']) }),
     z.object({ state: z.enum(['maintenance']) }),
     z.object({ instance: z.string().uuid(), state: z.enum(['attaching']) }),
     z.object({ instance: z.string().uuid(), state: z.enum(['attached']) }),
@@ -354,6 +371,7 @@ export const DiskSource = z.preprocess(
     z.object({ snapshotId: z.string().uuid(), type: z.enum(['snapshot']) }),
     z.object({ imageId: z.string().uuid(), type: z.enum(['image']) }),
     z.object({ imageId: z.string().uuid(), type: z.enum(['global_image']) }),
+    z.object({ blockSize: BlockSize, type: z.enum(['importing_blocks']) }),
   ])
 )
 
@@ -394,6 +412,11 @@ export const Distribution = z.preprocess(
 export const Error = z.preprocess(
   processResponseBody,
   z.object({ errorCode: z.string().optional(), message: z.string(), requestId: z.string() })
+)
+
+export const ExpectedDigest = z.preprocess(
+  processResponseBody,
+  z.object({ sha256: z.string() })
 )
 
 /**
@@ -604,6 +627,22 @@ export const ImageCreate = z.preprocess(
 export const ImageResultsPage = z.preprocess(
   processResponseBody,
   z.object({ items: Image.array(), nextPage: z.string().optional() })
+)
+
+/**
+ * Parameters for importing blocks with a bulk write
+ */
+export const ImportBlocksBulkWrite = z.preprocess(
+  processResponseBody,
+  z.object({ base64EncodedData: z.string(), offset: z.number().min(0) })
+)
+
+/**
+ * Parameters for importing blocks from a URL to a disk
+ */
+export const ImportBlocksFromUrl = z.preprocess(
+  processResponseBody,
+  z.object({ expectedDigest: ExpectedDigest.optional(), url: z.string() })
 )
 
 /**
@@ -2050,6 +2089,67 @@ export const DiskViewParams = z.preprocess(
 )
 
 export const DiskDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      disk: NameOrId,
+    }),
+    query: z.object({
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const DiskBulkWriteImportParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      disk: NameOrId,
+    }),
+    query: z.object({
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const DiskBulkWriteImportStartParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      disk: NameOrId,
+    }),
+    query: z.object({
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const DiskBulkWriteImportStopParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      disk: NameOrId,
+    }),
+    query: z.object({
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const DiskFinalizeImportParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      disk: NameOrId,
+    }),
+    query: z.object({
+      project: NameOrId.optional(),
+      snapshotName: z.string().optional(),
+    }),
+  })
+)
+
+export const DiskImportBlocksFromUrlParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({

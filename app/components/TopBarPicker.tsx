@@ -1,5 +1,6 @@
 import cn from 'classnames'
 import { Link, useParams } from 'react-router-dom'
+import invariant from 'tiny-invariant'
 
 import { useApiQuery } from '@oxide/api'
 import {
@@ -124,29 +125,37 @@ const BigIdenticon = ({ name }: { name: string }) => (
 )
 
 /**
- * Return `null` instead of the picker when the user doesn't have fleet viewer
- * perms so it can get filtered out of the children array in `<TopBar>`. Having
- * `<SiloSystemPicker>` itself return `null` from render doesn't work because
- * `<TopBar>` can't see that.
+ * Choose between System and Silo-scoped route trees, or if the user doesn't
+ * have access to system routes (i.e., if systemPolicyView 403s) show the
+ * current silo.
  */
-export function useSiloSystemPicker(value: 'silo' | 'system') {
-  // User is only shown system routes if they have viewer perms (at least) on
-  // the fleet. The natural place to find out whether they have such perms is
-  // the fleet policy, but if the user doesn't have fleet read, we'll get a 403
-  // from that endpoint. So we simply check whether that endpoint 200s or not to
-  // determine whether the user is a fleet viewer.
-  //
-  // Note that we are able to ignore the possibility of `systemPolicy` being
-  // undefined due to the request being in flight because we have prefetched
-  // this request in the loader. If that prefetch were removed, fleet viewers
-  // would see the silo picker pop in when the request resolves, which would be
-  // bad.
-  const { data: systemPolicy } = useApiQuery('systemPolicyView', {})
-  return systemPolicy ? <SiloSystemPicker value={value} /> : null
-}
-
-/** Choose between System and Silo-scoped route trees */
 export function SiloSystemPicker({ value }: { value: 'silo' | 'system' }) {
+  const { data: me } = useApiQuery('currentUserView', {})
+  invariant(me, 'Current user should be prefetched')
+
+  // User can only get to system routes if they have viewer perms (at least) on
+  // the fleet. The natural place to find out whether they have such perms is
+  // the fleet (system) policy, but if the user doesn't have fleet read, we'll
+  // get a 403 from that endpoint. So we simply check whether that endpoint 200s
+  // or not to determine whether the user is a fleet viewer.
+  const { isLoading, isSuccess: canSeeSystemPolicy } = useApiQuery('systemPolicyView', {})
+  invariant(!isLoading, 'systemPolicyView should be prefetched in a loader')
+
+  // if the user can't see the picker, show a placeholder control with their
+  // silo name that links to root/home
+  if (!canSeeSystemPolicy) {
+    return (
+      <TopBarPicker
+        aria-label={`${me.siloName} - Oxide Web Console`}
+        icon={<BigIdenticon name={me.siloName} />}
+        category="Silo"
+        current="Silo"
+        display={me.siloName}
+        to={pb.projects()}
+      />
+    )
+  }
+
   const commonProps = {
     items: [
       { label: 'System', to: pb.silos() },
@@ -160,17 +169,17 @@ export function SiloSystemPicker({ value }: { value: 'silo' | 'system' }) {
       {...commonProps}
       category="System"
       current="System"
-      display="Oxide Computer Co."
+      display="Oxide Computer Co." // TODO: company name
+      to={pb.silos()}
     />
   ) : (
-    // TODO: actual silo name
-    // TODO: when silo name is too long, it overflows sidebar
     <TopBarPicker
       {...commonProps}
-      icon={<BigIdenticon name="corp.dev" />}
+      icon={<BigIdenticon name={me.siloName} />}
       category="Silo"
       current="Silo"
-      display="corp.dev"
+      display={me.siloName}
+      to={pb.projects()}
     />
   )
 }

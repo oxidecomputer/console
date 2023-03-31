@@ -12,12 +12,9 @@ set -o xtrace
 
 ./tools/populate/populate-alpine.sh
 
-oxide api /v1/system/ip-pools/default/ranges/add --method POST --input - <<EOF
-{
-  "first": "172.20.15.227",
-  "last": "172.20.15.239"
-}
-EOF
+oxide ip-pool range add --pool default \
+  --first "172.20.15.227" \
+  --last "172.20.15.239"
 
 GiB=1073741824
 

@@ -71,7 +71,7 @@ if (!oldCommit) throw Error('Could not parse existing version file')
 await Deno.writeTextFile(VERSION_FILE, newVersionFile)
 
 const branchName = `bump-console-${newCommit.slice(0, 8)}`
-const prTitle = 'Bump console to latest main'
+const prTitle = 'Bump web console'
 const prBody = `Changes: https://github.com/oxidecomputer/console/compare/${oldCommit}...${newCommit}`
 
 // cd to omicron, pull main, create new branch, commit changes, push, PR it, go back to
