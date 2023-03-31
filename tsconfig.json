@@ -33,5 +33,5 @@
     "target": "es2015",
     "types": ["node", "vite/client", "vitest/importMeta", "vitest/globals"]
   },
-  "exclude": ["tools/bump-omicron.ts"]
+  "exclude": ["tools/deno"]
 }
