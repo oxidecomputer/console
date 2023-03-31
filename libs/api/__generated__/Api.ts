@@ -178,6 +178,19 @@ export type Cumulativedouble = { startTime: Date; value: number }
 export type Cumulativeint64 = { startTime: Date; value: number }
 
 /**
+ * Info about the current user
+ */
+export type CurrentUser = {
+  /** Human-readable name that can identify the user */
+  displayName: string
+  id: string
+  /** Uuid of the silo to which this user belongs */
+  siloId: string
+  /** Name of the silo to which this user belongs. */
+  siloName: Name
+}
+
+/**
  * A simple type for managing a histogram metric.
  *
  * A histogram maintains the count of any number of samples, over a set of bins. Bins are specified on construction via their _left_ edges, inclusive. There can't be any "gaps" in the bins, and an additional bin may be added to the left, right, or both so that the bins extend to the entire range of the support.
@@ -264,6 +277,14 @@ export type DiskState =
   | { state: 'creating' }
   /** Disk is ready but detached from any Instance */
   | { state: 'detached' }
+  /** Disk is ready to receive blocks from an external source */
+  | { state: 'import_ready' }
+  /** Disk is importing blocks from a URL */
+  | { state: 'importing_from_url' }
+  /** Disk is importing blocks from bulk writes */
+  | { state: 'importing_from_bulk_writes' }
+  /** Disk is being finalized to state Detached */
+  | { state: 'finalizing' }
   /** Disk is undergoing maintenance */
   | { state: 'maintenance' }
   /** Disk is being attached to the given Instance */
@@ -316,6 +337,8 @@ export type DiskSource =
   | { imageId: string; type: 'image' }
   /** Create a disk from a global image */
   | { imageId: string; type: 'global_image' }
+  /** Create a blank disk that will accept bulk writes or pull blocks from an external source. */
+  | { blockSize: BlockSize; type: 'importing_blocks' }
 
 /**
  * Create-time parameters for a {@link Disk}
@@ -331,7 +354,10 @@ export type DiskCreate = {
 
 export type NameOrId = string | Name
 
-export type DiskPath = { disk: NameOrId }
+export type DiskPath = {
+  /** Name or ID of the disk */
+  disk: NameOrId
+}
 
 /**
  * A single page of results
@@ -352,6 +378,8 @@ export type Distribution = {
   /** The version of the distribution (e.g. "3.10" or "18.04") */
   version: string
 }
+
+export type ExpectedDigest = { sha256: string }
 
 /**
  * The kind of an external IP address for an instance
@@ -573,6 +601,21 @@ export type ImageResultsPage = {
   items: Image[]
   /** token used to fetch the next page of results (if any) */
   nextPage?: string
+}
+
+/**
+ * Parameters for importing blocks with a bulk write
+ */
+export type ImportBlocksBulkWrite = { base64EncodedData: string; offset: number }
+
+/**
+ * Parameters for importing blocks from a URL to a disk
+ */
+export type ImportBlocksFromUrl = {
+  /** Expected digest of all blocks when importing from a URL */
+  expectedDigest?: ExpectedDigest
+  /** the source to pull blocks from */
+  url: string
 }
 
 /**
@@ -1212,7 +1255,7 @@ export type SamlIdentityProviderCreate = {
   /** the source of an identity provider metadata descriptor */
   idpMetadataSource: IdpMetadataSource
   name: Name
-  /** optional request signing key pair */
+  /** request signing key pair */
   signingKeypair?: DerEncodedKeyPair
   /** service provider endpoint where the idp should send log out requests */
   sloUrl: string
@@ -1929,6 +1972,47 @@ export interface DiskDeleteQueryParams {
   project?: NameOrId
 }
 
+export interface DiskBulkWriteImportPathParams {
+  disk: NameOrId
+}
+
+export interface DiskBulkWriteImportQueryParams {
+  project?: NameOrId
+}
+
+export interface DiskBulkWriteImportStartPathParams {
+  disk: NameOrId
+}
+
+export interface DiskBulkWriteImportStartQueryParams {
+  project?: NameOrId
+}
+
+export interface DiskBulkWriteImportStopPathParams {
+  disk: NameOrId
+}
+
+export interface DiskBulkWriteImportStopQueryParams {
+  project?: NameOrId
+}
+
+export interface DiskFinalizeImportPathParams {
+  disk: NameOrId
+}
+
+export interface DiskFinalizeImportQueryParams {
+  project?: NameOrId
+  snapshotName?: string
+}
+
+export interface DiskImportBlocksFromUrlPathParams {
+  disk: NameOrId
+}
+
+export interface DiskImportBlocksFromUrlQueryParams {
+  project?: NameOrId
+}
+
 export interface DiskMetricsListPathParams {
   disk: NameOrId
   metric: DiskMetricName
@@ -2073,6 +2157,9 @@ export interface InstanceSerialConsoleStreamPathParams {
 }
 
 export interface InstanceSerialConsoleStreamQueryParams {
+  fromStart?: number
+  maxBytes?: number
+  mostRecent?: number
   project?: NameOrId
 }
 
@@ -2889,6 +2976,109 @@ export class Api extends HttpClient {
       })
     },
     /**
+     * Import blocks into a disk
+     */
+    diskBulkWriteImport: (
+      {
+        path,
+        query = {},
+        body,
+      }: {
+        path: DiskBulkWriteImportPathParams
+        query?: DiskBulkWriteImportQueryParams
+        body: ImportBlocksBulkWrite
+      },
+      params: RequestParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/disks/${path.disk}/bulk-write`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Start the process of importing blocks into a disk
+     */
+    diskBulkWriteImportStart: (
+      {
+        path,
+        query = {},
+      }: {
+        path: DiskBulkWriteImportStartPathParams
+        query?: DiskBulkWriteImportStartQueryParams
+      },
+      params: RequestParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/disks/${path.disk}/bulk-write-start`,
+        method: 'POST',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Stop the process of importing blocks into a disk
+     */
+    diskBulkWriteImportStop: (
+      {
+        path,
+        query = {},
+      }: {
+        path: DiskBulkWriteImportStopPathParams
+        query?: DiskBulkWriteImportStopQueryParams
+      },
+      params: RequestParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/disks/${path.disk}/bulk-write-stop`,
+        method: 'POST',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Finalize disk when imports are done
+     */
+    diskFinalizeImport: (
+      {
+        path,
+        query = {},
+      }: { path: DiskFinalizeImportPathParams; query?: DiskFinalizeImportQueryParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/disks/${path.disk}/finalize`,
+        method: 'POST',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Send request to import blocks from URL
+     */
+    diskImportBlocksFromUrl: (
+      {
+        path,
+        query = {},
+        body,
+      }: {
+        path: DiskImportBlocksFromUrlPathParams
+        query?: DiskImportBlocksFromUrlQueryParams
+        body: ImportBlocksFromUrl
+      },
+      params: RequestParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/disks/${path.disk}/import`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
      * Fetch disk metrics
      */
     diskMetricsList: (
@@ -3230,7 +3420,7 @@ export class Api extends HttpClient {
      * Fetch the user associated with the current session
      */
     currentUserView: (_: EmptyObj, params: RequestParams = {}) => {
-      return this.request<User>({
+      return this.request<CurrentUser>({
         path: `/v1/me`,
         method: 'GET',
         ...params,

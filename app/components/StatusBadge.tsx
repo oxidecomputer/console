@@ -35,6 +35,10 @@ const DISK_COLORS: Record<DiskStateStr, Pick<BadgeProps, 'color' | 'variant'>> =
   destroyed: { color: 'destructive', variant: 'solid' }, // should we ever see this?
   faulted: { color: 'destructive', variant: 'solid' },
   maintenance: { color: 'notice', variant: 'solid' },
+  import_ready: { color: 'blue', variant: 'solid' },
+  importing_from_url: { color: 'purple', variant: 'solid' },
+  importing_from_bulk_writes: { color: 'purple', variant: 'solid' },
+  finalizing: { color: 'blue', variant: 'solid' },
 }
 
 export const DiskStatusBadge = (props: { status: DiskStateStr; className?: string }) => (

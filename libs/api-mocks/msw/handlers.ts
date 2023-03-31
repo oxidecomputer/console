@@ -719,7 +719,7 @@ export const handlers = makeHandlers({
   },
   rackList: ({ query }) => paginated(query, db.racks),
   currentUserView() {
-    return user1
+    return { ...user1, silo_name: defaultSilo.name }
   },
   currentUserGroups() {
     const memberships = db.groupMemberships.filter((gm) => gm.userId === user1.id)
@@ -881,12 +881,10 @@ export const handlers = makeHandlers({
     // const result = ZVal.ResourceName.safeParse(req.params.resourceName)
     // if (!result.success) return res(notFoundErr)
     // const resourceName = result.data
-
     const cap = params.path.metricName === 'cpus_provisioned' ? 3000 : 4000000000000
 
     // note we're ignoring the required id query param. since the data is fake
     // it wouldn't matter, though we should probably 400 if it's missing
-
     const { startTime, endTime } = getStartAndEndTime(params.query)
 
     if (endTime <= startTime) return { items: [] }
@@ -901,11 +899,15 @@ export const handlers = makeHandlers({
   },
 
   // Misc endpoints we're not using yet in the console
-
   certificateCreate: NotImplemented,
   certificateDelete: NotImplemented,
   certificateList: NotImplemented,
   certificateView: NotImplemented,
+  diskBulkWriteImport: NotImplemented,
+  diskBulkWriteImportStart: NotImplemented,
+  diskBulkWriteImportStop: NotImplemented,
+  diskFinalizeImport: NotImplemented,
+  diskImportBlocksFromUrl: NotImplemented,
   instanceMigrate: NotImplemented,
   instanceSerialConsoleStream: NotImplemented,
   ipPoolCreate: NotImplemented,

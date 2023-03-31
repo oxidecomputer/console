@@ -17,7 +17,7 @@ import { TopBar } from 'app/components/TopBar'
 import {
   InstancePicker,
   ProjectPicker,
-  useSiloSystemPicker,
+  SiloSystemPicker,
 } from 'app/components/TopBarPicker'
 import { useProjectSelector, useQuickActions } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
@@ -67,7 +67,7 @@ const ProjectLayout = ({ overrideContentPane }: ProjectLayoutProps) => {
   return (
     <PageContainer>
       <TopBar>
-        {useSiloSystemPicker('silo')}
+        <SiloSystemPicker value="silo" />
         <ProjectPicker />
         {instance && <InstancePicker />}
       </TopBar>
