@@ -147,7 +147,7 @@ export function SiloSystemPicker({ value }: { value: 'silo' | 'system' }) {
     return (
       <TopBarPicker
         aria-label={`${me.siloName} - Oxide Web Console`}
-        icon={<BigIdenticon name="corp.dev" />}
+        icon={<BigIdenticon name={me.siloName} />}
         category="Silo"
         current="Silo"
         display={me.siloName}
@@ -175,7 +175,7 @@ export function SiloSystemPicker({ value }: { value: 'silo' | 'system' }) {
   ) : (
     <TopBarPicker
       {...commonProps}
-      icon={<BigIdenticon name="corp.dev" />}
+      icon={<BigIdenticon name={me.siloName} />}
       category="Silo"
       current="Silo"
       display={me.siloName}
