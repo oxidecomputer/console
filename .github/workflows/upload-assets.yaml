@@ -3,7 +3,7 @@ name: Upload assets to dl.oxide.computer
 
 on:
   push:
-    branches: [main]
+    branches: [main, serial-console-ws]
 
 jobs:
   build-and-upload:
