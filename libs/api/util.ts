@@ -2,6 +2,7 @@
 import { pick } from '@oxide/util'
 
 import type {
+  DiskState,
   UpdateableComponentType,
   VpcFirewallRule,
   VpcFirewallRuleUpdate,
@@ -73,3 +74,16 @@ export const componentTypeNames: Record<UpdateableComponentType, string> = {
   helios_host_phase2: 'Helios for Host Phase 2',
   host_omicron: 'Host Omicron',
 }
+
+/** Disk states that allow delete. See [Omicron source](https://github.com/oxidecomputer/omicron/blob/4970c71e/nexus/db-queries/src/db/datastore/disk.rs#L578-L582). */
+export const DISK_DELETE_STATES: Set<DiskState['state']> = new Set([
+  'detached',
+  'creating',
+  'faulted',
+])
+
+/** Disk states that allow snapshotting. TODO: link to Omicron source */
+export const DISK_SNAPSHOT_STATES: Set<DiskState['state']> = new Set([
+  'attached',
+  'detached',
+])
