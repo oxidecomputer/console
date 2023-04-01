@@ -1,8 +1,7 @@
 import { v4 as uuid } from 'uuid'
 
 import type { ApiTypes as Api, UpdateDeployment } from '@oxide/api'
-import { DISK_SNAPSHOT_STATES } from '@oxide/api'
-import { DISK_DELETE_STATES } from '@oxide/api'
+import { DISK_DELETE_STATES, DISK_SNAPSHOT_STATES } from '@oxide/api'
 import type { Json } from '@oxide/gen/msw-handlers'
 import { json, makeHandlers } from '@oxide/gen/msw-handlers'
 import { pick, sortBy } from '@oxide/util'
