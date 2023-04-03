@@ -1,6 +1,7 @@
 import { v4 as uuid } from 'uuid'
 
 import type { ApiTypes as Api, UpdateDeployment } from '@oxide/api'
+import { DISK_DELETE_STATES, DISK_SNAPSHOT_STATES } from '@oxide/api'
 import type { Json } from '@oxide/gen/msw-handlers'
 import { json, makeHandlers } from '@oxide/gen/msw-handlers'
 import { pick, sortBy } from '@oxide/util'
@@ -103,15 +104,10 @@ export const handlers = makeHandlers({
   diskDelete({ path, query }) {
     const disk = lookup.disk({ ...path, ...query })
 
-    // Governed by https://github.com/oxidecomputer/omicron/blob/e5704d7f343fa0633751527dedf276409647ad4e/nexus/src/db/datastore.rs#L2103
-    switch (disk.state.state) {
-      case 'creating':
-      case 'detached':
-      case 'faulted':
-        break
-      default:
-        throw 'Cannot delete disk in state ' + disk.state.state
+    if (!DISK_DELETE_STATES.has(disk.state.state)) {
+      throw 'Cannot delete disk in state ' + disk.state.state
     }
+
     db.disks = db.disks.filter((d) => d.id !== disk.id)
     return 204
   },
@@ -446,6 +442,9 @@ export const handlers = makeHandlers({
     errIfExists(db.snapshots, { name: body.name })
 
     const disk = lookup.disk({ ...query, disk: body.disk })
+    if (!DISK_SNAPSHOT_STATES.has(disk.state.state)) {
+      throw 'Cannot snapshot disk in state ' + disk.state.state
+    }
 
     const newSnapshot: Json<Api.Snapshot> = {
       id: uuid(),
