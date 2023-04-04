@@ -100,15 +100,6 @@ export default function LoginPage() {
               >
                 Sign out
               </Button>
-              <Button
-                variant="danger"
-                type="submit"
-                className="w-full"
-                disabled={loginPost.isLoading}
-                onClick={() => loginPost.mutate({ body: { username: 'other' } })}
-              >
-                Bad request
-              </Button>
             </div>
 
             {/* todo: we might want to collect an operator email
