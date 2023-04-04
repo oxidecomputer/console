@@ -8,7 +8,7 @@ set -o xtrace
 # start_api.sh. if you do run it manually, note that it's meant to be run
 # from inside the omicron repo and it assumes nexus and sled agent are running
 
-# The CLI manual is here: https://docs.oxide.computer/cli/manual
+# The CLI manual is here: https://docs.oxide.computer/cli
 
 ./tools/populate/populate-alpine.sh
 
@@ -98,15 +98,13 @@ oxide instance start --instance db1 --project prod-online
 
 # Create VPCs in prod-online
 
-# TODO: these work, but update them once --dns_name becomes --dns-name
-
 oxide vpc create --name vpc1 \
   --description "The vpc1 VPC." \
   --project prod-online \
-  --dns_name vpc1
+  --dns-name vpc1
 oxide vpc create --name vpc2 \
   --description "The vpc2 VPC." \
   --project prod-online \
-  --dns_name vpc2
+  --dns-name vpc2
 
 echo -e "\n==== API DATA POPULATED ====\n"
