@@ -330,7 +330,7 @@ export const handlers = makeHandlers({
     const vpc = lookup.vpc({ ...query, vpc: vpc_name })
     const subnet = lookup.vpcSubnet({ ...query, vpc: vpc_name, subnet: subnet_name })
 
-    const newNic: Json<Api.NetworkInterface> = {
+    const newNic: Json<Api.InstanceNetworkInterface> = {
       id: uuid(),
       // matches API logic: https://github.com/oxidecomputer/omicron/blob/ae22982/nexus/src/db/queries/network_interface.rs#L982-L1015
       primary: nicsForInstance.length === 0,

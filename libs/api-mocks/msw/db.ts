@@ -44,7 +44,7 @@ export const lookup = {
   networkInterface({
     interface: id,
     ...instanceSelector
-  }: PP.NetworkInterface): Json<Api.NetworkInterface> {
+  }: PP.NetworkInterface): Json<Api.InstanceNetworkInterface> {
     if (!id) throw notFoundErr
 
     if (isUuid(id)) return lookupById(db.networkInterfaces, id)

@@ -261,23 +261,23 @@ export interface MSWHandlers {
   /** `GET /v1/network-interfaces` */
   instanceNetworkInterfaceList: (params: {
     query: Api.InstanceNetworkInterfaceListQueryParams
-  }) => HandlerResult<Api.NetworkInterfaceResultsPage>
+  }) => HandlerResult<Api.InstanceNetworkInterfaceResultsPage>
   /** `POST /v1/network-interfaces` */
   instanceNetworkInterfaceCreate: (params: {
     query: Api.InstanceNetworkInterfaceCreateQueryParams
-    body: Json<Api.NetworkInterfaceCreate>
-  }) => HandlerResult<Api.NetworkInterface>
+    body: Json<Api.InstanceNetworkInterfaceCreate>
+  }) => HandlerResult<Api.InstanceNetworkInterface>
   /** `GET /v1/network-interfaces/:interface` */
   instanceNetworkInterfaceView: (params: {
     path: Api.InstanceNetworkInterfaceViewPathParams
     query: Api.InstanceNetworkInterfaceViewQueryParams
-  }) => HandlerResult<Api.NetworkInterface>
+  }) => HandlerResult<Api.InstanceNetworkInterface>
   /** `PUT /v1/network-interfaces/:interface` */
   instanceNetworkInterfaceUpdate: (params: {
     path: Api.InstanceNetworkInterfaceUpdatePathParams
     query: Api.InstanceNetworkInterfaceUpdateQueryParams
-    body: Json<Api.NetworkInterfaceUpdate>
-  }) => HandlerResult<Api.NetworkInterface>
+    body: Json<Api.InstanceNetworkInterfaceUpdate>
+  }) => HandlerResult<Api.InstanceNetworkInterface>
   /** `DELETE /v1/network-interfaces/:interface` */
   instanceNetworkInterfaceDelete: (params: {
     path: Api.InstanceNetworkInterfaceDeletePathParams
@@ -624,7 +624,7 @@ export interface MSWHandlers {
   vpcSubnetListNetworkInterfaces: (params: {
     path: Api.VpcSubnetListNetworkInterfacesPathParams
     query: Api.VpcSubnetListNetworkInterfacesQueryParams
-  }) => HandlerResult<Api.NetworkInterfaceResultsPage>
+  }) => HandlerResult<Api.InstanceNetworkInterfaceResultsPage>
   /** `GET /v1/vpcs` */
   vpcList: (params: { query: Api.VpcListQueryParams }) => HandlerResult<Api.VpcResultsPage>
   /** `POST /v1/vpcs` */
@@ -956,7 +956,7 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
       handler(
         handlers['instanceNetworkInterfaceCreate'],
         schema.InstanceNetworkInterfaceCreateParams,
-        schema.NetworkInterfaceCreate
+        schema.InstanceNetworkInterfaceCreate
       )
     ),
     rest.get(
@@ -972,7 +972,7 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
       handler(
         handlers['instanceNetworkInterfaceUpdate'],
         schema.InstanceNetworkInterfaceUpdateParams,
-        schema.NetworkInterfaceUpdate
+        schema.InstanceNetworkInterfaceUpdate
       )
     ),
     rest.delete(
