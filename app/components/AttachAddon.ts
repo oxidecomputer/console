@@ -3,23 +3,19 @@
  * @license MIT
  *
  * Implements the attach method, that attaches the terminal to a WebSocket stream.
+ *
+ * Original: https://github.com/xtermjs/xterm.js/blob/2fdb4691/addons/xterm-addon-attach/src/AttachAddon.ts
  */
 import type { IDisposable, ITerminalAddon, Terminal } from 'xterm'
 
-interface IAttachOptions {
-  bidirectional?: boolean
-}
-
 export class AttachAddon implements ITerminalAddon {
   private _socket: WebSocket
-  private _bidirectional: boolean
   private _disposables: IDisposable[] = []
 
-  constructor(socket: WebSocket, options?: IAttachOptions) {
+  constructor(socket: WebSocket) {
     this._socket = socket
     // always set binary type to arraybuffer, we do not handle blobs
     this._socket.binaryType = 'arraybuffer'
-    this._bidirectional = !(options && options.bidirectional === false)
   }
 
   public activate(terminal: Terminal): void {
@@ -30,11 +26,9 @@ export class AttachAddon implements ITerminalAddon {
       })
     )
 
-    if (this._bidirectional) {
-      // Forked to change this line from _sendData to _sendBinary
-      this._disposables.push(terminal.onData((data) => this._sendBinary(data)))
-      this._disposables.push(terminal.onBinary((data) => this._sendBinary(data)))
-    }
+    // Forked to change this line from _sendData to _sendBinary
+    this._disposables.push(terminal.onData((data) => this._sendBinary(data)))
+    this._disposables.push(terminal.onBinary((data) => this._sendBinary(data)))
 
     this._disposables.push(addSocketListener(this._socket, 'close', () => this.dispose()))
     this._disposables.push(addSocketListener(this._socket, 'error', () => this.dispose()))
@@ -44,13 +38,6 @@ export class AttachAddon implements ITerminalAddon {
     for (const d of this._disposables) {
       d.dispose()
     }
-  }
-
-  private _sendData(data: string): void {
-    if (!this._checkOpenSocket()) {
-      return
-    }
-    this._socket.send(data)
   }
 
   private _sendBinary(data: string): void {
@@ -89,10 +76,7 @@ function addSocketListener<K extends keyof WebSocketEventMap>(
   socket.addEventListener(type, handler)
   return {
     dispose: () => {
-      if (!handler) {
-        // Already disposed
-        return
-      }
+      if (!handler) return // Already disposed
       socket.removeEventListener(type, handler)
     },
   }
