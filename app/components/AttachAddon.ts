@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2014, 2019 The xterm.js authors. All rights reserved.
+ * @license MIT
+ *
+ * Implements the attach method, that attaches the terminal to a WebSocket stream.
+ */
 import type { IDisposable, ITerminalAddon, Terminal } from 'xterm'
 
 interface IAttachOptions {
@@ -25,7 +31,8 @@ export class AttachAddon implements ITerminalAddon {
     )
 
     if (this._bidirectional) {
-      this._disposables.push(terminal.onData((data) => this._sendData(data)))
+      // Forked to change this line from _sendData to _sendBinary
+      this._disposables.push(terminal.onData((data) => this._sendBinary(data)))
       this._disposables.push(terminal.onBinary((data) => this._sendBinary(data)))
     }
 
