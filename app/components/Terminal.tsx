@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import type { ITerminalOptions } from 'xterm'
+import type { ITerminalInitOnlyOptions, ITerminalOptions } from 'xterm'
 import { Terminal as XTerm } from 'xterm'
 import { FitAddon } from 'xterm-addon-fit'
 import 'xterm/css/xterm.css'
@@ -11,9 +11,11 @@ import { AttachAddon } from './AttachAddon'
 
 const ScrollButton = classed.button`ml-4 flex h-8 w-8 items-center justify-center rounded border border-secondary hover:bg-hover`
 
-function getOptions(): ITerminalOptions {
+function getOptions(): ITerminalOptions & ITerminalInitOnlyOptions {
   const style = getComputedStyle(document.body)
   return {
+    rows: 24,
+    cols: 80,
     allowTransparency: false,
     screenReaderMode: true,
     fontFamily: '"GT America Mono", monospace',
