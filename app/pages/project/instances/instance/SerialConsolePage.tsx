@@ -52,7 +52,9 @@ export function SerialConsolePage() {
     // TODO: error handling if this connection fails
     if (!ws.current) {
       const { project, instance } = instanceSelector
-      ws.current = api.ws.instanceSerialConsoleStream(window.location.host + pathPrefix, {
+      ws.current = api.ws.instanceSerialConsoleStream({
+        secure: window.location.protocol === 'https:',
+        host: window.location.host + pathPrefix,
         path: { instance },
         query: { project, fromStart: 0 },
       })
