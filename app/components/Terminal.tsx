@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import type { ITerminalOptions } from 'xterm'
 import { Terminal as XTerm } from 'xterm'
-import { AttachAddon } from 'xterm-addon-attach'
 import { FitAddon } from 'xterm-addon-fit'
 import 'xterm/css/xterm.css'
 
 import { DirectionDownIcon, DirectionUpIcon } from '@oxide/ui'
 import { classed } from '@oxide/util'
+
+import { AttachAddon } from './AttachAddon'
 
 const ScrollButton = classed.button`ml-4 flex h-8 w-8 items-center justify-center rounded border border-secondary hover:bg-hover`
 

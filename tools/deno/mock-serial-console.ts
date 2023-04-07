@@ -17,6 +17,8 @@ async function streamString(socket: WebSocket, s: string, delayMs = 50) {
 async function serialConsole(req: Request) {
   await delay(500)
   const { socket, response } = Deno.upgradeWebSocket(req)
+  socket.binaryType = 'arraybuffer'
+
   console.log(`New client connected`)
 
   // send hello as a binary frame for xterm to display
