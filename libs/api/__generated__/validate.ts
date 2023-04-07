@@ -712,9 +712,9 @@ export const InstanceDiskAttachment = z.preprocess(
 )
 
 /**
- * Create-time parameters for a {@link NetworkInterface}
+ * Create-time parameters for an {@link InstanceNetworkInterface}.
  */
-export const NetworkInterfaceCreate = z.preprocess(
+export const InstanceNetworkInterfaceCreate = z.preprocess(
   processResponseBody,
   z.object({
     description: z.string(),
@@ -726,12 +726,12 @@ export const NetworkInterfaceCreate = z.preprocess(
 )
 
 /**
- * Describes an attachment of a `NetworkInterface` to an `Instance`, at the time the instance is created.
+ * Describes an attachment of an `InstanceNetworkInterface` to an `Instance`, at the time the instance is created.
  */
 export const InstanceNetworkInterfaceAttachment = z.preprocess(
   processResponseBody,
   z.union([
-    z.object({ params: NetworkInterfaceCreate.array(), type: z.enum(['create']) }),
+    z.object({ params: InstanceNetworkInterfaceCreate.array(), type: z.enum(['create']) }),
     z.object({ type: z.enum(['default']) }),
     z.object({ type: z.enum(['none']) }),
   ])
@@ -764,6 +764,62 @@ export const InstanceCreate = z.preprocess(
 export const InstanceMigrate = z.preprocess(
   processResponseBody,
   z.object({ dstSledId: z.string().uuid() })
+)
+
+/**
+ * A MAC address
+ *
+ * A Media Access Control address, in EUI-48 format
+ */
+export const MacAddr = z.preprocess(
+  processResponseBody,
+  z
+    .string()
+    .min(5)
+    .max(17)
+    .regex(/^([0-9a-fA-F]{0,2}:){5}[0-9a-fA-F]{0,2}$/)
+)
+
+/**
+ * An `InstanceNetworkInterface` represents a virtual network interface device attached to an instance.
+ */
+export const InstanceNetworkInterface = z.preprocess(
+  processResponseBody,
+  z.object({
+    description: z.string(),
+    id: z.string().uuid(),
+    instanceId: z.string().uuid(),
+    ip: z.string(),
+    mac: MacAddr,
+    name: Name,
+    primary: z.boolean(),
+    subnetId: z.string().uuid(),
+    timeCreated: DateType,
+    timeModified: DateType,
+    vpcId: z.string().uuid(),
+  })
+)
+
+/**
+ * A single page of results
+ */
+export const InstanceNetworkInterfaceResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: InstanceNetworkInterface.array(), nextPage: z.string().optional() })
+)
+
+/**
+ * Parameters for updating an {@link InstanceNetworkInterface}.
+ *
+ * Note that modifying IP addresses for an interface is not yet supported, a new interface must be created instead.
+ */
+export const InstanceNetworkInterfaceUpdate = z.preprocess(
+  processResponseBody,
+  z.object({
+    description: z.string().optional(),
+    name: Name.optional(),
+    primary: z.boolean().default(false).optional(),
+  })
 )
 
 /**
@@ -902,20 +958,6 @@ export const L4PortRange = z.preprocess(
 )
 
 /**
- * A MAC address
- *
- * A Media Access Control address, in EUI-48 format
- */
-export const MacAddr = z.preprocess(
-  processResponseBody,
-  z
-    .string()
-    .min(5)
-    .max(17)
-    .regex(/^([0-9a-fA-F]{0,2}:){5}[0-9a-fA-F]{0,2}$/)
-)
-
-/**
  * A `Measurement` is a timestamped datum from a single metric
  */
 export const Measurement = z.preprocess(
@@ -929,48 +971,6 @@ export const Measurement = z.preprocess(
 export const MeasurementResultsPage = z.preprocess(
   processResponseBody,
   z.object({ items: Measurement.array(), nextPage: z.string().optional() })
-)
-
-/**
- * A `NetworkInterface` represents a virtual network interface device.
- */
-export const NetworkInterface = z.preprocess(
-  processResponseBody,
-  z.object({
-    description: z.string(),
-    id: z.string().uuid(),
-    instanceId: z.string().uuid(),
-    ip: z.string(),
-    mac: MacAddr,
-    name: Name,
-    primary: z.boolean(),
-    subnetId: z.string().uuid(),
-    timeCreated: DateType,
-    timeModified: DateType,
-    vpcId: z.string().uuid(),
-  })
-)
-
-/**
- * A single page of results
- */
-export const NetworkInterfaceResultsPage = z.preprocess(
-  processResponseBody,
-  z.object({ items: NetworkInterface.array(), nextPage: z.string().optional() })
-)
-
-/**
- * Parameters for updating a {@link NetworkInterface}.
- *
- * Note that modifying IP addresses for an interface is not yet supported, a new interface must be created instead.
- */
-export const NetworkInterfaceUpdate = z.preprocess(
-  processResponseBody,
-  z.object({
-    description: z.string().optional(),
-    name: Name.optional(),
-    primary: z.boolean().default(false).optional(),
-  })
 )
 
 /**

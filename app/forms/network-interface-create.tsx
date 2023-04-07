@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 
-import type { ErrorResult, NetworkInterfaceCreate } from '@oxide/api'
+import type { ErrorResult, InstanceNetworkInterfaceCreate } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import { Divider } from '@oxide/ui'
 
@@ -14,7 +14,7 @@ import {
 } from 'app/components/form'
 import { useProjectSelector } from 'app/hooks'
 
-const defaultValues: NetworkInterfaceCreate = {
+const defaultValues: InstanceNetworkInterfaceCreate = {
   name: '',
   description: '',
   ip: '',
@@ -24,7 +24,7 @@ const defaultValues: NetworkInterfaceCreate = {
 
 type CreateNetworkInterfaceFormProps = {
   onDismiss: () => void
-  onSubmit: (values: NetworkInterfaceCreate) => void
+  onSubmit: (values: InstanceNetworkInterfaceCreate) => void
   loading?: boolean
   submitError?: ErrorResult | null
 }

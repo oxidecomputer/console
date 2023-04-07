@@ -1,4 +1,4 @@
-import type { NetworkInterface } from '@oxide/api'
+import type { InstanceNetworkInterface } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { pick } from '@oxide/util'
 
@@ -6,7 +6,7 @@ import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
 import { useInstanceSelector } from 'app/hooks'
 
 type EditNetworkInterfaceFormProps = {
-  editing: NetworkInterface
+  editing: InstanceNetworkInterface
   onDismiss: () => void
 }
 

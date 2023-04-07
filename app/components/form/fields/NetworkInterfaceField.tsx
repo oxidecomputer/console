@@ -2,7 +2,10 @@ import { useState } from 'react'
 import type { Control } from 'react-hook-form'
 import { useController } from 'react-hook-form'
 
-import type { InstanceNetworkInterfaceAttachment, NetworkInterfaceCreate } from '@oxide/api'
+import type {
+  InstanceNetworkInterfaceAttachment,
+  InstanceNetworkInterfaceCreate,
+} from '@oxide/api'
 import { Button, Error16Icon, FieldLabel, MiniTable, Radio, RadioGroup } from '@oxide/ui'
 
 import type { InstanceCreateInput } from 'app/forms/instance-create'
@@ -23,7 +26,7 @@ export function NetworkInterfaceField({
    * Used to preserve previous user choices in case they accidentally
    * change the radio selection
    */
-  const [oldParams, setOldParams] = useState<NetworkInterfaceCreate[]>([])
+  const [oldParams, setOldParams] = useState<InstanceNetworkInterfaceCreate[]>([])
 
   const {
     field: { value, onChange },

@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 
 import type { PathParams as PP, SnapshotCreate } from '@oxide/api'
+import { DISK_SNAPSHOT_STATES } from '@oxide/api'
 import { useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
 import { Success12Icon } from '@oxide/ui'
 
@@ -19,7 +20,7 @@ const useSnapshotDiskItems = (projectSelector: PP.Project) => {
   })
   return (
     disks?.items
-      .filter((disk) => disk.state.state === 'attached')
+      .filter((disk) => DISK_SNAPSHOT_STATES.has(disk.state.state))
       .map((disk) => ({ value: disk.name, label: disk.name })) || []
   )
 }

@@ -698,9 +698,9 @@ export type InstanceDiskAttachment =
     }
 
 /**
- * Create-time parameters for a {@link NetworkInterface}
+ * Create-time parameters for an {@link InstanceNetworkInterface}.
  */
-export type NetworkInterfaceCreate = {
+export type InstanceNetworkInterfaceCreate = {
   description: string
   /** The IP address for the interface. One will be auto-assigned if not provided. */
   ip?: string
@@ -712,13 +712,13 @@ export type NetworkInterfaceCreate = {
 }
 
 /**
- * Describes an attachment of a `NetworkInterface` to an `Instance`, at the time the instance is created.
+ * Describes an attachment of an `InstanceNetworkInterface` to an `Instance`, at the time the instance is created.
  */
 export type InstanceNetworkInterfaceAttachment =
-  /** Create one or more `NetworkInterface`s for the `Instance`.
+  /** Create one or more `InstanceNetworkInterface`s for the `Instance`.
 
 If more than one interface is provided, then the first will be designated the primary interface for the instance. */
-  | { params: NetworkInterfaceCreate[]; type: 'create' }
+  | { params: InstanceNetworkInterfaceCreate[]; type: 'create' }
   /** The default networking configuration for an instance is to create a single primary interface with an automatically-assigned IP address. The IP will be pulled from the Project's default VPC / VPC Subnet. */
   | { type: 'default' }
   /** No network interfaces at all will be created for the instance. */
@@ -751,6 +751,67 @@ By default, all instances have outbound connectivity, but no inbound connectivit
  * Migration parameters for an {@link Instance}
  */
 export type InstanceMigrate = { dstSledId: string }
+
+/**
+ * A MAC address
+ *
+ * A Media Access Control address, in EUI-48 format
+ */
+export type MacAddr = string
+
+/**
+ * An `InstanceNetworkInterface` represents a virtual network interface device attached to an instance.
+ */
+export type InstanceNetworkInterface = {
+  /** human-readable free-form text about a resource */
+  description: string
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** The Instance to which the interface belongs. */
+  instanceId: string
+  /** The IP address assigned to this interface. */
+  ip: string
+  /** The MAC address assigned to this interface. */
+  mac: MacAddr
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  /** True if this interface is the primary for the instance to which it's attached. */
+  primary: boolean
+  /** The subnet to which the interface belongs. */
+  subnetId: string
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+  /** The VPC to which the interface belongs. */
+  vpcId: string
+}
+
+/**
+ * A single page of results
+ */
+export type InstanceNetworkInterfaceResultsPage = {
+  /** list of items on this page of results */
+  items: InstanceNetworkInterface[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
+ * Parameters for updating an {@link InstanceNetworkInterface}.
+ *
+ * Note that modifying IP addresses for an interface is not yet supported, a new interface must be created instead.
+ */
+export type InstanceNetworkInterfaceUpdate = {
+  description?: string
+  name?: Name
+  /** Make a secondary interface the instance's primary interface.
+
+If applied to a secondary interface, that interface will become the primary on the next reboot of the instance. Note that this may have implications for routing between instances, as the new primary interface will be on a distinct subnet from the previous primary interface.
+
+Note that this can only be used to select a new primary interface for an instance. Requests to change the primary interface into a secondary will return an error. */
+  primary?: boolean
+}
 
 /**
  * A single page of results
@@ -862,13 +923,6 @@ export type IpPoolUpdate = { description?: string; name?: Name }
 export type L4PortRange = string
 
 /**
- * A MAC address
- *
- * A Media Access Control address, in EUI-48 format
- */
-export type MacAddr = string
-
-/**
  * A `Measurement` is a timestamped datum from a single metric
  */
 export type Measurement = { datum: Datum; timestamp: Date }
@@ -881,60 +935,6 @@ export type MeasurementResultsPage = {
   items: Measurement[]
   /** token used to fetch the next page of results (if any) */
   nextPage?: string
-}
-
-/**
- * A `NetworkInterface` represents a virtual network interface device.
- */
-export type NetworkInterface = {
-  /** human-readable free-form text about a resource */
-  description: string
-  /** unique, immutable, system-controlled identifier for each resource */
-  id: string
-  /** The Instance to which the interface belongs. */
-  instanceId: string
-  /** The IP address assigned to this interface. */
-  ip: string
-  /** The MAC address assigned to this interface. */
-  mac: MacAddr
-  /** unique, mutable, user-controlled identifier for each resource */
-  name: Name
-  /** True if this interface is the primary for the instance to which it's attached. */
-  primary: boolean
-  /** The subnet to which the interface belongs. */
-  subnetId: string
-  /** timestamp when this resource was created */
-  timeCreated: Date
-  /** timestamp when this resource was last modified */
-  timeModified: Date
-  /** The VPC to which the interface belongs. */
-  vpcId: string
-}
-
-/**
- * A single page of results
- */
-export type NetworkInterfaceResultsPage = {
-  /** list of items on this page of results */
-  items: NetworkInterface[]
-  /** token used to fetch the next page of results (if any) */
-  nextPage?: string
-}
-
-/**
- * Parameters for updating a {@link NetworkInterface}.
- *
- * Note that modifying IP addresses for an interface is not yet supported, a new interface must be created instead.
- */
-export type NetworkInterfaceUpdate = {
-  description?: string
-  name?: Name
-  /** Make a secondary interface the instance's primary interface.
-
-If applied to a secondary interface, that interface will become the primary on the next reboot of the instance. Note that this may have implications for routing between instances, as the new primary interface will be on a distinct subnet from the previous primary interface.
-
-Note that this can only be used to select a new primary interface for an instance. Requests to change the primary interface into a secondary will return an error. */
-  primary?: boolean
 }
 
 /**
@@ -3501,7 +3501,7 @@ export class Api extends HttpClient {
       { query = {} }: { query?: InstanceNetworkInterfaceListQueryParams },
       params: RequestParams = {}
     ) => {
-      return this.request<NetworkInterfaceResultsPage>({
+      return this.request<InstanceNetworkInterfaceResultsPage>({
         path: `/v1/network-interfaces`,
         method: 'GET',
         query,
@@ -3517,11 +3517,11 @@ export class Api extends HttpClient {
         body,
       }: {
         query?: InstanceNetworkInterfaceCreateQueryParams
-        body: NetworkInterfaceCreate
+        body: InstanceNetworkInterfaceCreate
       },
       params: RequestParams = {}
     ) => {
-      return this.request<NetworkInterface>({
+      return this.request<InstanceNetworkInterface>({
         path: `/v1/network-interfaces`,
         method: 'POST',
         body,
@@ -3542,7 +3542,7 @@ export class Api extends HttpClient {
       },
       params: RequestParams = {}
     ) => {
-      return this.request<NetworkInterface>({
+      return this.request<InstanceNetworkInterface>({
         path: `/v1/network-interfaces/${path.interface}`,
         method: 'GET',
         query,
@@ -3560,11 +3560,11 @@ export class Api extends HttpClient {
       }: {
         path: InstanceNetworkInterfaceUpdatePathParams
         query?: InstanceNetworkInterfaceUpdateQueryParams
-        body: NetworkInterfaceUpdate
+        body: InstanceNetworkInterfaceUpdate
       },
       params: RequestParams = {}
     ) => {
-      return this.request<NetworkInterface>({
+      return this.request<InstanceNetworkInterface>({
         path: `/v1/network-interfaces/${path.interface}`,
         method: 'PUT',
         body,
@@ -4828,7 +4828,7 @@ export class Api extends HttpClient {
       },
       params: RequestParams = {}
     ) => {
-      return this.request<NetworkInterfaceResultsPage>({
+      return this.request<InstanceNetworkInterfaceResultsPage>({
         path: `/v1/vpc-subnets/${path.subnet}/network-interfaces`,
         method: 'GET',
         query,

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 import { Link } from 'react-router-dom'
 
-import type { NetworkInterface } from '@oxide/api'
+import type { InstanceNetworkInterface } from '@oxide/api'
 import { apiQueryClient, useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
 import type { MenuAction } from '@oxide/table'
 import { useQueryTable } from '@oxide/table'
@@ -77,7 +77,7 @@ export function NetworkingTab() {
   const addToast = useToast()
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
-  const [editing, setEditing] = useState<NetworkInterface | null>(null)
+  const [editing, setEditing] = useState<InstanceNetworkInterface | null>(null)
 
   const getQuery = ['instanceNetworkInterfaceList', { query: instanceSelector }] as const
 
@@ -110,7 +110,7 @@ export function NetworkingTab() {
     useApiQuery('instanceView', toPathQuery('instance', instanceSelector)).data
       ?.runState === 'stopped'
 
-  const makeActions = (nic: NetworkInterface): MenuAction[] => [
+  const makeActions = (nic: InstanceNetworkInterface): MenuAction[] => [
     {
       label: 'Make primary',
       onActivate() {
