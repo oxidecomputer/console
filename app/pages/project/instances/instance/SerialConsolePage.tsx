@@ -1,42 +1,103 @@
-import { Suspense, lazy } from 'react'
+import { Suspense, lazy, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 
-import { useApiQuery } from '@oxide/api'
-import { Button, PrevArrow12Icon, Spinner } from '@oxide/ui'
-import { MiB } from '@oxide/util'
+import { api } from '@oxide/api'
+import type { BadgeColor } from '@oxide/ui'
+import { Badge } from '@oxide/ui'
+import { PrevArrow12Icon, Spinner } from '@oxide/ui'
 
 import EquivalentCliCommand from 'app/components/EquivalentCliCommand'
-import { SerialConsoleStatusBadge } from 'app/components/StatusBadge'
 import { useInstanceSelector } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 const Terminal = lazy(() => import('app/components/Terminal'))
 
+// need prefix so Vite dev server can handle it specially
+const pathPrefix = process.env.NODE_ENV === 'development' ? '/ws-serial-console' : ''
+
+type WsState = 'connecting' | 'open' | 'closed' | 'error'
+
+const statusColor: Record<WsState, BadgeColor> = {
+  connecting: 'notice',
+  open: 'default',
+  closed: 'notice',
+  error: 'destructive',
+}
+
+const statusMessage: Record<WsState, string> = {
+  connecting: 'connecting',
+  open: 'connected',
+  closed: 'disconnected',
+  error: 'error',
+}
+
 export function SerialConsolePage() {
-  const { project, instance } = useInstanceSelector()
+  const instanceSelector = useInstanceSelector()
+  const { project, instance } = instanceSelector
 
-  const maxBytes = 10 * MiB
+  const ws = useRef<WebSocket | null>(null)
 
-  const { isRefetching, data, refetch } = useApiQuery(
-    'instanceSerialConsole',
-    {
-      path: { instance },
-      // holding off on using toPathQuery for now because it doesn't like numbers
-      query: { project, maxBytes, fromStart: 0 },
-    },
-    { refetchOnWindowFocus: false }
-  )
+  const [connectionStatus, setConnectionStatus] = useState<WsState>('connecting')
+
+  // In dev, React 18 strict mode fires all effects twice for lulz, even ones
+  // with no dependencies. In order to prevent the websocket from being killed
+  // before it's even connected, in the cleanup callback we check not only that
+  // it is non-null, but also that it is OPEN before trying to kill it. This
+  // allows the effect to run twice with no ill effect.
+  //
+  // 1.  effect runs, WS connection initialized and starts connecting
+  // 1a. cleanup runs, nothing happens because socket was not open yet
+  // 2.  effect runs, but `ws.current` is truthy, so nothing happens
+  useEffect(() => {
+    // TODO: error handling if this connection fails
+    if (!ws.current) {
+      const { project, instance } = instanceSelector
+      ws.current = api.ws.instanceSerialConsoleStream(window.location.host + pathPrefix, {
+        path: { instance },
+        query: { project, fromStart: 0 },
+      })
+      ws.current.binaryType = 'arraybuffer' // important!
+    }
+    return () => {
+      if (ws.current?.readyState === WebSocket.OPEN) {
+        ws.current.close()
+      }
+    }
+  }, [instanceSelector])
+
+  // Because this one does not look at ready state, just whether the thing is
+  // defined, it will remove the event listeners before the spurious second
+  // render. But that's fine, we can add and remove listeners all day.
+  //
+  // 1.  effect runs, ws connection is there because the other effect has run,
+  //     so listeners are attached
+  // 1a. cleanup runs, event listeners removed
+  // 2.  effect runs again, event listeners attached again
+  useEffect(() => {
+    const setOpen = () => setConnectionStatus('open')
+    const setClosed = () => setConnectionStatus('closed')
+    const setError = () => setConnectionStatus('error')
+
+    ws.current?.addEventListener('open', setOpen)
+    ws.current?.addEventListener('closed', setClosed)
+    ws.current?.addEventListener('error', setError)
+
+    return () => {
+      ws.current?.removeEventListener('open', setOpen)
+      ws.current?.removeEventListener('closed', setClosed)
+      ws.current?.removeEventListener('error', setError)
+    }
+  }, [])
 
   const command = `oxide instance serial
   --project ${project}
-  --max-bytes ${maxBytes}
   ${instance}
   --continuous`
 
   return (
     <div className="!mx-0 flex h-full max-h-[calc(100vh-60px)] !w-full flex-col">
       <Link
-        to={pb.instance({ project, instance })}
+        to={pb.instance(instanceSelector)}
         className="mx-3 mt-3 mb-6 flex h-10 flex-shrink-0 items-center rounded px-3 bg-accent-secondary"
       >
         <PrevArrow12Icon className="text-accent-tertiary" />
@@ -46,27 +107,18 @@ export function SerialConsolePage() {
       </Link>
 
       <div className="gutter relative w-full flex-shrink flex-grow overflow-hidden">
-        {!data && <SerialSkeleton />}
-        <Suspense fallback={null}>
-          <Terminal data={data?.data} />
-        </Suspense>
+        {connectionStatus !== 'open' && <SerialSkeleton />}
+        <Suspense fallback={null}>{ws.current && <Terminal ws={ws.current} />}</Suspense>
       </div>
       <div className="flex-shrink-0 justify-between overflow-hidden border-t bg-default border-secondary empty:border-t-0">
         <div className="gutter flex h-20 items-center justify-between">
           <div>
-            <Button
-              loading={isRefetching}
-              size="sm"
-              onClick={() => refetch()}
-              disabled={!data}
-            >
-              Refresh
-            </Button>
-
             <EquivalentCliCommand command={command} />
           </div>
 
-          <SerialConsoleStatusBadge status={data ? 'connected' : 'connecting'} />
+          <Badge color={statusColor[connectionStatus]}>
+            {statusMessage[connectionStatus]}
+          </Badge>
         </div>
       </div>
     </div>

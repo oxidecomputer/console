@@ -1,87 +1,90 @@
 import { useEffect, useRef, useState } from 'react'
 import type { ITerminalOptions } from 'xterm'
 import { Terminal as XTerm } from 'xterm'
+import { AttachAddon } from 'xterm-addon-attach'
 import { FitAddon } from 'xterm-addon-fit'
 import 'xterm/css/xterm.css'
 
 import { DirectionDownIcon, DirectionUpIcon } from '@oxide/ui'
 import { classed } from '@oxide/util'
 
-interface TerminalProps {
-  data?: number[]
-}
-
-const options: ITerminalOptions = {
-  allowTransparency: false,
-  screenReaderMode: true,
-  fontFamily: '"GT America Mono", monospace',
-  fontSize: 13,
-  lineHeight: 1.2,
-  windowOptions: {
-    fullscreenWin: true,
-    refreshWin: true,
-  },
-}
-
 const ScrollButton = classed.button`ml-4 flex h-8 w-8 items-center justify-center rounded border border-secondary hover:bg-hover`
 
-function getTheme() {
+function getOptions(): ITerminalOptions {
   const style = getComputedStyle(document.body)
   return {
-    background: style.getPropertyValue('--surface-default'),
-    foreground: style.getPropertyValue('--content-default'),
-    black: style.getPropertyValue('--surface-default'),
-    brightBlack: style.getPropertyValue('--surface-secondary'),
-    white: style.getPropertyValue('--content-default'),
-    brightWhite: style.getPropertyValue('--content-secondary'),
-    blue: style.getPropertyValue('--base-blue-500'),
-    brightBlue: style.getPropertyValue('--base-blue-900'),
-    green: style.getPropertyValue('--content-success'),
-    brightGreen: style.getPropertyValue('--content-success-secondary'),
-    red: style.getPropertyValue('--content-error'),
-    brightRed: style.getPropertyValue('--content-error-secondary'),
-    yellow: style.getPropertyValue('--content-notice'),
-    brightYellow: style.getPropertyValue('--content-notice-secondary'),
-    cursor: style.getPropertyValue('--content-default'),
-    cursorAccent: style.getPropertyValue('--content-accent'),
+    allowTransparency: false,
+    screenReaderMode: true,
+    fontFamily: '"GT America Mono", monospace',
+    fontSize: 13,
+    lineHeight: 1.2,
+    windowOptions: {
+      fullscreenWin: true,
+      refreshWin: true,
+    },
+    theme: {
+      background: style.getPropertyValue('--surface-default'),
+      foreground: style.getPropertyValue('--content-default'),
+      black: style.getPropertyValue('--surface-default'),
+      brightBlack: style.getPropertyValue('--surface-secondary'),
+      white: style.getPropertyValue('--content-default'),
+      brightWhite: style.getPropertyValue('--content-secondary'),
+      blue: style.getPropertyValue('--base-blue-500'),
+      brightBlue: style.getPropertyValue('--base-blue-900'),
+      green: style.getPropertyValue('--content-success'),
+      brightGreen: style.getPropertyValue('--content-success-secondary'),
+      red: style.getPropertyValue('--content-error'),
+      brightRed: style.getPropertyValue('--content-error-secondary'),
+      yellow: style.getPropertyValue('--content-notice'),
+      brightYellow: style.getPropertyValue('--content-notice-secondary'),
+      cursor: style.getPropertyValue('--content-default'),
+      cursorAccent: style.getPropertyValue('--content-accent'),
+    },
   }
 }
 
-export const Terminal = ({ data }: TerminalProps) => {
+interface TerminalProps {
+  ws: WebSocket
+}
+
+export const Terminal = ({ ws }: TerminalProps) => {
   const [term, setTerm] = useState<XTerm | null>(null)
-  const terminalRef = useRef(null)
+  const terminalRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const newTerm = new XTerm({ theme: getTheme(), ...options })
+    const newTerm = new XTerm(getOptions())
 
-    // Persist terminal instance, initialize terminal
+    // TODO: the render triggered by this call is load-bearing and should not
+    // be. Moving initialization out to a useMemo like it should be
+    //
+    //   const term = useMemo(() => new XTerm(getOptions()), [])
+    //
+    // introduces a bug where the serial console text does not show up until you
+    // click the terminal area or resize the window. It cannot be about making
+    // this effect run again, because the deps don't include newTerm. It must be
+    // something internal to XTerm. Overall I do not feel particularly good
+    // about this whole section.
     setTerm(newTerm)
-    if (terminalRef.current) {
-      newTerm.open(terminalRef.current)
-    }
 
-    // Setup terminal addons
     const fitAddon = new FitAddon()
     newTerm.loadAddon(fitAddon)
+    newTerm.loadAddon(new AttachAddon(ws))
 
     // Handle window resizing
     const resize = () => fitAddon.fit()
 
-    resize()
+    // ref will always be defined by the time the effect runs, but make TS happy
+    if (terminalRef.current) {
+      newTerm.open(terminalRef.current)
+      resize()
+    }
+
     window.addEventListener('resize', resize)
     return () => {
       newTerm.dispose()
       window.removeEventListener('resize', resize)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  useEffect(() => {
-    if (data) {
-      term?.clear()
-      term?.write(new Uint8Array(data))
-    }
-  }, [term, data])
+  }, [ws])
 
   return (
     <>
