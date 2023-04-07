@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { ITerminalInitOnlyOptions, ITerminalOptions } from 'xterm'
 import { Terminal as XTerm } from 'xterm'
-import { FitAddon } from 'xterm-addon-fit'
 import 'xterm/css/xterm.css'
 
 import { DirectionDownIcon, DirectionUpIcon } from '@oxide/ui'
@@ -69,24 +68,16 @@ export const Terminal = ({ ws }: TerminalProps) => {
     // about this whole section.
     setTerm(newTerm)
 
-    const fitAddon = new FitAddon()
-    newTerm.loadAddon(fitAddon)
     newTerm.loadAddon(new AttachAddon(ws))
 
     // Handle window resizing
-    const resize = () => fitAddon.fit()
 
     // ref will always be defined by the time the effect runs, but make TS happy
     if (terminalRef.current) {
       newTerm.open(terminalRef.current)
-      resize()
     }
 
-    window.addEventListener('resize', resize)
-    return () => {
-      newTerm.dispose()
-      window.removeEventListener('resize', resize)
-    }
+    return () => newTerm.dispose()
   }, [ws])
 
   return (
