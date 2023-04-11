@@ -6,6 +6,7 @@ import { apiQueryClient, useApiMutation, useApiQuery, useApiQueryClient } from '
 import type { MenuAction } from '@oxide/table'
 import { DateCell, SizeCell, useQueryTable } from '@oxide/table'
 import {
+  Badge,
   EmptyMessage,
   PageHeader,
   PageTitle,
@@ -19,9 +20,14 @@ import { getProjectSelector, useProjectSelector } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 const DiskNameFromId = ({ value }: { value: string }) => {
-  const { data: disk } = useApiQuery('diskView', { path: { disk: value } })
-  if (!disk) return null
-  return <>{disk.name}</>
+  const {
+    data: disk,
+    isLoading,
+    isError,
+  } = useApiQuery('diskView', { path: { disk: value } }, { useErrorBoundary: false })
+  if (isLoading) return null
+  if (isError) return <Badge color="neutral">Deleted</Badge>
+  return <span className="text-secondary">{disk.name}</span>
 }
 
 const EmptyState = () => (

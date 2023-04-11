@@ -1,6 +1,6 @@
 import { test } from '@playwright/test'
 
-import { expectNotVisible, expectVisible } from 'app/test/e2e'
+import { expectNotVisible, expectRowVisible, expectVisible } from 'app/test/e2e'
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/projects/mock-project')
@@ -33,7 +33,13 @@ test('Click through snapshots page', async ({ page }) => {
     'role=cell[name="snapshot-2"]',
     'role=cell[name="snapshot-3"]',
     'role=cell[name="snapshot-4"]',
+    'role=cell[name="snapshot-disk-deleted"]',
   ])
+
+  // test async disk name fetch
+  const table = page.locator('role=table')
+  await expectRowVisible(table, { name: 'snapshot-1', disk: 'disk-1' })
+  await expectRowVisible(table, { name: 'snapshot-disk-deleted', disk: 'Deleted' })
 })
 
 test('Click through disks page', async ({ page }) => {
