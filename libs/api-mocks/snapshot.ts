@@ -49,4 +49,15 @@ export const snapshots: Json<Snapshot>[] = [
     disk_id: disks[0].id,
     state: 'ready',
   },
+  {
+    id: 'ca117fc6-d3e4-452e-9e1c-15abea752ff6',
+    name: 'snapshot-disk-deleted',
+    description: 'technically it never existed',
+    project_id: project.id,
+    time_created: new Date().toISOString(),
+    time_modified: new Date().toISOString(),
+    size: 4096,
+    disk_id: 'a6f61e3f-25c1-49b0-a013-ac6a2d98a948',
+    state: 'ready',
+  },
 ]
