@@ -56,7 +56,7 @@ export const snapshots: Json<Snapshot>[] = [
     project_id: project.id,
     time_created: new Date().toISOString(),
     time_modified: new Date().toISOString(),
-    size: 4096,
+    size: 5120,
     disk_id: 'a6f61e3f-25c1-49b0-a013-ac6a2d98a948',
     state: 'ready',
   },

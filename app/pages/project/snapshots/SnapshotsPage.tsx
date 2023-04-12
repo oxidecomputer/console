@@ -20,14 +20,16 @@ import { getProjectSelector, useProjectSelector } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 const DiskNameFromId = ({ value }: { value: string }) => {
-  const {
-    data: disk,
-    isLoading,
-    isError,
-  } = useApiQuery('diskView', { path: { disk: value } }, { useErrorBoundary: false })
+  const { data, isLoading, isError } = useApiQuery(
+    'diskView',
+    { path: { disk: value } },
+    // this can 404 if the source disk has been deleted, and that's fine
+    { useErrorBoundary: false }
+  )
+
   if (isLoading) return null
   if (isError) return <Badge color="neutral">Deleted</Badge>
-  return <span className="text-secondary">{disk.name}</span>
+  return <span className="text-secondary">{data.name}</span>
 }
 
 const EmptyState = () => (
