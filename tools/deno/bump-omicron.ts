@@ -50,8 +50,34 @@ if (!shaResp.ok) {
 const newSha2 = (await shaResp.text()).trim()
 const newVersionFile = `COMMIT="${newCommit}"\nSHA2="${newSha2}"\n`
 
+const oldVersionFile = await Deno.readTextFile(VERSION_FILE).catch(() => {
+  throw Error(VERSION_FILE_MISSING)
+})
+
+const oldCommit = /COMMIT="?([a-f0-9]+)"?/.exec(oldVersionFile)?.[1]
+if (!oldCommit) throw Error('Could not parse existing version file')
+
+if (oldCommit === newCommit) {
+  console.log('Nothing to update: Omicron already has the current commit pinned')
+  Deno.exit()
+}
+
+const oldCommitShort = oldCommit.slice(0, 8)
+const newCommitShort = newCommit.slice(0, 8)
+
 if (dryRun) {
+  console.log('New contents of <omicron>/tools/console_version:\n')
   console.log(newVersionFile)
+  console.log('Console commits included:\n')
+  console.log(
+    run('git', [
+      'log',
+      '--graph',
+      '--oneline',
+      '--color=always',
+      `${oldCommitShort}...${newCommitShort}`,
+    ])
+  )
   Deno.exit()
 }
 
@@ -61,18 +87,11 @@ try {
   throw Error(GH_MISSING)
 }
 
-const oldVersionFile = await Deno.readTextFile(VERSION_FILE).catch(() => {
-  throw Error(VERSION_FILE_MISSING)
-})
-
-const oldCommit = /COMMIT="?([a-f0-9]+)"?/.exec(oldVersionFile)?.[1]
-if (!oldCommit) throw Error('Could not parse existing version file')
-
 await Deno.writeTextFile(VERSION_FILE, newVersionFile)
 
-const branchName = `bump-console-${newCommit.slice(0, 8)}`
+const branchName = 'bump-console-' + newCommitShort
 const prTitle = 'Bump web console'
-const prBody = `Changes: https://github.com/oxidecomputer/console/compare/${oldCommit}...${newCommit}`
+const prBody = `Changes: https://github.com/oxidecomputer/console/compare/${oldCommitShort}...${newCommitShort}`
 
 // cd to omicron, pull main, create new branch, commit changes, push, PR it, go back to
 // main, delete branch
