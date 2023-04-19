@@ -127,6 +127,7 @@ export interface MSWHandlers {
   diskFinalizeImport: (params: {
     path: Api.DiskFinalizeImportPathParams
     query: Api.DiskFinalizeImportQueryParams
+    body: Json<Api.FinalizeDisk>
   }) => StatusCode
   /** `POST /v1/disks/:disk/import` */
   diskImportBlocksFromUrl: (params: {
@@ -164,6 +165,11 @@ export interface MSWHandlers {
     path: Api.ImageDeletePathParams
     query: Api.ImageDeleteQueryParams
   }) => StatusCode
+  /** `POST /v1/images/:image/promote` */
+  imagePromote: (params: {
+    path: Api.ImagePromotePathParams
+    query: Api.ImagePromoteQueryParams
+  }) => HandlerResult<Api.Image>
   /** `GET /v1/instances` */
   instanceList: (params: {
     query: Api.InstanceListQueryParams
@@ -810,7 +816,11 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
     ),
     rest.post(
       '/v1/disks/:disk/finalize',
-      handler(handlers['diskFinalizeImport'], schema.DiskFinalizeImportParams, null)
+      handler(
+        handlers['diskFinalizeImport'],
+        schema.DiskFinalizeImportParams,
+        schema.FinalizeDisk
+      )
     ),
     rest.post(
       '/v1/disks/:disk/import',
@@ -841,6 +851,10 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
     rest.delete(
       '/v1/images/:image',
       handler(handlers['imageDelete'], schema.ImageDeleteParams, null)
+    ),
+    rest.post(
+      '/v1/images/:image/promote',
+      handler(handlers['imagePromote'], schema.ImagePromoteParams, null)
     ),
     rest.get(
       '/v1/instances',

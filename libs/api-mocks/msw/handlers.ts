@@ -164,6 +164,12 @@ export const handlers = makeHandlers({
 
     return 204
   },
+  imagePromote({ path, query }) {
+    const image = lookup.image({ ...path, ...query })
+    delete image.project_id
+
+    return json(image, { status: 202 })
+  },
   instanceList({ query }) {
     const project = lookup.project(query)
     const instances = db.instances.filter((i) => i.project_id === project.id)

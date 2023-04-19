@@ -445,6 +445,14 @@ export const ExternalIpResultsPage = z.preprocess(
   z.object({ items: ExternalIp.array(), nextPage: z.string().optional() })
 )
 
+/**
+ * Parameters for finalizing a disk
+ */
+export const FinalizeDisk = z.preprocess(
+  processResponseBody,
+  z.object({ snapshotName: Name.optional() })
+)
+
 export const FleetRole = z.preprocess(
   processResponseBody,
   z.enum(['admin', 'collaborator', 'viewer'])
@@ -586,7 +594,7 @@ export const IdpMetadataSource = z.preprocess(
 )
 
 /**
- * Client view of project Images
+ * Client view of images
  */
 export const Image = z.preprocess(
   processResponseBody,
@@ -597,7 +605,7 @@ export const Image = z.preprocess(
     id: z.string().uuid(),
     name: Name,
     os: z.string(),
-    projectId: z.string().uuid(),
+    projectId: z.string().uuid().optional(),
     size: ByteCount,
     timeCreated: DateType,
     timeModified: DateType,
@@ -2144,7 +2152,6 @@ export const DiskFinalizeImportParams = z.preprocess(
     }),
     query: z.object({
       project: NameOrId.optional(),
-      snapshotName: z.string().optional(),
     }),
   })
 )
@@ -2205,6 +2212,7 @@ export const ImageListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
+      includeSiloImages: z.boolean().optional(),
       limit: z.number().min(1).max(4294967295).optional(),
       pageToken: z.string().optional(),
       project: NameOrId.optional(),
@@ -2236,6 +2244,18 @@ export const ImageViewParams = z.preprocess(
 )
 
 export const ImageDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      image: NameOrId,
+    }),
+    query: z.object({
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const ImagePromoteParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
