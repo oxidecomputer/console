@@ -1,24 +1,40 @@
 # Console
 
-Web client to the [Oxide control plane API](https://github.com/oxidecomputer/omicron).
+Web client to the [Control Plane API](https://github.com/oxidecomputer/omicron).
+
+![screenshot of instances list page](docs/readme-screenshot.png)
+
+## Architecture
+
+![](docs/architecture-browser-only.svg)
+
+In order to avoid the complexity of server-side rendering (and running JS on the rack in general), the web console is a fully client-side React app. We use Vite (which uses Rollup internally for production builds) to build a set of assets (`index.html`, JS bundles, CSS, fonts, images) and we serve those assets as static files from a special set of console endpoints in Nexus. From the control plane's point of view, the web console simply is:
+
+- a tarball of static assets + endpoints that serve them
+- a few other endpoints to handle auth actions like login/logout
+- a table of sessions (not necessarily console-specific)
+
+The web console has no special privileges as an API consumer. We log in (which sets a cookie) and make cookie-authed API requests after that. See [RFD 223 Web Console Architecture](https://rfd.shared.oxide.computer/rfd/0223) for a more detailed discussion. The endpoints live in [`nexus/src/external_api/console_api.rs`](https://github.com/oxidecomputer/omicron/blob/e4a585350b658879af88d769cde7ebe6d6960bf5/nexus/src/external_api/console_api.rs) in Omicron.
 
 ## Tech
 
-- [TypeScript](https://www.typescriptlang.org/)
-- [React](https://reactjs.org/) (+ [React Router](https://reactrouter.com/), [React Query](https://react-query.tanstack.com), [React Table](https://react-table.tanstack.com))
-- [Vitest](https://vitest.dev/) + [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/) + [Mock Service Workers](https://mswjs.io/)
-- [Tailwind](https://tailwindcss.com/)
-- [oxide.ts](https://github.com/oxidecomputer/oxide.ts) (generates typed API client from Nexus's [OpenAPI spec](app/docs/nexus-openapi.json))
-- [Vite](https://vitejs.dev/)
-- [Storybook](https://storybook.js.org/) (see main branch Storybook [here](https://console-ui-storybook.vercel.app/))
+- [TypeScript](https://www.typescriptlang.org/) + [React](https://reactjs.org/) (+ [React Router](https://reactrouter.com/), [React Query](https://tanstack.com/query/latest/), [React Table](https://tanstack.com/table/v8/))
+- [Vite](https://vitejs.dev/) for dev server and browser bundling
+- [Tailwind](https://tailwindcss.com/) for styling
+- [oxide.ts](https://github.com/oxidecomputer/oxide.ts) generates an API client from [Nexus's OpenAPI spec](https://github.com/oxidecomputer/omicron/blob/main/openapi/nexus.json)
+- Testing
+  - [Mock Service Workers](https://mswjs.io/) for mock API server
+  - [Vitest](https://vitest.dev/) for unit tests
+  - [Playwright](https://playwright.dev/) for E2E browser tests
+- [Ladle](https://ladle.dev/), a lightweight Storybook clone based on Vite (see main branch Storybook [here](https://console-ui-storybook.vercel.app/))
 
 ## Directory structure
 
 The app is in [`app`](app). You can see the route structure in [`app/routes.tsx`](app/routes.tsx). In [`libs`](libs) we have a [`ui`](libs/ui) dir where the low-level components live (and the Storybook definition) and an [`api`](libs/api) dir where we keep the generated API client and a React Query wrapper for it. These directories are aliased in [`tsconfig.json`](tsconfig.json) for easy import from the main app as `@oxide/ui` and `@oxide/api`, respectively.
 
-## Try it
+## Try it locally
 
-The fastest way to see the console in action is to check out the repo, run `npm install && npm run start:msw`, and go to http://localhost:4000 in the browser. This runs the console with a mock API server that runs in a Service Worker in the browser.
+The fastest way to see the console in action is to check out the repo, run `npm install && npm run start:msw`, and go to http://localhost:4000 in the browser. This runs the console with a mock API server that runs in a [Service Worker](https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API).
 
 ## Development
 
@@ -28,50 +44,25 @@ The fastest way to see the console in action is to check out the repo, run `npm 
 npm install
 ```
 
-### Run [Ladel](https://ladle.dev/)
-
-```
-npm run storybook
-```
-
-This will start a preview environment for the UI components in the project. The window should open automatically, but if not go to `http://localhost:61000`.
-
 ### Run Vite dev server + [MSW](https://mswjs.io/) mock API
 
-This is the easiest way to run the console locally. Just run:
+This is the way we do nearly all console development. Just run:
 
 ```
 npm run start:msw
 ```
 
-and navigate to http://localhost:4000 in the browser. The running app will automatically update if you change the source code. This mode uses Mock Service Workers to run a whole fake API right the browser. This mock server is also used in tests.
+and navigate to http://localhost:4000 in the browser. The running app will automatically update when you write a source file. This mode uses Mock Service Workers to run a mock API right the browser. This mock API is also used in tests.
 
-### Run Vite dev server + real Nexus API
+### Run Vite dev server against real Nexus API
 
-You can also run the console against a real instance of Nexus, the API.
+You can also run the console dev server locally with the mock server off, instead passing requests through to `localhost:12220`. Run `npm run start` (note no `:msw`) and navigate to http://localhost:4000/ in the browser. It will mostly not work unless Nexus is running at `localhost:12220`, which is the default for `omicron-dev` (see [Running Omicron (Simulated)](https://github.com/oxidecomputer/omicron/blob/main/docs/how-to-run-simulated.adoc) for how to set that up).
 
-#### Run dev server
-
-Run `npm run start` and navigate to http://localhost:4000/ in the browser. The running app will automatically update if you change the source code. It will mostly not work until you run the API.
-
-#### Run API
-
-Clone [omicron](https://github.com/oxidecomputer/omicron) in the same parent directory as the console and install [rustup](https://rustup.rs/). Then:
-
-```
-rustup install stable  # install Rust
-cargo build  # needs to be run in the omicron directory
-npm i -g json
-brew install tmux cockroachdb/tap/cockroach
-```
-
-The easy way to run everything is to use the `tools/start_api.sh` script, which uses tmux to run multiple processes in different panes and automatically populates some fake data (see `tools/populate_omicron_data.sh` to see exactly what). From the omicron directory, run `tools/start_api.sh`. Since we're assuming `console` and `omicron` are next to each other, that looks like this:
+One way to run everything is to use the `tools/start_api.sh` script, which uses tmux to run multiple processes in different panes and automatically populates some fake data (see [`tools/populate_omicron_data.sh`](tools/populate_omicron_data.sh) to see exactly what). From the omicron directory, run `tools/start_api.sh`. Since we're assuming `console` and `omicron` are next to each other, that looks like this:
 
 ```sh
 ../console/tools/start_api.sh
 ```
-
-To stop the API run `tools/stop_api.sh` (which kills the tmux session) or kill the tmux session manually.
 
 <details>
 <summary>Configuring tmux</summary
@@ -107,12 +98,13 @@ set -g mouse on
 
 </details>
 
-<details>
-<summary>Running without tmux</summary>
+### Run [Ladle](https://ladle.dev/)
 
-Using the script is strongly recommended, but if you really don't want to, make sure you've done the above setup and then run the commands in `tools/start_api.sh` in separate terminal windows in the same order they are run in that script. Note the dependencies indicated by the `wait_for_up` commands.
+```
+npm run storybook
+```
 
-</details>
+This will start a preview environment for the UI components in the project. The window should open automatically, but if not go to `http://localhost:61000`.
 
 ### E2E tests with [Playwright](https://playwright.dev/)
 
@@ -152,10 +144,9 @@ To debug end-to-end failures on CI checkout the branch with the failure and run 
 - [RFD 156 API Requirements for Console Prototype](https://rfd.shared.oxide.computer/rfd/0156)
 - [RFD 169 Console Authentication and Session Management](https://rfd.shared.oxide.computer/rfd/0169)
 - [RFD 180 Console v1 Scope](https://rfd.shared.oxide.computer/rfd/0180)
+- [RFD 223 Web Console Architecture](https://rfd.shared.oxide.computer/rfd/0223)
 
 ### Figma
 
 - [Component Library](https://www.figma.com/file/D5ukCJbedrlGkUIh0E6QtX/Component-Library)
 - [Applied UI Exploration](https://www.figma.com/file/UDMGwny0LIyMUI9d35XVGl/Applied-UI-Exploration)
-- [Console Prototype v2 (old)](https://www.figma.com/file/Z4cn380qKc7cqT91YNrbgn/Console-Prototype-v2)
-- [Oxide Design System (old)](https://www.figma.com/file/EUf6YnFJx0AKE8GGYDAoRO/Oxide-Design-System)
