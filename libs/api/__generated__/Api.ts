@@ -403,6 +403,14 @@ export type ExternalIpResultsPage = {
   nextPage?: string
 }
 
+/**
+ * Parameters for finalizing a disk
+ */
+export type FinalizeDisk = {
+  /** If specified a snapshot of the disk will be created with the given name during finalization. If not specified, a snapshot for the disk will _not_ be created. A snapshot can be manually created once the disk transitions into the `Detached` state. */
+  snapshotName?: Name
+}
+
 export type FleetRole = 'admin' | 'collaborator' | 'viewer'
 
 /**
@@ -548,7 +556,7 @@ export type IdpMetadataSource =
   | { data: string; type: 'base64_encoded_xml' }
 
 /**
- * Client view of project Images
+ * Client view of images
  */
 export type Image = {
   /** size of blocks in bytes */
@@ -563,8 +571,8 @@ export type Image = {
   name: Name
   /** The family of the operating system like Debian, Ubuntu, etc. */
   os: string
-  /** The project the image belongs to */
-  projectId: string
+  /** ID of the parent project if the image is a project image */
+  projectId?: string
   /** total size in bytes */
   size: ByteCount
   /** timestamp when this resource was created */
@@ -2002,7 +2010,6 @@ export interface DiskFinalizeImportPathParams {
 
 export interface DiskFinalizeImportQueryParams {
   project?: NameOrId
-  snapshotName?: string
 }
 
 export interface DiskImportBlocksFromUrlPathParams {
@@ -2037,6 +2044,7 @@ export interface GroupViewPathParams {
 }
 
 export interface ImageListQueryParams {
+  includeSiloImages?: boolean
   limit?: number
   pageToken?: string
   project?: NameOrId
@@ -2060,6 +2068,14 @@ export interface ImageDeletePathParams {
 }
 
 export interface ImageDeleteQueryParams {
+  project?: NameOrId
+}
+
+export interface ImagePromotePathParams {
+  image: NameOrId
+}
+
+export interface ImagePromoteQueryParams {
   project?: NameOrId
 }
 
@@ -3045,12 +3061,18 @@ export class Api extends HttpClient {
       {
         path,
         query = {},
-      }: { path: DiskFinalizeImportPathParams; query?: DiskFinalizeImportQueryParams },
+        body,
+      }: {
+        path: DiskFinalizeImportPathParams
+        query?: DiskFinalizeImportQueryParams
+        body: FinalizeDisk
+      },
       params: RequestParams = {}
     ) => {
       return this.request<void>({
         path: `/v1/disks/${path.disk}/finalize`,
         method: 'POST',
+        body,
         query,
         ...params,
       })
@@ -3172,6 +3194,23 @@ export class Api extends HttpClient {
       return this.request<void>({
         path: `/v1/images/${path.image}`,
         method: 'DELETE',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Promote a project image to be visible to all projects in the silo
+     */
+    imagePromote: (
+      {
+        path,
+        query = {},
+      }: { path: ImagePromotePathParams; query?: ImagePromoteQueryParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<Image>({
+        path: `/v1/images/${path.image}/promote`,
+        method: 'POST',
         query,
         ...params,
       })
@@ -4916,20 +4955,18 @@ export class Api extends HttpClient {
     /**
      * Stream an instance's serial console
      */
-    instanceSerialConsoleStream: ({
-      host,
-      secure = true,
-      path,
-      query = {},
-    }: {
-      host: string
-      secure?: boolean
-      path: InstanceSerialConsoleStreamPathParams
-      query?: InstanceSerialConsoleStreamQueryParams
-    }) => {
-      const protocol = secure ? 'wss:' : 'ws:'
-      const route = `/v1/instances/${path.instance}/serial-console/stream`
-      return new WebSocket(protocol + '//' + host + route + toQueryString(query))
+    instanceSerialConsoleStream: (
+      host: string,
+      {
+        path,
+        query = {},
+      }: {
+        path: InstanceSerialConsoleStreamPathParams
+        query?: InstanceSerialConsoleStreamQueryParams
+      }
+    ) => {
+      let route = `/v1/instances/${path.instance}/serial-console/stream`
+      return new WebSocket('ws://' + host + route + toQueryString(query))
     },
   }
 }
