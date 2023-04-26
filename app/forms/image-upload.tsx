@@ -1,3 +1,4 @@
+import filesize from 'filesize'
 import { useState } from 'react'
 import { Controller } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
@@ -150,7 +151,7 @@ export function CreateImageSideModalForm() {
               const base64EncodedData = await readBlobAsBase64(file.slice(offset, end))
               await uploadChunk.mutateAsync({ path, body: { offset, base64EncodedData } })
               chunksProcessed++
-              setUploadProgress((100 * chunksProcessed) / nChunks)
+              setUploadProgress(Math.round((100 * chunksProcessed) / nChunks))
             }
           }
         }
@@ -192,19 +193,42 @@ export function CreateImageSideModalForm() {
           <Controller
             name="file"
             control={control}
-            render={({ field: { value: _value, onChange, ...rest } }) => (
-              <input
-                {...rest}
-                type="file"
-                onChange={(e) => {
-                  if (e.target.files) {
-                    onChange(e.target.files[0])
-                  }
-                }}
-              />
+            render={({ field: { value: file, onChange, ...rest } }) => (
+              <>
+                <input
+                  {...rest}
+                  type="file"
+                  onChange={(e) => {
+                    if (e.target.files) {
+                      onChange(e.target.files[0])
+                    }
+                  }}
+                />
+                {file && showProgress && (
+                  <div className="rounded-lg border p-4 border-secondary">
+                    <div className="text-sans-md">{file.name}</div>
+                    <div className="mt-1.5">
+                      <div className="flex justify-between text-mono-sm">
+                        <div className="!normal-case text-quaternary">
+                          {filesize((uploadProgress / 100) * file.size, {
+                            base: 2,
+                            pad: true,
+                          })}{' '}
+                          / {filesize(file.size, { base: 2, pad: true })}
+                        </div>
+                        <div className="text-accent">{uploadProgress}%</div>
+                      </div>
+                      <Progress
+                        className="mt-1.5"
+                        aria-label="Upload progress"
+                        value={uploadProgress}
+                      />
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           />
-          {showProgress && <Progress aria-label="Upload progress" value={uploadProgress} />}
         </>
       )}
     </SideModalForm>
