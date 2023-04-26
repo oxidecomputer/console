@@ -10,11 +10,11 @@ import { NameField, SideModalForm } from 'app/components/form'
 import { useProjectSelector } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
-async function processFile(
+function* processFile(
   file: File,
   maxChunkSize: number,
   processChunk: (offset: number, chunk: string) => Promise<void>
-): Promise<void> {
+): Generator<() => Promise<void>, void> {
   /**
    * base64 encoding increases the size of the data by around 33%, so we need to
    * offset that to end up with a chunk size under maxChunkSize
@@ -25,31 +25,26 @@ async function processFile(
   const fileSize = file.size
   let start = 0
 
-  return new Promise(function (resolve) {
-    function readNextChunk() {
-      if (start >= fileSize) {
-        resolve()
-        return
-      }
+  while (start < fileSize) {
+    const end = Math.min(start + adjChunkSize, fileSize)
+    yield () =>
+      new Promise((resolve) => {
+        const fileReader = new FileReader()
 
-      const end = Math.min(start + adjChunkSize, fileSize)
-      const fileReader = new FileReader()
-
-      fileReader.onload = async function (e) {
-        const result = e.target?.result
-        if (typeof result === 'string') {
-          const base64Chunk = result.split(',').pop()!
-          await processChunk(start, base64Chunk)
+        fileReader.onload = async function (e) {
+          const result = e.target?.result
+          if (typeof result === 'string') {
+            const base64Chunk = result.split(',').pop()!
+            await processChunk(start, base64Chunk)
+          }
+          resolve()
         }
-        start = end
-        readNextChunk()
-      }
 
-      fileReader.readAsDataURL(file.slice(start, end))
-    }
+        fileReader.readAsDataURL(file.slice(start, end))
+      })
 
-    readNextChunk()
-  })
+    start = end
+  }
 }
 
 type FormValues = {
@@ -122,10 +117,13 @@ export function CreateImageSideModalForm() {
         // Post file chunks to the API
         // TODO: in parallel, hello
         // TODO: ability to abort this whole thing
-        await processFile(file, 512 * KiB, async (offset, base64EncodedData) => {
+        const gen = processFile(file, 512 * KiB, async (offset, base64EncodedData) => {
           console.log('chunk:', { offset, length: base64EncodedData.length })
           await uploadChunk.mutateAsync({ path, body: { offset, base64EncodedData } })
         })
+        for await (const postChunk of gen) {
+          await postChunk()
+        }
         // TODO: track upload progress in state and display it
 
         await stopImport.mutateAsync({ path })
