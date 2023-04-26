@@ -161,7 +161,6 @@ export const handlers = makeHandlers({
     return 204
   },
   diskFinalizeImport: ({ path, query, body }) => {
-    const project = lookup.project(query)
     const disk = lookup.disk({ ...path, ...query })
 
     if (disk.state.state !== 'import_ready') {
@@ -174,11 +173,11 @@ export const handlers = makeHandlers({
     if (body.snapshot_name) {
       const newSnapshot: Json<Api.Snapshot> = {
         id: uuid(),
-        // TODO: needs a bunch more fields
-        // ...body,
+        name: body.snapshot_name,
+        description: 'temporary snapshot for making an image',
         ...getTimestamps(),
         state: 'ready',
-        project_id: project.id,
+        project_id: disk.project_id,
         disk_id: disk.id,
         size: disk.size,
       }
