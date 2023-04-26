@@ -17,14 +17,20 @@ async function runConcurrent(
   tasks: Generator<() => Promise<void>>,
   maxConcurrency: number
 ): Promise<void> {
-  async function processNextTask(): Promise<void> {
+  const counts = new Array(maxConcurrency).fill(0)
+
+  async function processNextTask(i: number): Promise<void> {
     const task = await tasks.next()
     if (task.done) return
+
     await task.value()
-    return processNextTask()
+    counts[i]++
+    console.log('chunks processed by each thread', counts)
+
+    return processNextTask(i)
   }
 
-  const workers = new Array(maxConcurrency).fill(null).map(() => processNextTask())
+  const workers = new Array(maxConcurrency).fill(null).map((_, i) => processNextTask(i))
   await Promise.all(workers)
 }
 
@@ -164,7 +170,7 @@ export function CreateImageSideModalForm() {
               type: 'importing_blocks',
               blockSize: 512, // TODO: should this be something else?
             },
-            size: 5 * GiB, // TODO: get file size and round up to the nearest GiB
+            size: Math.ceil(file.size / GiB) * GiB,
           },
         })
 
@@ -188,7 +194,7 @@ export function CreateImageSideModalForm() {
           file,
           maxChunkSize,
           async (offset, base64EncodedData) => {
-            console.log('chunk:', { offset, length: base64EncodedData.length })
+            // console.log('chunk:', { offset, length: base64EncodedData.length })
             await uploadChunk.mutateAsync({ path, body: { offset, base64EncodedData } })
             chunksProcessed++
             setUploadProgress((100 * chunksProcessed) / nChunks)

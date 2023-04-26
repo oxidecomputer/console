@@ -208,11 +208,15 @@ export const handlers = makeHandlers({
     const project = lookup.project(query)
     errIfExists(db.images, { name: body.name, project_id: project.id })
 
+    const size =
+      body.source.type === 'snapshot'
+        ? lookup.snapshot({ snapshot: body.source.id }).size
+        : 100
+
     const newImage: Json<Api.Image> = {
       id: uuid(),
       project_id: project.id,
-      // TODO: This should be calculated based off of the source
-      size: 100,
+      size,
       ...body,
       ...getTimestamps(),
     }
