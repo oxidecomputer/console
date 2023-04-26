@@ -25,7 +25,40 @@ async function runConcurrent(
   await Promise.all(workers)
 }
 
-function* processFile(
+/** async wrapper for reading a slice of a file */
+async function readBlobAsBase64(blob: Blob): Promise<string> {
+  return new Promise((resolve) => {
+    const fileReader = new FileReader()
+
+    // split on comma and pop because data URL looks like
+    // 'data:[<mediatype>][;base64],<data>' and we only want <data>.
+    // e.target is never null and result is always a string
+    fileReader.onload = function (e) {
+      const base64Chunk = (e.target!.result as string).split(',').pop()!
+      resolve(base64Chunk)
+    }
+
+    fileReader.readAsDataURL(blob)
+  })
+}
+
+/**
+ * Process a file in chunks of size `maxChunkSize`. Without the generator
+ * aspect, this would be pretty straightforward, so first start by thinking of
+ * it that way. To process a file in chunks, loop through offsets that are
+ * chunkSize apart. For each one, read the contents of that slice and call
+ * `processChunk` on it. (`processChunk` makes a fetch, which is relevant.)
+ *
+ * The annoying part here is that we do not want to eagerly kick off all these
+ * functions in parallel because reading the file slice is a lot faster than
+ * `processChunk` because browsers cap the number of concurrent requests to ~6,
+ * so if we run all the functions in parallel, we could read all the chunks into
+ * memory while the fetches are all queued up by the browser. That sounds bad.
+ * So instead of actually _doing_ the thing described above, we yield a function
+ * that does the thing, and use a helper in the calling code to run at most 6
+ * of that function at a time.
+ */
+function* processFileInChunks(
   file: File,
   maxChunkSize: number,
   processChunk: (offset: number, chunk: string) => Promise<void>
@@ -44,22 +77,10 @@ function* processFile(
     // outside it to avoid closing over a value that changes under you
     const start = i * adjChunkSize
     const end = Math.min(start + adjChunkSize, file.size)
-    yield () =>
-      new Promise((resolve) => {
-        const fileReader = new FileReader()
-
-        fileReader.onload = async function (e) {
-          // split on comma and pop because data URL looks like
-          // 'data:[<mediatype>][;base64],<data>' and we only want <data>. the
-          // typecasting is justified because e.target is never going to be null
-          // and result is always going to be a string
-          const base64Chunk = (e.target!.result as string).split(',').pop()!
-          await processChunk(start, base64Chunk)
-          resolve()
-        }
-
-        fileReader.readAsDataURL(file.slice(start, end))
-      })
+    yield async () => {
+      const chunk = await readBlobAsBase64(file.slice(start, end))
+      await processChunk(start, chunk)
+    }
   }
 }
 
@@ -132,12 +153,17 @@ export function CreateImageSideModalForm() {
 
         // Post file chunks to the API
         // TODO: ability to abort this whole thing
-        const gen = processFile(file, 512 * KiB, async (offset, base64EncodedData) => {
-          console.log('chunk:', { offset, length: base64EncodedData.length })
-          await uploadChunk.mutateAsync({ path, body: { offset, base64EncodedData } })
-        })
+        const gen = processFileInChunks(
+          file,
+          512 * KiB,
+          async (offset, base64EncodedData) => {
+            console.log('chunk:', { offset, length: base64EncodedData.length })
+            await uploadChunk.mutateAsync({ path, body: { offset, base64EncodedData } })
+          }
+        )
         // browser can only do 6 fetches at once, so we only read 6 chunks at once
         await runConcurrent(gen, 6)
+
         // TODO: track upload progress in state and display it
 
         await stopImport.mutateAsync({ path })
