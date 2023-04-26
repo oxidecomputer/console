@@ -1,15 +1,18 @@
+import { useState } from 'react'
 import { Controller } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import invariant from 'tiny-invariant'
 
 import type { ApiError, ClientError } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
+import { Progress } from '@oxide/ui'
 import { GiB, KiB } from '@oxide/util'
 
 import { NameField, SideModalForm } from 'app/components/form'
 import { useProjectSelector } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
+// TODO: figure out how to visualize the concurrency here
 async function runConcurrent(
   tasks: Generator<() => Promise<void>>,
   maxConcurrency: number
@@ -43,6 +46,16 @@ async function readBlobAsBase64(blob: Blob): Promise<string> {
 }
 
 /**
+ * base64 encoding increases the size of the data by around 33%, so we need to
+ * offset that to end up with a chunk size under maxChunkSize
+ */
+function calcNChunks(fileSize: number, maxChunkSize: number) {
+  const adjChunkSize = Math.floor((maxChunkSize * 3) / 4)
+  const nChunks = Math.ceil(fileSize / adjChunkSize)
+  return { adjChunkSize, nChunks }
+}
+
+/**
  * Process a file in chunks of size `maxChunkSize`. Without the generator
  * aspect, this would be pretty straightforward, so first start by thinking of
  * it that way. To process a file in chunks, loop through offsets that are
@@ -69,8 +82,7 @@ function* processFileInChunks(
    */
   // TODO: is that correct and is there wiggle room, i.e., do we need to go
   // lower than 3/4 to be safe
-  const adjChunkSize = Math.floor((maxChunkSize * 3) / 4)
-  const nChunks = Math.ceil(file.size / adjChunkSize)
+  const { adjChunkSize, nChunks } = calcNChunks(file.size, maxChunkSize)
 
   for (let i = 0; i < nChunks; i++) {
     // important to do this inside the loop instead of mutating `start`
@@ -101,6 +113,9 @@ export function CreateImageSideModalForm() {
   const navigate = useNavigate()
   const { project } = useProjectSelector()
 
+  const [showProgress, setShowProgress] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
+
   const onDismiss = () => navigate(pb.projectImages({ project }))
 
   const queryClient = useApiQueryClient()
@@ -129,6 +144,12 @@ export function CreateImageSideModalForm() {
       onSubmit={async ({ file, name: imageName }) => {
         invariant(file)
 
+        // TODO: make sure the image name is not taken _before_ we do all this
+
+        // TODO: handle case where image name is taken during upload — hold onto
+        // disk and give opportunity to chose another name. Or just do upload
+        // first and ask for image name at the end? That seems weird.
+
         // TODO: is there a smarter way to get these requests to sequence
         // without nested onSuccess callback hell?
 
@@ -152,19 +173,29 @@ export function CreateImageSideModalForm() {
         await startImport.mutateAsync({ path })
 
         // Post file chunks to the API
+
+        // TODO: this is redundant with what's in processFileInChunks
+        const maxChunkSize = 512 * KiB
+        const { nChunks } = calcNChunks(file.size, maxChunkSize)
+
+        let chunksProcessed = 0
+        setUploadProgress(0)
+        setShowProgress(true)
+
         // TODO: ability to abort this whole thing
+        // TODO: handle errors
         const gen = processFileInChunks(
           file,
-          512 * KiB,
+          maxChunkSize,
           async (offset, base64EncodedData) => {
             console.log('chunk:', { offset, length: base64EncodedData.length })
             await uploadChunk.mutateAsync({ path, body: { offset, base64EncodedData } })
+            chunksProcessed++
+            setUploadProgress((100 * chunksProcessed) / nChunks)
           }
         )
         // browser can only do 6 fetches at once, so we only read 6 chunks at once
         await runConcurrent(gen, 6)
-
-        // TODO: track upload progress in state and display it
 
         await stopImport.mutateAsync({ path })
         const snapshotName = `tmp-snapshot-${randInt()}`
@@ -212,6 +243,7 @@ export function CreateImageSideModalForm() {
               />
             )}
           />
+          {showProgress && <Progress aria-label="Upload progress" value={uploadProgress} />}
         </>
       )}
     </SideModalForm>
