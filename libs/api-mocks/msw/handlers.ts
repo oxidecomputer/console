@@ -12,7 +12,7 @@ import { serial } from '../serial'
 import { defaultSilo, toIdp } from '../silo'
 import { sortBySemverDesc } from '../update'
 import { user1 } from '../user'
-import { db, lookup, lookupById } from './db'
+import { db, lookup, lookupById, notFoundErr } from './db'
 import {
   NotImplemented,
   errIfExists,
@@ -86,7 +86,10 @@ export const handlers = makeHandlers({
     const newDisk: Json<Api.Disk> = {
       id: uuid(),
       project_id: project.id,
-      state: { state: 'creating' },
+      state:
+        disk_source.type === 'importing_blocks'
+          ? { state: 'import_ready' }
+          : { state: 'creating' },
       device_path: '/mnt/disk',
       name,
       description,
@@ -125,6 +128,64 @@ export const handlers = makeHandlers({
         endTime
       ),
     }
+  },
+  diskBulkWriteImportStart: ({ path, query }) => {
+    const disk = lookup.disk({ ...path, ...query })
+
+    if (disk.state.state !== 'import_ready') {
+      throw 'Can only enter state importing_from_bulk_write from import_ready'
+    }
+
+    db.diskBulkImportState[disk.id] = { blocks: {} }
+    disk.state = { state: 'importing_from_bulk_writes' }
+    return 204
+  },
+  diskBulkWriteImportStop: ({ path, query }) => {
+    const disk = lookup.disk({ ...path, ...query })
+
+    if (disk.state.state !== 'importing_from_bulk_writes') {
+      throw 'Can only stop import for disk in state importing_from_bulk_write'
+    }
+
+    // TODO: what do we do with this? can we delete it?
+    // db.diskBulkImportState[disk.id] = { blocks: {} }
+
+    disk.state = { state: 'import_ready' }
+    return 204
+  },
+  diskBulkWriteImport: ({ path, query, body }) => {
+    const disk = lookup.disk({ ...path, ...query })
+    const diskImport = db.diskBulkImportState[disk.id]
+    if (!diskImport) throw notFoundErr
+    diskImport.blocks[body.offset] = true
+    return 204
+  },
+  diskFinalizeImport: ({ path, query, body }) => {
+    const project = lookup.project(query)
+    const disk = lookup.disk({ ...path, ...query })
+
+    if (disk.state.state !== 'import_ready') {
+      throw `Cannot finalize disk in state ${disk.state.state}. Must be import_ready.`
+    }
+
+    const diskImport = db.diskBulkImportState[disk.id]
+    if (!diskImport) throw notFoundErr
+
+    if (body.snapshot_name) {
+      const newSnapshot: Json<Api.Snapshot> = {
+        id: uuid(),
+        // TODO: needs a bunch more fields
+        // ...body,
+        ...getTimestamps(),
+        state: 'ready',
+        project_id: project.id,
+        disk_id: disk.id,
+        size: disk.size,
+      }
+      db.snapshots.push(newSnapshot)
+    }
+
+    return 204
   },
   systemImageList({ query }) {
     return paginated(query, db.globalImages)
@@ -908,10 +969,6 @@ export const handlers = makeHandlers({
   certificateDelete: NotImplemented,
   certificateList: NotImplemented,
   certificateView: NotImplemented,
-  diskBulkWriteImport: NotImplemented,
-  diskBulkWriteImportStart: NotImplemented,
-  diskBulkWriteImportStop: NotImplemented,
-  diskFinalizeImport: NotImplemented,
   diskImportBlocksFromUrl: NotImplemented,
   instanceMigrate: NotImplemented,
   instanceSerialConsoleStream: NotImplemented,
