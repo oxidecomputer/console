@@ -10,6 +10,21 @@ import { NameField, SideModalForm } from 'app/components/form'
 import { useProjectSelector } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
+async function runConcurrent(
+  tasks: Generator<() => Promise<void>>,
+  maxConcurrency: number
+): Promise<void> {
+  async function processNextTask(): Promise<void> {
+    const task = await tasks.next()
+    if (task.done) return
+    await task.value()
+    return processNextTask()
+  }
+
+  const workers = new Array(maxConcurrency).fill(null).map(() => processNextTask())
+  await Promise.all(workers)
+}
+
 function* processFile(
   file: File,
   maxChunkSize: number,
@@ -22,28 +37,29 @@ function* processFile(
   // TODO: is that correct and is there wiggle room, i.e., do we need to go
   // lower than 3/4 to be safe
   const adjChunkSize = Math.floor((maxChunkSize * 3) / 4)
-  const fileSize = file.size
-  let start = 0
+  const nChunks = Math.ceil(file.size / adjChunkSize)
 
-  while (start < fileSize) {
-    const end = Math.min(start + adjChunkSize, fileSize)
+  for (let i = 0; i < nChunks; i++) {
+    // important to do this inside the loop instead of mutating `start`
+    // outside it to avoid closing over a value that changes under you
+    const start = i * adjChunkSize
+    const end = Math.min(start + adjChunkSize, file.size)
     yield () =>
       new Promise((resolve) => {
         const fileReader = new FileReader()
 
         fileReader.onload = async function (e) {
-          const result = e.target?.result
-          if (typeof result === 'string') {
-            const base64Chunk = result.split(',').pop()!
-            await processChunk(start, base64Chunk)
-          }
+          // split on comma and pop because data URL looks like
+          // 'data:[<mediatype>][;base64],<data>' and we only want <data>. the
+          // typecasting is justified because e.target is never going to be null
+          // and result is always going to be a string
+          const base64Chunk = (e.target!.result as string).split(',').pop()!
+          await processChunk(start, base64Chunk)
           resolve()
         }
 
         fileReader.readAsDataURL(file.slice(start, end))
       })
-
-    start = end
   }
 }
 
@@ -115,15 +131,13 @@ export function CreateImageSideModalForm() {
         await startImport.mutateAsync({ path })
 
         // Post file chunks to the API
-        // TODO: in parallel, hello
         // TODO: ability to abort this whole thing
         const gen = processFile(file, 512 * KiB, async (offset, base64EncodedData) => {
           console.log('chunk:', { offset, length: base64EncodedData.length })
           await uploadChunk.mutateAsync({ path, body: { offset, base64EncodedData } })
         })
-        for await (const postChunk of gen) {
-          await postChunk()
-        }
+        // browser can only do 6 fetches at once, so we only read 6 chunks at once
+        await runConcurrent(gen, 6)
         // TODO: track upload progress in state and display it
 
         await stopImport.mutateAsync({ path })

@@ -167,6 +167,8 @@ export const handlers = makeHandlers({
       throw `Cannot finalize disk in state ${disk.state.state}. Must be import_ready.`
     }
 
+    // TODO: check that the file is complete, i.e., all chunks are accounted for?
+
     const diskImport = db.diskBulkImportState[disk.id]
     if (!diskImport) throw notFoundErr
 
