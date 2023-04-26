@@ -6,33 +6,11 @@ import invariant from 'tiny-invariant'
 import type { ApiError, ClientError } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { Progress } from '@oxide/ui'
-import { GiB, KiB } from '@oxide/util'
+import { GiB, KiB, runConcurrent } from '@oxide/util'
 
 import { NameField, SideModalForm } from 'app/components/form'
 import { useProjectSelector } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
-
-// TODO: figure out how to visualize the concurrency here
-async function runConcurrent(
-  tasks: Generator<() => Promise<void>>,
-  maxConcurrency: number
-): Promise<void> {
-  const counts = new Array(maxConcurrency).fill(0)
-
-  async function processNextTask(i: number): Promise<void> {
-    const task = await tasks.next()
-    if (task.done) return
-
-    await task.value()
-    counts[i]++
-    console.log('chunks processed by each thread', counts)
-
-    return processNextTask(i)
-  }
-
-  const workers = new Array(maxConcurrency).fill(null).map((_, i) => processNextTask(i))
-  await Promise.all(workers)
-}
 
 /** async wrapper for reading a slice of a file */
 async function readBlobAsBase64(blob: Blob): Promise<string> {
@@ -49,57 +27,6 @@ async function readBlobAsBase64(blob: Blob): Promise<string> {
 
     fileReader.readAsDataURL(blob)
   })
-}
-
-/**
- * base64 encoding increases the size of the data by around 33%, so we need to
- * offset that to end up with a chunk size under maxChunkSize
- */
-function calcNChunks(fileSize: number, maxChunkSize: number) {
-  const adjChunkSize = Math.floor((maxChunkSize * 3) / 4)
-  const nChunks = Math.ceil(fileSize / adjChunkSize)
-  return { adjChunkSize, nChunks }
-}
-
-/**
- * Process a file in chunks of size `maxChunkSize`. Without the generator
- * aspect, this would be pretty straightforward, so first start by thinking of
- * it that way. To process a file in chunks, loop through offsets that are
- * chunkSize apart. For each one, read the contents of that slice and call
- * `processChunk` on it. (`processChunk` makes a fetch, which is relevant.)
- *
- * The annoying part here is that we do not want to eagerly kick off all these
- * functions in parallel because reading the file slice is a lot faster than
- * `processChunk` because browsers cap the number of concurrent requests to ~6,
- * so if we run all the functions in parallel, we could read all the chunks into
- * memory while the fetches are all queued up by the browser. That sounds bad.
- * So instead of actually _doing_ the thing described above, we yield a function
- * that does the thing, and use a helper in the calling code to run at most 6
- * of that function at a time.
- */
-function* processFileInChunks(
-  file: File,
-  maxChunkSize: number,
-  processChunk: (offset: number, chunk: string) => Promise<void>
-): Generator<() => Promise<void>, void> {
-  /**
-   * base64 encoding increases the size of the data by around 33%, so we need to
-   * offset that to end up with a chunk size under maxChunkSize
-   */
-  // TODO: is that correct and is there wiggle room, i.e., do we need to go
-  // lower than 3/4 to be safe
-  const { adjChunkSize, nChunks } = calcNChunks(file.size, maxChunkSize)
-
-  for (let i = 0; i < nChunks; i++) {
-    // important to do this inside the loop instead of mutating `start`
-    // outside it to avoid closing over a value that changes under you
-    const start = i * adjChunkSize
-    const end = Math.min(start + adjChunkSize, file.size)
-    yield async () => {
-      const chunk = await readBlobAsBase64(file.slice(start, end))
-      await processChunk(start, chunk)
-    }
-  }
 }
 
 type FormValues = {
@@ -180,28 +107,56 @@ export function CreateImageSideModalForm() {
 
         // Post file chunks to the API
 
-        // TODO: this is redundant with what's in processFileInChunks
         const maxChunkSize = 512 * KiB
-        const { nChunks } = calcNChunks(file.size, maxChunkSize)
+        /**
+         * base64 encoding increases the size of the data by around 33%, so we
+         * need to offset that to end up with a chunk size under maxChunkSize
+         */
+        // TODO: is that correct and is there wiggle room, i.e., do we need to go
+        // lower than 3/4 to be safe
+        const adjChunkSize = Math.floor((maxChunkSize * 3) / 4)
+        const nChunks = Math.ceil(file.size / adjChunkSize)
 
         let chunksProcessed = 0
         setUploadProgress(0)
         setShowProgress(true)
 
+        /**
+         * Process a file in chunks of size `maxChunkSize`. Without the
+         * generator aspect, this would be pretty straightforward, so first
+         * start by thinking of it that way. To process a file in chunks, loop
+         * through offsets that are chunkSize apart. For each one, read the
+         * contents of that slice and call `processChunk` on it. (`processChunk`
+         * makes a fetch, which is relevant.)
+         *
+         * The annoying part here is that we do not want to eagerly kick off all
+         * these functions in parallel because reading the file slice is a lot
+         * faster than `processChunk` (because browsers cap the number of
+         * concurrent requests to ~6), so if we run all the functions in
+         * parallel, we could read way more chunks into memory than we're ready
+         * to actually POST. That sounds bad. So instead of actually _doing_ the
+         * thing for each chunk in the loop, we yield a function that does the
+         * thing, and use `runConcurrent` to run at most 6 functions at a time.
+         */
         // TODO: ability to abort this whole thing
         // TODO: handle errors
-        const gen = processFileInChunks(
-          file,
-          maxChunkSize,
-          async (offset, base64EncodedData) => {
-            // console.log('chunk:', { offset, length: base64EncodedData.length })
-            await uploadChunk.mutateAsync({ path, body: { offset, base64EncodedData } })
-            chunksProcessed++
-            setUploadProgress((100 * chunksProcessed) / nChunks)
+        const genUploadChunkTasks = async function* () {
+          for (let i = 0; i < nChunks; i++) {
+            // important to do this inside the loop instead of mutating `start`
+            // outside it to avoid closing over a value that changes under you
+            const offset = i * adjChunkSize
+            const end = Math.min(offset + adjChunkSize, file.size)
+            yield async (): Promise<void> => {
+              const base64EncodedData = await readBlobAsBase64(file.slice(offset, end))
+              await uploadChunk.mutateAsync({ path, body: { offset, base64EncodedData } })
+              chunksProcessed++
+              setUploadProgress((100 * chunksProcessed) / nChunks)
+            }
           }
-        )
+        }
+
         // browser can only do 6 fetches at once, so we only read 6 chunks at once
-        await runConcurrent(gen, 6)
+        await runConcurrent(genUploadChunkTasks(), 6)
 
         await stopImport.mutateAsync({ path })
         const snapshotName = `tmp-snapshot-${randInt()}`
