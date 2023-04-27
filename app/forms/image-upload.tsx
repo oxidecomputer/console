@@ -122,6 +122,8 @@ export function CreateImageSideModalForm() {
         setUploadProgress(0)
         setShowProgress(true)
 
+        // TODO: try to warn user if they try to close the tab
+
         /**
          * Process a file in chunks of size `maxChunkSize`. Without the
          * generator aspect, this would be pretty straightforward, so first
