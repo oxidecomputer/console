@@ -1,10 +1,10 @@
 import filesize from 'filesize'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Controller } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import invariant from 'tiny-invariant'
 
-import type { BlockSize } from '@oxide/api'
+import type { BlockSize, Disk, Snapshot } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { FieldLabel, Progress } from '@oxide/ui'
 import { GiB, KiB, runConcurrent } from '@oxide/util'
@@ -95,6 +95,26 @@ export function CreateImageSideModalForm() {
   // a disk is involved
   const submitError = allMutations.find((m) => m.error)?.error || null
 
+  const snapshot = useRef<Snapshot | null>(null)
+  const disk = useRef<Disk | null>(null)
+
+  /** If a snapshot or disk was created, clean it up*/
+  async function cleanup() {
+    if (snapshot.current) {
+      await deleteSnapshot.mutateAsync({ path: { snapshot: snapshot.current.id } })
+    }
+
+    if (disk.current) {
+      // we won't be able to delete the disk unless it's out of import mode
+      const path = { disk: disk.current.id }
+      const freshDisk = await queryClient.fetchQuery('diskView', { path })
+      if (freshDisk.state.state === 'importing_from_bulk_writes') {
+        await stopImport.mutateAsync({ path })
+      }
+      await deleteDisk.mutateAsync({ path: { disk: disk.current.id } })
+    }
+  }
+
   async function onSubmit({
     imageName,
     imageDescription,
@@ -116,7 +136,7 @@ export function CreateImageSideModalForm() {
 
     // Create a disk in state import-ready
     const diskName = `tmp-disk-${randInt()}`
-    const disk = await createDisk.mutateAsync({
+    disk.current = await createDisk.mutateAsync({
       query: { project },
       body: {
         name: diskName,
@@ -127,7 +147,7 @@ export function CreateImageSideModalForm() {
     })
 
     // set disk to state importing-via-bulk-write
-    const path = { disk: disk.id }
+    const path = { disk: disk.current.id }
     await startImport.mutateAsync({ path })
 
     // Post file chunks to the API
@@ -165,8 +185,8 @@ export function CreateImageSideModalForm() {
      * thing for each chunk in the loop, we yield a function that does the
      * thing, and use `runConcurrent` to run at most 6 functions at a time.
      */
-    // TODO: ability to abort this whole thing
-    // TODO: handle errors
+    // TODO: retry each request once or twice if it fails
+    // TODO: abort after N errors or user cancels
     const genUploadChunkTasks = async function* () {
       for (let i = 0; i < nChunks; i++) {
         // important to do this inside the loop instead of mutating `start`
@@ -191,7 +211,7 @@ export function CreateImageSideModalForm() {
 
     // diskFinalizeImport does not return the snapshot, but create image
     // requires an ID
-    const snapshot = await queryClient.fetchQuery('snapshotView', {
+    snapshot.current = await queryClient.fetchQuery('snapshotView', {
       path: { snapshot: snapshotName },
       query: { project },
     })
@@ -203,15 +223,16 @@ export function CreateImageSideModalForm() {
         blockSize,
         os,
         version,
-        source: { type: 'snapshot', id: snapshot.id },
+        source: { type: 'snapshot', id: snapshot.current.id },
       },
     })
 
-    // now delete the snapshot and the disk
-    await deleteSnapshot.mutateAsync({ path: { snapshot: snapshot.id } })
-    await deleteDisk.mutateAsync({ path: { disk: disk.id } })
-
     queryClient.invalidateQueries('imageList')
+
+    // now delete the snapshot and the disk
+    await cleanup()
+
+    // TODO: show success toast or *something*
     onDismiss()
   }
 
@@ -221,11 +242,12 @@ export function CreateImageSideModalForm() {
       formOptions={{ defaultValues }}
       title="Upload image"
       onDismiss={onDismiss}
-      onSubmit={(values) => {
+      onSubmit={async (values) => {
         try {
-          onSubmit(values)
+          await onSubmit(values)
         } catch (e) {
           console.log(e)
+          await cleanup()
         }
       }}
       loading={loading}
