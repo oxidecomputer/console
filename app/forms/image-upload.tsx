@@ -1,4 +1,6 @@
 import filesize from 'filesize'
+import pMap from 'p-map'
+import pRetry from 'p-retry'
 import { useRef, useState } from 'react'
 import { Controller } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
@@ -7,7 +9,7 @@ import invariant from 'tiny-invariant'
 import type { BlockSize, Disk, Snapshot } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { FieldLabel, Progress } from '@oxide/ui'
-import { GiB, KiB, runConcurrent } from '@oxide/util'
+import { GiB, KiB } from '@oxide/util'
 
 import {
   DescriptionField,
@@ -108,8 +110,13 @@ export function CreateImageSideModalForm() {
       // we won't be able to delete the disk unless it's out of import mode
       const path = { disk: disk.current.id }
       const freshDisk = await queryClient.fetchQuery('diskView', { path })
-      if (freshDisk.state.state === 'importing_from_bulk_writes') {
+      const diskState = freshDisk.state.state
+      if (diskState === 'importing_from_bulk_writes') {
         await stopImport.mutateAsync({ path })
+        await finalizeDisk.mutateAsync({ path, body: {} })
+      }
+      if (diskState === 'import_ready') {
+        await finalizeDisk.mutateAsync({ path, body: {} })
       }
       await deleteDisk.mutateAsync({ path: { disk: disk.current.id } })
     }
@@ -125,11 +132,18 @@ export function CreateImageSideModalForm() {
   }: FormValues) {
     invariant(imageFile)
 
-    // TODO: make sure the image name is not taken _before_ we do all this
-
-    // TODO: handle case where image name is taken during upload — hold onto
-    // disk and give opportunity to chose another name. Or just do upload
-    // first and ask for image name at the end? That seems weird.
+    // check whether the image name is taken _before_ we do all the heavy stuff
+    try {
+      const image = await queryClient.fetchQuery('imageView', {
+        path: { image: imageName },
+        query: { project },
+      })
+      // TODO: set form-level error, or even better, error on the name field
+      if (image) throw Error('Image name is taken')
+    } catch (e) {
+      // eat the error, this 404ing is good
+      // TODO: still abort if the error is something other than 404
+    }
 
     // TODO: is there a smarter way to get these requests to sequence
     // without nested onSuccess callback hell?
@@ -150,60 +164,47 @@ export function CreateImageSideModalForm() {
     const path = { disk: disk.current.id }
     await startImport.mutateAsync({ path })
 
-    // Post file chunks to the API
+    // Post file to the API in chunks of size `maxChunkSize`. Browsers cap
+    // concurrent fetches at 6 per host. If we ran without a concurrency limit,
+    // we'd read way more chunks into memory than we're ready to POST, and we'd
+    // be sitting around waiting for the browser to let the fetches through.
+    // That sounds bad. So we use pMap to process at most 6 chunks at a time.
 
-    const maxChunkSize = 512 * KiB
-    /**
-     * base64 encoding increases the size of the data by around 33%, so we
-     * need to offset that to end up with a chunk size under maxChunkSize
-     */
+    // base64 encoding increases the size of the data by around 33%, so we
+    // need to offset that to end up with a chunk size under maxChunkSize
     // TODO: is that correct and is there wiggle room, i.e., do we need to go
     // lower than 3/4 to be safe
+    const maxChunkSize = 512 * KiB
     const adjChunkSize = Math.floor((maxChunkSize * 3) / 4)
     const nChunks = Math.ceil(imageFile.size / adjChunkSize)
+
+    // TODO: try to warn user if they try to close the tab while this is going
 
     let chunksProcessed = 0
     setUploadProgress(0)
     setShowProgress(true)
 
-    // TODO: try to warn user if they try to close the tab
-
-    /**
-     * Process a file in chunks of size `maxChunkSize`. Without the
-     * generator aspect, this would be pretty straightforward, so first
-     * start by thinking of it that way. To process a file in chunks, loop
-     * through offsets that are chunkSize apart. For each one, read the
-     * contents of that slice and call `processChunk` on it. (`processChunk`
-     * makes a fetch, which is relevant.)
-     *
-     * The annoying part here is that we do not want to eagerly kick off all
-     * these functions in parallel because reading the file slice is a lot
-     * faster than `processChunk` (because browsers cap the number of
-     * concurrent requests to ~6), so if we run all the functions in
-     * parallel, we could read way more chunks into memory than we're ready
-     * to actually POST. That sounds bad. So instead of actually _doing_ the
-     * thing for each chunk in the loop, we yield a function that does the
-     * thing, and use `runConcurrent` to run at most 6 functions at a time.
-     */
-    // TODO: retry each request once or twice if it fails
-    // TODO: abort after N errors or user cancels
-    const genUploadChunkTasks = async function* () {
-      for (let i = 0; i < nChunks; i++) {
-        // important to do this inside the loop instead of mutating `start`
-        // outside it to avoid closing over a value that changes under you
-        const offset = i * adjChunkSize
-        const end = Math.min(offset + adjChunkSize, imageFile.size)
-        yield async (): Promise<void> => {
-          const base64EncodedData = await readBlobAsBase64(imageFile.slice(offset, end))
-          await uploadChunk.mutateAsync({ path, body: { offset, base64EncodedData } })
-          chunksProcessed++
-          setUploadProgress(Math.round((100 * chunksProcessed) / nChunks))
-        }
-      }
+    const postChunk = async (i: number) => {
+      const offset = i * adjChunkSize
+      const end = Math.min(offset + adjChunkSize, imageFile.size)
+      const base64EncodedData = await readBlobAsBase64(imageFile.slice(offset, end))
+      await uploadChunk
+        .mutateAsync({ path, body: { offset, base64EncodedData } })
+        .catch(() => {
+          // this needs to throw a regular Error or pRetry gets mad
+          throw Error(`Chunk ${i} (offset ${offset}) failed`)
+        })
+      chunksProcessed++
+      setUploadProgress(Math.round((100 * chunksProcessed) / nChunks))
     }
 
-    // browser can only do 6 fetches at once, so we only read 6 chunks at once
-    await runConcurrent(genUploadChunkTasks(), 6)
+    // TODO: handle user cancelation with abort signal
+    await pMap(
+      new Array(nChunks).fill(null),
+      (_, i) => pRetry(() => postChunk(i), { retries: 2 }),
+      // browser can only do 6 fetches at once, so we only read 6 chunks at once
+      { concurrency: 6 }
+    )
 
     await stopImport.mutateAsync({ path })
     const snapshotName = `tmp-snapshot-${randInt()}`
@@ -215,6 +216,12 @@ export function CreateImageSideModalForm() {
       path: { snapshot: snapshotName },
       query: { project },
     })
+
+    // TODO: we checked at the beginning that the image name was free, but it
+    // could be taken during upload. If this fails with object already exists,
+    // don't delete the snapshot (could still delete the disk). Instead, link
+    // user to snapshot detail and tell them to go there and create the image
+    // from it.
     await createImage.mutateAsync({
       query: { project },
       body: {
@@ -248,6 +255,7 @@ export function CreateImageSideModalForm() {
         } catch (e) {
           console.log(e)
           await cleanup()
+          // TODO: if we get here, show the failure state on the form
         }
       }}
       loading={loading}

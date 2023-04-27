@@ -1,5 +1,4 @@
 export * from './array'
-export * from './async'
 export * from './children'
 export * from './classed'
 export * from './date'

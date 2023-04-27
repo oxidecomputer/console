@@ -157,6 +157,7 @@ export const handlers = makeHandlers({
     const disk = lookup.disk({ ...path, ...query })
     const diskImport = db.diskBulkImportState[disk.id]
     if (!diskImport) throw notFoundErr
+    // if (Math.random() > 0.99) throw 400
     diskImport.blocks[body.offset] = true
     return 204
   },
@@ -171,6 +172,7 @@ export const handlers = makeHandlers({
 
     const diskImport = db.diskBulkImportState[disk.id]
     if (!diskImport) throw notFoundErr
+    console.log(diskImport.blocks)
 
     disk.state = { state: 'detached' }
 
