@@ -172,6 +172,8 @@ export const handlers = makeHandlers({
     const diskImport = db.diskBulkImportState[disk.id]
     if (!diskImport) throw notFoundErr
 
+    disk.state = { state: 'detached' }
+
     if (body.snapshot_name) {
       const newSnapshot: Json<Api.Snapshot> = {
         id: uuid(),

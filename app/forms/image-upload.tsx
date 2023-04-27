@@ -74,6 +74,10 @@ export function CreateImageSideModalForm() {
   const finalizeDisk = useApiMutation('diskFinalizeImport')
   const createImage = useApiMutation('imageCreate')
 
+  // we need these for cleanup
+  const deleteDisk = useApiMutation('diskDelete')
+  const deleteSnapshot = useApiMutation('snapshotDelete')
+
   const allMutations = [
     createDisk,
     startImport,
@@ -176,6 +180,9 @@ export function CreateImageSideModalForm() {
     await stopImport.mutateAsync({ path })
     const snapshotName = `tmp-snapshot-${randInt()}`
     await finalizeDisk.mutateAsync({ path, body: { snapshotName } })
+
+    // diskFinalizeImport does not return the snapshot, but create image
+    // requires an ID
     const snapshot = await queryClient.fetchQuery('snapshotView', {
       path: { snapshot: snapshotName },
       query: { project },
@@ -191,6 +198,10 @@ export function CreateImageSideModalForm() {
         source: { type: 'snapshot', id: snapshot.id },
       },
     })
+
+    // now delete the snapshot and the disk
+    await deleteSnapshot.mutateAsync({ path: { snapshot: snapshot.id } })
+    await deleteDisk.mutateAsync({ path: { disk: disk.id } })
 
     queryClient.invalidateQueries('imageList')
     onDismiss()
