@@ -4,7 +4,7 @@ import { Controller } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import invariant from 'tiny-invariant'
 
-import type { ApiError, BlockSize, ClientError } from '@oxide/api'
+import type { BlockSize } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { FieldLabel, Progress } from '@oxide/ui'
 import { GiB, KiB, runConcurrent } from '@oxide/util'
@@ -85,7 +85,15 @@ export function CreateImageSideModalForm() {
     stopImport,
     finalizeDisk,
     createImage,
+    deleteDisk,
+    deleteSnapshot,
   ]
+
+  const loading = allMutations.some((m) => m.isLoading)
+  // TODO: showing the errors from here in the form is a terrible idea. "disk
+  // name already taken" is a ridiculous error message when you don't even know
+  // a disk is involved
+  const submitError = allMutations.find((m) => m.error)?.error || null
 
   async function onSubmit({
     imageName,
@@ -213,12 +221,15 @@ export function CreateImageSideModalForm() {
       formOptions={{ defaultValues }}
       title="Upload image"
       onDismiss={onDismiss}
-      onSubmit={onSubmit}
-      loading={allMutations.some((m) => m.isLoading)}
-      // TODO: figure out why this type doesn't work without help
-      submitError={
-        (allMutations.find((m) => m.error) as unknown as ApiError | ClientError) || null
-      }
+      onSubmit={(values) => {
+        try {
+          onSubmit(values)
+        } catch (e) {
+          console.log(e)
+        }
+      }}
+      loading={loading}
+      submitError={submitError}
     >
       {({ control }) => (
         <>
