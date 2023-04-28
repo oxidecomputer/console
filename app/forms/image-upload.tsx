@@ -63,12 +63,11 @@ const defaultValues: FormValues = {
 type StepProps = {
   num: number
   children: React.ReactNode
-  complete: boolean
-  running: boolean
+  state: { isLoading: boolean; isSuccess: boolean }
 }
 
-function Step({ num, children, complete, running }: StepProps) {
-  const status = complete ? 'complete' : running ? 'running' : 'ready'
+function Step({ num, children, state }: StepProps) {
+  const status = state.isSuccess ? 'complete' : state.isLoading ? 'running' : 'ready'
   return (
     <div className="flex items-center">
       <div
@@ -316,7 +315,10 @@ export function CreateImageSideModalForm() {
       title="Upload image"
       onDismiss={onDismiss}
       onSubmit={async (values) => {
-        if (allDone) onDismiss()
+        if (allDone) {
+          onDismiss()
+          return
+        }
 
         try {
           await onSubmit(values)
@@ -381,21 +383,16 @@ export function CreateImageSideModalForm() {
             </Wrap>
             {file && page === 'runner' && (
               <div className="space-y-4">
-                <Step
-                  num={1}
-                  running={createDisk.isLoading}
-                  complete={createDisk.isSuccess}
-                >
+                <Step num={1} state={createDisk}>
                   Create temporary disk
                 </Step>
-                <Step
-                  num={2}
-                  running={startImport.isLoading}
-                  complete={startImport.isSuccess}
-                >
+                <Step num={2} state={startImport}>
                   Set disk to import mode
                 </Step>
-                <Step num={3} running={uploadRunning} complete={uploadComplete}>
+                <Step
+                  num={3}
+                  state={{ isLoading: uploadRunning, isSuccess: uploadComplete }}
+                >
                   Upload file
                 </Step>
                 <div className="rounded-lg border p-4 border-secondary">
@@ -419,32 +416,22 @@ export function CreateImageSideModalForm() {
                     />
                   </div>
                 </div>
-                <Step
-                  num={4}
-                  running={stopImport.isLoading}
-                  complete={stopImport.isSuccess}
-                >
+                <Step num={4} state={stopImport}>
                   Get disk out of import mode
                 </Step>
-                <Step
-                  num={5}
-                  running={finalizeDisk.isLoading}
-                  complete={finalizeDisk.isSuccess}
-                >
+                <Step num={5} state={finalizeDisk}>
                   Finalize disk and create snapshot
                 </Step>
-                <Step
-                  num={6}
-                  running={createImage.isLoading}
-                  complete={createImage.isSuccess}
-                >
+                <Step num={6} state={createImage}>
                   Create image
                 </Step>
                 <Step
                   num={7}
                   // TODO: this probably flashes not loading between the two requests
-                  running={deleteDisk.isLoading || deleteSnapshot.isLoading}
-                  complete={deleteDisk.isSuccess || deleteSnapshot.isSuccess}
+                  state={{
+                    isLoading: deleteDisk.isLoading || deleteSnapshot.isLoading,
+                    isSuccess: deleteDisk.isSuccess || deleteSnapshot.isSuccess,
+                  }}
                 >
                   Delete disk and snapshot
                 </Step>
