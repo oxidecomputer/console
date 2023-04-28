@@ -10,6 +10,7 @@ import {
   NameField,
   RadioField,
   SideModalForm,
+  TextField,
 } from 'app/components/form'
 import { useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
@@ -19,6 +20,7 @@ const defaultValues: SiloCreate = {
   description: '',
   discoverable: true,
   identityMode: 'saml_jit',
+  adminGroupName: '',
 }
 
 export function CreateSiloSideModalForm() {
@@ -47,11 +49,7 @@ export function CreateSiloSideModalForm() {
       title="Create silo"
       formOptions={{ defaultValues }}
       onDismiss={onDismiss}
-      onSubmit={({ name, description, discoverable, identityMode }) =>
-        createSilo.mutate({
-          body: { name, description, discoverable, identityMode },
-        })
-      }
+      onSubmit={(body) => createSilo.mutate({ body })}
       loading={createSilo.isLoading}
       submitError={createSilo.error}
     >
@@ -71,6 +69,12 @@ export function CreateSiloSideModalForm() {
               { value: 'saml_jit', label: 'SAML JIT' },
               { value: 'local_only', label: 'Local only' },
             ]}
+          />
+          <TextField
+            name="adminGroupName"
+            label="Admin group name"
+            helpText="This group will be created and granted the Silo Admin role"
+            control={control}
           />
         </>
       )}
