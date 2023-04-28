@@ -1,14 +1,15 @@
+import cn from 'classnames'
 import filesize from 'filesize'
 import pMap from 'p-map'
 import pRetry from 'p-retry'
-import { useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { Controller } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import invariant from 'tiny-invariant'
 
 import type { BlockSize, Disk, Snapshot } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import { FieldLabel, Progress } from '@oxide/ui'
+import { Checkmark12Icon, FieldLabel, Progress, Wrap } from '@oxide/ui'
 import { GiB, KiB } from '@oxide/util'
 
 import {
@@ -56,15 +57,60 @@ const defaultValues: FormValues = {
   imageFile: null,
 }
 
+type StepProps = {
+  num: number
+  children: React.ReactNode
+  complete: boolean
+  running: boolean
+}
+
+function Step({ num, children, complete, running }: StepProps) {
+  const status = complete ? 'complete' : running ? 'running' : 'ready'
+  return (
+    <div className="flex items-center">
+      <div
+        className={cn(
+          'mr-6 flex h-10 w-10 items-center justify-center rounded-full border text-sans-semi-lg',
+          {
+            'text-disabled border-default': status === 'ready',
+            'text-accent border-accent': status === 'running',
+            'text-quaternary bg-raise-hover': status === 'complete',
+          }
+        )}
+      >
+        {status === 'complete' ? <Checkmark12Icon className="h-4 w-4" /> : num}
+      </div>
+      <div
+        className={cn('text-sans-lg', {
+          'text-secondary': status === 'ready',
+          'text-accent': status === 'running',
+          'text-default': status === 'complete',
+        })}
+      >
+        {children}
+      </div>
+    </div>
+  )
+}
+
 // TODO: better random placeholder disk and snapshot names, probably
 const randInt = () => Math.floor(Math.random() * 100000000)
 
+// TODO: diagram out all the possible states of this component. the complexity
+// is out of hand
+
 export function CreateImageSideModalForm() {
+  const [page, setPage] = useState<'form' | 'runner'>('form')
   const navigate = useNavigate()
   const { project } = useProjectSelector()
 
-  const [showProgress, setShowProgress] = useState(false)
+  // TODO: this obviously needs to be a state machine
+  const [uploadRunning, setUploadRunning] = useState(false)
+  const [uploadComplete, setUploadComplete] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
+
+  // done with everything, ready to close the modal
+  const [allDone, setAllDone] = useState(false)
 
   const onDismiss = () => navigate(pb.projectImages({ project }))
 
@@ -75,6 +121,12 @@ export function CreateImageSideModalForm() {
   const stopImport = useApiMutation('diskBulkWriteImportStop')
   const finalizeDisk = useApiMutation('diskFinalizeImport')
   const createImage = useApiMutation('imageCreate')
+
+  const abortController = useMemo(() => new AbortController(), [])
+
+  function cancelEverything() {
+    abortController.abort()
+  }
 
   // we need these for cleanup
   const deleteDisk = useApiMutation('diskDelete')
@@ -97,6 +149,8 @@ export function CreateImageSideModalForm() {
   // a disk is involved
   const submitError = allMutations.find((m) => m.error)?.error || null
 
+  // the created snapshot and disk. presence used in cleanup to decide whether we need to
+  // attempt to delete them
   const snapshot = useRef<Snapshot | null>(null)
   const disk = useRef<Disk | null>(null)
 
@@ -145,6 +199,8 @@ export function CreateImageSideModalForm() {
       // TODO: still abort if the error is something other than 404
     }
 
+    setPage('runner')
+
     // TODO: is there a smarter way to get these requests to sequence
     // without nested onSuccess callback hell?
 
@@ -170,6 +226,8 @@ export function CreateImageSideModalForm() {
     // be sitting around waiting for the browser to let the fetches through.
     // That sounds bad. So we use pMap to process at most 6 chunks at a time.
 
+    setUploadRunning(true)
+
     // base64 encoding increases the size of the data by around 33%, so we
     // need to offset that to end up with a chunk size under maxChunkSize
     // TODO: is that correct and is there wiggle room, i.e., do we need to go
@@ -182,7 +240,6 @@ export function CreateImageSideModalForm() {
 
     let chunksProcessed = 0
     setUploadProgress(0)
-    setShowProgress(true)
 
     const postChunk = async (i: number) => {
       const offset = i * adjChunkSize
@@ -203,8 +260,11 @@ export function CreateImageSideModalForm() {
       new Array(nChunks).fill(null),
       (_, i) => pRetry(() => postChunk(i), { retries: 2 }),
       // browser can only do 6 fetches at once, so we only read 6 chunks at once
-      { concurrency: 6 }
+      { concurrency: 6, signal: abortController.signal }
     )
+
+    setUploadRunning(false)
+    setUploadComplete(true)
 
     await stopImport.mutateAsync({ path })
     const snapshotName = `tmp-snapshot-${randInt()}`
@@ -239,8 +299,7 @@ export function CreateImageSideModalForm() {
     // now delete the snapshot and the disk
     await cleanup()
 
-    // TODO: show success toast or *something*
-    onDismiss()
+    setAllDone(true)
   }
 
   return (
@@ -250,80 +309,152 @@ export function CreateImageSideModalForm() {
       title="Upload image"
       onDismiss={onDismiss}
       onSubmit={async (values) => {
+        if (allDone) onDismiss()
+
         try {
           await onSubmit(values)
         } catch (e) {
           console.log(e)
+          cancelEverything()
+          setUploadRunning(false)
           await cleanup()
           // TODO: if we get here, show the failure state on the form
         }
       }}
       loading={loading}
       submitError={submitError}
+      submitLabel={allDone ? 'Done' : 'Upload image'}
     >
-      {({ control }) => (
-        <>
-          <NameField name="imageName" label="Name" control={control} />
-          <DescriptionField name="imageDescription" label="Description" control={control} />
-          <TextField name="os" label="OS" control={control} required />
-          <TextField name="version" control={control} required />
-          <RadioField
-            name="blockSize"
-            label="Block size"
-            units="Bytes"
-            control={control}
-            parseValue={(val) => parseInt(val, 10) as BlockSize}
-            items={[
-              { label: '512', value: 512 },
-              { label: '2048', value: 2048 },
-              { label: '4096', value: 4096 },
-            ]}
-          />
-          <Controller
-            name="imageFile"
-            control={control}
-            render={({ field: { value: file, onChange, ...rest } }) => (
-              <>
-                <FieldLabel id="image-file-input-label" htmlFor="image-file-input">
-                  Image file
-                </FieldLabel>
-                <input
-                  id="image-file-input"
-                  {...rest}
-                  type="file"
-                  onChange={(e) => {
-                    if (e.target.files) {
-                      onChange(e.target.files[0])
-                    }
-                  }}
-                />
-                {file && showProgress && (
-                  <div className="rounded-lg border p-4 border-secondary">
+      {({ control, watch }) => {
+        const file = watch('imageFile')
+        return (
+          <>
+            <Wrap when={page !== 'form'} with={<div className="hidden" />}>
+              <NameField name="imageName" label="Name" control={control} />
+              <DescriptionField
+                name="imageDescription"
+                label="Description"
+                control={control}
+              />
+              <TextField name="os" label="OS" control={control} required />
+              <TextField name="version" control={control} required />
+              <RadioField
+                name="blockSize"
+                label="Block size"
+                units="Bytes"
+                control={control}
+                parseValue={(val) => parseInt(val, 10) as BlockSize}
+                items={[
+                  { label: '512', value: 512 },
+                  { label: '2048', value: 2048 },
+                  { label: '4096', value: 4096 },
+                ]}
+              />
+              <Controller
+                name="imageFile"
+                control={control}
+                render={({ field: { value: _value, onChange, ...rest } }) => (
+                  <>
+                    <FieldLabel id="image-file-input-label" htmlFor="image-file-input">
+                      Image file
+                    </FieldLabel>
+                    <input
+                      id="image-file-input"
+                      {...rest}
+                      type="file"
+                      onChange={(e) => {
+                        if (e.target.files) {
+                          onChange(e.target.files[0])
+                        }
+                      }}
+                    />
+                  </>
+                )}
+              />
+            </Wrap>
+            {file && page === 'runner' && (
+              <div className="space-y-4">
+                <Step
+                  num={1}
+                  running={createDisk.isLoading}
+                  complete={createDisk.isSuccess}
+                >
+                  Create temporary disk
+                </Step>
+                <Step
+                  num={2}
+                  running={startImport.isLoading}
+                  complete={startImport.isSuccess}
+                >
+                  Set disk to import mode
+                </Step>
+                <Step num={3} running={uploadRunning} complete={uploadComplete}>
+                  Upload file
+                </Step>
+                <div className="rounded-lg border p-4 border-secondary">
+                  <div className="flex justify-between">
                     <div className="text-sans-md">{file.name}</div>
-                    <div className="mt-1.5">
-                      <div className="flex justify-between text-mono-sm">
-                        <div className="!normal-case text-quaternary">
-                          {filesize((uploadProgress / 100) * file.size, {
-                            base: 2,
-                            pad: true,
-                          })}{' '}
-                          / {filesize(file.size, { base: 2, pad: true })}
-                        </div>
-                        <div className="text-accent">{uploadProgress}%</div>
+                    {/* <button onClick={cancelEverything}>
+                        <Close12Icon aria-label="Cancel" className="text-accent" />
+                      </button> */}
+                  </div>
+                  <div className="mt-1.5">
+                    <div className="flex justify-between text-mono-sm">
+                      <div className="!normal-case text-quaternary">
+                        {filesize((uploadProgress / 100) * file.size, {
+                          base: 2,
+                          pad: true,
+                        })}{' '}
+                        / {filesize(file.size, { base: 2, pad: true })}
                       </div>
-                      <Progress
-                        className="mt-1.5"
-                        aria-label="Upload progress"
-                        value={uploadProgress}
-                      />
+                      <div className="text-accent">{uploadProgress}%</div>
                     </div>
+                    <Progress
+                      className="mt-1.5"
+                      aria-label="Upload progress"
+                      value={uploadProgress}
+                    />
+                  </div>
+                </div>
+                <Step
+                  num={4}
+                  running={stopImport.isLoading}
+                  complete={stopImport.isSuccess}
+                >
+                  Get disk out of import mode
+                </Step>
+                <Step
+                  num={5}
+                  running={finalizeDisk.isLoading}
+                  complete={finalizeDisk.isSuccess}
+                >
+                  Finalize disk and create snapshot
+                </Step>
+                <Step
+                  num={6}
+                  running={createImage.isLoading}
+                  complete={createImage.isSuccess}
+                >
+                  Create image
+                </Step>
+                <Step
+                  num={7}
+                  // TODO: this probably flashes not loading between the two requests
+                  running={deleteDisk.isLoading || deleteSnapshot.isLoading}
+                  complete={deleteDisk.isSuccess || deleteSnapshot.isSuccess}
+                >
+                  Delete disk and snapshot
+                </Step>
+                {allDone && (
+                  <div className="flex justify-center rounded-lg border p-4 text-accent bg-accent-secondary border-secondary">
+                    Image created! Press done to close this modal.
                   </div>
                 )}
-              </>
+              </div>
             )}
-          />
-        </>
-      )}
+          </>
+        )
+      }}
     </SideModalForm>
   )
 }
