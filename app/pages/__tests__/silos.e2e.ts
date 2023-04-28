@@ -23,6 +23,7 @@ test('Silos page', async ({ page }) => {
   await expect(page.locator('role=checkbox[name="Discoverable"]')).toBeChecked()
   await page.click('role=checkbox[name="Discoverable"]')
   await page.click('role=radio[name="Local only"]')
+  await page.fill('role=textbox[name="Admin group name"]', 'admins')
   await page.click('role=button[name="Create silo"]')
 
   // it's there in the table
