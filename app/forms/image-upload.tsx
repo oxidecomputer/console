@@ -39,6 +39,9 @@ async function readBlobAsBase64(blob: Blob): Promise<string> {
   })
 }
 
+/** Format file size with two decimal points */
+const fsize = (bytes: number) => filesize(bytes, { base: 2, pad: true })
+
 type FormValues = {
   imageName: string
   imageDescription: string
@@ -255,10 +258,14 @@ export function CreateImageSideModalForm() {
       setUploadProgress(Math.round((100 * chunksProcessed) / nChunks))
     }
 
-    // TODO: handle user cancelation with abort signal
+    // avoid pointless array of size 4000 for a 2gb image
+    function* genChunks() {
+      for (let i = 0; i < nChunks; i++) yield i
+    }
+
     await pMap(
-      new Array(nChunks).fill(null),
-      (_, i) => pRetry(() => postChunk(i), { retries: 2 }),
+      genChunks(),
+      (i) => pRetry(() => postChunk(i), { retries: 2 }),
       // browser can only do 6 fetches at once, so we only read 6 chunks at once
       { concurrency: 6, signal: abortController.signal }
     )
@@ -401,11 +408,7 @@ export function CreateImageSideModalForm() {
                   <div className="mt-1.5">
                     <div className="flex justify-between text-mono-sm">
                       <div className="!normal-case text-quaternary">
-                        {filesize((uploadProgress / 100) * file.size, {
-                          base: 2,
-                          pad: true,
-                        })}{' '}
-                        / {filesize(file.size, { base: 2, pad: true })}
+                        {fsize((uploadProgress / 100) * file.size)} / {fsize(file.size)}
                       </div>
                       <div className="text-accent">{uploadProgress}%</div>
                     </div>
