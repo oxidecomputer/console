@@ -249,6 +249,8 @@ export function CreateInstanceForm() {
             </Tabs.Content>
           </Tabs.Root>
 
+          <div className="!my-16 content-['a']"></div>
+
           <DiskSizeField label="Disk size" name="bootDiskSize" control={control} />
           <NameField
             name="bootDiskName"
