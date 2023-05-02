@@ -20,6 +20,10 @@ export type ModalProps = {
   onDismiss: () => void
 }
 
+// Note that the overlay has z-index 30 and content has 40. This is to make sure
+// both land on top of a side modal in the regrettable case where we have both
+// on screen at once.
+
 export function Modal({ children, onDismiss, title, isOpen }: ModalProps) {
   const titleId = 'modal-title'
   const AnimatedDialogContent = animated(Dialog.Content)
@@ -44,9 +48,9 @@ export function Modal({ children, onDismiss, title, isOpen }: ModalProps) {
               }}
             >
               <Dialog.Portal>
-                <Dialog.Overlay className="DialogOverlay" />
+                <Dialog.Overlay className="DialogOverlay !z-30" />
                 <AnimatedDialogContent
-                  className="DialogContent ox-modal fixed left-1/2 top-1/2 m-0 flex max-h-[min(800px,80vh)] w-[32rem] flex-col justify-between rounded-lg border p-0 bg-raise border-secondary elevation-2"
+                  className="DialogContent ox-modal fixed left-1/2 top-1/2 z-40 m-0 flex max-h-[min(800px,80vh)] w-[32rem] flex-col justify-between rounded-lg border p-0 bg-raise border-secondary elevation-2"
                   aria-labelledby={titleId}
                   style={{
                     transform: y.to((value) => `translate3d(-50%, ${-50 + value}%, 0px)`),
@@ -76,7 +80,7 @@ Modal.Title = ({ children }: { children?: React.ReactNode }) => (
   </div>
 )
 
-Modal.Body = classed.div`py-2 overflow-y-scroll`
+Modal.Body = classed.div`py-2 overflow-y-auto`
 
 Modal.Section = classed.div`p-4 space-y-6 border-b border-secondary text-secondary last-of-type:border-none text-sans-md`
 

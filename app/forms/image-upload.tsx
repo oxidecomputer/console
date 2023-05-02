@@ -9,7 +9,7 @@ import invariant from 'tiny-invariant'
 
 import type { BlockSize, Disk, Snapshot } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import { Checkmark12Icon, FieldLabel, Progress, Wrap } from '@oxide/ui'
+import { Checkmark12Icon, FieldLabel, Modal, Progress } from '@oxide/ui'
 import { GiB, KiB } from '@oxide/util'
 
 import {
@@ -72,7 +72,7 @@ function Step({ num, children, state }: StepProps) {
     <div className="flex items-center">
       <div
         className={cn(
-          'mr-6 flex h-10 w-10 items-center justify-center rounded-full border text-sans-semi-lg',
+          'mr-4 flex h-8 w-8 items-center justify-center rounded-full border text-sans-semi-md',
           {
             'text-disabled border-default': status === 'ready',
             'text-accent border-accent': status === 'running',
@@ -83,7 +83,7 @@ function Step({ num, children, state }: StepProps) {
         {status === 'complete' ? <Checkmark12Icon className="h-4 w-4" /> : num}
       </div>
       <div
-        className={cn('text-sans-lg', {
+        className={cn('text-sans-md', {
           'text-secondary': status === 'ready',
           'text-accent': status === 'running',
           'text-default': status === 'complete',
@@ -98,18 +98,50 @@ function Step({ num, children, state }: StepProps) {
 // TODO: better random placeholder disk and snapshot names, probably
 const randInt = () => Math.floor(Math.random() * 100000000)
 
+// TODO: do we need to distinguish between abort due to manual cancel and abort
+// due to error?
+const BULK_UPLOAD_ABORT = new Error('Upload canceled')
+
 // TODO: diagram out all the possible states of this component. the complexity
 // is out of hand
 
 export function CreateImageSideModalForm() {
-  const [page, setPage] = useState<'form' | 'runner'>('form')
   const navigate = useNavigate()
   const { project } = useProjectSelector()
 
+  const [modalOpen, setModalOpen] = useState(false)
+
   // TODO: this obviously needs to be a state machine
+  // this is specifically the bulk upload step, not the whole thing
   const [uploadRunning, setUploadRunning] = useState(false)
   const [uploadComplete, setUploadComplete] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
+
+  async function closeModal() {
+    if (allDone) {
+      setModalOpen(false)
+      return
+    }
+
+    // if we're still going, need to confirm cancelation
+    if (confirm('Are you sure? Closing the modal will cancel the upload.')) {
+      cancelEverything()
+
+      // TODO: if closeModal runs during bulk upload (as it almost certainly
+      // will) the abort causes its own throw to onSubmit's catch, which calls
+      // cleanup. so if we call cleanup here it will be a double cleanup. we can
+      // get rid of this one, but for the rare *not* during bulk upload we will
+      // still want to call cleanup! rather than coordinating when to cleanup
+      // and when not, better to make cleanup idempotent by having it check
+      // whether it has already been run, or more concretely before each action,
+      // check whether it needs to be done
+
+      // TODO: we probably don't want to await this, but we do need to handle
+      // errors from it
+      // cleanup()
+      setModalOpen(false)
+    }
+  }
 
   // done with everything, ready to close the modal
   const [allDone, setAllDone] = useState(false)
@@ -127,7 +159,7 @@ export function CreateImageSideModalForm() {
   const abortController = useMemo(() => new AbortController(), [])
 
   function cancelEverything() {
-    abortController.abort()
+    abortController.abort(BULK_UPLOAD_ABORT)
   }
 
   // we need these for cleanup
@@ -160,6 +192,7 @@ export function CreateImageSideModalForm() {
   async function cleanup() {
     if (snapshot.current) {
       await deleteSnapshot.mutateAsync({ path: { snapshot: snapshot.current.id } })
+      snapshot.current = null
     }
 
     if (disk.current) {
@@ -175,6 +208,7 @@ export function CreateImageSideModalForm() {
         await finalizeDisk.mutateAsync({ path, body: {} })
       }
       await deleteDisk.mutateAsync({ path: { disk: disk.current.id } })
+      disk.current = null
     }
   }
 
@@ -201,7 +235,7 @@ export function CreateImageSideModalForm() {
       // TODO: still abort if the error is something other than 404
     }
 
-    setPage('runner')
+    setModalOpen(true)
 
     // TODO: is there a smarter way to get these requests to sequence
     // without nested onSuccess callback hell?
@@ -212,7 +246,7 @@ export function CreateImageSideModalForm() {
       query: { project },
       body: {
         name: diskName,
-        description: 'tmp disk used for importing image',
+        description: `temporary disk for importing image ${imageName}`,
         diskSource: { type: 'importing_blocks', blockSize },
         size: Math.ceil(imageFile.size / GiB) * GiB,
       },
@@ -262,6 +296,7 @@ export function CreateImageSideModalForm() {
       for (let i = 0; i < nChunks; i++) yield i
     }
 
+    // will throw if aborted or if requests error out
     await pMap(
       genChunks(),
       (i) => pRetry(() => postChunk(i), { retries: 2 }),
@@ -303,6 +338,9 @@ export function CreateImageSideModalForm() {
     queryClient.invalidateQueries('imageList')
 
     // now delete the snapshot and the disk
+
+    // TODO: does it make sense to delete the disk as soon as the snapshot
+    // exists? probably doesn't matter much either way
     await cleanup()
 
     setAllDone(true)
@@ -323,11 +361,16 @@ export function CreateImageSideModalForm() {
         try {
           await onSubmit(values)
         } catch (e) {
+          if (e === BULK_UPLOAD_ABORT) {
+            // most likely a manual cancel
+            console.log('upload step canceled')
+          }
+
           console.log(e)
           cancelEverything()
           setUploadRunning(false)
           await cleanup()
-          // TODO: if we get here, show the failure state on the form
+          // TODO: if we get here, show failure state in the upload modal
         }
       }}
       loading={loading}
@@ -338,109 +381,130 @@ export function CreateImageSideModalForm() {
         const file = watch('imageFile')
         return (
           <>
-            <Wrap when={page !== 'form'} with={<div className="hidden" />}>
-              <NameField name="imageName" label="Name" control={control} />
-              <DescriptionField
-                name="imageDescription"
-                label="Description"
-                control={control}
-              />
-              <TextField name="os" label="OS" control={control} required />
-              <TextField name="version" control={control} required />
-              <RadioField
-                name="blockSize"
-                label="Block size"
-                units="Bytes"
-                control={control}
-                parseValue={(val) => parseInt(val, 10) as BlockSize}
-                items={[
-                  { label: '512', value: 512 },
-                  { label: '2048', value: 2048 },
-                  { label: '4096', value: 4096 },
-                ]}
-              />
-              <Controller
-                name="imageFile"
-                control={control}
-                render={({ field: { value: _value, onChange, ...rest } }) => (
-                  <>
-                    <FieldLabel id="image-file-input-label" htmlFor="image-file-input">
-                      Image file
-                    </FieldLabel>
-                    <input
-                      id="image-file-input"
-                      {...rest}
-                      type="file"
-                      onChange={(e) => {
-                        if (e.target.files) {
-                          onChange(e.target.files[0])
-                        }
-                      }}
-                    />
-                  </>
-                )}
-              />
-            </Wrap>
-            {file && page === 'runner' && (
-              <div className="space-y-4">
-                <Step num={1} state={createDisk}>
-                  Create temporary disk
-                </Step>
-                <Step num={2} state={startImport}>
-                  Set disk to import mode
-                </Step>
-                <Step
-                  num={3}
-                  state={{ isLoading: uploadRunning, isSuccess: uploadComplete }}
-                >
-                  Upload file
-                </Step>
-                <div className="rounded-lg border p-4 border-secondary">
-                  <div className="flex justify-between">
-                    <div className="text-sans-md">{file.name}</div>
-                    {/* <button onClick={cancelEverything}>
-                        <Close12Icon aria-label="Cancel" className="text-accent" />
-                      </button> */}
-                  </div>
-                  <div className="mt-1.5">
-                    <div className="flex justify-between text-mono-sm">
-                      <div className="!normal-case text-quaternary">
-                        {fsize((uploadProgress / 100) * file.size)} / {fsize(file.size)}
+            {/* TODO: disable the whole form if that doesn't happen automatically */}
+            <NameField name="imageName" label="Name" control={control} />
+            <DescriptionField
+              name="imageDescription"
+              label="Description"
+              control={control}
+            />
+            <TextField name="os" label="OS" control={control} required />
+            <TextField name="version" control={control} required />
+            <RadioField
+              name="blockSize"
+              label="Block size"
+              units="Bytes"
+              control={control}
+              parseValue={(val) => parseInt(val, 10) as BlockSize}
+              items={[
+                { label: '512', value: 512 },
+                { label: '2048', value: 2048 },
+                { label: '4096', value: 4096 },
+              ]}
+            />
+            {/* TODO: extract file field component */}
+            {/* TODO: validate file present as part of form validation so we never submit without it */}
+            <Controller
+              name="imageFile"
+              control={control}
+              render={({ field: { value: _value, onChange, ...rest } }) => (
+                <>
+                  <FieldLabel id="image-file-input-label" htmlFor="image-file-input">
+                    Image file
+                  </FieldLabel>
+                  <input
+                    id="image-file-input"
+                    {...rest}
+                    type="file"
+                    onChange={(e) => {
+                      if (e.target.files) {
+                        onChange(e.target.files[0])
+                      }
+                    }}
+                  />
+                </>
+              )}
+            />
+            {file && modalOpen && (
+              <Modal isOpen onDismiss={closeModal}>
+                <Modal.Title>Image upload progress</Modal.Title>
+                <Modal.Body>
+                  <Modal.Section>
+                    <div className="space-y-3">
+                      <Step num={1} state={createDisk}>
+                        Create temporary disk
+                      </Step>
+                      <Step num={2} state={startImport}>
+                        Set disk to import mode
+                      </Step>
+                      <Step
+                        num={3}
+                        state={{ isLoading: uploadRunning, isSuccess: uploadComplete }}
+                      >
+                        Upload file
+                      </Step>
+                      <div className="rounded-lg border p-4 border-secondary">
+                        <div className="flex justify-between">
+                          <div className="text-sans-md">{file.name}</div>
+                          {/* cancel and/or pause buttons could go here */}
+                        </div>
+                        <div className="mt-1.5">
+                          <div className="flex justify-between text-mono-sm">
+                            <div className="!normal-case text-quaternary">
+                              {fsize((uploadProgress / 100) * file.size)} /{' '}
+                              {fsize(file.size)}
+                            </div>
+                            <div className="text-accent">{uploadProgress}%</div>
+                          </div>
+                          <Progress
+                            className="mt-1.5"
+                            aria-label="Upload progress"
+                            value={uploadProgress}
+                          />
+                        </div>
                       </div>
-                      <div className="text-accent">{uploadProgress}%</div>
+                      <Step num={4} state={stopImport}>
+                        Get disk out of import mode
+                      </Step>
+                      <Step num={5} state={finalizeDisk}>
+                        Finalize disk and create snapshot
+                      </Step>
+                      <Step num={6} state={createImage}>
+                        Create image
+                      </Step>
+                      <Step
+                        num={7}
+                        // TODO: this probably flashes not loading between the two requests
+                        state={{
+                          isLoading: deleteDisk.isLoading || deleteSnapshot.isLoading,
+                          isSuccess: deleteDisk.isSuccess || deleteSnapshot.isSuccess,
+                        }}
+                      >
+                        Delete disk and snapshot
+                      </Step>
+                      {allDone && (
+                        <div className="flex justify-center rounded-lg border p-4 text-accent bg-accent-secondary border-secondary">
+                          Image created! Press done to close this modal.
+                        </div>
+                      )}
                     </div>
-                    <Progress
-                      className="mt-1.5"
-                      aria-label="Upload progress"
-                      value={uploadProgress}
-                    />
-                  </div>
-                </div>
-                <Step num={4} state={stopImport}>
-                  Get disk out of import mode
-                </Step>
-                <Step num={5} state={finalizeDisk}>
-                  Finalize disk and create snapshot
-                </Step>
-                <Step num={6} state={createImage}>
-                  Create image
-                </Step>
-                <Step
-                  num={7}
-                  // TODO: this probably flashes not loading between the two requests
-                  state={{
-                    isLoading: deleteDisk.isLoading || deleteSnapshot.isLoading,
-                    isSuccess: deleteDisk.isSuccess || deleteSnapshot.isSuccess,
-                  }}
+                  </Modal.Section>
+                </Modal.Body>
+                {/*
+                 * TODO: Modal.Footer needs reworking for this to be made correct.
+                 * onDismiss works ok because closeModal is aware of whether
+                 * we are done. The problem is we don't actually need a Done button until
+                 * we're done. So IMO this should be one button, and it's cancel while the
+                 * thing is going, and turns to done once it's done.
+                 */}
+                <Modal.Footer
+                  onDismiss={closeModal}
+                  onAction={() => navigate(pb.projectImages({ project }))}
+                  actionText="Done"
                 >
-                  Delete disk and snapshot
-                </Step>
-                {allDone && (
-                  <div className="flex justify-center rounded-lg border p-4 text-accent bg-accent-secondary border-secondary">
-                    Image created! Press done to close this modal.
-                  </div>
-                )}
-              </div>
+                  {/* TODO: show error state info here on error? */}
+                </Modal.Footer>
+              </Modal>
             )}
           </>
         )
