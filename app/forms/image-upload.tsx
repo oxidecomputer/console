@@ -7,7 +7,7 @@ import { Controller } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import invariant from 'tiny-invariant'
 
-import type { BlockSize, Disk, Snapshot } from '@oxide/api'
+import type { BlockSize, Disk, ErrorResult, Snapshot } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { Checkmark12Icon, FieldLabel, Modal, Progress } from '@oxide/ui'
 import { GiB, KiB } from '@oxide/util'
@@ -101,25 +101,50 @@ const randInt = () => Math.floor(Math.random() * 100000000)
 // TODO: do we need to distinguish between abort due to manual cancel and abort
 // due to error?
 const BULK_UPLOAD_ABORT = new Error('Upload canceled')
+const IMAGE_NAME_EXISTS = new Error('Image name already exists')
 
-// TODO: diagram out all the possible states of this component. the complexity
-// is out of hand
+// States
+//
+// - Form
+//   - Clean or filled
+//   - Error
+//   - Checking that image name isn't taken (back to form if taken)
+// - Upload in progress
+//   - Happy path
+//     - Create disk
+//     - Import start
+//     - Uploading
+//     - Import stop
+//     - Finalize disk + create snapshot
+//     - Create image from snapshot
+//     - Cleanup
+//   - Error
+//     - Show error, click here to try again
+//       - If we failed after upload complete, maybe try again from there?
+//       - Otherwise, restart everything
+//     - If image name got taken in the meantime, give chance to rename?
+//
+// Part of the problem is that I'm relying on RQ for the state of the upload
+// steps, but there's slippage with what I actually want that to represent
 
 export function CreateImageSideModalForm() {
   const navigate = useNavigate()
   const { project } = useProjectSelector()
 
+  const [formError, setFormError] = useState<ErrorResult | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
 
-  // TODO: this obviously needs to be a state machine
   // this is specifically the bulk upload step, not the whole thing
   const [uploadRunning, setUploadRunning] = useState(false)
   const [uploadComplete, setUploadComplete] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
 
+  const backToImages = () => navigate(pb.projectImages({ project }))
+
   async function closeModal() {
     if (allDone) {
-      setModalOpen(false)
+      // setModalOpen(false)
+      backToImages()
       return
     }
 
@@ -146,25 +171,24 @@ export function CreateImageSideModalForm() {
   // done with everything, ready to close the modal
   const [allDone, setAllDone] = useState(false)
 
-  const onDismiss = () => navigate(pb.projectImages({ project }))
-
   const queryClient = useApiQueryClient()
+
   const createDisk = useApiMutation('diskCreate')
   const startImport = useApiMutation('diskBulkWriteImportStart')
   const uploadChunk = useApiMutation('diskBulkWriteImport')
   const stopImport = useApiMutation('diskBulkWriteImportStop')
   const finalizeDisk = useApiMutation('diskFinalizeImport')
   const createImage = useApiMutation('imageCreate')
+  // we need these for cleanup
+  const deleteDisk = useApiMutation('diskDelete')
+  const deleteSnapshot = useApiMutation('snapshotDelete')
 
   const abortController = useMemo(() => new AbortController(), [])
 
   function cancelEverything() {
     abortController.abort(BULK_UPLOAD_ABORT)
+    allMutations.forEach((m) => m.reset())
   }
-
-  // we need these for cleanup
-  const deleteDisk = useApiMutation('diskDelete')
-  const deleteSnapshot = useApiMutation('snapshotDelete')
 
   const allMutations = [
     createDisk,
@@ -223,17 +247,13 @@ export function CreateImageSideModalForm() {
     invariant(imageFile)
 
     // check whether the image name is taken _before_ we do all the heavy stuff
-    try {
-      const image = await queryClient.fetchQuery('imageView', {
+    const image = await queryClient
+      .fetchQuery('imageView', {
         path: { image: imageName },
         query: { project },
       })
-      // TODO: set form-level error, or even better, error on the name field
-      if (image) throw Error('Image name is taken')
-    } catch (e) {
-      // eat the error, this 404ing is good
-      // TODO: still abort if the error is something other than 404
-    }
+      .catch(() => null) // we want it to error
+    if (image) throw IMAGE_NAME_EXISTS
 
     setModalOpen(true)
 
@@ -351,16 +371,27 @@ export function CreateImageSideModalForm() {
       id="upload-image-form"
       formOptions={{ defaultValues }}
       title="Upload image"
-      onDismiss={onDismiss}
+      onDismiss={backToImages}
       onSubmit={async (values) => {
-        if (allDone) {
-          onDismiss()
-          return
-        }
-
         try {
           await onSubmit(values)
         } catch (e) {
+          // TODO: this is ridiculous, come on. a) set the error on the field, not the whole form.
+          // b) do this call before onSubmit, maybe even in a validation function
+          if (e === IMAGE_NAME_EXISTS) {
+            setFormError({
+              type: 'client_error',
+              error: {
+                name: 'ObjectAlreadyExists',
+                message: 'Image with that name already exists',
+              },
+              text: 'Image with that name already exists',
+              statusCode: 200,
+              headers: new Headers(),
+            })
+            return
+          }
+
           if (e === BULK_UPLOAD_ABORT) {
             // most likely a manual cancel
             console.log('upload step canceled')
@@ -374,7 +405,7 @@ export function CreateImageSideModalForm() {
         }
       }}
       loading={loading}
-      submitError={submitError}
+      submitError={submitError || formError}
       submitLabel={allDone ? 'Done' : 'Upload image'}
     >
       {({ control, watch }) => {
@@ -388,6 +419,9 @@ export function CreateImageSideModalForm() {
               label="Description"
               control={control}
             />
+            {/* TODO: are OS and Version supposed to be non-empty? I doubt the API cares,
+             * but it will be pretty for end users if they're empty
+             */}
             <TextField name="os" label="OS" control={control} required />
             <TextField name="version" control={control} required />
             <RadioField

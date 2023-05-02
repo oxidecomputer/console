@@ -47,7 +47,7 @@ export function ImagesPage() {
           to={pb.projectImageNew(projectSelector)}
           className={buttonStyle({ size: 'sm' })}
         >
-          New Image
+          Upload image
         </Link>
       </TableActions>
       <Table emptyState={<EmptyState />}>

@@ -308,7 +308,7 @@ export const routes = createRoutesFromElements(
           <Route path="images" handle={{ crumb: 'Images' }} element={null} />
           <Route
             path="images-new"
-            handle={{ crumb: 'New image' }}
+            handle={{ crumb: 'Upload image' }}
             element={<CreateImageSideModalForm />}
           />
         </Route>
