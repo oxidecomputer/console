@@ -85,7 +85,7 @@
     "@figma-export/transform-svg-with-svgo": "^4.3.0",
     "@ladle/react": "^2.9.0",
     "@mswjs/http-middleware": "^0.6.0",
-    "@playwright/test": "^1.31.0",
+    "@playwright/test": "^1.33.0",
     "@testing-library/dom": "^9.0.1",
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^14.0.0",

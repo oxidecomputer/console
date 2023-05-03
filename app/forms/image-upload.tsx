@@ -76,7 +76,7 @@ type StepProps = {
 function Step({ children, state, label }: StepProps) {
   const status = state.isSuccess ? 'complete' : state.isLoading ? 'running' : 'ready'
   return (
-    <div className="items-top flex gap-2 py-3 px-4">
+    <div className="items-top flex gap-2 py-3 px-4" data-status={status}>
       <div>
         {status === 'complete' ? (
           <Success12Icon className="text-accent" />
