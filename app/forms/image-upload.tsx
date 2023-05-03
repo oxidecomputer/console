@@ -10,6 +10,7 @@ import type { BlockSize, Disk, ErrorResult, Snapshot } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import {
   FieldLabel,
+  FileInput,
   Modal,
   Progress,
   Spinner,
@@ -453,29 +454,20 @@ export function CreateImageSideModalForm() {
                 { label: '4096', value: 4096 },
               ]}
             />
-            {/* TODO: extract file field component */}
             {/* TODO: validate file present as part of form validation so we never submit without it */}
-            <Controller
-              name="imageFile"
-              control={control}
-              render={({ field: { value: _value, onChange, ...rest } }) => (
-                <>
-                  <FieldLabel id="image-file-input-label" htmlFor="image-file-input">
-                    Image file
-                  </FieldLabel>
-                  <input
-                    id="image-file-input"
-                    {...rest}
-                    type="file"
-                    onChange={(e) => {
-                      if (e.target.files) {
-                        onChange(e.target.files[0])
-                      }
-                    }}
-                  />
-                </>
-              )}
-            />
+            <div>
+              <FieldLabel id="image-file-input-label" htmlFor="image-file-input">
+                Image file
+              </FieldLabel>
+              <Controller
+                name="imageFile"
+                control={control}
+                render={({ field: { value: _value, ...rest } }) => (
+                  // TODO: this doesn't like being passed a ref because FileInput doesn't forward it
+                  <FileInput id="image-file-input" className="mt-2" {...rest} />
+                )}
+              />
+            </div>
             {file && modalOpen && (
               <Modal isOpen onDismiss={closeModal}>
                 <Modal.Title>Image upload progress</Modal.Title>
