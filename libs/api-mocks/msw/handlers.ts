@@ -147,9 +147,7 @@ export const handlers = makeHandlers({
       throw 'Can only stop import for disk in state importing_from_bulk_write'
     }
 
-    // TODO: what do we do with this? can we delete it?
-    // db.diskBulkImportState[disk.id] = { blocks: {} }
-
+    delete db.diskBulkImportState[disk.id]
     disk.state = { state: 'import_ready' }
     return 204
   },
@@ -168,11 +166,7 @@ export const handlers = makeHandlers({
       throw `Cannot finalize disk in state ${disk.state.state}. Must be import_ready.`
     }
 
-    // TODO: check that the file is complete, i.e., all chunks are accounted for?
-
-    const diskImport = db.diskBulkImportState[disk.id]
-    if (!diskImport) throw notFoundErr
-    console.log(diskImport.blocks)
+    // for now, don't check that the file is complete. the API doesn't
 
     disk.state = { state: 'detached' }
 

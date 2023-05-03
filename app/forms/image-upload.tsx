@@ -110,13 +110,20 @@ function Step({ children, state, label }: StepProps) {
   )
 }
 
-// TODO: better random placeholder disk and snapshot names, probably
 const randInt = () => Math.floor(Math.random() * 100000000)
 
 // TODO: do we need to distinguish between abort due to manual cancel and abort
 // due to error?
 const BULK_UPLOAD_ABORT = new Error('Upload canceled')
 const IMAGE_NAME_EXISTS = new Error('Image name already exists')
+
+/**
+ * base64 encoding increases the size of the data by 1/3, so we need to
+ * compensate for that. In many contexts (like email attachements), headers and
+ * line breaks can introduce up 4% more overhead, but that doesn't apply here
+ * because we are only sending the encoded data itself.
+ */
+const CHUNK_SIZE = Math.floor((512 * KiB * 3) / 4)
 
 // States
 //
@@ -278,11 +285,8 @@ export function CreateImageSideModalForm() {
 
     setModalOpen(true)
 
-    // TODO: is there a smarter way to get these requests to sequence
-    // without nested onSuccess callback hell?
-
     // Create a disk in state import-ready
-    const diskName = `tmp-disk-${randInt()}`
+    const diskName = `tmp-for-image-${randInt()}`
     disk.current = await createDisk.mutateAsync({
       query: { project },
       body: {
@@ -305,13 +309,7 @@ export function CreateImageSideModalForm() {
 
     setSyntheticUploadState({ isLoading: true, isSuccess: false, isError: false })
 
-    // base64 encoding increases the size of the data by around 33%, so we
-    // need to offset that to end up with a chunk size under maxChunkSize
-    // TODO: is that correct and is there wiggle room, i.e., do we need to go
-    // lower than 3/4 to be safe
-    const maxChunkSize = 512 * KiB
-    const adjChunkSize = Math.floor((maxChunkSize * 3) / 4)
-    const nChunks = Math.ceil(imageFile.size / adjChunkSize)
+    const nChunks = Math.ceil(imageFile.size / CHUNK_SIZE)
 
     // TODO: try to warn user if they try to close the tab while this is going
 
@@ -319,8 +317,8 @@ export function CreateImageSideModalForm() {
     setUploadProgress(0)
 
     const postChunk = async (i: number) => {
-      const offset = i * adjChunkSize
-      const end = Math.min(offset + adjChunkSize, imageFile.size)
+      const offset = i * CHUNK_SIZE
+      const end = Math.min(offset + CHUNK_SIZE, imageFile.size)
       const base64EncodedData = await readBlobAsBase64(imageFile.slice(offset, end))
       await uploadChunk
         .mutateAsync({ path, body: { offset, base64EncodedData } })
@@ -344,7 +342,7 @@ export function CreateImageSideModalForm() {
       // browser can only do 6 fetches at once, so we only read 6 chunks at once
       { concurrency: 6, signal: abortController.signal }
     )
-    // TODO: catch non-abort error here and set synethetic state to isError: true
+    // TODO: catch non-abort error here and set synthetic state to isError: true
 
     setSyntheticUploadState({ isLoading: false, isSuccess: true, isError: false })
 
@@ -379,9 +377,6 @@ export function CreateImageSideModalForm() {
     queryClient.invalidateQueries('imageList')
 
     // now delete the snapshot and the disk
-
-    // TODO: does it make sense to delete the disk as soon as the snapshot
-    // exists? probably doesn't matter much either way
     await cleanup()
 
     setAllDone(true)
@@ -431,7 +426,6 @@ export function CreateImageSideModalForm() {
         const file = watch('imageFile')
         return (
           <>
-            {/* TODO: disable the whole form if that doesn't happen automatically */}
             <NameField name="imageName" label="Name" control={control} />
             <DescriptionField
               name="imageDescription"
@@ -482,7 +476,7 @@ export function CreateImageSideModalForm() {
                     <div className="children:border-b children:border-b-secondary last:children:border-b-0">
                       <Step state={createDisk} label="Create temporary disk" />
                       <Step state={startImport} label="Set disk to import mode" />
-                      <Step state={syntheticUploadState} label="Upload file">
+                      <Step state={syntheticUploadState} label="Upload image file">
                         <div className="rounded-lg border bg-default border-default">
                           <div className="flex justify-between border-b p-3 pb-2 border-b-secondary">
                             <div className="text-sans-md text-default">{file.name}</div>
@@ -511,7 +505,6 @@ export function CreateImageSideModalForm() {
                       />
                       <Step state={createImage} label="Create image" duration={15} />
                       <Step
-                        // TODO: this probably flashes not loading between the two requests
                         state={{
                           isLoading: deleteDisk.isLoading || deleteSnapshot.isLoading,
                           isSuccess: deleteDisk.isSuccess || deleteSnapshot.isSuccess,
