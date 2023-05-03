@@ -33,6 +33,7 @@ export const FileInput = ({
 
   const handleResetInput = (evt: MouseEvent) => {
     setFile(null)
+    onChange?.(null)
     if (inputRef && inputRef.current) {
       inputRef.current.value = ''
     }
@@ -47,7 +48,6 @@ export const FileInput = ({
         ref={inputRef}
         type="file"
         name="file"
-        id="file"
         className={cn('-z-1 absolute inset-0 w-full cursor-pointer rounded')}
         {...inputProps}
         onChange={handleChange}
@@ -79,6 +79,7 @@ export const FileInput = ({
               <button
                 onClick={handleResetInput}
                 className="pointer-events-auto ml-1 inline-flex rounded p-1 hover:children:text-tertiary"
+                aria-label="Clear file"
               >
                 <Error16Icon className="text-quaternary" />
               </button>

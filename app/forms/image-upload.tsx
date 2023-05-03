@@ -26,6 +26,7 @@ import {
   SideModalForm,
   TextField,
 } from 'app/components/form'
+import { ErrorMessage } from 'app/components/form/fields/ErrorMessage'
 import { useProjectSelector } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
@@ -454,25 +455,30 @@ export function CreateImageSideModalForm() {
                 { label: '4096', value: 4096 },
               ]}
             />
-            {/* TODO: validate file present as part of form validation so we never submit without it */}
-            <div>
-              <FieldLabel id="image-file-input-label" htmlFor="image-file-input">
-                Image file
-              </FieldLabel>
-              <Controller
-                name="imageFile"
-                control={control}
-                render={({ field: { value: _value, ...rest } }) => (
-                  // TODO: this doesn't like being passed a ref because FileInput doesn't forward it
+            <Controller
+              name="imageFile"
+              control={control}
+              rules={{ required: true }}
+              render={({ field: { value: _value, ...rest }, fieldState: { error } }) => (
+                <div>
+                  <FieldLabel id="image-file-input-label" htmlFor="image-file-input">
+                    Image file
+                    {error && (
+                      <span className="ml-2">
+                        <ErrorMessage error={error} label="File" />
+                      </span>
+                    )}
+                  </FieldLabel>
+                  {/*  TODO: this doesn't like being passed a ref because FileInput doesn't forward it */}
                   <FileInput id="image-file-input" className="mt-2" {...rest} />
-                )}
-              />
-            </div>
+                </div>
+              )}
+            />
             {file && modalOpen && (
               <Modal isOpen onDismiss={closeModal}>
                 <Modal.Title>Image upload progress</Modal.Title>
                 <Modal.Body>
-                  <Modal.Section className="!px-0 !py-0">
+                  <Modal.Section className="!p-0">
                     <div className="children:border-b children:border-b-secondary last:children:border-b-0">
                       <Step state={createDisk} label="Create temporary disk" />
                       <Step state={startImport} label="Set disk to import mode" />

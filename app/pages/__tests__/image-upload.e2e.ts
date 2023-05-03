@@ -82,6 +82,25 @@ test('Image upload with name taken', async ({ page }) => {
   // TODO: changing name in field causes error to disappear
 })
 
+test('Image upload file empty', async ({ page }) => {
+  await page.goto('/projects/mock-project/images-new')
+  await page.fill('role=textbox[name="Name"]', 'new-image')
+
+  const requiredError = 'role=dialog[name="Upload image"] >> text="File is required"'
+
+  await expectNotVisible(page, [requiredError])
+
+  await page.click('role=button[name="Upload image"]')
+  await expectVisible(page, [requiredError])
+
+  // now set the file, clear it, and submit again
+  await chooseFile(page)
+  await page.click('role=button[name="Clear file"]')
+  await page.click('role=button[name="Upload image"]')
+
+  await expectVisible(page, [requiredError])
+})
+
 // test('Image upload with name taken during upload', async ({ page }) => {})
 
 // test('Image upload form validation', async ({ page }) => {})
