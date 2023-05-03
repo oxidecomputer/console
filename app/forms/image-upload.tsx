@@ -66,9 +66,16 @@ const defaultValues: FormValues = {
   imageFile: null,
 }
 
+// subset of the mutation state we care about
+type MutationState = {
+  isLoading: boolean
+  isSuccess: boolean
+  isError: boolean
+}
+
 type StepProps = {
   children?: React.ReactNode
-  state: { isLoading: boolean; isSuccess: boolean }
+  state: MutationState
   label: string
   duration?: number
 }
@@ -78,7 +85,8 @@ function Step({ children, state, label }: StepProps) {
   return (
     // data-status used for e2e testing
     <div className="items-top flex gap-2 py-3 px-4" data-status={status}>
-      <div>
+      {/* padding on icon to align it with text since everything is aligned to top */}
+      <div className="pt-px">
         {status === 'complete' ? (
           <Success12Icon className="text-accent" />
         ) : status === 'running' ? (
@@ -139,9 +147,7 @@ export function CreateImageSideModalForm() {
   const [formError, setFormError] = useState<ErrorResult | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
 
-  // this is specifically the bulk upload step, not the whole thing
-  const [uploadRunning, setUploadRunning] = useState(false)
-  const [uploadComplete, setUploadComplete] = useState(false)
+  // progress bar, 0-100
   const [uploadProgress, setUploadProgress] = useState(0)
 
   const backToImages = () => navigate(pb.projectImages({ project }))
@@ -181,6 +187,14 @@ export function CreateImageSideModalForm() {
   const createDisk = useApiMutation('diskCreate')
   const startImport = useApiMutation('diskBulkWriteImportStart')
   const uploadChunk = useApiMutation('diskBulkWriteImport')
+
+  // synthetic state for upload step because it consists of multiple requests
+  const [syntheticUploadState, setSyntheticUploadState] = useState<MutationState>({
+    isLoading: false,
+    isSuccess: false,
+    isError: false,
+  })
+
   const stopImport = useApiMutation('diskBulkWriteImportStop')
   const finalizeDisk = useApiMutation('diskFinalizeImport')
   const createImage = useApiMutation('imageCreate')
@@ -287,7 +301,7 @@ export function CreateImageSideModalForm() {
     // be sitting around waiting for the browser to let the fetches through.
     // That sounds bad. So we use pMap to process at most 6 chunks at a time.
 
-    setUploadRunning(true)
+    setSyntheticUploadState({ isLoading: true, isSuccess: false, isError: false })
 
     // base64 encoding increases the size of the data by around 33%, so we
     // need to offset that to end up with a chunk size under maxChunkSize
@@ -328,9 +342,9 @@ export function CreateImageSideModalForm() {
       // browser can only do 6 fetches at once, so we only read 6 chunks at once
       { concurrency: 6, signal: abortController.signal }
     )
+    // TODO: catch non-abort error here and set synethetic state to isError: true
 
-    setUploadRunning(false)
-    setUploadComplete(true)
+    setSyntheticUploadState({ isLoading: false, isSuccess: true, isError: false })
 
     await stopImport.mutateAsync({ path })
     const snapshotName = `tmp-snapshot-${randInt()}`
@@ -404,7 +418,7 @@ export function CreateImageSideModalForm() {
 
           console.log(e)
           cancelEverything()
-          setUploadRunning(false)
+          setSyntheticUploadState({ isLoading: false, isSuccess: false, isError: false })
           await cleanup()
           // TODO: if we get here, show failure state in the upload modal
         }
@@ -472,10 +486,7 @@ export function CreateImageSideModalForm() {
                     <div className="children:border-b children:border-b-secondary last:children:border-b-0">
                       <Step state={createDisk} label="Create temporary disk" />
                       <Step state={startImport} label="Set disk to import mode" />
-                      <Step
-                        state={{ isLoading: uploadRunning, isSuccess: uploadComplete }}
-                        label="Upload file"
-                      >
+                      <Step state={syntheticUploadState} label="Upload file">
                         <div className="rounded-lg border bg-default border-default">
                           <div className="flex justify-between border-b p-3 pb-2 border-b-secondary">
                             <div className="text-sans-md text-default">{file.name}</div>
@@ -508,6 +519,7 @@ export function CreateImageSideModalForm() {
                         state={{
                           isLoading: deleteDisk.isLoading || deleteSnapshot.isLoading,
                           isSuccess: deleteDisk.isSuccess || deleteSnapshot.isSuccess,
+                          isError: deleteDisk.isError || deleteSnapshot.isError,
                         }}
                         label="Delete disk and snapshot"
                       />
