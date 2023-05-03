@@ -106,12 +106,14 @@ Modal.Footer = ({
   onAction,
   actionType = 'primary',
   actionText,
+  disabled = false,
 }: {
   children?: React.ReactNode
   onDismiss: () => void
   onAction: () => void
   actionType?: 'primary' | 'danger'
   actionText: React.ReactNode
+  disabled?: boolean
 }) => (
   <footer className="flex justify-end border-t px-3 py-3 border-secondary">
     <div>{children}</div>
@@ -119,7 +121,7 @@ Modal.Footer = ({
       <Button variant="secondary" size="sm" onClick={onDismiss}>
         Cancel
       </Button>
-      <Button size="sm" variant={actionType} onClick={onAction}>
+      <Button size="sm" variant={actionType} onClick={onAction} disabled={disabled}>
         {actionText}
       </Button>
     </div>

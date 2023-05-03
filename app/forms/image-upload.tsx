@@ -1,4 +1,3 @@
-import cn from 'classnames'
 import filesize from 'filesize'
 import pMap from 'p-map'
 import pRetry from 'p-retry'
@@ -9,7 +8,14 @@ import invariant from 'tiny-invariant'
 
 import type { BlockSize, Disk, ErrorResult, Snapshot } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import { Checkmark12Icon, FieldLabel, Modal, Progress } from '@oxide/ui'
+import {
+  FieldLabel,
+  Modal,
+  Progress,
+  Spinner,
+  Success12Icon,
+  Unauthorized12Icon,
+} from '@oxide/ui'
 import { GiB, KiB } from '@oxide/util'
 
 import {
@@ -61,34 +67,32 @@ const defaultValues: FormValues = {
 }
 
 type StepProps = {
-  num: number
-  children: React.ReactNode
+  children?: React.ReactNode
   state: { isLoading: boolean; isSuccess: boolean }
+  label: string
+  duration?: number
 }
 
-function Step({ num, children, state }: StepProps) {
+function Step({ children, state, label, duration }: StepProps) {
   const status = state.isSuccess ? 'complete' : state.isLoading ? 'running' : 'ready'
   return (
-    <div className="flex items-center">
-      <div
-        className={cn(
-          'mr-4 flex h-8 w-8 items-center justify-center rounded-full border text-sans-semi-md',
-          {
-            'text-disabled border-default': status === 'ready',
-            'text-accent border-accent': status === 'running',
-            'text-quaternary bg-raise-hover': status === 'complete',
-          }
+    <div className="items-top flex gap-2 py-3 px-4">
+      <div>
+        {status === 'complete' ? (
+          <Success12Icon className="text-accent" />
+        ) : status === 'running' ? (
+          <Spinner />
+        ) : (
+          <Unauthorized12Icon className="text-disabled" />
         )}
-      >
-        {status === 'complete' ? <Checkmark12Icon className="h-4 w-4" /> : num}
       </div>
-      <div
-        className={cn('text-sans-md', {
-          'text-secondary': status === 'ready',
-          'text-accent': status === 'running',
-          'text-default': status === 'complete',
-        })}
-      >
+      <div className="w-full space-y-2 text-default">
+        <div>
+          <div>{label}</div>
+          <div className="mt-0.5 !normal-case text-mono-xs text-tertiary">
+            {duration ? <>{duration}ms</> : state.isLoading ? 'Running' : 'Waiting'}
+          </div>
+        </div>
         {children}
       </div>
     </div>
@@ -463,64 +467,64 @@ export function CreateImageSideModalForm() {
               <Modal isOpen onDismiss={closeModal}>
                 <Modal.Title>Image upload progress</Modal.Title>
                 <Modal.Body>
-                  <Modal.Section>
-                    <div className="space-y-3">
-                      <Step num={1} state={createDisk}>
-                        Create temporary disk
-                      </Step>
-                      <Step num={2} state={startImport}>
-                        Set disk to import mode
-                      </Step>
+                  <Modal.Section className="!px-0 !py-0">
+                    <div className="children:border-b children:border-b-secondary last:children:border-b-0">
                       <Step
-                        num={3}
+                        state={createDisk}
+                        label="Create temporary disk"
+                        duration={15}
+                      />
+                      <Step
+                        state={startImport}
+                        label="Set disk to import mode"
+                        duration={15}
+                      />
+                      <Step
                         state={{ isLoading: uploadRunning, isSuccess: uploadComplete }}
+                        label="Upload file"
+                        duration={15}
                       >
-                        Upload file
-                      </Step>
-                      <div className="rounded-lg border p-4 border-secondary">
-                        <div className="flex justify-between">
-                          <div className="text-sans-md">{file.name}</div>
-                          {/* cancel and/or pause buttons could go here */}
-                        </div>
-                        <div className="mt-1.5">
-                          <div className="flex justify-between text-mono-sm">
-                            <div className="!normal-case text-quaternary">
-                              {fsize((uploadProgress / 100) * file.size)} /{' '}
-                              {fsize(file.size)}
-                            </div>
-                            <div className="text-accent">{uploadProgress}%</div>
+                        <div className="rounded-lg border bg-default border-default">
+                          <div className="flex justify-between border-b p-3 pb-2 border-b-secondary">
+                            <div className="text-sans-md text-default">{file.name}</div>
+                            {/* cancel and/or pause buttons could go here */}
                           </div>
-                          <Progress
-                            className="mt-1.5"
-                            aria-label="Upload progress"
-                            value={uploadProgress}
-                          />
+                          <div className="p-3 pt-2">
+                            <div className="flex justify-between text-mono-sm">
+                              <div className="!normal-case text-secondary">
+                                {fsize((uploadProgress / 100) * file.size)}{' '}
+                                <span className="text-quinary">/</span> {fsize(file.size)}
+                              </div>
+                              <div className="text-accent">{uploadProgress}%</div>
+                            </div>
+                            <Progress
+                              className="mt-1.5"
+                              aria-label="Upload progress"
+                              value={uploadProgress}
+                            />
+                          </div>
                         </div>
-                      </div>
-                      <Step num={4} state={stopImport}>
-                        Get disk out of import mode
-                      </Step>
-                      <Step num={5} state={finalizeDisk}>
-                        Finalize disk and create snapshot
-                      </Step>
-                      <Step num={6} state={createImage}>
-                        Create image
                       </Step>
                       <Step
-                        num={7}
+                        state={stopImport}
+                        label="Get disk out of import mode"
+                        duration={15}
+                      />
+                      <Step
+                        state={finalizeDisk}
+                        label="Finalize disk and create snapshot"
+                        duration={15}
+                      />
+                      <Step state={createImage} label="Create image" duration={15} />
+                      <Step
                         // TODO: this probably flashes not loading between the two requests
                         state={{
                           isLoading: deleteDisk.isLoading || deleteSnapshot.isLoading,
                           isSuccess: deleteDisk.isSuccess || deleteSnapshot.isSuccess,
                         }}
-                      >
-                        Delete disk and snapshot
-                      </Step>
-                      {allDone && (
-                        <div className="flex justify-center rounded-lg border p-4 text-accent bg-accent-secondary border-secondary">
-                          Image created! Press done to close this modal.
-                        </div>
-                      )}
+                        label="Delete disk and snapshot"
+                        duration={20}
+                      />
                     </div>
                   </Modal.Section>
                 </Modal.Body>
@@ -535,6 +539,7 @@ export function CreateImageSideModalForm() {
                   onDismiss={closeModal}
                   onAction={() => navigate(pb.projectImages({ project }))}
                   actionText="Done"
+                  disabled={!allDone}
                 >
                   {/* TODO: show error state info here on error? */}
                 </Modal.Footer>
