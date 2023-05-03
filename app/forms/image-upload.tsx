@@ -73,7 +73,7 @@ type StepProps = {
   duration?: number
 }
 
-function Step({ children, state, label, duration }: StepProps) {
+function Step({ children, state, label }: StepProps) {
   const status = state.isSuccess ? 'complete' : state.isLoading ? 'running' : 'ready'
   return (
     <div className="items-top flex gap-2 py-3 px-4">
@@ -89,9 +89,9 @@ function Step({ children, state, label, duration }: StepProps) {
       <div className="w-full space-y-2 text-default">
         <div>
           <div>{label}</div>
-          <div className="mt-0.5 !normal-case text-mono-xs text-tertiary">
+          {/* <div className="mt-0.5 !normal-case text-mono-xs text-tertiary">
             {duration ? <>{duration}ms</> : state.isLoading ? 'Running' : 'Waiting'}
-          </div>
+          </div> */}
         </div>
         {children}
       </div>
@@ -469,20 +469,11 @@ export function CreateImageSideModalForm() {
                 <Modal.Body>
                   <Modal.Section className="!px-0 !py-0">
                     <div className="children:border-b children:border-b-secondary last:children:border-b-0">
-                      <Step
-                        state={createDisk}
-                        label="Create temporary disk"
-                        duration={15}
-                      />
-                      <Step
-                        state={startImport}
-                        label="Set disk to import mode"
-                        duration={15}
-                      />
+                      <Step state={createDisk} label="Create temporary disk" />
+                      <Step state={startImport} label="Set disk to import mode" />
                       <Step
                         state={{ isLoading: uploadRunning, isSuccess: uploadComplete }}
                         label="Upload file"
-                        duration={15}
                       >
                         <div className="rounded-lg border bg-default border-default">
                           <div className="flex justify-between border-b p-3 pb-2 border-b-secondary">
@@ -505,15 +496,10 @@ export function CreateImageSideModalForm() {
                           </div>
                         </div>
                       </Step>
-                      <Step
-                        state={stopImport}
-                        label="Get disk out of import mode"
-                        duration={15}
-                      />
+                      <Step state={stopImport} label="Get disk out of import mode" />
                       <Step
                         state={finalizeDisk}
                         label="Finalize disk and create snapshot"
-                        duration={15}
                       />
                       <Step state={createImage} label="Create image" duration={15} />
                       <Step
@@ -523,7 +509,6 @@ export function CreateImageSideModalForm() {
                           isSuccess: deleteDisk.isSuccess || deleteSnapshot.isSuccess,
                         }}
                         label="Delete disk and snapshot"
-                        duration={20}
                       />
                     </div>
                   </Modal.Section>
