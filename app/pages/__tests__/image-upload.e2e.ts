@@ -66,10 +66,30 @@ test('Image upload happy path', async ({ page }) => {
   })
 })
 
-// TODO: things to test
-//
-// - image name already taken
-// - image name gets taken during the upload
-// - a couple of errors during bulk upload don't crash it
-// - a lot of errors during bulk upload do crash it, with nice handling
-// - cancel upload, change file, upload again
+test('Image upload with name taken', async ({ page }) => {
+  await page.goto('/projects/mock-project/images-new')
+
+  await page.fill('role=textbox[name="Name"]', 'image-1')
+  await page.fill('role=textbox[name="Description"]', 'image description')
+  await page.fill('role=textbox[name="OS"]', 'Ubuntu')
+  await page.fill('role=textbox[name="Version"]', 'Dapper Drake')
+  await chooseFile(page)
+
+  await expectNotVisible(page, ['text="Image name already exists"'])
+  await page.click('role=button[name="Upload image"]')
+  await expectVisible(page, ['text="Image name already exists"'])
+
+  // TODO: changing name in field causes error to disappear
+})
+
+// test('Image upload with name taken during upload', async ({ page }) => {})
+
+// test('Image upload form validation', async ({ page }) => {})
+
+// test('Image upload resilient to a few errors', async ({ page }) => {})
+
+// test('Image upload fails with many errors', async ({ page }) => {
+//   // try again after failure, everything runs as expected
+// })
+
+// test('Image upload canceled, file changed, try again', async ({ page }) => {})

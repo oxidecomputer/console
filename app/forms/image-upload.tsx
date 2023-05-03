@@ -398,13 +398,11 @@ export function CreateImageSideModalForm() {
           // TODO: this is ridiculous, come on. a) set the error on the field, not the whole form.
           // b) do this call before onSubmit, maybe even in a validation function
           if (e === IMAGE_NAME_EXISTS) {
+            const message = 'Image name already exists'
             setFormError({
               type: 'client_error',
-              error: {
-                name: 'ObjectAlreadyExists',
-                message: 'Image with that name already exists',
-              },
-              text: 'Image with that name already exists',
+              error: { name: 'ObjectAlreadyExists', message },
+              text: message,
               statusCode: 200,
               headers: new Headers(),
             })
