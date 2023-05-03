@@ -16,12 +16,6 @@ async function chooseFile(page: Page, size = 10 * MiB) {
   })
 }
 
-async function expectStepToRun(page: Page, step: string) {
-  const stepElt = page.locator('div[data-status]').filter({ hasText: step }).first()
-  await expect(stepElt).toHaveAttribute('data-status', 'running')
-  await expect(stepElt).toHaveAttribute('data-status', 'complete')
-}
-
 test('Image upload happy path', async ({ page }) => {
   await page.goto('/projects/mock-project/images')
   await expectNotVisible(page, [
@@ -41,20 +35,25 @@ test('Image upload happy path', async ({ page }) => {
 
   await page.click('role=button[name="Upload image"]')
 
-  // now the modal pops open and the thing starts going
+  // now the modal pops open and the thing starts going. playwright isn't quick
+  // enough to catch each step going from ready to running to complete in time,
+  // so we just assert that they all start out ready and end up complete
+
+  const steps = page.locator('div[data-status]')
+
+  for (const step of await steps.all()) {
+    await expect(step).toHaveAttribute('data-status', 'ready')
+  }
+
+  // check these here instead of first because if we don't look for the ready
+  // states right away we won't catch them in time
   await expectVisible(page, ['role=heading[name="Image upload progress"]'])
   const done = page.locator('role=dialog >> role=button[name="Done"]')
   await expect(done).toBeDisabled()
 
-  await expectStepToRun(page, 'Create temporary disk')
-  await expectStepToRun(page, 'Set disk to import mode')
-  await expectStepToRun(page, 'Upload file')
-  await expectStepToRun(page, 'Get disk out of import mode')
-  await expectStepToRun(page, 'Finalize disk')
-  await expectStepToRun(page, 'Create image')
-  await expectStepToRun(page, 'Delete disk and snapshot')
-
-  // TODO: assert something about the steps
+  for (const step of await steps.all()) {
+    await expect(step).toHaveAttribute('data-status', 'complete')
+  }
 
   await expect(done).toBeEnabled()
   await done.click()
