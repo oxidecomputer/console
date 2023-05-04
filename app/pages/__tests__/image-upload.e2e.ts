@@ -40,153 +40,161 @@ async function expectUploadProcess(page: Page) {
   await done.click()
 }
 
-test('Image upload happy path', async ({ page }) => {
-  await page.goto('/projects/mock-project/images')
-  await expectNotVisible(page, [
-    'role=cell[name="new-image"]',
-    'role=heading[name="Upload image"]',
-  ])
+test.describe('Image upload', () => {
+  test('happy path', async ({ page }) => {
+    await page.goto('/projects/mock-project/images')
+    await expectNotVisible(page, [
+      'role=cell[name="new-image"]',
+      'role=heading[name="Upload image"]',
+    ])
 
-  await page.click('role=link[name="Upload image"]')
+    await page.click('role=link[name="Upload image"]')
 
-  await expectVisible(page, ['role=heading[name="Upload image"]'])
+    await expectVisible(page, ['role=heading[name="Upload image"]'])
 
-  await page.fill('role=textbox[name="Name"]', 'new-image')
-  await page.fill('role=textbox[name="Description"]', 'image description')
-  await page.fill('role=textbox[name="OS"]', 'Ubuntu')
-  await page.fill('role=textbox[name="Version"]', 'Dapper Drake')
-  await chooseFile(page)
+    await page.fill('role=textbox[name="Name"]', 'new-image')
+    await page.fill('role=textbox[name="Description"]', 'image description')
+    await page.fill('role=textbox[name="OS"]', 'Ubuntu')
+    await page.fill('role=textbox[name="Version"]', 'Dapper Drake')
+    await chooseFile(page)
 
-  await page.click('role=button[name="Upload image"]')
+    await page.click('role=button[name="Upload image"]')
 
-  // now the modal pops open and the thing starts going
-  await expectUploadProcess(page)
+    // now the modal pops open and the thing starts going
+    await expectUploadProcess(page)
 
-  await expect(page).toHaveURL('/projects/mock-project/images')
-  await expectRowVisible(page.locator('role=table'), {
-    name: 'new-image',
-    description: 'image description',
-    size: '1 GiB',
+    await expect(page).toHaveURL('/projects/mock-project/images')
+    await expectRowVisible(page.locator('role=table'), {
+      name: 'new-image',
+      description: 'image description',
+      size: '1 GiB',
+    })
   })
-})
 
-test('Image upload with name taken', async ({ page }) => {
-  await page.goto('/projects/mock-project/images-new')
+  test.only('with name taken', async ({ page }) => {
+    await page.goto('/projects/mock-project/images-new')
 
-  await page.fill('role=textbox[name="Name"]', 'image-1')
-  await page.fill('role=textbox[name="Description"]', 'image description')
-  await page.fill('role=textbox[name="OS"]', 'Ubuntu')
-  await page.fill('role=textbox[name="Version"]', 'Dapper Drake')
-  await chooseFile(page)
+    await page.fill('role=textbox[name="Name"]', 'image-1')
+    await page.fill('role=textbox[name="Description"]', 'image description')
+    await page.fill('role=textbox[name="OS"]', 'Ubuntu')
+    await page.fill('role=textbox[name="Version"]', 'Dapper Drake')
+    await chooseFile(page)
 
-  await expectNotVisible(page, ['text="Image name already exists"'])
-  await page.click('role=button[name="Upload image"]')
-  await expectVisible(page, ['text="Image name already exists"'])
+    await expectNotVisible(page, ['text="Image name already exists"'])
+    await page.click('role=button[name="Upload image"]')
+    await expectVisible(page, ['text="Image name already exists"'])
 
-  // TODO: changing name in field causes error to disappear
-})
+    // changing name and resubmitting removes error
+    await page.fill('role=textbox[name="Name"]', 'image-5')
+    await page.click('role=button[name="Upload image"]')
+    await expectNotVisible(page, ['text="Image name already exists"'])
+    await expectUploadProcess(page)
 
-test('Image upload form validation', async ({ page }) => {
-  await page.goto('/projects/mock-project/images-new')
+    // TODO: changing name alone should cause error to disappear
+  })
 
-  const nameRequired = 'role=dialog[name="Upload image"] >> text="Name is required"'
-  const fileRequired = 'role=dialog[name="Upload image"] >> text="File is required"'
+  test('form validation', async ({ page }) => {
+    await page.goto('/projects/mock-project/images-new')
 
-  await expectNotVisible(page, [nameRequired, fileRequired])
+    const nameRequired = 'role=dialog[name="Upload image"] >> text="Name is required"'
+    const fileRequired = 'role=dialog[name="Upload image"] >> text="File is required"'
 
-  await page.click('role=button[name="Upload image"]')
-  await expectVisible(page, [nameRequired, fileRequired])
+    await expectNotVisible(page, [nameRequired, fileRequired])
 
-  await page.fill('role=textbox[name="Name"]', 'new-image')
-  await expectNotVisible(page, [nameRequired])
+    await page.click('role=button[name="Upload image"]')
+    await expectVisible(page, [nameRequired, fileRequired])
 
-  // now set the file, clear it, and submit again
-  await chooseFile(page)
-  await expectNotVisible(page, [fileRequired])
+    await page.fill('role=textbox[name="Name"]', 'new-image')
+    await expectNotVisible(page, [nameRequired])
 
-  await page.click('role=button[name="Clear file"]')
-  await page.click('role=button[name="Upload image"]')
+    // now set the file, clear it, and submit again
+    await chooseFile(page)
+    await expectNotVisible(page, [fileRequired])
 
-  await expectVisible(page, [fileRequired])
-})
+    await page.click('role=button[name="Clear file"]')
+    await page.click('role=button[name="Upload image"]')
 
-test('Image upload cancel', async ({ page }) => {
-  await page.goto('/projects/mock-project/images-new')
+    await expectVisible(page, [fileRequired])
+  })
 
-  await page.fill('role=textbox[name="Name"]', 'new-image')
-  await page.fill('role=textbox[name="Description"]', 'image description')
-  await page.fill('role=textbox[name="OS"]', 'Ubuntu')
-  await page.fill('role=textbox[name="Version"]', 'Dapper Drake')
-  await chooseFile(page)
+  test('cancel', async ({ page }) => {
+    await page.goto('/projects/mock-project/images-new')
 
-  await page.click('role=button[name="Upload image"]')
+    await page.fill('role=textbox[name="Name"]', 'new-image')
+    await page.fill('role=textbox[name="Description"]', 'image description')
+    await page.fill('role=textbox[name="OS"]', 'Ubuntu')
+    await page.fill('role=textbox[name="Version"]', 'Dapper Drake')
+    await chooseFile(page)
 
-  // wait to be in the middle of upload
-  const uploadStep = page
-    .locator('div[data-status]')
-    .filter({ hasText: 'Upload image file' })
-    .first()
-  await expect(uploadStep).toHaveAttribute('data-status', 'running')
+    await page.click('role=button[name="Upload image"]')
 
-  // form is disabled and semi-hidden
-  await expectNotVisible(page, ['role=textbox[name="Name"]'])
+    // wait to be in the middle of upload
+    const uploadStep = page
+      .locator('div[data-status]')
+      .filter({ hasText: 'Upload image file' })
+      .first()
+    await expect(uploadStep).toHaveAttribute('data-status', 'running')
 
-  page.on('dialog', (dialog) => dialog.accept()) // click yes on the are you sure prompt
-  await page.click('role=dialog >> role=button[name="Cancel"]')
+    // form is disabled and semi-hidden
+    await expectNotVisible(page, ['role=textbox[name="Name"]'])
 
-  // modal has closed
-  await expectNotVisible(page, ['role=heading[name="Image upload progress"]'])
+    page.on('dialog', (dialog) => dialog.accept()) // click yes on the are you sure prompt
+    await page.click('role=dialog >> role=button[name="Cancel"]')
 
-  // form's back
-  await expectVisible(page, ['role=textbox[name="Name"]'])
+    // modal has closed
+    await expectNotVisible(page, ['role=heading[name="Image upload progress"]'])
 
-  // get out of the form
-  await page.click('text=Cancel')
+    // form's back
+    await expectVisible(page, ['role=textbox[name="Name"]'])
 
-  // TODO: go to disks and make sure the tmp one got cleaned up
-  // await page.click('role=link[name="Disks"]')
-  // await expectVisible(page, ['role=cell[name="disk-1"]'])
-  // await expectNotVisible(page, ['role=cell[name=tmp]'])
-})
+    // get out of the form
+    await page.click('text=Cancel')
 
-test('Image upload cancel and retry', async ({ page }) => {
-  await page.goto('/projects/mock-project/images-new')
+    // TODO: go to disks and make sure the tmp one got cleaned up
+    // await page.click('role=link[name="Disks"]')
+    // await expectVisible(page, ['role=cell[name="disk-1"]'])
+    // await expectNotVisible(page, ['role=cell[name=tmp]'])
+  })
 
-  await page.fill('role=textbox[name="Name"]', 'new-image')
-  await page.fill('role=textbox[name="Description"]', 'image description')
-  await page.fill('role=textbox[name="OS"]', 'Ubuntu')
-  await page.fill('role=textbox[name="Version"]', 'Dapper Drake')
-  await chooseFile(page)
+  test('Image upload cancel and retry', async ({ page }) => {
+    await page.goto('/projects/mock-project/images-new')
 
-  await page.click('role=button[name="Upload image"]')
+    await page.fill('role=textbox[name="Name"]', 'new-image')
+    await page.fill('role=textbox[name="Description"]', 'image description')
+    await page.fill('role=textbox[name="OS"]', 'Ubuntu')
+    await page.fill('role=textbox[name="Version"]', 'Dapper Drake')
+    await chooseFile(page)
 
-  // wait to be in the middle of upload
-  const uploadStep = page
-    .locator('div[data-status]')
-    .filter({ hasText: 'Upload image file' })
-    .first()
-  await expect(uploadStep).toHaveAttribute('data-status', 'running')
+    await page.click('role=button[name="Upload image"]')
 
-  // form is disabled and semi-hidden
-  await expectNotVisible(page, ['role=textbox[name="Name"]'])
+    // wait to be in the middle of upload
+    const uploadStep = page
+      .locator('div[data-status]')
+      .filter({ hasText: 'Upload image file' })
+      .first()
+    await expect(uploadStep).toHaveAttribute('data-status', 'running')
 
-  page.on('dialog', (dialog) => dialog.accept()) // click yes on the are you sure prompt
-  await page.click('role=dialog >> role=button[name="Cancel"]')
+    // form is disabled and semi-hidden
+    await expectNotVisible(page, ['role=textbox[name="Name"]'])
 
-  // modal has closed
-  await expectNotVisible(page, ['role=heading[name="Image upload progress"]'])
+    page.on('dialog', (dialog) => dialog.accept()) // click yes on the are you sure prompt
+    await page.click('role=dialog >> role=button[name="Cancel"]')
 
-  // form's back
-  await expectVisible(page, [
-    'role=textbox[name="Name"]',
-    // need to wait for submit button to come back because it's in a loading
-    // state while the cleanup runs
-    'role=button[name="Upload image"]',
-  ])
+    // modal has closed
+    await expectNotVisible(page, ['role=heading[name="Image upload progress"]'])
 
-  // resubmit and it should work fine
-  await page.click('role=button[name="Upload image"]')
-  await expectUploadProcess(page)
+    // form's back
+    await expectVisible(page, [
+      'role=textbox[name="Name"]',
+      // need to wait for submit button to come back because it's in a loading
+      // state while the cleanup runs
+      'role=button[name="Upload image"]',
+    ])
+
+    // resubmit and it should work fine
+    await page.click('role=button[name="Upload image"]')
+    await expectUploadProcess(page)
+  })
 })
 
 // TODO: these tests

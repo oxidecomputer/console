@@ -446,6 +446,8 @@ export function CreateImageSideModalForm() {
         // reset
         abortController.current = new AbortController()
 
+        setFormError(null)
+
         // check that image name isn't taken before starting the whole thing
         const image = await queryClient
           .fetchQuery('imageView', {
