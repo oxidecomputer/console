@@ -9,6 +9,7 @@ import invariant from 'tiny-invariant'
 import type { BlockSize, Disk, ErrorResult, Snapshot } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import {
+  Error12Icon,
   FieldLabel,
   FileInput,
   Modal,
@@ -89,27 +90,22 @@ type StepProps = {
 }
 
 function Step({ children, state, label }: StepProps) {
-  const status = state.isSuccess ? 'complete' : state.isLoading ? 'running' : 'ready'
+  /* eslint-disable react/jsx-key */
+  const [status, icon] = state.isSuccess
+    ? ['complete', <Success12Icon className="text-accent" />]
+    : state.isLoading
+    ? ['running', <Spinner />]
+    : state.isError
+    ? ['error', <Error12Icon className="text-error" />]
+    : ['ready', <Unauthorized12Icon className="text-disabled" />]
+  /* eslint-enable react/jsx-key */
   return (
-    // data-status used for e2e testing
+    // data-status used only for e2e testing
     <div className="items-top flex gap-2 py-3 px-4" data-status={status}>
       {/* padding on icon to align it with text since everything is aligned to top */}
-      <div className="pt-px">
-        {status === 'complete' ? (
-          <Success12Icon className="text-accent" />
-        ) : status === 'running' ? (
-          <Spinner />
-        ) : (
-          <Unauthorized12Icon className="text-disabled" />
-        )}
-      </div>
+      <div className="pt-px">{icon}</div>
       <div className="w-full space-y-2 text-default">
-        <div>
-          <div>{label}</div>
-          {/* <div className="mt-0.5 !normal-case text-mono-xs text-tertiary">
-            {duration ? <>{duration}ms</> : state.isLoading ? 'Running' : 'Waiting'}
-          </div> */}
-        </div>
+        <div>{label}</div>
         {children}
       </div>
     </div>
@@ -120,7 +116,7 @@ const randInt = () => Math.floor(Math.random() * 100000000)
 
 // TODO: do we need to distinguish between abort due to manual cancel and abort
 // due to error?
-const BULK_UPLOAD_ABORT = new Error('Upload canceled')
+const ABORT_ERROR = new Error('Upload canceled')
 
 /**
  * base64 encoding increases the size of the data by 1/3, so we need to
@@ -154,6 +150,9 @@ const CHUNK_SIZE = Math.floor((512 * KiB * 3) / 4)
 // Part of the problem is that I'm relying on RQ for the state of the upload
 // steps, but there's slippage with what I actually want that to represent
 
+// TODO: make sure cleanup, cancelEverything, and resetMainFlow are called in
+// the right places
+
 /**
  * Upload an image. Opens a second modal to show upload progress.
  */
@@ -177,6 +176,7 @@ export function CreateImageSideModalForm() {
 
   const [formError, setFormError] = useState<ErrorResult | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
+  const [modalError, setModalError] = useState<string | null>(null)
 
   // progress bar, 0-100
   const [uploadProgress, setUploadProgress] = useState(0)
@@ -207,7 +207,7 @@ export function CreateImageSideModalForm() {
   // due to error. In the former case, they have their own steps to highlight as
   // successful. In the latter, we do not want to highlight the steps.
 
-  const allMutations = [
+  const mainFlowMutations = [
     createDisk,
     startImport,
     uploadChunk,
@@ -218,51 +218,75 @@ export function CreateImageSideModalForm() {
     deleteSnapshot,
   ]
 
-  // TODO: this is not really accurate for the form anymore
-  const loading = allMutations.some((m) => m.isLoading)
+  // separate so we can distinguish between cleanup due to error vs. cleanup after success
+  const stopImportCleanup = useApiMutation('diskBulkWriteImportStop')
+  const finalizeDiskCleanup = useApiMutation('diskFinalizeImport')
+  const deleteDiskCleanup = useApiMutation('diskDelete')
+  const deleteSnapshotCleanup = useApiMutation('snapshotDelete')
+
+  const cleanupMutations = [
+    stopImportCleanup,
+    finalizeDiskCleanup,
+    deleteDiskCleanup,
+    deleteSnapshotCleanup,
+  ]
+
+  const allMutations = [...mainFlowMutations, syntheticUploadState, ...cleanupMutations]
+
+  // we don't want to be able to click submit while anything is running
+  const formLoading = allMutations.some((m) => m.isLoading)
 
   // the created snapshot and disk. presence used in cleanup to decide whether we need to
   // attempt to delete them
   const snapshot = useRef<Snapshot | null>(null)
   const disk = useRef<Disk | null>(null)
 
+  // if closeModal runs during bulk upload due to a cancel, cancelEverything
+  // causes an abort of the bulk upload, which throws an error to onSubmit's
+  // catch, which calls `cleanup`. so when we call cleanup here, it will be a
+  // double cleanup. we could get rid of this one, but for the rare cancel *not*
+  // during bulk upload we will still want to call cleanup. rather than
+  // coordinating when to cleanup, we make cleanup idempotent by having it check
+  // whether it has already been run, or more concretely before each action,
+  // check whether it needs to be done
   async function closeModal() {
     if (allDone) {
-      // setModalOpen(false)
       backToImages()
       return
     }
 
-    // if we're still going, need to confirm cancelation
-    if (confirm('Are you sure? Closing the modal will cancel the upload.')) {
+    // if we're still going, need to confirm cancelation. if we have an error,
+    // everything is already stopped
+    if (modalError || confirm('Are you sure? Closing the modal will cancel the upload.')) {
       cancelEverything()
-
-      // TODO: if closeModal runs during bulk upload (as it almost certainly
-      // will) the abort causes its own throw to onSubmit's catch, which calls
-      // cleanup. so if we call cleanup here it will be a double cleanup. we can
-      // get rid of this one, but for the rare *not* during bulk upload we will
-      // still want to call cleanup! rather than coordinating when to cleanup
-      // and when not, better to make cleanup idempotent by having it check
-      // whether it has already been run, or more concretely before each action,
-      // check whether it needs to be done
-
-      // TODO: we probably don't want to await this, but we do need to handle
-      // errors from it
-      // cleanup()
+      // TODO: probably shouldn't await this, but we do need to catch errors
+      cleanup()
+      resetMainFlow()
       setModalOpen(false)
     }
   }
 
   function cancelEverything() {
-    abortController.current?.abort(BULK_UPLOAD_ABORT)
-    allMutations.forEach((m) => m.reset())
+    abortController.current?.abort(ABORT_ERROR)
+  }
+
+  function resetMainFlow() {
+    setModalError(null)
+    setUploadProgress(0)
+    mainFlowMutations.forEach((m) => m.reset())
     setSyntheticUploadState(initSyntheticState)
   }
 
+  const cleaningUp = useRef(false)
+
   /** If a snapshot or disk was created, clean it up*/
   async function cleanup() {
+    // don't run if already running
+    if (cleaningUp.current) return
+    cleaningUp.current = true
+
     if (snapshot.current) {
-      await deleteSnapshot.mutateAsync({ path: { snapshot: snapshot.current.id } })
+      await deleteSnapshotCleanup.mutateAsync({ path: { snapshot: snapshot.current.id } })
       snapshot.current = null
     }
 
@@ -272,15 +296,16 @@ export function CreateImageSideModalForm() {
       const freshDisk = await queryClient.fetchQuery('diskView', { path })
       const diskState = freshDisk.state.state
       if (diskState === 'importing_from_bulk_writes') {
-        await stopImport.mutateAsync({ path })
-        await finalizeDisk.mutateAsync({ path, body: {} })
+        await stopImportCleanup.mutateAsync({ path })
+        await finalizeDiskCleanup.mutateAsync({ path, body: {} })
       }
       if (diskState === 'import_ready') {
-        await finalizeDisk.mutateAsync({ path, body: {} })
+        await finalizeDiskCleanup.mutateAsync({ path, body: {} })
       }
-      await deleteDisk.mutateAsync({ path: { disk: disk.current.id } })
+      await deleteDiskCleanup.mutateAsync({ path: { disk: disk.current.id } })
       disk.current = null
     }
+    cleaningUp.current = false
   }
 
   async function onSubmit({
@@ -291,7 +316,6 @@ export function CreateImageSideModalForm() {
     os,
     version,
   }: FormValues) {
-    console.log('inner', { uploadProgress })
     invariant(imageFile) // shouldn't be possible to fail bc file is a required field
 
     // this is done up here instead of next to the upload step because after
@@ -299,7 +323,7 @@ export function CreateImageSideModalForm() {
     // uploadProgress to non-zero values. if we do this reset down there instead
     // of up here, cancel and retry will bring up a modal briefly showing the
     // previous run's progress, and it resets only when bulk upload starts
-    setUploadProgress(0)
+    resetMainFlow()
 
     setModalOpen(true)
 
@@ -315,9 +339,14 @@ export function CreateImageSideModalForm() {
       },
     })
 
+    // do these between each step to catch cancellations
+    abortController.current?.signal.throwIfAborted()
+
     // set disk to state importing-via-bulk-write
     const path = { disk: disk.current.id }
     await startImport.mutateAsync({ path })
+
+    abortController.current?.signal.throwIfAborted()
 
     // Post file to the API in chunks of size `maxChunkSize`. Browsers cap
     // concurrent fetches at 6 per host. If we ran without a concurrency limit,
@@ -364,8 +393,11 @@ export function CreateImageSideModalForm() {
     setSyntheticUploadState({ isLoading: false, isSuccess: true, isError: false })
 
     await stopImport.mutateAsync({ path })
+    abortController.current?.signal.throwIfAborted()
+
     const snapshotName = `tmp-snapshot-${randInt()}`
     await finalizeDisk.mutateAsync({ path, body: { snapshotName } })
+    abortController.current?.signal.throwIfAborted()
 
     // diskFinalizeImport does not return the snapshot, but create image
     // requires an ID
@@ -373,6 +405,7 @@ export function CreateImageSideModalForm() {
       path: { snapshot: snapshotName },
       query: { project },
     })
+    abortController.current?.signal.throwIfAborted()
 
     // TODO: we checked at the beginning that the image name was free, but it
     // could be taken during upload. If this fails with object already exists,
@@ -390,11 +423,14 @@ export function CreateImageSideModalForm() {
         source: { type: 'snapshot', id: snapshot.current.id },
       },
     })
+    abortController.current?.signal.throwIfAborted()
 
     queryClient.invalidateQueries('imageList')
 
-    // now delete the snapshot and the disk
-    await cleanup()
+    // now delete the snapshot and the disk. don't use cleanup() because that
+    // uses different mutations
+    await deleteSnapshot.mutateAsync({ path: { snapshot: snapshot.current.id } })
+    await deleteDisk.mutateAsync({ path: { disk: disk.current.id } })
 
     setAllDone(true)
   }
@@ -437,19 +473,16 @@ export function CreateImageSideModalForm() {
         try {
           await onSubmit(values)
         } catch (e) {
-          if (e === BULK_UPLOAD_ABORT) {
-            // most likely a manual cancel
-            console.log('upload step canceled')
+          if (e !== ABORT_ERROR) {
+            setModalError('Something went wrong. Please try again.')
           }
-
-          console.log(e)
           cancelEverything()
-          setSyntheticUploadState({ isLoading: false, isSuccess: false, isError: false })
+          // user canceled
           await cleanup()
           // TODO: if we get here, show failure state in the upload modal
         }
       }}
-      loading={loading}
+      loading={formLoading}
       submitError={formError}
       submitLabel={allDone ? 'Done' : 'Upload image'}
     >
@@ -546,20 +579,22 @@ export function CreateImageSideModalForm() {
                     </div>
                   </Modal.Section>
                 </Modal.Body>
-                {/*
-                 * TODO: Modal.Footer needs reworking for this to be made correct.
-                 * onDismiss works ok because closeModal is aware of whether
-                 * we are done. The problem is we don't actually need a Done button until
-                 * we're done. So IMO this should be one button, and it's cancel while the
-                 * thing is going, and turns to done once it's done.
-                 */}
+                {/* TODO: rework Modal.Footer to let us write the buttons inline here instead of passing all these props */}
                 <Modal.Footer
                   onDismiss={closeModal}
                   onAction={() => navigate(pb.projectImages({ project }))}
                   actionText="Done"
+                  cancelText={modalError ? 'Back' : 'Cancel'}
                   disabled={!allDone}
                 >
-                  {/* TODO: show error state info here on error? */}
+                  {/* TODO: style success message better */}
+                  {allDone && <div>Image created!</div>}
+                  {modalError && (
+                    <div className="mr-4 flex grow items-start text-mono-sm text-error">
+                      <Error12Icon className="mx-2 mt-0.5 shrink-0" />
+                      <span>{modalError}</span>
+                    </div>
+                  )}
                 </Modal.Footer>
               </Modal>
             )}

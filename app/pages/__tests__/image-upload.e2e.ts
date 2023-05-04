@@ -187,12 +187,12 @@ test('Image upload cancel and retry', async ({ page }) => {
   // resubmit and it should work fine
   await page.click('role=button[name="Upload image"]')
   await expectUploadProcess(page)
-
-  // TODO: go to disks and make sure the tmp one got cleaned up
-  // await page.click('role=link[name="Disks"]')
-  // await expectVisible(page, ['role=cell[name="disk-1"]'])
-  // await expectNotVisible(page, ['role=cell[name=tmp]'])
 })
+
+// TODO: these tests
+
+// TODO: how am I supposed to get it to fail in an arbitrary step
+// test('Image upload with failure in step X')
 
 // test('Image upload with name taken during upload', async ({ page }) => {})
 

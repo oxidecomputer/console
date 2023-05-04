@@ -106,6 +106,7 @@ Modal.Footer = ({
   onAction,
   actionType = 'primary',
   actionText,
+  cancelText,
   disabled = false,
 }: {
   children?: React.ReactNode
@@ -113,13 +114,14 @@ Modal.Footer = ({
   onAction: () => void
   actionType?: 'primary' | 'danger'
   actionText: React.ReactNode
+  cancelText?: string
   disabled?: boolean
 }) => (
-  <footer className="flex justify-end border-t px-3 py-3 border-secondary">
+  <footer className="flex items-center justify-between border-t px-3 py-3 border-secondary">
     <div>{children}</div>
     <div className="space-x-2">
       <Button variant="secondary" size="sm" onClick={onDismiss}>
-        Cancel
+        {cancelText || 'Cancel'}
       </Button>
       <Button size="sm" variant={actionType} onClick={onAction} disabled={disabled}>
         {actionText}
