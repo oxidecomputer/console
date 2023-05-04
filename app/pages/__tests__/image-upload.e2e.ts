@@ -16,6 +16,30 @@ async function chooseFile(page: Page, size = 10 * MiB) {
   })
 }
 
+// playwright isn't quick enough to catch each step going from ready to running
+// to complete in time, so we just assert that they all start out ready and end
+// up complete
+async function expectUploadProcess(page: Page) {
+  const steps = page.locator('div[data-status]')
+
+  for (const step of await steps.all()) {
+    await expect(step).toHaveAttribute('data-status', 'ready')
+  }
+
+  // check these here instead of first because if we don't look for the ready
+  // states right away we won't catch them in time
+  await expectVisible(page, ['role=heading[name="Image upload progress"]'])
+  const done = page.locator('role=dialog >> role=button[name="Done"]')
+  await expect(done).toBeDisabled()
+
+  for (const step of await steps.all()) {
+    await expect(step).toHaveAttribute('data-status', 'complete')
+  }
+
+  await expect(done).toBeEnabled()
+  await done.click()
+}
+
 test('Image upload happy path', async ({ page }) => {
   await page.goto('/projects/mock-project/images')
   await expectNotVisible(page, [
@@ -35,28 +59,8 @@ test('Image upload happy path', async ({ page }) => {
 
   await page.click('role=button[name="Upload image"]')
 
-  // now the modal pops open and the thing starts going. playwright isn't quick
-  // enough to catch each step going from ready to running to complete in time,
-  // so we just assert that they all start out ready and end up complete
-
-  const steps = page.locator('div[data-status]')
-
-  for (const step of await steps.all()) {
-    await expect(step).toHaveAttribute('data-status', 'ready')
-  }
-
-  // check these here instead of first because if we don't look for the ready
-  // states right away we won't catch them in time
-  await expectVisible(page, ['role=heading[name="Image upload progress"]'])
-  const done = page.locator('role=dialog >> role=button[name="Done"]')
-  await expect(done).toBeDisabled()
-
-  for (const step of await steps.all()) {
-    await expect(step).toHaveAttribute('data-status', 'complete')
-  }
-
-  await expect(done).toBeEnabled()
-  await done.click()
+  // now the modal pops open and the thing starts going
+  await expectUploadProcess(page)
 
   await expect(page).toHaveURL('/projects/mock-project/images')
   await expectRowVisible(page.locator('role=table'), {
@@ -138,6 +142,51 @@ test('Image upload cancel', async ({ page }) => {
 
   // get out of the form
   await page.click('text=Cancel')
+
+  // TODO: go to disks and make sure the tmp one got cleaned up
+  // await page.click('role=link[name="Disks"]')
+  // await expectVisible(page, ['role=cell[name="disk-1"]'])
+  // await expectNotVisible(page, ['role=cell[name=tmp]'])
+})
+
+test('Image upload cancel and retry', async ({ page }) => {
+  await page.goto('/projects/mock-project/images-new')
+
+  await page.fill('role=textbox[name="Name"]', 'new-image')
+  await page.fill('role=textbox[name="Description"]', 'image description')
+  await page.fill('role=textbox[name="OS"]', 'Ubuntu')
+  await page.fill('role=textbox[name="Version"]', 'Dapper Drake')
+  await chooseFile(page)
+
+  await page.click('role=button[name="Upload image"]')
+
+  // wait to be in the middle of upload
+  const uploadStep = page
+    .locator('div[data-status]')
+    .filter({ hasText: 'Upload image file' })
+    .first()
+  await expect(uploadStep).toHaveAttribute('data-status', 'running')
+
+  // form is disabled and semi-hidden
+  await expectNotVisible(page, ['role=textbox[name="Name"]'])
+
+  page.on('dialog', (dialog) => dialog.accept()) // click yes on the are you sure prompt
+  await page.click('role=dialog >> role=button[name="Cancel"]')
+
+  // modal has closed
+  await expectNotVisible(page, ['role=heading[name="Image upload progress"]'])
+
+  // form's back
+  await expectVisible(page, [
+    'role=textbox[name="Name"]',
+    // need to wait for submit button to come back because it's in a loading
+    // state while the cleanup runs
+    'role=button[name="Upload image"]',
+  ])
+
+  // resubmit and it should work fine
+  await page.click('role=button[name="Upload image"]')
+  await expectUploadProcess(page)
 
   // TODO: go to disks and make sure the tmp one got cleaned up
   // await page.click('role=link[name="Disks"]')

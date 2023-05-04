@@ -132,6 +132,8 @@ export const handlers = makeHandlers({
   diskBulkWriteImportStart: ({ path, query }) => {
     const disk = lookup.disk({ ...path, ...query })
 
+    // throw 400
+
     if (disk.state.state !== 'import_ready') {
       throw 'Can only enter state importing_from_bulk_write from import_ready'
     }

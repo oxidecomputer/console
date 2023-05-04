@@ -1,7 +1,7 @@
 import filesize from 'filesize'
 import pMap from 'p-map'
 import pRetry from 'p-retry'
-import { useMemo, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { Controller } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import invariant from 'tiny-invariant'
@@ -75,6 +75,12 @@ type MutationState = {
   isError: boolean
 }
 
+const initSyntheticState: MutationState = {
+  isLoading: false,
+  isSuccess: false,
+  isError: false,
+}
+
 type StepProps = {
   children?: React.ReactNode
   state: MutationState
@@ -115,7 +121,6 @@ const randInt = () => Math.floor(Math.random() * 100000000)
 // TODO: do we need to distinguish between abort due to manual cancel and abort
 // due to error?
 const BULK_UPLOAD_ABORT = new Error('Upload canceled')
-const IMAGE_NAME_EXISTS = new Error('Image name already exists')
 
 /**
  * base64 encoding increases the size of the data by 1/3, so we need to
@@ -149,9 +154,26 @@ const CHUNK_SIZE = Math.floor((512 * KiB * 3) / 4)
 // Part of the problem is that I'm relying on RQ for the state of the upload
 // steps, but there's slippage with what I actually want that to represent
 
+/**
+ * Upload an image. Opens a second modal to show upload progress.
+ */
 export function CreateImageSideModalForm() {
   const navigate = useNavigate()
+  const queryClient = useApiQueryClient()
   const { project } = useProjectSelector()
+
+  // Note: abort currently only works if it fires during the upload file step.
+  // We could make it work between the other steps by calling
+  // `abortController.throwIfAborted()` after each one. We could technically
+  // plumb through the signal to the requests themselves, but they complete so
+  // quickly it's probably not necessary.
+
+  // The state in this component is very complex because we are doing a bunch of
+  // requests in order, all of which can fail, plus the whole thing can be
+  // aborted. We have the usual form state, plus an additional validation step
+  // where we check the API to make sure the name is not taken. Then, while we
+  // are submitting, we rely on the RQ mutations themselves, plus a synthetic
+  // mutation state representing the many calls of the bulk upload step.
 
   const [formError, setFormError] = useState<ErrorResult | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
@@ -160,6 +182,49 @@ export function CreateImageSideModalForm() {
   const [uploadProgress, setUploadProgress] = useState(0)
 
   const backToImages = () => navigate(pb.projectImages({ project }))
+
+  // done as ref (global var) to avoid init in onSubmit and passing it around
+  const abortController = useRef<AbortController | null>(null)
+
+  // done with everything, ready to close the modal
+  const [allDone, setAllDone] = useState(false)
+
+  const createDisk = useApiMutation('diskCreate')
+  const startImport = useApiMutation('diskBulkWriteImportStart')
+  const uploadChunk = useApiMutation('diskBulkWriteImport')
+
+  // synthetic state for upload step because it consists of multiple requests
+  const [syntheticUploadState, setSyntheticUploadState] =
+    useState<MutationState>(initSyntheticState)
+
+  const stopImport = useApiMutation('diskBulkWriteImportStop')
+  const finalizeDisk = useApiMutation('diskFinalizeImport')
+  const createImage = useApiMutation('imageCreate')
+  const deleteDisk = useApiMutation('diskDelete')
+  const deleteSnapshot = useApiMutation('snapshotDelete')
+
+  // TODO: Distinguish cleanup mutations being called after successful run vs.
+  // due to error. In the former case, they have their own steps to highlight as
+  // successful. In the latter, we do not want to highlight the steps.
+
+  const allMutations = [
+    createDisk,
+    startImport,
+    uploadChunk,
+    stopImport,
+    finalizeDisk,
+    createImage,
+    deleteDisk,
+    deleteSnapshot,
+  ]
+
+  // TODO: this is not really accurate for the form anymore
+  const loading = allMutations.some((m) => m.isLoading)
+
+  // the created snapshot and disk. presence used in cleanup to decide whether we need to
+  // attempt to delete them
+  const snapshot = useRef<Snapshot | null>(null)
+  const disk = useRef<Disk | null>(null)
 
   async function closeModal() {
     if (allDone) {
@@ -188,57 +253,11 @@ export function CreateImageSideModalForm() {
     }
   }
 
-  // done with everything, ready to close the modal
-  const [allDone, setAllDone] = useState(false)
-
-  const queryClient = useApiQueryClient()
-
-  const createDisk = useApiMutation('diskCreate')
-  const startImport = useApiMutation('diskBulkWriteImportStart')
-  const uploadChunk = useApiMutation('diskBulkWriteImport')
-
-  // synthetic state for upload step because it consists of multiple requests
-  const [syntheticUploadState, setSyntheticUploadState] = useState<MutationState>({
-    isLoading: false,
-    isSuccess: false,
-    isError: false,
-  })
-
-  const stopImport = useApiMutation('diskBulkWriteImportStop')
-  const finalizeDisk = useApiMutation('diskFinalizeImport')
-  const createImage = useApiMutation('imageCreate')
-  // we need these for cleanup
-  const deleteDisk = useApiMutation('diskDelete')
-  const deleteSnapshot = useApiMutation('snapshotDelete')
-
-  const abortController = useMemo(() => new AbortController(), [])
-
   function cancelEverything() {
-    abortController.abort(BULK_UPLOAD_ABORT)
+    abortController.current?.abort(BULK_UPLOAD_ABORT)
     allMutations.forEach((m) => m.reset())
+    setSyntheticUploadState(initSyntheticState)
   }
-
-  const allMutations = [
-    createDisk,
-    startImport,
-    uploadChunk,
-    stopImport,
-    finalizeDisk,
-    createImage,
-    deleteDisk,
-    deleteSnapshot,
-  ]
-
-  const loading = allMutations.some((m) => m.isLoading)
-  // TODO: showing the errors from here in the form is a terrible idea. "disk
-  // name already taken" is a ridiculous error message when you don't even know
-  // a disk is involved
-  const submitError = allMutations.find((m) => m.error)?.error || null
-
-  // the created snapshot and disk. presence used in cleanup to decide whether we need to
-  // attempt to delete them
-  const snapshot = useRef<Snapshot | null>(null)
-  const disk = useRef<Disk | null>(null)
 
   /** If a snapshot or disk was created, clean it up*/
   async function cleanup() {
@@ -272,16 +291,15 @@ export function CreateImageSideModalForm() {
     os,
     version,
   }: FormValues) {
-    invariant(imageFile)
+    console.log('inner', { uploadProgress })
+    invariant(imageFile) // shouldn't be possible to fail bc file is a required field
 
-    // check whether the image name is taken _before_ we do all the heavy stuff
-    const image = await queryClient
-      .fetchQuery('imageView', {
-        path: { image: imageName },
-        query: { project },
-      })
-      .catch(() => null) // we want it to error
-    if (image) throw IMAGE_NAME_EXISTS
+    // this is done up here instead of next to the upload step because after
+    // upload is canceled, a few outstanding bulk writes will complete, setting
+    // uploadProgress to non-zero values. if we do this reset down there instead
+    // of up here, cancel and retry will bring up a modal briefly showing the
+    // previous run's progress, and it resets only when bulk upload starts
+    setUploadProgress(0)
 
     setModalOpen(true)
 
@@ -314,7 +332,6 @@ export function CreateImageSideModalForm() {
     // TODO: try to warn user if they try to close the tab while this is going
 
     let chunksProcessed = 0
-    setUploadProgress(0)
 
     const postChunk = async (i: number) => {
       const offset = i * CHUNK_SIZE
@@ -340,7 +357,7 @@ export function CreateImageSideModalForm() {
       genChunks(),
       (i) => pRetry(() => postChunk(i), { retries: 2 }),
       // browser can only do 6 fetches at once, so we only read 6 chunks at once
-      { concurrency: 6, signal: abortController.signal }
+      { concurrency: 6, signal: abortController.current?.signal }
     )
     // TODO: catch non-abort error here and set synthetic state to isError: true
 
@@ -389,23 +406,37 @@ export function CreateImageSideModalForm() {
       title="Upload image"
       onDismiss={backToImages}
       onSubmit={async (values) => {
+        // every submit needs its own AbortController because they can't be
+        // reset
+        abortController.current = new AbortController()
+
+        // check that image name isn't taken before starting the whole thing
+        const image = await queryClient
+          .fetchQuery('imageView', {
+            path: { image: values.imageName },
+            query: { project },
+          })
+          .catch((e) => {
+            // eat a 404 since that's what we want. anything else should still blow up
+            if (e.statusCode === 404) return null
+            throw e
+          })
+        if (image) {
+          // TODO: set this error on the field instead of the whole form
+          const message = 'Image name already exists'
+          setFormError({
+            type: 'client_error',
+            error: { name: 'ObjectAlreadyExists', message },
+            text: message,
+            statusCode: 200,
+            headers: new Headers(),
+          })
+          return
+        }
+
         try {
           await onSubmit(values)
         } catch (e) {
-          // TODO: this is ridiculous, come on. a) set the error on the field, not the whole form.
-          // b) do this call before onSubmit, maybe even in a validation function
-          if (e === IMAGE_NAME_EXISTS) {
-            const message = 'Image name already exists'
-            setFormError({
-              type: 'client_error',
-              error: { name: 'ObjectAlreadyExists', message },
-              text: message,
-              statusCode: 200,
-              headers: new Headers(),
-            })
-            return
-          }
-
           if (e === BULK_UPLOAD_ABORT) {
             // most likely a manual cancel
             console.log('upload step canceled')
@@ -419,7 +450,7 @@ export function CreateImageSideModalForm() {
         }
       }}
       loading={loading}
-      submitError={submitError || formError}
+      submitError={formError}
       submitLabel={allDone ? 'Done' : 'Upload image'}
     >
       {({ control, watch }) => {
