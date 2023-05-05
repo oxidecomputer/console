@@ -117,6 +117,25 @@ function Step({ children, state, label }: StepProps) {
 
 const randInt = () => Math.floor(Math.random() * 100000000)
 
+function getTmpDiskName(imageName: string) {
+  if (process.env.NODE_ENV === 'development') {
+    // this is only here for testing purposes. because we normally generate a
+    // random tmp disk name, we have to not do that if we want to pass special
+    // values to MSW to get it to do error things for us. If we pass special
+    // values as the image name, use the same value as the disk name and we'll
+    // do the right thing in
+    const specialNames = new Set([
+      'disk-create-500',
+      'import-start-500',
+      'import-stop-500',
+      'disk-finalize-500',
+    ])
+    if (specialNames.has(imageName)) return imageName
+  }
+
+  return `tmp-for-image-${randInt()}`
+}
+
 // TODO: do we need to distinguish between abort due to manual cancel and abort
 // due to error?
 const ABORT_ERROR = new Error('Upload canceled')
@@ -303,6 +322,7 @@ export function CreateImageSideModalForm() {
         await finalizeDiskCleanup.mutateAsync({ path, body: {} })
       }
       if (diskState === 'import_ready') {
+        // TODO: if this fails, there's no way to delete the disk. tell user?
         await finalizeDiskCleanup.mutateAsync({ path, body: {} })
       }
       await deleteDiskCleanup.mutateAsync({ path: { disk: disk.current.id } })
@@ -331,7 +351,7 @@ export function CreateImageSideModalForm() {
     setModalOpen(true)
 
     // Create a disk in state import-ready
-    const diskName = `tmp-for-image-${randInt()}`
+    const diskName = getTmpDiskName(imageName)
     disk.current = await createDisk.mutateAsync({
       query: { project },
       body: {
@@ -551,7 +571,7 @@ export function CreateImageSideModalForm() {
                   <Modal.Section className="!p-0">
                     <div className="children:border-b children:border-b-secondary last:children:border-b-0">
                       <Step state={createDisk} label="Create temporary disk" />
-                      <Step state={startImport} label="Set disk to import mode" />
+                      <Step state={startImport} label="Put disk in import mode" />
                       <Step state={syntheticUploadState} label="Upload image file">
                         <div className="rounded-lg border bg-default border-default">
                           <div className="flex justify-between border-b p-3 pb-2 border-b-secondary">

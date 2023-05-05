@@ -195,19 +195,49 @@ test.describe('Image upload', () => {
     await page.click('role=button[name="Upload image"]')
     await expectUploadProcess(page)
   })
+
+  const failureCases = [
+    { imageName: 'disk-create-500', stepText: 'Create temporary disk' },
+    { imageName: 'import-start-500', stepText: 'Put disk in import mode' },
+    { imageName: 'import-stop-500', stepText: 'Get disk out of import mode' },
+    { imageName: 'disk-finalize-500', stepText: 'Finalize disk' },
+  ]
+
+  for (const { imageName, stepText } of failureCases) {
+    test(`failure ${imageName}`, async ({ page }) => {
+      await page.goto('/projects/mock-project/images-new')
+
+      // note special image name
+      await page.fill('role=textbox[name="Name"]', imageName)
+
+      await page.fill('role=textbox[name="Description"]', 'image description')
+      await page.fill('role=textbox[name="OS"]', 'Ubuntu')
+      await page.fill('role=textbox[name="Version"]', 'Dapper Drake')
+      await chooseFile(page)
+
+      await page.click('role=button[name="Upload image"]')
+
+      const steps = page.locator('div[data-status]')
+
+      for (const step of await steps.all()) {
+        await expect(step).toHaveAttribute('data-status', 'ready')
+      }
+
+      const step = page.locator('[data-status]').filter({ hasText: stepText }).first()
+      await expect(step).toHaveAttribute('data-status', 'error')
+      await expectVisible(page, [
+        'text="Something went wrong. Please try again."',
+        'role=button[name="Back"]',
+      ])
+    })
+  }
 })
 
 // TODO: these tests
 
-// TODO: how am I supposed to get it to fail in an arbitrary step
-// test('Image upload with failure in step X')
-
 // test('Image upload with name taken during upload', async ({ page }) => {})
-
 // test('Image upload resilient to a few errors', async ({ page }) => {})
-
 // test('Image upload fails with many errors', async ({ page }) => {
 //   // try again after failure, everything runs as expected
 // })
-
 // test('Image upload canceled, file changed, try again', async ({ page }) => {})

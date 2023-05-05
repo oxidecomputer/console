@@ -82,6 +82,8 @@ export const handlers = makeHandlers({
 
     errIfExists(db.disks, { name: body.name, project_id: project.id })
 
+    if (body.name === 'disk-create-500') throw 500
+
     const { name, description, size, disk_source } = body
     const newDisk: Json<Api.Disk> = {
       id: uuid(),
@@ -132,6 +134,8 @@ export const handlers = makeHandlers({
   diskBulkWriteImportStart: ({ path, query }) => {
     const disk = lookup.disk({ ...path, ...query })
 
+    if (disk.name === 'import-start-500') throw 500
+
     if (disk.state.state !== 'import_ready') {
       throw 'Can only enter state importing_from_bulk_write from import_ready'
     }
@@ -144,6 +148,8 @@ export const handlers = makeHandlers({
   },
   diskBulkWriteImportStop: ({ path, query }) => {
     const disk = lookup.disk({ ...path, ...query })
+
+    if (disk.name === 'import-stop-500') throw 500
 
     if (disk.state.state !== 'importing_from_bulk_writes') {
       throw 'Can only stop import for disk in state importing_from_bulk_write'
@@ -163,6 +169,8 @@ export const handlers = makeHandlers({
   },
   diskFinalizeImport: ({ path, query, body }) => {
     const disk = lookup.disk({ ...path, ...query })
+
+    if (disk.name === 'disk-finalize-500') throw 500
 
     if (disk.state.state !== 'import_ready') {
       throw `Cannot finalize disk in state ${disk.state.state}. Must be import_ready.`
