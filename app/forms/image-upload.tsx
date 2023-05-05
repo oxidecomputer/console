@@ -1,3 +1,4 @@
+import cn from 'classnames'
 import filesize from 'filesize'
 import pMap from 'p-map'
 import pRetry from 'p-retry'
@@ -104,7 +105,9 @@ function Step({ children, state, label }: StepProps) {
     <div className="items-top flex gap-2 py-3 px-4" data-status={status}>
       {/* padding on icon to align it with text since everything is aligned to top */}
       <div className="pt-px">{icon}</div>
-      <div className="w-full space-y-2 text-default">
+      <div
+        className={cn('w-full space-y-2', state.isError ? 'text-error' : 'text-default')}
+      >
         <div>{label}</div>
         {children}
       </div>
@@ -382,13 +385,19 @@ export function CreateImageSideModalForm() {
     }
 
     // will throw if aborted or if requests error out
-    await pMap(
-      genChunks(),
-      (i) => pRetry(() => postChunk(i), { retries: 2 }),
-      // browser can only do 6 fetches at once, so we only read 6 chunks at once
-      { concurrency: 6, signal: abortController.current?.signal }
-    )
-    // TODO: catch non-abort error here and set synthetic state to isError: true
+    try {
+      await pMap(
+        genChunks(),
+        (i) => pRetry(() => postChunk(i), { retries: 2 }),
+        // browser can only do 6 fetches at once, so we only read 6 chunks at once
+        { concurrency: 6, signal: abortController.current?.signal }
+      )
+    } catch (e) {
+      if (e !== ABORT_ERROR) {
+        setSyntheticUploadState({ isLoading: false, isSuccess: false, isError: true })
+      }
+      throw e // rethrow to get the usual the error handling in the wrapper function
+    }
 
     setSyntheticUploadState({ isLoading: false, isSuccess: true, isError: false })
 
@@ -461,6 +470,7 @@ export function CreateImageSideModalForm() {
           })
         if (image) {
           // TODO: set this error on the field instead of the whole form
+          // TODO: make setError available here somehow :(
           const message = 'Image name already exists'
           setFormError({
             type: 'client_error',

@@ -71,7 +71,7 @@ test.describe('Image upload', () => {
     })
   })
 
-  test.only('with name taken', async ({ page }) => {
+  test('with name taken', async ({ page }) => {
     await page.goto('/projects/mock-project/images-new')
 
     await page.fill('role=textbox[name="Name"]', 'image-1')

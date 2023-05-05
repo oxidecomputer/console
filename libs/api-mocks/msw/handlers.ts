@@ -132,11 +132,11 @@ export const handlers = makeHandlers({
   diskBulkWriteImportStart: ({ path, query }) => {
     const disk = lookup.disk({ ...path, ...query })
 
-    // throw 400
-
     if (disk.state.state !== 'import_ready') {
       throw 'Can only enter state importing_from_bulk_write from import_ready'
     }
+
+    // throw 400
 
     db.diskBulkImportState[disk.id] = { blocks: {} }
     disk.state = { state: 'importing_from_bulk_writes' }
@@ -157,7 +157,7 @@ export const handlers = makeHandlers({
     const disk = lookup.disk({ ...path, ...query })
     const diskImport = db.diskBulkImportState[disk.id]
     if (!diskImport) throw notFoundErr
-    // if (Math.random() > 0.99) throw 400
+    // if (Math.random() < 0.01) throw 400
     diskImport.blocks[body.offset] = true
     return 204
   },
