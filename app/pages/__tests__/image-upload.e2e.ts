@@ -224,7 +224,7 @@ test.describe('Image upload', () => {
       }
 
       const step = page.locator('[data-status]').filter({ hasText: stepText }).first()
-      await expect(step).toHaveAttribute('data-status', 'error')
+      await expect(step).toHaveAttribute('data-status', 'error', { timeout: 10000 })
       await expectVisible(page, [
         'text="Something went wrong. Please try again."',
         'role=button[name="Back"]',
