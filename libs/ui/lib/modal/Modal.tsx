@@ -121,7 +121,7 @@ Modal.Footer = ({
   disabled?: boolean
 }) => (
   <footer className="flex items-center justify-between border-t px-3 py-3 border-secondary">
-    <div>{children}</div>
+    <div className="mr-4">{children}</div>
     <div className="space-x-2">
       <Button variant="secondary" size="sm" onClick={onDismiss}>
         {cancelText || 'Cancel'}

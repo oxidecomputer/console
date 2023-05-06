@@ -38,6 +38,7 @@ export default function EquivalentCliCommand({ command }: { command: string }) {
           onAction={handleCopy}
           actionText={
             <>
+              {/* use of invisible keeps button the same size in both states */}
               <span className={hasCopied ? 'invisible' : ''}>Copy command</span>
               <span
                 className={`absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center ${

@@ -23,6 +23,7 @@ import { GiB, KiB } from '@oxide/util'
 
 import {
   DescriptionField,
+  ModalFooterError,
   NameField,
   RadioField,
   SideModalForm,
@@ -611,22 +612,16 @@ export function CreateImageSideModalForm() {
                     </div>
                   </Modal.Section>
                 </Modal.Body>
-                {/* TODO: rework Modal.Footer to let us write the buttons inline here instead of passing all these props */}
                 <Modal.Footer
                   onDismiss={closeModal}
-                  onAction={() => navigate(pb.projectImages({ project }))}
+                  onAction={backToImages}
                   actionText="Done"
                   cancelText={modalError ? 'Back' : 'Cancel'}
                   disabled={!allDone}
                 >
                   {/* TODO: style success message better */}
                   {allDone && <div>Image created!</div>}
-                  {modalError && (
-                    <div className="mr-4 flex grow items-start text-mono-sm text-error">
-                      <Error12Icon className="mx-2 mt-0.5 shrink-0" />
-                      <span>{modalError}</span>
-                    </div>
-                  )}
+                  {modalError && <ModalFooterError>{modalError}</ModalFooterError>}
                 </Modal.Footer>
               </Modal>
             )}
