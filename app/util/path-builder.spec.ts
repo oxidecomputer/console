@@ -29,6 +29,7 @@ test('path builder', () => {
         "project": "/projects/p",
         "projectAccess": "/projects/p/access",
         "projectEdit": "/projects/p/edit",
+        "projectImageNew": "/projects/p/images-new",
         "projectImages": "/projects/p/images",
         "projectNew": "/projects-new",
         "projects": "/projects",

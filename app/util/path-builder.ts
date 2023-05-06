@@ -17,6 +17,7 @@ export const pb = {
 
   projectAccess: (params: Project) => `${pb.project(params)}/access`,
   projectImages: (params: Project) => `${pb.project(params)}/images`,
+  projectImageNew: (params: Project) => `${pb.project(params)}/images-new`,
 
   instances: (params: Project) => `${pb.project(params)}/instances`,
   instanceNew: (params: Project) => `${pb.project(params)}/instances-new`,

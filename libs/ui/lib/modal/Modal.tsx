@@ -20,6 +20,10 @@ export type ModalProps = {
   onDismiss: () => void
 }
 
+// Note that the overlay has z-index 30 and content has 40. This is to make sure
+// both land on top of a side modal in the regrettable case where we have both
+// on screen at once.
+
 export function Modal({ children, onDismiss, title, isOpen }: ModalProps) {
   const titleId = 'modal-title'
   const AnimatedDialogContent = animated(Dialog.Content)
@@ -44,9 +48,9 @@ export function Modal({ children, onDismiss, title, isOpen }: ModalProps) {
               }}
             >
               <Dialog.Portal>
-                <Dialog.Overlay className="DialogOverlay" />
+                <Dialog.Overlay className="DialogOverlay !z-30" />
                 <AnimatedDialogContent
-                  className="DialogContent ox-modal fixed left-1/2 top-1/2 m-0 flex max-h-[min(800px,80vh)] w-[32rem] flex-col justify-between rounded-lg border p-0 bg-raise border-secondary elevation-2"
+                  className="DialogContent ox-modal fixed left-1/2 top-1/2 z-40 m-0 flex max-h-[min(800px,80vh)] w-[32rem] flex-col justify-between rounded-lg border p-0 bg-raise border-secondary elevation-2"
                   aria-labelledby={titleId}
                   style={{
                     transform: y.to((value) => `translate3d(-50%, ${-50 + value}%, 0px)`),
@@ -70,13 +74,16 @@ export function Modal({ children, onDismiss, title, isOpen }: ModalProps) {
 Modal.Title = ({ children }: { children?: React.ReactNode }) => (
   <div className="flex items-center justify-between border-b py-4 px-4 bg-secondary border-b-secondary">
     <h2 className="text-sans-semi-lg">{children}</h2>
-    <Dialog.Close className="-m-2 flex rounded p-2 hover:bg-secondary-hover">
+    <Dialog.Close
+      className="-m-2 flex rounded p-2 hover:bg-secondary-hover"
+      aria-label="Close"
+    >
       <Close12Icon />
     </Dialog.Close>
   </div>
 )
 
-Modal.Body = classed.div`py-2 overflow-y-scroll`
+Modal.Body = classed.div`py-2 overflow-y-auto`
 
 Modal.Section = classed.div`p-4 space-y-6 border-b border-secondary text-secondary last-of-type:border-none text-sans-md`
 
@@ -102,20 +109,24 @@ Modal.Footer = ({
   onAction,
   actionType = 'primary',
   actionText,
+  cancelText,
+  disabled = false,
 }: {
   children?: React.ReactNode
   onDismiss: () => void
   onAction: () => void
   actionType?: 'primary' | 'danger'
   actionText: React.ReactNode
+  cancelText?: string
+  disabled?: boolean
 }) => (
-  <footer className="flex justify-end border-t px-3 py-3 border-secondary">
-    <div>{children}</div>
+  <footer className="flex items-center justify-between border-t px-3 py-3 border-secondary">
+    <div className="mr-4">{children}</div>
     <div className="space-x-2">
       <Button variant="secondary" size="sm" onClick={onDismiss}>
-        Cancel
+        {cancelText || 'Cancel'}
       </Button>
-      <Button size="sm" variant={actionType} onClick={onAction}>
+      <Button size="sm" variant={actionType} onClick={onAction} disabled={disabled}>
         {actionText}
       </Button>
     </div>

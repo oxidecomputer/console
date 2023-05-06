@@ -12,7 +12,7 @@ import { serial } from '../serial'
 import { defaultSilo, toIdp } from '../silo'
 import { sortBySemverDesc } from '../update'
 import { user1 } from '../user'
-import { db, lookup, lookupById } from './db'
+import { db, lookup, lookupById, notFoundErr } from './db'
 import {
   NotImplemented,
   errIfExists,
@@ -82,11 +82,16 @@ export const handlers = makeHandlers({
 
     errIfExists(db.disks, { name: body.name, project_id: project.id })
 
+    if (body.name === 'disk-create-500') throw 500
+
     const { name, description, size, disk_source } = body
     const newDisk: Json<Api.Disk> = {
       id: uuid(),
       project_id: project.id,
-      state: { state: 'creating' },
+      state:
+        disk_source.type === 'importing_blocks'
+          ? { state: 'import_ready' }
+          : { state: 'creating' },
       device_path: '/mnt/disk',
       name,
       description,
@@ -126,6 +131,71 @@ export const handlers = makeHandlers({
       ),
     }
   },
+  diskBulkWriteImportStart: ({ path, query }) => {
+    const disk = lookup.disk({ ...path, ...query })
+
+    if (disk.name === 'import-start-500') throw 500
+
+    if (disk.state.state !== 'import_ready') {
+      throw 'Can only enter state importing_from_bulk_write from import_ready'
+    }
+
+    // throw 400
+
+    db.diskBulkImportState[disk.id] = { blocks: {} }
+    disk.state = { state: 'importing_from_bulk_writes' }
+    return 204
+  },
+  diskBulkWriteImportStop: ({ path, query }) => {
+    const disk = lookup.disk({ ...path, ...query })
+
+    if (disk.name === 'import-stop-500') throw 500
+
+    if (disk.state.state !== 'importing_from_bulk_writes') {
+      throw 'Can only stop import for disk in state importing_from_bulk_write'
+    }
+
+    delete db.diskBulkImportState[disk.id]
+    disk.state = { state: 'import_ready' }
+    return 204
+  },
+  diskBulkWriteImport: ({ path, query, body }) => {
+    const disk = lookup.disk({ ...path, ...query })
+    const diskImport = db.diskBulkImportState[disk.id]
+    if (!diskImport) throw notFoundErr
+    // if (Math.random() < 0.01) throw 400
+    diskImport.blocks[body.offset] = true
+    return 204
+  },
+  diskFinalizeImport: ({ path, query, body }) => {
+    const disk = lookup.disk({ ...path, ...query })
+
+    if (disk.name === 'disk-finalize-500') throw 500
+
+    if (disk.state.state !== 'import_ready') {
+      throw `Cannot finalize disk in state ${disk.state.state}. Must be import_ready.`
+    }
+
+    // for now, don't check that the file is complete. the API doesn't
+
+    disk.state = { state: 'detached' }
+
+    if (body.snapshot_name) {
+      const newSnapshot: Json<Api.Snapshot> = {
+        id: uuid(),
+        name: body.snapshot_name,
+        description: 'temporary snapshot for making an image',
+        ...getTimestamps(),
+        state: 'ready',
+        project_id: disk.project_id,
+        disk_id: disk.id,
+        size: disk.size,
+      }
+      db.snapshots.push(newSnapshot)
+    }
+
+    return 204
+  },
   systemImageList({ query }) {
     return paginated(query, db.globalImages)
   },
@@ -146,11 +216,15 @@ export const handlers = makeHandlers({
     const project = lookup.project(query)
     errIfExists(db.images, { name: body.name, project_id: project.id })
 
+    const size =
+      body.source.type === 'snapshot'
+        ? lookup.snapshot({ snapshot: body.source.id }).size
+        : 100
+
     const newImage: Json<Api.Image> = {
       id: uuid(),
       project_id: project.id,
-      // TODO: This should be calculated based off of the source
-      size: 100,
+      size,
       ...body,
       ...getTimestamps(),
     }
@@ -908,10 +982,6 @@ export const handlers = makeHandlers({
   certificateDelete: NotImplemented,
   certificateList: NotImplemented,
   certificateView: NotImplemented,
-  diskBulkWriteImport: NotImplemented,
-  diskBulkWriteImportStart: NotImplemented,
-  diskBulkWriteImportStop: NotImplemented,
-  diskFinalizeImport: NotImplemented,
   diskImportBlocksFromUrl: NotImplemented,
   instanceMigrate: NotImplemented,
   instanceSerialConsoleStream: NotImplemented,

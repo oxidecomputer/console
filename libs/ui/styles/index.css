@@ -60,6 +60,7 @@ button:focus-visible,
 [role='option']:focus-visible,
 [role='button']:focus-visible,
 input[type='text']:focus-visible,
+input[type='file']:focus-visible,
 input[type='radio']:focus-visible,
 input[type='checkbox']:focus-visible {
   @apply outline outline-2 outline-offset-0 outline-accent-secondary;
@@ -76,6 +77,7 @@ button:focus,
 [role='option']:focus,
 [role='button']:focus,
 input[type='text']:focus,
+input[type='file']:focus,
 input[type='radio']:focus,
 input[type='checkbox']:focus {
   @apply outline outline-2 outline-offset-0 outline-accent-secondary;
