@@ -47,7 +47,7 @@ export default defineConfig(({ mode }) => ({
           mode === 'development' ? ['./libs/babel-transform-react-display-name'] : [],
       },
     }),
-    dotPathFixPlugin([new RegExp('^/sys/update/updates/' + semverRegex)]),
+    dotPathFixPlugin([new RegExp('^/system/update/updates/' + semverRegex)]),
   ],
   resolve: {
     // turn relative paths from tsconfig into absolute paths

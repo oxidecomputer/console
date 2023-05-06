@@ -89,7 +89,7 @@ export const routes = createRoutesFromElements(
         </Route>
       </Route>
 
-      <Route path="sys" element={<SystemLayout />} loader={SystemLayout.loader}>
+      <Route path="system" element={<SystemLayout />} loader={SystemLayout.loader}>
         <Route
           element={<SilosPage />}
           loader={SilosPage.loader}
