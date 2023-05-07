@@ -55,11 +55,14 @@ const shaUrl = `https://dl.oxide.computer/releases/console/${newCommit}.sha256.t
 const shaResp = await fetch(shaUrl)
 
 if (!shaResp.ok) {
-  // most likely the CI job that builds and uploads the file hasn't finished
-  console.error('Failed to fetch', shaUrl)
+  console.error(
+    `Failed to fetch console tarball SHA. Either the current commit has not been
+pushed to origin/main or the CI job that uploads the assets is still running.\n`
+  )
+  console.error('URL:', shaUrl)
   console.error('Status:', shaResp.status)
   console.error('Body:', await shaResp.text())
-  Deno.exit()
+  Deno.exit(1)
 }
 
 const newSha2 = (await shaResp.text()).trim()
