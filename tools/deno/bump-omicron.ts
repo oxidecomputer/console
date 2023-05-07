@@ -23,7 +23,8 @@ function run(cmd: string, args: string[]): string {
 
 const args = flags.parse(Deno.args, {
   alias: { dryRun: ['d', 'dry-run'], h: 'help', m: 'message' },
-  boolean: ['dryRun', 'help', 'message'],
+  boolean: ['dryRun', 'help'],
+  string: ['message'],
 })
 
 if (args.help) {
@@ -40,9 +41,9 @@ Usage:
   ./tools/deno/bump-omicron.ts [options]
 
 Options:
-  -d, --dry-run   Dry run, showing changes without creating PR
-  -h, --help      Show this help message
-  -m, --message   Add message to PR title: 'Bump web console (message)'
+  -d, --dry-run        Dry run, showing changes without creating PR
+  -h, --help           Show this help message
+  -m, --message <msg>  Add message to PR title: 'Bump web console (<msg>)'
 `
   )
   Deno.exit()
