@@ -19,6 +19,21 @@ function run(cmd: string, args: string[]): string {
   return new TextDecoder().decode(stdout).trim()
 }
 
+function getUploadAssetsWorkflowId() {
+  return run('gh', [
+    'run',
+    'list',
+    '-L',
+    '1',
+    '-w',
+    'Upload assets to dl.oxide.computer',
+    '--json',
+    'databaseId',
+    '--jq',
+    '.[0].databaseId',
+  ])
+}
+
 // script starts here
 
 const args = flags.parse(Deno.args, {
@@ -56,8 +71,11 @@ const shaResp = await fetch(shaUrl)
 
 if (!shaResp.ok) {
   console.error(
-    `Failed to fetch console tarball SHA. Either the current commit has not been
-pushed to origin/main or the CI job that uploads the assets is still running.\n`
+    `
+Failed to fetch console tarball SHA. Either the current commit has not been pushed to origin/main or the CI job that uploads the assets is still running.
+
+Run 'gh run watch ${getUploadAssetsWorkflowId()}' to watch the latest asset upload action.
+`
   )
   console.error('URL:', shaUrl)
   console.error('Status:', shaResp.status)
