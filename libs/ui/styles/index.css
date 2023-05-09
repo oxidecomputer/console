@@ -7,6 +7,8 @@
 @import '@oxide/design-system/styles/dist/main.css';
 @import './themes/selection.css';
 
+@import 'xterm/css/xterm.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react'
 import type { ITerminalOptions } from 'xterm'
 import { Terminal as XTerm } from 'xterm'
 import { FitAddon } from 'xterm-addon-fit'
-import 'xterm/css/xterm.css'
 
 import { DirectionDownIcon, DirectionUpIcon } from '@oxide/ui'
 import { classed } from '@oxide/util'
