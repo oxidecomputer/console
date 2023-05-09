@@ -16,14 +16,11 @@ import { server } from './server'
 expect.extend(matchers)
 
 // make TS not be confused by the jest matchers being on the vitest expect
-declare global {
-  // eslint-disable-next-line @typescript-eslint/no-namespace
-  namespace Vi {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    interface JestAssertion<T = any>
-      extends jest.Matchers<void, T>,
-        TestingLibraryMatchers<T, void> {}
-  }
+declare module 'vitest' {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  interface JestAssertion<T = any>
+    extends jest.Matchers<void, T>,
+      TestingLibraryMatchers<T, void> {}
 }
 
 beforeAll(() => server.listen())
