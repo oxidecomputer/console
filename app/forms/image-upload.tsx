@@ -486,7 +486,12 @@ export function CreateImageSideModalForm() {
           })
           .catch((e) => {
             // eat a 404 since that's what we want. anything else should still blow up
-            if (e.statusCode === 404) return null
+            if (e.statusCode === 404) {
+              console.log(
+                '/api/v1/images 404 is expected. It means the image name is not taken.'
+              )
+              return null
+            }
             throw e
           })
         if (image) {
