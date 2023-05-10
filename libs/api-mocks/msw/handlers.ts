@@ -196,9 +196,6 @@ export const handlers = makeHandlers({
 
     return 204
   },
-  systemImageList({ query }) {
-    return paginated(query, db.globalImages)
-  },
   imageList({ query }) {
     // This is a workaround for the fact that we have no concept of global
     // images yet. The instance create e2e test creates a project that has no
@@ -1008,8 +1005,6 @@ export const handlers = makeHandlers({
   rackView: NotImplemented,
   roleList: NotImplemented,
   roleView: NotImplemented,
-  sagaList: NotImplemented,
-  sagaView: NotImplemented,
   siloPolicyUpdate: NotImplemented,
   siloPolicyView: NotImplemented,
   siloUserList: NotImplemented,
@@ -1017,11 +1012,6 @@ export const handlers = makeHandlers({
   sledView: NotImplemented,
   systemPolicyUpdate: NotImplemented,
 
-  systemImageViewById: NotImplemented,
-  systemImageCreate: NotImplemented,
-
-  systemImageView: NotImplemented,
-  systemImageDelete: NotImplemented,
   userBuiltinList: NotImplemented,
   userBuiltinView: NotImplemented,
 })
