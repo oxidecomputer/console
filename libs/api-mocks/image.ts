@@ -5,7 +5,6 @@ import type { Json } from './json-type'
 import { project } from './project'
 
 const base = {
-  project_id: project.id,
   time_created: new Date().toISOString(),
   time_modified: new Date().toISOString(),
   block_size: 4096,
@@ -29,6 +28,7 @@ export const images: Json<Image>[] = [
     size: 5 * GiB,
     os: 'alpine',
     version: 'edge2',
+    project_id: project.id,
     ...base,
   },
   {
@@ -38,6 +38,7 @@ export const images: Json<Image>[] = [
     size: 6 * GiB,
     os: 'alpine',
     version: 'edge3',
+    project_id: project.id,
     ...base,
   },
   {
@@ -47,6 +48,7 @@ export const images: Json<Image>[] = [
     size: 7 * GiB,
     os: 'alpine',
     version: 'edge4',
+    project_id: project.id,
     ...base,
   },
 ]
