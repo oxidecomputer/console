@@ -1,3 +1,4 @@
+import { differenceInSeconds } from 'date-fns'
 import { v4 as uuid } from 'uuid'
 
 import type { ApiTypes as Api, UpdateDeployment } from '@oxide/api'
@@ -15,6 +16,7 @@ import { user1 } from '../user'
 import { db, lookup, lookupById, notFoundErr } from './db'
 import {
   NotImplemented,
+  Rando,
   errIfExists,
   errIfInvalidDiskSize,
   getStartAndEndTime,
@@ -968,9 +970,63 @@ export const handlers = makeHandlers({
 
     if (endTime <= startTime) return { items: [] }
 
+    function generateUtilization() {
+      const { abs, floor } = Math
+      const metricNameSeed = Array.from(params.path.metricName).reduce(
+        (acc, char) => acc + char.charCodeAt(0),
+        0
+      )
+
+      const rando = new Rando(startTime.getTime() + metricNameSeed)
+      const diff = abs(differenceInSeconds(startTime, endTime))
+
+      // How many half hour chunks in the date range
+      // Use that as how often to offset the data to seem
+      // more realistic
+      const timeInterval = diff / 900
+
+      // If the data is the following length
+      const dataCount = 1000
+      // How far along the array should we do something
+      const valueInterval = floor(dataCount / timeInterval)
+
+      // Pick a reasonable start value
+      const startVal = cap / 4
+      const values = new Array(dataCount)
+      values[0] = startVal
+
+      let x = 0
+      for (let i = 1; i < values.length; i++) {
+        values[i] = values[i - 1]
+
+        if (x === valueInterval) {
+          // Do something 3/4 of the time
+          let offset = 0
+          const random = rando.next()
+
+          if (random < 0.75) {
+            const amount = params.path.metricName === 'cpus_provisioned' ? 24 : 24000000000
+            offset = floor(random * amount)
+
+            if (random < 0.25) {
+              offset = offset * -1
+            }
+          }
+
+          values[i] += offset
+          x = 0
+        } else {
+          x++
+        }
+      }
+
+      return values
+    }
+
     return {
       items: genI64Data(
-        new Array(1000).fill(0).map((x, i) => Math.floor(Math.tanh(i / 500) * cap)),
+        // new Array(1000).fill(0).map((x, i) => Math.floor(Math.tanh(i / 500) * cap)),
+        generateUtilization(),
         startTime,
         endTime
       ),
