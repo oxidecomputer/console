@@ -15,6 +15,7 @@ export type ListboxFieldProps<
   TName extends FieldPath<TFieldValues>
 > = {
   name: TName
+  placeholder?: string
   className?: string
   label?: string
   required?: boolean
@@ -32,6 +33,7 @@ export function ListboxField<
 >({
   items,
   name,
+  placeholder,
   label = capitalize(name),
   disabled,
   required,
@@ -59,6 +61,7 @@ export function ListboxField<
         render={({ field, fieldState: { error } }) => (
           <>
             <Listbox
+              placeholder={placeholder}
               defaultValue={field.value}
               items={items}
               onChange={(i) => {

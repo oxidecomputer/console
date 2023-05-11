@@ -74,34 +74,37 @@ export const Listbox = ({
           `flex h-10 w-full items-center justify-between
           rounded border px-3 text-sans-md`,
           hasError ? 'focus-error border-destructive' : 'border-default',
-          select.isOpen
-            ? `ring-2 ${hasError ? 'ring-destructive-secondary' : 'ring-accent-secondary'}`
-            : 'text-default',
-          props.disabled
-            ? 'cursor-not-allowed text-quaternary bg-disabled'
-            : 'text-secondary bg-default'
+          select.isOpen && 'ring-2 ring-accent-secondary',
+          props.disabled ? 'cursor-not-allowed text-disabled bg-disabled' : 'bg-default'
         )}
         {...select.getToggleButtonProps()}
         {...props}
       >
-        <span>{select.selectedItem ? itemToString(select.selectedItem) : placeholder}</span>
+        {select.selectedItem ? (
+          <span>{itemToString(select.selectedItem)}</span>
+        ) : (
+          <span className="text-quaternary">{placeholder}</span>
+        )}
 
         <div className="ml-3 flex h-[calc(100%-12px)] items-center border-l border-secondary">
           <SelectArrows6Icon title="Select" className="ml-3 w-2 text-tertiary" />
         </div>
       </button>
       <ul
-        className={cn('ox-menu !children:border-b-secondary', select.isOpen && 'border')}
+        className={cn(
+          'ox-menu mt-3 overflow-y-auto !outline-none',
+          !select.isOpen && 'hidden'
+        )}
         {...select.getMenuProps()}
       >
         {select.isOpen &&
           items.map((item, index) => (
-            <div key={index} className="relative">
+            <div key={index} className="relative border-b border-secondary last:border-0">
               <li
                 key={item.value}
                 className={cn('ox-menu-item', {
                   'is-selected': select.selectedItem?.value === item.value,
-                  'bg-raise-hover': select.highlightedIndex === index,
+                  'is-highlighted': select.highlightedIndex === index,
                 })}
                 {...select.getItemProps({ item, index })}
               >
