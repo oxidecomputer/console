@@ -46,11 +46,11 @@ const ProjectLayout = ({ overrideContentPane }: ProjectLayoutProps) => {
       () =>
         [
           { value: 'Instances', path: 'instances' },
-          { value: 'Snapshots', path: 'snapshots' },
           { value: 'Disks', path: 'disks' },
-          { value: 'Access & IAM', path: 'access' },
+          { value: 'Snapshots', path: 'snapshots' },
           { value: 'Images', path: 'images' },
           { value: 'Networking', path: 'vpcs' },
+          { value: 'Access & IAM', path: 'access' },
         ]
           // filter out the entry for the path we're currently on
           .filter((i) => !matchPath(`${projectPathPattern}/${i.path}`, currentPath))
@@ -84,20 +84,20 @@ const ProjectLayout = ({ overrideContentPane }: ProjectLayoutProps) => {
           <NavLinkItem to={pb.instances(projectSelector)}>
             <Instances16Icon /> Instances
           </NavLinkItem>
-          <NavLinkItem to={pb.snapshots(projectSelector)}>
-            <Snapshots16Icon /> Snapshots
-          </NavLinkItem>
           <NavLinkItem to={pb.disks(projectSelector)}>
             <Storage16Icon /> Disks
           </NavLinkItem>
-          <NavLinkItem to={pb.projectAccess(projectSelector)}>
-            <Access16Icon title="Access & IAM" /> Access &amp; IAM
+          <NavLinkItem to={pb.snapshots(projectSelector)}>
+            <Snapshots16Icon /> Snapshots
           </NavLinkItem>
           <NavLinkItem to={pb.projectImages(projectSelector)}>
             <Images16Icon title="images" /> Images
           </NavLinkItem>
           <NavLinkItem to={pb.vpcs(projectSelector)}>
             <Networking16Icon /> Networking
+          </NavLinkItem>
+          <NavLinkItem to={pb.projectAccess(projectSelector)}>
+            <Access16Icon title="Access & IAM" /> Access &amp; IAM
           </NavLinkItem>
         </Sidebar.Nav>
       </Sidebar>
