@@ -25,7 +25,7 @@ export function SiloImagesPage() {
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<Images24Icon />}>Images</PageTitle>
+        <PageTitle icon={<Images24Icon />}>Silo Images</PageTitle>
       </PageHeader>
       <Table emptyState={<EmptyState />}>
         <Column accessor="name" />
