@@ -9,7 +9,6 @@ import { useQueryTable } from '@oxide/table'
 import {
   Badge,
   Button,
-  Delete16Icon,
   EmptyMessage,
   Networking24Icon,
   OpenLink12Icon,
@@ -94,7 +93,6 @@ export function NetworkingTab() {
     onSuccess() {
       queryClient.invalidateQueries(...getQuery)
       addToast({
-        icon: <Delete16Icon />,
         title: 'Network interface deleted',
       })
     },

@@ -17,7 +17,6 @@ import {
   Images16Icon,
   Instances24Icon,
   RadioCard,
-  Success12Icon,
   Tabs,
   TextInputHint,
 } from '@oxide/ui'
@@ -99,9 +98,7 @@ export function CreateInstanceForm() {
         instance
       )
       addToast({
-        icon: <Success12Icon />,
-        title: 'Success!',
-        content: 'Your instance has been created.',
+        content: 'Your instance has been created',
       })
       navigate(pb.instancePage({ ...projectSelector, instance: instance.name }))
     },

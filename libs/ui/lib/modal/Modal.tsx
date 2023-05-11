@@ -85,7 +85,7 @@ Modal.Title = ({ children }: { children?: React.ReactNode }) => (
 
 Modal.Body = classed.div`py-2 overflow-y-auto`
 
-Modal.Section = classed.div`p-4 space-y-6 border-b border-secondary text-secondary last-of-type:border-none text-sans-md`
+Modal.Section = classed.div`p-4 space-y-4 border-b border-secondary text-secondary last-of-type:border-none text-sans-md`
 
 Modal.Docs = ({ children }: { children?: React.ReactNode }) => (
   <Modal.Section>
