@@ -1,7 +1,9 @@
-import runMockAPI from '../app/test/e2e/global-setup'
+import { createServer } from '@mswjs/http-middleware'
+
+import { handlers } from '@oxide/api-mocks'
 
 // TODO: take port argument
-runMockAPI()
+createServer(...handlers).listen(12220)
 
 console.log('Mock Nexus API running at http://localhost:12220')
 

@@ -26,9 +26,18 @@ const grepFiles = (s: string) =>
 
 it('@oxide/api-mocks is only referenced in test files', () => {
   const files = grepFiles("from '@oxide/api-mocks'")
-  for (const file of files) {
-    expect(file).toMatch(/__tests__\/|app\/test\/|\.spec\.|tsconfig|api-mocks/)
-  }
+  expect(files).toMatchInlineSnapshot(`
+    [
+      "app/pages/__tests__/instance-create.e2e.ts",
+      "app/pages/__tests__/project-access.e2e.ts",
+      "app/pages/__tests__/silo-access.e2e.ts",
+      "app/test/unit/server.ts",
+      "app/test/unit/setup.ts",
+      "libs/api-mocks/msw/db.ts",
+      "libs/api/__tests__/hooks.spec.tsx",
+      "tools/start_mock_api.ts",
+    ]
+  `)
 })
 
 // findByRole is too slow: the getByRole query is usually longer than the
