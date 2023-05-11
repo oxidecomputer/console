@@ -636,7 +636,7 @@ export function CreateImageSideModalForm() {
                   onDismiss={closeModal}
                   onAction={backToImages}
                   actionText="Done"
-                  cancelText={modalError || allDone ? 'Close' : 'Cancel'}
+                  cancelText={modalError || allDone ? 'Back' : 'Cancel'}
                   disabled={!allDone}
                 />
               </Modal>
