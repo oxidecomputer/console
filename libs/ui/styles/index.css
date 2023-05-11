@@ -64,7 +64,8 @@ button:focus-visible,
 input[type='text']:focus-visible,
 input[type='file']:focus-visible,
 input[type='radio']:focus-visible,
-input[type='checkbox']:focus-visible {
+input[type='checkbox']:focus-visible,
+input[type='number']:focus-visible {
   @apply outline outline-2 outline-offset-0 outline-accent-secondary;
 
   &.focus-error {
@@ -81,7 +82,8 @@ button:focus,
 input[type='text']:focus,
 input[type='file']:focus,
 input[type='radio']:focus,
-input[type='checkbox']:focus {
+input[type='checkbox']:focus,
+input[type='number']:focus {
   @apply outline outline-2 outline-offset-0 outline-accent-secondary;
 
   &.focus-error {

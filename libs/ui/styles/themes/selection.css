@@ -6,10 +6,12 @@
  */
 .is-selected,
 :checked ~ * {
-  --content-default: var(--theme-accent-1);
-  --content-secondary: var(--theme-accent-2);
-  --content-tertiary: var(--theme-accent-1);
-  --surface-default: var(--theme-accent-5);
+  --content-default: var(--theme-accent-800);
+  --content-secondary: var(--theme-accent-700);
+  --content-tertiary: var(--theme-accent-700);
+  --content-quaternary: var(--theme-accent-600);
+  --content-quinary: var(--theme-accent-500);
+  --surface-default: var(--theme-accent-300);
   --stroke-secondary: var(--stroke-accent-secondary);
   --stroke-surface: var(--surface-default);
   --surface-raise: var(--theme-accent-4);
