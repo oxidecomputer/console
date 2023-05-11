@@ -1,10 +1,10 @@
 import * as Dialog from '@radix-ui/react-dialog'
 import { animated, useTransition } from '@react-spring/web'
-import React from 'react'
+import React, { type ReactNode } from 'react'
 
 import { classed } from '@oxide/util'
 
-import { OpenLink12Icon } from '../icons'
+import { Error12Icon, OpenLink12Icon } from '../icons'
 import './side-modal.css'
 
 export type SideModalProps = {
@@ -12,6 +12,7 @@ export type SideModalProps = {
   onDismiss: () => void
   isOpen: boolean
   children?: React.ReactNode
+  error?: string[]
   /**
    * Whether the modal should animate in. It never animates out. Default `true`.
    * Used to prevent animation from firing when we show the modal directly on a
@@ -26,6 +27,7 @@ export function SideModal({
   title,
   isOpen,
   animate = true,
+  error,
 }: SideModalProps) {
   const titleId = 'side-modal-title'
   const AnimatedDialogContent = animated(Dialog.Content)
@@ -58,7 +60,14 @@ export function SideModal({
             >
               {title && (
                 <Dialog.Title asChild>
-                  <SideModal.Title id={titleId}>{title}</SideModal.Title>
+                  <>
+                    <SideModal.Title>{title}</SideModal.Title>
+                    {error && (
+                      <div className="mb-6 rounded p-3 text-sans-md text-error bg-error-secondary elevation-1">
+                        {error[0]}
+                      </div>
+                    )}
+                  </>
                 </Dialog.Title>
               )}
               {children}
@@ -69,13 +78,13 @@ export function SideModal({
   )
 }
 
-SideModal.Title = classed.h2`mt-8 mb-12 text-sans-2xl`
+SideModal.Title = classed.h2`mt-8 mb-8 text-sans-2xl`
 
 SideModal.Body = classed.div`body relative overflow-y-auto h-full pb-6`
 
 SideModal.Section = classed.div`p-8 space-y-6 border-secondary`
 
-SideModal.Docs = ({ children }: { children?: React.ReactNode }) => (
+SideModal.Docs = ({ children }: { children?: ReactNode }) => (
   <SideModal.Section>
     <div>
       <h3 className="mb-2 text-sans-semi-md">Relevant docs</h3>
@@ -91,4 +100,14 @@ SideModal.Docs = ({ children }: { children?: React.ReactNode }) => (
   </SideModal.Section>
 )
 
-SideModal.Footer = classed.footer`flex py-5 border-t border-secondary`
+SideModal.Footer = ({ children, error }: { children: ReactNode; error: boolean }) => (
+  <footer className="flex w-full items-center justify-end gap-[0.625rem] border-t py-5 border-secondary children:shrink-0">
+    {error && (
+      <div className="flex grow items-center gap-1.5 text-sans-md text-error">
+        <Error12Icon className="shrink-0" />
+        <span>Error</span>
+      </div>
+    )}
+    {children}
+  </footer>
+)
