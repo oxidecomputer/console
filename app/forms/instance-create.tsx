@@ -13,6 +13,8 @@ import {
 } from '@oxide/api'
 import {
   Divider,
+  EmptyMessage,
+  Images16Icon,
   Instances24Icon,
   RadioCard,
   Success12Icon,
@@ -235,20 +237,42 @@ export function CreateInstanceForm() {
           <Divider />
 
           <Form.Heading id="boot-disk">Boot disk</Form.Heading>
-          <Tabs.Root id="boot-disk-tabs" className="full-width" defaultValue="silo">
+          <Tabs.Root id="boot-disk-tabs" className="full-width" defaultValue="project">
             <Tabs.List aria-describedby="boot-disk">
-              <Tabs.Trigger value="silo">Silo images</Tabs.Trigger>
               <Tabs.Trigger value="project">Project images</Tabs.Trigger>
+              <Tabs.Trigger value="silo">Silo images</Tabs.Trigger>
             </Tabs.List>
-            <Tabs.Content value="silo" className="space-y-4">
-              {siloImages.length === 0 && <span>No images found</span>}
-              <ImageSelectField images={siloImages} control={control} />
+            <Tabs.Content value="project" className="space-y-4">
+              {projectImages.length === 0 ? (
+                <div className="flex max-w-lg items-center justify-center rounded-lg border p-6 border-default">
+                  <EmptyMessage
+                    icon={<Images16Icon />}
+                    title="No project images found"
+                    body="An image needs to be uploaded to be seen here"
+                    buttonText="Upload image"
+                    onClick={() => navigate(pb.projectImageNew(projectSelector))}
+                  />
+                </div>
+              ) : (
+                <ImageSelectField images={projectImages} control={control} />
+              )}
             </Tabs.Content>
-            <Tabs.Content value="project">
-              {projectImages.length === 0 && <span>No images found</span>}
-              <ImageSelectField images={projectImages} control={control} />
+            <Tabs.Content value="silo" className="space-y-4">
+              {siloImages.length === 0 ? (
+                <div className="flex max-w-lg items-center justify-center rounded-lg border p-6 border-default">
+                  <EmptyMessage
+                    icon={<Images16Icon />}
+                    title="No silo images found"
+                    body="Project images need to be promoted to be seen here"
+                  />
+                </div>
+              ) : (
+                <ImageSelectField images={siloImages} control={control} />
+              )}
             </Tabs.Content>
           </Tabs.Root>
+
+          <div className="!my-16 content-['a']"></div>
 
           <DiskSizeField label="Disk size" name="bootDiskSize" control={control} />
           <NameField
