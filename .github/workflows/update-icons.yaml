@@ -17,7 +17,7 @@ jobs:
         with:
           branch: 'update-icons'
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           ref: 'update-icons'
           fetch-depth: 0
