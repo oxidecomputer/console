@@ -1,4 +1,10 @@
-import { Access16Icon, Divider, Folder16Icon, Snapshots16Icon } from '@oxide/ui'
+import {
+  Access16Icon,
+  Divider,
+  Folder16Icon,
+  Images16Icon,
+  Snapshots16Icon,
+} from '@oxide/ui'
 
 import { DocsLinkItem, NavLinkItem, Sidebar } from 'app/components/Sidebar'
 import { TopBar } from 'app/components/TopBar'
@@ -29,6 +35,9 @@ export default function SiloLayout() {
           </NavLinkItem>
           <NavLinkItem to={pb.siloAccess()}>
             <Access16Icon /> Access & IAM
+          </NavLinkItem>
+          <NavLinkItem to={pb.siloImages()}>
+            <Images16Icon /> Images
           </NavLinkItem>
         </Sidebar.Nav>
       </Sidebar>

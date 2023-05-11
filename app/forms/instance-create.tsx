@@ -11,14 +11,7 @@ import {
   useApiQuery,
   useApiQueryClient,
 } from '@oxide/api'
-import {
-  Divider,
-  Instances24Icon,
-  RadioCard,
-  Success12Icon,
-  Tabs,
-  TextInputHint,
-} from '@oxide/ui'
+import { Divider, Instances24Icon, RadioCard, Tabs, TextInputHint } from '@oxide/ui'
 import { GiB } from '@oxide/util'
 
 import { Form, FullPageForm } from 'app/components/form'
@@ -97,9 +90,7 @@ export function CreateInstanceForm() {
         instance
       )
       addToast({
-        icon: <Success12Icon />,
-        title: 'Success!',
-        content: 'Your instance has been created.',
+        content: 'Your instance has been created',
       })
       navigate(pb.instancePage({ ...projectSelector, instance: instance.name }))
     },
