@@ -115,7 +115,7 @@ const PromoteImageModal = ({ onDismiss, imageName }: PromoteModalProps) => {
         <Modal.Section>
           <p>
             Are you sure you want to promote{' '}
-            <span className="text-sans-semi-md text-accent-secondary">{imageName}</span>?
+            <span className="text-sans-semi-md text-default">{imageName}</span>?
           </p>
           <p>Once an image has been promoted it is visible to all projects in a silo.</p>
         </Modal.Section>
