@@ -19,15 +19,16 @@ export function ImageSelectField({ images, control }: ImageSelectFieldProps) {
     <ListboxField
       control={control}
       name="image"
+      placeholder="Select an image"
       items={images.map((i) => {
         return {
           value: i.id,
-          labelString: `${i.name} (os: ${i.os}, version: ${i.version})`,
+          labelString: `${i.name} (${i.os}, ${i.version})`,
           label: (
             <>
               <div>{i.name}</div>
               <div className="text-secondary">
-                os: {i.os} / version: {i.version}
+                {i.os} <span className="text-quinary">/</span> {i.version}
               </div>
             </>
           ),

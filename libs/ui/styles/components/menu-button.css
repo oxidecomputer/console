@@ -20,7 +20,7 @@
     &[data-highlighted] {
       /* background: hsl(211, 81%, 36%); */
       outline: none;
-      @apply bg-raise-hover;
+      @apply bg-tertiary;
     }
   }
 }

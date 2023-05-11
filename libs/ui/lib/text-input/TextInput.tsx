@@ -54,8 +54,8 @@ export const TextInput = React.forwardRef<
         className={cn(
           `w-full rounded border-none py-[0.6875rem]
         px-3 !outline-offset-1 text-sans-md
-        text-default bg-default focus:outline-none
-        disabled:cursor-not-allowed disabled:text-tertiary disabled:bg-disabled`,
+        text-default bg-default placeholder:text-quaternary
+        focus:outline-none disabled:cursor-not-allowed disabled:text-tertiary disabled:bg-disabled`,
           error && 'focus-error',
           fieldClassName
         )}
