@@ -37,18 +37,10 @@ ImagesPage.loader = async ({ params }: LoaderFunctionArgs) => {
 }
 
 export function ImagesPage() {
-  const queryClient = useApiQueryClient()
   const projectSelector = useProjectSelector()
   const { Table, Column } = useQueryTable('imageList', { query: projectSelector })
-  const addToast = useToast()
 
   const [promoteImageName, setPromoteImageName] = useState<string | null>(null)
-
-  const promoteImage = useApiMutation('imagePromote', {
-    onSuccess() {
-      queryClient.invalidateQueries('imageList', { query: projectSelector })
-    },
-  })
 
   const makeActions = (image: Image): MenuAction[] => [
     {
@@ -56,43 +48,6 @@ export function ImagesPage() {
       onActivate: () => setPromoteImageName(image.name),
     },
   ]
-
-  const handlePromote = () => {
-    if (promoteImageName === null) {
-      handleError('Missing image name')
-      return
-    }
-
-    promoteImage.mutate(
-      { path: { image: promoteImageName }, query: projectSelector },
-      {
-        onSuccess: () => {
-          addToast({
-            content: 'Image has been promoted',
-            cta: {
-              text: 'View silo images',
-              link: '/images',
-            },
-          })
-          setPromoteImageName(null)
-        },
-        onError: (error) => {
-          handleError(
-            'message' in error ? (error.message as string) : 'Something went wrong'
-          )
-        },
-      }
-    )
-  }
-
-  const handleError = (error: string) => {
-    addToast({
-      title: 'Error',
-      content: error,
-      variant: 'error',
-    })
-    setPromoteImageName(null)
-  }
 
   return (
     <>
@@ -116,7 +71,6 @@ export function ImagesPage() {
       {promoteImageName && (
         <PromoteImageModal
           onDismiss={() => setPromoteImageName(null)}
-          onAction={handlePromote}
           imageName={promoteImageName}
         />
       )}
@@ -125,15 +79,35 @@ export function ImagesPage() {
   )
 }
 
-const PromoteImageModal = ({
-  onDismiss,
-  onAction,
-  imageName,
-}: {
-  onDismiss: () => void
-  onAction: () => void
-  imageName: string
-}) => {
+type PromoteModalProps = { onDismiss: () => void; imageName: string }
+
+const PromoteImageModal = ({ onDismiss, imageName }: PromoteModalProps) => {
+  const projectSelector = useProjectSelector()
+  const queryClient = useApiQueryClient()
+  const addToast = useToast()
+  const promoteImage = useApiMutation('imagePromote', {
+    onSuccess() {
+      addToast({
+        content: 'Image has been promoted',
+        cta: {
+          text: 'View silo images',
+          link: '/images',
+        },
+      })
+      queryClient.invalidateQueries('imageList', { query: projectSelector })
+    },
+    onError: (error) => {
+      const content =
+        'message' in error ? (error.message as string) : 'Something went wrong'
+      addToast({ title: 'Error', content, variant: 'error' })
+    },
+    onSettled: onDismiss,
+  })
+
+  const onAction = () => {
+    promoteImage.mutate({ path: { image: imageName }, query: projectSelector })
+  }
+
   return (
     <Modal isOpen onDismiss={onDismiss}>
       <Modal.Title>Promote image</Modal.Title>

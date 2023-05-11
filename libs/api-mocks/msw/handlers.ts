@@ -242,9 +242,8 @@ export const handlers = makeHandlers({
   },
   imagePromote({ path, query }) {
     const image = lookup.image({ ...path, ...query })
-    delete image.project_id
 
-    // throw 400
+    delete image.project_id
 
     return json(image, { status: 202 })
   },
