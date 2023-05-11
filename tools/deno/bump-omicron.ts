@@ -141,9 +141,14 @@ run('git', ['checkout', '-b', branchName])
 run('git', ['add', '--all'])
 run('git', ['commit', '-m', prTitle, '-m', prBody])
 run('git', ['push', '--set-upstream', 'origin', branchName])
+
+// create PR
 const prUrl = run('gh', ['pr', 'create', '--title', prTitle, '--body', prBody])
 console.log('PR created:', prUrl)
+
+// set it to auto merge
 const prNum = prUrl.match(/\d+$/)![0]
 console.log(run('gh', ['pr', 'merge', prNum, '--auto', '--squash']))
+
 run('git', ['checkout', 'main'])
 run('git', ['branch', '-D', branchName])
