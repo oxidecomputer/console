@@ -17,7 +17,7 @@ import {
   getActionsCol,
   useReactTable,
 } from '@oxide/table'
-import { Button, Error16Icon, OpenLink12Icon } from '@oxide/ui'
+import { Button, OpenLink12Icon } from '@oxide/ui'
 import { toPathQuery } from '@oxide/util'
 
 import { DiskStatusBadge } from 'app/components/StatusBadge'
@@ -103,7 +103,6 @@ export function StorageTab() {
     },
     onError(err) {
       addToast({
-        icon: <Error16Icon />,
         title: 'Failed to attach disk',
         content: err.error.message,
         variant: 'error',

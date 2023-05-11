@@ -18,7 +18,6 @@ import {
   PageHeader,
   PageTitle,
   Storage24Icon,
-  Success12Icon,
   TableActions,
   buttonStyle,
 } from '@oxide/ui'
@@ -80,8 +79,6 @@ export function DisksPage() {
     onSuccess() {
       queryClient.invalidateQueries('snapshotList', { query: projectSelector })
       addToast({
-        icon: <Success12Icon />,
-        title: 'Success!',
         content: 'Snapshot successfully created',
       })
     },

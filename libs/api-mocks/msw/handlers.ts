@@ -244,6 +244,8 @@ export const handlers = makeHandlers({
     const image = lookup.image({ ...path, ...query })
     delete image.project_id
 
+    // throw 400
+
     return json(image, { status: 202 })
   },
   instanceList({ query }) {

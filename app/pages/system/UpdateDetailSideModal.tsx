@@ -2,7 +2,7 @@ import type { LoaderFunctionArgs } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 
 import { apiQueryClient, componentTypeNames, useApiMutation, useApiQuery } from '@oxide/api'
-import { Badge, Hourglass16Icon, PropertiesTable, Tabs } from '@oxide/ui'
+import { Badge, PropertiesTable, Tabs } from '@oxide/ui'
 import { formatDateTime } from '@oxide/util'
 
 import { SideModalForm } from 'app/components/form'
@@ -33,7 +33,6 @@ export function UpdateDetailSideModal() {
   const startUpdate = useApiMutation('systemUpdateStart', {
     onSuccess() {
       addToast({
-        icon: <Hourglass16Icon />,
         title: 'Update starting...',
       })
       // TODO: if we have an update attempt detail view, we should probably land there.

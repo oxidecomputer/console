@@ -53,6 +53,7 @@ export const pb = {
 
   siloUtilization: () => '/utilization',
   siloAccess: () => '/access',
+  siloImages: () => '/images',
 
   system: () => '/system',
   systemIssues: () => '/system/issues',
