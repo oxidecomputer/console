@@ -2,6 +2,7 @@ import * as Dialog from '@radix-ui/react-dialog'
 import { animated, useTransition } from '@react-spring/web'
 import React, { type ReactNode } from 'react'
 
+import { Message } from '@oxide/ui'
 import { classed } from '@oxide/util'
 
 import { Error12Icon, OpenLink12Icon } from '../icons'
@@ -12,7 +13,7 @@ export type SideModalProps = {
   onDismiss: () => void
   isOpen: boolean
   children?: React.ReactNode
-  error?: string[]
+  errors?: string[]
   /**
    * Whether the modal should animate in. It never animates out. Default `true`.
    * Used to prevent animation from firing when we show the modal directly on a
@@ -27,7 +28,7 @@ export function SideModal({
   title,
   isOpen,
   animate = true,
-  error,
+  errors,
 }: SideModalProps) {
   const titleId = 'side-modal-title'
   const AnimatedDialogContent = animated(Dialog.Content)
@@ -62,9 +63,25 @@ export function SideModal({
                 <Dialog.Title asChild>
                   <>
                     <SideModal.Title>{title}</SideModal.Title>
-                    {error && (
-                      <div className="mb-6 rounded p-3 text-sans-md text-error bg-error-secondary elevation-1">
-                        {error[0]}
+                    {errors && errors.length > 0 && (
+                      <div className="mb-6">
+                        <Message
+                          variant="error"
+                          title={errors.length > 1 ? 'Errors' : 'Error'}
+                        >
+                          {errors.length === 1 ? (
+                            errors[0]
+                          ) : (
+                            <>
+                              <div>{errors.length} issues:</div>
+                              <ul className="ml-4 list-disc">
+                                {errors.map((error, idx) => (
+                                  <li key={idx}>{error}</li>
+                                ))}
+                              </ul>
+                            </>
+                          )}
+                        </Message>
                       </div>
                     )}
                   </>

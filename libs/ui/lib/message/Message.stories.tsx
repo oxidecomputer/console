@@ -1,7 +1,7 @@
 import { Message } from './Message'
 
 export const Default = () => (
-  <Message variant="success" title="Success!">
-    Body
+  <Message variant="error" title="Error">
+    Title must start with a lower-case letter
   </Message>
 )

@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { useEffect } from 'react'
 import type { FieldValues, UseFormProps, UseFormReturn } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 import { useNavigationType } from 'react-router-dom'
@@ -65,13 +66,27 @@ export function SideModalForm<TFieldValues extends FieldValues>({
    */
   const animate = useNavigationType() === 'PUSH'
 
+  useEffect(() => {
+    if (!submitError?.error || !('errorCode' in submitError.error)) return
+
+    if (submitError.error.errorCode === 'ObjectAlreadyExists') {
+      // Check if there is a 'name' field in the form
+      // If there is we set an error on it when it
+      // already exists
+      if ('name' in form.getValues()) {
+        // @ts-ignore
+        form.setError('name', { message: 'Name already exists' })
+      }
+    }
+  }, [submitError, form])
+
   return (
     <SideModal
       onDismiss={onDismiss}
       isOpen
       title={title}
       animate={animate}
-      error={
+      errors={
         submitError?.error && 'message' in submitError.error
           ? [submitError.error.message]
           : []
