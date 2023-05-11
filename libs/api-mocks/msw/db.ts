@@ -200,7 +200,6 @@ const initDb = {
   userGroups: [...mock.userGroups],
   /** Join table for `users` and `userGroups` */
   groupMemberships: [...mock.groupMemberships],
-  globalImages: [...mock.globalImages],
   images: [...mock.images],
   instances: [mock.instance],
   networkInterfaces: [mock.networkInterface],

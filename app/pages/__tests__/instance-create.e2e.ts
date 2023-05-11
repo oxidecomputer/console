@@ -1,18 +1,9 @@
 import { images } from '@oxide/api-mocks'
 
-import { expectVisible, test } from 'app/test/e2e'
-import { pb } from 'app/util/path-builder'
+import { expect, expectVisible, test } from 'app/test/e2e'
 
-test.beforeEach(async ({ createProject, projectName }) => {
-  await createProject(projectName)
-})
-
-test('can invoke instance create form from instances page', async ({
-  page,
-  projectName,
-  genName,
-}) => {
-  await page.goto(pb.instances({ project: projectName }))
+test('can create an instance', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances')
   await page.locator('text="New Instance"').click()
 
   await expectVisible(page, [
@@ -30,11 +21,11 @@ test('can invoke instance create form from instances page', async ({
     'role=button[name="Create instance"]',
   ])
 
-  const instanceName = genName('instance')
+  const instanceName = 'my-instance'
   await page.fill('input[name=name]', instanceName)
   await page.locator('.ox-radio-card').nth(3).click()
 
-  await page.fill('input[name=bootDiskName]', genName('my-boot-disk'))
+  await page.fill('input[name=bootDiskName]', 'my-boot-disk')
   await page.fill('input[name=bootDiskSize]', '20')
 
   // pick a project image just to show we can
@@ -44,7 +35,7 @@ test('can invoke instance create form from instances page', async ({
 
   await page.locator('button:has-text("Create instance")').click()
 
-  await page.waitForURL(pb.instancePage({ project: projectName, instance: instanceName }))
+  await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)
 
   await expectVisible(page, [
     `h1:has-text("${instanceName}")`,
@@ -54,7 +45,7 @@ test('can invoke instance create form from instances page', async ({
 
   // trying to create another instance with the same name produces a visible
   // error
-  await page.goto(pb.instances({ project: projectName }))
+  await page.goto('/projects/mock-project/instances')
   await page.locator('text="New Instance"').click()
   await page.fill('input[name=name]', instanceName)
   await page.locator('button:has-text("Create instance")').click()

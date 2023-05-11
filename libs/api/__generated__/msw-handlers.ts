@@ -70,24 +70,6 @@ export interface MSWHandlers {
   loginSaml: (params: { path: Api.LoginSamlPathParams }) => StatusCode
   /** `POST /logout` */
   logout: () => StatusCode
-  /** `GET /system/by-id/images/:id` */
-  systemImageViewById: (params: {
-    path: Api.SystemImageViewByIdPathParams
-  }) => HandlerResult<Api.GlobalImage>
-  /** `GET /system/images` */
-  systemImageList: (params: {
-    query: Api.SystemImageListQueryParams
-  }) => HandlerResult<Api.GlobalImageResultsPage>
-  /** `POST /system/images` */
-  systemImageCreate: (params: {
-    body: Json<Api.GlobalImageCreate>
-  }) => HandlerResult<Api.GlobalImage>
-  /** `GET /system/images/:imageName` */
-  systemImageView: (params: {
-    path: Api.SystemImageViewPathParams
-  }) => HandlerResult<Api.GlobalImage>
-  /** `DELETE /system/images/:imageName` */
-  systemImageDelete: (params: { path: Api.SystemImageDeletePathParams }) => StatusCode
   /** `GET /v1/disks` */
   diskList: (params: {
     query: Api.DiskListQueryParams
@@ -462,12 +444,6 @@ export interface MSWHandlers {
   }) => HandlerResult<Api.RoleResultsPage>
   /** `GET /v1/system/roles/:roleName` */
   roleView: (params: { path: Api.RoleViewPathParams }) => HandlerResult<Api.Role>
-  /** `GET /v1/system/sagas` */
-  sagaList: (params: {
-    query: Api.SagaListQueryParams
-  }) => HandlerResult<Api.SagaResultsPage>
-  /** `GET /v1/system/sagas/:sagaId` */
-  sagaView: (params: { path: Api.SagaViewPathParams }) => HandlerResult<Api.Saga>
   /** `GET /v1/system/silos` */
   siloList: (params: {
     query: Api.SiloListQueryParams
@@ -760,26 +736,6 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
       handler(handlers['loginSaml'], schema.LoginSamlParams, null)
     ),
     rest.post('/logout', handler(handlers['logout'], null, null)),
-    rest.get(
-      '/system/by-id/images/:id',
-      handler(handlers['systemImageViewById'], schema.SystemImageViewByIdParams, null)
-    ),
-    rest.get(
-      '/system/images',
-      handler(handlers['systemImageList'], schema.SystemImageListParams, null)
-    ),
-    rest.post(
-      '/system/images',
-      handler(handlers['systemImageCreate'], null, schema.GlobalImageCreate)
-    ),
-    rest.get(
-      '/system/images/:imageName',
-      handler(handlers['systemImageView'], schema.SystemImageViewParams, null)
-    ),
-    rest.delete(
-      '/system/images/:imageName',
-      handler(handlers['systemImageDelete'], schema.SystemImageDeleteParams, null)
-    ),
     rest.get('/v1/disks', handler(handlers['diskList'], schema.DiskListParams, null)),
     rest.post(
       '/v1/disks',
@@ -1199,14 +1155,6 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
     rest.get(
       '/v1/system/roles/:roleName',
       handler(handlers['roleView'], schema.RoleViewParams, null)
-    ),
-    rest.get(
-      '/v1/system/sagas',
-      handler(handlers['sagaList'], schema.SagaListParams, null)
-    ),
-    rest.get(
-      '/v1/system/sagas/:sagaId',
-      handler(handlers['sagaView'], schema.SagaViewParams, null)
     ),
     rest.get(
       '/v1/system/silos',

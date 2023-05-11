@@ -196,25 +196,27 @@ export const handlers = makeHandlers({
 
     return 204
   },
-  systemImageList({ query }) {
-    return paginated(query, db.globalImages)
-  },
   imageList({ query }) {
-    // This is a workaround for the fact that we have no concept of global
-    // images yet. The instance create e2e test creates a project that has no
-    // images, but we need images to test the form. So for now, return all
-    // images for all projects.
-    lookup.project(query)
-    const images = db.images
+    let images: Json<Api.Image>[] = []
+    if (query.project) {
+      const project = lookup.project(query)
+      images = db.images.filter((i) => i.project_id === project.id)
 
-    // TODO: put back in image filtering by project
-    // const project = lookup.project(query)
-    // const images = db.images.filter((i) => i.project_id === project.id)
+      if (query.includeSiloImages) {
+        images = images.concat(db.images.filter((i) => !i.project_id))
+      }
+    } else {
+      images = db.images.filter((i) => !i.project_id)
+    }
+
     return paginated(query, images)
   },
   imageCreate({ body, query }) {
-    const project = lookup.project(query)
-    errIfExists(db.images, { name: body.name, project_id: project.id })
+    let project_id: string | undefined = undefined
+    if (query.project) {
+      project_id = lookup.project(query).id
+    }
+    errIfExists(db.images, { name: body.name, project_id })
 
     const size =
       body.source.type === 'snapshot'
@@ -223,7 +225,7 @@ export const handlers = makeHandlers({
 
     const newImage: Json<Api.Image> = {
       id: uuid(),
-      project_id: project.id,
+      project_id,
       size,
       ...body,
       ...getTimestamps(),
@@ -1008,8 +1010,6 @@ export const handlers = makeHandlers({
   rackView: NotImplemented,
   roleList: NotImplemented,
   roleView: NotImplemented,
-  sagaList: NotImplemented,
-  sagaView: NotImplemented,
   siloPolicyUpdate: NotImplemented,
   siloPolicyView: NotImplemented,
   siloUserList: NotImplemented,
@@ -1017,11 +1017,6 @@ export const handlers = makeHandlers({
   sledView: NotImplemented,
   systemPolicyUpdate: NotImplemented,
 
-  systemImageViewById: NotImplemented,
-  systemImageCreate: NotImplemented,
-
-  systemImageView: NotImplemented,
-  systemImageDelete: NotImplemented,
   userBuiltinList: NotImplemented,
   userBuiltinView: NotImplemented,
 })
