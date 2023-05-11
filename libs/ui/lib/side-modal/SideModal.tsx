@@ -62,7 +62,7 @@ export function SideModal({
               {title && (
                 <Dialog.Title asChild>
                   <>
-                    <SideModal.Title>{title}</SideModal.Title>
+                    <SideModal.Title id={titleId}>{title}</SideModal.Title>
                     {errors && errors.length > 0 && (
                       <div className="mb-6">
                         <Message
