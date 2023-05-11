@@ -187,12 +187,19 @@ export const lookup = {
   },
 }
 
+/** Track the upload state of an imported image */
+type DiskBulkImport = {
+  // for now, each block (keyed by offset) just tracks the fact that it was
+  // uploaded. we might want to store more about it in the future
+  blocks: Record<number, boolean>
+}
+
 const initDb = {
   disks: [...mock.disks],
+  diskBulkImportState: {} as Record<string, DiskBulkImport>,
   userGroups: [...mock.userGroups],
   /** Join table for `users` and `userGroups` */
   groupMemberships: [...mock.groupMemberships],
-  globalImages: [...mock.globalImages],
   images: [...mock.images],
   instances: [mock.instance],
   networkInterfaces: [mock.networkInterface],

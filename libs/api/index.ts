@@ -41,7 +41,7 @@ export const useApiQueryClient = getUseApiQueryClient(api.methods)
 export * from './roles'
 export * from './util'
 export * from './__generated__/Api'
-export * as ZVal from './__generated__/validate'
+// export * as ZVal from './__generated__/validate'
 
 export type { ApiTypes }
 

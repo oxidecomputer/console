@@ -3,6 +3,7 @@ import { Navigate, Route, createRoutesFromElements } from 'react-router-dom'
 import { RouterDataErrorBoundary } from './components/ErrorBoundary'
 import { CreateDiskSideModalForm } from './forms/disk-create'
 import { CreateIdpSideModalForm } from './forms/idp-create'
+import { CreateImageSideModalForm } from './forms/image-upload'
 import { CreateInstanceForm } from './forms/instance-create'
 import { CreateProjectSideModalForm } from './forms/project-create'
 import { EditProjectSideModalForm } from './forms/project-edit'
@@ -88,7 +89,7 @@ export const routes = createRoutesFromElements(
         </Route>
       </Route>
 
-      <Route path="sys" element={<SystemLayout />} loader={SystemLayout.loader}>
+      <Route path="system" element={<SystemLayout />} loader={SystemLayout.loader}>
         <Route
           element={<SilosPage />}
           loader={SilosPage.loader}
@@ -303,12 +304,14 @@ export const routes = createRoutesFromElements(
           />
         </Route>
 
-        <Route
-          path="images"
-          element={<ImagesPage />}
-          loader={ImagesPage.loader}
-          handle={{ crumb: 'Images' }}
-        />
+        <Route element={<ImagesPage />} loader={ImagesPage.loader}>
+          <Route path="images" handle={{ crumb: 'Images' }} element={null} />
+          <Route
+            path="images-new"
+            handle={{ crumb: 'Upload image' }}
+            element={<CreateImageSideModalForm />}
+          />
+        </Route>
         <Route
           path="access"
           element={<ProjectAccessPage />}

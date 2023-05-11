@@ -29,7 +29,7 @@ tmux resize-pane -t omicron-console:0.0 -y 20%
 
 run_in_pane 0 "$UTILS"
 run_in_pane 0 "set_pane_title omicron-dev"
-run_in_pane 0 "SKIP_ASIC_CONFIG=1 cargo run --bin=omicron-dev -- run-all"
+run_in_pane 0 "cargo run --bin=omicron-dev -- run-all"
 
 run_in_pane 1 "$UTILS"
 run_in_pane 1 "set_pane_title 'seed data'"

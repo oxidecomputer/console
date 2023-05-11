@@ -1,3 +1,4 @@
+import { format } from 'date-fns'
 import filesize from 'filesize'
 import { useMemo } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
@@ -75,13 +76,26 @@ export function InstancePage() {
             <span className="text-secondary">{memory.value}</span>
             <span className="ml-1 text-quaternary"> {memory.unit}</span>
           </PropertiesTable.Row>
+          <PropertiesTable.Row label="status">
+            <InstanceStatusBadge status={instance.runState} />
+          </PropertiesTable.Row>
         </PropertiesTable>
         <PropertiesTable>
           <PropertiesTable.Row label="dns name">
             <span className="text-secondary">{instance.hostname || '–'}</span>
           </PropertiesTable.Row>
-          <PropertiesTable.Row label="status">
-            <InstanceStatusBadge status={instance.runState} />
+          <PropertiesTable.Row label="created">
+            <span className="text-secondary">
+              {format(instance.timeCreated, 'MMM d, yyyy')}{' '}
+            </span>
+            <span className="ml-1 text-quaternary">
+              {format(instance.timeCreated, 'p')}
+            </span>
+          </PropertiesTable.Row>
+          <PropertiesTable.Row label="id">
+            <span className="overflow-hidden text-ellipsis whitespace-nowrap text-secondary">
+              {instance.id}
+            </span>
           </PropertiesTable.Row>
         </PropertiesTable>
       </PropertiesTable.Group>

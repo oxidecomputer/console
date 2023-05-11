@@ -2,14 +2,6 @@
 import * as flags from 'https://deno.land/std@0.159.0/flags/mod.ts'
 import * as path from 'https://deno.land/std@0.159.0/path/mod.ts'
 
-// Automatically update tools/console_version in ../omicron with current console
-// commit hash and tarball hash. Then create PR in Omicron with that change.
-//
-// Requirements/assumptions:
-//
-// - GitHub CLI
-// - Omicron is a sibling dir to console
-
 const OMICRON_DIR = '../omicron'
 const VERSION_FILE = path.join(OMICRON_DIR, 'tools/console_version')
 
@@ -27,12 +19,50 @@ function run(cmd: string, args: string[]): string {
   return new TextDecoder().decode(stdout).trim()
 }
 
+function getUploadAssetsWorkflowId() {
+  return run('gh', [
+    'run',
+    'list',
+    '-L',
+    '1',
+    '-w',
+    'Upload assets to dl.oxide.computer',
+    '--json',
+    'databaseId',
+    '--jq',
+    '.[0].databaseId',
+  ])
+}
+
 // script starts here
 
-const { dryRun } = flags.parse(Deno.args, {
-  alias: { dryRun: ['d', 'dry-run'] },
-  boolean: ['dryRun'],
+const args = flags.parse(Deno.args, {
+  alias: { dryRun: ['d', 'dry-run'], h: 'help', m: 'message' },
+  boolean: ['dryRun', 'help'],
+  string: ['message'],
 })
+
+if (args.help) {
+  console.log(
+    `
+Update tools/console_version in ../omicron with current console commit
+hash and tarball hash and create PR in Omicron with that change.
+
+Requirements:
+  - GitHub CLI installed
+  - Omicron is a sibling dir to console
+
+Usage:
+  ./tools/deno/bump-omicron.ts [options]
+
+Options:
+  -d, --dry-run        Dry run, showing changes without creating PR
+  -h, --help           Show this help message
+  -m, --message <msg>  Add message to PR title: 'Bump web console (<msg>)'
+`
+  )
+  Deno.exit()
+}
 
 const newCommit = run('git', ['rev-parse', 'HEAD'])
 
@@ -40,11 +70,17 @@ const shaUrl = `https://dl.oxide.computer/releases/console/${newCommit}.sha256.t
 const shaResp = await fetch(shaUrl)
 
 if (!shaResp.ok) {
-  // most likely the CI job that builds and uploads the file hasn't finished
-  console.error('Failed to fetch', shaUrl)
+  console.error(
+    `
+Failed to fetch console tarball SHA. Either the current commit has not been pushed to origin/main or the CI job that uploads the assets is still running.
+
+Run 'gh run watch ${getUploadAssetsWorkflowId()}' to watch the latest asset upload action.
+`
+  )
+  console.error('URL:', shaUrl)
   console.error('Status:', shaResp.status)
   console.error('Body:', await shaResp.text())
-  Deno.exit()
+  Deno.exit(1)
 }
 
 const newSha2 = (await shaResp.text()).trim()
@@ -65,10 +101,17 @@ if (oldCommit === newCommit) {
 const oldCommitShort = oldCommit.slice(0, 8)
 const newCommitShort = newCommit.slice(0, 8)
 
-if (dryRun) {
+const branchName = 'bump-console-' + newCommitShort
+const prTitle = 'Bump web console' + (args.message ? ` (${args.message})` : '')
+const prBody = `Changes: https://github.com/oxidecomputer/console/compare/${oldCommitShort}...${newCommitShort}`
+
+if (args.dryRun) {
   console.log('New contents of <omicron>/tools/console_version:\n')
   console.log(newVersionFile)
-  console.log('Console commits included:\n')
+  console.log('Branch:  ', branchName)
+  console.log('PR title:', prTitle)
+  console.log('PR body: ', prBody)
+  console.log('\nConsole commits included:\n')
   console.log(
     run('git', [
       'log',
@@ -88,10 +131,6 @@ try {
 }
 
 await Deno.writeTextFile(VERSION_FILE, newVersionFile)
-
-const branchName = 'bump-console-' + newCommitShort
-const prTitle = 'Bump web console'
-const prBody = `Changes: https://github.com/oxidecomputer/console/compare/${oldCommitShort}...${newCommitShort}`
 
 // cd to omicron, pull main, create new branch, commit changes, push, PR it, go back to
 // main, delete branch

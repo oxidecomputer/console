@@ -49,7 +49,15 @@ export function CreateSiloSideModalForm() {
       title="Create silo"
       formOptions={{ defaultValues }}
       onDismiss={onDismiss}
-      onSubmit={(body) => createSilo.mutate({ body })}
+      onSubmit={({ adminGroupName, ...rest }) =>
+        createSilo.mutate({
+          body: {
+            // no point setting it to empty string or whitespace
+            adminGroupName: adminGroupName?.trim() || undefined,
+            ...rest,
+          },
+        })
+      }
       loading={createSilo.isLoading}
       submitError={createSilo.error}
     >

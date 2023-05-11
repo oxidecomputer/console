@@ -7,6 +7,15 @@ import type { ErrorResult } from '@oxide/api'
 import { Error12Icon } from '@oxide/ui'
 import { Button, SideModal } from '@oxide/ui'
 
+export function ModalFooterError({ children }: { children: ReactNode }) {
+  return (
+    <div className="flex grow text-mono-sm text-error">
+      <Error12Icon className="mx-2 mt-0.5 shrink-0" />
+      <span>{children}</span>
+    </div>
+  )
+}
+
 type SideModalFormProps<TFieldValues extends FieldValues> = {
   id: string
   formOptions: UseFormProps<TFieldValues>
@@ -78,12 +87,8 @@ export function SideModalForm<TFieldValues extends FieldValues>({
       </SideModal.Body>
       <SideModal.Footer>
         <div className="flex w-full items-center justify-end gap-[0.625rem] children:shrink-0">
-          {/* TODO: Better error component here */}
           {submitError?.error && 'message' in submitError.error && (
-            <div className="flex grow items-start text-mono-sm text-error">
-              <Error12Icon className="mx-2 mt-0.5 shrink-0" />
-              <span>{submitError.error.message}</span>
-            </div>
+            <ModalFooterError>{submitError.error.message}</ModalFooterError>
           )}
           <Button variant="ghost" size="sm" onClick={onDismiss}>
             Cancel

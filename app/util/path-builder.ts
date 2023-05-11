@@ -17,6 +17,7 @@ export const pb = {
 
   projectAccess: (params: Project) => `${pb.project(params)}/access`,
   projectImages: (params: Project) => `${pb.project(params)}/images`,
+  projectImageNew: (params: Project) => `${pb.project(params)}/images-new`,
 
   instances: (params: Project) => `${pb.project(params)}/instances`,
   instanceNew: (params: Project) => `${pb.project(params)}/instances-new`,
@@ -53,26 +54,26 @@ export const pb = {
   siloUtilization: () => '/utilization',
   siloAccess: () => '/access',
 
-  system: () => '/sys',
-  systemIssues: () => '/sys/issues',
-  systemUtilization: () => '/sys/utilization',
-  systemHealth: () => '/sys/health',
+  system: () => '/system',
+  systemIssues: () => '/system/issues',
+  systemUtilization: () => '/system/utilization',
+  systemHealth: () => '/system/health',
 
-  systemUpdates: () => '/sys/update/updates',
+  systemUpdates: () => '/system/update/updates',
   systemUpdateDetail: ({ version }: SystemUpdate) => `${pb.systemUpdates()}/${version}`,
-  systemUpdateHistory: () => '/sys/update/history',
-  updateableComponents: () => '/sys/update/components',
+  systemUpdateHistory: () => '/system/update/history',
+  updateableComponents: () => '/system/update/components',
 
-  systemNetworking: () => '/sys/networking',
-  systemSettings: () => '/sys/settings',
+  systemNetworking: () => '/system/networking',
+  systemSettings: () => '/system/settings',
 
-  rackInventory: () => '/sys/inventory/racks',
-  sledInventory: () => '/sys/inventory/sleds',
-  diskInventory: () => '/sys/inventory/disks',
+  rackInventory: () => '/system/inventory/racks',
+  sledInventory: () => '/system/inventory/sleds',
+  diskInventory: () => '/system/inventory/disks',
 
-  silos: () => '/sys/silos',
-  siloNew: () => '/sys/silos-new',
-  silo: ({ silo }: Silo) => `/sys/silos/${silo}`,
+  silos: () => '/system/silos',
+  siloNew: () => '/system/silos-new',
+  silo: ({ silo }: Silo) => `/system/silos/${silo}`,
   siloIdpNew: (params: Silo) => `${pb.silo(params)}/idps-new`,
 
   settings: () => '/settings',
