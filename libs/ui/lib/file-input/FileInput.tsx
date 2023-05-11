@@ -8,7 +8,7 @@ import { Document16Icon, Error16Icon, Truncate } from '@oxide/ui'
 
 export type FileInputProps = Omit<ComponentProps<'input'>, 'type' | 'onChange'> & {
   onChange: (f: File | null) => void
-  error: boolean
+  error?: boolean
 }
 
 // Wrapping a file input in a `<label>` grants the ability to fully

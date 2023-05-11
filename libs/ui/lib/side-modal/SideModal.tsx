@@ -117,7 +117,7 @@ SideModal.Docs = ({ children }: { children?: ReactNode }) => (
   </SideModal.Section>
 )
 
-SideModal.Footer = ({ children, error }: { children: ReactNode; error: boolean }) => (
+SideModal.Footer = ({ children, error }: { children: ReactNode; error?: boolean }) => (
   <footer className="flex w-full items-center justify-end gap-[0.625rem] border-t py-5 border-secondary children:shrink-0">
     {error && (
       <div className="flex grow items-center gap-1.5 text-sans-md text-error">
