@@ -9,7 +9,6 @@ import { SkipLink } from '@oxide/ui'
 
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { QuickActions, ReduceMotion } from './hooks'
-import { ToastStack } from './hooks/use-toast/ToastStack'
 // stripped out by rollup in production
 import { startMockAPI } from './msw-mock-api'
 import { routes } from './routes'
@@ -41,7 +40,6 @@ function render() {
         </ErrorBoundary>
         <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
-      <ToastStack />
     </StrictMode>
   )
 }

@@ -2,6 +2,7 @@ import { announce } from '@react-aria/live-announcer'
 import cn from 'classnames'
 import type { ReactElement } from 'react'
 import { useEffect } from 'react'
+import { Link, type To } from 'react-router-dom'
 
 import { Close12Icon, Error12Icon, Success12Icon, Warning12Icon } from '../icons'
 import { TimeoutIndicator } from '../timeout-indicator/TimeoutIndicator'
@@ -16,7 +17,7 @@ export interface ToastProps {
   timeout?: number | null
   cta?: {
     text: string
-    link: string
+    link: To
   }
 }
 
@@ -83,12 +84,12 @@ export const Toast = ({
         <div className={cn('text-sans-md', secondaryTextColor[variant])}>{content}</div>
 
         {cta && (
-          <a
+          <Link
             className="mt-4 block text-mono-sm text-accent-secondary hover:text-accent"
-            href={cta.link}
+            to={cta.link}
           >
             {cta.text}
-          </a>
+          </Link>
         )}
       </div>
       <button
