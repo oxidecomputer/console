@@ -3,11 +3,6 @@ import { ZodType, z } from 'zod'
 
 import { processResponseBody, snakeify } from './util'
 
-const DateType = z.preprocess((arg) => {
-  if (typeof arg == 'string' || arg instanceof Date) return new Date(arg)
-}, z.date())
-type DateType = z.infer<typeof DateType>
-
 /**
  * Zod only supports string enums at the moment. A previous issue was opened
  * and closed as stale but it provided a hint on how to implement it.
@@ -17,6 +12,9 @@ type DateType = z.infer<typeof DateType>
  */
 const IntEnum = <T extends readonly number[]>(values: T) =>
   z.number().refine((v) => values.includes(v)) as ZodType<T[number]>
+
+/** Helper to ensure booleans provided as strings end up with the correct value */
+const SafeBoolean = z.preprocess((v) => (v === 'false' ? false : v), z.coerce.boolean())
 
 /**
  * Properties that should uniquely identify a Sled.
@@ -79,9 +77,7 @@ export const BlockSize = z.preprocess(
 )
 
 /**
- * A count of bytes, typically used either for memory or storage capacity
- *
- * The maximum supported byte count is `i64::MAX`.  This makes it somewhat inconvenient to define constructors: a u32 constructor can be infallible, but an i64 constructor can fail (if the value is negative) and a u64 constructor can fail (if the value is larger than i64::MAX).  We provide all of these for consumers' convenience.
+ * Byte count to express memory or storage capacity.
  */
 export const ByteCount = z.preprocess(processResponseBody, z.number().min(0))
 
@@ -110,7 +106,7 @@ export const ServiceUsingCertificate = z.preprocess(
 )
 
 /**
- * Client view of a {@link Certificate}
+ * View of a Certificate
  */
 export const Certificate = z.preprocess(
   processResponseBody,
@@ -119,13 +115,13 @@ export const Certificate = z.preprocess(
     id: z.string().uuid(),
     name: Name,
     service: ServiceUsingCertificate,
-    timeCreated: DateType,
-    timeModified: DateType,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
   })
 )
 
 /**
- * Create-time parameters for a {@link Certificate}
+ * Create-time parameters for a `Certificate`
  */
 export const CertificateCreate = z.preprocess(
   processResponseBody,
@@ -181,8 +177,8 @@ export const ComponentUpdate = z.preprocess(
   z.object({
     componentType: UpdateableComponentType,
     id: z.string().uuid(),
-    timeCreated: DateType,
-    timeModified: DateType,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
     version: SemverVersion,
   })
 )
@@ -200,7 +196,7 @@ export const ComponentUpdateResultsPage = z.preprocess(
  */
 export const Cumulativedouble = z.preprocess(
   processResponseBody,
-  z.object({ startTime: DateType, value: z.number() })
+  z.object({ startTime: z.coerce.date(), value: z.number() })
 )
 
 /**
@@ -208,7 +204,7 @@ export const Cumulativedouble = z.preprocess(
  */
 export const Cumulativeint64 = z.preprocess(
   processResponseBody,
-  z.object({ startTime: DateType, value: z.number() })
+  z.object({ startTime: z.coerce.date(), value: z.number() })
 )
 
 /**
@@ -225,55 +221,35 @@ export const CurrentUser = z.preprocess(
 )
 
 /**
- * A simple type for managing a histogram metric.
+ * Histogram metric
  *
  * A histogram maintains the count of any number of samples, over a set of bins. Bins are specified on construction via their _left_ edges, inclusive. There can't be any "gaps" in the bins, and an additional bin may be added to the left, right, or both so that the bins extend to the entire range of the support.
  *
  * Note that any gaps, unsorted bins, or non-finite values will result in an error.
- *
- * Example ------- ```rust use oximeter::histogram::{BinRange, Histogram};
- *
- * let edges = [0i64, 10, 20]; let mut hist = Histogram::new(&edges).unwrap(); assert_eq!(hist.n_bins(), 4); // One additional bin for the range (20..) assert_eq!(hist.n_samples(), 0); hist.sample(4); hist.sample(100); assert_eq!(hist.n_samples(), 2);
- *
- * let data = hist.iter().collect::<Vec<_>>(); assert_eq!(data[0].range, BinRange::range(i64::MIN, 0)); // An additional bin for `..0` assert_eq!(data[0].count, 0); // Nothing is in this bin
- *
- * assert_eq!(data[1].range, BinRange::range(0, 10)); // The range `0..10` assert_eq!(data[1].count, 1); // 4 is sampled into this bin ```
- *
- * Notes -----
- *
- * Histograms may be constructed either from their left bin edges, or from a sequence of ranges. In either case, the left-most bin may be converted upon construction. In particular, if the left-most value is not equal to the minimum of the support, a new bin will be added from the minimum to that provided value. If the left-most value _is_ the support's minimum, because the provided bin was unbounded below, such as `(..0)`, then that bin will be converted into one bounded below, `(MIN..0)` in this case.
- *
- * The short of this is that, most of the time, it shouldn't matter. If one specifies the extremes of the support as their bins, be aware that the left-most may be converted from a `BinRange::RangeTo` into a `BinRange::Range`. In other words, the first bin of a histogram is _always_ a `Bin::Range` or a `Bin::RangeFrom` after construction. In fact, every bin is one of those variants, the `BinRange::RangeTo` is only provided as a convenience during construction.
  */
 export const Histogramint64 = z.preprocess(
   processResponseBody,
-  z.object({ bins: Binint64.array(), nSamples: z.number().min(0), startTime: DateType })
+  z.object({
+    bins: Binint64.array(),
+    nSamples: z.number().min(0),
+    startTime: z.coerce.date(),
+  })
 )
 
 /**
- * A simple type for managing a histogram metric.
+ * Histogram metric
  *
  * A histogram maintains the count of any number of samples, over a set of bins. Bins are specified on construction via their _left_ edges, inclusive. There can't be any "gaps" in the bins, and an additional bin may be added to the left, right, or both so that the bins extend to the entire range of the support.
  *
  * Note that any gaps, unsorted bins, or non-finite values will result in an error.
- *
- * Example ------- ```rust use oximeter::histogram::{BinRange, Histogram};
- *
- * let edges = [0i64, 10, 20]; let mut hist = Histogram::new(&edges).unwrap(); assert_eq!(hist.n_bins(), 4); // One additional bin for the range (20..) assert_eq!(hist.n_samples(), 0); hist.sample(4); hist.sample(100); assert_eq!(hist.n_samples(), 2);
- *
- * let data = hist.iter().collect::<Vec<_>>(); assert_eq!(data[0].range, BinRange::range(i64::MIN, 0)); // An additional bin for `..0` assert_eq!(data[0].count, 0); // Nothing is in this bin
- *
- * assert_eq!(data[1].range, BinRange::range(0, 10)); // The range `0..10` assert_eq!(data[1].count, 1); // 4 is sampled into this bin ```
- *
- * Notes -----
- *
- * Histograms may be constructed either from their left bin edges, or from a sequence of ranges. In either case, the left-most bin may be converted upon construction. In particular, if the left-most value is not equal to the minimum of the support, a new bin will be added from the minimum to that provided value. If the left-most value _is_ the support's minimum, because the provided bin was unbounded below, such as `(..0)`, then that bin will be converted into one bounded below, `(MIN..0)` in this case.
- *
- * The short of this is that, most of the time, it shouldn't matter. If one specifies the extremes of the support as their bins, be aware that the left-most may be converted from a `BinRange::RangeTo` into a `BinRange::Range`. In other words, the first bin of a histogram is _always_ a `Bin::Range` or a `Bin::RangeFrom` after construction. In fact, every bin is one of those variants, the `BinRange::RangeTo` is only provided as a convenience during construction.
  */
 export const Histogramdouble = z.preprocess(
   processResponseBody,
-  z.object({ bins: Bindouble.array(), nSamples: z.number().min(0), startTime: DateType })
+  z.object({
+    bins: Bindouble.array(),
+    nSamples: z.number().min(0),
+    startTime: z.coerce.date(),
+  })
 )
 
 /**
@@ -282,7 +258,7 @@ export const Histogramdouble = z.preprocess(
 export const Datum = z.preprocess(
   processResponseBody,
   z.union([
-    z.object({ datum: z.boolean(), type: z.enum(['bool']) }),
+    z.object({ datum: SafeBoolean, type: z.enum(['bool']) }),
     z.object({ datum: z.number(), type: z.enum(['i64']) }),
     z.object({ datum: z.number(), type: z.enum(['f64']) }),
     z.object({ datum: z.string(), type: z.enum(['string']) }),
@@ -320,7 +296,7 @@ export const Digest = z.preprocess(
 )
 
 /**
- * State of a Disk (primarily: attached or not)
+ * State of a Disk
  */
 export const DiskState = z.preprocess(
   processResponseBody,
@@ -341,7 +317,7 @@ export const DiskState = z.preprocess(
 )
 
 /**
- * Client view of a {@link Disk}
+ * View of a Disk
  */
 export const Disk = z.preprocess(
   processResponseBody,
@@ -356,8 +332,8 @@ export const Disk = z.preprocess(
     size: ByteCount,
     snapshotId: z.string().uuid().optional(),
     state: DiskState,
-    timeCreated: DateType,
-    timeModified: DateType,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
   })
 )
 
@@ -370,13 +346,12 @@ export const DiskSource = z.preprocess(
     z.object({ blockSize: BlockSize, type: z.enum(['blank']) }),
     z.object({ snapshotId: z.string().uuid(), type: z.enum(['snapshot']) }),
     z.object({ imageId: z.string().uuid(), type: z.enum(['image']) }),
-    z.object({ imageId: z.string().uuid(), type: z.enum(['global_image']) }),
     z.object({ blockSize: BlockSize, type: z.enum(['importing_blocks']) }),
   ])
 )
 
 /**
- * Create-time parameters for a {@link Disk}
+ * Create-time parameters for a `Disk`
  */
 export const DiskCreate = z.preprocess(
   processResponseBody,
@@ -396,14 +371,6 @@ export const DiskPath = z.preprocess(processResponseBody, z.object({ disk: NameO
 export const DiskResultsPage = z.preprocess(
   processResponseBody,
   z.object({ items: Disk.array(), nextPage: z.string().optional() })
-)
-
-/**
- * OS image distribution
- */
-export const Distribution = z.preprocess(
-  processResponseBody,
-  z.object({ name: Name, version: z.string() })
 )
 
 /**
@@ -481,7 +448,7 @@ export const FleetRoleRoleAssignment = z.preprocess(
 )
 
 /**
- * Client view of a `Policy`, which describes how this resource may be accessed
+ * Policy for a particular resource
  *
  * Note that the Policy only describes access granted explicitly for this resource.  The policies of parent resources can also cause a user to have access to this resource.
  */
@@ -491,61 +458,7 @@ export const FleetRolePolicy = z.preprocess(
 )
 
 /**
- * Client view of global Images
- */
-export const GlobalImage = z.preprocess(
-  processResponseBody,
-  z.object({
-    blockSize: ByteCount,
-    description: z.string(),
-    digest: Digest.optional(),
-    distribution: z.string(),
-    id: z.string().uuid(),
-    name: Name,
-    size: ByteCount,
-    timeCreated: DateType,
-    timeModified: DateType,
-    url: z.string().optional(),
-    version: z.string(),
-  })
-)
-
-/**
- * The source of the underlying image.
- */
-export const ImageSource = z.preprocess(
-  processResponseBody,
-  z.union([
-    z.object({ type: z.enum(['url']), url: z.string() }),
-    z.object({ id: z.string().uuid(), type: z.enum(['snapshot']) }),
-    z.object({ type: z.enum(['you_can_boot_anything_as_long_as_its_alpine']) }),
-  ])
-)
-
-/**
- * Create-time parameters for an {@link GlobalImage}
- */
-export const GlobalImageCreate = z.preprocess(
-  processResponseBody,
-  z.object({
-    blockSize: BlockSize,
-    description: z.string(),
-    distribution: Distribution,
-    name: Name,
-    source: ImageSource,
-  })
-)
-
-/**
- * A single page of results
- */
-export const GlobalImageResultsPage = z.preprocess(
-  processResponseBody,
-  z.object({ items: GlobalImage.array(), nextPage: z.string().optional() })
-)
-
-/**
- * Client view of a {@link Group}
+ * View of a Group
  */
 export const Group = z.preprocess(
   processResponseBody,
@@ -563,7 +476,7 @@ export const GroupResultsPage = z.preprocess(
 export const IdentityProviderType = z.preprocess(processResponseBody, z.enum(['saml']))
 
 /**
- * Client view of an {@link IdentityProvider}
+ * View of an Identity Provider
  */
 export const IdentityProvider = z.preprocess(
   processResponseBody,
@@ -572,8 +485,8 @@ export const IdentityProvider = z.preprocess(
     id: z.string().uuid(),
     name: Name,
     providerType: IdentityProviderType,
-    timeCreated: DateType,
-    timeModified: DateType,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
   })
 )
 
@@ -607,15 +520,27 @@ export const Image = z.preprocess(
     os: z.string(),
     projectId: z.string().uuid().optional(),
     size: ByteCount,
-    timeCreated: DateType,
-    timeModified: DateType,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
     url: z.string().optional(),
     version: z.string(),
   })
 )
 
 /**
- * Create-time parameters for an {@link Image}
+ * The source of the underlying image.
+ */
+export const ImageSource = z.preprocess(
+  processResponseBody,
+  z.union([
+    z.object({ type: z.enum(['url']), url: z.string() }),
+    z.object({ id: z.string().uuid(), type: z.enum(['snapshot']) }),
+    z.object({ type: z.enum(['you_can_boot_anything_as_long_as_its_alpine']) }),
+  ])
+)
+
+/**
+ * Create-time parameters for an `Image`
  */
 export const ImageCreate = z.preprocess(
   processResponseBody,
@@ -683,7 +608,7 @@ export const InstanceState = z.preprocess(
 )
 
 /**
- * Client view of an {@link Instance}
+ * View of an Instance
  */
 export const Instance = z.preprocess(
   processResponseBody,
@@ -696,9 +621,9 @@ export const Instance = z.preprocess(
     ncpus: InstanceCpuCount,
     projectId: z.string().uuid(),
     runState: InstanceState,
-    timeCreated: DateType,
-    timeModified: DateType,
-    timeRunStateUpdated: DateType,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
+    timeRunStateUpdated: z.coerce.date(),
   })
 )
 
@@ -720,7 +645,7 @@ export const InstanceDiskAttachment = z.preprocess(
 )
 
 /**
- * Create-time parameters for an {@link InstanceNetworkInterface}.
+ * Create-time parameters for an `InstanceNetworkInterface`
  */
 export const InstanceNetworkInterfaceCreate = z.preprocess(
   processResponseBody,
@@ -746,7 +671,7 @@ export const InstanceNetworkInterfaceAttachment = z.preprocess(
 )
 
 /**
- * Create-time parameters for an {@link Instance}
+ * Create-time parameters for an `Instance`
  */
 export const InstanceCreate = z.preprocess(
   processResponseBody,
@@ -761,13 +686,13 @@ export const InstanceCreate = z.preprocess(
     networkInterfaces: InstanceNetworkInterfaceAttachment.default({
       type: 'default',
     }).optional(),
-    start: z.boolean().default(true).optional(),
+    start: SafeBoolean.default(true).optional(),
     userData: z.string().default('').optional(),
   })
 )
 
 /**
- * Migration parameters for an {@link Instance}
+ * Migration parameters for an `Instance`
  */
 export const InstanceMigrate = z.preprocess(
   processResponseBody,
@@ -800,10 +725,10 @@ export const InstanceNetworkInterface = z.preprocess(
     ip: z.string(),
     mac: MacAddr,
     name: Name,
-    primary: z.boolean(),
+    primary: SafeBoolean,
     subnetId: z.string().uuid(),
-    timeCreated: DateType,
-    timeModified: DateType,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
     vpcId: z.string().uuid(),
   })
 )
@@ -817,7 +742,7 @@ export const InstanceNetworkInterfaceResultsPage = z.preprocess(
 )
 
 /**
- * Parameters for updating an {@link InstanceNetworkInterface}.
+ * Parameters for updating an `InstanceNetworkInterface`
  *
  * Note that modifying IP addresses for an interface is not yet supported, a new interface must be created instead.
  */
@@ -826,7 +751,7 @@ export const InstanceNetworkInterfaceUpdate = z.preprocess(
   z.object({
     description: z.string().optional(),
     name: Name.optional(),
-    primary: z.boolean().default(false).optional(),
+    primary: SafeBoolean.default(false).optional(),
   })
 )
 
@@ -885,15 +810,13 @@ export const IpPool = z.preprocess(
     description: z.string(),
     id: z.string().uuid(),
     name: Name,
-    timeCreated: DateType,
-    timeModified: DateType,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
   })
 )
 
 /**
- * Create-time parameters for an IP Pool.
- *
- * See {@link IpPool}
+ * Create-time parameters for an `IpPool`
  */
 export const IpPoolCreate = z.preprocess(
   processResponseBody,
@@ -924,7 +847,7 @@ export const IpRange = z.preprocess(processResponseBody, z.union([Ipv4Range, Ipv
 
 export const IpPoolRange = z.preprocess(
   processResponseBody,
-  z.object({ id: z.string().uuid(), range: IpRange, timeCreated: DateType })
+  z.object({ id: z.string().uuid(), range: IpRange, timeCreated: z.coerce.date() })
 )
 
 /**
@@ -970,7 +893,7 @@ export const L4PortRange = z.preprocess(
  */
 export const Measurement = z.preprocess(
   processResponseBody,
-  z.object({ datum: Datum, timestamp: DateType })
+  z.object({ datum: Datum, timestamp: z.coerce.date() })
 )
 
 /**
@@ -980,13 +903,6 @@ export const MeasurementResultsPage = z.preprocess(
   processResponseBody,
   z.object({ items: Measurement.array(), nextPage: z.string().optional() })
 )
-
-/**
- * Unique name for a saga `Node`
- *
- * Each node requires a string name that's unique within its DAG.  The name is used to identify its output.  Nodes that depend on a given node (either directly or indirectly) can access the node's output using its name.
- */
-export const NodeName = z.preprocess(processResponseBody, z.string())
 
 /**
  * A password used to authenticate a user
@@ -1001,7 +917,9 @@ export const PhysicalDiskType = z.preprocess(
 )
 
 /**
- * Client view of a {@link PhysicalDisk}
+ * View of a Physical Disk
+ *
+ * Physical disks reside in a particular sled and are used to store both Instance Disk data as well as internal metadata.
  */
 export const PhysicalDisk = z.preprocess(
   processResponseBody,
@@ -1011,8 +929,8 @@ export const PhysicalDisk = z.preprocess(
     model: z.string(),
     serial: z.string(),
     sledId: z.string().uuid().optional(),
-    timeCreated: DateType,
-    timeModified: DateType,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
     vendor: z.string(),
   })
 )
@@ -1026,7 +944,7 @@ export const PhysicalDiskResultsPage = z.preprocess(
 )
 
 /**
- * Client view of a {@link Project}
+ * View of a Project
  */
 export const Project = z.preprocess(
   processResponseBody,
@@ -1034,13 +952,13 @@ export const Project = z.preprocess(
     description: z.string(),
     id: z.string().uuid(),
     name: Name,
-    timeCreated: DateType,
-    timeModified: DateType,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
   })
 )
 
 /**
- * Create-time parameters for a {@link Project}
+ * Create-time parameters for a `Project`
  */
 export const ProjectCreate = z.preprocess(
   processResponseBody,
@@ -1075,7 +993,7 @@ export const ProjectRoleRoleAssignment = z.preprocess(
 )
 
 /**
- * Client view of a `Policy`, which describes how this resource may be accessed
+ * Policy for a particular resource
  *
  * Note that the Policy only describes access granted explicitly for this resource.  The policies of parent resources can also cause a user to have access to this resource.
  */
@@ -1085,7 +1003,7 @@ export const ProjectRolePolicy = z.preprocess(
 )
 
 /**
- * Updateable properties of a {@link Project}
+ * Updateable properties of a `Project`
  */
 export const ProjectUpdate = z.preprocess(
   processResponseBody,
@@ -1093,11 +1011,15 @@ export const ProjectUpdate = z.preprocess(
 )
 
 /**
- * Client view of an {@link Rack}
+ * View of an Rack
  */
 export const Rack = z.preprocess(
   processResponseBody,
-  z.object({ id: z.string().uuid(), timeCreated: DateType, timeModified: DateType })
+  z.object({
+    id: z.string().uuid(),
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
+  })
 )
 
 /**
@@ -1122,7 +1044,7 @@ export const RoleName = z.preprocess(
 )
 
 /**
- * Client view of a {@link Role}
+ * View of a Role
  */
 export const Role = z.preprocess(
   processResponseBody,
@@ -1140,7 +1062,7 @@ export const RoleResultsPage = z.preprocess(
 /**
  * A `RouteDestination` is used to match traffic with a routing rule, on the destination of that traffic.
  *
- * When traffic is to be sent to a destination that is within a given `RouteDestination`, the corresponding {@link RouterRoute} applies, and traffic will be forward to the {@link RouteTarget} for that rule.
+ * When traffic is to be sent to a destination that is within a given `RouteDestination`, the corresponding `RouterRoute` applies, and traffic will be forward to the `RouteTarget` for that rule.
  */
 export const RouteDestination = z.preprocess(
   processResponseBody,
@@ -1167,9 +1089,9 @@ export const RouteTarget = z.preprocess(
 )
 
 /**
- * The classification of a {@link RouterRoute} as defined by the system. The kind determines certain attributes such as if the route is modifiable and describes how or where the route was created.
+ * The kind of a `RouterRoute`
  *
- * See [RFD-21](https://rfd.shared.oxide.computer/rfd/0021#concept-router) for more context
+ * The kind determines certain attributes such as if the route is modifiable and describes how or where the route was created.
  */
 export const RouterRouteKind = z.preprocess(
   processResponseBody,
@@ -1188,14 +1110,14 @@ export const RouterRoute = z.preprocess(
     kind: RouterRouteKind,
     name: Name,
     target: RouteTarget,
-    timeCreated: DateType,
-    timeModified: DateType,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
     vpcRouterId: z.string().uuid(),
   })
 )
 
 /**
- * Create-time parameters for a `omicron_common::api::external::RouterRoute`
+ * Create-time parameters for a `RouterRoute`
  */
 export const RouterRouteCreate = z.preprocess(
   processResponseBody,
@@ -1216,7 +1138,7 @@ export const RouterRouteResultsPage = z.preprocess(
 )
 
 /**
- * Updateable properties of a `omicron_common::api::external::RouterRoute`
+ * Updateable properties of a `RouterRoute`
  */
 export const RouterRouteUpdate = z.preprocess(
   processResponseBody,
@@ -1226,43 +1148,6 @@ export const RouterRouteUpdate = z.preprocess(
     name: Name.optional(),
     target: RouteTarget,
   })
-)
-
-export const SagaErrorInfo = z.preprocess(
-  processResponseBody,
-  z.union([
-    z.object({ error: z.enum(['action_failed']), sourceError: z.record(z.unknown()) }),
-    z.object({ error: z.enum(['deserialize_failed']), message: z.string() }),
-    z.object({ error: z.enum(['injected_error']) }),
-    z.object({ error: z.enum(['serialize_failed']), message: z.string() }),
-    z.object({ error: z.enum(['subsaga_create_failed']), message: z.string() }),
-  ])
-)
-
-export const SagaState = z.preprocess(
-  processResponseBody,
-  z.union([
-    z.object({ state: z.enum(['running']) }),
-    z.object({ state: z.enum(['succeeded']) }),
-    z.object({
-      errorInfo: SagaErrorInfo,
-      errorNodeName: NodeName,
-      state: z.enum(['failed']),
-    }),
-  ])
-)
-
-export const Saga = z.preprocess(
-  processResponseBody,
-  z.object({ id: z.string().uuid(), state: SagaState })
-)
-
-/**
- * A single page of results
- */
-export const SagaResultsPage = z.preprocess(
-  processResponseBody,
-  z.object({ items: Saga.array(), nextPage: z.string().optional() })
 )
 
 /**
@@ -1280,8 +1165,8 @@ export const SamlIdentityProvider = z.preprocess(
     sloUrl: z.string(),
     spClientId: z.string(),
     technicalContactEmail: z.string(),
-    timeCreated: DateType,
-    timeModified: DateType,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
   })
 )
 
@@ -1297,7 +1182,7 @@ export const SamlIdentityProviderCreate = z.preprocess(
     idpEntityId: z.string(),
     idpMetadataSource: IdpMetadataSource,
     name: Name,
-    signingKeypair: DerEncodedKeyPair.optional(),
+    signingKeypair: DerEncodedKeyPair.default(null).optional(),
     sloUrl: z.string(),
     spClientId: z.string(),
     technicalContactEmail: z.string(),
@@ -1313,30 +1198,32 @@ export const SiloIdentityMode = z.preprocess(
 )
 
 /**
- * Client view of a ['Silo']
+ * View of a Silo
+ *
+ * A Silo is the highest level unit of isolation.
  */
 export const Silo = z.preprocess(
   processResponseBody,
   z.object({
     description: z.string(),
-    discoverable: z.boolean(),
+    discoverable: SafeBoolean,
     id: z.string().uuid(),
     identityMode: SiloIdentityMode,
     name: Name,
-    timeCreated: DateType,
-    timeModified: DateType,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
   })
 )
 
 /**
- * Create-time parameters for a {@link Silo}
+ * Create-time parameters for a `Silo`
  */
 export const SiloCreate = z.preprocess(
   processResponseBody,
   z.object({
     adminGroupName: z.string().optional(),
     description: z.string(),
-    discoverable: z.boolean(),
+    discoverable: SafeBoolean,
     identityMode: SiloIdentityMode,
     name: Name,
   })
@@ -1370,7 +1257,7 @@ export const SiloRoleRoleAssignment = z.preprocess(
 )
 
 /**
- * Client view of a `Policy`, which describes how this resource may be accessed
+ * Policy for a particular resource
  *
  * Note that the Policy only describes access granted explicitly for this resource.  The policies of parent resources can also cause a user to have access to this resource.
  */
@@ -1388,8 +1275,8 @@ export const Sled = z.preprocess(
     baseboard: Baseboard,
     id: z.string().uuid(),
     rackId: z.string().uuid(),
-    timeCreated: DateType,
-    timeModified: DateType,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
     usableHardwareThreads: z.number().min(0).max(4294967295),
     usablePhysicalRam: ByteCount,
   })
@@ -1409,7 +1296,7 @@ export const SnapshotState = z.preprocess(
 )
 
 /**
- * Client view of a Snapshot
+ * View of a Snapshot
  */
 export const Snapshot = z.preprocess(
   processResponseBody,
@@ -1421,13 +1308,13 @@ export const Snapshot = z.preprocess(
     projectId: z.string().uuid(),
     size: ByteCount,
     state: SnapshotState,
-    timeCreated: DateType,
-    timeModified: DateType,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
   })
 )
 
 /**
- * Create-time parameters for a {@link Snapshot}
+ * Create-time parameters for a `Snapshot`
  */
 export const SnapshotCreate = z.preprocess(
   processResponseBody,
@@ -1448,7 +1335,7 @@ export const SpoofLoginBody = z.preprocess(
 )
 
 /**
- * Client view of a {@link SshKey}
+ * View of an SSH Key
  */
 export const SshKey = z.preprocess(
   processResponseBody,
@@ -1458,13 +1345,13 @@ export const SshKey = z.preprocess(
     name: Name,
     publicKey: z.string(),
     siloUserId: z.string().uuid(),
-    timeCreated: DateType,
-    timeModified: DateType,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
   })
 )
 
 /**
- * Create-time parameters for an {@link SshKey}
+ * Create-time parameters for an `SshKey`
  */
 export const SshKeyCreate = z.preprocess(
   processResponseBody,
@@ -1486,8 +1373,8 @@ export const SystemUpdate = z.preprocess(
   processResponseBody,
   z.object({
     id: z.string().uuid(),
-    timeCreated: DateType,
-    timeModified: DateType,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
     version: SemverVersion,
   })
 )
@@ -1531,8 +1418,8 @@ export const UpdateDeployment = z.preprocess(
   z.object({
     id: z.string().uuid(),
     status: UpdateStatus,
-    timeCreated: DateType,
-    timeModified: DateType,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
     version: SemverVersion,
   })
 )
@@ -1556,8 +1443,8 @@ export const UpdateableComponent = z.preprocess(
     id: z.string().uuid(),
     status: UpdateStatus,
     systemVersion: SemverVersion,
-    timeCreated: DateType,
-    timeModified: DateType,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
     version: SemverVersion,
   })
 )
@@ -1571,7 +1458,7 @@ export const UpdateableComponentResultsPage = z.preprocess(
 )
 
 /**
- * Client view of a {@link User}
+ * View of a User
  */
 export const User = z.preprocess(
   processResponseBody,
@@ -1579,7 +1466,9 @@ export const User = z.preprocess(
 )
 
 /**
- * Client view of a {@link UserBuiltin}
+ * View of a Built-in User
+ *
+ * A Built-in User is explicitly created as opposed to being derived from an Identify Provider.
  */
 export const UserBuiltin = z.preprocess(
   processResponseBody,
@@ -1587,8 +1476,8 @@ export const UserBuiltin = z.preprocess(
     description: z.string(),
     id: z.string().uuid(),
     name: Name,
-    timeCreated: DateType,
-    timeModified: DateType,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
   })
 )
 
@@ -1628,7 +1517,7 @@ export const UserPassword = z.preprocess(
 )
 
 /**
- * Create-time parameters for a {@link User}
+ * Create-time parameters for a `User`
  */
 export const UserCreate = z.preprocess(
   processResponseBody,
@@ -1652,7 +1541,7 @@ export const UsernamePasswordCredentials = z.preprocess(
 )
 
 /**
- * Client view of a {@link Vpc}
+ * View of a VPC
  */
 export const Vpc = z.preprocess(
   processResponseBody,
@@ -1664,13 +1553,13 @@ export const Vpc = z.preprocess(
     name: Name,
     projectId: z.string().uuid(),
     systemRouterId: z.string().uuid(),
-    timeCreated: DateType,
-    timeModified: DateType,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
   })
 )
 
 /**
- * Create-time parameters for a {@link Vpc}
+ * Create-time parameters for a `Vpc`
  */
 export const VpcCreate = z.preprocess(
   processResponseBody,
@@ -1732,7 +1621,7 @@ export const VpcFirewallRuleStatus = z.preprocess(
 )
 
 /**
- * A `VpcFirewallRuleTarget` is used to specify the set of {@link Instance}s to which a firewall rule applies.
+ * A `VpcFirewallRuleTarget` is used to specify the set of `Instance`s to which a firewall rule applies.
  */
 export const VpcFirewallRuleTarget = z.preprocess(
   processResponseBody,
@@ -1760,8 +1649,8 @@ export const VpcFirewallRule = z.preprocess(
     priority: z.number().min(0).max(65535),
     status: VpcFirewallRuleStatus,
     targets: VpcFirewallRuleTarget.array(),
-    timeCreated: DateType,
-    timeModified: DateType,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
     vpcId: z.string().uuid(),
   })
 )
@@ -1819,14 +1708,14 @@ export const VpcRouter = z.preprocess(
     id: z.string().uuid(),
     kind: VpcRouterKind,
     name: Name,
-    timeCreated: DateType,
-    timeModified: DateType,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
     vpcId: z.string().uuid(),
   })
 )
 
 /**
- * Create-time parameters for a {@link VpcRouter}
+ * Create-time parameters for a `VpcRouter`
  */
 export const VpcRouterCreate = z.preprocess(
   processResponseBody,
@@ -1842,7 +1731,7 @@ export const VpcRouterResultsPage = z.preprocess(
 )
 
 /**
- * Updateable properties of a {@link VpcRouter}
+ * Updateable properties of a `VpcRouter`
  */
 export const VpcRouterUpdate = z.preprocess(
   processResponseBody,
@@ -1860,14 +1749,14 @@ export const VpcSubnet = z.preprocess(
     ipv4Block: Ipv4Net,
     ipv6Block: Ipv6Net,
     name: Name,
-    timeCreated: DateType,
-    timeModified: DateType,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
     vpcId: z.string().uuid(),
   })
 )
 
 /**
- * Create-time parameters for a {@link VpcSubnet}
+ * Create-time parameters for a `VpcSubnet`
  */
 export const VpcSubnetCreate = z.preprocess(
   processResponseBody,
@@ -1888,7 +1777,7 @@ export const VpcSubnetResultsPage = z.preprocess(
 )
 
 /**
- * Updateable properties of a {@link VpcSubnet}
+ * Updateable properties of a `VpcSubnet`
  */
 export const VpcSubnetUpdate = z.preprocess(
   processResponseBody,
@@ -1896,7 +1785,7 @@ export const VpcSubnetUpdate = z.preprocess(
 )
 
 /**
- * Updateable properties of a {@link Vpc}
+ * Updateable properties of a `Vpc`
  */
 export const VpcUpdate = z.preprocess(
   processResponseBody,
@@ -1906,13 +1795,6 @@ export const VpcUpdate = z.preprocess(
     name: Name.optional(),
   })
 )
-
-/**
- * Supported set of sort modes for scanning by name only
- *
- * Currently, we only support scanning in ascending order.
- */
-export const NameSortMode = z.preprocess(processResponseBody, z.enum(['name_ascending']))
 
 /**
  * Supported set of sort modes for scanning by name or id
@@ -1938,6 +1820,13 @@ export const SystemMetricName = z.preprocess(
   processResponseBody,
   z.enum(['virtual_disk_space_provisioned', 'cpus_provisioned', 'ram_provisioned'])
 )
+
+/**
+ * Supported set of sort modes for scanning by name only
+ *
+ * Currently, we only support scanning in ascending order.
+ */
+export const NameSortMode = z.preprocess(processResponseBody, z.enum(['name_ascending']))
 
 export const DeviceAuthRequestParams = z.preprocess(
   processResponseBody,
@@ -2007,56 +1896,6 @@ export const LogoutParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({}),
-    query: z.object({}),
-  })
-)
-
-export const SystemImageViewByIdParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      id: z.string().uuid(),
-    }),
-    query: z.object({}),
-  })
-)
-
-export const SystemImageListParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({}),
-    query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
-      sortBy: NameSortMode.optional(),
-    }),
-  })
-)
-
-export const SystemImageCreateParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({}),
-    query: z.object({}),
-  })
-)
-
-export const SystemImageViewParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      imageName: Name,
-    }),
-    query: z.object({}),
-  })
-)
-
-export const SystemImageDeleteParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      imageName: Name,
-    }),
     query: z.object({}),
   })
 )
@@ -2176,10 +2015,10 @@ export const DiskMetricsListParams = z.preprocess(
       metric: DiskMetricName,
     }),
     query: z.object({
-      endTime: DateType.optional(),
+      endTime: z.coerce.date().optional(),
       limit: z.number().min(1).max(4294967295).optional(),
       pageToken: z.string().optional(),
-      startTime: DateType.optional(),
+      startTime: z.coerce.date().optional(),
       project: NameOrId.optional(),
     }),
   })
@@ -2212,7 +2051,7 @@ export const ImageListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      includeSiloImages: z.boolean().optional(),
+      includeSiloImages: SafeBoolean.optional(),
       limit: z.number().min(1).max(4294967295).optional(),
       pageToken: z.string().optional(),
       project: NameOrId.optional(),
@@ -3004,11 +2843,11 @@ export const SystemMetricParams = z.preprocess(
       metricName: SystemMetricName,
     }),
     query: z.object({
-      endTime: DateType.optional(),
+      endTime: z.coerce.date().optional(),
       id: z.string().uuid().optional(),
       limit: z.number().min(1).max(4294967295).optional(),
       pageToken: z.string().optional(),
-      startTime: DateType.optional(),
+      startTime: z.coerce.date().optional(),
     }),
   })
 )
@@ -3045,28 +2884,6 @@ export const RoleViewParams = z.preprocess(
   z.object({
     path: z.object({
       roleName: z.string(),
-    }),
-    query: z.object({}),
-  })
-)
-
-export const SagaListParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({}),
-    query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
-      sortBy: IdSortMode.optional(),
-    }),
-  })
-)
-
-export const SagaViewParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      sagaId: z.string().uuid(),
     }),
     query: z.object({}),
   })
