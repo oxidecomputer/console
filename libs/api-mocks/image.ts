@@ -18,6 +18,7 @@ export const images: Json<Image>[] = [
     size: 4 * GiB,
     os: 'alpine',
     version: 'edge1',
+    project_id: project.id,
     ...base,
   },
 
