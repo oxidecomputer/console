@@ -95,7 +95,7 @@ export function SideModal({
   )
 }
 
-SideModal.Title = classed.h2`mt-8 mb-8 text-sans-2xl`
+SideModal.Title = classed.h2`mt-8 mb-10 text-sans-2xl`
 
 SideModal.Body = classed.div`body relative overflow-y-auto h-full pb-6`
 

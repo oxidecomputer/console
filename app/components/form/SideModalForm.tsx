@@ -5,17 +5,7 @@ import { useForm } from 'react-hook-form'
 import { useNavigationType } from 'react-router-dom'
 
 import type { ErrorResult } from '@oxide/api'
-import { Error12Icon } from '@oxide/ui'
 import { Button, SideModal } from '@oxide/ui'
-
-export function ModalFooterError({ children }: { children: ReactNode }) {
-  return (
-    <div className="flex grow gap-1.5 text-sans-sm text-error">
-      <Error12Icon className="mt-0.5 shrink-0" />
-      <span>{children}</span>
-    </div>
-  )
-}
 
 type SideModalFormProps<TFieldValues extends FieldValues> = {
   id: string
@@ -67,13 +57,19 @@ export function SideModalForm<TFieldValues extends FieldValues>({
   const animate = useNavigationType() === 'PUSH'
 
   useEffect(() => {
-    if (!submitError?.error || !('errorCode' in submitError.error)) return
+    if (
+      submitError?.error &&
+      ('errorCode' in submitError.error || 'name' in submitError.error)
+    ) {
+      const nameOrErrorCode =
+        'errorCode' in submitError.error
+          ? submitError.error.errorCode
+          : (submitError.error as Error).name
 
-    if (submitError.error.errorCode === 'ObjectAlreadyExists') {
       // Check if there is a 'name' field in the form
       // If there is we set an error on it when it
       // already exists
-      if ('name' in form.getValues()) {
+      if (nameOrErrorCode === 'ObjectAlreadyExists' && 'name' in form.getValues()) {
         // @ts-ignore
         form.setError('name', { message: 'Name already exists' })
       }
@@ -113,9 +109,6 @@ export function SideModalForm<TFieldValues extends FieldValues>({
       <SideModal.Footer
         error={submitError?.error && 'message' in submitError.error ? true : false}
       >
-        {/* {submitError?.error && 'message' in submitError.error && (
-          <ModalFooterError>{submitError.error.message}</ModalFooterError>
-        )} */}
         <Button variant="ghost" size="sm" onClick={onDismiss}>
           Cancel
         </Button>

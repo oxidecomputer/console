@@ -10,6 +10,7 @@ export interface MessageProps {
   title: string
   children: ReactNode
   variant?: Variant
+  className?: string
 }
 
 const icon: Record<Variant, JSX.Element> = {
@@ -42,7 +43,12 @@ const secondaryTextColor: Record<Variant, string> = {
   notice: 'text-notice-secondary',
 }
 
-export const Message = ({ title, children, variant = 'notice' }: MessageProps) => {
+export const Message = ({
+  title,
+  children,
+  className,
+  variant = 'notice',
+}: MessageProps) => {
   // TODO: consider assertive announce for error toasts
   useEffect(() => announce(title + ' ' + children, 'polite'), [title, children])
   return (
@@ -50,7 +56,8 @@ export const Message = ({ title, children, variant = 'notice' }: MessageProps) =
       className={cn(
         'relative flex w-full items-start overflow-hidden rounded-lg p-4 elevation-1',
         color[variant],
-        textColor[variant]
+        textColor[variant],
+        className
       )}
     >
       <div className="mt-[2px] flex svg:h-3 svg:w-3">{icon[variant]}</div>

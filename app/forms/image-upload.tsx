@@ -13,6 +13,7 @@ import {
   Error12Icon,
   FieldLabel,
   FileInput,
+  Message,
   Modal,
   Progress,
   Spinner,
@@ -23,7 +24,6 @@ import { GiB, KiB } from '@oxide/util'
 
 import {
   DescriptionField,
-  ModalFooterError,
   NameField,
   RadioField,
   SideModalForm,
@@ -54,21 +54,21 @@ async function readBlobAsBase64(blob: Blob): Promise<string> {
 const fsize = (bytes: number) => filesize(bytes, { base: 2, pad: true })
 
 type FormValues = {
-  imageName: string
-  imageDescription: string
+  name: string
+  description: string
   os: string
   version: string
   blockSize: BlockSize
-  imageFile: File | null
+  file: File | null
 }
 
 const defaultValues: FormValues = {
-  imageName: '',
-  imageDescription: '',
+  name: '',
+  description: '',
   os: '',
   version: '',
   blockSize: 512,
-  imageFile: null,
+  file: null,
 }
 
 // subset of the mutation state we care about
@@ -89,9 +89,10 @@ type StepProps = {
   state: MutationState
   label: string
   duration?: number
+  className?: string
 }
 
-function Step({ children, state, label }: StepProps) {
+function Step({ children, state, label, className }: StepProps) {
   /* eslint-disable react/jsx-key */
   const [status, icon] = state.isSuccess
     ? ['complete', <Success12Icon className="text-accent" />]
@@ -103,7 +104,7 @@ function Step({ children, state, label }: StepProps) {
   /* eslint-enable react/jsx-key */
   return (
     // data-status used only for e2e testing
-    <div className="items-top flex gap-2 py-3 px-4" data-status={status}>
+    <div className={cn('items-top flex gap-2 py-3 px-4', className)} data-status={status}>
       {/* padding on icon to align it with text since everything is aligned to top */}
       <div className="pt-px">{icon}</div>
       <div
@@ -118,7 +119,7 @@ function Step({ children, state, label }: StepProps) {
 
 const randInt = () => Math.floor(Math.random() * 100000000)
 
-function getTmpDiskName(imageName: string) {
+function getTmpDiskName(name: string) {
   if (process.env.NODE_ENV === 'development') {
     // this is only here for testing purposes. because we normally generate a
     // random tmp disk name, we have to not do that if we want to pass special
@@ -131,7 +132,7 @@ function getTmpDiskName(imageName: string) {
       'import-stop-500',
       'disk-finalize-500',
     ])
-    if (specialNames.has(imageName)) return imageName
+    if (specialNames.has(name)) return name
   }
 
   return `tmp-for-image-${randInt()}`
@@ -332,15 +333,8 @@ export function CreateImageSideModalForm() {
     cleaningUp.current = false
   }
 
-  async function onSubmit({
-    imageName,
-    imageDescription,
-    imageFile,
-    blockSize,
-    os,
-    version,
-  }: FormValues) {
-    invariant(imageFile) // shouldn't be possible to fail bc file is a required field
+  async function onSubmit({ name, description, file, blockSize, os, version }: FormValues) {
+    invariant(file) // shouldn't be possible to fail bc file is a required field
 
     // this is done up here instead of next to the upload step because after
     // upload is canceled, a few outstanding bulk writes will complete, setting
@@ -352,14 +346,14 @@ export function CreateImageSideModalForm() {
     setModalOpen(true)
 
     // Create a disk in state import-ready
-    const diskName = getTmpDiskName(imageName)
+    const diskName = getTmpDiskName(name)
     disk.current = await createDisk.mutateAsync({
       query: { project },
       body: {
         name: diskName,
-        description: `temporary disk for importing image ${imageName}`,
+        description: `temporary disk for importing image ${name}`,
         diskSource: { type: 'importing_blocks', blockSize },
-        size: Math.ceil(imageFile.size / GiB) * GiB,
+        size: Math.ceil(file.size / GiB) * GiB,
       },
     })
 
@@ -380,7 +374,7 @@ export function CreateImageSideModalForm() {
 
     setSyntheticUploadState({ isLoading: true, isSuccess: false, isError: false })
 
-    const nChunks = Math.ceil(imageFile.size / CHUNK_SIZE)
+    const nChunks = Math.ceil(file.size / CHUNK_SIZE)
 
     // TODO: try to warn user if they try to close the tab while this is going
 
@@ -388,8 +382,8 @@ export function CreateImageSideModalForm() {
 
     const postChunk = async (i: number) => {
       const offset = i * CHUNK_SIZE
-      const end = Math.min(offset + CHUNK_SIZE, imageFile.size)
-      const base64EncodedData = await readBlobAsBase64(imageFile.slice(offset, end))
+      const end = Math.min(offset + CHUNK_SIZE, file.size)
+      const base64EncodedData = await readBlobAsBase64(file.slice(offset, end))
       await uploadChunk
         .mutateAsync({ path, body: { offset, base64EncodedData } })
         .catch(() => {
@@ -445,8 +439,8 @@ export function CreateImageSideModalForm() {
     await createImage.mutateAsync({
       query: { project },
       body: {
-        name: imageName,
-        description: imageDescription,
+        name,
+        description,
         blockSize,
         os,
         version,
@@ -481,7 +475,7 @@ export function CreateImageSideModalForm() {
         // check that image name isn't taken before starting the whole thing
         const image = await queryClient
           .fetchQuery('imageView', {
-            path: { image: values.imageName },
+            path: { image: values.name },
             query: { project },
           })
           .catch((e) => {
@@ -525,15 +519,11 @@ export function CreateImageSideModalForm() {
       submitLabel={allDone ? 'Done' : 'Upload image'}
     >
       {({ control, watch }) => {
-        const file = watch('imageFile')
+        const file = watch('file')
         return (
           <>
-            <NameField name="imageName" label="Name" control={control} />
-            <DescriptionField
-              name="imageDescription"
-              label="Description"
-              control={control}
-            />
+            <NameField name="name" label="Name" control={control} />
+            <DescriptionField name="description" label="Description" control={control} />
             {/* TODO: are OS and Version supposed to be non-empty? I doubt the API cares,
              * but it will be pretty for end users if they're empty
              */}
@@ -552,30 +542,42 @@ export function CreateImageSideModalForm() {
               ]}
             />
             <Controller
-              name="imageFile"
+              name="file"
               control={control}
               rules={{ required: true }}
               render={({ field: { value: _value, ...rest }, fieldState: { error } }) => (
                 <div>
                   <FieldLabel id="image-file-input-label" htmlFor="image-file-input">
                     Image file
-                    {error && (
-                      <span className="ml-2">
-                        <ErrorMessage error={error} label="File" />
-                      </span>
-                    )}
                   </FieldLabel>
                   {/*  TODO: this doesn't like being passed a ref because FileInput doesn't forward it */}
-                  <FileInput id="image-file-input" className="mt-2" {...rest} />
+                  <div>
+                    <FileInput
+                      id="image-file-input"
+                      className="mt-2"
+                      {...rest}
+                      error={error ? true : false}
+                    />
+                    {error && <ErrorMessage error={error} label="File" />}
+                  </div>
                 </div>
               )}
             />
             {file && modalOpen && (
               <Modal isOpen onDismiss={closeModal}>
                 <Modal.Title>Image upload progress</Modal.Title>
-                <Modal.Body>
+                <Modal.Body className="!p-0">
                   <Modal.Section className="!p-0">
                     <div className="children:border-b children:border-b-secondary last:children:border-b-0">
+                      {modalError && (
+                        <Message
+                          variant="error"
+                          title="Error"
+                          className="!rounded-none !shadow-none"
+                        >
+                          {modalError}
+                        </Message>
+                      )}
                       <Step state={createDisk} label="Create temporary disk" />
                       <Step state={startImport} label="Put disk in import mode" />
                       <Step state={syntheticUploadState} label="Upload image file">
@@ -614,6 +616,19 @@ export function CreateImageSideModalForm() {
                         }}
                         label="Delete disk and snapshot"
                       />
+                      <Step
+                        state={{
+                          isLoading: false,
+                          isSuccess: allDone,
+                          isError: false,
+                        }}
+                        label="Image uploaded successfully"
+                        className={
+                          allDone
+                            ? 'transition-colors bg-accent-secondary children:text-accent'
+                            : ' transition-colors'
+                        }
+                      />
                     </div>
                   </Modal.Section>
                 </Modal.Body>
@@ -621,13 +636,9 @@ export function CreateImageSideModalForm() {
                   onDismiss={closeModal}
                   onAction={backToImages}
                   actionText="Done"
-                  cancelText={modalError ? 'Back' : 'Cancel'}
+                  cancelText={modalError || allDone ? 'Close' : 'Cancel'}
                   disabled={!allDone}
-                >
-                  {/* TODO: style success message better */}
-                  {allDone && <div>Image created!</div>}
-                  {modalError && <ModalFooterError>{modalError}</ModalFooterError>}
-                </Modal.Footer>
+                />
               </Modal>
             )}
           </>
