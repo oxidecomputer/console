@@ -85,19 +85,6 @@ export function CreateDiskSideModalForm({
           <NameField name="name" control={control} />
           <DescriptionField name="description" control={control} />
           <Divider />
-          <RadioField
-            column
-            name="diskSource.blockSize"
-            label="Block size"
-            units="Bytes"
-            control={control}
-            parseValue={(val) => parseInt(val, 10) as BlockSize}
-            items={[
-              { label: '4096', value: 4096 },
-              { label: '512', value: 512 },
-            ]}
-          />
-
           <DiskSourceField control={control} />
           <DiskSizeField name="size" control={control} />
         </>
@@ -131,6 +118,20 @@ const DiskSourceField = ({ control }: { control: Control<DiskCreate> }) => {
         </RadioGroup>
       </div>
       <div className="max-w-lg">
+        {value.type === 'blank' && (
+          <RadioField
+            column
+            name="diskSource.blockSize"
+            label="Block size"
+            units="Bytes"
+            control={control}
+            parseValue={(val) => parseInt(val, 10) as BlockSize}
+            items={[
+              { label: '4096', value: 4096 },
+              { label: '512', value: 512 },
+            ]}
+          />
+        )}
         {value.type === 'image' && <ImageSelectField control={control} />}
 
         {value.type === 'snapshot' && <SnapshotSelectField control={control} />}
