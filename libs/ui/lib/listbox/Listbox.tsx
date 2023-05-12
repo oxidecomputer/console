@@ -75,6 +75,7 @@ export const Listbox = ({
           rounded border px-3 text-sans-md`,
           hasError ? 'focus-error border-destructive' : 'border-default',
           select.isOpen && 'ring-2 ring-accent-secondary',
+          select.isOpen && hasError && 'ring-error-secondary',
           props.disabled ? 'cursor-not-allowed text-disabled bg-disabled' : 'bg-default'
         )}
         {...select.getToggleButtonProps()}
