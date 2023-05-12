@@ -97,7 +97,7 @@ export const Listbox = ({
         )}
         {...select.getMenuProps()}
       >
-        {select.isOpen &&
+        {select.isOpen && items.length > 0 ? (
           items.map((item, index) => (
             <div key={index} className="relative border-b border-secondary last:border-0">
               <li
@@ -111,7 +111,10 @@ export const Listbox = ({
                 {item.label}
               </li>
             </div>
-          ))}
+          ))
+        ) : (
+          <div className="ox-menu-item py-3 text-center text-secondary">No items</div>
+        )}
       </ul>
     </div>
   )
