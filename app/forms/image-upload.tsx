@@ -390,12 +390,16 @@ export function CreateImageSideModalForm() {
       const offset = i * CHUNK_SIZE
       const end = Math.min(offset + CHUNK_SIZE, imageFile.size)
       const base64EncodedData = await readBlobAsBase64(imageFile.slice(offset, end))
-      await uploadChunk
-        .mutateAsync({ path, body: { offset, base64EncodedData } })
-        .catch(() => {
-          // this needs to throw a regular Error or pRetry gets mad
-          throw Error(`Chunk ${i} (offset ${offset}) failed`)
-        })
+
+      // Avoid uploading the chunk if it is all zero.
+      if (!/^A*=*$/.test(base64EncodedData)) {
+        await uploadChunk
+          .mutateAsync({ path, body: { offset, base64EncodedData } })
+          .catch(() => {
+            // this needs to throw a regular Error or pRetry gets mad
+            throw Error(`Chunk ${i} (offset ${offset}) failed`)
+          })
+      }
       chunksProcessed++
       setUploadProgress(Math.round((100 * chunksProcessed) / nChunks))
     }
