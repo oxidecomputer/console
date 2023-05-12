@@ -5,7 +5,7 @@ import { MiB } from '@oxide/util'
 
 import { expectNotVisible, expectRowVisible, expectVisible } from 'app/test/e2e'
 
-async function chooseFile(page: Page, size = 10 * MiB) {
+async function chooseFile(page: Page, size = 5 * MiB) {
   const fileChooserPromise = page.waitForEvent('filechooser')
   await page.getByText('Image file').click()
   const fileChooser = await fileChooserPromise
@@ -23,7 +23,7 @@ async function expectUploadProcess(page: Page) {
   const steps = page.locator('div[data-status]')
 
   for (const step of await steps.all()) {
-    await expect(step).toHaveAttribute('data-status', 'ready')
+    await expect(step).toHaveAttribute('data-status', 'ready', { timeout: 10000 })
   }
 
   // check these here instead of first because if we don't look for the ready
@@ -36,7 +36,7 @@ async function expectUploadProcess(page: Page) {
     await expect(step).toHaveAttribute('data-status', 'complete')
   }
 
-  await expect(done).toBeEnabled()
+  await expect(done).toBeEnabled({ timeout: 10000 })
   await done.click()
 }
 

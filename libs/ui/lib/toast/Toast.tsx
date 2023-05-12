@@ -2,19 +2,35 @@ import { announce } from '@react-aria/live-announcer'
 import cn from 'classnames'
 import type { ReactElement } from 'react'
 import { useEffect } from 'react'
+import { Link, type To } from 'react-router-dom'
 
-import { Close12Icon } from '../icons'
+import { Close12Icon, Error12Icon, Success12Icon, Warning12Icon } from '../icons'
 import { TimeoutIndicator } from '../timeout-indicator/TimeoutIndicator'
 
 type Variant = 'success' | 'error' | 'info'
 
 export interface ToastProps {
-  title: string
+  title?: string
   content?: string
-  icon: ReactElement
   onClose: () => void
   variant?: Variant
   timeout?: number | null
+  cta?: {
+    text: string
+    link: To
+  }
+}
+
+const icon: Record<Variant, ReactElement> = {
+  success: <Success12Icon />,
+  error: <Error12Icon />,
+  info: <Warning12Icon />,
+}
+
+const defaultTitle: Record<Variant, string> = {
+  success: 'Success',
+  error: 'Error',
+  info: 'Note',
 }
 
 const color: Record<Variant, string> = {
@@ -29,6 +45,12 @@ const textColor: Record<Variant, string> = {
   info: 'text-notice children:text-notice',
 }
 
+const secondaryTextColor: Record<Variant, string> = {
+  success: 'text-accent-secondary',
+  error: 'text-error-secondary',
+  info: 'text-notice-secondary',
+}
+
 const progressColor: Record<Variant, string> = {
   success: 'bg-accent-raise',
   error: 'bg-destructive-raise',
@@ -38,13 +60,16 @@ const progressColor: Record<Variant, string> = {
 export const Toast = ({
   title,
   content,
-  icon,
   onClose,
   variant = 'success',
   timeout = 5000,
+  cta,
 }: ToastProps) => {
   // TODO: consider assertive announce for error toasts
-  useEffect(() => announce(title + ' ' + content, 'polite'), [title, content])
+  useEffect(
+    () => announce((title || defaultTitle[variant]) + ' ' + content, 'polite'),
+    [title, content, variant]
+  )
   return (
     <div
       className={cn(
@@ -53,10 +78,19 @@ export const Toast = ({
         textColor[variant]
       )}
     >
-      <div className="mt-[2px] flex svg:h-3 svg:w-3">{icon}</div>
+      <div className="mt-[2px] flex svg:h-3 svg:w-3">{icon[variant]}</div>
       <div className="flex-1 pl-2.5">
-        <div className="text-sans-semi-md">{title}</div>
-        <div className="text-sans-md text-accent-secondary">{content}</div>
+        <div className="text-sans-semi-md">{title || defaultTitle[variant]}</div>
+        <div className={cn('text-sans-md', secondaryTextColor[variant])}>{content}</div>
+
+        {cta && (
+          <Link
+            className="mt-4 block text-mono-sm text-accent-secondary hover:text-accent"
+            to={cta.link}
+          >
+            {cta.text}
+          </Link>
+        )}
       </div>
       <button
         aria-label="Dismiss notification"

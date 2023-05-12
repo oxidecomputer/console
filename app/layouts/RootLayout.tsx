@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { Outlet, ScrollRestoration, useNavigation } from 'react-router-dom'
 
 import { useCrumbs } from 'app/hooks/use-crumbs'
+import { ToastStack } from 'app/hooks/use-toast/ToastStack'
 
 function useSetTitle() {
   const crumbs = useCrumbs()
@@ -32,6 +33,7 @@ export default function RootLayout() {
       <LoadingBar />
       <Outlet />
       <ScrollRestoration />
+      <ToastStack />
     </>
   )
 }

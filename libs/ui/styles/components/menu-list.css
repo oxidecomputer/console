@@ -1,9 +1,17 @@
 .ox-menu {
-  @apply absolute left-0 right-0 z-10 mt-3 max-h-[17.5rem] overflow-y-auto rounded bg-raise border-secondary elevation-2 focus:outline-none children:border-b children:border-secondary children:border-b-secondary last:children:border-b-0;
+  @apply absolute left-0 right-0 z-10 mt-3 max-h-[17.5rem] overflow-y-auto rounded border bg-raise border-secondary elevation-2;
 }
 
 .ox-menu-item {
-  @apply relative cursor-pointer px-3 py-2 text-sans-md text-default hover:bg-raise-hover;
+  @apply relative cursor-pointer px-3 py-2 text-sans-md text-default;
+}
+
+.ox-menu-item.is-highlighted {
+  @apply bg-tertiary;
+}
+
+.ox-menu-item.is-highlighted.is-selected {
+  @apply bg-accent-secondary-hover;
 }
 
 .ox-menu-item.is-selected {

@@ -13,9 +13,10 @@ import {
 } from '@oxide/api'
 import {
   Divider,
+  EmptyMessage,
+  Images16Icon,
   Instances24Icon,
   RadioCard,
-  Success12Icon,
   Tabs,
   TextInputHint,
 } from '@oxide/ui'
@@ -73,8 +74,9 @@ const baseDefaultValues: InstanceCreateInput = {
 
 CreateInstanceForm.loader = async ({ params }: LoaderFunctionArgs) => {
   await Promise.all([
-    apiQueryClient.prefetchQuery('imageList', { query: getProjectSelector(params) }),
-    apiQueryClient.prefetchQuery('systemImageList', {}),
+    apiQueryClient.prefetchQuery('imageList', {
+      query: { includeSiloImages: true, ...getProjectSelector(params) },
+    }),
   ])
   return null
 }
@@ -96,19 +98,19 @@ export function CreateInstanceForm() {
         instance
       )
       addToast({
-        icon: <Success12Icon />,
-        title: 'Success!',
-        content: 'Your instance has been created.',
+        content: 'Your instance has been created',
       })
       navigate(pb.instancePage({ ...projectSelector, instance: instance.name }))
     },
   })
 
-  const systemImages = useApiQuery('systemImageList', {}).data?.items || []
-  const projectImages =
-    useApiQuery('imageList', { query: projectSelector }).data?.items || []
+  const images =
+    useApiQuery('imageList', { query: { includeSiloImages: true, ...projectSelector } })
+      .data?.items || []
+  const siloImages = images.filter((i) => !i.projectId)
+  const projectImages = images.filter((i) => i.projectId)
 
-  const defaultImage = systemImages[0]
+  const defaultImage = images[0]
 
   const defaultValues: InstanceCreateInput = {
     ...baseDefaultValues,
@@ -127,9 +129,7 @@ export function CreateInstanceForm() {
         const instance = INSTANCE_SIZES.find((option) => option.id === values['type'])
         invariant(instance, 'Expected instance type to be defined')
 
-        const projectImage = projectImages.find((i) => values.image === i.id)
-        const systemImage = systemImages.find((i) => values.image === i.id)
-        const image = projectImage || systemImage
+        const image = images.find((i) => values.image === i.id)
         invariant(image, 'Expected image to be defined')
 
         const bootDiskName = values.bootDiskName || genName(values.name, image.name)
@@ -152,7 +152,7 @@ export function CreateInstanceForm() {
                 // TODO: Verify size is larger than the minimum image size
                 size: values.bootDiskSize * GiB,
                 diskSource: {
-                  type: projectImage ? 'image' : 'global_image',
+                  type: 'image',
                   imageId: values.image,
                 },
               },
@@ -234,20 +234,42 @@ export function CreateInstanceForm() {
           <Divider />
 
           <Form.Heading id="boot-disk">Boot disk</Form.Heading>
-          <Tabs.Root id="boot-disk-tabs" className="full-width" defaultValue="system">
+          <Tabs.Root id="boot-disk-tabs" className="full-width" defaultValue="project">
             <Tabs.List aria-describedby="boot-disk">
-              <Tabs.Trigger value="system">System images</Tabs.Trigger>
               <Tabs.Trigger value="project">Project images</Tabs.Trigger>
+              <Tabs.Trigger value="silo">Silo images</Tabs.Trigger>
             </Tabs.List>
-            <Tabs.Content value="system" className="space-y-4">
-              {systemImages.length === 0 && <span>No images found</span>}
-              <ImageSelectField images={systemImages} control={control} />
+            <Tabs.Content value="project" className="space-y-4">
+              {projectImages.length === 0 ? (
+                <div className="flex max-w-lg items-center justify-center rounded-lg border p-6 border-default">
+                  <EmptyMessage
+                    icon={<Images16Icon />}
+                    title="No project images found"
+                    body="An image needs to be uploaded to be seen here"
+                    buttonText="Upload image"
+                    onClick={() => navigate(pb.projectImageNew(projectSelector))}
+                  />
+                </div>
+              ) : (
+                <ImageSelectField images={projectImages} control={control} />
+              )}
             </Tabs.Content>
-            <Tabs.Content value="project">
-              {projectImages.length === 0 && <span>No images found</span>}
-              <ImageSelectField images={projectImages} control={control} />
+            <Tabs.Content value="silo" className="space-y-4">
+              {siloImages.length === 0 ? (
+                <div className="flex max-w-lg items-center justify-center rounded-lg border p-6 border-default">
+                  <EmptyMessage
+                    icon={<Images16Icon />}
+                    title="No silo images found"
+                    body="Project images need to be promoted to be seen here"
+                  />
+                </div>
+              ) : (
+                <ImageSelectField images={siloImages} control={control} />
+              )}
             </Tabs.Content>
           </Tabs.Root>
+
+          <div className="!my-16 content-['a']"></div>
 
           <DiskSizeField label="Disk size" name="bootDiskSize" control={control} />
           <NameField

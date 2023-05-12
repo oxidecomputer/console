@@ -1,17 +1,15 @@
 import type { Control } from 'react-hook-form'
 import { useController } from 'react-hook-form'
 
-import type { GlobalImage, Image } from '@oxide/api'
+import type { Image } from '@oxide/api'
 import { GiB } from '@oxide/util'
 
 import type { InstanceCreateInput } from 'app/forms/instance-create'
 
 import { ListboxField } from './ListboxField'
 
-type Img = Image | GlobalImage
-
 type ImageSelectFieldProps = {
-  images: Img[]
+  images: Image[]
   control: Control<InstanceCreateInput>
 }
 
@@ -21,16 +19,16 @@ export function ImageSelectField({ images, control }: ImageSelectFieldProps) {
     <ListboxField
       control={control}
       name="image"
+      placeholder="Select an image"
       items={images.map((i) => {
-        const os = 'distribution' in i ? i.distribution : i.os
         return {
           value: i.id,
-          labelString: `${i.name} (os: ${os}, version: ${i.version})`,
+          labelString: `${i.name} (${i.os}, ${i.version})`,
           label: (
             <>
               <div>{i.name}</div>
               <div className="text-secondary">
-                os: {os} / version: {i.version}
+                {i.os} <span className="text-quinary">/</span> {i.version}
               </div>
             </>
           ),

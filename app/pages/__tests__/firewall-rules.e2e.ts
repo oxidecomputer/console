@@ -1,21 +1,18 @@
 import { expect, expectNotVisible, expectVisible, test } from 'app/test/e2e'
 
-test.beforeEach(async ({ page, createVpc, projectName, vpcName }) => {
-  await createVpc(projectName, vpcName)
-  await page.goto(`/projects/${projectName}/vpcs/${vpcName}?tab=firewall-rules`)
-})
-
 test.fixme('Expect no firewall rules by default', async ({ page }) => {
+  await page.goto('/projects/mock-project/vpcs/mock-vpc?tab=firewall-rules')
   await expectVisible(page, ['text="No firewall rules"'])
 })
 
-test('Can create a firewall rule', async ({ page, genName }) => {
+test('Can create a firewall rule', async ({ page }) => {
+  await page.goto('/projects/mock-project/vpcs/mock-vpc?tab=firewall-rules')
   await page.locator('text="New rule"').first().click()
 
   const modal = 'role=dialog[name="Add firewall rule"]'
   await expectVisible(page, [modal])
 
-  const rule = genName('rule-1')
+  const rule = 'rule-1'
   await page.fill('input[name=name]', rule)
   await page.getByRole('radio', { name: 'Outgoing' }).click()
   await page.fill('role=spinbutton[name="Priority"]', '5')

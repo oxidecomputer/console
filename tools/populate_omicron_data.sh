@@ -10,8 +10,6 @@ set -o xtrace
 
 # The CLI manual is here: https://docs.oxide.computer/cli
 
-./tools/populate/populate-alpine.sh
-
 oxide ip-pool range add --pool default \
   --first "172.20.15.227" \
   --last "172.20.15.239"
@@ -28,6 +26,21 @@ oxide project create --name rendering \
   --description "The rendering project."
 oxide project create --name test-infrastructure \
   --description "The test infrastructure project."
+
+oxide api '/v1/images?project=prod-online' --method POST --input - <<EOF
+  {
+    "name": "alpine",
+    "description": "boot from propolis zone blob!",
+    "block_size": 512,
+    "os": "alpine",
+    "version": "1.0.0",
+    "source": {
+      "type": "you_can_boot_anything_as_long_as_its_alpine"
+    }
+  }
+  EOF
+
+./tools/populate/populate-alpine.sh
 
 # Create instances in project prod-online
 

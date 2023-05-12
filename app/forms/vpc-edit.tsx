@@ -2,7 +2,6 @@ import type { LoaderFunctionArgs } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 
 import { apiQueryClient, useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
-import { Success12Icon } from '@oxide/ui'
 import { toPathQuery } from '@oxide/util'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
@@ -35,9 +34,7 @@ export function EditVpcSideModalForm() {
         vpc
       )
       addToast({
-        icon: <Success12Icon />,
-        title: 'Success!',
-        content: 'Your VPC has been created.',
+        content: 'Your VPC has been created',
       })
       onDismiss()
     },

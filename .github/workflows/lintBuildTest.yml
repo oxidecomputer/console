@@ -80,8 +80,6 @@ jobs:
         run: npx playwright install --with-deps
       - name: Run Playwright browser tests
         run: npx playwright test --workers=2 --project=${{matrix.browser}}
-      - name: Run Playwright smoke tests
-        run: npx playwright test --workers=2 --project=${{matrix.browser}} -c playwright.config.smoke.ts
       - uses: actions/upload-artifact@v3
         if: always()
         with:

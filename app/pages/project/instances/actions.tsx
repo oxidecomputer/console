@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom'
 
 import { type Instance, useApiMutation } from '@oxide/api'
 import type { MakeActions } from '@oxide/table'
-import { Success12Icon } from '@oxide/ui'
 import { toPathQuery } from '@oxide/util'
 
 import { useToast } from 'app/hooks'
@@ -42,7 +41,7 @@ export const useMakeInstanceActions = (
 
   return useCallback(
     (instance) => {
-      const successToast = (title: string) => addToast({ icon: <Success12Icon />, title })
+      const successToast = (title: string) => addToast({ title })
       const instanceName = instance.name
       const instanceSelector = { ...projectSelector, instance: instanceName }
       const instanceParams = toPathQuery('instance', instanceSelector)

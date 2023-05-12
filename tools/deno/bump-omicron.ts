@@ -19,6 +19,21 @@ function run(cmd: string, args: string[]): string {
   return new TextDecoder().decode(stdout).trim()
 }
 
+function getUploadAssetsWorkflowId() {
+  return run('gh', [
+    'run',
+    'list',
+    '-L',
+    '1',
+    '-w',
+    'Upload assets to dl.oxide.computer',
+    '--json',
+    'databaseId',
+    '--jq',
+    '.[0].databaseId',
+  ])
+}
+
 // script starts here
 
 const args = flags.parse(Deno.args, {
@@ -55,11 +70,17 @@ const shaUrl = `https://dl.oxide.computer/releases/console/${newCommit}.sha256.t
 const shaResp = await fetch(shaUrl)
 
 if (!shaResp.ok) {
-  // most likely the CI job that builds and uploads the file hasn't finished
-  console.error('Failed to fetch', shaUrl)
+  console.error(
+    `
+Failed to fetch console tarball SHA. Either the current commit has not been pushed to origin/main or the CI job that uploads the assets is still running.
+
+Run 'gh run watch ${getUploadAssetsWorkflowId()}' to watch the latest asset upload action.
+`
+  )
+  console.error('URL:', shaUrl)
   console.error('Status:', shaResp.status)
   console.error('Body:', await shaResp.text())
-  Deno.exit()
+  Deno.exit(1)
 }
 
 const newSha2 = (await shaResp.text()).trim()
@@ -120,7 +141,14 @@ run('git', ['checkout', '-b', branchName])
 run('git', ['add', '--all'])
 run('git', ['commit', '-m', prTitle, '-m', prBody])
 run('git', ['push', '--set-upstream', 'origin', branchName])
+
+// create PR
 const prUrl = run('gh', ['pr', 'create', '--title', prTitle, '--body', prBody])
 console.log('PR created:', prUrl)
+
+// set it to auto merge
+const prNum = prUrl.match(/\d+$/)![0]
+console.log(run('gh', ['pr', 'merge', prNum, '--auto', '--squash']))
+
 run('git', ['checkout', 'main'])
 run('git', ['branch', '-D', branchName])

@@ -48,6 +48,7 @@ import { CapacityUtilizationPage } from './pages/system/CapacityUtilizationPage'
 import { DisksTab } from './pages/system/InventoryPage/DisksTab'
 import { InventoryPage } from './pages/system/InventoryPage/InventoryPage'
 import { SledsTab } from './pages/system/InventoryPage/SledsTab'
+import { SiloImagesPage } from './pages/system/SiloImagesPage'
 import { SiloPage } from './pages/system/SiloPage'
 import SilosPage from './pages/system/SilosPage'
 import { UpdateDetailSideModal } from './pages/system/UpdateDetailSideModal'
@@ -89,7 +90,7 @@ export const routes = createRoutesFromElements(
         </Route>
       </Route>
 
-      <Route path="sys" element={<SystemLayout />} loader={SystemLayout.loader}>
+      <Route path="system" element={<SystemLayout />} loader={SystemLayout.loader}>
         <Route
           element={<SilosPage />}
           loader={SilosPage.loader}
@@ -166,6 +167,12 @@ export const routes = createRoutesFromElements(
       <Route path="projects/:project" element={<Navigate to="instances" replace />} />
 
       <Route element={<SiloLayout />}>
+        <Route
+          path="images"
+          element={<SiloImagesPage />}
+          loader={SiloImagesPage.loader}
+          handle={{ crumb: 'Images' }}
+        />
         <Route
           path="utilization"
           element={<SiloUtilizationPage />}
