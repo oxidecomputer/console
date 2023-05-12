@@ -74,7 +74,6 @@ export function CreateDiskSideModalForm({
       onDismiss={() => onDismiss(navigate)}
       onSubmit={({ size, ...rest }) => {
         const body = { size: size * GiB, ...rest }
-        console.log(body)
         onSubmit ? onSubmit(body) : createDisk.mutate({ query: projectSelector, body })
       }}
       loading={createDisk.isLoading}
