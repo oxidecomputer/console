@@ -98,24 +98,25 @@ export const Listbox = ({
         )}
         {...select.getMenuProps()}
       >
-        {select.isOpen && items.length > 0 ? (
-          items.map((item, index) => (
-            <div key={index} className="relative border-b border-secondary last:border-0">
-              <li
-                key={item.value}
-                className={cn('ox-menu-item', {
-                  'is-selected': select.selectedItem?.value === item.value,
-                  'is-highlighted': select.highlightedIndex === index,
-                })}
-                {...select.getItemProps({ item, index })}
-              >
-                {item.label}
-              </li>
-            </div>
-          ))
-        ) : (
-          <div className="ox-menu-item py-3 text-center text-secondary">No items</div>
-        )}
+        {select.isOpen &&
+          (items.length > 0 ? (
+            items.map((item, index) => (
+              <div key={index} className="relative border-b border-secondary last:border-0">
+                <li
+                  key={item.value}
+                  className={cn('ox-menu-item', {
+                    'is-selected': select.selectedItem?.value === item.value,
+                    'is-highlighted': select.highlightedIndex === index,
+                  })}
+                  {...select.getItemProps({ item, index })}
+                >
+                  {item.label}
+                </li>
+              </div>
+            ))
+          ) : (
+            <div className="ox-menu-item py-3 text-center text-secondary">No items</div>
+          ))}
       </ul>
     </div>
   )
