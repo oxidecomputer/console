@@ -188,11 +188,7 @@ const SnapshotSelectField = ({ control }: { control: Control<DiskCreate> }) => {
     )
 
     if (isLoading || isError) return null
-    return (
-      <>
-        <span className="text-quinary">/</span> {data.name}
-      </>
-    )
+    return <> from {data.name}</>
   }
 
   return (
@@ -209,7 +205,7 @@ const SnapshotSelectField = ({ control }: { control: Control<DiskCreate> }) => {
             <>
               <div>{i.name}</div>
               <div className="text-secondary">
-                Created on {format(i.timeCreated, 'MMM d, yyyy')}{' '}
+                Created on {format(i.timeCreated, 'MMM d, yyyy')}
                 <DiskNameFromId value={i.diskId} />
               </div>
             </>
