@@ -245,8 +245,6 @@ export const handlers = makeHandlers({
 
     delete image.project_id
 
-    // throw 400
-
     return json(image, { status: 202 })
   },
   instanceList({ query }) {
