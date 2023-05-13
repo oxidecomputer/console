@@ -131,6 +131,7 @@ try {
 }
 
 await Deno.writeTextFile(VERSION_FILE, newVersionFile)
+console.log('Updated ', VERSION_FILE)
 
 // cd to omicron, pull main, create new branch, commit changes, push, PR it, go back to
 // main, delete branch
@@ -138,9 +139,11 @@ Deno.chdir(OMICRON_DIR)
 run('git', ['checkout', 'main'])
 run('git', ['pull'])
 run('git', ['checkout', '-b', branchName])
+console.log('Created branch', branchName)
 run('git', ['add', '--all'])
 run('git', ['commit', '-m', prTitle, '-m', prBody])
 run('git', ['push', '--set-upstream', 'origin', branchName])
+console.log('Committed changes and pushed')
 
 // create PR
 const prUrl = run('gh', ['pr', 'create', '--title', prTitle, '--body', prBody])
@@ -148,7 +151,9 @@ console.log('PR created:', prUrl)
 
 // set it to auto merge
 const prNum = prUrl.match(/\d+$/)![0]
-console.log(run('gh', ['pr', 'merge', prNum, '--auto', '--squash']))
+run('gh', ['pr', 'merge', prNum, '--auto', '--squash'])
+console.log('PR set to auto-merge when CI passes')
 
 run('git', ['checkout', 'main'])
 run('git', ['branch', '-D', branchName])
+console.log('Checked out omicron main, deleted branch', branchName)
