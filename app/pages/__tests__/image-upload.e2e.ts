@@ -12,7 +12,9 @@ async function chooseFile(page: Page, size = 5 * MiB) {
   await fileChooser.setFiles({
     name: 'my-image.iso',
     mimeType: 'application/octet-stream',
-    buffer: Buffer.alloc(size),
+    // fill with nonzero content, otherwise we'll skip the whole thing, which
+    // makes the test too fast for playwright to catch anything
+    buffer: Buffer.alloc(size, 'a'),
   })
 }
 

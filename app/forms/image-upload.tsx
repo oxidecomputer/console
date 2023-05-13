@@ -116,6 +116,12 @@ function Step({ children, state, label }: StepProps) {
   )
 }
 
+/**
+ * Does a base64 string represent underlying data that's all zeros, i.e., does
+ * it look like `AAAAAAAAAAAAAAAA==`?
+ */
+export const isAllZeros = (base64Data: string) => /^A*=*$/.test(base64Data)
+
 const randInt = () => Math.floor(Math.random() * 100000000)
 
 function getTmpDiskName(imageName: string) {
@@ -391,8 +397,9 @@ export function CreateImageSideModalForm() {
       const end = Math.min(offset + CHUNK_SIZE, imageFile.size)
       const base64EncodedData = await readBlobAsBase64(imageFile.slice(offset, end))
 
-      // Avoid uploading the chunk if it is all zero.
-      if (!/^A*=*$/.test(base64EncodedData)) {
+      // Disk space is all zeros by default, so we can skip any chunks that are
+      // all zeros. It turns out this happens a lot.
+      if (!isAllZeros(base64EncodedData)) {
         await uploadChunk
           .mutateAsync({ path, body: { offset, base64EncodedData } })
           .catch(() => {
