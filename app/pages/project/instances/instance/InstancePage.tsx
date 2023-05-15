@@ -79,6 +79,9 @@ export function InstancePage() {
           <PropertiesTable.Row label="status">
             <InstanceStatusBadge status={instance.runState} />
           </PropertiesTable.Row>
+          <PropertiesTable.Row label="description">
+            <span className="text-secondary">{instance.description}</span>
+          </PropertiesTable.Row>
         </PropertiesTable>
         <PropertiesTable>
           <PropertiesTable.Row label="dns name">
