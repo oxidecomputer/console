@@ -20,12 +20,14 @@ import {
 } from 'app/components/form'
 import { useProjectSelector, useToast } from 'app/hooks'
 
+const defaultBlockSize: BlockSize = 4096
+
 const defaultValues: DiskCreate = {
   name: '',
   description: '',
   size: 10,
   diskSource: {
-    blockSize: 4096,
+    blockSize: defaultBlockSize,
     type: 'blank',
   },
 }
@@ -111,7 +113,11 @@ const DiskSourceField = ({ control }: { control: Control<DiskCreate> }) => {
 
             onChange({
               type: newType,
-              ...(newType === 'blank' ? { blockSize: 4096 } : {}),
+              ...(newType === 'blank'
+                ? {
+                    blockSize: defaultBlockSize,
+                  }
+                : {}),
             })
           }}
         >
