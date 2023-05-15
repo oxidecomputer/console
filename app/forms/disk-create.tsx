@@ -108,7 +108,11 @@ const DiskSourceField = ({ control }: { control: Control<DiskCreate> }) => {
           defaultChecked={value.type}
           onChange={(event) => {
             const newType = event.target.value as DiskCreate['diskSource']['type']
-            onChange({ type: newType })
+
+            onChange({
+              type: newType,
+              ...(newType === 'blank' ? { blockSize: 4096 } : {}),
+            })
           }}
         >
           <Radio value="blank">Blank</Radio>
