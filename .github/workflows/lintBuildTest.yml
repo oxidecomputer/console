@@ -76,6 +76,10 @@ jobs:
         with:
           path: node_modules
           key: modules-${{ hashFiles('package-lock.json') }}
+      - name: Set env.PLAYWRIGHT_VERSION
+        run: |
+          PLAYWRIGHT_VERSION=$(npm ls --json @playwright/test | jq --raw-output '.dependencies["@playwright/test"].version')
+          echo "PLAYWRIGHT_VERSION=$PLAYWRIGHT_VERSION" >> $GITHUB_ENV
       # Cache browser binaries, cache key is based on Playwright version and OS
       - name: Cache Playwright browser binaries
         uses: actions/cache@v3
