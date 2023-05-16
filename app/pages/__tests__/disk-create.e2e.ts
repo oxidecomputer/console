@@ -31,7 +31,7 @@ test.describe('Disk create', () => {
     await page.getByRole('option', { name: 'image-3' }).click()
   })
 
-  test.only('switching to snapshot and back to blank', async ({ page }) => {
+  test('switching to snapshot and back to blank', async ({ page }) => {
     await page.getByRole('radio', { name: 'Snapshot' }).click()
     await page.getByRole('radio', { name: 'Blank' }).click()
   })
