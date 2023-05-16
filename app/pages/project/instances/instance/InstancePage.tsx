@@ -5,7 +5,13 @@ import type { LoaderFunctionArgs } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 
 import { apiQueryClient, useApiQuery, useApiQueryClient } from '@oxide/api'
-import { Instances24Icon, PageHeader, PageTitle, PropertiesTable } from '@oxide/ui'
+import {
+  Instances24Icon,
+  PageHeader,
+  PageTitle,
+  PropertiesTable,
+  Truncate,
+} from '@oxide/ui'
 import { toPathQuery } from '@oxide/util'
 
 import { MoreActionsMenu } from 'app/components/MoreActionsMenu'
@@ -68,16 +74,20 @@ export function InstancePage() {
       </PageHeader>
       <PropertiesTable.Group className="mb-16 -mt-8">
         <PropertiesTable>
-          <PropertiesTable.Row label="cpu">
+          <PropertiesTable.Row label="cpu/ram">
             <span className="text-secondary">{instance.ncpus}</span>
             <span className="ml-1 text-quaternary"> vCPUs</span>
-          </PropertiesTable.Row>
-          <PropertiesTable.Row label="ram">
+            <span className="mx-1 text-secondary">/</span>
             <span className="text-secondary">{memory.value}</span>
             <span className="ml-1 text-quaternary"> {memory.unit}</span>
           </PropertiesTable.Row>
           <PropertiesTable.Row label="status">
             <InstanceStatusBadge status={instance.runState} />
+          </PropertiesTable.Row>
+          <PropertiesTable.Row label="description">
+            <span className="text-secondary">
+              <Truncate text={instance.description} maxLength={40} />
+            </span>
           </PropertiesTable.Row>
         </PropertiesTable>
         <PropertiesTable>
