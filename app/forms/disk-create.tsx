@@ -4,7 +4,7 @@ import { useController } from 'react-hook-form'
 import type { NavigateFunction } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 
-import type { BlockSize, Disk, DiskCreate } from '@oxide/api'
+import type { BlockSize, Disk, DiskCreate, DiskSource } from '@oxide/api'
 import { useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
 import { Divider } from '@oxide/ui'
 import { FieldLabel, Radio, RadioGroup } from '@oxide/ui'
@@ -20,16 +20,16 @@ import {
 } from 'app/components/form'
 import { useProjectSelector, useToast } from 'app/hooks'
 
-const defaultBlockSize: BlockSize = 4096
+const blankDiskSource: DiskSource = {
+  type: 'blank',
+  blockSize: 4096,
+}
 
 const defaultValues: DiskCreate = {
   name: '',
   description: '',
   size: 10,
-  diskSource: {
-    blockSize: defaultBlockSize,
-    type: 'blank',
-  },
+  diskSource: blankDiskSource,
 }
 
 type CreateSideModalFormProps = {
@@ -111,14 +111,8 @@ const DiskSourceField = ({ control }: { control: Control<DiskCreate> }) => {
           onChange={(event) => {
             const newType = event.target.value as DiskCreate['diskSource']['type']
 
-            onChange({
-              type: newType,
-              ...(newType === 'blank'
-                ? {
-                    blockSize: defaultBlockSize,
-                  }
-                : {}),
-            })
+            // need to include blockSize when switching back to blank
+            onChange(newType === 'blank' ? blankDiskSource : { type: newType })
           }}
         >
           <Radio value="blank">Blank</Radio>
