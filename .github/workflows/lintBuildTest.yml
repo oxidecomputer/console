@@ -88,11 +88,11 @@ jobs:
       # Install browser binaries & OS dependencies if cache missed
       - name: Install Playwright
         if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: npx playwright install --with-deps
+        run: sudo apt-get update && npx playwright install --with-deps
       # Install only the OS dependencies if cache hit
       - name: 🏗 Install Playwright OS dependencies
         if: steps.playwright-cache.outputs.cache-hit == 'true'
-        run: npx playwright install-deps
+        run: sudo apt-get update && npx playwright install-deps
       - name: Run Playwright browser tests
         run: npx playwright test --workers=2 --project=${{matrix.browser}}
       - uses: actions/upload-artifact@v3
