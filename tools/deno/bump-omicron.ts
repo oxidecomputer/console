@@ -2,6 +2,23 @@
 import * as flags from 'https://deno.land/std@0.159.0/flags/mod.ts'
 import * as path from 'https://deno.land/std@0.159.0/path/mod.ts'
 
+const HELP = `
+Update tools/console_version in ../omicron with current console commit
+hash and tarball hash and create PR in Omicron with that change.
+
+Requirements:
+  - GitHub CLI installed
+  - Omicron is a sibling dir to console
+
+Usage:
+  ./tools/deno/bump-omicron.ts [options]
+
+Options:
+  -d, --dry-run        Dry run, showing changes without creating PR
+  -h, --help           Show this help message
+  -m, --message <msg>  Add message to PR title: 'Bump web console (<msg>)'
+`
+
 const OMICRON_DIR = '../omicron'
 const VERSION_FILE = path.join(OMICRON_DIR, 'tools/console_version')
 
@@ -43,24 +60,7 @@ const args = flags.parse(Deno.args, {
 })
 
 if (args.help) {
-  console.log(
-    `
-Update tools/console_version in ../omicron with current console commit
-hash and tarball hash and create PR in Omicron with that change.
-
-Requirements:
-  - GitHub CLI installed
-  - Omicron is a sibling dir to console
-
-Usage:
-  ./tools/deno/bump-omicron.ts [options]
-
-Options:
-  -d, --dry-run        Dry run, showing changes without creating PR
-  -h, --help           Show this help message
-  -m, --message <msg>  Add message to PR title: 'Bump web console (<msg>)'
-`
-  )
+  console.log(HELP)
   Deno.exit()
 }
 
@@ -98,29 +98,26 @@ if (oldCommit === newCommit) {
   Deno.exit()
 }
 
-const oldCommitShort = oldCommit.slice(0, 8)
-const newCommitShort = newCommit.slice(0, 8)
+const commitRange = `${oldCommit.slice(0, 8)}...${newCommit.slice(0, 8)}`
 
-const branchName = 'bump-console-' + newCommitShort
+const branchName = 'bump-console-' + newCommit.slice(0, 8)
 const prTitle = 'Bump web console' + (args.message ? ` (${args.message})` : '')
-const prBody = `Changes: https://github.com/oxidecomputer/console/compare/${oldCommitShort}...${newCommitShort}`
+const prBody = `Changes: https://github.com/oxidecomputer/console/compare/${commitRange}`
 
-if (args.dryRun) {
-  console.log('New contents of <omicron>/tools/console_version:\n')
-  console.log(newVersionFile)
-  console.log('Branch:  ', branchName)
-  console.log('PR title:', prTitle)
-  console.log('PR body: ', prBody)
-  console.log('\nConsole commits included:\n')
-  console.log(
-    run('git', [
-      'log',
-      '--graph',
-      '--oneline',
-      '--color=always',
-      `${oldCommitShort}...${newCommitShort}`,
-    ])
-  )
+console.log(`
+New contents of <omicron>/tools/console_version:
+
+${newVersionFile}
+
+Branch:    ${branchName}
+PR title:  ${prTitle}
+PR body:   ${prBody}
+
+Console commits since current pinned version:
+
+${run('git', ['log', '--graph', '--oneline', '--color=always', commitRange])}`)
+
+if (args.dryRun || !confirm('\nMake Omicron PR with these changes?')) {
   Deno.exit()
 }
 
@@ -140,7 +137,7 @@ run('git', ['checkout', 'main'])
 run('git', ['pull'])
 run('git', ['checkout', '-b', branchName])
 console.log('Created branch', branchName)
-run('git', ['add', '--all'])
+run('git', ['add', VERSION_FILE])
 run('git', ['commit', '-m', prTitle, '-m', prBody])
 run('git', ['push', '--set-upstream', 'origin', branchName])
 console.log('Committed changes and pushed')
