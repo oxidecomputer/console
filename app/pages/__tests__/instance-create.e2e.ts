@@ -23,6 +23,7 @@ test('can create an instance', async ({ page }) => {
 
   const instanceName = 'my-instance'
   await page.fill('input[name=name]', instanceName)
+  await page.fill('input[name=description]', 'An instance... from space!')
   await page.locator('.ox-radio-card').nth(3).click()
 
   await page.fill('input[name=bootDiskName]', 'my-boot-disk')
@@ -41,6 +42,7 @@ test('can create an instance', async ({ page }) => {
     `h1:has-text("${instanceName}")`,
     'text=6 vCPUs',
     'text=24 GiB',
+    'text=from space',
   ])
 
   // trying to create another instance with the same name produces a visible

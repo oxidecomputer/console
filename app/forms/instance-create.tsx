@@ -139,7 +139,7 @@ export function CreateInstanceForm() {
           body: {
             name: values.name,
             hostname: values.hostname || values.name,
-            description: `An instance in project: ${projectSelector.project}`,
+            description: values.description,
             memory: instance.memory * GiB,
             ncpus: instance.ncpus,
             disks: [
