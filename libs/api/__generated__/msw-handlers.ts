@@ -70,6 +70,20 @@ export interface MSWHandlers {
   loginSaml: (params: { path: Api.LoginSamlPathParams }) => StatusCode
   /** `POST /logout` */
   logout: () => StatusCode
+  /** `GET /v1/certificates` */
+  certificateList: (params: {
+    query: Api.CertificateListQueryParams
+  }) => HandlerResult<Api.CertificateResultsPage>
+  /** `POST /v1/certificates` */
+  certificateCreate: (params: {
+    body: Json<Api.CertificateCreate>
+  }) => HandlerResult<Api.Certificate>
+  /** `GET /v1/certificates/:certificate` */
+  certificateView: (params: {
+    path: Api.CertificateViewPathParams
+  }) => HandlerResult<Api.Certificate>
+  /** `DELETE /v1/certificates/:certificate` */
+  certificateDelete: (params: { path: Api.CertificateDeletePathParams }) => StatusCode
   /** `GET /v1/disks` */
   diskList: (params: {
     query: Api.DiskListQueryParams
@@ -126,7 +140,7 @@ export interface MSWHandlers {
   groupList: (params: {
     query: Api.GroupListQueryParams
   }) => HandlerResult<Api.GroupResultsPage>
-  /** `GET /v1/groups/:group` */
+  /** `GET /v1/groups/:groupId` */
   groupView: (params: { path: Api.GroupViewPathParams }) => HandlerResult<Api.Group>
   /** `GET /v1/images` */
   imageList: (params: {
@@ -147,6 +161,11 @@ export interface MSWHandlers {
     path: Api.ImageDeletePathParams
     query: Api.ImageDeleteQueryParams
   }) => StatusCode
+  /** `POST /v1/images/:image/demote` */
+  imageDemote: (params: {
+    path: Api.ImageDemotePathParams
+    query: Api.ImageDemoteQueryParams
+  }) => HandlerResult<Api.Image>
   /** `POST /v1/images/:image/promote` */
   imagePromote: (params: {
     path: Api.ImagePromotePathParams
@@ -320,20 +339,6 @@ export interface MSWHandlers {
     path: Api.SnapshotDeletePathParams
     query: Api.SnapshotDeleteQueryParams
   }) => StatusCode
-  /** `GET /v1/system/certificates` */
-  certificateList: (params: {
-    query: Api.CertificateListQueryParams
-  }) => HandlerResult<Api.CertificateResultsPage>
-  /** `POST /v1/system/certificates` */
-  certificateCreate: (params: {
-    body: Json<Api.CertificateCreate>
-  }) => HandlerResult<Api.Certificate>
-  /** `GET /v1/system/certificates/:certificate` */
-  certificateView: (params: {
-    path: Api.CertificateViewPathParams
-  }) => HandlerResult<Api.Certificate>
-  /** `DELETE /v1/system/certificates/:certificate` */
-  certificateDelete: (params: { path: Api.CertificateDeletePathParams }) => StatusCode
   /** `GET /v1/system/hardware/disks` */
   physicalDiskList: (params: {
     query: Api.PhysicalDiskListQueryParams
@@ -355,6 +360,12 @@ export interface MSWHandlers {
     path: Api.SledPhysicalDiskListPathParams
     query: Api.SledPhysicalDiskListQueryParams
   }) => HandlerResult<Api.PhysicalDiskResultsPage>
+  /** `GET /v1/system/hardware/switches` */
+  switchList: (params: {
+    query: Api.SwitchListQueryParams
+  }) => HandlerResult<Api.SwitchResultsPage>
+  /** `GET /v1/system/hardware/switches/:switchId` */
+  switchView: (params: { path: Api.SwitchViewPathParams }) => HandlerResult<Api.Switch>
   /** `GET /v1/system/identity-providers` */
   siloIdentityProviderList: (params: {
     query: Api.SiloIdentityProviderListQueryParams
@@ -736,6 +747,22 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
       handler(handlers['loginSaml'], schema.LoginSamlParams, null)
     ),
     rest.post('/logout', handler(handlers['logout'], null, null)),
+    rest.get(
+      '/v1/certificates',
+      handler(handlers['certificateList'], schema.CertificateListParams, null)
+    ),
+    rest.post(
+      '/v1/certificates',
+      handler(handlers['certificateCreate'], null, schema.CertificateCreate)
+    ),
+    rest.get(
+      '/v1/certificates/:certificate',
+      handler(handlers['certificateView'], schema.CertificateViewParams, null)
+    ),
+    rest.delete(
+      '/v1/certificates/:certificate',
+      handler(handlers['certificateDelete'], schema.CertificateDeleteParams, null)
+    ),
     rest.get('/v1/disks', handler(handlers['diskList'], schema.DiskListParams, null)),
     rest.post(
       '/v1/disks',
@@ -792,7 +819,7 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
     ),
     rest.get('/v1/groups', handler(handlers['groupList'], schema.GroupListParams, null)),
     rest.get(
-      '/v1/groups/:group',
+      '/v1/groups/:groupId',
       handler(handlers['groupView'], schema.GroupViewParams, null)
     ),
     rest.get('/v1/images', handler(handlers['imageList'], schema.ImageListParams, null)),
@@ -807,6 +834,10 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
     rest.delete(
       '/v1/images/:image',
       handler(handlers['imageDelete'], schema.ImageDeleteParams, null)
+    ),
+    rest.post(
+      '/v1/images/:image/demote',
+      handler(handlers['imageDemote'], schema.ImageDemoteParams, null)
     ),
     rest.post(
       '/v1/images/:image/promote',
@@ -1008,22 +1039,6 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
       handler(handlers['snapshotDelete'], schema.SnapshotDeleteParams, null)
     ),
     rest.get(
-      '/v1/system/certificates',
-      handler(handlers['certificateList'], schema.CertificateListParams, null)
-    ),
-    rest.post(
-      '/v1/system/certificates',
-      handler(handlers['certificateCreate'], null, schema.CertificateCreate)
-    ),
-    rest.get(
-      '/v1/system/certificates/:certificate',
-      handler(handlers['certificateView'], schema.CertificateViewParams, null)
-    ),
-    rest.delete(
-      '/v1/system/certificates/:certificate',
-      handler(handlers['certificateDelete'], schema.CertificateDeleteParams, null)
-    ),
-    rest.get(
       '/v1/system/hardware/disks',
       handler(handlers['physicalDiskList'], schema.PhysicalDiskListParams, null)
     ),
@@ -1046,6 +1061,14 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
     rest.get(
       '/v1/system/hardware/sleds/:sledId/disks',
       handler(handlers['sledPhysicalDiskList'], schema.SledPhysicalDiskListParams, null)
+    ),
+    rest.get(
+      '/v1/system/hardware/switches',
+      handler(handlers['switchList'], schema.SwitchListParams, null)
+    ),
+    rest.get(
+      '/v1/system/hardware/switches/:switchId',
+      handler(handlers['switchView'], schema.SwitchViewParams, null)
     ),
     rest.get(
       '/v1/system/identity-providers',

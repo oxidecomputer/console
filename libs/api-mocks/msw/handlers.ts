@@ -33,7 +33,7 @@ export const handlers = makeHandlers({
   deviceAuthConfirm: ({ body }) => (body.user_code === 'ERRO-RABC' ? 400 : 200),
   deviceAccessToken: () => 200,
   groupList: (params) => paginated(params.query, db.userGroups),
-  groupView: (params) => lookupById(db.userGroups, params.path.group),
+  groupView: (params) => lookupById(db.userGroups, params.path.groupId),
 
   projectList: (params) => paginated(params.query, db.projects),
   projectCreate({ body }) {
@@ -986,6 +986,7 @@ export const handlers = makeHandlers({
   certificateList: NotImplemented,
   certificateView: NotImplemented,
   diskImportBlocksFromUrl: NotImplemented,
+  imageDemote: NotImplemented,
   instanceMigrate: NotImplemented,
   instanceSerialConsoleStream: NotImplemented,
   ipPoolCreate: NotImplemented,
@@ -1016,8 +1017,9 @@ export const handlers = makeHandlers({
   siloUserList: NotImplemented,
   siloUserView: NotImplemented,
   sledView: NotImplemented,
+  switchList: NotImplemented,
+  switchView: NotImplemented,
   systemPolicyUpdate: NotImplemented,
-
   userBuiltinList: NotImplemented,
   userBuiltinView: NotImplemented,
 })

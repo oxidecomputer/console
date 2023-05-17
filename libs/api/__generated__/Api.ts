@@ -12,7 +12,7 @@ export type {
 } from './http-client'
 
 /**
- * Properties that should uniquely identify a Sled.
+ * Properties that uniquely identify an Oxide hardware component
  */
 export type Baseboard = { part: string; revision: number; serial: string }
 
@@ -453,7 +453,9 @@ export type IdpMetadataSource =
   | { data: string; type: 'base64_encoded_xml' }
 
 /**
- * Client view of images
+ * View of an image
+ *
+ * If `project_id` is present then the image is only visible inside that project. If it's not present then the image is visible to all projects in the silo.
  */
 export type Image = {
   /** size of blocks in bytes */
@@ -1340,6 +1342,31 @@ export type SshKeyResultsPage = {
 }
 
 /**
+ * An operator's view of a Switch.
+ */
+export type Switch = {
+  baseboard: Baseboard
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** The rack to which this Switch is currently attached */
+  rackId: string
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+}
+
+/**
+ * A single page of results
+ */
+export type SwitchResultsPage = {
+  /** list of items on this page of results */
+  items: Switch[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
  * Identity-related metadata that's included in "asset" public API objects (which generally have no name or description)
  */
 export type SystemUpdate = {
@@ -1814,6 +1841,20 @@ export interface LoginSamlPathParams {
   siloName: Name
 }
 
+export interface CertificateListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: NameOrIdSortMode
+}
+
+export interface CertificateViewPathParams {
+  certificate: NameOrId
+}
+
+export interface CertificateDeletePathParams {
+  certificate: NameOrId
+}
+
 export interface DiskListQueryParams {
   limit?: number
   pageToken?: string
@@ -1901,7 +1942,7 @@ export interface GroupListQueryParams {
 }
 
 export interface GroupViewPathParams {
-  group: string
+  groupId: string
 }
 
 export interface ImageListQueryParams {
@@ -1929,6 +1970,14 @@ export interface ImageDeletePathParams {
 }
 
 export interface ImageDeleteQueryParams {
+  project?: NameOrId
+}
+
+export interface ImageDemotePathParams {
+  image: NameOrId
+}
+
+export interface ImageDemoteQueryParams {
   project?: NameOrId
 }
 
@@ -2169,20 +2218,6 @@ export interface SnapshotDeleteQueryParams {
   project?: NameOrId
 }
 
-export interface CertificateListQueryParams {
-  limit?: number
-  pageToken?: string
-  sortBy?: NameOrIdSortMode
-}
-
-export interface CertificateViewPathParams {
-  certificate: NameOrId
-}
-
-export interface CertificateDeletePathParams {
-  certificate: NameOrId
-}
-
 export interface PhysicalDiskListQueryParams {
   limit?: number
   pageToken?: string
@@ -2217,6 +2252,16 @@ export interface SledPhysicalDiskListQueryParams {
   limit?: number
   pageToken?: string
   sortBy?: IdSortMode
+}
+
+export interface SwitchListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: IdSortMode
+}
+
+export interface SwitchViewPathParams {
+  switchId: string
 }
 
 export interface SiloIdentityProviderListQueryParams {
@@ -2587,6 +2632,7 @@ export interface VpcDeleteQueryParams {
 
 export type ApiListMethods = Pick<
   InstanceType<typeof Api>['methods'],
+  | 'certificateList'
   | 'diskList'
   | 'diskMetricsList'
   | 'groupList'
@@ -2598,11 +2644,11 @@ export type ApiListMethods = Pick<
   | 'instanceNetworkInterfaceList'
   | 'projectList'
   | 'snapshotList'
-  | 'certificateList'
   | 'physicalDiskList'
   | 'rackList'
   | 'sledList'
   | 'sledPhysicalDiskList'
+  | 'switchList'
   | 'siloIdentityProviderList'
   | 'ipPoolList'
   | 'ipPoolRangeList'
@@ -2708,6 +2754,60 @@ export class Api extends HttpClient {
       return this.request<void>({
         path: `/logout`,
         method: 'POST',
+        ...params,
+      })
+    },
+    /**
+     * List certificates for external endpoints
+     */
+    certificateList: (
+      { query = {} }: { query?: CertificateListQueryParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<CertificateResultsPage>({
+        path: `/v1/certificates`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create a new system-wide x.509 certificate
+     */
+    certificateCreate: (
+      { body }: { body: CertificateCreate },
+      params: RequestParams = {}
+    ) => {
+      return this.request<Certificate>({
+        path: `/v1/certificates`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Fetch a certificate
+     */
+    certificateView: (
+      { path }: { path: CertificateViewPathParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<Certificate>({
+        path: `/v1/certificates/${path.certificate}`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Delete a certificate
+     */
+    certificateDelete: (
+      { path }: { path: CertificateDeletePathParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/certificates/${path.certificate}`,
+        method: 'DELETE',
         ...params,
       })
     },
@@ -2913,7 +3013,7 @@ export class Api extends HttpClient {
      */
     groupView: ({ path }: { path: GroupViewPathParams }, params: RequestParams = {}) => {
       return this.request<Group>({
-        path: `/v1/groups/${path.group}`,
+        path: `/v1/groups/${path.groupId}`,
         method: 'GET',
         ...params,
       })
@@ -2971,6 +3071,20 @@ export class Api extends HttpClient {
       return this.request<void>({
         path: `/v1/images/${path.image}`,
         method: 'DELETE',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Demote a silo image
+     */
+    imageDemote: (
+      { path, query = {} }: { path: ImageDemotePathParams; query?: ImageDemoteQueryParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<Image>({
+        path: `/v1/images/${path.image}/demote`,
+        method: 'POST',
         query,
         ...params,
       })
@@ -3585,60 +3699,6 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * List system-wide certificates
-     */
-    certificateList: (
-      { query = {} }: { query?: CertificateListQueryParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<CertificateResultsPage>({
-        path: `/v1/system/certificates`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Create a new system-wide x.509 certificate
-     */
-    certificateCreate: (
-      { body }: { body: CertificateCreate },
-      params: RequestParams = {}
-    ) => {
-      return this.request<Certificate>({
-        path: `/v1/system/certificates`,
-        method: 'POST',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * Fetch a certificate
-     */
-    certificateView: (
-      { path }: { path: CertificateViewPathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<Certificate>({
-        path: `/v1/system/certificates/${path.certificate}`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * Delete a certificate
-     */
-    certificateDelete: (
-      { path }: { path: CertificateDeletePathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<void>({
-        path: `/v1/system/certificates/${path.certificate}`,
-        method: 'DELETE',
-        ...params,
-      })
-    },
-    /**
      * List physical disks
      */
     physicalDiskList: (
@@ -3714,6 +3774,30 @@ export class Api extends HttpClient {
         path: `/v1/system/hardware/sleds/${path.sledId}/disks`,
         method: 'GET',
         query,
+        ...params,
+      })
+    },
+    /**
+     * List switches
+     */
+    switchList: (
+      { query = {} }: { query?: SwitchListQueryParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<SwitchResultsPage>({
+        path: `/v1/system/hardware/switches`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch a switch
+     */
+    switchView: ({ path }: { path: SwitchViewPathParams }, params: RequestParams = {}) => {
+      return this.request<Switch>({
+        path: `/v1/system/hardware/switches/${path.switchId}`,
+        method: 'GET',
         ...params,
       })
     },

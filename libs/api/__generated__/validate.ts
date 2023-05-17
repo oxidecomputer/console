@@ -17,7 +17,7 @@ const IntEnum = <T extends readonly number[]>(values: T) =>
 const SafeBoolean = z.preprocess((v) => (v === 'false' ? false : v), z.coerce.boolean())
 
 /**
- * Properties that should uniquely identify a Sled.
+ * Properties that uniquely identify an Oxide hardware component
  */
 export const Baseboard = z.preprocess(
   processResponseBody,
@@ -507,7 +507,9 @@ export const IdpMetadataSource = z.preprocess(
 )
 
 /**
- * Client view of images
+ * View of an image
+ *
+ * If `project_id` is present then the image is only visible inside that project. If it's not present then the image is visible to all projects in the silo.
  */
 export const Image = z.preprocess(
   processResponseBody,
@@ -1367,6 +1369,28 @@ export const SshKeyResultsPage = z.preprocess(
 )
 
 /**
+ * An operator's view of a Switch.
+ */
+export const Switch = z.preprocess(
+  processResponseBody,
+  z.object({
+    baseboard: Baseboard,
+    id: z.string().uuid(),
+    rackId: z.string().uuid(),
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
+  })
+)
+
+/**
+ * A single page of results
+ */
+export const SwitchResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: Switch.array(), nextPage: z.string().optional() })
+)
+
+/**
  * Identity-related metadata that's included in "asset" public API objects (which generally have no name or description)
  */
 export const SystemUpdate = z.preprocess(
@@ -1900,6 +1924,46 @@ export const LogoutParams = z.preprocess(
   })
 )
 
+export const CertificateListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      sortBy: NameOrIdSortMode.optional(),
+    }),
+  })
+)
+
+export const CertificateCreateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
+  })
+)
+
+export const CertificateViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      certificate: NameOrId,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const CertificateDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      certificate: NameOrId,
+    }),
+    query: z.object({}),
+  })
+)
+
 export const DiskListParams = z.preprocess(
   processResponseBody,
   z.object({
@@ -2040,7 +2104,7 @@ export const GroupViewParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
-      group: z.string().uuid(),
+      groupId: z.string().uuid(),
     }),
     query: z.object({}),
   })
@@ -2083,6 +2147,18 @@ export const ImageViewParams = z.preprocess(
 )
 
 export const ImageDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      image: NameOrId,
+    }),
+    query: z.object({
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const ImageDemoteParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
@@ -2539,46 +2615,6 @@ export const SnapshotDeleteParams = z.preprocess(
   })
 )
 
-export const CertificateListParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({}),
-    query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
-      sortBy: NameOrIdSortMode.optional(),
-    }),
-  })
-)
-
-export const CertificateCreateParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({}),
-    query: z.object({}),
-  })
-)
-
-export const CertificateViewParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      certificate: NameOrId,
-    }),
-    query: z.object({}),
-  })
-)
-
-export const CertificateDeleteParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      certificate: NameOrId,
-    }),
-    query: z.object({}),
-  })
-)
-
 export const PhysicalDiskListParams = z.preprocess(
   processResponseBody,
   z.object({
@@ -2646,6 +2682,28 @@ export const SledPhysicalDiskListParams = z.preprocess(
       pageToken: z.string().optional(),
       sortBy: IdSortMode.optional(),
     }),
+  })
+)
+
+export const SwitchListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      sortBy: IdSortMode.optional(),
+    }),
+  })
+)
+
+export const SwitchViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      switchId: z.string().uuid(),
+    }),
+    query: z.object({}),
   })
 )
 
