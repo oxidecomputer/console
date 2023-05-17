@@ -109,6 +109,24 @@ type CommonFieldsProps = {
   control: Control<FirewallRuleValues>
 }
 
+function getFilterValueProps(hostType: VpcFirewallRuleHostFilter['type']) {
+  switch (hostType) {
+    case 'vpc':
+      return { label: 'VPC name' }
+    case 'subnet':
+      return { label: 'Subnet name' }
+    case 'instance':
+      return { label: 'Instance name' }
+    case 'ip':
+      return { label: 'IP address', helpText: 'An IPv4 or IPv6 address' }
+    case 'ip_net':
+      return {
+        label: 'IP network',
+        helpText: 'Looks like 192.168.0.0/16 or fd00:1122:3344:0001::1/64',
+      }
+  }
+}
+
 export const CommonFields = ({ error, control }: CommonFieldsProps) => {
   const portRangeForm = useForm({ defaultValues: portRangeDefaultValues })
   const ports = useController({ name: 'ports', control }).field
@@ -176,7 +194,12 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
         required
         control={targetForm.control}
       />
-      <TextField name="value" label="Target name" required control={targetForm.control} />
+      <TextField
+        name="value"
+        {...getFilterValueProps(targetForm.watch('type'))}
+        required
+        control={targetForm.control}
+      />
 
       <div className="flex justify-end">
         <Button
@@ -259,8 +282,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
           not a block. */}
       <TextField
         name="value"
-        label="Value"
-        helpText="For IP, an address. For the rest, a name. [TODO: copy]"
+        {...getFilterValueProps(hostForm.watch('type'))}
         required
         control={hostForm.control}
       />

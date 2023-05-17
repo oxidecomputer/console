@@ -76,17 +76,17 @@ test.describe('VpcPage', () => {
 
     // add target VPC "my-target-vpc"
     await page.locator('role=button[name="Target type"]').click()
-    await page.locator('role=option[name="VPC"]').click()
-    await page.fill('role=textbox[name="Target name"]', 'my-target-vpc')
+    await page.locator('role=option[name="IP"]').click()
+    await page.fill('role=textbox[name="IP address"]', '192.168.0.1')
     await page.locator('text="Add target"').click()
 
     // target is added to targets table
-    await expect(page.locator('td:has-text("my-target-vpc")')).toBeVisible()
+    await expect(page.locator('td:has-text("192.168.0.1")')).toBeVisible()
 
     // add host filter instance "host-filter-instance"
     await page.locator('role=button[name="Host type"]').click()
     await page.locator('role=option[name="Instance"]').click()
-    await page.fill('role=textbox[name="Value"]', 'host-filter-instance')
+    await page.fill('role=textbox[name="Instance name"]', 'host-filter-instance')
     await page.locator('text="Add host filter"').click()
 
     // host is added to hosts table
@@ -111,7 +111,7 @@ test.describe('VpcPage', () => {
     // table refetches and now includes the new rule as well as the originals
     await expect(page.locator('td >> text="my-new-rule"')).toBeVisible()
     // target shows up in target cell
-    await expect(page.locator('text=vpcmy-target-vpc')).toBeVisible()
+    await expect(page.locator('text=ip192.168.0.1')).toBeVisible()
     // other stuff filled out shows up in the filters column
     await expect(page.locator('text=instancehost-filter-instanceUDP123-456')).toBeVisible()
 
@@ -172,12 +172,12 @@ test.describe('VpcPage', () => {
 
     // add host filter
     await page.locator('role=button[name="Host type"]').click()
-    await page.locator('role=option[name="Instance"]').click()
-    await page.fill('role=textbox[name="Value"]', 'edit-filter-instance')
+    await page.locator('role=option[name="VPC Subnet"]').click()
+    await page.fill('role=textbox[name="Subnet name"]', 'edit-filter-subnet')
     await page.locator('text="Add host filter"').click()
 
     // new host is added to hosts table
-    await expect(page.locator('td:has-text("edit-filter-instance")')).toBeVisible()
+    await expect(page.locator('td:has-text("edit-filter-subnet")')).toBeVisible()
 
     // submit the form
     await page.locator('text="Update rule"').click()
@@ -192,7 +192,7 @@ test.describe('VpcPage', () => {
     await expect(rows).toHaveCount(4)
 
     // new target shows up in target cell
-    await expect(page.locator('text=instanceedit-filter-instanceICMP')).toBeVisible()
+    await expect(page.locator('text=subnetedit-filter-subnetICMP')).toBeVisible()
 
     // other 3 rules are still there
     const rest = defaultRules.filter((r) => r !== 'allow-icmp')
