@@ -109,7 +109,7 @@ type CommonFieldsProps = {
   control: Control<FirewallRuleValues>
 }
 
-function getHostValueProps(hostType: VpcFirewallRuleHostFilter['type']) {
+function getFilterValueProps(hostType: VpcFirewallRuleHostFilter['type']) {
   switch (hostType) {
     case 'vpc':
       return { label: 'VPC name' }
@@ -194,7 +194,12 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
         required
         control={targetForm.control}
       />
-      <TextField name="value" label="Target name" required control={targetForm.control} />
+      <TextField
+        name="value"
+        {...getFilterValueProps(targetForm.watch('type'))}
+        required
+        control={targetForm.control}
+      />
 
       <div className="flex justify-end">
         <Button
@@ -277,7 +282,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
           not a block. */}
       <TextField
         name="value"
-        {...getHostValueProps(hostForm.watch('type'))}
+        {...getFilterValueProps(hostForm.watch('type'))}
         required
         control={hostForm.control}
       />

@@ -76,12 +76,12 @@ test.describe('VpcPage', () => {
 
     // add target VPC "my-target-vpc"
     await page.locator('role=button[name="Target type"]').click()
-    await page.locator('role=option[name="VPC"]').click()
-    await page.fill('role=textbox[name="Target name"]', 'my-target-vpc')
+    await page.locator('role=option[name="IP"]').click()
+    await page.fill('role=textbox[name="IP address"]', '192.168.0.1')
     await page.locator('text="Add target"').click()
 
     // target is added to targets table
-    await expect(page.locator('td:has-text("my-target-vpc")')).toBeVisible()
+    await expect(page.locator('td:has-text("192.168.0.1")')).toBeVisible()
 
     // add host filter instance "host-filter-instance"
     await page.locator('role=button[name="Host type"]').click()
@@ -111,7 +111,7 @@ test.describe('VpcPage', () => {
     // table refetches and now includes the new rule as well as the originals
     await expect(page.locator('td >> text="my-new-rule"')).toBeVisible()
     // target shows up in target cell
-    await expect(page.locator('text=vpcmy-target-vpc')).toBeVisible()
+    await expect(page.locator('text=ip192.168.0.1')).toBeVisible()
     // other stuff filled out shows up in the filters column
     await expect(page.locator('text=instancehost-filter-instanceUDP123-456')).toBeVisible()
 
