@@ -6,6 +6,7 @@ import { DISK_DELETE_STATES, DISK_SNAPSHOT_STATES } from '@oxide/api'
 import type { Json } from '@oxide/gen/msw-handlers'
 import { json, makeHandlers } from '@oxide/gen/msw-handlers'
 import { pick, sortBy } from '@oxide/util'
+import { TiB } from '@oxide/util'
 
 import { genCumulativeI64Data, genI64Data } from '../metrics'
 import { FLEET_ID } from '../role-assignment'
@@ -965,7 +966,12 @@ export const handlers = makeHandlers({
     // const result = ZVal.ResourceName.safeParse(req.params.resourceName)
     // if (!result.success) return res(notFoundErr)
     // const resourceName = result.data
-    const cap = params.path.metricName === 'cpus_provisioned' ? 3000 : 4000000000000
+    const cap =
+      params.path.metricName === 'cpus_provisioned'
+        ? 2048
+        : params.path.metricName === 'virtual_disk_space_provisioned'
+        ? TiB * 931
+        : TiB * 32
 
     // note we're ignoring the required id query param. since the data is fake
     // it wouldn't matter, though we should probably 400 if it's missing
@@ -983,7 +989,7 @@ export const handlers = makeHandlers({
       const rando = new Rando(startTime.getTime() + metricNameSeed)
       const diff = abs(differenceInSeconds(startTime, endTime))
 
-      // How many half hour chunks in the date range
+      // How many quarter hour chunks in the date range
       // Use that as how often to offset the data to seem
       // more realistic
       const timeInterval = diff / 900
@@ -994,7 +1000,7 @@ export const handlers = makeHandlers({
       const valueInterval = floor(dataCount / timeInterval)
 
       // Pick a reasonable start value
-      const startVal = cap / 4
+      const startVal = cap / 2
       const values = new Array(dataCount)
       values[0] = startVal
 
@@ -1007,11 +1013,18 @@ export const handlers = makeHandlers({
           let offset = 0
           const random = rando.next()
 
-          if (random < 0.75) {
-            const amount = params.path.metricName === 'cpus_provisioned' ? 24 : 24000000000
+          const threshold = i < 250 || (i > 500 && i < 750) ? 1 : 0.375
+
+          if (random < threshold) {
+            const amount =
+              params.path.metricName === 'cpus_provisioned'
+                ? 3
+                : params.path.metricName === 'virtual_disk_space_provisioned'
+                ? TiB / 2
+                : TiB / 20
             offset = floor(random * amount)
 
-            if (random < 0.25) {
+            if (random < threshold / 4) {
               offset = offset * -1
             }
           }

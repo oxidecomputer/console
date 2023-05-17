@@ -3,13 +3,12 @@ import { useMemo, useState } from 'react'
 
 import { apiQueryClient, useApiQuery } from '@oxide/api'
 import { Divider, Listbox, PageHeader, PageTitle, Snapshots24Icon } from '@oxide/ui'
-import { bytesToGiB } from '@oxide/util'
+import { bytesToGiB, bytesToTiB } from '@oxide/util'
 
 import { SystemMetric } from 'app/components/SystemMetric'
 import { useDateTimeRangePicker } from 'app/components/form'
 
 const FLEET_ID = '001de000-1334-4000-8000-000000000000'
-const DEFAULT_SILO_ID = '001de000-5110-4000-8000-000000000000'
 
 CapacityUtilizationPage.loader = async () => {
   await apiQueryClient.prefetchQuery('siloList', {})
@@ -26,11 +25,7 @@ export function CapacityUtilizationPage() {
 
   const siloItems = useMemo(() => {
     const items = silos?.items.map((silo) => ({ label: silo.name, value: silo.id })) || []
-    return [
-      { label: 'All silos', value: FLEET_ID },
-      { label: '[default silo]', value: DEFAULT_SILO_ID },
-      ...items,
-    ]
+    return [{ label: 'All silos', value: FLEET_ID }, ...items]
   }, [silos])
 
   const commonProps = {
@@ -46,50 +41,53 @@ export function CapacityUtilizationPage() {
       </PageHeader>
 
       <div className="mt-8 flex justify-between">
-        <div>
-          <div className="mb-2">
-            {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-            <label id="silo-id-label" className="flex text-sans-sm">
-              Choose silo
-            </label>
-          </div>
-          <Listbox
-            defaultValue={FLEET_ID}
-            className="w-48"
-            aria-labelledby="silo-id-label"
-            name="silo-id"
-            items={siloItems}
-            onChange={(item) => {
-              if (item) {
-                setSiloId(item.value)
-              }
-            }}
-          />
-          {/* TODO: need a button to clear the silo */}
-        </div>
+        <Listbox
+          defaultValue={FLEET_ID}
+          className="w-48"
+          aria-labelledby="silo-id-label"
+          name="silo-id"
+          items={siloItems}
+          onChange={(item) => {
+            if (item) {
+              setSiloId(item.value)
+            }
+          }}
+        />
 
         {dateTimeRangePicker}
       </div>
-      {/* TODO: this divider is supposed to go all the way across */}
-      <Divider className="mb-6" />
 
-      <div className="mt-8 space-y-8">
-        {/* TODO: convert numbers to GiB PLEASE */}
-        <SystemMetric
-          {...commonProps}
-          metricName="virtual_disk_space_provisioned"
-          title="Disk Space (GiB)"
-          valueTransform={bytesToGiB}
-        />
+      <Divider className="!mx-0 mb-6 !w-full" />
+
+      <div className="mt-8 space-y-12">
+        <div className="flex flex-col gap-3">
+          {/* TODO: convert numbers to GiB PLEASE */}
+          <SystemMetric
+            {...commonProps}
+            metricName="virtual_disk_space_provisioned"
+            title="Disk Space"
+            unit="TiB"
+            valueTransform={bytesToTiB}
+            capacity={931}
+          />
+        </div>
 
         {/* TODO: figure out how to make this not show .5s in the y axis when the numbers are low */}
-        <SystemMetric {...commonProps} metricName="cpus_provisioned" title="CPU (count)" />
+        <SystemMetric
+          {...commonProps}
+          metricName="cpus_provisioned"
+          title="CPU"
+          unit="count"
+          capacity={2048}
+        />
 
         <SystemMetric
           {...commonProps}
           metricName="ram_provisioned"
-          title="Memory (GiB)"
+          title="Memory"
+          unit="GiB"
           valueTransform={bytesToGiB}
+          capacity={29802}
         />
       </div>
     </>

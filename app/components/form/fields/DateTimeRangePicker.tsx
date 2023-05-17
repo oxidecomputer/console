@@ -107,27 +107,27 @@ export function DateTimeRangePicker({
 
   return (
     <form className="flex h-20 gap-4">
-      <Listbox
-        className="mr-4 w-48" // in addition to gap-4
-        name="preset"
-        defaultValue={initialPreset}
-        aria-label="Choose a time range preset"
-        items={rangePresets}
-        onChange={(item) => {
-          if (item) {
-            const newPreset = item.value as RangeKeyAll
-            setPreset(newPreset)
-            onRangeChange(newPreset)
-          }
-        }}
-      />
-
-      <div>
+      <div className="flex">
+        <Listbox
+          className="w-48 [&>button]:!rounded-r-none [&>button]:!border-r-0" // in addition to gap-4
+          name="preset"
+          defaultValue={initialPreset}
+          aria-label="Choose a time range preset"
+          items={rangePresets}
+          onChange={(item) => {
+            if (item) {
+              const newPreset = item.value as RangeKeyAll
+              setPreset(newPreset)
+              onRangeChange(newPreset)
+            }
+          }}
+        />
         <DateRangePicker
           isDisabled={!enableInputs}
           label="Choose a date range"
           value={inputRange}
           onChange={setInputRange}
+          hideTimeZone
         />
       </div>
       {/* TODO: fix goofy ass buttons. tooltips to explain? lord */}
