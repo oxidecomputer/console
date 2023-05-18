@@ -22,16 +22,11 @@ export default defineConfig(({ mode }) => ({
     emptyOutDir: true,
     sourcemap: true,
     // minify: false, // uncomment for debugging
-
-    // Vercel is only used for Storybook. Including the options causes that
-    // deploy to fail.
-    rollupOptions: process.env.VERCEL
-      ? {}
-      : {
-          input: {
-            app: 'index.html',
-          },
-        },
+    rollupOptions: {
+      input: {
+        app: 'index.html',
+      },
+    },
   },
   define: {
     'process.env.API_URL': JSON.stringify(process.env.API_URL ?? '/api'),
