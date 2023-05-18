@@ -1,23 +1,15 @@
-import type { Control } from 'react-hook-form'
-import { useController } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 
-import type { IdpMetadataSource, SamlIdentityProviderCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import { Radio, RadioGroup } from '@oxide/ui'
+import type { SamlIdentityProviderCreate } from '@oxide/api'
 
-import {
-  DescriptionField,
-  NameField,
-  SideModalForm,
-  TextField,
-  TextFieldInner,
-} from 'app/components/form'
+import { DescriptionField, NameField, SideModalForm, TextField } from 'app/components/form'
+import { useSiloSelector, useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
-import { useSiloSelector, useToast } from '../hooks'
+import { MetadataSourceField } from './shared'
 
-type IdpCreateFormValues = { type: 'saml' } & SamlIdentityProviderCreate
+export type IdpCreateFormValues = { type: 'saml' } & SamlIdentityProviderCreate
 
 const defaultValues: IdpCreateFormValues = {
   type: 'saml',
@@ -120,57 +112,5 @@ export function CreateIdpSideModalForm() {
         </>
       )}
     </SideModalForm>
-  )
-}
-
-/**
- * Control the `idpMetadataSource` field, which can either be a URL or
- * Base64-encoded XML. It's only for clarity that this is a separate component.
- * It could be done just as well inline with `watch` and `setValue`.
- */
-function MetadataSourceField({ control }: { control: Control<IdpCreateFormValues> }) {
-  const {
-    field: { value, onChange },
-  } = useController({ control, name: 'idpMetadataSource' })
-  return (
-    <fieldset>
-      <legend id="metadata-source-legend" className="mb-4 text-sans-md">
-        Metadata source
-      </legend>
-      {/* TODO: probably need some help text here */}
-      <RadioGroup
-        className="mb-4"
-        name="metadata_source_type"
-        defaultChecked="url"
-        onChange={(e) => {
-          const newValue: IdpMetadataSource =
-            e.target.value === 'url'
-              ? { type: 'url', url: '' }
-              : { type: 'base64_encoded_xml', data: '' }
-          onChange(newValue)
-        }}
-      >
-        <Radio value="url">URL</Radio>
-        <Radio value="base64_encoded_xml">Base64-encoded XML</Radio>
-      </RadioGroup>
-      {/* TODO: preserve whatever was in the input in local state
-          when the type changes */}
-      {value.type === 'url' && (
-        <TextFieldInner
-          name="idpMetadataSource.url"
-          className="mb-8" // give it the same height as the textarea
-          aria-labelledby="metadata-source-legend"
-          control={control}
-        />
-      )}
-      {value.type === 'base64_encoded_xml' && (
-        <TextFieldInner
-          name="idpMetadataSource.data"
-          as="textarea"
-          aria-labelledby="metadata-source-legend"
-          control={control}
-        />
-      )}
-    </fieldset>
   )
 }
