@@ -865,8 +865,17 @@ export const handlers = makeHandlers({
       { siloId: silo.id, name: params.body.name }
     )
 
+    // we just decode to string and store that, which is probably fine for local
+    // dev, but note that the API decodes to bytes and passes that to
+    // https://docs.rs/openssl/latest/openssl/x509/struct.X509.html#method.from_der
+    // and that will error if can't be parsed that way
     let public_cert = params.body.signing_keypair?.public_cert
     public_cert = public_cert ? atob(public_cert) : undefined
+
+    // we ignore the private key because it's not returned in the get response,
+    // so you'll never see it again. But worth noting that in the real thing
+    // it is parsed with this
+    // https://docs.rs/openssl/latest/openssl/rsa/struct.Rsa.html#method.private_key_from_der
 
     const provider: Json<SamlIdentityProvider> = {
       id: uuid(),
