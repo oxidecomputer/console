@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { Outlet } from 'react-router-dom'
 
 import { apiQueryClient } from '@oxide/api'
-import { useQueryTable } from '@oxide/table'
+import { DateCell, TruncateCell, useQueryTable } from '@oxide/table'
 import {
   Badge,
   Cloud16Icon,
@@ -51,13 +51,14 @@ export function SiloPage() {
         </Link>
       </TableActions>
       <Table emptyState={<EmptyState />}>
-        <Column accessor="id" />
         <Column accessor="name" />
+        <Column accessor="description" cell={TruncateCell} />
         <Column
           accessor="providerType"
           header="Type"
           cell={({ value }) => <Badge color="neutral">{value}</Badge>}
         />
+        <Column accessor="timeCreated" cell={DateCell} />
       </Table>
       <Outlet />
     </>
