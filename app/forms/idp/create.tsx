@@ -31,21 +31,6 @@ const defaultValues: IdpCreateFormValues = {
   },
 }
 
-// const validationSchema = z
-//   .object({
-//     signingKeypair: z.object({
-//       // these are objects because they are Files
-//       privateKey: z.object({}).nullable(),
-//       publicCert: z.object({}).nullable(),
-//     }),
-//   })
-//   .passthrough()
-//   .refine(
-//     ({ signingKeypair: { privateKey, publicCert } }) =>
-//       (privateKey && publicCert) || (!privateKey && !publicCert),
-//     { message: 'Need both public cert and private key' }
-//   )
-
 export function CreateIdpSideModalForm() {
   const navigate = useNavigate()
   const queryClient = useApiQueryClient()
@@ -72,8 +57,6 @@ export function CreateIdpSideModalForm() {
       title="Create identity provider"
       onDismiss={onDismiss}
       onSubmit={async ({ signingKeypair, groupAttributeName, ...rest }) => {
-        // TODO: validate that either both signingKeypair files are present or both are absent
-
         // if both signingKeypair files are present, base64 and add to post
         const keypair =
           signingKeypair.publicCert && signingKeypair.privateKey
