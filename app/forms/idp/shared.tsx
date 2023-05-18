@@ -1,11 +1,20 @@
 import { type Control, useController } from 'react-hook-form'
+import type { Merge } from 'type-fest'
 
 import type { IdpMetadataSource, SamlIdentityProviderCreate } from '@oxide/api'
 import { Radio, RadioGroup } from '@oxide/ui'
 
 import { TextFieldInner } from 'app/components/form'
 
-export type IdpCreateFormValues = { type: 'saml' } & SamlIdentityProviderCreate
+export type IdpCreateFormValues = { type: 'saml' } & Merge<
+  SamlIdentityProviderCreate,
+  {
+    signingKeypair: {
+      publicCert: File | null
+      privateKey: File | null
+    }
+  }
+>
 
 /**
  * Control the `idpMetadataSource` field, which can either be a URL or
@@ -46,7 +55,6 @@ export function MetadataSourceField({
       {value.type === 'url' && (
         <TextFieldInner
           name="idpMetadataSource.url"
-          className="mb-8" // give it the same height as the textarea
           aria-labelledby="metadata-source-legend"
           control={control}
         />

@@ -1,15 +1,15 @@
 import { useNavigate } from 'react-router-dom'
 
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import type { SamlIdentityProviderCreate } from '@oxide/api'
 
 import { DescriptionField, NameField, SideModalForm, TextField } from 'app/components/form'
+import { FileField } from 'app/components/form/fields'
 import { useSiloSelector, useToast } from 'app/hooks'
+import { readBlobAsBase64 } from 'app/util/file'
 import { pb } from 'app/util/path-builder'
 
+import type { IdpCreateFormValues } from './shared'
 import { MetadataSourceField } from './shared'
-
-export type IdpCreateFormValues = { type: 'saml' } & SamlIdentityProviderCreate
 
 const defaultValues: IdpCreateFormValues = {
   type: 'saml',
@@ -25,8 +25,26 @@ const defaultValues: IdpCreateFormValues = {
   spClientId: '',
   technicalContactEmail: '',
   groupAttributeName: '',
-  signingKeypair: undefined,
+  signingKeypair: {
+    publicCert: null,
+    privateKey: null,
+  },
 }
+
+// const validationSchema = z
+//   .object({
+//     signingKeypair: z.object({
+//       // these are objects because they are Files
+//       privateKey: z.object({}).nullable(),
+//       publicCert: z.object({}).nullable(),
+//     }),
+//   })
+//   .passthrough()
+//   .refine(
+//     ({ signingKeypair: { privateKey, publicCert } }) =>
+//       (privateKey && publicCert) || (!privateKey && !publicCert),
+//     { message: 'Need both public cert and private key' }
+//   )
 
 export function CreateIdpSideModalForm() {
   const navigate = useNavigate()
@@ -53,13 +71,25 @@ export function CreateIdpSideModalForm() {
       formOptions={{ defaultValues }}
       title="Create identity provider"
       onDismiss={onDismiss}
-      onSubmit={(values) => {
+      onSubmit={async ({ signingKeypair, groupAttributeName, ...rest }) => {
+        // TODO: validate that either both signingKeypair files are present or both are absent
+
+        // if both signingKeypair files are present, base64 and add to post
+        const keypair =
+          signingKeypair.publicCert && signingKeypair.privateKey
+            ? {
+                publicCert: await readBlobAsBase64(signingKeypair.publicCert),
+                privateKey: await readBlobAsBase64(signingKeypair.privateKey),
+              }
+            : undefined
+
         createIdp.mutate({
           query: { silo },
           body: {
-            ...values,
+            ...rest,
             // convert empty string to undefined so it remains unset
-            groupAttributeName: values.groupAttributeName?.trim() || undefined,
+            groupAttributeName: groupAttributeName?.trim() || undefined,
+            signingKeypair: keypair,
           },
         })
       }}
@@ -108,7 +138,23 @@ export function CreateIdpSideModalForm() {
             control={control}
           />
           <MetadataSourceField control={control} />
-          {/* TODO: signingKeypair */}
+          {/* We don't bother validating that you have both of these or neither even
+              though the API requires that because we are going to change the API to
+              always require both, at which point these become simple `required` fields */}
+          <FileField
+            id="public-cert-file-input"
+            name="signingKeypair.publicCert"
+            helpText="DER-encoded X.509 certificate"
+            label="Public cert"
+            control={control}
+          />
+          <FileField
+            id="private-key-file-input"
+            name="signingKeypair.privateKey"
+            helpText="DER-encoded private key"
+            label="Private key"
+            control={control}
+          />
         </>
       )}
     </SideModalForm>
