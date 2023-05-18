@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { Outlet } from 'react-router-dom'
 
 import { apiQueryClient } from '@oxide/api'
-import { DateCell, TruncateCell, useQueryTable } from '@oxide/table'
+import { DateCell, TruncateCell, linkCell, useQueryTable } from '@oxide/table'
 import {
   Badge,
   Cloud16Icon,
@@ -51,7 +51,12 @@ export function SiloPage() {
         </Link>
       </TableActions>
       <Table emptyState={<EmptyState />}>
-        <Column accessor="name" />
+        {/* TODO: this link will only really work for saml IdPs. probably need to give
+          them a special URL to make room for more types */}
+        <Column
+          accessor="name"
+          cell={linkCell((provider) => pb.siloIdp({ silo, provider }))}
+        />
         <Column accessor="description" cell={TruncateCell} />
         <Column
           accessor="providerType"

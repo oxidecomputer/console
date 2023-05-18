@@ -3,6 +3,7 @@ import { Navigate, Route, createRoutesFromElements } from 'react-router-dom'
 import { RouterDataErrorBoundary } from './components/ErrorBoundary'
 import { CreateDiskSideModalForm } from './forms/disk-create'
 import { CreateIdpSideModalForm } from './forms/idp/create'
+import { EditIdpSideModalForm } from './forms/idp/edit'
 import { CreateImageSideModalForm } from './forms/image-upload'
 import { CreateInstanceForm } from './forms/instance-create'
 import { CreateProjectSideModalForm } from './forms/project-create'
@@ -108,6 +109,11 @@ export const routes = createRoutesFromElements(
           >
             <Route index element={null} />
             <Route path="idps-new" element={<CreateIdpSideModalForm />} />
+            <Route
+              path="idps/:provider"
+              element={<EditIdpSideModalForm />}
+              loader={EditIdpSideModalForm.loader}
+            />
           </Route>
         </Route>
         <Route path="issues" element={null} />

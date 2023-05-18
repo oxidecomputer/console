@@ -7,6 +7,7 @@ const params = {
   vpc: 'v',
   silo: 's',
   version: 'vs',
+  provider: 'pr',
 }
 
 test('path builder', () => {
@@ -38,6 +39,7 @@ test('path builder', () => {
         "settings": "/settings",
         "silo": "/system/silos/s",
         "siloAccess": "/access",
+        "siloIdp": "/system/silos/s/idps/pr",
         "siloIdpNew": "/system/silos/s/idps-new",
         "siloImages": "/images",
         "siloNew": "/system/silos-new",
