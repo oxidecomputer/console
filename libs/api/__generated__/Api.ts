@@ -1102,23 +1102,25 @@ export type RouterRouteUpdate = {
  * Identity-related metadata that's included in nearly all public API objects
  */
 export type SamlIdentityProvider = {
-  /** service provider endpoint where the response will be sent */
+  /** Service provider endpoint where the response will be sent */
   acsUrl: string
   /** human-readable free-form text about a resource */
   description: string
+  /** If set, attributes with this name will be considered to denote a user's group membership, where the values will be the group names. */
+  groupAttributeName?: string
   /** unique, immutable, system-controlled identifier for each resource */
   id: string
-  /** idp's entity id */
+  /** IdP's entity id */
   idpEntityId: string
   /** unique, mutable, user-controlled identifier for each resource */
   name: Name
-  /** optional request signing public certificate (base64 encoded der file) */
+  /** Optional request signing public certificate (base64 encoded der file) */
   publicCert?: string
-  /** service provider endpoint where the idp should send log out requests */
+  /** Service provider endpoint where the idp should send log out requests */
   sloUrl: string
-  /** sp's client id */
+  /** SP's client id */
   spClientId: string
-  /** customer's technical contact for saml configuration */
+  /** Customer's technical contact for saml configuration */
   technicalContactEmail: string
   /** timestamp when this resource was created */
   timeCreated: Date
@@ -2115,8 +2117,6 @@ export interface InstanceSerialConsoleStreamPathParams {
 }
 
 export interface InstanceSerialConsoleStreamQueryParams {
-  fromStart?: number
-  maxBytes?: number
   mostRecent?: number
   project?: NameOrId
 }
