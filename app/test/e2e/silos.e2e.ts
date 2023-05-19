@@ -1,10 +1,9 @@
 import { expect, test } from '@playwright/test'
 
-import { expectNotVisible, expectRowVisible, expectVisible } from 'app/test/e2e'
-import { pb } from 'app/util/path-builder'
+import { expectNotVisible, expectRowVisible, expectVisible } from './utils'
 
 test('Silos page', async ({ page }) => {
-  await page.goto(pb.silos())
+  await page.goto('/system/silos')
 
   await expectVisible(page, ['role=heading[name*="Silos"]'])
   const table = page.locator('role=table')

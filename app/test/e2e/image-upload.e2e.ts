@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test'
 
 import { MiB } from '@oxide/util'
 
-import { expectNotVisible, expectRowVisible, expectVisible } from 'app/test/e2e'
+import { expectNotVisible, expectRowVisible, expectVisible } from './utils'
 
 async function chooseFile(page: Page, size = 5 * MiB) {
   const fileChooserPromise = page.waitForEvent('filechooser')
