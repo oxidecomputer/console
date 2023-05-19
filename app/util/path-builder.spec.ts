@@ -7,6 +7,7 @@ const params = {
   vpc: 'v',
   silo: 's',
   version: 'vs',
+  provider: 'pr',
 }
 
 test('path builder', () => {
@@ -34,6 +35,7 @@ test('path builder', () => {
         "projectNew": "/projects-new",
         "projects": "/projects",
         "rackInventory": "/system/inventory/racks",
+        "samlIdp": "/system/silos/s/idps/saml/pr",
         "serialConsole": "/projects/p/instances/i/serial-console",
         "settings": "/settings",
         "silo": "/system/silos/s",

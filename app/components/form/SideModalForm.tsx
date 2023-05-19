@@ -39,6 +39,16 @@ type SideModalFormProps<TFieldValues extends FieldValues> = {
   submitLabel?: string
 }
 
+/**
+ * Only animate the modal in when we're navigating by a client-side click.
+ * Don't animate on a fresh pageload or on back/forward. The latter may be
+ * slightly awkward but it also makes some sense. I do not believe there is
+ * any way to distinguish between fresh pageload and back/forward.
+ */
+export function useShouldAnimateModal() {
+  return useNavigationType() === 'PUSH'
+}
+
 export function SideModalForm<TFieldValues extends FieldValues>({
   id,
   formOptions,
@@ -57,16 +67,8 @@ export function SideModalForm<TFieldValues extends FieldValues>({
 
   const { isSubmitting } = form.formState
 
-  /**
-   * Only animate the modal in when we're navigating by a client-side click.
-   * Don't animate on a fresh pageload or on back/forward. The latter may be
-   * slightly awkward but it also makes some sense. I do not believe there is
-   * any way to distinguish between fresh pageload and back/forward.
-   */
-  const animate = useNavigationType() === 'PUSH'
-
   return (
-    <SideModal onDismiss={onDismiss} isOpen title={title} animate={animate}>
+    <SideModal onDismiss={onDismiss} isOpen title={title} animate={useShouldAnimateModal()}>
       <SideModal.Body>
         <form
           id={id}

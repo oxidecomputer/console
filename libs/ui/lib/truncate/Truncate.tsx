@@ -19,7 +19,7 @@ export const Truncate = ({
   maxLength,
   position = 'end',
   hasCopyButton,
-  tooltipDelay = 500,
+  tooltipDelay = 300,
 }: TruncateProps) => {
   const [hasCopied, setHasCopied] = useState(false)
 

@@ -3,7 +3,6 @@ import filesize from 'filesize'
 import pMap from 'p-map'
 import pRetry from 'p-retry'
 import { useRef, useState } from 'react'
-import { Controller } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import invariant from 'tiny-invariant'
 
@@ -11,8 +10,6 @@ import type { BlockSize, Disk, ErrorResult, Snapshot } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import {
   Error12Icon,
-  FieldLabel,
-  FileInput,
   Modal,
   Progress,
   Spinner,
@@ -29,26 +26,10 @@ import {
   SideModalForm,
   TextField,
 } from 'app/components/form'
-import { ErrorMessage } from 'app/components/form/fields/ErrorMessage'
+import { FileField } from 'app/components/form/fields'
 import { useProjectSelector } from 'app/hooks'
+import { readBlobAsBase64 } from 'app/util/file'
 import { pb } from 'app/util/path-builder'
-
-/** async wrapper for reading a slice of a file */
-async function readBlobAsBase64(blob: Blob): Promise<string> {
-  return new Promise((resolve) => {
-    const fileReader = new FileReader()
-
-    // split on comma and pop because data URL looks like
-    // 'data:[<mediatype>][;base64],<data>' and we only want <data>.
-    // e.target is never null and result is always a string
-    fileReader.onload = function (e) {
-      const base64Chunk = (e.target!.result as string).split(',').pop()!
-      resolve(base64Chunk)
-    }
-
-    fileReader.readAsDataURL(blob)
-  })
-}
 
 /** Format file size with two decimal points */
 const fsize = (bytes: number) => filesize(bytes, { base: 2, pad: true })
@@ -562,24 +543,12 @@ export function CreateImageSideModalForm() {
                 { label: '4096', value: 4096 },
               ]}
             />
-            <Controller
+            <FileField
+              id="image-file-input"
               name="imageFile"
+              label="Image file"
+              required
               control={control}
-              rules={{ required: true }}
-              render={({ field: { value: _value, ...rest }, fieldState: { error } }) => (
-                <div>
-                  <FieldLabel id="image-file-input-label" htmlFor="image-file-input">
-                    Image file
-                    {error && (
-                      <span className="ml-2">
-                        <ErrorMessage error={error} label="File" />
-                      </span>
-                    )}
-                  </FieldLabel>
-                  {/*  TODO: this doesn't like being passed a ref because FileInput doesn't forward it */}
-                  <FileInput id="image-file-input" className="mt-2" {...rest} />
-                </div>
-              )}
             />
             {file && modalOpen && (
               <Modal isOpen onDismiss={closeModal}>
