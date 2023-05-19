@@ -38,7 +38,9 @@ export function EditIdpSideModalForm() {
     >
       <SideModal.Body>
         <PropertiesTable>
-          <PropertiesTable.Row label="ID">{idp.id}</PropertiesTable.Row>
+          <PropertiesTable.Row label="ID">
+            <Truncate text={idp.id} maxLength={28} hasCopyButton />
+          </PropertiesTable.Row>
           <PropertiesTable.Row label="Name">{idp.name}</PropertiesTable.Row>
           <PropertiesTable.Row label="Description">
             <Truncate text={idp.description} maxLength={36} />
