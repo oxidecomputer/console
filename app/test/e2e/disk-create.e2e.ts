@@ -1,4 +1,4 @@
-import { expectVisible, test } from 'app/test/e2e'
+import { expectVisible, test } from './utils'
 
 test.describe('Disk create', () => {
   test.beforeEach(async ({ page }) => {

@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 
-import { forEach } from 'app/test/e2e'
+import { forEach } from './utils'
 
 // This could easily be done as a testing-lib test but I want it in a real
 // table. The .is-selected asserts are slightly brittle (and contrary to our

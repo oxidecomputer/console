@@ -28,9 +28,9 @@ it('@oxide/api-mocks is only referenced in test files', () => {
   const files = grepFiles("from '@oxide/api-mocks'")
   expect(files).toMatchInlineSnapshot(`
     [
-      "app/pages/__tests__/instance-create.e2e.ts",
-      "app/pages/__tests__/project-access.e2e.ts",
-      "app/pages/__tests__/silo-access.e2e.ts",
+      "app/test/e2e/instance-create.e2e.ts",
+      "app/test/e2e/project-access.e2e.ts",
+      "app/test/e2e/silo-access.e2e.ts",
       "app/test/unit/server.ts",
       "app/test/unit/setup.ts",
       "libs/api-mocks/msw/db.ts",
@@ -45,4 +45,14 @@ it('@oxide/api-mocks is only referenced in test files', () => {
 it("don't use findByRole", () => {
   const files = grepFiles('screen.findByRole')
   expect(files).toEqual([])
+})
+
+const listFiles = (s: string) =>
+  execSync(`git ls-files | grep "${s}"`).toString().trim().split('\n')
+
+// avoid accidentally making an e2e file in the wrong place
+it('e2e tests are only in app/test/e2e', () => {
+  for (const file of listFiles('\\.e2e\\.')) {
+    expect(file).toMatch(/^app\/test\/e2e/)
+  }
 })
