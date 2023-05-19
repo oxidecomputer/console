@@ -4,6 +4,7 @@ import invariant from 'tiny-invariant'
 
 import { apiQueryClient, useApiQuery } from '@oxide/api'
 import { Button, PropertiesTable, SideModal, Truncate } from '@oxide/ui'
+import { formatDateTime } from '@oxide/util'
 
 import { useShouldAnimateModal } from 'app/components/form'
 import { getIdpSelector, useIdpSelector } from 'app/hooks'
@@ -38,16 +39,23 @@ export function EditIdpSideModalForm() {
     >
       <SideModal.Body>
         <PropertiesTable>
+          <PropertiesTable.Row label="Name">{idp.name}</PropertiesTable.Row>
           <PropertiesTable.Row label="ID">
             <Truncate text={idp.id} maxLength={28} hasCopyButton />
           </PropertiesTable.Row>
-          <PropertiesTable.Row label="Name">{idp.name}</PropertiesTable.Row>
+          <PropertiesTable.Row label="Created">
+            {formatDateTime(idp.timeCreated)}
+          </PropertiesTable.Row>
+          <PropertiesTable.Row label="Updated">
+            {formatDateTime(idp.timeModified)}
+          </PropertiesTable.Row>
           <PropertiesTable.Row label="Description">
             <Truncate text={idp.description} maxLength={36} />
           </PropertiesTable.Row>
           <PropertiesTable.Row label="ACS URL">{idp.acsUrl}</PropertiesTable.Row>
           <PropertiesTable.Row label="Entity ID">{idp.idpEntityId}</PropertiesTable.Row>
           <PropertiesTable.Row label="SLO URL">{idp.sloUrl}</PropertiesTable.Row>
+          <PropertiesTable.Row label="SP Client ID">{idp.spClientId}</PropertiesTable.Row>
           <PropertiesTable.Row label="Contact email">
             {idp.technicalContactEmail}
           </PropertiesTable.Row>
