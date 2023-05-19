@@ -71,7 +71,7 @@ export function SideModal({
 
 SideModal.Title = classed.h2`mt-8 mb-12 text-sans-2xl`
 
-SideModal.Body = classed.div`body relative overflow-y-auto h-full pb-6`
+SideModal.Body = classed.div`body relative overflow-y-auto h-full pb-12`
 
 SideModal.Section = classed.div`p-8 space-y-6 border-secondary`
 
