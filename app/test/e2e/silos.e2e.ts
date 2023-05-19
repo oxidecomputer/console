@@ -51,9 +51,9 @@ test('Identity providers', async ({ page }) => {
     'role=dialog[name="Edit identity provider"]',
     // random stuff that's not in the table
     'text="Entity ID"',
-    'text="SLO URL"',
+    'text="Single Logout (SLO) URL"',
   ])
 
-  await page.getByRole('button', { name: 'Done' }).click()
+  await page.getByRole('button', { name: 'Cancel' }).click()
   await expectNotVisible(page, ['role=dialog[name="Edit identity provider"]'])
 })
