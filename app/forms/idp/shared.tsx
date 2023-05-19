@@ -10,7 +10,7 @@ import { FileField } from 'app/components/form/fields'
 export type IdpCreateFormValues = { type: 'saml' } & Merge<
   SamlIdentityProviderCreate,
   {
-    idpMetadataSourceFile: File | null
+    idpMetadataSourceFile?: File | null
     signingKeypair: {
       publicCert: File | null
       privateKey: File | null

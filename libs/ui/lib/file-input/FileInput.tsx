@@ -7,7 +7,7 @@ import { mergeRefs } from 'react-merge-refs'
 import { Document16Icon, Error16Icon, Truncate } from '@oxide/ui'
 
 export type FileInputProps = Omit<ComponentProps<'input'>, 'type' | 'onChange'> & {
-  error: boolean
+  error?: boolean
   onChange: (f: File | null) => void
 }
 
