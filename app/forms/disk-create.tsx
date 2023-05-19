@@ -177,23 +177,23 @@ const ImageSelectField = ({ control }: { control: Control<DiskCreate> }) => {
   )
 }
 
+const DiskNameFromId = ({ disk }: { disk: string }) => {
+  const { data, isLoading, isError } = useApiQuery(
+    'diskView',
+    { path: { disk } },
+    // this can 404 if the source disk has been deleted, and that's fine
+    { useErrorBoundary: false }
+  )
+
+  if (isLoading || isError) return null
+  return <> from {data.name}</>
+}
+
 const SnapshotSelectField = ({ control }: { control: Control<DiskCreate> }) => {
   const projectSelector = useProjectSelector()
 
   const snapshots =
     useApiQuery('snapshotList', { query: projectSelector }).data?.items || []
-
-  const DiskNameFromId = ({ value }: { value: string }) => {
-    const { data, isLoading, isError } = useApiQuery(
-      'diskView',
-      { path: { disk: value } },
-      // this can 404 if the source disk has been deleted, and that's fine
-      { useErrorBoundary: false }
-    )
-
-    if (isLoading || isError) return null
-    return <> from {data.name}</>
-  }
 
   return (
     <ListboxField
@@ -210,7 +210,7 @@ const SnapshotSelectField = ({ control }: { control: Control<DiskCreate> }) => {
               <div>{i.name}</div>
               <div className="text-secondary">
                 Created on {format(i.timeCreated, 'MMM d, yyyy')}
-                <DiskNameFromId value={i.diskId} />
+                <DiskNameFromId disk={i.diskId} />
               </div>
             </>
           ),
