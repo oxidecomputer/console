@@ -7,7 +7,7 @@ import { expectNotVisible, expectRowVisible, expectVisible } from './utils'
 
 async function chooseFile(page: Page, size = 5 * MiB) {
   const fileChooserPromise = page.waitForEvent('filechooser')
-  await page.getByText('Image file').click()
+  await page.getByText('Image file', { exact: true }).click()
   const fileChooser = await fileChooserPromise
   await fileChooser.setFiles({
     name: 'my-image.iso',
@@ -99,7 +99,7 @@ test.describe('Image upload', () => {
     await page.goto('/projects/mock-project/images-new')
 
     const nameRequired = 'role=dialog[name="Upload image"] >> text="Name is required"'
-    const fileRequired = 'role=dialog[name="Upload image"] >> text="File is required"'
+    const fileRequired = 'role=dialog[name="Upload image"] >> text="Image file is required"'
 
     await expectNotVisible(page, [nameRequired, fileRequired])
 

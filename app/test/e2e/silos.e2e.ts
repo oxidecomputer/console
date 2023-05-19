@@ -43,17 +43,17 @@ test('Silos page', async ({ page }) => {
 test('Identity providers', async ({ page }) => {
   await page.goto('/system/silos/default-silo')
 
-  await expectVisible(page, ['role=heading[name="Identity providers"]'])
+  await expectVisible(page, ['role=heading[name="Identity Providers"]'])
 
   await page.getByRole('link', { name: 'mock-idp' }).click()
 
   await expectVisible(page, [
-    'role=dialog[name="Identity provider"]',
+    'role=dialog[name="Edit identity provider"]',
     // random stuff that's not in the table
     'text="Entity ID"',
     'text="SLO URL"',
   ])
 
   await page.getByRole('button', { name: 'Done' }).click()
-  await expectNotVisible(page, ['role=dialog[name="Identity provider"]'])
+  await expectNotVisible(page, ['role=dialog[name="Edit identity provider"]'])
 })

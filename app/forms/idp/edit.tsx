@@ -34,7 +34,7 @@ export function EditIdpSideModalForm() {
     <SideModalForm
       id="edit-project-form"
       formOptions={{ defaultValues: idp }}
-      title="Edit Identity Provider"
+      title="Edit identity provider"
       onDismiss={onDismiss}
       onSubmit={() => {}} // Submit does nothing right now
       submitError={null}
