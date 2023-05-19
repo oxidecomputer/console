@@ -82,7 +82,7 @@ export const routes = createRoutesFromElements(
         <Route index element={<Navigate to="profile" replace />} />
         <Route path="profile" element={<ProfilePage />} handle={{ crumb: 'Profile' }} />
         <Route element={<SSHKeysPage />} loader={SSHKeysPage.loader}>
-          <Route path="ssh-keys" handle={{ crumb: 'SSH Keys' }} />
+          <Route path="ssh-keys" handle={{ crumb: 'SSH Keys' }} element={null} />
           <Route
             path="ssh-keys-new"
             element={<CreateSSHKeySideModalForm />}

@@ -1,4 +1,5 @@
-import { Outlet } from 'react-router-dom'
+import { useRef } from 'react'
+import { Outlet, ScrollRestoration } from 'react-router-dom'
 
 import { apiQueryClient } from '@oxide/api'
 import { Pagination } from '@oxide/pagination'
@@ -9,23 +10,24 @@ import { PageActionsTarget } from 'app/components/PageActions'
 
 export const PageContainer = classed.div`grid h-screen grid-cols-[14.25rem,1fr] grid-rows-[60px,1fr]`
 
-export const ContentPane = () => (
-  // IMPORTANT: We have patched React Router's <ScrollRestoration> to use this
-  // container instead of window as the scroll container. This exact ID has to
-  // be on this element for that to work.
-  <div id="content-pane" className="flex flex-col overflow-auto">
-    <div className="flex flex-grow flex-col pb-8">
-      <SkipLinkTarget />
-      <main className="[&>*]:gutter">
-        <Outlet />
-      </main>
+export function ContentPane() {
+  const ref = useRef<HTMLDivElement>(null)
+  return (
+    <div ref={ref} className="flex flex-col overflow-auto">
+      <ScrollRestoration elementRef={ref} />
+      <div className="flex flex-grow flex-col pb-8">
+        <SkipLinkTarget />
+        <main className="[&>*]:gutter">
+          <Outlet />
+        </main>
+      </div>
+      <div className="sticky bottom-0 flex-shrink-0 justify-between overflow-hidden border-t bg-default border-secondary empty:border-t-0">
+        <Pagination.Target />
+        <PageActionsTarget />
+      </div>
     </div>
-    <div className="sticky bottom-0 flex-shrink-0 justify-between overflow-hidden border-t bg-default border-secondary empty:border-t-0">
-      <Pagination.Target />
-      <PageActionsTarget />
-    </div>
-  </div>
-)
+  )
+}
 
 /**
  * Special content pane for the serial console that lets us break out of the
@@ -34,7 +36,7 @@ export const ContentPane = () => (
  * `<div>` because we don't need it.
  */
 export const SerialConsoleContentPane = () => (
-  <div id="content-pane" className="flex flex-col overflow-auto">
+  <div className="flex flex-col overflow-auto">
     <div className="flex flex-grow flex-col">
       <SkipLinkTarget />
       <main className="[&>*]:gutter h-full">
