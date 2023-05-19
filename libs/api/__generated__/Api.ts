@@ -1193,6 +1193,8 @@ Note that if configuring a SAML based identity provider, group_attribute_name mu
   discoverable: boolean
   identityMode: SiloIdentityMode
   name: Name
+  /** Initial TLS certificates to be used for the new Silo's console and API endpoints.  These should be valid for the Silo's DNS name(s). */
+  tlsCertificates: CertificateCreate[]
 }
 
 /**
@@ -1245,6 +1247,36 @@ export type Sled = {
   usableHardwareThreads: number
   /** Amount of RAM which may be used by the Sled's OS */
   usablePhysicalRam: ByteCount
+}
+
+/**
+ * An operator's view of an instance running on a given sled
+ */
+export type SledInstance = {
+  activeSledId: string
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  memory: number
+  migrationId?: string
+  name: Name
+  ncpus: number
+  projectName: Name
+  siloName: Name
+  state: InstanceState
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+}
+
+/**
+ * A single page of results
+ */
+export type SledInstanceResultsPage = {
+  /** list of items on this page of results */
+  items: SledInstance[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
 }
 
 /**
@@ -2254,6 +2286,16 @@ export interface SledPhysicalDiskListQueryParams {
   sortBy?: IdSortMode
 }
 
+export interface SledInstanceListPathParams {
+  sledId: string
+}
+
+export interface SledInstanceListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: IdSortMode
+}
+
 export interface SwitchListQueryParams {
   limit?: number
   pageToken?: string
@@ -2648,6 +2690,7 @@ export type ApiListMethods = Pick<
   | 'rackList'
   | 'sledList'
   | 'sledPhysicalDiskList'
+  | 'sledInstanceList'
   | 'switchList'
   | 'siloIdentityProviderList'
   | 'ipPoolList'
@@ -3772,6 +3815,23 @@ export class Api extends HttpClient {
     ) => {
       return this.request<PhysicalDiskResultsPage>({
         path: `/v1/system/hardware/sleds/${path.sledId}/disks`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List instances running on a given sled
+     */
+    sledInstanceList: (
+      {
+        path,
+        query = {},
+      }: { path: SledInstanceListPathParams; query?: SledInstanceListQueryParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<SledInstanceResultsPage>({
+        path: `/v1/system/hardware/sleds/${path.sledId}/instances`,
         method: 'GET',
         query,
         ...params,
