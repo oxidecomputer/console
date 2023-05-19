@@ -360,6 +360,11 @@ export interface MSWHandlers {
     path: Api.SledPhysicalDiskListPathParams
     query: Api.SledPhysicalDiskListQueryParams
   }) => HandlerResult<Api.PhysicalDiskResultsPage>
+  /** `GET /v1/system/hardware/sleds/:sledId/instances` */
+  sledInstanceList: (params: {
+    path: Api.SledInstanceListPathParams
+    query: Api.SledInstanceListQueryParams
+  }) => HandlerResult<Api.SledInstanceResultsPage>
   /** `GET /v1/system/hardware/switches` */
   switchList: (params: {
     query: Api.SwitchListQueryParams
@@ -1061,6 +1066,10 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
     rest.get(
       '/v1/system/hardware/sleds/:sledId/disks',
       handler(handlers['sledPhysicalDiskList'], schema.SledPhysicalDiskListParams, null)
+    ),
+    rest.get(
+      '/v1/system/hardware/sleds/:sledId/instances',
+      handler(handlers['sledInstanceList'], schema.SledInstanceListParams, null)
     ),
     rest.get(
       '/v1/system/hardware/switches',

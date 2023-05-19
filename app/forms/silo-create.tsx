@@ -20,6 +20,7 @@ const defaultValues: SiloCreate = {
   discoverable: true,
   identityMode: 'saml_jit',
   adminGroupName: '',
+  tlsCertificates: [],
 }
 
 export function CreateSiloSideModalForm() {
