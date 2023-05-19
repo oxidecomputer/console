@@ -833,9 +833,7 @@ export const handlers = makeHandlers({
   },
   sledList: (params) => paginated(params.query, db.sleds),
   sledInstanceList({ query, path }) {
-    // For now there's only one sled so we'll just return all the instances
-    // for that sled
-    lookupById(db.sleds, path.sledId)
+    const sled = lookupById(db.sleds, path.sledId)
     return paginated(
       query,
       db.instances.map((i) => {
@@ -843,7 +841,7 @@ export const handlers = makeHandlers({
         return {
           ...pick(i, 'id', 'name', 'time_created', 'time_modified', 'memory', 'ncpus'),
           state: 'running',
-          active_sled_id: db.sleds[0].id,
+          active_sled_id: sled.id,
           project_name: project.name,
           silo_name: defaultSilo.name,
         }
