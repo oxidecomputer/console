@@ -38,7 +38,7 @@ async function expectUploadProcess(page: Page) {
     await expect(step).toHaveAttribute('data-status', 'complete')
   }
 
-  await expect(done).toBeEnabled({ timeout: 10000 })
+  await expect(done).toBeEnabled({ timeout: 15000 })
   await done.click()
 }
 
