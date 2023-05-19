@@ -12,6 +12,7 @@ export const PageContainer = classed.div`grid h-screen grid-cols-[14.25rem,1fr] 
 
 export function ContentPane() {
   const ref = useRef<HTMLDivElement>(null)
+  console.log({ scrollHeight: ref.current?.scrollHeight })
   return (
     <div ref={ref} className="flex flex-col overflow-auto">
       <ScrollRestoration elementRef={ref} />
