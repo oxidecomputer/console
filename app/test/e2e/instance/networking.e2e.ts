@@ -1,8 +1,6 @@
 import { expect, test } from '@playwright/test'
 
-import { expectNotVisible, expectRowVisible, expectVisible } from 'app/test/e2e'
-
-import { stopInstance } from './util'
+import { expectNotVisible, expectRowVisible, expectVisible, stopInstance } from '../utils'
 
 test('Instance networking tab', async ({ page }) => {
   await page.goto('/projects/mock-project/instances/db1')

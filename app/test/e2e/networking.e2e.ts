@@ -1,6 +1,6 @@
 import { test } from '@playwright/test'
 
-import { expectNotVisible, expectVisible } from 'app/test/e2e'
+import { expectNotVisible, expectVisible } from './utils'
 
 test('Click through networking', async ({ page }) => {
   await page.goto('/projects/mock-project')

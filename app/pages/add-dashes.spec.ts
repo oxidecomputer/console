@@ -1,4 +1,4 @@
-import { addDashes } from '../DeviceAuthVerifyPage'
+import { addDashes } from './DeviceAuthVerifyPage'
 
 test('addDashes', () => {
   expect(addDashes([], 'abcdefgh')).toEqual('abcdefgh')

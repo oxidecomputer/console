@@ -1,6 +1,6 @@
 import { test } from '@playwright/test'
 
-import { expectNotVisible, expectRowVisible, expectVisible } from 'app/test/e2e'
+import { expectNotVisible, expectRowVisible, expectVisible } from './utils'
 
 test('SSH keys', async ({ page }) => {
   await page.goto('/settings/ssh-keys')

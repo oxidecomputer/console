@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 
-import { expectVisible } from 'app/test/e2e'
+import { expectVisible } from './utils'
 
 test.describe('Project create', () => {
   test.beforeEach(async ({ page }) => {

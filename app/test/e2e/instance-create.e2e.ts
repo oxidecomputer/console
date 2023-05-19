@@ -1,6 +1,6 @@
 import { images } from '@oxide/api-mocks'
 
-import { expect, expectVisible, test } from 'app/test/e2e'
+import { expect, expectVisible, test } from './utils'
 
 test('can create an instance', async ({ page }) => {
   await page.goto('/projects/mock-project/instances')
