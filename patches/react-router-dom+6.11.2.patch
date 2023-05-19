@@ -19,7 +19,7 @@ index 8ff0e6e..3d8bd3e 100644
  export { useScrollRestoration as UNSAFE_useScrollRestoration };
  /**
 diff --git a/node_modules/react-router-dom/dist/index.js b/node_modules/react-router-dom/dist/index.js
-index c2a7ae7..aff5b66 100644
+index c2a7ae7..499adb5 100644
 --- a/node_modules/react-router-dom/dist/index.js
 +++ b/node_modules/react-router-dom/dist/index.js
 @@ -597,11 +597,13 @@ if (process.env.NODE_ENV !== "production") {
@@ -98,18 +98,16 @@ index c2a7ae7..aff5b66 100644
      // eslint-disable-next-line react-hooks/rules-of-hooks
  
      React.useLayoutEffect(() => {
-@@ -949,7 +968,9 @@ function useScrollRestoration(_temp3) {
+@@ -949,7 +968,7 @@ function useScrollRestoration(_temp3) {
  
  
        if (typeof restoreScrollPosition === "number") {
 -        window.scrollTo(0, restoreScrollPosition);
-+        console.log("scrolling to", restoreScrollPosition, "height", elementRef.current.scrollHeight)
-+        setTimeout(() => console.log("after timeout", restoreScrollPosition, "height", elementRef.current.scrollHeight))
 +        scrollY(elementRef, restoreScrollPosition);
          return;
        } // try to scroll to the hash
  
-@@ -969,8 +990,8 @@ function useScrollRestoration(_temp3) {
+@@ -969,8 +988,8 @@ function useScrollRestoration(_temp3) {
        } // otherwise go to the top on new locations
  
  
