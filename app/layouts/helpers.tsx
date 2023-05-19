@@ -11,10 +11,9 @@ import { PageActionsTarget } from 'app/components/PageActions'
 export const PageContainer = classed.div`grid h-screen grid-cols-[14.25rem,1fr] grid-rows-[60px,1fr]`
 
 export function ContentPane() {
-  const ref = useRef(null)
+  const ref = useRef<HTMLDivElement>(null)
   return (
     <div ref={ref} className="flex flex-col overflow-auto">
-      {/* @ts-expect-error */}
       <ScrollRestoration elementRef={ref} />
       <div className="flex flex-grow flex-col pb-8">
         <SkipLinkTarget />
@@ -37,7 +36,7 @@ export function ContentPane() {
  * `<div>` because we don't need it.
  */
 export const SerialConsoleContentPane = () => (
-  <div id="content-pane" className="flex flex-col overflow-auto">
+  <div className="flex flex-col overflow-auto">
     <div className="flex flex-grow flex-col">
       <SkipLinkTarget />
       <main className="[&>*]:gutter h-full">
