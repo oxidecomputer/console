@@ -2,9 +2,19 @@ import { getLocalTimeZone } from '@internationalized/date'
 import { useMemo, useState } from 'react'
 
 import { apiQueryClient, useApiQuery } from '@oxide/api'
-import { Divider, Listbox, PageHeader, PageTitle, Snapshots24Icon } from '@oxide/ui'
+import {
+  Cpu16Icon,
+  Divider,
+  Listbox,
+  PageHeader,
+  PageTitle,
+  Ram16Icon,
+  Snapshots24Icon,
+  Ssd16Icon,
+} from '@oxide/ui'
 import { bytesToGiB, bytesToTiB } from '@oxide/util'
 
+import { CapacityMetric } from 'app/components/CapacityMetric'
 import { SystemMetric } from 'app/components/SystemMetric'
 import { useDateTimeRangePicker } from 'app/components/form'
 
@@ -40,7 +50,33 @@ export function CapacityUtilizationPage() {
         <PageTitle icon={<Snapshots24Icon />}>Capacity &amp; Utilization</PageTitle>
       </PageHeader>
 
-      <div className="mt-8 flex justify-between">
+      <div className="mb-12 flex min-w-min gap-3">
+        <CapacityMetric
+          icon={<Ssd16Icon />}
+          title="Disk capacity"
+          metricName="virtual_disk_space_provisioned"
+          valueTransform={bytesToTiB}
+          unit="TiB"
+          capacity={900}
+        />
+        <CapacityMetric
+          icon={<Ram16Icon />}
+          title="Memory capacity"
+          metricName="ram_provisioned"
+          valueTransform={bytesToGiB}
+          unit="GiB"
+          capacity={28000}
+        />
+        <CapacityMetric
+          icon={<Cpu16Icon />}
+          title="CPU capacity"
+          metricName="cpus_provisioned"
+          unit="nCPU"
+          capacity={2048}
+        />
+      </div>
+
+      <div className="my-8 flex justify-between">
         <Listbox
           defaultValue={FLEET_ID}
           className="w-48"
@@ -59,16 +95,15 @@ export function CapacityUtilizationPage() {
 
       <Divider className="!mx-0 mb-6 !w-full" />
 
-      <div className="mt-8 space-y-12">
+      <div className="mt-8 mb-12 space-y-12">
         <div className="flex flex-col gap-3">
-          {/* TODO: convert numbers to GiB PLEASE */}
           <SystemMetric
             {...commonProps}
             metricName="virtual_disk_space_provisioned"
             title="Disk Space"
             unit="TiB"
             valueTransform={bytesToTiB}
-            capacity={931}
+            capacity={900}
           />
         </div>
 
@@ -87,7 +122,7 @@ export function CapacityUtilizationPage() {
           title="Memory"
           unit="GiB"
           valueTransform={bytesToGiB}
-          capacity={29802}
+          capacity={28000}
         />
       </div>
     </>

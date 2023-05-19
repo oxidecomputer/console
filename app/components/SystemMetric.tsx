@@ -61,8 +61,6 @@ export function SystemMetric({
     }
   }
 
-  // const capacity =
-
   // Calculate the difference between the start
   // and end values
   const statistic = useMemo(() => {
@@ -106,6 +104,7 @@ export function SystemMetric({
             startTime={startTime}
             endTime={endTime}
             maxValue={capacity}
+            unit={unit !== 'count' ? unit : undefined}
           />
         </div>
         {statistic && (
@@ -129,6 +128,12 @@ export function SystemMetric({
   )
 }
 
+export function splitNumberDecimal(value: number) {
+  const wholeNumber = Math.floor(value)
+  const decimal = value % 1 !== 0 ? value % 1 : null
+  return [wholeNumber, decimal ? '.' + decimal.toFixed(2).toString().split('.')[1] : '']
+}
+
 const MetricStatistic = ({
   label,
   value,
@@ -144,11 +149,12 @@ const MetricStatistic = ({
 }) => {
   const isPercentage = unit === 'percentage'
 
-  const [wholeNumber, decimal] = useMemo(() => {
-    const wholeNumber = Math.floor(value)
-    const decimal = value % 1 !== 0 ? value % 1 : null
-    return [wholeNumber, decimal ? '.' + decimal.toFixed(2).toString().split('.')[1] : '']
-  }, [value])
+  const [wholeNumber, decimal] = useMemo(() => splitNumberDecimal(value), [value])
+
+  // We're using the fixed delta when we check if a delta is
+  // positive or negative, otherwise we'll see the colour and direction
+  // arrow change whilst the number stays at 0.00%
+  const fDelta = delta && parseFloat(delta.toFixed(2))
 
   return (
     <div className="flex h-10 w-full min-w-min flex-1 flex-shrink-0 items-center rounded-lg border border-default">
@@ -156,8 +162,8 @@ const MetricStatistic = ({
         {label}
       </div>
       <div className="flex flex-grow items-center justify-between px-3">
-        <div className="font-light [font-size:18px]">
-          <span>{wholeNumber.toLocaleString()}</span>
+        <div className="[font-size:18px]">
+          <span className="font-light">{wholeNumber.toLocaleString()}</span>
           {decimal && (
             <span className="ml-0.5 text-quaternary [font-size:14px]">{decimal}</span>
           )}
@@ -167,15 +173,15 @@ const MetricStatistic = ({
             </span>
           )}
         </div>
-        {delta !== undefined && (
+        {fDelta !== undefined && (
           <Badge
             className="my-2 children:flex children:items-center"
-            color={delta > 0 ? 'default' : 'purple'}
+            color={fDelta > 0 ? 'default' : 'purple'}
           >
             <div className="mr-1 inline-flex">
-              {delta >= 0 ? <DirectionUpIcon /> : <DirectionDownIcon />}
+              {fDelta >= 0 ? <DirectionUpIcon /> : <DirectionDownIcon />}
             </div>
-            {delta.toFixed(2)}%
+            {fDelta}%
           </Badge>
         )}
         {total && (

@@ -16,6 +16,7 @@ import { RangeCalendar } from './RangeCalendar'
 
 interface RelativeDateRangePickerProps extends DateRangePickerStateOptions {
   label: string
+  className?: string
 }
 
 export function RelativeDateRangePicker(props: RelativeDateRangePickerProps) {
@@ -43,30 +44,31 @@ export function RelativeDateRangePicker(props: RelativeDateRangePickerProps) {
   )
 
   return (
-    <div aria-label={props.label} className="relative flex-col text-left">
+    <div
+      aria-label={props.label}
+      className={cn('relative flex-col text-left', props.className)}
+    >
       <div {...groupProps} ref={ref} className="group flex">
-        <div
-          className={cn(
-            'relative flex h-10 items-center rounded-l border pl-2 pr-8 border-default focus-within:ring-2 focus-within:ring-accent-secondary',
-            state.validationState === 'invalid' ? 'border-error' : 'border-default'
-          )}
-        >
-          {label}
-          {state.validationState === 'invalid' && (
-            <div className="absolute right-2 top-0 bottom-0 flex items-center text-error">
-              <Error12Icon className="h-3 w-3" />
-            </div>
-          )}
-        </div>
         <button
           {...realButtonProps}
           type="button"
           className={cn(
-            '-ml-px flex w-10 items-center justify-center rounded-r border outline-none border-default hover:bg-secondary focus:z-10',
-            state.isOpen && 'z-10 ring-2 ring-accent-secondary'
+            state.isOpen && 'z-10 ring-2 ring-accent-secondary',
+            'relative flex h-10  items-center rounded-l rounded-r border text-sans-md border-default focus-within:ring-2 focus-within:ring-accent-secondary hover:bg-raise focus:z-10',
+            state.validationState === 'invalid' ? 'border-error' : 'border-default'
           )}
         >
-          <Calendar16Icon className="h-4 w-4 text-tertiary" />
+          <div className={cn('relative flex w-[16rem] items-center px-3 text-sans-md')}>
+            {label}
+            {state.validationState === 'invalid' && (
+              <div className="absolute right-2 top-0 bottom-0 flex items-center text-error">
+                <Error12Icon className="h-3 w-3" />
+              </div>
+            )}
+          </div>
+          <div className="-ml-px flex h-[calc(100%-12px)] w-10 items-center justify-center rounded-r border-l outline-none border-secondary">
+            <Calendar16Icon className="h-4 w-4 text-tertiary" />
+          </div>
         </button>
       </div>
       {state.validationState === 'invalid' && (

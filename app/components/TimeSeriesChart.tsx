@@ -64,7 +64,7 @@ const textMonoMd = {
   fill: 'var(--content-quaternary)',
 }
 
-function renderTooltip(props: TooltipProps<number, string>) {
+function renderTooltip(props: TooltipProps<number, string>, unit?: string) {
   const { payload } = props
   if (!payload || payload.length < 1) return null
   // TODO: there has to be a better way to get these values
@@ -82,11 +82,11 @@ function renderTooltip(props: TooltipProps<number, string>) {
         <div className="text-tertiary">{name}</div>
         <div className="text-default">
           {
-            value
-              .toFixed(2)
+            parseFloat(value.toFixed(2))
               .toLocaleString()
               .replace(/[.,]00$/, '') // Remove decimal if a whole number
           }
+          {unit && <span className="ml-1 text-tertiary">{unit}</span>}
         </div>
         {/* TODO: unit on value if relevant */}
       </div>
@@ -111,6 +111,7 @@ type Props = {
   startTime: Date
   endTime: Date
   maxValue: number
+  unit?: string
 }
 
 // const toPercent = (decimal: number, fixed = 0) => {
@@ -128,6 +129,7 @@ export default function TimeSeriesChart({
   startTime,
   endTime,
   maxValue,
+  unit,
 }: Props) {
   return (
     <ResponsiveContainer width="100%" height={300}>
@@ -162,14 +164,14 @@ export default function TimeSeriesChart({
           tick={textMonoMd}
           tickMargin={8}
           tickFormatter={(val) => val.toLocaleString()}
-          ticks={getVerticalTicks(4, maxValue)}
+          ticks={getVerticalTicks(6, maxValue)}
           padding={{ top: 32 }}
           domain={[0, maxValue]}
         />
         {/* TODO: stop tooltip being focused by default on pageload if nothing else has been clicked */}
         <Tooltip
           isAnimationActive={false}
-          content={renderTooltip}
+          content={(props: TooltipProps<number, string>) => renderTooltip(props, unit)}
           cursor={{ stroke: CURSOR_GRAY, strokeDasharray: '3,3' }}
           wrapperStyle={{ outline: 'none' }}
         />

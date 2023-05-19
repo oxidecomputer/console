@@ -101,7 +101,7 @@ export function CalendarCell({ state, date }: CalendarCellProps) {
         </div>
 
         {cellIsToday && (
-          <div className="absolute left-1/2 bottom-[3px] h-1 w-1 -translate-x-1/2 rounded-full bg-[var(--content-accent-tertiary)] content-['']" />
+          <div className="absolute left-1/2 bottom-[5px] h-[3px] w-[3px] -translate-x-1/2 rounded-full bg-[var(--content-accent-tertiary)] content-['']" />
         )}
       </div>
     </td>

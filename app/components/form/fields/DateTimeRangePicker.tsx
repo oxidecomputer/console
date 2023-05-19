@@ -1,15 +1,9 @@
 import type { DateValue } from '@internationalized/date'
 import { getLocalTimeZone, now as getNow } from '@internationalized/date'
+import { format } from 'date-fns'
 import { useMemo, useState } from 'react'
 
-import {
-  Button,
-  Checkmark12Icon,
-  Close12Icon,
-  DateRangePicker,
-  Listbox,
-  useInterval,
-} from '@oxide/ui'
+import { Listbox, RelativeDateRangePicker, useInterval } from '@oxide/ui'
 
 const rangePresets = [
   { label: 'Last hour', value: 'lastHour' as const },
@@ -17,7 +11,7 @@ const rangePresets = [
   { label: 'Last day', value: 'lastDay' as const },
   { label: 'Last week', value: 'lastWeek' as const },
   { label: 'Last 30 days', value: 'last30Days' as const },
-  { label: 'Custom...', value: 'custom' as const },
+  { label: 'Custom', value: 'custom' as const },
 ]
 
 // custom doesn't have an associated range
@@ -77,15 +71,13 @@ export function DateTimeRangePicker({
   setRange,
 }: DateTimeRangePickerProps) {
   const [preset, setPreset] = useState<RangeKeyAll>(initialPreset)
+  const [lastUpdated, setLastUpdated] = useState(Date.now())
 
-  // needs a separate pair of values because they can be edited without
-  // submitting and updating the graphs
-  const [inputRange, setInputRange] = useState<DateTimeRange>(range)
+  // const customInputsDirty =
+  //   range.start.compare(inputRange.start) !== 0 || range.end.compare(inputRange.end) !== 0
 
-  const customInputsDirty =
-    range.start.compare(inputRange.start) !== 0 || range.end.compare(inputRange.end) !== 0
-
-  const enableInputs = preset === 'custom'
+  // const enableInputs = preset === 'custom'
+  const enableInputs = true
 
   // could handle this in a useEffect that looks at `preset`, but that would
   // also run on initial render, which is silly. Instead explicitly call it on
@@ -95,7 +87,7 @@ export function DateTimeRangePicker({
       const now = getNow(getLocalTimeZone())
       const newStartTime = computeStart[preset](now)
       setRange({ start: newStartTime, end: now })
-      setInputRange({ start: newStartTime, end: now })
+      setLastUpdated(Date.now())
     }
   }
 
@@ -106,10 +98,13 @@ export function DateTimeRangePicker({
   })
 
   return (
-    <form className="flex h-20 gap-4">
+    <form className="flex items-center gap-3">
+      <div className="text-sans-md text-quaternary">
+        Updated {format(lastUpdated, 'hh:mm')}
+      </div>
       <div className="flex">
         <Listbox
-          className="w-48 [&>button]:!rounded-r-none [&>button]:!border-r-0" // in addition to gap-4
+          className="z-10 w-[10rem] [&>button]:!rounded-r-none [&>button]:!border-r-0" // in addition to gap-4
           name="preset"
           defaultValue={initialPreset}
           aria-label="Choose a time range preset"
@@ -122,26 +117,18 @@ export function DateTimeRangePicker({
             }
           }}
         />
-        <DateRangePicker
+        <RelativeDateRangePicker
           isDisabled={!enableInputs}
           label="Choose a date range"
-          value={inputRange}
-          onChange={setInputRange}
+          value={range}
+          onChange={(range) => {
+            setRange(range)
+            setPreset('custom')
+          }}
           hideTimeZone
+          className="[&_.rounded-l]:!rounded-l-none"
         />
       </div>
-      {/* TODO: fix goofy ass buttons. tooltips to explain? lord */}
-      {enableInputs && (
-        // reset inputs back to whatever they were
-        <Button disabled={!customInputsDirty} onClick={() => setInputRange(range)}>
-          <Close12Icon />
-        </Button>
-      )}
-      {enableInputs && (
-        <Button disabled={!customInputsDirty} onClick={() => setRange(inputRange)}>
-          <Checkmark12Icon />
-        </Button>
-      )}
     </form>
   )
 }

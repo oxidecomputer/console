@@ -970,8 +970,8 @@ export const handlers = makeHandlers({
       params.path.metricName === 'cpus_provisioned'
         ? 2048
         : params.path.metricName === 'virtual_disk_space_provisioned'
-        ? TiB * 931
-        : TiB * 32
+        ? TiB * 900
+        : TiB * 28
 
     // note we're ignoring the required id query param. since the data is fake
     // it wouldn't matter, though we should probably 400 if it's missing
@@ -1020,11 +1020,11 @@ export const handlers = makeHandlers({
               params.path.metricName === 'cpus_provisioned'
                 ? 3
                 : params.path.metricName === 'virtual_disk_space_provisioned'
-                ? TiB / 2
+                ? TiB
                 : TiB / 20
             offset = floor(random * amount)
 
-            if (random < threshold / 4) {
+            if (random < threshold / 3) {
               offset = offset * -1
             }
           }
