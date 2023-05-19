@@ -77,7 +77,7 @@ export const pb = {
   siloNew: () => '/system/silos-new',
   silo: ({ silo }: Silo) => `/system/silos/${silo}`,
   siloIdpNew: (params: Silo) => `${pb.silo(params)}/idps-new`,
-  siloIdp: (params: IdentityProvider) => `${pb.silo(params)}/idps/${params.provider}`,
+  samlIdp: (params: IdentityProvider) => `${pb.silo(params)}/idps/saml/${params.provider}`,
 
   settings: () => '/settings',
   profile: () => '/settings/profile',

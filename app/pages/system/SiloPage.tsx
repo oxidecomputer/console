@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { Outlet } from 'react-router-dom'
 
 import { apiQueryClient } from '@oxide/api'
-import { DateCell, TruncateCell, linkCell, useQueryTable } from '@oxide/table'
+import { DateCell, DefaultCell, TruncateCell, linkCell, useQueryTable } from '@oxide/table'
 import {
   Badge,
   Cloud16Icon,
@@ -51,11 +51,20 @@ export function SiloPage() {
         </Link>
       </TableActions>
       <Table emptyState={<EmptyState />}>
-        {/* TODO: this link will only really work for saml IdPs. probably need to give
-          them a special URL to make room for more types */}
+        {/* TODO: this link will only really work for saml IdPs. */}
         <Column
-          accessor="name"
-          cell={linkCell((provider) => pb.siloIdp({ silo, provider }))}
+          id="name"
+          accessor={({ name, providerType }) => ({ name, providerType })}
+          cell={({ value: { name, providerType } }) =>
+            // Only SAML IdPs have a detail view API endpoint, so only SAML IdPs
+            // get a link to the detail view. This is a little awkward to do with
+            // linkCell as currently designed — probably worth a small rework
+            providerType === 'saml' ? (
+              linkCell((provider) => pb.samlIdp({ silo, provider }))({ value: name })
+            ) : (
+              <DefaultCell value={name} />
+            )
+          }
         />
         <Column accessor="description" cell={TruncateCell} />
         <Column

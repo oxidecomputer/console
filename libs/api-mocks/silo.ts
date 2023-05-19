@@ -19,7 +19,7 @@ export const defaultSilo = silos[0]
 
 export const samlIdp: Json<SamlIdentityProvider> = {
   id: '2a96ce6f-c178-4631-9cde-607d65b539c7',
-  description: 'An identity provider',
+  description: 'An identity provider but what if it had a really long description',
   name: 'mock-idp',
   time_created: new Date(2021, 4, 3).toISOString(),
   time_modified: new Date(2021, 4, 3).toISOString(),

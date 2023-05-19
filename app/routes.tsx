@@ -110,7 +110,7 @@ export const routes = createRoutesFromElements(
             <Route index element={null} />
             <Route path="idps-new" element={<CreateIdpSideModalForm />} />
             <Route
-              path="idps/:provider"
+              path="idps/saml/:provider"
               element={<EditIdpSideModalForm />}
               loader={EditIdpSideModalForm.loader}
             />
