@@ -7,6 +7,7 @@ import { mergeRefs } from 'react-merge-refs'
 import { Document16Icon, Error16Icon, Truncate } from '@oxide/ui'
 
 export type FileInputProps = Omit<ComponentProps<'input'>, 'type' | 'onChange'> & {
+  error: boolean
   onChange: (f: File | null) => void
 }
 
@@ -14,7 +15,7 @@ export type FileInputProps = Omit<ComponentProps<'input'>, 'type' | 'onChange'> 
 // customize the component whilst maintaining the native functionality
 // and preserving it as an uncontrolled input
 export const FileInput = forwardRef(
-  ({ accept, className, onChange, ...inputProps }: FileInputProps, forwardedRef) => {
+  ({ accept, className, error, onChange, ...inputProps }: FileInputProps, forwardedRef) => {
     const inputRef = useRef<HTMLInputElement>(null)
     const [file, setFile] = useState<File | null>(null)
     const [dragOver, setDragOver] = useState(false)
@@ -45,7 +46,10 @@ export const FileInput = forwardRef(
           ref={mergeRefs([inputRef, forwardedRef])}
           type="file"
           name="file"
-          className={cn('-z-1 absolute inset-0 w-full cursor-pointer rounded')}
+          className={cn(
+            '-z-1 absolute inset-0 w-full cursor-pointer rounded',
+            error && 'focus-error'
+          )}
           {...inputProps}
           onChange={handleChange}
           onDragEnter={() => setDragOver(true)}
@@ -55,7 +59,8 @@ export const FileInput = forwardRef(
         <div
           className={cn(
             'z-1 pointer-events-none relative flex flex-col items-center justify-center space-y-2 rounded border px-4 py-6 text-default bg-default border-default ',
-            dragOver && 'bg-accent-secondary border-accent-secondary'
+            dragOver && 'bg-accent-secondary border-accent-secondary',
+            error && 'border-error'
           )}
         >
           <div
