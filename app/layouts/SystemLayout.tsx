@@ -74,7 +74,7 @@ export default function SystemLayout() {
           <NavLinkItem to={pb.systemHealth()} disabled>
             <Health16Icon /> Health
           </NavLinkItem>
-          <NavLinkItem to={pb.systemUpdates()}>
+          <NavLinkItem to={pb.systemUpdates()} disabled>
             <SoftwareUpdate16Icon /> System Update
           </NavLinkItem>
           <NavLinkItem to={pb.systemNetworking()} disabled>

@@ -51,13 +51,13 @@ import { SledsTab } from './pages/system/InventoryPage/SledsTab'
 import { SiloImagesPage } from './pages/system/SiloImagesPage'
 import { SiloPage } from './pages/system/SiloPage'
 import SilosPage from './pages/system/SilosPage'
-import { UpdateDetailSideModal } from './pages/system/UpdateDetailSideModal'
-import {
-  UpdatePage,
-  UpdatePageComponents,
-  UpdatePageHistory,
-  UpdatePageUpdates,
-} from './pages/system/UpdatePage'
+// import { UpdateDetailSideModal } from './pages/system/UpdateDetailSideModal'
+// import {
+//   UpdatePage,
+//   UpdatePageComponents,
+//   UpdatePageHistory,
+//   UpdatePageUpdates,
+// } from './pages/system/UpdatePage'
 import { pb } from './util/path-builder'
 
 const projectCrumb: CrumbFunc = (m) => m.params.project!
@@ -128,7 +128,8 @@ export const routes = createRoutesFromElements(
           <Route path="disks" element={<DisksTab />} loader={DisksTab.loader} />
         </Route>
         <Route path="health" element={null} handle={{ crumb: 'Health' }} />
-        <Route
+        <Route path="update" element={null} handle={{ crumb: 'Update' }} />
+        {/* <Route
           path="update"
           element={<UpdatePage />}
           loader={UpdatePage.loader}
@@ -156,7 +157,7 @@ export const routes = createRoutesFromElements(
             element={<UpdatePageHistory />}
             loader={UpdatePageHistory.loader}
           />
-        </Route>
+        </Route> */}
         <Route path="networking" element={null} handle={{ crumb: 'Networking' }} />
         <Route path="settings" element={null} handle={{ crumb: 'Settings' }} />
       </Route>
