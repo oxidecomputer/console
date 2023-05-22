@@ -59,6 +59,7 @@ export const handlers = makeHandlers({
     const project = lookup.project({ ...path })
     if (body.name) {
       project.name = body.name
+      errIfExists(db.projects, { name: body.name })
     }
     project.description = body.description || ''
 
