@@ -44,7 +44,7 @@ export function SledInstancesTab() {
           cell={({ value }) => {
             return (
               <div className="space-y-0.5">
-                <div className="text-quinary">{`${value.siloName} / ${value.projectName}`}</div>
+                <div className="text-quaternary">{`${value.siloName} / ${value.projectName}`}</div>
                 <div className="text-default">{value.name}</div>
               </div>
             )
