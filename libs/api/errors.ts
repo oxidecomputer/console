@@ -13,7 +13,8 @@ export type ProcessedError = {
  * fall back to using the API method name. The reason we prefer the error
  * message is that instance create also creates a disk, and when the disk is the
  * thing that already exists, the message says "disk" but the method says
- * "instance".
+ * "instance". We could use the API's message directly, but it includes the
+ * name, which can be long, and we have it in the form field already.
  */
 export function getResourceName(method: string, message: string) {
   const match = /^already exists: ([^"]+)/.exec(message)
