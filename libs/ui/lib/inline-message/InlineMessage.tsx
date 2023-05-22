@@ -1,5 +1,5 @@
 import cn from 'classnames'
-import type { ReactElement } from 'react'
+import type { ReactElement, ReactNode } from 'react'
 import { Link, type To } from 'react-router-dom'
 
 import { OpenLink12Icon } from '@oxide/ui'
@@ -9,7 +9,7 @@ import { Error12Icon, Success12Icon, Warning12Icon } from '../icons'
 type Variant = 'success' | 'destructive' | 'notice'
 
 export interface InlineMessageProps {
-  content?: string
+  content?: ReactNode
   variant?: Variant
   cta?: {
     text: string
@@ -56,7 +56,9 @@ export const InlineMessage = ({
     >
       <div className="mt-[2px] flex svg:h-3 svg:w-3">{icon[variant]}</div>
       <div className="flex-1 pl-2.5">
-        <div className={cn('text-sans-md', textColor[variant])}>{content}</div>
+        <div className={cn('text-sans-md [&>a]:underline', textColor[variant])}>
+          {content}
+        </div>
 
         {cta && (
           <Link
