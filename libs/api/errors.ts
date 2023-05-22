@@ -3,7 +3,17 @@ import { camelCaseToWords, capitalize } from '@oxide/util'
 import type { ErrorBody, ErrorResult } from '.'
 
 // assume a nice short resource name is the word before create
-export function getResourceName(method: string) {
+/**
+ * If we can pull the resource name out of the error message, do that, otherwise
+ * fall back to using the API method name. The reason we prefer the error
+ * message is that instance create also creates a disk, and when the disk is the
+ * thing that already exists, the message says "disk" but the method says
+ * "instance".
+ */
+export function getResourceName(method: string, message: string) {
+  const match = /^already exists: ([^"]+)/.exec(message)
+  if (match) return match[1].trim()
+
   const words = camelCaseToWords(method)
   const i = words.indexOf('create')
   if (i < 1) return null
@@ -13,7 +23,7 @@ export function getResourceName(method: string) {
 const msgFromCode = (
   method: string,
   errorCode: string,
-  _: ErrorBody
+  errorBody: ErrorBody
 ): string | undefined => {
   switch (errorCode) {
     case 'Forbidden':
@@ -21,7 +31,7 @@ const msgFromCode = (
 
     // TODO: This is a temporary fix for the API; better messages should be provided from there
     case 'ObjectAlreadyExists': {
-      const resource = getResourceName(method)
+      const resource = getResourceName(method, errorBody.message)
       if (resource) {
         return `${capitalize(resource)} name already exists`
       }
