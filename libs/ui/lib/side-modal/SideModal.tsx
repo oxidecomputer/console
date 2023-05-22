@@ -67,21 +67,22 @@ export function SideModal({
                       <div className="mb-6">
                         <Message
                           variant="error"
+                          content={
+                            errors.length === 1 ? (
+                              errors[0]
+                            ) : (
+                              <>
+                                <div>{errors.length} issues:</div>
+                                <ul className="ml-4 list-disc">
+                                  {errors.map((error, idx) => (
+                                    <li key={idx}>{error}</li>
+                                  ))}
+                                </ul>
+                              </>
+                            )
+                          }
                           title={errors.length > 1 ? 'Errors' : 'Error'}
-                        >
-                          {errors.length === 1 ? (
-                            errors[0]
-                          ) : (
-                            <>
-                              <div>{errors.length} issues:</div>
-                              <ul className="ml-4 list-disc">
-                                {errors.map((error, idx) => (
-                                  <li key={idx}>{error}</li>
-                                ))}
-                              </ul>
-                            </>
-                          )}
-                        </Message>
+                        />
                       </div>
                     )}
                   </>

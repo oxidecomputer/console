@@ -1,28 +1,28 @@
-import { announce } from '@react-aria/live-announcer'
 import cn from 'classnames'
-import { type ReactNode, useEffect } from 'react'
+import type { ReactElement, ReactNode } from 'react'
+import { Link, type To } from 'react-router-dom'
+
+import { OpenLink12Icon } from '@oxide/ui'
 
 import { Error12Icon, Success12Icon, Warning12Icon } from '../icons'
 
 type Variant = 'success' | 'error' | 'notice'
 
 export interface MessageProps {
-  title: string
-  children: ReactNode
-  variant?: Variant
+  title?: string
+  content: ReactNode
   className?: string
+  variant?: Variant
+  cta?: {
+    text: string
+    link: To
+  }
 }
 
-const icon: Record<Variant, JSX.Element> = {
+const icon: Record<Variant, ReactElement> = {
   success: <Success12Icon />,
   error: <Error12Icon />,
   notice: <Warning12Icon />,
-}
-
-const defaultTitle: Record<Variant, string> = {
-  success: 'Success',
-  error: 'Error',
-  notice: 'Note',
 }
 
 const color: Record<Variant, string> = {
@@ -43,18 +43,23 @@ const secondaryTextColor: Record<Variant, string> = {
   notice: 'text-notice-secondary',
 }
 
+const linkColor: Record<Variant, string> = {
+  success: 'text-accent-secondary hover:text-accent',
+  error: 'text-error-secondary hover:text-error',
+  notice: 'text-notice-secondary hover:text-notice',
+}
+
 export const Message = ({
   title,
-  children,
+  content,
   className,
-  variant = 'notice',
+  variant = 'success',
+  cta,
 }: MessageProps) => {
-  // TODO: consider assertive announce for error toasts
-  useEffect(() => announce(title + ' ' + children, 'polite'), [title, children])
   return (
     <div
       className={cn(
-        'relative flex w-full items-start overflow-hidden rounded-lg p-4 elevation-1',
+        'relative flex items-start overflow-hidden rounded-lg p-4 elevation-1',
         color[variant],
         textColor[variant],
         className
@@ -62,8 +67,28 @@ export const Message = ({
     >
       <div className="mt-[2px] flex svg:h-3 svg:w-3">{icon[variant]}</div>
       <div className="flex-1 pl-2.5">
-        <div className="text-sans-semi-md">{title || defaultTitle[variant]}</div>
-        <div className={cn('text-sans-md', secondaryTextColor[variant])}>{children}</div>
+        {title && <div className="text-sans-semi-md">{title}</div>}
+        <div
+          className={cn(
+            'text-sans-md [&>a]:underline',
+            title ? secondaryTextColor[variant] : textColor[variant]
+          )}
+        >
+          {content}
+        </div>
+
+        {cta && (
+          <Link
+            className={cn(
+              'mt-1 block flex items-center underline text-sans-md',
+              linkColor[variant]
+            )}
+            to={cta.link}
+          >
+            {cta.text}
+            <OpenLink12Icon className="ml-1" />
+          </Link>
+        )}
       </div>
     </div>
   )

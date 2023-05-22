@@ -561,10 +561,9 @@ export function CreateImageSideModalForm() {
                         <Message
                           variant="error"
                           title="Error"
+                          content={modalError}
                           className="!rounded-none !shadow-none"
-                        >
-                          {modalError}
-                        </Message>
+                        />
                       )}
                       <Step state={createDisk} label="Create temporary disk" />
                       <Step state={startImport} label="Put disk in import mode" />
