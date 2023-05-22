@@ -373,8 +373,8 @@ const SshKeysTable = () => {
               rel="noreferrer"
             >
               cloud-init
-            </a>{' '}
-            the following keys will be added to your instance. Keys are added when the
+            </a>
+            , the keys above will be added to your instance. Keys are added when the
             instance is created and are not updated after instance launch.
           </>
         }
