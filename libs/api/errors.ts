@@ -2,7 +2,6 @@ import { camelCaseToWords, capitalize } from '@oxide/util'
 
 import type { ErrorBody, ErrorResult } from '.'
 
-// assume a nice short resource name is the word before create
 /**
  * If we can pull the resource name out of the error message, do that, otherwise
  * fall back to using the API method name. The reason we prefer the error
@@ -68,6 +67,8 @@ export function formatServerError(method: string, resp: ErrorResult): ErrorResul
 
 export function getParseError(message: string | undefined): string | undefined {
   if (!message) return undefined
-  const inner = /^unable to parse body: (.+) at line \d+ column \d+$/.exec(message)?.[1]
+  const inner = /^unable to parse JSON body: (.+) at line \d+ column \d+$/.exec(
+    message
+  )?.[1]
   return inner && capitalize(inner)
 }
