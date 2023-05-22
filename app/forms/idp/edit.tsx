@@ -62,7 +62,7 @@ export function EditIdpSideModalForm() {
           {/* TODO: add group attribute name when it is added to the API */}
         </PropertiesTable>
       </SideModal.Body>
-      <SideModal.Footer className="justify-end">
+      <SideModal.Footer>
         <Button size="sm" onClick={closeModal}>
           Done
         </Button>
