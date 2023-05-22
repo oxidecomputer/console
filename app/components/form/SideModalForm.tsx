@@ -59,22 +59,12 @@ export function SideModalForm<TFieldValues extends FieldValues>({
   const { isSubmitting } = form.formState
 
   useEffect(() => {
-    if (
-      submitError?.error &&
-      ('errorCode' in submitError.error || 'name' in submitError.error)
-    ) {
-      const nameOrErrorCode =
-        'errorCode' in submitError.error
-          ? submitError.error.errorCode
-          : (submitError.error as Error).name
-
-      // Check if there is a 'name' field in the form
-      // If there is we set an error on it when it
-      // already exists
-      if (nameOrErrorCode === 'ObjectAlreadyExists' && 'name' in form.getValues()) {
-        // @ts-ignore
-        form.setError('name', { message: 'Name already exists' })
-      }
+    // Check if there is a 'name' field in the form
+    // If there is we set an error on it when it
+    // already exists
+    if (submitError?.errorCode === 'ObjectAlreadyExists' && 'name' in form.getValues()) {
+      // @ts-ignore
+      form.setError('name', { message: 'Name already exists' })
     }
   }, [submitError, form])
 
@@ -84,11 +74,7 @@ export function SideModalForm<TFieldValues extends FieldValues>({
       isOpen
       title={title}
       animate={useShouldAnimateModal()}
-      errors={
-        submitError?.error && 'message' in submitError.error
-          ? [submitError.error.message]
-          : []
-      }
+      errors={submitError ? [submitError.message] : []}
     >
       <SideModal.Body>
         <form
