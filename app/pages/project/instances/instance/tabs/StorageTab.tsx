@@ -104,7 +104,7 @@ export function StorageTab() {
     onError(err) {
       addToast({
         title: 'Failed to attach disk',
-        content: err.error.message,
+        content: err.message,
         variant: 'error',
       })
     },

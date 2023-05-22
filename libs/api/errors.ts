@@ -1,6 +1,12 @@
 import { camelCaseToWords, capitalize } from '@oxide/util'
 
-import type { ErrorBody, ErrorResult } from '.'
+import type { ErrorResult } from '.'
+
+export type ProcessedError = {
+  message: string
+  errorCode?: string
+  statusCode?: number
+}
 
 /**
  * If we can pull the resource name out of the error message, do that, otherwise
@@ -19,50 +25,45 @@ export function getResourceName(method: string, message: string) {
   return words[i - 1].replace(/s$/, '')
 }
 
-const msgFromCode = (
-  method: string,
-  errorCode: string,
-  errorBody: ErrorBody
-): string | undefined => {
-  switch (errorCode) {
-    case 'Forbidden':
-      return 'Action not authorized'
-
-    // TODO: This is a temporary fix for the API; better messages should be provided from there
-    case 'ObjectAlreadyExists': {
-      const resource = getResourceName(method, errorBody.message)
-      if (resource) {
-        return `${capitalize(resource)} name already exists`
-      }
-      return undefined
-    }
-    default:
-      return undefined
-  }
-}
-
-export function formatServerError(method: string, resp: ErrorResult): ErrorResult {
-  // TODO: I don't like that this function works by modifying
-  // resp.error.message, which means the real message disappears. Eventually
-  // this should work altogether differently, maybe by preserving the original
-  // message while adding on a user-facing message that our error boundary can
-  // display.
-
+export function processServerError(method: string, resp: ErrorResult): ProcessedError {
   // client error is a JSON parse or processing error and is highly unlikely to
   // be end-user readable
   if (resp.type === 'client_error') {
-    resp.error.message = 'Error reading API response'
-    return resp
+    // nice to log but don't clutter test output
+    if (process.env.NODE_ENV !== 'test') console.error(resp)
+    return {
+      message: 'Error reading API response',
+      statusCode: resp.statusCode,
+    }
   }
 
+  let message: string | undefined = undefined
   const code = resp.error.errorCode
-  const codeMsg = code && msgFromCode(method, code, resp.error)
-  const serverMsg = resp.error.message
 
-  resp.error.message =
-    codeMsg || getParseError(serverMsg) || serverMsg || 'Unknown server error'
+  if (code === 'Forbidden') {
+    message = 'Action not authorized'
+  } else if (code === 'ObjectNotFound') {
+    message = 'Object not found'
+  } else if (code === 'ObjectAlreadyExists') {
+    // TODO: This is a temporary fix for the API; better messages should be provided from there
+    const resource = getResourceName(method, resp.error.message)
+    if (resource) {
+      message = `${capitalize(resource)} name already exists`
+    }
+  }
 
-  return resp
+  if (!message) {
+    // fall back to raw server error message if present. parse errors have no
+    // error code, for some reason
+    message =
+      getParseError(resp.error.message) || resp.error.message || 'Unknown server error'
+  }
+
+  return {
+    message,
+    errorCode: resp.error.errorCode || undefined,
+    statusCode: resp.statusCode,
+  }
 }
 
 export function getParseError(message: string | undefined): string | undefined {

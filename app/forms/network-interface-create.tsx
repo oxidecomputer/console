@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 
-import type { ErrorResult, InstanceNetworkInterfaceCreate } from '@oxide/api'
+import type { InstanceNetworkInterfaceCreate, ProcessedError } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import { Divider } from '@oxide/ui'
 
@@ -26,7 +26,7 @@ type CreateNetworkInterfaceFormProps = {
   onDismiss: () => void
   onSubmit: (values: InstanceNetworkInterfaceCreate) => void
   loading?: boolean
-  submitError?: ErrorResult | null
+  submitError?: ProcessedError | null
 }
 
 /**

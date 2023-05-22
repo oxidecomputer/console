@@ -9,8 +9,8 @@ import type {
 } from '@tanstack/react-query'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
-import type { ApiResult, ErrorResult } from './__generated__/Api'
-import { formatServerError } from './errors'
+import type { ApiResult } from './__generated__/Api'
+import { type ProcessedError, processServerError } from './errors'
 import { navToLogin } from './nav-to-login'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -44,7 +44,7 @@ const handleResult =
       navToLogin({ includeCurrent: true })
     }
     // we need to rethrow because that's how react-query knows it's an error
-    throw formatServerError(method, result)
+    throw processServerError(method, result)
   }
 
 export const getUseApiQuery =
@@ -52,7 +52,7 @@ export const getUseApiQuery =
   <M extends string & keyof A>(
     method: M,
     params: Params<A[M]>,
-    options: UseQueryOptions<Result<A[M]>, ErrorResult> = {}
+    options: UseQueryOptions<Result<A[M]>, ProcessedError> = {}
   ) => {
     return useQuery(
       [method, params] as QueryKey,
@@ -73,7 +73,7 @@ export const getUseApiMutation =
   <A extends ApiClient>(api: A) =>
   <M extends string & keyof A>(
     method: M,
-    options?: UseMutationOptions<Result<A[M]>, ErrorResult, Params<A[M]>>
+    options?: UseMutationOptions<Result<A[M]>, ProcessedError, Params<A[M]>>
   ) =>
     useMutation(
       (params) => api[method](params).then(handleResult(method)),
@@ -102,7 +102,7 @@ export const wrapQueryClient = <A extends ApiClient>(api: A, queryClient: QueryC
   fetchQuery: <M extends string & keyof A>(
     method: M,
     params: Params<A[M]>,
-    options: FetchQueryOptions<Result<A[M]>, ErrorResult> = {}
+    options: FetchQueryOptions<Result<A[M]>, ProcessedError> = {}
   ) =>
     queryClient.fetchQuery({
       queryKey: [method, params],
@@ -112,7 +112,7 @@ export const wrapQueryClient = <A extends ApiClient>(api: A, queryClient: QueryC
   prefetchQuery: <M extends string & keyof A>(
     method: M,
     params: Params<A[M]>,
-    options: FetchQueryOptions<Result<A[M]>, ErrorResult> = {}
+    options: FetchQueryOptions<Result<A[M]>, ProcessedError> = {}
   ) =>
     queryClient.prefetchQuery({
       queryKey: [method, params],
