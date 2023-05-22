@@ -14,12 +14,18 @@ import {
 import {
   Divider,
   EmptyMessage,
+  FieldLabel,
   Images16Icon,
+  InlineMessage,
   Instances24Icon,
+  Key16Icon,
   RadioCard,
+  Table,
   Tabs,
   TextInputHint,
+  Truncate,
 } from '@oxide/ui'
+import { formatDateTime } from '@oxide/util'
 import { GiB } from '@oxide/util'
 
 import { Form, FullPageForm } from 'app/components/form'
@@ -285,6 +291,11 @@ export function CreateInstanceForm() {
           <DisksTableField control={control} />
 
           <Divider />
+          <Form.Heading id="authentication">Authentication</Form.Heading>
+
+          <SshKeysTable />
+
+          <Divider />
           <Form.Heading id="networking">Networking</Form.Heading>
 
           <NetworkInterfaceField control={control} />
@@ -302,6 +313,60 @@ export function CreateInstanceForm() {
         </>
       )}
     </FullPageForm>
+  )
+}
+
+const SshKeysTable = () => {
+  const keys = useApiQuery('currentUserSshKeyList', {}).data?.items || []
+  console.log(keys)
+
+  return (
+    <div className="max-w-lg">
+      <div className="mb-2">
+        <FieldLabel id="ssh-keys-label" tip="hello">
+          SSH keys
+        </FieldLabel>
+        <TextInputHint id="ssh-keys-label-help-text">
+          SSH keys can be added and removed in your user settings
+        </TextInputHint>
+      </div>
+
+      {keys.length > 0 ? (
+        <Table className="w-full">
+          <Table.Header>
+            <Table.HeaderRow>
+              <Table.HeadCell>Name</Table.HeadCell>
+              <Table.HeadCell>Created</Table.HeadCell>
+            </Table.HeaderRow>
+          </Table.Header>
+          <Table.Body>
+            {keys.map((key) => (
+              <Table.Row key={key.id}>
+                <Table.Cell height="auto">
+                  <Truncate text={key.name} maxLength={28} />
+                </Table.Cell>
+                <Table.Cell height="auto" className="text-secondary">
+                  {formatDateTime(key.timeCreated)}
+                </Table.Cell>
+              </Table.Row>
+            ))}
+          </Table.Body>
+        </Table>
+      ) : (
+        <div className="mb-4 flex max-w-lg items-center justify-center rounded-lg border p-6 border-default">
+          <EmptyMessage
+            icon={<Key16Icon />}
+            title="No SSH keys"
+            body="You need to add a SSH key to be able to see it here"
+          />
+        </div>
+      )}
+
+      <InlineMessage
+        variant="notice"
+        content="If your image supports the cidata volume and cloud-init the following keys will be added to your instance. Keys are added when the instance is created and are not updated after instance launch."
+      />
+    </div>
   )
 }
 
