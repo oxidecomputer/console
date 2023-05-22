@@ -1,8 +1,6 @@
 import { test } from '@playwright/test'
 
-import { expectVisible } from 'app/test/e2e'
-
-import { stopInstance } from './util'
+import { expectVisible, stopInstance } from '../utils'
 
 test('Attach disk', async ({ page }) => {
   await page.goto('/projects/mock-project/instances/db1')

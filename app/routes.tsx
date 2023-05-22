@@ -2,7 +2,8 @@ import { Navigate, Route, createRoutesFromElements } from 'react-router-dom'
 
 import { RouterDataErrorBoundary } from './components/ErrorBoundary'
 import { CreateDiskSideModalForm } from './forms/disk-create'
-import { CreateIdpSideModalForm } from './forms/idp-create'
+import { CreateIdpSideModalForm } from './forms/idp/create'
+import { EditIdpSideModalForm } from './forms/idp/edit'
 import { CreateImageSideModalForm } from './forms/image-upload'
 import { CreateInstanceForm } from './forms/instance-create'
 import { CreateProjectSideModalForm } from './forms/project-create'
@@ -51,13 +52,13 @@ import { SledsTab } from './pages/system/InventoryPage/SledsTab'
 import { SiloImagesPage } from './pages/system/SiloImagesPage'
 import { SiloPage } from './pages/system/SiloPage'
 import SilosPage from './pages/system/SilosPage'
-import { UpdateDetailSideModal } from './pages/system/UpdateDetailSideModal'
-import {
-  UpdatePage,
-  UpdatePageComponents,
-  UpdatePageHistory,
-  UpdatePageUpdates,
-} from './pages/system/UpdatePage'
+// import { UpdateDetailSideModal } from './pages/system/UpdateDetailSideModal'
+// import {
+//   UpdatePage,
+//   UpdatePageComponents,
+//   UpdatePageHistory,
+//   UpdatePageUpdates,
+// } from './pages/system/UpdatePage'
 import { pb } from './util/path-builder'
 
 const projectCrumb: CrumbFunc = (m) => m.params.project!
@@ -81,7 +82,7 @@ export const routes = createRoutesFromElements(
         <Route index element={<Navigate to="profile" replace />} />
         <Route path="profile" element={<ProfilePage />} handle={{ crumb: 'Profile' }} />
         <Route element={<SSHKeysPage />} loader={SSHKeysPage.loader}>
-          <Route path="ssh-keys" handle={{ crumb: 'SSH Keys' }} />
+          <Route path="ssh-keys" handle={{ crumb: 'SSH Keys' }} element={null} />
           <Route
             path="ssh-keys-new"
             element={<CreateSSHKeySideModalForm />}
@@ -108,6 +109,11 @@ export const routes = createRoutesFromElements(
           >
             <Route index element={null} />
             <Route path="idps-new" element={<CreateIdpSideModalForm />} />
+            <Route
+              path="idps/saml/:provider"
+              element={<EditIdpSideModalForm />}
+              loader={EditIdpSideModalForm.loader}
+            />
           </Route>
         </Route>
         <Route path="issues" element={null} />
@@ -128,7 +134,8 @@ export const routes = createRoutesFromElements(
           <Route path="disks" element={<DisksTab />} loader={DisksTab.loader} />
         </Route>
         <Route path="health" element={null} handle={{ crumb: 'Health' }} />
-        <Route
+        <Route path="update" element={null} handle={{ crumb: 'Update' }} />
+        {/* <Route
           path="update"
           element={<UpdatePage />}
           loader={UpdatePage.loader}
@@ -156,7 +163,7 @@ export const routes = createRoutesFromElements(
             element={<UpdatePageHistory />}
             loader={UpdatePageHistory.loader}
           />
-        </Route>
+        </Route> */}
         <Route path="networking" element={null} handle={{ crumb: 'Networking' }} />
         <Route path="settings" element={null} handle={{ crumb: 'Settings' }} />
       </Route>

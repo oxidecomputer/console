@@ -26,7 +26,7 @@ The web console has no special privileges as an API consumer. We log in (which s
   - [Mock Service Workers](https://mswjs.io/) for mock API server
   - [Vitest](https://vitest.dev/) for unit tests
   - [Playwright](https://playwright.dev/) for E2E browser tests
-- [Ladle](https://ladle.dev/), a lightweight Storybook clone based on Vite (see main branch Storybook [here](https://console-ui-storybook.vercel.app/))
+- [Ladle](https://ladle.dev/), a lightweight Storybook clone based on Vite
 
 ## Directory structure
 

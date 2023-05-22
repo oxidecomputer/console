@@ -75,6 +75,7 @@ export const Listbox = ({
           rounded border px-3 text-sans-md`,
           hasError ? 'focus-error border-destructive' : 'border-default',
           select.isOpen && 'ring-2 ring-accent-secondary',
+          select.isOpen && hasError && 'ring-error-secondary',
           props.disabled ? 'cursor-not-allowed text-disabled bg-disabled' : 'bg-default'
         )}
         {...select.getToggleButtonProps()}
@@ -98,19 +99,23 @@ export const Listbox = ({
         {...select.getMenuProps()}
       >
         {select.isOpen &&
-          items.map((item, index) => (
-            <div key={index} className="relative border-b border-secondary last:border-0">
-              <li
-                key={item.value}
-                className={cn('ox-menu-item', {
-                  'is-selected': select.selectedItem?.value === item.value,
-                  'is-highlighted': select.highlightedIndex === index,
-                })}
-                {...select.getItemProps({ item, index })}
-              >
-                {item.label}
-              </li>
-            </div>
+          (items.length > 0 ? (
+            items.map((item, index) => (
+              <div key={index} className="relative border-b border-secondary last:border-0">
+                <li
+                  key={item.value}
+                  className={cn('ox-menu-item', {
+                    'is-selected': select.selectedItem?.value === item.value,
+                    'is-highlighted': select.highlightedIndex === index,
+                  })}
+                  {...select.getItemProps({ item, index })}
+                >
+                  {item.label}
+                </li>
+              </div>
+            ))
+          ) : (
+            <div className="ox-menu-item py-3 text-center text-secondary">No items</div>
           ))}
       </ul>
     </div>

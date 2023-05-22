@@ -33,7 +33,7 @@ export function NetworkInterfaceField({
   } = useController({ control, name: 'networkInterfaces' })
 
   return (
-    <div className="max-w-lg space-y-5">
+    <div className="max-w-lg space-y-2">
       <FieldLabel id="network-interface-type-label">Network interface</FieldLabel>
       <RadioGroup
         aria-labelledby="network-interface-type-label"

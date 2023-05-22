@@ -3,7 +3,6 @@ import filesize from 'filesize'
 import pMap from 'p-map'
 import pRetry from 'p-retry'
 import { useRef, useState } from 'react'
-import { Controller } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import invariant from 'tiny-invariant'
 
@@ -11,9 +10,6 @@ import type { BlockSize, Disk, ErrorResult, Snapshot } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import {
   Error12Icon,
-  FieldLabel,
-  FileInput,
-  Message,
   Modal,
   Progress,
   Spinner,
@@ -24,51 +20,36 @@ import { GiB, KiB } from '@oxide/util'
 
 import {
   DescriptionField,
+  ModalFooterError,
   NameField,
   RadioField,
   SideModalForm,
   TextField,
 } from 'app/components/form'
-import { ErrorMessage } from 'app/components/form/fields/ErrorMessage'
+import { FileField } from 'app/components/form/fields'
 import { useProjectSelector } from 'app/hooks'
+import { readBlobAsBase64 } from 'app/util/file'
 import { pb } from 'app/util/path-builder'
-
-/** async wrapper for reading a slice of a file */
-async function readBlobAsBase64(blob: Blob): Promise<string> {
-  return new Promise((resolve) => {
-    const fileReader = new FileReader()
-
-    // split on comma and pop because data URL looks like
-    // 'data:[<mediatype>][;base64],<data>' and we only want <data>.
-    // e.target is never null and result is always a string
-    fileReader.onload = function (e) {
-      const base64Chunk = (e.target!.result as string).split(',').pop()!
-      resolve(base64Chunk)
-    }
-
-    fileReader.readAsDataURL(blob)
-  })
-}
 
 /** Format file size with two decimal points */
 const fsize = (bytes: number) => filesize(bytes, { base: 2, pad: true })
 
 type FormValues = {
-  name: string
-  description: string
+  imageName: string
+  imageDescription: string
   os: string
   version: string
   blockSize: BlockSize
-  file: File | null
+  imageFile: File | null
 }
 
 const defaultValues: FormValues = {
-  name: '',
-  description: '',
+  imageName: '',
+  imageDescription: '',
   os: '',
   version: '',
   blockSize: 512,
-  file: null,
+  imageFile: null,
 }
 
 // subset of the mutation state we care about
@@ -89,10 +70,9 @@ type StepProps = {
   state: MutationState
   label: string
   duration?: number
-  className?: string
 }
 
-function Step({ children, state, label, className }: StepProps) {
+function Step({ children, state, label }: StepProps) {
   /* eslint-disable react/jsx-key */
   const [status, icon] = state.isSuccess
     ? ['complete', <Success12Icon className="text-accent" />]
@@ -104,7 +84,7 @@ function Step({ children, state, label, className }: StepProps) {
   /* eslint-enable react/jsx-key */
   return (
     // data-status used only for e2e testing
-    <div className={cn('items-top flex gap-2 py-3 px-4', className)} data-status={status}>
+    <div className="items-top flex gap-2 py-3 px-4" data-status={status}>
       {/* padding on icon to align it with text since everything is aligned to top */}
       <div className="pt-px">{icon}</div>
       <div
@@ -117,9 +97,15 @@ function Step({ children, state, label, className }: StepProps) {
   )
 }
 
+/**
+ * Does a base64 string represent underlying data that's all zeros, i.e., does
+ * it look like `AAAAAAAAAAAAAAAA==`?
+ */
+export const isAllZeros = (base64Data: string) => /^A*=*$/.test(base64Data)
+
 const randInt = () => Math.floor(Math.random() * 100000000)
 
-function getTmpDiskName(name: string) {
+function getTmpDiskName(imageName: string) {
   if (process.env.NODE_ENV === 'development') {
     // this is only here for testing purposes. because we normally generate a
     // random tmp disk name, we have to not do that if we want to pass special
@@ -132,7 +118,7 @@ function getTmpDiskName(name: string) {
       'import-stop-500',
       'disk-finalize-500',
     ])
-    if (specialNames.has(name)) return name
+    if (specialNames.has(imageName)) return imageName
   }
 
   return `tmp-for-image-${randInt()}`
@@ -333,8 +319,15 @@ export function CreateImageSideModalForm() {
     cleaningUp.current = false
   }
 
-  async function onSubmit({ name, description, file, blockSize, os, version }: FormValues) {
-    invariant(file) // shouldn't be possible to fail bc file is a required field
+  async function onSubmit({
+    imageName,
+    imageDescription,
+    imageFile,
+    blockSize,
+    os,
+    version,
+  }: FormValues) {
+    invariant(imageFile) // shouldn't be possible to fail bc file is a required field
 
     // this is done up here instead of next to the upload step because after
     // upload is canceled, a few outstanding bulk writes will complete, setting
@@ -346,14 +339,14 @@ export function CreateImageSideModalForm() {
     setModalOpen(true)
 
     // Create a disk in state import-ready
-    const diskName = getTmpDiskName(name)
+    const diskName = getTmpDiskName(imageName)
     disk.current = await createDisk.mutateAsync({
       query: { project },
       body: {
         name: diskName,
-        description: `temporary disk for importing image ${name}`,
+        description: `temporary disk for importing image ${imageName}`,
         diskSource: { type: 'importing_blocks', blockSize },
-        size: Math.ceil(file.size / GiB) * GiB,
+        size: Math.ceil(imageFile.size / GiB) * GiB,
       },
     })
 
@@ -374,7 +367,7 @@ export function CreateImageSideModalForm() {
 
     setSyntheticUploadState({ isLoading: true, isSuccess: false, isError: false })
 
-    const nChunks = Math.ceil(file.size / CHUNK_SIZE)
+    const nChunks = Math.ceil(imageFile.size / CHUNK_SIZE)
 
     // TODO: try to warn user if they try to close the tab while this is going
 
@@ -382,14 +375,19 @@ export function CreateImageSideModalForm() {
 
     const postChunk = async (i: number) => {
       const offset = i * CHUNK_SIZE
-      const end = Math.min(offset + CHUNK_SIZE, file.size)
-      const base64EncodedData = await readBlobAsBase64(file.slice(offset, end))
-      await uploadChunk
-        .mutateAsync({ path, body: { offset, base64EncodedData } })
-        .catch(() => {
-          // this needs to throw a regular Error or pRetry gets mad
-          throw Error(`Chunk ${i} (offset ${offset}) failed`)
-        })
+      const end = Math.min(offset + CHUNK_SIZE, imageFile.size)
+      const base64EncodedData = await readBlobAsBase64(imageFile.slice(offset, end))
+
+      // Disk space is all zeros by default, so we can skip any chunks that are
+      // all zeros. It turns out this happens a lot.
+      if (!isAllZeros(base64EncodedData)) {
+        await uploadChunk
+          .mutateAsync({ path, body: { offset, base64EncodedData } })
+          .catch(() => {
+            // this needs to throw a regular Error or pRetry gets mad
+            throw Error(`Chunk ${i} (offset ${offset}) failed`)
+          })
+      }
       chunksProcessed++
       setUploadProgress(Math.round((100 * chunksProcessed) / nChunks))
     }
@@ -439,8 +437,8 @@ export function CreateImageSideModalForm() {
     await createImage.mutateAsync({
       query: { project },
       body: {
-        name,
-        description,
+        name: imageName,
+        description: imageDescription,
         blockSize,
         os,
         version,
@@ -475,7 +473,7 @@ export function CreateImageSideModalForm() {
         // check that image name isn't taken before starting the whole thing
         const image = await queryClient
           .fetchQuery('imageView', {
-            path: { image: values.name },
+            path: { image: values.imageName },
             query: { project },
           })
           .catch((e) => {
@@ -519,11 +517,15 @@ export function CreateImageSideModalForm() {
       submitLabel={allDone ? 'Done' : 'Upload image'}
     >
       {({ control, watch }) => {
-        const file = watch('file')
+        const file = watch('imageFile')
         return (
           <>
-            <NameField name="name" label="Name" control={control} />
-            <DescriptionField name="description" label="Description" control={control} />
+            <NameField name="imageName" label="Name" control={control} />
+            <DescriptionField
+              name="imageDescription"
+              label="Description"
+              control={control}
+            />
             {/* TODO: are OS and Version supposed to be non-empty? I doubt the API cares,
              * but it will be pretty for end users if they're empty
              */}
@@ -541,43 +543,19 @@ export function CreateImageSideModalForm() {
                 { label: '4096', value: 4096 },
               ]}
             />
-            <Controller
-              name="file"
+            <FileField
+              id="image-file-input"
+              name="imageFile"
+              label="Image file"
+              required
               control={control}
-              rules={{ required: true }}
-              render={({ field: { value: _value, ...rest }, fieldState: { error } }) => (
-                <div>
-                  <FieldLabel id="image-file-input-label" htmlFor="image-file-input">
-                    Image file
-                  </FieldLabel>
-                  {/*  TODO: this doesn't like being passed a ref because FileInput doesn't forward it */}
-                  <div>
-                    <FileInput
-                      id="image-file-input"
-                      className="mt-2"
-                      {...rest}
-                      error={error ? true : false}
-                    />
-                    {error && <ErrorMessage error={error} label="File" />}
-                  </div>
-                </div>
-              )}
             />
             {file && modalOpen && (
               <Modal isOpen onDismiss={closeModal}>
                 <Modal.Title>Image upload progress</Modal.Title>
-                <Modal.Body className="!p-0">
+                <Modal.Body>
                   <Modal.Section className="!p-0">
                     <div className="children:border-b children:border-b-secondary last:children:border-b-0">
-                      {modalError && (
-                        <Message
-                          variant="error"
-                          title="Error"
-                          className="!rounded-none !shadow-none"
-                        >
-                          {modalError}
-                        </Message>
-                      )}
                       <Step state={createDisk} label="Create temporary disk" />
                       <Step state={startImport} label="Put disk in import mode" />
                       <Step state={syntheticUploadState} label="Upload image file">
@@ -616,19 +594,6 @@ export function CreateImageSideModalForm() {
                         }}
                         label="Delete disk and snapshot"
                       />
-                      <Step
-                        state={{
-                          isLoading: false,
-                          isSuccess: allDone,
-                          isError: false,
-                        }}
-                        label="Image uploaded successfully"
-                        className={
-                          allDone
-                            ? 'transition-colors bg-accent-secondary children:text-accent'
-                            : ' transition-colors'
-                        }
-                      />
                     </div>
                   </Modal.Section>
                 </Modal.Body>
@@ -636,9 +601,13 @@ export function CreateImageSideModalForm() {
                   onDismiss={closeModal}
                   onAction={backToImages}
                   actionText="Done"
-                  cancelText={modalError || allDone ? 'Back' : 'Cancel'}
+                  cancelText={modalError ? 'Back' : 'Cancel'}
                   disabled={!allDone}
-                />
+                >
+                  {/* TODO: style success message better */}
+                  {allDone && <div>Image created!</div>}
+                  {modalError && <ModalFooterError>{modalError}</ModalFooterError>}
+                </Modal.Footer>
               </Modal>
             )}
           </>

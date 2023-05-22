@@ -38,9 +38,7 @@ oxide api '/v1/images?project=prod-online' --method POST --input - <<EOF
       "type": "you_can_boot_anything_as_long_as_its_alpine"
     }
   }
-  EOF
-
-./tools/populate/populate-alpine.sh
+EOF
 
 # Create instances in project prod-online
 

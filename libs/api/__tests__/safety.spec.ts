@@ -26,9 +26,18 @@ const grepFiles = (s: string) =>
 
 it('@oxide/api-mocks is only referenced in test files', () => {
   const files = grepFiles("from '@oxide/api-mocks'")
-  for (const file of files) {
-    expect(file).toMatch(/__tests__\/|app\/test\/|\.spec\.|tsconfig|api-mocks/)
-  }
+  expect(files).toMatchInlineSnapshot(`
+    [
+      "app/test/e2e/instance-create.e2e.ts",
+      "app/test/e2e/project-access.e2e.ts",
+      "app/test/e2e/silo-access.e2e.ts",
+      "app/test/unit/server.ts",
+      "app/test/unit/setup.ts",
+      "libs/api-mocks/msw/db.ts",
+      "libs/api/__tests__/hooks.spec.tsx",
+      "tools/start_mock_api.ts",
+    ]
+  `)
 })
 
 // findByRole is too slow: the getByRole query is usually longer than the
@@ -36,4 +45,14 @@ it('@oxide/api-mocks is only referenced in test files', () => {
 it("don't use findByRole", () => {
   const files = grepFiles('screen.findByRole')
   expect(files).toEqual([])
+})
+
+const listFiles = (s: string) =>
+  execSync(`git ls-files | grep "${s}"`).toString().trim().split('\n')
+
+// avoid accidentally making an e2e file in the wrong place
+it('e2e tests are only in app/test/e2e', () => {
+  for (const file of listFiles('\\.e2e\\.')) {
+    expect(file).toMatch(/^app\/test\/e2e/)
+  }
 })

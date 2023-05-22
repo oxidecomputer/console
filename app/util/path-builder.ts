@@ -8,6 +8,7 @@ type Instance = Required<PP.Instance>
 type Vpc = Required<PP.Vpc>
 type SystemUpdate = Required<PP.SystemUpdate>
 type Silo = Required<PP.Silo>
+type IdentityProvider = Required<PP.IdentityProvider>
 
 export const pb = {
   projects: () => `/projects`,
@@ -76,6 +77,7 @@ export const pb = {
   siloNew: () => '/system/silos-new',
   silo: ({ silo }: Silo) => `/system/silos/${silo}`,
   siloIdpNew: (params: Silo) => `${pb.silo(params)}/idps-new`,
+  samlIdp: (params: IdentityProvider) => `${pb.silo(params)}/idps/saml/${params.provider}`,
 
   settings: () => '/settings',
   profile: () => '/settings/profile',

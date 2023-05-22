@@ -69,7 +69,7 @@ input[type='number']:focus-visible {
   @apply outline outline-2 outline-offset-0 outline-accent-secondary;
 
   &.focus-error {
-    @apply outline-destructive-secondary;
+    @apply outline-error-secondary;
   }
 }
 
@@ -87,7 +87,7 @@ input[type='number']:focus {
   @apply outline outline-2 outline-offset-0 outline-accent-secondary;
 
   &.focus-error {
-    @apply outline-destructive-secondary;
+    @apply outline-error-secondary;
   }
 }
 

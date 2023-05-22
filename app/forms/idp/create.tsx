@@ -1,23 +1,15 @@
-import type { Control } from 'react-hook-form'
-import { useController } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 
-import type { IdpMetadataSource, SamlIdentityProviderCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import { Radio, RadioGroup } from '@oxide/ui'
 
-import {
-  DescriptionField,
-  NameField,
-  SideModalForm,
-  TextField,
-  TextFieldInner,
-} from 'app/components/form'
+import { DescriptionField, NameField, SideModalForm, TextField } from 'app/components/form'
+import { FileField } from 'app/components/form/fields'
+import { useSiloSelector, useToast } from 'app/hooks'
+import { readBlobAsBase64 } from 'app/util/file'
 import { pb } from 'app/util/path-builder'
 
-import { useSiloSelector, useToast } from '../hooks'
-
-type IdpCreateFormValues = { type: 'saml' } & SamlIdentityProviderCreate
+import type { IdpCreateFormValues } from './shared'
+import { MetadataSourceField } from './shared'
 
 const defaultValues: IdpCreateFormValues = {
   type: 'saml',
@@ -33,7 +25,10 @@ const defaultValues: IdpCreateFormValues = {
   spClientId: '',
   technicalContactEmail: '',
   groupAttributeName: '',
-  signingKeypair: undefined,
+  signingKeypair: {
+    publicCert: null,
+    privateKey: null,
+  },
 }
 
 export function CreateIdpSideModalForm() {
@@ -61,13 +56,23 @@ export function CreateIdpSideModalForm() {
       formOptions={{ defaultValues }}
       title="Create identity provider"
       onDismiss={onDismiss}
-      onSubmit={(values) => {
+      onSubmit={async ({ signingKeypair, groupAttributeName, ...rest }) => {
+        // if both signingKeypair files are present, base64 and add to post
+        const keypair =
+          signingKeypair.publicCert && signingKeypair.privateKey
+            ? {
+                publicCert: await readBlobAsBase64(signingKeypair.publicCert),
+                privateKey: await readBlobAsBase64(signingKeypair.privateKey),
+              }
+            : undefined
+
         createIdp.mutate({
           query: { silo },
           body: {
-            ...values,
+            ...rest,
             // convert empty string to undefined so it remains unset
-            groupAttributeName: values.groupAttributeName?.trim() || undefined,
+            groupAttributeName: groupAttributeName?.trim() || undefined,
+            signingKeypair: keypair,
           },
         })
       }}
@@ -116,61 +121,25 @@ export function CreateIdpSideModalForm() {
             control={control}
           />
           <MetadataSourceField control={control} />
-          {/* TODO: signingKeypair */}
+          {/* We don't bother validating that you have both of these or neither even
+              though the API requires that because we are going to change the API to
+              always require both, at which point these become simple `required` fields */}
+          <FileField
+            id="public-cert-file-input"
+            name="signingKeypair.publicCert"
+            helpText="DER-encoded X.509 certificate"
+            label="Public cert"
+            control={control}
+          />
+          <FileField
+            id="private-key-file-input"
+            name="signingKeypair.privateKey"
+            helpText="DER-encoded private key"
+            label="Private key"
+            control={control}
+          />
         </>
       )}
     </SideModalForm>
-  )
-}
-
-/**
- * Control the `idpMetadataSource` field, which can either be a URL or
- * Base64-encoded XML. It's only for clarity that this is a separate component.
- * It could be done just as well inline with `watch` and `setValue`.
- */
-function MetadataSourceField({ control }: { control: Control<IdpCreateFormValues> }) {
-  const {
-    field: { value, onChange },
-  } = useController({ control, name: 'idpMetadataSource' })
-  return (
-    <fieldset>
-      <legend id="metadata-source-legend" className="mb-4 text-sans-md">
-        Metadata source
-      </legend>
-      {/* TODO: probably need some help text here */}
-      <RadioGroup
-        className="mb-4"
-        name="metadata_source_type"
-        defaultChecked="url"
-        onChange={(e) => {
-          const newValue: IdpMetadataSource =
-            e.target.value === 'url'
-              ? { type: 'url', url: '' }
-              : { type: 'base64_encoded_xml', data: '' }
-          onChange(newValue)
-        }}
-      >
-        <Radio value="url">URL</Radio>
-        <Radio value="base64_encoded_xml">Base64-encoded XML</Radio>
-      </RadioGroup>
-      {/* TODO: preserve whatever was in the input in local state
-          when the type changes */}
-      {value.type === 'url' && (
-        <TextFieldInner
-          name="idpMetadataSource.url"
-          className="mb-8" // give it the same height as the textarea
-          aria-labelledby="metadata-source-legend"
-          control={control}
-        />
-      )}
-      {value.type === 'base64_encoded_xml' && (
-        <TextFieldInner
-          name="idpMetadataSource.data"
-          as="textarea"
-          aria-labelledby="metadata-source-legend"
-          control={control}
-        />
-      )}
-    </fieldset>
   )
 }

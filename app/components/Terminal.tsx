@@ -13,6 +13,13 @@ const ScrollButton = classed.button`ml-4 flex h-8 w-8 items-center justify-cente
 function getOptions(): ITerminalOptions {
   const style = getComputedStyle(document.body)
   return {
+    // it is not easy to figure out what the exact behavior is when scrollback
+    // is not defined because it seems to be used in a bunch of places in the
+    // xterm.js codebase. My best guess is that it defaults to 1000, based on
+    // the linked line. For now our approach is to go pretty big and see if
+    // performance is tolerable.
+    // https://github.com/xtermjs/xterm.js/blob/a0493a604c/src/common/services/OptionsService.ts#L30C1
+    scrollback: 5000,
     allowTransparency: false,
     screenReaderMode: true,
     fontFamily: '"GT America Mono", monospace',

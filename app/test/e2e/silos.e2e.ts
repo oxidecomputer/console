@@ -1,10 +1,9 @@
 import { expect, test } from '@playwright/test'
 
-import { expectNotVisible, expectRowVisible, expectVisible } from 'app/test/e2e'
-import { pb } from 'app/util/path-builder'
+import { expectNotVisible, expectRowVisible, expectVisible } from './utils'
 
 test('Silos page', async ({ page }) => {
-  await page.goto(pb.silos())
+  await page.goto('/system/silos')
 
   await expectVisible(page, ['role=heading[name*="Silos"]'])
   const table = page.locator('role=table')
@@ -39,4 +38,22 @@ test('Silos page', async ({ page }) => {
   await page.click('role=menuitem[name="Delete"]')
 
   await expectNotVisible(page, ['text="other-silo"'])
+})
+
+test('Identity providers', async ({ page }) => {
+  await page.goto('/system/silos/default-silo')
+
+  await expectVisible(page, ['role=heading[name="Identity providers"]'])
+
+  await page.getByRole('link', { name: 'mock-idp' }).click()
+
+  await expectVisible(page, [
+    'role=dialog[name="Identity provider"]',
+    // random stuff that's not in the table
+    'text="Entity ID"',
+    'text="SLO URL"',
+  ])
+
+  await page.getByRole('button', { name: 'Done' }).click()
+  await expectNotVisible(page, ['role=dialog[name="Identity provider"]'])
 })

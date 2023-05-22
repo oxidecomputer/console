@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test'
 
 import { MiB } from '@oxide/util'
 
-import { expectNotVisible, expectRowVisible, expectVisible } from 'app/test/e2e'
+import { expectNotVisible, expectRowVisible, expectVisible } from './utils'
 
 async function chooseFile(page: Page, size = 5 * MiB) {
   const fileChooserPromise = page.waitForEvent('filechooser')
@@ -12,7 +12,9 @@ async function chooseFile(page: Page, size = 5 * MiB) {
   await fileChooser.setFiles({
     name: 'my-image.iso',
     mimeType: 'application/octet-stream',
-    buffer: Buffer.alloc(size),
+    // fill with nonzero content, otherwise we'll skip the whole thing, which
+    // makes the test too fast for playwright to catch anything
+    buffer: Buffer.alloc(size, 'a'),
   })
 }
 
@@ -36,7 +38,7 @@ async function expectUploadProcess(page: Page) {
     await expect(step).toHaveAttribute('data-status', 'complete')
   }
 
-  await expect(done).toBeEnabled({ timeout: 10000 })
+  await expect(done).toBeEnabled({ timeout: 15000 })
   await done.click()
 }
 
