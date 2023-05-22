@@ -6,7 +6,7 @@ import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import invariant from 'tiny-invariant'
 
-import type { BlockSize, Disk, ErrorResult, Snapshot } from '@oxide/api'
+import type { ApiError, BlockSize, Disk, Snapshot } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import {
   Error12Icon,
@@ -184,7 +184,7 @@ export function CreateImageSideModalForm() {
   // are submitting, we rely on the RQ mutations themselves, plus a synthetic
   // mutation state representing the many calls of the bulk upload step.
 
-  const [formError, setFormError] = useState<ErrorResult | null>(null)
+  const [formError, setFormError] = useState<ApiError | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
   const [modalError, setModalError] = useState<string | null>(null)
 
@@ -489,13 +489,9 @@ export function CreateImageSideModalForm() {
         if (image) {
           // TODO: set this error on the field instead of the whole form
           // TODO: make setError available here somehow :(
-          const message = 'Image name already exists'
           setFormError({
-            type: 'client_error',
-            error: { name: 'ObjectAlreadyExists', message },
-            text: message,
-            statusCode: 200,
-            headers: new Headers(),
+            errorCode: 'ObjectAlreadyExists',
+            message: 'Image name already exists',
           })
           return
         }

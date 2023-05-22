@@ -56,7 +56,7 @@ test('can create an instance', async ({ page }) => {
 
 test('with disk name already taken', async ({ page }) => {
   await page.goto('/projects/mock-project/instances-new')
-  await page.fill('input[name=name]', 'my-instnace')
+  await page.fill('input[name=name]', 'my-instance')
   await page.fill('input[name=bootDiskName]', 'disk-1')
 
   await page.getByRole('button', { name: 'Create instance' }).click()
