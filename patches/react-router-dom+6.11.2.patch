@@ -1,0 +1,120 @@
+diff --git a/node_modules/react-router-dom/dist/index.d.ts b/node_modules/react-router-dom/dist/index.d.ts
+index 8ff0e6e..3d8bd3e 100644
+--- a/node_modules/react-router-dom/dist/index.d.ts
++++ b/node_modules/react-router-dom/dist/index.d.ts
+@@ -138,6 +138,7 @@ export declare const Form: React.ForwardRefExoticComponent<FormProps & React.Ref
+ export interface ScrollRestorationProps {
+     getKey?: GetScrollRestorationKeyFunction;
+     storageKey?: string;
++    elementRef?: React.RefObject<HTMLElement>;
+ }
+ /**
+  * This component will emulate the browser's scroll restoration on location
+@@ -218,6 +219,7 @@ export declare function useFetchers(): Fetcher[];
+ declare function useScrollRestoration({ getKey, storageKey, }?: {
+     getKey?: GetScrollRestorationKeyFunction;
+     storageKey?: string;
++    elementRef?: React.RefObject<HTMLElement>;
+ }): void;
+ export { useScrollRestoration as UNSAFE_useScrollRestoration };
+ /**
+diff --git a/node_modules/react-router-dom/dist/index.js b/node_modules/react-router-dom/dist/index.js
+index c2a7ae7..499adb5 100644
+--- a/node_modules/react-router-dom/dist/index.js
++++ b/node_modules/react-router-dom/dist/index.js
+@@ -597,11 +597,13 @@ if (process.env.NODE_ENV !== "production") {
+ function ScrollRestoration(_ref7) {
+   let {
+     getKey,
+-    storageKey
++    storageKey,
++    elementRef,
+   } = _ref7;
+   useScrollRestoration({
+     getKey,
+-    storageKey
++    storageKey,
++    elementRef,
+   });
+   return null;
+ }
+@@ -884,6 +886,22 @@ function useFetchers() {
+ }
+ const SCROLL_RESTORATION_STORAGE_KEY = "react-router-scroll-positions";
+ let savedScrollPositions = {};
++
++const getScrollTarget = (elementRef) =>
++  elementRef ? elementRef.current : window;
++
++const getScrollY = (elementRef) => {
++  const el = getScrollTarget(elementRef);
++  // window has scrollY but normal elements have scrollTop
++  return !el ? 0 : el.scrollY || el.scrollTop;
++}
++
++const scrollY = (elementRef, y) => {
++  const el = getScrollTarget(elementRef);
++  if (el) {
++    el.scrollTo(0, y);
++  }
++}
+ /**
+  * When rendered inside a RouterProvider, will restore scroll positions on navigations
+  */
+@@ -891,7 +909,8 @@ let savedScrollPositions = {};
+ function useScrollRestoration(_temp3) {
+   let {
+     getKey,
+-    storageKey
++    storageKey,
++    elementRef,
+   } = _temp3 === void 0 ? {} : _temp3;
+   let {
+     router
+@@ -914,12 +933,12 @@ function useScrollRestoration(_temp3) {
+   usePageHide(React.useCallback(() => {
+     if (navigation.state === "idle") {
+       let key = (getKey ? getKey(location, matches) : null) || location.key;
+-      savedScrollPositions[key] = window.scrollY;
++      savedScrollPositions[key] = getScrollY(elementRef);
+     }
+ 
+     sessionStorage.setItem(storageKey || SCROLL_RESTORATION_STORAGE_KEY, JSON.stringify(savedScrollPositions));
+     window.history.scrollRestoration = "auto";
+-  }, [storageKey, getKey, navigation.state, location, matches])); // Read in any saved scroll locations
++  }, [storageKey, getKey, elementRef, navigation.state, location, matches])); // Read in any saved scroll locations
+ 
+   if (typeof document !== "undefined") {
+     // eslint-disable-next-line react-hooks/rules-of-hooks
+@@ -936,9 +955,9 @@ function useScrollRestoration(_temp3) {
+     // eslint-disable-next-line react-hooks/rules-of-hooks
+ 
+     React.useLayoutEffect(() => {
+-      let disableScrollRestoration = router == null ? void 0 : router.enableScrollRestoration(savedScrollPositions, () => window.scrollY, getKey);
++      let disableScrollRestoration = router == null ? void 0 : router.enableScrollRestoration(savedScrollPositions, () => getScrollY(elementRef), getKey);
+       return () => disableScrollRestoration && disableScrollRestoration();
+-    }, [router, getKey]); // Restore scrolling when state.restoreScrollPosition changes
++    }, [router, getKey, elementRef]); // Restore scrolling when state.restoreScrollPosition changes
+     // eslint-disable-next-line react-hooks/rules-of-hooks
+ 
+     React.useLayoutEffect(() => {
+@@ -949,7 +968,7 @@ function useScrollRestoration(_temp3) {
+ 
+ 
+       if (typeof restoreScrollPosition === "number") {
+-        window.scrollTo(0, restoreScrollPosition);
++        scrollY(elementRef, restoreScrollPosition);
+         return;
+       } // try to scroll to the hash
+ 
+@@ -969,8 +988,8 @@ function useScrollRestoration(_temp3) {
+       } // otherwise go to the top on new locations
+ 
+ 
+-      window.scrollTo(0, 0);
+-    }, [location, restoreScrollPosition, preventScrollReset]);
++      scrollY(elementRef, 0);
++    }, [location, restoreScrollPosition, preventScrollReset, elementRef]);
+   }
+ }
+ /**
