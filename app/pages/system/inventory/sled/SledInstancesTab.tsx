@@ -5,6 +5,7 @@ import { DateCell, InstanceResourceCell, useQueryTable } from '@oxide/table'
 import { EmptyMessage, Instances24Icon } from '@oxide/ui'
 import { pick } from '@oxide/util'
 
+import { InstanceStatusBadge } from 'app/components/StatusBadge'
 import { requireSledParams, useSledParams } from 'app/hooks'
 
 const EmptyState = () => {
@@ -49,7 +50,11 @@ export function SledInstancesTab() {
             )
           }}
         />
-        <Column id="status" accessor="state" />
+        <Column
+          id="status"
+          accessor="state"
+          cell={({ value }) => <InstanceStatusBadge key="run-state" status={value} />}
+        />
         <Column
           id="specs"
           accessor={(i) => pick(i, 'memory', 'ncpus')}

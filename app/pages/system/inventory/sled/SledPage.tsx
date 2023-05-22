@@ -1,3 +1,4 @@
+import fileSize from 'filesize'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, useApiQuery } from '@oxide/api'
@@ -21,6 +22,8 @@ export function SledPage() {
 
   if (!sled) return null
 
+  const ram = fileSize(sled.usablePhysicalRam, { output: 'object', base: 2 })
+
   return (
     <>
       <PageHeader>
@@ -29,8 +32,32 @@ export function SledPage() {
 
       <PropertiesTable.Group className="mb-16 -mt-8">
         <PropertiesTable>
-          <PropertiesTable.Row label="sled uuid">
+          <PropertiesTable.Row label="sled id">
             <span className="text-secondary">{sled.id}</span>
+          </PropertiesTable.Row>
+          <PropertiesTable.Row label="part">
+            <span className="text-secondary">{sled.baseboard.part}</span>
+          </PropertiesTable.Row>
+          <PropertiesTable.Row label="serial">
+            <span className="text-secondary">{sled.baseboard.serial}</span>
+          </PropertiesTable.Row>
+          <PropertiesTable.Row label="revision">
+            <span className="text-secondary">{sled.baseboard.revision}</span>
+          </PropertiesTable.Row>
+        </PropertiesTable>
+        <PropertiesTable>
+          <PropertiesTable.Row label="rack id">
+            <span className="text-secondary">{sled.rackId}</span>
+          </PropertiesTable.Row>
+          <PropertiesTable.Row label="location">
+            <span className="text-disabled">Coming soon</span>
+          </PropertiesTable.Row>
+          <PropertiesTable.Row label="usable hardware threads">
+            <span className="text-secondary">{sled.usableHardwareThreads}</span>
+          </PropertiesTable.Row>
+          <PropertiesTable.Row label="usable physical ram">
+            <span className="pr-0.5 text-secondary">{ram.value}</span>
+            <span className="text-quaternary">{ram.unit}</span>
           </PropertiesTable.Row>
         </PropertiesTable>
       </PropertiesTable.Group>
