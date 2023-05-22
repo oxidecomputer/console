@@ -50,6 +50,7 @@ export function AttachDiskSideModalForm({
           label="Disk name"
           name="name"
           items={detachedDisks.map(({ name }) => ({ value: name, label: name }))}
+          required
           control={control}
         />
       )}
