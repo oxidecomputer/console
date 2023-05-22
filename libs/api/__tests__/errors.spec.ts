@@ -18,7 +18,7 @@ const alreadyExists = () => ({
   error: {
     requestId: '2',
     errorCode: 'ObjectAlreadyExists',
-    message: 'whatever',
+    message: 'already exists: instance "instance-name"',
   },
 })
 
@@ -55,23 +55,34 @@ describe('formatServerError', () => {
     )
   })
 
-  it('uses message from code map if error code matches', () => {
-    expect(formatServerError('FakeThingCreate', alreadyExists()).error.message).toEqual(
+  it('pulls from method name if message does not work', () => {
+    const error = alreadyExists()
+    error.error.message = 'whatever'
+    expect(formatServerError('FakeThingCreate', error).error.message).toEqual(
       'Thing name already exists'
     )
   })
 
+  it('uses message from code map if error code matches', () => {
+    expect(formatServerError('FakeThingCreate', alreadyExists()).error.message).toEqual(
+      'Instance name already exists'
+    )
+  })
+
   it('falls back to server error message if code not found', () => {
-    expect(formatServerError('', alreadyExists()).error.message).toEqual('whatever')
+    const error = alreadyExists()
+    error.error.message = 'whatever'
+    expect(formatServerError('', error).error.message).toEqual('whatever')
   })
 })
 
 it.each([
-  ['projectCreate', 'project'],
-  ['projectCreate', 'project'],
-  ['instanceNetworkInterfaceCreate', 'interface'],
-  ['instanceNetworkInterfaceCreate', 'interface'],
-  ['doesNotContainC-reate', null],
-])('getResourceName gets resource names', (method, resource) => {
-  expect(getResourceName(method)).toEqual(resource)
+  ['projectCreate', '', 'project'],
+  ['projectCreate', 'already exists: project "abc"', 'project'],
+  ['instanceCreate', 'already exists: disk "abc"', 'disk'],
+  ['instanceNetworkInterfaceCreate', '', 'interface'],
+  ['instanceNetworkInterfaceCreate', 'already exists: something else', 'something else'],
+  ['doesNotContainC-reate', '', null],
+])('getResourceName gets resource names', (method, message, resource) => {
+  expect(getResourceName(method, message)).toEqual(resource)
 })

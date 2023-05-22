@@ -34,7 +34,7 @@ test('can create an instance', async ({ page }) => {
   await page.getByRole('button', { name: 'Image' }).click()
   await page.getByRole('option', { name: images[2].name }).click()
 
-  await page.locator('button:has-text("Create instance")').click()
+  await page.getByRole('button', { name: 'Create instance' }).click()
 
   await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)
 
@@ -52,4 +52,13 @@ test('can create an instance', async ({ page }) => {
   await page.fill('input[name=name]', instanceName)
   await page.locator('button:has-text("Create instance")').click()
   await page.getByText('Instance name already exists')
+})
+
+test('with disk name already taken', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances-new')
+  await page.fill('input[name=name]', 'my-instnace')
+  await page.fill('input[name=bootDiskName]', 'disk-1')
+
+  await page.getByRole('button', { name: 'Create instance' }).click()
+  await expectVisible(page, ['text=Disk name already exists'])
 })
