@@ -2,7 +2,11 @@ import { camelCaseToWords, capitalize } from '@oxide/util'
 
 import type { ErrorResult } from '.'
 
-/** Processed ClientError | ApiError ready for display in the console */
+/**
+ * Processed API error ready for display in the console. Note that it's possible
+ * to get an `ApiError` even on a successful request if, for example, we fail to
+ * parse the response body.
+ */
 export type ApiError = {
   message: string
   errorCode?: string
@@ -40,30 +44,29 @@ export function processServerError(method: string, resp: ErrorResult): ApiError 
   }
 
   let message: string | undefined = undefined
-  const code = resp.error.errorCode
+  const code = resp.data.errorCode
 
   if (code === 'Forbidden') {
     message = 'Action not authorized'
   } else if (code === 'ObjectNotFound') {
     message = 'Object not found'
   } else if (code === 'ObjectAlreadyExists') {
-    // TODO: This is a temporary fix for the API; better messages should be provided from there
-    const resource = getResourceName(method, resp.error.message)
+    const resource = getResourceName(method, resp.data.message)
     if (resource) {
       message = `${capitalize(resource)} name already exists`
     }
   }
 
+  // fall back to raw server error message if present. parse errors have no
+  // error code, for some reason
   if (!message) {
-    // fall back to raw server error message if present. parse errors have no
-    // error code, for some reason
     message =
-      getParseError(resp.error.message) || resp.error.message || 'Unknown server error'
+      getParseError(resp.data.message) || resp.data.message || 'Unknown server error'
   }
 
   return {
     message,
-    errorCode: resp.error.errorCode || undefined,
+    errorCode: resp.data.errorCode || undefined,
     statusCode: resp.statusCode,
   }
 }

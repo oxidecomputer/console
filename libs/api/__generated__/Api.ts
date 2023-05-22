@@ -2,14 +2,7 @@
 import type { RequestParams } from './http-client'
 import { HttpClient, toQueryString } from './http-client'
 
-export type {
-  ApiConfig,
-  ApiError,
-  ApiResult,
-  ClientError,
-  ErrorBody,
-  ErrorResult,
-} from './http-client'
+export type { ApiConfig, ApiResult, ErrorBody, ErrorResult } from './http-client'
 
 /**
  * Properties that uniquely identify an Oxide hardware component

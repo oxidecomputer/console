@@ -21,7 +21,7 @@ describe('processServerError', () => {
     type: 'error' as const,
     statusCode,
     headers: new Headers(),
-    error: { requestId: '2', errorCode, message },
+    data: { requestId: '2', errorCode, message },
   })
 
   it('extracts message from parse errors', () => {
@@ -29,7 +29,7 @@ describe('processServerError', () => {
       type: 'error' as const,
       statusCode: 400,
       headers: new Headers(),
-      error: {
+      data: {
         requestId: '1',
         message: 'unable to parse JSON body: hi, you have an error at line 129 column 4',
       },
