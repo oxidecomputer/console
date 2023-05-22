@@ -3,7 +3,7 @@ import { cloneElement } from 'react'
 import type { FieldValues, UseFormProps, UseFormReturn } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 
-import type { ProcessedError } from '@oxide/api'
+import type { ApiError } from '@oxide/api'
 import { PageHeader, PageTitle } from '@oxide/ui'
 import { classed, flattenChildren, pluckFirstOfType } from '@oxide/util'
 
@@ -21,7 +21,7 @@ interface FullPageFormProps<TFieldValues extends FieldValues> {
   loading?: boolean
   onSubmit: (values: TFieldValues) => void
   /** Error from the API call */
-  submitError: ProcessedError | null
+  submitError: ApiError | null
   /**
    * A function that returns the fields.
    *

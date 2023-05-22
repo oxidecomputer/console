@@ -2,7 +2,8 @@ import { camelCaseToWords, capitalize } from '@oxide/util'
 
 import type { ErrorResult } from '.'
 
-export type ProcessedError = {
+/** Processed ClientError | ApiError ready for display in the console */
+export type ApiError = {
   message: string
   errorCode?: string
   statusCode?: number
@@ -26,7 +27,7 @@ export function getResourceName(method: string, message: string) {
   return words[i - 1].replace(/s$/, '')
 }
 
-export function processServerError(method: string, resp: ErrorResult): ProcessedError {
+export function processServerError(method: string, resp: ErrorResult): ApiError {
   // client error is a JSON parse or processing error and is highly unlikely to
   // be end-user readable
   if (resp.type === 'client_error') {

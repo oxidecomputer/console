@@ -3,7 +3,7 @@ import type { FieldValues, UseFormProps, UseFormReturn } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 import { useNavigationType } from 'react-router-dom'
 
-import type { ProcessedError } from '@oxide/api'
+import type { ApiError } from '@oxide/api'
 import { Error12Icon } from '@oxide/ui'
 import { Button, SideModal } from '@oxide/ui'
 
@@ -32,7 +32,7 @@ type SideModalFormProps<TFieldValues extends FieldValues> = {
   /** Must be provided with a reason describing why it's disabled */
   submitDisabled?: string
   /** Error from the API call */
-  submitError: ProcessedError | null
+  submitError: ApiError | null
   loading?: boolean
   title: string
   onSubmit: (values: TFieldValues) => void

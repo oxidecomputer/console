@@ -1,4 +1,4 @@
-import type { ProcessedError } from '@oxide/api'
+import type { ApiError } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 
 import { ListboxField, SideModalForm } from 'app/components/form'
@@ -11,7 +11,7 @@ type AttachDiskProps = {
   onSubmit: (diskAttach: { name: string }) => void
   onDismiss: () => void
   loading?: boolean
-  submitError?: ProcessedError | null
+  submitError?: ApiError | null
 }
 
 /**

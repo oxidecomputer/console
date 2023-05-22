@@ -1,13 +1,13 @@
 import { ErrorBoundary as BaseErrorBoundary } from 'react-error-boundary'
 import { useRouteError } from 'react-router-dom'
 
-import type { ProcessedError } from '@oxide/api'
+import type { ApiError } from '@oxide/api'
 
 import NotFound from 'app/pages/NotFound'
 
 export const trigger404 = { type: 'error', statusCode: 404 }
 
-type Props = { error: Error | ProcessedError }
+type Props = { error: Error | ApiError }
 
 function ErrorFallback({ error }: Props) {
   if ('statusCode' in error && error.statusCode === 404) {

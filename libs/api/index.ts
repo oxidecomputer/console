@@ -48,5 +48,5 @@ export type { ApiTypes }
 export * as PathParams from './path-params'
 
 export type { Params, Result, ResultItem } from './hooks'
-export type { ProcessedError } from './errors'
+export type { ApiError } from './errors'
 export { navToLogin } from './nav-to-login'

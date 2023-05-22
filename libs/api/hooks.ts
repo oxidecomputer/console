@@ -10,7 +10,7 @@ import type {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import type { ApiResult } from './__generated__/Api'
-import { type ProcessedError, processServerError } from './errors'
+import { type ApiError, processServerError } from './errors'
 import { navToLogin } from './nav-to-login'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -52,7 +52,7 @@ export const getUseApiQuery =
   <M extends string & keyof A>(
     method: M,
     params: Params<A[M]>,
-    options: UseQueryOptions<Result<A[M]>, ProcessedError> = {}
+    options: UseQueryOptions<Result<A[M]>, ApiError> = {}
   ) => {
     return useQuery(
       [method, params] as QueryKey,
@@ -73,7 +73,7 @@ export const getUseApiMutation =
   <A extends ApiClient>(api: A) =>
   <M extends string & keyof A>(
     method: M,
-    options?: UseMutationOptions<Result<A[M]>, ProcessedError, Params<A[M]>>
+    options?: UseMutationOptions<Result<A[M]>, ApiError, Params<A[M]>>
   ) =>
     useMutation(
       (params) => api[method](params).then(handleResult(method)),
@@ -102,7 +102,7 @@ export const wrapQueryClient = <A extends ApiClient>(api: A, queryClient: QueryC
   fetchQuery: <M extends string & keyof A>(
     method: M,
     params: Params<A[M]>,
-    options: FetchQueryOptions<Result<A[M]>, ProcessedError> = {}
+    options: FetchQueryOptions<Result<A[M]>, ApiError> = {}
   ) =>
     queryClient.fetchQuery({
       queryKey: [method, params],
@@ -112,7 +112,7 @@ export const wrapQueryClient = <A extends ApiClient>(api: A, queryClient: QueryC
   prefetchQuery: <M extends string & keyof A>(
     method: M,
     params: Params<A[M]>,
-    options: FetchQueryOptions<Result<A[M]>, ProcessedError> = {}
+    options: FetchQueryOptions<Result<A[M]>, ApiError> = {}
   ) =>
     queryClient.prefetchQuery({
       queryKey: [method, params],

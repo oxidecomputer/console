@@ -9,7 +9,7 @@ import {
   useApiQueryClient,
 } from '@oxide/api'
 import type {
-  ProcessedError,
+  ApiError,
   VpcFirewallRule,
   VpcFirewallRuleHostFilter,
   VpcFirewallRuleTarget,
@@ -105,7 +105,7 @@ const targetDefaultValues: TargetFormValues = {
 }
 
 type CommonFieldsProps = {
-  error: ProcessedError | null
+  error: ApiError | null
   control: Control<FirewallRuleValues>
 }
 
