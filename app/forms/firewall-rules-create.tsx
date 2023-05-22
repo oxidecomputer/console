@@ -9,7 +9,7 @@ import {
   useApiQueryClient,
 } from '@oxide/api'
 import type {
-  ErrorResult,
+  ApiError,
   VpcFirewallRule,
   VpcFirewallRuleHostFilter,
   VpcFirewallRuleTarget,
@@ -105,7 +105,7 @@ const targetDefaultValues: TargetFormValues = {
 }
 
 type CommonFieldsProps = {
-  error: ErrorResult | null
+  error: ApiError | null
   control: Control<FirewallRuleValues>
 }
 
@@ -420,10 +420,10 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
         </div>
       </fieldset>
 
-      {error?.error.message && (
+      {error && (
         <>
           <Divider />
-          <div className="text-destructive">{error.error.message}</div>
+          <div className="text-destructive">{error.message}</div>
         </>
       )}
     </>

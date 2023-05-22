@@ -81,14 +81,22 @@ export const NotImplemented = () => {
 
 export const errIfExists = <T extends Record<string, unknown>>(
   collection: T[],
-  match: Partial<{ [key in keyof T]: T[key] }>
+  match: Partial<{ [key in keyof T]: T[key] }>,
+  resourceLabel = 'resource'
 ) => {
   if (
     collection.some((item) =>
       Object.entries(match).every(([key, value]) => item[key] === value)
     )
   ) {
-    throw json({ error_code: 'ObjectAlreadyExists' }, { status: 400 })
+    const name = 'name' in match ? match.name : 'id' in match ? match.id : '<resource>'
+    throw json(
+      {
+        error_code: 'ObjectAlreadyExists',
+        message: `already exists: ${resourceLabel} "${name}"`,
+      },
+      { status: 400 }
+    )
   }
 }
 

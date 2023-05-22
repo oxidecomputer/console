@@ -64,9 +64,7 @@ describe('useApiQuery', () => {
       const { result } = renderGetProject503()
 
       await waitFor(() =>
-        expect(result.current.error?.error).toMatchObject({
-          errorCode: 'ServiceUnavailable',
-        })
+        expect(result.current.error).toMatchObject({ errorCode: 'ServiceUnavailable' })
       )
     })
 
@@ -78,12 +76,7 @@ describe('useApiQuery', () => {
       await waitFor(() => {
         const error = result.current.error
         expect(error).toMatchObject({
-          type: 'client_error',
-          statusCode: 503,
-          text: 'not json',
-          error: {
-            message: 'Error reading API response',
-          },
+          message: 'Error reading API response',
         })
       })
     })
@@ -96,11 +89,8 @@ describe('useApiQuery', () => {
       await waitFor(() => {
         const error = result.current.error
         expect(error).toMatchObject({
-          type: 'error',
           statusCode: 503,
-          error: {
-            message: 'Unknown server error',
-          },
+          message: 'Unknown server error',
         })
       })
     })
@@ -130,8 +120,11 @@ describe('useApiQuery', () => {
 
       await waitFor(() => {
         const error = onError.mock.lastCall?.[0]
-        expect(error?.error).toMatchObject({ errorCode: 'ObjectNotFound' })
-        expect(error?.statusCode).toEqual(404)
+        expect(error).toEqual({
+          errorCode: 'ObjectNotFound',
+          message: 'Object not found',
+          statusCode: 404,
+        })
       })
     })
 
@@ -147,7 +140,7 @@ describe('useApiQuery', () => {
       )
 
       await waitFor(() =>
-        expect(result.current.error?.error).toMatchObject({
+        expect(result.current.error).toMatchObject({
           errorCode: 'ObjectNotFound',
         })
       )
@@ -205,8 +198,11 @@ describe('useApiMutation', () => {
 
       await waitFor(() => expect(result.current.error).not.toBeNull())
 
-      const response = result.current.error
-      expect(response?.statusCode).toEqual(404)
+      expect(result.current.error).toEqual({
+        errorCode: 'ObjectNotFound',
+        message: 'Object not found',
+        statusCode: 404,
+      })
     })
 
     it('parses error json if possible', async () => {
@@ -215,8 +211,9 @@ describe('useApiMutation', () => {
       act(() => result.current.mutate(diskCreate404Params))
 
       await waitFor(() =>
-        expect(result.current.error?.error).toMatchObject({
+        expect(result.current.error).toMatchObject({
           errorCode: 'ObjectNotFound',
+          statusCode: 404,
         })
       )
     })
@@ -230,11 +227,9 @@ describe('useApiMutation', () => {
       await waitFor(() => {
         const error = result.current.error
         expect(error).toMatchObject({
-          type: 'client_error',
-          statusCode: 404,
-          text: 'not json',
+          message: 'Error reading API response',
         })
-        expect(error?.error.message).toEqual('Error reading API response')
+        expect(error?.message).toEqual('Error reading API response')
       })
     })
 
@@ -247,11 +242,7 @@ describe('useApiMutation', () => {
       await waitFor(() => {
         const error = result.current.error
         expect(error).toMatchObject({
-          type: 'error',
-          statusCode: 503,
-          error: {
-            message: 'Unknown server error',
-          },
+          message: 'Unknown server error',
         })
       })
     })

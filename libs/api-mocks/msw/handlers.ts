@@ -37,7 +37,7 @@ export const handlers = makeHandlers({
 
   projectList: (params) => paginated(params.query, db.projects),
   projectCreate({ body }) {
-    errIfExists(db.projects, { name: body.name })
+    errIfExists(db.projects, { name: body.name }, 'project')
 
     const newProject: Json<Api.Project> = {
       id: uuid(),
@@ -256,7 +256,7 @@ export const handlers = makeHandlers({
   instanceCreate({ body, query }) {
     const project = lookup.project(query)
 
-    errIfExists(db.instances, { name: body.name, project_id: project.id })
+    errIfExists(db.instances, { name: body.name, project_id: project.id }, 'instance')
 
     const instanceId = uuid()
 
@@ -266,7 +266,7 @@ export const handlers = makeHandlers({
      */
     for (const diskParams of body.disks || []) {
       if (diskParams.type === 'create') {
-        errIfExists(db.disks, { name: diskParams.name, project_id: project.id })
+        errIfExists(db.disks, { name: diskParams.name, project_id: project.id }, 'disk')
         errIfInvalidDiskSize(diskParams)
       } else {
         lookup.disk({ ...query, disk: diskParams.name })
