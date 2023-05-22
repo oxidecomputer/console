@@ -769,7 +769,7 @@ export const handlers = makeHandlers({
     return paginated(query, nics)
   },
   sledPhysicalDiskList({ path, query }) {
-    const sled = lookup.sled({ id: path.sledId })
+    const sled = lookup.sled(path)
     const disks = db.physicalDisks.filter((n) => n.sled_id === sled.id)
     return paginated(query, disks)
   },
@@ -831,6 +831,7 @@ export const handlers = makeHandlers({
     db.sshKeys = db.sshKeys.filter((i) => i.id !== sshKey.id)
     return 204
   },
+  sledView: ({ path }) => lookup.sled(path),
   sledList: (params) => paginated(params.query, db.sleds),
   sledInstanceList({ query, path }) {
     const sled = lookupById(db.sleds, path.sledId)
@@ -1042,7 +1043,6 @@ export const handlers = makeHandlers({
   siloPolicyView: NotImplemented,
   siloUserList: NotImplemented,
   siloUserView: NotImplemented,
-  sledView: NotImplemented,
   switchList: NotImplemented,
   switchView: NotImplemented,
   systemPolicyUpdate: NotImplemented,

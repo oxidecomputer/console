@@ -30,7 +30,7 @@ export const getInstanceSelector = requireParams('project', 'instance')
 export const getVpcSelector = requireParams('project', 'vpc')
 export const getSiloSelector = requireParams('silo')
 export const getIdpSelector = requireParams('silo', 'provider')
-const requireSledParams = requireParams('sledId')
+export const requireSledParams = requireParams('sledId')
 export const requireUpdateParams = requireParams('version')
 
 /**

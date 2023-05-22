@@ -46,12 +46,14 @@ import { StorageTab } from './pages/project/instances/instance/tabs/StorageTab'
 import { ProfilePage } from './pages/settings/ProfilePage'
 import { SSHKeysPage } from './pages/settings/SSHKeysPage'
 import { CapacityUtilizationPage } from './pages/system/CapacityUtilizationPage'
-import { DisksTab } from './pages/system/InventoryPage/DisksTab'
-import { InventoryPage } from './pages/system/InventoryPage/InventoryPage'
-import { SledsTab } from './pages/system/InventoryPage/SledsTab'
 import { SiloImagesPage } from './pages/system/SiloImagesPage'
 import { SiloPage } from './pages/system/SiloPage'
 import SilosPage from './pages/system/SilosPage'
+import { DisksTab } from './pages/system/inventory/DisksTab'
+import { InventoryPage } from './pages/system/inventory/InventoryPage'
+import { SledsTab } from './pages/system/inventory/SledsTab'
+import { SledInstancesTab } from './pages/system/inventory/sled/SledInstancesTab'
+import { SledPage } from './pages/system/inventory/sled/SledPage'
 // import { UpdateDetailSideModal } from './pages/system/UpdateDetailSideModal'
 // import {
 //   UpdatePage,
@@ -132,6 +134,18 @@ export const routes = createRoutesFromElements(
           <Route index element={<Navigate to="sleds" replace />} />
           <Route path="sleds" element={<SledsTab />} loader={SledsTab.loader} />
           <Route path="disks" element={<DisksTab />} loader={DisksTab.loader} />
+        </Route>
+        <Route
+          path="inventory/sleds/:sledId"
+          element={<SledPage />}
+          loader={SledPage.loader}
+        >
+          <Route index element={<Navigate to="instances" replace />} />
+          <Route
+            path="instances"
+            element={<SledInstancesTab />}
+            loader={SledInstancesTab.loader}
+          />
         </Route>
         <Route path="health" element={null} handle={{ crumb: 'Health' }} />
         <Route path="update" element={null} handle={{ crumb: 'Update' }} />
