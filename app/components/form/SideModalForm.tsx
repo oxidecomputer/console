@@ -59,11 +59,8 @@ export function SideModalForm<TFieldValues extends FieldValues>({
   const { isSubmitting } = form.formState
 
   useEffect(() => {
-    // Check if there is a 'name' field in the form
-    // If there is we set an error on it when it
-    // already exists
     if (submitError?.errorCode === 'ObjectAlreadyExists' && 'name' in form.getValues()) {
-      // @ts-ignore
+      // @ts-expect-error
       form.setError('name', { message: 'Name already exists' })
     }
   }, [submitError, form])
