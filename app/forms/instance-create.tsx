@@ -83,6 +83,7 @@ CreateInstanceForm.loader = async ({ params }: LoaderFunctionArgs) => {
     apiQueryClient.prefetchQuery('imageList', {
       query: { includeSiloImages: true, ...getProjectSelector(params) },
     }),
+    apiQueryClient.prefetchQuery('currentUserSshKeyList', {}),
   ])
   return null
 }
@@ -318,7 +319,6 @@ export function CreateInstanceForm() {
 
 const SshKeysTable = () => {
   const keys = useApiQuery('currentUserSshKeyList', {}).data?.items || []
-  console.log(keys)
 
   return (
     <div className="max-w-lg">
