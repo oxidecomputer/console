@@ -1,11 +1,18 @@
 import type { ReactNode } from 'react'
-import type { FieldValues, UseFormProps, UseFormReturn } from 'react-hook-form'
+import { useEffect } from 'react'
+import type { FieldValues, Path, UseFormProps, UseFormReturn } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 import { useNavigationType } from 'react-router-dom'
 
 import type { ApiError } from '@oxide/api'
 import { Error12Icon } from '@oxide/ui'
 import { Button, SideModal } from '@oxide/ui'
+
+import {
+  clearPersistedFormValues,
+  getPersistedFormValues,
+  saveFormValues,
+} from 'app/util/persist-form'
 
 export function ModalFooterError({ children }: { children: ReactNode }) {
   return (
@@ -65,10 +72,33 @@ export function SideModalForm<TFieldValues extends FieldValues>({
   // change
   const form = useForm({ mode: 'all', ...formOptions })
 
+  const { getValues, setValue } = form
+
+  const handleOnDismiss = () => {
+    // Save the form state in local storage
+    saveFormValues(id, getValues())
+    onDismiss()
+  }
+
+  useEffect(() => {
+    const formValues = getPersistedFormValues(id)
+
+    if (!formValues) return
+
+    Object.keys(formValues).forEach((key) => {
+      setValue(key as Path<TFieldValues>, formValues[key])
+    })
+  }, [id, setValue])
+
   const { isSubmitting } = form.formState
 
   return (
-    <SideModal onDismiss={onDismiss} isOpen title={title} animate={useShouldAnimateModal()}>
+    <SideModal
+      onDismiss={handleOnDismiss}
+      isOpen
+      title={title}
+      animate={useShouldAnimateModal()}
+    >
       <SideModal.Body>
         <form
           id={id}
@@ -81,6 +111,7 @@ export function SideModalForm<TFieldValues extends FieldValues>({
             // SideModalForm from inside another form, in which case submitting
             // the inner form submits the outer form unless we stop propagation
             e.stopPropagation()
+            clearPersistedFormValues(id)
             form.handleSubmit(onSubmit)(e)
           }}
         >
@@ -90,7 +121,7 @@ export function SideModalForm<TFieldValues extends FieldValues>({
       <SideModal.Footer>
         <div className="flex w-full items-center justify-end gap-[0.625rem] children:shrink-0">
           {submitError && <ModalFooterError>{submitError.message}</ModalFooterError>}
-          <Button variant="ghost" size="sm" onClick={onDismiss}>
+          <Button variant="ghost" size="sm" onClick={handleOnDismiss}>
             Cancel
           </Button>
           <Button
