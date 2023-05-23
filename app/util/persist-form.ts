@@ -1,5 +1,5 @@
 import { differenceInSeconds } from 'date-fns'
-import type { FieldValues, Path, SetFieldValue } from 'react-hook-form'
+import type { FieldValues, Path, SetFieldValue, UseFormTrigger } from 'react-hook-form'
 
 export function saveFormValues(key: string, values: FieldValues) {
   const obj = {
@@ -38,6 +38,7 @@ export function getPersistedFormValues(key: string) {
 
 export function setPersistedFormValues(
   setValue: SetFieldValue<FieldValues>,
+  trigger: UseFormTrigger<FieldValues>,
   values: FieldValues,
   prefix?: string
 ) {
@@ -45,12 +46,16 @@ export function setPersistedFormValues(
     const value = values[key]
 
     if (typeof value === 'object') {
-      setPersistedFormValues(setValue, value, key)
+      setPersistedFormValues(setValue, trigger, value, key)
     }
 
     // Use prefix to set nested values
     // e.g. diskSource.blockSize
-    setValue(`${prefix ? prefix + '.' : ''}${key}` as Path<FieldValues>, values[key])
+    const prefixedKey = `${prefix ? prefix + '.' : ''}${key}` as Path<FieldValues>
+    if (values[key]) {
+      setValue(prefixedKey, values[key])
+      trigger(prefixedKey)
+    }
   })
 }
 

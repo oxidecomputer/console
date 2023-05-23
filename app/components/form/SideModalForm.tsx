@@ -73,7 +73,7 @@ export function SideModalForm<TFieldValues extends FieldValues>({
   // change
   const form = useForm({ mode: 'all', ...formOptions })
 
-  const { getValues, setValue } = form
+  const { getValues, setValue, trigger } = form
 
   const handleOnDismiss = () => {
     // Save the form state in local storage
@@ -86,8 +86,8 @@ export function SideModalForm<TFieldValues extends FieldValues>({
 
     if (!formValues) return
 
-    setPersistedFormValues(setValue, formValues)
-  }, [id, setValue])
+    setPersistedFormValues(setValue, trigger, formValues)
+  }, [id, setValue, trigger])
 
   const { isSubmitting } = form.formState
 
