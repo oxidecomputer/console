@@ -9,6 +9,7 @@ import { forEach } from './utils'
 
 // skipped for now because we no longer have any live multiselect tables to test
 // with. TODO: make it a testing-lib test instead?
+// eslint-disable-next-line playwright/no-skipped-test
 test.skip('Row multiselect works as expected', async ({ page }) => {
   // SETUP
 
