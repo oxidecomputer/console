@@ -1,4 +1,4 @@
-{
+module.exports = {
   "root": true,
   "parser": "@typescript-eslint/parser",
   "extends": [
@@ -6,9 +6,14 @@
     "plugin:jsx-a11y/recommended",
     "plugin:react/recommended",
     "plugin:@typescript-eslint/recommended",
+    "plugin:@typescript-eslint/recommended-requiring-type-checking",
     "prettier",
     "plugin:react-hook-form/recommended"
   ],
+  "parserOptions": {
+    "project": true,
+    "tsconfigRootDir": __dirname,
+  },
   "plugins": [
     "@typescript-eslint",
     "react-hooks",
@@ -29,6 +34,7 @@
     "@typescript-eslint/no-empty-function": "off",
     "@typescript-eslint/no-empty-interface": "off",
     "@typescript-eslint/ban-ts-comment": "off",
+    "@typescript-eslint/no-floating-promises": "error",
     "@typescript-eslint/no-non-null-assertion": "off",
     "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
     "eqeqeq": ["error", "always", { "null": "ignore" }],
@@ -45,7 +51,7 @@
     "react/react-in-jsx-scope": "off",
     "react/prop-types": "off"
   },
-  "ignorePatterns": ["dist/"],
+  "ignorePatterns": ["dist/", ".eslintrc.cjs", "tools/deno"],
   "overrides": [
     {
       "files": ["*.js"],
