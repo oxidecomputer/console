@@ -1,6 +1,11 @@
 import type { ReactNode } from 'react'
 import { useEffect } from 'react'
-import type { FieldValues, UseFormProps, UseFormReturn } from 'react-hook-form'
+import type {
+  FieldValues,
+  UseFormProps,
+  UseFormReturn,
+  UseFormTrigger,
+} from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 import { useNavigationType } from 'react-router-dom'
 
@@ -86,7 +91,7 @@ export function SideModalForm<TFieldValues extends FieldValues>({
 
     if (!formValues) return
 
-    setPersistedFormValues(setValue, trigger, formValues)
+    setPersistedFormValues(setValue, trigger as UseFormTrigger<FieldValues>, formValues)
   }, [id, setValue, trigger])
 
   const { isSubmitting } = form.formState
