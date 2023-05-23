@@ -52,6 +52,12 @@ export function FullPageForm<TFieldValues extends FieldValues>({
   const form = useForm(formOptions)
   const { isSubmitting, isDirty } = form.formState
 
+  /*
+    Confirms with the user if they want to navigate away
+    if the form is dirty. Does not intercept everything e.g.
+    refreshes or closing the tab but serves to reduce
+    the possibility of a user accidentally losing their progress
+  */
   const blocker = useBlocker(isDirty)
 
   // Reset blocker if form is no longer dirty
