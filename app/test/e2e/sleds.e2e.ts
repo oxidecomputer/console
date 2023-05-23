@@ -20,8 +20,6 @@ test('Sled inventory page', async ({ page }) => {
   // Visit the sled detail page of the first sled
   await sledsTable.getByRole('link').first().click()
 
-  await page.waitForURL('**/system/inventory/sleds/**')
-
   // TODO: Once sled location is piped through this'll need to be dynamic
   await expectVisible(page, ['role=heading[name*="Sled 0"]'])
 
