@@ -1,12 +1,7 @@
-import { differenceInSeconds } from 'date-fns'
 import type { FieldValues, Path, SetFieldValue, UseFormTrigger } from 'react-hook-form'
 
 export function saveFormValues(key: string, values: FieldValues) {
-  const obj = {
-    values,
-    timestamp: Date.now(),
-  }
-  sessionStorage.setItem(key, JSON.stringify(obj))
+  sessionStorage.setItem(key, JSON.stringify(values))
 }
 
 export type FormData = {
@@ -24,9 +19,8 @@ export function getPersistedFormValues(key: string) {
       console.log(err)
     }
 
-    // Return persisted values if they are more recent than 5 minutes
-    if (parsedData && differenceInSeconds(Date.now(), parsedData.timestamp) < 300) {
-      return parsedData.values
+    if (parsedData) {
+      return parsedData
     } else {
       // Clear if not recent
       sessionStorage.removeItem(key)
