@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { useEffect } from 'react'
-import type { FieldValues, Path, UseFormProps, UseFormReturn } from 'react-hook-form'
+import type { FieldValues, UseFormProps, UseFormReturn } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 import { useNavigationType } from 'react-router-dom'
 
@@ -12,6 +12,7 @@ import {
   clearPersistedFormValues,
   getPersistedFormValues,
   saveFormValues,
+  setPersistedFormValues,
 } from 'app/util/persist-form'
 
 export function ModalFooterError({ children }: { children: ReactNode }) {
@@ -85,9 +86,7 @@ export function SideModalForm<TFieldValues extends FieldValues>({
 
     if (!formValues) return
 
-    Object.keys(formValues).forEach((key) => {
-      setValue(key as Path<TFieldValues>, formValues[key])
-    })
+    setPersistedFormValues(setValue, formValues)
   }, [id, setValue])
 
   const { isSubmitting } = form.formState

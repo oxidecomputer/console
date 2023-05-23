@@ -1,5 +1,5 @@
 import { differenceInSeconds } from 'date-fns'
-import type { FieldValues } from 'react-hook-form'
+import type { FieldValues, Path, SetFieldValue } from 'react-hook-form'
 
 export function saveFormValues(key: string, values: FieldValues) {
   const obj = {
@@ -34,6 +34,24 @@ export function getPersistedFormValues(key: string) {
     }
   }
   return null
+}
+
+export function setPersistedFormValues(
+  setValue: SetFieldValue<FieldValues>,
+  values: FieldValues,
+  prefix?: string
+) {
+  Object.keys(values).forEach((key) => {
+    const value = values[key]
+
+    if (typeof value === 'object') {
+      setPersistedFormValues(setValue, value, key)
+    }
+
+    // Use prefix to set nested values
+    // e.g. diskSource.blockSize
+    setValue(`${prefix ? prefix + '.' : ''}${key}` as Path<FieldValues>, values[key])
+  })
 }
 
 export function clearPersistedFormValues(key: string) {
