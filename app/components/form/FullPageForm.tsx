@@ -79,7 +79,7 @@ export function FullPageForm<TFieldValues extends FieldValues>({
           // SideModalForm from inside another form, in which case submitting
           // the inner form submits the outer form unless we stop propagation
           e.stopPropagation()
-          form.reset({}, { keepValues: true })
+          form.reset({} as TFieldValues, { keepValues: true })
           form.handleSubmit(onSubmit)(e)
         }}
         autoComplete="off"
