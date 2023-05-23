@@ -7,8 +7,7 @@
     "plugin:react/recommended",
     "plugin:@typescript-eslint/recommended",
     "prettier",
-    "plugin:react-hook-form/recommended",
-    "plugin:playwright/playwright-test"
+    "plugin:react-hook-form/recommended"
   ],
   "plugins": [
     "@typescript-eslint",
@@ -53,6 +52,10 @@
       "rules": {
         "@typescript-eslint/no-var-requires": "off"
       }
+    },
+    {
+      "files": ["*.e2e.ts"],
+      "extends": ["plugin:playwright/playwright-test"]
     }
   ]
 }

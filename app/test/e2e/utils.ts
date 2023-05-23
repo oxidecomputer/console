@@ -29,7 +29,7 @@ export async function expectVisible(page: Page, selectors: string[]) {
 
 export async function expectNotVisible(page: Page, selectors: string[]) {
   for (const selector of selectors) {
-    await expect(page.locator(selector)).not.toBeVisible()
+    await expect(page.locator(selector)).toBeHidden()
   }
 }
 
