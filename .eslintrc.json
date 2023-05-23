@@ -7,7 +7,8 @@
     "plugin:react/recommended",
     "plugin:@typescript-eslint/recommended",
     "prettier",
-    "plugin:react-hook-form/recommended"
+    "plugin:react-hook-form/recommended",
+    "plugin:playwright/playwright-test"
   ],
   "plugins": [
     "@typescript-eslint",
