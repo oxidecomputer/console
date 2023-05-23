@@ -79,6 +79,8 @@ export function FullPageForm<TFieldValues extends FieldValues>({
           // SideModalForm from inside another form, in which case submitting
           // the inner form submits the outer form unless we stop propagation
           e.stopPropagation()
+          // This resets `isDirty` whilst keeping the values meaning
+          // we are not prevented from navigating away by the blocker
           form.reset({} as TFieldValues, { keepValues: true })
           form.handleSubmit(onSubmit)(e)
         }}
