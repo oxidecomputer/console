@@ -9,7 +9,7 @@ test('Sled inventory page', async ({ page }) => {
 
   const sledsTab = page.getByRole('tab', { name: 'Sleds' })
   await expect(sledsTab).toBeVisible()
-  await expect(sledsTab).toHaveClass('.is-selected')
+  await expect(sledsTab).toHaveClass('is-selected')
 
   const sledsTable = page.getByRole('table')
   await expectRowVisible(sledsTable, {
@@ -25,7 +25,7 @@ test('Sled inventory page', async ({ page }) => {
 
   const instancesTab = page.getByRole('tab', { name: 'Instances' })
   await expect(instancesTab).toBeVisible()
-  await expect(instancesTab).toHaveClass('.is-selected')
+  await expect(instancesTab).toHaveClass('is-selected')
 
   const instancesTable = page.getByRole('table')
   await expectRowVisible(instancesTable, {
