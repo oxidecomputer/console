@@ -21,7 +21,7 @@ test('Sled inventory page', async ({ page }) => {
   sledsTable.getByRole('link').first().click()
 
   // TODO: Once sled location is piped through this'll need to be dynamic
-  await expectVisible(page, ['role=heading[name*="Sled 0"'])
+  await expectVisible(page, ['role=heading[name*="Sled 0"]'])
 
   const instancesTab = page.getByRole('tab', { name: 'Instances' })
   await expect(instancesTab).toBeVisible()
