@@ -17,19 +17,7 @@ const defaultValues: UsernamePasswordCredentials = {
   password: '',
 }
 
-/**
- * Placeholder login page for demo purposes.
- *
- * The demo login form is only in the console bundle for the convenience of
- * using existing tooling and using the generated API client. In the real rack,
- * login will go through the customer's IdP; no form controlled by us will be
- * involved. If Nexus *does* end up serving a login form, e.g., for use by
- * admins before the IdP is set up, that will be a separate bundle with minimal
- * JS (ideally so minimal we could inline it in the HTML response) and it would
- * not use the generated API client at all. It could even use an HTML form POST.
- *
- * Login and logout endpoints are only a temporary addition to the OpenAPI spec.
- */
+/** Username/password form for local silo login */
 export function LoginPage() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
