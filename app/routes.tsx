@@ -15,6 +15,7 @@ import { CreateVpcSideModalForm } from './forms/vpc-create'
 import { EditVpcSideModalForm } from './forms/vpc-edit'
 import type { CrumbFunc } from './hooks/use-crumbs'
 import AuthLayout from './layouts/AuthLayout'
+import { LoginLayout } from './layouts/LoginLayout'
 import ProjectLayout from './layouts/ProjectLayout'
 import RootLayout from './layouts/RootLayout'
 import SettingsLayout from './layouts/SettingsLayout'
@@ -72,8 +73,10 @@ const siloCrumb: CrumbFunc = (m) => m.params.silo!
 export const routes = createRoutesFromElements(
   <Route element={<RootLayout />}>
     <Route path="*" element={<NotFound />} />
-    <Route path="spoof_login" element={<SpoofLoginPage />} />
-    <Route path="login/:silo/local" element={<LoginPage />} />
+    <Route element={<LoginLayout />}>
+      <Route path="spoof_login" element={<SpoofLoginPage />} />
+      <Route path="login/:silo/local" element={<LoginPage />} />
+    </Route>
 
     <Route path="device" element={<AuthLayout />}>
       <Route path="verify" element={<DeviceAuthVerifyPage />} />

@@ -6,10 +6,8 @@ import type { UsernamePasswordCredentials } from '@oxide/api'
 import { useApiMutation } from '@oxide/api'
 import { Button, Identicon } from '@oxide/ui'
 
-import heroRackImg from 'app/assets/oxide-hero-rack.webp'
 import { TextFieldInner } from 'app/components/form'
 import 'app/components/login-page.css'
-import { Logo } from 'app/layouts/AuthLayout'
 import { pb } from 'app/util/path-builder'
 
 import { useSiloSelector, useToast } from '../hooks'
@@ -50,61 +48,48 @@ export function LoginPage() {
   }, [loginPost.isSuccess, navigate, searchParams, addToast])
 
   return (
-    <main className="layout relative flex h-screen">
-      <div className="hero-bg relative flex w-1/2 justify-end text-accent sm-:hidden">
-        <div className="hero-rack-wrapper">
-          <img src={heroRackImg} alt="A populated Oxide rack" className="hero-rack" />
-        </div>
+    <>
+      <div className="mb-3 flex items-end space-x-3">
+        <Identicon
+          className="flex h-[34px] w-[34px] items-center justify-center rounded text-accent bg-accent-secondary-hover"
+          name={silo}
+        />
+        <div className="text-sans-2xl text-default">{silo}</div>
       </div>
-      <div className="z-10 flex h-full w-1/2 justify-start sm-:w-full sm-:justify-center">
-        <div className="flex h-full w-full max-w-[480px] items-center justify-center sm+:pr-10">
-          <div className="flex w-[320px] flex-col items-center">
-            <div className="mb-3 flex items-end space-x-3">
-              <Identicon
-                className="flex h-[34px] w-[34px] items-center justify-center rounded text-accent bg-accent-secondary-hover"
-                name={silo}
-              />
-              <div className="text-sans-2xl text-default">{silo}</div>
-            </div>
-            <hr className="my-6 w-full border-0 border-b border-b-secondary" />
 
-            <form
-              className="w-full space-y-4"
-              onSubmit={form.handleSubmit((body) => {
-                loginPost.mutate({ body, path: { siloName: silo } })
-              })}
-            >
-              <div>
-                <TextFieldInner
-                  name="username"
-                  placeholder="Username"
-                  autoComplete="username"
-                  required
-                  control={form.control}
-                />
-              </div>
-              <div>
-                <TextFieldInner
-                  name="password"
-                  type="password"
-                  placeholder="Password"
-                  required
-                  control={form.control}
-                />
-              </div>
-              <Button type="submit" className="w-full" disabled={loginPost.isLoading}>
-                Sign in
-              </Button>
-              {loginPost.isError && (
-                <div className="text-center text-error">
-                  Could not sign in. Please try again.
-                </div>
-              )}
-            </form>
-          </div>
+      <hr className="my-6 w-full border-0 border-b border-b-secondary" />
+
+      <form
+        className="w-full space-y-4"
+        onSubmit={form.handleSubmit((body) => {
+          loginPost.mutate({ body, path: { siloName: silo } })
+        })}
+      >
+        <div>
+          <TextFieldInner
+            name="username"
+            placeholder="Username"
+            autoComplete="username"
+            required
+            control={form.control}
+          />
         </div>
-      </div>
-      <Logo className="absolute bottom-8 left-1/2 hidden -translate-x-1/2 sm-:block" />
-    </main>
+        <div>
+          <TextFieldInner
+            name="password"
+            type="password"
+            placeholder="Password"
+            required
+            control={form.control}
+          />
+        </div>
+        <Button type="submit" className="w-full" disabled={loginPost.isLoading}>
+          Sign in
+        </Button>
+        {loginPost.isError && (
+          <div className="text-center text-error">Could not sign in. Please try again.</div>
+        )}
+      </form>
+    </>
   )
 }
