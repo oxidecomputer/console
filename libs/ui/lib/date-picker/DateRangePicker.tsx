@@ -6,9 +6,9 @@ import { useDateRangePickerState } from 'react-stately'
 import type { DateRangePickerStateOptions } from 'react-stately'
 
 import { Calendar16Icon, Error12Icon } from '../icons'
+import { Popover } from '../util/Popover'
 import { DateField, TimeField } from './DateField'
 import { Dialog } from './Dialog'
-import { Popover } from './Popover'
 import { RangeCalendar } from './RangeCalendar'
 
 interface DateRangePickerProps extends DateRangePickerStateOptions {

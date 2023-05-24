@@ -1,5 +1,5 @@
 .ox-menu {
-  @apply absolute left-0 right-0 z-10 mt-3 max-h-[17.5rem] overflow-y-auto rounded border bg-raise border-secondary elevation-2;
+  @apply z-10 max-h-[17.5rem] overflow-y-auto rounded border bg-raise border-secondary elevation-2;
 }
 
 .ox-menu-item {
