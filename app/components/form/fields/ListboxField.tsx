@@ -1,9 +1,10 @@
 import cn from 'classnames'
 import type { Control, FieldPath, FieldValues } from 'react-hook-form'
 import { Controller } from 'react-hook-form'
+import { Item } from 'react-stately'
 
 import type { ListboxItem } from '@oxide/ui'
-import { FieldLabel, Listbox, TextInputHint } from '@oxide/ui'
+import { ComboBox, FieldLabel, TextInputHint } from '@oxide/ui'
 import { capitalize } from '@oxide/util'
 
 import { useUuid } from 'app/hooks'
@@ -46,6 +47,7 @@ export function ListboxField<
   // TODO: recreate this logic
   //   validate: (v) => (required && !v ? `${name} is required` : undefined),
   const id = useUuid(name)
+
   return (
     <div className={cn('max-w-lg', className)}>
       <div className="mb-2">
@@ -60,15 +62,13 @@ export function ListboxField<
         control={control}
         render={({ field, fieldState: { error } }) => (
           <>
-            <Listbox
+            <ComboBox
+              label={label}
               placeholder={placeholder}
-              defaultValue={field.value}
-              items={items}
-              onChange={(i) => {
-                if (i) {
-                  field.onChange(i.value)
-                  onChange?.(i.value)
-                }
+              defaultItems={items}
+              onSelectionChange={(i) => {
+                field.onChange(i)
+                onChange?.(i.toString())
               }}
               // required to get required error to trigger on blur
               onBlur={field.onBlur}
@@ -79,7 +79,13 @@ export function ListboxField<
               aria-describedby={description ? `${id}-label-tip` : undefined}
               name={name}
               hasError={error !== undefined}
-            />
+            >
+              {(item) => (
+                <Item key={item.value} textValue={item.labelString}>
+                  {item.label}
+                </Item>
+              )}
+            </ComboBox>
             <ErrorMessage error={error} label={label} />
           </>
         )}

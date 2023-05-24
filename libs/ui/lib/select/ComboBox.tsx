@@ -1,6 +1,6 @@
 import cn from 'classnames'
 import { useRef } from 'react'
-import type { AriaSelectProps } from 'react-aria'
+import type { AriaComboBoxProps } from 'react-aria'
 import { useButton, useComboBox, useFilter } from 'react-aria'
 import { useComboBoxState } from 'react-stately'
 
@@ -9,7 +9,7 @@ import { SelectArrows6Icon } from '@oxide/ui'
 import { Popover } from '../util/Popover'
 import { ListBox } from './ListBox'
 
-export interface ComboBoxProps<T extends object> extends AriaSelectProps<T> {
+export interface ComboBoxProps<T extends object> extends AriaComboBoxProps<T> {
   label: string
   name: string
   placeholder?: string

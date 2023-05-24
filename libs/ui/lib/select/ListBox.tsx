@@ -19,7 +19,7 @@ export function ListBox(props: ListBoxProps) {
     <ul
       {...listBoxProps}
       ref={listBoxRef}
-      className="ox-menu overflow-y-auto !outline-none"
+      className="ox-menu pointer-events-auto overflow-y-auto !outline-none"
     >
       {[...state.collection].map((item) => (
         <Option key={item.key} item={item} state={state} />
