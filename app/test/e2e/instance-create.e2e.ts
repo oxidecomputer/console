@@ -70,8 +70,8 @@ test('can create an instance with custom hardware', async ({ page }) => {
 
   await page.locator('.ox-tabs-list button[role=tab]:has-text("Custom")').click()
 
-  await page.fill('input[name=ncpus]', '64')
-  await page.fill('input[name=memory]', '128')
+  await page.fill('input[name=ncpus]', '32')
+  await page.fill('input[name=memory]', '64')
 
   await page.fill('input[name=bootDiskName]', 'my-boot-disk')
   await page.fill('input[name=bootDiskSize]', '20')
@@ -87,8 +87,8 @@ test('can create an instance with custom hardware', async ({ page }) => {
 
   await expectVisible(page, [
     `h1:has-text("${instanceName}")`,
-    'text=64 vCPUs',
-    'text=128 GiB',
+    'text=32 vCPUs',
+    'text=64 GiB',
     'text=from space',
   ])
 })
