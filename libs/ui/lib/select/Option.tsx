@@ -1,5 +1,5 @@
 import type { Node } from '@react-types/shared'
-import cn from 'classNames'
+import cn from 'classnames'
 import { useRef } from 'react'
 import { useOption } from 'react-aria'
 import type { ListState } from 'react-stately'
