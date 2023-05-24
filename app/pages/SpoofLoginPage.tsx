@@ -23,7 +23,7 @@ import { useToast } from '../hooks'
  *
  * Login and logout endpoints are only a temporary addition to the OpenAPI spec.
  */
-export default function LoginPage() {
+export function SpoofLoginPage() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const addToast = useToast()
