@@ -256,6 +256,7 @@ export function CreateInstanceForm() {
                 label="CPUs"
                 name="ncpus"
                 min={1}
+                max={32}
                 control={control}
               />
               <TextField
@@ -265,6 +266,7 @@ export function CreateInstanceForm() {
                 label="Memory"
                 name="memory"
                 min={1}
+                max={128}
                 control={control}
               />
             </Tabs.Content>
