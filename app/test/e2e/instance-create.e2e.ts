@@ -40,8 +40,8 @@ test('can create an instance', async ({ page }) => {
 
   await expectVisible(page, [
     `h1:has-text("${instanceName}")`,
-    'text=8 vCPUs',
-    'text=32 GiB',
+    'text=16 vCPUs',
+    'text=64 GiB',
     'text=from space',
   ])
 
