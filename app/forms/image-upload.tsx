@@ -585,7 +585,7 @@ export function CreateImageSideModalForm() {
                       <Step
                         state={{
                           isLoading: deleteDisk.isLoading || deleteSnapshot.isLoading,
-                          isSuccess: deleteDisk.isSuccess || deleteSnapshot.isSuccess,
+                          isSuccess: deleteDisk.isSuccess && deleteSnapshot.isSuccess,
                           isError: deleteDisk.isError || deleteSnapshot.isError,
                         }}
                         label="Delete disk and snapshot"
