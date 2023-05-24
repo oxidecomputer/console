@@ -421,7 +421,7 @@ const renderLargeRadioCards = (category: string) => {
       <div>
         {option.ncpus}{' '}
         <RadioCard.Unit aria-label={`c-p-u${option.ncpus === 1 ? '' : 'se'}`}>
-          CPU{option.ncpus === 1 ? '' : 's'}
+          vCPU{option.ncpus === 1 ? '' : 's'}
         </RadioCard.Unit>
       </div>
       <div>
