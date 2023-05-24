@@ -138,12 +138,8 @@ export function CreateInstanceForm() {
 
         if (values['type'] === 'custom') {
           instance = {
-            memory:
-              typeof values.memory === 'string'
-                ? parseInt(values.memory, 10)
-                : values.memory,
-            ncpus:
-              typeof values.ncpus === 'string' ? parseInt(values.ncpus, 10) : values.ncpus,
+            memory: values.memory,
+            ncpus: values.ncpus,
           }
         } else if (preset) {
           instance = {
