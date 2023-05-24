@@ -64,7 +64,7 @@ const baseDefaultValues: InstanceCreateInput = {
    * submitted to the API.
    */
   type: 'general-xs',
-  memory: 0,
+  memory: 4,
   ncpus: 1,
   hostname: '',
 
@@ -133,7 +133,25 @@ export function CreateInstanceForm() {
       title="Create instance"
       icon={<Instances24Icon />}
       onSubmit={(values) => {
-        const instance = INSTANCE_SIZES.find((option) => option.id === values['type'])
+        let instance = { memory: 0, ncpus: 0 }
+        const preset = INSTANCE_SIZES.find((option) => option.id === values['type'])
+
+        if (values['type'] === 'custom') {
+          instance = {
+            memory:
+              typeof values.memory === 'string'
+                ? parseInt(values.memory, 10)
+                : values.memory,
+            ncpus:
+              typeof values.ncpus === 'string' ? parseInt(values.ncpus, 10) : values.ncpus,
+          }
+        } else if (preset) {
+          instance = {
+            memory: preset.memory,
+            ncpus: preset.ncpus,
+          }
+        }
+
         invariant(instance, 'Expected instance type to be defined')
 
         const image = images.find((i) => values.image === i.id)
@@ -174,7 +192,7 @@ export function CreateInstanceForm() {
       loading={createInstance.isLoading}
       submitError={createInstance.error}
     >
-      {({ control }) => (
+      {({ control, setValue }) => (
         <>
           <NameField name="name" control={control} />
           <DescriptionField name="description" control={control} />
@@ -185,56 +203,70 @@ export function CreateInstanceForm() {
           <Divider />
 
           <Form.Heading id="hardware">Hardware</Form.Heading>
+
+          <TextInputHint id="hw-gp-help-text" className="mb-12 max-w-xl text-sans-md">
+            Pick a pre-configured machine type that offers balanced vCPU and memory for most
+            workloads or create a custom machine.
+          </TextInputHint>
+
           <Tabs.Root
             id="choose-cpu-ram"
             className="full-width"
-            defaultValue="general-purpose"
+            defaultValue="general"
+            onValueChange={(val) => {
+              // Having an option selected from a non-current tab
+              // is confusing, especially in combination with the custom inputs
+              // This auto selected the first option from the current selected category
+              const firstOption = INSTANCE_SIZES.filter(
+                (preset) => preset.category === val
+              )[0]
+              if (firstOption) {
+                setValue('type', firstOption.id)
+              }
+            }}
           >
             <Tabs.List aria-labelledby="hardware">
-              <Tabs.Trigger value="general-purpose">General Purpose</Tabs.Trigger>
-              <Tabs.Trigger value="cpu-optimized">CPU Optimized</Tabs.Trigger>
-              <Tabs.Trigger value="memory-optimized">Memory optimized</Tabs.Trigger>
+              <Tabs.Trigger value="general">General Purpose</Tabs.Trigger>
+              <Tabs.Trigger value="highCPU">High CPU</Tabs.Trigger>
+              <Tabs.Trigger value="highMemory">High Memory</Tabs.Trigger>
               <Tabs.Trigger value="custom">Custom</Tabs.Trigger>
             </Tabs.List>
-            <Tabs.Content value="general-purpose">
-              <TextInputHint id="hw-gp-help-text" className="mb-12 max-w-xl text-sans-md">
-                General purpose instances provide a good balance of CPU, memory, and high
-                performance storage; well suited for a wide range of use cases.
-              </TextInputHint>
+            <Tabs.Content value="general">
               <RadioFieldDyn name="type" label="" control={control}>
                 {renderLargeRadioCards('general')}
               </RadioFieldDyn>
             </Tabs.Content>
 
-            <Tabs.Content value="cpu-optimized">
-              <TextInputHint id="hw-cpu-help-text" className="mb-12 max-w-xl  text-sans-md">
-                CPU optimized instances provide a good balance of...
-              </TextInputHint>
+            <Tabs.Content value="highCPU">
               <RadioFieldDyn name="type" label="" control={control}>
-                {renderLargeRadioCards('cpuOptimized')}
+                {renderLargeRadioCards('highCPU')}
               </RadioFieldDyn>
             </Tabs.Content>
 
-            <Tabs.Content value="memory-optimized">
-              <TextInputHint id="hw-mem-help-text" className="mb-12 max-w-xl  text-sans-md">
-                CPU optimized instances provide a good balance of...
-              </TextInputHint>
+            <Tabs.Content value="highMemory">
               <RadioFieldDyn name="type" label="" control={control}>
-                {renderLargeRadioCards('memoryOptimized')}
+                {renderLargeRadioCards('highMemory')}
               </RadioFieldDyn>
             </Tabs.Content>
 
             <Tabs.Content value="custom">
-              <TextInputHint
-                // TODO: is this getting hooked up to the field with describedby?
-                id="hw-custom-help-text"
-                className="mb-12 max-w-xl  text-sans-md"
-              >
-                Custom instances...
-              </TextInputHint>
-              <RadioFieldDyn name="type" label="" control={control}>
-                {renderLargeRadioCards('custom')}
-              </RadioFieldDyn>
+              <TextField
+                type="number"
+                required
+                label="CPUs"
+                name="ncpus"
+                min={1}
+                control={control}
+              />
+              <TextField
+                units="GB"
+                type="number"
+                required
+                label="Memory"
+                name="memory"
+                min={1}
+                control={control}
+              />
             </Tabs.Content>
           </Tabs.Root>
 
@@ -406,85 +438,97 @@ const INSTANCE_SIZES = [
   {
     category: 'general',
     id: 'general-xs',
-    memory: 2,
+    memory: 4,
     ncpus: 1,
   },
   {
     category: 'general',
     id: 'general-sm',
-    memory: 4,
+    memory: 8,
     ncpus: 2,
   },
   {
     category: 'general',
-    id: 'general-med',
+    id: 'general-md',
     memory: 16,
     ncpus: 4,
   },
   {
     category: 'general',
     id: 'general-lg',
-    memory: 24,
-    ncpus: 6,
-  },
-  {
-    category: 'general',
-    id: 'general-xl',
     memory: 32,
     ncpus: 8,
   },
   {
-    category: 'cpuOptimized',
-    id: 'cpuOptimized-xs',
-    memory: 3,
-    ncpus: 1,
+    category: 'general',
+    id: 'general-xl',
+    memory: 64,
+    ncpus: 16,
   },
   {
-    category: 'cpuOptimized',
-    id: 'cpuOptimized-sm',
-    memory: 5,
-    ncpus: 3,
+    category: 'general',
+    id: 'general-2xl',
+    memory: 128,
+    ncpus: 32,
   },
   {
-    category: 'cpuOptimized',
-    id: 'cpuOptimized-med',
-    memory: 7,
-    ncpus: 5,
-  },
-  {
-    category: 'memoryOptimized',
-    id: 'memoryOptimized-xs',
-    memory: 3,
-    ncpus: 2,
-  },
-  {
-    category: 'memoryOptimized',
-    id: 'memoryOptimized-sm',
-    memory: 5,
-    ncpus: 3,
-  },
-  {
-    category: 'memoryOptimized',
-    id: 'memoryOptimized-med',
-    memory: 17,
-    ncpus: 5,
-  },
-  {
-    category: 'custom',
-    id: 'custom-xs',
+    category: 'highCPU',
+    id: 'highCPU-xs',
     memory: 2,
-    ncpus: 1,
-  },
-  {
-    category: 'custom',
-    id: 'custom-sm',
-    memory: 4,
     ncpus: 2,
   },
   {
-    category: 'custom',
-    id: 'custom-med',
-    memory: 16,
+    category: 'highCPU',
+    id: 'highCPU-sm',
+    memory: 4,
     ncpus: 4,
+  },
+  {
+    category: 'highCPU',
+    id: 'highCPU-md',
+    memory: 8,
+    ncpus: 8,
+  },
+  {
+    category: 'highCPU',
+    id: 'highCPU-lg',
+    memory: 16,
+    ncpus: 16,
+  },
+  {
+    category: 'highCPU',
+    id: 'highCPU-xl',
+    memory: 32,
+    ncpus: 32,
+  },
+  {
+    category: 'highMemory',
+    id: 'highMemory-xs',
+    memory: 16,
+    ncpus: 2,
+  },
+  {
+    category: 'highMemory',
+    id: 'highMemory-sm',
+    memory: 32,
+    ncpus: 4,
+  },
+  {
+    category: 'highMemory',
+    id: 'highMemory-md',
+    memory: 64,
+    ncpus: 8,
+  },
+  {
+    category: 'highMemory',
+    id: 'highMemory-lg',
+    memory: 128,
+    ncpus: 16,
+  },
+  {
+    category: 'custom',
+    id: 'custom',
+    memory: 0,
+    ncpus: 0,
   },
 ] as const
