@@ -439,31 +439,31 @@ const renderLargeRadioCards = (category: string) => {
 const INSTANCE_SIZES = [
   {
     category: 'general',
-    id: 'general-sm',
+    id: 'general-xs',
     memory: 8,
     ncpus: 2,
   },
   {
     category: 'general',
-    id: 'general-md',
+    id: 'general-sm',
     memory: 16,
     ncpus: 4,
   },
   {
     category: 'general',
-    id: 'general-lg',
+    id: 'general-md',
     memory: 32,
     ncpus: 8,
   },
   {
     category: 'general',
-    id: 'general-xl',
+    id: 'general-lg',
     memory: 64,
     ncpus: 16,
   },
   {
     category: 'general',
-    id: 'general-2xl',
+    id: 'general-xl',
     memory: 128,
     ncpus: 32,
   },
