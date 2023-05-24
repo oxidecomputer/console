@@ -40,8 +40,8 @@ test('can create an instance', async ({ page }) => {
 
   await expectVisible(page, [
     `h1:has-text("${instanceName}")`,
-    'text=6 vCPUs',
-    'text=24 GiB',
+    'text=8 vCPUs',
+    'text=32 GiB',
     'text=from space',
   ])
 
@@ -52,6 +52,45 @@ test('can create an instance', async ({ page }) => {
   await page.fill('input[name=name]', instanceName)
   await page.locator('button:has-text("Create instance")').click()
   await page.getByText('Instance name already exists')
+})
+
+test('can create an instance with custom hardware', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances')
+  await page.locator('text="New Instance"').click()
+
+  const instanceName = 'my-custom-instance'
+  await page.fill('input[name=name]', instanceName)
+  await page.fill('input[name=description]', 'An instance... from space!')
+
+  // Click the other tabs to make sure the custom input works
+  // even when something has been previously selected
+  await page.locator('.ox-tabs-list button[role=tab]:has-text("High CPU")').click()
+  await page.locator('.ox-tabs-list button[role=tab]:has-text("High Memory")').click()
+  await page.locator('.ox-radio-card').nth(2).click()
+
+  await page.locator('.ox-tabs-list button[role=tab]:has-text("Custom")').click()
+
+  await page.fill('input[name=ncpus]', '64')
+  await page.fill('input[name=memory]', '128')
+
+  await page.fill('input[name=bootDiskName]', 'my-boot-disk')
+  await page.fill('input[name=bootDiskSize]', '20')
+
+  // pick a project image just to show we can
+  await page.getByRole('tab', { name: 'Project images' }).click()
+  await page.getByRole('button', { name: 'Image' }).click()
+  await page.getByRole('option', { name: images[2].name }).click()
+
+  await page.getByRole('button', { name: 'Create instance' }).click()
+
+  await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)
+
+  await expectVisible(page, [
+    `h1:has-text("${instanceName}")`,
+    'text=64 vCPUs',
+    'text=128 GiB',
+    'text=from space',
+  ])
 })
 
 test('with disk name already taken', async ({ page }) => {
