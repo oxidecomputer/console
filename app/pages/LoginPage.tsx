@@ -1,14 +1,23 @@
+import { useEffect } from 'react'
+import { useForm } from 'react-hook-form'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
+import type { UsernamePasswordCredentials } from '@oxide/api'
 import { useApiMutation } from '@oxide/api'
 import { Button, Identicon } from '@oxide/ui'
 
 import heroRackImg from 'app/assets/oxide-hero-rack.webp'
+import { TextFieldInner } from 'app/components/form'
 import 'app/components/login-page.css'
 import { Logo } from 'app/layouts/AuthLayout'
 import { pb } from 'app/util/path-builder'
 
-import { useToast } from '../hooks'
+import { useSiloSelector, useToast } from '../hooks'
+
+const defaultValues: UsernamePasswordCredentials = {
+  username: '',
+  password: '',
+}
 
 /**
  * Placeholder login page for demo purposes.
@@ -23,32 +32,22 @@ import { useToast } from '../hooks'
  *
  * Login and logout endpoints are only a temporary addition to the OpenAPI spec.
  */
-export function SpoofLoginPage() {
+export function LoginPage() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const addToast = useToast()
-  const loginPost = useApiMutation('loginSpoof', {
-    onSuccess: () => {
-      addToast({
-        title: 'Logged in',
-      })
-      navigate(searchParams.get('state') || pb.projects())
-    },
-    onError: () => {
-      addToast({
-        title: 'Bad credentials',
-        variant: 'error',
-      })
-    },
-  })
+  const { silo } = useSiloSelector()
 
-  const logout = useApiMutation('logout', {
-    onSuccess: () => {
-      addToast({
-        title: 'Logged out',
-      })
-    },
-  })
+  const form = useForm({ defaultValues })
+
+  const loginPost = useApiMutation('loginLocal')
+
+  useEffect(() => {
+    if (loginPost.isSuccess) {
+      addToast({ title: 'Logged in' })
+      navigate(searchParams.get('state') || pb.projects())
+    }
+  }, [loginPost.isSuccess, navigate, searchParams, addToast])
 
   return (
     <main className="layout relative flex h-screen">
@@ -63,41 +62,45 @@ export function SpoofLoginPage() {
             <div className="mb-3 flex items-end space-x-3">
               <Identicon
                 className="flex h-[34px] w-[34px] items-center justify-center rounded text-accent bg-accent-secondary-hover"
-                name="maze-war"
+                name={silo}
               />
-              <div className="text-sans-2xl text-default">maze-war</div>
+              <div className="text-sans-2xl text-default">{silo}</div>
             </div>
-            <div className="text-sans-lg text-secondary">maze-war.bitmapbros.com</div>
             <hr className="my-6 w-full border-0 border-b border-b-secondary" />
 
-            <div className="w-full space-y-3">
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={loginPost.isLoading}
-                onClick={() => loginPost.mutate({ body: { username: 'privileged' } })}
-              >
-                Privileged
+            <form
+              className="w-full space-y-4"
+              onSubmit={form.handleSubmit((body) => {
+                loginPost.mutate({ body, path: { siloName: silo } })
+              })}
+            >
+              <div>
+                <TextFieldInner
+                  name="username"
+                  placeholder="Username"
+                  autoComplete="username"
+                  required
+                  control={form.control}
+                />
+              </div>
+              <div>
+                <TextFieldInner
+                  name="password"
+                  type="password"
+                  placeholder="Password"
+                  required
+                  control={form.control}
+                />
+              </div>
+              <Button type="submit" className="w-full" disabled={loginPost.isLoading}>
+                Sign in
               </Button>
-              <Button
-                variant="secondary"
-                type="submit"
-                className="w-full"
-                disabled={loginPost.isLoading}
-                onClick={() => loginPost.mutate({ body: { username: 'unprivileged' } })}
-              >
-                Unprivileged
-              </Button>
-              <Button
-                variant="secondary"
-                type="submit"
-                className="w-full"
-                disabled={loginPost.isLoading}
-                onClick={() => logout.mutate({})}
-              >
-                Sign out
-              </Button>
-            </div>
+              {loginPost.isError && (
+                <div className="text-center text-error">
+                  Could not sign in. Please try again.
+                </div>
+              )}
+            </form>
           </div>
         </div>
       </div>
