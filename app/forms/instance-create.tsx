@@ -64,8 +64,8 @@ const baseDefaultValues: InstanceCreateInput = {
    * submitted to the API.
    */
   type: 'general-xs',
-  memory: 4,
-  ncpus: 1,
+  memory: 8,
+  ncpus: 2,
   hostname: '',
 
   bootDiskName: '',
@@ -439,12 +439,6 @@ const renderLargeRadioCards = (category: string) => {
 const INSTANCE_SIZES = [
   {
     category: 'general',
-    id: 'general-xs',
-    memory: 4,
-    ncpus: 1,
-  },
-  {
-    category: 'general',
     id: 'general-sm',
     memory: 8,
     ncpus: 2,
@@ -476,31 +470,31 @@ const INSTANCE_SIZES = [
   {
     category: 'highCPU',
     id: 'highCPU-xs',
-    memory: 2,
+    memory: 4,
     ncpus: 2,
   },
   {
     category: 'highCPU',
     id: 'highCPU-sm',
-    memory: 4,
+    memory: 8,
     ncpus: 4,
   },
   {
     category: 'highCPU',
     id: 'highCPU-md',
-    memory: 8,
+    memory: 16,
     ncpus: 8,
   },
   {
     category: 'highCPU',
     id: 'highCPU-lg',
-    memory: 16,
+    memory: 32,
     ncpus: 16,
   },
   {
     category: 'highCPU',
     id: 'highCPU-xl',
-    memory: 32,
+    memory: 64,
     ncpus: 32,
   },
   {
