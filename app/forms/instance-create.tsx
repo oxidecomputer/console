@@ -527,4 +527,4 @@ const INSTANCE_SIZES = [
     memory: 0,
     ncpus: 0,
   },
-] as const
+]
