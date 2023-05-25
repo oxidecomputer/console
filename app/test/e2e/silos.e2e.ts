@@ -48,12 +48,13 @@ test('Identity providers', async ({ page }) => {
   await page.getByRole('link', { name: 'mock-idp' }).click()
 
   await expectVisible(page, [
-    'role=dialog[name="Edit identity provider"]',
+    'role=dialog[name="Identity provider"]',
+    'role=heading[name="mock-idp"]',
     // random stuff that's not in the table
     'text="Entity ID"',
     'text="Single Logout (SLO) URL"',
   ])
 
   await page.getByRole('button', { name: 'Cancel' }).click()
-  await expectNotVisible(page, ['role=dialog[name="Edit identity provider"]'])
+  await expectNotVisible(page, ['role=dialog[name="Identity provider"]'])
 })

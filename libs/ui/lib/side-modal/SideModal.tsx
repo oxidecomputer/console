@@ -113,12 +113,14 @@ SideModal.Title = ({
   id?: string
   resource?: SideModalResource
 }) => (
-  <div className="mt-8 mb-4" id={id}>
-    <h2 className="text-sans-2xl">{title}</h2>
+  <div className="mt-8 mb-4">
+    <h2 className="text-sans-2xl" id={id}>
+      {title}
+    </h2>
     {resource && (
-      <div className="mt-2 flex items-center gap-1.5 text-sans-md text-accent">
+      <h3 className="mt-2 flex items-center gap-1.5 text-sans-md text-accent">
         {resource.icon} {resource.name}
-      </div>
+      </h3>
     )}
   </div>
 )
