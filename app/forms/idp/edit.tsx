@@ -56,13 +56,7 @@ export function EditIdpSideModalForm() {
           </PropertiesTable>
 
           <NameField name="name" control={control} disabled />
-          <DescriptionField
-            name="description"
-            control={control}
-            required
-            disabled
-            as="textarea"
-          />
+          <DescriptionField name="description" control={control} required disabled />
           <TextField
             name="acsUrl"
             label="ACS URL"
