@@ -46,6 +46,7 @@ export function Modal({ children, onDismiss, title, isOpen }: ModalProps) {
               onOpenChange={(open) => {
                 if (!open) onDismiss()
               }}
+              modal={false}
             >
               <Dialog.Portal>
                 <Dialog.Overlay className="DialogOverlay !z-30" />

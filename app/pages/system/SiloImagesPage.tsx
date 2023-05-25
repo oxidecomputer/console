@@ -144,22 +144,27 @@ const ImageListboxField = ({
       control={control}
       name="image"
       placeholder="Select an image"
-      items={images.map((i) => {
-        return {
-          value: i.name,
-          labelString: `${i.name} (${i.os}, ${i.version})`,
-          label: (
-            <>
-              <div>{i.name}</div>
-              <div className="text-secondary">
-                {i.os} <span className="text-quinary">/</span> {i.version}
-              </div>
-            </>
-          ),
-        }
-      })}
+      items={
+        project
+          ? images.map((i) => {
+              return {
+                value: i.name,
+                labelString: `${i.name} (${i.os}, ${i.version})`,
+                label: (
+                  <>
+                    <div>{i.name}</div>
+                    <div className="text-secondary">
+                      {i.os} <span className="text-quinary">/</span> {i.version}
+                    </div>
+                  </>
+                ),
+              }
+            })
+          : []
+      }
       required
       disabled={!project}
+      key={project}
     />
   )
 }

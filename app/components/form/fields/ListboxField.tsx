@@ -72,7 +72,7 @@ export function ListboxField<
               }}
               // required to get required error to trigger on blur
               onBlur={field.onBlur}
-              disabled={disabled}
+              isDisabled={disabled}
               aria-labelledby={cn(`${id}-label`, {
                 [`${id}-help-text`]: !!description,
               })}

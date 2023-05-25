@@ -18,7 +18,7 @@ export interface ComboBoxProps<T extends object> extends AriaComboBoxProps<T> {
 }
 
 export function ComboBox<T extends object>({
-  disabled,
+  isDisabled,
   hasError,
   ...props
 }: ComboBoxProps<T>) {
@@ -45,7 +45,10 @@ export function ComboBox<T extends object>({
     state
   )
 
-  const { buttonProps } = useButton(triggerProps, buttonRef)
+  const noItems = props.defaultItems && Object.values(props.defaultItems).length === 0
+  const disabled = isDisabled || noItems
+
+  const { buttonProps } = useButton({ ...triggerProps, isDisabled: disabled }, buttonRef)
 
   return (
     <div className="relative w-full">
@@ -54,18 +57,30 @@ export function ComboBox<T extends object>({
         ref={buttonRef}
         className={cn(
           `relative flex h-10 w-full items-center
-          justify-between rounded border hover:bg-secondary`,
+          justify-between rounded border`,
           hasError ? 'focus-error border-destructive' : 'border-default',
           (state.isOpen || state.isFocused) && 'ring-2 ring-accent-secondary',
-          state.isOpen && hasError && 'ring-error-secondary',
-          disabled ? 'cursor-not-allowed text-disabled bg-disabled' : 'bg-default'
+          hasError && 'ring-error-secondary',
+          isDisabled || noItems
+            ? 'cursor-not-allowed text-disabled bg-disabled'
+            : 'bg-default'
         )}
       >
-        <input
-          {...inputProps}
-          ref={inputRef}
-          className="h-full w-full !bg-transparent px-3 !outline-none text-sans-md placeholder:text-quaternary"
-        />
+        <div className="w-full px-3 text-left text-sans-md">
+          {noItems ? (
+            <div className="text-quaternary">No items</div>
+          ) : (
+            <input
+              {...inputProps}
+              ref={inputRef}
+              className={cn(
+                'h-full w-full !bg-transparent !outline-none text-sans-md placeholder:text-quaternary',
+                isDisabled && 'pointer-events-none'
+              )}
+              disabled={isDisabled}
+            />
+          )}
+        </div>
         <div className="ml-3 flex h-[calc(100%-12px)] items-center border-l px-3 border-secondary">
           <SelectArrows6Icon title="Select" className="w-2 text-tertiary" />
         </div>
