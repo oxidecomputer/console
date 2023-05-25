@@ -32,10 +32,10 @@ type SideModalFormProps<TFieldValues extends FieldValues> = {
   /** Must be provided with a reason describing why it's disabled */
   submitDisabled?: string
   /** Error from the API call */
-  submitError: ErrorResult | null
+  submitError?: ErrorResult | null
   loading?: boolean
   title: string
-  onSubmit: (values: TFieldValues) => void
+  onSubmit?: (values: TFieldValues) => void
   submitLabel?: string
 }
 
@@ -95,16 +95,18 @@ export function SideModalForm<TFieldValues extends FieldValues>({
           <Button variant="ghost" size="sm" onClick={onDismiss}>
             Cancel
           </Button>
-          <Button
-            type="submit"
-            size="sm"
-            disabled={!!submitDisabled}
-            disabledReason={submitDisabled}
-            loading={loading || isSubmitting}
-            form={id}
-          >
-            {submitLabel || title}
-          </Button>
+          {onSubmit && (
+            <Button
+              type="submit"
+              size="sm"
+              disabled={!!submitDisabled}
+              disabledReason={submitDisabled}
+              loading={loading || isSubmitting}
+              form={id}
+            >
+              {submitLabel || title}
+            </Button>
+          )}
         </div>
       </SideModal.Footer>
     </SideModal>
