@@ -2,11 +2,6 @@ import { test } from '@playwright/test'
 
 import { expect, expectNotVisible, expectVisible } from './utils'
 
-test.fixme('Expect no firewall rules by default', async ({ page }) => {
-  await page.goto('/projects/mock-project/vpcs/mock-vpc?tab=firewall-rules')
-  await expectVisible(page, ['text="No firewall rules"'])
-})
-
 const defaultRules = ['allow-internal-inbound', 'allow-ssh', 'allow-icmp', 'allow-rdp']
 
 test('can create firewall rule', async ({ page }) => {

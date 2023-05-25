@@ -54,6 +54,18 @@ test('can create an instance', async ({ page }) => {
   await page.getByText('Instance name already exists')
 })
 
+test('first preset is auto-selected in each tab', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances-new')
+
+  await expect(page.getByRole('radio', { name: '2 CPU 8 gibibytes RAM' })).toBeChecked()
+  await page.getByRole('tab', { name: 'High CPU' }).click()
+  await expect(page.getByRole('radio', { name: '2 CPU 4 gibibytes RAM' })).toBeChecked()
+  await page.getByRole('tab', { name: 'High Memory' }).click()
+  await expect(page.getByRole('radio', { name: '2 CPU 16 gibibytes RAM' })).toBeChecked()
+  await page.getByRole('tab', { name: 'General Purpose' }).click()
+  await expect(page.getByRole('radio', { name: '2 CPU 8 gibibytes RAM' })).toBeChecked()
+})
+
 test('can create an instance with custom hardware', async ({ page }) => {
   await page.goto('/projects/mock-project/instances-new')
 

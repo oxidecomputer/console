@@ -406,7 +406,7 @@ const renderLargeRadioCards = (category: string) => {
   return PRESETS.filter((option) => option.category === category).map((option) => (
     <RadioCard key={option.id} value={option.id}>
       <div>
-        {option.ncpus} <RadioCard.Unit aria-label="c-p-us">vCPUs</RadioCard.Unit>
+        {option.ncpus} <RadioCard.Unit aria-label="CPU">vCPUs</RadioCard.Unit>
       </div>
       <div>
         {option.memory} <RadioCard.Unit aria-label="gibibytes RAM">GiB RAM</RadioCard.Unit>
