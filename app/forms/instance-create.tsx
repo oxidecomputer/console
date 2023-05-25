@@ -48,7 +48,7 @@ export type InstanceCreateInput = Assign<
   // API accepts undefined but it's easier if we don't
   SetRequired<InstanceCreate, 'networkInterfaces'>,
   {
-    type: (typeof INSTANCE_SIZES)[number]['id']
+    presetId: (typeof PRESETS)[number]['id']
     disks: DiskTableItem[]
     bootDiskName: string
     bootDiskSize: number
@@ -63,7 +63,7 @@ const baseDefaultValues: InstanceCreateInput = {
    * This value controls the selector which drives memory and ncpus. It's not actually
    * submitted to the API.
    */
-  type: 'general-xs',
+  presetId: 'general-xs',
   memory: 8,
   ncpus: 2,
   hostname: '',
@@ -133,23 +133,14 @@ export function CreateInstanceForm() {
       title="Create instance"
       icon={<Instances24Icon />}
       onSubmit={(values) => {
-        let instance = { memory: 0, ncpus: 0 }
-        const preset = INSTANCE_SIZES.find((option) => option.id === values['type'])
+        // we should never have a presetId that's not in the list
+        const preset = PRESETS.find((option) => option.id === values.presetId)!
+        const instance =
+          values.presetId === 'custom'
+            ? { memory: values.memory, ncpus: values.ncpus }
+            : { memory: preset.memory, ncpus: preset.ncpus }
 
-        if (values['type'] === 'custom') {
-          instance = {
-            memory: values.memory,
-            ncpus: values.ncpus,
-          }
-        } else if (preset) {
-          instance = {
-            memory: preset.memory,
-            ncpus: preset.ncpus,
-          }
-        }
-
-        invariant(instance, 'Expected instance type to be defined')
-
+        // we should also never have an image ID that's not in the list
         const image = images.find((i) => values.image === i.id)
         invariant(image, 'Expected image to be defined')
 
@@ -210,14 +201,12 @@ export function CreateInstanceForm() {
             className="full-width"
             defaultValue="general"
             onValueChange={(val) => {
-              // Having an option selected from a non-current tab
-              // is confusing, especially in combination with the custom inputs
-              // This auto selected the first option from the current selected category
-              const firstOption = INSTANCE_SIZES.filter(
-                (preset) => preset.category === val
-              )[0]
+              // Having an option selected from a non-current tab is confusing,
+              // especially in combination with the custom inputs. So we auto
+              // select the first option from the current tab
+              const firstOption = PRESETS.find((preset) => preset.category === val)
               if (firstOption) {
-                setValue('type', firstOption.id)
+                setValue('presetId', firstOption.id)
               }
             }}
           >
@@ -228,19 +217,19 @@ export function CreateInstanceForm() {
               <Tabs.Trigger value="custom">Custom</Tabs.Trigger>
             </Tabs.List>
             <Tabs.Content value="general">
-              <RadioFieldDyn name="type" label="" control={control}>
+              <RadioFieldDyn name="presetId" label="" control={control}>
                 {renderLargeRadioCards('general')}
               </RadioFieldDyn>
             </Tabs.Content>
 
             <Tabs.Content value="highCPU">
-              <RadioFieldDyn name="type" label="" control={control}>
+              <RadioFieldDyn name="presetId" label="" control={control}>
                 {renderLargeRadioCards('highCPU')}
               </RadioFieldDyn>
             </Tabs.Content>
 
             <Tabs.Content value="highMemory">
-              <RadioFieldDyn name="type" label="" control={control}>
+              <RadioFieldDyn name="presetId" label="" control={control}>
                 {renderLargeRadioCards('highMemory')}
               </RadioFieldDyn>
             </Tabs.Content>
@@ -256,7 +245,7 @@ export function CreateInstanceForm() {
                 control={control}
               />
               <TextField
-                units="GB"
+                units="GiB"
                 type="number"
                 required
                 label="Memory"
@@ -414,113 +403,35 @@ const SshKeysTable = () => {
 }
 
 const renderLargeRadioCards = (category: string) => {
-  return INSTANCE_SIZES.filter((option) => option.category === category).map((option) => (
+  return PRESETS.filter((option) => option.category === category).map((option) => (
     <RadioCard key={option.id} value={option.id}>
       <div>
-        {option.ncpus}{' '}
-        <RadioCard.Unit aria-label={`c-p-u${option.ncpus === 1 ? '' : 'se'}`}>
-          vCPU{option.ncpus === 1 ? '' : 's'}
-        </RadioCard.Unit>
+        {option.ncpus} <RadioCard.Unit aria-label="c-p-us">vCPUs</RadioCard.Unit>
       </div>
       <div>
-        {option.memory} <RadioCard.Unit aria-label="gigabytes RAM">GB RAM</RadioCard.Unit>
+        {option.memory} <RadioCard.Unit aria-label="gibibytes RAM">GiB RAM</RadioCard.Unit>
       </div>
     </RadioCard>
   ))
 }
 
-// This data structure is completely made up for the purposes of demonstration
-// only. It is not meant to reflect any opinions on how the backend API endpoint
-// should be structured. Thank you for reading and have a good day!
-const INSTANCE_SIZES = [
-  {
-    category: 'general',
-    id: 'general-xs',
-    memory: 8,
-    ncpus: 2,
-  },
-  {
-    category: 'general',
-    id: 'general-sm',
-    memory: 16,
-    ncpus: 4,
-  },
-  {
-    category: 'general',
-    id: 'general-md',
-    memory: 32,
-    ncpus: 8,
-  },
-  {
-    category: 'general',
-    id: 'general-lg',
-    memory: 64,
-    ncpus: 16,
-  },
-  {
-    category: 'general',
-    id: 'general-xl',
-    memory: 128,
-    ncpus: 32,
-  },
-  {
-    category: 'highCPU',
-    id: 'highCPU-xs',
-    memory: 4,
-    ncpus: 2,
-  },
-  {
-    category: 'highCPU',
-    id: 'highCPU-sm',
-    memory: 8,
-    ncpus: 4,
-  },
-  {
-    category: 'highCPU',
-    id: 'highCPU-md',
-    memory: 16,
-    ncpus: 8,
-  },
-  {
-    category: 'highCPU',
-    id: 'highCPU-lg',
-    memory: 32,
-    ncpus: 16,
-  },
-  {
-    category: 'highCPU',
-    id: 'highCPU-xl',
-    memory: 64,
-    ncpus: 32,
-  },
-  {
-    category: 'highMemory',
-    id: 'highMemory-xs',
-    memory: 16,
-    ncpus: 2,
-  },
-  {
-    category: 'highMemory',
-    id: 'highMemory-sm',
-    memory: 32,
-    ncpus: 4,
-  },
-  {
-    category: 'highMemory',
-    id: 'highMemory-md',
-    memory: 64,
-    ncpus: 8,
-  },
-  {
-    category: 'highMemory',
-    id: 'highMemory-lg',
-    memory: 128,
-    ncpus: 16,
-  },
-  {
-    category: 'custom',
-    id: 'custom',
-    memory: 0,
-    ncpus: 0,
-  },
-]
+const PRESETS = [
+  { category: 'general', id: 'general-xs', memory: 8, ncpus: 2 },
+  { category: 'general', id: 'general-sm', memory: 16, ncpus: 4 },
+  { category: 'general', id: 'general-md', memory: 32, ncpus: 8 },
+  { category: 'general', id: 'general-lg', memory: 64, ncpus: 16 },
+  { category: 'general', id: 'general-xl', memory: 128, ncpus: 32 },
+
+  { category: 'highCPU', id: 'highCPU-xs', memory: 4, ncpus: 2 },
+  { category: 'highCPU', id: 'highCPU-sm', memory: 8, ncpus: 4 },
+  { category: 'highCPU', id: 'highCPU-md', memory: 16, ncpus: 8 },
+  { category: 'highCPU', id: 'highCPU-lg', memory: 32, ncpus: 16 },
+  { category: 'highCPU', id: 'highCPU-xl', memory: 64, ncpus: 32 },
+
+  { category: 'highMemory', id: 'highMemory-xs', memory: 16, ncpus: 2 },
+  { category: 'highMemory', id: 'highMemory-sm', memory: 32, ncpus: 4 },
+  { category: 'highMemory', id: 'highMemory-md', memory: 64, ncpus: 8 },
+  { category: 'highMemory', id: 'highMemory-lg', memory: 128, ncpus: 16 },
+
+  { category: 'custom', id: 'custom', memory: 0, ncpus: 0 },
+] as const
