@@ -59,17 +59,10 @@ export interface MSWHandlers {
   deviceAccessToken: () => StatusCode
   /** `POST /login` */
   loginSpoof: (params: { body: Json<Api.SpoofLoginBody> }) => StatusCode
-  /** `POST /login/:siloName/local` */
-  loginLocal: (params: {
-    path: Api.LoginLocalPathParams
-    body: Json<Api.UsernamePasswordCredentials>
-  }) => StatusCode
   /** `GET /login/:siloName/saml/:providerName` */
   loginSamlBegin: (params: { path: Api.LoginSamlBeginPathParams }) => StatusCode
   /** `POST /login/:siloName/saml/:providerName` */
   loginSaml: (params: { path: Api.LoginSamlPathParams }) => StatusCode
-  /** `POST /logout` */
-  logout: () => StatusCode
   /** `GET /v1/certificates` */
   certificateList: (params: {
     query: Api.CertificateListQueryParams
@@ -243,6 +236,13 @@ export interface MSWHandlers {
     path: Api.InstanceStopPathParams
     query: Api.InstanceStopQueryParams
   }) => HandlerResult<Api.Instance>
+  /** `POST /v1/login/:siloName/local` */
+  loginLocal: (params: {
+    path: Api.LoginLocalPathParams
+    body: Json<Api.UsernamePasswordCredentials>
+  }) => StatusCode
+  /** `POST /v1/logout` */
+  logout: () => StatusCode
   /** `GET /v1/me` */
   currentUserView: () => HandlerResult<Api.CurrentUser>
   /** `GET /v1/me/groups` */
@@ -735,14 +735,6 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
     ),
     rest.post('/device/token', handler(handlers['deviceAccessToken'], null, null)),
     rest.post('/login', handler(handlers['loginSpoof'], null, schema.SpoofLoginBody)),
-    rest.post(
-      '/login/:siloName/local',
-      handler(
-        handlers['loginLocal'],
-        schema.LoginLocalParams,
-        schema.UsernamePasswordCredentials
-      )
-    ),
     rest.get(
       '/login/:siloName/saml/:providerName',
       handler(handlers['loginSamlBegin'], schema.LoginSamlBeginParams, null)
@@ -751,7 +743,6 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
       '/login/:siloName/saml/:providerName',
       handler(handlers['loginSaml'], schema.LoginSamlParams, null)
     ),
-    rest.post('/logout', handler(handlers['logout'], null, null)),
     rest.get(
       '/v1/certificates',
       handler(handlers['certificateList'], schema.CertificateListParams, null)
@@ -924,6 +915,15 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
       '/v1/instances/:instance/stop',
       handler(handlers['instanceStop'], schema.InstanceStopParams, null)
     ),
+    rest.post(
+      '/v1/login/:siloName/local',
+      handler(
+        handlers['loginLocal'],
+        schema.LoginLocalParams,
+        schema.UsernamePasswordCredentials
+      )
+    ),
+    rest.post('/v1/logout', handler(handlers['logout'], null, null)),
     rest.get('/v1/me', handler(handlers['currentUserView'], null, null)),
     rest.get(
       '/v1/me/groups',

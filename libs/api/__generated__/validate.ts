@@ -1914,16 +1914,6 @@ export const LoginSpoofParams = z.preprocess(
   })
 )
 
-export const LoginLocalParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      siloName: Name,
-    }),
-    query: z.object({}),
-  })
-)
-
 export const LoginSamlBeginParams = z.preprocess(
   processResponseBody,
   z.object({
@@ -1942,14 +1932,6 @@ export const LoginSamlParams = z.preprocess(
       providerName: Name,
       siloName: Name,
     }),
-    query: z.object({}),
-  })
-)
-
-export const LogoutParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({}),
     query: z.object({}),
   })
 )
@@ -2383,6 +2365,24 @@ export const InstanceStopParams = z.preprocess(
     query: z.object({
       project: NameOrId.optional(),
     }),
+  })
+)
+
+export const LoginLocalParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      siloName: Name,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const LogoutParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
   })
 )
 

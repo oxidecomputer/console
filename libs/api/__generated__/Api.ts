@@ -1854,10 +1854,6 @@ export type SystemMetricName =
  */
 export type NameSortMode = 'name_ascending'
 
-export interface LoginLocalPathParams {
-  siloName: Name
-}
-
 export interface LoginSamlBeginPathParams {
   providerName: Name
   siloName: Name
@@ -2128,6 +2124,10 @@ export interface InstanceStopPathParams {
 
 export interface InstanceStopQueryParams {
   project?: NameOrId
+}
+
+export interface LoginLocalPathParams {
+  siloName: Name
 }
 
 export interface CurrentUserGroupsQueryParams {
@@ -2750,20 +2750,6 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Authenticate a user via username and password
-     */
-    loginLocal: (
-      { path, body }: { path: LoginLocalPathParams; body: UsernamePasswordCredentials },
-      params: RequestParams = {}
-    ) => {
-      return this.request<void>({
-        path: `/login/${path.siloName}/local`,
-        method: 'POST',
-        body,
-        ...params,
-      })
-    },
-    /**
      * Prompt user login
      */
     loginSamlBegin: (
@@ -2782,13 +2768,6 @@ export class Api extends HttpClient {
     loginSaml: ({ path }: { path: LoginSamlPathParams }, params: RequestParams = {}) => {
       return this.request<void>({
         path: `/login/${path.siloName}/saml/${path.providerName}`,
-        method: 'POST',
-        ...params,
-      })
-    },
-    logout: (_: EmptyObj, params: RequestParams = {}) => {
-      return this.request<void>({
-        path: `/logout`,
         method: 'POST',
         ...params,
       })
@@ -3379,6 +3358,30 @@ export class Api extends HttpClient {
         path: `/v1/instances/${path.instance}/stop`,
         method: 'POST',
         query,
+        ...params,
+      })
+    },
+    /**
+     * Authenticate a user via username and password
+     */
+    loginLocal: (
+      { path, body }: { path: LoginLocalPathParams; body: UsernamePasswordCredentials },
+      params: RequestParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/login/${path.siloName}/local`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Log user out of web console by deleting session on client and server
+     */
+    logout: (_: EmptyObj, params: RequestParams = {}) => {
+      return this.request<void>({
+        path: `/v1/logout`,
+        method: 'POST',
         ...params,
       })
     },
