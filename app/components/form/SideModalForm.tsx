@@ -5,7 +5,7 @@ import { useNavigationType } from 'react-router-dom'
 
 import type { ErrorResult } from '@oxide/api'
 import { Error12Icon } from '@oxide/ui'
-import { Button, SideModal } from '@oxide/ui'
+import { Button, SideModal, type SideModalResource } from '@oxide/ui'
 
 export function ModalFooterError({ children }: { children: ReactNode }) {
   return (
@@ -37,6 +37,7 @@ type SideModalFormProps<TFieldValues extends FieldValues> = {
   title: string
   onSubmit?: (values: TFieldValues) => void
   submitLabel?: string
+  resource?: SideModalResource
 }
 
 /**
@@ -60,6 +61,7 @@ export function SideModalForm<TFieldValues extends FieldValues>({
   onSubmit,
   submitLabel,
   loading,
+  resource,
 }: SideModalFormProps<TFieldValues>) {
   // TODO: RHF docs warn about the performance impact of validating on every
   // change
@@ -68,13 +70,20 @@ export function SideModalForm<TFieldValues extends FieldValues>({
   const { isSubmitting } = form.formState
 
   return (
-    <SideModal onDismiss={onDismiss} isOpen title={title} animate={useShouldAnimateModal()}>
+    <SideModal
+      onDismiss={onDismiss}
+      isOpen
+      title={title}
+      animate={useShouldAnimateModal()}
+      resource={resource}
+    >
       <SideModal.Body>
         <form
           id={id}
           className="ox-form is-side-modal"
           autoComplete="off"
           onSubmit={(e) => {
+            if (!onSubmit) return
             // This modal being in a portal doesn't prevent the submit event
             // from bubbling up out of the portal. Normally that's not a
             // problem, but sometimes (e.g., instance create) we render the
