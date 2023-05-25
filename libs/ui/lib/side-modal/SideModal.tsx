@@ -11,10 +11,9 @@ import { useIsOverflow } from 'app/hooks'
 import { Error12Icon, OpenLink12Icon } from '../icons'
 import './side-modal.css'
 
-export type SideModalResource = { icon: ReactNode; name: string }
-
 export type SideModalProps = {
   title?: string
+  subtitle?: ReactNode
   onDismiss: () => void
   isOpen: boolean
   children?: React.ReactNode
@@ -25,16 +24,15 @@ export type SideModalProps = {
    * fresh pageload.
    */
   animate?: boolean
-  resource?: SideModalResource
 }
 
 export function SideModal({
   children,
   onDismiss,
   title,
+  subtitle,
   isOpen,
   animate = true,
-  resource,
   errors,
 }: SideModalProps) {
   const titleId = 'side-modal-title'
@@ -69,7 +67,7 @@ export function SideModal({
               {title && (
                 <Dialog.Title asChild>
                   <>
-                    <SideModal.Title id={titleId} title={title} resource={resource} />
+                    <SideModal.Title id={titleId} title={title} subtitle={subtitle} />
 
                     {errors && errors.length > 0 && (
                       <div className="mb-6">
@@ -104,24 +102,22 @@ export function SideModal({
   )
 }
 
+export const ResourceLabel = classed.h3`mt-2 flex items-center gap-1.5 text-sans-md text-accent`
+
 SideModal.Title = ({
   title,
   id,
-  resource,
+  subtitle,
 }: {
   title: string
   id?: string
-  resource?: SideModalResource
+  subtitle?: ReactNode
 }) => (
   <div className="mt-8 mb-4">
     <h2 className="text-sans-2xl" id={id}>
       {title}
     </h2>
-    {resource && (
-      <h3 className="mt-2 flex items-center gap-1.5 text-sans-md text-accent">
-        {resource.icon} {resource.name}
-      </h3>
-    )}
+    {subtitle}
   </div>
 )
 

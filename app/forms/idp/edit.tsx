@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import invariant from 'tiny-invariant'
 
 import { apiQueryClient, useApiQuery } from '@oxide/api'
-import { Access16Icon, PropertiesTable, Truncate } from '@oxide/ui'
+import { Access16Icon, PropertiesTable, ResourceLabel, Truncate } from '@oxide/ui'
 import { formatDateTime } from '@oxide/util'
 
 import { DescriptionField, NameField, SideModalForm, TextField } from 'app/components/form'
@@ -36,10 +36,11 @@ export function EditIdpSideModalForm() {
       formOptions={{ defaultValues: idp }}
       title="Identity provider"
       onDismiss={onDismiss}
-      resource={{
-        icon: <Access16Icon />,
-        name: idp.name,
-      }}
+      subtitle={
+        <ResourceLabel>
+          <Access16Icon /> {idp.name}
+        </ResourceLabel>
+      }
     >
       {({ control }) => (
         <>

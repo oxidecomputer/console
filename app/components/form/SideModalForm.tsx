@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form'
 import { useNavigationType } from 'react-router-dom'
 
 import type { ApiError } from '@oxide/api'
-import { Button, SideModal, type SideModalResource } from '@oxide/ui'
+import { Button, SideModal } from '@oxide/ui'
 
 type SideModalFormProps<TFieldValues extends FieldValues> = {
   id: string
@@ -26,9 +26,9 @@ type SideModalFormProps<TFieldValues extends FieldValues> = {
   submitError?: ApiError | null
   loading?: boolean
   title: string
+  subtitle?: ReactNode
   onSubmit?: (values: TFieldValues) => void
   submitLabel?: string
-  resource?: SideModalResource
 }
 
 /**
@@ -52,7 +52,7 @@ export function SideModalForm<TFieldValues extends FieldValues>({
   onSubmit,
   submitLabel,
   loading,
-  resource,
+  subtitle,
 }: SideModalFormProps<TFieldValues>) {
   // TODO: RHF docs warn about the performance impact of validating on every
   // change
@@ -72,7 +72,7 @@ export function SideModalForm<TFieldValues extends FieldValues>({
       isOpen
       title={title}
       animate={useShouldAnimateModal()}
-      resource={resource}
+      subtitle={subtitle}
       errors={submitError ? [submitError.message] : []}
     >
       <SideModal.Body>
