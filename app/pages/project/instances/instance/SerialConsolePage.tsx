@@ -56,7 +56,7 @@ export function SerialConsolePage() {
         secure: window.location.protocol === 'https:',
         host: window.location.host + pathPrefix,
         path: { instance },
-        query: { project, fromStart: 0 },
+        query: { project, mostRecent: 262144 },
       })
       ws.current.binaryType = 'arraybuffer' // important!
     }

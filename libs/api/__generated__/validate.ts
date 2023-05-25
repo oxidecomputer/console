@@ -1160,6 +1160,7 @@ export const SamlIdentityProvider = z.preprocess(
   z.object({
     acsUrl: z.string(),
     description: z.string(),
+    groupAttributeName: z.string().optional(),
     id: z.string().uuid(),
     idpEntityId: z.string(),
     name: Name,
@@ -1228,6 +1229,7 @@ export const SiloCreate = z.preprocess(
     discoverable: SafeBoolean,
     identityMode: SiloIdentityMode,
     name: Name,
+    tlsCertificates: CertificateCreate.array(),
   })
 )
 
@@ -1282,6 +1284,34 @@ export const Sled = z.preprocess(
     usableHardwareThreads: z.number().min(0).max(4294967295),
     usablePhysicalRam: ByteCount,
   })
+)
+
+/**
+ * An operator's view of an instance running on a given sled
+ */
+export const SledInstance = z.preprocess(
+  processResponseBody,
+  z.object({
+    activeSledId: z.string().uuid(),
+    id: z.string().uuid(),
+    memory: z.number(),
+    migrationId: z.string().uuid().optional(),
+    name: Name,
+    ncpus: z.number(),
+    projectName: Name,
+    siloName: Name,
+    state: InstanceState,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
+  })
+)
+
+/**
+ * A single page of results
+ */
+export const SledInstanceResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: SledInstance.array(), nextPage: z.string().optional() })
 )
 
 /**
@@ -2326,8 +2356,6 @@ export const InstanceSerialConsoleStreamParams = z.preprocess(
       instance: NameOrId,
     }),
     query: z.object({
-      fromStart: z.number().min(0).optional(),
-      maxBytes: z.number().min(0).optional(),
       mostRecent: z.number().min(0).optional(),
       project: NameOrId.optional(),
     }),
@@ -2672,6 +2700,20 @@ export const SledViewParams = z.preprocess(
 )
 
 export const SledPhysicalDiskListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      sledId: z.string().uuid(),
+    }),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      sortBy: IdSortMode.optional(),
+    }),
+  })
+)
+
+export const SledInstanceListParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({

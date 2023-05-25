@@ -5,7 +5,18 @@ import { expectNotVisible, expectRowVisible, expectVisible } from './utils'
 test('SSH keys', async ({ page }) => {
   await page.goto('/settings/ssh-keys')
 
-  await expectVisible(page, ['role=heading[name*="SSH Keys"]', 'text="No SSH keys"'])
+  // see table with the ssh key
+  await expectVisible(page, [
+    'role=heading[name*="SSH Keys"]',
+    'role=cell[name="m1-macbook-pro"]',
+  ])
+
+  // delete the only ssh key
+  await page.click('role=button[name="Row actions"]')
+  await page.click('role=menuitem[name="Delete"]')
+
+  // should show empty state
+  await expectVisible(page, ['text="No SSH keys"'])
 
   // there are two of these, but it doesn't matter which one we click
   await page.click('role=button[name="Add SSH key"]')

@@ -35,7 +35,7 @@ export function EditFirewallRuleForm({
     name: originalRule.name,
     description: originalRule.description,
 
-    priority: originalRule.priority.toString(),
+    priority: originalRule.priority,
     action: originalRule.action,
     direction: originalRule.direction,
 

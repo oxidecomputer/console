@@ -2,14 +2,7 @@
 import type { RequestParams } from './http-client'
 import { HttpClient, toQueryString } from './http-client'
 
-export type {
-  ApiConfig,
-  ApiError,
-  ApiResult,
-  ClientError,
-  ErrorBody,
-  ErrorResult,
-} from './http-client'
+export type { ApiConfig, ApiResult, ErrorBody, ErrorResult } from './http-client'
 
 /**
  * Properties that uniquely identify an Oxide hardware component
@@ -1102,23 +1095,25 @@ export type RouterRouteUpdate = {
  * Identity-related metadata that's included in nearly all public API objects
  */
 export type SamlIdentityProvider = {
-  /** service provider endpoint where the response will be sent */
+  /** Service provider endpoint where the response will be sent */
   acsUrl: string
   /** human-readable free-form text about a resource */
   description: string
+  /** If set, attributes with this name will be considered to denote a user's group membership, where the values will be the group names. */
+  groupAttributeName?: string
   /** unique, immutable, system-controlled identifier for each resource */
   id: string
-  /** idp's entity id */
+  /** IdP's entity id */
   idpEntityId: string
   /** unique, mutable, user-controlled identifier for each resource */
   name: Name
-  /** optional request signing public certificate (base64 encoded der file) */
+  /** Optional request signing public certificate (base64 encoded der file) */
   publicCert?: string
-  /** service provider endpoint where the idp should send log out requests */
+  /** Service provider endpoint where the idp should send log out requests */
   sloUrl: string
-  /** sp's client id */
+  /** SP's client id */
   spClientId: string
-  /** customer's technical contact for saml configuration */
+  /** Customer's technical contact for saml configuration */
   technicalContactEmail: string
   /** timestamp when this resource was created */
   timeCreated: Date
@@ -1193,6 +1188,8 @@ Note that if configuring a SAML based identity provider, group_attribute_name mu
   discoverable: boolean
   identityMode: SiloIdentityMode
   name: Name
+  /** Initial TLS certificates to be used for the new Silo's console and API endpoints.  These should be valid for the Silo's DNS name(s). */
+  tlsCertificates: CertificateCreate[]
 }
 
 /**
@@ -1245,6 +1242,36 @@ export type Sled = {
   usableHardwareThreads: number
   /** Amount of RAM which may be used by the Sled's OS */
   usablePhysicalRam: ByteCount
+}
+
+/**
+ * An operator's view of an instance running on a given sled
+ */
+export type SledInstance = {
+  activeSledId: string
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  memory: number
+  migrationId?: string
+  name: Name
+  ncpus: number
+  projectName: Name
+  siloName: Name
+  state: InstanceState
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+}
+
+/**
+ * A single page of results
+ */
+export type SledInstanceResultsPage = {
+  /** list of items on this page of results */
+  items: SledInstance[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
 }
 
 /**
@@ -2083,8 +2110,6 @@ export interface InstanceSerialConsoleStreamPathParams {
 }
 
 export interface InstanceSerialConsoleStreamQueryParams {
-  fromStart?: number
-  maxBytes?: number
   mostRecent?: number
   project?: NameOrId
 }
@@ -2249,6 +2274,16 @@ export interface SledPhysicalDiskListPathParams {
 }
 
 export interface SledPhysicalDiskListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: IdSortMode
+}
+
+export interface SledInstanceListPathParams {
+  sledId: string
+}
+
+export interface SledInstanceListQueryParams {
   limit?: number
   pageToken?: string
   sortBy?: IdSortMode
@@ -2648,6 +2683,7 @@ export type ApiListMethods = Pick<
   | 'rackList'
   | 'sledList'
   | 'sledPhysicalDiskList'
+  | 'sledInstanceList'
   | 'switchList'
   | 'siloIdentityProviderList'
   | 'ipPoolList'
@@ -3772,6 +3808,23 @@ export class Api extends HttpClient {
     ) => {
       return this.request<PhysicalDiskResultsPage>({
         path: `/v1/system/hardware/sleds/${path.sledId}/disks`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List instances running on a given sled
+     */
+    sledInstanceList: (
+      {
+        path,
+        query = {},
+      }: { path: SledInstanceListPathParams; query?: SledInstanceListQueryParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<SledInstanceResultsPage>({
+        path: `/v1/system/hardware/sleds/${path.sledId}/instances`,
         method: 'GET',
         query,
         ...params,

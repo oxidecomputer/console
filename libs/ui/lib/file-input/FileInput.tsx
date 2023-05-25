@@ -7,15 +7,15 @@ import { mergeRefs } from 'react-merge-refs'
 import { Document16Icon, Error16Icon, Truncate } from '@oxide/ui'
 
 export type FileInputProps = Omit<ComponentProps<'input'>, 'type' | 'onChange'> & {
-  error?: boolean
   onChange: (f: File | null) => void
+  error?: boolean
 }
 
 // Wrapping a file input in a `<label>` grants the ability to fully
 // customize the component whilst maintaining the native functionality
 // and preserving it as an uncontrolled input
 export const FileInput = forwardRef(
-  ({ accept, className, error, onChange, ...inputProps }: FileInputProps, forwardedRef) => {
+  ({ accept, className, onChange, error, ...inputProps }: FileInputProps, forwardedRef) => {
     const inputRef = useRef<HTMLInputElement>(null)
     const [file, setFile] = useState<File | null>(null)
     const [dragOver, setDragOver] = useState(false)
@@ -58,9 +58,9 @@ export const FileInput = forwardRef(
         />
         <div
           className={cn(
-            'z-1 pointer-events-none relative flex flex-col items-center justify-center space-y-2 rounded border px-4 py-6 text-default bg-default border-default ',
+            'z-1 pointer-events-none relative flex flex-col items-center justify-center space-y-2 rounded border px-4 py-6 text-default bg-default',
             dragOver && 'bg-accent-secondary border-accent-secondary',
-            error && 'border-error'
+            error ? 'border-error' : 'border-default'
           )}
         >
           <div

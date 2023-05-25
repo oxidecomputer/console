@@ -2,11 +2,6 @@ import { test } from '@playwright/test'
 
 import { expect, expectNotVisible, expectVisible } from './utils'
 
-test.fixme('Expect no firewall rules by default', async ({ page }) => {
-  await page.goto('/projects/mock-project/vpcs/mock-vpc?tab=firewall-rules')
-  await expectVisible(page, ['text="No firewall rules"'])
-})
-
 const defaultRules = ['allow-internal-inbound', 'allow-ssh', 'allow-icmp', 'allow-rdp']
 
 test('can create firewall rule', async ({ page }) => {
@@ -85,18 +80,18 @@ test('can update firewall rule', async ({ page }) => {
   await page.goto('/projects/mock-project/vpcs/mock-vpc')
   await page.locator('text="Firewall Rules"').click()
 
-  const rows = await page.locator('tbody >> tr')
+  const rows = page.locator('tbody >> tr')
   await expect(rows).toHaveCount(4)
 
   // allow-icmp is the one we're doing to change
   const oldNameCell = page.locator('td >> text="allow-icmp"')
-  expect(oldNameCell).toBeVisible()
+  await expect(oldNameCell).toBeVisible()
 
   const newNameCell = page.locator('td >> text="new-rule-name"')
-  expect(newNameCell).not.toBeVisible()
+  await expect(newNameCell).toBeHidden()
 
   const modal = page.locator('text="Edit rule"')
-  await expect(modal).not.toBeVisible()
+  await expect(modal).toBeHidden()
 
   // click more button on allow-icmp row to get menu, then click Edit
   await page
@@ -143,11 +138,11 @@ test('can update firewall rule', async ({ page }) => {
   await page.locator('text="Update rule"').click()
 
   // modal closes again
-  await expect(modal).not.toBeVisible()
+  await expect(modal).toBeHidden()
 
   // table refetches and now includes the updated rule name, not the old name
   await expect(newNameCell).toBeVisible()
-  expect(oldNameCell).not.toBeVisible()
+  await expect(oldNameCell).toBeHidden()
 
   await expect(rows).toHaveCount(4)
 

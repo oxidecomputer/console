@@ -52,6 +52,10 @@
       "rules": {
         "@typescript-eslint/no-var-requires": "off"
       }
+    },
+    {
+      "files": ["*.e2e.ts"],
+      "extends": ["plugin:playwright/playwright-test"]
     }
   ]
 }

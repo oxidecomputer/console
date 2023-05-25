@@ -1,20 +1,11 @@
 import type { ReactNode } from 'react'
+import { useEffect } from 'react'
 import type { FieldValues, UseFormProps, UseFormReturn } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 import { useNavigationType } from 'react-router-dom'
 
-import type { ErrorResult } from '@oxide/api'
-import { Error12Icon } from '@oxide/ui'
+import type { ApiError } from '@oxide/api'
 import { Button, SideModal } from '@oxide/ui'
-
-export function ModalFooterError({ children }: { children: ReactNode }) {
-  return (
-    <div className="flex grow text-mono-sm text-error">
-      <Error12Icon className="mx-2 mt-0.5 shrink-0" />
-      <span>{children}</span>
-    </div>
-  )
-}
 
 type SideModalFormProps<TFieldValues extends FieldValues> = {
   id: string
@@ -32,7 +23,7 @@ type SideModalFormProps<TFieldValues extends FieldValues> = {
   /** Must be provided with a reason describing why it's disabled */
   submitDisabled?: string
   /** Error from the API call */
-  submitError: ErrorResult | null
+  submitError: ApiError | null
   loading?: boolean
   title: string
   onSubmit: (values: TFieldValues) => void
@@ -67,8 +58,21 @@ export function SideModalForm<TFieldValues extends FieldValues>({
 
   const { isSubmitting } = form.formState
 
+  useEffect(() => {
+    if (submitError?.errorCode === 'ObjectAlreadyExists' && 'name' in form.getValues()) {
+      // @ts-expect-error
+      form.setError('name', { message: 'Name already exists' })
+    }
+  }, [submitError, form])
+
   return (
-    <SideModal onDismiss={onDismiss} isOpen title={title} animate={useShouldAnimateModal()}>
+    <SideModal
+      onDismiss={onDismiss}
+      isOpen
+      title={title}
+      animate={useShouldAnimateModal()}
+      errors={submitError ? [submitError.message] : []}
+    >
       <SideModal.Body>
         <form
           id={id}
@@ -87,25 +91,20 @@ export function SideModalForm<TFieldValues extends FieldValues>({
           {children(form)}
         </form>
       </SideModal.Body>
-      <SideModal.Footer>
-        <div className="flex w-full items-center justify-end gap-[0.625rem] children:shrink-0">
-          {submitError?.error && 'message' in submitError.error && (
-            <ModalFooterError>{submitError.error.message}</ModalFooterError>
-          )}
-          <Button variant="ghost" size="sm" onClick={onDismiss}>
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            size="sm"
-            disabled={!!submitDisabled}
-            disabledReason={submitDisabled}
-            loading={loading || isSubmitting}
-            form={id}
-          >
-            {submitLabel || title}
-          </Button>
-        </div>
+      <SideModal.Footer error={!!submitError}>
+        <Button variant="ghost" size="sm" onClick={onDismiss}>
+          Cancel
+        </Button>
+        <Button
+          type="submit"
+          size="sm"
+          disabled={!!submitDisabled}
+          disabledReason={submitDisabled}
+          loading={loading || isSubmitting}
+          form={id}
+        >
+          {submitLabel || title}
+        </Button>
       </SideModal.Footer>
     </SideModal>
   )

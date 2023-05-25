@@ -82,6 +82,7 @@ test('Click through disks page', async ({ page }) => {
   ])
 })
 
+// eslint-disable-next-line playwright/no-skipped-test
 test.skip('Click through access & IAM', async ({ page }) => {
   await page.click('role=link[name*="Access & IAM"]')
   // not implemented

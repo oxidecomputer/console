@@ -34,27 +34,23 @@ export type ErrorBody = {
   requestId: string
 }
 
-/** 4xx and 5xx responses from the API */
-export type ApiError = {
-  type: 'error'
-  statusCode: number
-  headers: Headers
-  error: ErrorBody
-}
-
-/**
- * JSON parsing or processing errors within the client. Includes raised Error
- * and response body as a string for debugging.
- */
-export type ClientError = {
-  type: 'client_error'
-  error: Error
-  statusCode: number
-  headers: Headers
-  text: string
-}
-
-export type ErrorResult = ApiError | ClientError
+export type ErrorResult =
+  // 4xx and 5xx responses from the API
+  | {
+      type: 'error'
+      statusCode: number
+      headers: Headers
+      data: ErrorBody
+    }
+  // JSON parsing or processing errors within the client. Includes raised Error
+  // and response body as a string for debugging.
+  | {
+      type: 'client_error'
+      error: Error
+      statusCode: number
+      headers: Headers
+      text: string
+    }
 
 export type ApiResult<Data> = ApiSuccess<Data> | ErrorResult
 
@@ -112,7 +108,7 @@ export async function handleResponse<Data>(response: Response): Promise<ApiResul
   if (!response.ok) {
     return {
       type: 'error',
-      error: respJson as ErrorBody,
+      data: respJson as ErrorBody,
       ...common,
     }
   }
