@@ -6,10 +6,12 @@ import { OpenLink12Icon } from '@oxide/ui'
 
 import { Error12Icon, Success12Icon, Warning12Icon } from '../icons'
 
-type Variant = 'success' | 'destructive' | 'notice'
+type Variant = 'success' | 'error' | 'notice'
 
-export interface InlineMessageProps {
-  content?: ReactNode
+export interface MessageProps {
+  title?: string
+  content: ReactNode
+  className?: string
   variant?: Variant
   cta?: {
     text: string
@@ -19,44 +21,59 @@ export interface InlineMessageProps {
 
 const icon: Record<Variant, ReactElement> = {
   success: <Success12Icon />,
-  destructive: <Error12Icon />,
+  error: <Error12Icon />,
   notice: <Warning12Icon />,
 }
 
 const color: Record<Variant, string> = {
   success: 'bg-accent-secondary',
-  destructive: 'bg-destructive-secondary',
+  error: 'bg-error-secondary',
   notice: 'bg-notice-secondary',
 }
 
 const textColor: Record<Variant, string> = {
   success: 'text-accent children:text-accent',
-  destructive: 'text-destructive children:text-destructive',
+  error: 'text-error children:text-error',
   notice: 'text-notice children:text-notice',
+}
+
+const secondaryTextColor: Record<Variant, string> = {
+  success: 'text-accent-secondary',
+  error: 'text-error-secondary',
+  notice: 'text-notice-secondary',
 }
 
 const linkColor: Record<Variant, string> = {
   success: 'text-accent-secondary hover:text-accent',
-  destructive: 'text-destructive-secondary hover:text-destructive',
+  error: 'text-error-secondary hover:text-error',
   notice: 'text-notice-secondary hover:text-notice',
 }
 
-export const InlineMessage = ({
+export const Message = ({
+  title,
   content,
+  className,
   variant = 'success',
   cta,
-}: InlineMessageProps) => {
+}: MessageProps) => {
   return (
     <div
       className={cn(
-        'relative flex items-start overflow-hidden rounded-lg p-4',
+        'relative flex items-start overflow-hidden rounded-lg p-4 elevation-1',
         color[variant],
-        textColor[variant]
+        textColor[variant],
+        className
       )}
     >
       <div className="mt-[2px] flex svg:h-3 svg:w-3">{icon[variant]}</div>
       <div className="flex-1 pl-2.5">
-        <div className={cn('text-sans-md [&>a]:underline', textColor[variant])}>
+        {title && <div className="text-sans-semi-md">{title}</div>}
+        <div
+          className={cn(
+            'text-sans-md [&>a]:underline',
+            title ? secondaryTextColor[variant] : textColor[variant]
+          )}
+        >
           {content}
         </div>
 

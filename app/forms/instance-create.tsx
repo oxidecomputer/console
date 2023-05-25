@@ -16,9 +16,9 @@ import {
   EmptyMessage,
   FieldLabel,
   Images16Icon,
-  InlineMessage,
   Instances24Icon,
   Key16Icon,
+  Message,
   RadioCard,
   Table,
   Tabs,
@@ -381,7 +381,7 @@ const SshKeysTable = () => {
         </div>
       )}
 
-      <InlineMessage
+      <Message
         variant="notice"
         content={
           <>
