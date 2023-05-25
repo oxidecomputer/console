@@ -55,8 +55,7 @@ test('can create an instance', async ({ page }) => {
 })
 
 test('can create an instance with custom hardware', async ({ page }) => {
-  await page.goto('/projects/mock-project/instances')
-  await page.locator('text="New Instance"').click()
+  await page.goto('/projects/mock-project/instances-new')
 
   const instanceName = 'my-custom-instance'
   await page.fill('input[name=name]', instanceName)
@@ -64,14 +63,14 @@ test('can create an instance with custom hardware', async ({ page }) => {
 
   // Click the other tabs to make sure the custom input works
   // even when something has been previously selected
-  await page.locator('.ox-tabs-list button[role=tab]:has-text("High CPU")').click()
-  await page.locator('.ox-tabs-list button[role=tab]:has-text("High Memory")').click()
-  await page.locator('.ox-radio-card').nth(2).click()
+  await page.getByRole('tab', { name: 'High CPU' }).click()
+  await page.getByRole('tab', { name: 'High Memory' }).click()
+  await page.getByText('64 GiB RAM').click()
 
-  await page.locator('.ox-tabs-list button[role=tab]:has-text("Custom")').click()
-
-  await page.fill('input[name=ncpus]', '32')
-  await page.fill('input[name=memory]', '64')
+  // Fill in custom specs
+  await page.getByRole('tab', { name: 'Custom' }).click()
+  await page.fill('input[name=ncpus]', '29')
+  await page.fill('input[name=memory]', '53')
 
   await page.fill('input[name=bootDiskName]', 'my-boot-disk')
   await page.fill('input[name=bootDiskSize]', '20')
@@ -87,8 +86,8 @@ test('can create an instance with custom hardware', async ({ page }) => {
 
   await expectVisible(page, [
     `h1:has-text("${instanceName}")`,
-    'text=32 vCPUs',
-    'text=64 GiB',
+    'text=29 vCPUs',
+    'text=53 GiB',
     'text=from space',
   ])
 })
