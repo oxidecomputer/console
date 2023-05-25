@@ -1,9 +1,12 @@
 import * as Dialog from '@radix-ui/react-dialog'
 import { animated, useTransition } from '@react-spring/web'
-import React, { type ReactNode } from 'react'
+import cn from 'classnames'
+import React, { type ReactNode, useRef } from 'react'
 
 import { Message } from '@oxide/ui'
 import { classed } from '@oxide/util'
+
+import { useIsOverflow } from 'app/hooks'
 
 import { Error12Icon, OpenLink12Icon } from '../icons'
 import './side-modal.css'
@@ -110,7 +113,7 @@ SideModal.Title = ({
   id?: string
   resource?: SideModalResource
 }) => (
-  <div className="mt-8 mb-12" id={id}>
+  <div className="mt-8 mb-4" id={id}>
     <h2 className="text-sans-2xl">{title}</h2>
     {resource && (
       <div className="mt-2 flex items-center gap-1.5 text-sans-md text-accent">
@@ -120,7 +123,24 @@ SideModal.Title = ({
   </div>
 )
 
-SideModal.Body = classed.div`body relative overflow-y-auto h-full pb-12`
+SideModal.Body = ({ children }: { children?: ReactNode }) => {
+  /* eslint-disable react-hooks/rules-of-hooks */
+  const overflowRef = useRef<HTMLDivElement>(null)
+  const { scrollStart } = useIsOverflow(overflowRef, undefined, true)
+  /* eslint-enable react-hooks/rules-of-hooks */
+
+  return (
+    <div
+      ref={overflowRef}
+      className={cn(
+        'body relative h-full overflow-y-auto pb-12 pt-8',
+        !scrollStart && 'border-t border-t-secondary'
+      )}
+    >
+      {children}
+    </div>
+  )
+}
 
 SideModal.Section = classed.div`p-8 space-y-6 border-secondary`
 
