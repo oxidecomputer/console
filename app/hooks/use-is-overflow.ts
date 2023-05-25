@@ -4,6 +4,7 @@ import { useLayoutEffect, useState } from 'react'
 
 export const useIsOverflow = (
   ref: MutableRefObject<HTMLDivElement | null>,
+  dir: 'horizontal' | 'vertical',
   callback?: (hasOverflow: boolean) => void
 ) => {
   const [isOverflow, setIsOverflow] = useState<boolean | undefined>()
@@ -15,9 +16,12 @@ export const useIsOverflow = (
 
     const trigger = () => {
       if (!ref?.current) return
-      const { current } = ref
 
-      const hasOverflow = current.scrollWidth > current.clientWidth
+      const el = ref.current
+      const hasOverflow =
+        dir === 'vertical'
+          ? el.scrollHeight > el.clientHeight
+          : el.scrollWidth > el.clientWidth
       setIsOverflow(hasOverflow)
 
       if (callback) callback(hasOverflow)
@@ -26,20 +30,15 @@ export const useIsOverflow = (
     const handleScroll = throttle(
       () => {
         if (!ref?.current) return
-        const { current } = ref
 
-        if (current.scrollLeft === 0) {
-          setScrollStart(true)
-        } else {
-          setScrollStart(false)
-        }
+        const el = ref.current
+        const [scrollAmount, overflowAmount] =
+          dir === 'vertical'
+            ? [el.scrollTop, el.scrollHeight - el.clientHeight]
+            : [el.scrollLeft, el.scrollWidth - el.clientWidth]
 
-        const offsetRight = current.scrollWidth - current.clientWidth
-        if (current.scrollLeft >= offsetRight && scrollEnd === false) {
-          setScrollEnd(true)
-        } else {
-          setScrollEnd(false)
-        }
+        setScrollStart(scrollAmount === 0)
+        setScrollEnd(scrollAmount >= overflowAmount && scrollEnd === false)
       },
       125,
       { leading: true, trailing: true }
@@ -54,7 +53,7 @@ export const useIsOverflow = (
       current.removeEventListener('scroll', handleScroll)
       window.removeEventListener('resize', handleScroll)
     }
-  }, [callback, ref, scrollStart, scrollEnd])
+  }, [callback, ref, scrollStart, scrollEnd, dir])
 
   return {
     isOverflow,

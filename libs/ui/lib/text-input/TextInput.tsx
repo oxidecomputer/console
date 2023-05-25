@@ -36,35 +36,50 @@ export type TextInputBaseProps = React.ComponentPropsWithRef<'input'> & {
 export const TextInput = React.forwardRef<
   HTMLInputElement,
   TextInputBaseProps & TextAreaProps
->(({ type = 'text', error, className, fieldClassName, as: asProp, ...fieldProps }, ref) => {
-  const Component = asProp || 'input'
-  return (
-    <div
-      className={cn(
-        'flex rounded border',
-        error ? 'border-error' : 'border-default',
-        'focus-within:ring-2',
-        className
-      )}
-    >
-      <Component
-        // @ts-ignore this is fine, it's just mad because Component is a variable
-        ref={ref}
-        type={type}
+>(
+  (
+    {
+      type = 'text',
+      error,
+      className,
+      disabled,
+      fieldClassName,
+      as: asProp,
+      ...fieldProps
+    },
+    ref
+  ) => {
+    const Component = asProp || 'input'
+    return (
+      <div
         className={cn(
-          `w-full rounded border-none py-[0.6875rem]
+          'flex rounded border',
+          error ? 'border-error' : 'border-default',
+          'focus-within:ring-2',
+          className
+        )}
+      >
+        <Component
+          // @ts-ignore this is fine, it's just mad because Component is a variable
+          ref={ref}
+          type={type}
+          className={cn(
+            `w-full rounded border-none py-[0.6875rem]
         px-3 !outline-offset-1 text-sans-md
         text-default bg-default placeholder:text-quaternary
         focus:outline-none disabled:cursor-not-allowed disabled:text-tertiary disabled:bg-disabled`,
-          error && 'focus-error',
-          fieldClassName
-        )}
-        aria-invalid={error}
-        {...fieldProps}
-      />
-    </div>
-  )
-})
+            error && 'focus-error',
+            fieldClassName,
+            disabled && 'text-disabled bg-disabled'
+          )}
+          aria-invalid={error}
+          disabled={disabled}
+          {...fieldProps}
+        />
+      </div>
+    )
+  }
+)
 
 type HintProps = {
   // ID required as a reminder to pass aria-describedby on TextField

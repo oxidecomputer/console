@@ -23,10 +23,11 @@ type SideModalFormProps<TFieldValues extends FieldValues> = {
   /** Must be provided with a reason describing why it's disabled */
   submitDisabled?: string
   /** Error from the API call */
-  submitError: ApiError | null
+  submitError?: ApiError | null
   loading?: boolean
   title: string
-  onSubmit: (values: TFieldValues) => void
+  subtitle?: ReactNode
+  onSubmit?: (values: TFieldValues) => void
   submitLabel?: string
 }
 
@@ -51,6 +52,7 @@ export function SideModalForm<TFieldValues extends FieldValues>({
   onSubmit,
   submitLabel,
   loading,
+  subtitle,
 }: SideModalFormProps<TFieldValues>) {
   // TODO: RHF docs warn about the performance impact of validating on every
   // change
@@ -64,13 +66,13 @@ export function SideModalForm<TFieldValues extends FieldValues>({
       form.setError('name', { message: 'Name already exists' })
     }
   }, [submitError, form])
-
   return (
     <SideModal
       onDismiss={onDismiss}
       isOpen
       title={title}
       animate={useShouldAnimateModal()}
+      subtitle={subtitle}
       errors={submitError ? [submitError.message] : []}
     >
       <SideModal.Body>
@@ -79,6 +81,7 @@ export function SideModalForm<TFieldValues extends FieldValues>({
           className="ox-form is-side-modal"
           autoComplete="off"
           onSubmit={(e) => {
+            if (!onSubmit) return
             // This modal being in a portal doesn't prevent the submit event
             // from bubbling up out of the portal. Normally that's not a
             // problem, but sometimes (e.g., instance create) we render the
@@ -95,16 +98,18 @@ export function SideModalForm<TFieldValues extends FieldValues>({
         <Button variant="ghost" size="sm" onClick={onDismiss}>
           Cancel
         </Button>
-        <Button
-          type="submit"
-          size="sm"
-          disabled={!!submitDisabled}
-          disabledReason={submitDisabled}
-          loading={loading || isSubmitting}
-          form={id}
-        >
-          {submitLabel || title}
-        </Button>
+        {onSubmit && (
+          <Button
+            type="submit"
+            size="sm"
+            disabled={!!submitDisabled}
+            disabledReason={submitDisabled}
+            loading={loading || isSubmitting}
+            form={id}
+          >
+            {submitLabel || title}
+          </Button>
+        )}
       </SideModal.Footer>
     </SideModal>
   )

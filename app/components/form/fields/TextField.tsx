@@ -72,12 +72,12 @@ export function TextField<
         <FieldLabel id={`${id}-label`} tip={description} optional={!required}>
           {label} {units && <span className="ml-1 text-secondary">({units})</span>}
         </FieldLabel>
+        {helpText && (
+          <TextInputHint id={`${id}-help-text`} className="mb-2">
+            {helpText}
+          </TextInputHint>
+        )}
       </div>
-      {helpText && (
-        <TextInputHint id={`${id}-help-text`} className="mb-2">
-          {helpText}
-        </TextInputHint>
-      )}
       {/* passing the generated id is very important for a11y */}
       <TextFieldInner name={name} {...props} id={id} />
     </div>

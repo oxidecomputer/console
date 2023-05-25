@@ -56,7 +56,13 @@ export function CreateIdpSideModalForm() {
       formOptions={{ defaultValues }}
       title="Create identity provider"
       onDismiss={onDismiss}
-      onSubmit={async ({ signingKeypair, groupAttributeName, ...rest }) => {
+      onSubmit={async ({
+        signingKeypair,
+        groupAttributeName,
+        idpMetadataSource,
+        idpMetadataSourceFile,
+        ...rest
+      }) => {
         // if both signingKeypair files are present, base64 and add to post
         const keypair =
           signingKeypair.publicCert && signingKeypair.privateKey
@@ -66,10 +72,19 @@ export function CreateIdpSideModalForm() {
               }
             : undefined
 
+        const metadataSource =
+          idpMetadataSourceFile && idpMetadataSource.type === 'base64_encoded_xml'
+            ? {
+                type: idpMetadataSource.type,
+                data: await readBlobAsBase64(idpMetadataSourceFile),
+              }
+            : idpMetadataSource
+
         createIdp.mutate({
           query: { silo },
           body: {
             ...rest,
+            idpMetadataSource: metadataSource,
             // convert empty string to undefined so it remains unset
             groupAttributeName: groupAttributeName?.trim() || undefined,
             signingKeypair: keypair,
@@ -83,7 +98,7 @@ export function CreateIdpSideModalForm() {
       {({ control }) => (
         <>
           <NameField name="name" control={control} />
-          <DescriptionField name="description" control={control} />
+          <DescriptionField name="description" control={control} required />
           <TextField
             name="acsUrl"
             label="ACS URL"

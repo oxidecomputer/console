@@ -1,15 +1,19 @@
 import * as Dialog from '@radix-ui/react-dialog'
 import { animated, useTransition } from '@react-spring/web'
-import React, { type ReactNode } from 'react'
+import cn from 'classnames'
+import React, { type ReactNode, useRef } from 'react'
 
 import { Message } from '@oxide/ui'
 import { classed } from '@oxide/util'
+
+import { useIsOverflow } from 'app/hooks'
 
 import { Error12Icon, OpenLink12Icon } from '../icons'
 import './side-modal.css'
 
 export type SideModalProps = {
   title?: string
+  subtitle?: ReactNode
   onDismiss: () => void
   isOpen: boolean
   children?: React.ReactNode
@@ -26,6 +30,7 @@ export function SideModal({
   children,
   onDismiss,
   title,
+  subtitle,
   isOpen,
   animate = true,
   errors,
@@ -62,7 +67,8 @@ export function SideModal({
               {title && (
                 <Dialog.Title asChild>
                   <>
-                    <SideModal.Title id={titleId}>{title}</SideModal.Title>
+                    <SideModal.Title id={titleId} title={title} subtitle={subtitle} />
+
                     {errors && errors.length > 0 && (
                       <div className="mb-6">
                         <Message
@@ -96,9 +102,45 @@ export function SideModal({
   )
 }
 
-SideModal.Title = classed.h2`mt-8 mb-10 text-sans-2xl`
+export const ResourceLabel = classed.h3`mt-2 flex items-center gap-1.5 text-sans-md text-accent`
 
-SideModal.Body = classed.div`body relative overflow-y-auto h-full pb-6`
+SideModal.Title = ({
+  title,
+  id,
+  subtitle,
+}: {
+  title: string
+  id?: string
+  subtitle?: ReactNode
+}) => (
+  <div className="mt-8 mb-4">
+    <h2 className="text-sans-2xl" id={id}>
+      {title}
+    </h2>
+    {subtitle}
+  </div>
+)
+
+// separate component because otherwise eslint thinks it's not a component and
+// gets mad about the use of hooks
+function SideModalBody({ children }: { children?: ReactNode }) {
+  const overflowRef = useRef<HTMLDivElement>(null)
+  const { scrollStart } = useIsOverflow(overflowRef, 'vertical')
+
+  return (
+    <div
+      ref={overflowRef}
+      className={cn(
+        'body relative h-full overflow-y-auto pb-12 pt-8',
+        !scrollStart && 'border-t border-t-secondary'
+      )}
+    >
+      {children}
+    </div>
+  )
+}
+
+SideModal.Body = SideModalBody
 
 SideModal.Section = classed.div`p-8 space-y-6 border-secondary`
 

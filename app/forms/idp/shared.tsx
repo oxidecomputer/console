@@ -4,11 +4,13 @@ import type { Merge } from 'type-fest'
 import type { IdpMetadataSource, SamlIdentityProviderCreate } from '@oxide/api'
 import { Radio, RadioGroup } from '@oxide/ui'
 
-import { TextFieldInner } from 'app/components/form'
+import { TextField } from 'app/components/form'
+import { FileField } from 'app/components/form/fields'
 
 export type IdpCreateFormValues = { type: 'saml' } & Merge<
   SamlIdentityProviderCreate,
   {
+    idpMetadataSourceFile?: File | null
     signingKeypair: {
       publicCert: File | null
       privateKey: File | null
@@ -31,12 +33,12 @@ export function MetadataSourceField({
   } = useController({ control, name: 'idpMetadataSource' })
   return (
     <fieldset>
-      <legend id="metadata-source-legend" className="mb-4 text-sans-md">
+      <legend id="metadata-source-legend" className="mb-2 text-sans-md">
         Metadata source
       </legend>
       {/* TODO: probably need some help text here */}
       <RadioGroup
-        className="mb-4"
+        className="mb-7"
         name="metadata_source_type"
         defaultChecked="url"
         onChange={(e) => {
@@ -48,22 +50,24 @@ export function MetadataSourceField({
         }}
       >
         <Radio value="url">URL</Radio>
-        <Radio value="base64_encoded_xml">Base64-encoded XML</Radio>
+        <Radio value="base64_encoded_xml">XML</Radio>
       </RadioGroup>
       {/* TODO: preserve whatever was in the input in local state
           when the type changes */}
       {value.type === 'url' && (
-        <TextFieldInner
+        <TextField
           name="idpMetadataSource.url"
-          aria-labelledby="metadata-source-legend"
+          label="Metadata source URL"
+          required
           control={control}
         />
       )}
       {value.type === 'base64_encoded_xml' && (
-        <TextFieldInner
-          name="idpMetadataSource.data"
-          as="textarea"
-          aria-labelledby="metadata-source-legend"
+        <FileField
+          id="idp-metadata-source-file-input"
+          name="idpMetadataSourceFile"
+          label="Metadata source XML"
+          required
           control={control}
         />
       )}
