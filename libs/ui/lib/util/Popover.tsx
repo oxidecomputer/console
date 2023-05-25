@@ -34,7 +34,7 @@ export function Popover(props: PopoverProps) {
       <div
         {...popoverProps}
         ref={popoverRef}
-        className="rounded-md absolute top-full z-50 rounded-lg border bg-raise border-default elevation-2"
+        className="rounded-md absolute z-50 rounded-lg border bg-raise border-default elevation-2"
         style={{
           width,
         }}
