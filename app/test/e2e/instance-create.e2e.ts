@@ -23,7 +23,7 @@ test('can create an instance', async ({ page }) => {
 
   const instanceName = 'my-instance'
   await page.fill('input[name=name]', instanceName)
-  await page.fill('input[name=description]', 'An instance... from space!')
+  await page.fill('textarea[name=description]', 'An instance... from space!')
   await page.locator('.ox-radio-card').nth(3).click()
 
   await page.fill('input[name=bootDiskName]', 'my-boot-disk')
@@ -71,7 +71,7 @@ test('can create an instance with custom hardware', async ({ page }) => {
 
   const instanceName = 'my-custom-instance'
   await page.fill('input[name=name]', instanceName)
-  await page.fill('input[name=description]', 'An instance... from space!')
+  await page.fill('textarea[name=description]', 'An instance... from space!')
 
   // Click the other tabs to make sure the custom input works
   // even when something has been previously selected
