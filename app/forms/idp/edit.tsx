@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import invariant from 'tiny-invariant'
 
 import { apiQueryClient, useApiQuery } from '@oxide/api'
-import { PropertiesTable, Truncate } from '@oxide/ui'
+import { Access16Icon, PropertiesTable, Truncate } from '@oxide/ui'
 import { formatDateTime } from '@oxide/util'
 
 import { DescriptionField, NameField, SideModalForm, TextField } from 'app/components/form'
@@ -34,12 +34,12 @@ export function EditIdpSideModalForm() {
     <SideModalForm
       id="edit-project-form"
       formOptions={{ defaultValues: idp }}
-      title="Edit identity provider"
+      title="Identity provider"
       onDismiss={onDismiss}
-      onSubmit={() => {}} // Submit does nothing right now
-      submitError={null}
-      submitLabel="Save changes"
-      submitDisabled="IdPs cannot yet be edited"
+      resource={{
+        icon: <Access16Icon />,
+        name: idp.name,
+      }}
     >
       {({ control }) => (
         <>
@@ -56,7 +56,13 @@ export function EditIdpSideModalForm() {
           </PropertiesTable>
 
           <NameField name="name" control={control} disabled />
-          <DescriptionField name="description" control={control} required disabled />
+          <DescriptionField
+            name="description"
+            control={control}
+            required
+            disabled
+            as="textarea"
+          />
           <TextField
             name="acsUrl"
             label="ACS URL"

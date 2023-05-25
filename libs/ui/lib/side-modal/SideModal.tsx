@@ -1,11 +1,13 @@
 import * as Dialog from '@radix-ui/react-dialog'
 import { animated, useTransition } from '@react-spring/web'
-import React from 'react'
+import React, { type ReactNode } from 'react'
 
 import { classed } from '@oxide/util'
 
 import { OpenLink12Icon } from '../icons'
 import './side-modal.css'
+
+export type SideModalResource = { icon: ReactNode; name: string }
 
 export type SideModalProps = {
   title?: string
@@ -18,6 +20,7 @@ export type SideModalProps = {
    * fresh pageload.
    */
   animate?: boolean
+  resource?: SideModalResource
 }
 
 export function SideModal({
@@ -26,6 +29,7 @@ export function SideModal({
   title,
   isOpen,
   animate = true,
+  resource,
 }: SideModalProps) {
   const titleId = 'side-modal-title'
   const AnimatedDialogContent = animated(Dialog.Content)
@@ -58,7 +62,9 @@ export function SideModal({
             >
               {title && (
                 <Dialog.Title asChild>
-                  <SideModal.Title id={titleId}>{title}</SideModal.Title>
+                  <>
+                    <SideModal.Title id={titleId} title={title} resource={resource} />
+                  </>
                 </Dialog.Title>
               )}
               {children}
@@ -69,13 +75,30 @@ export function SideModal({
   )
 }
 
-SideModal.Title = classed.h2`mt-8 mb-12 text-sans-2xl`
+SideModal.Title = ({
+  title,
+  id,
+  resource,
+}: {
+  title: string
+  id?: string
+  resource?: SideModalResource
+}) => (
+  <div className="mt-8 mb-12" id={id}>
+    <h2 className="text-sans-2xl">{title}</h2>
+    {resource && (
+      <div className="mt-2 flex items-center gap-1.5 text-sans-md text-accent">
+        {resource.icon} {resource.name}
+      </div>
+    )}
+  </div>
+)
 
 SideModal.Body = classed.div`body relative overflow-y-auto h-full pb-12`
 
 SideModal.Section = classed.div`p-8 space-y-6 border-secondary`
 
-SideModal.Docs = ({ children }: { children?: React.ReactNode }) => (
+SideModal.Docs = ({ children }: { children?: ReactNode }) => (
   <SideModal.Section>
     <div>
       <h3 className="mb-2 text-sans-semi-md">Relevant docs</h3>
