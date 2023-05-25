@@ -23,7 +23,7 @@ type SideModalFormProps<TFieldValues extends FieldValues> = {
   /** Must be provided with a reason describing why it's disabled */
   submitDisabled?: string
   /** Error from the API call */
-  submitError: ApiError | null
+  submitError?: ApiError | null
   loading?: boolean
   title: string
   onSubmit?: (values: TFieldValues) => void
@@ -66,7 +66,6 @@ export function SideModalForm<TFieldValues extends FieldValues>({
       form.setError('name', { message: 'Name already exists' })
     }
   }, [submitError, form])
-
   return (
     <SideModal
       onDismiss={onDismiss}
