@@ -15,6 +15,7 @@ import { CreateVpcSideModalForm } from './forms/vpc-create'
 import { EditVpcSideModalForm } from './forms/vpc-edit'
 import type { CrumbFunc } from './hooks/use-crumbs'
 import AuthLayout from './layouts/AuthLayout'
+import { OnboardingLayout } from './layouts/OnboardingLayout'
 import ProjectLayout from './layouts/ProjectLayout'
 import RootLayout from './layouts/RootLayout'
 import SettingsLayout from './layouts/SettingsLayout'
@@ -54,6 +55,10 @@ import { InventoryPage } from './pages/system/inventory/InventoryPage'
 import { SledsTab } from './pages/system/inventory/SledsTab'
 import { SledInstancesTab } from './pages/system/inventory/sled/SledInstancesTab'
 import { SledPage } from './pages/system/inventory/sled/SledPage'
+import { ConfigureIdpPage } from './pages/system/setup/ConfigureIdpPage'
+import { CreateSiloPage } from './pages/system/setup/CreateSiloPage'
+import { pb } from './util/path-builder'
+
 // import { UpdateDetailSideModal } from './pages/system/UpdateDetailSideModal'
 // import {
 //   UpdatePage,
@@ -61,7 +66,6 @@ import { SledPage } from './pages/system/inventory/sled/SledPage'
 //   UpdatePageHistory,
 //   UpdatePageUpdates,
 // } from './pages/system/UpdatePage'
-import { pb } from './util/path-builder'
 
 const projectCrumb: CrumbFunc = (m) => m.params.project!
 const instanceCrumb: CrumbFunc = (m) => m.params.instance!
@@ -180,6 +184,15 @@ export const routes = createRoutesFromElements(
         </Route> */}
         <Route path="networking" element={null} handle={{ crumb: 'Networking' }} />
         <Route path="settings" element={null} handle={{ crumb: 'Settings' }} />
+      </Route>
+
+      <Route path="system/setup" element={<OnboardingLayout />}>
+        <Route index element={<Navigate to="silo" replace />} />
+        <Route path="silo" element={<CreateSiloPage />} />
+        <Route path="idp" element={<ConfigureIdpPage />} />
+        <Route path="test-idp" element={<div>Test IdP configuration</div>} />
+        <Route path="admin-group" element={<div>Configure admin group</div>} />
+        <Route path="review" element={<div>Review</div>} />
       </Route>
 
       <Route index element={<Navigate to={pb.projects()} replace />} />
