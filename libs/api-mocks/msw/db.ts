@@ -165,15 +165,15 @@ export const lookup = {
     if (!silo) throw notFoundErr
     return silo
   },
+  sled({ sledId: id }: PP.Sled): Json<Api.Sled> {
+    if (!id) throw notFoundErr
+
+    return lookupById(db.sleds, id)
+  },
   systemUpdate({ version }: PP.SystemUpdate): Json<Api.SystemUpdate> {
     const update = db.systemUpdates.find((o) => o.version === version)
     if (!update) throw notFoundErr
     return update
-  },
-  sled(params: PP.Id): Json<Api.Sled> {
-    const sled = db.sleds.find((sled) => sled.id === params.id)
-    if (!sled) throw notFoundErr
-    return sled
   },
   sshKey({ sshKey: id }: PP.SshKey): Json<Api.SshKey> {
     // we don't have a concept of mock session. assume the user is user1

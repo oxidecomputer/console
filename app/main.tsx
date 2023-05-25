@@ -28,7 +28,11 @@ function render() {
   // matching. I asked about this on Discord and they said it's intentional.
   // This means RR is best thought of as an external store that runs
   // independently of the React render lifecycle.
-  const router = createBrowserRouter(routes)
+  const router = createBrowserRouter(routes, {
+    // https://reactrouter.com/en/main/guides/api-development-strategy#current-future-flags
+    future: { v7_normalizeFormMethod: true },
+  })
+
   root.render(
     <StrictMode>
       <QueryClientProvider client={queryClient}>

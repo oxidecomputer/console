@@ -2,9 +2,10 @@ import * as Dialog from '@radix-ui/react-dialog'
 import { animated, useTransition } from '@react-spring/web'
 import React, { type ReactNode } from 'react'
 
+import { Message } from '@oxide/ui'
 import { classed } from '@oxide/util'
 
-import { OpenLink12Icon } from '../icons'
+import { Error12Icon, OpenLink12Icon } from '../icons'
 import './side-modal.css'
 
 export type SideModalResource = { icon: ReactNode; name: string }
@@ -14,6 +15,7 @@ export type SideModalProps = {
   onDismiss: () => void
   isOpen: boolean
   children?: React.ReactNode
+  errors?: string[]
   /**
    * Whether the modal should animate in. It never animates out. Default `true`.
    * Used to prevent animation from firing when we show the modal directly on a
@@ -30,6 +32,7 @@ export function SideModal({
   isOpen,
   animate = true,
   resource,
+  errors,
 }: SideModalProps) {
   const titleId = 'side-modal-title'
   const AnimatedDialogContent = animated(Dialog.Content)
@@ -64,6 +67,29 @@ export function SideModal({
                 <Dialog.Title asChild>
                   <>
                     <SideModal.Title id={titleId} title={title} resource={resource} />
+
+                    {errors && errors.length > 0 && (
+                      <div className="mb-6">
+                        <Message
+                          variant="error"
+                          content={
+                            errors.length === 1 ? (
+                              errors[0]
+                            ) : (
+                              <>
+                                <div>{errors.length} issues:</div>
+                                <ul className="ml-4 list-disc">
+                                  {errors.map((error, idx) => (
+                                    <li key={idx}>{error}</li>
+                                  ))}
+                                </ul>
+                              </>
+                            )
+                          }
+                          title={errors.length > 1 ? 'Errors' : 'Error'}
+                        />
+                      </div>
+                    )}
                   </>
                 </Dialog.Title>
               )}
@@ -114,4 +140,14 @@ SideModal.Docs = ({ children }: { children?: ReactNode }) => (
   </SideModal.Section>
 )
 
-SideModal.Footer = classed.footer`flex py-5 border-t border-secondary`
+SideModal.Footer = ({ children, error }: { children: ReactNode; error?: boolean }) => (
+  <footer className="flex w-full items-center justify-end gap-[0.625rem] border-t py-5 border-secondary children:shrink-0">
+    {error && (
+      <div className="flex grow items-center gap-1.5 text-sans-md text-error">
+        <Error12Icon className="shrink-0" />
+        <span>Error</span>
+      </div>
+    )}
+    {children}
+  </footer>
+)

@@ -81,20 +81,6 @@ export const TextInput = React.forwardRef<
   }
 )
 
-// TODO: do this properly: extract a NumberField that styles the up and down
-// buttons for when we do want them *and* add a flag to hide them using
-// appearance-textfield
-export const NumberInput = ({
-  fieldClassName,
-  ...props
-}: Omit<TextInputBaseProps, 'type'>) => (
-  <TextInput
-    type="number"
-    {...props}
-    fieldClassName={cn(fieldClassName, 'appearance-textfield')}
-  />
-)
-
 type HintProps = {
   // ID required as a reminder to pass aria-describedby on TextField
   id: string

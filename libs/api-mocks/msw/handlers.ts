@@ -37,7 +37,7 @@ export const handlers = makeHandlers({
 
   projectList: (params) => paginated(params.query, db.projects),
   projectCreate({ body }) {
-    errIfExists(db.projects, { name: body.name })
+    errIfExists(db.projects, { name: body.name }, 'project')
 
     const newProject: Json<Api.Project> = {
       id: uuid(),
@@ -59,6 +59,7 @@ export const handlers = makeHandlers({
     const project = lookup.project({ ...path })
     if (body.name) {
       project.name = body.name
+      errIfExists(db.projects, { name: body.name })
     }
     project.description = body.description || ''
 
@@ -255,7 +256,7 @@ export const handlers = makeHandlers({
   instanceCreate({ body, query }) {
     const project = lookup.project(query)
 
-    errIfExists(db.instances, { name: body.name, project_id: project.id })
+    errIfExists(db.instances, { name: body.name, project_id: project.id }, 'instance')
 
     const instanceId = uuid()
 
@@ -265,7 +266,7 @@ export const handlers = makeHandlers({
      */
     for (const diskParams of body.disks || []) {
       if (diskParams.type === 'create') {
-        errIfExists(db.disks, { name: diskParams.name, project_id: project.id })
+        errIfExists(db.disks, { name: diskParams.name, project_id: project.id }, 'disk')
         errIfInvalidDiskSize(diskParams)
       } else {
         lookup.disk({ ...query, disk: diskParams.name })
@@ -769,7 +770,7 @@ export const handlers = makeHandlers({
     return paginated(query, nics)
   },
   sledPhysicalDiskList({ path, query }) {
-    const sled = lookup.sled({ id: path.sledId })
+    const sled = lookup.sled(path)
     const disks = db.physicalDisks.filter((n) => n.sled_id === sled.id)
     return paginated(query, disks)
   },
@@ -831,7 +832,24 @@ export const handlers = makeHandlers({
     db.sshKeys = db.sshKeys.filter((i) => i.id !== sshKey.id)
     return 204
   },
+  sledView: ({ path }) => lookup.sled(path),
   sledList: (params) => paginated(params.query, db.sleds),
+  sledInstanceList({ query, path }) {
+    const sled = lookupById(db.sleds, path.sledId)
+    return paginated(
+      query,
+      db.instances.map((i) => {
+        const project = lookupById(db.projects, i.project_id)
+        return {
+          ...pick(i, 'id', 'name', 'time_created', 'time_modified', 'memory', 'ncpus'),
+          state: 'running',
+          active_sled_id: sled.id,
+          project_name: project.name,
+          silo_name: defaultSilo.name,
+        }
+      })
+    )
+  },
   siloList: (params) => paginated(params.query, db.silos),
   siloCreate({ body }) {
     errIfExists(db.silos, { name: body.name })
@@ -1026,7 +1044,6 @@ export const handlers = makeHandlers({
   siloPolicyView: NotImplemented,
   siloUserList: NotImplemented,
   siloUserView: NotImplemented,
-  sledView: NotImplemented,
   switchList: NotImplemented,
   switchView: NotImplemented,
   systemPolicyUpdate: NotImplemented,
