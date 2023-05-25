@@ -125,11 +125,11 @@ SideModal.Title = ({
   </div>
 )
 
-SideModal.Body = ({ children }: { children?: ReactNode }) => {
-  /* eslint-disable react-hooks/rules-of-hooks */
+// separate component because otherwise eslint thinks it's not a component and
+// gets mad about the use of hooks
+function SideModalBody({ children }: { children?: ReactNode }) {
   const overflowRef = useRef<HTMLDivElement>(null)
   const { scrollStart } = useIsOverflow(overflowRef, undefined, true)
-  /* eslint-enable react-hooks/rules-of-hooks */
 
   return (
     <div
@@ -143,6 +143,8 @@ SideModal.Body = ({ children }: { children?: ReactNode }) => {
     </div>
   )
 }
+
+SideModal.Body = SideModalBody
 
 SideModal.Section = classed.div`p-8 space-y-6 border-secondary`
 
