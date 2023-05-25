@@ -125,7 +125,7 @@ SideModal.Title = ({
 // gets mad about the use of hooks
 function SideModalBody({ children }: { children?: ReactNode }) {
   const overflowRef = useRef<HTMLDivElement>(null)
-  const { scrollStart } = useIsOverflow(overflowRef, undefined, true)
+  const { scrollStart } = useIsOverflow(overflowRef, 'vertical')
 
   return (
     <div
