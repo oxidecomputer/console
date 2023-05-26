@@ -1,3 +1,4 @@
+import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 
 import type { ProjectCreate } from '@oxide/api'
@@ -33,10 +34,14 @@ export function CreateProjectSideModalForm() {
     },
   })
 
+  // TODO: RHF docs warn about the performance impact of validating on every
+  // change
+  const form = useForm({ mode: 'all', defaultValues })
+
   return (
     <SideModalForm
       id="create-project-form"
-      formOptions={{ defaultValues }}
+      form={form}
       title="Create project"
       onDismiss={onDismiss}
       onSubmit={({ name, description }) => {
@@ -45,12 +50,8 @@ export function CreateProjectSideModalForm() {
       loading={createProject.isLoading}
       submitError={createProject.error}
     >
-      {({ control }) => (
-        <>
-          <NameField name="name" control={control} />
-          <DescriptionField name="description" control={control} />
-        </>
-      )}
+      <NameField name="name" control={form.control} />
+      <DescriptionField name="description" control={form.control} />
     </SideModalForm>
   )
 }

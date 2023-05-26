@@ -1,3 +1,5 @@
+import { useForm } from 'react-hook-form'
+
 import {
   updateRole,
   useActorsNotInPolicy,
@@ -25,11 +27,13 @@ export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModa
     },
   })
 
+  const form = useForm({ mode: 'all', defaultValues })
+
   return (
     <SideModalForm
       title="Add user or group"
       id="project-access-add-user"
-      formOptions={{ defaultValues }}
+      form={form}
       onSubmit={({ identityId, roleName }) => {
         // can't happen because roleName is validated not to be '', but TS
         // wants to be sure
@@ -48,24 +52,20 @@ export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModa
       submitLabel="Assign role"
       onDismiss={onDismiss}
     >
-      {({ control }) => (
-        <>
-          <ListboxField
-            name="identityId"
-            items={actors.map(actorToItem)}
-            label="User or group"
-            required
-            control={control}
-          />
-          <ListboxField
-            name="roleName"
-            label="Role"
-            items={roleItems}
-            required
-            control={control}
-          />
-        </>
-      )}
+      <ListboxField
+        name="identityId"
+        items={actors.map(actorToItem)}
+        label="User or group"
+        required
+        control={form.control}
+      />
+      <ListboxField
+        name="roleName"
+        label="Role"
+        items={roleItems}
+        required
+        control={form.control}
+      />
     </SideModalForm>
   )
 }
@@ -87,12 +87,14 @@ export function ProjectAccessEditUserSideModal({
     },
   })
 
+  const form = useForm({ mode: 'all', defaultValues })
+
   return (
     <SideModalForm
       // TODO: show user name in header or SOMEWHERE
       title="Change user role"
       id="project-access-edit-user"
-      formOptions={{ defaultValues }}
+      form={form}
       onSubmit={({ roleName }) => {
         updatePolicy.mutate({
           ...projectPathQuery,
@@ -104,15 +106,13 @@ export function ProjectAccessEditUserSideModal({
       submitLabel="Update role"
       onDismiss={onDismiss}
     >
-      {({ control }) => (
-        <ListboxField
-          name="roleName"
-          label="Role"
-          items={roleItems}
-          required
-          control={control}
-        />
-      )}
+      <ListboxField
+        name="roleName"
+        label="Role"
+        items={roleItems}
+        required
+        control={form.control}
+      />
     </SideModalForm>
   )
 }

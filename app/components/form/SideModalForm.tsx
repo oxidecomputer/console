@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react'
 import { useEffect } from 'react'
-import type { FieldValues, UseFormProps, UseFormReturn } from 'react-hook-form'
-import { useForm } from 'react-hook-form'
+import type { FieldValues, UseFormReturn } from 'react-hook-form'
 import { useNavigationType } from 'react-router-dom'
 
 import type { ApiError } from '@oxide/api'
@@ -9,7 +8,7 @@ import { Button, SideModal } from '@oxide/ui'
 
 type SideModalFormProps<TFieldValues extends FieldValues> = {
   id: string
-  formOptions: UseFormProps<TFieldValues>
+  form: UseFormReturn<TFieldValues>
   /**
    * A function that returns the fields.
    *
@@ -18,7 +17,7 @@ type SideModalFormProps<TFieldValues extends FieldValues> = {
    * then in the calling code, the field would not infer `TFieldValues` and
    * constrain the `name` prop to paths in the values object.
    */
-  children: (form: UseFormReturn<TFieldValues>) => ReactNode
+  children: ReactNode
   onDismiss: () => void
   /** Must be provided with a reason describing why it's disabled */
   submitDisabled?: string
@@ -43,7 +42,7 @@ export function useShouldAnimateModal() {
 
 export function SideModalForm<TFieldValues extends FieldValues>({
   id,
-  formOptions,
+  form,
   children,
   onDismiss,
   submitDisabled,
@@ -54,10 +53,6 @@ export function SideModalForm<TFieldValues extends FieldValues>({
   loading,
   subtitle,
 }: SideModalFormProps<TFieldValues>) {
-  // TODO: RHF docs warn about the performance impact of validating on every
-  // change
-  const form = useForm({ mode: 'all', ...formOptions })
-
   const { isSubmitting } = form.formState
 
   useEffect(() => {
@@ -66,6 +61,7 @@ export function SideModalForm<TFieldValues extends FieldValues>({
       form.setError('name', { message: 'Name already exists' })
     }
   }, [submitError, form])
+
   return (
     <SideModal
       onDismiss={onDismiss}
@@ -91,7 +87,7 @@ export function SideModalForm<TFieldValues extends FieldValues>({
             form.handleSubmit(onSubmit)(e)
           }}
         >
-          {children(form)}
+          {children}
         </form>
       </SideModal.Body>
       <SideModal.Footer error={!!submitError}>
