@@ -14,7 +14,7 @@ export const InstanceResourceCell = ({
         {value.ncpus} <span className="text-quaternary">vCPU</span>
       </div>
       <div>
-        {memory.value} <span className="text-quaternary">{memory.unit} SSD</span>
+        {memory.value} <span className="text-quaternary">{memory.unit}</span>
       </div>
     </div>
   )
