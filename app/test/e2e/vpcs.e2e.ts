@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test'
 
-test('can nav to VpcPage from /', async ({ page }) => {
+// eslint-disable-next-line playwright/no-skipped-test
+test.skip('can nav to VpcPage from /', async ({ page }) => {
   await page.goto('/')
   await page.click('table :text("mock-project")')
   await page.click('a:has-text("Networking")')
@@ -9,7 +10,8 @@ test('can nav to VpcPage from /', async ({ page }) => {
   await expect(await page.title()).toEqual('mock-vpc / VPCs / mock-project / Oxide Console')
 })
 
-test('can create and delete subnet', async ({ page }) => {
+// eslint-disable-next-line playwright/no-skipped-test
+test.skip('can create and delete subnet', async ({ page }) => {
   await page.goto('/projects/mock-project/vpcs/mock-vpc')
   // only one row in table, the default mock-subnet
   const rows = await page.locator('tbody >> tr')

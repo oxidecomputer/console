@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
-import { Link } from 'react-router-dom'
 
 import type { InstanceNetworkInterface } from '@oxide/api'
 import { apiQueryClient, useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
@@ -18,26 +17,12 @@ import { toPathQuery } from '@oxide/util'
 
 import CreateNetworkInterfaceForm from 'app/forms/network-interface-create'
 import EditNetworkInterfaceForm from 'app/forms/network-interface-edit'
-import {
-  getInstanceSelector,
-  useInstanceSelector,
-  useProjectSelector,
-  useToast,
-} from 'app/hooks'
-import { pb } from 'app/util/path-builder'
+import { getInstanceSelector, useInstanceSelector, useToast } from 'app/hooks'
 
 const VpcNameFromId = ({ value }: { value: string }) => {
-  const projectSelector = useProjectSelector()
   const { data: vpc } = useApiQuery('vpcView', { path: { vpc: value } })
   if (!vpc) return null
-  return (
-    <Link
-      className="text-sans-semi-md text-default hover:underline"
-      to={pb.vpc({ ...projectSelector, vpc: vpc.name })}
-    >
-      {vpc.name}
-    </Link>
-  )
+  return <span className="text-secondary">{vpc.name}</span>
 }
 
 const SubnetNameFromId = ({ value }: { value: string }) => (

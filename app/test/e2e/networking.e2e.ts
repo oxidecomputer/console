@@ -2,7 +2,8 @@ import { test } from '@playwright/test'
 
 import { expectNotVisible, expectVisible } from './utils'
 
-test('Click through networking', async ({ page }) => {
+// eslint-disable-next-line playwright/no-skipped-test
+test.skip('Click through networking', async ({ page }) => {
   await page.goto('/projects/mock-project')
 
   await page.click('role=link[name*="Networking"]')

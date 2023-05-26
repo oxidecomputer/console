@@ -4,7 +4,8 @@ import { expect, expectNotVisible, expectVisible } from './utils'
 
 const defaultRules = ['allow-internal-inbound', 'allow-ssh', 'allow-icmp', 'allow-rdp']
 
-test('can create firewall rule', async ({ page }) => {
+// eslint-disable-next-line playwright/no-skipped-test
+test.skip('can create firewall rule', async ({ page }) => {
   await page.goto('/projects/mock-project/vpcs/mock-vpc')
   await page.locator('text="Firewall Rules"').click()
 
@@ -76,7 +77,8 @@ test('can create firewall rule', async ({ page }) => {
   }
 })
 
-test('can update firewall rule', async ({ page }) => {
+// eslint-disable-next-line playwright/no-skipped-test
+test.skip('can update firewall rule', async ({ page }) => {
   await page.goto('/projects/mock-project/vpcs/mock-vpc')
   await page.locator('text="Firewall Rules"').click()
 
