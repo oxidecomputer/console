@@ -10,7 +10,6 @@ import { useForm } from 'react-hook-form'
 import { useNavigationType } from 'react-router-dom'
 
 import type { ApiError } from '@oxide/api'
-import { Error12Icon } from '@oxide/ui'
 import { Button, SideModal } from '@oxide/ui'
 
 import {
@@ -19,15 +18,6 @@ import {
   saveFormValues,
   setPersistedFormValues,
 } from 'app/util/persist-form'
-
-export function ModalFooterError({ children }: { children: ReactNode }) {
-  return (
-    <div className="flex grow text-mono-sm text-error">
-      <Error12Icon className="mx-2 mt-0.5 shrink-0" />
-      <span>{children}</span>
-    </div>
-  )
-}
 
 type SideModalFormProps<TFieldValues extends FieldValues> = {
   id: string
@@ -45,10 +35,11 @@ type SideModalFormProps<TFieldValues extends FieldValues> = {
   /** Must be provided with a reason describing why it's disabled */
   submitDisabled?: string
   /** Error from the API call */
-  submitError: ApiError | null
+  submitError?: ApiError | null
   loading?: boolean
   title: string
-  onSubmit: (values: TFieldValues) => void
+  subtitle?: ReactNode
+  onSubmit?: (values: TFieldValues) => void
   submitLabel?: string
 }
 
@@ -73,6 +64,7 @@ export function SideModalForm<TFieldValues extends FieldValues>({
   onSubmit,
   submitLabel,
   loading,
+  subtitle,
 }: SideModalFormProps<TFieldValues>) {
   // TODO: RHF docs warn about the performance impact of validating on every
   // change
@@ -96,12 +88,20 @@ export function SideModalForm<TFieldValues extends FieldValues>({
 
   const { isSubmitting } = form.formState
 
+  useEffect(() => {
+    if (submitError?.errorCode === 'ObjectAlreadyExists' && 'name' in form.getValues()) {
+      // @ts-expect-error
+      form.setError('name', { message: 'Name already exists' })
+    }
+  }, [submitError, form])
   return (
     <SideModal
       onDismiss={handleOnDismiss}
       isOpen
       title={title}
       animate={useShouldAnimateModal()}
+      subtitle={subtitle}
+      errors={submitError ? [submitError.message] : []}
     >
       <SideModal.Body>
         <form
@@ -109,6 +109,7 @@ export function SideModalForm<TFieldValues extends FieldValues>({
           className="ox-form is-side-modal"
           autoComplete="off"
           onSubmit={(e) => {
+            if (!onSubmit) return
             // This modal being in a portal doesn't prevent the submit event
             // from bubbling up out of the portal. Normally that's not a
             // problem, but sometimes (e.g., instance create) we render the
@@ -122,12 +123,11 @@ export function SideModalForm<TFieldValues extends FieldValues>({
           {children(form)}
         </form>
       </SideModal.Body>
-      <SideModal.Footer>
-        <div className="flex w-full items-center justify-end gap-[0.625rem] children:shrink-0">
-          {submitError && <ModalFooterError>{submitError.message}</ModalFooterError>}
-          <Button variant="ghost" size="sm" onClick={handleOnDismiss}>
-            Cancel
-          </Button>
+      <SideModal.Footer error={!!submitError}>
+        <Button variant="ghost" size="sm" onClick={onDismiss}>
+          Cancel
+        </Button>
+        {onSubmit && (
           <Button
             type="submit"
             size="sm"
@@ -138,7 +138,7 @@ export function SideModalForm<TFieldValues extends FieldValues>({
           >
             {submitLabel || title}
           </Button>
-        </div>
+        )}
       </SideModal.Footer>
     </SideModal>
   )

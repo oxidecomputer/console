@@ -1,7 +1,7 @@
-import { InlineMessage } from './InlineMessage'
+import { Message } from './Message'
 
 export const Default = () => (
-  <InlineMessage
+  <Message
     variant="notice"
     content={
       <>

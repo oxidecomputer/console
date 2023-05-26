@@ -20,6 +20,7 @@
 @layer base {
   body {
     @apply overflow-y-hidden text-default bg-default;
+    font-family: SuisseIntl, -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif;
   }
 
   /* https://github.com/tailwindlabs/tailwindcss/blob/v2.2.4/src/plugins/css/preflight.css#L57 */
@@ -62,6 +63,7 @@ button:focus-visible,
 [role='option']:focus-visible,
 [role='button']:focus-visible,
 input[type='text']:focus-visible,
+input[type='textarea']:focus-visible,
 input[type='file']:focus-visible,
 input[type='radio']:focus-visible,
 input[type='checkbox']:focus-visible,
@@ -80,6 +82,7 @@ button:focus,
 [role='option']:focus,
 [role='button']:focus,
 input[type='text']:focus,
+input[type='textarea']:focus-visible,
 input[type='file']:focus,
 input[type='radio']:focus,
 input[type='checkbox']:focus,
@@ -98,6 +101,7 @@ button:focus:not(:focus-visible),
 [role='option']:focus:not(:focus-visible),
 [role='button']:focus:not(:focus-visible),
 input[type='text']:focus:not(:focus-visible),
+input[type='textarea']:focus-visible,
 input[type='radio']:focus:not(:focus-visible),
 input[type='checkbox']:focus:not(:focus-visible) {
   @apply outline-transparent;

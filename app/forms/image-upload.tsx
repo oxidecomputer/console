@@ -10,6 +10,7 @@ import type { ApiError, BlockSize, Disk, Snapshot } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import {
   Error12Icon,
+  Message,
   Modal,
   Progress,
   Spinner,
@@ -20,7 +21,6 @@ import { GiB, KiB } from '@oxide/util'
 
 import {
   DescriptionField,
-  ModalFooterError,
   NameField,
   RadioField,
   SideModalForm,
@@ -70,9 +70,10 @@ type StepProps = {
   state: MutationState
   label: string
   duration?: number
+  className?: string
 }
 
-function Step({ children, state, label }: StepProps) {
+function Step({ children, state, label, className }: StepProps) {
   /* eslint-disable react/jsx-key */
   const [status, icon] = state.isSuccess
     ? ['complete', <Success12Icon className="text-accent" />]
@@ -84,7 +85,7 @@ function Step({ children, state, label }: StepProps) {
   /* eslint-enable react/jsx-key */
   return (
     // data-status used only for e2e testing
-    <div className="items-top flex gap-2 py-3 px-4" data-status={status}>
+    <div className={cn('items-top flex gap-2 py-3 px-4', className)} data-status={status}>
       {/* padding on icon to align it with text since everything is aligned to top */}
       <div className="pt-px">{icon}</div>
       <div
@@ -549,9 +550,17 @@ export function CreateImageSideModalForm() {
             {file && modalOpen && (
               <Modal isOpen onDismiss={closeModal}>
                 <Modal.Title>Image upload progress</Modal.Title>
-                <Modal.Body>
+                <Modal.Body className="!p-0">
                   <Modal.Section className="!p-0">
                     <div className="children:border-b children:border-b-secondary last:children:border-b-0">
+                      {modalError && (
+                        <Message
+                          variant="error"
+                          title="Error"
+                          content={modalError}
+                          className="!rounded-none !shadow-none"
+                        />
+                      )}
                       <Step state={createDisk} label="Create temporary disk" />
                       <Step state={startImport} label="Put disk in import mode" />
                       <Step state={syntheticUploadState} label="Upload image file">
@@ -585,10 +594,23 @@ export function CreateImageSideModalForm() {
                       <Step
                         state={{
                           isLoading: deleteDisk.isLoading || deleteSnapshot.isLoading,
-                          isSuccess: deleteDisk.isSuccess || deleteSnapshot.isSuccess,
+                          isSuccess: deleteDisk.isSuccess && deleteSnapshot.isSuccess,
                           isError: deleteDisk.isError || deleteSnapshot.isError,
                         }}
                         label="Delete disk and snapshot"
+                      />
+                      <Step
+                        state={{
+                          isLoading: false,
+                          isSuccess: allDone,
+                          isError: false,
+                        }}
+                        label="Image uploaded successfully"
+                        className={
+                          allDone
+                            ? 'transition-colors bg-accent-secondary children:text-accent'
+                            : ' transition-colors'
+                        }
                       />
                     </div>
                   </Modal.Section>
@@ -597,13 +619,9 @@ export function CreateImageSideModalForm() {
                   onDismiss={closeModal}
                   onAction={backToImages}
                   actionText="Done"
-                  cancelText={modalError ? 'Back' : 'Cancel'}
+                  cancelText={modalError || allDone ? 'Back' : 'Cancel'}
                   disabled={!allDone}
-                >
-                  {/* TODO: style success message better */}
-                  {allDone && <div>Image created!</div>}
-                  {modalError && <ModalFooterError>{modalError}</ModalFooterError>}
-                </Modal.Footer>
+                />
               </Modal>
             )}
           </>

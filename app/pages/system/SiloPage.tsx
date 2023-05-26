@@ -42,9 +42,8 @@ export function SiloPage() {
   return (
     <>
       <PageHeader>
-        <PageTitle /*icon={icon}*/>{silo}</PageTitle>
+        <PageTitle /*icon={icon}*/>Identity Providers</PageTitle>
       </PageHeader>
-      <h2 className="mb-2 text-sans-2xl">Identity providers</h2>
       <TableActions>
         <Link to={pb.siloIdpNew({ silo })} className={buttonStyle({ size: 'sm' })}>
           New provider
@@ -66,13 +65,16 @@ export function SiloPage() {
             )
           }
         />
-        <Column accessor="description" cell={TruncateCell} />
+        <Column
+          accessor="description"
+          cell={(props) => <TruncateCell {...props} maxLength={48} />}
+        />
         <Column
           accessor="providerType"
           header="Type"
           cell={({ value }) => <Badge color="neutral">{value}</Badge>}
         />
-        <Column accessor="timeCreated" cell={DateCell} />
+        <Column accessor="timeCreated" id="Created" cell={DateCell} />
       </Table>
       <Outlet />
     </>
