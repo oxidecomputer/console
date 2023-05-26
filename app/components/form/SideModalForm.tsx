@@ -61,6 +61,7 @@ export function SideModalForm<TFieldValues extends FieldValues>({
       form.setError('name', { message: 'Name already exists' })
     }
   }, [submitError, form])
+
   return (
     <SideModal
       onDismiss={onDismiss}

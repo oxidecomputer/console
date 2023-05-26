@@ -454,11 +454,13 @@ export function CreateFirewallRuleForm({
     },
   })
 
+  const form = useForm({ mode: 'all', defaultValues })
+
   return (
     <SideModalForm
       id="create-firewall-rule-form"
       title="Add firewall rule"
-      formOptions={{ defaultValues }}
+      form={form}
       onDismiss={onDismiss}
       onSubmit={(values) => {
         // TODO: this silently overwrites existing rules with the current name.
@@ -477,7 +479,7 @@ export function CreateFirewallRuleForm({
       submitError={updateRules.error}
       submitLabel="Add rule"
     >
-      {({ control }) => <CommonFields error={updateRules.error} control={control} />}
+      <CommonFields error={updateRules.error} control={form.control} />
     </SideModalForm>
   )
 }

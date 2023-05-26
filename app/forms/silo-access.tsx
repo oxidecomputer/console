@@ -1,3 +1,5 @@
+import { useForm } from 'react-hook-form'
+
 import {
   updateRole,
   useActorsNotInPolicy,
@@ -21,12 +23,14 @@ export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalPr
     },
   })
 
+  const form = useForm({ mode: 'all', defaultValues })
+
   return (
     <SideModalForm
       onDismiss={onDismiss}
       title="Add user or group"
       id="silo-access-add-user"
-      formOptions={{ defaultValues }}
+      form={form}
       onSubmit={({ identityId, roleName }) => {
         // can't happen because roleName is validated not to be '', but TS
         // wants to be sure
@@ -44,24 +48,20 @@ export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalPr
       submitError={updatePolicy.error}
       submitLabel="Assign role"
     >
-      {({ control }) => (
-        <>
-          <ListboxField
-            name="identityId"
-            items={actors.map(actorToItem)}
-            label="User or group"
-            required
-            control={control}
-          />
-          <ListboxField
-            name="roleName"
-            label="Role"
-            items={roleItems}
-            required
-            control={control}
-          />
-        </>
-      )}
+      <ListboxField
+        name="identityId"
+        items={actors.map(actorToItem)}
+        label="User or group"
+        required
+        control={form.control}
+      />
+      <ListboxField
+        name="roleName"
+        label="Role"
+        items={roleItems}
+        required
+        control={form.control}
+      />
     </SideModalForm>
   )
 }
@@ -80,13 +80,14 @@ export function SiloAccessEditUserSideModal({
       onDismiss()
     },
   })
+  const form = useForm({ mode: 'all', defaultValues })
 
   return (
     <SideModalForm
       // TODO: show user name in header or SOMEWHERE
       title="Change user role"
       id="silo-access-edit-user"
-      formOptions={{ defaultValues }}
+      form={form}
       onSubmit={({ roleName }) => {
         updatePolicy.mutate({
           body: updateRole({ identityId, identityType, roleName }, policy),
@@ -97,15 +98,13 @@ export function SiloAccessEditUserSideModal({
       submitLabel="Update role"
       onDismiss={onDismiss}
     >
-      {({ control }) => (
-        <ListboxField
-          name="roleName"
-          label="Role"
-          items={roleItems}
-          required
-          control={control}
-        />
-      )}
+      <ListboxField
+        name="roleName"
+        label="Role"
+        items={roleItems}
+        required
+        control={form.control}
+      />
     </SideModalForm>
   )
 }
