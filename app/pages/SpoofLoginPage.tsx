@@ -3,9 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useApiMutation } from '@oxide/api'
 import { Button, Identicon } from '@oxide/ui'
 
-import heroRackImg from 'app/assets/oxide-hero-rack.webp'
 import 'app/components/login-page.css'
-import { Logo } from 'app/layouts/AuthLayout'
 import { pb } from 'app/util/path-builder'
 
 import { useToast } from '../hooks'
@@ -51,67 +49,45 @@ export function SpoofLoginPage() {
   })
 
   return (
-    <main className="layout relative flex h-screen">
-      <div className="hero-bg relative flex w-1/2 justify-end text-accent sm-:hidden">
-        <div className="hero-rack-wrapper">
-          <img src={heroRackImg} alt="A populated Oxide rack" className="hero-rack" />
-        </div>
+    <>
+      <div className="mb-3 flex items-end space-x-3">
+        <Identicon
+          className="flex h-[34px] w-[34px] items-center justify-center rounded text-accent bg-accent-secondary-hover"
+          name="maze-war"
+        />
+        <div className="text-sans-2xl text-default">maze-war</div>
       </div>
-      <div className="z-10 flex h-full w-1/2 justify-start sm-:w-full sm-:justify-center">
-        <div className="flex h-full w-full max-w-[480px] items-center justify-center sm+:pr-10">
-          <div className="flex w-[320px] flex-col items-center">
-            <div className="mb-3 flex items-end space-x-3">
-              <Identicon
-                className="flex h-[34px] w-[34px] items-center justify-center rounded text-accent bg-accent-secondary-hover"
-                name="maze-war"
-              />
-              <div className="text-sans-2xl text-default">maze-war</div>
-            </div>
-            <div className="text-sans-lg text-secondary">maze-war.bitmapbros.com</div>
-            <hr className="my-6 w-full border-0 border-b border-b-secondary" />
+      <div className="text-sans-lg text-secondary">maze-war.bitmapbros.com</div>
+      <hr className="my-6 w-full border-0 border-b border-b-secondary" />
 
-            <div className="w-full space-y-3">
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={loginPost.isLoading}
-                onClick={() => loginPost.mutate({ body: { username: 'privileged' } })}
-              >
-                Privileged
-              </Button>
-              <Button
-                variant="secondary"
-                type="submit"
-                className="w-full"
-                disabled={loginPost.isLoading}
-                onClick={() => loginPost.mutate({ body: { username: 'unprivileged' } })}
-              >
-                Unprivileged
-              </Button>
-              <Button
-                variant="secondary"
-                type="submit"
-                className="w-full"
-                disabled={loginPost.isLoading}
-                onClick={() => logout.mutate({})}
-              >
-                Sign out
-              </Button>
-            </div>
-
-            {/* todo: we might want to collect an operator email
-                and insert it in here as a mailto
-            <div className="mt-6 text-sans-sm text-quaternary">
-              Don&apos;t have an account
-              <a href="/" className="ml-1 underline text-tertiary">
-                Request access
-              </a>
-            </div>
-            */}
-          </div>
-        </div>
+      <div className="w-full space-y-3">
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={loginPost.isLoading}
+          onClick={() => loginPost.mutate({ body: { username: 'privileged' } })}
+        >
+          Privileged
+        </Button>
+        <Button
+          variant="secondary"
+          type="submit"
+          className="w-full"
+          disabled={loginPost.isLoading}
+          onClick={() => loginPost.mutate({ body: { username: 'unprivileged' } })}
+        >
+          Unprivileged
+        </Button>
+        <Button
+          variant="secondary"
+          type="submit"
+          className="w-full"
+          disabled={loginPost.isLoading}
+          onClick={() => logout.mutate({})}
+        >
+          Sign out
+        </Button>
       </div>
-      <Logo className="absolute bottom-8 left-1/2 hidden -translate-x-1/2 sm-:block" />
-    </main>
+    </>
   )
 }
