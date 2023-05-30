@@ -78,7 +78,7 @@ export function CapacityUtilizationPage() {
 
       <div className="my-8 flex justify-between">
         <Listbox
-          defaultValue={FLEET_ID}
+          selectedItem={siloId}
           className="w-48"
           aria-labelledby="silo-id-label"
           name="silo-id"

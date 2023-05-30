@@ -22,7 +22,7 @@ export type ListboxItem = {
 )
 
 export interface ListboxProps {
-  defaultValue?: string
+  selectedItem: string
   items: ListboxItem[]
   placeholder?: string
   className?: string
@@ -34,7 +34,7 @@ export interface ListboxProps {
 }
 
 export const Listbox = ({
-  defaultValue,
+  selectedItem,
   items,
   placeholder,
   className,
@@ -51,7 +51,7 @@ export const Listbox = ({
     return item.label
   }
   const select = useSelect({
-    initialSelectedItem: items.find((i) => i.value === defaultValue) || null,
+    selectedItem: items.find((i) => i.value === selectedItem) || null,
     items,
     itemToString,
     onSelectedItemChange(changes) {

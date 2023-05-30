@@ -62,7 +62,6 @@ export function ListboxField<
           <>
             <Listbox
               placeholder={placeholder}
-              defaultValue={field.value}
               items={items}
               onChange={(i) => {
                 if (i) {
@@ -70,6 +69,7 @@ export function ListboxField<
                   onChange?.(i.value)
                 }
               }}
+              selectedItem={field.value}
               // required to get required error to trigger on blur
               onBlur={field.onBlur}
               disabled={disabled}

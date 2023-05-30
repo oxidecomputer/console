@@ -98,7 +98,7 @@ export function DateTimeRangePicker({
   })
 
   return (
-    <form className="flex items-center gap-3">
+    <form className="flex items-center gap-2">
       <div className="text-sans-md text-quaternary">
         Updated {format(lastUpdated, 'hh:mm')}
       </div>
@@ -106,7 +106,7 @@ export function DateTimeRangePicker({
         <Listbox
           className="z-10 w-[10rem] [&>button]:!rounded-r-none [&>button]:!border-r-0" // in addition to gap-4
           name="preset"
-          defaultValue={initialPreset}
+          selectedItem={preset}
           aria-label="Choose a time range preset"
           items={rangePresets}
           onChange={(item) => {
