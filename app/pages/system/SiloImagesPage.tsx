@@ -9,7 +9,7 @@ import {
   Button,
   EmptyMessage,
   Images24Icon,
-  InlineMessage,
+  Message,
   Modal,
   PageHeader,
   PageTitle,
@@ -115,7 +115,7 @@ const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
             />
             <ImageListboxField control={control} project={selectedProject} />
           </form>
-          <InlineMessage
+          <Message
             variant="notice"
             content="Once an image has been promoted it is visible to all projects in a silo"
           />
