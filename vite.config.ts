@@ -80,10 +80,6 @@ export default defineConfig(({ mode }) => ({
         },
         rewrite: (path) => path.replace(/^\/ws-serial-console/, ''),
       },
-      // We want to actually hit Nexus for this because it gives us a login redirect
-      '/login': {
-        target: 'http://localhost:12220',
-      },
     },
   },
   test: {

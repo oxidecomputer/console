@@ -39,6 +39,9 @@ export default function SiloLayout() {
           <NavLinkItem to={pb.siloAccess()}>
             <Access16Icon /> Access & IAM
           </NavLinkItem>
+          <NavLinkItem to={pb.siloImages()}>
+            <Images16Icon /> Images
+          </NavLinkItem>
         </Sidebar.Nav>
       </Sidebar>
       <ContentPane />

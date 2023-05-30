@@ -1,3 +1,4 @@
+import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 
 import type { PathParams as PP, SnapshotCreate } from '@oxide/api'
@@ -50,24 +51,22 @@ export function CreateSnapshotSideModalForm() {
     },
   })
 
+  const form = useForm({ mode: 'all', defaultValues })
+
   return (
     <SideModalForm
       id="create-snapshot-form"
       title="Create Snapshot"
-      formOptions={{ defaultValues }}
+      form={form}
       onDismiss={onDismiss}
       onSubmit={(values) => {
         createSnapshot.mutate({ query: projectSelector, body: values })
       }}
       submitError={createSnapshot.error}
     >
-      {({ control }) => (
-        <>
-          <NameField name="name" control={control} />
-          <DescriptionField name="description" control={control} />
-          <ListboxField name="disk" items={diskItems} required control={control} />
-        </>
-      )}
+      <NameField name="name" control={form.control} />
+      <DescriptionField name="description" control={form.control} />
+      <ListboxField name="disk" items={diskItems} required control={form.control} />
     </SideModalForm>
   )
 }

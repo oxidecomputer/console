@@ -1,3 +1,5 @@
+import { useForm } from 'react-hook-form'
+
 import type { ApiError } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 
@@ -35,25 +37,25 @@ export function AttachDiskSideModalForm({
       (d) => d.state.state === 'detached'
     ) || []
 
+  const form = useForm({ mode: 'all', defaultValues })
+
   return (
     <SideModalForm
       id="form-disk-attach"
       title="Attach Disk"
-      formOptions={{ defaultValues }}
+      form={form}
       onSubmit={onSubmit}
       loading={loading}
       submitError={submitError}
       onDismiss={onDismiss}
     >
-      {({ control }) => (
-        <ListboxField
-          label="Disk name"
-          name="name"
-          items={detachedDisks.map(({ name }) => ({ value: name, label: name }))}
-          required
-          control={control}
-        />
-      )}
+      <ListboxField
+        label="Disk name"
+        name="name"
+        items={detachedDisks.map(({ name }) => ({ value: name, label: name }))}
+        required
+        control={form.control}
+      />
     </SideModalForm>
   )
 }

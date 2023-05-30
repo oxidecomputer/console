@@ -1,3 +1,4 @@
+import { useForm } from 'react-hook-form'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 
@@ -40,11 +41,13 @@ export function EditVpcSideModalForm() {
     },
   })
 
+  const form = useForm({ mode: 'all', defaultValues: vpc })
+
   return (
     <SideModalForm
       id="edit-vpc-form"
       title="Edit VPC"
-      formOptions={{ defaultValues: vpc }}
+      form={form}
       onDismiss={onDismiss}
       onSubmit={({ name, description, dnsName }) => {
         editVpc.mutate({
@@ -56,13 +59,9 @@ export function EditVpcSideModalForm() {
       submitLabel="Save changes"
       submitError={editVpc.error}
     >
-      {({ control }) => (
-        <>
-          <NameField name="name" control={control} />
-          <DescriptionField name="description" control={control} />
-          <NameField name="dnsName" label="DNS name" required={false} control={control} />
-        </>
-      )}
+      <NameField name="name" control={form.control} />
+      <DescriptionField name="description" control={form.control} />
+      <NameField name="dnsName" label="DNS name" required={false} control={form.control} />
     </SideModalForm>
   )
 }

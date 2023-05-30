@@ -8,9 +8,10 @@ import { QueryParamTabs } from 'app/components/QueryParamTabs'
 import { getVpcSelector, useVpcSelector } from 'app/hooks'
 
 import { VpcFirewallRulesTab } from './tabs/VpcFirewallRulesTab'
-import { VpcRoutersTab } from './tabs/VpcRoutersTab'
 import { VpcSubnetsTab } from './tabs/VpcSubnetsTab'
-import { VpcSystemRoutesTab } from './tabs/VpcSystemRoutesTab'
+
+// import { VpcRoutersTab } from './tabs/VpcRoutersTab'
+// import { VpcSystemRoutesTab } from './tabs/VpcSystemRoutesTab'
 
 VpcPage.loader = async ({ params }: LoaderFunctionArgs) => {
   await apiQueryClient.prefetchQuery('vpcView', toPathQuery('vpc', getVpcSelector(params)))
@@ -44,19 +45,19 @@ export function VpcPage() {
       <QueryParamTabs id="tabs-vpc-sections" className="full-width" defaultValue="subnets">
         <Tabs.List>
           <Tabs.Trigger value="subnets">Subnets</Tabs.Trigger>
-          <Tabs.Trigger value="system-routes">System Routes</Tabs.Trigger>
-          <Tabs.Trigger value="routers">Routers</Tabs.Trigger>
+          {/* <Tabs.Trigger value="system-routes">System Routes</Tabs.Trigger>
+          <Tabs.Trigger value="routers">Routers</Tabs.Trigger> */}
           <Tabs.Trigger value="firewall-rules">Firewall Rules</Tabs.Trigger>
         </Tabs.List>
         <Tabs.Content value="subnets">
           <VpcSubnetsTab />
         </Tabs.Content>
-        <Tabs.Content value="system-routes">
+        {/* <Tabs.Content value="system-routes">
           <VpcSystemRoutesTab />
         </Tabs.Content>
         <Tabs.Content value="routers">
           <VpcRoutersTab />
-        </Tabs.Content>
+        </Tabs.Content> */}
         <Tabs.Content value="firewall-rules">
           <VpcFirewallRulesTab />
         </Tabs.Content>

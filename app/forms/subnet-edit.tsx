@@ -1,3 +1,5 @@
+import { useForm } from 'react-hook-form'
+
 import type { VpcSubnet } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { pick } from '@oxide/util'
@@ -23,12 +25,14 @@ export function EditSubnetForm({ onDismiss, editing }: EditSubnetFormProps) {
 
   const defaultValues = pick(editing, 'name', 'description') /* satisfies VpcSubnetUpdate */
 
+  const form = useForm({ mode: 'all', defaultValues })
+
   return (
     <SideModalForm
       id="edit-subnet-form"
       title="Edit subnet"
       onDismiss={onDismiss}
-      formOptions={{ defaultValues }}
+      form={form}
       onSubmit={(body) => {
         updateSubnet.mutate({
           path: { subnet: editing.name },
@@ -40,12 +44,8 @@ export function EditSubnetForm({ onDismiss, editing }: EditSubnetFormProps) {
       submitError={updateSubnet.error}
       submitLabel="Update subnet"
     >
-      {({ control }) => (
-        <>
-          <NameField name="name" control={control} />
-          <DescriptionField name="description" control={control} />
-        </>
-      )}
+      <NameField name="name" control={form.control} />
+      <DescriptionField name="description" control={form.control} />
     </SideModalForm>
   )
 }

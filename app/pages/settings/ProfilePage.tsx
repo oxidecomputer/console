@@ -48,7 +48,7 @@ export function ProfilePage() {
           />
           <h2>Groups</h2>
           <Table table={groupsTable} />
-          <span className="inline-block text-secondary">
+          <span className="inline-block text-sans-md text-secondary">
             <span>Your user information is managed by your organization. </span>
             <span className="md+:block">
               To update, contact your{' '}
