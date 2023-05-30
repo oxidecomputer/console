@@ -1,3 +1,5 @@
+import { useForm } from 'react-hook-form'
+
 import type { VpcSubnetCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { Divider } from '@oxide/ui'
@@ -25,25 +27,24 @@ export function CreateSubnetForm({ onDismiss }: CreateSubnetFormProps) {
       onDismiss()
     },
   })
+
+  const form = useForm({ mode: 'all', defaultValues })
+
   return (
     <SideModalForm
       id="create-subnet-form"
       title="Create subnet"
-      formOptions={{ defaultValues }}
+      form={form}
       onDismiss={onDismiss}
       onSubmit={(body) => createSubnet.mutate({ query: vpcSelector, body })}
       loading={createSubnet.isLoading}
       submitError={createSubnet.error}
     >
-      {({ control }) => (
-        <>
-          <NameField name="name" control={control} />
-          <DescriptionField name="description" control={control} />
-          <Divider />
-          <TextField name="ipv4Block" label="IPv4 block" required control={control} />
-          <TextField name="ipv6Block" label="IPv6 block" control={control} />
-        </>
-      )}
+      <NameField name="name" control={form.control} />
+      <DescriptionField name="description" control={form.control} />
+      <Divider />
+      <TextField name="ipv4Block" label="IPv4 block" required control={form.control} />
+      <TextField name="ipv6Block" label="IPv6 block" control={form.control} />
     </SideModalForm>
   )
 }

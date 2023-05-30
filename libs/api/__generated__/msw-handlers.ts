@@ -59,17 +59,24 @@ export interface MSWHandlers {
   deviceAccessToken: () => StatusCode
   /** `POST /login` */
   loginSpoof: (params: { body: Json<Api.SpoofLoginBody> }) => StatusCode
-  /** `POST /login/:siloName/local` */
-  loginLocal: (params: {
-    path: Api.LoginLocalPathParams
-    body: Json<Api.UsernamePasswordCredentials>
-  }) => StatusCode
   /** `GET /login/:siloName/saml/:providerName` */
   loginSamlBegin: (params: { path: Api.LoginSamlBeginPathParams }) => StatusCode
   /** `POST /login/:siloName/saml/:providerName` */
   loginSaml: (params: { path: Api.LoginSamlPathParams }) => StatusCode
-  /** `POST /logout` */
-  logout: () => StatusCode
+  /** `GET /v1/certificates` */
+  certificateList: (params: {
+    query: Api.CertificateListQueryParams
+  }) => HandlerResult<Api.CertificateResultsPage>
+  /** `POST /v1/certificates` */
+  certificateCreate: (params: {
+    body: Json<Api.CertificateCreate>
+  }) => HandlerResult<Api.Certificate>
+  /** `GET /v1/certificates/:certificate` */
+  certificateView: (params: {
+    path: Api.CertificateViewPathParams
+  }) => HandlerResult<Api.Certificate>
+  /** `DELETE /v1/certificates/:certificate` */
+  certificateDelete: (params: { path: Api.CertificateDeletePathParams }) => StatusCode
   /** `GET /v1/disks` */
   diskList: (params: {
     query: Api.DiskListQueryParams
@@ -126,7 +133,7 @@ export interface MSWHandlers {
   groupList: (params: {
     query: Api.GroupListQueryParams
   }) => HandlerResult<Api.GroupResultsPage>
-  /** `GET /v1/groups/:group` */
+  /** `GET /v1/groups/:groupId` */
   groupView: (params: { path: Api.GroupViewPathParams }) => HandlerResult<Api.Group>
   /** `GET /v1/images` */
   imageList: (params: {
@@ -147,6 +154,11 @@ export interface MSWHandlers {
     path: Api.ImageDeletePathParams
     query: Api.ImageDeleteQueryParams
   }) => StatusCode
+  /** `POST /v1/images/:image/demote` */
+  imageDemote: (params: {
+    path: Api.ImageDemotePathParams
+    query: Api.ImageDemoteQueryParams
+  }) => HandlerResult<Api.Image>
   /** `POST /v1/images/:image/promote` */
   imagePromote: (params: {
     path: Api.ImagePromotePathParams
@@ -224,6 +236,13 @@ export interface MSWHandlers {
     path: Api.InstanceStopPathParams
     query: Api.InstanceStopQueryParams
   }) => HandlerResult<Api.Instance>
+  /** `POST /v1/login/:siloName/local` */
+  loginLocal: (params: {
+    path: Api.LoginLocalPathParams
+    body: Json<Api.UsernamePasswordCredentials>
+  }) => StatusCode
+  /** `POST /v1/logout` */
+  logout: () => StatusCode
   /** `GET /v1/me` */
   currentUserView: () => HandlerResult<Api.CurrentUser>
   /** `GET /v1/me/groups` */
@@ -320,20 +339,6 @@ export interface MSWHandlers {
     path: Api.SnapshotDeletePathParams
     query: Api.SnapshotDeleteQueryParams
   }) => StatusCode
-  /** `GET /v1/system/certificates` */
-  certificateList: (params: {
-    query: Api.CertificateListQueryParams
-  }) => HandlerResult<Api.CertificateResultsPage>
-  /** `POST /v1/system/certificates` */
-  certificateCreate: (params: {
-    body: Json<Api.CertificateCreate>
-  }) => HandlerResult<Api.Certificate>
-  /** `GET /v1/system/certificates/:certificate` */
-  certificateView: (params: {
-    path: Api.CertificateViewPathParams
-  }) => HandlerResult<Api.Certificate>
-  /** `DELETE /v1/system/certificates/:certificate` */
-  certificateDelete: (params: { path: Api.CertificateDeletePathParams }) => StatusCode
   /** `GET /v1/system/hardware/disks` */
   physicalDiskList: (params: {
     query: Api.PhysicalDiskListQueryParams
@@ -355,6 +360,32 @@ export interface MSWHandlers {
     path: Api.SledPhysicalDiskListPathParams
     query: Api.SledPhysicalDiskListQueryParams
   }) => HandlerResult<Api.PhysicalDiskResultsPage>
+  /** `GET /v1/system/hardware/sleds/:sledId/instances` */
+  sledInstanceList: (params: {
+    path: Api.SledInstanceListPathParams
+    query: Api.SledInstanceListQueryParams
+  }) => HandlerResult<Api.SledInstanceResultsPage>
+  /** `GET /v1/system/hardware/switch-port` */
+  networkingSwitchPortList: (params: {
+    query: Api.NetworkingSwitchPortListQueryParams
+  }) => HandlerResult<Api.SwitchPortResultsPage>
+  /** `POST /v1/system/hardware/switch-port/:port/settings` */
+  networkingSwitchPortApplySettings: (params: {
+    path: Api.NetworkingSwitchPortApplySettingsPathParams
+    query: Api.NetworkingSwitchPortApplySettingsQueryParams
+    body: Json<Api.SwitchPortApplySettings>
+  }) => StatusCode
+  /** `DELETE /v1/system/hardware/switch-port/:port/settings` */
+  networkingSwitchPortClearSettings: (params: {
+    path: Api.NetworkingSwitchPortClearSettingsPathParams
+    query: Api.NetworkingSwitchPortClearSettingsQueryParams
+  }) => StatusCode
+  /** `GET /v1/system/hardware/switches` */
+  switchList: (params: {
+    query: Api.SwitchListQueryParams
+  }) => HandlerResult<Api.SwitchResultsPage>
+  /** `GET /v1/system/hardware/switches/:switchId` */
+  switchView: (params: { path: Api.SwitchViewPathParams }) => HandlerResult<Api.Switch>
   /** `GET /v1/system/identity-providers` */
   siloIdentityProviderList: (params: {
     query: Api.SiloIdentityProviderListQueryParams
@@ -432,6 +463,51 @@ export interface MSWHandlers {
     path: Api.SystemMetricPathParams
     query: Api.SystemMetricQueryParams
   }) => HandlerResult<Api.MeasurementResultsPage>
+  /** `GET /v1/system/networking/address-lot` */
+  networkingAddressLotList: (params: {
+    query: Api.NetworkingAddressLotListQueryParams
+  }) => HandlerResult<Api.AddressLotResultsPage>
+  /** `POST /v1/system/networking/address-lot` */
+  networkingAddressLotCreate: (params: {
+    body: Json<Api.AddressLotCreate>
+  }) => HandlerResult<Api.AddressLotCreateResponse>
+  /** `DELETE /v1/system/networking/address-lot/:addressLot` */
+  networkingAddressLotDelete: (params: {
+    path: Api.NetworkingAddressLotDeletePathParams
+  }) => StatusCode
+  /** `GET /v1/system/networking/address-lot/:addressLot/blocks` */
+  networkingAddressLotBlockList: (params: {
+    path: Api.NetworkingAddressLotBlockListPathParams
+    query: Api.NetworkingAddressLotBlockListQueryParams
+  }) => HandlerResult<Api.AddressLotBlockResultsPage>
+  /** `GET /v1/system/networking/loopback-address` */
+  networkingLoopbackAddressList: (params: {
+    query: Api.NetworkingLoopbackAddressListQueryParams
+  }) => HandlerResult<Api.LoopbackAddressResultsPage>
+  /** `POST /v1/system/networking/loopback-address` */
+  networkingLoopbackAddressCreate: (params: {
+    body: Json<Api.LoopbackAddressCreate>
+  }) => HandlerResult<Api.LoopbackAddress>
+  /** `DELETE /v1/system/networking/loopback-address/:rackId/:switchLocation/:address/:subnetMask` */
+  networkingLoopbackAddressDelete: (params: {
+    path: Api.NetworkingLoopbackAddressDeletePathParams
+  }) => StatusCode
+  /** `GET /v1/system/networking/switch-port-settings` */
+  networkingSwitchPortSettingsList: (params: {
+    query: Api.NetworkingSwitchPortSettingsListQueryParams
+  }) => HandlerResult<Api.SwitchPortSettingsResultsPage>
+  /** `POST /v1/system/networking/switch-port-settings` */
+  networkingSwitchPortSettingsCreate: (params: {
+    body: Json<Api.SwitchPortSettingsCreate>
+  }) => HandlerResult<Api.SwitchPortSettingsInfo>
+  /** `DELETE /v1/system/networking/switch-port-settings` */
+  networkingSwitchPortSettingsDelete: (params: {
+    query: Api.NetworkingSwitchPortSettingsDeleteQueryParams
+  }) => StatusCode
+  /** `GET /v1/system/networking/switch-port-settings/:port/info` */
+  networkingSwitchPortSettingsInfo: (params: {
+    path: Api.NetworkingSwitchPortSettingsInfoPathParams
+  }) => HandlerResult<Api.SwitchPortSettingsInfo>
   /** `GET /v1/system/policy` */
   systemPolicyView: () => HandlerResult<Api.FleetRolePolicy>
   /** `PUT /v1/system/policy` */
@@ -719,14 +795,6 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
     ),
     rest.post('/device/token', handler(handlers['deviceAccessToken'], null, null)),
     rest.post('/login', handler(handlers['loginSpoof'], null, schema.SpoofLoginBody)),
-    rest.post(
-      '/login/:siloName/local',
-      handler(
-        handlers['loginLocal'],
-        schema.LoginLocalParams,
-        schema.UsernamePasswordCredentials
-      )
-    ),
     rest.get(
       '/login/:siloName/saml/:providerName',
       handler(handlers['loginSamlBegin'], schema.LoginSamlBeginParams, null)
@@ -735,7 +803,22 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
       '/login/:siloName/saml/:providerName',
       handler(handlers['loginSaml'], schema.LoginSamlParams, null)
     ),
-    rest.post('/logout', handler(handlers['logout'], null, null)),
+    rest.get(
+      '/v1/certificates',
+      handler(handlers['certificateList'], schema.CertificateListParams, null)
+    ),
+    rest.post(
+      '/v1/certificates',
+      handler(handlers['certificateCreate'], null, schema.CertificateCreate)
+    ),
+    rest.get(
+      '/v1/certificates/:certificate',
+      handler(handlers['certificateView'], schema.CertificateViewParams, null)
+    ),
+    rest.delete(
+      '/v1/certificates/:certificate',
+      handler(handlers['certificateDelete'], schema.CertificateDeleteParams, null)
+    ),
     rest.get('/v1/disks', handler(handlers['diskList'], schema.DiskListParams, null)),
     rest.post(
       '/v1/disks',
@@ -792,7 +875,7 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
     ),
     rest.get('/v1/groups', handler(handlers['groupList'], schema.GroupListParams, null)),
     rest.get(
-      '/v1/groups/:group',
+      '/v1/groups/:groupId',
       handler(handlers['groupView'], schema.GroupViewParams, null)
     ),
     rest.get('/v1/images', handler(handlers['imageList'], schema.ImageListParams, null)),
@@ -807,6 +890,10 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
     rest.delete(
       '/v1/images/:image',
       handler(handlers['imageDelete'], schema.ImageDeleteParams, null)
+    ),
+    rest.post(
+      '/v1/images/:image/demote',
+      handler(handlers['imageDemote'], schema.ImageDemoteParams, null)
     ),
     rest.post(
       '/v1/images/:image/promote',
@@ -888,6 +975,15 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
       '/v1/instances/:instance/stop',
       handler(handlers['instanceStop'], schema.InstanceStopParams, null)
     ),
+    rest.post(
+      '/v1/login/:siloName/local',
+      handler(
+        handlers['loginLocal'],
+        schema.LoginLocalParams,
+        schema.UsernamePasswordCredentials
+      )
+    ),
+    rest.post('/v1/logout', handler(handlers['logout'], null, null)),
     rest.get('/v1/me', handler(handlers['currentUserView'], null, null)),
     rest.get(
       '/v1/me/groups',
@@ -1008,22 +1104,6 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
       handler(handlers['snapshotDelete'], schema.SnapshotDeleteParams, null)
     ),
     rest.get(
-      '/v1/system/certificates',
-      handler(handlers['certificateList'], schema.CertificateListParams, null)
-    ),
-    rest.post(
-      '/v1/system/certificates',
-      handler(handlers['certificateCreate'], null, schema.CertificateCreate)
-    ),
-    rest.get(
-      '/v1/system/certificates/:certificate',
-      handler(handlers['certificateView'], schema.CertificateViewParams, null)
-    ),
-    rest.delete(
-      '/v1/system/certificates/:certificate',
-      handler(handlers['certificateDelete'], schema.CertificateDeleteParams, null)
-    ),
-    rest.get(
       '/v1/system/hardware/disks',
       handler(handlers['physicalDiskList'], schema.PhysicalDiskListParams, null)
     ),
@@ -1046,6 +1126,42 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
     rest.get(
       '/v1/system/hardware/sleds/:sledId/disks',
       handler(handlers['sledPhysicalDiskList'], schema.SledPhysicalDiskListParams, null)
+    ),
+    rest.get(
+      '/v1/system/hardware/sleds/:sledId/instances',
+      handler(handlers['sledInstanceList'], schema.SledInstanceListParams, null)
+    ),
+    rest.get(
+      '/v1/system/hardware/switch-port',
+      handler(
+        handlers['networkingSwitchPortList'],
+        schema.NetworkingSwitchPortListParams,
+        null
+      )
+    ),
+    rest.post(
+      '/v1/system/hardware/switch-port/:port/settings',
+      handler(
+        handlers['networkingSwitchPortApplySettings'],
+        schema.NetworkingSwitchPortApplySettingsParams,
+        schema.SwitchPortApplySettings
+      )
+    ),
+    rest.delete(
+      '/v1/system/hardware/switch-port/:port/settings',
+      handler(
+        handlers['networkingSwitchPortClearSettings'],
+        schema.NetworkingSwitchPortClearSettingsParams,
+        null
+      )
+    ),
+    rest.get(
+      '/v1/system/hardware/switches',
+      handler(handlers['switchList'], schema.SwitchListParams, null)
+    ),
+    rest.get(
+      '/v1/system/hardware/switches/:switchId',
+      handler(handlers['switchView'], schema.SwitchViewParams, null)
     ),
     rest.get(
       '/v1/system/identity-providers',
@@ -1142,6 +1258,90 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
     rest.get(
       '/v1/system/metrics/:metricName',
       handler(handlers['systemMetric'], schema.SystemMetricParams, null)
+    ),
+    rest.get(
+      '/v1/system/networking/address-lot',
+      handler(
+        handlers['networkingAddressLotList'],
+        schema.NetworkingAddressLotListParams,
+        null
+      )
+    ),
+    rest.post(
+      '/v1/system/networking/address-lot',
+      handler(handlers['networkingAddressLotCreate'], null, schema.AddressLotCreate)
+    ),
+    rest.delete(
+      '/v1/system/networking/address-lot/:addressLot',
+      handler(
+        handlers['networkingAddressLotDelete'],
+        schema.NetworkingAddressLotDeleteParams,
+        null
+      )
+    ),
+    rest.get(
+      '/v1/system/networking/address-lot/:addressLot/blocks',
+      handler(
+        handlers['networkingAddressLotBlockList'],
+        schema.NetworkingAddressLotBlockListParams,
+        null
+      )
+    ),
+    rest.get(
+      '/v1/system/networking/loopback-address',
+      handler(
+        handlers['networkingLoopbackAddressList'],
+        schema.NetworkingLoopbackAddressListParams,
+        null
+      )
+    ),
+    rest.post(
+      '/v1/system/networking/loopback-address',
+      handler(
+        handlers['networkingLoopbackAddressCreate'],
+        null,
+        schema.LoopbackAddressCreate
+      )
+    ),
+    rest.delete(
+      '/v1/system/networking/loopback-address/:rackId/:switchLocation/:address/:subnetMask',
+      handler(
+        handlers['networkingLoopbackAddressDelete'],
+        schema.NetworkingLoopbackAddressDeleteParams,
+        null
+      )
+    ),
+    rest.get(
+      '/v1/system/networking/switch-port-settings',
+      handler(
+        handlers['networkingSwitchPortSettingsList'],
+        schema.NetworkingSwitchPortSettingsListParams,
+        null
+      )
+    ),
+    rest.post(
+      '/v1/system/networking/switch-port-settings',
+      handler(
+        handlers['networkingSwitchPortSettingsCreate'],
+        null,
+        schema.SwitchPortSettingsCreate
+      )
+    ),
+    rest.delete(
+      '/v1/system/networking/switch-port-settings',
+      handler(
+        handlers['networkingSwitchPortSettingsDelete'],
+        schema.NetworkingSwitchPortSettingsDeleteParams,
+        null
+      )
+    ),
+    rest.get(
+      '/v1/system/networking/switch-port-settings/:port/info',
+      handler(
+        handlers['networkingSwitchPortSettingsInfo'],
+        schema.NetworkingSwitchPortSettingsInfoParams,
+        null
+      )
     ),
     rest.get('/v1/system/policy', handler(handlers['systemPolicyView'], null, null)),
     rest.put(

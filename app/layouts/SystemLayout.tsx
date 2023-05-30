@@ -4,12 +4,8 @@ import { apiQueryClient } from '@oxide/api'
 import {
   Cloud16Icon,
   Divider,
-  Health16Icon,
-  Instances16Icon,
-  Networking16Icon,
   Settings16Icon,
   Snapshots16Icon,
-  SoftwareUpdate16Icon,
   Storage16Icon,
 } from '@oxide/ui'
 
@@ -62,24 +58,24 @@ export default function SystemLayout() {
           <NavLinkItem to={pb.silos()}>
             <Cloud16Icon /> Silos
           </NavLinkItem>
-          <NavLinkItem to={pb.systemIssues()} disabled>
+          {/* <NavLinkItem to={pb.systemIssues()} disabled>
             <Instances16Icon /> Issues
-          </NavLinkItem>
+          </NavLinkItem> */}
           <NavLinkItem to={pb.systemUtilization()}>
             <Snapshots16Icon /> Utilization
           </NavLinkItem>
           <NavLinkItem to={pb.sledInventory()}>
             <Storage16Icon /> Inventory
           </NavLinkItem>
-          <NavLinkItem to={pb.systemHealth()} disabled>
+          {/* <NavLinkItem to={pb.systemHealth()} disabled>
             <Health16Icon /> Health
           </NavLinkItem>
-          <NavLinkItem to={pb.systemUpdates()}>
+          <NavLinkItem to={pb.systemUpdates()} disabled>
             <SoftwareUpdate16Icon /> System Update
           </NavLinkItem>
           <NavLinkItem to={pb.systemNetworking()} disabled>
             <Networking16Icon /> Networking
-          </NavLinkItem>
+          </NavLinkItem> */}
           <NavLinkItem to={pb.systemSettings()} disabled>
             <Settings16Icon /> Settings
           </NavLinkItem>

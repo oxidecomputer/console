@@ -3,16 +3,15 @@ import filesize from 'filesize'
 import pMap from 'p-map'
 import pRetry from 'p-retry'
 import { useRef, useState } from 'react'
-import { Controller } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import invariant from 'tiny-invariant'
 
-import type { BlockSize, Disk, ErrorResult, Snapshot } from '@oxide/api'
+import type { ApiError, BlockSize, Disk, Snapshot } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import {
   Error12Icon,
-  FieldLabel,
-  FileInput,
+  Message,
   Modal,
   Progress,
   Spinner,
@@ -23,32 +22,15 @@ import { GiB, KiB } from '@oxide/util'
 
 import {
   DescriptionField,
-  ModalFooterError,
   NameField,
   RadioField,
   SideModalForm,
   TextField,
 } from 'app/components/form'
-import { ErrorMessage } from 'app/components/form/fields/ErrorMessage'
+import { FileField } from 'app/components/form/fields'
 import { useProjectSelector } from 'app/hooks'
+import { readBlobAsBase64 } from 'app/util/file'
 import { pb } from 'app/util/path-builder'
-
-/** async wrapper for reading a slice of a file */
-async function readBlobAsBase64(blob: Blob): Promise<string> {
-  return new Promise((resolve) => {
-    const fileReader = new FileReader()
-
-    // split on comma and pop because data URL looks like
-    // 'data:[<mediatype>][;base64],<data>' and we only want <data>.
-    // e.target is never null and result is always a string
-    fileReader.onload = function (e) {
-      const base64Chunk = (e.target!.result as string).split(',').pop()!
-      resolve(base64Chunk)
-    }
-
-    fileReader.readAsDataURL(blob)
-  })
-}
 
 /** Format file size with two decimal points */
 const fsize = (bytes: number) => filesize(bytes, { base: 2, pad: true })
@@ -89,9 +71,10 @@ type StepProps = {
   state: MutationState
   label: string
   duration?: number
+  className?: string
 }
 
-function Step({ children, state, label }: StepProps) {
+function Step({ children, state, label, className }: StepProps) {
   /* eslint-disable react/jsx-key */
   const [status, icon] = state.isSuccess
     ? ['complete', <Success12Icon className="text-accent" />]
@@ -103,7 +86,7 @@ function Step({ children, state, label }: StepProps) {
   /* eslint-enable react/jsx-key */
   return (
     // data-status used only for e2e testing
-    <div className="items-top flex gap-2 py-3 px-4" data-status={status}>
+    <div className={cn('items-top flex gap-2 py-3 px-4', className)} data-status={status}>
       {/* padding on icon to align it with text since everything is aligned to top */}
       <div className="pt-px">{icon}</div>
       <div
@@ -115,6 +98,12 @@ function Step({ children, state, label }: StepProps) {
     </div>
   )
 }
+
+/**
+ * Does a base64 string represent underlying data that's all zeros, i.e., does
+ * it look like `AAAAAAAAAAAAAAAA==`?
+ */
+export const isAllZeros = (base64Data: string) => /^A*=*$/.test(base64Data)
 
 const randInt = () => Math.floor(Math.random() * 100000000)
 
@@ -197,7 +186,7 @@ export function CreateImageSideModalForm() {
   // are submitting, we rely on the RQ mutations themselves, plus a synthetic
   // mutation state representing the many calls of the bulk upload step.
 
-  const [formError, setFormError] = useState<ErrorResult | null>(null)
+  const [formError, setFormError] = useState<ApiError | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
   const [modalError, setModalError] = useState<string | null>(null)
 
@@ -390,12 +379,17 @@ export function CreateImageSideModalForm() {
       const offset = i * CHUNK_SIZE
       const end = Math.min(offset + CHUNK_SIZE, imageFile.size)
       const base64EncodedData = await readBlobAsBase64(imageFile.slice(offset, end))
-      await uploadChunk
-        .mutateAsync({ path, body: { offset, base64EncodedData } })
-        .catch(() => {
-          // this needs to throw a regular Error or pRetry gets mad
-          throw Error(`Chunk ${i} (offset ${offset}) failed`)
-        })
+
+      // Disk space is all zeros by default, so we can skip any chunks that are
+      // all zeros. It turns out this happens a lot.
+      if (!isAllZeros(base64EncodedData)) {
+        await uploadChunk
+          .mutateAsync({ path, body: { offset, base64EncodedData } })
+          .catch(() => {
+            // this needs to throw a regular Error or pRetry gets mad
+            throw Error(`Chunk ${i} (offset ${offset}) failed`)
+          })
+      }
       chunksProcessed++
       setUploadProgress(Math.round((100 * chunksProcessed) / nChunks))
     }
@@ -465,10 +459,13 @@ export function CreateImageSideModalForm() {
     setAllDone(true)
   }
 
+  const form = useForm({ mode: 'all', defaultValues })
+  const file = form.watch('imageFile')
+
   return (
     <SideModalForm
       id="upload-image-form"
-      formOptions={{ defaultValues }}
+      form={form}
       title="Upload image"
       onDismiss={backToImages}
       onSubmit={async (values) => {
@@ -497,13 +494,9 @@ export function CreateImageSideModalForm() {
         if (image) {
           // TODO: set this error on the field instead of the whole form
           // TODO: make setError available here somehow :(
-          const message = 'Image name already exists'
           setFormError({
-            type: 'client_error',
-            error: { name: 'ObjectAlreadyExists', message },
-            text: message,
-            statusCode: 200,
-            headers: new Headers(),
+            errorCode: 'ObjectAlreadyExists',
+            message: 'Image name already exists',
           })
           return
         }
@@ -524,115 +517,110 @@ export function CreateImageSideModalForm() {
       submitError={formError}
       submitLabel={allDone ? 'Done' : 'Upload image'}
     >
-      {({ control, watch }) => {
-        const file = watch('imageFile')
-        return (
-          <>
-            <NameField name="imageName" label="Name" control={control} />
-            <DescriptionField
-              name="imageDescription"
-              label="Description"
-              control={control}
-            />
-            {/* TODO: are OS and Version supposed to be non-empty? I doubt the API cares,
-             * but it will be pretty for end users if they're empty
-             */}
-            <TextField name="os" label="OS" control={control} required />
-            <TextField name="version" control={control} required />
-            <RadioField
-              name="blockSize"
-              label="Block size"
-              units="Bytes"
-              control={control}
-              parseValue={(val) => parseInt(val, 10) as BlockSize}
-              items={[
-                { label: '512', value: 512 },
-                { label: '2048', value: 2048 },
-                { label: '4096', value: 4096 },
-              ]}
-            />
-            <Controller
-              name="imageFile"
-              control={control}
-              rules={{ required: true }}
-              render={({ field: { value: _value, ...rest }, fieldState: { error } }) => (
-                <div>
-                  <FieldLabel id="image-file-input-label" htmlFor="image-file-input">
-                    Image file
-                    {error && (
-                      <span className="ml-2">
-                        <ErrorMessage error={error} label="File" />
-                      </span>
-                    )}
-                  </FieldLabel>
-                  {/*  TODO: this doesn't like being passed a ref because FileInput doesn't forward it */}
-                  <FileInput id="image-file-input" className="mt-2" {...rest} />
-                </div>
-              )}
-            />
-            {file && modalOpen && (
-              <Modal isOpen onDismiss={closeModal}>
-                <Modal.Title>Image upload progress</Modal.Title>
-                <Modal.Body>
-                  <Modal.Section className="!p-0">
-                    <div className="children:border-b children:border-b-secondary last:children:border-b-0">
-                      <Step state={createDisk} label="Create temporary disk" />
-                      <Step state={startImport} label="Put disk in import mode" />
-                      <Step state={syntheticUploadState} label="Upload image file">
-                        <div className="rounded-lg border bg-default border-default">
-                          <div className="flex justify-between border-b p-3 pb-2 border-b-secondary">
-                            <div className="text-sans-md text-default">{file.name}</div>
-                            {/* cancel and/or pause buttons could go here */}
-                          </div>
-                          <div className="p-3 pt-2">
-                            <div className="flex justify-between text-mono-sm">
-                              <div className="!normal-case text-secondary">
-                                {fsize((uploadProgress / 100) * file.size)}{' '}
-                                <span className="text-quinary">/</span> {fsize(file.size)}
-                              </div>
-                              <div className="text-accent">{uploadProgress}%</div>
-                            </div>
-                            <Progress
-                              className="mt-1.5"
-                              aria-label="Upload progress"
-                              value={uploadProgress}
-                            />
-                          </div>
+      <NameField name="imageName" label="Name" control={form.control} />
+      <DescriptionField
+        name="imageDescription"
+        label="Description"
+        control={form.control}
+      />
+      {/* TODO: are OS and Version supposed to be non-empty? I doubt the API cares,
+       * but it will be pretty for end users if they're empty
+       */}
+      <TextField name="os" label="OS" control={form.control} required />
+      <TextField name="version" control={form.control} required />
+      <RadioField
+        name="blockSize"
+        label="Block size"
+        units="Bytes"
+        control={form.control}
+        parseValue={(val) => parseInt(val, 10) as BlockSize}
+        items={[
+          { label: '512', value: 512 },
+          { label: '2048', value: 2048 },
+          { label: '4096', value: 4096 },
+        ]}
+      />
+      <FileField
+        id="image-file-input"
+        name="imageFile"
+        label="Image file"
+        required
+        control={form.control}
+      />
+      {file && modalOpen && (
+        <Modal isOpen onDismiss={closeModal}>
+          <Modal.Title>Image upload progress</Modal.Title>
+          <Modal.Body className="!p-0">
+            <Modal.Section className="!p-0">
+              <div className="children:border-b children:border-b-secondary last:children:border-b-0">
+                {modalError && (
+                  <Message
+                    variant="error"
+                    title="Error"
+                    content={modalError}
+                    className="!rounded-none !shadow-none"
+                  />
+                )}
+                <Step state={createDisk} label="Create temporary disk" />
+                <Step state={startImport} label="Put disk in import mode" />
+                <Step state={syntheticUploadState} label="Upload image file">
+                  <div className="rounded-lg border bg-default border-default">
+                    <div className="flex justify-between border-b p-3 pb-2 border-b-secondary">
+                      <div className="text-sans-md text-default">{file.name}</div>
+                      {/* cancel and/or pause buttons could go here */}
+                    </div>
+                    <div className="p-3 pt-2">
+                      <div className="flex justify-between text-mono-sm">
+                        <div className="!normal-case text-secondary">
+                          {fsize((uploadProgress / 100) * file.size)}{' '}
+                          <span className="text-quinary">/</span> {fsize(file.size)}
                         </div>
-                      </Step>
-                      <Step state={stopImport} label="Get disk out of import mode" />
-                      <Step
-                        state={finalizeDisk}
-                        label="Finalize disk and create snapshot"
-                      />
-                      <Step state={createImage} label="Create image" duration={15} />
-                      <Step
-                        state={{
-                          isLoading: deleteDisk.isLoading || deleteSnapshot.isLoading,
-                          isSuccess: deleteDisk.isSuccess || deleteSnapshot.isSuccess,
-                          isError: deleteDisk.isError || deleteSnapshot.isError,
-                        }}
-                        label="Delete disk and snapshot"
+                        <div className="text-accent">{uploadProgress}%</div>
+                      </div>
+                      <Progress
+                        className="mt-1.5"
+                        aria-label="Upload progress"
+                        value={uploadProgress}
                       />
                     </div>
-                  </Modal.Section>
-                </Modal.Body>
-                <Modal.Footer
-                  onDismiss={closeModal}
-                  onAction={backToImages}
-                  actionText="Done"
-                  cancelText={modalError ? 'Back' : 'Cancel'}
-                  disabled={!allDone}
-                >
-                  {/* TODO: style success message better */}
-                  {allDone && <div>Image created!</div>}
-                  {modalError && <ModalFooterError>{modalError}</ModalFooterError>}
-                </Modal.Footer>
-              </Modal>
-            )}
-          </>
-        )
-      }}
+                  </div>
+                </Step>
+                <Step state={stopImport} label="Get disk out of import mode" />
+                <Step state={finalizeDisk} label="Finalize disk and create snapshot" />
+                <Step state={createImage} label="Create image" duration={15} />
+                <Step
+                  state={{
+                    isLoading: deleteDisk.isLoading || deleteSnapshot.isLoading,
+                    isSuccess: deleteDisk.isSuccess && deleteSnapshot.isSuccess,
+                    isError: deleteDisk.isError || deleteSnapshot.isError,
+                  }}
+                  label="Delete disk and snapshot"
+                />
+                <Step
+                  state={{
+                    isLoading: false,
+                    isSuccess: allDone,
+                    isError: false,
+                  }}
+                  label="Image uploaded successfully"
+                  className={
+                    allDone
+                      ? 'transition-colors bg-accent-secondary children:text-accent'
+                      : ' transition-colors'
+                  }
+                />
+              </div>
+            </Modal.Section>
+          </Modal.Body>
+          <Modal.Footer
+            onDismiss={closeModal}
+            onAction={backToImages}
+            actionText="Done"
+            cancelText={modalError || allDone ? 'Back' : 'Cancel'}
+            disabled={!allDone}
+          />
+        </Modal>
+      )}
     </SideModalForm>
   )
 }

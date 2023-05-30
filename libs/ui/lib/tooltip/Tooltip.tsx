@@ -88,7 +88,7 @@ export const Tooltip = forwardRef(
             <div
               ref={floating}
               style={{ position: strategy, top: y ?? 0, left: x ?? 0 }}
-              className={cn('ox-tooltip max-content')}
+              className={cn('ox-tooltip max-content max-w-sm')}
               /** Used to ensure the arrow is styled correctly */
               data-placement={finalPlacement}
               {...getFloatingProps()}

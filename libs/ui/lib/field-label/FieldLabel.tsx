@@ -1,3 +1,4 @@
+import cn from 'classnames'
 import type { ElementType, PropsWithChildren } from 'react'
 
 import { Question12Icon, Tooltip } from '@oxide/ui'
@@ -8,6 +9,7 @@ interface FieldLabelProps {
   htmlFor?: string
   tip?: string
   optional?: boolean
+  className?: string
 }
 
 export const FieldLabel = ({
@@ -17,10 +19,11 @@ export const FieldLabel = ({
   tip,
   optional,
   as,
+  className,
 }: PropsWithChildren<FieldLabelProps>) => {
   const Component = as || 'label'
   return (
-    <div className="flex h-4 items-center space-x-2">
+    <div className={cn(className, 'flex h-4 items-center space-x-2')}>
       <Component id={id} className="flex items-center text-sans-md" htmlFor={htmlFor}>
         {children}
         {optional && (

@@ -2,7 +2,8 @@ import { Navigate, Route, createRoutesFromElements } from 'react-router-dom'
 
 import { RouterDataErrorBoundary } from './components/ErrorBoundary'
 import { CreateDiskSideModalForm } from './forms/disk-create'
-import { CreateIdpSideModalForm } from './forms/idp-create'
+import { CreateIdpSideModalForm } from './forms/idp/create'
+import { EditIdpSideModalForm } from './forms/idp/edit'
 import { CreateImageSideModalForm } from './forms/image-upload'
 import { CreateInstanceForm } from './forms/instance-create'
 import { CreateProjectSideModalForm } from './forms/project-create'
@@ -14,6 +15,7 @@ import { CreateVpcSideModalForm } from './forms/vpc-create'
 import { EditVpcSideModalForm } from './forms/vpc-edit'
 import type { CrumbFunc } from './hooks/use-crumbs'
 import AuthLayout from './layouts/AuthLayout'
+import { LoginLayout } from './layouts/LoginLayout'
 import ProjectLayout from './layouts/ProjectLayout'
 import RootLayout from './layouts/RootLayout'
 import SettingsLayout from './layouts/SettingsLayout'
@@ -22,11 +24,12 @@ import SystemLayout from './layouts/SystemLayout'
 import { SerialConsoleContentPane, userLoader } from './layouts/helpers'
 import DeviceAuthSuccessPage from './pages/DeviceAuthSuccessPage'
 import DeviceAuthVerifyPage from './pages/DeviceAuthVerifyPage'
-import LoginPage from './pages/LoginPage'
+import { LoginPage } from './pages/LoginPage'
 import NotFound from './pages/NotFound'
 import ProjectsPage from './pages/ProjectsPage'
 import { SiloAccessPage } from './pages/SiloAccessPage'
 import { SiloUtilizationPage } from './pages/SiloUtilizationPage'
+import { SpoofLoginPage } from './pages/SpoofLoginPage'
 import {
   DisksPage,
   ImagesPage,
@@ -45,19 +48,21 @@ import { StorageTab } from './pages/project/instances/instance/tabs/StorageTab'
 import { ProfilePage } from './pages/settings/ProfilePage'
 import { SSHKeysPage } from './pages/settings/SSHKeysPage'
 import { CapacityUtilizationPage } from './pages/system/CapacityUtilizationPage'
-import { DisksTab } from './pages/system/InventoryPage/DisksTab'
-import { InventoryPage } from './pages/system/InventoryPage/InventoryPage'
-import { SledsTab } from './pages/system/InventoryPage/SledsTab'
 import { SiloImagesPage } from './pages/system/SiloImagesPage'
 import { SiloPage } from './pages/system/SiloPage'
 import SilosPage from './pages/system/SilosPage'
-import { UpdateDetailSideModal } from './pages/system/UpdateDetailSideModal'
-import {
-  UpdatePage,
-  UpdatePageComponents,
-  UpdatePageHistory,
-  UpdatePageUpdates,
-} from './pages/system/UpdatePage'
+import { DisksTab } from './pages/system/inventory/DisksTab'
+import { InventoryPage } from './pages/system/inventory/InventoryPage'
+import { SledsTab } from './pages/system/inventory/SledsTab'
+import { SledInstancesTab } from './pages/system/inventory/sled/SledInstancesTab'
+import { SledPage } from './pages/system/inventory/sled/SledPage'
+// import { UpdateDetailSideModal } from './pages/system/UpdateDetailSideModal'
+// import {
+//   UpdatePage,
+//   UpdatePageComponents,
+//   UpdatePageHistory,
+//   UpdatePageUpdates,
+// } from './pages/system/UpdatePage'
 import { pb } from './util/path-builder'
 
 const projectCrumb: CrumbFunc = (m) => m.params.project!
@@ -68,7 +73,10 @@ const siloCrumb: CrumbFunc = (m) => m.params.silo!
 export const routes = createRoutesFromElements(
   <Route element={<RootLayout />}>
     <Route path="*" element={<NotFound />} />
-    <Route path="spoof_login" element={<LoginPage />} />
+    <Route element={<LoginLayout />}>
+      <Route path="spoof_login" element={<SpoofLoginPage />} />
+      <Route path="login/:silo/local" element={<LoginPage />} />
+    </Route>
 
     <Route path="device" element={<AuthLayout />}>
       <Route path="verify" element={<DeviceAuthVerifyPage />} />
@@ -81,7 +89,7 @@ export const routes = createRoutesFromElements(
         <Route index element={<Navigate to="profile" replace />} />
         <Route path="profile" element={<ProfilePage />} handle={{ crumb: 'Profile' }} />
         <Route element={<SSHKeysPage />} loader={SSHKeysPage.loader}>
-          <Route path="ssh-keys" handle={{ crumb: 'SSH Keys' }} />
+          <Route path="ssh-keys" handle={{ crumb: 'SSH Keys' }} element={null} />
           <Route
             path="ssh-keys-new"
             element={<CreateSSHKeySideModalForm />}
@@ -108,6 +116,11 @@ export const routes = createRoutesFromElements(
           >
             <Route index element={null} />
             <Route path="idps-new" element={<CreateIdpSideModalForm />} />
+            <Route
+              path="idps/saml/:provider"
+              element={<EditIdpSideModalForm />}
+              loader={EditIdpSideModalForm.loader}
+            />
           </Route>
         </Route>
         <Route path="issues" element={null} />
@@ -127,8 +140,21 @@ export const routes = createRoutesFromElements(
           <Route path="sleds" element={<SledsTab />} loader={SledsTab.loader} />
           <Route path="disks" element={<DisksTab />} loader={DisksTab.loader} />
         </Route>
-        <Route path="health" element={null} handle={{ crumb: 'Health' }} />
         <Route
+          path="inventory/sleds/:sledId"
+          element={<SledPage />}
+          loader={SledPage.loader}
+        >
+          <Route index element={<Navigate to="instances" replace />} />
+          <Route
+            path="instances"
+            element={<SledInstancesTab />}
+            loader={SledInstancesTab.loader}
+          />
+        </Route>
+        <Route path="health" element={null} handle={{ crumb: 'Health' }} />
+        <Route path="update" element={null} handle={{ crumb: 'Update' }} />
+        {/* <Route
           path="update"
           element={<UpdatePage />}
           loader={UpdatePage.loader}
@@ -156,7 +182,7 @@ export const routes = createRoutesFromElements(
             element={<UpdatePageHistory />}
             loader={UpdatePageHistory.loader}
           />
-        </Route>
+        </Route> */}
         <Route path="networking" element={null} handle={{ crumb: 'Networking' }} />
         <Route path="settings" element={null} handle={{ crumb: 'Settings' }} />
       </Route>

@@ -1,7 +1,7 @@
 import { differenceInSeconds } from 'date-fns'
 import { v4 as uuid } from 'uuid'
 
-import type { ApiTypes as Api, UpdateDeployment } from '@oxide/api'
+import type { ApiTypes as Api, SamlIdentityProvider, UpdateDeployment } from '@oxide/api'
 import { DISK_DELETE_STATES, DISK_SNAPSHOT_STATES } from '@oxide/api'
 import type { Json } from '@oxide/gen/msw-handlers'
 import { json, makeHandlers } from '@oxide/gen/msw-handlers'
@@ -35,12 +35,13 @@ export const handlers = makeHandlers({
   deviceAuthRequest: () => 200,
   deviceAuthConfirm: ({ body }) => (body.user_code === 'ERRO-RABC' ? 400 : 200),
   deviceAccessToken: () => 200,
+  loginLocal: ({ body: { password } }) => (password === 'bad' ? 401 : 200),
   groupList: (params) => paginated(params.query, db.userGroups),
-  groupView: (params) => lookupById(db.userGroups, params.path.group),
+  groupView: (params) => lookupById(db.userGroups, params.path.groupId),
 
   projectList: (params) => paginated(params.query, db.projects),
   projectCreate({ body }) {
-    errIfExists(db.projects, { name: body.name })
+    errIfExists(db.projects, { name: body.name }, 'project')
 
     const newProject: Json<Api.Project> = {
       id: uuid(),
@@ -62,6 +63,7 @@ export const handlers = makeHandlers({
     const project = lookup.project({ ...path })
     if (body.name) {
       project.name = body.name
+      errIfExists(db.projects, { name: body.name })
     }
     project.description = body.description || ''
 
@@ -258,7 +260,7 @@ export const handlers = makeHandlers({
   instanceCreate({ body, query }) {
     const project = lookup.project(query)
 
-    errIfExists(db.instances, { name: body.name, project_id: project.id })
+    errIfExists(db.instances, { name: body.name, project_id: project.id }, 'instance')
 
     const instanceId = uuid()
 
@@ -268,7 +270,7 @@ export const handlers = makeHandlers({
      */
     for (const diskParams of body.disks || []) {
       if (diskParams.type === 'create') {
-        errIfExists(db.disks, { name: diskParams.name, project_id: project.id })
+        errIfExists(db.disks, { name: diskParams.name, project_id: project.id }, 'disk')
         errIfInvalidDiskSize(diskParams)
       } else {
         lookup.disk({ ...query, disk: diskParams.name })
@@ -772,7 +774,7 @@ export const handlers = makeHandlers({
     return paginated(query, nics)
   },
   sledPhysicalDiskList({ path, query }) {
-    const sled = lookup.sled({ id: path.sledId })
+    const sled = lookup.sled(path)
     const disks = db.physicalDisks.filter((n) => n.sled_id === sled.id)
     return paginated(query, disks)
   },
@@ -834,7 +836,24 @@ export const handlers = makeHandlers({
     db.sshKeys = db.sshKeys.filter((i) => i.id !== sshKey.id)
     return 204
   },
+  sledView: ({ path }) => lookup.sled(path),
   sledList: (params) => paginated(params.query, db.sleds),
+  sledInstanceList({ query, path }) {
+    const sled = lookupById(db.sleds, path.sledId)
+    return paginated(
+      query,
+      db.instances.map((i) => {
+        const project = lookupById(db.projects, i.project_id)
+        return {
+          ...pick(i, 'id', 'name', 'time_created', 'time_modified', 'memory', 'ncpus'),
+          state: 'running',
+          active_sled_id: sled.id,
+          project_name: project.name,
+          silo_name: defaultSilo.name,
+        }
+      })
+    )
+  },
   siloList: (params) => paginated(params.query, db.silos),
   siloCreate({ body }) {
     errIfExists(db.silos, { name: body.name })
@@ -868,7 +887,19 @@ export const handlers = makeHandlers({
       { siloId: silo.id, name: params.body.name }
     )
 
-    const provider = {
+    // we just decode to string and store that, which is probably fine for local
+    // dev, but note that the API decodes to bytes and passes that to
+    // https://docs.rs/openssl/latest/openssl/x509/struct.X509.html#method.from_der
+    // and that will error if can't be parsed that way
+    let public_cert = params.body.signing_keypair?.public_cert
+    public_cert = public_cert ? atob(public_cert) : undefined
+
+    // we ignore the private key because it's not returned in the get response,
+    // so you'll never see it again. But worth noting that in the real thing
+    // it is parsed with this
+    // https://docs.rs/openssl/latest/openssl/rsa/struct.Rsa.html#method.private_key_from_der
+
+    const provider: Json<SamlIdentityProvider> = {
       id: uuid(),
       ...pick(
         params.body,
@@ -880,13 +911,11 @@ export const handlers = makeHandlers({
         'sp_client_id',
         'technical_contact_email'
       ),
+      public_cert,
       ...getTimestamps(),
     }
-    db.identityProviders.push({
-      type: 'saml',
-      siloId: silo.id,
-      provider,
-    })
+
+    db.identityProviders.push({ type: 'saml', siloId: silo.id, provider })
     return provider
   },
   samlIdentityProviderView: ({ path, query }) => lookup.samlIdp({ ...path, ...query }),
@@ -1055,6 +1084,7 @@ export const handlers = makeHandlers({
   certificateList: NotImplemented,
   certificateView: NotImplemented,
   diskImportBlocksFromUrl: NotImplemented,
+  imageDemote: NotImplemented,
   instanceMigrate: NotImplemented,
   instanceSerialConsoleStream: NotImplemented,
   ipPoolCreate: NotImplemented,
@@ -1072,11 +1102,24 @@ export const handlers = makeHandlers({
   localIdpUserCreate: NotImplemented,
   localIdpUserDelete: NotImplemented,
   localIdpUserSetPassword: NotImplemented,
-  loginLocal: NotImplemented,
   loginSaml: NotImplemented,
   loginSamlBegin: NotImplemented,
   loginSpoof: NotImplemented,
   logout: NotImplemented,
+  networkingAddressLotBlockList: NotImplemented,
+  networkingAddressLotCreate: NotImplemented,
+  networkingAddressLotDelete: NotImplemented,
+  networkingAddressLotList: NotImplemented,
+  networkingLoopbackAddressCreate: NotImplemented,
+  networkingLoopbackAddressDelete: NotImplemented,
+  networkingLoopbackAddressList: NotImplemented,
+  networkingSwitchPortApplySettings: NotImplemented,
+  networkingSwitchPortClearSettings: NotImplemented,
+  networkingSwitchPortList: NotImplemented,
+  networkingSwitchPortSettingsCreate: NotImplemented,
+  networkingSwitchPortSettingsDelete: NotImplemented,
+  networkingSwitchPortSettingsInfo: NotImplemented,
+  networkingSwitchPortSettingsList: NotImplemented,
   rackView: NotImplemented,
   roleList: NotImplemented,
   roleView: NotImplemented,
@@ -1084,9 +1127,9 @@ export const handlers = makeHandlers({
   siloPolicyView: NotImplemented,
   siloUserList: NotImplemented,
   siloUserView: NotImplemented,
-  sledView: NotImplemented,
+  switchList: NotImplemented,
+  switchView: NotImplemented,
   systemPolicyUpdate: NotImplemented,
-
   userBuiltinList: NotImplemented,
   userBuiltinView: NotImplemented,
 })

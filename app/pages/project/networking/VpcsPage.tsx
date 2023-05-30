@@ -5,8 +5,7 @@ import { Link, useNavigate } from 'react-router-dom'
 
 import type { Vpc } from '@oxide/api'
 import { apiQueryClient, useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
-import type { MenuAction } from '@oxide/table'
-import { DateCell, linkCell, useQueryTable } from '@oxide/table'
+import { DateCell, type MenuAction, linkCell, useQueryTable } from '@oxide/table'
 import {
   EmptyMessage,
   Networking24Icon,
@@ -95,9 +94,9 @@ export function VpcsPage() {
           accessor="name"
           cell={linkCell((vpc) => pb.vpc({ ...projectSelector, vpc }))}
         />
-        <Column accessor="dnsName" header="dns name" />
+        <Column accessor="dnsName" header="DNS name" />
         <Column accessor="description" />
-        <Column accessor="timeCreated" cell={DateCell} />
+        <Column accessor="timeCreated" header="Created" cell={DateCell} />
       </Table>
       <Outlet />
     </>

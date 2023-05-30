@@ -7,6 +7,8 @@ const params = {
   vpc: 'v',
   silo: 's',
   version: 'vs',
+  provider: 'pr',
+  sledId: 'sl',
 }
 
 test('path builder', () => {
@@ -34,6 +36,7 @@ test('path builder', () => {
         "projectNew": "/projects-new",
         "projects": "/projects",
         "rackInventory": "/system/inventory/racks",
+        "samlIdp": "/system/silos/s/idps/saml/pr",
         "serialConsole": "/projects/p/instances/i/serial-console",
         "settings": "/settings",
         "silo": "/system/silos/s",
@@ -43,6 +46,8 @@ test('path builder', () => {
         "siloNew": "/system/silos-new",
         "siloUtilization": "/utilization",
         "silos": "/system/silos",
+        "sled": "/system/inventory/sleds/sl",
+        "sledInstances": "/system/inventory/sleds/sl/instances",
         "sledInventory": "/system/inventory/sleds",
         "snapshotNew": "/projects/p/snapshots-new",
         "snapshots": "/projects/p/snapshots",

@@ -19,7 +19,7 @@ export const Truncate = ({
   maxLength,
   position = 'end',
   hasCopyButton,
-  tooltipDelay = 500,
+  tooltipDelay = 300,
 }: TruncateProps) => {
   const [hasCopied, setHasCopied] = useState(false)
 
@@ -48,6 +48,7 @@ export const Truncate = ({
           <button
             className="text-tertiary hover:text-accent-secondary"
             onClick={handleCopy}
+            type="button"
           >
             <Clipboard16Icon className="h-3 w-3" />
           </button>

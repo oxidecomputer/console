@@ -10,11 +10,13 @@ export function Default() {
     <>
       <Button onClick={() => setIsOpen(true)}>Open menu</Button>
       <SideModal isOpen={isOpen} onDismiss={() => setIsOpen(false)}>
-        <SideModal.Section>Section content</SideModal.Section>
-        <SideModal.Docs>
-          <a href="#/">Subnetworks</a>
-          <a href="#/">External IPs</a>
-        </SideModal.Docs>
+        <SideModal.Body>
+          <SideModal.Section>Section content</SideModal.Section>
+          <SideModal.Docs>
+            <a href="#/">Subnetworks</a>
+            <a href="#/">External IPs</a>
+          </SideModal.Docs>
+        </SideModal.Body>
         <SideModal.Footer>
           <Button>Ok</Button>
         </SideModal.Footer>

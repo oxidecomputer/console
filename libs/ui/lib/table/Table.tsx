@@ -13,7 +13,7 @@ import './table.css'
 export type TableProps = JSX.IntrinsicElements['table']
 export function Table({ className, ...props }: TableProps) {
   const overflowRef = useRef<HTMLDivElement>(null)
-  const { isOverflow, scrollStart, scrollEnd } = useIsOverflow(overflowRef)
+  const { isOverflow, scrollStart, scrollEnd } = useIsOverflow(overflowRef, 'horizontal')
 
   return (
     <SimpleBar
@@ -89,20 +89,31 @@ Table.Body = ({ className, children, ...props }: TableBodyProps) => {
   )
 }
 
-export type TableCellProps = JSX.IntrinsicElements['td']
-Table.Cell = ({ className, children, ...props }: TableCellProps) => (
-  <td
-    className={cn(
-      className,
-      'h-16 pl-0 text-default border-default children:first:border-l-0 children:last:-mr-[1px]'
-    )}
-    {...props}
-  >
-    <div className="-my-[1px] -mr-[2px] flex h-16 items-center border-l border-b py-3 pl-3 pr-3 border-secondary">
-      {children}
-    </div>
-  </td>
-)
+export type TableCellProps = JSX.IntrinsicElements['td'] & {
+  height?: 'large' | 'small' | 'auto'
+}
+Table.Cell = ({ height = 'large', className, children, ...props }: TableCellProps) => {
+  const heightClass = height === 'large' ? 'h-16' : height === 'small' ? 'h-8' : ''
+  return (
+    <td
+      className={cn(
+        className,
+        'pl-0 text-default border-default children:first:border-l-0 children:last:-mr-[1px]',
+        heightClass
+      )}
+      {...props}
+    >
+      <div
+        className={cn(
+          '-my-[1px] -mr-[2px] flex items-center border-l border-b py-3 pl-3 pr-3 border-secondary',
+          heightClass
+        )}
+      >
+        {children}
+      </div>
+    </td>
+  )
+}
 
 /**
  * Used _outside_ of the `Table`, this element wraps buttons that sit on top

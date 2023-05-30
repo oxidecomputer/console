@@ -56,7 +56,7 @@ export function SerialConsolePage() {
         secure: window.location.protocol === 'https:',
         host: window.location.host + pathPrefix,
         path: { instance },
-        query: { project, fromStart: 0 },
+        query: { project, mostRecent: 262144 },
       })
       ws.current.binaryType = 'arraybuffer' // important!
     }
@@ -91,10 +91,9 @@ export function SerialConsolePage() {
     }
   }, [])
 
-  const command = `oxide instance serial
+  const command = `oxide instance serial console
   --project ${project}
-  ${instance}
-  --continuous`
+  --instance ${instance}`
 
   return (
     <div className="!mx-0 flex h-full max-h-[calc(100vh-60px)] !w-full flex-col">

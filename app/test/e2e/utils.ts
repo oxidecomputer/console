@@ -1,6 +1,8 @@
 import type { Locator, Page } from '@playwright/test'
 import { expect } from '@playwright/test'
 
+export * from '@playwright/test'
+
 export async function forEach(loc: Locator, fn: (loc0: Locator, i: number) => void) {
   const count = await loc.count()
   for (let i = 0; i < count; i++) {
@@ -27,7 +29,7 @@ export async function expectVisible(page: Page, selectors: string[]) {
 
 export async function expectNotVisible(page: Page, selectors: string[]) {
   for (const selector of selectors) {
-    await expect(page.locator(selector)).not.toBeVisible()
+    await expect(page.locator(selector)).toBeHidden()
   }
 }
 
@@ -87,4 +89,11 @@ export async function expectSimultaneous(page: Page, selectors: string[]) {
   const times = await Promise.all(selectors.map((sel) => timeToAppear(page, sel)))
   times.sort()
   expect(times[times.length - 1] - times[0]).toBeLessThan(40)
+}
+
+export async function stopInstance(page: Page) {
+  await page.click('role=button[name="Instance actions"]')
+  await page.click('role=menuitem[name="Stop"]')
+  // close toast. for some reason it prevents things from happening
+  await page.click('role=button[name="Dismiss notification"]')
 }

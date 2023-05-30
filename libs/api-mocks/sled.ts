@@ -13,7 +13,7 @@ export const sled: Json<Sled> = {
     revision: 0,
   },
   usable_hardware_threads: 2,
-  usable_physical_ram: 10,
+  usable_physical_ram: 1_099_511_627_776,
 }
 
 export const sleds: Json<Sled[]> = [sled]

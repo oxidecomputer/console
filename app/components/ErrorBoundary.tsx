@@ -1,24 +1,23 @@
 import { ErrorBoundary as BaseErrorBoundary } from 'react-error-boundary'
 import { useRouteError } from 'react-router-dom'
 
-import type { ErrorResult } from '@oxide/api'
+import type { ApiError } from '@oxide/api'
 
 import NotFound from 'app/pages/NotFound'
 
 export const trigger404 = { type: 'error', statusCode: 404 }
 
-type Props = { error: Error | ErrorResult }
+type Props = { error: Error | ApiError }
 
 function ErrorFallback({ error }: Props) {
-  if ('type' in error && error.type === 'error' && error.statusCode === 404) {
+  if ('statusCode' in error && error.statusCode === 404) {
     return <NotFound />
   }
 
-  const message = 'message' in error ? error.message : error.error.message
   return (
     <div role="alert" className="m-48">
       <h1 className="text-2xl mb-6 text-sans-md">Error</h1>
-      <pre className="whitespace-pre-wrap">{message}</pre>
+      <pre className="whitespace-pre-wrap">{error.message}</pre>
     </div>
   )
 }

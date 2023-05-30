@@ -9,7 +9,7 @@ import {
   useApiQueryClient,
 } from '@oxide/api'
 import type {
-  ErrorResult,
+  ApiError,
   VpcFirewallRule,
   VpcFirewallRuleHostFilter,
   VpcFirewallRuleTarget,
@@ -30,7 +30,7 @@ import { useVpcSelector } from 'app/hooks'
 
 export type FirewallRuleValues = {
   enabled: boolean
-  priority: string
+  priority: number
   name: string
   description: string
   action: VpcFirewallRule['action']
@@ -54,7 +54,7 @@ export const valuesToRuleUpdate = (values: FirewallRuleValues): VpcFirewallRuleU
     ports: values.ports,
     protocols: values.protocols,
   },
-  priority: parseInt(values.priority, 10),
+  priority: values.priority,
   targets: values.targets,
 })
 
@@ -63,7 +63,7 @@ const defaultValues: FirewallRuleValues = {
   name: '',
   description: '',
 
-  priority: '',
+  priority: 0,
   action: 'allow',
   direction: 'inbound',
 
@@ -105,8 +105,26 @@ const targetDefaultValues: TargetFormValues = {
 }
 
 type CommonFieldsProps = {
-  error: ErrorResult | null
+  error: ApiError | null
   control: Control<FirewallRuleValues>
+}
+
+function getFilterValueProps(hostType: VpcFirewallRuleHostFilter['type']) {
+  switch (hostType) {
+    case 'vpc':
+      return { label: 'VPC name' }
+    case 'subnet':
+      return { label: 'Subnet name' }
+    case 'instance':
+      return { label: 'Instance name' }
+    case 'ip':
+      return { label: 'IP address', helpText: 'An IPv4 or IPv6 address' }
+    case 'ip_net':
+      return {
+        label: 'IP network',
+        helpText: 'Looks like 192.168.0.0/16 or fd00:1122:3344:0001::1/64',
+      }
+  }
 }
 
 export const CommonFields = ({ error, control }: CommonFieldsProps) => {
@@ -176,7 +194,12 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
         required
         control={targetForm.control}
       />
-      <TextField name="value" label="Target name" required control={targetForm.control} />
+      <TextField
+        name="value"
+        {...getFilterValueProps(targetForm.watch('type'))}
+        required
+        control={targetForm.control}
+      />
 
       <div className="flex justify-end">
         <Button
@@ -259,8 +282,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
           not a block. */}
       <TextField
         name="value"
-        label="Value"
-        helpText="For IP, an address. For the rest, a name. [TODO: copy]"
+        {...getFilterValueProps(hostForm.watch('type'))}
         required
         control={hostForm.control}
       />
@@ -398,10 +420,10 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
         </div>
       </fieldset>
 
-      {error?.error.message && (
+      {error && (
         <>
           <Divider />
-          <div className="text-destructive">{error.error.message}</div>
+          <div className="text-destructive">{error.message}</div>
         </>
       )}
     </>
@@ -432,11 +454,13 @@ export function CreateFirewallRuleForm({
     },
   })
 
+  const form = useForm({ mode: 'all', defaultValues })
+
   return (
     <SideModalForm
       id="create-firewall-rule-form"
       title="Add firewall rule"
-      formOptions={{ defaultValues }}
+      form={form}
       onDismiss={onDismiss}
       onSubmit={(values) => {
         // TODO: this silently overwrites existing rules with the current name.
@@ -455,7 +479,7 @@ export function CreateFirewallRuleForm({
       submitError={updateRules.error}
       submitLabel="Add rule"
     >
-      {({ control }) => <CommonFields error={updateRules.error} control={control} />}
+      <CommonFields error={updateRules.error} control={form.control} />
     </SideModalForm>
   )
 }

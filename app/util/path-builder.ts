@@ -8,6 +8,8 @@ type Instance = Required<PP.Instance>
 type Vpc = Required<PP.Vpc>
 type SystemUpdate = Required<PP.SystemUpdate>
 type Silo = Required<PP.Silo>
+type IdentityProvider = Required<PP.IdentityProvider>
+type Sled = Required<PP.Sled>
 
 export const pb = {
   projects: () => `/projects`,
@@ -71,11 +73,14 @@ export const pb = {
   rackInventory: () => '/system/inventory/racks',
   sledInventory: () => '/system/inventory/sleds',
   diskInventory: () => '/system/inventory/disks',
+  sled: ({ sledId }: Sled) => `/system/inventory/sleds/${sledId}`,
+  sledInstances: ({ sledId }: Sled) => `/system/inventory/sleds/${sledId}/instances`,
 
   silos: () => '/system/silos',
   siloNew: () => '/system/silos-new',
   silo: ({ silo }: Silo) => `/system/silos/${silo}`,
   siloIdpNew: (params: Silo) => `${pb.silo(params)}/idps-new`,
+  samlIdp: (params: IdentityProvider) => `${pb.silo(params)}/idps/saml/${params.provider}`,
 
   settings: () => '/settings',
   profile: () => '/settings/profile',

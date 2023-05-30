@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { Outlet, ScrollRestoration, useNavigation } from 'react-router-dom'
+import { Outlet, useNavigation } from 'react-router-dom'
 
 import { useCrumbs } from 'app/hooks/use-crumbs'
 import { ToastStack } from 'app/hooks/use-toast/ToastStack'
@@ -32,7 +32,6 @@ export default function RootLayout() {
     <>
       <LoadingBar />
       <Outlet />
-      <ScrollRestoration />
       <ToastStack />
     </>
   )

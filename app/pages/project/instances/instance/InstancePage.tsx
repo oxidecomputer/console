@@ -5,7 +5,13 @@ import type { LoaderFunctionArgs } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 
 import { apiQueryClient, useApiQuery, useApiQueryClient } from '@oxide/api'
-import { Instances24Icon, PageHeader, PageTitle, PropertiesTable } from '@oxide/ui'
+import {
+  Instances24Icon,
+  PageHeader,
+  PageTitle,
+  PropertiesTable,
+  Truncate,
+} from '@oxide/ui'
 import { toPathQuery } from '@oxide/util'
 
 import { MoreActionsMenu } from 'app/components/MoreActionsMenu'
@@ -81,9 +87,14 @@ export function InstancePage() {
           </PropertiesTable.Row>
         </PropertiesTable>
         <PropertiesTable>
-          <PropertiesTable.Row label="dns name">
-            <span className="text-secondary">{instance.hostname || '–'}</span>
+          <PropertiesTable.Row label="description">
+            <span className="text-secondary">
+              <Truncate text={instance.description} maxLength={40} />
+            </span>
           </PropertiesTable.Row>
+          {/* <PropertiesTable.Row label="dns name">
+            <span className="text-secondary">{instance.hostname || '–'}</span>
+          </PropertiesTable.Row> */}
           <PropertiesTable.Row label="created">
             <span className="text-secondary">
               {format(instance.timeCreated, 'MMM d, yyyy')}{' '}
