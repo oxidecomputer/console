@@ -56,7 +56,6 @@ export function CapacityUtilizationPage() {
           title="Disk capacity"
           metricName="virtual_disk_space_provisioned"
           valueTransform={bytesToTiB}
-          unit="TiB"
           capacity={900}
         />
         <CapacityMetric
@@ -64,14 +63,12 @@ export function CapacityUtilizationPage() {
           title="Memory capacity"
           metricName="ram_provisioned"
           valueTransform={bytesToGiB}
-          unit="GiB"
           capacity={28000}
         />
         <CapacityMetric
           icon={<Cpu16Icon />}
           title="CPU capacity"
           metricName="cpus_provisioned"
-          unit="nCPU"
           capacity={2048}
         />
       </div>

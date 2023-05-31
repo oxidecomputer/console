@@ -9,14 +9,14 @@ import { splitNumberDecimal } from './SystemMetric'
 export const CapacityMetric = ({
   icon,
   title,
-  unit,
+  // unit,
   metricName,
   valueTransform = (x) => x,
   capacity,
 }: {
   icon: JSX.Element
   title: string
-  unit: string
+  // unit: string
   metricName: SystemMetricName
   valueTransform?: (n: number) => number
   capacity: number
@@ -64,7 +64,7 @@ export const CapacityMetric = ({
       <div className="flex h-full flex-grow flex-col justify-between border-r border-r-secondary">
         <div className="p-3 text-mono-sm text-secondary">
           {title}
-          <span className="ml-1 !normal-case text-mono-sm text-quaternary">({unit})</span>
+          {/* <span className="ml-1 !normal-case text-mono-sm text-quaternary">({unit})</span> */}
         </div>
 
         <div className="flex items-center gap-2 pl-3 pb-3">
