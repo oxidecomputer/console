@@ -172,7 +172,7 @@ export function ActionMenu(props: ActionMenuProps) {
                             <li
                               role="option"
                               className={cn(
-                                'box-border block h-full w-full cursor-pointer select-none overflow-visible border p-4 text-sans-md text-secondary bg-raise border-secondary hover:bg-raise-hover',
+                                'hover:bg-raise-hover box-border block h-full w-full cursor-pointer select-none overflow-visible border p-4 text-sans-md text-secondary bg-raise border-secondary',
                                 item.value === selectedItem?.value &&
                                   'text-accent bg-accent-secondary hover:bg-accent-secondary-hover'
                               )}
