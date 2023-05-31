@@ -75,7 +75,7 @@ export function CalendarCell({ state, date }: CalendarCellProps) {
       >
         <div
           className={cn(
-            'pointer-events-none absolute top-[0] left-[0] right-[0] bottom-[0] rounded',
+            'pointer-events-none absolute top-[0] left-[1px] right-[1px] bottom-[0] rounded',
             isSelectionStart || isSelectionEnd
               ? isInvalid
                 ? 'border border-error-secondary'
