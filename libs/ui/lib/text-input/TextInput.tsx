@@ -57,6 +57,7 @@ export const TextInput = React.forwardRef<
           error
             ? 'border-error-secondary hover:border-error'
             : 'border-default hover:border-hover',
+          disabled && '!border-default',
           className
         )}
       >
