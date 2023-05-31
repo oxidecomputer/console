@@ -1,4 +1,3 @@
-import { differenceInSeconds } from 'date-fns'
 import { v4 as uuid } from 'uuid'
 
 import type { ApiTypes as Api, SamlIdentityProvider, UpdateDeployment } from '@oxide/api'
@@ -6,7 +5,6 @@ import { DISK_DELETE_STATES, DISK_SNAPSHOT_STATES } from '@oxide/api'
 import type { Json } from '@oxide/gen/msw-handlers'
 import { json, makeHandlers } from '@oxide/gen/msw-handlers'
 import { pick, sortBy } from '@oxide/util'
-import { TiB } from '@oxide/util'
 
 import { genCumulativeI64Data, genI64Data } from '../metrics'
 import { FLEET_ID } from '../role-assignment'
@@ -17,9 +15,9 @@ import { user1 } from '../user'
 import { db, lookup, lookupById, notFoundErr } from './db'
 import {
   NotImplemented,
-  Rando,
   errIfExists,
   errIfInvalidDiskSize,
+  generateUtilization,
   getStartAndEndTime,
   getTimestamps,
   paginated,
@@ -991,87 +989,20 @@ export const handlers = makeHandlers({
   updateDeploymentsList: (params) => paginated(params.query, db.updateDeployments),
   updateDeploymentView: ({ path: { id } }) => lookupById(db.updateDeployments, id),
 
-  systemMetric: (params) => {
+  systemMetric: ({ path: { metricName }, query }) => {
     // const result = ZVal.ResourceName.safeParse(req.params.resourceName)
     // if (!result.success) return res(notFoundErr)
     // const resourceName = result.data
-    const cap =
-      params.path.metricName === 'cpus_provisioned'
-        ? 2048
-        : params.path.metricName === 'virtual_disk_space_provisioned'
-        ? TiB * 900
-        : TiB * 28
 
     // note we're ignoring the required id query param. since the data is fake
     // it wouldn't matter, though we should probably 400 if it's missing
-    const { startTime, endTime } = getStartAndEndTime(params.query)
+    const { startTime, endTime } = getStartAndEndTime(query)
 
     if (endTime <= startTime) return { items: [] }
 
-    function generateUtilization() {
-      const { abs, floor } = Math
-      const metricNameSeed = Array.from(params.path.metricName).reduce(
-        (acc, char) => acc + char.charCodeAt(0),
-        0
-      )
-
-      const rando = new Rando(startTime.getTime() + metricNameSeed)
-      const diff = abs(differenceInSeconds(startTime, endTime))
-
-      // How many quarter hour chunks in the date range
-      // Use that as how often to offset the data to seem
-      // more realistic
-      const timeInterval = diff / 900
-
-      // If the data is the following length
-      const dataCount = 1000
-      // How far along the array should we do something
-      const valueInterval = floor(dataCount / timeInterval)
-
-      // Pick a reasonable start value
-      const startVal = cap / 2
-      const values = new Array(dataCount)
-      values[0] = startVal
-
-      let x = 0
-      for (let i = 1; i < values.length; i++) {
-        values[i] = values[i - 1]
-
-        if (x === valueInterval) {
-          // Do something 3/4 of the time
-          let offset = 0
-          const random = rando.next()
-
-          const threshold = i < 250 || (i > 500 && i < 750) ? 1 : 0.375
-
-          if (random < threshold) {
-            const amount =
-              params.path.metricName === 'cpus_provisioned'
-                ? 3
-                : params.path.metricName === 'virtual_disk_space_provisioned'
-                ? TiB
-                : TiB / 20
-            offset = floor(random * amount)
-
-            if (random < threshold / 3) {
-              offset = offset * -1
-            }
-          }
-
-          values[i] += offset
-          x = 0
-        } else {
-          x++
-        }
-      }
-
-      return values
-    }
-
     return {
       items: genI64Data(
-        // new Array(1000).fill(0).map((x, i) => Math.floor(Math.tanh(i / 500) * cap)),
-        generateUtilization(),
+        generateUtilization(metricName, startTime, endTime),
         startTime,
         endTime
       ),

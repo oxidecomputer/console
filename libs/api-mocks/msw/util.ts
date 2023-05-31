@@ -1,9 +1,9 @@
-import { subHours } from 'date-fns'
+import { differenceInSeconds, subHours } from 'date-fns'
 
-import type { DiskCreate } from '@oxide/api'
+import type { DiskCreate, SystemMetricName } from '@oxide/api'
 import type { Json } from '@oxide/gen/msw-handlers'
 import { json } from '@oxide/gen/msw-handlers'
-import { GiB } from '@oxide/util'
+import { GiB, TiB } from '@oxide/util'
 
 import { db } from './db'
 
@@ -119,7 +119,7 @@ export const errIfInvalidDiskSize = (disk: Json<DiskCreate>) => {
   }
 }
 
-export class Rando {
+class Rando {
   private a: number
   private c: number
   private m: number
@@ -136,4 +136,74 @@ export class Rando {
     this.seed = (this.a * this.seed + this.c) % this.m
     return this.seed / this.m
   }
+}
+
+export function generateUtilization(
+  metricName: SystemMetricName,
+  startTime: Date,
+  endTime: Date
+) {
+  const cap =
+    metricName === 'cpus_provisioned'
+      ? 2048
+      : metricName === 'virtual_disk_space_provisioned'
+      ? TiB * 900
+      : TiB * 28
+  const { abs, floor } = Math
+  const metricNameSeed = Array.from(metricName).reduce(
+    (acc, char) => acc + char.charCodeAt(0),
+    0
+  )
+
+  const rando = new Rando(startTime.getTime() + metricNameSeed)
+  const diff = abs(differenceInSeconds(startTime, endTime))
+
+  // How many quarter hour chunks in the date range
+  // Use that as how often to offset the data to seem
+  // more realistic
+  const timeInterval = diff / 900
+
+  // If the data is the following length
+  const dataCount = 1000
+  // How far along the array should we do something
+  const valueInterval = floor(dataCount / timeInterval)
+
+  // Pick a reasonable start value
+  const startVal = cap / 2
+  const values = new Array(dataCount)
+  values[0] = startVal
+
+  let x = 0
+  for (let i = 1; i < values.length; i++) {
+    values[i] = values[i - 1]
+
+    if (x === valueInterval) {
+      // Do something 3/4 of the time
+      let offset = 0
+      const random = rando.next()
+
+      const threshold = i < 250 || (i > 500 && i < 750) ? 1 : 0.375
+
+      if (random < threshold) {
+        const amount =
+          metricName === 'cpus_provisioned'
+            ? 3
+            : metricName === 'virtual_disk_space_provisioned'
+            ? TiB
+            : TiB / 20
+        offset = floor(random * amount)
+
+        if (random < threshold / 3) {
+          offset = offset * -1
+        }
+      }
+
+      values[i] += offset
+      x = 0
+    } else {
+      x++
+    }
+  }
+
+  return values
 }
