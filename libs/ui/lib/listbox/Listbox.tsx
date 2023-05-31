@@ -73,7 +73,9 @@ export const Listbox = ({
         className={cn(
           `flex h-10 w-full items-center justify-between
           rounded border px-3 text-sans-md`,
-          hasError ? 'focus-error border-destructive' : 'border-default',
+          hasError
+            ? 'focus-error border-error-secondary hover:border-error'
+            : 'border-default hover:border-hover',
           select.isOpen && 'ring-2 ring-accent-secondary',
           select.isOpen && hasError && 'ring-error-secondary',
           props.disabled ? 'cursor-not-allowed text-disabled bg-disabled' : 'bg-default'
