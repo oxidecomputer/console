@@ -10,7 +10,7 @@
   @apply bg-tertiary;
 }
 
-.ox-menu-item.is-highlighted.is-selected {
+.ox-menu-item.is-selected[data-highlighted] {
   @apply bg-accent-secondary-hover;
 }
 
