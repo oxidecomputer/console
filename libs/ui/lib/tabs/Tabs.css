@@ -42,7 +42,7 @@
 
 .ox-tab[data-state='active']:hover > *,
 .ox-tab.is-selected:hover > * {
-  @apply !bg-accent-secondary-hover;
+  @apply !bg-accent-secondary;
 }
 
 .ox-tab > .ox-badge {
