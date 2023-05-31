@@ -84,6 +84,23 @@ function DateSegment({
   const ref = useRef<HTMLDivElement>(null)
   const { segmentProps } = useDateSegment(segment, state, ref)
 
+  // todo: a little janky
+  // should see if there's a way to override the library defaults
+  // the problem is `mm` is so much larger than the actual months
+  // so it messes with the spacing
+  let placeholder = ''
+  if (segment.placeholder === 'mm') {
+    placeholder = '12'
+  } else if (segment.placeholder === 'dd') {
+    placeholder = '31'
+  } else if (segment.placeholder === 'yyyy') {
+    placeholder = '2023'
+  } else if (segment.placeholder === '––') {
+    placeholder = '00'
+  } else {
+    placeholder = segment.placeholder
+  }
+
   const readOnly = segmentProps['aria-readonly'] ? true : false
 
   return (
@@ -117,7 +134,7 @@ function DateSegment({
           pointerEvents: 'none',
         }}
       >
-        {segment.placeholder}
+        {placeholder}
       </span>
       <span
         className={cn(

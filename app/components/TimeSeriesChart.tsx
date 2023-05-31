@@ -114,11 +114,6 @@ type Props = {
   unit?: string
 }
 
-// const toPercent = (decimal: number, fixed = 0) => {
-//   const label = `${(decimal * 100).toFixed(fixed)}%`
-//   return label
-// }
-
 export default function TimeSeriesChart({
   className,
   data,
