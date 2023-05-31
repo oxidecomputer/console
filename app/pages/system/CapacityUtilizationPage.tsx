@@ -1,4 +1,4 @@
-import { getLocalTimeZone } from '@internationalized/date'
+import { getLocalTimeZone, now } from '@internationalized/date'
 import { useMemo, useState } from 'react'
 
 import { apiQueryClient, useApiQuery } from '@oxide/api'
@@ -31,7 +31,10 @@ export function CapacityUtilizationPage() {
   const { data: silos } = useApiQuery('siloList', {})
 
   const initialPreset = 'lastHour'
-  const { startTime, endTime, dateTimeRangePicker } = useDateTimeRangePicker(initialPreset)
+  const { startTime, endTime, dateTimeRangePicker } = useDateTimeRangePicker({
+    initialPreset,
+    maxValue: now(getLocalTimeZone()),
+  })
 
   const siloItems = useMemo(() => {
     const items = silos?.items.map((silo) => ({ label: silo.name, value: silo.id })) || []

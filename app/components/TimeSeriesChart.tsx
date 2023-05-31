@@ -110,7 +110,7 @@ type Props = {
   interpolation?: 'linear' | 'stepAfter'
   startTime: Date
   endTime: Date
-  maxValue: number
+  maxValue?: number
   unit?: string
 }
 
@@ -131,6 +131,18 @@ export default function TimeSeriesChart({
   maxValue,
   unit,
 }: Props) {
+  // If max value is set we normalize the graph so that
+  // is the maximum, we also use our own function as recharts
+  // doesn't fill the whole domain (just upto the data max)
+  const yTicks = maxValue
+    ? {
+        domain: [0, maxValue],
+        ticks: getVerticalTicks(6, maxValue),
+      }
+    : {
+        tickSize: 6,
+      }
+
   return (
     <ResponsiveContainer width="100%" height={300}>
       <AreaChart
@@ -164,9 +176,8 @@ export default function TimeSeriesChart({
           tick={textMonoMd}
           tickMargin={8}
           tickFormatter={(val) => val.toLocaleString()}
-          ticks={getVerticalTicks(6, maxValue)}
           padding={{ top: 32 }}
-          domain={[0, maxValue]}
+          {...yTicks}
         />
         {/* TODO: stop tooltip being focused by default on pageload if nothing else has been clicked */}
         <Tooltip

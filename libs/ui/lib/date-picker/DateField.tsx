@@ -8,10 +8,17 @@ import type { AriaDateFieldProps, AriaTimeFieldProps } from 'react-aria'
 import { useDateFieldState, useTimeFieldState } from 'react-stately'
 import type { DateFieldState, DateSegment as DateSegmentType } from 'react-stately'
 
-export function DateField(props: AriaDateFieldProps<DateValue>) {
+const dateTimeFieldStyles = 'flex items-center rounded border p-2'
+
+interface DateFieldProps extends AriaDateFieldProps<DateValue> {
+  className?: string
+}
+
+export function DateField(props: DateFieldProps) {
   const { locale } = useLocale()
   const state = useDateFieldState({
     ...props,
+    granularity: 'day',
     locale,
     createCalendar,
   })
@@ -20,7 +27,15 @@ export function DateField(props: AriaDateFieldProps<DateValue>) {
   const { fieldProps } = useDateField(props, state, ref)
 
   return (
-    <div {...fieldProps} ref={ref} className="flex items-center">
+    <div
+      {...fieldProps}
+      ref={ref}
+      className={cn(
+        state.value === null ? 'border-error' : 'border-default',
+        dateTimeFieldStyles,
+        props.className
+      )}
+    >
       {state.segments.map((segment, i) => (
         <DateSegment key={i} segment={segment} state={state} />
       ))}
@@ -46,7 +61,11 @@ export function TimeField(props: TimeFieldProps) {
     <div
       {...fieldProps}
       ref={ref}
-      className={cn('flex items-center rounded border p-2 border-default', props.className)}
+      className={cn(
+        state.value === null ? 'border-error' : 'border-default',
+        dateTimeFieldStyles,
+        props.className
+      )}
     >
       {state.segments.map((segment, i) => (
         <DateSegment key={i} segment={segment} state={state} />
@@ -64,23 +83,6 @@ function DateSegment({
 }) {
   const ref = useRef<HTMLDivElement>(null)
   const { segmentProps } = useDateSegment(segment, state, ref)
-
-  // todo: a little janky
-  // should see if there's a way to override the library defaults
-  // the problem is `mm` is so much larger than the actual months
-  // so it messes with the spacing
-  let placeholder = ''
-  if (segment.placeholder === 'mm') {
-    placeholder = '12'
-  } else if (segment.placeholder === 'dd') {
-    placeholder = '31'
-  } else if (segment.placeholder === 'yyyy') {
-    placeholder = '2023'
-  } else if (segment.placeholder === '––') {
-    placeholder = '00'
-  } else {
-    placeholder = segment.placeholder
-  }
 
   const readOnly = segmentProps['aria-readonly'] ? true : false
 
@@ -115,7 +117,7 @@ function DateSegment({
           pointerEvents: 'none',
         }}
       >
-        {placeholder}
+        {segment.placeholder}
       </span>
       <span
         className={cn(

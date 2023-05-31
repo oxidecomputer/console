@@ -47,8 +47,6 @@ describe.skip('DateTimeRangePicker', () => {
       />
     )
 
-    console.log(screen.getByLabelText('Choose a date range').textContent)
-
     // expect(screen.getByLabelText('Start Date')).toHaveValue('')
     // expect(screen.getByLabelText('End Date')).toHaveValue('')
   })

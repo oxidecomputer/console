@@ -1,9 +1,9 @@
-import { getLocalTimeZone } from '@internationalized/date'
+import { getLocalTimeZone, now } from '@internationalized/date'
 import { useMemo, useState } from 'react'
 
 import { apiQueryClient, useApiQuery } from '@oxide/api'
 import { Divider, Listbox, PageHeader, PageTitle, Snapshots24Icon } from '@oxide/ui'
-import { bytesToGiB } from '@oxide/util'
+import { bytesToGiB, bytesToTiB } from '@oxide/util'
 
 import { SystemMetric } from 'app/components/SystemMetric'
 import { useDateTimeRangePicker } from 'app/components/form'
@@ -26,7 +26,11 @@ export function SiloUtilizationPage() {
 
   const { data: projects } = useApiQuery('projectList', {})
 
-  const { startTime, endTime, dateTimeRangePicker } = useDateTimeRangePicker('lastHour')
+  const initialPreset = 'lastHour'
+  const { startTime, endTime, dateTimeRangePicker } = useDateTimeRangePicker({
+    initialPreset,
+    maxValue: now(getLocalTimeZone()),
+  })
 
   const projectItems = useMemo(() => {
     const items = projects?.items.map(toListboxItem) || []
@@ -45,53 +49,52 @@ export function SiloUtilizationPage() {
         <PageTitle icon={<Snapshots24Icon />}>Capacity &amp; Utilization</PageTitle>
       </PageHeader>
 
-      <div className="mt-8 flex justify-between">
-        <div className="flex">
-          <div className="mr-8">
-            <div className="mb-2">
-              {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-              <label id="project-id-label" className="flex text-sans-sm">
-                Choose project
-              </label>
-            </div>
-            <Listbox
-              defaultValue={DEFAULT_SILO_ID}
-              className="w-36"
-              aria-labelledby="project-id-label"
-              name="project-id"
-              items={projectItems}
-              onChange={(item) => {
-                if (item) {
-                  setFilterId(item.value)
-                }
-              }}
-            />
-            {/* TODO: need a button to clear the silo */}
-          </div>
-        </div>
-
+      <div className="my-8 flex justify-between">
+        <Listbox
+          selectedItem={filterId}
+          className="w-48"
+          aria-labelledby="silo-id-label"
+          name="silo-id"
+          items={projectItems}
+          onChange={(item) => {
+            if (item) {
+              setFilterId(item.value)
+            }
+          }}
+        />
         {dateTimeRangePicker}
       </div>
-      {/* TODO: this divider is supposed to go all the way across */}
-      <Divider className="mb-6" />
 
-      <div className="mt-8 space-y-8">
-        {/* TODO: convert numbers to GiB PLEASE */}
-        <SystemMetric
-          {...commonProps}
-          metricName="virtual_disk_space_provisioned"
-          title="Disk Space (GiB)"
-          valueTransform={bytesToGiB}
-        />
+      <Divider className="!mx-0 mb-6 !w-full" />
+
+      <div className="mt-8 mb-12 space-y-12">
+        <div className="flex flex-col gap-3">
+          <SystemMetric
+            {...commonProps}
+            metricName="virtual_disk_space_provisioned"
+            title="Disk Space"
+            unit="TiB"
+            valueTransform={bytesToTiB}
+            capacity={900}
+          />
+        </div>
 
         {/* TODO: figure out how to make this not show .5s in the y axis when the numbers are low */}
-        <SystemMetric {...commonProps} metricName="cpus_provisioned" title="CPU (count)" />
+        <SystemMetric
+          {...commonProps}
+          metricName="cpus_provisioned"
+          title="CPU"
+          unit="count"
+          capacity={2048}
+        />
 
         <SystemMetric
           {...commonProps}
           metricName="ram_provisioned"
-          title="Memory (GiB)"
+          title="Memory"
+          unit="GiB"
           valueTransform={bytesToGiB}
+          capacity={28000}
         />
       </div>
     </>

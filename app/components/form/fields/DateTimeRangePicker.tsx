@@ -3,7 +3,7 @@ import { getLocalTimeZone, now as getNow } from '@internationalized/date'
 import { format } from 'date-fns'
 import { useMemo, useState } from 'react'
 
-import { Listbox, RelativeDateRangePicker, useInterval } from '@oxide/ui'
+import { DateRangePicker, Listbox, useInterval } from '@oxide/ui'
 
 const rangePresets = [
   { label: 'Last hour', value: 'lastHour' as const },
@@ -37,7 +37,15 @@ const computeStart: Record<RangeKey, (now: DateValue) => DateValue> = {
  * hours, automatically slide the window forward live by updating the range to
  * have `endTime` of _now_ every `SLIDE_INTERVAL` ms.
  */
-export function useDateTimeRangePicker(initialPreset: RangeKey) {
+export function useDateTimeRangePicker({
+  initialPreset,
+  minValue,
+  maxValue,
+}: {
+  initialPreset: RangeKey
+  minValue?: DateValue | undefined
+  maxValue?: DateValue | undefined
+}) {
   const now = useMemo(() => getNow(getLocalTimeZone()), [])
 
   const start = computeStart[initialPreset](now)
@@ -45,7 +53,7 @@ export function useDateTimeRangePicker(initialPreset: RangeKey) {
 
   const [range, setRange] = useState<DateTimeRange>({ start, end })
 
-  const props = { initialPreset, range, setRange }
+  const props = { initialPreset, range, setRange, minValue, maxValue }
 
   return {
     startTime: range.start,
@@ -63,12 +71,16 @@ type DateTimeRangePickerProps = {
   initialPreset: RangeKey
   range: DateTimeRange
   setRange: (v: DateTimeRange) => void
+  minValue?: DateValue | undefined
+  maxValue?: DateValue | undefined
 }
 
 export function DateTimeRangePicker({
   initialPreset,
   range,
   setRange,
+  minValue,
+  maxValue,
 }: DateTimeRangePickerProps) {
   const [preset, setPreset] = useState<RangeKeyAll>(initialPreset)
   const [lastUpdated, setLastUpdated] = useState(Date.now())
@@ -117,7 +129,7 @@ export function DateTimeRangePicker({
             }
           }}
         />
-        <RelativeDateRangePicker
+        <DateRangePicker
           isDisabled={!enableInputs}
           label="Choose a date range"
           value={range}
@@ -125,6 +137,8 @@ export function DateTimeRangePicker({
             setRange(range)
             setPreset('custom')
           }}
+          minValue={minValue}
+          maxValue={maxValue}
           hideTimeZone
           className="[&_.rounded-l]:!rounded-l-none"
         />

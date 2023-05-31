@@ -98,7 +98,9 @@ export function MetricsTab() {
   // have a disk, we should never see an empty list here
   invariant(disks.length > 0, 'Instance disks list should never be empty')
 
-  const { startTime, endTime, dateTimeRangePicker } = useDateTimeRangePicker('lastDay')
+  const { startTime, endTime, dateTimeRangePicker } = useDateTimeRangePicker({
+    initialPreset: 'lastDay',
+  })
 
   const [diskName, setDiskName] = useState<string>(disks[0].name)
   const diskItems = disks.map(({ name }) => ({ label: name, value: name }))
@@ -111,7 +113,6 @@ export function MetricsTab() {
 
   return (
     <>
-      <h2 className="text-sans-xl">Disk metrics</h2>
       <div className="mb-4 flex justify-between">
         <Listbox
           className="w-48"
@@ -123,7 +124,7 @@ export function MetricsTab() {
               setDiskName(item.value)
             }
           }}
-          defaultValue={diskName}
+          selectedItem={diskName}
         />
         {dateTimeRangePicker}
       </div>
