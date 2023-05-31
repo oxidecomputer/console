@@ -21,16 +21,15 @@ export const CapacityMetric = ({
   valueTransform?: (n: number) => number
   capacity: number
 }) => {
-  // Currently there's no way of getting the current utilization
-  // This grabs a decent chunk of time and gets the most recent entry
+  // Currently there's no way of getting the current utilization, so grab the
+  // last month of data and take the most recent entry
   const { startTime, endTime } = useMemo(() => {
-    let startTime = new Date()
-    startTime = subMonths(startTime, 1)
     const endTime = new Date()
-    return { startTime, endTime }
+    return { startTime: subMonths(endTime, 1), endTime }
   }, [])
 
-  const { data: metrics } = useApiQuery(
+  // this is going to return at most one data point
+  const { data } = useApiQuery(
     'systemMetric',
     { path: { metricName }, query: { startTime, endTime } },
     {
@@ -39,25 +38,12 @@ export const CapacityMetric = ({
     }
   )
 
-  const data = (metrics?.items || []).map(({ datum, timestamp }) => ({
-    timestamp: timestamp.getTime(),
-    value: valueTransform(datum.datum as number),
-  }))
-
-  const utilization = useMemo(() => {
-    const endItem = data[data.length - 1]
-
-    if (!data || !endItem) {
-      return null
-    }
-
-    return (endItem.value / capacity) * 100
-  }, [capacity, data])
-
-  const [wholeNumber, decimal] = useMemo(
-    () => splitNumberDecimal(utilization || 0),
-    [utilization]
-  )
+  const metrics = useMemo(() => data?.items || [], [data])
+  const datum = metrics && metrics.length > 0 ? metrics[metrics.length - 1].datum.datum : 0
+  // it's always a number but let's rule out the other options without doing a cast
+  const utilization = valueTransform(typeof datum === 'number' ? datum : 0)
+  const utilizationPct = (utilization * 100) / capacity
+  const [wholeNumber, decimal] = splitNumberDecimal(utilizationPct)
 
   return (
     <div className="flex w-full min-w-min flex-1 flex-shrink-0 items-center rounded-lg border border-default">
@@ -83,7 +69,7 @@ export const CapacityMetric = ({
 
       <div>
         <div className="flex items-center justify-center p-4">
-          <CapacityPieChart angle={((utilization || 0) / 100) * 365} />
+          <CapacityPieChart angle={(utilizationPct / 100) * 365} />
         </div>
       </div>
     </div>
