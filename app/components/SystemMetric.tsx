@@ -170,7 +170,7 @@ const MetricStatistic = ({
         </div>
         {fDelta !== undefined && (
           <Badge
-            className="my-2 children:flex children:items-center"
+            className="my-2 h-5 children:flex children:items-center"
             color={fDelta > 0 ? 'default' : 'purple'}
           >
             <div className="mr-1 inline-flex">
