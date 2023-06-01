@@ -3,6 +3,7 @@ import React, { Suspense, useMemo } from 'react'
 import type { SystemMetricName } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import { Badge, DirectionDownIcon, DirectionUpIcon, Spinner } from '@oxide/ui'
+import { splitDecimal } from '@oxide/util'
 
 const TimeSeriesChart = React.lazy(() => import('./TimeSeriesChart'))
 
