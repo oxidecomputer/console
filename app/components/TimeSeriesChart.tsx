@@ -81,11 +81,7 @@ function renderTooltip(props: TooltipProps<number, string>, unit?: string) {
       <div className="py-2 px-3">
         <div className="text-tertiary">{name}</div>
         <div className="text-default">
-          {
-            parseFloat(value.toFixed(2))
-              .toLocaleString()
-              .replace(/[.,]00$/, '') // Remove decimal if a whole number
-          }
+          {value.toLocaleString()}
           {unit && <span className="ml-1 text-tertiary">{unit}</span>}
         </div>
         {/* TODO: unit on value if relevant */}
