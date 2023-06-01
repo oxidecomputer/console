@@ -69,7 +69,7 @@ const TopBarPicker = (props: TopBarPickerProps) => {
         ) : (
           <DropdownMenu.Trigger
             className="group -m-1 flex items-center overflow-hidden rounded-lg p-1 text-left hover:bg-hover"
-            aria-label={props['aria-label']}
+            aria-hidden // avoid doubling up on the select project trigger for screen readers
           >
             {props.icon ? <div className="mr-2 flex items-center">{props.icon}</div> : null}
 
