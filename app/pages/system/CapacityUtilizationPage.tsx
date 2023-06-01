@@ -53,7 +53,7 @@ export function CapacityUtilizationPage() {
         <PageTitle icon={<Snapshots24Icon />}>Capacity &amp; Utilization</PageTitle>
       </PageHeader>
 
-      <div className="mb-12 flex min-w-min gap-3">
+      <div className="mb-12 flex min-w-min flex-col gap-3 lg+:flex-row">
         <CapacityMetric
           icon={<Ssd16Icon />}
           title="Disk capacity"
@@ -76,7 +76,7 @@ export function CapacityUtilizationPage() {
         />
       </div>
 
-      <div className="my-8 flex justify-between">
+      <div className="my-8 flex justify-between gap-3">
         <Listbox
           selectedItem={siloId}
           className="w-48"

@@ -111,7 +111,7 @@ export function DateTimeRangePicker({
 
   return (
     <form className="flex items-center gap-2">
-      <div className="text-sans-md text-quaternary">
+      <div className="hidden text-right text-sans-md text-quaternary lg+:block">
         Updated {format(lastUpdated, 'hh:mm')}
       </div>
       <div className="flex">

@@ -109,7 +109,7 @@ export function SystemMetric({
           />
         </div>
         {statistic && (
-          <div className="mt-3 flex min-w-min gap-3">
+          <div className="mt-3 flex min-w-min flex-col gap-3 lg+:flex-row">
             <MetricStatistic
               label="In-use"
               value={(statistic.endVal / capacity) * 100}
@@ -152,7 +152,7 @@ const MetricStatistic = ({
   const fDelta = delta && parseFloat(delta.toFixed(2))
 
   return (
-    <div className="flex h-10 w-full min-w-min flex-1 flex-shrink-0 items-center rounded-lg border border-default">
+    <div className="flex h-10 w-full min-w-min flex-shrink-0 items-center rounded-lg border border-default lg+:flex-1">
       <div className="flex h-full items-center border-r px-3 text-mono-sm text-quaternary border-r-secondary">
         {label}
       </div>
