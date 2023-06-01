@@ -128,12 +128,6 @@ export function SystemMetric({
   )
 }
 
-export function splitNumberDecimal(value: number) {
-  const wholeNumber = Math.floor(value)
-  const decimal = value % 1 !== 0 ? value % 1 : null
-  return [wholeNumber, decimal ? '.' + decimal.toFixed(2).toString().split('.')[1] : '']
-}
-
 const MetricStatistic = ({
   label,
   value,
@@ -149,7 +143,7 @@ const MetricStatistic = ({
 }) => {
   const isPercentage = unit === 'percentage'
 
-  const [wholeNumber, decimal] = useMemo(() => splitNumberDecimal(value), [value])
+  const [wholeNumber, decimal] = useMemo(() => splitDecimal(value), [value])
 
   // We're using the fixed delta when we check if a delta is
   // positive or negative, otherwise we'll see the colour and direction

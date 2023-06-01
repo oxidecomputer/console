@@ -3,8 +3,7 @@ import { useMemo } from 'react'
 
 import type { SystemMetricName } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
-
-import { splitNumberDecimal } from './SystemMetric'
+import { splitDecimal } from '@oxide/util'
 
 export const CapacityMetric = ({
   icon,
@@ -43,7 +42,7 @@ export const CapacityMetric = ({
   // it's always a number but let's rule out the other options without doing a cast
   const utilization = valueTransform(typeof datum === 'number' ? datum : 0)
   const utilizationPct = (utilization * 100) / capacity
-  const [wholeNumber, decimal] = splitNumberDecimal(utilizationPct)
+  const [wholeNumber, decimal] = splitDecimal(utilizationPct)
 
   return (
     <div className="flex w-full min-w-min flex-1 flex-shrink-0 items-center rounded-lg border border-default">
