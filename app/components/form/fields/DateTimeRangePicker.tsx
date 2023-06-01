@@ -85,12 +85,6 @@ export function DateTimeRangePicker({
   const [preset, setPreset] = useState<RangeKeyAll>(initialPreset)
   const [lastUpdated, setLastUpdated] = useState(Date.now())
 
-  // const customInputsDirty =
-  //   range.start.compare(inputRange.start) !== 0 || range.end.compare(inputRange.end) !== 0
-
-  // const enableInputs = preset === 'custom'
-  const enableInputs = true
-
   // could handle this in a useEffect that looks at `preset`, but that would
   // also run on initial render, which is silly. Instead explicitly call it on
   // preset change and in useInterval.
@@ -130,7 +124,6 @@ export function DateTimeRangePicker({
           }}
         />
         <DateRangePicker
-          isDisabled={!enableInputs}
           label="Choose a date range"
           value={range}
           onChange={(range) => {
