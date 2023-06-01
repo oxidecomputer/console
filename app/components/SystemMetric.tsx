@@ -144,7 +144,7 @@ const MetricStatistic = ({
 }) => {
   const isPercentage = unit === 'percentage'
 
-  const [wholeNumber, decimal] = useMemo(() => splitDecimal(value), [value])
+  const [wholeNumber, decimal] = splitDecimal(value)
 
   // We're using the fixed delta when we check if a delta is
   // positive or negative, otherwise we'll see the colour and direction
