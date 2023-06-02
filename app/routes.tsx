@@ -25,6 +25,7 @@ import { SerialConsoleContentPane, userLoader } from './layouts/helpers'
 import DeviceAuthSuccessPage from './pages/DeviceAuthSuccessPage'
 import DeviceAuthVerifyPage from './pages/DeviceAuthVerifyPage'
 import { LoginPage } from './pages/LoginPage'
+import { LoginPageSaml } from './pages/LoginPageSaml'
 import NotFound from './pages/NotFound'
 import ProjectsPage from './pages/ProjectsPage'
 import { SiloAccessPage } from './pages/SiloAccessPage'
@@ -76,6 +77,7 @@ export const routes = createRoutesFromElements(
     <Route element={<LoginLayout />}>
       <Route path="spoof_login" element={<SpoofLoginPage />} />
       <Route path="login/:silo/local" element={<LoginPage />} />
+      <Route path="login/:silo/saml/:provider" element={<LoginPageSaml />} />
     </Route>
 
     <Route path="device" element={<AuthLayout />}>

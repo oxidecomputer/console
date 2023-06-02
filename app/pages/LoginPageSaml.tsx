@@ -1,0 +1,37 @@
+import { useSearchParams } from 'react-router-dom'
+
+import { Identicon, buttonStyle } from '@oxide/ui'
+
+import 'app/components/login-page.css'
+
+import { useIdpSelector } from '../hooks'
+
+/** SAML "login page" that just links to the actual IdP */
+export function LoginPageSaml() {
+  const [searchParams] = useSearchParams()
+  const { silo, provider } = useIdpSelector()
+
+  const state = searchParams.get('state')?.trim()
+  const query = state ? `?state=${state}` : ''
+
+  return (
+    <>
+      <div className="mb-3 flex items-end space-x-3">
+        <Identicon
+          className="flex h-[34px] w-[34px] items-center justify-center rounded text-accent bg-accent-secondary-hover"
+          name={silo}
+        />
+        <div className="text-sans-2xl text-default">{silo}</div>
+      </div>
+
+      <hr className="my-6 w-full border-0 border-b border-b-secondary" />
+
+      <a
+        className={buttonStyle({})}
+        href={`/login/${silo}/saml/${provider}/direct${query}`}
+      >
+        Go to external login
+      </a>
+    </>
+  )
+}
