@@ -17,6 +17,8 @@ type SystemMetricProps = {
   filterId: string
   valueTransform?: (n: number) => number
   capacity: number
+  refetchInterval?: number | false
+  onUpdate?: () => void
 }
 
 export function SystemMetric({
@@ -28,6 +30,8 @@ export function SystemMetric({
   filterId,
   valueTransform = (x) => x,
   capacity,
+  refetchInterval = false,
+  onUpdate,
 }: SystemMetricProps) {
   // TODO: we're only pulling the first page. Should we bump the cap to 10k?
   // Fetch multiple pages if 10k is not enough? That's a bit much.
@@ -36,9 +40,10 @@ export function SystemMetric({
     { path: { metricName }, query: { id: filterId, startTime, endTime } },
     {
       // TODO: this is actually kind of useless unless the time interval slides forward as time passes
-      refetchInterval: 5000,
+      refetchInterval,
       // avoid graphs flashing blank while loading when you change the time
       keepPreviousData: true,
+      onSuccess: onUpdate,
     }
   )
 
@@ -158,7 +163,7 @@ const MetricStatistic = ({
       </div>
       <div className="flex flex-grow items-center justify-between px-3">
         <div className="[font-size:18px]">
-          <span className="font-light">{wholeNumber.toLocaleString()}</span>
+          <span className="font-light">{wholeNumber}</span>
           {decimal && (
             <span className="ml-0.5 text-quaternary [font-size:14px]">{decimal}</span>
           )}

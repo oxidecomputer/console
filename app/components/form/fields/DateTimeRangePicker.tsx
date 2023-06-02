@@ -1,6 +1,5 @@
 import type { DateValue } from '@internationalized/date'
 import { getLocalTimeZone, now as getNow } from '@internationalized/date'
-import { format } from 'date-fns'
 import { useMemo, useState } from 'react'
 
 import { DateRangePicker, Listbox, useInterval } from '@oxide/ui'
@@ -83,7 +82,6 @@ export function DateTimeRangePicker({
   maxValue,
 }: DateTimeRangePickerProps) {
   const [preset, setPreset] = useState<RangeKeyAll>(initialPreset)
-  const [lastUpdated, setLastUpdated] = useState(Date.now())
 
   // could handle this in a useEffect that looks at `preset`, but that would
   // also run on initial render, which is silly. Instead explicitly call it on
@@ -93,7 +91,6 @@ export function DateTimeRangePicker({
       const now = getNow(getLocalTimeZone())
       const newStartTime = computeStart[preset](now)
       setRange({ start: newStartTime, end: now })
-      setLastUpdated(Date.now())
     }
   }
 
@@ -105,12 +102,9 @@ export function DateTimeRangePicker({
 
   return (
     <form className="flex items-center gap-2">
-      <div className="hidden text-right text-sans-md text-quaternary lg+:block">
-        Updated {format(lastUpdated, 'hh:mm')}
-      </div>
       <div className="flex">
         <Listbox
-          className="z-10 w-[10rem] [&>button]:!rounded-r-none [&>button]:!border-r-0" // in addition to gap-4
+          className="z-10 w-[10rem] [&>button]:!rounded-r-none [&>button]:!border-r-0"
           name="preset"
           selectedItem={preset}
           aria-label="Choose a time range preset"
