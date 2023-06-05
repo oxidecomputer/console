@@ -8,7 +8,7 @@ const motionQuery = () => window.matchMedia('(prefers-reduced-motion: reduce)')
 /**
  * Pulled from [react-reduce-motion](https://github.com/infiniteluke/react-reduce-motion).
  */
-function useReducedMotion() {
+export function useReducedMotion() {
   const [reducedMotion, setReducedMotion] = useState(motionQuery().matches)
   useEffect(() => {
     const mq = motionQuery()
