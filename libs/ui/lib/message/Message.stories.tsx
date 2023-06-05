@@ -10,9 +10,9 @@ export const Default = () => (
         are not updated after instance launch.
       </>
     }
-    cta={{
+    link={{
       text: 'Learn more about SSH keys',
-      link: '/',
+      to: '/',
     }}
   />
 )
