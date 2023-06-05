@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import { useReducedMotion } from 'app/hooks'
 
@@ -78,10 +78,14 @@ const Sector = ({
   cornerRadius?: number
   color: string
 }) => {
+  const path = useMemo(
+    () => getPath(angle, thickness, size, cornerRadius),
+    [angle, thickness, size, cornerRadius]
+  )
+
   if (angle === 0) return null
 
   const outerRadius = size / 2
-  const innerRadius = outerRadius - thickness
 
   if (angle === 360) {
     return (
@@ -96,6 +100,13 @@ const Sector = ({
       />
     )
   }
+
+  return <path d={path} fill={color} />
+}
+
+function getPath(angle: number, thickness: number, size: number, cornerRadius: number) {
+  const outerRadius = size / 2
+  const innerRadius = outerRadius - thickness
 
   const circumference = calculateArcLength(angle, innerRadius)
   const minAngle = (((cornerRadius * 2) / innerRadius) * 180) / Math.PI
@@ -167,37 +178,32 @@ const Sector = ({
   const newOuterAngle = calculateNewAngle(outerRadius, cornerRadius * 2, clampedAngle)
   const newInnerAngle = calculateNewAngle(innerRadius, cornerRadius * 2, clampedAngle)
 
-  return (
-    <path
-      d={`M ${outerLineStartCornerXY2.x},${outerLineStartCornerXY2.y}
-    A ${outerRadius},${outerRadius},0,
-    ${+(Math.abs(newOuterAngle) > 180)},0,
-    ${outerLineEndCornerXY1.x},${outerLineEndCornerXY1.y}
-    C ${outerLineEndCornerXY1.x} ${outerLineEndCornerXY1.y} ${outerLineEndCornerBezier.x} ${
-        outerLineEndCornerBezier.y
-      }  ${outerLineEndCornerXY2.x} ${outerLineEndCornerXY2.y}
-    L ${innerLineStartCornerXY1.x} ${innerLineStartCornerXY1.y}
-    C ${innerLineStartCornerXY1.x} ${innerLineStartCornerXY1.y} ${
-        innerLineStartCornerBezier.x
-      } ${innerLineStartCornerBezier.y}  ${innerLineStartCornerXY2.x} ${
-        innerLineStartCornerXY2.y
-      }
-  A ${innerRadius},${innerRadius},0,
-  ${+(Math.abs(newInnerAngle) > 180)},1,
-  ${innerLineEndCornerXY1.x},${innerLineEndCornerXY1.y}
-  C ${innerLineEndCornerXY1.x} ${innerLineEndCornerXY1.y} ${innerLineEndCornerBezier.x} ${
-        innerLineEndCornerBezier.y
-      }  ${innerLineEndCornerXY2.x} ${innerLineEndCornerXY2.y}
-  L ${outerLinerStartCornerXY1.x} ${outerLinerStartCornerXY1.y}
-  C ${outerLinerStartCornerXY1.x} ${outerLinerStartCornerXY1.y} ${
-        outerLineStartCornerBezier.x
-      } ${outerLineStartCornerBezier.y}  ${outerLineStartCornerXY2.x} ${
-        outerLineStartCornerXY2.y
-      }
-  `}
-      fill={color}
-    />
-  )
+  return `M ${outerLineStartCornerXY2.x},${outerLineStartCornerXY2.y}
+      A ${outerRadius},${outerRadius},0,
+      ${+(Math.abs(newOuterAngle) > 180)},0,
+      ${outerLineEndCornerXY1.x},${outerLineEndCornerXY1.y}
+      C ${outerLineEndCornerXY1.x} ${outerLineEndCornerXY1.y} ${
+    outerLineEndCornerBezier.x
+  } ${outerLineEndCornerBezier.y}  ${outerLineEndCornerXY2.x} ${outerLineEndCornerXY2.y}
+      L ${innerLineStartCornerXY1.x} ${innerLineStartCornerXY1.y}
+      C ${innerLineStartCornerXY1.x} ${innerLineStartCornerXY1.y} ${
+    innerLineStartCornerBezier.x
+  } ${innerLineStartCornerBezier.y}  ${innerLineStartCornerXY2.x} ${
+    innerLineStartCornerXY2.y
+  }
+    A ${innerRadius},${innerRadius},0,
+    ${+(Math.abs(newInnerAngle) > 180)},1,
+    ${innerLineEndCornerXY1.x},${innerLineEndCornerXY1.y}
+    C ${innerLineEndCornerXY1.x} ${innerLineEndCornerXY1.y} ${innerLineEndCornerBezier.x} ${
+    innerLineEndCornerBezier.y
+  }  ${innerLineEndCornerXY2.x} ${innerLineEndCornerXY2.y}
+    L ${outerLinerStartCornerXY1.x} ${outerLinerStartCornerXY1.y}
+    C ${outerLinerStartCornerXY1.x} ${outerLinerStartCornerXY1.y} ${
+    outerLineStartCornerBezier.x
+  } ${outerLineStartCornerBezier.y}  ${outerLineStartCornerXY2.x} ${
+    outerLineStartCornerXY2.y
+  }
+    `
 }
 
 function calculateNewAngle(radius: number, cornerRadius: number, angle: number): number {
