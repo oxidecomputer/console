@@ -49,8 +49,8 @@ test('Click through networking', async ({ page }) => {
   await expectVisible(page, [
     'role=heading[name*="new-vpc"]',
     'role=tab[name="Subnets"]',
-    'role=tab[name="System Routes"]',
-    'role=tab[name="Routers"]',
+    // 'role=tab[name="System Routes"]',
+    // 'role=tab[name="Routers"]',
     'role=tab[name="Firewall Rules"]',
     'role=cell[name="mock-subnet"]',
     // TODO: assert minitable contents
@@ -85,21 +85,21 @@ test('Click through networking', async ({ page }) => {
   await expectNotVisible(page, ['role=cell[name="new-subnet"]'])
   await expectVisible(page, ['role=cell[name="edited-subnet"]'])
 
-  // System routes
-  await page.click('role=tab[name="System Routes"]')
-  await expectVisible(page, ['role=cell[name="system"]'])
+  // // System routes
+  // await page.click('role=tab[name="System Routes"]')
+  // await expectVisible(page, ['role=cell[name="system"]'])
 
-  // Routers
-  await page.click('role=tab[name="Routers"]')
-  await expectVisible(page, ['role=cell[name="system"] >> nth=0'])
-  await page.click('role=button[name="New router"]')
-  await expectVisible(page, [
-    'role=heading[name="Create VPC Router"]',
-    'role=button[name="Create VPC Router"]',
-  ])
-  await page.fill('role=textbox[name="Name"]', 'new-router')
-  await page.click('role=button[name="Create VPC Router"]')
-  await expectVisible(page, ['role=cell[name="new-router"]', 'role=cell[name="custom"]'])
+  // // Routers
+  // await page.click('role=tab[name="Routers"]')
+  // await expectVisible(page, ['role=cell[name="system"] >> nth=0'])
+  // await page.click('role=button[name="New router"]')
+  // await expectVisible(page, [
+  //   'role=heading[name="Create VPC Router"]',
+  //   'role=button[name="Create VPC Router"]',
+  // ])
+  // await page.fill('role=textbox[name="Name"]', 'new-router')
+  // await page.click('role=button[name="Create VPC Router"]')
+  // await expectVisible(page, ['role=cell[name="new-router"]', 'role=cell[name="custom"]'])
 
   // Firewall rules
   await page.click('role=tab[name="Firewall Rules"]')

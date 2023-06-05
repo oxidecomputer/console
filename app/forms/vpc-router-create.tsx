@@ -1,3 +1,5 @@
+import { useForm } from 'react-hook-form'
+
 import type { VpcRouterCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 
@@ -34,11 +36,13 @@ export function CreateVpcRouterForm({ onDismiss }: CreateVpcRouterFormProps) {
     },
   })
 
+  const form = useForm({ mode: 'all', defaultValues })
+
   return (
     <SideModalForm
       id="create-vpc-router-form"
       title="Create VPC Router"
-      formOptions={{ defaultValues }}
+      form={form}
       onDismiss={onDismiss}
       onSubmit={({ name, description }) =>
         createRouter.mutate({ query: vpcSelector, body: { name, description } })
@@ -46,12 +50,8 @@ export function CreateVpcRouterForm({ onDismiss }: CreateVpcRouterFormProps) {
       loading={createRouter.isLoading}
       submitError={createRouter.error}
     >
-      {({ control }) => (
-        <>
-          <NameField name="name" control={control} />
-          <DescriptionField name="description" control={control} />
-        </>
-      )}
+      <NameField name="name" control={form.control} />
+      <DescriptionField name="description" control={form.control} />
     </SideModalForm>
   )
 }

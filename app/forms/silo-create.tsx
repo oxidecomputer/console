@@ -1,3 +1,4 @@
+import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 
 import type { SiloCreate } from '@oxide/api'
@@ -41,11 +42,13 @@ export function CreateSiloSideModalForm() {
     },
   })
 
+  const form = useForm({ mode: 'all', defaultValues })
+
   return (
     <SideModalForm
       id="create-silo-form"
       title="Create silo"
-      formOptions={{ defaultValues }}
+      form={form}
       onDismiss={onDismiss}
       onSubmit={({ adminGroupName, ...rest }) =>
         createSilo.mutate({
@@ -59,31 +62,27 @@ export function CreateSiloSideModalForm() {
       loading={createSilo.isLoading}
       submitError={createSilo.error}
     >
-      {({ control }) => (
-        <>
-          <NameField name="name" control={control} />
-          <DescriptionField name="description" control={control} />
-          <CheckboxField name="discoverable" control={control}>
-            Discoverable
-          </CheckboxField>
-          <RadioField
-            name="identityMode"
-            label="Identity mode"
-            column
-            control={control}
-            items={[
-              { value: 'saml_jit', label: 'SAML JIT' },
-              { value: 'local_only', label: 'Local only' },
-            ]}
-          />
-          <TextField
-            name="adminGroupName"
-            label="Admin group name"
-            helpText="This group will be created and granted the Silo Admin role"
-            control={control}
-          />
-        </>
-      )}
+      <NameField name="name" control={form.control} />
+      <DescriptionField name="description" control={form.control} />
+      <CheckboxField name="discoverable" control={form.control}>
+        Discoverable
+      </CheckboxField>
+      <RadioField
+        name="identityMode"
+        label="Identity mode"
+        column
+        control={form.control}
+        items={[
+          { value: 'saml_jit', label: 'SAML JIT' },
+          { value: 'local_only', label: 'Local only' },
+        ]}
+      />
+      <TextField
+        name="adminGroupName"
+        label="Admin group name"
+        helpText="This group will be created and granted the Silo Admin role"
+        control={form.control}
+      />
     </SideModalForm>
   )
 }

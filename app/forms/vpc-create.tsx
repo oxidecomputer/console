@@ -1,3 +1,4 @@
+import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 
 import type { VpcCreate } from '@oxide/api'
@@ -33,24 +34,22 @@ export function CreateVpcSideModalForm() {
     },
   })
 
+  const form = useForm({ mode: 'all', defaultValues })
+
   return (
     <SideModalForm
+      form={form}
       id="create-vpc-form"
       title="Create VPC"
-      formOptions={{ defaultValues }}
       onSubmit={(values) => createVpc.mutate({ query: projectSelector, body: values })}
       onDismiss={() => navigate(pb.vpcs(projectSelector))}
       loading={createVpc.isLoading}
       submitError={createVpc.error}
     >
-      {({ control }) => (
-        <>
-          <NameField name="name" control={control} />
-          <DescriptionField name="description" control={control} />
-          <NameField name="dnsName" label="DNS name" control={control} />
-          <TextField name="ipv6Prefix" label="IPV6 prefix" control={control} />
-        </>
-      )}
+      <NameField name="name" control={form.control} />
+      <DescriptionField name="description" control={form.control} />
+      <NameField name="dnsName" label="DNS name" control={form.control} />
+      <TextField name="ipv6Prefix" label="IPV6 prefix" control={form.control} />
     </SideModalForm>
   )
 }

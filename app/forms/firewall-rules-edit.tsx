@@ -1,3 +1,5 @@
+import { useForm } from 'react-hook-form'
+
 import type { VpcFirewallRule } from '@oxide/api'
 import { firewallRuleGetToPut, useApiMutation, useApiQueryClient } from '@oxide/api'
 
@@ -28,8 +30,6 @@ export function EditFirewallRuleForm({
     },
   })
 
-  if (Object.keys(originalRule).length === 0) return null
-
   const defaultValues: FirewallRuleValues = {
     enabled: originalRule.status === 'enabled',
     name: originalRule.name,
@@ -46,11 +46,16 @@ export function EditFirewallRuleForm({
     targets: originalRule.targets,
   }
 
+  const form = useForm({ mode: 'all', defaultValues })
+
+  // TODO: uhhhh how can this happen
+  if (Object.keys(originalRule).length === 0) return null
+
   return (
     <SideModalForm
       id="create-firewall-rule-form"
       title="Edit rule"
-      formOptions={{ defaultValues }}
+      form={form}
       onDismiss={onDismiss}
       onSubmit={(values) => {
         // note different filter logic from create: filter out the rule with the
@@ -71,7 +76,7 @@ export function EditFirewallRuleForm({
       submitError={updateRules.error}
       submitLabel="Update rule"
     >
-      {({ control }) => <CommonFields error={updateRules.error} control={control} />}
+      <CommonFields error={updateRules.error} control={form.control} />
     </SideModalForm>
   )
 }

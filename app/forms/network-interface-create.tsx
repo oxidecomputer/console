@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { useForm } from 'react-hook-form'
 
 import type { ApiError, InstanceNetworkInterfaceCreate } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
@@ -44,39 +45,37 @@ export default function CreateNetworkInterfaceForm({
   const { data: vpcsData } = useApiQuery('vpcList', { query: projectSelector })
   const vpcs = useMemo(() => vpcsData?.items || [], [vpcsData])
 
+  const form = useForm({ mode: 'all', defaultValues })
+
   return (
     <SideModalForm
       id="create-network-interface-form"
       title="Add network interface"
-      formOptions={{ defaultValues }}
+      form={form}
       onDismiss={onDismiss}
       onSubmit={onSubmit}
       loading={loading}
       submitError={submitError}
     >
-      {({ control }) => (
-        <>
-          <NameField name="name" control={control} />
-          <DescriptionField name="description" control={control} />
-          <Divider />
+      <NameField name="name" control={form.control} />
+      <DescriptionField name="description" control={form.control} />
+      <Divider />
 
-          <ListboxField
-            name="vpcName"
-            label="VPC"
-            items={vpcs.map(({ name }) => ({ label: name, value: name }))}
-            required
-            control={control}
-          />
-          <SubnetListbox
-            name="subnetName"
-            label="Subnet"
-            vpcNameField="vpcName"
-            required
-            control={control}
-          />
-          <TextField name="ip" label="IP Address" control={control} />
-        </>
-      )}
+      <ListboxField
+        name="vpcName"
+        label="VPC"
+        items={vpcs.map(({ name }) => ({ label: name, value: name }))}
+        required
+        control={form.control}
+      />
+      <SubnetListbox
+        name="subnetName"
+        label="Subnet"
+        vpcNameField="vpcName"
+        required
+        control={form.control}
+      />
+      <TextField name="ip" label="IP Address" control={form.control} />
     </SideModalForm>
   )
 }

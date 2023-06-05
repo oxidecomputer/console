@@ -1,13 +1,7 @@
 import { announce } from '@react-aria/live-announcer'
 import type { ReactNode } from 'react'
 import { useEffect, useState } from 'react'
-import type {
-  FieldValues,
-  UseFormProps,
-  UseFormReturn,
-  UseFormTrigger,
-} from 'react-hook-form'
-import { useForm } from 'react-hook-form'
+import type { FieldValues, UseFormReturn, UseFormTrigger } from 'react-hook-form'
 import { useNavigationType } from 'react-router-dom'
 
 import type { ApiError } from '@oxide/api'
@@ -22,7 +16,7 @@ import {
 
 type SideModalFormProps<TFieldValues extends FieldValues> = {
   id: string
-  formOptions: UseFormProps<TFieldValues>
+  form: UseFormReturn<TFieldValues>
   /**
    * A function that returns the fields.
    *
@@ -31,7 +25,7 @@ type SideModalFormProps<TFieldValues extends FieldValues> = {
    * then in the calling code, the field would not infer `TFieldValues` and
    * constrain the `name` prop to paths in the values object.
    */
-  children: (form: UseFormReturn<TFieldValues>) => ReactNode
+  children: ReactNode
   onDismiss: () => void
   /** Must be provided with a reason describing why it's disabled */
   submitDisabled?: string
@@ -56,7 +50,7 @@ export function useShouldAnimateModal() {
 
 export function SideModalForm<TFieldValues extends FieldValues>({
   id,
-  formOptions,
+  form,
   children,
   onDismiss,
   submitDisabled,
@@ -67,9 +61,7 @@ export function SideModalForm<TFieldValues extends FieldValues>({
   loading,
   subtitle,
 }: SideModalFormProps<TFieldValues>) {
-  // TODO: RHF docs warn about the performance impact of validating on every
-  // change
-  const form = useForm({ mode: 'all', ...formOptions })
+  const { isSubmitting } = form.formState
 
   const { getValues, setValue, trigger } = form
 
@@ -78,7 +70,8 @@ export function SideModalForm<TFieldValues extends FieldValues>({
   const handleOnDismiss = () => {
     const values = getValues()
 
-    const isDefault = JSON.stringify(values) === JSON.stringify(formOptions.defaultValues)
+    const isDefault =
+      JSON.stringify(values) === JSON.stringify(form.formState.defaultValues)
 
     if (!isDefault) {
       // Save the form state in local storage if they aren't just the default values
@@ -97,14 +90,13 @@ export function SideModalForm<TFieldValues extends FieldValues>({
     announce('Restored previous form session', 'polite')
   }, [id, setValue, trigger, hasPersistedForm])
 
-  const { isSubmitting } = form.formState
-
   useEffect(() => {
     if (submitError?.errorCode === 'ObjectAlreadyExists' && 'name' in form.getValues()) {
       // @ts-expect-error
       form.setError('name', { message: 'Name already exists' })
     }
   }, [submitError, form])
+
   return (
     <SideModal
       onDismiss={handleOnDismiss}
@@ -153,7 +145,7 @@ export function SideModalForm<TFieldValues extends FieldValues>({
               }
             />
           )}
-          {children(form)}
+          {children}
         </form>
       </SideModal.Body>
       <SideModal.Footer error={!!submitError}>
