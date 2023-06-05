@@ -76,6 +76,9 @@ export function SideModalForm<TFieldValues extends FieldValues>({
     if (!isDefault) {
       // Save the form state in local storage if they aren't just the default values
       saveFormValues(id, values)
+    } else {
+      // We clear persisted form values if the user resets the form to default
+      clearPersistedFormValues(id)
     }
     onDismiss()
   }
