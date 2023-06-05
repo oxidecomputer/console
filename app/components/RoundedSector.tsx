@@ -14,7 +14,7 @@ const RoundedSector = ({
   cornerRadius?: number
 }) => {
   const prefersReducedMotion = useReducedMotion()
-  const [interpolatedValue, setInterpolatedValue] = useState(0)
+  const [interpolatedAngle, setInterpolatedAngle] = useState(0)
 
   useEffect(() => {
     const startValue = angle * 0.8
@@ -27,7 +27,7 @@ const RoundedSector = ({
       const elapsedTime = currentTime - startTime
       const t = Math.min(elapsedTime / duration, 1)
 
-      setInterpolatedValue(startValue + (endValue - startValue) * easeOutQuart(t))
+      setInterpolatedAngle(startValue + (endValue - startValue) * easeOutQuart(t))
 
       if (t < 1) {
         requestAnimationFrame(step)
@@ -52,7 +52,7 @@ const RoundedSector = ({
           color="var(--base-neutral-300)"
         />
         <Sector
-          angle={prefersReducedMotion ? angle : interpolatedValue}
+          angle={prefersReducedMotion ? angle : interpolatedAngle}
           size={size}
           thickness={thickness}
           cornerRadius={cornerRadius}
@@ -78,14 +78,17 @@ const Sector = ({
   cornerRadius?: number
   color: string
 }) => {
+  const outerRadius = size / 2
+  const innerRadius = outerRadius - thickness
+
+  const maxAngle = 360 - 360 / (2 * Math.PI * innerRadius)
+
   const path = useMemo(
-    () => getPath(angle, thickness, size, cornerRadius),
-    [angle, thickness, size, cornerRadius]
+    () => getPath(Math.min(maxAngle, angle), thickness, size, cornerRadius),
+    [angle, thickness, size, cornerRadius, maxAngle]
   )
 
   if (angle === 0) return null
-
-  const outerRadius = size / 2
 
   if (angle === 360) {
     return (
@@ -213,8 +216,6 @@ function calculateNewAngle(radius: number, cornerRadius: number, angle: number):
   // Calculate the new circumference after reducing it by cornerRadius
   const newCircumference = originalCircumference - 2 * cornerRadius
 
-  // The ratio of the new circumference to the original one times 360 (for the full circle) will give the new angle.
-  // However, since we are dealing with a semicircle, we need to multiply this result by 0.5 to get the new angle.
   const newAngle = (newCircumference / originalCircumference) * angle
 
   return newAngle
