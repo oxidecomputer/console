@@ -6,7 +6,7 @@ import { OpenLink12Icon } from '@oxide/ui'
 
 import { Error12Icon, Success12Icon, Warning12Icon } from '../icons'
 
-type Variant = 'success' | 'error' | 'notice'
+type Variant = 'success' | 'error' | 'notice' | 'info'
 
 export interface MessageProps {
   title?: string
@@ -15,7 +15,11 @@ export interface MessageProps {
   variant?: Variant
   cta?: {
     text: string
-    link: To
+    action: () => void
+  }
+  link?: {
+    text: string
+    to: To
   }
 }
 
@@ -23,30 +27,35 @@ const icon: Record<Variant, ReactElement> = {
   success: <Success12Icon />,
   error: <Error12Icon />,
   notice: <Warning12Icon />,
+  info: <Error12Icon className="rotate-180" />,
 }
 
 const color: Record<Variant, string> = {
   success: 'bg-accent-secondary',
   error: 'bg-error-secondary',
   notice: 'bg-notice-secondary',
+  info: 'bg-[var(--base-blue-200)]',
 }
 
 const textColor: Record<Variant, string> = {
   success: 'text-accent children:text-accent',
   error: 'text-error children:text-error',
   notice: 'text-notice children:text-notice',
+  info: 'text-[var(--base-blue-700)] children:text-[var(--base-blue-700)]',
 }
 
 const secondaryTextColor: Record<Variant, string> = {
   success: 'text-accent-secondary',
   error: 'text-error-secondary',
   notice: 'text-notice-secondary',
+  info: 'text-[var(--base-blue-600)]',
 }
 
 const linkColor: Record<Variant, string> = {
   success: 'text-accent-secondary hover:text-accent',
   error: 'text-error-secondary hover:text-error',
   notice: 'text-notice-secondary hover:text-notice',
+  info: 'text-[var(--base-blue-600)] hover:text-[var(--base-blue-700)]',
 }
 
 export const Message = ({
@@ -55,6 +64,7 @@ export const Message = ({
   className,
   variant = 'success',
   cta,
+  link,
 }: MessageProps) => {
   return (
     <div
@@ -77,17 +87,27 @@ export const Message = ({
           {content}
         </div>
 
-        {cta && (
+        {link && (
           <Link
             className={cn(
               'mt-1 block flex items-center underline text-sans-md',
               linkColor[variant]
             )}
-            to={cta.link}
+            to={link.to}
           >
-            {cta.text}
+            {link.text}
             <OpenLink12Icon className="ml-1" />
           </Link>
+        )}
+
+        {cta && (
+          <button
+            className={cn('mt-3 block text-mono-sm hover:text-accent', linkColor[variant])}
+            type="button"
+            onClick={cta.action}
+          >
+            {cta.text}
+          </button>
         )}
       </div>
     </div>

@@ -1,5 +1,6 @@
+import { announce } from '@react-aria/live-announcer'
 import type { ReactNode } from 'react'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import type {
   FieldValues,
   UseFormProps,
@@ -10,7 +11,7 @@ import { useForm } from 'react-hook-form'
 import { useNavigationType } from 'react-router-dom'
 
 import type { ApiError } from '@oxide/api'
-import { Button, SideModal } from '@oxide/ui'
+import { Button, Message, SideModal } from '@oxide/ui'
 
 import {
   clearPersistedFormValues,
@@ -72,19 +73,29 @@ export function SideModalForm<TFieldValues extends FieldValues>({
 
   const { getValues, setValue, trigger } = form
 
+  const [hasPersistedForm, setHasPersistedForm] = useState(false)
+
   const handleOnDismiss = () => {
-    // Save the form state in local storage
-    saveFormValues(id, getValues())
+    const values = getValues()
+
+    const isDefault = JSON.stringify(values) === JSON.stringify(formOptions.defaultValues)
+
+    if (!isDefault) {
+      // Save the form state in local storage if they aren't just the default values
+      saveFormValues(id, values)
+    }
     onDismiss()
   }
 
   useEffect(() => {
     const formValues = getPersistedFormValues(id)
 
-    if (!formValues) return
+    if (!formValues || hasPersistedForm) return
 
+    setHasPersistedForm(true)
     setPersistedFormValues(setValue, trigger as UseFormTrigger<FieldValues>, formValues)
-  }, [id, setValue, trigger])
+    announce('Restored previous form session', 'polite')
+  }, [id, setValue, trigger, hasPersistedForm])
 
   const { isSubmitting } = form.formState
 
@@ -120,6 +131,28 @@ export function SideModalForm<TFieldValues extends FieldValues>({
             form.handleSubmit(onSubmit)(e)
           }}
         >
+          {hasPersistedForm && (
+            <Message
+              variant="info"
+              content={
+                <div className="flex items-center justify-between">
+                  <div>Restored previous session</div>
+                  <div className="flex items-center gap-1">
+                    <button
+                      className="text-[var(--base-blue-600)] text-mono-sm hover:text-[var(--base-blue-700)]"
+                      onClick={() => {
+                        form.reset()
+                        setHasPersistedForm(false)
+                        clearPersistedFormValues(id)
+                      }}
+                    >
+                      Clear form
+                    </button>
+                  </div>
+                </div>
+              }
+            />
+          )}
           {children(form)}
         </form>
       </SideModal.Body>
