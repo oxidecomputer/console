@@ -13,7 +13,8 @@ function renderLastDay() {
   const setRange = vi.fn()
   render(
     <DateTimeRangePicker
-      initialPreset="lastDay"
+      preset="lastDay"
+      setPreset={() => {}}
       range={{
         start: now.subtract({ days: 1 }),
         end: now,
@@ -41,7 +42,8 @@ describe.skip('DateTimeRangePicker', () => {
   ])('sets initial start and end', (preset, start) => {
     render(
       <DateTimeRangePicker
-        initialPreset={preset as RangeKey}
+        preset={preset as RangeKey}
+        setPreset={() => {}}
         range={{ start, end: now }}
         setRange={() => {}}
       />

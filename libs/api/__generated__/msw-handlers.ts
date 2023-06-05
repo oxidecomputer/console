@@ -499,15 +499,15 @@ export interface MSWHandlers {
   /** `POST /v1/system/networking/switch-port-settings` */
   networkingSwitchPortSettingsCreate: (params: {
     body: Json<Api.SwitchPortSettingsCreate>
-  }) => HandlerResult<Api.SwitchPortSettingsInfo>
+  }) => HandlerResult<Api.SwitchPortSettingsView>
   /** `DELETE /v1/system/networking/switch-port-settings` */
   networkingSwitchPortSettingsDelete: (params: {
     query: Api.NetworkingSwitchPortSettingsDeleteQueryParams
   }) => StatusCode
-  /** `GET /v1/system/networking/switch-port-settings/:port/info` */
-  networkingSwitchPortSettingsInfo: (params: {
-    path: Api.NetworkingSwitchPortSettingsInfoPathParams
-  }) => HandlerResult<Api.SwitchPortSettingsInfo>
+  /** `GET /v1/system/networking/switch-port-settings/:port` */
+  networkingSwitchPortSettingsView: (params: {
+    path: Api.NetworkingSwitchPortSettingsViewPathParams
+  }) => HandlerResult<Api.SwitchPortSettingsView>
   /** `GET /v1/system/policy` */
   systemPolicyView: () => HandlerResult<Api.FleetRolePolicy>
   /** `PUT /v1/system/policy` */
@@ -1336,10 +1336,10 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
       )
     ),
     rest.get(
-      '/v1/system/networking/switch-port-settings/:port/info',
+      '/v1/system/networking/switch-port-settings/:port',
       handler(
-        handlers['networkingSwitchPortSettingsInfo'],
-        schema.NetworkingSwitchPortSettingsInfoParams,
+        handlers['networkingSwitchPortSettingsView'],
+        schema.NetworkingSwitchPortSettingsViewParams,
         null
       )
     ),

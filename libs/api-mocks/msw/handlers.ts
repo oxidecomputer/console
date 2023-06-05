@@ -1049,7 +1049,7 @@ export const handlers = makeHandlers({
   networkingSwitchPortList: NotImplemented,
   networkingSwitchPortSettingsCreate: NotImplemented,
   networkingSwitchPortSettingsDelete: NotImplemented,
-  networkingSwitchPortSettingsInfo: NotImplemented,
+  networkingSwitchPortSettingsView: NotImplemented,
   networkingSwitchPortSettingsList: NotImplemented,
   rackView: NotImplemented,
   roleList: NotImplemented,
