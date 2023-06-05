@@ -62,7 +62,7 @@ export const FileInput = forwardRef(
             dragOver && 'bg-accent-secondary !border-accent-secondary',
             error
               ? '!border-error-secondary group-hover:border-error'
-              : 'group-hover:border-hover border-default'
+              : 'border-default group-hover:border-hover'
           )}
         >
           <div

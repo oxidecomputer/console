@@ -75,7 +75,7 @@ export const Listbox = ({
           rounded border px-3 text-sans-md`,
           hasError
             ? 'focus-error border-error-secondary hover:border-error'
-            : 'hover:border-hover border-default',
+            : 'border-default hover:border-hover',
           select.isOpen && 'ring-2 ring-accent-secondary',
           select.isOpen && hasError && 'ring-error-secondary',
           props.disabled
