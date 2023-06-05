@@ -1,3 +1,4 @@
+import cn from 'classnames'
 import { useSearchParams } from 'react-router-dom'
 
 import { Identicon, buttonStyle } from '@oxide/ui'
@@ -27,10 +28,10 @@ export function LoginPageSaml() {
       <hr className="my-6 w-full border-0 border-b border-b-secondary" />
 
       <a
-        className={buttonStyle({})}
+        className={cn(buttonStyle({}), 'w-full')}
         href={`/login/${silo}/saml/${provider}/direct${query}`}
       >
-        Go to external login
+        Sign in with {provider}
       </a>
     </>
   )
