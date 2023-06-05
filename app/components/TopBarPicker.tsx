@@ -44,30 +44,46 @@ const TopBarPicker = (props: TopBarPickerProps) => {
         // therefore always last-of-type, so it will never get one.
         className="after:text-mono-lg flex w-full items-center justify-between after:mx-4 after:content-['/'] after:text-quinary last-of-type:after:content-none"
       >
-        <Wrap when={props.to} with={<Link to={props.to!} />}>
-          <div className="flex items-center">
-            {props.icon ? <div className="mr-2 flex items-center">{props.icon}</div> : null}
-            {props.current ? (
-              <div className="text-left">
+        {props.current ? (
+          <Wrap
+            when={props.to}
+            with={
+              <Link
+                to={props.to!}
+                className="-m-1 flex-grow rounded-lg p-1 hover:bg-hover"
+              />
+            }
+          >
+            <div className="flex min-w-[120px] max-w-[185px] items-center pr-2">
+              {props.icon ? (
+                <div className="mr-2 flex items-center">{props.icon}</div>
+              ) : null}
+              <div className="overflow-hidden">
                 <div className="text-mono-xs text-quaternary">{props.category}</div>
-                <div className="overflow-hidden text-ellipsis whitespace-nowrap text-sans-md text-secondary">
-                  <Truncate text={props.display ?? props.current} maxLength={24} />
+                <div className="w-full overflow-hidden text-ellipsis whitespace-nowrap text-sans-md text-secondary">
+                  {props.display ?? props.current}
                 </div>
               </div>
-            ) : (
-              <div className="text-left">
-                <div className="min-w-[5rem] text-mono-xs text-quaternary">
-                  Select
-                  <br />
-                  {props.category}
-                </div>
-              </div>
-            )}
-          </div>
-        </Wrap>
+            </div>
+          </Wrap>
+        ) : (
+          <DropdownMenu.Trigger
+            className="group -m-1 flex items-center overflow-hidden rounded-lg p-1 text-left hover:bg-hover"
+            aria-hidden // avoid doubling up on the select project trigger for screen readers
+          >
+            {props.icon ? <div className="mr-2 flex items-center">{props.icon}</div> : null}
+
+            <div className="min-w-[5rem] text-mono-xs text-quaternary">
+              Select
+              <br />
+              {props.category}
+            </div>
+          </DropdownMenu.Trigger>
+        )}
+
         {/* aria-hidden is a tip from the Reach docs */}
         {props.items && (
-          <div className="ml-4">
+          <div className="ml-2 flex-shrink-0 overflow-hidden">
             <DropdownMenu.Trigger className="group" aria-label={props['aria-label']}>
               <div className="flex h-[2rem] w-[1.125rem] flex-shrink-0 items-center justify-center rounded border border-default group-hover:bg-hover">
                 <SelectArrows6Icon className="text-secondary" aria-hidden />
