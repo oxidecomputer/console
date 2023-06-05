@@ -30,7 +30,6 @@ export function SystemMetric({
   filterId,
   valueTransform = (x) => x,
   capacity,
-  refetchInterval = false,
   onUpdate,
 }: SystemMetricProps) {
   // TODO: we're only pulling the first page. Should we bump the cap to 10k?
@@ -39,8 +38,6 @@ export function SystemMetric({
     'systemMetric',
     { path: { metricName }, query: { id: filterId, startTime, endTime } },
     {
-      // TODO: this is actually kind of useless unless the time interval slides forward as time passes
-      refetchInterval,
       // avoid graphs flashing blank while loading when you change the time
       keepPreviousData: true,
       onSuccess: onUpdate,

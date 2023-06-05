@@ -13,8 +13,9 @@ import {
   Ram16Icon,
   Snapshots24Icon,
   Ssd16Icon,
+  Time16Icon,
 } from '@oxide/ui'
-import { Refresh16Icon, Spinner } from '@oxide/ui'
+import { Refresh16Icon, SpinnerLoader, useInterval } from '@oxide/ui'
 import { bytesToGiB, bytesToTiB } from '@oxide/util'
 
 import { CapacityMetric } from 'app/components/CapacityMetric'
@@ -43,10 +44,11 @@ export function CapacityUtilizationPage() {
 
   const initialPreset = 'lastHour'
   // pass refetch interval to this to keep the date up to date
-  const { startTime, endTime, dateTimeRangePicker } = useDateTimeRangePicker({
-    initialPreset,
-    maxValue: now(getLocalTimeZone()),
-  })
+  const { preset, startTime, endTime, dateTimeRangePicker, onRangeChange } =
+    useDateTimeRangePicker({
+      initialPreset,
+      maxValue: now(getLocalTimeZone()),
+    })
 
   const siloItems = useMemo(() => {
     const items = silos?.items.map((silo) => ({ label: silo.name, value: silo.id })) || []
@@ -65,6 +67,9 @@ export function CapacityUtilizationPage() {
   >()
 
   const handleRefetch = async () => {
+    // this updates the date range if there's a relative preset
+    onRangeChange(preset)
+
     const refetch = apiQueryClient.refetchQueries('systemMetric')
     setRefetchStatus('pending')
 
@@ -79,6 +84,12 @@ export function CapacityUtilizationPage() {
   }
 
   const [lastUpdated, setLastUpdated] = useState(Date.now())
+
+  useInterval({
+    fn: () => handleRefetch(),
+    delay: preset !== 'custom' ? Number(refetchInterval) : null,
+    key: preset, // force a render which clears current interval
+  })
 
   return (
     <>
@@ -109,7 +120,7 @@ export function CapacityUtilizationPage() {
         />
       </div>
 
-      <div className="my-8 flex justify-between gap-3">
+      <div className="mt-16 mb-8 flex justify-between gap-3">
         <Listbox
           selectedItem={siloId}
           className="w-48"
@@ -128,9 +139,9 @@ export function CapacityUtilizationPage() {
 
       <Divider className="!mx-0 mb-6 !w-full" />
 
-      <div className="mb-8 flex items-center justify-between">
-        <div className="hidden text-right text-sans-md text-quaternary lg+:block">
-          Updated {format(lastUpdated, 'hh:mm')}
+      <div className="mb-12 flex items-center justify-between">
+        <div className="hidden items-center gap-2 text-right text-sans-md text-quaternary lg+:flex">
+          <Time16Icon className="text-quinary" /> Refreshed {format(lastUpdated, 'hh:mm')}
         </div>
         <div className="flex">
           <button
@@ -141,11 +152,9 @@ export function CapacityUtilizationPage() {
             onClick={handleRefetch}
             disabled={refetchStatus === 'pending'}
           >
-            {refetchStatus === 'pending' ? (
-              <Spinner />
-            ) : (
+            <SpinnerLoader isLoading={refetchStatus === 'pending'}>
               <Refresh16Icon className="text-tertiary" />
-            )}
+            </SpinnerLoader>
           </button>
           <Listbox
             selectedItem={refetchInterval}
@@ -171,19 +180,16 @@ export function CapacityUtilizationPage() {
             unit="TiB"
             valueTransform={bytesToTiB}
             capacity={900}
-            refetchInterval={Number(refetchInterval)}
             onUpdate={() => setLastUpdated(Date.now())}
           />
         </div>
 
-        {/* TODO: figure out how to make this not show .5s in the y axis when the numbers are low */}
         <SystemMetric
           {...commonProps}
           metricName="cpus_provisioned"
           title="CPU"
           unit="count"
           capacity={2048}
-          refetchInterval={Number(refetchInterval)}
           onUpdate={() => setLastUpdated(Date.now())}
         />
 
@@ -194,7 +200,6 @@ export function CapacityUtilizationPage() {
           unit="GiB"
           valueTransform={bytesToGiB}
           capacity={28000}
-          refetchInterval={Number(refetchInterval)}
           onUpdate={() => setLastUpdated(Date.now())}
         />
       </div>

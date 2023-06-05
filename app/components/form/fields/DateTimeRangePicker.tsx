@@ -2,7 +2,7 @@ import type { DateValue } from '@internationalized/date'
 import { getLocalTimeZone, now as getNow } from '@internationalized/date'
 import { useMemo, useState } from 'react'
 
-import { DateRangePicker, Listbox, useInterval } from '@oxide/ui'
+import { DateRangePicker, Listbox } from '@oxide/ui'
 
 const rangePresets = [
   { label: 'Last hour', value: 'lastHour' as const },
@@ -14,7 +14,7 @@ const rangePresets = [
 ]
 
 // custom doesn't have an associated range
-type RangeKeyAll = (typeof rangePresets)[number]['value']
+export type RangeKeyAll = (typeof rangePresets)[number]['value']
 export type RangeKey = Exclude<RangeKeyAll, 'custom'>
 
 // Record ensures we have an entry for every preset
@@ -50,56 +50,49 @@ export function useDateTimeRangePicker({
   const start = computeStart[initialPreset](now)
   const end = now
 
+  const [preset, setPreset] = useState<RangeKeyAll>(initialPreset)
   const [range, setRange] = useState<DateTimeRange>({ start, end })
 
-  const props = { initialPreset, range, setRange, minValue, maxValue }
+  const onRangeChange = (newPreset: RangeKeyAll) => {
+    if (newPreset !== 'custom') {
+      const now = getNow(getLocalTimeZone())
+      const newStartTime = computeStart[newPreset](now)
+      setRange({ start: newStartTime, end: now })
+    }
+  }
+
+  const props = { preset, setPreset, range, setRange, minValue, maxValue, onRangeChange }
 
   return {
     startTime: range.start,
     endTime: range.end,
+    preset: preset,
+    onRangeChange: onRangeChange,
     dateTimeRangePicker: <DateTimeRangePicker {...props} />,
   }
 }
 
-/** Interval for sliding range forward when using a relative time preset */
-const SLIDE_INTERVAL = 10_000
-
 type DateTimeRange = { start: DateValue; end: DateValue }
 
 type DateTimeRangePickerProps = {
-  initialPreset: RangeKey
   range: DateTimeRange
   setRange: (v: DateTimeRange) => void
+  preset: RangeKeyAll
+  setPreset: (v: RangeKeyAll) => void
+  onRangeChange?: (preset: RangeKeyAll) => void
   minValue?: DateValue | undefined
   maxValue?: DateValue | undefined
 }
 
 export function DateTimeRangePicker({
-  initialPreset,
+  preset,
+  setPreset,
   range,
   setRange,
   minValue,
   maxValue,
+  onRangeChange,
 }: DateTimeRangePickerProps) {
-  const [preset, setPreset] = useState<RangeKeyAll>(initialPreset)
-
-  // could handle this in a useEffect that looks at `preset`, but that would
-  // also run on initial render, which is silly. Instead explicitly call it on
-  // preset change and in useInterval.
-  const onRangeChange = (preset: RangeKeyAll) => {
-    if (preset !== 'custom') {
-      const now = getNow(getLocalTimeZone())
-      const newStartTime = computeStart[preset](now)
-      setRange({ start: newStartTime, end: now })
-    }
-  }
-
-  useInterval({
-    fn: () => onRangeChange(preset),
-    delay: preset !== 'custom' ? SLIDE_INTERVAL : null,
-    key: preset, // force a render which clears current interval
-  })
-
   return (
     <form className="flex items-center gap-2">
       <div className="flex">
@@ -113,7 +106,7 @@ export function DateTimeRangePicker({
             if (item) {
               const newPreset = item.value as RangeKeyAll
               setPreset(newPreset)
-              onRangeChange(newPreset)
+              onRangeChange && onRangeChange(newPreset)
             }
           }}
         />
