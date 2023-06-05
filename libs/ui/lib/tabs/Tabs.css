@@ -37,7 +37,12 @@
   @apply rounded bg-transparent px-1.5 py-1;
 }
 .ox-tab:hover > * {
-  @apply bg-secondary;
+  @apply bg-hover;
+}
+
+.ox-tab[data-state='active']:hover > *,
+.ox-tab.is-selected:hover > * {
+  @apply !bg-accent-secondary;
 }
 
 .ox-tab > .ox-badge {

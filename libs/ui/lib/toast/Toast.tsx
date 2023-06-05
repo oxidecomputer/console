@@ -85,7 +85,7 @@ export const Toast = ({
 
         {cta && (
           <Link
-            className="mt-4 block text-mono-sm text-accent-secondary hover:text-accent"
+            className="mt-3 block text-mono-sm text-accent-secondary hover:text-accent"
             to={cta.link}
           >
             {cta.text}

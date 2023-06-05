@@ -59,8 +59,10 @@ export const FileInput = forwardRef(
         <div
           className={cn(
             'z-1 pointer-events-none relative flex flex-col items-center justify-center space-y-2 rounded border px-4 py-6 text-default bg-default',
-            dragOver && 'bg-accent-secondary border-accent-secondary',
-            error ? 'border-error' : 'border-default'
+            dragOver && 'bg-accent-secondary !border-accent-secondary',
+            error
+              ? '!border-error-secondary group-hover:border-error'
+              : 'border-default group-hover:border-hover'
           )}
         >
           <div

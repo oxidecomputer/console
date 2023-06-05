@@ -13,9 +13,8 @@ export type RadioProps = Omit<React.ComponentProps<'input'>, 'type'>
 
 const fieldStyles = `
   peer appearance-none absolute outline-none
-  border border-default h-4 w-4 rounded-full
-  hover:bg-hover hover:checked:bg-accent-secondary-hover
-  checked:bg-accent-secondary checked:border-accent disabled:bg-disabled hover:disabled:bg-disabled
+  border border-default h-4 w-4 rounded-full bg-default hover:border-hover checked:hover:border-accent
+  checked:bg-accent-secondary checked:border-accent-secondary disabled:bg-disabled hover:disabled:bg-disabled
   disabled:hover:bg-transparent
 `
 
@@ -24,7 +23,7 @@ export const Radio = ({ children, className, ...inputProps }: RadioProps) => (
     <span className="relative h-4 w-4">
       <input className={cn(fieldStyles, className)} type="radio" {...inputProps} />
       {/* the dot in the middle. hide by default, use peer-checked to show if checked */}
-      <div className="absolute left-1 top-1 hidden h-2 w-2 rounded-full bg-accent peer-checked:block" />
+      <div className="pointer-events-none absolute left-1 top-1 hidden h-2 w-2 rounded-full bg-accent peer-checked:block" />
     </span>
 
     {children && <span className="ml-2.5 text-sans-md text-secondary">{children}</span>}
@@ -32,10 +31,10 @@ export const Radio = ({ children, className, ...inputProps }: RadioProps) => (
 )
 
 const cardLabelStyles = `
-  py-2 px-4 text-sans-md border rounded border-default bg-default hover:bg-hover
+  py-2 px-4 text-sans-md border rounded border-default bg-default hover:border-hover
   peer-focus:ring-2 peer-focus:ring-accent-secondary
-  peer-checked:bg-accent-secondary peer-checked:hover:bg-accent-raise
-  peer-checked:border-accent peer-checked:text-accent peer-checked:[&>*_.text-secondary]:text-accent-secondary
+  peer-checked:bg-accent-secondary peer-checked:hover:border-accent
+  peer-checked:border-accent-secondary peer-checked:text-accent peer-checked:[&>*_.text-secondary]:text-accent-secondary
   peer-disabled:bg-disabled peer-disabled:text-secondary w-44
 
   children:py-3 children:px-3 children:-mx-4 children:border-secondary
