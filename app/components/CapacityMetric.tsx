@@ -1,4 +1,3 @@
-import { subMonths } from 'date-fns'
 import { useMemo } from 'react'
 
 import type { SystemMetricName } from '@oxide/api'
@@ -22,17 +21,19 @@ export const CapacityMetric = ({
   valueTransform?: (n: number) => number
   capacity: number
 }) => {
-  // Currently there's no way of getting the current utilization, so grab the
-  // last month of data and take the most recent entry
-  const { startTime, endTime } = useMemo(() => {
-    const endTime = new Date()
-    return { startTime: subMonths(endTime, 1), endTime }
-  }, [])
+  // beginning of time to now because we're only getting the most recent single data point anyway
+  const { startTime, endTime } = useMemo(
+    () => ({ startTime: new Date(0), endTime: new Date() }),
+    []
+  )
 
   // this is going to return at most one data point
   const { data } = useApiQuery(
     'systemMetric',
-    { path: { metricName }, query: { startTime, endTime } },
+    {
+      path: { metricName },
+      query: { startTime, endTime, limit: 1, order: 'descending' },
+    },
     {
       refetchInterval: 5000,
       keepPreviousData: true,

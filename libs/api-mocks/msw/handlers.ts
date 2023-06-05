@@ -1000,13 +1000,28 @@ export const handlers = makeHandlers({
 
     if (endTime <= startTime) return { items: [] }
 
-    return {
-      items: genI64Data(
-        generateUtilization(metricName, startTime, endTime),
-        startTime,
-        endTime
-      ),
+    const dataPoints = generateUtilization(metricName, startTime, endTime)
+
+    // Important to remember (but probably not important enough to change) that
+    // this works quite differently from the real API, which is going to be
+    // querying clickhouse with some fixed set of data, and when it starts from
+    // the end (order == 'descending') it's going to get data points starting
+    // from the end. When it starts from the beginning it gets data points from
+    // the beginning. For our fake data, we just generate the same set of data
+    // points spanning the whole time range, then reverse the list if necessary
+    // and take the first N=limit data points.
+
+    let items = genI64Data(dataPoints, startTime, endTime)
+
+    if (query.order === 'descending') {
+      items.reverse()
     }
+
+    if (typeof query.limit === 'number') {
+      items = items.slice(0, query.limit)
+    }
+
+    return { items }
   },
 
   // Misc endpoints we're not using yet in the console

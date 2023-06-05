@@ -170,7 +170,7 @@ export function generateUtilization(
 
   // Pick a reasonable start value
   const startVal = cap / 2
-  const values = new Array(dataCount)
+  const values = new Array<number>(dataCount)
   values[0] = startVal
 
   let x = 0
