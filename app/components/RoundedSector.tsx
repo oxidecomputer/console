@@ -1,3 +1,7 @@
+import { useEffect, useState } from 'react'
+
+import { useReducedMotion } from 'app/hooks'
+
 const RoundedSector = ({
   angle,
   size,
@@ -9,6 +13,30 @@ const RoundedSector = ({
   thickness: number
   cornerRadius?: number
 }) => {
+  const prefersReducedMotion = useReducedMotion()
+  const [interpolatedValue, setInterpolatedValue] = useState(0)
+
+  useEffect(() => {
+    const startValue = angle * 0.8
+    const endValue = angle
+    const duration = 1250
+
+    const startTime = performance.now()
+
+    const step = (currentTime: number) => {
+      const elapsedTime = currentTime - startTime
+      const t = Math.min(elapsedTime / duration, 1)
+
+      setInterpolatedValue(startValue + (endValue - startValue) * easeOutQuart(t))
+
+      if (t < 1) {
+        requestAnimationFrame(step)
+      }
+    }
+
+    requestAnimationFrame(step)
+  }, [angle])
+
   const outerRadius = size / 2
 
   return (
@@ -24,7 +52,7 @@ const RoundedSector = ({
           color="var(--base-neutral-300)"
         />
         <Sector
-          angle={angle}
+          angle={prefersReducedMotion ? angle : interpolatedValue}
           size={size}
           thickness={thickness}
           cornerRadius={cornerRadius}
@@ -34,6 +62,8 @@ const RoundedSector = ({
     </svg>
   )
 }
+
+const easeOutQuart = (t: number) => 1 - Math.pow(1 - t, 4)
 
 const Sector = ({
   angle,
