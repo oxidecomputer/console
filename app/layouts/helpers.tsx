@@ -15,7 +15,7 @@ export function ContentPane() {
   const ref = useRef<HTMLDivElement>(null)
   useScrollRestoration(ref)
   return (
-    <div ref={ref} className="flex flex-col overflow-auto">
+    <div ref={ref} className="flex flex-col overflow-auto" data-testid="scroll-container">
       <div className="flex flex-grow flex-col pb-8">
         <SkipLinkTarget />
         <main className="[&>*]:gutter">
