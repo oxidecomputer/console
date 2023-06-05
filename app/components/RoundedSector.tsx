@@ -81,6 +81,8 @@ const Sector = ({
   const outerRadius = size / 2
   const innerRadius = outerRadius - thickness
 
+  // Clamps angle at the point that leaves at least
+  // a 1px circumference on the inner circle
   const maxAngle = 360 - 360 / (2 * Math.PI * innerRadius)
 
   const path = useMemo(
@@ -88,8 +90,10 @@ const Sector = ({
     [angle, thickness, size, cornerRadius, maxAngle]
   )
 
+  // 0 angle shouldn't render anything
   if (angle === 0) return null
 
+  // 360 angle returns a full circle
   if (angle === 360) {
     return (
       <circle
@@ -111,6 +115,8 @@ function getPath(angle: number, thickness: number, size: number, cornerRadius: n
   const outerRadius = size / 2
   const innerRadius = outerRadius - thickness
 
+  // Min angle is a circumference of 2 * the cornerRadius
+  // so that it doesn't intersect itself
   const circumference = calculateArcLength(angle, innerRadius)
   const minAngle = (((cornerRadius * 2) / innerRadius) * 180) / Math.PI
   const clampedAngle = circumference < cornerRadius * 2 ? minAngle : angle
@@ -178,6 +184,9 @@ function getPath(angle: number, thickness: number, size: number, cornerRadius: n
     cornerRadius * -1
   )
 
+  // We figure out the new outer angle which is shorter on account
+  // of being reduced by the corner radius. If we don't do this it will
+  // throw off the large-arc-flag and sweep-flag
   const newOuterAngle = calculateNewAngle(outerRadius, cornerRadius * 2, clampedAngle)
   const newInnerAngle = calculateNewAngle(innerRadius, cornerRadius * 2, clampedAngle)
 
@@ -216,17 +225,16 @@ function calculateNewAngle(radius: number, cornerRadius: number, angle: number):
   // Calculate the new circumference after reducing it by cornerRadius
   const newCircumference = originalCircumference - 2 * cornerRadius
 
-  const newAngle = (newCircumference / originalCircumference) * angle
-
-  return newAngle
+  return (newCircumference / originalCircumference) * angle
 }
 
 function calculateArcLength(angle: number, radius: number): number {
   // Convert angle to radians
   const angleInRadians = (Math.PI / 180) * angle
+
   // Arc length formula: radius * angle (in radians)
-  const arcLength = radius * angleInRadians
-  return arcLength
+
+  return radius * angleInRadians
 }
 
 type Vector = {
