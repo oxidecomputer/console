@@ -11,10 +11,11 @@ const now = getNow(getLocalTimeZone())
 
 function renderLastDay() {
   const setRange = vi.fn()
+  const setPreset = vi.fn()
   render(
     <DateTimeRangePicker
       preset="lastDay"
-      setPreset={() => {}}
+      setPreset={setPreset}
       range={{
         start: now.subtract({ days: 1 }),
         end: now,
@@ -22,7 +23,7 @@ function renderLastDay() {
       setRange={setRange}
     />
   )
-  return { setRange }
+  return { setRange, setPreset }
 }
 
 beforeAll(() => {
@@ -55,18 +56,18 @@ describe.skip('DateTimeRangePicker', () => {
 })
 
 it.each([
-  ['Last hour', now.subtract({ hours: 1 })],
-  ['Last 3 hours', now.subtract({ hours: 3 })],
+  ['Last hour', 'lastHour'],
+  ['Last 3 hours', 'last3Hours'],
   // ['Last day', now.subtract({ days: 1 })],
-  ['Last week', now.subtract({ days: 7 })],
-  ['Last 30 days', now.subtract({ days: 30 })],
-])('choosing a preset sets the times', (option, start) => {
-  const { setRange } = renderLastDay()
+  ['Last week', 'lastWeek'],
+  ['Last 30 days', 'last30Days'],
+])('choosing a preset sets the times', (option, preset) => {
+  const { setPreset } = renderLastDay()
 
   clickByRole('button', 'Choose a time range preset')
   clickByRole('option', option)
 
-  expect(setRange).toBeCalledWith({ start, end: now })
+  expect(setPreset).toBeCalledWith(preset)
 })
 
 describe.skip('custom mode', () => {
