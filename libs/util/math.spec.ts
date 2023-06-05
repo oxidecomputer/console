@@ -7,6 +7,7 @@ it.each([
   [1.259, ['1', '.26']], // should correctly round the decimal
   [-50.2, ['-50', '.2']], // should correctly not round down to -51
   [1000.5, ['1,000', '.5']], // testing localeString
+  [49.00000001, ['49', '']],
 ])('splitDecimal', (input, output) => {
   expect(splitDecimal(input)).toEqual(output)
 })

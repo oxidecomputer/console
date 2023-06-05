@@ -1,9 +1,9 @@
 export function splitDecimal(value: number) {
   const wholeNumber = Math.trunc(value)
-  const decimal = value % 1 !== 0 ? value % 1 : null
+  const decimal = value % 1 !== 0 ? round(value % 1, 2) : null
   return [
     wholeNumber.toLocaleString(),
-    decimal ? '.' + round(decimal, 2).toLocaleString().split('.')[1] : '',
+    decimal ? '.' + decimal.toLocaleString().split('.')[1] : '',
   ]
 }
 

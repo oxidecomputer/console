@@ -1,4 +1,6 @@
 import { getLocalTimeZone, now } from '@internationalized/date'
+import cn from 'classnames'
+import { format } from 'date-fns'
 import { useMemo, useState } from 'react'
 
 import { apiQueryClient, useApiQuery } from '@oxide/api'
@@ -12,6 +14,7 @@ import {
   Snapshots24Icon,
   Ssd16Icon,
 } from '@oxide/ui'
+import { Refresh16Icon, Spinner } from '@oxide/ui'
 import { bytesToGiB, bytesToTiB } from '@oxide/util'
 
 import { CapacityMetric } from 'app/components/CapacityMetric'
@@ -19,6 +22,14 @@ import { SystemMetric } from 'app/components/SystemMetric'
 import { useDateTimeRangePicker } from 'app/components/form'
 
 const FLEET_ID = '001de000-1334-4000-8000-000000000000'
+
+const refetchIntervalPresets = [
+  { label: 'Off', value: '-1' },
+  { label: '10s', value: '10000' },
+  { label: '1m', value: '60000' },
+  { label: '2m', value: '120000' },
+  { label: '5m', value: '300000' },
+]
 
 CapacityUtilizationPage.loader = async () => {
   await apiQueryClient.prefetchQuery('siloList', {})
@@ -31,6 +42,7 @@ export function CapacityUtilizationPage() {
   const { data: silos } = useApiQuery('siloList', {})
 
   const initialPreset = 'lastHour'
+  // pass refetch interval to this to keep the date up to date
   const { startTime, endTime, dateTimeRangePicker } = useDateTimeRangePicker({
     initialPreset,
     maxValue: now(getLocalTimeZone()),
@@ -46,6 +58,27 @@ export function CapacityUtilizationPage() {
     endTime: endTime.toDate(getLocalTimeZone()),
     filterId: siloId,
   }
+
+  const [refetchInterval, setRefetchInterval] = useState(refetchIntervalPresets[1].value)
+  const [refetchStatus, setRefetchStatus] = useState<
+    'pending' | 'fulfilled' | 'error' | null
+  >()
+
+  const handleRefetch = async () => {
+    const refetch = apiQueryClient.refetchQueries('systemMetric')
+    setRefetchStatus('pending')
+
+    refetch.then(
+      () => {
+        setRefetchStatus('fulfilled')
+      },
+      () => {
+        setRefetchStatus('error')
+      }
+    )
+  }
+
+  const [lastUpdated, setLastUpdated] = useState(Date.now())
 
   return (
     <>
@@ -90,10 +123,44 @@ export function CapacityUtilizationPage() {
           }}
         />
 
-        {dateTimeRangePicker}
+        <div className="flex items-center gap-2">{dateTimeRangePicker}</div>
       </div>
 
       <Divider className="!mx-0 mb-6 !w-full" />
+
+      <div className="mb-8 flex items-center justify-between">
+        <div className="hidden text-right text-sans-md text-quaternary lg+:block">
+          Updated {format(lastUpdated, 'hh:mm')}
+        </div>
+        <div className="flex">
+          <button
+            className={cn(
+              'flex w-10 items-center justify-center rounded-l border-l border-t border-b border-default disabled:cursor-default',
+              refetchStatus !== 'pending' && 'hover:bg-hover'
+            )}
+            onClick={handleRefetch}
+            disabled={refetchStatus === 'pending'}
+          >
+            {refetchStatus === 'pending' ? (
+              <Spinner />
+            ) : (
+              <Refresh16Icon className="text-tertiary" />
+            )}
+          </button>
+          <Listbox
+            selectedItem={refetchInterval}
+            className="w-24 [&>button]:!rounded-l-none"
+            aria-labelledby="silo-id-label"
+            name="silo-id"
+            items={refetchIntervalPresets}
+            onChange={(item) => {
+              if (item) {
+                setRefetchInterval(item.value)
+              }
+            }}
+          />
+        </div>
+      </div>
 
       <div className="mt-8 mb-12 space-y-12">
         <div className="flex flex-col gap-3">
@@ -104,6 +171,8 @@ export function CapacityUtilizationPage() {
             unit="TiB"
             valueTransform={bytesToTiB}
             capacity={900}
+            refetchInterval={Number(refetchInterval)}
+            onUpdate={() => setLastUpdated(Date.now())}
           />
         </div>
 
@@ -114,6 +183,8 @@ export function CapacityUtilizationPage() {
           title="CPU"
           unit="count"
           capacity={2048}
+          refetchInterval={Number(refetchInterval)}
+          onUpdate={() => setLastUpdated(Date.now())}
         />
 
         <SystemMetric
@@ -123,6 +194,8 @@ export function CapacityUtilizationPage() {
           unit="GiB"
           valueTransform={bytesToGiB}
           capacity={28000}
+          refetchInterval={Number(refetchInterval)}
+          onUpdate={() => setLastUpdated(Date.now())}
         />
       </div>
     </>
