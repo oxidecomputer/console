@@ -40,6 +40,11 @@ test('scroll restore', async ({ page }) => {
   await page.getByRole('link', { name: 'Disks' }).click()
   await expectScrollTop(page, 0)
 
+  // random reload in there because we use sessionStorage. note we are
+  // deliberately on the disks page here because there's a quirk in playwright
+  // that seems to reset to the disks page on reload
+  await page.reload()
+
   // back to snapshots, scroll is restored
   await page.goBack()
   await expect(page).toHaveURL('/projects/mock-project/snapshots')
