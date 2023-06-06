@@ -2,7 +2,7 @@ import { announce } from '@react-aria/live-announcer'
 import { hashQueryKey } from '@tanstack/react-query'
 import type { ReactNode } from 'react'
 import { useEffect, useState } from 'react'
-import type { FieldValues, UseFormReturn, UseFormTrigger } from 'react-hook-form'
+import type { FieldValues, UseFormReturn } from 'react-hook-form'
 import { useNavigationType } from 'react-router-dom'
 
 import type { ApiError } from '@oxide/api'
@@ -91,7 +91,7 @@ export function SideModalForm<TFieldValues extends FieldValues>({
     if (!formValues || hasPersistedForm) return
 
     setHasPersistedForm(true)
-    setPersistedFormValues(setValue, trigger as UseFormTrigger<FieldValues>, formValues)
+    setPersistedFormValues(setValue, trigger, formValues as TFieldValues)
     announce('Restored previous form session', 'polite')
   }, [id, setValue, trigger, hasPersistedForm])
 
