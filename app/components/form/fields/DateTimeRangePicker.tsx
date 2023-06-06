@@ -97,7 +97,7 @@ export function DateTimeRangePicker({
     <form className="flex items-center gap-2">
       <div className="flex">
         <Listbox
-          className="z-10 w-[10rem] [&>button]:!rounded-r-none [&>button]:!border-r-0"
+          className="z-10 -mr-[1px] w-[10rem] [&>button]:!rounded-r-none"
           name="preset"
           selectedItem={preset}
           aria-label="Choose a time range preset"
@@ -120,7 +120,7 @@ export function DateTimeRangePicker({
           minValue={minValue}
           maxValue={maxValue}
           hideTimeZone
-          className="[&_.rounded-l]:!rounded-l-none"
+          className="hover:z-10 [&_.rounded-l]:!rounded-l-none"
         />
       </div>
     </form>
