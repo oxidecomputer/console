@@ -84,6 +84,11 @@ export const AddressConfig = z.preprocess(
 )
 
 /**
+ * The kind associated with an address lot.
+ */
+export const AddressLotKind = z.preprocess(processResponseBody, z.enum(['infra', 'pool']))
+
+/**
  * Represents an address lot object, containing the id of the lot that can be used in other API calls.
  */
 export const AddressLot = z.preprocess(
@@ -91,6 +96,7 @@ export const AddressLot = z.preprocess(
   z.object({
     description: z.string(),
     id: z.string().uuid(),
+    kind: AddressLotKind,
     name: Name,
     timeCreated: z.coerce.date(),
     timeModified: z.coerce.date(),
@@ -120,11 +126,6 @@ export const AddressLotBlockResultsPage = z.preprocess(
   processResponseBody,
   z.object({ items: AddressLotBlock.array(), nextPage: z.string().optional() })
 )
-
-/**
- * The kind associated with an address lot.
- */
-export const AddressLotKind = z.preprocess(processResponseBody, z.enum(['infra', 'pool']))
 
 /**
  * Parameters for creating an address lot.
@@ -1530,11 +1531,6 @@ export const SnapshotResultsPage = z.preprocess(
   z.object({ items: Snapshot.array(), nextPage: z.string().optional() })
 )
 
-export const SpoofLoginBody = z.preprocess(
-  processResponseBody,
-  z.object({ username: z.string() })
-)
-
 /**
  * View of an SSH Key
  */
@@ -1701,9 +1697,7 @@ export const SwitchPortRouteConfig = z.preprocess(
 )
 
 /**
- * Represents a port settings object by containing its id. This id may be used in other API calls to view and manage port settings. This is the central object for configuring external networking. At face value this likely seems off as there is only an `identity` member. However most other configuration objects reference this object by id. This includes - SwitchPortConfig - SwitchPortLinkConfig - LldpServiceConfig - SwitchInterfaceConfig - SwitchVlanInterfaceConfig - SwitchPortRouteConfig - SwitchPortBgpPeerConfig - SwitchPortAddressConfig With the exception of the port configuration all of these relationships are many to one. So SwitchPortSettings object can contain several link configs, interface configs, route configs, etc.
- *
- * The relationships betwen these objects are futher described in RFD 267.
+ * A switch port settings identity whose id may be used to view additional details.
  */
 export const SwitchPortSettings = z.preprocess(
   processResponseBody,
@@ -1743,6 +1737,14 @@ export const SwitchPortSettingsGroups = z.preprocess(
 )
 
 /**
+ * A single page of results
+ */
+export const SwitchPortSettingsResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: SwitchPortSettings.array(), nextPage: z.string().optional() })
+)
+
+/**
  * A switch port VLAN interface configuration for a port settings object.
  */
 export const SwitchVlanInterfaceConfig = z.preprocess(
@@ -1753,7 +1755,7 @@ export const SwitchVlanInterfaceConfig = z.preprocess(
 /**
  * This structure contains all port settings information in one place. It's a convenience data structure for getting a complete view of a particular port's settings.
  */
-export const SwitchPortSettingsInfo = z.preprocess(
+export const SwitchPortSettingsView = z.preprocess(
   processResponseBody,
   z.object({
     addresses: SwitchPortAddressConfig.array(),
@@ -1767,14 +1769,6 @@ export const SwitchPortSettingsInfo = z.preprocess(
     settings: SwitchPortSettings,
     vlanInterfaces: SwitchVlanInterfaceConfig.array(),
   })
-)
-
-/**
- * A single page of results
- */
-export const SwitchPortSettingsResultsPage = z.preprocess(
-  processResponseBody,
-  z.object({ items: SwitchPortSettings.array(), nextPage: z.string().optional() })
 )
 
 /**
@@ -2229,6 +2223,14 @@ export const DiskMetricName = z.preprocess(
 )
 
 /**
+ * The order in which the client wants to page through the requested collection
+ */
+export const PaginationOrder = z.preprocess(
+  processResponseBody,
+  z.enum(['ascending', 'descending'])
+)
+
+/**
  * Supported set of sort modes for scanning by id only.
  *
  * Currently, we only support scanning in ascending order.
@@ -2264,14 +2266,6 @@ export const DeviceAuthConfirmParams = z.preprocess(
 )
 
 export const DeviceAccessTokenParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({}),
-    query: z.object({}),
-  })
-)
-
-export const LoginSpoofParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({}),
@@ -2458,6 +2452,7 @@ export const DiskMetricsListParams = z.preprocess(
     query: z.object({
       endTime: z.coerce.date().optional(),
       limit: z.number().min(1).max(4294967295).optional(),
+      order: PaginationOrder.optional(),
       pageToken: z.string().optional(),
       startTime: z.coerce.date().optional(),
       project: NameOrId.optional(),
@@ -3348,10 +3343,11 @@ export const SystemMetricParams = z.preprocess(
     }),
     query: z.object({
       endTime: z.coerce.date().optional(),
-      id: z.string().uuid().optional(),
       limit: z.number().min(1).max(4294967295).optional(),
+      order: PaginationOrder.optional(),
       pageToken: z.string().optional(),
       startTime: z.coerce.date().optional(),
+      id: z.string().uuid().optional(),
     }),
   })
 )
@@ -3464,7 +3460,7 @@ export const NetworkingSwitchPortSettingsDeleteParams = z.preprocess(
   })
 )
 
-export const NetworkingSwitchPortSettingsInfoParams = z.preprocess(
+export const NetworkingSwitchPortSettingsViewParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
