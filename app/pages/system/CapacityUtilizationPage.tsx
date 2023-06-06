@@ -144,8 +144,8 @@ export function CapacityUtilizationPage() {
       <Divider className="!mx-0 mb-6 !w-full" />
 
       <div className="mb-12 flex items-center justify-between">
-        <div className="hidden items-center gap-2 text-right text-sans-md text-quaternary lg+:flex">
-          <Time16Icon className="text-quinary" /> Refreshed {format(lastUpdated, 'hh:mm')}
+        <div className="hidden items-center gap-2 text-right text-mono-sm text-quaternary lg+:flex">
+          <Time16Icon className="text-quinary" /> Refreshed {format(lastUpdated, 'HH:mm')}
         </div>
         <div className="flex">
           <button
