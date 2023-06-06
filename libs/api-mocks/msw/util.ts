@@ -139,6 +139,7 @@ class Rando {
 }
 
 export function generateUtilization(
+  id: string,
   metricName: SystemMetricName,
   startTime: Date,
   endTime: Date
@@ -150,7 +151,7 @@ export function generateUtilization(
       ? TiB * 900
       : TiB * 28
   const { abs, floor } = Math
-  const metricNameSeed = Array.from(metricName).reduce(
+  const metricNameSeed = Array.from(metricName + id).reduce(
     (acc, char) => acc + char.charCodeAt(0),
     0
   )

@@ -1000,7 +1000,7 @@ export const handlers = makeHandlers({
 
     if (endTime <= startTime) return { items: [] }
 
-    const dataPoints = generateUtilization(metricName, startTime, endTime)
+    const dataPoints = generateUtilization(query.id || '', metricName, startTime, endTime)
 
     // Important to remember (but probably not important enough to change) that
     // this works quite differently from the real API, which is going to be
