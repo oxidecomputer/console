@@ -1,4 +1,5 @@
 import { announce } from '@react-aria/live-announcer'
+import { hashQueryKey } from '@tanstack/react-query'
 import type { ReactNode } from 'react'
 import { useEffect, useState } from 'react'
 import type { FieldValues, UseFormReturn, UseFormTrigger } from 'react-hook-form'
@@ -70,15 +71,16 @@ export function SideModalForm<TFieldValues extends FieldValues>({
   const handleOnDismiss = () => {
     const values = getValues()
 
-    const isDefault =
-      JSON.stringify(values) === JSON.stringify(form.formState.defaultValues)
+    // use hashQueryKey to guarantee same key order
+    const hasDefaultValues =
+      hashQueryKey([values]) === hashQueryKey([form.formState.defaultValues])
 
-    if (!isDefault) {
-      // Save the form state in local storage if they aren't just the default values
-      saveFormValues(id, values)
-    } else {
+    if (hasDefaultValues) {
       // We clear persisted form values if the user resets the form to default
       clearPersistedFormValues(id)
+    } else {
+      // Save the form state in local storage if they aren't just the default values
+      saveFormValues(id, values)
     }
     onDismiss()
   }
