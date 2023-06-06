@@ -48,6 +48,15 @@ export type AddressConfig = {
 }
 
 /**
+ * The kind associated with an address lot.
+ */
+export type AddressLotKind =
+  /** Infrastructure address lots are used for network infrastructure like addresses assigned to rack switches. */
+  | 'infra'
+  /** Pool address lots are used by IP pools. */
+  | 'pool'
+
+/**
  * Represents an address lot object, containing the id of the lot that can be used in other API calls.
  */
 export type AddressLot = {
@@ -55,6 +64,8 @@ export type AddressLot = {
   description: string
   /** unique, immutable, system-controlled identifier for each resource */
   id: string
+  /** Desired use of `AddressLot` */
+  kind: AddressLotKind
   /** unique, mutable, user-controlled identifier for each resource */
   name: Name
   /** timestamp when this resource was created */
@@ -94,15 +105,6 @@ export type AddressLotBlockResultsPage = {
   /** token used to fetch the next page of results (if any) */
   nextPage?: string
 }
-
-/**
- * The kind associated with an address lot.
- */
-export type AddressLotKind =
-  /** Infrastructure address lots are used for network infrastructure like addresses assigned to rack switches. */
-  | 'infra'
-  /** Pool address lots are used by IP pools. */
-  | 'pool'
 
 /**
  * Parameters for creating an address lot.
@@ -1527,8 +1529,6 @@ export type SnapshotResultsPage = {
   nextPage?: string
 }
 
-export type SpoofLoginBody = { username: string }
-
 /**
  * View of an SSH Key
  */
@@ -1721,9 +1721,7 @@ export type SwitchPortRouteConfig = {
 }
 
 /**
- * Represents a port settings object by containing its id. This id may be used in other API calls to view and manage port settings. This is the central object for configuring external networking. At face value this likely seems off as there is only an `identity` member. However most other configuration objects reference this object by id. This includes - SwitchPortConfig - SwitchPortLinkConfig - LldpServiceConfig - SwitchInterfaceConfig - SwitchVlanInterfaceConfig - SwitchPortRouteConfig - SwitchPortBgpPeerConfig - SwitchPortAddressConfig With the exception of the port configuration all of these relationships are many to one. So SwitchPortSettings object can contain several link configs, interface configs, route configs, etc.
- *
- * The relationships betwen these objects are futher described in RFD 267.
+ * A switch port settings identity whose id may be used to view additional details.
  */
 export type SwitchPortSettings = {
   /** human-readable free-form text about a resource */
@@ -1769,6 +1767,16 @@ export type SwitchPortSettingsGroups = {
 }
 
 /**
+ * A single page of results
+ */
+export type SwitchPortSettingsResultsPage = {
+  /** list of items on this page of results */
+  items: SwitchPortSettings[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
  * A switch port VLAN interface configuration for a port settings object.
  */
 export type SwitchVlanInterfaceConfig = {
@@ -1781,7 +1789,7 @@ export type SwitchVlanInterfaceConfig = {
 /**
  * This structure contains all port settings information in one place. It's a convenience data structure for getting a complete view of a particular port's settings.
  */
-export type SwitchPortSettingsInfo = {
+export type SwitchPortSettingsView = {
   /** Layer 3 IP address settings. */
   addresses: SwitchPortAddressConfig[]
   /** BGP peer settings. */
@@ -1802,16 +1810,6 @@ export type SwitchPortSettingsInfo = {
   settings: SwitchPortSettings
   /** Vlan interface settings. */
   vlanInterfaces: SwitchVlanInterfaceConfig[]
-}
-
-/**
- * A single page of results
- */
-export type SwitchPortSettingsResultsPage = {
-  /** list of items on this page of results */
-  items: SwitchPortSettings[]
-  /** token used to fetch the next page of results (if any) */
-  nextPage?: string
 }
 
 /**
@@ -2267,6 +2265,11 @@ export type DiskMetricName =
   | 'write_bytes'
 
 /**
+ * The order in which the client wants to page through the requested collection
+ */
+export type PaginationOrder = 'ascending' | 'descending'
+
+/**
  * Supported set of sort modes for scanning by id only.
  *
  * Currently, we only support scanning in ascending order.
@@ -2384,6 +2387,7 @@ export interface DiskMetricsListPathParams {
 export interface DiskMetricsListQueryParams {
   endTime?: Date
   limit?: number
+  order?: PaginationOrder
   pageToken?: string
   startTime?: Date
   project?: NameOrId
@@ -2840,10 +2844,11 @@ export interface SystemMetricPathParams {
 
 export interface SystemMetricQueryParams {
   endTime?: Date
-  id?: string
   limit?: number
+  order?: PaginationOrder
   pageToken?: string
   startTime?: Date
+  id?: string
 }
 
 export interface NetworkingAddressLotListQueryParams {
@@ -2890,7 +2895,7 @@ export interface NetworkingSwitchPortSettingsDeleteQueryParams {
   portSettings?: NameOrId
 }
 
-export interface NetworkingSwitchPortSettingsInfoPathParams {
+export interface NetworkingSwitchPortSettingsViewPathParams {
   port: NameOrId
 }
 
@@ -3247,14 +3252,6 @@ export class Api extends HttpClient {
       return this.request<void>({
         path: `/device/token`,
         method: 'POST',
-        ...params,
-      })
-    },
-    loginSpoof: ({ body }: { body: SpoofLoginBody }, params: RequestParams = {}) => {
-      return this.request<void>({
-        path: `/login`,
-        method: 'POST',
-        body,
         ...params,
       })
     },
@@ -4343,7 +4340,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * List switch ports.
+     * List switch ports
      */
     networkingSwitchPortList: (
       { query = {} }: { query?: NetworkingSwitchPortListQueryParams },
@@ -4357,7 +4354,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Apply switch port settings.
+     * Apply switch port settings
      */
     networkingSwitchPortApplySettings: (
       {
@@ -4380,7 +4377,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Clear switch port settings.
+     * Clear switch port settings
      */
     networkingSwitchPortClearSettings: (
       {
@@ -4704,7 +4701,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * List address lots.
+     * List address lots
      */
     networkingAddressLotList: (
       { query = {} }: { query?: NetworkingAddressLotListQueryParams },
@@ -4718,7 +4715,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Create an address lot.
+     * Create an address lot
      */
     networkingAddressLotCreate: (
       { body }: { body: AddressLotCreate },
@@ -4732,7 +4729,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Delete an address lot.
+     * Delete an address lot
      */
     networkingAddressLotDelete: (
       { path }: { path: NetworkingAddressLotDeletePathParams },
@@ -4745,7 +4742,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * List the blocks in an address lot.
+     * List the blocks in an address lot
      */
     networkingAddressLotBlockList: (
       {
@@ -4765,7 +4762,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Get loopback addresses, optionally filtering by id.
+     * Get loopback addresses, optionally filtering by id
      */
     networkingLoopbackAddressList: (
       { query = {} }: { query?: NetworkingLoopbackAddressListQueryParams },
@@ -4779,7 +4776,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Create a loopback address.
+     * Create a loopback address
      */
     networkingLoopbackAddressCreate: (
       { body }: { body: LoopbackAddressCreate },
@@ -4793,7 +4790,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Delete a loopback address.
+     * Delete a loopback address
      */
     networkingLoopbackAddressDelete: (
       { path }: { path: NetworkingLoopbackAddressDeletePathParams },
@@ -4806,7 +4803,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * List port settings.
+     * List switch port settings
      */
     networkingSwitchPortSettingsList: (
       { query = {} }: { query?: NetworkingSwitchPortSettingsListQueryParams },
@@ -4820,13 +4817,13 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Create port settings.
+     * Create switch port settings
      */
     networkingSwitchPortSettingsCreate: (
       { body }: { body: SwitchPortSettingsCreate },
       params: RequestParams = {}
     ) => {
-      return this.request<SwitchPortSettingsInfo>({
+      return this.request<SwitchPortSettingsView>({
         path: `/v1/system/networking/switch-port-settings`,
         method: 'POST',
         body,
@@ -4834,7 +4831,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Delete port settings.
+     * Delete switch port settings
      */
     networkingSwitchPortSettingsDelete: (
       { query = {} }: { query?: NetworkingSwitchPortSettingsDeleteQueryParams },
@@ -4848,14 +4845,14 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Get information about a switch port.
+     * Get information about a switch port
      */
-    networkingSwitchPortSettingsInfo: (
-      { path }: { path: NetworkingSwitchPortSettingsInfoPathParams },
+    networkingSwitchPortSettingsView: (
+      { path }: { path: NetworkingSwitchPortSettingsViewPathParams },
       params: RequestParams = {}
     ) => {
-      return this.request<SwitchPortSettingsInfo>({
-        path: `/v1/system/networking/switch-port-settings/${path.port}/info`,
+      return this.request<SwitchPortSettingsView>({
+        path: `/v1/system/networking/switch-port-settings/${path.port}`,
         method: 'GET',
         ...params,
       })

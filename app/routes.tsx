@@ -29,7 +29,6 @@ import NotFound from './pages/NotFound'
 import ProjectsPage from './pages/ProjectsPage'
 import { SiloAccessPage } from './pages/SiloAccessPage'
 import { SiloUtilizationPage } from './pages/SiloUtilizationPage'
-import { SpoofLoginPage } from './pages/SpoofLoginPage'
 import {
   DisksPage,
   ImagesPage,
@@ -74,7 +73,6 @@ export const routes = createRoutesFromElements(
   <Route element={<RootLayout />}>
     <Route path="*" element={<NotFound />} />
     <Route element={<LoginLayout />}>
-      <Route path="spoof_login" element={<SpoofLoginPage />} />
       <Route path="login/:silo/local" element={<LoginPage />} />
     </Route>
 
