@@ -1531,11 +1531,6 @@ export const SnapshotResultsPage = z.preprocess(
   z.object({ items: Snapshot.array(), nextPage: z.string().optional() })
 )
 
-export const SpoofLoginBody = z.preprocess(
-  processResponseBody,
-  z.object({ username: z.string() })
-)
-
 /**
  * View of an SSH Key
  */
@@ -2271,14 +2266,6 @@ export const DeviceAuthConfirmParams = z.preprocess(
 )
 
 export const DeviceAccessTokenParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({}),
-    query: z.object({}),
-  })
-)
-
-export const LoginSpoofParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({}),

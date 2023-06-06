@@ -1529,8 +1529,6 @@ export type SnapshotResultsPage = {
   nextPage?: string
 }
 
-export type SpoofLoginBody = { username: string }
-
 /**
  * View of an SSH Key
  */
@@ -3254,14 +3252,6 @@ export class Api extends HttpClient {
       return this.request<void>({
         path: `/device/token`,
         method: 'POST',
-        ...params,
-      })
-    },
-    loginSpoof: ({ body }: { body: SpoofLoginBody }, params: RequestParams = {}) => {
-      return this.request<void>({
-        path: `/login`,
-        method: 'POST',
-        body,
         ...params,
       })
     },

@@ -1050,7 +1050,6 @@ export const handlers = makeHandlers({
   localIdpUserSetPassword: NotImplemented,
   loginSaml: NotImplemented,
   loginSamlBegin: NotImplemented,
-  loginSpoof: NotImplemented,
   logout: NotImplemented,
   networkingAddressLotBlockList: NotImplemented,
   networkingAddressLotCreate: NotImplemented,

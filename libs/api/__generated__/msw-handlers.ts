@@ -57,8 +57,6 @@ export interface MSWHandlers {
   deviceAuthConfirm: (params: { body: Json<Api.DeviceAuthVerify> }) => StatusCode
   /** `POST /device/token` */
   deviceAccessToken: () => StatusCode
-  /** `POST /login` */
-  loginSpoof: (params: { body: Json<Api.SpoofLoginBody> }) => StatusCode
   /** `GET /login/:siloName/saml/:providerName` */
   loginSamlBegin: (params: { path: Api.LoginSamlBeginPathParams }) => StatusCode
   /** `POST /login/:siloName/saml/:providerName` */
@@ -794,7 +792,6 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
       handler(handlers['deviceAuthConfirm'], null, schema.DeviceAuthVerify)
     ),
     rest.post('/device/token', handler(handlers['deviceAccessToken'], null, null)),
-    rest.post('/login', handler(handlers['loginSpoof'], null, schema.SpoofLoginBody)),
     rest.get(
       '/login/:siloName/saml/:providerName',
       handler(handlers['loginSamlBegin'], schema.LoginSamlBeginParams, null)
