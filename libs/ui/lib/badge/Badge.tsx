@@ -22,16 +22,16 @@ export const badgeColors: Record<BadgeVariant, Record<BadgeColor, string>> = {
     destructive: `ring-1 ring-inset bg-destructive-secondary text-destructive ring-[rgba(var(--base-red-800-rgb),0.15)]`,
     notice: `ring-1 ring-inset bg-notice-secondary text-notice ring-[rgba(var(--base-yellow-800-rgb),0.15)]`,
     neutral: `ring-1 ring-inset bg-secondary text-secondary ring-[rgba(var(--base-neutral-700-rgb),0.15)]`,
-    purple: `ring-1 ring-inset bg-[var(--base-purple-200)] text-[var(--base-purple-700)] ring-[rgba(var(--base-purple-700-rgb),0.15)]`,
-    blue: `ring-1 ring-inset bg-[var(--base-blue-200)] text-[var(--base-blue-700)] ring-[rgba(var(--base-blue-700-rgb),0.15)]`,
+    purple: `ring-1 ring-inset bg-[var(--base-purple-200)] text-[var(--base-purple-700)] ring-[rgba(var(--base-purple-800-rgb),0.15)]`,
+    blue: `ring-1 ring-inset bg-info-secondary text-info ring-[rgba(var(--base-blue-800-rgb),0.15)]`,
   },
   solid: {
     default: 'bg-accent text-inverse',
     destructive: 'bg-destructive text-inverse',
     notice: 'bg-notice text-inverse',
     neutral: 'bg-inverse-tertiary text-inverse',
-    purple: 'bg-[var(--base-purple-700)] text-[var(--base-purple-200)]',
-    blue: 'bg-[var(--base-blue-700)] text-[var(--base-blue-200)]',
+    purple: 'bg-[var(--base-purple-700)] text-inverse',
+    blue: 'bg-info text-inverse',
   },
 }
 

@@ -6,7 +6,7 @@ import { OpenLink12Icon } from '@oxide/ui'
 
 import { Error12Icon, Success12Icon, Warning12Icon } from '../icons'
 
-type Variant = 'success' | 'error' | 'notice'
+type Variant = 'success' | 'error' | 'notice' | 'info'
 
 export interface MessageProps {
   title?: string
@@ -23,30 +23,35 @@ const icon: Record<Variant, ReactElement> = {
   success: <Success12Icon />,
   error: <Error12Icon />,
   notice: <Warning12Icon />,
+  info: <Error12Icon className="rotate-180" />,
 }
 
 const color: Record<Variant, string> = {
   success: 'bg-accent-secondary',
   error: 'bg-error-secondary',
   notice: 'bg-notice-secondary',
+  info: 'bg-info-secondary',
 }
 
 const textColor: Record<Variant, string> = {
   success: 'text-accent children:text-accent',
   error: 'text-error children:text-error',
   notice: 'text-notice children:text-notice',
+  info: 'text-info children:text-info',
 }
 
 const secondaryTextColor: Record<Variant, string> = {
   success: 'text-accent-secondary',
   error: 'text-error-secondary',
   notice: 'text-notice-secondary',
+  info: 'text-info-secondary',
 }
 
 const linkColor: Record<Variant, string> = {
   success: 'text-accent-secondary hover:text-accent',
   error: 'text-error-secondary hover:text-error',
   notice: 'text-notice-secondary hover:text-notice',
+  info: 'text-info-secondary hover:text-info',
 }
 
 export const Message = ({

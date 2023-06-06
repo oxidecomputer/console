@@ -112,7 +112,7 @@ const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
             <ImageListboxField control={control} project={selectedProject} />
           </form>
           <Message
-            variant="notice"
+            variant="info"
             content="Once an image has been promoted it is visible to all projects in a silo"
           />
         </Modal.Section>
