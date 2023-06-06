@@ -131,7 +131,7 @@ export function SideModalForm<TFieldValues extends FieldValues>({
               variant="info"
               content={
                 <div className="flex items-center justify-between">
-                  <div>Restored previous session</div>
+                  <div>Restored form state</div>
                   <div className="flex items-center gap-1">
                     <button
                       className="text-mono-sm text-info-secondary hover:text-info"
