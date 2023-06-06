@@ -74,11 +74,8 @@ export function Modal({ children, onDismiss, title, isOpen }: ModalProps) {
 Modal.Title = ({ children }: { children?: React.ReactNode }) => (
   <div className="flex items-center justify-between border-b py-4 px-4 bg-secondary border-b-secondary">
     <h2 className="text-sans-semi-lg">{children}</h2>
-    <Dialog.Close
-      className="-m-2 flex rounded p-2 hover:bg-secondary-hover"
-      aria-label="Close"
-    >
-      <Close12Icon />
+    <Dialog.Close className="-m-2 flex rounded p-2 hover:bg-hover" aria-label="Close">
+      <Close12Icon className="text-secondary" />
     </Dialog.Close>
   </div>
 )
