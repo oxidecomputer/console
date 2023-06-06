@@ -134,7 +134,7 @@ export function SideModalForm<TFieldValues extends FieldValues>({
                   <div>Restored previous session</div>
                   <div className="flex items-center gap-1">
                     <button
-                      className="text-[var(--base-blue-600)] text-mono-sm hover:text-[var(--base-blue-700)]"
+                      className="text-mono-sm text-info-secondary hover:text-info"
                       onClick={() => {
                         form.reset()
                         setHasPersistedForm(false)

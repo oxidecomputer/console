@@ -34,28 +34,28 @@ const color: Record<Variant, string> = {
   success: 'bg-accent-secondary',
   error: 'bg-error-secondary',
   notice: 'bg-notice-secondary',
-  info: 'bg-[var(--base-blue-200)]',
+  info: 'bg-info-secondary',
 }
 
 const textColor: Record<Variant, string> = {
   success: 'text-accent children:text-accent',
   error: 'text-error children:text-error',
   notice: 'text-notice children:text-notice',
-  info: 'text-[var(--base-blue-700)] children:text-[var(--base-blue-700)]',
+  info: 'text-info children:text-info',
 }
 
 const secondaryTextColor: Record<Variant, string> = {
   success: 'text-accent-secondary',
   error: 'text-error-secondary',
   notice: 'text-notice-secondary',
-  info: 'text-[var(--base-blue-600)]',
+  info: 'text-info-secondary',
 }
 
 const linkColor: Record<Variant, string> = {
   success: 'text-accent-secondary hover:text-accent',
   error: 'text-error-secondary hover:text-error',
   notice: 'text-notice-secondary hover:text-notice',
-  info: 'text-[var(--base-blue-600)] hover:text-[var(--base-blue-700)]',
+  info: 'text-info-secondary hover:text-info',
 }
 
 export const Message = ({
