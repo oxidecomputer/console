@@ -32,8 +32,9 @@ export function setPersistedFormValues<TFieldValues extends FieldValues>(
   Object.keys(values).forEach((key) => {
     const value = values[key]
 
-    if (typeof value === 'object') {
+    if (typeof value === 'object' && !Array.isArray(value)) {
       setPersistedFormValues(setValue, trigger, value, key)
+      return
     }
 
     // Use prefix to set nested values, e.g. diskSource.blockSize
