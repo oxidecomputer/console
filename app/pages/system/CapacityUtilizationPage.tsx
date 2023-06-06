@@ -15,14 +15,14 @@ import {
   Ssd16Icon,
   Time16Icon,
 } from '@oxide/ui'
-import { Refresh16Icon, SpinnerLoader, useInterval } from '@oxide/ui'
+import { type ListboxItem, Refresh16Icon, SpinnerLoader, useInterval } from '@oxide/ui'
 import { bytesToGiB, bytesToTiB } from '@oxide/util'
 
 import { CapacityMetric } from 'app/components/CapacityMetric'
 import { SystemMetric } from 'app/components/SystemMetric'
 import { useDateTimeRangePicker } from 'app/components/form'
 
-const FLEET_ID = '001de000-1334-4000-8000-000000000000'
+const DEFAULT_FLEET_ID = '001de000-1334-4000-8000-000000000000'
 
 const refetchIntervalPresets = [
   { label: 'Off', value: '-1' },
@@ -38,9 +38,55 @@ CapacityUtilizationPage.loader = async () => {
 }
 
 export function CapacityUtilizationPage() {
-  /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
-  const [siloId, setSiloId] = useState<string>(FLEET_ID)
   const { data: silos } = useApiQuery('siloList', {})
+
+  const siloItems = useMemo(() => {
+    const items = silos?.items.map((silo) => ({ label: silo.name, value: silo.id })) || []
+    return [{ label: 'All silos', value: DEFAULT_FLEET_ID }, ...items]
+  }, [silos])
+
+  return (
+    <>
+      <PageHeader>
+        <PageTitle icon={<Snapshots24Icon />}>Capacity &amp; Utilization</PageTitle>
+      </PageHeader>
+
+      <div className="mb-12 flex min-w-min flex-col gap-3 lg+:flex-row">
+        <CapacityMetric
+          icon={<Ssd16Icon />}
+          title="Disk capacity"
+          metricName="virtual_disk_space_provisioned"
+          valueTransform={bytesToTiB}
+          capacity={900}
+        />
+        <CapacityMetric
+          icon={<Ram16Icon />}
+          title="Memory capacity"
+          metricName="ram_provisioned"
+          valueTransform={bytesToGiB}
+          capacity={28000}
+        />
+        <CapacityMetric
+          icon={<Cpu16Icon />}
+          title="CPU capacity"
+          metricName="cpus_provisioned"
+          capacity={2048}
+        />
+      </div>
+
+      <UtilizationPage filterItems={siloItems} defaultId={DEFAULT_FLEET_ID} />
+    </>
+  )
+}
+
+export const UtilizationPage = ({
+  filterItems,
+  defaultId,
+}: {
+  filterItems: ListboxItem[]
+  defaultId: string
+}) => {
+  const [filterId, setFilterId] = useState<string>(defaultId)
 
   const initialPreset = 'lastHour'
   // pass refetch interval to this to keep the date up to date
@@ -50,15 +96,10 @@ export function CapacityUtilizationPage() {
       maxValue: now(getLocalTimeZone()),
     })
 
-  const siloItems = useMemo(() => {
-    const items = silos?.items.map((silo) => ({ label: silo.name, value: silo.id })) || []
-    return [{ label: 'All silos', value: FLEET_ID }, ...items]
-  }, [silos])
-
   const commonProps = {
     startTime: startTime.toDate(getLocalTimeZone()),
     endTime: endTime.toDate(getLocalTimeZone()),
-    filterId: siloId,
+    filterId: filterId,
   }
 
   const [refetchInterval, setRefetchInterval] = useState(refetchIntervalPresets[1].value)
@@ -97,43 +138,16 @@ export function CapacityUtilizationPage() {
 
   return (
     <>
-      <PageHeader>
-        <PageTitle icon={<Snapshots24Icon />}>Capacity &amp; Utilization</PageTitle>
-      </PageHeader>
-
-      <div className="mb-12 flex min-w-min flex-col gap-3 lg+:flex-row">
-        <CapacityMetric
-          icon={<Ssd16Icon />}
-          title="Disk capacity"
-          metricName="virtual_disk_space_provisioned"
-          valueTransform={bytesToTiB}
-          capacity={900}
-        />
-        <CapacityMetric
-          icon={<Ram16Icon />}
-          title="Memory capacity"
-          metricName="ram_provisioned"
-          valueTransform={bytesToGiB}
-          capacity={28000}
-        />
-        <CapacityMetric
-          icon={<Cpu16Icon />}
-          title="CPU capacity"
-          metricName="cpus_provisioned"
-          capacity={2048}
-        />
-      </div>
-
       <div className="mt-16 mb-8 flex justify-between gap-3">
         <Listbox
-          selectedItem={siloId}
+          selectedItem={filterId}
           className="w-48"
-          aria-labelledby="silo-id-label"
-          name="silo-id"
-          items={siloItems}
+          aria-labelledby="filter-id-label"
+          name="filter-id"
+          items={filterItems}
           onChange={(item) => {
             if (item) {
-              setSiloId(item.value)
+              setFilterId(item.value)
             }
           }}
         />
