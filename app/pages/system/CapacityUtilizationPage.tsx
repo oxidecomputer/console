@@ -91,6 +91,10 @@ export function CapacityUtilizationPage() {
     key: preset, // force a render which clears current interval
   })
 
+  const handleUpdated = () => {
+    setLastUpdated(Date.now())
+  }
+
   return (
     <>
       <PageHeader>
@@ -180,7 +184,7 @@ export function CapacityUtilizationPage() {
             unit="TiB"
             valueTransform={bytesToTiB}
             capacity={900}
-            onUpdate={() => setLastUpdated(Date.now())}
+            onUpdate={handleUpdated}
           />
         </div>
 
@@ -190,7 +194,7 @@ export function CapacityUtilizationPage() {
           title="CPU"
           unit="count"
           capacity={2048}
-          onUpdate={() => setLastUpdated(Date.now())}
+          onUpdate={handleUpdated}
         />
 
         <SystemMetric
@@ -200,7 +204,7 @@ export function CapacityUtilizationPage() {
           unit="GiB"
           valueTransform={bytesToGiB}
           capacity={28000}
-          onUpdate={() => setLastUpdated(Date.now())}
+          onUpdate={handleUpdated}
         />
       </div>
     </>
