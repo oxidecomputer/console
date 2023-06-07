@@ -41,8 +41,10 @@ export function Select<T extends object>({
         ref={ref}
         className={cn(
           `flex h-10 w-full items-center justify-between
-          rounded border px-3 text-sans-md hover:bg-secondary`,
-          hasError ? 'focus-error border-destructive' : 'border-default',
+          rounded border px-3 text-sans-md`,
+          hasError
+            ? 'focus-error border-error-secondary hover:border-error'
+            : 'border-default hover:border-hover',
           state.isOpen && 'ring-2 ring-accent-secondary',
           state.isOpen && hasError && 'ring-error-secondary',
           disabled ? 'cursor-not-allowed text-disabled bg-disabled' : 'bg-default'

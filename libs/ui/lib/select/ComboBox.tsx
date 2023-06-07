@@ -15,13 +15,13 @@ export interface ComboBoxProps<T extends object> extends AriaComboBoxProps<T> {
   placeholder?: string
   disabled?: boolean
   hasError?: boolean
-  isLoading: boolean
+  isLoading?: boolean
 }
 
 export function ComboBox<T extends object>({
   isDisabled,
   hasError,
-  isLoading,
+  isLoading = false,
   ...props
 }: ComboBoxProps<T>) {
   const { contains } = useFilter({ sensitivity: 'base' })
