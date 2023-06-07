@@ -12,8 +12,8 @@ export function LoginPageSaml() {
   const [searchParams] = useSearchParams()
   const { silo, provider } = useIdpSelector()
 
-  const state = searchParams.get('state')?.trim()
-  const query = state ? `?state=${state}` : ''
+  const redirect_uri = searchParams.get('redirect_uri')?.trim()
+  const query = redirect_uri ? `?redirect_uri=${redirect_uri}` : ''
 
   return (
     <>
@@ -29,8 +29,9 @@ export function LoginPageSaml() {
 
       <a
         className={cn(buttonStyle({}), 'w-full')}
-        href={`/login/${silo}/saml/${provider}/direct${query}`}
+        href={`/login/${silo}/saml/${provider}/redirect${query}`}
       >
+        {/* TODO: kebabCaseToWords(provider) */}
         Sign in with {provider}
       </a>
     </>
