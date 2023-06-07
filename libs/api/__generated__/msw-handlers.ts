@@ -57,8 +57,6 @@ export interface MSWHandlers {
   deviceAuthConfirm: (params: { body: Json<Api.DeviceAuthVerify> }) => StatusCode
   /** `POST /device/token` */
   deviceAccessToken: () => StatusCode
-  /** `POST /login` */
-  loginSpoof: (params: { body: Json<Api.SpoofLoginBody> }) => StatusCode
   /** `GET /login/:siloName/saml/:providerName` */
   loginSamlBegin: (params: { path: Api.LoginSamlBeginPathParams }) => StatusCode
   /** `POST /login/:siloName/saml/:providerName` */
@@ -499,15 +497,15 @@ export interface MSWHandlers {
   /** `POST /v1/system/networking/switch-port-settings` */
   networkingSwitchPortSettingsCreate: (params: {
     body: Json<Api.SwitchPortSettingsCreate>
-  }) => HandlerResult<Api.SwitchPortSettingsInfo>
+  }) => HandlerResult<Api.SwitchPortSettingsView>
   /** `DELETE /v1/system/networking/switch-port-settings` */
   networkingSwitchPortSettingsDelete: (params: {
     query: Api.NetworkingSwitchPortSettingsDeleteQueryParams
   }) => StatusCode
-  /** `GET /v1/system/networking/switch-port-settings/:port/info` */
-  networkingSwitchPortSettingsInfo: (params: {
-    path: Api.NetworkingSwitchPortSettingsInfoPathParams
-  }) => HandlerResult<Api.SwitchPortSettingsInfo>
+  /** `GET /v1/system/networking/switch-port-settings/:port` */
+  networkingSwitchPortSettingsView: (params: {
+    path: Api.NetworkingSwitchPortSettingsViewPathParams
+  }) => HandlerResult<Api.SwitchPortSettingsView>
   /** `GET /v1/system/policy` */
   systemPolicyView: () => HandlerResult<Api.FleetRolePolicy>
   /** `PUT /v1/system/policy` */
@@ -794,7 +792,6 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
       handler(handlers['deviceAuthConfirm'], null, schema.DeviceAuthVerify)
     ),
     rest.post('/device/token', handler(handlers['deviceAccessToken'], null, null)),
-    rest.post('/login', handler(handlers['loginSpoof'], null, schema.SpoofLoginBody)),
     rest.get(
       '/login/:siloName/saml/:providerName',
       handler(handlers['loginSamlBegin'], schema.LoginSamlBeginParams, null)
@@ -1336,10 +1333,10 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
       )
     ),
     rest.get(
-      '/v1/system/networking/switch-port-settings/:port/info',
+      '/v1/system/networking/switch-port-settings/:port',
       handler(
-        handlers['networkingSwitchPortSettingsInfo'],
-        schema.NetworkingSwitchPortSettingsInfoParams,
+        handlers['networkingSwitchPortSettingsView'],
+        schema.NetworkingSwitchPortSettingsViewParams,
         null
       )
     ),
