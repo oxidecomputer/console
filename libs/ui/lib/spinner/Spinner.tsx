@@ -1,4 +1,6 @@
 import cn from 'classnames'
+import type { ReactNode } from 'react'
+import { useEffect, useState } from 'react'
 
 import './spinner.css'
 
@@ -54,4 +56,29 @@ export const Spinner = ({
       />
     </svg>
   )
+}
+
+export const SpinnerLoader = ({
+  isLoading,
+  children,
+}: {
+  isLoading: boolean
+  children: ReactNode
+}) => {
+  const [isVisible, setIsVisible] = useState(false)
+
+  useEffect(() => {
+    if (isLoading === true) {
+      setIsVisible(false)
+      return
+    }
+
+    const timer = setTimeout(() => {
+      setIsVisible(true)
+    }, 750)
+
+    return () => clearTimeout(timer)
+  }, [isLoading])
+
+  return <>{isVisible ? children : <Spinner />}</>
 }
