@@ -64,12 +64,10 @@ export function SideModalForm<TFieldValues extends FieldValues>({
 }: SideModalFormProps<TFieldValues>) {
   const { isSubmitting } = form.formState
 
-  const { getValues, setValue, trigger } = form
-
   const [hasPersistedForm, setHasPersistedForm] = useState(false)
 
   const handleOnDismiss = () => {
-    const values = getValues()
+    const values = form.getValues()
 
     // use hashQueryKey to guarantee same key order
     const hasDefaultValues =
@@ -91,9 +89,10 @@ export function SideModalForm<TFieldValues extends FieldValues>({
     if (!formValues || hasPersistedForm) return
 
     setHasPersistedForm(true)
-    setPersistedFormValues(setValue, trigger, formValues as TFieldValues)
+    setPersistedFormValues(form.setValue, formValues as TFieldValues)
+    form.trigger()
     announce('Restored previous form session', 'polite')
-  }, [id, setValue, trigger, hasPersistedForm])
+  }, [id, form, hasPersistedForm])
 
   useEffect(() => {
     if (submitError?.errorCode === 'ObjectAlreadyExists' && 'name' in form.getValues()) {
