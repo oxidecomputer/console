@@ -51,7 +51,11 @@ export function ListboxField<
   const {
     field,
     fieldState: { error },
-  } = useController({ control, name, rules: { required } })
+  } = useController({
+    control,
+    name,
+    rules: { required },
+  })
 
   return (
     <div className={cn('max-w-lg', className)}>
@@ -62,23 +66,17 @@ export function ListboxField<
         {helpText && <TextInputHint id={`${id}-help-text`}>{helpText}</TextInputHint>}
       </div>
       <ComboBox
+        key={error && error.message}
         label={label}
         placeholder={placeholder}
         defaultItems={items}
         selectedKey={field.value}
         onSelectionChange={(i) => {
-          // Fixes bug where `onSelectionChange` is run twice after
-          // an error and the second is null
-
-          // uncomment to see double fire
-          // console.log(i)
-          if (i) {
-            field.onChange(i)
-            onChange?.(i.toString())
-          }
+          field.onChange(i)
+          onChange?.(i.toString())
         }}
         // required to get required error to trigger on blur
-        // onBlur={field.onBlur}
+        onBlur={field.onBlur}
         isDisabled={disabled}
         aria-labelledby={cn(`${id}-label`, {
           [`${id}-help-text`]: !!description,
