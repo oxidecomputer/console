@@ -50,7 +50,7 @@ export function Modal({ children, onDismiss, title, isOpen }: ModalProps) {
               <Dialog.Portal>
                 <Dialog.Overlay className="DialogOverlay !z-30" />
                 <AnimatedDialogContent
-                  className="DialogContent ox-modal fixed left-1/2 top-1/2 z-40 m-0 flex max-h-[min(800px,80vh)] w-[32rem] flex-col justify-between rounded-lg border p-0 bg-raise border-secondary elevation-2"
+                  className="DialogContent ox-modal fixed left-1/2 top-1/2 z-40 m-0 flex max-h-[min(800px,80vh)] w-auto min-w-[28rem] max-w-[32rem] flex-col justify-between rounded-lg border p-0 bg-raise border-secondary elevation-2"
                   aria-labelledby={titleId}
                   style={{
                     transform: y.to((value) => `translate3d(-50%, ${-50 + value}%, 0px)`),
@@ -74,11 +74,8 @@ export function Modal({ children, onDismiss, title, isOpen }: ModalProps) {
 Modal.Title = ({ children }: { children?: React.ReactNode }) => (
   <div className="flex items-center justify-between border-b py-4 px-4 bg-secondary border-b-secondary">
     <h2 className="text-sans-semi-lg">{children}</h2>
-    <Dialog.Close
-      className="-m-2 flex rounded p-2 hover:bg-secondary-hover"
-      aria-label="Close"
-    >
-      <Close12Icon />
+    <Dialog.Close className="-m-2 flex rounded p-2 hover:bg-hover" aria-label="Close">
+      <Close12Icon className="text-secondary" />
     </Dialog.Close>
   </div>
 )

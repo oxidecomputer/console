@@ -1,5 +1,6 @@
 import { format } from 'date-fns'
 import type { Control } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { useController } from 'react-hook-form'
 import type { NavigateFunction } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
@@ -68,11 +69,13 @@ export function CreateDiskSideModalForm({
     },
   })
 
+  const form = useForm({ mode: 'all', defaultValues })
+
   return (
     <SideModalForm
       id="create-disk-form"
       title="Create Disk"
-      formOptions={{ defaultValues }}
+      form={form}
       onDismiss={() => onDismiss(navigate)}
       onSubmit={({ size, ...rest }) => {
         const body = { size: size * GiB, ...rest }
@@ -81,15 +84,11 @@ export function CreateDiskSideModalForm({
       loading={createDisk.isLoading}
       submitError={createDisk.error}
     >
-      {({ control }) => (
-        <>
-          <NameField name="name" control={control} />
-          <DescriptionField name="description" control={control} />
-          <Divider />
-          <DiskSourceField control={control} />
-          <DiskSizeField name="size" control={control} />
-        </>
-      )}
+      <NameField name="name" control={form.control} />
+      <DescriptionField name="description" control={form.control} />
+      <Divider />
+      <DiskSourceField control={form.control} />
+      <DiskSizeField name="size" control={form.control} />
     </SideModalForm>
   )
 }

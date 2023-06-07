@@ -1,3 +1,5 @@
+import { useForm } from 'react-hook-form'
+
 import type { InstanceNetworkInterface } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { pick } from '@oxide/util'
@@ -28,11 +30,13 @@ export default function EditNetworkInterfaceForm({
 
   const defaultValues = pick(editing, 'name', 'description') // satisfies NetworkInterfaceUpdate
 
+  const form = useForm({ mode: 'all', defaultValues })
+
   return (
     <SideModalForm
       id="edit-network-interface-form"
       title="Edit network interface"
-      formOptions={{ defaultValues }}
+      form={form}
       onDismiss={onDismiss}
       onSubmit={(body) => {
         const interfaceName = defaultValues.name
@@ -46,12 +50,8 @@ export default function EditNetworkInterfaceForm({
       submitError={editNetworkInterface.error}
       submitLabel="Save changes"
     >
-      {({ control }) => (
-        <>
-          <NameField name="name" control={control} />
-          <DescriptionField name="description" control={control} />
-        </>
-      )}
+      <NameField name="name" control={form.control} />
+      <DescriptionField name="description" control={form.control} />
     </SideModalForm>
   )
 }

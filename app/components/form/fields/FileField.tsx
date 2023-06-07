@@ -12,6 +12,7 @@ export function FileField<
   id,
   name,
   label,
+  description,
   control,
   required = false,
   accept,
@@ -20,6 +21,7 @@ export function FileField<
   id: string
   name: TName
   label: string
+  description?: string
   control: Control<TFieldValues>
   required?: boolean
   accept?: string
@@ -32,16 +34,19 @@ export function FileField<
       rules={{ required }}
       render={({ field: { value: _value, ...rest }, fieldState: { error } }) => (
         <div>
-          <FieldLabel id={`${id}-label`} htmlFor={id} className="mb-2">
-            {label}
-            {error && (
-              <span className="ml-2">
-                <ErrorMessage error={error} label="File" />
-              </span>
-            )}
-          </FieldLabel>
-          {helpText && <TextInputHint id={`${id}-help-text`}>{helpText}</TextInputHint>}
-          <FileInput id={id} className="mt-2" accept={accept} {...rest} />
+          <div className="mb-2">
+            <FieldLabel
+              id={`${id}-label`}
+              htmlFor={id}
+              tip={description}
+              optional={!required}
+            >
+              {label}
+            </FieldLabel>
+            {helpText && <TextInputHint id={`${id}-help-text`}>{helpText}</TextInputHint>}
+          </div>
+          <FileInput id={id} className="mt-2" accept={accept} {...rest} error={!!error} />
+          <ErrorMessage error={error} label={label} />
         </div>
       )}
     />

@@ -74,26 +74,27 @@ export function InstancePage() {
       </PageHeader>
       <PropertiesTable.Group className="mb-16 -mt-8">
         <PropertiesTable>
-          <PropertiesTable.Row label="cpu/ram">
+          <PropertiesTable.Row label="cpu">
             <span className="text-secondary">{instance.ncpus}</span>
             <span className="ml-1 text-quaternary"> vCPUs</span>
-            <span className="mx-1 text-secondary">/</span>
+          </PropertiesTable.Row>
+          <PropertiesTable.Row label="ram">
             <span className="text-secondary">{memory.value}</span>
             <span className="ml-1 text-quaternary"> {memory.unit}</span>
           </PropertiesTable.Row>
           <PropertiesTable.Row label="status">
             <InstanceStatusBadge status={instance.runState} />
           </PropertiesTable.Row>
+        </PropertiesTable>
+        <PropertiesTable>
           <PropertiesTable.Row label="description">
             <span className="text-secondary">
               <Truncate text={instance.description} maxLength={40} />
             </span>
           </PropertiesTable.Row>
-        </PropertiesTable>
-        <PropertiesTable>
-          <PropertiesTable.Row label="dns name">
+          {/* <PropertiesTable.Row label="dns name">
             <span className="text-secondary">{instance.hostname || '–'}</span>
-          </PropertiesTable.Row>
+          </PropertiesTable.Row> */}
           <PropertiesTable.Row label="created">
             <span className="text-secondary">
               {format(instance.timeCreated, 'MMM d, yyyy')}{' '}

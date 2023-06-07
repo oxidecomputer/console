@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import { Outlet, ScrollRestoration } from 'react-router-dom'
+import { Outlet } from 'react-router-dom'
 
 import { apiQueryClient } from '@oxide/api'
 import { Pagination } from '@oxide/pagination'
@@ -7,14 +7,15 @@ import { SkipLinkTarget } from '@oxide/ui'
 import { classed } from '@oxide/util'
 
 import { PageActionsTarget } from 'app/components/PageActions'
+import { useScrollRestoration } from 'app/hooks/use-scroll-restoration'
 
 export const PageContainer = classed.div`grid h-screen grid-cols-[14.25rem,1fr] grid-rows-[60px,1fr]`
 
 export function ContentPane() {
   const ref = useRef<HTMLDivElement>(null)
+  useScrollRestoration(ref)
   return (
-    <div ref={ref} className="flex flex-col overflow-auto">
-      <ScrollRestoration elementRef={ref} />
+    <div ref={ref} className="flex flex-col overflow-auto" data-testid="scroll-container">
       <div className="flex flex-grow flex-col pb-8">
         <SkipLinkTarget />
         <main className="[&>*]:gutter">

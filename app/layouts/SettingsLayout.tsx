@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { matchPath, useLocation, useNavigate } from 'react-router-dom'
 
-import { Divider, Key16Icon, Profile16Icon } from '@oxide/ui'
+import { Divider, Folder16Icon, Key16Icon, Profile16Icon } from '@oxide/ui'
 
 import { TopBar } from 'app/components/TopBar'
 import { ProjectPicker, SiloSystemPicker } from 'app/components/TopBarPicker'
@@ -42,7 +42,9 @@ const SettingsLayout = () => {
       </TopBar>
       <Sidebar>
         <Sidebar.Nav>
-          {/* TODO: what to link here? anything? */}
+          <NavLinkItem to={pb.projects()}>
+            <Folder16Icon /> Projects
+          </NavLinkItem>
           <DocsLinkItem />
         </Sidebar.Nav>
         <Divider />

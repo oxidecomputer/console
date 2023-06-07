@@ -3,6 +3,7 @@ import filesize from 'filesize'
 import pMap from 'p-map'
 import pRetry from 'p-retry'
 import { useRef, useState } from 'react'
+import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import invariant from 'tiny-invariant'
 
@@ -10,6 +11,7 @@ import type { ApiError, BlockSize, Disk, Snapshot } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import {
   Error12Icon,
+  Message,
   Modal,
   Progress,
   Spinner,
@@ -20,7 +22,6 @@ import { GiB, KiB } from '@oxide/util'
 
 import {
   DescriptionField,
-  ModalFooterError,
   NameField,
   RadioField,
   SideModalForm,
@@ -70,9 +71,10 @@ type StepProps = {
   state: MutationState
   label: string
   duration?: number
+  className?: string
 }
 
-function Step({ children, state, label }: StepProps) {
+function Step({ children, state, label, className }: StepProps) {
   /* eslint-disable react/jsx-key */
   const [status, icon] = state.isSuccess
     ? ['complete', <Success12Icon className="text-accent" />]
@@ -84,7 +86,7 @@ function Step({ children, state, label }: StepProps) {
   /* eslint-enable react/jsx-key */
   return (
     // data-status used only for e2e testing
-    <div className="items-top flex gap-2 py-3 px-4" data-status={status}>
+    <div className={cn('items-top flex gap-2 py-3 px-4', className)} data-status={status}>
       {/* padding on icon to align it with text since everything is aligned to top */}
       <div className="pt-px">{icon}</div>
       <div
@@ -457,10 +459,13 @@ export function CreateImageSideModalForm() {
     setAllDone(true)
   }
 
+  const form = useForm({ mode: 'all', defaultValues })
+  const file = form.watch('imageFile')
+
   return (
     <SideModalForm
       id="upload-image-form"
-      formOptions={{ defaultValues }}
+      form={form}
       title="Upload image"
       onDismiss={backToImages}
       onSubmit={async (values) => {
@@ -512,103 +517,110 @@ export function CreateImageSideModalForm() {
       submitError={formError}
       submitLabel={allDone ? 'Done' : 'Upload image'}
     >
-      {({ control, watch }) => {
-        const file = watch('imageFile')
-        return (
-          <>
-            <NameField name="imageName" label="Name" control={control} />
-            <DescriptionField
-              name="imageDescription"
-              label="Description"
-              control={control}
-            />
-            {/* TODO: are OS and Version supposed to be non-empty? I doubt the API cares,
-             * but it will be pretty for end users if they're empty
-             */}
-            <TextField name="os" label="OS" control={control} required />
-            <TextField name="version" control={control} required />
-            <RadioField
-              name="blockSize"
-              label="Block size"
-              units="Bytes"
-              control={control}
-              parseValue={(val) => parseInt(val, 10) as BlockSize}
-              items={[
-                { label: '512', value: 512 },
-                { label: '2048', value: 2048 },
-                { label: '4096', value: 4096 },
-              ]}
-            />
-            <FileField
-              id="image-file-input"
-              name="imageFile"
-              label="Image file"
-              required
-              control={control}
-            />
-            {file && modalOpen && (
-              <Modal isOpen onDismiss={closeModal}>
-                <Modal.Title>Image upload progress</Modal.Title>
-                <Modal.Body>
-                  <Modal.Section className="!p-0">
-                    <div className="children:border-b children:border-b-secondary last:children:border-b-0">
-                      <Step state={createDisk} label="Create temporary disk" />
-                      <Step state={startImport} label="Put disk in import mode" />
-                      <Step state={syntheticUploadState} label="Upload image file">
-                        <div className="rounded-lg border bg-default border-default">
-                          <div className="flex justify-between border-b p-3 pb-2 border-b-secondary">
-                            <div className="text-sans-md text-default">{file.name}</div>
-                            {/* cancel and/or pause buttons could go here */}
-                          </div>
-                          <div className="p-3 pt-2">
-                            <div className="flex justify-between text-mono-sm">
-                              <div className="!normal-case text-secondary">
-                                {fsize((uploadProgress / 100) * file.size)}{' '}
-                                <span className="text-quinary">/</span> {fsize(file.size)}
-                              </div>
-                              <div className="text-accent">{uploadProgress}%</div>
-                            </div>
-                            <Progress
-                              className="mt-1.5"
-                              aria-label="Upload progress"
-                              value={uploadProgress}
-                            />
-                          </div>
+      <NameField name="imageName" label="Name" control={form.control} />
+      <DescriptionField
+        name="imageDescription"
+        label="Description"
+        control={form.control}
+      />
+      {/* TODO: are OS and Version supposed to be non-empty? I doubt the API cares,
+       * but it will be pretty for end users if they're empty
+       */}
+      <TextField name="os" label="OS" control={form.control} required />
+      <TextField name="version" control={form.control} required />
+      <RadioField
+        name="blockSize"
+        label="Block size"
+        units="Bytes"
+        control={form.control}
+        parseValue={(val) => parseInt(val, 10) as BlockSize}
+        items={[
+          { label: '512', value: 512 },
+          { label: '2048', value: 2048 },
+          { label: '4096', value: 4096 },
+        ]}
+      />
+      <FileField
+        id="image-file-input"
+        name="imageFile"
+        label="Image file"
+        required
+        control={form.control}
+      />
+      {file && modalOpen && (
+        <Modal isOpen onDismiss={closeModal}>
+          <Modal.Title>Image upload progress</Modal.Title>
+          <Modal.Body className="!p-0">
+            <Modal.Section className="!p-0">
+              <div className="children:border-b children:border-b-secondary last:children:border-b-0">
+                {modalError && (
+                  <Message
+                    variant="error"
+                    title="Error"
+                    content={modalError}
+                    className="!rounded-none !shadow-none"
+                  />
+                )}
+                <Step state={createDisk} label="Create temporary disk" />
+                <Step state={startImport} label="Put disk in import mode" />
+                <Step state={syntheticUploadState} label="Upload image file">
+                  <div className="rounded-lg border bg-default border-default">
+                    <div className="flex justify-between border-b p-3 pb-2 border-b-secondary">
+                      <div className="text-sans-md text-default">{file.name}</div>
+                      {/* cancel and/or pause buttons could go here */}
+                    </div>
+                    <div className="p-3 pt-2">
+                      <div className="flex justify-between text-mono-sm">
+                        <div className="!normal-case text-secondary">
+                          {fsize((uploadProgress / 100) * file.size)}{' '}
+                          <span className="text-quinary">/</span> {fsize(file.size)}
                         </div>
-                      </Step>
-                      <Step state={stopImport} label="Get disk out of import mode" />
-                      <Step
-                        state={finalizeDisk}
-                        label="Finalize disk and create snapshot"
-                      />
-                      <Step state={createImage} label="Create image" duration={15} />
-                      <Step
-                        state={{
-                          isLoading: deleteDisk.isLoading || deleteSnapshot.isLoading,
-                          isSuccess: deleteDisk.isSuccess || deleteSnapshot.isSuccess,
-                          isError: deleteDisk.isError || deleteSnapshot.isError,
-                        }}
-                        label="Delete disk and snapshot"
+                        <div className="text-accent">{uploadProgress}%</div>
+                      </div>
+                      <Progress
+                        className="mt-1.5"
+                        aria-label="Upload progress"
+                        value={uploadProgress}
                       />
                     </div>
-                  </Modal.Section>
-                </Modal.Body>
-                <Modal.Footer
-                  onDismiss={closeModal}
-                  onAction={backToImages}
-                  actionText="Done"
-                  cancelText={modalError ? 'Back' : 'Cancel'}
-                  disabled={!allDone}
-                >
-                  {/* TODO: style success message better */}
-                  {allDone && <div>Image created!</div>}
-                  {modalError && <ModalFooterError>{modalError}</ModalFooterError>}
-                </Modal.Footer>
-              </Modal>
-            )}
-          </>
-        )
-      }}
+                  </div>
+                </Step>
+                <Step state={stopImport} label="Get disk out of import mode" />
+                <Step state={finalizeDisk} label="Finalize disk and create snapshot" />
+                <Step state={createImage} label="Create image" duration={15} />
+                <Step
+                  state={{
+                    isLoading: deleteDisk.isLoading || deleteSnapshot.isLoading,
+                    isSuccess: deleteDisk.isSuccess && deleteSnapshot.isSuccess,
+                    isError: deleteDisk.isError || deleteSnapshot.isError,
+                  }}
+                  label="Delete disk and snapshot"
+                />
+                <Step
+                  state={{
+                    isLoading: false,
+                    isSuccess: allDone,
+                    isError: false,
+                  }}
+                  label="Image uploaded successfully"
+                  className={
+                    allDone
+                      ? 'transition-colors bg-accent-secondary children:text-accent'
+                      : ' transition-colors'
+                  }
+                />
+              </div>
+            </Modal.Section>
+          </Modal.Body>
+          <Modal.Footer
+            onDismiss={closeModal}
+            onAction={backToImages}
+            actionText="Done"
+            cancelText={modalError || allDone ? 'Back' : 'Cancel'}
+            disabled={!allDone}
+          />
+        </Modal>
+      )}
     </SideModalForm>
   )
 }
