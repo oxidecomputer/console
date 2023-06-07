@@ -31,7 +31,6 @@ export function LoginPageSaml() {
         className={cn(buttonStyle({}), 'w-full')}
         href={`/login/${silo}/saml/${provider}/redirect${query}`}
       >
-        {/* TODO: kebabCaseToWords(provider) */}
         Sign in with {provider}
       </a>
     </>

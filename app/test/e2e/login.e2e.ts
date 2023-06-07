@@ -9,9 +9,9 @@ test.describe('login', () => {
     await expect(page).toHaveURL('/projects')
   })
 
-  test('with state param redirects to last page', async ({ page }) => {
+  test('with redirect_uri param redirects to last page', async ({ page }) => {
     await page.goto(
-      '/login/default-silo/local?state=%2Fprojects%2Fmock-project%2Finstances'
+      '/login/default-silo/local?redirect_uri=%2Fprojects%2Fmock-project%2Finstances'
     )
     await page.fill('input[name=username]', 'abc')
     await page.fill('input[name=password]', 'def')
