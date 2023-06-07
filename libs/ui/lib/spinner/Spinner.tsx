@@ -1,6 +1,5 @@
 import cn from 'classnames'
-import type { ReactNode } from 'react'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import './spinner.css'
 
@@ -60,25 +59,56 @@ export const Spinner = ({
 
 export const SpinnerLoader = ({
   isLoading,
-  children,
+  children = null,
+  loadTime = 750,
 }: {
   isLoading: boolean
-  children: ReactNode
+  children?: JSX.Element | null
+  loadTime?: number
 }) => {
   const [isVisible, setIsVisible] = useState(false)
+  const hideTimerRef = useRef<NodeJS.Timeout | null>(null)
+
+  // startLoadTimeRef stores the timestamp when the loading started
+  const startLoadTimeRef = useRef<number>(0)
 
   useEffect(() => {
-    if (isLoading === true) {
+    // shouldSpinTimer is the timer that will make the Spinner visible if
+    // isLoading lasts more than 25ms.
+    let shouldSpinTimer: NodeJS.Timeout
+
+    if (isLoading) {
       setIsVisible(false)
-      return
+      startLoadTimeRef.current = Date.now()
+
+      // We don't show the spinner if the load time is less than 25ms
+      shouldSpinTimer = setTimeout(() => {
+        setIsVisible(true)
+      }, 25)
+    } else {
+      // Clear the hide timer if it's still running.
+      if (hideTimerRef.current) {
+        clearTimeout(hideTimerRef.current)
+      }
+
+      // Calculate how long the loading took.
+      const elapsedLoadTime = Date.now() - startLoadTimeRef.current
+
+      // Set a timer to hide the Spinner and show the children. The duration of
+      // the timer is the load time minus the elapsed load time, or 0 if loading
+      // took longer than the load time.
+      hideTimerRef.current = setTimeout(() => {
+        setIsVisible(false)
+      }, Math.max(0, loadTime - elapsedLoadTime))
     }
 
-    const timer = setTimeout(() => {
-      setIsVisible(true)
-    }, 750)
+    return () => {
+      shouldSpinTimer && clearTimeout(shouldSpinTimer)
+      if (hideTimerRef.current) {
+        clearTimeout(hideTimerRef.current)
+      }
+    }
+  }, [isLoading, loadTime])
 
-    return () => clearTimeout(timer)
-  }, [isLoading])
-
-  return <>{isVisible ? children : <Spinner />}</>
+  return isVisible ? <Spinner /> : children
 }

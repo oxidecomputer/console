@@ -25,6 +25,7 @@ export type ListboxFieldProps<
   control: Control<TFieldValues>
   disabled?: boolean
   items: ListboxItem[]
+  isLoading?: boolean
   onChange?: (value: string) => void
 }
 
@@ -42,6 +43,7 @@ export function ListboxField<
   helpText,
   className,
   control,
+  isLoading = false,
   onChange,
 }: ListboxFieldProps<TFieldValues, TName>) {
   // TODO: recreate this logic
@@ -70,6 +72,7 @@ export function ListboxField<
         label={label}
         placeholder={placeholder}
         defaultItems={items}
+        isLoading={isLoading}
         selectedKey={field.value}
         onSelectionChange={(i) => {
           field.onChange(i)

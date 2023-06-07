@@ -4,7 +4,7 @@ import type { AriaComboBoxProps } from 'react-aria'
 import { useButton, useComboBox, useFilter } from 'react-aria'
 import { useComboBoxState } from 'react-stately'
 
-import { SelectArrows6Icon } from '@oxide/ui'
+import { SelectArrows6Icon, SpinnerLoader } from '@oxide/ui'
 
 import { Popover } from '../util/Popover'
 import { ListBox } from './ListBox'
@@ -15,11 +15,13 @@ export interface ComboBoxProps<T extends object> extends AriaComboBoxProps<T> {
   placeholder?: string
   disabled?: boolean
   hasError?: boolean
+  isLoading: boolean
 }
 
 export function ComboBox<T extends object>({
   isDisabled,
   hasError,
+  isLoading,
   ...props
 }: ComboBoxProps<T>) {
   const { contains } = useFilter({ sensitivity: 'base' })
@@ -45,7 +47,8 @@ export function ComboBox<T extends object>({
     state
   )
 
-  const noItems = props.defaultItems && Object.values(props.defaultItems).length === 0
+  const noItems =
+    !isLoading && props.defaultItems && Object.values(props.defaultItems).length === 0
   const disabled = isDisabled || noItems
 
   const { buttonProps } = useButton({ ...triggerProps, isDisabled: disabled }, buttonRef)
@@ -58,7 +61,9 @@ export function ComboBox<T extends object>({
         className={cn(
           `relative flex h-10 w-full items-center
           justify-between rounded border`,
-          hasError ? 'focus-error border-destructive' : 'border-default',
+          hasError
+            ? 'focus-error border-error-secondary hover:border-error'
+            : 'border-default hover:border-hover',
           (state.isOpen || state.isFocused) && 'ring-2 ring-accent-secondary',
           hasError && 'ring-error-secondary',
           isDisabled || noItems
@@ -66,9 +71,9 @@ export function ComboBox<T extends object>({
             : 'bg-default'
         )}
       >
-        <div className="w-full px-3 text-left text-sans-md">
+        <div className="flex h-full w-full items-center justify-between pl-3 text-left text-sans-md">
           {noItems ? (
-            <div className="text-quaternary">No items</div>
+            <div className="flex h-full w-full items-center text-quaternary">No items</div>
           ) : (
             <input
               {...inputProps}
@@ -80,6 +85,7 @@ export function ComboBox<T extends object>({
               disabled={isDisabled}
             />
           )}
+          <SpinnerLoader isLoading={isLoading} loadTime={500} />
         </div>
         <div className="ml-3 flex h-[calc(100%-12px)] items-center border-l px-3 border-secondary">
           <SelectArrows6Icon title="Select" className="w-2 text-tertiary" />

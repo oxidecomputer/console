@@ -145,9 +145,11 @@ const DiskSourceField = ({ control }: { control: Control<DiskCreate> }) => {
 const ImageSelectField = ({ control }: { control: Control<DiskCreate> }) => {
   const projectSelector = useProjectSelector()
 
-  const images =
-    useApiQuery('imageList', { query: { includeSiloImages: true, ...projectSelector } })
-      .data?.items || []
+  const imagesQuery = useApiQuery('imageList', {
+    query: { includeSiloImages: true, ...projectSelector },
+  })
+
+  const images = imagesQuery.data?.items || []
 
   return (
     <ListboxField
@@ -155,6 +157,7 @@ const ImageSelectField = ({ control }: { control: Control<DiskCreate> }) => {
       name="diskSource.imageId"
       label="Source image"
       placeholder="Select an image"
+      isLoading={imagesQuery.isLoading}
       items={images.map((i) => {
         return {
           value: i.id,
@@ -191,8 +194,9 @@ const DiskNameFromId = ({ disk }: { disk: string }) => {
 const SnapshotSelectField = ({ control }: { control: Control<DiskCreate> }) => {
   const projectSelector = useProjectSelector()
 
-  const snapshots =
-    useApiQuery('snapshotList', { query: projectSelector }).data?.items || []
+  const snapshotsQuery = useApiQuery('snapshotList', { query: projectSelector })
+
+  const snapshots = snapshotsQuery.data?.items || []
 
   return (
     <ListboxField
@@ -200,6 +204,7 @@ const SnapshotSelectField = ({ control }: { control: Control<DiskCreate> }) => {
       name="diskSource.snapshotId"
       label="Source snapshot"
       placeholder="Select a snapshot"
+      isLoading={snapshotsQuery.isLoading}
       items={snapshots.map((i) => {
         return {
           value: i.id,
