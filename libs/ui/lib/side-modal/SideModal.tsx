@@ -1,7 +1,7 @@
 import * as Dialog from '@radix-ui/react-dialog'
 import { animated, useTransition } from '@react-spring/web'
 import cn from 'classnames'
-import React, { type ReactNode, useRef } from 'react'
+import React, { type ReactNode, useEffect, useRef } from 'react'
 
 import { Message } from '@oxide/ui'
 import { classed } from '@oxide/util'
@@ -46,6 +46,14 @@ export function SideModal({
     config: isOpen && animate ? config : { duration: 0 },
   })
 
+  useEffect(() => {
+    document.body.classList.add('pointer-events-none')
+
+    return () => {
+      document.body.classList.remove('pointer-events-none')
+    }
+  }, [])
+
   return transitions(
     ({ x }, item) =>
       item && (
@@ -54,11 +62,16 @@ export function SideModal({
           onOpenChange={(open) => {
             if (!open) onDismiss()
           }}
+          modal={false}
         >
           <Dialog.Portal>
-            <Dialog.Overlay className="DialogOverlay" />
+            <div
+              className="DialogOverlay pointer-events-auto"
+              onClick={onDismiss}
+              aria-hidden
+            />
             <AnimatedDialogContent
-              className="DialogContent ox-side-modal fixed right-0 top-0 bottom-0 m-0 flex w-[32rem] flex-col justify-between border-l p-0 bg-raise border-secondary elevation-2"
+              className="DialogContent ox-side-modal pointer-events-auto fixed right-0 top-0 bottom-0 m-0 flex w-[32rem] flex-col justify-between border-l p-0 bg-raise border-secondary elevation-2"
               aria-labelledby={titleId}
               style={{
                 transform: x.to((value) => `translate3d(${value}%, 0px, 0px)`),

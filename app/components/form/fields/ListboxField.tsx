@@ -24,7 +24,7 @@ export type ListboxFieldProps<
   control: Control<TFieldValues>
   disabled?: boolean
   items: ListboxItem[]
-  onChange?: (value: string) => void
+  onChange?: (value: string | null | undefined) => void
 }
 
 export function ListboxField<
@@ -64,11 +64,9 @@ export function ListboxField<
               placeholder={placeholder}
               defaultValue={field.value}
               items={items}
-              onChange={(i) => {
-                if (i) {
-                  field.onChange(i.value)
-                  onChange?.(i.value)
-                }
+              onChange={(value) => {
+                field.onChange(value)
+                onChange?.(value)
               }}
               // required to get required error to trigger on blur
               onBlur={field.onBlur}

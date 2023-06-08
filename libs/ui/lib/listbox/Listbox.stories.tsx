@@ -12,6 +12,25 @@ const SAMPLE_OPTIONS = [
   { value: 'br', label: 'Bessie Robertson' },
 ]
 
-export const Default = () => <Listbox items={SAMPLE_OPTIONS} />
+export const Default = () => (
+  <div className="max-w-lg">
+    <Listbox
+      defaultValue="de"
+      items={SAMPLE_OPTIONS}
+      name="favorite-animal"
+      placeholder="Select an animal"
+      onChange={(val) => console.log(val)}
+    />
+  </div>
+)
 
-export const WithDefaultValue = () => <Listbox items={SAMPLE_OPTIONS} defaultValue="de" />
+export const WithError = () => (
+  <div className="max-w-lg">
+    <Listbox
+      items={SAMPLE_OPTIONS}
+      name="favorite-animal"
+      placeholder="Select an animal"
+      hasError
+    />
+  </div>
+)

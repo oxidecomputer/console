@@ -27,7 +27,8 @@
   },
   "private": true,
   "dependencies": {
-    "@floating-ui/react": "^0.21.1",
+    "@floating-ui/react": "^0.24.2",
+    "@headlessui/react": "^1.7.15",
     "@oxide/design-system": "^0.9.1",
     "@oxide/identicon": "0.0.4",
     "@radix-ui/react-dialog": "^1.0.3",
