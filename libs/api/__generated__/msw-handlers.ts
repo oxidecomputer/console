@@ -57,8 +57,6 @@ export interface MSWHandlers {
   deviceAuthConfirm: (params: { body: Json<Api.DeviceAuthVerify> }) => StatusCode
   /** `POST /device/token` */
   deviceAccessToken: () => StatusCode
-  /** `GET /login/:siloName/saml/:providerName` */
-  loginSamlBegin: (params: { path: Api.LoginSamlBeginPathParams }) => StatusCode
   /** `POST /login/:siloName/saml/:providerName` */
   loginSaml: (params: { path: Api.LoginSamlPathParams }) => StatusCode
   /** `GET /v1/certificates` */
@@ -234,6 +232,15 @@ export interface MSWHandlers {
     path: Api.InstanceStopPathParams
     query: Api.InstanceStopQueryParams
   }) => HandlerResult<Api.Instance>
+  /** `GET /v1/ip-pools` */
+  projectIpPoolList: (params: {
+    query: Api.ProjectIpPoolListQueryParams
+  }) => HandlerResult<Api.IpPoolResultsPage>
+  /** `GET /v1/ip-pools/:pool` */
+  projectIpPoolView: (params: {
+    path: Api.ProjectIpPoolViewPathParams
+    query: Api.ProjectIpPoolViewQueryParams
+  }) => HandlerResult<Api.IpPool>
   /** `POST /v1/login/:siloName/local` */
   loginLocal: (params: {
     path: Api.LoginLocalPathParams
@@ -792,10 +799,6 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
       handler(handlers['deviceAuthConfirm'], null, schema.DeviceAuthVerify)
     ),
     rest.post('/device/token', handler(handlers['deviceAccessToken'], null, null)),
-    rest.get(
-      '/login/:siloName/saml/:providerName',
-      handler(handlers['loginSamlBegin'], schema.LoginSamlBeginParams, null)
-    ),
     rest.post(
       '/login/:siloName/saml/:providerName',
       handler(handlers['loginSaml'], schema.LoginSamlParams, null)
@@ -971,6 +974,14 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
     rest.post(
       '/v1/instances/:instance/stop',
       handler(handlers['instanceStop'], schema.InstanceStopParams, null)
+    ),
+    rest.get(
+      '/v1/ip-pools',
+      handler(handlers['projectIpPoolList'], schema.ProjectIpPoolListParams, null)
+    ),
+    rest.get(
+      '/v1/ip-pools/:pool',
+      handler(handlers['projectIpPoolView'], schema.ProjectIpPoolViewParams, null)
     ),
     rest.post(
       '/v1/login/:siloName/local',

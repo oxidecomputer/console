@@ -2288,11 +2288,6 @@ export type SystemMetricName =
  */
 export type NameSortMode = 'name_ascending'
 
-export interface LoginSamlBeginPathParams {
-  providerName: Name
-  siloName: Name
-}
-
 export interface LoginSamlPathParams {
   providerName: Name
   siloName: Name
@@ -2558,6 +2553,21 @@ export interface InstanceStopPathParams {
 }
 
 export interface InstanceStopQueryParams {
+  project?: NameOrId
+}
+
+export interface ProjectIpPoolListQueryParams {
+  limit?: number
+  pageToken?: string
+  project?: NameOrId
+  sortBy?: NameOrIdSortMode
+}
+
+export interface ProjectIpPoolViewPathParams {
+  pool: NameOrId
+}
+
+export interface ProjectIpPoolViewQueryParams {
   project?: NameOrId
 }
 
@@ -3184,6 +3194,7 @@ export type ApiListMethods = Pick<
   | 'instanceList'
   | 'instanceDiskList'
   | 'instanceExternalIpList'
+  | 'projectIpPoolList'
   | 'currentUserSshKeyList'
   | 'instanceNetworkInterfaceList'
   | 'projectList'
@@ -3252,19 +3263,6 @@ export class Api extends HttpClient {
       return this.request<void>({
         path: `/device/token`,
         method: 'POST',
-        ...params,
-      })
-    },
-    /**
-     * Prompt user login
-     */
-    loginSamlBegin: (
-      { path }: { path: LoginSamlBeginPathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<void>({
-        path: `/login/${path.siloName}/saml/${path.providerName}`,
-        method: 'GET',
         ...params,
       })
     },
@@ -3863,6 +3861,37 @@ export class Api extends HttpClient {
       return this.request<Instance>({
         path: `/v1/instances/${path.instance}/stop`,
         method: 'POST',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List all IP Pools that can be used by a given project.
+     */
+    projectIpPoolList: (
+      { query = {} }: { query?: ProjectIpPoolListQueryParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<IpPoolResultsPage>({
+        path: `/v1/ip-pools`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch an IP pool
+     */
+    projectIpPoolView: (
+      {
+        path,
+        query = {},
+      }: { path: ProjectIpPoolViewPathParams; query?: ProjectIpPoolViewQueryParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<IpPool>({
+        path: `/v1/ip-pools/${path.pool}`,
+        method: 'GET',
         query,
         ...params,
       })
