@@ -342,9 +342,7 @@ const SshKeysTable = () => {
   return (
     <div className="max-w-lg">
       <div className="mb-2">
-        <FieldLabel id="ssh-keys-label" tip="hello">
-          SSH keys
-        </FieldLabel>
+        <FieldLabel id="ssh-keys-label">SSH keys</FieldLabel>
         <TextInputHint id="ssh-keys-label-help-text">
           SSH keys can be added and removed in your user settings
         </TextInputHint>
