@@ -5,7 +5,7 @@ export function loginUrl(opts: { includeCurrent: boolean } = { includeCurrent: f
   const { pathname, search } = window.location
   return opts.includeCurrent
     ? // TODO: include query args too?
-      `/login?state=${encodeURIComponent(pathname + search)}`
+      `/login?redirect_uri=${encodeURIComponent(pathname + search)}`
     : '/login'
 }
 
