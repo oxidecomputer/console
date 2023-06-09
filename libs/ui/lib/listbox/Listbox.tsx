@@ -3,7 +3,7 @@ import { Listbox as Select } from '@headlessui/react'
 import cn from 'classnames'
 import type { ReactElement } from 'react'
 
-import { FieldLabel, TextInputHint } from '@oxide/ui'
+import { FieldLabel, SpinnerLoader, TextInputHint } from '@oxide/ui'
 import { SelectArrows6Icon } from '@oxide/ui'
 
 export type ListboxItem = {
@@ -37,6 +37,7 @@ export interface ListboxProps {
   description?: string
   helpText?: string
   required?: boolean
+  isLoading?: boolean
 }
 
 export const Listbox = ({
@@ -52,7 +53,8 @@ export const Listbox = ({
   description,
   helpText,
   required,
-  ...props
+  disabled,
+  isLoading = false,
 }: ListboxProps) => {
   const { refs, floatingStyles } = useFloating({
     middleware: [
@@ -74,9 +76,12 @@ export const Listbox = ({
   const item = selectedItem && getItem(selectedItem)
   const selectedLabel = item ? (item.labelString ? item.labelString : item.label) : null
 
+  const noItems = !isLoading && items.length === 0
+  const isDisabled = disabled || noItems
+
   return (
     <div className={cn('relative', className)}>
-      <Select value={selectedItem} onChange={onChange}>
+      <Select value={selectedItem} onChange={onChange} disabled={isDisabled}>
         {({ open }) => (
           <>
             {label && (
@@ -98,19 +103,21 @@ export const Listbox = ({
                   : 'border-default hover:border-hover',
                 open && 'ring-2 ring-accent-secondary',
                 open && hasError && 'ring-error-secondary',
-                props.disabled
+                isDisabled
                   ? 'cursor-not-allowed text-disabled bg-disabled !border-default'
                   : 'bg-default'
               )}
-              {...props}
             >
-              <div className="px-3">
+              <div className="w-full px-3 text-left">
                 {selectedItem ? (
                   selectedLabel
                 ) : (
-                  <span className="text-quaternary">{placeholder}</span>
+                  <span className="text-quaternary">
+                    {noItems ? 'No items' : placeholder}
+                  </span>
                 )}
               </div>
+              {!isDisabled && <SpinnerLoader isLoading={isLoading} loadTime={500} />}
               <div
                 className="ml-3 flex h-[calc(100%-12px)] items-center border-l px-3 border-secondary"
                 aria-hidden

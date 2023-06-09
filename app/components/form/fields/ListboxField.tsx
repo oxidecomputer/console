@@ -6,8 +6,6 @@ import type { ListboxItem } from '@oxide/ui'
 import { Listbox } from '@oxide/ui'
 import { capitalize } from '@oxide/util'
 
-import { useUuid } from 'app/hooks'
-
 import { ErrorMessage } from './ErrorMessage'
 
 export type ListboxFieldProps<
@@ -25,6 +23,7 @@ export type ListboxFieldProps<
   disabled?: boolean
   items: ListboxItem[]
   onChange?: (value: string | null | undefined) => void
+  isLoading?: boolean
 }
 
 export function ListboxField<
@@ -42,10 +41,10 @@ export function ListboxField<
   className,
   control,
   onChange,
+  isLoading,
 }: ListboxFieldProps<TFieldValues, TName>) {
   // TODO: recreate this logic
   //   validate: (v) => (required && !v ? `${name} is required` : undefined),
-  const id = useUuid(name)
   return (
     <div className={cn('max-w-lg', className)}>
       <Controller
@@ -69,12 +68,9 @@ export function ListboxField<
               // required to get required error to trigger on blur
               // onBlur={field.onBlur}
               disabled={disabled}
-              aria-labelledby={cn(`${id}-label`, {
-                [`${id}-help-text`]: !!description,
-              })}
-              aria-describedby={description ? `${id}-label-tip` : undefined}
               name={name}
               hasError={error !== undefined}
+              isLoading={isLoading}
             />
             <ErrorMessage error={error} label={label} />
           </>
