@@ -1,3 +1,4 @@
+import { useForm, useWatch } from 'react-hook-form'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 import invariant from 'tiny-invariant'
@@ -126,10 +127,16 @@ export function CreateInstanceForm() {
     bootDiskSize: Math.ceil(defaultImage?.size / GiB) * 2 || 10,
   }
 
+  const form = useForm({ mode: 'all', defaultValues })
+  const { control, setValue } = form
+
+  const image = useWatch({ control: control, name: 'image' })
+  const imageSize = image ? images.find((i) => i.id === image)?.size : null
+
   return (
     <FullPageForm
       id="create-instance-form"
-      formOptions={{ defaultValues }}
+      form={form}
       title="Create instance"
       icon={<Instances24Icon />}
       onSubmit={(values) => {
@@ -161,7 +168,8 @@ export function CreateInstanceForm() {
                 name: bootDiskName,
                 description: `Created as a boot disk for ${values.name}`,
 
-                // TODO: Verify size is larger than the minimum image size
+                // Minimum size as greater than the image is validated
+                // directly on the boot disk size input
                 size: values.bootDiskSize * GiB,
                 diskSource: {
                   type: 'image',
@@ -179,159 +187,160 @@ export function CreateInstanceForm() {
       loading={createInstance.isLoading}
       submitError={createInstance.error}
     >
-      {({ control, setValue }) => (
-        <>
-          <NameField name="name" control={control} />
-          <DescriptionField name="description" control={control} />
-          <CheckboxField id="start-instance" name="start" control={control}>
-            Start Instance
-          </CheckboxField>
+      <NameField name="name" control={control} />
+      <DescriptionField name="description" control={control} />
+      <CheckboxField id="start-instance" name="start" control={control}>
+        Start Instance
+      </CheckboxField>
 
-          <Divider />
+      <Divider />
 
-          <Form.Heading id="hardware">Hardware</Form.Heading>
+      <Form.Heading id="hardware">Hardware</Form.Heading>
 
-          <TextInputHint id="hw-gp-help-text" className="mb-12 max-w-xl text-sans-md">
-            Pick a pre-configured machine type that offers balanced vCPU and memory for most
-            workloads or create a custom machine.
-          </TextInputHint>
+      <TextInputHint id="hw-gp-help-text" className="mb-12 max-w-xl text-sans-md">
+        Pick a pre-configured machine type that offers balanced vCPU and memory for most
+        workloads or create a custom machine.
+      </TextInputHint>
 
-          <Tabs.Root
-            id="choose-cpu-ram"
-            className="full-width"
-            defaultValue="general"
-            onValueChange={(val) => {
-              // Having an option selected from a non-current tab is confusing,
-              // especially in combination with the custom inputs. So we auto
-              // select the first option from the current tab
-              const firstOption = PRESETS.find((preset) => preset.category === val)
-              if (firstOption) {
-                setValue('presetId', firstOption.id)
-              }
-            }}
-          >
-            <Tabs.List aria-labelledby="hardware">
-              <Tabs.Trigger value="general">General Purpose</Tabs.Trigger>
-              <Tabs.Trigger value="highCPU">High CPU</Tabs.Trigger>
-              <Tabs.Trigger value="highMemory">High Memory</Tabs.Trigger>
-              <Tabs.Trigger value="custom">Custom</Tabs.Trigger>
-            </Tabs.List>
-            <Tabs.Content value="general">
-              <RadioFieldDyn name="presetId" label="" control={control}>
-                {renderLargeRadioCards('general')}
-              </RadioFieldDyn>
-            </Tabs.Content>
+      <Tabs.Root
+        id="choose-cpu-ram"
+        className="full-width"
+        defaultValue="general"
+        onValueChange={(val) => {
+          // Having an option selected from a non-current tab is confusing,
+          // especially in combination with the custom inputs. So we auto
+          // select the first option from the current tab
+          const firstOption = PRESETS.find((preset) => preset.category === val)
+          if (firstOption) {
+            setValue('presetId', firstOption.id)
+          }
+        }}
+      >
+        <Tabs.List aria-labelledby="hardware">
+          <Tabs.Trigger value="general">General Purpose</Tabs.Trigger>
+          <Tabs.Trigger value="highCPU">High CPU</Tabs.Trigger>
+          <Tabs.Trigger value="highMemory">High Memory</Tabs.Trigger>
+          <Tabs.Trigger value="custom">Custom</Tabs.Trigger>
+        </Tabs.List>
+        <Tabs.Content value="general">
+          <RadioFieldDyn name="presetId" label="" control={control}>
+            {renderLargeRadioCards('general')}
+          </RadioFieldDyn>
+        </Tabs.Content>
 
-            <Tabs.Content value="highCPU">
-              <RadioFieldDyn name="presetId" label="" control={control}>
-                {renderLargeRadioCards('highCPU')}
-              </RadioFieldDyn>
-            </Tabs.Content>
+        <Tabs.Content value="highCPU">
+          <RadioFieldDyn name="presetId" label="" control={control}>
+            {renderLargeRadioCards('highCPU')}
+          </RadioFieldDyn>
+        </Tabs.Content>
 
-            <Tabs.Content value="highMemory">
-              <RadioFieldDyn name="presetId" label="" control={control}>
-                {renderLargeRadioCards('highMemory')}
-              </RadioFieldDyn>
-            </Tabs.Content>
+        <Tabs.Content value="highMemory">
+          <RadioFieldDyn name="presetId" label="" control={control}>
+            {renderLargeRadioCards('highMemory')}
+          </RadioFieldDyn>
+        </Tabs.Content>
 
-            <Tabs.Content value="custom">
-              <TextField
-                type="number"
-                required
-                label="CPUs"
-                name="ncpus"
-                min={1}
-                max={32}
-                control={control}
-              />
-              <TextField
-                units="GiB"
-                type="number"
-                required
-                label="Memory"
-                name="memory"
-                min={1}
-                max={128}
-                control={control}
-              />
-            </Tabs.Content>
-          </Tabs.Root>
-
-          <Divider />
-
-          <Form.Heading id="boot-disk">Boot disk</Form.Heading>
-          <Tabs.Root id="boot-disk-tabs" className="full-width" defaultValue="project">
-            <Tabs.List aria-describedby="boot-disk">
-              <Tabs.Trigger value="project">Project images</Tabs.Trigger>
-              <Tabs.Trigger value="silo">Silo images</Tabs.Trigger>
-            </Tabs.List>
-            <Tabs.Content value="project" className="space-y-4">
-              {projectImages.length === 0 ? (
-                <div className="flex max-w-lg items-center justify-center rounded-lg border p-6 border-default">
-                  <EmptyMessage
-                    icon={<Images16Icon />}
-                    title="No project images found"
-                    body="An image needs to be uploaded to be seen here"
-                    buttonText="Upload image"
-                    onClick={() => navigate(pb.projectImageNew(projectSelector))}
-                  />
-                </div>
-              ) : (
-                <ImageSelectField images={projectImages} control={control} />
-              )}
-            </Tabs.Content>
-            <Tabs.Content value="silo" className="space-y-4">
-              {siloImages.length === 0 ? (
-                <div className="flex max-w-lg items-center justify-center rounded-lg border p-6 border-default">
-                  <EmptyMessage
-                    icon={<Images16Icon />}
-                    title="No silo images found"
-                    body="Project images need to be promoted to be seen here"
-                  />
-                </div>
-              ) : (
-                <ImageSelectField images={siloImages} control={control} />
-              )}
-            </Tabs.Content>
-          </Tabs.Root>
-
-          <div className="!my-16 content-['a']"></div>
-
-          <DiskSizeField label="Disk size" name="bootDiskSize" control={control} />
-          <NameField
-            name="bootDiskName"
-            label="Disk name"
-            description="Will be autogenerated if name not provided"
-            required={false}
-            control={control}
-          />
-          <Divider />
-          <Form.Heading id="additional-disks">Additional disks</Form.Heading>
-
-          <DisksTableField control={control} />
-
-          <Divider />
-          <Form.Heading id="authentication">Authentication</Form.Heading>
-
-          <SshKeysTable />
-
-          <Divider />
-          <Form.Heading id="networking">Networking</Form.Heading>
-
-          <NetworkInterfaceField control={control} />
-
+        <Tabs.Content value="custom">
           <TextField
-            name="hostname"
-            description="Will be generated if not provided"
+            type="number"
+            required
+            label="CPUs"
+            name="ncpus"
+            min={1}
+            max={32}
             control={control}
           />
+          <TextField
+            units="GiB"
+            type="number"
+            required
+            label="Memory"
+            name="memory"
+            min={1}
+            max={128}
+            control={control}
+          />
+        </Tabs.Content>
+      </Tabs.Root>
 
-          <Form.Actions>
-            <Form.Submit loading={createInstance.isLoading}>Create instance</Form.Submit>
-            <Form.Cancel onClick={() => navigate(pb.instances(projectSelector))} />
-          </Form.Actions>
-        </>
-      )}
+      <Divider />
+
+      <Form.Heading id="boot-disk">Boot disk</Form.Heading>
+      <Tabs.Root id="boot-disk-tabs" className="full-width" defaultValue="project">
+        <Tabs.List aria-describedby="boot-disk">
+          <Tabs.Trigger value="project">Project images</Tabs.Trigger>
+          <Tabs.Trigger value="silo">Silo images</Tabs.Trigger>
+        </Tabs.List>
+        <Tabs.Content value="project" className="space-y-4">
+          {projectImages.length === 0 ? (
+            <div className="flex max-w-lg items-center justify-center rounded-lg border p-6 border-default">
+              <EmptyMessage
+                icon={<Images16Icon />}
+                title="No project images found"
+                body="An image needs to be uploaded to be seen here"
+                buttonText="Upload image"
+                onClick={() => navigate(pb.projectImageNew(projectSelector))}
+              />
+            </div>
+          ) : (
+            <ImageSelectField images={projectImages} control={control} />
+          )}
+        </Tabs.Content>
+        <Tabs.Content value="silo" className="space-y-4">
+          {siloImages.length === 0 ? (
+            <div className="flex max-w-lg items-center justify-center rounded-lg border p-6 border-default">
+              <EmptyMessage
+                icon={<Images16Icon />}
+                title="No silo images found"
+                body="Project images need to be promoted to be seen here"
+              />
+            </div>
+          ) : (
+            <ImageSelectField images={siloImages} control={control} />
+          )}
+        </Tabs.Content>
+      </Tabs.Root>
+
+      <div className="!my-16 content-['a']"></div>
+
+      <DiskSizeField
+        label="Disk size"
+        name="bootDiskSize"
+        control={control}
+        imageSize={imageSize ? Math.ceil((imageSize * 1.1) / GiB) : null}
+      />
+      <NameField
+        name="bootDiskName"
+        label="Disk name"
+        description="Will be autogenerated if name not provided"
+        required={false}
+        control={control}
+      />
+      <Divider />
+      <Form.Heading id="additional-disks">Additional disks</Form.Heading>
+
+      <DisksTableField control={control} />
+
+      <Divider />
+      <Form.Heading id="authentication">Authentication</Form.Heading>
+
+      <SshKeysTable />
+
+      <Divider />
+      <Form.Heading id="networking">Networking</Form.Heading>
+
+      <NetworkInterfaceField control={control} />
+
+      <TextField
+        name="hostname"
+        description="Will be generated if not provided"
+        control={control}
+      />
+
+      <Form.Actions>
+        <Form.Submit loading={createInstance.isLoading}>Create instance</Form.Submit>
+        <Form.Cancel onClick={() => navigate(pb.instances(projectSelector))} />
+      </Form.Actions>
     </FullPageForm>
   )
 }

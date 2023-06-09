@@ -8,12 +8,26 @@ interface DiskSizeProps<
   TName extends FieldPath<TFieldValues>
 > extends Omit<TextFieldProps<TFieldValues, TName>, 'validate'> {
   minSize?: number
+  imageSize: number | null
 }
 
 export function DiskSizeField<
   TFieldValues extends FieldValues,
   TName extends FieldPath<TFieldValues>
->({ required = true, name, minSize = 1, ...props }: DiskSizeProps<TFieldValues, TName>) {
+>({
+  required = true,
+  name,
+  minSize = 1,
+  imageSize,
+  ...props
+}: DiskSizeProps<TFieldValues, TName>) {
+  const validateImageSize = imageSize
+    ? {
+        validate: (v: number) =>
+          v > imageSize || `Boot disk needs to be larger than the image (${imageSize} GiB)`,
+      }
+    : {}
+
   return (
     <TextField
       units="GiB"
@@ -22,6 +36,7 @@ export function DiskSizeField<
       name={name}
       min={minSize}
       {...props}
+      {...validateImageSize}
     />
   )
 }
