@@ -55,6 +55,7 @@ export const Listbox = ({
   required,
   disabled,
   isLoading = false,
+  ...props
 }: ListboxProps) => {
   const { refs, floatingStyles } = useFloating({
     middleware: [
@@ -107,6 +108,7 @@ export const Listbox = ({
                   ? 'cursor-not-allowed text-disabled bg-disabled !border-default'
                   : 'bg-default'
               )}
+              {...props}
             >
               <div className="w-full px-3 text-left">
                 {selectedItem ? (
