@@ -4,6 +4,7 @@ import cn from 'classnames'
 import type { ReactElement } from 'react'
 import { useState } from 'react'
 
+import { FieldLabel, TextInputHint } from '@oxide/ui'
 import { SelectArrows6Icon } from '@oxide/ui'
 
 export type ListboxItem = {
@@ -30,12 +31,17 @@ export interface ListboxProps {
   className?: string
   disabled?: boolean
   onChange?: (value: string | null | undefined) => void
-  onBlur?: () => void
+  // onBlur?: () => void
   hasError?: boolean
   name?: string
+  label?: string
+  description?: string
+  helpText?: string
+  required?: boolean
 }
 
 export const Listbox = ({
+  name,
   defaultValue,
   items,
   placeholder = 'Select an option',
@@ -43,6 +49,10 @@ export const Listbox = ({
   onChange,
   hasError = false,
   // onBlur,
+  label,
+  description,
+  helpText,
+  required,
   ...props
 }: ListboxProps) => {
   const { refs, floatingStyles } = useFloating({
@@ -79,7 +89,16 @@ export const Listbox = ({
       <Select value={selected} onChange={handleChange}>
         {({ open }) => (
           <>
+            {label && (
+              <div className="mb-2">
+                <FieldLabel id={``} as="div" tip={description} optional={!required}>
+                  <Select.Label>{label}</Select.Label>
+                </FieldLabel>
+                {helpText && <TextInputHint id={``}>{helpText}</TextInputHint>}
+              </div>
+            )}
             <Select.Button
+              name={name}
               ref={refs.setReference}
               className={cn(
                 `flex h-10 w-full items-center justify-between
@@ -93,6 +112,7 @@ export const Listbox = ({
                   ? 'cursor-not-allowed text-disabled bg-disabled !border-default'
                   : 'bg-default'
               )}
+              {...props}
             >
               <div className="px-3">
                 {selected ? (
@@ -101,7 +121,10 @@ export const Listbox = ({
                   <span className="text-quaternary">{placeholder}</span>
                 )}
               </div>
-              <div className="ml-3 flex h-[calc(100%-12px)] items-center border-l px-3 border-secondary">
+              <div
+                className="ml-3 flex h-[calc(100%-12px)] items-center border-l px-3 border-secondary"
+                aria-hidden
+              >
                 <SelectArrows6Icon title="Select" className="w-2 text-tertiary" />
               </div>
             </Select.Button>
@@ -138,96 +161,3 @@ export const Listbox = ({
     </div>
   )
 }
-
-// export const Listbox = ({
-//   defaultValue,
-//   items,
-//   placeholder,
-//   className,
-//   onChange,
-//   onBlur,
-//   hasError = false,
-//   ...props
-// }: ListboxProps) => {
-//   const itemToString = (item: ListboxItem | null) => {
-//     if (!item) return ''
-//     // not sure why TS isn't able to infer that labelString must be present when
-//     // label isn't a string. it enforces it correctly on the props side
-//     if (typeof item.label !== 'string') return item.labelString!
-//     return item.label
-//   }
-//   const select = useSelect({
-//     initialSelectedItem: items.find((i) => i.value === defaultValue) || null,
-//     items,
-//     itemToString,
-//     onSelectedItemChange(changes) {
-//       onChange?.(changes.selectedItem)
-//     },
-//     onIsOpenChange(changes) {
-//       // we want a general onBlur to trigger validation. we'll see if this is
-//       // general enough
-//       if (changes.type === '__menu_blur__') {
-//         onBlur?.()
-//       }
-//     },
-//   })
-//
-//   return (
-//     <div className={cn('relative', className)}>
-//       <button
-//         type="button"
-//         className={cn(
-//           `flex h-10 w-full items-center justify-between
-//           rounded border px-3 text-sans-md`,
-//           hasError
-//             ? 'focus-error border-error-secondary hover:border-error'
-//             : 'border-default hover:border-hover',
-//           select.isOpen && 'ring-2 ring-accent-secondary',
-//           select.isOpen && hasError && 'ring-error-secondary',
-//           props.disabled
-//             ? 'cursor-not-allowed text-disabled bg-disabled !border-default'
-//             : 'bg-default'
-//         )}
-//         {...select.getToggleButtonProps()}
-//         {...props}
-//       >
-//         {select.selectedItem ? (
-//           <span>{itemToString(select.selectedItem)}</span>
-//         ) : (
-//           <span className="text-quaternary">{placeholder}</span>
-//         )}
-//
-//         <div className="ml-3 flex h-[calc(100%-12px)] items-center border-l border-secondary">
-//           <SelectArrows6Icon title="Select" className="ml-3 w-2 text-tertiary" />
-//         </div>
-//       </button>
-//       <ul
-//         className={cn(
-//           'ox-menu mt-3 overflow-y-auto !outline-none',
-//           !select.isOpen && 'hidden'
-//         )}
-//         {...select.getMenuProps()}
-//       >
-//         {select.isOpen &&
-//           (items.length > 0 ? (
-//             items.map((item, index) => (
-//               <div key={index} className="relative border-b border-secondary last:border-0">
-//                 <li
-//                   key={item.value}
-//                   className={cn('ox-menu-item', {
-//                     'is-selected': select.selectedItem?.value === item.value,
-//                     'is-highlighted': select.highlightedIndex === index,
-//                   })}
-//                   {...select.getItemProps({ item, index })}
-//                 >
-//                   {item.label}
-//                 </li>
-//               </div>
-//             ))
-//           ) : (
-//             <div className="ox-menu-item py-3 text-center text-secondary">No items</div>
-//           ))}
-//       </ul>
-//     </div>
-//   )
-// }

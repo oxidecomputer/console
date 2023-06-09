@@ -47,12 +47,13 @@ export function SideModal({
   })
 
   useEffect(() => {
-    document.body.classList.add('pointer-events-none')
-
+    if (isOpen) {
+      document.body.classList.add('pointer-events-none')
+    }
     return () => {
       document.body.classList.remove('pointer-events-none')
     }
-  }, [])
+  }, [isOpen])
 
   return transitions(
     ({ x }, item) =>

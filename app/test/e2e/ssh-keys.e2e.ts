@@ -25,7 +25,7 @@ test('SSH keys', async ({ page }) => {
   await page.fill('role=textbox[name="Name"]', 'my-key')
   await page.fill('role=textbox[name="Description"]', 'definitely a key')
   await page.fill('role=textbox[name="Public key"]', 'key contents')
-  await page.click('role=button[name="Add SSH key"]')
+  await page.click('css=.ox-side-modal >> role=button[name="Add SSH key"]')
 
   // it's there in the table
   await expectNotVisible(page, ['text="No SSH keys"'])

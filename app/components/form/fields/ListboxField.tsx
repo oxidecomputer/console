@@ -3,7 +3,7 @@ import type { Control, FieldPath, FieldValues } from 'react-hook-form'
 import { Controller } from 'react-hook-form'
 
 import type { ListboxItem } from '@oxide/ui'
-import { FieldLabel, Listbox, TextInputHint } from '@oxide/ui'
+import { Listbox } from '@oxide/ui'
 import { capitalize } from '@oxide/util'
 
 import { useUuid } from 'app/hooks'
@@ -48,12 +48,6 @@ export function ListboxField<
   const id = useUuid(name)
   return (
     <div className={cn('max-w-lg', className)}>
-      <div className="mb-2">
-        <FieldLabel id={`${id}-label`} tip={description} optional={!required}>
-          {label}
-        </FieldLabel>
-        {helpText && <TextInputHint id={`${id}-help-text`}>{helpText}</TextInputHint>}
-      </div>
       <Controller
         name={name}
         rules={{ required }}
@@ -61,6 +55,10 @@ export function ListboxField<
         render={({ field, fieldState: { error } }) => (
           <>
             <Listbox
+              helpText={helpText}
+              label={label}
+              description={description}
+              required={required}
               placeholder={placeholder}
               defaultValue={field.value}
               items={items}
@@ -69,7 +67,7 @@ export function ListboxField<
                 onChange?.(value)
               }}
               // required to get required error to trigger on blur
-              onBlur={field.onBlur}
+              // onBlur={field.onBlur}
               disabled={disabled}
               aria-labelledby={cn(`${id}-label`, {
                 [`${id}-help-text`]: !!description,
