@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
+import invariant from 'tiny-invariant'
 
 import type { Group } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
@@ -23,13 +24,14 @@ export function ProfilePage() {
 
   const groupsTable = useReactTable({ columns, data: groupRows })
 
+  invariant(user, 'User must be prefetched in a loader')
+
   const form = useForm({
     mode: 'all',
     defaultValues: {
-      id: user?.id,
+      id: user.id,
     },
   })
-  const { control } = form
 
   return (
     <FullPageForm
@@ -47,7 +49,7 @@ export function ProfilePage() {
         disabled
         fieldClassName="!cursor-default"
         value={user?.id}
-        control={control}
+        control={form.control}
       />
       <h2>Groups</h2>
       <Table table={groupsTable} />
