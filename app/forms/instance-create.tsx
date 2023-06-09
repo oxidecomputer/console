@@ -307,7 +307,13 @@ export function CreateInstanceForm() {
         label="Disk size"
         name="bootDiskSize"
         control={control}
-        imageSize={imageSize ? Math.ceil((imageSize * 1.1) / GiB) : null}
+        validate={
+          imageSize
+            ? (v) =>
+                v > Math.ceil((imageSize / GiB) * 1.1) ||
+                `Boot disk needs to be larger than the image (${imageSize} GiB)`
+            : undefined
+        }
       />
       <NameField
         name="bootDiskName"
