@@ -37,6 +37,7 @@ const config: PlaywrightTestConfig = {
   webServer: {
     command: 'npm run start:msw -- --port 4009',
     port: 4009,
+    reuseExistingServer: true,
   },
 }
 

@@ -8,7 +8,7 @@ interface DiskSizeProps<
   TName extends FieldPath<TFieldValues>
 > extends Omit<TextFieldProps<TFieldValues, TName>, 'validate'> {
   minSize?: number
-  imageSize: number | null
+  imageSize?: number | null
 }
 
 export function DiskSizeField<
