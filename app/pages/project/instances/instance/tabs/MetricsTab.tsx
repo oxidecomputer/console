@@ -117,13 +117,11 @@ export function MetricsTab() {
           className="w-48"
           aria-label="Choose disk"
           name="disk-name"
+          selectedItem={diskName}
           items={diskItems}
-          onChange={(item) => {
-            if (item) {
-              setDiskName(item.value)
-            }
+          onChange={(val) => {
+            val && setDiskName(val)
           }}
-          defaultValue={diskName}
         />
         {dateTimeRangePicker}
       </div>

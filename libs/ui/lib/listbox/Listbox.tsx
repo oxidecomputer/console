@@ -1,8 +1,7 @@
-import { FloatingPortal, size, useFloating } from '@floating-ui/react'
+import { FloatingPortal, flip, offset, size, useFloating } from '@floating-ui/react'
 import { Listbox as Select } from '@headlessui/react'
 import cn from 'classnames'
 import type { ReactElement } from 'react'
-import { useState } from 'react'
 
 import { FieldLabel, TextInputHint } from '@oxide/ui'
 import { SelectArrows6Icon } from '@oxide/ui'
@@ -25,12 +24,12 @@ export type ListboxItem = {
 )
 
 export interface ListboxProps {
-  defaultValue?: string
+  selectedItem: string | null
   items: ListboxItem[]
   placeholder?: string
   className?: string
   disabled?: boolean
-  onChange?: (value: string | null | undefined) => void
+  onChange: (value: string | null) => void
   // onBlur?: () => void
   hasError?: boolean
   name?: string
@@ -42,7 +41,7 @@ export interface ListboxProps {
 
 export const Listbox = ({
   name,
-  defaultValue,
+  selectedItem,
   items,
   placeholder = 'Select an option',
   className,
@@ -57,6 +56,8 @@ export const Listbox = ({
 }: ListboxProps) => {
   const { refs, floatingStyles } = useFloating({
     middleware: [
+      offset(12),
+      flip(),
       size({
         apply({ rects, elements }) {
           Object.assign(elements.floating.style, {
@@ -70,23 +71,12 @@ export const Listbox = ({
   const getItem = (value: string | undefined) =>
     items.find((i) => i.value === value) || null
 
-  const [selected, setSelected] = useState(defaultValue)
-
-  const handleChange = (value: string) => {
-    setSelected(value)
-    onChange && onChange(value)
-  }
-
-  const selectedItem = getItem(selected)
-  const selectedLabel = selectedItem
-    ? selectedItem.labelString
-      ? selectedItem.labelString
-      : selectedItem.label
-    : null
+  const item = selectedItem && getItem(selectedItem)
+  const selectedLabel = item ? (item.labelString ? item.labelString : item.label) : null
 
   return (
     <div className={cn('relative', className)}>
-      <Select value={selected} onChange={handleChange}>
+      <Select value={selectedItem} onChange={onChange}>
         {({ open }) => (
           <>
             {label && (
@@ -115,7 +105,7 @@ export const Listbox = ({
               {...props}
             >
               <div className="px-3">
-                {selected ? (
+                {selectedItem ? (
                   selectedLabel
                 ) : (
                   <span className="text-quaternary">{placeholder}</span>
@@ -132,7 +122,7 @@ export const Listbox = ({
               <Select.Options
                 ref={refs.setFloating}
                 style={floatingStyles}
-                className="ox-menu pointer-events-auto z-50 mt-3 overflow-y-auto !outline-none"
+                className="ox-menu pointer-events-auto z-50 overflow-y-auto !outline-none"
               >
                 {items.map((item) => (
                   <Select.Option

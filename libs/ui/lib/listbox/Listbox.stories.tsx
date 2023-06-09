@@ -1,3 +1,5 @@
+import { useState } from 'react'
+
 import { Listbox } from './Listbox'
 
 const SAMPLE_OPTIONS = [
@@ -12,25 +14,34 @@ const SAMPLE_OPTIONS = [
   { value: 'br', label: 'Bessie Robertson' },
 ]
 
-export const Default = () => (
-  <div className="max-w-lg">
-    <Listbox
-      defaultValue="de"
-      items={SAMPLE_OPTIONS}
-      name="favorite-animal"
-      placeholder="Select an animal"
-      onChange={(val) => console.log(val)}
-    />
-  </div>
-)
+export const Default = () => {
+  const [value, setValue] = useState<string | null>('de')
+  return (
+    <div className="max-w-lg">
+      <Listbox
+        selectedItem={value}
+        onChange={setValue}
+        items={SAMPLE_OPTIONS}
+        name="favorite-animal"
+        placeholder="Select an animal"
+      />
+    </div>
+  )
+}
 
-export const WithError = () => (
-  <div className="max-w-lg">
-    <Listbox
-      items={SAMPLE_OPTIONS}
-      name="favorite-animal"
-      placeholder="Select an animal"
-      hasError
-    />
-  </div>
-)
+export const WithError = () => {
+  const [value, setValue] = useState<string | null>(null)
+
+  return (
+    <div className="max-w-lg">
+      <Listbox
+        selectedItem={value}
+        onChange={setValue}
+        items={SAMPLE_OPTIONS}
+        name="favorite-animal"
+        placeholder="Select an animal"
+        hasError
+      />
+    </div>
+  )
+}
