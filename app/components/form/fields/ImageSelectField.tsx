@@ -28,7 +28,8 @@ export function ImageSelectField({ images, control }: ImageSelectFieldProps) {
             <>
               <div>{i.name}</div>
               <div className="text-secondary">
-                {i.os} <span className="text-quinary">/</span> {i.version}
+                {i.os} <span className="text-quinary">/</span> {i.version} (
+                {(i.size / GiB).toFixed(2)} GiB)
               </div>
             </>
           ),

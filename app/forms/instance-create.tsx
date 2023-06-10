@@ -89,6 +89,18 @@ CreateInstanceForm.loader = async ({ params }: LoaderFunctionArgs) => {
   return null
 }
 
+const MIN_DISK_MARGIN_GIB = 1
+
+function validateDiskSize(imageSizeBytes: number, diskSizeGiB: number) {
+  const imageSizeGiB = imageSizeBytes / GiB
+  const roundedUp = Math.ceil(imageSizeGiB)
+  const minDiskSizeGiB =
+    roundedUp - imageSizeGiB >= MIN_DISK_MARGIN_GIB ? roundedUp : roundedUp + 1
+  if (diskSizeGiB < minDiskSizeGiB) {
+    return `Must be at least ${MIN_DISK_MARGIN_GIB} GiB larger than selected image`
+  }
+}
+
 export function CreateInstanceForm() {
   const queryClient = useApiQueryClient()
   const addToast = useToast()
@@ -130,8 +142,8 @@ export function CreateInstanceForm() {
   const form = useForm({ mode: 'all', defaultValues })
   const { control, setValue } = form
 
-  const image = useWatch({ control: control, name: 'image' })
-  const imageSize = image ? images.find((i) => i.id === image)?.size : null
+  const imageInput = useWatch({ control: control, name: 'image' })
+  const image = images.find((i) => i.id === imageInput)
 
   return (
     <FullPageForm
@@ -308,11 +320,7 @@ export function CreateInstanceForm() {
         name="bootDiskSize"
         control={control}
         validate={
-          imageSize
-            ? (v) =>
-                v > Math.ceil((imageSize / GiB) * 1.1) ||
-                `Boot disk needs to be larger than the image (${imageSize} GiB)`
-            : undefined
+          image ? (diskSizeGiB) => validateDiskSize(image.size, diskSizeGiB) : undefined
         }
       />
       <NameField
