@@ -80,7 +80,7 @@
     "@figma-export/cli": "^4.3.0",
     "@figma-export/output-components-as-svgr": "^4.2.0",
     "@figma-export/transform-svg-with-svgo": "^4.3.0",
-    "@ladle/react": "^2.12.3",
+    "@ladle/react": "^2.14.0",
     "@mswjs/http-middleware": "^0.8.0",
     "@playwright/test": "^1.33.0",
     "@testing-library/dom": "^9.3.0",
