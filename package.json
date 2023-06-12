@@ -41,7 +41,6 @@
     "@tanstack/react-table": "^8.9.1",
     "classnames": "^2.3.1",
     "date-fns": "^2.30.0",
-    "downshift": "^6.1.2",
     "filesize": "^8.0.7",
     "lodash.throttle": "^4.1.1",
     "match-sorter": "^6.3.1",
