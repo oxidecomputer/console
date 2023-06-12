@@ -130,8 +130,8 @@ export function CreateInstanceForm() {
   const form = useForm({ mode: 'all', defaultValues })
   const { control, setValue } = form
 
-  const image = useWatch({ control: control, name: 'image' })
-  const imageSize = image ? images.find((i) => i.id === image)?.size : null
+  const imageInput = useWatch({ control: control, name: 'image' })
+  const image = images.find((i) => i.id === imageInput)
 
   return (
     <FullPageForm
@@ -307,7 +307,14 @@ export function CreateInstanceForm() {
         label="Disk size"
         name="bootDiskSize"
         control={control}
-        imageSize={imageSize ? Math.ceil((imageSize * 1.1) / GiB) : null}
+        // Imitate API logic: only require that the disk is big enough to fit the image
+        validate={(diskSizeGiB) => {
+          if (!image) return true
+          if (diskSizeGiB < image.size / GiB) {
+            const minSize = Math.ceil(image.size / GiB)
+            return `Must be as large as selected image (min. ${minSize} GiB)`
+          }
+        }}
       />
       <NameField
         name="bootDiskName"
