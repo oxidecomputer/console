@@ -89,18 +89,6 @@ CreateInstanceForm.loader = async ({ params }: LoaderFunctionArgs) => {
   return null
 }
 
-const MIN_DISK_MARGIN_GIB = 1
-
-function validateDiskSize(imageSizeBytes: number, diskSizeGiB: number) {
-  const imageSizeGiB = imageSizeBytes / GiB
-  const roundedUp = Math.ceil(imageSizeGiB)
-  const minDiskSizeGiB =
-    roundedUp - imageSizeGiB >= MIN_DISK_MARGIN_GIB ? roundedUp : roundedUp + 1
-  if (diskSizeGiB < minDiskSizeGiB) {
-    return `Must be at least ${MIN_DISK_MARGIN_GIB} GiB larger than selected image`
-  }
-}
-
 export function CreateInstanceForm() {
   const queryClient = useApiQueryClient()
   const addToast = useToast()
@@ -319,9 +307,14 @@ export function CreateInstanceForm() {
         label="Disk size"
         name="bootDiskSize"
         control={control}
-        validate={
-          image ? (diskSizeGiB) => validateDiskSize(image.size, diskSizeGiB) : undefined
-        }
+        // Imitate API logic: only require that the disk is big enough to fit the image
+        validate={(diskSizeGiB) => {
+          if (!image) return true
+          if (diskSizeGiB < image.size / GiB) {
+            const minSize = Math.ceil(image.size / GiB)
+            return `Must be as large as selected image (min. ${minSize} GiB)`
+          }
+        }}
       />
       <NameField
         name="bootDiskName"
