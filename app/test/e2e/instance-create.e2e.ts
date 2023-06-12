@@ -92,6 +92,13 @@ test('can create an instance with custom hardware', async ({ page }) => {
   await page.getByRole('button', { name: 'Image' }).click()
   await page.getByRole('option', { name: images[2].name }).click()
 
+  // test disk size validation against image size
+  await page.getByRole('spinbutton', { name: 'Disk size (GiB)' }).fill('5')
+  await expectVisible(page, [
+    'main >> text=Must be as large as selected image (min. 6 GiB)',
+  ])
+  await page.getByRole('spinbutton', { name: 'Disk size (GiB)' }).fill('10')
+
   await page.getByRole('button', { name: 'Create instance' }).click()
 
   await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)

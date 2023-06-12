@@ -1,4 +1,6 @@
 import { useMemo } from 'react'
+import { useForm } from 'react-hook-form'
+import invariant from 'tiny-invariant'
 
 import type { Group } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
@@ -22,44 +24,45 @@ export function ProfilePage() {
 
   const groupsTable = useReactTable({ columns, data: groupRows })
 
+  invariant(user, 'User must be prefetched in a loader')
+
+  const form = useForm({
+    mode: 'all',
+    defaultValues: {
+      id: user.id,
+    },
+  })
+
   return (
     <FullPageForm
+      form={form}
       id="profile-form"
       title="Profile"
-      formOptions={{
-        defaultValues: {
-          id: user?.id,
-        },
-      }}
       icon={<Settings24Icon />}
       submitError={null}
       onSubmit={() => Promise.resolve()}
     >
-      {({ control }) => (
-        <>
-          <TextField
-            name="id"
-            label="User ID"
-            required
-            disabled
-            fieldClassName="!cursor-default"
-            value={user?.id}
-            control={control}
-          />
-          <h2>Groups</h2>
-          <Table table={groupsTable} />
-          <span className="inline-block text-sans-md text-secondary">
-            <span>Your user information is managed by your organization. </span>
-            <span className="md+:block">
-              To update, contact your{' '}
-              <a className="external-link" href="#/">
-                IDP admin
-              </a>
-              .
-            </span>
-          </span>
-        </>
-      )}
+      <TextField
+        name="id"
+        label="User ID"
+        required
+        disabled
+        fieldClassName="!cursor-default"
+        value={user?.id}
+        control={form.control}
+      />
+      <h2>Groups</h2>
+      <Table table={groupsTable} />
+      <span className="inline-block text-sans-md text-secondary">
+        <span>Your user information is managed by your organization. </span>
+        <span className="md+:block">
+          To update, contact your{' '}
+          <a className="external-link" href="#/">
+            IDP admin
+          </a>
+          .
+        </span>
+      </span>
     </FullPageForm>
   )
 }
