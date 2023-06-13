@@ -1,4 +1,5 @@
 import {
+  FloatingArrow,
   FloatingPortal,
   arrow,
   autoPlacement,
@@ -39,16 +40,7 @@ export const Tooltip = forwardRef(
     const [open, setOpen] = useState(false)
     const arrowRef = useRef(null)
 
-    const {
-      x,
-      y,
-      reference,
-      floating,
-      strategy,
-      context,
-      placement: finalPlacement,
-      middlewareData,
-    } = useFloating({
+    const { refs, floatingStyles, context } = useFloating({
       open,
       onOpenChange: setOpen,
       placement,
@@ -66,8 +58,6 @@ export const Tooltip = forwardRef(
       ],
     })
 
-    const { x: arrowX, y: arrowY } = middlewareData.arrow || {}
-
     const { getReferenceProps, getFloatingProps } = useInteractions([
       useHover(context, { move: false, delay: { open: delay, close: 0 } }),
       useFocus(context),
@@ -77,7 +67,7 @@ export const Tooltip = forwardRef(
 
     const child = cloneElement(Children.only(children) as ReactElement, {
       ...getReferenceProps(),
-      ref: mergeRefs([reference, elRef]),
+      ref: mergeRefs([refs.setReference, elRef]),
     })
 
     return (
@@ -86,18 +76,21 @@ export const Tooltip = forwardRef(
         <FloatingPortal>
           {open && (
             <div
-              ref={floating}
-              style={{ position: strategy, top: y ?? 0, left: x ?? 0 }}
+              ref={refs.setFloating}
               className={cn('ox-tooltip max-content max-w-sm')}
-              /** Used to ensure the arrow is styled correctly */
-              data-placement={finalPlacement}
               {...getFloatingProps()}
+              style={floatingStyles}
             >
               {content}
-              <div
-                className="ox-tooltip-arrow"
+              <FloatingArrow
+                width={12}
+                height={8}
+                strokeWidth={1}
+                tipRadius={2}
+                stroke="var(--stroke-secondary)"
+                fill="var(--surface-raise)"
                 ref={arrowRef}
-                style={{ left: arrowX, top: arrowY }}
+                context={context}
               />
             </div>
           )}

@@ -55,16 +55,12 @@ export function SiloUtilizationPage() {
               </label>
             </div>
             <Listbox
-              defaultValue={DEFAULT_SILO_ID}
+              selected={filterId}
               className="w-36"
               aria-labelledby="project-id-label"
               name="project-id"
               items={projectItems}
-              onChange={(item) => {
-                if (item) {
-                  setFilterId(item.value)
-                }
-              }}
+              onChange={setFilterId}
             />
             {/* TODO: need a button to clear the silo */}
           </div>

@@ -1,5 +1,5 @@
 import cn from 'classnames'
-import React from 'react'
+import React, { useId } from 'react'
 import type { Control, FieldPath, FieldValues, PathValue } from 'react-hook-form'
 import { Controller } from 'react-hook-form'
 
@@ -7,8 +7,6 @@ import type { RadioGroupProps } from '@oxide/ui'
 import { Radio } from '@oxide/ui'
 import { FieldLabel, RadioGroup, TextInputHint } from '@oxide/ui'
 import { capitalize } from '@oxide/util'
-
-import { useUuid } from 'app/hooks'
 
 export type RadioFieldProps<
   TFieldValues extends FieldValues,
@@ -62,7 +60,7 @@ export function RadioField<
   parseValue,
   ...props
 }: RadioFieldProps<TFieldValues, TName>) {
-  const id = useUuid(name)
+  const id = useId()
   return (
     <div>
       <div className="mb-2">
@@ -130,7 +128,7 @@ export function RadioFieldDyn<
   children,
   ...props
 }: RadioFieldDynProps<TFieldValues, TName>) {
-  const id = useUuid(name)
+  const id = useId()
   return (
     <div>
       <div className="mb-2">

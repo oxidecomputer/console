@@ -1,4 +1,6 @@
 import cn from 'classnames'
+import type { ReactNode } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import './spinner.css'
 
@@ -54,4 +56,42 @@ export const Spinner = ({
       />
     </svg>
   )
+}
+
+type Props = {
+  isLoading: boolean
+  children?: ReactNode
+  minTime?: number
+}
+
+/** Loading spinner that shows for a minimum of `minTime` */
+export const SpinnerLoader = ({ isLoading, children = null, minTime = 500 }: Props) => {
+  const [isVisible, setIsVisible] = useState(isLoading)
+  const hideTimeout = useRef<NodeJS.Timeout | null>(null)
+  const loadingStartTime = useRef<number>(0)
+
+  useEffect(() => {
+    if (isLoading) {
+      setIsVisible(true)
+      loadingStartTime.current = Date.now()
+    } else {
+      // Clear the hide timer if it's still running.
+      if (hideTimeout.current) clearTimeout(hideTimeout.current)
+
+      // turn the spinner off, making sure it showed for at least `minTime`
+      const elapsedTime = Date.now() - loadingStartTime.current
+      const remainingTime = Math.max(0, minTime - elapsedTime)
+      if (remainingTime === 0) {
+        setIsVisible(false) // might as well not use a timeout
+      } else {
+        hideTimeout.current = setTimeout(() => setIsVisible(false), remainingTime)
+      }
+    }
+
+    return () => {
+      if (hideTimeout.current) clearTimeout(hideTimeout.current)
+    }
+  }, [isLoading, minTime])
+
+  return isVisible ? <Spinner /> : <>{children}</>
 }

@@ -54,16 +54,12 @@ export function CapacityUtilizationPage() {
             </label>
           </div>
           <Listbox
-            defaultValue={FLEET_ID}
+            selected={siloId}
             className="w-48"
             aria-labelledby="silo-id-label"
             name="silo-id"
             items={siloItems}
-            onChange={(item) => {
-              if (item) {
-                setSiloId(item.value)
-              }
-            }}
+            onChange={setSiloId}
           />
           {/* TODO: need a button to clear the silo */}
         </div>

@@ -1,4 +1,5 @@
 import cn from 'classnames'
+import { useId } from 'react'
 import type {
   Control,
   FieldPath,
@@ -15,8 +16,6 @@ import type {
 import { TextInputHint } from '@oxide/ui'
 import { FieldLabel, TextInput as UITextField } from '@oxide/ui'
 import { capitalize } from '@oxide/util'
-
-import { useUuid } from 'app/hooks'
 
 import { ErrorMessage } from './ErrorMessage'
 
@@ -65,7 +64,7 @@ export function TextField<
   ...props
 }: Omit<TextFieldProps<TFieldValues, TName>, 'id'> & UITextAreaProps) {
   // id is omitted from props because we generate it here
-  const id = useUuid(name)
+  const id = useId()
   return (
     <div className="max-w-lg">
       <div className="mb-2">
@@ -115,7 +114,7 @@ export const TextFieldInner = <
   id: idProp,
   ...props
 }: TextFieldProps<TFieldValues, TName> & UITextAreaProps) => {
-  const generatedId = useUuid(name)
+  const generatedId = useId()
   const id = idProp || generatedId
   return (
     <Controller

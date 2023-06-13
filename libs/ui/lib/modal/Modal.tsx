@@ -1,6 +1,6 @@
 import * as Dialog from '@radix-ui/react-dialog'
 import { animated, useTransition } from '@react-spring/web'
-import React, { createContext, useContext } from 'react'
+import React, { createContext, useContext, useId } from 'react'
 
 import { classed } from '@oxide/util'
 
@@ -25,7 +25,7 @@ export type ModalProps = {
 // on screen at once.
 
 export function Modal({ children, onDismiss, title, isOpen }: ModalProps) {
-  const titleId = 'modal-title'
+  const titleId = useId()
   const AnimatedDialogContent = animated(Dialog.Content)
 
   const config = { tension: 650, mass: 0.125 }
@@ -46,11 +46,17 @@ export function Modal({ children, onDismiss, title, isOpen }: ModalProps) {
               onOpenChange={(open) => {
                 if (!open) onDismiss()
               }}
+              // https://github.com/radix-ui/primitives/issues/1159#issuecomment-1559813266
+              modal={false}
             >
               <Dialog.Portal>
-                <Dialog.Overlay className="DialogOverlay !z-30" />
+                <div
+                  className="DialogOverlay pointer-events-auto"
+                  onClick={onDismiss}
+                  aria-hidden
+                />
                 <AnimatedDialogContent
-                  className="DialogContent ox-modal fixed left-1/2 top-1/2 z-40 m-0 flex max-h-[min(800px,80vh)] w-auto min-w-[28rem] max-w-[32rem] flex-col justify-between rounded-lg border p-0 bg-raise border-secondary elevation-2"
+                  className="DialogContent ox-modal pointer-events-auto fixed left-1/2 top-1/2 z-40 m-0 flex max-h-[min(800px,80vh)] w-auto min-w-[28rem] max-w-[32rem] flex-col justify-between rounded-lg border p-0 bg-raise border-secondary elevation-2"
                   aria-labelledby={titleId}
                   style={{
                     transform: y.to((value) => `translate3d(-50%, ${-50 + value}%, 0px)`),
@@ -58,7 +64,7 @@ export function Modal({ children, onDismiss, title, isOpen }: ModalProps) {
                 >
                   {title && (
                     <Dialog.Title asChild>
-                      <Modal.Title>{title}</Modal.Title>
+                      <Modal.Title id={titleId}>{title}</Modal.Title>
                     </Dialog.Title>
                   )}
                   {children}
@@ -71,9 +77,11 @@ export function Modal({ children, onDismiss, title, isOpen }: ModalProps) {
   )
 }
 
-Modal.Title = ({ children }: { children?: React.ReactNode }) => (
+Modal.Title = ({ children, id }: { children?: React.ReactNode; id?: string }) => (
   <div className="flex items-center justify-between border-b py-4 px-4 bg-secondary border-b-secondary">
-    <h2 className="text-sans-semi-lg">{children}</h2>
+    <h2 className="text-sans-semi-lg" id={id}>
+      {children}
+    </h2>
     <Dialog.Close className="-m-2 flex rounded p-2 hover:bg-hover" aria-label="Close">
       <Close12Icon className="text-secondary" />
     </Dialog.Close>
