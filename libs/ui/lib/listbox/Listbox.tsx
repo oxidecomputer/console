@@ -6,8 +6,8 @@ import type { ReactElement } from 'react'
 import { FieldLabel, SpinnerLoader, TextInputHint } from '@oxide/ui'
 import { SelectArrows6Icon } from '@oxide/ui'
 
-export type ListboxItem = {
-  value: string
+export type ListboxItem<Value extends string = string> = {
+  value: Value
 } & (
   | {
       label: string
@@ -23,14 +23,14 @@ export type ListboxItem = {
     }
 )
 
-export interface ListboxProps {
-  selectedItem: string | null
-  items: ListboxItem[]
+export interface ListboxProps<Value extends string = string> {
+  selectedItem: Value | null
+  items: ListboxItem<Value>[]
   placeholder?: string
   className?: string
   disabled?: boolean
   // null can only be the default value. onChange is never called with null
-  onChange: (value: string) => void
+  onChange: (value: Value) => void
   // onBlur?: () => void
   hasError?: boolean
   name?: string
@@ -41,7 +41,7 @@ export interface ListboxProps {
   isLoading?: boolean
 }
 
-export const Listbox = ({
+export const Listbox = <Value extends string = string>({
   name,
   selectedItem,
   items,
@@ -57,7 +57,7 @@ export const Listbox = ({
   disabled,
   isLoading = false,
   ...props
-}: ListboxProps) => {
+}: ListboxProps<Value>) => {
   const { refs, floatingStyles } = useFloating({
     middleware: [
       offset(12),
