@@ -21,15 +21,20 @@ export async function map<T>(
   return result
 }
 
-export async function expectVisible(page: Page, selectors: string[]) {
+type Selector = string | Locator
+
+const toLocator = (page: Page, selector: Selector): Locator =>
+  typeof selector === 'string' ? page.locator(selector) : selector
+
+export async function expectVisible(page: Page, selectors: Selector[]) {
   for (const selector of selectors) {
-    await expect(page.locator(selector)).toBeVisible()
+    await expect(toLocator(page, selector)).toBeVisible()
   }
 }
 
-export async function expectNotVisible(page: Page, selectors: string[]) {
+export async function expectNotVisible(page: Page, selectors: Selector[]) {
   for (const selector of selectors) {
-    await expect(page.locator(selector)).toBeHidden()
+    await expect(toLocator(page, selector)).toBeHidden()
   }
 }
 
