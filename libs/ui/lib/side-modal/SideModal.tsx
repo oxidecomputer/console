@@ -54,11 +54,17 @@ export function SideModal({
           onOpenChange={(open) => {
             if (!open) onDismiss()
           }}
+          // https://github.com/radix-ui/primitives/issues/1159#issuecomment-1559813266
+          modal={false}
         >
           <Dialog.Portal>
-            <Dialog.Overlay className="DialogOverlay" />
+            <div
+              className="DialogOverlay pointer-events-auto"
+              onClick={onDismiss}
+              aria-hidden
+            />
             <AnimatedDialogContent
-              className="DialogContent ox-side-modal fixed right-0 top-0 bottom-0 m-0 flex w-[32rem] flex-col justify-between border-l p-0 bg-raise border-secondary elevation-2"
+              className="DialogContent ox-side-modal pointer-events-auto fixed right-0 top-0 bottom-0 m-0 flex w-[32rem] flex-col justify-between border-l p-0 bg-raise border-secondary elevation-2"
               aria-labelledby={titleId}
               style={{
                 transform: x.to((value) => `translate3d(${value}%, 0px, 0px)`),

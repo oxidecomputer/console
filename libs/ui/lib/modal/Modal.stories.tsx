@@ -19,9 +19,7 @@ export function Default() {
   return (
     <>
       <Button onClick={() => setIsOpen(true)}>Open menu</Button>
-      <Modal isOpen={isOpen} onDismiss={handleDismiss}>
-        <Modal.Title>Title</Modal.Title>
-
+      <Modal isOpen={isOpen} onDismiss={handleDismiss} title="Title">
         <Modal.Body>
           <Modal.Section>
             <p>
@@ -72,9 +70,7 @@ export function Sticky() {
   return (
     <>
       <Button onClick={() => setIsOpen(true)}>Open menu</Button>
-      <Modal isOpen={isOpen} onDismiss={handleDismiss}>
-        <Modal.Title>Title</Modal.Title>
-
+      <Modal isOpen={isOpen} onDismiss={handleDismiss} title="Title">
         <Modal.Body>
           <Modal.Section>
             <div className="space-y-2">

@@ -2273,17 +2273,6 @@ export const DeviceAccessTokenParams = z.preprocess(
   })
 )
 
-export const LoginSamlBeginParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      providerName: Name,
-      siloName: Name,
-    }),
-    query: z.object({}),
-  })
-)
-
 export const LoginSamlParams = z.preprocess(
   processResponseBody,
   z.object({
@@ -2721,6 +2710,31 @@ export const InstanceStopParams = z.preprocess(
   z.object({
     path: z.object({
       instance: NameOrId,
+    }),
+    query: z.object({
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const ProjectIpPoolListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      project: NameOrId.optional(),
+      sortBy: NameOrIdSortMode.optional(),
+    }),
+  })
+)
+
+export const ProjectIpPoolViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      pool: NameOrId,
     }),
     query: z.object({
       project: NameOrId.optional(),

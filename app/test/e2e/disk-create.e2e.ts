@@ -21,13 +21,13 @@ test.describe('Disk create', () => {
 
   test('from snapshot', async ({ page }) => {
     await page.getByRole('radio', { name: 'Snapshot' }).click()
-    await page.getByRole('button', { name: 'Source' }).click()
+    await page.getByRole('button', { name: 'Source snapshot' }).click()
     await page.getByRole('option', { name: 'snapshot-3' }).click()
   })
 
   test('from image', async ({ page }) => {
     await page.getByRole('radio', { name: 'Image' }).click()
-    await page.getByRole('button', { name: 'Source' }).click()
+    await page.getByRole('button', { name: 'Source image' }).click()
     await page.getByRole('option', { name: 'image-3' }).click()
   })
 

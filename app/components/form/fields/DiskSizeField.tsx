@@ -6,7 +6,7 @@ import { TextField } from './TextField'
 interface DiskSizeProps<
   TFieldValues extends FieldValues,
   TName extends FieldPath<TFieldValues>
-> extends Omit<TextFieldProps<TFieldValues, TName>, 'validate'> {
+> extends TextFieldProps<TFieldValues, TName> {
   minSize?: number
 }
 

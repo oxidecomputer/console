@@ -23,9 +23,7 @@ export default function EquivalentCliCommand({ command }: { command: string }) {
       <Button variant="ghost" size="sm" className="ml-2" onClick={() => setIsOpen(true)}>
         Equivalent CLI Command
       </Button>
-      <Modal isOpen={isOpen} onDismiss={handleDismiss}>
-        <Modal.Title>CLI Command</Modal.Title>
-
+      <Modal isOpen={isOpen} onDismiss={handleDismiss} title="CLI command">
         <Modal.Section>
           {/* todo: fix the token to disable contextual alternates in the mono font */}
           <pre className="flex w-full rounded border px-4 py-3 !normal-case !tracking-normal text-mono-md bg-default border-secondary [font-feature-settings:_'calt'_off]">

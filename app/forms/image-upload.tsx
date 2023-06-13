@@ -548,8 +548,7 @@ export function CreateImageSideModalForm() {
         control={form.control}
       />
       {file && modalOpen && (
-        <Modal isOpen onDismiss={closeModal}>
-          <Modal.Title>Image upload progress</Modal.Title>
+        <Modal isOpen onDismiss={closeModal} title="Image upload progress">
           <Modal.Body className="!p-0">
             <Modal.Section className="!p-0">
               <div className="children:border-b children:border-b-secondary last:children:border-b-0">

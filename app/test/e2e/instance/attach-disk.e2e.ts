@@ -27,7 +27,7 @@ test('Attach disk', async ({ page }) => {
   await page.getByRole('button', { name: 'Attach disk' }).click()
   await expectVisible(page, ['role=dialog >> text="Disk name is required"'])
 
-  await page.click('role=button[name="Disk name"]')
+  await page.click('role=button[name*="Disk name"]')
   await expectVisible(page, ['role=option[name="disk-3"]', 'role=option[name="disk-4"]'])
   await page.click('role=option[name="disk-3"]')
 

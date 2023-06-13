@@ -30,7 +30,7 @@ test('can create firewall rule', async ({ page }) => {
   await page.fill('role=spinbutton[name="Priority"]', '5')
 
   // add target VPC "my-target-vpc"
-  await page.locator('role=button[name="Target type"]').click()
+  await page.locator('role=button[name*="Target type"]').click()
   await page.locator('role=option[name="IP"]').click()
   await page.fill('role=textbox[name="IP address"]', '192.168.0.1')
   await page.locator('text="Add target"').click()
@@ -39,7 +39,7 @@ test('can create firewall rule', async ({ page }) => {
   await expect(page.locator('td:has-text("192.168.0.1")')).toBeVisible()
 
   // add host filter instance "host-filter-instance"
-  await page.locator('role=button[name="Host type"]').click()
+  await page.locator('role=button[name*="Host type"]').click()
   await page.locator('role=option[name="Instance"]').click()
   await page.fill('role=textbox[name="Instance name"]', 'host-filter-instance')
   await page.locator('text="Add host filter"').click()
@@ -126,7 +126,7 @@ test('can update firewall rule', async ({ page }) => {
   await page.fill('input[name=name]', 'new-rule-name')
 
   // add host filter
-  await page.locator('role=button[name="Host type"]').click()
+  await page.locator('role=button[name*="Host type"]').click()
   await page.locator('role=option[name="VPC Subnet"]').click()
   await page.fill('role=textbox[name="Subnet name"]', 'edit-filter-subnet')
   await page.locator('text="Add host filter"').click()
