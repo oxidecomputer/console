@@ -1,6 +1,6 @@
 import * as Dialog from '@radix-ui/react-dialog'
 import { animated, useTransition } from '@react-spring/web'
-import React, { createContext, useContext, useEffect, useId } from 'react'
+import React, { createContext, useContext, useId } from 'react'
 
 import { classed } from '@oxide/util'
 
@@ -35,16 +35,6 @@ export function Modal({ children, onDismiss, title, isOpen }: ModalProps) {
     enter: { y: 0 },
     config: isOpen ? config : { duration: 0 },
   })
-
-  useEffect(() => {
-    if (isOpen) {
-      document.body.classList.add('pointer-events-none')
-    }
-
-    return () => {
-      document.body.classList.remove('pointer-events-none')
-    }
-  }, [isOpen])
 
   return (
     <ModalContext.Provider value>

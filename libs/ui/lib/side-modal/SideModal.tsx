@@ -1,7 +1,7 @@
 import * as Dialog from '@radix-ui/react-dialog'
 import { animated, useTransition } from '@react-spring/web'
 import cn from 'classnames'
-import React, { type ReactNode, useEffect, useRef } from 'react'
+import React, { type ReactNode, useRef } from 'react'
 
 import { Message } from '@oxide/ui'
 import { classed } from '@oxide/util'
@@ -45,15 +45,6 @@ export function SideModal({
     enter: { x: 0 },
     config: isOpen && animate ? config : { duration: 0 },
   })
-
-  useEffect(() => {
-    if (isOpen) {
-      document.body.classList.add('pointer-events-none')
-    }
-    return () => {
-      document.body.classList.remove('pointer-events-none')
-    }
-  }, [isOpen])
 
   return transitions(
     ({ x }, item) =>
