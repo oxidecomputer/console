@@ -114,11 +114,9 @@ export function DateTimeRangePicker({
         aria-label="Choose a time range preset"
         items={rangePresets}
         onChange={(value) => {
-          if (value) {
-            const newPreset = value as RangeKeyAll
-            setPreset(newPreset)
-            onRangeChange(newPreset)
-          }
+          const newPreset = value as RangeKeyAll
+          setPreset(newPreset)
+          onRangeChange(newPreset)
         }}
       />
 

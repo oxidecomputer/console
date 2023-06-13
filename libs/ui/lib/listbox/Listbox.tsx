@@ -29,7 +29,8 @@ export interface ListboxProps {
   placeholder?: string
   className?: string
   disabled?: boolean
-  onChange: (value: string | null) => void
+  // null can only be the default value. onChange is never called with null
+  onChange: (value: string) => void
   // onBlur?: () => void
   hasError?: boolean
   name?: string
@@ -82,7 +83,16 @@ export const Listbox = ({
 
   return (
     <div className={cn('relative', className)}>
-      <Select value={selectedItem} onChange={onChange} disabled={isDisabled}>
+      <Select
+        value={selectedItem}
+        onChange={(val) => {
+          // you shouldn't ever be able to select null, but we check here anyway
+          // to make TS happy so the calling code doesn't have to. note `val !==
+          // null` because '' is falsy but potentially a valid value
+          if (val !== null) onChange(val)
+        }}
+        disabled={isDisabled}
+      >
         {({ open }) => (
           <>
             {label && (

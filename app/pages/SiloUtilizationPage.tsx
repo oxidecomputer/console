@@ -60,9 +60,7 @@ export function SiloUtilizationPage() {
               aria-labelledby="project-id-label"
               name="project-id"
               items={projectItems}
-              onChange={(val) => {
-                val && setFilterId(val)
-              }}
+              onChange={setFilterId}
             />
             {/* TODO: need a button to clear the silo */}
           </div>

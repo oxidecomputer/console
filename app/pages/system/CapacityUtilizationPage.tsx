@@ -59,7 +59,7 @@ export function CapacityUtilizationPage() {
             aria-labelledby="silo-id-label"
             name="silo-id"
             items={siloItems}
-            onChange={(val) => val && setSiloId(val)}
+            onChange={setSiloId}
           />
           {/* TODO: need a button to clear the silo */}
         </div>
