@@ -30,9 +30,9 @@ async function expectUploadProcess(page: Page) {
 
   // check these here instead of first because if we don't look for the ready
   // states right away we won't catch them in time
-  await expectVisible(page, ['role=heading[name="Image upload progress"]'])
-  const done = page.locator('css=.ox-modal >> role=button[name="Done"]')
-  await expect(done).toBeDisabled()
+  const progressModal = page.getByRole('dialog', { name: 'Image upload progress' })
+  await expect(progressModal).toBeVisible()
+  const done = progressModal.getByRole('button', { name: 'Done' })
 
   for (const step of await steps.all()) {
     await expect(step).toHaveAttribute('data-status', 'complete')
@@ -47,12 +47,12 @@ test.describe('Image upload', () => {
     await page.goto('/projects/mock-project/images')
     await expectNotVisible(page, [
       'role=cell[name="new-image"]',
-      'role=heading[name="Upload image"]',
+      'role=dialog[name="Upload image"]',
     ])
 
     await page.click('role=link[name="Upload image"]')
 
-    await expectVisible(page, ['role=heading[name="Upload image"]'])
+    await expectVisible(page, ['role=dialog[name="Upload image"]'])
 
     await page.fill('role=textbox[name="Name"]', 'new-image')
     await page.fill('role=textbox[name="Description"]', 'image description')
@@ -141,10 +141,13 @@ test.describe('Image upload', () => {
     // await expectNotVisible(page, ['role=textbox[name="Name"]'])
 
     page.on('dialog', (dialog) => dialog.accept()) // click yes on the are you sure prompt
-    await page.click('css=.ox-modal >> role=button[name="Cancel"]')
+    await page
+      .getByRole('dialog', { name: 'Image upload progress' })
+      .getByRole('button', { name: 'Cancel' })
+      .click()
 
     // modal has closed
-    await expectNotVisible(page, ['role=heading[name="Image upload progress"]'])
+    await expectNotVisible(page, ['role=dialog[name="Image upload progress"]'])
 
     // form's back
     await expectVisible(page, ['role=textbox[name="Name"]'])
@@ -180,10 +183,11 @@ test.describe('Image upload', () => {
     // await expectNotVisible(page, ['role=textbox[name="Name"]'])
 
     page.on('dialog', (dialog) => dialog.accept()) // click yes on the are you sure prompt
-    await page.click('css=.ox-modal >> role=button[name="Cancel"]')
+    const progressModal = page.getByRole('dialog', { name: 'Image upload progress' })
+    await progressModal.getByRole('button', { name: 'Cancel' }).click()
 
     // modal has closed
-    await expectNotVisible(page, ['role=heading[name="Image upload progress"]'])
+    await expect(progressModal).toBeHidden()
 
     // form's back
     await expectVisible(page, [
@@ -194,7 +198,7 @@ test.describe('Image upload', () => {
     ])
 
     // resubmit and it should work fine
-    await page.click('role=button[name="Upload image"]')
+    await page.getByRole('button', { name: 'Upload image' }).click()
     await expectUploadProcess(page)
   })
 

@@ -25,11 +25,11 @@ test('SSH keys', async ({ page }) => {
   await page.fill('role=textbox[name="Name"]', 'my-key')
   await page.fill('role=textbox[name="Description"]', 'definitely a key')
   await page.fill('role=textbox[name="Public key"]', 'key contents')
-  await page.click('css=.ox-side-modal >> role=button[name="Add SSH key"]')
+  await page.getByRole('dialog').getByRole('button', { name: 'Add SSH key' }).click()
 
   // it's there in the table
   await expectNotVisible(page, ['text="No SSH keys"'])
-  const table = page.locator('role=table')
+  const table = page.getByRole('table')
   await expectRowVisible(table, { Name: 'my-key', Description: 'definitely a key' })
 
   // now delete it
