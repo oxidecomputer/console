@@ -109,8 +109,7 @@ const PromoteImageModal = ({ onDismiss, imageName }: PromoteModalProps) => {
   }
 
   return (
-    <Modal isOpen onDismiss={onDismiss}>
-      <Modal.Title>Promote image</Modal.Title>
+    <Modal isOpen onDismiss={onDismiss} title="Promote image">
       <Modal.Body>
         <Modal.Section>
           <p>

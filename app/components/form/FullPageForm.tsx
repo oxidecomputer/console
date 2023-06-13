@@ -112,9 +112,11 @@ export function FullPageForm<TFieldValues extends FieldValues>({
 }
 
 const ConfirmNavigation = ({ blocker }: { blocker: Blocker }) => (
-  <Modal isOpen={blocker.state === 'blocked'} onDismiss={() => blocker.reset?.()}>
-    <Modal.Title>Confirm Navigation</Modal.Title>
-
+  <Modal
+    isOpen={blocker.state === 'blocked'}
+    onDismiss={() => blocker.reset?.()}
+    title="Confirm navigation"
+  >
     <Modal.Section>
       Are you sure you want to leave this page? <br /> You will lose all progress on this
       form.

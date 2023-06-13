@@ -64,7 +64,7 @@ export function Modal({ children, onDismiss, title, isOpen }: ModalProps) {
                 >
                   {title && (
                     <Dialog.Title asChild>
-                      <Modal.Title id={titleId}>{title}</Modal.Title>
+                      <ModalTitle id={titleId}>{title}</ModalTitle>
                     </Dialog.Title>
                   )}
                   {children}
@@ -77,7 +77,9 @@ export function Modal({ children, onDismiss, title, isOpen }: ModalProps) {
   )
 }
 
-Modal.Title = ({ children, id }: { children?: React.ReactNode; id?: string }) => (
+// not exported because we want to use the `title` prop on Modal so the aria
+// label gets hooked up properly
+const ModalTitle = ({ children, id }: { children?: React.ReactNode; id?: string }) => (
   <div className="flex items-center justify-between border-b py-4 px-4 bg-secondary border-b-secondary">
     <h2 className="text-sans-semi-lg" id={id}>
       {children}
