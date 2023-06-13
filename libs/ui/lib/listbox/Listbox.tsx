@@ -114,7 +114,7 @@ export const Listbox = <Value extends string = string>({
                   </span>
                 )}
               </div>
-              {!isDisabled && <SpinnerLoader isLoading={isLoading} loadTime={500} />}
+              {!isDisabled && <SpinnerLoader isLoading={isLoading} />}
               <div
                 className="ml-3 flex h-[calc(100%-12px)] items-center border-l px-3 border-secondary"
                 aria-hidden

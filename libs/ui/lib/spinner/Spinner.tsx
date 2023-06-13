@@ -1,4 +1,5 @@
 import cn from 'classnames'
+import type { ReactNode } from 'react'
 import { useEffect, useRef, useState } from 'react'
 
 import './spinner.css'
@@ -57,58 +58,40 @@ export const Spinner = ({
   )
 }
 
-export const SpinnerLoader = ({
-  isLoading,
-  children = null,
-  loadTime = 750,
-}: {
+type Props = {
   isLoading: boolean
-  children?: JSX.Element | null
-  loadTime?: number
-}) => {
-  const [isVisible, setIsVisible] = useState(false)
-  const hideTimerRef = useRef<NodeJS.Timeout | null>(null)
+  children?: ReactNode
+  minTime?: number
+}
 
-  // startLoadTimeRef stores the timestamp when the loading started
-  const startLoadTimeRef = useRef<number>(0)
+/** Loading spinner that shows for a minimum of `minTime` */
+export const SpinnerLoader = ({ isLoading, children = null, minTime = 500 }: Props) => {
+  const [isVisible, setIsVisible] = useState(isLoading)
+  const hideTimeout = useRef<NodeJS.Timeout | null>(null)
+  const loadingStartTime = useRef<number>(0)
 
   useEffect(() => {
-    // shouldSpinTimer is the timer that will make the Spinner visible if
-    // isLoading lasts more than 25ms.
-    let shouldSpinTimer: NodeJS.Timeout
-
     if (isLoading) {
-      setIsVisible(false)
-      startLoadTimeRef.current = Date.now()
-
-      // We don't show the spinner if the load time is less than 25ms
-      shouldSpinTimer = setTimeout(() => {
-        setIsVisible(true)
-      }, 25)
+      setIsVisible(true)
+      loadingStartTime.current = Date.now()
     } else {
       // Clear the hide timer if it's still running.
-      if (hideTimerRef.current) {
-        clearTimeout(hideTimerRef.current)
+      if (hideTimeout.current) clearTimeout(hideTimeout.current)
+
+      // turn the spinner off, making sure it showed for at least `minTime`
+      const elapsedTime = Date.now() - loadingStartTime.current
+      const remainingTime = Math.max(0, minTime - elapsedTime)
+      if (remainingTime === 0) {
+        setIsVisible(false) // might as well not use a timeout
+      } else {
+        hideTimeout.current = setTimeout(() => setIsVisible(false), remainingTime)
       }
-
-      // Calculate how long the loading took.
-      const elapsedLoadTime = Date.now() - startLoadTimeRef.current
-
-      // Set a timer to hide the Spinner and show the children. The duration of
-      // the timer is the load time minus the elapsed load time, or 0 if loading
-      // took longer than the load time.
-      hideTimerRef.current = setTimeout(() => {
-        setIsVisible(false)
-      }, Math.max(0, loadTime - elapsedLoadTime))
     }
 
     return () => {
-      shouldSpinTimer && clearTimeout(shouldSpinTimer)
-      if (hideTimerRef.current) {
-        clearTimeout(hideTimerRef.current)
-      }
+      if (hideTimeout.current) clearTimeout(hideTimeout.current)
     }
-  }, [isLoading, loadTime])
+  }, [isLoading, minTime])
 
-  return isVisible ? <Spinner /> : children
+  return isVisible ? <Spinner /> : <>{children}</>
 }
