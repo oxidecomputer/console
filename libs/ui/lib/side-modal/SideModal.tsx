@@ -54,6 +54,7 @@ export function SideModal({
           onOpenChange={(open) => {
             if (!open) onDismiss()
           }}
+          // https://github.com/radix-ui/primitives/issues/1159#issuecomment-1559813266
           modal={false}
         >
           <Dialog.Portal>
