@@ -88,8 +88,7 @@ const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
   }
 
   return (
-    <Modal isOpen onDismiss={onDismiss}>
-      <Modal.Title>Promote image</Modal.Title>
+    <Modal isOpen onDismiss={onDismiss} title="Promote image">
       <Modal.Body>
         <Modal.Section>
           <form
@@ -105,10 +104,7 @@ const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
               name="project"
               label="Project"
               items={projects.map((project) => {
-                return {
-                  value: project.name,
-                  label: project.name,
-                }
+                return { value: project.name, label: project.name }
               })}
               required
               control={control}
