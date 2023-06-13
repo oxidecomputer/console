@@ -110,7 +110,7 @@ export function DateTimeRangePicker({
       <Listbox
         className="mr-4 w-48" // in addition to gap-4
         name="preset"
-        selectedItem={preset}
+        selected={preset}
         aria-label="Choose a time range preset"
         items={rangePresets}
         onChange={(value) => {

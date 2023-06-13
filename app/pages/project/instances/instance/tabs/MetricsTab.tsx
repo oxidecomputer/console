@@ -117,7 +117,7 @@ export function MetricsTab() {
           className="w-48"
           aria-label="Choose disk"
           name="disk-name"
-          selectedItem={diskName}
+          selected={diskName}
           items={diskItems}
           onChange={(val) => {
             val && setDiskName(val)

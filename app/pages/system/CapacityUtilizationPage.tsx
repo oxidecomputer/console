@@ -54,7 +54,7 @@ export function CapacityUtilizationPage() {
             </label>
           </div>
           <Listbox
-            selectedItem={siloId}
+            selected={siloId}
             className="w-48"
             aria-labelledby="silo-id-label"
             name="silo-id"

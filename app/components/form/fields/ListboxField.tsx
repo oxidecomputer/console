@@ -59,7 +59,7 @@ export function ListboxField<
               description={description}
               required={required}
               placeholder={placeholder}
-              selectedItem={field.value || null}
+              selected={field.value || null}
               items={items}
               onChange={(value) => {
                 field.onChange(value)

@@ -1,7 +1,7 @@
 import { FloatingPortal, flip, offset, size, useFloating } from '@floating-ui/react'
 import { Listbox as Select } from '@headlessui/react'
 import cn from 'classnames'
-import type { ReactElement } from 'react'
+import type { ReactNode } from 'react'
 
 import { FieldLabel, SpinnerLoader, TextInputHint } from '@oxide/ui'
 import { SelectArrows6Icon } from '@oxide/ui'
@@ -9,29 +9,21 @@ import { SelectArrows6Icon } from '@oxide/ui'
 export type ListboxItem<Value extends string = string> = {
   value: Value
 } & (
-  | {
-      label: string
-      labelString?: never
-    }
-  | {
-      label: ReactElement
-      /**
-       * Required when `label` is a `ReactElement` because downshift needs a
-       * string to display in the button when the item is selected.
-       */
-      labelString: string
-    }
+  | { label: string; labelString?: never }
+  // labelString is required when `label` is a `ReactElement` because we
+  // need need a one-line string to display in the button when the item is
+  // selected.
+  | { label: ReactNode; labelString: string }
 )
 
 export interface ListboxProps<Value extends string = string> {
-  selectedItem: Value | null
+  // null is allowed as a default empty value, but onChange will never be called with null
+  selected: Value | null
+  onChange: (value: Value) => void
   items: ListboxItem<Value>[]
   placeholder?: string
   className?: string
   disabled?: boolean
-  // null can only be the default value. onChange is never called with null
-  onChange: (value: Value) => void
-  // onBlur?: () => void
   hasError?: boolean
   name?: string
   label?: string
@@ -43,13 +35,12 @@ export interface ListboxProps<Value extends string = string> {
 
 export const Listbox = <Value extends string = string>({
   name,
-  selectedItem,
+  selected,
   items,
   placeholder = 'Select an option',
   className,
   onChange,
   hasError = false,
-  // onBlur,
   label,
   description,
   helpText,
@@ -72,25 +63,18 @@ export const Listbox = <Value extends string = string>({
     ],
   })
 
-  const getItem = (value: string | undefined) =>
-    items.find((i) => i.value === value) || null
-
-  const item = selectedItem && getItem(selectedItem)
-  const selectedLabel = item ? (item.labelString ? item.labelString : item.label) : null
-
+  const selectedItem = selected && items.find((i) => i.value === selected)
   const noItems = !isLoading && items.length === 0
   const isDisabled = disabled || noItems
 
   return (
     <div className={cn('relative', className)}>
       <Select
-        value={selectedItem}
-        onChange={(val) => {
-          // you shouldn't ever be able to select null, but we check here anyway
-          // to make TS happy so the calling code doesn't have to. note `val !==
-          // null` because '' is falsy but potentially a valid value
-          if (val !== null) onChange(val)
-        }}
+        value={selected}
+        // you shouldn't ever be able to select null, but we check here anyway
+        // to make TS happy so the calling code doesn't have to. note `val !==
+        // null` because '' is falsy but potentially a valid value
+        onChange={(val) => val !== null && onChange(val)}
         disabled={isDisabled}
       >
         {({ open }) => (
@@ -122,7 +106,8 @@ export const Listbox = <Value extends string = string>({
             >
               <div className="w-full px-3 text-left">
                 {selectedItem ? (
-                  selectedLabel
+                  // labelString is one line, which is what we need when label is a ReactNode
+                  selectedItem.labelString || selectedItem.label
                 ) : (
                   <span className="text-quaternary">
                     {noItems ? 'No items' : placeholder}

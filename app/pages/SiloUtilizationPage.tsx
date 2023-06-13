@@ -55,7 +55,7 @@ export function SiloUtilizationPage() {
               </label>
             </div>
             <Listbox
-              selectedItem={filterId}
+              selected={filterId}
               className="w-36"
               aria-labelledby="project-id-label"
               name="project-id"

@@ -19,7 +19,7 @@ export const Default = () => {
   return (
     <div className="max-w-lg">
       <Listbox
-        selectedItem={value}
+        selected={value}
         onChange={setValue}
         items={SAMPLE_OPTIONS}
         name="favorite-animal"
@@ -35,7 +35,7 @@ export const WithError = () => {
   return (
     <div className="max-w-lg">
       <Listbox
-        selectedItem={value}
+        selected={value}
         onChange={setValue}
         items={SAMPLE_OPTIONS}
         name="favorite-animal"
