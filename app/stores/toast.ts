@@ -19,3 +19,5 @@ export const useToastStore = create<ToastStore>()((set) => ({
   add: (options) => set(({ toasts }) => ({ toasts: [...toasts, { id: uuid(), options }] })),
   remove: (id) => set(({ toasts }) => ({ toasts: toasts.filter((t) => t.id !== id) })),
 }))
+
+export const addToast = useToastStore.getState().add
