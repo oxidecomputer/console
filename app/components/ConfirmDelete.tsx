@@ -50,16 +50,6 @@ export function useConfirmDeleteModal() {
     setIsOpen(false)
   }
 
-  const createModal = () => (
-    <ConfirmDeleteModal
-      isOpen={isOpen}
-      onDismiss={() => setIsOpen(false)}
-      onAction={handleAction}
-      resourceName={(message && message.resourceName) || ''}
-      warning={message && message.warning ? message.warning : undefined}
-    />
-  )
-
   return {
     isOpen,
     shouldConfirmDelete: (fn: () => void, message: ModalMessageProps) => {
@@ -67,6 +57,14 @@ export function useConfirmDeleteModal() {
       setMessage(message)
       setIsOpen(true)
     },
-    ConfirmDeleteModal: createModal,
+    confirmDeleteModal: (
+      <ConfirmDeleteModal
+        isOpen={isOpen}
+        onDismiss={() => setIsOpen(false)}
+        onAction={handleAction}
+        resourceName={(message && message.resourceName) || ''}
+        warning={message && message.warning ? message.warning : undefined}
+      />
+    ),
   }
 }

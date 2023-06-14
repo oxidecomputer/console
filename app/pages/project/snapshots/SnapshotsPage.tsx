@@ -61,7 +61,7 @@ export function SnapshotsPage() {
     },
   })
 
-  const { shouldConfirmDelete, ConfirmDeleteModal } = useConfirmDeleteModal()
+  const { shouldConfirmDelete, confirmDeleteModal } = useConfirmDeleteModal()
 
   const makeActions = (snapshot: Snapshot): MenuAction[] => [
     {
@@ -100,7 +100,7 @@ export function SnapshotsPage() {
         <Column accessor="size" cell={SizeCell} />
         <Column accessor="timeCreated" id="Created" cell={DateCell} />
       </Table>
-      <ConfirmDeleteModal />
+      {confirmDeleteModal}
       <Outlet />
     </>
   )
