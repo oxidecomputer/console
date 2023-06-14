@@ -61,7 +61,7 @@ export function SiloImagesPage() {
 }
 
 const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
-  const { control, handleSubmit, watch } = useForm()
+  const { control, handleSubmit, watch, resetField } = useForm()
 
   const queryClient = useApiQueryClient()
   const addToast = useToast()
@@ -80,7 +80,8 @@ const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
     onSettled: onDismiss,
   })
 
-  const projects = useApiQuery('projectList', {}).data?.items || []
+  const projectsQuery = useApiQuery('projectList', {})
+  const projects = projectsQuery.data?.items || []
   const selectedProject = watch('project')
 
   const onSubmit = (data: FieldValues) => {
@@ -106,6 +107,10 @@ const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
               items={projects.map((project) => {
                 return { value: project.name, label: project.name }
               })}
+              onChange={() => {
+                resetField('image') // reset image field when the project changes
+              }}
+              isLoading={projectsQuery.isLoading}
               required
               control={control}
             />
@@ -133,7 +138,8 @@ const ImageListboxField = ({
   control: Control<FieldValues>
   project: string
 }) => {
-  const images = useApiQuery('imageList', { query: { project: project } }).data?.items || []
+  const imagesQuery = useApiQuery('imageList', { query: { project: project } })
+  const images = imagesQuery.data?.items || []
 
   return (
     <ListboxField
@@ -154,6 +160,7 @@ const ImageListboxField = ({
           ),
         }
       })}
+      isLoading={imagesQuery.isLoading}
       required
       disabled={!project}
     />

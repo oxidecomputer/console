@@ -100,7 +100,8 @@ export const Listbox = <Value extends string = string>({
                 open && hasError && 'ring-error-secondary',
                 isDisabled
                   ? 'cursor-not-allowed text-disabled bg-disabled !border-default'
-                  : 'bg-default'
+                  : 'bg-default',
+                isDisabled && hasError && '!border-error-secondary'
               )}
               {...props}
             >
