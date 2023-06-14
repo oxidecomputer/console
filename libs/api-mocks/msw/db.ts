@@ -132,8 +132,6 @@ export const lookup = {
 
     const project_id = projectSelector.project && lookup.project(projectSelector).id
 
-    console.log('project_id', project_id)
-
     if (isUuid(id)) return lookupById(db.images, id)
 
     const image = db.images.find((d) => d.project_id === project_id && d.name === id)

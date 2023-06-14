@@ -33,6 +33,7 @@ export function EditProjectImageSideModalForm() {
     <EditImageSideModalForm
       image={image}
       dismissLink={pb.projectImages({ project: projectImageSelector.project })}
+      type="Project"
     />
   )
 }
@@ -50,15 +51,17 @@ export function EditSiloImageSideModalForm() {
   const siloImageQuery = toPathQuery('image', siloImageSelector)
   const { data: image } = useApiQuery('imageView', siloImageQuery)
 
-  return <EditImageSideModalForm image={image} dismissLink={pb.siloImages()} />
+  return <EditImageSideModalForm image={image} dismissLink={pb.siloImages()} type="Silo" />
 }
 
 export function EditImageSideModalForm({
   image,
   dismissLink,
+  type,
 }: {
   image: Image | undefined
   dismissLink: string
+  type: 'Project' | 'Silo'
 }) {
   const navigate = useNavigate()
   const onDismiss = () => navigate(dismissLink)
@@ -71,7 +74,7 @@ export function EditImageSideModalForm({
     <SideModalForm
       id="edit-project-image-form"
       form={form}
-      title="Project image"
+      title={`${type} image`}
       onDismiss={onDismiss}
       subtitle={
         <ResourceLabel>
@@ -80,7 +83,7 @@ export function EditImageSideModalForm({
       }
     >
       <PropertiesTable>
-        {/* <PropertiesTable.Row label="Shared with">Project</PropertiesTable.Row> */}
+        <PropertiesTable.Row label="Shared with">{type}</PropertiesTable.Row>
         <PropertiesTable.Row label="ID">
           <Truncate text={image.id} maxLength={32} hasCopyButton />
         </PropertiesTable.Row>
