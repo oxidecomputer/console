@@ -75,7 +75,7 @@ export const Listbox = <Value extends string = string>({
         // to make TS happy so the calling code doesn't have to. note `val !==
         // null` because '' is falsy but potentially a valid value
         onChange={(val) => val !== null && onChange(val)}
-        disabled={isDisabled}
+        disabled={isDisabled || isLoading}
       >
         {({ open }) => (
           <>

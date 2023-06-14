@@ -8,6 +8,7 @@ import { DateCell, type MenuAction, SizeCell, useQueryTable } from '@oxide/table
 import {
   EmptyMessage,
   Images24Icon,
+  Message,
   Modal,
   PageHeader,
   PageTitle,
@@ -116,7 +117,10 @@ const PromoteImageModal = ({ onDismiss, imageName }: PromoteModalProps) => {
             Are you sure you want to promote{' '}
             <span className="text-sans-semi-md text-default">{imageName}</span>?
           </p>
-          <p>Once an image has been promoted it is visible to all projects in a silo.</p>
+          <Message
+            variant="info"
+            content="Once an image has been promoted it is visible to all projects in a silo"
+          />
         </Modal.Section>
       </Modal.Body>
       <Modal.Footer onDismiss={onDismiss} onAction={onAction} actionText="Promote" />
