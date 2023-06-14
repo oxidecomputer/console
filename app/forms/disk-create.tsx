@@ -18,6 +18,7 @@ import {
   NameField,
   RadioField,
   SideModalForm,
+  toListboxItem,
 } from 'app/components/form'
 import { useProjectSelector, useToast } from 'app/hooks'
 
@@ -158,22 +159,7 @@ const ImageSelectField = ({ control }: { control: Control<DiskCreate> }) => {
       label="Source image"
       placeholder="Select an image"
       isLoading={imagesQuery.isLoading}
-      items={images.map((i) => {
-        return {
-          value: i.id,
-          labelString: `${i.name} (${i.os}, ${i.version})`,
-          label: (
-            <>
-              <div>{i.name}</div>
-              <div className="text-secondary">
-                {i.os} <span className="text-quinary">/</span> {i.version}{' '}
-                <span className="text-quinary">/</span>{' '}
-                {i.projectId ? 'Project image' : 'Silo image'}
-              </div>
-            </>
-          ),
-        }
-      })}
+      items={images.map((i) => toListboxItem(i, true))}
       required
     />
   )
