@@ -9,6 +9,7 @@ const params = {
   version: 'vs',
   provider: 'pr',
   sledId: 'sl',
+  image: 'im',
 }
 
 test('path builder', () => {
@@ -32,6 +33,7 @@ test('path builder', () => {
         "projectAccess": "/projects/p/access",
         "projectEdit": "/projects/p/edit",
         "projectImageNew": "/projects/p/images-new",
+        "projectImageEdit": "/projects/p/images/im/edit",
         "projectImages": "/projects/p/images",
         "projectNew": "/projects-new",
         "projects": "/projects",
@@ -43,6 +45,7 @@ test('path builder', () => {
         "siloAccess": "/access",
         "siloIdpNew": "/system/silos/s/idps-new",
         "siloImages": "/images",
+        "siloImageEdit": "/images/im/edit",
         "siloNew": "/system/silos-new",
         "siloUtilization": "/utilization",
         "silos": "/system/silos",
