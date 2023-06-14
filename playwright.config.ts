@@ -18,6 +18,9 @@ const config: PlaywrightTestConfig = {
   use: {
     trace: 'retain-on-failure',
     baseURL: 'http://localhost:4009',
+    contextOptions: {
+      permissions: ['clipboard-read', 'clipboard-write'],
+    },
   },
   projects: [
     {
