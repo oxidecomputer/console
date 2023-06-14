@@ -15,6 +15,7 @@ import {
   buttonStyle,
 } from '@oxide/ui'
 
+import { useConfirmDeleteModal } from 'app/components/ConfirmDelete'
 import { SnapshotStatusBadge } from 'app/components/StatusBadge'
 import { getProjectSelector, useProjectSelector } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
@@ -60,11 +61,20 @@ export function SnapshotsPage() {
     },
   })
 
+  const { shouldConfirmDelete, ConfirmDeleteModal } = useConfirmDeleteModal()
+
   const makeActions = (snapshot: Snapshot): MenuAction[] => [
     {
       label: 'Delete',
-      onActivate() {
-        deleteSnapshot.mutate({ path: { snapshot: snapshot.name }, query: projectSelector })
+      onActivate: () => {
+        shouldConfirmDelete(
+          () =>
+            deleteSnapshot.mutate({
+              path: { snapshot: snapshot.name },
+              query: projectSelector,
+            }),
+          { resourceName: snapshot.name }
+        )
       },
     },
   ]
@@ -90,6 +100,7 @@ export function SnapshotsPage() {
         <Column accessor="size" cell={SizeCell} />
         <Column accessor="timeCreated" id="Created" cell={DateCell} />
       </Table>
+      <ConfirmDeleteModal />
       <Outlet />
     </>
   )
