@@ -52,10 +52,8 @@ export function ImagesPage() {
       })
       queryClient.invalidateQueries('imageList', { query: projectSelector })
     },
-    onError: (error) => {
-      const content =
-        'message' in error ? (error.message as string) : 'Something went wrong'
-      addToast({ title: 'Error', content, variant: 'error' })
+    onError: (err) => {
+      addToast({ title: 'Error', content: err.message, variant: 'error' })
     },
   })
 
@@ -119,10 +117,8 @@ const PromoteImageModal = ({ onDismiss, imageName }: PromoteModalProps) => {
       })
       queryClient.invalidateQueries('imageList', { query: projectSelector })
     },
-    onError: (error) => {
-      const content =
-        'message' in error ? (error.message as string) : 'Something went wrong'
-      addToast({ title: 'Error', content, variant: 'error' })
+    onError: (err) => {
+      addToast({ title: 'Error', content: err.message, variant: 'error' })
     },
     onSettled: onDismiss,
   })

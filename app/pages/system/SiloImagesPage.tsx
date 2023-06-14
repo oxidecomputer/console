@@ -91,10 +91,8 @@ const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
       })
       queryClient.invalidateQueries('imageList', {})
     },
-    onError: (error) => {
-      const content =
-        'message' in error ? (error.message as string) : 'Something went wrong'
-      addToast({ title: 'Error', content, variant: 'error' })
+    onError: (err) => {
+      addToast({ title: 'Error', content: err.message, variant: 'error' })
     },
     onSettled: onDismiss,
   })
@@ -213,10 +211,8 @@ const DemoteImageModal = ({
 
       queryClient.invalidateQueries('imageList')
     },
-    onError: (error) => {
-      const content =
-        'message' in error ? (error.message as string) : 'Something went wrong'
-      addToast({ title: 'Error', content, variant: 'error' })
+    onError: (err) => {
+      addToast({ title: 'Error', content: err.message, variant: 'error' })
     },
     onSettled: onDismiss,
   })
