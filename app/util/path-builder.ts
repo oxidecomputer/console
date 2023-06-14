@@ -10,6 +10,8 @@ type SystemUpdate = Required<PP.SystemUpdate>
 type Silo = Required<PP.Silo>
 type IdentityProvider = Required<PP.IdentityProvider>
 type Sled = Required<PP.Sled>
+type Image = Required<PP.Image>
+type SiloImage = Required<PP.SiloImage>
 
 export const pb = {
   projects: () => `/projects`,
@@ -20,6 +22,8 @@ export const pb = {
   projectAccess: (params: Project) => `${pb.project(params)}/access`,
   projectImages: (params: Project) => `${pb.project(params)}/images`,
   projectImageNew: (params: Project) => `${pb.project(params)}/images-new`,
+  projectImage: (params: Image) => `${pb.projectImages(params)}/${params.image}`,
+  projectImageEdit: (params: Image) => `${pb.projectImage(params)}/edit`,
 
   instances: (params: Project) => `${pb.project(params)}/instances`,
   instanceNew: (params: Project) => `${pb.project(params)}/instances-new`,
@@ -56,6 +60,8 @@ export const pb = {
   siloUtilization: () => '/utilization',
   siloAccess: () => '/access',
   siloImages: () => '/images',
+  siloImage: (params: SiloImage) => `${pb.siloImages()}/${params.image}`,
+  siloImageEdit: (params: SiloImage) => `${pb.siloImage(params)}/edit`,
 
   system: () => '/system',
   systemIssues: () => '/system/issues',

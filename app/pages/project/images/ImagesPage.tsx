@@ -4,7 +4,7 @@ import { Outlet } from 'react-router-dom'
 import { Link } from 'react-router-dom'
 
 import { type Image, apiQueryClient, useApiMutation, useApiQueryClient } from '@oxide/api'
-import { DateCell, type MenuAction, SizeCell, useQueryTable } from '@oxide/table'
+import { DateCell, type MenuAction, SizeCell, linkCell, useQueryTable } from '@oxide/table'
 import {
   EmptyMessage,
   Images24Icon,
@@ -84,7 +84,10 @@ export function ImagesPage() {
         </Link>
       </TableActions>
       <Table emptyState={<EmptyState />} makeActions={makeActions}>
-        <Column accessor="name" />
+        <Column
+          accessor="name"
+          cell={linkCell((image) => pb.projectImageEdit({ ...projectSelector, image }))}
+        />
         <Column accessor="description" />
         <Column accessor="size" cell={SizeCell} />
         <Column accessor="timeCreated" header="Created" cell={DateCell} />

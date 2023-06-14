@@ -4,6 +4,10 @@ import { RouterDataErrorBoundary } from './components/ErrorBoundary'
 import { CreateDiskSideModalForm } from './forms/disk-create'
 import { CreateIdpSideModalForm } from './forms/idp/create'
 import { EditIdpSideModalForm } from './forms/idp/edit'
+import {
+  EditProjectImageSideModalForm,
+  EditSiloImageSideModalForm,
+} from './forms/image-edit'
 import { CreateImageSideModalForm } from './forms/image-upload'
 import { CreateInstanceForm } from './forms/instance-create'
 import { CreateProjectSideModalForm } from './forms/project-create'
@@ -198,7 +202,14 @@ export const routes = createRoutesFromElements(
           element={<SiloImagesPage />}
           loader={SiloImagesPage.loader}
           handle={{ crumb: 'Images' }}
-        />
+        >
+          <Route
+            path=":image/edit"
+            element={<EditSiloImageSideModalForm />}
+            loader={EditSiloImageSideModalForm.loader}
+            handle={{ crumb: 'Edit Image' }}
+          />
+        </Route>
         <Route
           path="utilization"
           element={<SiloUtilizationPage />}
@@ -343,6 +354,12 @@ export const routes = createRoutesFromElements(
             path="images-new"
             handle={{ crumb: 'Upload image' }}
             element={<CreateImageSideModalForm />}
+          />
+          <Route
+            path="images/:image/edit"
+            element={<EditProjectImageSideModalForm />}
+            loader={EditProjectImageSideModalForm.loader}
+            handle={{ crumb: 'Edit Image' }}
           />
         </Route>
         <Route

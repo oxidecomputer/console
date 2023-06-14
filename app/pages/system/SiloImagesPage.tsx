@@ -10,7 +10,7 @@ import {
   useApiQuery,
   useApiQueryClient,
 } from '@oxide/api'
-import { DateCell, type MenuAction, SizeCell, useQueryTable } from '@oxide/table'
+import { DateCell, type MenuAction, SizeCell, linkCell, useQueryTable } from '@oxide/table'
 import {
   Button,
   EmptyMessage,
@@ -65,7 +65,7 @@ export function SiloImagesPage() {
         </Button>
       </TableActions>
       <Table emptyState={<EmptyState />} makeActions={makeActions}>
-        <Column accessor="name" />
+        <Column accessor="name" cell={linkCell((image) => pb.siloImageEdit({ image }))} />
         <Column accessor="description" />
         <Column accessor="size" cell={SizeCell} />
         <Column accessor="timeCreated" header="Created" cell={DateCell} />
