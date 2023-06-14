@@ -249,6 +249,14 @@ export const handlers = makeHandlers({
 
     return json(image, { status: 202 })
   },
+  imageDemote({ path, query }) {
+    const image = lookup.image({ ...path, ...query })
+    const project = lookup.project({ ...path, ...query })
+
+    image.project_id = project.id
+
+    return json(image, { status: 202 })
+  },
   instanceList({ query }) {
     const project = lookup.project(query)
     const instances = db.instances.filter((i) => i.project_id === project.id)
@@ -1015,7 +1023,6 @@ export const handlers = makeHandlers({
   certificateList: NotImplemented,
   certificateView: NotImplemented,
   diskImportBlocksFromUrl: NotImplemented,
-  imageDemote: NotImplemented,
   instanceMigrate: NotImplemented,
   instanceSerialConsoleStream: NotImplemented,
   ipPoolCreate: NotImplemented,
