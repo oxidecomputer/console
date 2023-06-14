@@ -21,15 +21,17 @@ import { confirmDelete } from 'app/stores/confirm-delete'
 import { pb } from 'app/util/path-builder'
 
 const DiskNameFromId = ({ value }: { value: string }) => {
-  const { data, isLoading, isError } = useApiQuery(
+  const { data } = useApiQuery(
     'diskView',
     { path: { disk: value } },
     // this can 404 if the source disk has been deleted, and that's fine
-    { useErrorBoundary: false }
+    { useErrorBoundary: false, cacheErrors: true }
   )
 
-  if (isLoading) return null
-  if (isError) return <Badge color="neutral">Deleted</Badge>
+  if (!data) return null
+  if ('statusCode' in data && data.statusCode === 404) {
+    return <Badge color="neutral">Deleted</Badge>
+  }
   return <span className="text-secondary">{data.name}</span>
 }
 
