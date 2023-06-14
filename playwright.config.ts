@@ -18,14 +18,16 @@ const config: PlaywrightTestConfig = {
   use: {
     trace: 'retain-on-failure',
     baseURL: 'http://localhost:4009',
-    contextOptions: {
-      permissions: ['clipboard-read', 'clipboard-write'],
-    },
   },
   projects: [
     {
       name: 'chrome',
-      use: { ...devices['Desktop Chrome'] },
+      use: {
+        contextOptions: {
+          permissions: ['clipboard-read', 'clipboard-write'],
+        },
+        ...devices['Desktop Chrome'],
+      },
     },
     {
       name: 'firefox',
