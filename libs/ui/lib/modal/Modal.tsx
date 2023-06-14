@@ -1,6 +1,6 @@
 import * as Dialog from '@radix-ui/react-dialog'
 import { animated, useTransition } from '@react-spring/web'
-import React, { createContext, useContext, useId } from 'react'
+import React, { createContext, forwardRef, useContext, useId } from 'react'
 
 import { classed } from '@oxide/util'
 
@@ -77,10 +77,18 @@ export function Modal({ children, onDismiss, title, isOpen }: ModalProps) {
   )
 }
 
+interface ModalTitleProps {
+  children?: React.ReactNode
+  id?: string
+}
+
 // not exported because we want to use the `title` prop on Modal so the aria
 // label gets hooked up properly
-const ModalTitle = ({ children, id }: { children?: React.ReactNode; id?: string }) => (
-  <div className="flex items-center justify-between border-b py-4 px-4 bg-secondary border-b-secondary">
+const ModalTitle = forwardRef<HTMLDivElement, ModalTitleProps>(({ children, id }, ref) => (
+  <div
+    ref={ref}
+    className="flex items-center justify-between border-b py-4 px-4 bg-secondary border-b-secondary"
+  >
     <h2 className="text-sans-semi-lg" id={id}>
       {children}
     </h2>
@@ -88,7 +96,7 @@ const ModalTitle = ({ children, id }: { children?: React.ReactNode; id?: string 
       <Close12Icon className="text-secondary" />
     </Dialog.Close>
   </div>
-)
+))
 
 Modal.Body = classed.div`py-2 overflow-y-auto`
 
