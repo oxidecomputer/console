@@ -1,6 +1,14 @@
 import { Message, Modal } from '@oxide/ui'
 
 import { clearConfirmDelete, useConfirmDelete } from 'app/stores/confirm-delete'
+import { addToast } from 'app/stores/toast'
+
+const errorToast = () =>
+  addToast({
+    variant: 'error',
+    title: 'Could not delete resource',
+    content: 'Please try again',
+  })
 
 export function ConfirmDeleteModal() {
   const deleteConfig = useConfirmDelete((state) => state.deleteConfig)
@@ -20,8 +28,8 @@ export function ConfirmDeleteModal() {
       </Modal.Section>
       <Modal.Footer
         onDismiss={clearConfirmDelete}
-        onAction={() => {
-          doDelete()
+        onAction={async () => {
+          await doDelete().catch(errorToast)
           clearConfirmDelete()
         }}
         cancelText="Cancel"

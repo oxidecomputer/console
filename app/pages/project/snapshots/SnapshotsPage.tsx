@@ -68,7 +68,7 @@ export function SnapshotsPage() {
       onActivate() {
         confirmDelete({
           doDelete: () =>
-            deleteSnapshot.mutate({
+            deleteSnapshot.mutateAsync({
               path: { snapshot: snapshot.name },
               query: projectSelector,
             }),

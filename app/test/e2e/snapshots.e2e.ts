@@ -7,7 +7,7 @@ test('Click through snapshots', async ({ page }) => {
     'role=heading[name*="Snapshots"]',
     'role=cell[name="snapshot-1"]',
     'role=cell[name="snapshot-2"]',
-    'role=cell[name="snapshot-3"]',
+    'role=cell[name="delete-500"]',
     'role=cell[name="snapshot-4"]',
     'role=cell[name="snapshot-disk-deleted"]',
   ])
@@ -21,10 +21,10 @@ test('Click through snapshots', async ({ page }) => {
 test('Confirm delete snapshot', async ({ page }) => {
   await page.goto('/projects/mock-project/snapshots')
 
-  const row2 = page.getByRole('row', { name: 'snapshot-2' })
+  const row = page.getByRole('row', { name: 'snapshot-2' })
 
   async function clickDelete() {
-    await row2.getByRole('button', { name: 'Row actions' }).click()
+    await row.getByRole('button', { name: 'Row actions' }).click()
     await page.getByRole('menuitem', { name: 'Delete' }).click()
   }
 
@@ -42,5 +42,26 @@ test('Confirm delete snapshot', async ({ page }) => {
   await page.getByRole('button', { name: 'Confirm' }).click()
 
   // modal closes, row is gone
-  await expectNotVisible(page, [modal, row2])
+  await expectNotVisible(page, [modal, row])
+})
+
+test('Error on delete snapshot', async ({ page }) => {
+  await page.goto('/projects/mock-project/snapshots')
+
+  const row = page.getByRole('row', { name: 'delete-500' })
+
+  await row.getByRole('button', { name: 'Row actions' }).click()
+  await page.getByRole('menuitem', { name: 'Delete' }).click()
+
+  const modal = page.getByRole('dialog', { name: 'Confirm delete' })
+  await expect(modal).toBeVisible()
+
+  await page.getByRole('button', { name: 'Confirm' }).click()
+
+  // modal closes, but row is not gone and error toast is visible
+  await expect(modal).toBeHidden()
+  await expectVisible(page, [
+    row,
+    page.getByText('Could not delete resource', { exact: true }),
+  ])
 })

@@ -1,7 +1,8 @@
 import { create } from 'zustand'
 
 type DeleteConfig = {
-  doDelete: () => void
+  /** Must be `mutateAsync`, otherwise we can't catch the error generically */
+  doDelete: () => Promise<void>
   warning?: string
   resourceName: string
 }

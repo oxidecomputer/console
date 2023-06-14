@@ -546,6 +546,8 @@ export const handlers = makeHandlers({
   },
   snapshotView: ({ path, query }) => lookup.snapshot({ ...path, ...query }),
   snapshotDelete({ path, query }) {
+    if (path.snapshot === 'delete-500') return 500
+
     const snapshot = lookup.snapshot({ ...path, ...query })
     db.snapshots = db.snapshots.filter((s) => s.id !== snapshot.id)
     return 204
