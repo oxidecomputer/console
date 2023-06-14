@@ -40,13 +40,35 @@ ImagesPage.loader = async ({ params }: LoaderFunctionArgs) => {
 export function ImagesPage() {
   const projectSelector = useProjectSelector()
   const { Table, Column } = useQueryTable('imageList', { query: projectSelector })
+  const queryClient = useApiQueryClient()
+  const addToast = useToast()
 
   const [promoteImageName, setPromoteImageName] = useState<string | null>(null)
 
+  const deleteImage = useApiMutation('imageDelete', {
+    onSuccess(_data, variables) {
+      addToast({
+        content: `${variables.path.image} has been deleted`,
+      })
+      queryClient.invalidateQueries('imageList', { query: projectSelector })
+    },
+    onError: (error) => {
+      const content =
+        'message' in error ? (error.message as string) : 'Something went wrong'
+      addToast({ title: 'Error', content, variant: 'error' })
+    },
+  })
+
   const makeActions = (image: Image): MenuAction[] => [
     {
-      label: 'Promote image',
+      label: 'Promote',
       onActivate: () => setPromoteImageName(image.name),
+    },
+    {
+      label: 'Delete',
+      onActivate: () => {
+        deleteImage.mutate({ path: { image: image.name }, query: projectSelector })
+      },
     },
   ]
 

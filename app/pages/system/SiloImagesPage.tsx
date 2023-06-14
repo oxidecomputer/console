@@ -49,7 +49,7 @@ export function SiloImagesPage() {
 
   const makeActions = (image: Image): MenuAction[] => [
     {
-      label: 'Demote image',
+      label: 'Demote',
       onActivate: () => setDemoteImage(image),
     },
   ]

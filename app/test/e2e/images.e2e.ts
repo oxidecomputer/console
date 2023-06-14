@@ -53,7 +53,7 @@ test('can promote an image from project', async ({ page }) => {
     .locator('role=row', { hasText: 'image-2' })
     .locator('role=button[name="Row actions"]')
     .click()
-  await page.click('role=menuitem[name="Promote image"]')
+  await page.click('role=menuitem[name="Promote"]')
 
   // Modal is visible
   await expect(page.getByText('Are you sure you want to promote image-2?')).toBeVisible()
@@ -105,7 +105,7 @@ test('can demote an image from silo', async ({ page }) => {
     .locator('role=row', { hasText: 'arch-2022-06-01' })
     .locator('role=button[name="Row actions"]')
     .click()
-  await page.click('role=menuitem[name="Demote image"]')
+  await page.click('role=menuitem[name="Demote"]')
 
   // Notice is visible
   await expect(
@@ -120,7 +120,7 @@ test('can demote an image from silo', async ({ page }) => {
   // Cannot demote without first selecting a project
   await page.locator('role=button[name="Demote"]').click()
   await expect(
-    page.getByRole('dialog', { name: 'Demote image' }).getByText('Project is required')
+    page.getByRole('dialog', { name: 'Demote' }).getByText('Project is required')
   ).toBeVisible()
 
   // Select an project to demote it
@@ -136,4 +136,18 @@ test('can demote an image from silo', async ({ page }) => {
 
   await page.click('role=link[name="View images in mock-project"]')
   await expectVisible(page, ['role=cell[name="arch-2022-06-01"]'])
+})
+
+test('can delete an image from a project', async ({ page }) => {
+  await page.goto('/projects/mock-project/images')
+
+  await page
+    .locator('role=row', { hasText: 'image-3' })
+    .locator('role=button[name="Row actions"]')
+    .click()
+  await page.click('role=menuitem[name="Delete"]')
+
+  // Check deletion was successful
+  await expectVisible(page, ['text="image-3 has been deleted"'])
+  await expectNotVisible(page, ['role=cell[name="image-3"]'])
 })
