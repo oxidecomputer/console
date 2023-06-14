@@ -17,6 +17,7 @@ import {
 
 import { SnapshotStatusBadge } from 'app/components/StatusBadge'
 import { getProjectSelector, useProjectSelector } from 'app/hooks'
+import { confirmDelete } from 'app/stores/confirm-delete'
 import { pb } from 'app/util/path-builder'
 
 const DiskNameFromId = ({ value }: { value: string }) => {
@@ -64,7 +65,14 @@ export function SnapshotsPage() {
     {
       label: 'Delete',
       onActivate() {
-        deleteSnapshot.mutate({ path: { snapshot: snapshot.name }, query: projectSelector })
+        confirmDelete({
+          doDelete: () =>
+            deleteSnapshot.mutate({
+              path: { snapshot: snapshot.name },
+              query: projectSelector,
+            }),
+          resourceName: snapshot.name,
+        })
       },
     },
   ]

@@ -15,6 +15,7 @@ import {
   buttonStyle,
 } from '@oxide/ui'
 
+import { confirmDelete } from 'app/stores/confirm-delete'
 import { pb } from 'app/util/path-builder'
 
 import { useQuickActions } from '../hooks'
@@ -70,9 +71,11 @@ export default function ProjectsPage() {
     },
     {
       label: 'Delete',
-      onActivate: () => {
-        deleteProject.mutate({ path: { project: project.name } })
-      },
+      onActivate: () =>
+        confirmDelete({
+          doDelete: () => deleteProject.mutate({ path: { project: project.name } }),
+          resourceName: project.name,
+        }),
     },
   ]
 
