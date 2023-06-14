@@ -1,6 +1,7 @@
 import * as Dialog from '@radix-ui/react-dialog'
 import { animated, useTransition } from '@react-spring/web'
-import React, { createContext, useContext, useId } from 'react'
+import type { ForwardedRef } from 'react'
+import React, { createContext, forwardRef, useContext, useId } from 'react'
 
 import { classed } from '@oxide/util'
 
@@ -79,15 +80,23 @@ export function Modal({ children, onDismiss, title, isOpen }: ModalProps) {
 
 // not exported because we want to use the `title` prop on Modal so the aria
 // label gets hooked up properly
-const ModalTitle = ({ children, id }: { children?: React.ReactNode; id?: string }) => (
-  <div className="flex items-center justify-between border-b py-4 px-4 bg-secondary border-b-secondary">
-    <h2 className="text-sans-semi-lg" id={id}>
-      {children}
-    </h2>
-    <Dialog.Close className="-m-2 flex rounded p-2 hover:bg-hover" aria-label="Close">
-      <Close12Icon className="text-secondary" />
-    </Dialog.Close>
-  </div>
+const ModalTitle = forwardRef(
+  (
+    { children, id }: { children?: React.ReactNode; id?: string },
+    ref: ForwardedRef<HTMLDivElement>
+  ) => (
+    <div
+      className="flex items-center justify-between border-b py-4 px-4 bg-secondary border-b-secondary"
+      ref={ref}
+    >
+      <h2 className="text-sans-semi-lg" id={id}>
+        {children}
+      </h2>
+      <Dialog.Close className="-m-2 flex rounded p-2 hover:bg-hover" aria-label="Close">
+        <Close12Icon className="text-secondary" />
+      </Dialog.Close>
+    </div>
+  )
 )
 
 Modal.Body = classed.div`py-2 overflow-y-auto`
