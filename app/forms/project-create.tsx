@@ -7,7 +7,7 @@ import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
 import { pb } from 'app/util/path-builder'
 
-import { useToast } from '../hooks'
+import { addToast } from '../hooks'
 
 const defaultValues: ProjectCreate = {
   name: '',
@@ -17,7 +17,6 @@ const defaultValues: ProjectCreate = {
 export function CreateProjectSideModalForm() {
   const navigate = useNavigate()
   const queryClient = useApiQueryClient()
-  const addToast = useToast()
 
   const onDismiss = () => navigate(pb.projects())
 
