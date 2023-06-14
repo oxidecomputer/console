@@ -69,6 +69,11 @@ export const handlers = makeHandlers({
   projectDelete({ path }) {
     const project = lookup.project({ ...path })
 
+    // imitate API logic (TODO: check for every other kind of project child)
+    if (db.vpcs.some((vpc) => vpc.project_id === project.id)) {
+      throw 'Project to be deleted contains a VPC'
+    }
+
     db.projects = db.projects.filter((p) => p.id !== project.id)
 
     return 204
