@@ -110,9 +110,9 @@ const PromoteImageModal = ({ onDismiss, imageName }: PromoteModalProps) => {
   const queryClient = useApiQueryClient()
   const addToast = useToast()
   const promoteImage = useApiMutation('imagePromote', {
-    onSuccess() {
+    onSuccess(data) {
       addToast({
-        content: 'Image has been promoted',
+        content: `${data.name} has been promoted`,
         cta: {
           text: 'View silo images',
           link: '/images',
