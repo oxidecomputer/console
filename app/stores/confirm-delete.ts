@@ -8,14 +8,23 @@ type DeleteConfig = {
 
 type ConfirmDeleteStore = {
   deleteConfig: DeleteConfig | null
-  confirm: (d: DeleteConfig) => void
-  clear: () => void
 }
 
-export const useConfirmDelete = create<ConfirmDeleteStore>()((set) => ({
+export const useConfirmDelete = create<ConfirmDeleteStore>(() => ({
   deleteConfig: null,
-  confirm: (deleteConfig) => set({ deleteConfig }),
-  clear: () => set({ deleteConfig: null }),
 }))
 
-export const confirmDelete = useConfirmDelete.getState().confirm
+// zustand docs say this pattern is equivalent to putting the actions on the
+// store and has no downsides, despite all the readme examples doing it the
+// other way. We do it this way so can modify the store in callbacks without
+// calling the useStore hook. Only components that need to subscribe to changes
+// in the store need to the hook.
+// https://github.com/pmndrs/zustand/blob/a5343354/docs/guides/practice-with-no-store-actions.md
+
+export function confirmDelete(deleteConfig: DeleteConfig) {
+  useConfirmDelete.setState({ deleteConfig })
+}
+
+export function clearConfirmDelete() {
+  useConfirmDelete.setState({ deleteConfig: null })
+}

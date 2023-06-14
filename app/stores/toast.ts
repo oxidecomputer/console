@@ -14,10 +14,14 @@ type ToastStore = {
   remove: (id: Toast['id']) => void
 }
 
-export const useToastStore = create<ToastStore>()((set) => ({
+export const useToastStore = create<ToastStore>((set) => ({
   toasts: [],
   add: (options) => set(({ toasts }) => ({ toasts: [...toasts, { id: uuid(), options }] })),
   remove: (id) => set(({ toasts }) => ({ toasts: toasts.filter((t) => t.id !== id) })),
 }))
 
-export const addToast = useToastStore.getState().add
+// TODO: take add and remove out of the store once everthing is converted to this addToast
+
+export function addToast(options: Toast['options']) {
+  useToastStore.getState().add(options)
+}

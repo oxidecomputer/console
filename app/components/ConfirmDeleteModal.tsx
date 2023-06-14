@@ -1,17 +1,16 @@
 import { Message, Modal } from '@oxide/ui'
 
-import { useConfirmDelete } from 'app/stores/confirm-delete'
+import { clearConfirmDelete, useConfirmDelete } from 'app/stores/confirm-delete'
 
 export function ConfirmDeleteModal() {
   const deleteConfig = useConfirmDelete((state) => state.deleteConfig)
-  const clear = useConfirmDelete((state) => state.clear)
 
   if (!deleteConfig) return null
 
   const { doDelete, warning, resourceName } = deleteConfig
 
   return (
-    <Modal isOpen onDismiss={clear} title="Confirm delete">
+    <Modal isOpen onDismiss={clearConfirmDelete} title="Confirm delete">
       <Modal.Section>
         <p>
           Are you sure you want to delete{' '}
@@ -20,10 +19,10 @@ export function ConfirmDeleteModal() {
         {warning && <Message variant="error" content={warning} />}
       </Modal.Section>
       <Modal.Footer
-        onDismiss={clear}
+        onDismiss={clearConfirmDelete}
         onAction={() => {
           doDelete()
-          clear()
+          clearConfirmDelete()
         }}
         cancelText="Cancel"
         actionText="Confirm"
