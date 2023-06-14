@@ -16,7 +16,7 @@ import {
   TableActions,
 } from '@oxide/ui'
 
-import { ListboxField } from 'app/components/form'
+import { ListboxField, toListboxItem } from 'app/components/form'
 import { useToast } from 'app/hooks'
 
 const EmptyState = () => (
@@ -146,20 +146,7 @@ const ImageListboxField = ({
       control={control}
       name="image"
       placeholder="Select an image"
-      items={images.map((i) => {
-        return {
-          value: i.name,
-          labelString: `${i.name} (${i.os}, ${i.version})`,
-          label: (
-            <>
-              <div>{i.name}</div>
-              <div className="text-secondary">
-                {i.os} <span className="text-quinary">/</span> {i.version}
-              </div>
-            </>
-          ),
-        }
-      })}
+      items={images.map((i) => toListboxItem(i))}
       isLoading={imagesQuery.isLoading}
       required
       disabled={!project}
