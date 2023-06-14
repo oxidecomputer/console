@@ -31,7 +31,7 @@ type ApiClient = Record<string, (...args: any) => Promise<ApiResult<any>>>
 // getUseApiQuery, etc. This is fine because it is only being called inside
 // functions where `method` is already required to be an API method.
 const handleResult =
-  ({ method, cacheErrors }: { method: string; cacheErrors?: boolean }) =>
+  (method: string) =>
   <Data>(result: ApiResult<Data>) => {
     if (result.type === 'success') return result.data
 
@@ -44,18 +44,8 @@ const handleResult =
       // action, e.g., polling or refetching when window regains focus
       navToLogin({ includeCurrent: true })
     }
-    const processedError = processServerError(method, result)
-    // Most of the time we rethrow because that's how react-query knows it's an
-    // error. But if we do that, the response is not cached. In cases where we
-    // expect an error, like if we want to check whether something exists and a
-    // 404 is a "successful" no, then we want that cached. Unfortunately, that
-    // makes the type of `data` on the hook wrong, because it can now be this
-    // error object in addition to the model we're trying to fetch. Ideally, the
-    // type of `data` would be `Result<A[M]> | ApiError`, but only when
-    // `cacheErrors` is true. That would leave the existing call sites alone and
-    // make the users of this option correct.
-    if (cacheErrors) return processedError
-    throw processedError
+    // we need to rethrow because that's how react-query knows it's an error
+    throw processServerError(method, result)
   }
 
 export const getUseApiQuery =
@@ -63,15 +53,11 @@ export const getUseApiQuery =
   <M extends string & keyof A>(
     method: M,
     params: Params<A[M]>,
-    {
-      cacheErrors,
-      ...options
-    }: UseQueryOptions<Result<A[M]>, ApiError> & { cacheErrors?: boolean } = {}
+    options: UseQueryOptions<Result<A[M]>, ApiError> = {}
   ) => {
     return useQuery(
       [method, params] as QueryKey,
-      ({ signal }) =>
-        api[method](params, { signal }).then(handleResult({ method, cacheErrors })),
+      ({ signal }) => api[method](params, { signal }).then(handleResult(method)),
       // no catch, let unexpected errors bubble up
       {
         // In the case of 404s, let the error bubble up to the error boundary so
@@ -84,6 +70,33 @@ export const getUseApiQuery =
     )
   }
 
+/**
+ * The only difference from `getUseApiQuery`: we turn all errors into successes.
+ * Instead of throwing the error, we return it as a valid result. This means
+ * `data` has a type that includes the possibility of error, plus a discriminant
+ * to let us handle both sides properly in the calling code.
+ */
+export const getUseApiQueryErrorsAllowed =
+  <A extends ApiClient>(api: A) =>
+  <M extends string & keyof A>(
+    method: M,
+    params: Params<A[M]>,
+    options: UseQueryOptions<
+      { type: 'success'; data: Result<A[M]> } | { type: 'error'; data: ApiError },
+      ApiError
+    > = {}
+  ) => {
+    return useQuery(
+      [method, params] as QueryKey,
+      ({ signal }) =>
+        api[method](params, { signal })
+          .then(handleResult(method))
+          .then((data) => ({ type: 'success' as const, data }))
+          .catch((data) => ({ type: 'error' as const, data })),
+      options
+    )
+  }
+
 export const getUseApiMutation =
   <A extends ApiClient>(api: A) =>
   <M extends string & keyof A>(
@@ -91,7 +104,7 @@ export const getUseApiMutation =
     options?: UseMutationOptions<Result<A[M]>, ApiError, Params<A[M]>>
   ) =>
     useMutation(
-      (params) => api[method](params).then(handleResult({ method })),
+      (params) => api[method](params).then(handleResult(method)),
       // no catch, let unexpected errors bubble up
       options
     )
@@ -121,7 +134,7 @@ export const wrapQueryClient = <A extends ApiClient>(api: A, queryClient: QueryC
   ) =>
     queryClient.fetchQuery({
       queryKey: [method, params],
-      queryFn: () => api[method](params).then(handleResult({ method })),
+      queryFn: () => api[method](params).then(handleResult(method)),
       ...options,
     }),
   prefetchQuery: <M extends string & keyof A>(
@@ -131,7 +144,7 @@ export const wrapQueryClient = <A extends ApiClient>(api: A, queryClient: QueryC
   ) =>
     queryClient.prefetchQuery({
       queryKey: [method, params],
-      queryFn: () => api[method](params).then(handleResult({ method })),
+      queryFn: () => api[method](params).then(handleResult(method)),
       ...options,
     }),
 })

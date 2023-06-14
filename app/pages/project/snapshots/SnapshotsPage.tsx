@@ -2,7 +2,12 @@ import type { LoaderFunctionArgs } from 'react-router-dom'
 import { Link, Outlet } from 'react-router-dom'
 
 import type { Snapshot } from '@oxide/api'
-import { apiQueryClient, useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
+import {
+  apiQueryClient,
+  useApiMutation,
+  useApiQueryClient,
+  useApiQueryErrorsAllowed,
+} from '@oxide/api'
 import type { MenuAction } from '@oxide/table'
 import { DateCell, SizeCell, useQueryTable } from '@oxide/table'
 import {
@@ -11,6 +16,7 @@ import {
   PageHeader,
   PageTitle,
   Snapshots24Icon,
+  Spinner,
   TableActions,
   buttonStyle,
 } from '@oxide/ui'
@@ -21,18 +27,11 @@ import { confirmDelete } from 'app/stores/confirm-delete'
 import { pb } from 'app/util/path-builder'
 
 const DiskNameFromId = ({ value }: { value: string }) => {
-  const { data } = useApiQuery(
-    'diskView',
-    { path: { disk: value } },
-    // this can 404 if the source disk has been deleted, and that's fine
-    { useErrorBoundary: false, cacheErrors: true }
-  )
+  const { data } = useApiQueryErrorsAllowed('diskView', { path: { disk: value } })
 
-  if (!data) return null
-  if ('statusCode' in data && data.statusCode === 404) {
-    return <Badge color="neutral">Deleted</Badge>
-  }
-  return <span className="text-secondary">{data.name}</span>
+  if (!data) return <Spinner />
+  if (data.type === 'error') return <Badge color="neutral">Deleted</Badge>
+  return <span className="text-secondary">{data.data.name}</span>
 }
 
 const EmptyState = () => (
