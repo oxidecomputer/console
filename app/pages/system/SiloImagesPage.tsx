@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import type { Control, FieldValues } from 'react-hook-form'
 import { Outlet } from 'react-router-dom'
 
 import { apiQueryClient, useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
@@ -16,7 +15,7 @@ import {
   TableActions,
 } from '@oxide/ui'
 
-import { ListboxField } from 'app/components/form'
+import { ListboxField, toListboxItem } from 'app/components/form'
 import { useToast } from 'app/hooks'
 
 const EmptyState = () => (
@@ -60,8 +59,11 @@ export function SiloImagesPage() {
   )
 }
 
+type Values = { project: string | null; image: string | null }
+const defaultValues: Values = { project: null, image: null }
+
 const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
-  const { control, handleSubmit, watch, resetField } = useForm()
+  const { control, handleSubmit, watch, resetField } = useForm({ defaultValues })
 
   const queryClient = useApiQueryClient()
   const addToast = useToast()
@@ -84,22 +86,24 @@ const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
   const projects = projectsQuery.data?.items || []
   const selectedProject = watch('project')
 
-  const onSubmit = (data: FieldValues) => {
-    promoteImage.mutate({ path: { image: data.image }, query: { project: data.project } })
+  // can only fetch images if a project is selected
+  const imagesQuery = useApiQuery(
+    'imageList',
+    { query: { project: selectedProject! } },
+    { enabled: !!selectedProject }
+  )
+  const images = imagesQuery.data?.items || []
+
+  const onSubmit = ({ image, project }: Values) => {
+    if (!image || !project) return
+    promoteImage.mutate({ path: { image }, query: { project } })
   }
 
   return (
     <Modal isOpen onDismiss={onDismiss} title="Promote image">
       <Modal.Body>
         <Modal.Section>
-          <form
-            autoComplete="off"
-            onSubmit={(e) => {
-              e.stopPropagation()
-              handleSubmit(onSubmit)(e)
-            }}
-            className="space-y-4"
-          >
+          <form autoComplete="off" onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <ListboxField
               placeholder="Filter images by project"
               name="project"
@@ -114,7 +118,15 @@ const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
               required
               control={control}
             />
-            <ImageListboxField control={control} project={selectedProject} />
+            <ListboxField
+              control={control}
+              name="image"
+              placeholder="Select an image"
+              items={images.map((i) => toListboxItem(i))}
+              isLoading={imagesQuery.isLoading}
+              required
+              disabled={!selectedProject}
+            />
           </form>
           <Message
             variant="info"
@@ -128,41 +140,5 @@ const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
         actionText="Promote"
       />
     </Modal>
-  )
-}
-
-const ImageListboxField = ({
-  control,
-  project,
-}: {
-  control: Control<FieldValues>
-  project: string
-}) => {
-  const imagesQuery = useApiQuery('imageList', { query: { project: project } })
-  const images = imagesQuery.data?.items || []
-
-  return (
-    <ListboxField
-      control={control}
-      name="image"
-      placeholder="Select an image"
-      items={images.map((i) => {
-        return {
-          value: i.name,
-          labelString: `${i.name} (${i.os}, ${i.version})`,
-          label: (
-            <>
-              <div>{i.name}</div>
-              <div className="text-secondary">
-                {i.os} <span className="text-quinary">/</span> {i.version}
-              </div>
-            </>
-          ),
-        }
-      })}
-      isLoading={imagesQuery.isLoading}
-      required
-      disabled={!project}
-    />
   )
 }
