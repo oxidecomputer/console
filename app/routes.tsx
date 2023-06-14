@@ -210,6 +210,7 @@ export const routes = createRoutesFromElements(
       <Route
         path="projects/:project"
         element={<ProjectLayout overrideContentPane={<SerialConsoleContentPane />} />}
+        loader={ProjectLayout.loader}
         handle={{ crumb: projectCrumb }}
       >
         <Route path="instances" handle={{ crumb: 'Instances' }}>
@@ -226,6 +227,7 @@ export const routes = createRoutesFromElements(
       <Route
         path="projects/:project"
         element={<ProjectLayout />}
+        loader={ProjectLayout.loader}
         handle={{ crumb: projectCrumb }}
       >
         <Route
