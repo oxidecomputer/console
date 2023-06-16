@@ -113,7 +113,7 @@ const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
 
   const onSubmit = ({ image, project }: Values) => {
     if (!image || !project) return
-    promoteImage.mutate({ path: { image }, query: { project } })
+    promoteImage.mutate({ path: { image } })
   }
 
   return (
