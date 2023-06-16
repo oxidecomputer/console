@@ -5,7 +5,7 @@ import invariant from 'tiny-invariant'
 
 import { type Image, apiQueryClient, useApiQuery } from '@oxide/api'
 import { Images16Icon, PropertiesTable, ResourceLabel, Truncate } from '@oxide/ui'
-import { bytesToGiB, formatDateTime, toPathQuery } from '@oxide/util'
+import { bytesToGiB, formatDateTime } from '@oxide/util'
 
 import { DescriptionField, NameField, SideModalForm, TextField } from 'app/components/form'
 import {
@@ -17,41 +17,32 @@ import {
 import { pb } from 'app/util/path-builder'
 
 EditProjectImageSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
-  await apiQueryClient.prefetchQuery(
-    'imageView',
-    toPathQuery('image', getProjectImageSelector(params))
-  )
+  const { project, image } = getProjectImageSelector(params)
+  await apiQueryClient.prefetchQuery('imageView', { path: { image }, query: { project } })
   return null
 }
 
 export function EditProjectImageSideModalForm() {
-  const projectImageSelector = useProjectImageSelector()
-  const projectImageQuery = toPathQuery('image', projectImageSelector)
-  const { data: image } = useApiQuery('imageView', projectImageQuery)
+  const { project, image } = useProjectImageSelector()
+  const { data } = useApiQuery('imageView', { path: { image }, query: { project } })
+  invariant(data, 'Image must be prefetched in loader')
 
-  return (
-    <EditImageSideModalForm
-      image={image}
-      dismissLink={pb.projectImages({ project: projectImageSelector.project })}
-      type="Project"
-    />
-  )
+  const dismissLink = pb.projectImages({ project })
+  return <EditImageSideModalForm image={data} dismissLink={dismissLink} type="Project" />
 }
 
 EditSiloImageSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
-  await apiQueryClient.prefetchQuery(
-    'imageView',
-    toPathQuery('image', getSiloImageSelector(params))
-  )
+  const { image } = getSiloImageSelector(params)
+  await apiQueryClient.prefetchQuery('imageView', { path: { image } })
   return null
 }
 
 export function EditSiloImageSideModalForm() {
-  const siloImageSelector = useSiloImageSelector()
-  const siloImageQuery = toPathQuery('image', siloImageSelector)
-  const { data: image } = useApiQuery('imageView', siloImageQuery)
+  const { image } = useSiloImageSelector()
+  const { data } = useApiQuery('imageView', { path: { image } })
+  invariant(data, 'Image must be prefetched in loader')
 
-  return <EditImageSideModalForm image={image} dismissLink={pb.siloImages()} type="Silo" />
+  return <EditImageSideModalForm image={data} dismissLink={pb.siloImages()} type="Silo" />
 }
 
 export function EditImageSideModalForm({
@@ -59,15 +50,11 @@ export function EditImageSideModalForm({
   dismissLink,
   type,
 }: {
-  image: Image | undefined
+  image: Image
   dismissLink: string
   type: 'Project' | 'Silo'
 }) {
   const navigate = useNavigate()
-  const onDismiss = () => navigate(dismissLink)
-
-  invariant(image, 'IdP was not prefetched in loader')
-
   const form = useForm({ mode: 'all', defaultValues: image })
 
   return (
@@ -75,7 +62,7 @@ export function EditImageSideModalForm({
       id="edit-project-image-form"
       form={form}
       title={`${type} image`}
-      onDismiss={onDismiss}
+      onDismiss={() => navigate(dismissLink)}
       subtitle={
         <ResourceLabel>
           <Images16Icon /> {image.name}
