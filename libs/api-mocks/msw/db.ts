@@ -127,16 +127,25 @@ export const lookup = {
 
     return subnet
   },
-  image({ image: id, ...projectSelector }: PP.Image): Json<Api.Image> {
+  image({ image: id, project: projectId }: PP.Image): Json<Api.Image> {
     if (!id) throw notFoundErr
 
-    const project_id = projectSelector.project && lookup.project(projectSelector).id
+    let image: Json<Api.Image> | undefined
+    if (projectId === undefined) {
+      // silo image
 
-    if (isUuid(id)) return lookupById(db.images, id)
+      image = db.images.find((d) => d.project_id === undefined && d.name === id)
+    } else {
+      // project image
 
-    const image = db.images.find((d) => d.project_id === project_id && d.name === id)
+      // look up the project even if we're selecting by ID because a bad
+      // project ID should still 404
+      const project = lookup.project({ project: projectId })
+      if (isUuid(id)) return lookupById(db.images, id)
+      image = db.images.find((d) => d.project_id === project.id && d.name === id)
+    }
+
     if (!image) throw notFoundErr
-
     return image
   },
   samlIdp({
