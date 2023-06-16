@@ -1,6 +1,12 @@
 import { test } from '@playwright/test'
 
-import { expect, expectNotVisible, expectVisible } from './utils'
+import {
+  clickRowAction,
+  clipboardText,
+  expect,
+  expectNotVisible,
+  expectVisible,
+} from './utils'
 
 test('can promote an image from silo', async ({ page }) => {
   await page.goto('/images')
@@ -14,11 +20,7 @@ test('can promote an image from silo', async ({ page }) => {
   await expect(page.locator(`text="Select an image"`)).toBeVisible()
 
   // Notice is visible
-  await expect(
-    page.locator(
-      `text="Once an image has been promoted it is visible to all projects in a silo"`
-    )
-  ).toBeVisible()
+  await expect(page.getByText('visible to all projects')).toBeVisible()
 
   // Select a project
   await page.locator('role=button[name*="Project"]').click()
@@ -49,19 +51,11 @@ test('can promote an image from project', async ({ page }) => {
   await page.goto('/projects/mock-project/images')
 
   // Click on the row actions button for image-2 and open promote modal
-  await page
-    .locator('role=row', { hasText: 'image-2' })
-    .locator('role=button[name="Row actions"]')
-    .click()
-  await page.click('role=menuitem[name="Promote"]')
+  await clickRowAction(page, 'image-2', 'Promote')
 
   // Modal is visible
   await expect(page.getByText('Are you sure you want to promote image-2?')).toBeVisible()
-  await expect(
-    page.locator(
-      `text="Once an image has been promoted it is visible to all projects in a silo"`
-    )
-  ).toBeVisible()
+  await expect(page.getByText('visible to all projects')).toBeVisible()
 
   // Promote image and check it was successful
   await page.locator('role=button[name="Promote"]').click()
@@ -73,50 +67,25 @@ test('can promote an image from project', async ({ page }) => {
 })
 
 test('can copy an image ID to clipboard', async ({ page, browserName }) => {
-  // Skipping on firefox and safari since we cant get `navigator.clipboard.readText()`
   // eslint-disable-next-line playwright/no-skipped-test
-  test.skip(browserName === 'firefox' || browserName === 'webkit', 'Still working on it')
+  test.skip(browserName === 'firefox', 'navigator.clipboard.readText() not supported in FF')
 
   await page.goto('/images')
-
-  await page
-    .locator('role=row', { hasText: 'ubuntu-22-04' })
-    .locator('role=button[name="Row actions"]')
-    .click()
-  await page.click('role=menuitem[name="Copy ID"]')
-
-  expect(await page.evaluate(() => navigator.clipboard.readText())).toEqual(
-    'ae46ddf5-a8d5-40fa-bcda-fcac606e3f9b'
-  )
+  await clickRowAction(page, 'ubuntu-22-04', 'Copy ID')
+  await expect(await clipboardText(page)).toEqual('ae46ddf5-a8d5-40fa-bcda-fcac606e3f9b')
 
   await page.goto('/projects/mock-project/images')
-
-  await page
-    .locator('role=row', { hasText: 'image-4' })
-    .locator('role=button[name="Row actions"]')
-    .click()
-  await page.click('role=menuitem[name="Copy ID"]')
-
-  expect(await page.evaluate(() => navigator.clipboard.readText())).toEqual(
-    'd150b87d-eb20-49d2-8b56-ff5564670e8c'
-  )
+  await clickRowAction(page, 'image-4', 'Copy ID')
+  await expect(await clipboardText(page)).toEqual('d150b87d-eb20-49d2-8b56-ff5564670e8c')
 })
 
 test('can demote an image from silo', async ({ page }) => {
   await page.goto('/images')
 
-  await page
-    .locator('role=row', { hasText: 'arch-2022-06-01' })
-    .locator('role=button[name="Row actions"]')
-    .click()
-  await page.click('role=menuitem[name="Demote"]')
+  await clickRowAction(page, 'arch-2022-06-01', 'Demote')
 
   // Notice is visible
-  await expect(
-    page.locator(
-      `text="Once an image has been demoted it is only visible to the project that it is demoted into. This will not affect disks already created with the image."`
-    )
-  ).toBeVisible()
+  await expect(page.getByText('only visible to the project')).toBeVisible()
 
   // Correct image is selected
   await expect(page.getByText('Demoting: arch-2022-06-01')).toBeVisible()
@@ -145,11 +114,7 @@ test('can demote an image from silo', async ({ page }) => {
 test('can delete an image from a project', async ({ page }) => {
   await page.goto('/projects/mock-project/images')
 
-  await page
-    .locator('role=row', { hasText: 'image-3' })
-    .locator('role=button[name="Row actions"]')
-    .click()
-  await page.click('role=menuitem[name="Delete"]')
+  await clickRowAction(page, 'image-3', 'Delete')
   await page.getByRole('button', { name: 'Confirm' }).click()
 
   // Check deletion was successful
