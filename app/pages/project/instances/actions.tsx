@@ -6,6 +6,7 @@ import type { MakeActions } from '@oxide/table'
 import { toPathQuery } from '@oxide/util'
 
 import { useToast } from 'app/hooks'
+import { confirmDelete } from 'app/stores/confirm-delete'
 import { pb } from 'app/util/path-builder'
 
 const instanceCan: Record<string, (i: Instance) => boolean> = {
@@ -88,14 +89,16 @@ export const useMakeInstanceActions = (
         },
         {
           label: 'Delete',
-          onActivate() {
-            deleteInstance.mutate(instanceParams, {
-              onSuccess: () => {
-                options.onDelete?.()
-                successToast(`Deleting instance '${instanceName}'`)
-              },
-            })
-          },
+          onActivate: confirmDelete({
+            doDelete: () =>
+              deleteInstance.mutateAsync(instanceParams, {
+                onSuccess: () => {
+                  options.onDelete?.()
+                  successToast(`Deleting instance '${instanceName}'`)
+                },
+              }),
+            label: instanceName,
+          }),
           disabled:
             !instanceCan.delete(instance) && 'Only stopped instances can be deleted',
           className: instanceCan.delete(instance) ? 'destructive' : '',

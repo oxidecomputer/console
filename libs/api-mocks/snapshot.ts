@@ -29,7 +29,7 @@ export const snapshots: Json<Snapshot>[] = [
   },
   {
     id: 'e6c58826-62fb-4205-820e-620407cd04e7',
-    name: 'snapshot-3',
+    name: 'delete-500',
     description: "it's a third snapshot",
     project_id: project.id,
     time_created: new Date().toISOString(),

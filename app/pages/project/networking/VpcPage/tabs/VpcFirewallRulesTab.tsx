@@ -17,6 +17,7 @@ import { Button, EmptyMessage, TableEmptyBox } from '@oxide/ui'
 import { CreateFirewallRuleForm } from 'app/forms/firewall-rules-create'
 import { EditFirewallRuleForm } from 'app/forms/firewall-rules-edit'
 import { useVpcSelector } from 'app/hooks'
+import { confirmDelete } from 'app/stores/confirm-delete'
 
 const colHelper = createColumnHelper<VpcFirewallRule>()
 
@@ -67,14 +68,16 @@ export const VpcFirewallRulesTab = () => {
         { label: 'Edit', onActivate: () => setEditing(rule) },
         {
           label: 'Delete',
-          onActivate: () => {
-            updateRules.mutate({
-              query: vpcSelector,
-              body: {
-                rules: rules.filter((r) => r.id !== rule.id),
-              },
-            })
-          },
+          onActivate: confirmDelete({
+            doDelete: () =>
+              updateRules.mutateAsync({
+                query: vpcSelector,
+                body: {
+                  rules: rules.filter((r) => r.id !== rule.id),
+                },
+              }),
+            label: rule.name,
+          }),
         },
       ]),
     ]

@@ -36,8 +36,8 @@ test('can create and delete subnet', async ({ page }) => {
     .locator('role=button[name="Row actions"]')
     .click()
 
-  // filter visible to distinguish from all the hidden menus' Edit button
-  await page.locator('text="Delete" >> visible=true').click()
+  await page.getByRole('menuitem', { name: 'Delete' }).click()
+  await page.getByRole('button', { name: 'Confirm' }).click()
 
   await expect(rows).toHaveCount(1)
 })
