@@ -17,6 +17,7 @@ import {
 } from '@oxide/ui'
 
 import { getProjectSelector, useProjectSelector, useToast } from 'app/hooks'
+import { confirmDelete } from 'app/stores/confirm-delete'
 import { pb } from 'app/util/path-builder'
 
 const EmptyState = () => (
@@ -64,9 +65,11 @@ export function ImagesPage() {
     },
     {
       label: 'Delete',
-      onActivate: () => {
-        deleteImage.mutate({ path: { image: image.name }, query: projectSelector })
-      },
+      onActivate: confirmDelete({
+        doDelete: () =>
+          deleteImage.mutateAsync({ path: { image: image.name }, query: projectSelector }),
+        label: image.name,
+      }),
     },
   ]
 
