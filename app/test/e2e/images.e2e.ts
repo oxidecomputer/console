@@ -149,6 +149,7 @@ test('can delete an image from a project', async ({ page }) => {
     .locator('role=button[name="Row actions"]')
     .click()
   await page.click('role=menuitem[name="Delete"]')
+  await page.getByRole('button', { name: 'Confirm' }).click()
 
   // Check deletion was successful
   await expectVisible(page, ['text="image-3 has been deleted"'])
