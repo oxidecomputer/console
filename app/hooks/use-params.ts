@@ -29,7 +29,9 @@ export const getProjectSelector = requireParams('project')
 export const getInstanceSelector = requireParams('project', 'instance')
 export const getVpcSelector = requireParams('project', 'vpc')
 export const getSiloSelector = requireParams('silo')
+export const getSiloImageSelector = requireParams('image')
 export const getIdpSelector = requireParams('silo', 'provider')
+export const getProjectImageSelector = requireParams('project', 'image')
 export const requireSledParams = requireParams('sledId')
 export const requireUpdateParams = requireParams('version')
 
@@ -59,9 +61,11 @@ function useSelectedParams<T>(getSelector: (params: AllParams) => T) {
 // we do not error if there are other params present in the query string.
 
 export const useProjectSelector = () => useSelectedParams(getProjectSelector)
+export const useProjectImageSelector = () => useSelectedParams(getProjectImageSelector)
 export const useInstanceSelector = () => useSelectedParams(getInstanceSelector)
 export const useVpcSelector = () => useSelectedParams(getVpcSelector)
 export const useSiloSelector = () => useSelectedParams(getSiloSelector)
+export const useSiloImageSelector = () => useSelectedParams(getSiloImageSelector)
 export const useIdpSelector = () => useSelectedParams(getIdpSelector)
 export const useSledParams = () => useSelectedParams(requireSledParams)
 export const useUpdateParams = () => useSelectedParams(requireUpdateParams)

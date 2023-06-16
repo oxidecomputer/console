@@ -102,3 +102,19 @@ export async function stopInstance(page: Page) {
   // close toast. for some reason it prevents things from happening
   await page.click('role=button[name="Dismiss notification"]')
 }
+
+/**
+ * This will not work in Firefox, which only supports reading from the clipboard in extensions.
+ * See [MDN: readText](https://developer.mozilla.org/en-US/docs/Web/API/Clipboard/readText#browser_compatibility).
+ */
+export const clipboardText = async (page: Page) =>
+  page.evaluate(() => navigator.clipboard.readText())
+
+/** Select row by `rowText`, click the row actions button, and click `actionName` */
+export async function clickRowAction(page: Page, rowText: string, actionName: string) {
+  await page
+    .getByRole('row', { name: rowText, exact: false })
+    .getByRole('button', { name: 'Row actions' })
+    .click()
+  await page.getByRole('menuitem', { name: actionName }).click()
+}
