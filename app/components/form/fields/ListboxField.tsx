@@ -3,10 +3,8 @@ import type { Control, FieldPath, FieldValues } from 'react-hook-form'
 import { Controller } from 'react-hook-form'
 
 import type { ListboxItem } from '@oxide/ui'
-import { FieldLabel, Listbox, TextInputHint } from '@oxide/ui'
+import { Listbox } from '@oxide/ui'
 import { capitalize } from '@oxide/util'
-
-import { useUuid } from 'app/hooks'
 
 import { ErrorMessage } from './ErrorMessage'
 
@@ -24,7 +22,8 @@ export type ListboxFieldProps<
   control: Control<TFieldValues>
   disabled?: boolean
   items: ListboxItem[]
-  onChange?: (value: string) => void
+  onChange?: (value: string | null | undefined) => void
+  isLoading?: boolean
 }
 
 export function ListboxField<
@@ -42,18 +41,12 @@ export function ListboxField<
   className,
   control,
   onChange,
+  isLoading,
 }: ListboxFieldProps<TFieldValues, TName>) {
   // TODO: recreate this logic
   //   validate: (v) => (required && !v ? `${name} is required` : undefined),
-  const id = useUuid(name)
   return (
     <div className={cn('max-w-lg', className)}>
-      <div className="mb-2">
-        <FieldLabel id={`${id}-label`} tip={description} optional={!required}>
-          {label}
-        </FieldLabel>
-        {helpText && <TextInputHint id={`${id}-help-text`}>{helpText}</TextInputHint>}
-      </div>
       <Controller
         name={name}
         rules={{ required }}
@@ -61,24 +54,23 @@ export function ListboxField<
         render={({ field, fieldState: { error } }) => (
           <>
             <Listbox
+              helpText={helpText}
+              label={label}
+              description={description}
+              required={required}
               placeholder={placeholder}
+              selected={field.value || null}
               items={items}
-              onChange={(i) => {
-                if (i) {
-                  field.onChange(i.value)
-                  onChange?.(i.value)
-                }
+              onChange={(value) => {
+                field.onChange(value)
+                onChange?.(value)
               }}
-              selectedItem={field.value}
               // required to get required error to trigger on blur
-              onBlur={field.onBlur}
+              // onBlur={field.onBlur}
               disabled={disabled}
-              aria-labelledby={cn(`${id}-label`, {
-                [`${id}-help-text`]: !!description,
-              })}
-              aria-describedby={description ? `${id}-label-tip` : undefined}
               name={name}
               hasError={error !== undefined}
+              isLoading={isLoading}
             />
             <ErrorMessage error={error} label={label} />
           </>

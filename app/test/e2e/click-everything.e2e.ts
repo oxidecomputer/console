@@ -1,6 +1,4 @@
-import { test } from '@playwright/test'
-
-import { expectNotVisible, expectRowVisible, expectVisible } from './utils'
+import { expectNotVisible, expectVisible, test } from './utils'
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/projects/mock-project')
@@ -23,23 +21,6 @@ test('Click through instance page', async ({ page }) => {
     // TODO: assert minitable contents
   ])
   await expectNotVisible(page, ['role=cell[name="disk-3"]'])
-})
-
-test('Click through snapshots page', async ({ page }) => {
-  await page.click('role=link[name*="Snapshots"]')
-  await expectVisible(page, [
-    'role=heading[name*="Snapshots"]',
-    'role=cell[name="snapshot-1"]',
-    'role=cell[name="snapshot-2"]',
-    'role=cell[name="snapshot-3"]',
-    'role=cell[name="snapshot-4"]',
-    'role=cell[name="snapshot-disk-deleted"]',
-  ])
-
-  // test async disk name fetch
-  const table = page.locator('role=table')
-  await expectRowVisible(table, { name: 'snapshot-1', disk: 'disk-1' })
-  await expectRowVisible(table, { name: 'snapshot-disk-deleted', disk: 'Deleted' })
 })
 
 test('Click through disks page', async ({ page }) => {

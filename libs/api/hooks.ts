@@ -70,6 +70,33 @@ export const getUseApiQuery =
     )
   }
 
+/**
+ * The only difference from `getUseApiQuery`: we turn all errors into successes.
+ * Instead of throwing the error, we return it as a valid result. This means
+ * `data` has a type that includes the possibility of error, plus a discriminant
+ * to let us handle both sides properly in the calling code.
+ */
+export const getUseApiQueryErrorsAllowed =
+  <A extends ApiClient>(api: A) =>
+  <M extends string & keyof A>(
+    method: M,
+    params: Params<A[M]>,
+    options: UseQueryOptions<
+      { type: 'success'; data: Result<A[M]> } | { type: 'error'; data: ApiError },
+      ApiError
+    > = {}
+  ) => {
+    return useQuery(
+      [method, params] as QueryKey,
+      ({ signal }) =>
+        api[method](params, { signal })
+          .then(handleResult(method))
+          .then((data) => ({ type: 'success' as const, data }))
+          .catch((data) => ({ type: 'error' as const, data })),
+      options
+    )
+  }
+
 export const getUseApiMutation =
   <A extends ApiClient>(api: A) =>
   <M extends string & keyof A>(

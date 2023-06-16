@@ -1,16 +1,11 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "allowSyntheticDefaultImports": true,
     "baseUrl": ".",
-    "declaration": false,
-    "emitDecoratorMetadata": true,
     "esModuleInterop": true,
-    "experimentalDecorators": true,
     "importHelpers": true,
     "incremental": true,
     "jsx": "react-jsx",
-    "lib": ["es2019", "dom", "DOM.Iterable"],
     "module": "es2020",
     "moduleResolution": "bundler",
     "noEmit": true,

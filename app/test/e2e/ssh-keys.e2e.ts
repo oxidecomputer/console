@@ -14,6 +14,7 @@ test('SSH keys', async ({ page }) => {
   // delete the only ssh key
   await page.click('role=button[name="Row actions"]')
   await page.click('role=menuitem[name="Delete"]')
+  await page.getByRole('button', { name: 'Confirm' }).click()
 
   // should show empty state
   await expectVisible(page, ['text="No SSH keys"'])
@@ -25,16 +26,17 @@ test('SSH keys', async ({ page }) => {
   await page.fill('role=textbox[name="Name"]', 'my-key')
   await page.fill('role=textbox[name="Description"]', 'definitely a key')
   await page.fill('role=textbox[name="Public key"]', 'key contents')
-  await page.click('role=button[name="Add SSH key"]')
+  await page.getByRole('dialog').getByRole('button', { name: 'Add SSH key' }).click()
 
   // it's there in the table
   await expectNotVisible(page, ['text="No SSH keys"'])
-  const table = page.locator('role=table')
+  const table = page.getByRole('table')
   await expectRowVisible(table, { Name: 'my-key', Description: 'definitely a key' })
 
   // now delete it
   await page.click('role=button[name="Row actions"]')
   await page.click('role=menuitem[name="Delete"]')
+  await page.getByRole('button', { name: 'Confirm' }).click()
 
   await expectNotVisible(page, ['role=cell[name="my-key"]'])
   await expectVisible(page, ['text="No SSH keys"'])

@@ -26,12 +26,14 @@ import {
 import { groupBy, isTruthy, toPathQuery } from '@oxide/util'
 
 import { AccessNameCell } from 'app/components/AccessNameCell'
+import { HL } from 'app/components/ConfirmDeleteModal'
 import { RoleBadgeCell } from 'app/components/RoleBadgeCell'
 import {
   ProjectAccessAddUserSideModal,
   ProjectAccessEditUserSideModal,
 } from 'app/forms/project-access'
 import { getProjectSelector, useProjectSelector } from 'app/hooks'
+import { confirmDelete } from 'app/stores/confirm-delete'
 
 const EmptyState = ({ onClick }: { onClick: () => void }) => (
   <TableEmptyBox>
@@ -138,14 +140,23 @@ export function ProjectAccessPage() {
         // TODO: only show if you have permission to do this
         {
           label: 'Delete',
-          onActivate() {
-            // TODO: confirm delete
-            updatePolicy.mutate({
-              ...projectPathQuery,
-              // we know policy is there, otherwise there's no row to display
-              body: deleteRole(row.id, projectPolicy!),
-            })
-          },
+          onActivate: confirmDelete({
+            doDelete: () =>
+              updatePolicy.mutateAsync({
+                ...projectPathQuery,
+                // we know policy is there, otherwise there's no row to display
+                body: deleteRole(row.id, projectPolicy!),
+              }),
+            // TODO: explain that this will not affect the role inherited from
+            // the silo or roles inherited from group membership. Ideally we'd
+            // be able to say: this will cause the user to have an effective
+            // role of X. However we would have to look at their groups too.
+            label: (
+              <span>
+                the <HL>{row.projectRole}</HL> role for <HL>{row.name}</HL>
+              </span>
+            ),
+          }),
           disabled: !row.projectRole && "You don't have permission to delete this user",
         },
       ]),

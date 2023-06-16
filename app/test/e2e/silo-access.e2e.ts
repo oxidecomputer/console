@@ -1,12 +1,12 @@
-import { test } from '@playwright/test'
-
 import { user3, user4 } from '@oxide/api-mocks'
 
 import {
+  expect,
   expectNotVisible,
   expectRowVisible,
   expectSimultaneous,
   expectVisible,
+  test,
 } from './utils'
 
 test('Click through silo access page', async ({ page }) => {
@@ -41,7 +41,7 @@ test('Click through silo access page', async ({ page }) => {
   await page.click('role=button[name="Add user or group"]')
   await expectVisible(page, ['role=heading[name*="Add user or group"]'])
 
-  await page.click('role=button[name="User or group"]')
+  await page.click('role=button[name*="User or group"]')
   // only users not already on the org should be visible
   await expectNotVisible(page, ['role=option[name="Hannah Arendt"]'])
   await expectVisible(page, [
@@ -52,7 +52,7 @@ test('Click through silo access page', async ({ page }) => {
 
   await page.click('role=option[name="Jacob Klein"]')
 
-  await page.click('role=button[name="Role"]')
+  await page.click('role=button[name*="Role"]')
   await expectVisible(page, [
     'role=option[name="Admin"]',
     'role=option[name="Collaborator"]',
@@ -78,18 +78,17 @@ test('Click through silo access page', async ({ page }) => {
   await expectVisible(page, ['role=heading[name*="Change user role"]'])
   await expectVisible(page, ['button:has-text("Collaborator")'])
 
-  await page.click('role=button[name="Role"]')
+  await page.click('role=button[name*="Role"]')
   await page.click('role=option[name="Viewer"]')
   await page.click('role=button[name="Update role"]')
 
   await expectRowVisible(table, { Name: user3.display_name, 'Silo role': 'viewer' })
 
   // now delete user 3
-  await expectVisible(page, [`role=cell[name="${user3.display_name}"]`])
-  await page
-    .locator('role=row', { hasText: user3.display_name })
-    .locator('role=button[name="Row actions"]')
-    .click()
-  await page.click('role=menuitem[name="Delete"]')
-  await expectNotVisible(page, [`role=cell[name="${user3.display_name}"]`])
+  const user3Row = page.getByRole('row', { name: user3.display_name, exact: false })
+  await expect(user3Row).toBeVisible()
+  await user3Row.getByRole('button', { name: 'Row actions' }).click()
+  await page.getByRole('menuitem', { name: 'Delete' }).click()
+  await page.getByRole('button', { name: 'Confirm' }).click()
+  await expect(user3Row).toBeHidden()
 })

@@ -78,7 +78,7 @@ describe('processServerError', () => {
     const error = makeError({ errorCode: 'WeirdError', message: 'whatever' })
     expect(processServerError('womp', error)).toEqual({
       errorCode: 'WeirdError',
-      message: 'whatever',
+      message: 'Whatever',
       statusCode: 400,
     })
   })

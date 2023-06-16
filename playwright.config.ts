@@ -22,7 +22,12 @@ const config: PlaywrightTestConfig = {
   projects: [
     {
       name: 'chrome',
-      use: { ...devices['Desktop Chrome'] },
+      use: {
+        contextOptions: {
+          permissions: ['clipboard-read', 'clipboard-write'],
+        },
+        ...devices['Desktop Chrome'],
+      },
     },
     {
       name: 'firefox',

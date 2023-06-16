@@ -18,6 +18,7 @@ import {
   NameField,
   RadioField,
   SideModalForm,
+  toListboxItem,
 } from 'app/components/form'
 import { useProjectSelector, useToast } from 'app/hooks'
 
@@ -145,9 +146,11 @@ const DiskSourceField = ({ control }: { control: Control<DiskCreate> }) => {
 const ImageSelectField = ({ control }: { control: Control<DiskCreate> }) => {
   const projectSelector = useProjectSelector()
 
-  const images =
-    useApiQuery('imageList', { query: { includeSiloImages: true, ...projectSelector } })
-      .data?.items || []
+  const imagesQuery = useApiQuery('imageList', {
+    query: { includeSiloImages: true, ...projectSelector },
+  })
+
+  const images = imagesQuery.data?.items || []
 
   return (
     <ListboxField
@@ -155,22 +158,8 @@ const ImageSelectField = ({ control }: { control: Control<DiskCreate> }) => {
       name="diskSource.imageId"
       label="Source image"
       placeholder="Select an image"
-      items={images.map((i) => {
-        return {
-          value: i.id,
-          labelString: `${i.name} (${i.os}, ${i.version})`,
-          label: (
-            <>
-              <div>{i.name}</div>
-              <div className="text-secondary">
-                {i.os} <span className="text-quinary">/</span> {i.version}{' '}
-                <span className="text-quinary">/</span>{' '}
-                {i.projectId ? 'Project image' : 'Silo image'}
-              </div>
-            </>
-          ),
-        }
-      })}
+      isLoading={imagesQuery.isLoading}
+      items={images.map((i) => toListboxItem(i, true))}
       required
     />
   )
@@ -191,8 +180,9 @@ const DiskNameFromId = ({ disk }: { disk: string }) => {
 const SnapshotSelectField = ({ control }: { control: Control<DiskCreate> }) => {
   const projectSelector = useProjectSelector()
 
-  const snapshots =
-    useApiQuery('snapshotList', { query: projectSelector }).data?.items || []
+  const snapshotsQuery = useApiQuery('snapshotList', { query: projectSelector })
+
+  const snapshots = snapshotsQuery.data?.items || []
 
   return (
     <ListboxField
@@ -215,6 +205,7 @@ const SnapshotSelectField = ({ control }: { control: Control<DiskCreate> }) => {
           ),
         }
       })}
+      isLoading={snapshotsQuery.isLoading}
       required
     />
   )

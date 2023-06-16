@@ -61,7 +61,9 @@ export function processServerError(method: string, resp: ErrorResult): ApiError 
   // error code, for some reason
   if (!message) {
     message =
-      getParseError(resp.data.message) || resp.data.message || 'Unknown server error'
+      getParseError(resp.data.message) ||
+      capitalize(resp.data.message) ||
+      'Unknown server error'
   }
 
   return {

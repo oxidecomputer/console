@@ -16,6 +16,7 @@ import {
 } from '@oxide/ui'
 
 import { getProjectSelector, useProjectSelector, useQuickActions } from 'app/hooks'
+import { confirmDelete } from 'app/stores/confirm-delete'
 import { pb } from 'app/util/path-builder'
 
 const EmptyState = () => (
@@ -60,9 +61,11 @@ export function VpcsPage() {
     },
     {
       label: 'Delete',
-      onActivate() {
-        deleteVpc.mutate({ path: { vpc: vpc.name }, query: projectSelector })
-      },
+      onActivate: confirmDelete({
+        doDelete: () =>
+          deleteVpc.mutateAsync({ path: { vpc: vpc.name }, query: projectSelector }),
+        label: vpc.name,
+      }),
     },
   ]
 

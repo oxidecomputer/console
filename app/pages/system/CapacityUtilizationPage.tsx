@@ -140,16 +140,12 @@ export const UtilizationPage = ({
     <>
       <div className="mt-16 mb-8 flex justify-between gap-3">
         <Listbox
-          selectedItem={filterId}
+          selected={filterId}
           className="w-48"
           aria-labelledby="filter-id-label"
           name="filter-id"
           items={filterItems}
-          onChange={(item) => {
-            if (item) {
-              setFilterId(item.value)
-            }
-          }}
+          onChange={setFilterId}
         />
 
         <div className="flex items-center gap-2">{dateTimeRangePicker}</div>
@@ -175,16 +171,12 @@ export const UtilizationPage = ({
             </SpinnerLoader>
           </button>
           <Listbox
-            selectedItem={refetchInterval}
+            selected={refetchInterval}
             className="w-24 [&>button]:!rounded-l-none"
             aria-labelledby="silo-id-label"
             name="silo-id"
             items={refetchIntervalPresets}
-            onChange={(item) => {
-              if (item) {
-                setRefetchInterval(item.value)
-              }
-            }}
+            onChange={setRefetchInterval}
           />
         </div>
       </div>

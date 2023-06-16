@@ -94,22 +94,20 @@ export function DateTimeRangePicker({
   onRangeChange,
 }: DateTimeRangePickerProps) {
   return (
-    <form className="flex items-center gap-2">
-      <div className="flex">
-        <Listbox
-          className="z-10 -mr-[1px] w-[10rem] [&>button]:!rounded-r-none"
-          name="preset"
-          selectedItem={preset}
-          aria-label="Choose a time range preset"
-          items={rangePresets}
-          onChange={(item) => {
-            if (item) {
-              const newPreset = item.value as RangeKeyAll
-              setPreset(newPreset)
-              onRangeChange && onRangeChange(newPreset)
-            }
-          }}
-        />
+    <form className="flex h-20 gap-4">
+      <Listbox
+        className="mr-4 w-48" // in addition to gap-4
+        name="preset"
+        selected={preset}
+        aria-label="Choose a time range preset"
+        items={rangePresets}
+        onChange={(value) => {
+          setPreset(value)
+          onRangeChange?.(value)
+        }}
+      />
+
+      <div>
         <DateRangePicker
           label="Choose a date range"
           value={range}

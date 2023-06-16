@@ -28,17 +28,17 @@ test('Instance networking tab', async ({ page }) => {
     'role=heading[name="Add network interface"]',
     'role=textbox[name="Name"]',
     'role=textbox[name="Description"]',
-    'role=button[name="VPC"]', // listbox
-    'role=button[name="Subnet"]', // listbox
+    'role=button[name*="VPC"]', // listbox
+    'role=button[name*="Subnet"]', // listbox
     'role=textbox[name="IP Address"]',
   ])
 
   await page.fill('role=textbox[name="Name"]', 'nic-2')
-  await page.click('role=button[name="VPC"]')
+  await page.click('role=button[name*="VPC"]')
   await page.click('role=option[name="mock-vpc"]')
-  await page.click('role=button[name="Subnet"]')
+  await page.click('role=button[name*="Subnet"]')
   await page.click('role=option[name="mock-subnet"]')
-  await page.click('role=button[name="Add network interface"]')
+  await page.click('role=dialog >> role=button[name="Add network interface"]')
   await expectVisible(page, ['role=cell[name="nic-2"]'])
 
   // Make this interface primary
@@ -67,5 +67,6 @@ test('Instance networking tab', async ({ page }) => {
     .locator('role=button[name="Row actions"]')
     .click()
   await page.click('role=menuitem[name="Delete"]')
+  await page.getByRole('button', { name: 'Confirm' }).click()
   await expectNotVisible(page, ['role=cell[name="nic-3"]'])
 })

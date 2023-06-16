@@ -6,6 +6,7 @@ import { Link, type To } from 'react-router-dom'
 
 import { Close12Icon, Error12Icon, Success12Icon, Warning12Icon } from '../icons'
 import { TimeoutIndicator } from '../timeout-indicator/TimeoutIndicator'
+import { Truncate } from '../truncate/Truncate'
 
 type Variant = 'success' | 'error' | 'info'
 
@@ -88,7 +89,7 @@ export const Toast = ({
             className="mt-3 block text-mono-sm text-accent-secondary hover:text-accent"
             to={cta.link}
           >
-            {cta.text}
+            <Truncate text={cta.text} maxLength={36} />
           </Link>
         )}
       </div>

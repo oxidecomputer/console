@@ -1,6 +1,9 @@
 {
   "root": true,
   "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "warnOnUnsupportedTypeScriptVersion": false
+  },
   "extends": [
     "eslint:recommended",
     "plugin:jsx-a11y/recommended",

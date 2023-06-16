@@ -15,23 +15,33 @@ const SAMPLE_OPTIONS = [
 ]
 
 export const Default = () => {
-  const [value, setValue] = useState('')
+  const [value, setValue] = useState<string | null>('de')
   return (
-    <Listbox
-      items={SAMPLE_OPTIONS}
-      selectedItem={value}
-      onChange={(e) => setValue(e ? e.value : '')}
-    />
+    <div className="max-w-lg">
+      <Listbox
+        selected={value}
+        onChange={setValue}
+        items={SAMPLE_OPTIONS}
+        name="favorite-animal"
+        placeholder="Select an animal"
+      />
+    </div>
   )
 }
 
-export const WithDefaultValue = () => {
-  const [value, setValue] = useState('de')
+export const WithError = () => {
+  const [value, setValue] = useState<string | null>(null)
+
   return (
-    <Listbox
-      items={SAMPLE_OPTIONS}
-      selectedItem={value}
-      onChange={(e) => setValue(e ? e.value : '')}
-    />
+    <div className="max-w-lg">
+      <Listbox
+        selected={value}
+        onChange={setValue}
+        items={SAMPLE_OPTIONS}
+        name="favorite-animal"
+        placeholder="Select an animal"
+        hasError
+      />
+    </div>
   )
 }

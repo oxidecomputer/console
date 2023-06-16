@@ -21,15 +21,20 @@ export async function map<T>(
   return result
 }
 
-export async function expectVisible(page: Page, selectors: string[]) {
+type Selector = string | Locator
+
+const toLocator = (page: Page, selector: Selector): Locator =>
+  typeof selector === 'string' ? page.locator(selector) : selector
+
+export async function expectVisible(page: Page, selectors: Selector[]) {
   for (const selector of selectors) {
-    await expect(page.locator(selector)).toBeVisible()
+    await expect(toLocator(page, selector)).toBeVisible()
   }
 }
 
-export async function expectNotVisible(page: Page, selectors: string[]) {
+export async function expectNotVisible(page: Page, selectors: Selector[]) {
   for (const selector of selectors) {
-    await expect(page.locator(selector)).toBeHidden()
+    await expect(toLocator(page, selector)).toBeHidden()
   }
 }
 
@@ -96,4 +101,20 @@ export async function stopInstance(page: Page) {
   await page.click('role=menuitem[name="Stop"]')
   // close toast. for some reason it prevents things from happening
   await page.click('role=button[name="Dismiss notification"]')
+}
+
+/**
+ * This will not work in Firefox, which only supports reading from the clipboard in extensions.
+ * See [MDN: readText](https://developer.mozilla.org/en-US/docs/Web/API/Clipboard/readText#browser_compatibility).
+ */
+export const clipboardText = async (page: Page) =>
+  page.evaluate(() => navigator.clipboard.readText())
+
+/** Select row by `rowText`, click the row actions button, and click `actionName` */
+export async function clickRowAction(page: Page, rowText: string, actionName: string) {
+  await page
+    .getByRole('row', { name: rowText, exact: false })
+    .getByRole('button', { name: 'Row actions' })
+    .click()
+  await page.getByRole('menuitem', { name: actionName }).click()
 }

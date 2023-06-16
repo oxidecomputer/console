@@ -4,6 +4,10 @@ import { RouterDataErrorBoundary } from './components/ErrorBoundary'
 import { CreateDiskSideModalForm } from './forms/disk-create'
 import { CreateIdpSideModalForm } from './forms/idp/create'
 import { EditIdpSideModalForm } from './forms/idp/edit'
+import {
+  EditProjectImageSideModalForm,
+  EditSiloImageSideModalForm,
+} from './forms/image-edit'
 import { CreateImageSideModalForm } from './forms/image-upload'
 import { CreateInstanceForm } from './forms/instance-create'
 import { CreateProjectSideModalForm } from './forms/project-create'
@@ -25,6 +29,7 @@ import { SerialConsoleContentPane, userLoader } from './layouts/helpers'
 import DeviceAuthSuccessPage from './pages/DeviceAuthSuccessPage'
 import DeviceAuthVerifyPage from './pages/DeviceAuthVerifyPage'
 import { LoginPage } from './pages/LoginPage'
+import { LoginPageSaml } from './pages/LoginPageSaml'
 import NotFound from './pages/NotFound'
 import ProjectsPage from './pages/ProjectsPage'
 import { SiloAccessPage } from './pages/SiloAccessPage'
@@ -74,6 +79,7 @@ export const routes = createRoutesFromElements(
     <Route path="*" element={<NotFound />} />
     <Route element={<LoginLayout />}>
       <Route path="login/:silo/local" element={<LoginPage />} />
+      <Route path="login/:silo/saml/:provider" element={<LoginPageSaml />} />
     </Route>
 
     <Route path="device" element={<AuthLayout />}>
@@ -196,7 +202,14 @@ export const routes = createRoutesFromElements(
           element={<SiloImagesPage />}
           loader={SiloImagesPage.loader}
           handle={{ crumb: 'Images' }}
-        />
+        >
+          <Route
+            path=":image/edit"
+            element={<EditSiloImageSideModalForm />}
+            loader={EditSiloImageSideModalForm.loader}
+            handle={{ crumb: 'Edit Image' }}
+          />
+        </Route>
         <Route
           path="utilization"
           element={<SiloUtilizationPage />}
@@ -341,6 +354,12 @@ export const routes = createRoutesFromElements(
             path="images-new"
             handle={{ crumb: 'Upload image' }}
             element={<CreateImageSideModalForm />}
+          />
+          <Route
+            path="images/:image/edit"
+            element={<EditProjectImageSideModalForm />}
+            loader={EditProjectImageSideModalForm.loader}
+            handle={{ crumb: 'Edit Image' }}
           />
         </Route>
         <Route
