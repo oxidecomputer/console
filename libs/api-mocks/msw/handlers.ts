@@ -69,6 +69,11 @@ export const handlers = makeHandlers({
   projectDelete({ path }) {
     const project = lookup.project({ ...path })
 
+    // imitate API logic (TODO: check for every other kind of project child)
+    if (db.vpcs.some((vpc) => vpc.project_id === project.id)) {
+      throw 'Project to be deleted contains a VPC'
+    }
+
     db.projects = db.projects.filter((p) => p.id !== project.id)
 
     return 204
@@ -546,6 +551,8 @@ export const handlers = makeHandlers({
   },
   snapshotView: ({ path, query }) => lookup.snapshot({ ...path, ...query }),
   snapshotDelete({ path, query }) {
+    if (path.snapshot === 'delete-500') return 500
+
     const snapshot = lookup.snapshot({ ...path, ...query })
     db.snapshots = db.snapshots.filter((s) => s.id !== snapshot.id)
     return 204

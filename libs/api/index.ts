@@ -7,6 +7,7 @@ import {
   getUseApiMutation,
   getUseApiQuery,
   getUseApiQueryClient,
+  getUseApiQueryErrorsAllowed,
   wrapQueryClient,
 } from './hooks'
 
@@ -17,6 +18,7 @@ export const api = new Api({
 export type ApiMethods = typeof api.methods
 
 export const useApiQuery = getUseApiQuery(api.methods)
+export const useApiQueryErrorsAllowed = getUseApiQueryErrorsAllowed(api.methods)
 export const useApiMutation = getUseApiMutation(api.methods)
 
 // Needs to be defined here instead of in app so we can use it to define

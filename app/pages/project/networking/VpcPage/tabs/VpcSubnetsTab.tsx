@@ -9,6 +9,7 @@ import { Button, EmptyMessage } from '@oxide/ui'
 import { CreateSubnetForm } from 'app/forms/subnet-create'
 import { EditSubnetForm } from 'app/forms/subnet-edit'
 import { useVpcSelector } from 'app/hooks'
+import { confirmDelete } from 'app/stores/confirm-delete'
 
 export const VpcSubnetsTab = () => {
   const vpcSelector = useVpcSelector()
@@ -32,10 +33,10 @@ export const VpcSubnetsTab = () => {
     // TODO: only show if you have permission to do this
     {
       label: 'Delete',
-      onActivate() {
-        // TODO: confirm delete
-        deleteSubnet.mutate({ path: { subnet: subnet.id } })
-      },
+      onActivate: confirmDelete({
+        doDelete: () => deleteSubnet.mutateAsync({ path: { subnet: subnet.id } }),
+        label: subnet.name,
+      }),
     },
   ]
 

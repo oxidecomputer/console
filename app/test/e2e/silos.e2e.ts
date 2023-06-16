@@ -32,12 +32,15 @@ test('Silos page', async ({ page }) => {
     'Identity mode': 'local only',
     // discoverable: 'false',
   })
+  const otherSiloCell = page.getByRole('cell', { name: 'other-silo' })
+  await expect(otherSiloCell).toBeVisible()
 
   // now delete it
   await page.locator('role=button[name="Row actions"]').nth(1).click()
   await page.click('role=menuitem[name="Delete"]')
+  await page.getByRole('button', { name: 'Confirm' }).click()
 
-  await expectNotVisible(page, ['text="other-silo"'])
+  await expect(otherSiloCell).toBeHidden()
 })
 
 test('Identity providers', async ({ page }) => {

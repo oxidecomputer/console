@@ -24,6 +24,7 @@ import {
   useProjectSelector,
   useToast,
 } from 'app/hooks'
+import { confirmDelete } from 'app/stores/confirm-delete'
 import { pb } from 'app/util/path-builder'
 
 const VpcNameFromId = ({ value }: { value: string }) => {
@@ -134,9 +135,11 @@ export function NetworkingTab() {
     },
     {
       label: 'Delete',
-      onActivate: () => {
-        deleteNic.mutate({ path: { interface: nic.name }, query: instanceSelector })
-      },
+      onActivate: confirmDelete({
+        doDelete: () =>
+          deleteNic.mutateAsync({ path: { interface: nic.name }, query: instanceSelector }),
+        label: nic.name,
+      }),
       disabled:
         !instanceStopped && 'The instance must be stopped to delete a network interface.',
     },

@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react'
 import { Outlet, useNavigation } from 'react-router-dom'
 
+import { ToastStack } from 'app/components/ToastStack'
 import { useCrumbs } from 'app/hooks/use-crumbs'
-import { ToastStack } from 'app/hooks/use-toast/ToastStack'
 
 function useSetTitle() {
   const crumbs = useCrumbs()

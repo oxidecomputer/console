@@ -1,12 +1,12 @@
-import { test } from '@playwright/test'
-
 import { user3, user4 } from '@oxide/api-mocks'
 
 import {
+  expect,
   expectNotVisible,
   expectRowVisible,
   expectSimultaneous,
   expectVisible,
+  test,
 } from './utils'
 
 test('Click through project access page', async ({ page }) => {
@@ -97,13 +97,12 @@ test('Click through project access page', async ({ page }) => {
 
   // now delete user 3. has to be 3 or 4 because they're the only ones that come
   // from the project policy
-  await expectVisible(page, [`role=cell[name="${user3.display_name}"]`])
-  await page
-    .locator('role=row', { hasText: user3.display_name })
-    .locator('role=button[name="Row actions"]')
-    .click()
-  await page.click('role=menuitem[name="Delete"]')
-  await expectNotVisible(page, [`role=cell[name="${user3.display_name}"]`])
+  const user3Row = page.getByRole('row', { name: user3.display_name, exact: false })
+  await expect(user3Row).toBeVisible()
+  await user3Row.getByRole('button', { name: 'Row actions' }).click()
+  await page.getByRole('menuitem', { name: 'Delete' }).click()
+  await page.getByRole('button', { name: 'Confirm' }).click()
+  await expect(user3Row).toBeHidden()
 
   // now add a project role to user 1, who currently only has silo role
   await page.click('role=button[name="Add user or group"]')

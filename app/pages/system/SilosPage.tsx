@@ -20,6 +20,7 @@ import {
 } from '@oxide/ui'
 
 import { useQuickActions } from 'app/hooks/use-quick-actions'
+import { confirmDelete } from 'app/stores/confirm-delete'
 import { pb } from 'app/util/path-builder'
 
 const EmptyState = () => (
@@ -56,9 +57,10 @@ export default function SilosPage() {
   const makeActions = (silo: Silo): MenuAction[] => [
     {
       label: 'Delete',
-      onActivate() {
-        deleteSilo.mutate({ path: { silo: silo.name } })
-      },
+      onActivate: confirmDelete({
+        doDelete: () => deleteSilo.mutateAsync({ path: { silo: silo.name } }),
+        label: silo.name,
+      }),
     },
   ]
 

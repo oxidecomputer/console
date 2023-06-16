@@ -24,6 +24,7 @@ import {
 
 import { DiskStatusBadge } from 'app/components/StatusBadge'
 import { getProjectSelector, useProjectSelector, useToast } from 'app/hooks'
+import { confirmDelete } from 'app/stores/confirm-delete'
 import { pb } from 'app/util/path-builder'
 
 function AttachedInstance({
@@ -103,9 +104,11 @@ export function DisksPage() {
     },
     {
       label: 'Delete',
-      onActivate: () => {
-        deleteDisk.mutate({ path: { disk: disk.name }, query: projectSelector })
-      },
+      onActivate: confirmDelete({
+        doDelete: () =>
+          deleteDisk.mutateAsync({ path: { disk: disk.name }, query: projectSelector }),
+        label: disk.name,
+      }),
       disabled:
         !DISK_DELETE_STATES.has(disk.state.state) &&
         (disk.state.state === 'attached'

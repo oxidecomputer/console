@@ -7,6 +7,7 @@ import { RouterProvider, createBrowserRouter } from 'react-router-dom'
 import { queryClient } from '@oxide/api'
 import { SkipLink } from '@oxide/ui'
 
+import { ConfirmDeleteModal } from './components/ConfirmDeleteModal'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { QuickActions, ReduceMotion } from './hooks'
 // stripped out by rollup in production
@@ -38,6 +39,7 @@ function render() {
       <QueryClientProvider client={queryClient}>
         <ErrorBoundary>
           <QuickActions />
+          <ConfirmDeleteModal />
           <SkipLink id="skip-nav" />
           <ReduceMotion />
           <RouterProvider router={router} />
