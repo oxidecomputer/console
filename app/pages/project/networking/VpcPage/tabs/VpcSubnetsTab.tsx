@@ -66,7 +66,7 @@ export const VpcSubnetsTab = () => {
           accessor={(vpc) => [vpc.ipv4Block, vpc.ipv6Block]}
           cell={TwoLineCell}
         />
-        <Column accessor="timeCreated" cell={DateCell} />
+        <Column accessor="timeCreated" header="Created" cell={DateCell} />
       </Table>
     </>
   )
