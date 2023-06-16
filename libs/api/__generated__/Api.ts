@@ -5132,7 +5132,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * List users in a silo
+     * List built-in (system) users in a silo
      */
     siloUserList: (
       { query = {} }: { query?: SiloUserListQueryParams },
@@ -5146,7 +5146,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Fetch a user
+     * Fetch a built-in (system) user
      */
     siloUserView: (
       {
