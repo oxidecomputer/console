@@ -65,16 +65,14 @@ export function SnapshotsPage() {
   const makeActions = (snapshot: Snapshot): MenuAction[] => [
     {
       label: 'Delete',
-      onActivate() {
-        confirmDelete({
-          doDelete: () =>
-            deleteSnapshot.mutateAsync({
-              path: { snapshot: snapshot.name },
-              query: projectSelector,
-            }),
-          resourceName: snapshot.name,
-        })
-      },
+      onActivate: confirmDelete({
+        doDelete: () =>
+          deleteSnapshot.mutateAsync({
+            path: { snapshot: snapshot.name },
+            query: projectSelector,
+          }),
+        label: snapshot.name,
+      }),
     },
   ]
 

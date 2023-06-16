@@ -24,11 +24,13 @@ import {
 import { groupBy, isTruthy } from '@oxide/util'
 
 import { AccessNameCell } from 'app/components/AccessNameCell'
+import { HL } from 'app/components/ConfirmDeleteModal'
 import { RoleBadgeCell } from 'app/components/RoleBadgeCell'
 import {
   SiloAccessAddUserSideModal,
   SiloAccessEditUserSideModal,
 } from 'app/forms/silo-access'
+import { confirmDelete } from 'app/stores/confirm-delete'
 
 const EmptyState = ({ onClick }: { onClick: () => void }) => (
   <TableEmptyBox>
@@ -118,13 +120,18 @@ export function SiloAccessPage() {
         // TODO: only show if you have permission to do this
         {
           label: 'Delete',
-          onActivate() {
-            // TODO: confirm delete
-            updatePolicy.mutate({
-              // we know policy is there, otherwise there's no row to display
-              body: deleteRole(row.id, siloPolicy!),
-            })
-          },
+          onActivate: confirmDelete({
+            doDelete: () =>
+              updatePolicy.mutateAsync({
+                // we know policy is there, otherwise there's no row to display
+                body: deleteRole(row.id, siloPolicy!),
+              }),
+            label: (
+              <span>
+                the <HL>{row.siloRole}</HL> role for <HL>{row.name}</HL>
+              </span>
+            ),
+          }),
           disabled: !row.siloRole && "You don't have permission to delete this user",
         },
       ]),

@@ -71,11 +71,10 @@ export default function ProjectsPage() {
     },
     {
       label: 'Delete',
-      onActivate: () =>
-        confirmDelete({
-          doDelete: () => deleteProject.mutateAsync({ path: { project: project.name } }),
-          resourceName: project.name,
-        }),
+      onActivate: confirmDelete({
+        doDelete: () => deleteProject.mutateAsync({ path: { project: project.name } }),
+        label: project.name,
+      }),
     },
   ]
 

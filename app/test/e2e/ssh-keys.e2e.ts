@@ -14,6 +14,7 @@ test('SSH keys', async ({ page }) => {
   // delete the only ssh key
   await page.click('role=button[name="Row actions"]')
   await page.click('role=menuitem[name="Delete"]')
+  await page.getByRole('button', { name: 'Confirm' }).click()
 
   // should show empty state
   await expectVisible(page, ['text="No SSH keys"'])
@@ -35,6 +36,7 @@ test('SSH keys', async ({ page }) => {
   // now delete it
   await page.click('role=button[name="Row actions"]')
   await page.click('role=menuitem[name="Delete"]')
+  await page.getByRole('button', { name: 'Confirm' }).click()
 
   await expectNotVisible(page, ['role=cell[name="my-key"]'])
   await expectVisible(page, ['text="No SSH keys"'])

@@ -1,10 +1,17 @@
+import type { ReactNode } from 'react'
 import { create } from 'zustand'
 
 type DeleteConfig = {
   /** Must be `mutateAsync`, otherwise we can't catch the error generically */
-  doDelete: () => Promise<void>
+  doDelete: () => Promise<unknown>
   warning?: string
-  resourceName: string
+  /**
+   * Label identifying the resource. Could be a name or something more elaborate
+   * "the Admin role for user Harry Styles". If a string, the modal will
+   * automatically give it a highlighted style. Otherwise it will be rendered
+   * directly.
+   */
+  label: ReactNode
 }
 
 type ConfirmDeleteStore = {
@@ -22,7 +29,10 @@ export const useConfirmDelete = create<ConfirmDeleteStore>(() => ({
 // in the store need to the hook.
 // https://github.com/pmndrs/zustand/blob/a5343354/docs/guides/practice-with-no-store-actions.md
 
-export function confirmDelete(deleteConfig: DeleteConfig) {
+/**
+ * Note that this returns a function so we can save a line in the calling code.
+ */
+export const confirmDelete = (deleteConfig: DeleteConfig) => () => {
   useConfirmDelete.setState({ deleteConfig })
 }
 
