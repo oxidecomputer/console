@@ -74,6 +74,7 @@ test('can promote an image from project', async ({ page }) => {
 
 test('can copy an image ID to clipboard', async ({ page, browserName }) => {
   // Skipping on firefox and safari since we cant get `navigator.clipboard.readText()`
+  // eslint-disable-next-line playwright/no-skipped-test
   test.skip(browserName === 'firefox' || browserName === 'webkit', 'Still working on it')
 
   await page.goto('/images')
