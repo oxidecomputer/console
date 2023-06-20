@@ -25,12 +25,22 @@ import { useDateTimeRangePicker } from 'app/components/form'
 
 const DEFAULT_FLEET_ID = '001de000-1334-4000-8000-000000000000'
 
-const refetchIntervalPresets = [
-  { label: 'Off', value: '-1' },
-  { label: '10s', value: '10000' },
-  { label: '1m', value: '60000' },
-  { label: '2m', value: '120000' },
-  { label: '5m', value: '300000' },
+const refetchPresets = {
+  Off: -1,
+  '10s': 10 * 1000,
+  '1m': 60 * 1000,
+  '2m': 2 * 60 * 1000,
+  '5m': 5 * 60 * 1000,
+}
+
+type RefetchInterval = keyof typeof refetchPresets
+
+const refetchIntervalItems: ListboxItem<RefetchInterval>[] = [
+  { label: 'Off', value: 'Off' },
+  { label: '10s', value: '10s' },
+  { label: '1m', value: '1m' },
+  { label: '2m', value: '2m' },
+  { label: '5m', value: '5m' },
 ]
 
 CapacityUtilizationPage.loader = async () => {
@@ -89,11 +99,10 @@ export const UtilizationPage = ({
 }) => {
   const [filterId, setFilterId] = useState<string>(defaultId)
 
-  const initialPreset = 'lastHour'
   // pass refetch interval to this to keep the date up to date
   const { preset, startTime, endTime, dateTimeRangePicker, onRangeChange } =
     useDateTimeRangePicker({
-      initialPreset,
+      initialPreset: 'lastHour',
       maxValue: now(getLocalTimeZone()),
     })
 
@@ -103,21 +112,23 @@ export const UtilizationPage = ({
     filterId: filterId,
   }
 
-  const [refetchInterval, setRefetchInterval] = useState(refetchIntervalPresets[1].value)
+  const [refetchInterval, setRefetchInterval] = useState<RefetchInterval>('10s')
 
   const isRefetching = !!useIsFetching({ queryKey: ['systemMetric'] })
 
-  const handleRefetch = async () => {
-    // this updates the date range if there's a relative preset
-    onRangeChange(preset)
+  const handleRefetch = () => {
+    onRangeChange(preset) // update the date range if there's a relative preset
     apiQueryClient.refetchQueries('systemMetric')
   }
 
   const [lastUpdated, setLastUpdated] = useState(Date.now())
 
   useInterval({
-    fn: () => handleRefetch(),
-    delay: preset !== 'custom' ? Number(refetchInterval) : null,
+    fn: handleRefetch,
+    delay:
+      preset !== 'custom' && refetchInterval !== 'Off'
+        ? refetchPresets[refetchInterval]
+        : null,
     key: preset, // force a render which clears current interval
   })
 
@@ -164,7 +175,7 @@ export const UtilizationPage = ({
             className="w-24 [&>button]:!rounded-l-none"
             aria-labelledby="silo-id-label"
             name="silo-id"
-            items={refetchIntervalPresets}
+            items={refetchIntervalItems}
             onChange={setRefetchInterval}
           />
         </div>
