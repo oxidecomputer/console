@@ -1,4 +1,5 @@
 import { getLocalTimeZone, now } from '@internationalized/date'
+import { useIsFetching } from '@tanstack/react-query'
 import cn from 'classnames'
 import { format } from 'date-fns'
 import { useMemo, useState } from 'react'
@@ -103,25 +104,13 @@ export const UtilizationPage = ({
   }
 
   const [refetchInterval, setRefetchInterval] = useState(refetchIntervalPresets[1].value)
-  const [refetchStatus, setRefetchStatus] = useState<
-    'pending' | 'fulfilled' | 'error' | null
-  >()
+
+  const isRefetching = !!useIsFetching({ queryKey: ['systemMetric'] })
 
   const handleRefetch = async () => {
     // this updates the date range if there's a relative preset
     onRangeChange(preset)
-
-    const refetch = apiQueryClient.refetchQueries('systemMetric')
-    setRefetchStatus('pending')
-
-    refetch.then(
-      () => {
-        setRefetchStatus('fulfilled')
-      },
-      () => {
-        setRefetchStatus('error')
-      }
-    )
+    apiQueryClient.refetchQueries('systemMetric')
   }
 
   const [lastUpdated, setLastUpdated] = useState(Date.now())
@@ -161,12 +150,12 @@ export const UtilizationPage = ({
           <button
             className={cn(
               'flex w-10 items-center justify-center rounded-l border-l border-t border-b border-default disabled:cursor-default',
-              refetchStatus !== 'pending' && 'hover:bg-hover'
+              isRefetching && 'hover:bg-hover'
             )}
             onClick={handleRefetch}
-            disabled={refetchStatus === 'pending'}
+            disabled={isRefetching}
           >
-            <SpinnerLoader isLoading={refetchStatus === 'pending'}>
+            <SpinnerLoader isLoading={isRefetching}>
               <Refresh16Icon className="text-tertiary" />
             </SpinnerLoader>
           </button>
