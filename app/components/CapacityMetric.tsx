@@ -21,11 +21,7 @@ export const CapacityMetric = ({
   valueTransform?: (n: number) => number
   capacity: number
 }) => {
-  // beginning of time to now because we're only getting the most recent single data point anyway
-  const { startTime, endTime } = useMemo(
-    () => ({ startTime: new Date(0), endTime: new Date() }),
-    []
-  )
+  const mountTime = useMemo(() => new Date(), [])
 
   // this is going to return at most one data point
   const { data } = useApiQuery(
@@ -33,8 +29,8 @@ export const CapacityMetric = ({
     {
       path: { metricName },
       query: {
-        startTime,
-        endTime,
+        startTime: new Date(0), // beginning of time, aka 1970
+        endTime: mountTime,
         id: FLEET_ID,
         limit: 1,
         order: 'descending',
