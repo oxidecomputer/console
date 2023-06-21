@@ -25,24 +25,6 @@ import { useDateTimeRangePicker } from 'app/components/form'
 
 const DEFAULT_FLEET_ID = '001de000-1334-4000-8000-000000000000'
 
-const refetchPresets = {
-  Off: -1,
-  '10s': 10 * 1000,
-  '1m': 60 * 1000,
-  '2m': 2 * 60 * 1000,
-  '5m': 5 * 60 * 1000,
-}
-
-type RefetchInterval = keyof typeof refetchPresets
-
-const refetchIntervalItems: ListboxItem<RefetchInterval>[] = [
-  { label: 'Off', value: 'Off' },
-  { label: '10s', value: '10s' },
-  { label: '1m', value: '1m' },
-  { label: '2m', value: '2m' },
-  { label: '5m', value: '5m' },
-]
-
 CapacityUtilizationPage.loader = async () => {
   await apiQueryClient.prefetchQuery('siloList', {})
   return null
@@ -90,6 +72,24 @@ export function CapacityUtilizationPage() {
   )
 }
 
+const refetchPresets = {
+  Off: null,
+  '10s': 10 * 1000,
+  '1m': 60 * 1000,
+  '2m': 2 * 60 * 1000,
+  '5m': 5 * 60 * 1000,
+}
+
+type RefetchInterval = keyof typeof refetchPresets
+
+const refetchIntervalItems: ListboxItem<RefetchInterval>[] = [
+  { label: 'Off', value: 'Off' },
+  { label: '10s', value: '10s' },
+  { label: '1m', value: '1m' },
+  { label: '2m', value: '2m' },
+  { label: '5m', value: '5m' },
+]
+
 export const UtilizationPage = ({
   filterItems,
   defaultId,
@@ -131,10 +131,7 @@ export const UtilizationPage = ({
 
   useInterval({
     fn: handleRefetch,
-    delay:
-      preset !== 'custom' && refetchInterval !== 'Off'
-        ? refetchPresets[refetchInterval]
-        : null,
+    delay: preset !== 'custom' ? refetchPresets[refetchInterval] : null,
     key: preset, // force a render which clears current interval
   })
 
