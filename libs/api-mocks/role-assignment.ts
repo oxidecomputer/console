@@ -1,5 +1,4 @@
-import type { IdentityType } from 'libs/api/__generated__/Api'
-import type { RoleKey } from 'libs/api/roles'
+import { FLEET_ID, type IdentityType, type RoleKey } from '@oxide/api'
 
 import { project } from './project'
 import { defaultSilo } from './silo'
@@ -19,9 +18,6 @@ type DbRoleAssignment = {
   identity_type: IdentityType
   role_name: RoleKey
 }
-
-// this is hard-coded in the API. there can only be one
-export const FLEET_ID = '001de000-1334-4000-8000-000000000000'
 
 export const roleAssignments: DbRoleAssignment[] = [
   {

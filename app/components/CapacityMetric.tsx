@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 
 import type { SystemMetricName } from '@oxide/api'
-import { useApiQuery } from '@oxide/api'
+import { FLEET_ID, useApiQuery } from '@oxide/api'
 import { splitDecimal } from '@oxide/util'
 
 import RoundedSector from 'app/components/RoundedSector'
@@ -32,7 +32,13 @@ export const CapacityMetric = ({
     'systemMetric',
     {
       path: { metricName },
-      query: { startTime, endTime, limit: 1, order: 'descending' },
+      query: {
+        startTime,
+        endTime,
+        id: FLEET_ID,
+        limit: 1,
+        order: 'descending',
+      },
     },
     {
       refetchInterval: 5000,

@@ -87,3 +87,6 @@ export const DISK_SNAPSHOT_STATES: Set<DiskState['state']> = new Set([
   'attached',
   'detached',
 ])
+
+/** Hard coded in the API, so we can hard code it here. */
+export const FLEET_ID = '001de000-1334-4000-8000-000000000000'

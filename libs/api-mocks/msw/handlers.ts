@@ -1,13 +1,12 @@
 import { v4 as uuid } from 'uuid'
 
 import type { ApiTypes as Api, SamlIdentityProvider, UpdateDeployment } from '@oxide/api'
-import { DISK_DELETE_STATES, DISK_SNAPSHOT_STATES } from '@oxide/api'
+import { DISK_DELETE_STATES, DISK_SNAPSHOT_STATES, FLEET_ID } from '@oxide/api'
 import type { Json } from '@oxide/gen/msw-handlers'
 import { json, makeHandlers } from '@oxide/gen/msw-handlers'
 import { pick, sortBy } from '@oxide/util'
 
 import { genCumulativeI64Data, genI64Data } from '../metrics'
-import { FLEET_ID } from '../role-assignment'
 import { serial } from '../serial'
 import { defaultSilo, toIdp } from '../silo'
 import { sortBySemverDesc } from '../update'

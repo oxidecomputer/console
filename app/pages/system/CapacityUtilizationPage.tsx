@@ -4,7 +4,7 @@ import cn from 'classnames'
 import { format } from 'date-fns'
 import { useEffect, useMemo, useState } from 'react'
 
-import { apiQueryClient, useApiQuery } from '@oxide/api'
+import { FLEET_ID, apiQueryClient, useApiQuery } from '@oxide/api'
 import {
   Cpu16Icon,
   Divider,
@@ -23,8 +23,6 @@ import { CapacityMetric } from 'app/components/CapacityMetric'
 import { SystemMetric } from 'app/components/SystemMetric'
 import { useDateTimeRangePicker } from 'app/components/form'
 
-const DEFAULT_FLEET_ID = '001de000-1334-4000-8000-000000000000'
-
 CapacityUtilizationPage.loader = async () => {
   await apiQueryClient.prefetchQuery('siloList', {})
   return null
@@ -35,7 +33,7 @@ export function CapacityUtilizationPage() {
 
   const siloItems = useMemo(() => {
     const items = silos?.items.map((silo) => ({ label: silo.name, value: silo.id })) || []
-    return [{ label: 'All silos', value: DEFAULT_FLEET_ID }, ...items]
+    return [{ label: 'All silos', value: FLEET_ID }, ...items]
   }, [silos])
 
   return (
@@ -67,7 +65,7 @@ export function CapacityUtilizationPage() {
         />
       </div>
 
-      <UtilizationPage filterItems={siloItems} defaultId={DEFAULT_FLEET_ID} />
+      <UtilizationPage filterItems={siloItems} defaultId={FLEET_ID} />
     </>
   )
 }
