@@ -1,11 +1,10 @@
 import { useMemo } from 'react'
+import invariant from 'tiny-invariant'
 
 import { apiQueryClient, useApiQuery } from '@oxide/api'
 import { PageHeader, PageTitle, Snapshots24Icon } from '@oxide/ui'
 
 import { UtilizationPage } from './system/CapacityUtilizationPage'
-
-const DEFAULT_SILO_ID = '001de000-5110-4000-8000-000000000000'
 
 const toListboxItem = (x: { name: string; id: string }) => ({ label: x.name, value: x.id })
 
@@ -16,7 +15,10 @@ SiloUtilizationPage.loader = async () => {
 
 export function SiloUtilizationPage() {
   // this will come from /session/me
-  const siloId = DEFAULT_SILO_ID
+  const { data: me } = useApiQuery('currentUserView', {})
+  invariant(me, 'Current user should be prefetched')
+
+  const siloId = me.siloId
 
   const { data: projects } = useApiQuery('projectList', {})
 
