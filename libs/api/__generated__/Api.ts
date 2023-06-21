@@ -2315,7 +2315,7 @@ export interface DiskListQueryParams {
 }
 
 export interface DiskCreateQueryParams {
-  project?: NameOrId
+  project: NameOrId
 }
 
 export interface DiskViewPathParams {
@@ -2431,7 +2431,7 @@ export interface ImageDemotePathParams {
 }
 
 export interface ImageDemoteQueryParams {
-  project?: NameOrId
+  project: NameOrId
 }
 
 export interface ImagePromotePathParams {
@@ -2450,7 +2450,7 @@ export interface InstanceListQueryParams {
 }
 
 export interface InstanceCreateQueryParams {
-  project?: NameOrId
+  project: NameOrId
 }
 
 export interface InstanceViewPathParams {
@@ -2604,7 +2604,7 @@ export interface InstanceNetworkInterfaceListQueryParams {
 }
 
 export interface InstanceNetworkInterfaceCreateQueryParams {
-  instance?: NameOrId
+  instance: NameOrId
   project?: NameOrId
 }
 
@@ -2669,7 +2669,7 @@ export interface SnapshotListQueryParams {
 }
 
 export interface SnapshotCreateQueryParams {
-  project?: NameOrId
+  project: NameOrId
 }
 
 export interface SnapshotViewPathParams {
@@ -2746,8 +2746,8 @@ export interface NetworkingSwitchPortApplySettingsPathParams {
 }
 
 export interface NetworkingSwitchPortApplySettingsQueryParams {
-  rackId?: string
-  switchLocation?: Name
+  rackId: string
+  switchLocation: Name
 }
 
 export interface NetworkingSwitchPortClearSettingsPathParams {
@@ -2755,8 +2755,8 @@ export interface NetworkingSwitchPortClearSettingsPathParams {
 }
 
 export interface NetworkingSwitchPortClearSettingsQueryParams {
-  rackId?: string
-  switchLocation?: Name
+  rackId: string
+  switchLocation: Name
 }
 
 export interface SwitchListQueryParams {
@@ -2777,7 +2777,7 @@ export interface SiloIdentityProviderListQueryParams {
 }
 
 export interface LocalIdpUserCreateQueryParams {
-  silo?: NameOrId
+  silo: NameOrId
 }
 
 export interface LocalIdpUserDeletePathParams {
@@ -2785,7 +2785,7 @@ export interface LocalIdpUserDeletePathParams {
 }
 
 export interface LocalIdpUserDeleteQueryParams {
-  silo?: NameOrId
+  silo: NameOrId
 }
 
 export interface LocalIdpUserSetPasswordPathParams {
@@ -2793,11 +2793,11 @@ export interface LocalIdpUserSetPasswordPathParams {
 }
 
 export interface LocalIdpUserSetPasswordQueryParams {
-  silo?: NameOrId
+  silo: NameOrId
 }
 
 export interface SamlIdentityProviderCreateQueryParams {
-  silo?: NameOrId
+  silo: NameOrId
 }
 
 export interface SamlIdentityProviderViewPathParams {
@@ -2805,7 +2805,7 @@ export interface SamlIdentityProviderViewPathParams {
 }
 
 export interface SamlIdentityProviderViewQueryParams {
-  silo?: NameOrId
+  silo: NameOrId
 }
 
 export interface IpPoolListQueryParams {
@@ -2858,7 +2858,7 @@ export interface SystemMetricQueryParams {
   order?: PaginationOrder
   pageToken?: string
   startTime?: Date
-  id?: string
+  id: string
 }
 
 export interface NetworkingAddressLotListQueryParams {
@@ -2982,7 +2982,7 @@ export interface SiloUserViewPathParams {
 }
 
 export interface SiloUserViewQueryParams {
-  silo?: NameOrId
+  silo: NameOrId
 }
 
 export interface UserBuiltinListQueryParams {
@@ -3004,12 +3004,12 @@ export interface UserListQueryParams {
 
 export interface VpcFirewallRulesViewQueryParams {
   project?: NameOrId
-  vpc?: NameOrId
+  vpc: NameOrId
 }
 
 export interface VpcFirewallRulesUpdateQueryParams {
   project?: NameOrId
-  vpc?: NameOrId
+  vpc: NameOrId
 }
 
 export interface VpcRouterRouteListQueryParams {
@@ -3023,7 +3023,7 @@ export interface VpcRouterRouteListQueryParams {
 
 export interface VpcRouterRouteCreateQueryParams {
   project?: NameOrId
-  router?: NameOrId
+  router: NameOrId
   vpc?: NameOrId
 }
 
@@ -3033,7 +3033,7 @@ export interface VpcRouterRouteViewPathParams {
 
 export interface VpcRouterRouteViewQueryParams {
   project?: NameOrId
-  router?: NameOrId
+  router: NameOrId
   vpc?: NameOrId
 }
 
@@ -3067,7 +3067,7 @@ export interface VpcRouterListQueryParams {
 
 export interface VpcRouterCreateQueryParams {
   project?: NameOrId
-  vpc?: NameOrId
+  vpc: NameOrId
 }
 
 export interface VpcRouterViewPathParams {
@@ -3107,7 +3107,7 @@ export interface VpcSubnetListQueryParams {
 
 export interface VpcSubnetCreateQueryParams {
   project?: NameOrId
-  vpc?: NameOrId
+  vpc: NameOrId
 }
 
 export interface VpcSubnetViewPathParams {
@@ -3157,7 +3157,7 @@ export interface VpcListQueryParams {
 }
 
 export interface VpcCreateQueryParams {
-  project?: NameOrId
+  project: NameOrId
 }
 
 export interface VpcViewPathParams {
@@ -3348,7 +3348,7 @@ export class Api extends HttpClient {
      * Create a disk
      */
     diskCreate: (
-      { query = {}, body }: { query?: DiskCreateQueryParams; body: DiskCreate },
+      { query, body }: { query?: DiskCreateQueryParams; body: DiskCreate },
       params: RequestParams = {}
     ) => {
       return this.request<Disk>({
@@ -3598,7 +3598,7 @@ export class Api extends HttpClient {
      * Demote a silo image
      */
     imageDemote: (
-      { path, query = {} }: { path: ImageDemotePathParams; query?: ImageDemoteQueryParams },
+      { path, query }: { path: ImageDemotePathParams; query?: ImageDemoteQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<Image>({
@@ -3643,7 +3643,7 @@ export class Api extends HttpClient {
      * Create an instance
      */
     instanceCreate: (
-      { query = {}, body }: { query?: InstanceCreateQueryParams; body: InstanceCreate },
+      { query, body }: { query?: InstanceCreateQueryParams; body: InstanceCreate },
       params: RequestParams = {}
     ) => {
       return this.request<Instance>({
@@ -4017,7 +4017,7 @@ export class Api extends HttpClient {
      */
     instanceNetworkInterfaceCreate: (
       {
-        query = {},
+        query,
         body,
       }: {
         query?: InstanceNetworkInterfaceCreateQueryParams
@@ -4227,7 +4227,7 @@ export class Api extends HttpClient {
      * Create a snapshot
      */
     snapshotCreate: (
-      { query = {}, body }: { query?: SnapshotCreateQueryParams; body: SnapshotCreate },
+      { query, body }: { query?: SnapshotCreateQueryParams; body: SnapshotCreate },
       params: RequestParams = {}
     ) => {
       return this.request<Snapshot>({
@@ -4388,7 +4388,7 @@ export class Api extends HttpClient {
     networkingSwitchPortApplySettings: (
       {
         path,
-        query = {},
+        query,
         body,
       }: {
         path: NetworkingSwitchPortApplySettingsPathParams
@@ -4411,7 +4411,7 @@ export class Api extends HttpClient {
     networkingSwitchPortClearSettings: (
       {
         path,
-        query = {},
+        query,
       }: {
         path: NetworkingSwitchPortClearSettingsPathParams
         query?: NetworkingSwitchPortClearSettingsQueryParams
@@ -4467,7 +4467,7 @@ export class Api extends HttpClient {
      * Create a user
      */
     localIdpUserCreate: (
-      { query = {}, body }: { query?: LocalIdpUserCreateQueryParams; body: UserCreate },
+      { query, body }: { query?: LocalIdpUserCreateQueryParams; body: UserCreate },
       params: RequestParams = {}
     ) => {
       return this.request<User>({
@@ -4484,7 +4484,7 @@ export class Api extends HttpClient {
     localIdpUserDelete: (
       {
         path,
-        query = {},
+        query,
       }: { path: LocalIdpUserDeletePathParams; query?: LocalIdpUserDeleteQueryParams },
       params: RequestParams = {}
     ) => {
@@ -4501,7 +4501,7 @@ export class Api extends HttpClient {
     localIdpUserSetPassword: (
       {
         path,
-        query = {},
+        query,
         body,
       }: {
         path: LocalIdpUserSetPasswordPathParams
@@ -4523,7 +4523,7 @@ export class Api extends HttpClient {
      */
     samlIdentityProviderCreate: (
       {
-        query = {},
+        query,
         body,
       }: {
         query?: SamlIdentityProviderCreateQueryParams
@@ -4545,7 +4545,7 @@ export class Api extends HttpClient {
     samlIdentityProviderView: (
       {
         path,
-        query = {},
+        query,
       }: {
         path: SamlIdentityProviderViewPathParams
         query?: SamlIdentityProviderViewQueryParams
@@ -4716,10 +4716,7 @@ export class Api extends HttpClient {
      * Access metrics data
      */
     systemMetric: (
-      {
-        path,
-        query = {},
-      }: { path: SystemMetricPathParams; query?: SystemMetricQueryParams },
+      { path, query }: { path: SystemMetricPathParams; query?: SystemMetricQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<MeasurementResultsPage>({
@@ -5149,10 +5146,7 @@ export class Api extends HttpClient {
      * Fetch a built-in (system) user
      */
     siloUserView: (
-      {
-        path,
-        query = {},
-      }: { path: SiloUserViewPathParams; query?: SiloUserViewQueryParams },
+      { path, query }: { path: SiloUserViewPathParams; query?: SiloUserViewQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<User>({
@@ -5207,7 +5201,7 @@ export class Api extends HttpClient {
      * List firewall rules
      */
     vpcFirewallRulesView: (
-      { query = {} }: { query?: VpcFirewallRulesViewQueryParams },
+      { query }: { query?: VpcFirewallRulesViewQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<VpcFirewallRules>({
@@ -5222,7 +5216,7 @@ export class Api extends HttpClient {
      */
     vpcFirewallRulesUpdate: (
       {
-        query = {},
+        query,
         body,
       }: { query?: VpcFirewallRulesUpdateQueryParams; body: VpcFirewallRuleUpdateParams },
       params: RequestParams = {}
@@ -5253,10 +5247,7 @@ export class Api extends HttpClient {
      * Create a router
      */
     vpcRouterRouteCreate: (
-      {
-        query = {},
-        body,
-      }: { query?: VpcRouterRouteCreateQueryParams; body: RouterRouteCreate },
+      { query, body }: { query?: VpcRouterRouteCreateQueryParams; body: RouterRouteCreate },
       params: RequestParams = {}
     ) => {
       return this.request<RouterRoute>({
@@ -5273,7 +5264,7 @@ export class Api extends HttpClient {
     vpcRouterRouteView: (
       {
         path,
-        query = {},
+        query,
       }: { path: VpcRouterRouteViewPathParams; query?: VpcRouterRouteViewQueryParams },
       params: RequestParams = {}
     ) => {
@@ -5342,7 +5333,7 @@ export class Api extends HttpClient {
      * Create a VPC router
      */
     vpcRouterCreate: (
-      { query = {}, body }: { query?: VpcRouterCreateQueryParams; body: VpcRouterCreate },
+      { query, body }: { query?: VpcRouterCreateQueryParams; body: VpcRouterCreate },
       params: RequestParams = {}
     ) => {
       return this.request<VpcRouter>({
@@ -5428,7 +5419,7 @@ export class Api extends HttpClient {
      * Create a subnet
      */
     vpcSubnetCreate: (
-      { query = {}, body }: { query?: VpcSubnetCreateQueryParams; body: VpcSubnetCreate },
+      { query, body }: { query?: VpcSubnetCreateQueryParams; body: VpcSubnetCreate },
       params: RequestParams = {}
     ) => {
       return this.request<VpcSubnet>({
@@ -5534,7 +5525,7 @@ export class Api extends HttpClient {
      * Create a VPC
      */
     vpcCreate: (
-      { query = {}, body }: { query?: VpcCreateQueryParams; body: VpcCreate },
+      { query, body }: { query?: VpcCreateQueryParams; body: VpcCreate },
       params: RequestParams = {}
     ) => {
       return this.request<Vpc>({
