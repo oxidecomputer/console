@@ -1,4 +1,4 @@
-import React, { Suspense, useMemo } from 'react'
+import React, { Suspense } from 'react'
 
 import type { SystemMetricName } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
@@ -16,6 +16,7 @@ type SystemMetricProps = {
   /** Resource to filter data by. Can be fleet, silo, project. */
   filterId: string
   valueTransform?: (n: number) => number
+  /** hard-coded max y */
   capacity: number
   refetchInterval?: number | false
 }
@@ -61,27 +62,8 @@ export function SystemMetric({
     }
   }
 
-  // Calculate the difference between the start
-  // and end values
-  const statistic = useMemo(() => {
-    const startItem = data[0]
-    const endItem = data[data.length - 1]
-
-    if (!data || !startItem || !endItem) {
-      return null
-    }
-
-    const max = data.reduce((prev, current) =>
-      prev.value > current.value ? prev : current
-    )
-
-    return {
-      startVal: startItem.value,
-      endVal: endItem.value,
-      delta: endItem.value - startItem.value,
-      maxVal: max.value,
-    }
-  }, [data])
+  const startVal = data[0]?.value
+  const endVal = data[data.length - 1]?.value
 
   // TODO: indicate time zone somewhere. doesn't have to be in the detail view
   // in the tooltip. could be just once on the end of the x-axis like GCP
@@ -107,20 +89,15 @@ export function SystemMetric({
             unit={unit !== 'count' ? unit : undefined}
           />
         </div>
-        {statistic && (
+        {endVal && startVal && (
           <div className="mt-3 flex min-w-min flex-col gap-3 lg+:flex-row">
             <MetricStatistic
               label="In-use"
-              value={(statistic.endVal / capacity) * 100}
+              value={(endVal / capacity) * 100}
               unit="percentage"
-              delta={(statistic.delta / capacity) * 100}
+              delta={((endVal - startVal) / capacity) * 100}
             />
-            <MetricStatistic
-              label="In-use"
-              value={statistic.endVal}
-              unit={unit}
-              total={capacity}
-            />
+            <MetricStatistic label="In-use" value={endVal} unit={unit} total={capacity} />
           </div>
         )}
       </Suspense>

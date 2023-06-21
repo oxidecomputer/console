@@ -154,8 +154,7 @@ export const UtilizationPage = ({
 
       <div className="mb-12 flex items-center justify-between">
         <div className="hidden items-center gap-2 text-right text-mono-sm text-quaternary lg+:flex">
-          <Time16Icon className="text-quinary" /> Refreshed{' '}
-          {format(lastFetched, 'HH:mm:ss')}
+          <Time16Icon className="text-quinary" /> Refreshed {format(lastFetched, 'HH:mm')}
         </div>
         <div className="flex">
           <button
