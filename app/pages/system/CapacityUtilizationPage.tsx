@@ -122,8 +122,11 @@ export const UtilizationPage = ({
   }, [isRefetching])
 
   const handleRefetch = () => {
-    onRangeChange(preset) // update the date range if there's a relative preset
-    apiQueryClient.refetchQueries('systemMetric')
+    // slide the window forward if we're on a preset
+    onRangeChange(preset)
+    // very important to filter for active, otherwise this refetches every
+    // window that has ever been active
+    apiQueryClient.refetchQueries('systemMetric', undefined, { type: 'active' })
   }
 
   useInterval({
