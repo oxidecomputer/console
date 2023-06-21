@@ -1,13 +1,12 @@
 import { v4 as uuid } from 'uuid'
 
 import type { ApiTypes as Api, SamlIdentityProvider, UpdateDeployment } from '@oxide/api'
-import { DISK_DELETE_STATES, DISK_SNAPSHOT_STATES } from '@oxide/api'
+import { DISK_DELETE_STATES, DISK_SNAPSHOT_STATES, FLEET_ID } from '@oxide/api'
 import type { Json } from '@oxide/gen/msw-handlers'
 import { json, makeHandlers } from '@oxide/gen/msw-handlers'
 import { pick, sortBy } from '@oxide/util'
 
 import { genCumulativeI64Data, genI64Data } from '../metrics'
-import { FLEET_ID } from '../role-assignment'
 import { serial } from '../serial'
 import { defaultSilo, toIdp } from '../silo'
 import { sortBySemverDesc } from '../update'
@@ -17,6 +16,7 @@ import {
   NotImplemented,
   errIfExists,
   errIfInvalidDiskSize,
+  generateUtilization,
   getStartAndEndTime,
   getTimestamps,
   paginated,
@@ -1003,25 +1003,39 @@ export const handlers = makeHandlers({
   updateDeploymentsList: (params) => paginated(params.query, db.updateDeployments),
   updateDeploymentView: ({ path: { id } }) => lookupById(db.updateDeployments, id),
 
-  systemMetric: (params) => {
+  systemMetric: ({ path: { metricName }, query }) => {
     // const result = ZVal.ResourceName.safeParse(req.params.resourceName)
     // if (!result.success) return res(notFoundErr)
     // const resourceName = result.data
-    const cap = params.path.metricName === 'cpus_provisioned' ? 3000 : 4000000000000
 
     // note we're ignoring the required id query param. since the data is fake
     // it wouldn't matter, though we should probably 400 if it's missing
-    const { startTime, endTime } = getStartAndEndTime(params.query)
+    const { startTime, endTime } = getStartAndEndTime(query)
 
     if (endTime <= startTime) return { items: [] }
 
-    return {
-      items: genI64Data(
-        new Array(1000).fill(0).map((x, i) => Math.floor(Math.tanh(i / 500) * cap)),
-        startTime,
-        endTime
-      ),
+    const dataPoints = generateUtilization(query.id || '', metricName, startTime, endTime)
+
+    // Important to remember (but probably not important enough to change) that
+    // this works quite differently from the real API, which is going to be
+    // querying clickhouse with some fixed set of data, and when it starts from
+    // the end (order == 'descending') it's going to get data points starting
+    // from the end. When it starts from the beginning it gets data points from
+    // the beginning. For our fake data, we just generate the same set of data
+    // points spanning the whole time range, then reverse the list if necessary
+    // and take the first N=limit data points.
+
+    let items = genI64Data(dataPoints, startTime, endTime)
+
+    if (query.order === 'descending') {
+      items.reverse()
     }
+
+    if (typeof query.limit === 'number') {
+      items = items.slice(0, query.limit)
+    }
+
+    return { items }
   },
 
   // Misc endpoints we're not using yet in the console

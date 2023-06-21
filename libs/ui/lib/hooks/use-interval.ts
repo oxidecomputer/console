@@ -12,7 +12,7 @@ interface UseIntervalProps {
  *
  * Use null `delay` to prevent the interval from firing at all. Change `key` to
  * force a render, which cleans up the currently set interval and possibly sets
- * a new one..
+ * a new one.
  */
 export default function useInterval({ fn, delay, key }: UseIntervalProps) {
   const callbackRef = useRef<() => void>()

@@ -54,11 +54,10 @@ export async function startMockAPI() {
   // defined in here because it depends on the dynamic import
   const interceptAll = rest.all('/api/*', async (_req, res, ctx) => {
     // random delay on all requests to simulate a real API
-    await sleep(randInt(100, 300))
+    await sleep(randInt(200, 400))
 
     if (shouldFail(chaos)) {
       // special header lets client indicate chaos failures so we don't get confused
-      // TODO: randomize status code
       return res(compose(ctx.status(randomStatus()), ctx.set('X-Chaos', '')))
     }
     // don't return anything means fall through to the real handlers

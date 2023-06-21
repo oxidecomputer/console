@@ -1,9 +1,9 @@
 import cn from 'classnames'
 import { format } from 'date-fns'
 import {
+  Area,
+  AreaChart,
   CartesianGrid,
-  Line,
-  LineChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -29,6 +29,11 @@ function getTicks(data: { timestamp: number }[], n: number): number[] {
   return idxs.map((i) => data[i].timestamp)
 }
 
+function getVerticalTicks(n: number, max: number): number[] {
+  const idxs = new Array(n).fill(0)
+  return idxs.map((_, i) => Math.floor(((i + 1) / n) * max))
+}
+
 /**
  * Check if the start and end time are on the same day
  * If they are we can omit the day/month in the date time format
@@ -46,6 +51,7 @@ const shortTime = (ts: number) => format(new Date(ts), 'HH:mm')
 const longDateTime = (ts: number) => format(new Date(ts), 'MMM d, yyyy HH:mm:ss zz')
 
 const GRID_GRAY = 'var(--stroke-secondary)'
+const CURSOR_GRAY = 'rgba(var(--base-neutral-500-rgb), 1)'
 const GREEN_400 = 'var(--theme-accent-400)'
 const GREEN_600 = 'var(--theme-accent-600)'
 const GREEN_800 = 'var(--theme-accent-800)'
@@ -58,7 +64,7 @@ const textMonoMd = {
   fill: 'var(--content-quaternary)',
 }
 
-function renderTooltip(props: TooltipProps<number, string>) {
+function renderTooltip(props: TooltipProps<number, string>, unit?: string) {
   const { payload } = props
   if (!payload || payload.length < 1) return null
   // TODO: there has to be a better way to get these values
@@ -69,10 +75,15 @@ function renderTooltip(props: TooltipProps<number, string>) {
   if (!timestamp || !value) return null
   return (
     <div className="rounded border outline-0 text-sans-md text-tertiary bg-raise border-secondary elevation-2">
-      <div className="border-b py-2 px-3 border-secondary">{longDateTime(timestamp)}</div>
+      <div className="border-b py-2 px-3 pr-6 border-secondary">
+        {longDateTime(timestamp)}
+      </div>
       <div className="py-2 px-3">
-        <div className="text-secondary">{name}</div>
-        <div>{value}</div>
+        <div className="text-tertiary">{name}</div>
+        <div className="text-default">
+          {value.toLocaleString()}
+          {unit && <span className="ml-1 text-tertiary">{unit}</span>}
+        </div>
         {/* TODO: unit on value if relevant */}
       </div>
     </div>
@@ -95,6 +106,8 @@ type Props = {
   interpolation?: 'linear' | 'stepAfter'
   startTime: Date
   endTime: Date
+  maxValue?: number
+  unit?: string
 }
 
 export default function TimeSeriesChart({
@@ -106,14 +119,28 @@ export default function TimeSeriesChart({
   interpolation = 'linear',
   startTime,
   endTime,
+  maxValue,
+  unit,
 }: Props) {
+  // If max value is set we normalize the graph so that
+  // is the maximum, we also use our own function as recharts
+  // doesn't fill the whole domain (just upto the data max)
+  const yTicks = maxValue
+    ? {
+        domain: [0, maxValue],
+        ticks: getVerticalTicks(6, maxValue),
+      }
+    : {
+        tickSize: 6,
+      }
+
   return (
     <ResponsiveContainer width="100%" height={300}>
-      <LineChart
+      <AreaChart
         width={width}
         height={height}
         data={data}
-        margin={{ top: 0, right: 0, bottom: 16, left: 0 }}
+        margin={{ top: 0, right: 8, bottom: 16, left: 0 }}
         className={cn(className, 'rounded-lg border border-default')}
       >
         <CartesianGrid stroke={GRID_GRAY} vertical={false} />
@@ -138,28 +165,29 @@ export default function TimeSeriesChart({
           tickLine={{ stroke: GRID_GRAY }}
           orientation="right"
           tick={textMonoMd}
-          tickSize={6}
           tickMargin={8}
+          tickFormatter={(val) => val.toLocaleString()}
           padding={{ top: 32 }}
+          {...yTicks}
         />
         {/* TODO: stop tooltip being focused by default on pageload if nothing else has been clicked */}
         <Tooltip
           isAnimationActive={false}
-          content={renderTooltip}
-          cursor={{ stroke: GREEN_400, strokeDasharray: '3,3' }}
+          content={(props: TooltipProps<number, string>) => renderTooltip(props, unit)}
+          cursor={{ stroke: CURSOR_GRAY, strokeDasharray: '3,3' }}
           wrapperStyle={{ outline: 'none' }}
         />
-        <Line
+        <Area
           dataKey="value"
           name={title}
           type={interpolation}
           stroke={GREEN_600}
-          // cheating to make this a line chart
+          fill={GREEN_400}
           isAnimationActive={false}
           dot={false}
           activeDot={{ fill: GREEN_800, r: 3, strokeWidth: 0 }}
         />
-      </LineChart>
+      </AreaChart>
     </ResponsiveContainer>
   )
 }

@@ -35,7 +35,7 @@ async function expectUploadProcess(page: Page) {
   const done = progressModal.getByRole('button', { name: 'Done' })
 
   for (const step of await steps.all()) {
-    await expect(step).toHaveAttribute('data-status', 'complete')
+    await expect(step).toHaveAttribute('data-status', 'complete', { timeout: 20000 })
   }
 
   await expect(done).toBeEnabled({ timeout: 15000 })
