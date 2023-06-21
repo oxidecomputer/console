@@ -18,7 +18,6 @@ type SystemMetricProps = {
   valueTransform?: (n: number) => number
   capacity: number
   refetchInterval?: number | false
-  onUpdate?: () => void
 }
 
 export function SystemMetric({
@@ -30,7 +29,6 @@ export function SystemMetric({
   filterId,
   valueTransform = (x) => x,
   capacity,
-  onUpdate,
 }: SystemMetricProps) {
   // TODO: we're only pulling the first page. Should we bump the cap to 10k?
   // Fetch multiple pages if 10k is not enough? That's a bit much.
@@ -40,7 +38,6 @@ export function SystemMetric({
     {
       // avoid graphs flashing blank while loading when you change the time
       keepPreviousData: true,
-      onSuccess: onUpdate,
     }
   )
 

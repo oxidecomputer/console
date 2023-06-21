@@ -2,7 +2,7 @@ import { getLocalTimeZone, now } from '@internationalized/date'
 import { useIsFetching } from '@tanstack/react-query'
 import cn from 'classnames'
 import { format } from 'date-fns'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import { apiQueryClient, useApiQuery } from '@oxide/api'
 import {
@@ -116,12 +116,15 @@ export const UtilizationPage = ({
 
   const isRefetching = !!useIsFetching({ queryKey: ['systemMetric'] })
 
+  const [lastFetched, setLastFetched] = useState(new Date())
+  useEffect(() => {
+    if (isRefetching) setLastFetched(new Date())
+  }, [isRefetching])
+
   const handleRefetch = () => {
     onRangeChange(preset) // update the date range if there's a relative preset
     apiQueryClient.refetchQueries('systemMetric')
   }
-
-  const [lastUpdated, setLastUpdated] = useState(Date.now())
 
   useInterval({
     fn: handleRefetch,
@@ -131,10 +134,6 @@ export const UtilizationPage = ({
         : null,
     key: preset, // force a render which clears current interval
   })
-
-  const handleUpdated = () => {
-    setLastUpdated(Date.now())
-  }
 
   return (
     <>
@@ -155,7 +154,8 @@ export const UtilizationPage = ({
 
       <div className="mb-12 flex items-center justify-between">
         <div className="hidden items-center gap-2 text-right text-mono-sm text-quaternary lg+:flex">
-          <Time16Icon className="text-quinary" /> Refreshed {format(lastUpdated, 'HH:mm')}
+          <Time16Icon className="text-quinary" /> Refreshed{' '}
+          {format(lastFetched, 'HH:mm:ss')}
         </div>
         <div className="flex">
           <button
@@ -190,7 +190,6 @@ export const UtilizationPage = ({
             unit="TiB"
             valueTransform={bytesToTiB}
             capacity={900}
-            onUpdate={handleUpdated}
           />
         </div>
 
@@ -200,7 +199,6 @@ export const UtilizationPage = ({
           title="CPU"
           unit="count"
           capacity={2048}
-          onUpdate={handleUpdated}
         />
 
         <SystemMetric
@@ -210,7 +208,6 @@ export const UtilizationPage = ({
           unit="GiB"
           valueTransform={bytesToGiB}
           capacity={28000}
-          onUpdate={handleUpdated}
         />
       </div>
     </>
