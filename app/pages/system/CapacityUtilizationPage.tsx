@@ -3,6 +3,7 @@ import { useIsFetching } from '@tanstack/react-query'
 import cn from 'classnames'
 import { format } from 'date-fns'
 import { useEffect, useMemo, useState } from 'react'
+import invariant from 'tiny-invariant'
 
 import { FLEET_ID, apiQueryClient, useApiQuery } from '@oxide/api'
 import {
@@ -23,9 +24,16 @@ import { CapacityMetric, capacityQueryParams } from 'app/components/CapacityMetr
 import { SystemMetric } from 'app/components/SystemMetric'
 import { useDateTimeRangePicker } from 'app/components/form'
 
+const PER_SLED = {
+  DISK: 28,
+  RAM: 875,
+  CPU: 64,
+}
+
 CapacityUtilizationPage.loader = async () => {
   await Promise.all([
     apiQueryClient.prefetchQuery('siloList', {}),
+    apiQueryClient.prefetchQuery('sledList', {}),
     apiQueryClient.prefetchQuery('systemMetric', {
       path: { metricName: 'cpus_provisioned' },
       query: capacityQueryParams,
@@ -44,11 +52,16 @@ CapacityUtilizationPage.loader = async () => {
 
 export function CapacityUtilizationPage() {
   const { data: silos } = useApiQuery('siloList', {})
+  invariant(silos, 'silos should be prefetched in loader')
 
   const siloItems = useMemo(() => {
     const items = silos?.items.map((silo) => ({ label: silo.name, value: silo.id })) || []
     return [{ label: 'All silos', value: FLEET_ID }, ...items]
   }, [silos])
+
+  const { data: sleds } = useApiQuery('sledList', {})
+  invariant(sleds, 'sleds should be prefetched in loader')
+  const sledCount = sleds.items.length
 
   return (
     <>
@@ -62,20 +75,20 @@ export function CapacityUtilizationPage() {
           title="Disk capacity"
           metricName="virtual_disk_space_provisioned"
           valueTransform={bytesToTiB}
-          capacity={900}
+          capacity={PER_SLED.DISK * sledCount}
         />
         <CapacityMetric
           icon={<Ram16Icon />}
           title="Memory capacity"
           metricName="ram_provisioned"
           valueTransform={bytesToGiB}
-          capacity={28000}
+          capacity={PER_SLED.RAM * sledCount}
         />
         <CapacityMetric
           icon={<Cpu16Icon />}
           title="CPU capacity"
           metricName="cpus_provisioned"
-          capacity={2048}
+          capacity={PER_SLED.CPU * sledCount}
         />
       </div>
 
