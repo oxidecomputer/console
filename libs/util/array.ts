@@ -64,3 +64,7 @@ type Truthy<T> = T extends false | '' | 0 | null | undefined ? never : T
 export function isTruthy<T>(value: T): value is Truthy<T> {
   return !!value
 }
+
+export function sumBy<T>(items: T[], fn: (item: T) => number): number {
+  return items.map(fn).reduce((a, b) => a + b, 0)
+}

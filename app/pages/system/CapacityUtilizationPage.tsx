@@ -5,6 +5,7 @@ import { format } from 'date-fns'
 import { useEffect, useMemo, useState } from 'react'
 import invariant from 'tiny-invariant'
 
+import type { Sled } from '@oxide/api'
 import { FLEET_ID, apiQueryClient, useApiQuery } from '@oxide/api'
 import {
   Cpu16Icon,
@@ -18,7 +19,7 @@ import {
   Time16Icon,
 } from '@oxide/ui'
 import { type ListboxItem, Refresh16Icon, SpinnerLoader, useInterval } from '@oxide/ui'
-import { bytesToGiB, bytesToTiB } from '@oxide/util'
+import { bytesToGiB, bytesToTiB, sumBy } from '@oxide/util'
 
 import { CapacityMetric, capacityQueryParams } from 'app/components/CapacityMetric'
 import { SystemMetric } from 'app/components/SystemMetric'
@@ -27,10 +28,12 @@ import { useDateTimeRangePicker } from 'app/components/form'
 const TBtoTiB = 0.909
 const FUDGE = 0.7
 
-const PER_SLED = {
-  DISK_TIB: Math.ceil(32 * TBtoTiB * FUDGE),
-  RAM_GIB: Math.ceil(1 * TBtoTiB * FUDGE * 1024),
-  CPU: Math.ceil(128 * FUDGE),
+function totalCapacity(sleds: Sled[]) {
+  return {
+    disk_tib: Math.ceil(FUDGE * 32 * TBtoTiB), // TODO: make more real
+    ram_gib: Math.ceil(bytesToGiB(FUDGE * sumBy(sleds, (s) => s.usablePhysicalRam))),
+    cpu: Math.ceil(FUDGE * sumBy(sleds, (s) => s.usableHardwareThreads)),
+  }
 }
 
 CapacityUtilizationPage.loader = async () => {
@@ -64,7 +67,8 @@ export function CapacityUtilizationPage() {
 
   const { data: sleds } = useApiQuery('sledList', {})
   invariant(sleds, 'sleds should be prefetched in loader')
-  const sledCount = sleds.items.length
+
+  const capacity = totalCapacity(sleds.items)
 
   return (
     <>
@@ -78,20 +82,20 @@ export function CapacityUtilizationPage() {
           title="Disk capacity"
           metricName="virtual_disk_space_provisioned"
           valueTransform={bytesToTiB}
-          capacity={PER_SLED.DISK_TIB * sledCount}
+          capacity={capacity.disk_tib}
         />
         <CapacityMetric
           icon={<Cpu16Icon />}
           title="CPU capacity"
           metricName="cpus_provisioned"
-          capacity={PER_SLED.CPU * sledCount}
+          capacity={capacity.cpu}
         />
         <CapacityMetric
           icon={<Ram16Icon />}
           title="Memory capacity"
           metricName="ram_provisioned"
           valueTransform={bytesToGiB}
-          capacity={PER_SLED.RAM_GIB * sledCount}
+          capacity={capacity.ram_gib}
         />
       </div>
 
@@ -129,7 +133,7 @@ export function UtilizationPage({
 }) {
   const { data: sleds } = useApiQuery('sledList', {})
   invariant(sleds, 'sleds should be prefetched in loader')
-  const sledCount = sleds.items.length
+  const capacity = totalCapacity(sleds.items)
 
   const [filterId, setFilterId] = useState<string>(defaultId)
 
@@ -222,7 +226,7 @@ export function UtilizationPage({
             title="Disk Space"
             unit="TiB"
             valueTransform={bytesToTiB}
-            capacity={PER_SLED.DISK_TIB * sledCount}
+            capacity={capacity.disk_tib}
           />
         </div>
 
@@ -231,7 +235,7 @@ export function UtilizationPage({
           metricName="cpus_provisioned"
           title="CPU"
           unit="count"
-          capacity={PER_SLED.CPU * sledCount}
+          capacity={capacity.cpu}
         />
 
         <SystemMetric
@@ -240,7 +244,7 @@ export function UtilizationPage({
           title="Memory"
           unit="GiB"
           valueTransform={bytesToGiB}
-          capacity={PER_SLED.RAM_GIB * sledCount}
+          capacity={capacity.ram_gib}
         />
       </div>
     </>
