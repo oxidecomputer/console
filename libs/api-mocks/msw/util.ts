@@ -1,6 +1,7 @@
 import { differenceInSeconds, subHours } from 'date-fns'
 
-import type { DiskCreate, SystemMetricName } from '@oxide/api'
+import type { Sled } from '@oxide/api'
+import { type DiskCreate, type SystemMetricName, totalCapacity } from '@oxide/api'
 import type { Json } from '@oxide/gen/msw-handlers'
 import { json } from '@oxide/gen/msw-handlers'
 import { GiB, TiB } from '@oxide/util'
@@ -143,22 +144,32 @@ export function generateUtilization(
   metricName: SystemMetricName,
   startTime: Date,
   endTime: Date,
-  sledCount: number
+  sleds: Json<Sled>[]
 ) {
-  const frac = sledCount / 32
+  // generate data from at most 90 days ago no matter how early start time is
+  const adjStartTime = new Date(
+    Math.max(startTime.getTime(), Date.now() - 1000 * 60 * 60 * 24 * 90)
+  )
+
+  const capacity = totalCapacity(
+    sleds.map((s) => ({
+      usableHardwareThreads: s.usable_hardware_threads,
+      usablePhysicalRam: s.usable_physical_ram,
+    }))
+  )
   const cap =
     metricName === 'cpus_provisioned'
-      ? 2048 * frac
+      ? capacity.cpu
       : metricName === 'virtual_disk_space_provisioned'
-      ? TiB * 900 * frac
-      : TiB * 28 * frac
+      ? capacity.disk_tib * TiB
+      : capacity.ram_gib * GiB
   const metricNameSeed = Array.from(metricName + id).reduce(
     (acc, char) => acc + char.charCodeAt(0),
     0
   )
 
-  const rando = new Rando(startTime.getTime() + metricNameSeed)
-  const diff = Math.abs(differenceInSeconds(startTime, endTime))
+  const rando = new Rando(adjStartTime.getTime() + metricNameSeed)
+  const diff = Math.abs(differenceInSeconds(adjStartTime, endTime))
 
   // How many quarter hour chunks in the date range
   // Use that as how often to offset the data to seem
@@ -200,7 +211,11 @@ export function generateUtilization(
         }
       }
 
-      values[i] += offset
+      if (random > 0.72) {
+        values[i] += offset
+      } else {
+        values[i] = Math.max(values[i] - offset, 0)
+      }
       x = 0
     } else {
       x++

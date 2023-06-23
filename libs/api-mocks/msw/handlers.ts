@@ -1019,7 +1019,7 @@ export const handlers = makeHandlers({
       metricName,
       startTime,
       endTime,
-      db.sleds.length
+      db.sleds
     )
 
     // Important to remember (but probably not important enough to change) that

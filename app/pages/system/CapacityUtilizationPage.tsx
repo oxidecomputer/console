@@ -5,8 +5,7 @@ import { format } from 'date-fns'
 import { useEffect, useMemo, useState } from 'react'
 import invariant from 'tiny-invariant'
 
-import type { Sled } from '@oxide/api'
-import { FLEET_ID, apiQueryClient, useApiQuery } from '@oxide/api'
+import { FLEET_ID, apiQueryClient, totalCapacity, useApiQuery } from '@oxide/api'
 import {
   Cpu16Icon,
   Divider,
@@ -19,22 +18,11 @@ import {
   Time16Icon,
 } from '@oxide/ui'
 import { type ListboxItem, Refresh16Icon, SpinnerLoader, useInterval } from '@oxide/ui'
-import { bytesToGiB, bytesToTiB, sumBy } from '@oxide/util'
+import { bytesToGiB, bytesToTiB } from '@oxide/util'
 
 import { CapacityMetric, capacityQueryParams } from 'app/components/CapacityMetric'
 import { SystemMetric } from 'app/components/SystemMetric'
 import { useDateTimeRangePicker } from 'app/components/form'
-
-const TBtoTiB = 0.909
-const FUDGE = 0.7
-
-function totalCapacity(sleds: Sled[]) {
-  return {
-    disk_tib: Math.ceil(FUDGE * 32 * TBtoTiB), // TODO: make more real
-    ram_gib: Math.ceil(bytesToGiB(FUDGE * sumBy(sleds, (s) => s.usablePhysicalRam))),
-    cpu: Math.ceil(FUDGE * sumBy(sleds, (s) => s.usableHardwareThreads)),
-  }
-}
 
 CapacityUtilizationPage.loader = async () => {
   await Promise.all([

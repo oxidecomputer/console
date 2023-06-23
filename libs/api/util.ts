@@ -1,8 +1,9 @@
 /// Helpers for working with API objects
-import { pick } from '@oxide/util'
+import { bytesToGiB, pick, sumBy } from '@oxide/util'
 
 import type {
   DiskState,
+  Sled,
   UpdateableComponentType,
   VpcFirewallRule,
   VpcFirewallRuleUpdate,
@@ -90,3 +91,16 @@ export const DISK_SNAPSHOT_STATES: Set<DiskState['state']> = new Set([
 
 /** Hard coded in the API, so we can hard code it here. */
 export const FLEET_ID = '001de000-1334-4000-8000-000000000000'
+
+const TBtoTiB = 0.909
+const FUDGE = 0.7
+
+export function totalCapacity(
+  sleds: Pick<Sled, 'usableHardwareThreads' | 'usablePhysicalRam'>[]
+) {
+  return {
+    disk_tib: Math.ceil(FUDGE * 32 * TBtoTiB), // TODO: make more real
+    ram_gib: Math.ceil(bytesToGiB(FUDGE * sumBy(sleds, (s) => s.usablePhysicalRam))),
+    cpu: Math.ceil(FUDGE * sumBy(sleds, (s) => s.usableHardwareThreads)),
+  }
+}
