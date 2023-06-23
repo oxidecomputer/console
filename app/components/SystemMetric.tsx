@@ -62,8 +62,8 @@ export function SystemMetric({
     }
   }
 
-  const startVal = data[0]?.value
-  const endVal = data[data.length - 1]?.value
+  const firstPoint = data[0]
+  const lastPoint = data[data.length - 1]
 
   // TODO: indicate time zone somewhere. doesn't have to be in the detail view
   // in the tooltip. could be just once on the end of the x-axis like GCP
@@ -89,15 +89,20 @@ export function SystemMetric({
             unit={unit !== 'count' ? unit : undefined}
           />
         </div>
-        {endVal && startVal && (
+        {firstPoint && lastPoint && (
           <div className="mt-3 flex min-w-min flex-col gap-3 lg+:flex-row">
             <MetricStatistic
               label="In-use"
-              value={(endVal / capacity) * 100}
+              value={(lastPoint.value / capacity) * 100}
               unit="percentage"
-              delta={((endVal - startVal) / capacity) * 100}
+              delta={((lastPoint.value - firstPoint.value) / capacity) * 100}
             />
-            <MetricStatistic label="In-use" value={endVal} unit={unit} total={capacity} />
+            <MetricStatistic
+              label="In-use"
+              value={lastPoint.value}
+              unit={unit}
+              total={capacity}
+            />
           </div>
         )}
       </Suspense>

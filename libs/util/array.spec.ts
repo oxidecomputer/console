@@ -1,4 +1,4 @@
-import { groupBy, lowestBy, sortBy } from './array'
+import { groupBy, lowestBy, sortBy, sumBy } from './array'
 
 test('sortBy', () => {
   expect(sortBy(['d', 'b', 'c', 'a'])).toEqual(['a', 'b', 'c', 'd'])
@@ -51,4 +51,9 @@ test('groupBy', () => {
     ],
     ['b', [{ x: 'b', y: 2 }]],
   ])
+})
+
+test('sumBy', () => {
+  expect(sumBy([], (x) => x)).toEqual(0)
+  expect(sumBy([{ a: 1 }, { a: 2 }], (x) => x.a)).toEqual(3)
 })

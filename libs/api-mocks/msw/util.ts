@@ -1,6 +1,7 @@
 import { differenceInSeconds, subHours } from 'date-fns'
 
-import type { DiskCreate, SystemMetricName } from '@oxide/api'
+import type { Sled } from '@oxide/api'
+import { type DiskCreate, type SystemMetricName, totalCapacity } from '@oxide/api'
 import type { Json } from '@oxide/gen/msw-handlers'
 import { json } from '@oxide/gen/msw-handlers'
 import { GiB, TiB } from '@oxide/util'
@@ -142,22 +143,33 @@ export function generateUtilization(
   id: string,
   metricName: SystemMetricName,
   startTime: Date,
-  endTime: Date
+  endTime: Date,
+  sleds: Json<Sled>[]
 ) {
+  // generate data from at most 90 days ago no matter how early start time is
+  const adjStartTime = new Date(
+    Math.max(startTime.getTime(), Date.now() - 1000 * 60 * 60 * 24 * 90)
+  )
+
+  const capacity = totalCapacity(
+    sleds.map((s) => ({
+      usableHardwareThreads: s.usable_hardware_threads,
+      usablePhysicalRam: s.usable_physical_ram,
+    }))
+  )
   const cap =
     metricName === 'cpus_provisioned'
-      ? 2048
+      ? capacity.cpu
       : metricName === 'virtual_disk_space_provisioned'
-      ? TiB * 900
-      : TiB * 28
-  const { abs, floor } = Math
+      ? capacity.disk_tib * TiB
+      : capacity.ram_gib * GiB
   const metricNameSeed = Array.from(metricName + id).reduce(
     (acc, char) => acc + char.charCodeAt(0),
     0
   )
 
-  const rando = new Rando(startTime.getTime() + metricNameSeed)
-  const diff = abs(differenceInSeconds(startTime, endTime))
+  const rando = new Rando(adjStartTime.getTime() + metricNameSeed)
+  const diff = Math.abs(differenceInSeconds(adjStartTime, endTime))
 
   // How many quarter hour chunks in the date range
   // Use that as how often to offset the data to seem
@@ -167,7 +179,7 @@ export function generateUtilization(
   // If the data is the following length
   const dataCount = 1000
   // How far along the array should we do something
-  const valueInterval = floor(dataCount / timeInterval)
+  const valueInterval = Math.floor(dataCount / timeInterval)
 
   // Pick a reasonable start value
   const startVal = cap / 2
@@ -192,14 +204,18 @@ export function generateUtilization(
             : metricName === 'virtual_disk_space_provisioned'
             ? TiB
             : TiB / 20
-        offset = floor(random * amount)
+        offset = Math.floor(random * amount)
 
         if (random < threshold / 3) {
           offset = offset * -1
         }
       }
 
-      values[i] += offset
+      if (random > 0.72) {
+        values[i] += offset
+      } else {
+        values[i] = Math.max(values[i] - offset, 0)
+      }
       x = 0
     } else {
       x++

@@ -3,8 +3,9 @@ import { useIsFetching } from '@tanstack/react-query'
 import cn from 'classnames'
 import { format } from 'date-fns'
 import { useEffect, useMemo, useState } from 'react'
+import invariant from 'tiny-invariant'
 
-import { FLEET_ID, apiQueryClient, useApiQuery } from '@oxide/api'
+import { FLEET_ID, apiQueryClient, totalCapacity, useApiQuery } from '@oxide/api'
 import {
   Cpu16Icon,
   Divider,
@@ -19,22 +20,43 @@ import {
 import { type ListboxItem, Refresh16Icon, SpinnerLoader, useInterval } from '@oxide/ui'
 import { bytesToGiB, bytesToTiB } from '@oxide/util'
 
-import { CapacityMetric } from 'app/components/CapacityMetric'
+import { CapacityMetric, capacityQueryParams } from 'app/components/CapacityMetric'
 import { SystemMetric } from 'app/components/SystemMetric'
 import { useDateTimeRangePicker } from 'app/components/form'
 
 CapacityUtilizationPage.loader = async () => {
-  await apiQueryClient.prefetchQuery('siloList', {})
+  await Promise.all([
+    apiQueryClient.prefetchQuery('siloList', {}),
+    apiQueryClient.prefetchQuery('systemMetric', {
+      path: { metricName: 'cpus_provisioned' },
+      query: capacityQueryParams,
+    }),
+    apiQueryClient.prefetchQuery('systemMetric', {
+      path: { metricName: 'ram_provisioned' },
+      query: capacityQueryParams,
+    }),
+    apiQueryClient.prefetchQuery('systemMetric', {
+      path: { metricName: 'virtual_disk_space_provisioned' },
+      query: capacityQueryParams,
+    }),
+    ...UtilizationPage.getLoaderPromises(),
+  ])
   return null
 }
 
 export function CapacityUtilizationPage() {
   const { data: silos } = useApiQuery('siloList', {})
+  invariant(silos, 'silos should be prefetched in loader')
 
   const siloItems = useMemo(() => {
     const items = silos?.items.map((silo) => ({ label: silo.name, value: silo.id })) || []
     return [{ label: 'All silos', value: FLEET_ID }, ...items]
   }, [silos])
+
+  const { data: sleds } = useApiQuery('sledList', {})
+  invariant(sleds, 'sleds should be prefetched in loader')
+
+  const capacity = totalCapacity(sleds.items)
 
   return (
     <>
@@ -48,20 +70,20 @@ export function CapacityUtilizationPage() {
           title="Disk capacity"
           metricName="virtual_disk_space_provisioned"
           valueTransform={bytesToTiB}
-          capacity={900}
+          capacity={capacity.disk_tib}
+        />
+        <CapacityMetric
+          icon={<Cpu16Icon />}
+          title="CPU capacity"
+          metricName="cpus_provisioned"
+          capacity={capacity.cpu}
         />
         <CapacityMetric
           icon={<Ram16Icon />}
           title="Memory capacity"
           metricName="ram_provisioned"
           valueTransform={bytesToGiB}
-          capacity={28000}
-        />
-        <CapacityMetric
-          icon={<Cpu16Icon />}
-          title="CPU capacity"
-          metricName="cpus_provisioned"
-          capacity={2048}
+          capacity={capacity.ram_gib}
         />
       </div>
 
@@ -88,13 +110,19 @@ const refetchIntervalItems: ListboxItem<RefetchInterval>[] = [
   { label: '5m', value: '5m' },
 ]
 
-export const UtilizationPage = ({
+UtilizationPage.getLoaderPromises = () => [apiQueryClient.prefetchQuery('sledList', {})]
+
+export function UtilizationPage({
   filterItems,
   defaultId,
 }: {
   filterItems: ListboxItem[]
   defaultId: string
-}) => {
+}) {
+  const { data: sleds } = useApiQuery('sledList', {})
+  invariant(sleds, 'sleds should be prefetched in loader')
+  const capacity = totalCapacity(sleds.items)
+
   const [filterId, setFilterId] = useState<string>(defaultId)
 
   // pass refetch interval to this to keep the date up to date
@@ -186,7 +214,7 @@ export const UtilizationPage = ({
             title="Disk Space"
             unit="TiB"
             valueTransform={bytesToTiB}
-            capacity={900}
+            capacity={capacity.disk_tib}
           />
         </div>
 
@@ -195,7 +223,7 @@ export const UtilizationPage = ({
           metricName="cpus_provisioned"
           title="CPU"
           unit="count"
-          capacity={2048}
+          capacity={capacity.cpu}
         />
 
         <SystemMetric
@@ -204,7 +232,7 @@ export const UtilizationPage = ({
           title="Memory"
           unit="GiB"
           valueTransform={bytesToGiB}
-          capacity={28000}
+          capacity={capacity.ram_gib}
         />
       </div>
     </>

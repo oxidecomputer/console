@@ -12,7 +12,7 @@ export const sled: Json<Sled> = {
     serial: 'BRM02222867',
     revision: 0,
   },
-  usable_hardware_threads: 2,
+  usable_hardware_threads: 128,
   usable_physical_ram: 1_099_511_627_776,
 }
 
