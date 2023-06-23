@@ -142,22 +142,23 @@ export function generateUtilization(
   id: string,
   metricName: SystemMetricName,
   startTime: Date,
-  endTime: Date
+  endTime: Date,
+  sledCount: number
 ) {
+  const frac = sledCount / 32
   const cap =
     metricName === 'cpus_provisioned'
-      ? 2048
+      ? 2048 * frac
       : metricName === 'virtual_disk_space_provisioned'
-      ? TiB * 900
-      : TiB * 28
-  const { abs, floor } = Math
+      ? TiB * 900 * frac
+      : TiB * 28 * frac
   const metricNameSeed = Array.from(metricName + id).reduce(
     (acc, char) => acc + char.charCodeAt(0),
     0
   )
 
   const rando = new Rando(startTime.getTime() + metricNameSeed)
-  const diff = abs(differenceInSeconds(startTime, endTime))
+  const diff = Math.abs(differenceInSeconds(startTime, endTime))
 
   // How many quarter hour chunks in the date range
   // Use that as how often to offset the data to seem
@@ -167,7 +168,7 @@ export function generateUtilization(
   // If the data is the following length
   const dataCount = 1000
   // How far along the array should we do something
-  const valueInterval = floor(dataCount / timeInterval)
+  const valueInterval = Math.floor(dataCount / timeInterval)
 
   // Pick a reasonable start value
   const startVal = cap / 2
@@ -192,7 +193,7 @@ export function generateUtilization(
             : metricName === 'virtual_disk_space_provisioned'
             ? TiB
             : TiB / 20
-        offset = floor(random * amount)
+        offset = Math.floor(random * amount)
 
         if (random < threshold / 3) {
           offset = offset * -1

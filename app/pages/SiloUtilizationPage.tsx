@@ -9,7 +9,10 @@ import { UtilizationPage } from './system/CapacityUtilizationPage'
 const toListboxItem = (x: { name: string; id: string }) => ({ label: x.name, value: x.id })
 
 SiloUtilizationPage.loader = async () => {
-  await apiQueryClient.prefetchQuery('projectList', {})
+  await Promise.all([
+    apiQueryClient.prefetchQuery('projectList', {}),
+    ...UtilizationPage.getLoaderPromises(),
+  ])
   return null
 }
 

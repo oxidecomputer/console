@@ -33,7 +33,6 @@ const PER_SLED = {
 CapacityUtilizationPage.loader = async () => {
   await Promise.all([
     apiQueryClient.prefetchQuery('siloList', {}),
-    apiQueryClient.prefetchQuery('sledList', {}),
     apiQueryClient.prefetchQuery('systemMetric', {
       path: { metricName: 'cpus_provisioned' },
       query: capacityQueryParams,
@@ -46,6 +45,7 @@ CapacityUtilizationPage.loader = async () => {
       path: { metricName: 'virtual_disk_space_provisioned' },
       query: capacityQueryParams,
     }),
+    ...UtilizationPage.getLoaderPromises(),
   ])
   return null
 }
@@ -78,17 +78,17 @@ export function CapacityUtilizationPage() {
           capacity={PER_SLED.DISK * sledCount}
         />
         <CapacityMetric
+          icon={<Cpu16Icon />}
+          title="CPU capacity"
+          metricName="cpus_provisioned"
+          capacity={PER_SLED.CPU * sledCount}
+        />
+        <CapacityMetric
           icon={<Ram16Icon />}
           title="Memory capacity"
           metricName="ram_provisioned"
           valueTransform={bytesToGiB}
           capacity={PER_SLED.RAM * sledCount}
-        />
-        <CapacityMetric
-          icon={<Cpu16Icon />}
-          title="CPU capacity"
-          metricName="cpus_provisioned"
-          capacity={PER_SLED.CPU * sledCount}
         />
       </div>
 
@@ -115,13 +115,19 @@ const refetchIntervalItems: ListboxItem<RefetchInterval>[] = [
   { label: '5m', value: '5m' },
 ]
 
-export const UtilizationPage = ({
+UtilizationPage.getLoaderPromises = () => [apiQueryClient.prefetchQuery('sledList', {})]
+
+export function UtilizationPage({
   filterItems,
   defaultId,
 }: {
   filterItems: ListboxItem[]
   defaultId: string
-}) => {
+}) {
+  const { data: sleds } = useApiQuery('sledList', {})
+  invariant(sleds, 'sleds should be prefetched in loader')
+  const sledCount = sleds.items.length
+
   const [filterId, setFilterId] = useState<string>(defaultId)
 
   // pass refetch interval to this to keep the date up to date
@@ -213,7 +219,7 @@ export const UtilizationPage = ({
             title="Disk Space"
             unit="TiB"
             valueTransform={bytesToTiB}
-            capacity={900}
+            capacity={PER_SLED.DISK * sledCount}
           />
         </div>
 
@@ -222,7 +228,7 @@ export const UtilizationPage = ({
           metricName="cpus_provisioned"
           title="CPU"
           unit="count"
-          capacity={2048}
+          capacity={PER_SLED.CPU * sledCount}
         />
 
         <SystemMetric
@@ -231,7 +237,7 @@ export const UtilizationPage = ({
           title="Memory"
           unit="GiB"
           valueTransform={bytesToGiB}
-          capacity={28000}
+          capacity={PER_SLED.RAM * sledCount}
         />
       </div>
     </>
