@@ -24,10 +24,13 @@ import { CapacityMetric, capacityQueryParams } from 'app/components/CapacityMetr
 import { SystemMetric } from 'app/components/SystemMetric'
 import { useDateTimeRangePicker } from 'app/components/form'
 
+const TBtoTiB = 0.909
+const FUDGE = 0.7
+
 const PER_SLED = {
-  DISK: 28,
-  RAM: 875,
-  CPU: 64,
+  DISK_TIB: Math.ceil(32 * TBtoTiB * FUDGE),
+  RAM_GIB: Math.ceil(1 * TBtoTiB * FUDGE * 1024),
+  CPU: Math.ceil(128 * FUDGE),
 }
 
 CapacityUtilizationPage.loader = async () => {
@@ -75,7 +78,7 @@ export function CapacityUtilizationPage() {
           title="Disk capacity"
           metricName="virtual_disk_space_provisioned"
           valueTransform={bytesToTiB}
-          capacity={PER_SLED.DISK * sledCount}
+          capacity={PER_SLED.DISK_TIB * sledCount}
         />
         <CapacityMetric
           icon={<Cpu16Icon />}
@@ -88,7 +91,7 @@ export function CapacityUtilizationPage() {
           title="Memory capacity"
           metricName="ram_provisioned"
           valueTransform={bytesToGiB}
-          capacity={PER_SLED.RAM * sledCount}
+          capacity={PER_SLED.RAM_GIB * sledCount}
         />
       </div>
 
@@ -219,7 +222,7 @@ export function UtilizationPage({
             title="Disk Space"
             unit="TiB"
             valueTransform={bytesToTiB}
-            capacity={PER_SLED.DISK * sledCount}
+            capacity={PER_SLED.DISK_TIB * sledCount}
           />
         </div>
 
@@ -237,7 +240,7 @@ export function UtilizationPage({
           title="Memory"
           unit="GiB"
           valueTransform={bytesToGiB}
-          capacity={PER_SLED.RAM * sledCount}
+          capacity={PER_SLED.RAM_GIB * sledCount}
         />
       </div>
     </>
