@@ -19,12 +19,26 @@ import {
 import { type ListboxItem, Refresh16Icon, SpinnerLoader, useInterval } from '@oxide/ui'
 import { bytesToGiB, bytesToTiB } from '@oxide/util'
 
-import { CapacityMetric } from 'app/components/CapacityMetric'
+import { CapacityMetric, capacityQueryParams } from 'app/components/CapacityMetric'
 import { SystemMetric } from 'app/components/SystemMetric'
 import { useDateTimeRangePicker } from 'app/components/form'
 
 CapacityUtilizationPage.loader = async () => {
-  await apiQueryClient.prefetchQuery('siloList', {})
+  await Promise.all([
+    apiQueryClient.prefetchQuery('siloList', {}),
+    apiQueryClient.prefetchQuery('systemMetric', {
+      path: { metricName: 'cpus_provisioned' },
+      query: capacityQueryParams,
+    }),
+    apiQueryClient.prefetchQuery('systemMetric', {
+      path: { metricName: 'ram_provisioned' },
+      query: capacityQueryParams,
+    }),
+    apiQueryClient.prefetchQuery('systemMetric', {
+      path: { metricName: 'virtual_disk_space_provisioned' },
+      query: capacityQueryParams,
+    }),
+  ])
   return null
 }
 

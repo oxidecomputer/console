@@ -6,6 +6,18 @@ import { splitDecimal } from '@oxide/util'
 
 import RoundedSector from 'app/components/RoundedSector'
 
+// exported to use in the loader because it needs to be identical
+export const capacityQueryParams = {
+  // beginning of time, aka 1970
+  startTime: new Date(0),
+  // kind of janky to use pageload time. we can think about making it live
+  // later. ideally refetch would be coordinated with the graphs
+  endTime: new Date(),
+  id: FLEET_ID,
+  limit: 1,
+  order: 'descending' as const,
+}
+
 export const CapacityMetric = ({
   icon,
   title,
@@ -21,25 +33,11 @@ export const CapacityMetric = ({
   valueTransform?: (n: number) => number
   capacity: number
 }) => {
-  const mountTime = useMemo(() => new Date(), [])
-
   // this is going to return at most one data point
   const { data } = useApiQuery(
     'systemMetric',
-    {
-      path: { metricName },
-      query: {
-        startTime: new Date(0), // beginning of time, aka 1970
-        endTime: mountTime,
-        id: FLEET_ID,
-        limit: 1,
-        order: 'descending',
-      },
-    },
-    {
-      refetchInterval: 5000,
-      keepPreviousData: true,
-    }
+    { path: { metricName }, query: capacityQueryParams },
+    { keepPreviousData: true }
   )
 
   const metrics = useMemo(() => data?.items || [], [data])
