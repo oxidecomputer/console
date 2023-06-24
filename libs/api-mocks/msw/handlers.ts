@@ -1,10 +1,11 @@
+import { subDays } from 'date-fns'
 import { v4 as uuid } from 'uuid'
 
 import type { ApiTypes as Api, SamlIdentityProvider, UpdateDeployment } from '@oxide/api'
 import { DISK_DELETE_STATES, DISK_SNAPSHOT_STATES, FLEET_ID } from '@oxide/api'
 import type { Json } from '@oxide/gen/msw-handlers'
 import { json, makeHandlers } from '@oxide/gen/msw-handlers'
-import { pick, sortBy } from '@oxide/util'
+import { TiB, pick, sortBy } from '@oxide/util'
 
 import { genCumulativeI64Data, genI64Data } from '../metrics'
 import { serial } from '../serial'
@@ -1011,6 +1012,22 @@ export const handlers = makeHandlers({
     // note we're ignoring the required id query param. since the data is fake
     // it wouldn't matter, though we should probably 400 if it's missing
     const { startTime, endTime } = getStartAndEndTime(query)
+
+    const d = subDays(new Date(), 5)
+    if (metricName === 'virtual_disk_space_provisioned') {
+      if (startTime <= d && d < endTime) {
+        return {
+          items: [
+            {
+              timestamp: d.toISOString(),
+              datum: { type: 'i64', datum: 14 * TiB },
+            },
+          ],
+        }
+      } else {
+        return { items: [] }
+      }
+    }
 
     if (endTime <= startTime) return { items: [] }
 

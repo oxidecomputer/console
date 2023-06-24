@@ -1,11 +1,49 @@
-import React, { Suspense } from 'react'
+import React, { Suspense, useMemo } from 'react'
 
-import type { SystemMetricName } from '@oxide/api'
+import type { Measurement, SystemMetricName } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import { Badge, DirectionDownIcon, DirectionUpIcon, Spinner } from '@oxide/ui'
 import { splitDecimal } from '@oxide/util'
 
+import type { Datum } from './TimeSeriesChart'
+
 const TimeSeriesChart = React.lazy(() => import('./TimeSeriesChart'))
+
+/** fill in data points at start and end of range */
+export function synthesizeData(
+  dataInRange: Measurement[] | undefined,
+  dataBeforeRange: Measurement[] | undefined,
+  startTime: Date,
+  endTime: Date,
+  valueTransform: (n: number) => number
+): Datum[] | undefined {
+  // wait until both requests come back to do anything
+  if (!dataInRange || !dataBeforeRange) return undefined
+
+  const result = dataInRange.map(({ datum, timestamp }) => ({
+    timestamp: timestamp.getTime(),
+    // all of these metrics are cumulative ints
+    value: valueTransform(datum.datum as number),
+  }))
+
+  // second condition should virtually always be true
+  if (dataInRange.length === 0 || result[0].timestamp > startTime.getTime()) {
+    const value =
+      dataBeforeRange.length > 0
+        ? valueTransform(dataBeforeRange.at(-1)!.datum.datum as number)
+        : 0 // if there's no data before the time range, assume value is zero
+    result.unshift({ timestamp: startTime.getTime(), value })
+  }
+
+  // add point for the end of the time range equal to the last value in the
+  // range. no timestamp check necessary because endTime is exclusive
+  result.push({
+    timestamp: endTime.getTime(),
+    value: result.at(-1)!.value,
+  })
+
+  return result
+}
 
 type SystemMetricProps = {
   title: string
@@ -33,37 +71,44 @@ export function SystemMetric({
 }: SystemMetricProps) {
   // TODO: we're only pulling the first page. Should we bump the cap to 10k?
   // Fetch multiple pages if 10k is not enough? That's a bit much.
-  const { data: metrics, isLoading } = useApiQuery(
+  const inRange = useApiQuery(
     'systemMetric',
     { path: { metricName }, query: { id: filterId, startTime, endTime } },
-    {
-      // avoid graphs flashing blank while loading when you change the time
-      keepPreviousData: true,
-    }
+    // avoid graphs flashing blank while loading when you change the time
+    { keepPreviousData: true }
   )
 
-  const data = (metrics?.items || []).map(({ datum, timestamp }) => ({
-    timestamp: timestamp.getTime(),
-    // all of these metrics are cumulative ints
-    value: valueTransform(datum.datum as number),
-  }))
+  // get last point before startTime to use as first point in graph
+  const beforeStart = useApiQuery(
+    'systemMetric',
+    {
+      path: { metricName },
+      query: {
+        id: filterId,
+        endTime: startTime,
+        startTime: new Date(0),
+        limit: 1,
+        order: 'descending',
+      },
+    },
+    // avoid graphs flashing blank while loading when you change the time
+    { keepPreviousData: true }
+  )
 
-  // add fake points for the beginning and end of the time range (lol)
-  if (data.length > 0) {
-    const firstPoint = data[0]
-    const lastPoint = data[data.length - 1]
+  const data = useMemo(
+    () =>
+      synthesizeData(
+        inRange.data?.items,
+        beforeStart.data?.items,
+        startTime,
+        endTime,
+        valueTransform
+      ),
+    [inRange.data, beforeStart.data, startTime, endTime, valueTransform]
+  )
 
-    if (startTime.getTime() < firstPoint.timestamp) {
-      data.unshift({ timestamp: startTime.getTime(), value: firstPoint.value })
-    }
-
-    if (endTime.getTime() > lastPoint.timestamp) {
-      data.push({ timestamp: endTime.getTime(), value: lastPoint.value })
-    }
-  }
-
-  const firstPoint = data[0]
-  const lastPoint = data[data.length - 1]
+  const firstPoint = data?.[0]
+  const lastPoint = data?.[data.length - 1]
 
   // TODO: indicate time zone somewhere. doesn't have to be in the detail view
   // in the tooltip. could be just once on the end of the x-axis like GCP
@@ -72,13 +117,13 @@ export function SystemMetric({
     <div>
       <h2 className="flex items-center gap-1.5 px-3 text-mono-sm text-secondary">
         {title} {unit && <span className="text-quaternary">({unit})</span>}{' '}
-        {isLoading && <Spinner />}
+        {(inRange.isLoading || beforeStart.isLoading) && <Spinner />}
       </h2>
       {/* TODO: proper skeleton for empty chart */}
       <Suspense fallback={<div />}>
         <div className="mt-3 h-[300px]">
           <TimeSeriesChart
-            data={data}
+            data={data || []} // TODO: should TimeSeriesChart handle undefined internally?
             title={title}
             width={480}
             height={240}

@@ -90,7 +90,7 @@ function renderTooltip(props: TooltipProps<number, string>, unit?: string) {
   )
 }
 
-type Datum = {
+export type Datum = {
   // we're doing the x axis as timestamp ms instead of Date primarily to make
   // type=number work
   timestamp: number
