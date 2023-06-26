@@ -873,6 +873,7 @@ export const handlers = makeHandlers({
       id: uuid(),
       ...getTimestamps(),
       ...body,
+      mapped_fleet_roles: body.mapped_fleet_roles || {},
     }
     db.silos.push(newSilo)
     return json(newSilo, { status: 201 })

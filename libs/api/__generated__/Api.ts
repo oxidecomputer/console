@@ -239,11 +239,11 @@ export type Certificate = {
  * Create-time parameters for a `Certificate`
  */
 export type CertificateCreate = {
-  /** PEM file containing public certificate chain */
-  cert: number[]
+  /** PEM-formatted string containing public certificate chain */
+  cert: string
   description: string
-  /** PEM file containing private key */
-  key: number[]
+  /** PEM-formatted string containing private key */
+  key: string
   name: Name
   /** The service using this certificate */
   service: ServiceUsingCertificate
@@ -1179,6 +1179,8 @@ export type Route = {
   dst: IpNet
   /** The route gateway. */
   gw: string
+  /** VLAN id the gateway is reachable over. */
+  vid?: number
 }
 
 /**
@@ -1371,6 +1373,10 @@ export type Silo = {
   id: string
   /** How users and groups are managed in this Silo */
   identityMode: SiloIdentityMode
+  /** Mapping of which Fleet roles are conferred by each Silo role
+
+The default is that no Fleet roles are conferred by any Silo roles unless there's a corresponding entry in this map. */
+  mappedFleetRoles: {}
   /** unique, mutable, user-controlled identifier for each resource */
   name: Name
   /** timestamp when this resource was created */
@@ -1390,6 +1396,10 @@ Note that if configuring a SAML based identity provider, group_attribute_name mu
   description: string
   discoverable: boolean
   identityMode: SiloIdentityMode
+  /** Mapping of which Fleet roles are conferred by each Silo role
+
+The default is that no Fleet roles are conferred by any Silo roles unless there's a corresponding entry in this map. */
+  mappedFleetRoles?: {}
   name: Name
   /** Initial TLS certificates to be used for the new Silo's console and API endpoints.  These should be valid for the Silo's DNS name(s). */
   tlsCertificates: CertificateCreate[]
@@ -1718,6 +1728,8 @@ export type SwitchPortRouteConfig = {
   interfaceName: string
   /** The port settings object this route configuration belongs to. */
   portSettingsId: string
+  /** The VLAN identifier for the route. Use this if the gateway is reachable over an 802.1Q tagged L2 segment. */
+  vlanId?: number
 }
 
 /**
@@ -1782,8 +1794,8 @@ export type SwitchPortSettingsResultsPage = {
 export type SwitchVlanInterfaceConfig = {
   /** The switch interface configuration this VLAN interface configuration belongs to. */
   interfaceConfigId: string
-  /** The virtual network id (VID) that distinguishes this interface and is used for producing and consuming 802.1Q Ethernet tags. This field has a maximum value of 4095 as 802.1Q tags are twelve bits. */
-  vid: number
+  /** The virtual network id for this interface that is used for producing and consuming 802.1Q Ethernet tags. This field has a maximum value of 4095 as 802.1Q tags are twelve bits. */
+  vlanId: number
 }
 
 /**
