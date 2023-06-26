@@ -53,6 +53,7 @@ type SystemMetricProps = {
   metricName: SystemMetricName
   /** Resource to filter data by. Can be fleet, silo, project. */
   filterId: string
+  /** Should be statically defined or memoized to avoid extra renders */
   valueTransform?: (n: number) => number
   /** hard-coded max y */
   capacity: number
@@ -123,7 +124,7 @@ export function SystemMetric({
       <Suspense fallback={<div />}>
         <div className="mt-3 h-[300px]">
           <TimeSeriesChart
-            data={data || []} // TODO: should TimeSeriesChart handle undefined internally?
+            data={data}
             title={title}
             width={480}
             height={240}

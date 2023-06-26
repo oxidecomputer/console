@@ -1,5 +1,6 @@
 import cn from 'classnames'
 import { format } from 'date-fns'
+import { useMemo } from 'react'
 import {
   Area,
   AreaChart,
@@ -99,7 +100,7 @@ export type Datum = {
 
 type Props = {
   className?: string
-  data: Datum[]
+  data: Datum[] | undefined
   title: string
   width: number
   height: number
@@ -112,7 +113,7 @@ type Props = {
 
 export default function TimeSeriesChart({
   className,
-  data,
+  data: rawData,
   title,
   width,
   height,
@@ -133,6 +134,10 @@ export default function TimeSeriesChart({
     : {
         tickSize: 6,
       }
+
+  // falling back here instead of in the parent lets us avoid causing a
+  // re-render on every render of the parent when the data is undefined
+  const data = useMemo(() => rawData || [], [rawData])
 
   return (
     <ResponsiveContainer width="100%" height={300}>
