@@ -94,9 +94,9 @@ export function DateTimeRangePicker({
   onRangeChange,
 }: DateTimeRangePickerProps) {
   return (
-    <form className="flex h-20 gap-4">
+    <form className="flex gap-4">
       <Listbox
-        className="mr-4 w-48" // in addition to gap-4
+        className="w-48"
         name="preset"
         selected={preset}
         aria-label="Choose a time range preset"

@@ -167,7 +167,7 @@ export function UtilizationPage({
 
   return (
     <>
-      <div className="mt-16 mb-8 flex justify-between gap-3">
+      <div className="mt-8 flex justify-between gap-3">
         <Listbox
           selected={filterId}
           className="w-48"
@@ -180,7 +180,7 @@ export function UtilizationPage({
         <div className="flex items-center gap-2">{dateTimeRangePicker}</div>
       </div>
 
-      <Divider className="!mx-0 mb-6 !w-full" />
+      <Divider className="!mx-0 my-6 !w-full" />
 
       <div className="mb-12 flex items-center justify-between">
         <div className="hidden items-center gap-2 text-right text-mono-sm text-quaternary lg+:flex">
