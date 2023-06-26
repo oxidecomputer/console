@@ -132,11 +132,15 @@ export function UtilizationPage({
       maxValue: now(getLocalTimeZone()),
     })
 
-  const commonProps = {
-    startTime: startTime.toDate(getLocalTimeZone()),
-    endTime: endTime.toDate(getLocalTimeZone()),
-    filterId: filterId,
-  }
+  // memo important to avoid render churn due to the dates
+  const commonProps = useMemo(
+    () => ({
+      startTime: startTime.toDate(getLocalTimeZone()),
+      endTime: endTime.toDate(getLocalTimeZone()),
+      filterId: filterId,
+    }),
+    [startTime, endTime, filterId]
+  )
 
   const [refetchInterval, setRefetchInterval] = useState<RefetchInterval>('10s')
 
