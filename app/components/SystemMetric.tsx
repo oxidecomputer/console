@@ -1,4 +1,4 @@
-import React, { Suspense, useMemo } from 'react'
+import React, { Suspense, useMemo, useRef } from 'react'
 
 import type { Measurement, SystemMetricName } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
@@ -96,17 +96,20 @@ export function SystemMetric({
     { keepPreviousData: true }
   )
 
-  const data = useMemo(
-    () =>
-      synthesizeData(
-        inRange.data?.items,
-        beforeStart.data?.items,
-        startTime,
-        endTime,
-        valueTransform
-      ),
-    [inRange.data, beforeStart.data, startTime, endTime, valueTransform]
-  )
+  const ref = useRef<Datum[] | undefined>(undefined)
+  const isFetching = inRange.isFetching || beforeStart.isFetching
+  const data = useMemo(() => {
+    // big old hack to avoid the graph flashing with weird data while either query is loading
+    if (isFetching) return ref.current
+    ref.current = synthesizeData(
+      inRange.data?.items,
+      beforeStart.data?.items,
+      startTime,
+      endTime,
+      valueTransform
+    )
+    return ref.current
+  }, [inRange.data, beforeStart.data, startTime, endTime, valueTransform, isFetching])
 
   const firstPoint = data?.[0]
   const lastPoint = data?.[data.length - 1]
