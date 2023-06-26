@@ -94,9 +94,9 @@ export function DateTimeRangePicker({
   onRangeChange,
 }: DateTimeRangePickerProps) {
   return (
-    <form className="flex gap-4">
+    <form className="flex">
       <Listbox
-        className="w-48"
+        className="z-10 -mr-[1px] w-[10rem] [&>button]:!rounded-r-none"
         name="preset"
         selected={preset}
         aria-label="Choose a time range preset"
@@ -118,7 +118,7 @@ export function DateTimeRangePicker({
           minValue={minValue}
           maxValue={maxValue}
           hideTimeZone
-          className="hover:z-10 [&_.rounded-l]:!rounded-l-none"
+          className="[&_.rounded-l]:!rounded-l-none"
         />
       </div>
     </form>
