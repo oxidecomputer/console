@@ -15,13 +15,20 @@ import {
 import { useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
-const defaultValues: SiloCreate = {
+type FormValues = Omit<SiloCreate, 'mappedFleetRoles'> & {
+  siloAdminGetsFleetAdmin: boolean
+  siloViewerGetsFleetViewer: boolean
+}
+
+const defaultValues: FormValues = {
   name: '',
   description: '',
   discoverable: true,
   identityMode: 'saml_jit',
   adminGroupName: '',
   tlsCertificates: [],
+  siloAdminGetsFleetAdmin: false,
+  siloViewerGetsFleetViewer: false,
 }
 
 export function CreateSiloSideModalForm() {
@@ -50,15 +57,28 @@ export function CreateSiloSideModalForm() {
       title="Create silo"
       form={form}
       onDismiss={onDismiss}
-      onSubmit={({ adminGroupName, ...rest }) =>
+      onSubmit={({
+        adminGroupName,
+        siloAdminGetsFleetAdmin,
+        siloViewerGetsFleetViewer,
+        ...rest
+      }) => {
+        const mappedFleetRoles: SiloCreate['mappedFleetRoles'] = {}
+        if (siloAdminGetsFleetAdmin) {
+          mappedFleetRoles['admin'] = ['admin']
+        }
+        if (siloViewerGetsFleetViewer) {
+          mappedFleetRoles['viewer'] = ['viewer']
+        }
         createSilo.mutate({
           body: {
             // no point setting it to empty string or whitespace
             adminGroupName: adminGroupName?.trim() || undefined,
+            mappedFleetRoles,
             ...rest,
           },
         })
-      }
+      }}
       loading={createSilo.isLoading}
       submitError={createSilo.error}
     >
@@ -83,6 +103,16 @@ export function CreateSiloSideModalForm() {
         helpText="This group will be created and granted the Silo Admin role"
         control={form.control}
       />
+      <div>
+        <CheckboxField name="siloAdminGetsFleetAdmin" control={form.control}>
+          Silo admin gets fleet admin
+        </CheckboxField>
+      </div>
+      <div>
+        <CheckboxField name="siloViewerGetsFleetViewer" control={form.control}>
+          Silo viewer gets fleet viewer
+        </CheckboxField>
+      </div>
     </SideModalForm>
   )
 }
