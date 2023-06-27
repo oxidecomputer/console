@@ -5,6 +5,7 @@ import { validate as isUuid } from 'uuid'
 import * as mock from '@oxide/api-mocks'
 import type { ApiTypes as Api, PathParams as PP } from '@oxide/api'
 import { user1 } from '@oxide/api-mocks'
+import { exclude } from '@oxide/util'
 
 import type { Json } from '../json-type'
 import { clone, json } from './util'
@@ -12,6 +13,26 @@ import { clone, json } from './util'
 const notFoundBody = { error_code: 'ObjectNotFound' } as const
 export type NotFound = typeof notFoundBody
 export const notFoundErr = json({ error_code: 'ObjectNotFound' } as const, { status: 404 })
+export const invalidSelectorErr = json({ error_code: 'InvalidSelector' } as const, {
+  status: 400,
+})
+
+const validateSelector = <S extends Record<string, unknown>, K extends keyof S>(
+  selector: S,
+  primaryField: K
+) => {
+  if (!selector[primaryField]) throw notFoundErr
+  if (
+    isUuid(selector[primaryField] as string) &&
+    Object.values(exclude(selector, primaryField)).reduce(
+      (acc, val) => acc && val === undefined,
+      true
+    )
+  ) {
+    throw invalidSelectorErr
+  }
+  return selector as Omit<S, K> & Record<K, string>
+}
 
 export const lookupById = <T extends { id: string }>(table: T[], id: string) => {
   const item = table.find((i) => i.id === id)
@@ -20,8 +41,8 @@ export const lookupById = <T extends { id: string }>(table: T[], id: string) => 
 }
 
 export const lookup = {
-  project({ project: id }: PP.Project): Json<Api.Project> {
-    if (!id) throw notFoundErr
+  project(selector: PP.Project): Json<Api.Project> {
+    const { project: id } = validateSelector(selector, 'project')
 
     if (isUuid(id)) return lookupById(db.projects, id)
 
@@ -30,8 +51,8 @@ export const lookup = {
 
     return project
   },
-  instance({ instance: id, ...projectSelector }: PP.Instance): Json<Api.Instance> {
-    if (!id) throw notFoundErr
+  instance(selector: PP.Instance): Json<Api.Instance> {
+    const { instance: id, ...projectSelector } = validateSelector(selector, 'instance')
 
     if (isUuid(id)) return lookupById(db.instances, id)
 
@@ -41,11 +62,8 @@ export const lookup = {
 
     return instance
   },
-  networkInterface({
-    interface: id,
-    ...instanceSelector
-  }: PP.NetworkInterface): Json<Api.InstanceNetworkInterface> {
-    if (!id) throw notFoundErr
+  networkInterface(selector: PP.NetworkInterface): Json<Api.InstanceNetworkInterface> {
+    const { interface: id, ...instanceSelector } = validateSelector(selector, 'interface')
 
     if (isUuid(id)) return lookupById(db.networkInterfaces, id)
 
@@ -58,8 +76,8 @@ export const lookup = {
 
     return nic
   },
-  disk({ disk: id, ...projectSelector }: PP.Disk): Json<Api.Disk> {
-    if (!id) throw notFoundErr
+  disk(selector: PP.Disk): Json<Api.Disk> {
+    const { disk: id, ...projectSelector } = validateSelector(selector, 'disk')
 
     if (isUuid(id)) return lookupById(db.disks, id)
 
@@ -70,8 +88,8 @@ export const lookup = {
 
     return disk
   },
-  snapshot({ snapshot: id, ...projectSelector }: PP.Snapshot): Json<Api.Snapshot> {
-    if (!id) throw notFoundErr
+  snapshot(selector: PP.Snapshot): Json<Api.Snapshot> {
+    const { snapshot: id, ...projectSelector } = validateSelector(selector, 'snapshot')
 
     if (isUuid(id)) return lookupById(db.snapshots, id)
 
@@ -81,8 +99,8 @@ export const lookup = {
 
     return snapshot
   },
-  vpc({ vpc: id, ...projectSelector }: PP.Vpc): Json<Api.Vpc> {
-    if (!id) throw notFoundErr
+  vpc(selector: PP.Vpc): Json<Api.Vpc> {
+    const { vpc: id, ...projectSelector } = validateSelector(selector, 'vpc')
 
     if (isUuid(id)) return lookupById(db.vpcs, id)
 
@@ -92,8 +110,8 @@ export const lookup = {
 
     return vpc
   },
-  vpcRouter({ router: id, ...vpcSelector }: PP.VpcRouter): Json<Api.VpcRouter> {
-    if (!id) throw notFoundErr
+  vpcRouter(selector: PP.VpcRouter): Json<Api.VpcRouter> {
+    const { router: id, ...vpcSelector } = validateSelector(selector, 'router')
 
     if (isUuid(id)) return lookupById(db.vpcRouters, id)
 
@@ -103,8 +121,8 @@ export const lookup = {
 
     return router
   },
-  vpcRouterRoute({ route: id, ...routerSelector }: PP.RouterRoute): Json<Api.RouterRoute> {
-    if (!id) throw notFoundErr
+  vpcRouterRoute(selector: PP.RouterRoute): Json<Api.RouterRoute> {
+    const { route: id, ...routerSelector } = validateSelector(selector, 'route')
 
     if (isUuid(id)) return lookupById(db.vpcRouterRoutes, id)
 
@@ -116,8 +134,8 @@ export const lookup = {
 
     return route
   },
-  vpcSubnet({ subnet: id, ...vpcSelector }: PP.VpcSubnet): Json<Api.VpcSubnet> {
-    if (!id) throw notFoundErr
+  vpcSubnet(selector: PP.VpcSubnet): Json<Api.VpcSubnet> {
+    const { subnet: id, ...vpcSelector } = validateSelector(selector, 'subnet')
 
     if (isUuid(id)) return lookupById(db.vpcSubnets, id)
 
@@ -127,29 +145,26 @@ export const lookup = {
 
     return subnet
   },
-  image({ image: id, project: projectId }: PP.Image): Json<Api.Image> {
-    if (!id) throw notFoundErr
+  image(selector: PP.Image): Json<Api.Image> {
+    const { image: id, project: projectSelector } = validateSelector(selector, 'image')
 
     if (isUuid(id)) return lookupById(db.images, id)
 
     let image: Json<Api.Image> | undefined
-    if (projectId === undefined) {
+    if (projectSelector === undefined) {
       // silo image
       image = db.images.find((d) => d.project_id === undefined && d.name === id)
     } else {
       // project image
-      const project = lookup.project({ project: projectId })
+      const project = lookup.project({ project: projectSelector })
       image = db.images.find((d) => d.project_id === project.id && d.name === id)
     }
 
     if (!image) throw notFoundErr
     return image
   },
-  samlIdp({
-    provider: id,
-    ...siloSelector
-  }: PP.IdentityProvider): Json<Api.SamlIdentityProvider> {
-    if (!id) throw notFoundErr
+  samlIdp(selector: PP.IdentityProvider): Json<Api.SamlIdentityProvider> {
+    const { provider: id, ...siloSelector } = validateSelector(selector, 'provider')
 
     const silo = lookup.silo(siloSelector)
 
