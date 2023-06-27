@@ -1,7 +1,7 @@
 /* eslint-disable */
 import { ZodType, z } from 'zod'
 
-import { processResponseBody, snakeify } from './util'
+import { processResponseBody, uniqueItems } from './util'
 
 /**
  * Zod only supports string enums at the moment. A previous issue was opened
@@ -1382,7 +1382,7 @@ export const Silo = z.preprocess(
     discoverable: SafeBoolean,
     id: z.string().uuid(),
     identityMode: SiloIdentityMode,
-    mappedFleetRoles: z.object({}),
+    mappedFleetRoles: z.record(z.string().min(1), FleetRole.array().refine(...uniqueItems)),
     name: Name,
     timeCreated: z.coerce.date(),
     timeModified: z.coerce.date(),
@@ -1399,7 +1399,9 @@ export const SiloCreate = z.preprocess(
     description: z.string(),
     discoverable: SafeBoolean,
     identityMode: SiloIdentityMode,
-    mappedFleetRoles: z.object({}).optional(),
+    mappedFleetRoles: z
+      .record(z.string().min(1), FleetRole.array().refine(...uniqueItems))
+      .optional(),
     name: Name,
     tlsCertificates: CertificateCreate.array(),
   })
@@ -1719,15 +1721,15 @@ export const SwitchPortSettings = z.preprocess(
 export const SwitchPortSettingsCreate = z.preprocess(
   processResponseBody,
   z.object({
-    addresses: z.object({}),
-    bgpPeers: z.object({}),
+    addresses: z.record(z.string().min(1), AddressConfig),
+    bgpPeers: z.record(z.string().min(1), BgpPeerConfig),
     description: z.string(),
     groups: NameOrId.array(),
-    interfaces: z.object({}),
-    links: z.object({}),
+    interfaces: z.record(z.string().min(1), SwitchInterfaceConfig),
+    links: z.record(z.string().min(1), LinkConfig),
     name: Name,
     portConfig: SwitchPortConfig,
-    routes: z.object({}),
+    routes: z.record(z.string().min(1), RouteConfig),
   })
 )
 

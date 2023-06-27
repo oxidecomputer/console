@@ -1376,7 +1376,7 @@ export type Silo = {
   /** Mapping of which Fleet roles are conferred by each Silo role
 
 The default is that no Fleet roles are conferred by any Silo roles unless there's a corresponding entry in this map. */
-  mappedFleetRoles: {}
+  mappedFleetRoles: Record<string, FleetRole[]>
   /** unique, mutable, user-controlled identifier for each resource */
   name: Name
   /** timestamp when this resource was created */
@@ -1399,7 +1399,7 @@ Note that if configuring a SAML based identity provider, group_attribute_name mu
   /** Mapping of which Fleet roles are conferred by each Silo role
 
 The default is that no Fleet roles are conferred by any Silo roles unless there's a corresponding entry in this map. */
-  mappedFleetRoles?: {}
+  mappedFleetRoles?: Record<string, FleetRole[]>
   name: Name
   /** Initial TLS certificates to be used for the new Silo's console and API endpoints.  These should be valid for the Silo's DNS name(s). */
   tlsCertificates: CertificateCreate[]
@@ -1753,19 +1753,19 @@ export type SwitchPortSettings = {
  */
 export type SwitchPortSettingsCreate = {
   /** Addresses indexed by interface name. */
-  addresses: {}
+  addresses: Record<string, AddressConfig>
   /** BGP peers indexed by interface name. */
-  bgpPeers: {}
+  bgpPeers: Record<string, BgpPeerConfig>
   description: string
   groups: NameOrId[]
   /** Interfaces indexed by link name. */
-  interfaces: {}
+  interfaces: Record<string, SwitchInterfaceConfig>
   /** Links indexed by phy name. On ports that are not broken out, this is always phy0. On a 2x breakout the options are phy0 and phy1, on 4x phy0-phy3, etc. */
-  links: {}
+  links: Record<string, LinkConfig>
   name: Name
   portConfig: SwitchPortConfig
   /** Routes indexed by interface name. */
-  routes: {}
+  routes: Record<string, RouteConfig>
 }
 
 /**
