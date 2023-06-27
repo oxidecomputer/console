@@ -148,6 +148,7 @@ export const routes = createRoutesFromElements(
           path="inventory/sleds/:sledId"
           element={<SledPage />}
           loader={SledPage.loader}
+          handle={{ crumb: 'Sleds' }}
         >
           <Route index element={<Navigate to="instances" replace />} />
           <Route
