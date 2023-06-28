@@ -512,7 +512,13 @@ export const handlers = makeHandlers({
     db.ipPools.push(newIpPool)
     return json(newIpPool, { status: 201 })
   },
-  ipPoolDelete: NotImplemented,
+  ipPoolDelete({ path }) {
+    const pool = lookup.ipPool(path)
+
+    db.ipPools = db.ipPools.filter((p) => p.id !== pool.id)
+
+    return 204
+  },
   ipPoolList: ({ query }) => paginated(query, db.ipPools),
   ipPoolRangeAdd: NotImplemented,
   ipPoolRangeList({ path, query }) {

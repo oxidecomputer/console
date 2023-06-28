@@ -1,6 +1,8 @@
 import { Link, Outlet } from 'react-router-dom'
 
-import { apiQueryClient } from '@oxide/api'
+import type { IpPool } from '@oxide/api'
+import { apiQueryClient, useApiMutation, useApiQueryClient } from '@oxide/api'
+import type { MenuAction } from '@oxide/table'
 import { DateCell, useQueryTable } from '@oxide/table'
 import {
   EmptyMessage,
@@ -11,6 +13,8 @@ import {
   buttonStyle,
 } from '@oxide/ui'
 
+import { confirmDelete } from 'app/stores/confirm-delete'
+import { addToast } from 'app/stores/toast'
 import { pb } from 'app/util/path-builder'
 
 const EmptyState = () => (
@@ -29,7 +33,27 @@ IpPoolsPage.loader = async () => {
 }
 
 export function IpPoolsPage() {
+  const queryClient = useApiQueryClient()
   const { Table, Column } = useQueryTable('ipPoolList', {})
+
+  const deleteIpPools = useApiMutation('ipPoolDelete', {
+    onSuccess(_, { path }) {
+      addToast({
+        content: `${path.pool} has been deleted`,
+      })
+      queryClient.invalidateQueries('ipPoolList', {})
+    },
+  })
+
+  const makeActions = (ipPool: IpPool): MenuAction[] => [
+    {
+      label: 'Delete',
+      onActivate: confirmDelete({
+        doDelete: () => deleteIpPools.mutateAsync({ path: { pool: ipPool.name } }),
+        label: ipPool.name,
+      }),
+    },
+  ]
 
   return (
     <>
@@ -41,7 +65,7 @@ export function IpPoolsPage() {
           New IP pool
         </Link>
       </TableActions>
-      <Table emptyState={<EmptyState />}>
+      <Table emptyState={<EmptyState />} makeActions={makeActions}>
         <Column accessor="name" />
         <Column accessor="description" />
         <Column accessor="timeModified" header="Last updated" cell={DateCell} />
