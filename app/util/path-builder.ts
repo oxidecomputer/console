@@ -67,6 +67,8 @@ export const pb = {
   systemIssues: () => '/system/issues',
   systemUtilization: () => '/system/utilization',
   systemHealth: () => '/system/health',
+  systemIpPools: () => '/system/ip-pools',
+  systemIpPoolNew: () => '/system/ip-pools-new',
 
   systemUpdates: () => '/system/update/updates',
   systemUpdateDetail: ({ version }: SystemUpdate) => `${pb.systemUpdates()}/${version}`,

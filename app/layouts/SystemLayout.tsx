@@ -4,6 +4,7 @@ import { apiQueryClient } from '@oxide/api'
 import {
   Cloud16Icon,
   Divider,
+  Networking16Icon,
   Settings16Icon,
   Snapshots16Icon,
   Storage16Icon,
@@ -66,6 +67,9 @@ export default function SystemLayout() {
           </NavLinkItem>
           <NavLinkItem to={pb.sledInventory()}>
             <Storage16Icon /> Inventory
+          </NavLinkItem>
+          <NavLinkItem to={pb.systemIpPools()}>
+            <Networking16Icon /> IP Pools
           </NavLinkItem>
           {/* <NavLinkItem to={pb.systemHealth()} disabled>
             <Health16Icon /> Health

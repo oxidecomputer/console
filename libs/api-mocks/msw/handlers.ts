@@ -502,6 +502,18 @@ export const handlers = makeHandlers({
 
     return json(instance, { status: 202 })
   },
+  ipPoolCreate({ body }) {
+    errIfExists(db.ipPools, { name: body.name })
+    const newIpPool: Json<Api.IpPool> = {
+      id: uuid(),
+      ...body,
+      ...getTimestamps(),
+    }
+    db.ipPools.push(newIpPool)
+    return json(newIpPool, { status: 201 })
+  },
+  ipPoolDelete: NotImplemented,
+  ipPoolList: ({ query }) => paginated(query, db.ipPools),
   projectPolicyView({ path }) {
     const project = lookup.project(path)
 
@@ -1052,9 +1064,6 @@ export const handlers = makeHandlers({
   diskImportBlocksFromUrl: NotImplemented,
   instanceMigrate: NotImplemented,
   instanceSerialConsoleStream: NotImplemented,
-  ipPoolCreate: NotImplemented,
-  ipPoolDelete: NotImplemented,
-  ipPoolList: NotImplemented,
   ipPoolRangeAdd: NotImplemented,
   ipPoolRangeList: NotImplemented,
   ipPoolRangeRemove: NotImplemented,

@@ -1,6 +1,7 @@
 export * from './disk'
 export * from './image'
 export * from './instance'
+export * from './ip-pools'
 export * from './network-interface'
 export * from './physical-disk'
 export * from './project'

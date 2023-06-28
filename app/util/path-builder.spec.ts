@@ -60,6 +60,8 @@ test('path builder', () => {
         "sshKeys": "/settings/ssh-keys",
         "system": "/system",
         "systemHealth": "/system/health",
+        "systemIpPoolNew": "/system/ip-pools-new",
+        "systemIpPools": "/system/ip-pools",
         "systemIssues": "/system/issues",
         "systemNetworking": "/system/networking",
         "systemSettings": "/system/settings",

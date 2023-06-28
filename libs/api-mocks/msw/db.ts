@@ -208,6 +208,7 @@ const initDb = {
   groupMemberships: [...mock.groupMemberships],
   images: [...mock.images],
   instances: [mock.instance],
+  ipPools: [...mock.ipPools],
   networkInterfaces: [mock.networkInterface],
   physicalDisks: [...mock.physicalDisks],
   projects: [...mock.projects],

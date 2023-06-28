@@ -10,6 +10,7 @@ import {
 } from './forms/image-edit'
 import { CreateImageSideModalForm } from './forms/image-upload'
 import { CreateInstanceForm } from './forms/instance-create'
+import { CreateIpPoolSideModalForm } from './forms/ip-pool-create'
 import { CreateProjectSideModalForm } from './forms/project-create'
 import { EditProjectSideModalForm } from './forms/project-edit'
 import { CreateSiloSideModalForm } from './forms/silo-create'
@@ -52,6 +53,7 @@ import { StorageTab } from './pages/project/instances/instance/tabs/StorageTab'
 import { ProfilePage } from './pages/settings/ProfilePage'
 import { SSHKeysPage } from './pages/settings/SSHKeysPage'
 import { CapacityUtilizationPage } from './pages/system/CapacityUtilizationPage'
+import { IpPoolsPage } from './pages/system/IpPoolsPage'
 import { SiloImagesPage } from './pages/system/SiloImagesPage'
 import { SiloPage } from './pages/system/SiloPage'
 import SilosPage from './pages/system/SilosPage'
@@ -60,13 +62,6 @@ import { InventoryPage } from './pages/system/inventory/InventoryPage'
 import { SledsTab } from './pages/system/inventory/SledsTab'
 import { SledInstancesTab } from './pages/system/inventory/sled/SledInstancesTab'
 import { SledPage } from './pages/system/inventory/sled/SledPage'
-// import { UpdateDetailSideModal } from './pages/system/UpdateDetailSideModal'
-// import {
-//   UpdatePage,
-//   UpdatePageComponents,
-//   UpdatePageHistory,
-//   UpdatePageUpdates,
-// } from './pages/system/UpdatePage'
 import { pb } from './util/path-builder'
 
 const projectCrumb: CrumbFunc = (m) => m.params.project!
@@ -157,37 +152,16 @@ export const routes = createRoutesFromElements(
             loader={SledInstancesTab.loader}
           />
         </Route>
+        <Route
+          element={<IpPoolsPage />}
+          loader={IpPoolsPage.loader}
+          handle={{ crumb: 'IP Pools' }}
+        >
+          <Route path="ip-pools" element={null} />
+          <Route path="ip-pools-new" element={<CreateIpPoolSideModalForm />} />
+        </Route>
         <Route path="health" element={null} handle={{ crumb: 'Health' }} />
         <Route path="update" element={null} handle={{ crumb: 'Update' }} />
-        {/* <Route
-          path="update"
-          element={<UpdatePage />}
-          loader={UpdatePage.loader}
-          handle={{ crumb: 'Update' }}
-        >
-          <Route index element={<Navigate to="updates" replace />} />
-          <Route
-            path="updates"
-            element={<UpdatePageUpdates />}
-            loader={UpdatePageUpdates.loader}
-          >
-            <Route
-              path=":version"
-              element={<UpdateDetailSideModal />}
-              loader={UpdateDetailSideModal.loader}
-            />
-          </Route>
-          <Route
-            path="components"
-            element={<UpdatePageComponents />}
-            loader={UpdatePageComponents.loader}
-          />
-          <Route
-            path="history"
-            element={<UpdatePageHistory />}
-            loader={UpdatePageHistory.loader}
-          />
-        </Route> */}
         <Route path="networking" element={null} handle={{ crumb: 'Networking' }} />
         <Route path="settings" element={null} handle={{ crumb: 'Settings' }} />
       </Route>
