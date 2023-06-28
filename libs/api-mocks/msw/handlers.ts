@@ -514,6 +514,13 @@ export const handlers = makeHandlers({
   },
   ipPoolDelete: NotImplemented,
   ipPoolList: ({ query }) => paginated(query, db.ipPools),
+  ipPoolRangeAdd: NotImplemented,
+  ipPoolRangeList({ path, query }) {
+    const pool = lookup.ipPool(path)
+    const ranges = db.ipPoolRanges.filter((r) => r.ip_pool_id === pool.id)
+    return paginated(query, ranges)
+  },
+  ipPoolRangeRemove: NotImplemented,
   projectPolicyView({ path }) {
     const project = lookup.project(path)
 
@@ -1064,9 +1071,6 @@ export const handlers = makeHandlers({
   diskImportBlocksFromUrl: NotImplemented,
   instanceMigrate: NotImplemented,
   instanceSerialConsoleStream: NotImplemented,
-  ipPoolRangeAdd: NotImplemented,
-  ipPoolRangeList: NotImplemented,
-  ipPoolRangeRemove: NotImplemented,
   ipPoolServiceRangeAdd: NotImplemented,
   ipPoolServiceRangeList: NotImplemented,
   ipPoolServiceRangeRemove: NotImplemented,

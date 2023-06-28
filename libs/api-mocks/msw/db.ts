@@ -191,6 +191,13 @@ export const lookup = {
     if (!sshKey) throw notFoundErr
     return sshKey
   },
+  ipPool({ pool: id }: PP.IpPool): Json<Api.IpPool> {
+    if (!id) throw notFoundErr
+    if (isUuid(id)) return lookupById(db.ipPools, id)
+    const ipPool = db.ipPools.find((o) => o.name === id)
+    if (!ipPool) throw notFoundErr
+    return ipPool
+  },
 }
 
 /** Track the upload state of an imported image */
@@ -209,6 +216,7 @@ const initDb = {
   images: [...mock.images],
   instances: [mock.instance],
   ipPools: [...mock.ipPools],
+  ipPoolRanges: [...mock.ipPoolRanges],
   networkInterfaces: [mock.networkInterface],
   physicalDisks: [...mock.physicalDisks],
   projects: [...mock.projects],
