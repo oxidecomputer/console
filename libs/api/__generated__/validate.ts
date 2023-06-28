@@ -1,12 +1,7 @@
 /* eslint-disable */
 import { ZodType, z } from 'zod'
 
-import { processResponseBody, snakeify } from './util'
-
-const DateType = z.preprocess((arg) => {
-  if (typeof arg == 'string' || arg instanceof Date) return new Date(arg)
-}, z.date())
-type DateType = z.infer<typeof DateType>
+import { processResponseBody, uniqueItems } from './util'
 
 /**
  * Zod only supports string enums at the moment. A previous issue was opened
@@ -17,6 +12,9 @@ type DateType = z.infer<typeof DateType>
  */
 const IntEnum = <T extends readonly number[]>(values: T) =>
   z.number().refine((v) => values.includes(v)) as ZodType<T[number]>
+
+/** Helper to ensure booleans provided as strings end up with the correct value */
+const SafeBoolean = z.preprocess((v) => (v === 'false' ? false : v), z.coerce.boolean())
 
 /**
  * An IPv4 subnet
@@ -100,8 +98,8 @@ export const AddressLot = z.preprocess(
     id: z.string().uuid(),
     kind: AddressLotKind,
     name: Name,
-    timeCreated: DateType,
-    timeModified: DateType,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
   })
 )
 
@@ -254,8 +252,8 @@ export const Certificate = z.preprocess(
     id: z.string().uuid(),
     name: Name,
     service: ServiceUsingCertificate,
-    timeCreated: DateType,
-    timeModified: DateType,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
   })
 )
 
@@ -316,8 +314,8 @@ export const ComponentUpdate = z.preprocess(
   z.object({
     componentType: UpdateableComponentType,
     id: z.string().uuid(),
-    timeCreated: DateType,
-    timeModified: DateType,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
     version: SemverVersion,
   })
 )
@@ -335,7 +333,7 @@ export const ComponentUpdateResultsPage = z.preprocess(
  */
 export const Cumulativedouble = z.preprocess(
   processResponseBody,
-  z.object({ startTime: DateType, value: z.number() })
+  z.object({ startTime: z.coerce.date(), value: z.number() })
 )
 
 /**
@@ -343,7 +341,7 @@ export const Cumulativedouble = z.preprocess(
  */
 export const Cumulativeint64 = z.preprocess(
   processResponseBody,
-  z.object({ startTime: DateType, value: z.number() })
+  z.object({ startTime: z.coerce.date(), value: z.number() })
 )
 
 /**
@@ -368,7 +366,11 @@ export const CurrentUser = z.preprocess(
  */
 export const Histogramint64 = z.preprocess(
   processResponseBody,
-  z.object({ bins: Binint64.array(), nSamples: z.number().min(0), startTime: DateType })
+  z.object({
+    bins: Binint64.array(),
+    nSamples: z.number().min(0),
+    startTime: z.coerce.date(),
+  })
 )
 
 /**
@@ -380,7 +382,11 @@ export const Histogramint64 = z.preprocess(
  */
 export const Histogramdouble = z.preprocess(
   processResponseBody,
-  z.object({ bins: Bindouble.array(), nSamples: z.number().min(0), startTime: DateType })
+  z.object({
+    bins: Bindouble.array(),
+    nSamples: z.number().min(0),
+    startTime: z.coerce.date(),
+  })
 )
 
 /**
@@ -389,7 +395,7 @@ export const Histogramdouble = z.preprocess(
 export const Datum = z.preprocess(
   processResponseBody,
   z.union([
-    z.object({ datum: z.boolean(), type: z.enum(['bool']) }),
+    z.object({ datum: SafeBoolean, type: z.enum(['bool']) }),
     z.object({ datum: z.number(), type: z.enum(['i64']) }),
     z.object({ datum: z.number(), type: z.enum(['f64']) }),
     z.object({ datum: z.string(), type: z.enum(['string']) }),
@@ -463,8 +469,8 @@ export const Disk = z.preprocess(
     size: ByteCount,
     snapshotId: z.string().uuid().optional(),
     state: DiskState,
-    timeCreated: DateType,
-    timeModified: DateType,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
   })
 )
 
@@ -611,8 +617,8 @@ export const IdentityProvider = z.preprocess(
     id: z.string().uuid(),
     name: Name,
     providerType: IdentityProviderType,
-    timeCreated: DateType,
-    timeModified: DateType,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
   })
 )
 
@@ -648,8 +654,8 @@ export const Image = z.preprocess(
     os: z.string(),
     projectId: z.string().uuid().optional(),
     size: ByteCount,
-    timeCreated: DateType,
-    timeModified: DateType,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
     url: z.string().optional(),
     version: z.string(),
   })
@@ -749,9 +755,9 @@ export const Instance = z.preprocess(
     ncpus: InstanceCpuCount,
     projectId: z.string().uuid(),
     runState: InstanceState,
-    timeCreated: DateType,
-    timeModified: DateType,
-    timeRunStateUpdated: DateType,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
+    timeRunStateUpdated: z.coerce.date(),
   })
 )
 
@@ -814,7 +820,7 @@ export const InstanceCreate = z.preprocess(
     networkInterfaces: InstanceNetworkInterfaceAttachment.default({
       type: 'default',
     }).optional(),
-    start: z.boolean().default(true).optional(),
+    start: SafeBoolean.default(true).optional(),
     userData: z.string().default('').optional(),
   })
 )
@@ -853,10 +859,10 @@ export const InstanceNetworkInterface = z.preprocess(
     ip: z.string(),
     mac: MacAddr,
     name: Name,
-    primary: z.boolean(),
+    primary: SafeBoolean,
     subnetId: z.string().uuid(),
-    timeCreated: DateType,
-    timeModified: DateType,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
     vpcId: z.string().uuid(),
   })
 )
@@ -879,7 +885,7 @@ export const InstanceNetworkInterfaceUpdate = z.preprocess(
   z.object({
     description: z.string().optional(),
     name: Name.optional(),
-    primary: z.boolean().default(false).optional(),
+    primary: SafeBoolean.default(false).optional(),
   })
 )
 
@@ -908,8 +914,8 @@ export const IpPool = z.preprocess(
     description: z.string(),
     id: z.string().uuid(),
     name: Name,
-    timeCreated: DateType,
-    timeModified: DateType,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
   })
 )
 
@@ -949,7 +955,7 @@ export const IpPoolRange = z.preprocess(
     id: z.string().uuid(),
     ipPoolId: z.string().uuid(),
     range: IpRange,
-    timeCreated: DateType,
+    timeCreated: z.coerce.date(),
   })
 )
 
@@ -996,7 +1002,7 @@ export const L4PortRange = z.preprocess(
  */
 export const LldpServiceConfig = z.preprocess(
   processResponseBody,
-  z.object({ enabled: z.boolean(), lldpConfig: NameOrId.optional() })
+  z.object({ enabled: SafeBoolean, lldpConfig: NameOrId.optional() })
 )
 
 /**
@@ -1048,7 +1054,7 @@ export const LoopbackAddressResultsPage = z.preprocess(
  */
 export const Measurement = z.preprocess(
   processResponseBody,
-  z.object({ datum: Datum, timestamp: DateType })
+  z.object({ datum: Datum, timestamp: z.coerce.date() })
 )
 
 /**
@@ -1084,8 +1090,8 @@ export const PhysicalDisk = z.preprocess(
     model: z.string(),
     serial: z.string(),
     sledId: z.string().uuid().optional(),
-    timeCreated: DateType,
-    timeModified: DateType,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
     vendor: z.string(),
   })
 )
@@ -1107,8 +1113,8 @@ export const Project = z.preprocess(
     description: z.string(),
     id: z.string().uuid(),
     name: Name,
-    timeCreated: DateType,
-    timeModified: DateType,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
   })
 )
 
@@ -1170,7 +1176,11 @@ export const ProjectUpdate = z.preprocess(
  */
 export const Rack = z.preprocess(
   processResponseBody,
-  z.object({ id: z.string().uuid(), timeCreated: DateType, timeModified: DateType })
+  z.object({
+    id: z.string().uuid(),
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
+  })
 )
 
 /**
@@ -1277,8 +1287,8 @@ export const RouterRoute = z.preprocess(
     kind: RouterRouteKind,
     name: Name,
     target: RouteTarget,
-    timeCreated: DateType,
-    timeModified: DateType,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
     vpcRouterId: z.string().uuid(),
   })
 )
@@ -1333,8 +1343,8 @@ export const SamlIdentityProvider = z.preprocess(
     sloUrl: z.string(),
     spClientId: z.string(),
     technicalContactEmail: z.string(),
-    timeCreated: DateType,
-    timeModified: DateType,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
   })
 )
 
@@ -1374,13 +1384,13 @@ export const Silo = z.preprocess(
   processResponseBody,
   z.object({
     description: z.string(),
-    discoverable: z.boolean(),
+    discoverable: SafeBoolean,
     id: z.string().uuid(),
     identityMode: SiloIdentityMode,
-    mappedFleetRoles: z.object({}),
+    mappedFleetRoles: z.record(z.string().min(1), FleetRole.array().refine(...uniqueItems)),
     name: Name,
-    timeCreated: DateType,
-    timeModified: DateType,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
   })
 )
 
@@ -1392,9 +1402,11 @@ export const SiloCreate = z.preprocess(
   z.object({
     adminGroupName: z.string().optional(),
     description: z.string(),
-    discoverable: z.boolean(),
+    discoverable: SafeBoolean,
     identityMode: SiloIdentityMode,
-    mappedFleetRoles: z.object({}).optional(),
+    mappedFleetRoles: z
+      .record(z.string().min(1), FleetRole.array().refine(...uniqueItems))
+      .optional(),
     name: Name,
     tlsCertificates: CertificateCreate.array(),
   })
@@ -1446,8 +1458,8 @@ export const Sled = z.preprocess(
     baseboard: Baseboard,
     id: z.string().uuid(),
     rackId: z.string().uuid(),
-    timeCreated: DateType,
-    timeModified: DateType,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
     usableHardwareThreads: z.number().min(0).max(4294967295),
     usablePhysicalRam: ByteCount,
   })
@@ -1468,8 +1480,8 @@ export const SledInstance = z.preprocess(
     projectName: Name,
     siloName: Name,
     state: InstanceState,
-    timeCreated: DateType,
-    timeModified: DateType,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
   })
 )
 
@@ -1507,8 +1519,8 @@ export const Snapshot = z.preprocess(
     projectId: z.string().uuid(),
     size: ByteCount,
     state: SnapshotState,
-    timeCreated: DateType,
-    timeModified: DateType,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
   })
 )
 
@@ -1539,8 +1551,8 @@ export const SshKey = z.preprocess(
     name: Name,
     publicKey: z.string(),
     siloUserId: z.string().uuid(),
-    timeCreated: DateType,
-    timeModified: DateType,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
   })
 )
 
@@ -1569,8 +1581,8 @@ export const Switch = z.preprocess(
     baseboard: Baseboard,
     id: z.string().uuid(),
     rackId: z.string().uuid(),
-    timeCreated: DateType,
-    timeModified: DateType,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
   })
 )
 
@@ -1591,7 +1603,7 @@ export const SwitchInterfaceKind = z.preprocess(
  */
 export const SwitchInterfaceConfig = z.preprocess(
   processResponseBody,
-  z.object({ kind: SwitchInterfaceKind, v6Enabled: z.boolean() })
+  z.object({ kind: SwitchInterfaceKind, v6Enabled: SafeBoolean })
 )
 
 /**
@@ -1703,8 +1715,8 @@ export const SwitchPortSettings = z.preprocess(
     description: z.string(),
     id: z.string().uuid(),
     name: Name,
-    timeCreated: DateType,
-    timeModified: DateType,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
   })
 )
 
@@ -1714,15 +1726,15 @@ export const SwitchPortSettings = z.preprocess(
 export const SwitchPortSettingsCreate = z.preprocess(
   processResponseBody,
   z.object({
-    addresses: z.object({}),
-    bgpPeers: z.object({}),
+    addresses: z.record(z.string().min(1), AddressConfig),
+    bgpPeers: z.record(z.string().min(1), BgpPeerConfig),
     description: z.string(),
     groups: NameOrId.array(),
-    interfaces: z.object({}),
-    links: z.object({}),
+    interfaces: z.record(z.string().min(1), SwitchInterfaceConfig),
+    links: z.record(z.string().min(1), LinkConfig),
     name: Name,
     portConfig: SwitchPortConfig,
-    routes: z.object({}),
+    routes: z.record(z.string().min(1), RouteConfig),
   })
 )
 
@@ -1784,8 +1796,8 @@ export const SystemUpdate = z.preprocess(
   processResponseBody,
   z.object({
     id: z.string().uuid(),
-    timeCreated: DateType,
-    timeModified: DateType,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
     version: SemverVersion,
   })
 )
@@ -1829,8 +1841,8 @@ export const UpdateDeployment = z.preprocess(
   z.object({
     id: z.string().uuid(),
     status: UpdateStatus,
-    timeCreated: DateType,
-    timeModified: DateType,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
     version: SemverVersion,
   })
 )
@@ -1854,8 +1866,8 @@ export const UpdateableComponent = z.preprocess(
     id: z.string().uuid(),
     status: UpdateStatus,
     systemVersion: SemverVersion,
-    timeCreated: DateType,
-    timeModified: DateType,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
     version: SemverVersion,
   })
 )
@@ -1887,8 +1899,8 @@ export const UserBuiltin = z.preprocess(
     description: z.string(),
     id: z.string().uuid(),
     name: Name,
-    timeCreated: DateType,
-    timeModified: DateType,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
   })
 )
 
@@ -1964,8 +1976,8 @@ export const Vpc = z.preprocess(
     name: Name,
     projectId: z.string().uuid(),
     systemRouterId: z.string().uuid(),
-    timeCreated: DateType,
-    timeModified: DateType,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
   })
 )
 
@@ -2060,8 +2072,8 @@ export const VpcFirewallRule = z.preprocess(
     priority: z.number().min(0).max(65535),
     status: VpcFirewallRuleStatus,
     targets: VpcFirewallRuleTarget.array(),
-    timeCreated: DateType,
-    timeModified: DateType,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
     vpcId: z.string().uuid(),
   })
 )
@@ -2119,8 +2131,8 @@ export const VpcRouter = z.preprocess(
     id: z.string().uuid(),
     kind: VpcRouterKind,
     name: Name,
-    timeCreated: DateType,
-    timeModified: DateType,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
     vpcId: z.string().uuid(),
   })
 )
@@ -2160,8 +2172,8 @@ export const VpcSubnet = z.preprocess(
     ipv4Block: Ipv4Net,
     ipv6Block: Ipv6Net,
     name: Name,
-    timeCreated: DateType,
-    timeModified: DateType,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
     vpcId: z.string().uuid(),
   })
 )
@@ -2340,7 +2352,7 @@ export const DiskCreateParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      project: NameOrId.optional(),
+      project: NameOrId,
     }),
   })
 )
@@ -2437,11 +2449,11 @@ export const DiskMetricsListParams = z.preprocess(
       metric: DiskMetricName,
     }),
     query: z.object({
-      endTime: DateType.optional(),
+      endTime: z.coerce.date().optional(),
       limit: z.number().min(1).max(4294967295).optional(),
       order: PaginationOrder.optional(),
       pageToken: z.string().optional(),
-      startTime: DateType.optional(),
+      startTime: z.coerce.date().optional(),
       project: NameOrId.optional(),
     }),
   })
@@ -2474,7 +2486,7 @@ export const ImageListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      includeSiloImages: z.boolean().optional(),
+      includeSiloImages: SafeBoolean.optional(),
       limit: z.number().min(1).max(4294967295).optional(),
       pageToken: z.string().optional(),
       project: NameOrId.optional(),
@@ -2524,7 +2536,7 @@ export const ImageDemoteParams = z.preprocess(
       image: NameOrId,
     }),
     query: z.object({
-      project: NameOrId.optional(),
+      project: NameOrId,
     }),
   })
 )
@@ -2559,7 +2571,7 @@ export const InstanceCreateParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      project: NameOrId.optional(),
+      project: NameOrId,
     }),
   })
 )
@@ -2837,7 +2849,7 @@ export const InstanceNetworkInterfaceCreateParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      instance: NameOrId.optional(),
+      instance: NameOrId,
       project: NameOrId.optional(),
     }),
   })
@@ -2986,7 +2998,7 @@ export const SnapshotCreateParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      project: NameOrId.optional(),
+      project: NameOrId,
     }),
   })
 )
@@ -3119,8 +3131,8 @@ export const NetworkingSwitchPortApplySettingsParams = z.preprocess(
       port: Name,
     }),
     query: z.object({
-      rackId: z.string().uuid().optional(),
-      switchLocation: Name.optional(),
+      rackId: z.string().uuid(),
+      switchLocation: Name,
     }),
   })
 )
@@ -3132,8 +3144,8 @@ export const NetworkingSwitchPortClearSettingsParams = z.preprocess(
       port: Name,
     }),
     query: z.object({
-      rackId: z.string().uuid().optional(),
-      switchLocation: Name.optional(),
+      rackId: z.string().uuid(),
+      switchLocation: Name,
     }),
   })
 )
@@ -3178,7 +3190,7 @@ export const LocalIdpUserCreateParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      silo: NameOrId.optional(),
+      silo: NameOrId,
     }),
   })
 )
@@ -3190,7 +3202,7 @@ export const LocalIdpUserDeleteParams = z.preprocess(
       userId: z.string().uuid(),
     }),
     query: z.object({
-      silo: NameOrId.optional(),
+      silo: NameOrId,
     }),
   })
 )
@@ -3202,7 +3214,7 @@ export const LocalIdpUserSetPasswordParams = z.preprocess(
       userId: z.string().uuid(),
     }),
     query: z.object({
-      silo: NameOrId.optional(),
+      silo: NameOrId,
     }),
   })
 )
@@ -3212,7 +3224,7 @@ export const SamlIdentityProviderCreateParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      silo: NameOrId.optional(),
+      silo: NameOrId,
     }),
   })
 )
@@ -3224,7 +3236,7 @@ export const SamlIdentityProviderViewParams = z.preprocess(
       provider: NameOrId,
     }),
     query: z.object({
-      silo: NameOrId.optional(),
+      silo: NameOrId,
     }),
   })
 )
@@ -3354,12 +3366,12 @@ export const SystemMetricParams = z.preprocess(
       metricName: SystemMetricName,
     }),
     query: z.object({
-      endTime: DateType.optional(),
+      endTime: z.coerce.date().optional(),
       limit: z.number().min(1).max(4294967295).optional(),
       order: PaginationOrder.optional(),
       pageToken: z.string().optional(),
-      startTime: DateType.optional(),
-      id: z.string().uuid().optional(),
+      startTime: z.coerce.date().optional(),
+      id: z.string().uuid(),
     }),
   })
 )
@@ -3697,7 +3709,7 @@ export const SiloUserViewParams = z.preprocess(
       userId: z.string().uuid(),
     }),
     query: z.object({
-      silo: NameOrId.optional(),
+      silo: NameOrId,
     }),
   })
 )
@@ -3743,7 +3755,7 @@ export const VpcFirewallRulesViewParams = z.preprocess(
     path: z.object({}),
     query: z.object({
       project: NameOrId.optional(),
-      vpc: NameOrId.optional(),
+      vpc: NameOrId,
     }),
   })
 )
@@ -3754,7 +3766,7 @@ export const VpcFirewallRulesUpdateParams = z.preprocess(
     path: z.object({}),
     query: z.object({
       project: NameOrId.optional(),
-      vpc: NameOrId.optional(),
+      vpc: NameOrId,
     }),
   })
 )
@@ -3780,7 +3792,7 @@ export const VpcRouterRouteCreateParams = z.preprocess(
     path: z.object({}),
     query: z.object({
       project: NameOrId.optional(),
-      router: NameOrId.optional(),
+      router: NameOrId,
       vpc: NameOrId.optional(),
     }),
   })
@@ -3794,7 +3806,7 @@ export const VpcRouterRouteViewParams = z.preprocess(
     }),
     query: z.object({
       project: NameOrId.optional(),
-      router: NameOrId.optional(),
+      router: NameOrId,
       vpc: NameOrId.optional(),
     }),
   })
@@ -3848,7 +3860,7 @@ export const VpcRouterCreateParams = z.preprocess(
     path: z.object({}),
     query: z.object({
       project: NameOrId.optional(),
-      vpc: NameOrId.optional(),
+      vpc: NameOrId,
     }),
   })
 )
@@ -3912,7 +3924,7 @@ export const VpcSubnetCreateParams = z.preprocess(
     path: z.object({}),
     query: z.object({
       project: NameOrId.optional(),
-      vpc: NameOrId.optional(),
+      vpc: NameOrId,
     }),
   })
 )
@@ -3990,7 +4002,7 @@ export const VpcCreateParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      project: NameOrId.optional(),
+      project: NameOrId,
     }),
   })
 )
