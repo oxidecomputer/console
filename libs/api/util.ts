@@ -95,9 +95,15 @@ export const FLEET_ID = '001de000-1334-4000-8000-000000000000'
 const TBtoTiB = 0.909
 const FUDGE = 0.7
 
+export type Capacity = {
+  disk_tib: number
+  ram_gib: number
+  cpu: number
+}
+
 export function totalCapacity(
   sleds: Pick<Sled, 'usableHardwareThreads' | 'usablePhysicalRam'>[]
-) {
+): Capacity {
   return {
     disk_tib: Math.ceil(FUDGE * 32 * TBtoTiB), // TODO: make more real
     ram_gib: Math.ceil(bytesToGiB(FUDGE * sumBy(sleds, (s) => s.usablePhysicalRam))),

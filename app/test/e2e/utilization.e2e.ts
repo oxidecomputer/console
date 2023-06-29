@@ -10,6 +10,8 @@ test('System utilization', async ({ page }) => {
     page.getByText('Disk capacity'),
     page.getByText('CPU capacity'),
     page.getByText('Memory capacity'),
+    // stats under the graph which require capacity info
+    page.getByText('In-use').first(),
   ])
 })
 
@@ -20,5 +22,7 @@ test('Silo utilization', async ({ page }) => {
     page.getByText('Disk capacity'),
     page.getByText('CPU capacity'),
     page.getByText('Memory capacity'),
+    // stats under the graph which require capacity info
+    page.getByText('In-use'),
   ])
 })
