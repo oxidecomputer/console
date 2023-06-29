@@ -128,16 +128,12 @@ export function UtilizationPage({
       initialPreset: 'lastHour',
       maxValue: now(getLocalTimeZone()),
     })
-
-  // memo important to avoid render churn due to the dates
-  const commonProps = useMemo(
-    () => ({
-      startTime: startTime.toDate(getLocalTimeZone()),
-      endTime: endTime.toDate(getLocalTimeZone()),
-      filterId: filterId,
-    }),
-    [startTime, endTime, filterId]
-  )
+  const commonProps = {
+    startTime,
+    endTime,
+    // the way we tell the API we want the parent (fleet/silo) is by passing no filter
+    filterId: filterId === defaultId ? undefined : filterId,
+  }
 
   const [refetchInterval, setRefetchInterval] = useState<RefetchInterval>('10s')
 

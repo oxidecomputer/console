@@ -13,8 +13,8 @@ type SystemMetricProps = {
   startTime: Date
   endTime: Date
   metricName: SystemMetricName
-  /** Resource to filter data by. Can be fleet, silo, project. */
-  filterId: string
+  /** Resource to filter data by. Silo or project. */
+  filterId: string | undefined
   /** Should be statically defined or memoized to avoid extra renders */
   valueTransform?: (n: number) => number
   /** hard-coded max y */
