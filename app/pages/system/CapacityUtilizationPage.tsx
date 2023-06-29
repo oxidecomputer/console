@@ -148,17 +148,14 @@ export function UtilizationPage({
       />
 
       <div className="mt-8 mb-12 space-y-12">
-        <div className="flex flex-col gap-3">
-          <SystemMetric
-            {...commonProps}
-            metricName="virtual_disk_space_provisioned"
-            title="Disk Space"
-            unit="TiB"
-            valueTransform={bytesToTiB}
-            capacity={capacity?.disk_tib}
-          />
-        </div>
-
+        <SystemMetric
+          {...commonProps}
+          metricName="virtual_disk_space_provisioned"
+          title="Disk Space"
+          unit="TiB"
+          valueTransform={bytesToTiB}
+          capacity={capacity?.disk_tib}
+        />
         <SystemMetric
           {...commonProps}
           metricName="cpus_provisioned"
@@ -166,7 +163,6 @@ export function UtilizationPage({
           unit="count"
           capacity={capacity?.cpu}
         />
-
         <SystemMetric
           {...commonProps}
           metricName="ram_provisioned"
