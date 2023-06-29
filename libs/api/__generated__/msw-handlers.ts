@@ -321,6 +321,12 @@ export interface MSWHandlers {
     path: Api.CurrentUserSshKeyDeletePathParams
     req: RestRequest
   }) => StatusCode
+  /** `GET /v1/metrics/:metricName` */
+  siloMetric: (params: {
+    path: Api.SiloMetricPathParams
+    query: Api.SiloMetricQueryParams
+    req: RestRequest
+  }) => HandlerResult<Api.MeasurementResultsPage>
   /** `GET /v1/network-interfaces` */
   instanceNetworkInterfaceList: (params: {
     query: Api.InstanceNetworkInterfaceListQueryParams
@@ -1196,6 +1202,10 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
         schema.CurrentUserSshKeyDeleteParams,
         null
       )
+    ),
+    rest.get(
+      '/v1/metrics/:metricName',
+      handler(handlers['siloMetric'], schema.SiloMetricParams, null)
     ),
     rest.get(
       '/v1/network-interfaces',

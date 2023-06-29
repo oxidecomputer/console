@@ -60,6 +60,8 @@ type SystemMetricProps = {
   refetchInterval?: number | false
 }
 
+// TODO: pass in data so we can use different endpoints for system and silo metrics
+
 export function SystemMetric({
   title,
   unit,
@@ -74,7 +76,7 @@ export function SystemMetric({
   // Fetch multiple pages if 10k is not enough? That's a bit much.
   const inRange = useApiQuery(
     'systemMetric',
-    { path: { metricName }, query: { id: filterId, startTime, endTime } },
+    { path: { metricName }, query: { silo: filterId, startTime, endTime } },
     // avoid graphs flashing blank while loading when you change the time
     { keepPreviousData: true }
   )
@@ -85,7 +87,7 @@ export function SystemMetric({
     {
       path: { metricName },
       query: {
-        id: filterId,
+        silo: filterId,
         endTime: startTime,
         startTime: new Date(0),
         limit: 1,

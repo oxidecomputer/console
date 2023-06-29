@@ -1,11 +1,12 @@
 import { differenceInSeconds, subHours } from 'date-fns'
 
-import type { Sled } from '@oxide/api'
+import type { Sled, SystemMetricQueryParams } from '@oxide/api'
 import { type DiskCreate, type SystemMetricName, totalCapacity } from '@oxide/api'
 import type { Json } from '@oxide/gen/msw-handlers'
 import { json } from '@oxide/gen/msw-handlers'
 import { GiB, TiB } from '@oxide/util'
 
+import { genI64Data } from '../metrics'
 import { db } from './db'
 
 export { json } from '@oxide/gen/msw-handlers'
@@ -140,7 +141,6 @@ class Rando {
 }
 
 export function generateUtilization(
-  id: string,
   metricName: SystemMetricName,
   startTime: Date,
   endTime: Date,
@@ -163,7 +163,7 @@ export function generateUtilization(
       : metricName === 'virtual_disk_space_provisioned'
       ? capacity.disk_tib * TiB
       : capacity.ram_gib * GiB
-  const metricNameSeed = Array.from(metricName + id).reduce(
+  const metricNameSeed = Array.from(metricName).reduce(
     (acc, char) => acc + char.charCodeAt(0),
     0
   )
@@ -223,4 +223,38 @@ export function generateUtilization(
   }
 
   return values
+}
+
+type MetricParams = {
+  path: { metricName: SystemMetricName }
+  query: Omit<SystemMetricQueryParams, 'silo'>
+}
+
+export function handleMetrics({ path: { metricName }, query }: MetricParams) {
+  const { startTime, endTime } = getStartAndEndTime(query)
+
+  if (endTime <= startTime) return { items: [] }
+
+  const dataPoints = generateUtilization(metricName, startTime, endTime, db.sleds)
+
+  // Important to remember (but probably not important enough to change) that
+  // this works quite differently from the real API, which is going to be
+  // querying clickhouse with some fixed set of data, and when it starts from
+  // the end (order == 'descending') it's going to get data points starting
+  // from the end. When it starts from the beginning it gets data points from
+  // the beginning. For our fake data, we just generate the same set of data
+  // points spanning the whole time range, then reverse the list if necessary
+  // and take the first N=limit data points.
+
+  let items = genI64Data(dataPoints, startTime, endTime)
+
+  if (query.order === 'descending') {
+    items.reverse()
+  }
+
+  if (typeof query.limit === 'number') {
+    items = items.slice(0, query.limit)
+  }
+
+  return { items }
 }
