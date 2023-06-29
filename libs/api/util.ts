@@ -3,6 +3,7 @@ import { bytesToGiB, pick, sumBy } from '@oxide/util'
 
 import type {
   DiskState,
+  Measurement,
   Sled,
   UpdateableComponentType,
   VpcFirewallRule,
@@ -109,4 +110,47 @@ export function totalCapacity(
     ram_gib: Math.ceil(bytesToGiB(FUDGE * sumBy(sleds, (s) => s.usablePhysicalRam))),
     cpu: Math.ceil(FUDGE * sumBy(sleds, (s) => s.usableHardwareThreads)),
   }
+}
+
+export type ChartDatum = {
+  // we're doing the x axis as timestamp ms instead of Date primarily to make
+  // type=number work
+  timestamp: number
+  value: number
+}
+
+/** fill in data points at start and end of range */
+export function synthesizeData(
+  dataInRange: Measurement[] | undefined,
+  dataBeforeRange: Measurement[] | undefined,
+  startTime: Date,
+  endTime: Date,
+  valueTransform: (n: number) => number
+): ChartDatum[] | undefined {
+  // wait until both requests come back to do anything
+  if (!dataInRange || !dataBeforeRange) return undefined
+
+  const result = dataInRange.map(({ datum, timestamp }) => ({
+    timestamp: timestamp.getTime(),
+    // all of these metrics are cumulative ints
+    value: valueTransform(datum.datum as number),
+  }))
+
+  // second condition should virtually always be true
+  if (dataInRange.length === 0 || result[0].timestamp > startTime.getTime()) {
+    const value =
+      dataBeforeRange.length > 0
+        ? valueTransform(dataBeforeRange.at(-1)!.datum.datum as number)
+        : 0 // if there's no data before the time range, assume value is zero
+    result.unshift({ timestamp: startTime.getTime(), value })
+  }
+
+  // add point for the end of the time range equal to the last value in the
+  // range. no timestamp check necessary because endTime is exclusive
+  result.push({
+    timestamp: endTime.getTime(),
+    value: result.at(-1)!.value,
+  })
+
+  return result
 }
