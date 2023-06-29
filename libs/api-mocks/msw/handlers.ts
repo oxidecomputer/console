@@ -871,6 +871,7 @@ export const handlers = makeHandlers({
     errIfExists(db.silos, { name: body.name })
     const newSilo: Json<Api.Silo> = {
       id: uuid(),
+      mapped_fleet_roles: {},
       ...getTimestamps(),
       ...body,
     }
