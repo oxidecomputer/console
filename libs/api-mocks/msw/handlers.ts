@@ -10,16 +10,17 @@ import { genCumulativeI64Data, genI64Data } from '../metrics'
 import { serial } from '../serial'
 import { defaultSilo, toIdp } from '../silo'
 import { sortBySemverDesc } from '../update'
-import { user1 } from '../user'
 import { db, lookup, lookupById, notFoundErr } from './db'
 import {
   NotImplemented,
+  currentUser,
   errIfExists,
   errIfInvalidDiskSize,
   generateUtilization,
   getStartAndEndTime,
   getTimestamps,
   paginated,
+  requireFleetViewer,
   unavailableErr,
 } from './util'
 
@@ -817,25 +818,28 @@ export const handlers = makeHandlers({
     return body
   },
   rackList: ({ query }) => paginated(query, db.racks),
-  currentUserView() {
-    return { ...user1, silo_name: defaultSilo.name }
+  currentUserView({ req }) {
+    return { ...currentUser(req), silo_name: defaultSilo.name }
   },
-  currentUserGroups() {
-    const memberships = db.groupMemberships.filter((gm) => gm.userId === user1.id)
+  currentUserGroups({ req }) {
+    const user = currentUser(req)
+    const memberships = db.groupMemberships.filter((gm) => gm.userId === user.id)
     const groupIds = new Set(memberships.map((gm) => gm.groupId))
     const groups = db.userGroups.filter((g) => groupIds.has(g.id))
     return { items: groups }
   },
-  currentUserSshKeyList({ query }) {
-    const keys = db.sshKeys.filter((k) => k.silo_user_id === user1.id)
+  currentUserSshKeyList({ query, req }) {
+    const user = currentUser(req)
+    const keys = db.sshKeys.filter((k) => k.silo_user_id === user.id)
     return paginated(query, keys)
   },
-  currentUserSshKeyCreate({ body }) {
-    errIfExists(db.sshKeys, { silo_user_id: user1.id, name: body.name })
+  currentUserSshKeyCreate({ body, req }) {
+    const user = currentUser(req)
+    errIfExists(db.sshKeys, { silo_user_id: user.id, name: body.name })
 
     const newSshKey: Json<Api.SshKey> = {
       id: uuid(),
-      silo_user_id: user1.id,
+      silo_user_id: user.id,
       ...body,
       ...getTimestamps(),
     }
@@ -946,7 +950,9 @@ export const handlers = makeHandlers({
     return paginated(query, db.users)
   },
 
-  systemPolicyView() {
+  systemPolicyView({ req }) {
+    requireFleetViewer(req)
+
     const role_assignments = db.roleAssignments
       .filter((r) => r.resource_type === 'fleet' && r.resource_id === FLEET_ID)
       .map((r) => pick(r, 'identity_id', 'identity_type', 'role_name'))
