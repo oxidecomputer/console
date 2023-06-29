@@ -32,7 +32,7 @@ export const roleAssignments: DbRoleAssignment[] = [
     resource_id: defaultSilo.id,
     identity_id: userGroup3.id,
     identity_type: 'silo_group',
-    role_name: 'admin',
+    role_name: 'collaborator',
   },
   {
     resource_type: 'silo',
