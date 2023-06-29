@@ -1,7 +1,5 @@
 import { getLocalTimeZone, now } from '@internationalized/date'
 import { useIsFetching } from '@tanstack/react-query'
-import cn from 'classnames'
-import { format } from 'date-fns'
 import { useEffect, useMemo, useState } from 'react'
 import invariant from 'tiny-invariant'
 
@@ -16,12 +14,16 @@ import {
   Ram16Icon,
   Snapshots24Icon,
   Ssd16Icon,
-  Time16Icon,
 } from '@oxide/ui'
-import { type ListboxItem, Refresh16Icon, SpinnerLoader, useInterval } from '@oxide/ui'
+import { type ListboxItem, useInterval } from '@oxide/ui'
 import { bytesToGiB, bytesToTiB } from '@oxide/util'
 
 import { CapacityMetric, capacityQueryParams } from 'app/components/CapacityMetric'
+import {
+  type RefetchInterval,
+  RefetchIntervalPicker,
+  refetchPresets,
+} from 'app/components/RefetchIntervalPicker'
 import { SystemMetric } from 'app/components/SystemMetric'
 import { useDateTimeRangePicker } from 'app/components/form'
 
@@ -93,24 +95,6 @@ export function CapacityUtilizationPage() {
   )
 }
 
-const refetchPresets = {
-  Off: null,
-  '10s': 10 * 1000,
-  '1m': 60 * 1000,
-  '2m': 2 * 60 * 1000,
-  '5m': 5 * 60 * 1000,
-}
-
-type RefetchInterval = keyof typeof refetchPresets
-
-const refetchIntervalItems: ListboxItem<RefetchInterval>[] = [
-  { label: 'Off', value: 'Off' },
-  { label: '10s', value: '10s' },
-  { label: '1m', value: '1m' },
-  { label: '2m', value: '2m' },
-  { label: '5m', value: '5m' },
-]
-
 export function UtilizationPage({
   filterItems,
   defaultId,
@@ -175,33 +159,13 @@ export function UtilizationPage({
 
       <Divider className="!mx-0 mb-6 !w-full" />
 
-      <div className="mb-12 flex items-center justify-between">
-        <div className="hidden items-center gap-2 text-right text-mono-sm text-quaternary lg+:flex">
-          <Time16Icon className="text-quinary" /> Refreshed {format(lastFetched, 'HH:mm')}
-        </div>
-        <div className="flex">
-          <button
-            className={cn(
-              'flex w-10 items-center justify-center rounded-l border-l border-t border-b border-default disabled:cursor-default',
-              isRefetching && 'hover:bg-hover'
-            )}
-            onClick={handleRefetch}
-            disabled={isRefetching}
-          >
-            <SpinnerLoader isLoading={isRefetching}>
-              <Refresh16Icon className="text-tertiary" />
-            </SpinnerLoader>
-          </button>
-          <Listbox
-            selected={refetchInterval}
-            className="w-24 [&>button]:!rounded-l-none"
-            aria-labelledby="silo-id-label"
-            name="silo-id"
-            items={refetchIntervalItems}
-            onChange={setRefetchInterval}
-          />
-        </div>
-      </div>
+      <RefetchIntervalPicker
+        lastFetched={lastFetched}
+        isRefetching={isRefetching}
+        refetchInterval={refetchInterval}
+        setRefetchInterval={setRefetchInterval}
+        handleRefetch={handleRefetch}
+      />
 
       <div className="mt-8 mb-12 space-y-12">
         <div className="flex flex-col gap-3">
