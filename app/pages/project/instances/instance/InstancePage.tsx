@@ -46,7 +46,18 @@ export function InstancePage() {
 
   const { data: instance } = useApiQuery('instanceView', instancePathQuery)
   const actions = useMemo(
-    () => (instance ? makeActions(instance) : []),
+    () =>
+      instance
+        ? [
+            {
+              label: 'Copy ID',
+              onActivate() {
+                window.navigator.clipboard.writeText(instance.id || '')
+              },
+            },
+            ...makeActions(instance),
+          ]
+        : [],
     [instance, makeActions]
   )
   const quickActions = useMemo(

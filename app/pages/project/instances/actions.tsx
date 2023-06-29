@@ -76,12 +76,6 @@ export const useMakeInstanceActions = (
             !instanceCan.reboot(instance) && 'Only running instances can be rebooted',
         },
         {
-          label: 'Copy instance ID',
-          onActivate() {
-            window.navigator.clipboard.writeText(instance.id)
-          },
-        },
-        {
           label: 'View serial console',
           onActivate() {
             navigate(pb.serialConsole(instanceSelector))
