@@ -18,7 +18,7 @@ type SystemMetricProps = {
   /** Should be statically defined or memoized to avoid extra renders */
   valueTransform?: (n: number) => number
   /** hard-coded max y */
-  capacity: number | undefined
+  capacity?: number
 }
 
 // TODO: pass in data so we can use different endpoints for system and silo metrics

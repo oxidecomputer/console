@@ -3,7 +3,6 @@ import { useIsFetching } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import invariant from 'tiny-invariant'
 
-import type { Capacity } from '@oxide/api'
 import { FLEET_ID, apiQueryClient, totalCapacity, useApiQuery } from '@oxide/api'
 import {
   Cpu16Icon,
@@ -15,7 +14,6 @@ import {
   Snapshots24Icon,
   Ssd16Icon,
 } from '@oxide/ui'
-import { type ListboxItem } from '@oxide/ui'
 import { bytesToGiB, bytesToTiB } from '@oxide/util'
 
 import { CapacityMetric, capacityQueryParams } from 'app/components/CapacityMetric'
@@ -57,6 +55,30 @@ export function CapacityUtilizationPage() {
 
   const capacity = totalCapacity(sleds.items)
 
+  const [filterId, setFilterId] = useState<string>(FLEET_ID)
+
+  // pass refetch interval to this to keep the date up to date
+  const { preset, startTime, endTime, dateTimeRangePicker, onRangeChange } =
+    useDateTimeRangePicker({
+      initialPreset: 'lastHour',
+      maxValue: now(getLocalTimeZone()),
+    })
+  const commonProps = {
+    startTime,
+    endTime,
+    // the way we tell the API we want the fleet is by passing no filter
+    filterId: filterId === FLEET_ID ? undefined : filterId,
+  }
+
+  const handleRefetch = () => {
+    // slide the window forward if we're on a preset
+    onRangeChange(preset)
+    // very important to filter for active, otherwise this refetches every
+    // window that has ever been active
+    apiQueryClient.refetchQueries('systemMetric', undefined, { type: 'active' })
+  }
+  const isRefetching = !!useIsFetching({ queryKey: ['systemMetric'] })
+
   return (
     <>
       <PageHeader>
@@ -86,53 +108,13 @@ export function CapacityUtilizationPage() {
         />
       </div>
 
-      <UtilizationPage filterItems={siloItems} defaultId={FLEET_ID} capacity={capacity} />
-    </>
-  )
-}
-
-export function UtilizationPage({
-  filterItems,
-  defaultId,
-  capacity,
-}: {
-  filterItems: ListboxItem[]
-  defaultId: string
-  capacity?: Capacity
-}) {
-  const [filterId, setFilterId] = useState<string>(defaultId)
-
-  // pass refetch interval to this to keep the date up to date
-  const { preset, startTime, endTime, dateTimeRangePicker, onRangeChange } =
-    useDateTimeRangePicker({
-      initialPreset: 'lastHour',
-      maxValue: now(getLocalTimeZone()),
-    })
-  const commonProps = {
-    startTime,
-    endTime,
-    // the way we tell the API we want the parent (fleet/silo) is by passing no filter
-    filterId: filterId === defaultId ? undefined : filterId,
-  }
-
-  const handleRefetch = () => {
-    // slide the window forward if we're on a preset
-    onRangeChange(preset)
-    // very important to filter for active, otherwise this refetches every
-    // window that has ever been active
-    apiQueryClient.refetchQueries('systemMetric', undefined, { type: 'active' })
-  }
-  const isRefetching = !!useIsFetching({ queryKey: ['systemMetric'] })
-
-  return (
-    <>
       <div className="mt-16 mb-8 flex justify-between gap-3">
         <Listbox
           selected={filterId}
           className="w-48"
           aria-labelledby="filter-id-label"
           name="filter-id"
-          items={filterItems}
+          items={siloItems}
           onChange={setFilterId}
         />
 
