@@ -5,6 +5,7 @@ import { format } from 'date-fns'
 import { useEffect, useMemo, useState } from 'react'
 import invariant from 'tiny-invariant'
 
+import type { Capacity } from '@oxide/api'
 import { FLEET_ID, apiQueryClient, totalCapacity, useApiQuery } from '@oxide/api'
 import {
   Cpu16Icon,
@@ -39,7 +40,7 @@ CapacityUtilizationPage.loader = async () => {
       path: { metricName: 'virtual_disk_space_provisioned' },
       query: capacityQueryParams,
     }),
-    ...UtilizationPage.getLoaderPromises(),
+    apiQueryClient.prefetchQuery('sledList', {}),
   ])
   return null
 }
@@ -87,7 +88,7 @@ export function CapacityUtilizationPage() {
         />
       </div>
 
-      <UtilizationPage filterItems={siloItems} defaultId={FLEET_ID} />
+      <UtilizationPage filterItems={siloItems} defaultId={FLEET_ID} capacity={capacity} />
     </>
   )
 }
@@ -110,19 +111,15 @@ const refetchIntervalItems: ListboxItem<RefetchInterval>[] = [
   { label: '5m', value: '5m' },
 ]
 
-UtilizationPage.getLoaderPromises = () => [apiQueryClient.prefetchQuery('sledList', {})]
-
 export function UtilizationPage({
   filterItems,
   defaultId,
+  capacity,
 }: {
   filterItems: ListboxItem[]
   defaultId: string
+  capacity?: Capacity
 }) {
-  const { data: sleds } = useApiQuery('sledList', {})
-  invariant(sleds, 'sleds should be prefetched in loader')
-  const capacity = totalCapacity(sleds.items)
-
   const [filterId, setFilterId] = useState<string>(defaultId)
 
   // pass refetch interval to this to keep the date up to date
@@ -218,7 +215,7 @@ export function UtilizationPage({
             title="Disk Space"
             unit="TiB"
             valueTransform={bytesToTiB}
-            capacity={capacity.disk_tib}
+            capacity={capacity?.disk_tib}
           />
         </div>
 
@@ -227,7 +224,7 @@ export function UtilizationPage({
           metricName="cpus_provisioned"
           title="CPU"
           unit="count"
-          capacity={capacity.cpu}
+          capacity={capacity?.cpu}
         />
 
         <SystemMetric
@@ -236,7 +233,7 @@ export function UtilizationPage({
           title="Memory"
           unit="GiB"
           valueTransform={bytesToGiB}
-          capacity={capacity.ram_gib}
+          capacity={capacity?.ram_gib}
         />
       </div>
     </>
