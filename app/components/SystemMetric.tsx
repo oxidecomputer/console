@@ -56,7 +56,7 @@ type SystemMetricProps = {
   /** Should be statically defined or memoized to avoid extra renders */
   valueTransform?: (n: number) => number
   /** hard-coded max y */
-  capacity: number
+  capacity: number | undefined
   refetchInterval?: number | false
 }
 
@@ -138,7 +138,7 @@ export function SystemMetric({
             unit={unit !== 'count' ? unit : undefined}
           />
         </div>
-        {firstPoint && lastPoint && (
+        {firstPoint && lastPoint && capacity !== undefined && (
           <div className="mt-3 flex min-w-min flex-col gap-3 lg+:flex-row">
             <MetricStatistic
               label="In-use"
