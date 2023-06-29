@@ -1,49 +1,11 @@
 import React, { Suspense, useMemo, useRef } from 'react'
 
-import type { Measurement, SystemMetricName } from '@oxide/api'
-import { useApiQuery } from '@oxide/api'
+import type { ChartDatum, SystemMetricName } from '@oxide/api'
+import { synthesizeData, useApiQuery } from '@oxide/api'
 import { Badge, DirectionDownIcon, DirectionUpIcon, Spinner } from '@oxide/ui'
 import { splitDecimal } from '@oxide/util'
 
-import type { Datum } from './TimeSeriesChart'
-
 const TimeSeriesChart = React.lazy(() => import('./TimeSeriesChart'))
-
-/** fill in data points at start and end of range */
-export function synthesizeData(
-  dataInRange: Measurement[] | undefined,
-  dataBeforeRange: Measurement[] | undefined,
-  startTime: Date,
-  endTime: Date,
-  valueTransform: (n: number) => number
-): Datum[] | undefined {
-  // wait until both requests come back to do anything
-  if (!dataInRange || !dataBeforeRange) return undefined
-
-  const result = dataInRange.map(({ datum, timestamp }) => ({
-    timestamp: timestamp.getTime(),
-    // all of these metrics are cumulative ints
-    value: valueTransform(datum.datum as number),
-  }))
-
-  // second condition should virtually always be true
-  if (dataInRange.length === 0 || result[0].timestamp > startTime.getTime()) {
-    const value =
-      dataBeforeRange.length > 0
-        ? valueTransform(dataBeforeRange.at(-1)!.datum.datum as number)
-        : 0 // if there's no data before the time range, assume value is zero
-    result.unshift({ timestamp: startTime.getTime(), value })
-  }
-
-  // add point for the end of the time range equal to the last value in the
-  // range. no timestamp check necessary because endTime is exclusive
-  result.push({
-    timestamp: endTime.getTime(),
-    value: result.at(-1)!.value,
-  })
-
-  return result
-}
 
 type SystemMetricProps = {
   title: string
@@ -57,7 +19,6 @@ type SystemMetricProps = {
   valueTransform?: (n: number) => number
   /** hard-coded max y */
   capacity: number | undefined
-  refetchInterval?: number | false
 }
 
 // TODO: pass in data so we can use different endpoints for system and silo metrics
@@ -98,7 +59,7 @@ export function SystemMetric({
     { keepPreviousData: true }
   )
 
-  const ref = useRef<Datum[] | undefined>(undefined)
+  const ref = useRef<ChartDatum[] | undefined>(undefined)
   const isFetching = inRange.isFetching || beforeStart.isFetching
   const data = useMemo(() => {
     // big old hack to avoid the graph flashing with weird data while either query is loading
