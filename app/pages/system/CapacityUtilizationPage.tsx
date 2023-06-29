@@ -1,6 +1,6 @@
 import { getLocalTimeZone, now } from '@internationalized/date'
 import { useIsFetching } from '@tanstack/react-query'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import invariant from 'tiny-invariant'
 
 import type { Capacity } from '@oxide/api'
@@ -15,15 +15,11 @@ import {
   Snapshots24Icon,
   Ssd16Icon,
 } from '@oxide/ui'
-import { type ListboxItem, useInterval } from '@oxide/ui'
+import { type ListboxItem } from '@oxide/ui'
 import { bytesToGiB, bytesToTiB } from '@oxide/util'
 
 import { CapacityMetric, capacityQueryParams } from 'app/components/CapacityMetric'
-import {
-  type RefetchInterval,
-  RefetchIntervalPicker,
-  refetchPresets,
-} from 'app/components/RefetchIntervalPicker'
+import { RefetchIntervalPicker } from 'app/components/RefetchIntervalPicker'
 import { SystemMetric } from 'app/components/SystemMetric'
 import { useDateTimeRangePicker } from 'app/components/form'
 
@@ -119,15 +115,6 @@ export function UtilizationPage({
     filterId: filterId === defaultId ? undefined : filterId,
   }
 
-  const [refetchInterval, setRefetchInterval] = useState<RefetchInterval>('10s')
-
-  const isRefetching = !!useIsFetching({ queryKey: ['systemMetric'] })
-
-  const [lastFetched, setLastFetched] = useState(new Date())
-  useEffect(() => {
-    if (isRefetching) setLastFetched(new Date())
-  }, [isRefetching])
-
   const handleRefetch = () => {
     // slide the window forward if we're on a preset
     onRangeChange(preset)
@@ -135,12 +122,7 @@ export function UtilizationPage({
     // window that has ever been active
     apiQueryClient.refetchQueries('systemMetric', undefined, { type: 'active' })
   }
-
-  useInterval({
-    fn: handleRefetch,
-    delay: preset !== 'custom' ? refetchPresets[refetchInterval] : null,
-    key: preset, // force a render which clears current interval
-  })
+  const isRefetching = !!useIsFetching({ queryKey: ['systemMetric'] })
 
   return (
     <>
@@ -160,10 +142,8 @@ export function UtilizationPage({
       <Divider className="!mx-0 mb-6 !w-full" />
 
       <RefetchIntervalPicker
-        lastFetched={lastFetched}
+        rangePreset={preset}
         isRefetching={isRefetching}
-        refetchInterval={refetchInterval}
-        setRefetchInterval={setRefetchInterval}
         handleRefetch={handleRefetch}
       />
 

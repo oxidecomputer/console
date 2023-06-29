@@ -1,5 +1,6 @@
 import cn from 'classnames'
 import { format } from 'date-fns'
+import { useEffect, useState } from 'react'
 
 import {
   Listbox,
@@ -7,9 +8,12 @@ import {
   Refresh16Icon,
   SpinnerLoader,
   Time16Icon,
+  useInterval,
 } from '@oxide/ui'
 
-export const refetchPresets = {
+import type { RangeKeyAll } from './form'
+
+const refetchPresets = {
   Off: null,
   '10s': 10 * 1000,
   '1m': 60 * 1000,
@@ -17,7 +21,7 @@ export const refetchPresets = {
   '5m': 5 * 60 * 1000,
 }
 
-export type RefetchInterval = keyof typeof refetchPresets
+type RefetchInterval = keyof typeof refetchPresets
 
 const refetchIntervalItems: ListboxItem<RefetchInterval>[] = [
   { label: 'Off', value: 'Off' },
@@ -28,20 +32,25 @@ const refetchIntervalItems: ListboxItem<RefetchInterval>[] = [
 ]
 
 type Props = {
-  lastFetched: Date
+  rangePreset: RangeKeyAll // TODO: convert to boring `enabled` prop, figure out how to do `key` part
   isRefetching: boolean
   handleRefetch: () => void
-  refetchInterval: RefetchInterval
-  setRefetchInterval: (value: RefetchInterval) => void
 }
 
-export function RefetchIntervalPicker({
-  lastFetched,
-  isRefetching,
-  handleRefetch,
-  refetchInterval,
-  setRefetchInterval,
-}: Props) {
+export function RefetchIntervalPicker({ rangePreset, isRefetching, handleRefetch }: Props) {
+  const [refetchInterval, setRefetchInterval] = useState<RefetchInterval>('10s')
+
+  const [lastFetched, setLastFetched] = useState(new Date())
+  useEffect(() => {
+    if (isRefetching) setLastFetched(new Date())
+  }, [isRefetching])
+
+  useInterval({
+    fn: handleRefetch,
+    delay: rangePreset !== 'custom' ? refetchPresets[refetchInterval] : null,
+    key: rangePreset, // force a render which clears current interval
+  })
+
   return (
     <div className="mb-12 flex items-center justify-between">
       <div className="hidden items-center gap-2 text-right text-mono-sm text-quaternary lg+:flex">
