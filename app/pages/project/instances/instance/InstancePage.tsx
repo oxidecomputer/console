@@ -3,6 +3,7 @@ import filesize from 'filesize'
 import { useMemo } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
+import invariant from 'tiny-invariant'
 
 import { apiQueryClient, useApiQuery, useApiQueryClient } from '@oxide/api'
 import {
@@ -45,8 +46,19 @@ export function InstancePage() {
   })
 
   const { data: instance } = useApiQuery('instanceView', instancePathQuery)
+
+  invariant(instance, 'Instance must be prefetch in a loader')
+
   const actions = useMemo(
-    () => (instance ? makeActions(instance) : []),
+    () => [
+      {
+        label: 'Copy ID',
+        onActivate() {
+          window.navigator.clipboard.writeText(instance.id || '')
+        },
+      },
+      ...makeActions(instance),
+    ],
     [instance, makeActions]
   )
   const quickActions = useMemo(
@@ -61,8 +73,6 @@ export function InstancePage() {
     [actions]
   )
   useQuickActions(quickActions)
-
-  if (!instance) return null
 
   const memory = filesize(instance.memory, { output: 'object', base: 2 })
 
