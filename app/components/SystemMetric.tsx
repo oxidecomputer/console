@@ -17,6 +17,7 @@ type MetricProps = {
   startTime: Date
   endTime: Date
   metricName: SystemMetricName
+  refetchInterval?: number
   /** Should be statically defined or memoized to avoid extra renders */
   valueTransform?: (n: number) => number
 }
@@ -41,13 +42,14 @@ export function SiloMetric({
   metricName,
   project,
   valueTransform = (x) => x,
+  refetchInterval,
 }: SiloMetricProps) {
   // TODO: we're only pulling the first page. Should we bump the cap to 10k?
   // Fetch multiple pages if 10k is not enough? That's a bit much.
   const inRange = useApiQuery(
     'siloMetric',
     { path: { metricName }, query: { project, startTime, endTime } },
-    { keepPreviousData: true }
+    { refetchInterval, keepPreviousData: true }
   )
 
   // get last point before startTime to use as first point in graph
@@ -57,7 +59,7 @@ export function SiloMetric({
       path: { metricName },
       query: { project, endTime: startTime, ...staticParams },
     },
-    { keepPreviousData: true }
+    { refetchInterval, keepPreviousData: true }
   )
 
   const ref = useRef<ChartDatum[] | undefined>(undefined)
@@ -117,6 +119,7 @@ export function SystemMetric({
   metricName,
   silo,
   valueTransform = (x) => x,
+  refetchInterval,
   capacity,
 }: SystemMetricProps) {
   // TODO: we're only pulling the first page. Should we bump the cap to 10k?
@@ -124,7 +127,7 @@ export function SystemMetric({
   const inRange = useApiQuery(
     'systemMetric',
     { path: { metricName }, query: { silo, startTime, endTime } },
-    { keepPreviousData: true }
+    { refetchInterval, keepPreviousData: true }
   )
 
   // get last point before startTime to use as first point in graph
@@ -134,7 +137,7 @@ export function SystemMetric({
       path: { metricName },
       query: { silo, endTime: startTime, ...staticParams },
     },
-    { keepPreviousData: true }
+    { refetchInterval, keepPreviousData: true }
   )
 
   const ref = useRef<ChartDatum[] | undefined>(undefined)

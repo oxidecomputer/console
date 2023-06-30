@@ -17,7 +17,7 @@ import {
 import { bytesToGiB, bytesToTiB } from '@oxide/util'
 
 import { CapacityMetric, capacityQueryParams } from 'app/components/CapacityMetric'
-import { RefetchIntervalPicker } from 'app/components/RefetchIntervalPicker'
+import { useIntervalPicker } from 'app/components/RefetchIntervalPicker'
 import { SystemMetric } from 'app/components/SystemMetric'
 import { useDateTimeRangePicker } from 'app/components/form'
 
@@ -63,21 +63,20 @@ export function CapacityUtilizationPage() {
       initialPreset: 'lastHour',
       maxValue: now(getLocalTimeZone()),
     })
+
+  const { refetchInterval, intervalPicker } = useIntervalPicker({
+    enabled: preset !== 'custom',
+    isLoading: useIsFetching({ queryKey: ['systemMetric'] }) > 0,
+    fn: () => onRangeChange(preset),
+  })
+
   const commonProps = {
     startTime,
     endTime,
+    refetchInterval,
     // the way we tell the API we want the fleet is by passing no filter
     silo: filterId === FLEET_ID ? undefined : filterId,
   }
-
-  const handleRefetch = () => {
-    // slide the window forward if we're on a preset
-    onRangeChange(preset)
-    // very important to filter for active, otherwise this refetches every
-    // window that has ever been active
-    apiQueryClient.refetchQueries('systemMetric', undefined, { type: 'active' })
-  }
-  const isRefetching = !!useIsFetching({ queryKey: ['systemMetric'] })
 
   return (
     <>
@@ -123,11 +122,7 @@ export function CapacityUtilizationPage() {
 
       <Divider className="!mx-0 mb-6 !w-full" />
 
-      <RefetchIntervalPicker
-        enabled={preset !== 'custom'}
-        isRefetching={isRefetching}
-        handleRefetch={handleRefetch}
-      />
+      {intervalPicker}
 
       <div className="mt-8 mb-12 space-y-12">
         <SystemMetric
