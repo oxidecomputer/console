@@ -8,7 +8,7 @@ import { Divider, Listbox, PageHeader, PageTitle, Snapshots24Icon } from '@oxide
 import { bytesToGiB, bytesToTiB } from '@oxide/util'
 
 import { RefetchIntervalPicker } from 'app/components/RefetchIntervalPicker'
-import { SystemMetric } from 'app/components/SystemMetric'
+import { SiloMetric } from 'app/components/SystemMetric'
 import { useDateTimeRangePicker } from 'app/components/form'
 
 const toListboxItem = (x: { name: string; id: string }) => ({ label: x.name, value: x.id })
@@ -52,9 +52,9 @@ export function SiloUtilizationPage() {
     onRangeChange(preset)
     // very important to filter for active, otherwise this refetches every
     // window that has ever been active
-    apiQueryClient.refetchQueries('systemMetric', undefined, { type: 'active' })
+    apiQueryClient.refetchQueries('siloMetric', undefined, { type: 'active' })
   }
-  const isRefetching = !!useIsFetching({ queryKey: ['systemMetric'] })
+  const isRefetching = !!useIsFetching({ queryKey: ['siloMetric'] })
 
   return (
     <>
@@ -84,20 +84,20 @@ export function SiloUtilizationPage() {
       />
 
       <div className="mt-8 mb-12 space-y-12">
-        <SystemMetric
+        <SiloMetric
           {...commonProps}
           metricName="virtual_disk_space_provisioned"
           title="Disk Space"
           unit="TiB"
           valueTransform={bytesToTiB}
         />
-        <SystemMetric
+        <SiloMetric
           {...commonProps}
           metricName="cpus_provisioned"
           title="CPU"
           unit="count"
         />
-        <SystemMetric
+        <SiloMetric
           {...commonProps}
           metricName="ram_provisioned"
           title="Memory"
