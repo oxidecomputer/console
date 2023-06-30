@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 
 import type { SystemMetricName } from '@oxide/api'
-import { FLEET_ID, useApiQuery } from '@oxide/api'
+import { useApiQuery } from '@oxide/api'
 import { splitDecimal } from '@oxide/util'
 
 import RoundedSector from 'app/components/RoundedSector'
@@ -13,7 +13,6 @@ export const capacityQueryParams = {
   // kind of janky to use pageload time. we can think about making it live
   // later. ideally refetch would be coordinated with the graphs
   endTime: new Date(),
-  id: FLEET_ID,
   limit: 1,
   order: 'descending' as const,
 }

@@ -1,4 +1,3 @@
-import { getLocalTimeZone } from '@internationalized/date'
 import React, { Suspense, useMemo, useState } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 import invariant from 'tiny-invariant'
@@ -106,8 +105,8 @@ export function MetricsTab() {
   const diskItems = disks.map(({ name }) => ({ label: name, value: name }))
 
   const commonProps = {
-    startTime: startTime.toDate(getLocalTimeZone()),
-    endTime: endTime.toDate(getLocalTimeZone()),
+    startTime,
+    endTime,
     diskSelector: { project, disk: diskName },
   }
 
