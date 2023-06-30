@@ -11,8 +11,6 @@ import {
   useInterval,
 } from '@oxide/ui'
 
-import type { RangeKeyAll } from './form'
-
 const refetchPresets = {
   Off: null,
   '10s': 10 * 1000,
@@ -32,12 +30,12 @@ const refetchIntervalItems: ListboxItem<RefetchInterval>[] = [
 ]
 
 type Props = {
-  rangePreset: RangeKeyAll // TODO: convert to boring `enabled` prop, figure out how to do `key` part
+  enabled: boolean
   isRefetching: boolean
   handleRefetch: () => void
 }
 
-export function RefetchIntervalPicker({ rangePreset, isRefetching, handleRefetch }: Props) {
+export function RefetchIntervalPicker({ enabled, isRefetching, handleRefetch }: Props) {
   const [refetchInterval, setRefetchInterval] = useState<RefetchInterval>('10s')
 
   const [lastFetched, setLastFetched] = useState(new Date())
@@ -47,8 +45,7 @@ export function RefetchIntervalPicker({ rangePreset, isRefetching, handleRefetch
 
   useInterval({
     fn: handleRefetch,
-    delay: rangePreset !== 'custom' ? refetchPresets[refetchInterval] : null,
-    key: rangePreset, // force a render which clears current interval
+    delay: enabled ? refetchPresets[refetchInterval] : null,
   })
 
   return (

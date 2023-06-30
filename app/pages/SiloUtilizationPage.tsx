@@ -78,7 +78,7 @@ export function SiloUtilizationPage() {
       <Divider className="!mx-0 mb-6 !w-full" />
 
       <RefetchIntervalPicker
-        rangePreset={preset}
+        enabled={preset !== 'custom'}
         isRefetching={isRefetching}
         handleRefetch={handleRefetch}
       />
