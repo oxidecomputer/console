@@ -1,20 +1,13 @@
 import { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { INSTANCE_DELETE_STATES, type Instance, useApiMutation } from '@oxide/api'
+import { type Instance, instanceCan, useApiMutation } from '@oxide/api'
 import type { MakeActions } from '@oxide/table'
 import { toPathQuery } from '@oxide/util'
 
 import { useToast } from 'app/hooks'
 import { confirmDelete } from 'app/stores/confirm-delete'
 import { pb } from 'app/util/path-builder'
-
-const instanceCan: Record<string, (i: Instance) => boolean> = {
-  start: (i) => i.runState === 'stopped',
-  reboot: (i) => i.runState === 'running',
-  stop: (i) => i.runState === 'running',
-  delete: (i) => INSTANCE_DELETE_STATES.has(i.runState),
-}
 
 type Options = {
   onSuccess?: () => void

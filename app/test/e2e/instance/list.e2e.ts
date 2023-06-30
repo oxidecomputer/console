@@ -36,3 +36,16 @@ test('can stop and delete a running instance', async ({ page }) => {
 
   await expect(row).toBeHidden() // bye
 })
+
+test('can stop a starting instance', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances')
+
+  const row = page.getByRole('row', { name: 'not-there-yet', exact: false })
+  await expect(row).toBeVisible()
+  await expect(row.getByRole('cell', { name: /starting/ })).toBeVisible()
+
+  await row.getByRole('button', { name: 'Row actions' }).click()
+  await page.getByRole('menuitem', { name: 'Stop' }).click()
+
+  await expect(row.getByRole('cell', { name: /stopped/ })).toBeVisible()
+})
