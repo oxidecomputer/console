@@ -7,7 +7,7 @@ import { apiQueryClient, useApiQuery } from '@oxide/api'
 import { Divider, Listbox, PageHeader, PageTitle, Snapshots24Icon } from '@oxide/ui'
 import { bytesToGiB, bytesToTiB } from '@oxide/util'
 
-import { RefetchIntervalPicker } from 'app/components/RefetchIntervalPicker'
+import { useIntervalPicker } from 'app/components/RefetchIntervalPicker'
 import { SiloMetric } from 'app/components/SystemMetric'
 import { useDateTimeRangePicker } from 'app/components/form'
 
@@ -40,21 +40,20 @@ export function SiloUtilizationPage() {
       initialPreset: 'lastHour',
       maxValue: now(getLocalTimeZone()),
     })
+
+  const { intervalPicker } = useIntervalPicker({
+    enabled: preset !== 'custom',
+    isLoading: useIsFetching({ queryKey: ['siloMetric'] }) > 0,
+    // sliding the range forward is sufficient to trigger a refetch
+    fn: () => onRangeChange(preset),
+  })
+
   const commonProps = {
     startTime,
     endTime,
     // the way we tell the API we want the silo is by passing no filter
     project: filterId === siloId ? undefined : filterId,
   }
-
-  const handleRefetch = () => {
-    // slide the window forward if we're on a preset
-    onRangeChange(preset)
-    // very important to filter for active, otherwise this refetches every
-    // window that has ever been active
-    apiQueryClient.refetchQueries('siloMetric', undefined, { type: 'active' })
-  }
-  const isRefetching = !!useIsFetching({ queryKey: ['siloMetric'] })
 
   return (
     <>
@@ -77,11 +76,7 @@ export function SiloUtilizationPage() {
 
       <Divider className="!mx-0 mb-6 !w-full" />
 
-      <RefetchIntervalPicker
-        enabled={preset !== 'custom'}
-        isRefetching={isRefetching}
-        handleRefetch={handleRefetch}
-      />
+      {intervalPicker}
 
       <div className="mt-8 mb-12 space-y-12">
         <SiloMetric

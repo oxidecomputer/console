@@ -11,17 +11,17 @@ import {
   useInterval,
 } from '@oxide/ui'
 
-const refetchPresets = {
-  Off: null,
+const intervalPresets = {
+  Off: undefined,
   '10s': 10 * 1000,
   '1m': 60 * 1000,
   '2m': 2 * 60 * 1000,
   '5m': 5 * 60 * 1000,
 }
 
-type RefetchInterval = keyof typeof refetchPresets
+type IntervalPreset = keyof typeof intervalPresets
 
-const refetchIntervalItems: ListboxItem<RefetchInterval>[] = [
+const intervalItems: ListboxItem<IntervalPreset>[] = [
   { label: 'Off', value: 'Off' },
   { label: '10s', value: '10s' },
   { label: '1m', value: '1m' },
@@ -31,50 +31,51 @@ const refetchIntervalItems: ListboxItem<RefetchInterval>[] = [
 
 type Props = {
   enabled: boolean
-  isRefetching: boolean
-  handleRefetch: () => void
+  isLoading: boolean
+  fn: () => void
 }
 
-export function RefetchIntervalPicker({ enabled, isRefetching, handleRefetch }: Props) {
-  const [refetchInterval, setRefetchInterval] = useState<RefetchInterval>('10s')
+export function useIntervalPicker({ enabled, isLoading, fn }: Props) {
+  const [intervalPreset, setIntervalPreset] = useState<IntervalPreset>('10s')
 
   const [lastFetched, setLastFetched] = useState(new Date())
   useEffect(() => {
-    if (isRefetching) setLastFetched(new Date())
-  }, [isRefetching])
+    if (isLoading) setLastFetched(new Date())
+  }, [isLoading])
 
-  useInterval({
-    fn: handleRefetch,
-    delay: enabled ? refetchPresets[refetchInterval] : null,
-  })
+  const delay = enabled ? intervalPresets[intervalPreset] : null
+  useInterval({ fn, delay })
 
-  return (
-    <div className="mb-12 flex items-center justify-between">
-      <div className="hidden items-center gap-2 text-right text-mono-sm text-quaternary lg+:flex">
-        <Time16Icon className="text-quinary" /> Refreshed {format(lastFetched, 'HH:mm')}
+  return {
+    intervalMs: (enabled && intervalPresets[intervalPreset]) || undefined,
+    intervalPicker: (
+      <div className="mb-12 flex items-center justify-between">
+        <div className="hidden items-center gap-2 text-right text-mono-sm text-quaternary lg+:flex">
+          <Time16Icon className="text-quinary" /> Refreshed {format(lastFetched, 'HH:mm')}
+        </div>
+        <div className="flex">
+          <button
+            className={cn(
+              'flex w-10 items-center justify-center rounded-l border-l border-t border-b border-default disabled:cursor-default',
+              isLoading && 'hover:bg-hover'
+            )}
+            onClick={fn}
+            disabled={isLoading}
+          >
+            <SpinnerLoader isLoading={isLoading}>
+              <Refresh16Icon className="text-tertiary" />
+            </SpinnerLoader>
+          </button>
+          <Listbox
+            selected={intervalPreset}
+            className="w-24 [&>button]:!rounded-l-none"
+            aria-labelledby="silo-id-label"
+            name="silo-id"
+            items={intervalItems}
+            onChange={setIntervalPreset}
+          />
+        </div>
       </div>
-      <div className="flex">
-        <button
-          className={cn(
-            'flex w-10 items-center justify-center rounded-l border-l border-t border-b border-default disabled:cursor-default',
-            isRefetching && 'hover:bg-hover'
-          )}
-          onClick={handleRefetch}
-          disabled={isRefetching}
-        >
-          <SpinnerLoader isLoading={isRefetching}>
-            <Refresh16Icon className="text-tertiary" />
-          </SpinnerLoader>
-        </button>
-        <Listbox
-          selected={refetchInterval}
-          className="w-24 [&>button]:!rounded-l-none"
-          aria-labelledby="silo-id-label"
-          name="silo-id"
-          items={refetchIntervalItems}
-          onChange={setRefetchInterval}
-        />
-      </div>
-    </div>
-  )
+    ),
+  }
 }
