@@ -40,7 +40,7 @@ export const CapacityMetric = ({
   )
 
   const metrics = useMemo(() => data?.items || [], [data])
-  const datum = metrics && metrics.length > 0 ? metrics[metrics.length - 1].datum.datum : 0
+  const datum = metrics.length > 0 ? metrics[metrics.length - 1].datum.datum : 0
   // it's always a number but let's rule out the other options without doing a cast
   const utilization = valueTransform(typeof datum === 'number' ? datum : 0)
   const utilizationPct = (utilization * 100) / capacity
