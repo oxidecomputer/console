@@ -81,8 +81,7 @@ export function StorageTab() {
     },
   })
 
-  const getQuery = ['instanceDiskList', instancePathQuery] as const
-  const { Table, Column } = useQueryTable(...getQuery)
+  const { Table, Column } = useQueryTable('instanceDiskList', instancePathQuery)
 
   if (!data) return null
 
