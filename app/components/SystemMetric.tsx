@@ -46,7 +46,10 @@ export function SiloMetric({
   // Fetch multiple pages if 10k is not enough? That's a bit much.
   const inRange = useApiQuery(
     'siloMetric',
-    { path: { metricName }, query: { project, startTime, endTime } },
+    {
+      path: { metricName },
+      query: { project, startTime, endTime, limit: 3000 },
+    },
     { keepPreviousData: true }
   )
 
@@ -123,7 +126,10 @@ export function SystemMetric({
   // Fetch multiple pages if 10k is not enough? That's a bit much.
   const inRange = useApiQuery(
     'systemMetric',
-    { path: { metricName }, query: { silo, startTime, endTime } },
+    {
+      path: { metricName },
+      query: { silo, startTime, endTime, limit: 3000 },
+    },
     { keepPreviousData: true }
   )
 
