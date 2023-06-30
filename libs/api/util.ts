@@ -100,7 +100,7 @@ export function totalCapacity(
   sleds: Pick<Sled, 'usableHardwareThreads' | 'usablePhysicalRam'>[]
 ) {
   return {
-    disk_tib: Math.ceil(FUDGE * 32 * TBtoTiB), // TODO: make more real
+    disk_tib: Math.ceil(FUDGE * sleds.length * 32 * TBtoTiB), // TODO: make more real
     ram_gib: Math.ceil(bytesToGiB(FUDGE * sumBy(sleds, (s) => s.usablePhysicalRam))),
     cpu: Math.ceil(FUDGE * sumBy(sleds, (s) => s.usableHardwareThreads)),
   }
