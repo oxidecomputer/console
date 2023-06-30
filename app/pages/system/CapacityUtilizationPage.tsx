@@ -64,7 +64,7 @@ export function CapacityUtilizationPage() {
       maxValue: now(getLocalTimeZone()),
     })
 
-  const { refetchInterval, intervalPicker } = useIntervalPicker({
+  const { intervalPicker } = useIntervalPicker({
     enabled: preset !== 'custom',
     isLoading: useIsFetching({ queryKey: ['systemMetric'] }) > 0,
     fn: () => onRangeChange(preset),
@@ -73,7 +73,6 @@ export function CapacityUtilizationPage() {
   const commonProps = {
     startTime,
     endTime,
-    refetchInterval,
     // the way we tell the API we want the fleet is by passing no filter
     silo: filterId === FLEET_ID ? undefined : filterId,
   }

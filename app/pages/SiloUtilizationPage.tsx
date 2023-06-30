@@ -41,7 +41,7 @@ export function SiloUtilizationPage() {
       maxValue: now(getLocalTimeZone()),
     })
 
-  const { refetchInterval, intervalPicker } = useIntervalPicker({
+  const { intervalPicker } = useIntervalPicker({
     enabled: preset !== 'custom',
     isLoading: useIsFetching({ queryKey: ['siloMetric'] }) > 0,
     fn: () => onRangeChange(preset),
@@ -50,7 +50,6 @@ export function SiloUtilizationPage() {
   const commonProps = {
     startTime,
     endTime,
-    refetchInterval,
     // the way we tell the API we want the silo is by passing no filter
     project: filterId === siloId ? undefined : filterId,
   }
