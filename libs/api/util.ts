@@ -3,6 +3,8 @@ import { bytesToGiB, pick, sumBy } from '@oxide/util'
 
 import type {
   DiskState,
+  Instance,
+  InstanceState,
   Measurement,
   Sled,
   UpdateableComponentType,
@@ -89,6 +91,16 @@ export const DISK_SNAPSHOT_STATES: Set<DiskState['state']> = new Set([
   'attached',
   'detached',
 ])
+
+export const INSTANCE_STOP_STATES: Set<InstanceState> = new Set(['running', 'starting'])
+export const INSTANCE_DELETE_STATES: Set<InstanceState> = new Set(['stopped', 'failed'])
+
+export const instanceCan: Record<string, (i: Instance) => boolean> = {
+  start: (i) => i.runState === 'stopped',
+  reboot: (i) => i.runState === 'running',
+  stop: (i) => INSTANCE_STOP_STATES.has(i.runState),
+  delete: (i) => INSTANCE_DELETE_STATES.has(i.runState),
+}
 
 /** Hard coded in the API, so we can hard code it here. */
 export const FLEET_ID = '001de000-1334-4000-8000-000000000000'
