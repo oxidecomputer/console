@@ -11,16 +11,26 @@ const TimeSeriesChart = React.lazy(() => import('./TimeSeriesChart'))
 //   1. different endpoints
 //   2. silo metric doesn't have capacity
 
-type SiloMetricProps = {
+type MetricProps = {
   title: string
   unit?: string
   startTime: Date
   endTime: Date
   metricName: SystemMetricName
-  /** Resource to filter data by. Silo or project. */
-  filterId: string | undefined
   /** Should be statically defined or memoized to avoid extra renders */
   valueTransform?: (n: number) => number
+}
+
+type SiloMetricProps = MetricProps & {
+  /** undefined means show entire silo */
+  project: string | undefined
+}
+
+/** params for the before query */
+const staticParams = {
+  startTime: new Date(0),
+  limit: 1,
+  order: 'descending' as const,
 }
 
 export function SiloMetric({
@@ -29,15 +39,14 @@ export function SiloMetric({
   startTime,
   endTime,
   metricName,
-  filterId,
+  project,
   valueTransform = (x) => x,
 }: SiloMetricProps) {
   // TODO: we're only pulling the first page. Should we bump the cap to 10k?
   // Fetch multiple pages if 10k is not enough? That's a bit much.
   const inRange = useApiQuery(
     'siloMetric',
-    { path: { metricName }, query: { project: filterId, startTime, endTime } },
-    // avoid graphs flashing blank while loading when you change the time
+    { path: { metricName }, query: { project, startTime, endTime } },
     { keepPreviousData: true }
   )
 
@@ -46,15 +55,8 @@ export function SiloMetric({
     'siloMetric',
     {
       path: { metricName },
-      query: {
-        project: filterId,
-        endTime: startTime,
-        startTime: new Date(0),
-        limit: 1,
-        order: 'descending',
-      },
+      query: { project, endTime: startTime, ...staticParams },
     },
-    // avoid graphs flashing blank while loading when you change the time
     { keepPreviousData: true }
   )
 
@@ -101,7 +103,9 @@ export function SiloMetric({
   )
 }
 
-type SystemMetricProps = SiloMetricProps & {
+type SystemMetricProps = MetricProps & {
+  /** undefined means show entire fleet */
+  silo: string | undefined
   capacity: number
 }
 
@@ -111,7 +115,7 @@ export function SystemMetric({
   startTime,
   endTime,
   metricName,
-  filterId,
+  silo,
   valueTransform = (x) => x,
   capacity,
 }: SystemMetricProps) {
@@ -119,8 +123,7 @@ export function SystemMetric({
   // Fetch multiple pages if 10k is not enough? That's a bit much.
   const inRange = useApiQuery(
     'systemMetric',
-    { path: { metricName }, query: { silo: filterId, startTime, endTime } },
-    // avoid graphs flashing blank while loading when you change the time
+    { path: { metricName }, query: { silo, startTime, endTime } },
     { keepPreviousData: true }
   )
 
@@ -129,15 +132,8 @@ export function SystemMetric({
     'systemMetric',
     {
       path: { metricName },
-      query: {
-        silo: filterId,
-        endTime: startTime,
-        startTime: new Date(0),
-        limit: 1,
-        order: 'descending',
-      },
+      query: { silo, endTime: startTime, ...staticParams },
     },
-    // avoid graphs flashing blank while loading when you change the time
     { keepPreviousData: true }
   )
 

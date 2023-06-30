@@ -67,7 +67,7 @@ export function CapacityUtilizationPage() {
     startTime,
     endTime,
     // the way we tell the API we want the fleet is by passing no filter
-    filterId: filterId === FLEET_ID ? undefined : filterId,
+    silo: filterId === FLEET_ID ? undefined : filterId,
   }
 
   const handleRefetch = () => {

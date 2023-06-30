@@ -43,8 +43,8 @@ export function SiloUtilizationPage() {
   const commonProps = {
     startTime,
     endTime,
-    // the way we tell the API we want the parent (fleet/silo) is by passing no filter
-    filterId: filterId === siloId ? undefined : filterId,
+    // the way we tell the API we want the silo is by passing no filter
+    project: filterId === siloId ? undefined : filterId,
   }
 
   const handleRefetch = () => {
