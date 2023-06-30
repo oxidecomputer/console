@@ -24,8 +24,6 @@ export function DisksTab() {
     <>
       <Table emptyState={<EmptyState />}>
         <Column accessor="id" />
-        <Column id="sled" accessor={() => `SLD0`} header="sled" />
-        <Column id="location" accessor={(_, index) => `N${index}`} header="location" />
         <Column id="status" accessor={() => 'active'} header="status" cell={LabelCell} />
         <Column accessor="model" header="model number" />
         <Column accessor="serial" header="serial number" />
