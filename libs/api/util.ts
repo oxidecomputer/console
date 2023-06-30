@@ -124,20 +124,29 @@ export function synthesizeData(
   // wait until both requests come back to do anything
   if (!dataInRange || !dataBeforeRange) return undefined
 
-  const result = dataInRange.map(({ datum, timestamp }) => ({
-    timestamp: timestamp.getTime(),
-    // all of these metrics are cumulative ints
-    value: valueTransform(datum.datum as number),
-  }))
+  const result: ChartDatum[] = []
 
-  // second condition should virtually always be true
-  if (dataInRange.length === 0 || result[0].timestamp > startTime.getTime()) {
+  // need to synthesize first data point if either there is no data, or the first
+  // data point is after the start of the time range. the second condition
+  // should virtually always be true
+  if (
+    dataInRange.length === 0 ||
+    dataInRange[0].timestamp.getTime() > startTime.getTime()
+  ) {
     const value =
       dataBeforeRange.length > 0
         ? valueTransform(dataBeforeRange.at(-1)!.datum.datum as number)
         : 0 // if there's no data before the time range, assume value is zero
-    result.unshift({ timestamp: startTime.getTime(), value })
+    result.push({ timestamp: startTime.getTime(), value })
   }
+
+  result.push(
+    ...dataInRange.map(({ datum, timestamp }) => ({
+      timestamp: timestamp.getTime(),
+      // all of these metrics are cumulative ints
+      value: valueTransform(datum.datum as number),
+    }))
+  )
 
   // add point for the end of the time range equal to the last value in the
   // range. no timestamp check necessary because endTime is exclusive
