@@ -75,7 +75,7 @@ function renderTooltip(props: TooltipProps<number, string>, unit?: string) {
     name,
     payload: { timestamp, value },
   } = payload[0]
-  if (!timestamp || !value) return null
+  if (!timestamp || typeof value !== 'number') return null
   return (
     <div className="rounded border outline-0 text-sans-md text-tertiary bg-raise border-secondary elevation-2">
       <div className="border-b py-2 px-3 pr-6 border-secondary">
