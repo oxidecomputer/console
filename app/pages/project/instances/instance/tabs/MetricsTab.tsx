@@ -38,7 +38,7 @@ function DiskMetric({
     'diskMetricsList',
     {
       path: { disk, metric },
-      query: { project, startTime, endTime, limit: 1000 },
+      query: { project, startTime, endTime, limit: 3000 },
     },
     // avoid graphs flashing blank while loading when you change the time
     { keepPreviousData: true }
