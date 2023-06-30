@@ -67,6 +67,7 @@ export function CapacityUtilizationPage() {
   const { intervalPicker } = useIntervalPicker({
     enabled: preset !== 'custom',
     isLoading: useIsFetching({ queryKey: ['systemMetric'] }) > 0,
+    // sliding the range forward is sufficient to trigger a refetch
     fn: () => onRangeChange(preset),
   })
 
