@@ -3,6 +3,7 @@ import { bytesToGiB, pick, sumBy } from '@oxide/util'
 
 import type {
   DiskState,
+  InstanceState,
   Measurement,
   Sled,
   UpdateableComponentType,
@@ -89,6 +90,8 @@ export const DISK_SNAPSHOT_STATES: Set<DiskState['state']> = new Set([
   'attached',
   'detached',
 ])
+
+export const INSTANCE_DELETE_STATES: Set<InstanceState> = new Set(['stopped', 'failed'])
 
 /** Hard coded in the API, so we can hard code it here. */
 export const FLEET_ID = '001de000-1334-4000-8000-000000000000'

@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { type Instance, useApiMutation } from '@oxide/api'
+import { INSTANCE_DELETE_STATES, type Instance, useApiMutation } from '@oxide/api'
 import type { MakeActions } from '@oxide/table'
 import { toPathQuery } from '@oxide/util'
 
@@ -13,7 +13,7 @@ const instanceCan: Record<string, (i: Instance) => boolean> = {
   start: (i) => i.runState === 'stopped',
   reboot: (i) => i.runState === 'running',
   stop: (i) => i.runState === 'running',
-  delete: (i) => i.runState === 'stopped',
+  delete: (i) => INSTANCE_DELETE_STATES.has(i.runState),
 }
 
 type Options = {
