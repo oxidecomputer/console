@@ -87,20 +87,20 @@ export function CapacityUtilizationPage() {
       <div className="mb-12 flex min-w-min flex-col gap-3 lg+:flex-row">
         <CapacityMetric
           icon={<Ssd16Icon />}
-          title="Disk capacity"
+          title="Disk utilization"
           metricName="virtual_disk_space_provisioned"
           valueTransform={bytesToTiB}
           capacity={capacity.disk_tib}
         />
         <CapacityMetric
           icon={<Cpu16Icon />}
-          title="CPU capacity"
+          title="CPU utilization"
           metricName="cpus_provisioned"
           capacity={capacity.cpu}
         />
         <CapacityMetric
           icon={<Ram16Icon />}
-          title="Memory capacity"
+          title="Memory utilization"
           metricName="ram_provisioned"
           valueTransform={bytesToGiB}
           capacity={capacity.ram_gib}
