@@ -51,8 +51,6 @@ jobs:
         run: VITEST_MAX_THREADS=1 VITEST_MIN_THREADS=1 npm run test run
       - name: Build
         run: npm run build
-      - name: Build for Nexus
-        run: npm run build-for-nexus
   playwright:
     name: Playwright (${{ matrix.browser }})
     timeout-minutes: 10

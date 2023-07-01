@@ -52,7 +52,7 @@ export async function startMockAPI() {
   const { setupWorker, rest, compose } = await import('msw')
 
   // defined in here because it depends on the dynamic import
-  const interceptAll = rest.all('/api/*', async (_req, res, ctx) => {
+  const interceptAll = rest.all('/v1/*', async (_req, res, ctx) => {
     // random delay on all requests to simulate a real API
     await sleep(randInt(200, 400))
 
@@ -64,13 +64,7 @@ export async function startMockAPI() {
   })
 
   // https://mswjs.io/docs/api/setup-worker/start#options
-  await setupWorker(
-    interceptAll,
-    ...handlers.map((h) => {
-      h.info.path = '/api' + h.info.path
-      return h
-    })
-  ).start({
+  await setupWorker(interceptAll, ...handlers).start({
     quiet: true, // don't log successfully handled requests
     // custom handler only to make logging less noisy. unhandled requests still
     // pass through to the server
