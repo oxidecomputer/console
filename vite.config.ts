@@ -6,6 +6,14 @@ import { defineConfig } from 'vite'
 import { dotPathFixPlugin } from './libs/vite-plugin-dot-path-fix'
 import tsConfig from './tsconfig.json'
 
+// There are a few basic "modes" we run the dev server in, indicated by env
+// vars:
+//
+// - "default" mode, local dev against real local nexus on localhost:12220 (no
+//   env var)
+// - MSW mode, MSW=1 (note WS server has special behavior)
+// - Dogfood mode, DOGFOOD=1
+
 const mapObj = <V0, V>(
   obj: Record<string, V0>,
   kf: (t: string) => string,
@@ -30,7 +38,7 @@ export default defineConfig(({ mode }) => ({
     },
   },
   define: {
-    'process.env.API_URL': JSON.stringify(process.env.API_URL ?? '/api'),
+    'process.env.API_URL': JSON.stringify(mode === 'production' ? '' : '/api'),
     'process.env.MSW': JSON.stringify(mode !== 'production' && process.env.MSW),
     'process.env.SHA': JSON.stringify(process.env.SHA),
     // used by MSW — number for % likelihood of API request failure (decimals allowed)

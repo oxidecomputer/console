@@ -9,7 +9,6 @@
     "dev": "MSW=1 vite",
     "start:mock-api": "node -r esbuild-register ./tools/start_mock_api.ts",
     "build": "vite build",
-    "build-for-nexus": "API_URL='' vite build",
     "ci": "npm run tsc && npm run lint && npm run test run && npm run e2ec",
     "tsc": "tsc",
     "test": "vitest",
