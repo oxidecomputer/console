@@ -1,4 +1,5 @@
 import react from '@vitejs/plugin-react'
+import fs from 'fs'
 import { resolve } from 'path'
 import { defineConfig } from 'vite'
 
@@ -58,10 +59,15 @@ export default defineConfig(({ mode }) => ({
   },
   server: {
     port: 4000,
+    https: {
+      key: fs.readFileSync('../rackkey.pem'),
+      cert: fs.readFileSync('../rackcert.pem'),
+    },
     // these only get hit when MSW isn't intercepting requests
     proxy: {
       '/api': {
-        target: 'http://localhost:12220',
+        target: 'https://recovery.sys.rack2.eng.oxide.computer',
+        changeOrigin: true,
         configure(proxy) {
           proxy.on('error', (_, req) => {
             console.error('    to', '/api' + req.url)
