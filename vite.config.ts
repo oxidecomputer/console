@@ -2,17 +2,33 @@ import react from '@vitejs/plugin-react'
 import fs from 'fs'
 import { resolve } from 'path'
 import { defineConfig } from 'vite'
+import { z } from 'zod'
 
 import { dotPathFixPlugin } from './libs/vite-plugin-dot-path-fix'
 import tsConfig from './tsconfig.json'
 
-// There are a few basic "modes" we run the dev server in, indicated by env
-// vars:
-//
-// - "default" mode, local dev against real local nexus on localhost:12220 (no
-//   env var)
-// - MSW mode, MSW=1 (note WS server has special behavior)
-// - Dogfood mode, DOGFOOD=1
+const DevApiMode = z.enum(['msw', 'nexus', 'dogfood'])
+
+const devApiModeResult = DevApiMode.default('msw').safeParse(process.env.API_MODE)
+if (!devApiModeResult.success) {
+  const options = DevApiMode.options.join(', ')
+  console.error(`Error: API_MODE must be one of: [${options}]. If unset, default is "msw".`)
+  process.exit(1)
+}
+/**
+ * What API are we talking to? Only relevant in development mode.
+ *
+ * - `msw` (default): Mock Service Workers
+ * - `nexus`: Nexus with simulated sled agent running on localhost:12220
+ * - `dogfood`: Dogfood rack at recovery.sys.rack2.eng.oxide.computer. Requires
+ *   TLS certs.
+ */
+const devApiMode = devApiModeResult.data
+
+const getTlsCerts = () => ({
+  key: fs.readFileSync('../dogfood-tls-key.pem'),
+  cert: fs.readFileSync('../dogfood-tls-cert.pem'),
+})
 
 const mapObj = <V0, V>(
   obj: Record<string, V0>,
@@ -39,7 +55,8 @@ export default defineConfig(({ mode }) => ({
   },
   define: {
     'process.env.API_URL': JSON.stringify(mode === 'production' ? '' : '/api'),
-    'process.env.MSW': JSON.stringify(mode !== 'production' && process.env.MSW),
+    'process.env.MSW': JSON.stringify(mode !== 'production' && devApiMode === 'msw'),
+    // used in production build to console.log the SHA at page load
     'process.env.SHA': JSON.stringify(process.env.SHA),
     // used by MSW — number for % likelihood of API request failure (decimals allowed)
     'process.env.CHAOS': JSON.stringify(mode !== 'production' && process.env.CHAOS),
@@ -67,18 +84,14 @@ export default defineConfig(({ mode }) => ({
   },
   server: {
     port: 4000,
-    https: process.env.DOGFOOD
-      ? {
-          key: fs.readFileSync('../rackkey.pem'),
-          cert: fs.readFileSync('../rackcert.pem'),
-        }
-      : undefined,
-    // these only get hit when MSW isn't intercepting requests
+    https: devApiMode === 'dogfood' ? getTlsCerts() : undefined,
+    // these only get hit when MSW doesn't intercept the request
     proxy: {
       '/api': {
-        target: process.env.DOGFOOD
-          ? 'https://recovery.sys.rack2.eng.oxide.computer'
-          : 'http://localhost:12220',
+        target:
+          devApiMode === 'dogfood'
+            ? 'https://recovery.sys.rack2.eng.oxide.computer'
+            : 'http://localhost:12220',
         changeOrigin: true,
         configure(proxy) {
           proxy.on('error', (_, req) => {
@@ -88,10 +101,11 @@ export default defineConfig(({ mode }) => ({
         rewrite: (path) => path.replace(/^\/api/, ''),
       },
       '/ws-serial-console': {
-        target: process.env.DOGFOOD
-          ? 'wss://recovery.sys.rack2.eng.oxide.computer'
-          : // local mock server vs Nexus
-            'ws://localhost:' + (process.env.MSW ? 6036 : 12220),
+        target:
+          // in msw mode, serial console is served by tools/deno/mock-serial-console.ts
+          devApiMode === 'dogfood'
+            ? 'wss://recovery.sys.rack2.eng.oxide.computer'
+            : 'ws://localhost:' + (devApiMode === 'msw' ? 6036 : 12220),
         ws: true,
         configure(proxy) {
           proxy.on('error', (_, req) => {
