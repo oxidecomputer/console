@@ -54,7 +54,6 @@ export default defineConfig(({ mode }) => ({
     },
   },
   define: {
-    'process.env.API_URL': JSON.stringify(mode === 'production' ? '' : '/api'),
     'process.env.MSW': JSON.stringify(mode !== 'production' && devApiMode === 'msw'),
     // used in production build to console.log the SHA at page load
     'process.env.SHA': JSON.stringify(process.env.SHA),
@@ -87,7 +86,7 @@ export default defineConfig(({ mode }) => ({
     https: devApiMode === 'dogfood' ? getTlsCerts() : undefined,
     // these only get hit when MSW doesn't intercept the request
     proxy: {
-      '/api': {
+      '/v1': {
         target:
           devApiMode === 'dogfood'
             ? 'https://recovery.sys.rack2.eng.oxide.computer'
@@ -95,10 +94,9 @@ export default defineConfig(({ mode }) => ({
         changeOrigin: true,
         configure(proxy) {
           proxy.on('error', (_, req) => {
-            console.error('    to', '/api' + req.url)
+            console.error('    to', req.url)
           })
         },
-        rewrite: (path) => path.replace(/^\/api/, ''),
       },
       '/ws-serial-console': {
         target:
