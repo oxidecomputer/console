@@ -5,6 +5,7 @@
   "scripts": {
     "start": "vite",
     "start:msw": "MSW=1 vite",
+    "start:dogfood": "DOGFOOD=1 vite",
     "dev": "MSW=1 vite",
     "start:mock-api": "node -r esbuild-register ./tools/start_mock_api.ts",
     "build": "vite build",

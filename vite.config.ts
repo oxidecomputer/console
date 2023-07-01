@@ -59,14 +59,18 @@ export default defineConfig(({ mode }) => ({
   },
   server: {
     port: 4000,
-    https: {
-      key: fs.readFileSync('../rackkey.pem'),
-      cert: fs.readFileSync('../rackcert.pem'),
-    },
+    https: process.env.DOGFOOD
+      ? {
+          key: fs.readFileSync('../rackkey.pem'),
+          cert: fs.readFileSync('../rackcert.pem'),
+        }
+      : undefined,
     // these only get hit when MSW isn't intercepting requests
     proxy: {
       '/api': {
-        target: 'https://recovery.sys.rack2.eng.oxide.computer',
+        target: process.env.DOGFOOD
+          ? 'https://recovery.sys.rack2.eng.oxide.computer'
+          : 'http://localhost:12220',
         changeOrigin: true,
         configure(proxy) {
           proxy.on('error', (_, req) => {
@@ -76,8 +80,10 @@ export default defineConfig(({ mode }) => ({
         rewrite: (path) => path.replace(/^\/api/, ''),
       },
       '/ws-serial-console': {
-        // local mock server vs Nexus
-        target: 'ws://localhost:' + (process.env.MSW ? 6036 : 12220),
+        target: process.env.DOGFOOD
+          ? 'wss://recovery.sys.rack2.eng.oxide.computer'
+          : // local mock server vs Nexus
+            'ws://localhost:' + (process.env.MSW ? 6036 : 12220),
         ws: true,
         configure(proxy) {
           proxy.on('error', (_, req) => {
