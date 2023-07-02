@@ -106,7 +106,10 @@ set -g mouse on
    and put them at `dogfood-tls-key.pem` and `dogfood-tls-cert.pem` in the
    **parent** dir of the console repo.
 1. Run `npm run start:dogfood`
-1. Go to `https://localhost:4000/login/recovery/local` (note the https)
+1. Go to `https://localhost:4000` (note the https) (the page won't work yet)
+1. Go to https://oxide.sys.rack2.eng.oxide.computer in another tab and log in
+1. Open the dev tools Storage tab and copy the `session` cookie value
+1. Got to your localhost tab, open the dev tools and create a `session` cookie with that value, `domain=localhost`, and `path=/`
 
 ### Run [Ladle](https://ladle.dev/)
 

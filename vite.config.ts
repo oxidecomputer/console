@@ -30,6 +30,8 @@ const getTlsCerts = () => ({
   cert: fs.readFileSync('../dogfood-tls-cert.pem'),
 })
 
+const DOGFOOD_HOST = 'oxide.sys.rack2.eng.oxide.computer'
+
 const mapObj = <V0, V>(
   obj: Record<string, V0>,
   kf: (t: string) => string,
@@ -88,9 +90,7 @@ export default defineConfig(({ mode }) => ({
     proxy: {
       '/v1': {
         target:
-          devApiMode === 'dogfood'
-            ? 'https://recovery.sys.rack2.eng.oxide.computer'
-            : 'http://localhost:12220',
+          devApiMode === 'dogfood' ? `https://${DOGFOOD_HOST}` : 'http://localhost:12220',
         changeOrigin: true,
         configure(proxy) {
           proxy.on('error', (_, req) => {
@@ -102,8 +102,9 @@ export default defineConfig(({ mode }) => ({
         target:
           // in msw mode, serial console is served by tools/deno/mock-serial-console.ts
           devApiMode === 'dogfood'
-            ? 'wss://recovery.sys.rack2.eng.oxide.computer'
+            ? `wss://${DOGFOOD_HOST}`
             : 'ws://localhost:' + (devApiMode === 'msw' ? 6036 : 12220),
+        changeOrigin: true,
         ws: true,
         configure(proxy) {
           proxy.on('error', (_, req) => {
