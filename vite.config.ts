@@ -92,13 +92,8 @@ export default defineConfig(({ mode }) => ({
         target:
           devApiMode === 'dogfood' ? `https://${DOGFOOD_HOST}` : 'http://localhost:12220',
         changeOrigin: true,
-        configure(proxy) {
-          proxy.on('error', (_, req) => {
-            console.error('    to', req.url)
-          })
-        },
       },
-      '/ws-serial-console': {
+      '^/v1/instances/[^/]+/serial-console/stream': {
         target:
           // in msw mode, serial console is served by tools/deno/mock-serial-console.ts
           devApiMode === 'dogfood'
@@ -106,12 +101,6 @@ export default defineConfig(({ mode }) => ({
             : 'ws://localhost:' + (devApiMode === 'msw' ? 6036 : 12220),
         changeOrigin: true,
         ws: true,
-        configure(proxy) {
-          proxy.on('error', (_, req) => {
-            console.error('    to', '/ws-serial-console' + req.url)
-          })
-        },
-        rewrite: (path) => path.replace(/^\/ws-serial-console/, ''),
       },
     },
   },
