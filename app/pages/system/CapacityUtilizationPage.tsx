@@ -107,7 +107,7 @@ export function CapacityUtilizationPage() {
         />
       </div>
 
-      <div className="mt-16 mb-8 flex justify-between gap-3">
+      <div className="mt-8 flex justify-between gap-3">
         <Listbox
           selected={filterId}
           className="w-48"
@@ -120,11 +120,11 @@ export function CapacityUtilizationPage() {
         <div className="flex items-center gap-2">{dateTimeRangePicker}</div>
       </div>
 
-      <Divider className="!mx-0 mb-6 !w-full" />
+      <Divider className="!mx-0 my-6 !w-full" />
 
       {intervalPicker}
 
-      <div className="mt-8 mb-12 space-y-12">
+      <div className="mb-12 space-y-12">
         <SystemMetric
           {...commonProps}
           metricName="virtual_disk_space_provisioned"

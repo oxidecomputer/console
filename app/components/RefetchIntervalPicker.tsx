@@ -57,22 +57,24 @@ export function useIntervalPicker({ enabled, isLoading, fn }: Props) {
           <button
             className={cn(
               'flex w-10 items-center justify-center rounded-l border-l border-t border-b border-default disabled:cursor-default',
-              isLoading && 'hover:bg-hover'
+              isLoading && 'hover:bg-hover',
+              !enabled && 'cursor-not-allowed bg-disabled'
             )}
             onClick={fn}
-            disabled={isLoading}
+            disabled={isLoading || !enabled}
           >
             <SpinnerLoader isLoading={isLoading}>
               <Refresh16Icon className="text-tertiary" />
             </SpinnerLoader>
           </button>
           <Listbox
-            selected={intervalPreset}
+            selected={enabled ? intervalPreset : 'Off'}
             className="w-24 [&>button]:!rounded-l-none"
             aria-labelledby="silo-id-label"
             name="silo-id"
             items={intervalItems}
             onChange={setIntervalPreset}
+            disabled={!enabled}
           />
         </div>
       </div>
