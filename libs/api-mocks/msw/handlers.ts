@@ -6,7 +6,7 @@ import type { Json } from '@oxide/gen/msw-handlers'
 import { json, makeHandlers } from '@oxide/gen/msw-handlers'
 import { pick, sortBy } from '@oxide/util'
 
-import { genCumulativeI64Data, genI64Data } from '../metrics'
+import { genCumulativeI64Data } from '../metrics'
 import { serial } from '../serial'
 import { defaultSilo, toIdp } from '../silo'
 import { sortBySemverDesc } from '../update'
@@ -16,9 +16,9 @@ import {
   NotImplemented,
   errIfExists,
   errIfInvalidDiskSize,
-  generateUtilization,
   getStartAndEndTime,
   getTimestamps,
+  handleMetrics,
   paginated,
   unavailableErr,
 } from './util'
@@ -871,6 +871,7 @@ export const handlers = makeHandlers({
     errIfExists(db.silos, { name: body.name })
     const newSilo: Json<Api.Silo> = {
       id: uuid(),
+      mapped_fleet_roles: {},
       ...getTimestamps(),
       ...body,
     }
@@ -1003,46 +1004,8 @@ export const handlers = makeHandlers({
   updateDeploymentsList: (params) => paginated(params.query, db.updateDeployments),
   updateDeploymentView: ({ path: { id } }) => lookupById(db.updateDeployments, id),
 
-  systemMetric: ({ path: { metricName }, query }) => {
-    // const result = ZVal.ResourceName.safeParse(req.params.resourceName)
-    // if (!result.success) return res(notFoundErr)
-    // const resourceName = result.data
-
-    // note we're ignoring the required id query param. since the data is fake
-    // it wouldn't matter, though we should probably 400 if it's missing
-    const { startTime, endTime } = getStartAndEndTime(query)
-
-    if (endTime <= startTime) return { items: [] }
-
-    const dataPoints = generateUtilization(
-      query.id || '',
-      metricName,
-      startTime,
-      endTime,
-      db.sleds
-    )
-
-    // Important to remember (but probably not important enough to change) that
-    // this works quite differently from the real API, which is going to be
-    // querying clickhouse with some fixed set of data, and when it starts from
-    // the end (order == 'descending') it's going to get data points starting
-    // from the end. When it starts from the beginning it gets data points from
-    // the beginning. For our fake data, we just generate the same set of data
-    // points spanning the whole time range, then reverse the list if necessary
-    // and take the first N=limit data points.
-
-    let items = genI64Data(dataPoints, startTime, endTime)
-
-    if (query.order === 'descending') {
-      items.reverse()
-    }
-
-    if (typeof query.limit === 'number') {
-      items = items.slice(0, query.limit)
-    }
-
-    return { items }
-  },
+  systemMetric: handleMetrics,
+  siloMetric: handleMetrics,
 
   // Misc endpoints we're not using yet in the console
   certificateCreate: NotImplemented,

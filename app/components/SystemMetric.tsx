@@ -1,63 +1,115 @@
 import React, { Suspense, useMemo, useRef } from 'react'
 
-import type { Measurement, SystemMetricName } from '@oxide/api'
-import { useApiQuery } from '@oxide/api'
+import type { ChartDatum, SystemMetricName } from '@oxide/api'
+import { synthesizeData, useApiQuery } from '@oxide/api'
 import { Badge, DirectionDownIcon, DirectionUpIcon, Spinner } from '@oxide/ui'
 import { splitDecimal } from '@oxide/util'
 
-import type { Datum } from './TimeSeriesChart'
-
 const TimeSeriesChart = React.lazy(() => import('./TimeSeriesChart'))
 
-/** fill in data points at start and end of range */
-export function synthesizeData(
-  dataInRange: Measurement[] | undefined,
-  dataBeforeRange: Measurement[] | undefined,
-  startTime: Date,
-  endTime: Date,
-  valueTransform: (n: number) => number
-): Datum[] | undefined {
-  // wait until both requests come back to do anything
-  if (!dataInRange || !dataBeforeRange) return undefined
+// The difference between system metric and silo metric is
+//   1. different endpoints
+//   2. silo metric doesn't have capacity
 
-  const result = dataInRange.map(({ datum, timestamp }) => ({
-    timestamp: timestamp.getTime(),
-    // all of these metrics are cumulative ints
-    value: valueTransform(datum.datum as number),
-  }))
-
-  // second condition should virtually always be true
-  if (dataInRange.length === 0 || result[0].timestamp > startTime.getTime()) {
-    const value =
-      dataBeforeRange.length > 0
-        ? valueTransform(dataBeforeRange.at(-1)!.datum.datum as number)
-        : 0 // if there's no data before the time range, assume value is zero
-    result.unshift({ timestamp: startTime.getTime(), value })
-  }
-
-  // add point for the end of the time range equal to the last value in the
-  // range. no timestamp check necessary because endTime is exclusive
-  result.push({
-    timestamp: endTime.getTime(),
-    value: result.at(-1)!.value,
-  })
-
-  return result
-}
-
-type SystemMetricProps = {
+type MetricProps = {
   title: string
   unit?: string
   startTime: Date
   endTime: Date
   metricName: SystemMetricName
-  /** Resource to filter data by. Can be fleet, silo, project. */
-  filterId: string
   /** Should be statically defined or memoized to avoid extra renders */
   valueTransform?: (n: number) => number
-  /** hard-coded max y */
+}
+
+type SiloMetricProps = MetricProps & {
+  /** undefined means show entire silo */
+  project: string | undefined
+}
+
+/** params for the before query */
+const staticParams = {
+  startTime: new Date(0),
+  limit: 1,
+  order: 'descending' as const,
+}
+
+export function SiloMetric({
+  title,
+  unit,
+  startTime,
+  endTime,
+  metricName,
+  project,
+  valueTransform = (x) => x,
+}: SiloMetricProps) {
+  // TODO: we're only pulling the first page. Should we bump the cap to 10k?
+  // Fetch multiple pages if 10k is not enough? That's a bit much.
+  const inRange = useApiQuery(
+    'siloMetric',
+    {
+      path: { metricName },
+      query: { project, startTime, endTime, limit: 3000 },
+    },
+    { keepPreviousData: true }
+  )
+
+  // get last point before startTime to use as first point in graph
+  const beforeStart = useApiQuery(
+    'siloMetric',
+    {
+      path: { metricName },
+      query: { project, endTime: startTime, ...staticParams },
+    },
+    { keepPreviousData: true }
+  )
+
+  const ref = useRef<ChartDatum[] | undefined>(undefined)
+  const isFetching = inRange.isFetching || beforeStart.isFetching
+  const data = useMemo(() => {
+    // big old hack to avoid the graph flashing with weird data while either query is loading
+    if (isFetching) return ref.current
+    ref.current = synthesizeData(
+      inRange.data?.items,
+      beforeStart.data?.items,
+      startTime,
+      endTime,
+      valueTransform
+    )
+    return ref.current
+  }, [inRange.data, beforeStart.data, startTime, endTime, valueTransform, isFetching])
+
+  // TODO: indicate time zone somewhere. doesn't have to be in the detail view
+  // in the tooltip. could be just once on the end of the x-axis like GCP
+
+  return (
+    <div>
+      <h2 className="flex items-center gap-1.5 px-3 text-mono-sm text-secondary">
+        {title} {unit && <span className="text-quaternary">({unit})</span>}{' '}
+        {(inRange.isLoading || beforeStart.isLoading) && <Spinner />}
+      </h2>
+      {/* TODO: proper skeleton for empty chart */}
+      <Suspense fallback={<div />}>
+        <div className="mt-3 h-[300px]">
+          <TimeSeriesChart
+            data={data}
+            title={title}
+            width={480}
+            height={240}
+            interpolation="stepAfter"
+            startTime={startTime}
+            endTime={endTime}
+            unit={unit !== 'count' ? unit : undefined}
+          />
+        </div>
+      </Suspense>
+    </div>
+  )
+}
+
+type SystemMetricProps = MetricProps & {
+  /** undefined means show entire fleet */
+  silo: string | undefined
   capacity: number
-  refetchInterval?: number | false
 }
 
 export function SystemMetric({
@@ -66,7 +118,7 @@ export function SystemMetric({
   startTime,
   endTime,
   metricName,
-  filterId,
+  silo,
   valueTransform = (x) => x,
   capacity,
 }: SystemMetricProps) {
@@ -74,8 +126,10 @@ export function SystemMetric({
   // Fetch multiple pages if 10k is not enough? That's a bit much.
   const inRange = useApiQuery(
     'systemMetric',
-    { path: { metricName }, query: { id: filterId, startTime, endTime } },
-    // avoid graphs flashing blank while loading when you change the time
+    {
+      path: { metricName },
+      query: { silo, startTime, endTime, limit: 3000 },
+    },
     { keepPreviousData: true }
   )
 
@@ -84,19 +138,12 @@ export function SystemMetric({
     'systemMetric',
     {
       path: { metricName },
-      query: {
-        id: filterId,
-        endTime: startTime,
-        startTime: new Date(0),
-        limit: 1,
-        order: 'descending',
-      },
+      query: { silo, endTime: startTime, ...staticParams },
     },
-    // avoid graphs flashing blank while loading when you change the time
     { keepPreviousData: true }
   )
 
-  const ref = useRef<Datum[] | undefined>(undefined)
+  const ref = useRef<ChartDatum[] | undefined>(undefined)
   const isFetching = inRange.isFetching || beforeStart.isFetching
   const data = useMemo(() => {
     // big old hack to avoid the graph flashing with weird data while either query is loading

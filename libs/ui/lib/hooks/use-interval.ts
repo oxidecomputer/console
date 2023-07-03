@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 
 interface UseIntervalProps {
   fn: () => void
-  delay: number | null
+  delay: number | null | undefined
   /** Use to force a render because changes to the callback won't */
   key?: string
 }
@@ -22,7 +22,7 @@ export default function useInterval({ fn, delay, key }: UseIntervalProps) {
   }, [fn])
 
   useEffect(() => {
-    if (delay === null) return
+    if (delay === null || delay === undefined) return
     const intervalId = setInterval(() => callbackRef.current?.(), delay)
     return () => clearInterval(intervalId)
   }, [delay, key])

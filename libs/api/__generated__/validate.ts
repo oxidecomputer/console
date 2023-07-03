@@ -1,7 +1,7 @@
 /* eslint-disable */
 import { ZodType, z } from 'zod'
 
-import { processResponseBody, snakeify } from './util'
+import { processResponseBody, uniqueItems } from './util'
 
 /**
  * Zod only supports string enums at the moment. A previous issue was opened
@@ -263,9 +263,9 @@ export const Certificate = z.preprocess(
 export const CertificateCreate = z.preprocess(
   processResponseBody,
   z.object({
-    cert: z.number().min(0).max(255).array(),
+    cert: z.string(),
     description: z.string(),
-    key: z.number().min(0).max(255).array(),
+    key: z.string(),
     name: Name,
     service: ServiceUsingCertificate,
   })
@@ -951,7 +951,12 @@ export const IpRange = z.preprocess(processResponseBody, z.union([Ipv4Range, Ipv
 
 export const IpPoolRange = z.preprocess(
   processResponseBody,
-  z.object({ id: z.string().uuid(), range: IpRange, timeCreated: z.coerce.date() })
+  z.object({
+    id: z.string().uuid(),
+    ipPoolId: z.string().uuid(),
+    range: IpRange,
+    timeCreated: z.coerce.date(),
+  })
 )
 
 /**
@@ -1220,7 +1225,7 @@ export const RoleResultsPage = z.preprocess(
  */
 export const Route = z.preprocess(
   processResponseBody,
-  z.object({ dst: IpNet, gw: z.string() })
+  z.object({ dst: IpNet, gw: z.string(), vid: z.number().min(0).max(65535).optional() })
 )
 
 /**
@@ -1382,6 +1387,7 @@ export const Silo = z.preprocess(
     discoverable: SafeBoolean,
     id: z.string().uuid(),
     identityMode: SiloIdentityMode,
+    mappedFleetRoles: z.record(z.string().min(1), FleetRole.array().refine(...uniqueItems)),
     name: Name,
     timeCreated: z.coerce.date(),
     timeModified: z.coerce.date(),
@@ -1398,6 +1404,9 @@ export const SiloCreate = z.preprocess(
     description: z.string(),
     discoverable: SafeBoolean,
     identityMode: SiloIdentityMode,
+    mappedFleetRoles: z
+      .record(z.string().min(1), FleetRole.array().refine(...uniqueItems))
+      .optional(),
     name: Name,
     tlsCertificates: CertificateCreate.array(),
   })
@@ -1693,6 +1702,7 @@ export const SwitchPortRouteConfig = z.preprocess(
     gw: IpNet,
     interfaceName: z.string(),
     portSettingsId: z.string().uuid(),
+    vlanId: z.number().min(0).max(65535).optional(),
   })
 )
 
@@ -1716,15 +1726,15 @@ export const SwitchPortSettings = z.preprocess(
 export const SwitchPortSettingsCreate = z.preprocess(
   processResponseBody,
   z.object({
-    addresses: z.object({}),
-    bgpPeers: z.object({}),
+    addresses: z.record(z.string().min(1), AddressConfig),
+    bgpPeers: z.record(z.string().min(1), BgpPeerConfig),
     description: z.string(),
     groups: NameOrId.array(),
-    interfaces: z.object({}),
-    links: z.object({}),
+    interfaces: z.record(z.string().min(1), SwitchInterfaceConfig),
+    links: z.record(z.string().min(1), LinkConfig),
     name: Name,
     portConfig: SwitchPortConfig,
-    routes: z.object({}),
+    routes: z.record(z.string().min(1), RouteConfig),
   })
 )
 
@@ -1749,7 +1759,7 @@ export const SwitchPortSettingsResultsPage = z.preprocess(
  */
 export const SwitchVlanInterfaceConfig = z.preprocess(
   processResponseBody,
-  z.object({ interfaceConfigId: z.string().uuid(), vid: z.number().min(0).max(65535) })
+  z.object({ interfaceConfigId: z.string().uuid(), vlanId: z.number().min(0).max(65535) })
 )
 
 /**
@@ -2820,6 +2830,23 @@ export const CurrentUserSshKeyDeleteParams = z.preprocess(
   })
 )
 
+export const SiloMetricParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      metricName: SystemMetricName,
+    }),
+    query: z.object({
+      endTime: z.coerce.date().optional(),
+      limit: z.number().min(1).max(4294967295).optional(),
+      order: PaginationOrder.optional(),
+      pageToken: z.string().optional(),
+      startTime: z.coerce.date().optional(),
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
 export const InstanceNetworkInterfaceListParams = z.preprocess(
   processResponseBody,
   z.object({
@@ -3361,7 +3388,7 @@ export const SystemMetricParams = z.preprocess(
       order: PaginationOrder.optional(),
       pageToken: z.string().optional(),
       startTime: z.coerce.date().optional(),
-      id: z.string().uuid(),
+      silo: NameOrId.optional(),
     }),
   })
 )

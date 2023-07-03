@@ -64,8 +64,8 @@ export function useDateTimeRangePicker({
   const props = { preset, setPreset, range, setRange, minValue, maxValue, onRangeChange }
 
   return {
-    startTime: range.start,
-    endTime: range.end,
+    startTime: range.start.toDate(getLocalTimeZone()),
+    endTime: range.end.toDate(getLocalTimeZone()),
     preset: preset,
     onRangeChange: onRangeChange,
     dateTimeRangePicker: <DateTimeRangePicker {...props} />,

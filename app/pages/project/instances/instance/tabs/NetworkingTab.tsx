@@ -150,18 +150,16 @@ export function NetworkingTab() {
       icon={<Networking24Icon />}
       title="No network interfaces"
       body="You need to create a network interface to be able to see it here"
-      buttonText="New network interface"
-      onClick={() => setCreateModalOpen(true)}
     />
   )
 
   const { Table, Column } = useQueryTable(...getQuery)
   return (
     <>
-      <h2 id="network-interfaces" className="mb-4 text-mono-sm text-secondary">
+      <h2 id="nic-label" className="mb-4 text-mono-sm text-secondary">
         Network Interfaces
       </h2>
-      <Table makeActions={makeActions} emptyState={emptyState}>
+      <Table labeled-by="nic-label" makeActions={makeActions} emptyState={emptyState}>
         <Column accessor="name" />
         <Column accessor="description" />
         {/* TODO: mark v4 or v6 explicitly? */}

@@ -3,12 +3,7 @@ import { setupServer } from 'msw/node'
 
 import { handlers } from '@oxide/api-mocks'
 
-export const server = setupServer(
-  ...handlers.map((h) => {
-    h.info.path = '/api' + h.info.path
-    return h
-  })
-)
+export const server = setupServer(...handlers)
 
 // Override request handlers in order to test special cases
 export function overrideOnce(

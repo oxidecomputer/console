@@ -3,6 +3,9 @@ import { bytesToGiB, pick, sumBy } from '@oxide/util'
 
 import type {
   DiskState,
+  Instance,
+  InstanceState,
+  Measurement,
   Sled,
   UpdateableComponentType,
   VpcFirewallRule,
@@ -89,6 +92,16 @@ export const DISK_SNAPSHOT_STATES: Set<DiskState['state']> = new Set([
   'detached',
 ])
 
+export const INSTANCE_STOP_STATES: Set<InstanceState> = new Set(['running', 'starting'])
+export const INSTANCE_DELETE_STATES: Set<InstanceState> = new Set(['stopped', 'failed'])
+
+export const instanceCan: Record<string, (i: Instance) => boolean> = {
+  start: (i) => i.runState === 'stopped',
+  reboot: (i) => i.runState === 'running',
+  stop: (i) => INSTANCE_STOP_STATES.has(i.runState),
+  delete: (i) => INSTANCE_DELETE_STATES.has(i.runState),
+}
+
 /** Hard coded in the API, so we can hard code it here. */
 export const FLEET_ID = '001de000-1334-4000-8000-000000000000'
 
@@ -99,8 +112,60 @@ export function totalCapacity(
   sleds: Pick<Sled, 'usableHardwareThreads' | 'usablePhysicalRam'>[]
 ) {
   return {
-    disk_tib: Math.ceil(FUDGE * 32 * TBtoTiB), // TODO: make more real
+    disk_tib: Math.ceil(FUDGE * sleds.length * 32 * TBtoTiB), // TODO: make more real
     ram_gib: Math.ceil(bytesToGiB(FUDGE * sumBy(sleds, (s) => s.usablePhysicalRam))),
     cpu: Math.ceil(FUDGE * sumBy(sleds, (s) => s.usableHardwareThreads)),
   }
+}
+
+export type ChartDatum = {
+  // we're doing the x axis as timestamp ms instead of Date primarily to make
+  // type=number work
+  timestamp: number
+  value: number
+}
+
+/** fill in data points at start and end of range */
+export function synthesizeData(
+  dataInRange: Measurement[] | undefined,
+  dataBeforeRange: Measurement[] | undefined,
+  startTime: Date,
+  endTime: Date,
+  valueTransform: (n: number) => number
+): ChartDatum[] | undefined {
+  // wait until both requests come back to do anything
+  if (!dataInRange || !dataBeforeRange) return undefined
+
+  const result: ChartDatum[] = []
+
+  // need to synthesize first data point if either there is no data, or the first
+  // data point is after the start of the time range. the second condition
+  // should virtually always be true
+  if (
+    dataInRange.length === 0 ||
+    dataInRange[0].timestamp.getTime() > startTime.getTime()
+  ) {
+    const value =
+      dataBeforeRange.length > 0
+        ? valueTransform(dataBeforeRange.at(-1)!.datum.datum as number)
+        : 0 // if there's no data before the time range, assume value is zero
+    result.push({ timestamp: startTime.getTime(), value })
+  }
+
+  result.push(
+    ...dataInRange.map(({ datum, timestamp }) => ({
+      timestamp: timestamp.getTime(),
+      // all of these metrics are cumulative ints
+      value: valueTransform(datum.datum as number),
+    }))
+  )
+
+  // add point for the end of the time range equal to the last value in the
+  // range. no timestamp check necessary because endTime is exclusive
+  result.push({
+    timestamp: endTime.getTime(),
+    value: result.at(-1)!.value,
+  })
+
+  return result
 }

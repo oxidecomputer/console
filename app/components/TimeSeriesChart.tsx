@@ -12,6 +12,8 @@ import {
 } from 'recharts'
 import type { TooltipProps } from 'recharts/types/component/Tooltip'
 
+import type { ChartDatum } from '@oxide/api'
+
 // Recharts's built-in ticks behavior is useless and probably broken
 /**
  * Split the data into n evenly spaced ticks, with one at the left end and one a
@@ -73,7 +75,7 @@ function renderTooltip(props: TooltipProps<number, string>, unit?: string) {
     name,
     payload: { timestamp, value },
   } = payload[0]
-  if (!timestamp || !value) return null
+  if (!timestamp || typeof value !== 'number') return null
   return (
     <div className="rounded border outline-0 text-sans-md text-tertiary bg-raise border-secondary elevation-2">
       <div className="border-b py-2 px-3 pr-6 border-secondary">
@@ -91,16 +93,9 @@ function renderTooltip(props: TooltipProps<number, string>, unit?: string) {
   )
 }
 
-export type Datum = {
-  // we're doing the x axis as timestamp ms instead of Date primarily to make
-  // type=number work
-  timestamp: number
-  value: number
-}
-
 type Props = {
   className?: string
-  data: Datum[] | undefined
+  data: ChartDatum[] | undefined
   title: string
   width: number
   height: number

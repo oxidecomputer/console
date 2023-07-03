@@ -56,7 +56,7 @@ export const userLoader = async () => {
     // to show the silo/system picker. It's also fetched by the SystemLayout
     // loader to figure out whether to 404, but RQ dedupes the request.
     apiQueryClient.fetchQuery('systemPolicyView', {}).catch(() => {
-      console.log('/api/v1/system/policy 403 is expected if user is not a fleet viewer.')
+      console.log('/v1/system/policy 403 is expected if user is not a fleet viewer.')
     }),
   ])
   return null
