@@ -94,7 +94,7 @@ const Sector = ({
   if (angle === 0) return null
 
   // 360 angle returns a full circle
-  if (angle === 360) {
+  if (angle >= 360) {
     return (
       <circle
         cx={0}
