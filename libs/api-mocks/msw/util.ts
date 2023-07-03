@@ -266,8 +266,10 @@ export function handleMetrics({ path: { metricName }, query }: MetricParams) {
   return { items }
 }
 
+export const MSW_USER_COOKIE = 'msw-user'
+
 export function currentUser(req: RestRequest): Json<User> {
-  const name = req.cookies['msw-user']
+  const name = req.cookies[MSW_USER_COOKIE]
   return db.users.find((u) => u.display_name === name) ?? db.users[0]
 }
 

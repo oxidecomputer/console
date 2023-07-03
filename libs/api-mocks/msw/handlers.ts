@@ -960,10 +960,17 @@ export const handlers = makeHandlers({
     return { role_assignments }
   },
 
-  systemUpdateList: (params) => paginated(params.query, db.systemUpdates),
-  systemUpdateView: ({ path }) => lookup.systemUpdate(path),
-  systemUpdateComponentsList: (params) => {
-    const systemUpdate = lookup.systemUpdate(params.path)
+  systemUpdateList({ query, req }) {
+    requireFleetViewer(req)
+    return paginated(query, db.systemUpdates)
+  },
+  systemUpdateView({ path, req }) {
+    requireFleetViewer(req)
+    return lookup.systemUpdate(path)
+  },
+  systemUpdateComponentsList({ path, req }) {
+    requireFleetViewer(req)
+    const systemUpdate = lookup.systemUpdate(path)
     const ids = new Set(
       db.systemUpdateComponentUpdates
         .filter((o) => o.system_update_id === systemUpdate.id)
@@ -972,9 +979,13 @@ export const handlers = makeHandlers({
     return { items: db.componentUpdates.filter(({ id }) => ids.has(id)) }
   },
 
-  systemComponentVersionList: (params) => paginated(params.query, db.updateableComponents),
+  systemComponentVersionList({ query, req }) {
+    requireFleetViewer(req)
+    return paginated(query, db.updateableComponents)
+  },
 
-  systemUpdateStart: ({ body }) => {
+  systemUpdateStart: ({ body, req }) => {
+    requireFleetViewer(req)
     const latestDeployment = db.updateDeployments[0]
     if (latestDeployment?.status.status === 'updating') {
       // TODO: do nothing, return some kind of failure
@@ -1010,7 +1021,10 @@ export const handlers = makeHandlers({
   updateDeploymentsList: (params) => paginated(params.query, db.updateDeployments),
   updateDeploymentView: ({ path: { id } }) => lookupById(db.updateDeployments, id),
 
-  systemMetric: handleMetrics,
+  systemMetric(params) {
+    requireFleetViewer(params.req)
+    return handleMetrics(params)
+  },
   siloMetric: handleMetrics,
 
   // Misc endpoints we're not using yet in the console

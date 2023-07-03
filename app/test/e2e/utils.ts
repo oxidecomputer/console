@@ -1,5 +1,7 @@
-import type { Locator, Page } from '@playwright/test'
+import type { Browser, Locator, Page } from '@playwright/test'
 import { expect } from '@playwright/test'
+
+import { MSW_USER_COOKIE } from '@oxide/api-mocks'
 
 export * from '@playwright/test'
 
@@ -117,4 +119,12 @@ export async function clickRowAction(page: Page, rowText: string, actionName: st
     .getByRole('button', { name: 'Row actions' })
     .click()
   await page.getByRole('menuitem', { name: actionName }).click()
+}
+
+export async function getDevUserPage(browser: Browser): Promise<Page> {
+  const browserContext = await browser.newContext()
+  await browserContext.addCookies([
+    { name: MSW_USER_COOKIE, value: 'Hans Jonas', domain: 'localhost', path: '/' },
+  ])
+  return await browserContext.newPage()
 }
