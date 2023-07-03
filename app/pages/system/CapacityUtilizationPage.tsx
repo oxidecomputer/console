@@ -107,7 +107,7 @@ export function CapacityUtilizationPage() {
         />
       </div>
 
-      <div className="mt-16 mb-8 flex justify-between gap-3">
+      <div className="mt-8 flex justify-between gap-3">
         <Listbox
           selected={filterId}
           className="w-48"
