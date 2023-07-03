@@ -27,6 +27,7 @@ export function DisksTab() {
         <Column id="status" accessor={() => 'active'} header="status" cell={LabelCell} />
         <Column accessor="model" header="model number" />
         <Column accessor="serial" header="serial number" />
+        <Column accessor="diskType" header="type" />
       </Table>
     </>
   )
