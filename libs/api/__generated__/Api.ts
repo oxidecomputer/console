@@ -918,7 +918,12 @@ export type Ipv6Range = { first: string; last: string }
 
 export type IpRange = Ipv4Range | Ipv6Range
 
-export type IpPoolRange = { id: string; range: IpRange; timeCreated: Date }
+export type IpPoolRange = {
+  id: string
+  ipPoolId: string
+  range: IpRange
+  timeCreated: Date
+}
 
 /**
  * A single page of results
@@ -2607,6 +2612,19 @@ export interface CurrentUserSshKeyDeletePathParams {
   sshKey: NameOrId
 }
 
+export interface SiloMetricPathParams {
+  metricName: SystemMetricName
+}
+
+export interface SiloMetricQueryParams {
+  endTime?: Date
+  limit?: number
+  order?: PaginationOrder
+  pageToken?: string
+  startTime?: Date
+  project?: NameOrId
+}
+
 export interface InstanceNetworkInterfaceListQueryParams {
   instance?: NameOrId
   limit?: number
@@ -2870,7 +2888,7 @@ export interface SystemMetricQueryParams {
   order?: PaginationOrder
   pageToken?: string
   startTime?: Date
-  id: string
+  silo?: NameOrId
 }
 
 export interface NetworkingAddressLotListQueryParams {
@@ -4011,6 +4029,20 @@ export class Api extends HttpClient {
       })
     },
     /**
+     * Access metrics data
+     */
+    siloMetric: (
+      { path, query = {} }: { path: SiloMetricPathParams; query?: SiloMetricQueryParams },
+      params: RequestParams = {}
+    ) => {
+      return this.request<MeasurementResultsPage>({
+        path: `/v1/metrics/${path.metricName}`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
      * List network interfaces
      */
     instanceNetworkInterfaceList: (
@@ -4728,7 +4760,10 @@ export class Api extends HttpClient {
      * Access metrics data
      */
     systemMetric: (
-      { path, query }: { path: SystemMetricPathParams; query?: SystemMetricQueryParams },
+      {
+        path,
+        query = {},
+      }: { path: SystemMetricPathParams; query?: SystemMetricQueryParams },
       params: RequestParams = {}
     ) => {
       return this.request<MeasurementResultsPage>({

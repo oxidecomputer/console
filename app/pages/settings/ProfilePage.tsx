@@ -1,4 +1,3 @@
-import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import invariant from 'tiny-invariant'
 
@@ -18,13 +17,12 @@ const columns = [
 
 export function ProfilePage() {
   const { data: user } = useApiQuery('currentUserView', {})
-  const { data: groups } = useApiQuery('currentUserGroups', {})
-
-  const groupRows = useMemo(() => groups?.items || [], [groups])
-
-  const groupsTable = useReactTable({ columns, data: groupRows })
-
   invariant(user, 'User must be prefetched in a loader')
+
+  const { data: groups } = useApiQuery('currentUserGroups', {})
+  invariant(groups, 'Groups must be prefetched in a loader')
+
+  const groupsTable = useReactTable({ columns, data: groups.items })
 
   const form = useForm({
     mode: 'all',

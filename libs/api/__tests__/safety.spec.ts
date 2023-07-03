@@ -29,6 +29,7 @@ it('@oxide/api-mocks is only referenced in test files', () => {
   expect(files).toMatchInlineSnapshot(`
     [
       "app/test/e2e/instance-create.e2e.ts",
+      "app/test/e2e/profile.e2e.ts",
       "app/test/e2e/project-access.e2e.ts",
       "app/test/e2e/silo-access.e2e.ts",
       "app/test/unit/server.ts",

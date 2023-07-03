@@ -1,4 +1,3 @@
-import { getLocalTimeZone } from '@internationalized/date'
 import React, { Suspense, useMemo, useState } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 import invariant from 'tiny-invariant'
@@ -39,7 +38,7 @@ function DiskMetric({
     'diskMetricsList',
     {
       path: { disk, metric },
-      query: { project, startTime, endTime, limit: 1000 },
+      query: { project, startTime, endTime, limit: 3000 },
     },
     // avoid graphs flashing blank while loading when you change the time
     { keepPreviousData: true }
@@ -106,8 +105,8 @@ export function MetricsTab() {
   const diskItems = disks.map(({ name }) => ({ label: name, value: name }))
 
   const commonProps = {
-    startTime: startTime.toDate(getLocalTimeZone()),
-    endTime: endTime.toDate(getLocalTimeZone()),
+    startTime,
+    endTime,
     diskSelector: { project, disk: diskName },
   }
 

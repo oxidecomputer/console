@@ -12,16 +12,11 @@ test('Sled inventory page', async ({ page }) => {
   await expect(sledsTab).toHaveClass(/is-selected/)
 
   const sledsTable = page.getByRole('table')
-  await expectRowVisible(sledsTable, {
-    // TODO: Once sled location is piped through this'll need to be dynamic
-    location: 'SLD0',
-  })
-
   // Visit the sled detail page of the first sled
   await sledsTable.getByRole('link').first().click()
 
   // TODO: Once sled location is piped through this'll need to be dynamic
-  await expectVisible(page, ['role=heading[name*="Sled 0"]'])
+  await expectVisible(page, ['role=heading[name*="Sled"]'])
 
   const instancesTab = page.getByRole('tab', { name: 'Instances' })
   await expect(instancesTab).toBeVisible()

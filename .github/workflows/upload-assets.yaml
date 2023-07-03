@@ -24,7 +24,7 @@ jobs:
           cache: 'npm'
       - run: npm install
       - name: Build for Nexus
-        run: SHA=${{ github.sha }} npm run build-for-nexus
+        run: SHA=${{ github.sha }} npm run build
       - name: Gzip individual files (keep originals)
         run: ls dist/assets/*.{js,css,map} | xargs gzip --keep
       - name: add console_version file

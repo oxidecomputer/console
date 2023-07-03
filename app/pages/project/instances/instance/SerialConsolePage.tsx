@@ -12,9 +12,6 @@ import { pb } from 'app/util/path-builder'
 
 const Terminal = lazy(() => import('app/components/Terminal'))
 
-// need prefix so Vite dev server can handle it specially
-const pathPrefix = process.env.NODE_ENV === 'development' ? '/ws-serial-console' : ''
-
 type WsState = 'connecting' | 'open' | 'closed' | 'error'
 
 const statusColor: Record<WsState, BadgeColor> = {
@@ -54,7 +51,7 @@ export function SerialConsolePage() {
       const { project, instance } = instanceSelector
       ws.current = api.ws.instanceSerialConsoleStream({
         secure: window.location.protocol === 'https:',
-        host: window.location.host + pathPrefix,
+        host: window.location.host,
         path: { instance },
         query: { project, mostRecent: 262144 },
       })

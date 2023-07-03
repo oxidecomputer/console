@@ -11,9 +11,7 @@ import {
   wrapQueryClient,
 } from './hooks'
 
-export const api = new Api({
-  baseUrl: process.env.API_URL,
-})
+export const api = new Api()
 
 export type ApiMethods = typeof api.methods
 
