@@ -28,7 +28,7 @@ export function SledPage() {
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<Racks24Icon />}>Sled 0</PageTitle>
+        <PageTitle icon={<Racks24Icon />}>Sled</PageTitle>
       </PageHeader>
 
       <PropertiesTable.Group className="mb-16 -mt-8">

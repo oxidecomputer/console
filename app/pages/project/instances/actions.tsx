@@ -1,20 +1,13 @@
 import { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { type Instance, useApiMutation } from '@oxide/api'
+import { type Instance, instanceCan, useApiMutation } from '@oxide/api'
 import type { MakeActions } from '@oxide/table'
 import { toPathQuery } from '@oxide/util'
 
 import { useToast } from 'app/hooks'
 import { confirmDelete } from 'app/stores/confirm-delete'
 import { pb } from 'app/util/path-builder'
-
-const instanceCan: Record<string, (i: Instance) => boolean> = {
-  start: (i) => i.runState === 'stopped',
-  reboot: (i) => i.runState === 'running',
-  stop: (i) => i.runState === 'running',
-  delete: (i) => i.runState === 'stopped',
-}
 
 type Options = {
   onSuccess?: () => void
@@ -74,12 +67,6 @@ export const useMakeInstanceActions = (
           },
           disabled:
             !instanceCan.reboot(instance) && 'Only running instances can be rebooted',
-        },
-        {
-          label: 'Copy instance ID',
-          onActivate() {
-            window.navigator.clipboard.writeText(instance.id)
-          },
         },
         {
           label: 'View serial console',

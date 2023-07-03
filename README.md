@@ -34,7 +34,7 @@ The app is in [`app`](app). You can see the route structure in [`app/routes.tsx`
 
 ## Try it locally
 
-The fastest way to see the console in action is to check out the repo, run `npm install && npm run start:msw`, and go to http://localhost:4000 in the browser. This runs the console with a mock API server that runs in a [Service Worker](https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API).
+The fastest way to see the console in action is to check out the repo, run `npm install && npm start`, and go to http://localhost:4000 in the browser. This runs the console with a mock API server that runs in a [Service Worker](https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API).
 
 ## Development
 
@@ -49,14 +49,14 @@ npm install
 This is the way we do nearly all console development. Just run:
 
 ```
-npm run start:msw
+npm start
 ```
 
 and navigate to http://localhost:4000 in the browser. The running app will automatically update when you write a source file. This mode uses Mock Service Workers to run a mock API right the browser. This mock API is also used in tests.
 
-### Run Vite dev server against real Nexus API
+### Run Vite dev server against local Nexus API
 
-You can also run the console dev server locally with the mock server off, instead passing requests through to `localhost:12220`. Run `npm run start` (note no `:msw`) and navigate to http://localhost:4000/ in the browser. It will mostly not work unless Nexus is running at `localhost:12220`, which is the default for `omicron-dev` (see [Running Omicron (Simulated)](https://github.com/oxidecomputer/omicron/blob/main/docs/how-to-run-simulated.adoc) for how to set that up).
+You can also run the console dev server locally with the mock server off, instead passing requests through to `localhost:12220`. Run `npm run start:nexus` and navigate to http://localhost:4000/login/test-suite-silo/local in the browser. It will not work unless Nexus is running at `localhost:12220`, which is the default for `omicron-dev` (see [Running Omicron (Simulated)](https://github.com/oxidecomputer/omicron/blob/main/docs/how-to-run-simulated.adoc) for how to set that up).
 
 One way to run everything is to use the `tools/start_api.sh` script, which uses tmux to run multiple processes in different panes and automatically populates some fake data (see [`tools/populate_omicron_data.sh`](tools/populate_omicron_data.sh) to see exactly what). From the omicron directory, run `tools/start_api.sh`. Since we're assuming `console` and `omicron` are next to each other, that looks like this:
 
@@ -97,6 +97,23 @@ set -g mouse on
 ```
 
 </details>
+
+### Run local dev server against the dogfood rack
+
+1. Get on the VPN
+1. Download the TLS key and cert files as indicated in the [dogfood
+   doc](https://github.com/oxidecomputer/meta/blob/master/engineering/dogfood.adoc#56-tls-certificates)
+   and put them at `dogfood-tls-key.pem` and `dogfood-tls-cert.pem` in the
+   **parent** dir of the console repo.
+1. Run `npm run start:dogfood`
+1. Go to https://localhost:4000 (note the https). The page won't work yet, and you'll get redirected to `/login`, which will look like a 404
+1. Go to https://oxide.sys.rack2.eng.oxide.computer in another tab and log in
+1. Open the dev tools Storage tab and copy the `session` cookie value, which should look like `d9b1a96e151092eb0ea08b1a0d8c4788441f1894`
+1. Go back to your localhost tab, open the developer console, and run
+   ```js
+   document.cookie = 'session=d9b1a96e151092eb0ea08b1a0d8c4788441f1894'
+   ```
+1. Go to https://localhost:4000 again
 
 ### Run [Ladle](https://ladle.dev/)
 

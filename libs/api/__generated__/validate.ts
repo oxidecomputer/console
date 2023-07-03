@@ -2830,6 +2830,23 @@ export const CurrentUserSshKeyDeleteParams = z.preprocess(
   })
 )
 
+export const SiloMetricParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      metricName: SystemMetricName,
+    }),
+    query: z.object({
+      endTime: z.coerce.date().optional(),
+      limit: z.number().min(1).max(4294967295).optional(),
+      order: PaginationOrder.optional(),
+      pageToken: z.string().optional(),
+      startTime: z.coerce.date().optional(),
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
 export const InstanceNetworkInterfaceListParams = z.preprocess(
   processResponseBody,
   z.object({
@@ -3371,7 +3388,7 @@ export const SystemMetricParams = z.preprocess(
       order: PaginationOrder.optional(),
       pageToken: z.string().optional(),
       startTime: z.coerce.date().optional(),
-      id: z.string().uuid(),
+      silo: NameOrId.optional(),
     }),
   })
 )

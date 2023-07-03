@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useState } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 
 import {
@@ -9,43 +9,14 @@ import {
   useApiQueryClient,
 } from '@oxide/api'
 import type { MenuAction } from '@oxide/table'
-import {
-  DateCell,
-  SizeCell,
-  Table,
-  createColumnHelper,
-  getActionsCol,
-  useReactTable,
-} from '@oxide/table'
-import { Button, OpenLink12Icon } from '@oxide/ui'
+import { DateCell, SizeCell, useQueryTable } from '@oxide/table'
+import { Button, EmptyMessage, OpenLink12Icon, Storage24Icon } from '@oxide/ui'
 import { toPathQuery } from '@oxide/util'
 
 import { DiskStatusBadge } from 'app/components/StatusBadge'
 import AttachDiskSideModalForm from 'app/forms/disk-attach'
 import { CreateDiskSideModalForm } from 'app/forms/disk-create'
 import { getInstanceSelector, useInstanceSelector, useToast } from 'app/hooks'
-
-const colHelper = createColumnHelper<Disk>()
-
-const staticCols = [
-  colHelper.accessor('name', {
-    header: 'Name',
-    cell: (info) => <div>{info.getValue()}</div>,
-  }),
-  colHelper.accessor('size', {
-    header: 'Size',
-    cell: (info) => <SizeCell value={info.getValue()} />,
-  }),
-  colHelper.accessor('state.state', {
-    id: 'status',
-    header: 'Status',
-    cell: (info) => <DiskStatusBadge status={info.getValue()} />,
-  }),
-  colHelper.accessor('timeCreated', {
-    header: 'Created',
-    cell: (info) => <DateCell value={info.getValue()} />,
-  }),
-]
 
 StorageTab.loader = async ({ params }: LoaderFunctionArgs) => {
   const instancePathQuery = toPathQuery('instance', getInstanceSelector(params))
@@ -110,22 +81,39 @@ export function StorageTab() {
     },
   })
 
-  const disks = useMemo(() => data?.items || [], [data])
-
-  const columns = useMemo(() => [...staticCols, getActionsCol(makeActions)], [makeActions])
-
-  const disksTable = useReactTable({ columns, data: disks })
-  const disksTableLabelId = 'disks-label'
+  const { Table, Column } = useQueryTable('instanceDiskList', instancePathQuery)
 
   if (!data) return null
 
+  const emptyState = (
+    <EmptyMessage
+      icon={<Storage24Icon />}
+      title="No disks"
+      body="You need to attach a disk to this instance to be able to see it here"
+    />
+  )
+
   return (
     <>
-      <h2 id={disksTableLabelId} className="mb-4 text-mono-sm text-secondary">
+      <h2 id="disks-label" className="mb-4 text-mono-sm text-secondary">
         Disks
       </h2>
       {/* TODO: need 40px high rows. another table or a flag on Table (ew) */}
-      <Table table={disksTable} rowClassName="!h-10" aria-labelledby={disksTableLabelId} />
+
+      <Table
+        emptyState={emptyState}
+        makeActions={makeActions}
+        aria-labelledby="disks-label"
+      >
+        <Column accessor="name" />
+        <Column header="Size" accessor="size" cell={SizeCell} />
+        <Column
+          id="status"
+          accessor={(row) => row.state.state}
+          cell={({ value }) => <DiskStatusBadge status={value} />}
+        />
+        <Column header="Created" accessor="timeCreated" cell={DateCell} />
+      </Table>
       <div className="mt-4 flex flex-col gap-3">
         <div className="flex gap-3">
           <Button

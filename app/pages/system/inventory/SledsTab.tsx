@@ -28,7 +28,6 @@ export function SledsTab() {
     <>
       <Table emptyState={<EmptyState />}>
         <Column accessor="id" cell={linkCell((sledId) => pb.sled({ sledId }))} />
-        <Column id="location" accessor={(_, index) => `SLD${index}`} header="location" />
         <Column id="status" accessor={() => 'active'} header="status" cell={LabelCell} />
         {/* TODO */}
         {/* <Column accessor="serviceAddress" header="service address" /> */}
