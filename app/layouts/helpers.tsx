@@ -49,15 +49,14 @@ export const SerialConsoleContentPane = () => (
 
 /** Loader for the `<Route>` that wraps all authenticated routes. */
 export const userLoader = async () => {
+  const explain403 = '/v1/system/policy 403 is expected if user is not a fleet viewer.'
   await Promise.all([
     apiQueryClient.prefetchQuery('currentUserView', {}),
     apiQueryClient.prefetchQuery('currentUserGroups', {}),
     // Need to prefetch this because every layout hits it when deciding whether
     // to show the silo/system picker. It's also fetched by the SystemLayout
     // loader to figure out whether to 404, but RQ dedupes the request.
-    apiQueryClient.fetchQuery('systemPolicyView', {}).catch(() => {
-      console.log('/v1/system/policy 403 is expected if user is not a fleet viewer.')
-    }),
+    apiQueryClient.prefetchQueryErrorsAllowed('systemPolicyView', {}, {}, explain403),
   ])
   return null
 }

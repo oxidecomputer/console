@@ -70,11 +70,18 @@ export const getUseApiQuery =
     )
   }
 
+const ERRORS_ALLOWED = 'errors-allowed'
+
 /**
- * The only difference from `getUseApiQuery`: we turn all errors into successes.
- * Instead of throwing the error, we return it as a valid result. This means
- * `data` has a type that includes the possibility of error, plus a discriminant
- * to let us handle both sides properly in the calling code.
+ * Variant of `getUseApiQuery` that allows error responses as a valid result,
+ * which importantly means they can be cached by RQ. This means we can prefetch
+ * an endpoint that might error (see `prefetchQueryErrorsAllowed`) and use this
+ * hook to retrieve the error result.
+ *
+ * Concretely, the only difference from `getUseApiQuery`: we turn all errors
+ * into successes. Instead of throwing the error, we return it as a valid
+ * result. This means `data` has a type that includes the possibility of error,
+ * plus a discriminant to let us handle both sides properly in the calling code.
  */
 export const getUseApiQueryErrorsAllowed =
   <A extends ApiClient>(api: A) =>
@@ -87,7 +94,11 @@ export const getUseApiQueryErrorsAllowed =
     > = {}
   ) => {
     return useQuery(
-      [method, params] as QueryKey,
+      // extra bit of key is important to distinguish from normal query. if we
+      // hit a a given endpoint twice on the same page, once the normal way and
+      // once with errors allowed the responses have different shapes, so we do
+      // not want to share the cache and mix them up
+      [method, params, ERRORS_ALLOWED] as QueryKey,
       ({ signal }) =>
         api[method](params, { signal })
           .then(handleResult(method))
@@ -145,6 +156,35 @@ export const wrapQueryClient = <A extends ApiClient>(api: A, queryClient: QueryC
     queryClient.prefetchQuery({
       queryKey: [method, params],
       queryFn: () => api[method](params).then(handleResult(method)),
+      ...options,
+    }),
+  /**
+   * Loader analog to `useApiQueryErrorsAllowed`. Prefetch a query that can
+   * error, converting the error to a valid result so RQ will cache it.
+   */
+  prefetchQueryErrorsAllowed: <M extends string & keyof A>(
+    method: M,
+    params: Params<A[M]>,
+    options: FetchQueryOptions<
+      { type: 'success'; data: Result<A[M]> } | { type: 'error'; data: ApiError },
+      ApiError
+    > = {},
+    /**
+     * HTTP errors will show up unexplained in the browser console. It can be
+     * helpful to reassure people they're normal.
+     */
+    explanation?: string
+  ) =>
+    queryClient.prefetchQuery({
+      queryKey: [method, params, ERRORS_ALLOWED],
+      queryFn: () =>
+        api[method](params)
+          .then(handleResult(method))
+          .then((data) => ({ type: 'success' as const, data }))
+          .catch((data) => {
+            if (explanation) console.log(explanation)
+            return { type: 'error' as const, data }
+          }),
       ...options,
     }),
 })

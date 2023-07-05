@@ -2,7 +2,7 @@ import cn from 'classnames'
 import { Link, useParams } from 'react-router-dom'
 import invariant from 'tiny-invariant'
 
-import { useApiQuery } from '@oxide/api'
+import { useApiQuery, useApiQueryErrorsAllowed } from '@oxide/api'
 import {
   DropdownMenu,
   Folder16Icon,
@@ -154,11 +154,9 @@ export function SiloSystemPicker({ value }: { value: 'silo' | 'system' }) {
   // the fleet (system) policy, but if the user doesn't have fleet read, we'll
   // get a 403 from that endpoint. So we simply check whether that endpoint 200s
   // or not to determine whether the user is a fleet viewer.
-  const { data: systemPolicy, isSuccess: canSeeSystemPolicy } = useApiQuery(
-    'systemPolicyView',
-    {}
-  )
+  const { data: systemPolicy } = useApiQueryErrorsAllowed('systemPolicyView', {})
   invariant(systemPolicy, 'System policy should be prefetched in a loader')
+  const canSeeSystemPolicy = systemPolicy.type === 'success'
 
   // if the user can't see the picker, show a placeholder control with their
   // silo name that links to root/home
