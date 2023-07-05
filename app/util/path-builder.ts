@@ -6,7 +6,6 @@ import type { PathParams as PP } from '@oxide/api'
 type Project = Required<PP.Project>
 type Instance = Required<PP.Instance>
 type Vpc = Required<PP.Vpc>
-type SystemUpdate = Required<PP.SystemUpdate>
 type Silo = Required<PP.Silo>
 type IdentityProvider = Required<PP.IdentityProvider>
 type Sled = Required<PP.Sled>
@@ -67,11 +66,6 @@ export const pb = {
   systemIssues: () => '/system/issues',
   systemUtilization: () => '/system/utilization',
   systemHealth: () => '/system/health',
-
-  systemUpdates: () => '/system/update/updates',
-  systemUpdateDetail: ({ version }: SystemUpdate) => `${pb.systemUpdates()}/${version}`,
-  systemUpdateHistory: () => '/system/update/history',
-  updateableComponents: () => '/system/update/components',
 
   systemNetworking: () => '/system/networking',
   systemSettings: () => '/system/settings',
