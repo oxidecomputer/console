@@ -259,46 +259,6 @@ export type CertificateResultsPage = {
   nextPage?: string
 }
 
-export type UpdateableComponentType =
-  | 'bootloader_for_rot'
-  | 'bootloader_for_sp'
-  | 'bootloader_for_host_proc'
-  | 'hubris_for_psc_rot'
-  | 'hubris_for_psc_sp'
-  | 'hubris_for_sidecar_rot'
-  | 'hubris_for_sidecar_sp'
-  | 'hubris_for_gimlet_rot'
-  | 'hubris_for_gimlet_sp'
-  | 'helios_host_phase1'
-  | 'helios_host_phase2'
-  | 'host_omicron'
-
-export type SemverVersion = string
-
-/**
- * Identity-related metadata that's included in "asset" public API objects (which generally have no name or description)
- */
-export type ComponentUpdate = {
-  componentType: UpdateableComponentType
-  /** unique, immutable, system-controlled identifier for each resource */
-  id: string
-  /** timestamp when this resource was created */
-  timeCreated: Date
-  /** timestamp when this resource was last modified */
-  timeModified: Date
-  version: SemverVersion
-}
-
-/**
- * A single page of results
- */
-export type ComponentUpdateResultsPage = {
-  /** list of items on this page of results */
-  items: ComponentUpdate[]
-  /** token used to fetch the next page of results (if any) */
-  nextPage?: string
-}
-
 /**
  * A cumulative or counter data type.
  */
@@ -1529,8 +1489,8 @@ export type Snapshot = {
  */
 export type SnapshotCreate = {
   description: string
-  /** The name of the disk to be snapshotted */
-  disk: Name
+  /** The disk to be snapshotted */
+  disk: NameOrId
   name: Name
 }
 
@@ -1835,88 +1795,6 @@ export type SwitchPortSettingsView = {
 export type SwitchResultsPage = {
   /** list of items on this page of results */
   items: Switch[]
-  /** token used to fetch the next page of results (if any) */
-  nextPage?: string
-}
-
-/**
- * Identity-related metadata that's included in "asset" public API objects (which generally have no name or description)
- */
-export type SystemUpdate = {
-  /** unique, immutable, system-controlled identifier for each resource */
-  id: string
-  /** timestamp when this resource was created */
-  timeCreated: Date
-  /** timestamp when this resource was last modified */
-  timeModified: Date
-  version: SemverVersion
-}
-
-/**
- * A single page of results
- */
-export type SystemUpdateResultsPage = {
-  /** list of items on this page of results */
-  items: SystemUpdate[]
-  /** token used to fetch the next page of results (if any) */
-  nextPage?: string
-}
-
-export type SystemUpdateStart = { version: SemverVersion }
-
-export type UpdateStatus = { status: 'updating' } | { status: 'steady' }
-
-export type VersionRange = { high: SemverVersion; low: SemverVersion }
-
-export type SystemVersion = { status: UpdateStatus; versionRange: VersionRange }
-
-/**
- * Identity-related metadata that's included in "asset" public API objects (which generally have no name or description)
- */
-export type UpdateDeployment = {
-  /** unique, immutable, system-controlled identifier for each resource */
-  id: string
-  status: UpdateStatus
-  /** timestamp when this resource was created */
-  timeCreated: Date
-  /** timestamp when this resource was last modified */
-  timeModified: Date
-  version: SemverVersion
-}
-
-/**
- * A single page of results
- */
-export type UpdateDeploymentResultsPage = {
-  /** list of items on this page of results */
-  items: UpdateDeployment[]
-  /** token used to fetch the next page of results (if any) */
-  nextPage?: string
-}
-
-/**
- * Identity-related metadata that's included in "asset" public API objects (which generally have no name or description)
- */
-export type UpdateableComponent = {
-  componentType: UpdateableComponentType
-  deviceId: string
-  /** unique, immutable, system-controlled identifier for each resource */
-  id: string
-  status: UpdateStatus
-  systemVersion: SemverVersion
-  /** timestamp when this resource was created */
-  timeCreated: Date
-  /** timestamp when this resource was last modified */
-  timeModified: Date
-  version: SemverVersion
-}
-
-/**
- * A single page of results
- */
-export type UpdateableComponentResultsPage = {
-  /** list of items on this page of results */
-  items: UpdateableComponent[]
   /** token used to fetch the next page of results (if any) */
   nextPage?: string
 }
@@ -2970,36 +2848,6 @@ export interface SiloPolicyUpdatePathParams {
   silo: NameOrId
 }
 
-export interface SystemComponentVersionListQueryParams {
-  limit?: number
-  pageToken?: string
-  sortBy?: IdSortMode
-}
-
-export interface UpdateDeploymentsListQueryParams {
-  limit?: number
-  pageToken?: string
-  sortBy?: IdSortMode
-}
-
-export interface UpdateDeploymentViewPathParams {
-  id: string
-}
-
-export interface SystemUpdateListQueryParams {
-  limit?: number
-  pageToken?: string
-  sortBy?: IdSortMode
-}
-
-export interface SystemUpdateViewPathParams {
-  version: SemverVersion
-}
-
-export interface SystemUpdateComponentsListPathParams {
-  version: SemverVersion
-}
-
 export interface SiloUserListQueryParams {
   limit?: number
   pageToken?: string
@@ -3246,10 +3094,6 @@ export type ApiListMethods = Pick<
   | 'networkingSwitchPortSettingsList'
   | 'roleList'
   | 'siloList'
-  | 'systemComponentVersionList'
-  | 'updateDeploymentsList'
-  | 'systemUpdateList'
-  | 'systemUpdateComponentsList'
   | 'siloUserList'
   | 'userBuiltinList'
   | 'userList'
@@ -5047,131 +4891,6 @@ export class Api extends HttpClient {
         path: `/v1/system/silos/${path.silo}/policy`,
         method: 'PUT',
         body,
-        ...params,
-      })
-    },
-    /**
-     * View version and update status of component tree
-     */
-    systemComponentVersionList: (
-      { query = {} }: { query?: SystemComponentVersionListQueryParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<UpdateableComponentResultsPage>({
-        path: `/v1/system/update/components`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * List all update deployments
-     */
-    updateDeploymentsList: (
-      { query = {} }: { query?: UpdateDeploymentsListQueryParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<UpdateDeploymentResultsPage>({
-        path: `/v1/system/update/deployments`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Fetch a system update deployment
-     */
-    updateDeploymentView: (
-      { path }: { path: UpdateDeploymentViewPathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<UpdateDeployment>({
-        path: `/v1/system/update/deployments/${path.id}`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * Refresh update data
-     */
-    systemUpdateRefresh: (_: EmptyObj, params: RequestParams = {}) => {
-      return this.request<void>({
-        path: `/v1/system/update/refresh`,
-        method: 'POST',
-        ...params,
-      })
-    },
-    /**
-     * Start system update
-     */
-    systemUpdateStart: (
-      { body }: { body: SystemUpdateStart },
-      params: RequestParams = {}
-    ) => {
-      return this.request<UpdateDeployment>({
-        path: `/v1/system/update/start`,
-        method: 'POST',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * Stop system update
-     */
-    systemUpdateStop: (_: EmptyObj, params: RequestParams = {}) => {
-      return this.request<void>({
-        path: `/v1/system/update/stop`,
-        method: 'POST',
-        ...params,
-      })
-    },
-    /**
-     * List all updates
-     */
-    systemUpdateList: (
-      { query = {} }: { query?: SystemUpdateListQueryParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<SystemUpdateResultsPage>({
-        path: `/v1/system/update/updates`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * View system update
-     */
-    systemUpdateView: (
-      { path }: { path: SystemUpdateViewPathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<SystemUpdate>({
-        path: `/v1/system/update/updates/${path.version}`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * View system update component tree
-     */
-    systemUpdateComponentsList: (
-      { path }: { path: SystemUpdateComponentsListPathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<ComponentUpdateResultsPage>({
-        path: `/v1/system/update/updates/${path.version}/components`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * View system version and update status
-     */
-    systemVersion: (_: EmptyObj, params: RequestParams = {}) => {
-      return this.request<SystemVersion>({
-        path: `/v1/system/update/version`,
-        method: 'GET',
         ...params,
       })
     },

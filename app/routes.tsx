@@ -60,13 +60,6 @@ import { InventoryPage } from './pages/system/inventory/InventoryPage'
 import { SledsTab } from './pages/system/inventory/SledsTab'
 import { SledInstancesTab } from './pages/system/inventory/sled/SledInstancesTab'
 import { SledPage } from './pages/system/inventory/sled/SledPage'
-// import { UpdateDetailSideModal } from './pages/system/UpdateDetailSideModal'
-// import {
-//   UpdatePage,
-//   UpdatePageComponents,
-//   UpdatePageHistory,
-//   UpdatePageUpdates,
-// } from './pages/system/UpdatePage'
 import { pb } from './util/path-builder'
 
 const projectCrumb: CrumbFunc = (m) => m.params.project!
@@ -159,35 +152,6 @@ export const routes = createRoutesFromElements(
         </Route>
         <Route path="health" element={null} handle={{ crumb: 'Health' }} />
         <Route path="update" element={null} handle={{ crumb: 'Update' }} />
-        {/* <Route
-          path="update"
-          element={<UpdatePage />}
-          loader={UpdatePage.loader}
-          handle={{ crumb: 'Update' }}
-        >
-          <Route index element={<Navigate to="updates" replace />} />
-          <Route
-            path="updates"
-            element={<UpdatePageUpdates />}
-            loader={UpdatePageUpdates.loader}
-          >
-            <Route
-              path=":version"
-              element={<UpdateDetailSideModal />}
-              loader={UpdateDetailSideModal.loader}
-            />
-          </Route>
-          <Route
-            path="components"
-            element={<UpdatePageComponents />}
-            loader={UpdatePageComponents.loader}
-          />
-          <Route
-            path="history"
-            element={<UpdatePageHistory />}
-            loader={UpdatePageHistory.loader}
-          />
-        </Route> */}
         <Route path="networking" element={null} handle={{ crumb: 'Networking' }} />
         <Route path="settings" element={null} handle={{ crumb: 'Settings' }} />
       </Route>

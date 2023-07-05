@@ -176,11 +176,6 @@ export const lookup = {
 
     return lookupById(db.sleds, id)
   },
-  systemUpdate({ version }: PP.SystemUpdate): Json<Api.SystemUpdate> {
-    const update = db.systemUpdates.find((o) => o.version === version)
-    if (!update) throw notFoundErr
-    return update
-  },
   sshKey({ sshKey: id }: PP.SshKey): Json<Api.SshKey> {
     // we don't have a concept of mock session. assume the user is user1
     const userSshKeys = db.sshKeys.filter((key) => key.silo_user_id === user1.id)
@@ -219,11 +214,6 @@ const initDb = {
   sleds: [...mock.sleds],
   snapshots: [...mock.snapshots],
   sshKeys: [...mock.sshKeys],
-  componentUpdates: [...mock.componentUpdates],
-  systemUpdates: [...mock.systemUpdates],
-  systemUpdateComponentUpdates: [...mock.systemUpdateComponentUpdates],
-  updateableComponents: [...mock.updateableComponents],
-  updateDeployments: [...mock.updateDeployments],
   users: [...mock.users],
   vpcFirewallRules: [...mock.defaultFirewallRules],
   vpcRouterRoutes: [mock.vpcRouterRoute],

@@ -279,55 +279,6 @@ export const CertificateResultsPage = z.preprocess(
   z.object({ items: Certificate.array(), nextPage: z.string().optional() })
 )
 
-export const UpdateableComponentType = z.preprocess(
-  processResponseBody,
-  z.enum([
-    'bootloader_for_rot',
-    'bootloader_for_sp',
-    'bootloader_for_host_proc',
-    'hubris_for_psc_rot',
-    'hubris_for_psc_sp',
-    'hubris_for_sidecar_rot',
-    'hubris_for_sidecar_sp',
-    'hubris_for_gimlet_rot',
-    'hubris_for_gimlet_sp',
-    'helios_host_phase1',
-    'helios_host_phase2',
-    'host_omicron',
-  ])
-)
-
-export const SemverVersion = z.preprocess(
-  processResponseBody,
-  z
-    .string()
-    .regex(
-      /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/
-    )
-)
-
-/**
- * Identity-related metadata that's included in "asset" public API objects (which generally have no name or description)
- */
-export const ComponentUpdate = z.preprocess(
-  processResponseBody,
-  z.object({
-    componentType: UpdateableComponentType,
-    id: z.string().uuid(),
-    timeCreated: z.coerce.date(),
-    timeModified: z.coerce.date(),
-    version: SemverVersion,
-  })
-)
-
-/**
- * A single page of results
- */
-export const ComponentUpdateResultsPage = z.preprocess(
-  processResponseBody,
-  z.object({ items: ComponentUpdate.array(), nextPage: z.string().optional() })
-)
-
 /**
  * A cumulative or counter data type.
  */
@@ -1529,7 +1480,7 @@ export const Snapshot = z.preprocess(
  */
 export const SnapshotCreate = z.preprocess(
   processResponseBody,
-  z.object({ description: z.string(), disk: Name, name: Name })
+  z.object({ description: z.string(), disk: NameOrId, name: Name })
 )
 
 /**
@@ -1787,97 +1738,6 @@ export const SwitchPortSettingsView = z.preprocess(
 export const SwitchResultsPage = z.preprocess(
   processResponseBody,
   z.object({ items: Switch.array(), nextPage: z.string().optional() })
-)
-
-/**
- * Identity-related metadata that's included in "asset" public API objects (which generally have no name or description)
- */
-export const SystemUpdate = z.preprocess(
-  processResponseBody,
-  z.object({
-    id: z.string().uuid(),
-    timeCreated: z.coerce.date(),
-    timeModified: z.coerce.date(),
-    version: SemverVersion,
-  })
-)
-
-/**
- * A single page of results
- */
-export const SystemUpdateResultsPage = z.preprocess(
-  processResponseBody,
-  z.object({ items: SystemUpdate.array(), nextPage: z.string().optional() })
-)
-
-export const SystemUpdateStart = z.preprocess(
-  processResponseBody,
-  z.object({ version: SemverVersion })
-)
-
-export const UpdateStatus = z.preprocess(
-  processResponseBody,
-  z.union([
-    z.object({ status: z.enum(['updating']) }),
-    z.object({ status: z.enum(['steady']) }),
-  ])
-)
-
-export const VersionRange = z.preprocess(
-  processResponseBody,
-  z.object({ high: SemverVersion, low: SemverVersion })
-)
-
-export const SystemVersion = z.preprocess(
-  processResponseBody,
-  z.object({ status: UpdateStatus, versionRange: VersionRange })
-)
-
-/**
- * Identity-related metadata that's included in "asset" public API objects (which generally have no name or description)
- */
-export const UpdateDeployment = z.preprocess(
-  processResponseBody,
-  z.object({
-    id: z.string().uuid(),
-    status: UpdateStatus,
-    timeCreated: z.coerce.date(),
-    timeModified: z.coerce.date(),
-    version: SemverVersion,
-  })
-)
-
-/**
- * A single page of results
- */
-export const UpdateDeploymentResultsPage = z.preprocess(
-  processResponseBody,
-  z.object({ items: UpdateDeployment.array(), nextPage: z.string().optional() })
-)
-
-/**
- * Identity-related metadata that's included in "asset" public API objects (which generally have no name or description)
- */
-export const UpdateableComponent = z.preprocess(
-  processResponseBody,
-  z.object({
-    componentType: UpdateableComponentType,
-    deviceId: z.string(),
-    id: z.string().uuid(),
-    status: UpdateStatus,
-    systemVersion: SemverVersion,
-    timeCreated: z.coerce.date(),
-    timeModified: z.coerce.date(),
-    version: SemverVersion,
-  })
-)
-
-/**
- * A single page of results
- */
-export const UpdateableComponentResultsPage = z.preprocess(
-  processResponseBody,
-  z.object({ items: UpdateableComponent.array(), nextPage: z.string().optional() })
 )
 
 /**
@@ -3604,104 +3464,6 @@ export const SiloPolicyUpdateParams = z.preprocess(
     path: z.object({
       silo: NameOrId,
     }),
-    query: z.object({}),
-  })
-)
-
-export const SystemComponentVersionListParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({}),
-    query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
-      sortBy: IdSortMode.optional(),
-    }),
-  })
-)
-
-export const UpdateDeploymentsListParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({}),
-    query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
-      sortBy: IdSortMode.optional(),
-    }),
-  })
-)
-
-export const UpdateDeploymentViewParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      id: z.string().uuid(),
-    }),
-    query: z.object({}),
-  })
-)
-
-export const SystemUpdateRefreshParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({}),
-    query: z.object({}),
-  })
-)
-
-export const SystemUpdateStartParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({}),
-    query: z.object({}),
-  })
-)
-
-export const SystemUpdateStopParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({}),
-    query: z.object({}),
-  })
-)
-
-export const SystemUpdateListParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({}),
-    query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
-      sortBy: IdSortMode.optional(),
-    }),
-  })
-)
-
-export const SystemUpdateViewParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      version: SemverVersion,
-    }),
-    query: z.object({}),
-  })
-)
-
-export const SystemUpdateComponentsListParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      version: SemverVersion,
-    }),
-    query: z.object({}),
-  })
-)
-
-export const SystemVersionParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({}),
     query: z.object({}),
   })
 )
