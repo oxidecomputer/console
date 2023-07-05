@@ -1,4 +1,5 @@
-import { paginated } from './util'
+import { users } from '..'
+import { paginated, userIsFleetViewer } from './util'
 
 describe('paginated', () => {
   it('should return the first page', () => {
@@ -69,4 +70,13 @@ describe('paginated', () => {
     expect(page.items).toEqual([{ id: 'b' }, { id: 'c' }, { id: 'd' }])
     expect(page.nextPage).toBeNull()
   })
+})
+
+it('userIsFleetViewer', () => {
+  expect(users.map((u) => [u.display_name, userIsFleetViewer(u)])).toEqual([
+    ['Hannah Arendt', true],
+    ['Hans Jonas', false],
+    ['Jacob Klein', false],
+    ['Simone de Beauvoir', false],
+  ])
 })

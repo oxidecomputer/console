@@ -1,10 +1,17 @@
 import { differenceInSeconds, subHours } from 'date-fns'
+import type { RestRequest } from 'msw'
 
-import type { Sled, SystemMetricQueryParams } from '@oxide/api'
-import { type DiskCreate, type SystemMetricName, totalCapacity } from '@oxide/api'
+import type {
+  DiskCreate,
+  Sled,
+  SystemMetricName,
+  SystemMetricQueryParams,
+  User,
+} from '@oxide/api'
+import { totalCapacity } from '@oxide/api'
 import type { Json } from '@oxide/gen/msw-handlers'
 import { json } from '@oxide/gen/msw-handlers'
-import { GiB, TiB } from '@oxide/util'
+import { GiB, TiB, isTruthy } from '@oxide/util'
 
 import { genI64Data } from '../metrics'
 import { db } from './db'
@@ -257,4 +264,50 @@ export function handleMetrics({ path: { metricName }, query }: MetricParams) {
   }
 
   return { items }
+}
+
+export const MSW_USER_COOKIE = 'msw-user'
+
+/**
+ * Look up user by display name in cookie. Return the first user if cookie empty
+ * or name not found. We're using display name to make it easier to set the
+ * cookie by hand, because there is no way yet to pick a user through the UI.
+ *
+ * If cookie is empty or name is not found, return the first user in the list,
+ * who has admin on everything.
+ */
+export function currentUser(req: RestRequest): Json<User> {
+  const name = req.cookies[MSW_USER_COOKIE]
+  return db.users.find((u) => u.display_name === name) ?? db.users[0]
+}
+
+/**
+ * Look for fleet roles in roles for the user as well as for groups the user is
+ * in. Testable core of `requireFleetViewer`.
+ */
+export function userIsFleetViewer(user: Json<User>): boolean {
+  const userGroupIds = db.groupMemberships
+    .filter((gm) => gm.userId === user.id)
+    .map((gm) => db.userGroups.find((g) => g.id === gm.groupId))
+    .filter(isTruthy)
+    .map((g) => g.id)
+
+  // don't need to filter by role because any role is at least viewer
+  const actorsWithFleetRole = db.roleAssignments
+    .filter((ra) => ra.resource_type === 'fleet')
+    .map((ra) => ra.identity_id)
+
+  // user is a fleet viewer if their own ID or any of their groups is
+  // associated with any fleet role
+  return [user.id, ...userGroupIds].some((id) => actorsWithFleetRole.includes(id))
+}
+
+/**
+ * Determine whether current user has fleet viewer permissions by looking for
+ * fleet roles for the user as well as for the user's groups. Do nothing if yes,
+ * throw 403 if no.
+ */
+export function requireFleetViewer(req: RestRequest) {
+  const user = currentUser(req)
+  if (!userIsFleetViewer(user)) throw 403 // should it 404? I think the API is a mix
 }
