@@ -26,6 +26,8 @@ import { ContentPane, PageContainer } from './helpers'
  * other than a 403, that would be strange and we would want to know.
  */
 SystemLayout.loader = async () => {
+  // we don't need to use the ErrorsAllowed version here because we're 404ing
+  // immediately on error, so we don't need to pick the result up from the cache
   const isFleetViewer = await apiQueryClient
     .fetchQuery('systemPolicyView', {})
     .then(() => true)

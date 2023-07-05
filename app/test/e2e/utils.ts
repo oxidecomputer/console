@@ -81,21 +81,6 @@ export async function expectRowVisible(
     .toEqual(expect.arrayContaining([expect.objectContaining(expectedRow)]))
 }
 
-async function timeToAppear(page: Page, selector: string): Promise<number> {
-  const start = Date.now()
-  await page.locator(selector).waitFor()
-  return Date.now() - start
-}
-
-/**
- * Assert a set of elements all appeared within a 20ms range
- */
-export async function expectSimultaneous(page: Page, selectors: string[]) {
-  const times = await Promise.all(selectors.map((sel) => timeToAppear(page, sel)))
-  times.sort()
-  expect(times[times.length - 1] - times[0]).toBeLessThan(40)
-}
-
 export async function stopInstance(page: Page) {
   await page.click('role=button[name="Instance actions"]')
   await page.click('role=menuitem[name="Stop"]')
