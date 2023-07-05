@@ -1,6 +1,6 @@
 import { v4 as uuid } from 'uuid'
 
-import type { ApiTypes as Api, SamlIdentityProvider, UpdateDeployment } from '@oxide/api'
+import type { ApiTypes as Api, SamlIdentityProvider } from '@oxide/api'
 import { DISK_DELETE_STATES, DISK_SNAPSHOT_STATES, FLEET_ID } from '@oxide/api'
 import type { Json } from '@oxide/gen/msw-handlers'
 import { json, makeHandlers } from '@oxide/gen/msw-handlers'
@@ -9,7 +9,6 @@ import { pick, sortBy } from '@oxide/util'
 import { genCumulativeI64Data } from '../metrics'
 import { serial } from '../serial'
 import { defaultSilo, toIdp } from '../silo'
-import { sortBySemverDesc } from '../update'
 import { db, lookup, lookupById, notFoundErr } from './db'
 import {
   NotImplemented,
@@ -959,68 +958,6 @@ export const handlers = makeHandlers({
 
     return { role_assignments }
   },
-
-  systemUpdateList({ query, req }) {
-    requireFleetViewer(req)
-    return paginated(query, db.systemUpdates)
-  },
-  systemUpdateView({ path, req }) {
-    requireFleetViewer(req)
-    return lookup.systemUpdate(path)
-  },
-  systemUpdateComponentsList({ path, req }) {
-    requireFleetViewer(req)
-    const systemUpdate = lookup.systemUpdate(path)
-    const ids = new Set(
-      db.systemUpdateComponentUpdates
-        .filter((o) => o.system_update_id === systemUpdate.id)
-        .map((o) => o.component_update_id)
-    )
-    return { items: db.componentUpdates.filter(({ id }) => ids.has(id)) }
-  },
-
-  systemComponentVersionList({ query, req }) {
-    requireFleetViewer(req)
-    return paginated(query, db.updateableComponents)
-  },
-
-  systemUpdateStart: ({ body, req }) => {
-    requireFleetViewer(req)
-    const latestDeployment = db.updateDeployments[0]
-    if (latestDeployment?.status.status === 'updating') {
-      // TODO: do nothing, return some kind of failure
-    }
-
-    const newDeployment: Json<UpdateDeployment> = {
-      id: uuid(),
-      version: body.version,
-      status: { status: 'updating' },
-      ...getTimestamps(),
-    }
-
-    // add to the beginning of to he list to maintain sort by most recent
-    db.updateDeployments = [newDeployment, ...db.updateDeployments]
-
-    return newDeployment
-  },
-  systemUpdateStop: () => 204,
-  systemUpdateRefresh: NotImplemented,
-
-  systemVersion() {
-    const sortedComponents = sortBySemverDesc(db.updateableComponents)
-    const low = sortedComponents[sortedComponents.length - 1].system_version
-    const high = sortedComponents[0].system_version
-
-    // assume they're sorted by most recent first
-    const latestDeployment = db.updateDeployments[0]
-    return {
-      version_range: { low, high },
-      status: latestDeployment.status,
-    }
-  },
-  updateDeploymentsList: (params) => paginated(params.query, db.updateDeployments),
-  updateDeploymentView: ({ path: { id } }) => lookupById(db.updateDeployments, id),
-
   systemMetric(params) {
     requireFleetViewer(params.req)
     return handleMetrics(params)

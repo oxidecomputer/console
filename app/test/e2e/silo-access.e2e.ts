@@ -1,13 +1,6 @@
 import { user3, user4 } from '@oxide/api-mocks'
 
-import {
-  expect,
-  expectNotVisible,
-  expectRowVisible,
-  expectSimultaneous,
-  expectVisible,
-  test,
-} from './utils'
+import { expect, expectNotVisible, expectRowVisible, expectVisible, test } from './utils'
 
 test('Click through silo access page', async ({ page }) => {
   await page.goto('/')
@@ -16,14 +9,6 @@ test('Click through silo access page', async ({ page }) => {
 
   // page is there, we see user 1 and 2 but not 3
   await page.click('role=link[name*="Access & IAM"]')
-
-  // has to be before anything else is checked. ensures we've prefetched
-  // users list and groups list properly
-  await expectSimultaneous(page, [
-    'role=button[name="Add user or group"]', // important to include a static element
-    'role=cell[name="real-estate-devs Group"]',
-    'role=cell[name="Hannah Arendt"]',
-  ])
 
   await expectVisible(page, ['role=heading[name*="Access & IAM"]'])
   await expectRowVisible(table, {

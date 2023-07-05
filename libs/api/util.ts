@@ -7,7 +7,6 @@ import type {
   InstanceState,
   Measurement,
   Sled,
-  UpdateableComponentType,
   VpcFirewallRule,
   VpcFirewallRuleUpdate,
 } from './__generated__/Api'
@@ -62,21 +61,6 @@ export const genName = (...parts: [string, ...string[]]) => {
       // generate random hex string of 6 characters
       .concat(`-${Math.random().toString(16).substring(2, 8)}`)
   )
-}
-
-export const componentTypeNames: Record<UpdateableComponentType, string> = {
-  bootloader_for_rot: 'Bootloader for RoT',
-  bootloader_for_sp: 'Bootloader for SP',
-  bootloader_for_host_proc: 'Bootloader for Host Processor',
-  hubris_for_psc_rot: 'Hubris for PSC RoT',
-  hubris_for_psc_sp: 'Hubris for PSC SP',
-  hubris_for_sidecar_rot: 'Hubris for Sidecar RoT',
-  hubris_for_sidecar_sp: 'Hubris for Sidecar SP',
-  hubris_for_gimlet_rot: 'Hubris for Gimlet RoT',
-  hubris_for_gimlet_sp: 'Hubris for Gimlet SP',
-  helios_host_phase1: 'Helios for Host Phase 1',
-  helios_host_phase2: 'Helios for Host Phase 2',
-  host_omicron: 'Host Omicron',
 }
 
 /** Disk states that allow delete. See [Omicron source](https://github.com/oxidecomputer/omicron/blob/4970c71e/nexus/db-queries/src/db/datastore/disk.rs#L578-L582). */
