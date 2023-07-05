@@ -12,9 +12,9 @@ In order to avoid the complexity of server-side rendering (and running JS on the
 
 - a tarball of static assets + endpoints that serve them
 - a few other endpoints to handle auth actions like login/logout
-- a table of sessions (not necessarily console-specific)
+- a table of sessions (console-specific in practice, but not intrinsically so)
 
-The web console has no special privileges as an API consumer. We log in (which sets a cookie) and make cookie-authed API requests after that. See [RFD 223 Web Console Architecture](https://rfd.shared.oxide.computer/rfd/0223) for a more detailed discussion. The endpoints live in [`nexus/src/external_api/console_api.rs`](https://github.com/oxidecomputer/omicron/blob/e4a585350b658879af88d769cde7ebe6d6960bf5/nexus/src/external_api/console_api.rs) in Omicron.
+The web console has no special privileges as an API consumer. We log in (which sets a cookie) and make cookie-authed API requests after that. See [RFD 223 Web Console Architecture](https://rfd.shared.oxide.computer/rfd/0223) for a more detailed discussion. The endpoints live in [`nexus/src/external_api/console_api.rs`](https://github.com/oxidecomputer/omicron/blob/c3048a1b43b046c284432eba34d0bc1933de4d56/nexus/src/external_api/console_api.rs) in Omicron.
 
 ## Tech
 
@@ -46,7 +46,7 @@ npm install
 
 ### Run Vite dev server + [MSW](https://mswjs.io/) mock API
 
-This is the way we do nearly all console development. Just run:
+This is the way we do most console development. Just run:
 
 ```
 npm start
@@ -127,13 +127,7 @@ This will start a preview environment for the UI components in the project. The 
 
 Playwright tests match the filename pattern `.e2e.ts`. The basic command to run all tests is `npm run e2e`. You may have to run `npx playwright install` after `npm install` to get the browser binaries.
 
-There are two types of tests in our project. Validation tests which rely on mocked responses from MSW and smoke tests which assume a clean environment. Smoke tests are design to be ran against a rack meaning they create any required resources for the test and clean up after themselves.
-
-Tests are ran across `chrome`, `firefox`, and `safari` when running `npm run e2e`. Test runs can be isolated to a single browser by setting a `BROWSER` environment variable like `BROWSER=chrome npm run e2e`. Tests can be further isolated down to either smoke or validation suites by providing a `--project` argument. For example, `npm run e2e -- --project=validate-chrome` or `npm run e2e -- --project=smoke-firefox`.
-
-Some debugging tricks (see the docs [here](https://playwright.dev/docs/debug) for more details):
-
-- Add `await page.pause()` to a test and run `BROWSER=chrome npm run e2e <test file> -- --headed` to run a test in a single headed browser with the excellent [Inspector](https://playwright.dev/docs/inspector) open and pause at that line. This is perfect for making sure the screen looks like you expect at that moment and testing selectors to use in the next step.
+`npm run e2e` runs the tests in Chrome, Firefox, and Safari. `npm run e2ec` is a shortcut for `playwright test --project=chrome`, which runs the tests in Chrome only (the fastest one, useful for local dev). The tests virtually never fail in one browser if they pass in others, except for flakes. Playwright has an excellent [UI mode](https://playwright.dev/docs/test-ui-mode) for running and debugging tests that you can get to by running `npm run e2e -- --ui`.
 
 To debug end-to-end failures on CI checkout the branch with the failure and run `./tools/debug-ci-e2e-fail.sh`. It'll download the latest failures from CI and allow you to open a [playwright trace](https://playwright.dev/docs/trace-viewer-intro#viewing-the-trace) of the failure.
 

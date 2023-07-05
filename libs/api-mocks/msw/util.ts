@@ -268,11 +268,24 @@ export function handleMetrics({ path: { metricName }, query }: MetricParams) {
 
 export const MSW_USER_COOKIE = 'msw-user'
 
+/**
+ * Look up user by display name in cookie. Return the first user if cookie empty
+ * or name not found. We're using display name to make it easier to set the
+ * cookie by hand, because there is no way yet to pick a user through the UI.
+ *
+ * If cookie is empty or name is not found, return the first user in the list,
+ * who has admin on everything.
+ */
 export function currentUser(req: RestRequest): Json<User> {
   const name = req.cookies[MSW_USER_COOKIE]
   return db.users.find((u) => u.display_name === name) ?? db.users[0]
 }
 
+/**
+ * Determine whether current user has fleet viewer permissions by look for fleet
+ * roles for the user as well as for groups the user is in. Do nothing if yes,
+ * throw 403 if no.
+ */
 export function requireFleetViewer(req: RestRequest) {
   const user = currentUser(req)
   const userGroupIds = db.groupMemberships
