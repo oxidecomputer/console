@@ -168,12 +168,14 @@ export const wrapQueryClient = <A extends ApiClient>(api: A, queryClient: QueryC
     options: FetchQueryOptions<
       { type: 'success'; data: Result<A[M]> } | { type: 'error'; data: ApiError },
       ApiError
-    > = {},
-    /**
-     * HTTP errors will show up unexplained in the browser console. It can be
-     * helpful to reassure people they're normal.
-     */
-    explanation?: string
+    > & {
+      /**
+       * HTTP errors will show up unexplained in the browser console. It can be
+       * helpful to reassure people they're normal.
+       */
+      explanation: string
+      expectedStatusCode: 403 | 404
+    }
   ) =>
     queryClient.prefetchQuery({
       queryKey: [method, params, ERRORS_ALLOWED],
@@ -181,8 +183,14 @@ export const wrapQueryClient = <A extends ApiClient>(api: A, queryClient: QueryC
         api[method](params)
           .then(handleResult(method))
           .then((data) => ({ type: 'success' as const, data }))
-          .catch((data) => {
-            if (explanation) console.log(explanation)
+          .catch((data: ApiError) => {
+            // if we get an unexpected error, we're still throwing
+            if (data.statusCode !== options.expectedStatusCode) {
+              // data is the result of handleResult, so it's ready to through
+              // directly without further processing
+              throw data
+            }
+            console.log(options.explanation)
             return { type: 'error' as const, data }
           }),
       ...options,
