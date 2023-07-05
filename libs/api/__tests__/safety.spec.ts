@@ -36,6 +36,7 @@ it('@oxide/api-mocks is only referenced in test files', () => {
       "app/test/e2e/utils.ts",
       "app/test/unit/server.ts",
       "app/test/unit/setup.ts",
+      "docs/mock-api-differences.md",
       "libs/api-mocks/msw/db.ts",
       "libs/api/__tests__/hooks.spec.tsx",
       "tools/start_mock_api.ts",
