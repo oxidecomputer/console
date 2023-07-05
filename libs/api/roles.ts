@@ -4,6 +4,7 @@
  * it belongs in the API proper.
  */
 import { useMemo } from 'react'
+import invariant from 'tiny-invariant'
 
 import { lowestBy, sortBy } from '@oxide/util'
 
@@ -92,6 +93,8 @@ export function useUserRows(
   // putting them in a dictionary, and adding the names to the rows
   const { data: users } = useApiQuery('userList', {})
   const { data: groups } = useApiQuery('groupList', {})
+  invariant(users, 'users should be prefetched in a loader')
+  invariant(groups, 'groups should be prefetched in a loader')
   return useMemo(() => {
     const userItems = users?.items || []
     const groupItems = groups?.items || []
