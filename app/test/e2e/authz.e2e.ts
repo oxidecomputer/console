@@ -18,3 +18,15 @@ test.describe('Silo/system picker', () => {
     ).toBeHidden()
   })
 })
+
+test('dev user gets 404 on system pages', async ({ browser }) => {
+  const page = await getDevUserPage(browser)
+  await page.goto('/system/silos')
+  await expect(page.getByText('Page not found')).toBeVisible()
+
+  await page.goto('/system/utilization')
+  await expect(page.getByText('Page not found')).toBeVisible()
+
+  await page.goto('/system/inventory/sleds')
+  await expect(page.getByText('Page not found')).toBeVisible()
+})
