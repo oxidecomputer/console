@@ -282,12 +282,10 @@ export function currentUser(req: RestRequest): Json<User> {
 }
 
 /**
- * Determine whether current user has fleet viewer permissions by look for fleet
- * roles for the user as well as for groups the user is in. Do nothing if yes,
- * throw 403 if no.
+ * Look for fleet roles in roles for the user as well as for groups the user is
+ * in. Testable core of `requireFleetViewer`.
  */
-export function requireFleetViewer(req: RestRequest) {
-  const user = currentUser(req)
+export function userIsFleetViewer(user: Json<User>): boolean {
   const userGroupIds = db.groupMemberships
     .filter((gm) => gm.userId === user.id)
     .map((gm) => db.userGroups.find((g) => g.id === gm.groupId))
@@ -301,9 +299,15 @@ export function requireFleetViewer(req: RestRequest) {
 
   // user is a fleet viewer if their own ID or any of their groups is
   // associated with any fleet role
-  const isFleetViewer = [user.id, ...userGroupIds].some((id) =>
-    actorsWithFleetRole.includes(id)
-  )
+  return [user.id, ...userGroupIds].some((id) => actorsWithFleetRole.includes(id))
+}
 
-  if (!isFleetViewer) throw 403 // should it 404? I think the API is a mix
+/**
+ * Determine whether current user has fleet viewer permissions by looking for
+ * fleet roles for the user as well as for the user's groups. Do nothing if yes,
+ * throw 403 if no.
+ */
+export function requireFleetViewer(req: RestRequest) {
+  const user = currentUser(req)
+  if (!userIsFleetViewer(user)) throw 403 // should it 404? I think the API is a mix
 }

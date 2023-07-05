@@ -28,6 +28,7 @@ it('@oxide/api-mocks is only referenced in test files', () => {
   const files = grepFiles('api-mocks')
   expect(files).toMatchInlineSnapshot(`
     [
+      "README.md",
       "app/msw-mock-api.ts",
       "app/test/e2e/instance-create.e2e.ts",
       "app/test/e2e/profile.e2e.ts",
