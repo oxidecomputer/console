@@ -54,6 +54,18 @@ npm start
 
 and navigate to http://localhost:4000 in the browser. The running app will automatically update when you write a source file. This mode uses Mock Service Workers to run a mock API right the browser. This mock API is also used in tests.
 
+#### Specifying non-default user
+
+Pick a user from the list of users in
+[`libs/api-mocks/user.ts`](/libs/api-mocks/user.ts). The one without fleet
+viewer permissions is `Hans Jonas`. Open the browser console and run:
+
+```js
+document.cookie = 'msw-user=Hans Jonas;domain=localhost;path=/'
+```
+
+You are now user Hans Jonas. To go back to the default, delete the cookie. (We will get the mock API to clear the cookie for you on logout soon.)
+
 ### Run Vite dev server against local Nexus API
 
 You can also run the console dev server locally with the mock server off, instead passing requests through to `localhost:12220`. Run `npm run start:nexus` and navigate to http://localhost:4000/login/test-suite-silo/local in the browser. It will not work unless Nexus is running at `localhost:12220`, which is the default for `omicron-dev` (see [Running Omicron (Simulated)](https://github.com/oxidecomputer/omicron/blob/main/docs/how-to-run-simulated.adoc) for how to set that up).
@@ -110,10 +122,12 @@ set -g mouse on
 1. Go to https://oxide.sys.rack2.eng.oxide.computer in another tab and log in
 1. Open the dev tools Storage tab and copy the `session` cookie value, which should look like `d9b1a96e151092eb0ea08b1a0d8c4788441f1894`
 1. Go back to your localhost tab, open the developer console, and run
-   ```js
-   document.cookie = 'session=d9b1a96e151092eb0ea08b1a0d8c4788441f1894'
-   ```
-1. Go to https://localhost:4000 again
+
+```js
+document.cookie = 'session=d9b1a96e151092eb0ea08b1a0d8c4788441f1894;domain=localhost;path=/'
+```
+
+Go to https://localhost:4000 again and you should be logged in.
 
 ### Run [Ladle](https://ladle.dev/)
 
