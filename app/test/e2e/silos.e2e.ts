@@ -40,10 +40,9 @@ test('Silos page', async ({ page }) => {
   await otherSiloCell.getByRole('link').click()
   await expectVisible(page, [
     page.getByRole('heading', { name: 'other-silo' }),
-    // TODO: assert yes and no
-    page.getByText('Grant fleet admin role to silo admins'),
-    page.getByText('Grant fleet viewer role to silo viewers'),
+    page.getByText('Silo admin Fleet admin'),
   ])
+  await expect(page.getByText('Silo viewer Fleet viewer')).toBeHidden()
 
   await page.goBack()
 
@@ -53,6 +52,17 @@ test('Silos page', async ({ page }) => {
   await page.getByRole('button', { name: 'Confirm' }).click()
 
   await expect(otherSiloCell).toBeHidden()
+})
+
+test('Default silo', async ({ page }) => {
+  await page.goto('/system/silos')
+  await page.getByRole('link', { name: 'default-silo' }).click()
+
+  await expect(page.getByRole('heading', { name: 'default-silo' })).toBeVisible()
+  await expectNotVisible(page, [
+    page.getByText('Silo admin Fleet admin'),
+    page.getByText('Silo viewer Fleet viewer'),
+  ])
 })
 
 test('Identity providers', async ({ page }) => {

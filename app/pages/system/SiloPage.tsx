@@ -7,13 +7,12 @@ import { apiQueryClient, useApiQuery } from '@oxide/api'
 import { DateCell, DefaultCell, TruncateCell, linkCell, useQueryTable } from '@oxide/table'
 import {
   Badge,
-  Checkmark12Icon,
   Cloud16Icon,
   Cloud24Icon,
   EmptyMessage,
+  NextArrow12Icon,
   PageHeader,
   PageTitle,
-  PropertiesTable,
   TableActions,
   buttonStyle,
 } from '@oxide/ui'
@@ -36,22 +35,16 @@ SiloPage.loader = async ({ params }: LoaderFunctionArgs) => {
   return null
 }
 
-function Checkmark({ value }: { value: boolean }) {
-  return value ? (
-    <Checkmark12Icon className="text-accent" />
-  ) : (
-    <span className="sr-only">No</span>
-  )
-}
-
 export function SiloPage() {
   const siloSelector = useSiloSelector()
 
   const { data: silo } = useApiQuery('siloView', { path: siloSelector })
   invariant(silo, 'silo must be prefetched in loader')
 
-  const siloAdminsHaveFleetAdmin = silo.mappedFleetRoles['admin']?.includes('admin')
-  const siloViewersHaveFleetViewer = silo.mappedFleetRoles['viewer']?.includes('viewer')
+  const roleMapPairs = Object.entries(silo.mappedFleetRoles).flatMap(
+    ([fleetRole, siloRoles]) =>
+      siloRoles.map((siloRole) => [siloRole, fleetRole] as [string, string])
+  )
 
   const { Table, Column } = useQueryTable('siloIdentityProviderList', {
     query: siloSelector,
@@ -62,17 +55,21 @@ export function SiloPage() {
       <PageHeader>
         <PageTitle icon={<Cloud24Icon />}>{silo.name}</PageTitle>
       </PageHeader>
-      <PropertiesTable.Group className="mb-16 -mt-8">
-        <PropertiesTable>
-          <PropertiesTable.Row label="Grant fleet admin role to silo admins">
-            <Checkmark value={siloAdminsHaveFleetAdmin} />
-          </PropertiesTable.Row>
-          <PropertiesTable.Row label="Grant fleet viewer role to silo viewers">
-            <Checkmark value={siloViewersHaveFleetViewer} />
-          </PropertiesTable.Row>
-        </PropertiesTable>
-      </PropertiesTable.Group>
-      <h2 className="mb-4 text-mono-sm text-secondary">Identity providers</h2>
+      <h2 className="mb-4 text-mono-sm text-secondary">Fleet role mapping</h2>
+      {roleMapPairs.length === 0 ? (
+        <p className="text-secondary">&mdash;</p>
+      ) : (
+        <ul>
+          {roleMapPairs.map(([siloRole, fleetRole]) => (
+            <li key={siloRole + '|' + fleetRole}>
+              Silo {siloRole}{' '}
+              <NextArrow12Icon className="text-secondary" aria-label="maps to" /> Fleet{' '}
+              {fleetRole}
+            </li>
+          ))}
+        </ul>
+      )}
+      <h2 className="mt-12 mb-4 text-mono-sm text-secondary">Identity providers</h2>
       <TableActions>
         <Link to={pb.siloIdpNew(siloSelector)} className={buttonStyle({ size: 'sm' })}>
           New provider
