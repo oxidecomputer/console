@@ -580,7 +580,12 @@ export type Image = {
  * The source of the underlying image.
  */
 export type ImageSource =
-  | { type: 'url'; url: string }
+  | {
+      /** The block size in bytes */
+      blockSize: BlockSize
+      type: 'url'
+      url: string
+    }
   | { id: string; type: 'snapshot' }
   /** Boot the Alpine ISO that ships with the Propolis zone. Intended for development purposes only. */
   | { type: 'you_can_boot_anything_as_long_as_its_alpine' }
@@ -589,8 +594,6 @@ export type ImageSource =
  * Create-time parameters for an `Image`
  */
 export type ImageCreate = {
-  /** block size in bytes */
-  blockSize: BlockSize
   description: string
   name: Name
   /** The family of the operating system (e.g. Debian, Ubuntu, etc.) */

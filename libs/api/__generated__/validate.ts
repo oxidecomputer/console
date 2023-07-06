@@ -618,7 +618,7 @@ export const Image = z.preprocess(
 export const ImageSource = z.preprocess(
   processResponseBody,
   z.union([
-    z.object({ type: z.enum(['url']), url: z.string() }),
+    z.object({ blockSize: BlockSize, type: z.enum(['url']), url: z.string() }),
     z.object({ id: z.string().uuid(), type: z.enum(['snapshot']) }),
     z.object({ type: z.enum(['you_can_boot_anything_as_long_as_its_alpine']) }),
   ])
@@ -630,7 +630,6 @@ export const ImageSource = z.preprocess(
 export const ImageCreate = z.preprocess(
   processResponseBody,
   z.object({
-    blockSize: BlockSize,
     description: z.string(),
     name: Name,
     os: z.string(),
