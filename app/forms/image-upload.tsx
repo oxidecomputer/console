@@ -441,7 +441,6 @@ export function CreateImageSideModalForm() {
       body: {
         name: imageName,
         description: imageDescription,
-        blockSize,
         os,
         version,
         source: { type: 'snapshot', id: snapshot.current.id },
