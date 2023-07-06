@@ -1,15 +1,19 @@
 import type { LoaderFunctionArgs } from 'react-router-dom'
 import { Link } from 'react-router-dom'
 import { Outlet } from 'react-router-dom'
+import invariant from 'tiny-invariant'
 
-import { apiQueryClient } from '@oxide/api'
+import { apiQueryClient, useApiQuery } from '@oxide/api'
 import { DateCell, DefaultCell, TruncateCell, linkCell, useQueryTable } from '@oxide/table'
 import {
   Badge,
+  Checkmark12Icon,
   Cloud16Icon,
+  Cloud24Icon,
   EmptyMessage,
   PageHeader,
   PageTitle,
+  PropertiesTable,
   TableActions,
   buttonStyle,
 } from '@oxide/ui'
@@ -32,20 +36,45 @@ SiloPage.loader = async ({ params }: LoaderFunctionArgs) => {
   return null
 }
 
+function Checkmark({ value }: { value: boolean }) {
+  return value ? (
+    <Checkmark12Icon className="text-accent" />
+  ) : (
+    <span className="sr-only">No</span>
+  )
+}
+
 export function SiloPage() {
-  const { silo } = useSiloSelector()
+  const siloSelector = useSiloSelector()
+
+  const { data: silo } = useApiQuery('siloView', { path: siloSelector })
+  invariant(silo, 'silo must be prefetched in loader')
+
+  const siloAdminsHaveFleetAdmin = silo.mappedFleetRoles['admin']?.includes('admin')
+  const siloViewersHaveFleetViewer = silo.mappedFleetRoles['viewer']?.includes('viewer')
 
   const { Table, Column } = useQueryTable('siloIdentityProviderList', {
-    query: { silo },
+    query: siloSelector,
   })
 
   return (
     <>
       <PageHeader>
-        <PageTitle /*icon={icon}*/>Identity Providers</PageTitle>
+        <PageTitle icon={<Cloud24Icon />}>{silo.name}</PageTitle>
       </PageHeader>
+      <PropertiesTable.Group className="mb-16 -mt-8">
+        <PropertiesTable>
+          <PropertiesTable.Row label="Grant fleet admin role to silo admins">
+            <Checkmark value={siloAdminsHaveFleetAdmin} />
+          </PropertiesTable.Row>
+          <PropertiesTable.Row label="Grant fleet viewer role to silo viewers">
+            <Checkmark value={siloViewersHaveFleetViewer} />
+          </PropertiesTable.Row>
+        </PropertiesTable>
+      </PropertiesTable.Group>
+      <h2 className="mb-4 text-mono-sm text-secondary">Identity providers</h2>
       <TableActions>
-        <Link to={pb.siloIdpNew({ silo })} className={buttonStyle({ size: 'sm' })}>
+        <Link to={pb.siloIdpNew(siloSelector)} className={buttonStyle({ size: 'sm' })}>
           New provider
         </Link>
       </TableActions>
@@ -59,7 +88,9 @@ export function SiloPage() {
             // get a link to the detail view. This is a little awkward to do with
             // linkCell as currently designed — probably worth a small rework
             providerType === 'saml' ? (
-              linkCell((provider) => pb.samlIdp({ silo, provider }))({ value: name })
+              linkCell((provider) => pb.samlIdp({ ...siloSelector, provider }))({
+                value: name,
+              })
             ) : (
               <DefaultCell value={name} />
             )

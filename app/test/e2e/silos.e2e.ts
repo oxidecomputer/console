@@ -23,6 +23,7 @@ test('Silos page', async ({ page }) => {
   await page.click('role=checkbox[name="Discoverable"]')
   await page.click('role=radio[name="Local only"]')
   await page.fill('role=textbox[name="Admin group name"]', 'admins')
+  await page.click('role=checkbox[name="Grant fleet admin role to silo admins"]')
   await page.click('role=button[name="Create silo"]')
 
   // it's there in the table
@@ -35,6 +36,17 @@ test('Silos page', async ({ page }) => {
   const otherSiloCell = page.getByRole('cell', { name: 'other-silo' })
   await expect(otherSiloCell).toBeVisible()
 
+  // click into detail view and check the fleet role map
+  await otherSiloCell.getByRole('link').click()
+  await expectVisible(page, [
+    page.getByRole('heading', { name: 'other-silo' }),
+    // TODO: assert yes and no
+    page.getByText('Grant fleet admin role to silo admins'),
+    page.getByText('Grant fleet viewer role to silo viewers'),
+  ])
+
+  await page.goBack()
+
   // now delete it
   await page.locator('role=button[name="Row actions"]').nth(1).click()
   await page.click('role=menuitem[name="Delete"]')
@@ -46,7 +58,7 @@ test('Silos page', async ({ page }) => {
 test('Identity providers', async ({ page }) => {
   await page.goto('/system/silos/default-silo')
 
-  await expectVisible(page, ['role=heading[name="Identity Providers"]'])
+  await expectVisible(page, ['role=heading[name*=default-silo]'])
 
   await page.getByRole('link', { name: 'mock-idp' }).click()
 
