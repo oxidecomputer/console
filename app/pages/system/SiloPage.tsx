@@ -13,7 +13,9 @@ import {
   NextArrow12Icon,
   PageHeader,
   PageTitle,
+  Question12Icon,
   TableActions,
+  Tooltip,
   buttonStyle,
 } from '@oxide/ui'
 
@@ -22,6 +24,14 @@ import { pb } from 'app/util/path-builder'
 
 const EmptyState = () => (
   <EmptyMessage icon={<Cloud16Icon />} title="No identity providers" />
+)
+
+const RoleMappingTooltip = () => (
+  <Tooltip content="Silo roles can automatically grant a fleet role" placement="top">
+    <button className="ml-2 flex svg:pointer-events-none">
+      <Question12Icon className="text-quinary" />
+    </button>
+  </Tooltip>
 )
 
 SiloPage.loader = async ({ params }: LoaderFunctionArgs) => {
@@ -55,7 +65,9 @@ export function SiloPage() {
       <PageHeader>
         <PageTitle icon={<Cloud24Icon />}>{silo.name}</PageTitle>
       </PageHeader>
-      <h2 className="mb-4 text-mono-sm text-secondary">Fleet role mapping</h2>
+      <h2 className="mb-4 flex items-center text-mono-sm text-secondary">
+        Fleet role mapping <RoleMappingTooltip />
+      </h2>
       {roleMapPairs.length === 0 ? (
         <p className="text-secondary">&mdash;</p>
       ) : (
