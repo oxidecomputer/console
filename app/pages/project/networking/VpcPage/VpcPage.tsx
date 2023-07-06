@@ -1,4 +1,5 @@
 import type { LoaderFunctionArgs } from 'react-router-dom'
+import invariant from 'tiny-invariant'
 
 import { apiQueryClient, useApiQuery } from '@oxide/api'
 import { Networking24Icon, PageHeader, PageTitle, PropertiesTable, Tabs } from '@oxide/ui'
@@ -21,23 +22,24 @@ VpcPage.loader = async ({ params }: LoaderFunctionArgs) => {
 export function VpcPage() {
   const vpcSelector = useVpcSelector()
   const { data: vpc } = useApiQuery('vpcView', toPathQuery('vpc', vpcSelector))
+  invariant(vpc, 'VPC must be prefetched in loader')
 
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<Networking24Icon />}>{vpc?.name || ''}</PageTitle>
+        <PageTitle icon={<Networking24Icon />}>{vpc.name}</PageTitle>
       </PageHeader>
       <PropertiesTable.Group className="mb-16">
         <PropertiesTable>
-          <PropertiesTable.Row label="Description">{vpc?.description}</PropertiesTable.Row>
-          <PropertiesTable.Row label="DNS Name">{vpc?.dnsName}</PropertiesTable.Row>
+          <PropertiesTable.Row label="Description">{vpc.description}</PropertiesTable.Row>
+          <PropertiesTable.Row label="DNS Name">{vpc.dnsName}</PropertiesTable.Row>
         </PropertiesTable>
         <PropertiesTable>
           <PropertiesTable.Row label="Creation Date">
-            {vpc?.timeCreated && formatDateTime(vpc.timeCreated)}
+            {vpc.timeCreated && formatDateTime(vpc.timeCreated)}
           </PropertiesTable.Row>
           <PropertiesTable.Row label="Last Modified">
-            {vpc?.timeModified && formatDateTime(vpc.timeModified)}
+            {vpc.timeModified && formatDateTime(vpc.timeModified)}
           </PropertiesTable.Row>
         </PropertiesTable>
       </PropertiesTable.Group>
