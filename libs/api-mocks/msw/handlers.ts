@@ -788,12 +788,16 @@ export const handlers = makeHandlers({
     const nics = db.networkInterfaces.filter((n) => n.subnet_id === subnet.id)
     return paginated(query, nics)
   },
-  sledPhysicalDiskList({ path, query }) {
+  sledPhysicalDiskList({ path, query, req }) {
+    requireFleetViewer(req)
     const sled = lookup.sled(path)
     const disks = db.physicalDisks.filter((n) => n.sled_id === sled.id)
     return paginated(query, disks)
   },
-  physicalDiskList: ({ query }) => paginated(query, db.physicalDisks),
+  physicalDiskList({ query, req }) {
+    requireFleetViewer(req)
+    return paginated(query, db.physicalDisks)
+  },
   policyView() {
     // assume we're in the default silo
     const siloId = defaultSilo.id
@@ -819,7 +823,10 @@ export const handlers = makeHandlers({
 
     return body
   },
-  rackList: ({ query }) => paginated(query, db.racks),
+  rackList: ({ query, req }) => {
+    requireFleetViewer(req)
+    return paginated(query, db.racks)
+  },
   currentUserView({ req }) {
     return { ...currentUser(req), silo_name: defaultSilo.name }
   },
@@ -854,9 +861,16 @@ export const handlers = makeHandlers({
     db.sshKeys = db.sshKeys.filter((i) => i.id !== sshKey.id)
     return 204
   },
-  sledView: ({ path }) => lookup.sled(path),
-  sledList: (params) => paginated(params.query, db.sleds),
-  sledInstanceList({ query, path }) {
+  sledView({ path, req }) {
+    requireFleetViewer(req)
+    return lookup.sled(path)
+  },
+  sledList({ query, req }) {
+    requireFleetViewer(req)
+    return paginated(query, db.sleds)
+  },
+  sledInstanceList({ query, path, req }) {
+    requireFleetViewer(req)
     const sled = lookupById(db.sleds, path.sledId)
     return paginated(
       query,
@@ -872,8 +886,12 @@ export const handlers = makeHandlers({
       })
     )
   },
-  siloList: (params) => paginated(params.query, db.silos),
-  siloCreate({ body }) {
+  siloList({ query, req }) {
+    requireFleetViewer(req)
+    return paginated(query, db.silos)
+  },
+  siloCreate({ body, req }) {
+    requireFleetViewer(req)
     errIfExists(db.silos, { name: body.name })
     const newSilo: Json<Api.Silo> = {
       id: uuid(),
@@ -884,33 +902,39 @@ export const handlers = makeHandlers({
     db.silos.push(newSilo)
     return json(newSilo, { status: 201 })
   },
-  siloView: ({ path }) => lookup.silo(path),
-  siloDelete({ path }) {
+  siloView({ path, req }) {
+    requireFleetViewer(req)
+    return lookup.silo(path)
+  },
+  siloDelete({ path, req }) {
+    requireFleetViewer(req)
     const silo = lookup.silo(path)
     db.silos = db.silos.filter((i) => i.id !== silo.id)
     return 204
   },
-  siloIdentityProviderList({ query }) {
+  siloIdentityProviderList({ query, req }) {
+    requireFleetViewer(req)
     const silo = lookup.silo(query)
     const idps = db.identityProviders.filter(({ siloId }) => siloId === silo.id).map(toIdp)
     return { items: idps }
   },
 
-  samlIdentityProviderCreate(params) {
-    const silo = lookup.silo(params.query)
+  samlIdentityProviderCreate({ query, body, req }) {
+    requireFleetViewer(req)
+    const silo = lookup.silo(query)
 
     // this is a bit silly, but errIfExists doesn't handle nested keys like
     // provider.name, so to do the check we make a flatter object
     errIfExists(
       db.identityProviders.map(({ siloId, provider }) => ({ siloId, name: provider.name })),
-      { siloId: silo.id, name: params.body.name }
+      { siloId: silo.id, name: body.name }
     )
 
     // we just decode to string and store that, which is probably fine for local
     // dev, but note that the API decodes to bytes and passes that to
     // https://docs.rs/openssl/latest/openssl/x509/struct.X509.html#method.from_der
     // and that will error if can't be parsed that way
-    let public_cert = params.body.signing_keypair?.public_cert
+    let public_cert = body.signing_keypair?.public_cert
     public_cert = public_cert ? atob(public_cert) : undefined
 
     // we ignore the private key because it's not returned in the get response,
@@ -921,7 +945,7 @@ export const handlers = makeHandlers({
     const provider: Json<SamlIdentityProvider> = {
       id: uuid(),
       ...pick(
-        params.body,
+        body,
         'name',
         'acs_url',
         'description',
