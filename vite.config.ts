@@ -1,5 +1,5 @@
+import basicSsl from '@vitejs/plugin-basic-ssl'
 import react from '@vitejs/plugin-react'
-import fs from 'fs'
 import { resolve } from 'path'
 import { defineConfig } from 'vite'
 import { z } from 'zod'
@@ -20,15 +20,9 @@ if (!devApiModeResult.success) {
  *
  * - `msw` (default): Mock Service Workers
  * - `nexus`: Nexus with simulated sled agent running on localhost:12220
- * - `dogfood`: Dogfood rack at recovery.sys.rack2.eng.oxide.computer. Requires
- *   TLS certs.
+ * - `dogfood`: Dogfood rack at oxide.sys.rack2.eng.oxide.computer. Requires VPN.
  */
 const devApiMode = devApiModeResult.data
-
-const getTlsCerts = () => ({
-  key: fs.readFileSync('../dogfood-tls-key.pem'),
-  cert: fs.readFileSync('../dogfood-tls-cert.pem'),
-})
 
 const DOGFOOD_HOST = 'oxide.sys.rack2.eng.oxide.computer'
 
@@ -70,6 +64,7 @@ export default defineConfig(({ mode }) => ({
       },
     }),
     dotPathFixPlugin([new RegExp('^/system/update/updates/' + semverRegex)]),
+    devApiMode === 'dogfood' && basicSsl(),
   ],
   resolve: {
     // turn relative paths from tsconfig into absolute paths
@@ -85,7 +80,7 @@ export default defineConfig(({ mode }) => ({
   },
   server: {
     port: 4000,
-    https: devApiMode === 'dogfood' ? getTlsCerts() : undefined,
+    https: devApiMode === 'dogfood',
     // these only get hit when MSW doesn't intercept the request
     proxy: {
       '/v1': {
