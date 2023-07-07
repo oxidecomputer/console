@@ -113,10 +113,6 @@ set -g mouse on
 ### Run local dev server against the dogfood rack
 
 1. Get on the VPN
-1. Download the TLS key and cert files as indicated in the [dogfood
-   doc](https://github.com/oxidecomputer/meta/blob/master/engineering/dogfood.adoc#56-tls-certificates)
-   and put them at `dogfood-tls-key.pem` and `dogfood-tls-cert.pem` in the
-   **parent** dir of the console repo.
 1. Run `npm run start:dogfood`
 1. Go to https://localhost:4000 (note the https). The page won't work yet, and you'll get redirected to `/login`, which will look like a 404
 1. Go to https://oxide.sys.rack2.eng.oxide.computer in another tab and log in
