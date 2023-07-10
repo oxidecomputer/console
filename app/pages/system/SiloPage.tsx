@@ -65,18 +65,18 @@ export function SiloPage() {
       <PageHeader>
         <PageTitle icon={<Cloud24Icon />}>{silo.name}</PageTitle>
       </PageHeader>
-      <h2 className="mb-4 flex items-center text-mono-sm text-secondary">
+      <h2 className="mb-6 flex items-center text-mono-sm text-secondary">
         Fleet role mapping <RoleMappingTooltip />
       </h2>
       {roleMapPairs.length === 0 ? (
         <p className="text-secondary">&mdash;</p>
       ) : (
-        <ul>
+        <ul className="space-y-3">
           {roleMapPairs.map(([siloRole, fleetRole]) => (
-            <li key={siloRole + '|' + fleetRole}>
-              Silo {siloRole}{' '}
-              <NextArrow12Icon className="text-secondary" aria-label="maps to" /> Fleet{' '}
-              {fleetRole}
+            <li key={siloRole + '|' + fleetRole} className="flex items-center">
+              <Badge>Silo {siloRole}</Badge>
+              <NextArrow12Icon className="mx-3 text-secondary" aria-label="maps to" />
+              <span className="text-sans-md text-secondary">Fleet {fleetRole}</span>
             </li>
           ))}
         </ul>
