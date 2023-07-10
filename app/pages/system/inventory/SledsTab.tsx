@@ -1,5 +1,5 @@
 import { apiQueryClient } from '@oxide/api'
-import { LabelCell, linkCell, useQueryTable } from '@oxide/table'
+import { linkCell, useQueryTable } from '@oxide/table'
 import { EmptyMessage, Racks24Icon } from '@oxide/ui'
 
 import { pb } from 'app/util/path-builder'
@@ -28,7 +28,6 @@ export function SledsTab() {
     <>
       <Table emptyState={<EmptyState />}>
         <Column accessor="id" cell={linkCell((sledId) => pb.sled({ sledId }))} />
-        <Column id="status" accessor={() => 'active'} header="status" cell={LabelCell} />
         {/* TODO */}
         {/* <Column accessor="serviceAddress" header="service address" /> */}
         <Column accessor="baseboard.part" header="part number" />
