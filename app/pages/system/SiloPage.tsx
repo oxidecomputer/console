@@ -1,16 +1,22 @@
 import type { LoaderFunctionArgs } from 'react-router-dom'
 import { Link } from 'react-router-dom'
 import { Outlet } from 'react-router-dom'
+import invariant from 'tiny-invariant'
 
-import { apiQueryClient } from '@oxide/api'
+import { apiQueryClient, useApiQuery } from '@oxide/api'
 import { DateCell, DefaultCell, TruncateCell, linkCell, useQueryTable } from '@oxide/table'
 import {
   Badge,
   Cloud16Icon,
+  Cloud24Icon,
+  Divider,
   EmptyMessage,
+  NextArrow12Icon,
   PageHeader,
   PageTitle,
+  Question12Icon,
   TableActions,
+  Tooltip,
   buttonStyle,
 } from '@oxide/ui'
 
@@ -19,6 +25,14 @@ import { pb } from 'app/util/path-builder'
 
 const EmptyState = () => (
   <EmptyMessage icon={<Cloud16Icon />} title="No identity providers" />
+)
+
+const RoleMappingTooltip = () => (
+  <Tooltip content="Silo roles can automatically grant a fleet role" placement="top">
+    <button className="ml-2 flex svg:pointer-events-none">
+      <Question12Icon className="text-quinary" />
+    </button>
+  </Tooltip>
 )
 
 SiloPage.loader = async ({ params }: LoaderFunctionArgs) => {
@@ -33,19 +47,45 @@ SiloPage.loader = async ({ params }: LoaderFunctionArgs) => {
 }
 
 export function SiloPage() {
-  const { silo } = useSiloSelector()
+  const siloSelector = useSiloSelector()
+
+  const { data: silo } = useApiQuery('siloView', { path: siloSelector })
+  invariant(silo, 'silo must be prefetched in loader')
+
+  const roleMapPairs = Object.entries(silo.mappedFleetRoles).flatMap(
+    ([fleetRole, siloRoles]) =>
+      siloRoles.map((siloRole) => [siloRole, fleetRole] as [string, string])
+  )
 
   const { Table, Column } = useQueryTable('siloIdentityProviderList', {
-    query: { silo },
+    query: siloSelector,
   })
 
   return (
     <>
       <PageHeader>
-        <PageTitle /*icon={icon}*/>Identity Providers</PageTitle>
+        <PageTitle icon={<Cloud24Icon />}>{silo.name}</PageTitle>
       </PageHeader>
+      <h2 className="mb-6 flex items-center text-mono-sm text-secondary">
+        Fleet role mapping <RoleMappingTooltip />
+      </h2>
+      {roleMapPairs.length === 0 ? (
+        <p className="text-secondary">&mdash;</p>
+      ) : (
+        <ul className="space-y-3">
+          {roleMapPairs.map(([siloRole, fleetRole]) => (
+            <li key={siloRole + '|' + fleetRole} className="flex items-center">
+              <Badge>Silo {siloRole}</Badge>
+              <NextArrow12Icon className="mx-3 text-secondary" aria-label="maps to" />
+              <span className="text-sans-md text-secondary">Fleet {fleetRole}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+      <Divider className="mt-10" />
+      <h2 className="mt-12 mb-4 text-mono-sm text-secondary">Identity providers</h2>
       <TableActions>
-        <Link to={pb.siloIdpNew({ silo })} className={buttonStyle({ size: 'sm' })}>
+        <Link to={pb.siloIdpNew(siloSelector)} className={buttonStyle({ size: 'sm' })}>
           New provider
         </Link>
       </TableActions>
@@ -59,7 +99,9 @@ export function SiloPage() {
             // get a link to the detail view. This is a little awkward to do with
             // linkCell as currently designed — probably worth a small rework
             providerType === 'saml' ? (
-              linkCell((provider) => pb.samlIdp({ silo, provider }))({ value: name })
+              linkCell((provider) => pb.samlIdp({ ...siloSelector, provider }))({
+                value: name,
+              })
             ) : (
               <DefaultCell value={name} />
             )

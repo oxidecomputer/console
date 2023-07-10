@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom'
 
 import type { BlockSize, Disk, DiskCreate, DiskSource } from '@oxide/api'
 import { useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
-import { Divider } from '@oxide/ui'
+import { FormDivider } from '@oxide/ui'
 import { FieldLabel, Radio, RadioGroup } from '@oxide/ui'
 import { GiB } from '@oxide/util'
 
@@ -87,7 +87,7 @@ export function CreateDiskSideModalForm({
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
-      <Divider />
+      <FormDivider />
       <DiskSourceField control={form.control} />
       <DiskSizeField name="size" control={form.control} />
     </SideModalForm>

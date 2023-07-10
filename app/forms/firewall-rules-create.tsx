@@ -15,7 +15,7 @@ import type {
   VpcFirewallRuleTarget,
   VpcFirewallRuleUpdate,
 } from '@oxide/api'
-import { Button, Close12Icon, Divider, Table } from '@oxide/ui'
+import { Button, Close12Icon, FormDivider, Table } from '@oxide/ui'
 
 import {
   CheckboxField,
@@ -146,7 +146,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
       <NameField name="name" control={control} />
       <DescriptionField name="description" control={control} />
 
-      <Divider />
+      <FormDivider />
 
       <TextField
         type="number"
@@ -175,7 +175,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
         ]}
       />
 
-      <Divider />
+      <FormDivider />
 
       {/* Really this should be its own <form>, but you can't have a form inside a form,
           so we just stick the submit handler in a button onClick */}
@@ -260,7 +260,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
         </Table.Body>
       </Table>
 
-      <Divider />
+      <FormDivider />
 
       <h3 className="mb-4 text-sans-xl">Host filters</h3>
       <ListboxField
@@ -343,7 +343,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
         </Table.Body>
       </Table>
 
-      <Divider />
+      <FormDivider />
 
       <TextField
         name="portRange"
@@ -399,7 +399,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
         </Table.Body>
       </Table>
 
-      <Divider />
+      <FormDivider />
 
       <fieldset className="space-y-0.5">
         <legend>Protocols</legend>
@@ -422,7 +422,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
 
       {error && (
         <>
-          <Divider />
+          <FormDivider />
           <div className="text-destructive">{error.message}</div>
         </>
       )}

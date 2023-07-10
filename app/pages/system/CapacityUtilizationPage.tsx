@@ -120,7 +120,7 @@ export function CapacityUtilizationPage() {
         <div className="flex items-center gap-2">{dateTimeRangePicker}</div>
       </div>
 
-      <Divider className="!mx-0 my-6 !w-full" />
+      <Divider className="my-6" />
 
       {intervalPicker}
 
