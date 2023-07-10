@@ -1,7 +1,8 @@
 import cn from 'classnames'
-import { Link, useParams } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import invariant from 'tiny-invariant'
 
+import type { Project } from '@oxide/api'
 import { useApiQuery, useApiQueryErrorsAllowed } from '@oxide/api'
 import {
   DropdownMenu,
@@ -229,11 +230,9 @@ const NoProjectLogo = () => (
   </div>
 )
 
-export function ProjectPicker() {
-  // picker only shows up when a project is in scope
-  const { project } = useParams()
-  const { data } = useApiQuery('projectList', { query: { limit: 20 } })
-  const items = (data?.items || []).map(({ name }) => ({
+export function ProjectPicker({ project }: { project?: Project }) {
+  const { data: projects } = useApiQuery('projectList', { query: { limit: 20 } })
+  const items = (projects?.items || []).map(({ name }) => ({
     label: name,
     to: pb.instances({ project: name }),
   }))
@@ -243,8 +242,8 @@ export function ProjectPicker() {
       aria-label="Switch project"
       icon={project ? undefined : <NoProjectLogo />}
       category="Project"
-      current={project}
-      to={project ? pb.project({ project }) : undefined}
+      current={project?.name}
+      to={project ? pb.project({ project: project.name }) : undefined}
       items={items}
       noItemsText="No projects found"
     />

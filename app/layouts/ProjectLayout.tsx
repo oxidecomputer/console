@@ -46,11 +46,9 @@ ProjectLayout.loader = async ({ params }: LoaderFunctionArgs) => {
 
 function ProjectLayout({ overrideContentPane }: ProjectLayoutProps) {
   const navigate = useNavigate()
-  // org and project will always be there, instance may not
+  // project will always be there, instance may not
   const projectSelector = useProjectSelector()
-  const { data: project } = useApiQuery('projectView', {
-    path: projectSelector,
-  })
+  const { data: project } = useApiQuery('projectView', { path: projectSelector })
   invariant(project, 'Project must be prefetched in loader')
 
   const { instance } = useParams()
@@ -82,7 +80,7 @@ function ProjectLayout({ overrideContentPane }: ProjectLayoutProps) {
     <PageContainer>
       <TopBar>
         <SiloSystemPicker value="silo" />
-        <ProjectPicker />
+        <ProjectPicker project={project} />
         {instance && <InstancePicker />}
       </TopBar>
       <Sidebar>
