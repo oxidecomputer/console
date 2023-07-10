@@ -1,7 +1,10 @@
 import type { ReactElement } from 'react'
 import { useMemo } from 'react'
+import type { LoaderFunctionArgs } from 'react-router-dom'
 import { matchPath, useLocation, useNavigate, useParams } from 'react-router-dom'
+import invariant from 'tiny-invariant'
 
+import { apiQueryClient, useApiQuery } from '@oxide/api'
 import {
   Access16Icon,
   Divider,
@@ -19,7 +22,7 @@ import {
   ProjectPicker,
   SiloSystemPicker,
 } from 'app/components/TopBarPicker'
-import { useProjectSelector, useQuickActions } from 'app/hooks'
+import { getProjectSelector, useProjectSelector, useQuickActions } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 import { DocsLinkItem, NavLinkItem, Sidebar } from '../components/Sidebar'
@@ -34,11 +37,20 @@ type ProjectLayoutProps = {
 
 const projectPathPattern = pb.project({ project: ':project' })
 
-const ProjectLayout = ({ overrideContentPane }: ProjectLayoutProps) => {
+ProjectLayout.loader = async ({ params }: LoaderFunctionArgs) => {
+  await apiQueryClient.prefetchQuery('projectView', {
+    path: getProjectSelector(params),
+  })
+  return null
+}
+
+function ProjectLayout({ overrideContentPane }: ProjectLayoutProps) {
   const navigate = useNavigate()
-  // org and project will always be there, instance may not
+  // project will always be there, instance may not
   const projectSelector = useProjectSelector()
-  const { project } = projectSelector
+  const { data: project } = useApiQuery('projectView', { path: projectSelector })
+  invariant(project, 'Project must be prefetched in loader')
+
   const { instance } = useParams()
   const currentPath = useLocation().pathname
   useQuickActions(
@@ -68,7 +80,7 @@ const ProjectLayout = ({ overrideContentPane }: ProjectLayoutProps) => {
     <PageContainer>
       <TopBar>
         <SiloSystemPicker value="silo" />
-        <ProjectPicker />
+        <ProjectPicker project={project} />
         {instance && <InstancePicker />}
       </TopBar>
       <Sidebar>
@@ -80,7 +92,7 @@ const ProjectLayout = ({ overrideContentPane }: ProjectLayoutProps) => {
           <DocsLinkItem />
         </Sidebar.Nav>
         <Divider />
-        <Sidebar.Nav heading={project}>
+        <Sidebar.Nav heading={project.name}>
           <NavLinkItem to={pb.instances(projectSelector)}>
             <Instances16Icon /> Instances
           </NavLinkItem>
