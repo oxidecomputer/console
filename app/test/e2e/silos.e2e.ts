@@ -40,9 +40,9 @@ test('Silos page', async ({ page }) => {
   await otherSiloCell.getByRole('link').click()
   await expectVisible(page, [
     page.getByRole('heading', { name: 'other-silo' }),
-    page.getByText('Silo admin Fleet admin'),
+    page.getByText('Silo adminFleet admin'),
   ])
-  await expect(page.getByText('Silo viewer Fleet viewer')).toBeHidden()
+  await expect(page.getByText('Silo viewerFleet viewer')).toBeHidden()
 
   await page.goBack()
 
@@ -60,8 +60,8 @@ test('Default silo', async ({ page }) => {
 
   await expect(page.getByRole('heading', { name: 'default-silo' })).toBeVisible()
   await expectNotVisible(page, [
-    page.getByText('Silo admin Fleet admin'),
-    page.getByText('Silo viewer Fleet viewer'),
+    page.getByText('Silo adminFleet admin'),
+    page.getByText('Silo viewerFleet viewer'),
   ])
 })
 
