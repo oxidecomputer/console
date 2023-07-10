@@ -13,9 +13,9 @@ import {
   useApiQueryClient,
 } from '@oxide/api'
 import {
-  Divider,
   EmptyMessage,
   FieldLabel,
+  FormDivider,
   Images16Icon,
   Instances24Icon,
   Key16Icon,
@@ -193,7 +193,7 @@ export function CreateInstanceForm() {
         Start Instance
       </CheckboxField>
 
-      <Divider />
+      <FormDivider />
 
       <Form.Heading id="hardware">Hardware</Form.Heading>
 
@@ -263,7 +263,7 @@ export function CreateInstanceForm() {
         </Tabs.Content>
       </Tabs.Root>
 
-      <Divider />
+      <FormDivider />
 
       <Form.Heading id="boot-disk">Boot disk</Form.Heading>
       <Tabs.Root id="boot-disk-tabs" className="full-width" defaultValue="project">
@@ -323,17 +323,17 @@ export function CreateInstanceForm() {
         required={false}
         control={control}
       />
-      <Divider />
+      <FormDivider />
       <Form.Heading id="additional-disks">Additional disks</Form.Heading>
 
       <DisksTableField control={control} />
 
-      <Divider />
+      <FormDivider />
       <Form.Heading id="authentication">Authentication</Form.Heading>
 
       <SshKeysTable />
 
-      <Divider />
+      <FormDivider />
       <Form.Heading id="networking">Networking</Form.Heading>
 
       <NetworkInterfaceField control={control} />

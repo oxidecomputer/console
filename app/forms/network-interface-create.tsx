@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form'
 
 import type { ApiError, InstanceNetworkInterfaceCreate } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
-import { Divider } from '@oxide/ui'
+import { FormDivider } from '@oxide/ui'
 
 import {
   DescriptionField,
@@ -59,7 +59,7 @@ export default function CreateNetworkInterfaceForm({
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
-      <Divider />
+      <FormDivider />
 
       <ListboxField
         name="vpcName"

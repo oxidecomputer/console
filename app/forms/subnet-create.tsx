@@ -2,7 +2,7 @@ import { useForm } from 'react-hook-form'
 
 import type { VpcSubnetCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import { Divider } from '@oxide/ui'
+import { FormDivider } from '@oxide/ui'
 
 import { DescriptionField, NameField, SideModalForm, TextField } from 'app/components/form'
 import { useVpcSelector } from 'app/hooks'
@@ -42,7 +42,7 @@ export function CreateSubnetForm({ onDismiss }: CreateSubnetFormProps) {
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
-      <Divider />
+      <FormDivider />
       <TextField name="ipv4Block" label="IPv4 block" required control={form.control} />
       <TextField name="ipv6Block" label="IPv6 block" control={form.control} />
     </SideModalForm>

@@ -9,6 +9,7 @@ import {
   Badge,
   Cloud16Icon,
   Cloud24Icon,
+  Divider,
   EmptyMessage,
   NextArrow12Icon,
   PageHeader,
@@ -81,6 +82,7 @@ export function SiloPage() {
           ))}
         </ul>
       )}
+      <Divider className="mt-10" />
       <h2 className="mt-12 mb-4 text-mono-sm text-secondary">Identity providers</h2>
       <TableActions>
         <Link to={pb.siloIdpNew(siloSelector)} className={buttonStyle({ size: 'sm' })}>
