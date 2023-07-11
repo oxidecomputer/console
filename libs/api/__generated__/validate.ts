@@ -1022,9 +1022,12 @@ export const MeasurementResultsPage = z.preprocess(
  */
 export const Password = z.preprocess(processResponseBody, z.string().max(512))
 
-export const PhysicalDiskType = z.preprocess(
+/**
+ * Describes the form factor of physical disks.
+ */
+export const PhysicalDiskKind = z.preprocess(
   processResponseBody,
-  z.enum(['internal', 'external'])
+  z.union([z.object({ type: z.enum(['m2']) }), z.object({ type: z.enum(['u2']) })])
 )
 
 /**
@@ -1035,7 +1038,7 @@ export const PhysicalDiskType = z.preprocess(
 export const PhysicalDisk = z.preprocess(
   processResponseBody,
   z.object({
-    diskType: PhysicalDiskType,
+    formFactor: PhysicalDiskKind,
     id: z.string().uuid(),
     model: z.string(),
     serial: z.string(),
@@ -1793,8 +1796,8 @@ export const UserId = z.preprocess(
 export const UserPassword = z.preprocess(
   processResponseBody,
   z.union([
-    z.object({ details: Password, userPasswordValue: z.enum(['password']) }),
-    z.object({ userPasswordValue: z.enum(['invalid_password']) }),
+    z.object({ mode: z.enum(['password']), value: Password }),
+    z.object({ mode: z.enum(['login_disallowed']) }),
   ])
 )
 
@@ -2345,7 +2348,6 @@ export const ImageListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      includeSiloImages: SafeBoolean.optional(),
       limit: z.number().min(1).max(4294967295).optional(),
       pageToken: z.string().optional(),
       project: NameOrId.optional(),

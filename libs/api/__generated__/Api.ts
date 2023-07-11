@@ -1004,7 +1004,10 @@ export type MeasurementResultsPage = {
  */
 export type Password = string
 
-export type PhysicalDiskType = 'internal' | 'external'
+/**
+ * Describes the form factor of physical disks.
+ */
+export type PhysicalDiskKind = { type: 'm2' } | { type: 'u2' }
 
 /**
  * View of a Physical Disk
@@ -1012,7 +1015,7 @@ export type PhysicalDiskType = 'internal' | 'external'
  * Physical disks reside in a particular sled and are used to store both Instance Disk data as well as internal metadata.
  */
 export type PhysicalDisk = {
-  diskType: PhysicalDiskType
+  formFactor: PhysicalDiskKind
   /** unique, immutable, system-controlled identifier for each resource */
   id: string
   model: string
@@ -1853,9 +1856,9 @@ export type UserId = string
  */
 export type UserPassword =
   /** Sets the user's password to the provided value */
-  | { details: Password; userPasswordValue: 'password' }
+  | { mode: 'password'; value: Password }
   /** Invalidates any current password (disabling password authentication) */
-  | { userPasswordValue: 'invalid_password' }
+  | { mode: 'login_disallowed' }
 
 /**
  * Create-time parameters for a `User`
@@ -1863,7 +1866,7 @@ export type UserPassword =
 export type UserCreate = {
   /** username used to log in */
   externalId: UserId
-  /** password used to log in */
+  /** how to set the user's login password */
   password: UserPassword
 }
 
@@ -2297,7 +2300,6 @@ export interface GroupViewPathParams {
 }
 
 export interface ImageListQueryParams {
-  includeSiloImages?: boolean
   limit?: number
   pageToken?: string
   project?: NameOrId
