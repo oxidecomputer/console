@@ -131,12 +131,10 @@ function getTmpDiskName(imageName: string) {
 const ABORT_ERROR = new Error('Upload canceled')
 
 /**
- * base64 encoding increases the size of the data by 1/3, so we need to
- * compensate for that. In many contexts (like email attachements), headers and
- * line breaks can introduce up 4% more overhead, but that doesn't apply here
- * because we are only sending the encoded data itself.
+ * Crucible currently enforces a limit of 512 KiB. See [crucible
+ * source](https://github.com/oxidecomputer/crucible/blob/c574ff1232/pantry/src/pantry.rs#L239-L253).
  */
-const CHUNK_SIZE = Math.floor((512 * KiB * 3) / 4)
+const CHUNK_SIZE_BYTES = 512 * KiB
 
 // States
 //
@@ -369,15 +367,15 @@ export function CreateImageSideModalForm() {
 
     setSyntheticUploadState({ isLoading: true, isSuccess: false, isError: false })
 
-    const nChunks = Math.ceil(imageFile.size / CHUNK_SIZE)
+    const nChunks = Math.ceil(imageFile.size / CHUNK_SIZE_BYTES)
 
     // TODO: try to warn user if they try to close the tab while this is going
 
     let chunksProcessed = 0
 
     const postChunk = async (i: number) => {
-      const offset = i * CHUNK_SIZE
-      const end = Math.min(offset + CHUNK_SIZE, imageFile.size)
+      const offset = i * CHUNK_SIZE_BYTES
+      const end = Math.min(offset + CHUNK_SIZE_BYTES, imageFile.size)
       const base64EncodedData = await readBlobAsBase64(imageFile.slice(offset, end))
 
       // Disk space is all zeros by default, so we can skip any chunks that are
