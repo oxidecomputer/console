@@ -50,7 +50,7 @@ export default defineConfig(({ mode }) => ({
     },
   },
   define: {
-    'process.env.MSW': JSON.stringify(mode !== 'production' && devApiMode === 'msw'),
+    'process.env.MSW': JSON.stringify(devApiMode === 'msw'),
     // used in production build to console.log the SHA at page load
     'process.env.SHA': JSON.stringify(process.env.SHA),
     // used by MSW — number for % likelihood of API request failure (decimals allowed)
