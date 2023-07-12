@@ -144,13 +144,14 @@ const DiskSourceField = ({ control }: { control: Control<DiskCreate> }) => {
 }
 
 const ImageSelectField = ({ control }: { control: Control<DiskCreate> }) => {
-  const projectSelector = useProjectSelector()
+  const { project } = useProjectSelector()
 
-  const imagesQuery = useApiQuery('imageList', {
-    query: { includeSiloImages: true, ...projectSelector },
-  })
+  const projectImages = useApiQuery('imageList', { query: { project } })
+  const siloImages = useApiQuery('imageList', {})
 
-  const images = imagesQuery.data?.items || []
+  // put project images first because if there are any, there probably aren't
+  // very many and they're probably relevant
+  const images = [...(projectImages.data?.items || []), ...(siloImages.data?.items || [])]
 
   return (
     <ListboxField
@@ -158,7 +159,7 @@ const ImageSelectField = ({ control }: { control: Control<DiskCreate> }) => {
       name="diskSource.imageId"
       label="Source image"
       placeholder="Select an image"
-      isLoading={imagesQuery.isLoading}
+      isLoading={projectImages.isLoading || siloImages.isLoading}
       items={images.map((i) => toListboxItem(i, true))}
       required
     />

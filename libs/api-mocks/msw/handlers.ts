@@ -204,18 +204,14 @@ export const handlers = makeHandlers({
     return 204
   },
   imageList({ query }) {
-    let images: Json<Api.Image>[] = []
     if (query.project) {
       const project = lookup.project(query)
-      images = db.images.filter((i) => i.project_id === project.id)
-
-      if (query.includeSiloImages) {
-        images = images.concat(db.images.filter((i) => !i.project_id))
-      }
-    } else {
-      images = db.images.filter((i) => !i.project_id)
+      const images = db.images.filter((i) => i.project_id === project.id)
+      return paginated(query, images)
     }
 
+    // silo images
+    const images = db.images.filter((i) => !i.project_id)
     return paginated(query, images)
   },
   imageCreate({ body, query }) {

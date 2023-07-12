@@ -24,7 +24,12 @@ export function DisksTab() {
     <>
       <Table emptyState={<EmptyState />}>
         <Column accessor="id" />
-        <Column id="status" accessor={() => 'active'} header="status" cell={LabelCell} />
+        <Column
+          id="form-factor"
+          accessor={(d) => (d.formFactor === 'u2' ? 'U.2' : 'M.2')}
+          header="Form factor"
+          cell={LabelCell}
+        />
         <Column accessor="model" header="model number" />
         <Column accessor="serial" header="serial number" />
       </Table>

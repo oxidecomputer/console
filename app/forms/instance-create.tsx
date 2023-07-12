@@ -81,9 +81,9 @@ const baseDefaultValues: InstanceCreateInput = {
 
 CreateInstanceForm.loader = async ({ params }: LoaderFunctionArgs) => {
   await Promise.all([
-    apiQueryClient.prefetchQuery('imageList', {
-      query: { includeSiloImages: true, ...getProjectSelector(params) },
-    }),
+    // fetch both project and silo images
+    apiQueryClient.prefetchQuery('imageList', { query: getProjectSelector(params) }),
+    apiQueryClient.prefetchQuery('imageList', {}),
     apiQueryClient.prefetchQuery('currentUserSshKeyList', {}),
   ])
   return null
@@ -112,13 +112,12 @@ export function CreateInstanceForm() {
     },
   })
 
-  const images =
-    useApiQuery('imageList', { query: { includeSiloImages: true, ...projectSelector } })
-      .data?.items || []
-  const siloImages = images.filter((i) => !i.projectId)
-  const projectImages = images.filter((i) => i.projectId)
+  const siloImages = useApiQuery('imageList', {}).data?.items || []
+  const projectImages =
+    useApiQuery('imageList', { query: projectSelector }).data?.items || []
+  const allImages = [...siloImages, ...projectImages]
 
-  const defaultImage = images[0]
+  const defaultImage = allImages[0]
 
   const defaultValues: InstanceCreateInput = {
     ...baseDefaultValues,
@@ -131,7 +130,7 @@ export function CreateInstanceForm() {
   const { control, setValue } = form
 
   const imageInput = useWatch({ control: control, name: 'image' })
-  const image = images.find((i) => i.id === imageInput)
+  const image = allImages.find((i) => i.id === imageInput)
 
   return (
     <FullPageForm
@@ -148,7 +147,7 @@ export function CreateInstanceForm() {
             : { memory: preset.memory, ncpus: preset.ncpus }
 
         // we should also never have an image ID that's not in the list
-        const image = images.find((i) => values.image === i.id)
+        const image = allImages.find((i) => values.image === i.id)
         invariant(image, 'Expected image to be defined')
 
         const bootDiskName = values.bootDiskName || genName(values.name, image.name)

@@ -1,6 +1,6 @@
-import { expect, test } from '@playwright/test'
+import { physicalDisks } from '@oxide/api-mocks'
 
-import { expectRowVisible, expectVisible } from './utils'
+import { expect, expectRowVisible, expectVisible, test } from './utils'
 
 test('Sled inventory page', async ({ page }) => {
   await page.goto('/system/inventory/sleds')
@@ -26,4 +26,18 @@ test('Sled inventory page', async ({ page }) => {
   await expectRowVisible(instancesTable, {
     name: 'default-silo / mock-projectdb1',
   })
+})
+
+test('Disk inventory page', async ({ page }) => {
+  await page.goto('/system/inventory/disks')
+
+  await expectVisible(page, ['role=heading[name*="Inventory"]'])
+
+  const disksTab = page.getByRole('tab', { name: 'Disks' })
+  await expect(disksTab).toBeVisible()
+  await expect(disksTab).toHaveClass(/is-selected/)
+
+  const table = page.getByRole('table')
+  await expectRowVisible(table, { id: physicalDisks[0].id, 'Form factor': 'U.2' })
+  await expectRowVisible(table, { id: physicalDisks[3].id, 'Form factor': 'M.2' })
 })
