@@ -17,7 +17,7 @@ export const instance: Json<Instance> = {
   time_run_state_updated: new Date().toISOString(),
 }
 
-const failedInstance: Json<Instance> = {
+export const failedInstance: Json<Instance> = {
   id: 'b5946edc-5bed-4597-88ab-9a8beb9d32a4',
   name: 'you-fail',
   ncpus: 7,
