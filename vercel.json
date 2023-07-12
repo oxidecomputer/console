@@ -1,0 +1,10 @@
+{
+  "buildCommand": "MSW=1 npm run build && cp mockServiceWorker.js dist/",
+  "outputDirectory": "dist",
+  "rewrites": [
+    {
+      "source": "/:path((?!assets/|mockServiceWorker\\.js$).*)",
+      "destination": "/index.html"
+    }
+  ]
+}

@@ -24,9 +24,7 @@
     "jscodeshift": "node node_modules/.bin/jscodeshift",
     "unused-exports": "ts-unused-exports tsconfig.json --ignoreFiles=\\.stories --excludePathsFromReport=\"libs/api/index.ts;libs/ui/index.ts\"",
     "postinstall": "patch-package",
-    "prepare": "husky install",
-    "fly:local": "MSW=1 npm run build && docker build -t app -f tools/deploy-mock/Dockerfile . && docker run -it --init -p 4507:4507 app",
-    "fly:deploy": "MSW=1 npm run build && fly deploy -c tools/deploy-mock/fly.toml --dockerfile tools/deploy-mock/Dockerfile"
+    "prepare": "husky install"
   },
   "private": true,
   "dependencies": {

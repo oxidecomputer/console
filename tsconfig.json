@@ -28,5 +28,5 @@
     "target": "es2015",
     "types": ["node", "vite/client", "vitest/importMeta", "vitest/globals"]
   },
-  "exclude": ["tools/deno", "tools/deploy-mock"]
+  "exclude": ["tools/deno"]
 }

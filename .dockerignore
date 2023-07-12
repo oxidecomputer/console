@@ -1,7 +1,0 @@
-# ignore everything
-*
-
-# except the few files we need
-!dist
-!tools/deploy-mock
-!mockServiceWorker.js
