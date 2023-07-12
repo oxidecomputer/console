@@ -1,10 +1,9 @@
 import React, { Suspense, useMemo, useState } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
-import invariant from 'tiny-invariant'
 
 import type { Cumulativeint64, DiskMetricName } from '@oxide/api'
 import { apiQueryClient, useApiQuery } from '@oxide/api'
-import { Listbox, Spinner } from '@oxide/ui'
+import { EmptyMessage, Listbox, Spinner, Storage24Icon, TableEmptyBox } from '@oxide/ui'
 import { toPathQuery } from '@oxide/util'
 
 import { useDateTimeRangePicker } from 'app/components/form'
@@ -93,16 +92,27 @@ export function MetricsTab() {
   )
   const disks = useMemo(() => data?.items || [], [data])
 
-  // because of prefetch in the loader and because an instance should always
-  // have a disk, we should never see an empty list here
-  invariant(disks.length > 0, 'Instance disks list should never be empty')
-
   const { startTime, endTime, dateTimeRangePicker } = useDateTimeRangePicker({
     initialPreset: 'lastDay',
   })
 
-  const [diskName, setDiskName] = useState<string>(disks[0].name)
+  // The fallback here is kind of silly — it is only invoked when there are no
+  // disks, in which case we show the fallback UI and diskName is never used. We
+  // only need to do it this way because hooks cannot be called conditionally.
+  const [diskName, setDiskName] = useState<string>(disks[0]?.name || '')
   const diskItems = disks.map(({ name }) => ({ label: name, value: name }))
+
+  if (disks.length === 0) {
+    return (
+      <TableEmptyBox>
+        <EmptyMessage
+          icon={<Storage24Icon />}
+          title="No metrics available"
+          body="Metrics are only available if there are disks attached"
+        />
+      </TableEmptyBox>
+    )
+  }
 
   const commonProps = {
     startTime,
