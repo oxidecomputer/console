@@ -35,7 +35,7 @@ export const physicalDisks: Json<PhysicalDisk>[] = [
   },
   {
     id: '0591ae13-3c72-4701-a801-20e44f809496',
-    form_factor: 'u2',
+    form_factor: 'm2',
     model: 'MTFDKBG800TDZ-1AZ1ZAB',
     serial: 'CA73ANUYLJ9',
     vendor: '0634',
