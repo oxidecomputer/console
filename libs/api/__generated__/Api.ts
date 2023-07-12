@@ -1007,7 +1007,7 @@ export type Password = string
 /**
  * Describes the form factor of physical disks.
  */
-export type PhysicalDiskKind = { type: 'm2' } | { type: 'u2' }
+export type PhysicalDiskKind = 'm2' | 'u2'
 
 /**
  * View of a Physical Disk

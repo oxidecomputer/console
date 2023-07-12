@@ -1025,10 +1025,7 @@ export const Password = z.preprocess(processResponseBody, z.string().max(512))
 /**
  * Describes the form factor of physical disks.
  */
-export const PhysicalDiskKind = z.preprocess(
-  processResponseBody,
-  z.union([z.object({ type: z.enum(['m2']) }), z.object({ type: z.enum(['u2']) })])
-)
+export const PhysicalDiskKind = z.preprocess(processResponseBody, z.enum(['m2', 'u2']))
 
 /**
  * View of a Physical Disk
