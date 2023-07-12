@@ -1,5 +1,5 @@
 {
-  "buildCommand": "MSW=1 npm run build && cp mockServiceWorker.js dist/",
+  "buildCommand": "API_MODE=msw npm run build && cp mockServiceWorker.js dist/",
   "outputDirectory": "dist",
   "rewrites": [
     {
