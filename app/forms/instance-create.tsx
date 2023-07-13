@@ -262,7 +262,7 @@ export function CreateInstanceForm() {
             control={control}
             validate={(cpus) => {
               if (cpus < 1) {
-                return `Must be at least 1`
+                return `Must be at least 1 vCPU`
               }
               if (cpus > MAX_CPU) {
                 return `CPUs temporarily capped to 32`
