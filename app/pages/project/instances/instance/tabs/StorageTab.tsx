@@ -19,12 +19,15 @@ import { CreateDiskSideModalForm } from 'app/forms/disk-create'
 import { getInstanceSelector, useInstanceSelector, useToast } from 'app/hooks'
 
 StorageTab.loader = async ({ params }: LoaderFunctionArgs) => {
-  const instancePathQuery = toPathQuery('instance', getInstanceSelector(params))
+  const { path, query } = toPathQuery('instance', getInstanceSelector(params))
   await Promise.all([
-    apiQueryClient.prefetchQuery('instanceDiskList', instancePathQuery),
+    apiQueryClient.prefetchQuery('instanceDiskList', {
+      path,
+      query: { ...query, limit: 10 }, // querytable
+    }),
     // This is covered by the InstancePage loader but there's no downside to
     // being redundant. If it were removed there, we'd still want it here.
-    apiQueryClient.prefetchQuery('instanceView', instancePathQuery),
+    apiQueryClient.prefetchQuery('instanceView', { path, query }),
   ])
   return null
 }
@@ -36,8 +39,6 @@ export function StorageTab() {
   const addToast = useToast()
   const queryClient = useApiQueryClient()
   const instancePathQuery = toPathQuery('instance', useInstanceSelector())
-
-  const { data } = useApiQuery('instanceDiskList', instancePathQuery)
 
   const detachDisk = useApiMutation('instanceDiskDetach', {})
 
@@ -82,8 +83,6 @@ export function StorageTab() {
   })
 
   const { Table, Column } = useQueryTable('instanceDiskList', instancePathQuery)
-
-  if (!data) return null
 
   const emptyState = (
     <EmptyMessage
