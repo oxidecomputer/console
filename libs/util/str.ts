@@ -30,7 +30,7 @@ export const camelCaseToWords = (s: string): string[] => {
 
 export const commaSeries = (items: string[], conj: string) => {
   if (items.length <= 2) {
-    return items.join(' ' + conj + ' ')
+    return items.join(` ${conj} `)
   }
-  return `${items.slice(0, -1).join(', ')}, ${conj} ${items.at(-1)}`
+  return [...items.slice(0, -1), `${conj} ${items.at(-1)}`].join(', ')
 }

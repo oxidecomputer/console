@@ -15,7 +15,7 @@ import {
 import type { MenuAction } from '@oxide/table'
 import { DateCell, SizeCell, useQueryTable } from '@oxide/table'
 import { Button, EmptyMessage, Storage24Icon } from '@oxide/ui'
-import { commaSeries, toPathQuery } from '@oxide/util'
+import { intersperse, toPathQuery } from '@oxide/util'
 
 import { DiskStatusBadge } from 'app/components/StatusBadge'
 import AttachDiskSideModalForm from 'app/forms/disk-attach'
@@ -33,8 +33,17 @@ StorageTab.loader = async ({ params }: LoaderFunctionArgs) => {
   return null
 }
 
-const detachableStates = commaSeries([...INSTANCE_DETACH_DISK_STATES], 'or')
-const attachableStates = commaSeries([...INSTANCE_ATTACH_DISK_STATES], 'or')
+const white = (s: string) => (
+  <span key={s} className="text-default">
+    {s}
+  </span>
+)
+
+const fancifyStates = (states: Set<string>) =>
+  intersperse([...states].map(white), <>, </>, <> or </>)
+
+const attachableStates = fancifyStates(INSTANCE_ATTACH_DISK_STATES)
+const detachableStates = fancifyStates(INSTANCE_DETACH_DISK_STATES)
 
 export function StorageTab() {
   const [showDiskCreate, setShowDiskCreate] = useState(false)
@@ -55,9 +64,9 @@ export function StorageTab() {
     (disk: Disk): MenuAction[] => [
       {
         label: 'Detach',
-        disabled:
-          !instanceCan.detachDisk(instance) &&
-          `Instance must be in state ${detachableStates} before disk can be detached`,
+        disabled: !instanceCan.detachDisk(instance) && (
+          <>Instance must be in state {detachableStates} before disk can be detached</>
+        ),
         onActivate() {
           detachDisk.mutate(
             { body: { disk: disk.name }, ...instancePathQuery },
@@ -127,7 +136,7 @@ export function StorageTab() {
           <Button
             size="sm"
             onClick={() => setShowDiskCreate(true)}
-            disabledReason={`Instance must be ${attachableStates} to create a disk`}
+            disabledReason={<>Instance must be {attachableStates} to create a disk</>}
             disabled={!instanceCan.attachDisk(instance)}
           >
             Create new disk
@@ -136,7 +145,7 @@ export function StorageTab() {
             variant="secondary"
             size="sm"
             onClick={() => setShowDiskAttach(true)}
-            disabledReason={`Instance must be ${attachableStates} to attach a disk`}
+            disabledReason={<>Instance must be {attachableStates} to attach a disk</>}
             disabled={!instanceCan.attachDisk(instance)}
           >
             Attach existing disk
@@ -144,8 +153,7 @@ export function StorageTab() {
         </div>
         {!instanceCan.attachDisk(instance) && (
           <span className="max-w-xs text-sans-md text-tertiary">
-            A disk cannot be added or attached unless the instance is in state{' '}
-            {attachableStates}.
+            A disk cannot be added or attached unless the instance is {attachableStates}.
           </span>
         )}
       </div>

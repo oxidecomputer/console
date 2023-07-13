@@ -9,7 +9,7 @@ export type MakeActions<Item> = (item: Item) => Array<MenuAction>
 export type MenuAction = {
   label: string
   onActivate: () => void
-  disabled?: false | string
+  disabled?: false | React.ReactNode
   className?: string
 }
 
