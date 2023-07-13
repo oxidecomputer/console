@@ -45,6 +45,18 @@ import {
 import { getProjectSelector, useProjectSelector, useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
+/**
+ * CPUs limited to 32 due to bhyve limitation
+ * @see https://github.com/oxidecomputer/omicron/issues/3212
+ **/
+const MAX_CPU = 32
+
+/**
+ * RAM limited to 64 GiB due to timeouts for larger memory sizes
+ * @see https://github.com/oxidecomputer/omicron/issues/3417
+ */
+const MAX_RAM = 64
+
 export type InstanceCreateInput = Assign<
   // API accepts undefined but it's easier if we don't
   SetRequired<InstanceCreate, 'networkInterfaces'>,
@@ -246,10 +258,16 @@ export function CreateInstanceForm() {
             label="CPUs"
             name="ncpus"
             min={1}
-            // CPUs temporarily limited to 32
-            // https://github.com/oxidecomputer/omicron/issues/3212
-            max={32}
+            max={MAX_CPU}
             control={control}
+            validate={(cpus) => {
+              if (cpus < 1) {
+                return `Must be at least 1`
+              }
+              if (cpus > MAX_CPU) {
+                return `CPUs temporarily capped to 32`
+              }
+            }}
           />
           <TextField
             units="GiB"
@@ -258,10 +276,16 @@ export function CreateInstanceForm() {
             label="Memory"
             name="memory"
             min={1}
-            // Disks limited to 64 Gib
-            // https://github.com/oxidecomputer/omicron/issues/3417
-            max={64}
+            max={MAX_RAM}
             control={control}
+            validate={(memory) => {
+              if (memory < 1) {
+                return `Must be at least 1 GiB`
+              }
+              if (memory > MAX_RAM) {
+                return `Memory temporarily capped at 64 GiB`
+              }
+            }}
           />
         </Tabs.Content>
       </Tabs.Root>
@@ -437,7 +461,7 @@ const PRESETS = [
   { category: 'general', id: 'general-sm', memory: 16, ncpus: 4 },
   { category: 'general', id: 'general-md', memory: 32, ncpus: 8 },
   { category: 'general', id: 'general-lg', memory: 64, ncpus: 16 },
-  // Disks limited to 64 Gib
+  // RAM limited to 64 Gib
   // https://github.com/oxidecomputer/omicron/issues/3417
   // { category: 'general', id: 'general-xl', memory: 128, ncpus: 32 },
 
@@ -450,7 +474,7 @@ const PRESETS = [
   { category: 'highMemory', id: 'highMemory-xs', memory: 16, ncpus: 2 },
   { category: 'highMemory', id: 'highMemory-sm', memory: 32, ncpus: 4 },
   { category: 'highMemory', id: 'highMemory-md', memory: 64, ncpus: 8 },
-  // Disks limited to 64 Gib
+  // RAM limited to 64 Gib
   // https://github.com/oxidecomputer/omicron/issues/3417
   // { category: 'highMemory', id: 'highMemory-lg', memory: 128, ncpus: 16 },
 
