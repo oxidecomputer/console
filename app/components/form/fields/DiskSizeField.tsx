@@ -21,6 +21,9 @@ export function DiskSizeField<
       required={required}
       name={name}
       min={minSize}
+      // Disks limited to 64 Gib
+      // https://github.com/oxidecomputer/omicron/issues/3417
+      max={64}
       {...props}
     />
   )
