@@ -63,7 +63,26 @@ export const genName = (...parts: [string, ...string[]]) => {
   )
 }
 
-/** Disk states that allow delete. See [Omicron source](https://github.com/oxidecomputer/omicron/blob/4970c71e/nexus/db-queries/src/db/datastore/disk.rs#L578-L582). */
+/**
+ * See https://github.com/oxidecomputer/omicron/blob/a7c7a6768/nexus/db-queries/src/db/datastore/disk.rs#L183-L184
+ */
+export const INSTANCE_ATTACH_DISK_STATES: Set<InstanceState> = new Set([
+  'creating',
+  'stopped',
+])
+
+/**
+ * See https://github.com/oxidecomputer/omicron/blob/9eff6a45/nexus/db-queries/src/db/datastore/disk.rs#L310-L314
+ */
+export const INSTANCE_DETACH_DISK_STATES: Set<InstanceState> = new Set([
+  'creating',
+  'stopped',
+  'failed',
+])
+
+/**
+ * See https://github.com/oxidecomputer/omicron/blob/4970c71e/nexus/db-queries/src/db/datastore/disk.rs#L578-L582.
+ */
 export const DISK_DELETE_STATES: Set<DiskState['state']> = new Set([
   'detached',
   'creating',
@@ -84,6 +103,8 @@ export const instanceCan: Record<string, (i: Instance) => boolean> = {
   reboot: (i) => i.runState === 'running',
   stop: (i) => INSTANCE_STOP_STATES.has(i.runState),
   delete: (i) => INSTANCE_DELETE_STATES.has(i.runState),
+  detachDisk: (i) => INSTANCE_DETACH_DISK_STATES.has(i.runState),
+  attachDisk: (i) => INSTANCE_ATTACH_DISK_STATES.has(i.runState),
 }
 
 /** Hard coded in the API, so we can hard code it here. */

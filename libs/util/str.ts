@@ -27,3 +27,10 @@ export const kebabCase = (s: string) =>
 export const camelCaseToWords = (s: string): string[] => {
   return s.split(/(?=[A-Z])/).map((w) => w.toLowerCase())
 }
+
+export const commaSeries = (items: string[], conj: string) => {
+  if (items.length <= 2) {
+    return items.join(' ' + conj + ' ')
+  }
+  return `${items.slice(0, -1).join(', ')}, ${conj} ${items.at(-1)}`
+}
