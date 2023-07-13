@@ -46,7 +46,7 @@ import { getProjectSelector, useProjectSelector, useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 /**
- * CPUs limited to 32 due to bhyve limitation
+ * CPUs limited to 32 due to bhyve restriction
  * @see https://github.com/oxidecomputer/omicron/issues/3212
  **/
 const MAX_CPU = 32
