@@ -32,6 +32,7 @@ export const getSiloSelector = requireParams('silo')
 export const getSiloImageSelector = requireParams('image')
 export const getIdpSelector = requireParams('silo', 'provider')
 export const getProjectImageSelector = requireParams('project', 'image')
+export const getProjectSnapshotSelector = requireParams('project', 'snapshot')
 export const requireSledParams = requireParams('sledId')
 export const requireUpdateParams = requireParams('version')
 
@@ -62,6 +63,8 @@ function useSelectedParams<T>(getSelector: (params: AllParams) => T) {
 
 export const useProjectSelector = () => useSelectedParams(getProjectSelector)
 export const useProjectImageSelector = () => useSelectedParams(getProjectImageSelector)
+export const useProjectSnapshotSelector = () =>
+  useSelectedParams(getProjectSnapshotSelector)
 export const useInstanceSelector = () => useSelectedParams(getInstanceSelector)
 export const useVpcSelector = () => useSelectedParams(getVpcSelector)
 export const useSiloSelector = () => useSelectedParams(getSiloSelector)
