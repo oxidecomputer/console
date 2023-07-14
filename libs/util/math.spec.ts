@@ -1,3 +1,5 @@
+import { expect, it } from 'vitest'
+
 import { splitDecimal } from './math'
 
 it.each([
