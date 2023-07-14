@@ -1,3 +1,5 @@
+import { expect, test } from 'vitest'
+
 import { exclude, pick } from './object'
 
 test('pick', () => {

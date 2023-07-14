@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest'
+
 import { users } from '..'
 import { paginated, userIsFleetViewer } from './util'
 

@@ -1,3 +1,5 @@
+import { expect, test } from 'vitest'
+
 import { groupBy, intersperse, lowestBy, sortBy, sumBy } from './array'
 
 test('sortBy', () => {

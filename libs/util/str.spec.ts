@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest'
+
 import { camelCase, capitalize, commaSeries, kebabCase } from './str'
 
 describe('capitalize', () => {
