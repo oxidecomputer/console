@@ -70,9 +70,9 @@ export const instanceCan = mapValues(
     reboot: ['running'],
     stop: ['running', 'starting'],
     delete: ['stopped', 'failed'],
-    // https://github.com/oxidecomputer/omicron/blob/9eff6a4/nexus/db-queries/src/db/datastore/disk.rs#L310-L314 */
+    // https://github.com/oxidecomputer/omicron/blob/9eff6a4/nexus/db-queries/src/db/datastore/disk.rs#L310-L314
     detachDisk: ['creating', 'stopped', 'failed'],
-    // https://github.com/oxidecomputer/omicron/blob/a7c7a67/nexus/db-queries/src/db/datastore/disk.rs#L183-L184 */
+    // https://github.com/oxidecomputer/omicron/blob/a7c7a67/nexus/db-queries/src/db/datastore/disk.rs#L183-L184
     attachDisk: ['creating', 'stopped'],
     // https://github.com/oxidecomputer/omicron/blob/8f0cbf0/nexus/db-queries/src/db/datastore/network_interface.rs#L482
     updateNic: ['stopped'],

@@ -112,9 +112,11 @@ export function DisksPage() {
       }),
       disabled:
         !diskCan.delete(disk) &&
-        (disk.state.state === 'attached'
-          ? 'Disk must be detached before it can be deleted'
-          : `A ${disk.state.state} disk cannot be deleted`),
+        (disk.state.state === 'attached' ? (
+          'Disk must be detached before it can be deleted'
+        ) : (
+          <>Only disks in state {fancifyStates(diskCan.delete.states)} can be deleted</>
+        )),
     },
   ]
 
