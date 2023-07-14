@@ -1,5 +1,5 @@
 /// Helpers for working with API objects
-import { bytesToGiB, pick, sumBy } from '@oxide/util'
+import { bytesToGiB, mapValues, pick, sumBy } from '@oxide/util'
 
 import type {
   DiskState,
@@ -64,23 +64,6 @@ export const genName = (...parts: [string, ...string[]]) => {
 }
 
 /**
- * See https://github.com/oxidecomputer/omicron/blob/a7c7a6768/nexus/db-queries/src/db/datastore/disk.rs#L183-L184
- */
-export const INSTANCE_ATTACH_DISK_STATES: Set<InstanceState> = new Set([
-  'creating',
-  'stopped',
-])
-
-/**
- * See https://github.com/oxidecomputer/omicron/blob/9eff6a45/nexus/db-queries/src/db/datastore/disk.rs#L310-L314
- */
-export const INSTANCE_DETACH_DISK_STATES: Set<InstanceState> = new Set([
-  'creating',
-  'stopped',
-  'failed',
-])
-
-/**
  * See https://github.com/oxidecomputer/omicron/blob/4970c71e/nexus/db-queries/src/db/datastore/disk.rs#L578-L582.
  */
 export const DISK_DELETE_STATES: Set<DiskState['state']> = new Set([
@@ -95,17 +78,27 @@ export const DISK_SNAPSHOT_STATES: Set<DiskState['state']> = new Set([
   'detached',
 ])
 
-export const INSTANCE_STOP_STATES: Set<InstanceState> = new Set(['running', 'starting'])
-export const INSTANCE_DELETE_STATES: Set<InstanceState> = new Set(['stopped', 'failed'])
-
-export const instanceCan: Record<string, (i: Instance) => boolean> = {
-  start: (i) => i.runState === 'stopped',
-  reboot: (i) => i.runState === 'running',
-  stop: (i) => INSTANCE_STOP_STATES.has(i.runState),
-  delete: (i) => INSTANCE_DELETE_STATES.has(i.runState),
-  detachDisk: (i) => INSTANCE_DETACH_DISK_STATES.has(i.runState),
-  attachDisk: (i) => INSTANCE_ATTACH_DISK_STATES.has(i.runState),
-}
+export const instanceCan = mapValues(
+  {
+    start: ['stopped'],
+    reboot: ['running'],
+    stop: ['running', 'starting'],
+    delete: ['stopped', 'failed'],
+    // https://github.com/oxidecomputer/omicron/blob/9eff6a4/nexus/db-queries/src/db/datastore/disk.rs#L310-L314 */
+    detachDisk: ['creating', 'stopped', 'failed'],
+    // https://github.com/oxidecomputer/omicron/blob/a7c7a67/nexus/db-queries/src/db/datastore/disk.rs#L183-L184 */
+    attachDisk: ['creating', 'stopped'],
+    // https://github.com/oxidecomputer/omicron/blob/8f0cbf0/nexus/db-queries/src/db/datastore/network_interface.rs#L482
+    updateNic: ['stopped'],
+  },
+  // cute way to make it ergonomic to call the test while also making the states
+  // available directly
+  (states: InstanceState[]) => {
+    const test = (i: Instance) => states.includes(i.runState)
+    test.states = states
+    return test
+  }
+)
 
 /** Hard coded in the API, so we can hard code it here. */
 export const FLEET_ID = '001de000-1334-4000-8000-000000000000'

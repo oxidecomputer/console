@@ -4,8 +4,6 @@ import invariant from 'tiny-invariant'
 
 import {
   type Disk,
-  INSTANCE_ATTACH_DISK_STATES,
-  INSTANCE_DETACH_DISK_STATES,
   apiQueryClient,
   instanceCan,
   useApiMutation,
@@ -15,12 +13,14 @@ import {
 import type { MenuAction } from '@oxide/table'
 import { DateCell, SizeCell, useQueryTable } from '@oxide/table'
 import { Button, EmptyMessage, Storage24Icon } from '@oxide/ui'
-import { intersperse, toPathQuery } from '@oxide/util'
+import { toPathQuery } from '@oxide/util'
 
 import { DiskStatusBadge } from 'app/components/StatusBadge'
 import AttachDiskSideModalForm from 'app/forms/disk-attach'
 import { CreateDiskSideModalForm } from 'app/forms/disk-create'
 import { getInstanceSelector, useInstanceSelector, useToast } from 'app/hooks'
+
+import { fancifyStates } from './common'
 
 StorageTab.loader = async ({ params }: LoaderFunctionArgs) => {
   const instancePathQuery = toPathQuery('instance', getInstanceSelector(params))
@@ -33,17 +33,8 @@ StorageTab.loader = async ({ params }: LoaderFunctionArgs) => {
   return null
 }
 
-const white = (s: string) => (
-  <span key={s} className="text-default">
-    {s}
-  </span>
-)
-
-const fancifyStates = (states: Set<string>) =>
-  intersperse([...states].map(white), <>, </>, <> or </>)
-
-const attachableStates = fancifyStates(INSTANCE_ATTACH_DISK_STATES)
-const detachableStates = fancifyStates(INSTANCE_DETACH_DISK_STATES)
+const attachableStates = fancifyStates(instanceCan.attachDisk.states)
+const detachableStates = fancifyStates(instanceCan.detachDisk.states)
 
 export function StorageTab() {
   const [showDiskCreate, setShowDiskCreate] = useState(false)
