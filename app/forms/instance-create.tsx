@@ -6,6 +6,9 @@ import type { SetRequired } from 'type-fest'
 
 import type { InstanceCreate } from '@oxide/api'
 import {
+  INSTANCE_MAX_CPU,
+  INSTANCE_MAX_RAM,
+  MAX_DISK_SIZE,
   apiQueryClient,
   genName,
   useApiMutation,
@@ -44,18 +47,6 @@ import {
 } from 'app/components/form'
 import { getProjectSelector, useProjectSelector, useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
-
-/**
- * CPUs limited to 32 due to bhyve restriction
- * @see https://github.com/oxidecomputer/omicron/issues/3212
- **/
-const MAX_CPU = 32
-
-/**
- * RAM limited to 64 GiB due to timeouts for larger memory sizes
- * @see https://github.com/oxidecomputer/omicron/issues/3417
- */
-const MAX_RAM = 64
 
 export type InstanceCreateInput = Assign<
   // API accepts undefined but it's easier if we don't
@@ -258,13 +249,13 @@ export function CreateInstanceForm() {
             label="CPUs"
             name="ncpus"
             min={1}
-            max={MAX_CPU}
+            max={INSTANCE_MAX_CPU}
             control={control}
             validate={(cpus) => {
               if (cpus < 1) {
                 return `Must be at least 1 vCPU`
               }
-              if (cpus > MAX_CPU) {
+              if (cpus > INSTANCE_MAX_CPU) {
                 return `CPUs capped to 32`
               }
             }}
@@ -276,13 +267,13 @@ export function CreateInstanceForm() {
             label="Memory"
             name="memory"
             min={1}
-            max={MAX_RAM}
+            max={INSTANCE_MAX_RAM}
             control={control}
             validate={(memory) => {
               if (memory < 1) {
                 return `Must be at least 1 GiB`
               }
-              if (memory > MAX_RAM) {
+              if (memory > INSTANCE_MAX_RAM) {
                 return `Memory capped at 64 GiB`
               }
             }}
@@ -340,6 +331,9 @@ export function CreateInstanceForm() {
           if (diskSizeGiB < image.size / GiB) {
             const minSize = Math.ceil(image.size / GiB)
             return `Must be as large as selected image (min. ${minSize} GiB)`
+          }
+          if (diskSizeGiB > MAX_DISK_SIZE) {
+            return `Capped at ${MAX_DISK_SIZE / 1000} TiB`
           }
         }}
       />

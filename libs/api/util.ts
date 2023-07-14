@@ -12,6 +12,25 @@ import type {
   VpcFirewallRuleUpdate,
 } from './__generated__/Api'
 
+/**
+ * CPUs limited to 32 due to bhyve restriction
+ * @see https://github.com/oxidecomputer/omicron/issues/3212
+ **/
+export const INSTANCE_MAX_CPU = 32
+
+/**
+ * RAM limited to 64 GiB due to timeouts for larger memory sizes
+ * @see https://github.com/oxidecomputer/omicron/issues/3417
+ */
+export const INSTANCE_MAX_RAM = 64
+
+/**
+ * Disk size limited to 1 TiB as that's the maximum we can safely allocate right now
+ * Units in GiB
+ * @see https://github.com/oxidecomputer/omicron/issues/3212#issuecomment-1634497344
+ */
+export const MAX_DISK_SIZE = 1000
+
 type PortRange = [number, number]
 
 /** Parse '1234' into [1234, 1234] and '80-100' into [80, 100] */
