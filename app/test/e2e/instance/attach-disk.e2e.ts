@@ -1,12 +1,28 @@
-import { test } from '@playwright/test'
-
-import { expectNotVisible, expectVisible, stopInstance } from '../utils'
+import { expect, expectNotVisible, expectVisible, stopInstance, test } from '../utils'
 
 test('Attach disk', async ({ page }) => {
   await page.goto('/projects/mock-project/instances/db1')
 
+  const warning =
+    'A disk cannot be added or attached unless the instance is creating or stopped.'
+  await expect(page.getByText(warning)).toBeVisible()
+
+  const row = page.getByRole('row', { name: 'disk-1', exact: false })
+  await expect(row).toBeVisible()
+
+  // can't detach, also test fancy construction of disabled tooltip
+  await row.getByRole('button', { name: 'Row actions' }).click()
+  await expect(page.getByRole('menuitem', { name: 'Detach' })).toBeDisabled()
+  await page.getByRole('menuitem', { name: 'Detach' }).hover()
+  await expect(
+    page.getByText('Instance must be in state creating, stopped, or failed')
+  ).toBeVisible()
+  await page.keyboard.press('Escape') // close menu
+
   // Have to stop instance to edit disks
   await stopInstance(page)
+
+  await expect(page.getByText(warning)).toBeHidden()
 
   // New disk form
   await page.click('role=button[name="Create new disk"]')

@@ -1,7 +1,9 @@
-import type { Policy } from './roles'
-import { deleteRole } from './roles'
+import { describe, expect, it, test } from 'vitest'
+
 import {
+  type Policy,
   byGroupThenName,
+  deleteRole,
   getEffectiveRole,
   roleOrder,
   updateRole,

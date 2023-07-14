@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest'
+
 import { getParseError, getResourceName, processServerError } from '../errors'
 
 describe('getParseError', () => {

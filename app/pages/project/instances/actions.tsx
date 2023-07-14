@@ -9,6 +9,8 @@ import { useToast } from 'app/hooks'
 import { confirmDelete } from 'app/stores/confirm-delete'
 import { pb } from 'app/util/path-builder'
 
+import { fancifyStates } from './instance/tabs/common'
+
 type Options = {
   onSuccess?: () => void
   // delete needs special behavior on instance detail because you need to nav to
@@ -47,7 +49,9 @@ export const useMakeInstanceActions = (
               onSuccess: () => successToast(`Starting instance '${instanceName}'`),
             })
           },
-          disabled: !instanceCan.start(instance) && 'Only stopped instances can be started',
+          disabled: !instanceCan.start(instance) && (
+            <>Only {fancifyStates(instanceCan.start.states)} instances can be started</>
+          ),
         },
         {
           label: 'Stop',
@@ -56,7 +60,9 @@ export const useMakeInstanceActions = (
               onSuccess: () => successToast(`Stopping instance '${instanceName}'`),
             })
           },
-          disabled: !instanceCan.stop(instance) && 'Only running instances can be stopped',
+          disabled: !instanceCan.stop(instance) && (
+            <>Only {fancifyStates(instanceCan.stop.states)} instances can be stopped</>
+          ),
         },
         {
           label: 'Reboot',
@@ -65,8 +71,9 @@ export const useMakeInstanceActions = (
               onSuccess: () => successToast(`Rebooting instance '${instanceName}'`),
             })
           },
-          disabled:
-            !instanceCan.reboot(instance) && 'Only running instances can be rebooted',
+          disabled: !instanceCan.reboot(instance) && (
+            <>Only {fancifyStates(instanceCan.reboot.states)} instances can be rebooted</>
+          ),
         },
         {
           label: 'View serial console',
@@ -86,8 +93,9 @@ export const useMakeInstanceActions = (
               }),
             label: instanceName,
           }),
-          disabled:
-            !instanceCan.delete(instance) && 'Only stopped instances can be deleted',
+          disabled: !instanceCan.delete(instance) && (
+            <>Only {fancifyStates(instanceCan.delete.states)} instances can be deleted</>
+          ),
           className: instanceCan.delete(instance) ? 'destructive' : '',
         },
       ]

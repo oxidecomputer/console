@@ -1,5 +1,5 @@
 import cn from 'classnames'
-import type { MouseEventHandler } from 'react'
+import type { MouseEventHandler, ReactNode } from 'react'
 import { forwardRef } from 'react'
 
 import { Spinner, Tooltip, Wrap } from '@oxide/ui'
@@ -53,7 +53,7 @@ export interface ButtonProps
     ButtonStyleProps {
   innerClassName?: string
   loading?: boolean
-  disabledReason?: string
+  disabledReason?: ReactNode
 }
 
 // Use `forwardRef` so the ref points to the DOM element (not the React Component)

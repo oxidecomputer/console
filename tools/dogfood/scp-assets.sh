@@ -14,7 +14,7 @@ set -o pipefail
 #
 # Usage:
 #
-# First use find-nexus.sh to find the gimlet with the nexus zone, then run this
+# First use `find-zone.sh nexus` to find the gimlets running nexus, then run this
 #
 #   ./scp-assets.sh gc21 1234567890abcdef1234567890abcdef12345678
 

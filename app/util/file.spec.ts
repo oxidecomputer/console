@@ -1,3 +1,5 @@
+import { describe, expect, test } from 'vitest'
+
 import { readBlobAsBase64 } from './file'
 
 describe('readBlobAsBase64', async () => {

@@ -1,4 +1,5 @@
 import babel from '@babel/core'
+import { describe, expect, it } from 'vitest'
 
 // @ts-expect-error We don't really need to directly deal with this interface anyway, so it's fine
 import plugin from './index'
