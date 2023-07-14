@@ -1,22 +1,26 @@
 import { useCallback, useState } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
+import invariant from 'tiny-invariant'
 
 import {
   type Disk,
   apiQueryClient,
+  instanceCan,
   useApiMutation,
   useApiQuery,
   useApiQueryClient,
 } from '@oxide/api'
 import type { MenuAction } from '@oxide/table'
 import { DateCell, SizeCell, useQueryTable } from '@oxide/table'
-import { Button, EmptyMessage, OpenLink12Icon, Storage24Icon } from '@oxide/ui'
+import { Button, EmptyMessage, Storage24Icon } from '@oxide/ui'
 import { toPathQuery } from '@oxide/util'
 
 import { DiskStatusBadge } from 'app/components/StatusBadge'
 import AttachDiskSideModalForm from 'app/forms/disk-attach'
 import { CreateDiskSideModalForm } from 'app/forms/disk-create'
 import { getInstanceSelector, useInstanceSelector, useToast } from 'app/hooks'
+
+import { fancifyStates } from './common'
 
 StorageTab.loader = async ({ params }: LoaderFunctionArgs) => {
   const { path, query } = toPathQuery('instance', getInstanceSelector(params))
@@ -32,6 +36,9 @@ StorageTab.loader = async ({ params }: LoaderFunctionArgs) => {
   return null
 }
 
+const attachableStates = fancifyStates(instanceCan.attachDisk.states)
+const detachableStates = fancifyStates(instanceCan.detachDisk.states)
+
 export function StorageTab() {
   const [showDiskCreate, setShowDiskCreate] = useState(false)
   const [showDiskAttach, setShowDiskAttach] = useState(false)
@@ -42,15 +49,16 @@ export function StorageTab() {
 
   const detachDisk = useApiMutation('instanceDiskDetach', {})
 
-  const instanceStopped =
-    useApiQuery('instanceView', instancePathQuery).data?.runState === 'stopped'
+  const { data: instance } = useApiQuery('instanceView', instancePathQuery)
+  invariant(instance, 'Instance must be prefetched in loader')
 
   const makeActions = useCallback(
     (disk: Disk): MenuAction[] => [
       {
         label: 'Detach',
-        disabled:
-          !instanceStopped && 'Instance must be stopped before disk can be detached',
+        disabled: !instanceCan.detachDisk(instance) && (
+          <>Instance must be in state {detachableStates} before disk can be detached</>
+        ),
         onActivate() {
           detachDisk.mutate(
             { body: { disk: disk.name }, ...instancePathQuery },
@@ -63,7 +71,7 @@ export function StorageTab() {
         },
       },
     ],
-    [detachDisk, instanceStopped, queryClient, instancePathQuery]
+    [detachDisk, instance, queryClient, instancePathQuery]
   )
 
   const attachDisk = useApiMutation('instanceDiskAttach', {
@@ -118,8 +126,8 @@ export function StorageTab() {
           <Button
             size="sm"
             onClick={() => setShowDiskCreate(true)}
-            disabledReason="Instance must be stopped to create a disk"
-            disabled={!instanceStopped}
+            disabledReason={<>Instance must be {attachableStates} to create a disk</>}
+            disabled={!instanceCan.attachDisk(instance)}
           >
             Create new disk
           </Button>
@@ -127,19 +135,15 @@ export function StorageTab() {
             variant="secondary"
             size="sm"
             onClick={() => setShowDiskAttach(true)}
-            disabledReason="Instance must be stopped to attach a disk"
-            disabled={!instanceStopped}
+            disabledReason={<>Instance must be {attachableStates} to attach a disk</>}
+            disabled={!instanceCan.attachDisk(instance)}
           >
             Attach existing disk
           </Button>
         </div>
-        {!instanceStopped && (
+        {!instanceCan.attachDisk(instance) && (
           <span className="max-w-xs text-sans-md text-tertiary">
-            A disk cannot be added or attached without first{' '}
-            <a href="#/" className="text-accent-secondary">
-              stopping the instance
-              <OpenLink12Icon className="ml-1 align-middle" />
-            </a>
+            A disk cannot be added or attached unless the instance is {attachableStates}.
           </span>
         )}
       </div>

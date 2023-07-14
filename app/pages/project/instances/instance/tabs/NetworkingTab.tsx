@@ -1,19 +1,19 @@
 import { useState } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 import { Link } from 'react-router-dom'
+import invariant from 'tiny-invariant'
 
 import type { InstanceNetworkInterface } from '@oxide/api'
-import { apiQueryClient, useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
+import {
+  apiQueryClient,
+  instanceCan,
+  useApiMutation,
+  useApiQuery,
+  useApiQueryClient,
+} from '@oxide/api'
 import type { MenuAction } from '@oxide/table'
 import { useQueryTable } from '@oxide/table'
-import {
-  Badge,
-  Button,
-  EmptyMessage,
-  Networking24Icon,
-  OpenLink12Icon,
-  Success12Icon,
-} from '@oxide/ui'
+import { Badge, Button, EmptyMessage, Networking24Icon, Success12Icon } from '@oxide/ui'
 import { toPathQuery } from '@oxide/util'
 
 import CreateNetworkInterfaceForm from 'app/forms/network-interface-create'
@@ -26,6 +26,8 @@ import {
 } from 'app/hooks'
 import { confirmDelete } from 'app/stores/confirm-delete'
 import { pb } from 'app/util/path-builder'
+
+import { fancifyStates } from './common'
 
 const VpcNameFromId = ({ value }: { value: string }) => {
   const projectSelector = useProjectSelector()
@@ -70,6 +72,8 @@ NetworkingTab.loader = async ({ params }: LoaderFunctionArgs) => {
   return null
 }
 
+const updateNicStates = fancifyStates(instanceCan.updateNic.states)
+
 export function NetworkingTab() {
   const instanceSelector = useInstanceSelector()
 
@@ -105,9 +109,12 @@ export function NetworkingTab() {
     },
   })
 
-  const instanceStopped =
-    useApiQuery('instanceView', toPathQuery('instance', instanceSelector)).data
-      ?.runState === 'stopped'
+  const { data: instance } = useApiQuery(
+    'instanceView',
+    toPathQuery('instance', instanceSelector)
+  )
+  invariant(instance, 'Instance must be prefetched in a loader')
+  const canUpdateNic = instanceCan.updateNic(instance)
 
   const makeActions = (nic: InstanceNetworkInterface): MenuAction[] => [
     {
@@ -121,17 +128,23 @@ export function NetworkingTab() {
       },
       disabled: nic.primary
         ? 'This network interface is already set as primary'
-        : !instanceStopped &&
-          'The instance must be stopped to change its primary network interface',
+        : !canUpdateNic && (
+            <>
+              The instance must be {updateNicStates} to change its primary network interface
+            </>
+          ),
     },
     {
       label: 'Edit',
       onActivate() {
         setEditing(nic)
       },
-      disabled:
-        !instanceStopped &&
-        "The instance must be stopped before editing a network interface's settings",
+      disabled: !canUpdateNic && (
+        <>
+          The instance must be {updateNicStates} before editing a network interface&apos;s
+          settings
+        </>
+      ),
     },
     {
       label: 'Delete',
@@ -140,8 +153,9 @@ export function NetworkingTab() {
           deleteNic.mutateAsync({ path: { interface: nic.name }, query: instanceSelector }),
         label: nic.name,
       }),
-      disabled:
-        !instanceStopped && 'The instance must be stopped to delete a network interface.',
+      disabled: !canUpdateNic && (
+        <>The instance must be {updateNicStates} to delete a network interface</>
+      ),
     },
   ]
 
@@ -190,18 +204,18 @@ export function NetworkingTab() {
           <Button
             size="sm"
             onClick={() => setCreateModalOpen(true)}
-            disabled={!instanceStopped}
+            disabled={!canUpdateNic}
+            disabledReason={
+              <>Can only create network interface when instance is {updateNicStates}</>
+            }
           >
             Add network interface
           </Button>
         </div>
-        {!instanceStopped && (
+        {!canUpdateNic && (
           <span className="max-w-xs text-sans-md text-tertiary">
-            A network interface cannot be created or edited without{' '}
-            <a href="#/" className="text-accent-secondary">
-              stopping the instance
-              <OpenLink12Icon className="ml-1 align-middle" />
-            </a>
+            A network interface cannot be created or edited unless the instance is{' '}
+            {updateNicStates}.
           </span>
         )}
       </div>

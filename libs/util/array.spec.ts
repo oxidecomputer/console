@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { groupBy, lowestBy, sortBy, sumBy } from './array'
+import { groupBy, intersperse, lowestBy, sortBy, sumBy } from './array'
 
 test('sortBy', () => {
   expect(sortBy(['d', 'b', 'c', 'a'])).toEqual(['a', 'b', 'c', 'd'])
@@ -58,4 +58,15 @@ test('groupBy', () => {
 test('sumBy', () => {
   expect(sumBy([], (x) => x)).toEqual(0)
   expect(sumBy([{ a: 1 }, { a: 2 }], (x) => x.a)).toEqual(3)
+})
+
+test('intersperse', () => {
+  expect(intersperse([], 'x')).toEqual([])
+  expect(intersperse(['a'], 'x')).toEqual(['a'])
+
+  expect(intersperse(['a', 'b'], ',')).toEqual(['a', ',', 'b'])
+  expect(intersperse(['a', 'b'], ',', 'or')).toEqual(['a', 'or', 'b'])
+
+  expect(intersperse(['a', 'b', 'c'], ',')).toEqual(['a', ',', 'b', ',', 'c'])
+  expect(intersperse(['a', 'b', 'c'], ',', 'or')).toEqual(['a', ',', 'b', ',', 'or', 'c'])
 })

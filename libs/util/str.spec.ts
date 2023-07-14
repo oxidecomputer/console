@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { camelCase, capitalize, kebabCase } from './str'
+import { camelCase, capitalize, commaSeries, kebabCase } from './str'
 
 describe('capitalize', () => {
   it('capitalizes the first letter', () => {
@@ -30,4 +30,12 @@ describe('kebabCase', () => {
     expect(kebabCase('SCREAMING_CASE')).toBe('screaming-case')
     expect(kebabCase('whatEVerTHIS_iS')).toBe('what-ever-this-is')
   })
+})
+
+it('commaSeries', () => {
+  expect(commaSeries([], 'or')).toBe('')
+  expect(commaSeries(['a'], 'or')).toBe('a')
+  expect(commaSeries(['a', 'b'], 'or')).toBe('a or b')
+  expect(commaSeries(['a', 'b'], 'or')).toBe('a or b')
+  expect(commaSeries(['a', 'b', 'c'], 'or')).toBe('a, b, or c')
 })

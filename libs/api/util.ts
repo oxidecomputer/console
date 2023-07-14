@@ -1,7 +1,8 @@
 /// Helpers for working with API objects
-import { bytesToGiB, pick, sumBy } from '@oxide/util'
+import { bytesToGiB, mapValues, pick, sumBy } from '@oxide/util'
 
 import type {
+  Disk,
   DiskState,
   Instance,
   InstanceState,
@@ -63,28 +64,43 @@ export const genName = (...parts: [string, ...string[]]) => {
   )
 }
 
-/** Disk states that allow delete. See [Omicron source](https://github.com/oxidecomputer/omicron/blob/4970c71e/nexus/db-queries/src/db/datastore/disk.rs#L578-L582). */
-export const DISK_DELETE_STATES: Set<DiskState['state']> = new Set([
-  'detached',
-  'creating',
-  'faulted',
-])
+export const instanceCan = mapValues(
+  {
+    start: ['stopped'],
+    reboot: ['running'],
+    stop: ['running', 'starting'],
+    delete: ['stopped', 'failed'],
+    // https://github.com/oxidecomputer/omicron/blob/9eff6a4/nexus/db-queries/src/db/datastore/disk.rs#L310-L314
+    detachDisk: ['creating', 'stopped', 'failed'],
+    // https://github.com/oxidecomputer/omicron/blob/a7c7a67/nexus/db-queries/src/db/datastore/disk.rs#L183-L184
+    attachDisk: ['creating', 'stopped'],
+    // https://github.com/oxidecomputer/omicron/blob/8f0cbf0/nexus/db-queries/src/db/datastore/network_interface.rs#L482
+    updateNic: ['stopped'],
+  },
+  // cute way to make it ergonomic to call the test while also making the states
+  // available directly
+  (states: InstanceState[]) => {
+    const test = (i: Instance) => states.includes(i.runState)
+    test.states = states
+    return test
+  }
+)
 
-/** Disk states that allow snapshotting. TODO: link to Omicron source */
-export const DISK_SNAPSHOT_STATES: Set<DiskState['state']> = new Set([
-  'attached',
-  'detached',
-])
-
-export const INSTANCE_STOP_STATES: Set<InstanceState> = new Set(['running', 'starting'])
-export const INSTANCE_DELETE_STATES: Set<InstanceState> = new Set(['stopped', 'failed'])
-
-export const instanceCan: Record<string, (i: Instance) => boolean> = {
-  start: (i) => i.runState === 'stopped',
-  reboot: (i) => i.runState === 'running',
-  stop: (i) => INSTANCE_STOP_STATES.has(i.runState),
-  delete: (i) => INSTANCE_DELETE_STATES.has(i.runState),
-}
+export const diskCan = mapValues(
+  {
+    // https://github.com/oxidecomputer/omicron/blob/4970c71e/nexus/db-queries/src/db/datastore/disk.rs#L578-L582.
+    delete: ['detached', 'creating', 'faulted'],
+    // TODO: link to API source
+    snapshot: ['attached', 'detached'],
+  },
+  (states: DiskState['state'][]) => {
+    // only have to Pick because we want this to work for both Disk and
+    // Json<Disk>, which we pass to it in the MSW handlers
+    const test = (d: Pick<Disk, 'state'>) => states.includes(d.state.state)
+    test.states = states
+    return test
+  }
+)
 
 /** Hard coded in the API, so we can hard code it here. */
 export const FLEET_ID = '001de000-1334-4000-8000-000000000000'

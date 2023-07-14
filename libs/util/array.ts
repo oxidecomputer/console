@@ -68,3 +68,16 @@ export function isTruthy<T>(value: T): value is Truthy<T> {
 export function sumBy<T>(items: T[], fn: (item: T) => number): number {
   return items.map(fn).reduce((a, b) => a + b, 0)
 }
+
+/**
+ * If a conjunction is included, use that instead of `sep` when there are two items.
+ */
+export function intersperse<T>(items: T[], sep: T, conj?: T): T[] {
+  if (items.length <= 1) return items
+  if (conj && items.length === 2) return [items[0], conj, items[1]]
+  return items.flatMap((item, i) => {
+    if (i === 0) return [item]
+    if (conj && i === items.length - 1) return [sep, conj, item]
+    return [sep, item]
+  })
+}
