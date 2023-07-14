@@ -265,7 +265,7 @@ export function CreateInstanceForm() {
                 return `Must be at least 1 vCPU`
               }
               if (cpus > MAX_CPU) {
-                return `CPUs temporarily capped to 32`
+                return `CPUs capped to 32`
               }
             }}
           />
@@ -283,7 +283,7 @@ export function CreateInstanceForm() {
                 return `Must be at least 1 GiB`
               }
               if (memory > MAX_RAM) {
-                return `Memory temporarily capped at 64 GiB`
+                return `Memory capped at 64 GiB`
               }
             }}
           />
