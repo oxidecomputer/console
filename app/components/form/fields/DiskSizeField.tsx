@@ -29,7 +29,7 @@ export function DiskSizeField<
           return `Must be at least ${minSize} GiB`
         }
         if (diskSizeGiB > MAX_DISK_SIZE_GiB) {
-          return `Capped at ${MAX_DISK_SIZE_GiB} GiB`
+          return `Can be at most ${MAX_DISK_SIZE_GiB} GiB`
         }
       }}
       {...props}

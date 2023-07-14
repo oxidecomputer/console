@@ -274,7 +274,7 @@ export function CreateInstanceForm() {
                 return `Must be at least 1 GiB`
               }
               if (memory > INSTANCE_MAX_RAM_GiB) {
-                return `Memory capped at ${INSTANCE_MAX_RAM_GiB} GiB`
+                return `Can be at most ${INSTANCE_MAX_RAM_GiB} GiB`
               }
             }}
           />
@@ -333,7 +333,7 @@ export function CreateInstanceForm() {
             return `Must be as large as selected image (min. ${minSize} GiB)`
           }
           if (diskSizeGiB > MAX_DISK_SIZE_GiB) {
-            return `Capped at ${MAX_DISK_SIZE_GiB} GiB`
+            return `Can be at most ${MAX_DISK_SIZE_GiB} GiB`
           }
         }}
       />
