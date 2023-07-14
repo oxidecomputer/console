@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest'
+
 import { flattenChildren, isOneOf, pluckAllOfType, pluckFirstOfType } from './children'
 
 const TestA = () => (

@@ -1,3 +1,5 @@
+import { expect, test } from 'vitest'
+
 import { isAllZeros } from './image-upload'
 
 function numberToUint8Array(num: number) {

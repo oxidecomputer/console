@@ -1,3 +1,5 @@
+import { expect, test } from 'vitest'
+
 import { pb } from './path-builder'
 
 // params can be the same for all of them because they only use what they need
