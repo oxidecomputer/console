@@ -26,7 +26,6 @@ export const INSTANCE_MAX_RAM_GiB = 64
 
 /**
  * Disk size limited to 1 TiB as that's the maximum we can safely allocate right now
- * Units in GiB
  * @see https://github.com/oxidecomputer/omicron/issues/3212#issuecomment-1634497344
  */
 export const MAX_DISK_SIZE_GiB = 1024
