@@ -1,7 +1,7 @@
 import { v4 as uuid } from 'uuid'
 
 import type { ApiTypes as Api, SamlIdentityProvider } from '@oxide/api'
-import { DISK_DELETE_STATES, DISK_SNAPSHOT_STATES, FLEET_ID } from '@oxide/api'
+import { FLEET_ID, diskCan } from '@oxide/api'
 import type { Json } from '@oxide/gen/msw-handlers'
 import { json, makeHandlers } from '@oxide/gen/msw-handlers'
 import { pick, sortBy } from '@oxide/util'
@@ -116,7 +116,7 @@ export const handlers = makeHandlers({
   diskDelete({ path, query }) {
     const disk = lookup.disk({ ...path, ...query })
 
-    if (!DISK_DELETE_STATES.has(disk.state.state)) {
+    if (!diskCan.delete(disk)) {
       throw 'Cannot delete disk in state ' + disk.state.state
     }
 
@@ -539,7 +539,7 @@ export const handlers = makeHandlers({
     errIfExists(db.snapshots, { name: body.name })
 
     const disk = lookup.disk({ ...query, disk: body.disk })
-    if (!DISK_SNAPSHOT_STATES.has(disk.state.state)) {
+    if (!diskCan.snapshot(disk)) {
       throw 'Cannot snapshot disk in state ' + disk.state.state
     }
 

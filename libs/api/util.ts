@@ -2,6 +2,7 @@
 import { bytesToGiB, mapValues, pick, sumBy } from '@oxide/util'
 
 import type {
+  Disk,
   DiskState,
   Instance,
   InstanceState,
@@ -63,21 +64,6 @@ export const genName = (...parts: [string, ...string[]]) => {
   )
 }
 
-/**
- * See https://github.com/oxidecomputer/omicron/blob/4970c71e/nexus/db-queries/src/db/datastore/disk.rs#L578-L582.
- */
-export const DISK_DELETE_STATES: Set<DiskState['state']> = new Set([
-  'detached',
-  'creating',
-  'faulted',
-])
-
-/** Disk states that allow snapshotting. TODO: link to Omicron source */
-export const DISK_SNAPSHOT_STATES: Set<DiskState['state']> = new Set([
-  'attached',
-  'detached',
-])
-
 export const instanceCan = mapValues(
   {
     start: ['stopped'],
@@ -95,6 +81,22 @@ export const instanceCan = mapValues(
   // available directly
   (states: InstanceState[]) => {
     const test = (i: Instance) => states.includes(i.runState)
+    test.states = states
+    return test
+  }
+)
+
+export const diskCan = mapValues(
+  {
+    // https://github.com/oxidecomputer/omicron/blob/4970c71e/nexus/db-queries/src/db/datastore/disk.rs#L578-L582.
+    delete: ['detached', 'creating', 'faulted'],
+    // TODO: link to API source
+    snapshot: ['attached', 'detached'],
+  },
+  (states: DiskState['state'][]) => {
+    // only have to Pick because we want this to work for both Disk and
+    // Json<Disk>, which we pass to it in the MSW handlers
+    const test = (d: Pick<Disk, 'state'>) => states.includes(d.state.state)
     test.states = states
     return test
   }

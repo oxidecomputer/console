@@ -2,7 +2,7 @@ import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 
 import type { PathParams as PP, SnapshotCreate } from '@oxide/api'
-import { DISK_SNAPSHOT_STATES } from '@oxide/api'
+import { diskCan } from '@oxide/api'
 import { useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
 
 import {
@@ -20,7 +20,7 @@ const useSnapshotDiskItems = (projectSelector: PP.Project) => {
   })
   return (
     disks?.items
-      .filter((disk) => DISK_SNAPSHOT_STATES.has(disk.state.state))
+      .filter(diskCan.snapshot)
       .map((disk) => ({ value: disk.name, label: disk.name })) || []
   )
 }

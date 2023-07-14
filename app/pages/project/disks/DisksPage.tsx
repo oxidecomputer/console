@@ -4,9 +4,8 @@ import { Link } from 'react-router-dom'
 
 import type { Disk } from '@oxide/api'
 import {
-  DISK_DELETE_STATES,
-  DISK_SNAPSHOT_STATES,
   apiQueryClient,
+  diskCan,
   genName,
   useApiMutation,
   useApiQuery,
@@ -26,6 +25,8 @@ import { DiskStatusBadge } from 'app/components/StatusBadge'
 import { getProjectSelector, useProjectSelector, useToast } from 'app/hooks'
 import { confirmDelete } from 'app/stores/confirm-delete'
 import { pb } from 'app/util/path-builder'
+
+import { fancifyStates } from '../instances/instance/tabs/common'
 
 function AttachedInstance({
   instanceId,
@@ -98,9 +99,9 @@ export function DisksPage() {
           },
         })
       },
-      disabled:
-        !DISK_SNAPSHOT_STATES.has(disk.state.state) &&
-        "Only disks in state 'attached' or 'detached' can be snapshotted",
+      disabled: !diskCan.snapshot(disk) && (
+        <>Only disks in state {fancifyStates(diskCan.snapshot.states)} can be snapshotted</>
+      ),
     },
     {
       label: 'Delete',
@@ -110,7 +111,7 @@ export function DisksPage() {
         label: disk.name,
       }),
       disabled:
-        !DISK_DELETE_STATES.has(disk.state.state) &&
+        !diskCan.delete(disk) &&
         (disk.state.state === 'attached'
           ? 'Disk must be detached before it can be deleted'
           : `A ${disk.state.state} disk cannot be deleted`),
