@@ -7,8 +7,8 @@ import type { SetRequired } from 'type-fest'
 import type { InstanceCreate } from '@oxide/api'
 import {
   INSTANCE_MAX_CPU,
-  INSTANCE_MAX_RAM,
-  MAX_DISK_SIZE,
+  INSTANCE_MAX_RAM_GiB,
+  MAX_DISK_SIZE_GiB,
   apiQueryClient,
   genName,
   useApiMutation,
@@ -256,7 +256,7 @@ export function CreateInstanceForm() {
                 return `Must be at least 1 vCPU`
               }
               if (cpus > INSTANCE_MAX_CPU) {
-                return `CPUs capped to 32`
+                return `CPUs capped to ${INSTANCE_MAX_CPU}`
               }
             }}
           />
@@ -267,14 +267,14 @@ export function CreateInstanceForm() {
             label="Memory"
             name="memory"
             min={1}
-            max={INSTANCE_MAX_RAM}
+            max={INSTANCE_MAX_RAM_GiB}
             control={control}
             validate={(memory) => {
               if (memory < 1) {
                 return `Must be at least 1 GiB`
               }
-              if (memory > INSTANCE_MAX_RAM) {
-                return `Memory capped at 64 GiB`
+              if (memory > INSTANCE_MAX_RAM_GiB) {
+                return `Memory capped at ${INSTANCE_MAX_RAM_GiB} GiB`
               }
             }}
           />
@@ -332,8 +332,8 @@ export function CreateInstanceForm() {
             const minSize = Math.ceil(image.size / GiB)
             return `Must be as large as selected image (min. ${minSize} GiB)`
           }
-          if (diskSizeGiB > MAX_DISK_SIZE) {
-            return `Capped at ${MAX_DISK_SIZE / 1000} TiB`
+          if (diskSizeGiB > MAX_DISK_SIZE_GiB) {
+            return `Capped at ${MAX_DISK_SIZE_GiB} GiB`
           }
         }}
       />

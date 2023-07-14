@@ -1,6 +1,6 @@
 import type { FieldPath, FieldValues } from 'react-hook-form'
 
-import { MAX_DISK_SIZE } from '@oxide/api'
+import { MAX_DISK_SIZE_GiB } from '@oxide/api'
 
 import type { TextFieldProps } from './TextField'
 import { TextField } from './TextField'
@@ -23,13 +23,13 @@ export function DiskSizeField<
       required={required}
       name={name}
       min={minSize}
-      max={MAX_DISK_SIZE}
+      max={MAX_DISK_SIZE_GiB}
       validate={(diskSizeGiB) => {
         if (diskSizeGiB < minSize) {
           return `Must be at least ${minSize} GiB`
         }
-        if (diskSizeGiB > MAX_DISK_SIZE) {
-          return `Capped at ${MAX_DISK_SIZE / 1000} TiB`
+        if (diskSizeGiB > MAX_DISK_SIZE_GiB) {
+          return `Capped at ${MAX_DISK_SIZE_GiB} GiB`
         }
       }}
       {...props}
