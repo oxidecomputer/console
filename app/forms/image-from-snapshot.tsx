@@ -15,6 +15,7 @@ import { PropertiesTable } from '@oxide/ui'
 
 import { DescriptionField, NameField, SideModalForm, TextField } from 'app/components/form'
 import { getProjectSnapshotSelector, useProjectSnapshotSelector } from 'app/hooks'
+import { addToast } from 'app/stores/toast'
 import { pb } from 'app/util/path-builder'
 
 const defaultValues: Omit<ImageCreate, 'source'> = {
@@ -45,6 +46,9 @@ export function CreateImageFromSnapshotSideModalForm() {
   const createImage = useApiMutation('imageCreate', {
     onSuccess() {
       queryClient.invalidateQueries('imageList', { query: { project } })
+      addToast({
+        content: 'Your image has been created',
+      })
       onDismiss()
     },
   })
