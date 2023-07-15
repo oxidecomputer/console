@@ -56,6 +56,7 @@ test('path builder', () => {
         "sled": "/system/inventory/sleds/sl",
         "sledInstances": "/system/inventory/sleds/sl/instances",
         "sledInventory": "/system/inventory/sleds",
+        "snapshotImageCreate": "/projects/p/snapshots/undefined/image-new",
         "snapshotNew": "/projects/p/snapshots-new",
         "snapshots": "/projects/p/snapshots",
         "sshKeyNew": "/settings/ssh-keys-new",
