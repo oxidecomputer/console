@@ -12,6 +12,7 @@ const params = {
   provider: 'pr',
   sledId: 'sl',
   image: 'im',
+  snapshot: 'sn',
 }
 
 test('path builder', () => {
@@ -56,7 +57,7 @@ test('path builder', () => {
         "sled": "/system/inventory/sleds/sl",
         "sledInstances": "/system/inventory/sleds/sl/instances",
         "sledInventory": "/system/inventory/sleds",
-        "snapshotImageCreate": "/projects/p/snapshots/undefined/image-new",
+        "snapshotImageCreate": "/projects/p/snapshots/sn/image-new",
         "snapshotNew": "/projects/p/snapshots-new",
         "snapshots": "/projects/p/snapshots",
         "sshKeyNew": "/settings/ssh-keys-new",
