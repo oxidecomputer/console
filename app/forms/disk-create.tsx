@@ -24,7 +24,7 @@ import { useProjectSelector, useToast } from 'app/hooks'
 
 const blankDiskSource: DiskSource = {
   type: 'blank',
-  blockSize: 4096,
+  blockSize: 512,
 }
 
 const defaultValues: DiskCreate = {
@@ -130,8 +130,9 @@ const DiskSourceField = ({ control }: { control: Control<DiskCreate> }) => {
             control={control}
             parseValue={(val) => parseInt(val, 10) as BlockSize}
             items={[
-              { label: '4096', value: 4096 },
               { label: '512', value: 512 },
+              { label: '2048', value: 2048 },
+              { label: '4096', value: 4096 },
             ]}
           />
         )}
