@@ -1,5 +1,5 @@
 import type { LoaderFunctionArgs } from 'react-router-dom'
-import { Link, Outlet } from 'react-router-dom'
+import { Link, Outlet, useNavigate } from 'react-router-dom'
 
 import type { Snapshot } from '@oxide/api'
 import {
@@ -55,6 +55,7 @@ export function SnapshotsPage() {
   const queryClient = useApiQueryClient()
   const projectSelector = useProjectSelector()
   const { Table, Column } = useQueryTable('snapshotList', { query: projectSelector })
+  const navigate = useNavigate()
 
   const deleteSnapshot = useApiMutation('snapshotDelete', {
     onSuccess() {
@@ -63,6 +64,12 @@ export function SnapshotsPage() {
   })
 
   const makeActions = (snapshot: Snapshot): MenuAction[] => [
+    {
+      label: 'Create image',
+      onActivate() {
+        navigate(pb.snapshotImageCreate({ ...projectSelector, snapshot: snapshot.name }))
+      },
+    },
     {
       label: 'Delete',
       onActivate: confirmDelete({

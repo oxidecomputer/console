@@ -65,3 +65,28 @@ test('Error on delete snapshot', async ({ page }) => {
     page.getByText('Could not delete resource', { exact: true }),
   ])
 })
+
+test('Create image from snapshot', async ({ page }) => {
+  await page.goto('/projects/mock-project/snapshots')
+
+  const row = page.getByRole('row', { name: 'snapshot-1' })
+  await row.getByRole('button', { name: 'Row actions' }).click()
+  await page.getByRole('menuitem', { name: 'Create image' }).click()
+
+  await expectVisible(page, ['role=dialog[name="Create image from snapshot"]'])
+
+  await page.fill('role=textbox[name="Name"]', 'image-from-snapshot-1')
+  await page.fill('role=textbox[name="Description"]', 'image description')
+  await page.fill('role=textbox[name="OS"]', 'Ubuntu')
+  await page.fill('role=textbox[name="Version"]', '20.02')
+
+  await page.click('role=button[name="Create image"]')
+
+  await expect(page).toHaveURL('/projects/mock-project/snapshots')
+
+  await page.click('role=link[name*="Images"]')
+  await expectRowVisible(page.getByRole('table'), {
+    name: 'image-from-snapshot-1',
+    description: 'image description',
+  })
+})

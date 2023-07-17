@@ -10,6 +10,7 @@ type Silo = Required<PP.Silo>
 type IdentityProvider = Required<PP.IdentityProvider>
 type Sled = Required<PP.Sled>
 type Image = Required<PP.Image>
+type Snapshot = Required<PP.Snapshot>
 type SiloImage = Required<PP.SiloImage>
 
 export const pb = {
@@ -50,6 +51,8 @@ export const pb = {
 
   snapshotNew: (params: Project) => `${pb.project(params)}/snapshots-new`,
   snapshots: (params: Project) => `${pb.project(params)}/snapshots`,
+  snapshotImageCreate: (params: Snapshot) =>
+    `${pb.project(params)}/snapshots/${params.snapshot}/image-new`,
 
   vpcNew: (params: Project) => `${pb.project(params)}/vpcs-new`,
   vpcs: (params: Project) => `${pb.project(params)}/vpcs`,

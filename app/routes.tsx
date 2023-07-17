@@ -8,6 +8,7 @@ import {
   EditProjectImageSideModalForm,
   EditSiloImageSideModalForm,
 } from './forms/image-edit'
+import { CreateImageFromSnapshotSideModalForm } from './forms/image-from-snapshot'
 import { CreateImageSideModalForm } from './forms/image-upload'
 import { CreateInstanceForm } from './forms/instance-create'
 import { CreateProjectSideModalForm } from './forms/project-create'
@@ -312,6 +313,12 @@ export const routes = createRoutesFromElements(
             path="snapshots-new"
             element={<CreateSnapshotSideModalForm />}
             handle={{ crumb: 'New snapshot' }}
+          />
+          <Route
+            path="snapshots/:snapshot/image-new"
+            element={<CreateImageFromSnapshotSideModalForm />}
+            loader={CreateImageFromSnapshotSideModalForm.loader}
+            handle={{ crumb: 'Create image from snapshot' }}
           />
         </Route>
 
