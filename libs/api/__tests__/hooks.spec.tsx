@@ -183,7 +183,7 @@ describe('useApiMutation', () => {
     const diskCreate: DiskCreate = {
       name: 'will-fail',
       description: '',
-      diskSource: { type: 'blank', blockSize: 4096 },
+      diskSource: { type: 'blank', blockSize: 512 },
       size: 10,
     }
     const diskCreate404Params = {
