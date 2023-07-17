@@ -51,9 +51,9 @@ test('Click through disks page', async ({ page }) => {
   await page.goBack()
 
   // Test pagination
-  await page.click('role=button[name="next"]')
+  await page.getByRole('button', { name: 'next' }).click()
   await expectVisible(page, ['role=heading[name*="Disks"]', 'role=cell[name="disk-11"]'])
-  await page.click('role=button[name*="prev"]')
+  await page.getByRole('button', { name: 'prev', exact: true }).click()
   await expectVisible(page, [
     'role=heading[name*="Disks"]',
     'role=cell[name="disk-1"]',

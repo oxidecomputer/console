@@ -18,7 +18,7 @@ if (!apiModeResult.success) {
 /**
  * What API are we talking to? Only relevant in development mode.
  *
- * - `msw` (default): Mock Service Workers
+ * - `msw` (default): Mock Service Worker
  * - `dogfood`: Dogfood rack at oxide.sys.rack2.eng.oxide.computer. Requires VPN.
  * - `nexus`: Builds for production, assumes Nexus at localhost:12220 in dev mode only
  */

@@ -23,7 +23,7 @@ The web console has no special privileges as an API consumer. We log in (which s
 - [Tailwind](https://tailwindcss.com/) for styling
 - [oxide.ts](https://github.com/oxidecomputer/oxide.ts) generates an API client from [Nexus's OpenAPI spec](https://github.com/oxidecomputer/omicron/blob/main/openapi/nexus.json)
 - Testing
-  - [Mock Service Workers](https://mswjs.io/) for mock API server
+  - [Mock Service Worker](https://mswjs.io/) for mock API server
   - [Vitest](https://vitest.dev/) for unit tests
   - [Playwright](https://playwright.dev/) for E2E browser tests
 - [Ladle](https://ladle.dev/), a lightweight Storybook clone based on Vite
@@ -52,7 +52,7 @@ This is the way we do most console development. Just run:
 npm start
 ```
 
-and navigate to http://localhost:4000 in the browser. The running app will automatically update when you write a source file. This mode uses Mock Service Workers to run a mock API right the browser. This mock API is also used in tests.
+and navigate to http://localhost:4000 in the browser. The running app will automatically update when you write a source file. This mode uses Mock Service Worker to run a mock API right the browser. This mock API is also used in tests.
 
 #### Specifying non-default user
 
