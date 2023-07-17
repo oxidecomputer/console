@@ -5,7 +5,9 @@
 
 .global-loading-bar.loading {
   animation-name: loading-bar-loading;
-  animation-duration: 1.5s;
+  animation-duration: 4s;
+  /* don't reset to zero at 100%, just sit there */
+  animation-fill-mode: forwards;
 }
 
 .global-loading-bar.done {
@@ -19,21 +21,26 @@
     width: 0%;
   }
 
-  10% {
+  4% {
     opacity: 1;
     width: 20%;
   }
 
-  100% {
+  40% {
     opacity: 1;
     width: 40%;
+  }
+
+  100% {
+    opacity: 1;
+    width: 45%;
   }
 }
 
 @keyframes loading-bar-done {
   0% {
     opacity: 1;
-    width: 40%;
+    width: 45%;
   }
 
   100% {
