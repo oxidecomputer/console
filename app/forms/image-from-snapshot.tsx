@@ -77,7 +77,7 @@ export function CreateImageFromSnapshotSideModalForm() {
     >
       <PropertiesTable>
         <PropertiesTable.Row label="Snapshot">{data.name}</PropertiesTable.Row>
-        <PropertiesTable.Row label="Shared with">{project}</PropertiesTable.Row>
+        <PropertiesTable.Row label="Project">{project}</PropertiesTable.Row>
         <PropertiesTable.Row label="Size">
           {fileSize(data.size, { base: 2 })}
         </PropertiesTable.Row>
