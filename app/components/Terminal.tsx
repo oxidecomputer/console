@@ -33,7 +33,7 @@ function getOptions(): ITerminalOptions {
       background: style.getPropertyValue('--surface-default'),
       foreground: style.getPropertyValue('--content-default'),
       black: style.getPropertyValue('--surface-default'),
-      brightBlack: style.getPropertyValue('--surface-secondary'),
+      brightBlack: style.getPropertyValue('--content-quinary'),
       white: style.getPropertyValue('--content-default'),
       brightWhite: style.getPropertyValue('--content-secondary'),
       blue: style.getPropertyValue('--base-blue-500'),

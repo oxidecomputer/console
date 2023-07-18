@@ -2,7 +2,7 @@ import { useForm } from 'react-hook-form'
 import invariant from 'tiny-invariant'
 
 import type { Group } from '@oxide/api'
-import { useApiQuery } from '@oxide/api'
+import { apiQueryClient, useApiQuery } from '@oxide/api'
 import { Table, createColumnHelper, useReactTable } from '@oxide/table'
 import { Settings24Icon } from '@oxide/ui'
 
@@ -14,6 +14,14 @@ const columns = [
   colHelper.accessor('id', { header: 'ID' }),
   colHelper.accessor('displayName', { header: 'Name' }),
 ]
+
+ProfilePage.loader = async () => {
+  await Promise.all([
+    apiQueryClient.prefetchQuery('currentUserView', {}),
+    apiQueryClient.prefetchQuery('currentUserGroups', {}),
+  ])
+  return null
+}
 
 export function ProfilePage() {
   const { data: user } = useApiQuery('currentUserView', {})
