@@ -12,8 +12,6 @@ import {
 
 import { pb } from 'app/util/path-builder'
 
-import { MswWarning } from './MswWarning'
-
 export function TopBar({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate()
   const logout = useApiMutation('logout', {
@@ -46,7 +44,6 @@ export function TopBar({ children }: { children: React.ReactNode }) {
         <div className="mx-3 flex h-[60px] shrink-0 items-center justify-between">
           <div className="flex items-center">{otherPickers}</div>
           <div>
-            {process.env.MSW ? <MswWarning /> : null}
             <a href="https://docs.oxide.computer/guides" target="_blank" rel="noreferrer">
               <Button variant="secondary" size="icon" title="Info">
                 <Info16Icon className="text-quaternary" />

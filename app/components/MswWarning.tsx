@@ -1,11 +1,16 @@
 import { type ReactNode, useState } from 'react'
 
-import { Button, Modal, OpenLink12Icon } from '@oxide/ui'
+import { Button, Info16Icon, Modal, NextArrow12Icon } from '@oxide/ui'
 
 function ExternalLink({ href, children }: { href: string; children: ReactNode }) {
   return (
-    <a href={href} className="text-accent" target="_blank" rel="noreferrer">
-      {children} <OpenLink12Icon />
+    <a
+      href={href}
+      className="text-accent-secondary hover:text-accent"
+      target="_blank"
+      rel="noreferrer"
+    >
+      {children}
     </a>
   )
 }
@@ -15,10 +20,16 @@ export function MswWarning() {
   const closeModal = () => setIsOpen(false)
   return (
     <>
-      <Button size="sm" variant="danger" className="mr-2" onClick={() => setIsOpen(true)}>
-        This is a technical preview
-      </Button>
-      <Modal isOpen={isOpen} onDismiss={closeModal} title="This is a technical preview">
+      <div className="flex h-10 w-full items-center justify-center text-sans-md text-info-secondary bg-info-secondary">
+        <Info16Icon className="mr-2" /> This is a technical preview.
+        <button
+          className="ml-2 flex items-center gap-0.5 text-sans-md hover:text-info"
+          onClick={() => setIsOpen(true)}
+        >
+          Learn more <NextArrow12Icon />
+        </button>
+      </div>
+      <Modal isOpen={isOpen} onDismiss={closeModal} title="Console Technical Preview">
         <Modal.Section>
           <p>
             This is the <ExternalLink href="https://oxide.computer/">Oxide</ExternalLink>{' '}
