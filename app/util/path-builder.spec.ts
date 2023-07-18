@@ -44,7 +44,6 @@ test('path builder', () => {
         "rackInventory": "/system/inventory/racks",
         "samlIdp": "/system/silos/s/idps/saml/pr",
         "serialConsole": "/projects/p/instances/i/serial-console",
-        "settings": "/settings",
         "silo": "/system/silos/s",
         "siloAccess": "/access",
         "siloIdpNew": "/system/silos/s/idps-new",
