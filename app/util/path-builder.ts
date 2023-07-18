@@ -85,7 +85,6 @@ export const pb = {
   siloIdpNew: (params: Silo) => `${pb.silo(params)}/idps-new`,
   samlIdp: (params: IdentityProvider) => `${pb.silo(params)}/idps/saml/${params.provider}`,
 
-  settings: () => '/settings',
   profile: () => '/settings/profile',
   sshKeys: () => '/settings/ssh-keys',
   sshKeyNew: () => '/settings/ssh-keys-new',

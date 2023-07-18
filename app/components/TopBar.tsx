@@ -76,7 +76,7 @@ export function TopBar({ children }: { children: React.ReactNode }) {
                 sideOffset={8}
                 className="min-w-[12.8125rem]"
               >
-                <DropdownMenu.Item onSelect={() => navigate(pb.settings())}>
+                <DropdownMenu.Item onSelect={() => navigate(pb.profile())}>
                   Settings
                 </DropdownMenu.Item>
                 {loggedIn ? (
