@@ -215,7 +215,7 @@ export const ActionMenuHotkey = ({ keys, action }: ActionMenuHotkeyProps) => (
       {keys.map((hotkey) => (
         <kbd
           key={hotkey}
-          className="mr-1 inline-block rounded border border-[rgba(255,255,255,.15)] py-1 px-2 text-mono-xs text-default"
+          className="mr-1 inline-block rounded border border-[rgba(255,255,255,.15)] px-2 py-1 text-mono-xs text-default"
         >
           {hotkey}
         </kbd>

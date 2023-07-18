@@ -75,7 +75,7 @@ export function CalendarCell({ state, date }: CalendarCellProps) {
       >
         <div
           className={cn(
-            'pointer-events-none absolute top-[0] left-[1px] right-[1px] bottom-[0] rounded',
+            'pointer-events-none absolute bottom-[0] left-[1px] right-[1px] top-[0] rounded',
             isSelectionStart || isSelectionEnd
               ? isInvalid
                 ? 'border border-error-secondary'
@@ -101,7 +101,7 @@ export function CalendarCell({ state, date }: CalendarCellProps) {
         </div>
 
         {cellIsToday && (
-          <div className="absolute left-1/2 bottom-[5px] h-[3px] w-[3px] -translate-x-1/2 rounded-full bg-[var(--content-accent-tertiary)] content-['']" />
+          <div className="absolute bottom-[5px] left-1/2 h-[3px] w-[3px] -translate-x-1/2 rounded-full bg-[var(--content-accent-tertiary)] content-['']" />
         )}
       </div>
     </td>

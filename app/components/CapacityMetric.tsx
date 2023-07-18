@@ -54,7 +54,7 @@ export const CapacityMetric = ({
           {/* <span className="ml-1 !normal-case text-mono-sm text-quaternary">({unit})</span> */}
         </div>
 
-        <div className="flex items-center gap-2 pl-3 pb-3">
+        <div className="flex items-center gap-2 pb-3 pl-3">
           <div className="flex h-6 w-6 items-center justify-center rounded-lg text-accent bg-accent-secondary-hover">
             {icon}
           </div>

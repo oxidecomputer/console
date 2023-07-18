@@ -46,7 +46,7 @@ export const Badge = ({
       className={cn(
         'ox-badge',
         `variant-${variant}`,
-        'inline-flex h-4 items-center whitespace-nowrap rounded-sm py-[1px] px-[3px] uppercase text-mono-sm',
+        'inline-flex h-4 items-center whitespace-nowrap rounded-sm px-[3px] py-[1px] uppercase text-mono-sm',
         badgeColors[variant][color],
         className
       )}

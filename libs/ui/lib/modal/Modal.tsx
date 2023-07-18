@@ -87,7 +87,7 @@ interface ModalTitleProps {
 const ModalTitle = forwardRef<HTMLDivElement, ModalTitleProps>(({ children, id }, ref) => (
   <div
     ref={ref}
-    className="flex items-center justify-between border-b py-4 px-4 bg-secondary border-b-secondary"
+    className="flex items-center justify-between border-b px-4 py-4 bg-secondary border-b-secondary"
   >
     <h2 className="text-sans-semi-lg" id={id}>
       {children}

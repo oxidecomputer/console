@@ -11,7 +11,7 @@
 }
 
 .ox-tooltip[data-placement^='top'] .ox-tooltip-arrow {
-  @apply border-t border-l;
+  @apply border-l border-t;
   margin-top: 2.5px;
 }
 

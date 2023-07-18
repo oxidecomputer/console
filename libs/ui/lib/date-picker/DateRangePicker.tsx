@@ -62,7 +62,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
           <div className={cn('relative flex w-[16rem] items-center px-3 text-sans-md')}>
             {label}
             {state.validationState === 'invalid' && (
-              <div className="absolute right-2 top-0 bottom-0 flex items-center text-error">
+              <div className="absolute bottom-0 right-2 top-0 flex items-center text-error">
                 <Error12Icon className="h-3 w-3" />
               </div>
             )}

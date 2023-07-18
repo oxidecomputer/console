@@ -59,7 +59,7 @@ interface SidebarNav {
 }
 
 Sidebar.Nav = ({ children, heading }: SidebarNav) => (
-  <div className="my-4 mx-3 space-y-1">
+  <div className="mx-3 my-4 space-y-1">
     {heading && (
       <div className="mb-2 text-mono-sm text-quaternary">
         <Truncate text={heading} maxLength={24} />
