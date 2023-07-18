@@ -86,7 +86,7 @@ function Step({ children, state, label, className }: StepProps) {
   /* eslint-enable react/jsx-key */
   return (
     // data-status used only for e2e testing
-    <div className={cn('items-top flex gap-2 py-3 px-4', className)} data-status={status}>
+    <div className={cn('items-top flex gap-2 px-4 py-3', className)} data-status={status}>
       {/* padding on icon to align it with text since everything is aligned to top */}
       <div className="pt-px">{icon}</div>
       <div

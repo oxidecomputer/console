@@ -18,7 +18,7 @@ export function CalendarGrid({ state, ...props }: CalendarGridProps) {
   const weeksInMonth = getWeeksInMonth(state.visibleRange.start, locale)
 
   return (
-    <div className="pl-4 pr-4 pb-4">
+    <div className="pb-4 pl-4 pr-4">
       <table {...gridProps} cellPadding="0" className="flex-1">
         <thead {...headerProps}>
           <tr>

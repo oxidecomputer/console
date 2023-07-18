@@ -82,7 +82,7 @@ export function InstancePage() {
         <PageTitle icon={<Instances24Icon />}>{instance.name}</PageTitle>
         <MoreActionsMenu label="Instance actions" actions={actions} />
       </PageHeader>
-      <PropertiesTable.Group className="mb-16 -mt-8">
+      <PropertiesTable.Group className="-mt-8 mb-16">
         <PropertiesTable>
           <PropertiesTable.Row label="cpu">
             <span className="text-secondary">{instance.ncpus}</span>

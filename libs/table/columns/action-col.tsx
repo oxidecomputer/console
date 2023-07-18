@@ -41,7 +41,7 @@ export const getActionsCol = <TData extends { id?: string }>(
           </DropdownMenu.Trigger>
           {/* portal fixes mysterious z-index issue where menu is behind button */}
           <DropdownMenu.Portal>
-            <DropdownMenu.Content align="end" className="mr-2 -mt-3">
+            <DropdownMenu.Content align="end" className="-mt-3 mr-2">
               {id && (
                 <DropdownMenu.Item
                   onSelect={() => {

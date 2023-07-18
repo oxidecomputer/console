@@ -66,7 +66,7 @@ export function DatePicker(props: DatePickerProps) {
           <div className={cn('relative flex w-[10rem] items-center px-3 text-sans-md')}>
             {label}
             {state.validationState === 'invalid' && (
-              <div className="absolute right-2 top-0 bottom-0 flex items-center text-error">
+              <div className="absolute bottom-0 right-2 top-0 flex items-center text-error">
                 <Error12Icon className="h-3 w-3" />
               </div>
             )}
