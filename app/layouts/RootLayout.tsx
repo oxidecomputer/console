@@ -32,7 +32,7 @@ export default function RootLayout() {
   return (
     <>
       <LoadingBar />
-      {process.env.MSW ? <MswWarning /> : null}
+      {process.env.MSW_BANNER ? <MswWarning /> : null}
       <Outlet />
       <ToastStack />
     </>
