@@ -84,7 +84,12 @@ export const routes = createRoutesFromElements(
     {/* This wraps all routes that are supposed to be authenticated */}
     <Route loader={userLoader} errorElement={<RouterDataErrorBoundary />}>
       <Route path="settings" handle={{ crumb: 'settings' }} element={<SettingsLayout />}>
-        <Route path="profile" element={<ProfilePage />} handle={{ crumb: 'Profile' }} />
+        <Route
+          path="profile"
+          element={<ProfilePage />}
+          loader={ProfilePage.loader}
+          handle={{ crumb: 'Profile' }}
+        />
         <Route element={<SSHKeysPage />} loader={SSHKeysPage.loader}>
           <Route path="ssh-keys" handle={{ crumb: 'SSH Keys' }} element={null} />
           <Route
