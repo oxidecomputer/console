@@ -1,3 +1,7 @@
+# To run this check locally, install SkyWalking Eyes somehow
+# (https://github.com/apache/skywalking-eyes). On macOS you can `brew install
+# license-eye` and run `license-eye header check` or `license-eye header fix`.
+
 name: license-check
 on: pull_request
 jobs:
