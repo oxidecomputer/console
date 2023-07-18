@@ -1,3 +1,11 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
+
 /* eslint-disable jsx-a11y/aria-proptypes */
 // there seems to be a bug in the linter. it doesn't want you to use the string
 // "true" because it insists it's a boolean

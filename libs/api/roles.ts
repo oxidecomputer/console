@@ -1,4 +1,12 @@
 /*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
+
+/*
  * Utilities around resource roles and policies. This logic belongs in the data
  * layer and not in app/ because we are experimenting with it to decide whether
  * it belongs in the API proper.
