@@ -1,4 +1,12 @@
 /* eslint-disable */
+
+/**
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import type { RequestParams } from './http-client'
 import { HttpClient, toQueryString } from './http-client'
 
@@ -964,6 +972,8 @@ export type LoopbackAddressCreate = {
   address: string
   /** The name or id of the address lot this loopback address will pull an address from. */
   addressLot: NameOrId
+  /** Address is an anycast address. This allows the address to be assigned to multiple locations simultaneously. */
+  anycast: boolean
   /** The subnet mask to use for the address. */
   mask: number
   /** The containing the switch this loopback address will be configured on. */
