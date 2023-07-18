@@ -18,5 +18,5 @@
 }
 
 .ox-form:not(.is-side-modal) .ox-divider {
-  @apply mt-20 mb-16;
+  @apply mb-16 mt-20;
 }
