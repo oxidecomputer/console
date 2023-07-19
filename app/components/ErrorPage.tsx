@@ -5,20 +5,28 @@
  *
  * Copyright Oxide Computer Company
  */
+import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 
 import { Error12Icon, PrevArrow12Icon } from '@oxide/ui'
 
-export default function NotFound() {
+const GradientBackground = () => (
+  <div
+    // negative z-index avoids covering MSW warning banner
+    className="fixed bottom-0 left-0 right-0 top-0 -z-10"
+    style={{
+      background:
+        'radial-gradient(200% 100% at 50% 100%, var(--surface-default) 0%, #161B1D 100%)',
+    }}
+  />
+)
+
+type Props = { children: ReactNode; message?: string }
+
+export function ErrorPage({ children, message }: Props) {
   return (
     <div className="flex w-full justify-center">
-      <div
-        className="fixed bottom-0 left-0 right-0 top-0"
-        style={{
-          background:
-            'radial-gradient(200% 100% at 50% 100%, var(--surface-default) 0%, #161B1D 100%)',
-        }}
-      />
+      <GradientBackground />
       <div className="relative w-full">
         <Link
           to="/"
@@ -34,14 +42,22 @@ export default function NotFound() {
           <Error12Icon className="relative h-8 w-8 text-error" />
         </div>
 
-        <div className="space-y-2">
-          <h1 className="text-center text-sans-2xl">Page not found</h1>
-          <p className="text-center text-tertiary">
-            The page you are looking for doesn&apos;t exist or you may not have access to
-            it.
-          </p>
-        </div>
+        <div className="space-y-2 text-center">{children}</div>
       </div>
+      {message && (
+        <div className="absolute bottom-0 m-4 text-mono-sm text-quaternary">{message}</div>
+      )}
     </div>
+  )
+}
+
+export function NotFound() {
+  return (
+    <ErrorPage>
+      <h1 className="text-sans-2xl">Page not found</h1>
+      <p className="text-tertiary">
+        The page you are looking for doesn&apos;t exist or you may not have access to it.
+      </p>
+    </ErrorPage>
   )
 }
