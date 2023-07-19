@@ -4,10 +4,16 @@
  * file, you can obtain one at https://mozilla.org/MPL/2.0/.
  *
  * Copyright Oxide Computer Company
+ *
+ * This file incorporates work covered by the following copyright and
+ * permission notice:
+ *
+ *   Copyright (c) 2020-present Luis Guerrero
+ *
+ *   Use of this source code is governed by an MIT-style
+ *   license that can be found in the LICENSE file or at
+ *   https://opensource.org/licenses/MIT.
  */
-// Borrowed with modification from https://github.com/drac94/react-auth-code-input
-// Copyright (c) 2020-present Luis Guerrero
-// MIT license
 import React, { forwardRef, useEffect, useImperativeHandle, useRef } from 'react'
 import invariant from 'tiny-invariant'
 
@@ -62,6 +68,7 @@ const Dash = () => (
   </span>
 )
 
+// See https://github.com/drac94/react-auth-code-input
 export const AuthCodeInput = forwardRef<AuthCodeRef, AuthCodeProps>(
   (
     {
