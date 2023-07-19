@@ -1,3 +1,10 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 // note that isUuid checks for any kind of UUID. strictly speaking, we should
 // only be checking for v4
 import { validate as isUuid } from 'uuid'

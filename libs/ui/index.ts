@@ -1,3 +1,10 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import useInterval from './lib/hooks/use-interval'
 import useTimeout from './lib/hooks/use-timeout'
 import './styles/index.css'

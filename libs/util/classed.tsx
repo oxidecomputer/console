@@ -1,3 +1,11 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
+
 /**
  * Even though this file doesn't contain JSX we've changed it to a TSX file to
  * avoid build failures with the `vite:react-babel` plugin.
