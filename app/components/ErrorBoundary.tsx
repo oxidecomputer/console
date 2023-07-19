@@ -10,7 +10,7 @@ import { useRouteError } from 'react-router-dom'
 
 import type { ApiError } from '@oxide/api'
 
-import NotFound from 'app/pages/NotFound'
+import { ErrorPage, NotFound } from './ErrorPage'
 
 export const trigger404 = { type: 'error', statusCode: 404 }
 
@@ -22,10 +22,12 @@ function ErrorFallback({ error }: Props) {
   }
 
   return (
-    <div role="alert" className="m-48">
-      <h1 className="text-2xl mb-6 text-sans-md">Error</h1>
-      <pre className="whitespace-pre-wrap">{error.message}</pre>
-    </div>
+    <ErrorPage message={error.message}>
+      <h1 className="text-sans-2xl">Something went wrong</h1>
+      <p className="text-tertiary">
+        Please try again. If the problem persists, contact your administrator.
+      </p>
+    </ErrorPage>
   )
 }
 
