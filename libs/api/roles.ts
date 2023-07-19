@@ -100,8 +100,8 @@ export function useUserRows(
   // putting them in a dictionary, and adding the names to the rows
   const { data: users } = useApiQuery('userList', {})
   const { data: groups } = useApiQuery('groupList', {})
-  invariant(users, 'users should be prefetched in a loader')
-  invariant(groups, 'groups should be prefetched in a loader')
+  invariant(users, 'Users must be prefetched')
+  invariant(groups, 'Groups must be prefetched')
   return useMemo(() => {
     const userItems = users?.items || []
     const groupItems = groups?.items || []

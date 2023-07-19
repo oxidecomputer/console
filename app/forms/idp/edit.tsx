@@ -32,7 +32,7 @@ export function EditIdpSideModalForm() {
     path: { provider },
     query: { silo },
   })
-  invariant(idp, 'IdP was not prefetched in loader')
+  invariant(idp, 'IdP must be prefetched')
 
   const navigate = useNavigate()
   const onDismiss = () => navigate(pb.silo({ silo }))

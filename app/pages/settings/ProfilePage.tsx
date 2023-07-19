@@ -32,10 +32,10 @@ ProfilePage.loader = async () => {
 
 export function ProfilePage() {
   const { data: user } = useApiQuery('currentUserView', {})
-  invariant(user, 'User must be prefetched in a loader')
+  invariant(user, 'User must be prefetched')
 
   const { data: groups } = useApiQuery('currentUserGroups', {})
-  invariant(groups, 'Groups must be prefetched in a loader')
+  invariant(groups, 'Groups must be prefetched')
 
   const groupsTable = useReactTable({ columns, data: groups.items })
 

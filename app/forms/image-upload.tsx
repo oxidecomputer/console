@@ -333,7 +333,7 @@ export function CreateImageSideModalForm() {
     os,
     version,
   }: FormValues) {
-    invariant(imageFile) // shouldn't be possible to fail bc file is a required field
+    invariant(imageFile, 'imageFile must exist') // shouldn't be possible to fail bc file is a required field
 
     // this is done up here instead of next to the upload step because after
     // upload is canceled, a few outstanding bulk writes will complete, setting

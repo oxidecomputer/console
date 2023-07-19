@@ -28,7 +28,7 @@ VpcPage.loader = async ({ params }: LoaderFunctionArgs) => {
 export function VpcPage() {
   const vpcSelector = useVpcSelector()
   const { data: vpc } = useApiQuery('vpcView', toPathQuery('vpc', vpcSelector))
-  invariant(vpc, 'VPC must be prefetched in loader')
+  invariant(vpc, 'VPC must be prefetched')
 
   return (
     <>

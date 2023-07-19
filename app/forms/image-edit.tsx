@@ -31,7 +31,7 @@ EditProjectImageSideModalForm.loader = async ({ params }: LoaderFunctionArgs) =>
 export function EditProjectImageSideModalForm() {
   const { project, image } = useProjectImageSelector()
   const { data } = useApiQuery('imageView', { path: { image }, query: { project } })
-  invariant(data, 'Image must be prefetched in loader')
+  invariant(data, 'Image must be prefetched')
 
   const dismissLink = pb.projectImages({ project })
   return <EditImageSideModalForm image={data} dismissLink={dismissLink} type="Project" />
@@ -46,7 +46,7 @@ EditSiloImageSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
 export function EditSiloImageSideModalForm() {
   const { image } = useSiloImageSelector()
   const { data } = useApiQuery('imageView', { path: { image } })
-  invariant(data, 'Image must be prefetched in loader')
+  invariant(data, 'Image must be prefetched')
 
   return <EditImageSideModalForm image={data} dismissLink={pb.siloImages()} type="Silo" />
 }

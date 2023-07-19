@@ -49,7 +49,7 @@ CapacityUtilizationPage.loader = async () => {
 
 export function CapacityUtilizationPage() {
   const { data: silos } = useApiQuery('siloList', {})
-  invariant(silos, 'silos should be prefetched in loader')
+  invariant(silos, 'Silos must be prefetched')
 
   const siloItems = useMemo(() => {
     const items = silos?.items.map((silo) => ({ label: silo.name, value: silo.id })) || []
@@ -57,7 +57,7 @@ export function CapacityUtilizationPage() {
   }, [silos])
 
   const { data: sleds } = useApiQuery('sledList', {})
-  invariant(sleds, 'sleds should be prefetched in loader')
+  invariant(sleds, 'Sleds must be prefetched')
 
   const capacity = totalCapacity(sleds.items)
 

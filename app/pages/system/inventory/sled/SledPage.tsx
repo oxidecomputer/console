@@ -28,7 +28,7 @@ export function SledPage() {
   const { sledId } = useSledParams()
   const { data: sled } = useApiQuery('sledView', { path: { sledId } })
 
-  invariant(sled, 'sled should be prefetched')
+  invariant(sled, 'sled must be prefetched')
 
   const ram = fileSize(sled.usablePhysicalRam, { output: 'object', base: 2 })
 

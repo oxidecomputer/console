@@ -44,7 +44,7 @@ CreateImageFromSnapshotSideModalForm.loader = async ({ params }: LoaderFunctionA
 export function CreateImageFromSnapshotSideModalForm() {
   const { snapshot, project } = useProjectSnapshotSelector()
   const { data } = useApiQuery('snapshotView', { path: { snapshot }, query: { project } })
-  invariant(data, 'Snapshot must be prefetched in loader')
+  invariant(data, 'Snapshot must be prefetched')
   const navigate = useNavigate()
   const queryClient = useApiQueryClient()
 

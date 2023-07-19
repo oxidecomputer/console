@@ -27,7 +27,7 @@ SiloUtilizationPage.loader = async () => {
 export function SiloUtilizationPage() {
   // this will come from /session/me
   const { data: me } = useApiQuery('currentUserView', {})
-  invariant(me, 'Current user should be prefetched')
+  invariant(me, 'Current user must be prefetched')
 
   const siloId = me.siloId
 

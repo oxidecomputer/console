@@ -57,7 +57,7 @@ export function SiloPage() {
   const siloSelector = useSiloSelector()
 
   const { data: silo } = useApiQuery('siloView', { path: siloSelector })
-  invariant(silo, 'silo must be prefetched in loader')
+  invariant(silo, 'Silo must be prefetched')
 
   const roleMapPairs = Object.entries(silo.mappedFleetRoles).flatMap(
     ([fleetRole, siloRoles]) =>

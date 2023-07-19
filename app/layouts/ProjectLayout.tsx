@@ -56,7 +56,7 @@ function ProjectLayout({ overrideContentPane }: ProjectLayoutProps) {
   // project will always be there, instance may not
   const projectSelector = useProjectSelector()
   const { data: project } = useApiQuery('projectView', { path: projectSelector })
-  invariant(project, 'Project must be prefetched in loader')
+  invariant(project, 'Project must be prefetched')
 
   const { instance } = useParams()
   const currentPath = useLocation().pathname

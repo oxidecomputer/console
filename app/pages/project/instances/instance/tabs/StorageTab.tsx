@@ -56,7 +56,7 @@ export function StorageTab() {
   const detachDisk = useApiMutation('instanceDiskDetach', {})
 
   const { data: instance } = useApiQuery('instanceView', instancePathQuery)
-  invariant(instance, 'Instance must be prefetched in loader')
+  invariant(instance, 'Instance must be prefetched')
 
   const makeActions = useCallback(
     (disk: Disk): MenuAction[] => [

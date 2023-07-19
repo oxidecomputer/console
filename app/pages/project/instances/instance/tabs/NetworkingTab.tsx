@@ -119,7 +119,7 @@ export function NetworkingTab() {
     'instanceView',
     toPathQuery('instance', instanceSelector)
   )
-  invariant(instance, 'Instance must be prefetched in a loader')
+  invariant(instance, 'Instance must be prefetched')
   const canUpdateNic = instanceCan.updateNic(instance)
 
   const makeActions = (nic: InstanceNetworkInterface): MenuAction[] => [

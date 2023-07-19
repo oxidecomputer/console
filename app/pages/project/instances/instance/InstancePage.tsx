@@ -53,7 +53,7 @@ export function InstancePage() {
 
   const { data: instance } = useApiQuery('instanceView', instancePathQuery)
 
-  invariant(instance, 'Instance must be prefetched in a loader')
+  invariant(instance, 'Instance must be prefetched')
 
   const actions = useMemo(
     () => [

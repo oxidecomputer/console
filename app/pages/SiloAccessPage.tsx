@@ -76,7 +76,7 @@ export function SiloAccessPage() {
   const [editingUserRow, setEditingUserRow] = useState<UserRow | null>(null)
 
   const { data: siloPolicy } = useApiQuery('policyView', {})
-  invariant(siloPolicy, 'siloPolicy should be prefetched in loader')
+  invariant(siloPolicy, 'siloPolicy must be prefetched')
   const siloRows = useUserRows(siloPolicy?.roleAssignments, 'silo')
 
   const rows = useMemo(() => {
