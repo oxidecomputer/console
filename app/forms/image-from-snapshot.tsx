@@ -9,7 +9,6 @@ import fileSize from 'filesize'
 import { useForm } from 'react-hook-form'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
-import invariant from 'tiny-invariant'
 
 import {
   type ImageCreate,
@@ -19,6 +18,7 @@ import {
   useApiQueryClient,
 } from '@oxide/api'
 import { PropertiesTable } from '@oxide/ui'
+import { invariant } from '@oxide/util'
 
 import { DescriptionField, NameField, SideModalForm, TextField } from 'app/components/form'
 import { getProjectSnapshotSelector, useProjectSnapshotSelector } from 'app/hooks'

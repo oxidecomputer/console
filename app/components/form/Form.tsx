@@ -7,12 +7,9 @@
  */
 import cn from 'classnames'
 import { cloneElement } from 'react'
-import invariant from 'tiny-invariant'
 
-import type { ButtonProps } from '@oxide/ui'
-import { Error12Icon } from '@oxide/ui'
-import { Button } from '@oxide/ui'
-import { classed, flattenChildren, isOneOf, pluckFirstOfType } from '@oxide/util'
+import { Button, type ButtonProps, Error12Icon } from '@oxide/ui'
+import { classed, flattenChildren, invariant, isOneOf, pluckFirstOfType } from '@oxide/util'
 
 import './form.css'
 

@@ -15,7 +15,8 @@
  *   https://opensource.org/licenses/MIT.
  */
 import React, { forwardRef, useEffect, useImperativeHandle, useRef } from 'react'
-import invariant from 'tiny-invariant'
+
+import { invariant } from '@oxide/util'
 
 export type AuthCodeProps = {
   ariaLabel?: string

@@ -7,9 +7,8 @@
  */
 import cn from 'classnames'
 import type { ReactNode } from 'react'
-import invariant from 'tiny-invariant'
 
-import { isOneOf } from '@oxide/util'
+import { invariant, isOneOf } from '@oxide/util'
 
 import { Badge } from '../badge/Badge'
 import './properties-table.css'

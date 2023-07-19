@@ -7,7 +7,6 @@
  */
 import cn from 'classnames'
 import { Link } from 'react-router-dom'
-import invariant from 'tiny-invariant'
 
 import type { Project } from '@oxide/api'
 import { useApiQuery, useApiQueryErrorsAllowed } from '@oxide/api'
@@ -20,6 +19,7 @@ import {
   Truncate,
   Wrap,
 } from '@oxide/ui'
+import { invariant } from '@oxide/util'
 
 import { useInstanceSelector, useSiloSelector } from 'app/hooks'
 import { pb } from 'app/util/path-builder'

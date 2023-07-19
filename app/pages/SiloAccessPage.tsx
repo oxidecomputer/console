@@ -6,7 +6,6 @@
  * Copyright Oxide Computer Company
  */
 import { useMemo, useState } from 'react'
-import invariant from 'tiny-invariant'
 
 import type { IdentityType, RoleKey } from '@oxide/api'
 import { deleteRole } from '@oxide/api'
@@ -29,7 +28,7 @@ import {
   TableActions,
   TableEmptyBox,
 } from '@oxide/ui'
-import { groupBy, isTruthy } from '@oxide/util'
+import { groupBy, invariant, isTruthy } from '@oxide/util'
 
 import { AccessNameCell } from 'app/components/AccessNameCell'
 import { HL } from 'app/components/ConfirmDeleteModal'

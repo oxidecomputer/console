@@ -8,7 +8,6 @@
 import { useForm, useWatch } from 'react-hook-form'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
-import invariant from 'tiny-invariant'
 import type { SetRequired } from 'type-fest'
 
 import type { InstanceCreate } from '@oxide/api'
@@ -36,8 +35,7 @@ import {
   TextInputHint,
   Truncate,
 } from '@oxide/ui'
-import { formatDateTime } from '@oxide/util'
-import { GiB } from '@oxide/util'
+import { GiB, formatDateTime, invariant } from '@oxide/util'
 
 import { Form, FullPageForm } from 'app/components/form'
 import type { DiskTableItem } from 'app/components/form'

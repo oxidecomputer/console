@@ -12,9 +12,8 @@
  * it belongs in the API proper.
  */
 import { useMemo } from 'react'
-import invariant from 'tiny-invariant'
 
-import { lowestBy, sortBy } from '@oxide/util'
+import { invariant, lowestBy, sortBy } from '@oxide/util'
 
 import { useApiQuery } from '.'
 import type { FleetRole, IdentityType, ProjectRole, SiloRole } from './__generated__/Api'

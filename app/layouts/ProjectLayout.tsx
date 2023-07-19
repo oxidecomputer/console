@@ -9,7 +9,6 @@ import type { ReactElement } from 'react'
 import { useMemo } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 import { matchPath, useLocation, useNavigate, useParams } from 'react-router-dom'
-import invariant from 'tiny-invariant'
 
 import { apiQueryClient, useApiQuery } from '@oxide/api'
 import {
@@ -22,6 +21,7 @@ import {
   Snapshots16Icon,
   Storage16Icon,
 } from '@oxide/ui'
+import { invariant } from '@oxide/util'
 
 import { TopBar } from 'app/components/TopBar'
 import {

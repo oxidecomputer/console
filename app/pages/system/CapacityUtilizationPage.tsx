@@ -8,7 +8,6 @@
 import { getLocalTimeZone, now } from '@internationalized/date'
 import { useIsFetching } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
-import invariant from 'tiny-invariant'
 
 import { FLEET_ID, apiQueryClient, totalCapacity, useApiQuery } from '@oxide/api'
 import {
@@ -21,7 +20,7 @@ import {
   Snapshots24Icon,
   Ssd16Icon,
 } from '@oxide/ui'
-import { bytesToGiB, bytesToTiB } from '@oxide/util'
+import { bytesToGiB, bytesToTiB, invariant } from '@oxide/util'
 
 import { CapacityMetric, capacityQueryParams } from 'app/components/CapacityMetric'
 import { useIntervalPicker } from 'app/components/RefetchIntervalPicker'

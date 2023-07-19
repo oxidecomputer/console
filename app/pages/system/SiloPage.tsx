@@ -8,7 +8,6 @@
 import type { LoaderFunctionArgs } from 'react-router-dom'
 import { Link } from 'react-router-dom'
 import { Outlet } from 'react-router-dom'
-import invariant from 'tiny-invariant'
 
 import { apiQueryClient, useApiQuery } from '@oxide/api'
 import { DateCell, DefaultCell, TruncateCell, linkCell, useQueryTable } from '@oxide/table'
@@ -26,6 +25,7 @@ import {
   Tooltip,
   buttonStyle,
 } from '@oxide/ui'
+import { invariant } from '@oxide/util'
 
 import { getSiloSelector, useSiloSelector } from 'app/hooks'
 import { pb } from 'app/util/path-builder'

@@ -60,7 +60,6 @@
     "react-stately": "^3.23.0",
     "recharts": "^2.7.2",
     "simplebar-react": "^3.2.4",
-    "tiny-invariant": "^1.2.0",
     "ts-dedent": "^2.2.0",
     "tslib": "^2.6.0",
     "tunnel-rat": "^0.0.4",

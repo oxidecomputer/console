@@ -12,7 +12,6 @@ import pRetry from 'p-retry'
 import { useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
-import invariant from 'tiny-invariant'
 
 import type { ApiError, BlockSize, Disk, Snapshot } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
@@ -25,7 +24,7 @@ import {
   Success12Icon,
   Unauthorized12Icon,
 } from '@oxide/ui'
-import { GiB, KiB } from '@oxide/util'
+import { GiB, KiB, invariant } from '@oxide/util'
 
 import {
   DescriptionField,

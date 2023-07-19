@@ -10,7 +10,6 @@ import filesize from 'filesize'
 import { useMemo } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
-import invariant from 'tiny-invariant'
 
 import { apiQueryClient, useApiQuery, useApiQueryClient } from '@oxide/api'
 import {
@@ -20,7 +19,7 @@ import {
   PropertiesTable,
   Truncate,
 } from '@oxide/ui'
-import { toPathQuery } from '@oxide/util'
+import { invariant, toPathQuery } from '@oxide/util'
 
 import { MoreActionsMenu } from 'app/components/MoreActionsMenu'
 import { RouteTabs, Tab } from 'app/components/RouteTabs'

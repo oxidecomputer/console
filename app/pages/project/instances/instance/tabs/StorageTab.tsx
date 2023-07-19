@@ -7,7 +7,6 @@
  */
 import { useCallback, useState } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
-import invariant from 'tiny-invariant'
 
 import {
   type Disk,
@@ -20,7 +19,7 @@ import {
 import type { MenuAction } from '@oxide/table'
 import { DateCell, SizeCell, useQueryTable } from '@oxide/table'
 import { Button, EmptyMessage, Storage24Icon } from '@oxide/ui'
-import { toPathQuery } from '@oxide/util'
+import { invariant, toPathQuery } from '@oxide/util'
 
 import { DiskStatusBadge } from 'app/components/StatusBadge'
 import AttachDiskSideModalForm from 'app/forms/disk-attach'

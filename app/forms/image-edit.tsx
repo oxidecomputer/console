@@ -8,11 +8,10 @@
 import { useForm } from 'react-hook-form'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
-import invariant from 'tiny-invariant'
 
 import { type Image, apiQueryClient, useApiQuery } from '@oxide/api'
 import { Images16Icon, PropertiesTable, ResourceLabel, Truncate } from '@oxide/ui'
-import { bytesToGiB, formatDateTime } from '@oxide/util'
+import { bytesToGiB, formatDateTime, invariant } from '@oxide/util'
 
 import { DescriptionField, NameField, SideModalForm, TextField } from 'app/components/form'
 import {

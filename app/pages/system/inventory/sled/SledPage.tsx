@@ -7,10 +7,10 @@
  */
 import fileSize from 'filesize'
 import type { LoaderFunctionArgs } from 'react-router-dom'
-import invariant from 'tiny-invariant'
 
 import { apiQueryClient, useApiQuery } from '@oxide/api'
 import { PageHeader, PageTitle, PropertiesTable, Racks24Icon } from '@oxide/ui'
+import { invariant } from '@oxide/util'
 
 import { RouteTabs, Tab } from 'app/components/RouteTabs'
 import { requireSledParams, useSledParams } from 'app/hooks'

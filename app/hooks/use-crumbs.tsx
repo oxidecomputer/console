@@ -6,8 +6,9 @@
  * Copyright Oxide Computer Company
  */
 import { useMatches } from 'react-router-dom'
-import invariant from 'tiny-invariant'
 import type { Spread } from 'type-fest'
+
+import { invariant } from '@oxide/util'
 
 type UseMatchesMatch = ReturnType<typeof useMatches>[number]
 
