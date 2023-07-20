@@ -55,7 +55,7 @@ export function VpcsPage() {
 
   const deleteVpc = useApiMutation('vpcDelete', {
     onSuccess() {
-      queryClient.invalidateQueries('vpcList', { query: projectSelector })
+      queryClient.invalidateQueries('vpcList')
     },
   })
 

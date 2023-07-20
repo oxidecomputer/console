@@ -39,7 +39,7 @@ export function SSHKeysPage() {
 
   const deleteSshKey = useApiMutation('currentUserSshKeyDelete', {
     onSuccess: () => {
-      queryClient.invalidateQueries('currentUserSshKeyList', {})
+      queryClient.invalidateQueries('currentUserSshKeyList')
     },
   })
 

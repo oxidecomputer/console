@@ -30,7 +30,7 @@ export function CreateSubnetForm({ onDismiss }: CreateSubnetFormProps) {
 
   const createSubnet = useApiMutation('vpcSubnetCreate', {
     onSuccess() {
-      queryClient.invalidateQueries('vpcSubnetList', { query: vpcSelector })
+      queryClient.invalidateQueries('vpcSubnetList')
       onDismiss()
     },
   })

@@ -29,12 +29,10 @@ export function CreateProjectSideModalForm() {
   const createProject = useApiMutation('projectCreate', {
     onSuccess(project) {
       // refetch list of projects in sidebar
-      queryClient.invalidateQueries('projectList', {})
+      queryClient.invalidateQueries('projectList')
       // avoid the project fetch when the project page loads since we have the data
       queryClient.setQueryData('projectView', { path: { project: project.name } }, project)
-      addToast({
-        content: 'Your project has been created',
-      })
+      addToast({ content: 'Your project has been created' })
       navigate(pb.instances({ project: project.name }))
     },
   })

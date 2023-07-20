@@ -66,7 +66,7 @@ export function SnapshotsPage() {
 
   const deleteSnapshot = useApiMutation('snapshotDelete', {
     onSuccess() {
-      queryClient.invalidateQueries('snapshotList', { query: projectSelector })
+      queryClient.invalidateQueries('snapshotList')
     },
   })
 

@@ -53,10 +53,8 @@ export function CreateImageFromSnapshotSideModalForm() {
 
   const createImage = useApiMutation('imageCreate', {
     onSuccess() {
-      queryClient.invalidateQueries('imageList', { query: { project } })
-      addToast({
-        content: 'Your image has been created',
-      })
+      queryClient.invalidateQueries('imageList')
+      addToast({ content: 'Your image has been created' })
       onDismiss()
     },
   })

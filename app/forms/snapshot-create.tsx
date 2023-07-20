@@ -50,10 +50,8 @@ export function CreateSnapshotSideModalForm() {
 
   const createSnapshot = useApiMutation('snapshotCreate', {
     onSuccess() {
-      queryClient.invalidateQueries('snapshotList', { query: projectSelector })
-      addToast({
-        content: 'Your snapshot has been created',
-      })
+      queryClient.invalidateQueries('snapshotList')
+      addToast({ content: 'Your snapshot has been created' })
       onDismiss()
     },
   })

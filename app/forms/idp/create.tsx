@@ -50,10 +50,8 @@ export function CreateIdpSideModalForm() {
 
   const createIdp = useApiMutation('samlIdentityProviderCreate', {
     onSuccess() {
-      queryClient.invalidateQueries('siloIdentityProviderList', { query: { silo } })
-      addToast({
-        content: 'Your identity provider has been created',
-      })
+      queryClient.invalidateQueries('siloIdentityProviderList')
+      addToast({ content: 'Your identity provider has been created' })
       onDismiss()
     },
   })

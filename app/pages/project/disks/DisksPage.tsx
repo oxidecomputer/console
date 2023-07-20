@@ -80,16 +80,14 @@ export function DisksPage() {
 
   const deleteDisk = useApiMutation('diskDelete', {
     onSuccess() {
-      queryClient.invalidateQueries('diskList', { query: projectSelector })
+      queryClient.invalidateQueries('diskList')
     },
   })
 
   const createSnapshot = useApiMutation('snapshotCreate', {
     onSuccess() {
-      queryClient.invalidateQueries('snapshotList', { query: projectSelector })
-      addToast({
-        content: 'Snapshot successfully created',
-      })
+      queryClient.invalidateQueries('snapshotList')
+      addToast({ content: 'Snapshot successfully created' })
     },
   })
 

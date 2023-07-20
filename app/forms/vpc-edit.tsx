@@ -36,15 +36,13 @@ export function EditVpcSideModalForm() {
 
   const editVpc = useApiMutation('vpcUpdate', {
     async onSuccess(vpc) {
-      queryClient.invalidateQueries('vpcList', { query: { project } })
+      queryClient.invalidateQueries('vpcList')
       queryClient.setQueryData(
         'vpcView',
         { path: { vpc: vpc.name }, query: { project } },
         vpc
       )
-      addToast({
-        content: 'Your VPC has been created',
-      })
+      addToast({ content: 'Your VPC has been created' })
       onDismiss()
     },
   })

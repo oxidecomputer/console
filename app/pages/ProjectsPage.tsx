@@ -58,7 +58,7 @@ export default function ProjectsPage() {
     onSuccess() {
       // TODO: figure out if this is invalidating as expected, can we leave out the query
       // altogether, etc. Look at whether limit param matters.
-      queryClient.invalidateQueries('projectList', {})
+      queryClient.invalidateQueries('projectList')
     },
   })
 

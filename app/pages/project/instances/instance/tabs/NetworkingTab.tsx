@@ -92,29 +92,23 @@ export function NetworkingTab() {
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [editing, setEditing] = useState<InstanceNetworkInterface | null>(null)
 
-  const getQuery = ['instanceNetworkInterfaceList', { query: instanceSelector }] as const
-
   const createNic = useApiMutation('instanceNetworkInterfaceCreate', {
     onSuccess() {
-      queryClient.invalidateQueries('instanceNetworkInterfaceList', {
-        query: instanceSelector,
-      })
+      queryClient.invalidateQueries('instanceNetworkInterfaceList')
       setCreateModalOpen(false)
     },
   })
 
   const deleteNic = useApiMutation('instanceNetworkInterfaceDelete', {
     onSuccess() {
-      queryClient.invalidateQueries(...getQuery)
-      addToast({
-        title: 'Network interface deleted',
-      })
+      queryClient.invalidateQueries('instanceNetworkInterfaceList')
+      addToast({ content: 'Network interface deleted' })
     },
   })
 
   const editNic = useApiMutation('instanceNetworkInterfaceUpdate', {
     onSuccess() {
-      queryClient.invalidateQueries(...getQuery)
+      queryClient.invalidateQueries('instanceNetworkInterfaceList')
     },
   })
 
@@ -175,7 +169,9 @@ export function NetworkingTab() {
     />
   )
 
-  const { Table, Column } = useQueryTable(...getQuery)
+  const { Table, Column } = useQueryTable('instanceNetworkInterfaceList', {
+    query: instanceSelector,
+  })
   return (
     <>
       <h2 id="nic-label" className="mb-4 text-mono-sm text-secondary">
