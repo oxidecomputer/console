@@ -10,35 +10,36 @@ import type { LoaderFunctionArgs } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 
 import { apiQueryClient, useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
-import { toPathQuery } from '@oxide/util'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
 import { getVpcSelector, useToast, useVpcSelector } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 EditVpcSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
-  await apiQueryClient.prefetchQuery('vpcView', toPathQuery('vpc', getVpcSelector(params)))
+  const { project, vpc } = getVpcSelector(params)
+  await apiQueryClient.prefetchQuery('vpcView', { path: { vpc }, query: { project } })
   return null
 }
 
 export function EditVpcSideModalForm() {
-  const vpcSelector = useVpcSelector()
-  const vpcPathQuery = toPathQuery('vpc', vpcSelector)
-  const projectSelector = { project: vpcSelector.project }
+  const { vpc: vpcName, project } = useVpcSelector()
   const queryClient = useApiQueryClient()
   const addToast = useToast()
   const navigate = useNavigate()
 
-  const { data: vpc } = useApiQuery('vpcView', vpcPathQuery)
+  const { data: vpc } = useApiQuery('vpcView', {
+    path: { vpc: vpcName },
+    query: { project },
+  })
 
-  const onDismiss = () => navigate(pb.vpcs(projectSelector))
+  const onDismiss = () => navigate(pb.vpcs({ project }))
 
   const editVpc = useApiMutation('vpcUpdate', {
     async onSuccess(vpc) {
-      queryClient.invalidateQueries('vpcList', { query: projectSelector })
+      queryClient.invalidateQueries('vpcList', { query: { project } })
       queryClient.setQueryData(
         'vpcView',
-        { path: { vpc: vpc.name }, query: projectSelector },
+        { path: { vpc: vpc.name }, query: { project } },
         vpc
       )
       addToast({
@@ -58,7 +59,8 @@ export function EditVpcSideModalForm() {
       onDismiss={onDismiss}
       onSubmit={({ name, description, dnsName }) => {
         editVpc.mutate({
-          ...vpcPathQuery,
+          path: { vpc: vpcName },
+          query: { project },
           body: { name, description, dnsName },
         })
       }}

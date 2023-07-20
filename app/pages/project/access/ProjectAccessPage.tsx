@@ -30,7 +30,7 @@ import {
   TableActions,
   TableEmptyBox,
 } from '@oxide/ui'
-import { groupBy, isTruthy, toPathQuery } from '@oxide/util'
+import { groupBy, isTruthy } from '@oxide/util'
 
 import { AccessNameCell } from 'app/components/AccessNameCell'
 import { HL } from 'app/components/ConfirmDeleteModal'
@@ -80,14 +80,13 @@ const colHelper = createColumnHelper<UserRow>()
 export function ProjectAccessPage() {
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [editingUserRow, setEditingUserRow] = useState<UserRow | null>(null)
-  const projectSelector = useProjectSelector()
-  const projectPathQuery = toPathQuery('project', projectSelector)
+  const { project } = useProjectSelector()
 
   const { data: siloPolicy } = usePrefetchedApiQuery('policyView', {})
   const siloRows = useUserRows(siloPolicy.roleAssignments, 'silo')
 
   const { data: projectPolicy } = usePrefetchedApiQuery('projectPolicyView', {
-    path: projectSelector,
+    path: { project },
   })
   const projectRows = useUserRows(projectPolicy.roleAssignments, 'project')
 
@@ -152,7 +151,7 @@ export function ProjectAccessPage() {
           onActivate: confirmDelete({
             doDelete: () =>
               updatePolicy.mutateAsync({
-                ...projectPathQuery,
+                path: { project },
                 // we know policy is there, otherwise there's no row to display
                 body: deleteRole(row.id, projectPolicy!),
               }),
@@ -170,7 +169,7 @@ export function ProjectAccessPage() {
         },
       ]),
     ],
-    [projectPolicy, projectPathQuery, updatePolicy]
+    [projectPolicy, project, updatePolicy]
   )
 
   const tableInstance = useReactTable({ columns, data: rows })

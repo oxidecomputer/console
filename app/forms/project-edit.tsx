@@ -10,7 +10,6 @@ import type { LoaderFunctionArgs } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 
 import { apiQueryClient, useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
-import { toPathQuery } from '@oxide/util'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
 import { pb } from 'app/util/path-builder'
@@ -18,10 +17,8 @@ import { pb } from 'app/util/path-builder'
 import { getProjectSelector, useProjectSelector, useToast } from '../hooks'
 
 EditProjectSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
-  await apiQueryClient.prefetchQuery(
-    'projectView',
-    toPathQuery('project', getProjectSelector(params))
-  )
+  const { project } = getProjectSelector(params)
+  await apiQueryClient.prefetchQuery('projectView', { path: { project } })
   return null
 }
 
@@ -31,11 +28,10 @@ export function EditProjectSideModalForm() {
   const navigate = useNavigate()
 
   const projectSelector = useProjectSelector()
-  const projectPathQuery = toPathQuery('project', projectSelector)
 
   const onDismiss = () => navigate(pb.projects())
 
-  const { data: project } = useApiQuery('projectView', projectPathQuery)
+  const { data: project } = useApiQuery('projectView', { path: projectSelector })
 
   const editProject = useApiMutation('projectUpdate', {
     onSuccess(project) {
@@ -60,7 +56,7 @@ export function EditProjectSideModalForm() {
       title="Edit project"
       onDismiss={onDismiss}
       onSubmit={({ name, description }) => {
-        editProject.mutate({ ...projectPathQuery, body: { name, description } })
+        editProject.mutate({ path: projectSelector, body: { name, description } })
       }}
       loading={editProject.isLoading}
       submitError={editProject.error}

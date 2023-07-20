@@ -10,7 +10,6 @@ import { useNavigate } from 'react-router-dom'
 
 import { type Instance, instanceCan, useApiMutation } from '@oxide/api'
 import type { MakeActions } from '@oxide/table'
-import { toPathQuery } from '@oxide/util'
 
 import { useToast } from 'app/hooks'
 import { confirmDelete } from 'app/stores/confirm-delete'
@@ -45,15 +44,14 @@ export const useMakeInstanceActions = (
   return useCallback(
     (instance) => {
       const successToast = (title: string) => addToast({ title })
-      const instanceName = instance.name
-      const instanceSelector = { ...projectSelector, instance: instanceName }
-      const instanceParams = toPathQuery('instance', instanceSelector)
+      const instanceSelector = { ...projectSelector, instance: instance.name }
+      const instanceParams = { path: { instance: instance.name }, query: projectSelector }
       return [
         {
           label: 'Start',
           onActivate() {
             startInstance.mutate(instanceParams, {
-              onSuccess: () => successToast(`Starting instance '${instanceName}'`),
+              onSuccess: () => successToast(`Starting instance '${instance.name}'`),
             })
           },
           disabled: !instanceCan.start(instance) && (
@@ -64,7 +62,7 @@ export const useMakeInstanceActions = (
           label: 'Stop',
           onActivate() {
             stopInstance.mutate(instanceParams, {
-              onSuccess: () => successToast(`Stopping instance '${instanceName}'`),
+              onSuccess: () => successToast(`Stopping instance '${instance.name}'`),
             })
           },
           disabled: !instanceCan.stop(instance) && (
@@ -75,7 +73,7 @@ export const useMakeInstanceActions = (
           label: 'Reboot',
           onActivate() {
             rebootInstance.mutate(instanceParams, {
-              onSuccess: () => successToast(`Rebooting instance '${instanceName}'`),
+              onSuccess: () => successToast(`Rebooting instance '${instance.name}'`),
             })
           },
           disabled: !instanceCan.reboot(instance) && (
@@ -95,10 +93,10 @@ export const useMakeInstanceActions = (
               deleteInstance.mutateAsync(instanceParams, {
                 onSuccess: () => {
                   options.onDelete?.()
-                  successToast(`Deleting instance '${instanceName}'`)
+                  successToast(`Deleting instance '${instance.name}'`)
                 },
               }),
-            label: instanceName,
+            label: instance.name,
           }),
           disabled: !instanceCan.delete(instance) && (
             <>Only {fancifyStates(instanceCan.delete.states)} instances can be deleted</>

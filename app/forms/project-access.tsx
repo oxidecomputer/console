@@ -13,7 +13,6 @@ import {
   useApiMutation,
   useApiQueryClient,
 } from '@oxide/api'
-import { toPathQuery } from '@oxide/util'
 
 import { ListboxField, SideModalForm } from 'app/components/form'
 import { useProjectSelector } from 'app/hooks'
@@ -22,7 +21,7 @@ import type { AddRoleModalProps, EditRoleModalProps } from './access-util'
 import { actorToItem, defaultValues, roleItems } from './access-util'
 
 export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalProps) {
-  const projectPathQuery = toPathQuery('project', useProjectSelector())
+  const { project } = useProjectSelector()
 
   const actors = useActorsNotInPolicy(policy)
 
@@ -50,7 +49,7 @@ export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModa
         const identityType = actors.find((a) => a.id === identityId)!.identityType
 
         updatePolicy.mutate({
-          ...projectPathQuery,
+          path: { project },
           body: updateRole({ identityId, identityType, roleName }, policy),
         })
       }}
@@ -84,7 +83,7 @@ export function ProjectAccessEditUserSideModal({
   policy,
   defaultValues,
 }: EditRoleModalProps) {
-  const projectPathQuery = toPathQuery('project', useProjectSelector())
+  const { project } = useProjectSelector()
 
   const queryClient = useApiQueryClient()
   const updatePolicy = useApiMutation('projectPolicyUpdate', {
@@ -104,7 +103,7 @@ export function ProjectAccessEditUserSideModal({
       form={form}
       onSubmit={({ roleName }) => {
         updatePolicy.mutate({
-          ...projectPathQuery,
+          path: { project },
           body: updateRole({ identityId, identityType, roleName }, policy),
         })
       }}
