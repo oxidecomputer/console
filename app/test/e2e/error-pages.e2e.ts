@@ -28,6 +28,7 @@ test('Shows something went wrong page on other errors', async ({ page }) => {
   await expect(page.getByText('Invariant failed')).toBeHidden()
 
   // but we do see it in the browser console
-  const error = 'Invariant failed: Project must be prefetched'
+  const error =
+    'Invariant failed: Expected query to be prefetched. Key: ["projectView",{"path":{"project":"error-503"}}]'
   expect(errors.some((e) => e.message.includes(error))).toBeTruthy()
 })

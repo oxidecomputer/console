@@ -15,6 +15,7 @@ import {
   getUseApiQuery,
   getUseApiQueryClient,
   getUseApiQueryErrorsAllowed,
+  getUsePrefetchedApiQuery,
   wrapQueryClient,
 } from './hooks'
 
@@ -23,6 +24,13 @@ export const api = new Api()
 export type ApiMethods = typeof api.methods
 
 export const useApiQuery = getUseApiQuery(api.methods)
+/**
+ * Same as useApiQuery except we use `invariant(data)` to ensure the data is
+ * already there in the cache at request time, which means it has been
+ * prefetched in a loader. Whenever this hook is used, there should be an e2e
+ * test loading the page to exercise the invariant at dev time.
+ */
+export const usePrefetchedApiQuery = getUsePrefetchedApiQuery(api.methods)
 export const useApiQueryErrorsAllowed = getUseApiQueryErrorsAllowed(api.methods)
 export const useApiMutation = getUseApiMutation(api.methods)
 

@@ -16,6 +16,8 @@ import type {
 } from '@tanstack/react-query'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
+import { invariant } from '@oxide/util'
+
 import type { ApiResult } from './__generated__/Api'
 import { type ApiError, processServerError } from './errors'
 import { navToLogin } from './nav-to-login'
@@ -75,6 +77,31 @@ export const getUseApiQuery =
         ...options,
       }
     )
+  }
+
+export const getUsePrefetchedApiQuery =
+  <A extends ApiClient>(api: A) =>
+  <M extends string & keyof A>(
+    method: M,
+    params: Params<A[M]>,
+    options: UseQueryOptions<Result<A[M]>, ApiError> = {}
+  ) => {
+    const queryKey = [method, params] as QueryKey
+    const { data, ...rest } = useQuery(
+      queryKey,
+      ({ signal }) => api[method](params, { signal }).then(handleResult(method)),
+      // no catch, let unexpected errors bubble up
+      {
+        // In the case of 404s, let the error bubble up to the error boundary so
+        // we can say Not Found. If you need to allow a 404 and want it to show
+        // up as `error` state instead, pass `useErrorBoundary: false` as an
+        // option from the calling component and it will override this
+        useErrorBoundary: (err) => err.statusCode === 404,
+        ...options,
+      }
+    )
+    invariant(data, `Expected query to be prefetched. Key: ${JSON.stringify(queryKey)}`)
+    return { data, ...rest }
   }
 
 const ERRORS_ALLOWED = 'errors-allowed'
