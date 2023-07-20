@@ -29,8 +29,7 @@ export function TopBar({ children }: { children: React.ReactNode }) {
       navToLogin({ includeCurrent: false })
     },
   })
-  // TODO: why is this cacheTime 0?
-  const { data: user } = useApiQuery('currentUserView', {}, { cacheTime: 0 })
+  const { data: user } = useApiQuery('currentUserView', {})
 
   const loggedIn = !!user
 
