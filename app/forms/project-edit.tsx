@@ -37,12 +37,10 @@ export function EditProjectSideModalForm() {
     onSuccess(project) {
       // refetch list of projects in sidebar
       // TODO: check this invalidation
-      queryClient.invalidateQueries('projectList', {})
+      queryClient.invalidateQueries('projectList')
       // avoid the project fetch when the project page loads since we have the data
       queryClient.setQueryData('projectView', { path: { project: project.name } }, project)
-      addToast({
-        content: 'Your project has been updated',
-      })
+      addToast({ content: 'Your project has been updated' })
       onDismiss()
     },
   })

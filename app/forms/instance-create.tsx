@@ -106,16 +106,14 @@ export function CreateInstanceForm() {
   const createInstance = useApiMutation('instanceCreate', {
     onSuccess(instance) {
       // refetch list of instances
-      queryClient.invalidateQueries('instanceList', { query: projectSelector })
+      queryClient.invalidateQueries('instanceList')
       // avoid the instance fetch when the instance page loads since we have the data
       queryClient.setQueryData(
         'instanceView',
         { path: { instance: instance.name }, query: projectSelector },
         instance
       )
-      addToast({
-        content: 'Your instance has been created',
-      })
+      addToast({ content: 'Your instance has been created' })
       navigate(pb.instancePage({ ...projectSelector, instance: instance.name }))
     },
   })

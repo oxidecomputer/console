@@ -63,7 +63,7 @@ export const VpcFirewallRulesTab = () => {
 
   const updateRules = useApiMutation('vpcFirewallRulesUpdate', {
     onSuccess() {
-      queryClient.invalidateQueries('vpcFirewallRulesView', { query: vpcSelector })
+      queryClient.invalidateQueries('vpcFirewallRulesView')
     },
   })
 

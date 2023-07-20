@@ -95,10 +95,8 @@ const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
   const addToast = useToast()
   const promoteImage = useApiMutation('imagePromote', {
     onSuccess(data) {
-      addToast({
-        content: `${data.name} has been promoted`,
-      })
-      queryClient.invalidateQueries('imageList', {})
+      addToast({ content: `${data.name} has been promoted` })
+      queryClient.invalidateQueries('imageList')
     },
     onError: (err) => {
       addToast({ title: 'Error', content: err.message, variant: 'error' })

@@ -28,7 +28,7 @@ export function CreateSSHKeySideModalForm() {
 
   const createSshKey = useApiMutation('currentUserSshKeyCreate', {
     onSuccess() {
-      queryClient.invalidateQueries('currentUserSshKeyList', {})
+      queryClient.invalidateQueries('currentUserSshKeyList')
       onDismiss()
     },
   })

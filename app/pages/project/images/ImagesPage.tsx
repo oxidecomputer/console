@@ -55,10 +55,8 @@ export function ImagesPage() {
 
   const deleteImage = useApiMutation('imageDelete', {
     onSuccess(_data, variables) {
-      addToast({
-        content: `${variables.path.image} has been deleted`,
-      })
-      queryClient.invalidateQueries('imageList', { query: projectSelector })
+      addToast({ content: `${variables.path.image} has been deleted` })
+      queryClient.invalidateQueries('imageList')
     },
     onError: (err) => {
       addToast({ title: 'Error', content: err.message, variant: 'error' })
@@ -128,7 +126,7 @@ const PromoteImageModal = ({ onDismiss, imageName }: PromoteModalProps) => {
           link: '/images',
         },
       })
-      queryClient.invalidateQueries('imageList', { query: projectSelector })
+      queryClient.invalidateQueries('imageList')
     },
     onError: (err) => {
       addToast({ title: 'Error', content: err.message, variant: 'error' })

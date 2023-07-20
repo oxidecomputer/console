@@ -57,7 +57,7 @@ export default function SilosPage() {
 
   const deleteSilo = useApiMutation('siloDelete', {
     onSuccess() {
-      queryClient.invalidateQueries('siloList', {})
+      queryClient.invalidateQueries('siloList')
     },
   })
 

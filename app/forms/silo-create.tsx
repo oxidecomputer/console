@@ -47,11 +47,9 @@ export function CreateSiloSideModalForm() {
 
   const createSilo = useApiMutation('siloCreate', {
     onSuccess(silo) {
-      queryClient.invalidateQueries('siloList', {})
+      queryClient.invalidateQueries('siloList')
       queryClient.setQueryData('siloView', { path: { silo: silo.name } }, silo)
-      addToast({
-        content: 'Your silo has been created',
-      })
+      addToast({ content: 'Your silo has been created' })
       onDismiss()
     },
   })

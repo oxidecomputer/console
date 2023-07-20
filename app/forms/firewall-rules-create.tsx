@@ -456,7 +456,7 @@ export function CreateFirewallRuleForm({
 
   const updateRules = useApiMutation('vpcFirewallRulesUpdate', {
     onSuccess() {
-      queryClient.invalidateQueries('vpcFirewallRulesView', { query: vpcSelector })
+      queryClient.invalidateQueries('vpcFirewallRulesView')
       onDismiss()
     },
   })

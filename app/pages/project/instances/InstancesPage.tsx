@@ -54,8 +54,7 @@ export function InstancesPage() {
   const projectSelector = useProjectSelector()
 
   const queryClient = useApiQueryClient()
-  const refetchInstances = () =>
-    queryClient.invalidateQueries('instanceList', { query: projectSelector })
+  const refetchInstances = () => queryClient.invalidateQueries('instanceList')
 
   const makeActions = useMakeInstanceActions(projectSelector, {
     onSuccess: refetchInstances,
