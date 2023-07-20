@@ -11,7 +11,7 @@ import { useMemo } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 
-import { apiQueryClient, useApiQuery, useApiQueryClient } from '@oxide/api'
+import { apiQueryClient, useApiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import {
   Instances24Icon,
   PageHeader,
@@ -19,7 +19,6 @@ import {
   PropertiesTable,
   Truncate,
 } from '@oxide/ui'
-import { invariant, toPathQuery } from '@oxide/util'
 
 import { MoreActionsMenu } from 'app/components/MoreActionsMenu'
 import { RouteTabs, Tab } from 'app/components/RouteTabs'
@@ -30,30 +29,31 @@ import { pb } from 'app/util/path-builder'
 import { useMakeInstanceActions } from '../actions'
 
 InstancePage.loader = async ({ params }: LoaderFunctionArgs) => {
-  await apiQueryClient.prefetchQuery(
-    'instanceView',
-    toPathQuery('instance', getInstanceSelector(params))
-  )
+  const { project, instance } = getInstanceSelector(params)
+  await apiQueryClient.prefetchQuery('instanceView', {
+    path: { instance },
+    query: { project },
+  })
   return null
 }
 
 export function InstancePage() {
   const instanceSelector = useInstanceSelector()
-  const instancePathQuery = toPathQuery('instance', instanceSelector)
 
   const navigate = useNavigate()
   const queryClient = useApiQueryClient()
   const makeActions = useMakeInstanceActions(instanceSelector, {
     onSuccess: () => {
-      queryClient.invalidateQueries('instanceView', instancePathQuery)
+      queryClient.invalidateQueries('instanceView')
     },
     // go to project instances list since there's no more instance
     onDelete: () => navigate(pb.instances(instanceSelector)),
   })
 
-  const { data: instance } = useApiQuery('instanceView', instancePathQuery)
-
-  invariant(instance, 'Instance must be prefetched')
+  const { data: instance } = usePrefetchedApiQuery('instanceView', {
+    path: { instance: instanceSelector.instance },
+    query: { project: instanceSelector.project },
+  })
 
   const actions = useMemo(
     () => [

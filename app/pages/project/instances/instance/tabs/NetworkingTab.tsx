@@ -16,11 +16,11 @@ import {
   useApiMutation,
   useApiQuery,
   useApiQueryClient,
+  usePrefetchedApiQuery,
 } from '@oxide/api'
 import type { MenuAction } from '@oxide/table'
 import { useQueryTable } from '@oxide/table'
 import { Badge, Button, EmptyMessage, Networking24Icon, Success12Icon } from '@oxide/ui'
-import { invariant, toPathQuery } from '@oxide/util'
 
 import CreateNetworkInterfaceForm from 'app/forms/network-interface-create'
 import EditNetworkInterfaceForm from 'app/forms/network-interface-edit'
@@ -66,14 +66,17 @@ function ExternalIpsFromInstanceName({ value: primary }: { value: boolean }) {
 }
 
 NetworkingTab.loader = async ({ params }: LoaderFunctionArgs) => {
-  const instanceSelector = getInstanceSelector(params)
+  const { project, instance } = getInstanceSelector(params)
   await Promise.all([
     apiQueryClient.prefetchQuery('instanceNetworkInterfaceList', {
-      query: { ...instanceSelector, limit: 10 },
+      query: { project, instance, limit: 10 },
     }),
     // This is covered by the InstancePage loader but there's no downside to
     // being redundant. If it were removed there, we'd still want it here.
-    apiQueryClient.prefetchQuery('instanceView', toPathQuery('instance', instanceSelector)),
+    apiQueryClient.prefetchQuery('instanceView', {
+      path: { instance },
+      query: { project },
+    }),
   ])
   return null
 }
@@ -115,11 +118,10 @@ export function NetworkingTab() {
     },
   })
 
-  const { data: instance } = useApiQuery(
-    'instanceView',
-    toPathQuery('instance', instanceSelector)
-  )
-  invariant(instance, 'Instance must be prefetched')
+  const { data: instance } = usePrefetchedApiQuery('instanceView', {
+    path: { instance: instanceSelector.instance },
+    query: { project: instanceSelector.project },
+  })
   const canUpdateNic = instanceCan.updateNic(instance)
 
   const makeActions = (nic: InstanceNetworkInterface): MenuAction[] => [

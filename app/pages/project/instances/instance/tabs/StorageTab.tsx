@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 
 import {
@@ -13,13 +13,12 @@ import {
   apiQueryClient,
   instanceCan,
   useApiMutation,
-  useApiQuery,
   useApiQueryClient,
+  usePrefetchedApiQuery,
 } from '@oxide/api'
 import type { MenuAction } from '@oxide/table'
 import { DateCell, SizeCell, useQueryTable } from '@oxide/table'
 import { Button, EmptyMessage, Storage24Icon } from '@oxide/ui'
-import { invariant, toPathQuery } from '@oxide/util'
 
 import { DiskStatusBadge } from 'app/components/StatusBadge'
 import AttachDiskSideModalForm from 'app/forms/disk-attach'
@@ -29,15 +28,18 @@ import { getInstanceSelector, useInstanceSelector, useToast } from 'app/hooks'
 import { fancifyStates } from './common'
 
 StorageTab.loader = async ({ params }: LoaderFunctionArgs) => {
-  const { path, query } = toPathQuery('instance', getInstanceSelector(params))
+  const { project, instance } = getInstanceSelector(params)
   await Promise.all([
     apiQueryClient.prefetchQuery('instanceDiskList', {
-      path,
-      query: { ...query, limit: 10 }, // querytable
+      path: { instance },
+      query: { project, limit: 10 }, // querytable
     }),
     // This is covered by the InstancePage loader but there's no downside to
     // being redundant. If it were removed there, we'd still want it here.
-    apiQueryClient.prefetchQuery('instanceView', { path, query }),
+    apiQueryClient.prefetchQuery('instanceView', {
+      path: { instance },
+      query: { project },
+    }),
   ])
   return null
 }
@@ -51,12 +53,15 @@ export function StorageTab() {
 
   const addToast = useToast()
   const queryClient = useApiQueryClient()
-  const instancePathQuery = toPathQuery('instance', useInstanceSelector())
+  const { instance: instanceName, project } = useInstanceSelector()
+  const instancePathQuery = useMemo(
+    () => ({ path: { instance: instanceName }, query: { project } }),
+    [instanceName, project]
+  )
 
   const detachDisk = useApiMutation('instanceDiskDetach', {})
 
-  const { data: instance } = useApiQuery('instanceView', instancePathQuery)
-  invariant(instance, 'Instance must be prefetched')
+  const { data: instance } = usePrefetchedApiQuery('instanceView', instancePathQuery)
 
   const makeActions = useCallback(
     (disk: Disk): MenuAction[] => [
@@ -70,7 +75,7 @@ export function StorageTab() {
             { body: { disk: disk.name }, ...instancePathQuery },
             {
               onSuccess: () => {
-                queryClient.invalidateQueries('instanceDiskList', instancePathQuery)
+                queryClient.invalidateQueries('instanceDiskList')
               },
             }
           )
@@ -82,7 +87,7 @@ export function StorageTab() {
 
   const attachDisk = useApiMutation('instanceDiskAttach', {
     onSuccess() {
-      queryClient.invalidateQueries('instanceDiskList', instancePathQuery)
+      queryClient.invalidateQueries('instanceDiskList')
       // cover all our bases. this is called by both modals
       setShowDiskCreate(false)
       setShowDiskAttach(false)

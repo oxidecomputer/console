@@ -8,7 +8,7 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { navToLogin, useApiMutation, useApiQuery } from '@oxide/api'
+import { navToLogin, useApiMutation, usePrefetchedApiQuery } from '@oxide/api'
 import {
   Button,
   DirectionDownIcon,
@@ -29,7 +29,8 @@ export function TopBar({ children }: { children: React.ReactNode }) {
       navToLogin({ includeCurrent: false })
     },
   })
-  const { data: user } = useApiQuery('currentUserView', {}, { cacheTime: 0 })
+  // fetch happens in loader wrapping all authed pages
+  const { data: user } = usePrefetchedApiQuery('currentUserView', {})
 
   const loggedIn = !!user
 

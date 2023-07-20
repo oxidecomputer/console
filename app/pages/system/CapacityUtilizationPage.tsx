@@ -9,7 +9,7 @@ import { getLocalTimeZone, now } from '@internationalized/date'
 import { useIsFetching } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 
-import { FLEET_ID, apiQueryClient, totalCapacity, useApiQuery } from '@oxide/api'
+import { FLEET_ID, apiQueryClient, totalCapacity, usePrefetchedApiQuery } from '@oxide/api'
 import {
   Cpu16Icon,
   Divider,
@@ -20,7 +20,7 @@ import {
   Snapshots24Icon,
   Ssd16Icon,
 } from '@oxide/ui'
-import { bytesToGiB, bytesToTiB, invariant } from '@oxide/util'
+import { bytesToGiB, bytesToTiB } from '@oxide/util'
 
 import { CapacityMetric, capacityQueryParams } from 'app/components/CapacityMetric'
 import { useIntervalPicker } from 'app/components/RefetchIntervalPicker'
@@ -48,16 +48,14 @@ CapacityUtilizationPage.loader = async () => {
 }
 
 export function CapacityUtilizationPage() {
-  const { data: silos } = useApiQuery('siloList', {})
-  invariant(silos, 'Silos must be prefetched')
+  const { data: silos } = usePrefetchedApiQuery('siloList', {})
 
   const siloItems = useMemo(() => {
     const items = silos?.items.map((silo) => ({ label: silo.name, value: silo.id })) || []
     return [{ label: 'All silos', value: FLEET_ID }, ...items]
   }, [silos])
 
-  const { data: sleds } = useApiQuery('sledList', {})
-  invariant(sleds, 'Sleds must be prefetched')
+  const { data: sleds } = usePrefetchedApiQuery('sledList', {})
 
   const capacity = totalCapacity(sleds.items)
 

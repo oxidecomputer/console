@@ -7,9 +7,9 @@
  */
 import type { LoaderFunctionArgs } from 'react-router-dom'
 
-import { apiQueryClient, useApiQuery } from '@oxide/api'
+import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import { Networking24Icon, PageHeader, PageTitle, PropertiesTable, Tabs } from '@oxide/ui'
-import { formatDateTime, invariant, toPathQuery } from '@oxide/util'
+import { formatDateTime } from '@oxide/util'
 
 import { QueryParamTabs } from 'app/components/QueryParamTabs'
 import { getVpcSelector, useVpcSelector } from 'app/hooks'
@@ -21,14 +21,17 @@ import { VpcSubnetsTab } from './tabs/VpcSubnetsTab'
 // import { VpcSystemRoutesTab } from './tabs/VpcSystemRoutesTab'
 
 VpcPage.loader = async ({ params }: LoaderFunctionArgs) => {
-  await apiQueryClient.prefetchQuery('vpcView', toPathQuery('vpc', getVpcSelector(params)))
+  const { project, vpc } = getVpcSelector(params)
+  await apiQueryClient.prefetchQuery('vpcView', { path: { vpc }, query: { project } })
   return null
 }
 
 export function VpcPage() {
-  const vpcSelector = useVpcSelector()
-  const { data: vpc } = useApiQuery('vpcView', toPathQuery('vpc', vpcSelector))
-  invariant(vpc, 'VPC must be prefetched')
+  const { project, vpc: vpcName } = useVpcSelector()
+  const { data: vpc } = usePrefetchedApiQuery('vpcView', {
+    path: { vpc: vpcName },
+    query: { project },
+  })
 
   return (
     <>

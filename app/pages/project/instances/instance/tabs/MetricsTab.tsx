@@ -11,7 +11,6 @@ import type { LoaderFunctionArgs } from 'react-router-dom'
 import type { Cumulativeint64, DiskMetricName } from '@oxide/api'
 import { apiQueryClient, useApiQuery } from '@oxide/api'
 import { EmptyMessage, Listbox, Spinner, Storage24Icon, TableEmptyBox } from '@oxide/ui'
-import { toPathQuery } from '@oxide/util'
 
 import { useDateTimeRangePicker } from 'app/components/form'
 import { getInstanceSelector, useInstanceSelector } from 'app/hooks'
@@ -83,20 +82,20 @@ function DiskMetric({
 // date range, I'm inclined to punt.
 
 MetricsTab.loader = async ({ params }: LoaderFunctionArgs) => {
-  await apiQueryClient.prefetchQuery(
-    'instanceDiskList',
-    toPathQuery('instance', getInstanceSelector(params))
-  )
+  const { project, instance } = getInstanceSelector(params)
+  await apiQueryClient.prefetchQuery('instanceDiskList', {
+    path: { instance },
+    query: { project },
+  })
   return null
 }
 
 export function MetricsTab() {
-  const instanceSelector = useInstanceSelector()
-  const { project } = instanceSelector
-  const { data } = useApiQuery(
-    'instanceDiskList',
-    toPathQuery('instance', instanceSelector)
-  )
+  const { project, instance } = useInstanceSelector()
+  const { data } = useApiQuery('instanceDiskList', {
+    path: { instance },
+    query: { project },
+  })
   const disks = useMemo(() => data?.items || [], [data])
 
   const { startTime, endTime, dateTimeRangePicker } = useDateTimeRangePicker({

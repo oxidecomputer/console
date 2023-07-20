@@ -9,9 +9,9 @@ import { getLocalTimeZone, now } from '@internationalized/date'
 import { useIsFetching } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 
-import { apiQueryClient, useApiQuery } from '@oxide/api'
+import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import { Divider, Listbox, PageHeader, PageTitle, Snapshots24Icon } from '@oxide/ui'
-import { bytesToGiB, bytesToTiB, invariant } from '@oxide/util'
+import { bytesToGiB, bytesToTiB } from '@oxide/util'
 
 import { useIntervalPicker } from 'app/components/RefetchIntervalPicker'
 import { SiloMetric } from 'app/components/SystemMetric'
@@ -20,21 +20,22 @@ import { useDateTimeRangePicker } from 'app/components/form'
 const toListboxItem = (x: { name: string; id: string }) => ({ label: x.name, value: x.id })
 
 SiloUtilizationPage.loader = async () => {
-  await apiQueryClient.prefetchQuery('projectList', {})
+  await Promise.all([
+    apiQueryClient.prefetchQuery('projectList', {}),
+    apiQueryClient.prefetchQuery('currentUserView', {}),
+  ])
   return null
 }
 
 export function SiloUtilizationPage() {
-  // this will come from /session/me
-  const { data: me } = useApiQuery('currentUserView', {})
-  invariant(me, 'Current user must be prefetched')
+  const { data: me } = usePrefetchedApiQuery('currentUserView', {})
 
   const siloId = me.siloId
 
-  const { data: projects } = useApiQuery('projectList', {})
+  const { data: projects } = usePrefetchedApiQuery('projectList', {})
 
   const projectItems = useMemo(() => {
-    const items = projects?.items.map(toListboxItem) || []
+    const items = projects.items.map(toListboxItem) || []
     return [{ label: 'All projects', value: siloId }, ...items]
   }, [projects, siloId])
 

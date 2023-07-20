@@ -10,7 +10,7 @@ import { useMemo } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 import { matchPath, useLocation, useNavigate, useParams } from 'react-router-dom'
 
-import { apiQueryClient, useApiQuery } from '@oxide/api'
+import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import {
   Access16Icon,
   Divider,
@@ -21,7 +21,6 @@ import {
   Snapshots16Icon,
   Storage16Icon,
 } from '@oxide/ui'
-import { invariant } from '@oxide/util'
 
 import { TopBar } from 'app/components/TopBar'
 import {
@@ -55,8 +54,7 @@ function ProjectLayout({ overrideContentPane }: ProjectLayoutProps) {
   const navigate = useNavigate()
   // project will always be there, instance may not
   const projectSelector = useProjectSelector()
-  const { data: project } = useApiQuery('projectView', { path: projectSelector })
-  invariant(project, 'Project must be prefetched')
+  const { data: project } = usePrefetchedApiQuery('projectView', { path: projectSelector })
 
   const { instance } = useParams()
   const currentPath = useLocation().pathname

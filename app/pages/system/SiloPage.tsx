@@ -9,7 +9,7 @@ import type { LoaderFunctionArgs } from 'react-router-dom'
 import { Link } from 'react-router-dom'
 import { Outlet } from 'react-router-dom'
 
-import { apiQueryClient, useApiQuery } from '@oxide/api'
+import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import { DateCell, DefaultCell, TruncateCell, linkCell, useQueryTable } from '@oxide/table'
 import {
   Badge,
@@ -25,7 +25,6 @@ import {
   Tooltip,
   buttonStyle,
 } from '@oxide/ui'
-import { invariant } from '@oxide/util'
 
 import { getSiloSelector, useSiloSelector } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
@@ -56,8 +55,7 @@ SiloPage.loader = async ({ params }: LoaderFunctionArgs) => {
 export function SiloPage() {
   const siloSelector = useSiloSelector()
 
-  const { data: silo } = useApiQuery('siloView', { path: siloSelector })
-  invariant(silo, 'Silo must be prefetched')
+  const { data: silo } = usePrefetchedApiQuery('siloView', { path: siloSelector })
 
   const roleMapPairs = Object.entries(silo.mappedFleetRoles).flatMap(
     ([fleetRole, siloRoles]) =>
