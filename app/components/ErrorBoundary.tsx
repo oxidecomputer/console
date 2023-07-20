@@ -22,7 +22,7 @@ function ErrorFallback({ error }: Props) {
   }
 
   return (
-    <ErrorPage message={error.message}>
+    <ErrorPage>
       <h1 className="text-sans-2xl">Something went wrong</h1>
       <p className="text-tertiary">
         Please try again. If the problem persists, contact your administrator.

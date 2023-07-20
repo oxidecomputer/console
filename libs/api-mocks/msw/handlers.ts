@@ -57,7 +57,7 @@ export const handlers = makeHandlers({
     return json(newProject, { status: 201 })
   },
   projectView: ({ path }) => {
-    if (path.project.endsWith('-error-503')) {
+    if (path.project.endsWith('error-503')) {
       throw unavailableErr
     }
 

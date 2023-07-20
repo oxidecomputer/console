@@ -23,7 +23,7 @@ const GradientBackground = () => (
 
 type Props = { children: ReactNode; message?: string }
 
-export function ErrorPage({ children, message }: Props) {
+export function ErrorPage({ children }: Props) {
   return (
     <div className="flex w-full justify-center">
       <GradientBackground />
@@ -44,9 +44,6 @@ export function ErrorPage({ children, message }: Props) {
 
         <div className="space-y-2 text-center">{children}</div>
       </div>
-      {message && (
-        <div className="absolute bottom-0 m-4 text-mono-sm text-quaternary">{message}</div>
-      )}
     </div>
   )
 }
