@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { apiQueryClient, useApiQuery } from '@oxide/api'
+import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import { PageHeader, PageTitle, Racks24Icon } from '@oxide/ui'
 
 import { RouteTabs, Tab } from 'app/components/RouteTabs'
@@ -19,7 +19,7 @@ InventoryPage.loader = async () => {
 }
 
 export function InventoryPage() {
-  const { data: racks } = useApiQuery('rackList', { query: { limit: 10 } })
+  const { data: racks } = usePrefetchedApiQuery('rackList', { query: { limit: 10 } })
   const rack = racks?.items[0]
 
   if (!rack) return null

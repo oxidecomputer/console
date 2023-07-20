@@ -15,7 +15,7 @@ import { useMemo } from 'react'
 
 import { lowestBy, sortBy } from '@oxide/util'
 
-import { useApiQuery, usePrefetchedApiQuery } from '.'
+import { usePrefetchedApiQuery } from '.'
 import type { FleetRole, IdentityType, ProjectRole, SiloRole } from './__generated__/Api'
 
 /**
@@ -136,20 +136,17 @@ export type Actor = {
  * Fetch lists of users and groups, filtering out the ones that are already in
  * the given policy.
  */
-export function useActorsNotInPolicy(
-  // allow undefined because this is fetched with RQ
-  policy: Policy | undefined
-): Actor[] {
-  const { data: users } = useApiQuery('userList', {})
-  const { data: groups } = useApiQuery('groupList', {})
+export function useActorsNotInPolicy(policy: Policy): Actor[] {
+  const { data: users } = usePrefetchedApiQuery('userList', {})
+  const { data: groups } = usePrefetchedApiQuery('groupList', {})
   return useMemo(() => {
     // IDs are UUIDs, so no need to include identity type in set value to disambiguate
     const actorsInPolicy = new Set(policy?.roleAssignments.map((ra) => ra.identityId) || [])
-    const allGroups = (groups?.items || []).map((g) => ({
+    const allGroups = groups.items.map((g) => ({
       ...g,
       identityType: 'silo_group' as IdentityType,
     }))
-    const allUsers = (users?.items || []).map((u) => ({
+    const allUsers = users.items.map((u) => ({
       ...u,
       identityType: 'silo_user' as IdentityType,
     }))
