@@ -6,11 +6,10 @@
  * Copyright Oxide Computer Company
  */
 import type { LoaderFunctionArgs } from 'react-router-dom'
-import invariant from 'tiny-invariant'
 
 import { apiQueryClient, useApiQuery } from '@oxide/api'
 import { Networking24Icon, PageHeader, PageTitle, PropertiesTable, Tabs } from '@oxide/ui'
-import { formatDateTime, toPathQuery } from '@oxide/util'
+import { formatDateTime, invariant, toPathQuery } from '@oxide/util'
 
 import { QueryParamTabs } from 'app/components/QueryParamTabs'
 import { getVpcSelector, useVpcSelector } from 'app/hooks'
@@ -29,7 +28,7 @@ VpcPage.loader = async ({ params }: LoaderFunctionArgs) => {
 export function VpcPage() {
   const vpcSelector = useVpcSelector()
   const { data: vpc } = useApiQuery('vpcView', toPathQuery('vpc', vpcSelector))
-  invariant(vpc, 'VPC must be prefetched in loader')
+  invariant(vpc, 'VPC must be prefetched')
 
   return (
     <>

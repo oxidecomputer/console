@@ -8,11 +8,10 @@
 import { useForm } from 'react-hook-form'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
-import invariant from 'tiny-invariant'
 
 import { apiQueryClient, useApiQuery } from '@oxide/api'
 import { Access16Icon, PropertiesTable, ResourceLabel, Truncate } from '@oxide/ui'
-import { formatDateTime } from '@oxide/util'
+import { formatDateTime, invariant } from '@oxide/util'
 
 import { DescriptionField, NameField, SideModalForm, TextField } from 'app/components/form'
 import { getIdpSelector, useIdpSelector } from 'app/hooks'
@@ -33,7 +32,7 @@ export function EditIdpSideModalForm() {
     path: { provider },
     query: { silo },
   })
-  invariant(idp, 'IdP was not prefetched in loader')
+  invariant(idp, 'IdP must be prefetched')
 
   const navigate = useNavigate()
   const onDismiss = () => navigate(pb.silo({ silo }))

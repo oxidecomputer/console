@@ -12,7 +12,6 @@ import pRetry from 'p-retry'
 import { useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
-import invariant from 'tiny-invariant'
 
 import type { ApiError, BlockSize, Disk, Snapshot } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
@@ -25,7 +24,7 @@ import {
   Success12Icon,
   Unauthorized12Icon,
 } from '@oxide/ui'
-import { GiB, KiB } from '@oxide/util'
+import { GiB, KiB, invariant } from '@oxide/util'
 
 import {
   DescriptionField,
@@ -334,7 +333,7 @@ export function CreateImageSideModalForm() {
     os,
     version,
   }: FormValues) {
-    invariant(imageFile) // shouldn't be possible to fail bc file is a required field
+    invariant(imageFile, 'imageFile must exist') // shouldn't be possible to fail bc file is a required field
 
     // this is done up here instead of next to the upload step because after
     // upload is canceled, a few outstanding bulk writes will complete, setting

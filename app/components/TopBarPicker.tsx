@@ -7,7 +7,6 @@
  */
 import cn from 'classnames'
 import { Link } from 'react-router-dom'
-import invariant from 'tiny-invariant'
 
 import type { Project } from '@oxide/api'
 import { useApiQuery, useApiQueryErrorsAllowed } from '@oxide/api'
@@ -20,6 +19,7 @@ import {
   Truncate,
   Wrap,
 } from '@oxide/ui'
+import { invariant } from '@oxide/util'
 
 import { useInstanceSelector, useSiloSelector } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
@@ -155,7 +155,7 @@ const BigIdenticon = ({ name }: { name: string }) => (
  */
 export function SiloSystemPicker({ value }: { value: 'silo' | 'system' }) {
   const { data: me } = useApiQuery('currentUserView', {})
-  invariant(me, 'Current user should be prefetched')
+  invariant(me, 'Current user must be prefetched')
 
   // User can only get to system routes if they have viewer perms (at least) on
   // the fleet. The natural place to find out whether they have such perms is
@@ -163,7 +163,7 @@ export function SiloSystemPicker({ value }: { value: 'silo' | 'system' }) {
   // get a 403 from that endpoint. So we simply check whether that endpoint 200s
   // or not to determine whether the user is a fleet viewer.
   const { data: systemPolicy } = useApiQueryErrorsAllowed('systemPolicyView', {})
-  invariant(systemPolicy, 'System policy should be prefetched in a loader')
+  invariant(systemPolicy, 'System policy must be prefetched')
   const canSeeSystemPolicy = systemPolicy.type === 'success'
 
   // if the user can't see the picker, show a placeholder control with their

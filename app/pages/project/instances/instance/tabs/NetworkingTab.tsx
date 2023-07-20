@@ -8,7 +8,6 @@
 import { useState } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 import { Link } from 'react-router-dom'
-import invariant from 'tiny-invariant'
 
 import type { InstanceNetworkInterface } from '@oxide/api'
 import {
@@ -21,7 +20,7 @@ import {
 import type { MenuAction } from '@oxide/table'
 import { useQueryTable } from '@oxide/table'
 import { Badge, Button, EmptyMessage, Networking24Icon, Success12Icon } from '@oxide/ui'
-import { toPathQuery } from '@oxide/util'
+import { invariant, toPathQuery } from '@oxide/util'
 
 import CreateNetworkInterfaceForm from 'app/forms/network-interface-create'
 import EditNetworkInterfaceForm from 'app/forms/network-interface-edit'
@@ -120,7 +119,7 @@ export function NetworkingTab() {
     'instanceView',
     toPathQuery('instance', instanceSelector)
   )
-  invariant(instance, 'Instance must be prefetched in a loader')
+  invariant(instance, 'Instance must be prefetched')
   const canUpdateNic = instanceCan.updateNic(instance)
 
   const makeActions = (nic: InstanceNetworkInterface): MenuAction[] => [

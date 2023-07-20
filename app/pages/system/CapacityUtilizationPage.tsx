@@ -8,7 +8,6 @@
 import { getLocalTimeZone, now } from '@internationalized/date'
 import { useIsFetching } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
-import invariant from 'tiny-invariant'
 
 import { FLEET_ID, apiQueryClient, totalCapacity, useApiQuery } from '@oxide/api'
 import {
@@ -21,7 +20,7 @@ import {
   Snapshots24Icon,
   Ssd16Icon,
 } from '@oxide/ui'
-import { bytesToGiB, bytesToTiB } from '@oxide/util'
+import { bytesToGiB, bytesToTiB, invariant } from '@oxide/util'
 
 import { CapacityMetric, capacityQueryParams } from 'app/components/CapacityMetric'
 import { useIntervalPicker } from 'app/components/RefetchIntervalPicker'
@@ -50,7 +49,7 @@ CapacityUtilizationPage.loader = async () => {
 
 export function CapacityUtilizationPage() {
   const { data: silos } = useApiQuery('siloList', {})
-  invariant(silos, 'silos should be prefetched in loader')
+  invariant(silos, 'Silos must be prefetched')
 
   const siloItems = useMemo(() => {
     const items = silos?.items.map((silo) => ({ label: silo.name, value: silo.id })) || []
@@ -58,7 +57,7 @@ export function CapacityUtilizationPage() {
   }, [silos])
 
   const { data: sleds } = useApiQuery('sledList', {})
-  invariant(sleds, 'sleds should be prefetched in loader')
+  invariant(sleds, 'Sleds must be prefetched')
 
   const capacity = totalCapacity(sleds.items)
 

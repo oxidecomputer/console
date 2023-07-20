@@ -8,11 +8,10 @@
 import { useForm } from 'react-hook-form'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
-import invariant from 'tiny-invariant'
 
 import { type Image, apiQueryClient, useApiQuery } from '@oxide/api'
 import { Images16Icon, PropertiesTable, ResourceLabel, Truncate } from '@oxide/ui'
-import { bytesToGiB, formatDateTime } from '@oxide/util'
+import { bytesToGiB, formatDateTime, invariant } from '@oxide/util'
 
 import { DescriptionField, NameField, SideModalForm, TextField } from 'app/components/form'
 import {
@@ -32,7 +31,7 @@ EditProjectImageSideModalForm.loader = async ({ params }: LoaderFunctionArgs) =>
 export function EditProjectImageSideModalForm() {
   const { project, image } = useProjectImageSelector()
   const { data } = useApiQuery('imageView', { path: { image }, query: { project } })
-  invariant(data, 'Image must be prefetched in loader')
+  invariant(data, 'Image must be prefetched')
 
   const dismissLink = pb.projectImages({ project })
   return <EditImageSideModalForm image={data} dismissLink={dismissLink} type="Project" />
@@ -47,7 +46,7 @@ EditSiloImageSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
 export function EditSiloImageSideModalForm() {
   const { image } = useSiloImageSelector()
   const { data } = useApiQuery('imageView', { path: { image } })
-  invariant(data, 'Image must be prefetched in loader')
+  invariant(data, 'Image must be prefetched')
 
   return <EditImageSideModalForm image={data} dismissLink={pb.siloImages()} type="Silo" />
 }

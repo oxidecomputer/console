@@ -8,11 +8,10 @@
 import { getLocalTimeZone, now } from '@internationalized/date'
 import { useIsFetching } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
-import invariant from 'tiny-invariant'
 
 import { apiQueryClient, useApiQuery } from '@oxide/api'
 import { Divider, Listbox, PageHeader, PageTitle, Snapshots24Icon } from '@oxide/ui'
-import { bytesToGiB, bytesToTiB } from '@oxide/util'
+import { bytesToGiB, bytesToTiB, invariant } from '@oxide/util'
 
 import { useIntervalPicker } from 'app/components/RefetchIntervalPicker'
 import { SiloMetric } from 'app/components/SystemMetric'
@@ -28,7 +27,7 @@ SiloUtilizationPage.loader = async () => {
 export function SiloUtilizationPage() {
   // this will come from /session/me
   const { data: me } = useApiQuery('currentUserView', {})
-  invariant(me, 'Current user should be prefetched')
+  invariant(me, 'Current user must be prefetched')
 
   const siloId = me.siloId
 

@@ -6,12 +6,12 @@
  * Copyright Oxide Computer Company
  */
 import { useForm } from 'react-hook-form'
-import invariant from 'tiny-invariant'
 
 import type { Group } from '@oxide/api'
 import { apiQueryClient, useApiQuery } from '@oxide/api'
 import { Table, createColumnHelper, useReactTable } from '@oxide/table'
 import { Settings24Icon } from '@oxide/ui'
+import { invariant } from '@oxide/util'
 
 import { FullPageForm, TextField } from 'app/components/form'
 
@@ -32,10 +32,10 @@ ProfilePage.loader = async () => {
 
 export function ProfilePage() {
   const { data: user } = useApiQuery('currentUserView', {})
-  invariant(user, 'User must be prefetched in a loader')
+  invariant(user, 'User must be prefetched')
 
   const { data: groups } = useApiQuery('currentUserGroups', {})
-  invariant(groups, 'Groups must be prefetched in a loader')
+  invariant(groups, 'Groups must be prefetched')
 
   const groupsTable = useReactTable({ columns, data: groups.items })
 
