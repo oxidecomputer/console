@@ -8,10 +8,9 @@
 import { useForm } from 'react-hook-form'
 
 import type { Group } from '@oxide/api'
-import { apiQueryClient, useApiQuery } from '@oxide/api'
+import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import { Table, createColumnHelper, useReactTable } from '@oxide/table'
 import { Settings24Icon } from '@oxide/ui'
-import { invariant } from '@oxide/util'
 
 import { FullPageForm, TextField } from 'app/components/form'
 
@@ -31,11 +30,8 @@ ProfilePage.loader = async () => {
 }
 
 export function ProfilePage() {
-  const { data: user } = useApiQuery('currentUserView', {})
-  invariant(user, 'User must be prefetched')
-
-  const { data: groups } = useApiQuery('currentUserGroups', {})
-  invariant(groups, 'Groups must be prefetched')
+  const { data: user } = usePrefetchedApiQuery('currentUserView', {})
+  const { data: groups } = usePrefetchedApiQuery('currentUserGroups', {})
 
   const groupsTable = useReactTable({ columns, data: groups.items })
 

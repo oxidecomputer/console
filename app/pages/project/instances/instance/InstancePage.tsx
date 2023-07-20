@@ -11,7 +11,7 @@ import { useMemo } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 
-import { apiQueryClient, useApiQuery, useApiQueryClient } from '@oxide/api'
+import { apiQueryClient, useApiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import {
   Instances24Icon,
   PageHeader,
@@ -19,7 +19,7 @@ import {
   PropertiesTable,
   Truncate,
 } from '@oxide/ui'
-import { invariant, toPathQuery } from '@oxide/util'
+import { toPathQuery } from '@oxide/util'
 
 import { MoreActionsMenu } from 'app/components/MoreActionsMenu'
 import { RouteTabs, Tab } from 'app/components/RouteTabs'
@@ -51,9 +51,7 @@ export function InstancePage() {
     onDelete: () => navigate(pb.instances(instanceSelector)),
   })
 
-  const { data: instance } = useApiQuery('instanceView', instancePathQuery)
-
-  invariant(instance, 'Instance must be prefetched')
+  const { data: instance } = usePrefetchedApiQuery('instanceView', instancePathQuery)
 
   const actions = useMemo(
     () => [

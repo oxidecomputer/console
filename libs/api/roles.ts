@@ -13,9 +13,9 @@
  */
 import { useMemo } from 'react'
 
-import { invariant, lowestBy, sortBy } from '@oxide/util'
+import { lowestBy, sortBy } from '@oxide/util'
 
-import { useApiQuery } from '.'
+import { useApiQuery, usePrefetchedApiQuery } from '.'
 import type { FleetRole, IdentityType, ProjectRole, SiloRole } from './__generated__/Api'
 
 /**
@@ -93,20 +93,18 @@ type UserAccessRow = {
  * identical between projects and orgs so it is worth sharing.
  */
 export function useUserRows(
-  roleAssignments: RoleAssignment[] | undefined,
+  roleAssignments: RoleAssignment[],
   roleSource: string
 ): UserAccessRow[] {
   // HACK: because the policy has no names, we are fetching ~all the users,
   // putting them in a dictionary, and adding the names to the rows
-  const { data: users } = useApiQuery('userList', {})
-  const { data: groups } = useApiQuery('groupList', {})
-  invariant(users, 'Users must be prefetched')
-  invariant(groups, 'Groups must be prefetched')
+  const { data: users } = usePrefetchedApiQuery('userList', {})
+  const { data: groups } = usePrefetchedApiQuery('groupList', {})
   return useMemo(() => {
     const userItems = users?.items || []
     const groupItems = groups?.items || []
     const usersDict = Object.fromEntries(userItems.concat(groupItems).map((u) => [u.id, u]))
-    return (roleAssignments || []).map((ra) => ({
+    return roleAssignments.map((ra) => ({
       id: ra.identityId,
       identityType: ra.identityType,
       name: usersDict[ra.identityId]?.displayName || '', // placeholder until we get names, obviously

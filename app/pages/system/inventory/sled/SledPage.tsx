@@ -8,9 +8,8 @@
 import fileSize from 'filesize'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 
-import { apiQueryClient, useApiQuery } from '@oxide/api'
+import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import { PageHeader, PageTitle, PropertiesTable, Racks24Icon } from '@oxide/ui'
-import { invariant } from '@oxide/util'
 
 import { RouteTabs, Tab } from 'app/components/RouteTabs'
 import { requireSledParams, useSledParams } from 'app/hooks'
@@ -26,9 +25,7 @@ SledPage.loader = async ({ params }: LoaderFunctionArgs) => {
 
 export function SledPage() {
   const { sledId } = useSledParams()
-  const { data: sled } = useApiQuery('sledView', { path: { sledId } })
-
-  invariant(sled, 'sled must be prefetched')
+  const { data: sled } = usePrefetchedApiQuery('sledView', { path: { sledId } })
 
   const ram = fileSize(sled.usablePhysicalRam, { output: 'object', base: 2 })
 

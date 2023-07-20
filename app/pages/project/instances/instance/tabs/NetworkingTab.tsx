@@ -16,11 +16,12 @@ import {
   useApiMutation,
   useApiQuery,
   useApiQueryClient,
+  usePrefetchedApiQuery,
 } from '@oxide/api'
 import type { MenuAction } from '@oxide/table'
 import { useQueryTable } from '@oxide/table'
 import { Badge, Button, EmptyMessage, Networking24Icon, Success12Icon } from '@oxide/ui'
-import { invariant, toPathQuery } from '@oxide/util'
+import { toPathQuery } from '@oxide/util'
 
 import CreateNetworkInterfaceForm from 'app/forms/network-interface-create'
 import EditNetworkInterfaceForm from 'app/forms/network-interface-edit'
@@ -115,11 +116,10 @@ export function NetworkingTab() {
     },
   })
 
-  const { data: instance } = useApiQuery(
+  const { data: instance } = usePrefetchedApiQuery(
     'instanceView',
     toPathQuery('instance', instanceSelector)
   )
-  invariant(instance, 'Instance must be prefetched')
   const canUpdateNic = instanceCan.updateNic(instance)
 
   const makeActions = (nic: InstanceNetworkInterface): MenuAction[] => [

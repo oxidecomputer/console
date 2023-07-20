@@ -8,13 +8,12 @@
 import { useMemo, useState } from 'react'
 
 import type { IdentityType, RoleKey } from '@oxide/api'
-import { deleteRole } from '@oxide/api'
+import { deleteRole, usePrefetchedApiQuery } from '@oxide/api'
 import {
   apiQueryClient,
   byGroupThenName,
   getEffectiveRole,
   useApiMutation,
-  useApiQuery,
   useApiQueryClient,
   useUserRows,
 } from '@oxide/api'
@@ -28,7 +27,7 @@ import {
   TableActions,
   TableEmptyBox,
 } from '@oxide/ui'
-import { groupBy, invariant, isTruthy } from '@oxide/util'
+import { groupBy, isTruthy } from '@oxide/util'
 
 import { AccessNameCell } from 'app/components/AccessNameCell'
 import { HL } from 'app/components/ConfirmDeleteModal'
@@ -75,9 +74,8 @@ export function SiloAccessPage() {
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [editingUserRow, setEditingUserRow] = useState<UserRow | null>(null)
 
-  const { data: siloPolicy } = useApiQuery('policyView', {})
-  invariant(siloPolicy, 'siloPolicy must be prefetched')
-  const siloRows = useUserRows(siloPolicy?.roleAssignments, 'silo')
+  const { data: siloPolicy } = usePrefetchedApiQuery('policyView', {})
+  const siloRows = useUserRows(siloPolicy.roleAssignments, 'silo')
 
   const rows = useMemo(() => {
     return groupBy(siloRows, (u) => u.id)
@@ -104,7 +102,7 @@ export function SiloAccessPage() {
 
   const queryClient = useApiQueryClient()
   const updatePolicy = useApiMutation('policyUpdate', {
-    onSuccess: () => queryClient.invalidateQueries('policyView', {}),
+    onSuccess: () => queryClient.invalidateQueries('policyView'),
     // TODO: handle 403
   })
 

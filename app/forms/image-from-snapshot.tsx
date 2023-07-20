@@ -14,11 +14,10 @@ import {
   type ImageCreate,
   apiQueryClient,
   useApiMutation,
-  useApiQuery,
   useApiQueryClient,
+  usePrefetchedApiQuery,
 } from '@oxide/api'
 import { PropertiesTable } from '@oxide/ui'
-import { invariant } from '@oxide/util'
 
 import { DescriptionField, NameField, SideModalForm, TextField } from 'app/components/form'
 import { getProjectSnapshotSelector, useProjectSnapshotSelector } from 'app/hooks'
@@ -43,8 +42,10 @@ CreateImageFromSnapshotSideModalForm.loader = async ({ params }: LoaderFunctionA
 
 export function CreateImageFromSnapshotSideModalForm() {
   const { snapshot, project } = useProjectSnapshotSelector()
-  const { data } = useApiQuery('snapshotView', { path: { snapshot }, query: { project } })
-  invariant(data, 'Snapshot must be prefetched')
+  const { data } = usePrefetchedApiQuery('snapshotView', {
+    path: { snapshot },
+    query: { project },
+  })
   const navigate = useNavigate()
   const queryClient = useApiQueryClient()
 

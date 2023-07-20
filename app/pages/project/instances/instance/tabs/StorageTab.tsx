@@ -13,13 +13,13 @@ import {
   apiQueryClient,
   instanceCan,
   useApiMutation,
-  useApiQuery,
   useApiQueryClient,
+  usePrefetchedApiQuery,
 } from '@oxide/api'
 import type { MenuAction } from '@oxide/table'
 import { DateCell, SizeCell, useQueryTable } from '@oxide/table'
 import { Button, EmptyMessage, Storage24Icon } from '@oxide/ui'
-import { invariant, toPathQuery } from '@oxide/util'
+import { toPathQuery } from '@oxide/util'
 
 import { DiskStatusBadge } from 'app/components/StatusBadge'
 import AttachDiskSideModalForm from 'app/forms/disk-attach'
@@ -55,8 +55,7 @@ export function StorageTab() {
 
   const detachDisk = useApiMutation('instanceDiskDetach', {})
 
-  const { data: instance } = useApiQuery('instanceView', instancePathQuery)
-  invariant(instance, 'Instance must be prefetched')
+  const { data: instance } = usePrefetchedApiQuery('instanceView', instancePathQuery)
 
   const makeActions = useCallback(
     (disk: Disk): MenuAction[] => [

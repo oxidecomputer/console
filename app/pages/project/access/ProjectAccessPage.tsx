@@ -16,8 +16,8 @@ import {
   deleteRole,
   getEffectiveRole,
   useApiMutation,
-  useApiQuery,
   useApiQueryClient,
+  usePrefetchedApiQuery,
   useUserRows,
 } from '@oxide/api'
 import { Table, createColumnHelper, getActionsCol, useReactTable } from '@oxide/table'
@@ -83,11 +83,13 @@ export function ProjectAccessPage() {
   const projectSelector = useProjectSelector()
   const projectPathQuery = toPathQuery('project', projectSelector)
 
-  const { data: siloPolicy } = useApiQuery('policyView', {})
-  const siloRows = useUserRows(siloPolicy?.roleAssignments, 'silo')
+  const { data: siloPolicy } = usePrefetchedApiQuery('policyView', {})
+  const siloRows = useUserRows(siloPolicy.roleAssignments, 'silo')
 
-  const { data: projectPolicy } = useApiQuery('projectPolicyView', projectPathQuery)
-  const projectRows = useUserRows(projectPolicy?.roleAssignments, 'project')
+  const { data: projectPolicy } = usePrefetchedApiQuery('projectPolicyView', {
+    path: projectSelector,
+  })
+  const projectRows = useUserRows(projectPolicy.roleAssignments, 'project')
 
   const rows = useMemo(() => {
     return groupBy(siloRows.concat(projectRows), (u) => u.id)
@@ -118,7 +120,7 @@ export function ProjectAccessPage() {
 
   const queryClient = useApiQueryClient()
   const updatePolicy = useApiMutation('projectPolicyUpdate', {
-    onSuccess: () => queryClient.invalidateQueries('projectPolicyView', projectPathQuery),
+    onSuccess: () => queryClient.invalidateQueries('projectPolicyView'),
     // TODO: handle 403
   })
 
