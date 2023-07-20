@@ -9,8 +9,12 @@ import { useMemo } from 'react'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 
 import type { Silo } from '@oxide/api'
-import { apiQueryClient } from '@oxide/api'
-import { useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
+import {
+  apiQueryClient,
+  useApiMutation,
+  useApiQueryClient,
+  usePrefetchedApiQuery,
+} from '@oxide/api'
 import type { MenuAction } from '@oxide/table'
 import { linkCell } from '@oxide/table'
 import { BooleanCell } from '@oxide/table'
@@ -51,7 +55,7 @@ export default function SilosPage() {
   const { Table, Column } = useQueryTable('siloList', {})
   const queryClient = useApiQueryClient()
 
-  const { data: silos } = useApiQuery('siloList', {
+  const { data: silos } = usePrefetchedApiQuery('siloList', {
     query: { limit: 10 },
   })
 
@@ -75,7 +79,7 @@ export default function SilosPage() {
     useMemo(
       () => [
         { value: 'New silo', onSelect: () => navigate(pb.siloNew()) },
-        ...(silos?.items || []).map((o) => ({
+        ...silos.items.map((o) => ({
           value: o.name,
           onSelect: () => navigate(pb.silo({ silo: o.name })),
           navGroup: 'Go to silo',

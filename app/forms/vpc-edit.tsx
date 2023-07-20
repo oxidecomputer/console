@@ -9,7 +9,12 @@ import { useForm } from 'react-hook-form'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 
-import { apiQueryClient, useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
+import {
+  apiQueryClient,
+  useApiMutation,
+  useApiQueryClient,
+  usePrefetchedApiQuery,
+} from '@oxide/api'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
 import { getVpcSelector, useToast, useVpcSelector } from 'app/hooks'
@@ -27,7 +32,7 @@ export function EditVpcSideModalForm() {
   const addToast = useToast()
   const navigate = useNavigate()
 
-  const { data: vpc } = useApiQuery('vpcView', {
+  const { data: vpc } = usePrefetchedApiQuery('vpcView', {
     path: { vpc: vpcName },
     query: { project },
   })

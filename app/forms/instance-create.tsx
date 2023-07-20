@@ -18,8 +18,8 @@ import {
   apiQueryClient,
   genName,
   useApiMutation,
-  useApiQuery,
   useApiQueryClient,
+  usePrefetchedApiQuery,
 } from '@oxide/api'
 import {
   EmptyMessage,
@@ -118,9 +118,9 @@ export function CreateInstanceForm() {
     },
   })
 
-  const siloImages = useApiQuery('imageList', {}).data?.items || []
-  const projectImages =
-    useApiQuery('imageList', { query: projectSelector }).data?.items || []
+  const siloImages = usePrefetchedApiQuery('imageList', {}).data.items
+  const projectImages = usePrefetchedApiQuery('imageList', { query: projectSelector }).data
+    .items
   const allImages = [...siloImages, ...projectImages]
 
   const defaultImage = allImages[0]
@@ -377,7 +377,7 @@ export function CreateInstanceForm() {
 }
 
 const SshKeysTable = () => {
-  const keys = useApiQuery('currentUserSshKeyList', {}).data?.items || []
+  const keys = usePrefetchedApiQuery('currentUserSshKeyList', {}).data?.items || []
 
   return (
     <div className="max-w-lg">
