@@ -76,7 +76,7 @@ describe('useApiQuery', () => {
     })
 
     it('contains client_error if error body is not json', async () => {
-      overrideOnce('get', '/v1/projects', 503, 'not json')
+      overrideOnce('get', 'http://testhost/v1/projects', 503, 'not json')
 
       const { result } = renderProjectList()
 
@@ -89,7 +89,7 @@ describe('useApiQuery', () => {
     })
 
     it('does not client_error if response body is empty', async () => {
-      overrideOnce('get', '/v1/projects', 503, '')
+      overrideOnce('get', 'http://testhost/v1/projects', 503, '')
 
       const { result } = renderProjectList()
 
@@ -166,7 +166,7 @@ describe('useApiQuery', () => {
 
     // RQ doesn't like a value of undefined for data, so we're using {} for now
     it('returns success with empty object if response body is empty', async () => {
-      overrideOnce('get', '/v1/projects', 204, '')
+      overrideOnce('get', 'http://testhost/v1/projects', 201, '')
 
       const { result } = renderProjectList()
 
@@ -226,7 +226,7 @@ describe('useApiMutation', () => {
     })
 
     it('contains client_error if error body is not json', async () => {
-      overrideOnce('post', '/v1/projects', 404, 'not json')
+      overrideOnce('post', 'http://testhost/v1/projects', 404, 'not json')
 
       const { result } = renderCreateProject()
       act(() => result.current.mutate(createParams))
@@ -241,7 +241,7 @@ describe('useApiMutation', () => {
     })
 
     it('does not client_error if response body is empty', async () => {
-      overrideOnce('post', '/v1/projects', 503, '')
+      overrideOnce('post', 'http://testhost/v1/projects', 503, '')
 
       const { result } = renderCreateProject()
       act(() => result.current.mutate(createParams))
@@ -269,7 +269,7 @@ describe('useApiMutation', () => {
 
     // RQ doesn't like a value of undefined for data, so we're using {} for now
     it('returns success with empty object if response body is empty', async () => {
-      overrideOnce('post', '/v1/projects', 204, '')
+      overrideOnce('post', 'http://testhost/v1/projects', 201, '')
 
       const { result } = renderCreateProject()
       act(() => result.current.mutate(createParams))

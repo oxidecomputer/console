@@ -19,7 +19,9 @@ import {
   wrapQueryClient,
 } from './hooks'
 
-export const api = new Api()
+// unit tests run in Node, whose fetch implementation requires a full URL
+const baseUrl = process.env.NODE_ENV === 'test' ? 'http://testhost' : ''
+export const api = new Api({ baseUrl })
 
 export type ApiMethods = typeof api.methods
 

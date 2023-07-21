@@ -1,7 +1,10 @@
 {
   "name": "oxide",
   "version": "0.0.0",
-  "license": "MIT",
+  "license": "MPL-2.0",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "start": "API_MODE=msw vite",
     "start:msw": "API_MODE=msw vite",
@@ -134,8 +137,7 @@
     "type-fest": "^3.11.0",
     "typescript": "~5.1.6",
     "vite": "^4.4.4",
-    "vitest": "^0.33.0",
-    "whatwg-fetch": "^3.6.2"
+    "vitest": "^0.33.0"
   },
   "browserslist": [
     "defaults",
