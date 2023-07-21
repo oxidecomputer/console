@@ -137,8 +137,7 @@
     "type-fest": "^3.11.0",
     "typescript": "~5.1.6",
     "vite": "^4.4.4",
-    "vitest": "^0.33.0",
-    "whatwg-fetch": "^3.6.2"
+    "vitest": "^0.33.0"
   },
   "browserslist": [
     "defaults",
