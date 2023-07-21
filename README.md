@@ -1,24 +1,28 @@
-# Console
+# Oxide Web Console
 
-Web client to the [Control Plane API](https://github.com/oxidecomputer/omicron).
+Web client to the [Oxide API](https://github.com/oxidecomputer/omicron).
 
 ![screenshot of instances list page](docs/readme-screenshot.png)
 
+## Live demo (w/ mock API)
+
+At https://oxide-console-preview.vercel.app we have the console deployed as a static site with a mock API running in a [Service Worker](https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API). You can create mock resources and they will persist across client-side navigations, but they exist only in the browser: nobody else can see them and they will disappear on refresh. Note that request and response bodies in the mock API match the Oxide API's [OpenAPI spec](https://github.com/oxidecomputer/omicron/blob/main/openapi/nexus.json), but behavior is only mocked in as much detail as is required for development and testing of the console and is not fully representative of the real API.
+
 ## Architecture
 
-![](docs/architecture-browser-only.svg)
+![console client-server architecture diagram](docs/architecture-browser-only.svg)
 
-In order to avoid the complexity of server-side rendering (and running JS on the rack in general), the web console is a fully client-side React app. We use Vite (which uses Rollup internally for production builds) to build a set of assets (`index.html`, JS bundles, CSS, fonts, images) and we serve those assets as static files from a special set of console endpoints in Nexus. From the control plane's point of view, the web console simply is:
+In order to avoid the complexity of server-side rendering (and running JS on the rack), the web console is a fully client-side React app. We use Vite (which uses Rollup internally for production builds) to build a set of assets (`index.html`, JS bundles, CSS, fonts, images) and we serve those assets as static files from a special set of console endpoints in Nexus. From the control plane API server's point of view, the web console simply is:
 
-- a tarball of static assets + endpoints that serve them
+- a directory of static assets and some endpoints that serve them
 - a few other endpoints to handle auth actions like login/logout
 - a table of sessions (console-specific in practice, but not intrinsically so)
 
-The web console has no special privileges as an API consumer. We log in (which sets a cookie) and make cookie-authed API requests after that. See [RFD 223 Web Console Architecture](https://rfd.shared.oxide.computer/rfd/0223) for a more detailed discussion. The endpoints live in [`nexus/src/external_api/console_api.rs`](https://github.com/oxidecomputer/omicron/blob/c3048a1b43b046c284432eba34d0bc1933de4d56/nexus/src/external_api/console_api.rs) in Omicron.
+The web console has no special privileges as an API consumer. Logging in sets a cookie, and we make cookie-authed API requests after that. See [RFD 223 Web Console Architecture](https://rfd.shared.oxide.computer/rfd/0223) (internal document for now) for a more detailed discussion. The endpoints live in [`nexus/src/external_api/console_api.rs`](https://github.com/oxidecomputer/omicron/blob/c3048a1b43b046c284432eba34d0bc1933de4d56/nexus/src/external_api/console_api.rs) in Omicron.
 
 ## Tech
 
-- [TypeScript](https://www.typescriptlang.org/) + [React](https://reactjs.org/) (+ [React Router](https://reactrouter.com/), [React Query](https://tanstack.com/query/latest/), [React Table](https://tanstack.com/table/v8/))
+- [TypeScript](https://www.typescriptlang.org/) + [React](https://reactjs.org/) (+ [React Router](https://reactrouter.com/), [TanStack Query](https://tanstack.com/query/latest/), [TanStack Table](https://tanstack.com/table/v8/))
 - [Vite](https://vitejs.dev/) for dev server and browser bundling
 - [Tailwind](https://tailwindcss.com/) for styling
 - [oxide.ts](https://github.com/oxidecomputer/oxide.ts) generates an API client from [Nexus's OpenAPI spec](https://github.com/oxidecomputer/omicron/blob/main/openapi/nexus.json)
@@ -30,18 +34,24 @@ The web console has no special privileges as an API consumer. We log in (which s
 
 ## Directory structure
 
-The app is in [`app`](app). You can see the route structure in [`app/routes.tsx`](app/routes.tsx). In [`libs`](libs) we have a [`ui`](libs/ui) dir where the low-level components live (and the Storybook definition) and an [`api`](libs/api) dir where we keep the generated API client and a React Query wrapper for it. These directories are aliased in [`tsconfig.json`](tsconfig.json) for easy import from the main app as `@oxide/ui` and `@oxide/api`, respectively.
-
-## Try it locally
-
-The fastest way to see the console in action is to check out the repo, run `npm install && npm start`, and go to http://localhost:4000 in the browser. This runs the console with a mock API server that runs in a [Service Worker](https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API).
+The app is in [`app`](app). You can see the route structure in [`app/routes.tsx`](app/routes.tsx). In [`libs`](libs) we have a [`ui`](libs/ui) dir where the low-level components live and an [`api`](libs/api) dir where we keep the generated API client and a React Query wrapper for it. These directories are aliased in [`tsconfig.json`](tsconfig.json) for easy import from the main app as `@oxide/ui` and `@oxide/api`, respectively.
 
 ## Development
 
+### Node.js version
+
+We recommend Node.js v18+, and we specify 18 in `engines` in our `package.json`. That said, everything should work with Node 16 except for a couple of spots that run MSW in Node (as opposed to the browser):
+
+- Unit tests for the API hooks ([`hooks.spec.tsx`](libs/api/__tests__/hooks.spec.tsx))
+- Script to run MSW API as a standalone web server ([`tools/start_mock_api.ts`](tools/start_mock_api.ts))
+
+Neither of these are relevant to the vast majority of dev work, and the tests will run in CI anyway.
+
 ### Install dependencies
 
-```
+```sh
 npm install
+npx playwright install # only needed to run e2e tests
 ```
 
 ### Run Vite dev server + [MSW](https://mswjs.io/) mock API
@@ -49,7 +59,7 @@ npm install
 This is the way we do most console development. Just run:
 
 ```
-npm start
+npm run dev
 ```
 
 and navigate to http://localhost:4000 in the browser. The running app will automatically update when you write a source file. This mode uses Mock Service Worker to run a mock API right the browser. This mock API is also used in tests.
@@ -128,34 +138,35 @@ Go to https://localhost:4000 again and you should be logged in.
 ### Run [Ladle](https://ladle.dev/)
 
 ```
-npm run storybook
+npm run ladle
 ```
 
-This will start a preview environment for the UI components in the project. The window should open automatically, but if not go to `http://localhost:61000`.
+This will start a preview environment for UI components at `http://localhost:61000`.
 
 ### E2E tests with [Playwright](https://playwright.dev/)
 
-Playwright tests match the filename pattern `.e2e.ts`. The basic command to run all tests is `npm run e2e`. You may have to run `npx playwright install` after `npm install` to get the browser binaries.
+Playwright tests live in [`app/test/e2e`](app/test/e2e/). `npm run e2e` runs the tests in Chrome, Firefox, and Safari, but this is rarely necessary in local dev. `npm run e2ec` is a shortcut for `playwright test --project=chrome`, which runs the tests in Chrome only (the fastest one, useful for local dev). Playwright has an excellent [UI mode](https://playwright.dev/docs/test-ui-mode) for running and debugging tests that you can get to by running `npm run e2e -- --ui`.
 
-`npm run e2e` runs the tests in Chrome, Firefox, and Safari. `npm run e2ec` is a shortcut for `playwright test --project=chrome`, which runs the tests in Chrome only (the fastest one, useful for local dev). The tests virtually never fail in one browser if they pass in others, except for flakes. Playwright has an excellent [UI mode](https://playwright.dev/docs/test-ui-mode) for running and debugging tests that you can get to by running `npm run e2e -- --ui`.
+To debug end-to-end failures on CI, check out the branch with the failure and run `./tools/debug-ci-e2e-fail.sh`. It'll download the latest failures from CI and allow you to open a [playwright trace](https://playwright.dev/docs/trace-viewer-intro#viewing-the-trace) of the failure.
 
-To debug end-to-end failures on CI checkout the branch with the failure and run `./tools/debug-ci-e2e-fail.sh`. It'll download the latest failures from CI and allow you to open a [playwright trace](https://playwright.dev/docs/trace-viewer-intro#viewing-the-trace) of the failure.
-
-### Other useful commands
+### Summary of useful commands
 
 | Command                  | Description                                                                        |
 | ------------------------ | ---------------------------------------------------------------------------------- |
-| `npm test run`           | Vitest tests                                                                       |
-| `npm test`               | Vitest tests in watch mode                                                         |
-| `npm run e2ec`           | Only run end-to-end tests in chrome                                                |
+| `npm run dev`            | Run Vite dev server with mock API                                                  |
+| `npm test`               | Vitest unit tests                                                                  |
+| `npm run e2ec`           | Run Playwright E2E tests in Chrome only                                            |
 | `npm run lint`           | ESLint                                                                             |
 | `npx tsc`                | Check types                                                                        |
-| `npm run ci`             | Lint, tests, and types                                                             |
+| `npm run ci`             | Lint, tests (unit and e2e), and types                                              |
+| `npm run ladle`          | Run Ladle (Storybook)                                                              |
 | `npm run fmt`            | Format everything. Rarely necessary thanks to editor integration                   |
 | `npm run gen-api`        | Generate API client (see [`docs/update-pinned-api.md`](docs/update-pinned-api.md)) |
 | `npm run start:mock-api` | Serve mock API on port 12220                                                       |
 
 ## Relevant documents
+
+All links below except RFDs 4 and 44 are currently only accessible to Oxide employees.
 
 ### RFDs
 
