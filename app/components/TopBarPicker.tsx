@@ -11,6 +11,7 @@ import { Link } from 'react-router-dom'
 import type { Project } from '@oxide/api'
 import { useApiQuery, useApiQueryErrorsAllowed, usePrefetchedApiQuery } from '@oxide/api'
 import {
+  Button,
   DropdownMenu,
   Folder16Icon,
   Identicon,
@@ -75,10 +76,7 @@ const TopBarPicker = (props: TopBarPickerProps) => {
             </div>
           </Wrap>
         ) : (
-          <DropdownMenu.Trigger
-            className="group -m-1 flex items-center overflow-hidden rounded-lg p-1 text-left hover:bg-hover"
-            aria-hidden // avoid doubling up on the select project trigger for screen readers
-          >
+          <DropdownMenu.Trigger className="group -m-1 flex items-center overflow-hidden rounded-lg p-1 text-left hover:bg-hover">
             {props.icon ? <div className="mr-2 flex items-center">{props.icon}</div> : null}
 
             <div className="min-w-[5rem] text-mono-xs text-quaternary">
@@ -89,13 +87,16 @@ const TopBarPicker = (props: TopBarPickerProps) => {
           </DropdownMenu.Trigger>
         )}
 
-        {/* aria-hidden is a tip from the Reach docs */}
         {props.items && (
-          <div className="ml-2 flex-shrink-0 overflow-hidden">
-            <DropdownMenu.Trigger className="group" aria-label={props['aria-label']}>
-              <div className="flex h-[2rem] w-[1.125rem] flex-shrink-0 items-center justify-center rounded border border-default group-hover:bg-hover">
-                <SelectArrows6Icon className="text-secondary" aria-hidden />
-              </div>
+          <div className="ml-2 flex-shrink-0">
+            <DropdownMenu.Trigger
+              className="group"
+              aria-label={props['aria-label']}
+              asChild
+            >
+              <Button size="icon" variant="ghost" className="h-[2rem] w-[1.125rem]">
+                <SelectArrows6Icon className="text-secondary" />
+              </Button>
             </DropdownMenu.Trigger>
           </div>
         )}
