@@ -52,8 +52,20 @@ export function TopBar({ children }: { children: React.ReactNode }) {
         <div className="mx-3 flex h-[60px] shrink-0 items-center justify-between">
           <div className="flex items-center">{otherPickers}</div>
           <div>
-            <a href="https://docs.oxide.computer/guides" target="_blank" rel="noreferrer">
-              <Button variant="secondary" size="icon" title="Info">
+            <a
+              id="topbar-info-link"
+              href="https://docs.oxide.computer/guides"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Link to documentation"
+              tabIndex={-1}
+            >
+              <Button
+                variant="secondary"
+                size="icon"
+                title="Info"
+                aria-labelledby="topbar-info-link"
+              >
                 <Info16Icon className="text-quaternary" />
               </Button>
             </a>
