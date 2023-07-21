@@ -45,7 +45,7 @@ type TopBarPickerProps = {
 
 const TopBarPicker = (props: TopBarPickerProps) => {
   return (
-    <DropdownMenu.Root modal>
+    <DropdownMenu.Root>
       <div
         // Important trick: we never want the separator to show up after the top
         // left corner picker. The separator starts from the leftmost of "other
