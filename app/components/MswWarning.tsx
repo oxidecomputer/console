@@ -27,11 +27,15 @@ export function MswWarning() {
   const closeModal = () => setIsOpen(false)
   return (
     <>
-      <div className="flex h-10 w-full items-center justify-center text-sans-md text-info-secondary bg-info-secondary">
+      <div
+        id="technical-preview-banner"
+        className="flex h-10 w-full items-center justify-center text-sans-md text-info-secondary bg-info-secondary"
+      >
         <Info16Icon className="mr-2" /> This is a technical preview.
         <button
           className="ml-2 flex items-center gap-0.5 text-sans-md hover:text-info"
           onClick={() => setIsOpen(true)}
+          aria-labelledby="technical-preview-banner"
         >
           Learn more <NextArrow12Icon />
         </button>
