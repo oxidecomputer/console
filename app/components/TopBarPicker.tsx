@@ -76,7 +76,10 @@ const TopBarPicker = (props: TopBarPickerProps) => {
             </div>
           </Wrap>
         ) : (
-          <DropdownMenu.Trigger className="group -m-1 flex items-center overflow-hidden rounded-lg p-1 text-left hover:bg-hover">
+          <DropdownMenu.Trigger
+            className="group -m-1 flex items-center overflow-hidden rounded-lg p-1 text-left hover:bg-hover"
+            aria-hidden // avoid doubling up on the select project trigger for screen readers
+          >
             {props.icon ? <div className="mr-2 flex items-center">{props.icon}</div> : null}
 
             <div className="min-w-[5rem] text-mono-xs text-quaternary">
@@ -95,7 +98,8 @@ const TopBarPicker = (props: TopBarPickerProps) => {
               asChild
             >
               <Button size="icon" variant="ghost" className="h-[2rem] w-[1.125rem]">
-                <SelectArrows6Icon className="text-secondary" />
+                {/* aria-hidden is a tip from the Reach docs */}
+                <SelectArrows6Icon className="text-secondary" aria-hidden />
               </Button>
             </DropdownMenu.Trigger>
           </div>
