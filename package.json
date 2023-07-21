@@ -1,7 +1,10 @@
 {
   "name": "oxide",
   "version": "0.0.0",
-  "license": "MIT",
+  "license": "MPL-2.0",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "start": "API_MODE=msw vite",
     "start:msw": "API_MODE=msw vite",
