@@ -9,7 +9,12 @@ import { useMemo } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 import { Link, useNavigate } from 'react-router-dom'
 
-import { apiQueryClient, useApiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
+import {
+  apiQueryClient,
+  useApiQueryClient,
+  useCurrentProjectRole,
+  usePrefetchedApiQuery,
+} from '@oxide/api'
 import {
   DateCell,
   InstanceResourceCell,
@@ -52,6 +57,9 @@ InstancesPage.loader = async ({ params }: LoaderFunctionArgs) => {
 
 export function InstancesPage() {
   const projectSelector = useProjectSelector()
+
+  const projectRole = useCurrentProjectRole(projectSelector.project)
+  console.log({ projectRole })
 
   const queryClient = useApiQueryClient()
   const refetchInstances = () => queryClient.invalidateQueries('instanceList')

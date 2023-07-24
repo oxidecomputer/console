@@ -167,3 +167,17 @@ export function userRoleFromPolicies(
     .map((ra) => ra.roleName)
   return getEffectiveRole(myRoles) || null
 }
+
+/**
+ * Resolve current user's role from project and silo policies. Assumes user,
+ * groups, and policies are all prefetched.
+ */
+export function useCurrentProjectRole(projectId: string) {
+  const { data: me } = usePrefetchedApiQuery('currentUserView', {})
+  const { data: myGroups } = usePrefetchedApiQuery('currentUserGroups', {})
+  const { data: siloPolicy } = usePrefetchedApiQuery('policyView', {})
+  const { data: projectPolicy } = usePrefetchedApiQuery('projectPolicyView', {
+    path: { project: projectId },
+  })
+  return userRoleFromPolicies(me, myGroups.items, [siloPolicy, projectPolicy])
+}

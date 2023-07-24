@@ -17,6 +17,7 @@ import {
   useApiMutation,
   useApiQuery,
   useApiQueryClient,
+  useCurrentProjectRole,
 } from '@oxide/api'
 import { DateCell, type MenuAction, SizeCell, useQueryTable } from '@oxide/table'
 import {
@@ -77,6 +78,9 @@ export function DisksPage() {
   const projectSelector = useProjectSelector()
   const { Table, Column } = useQueryTable('diskList', { query: projectSelector })
   const addToast = useToast()
+
+  const projectRole = useCurrentProjectRole(projectSelector.project)
+  console.log({ projectRole })
 
   const deleteDisk = useApiMutation('diskDelete', {
     onSuccess() {

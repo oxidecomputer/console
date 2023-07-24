@@ -44,9 +44,13 @@ type ProjectLayoutProps = {
 const projectPathPattern = pb.project({ project: ':project' })
 
 ProjectLayout.loader = async ({ params }: LoaderFunctionArgs) => {
-  await apiQueryClient.prefetchQuery('projectView', {
-    path: getProjectSelector(params),
-  })
+  const projectSelector = getProjectSelector(params)
+  await Promise.all([
+    apiQueryClient.prefetchQuery('projectView', { path: projectSelector }),
+    // silo policy and project policy, used in project pages to determine permissions
+    apiQueryClient.prefetchQuery('policyView', {}),
+    apiQueryClient.prefetchQuery('projectPolicyView', { path: projectSelector }),
+  ])
   return null
 }
 
