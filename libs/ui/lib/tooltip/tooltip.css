@@ -7,7 +7,7 @@
  */
 
 .ox-tooltip {
-  @apply z-20 rounded border p-2 text-sans-md text-secondary border-secondary elevation-2;
+  @apply z-20 rounded border p-2 text-sans-md text-secondary bg-raise border-secondary elevation-2;
 }
 
 .ox-tooltip-arrow {
