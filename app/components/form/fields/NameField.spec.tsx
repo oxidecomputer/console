@@ -36,4 +36,7 @@ describe('validateName', () => {
       'Can only contain lower-case letters, numbers, and dashes'
     )
   })
+  it('rejects names that are too long', () => {
+    expect(validate('a'.repeat(64))).toEqual('Must be 63 characters or fewer')
+  })
 })

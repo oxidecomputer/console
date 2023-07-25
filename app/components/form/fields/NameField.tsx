@@ -36,6 +36,10 @@ export function NameField<
 export const validateName = (name: string, label: string, required: boolean) => {
   if (!required && !name) return
 
+  if (name.length > 63) {
+    return 'Must be 63 characters or fewer'
+  }
+
   if (name.length === 0) {
     return `${label} is required`
   } else if (!/^[a-z]/.test(name)) {
