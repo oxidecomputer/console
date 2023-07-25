@@ -4,9 +4,22 @@ Web client to the [Oxide API](https://github.com/oxidecomputer/omicron).
 
 ![screenshot of instances list page](docs/readme-screenshot.png)
 
-## Live demo (w/ mock API)
+## [Live demo](https://oxide-console-preview.vercel.app)
 
-At https://oxide-console-preview.vercel.app we have the console deployed as a static site with a mock API running in a [Service Worker](https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API). You can create mock resources and they will persist across client-side navigations, but they exist only in the browser: nobody else can see them and they will disappear on refresh. Note that request and response bodies in the mock API match the Oxide API's [OpenAPI spec](https://github.com/oxidecomputer/omicron/blob/main/openapi/nexus.json), but behavior is only mocked in as much detail as is required for development and testing of the console and is not fully representative of the real API.
+At https://oxide-console-preview.vercel.app the console is deployed as a static site with a mock API running in a [Service Worker](https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API). You can create mock resources and they will persist across client-side navigations, but they exist only in the browser: nobody else can see them and the mock "DB" is reset on pageload. Request and response bodies in the mock API match the Oxide API's [OpenAPI spec](https://github.com/oxidecomputer/omicron/blob/main/openapi/nexus.json), but behavior is only mocked in as much detail as is required for development and testing of the console and is not fully representative of the real API.
+
+## Goals and principles
+
+- The console is not an application, it is a _client_ to the application (the Oxide API) — minimize client-side state
+- Be a transparent view onto the API — teach API concepts and avoid making the user learn anything console-specific
+- Simple, predictable, and broadly functional everywhere is better than deeply polished in a few places
+- When we don't have product clarity, build the simplest thing and move on
+- There is enough technical risk elsewhere down the stack, so be conservative:
+  - Focus on building things we can be sure we'll need
+  - Rely on good libraries that we can use the way they want to be used
+  - Building on bad abstractions is costly — duplication is fine while you figure out the right abstraction
+- Linkability — use routes to capture app state
+- Rely on code generated from API spec for correctness
 
 ## Architecture
 
