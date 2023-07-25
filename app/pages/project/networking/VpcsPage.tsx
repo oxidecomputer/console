@@ -11,7 +11,12 @@ import { Outlet } from 'react-router-dom'
 import { Link, useNavigate } from 'react-router-dom'
 
 import type { Vpc } from '@oxide/api'
-import { apiQueryClient, useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
+import {
+  apiQueryClient,
+  useApiMutation,
+  useApiQueryClient,
+  usePrefetchedApiQuery,
+} from '@oxide/api'
 import { DateCell, type MenuAction, linkCell, useQueryTable } from '@oxide/table'
 import {
   EmptyMessage,
@@ -48,7 +53,7 @@ VpcsPage.loader = async ({ params }: LoaderFunctionArgs) => {
 export function VpcsPage() {
   const queryClient = useApiQueryClient()
   const projectSelector = useProjectSelector()
-  const { data: vpcs } = useApiQuery('vpcList', {
+  const { data: vpcs } = usePrefetchedApiQuery('vpcList', {
     query: { ...projectSelector, limit: 10 }, // to have same params as QueryTable
   })
   const navigate = useNavigate()
@@ -79,7 +84,7 @@ export function VpcsPage() {
   useQuickActions(
     useMemo(
       () =>
-        (vpcs?.items || []).map((v) => ({
+        vpcs.items.map((v) => ({
           value: v.name,
           onSelect: () => navigate(pb.vpc({ ...projectSelector, vpc: v.name })),
           navGroup: 'Go to VPC',

@@ -9,7 +9,7 @@ import React, { Suspense, useMemo, useState } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 
 import type { Cumulativeint64, DiskMetricName } from '@oxide/api'
-import { apiQueryClient, useApiQuery } from '@oxide/api'
+import { apiQueryClient, useApiQuery, usePrefetchedApiQuery } from '@oxide/api'
 import { EmptyMessage, Listbox, Spinner, Storage24Icon, TableEmptyBox } from '@oxide/ui'
 
 import { useDateTimeRangePicker } from 'app/components/form'
@@ -92,7 +92,7 @@ MetricsTab.loader = async ({ params }: LoaderFunctionArgs) => {
 
 export function MetricsTab() {
   const { project, instance } = useInstanceSelector()
-  const { data } = useApiQuery('instanceDiskList', {
+  const { data } = usePrefetchedApiQuery('instanceDiskList', {
     path: { instance },
     query: { project },
   })

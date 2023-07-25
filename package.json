@@ -1,7 +1,10 @@
 {
   "name": "oxide",
   "version": "0.0.0",
-  "license": "MIT",
+  "license": "MPL-2.0",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "start": "API_MODE=msw vite",
     "start:msw": "API_MODE=msw vite",
@@ -18,8 +21,8 @@
     "lint": "eslint --ext .js,.ts,.tsx,.json .",
     "fmt": "prettier --cache --write . && npm run lint -- --fix",
     "gen-api": "./tools/generate_api_client.sh",
-    "storybook": "IS_LADLE=1 ladle serve",
-    "build:storybook": "IS_LADLE=1 ladle build",
+    "ladle": "IS_LADLE=1 ladle serve",
+    "build:ladle": "IS_LADLE=1 ladle build",
     "//": "Required due to jscodeshift shipping with windows line endings starting in v0.12. See https://github.com/facebook/jscodeshift/issues/424.",
     "jscodeshift": "node node_modules/.bin/jscodeshift",
     "unused-exports": "ts-unused-exports tsconfig.json --ignoreFiles=\\.stories --excludePathsFromReport=\"libs/api/index.ts;libs/ui/index.ts\"",
@@ -30,7 +33,7 @@
   "dependencies": {
     "@floating-ui/react": "^0.24.2",
     "@headlessui/react": "^0.0.0-insiders.a9e8563",
-    "@oxide/design-system": "^0.10.1",
+    "@oxide/design-system": "^0.12.0",
     "@oxide/identicon": "0.0.4",
     "@radix-ui/react-dialog": "^1.0.3",
     "@radix-ui/react-dropdown-menu": "^2.0.4",
@@ -128,16 +131,13 @@
     "prettier": "^2.8.8",
     "prettier-plugin-tailwindcss": "^0.3.0",
     "semver": "^7.5.2",
+    "strict-event-emitter": "^0.5.0",
     "style-dictionary": "^3.1.1",
     "tailwindcss": "^3.3.3",
     "type-fest": "^3.11.0",
     "typescript": "~5.1.6",
     "vite": "^4.4.4",
-    "vitest": "^0.33.0",
-    "whatwg-fetch": "^3.6.2"
-  },
-  "resolutions": {
-    "**/trim": "^1.0.0"
+    "vitest": "^0.33.0"
   },
   "browserslist": [
     "defaults",

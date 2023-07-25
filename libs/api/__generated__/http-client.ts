@@ -7,23 +7,6 @@
  */
 import { camelToSnake, isNotNull, processResponseBody, snakeify } from './util'
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type QueryParamsType = Record<string, any>
-
-export interface FullRequestParams extends Omit<RequestInit, 'body'> {
-  path: string
-  query?: QueryParamsType
-  body?: unknown
-  baseUrl?: string
-}
-
-export type RequestParams = Omit<FullRequestParams, 'body' | 'method' | 'query' | 'path'>
-
-export interface ApiConfig {
-  baseUrl?: string
-  baseApiParams?: Omit<RequestParams, 'baseUrl' | 'signal'>
-}
-
 /** Success responses from the API */
 export type ApiSuccess<Data> = {
   type: 'success'
@@ -79,19 +62,6 @@ function encodeQueryParam(key: string, value: unknown) {
   )}`
 }
 
-/** Query params with null values filtered out. `"?"` included. */
-export function toQueryString(rawQuery?: QueryParamsType): string {
-  const qs = Object.entries(rawQuery || {})
-    .filter(([_key, value]) => isNotNull(value))
-    .map(([key, value]) =>
-      Array.isArray(value)
-        ? value.map((item) => encodeQueryParam(key, item)).join('&')
-        : encodeQueryParam(key, value)
-    )
-    .join('&')
-  return qs ? '?' + qs : ''
-}
-
 export async function handleResponse<Data>(response: Response): Promise<ApiResult<Data>> {
   const common = { statusCode: response.status, headers: response.headers }
 
@@ -128,51 +98,87 @@ export async function handleResponse<Data>(response: Response): Promise<ApiResul
   }
 }
 
+// has to be any. the particular query params types don't like unknown
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type QueryParams = Record<string, any>
+
+/**
+ * Params that get passed to `fetch`. This ends up as an optional second
+ * argument to each generated request method. Properties are a subset of
+ * `RequestInit`.
+ */
+export interface FetchParams extends Omit<RequestInit, 'body' | 'method'> {}
+
+/** All arguments to `request()` */
+export interface FullParams extends FetchParams {
+  path: string
+  query?: QueryParams
+  body?: unknown
+  host?: string
+  method?: string
+}
+
+export interface ApiConfig {
+  /**
+   * No host means requests will be sent to the current host. This is used in
+   * the web console.
+   */
+  host?: string
+  token?: string
+  baseParams?: FetchParams
+}
+
 export class HttpClient {
-  public baseUrl = ''
+  host: string
+  token?: string
+  baseParams: FetchParams
 
-  private baseApiParams: RequestParams = {
-    credentials: 'same-origin',
-    headers: {},
-    redirect: 'follow',
-    referrerPolicy: 'no-referrer',
-  }
+  constructor({ host = '', baseParams = {}, token }: ApiConfig = {}) {
+    this.host = host
+    this.token = token
 
-  constructor(apiConfig: ApiConfig = {}) {
-    Object.assign(this, apiConfig)
-  }
-
-  private mergeRequestParams(params: RequestParams): RequestParams {
-    return {
-      ...this.baseApiParams,
-      ...params,
-      headers: {
-        ...this.baseApiParams.headers,
-        ...params.headers,
-      },
+    const headers = new Headers({ 'Content-Type': 'application/json' })
+    if (token) {
+      headers.append('Authorization', `Bearer ${token}`)
     }
+    this.baseParams = mergeParams({ headers }, baseParams)
   }
 
-  public request = async <Data>({
+  public async request<Data>({
     body,
     path,
     query,
-    baseUrl,
-    ...params
-  }: FullRequestParams): Promise<ApiResult<Data>> => {
-    const requestParams = this.mergeRequestParams(params)
-
-    const url = (baseUrl || this.baseUrl || '') + path + toQueryString(query)
-
-    const response = await fetch(url, {
-      ...requestParams,
-      headers: {
-        'Content-Type': 'application/json',
-        ...requestParams.headers,
-      },
+    host,
+    ...fetchParams
+  }: FullParams): Promise<ApiResult<Data>> {
+    const url = (host || this.host) + path + toQueryString(query)
+    const init = {
+      ...mergeParams(this.baseParams, fetchParams),
       body: JSON.stringify(snakeify(body), replacer),
-    })
-
-    return handleResponse(response)
+    }
+    return handleResponse(await fetch(url, init))
   }
+}
+
+export function mergeParams(a: FetchParams, b: FetchParams): FetchParams {
+  // calling `new Headers()` normalizes `HeadersInit`, which could be a Headers
+  // object, a plain object, or an array of tuples
+  const headers = new Headers(a.headers)
+  for (const [key, value] of new Headers(b.headers).entries()) {
+    headers.set(key, value)
+  }
+  return { ...a, ...b, headers }
+}
+
+/** Query params with null values filtered out. `"?"` included. */
+export function toQueryString(rawQuery?: QueryParams): string {
+  const qs = Object.entries(rawQuery || {})
+    .filter(([_key, value]) => isNotNull(value))
+    .map(([key, value]) =>
+      Array.isArray(value)
+        ? value.map((item) => encodeQueryParam(key, item)).join('&')
+        : encodeQueryParam(key, value)
+    )
+    .join('&')
+  return qs ? '?' + qs : ''
 }

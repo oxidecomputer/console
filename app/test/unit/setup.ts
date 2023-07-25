@@ -13,8 +13,6 @@
 import matchers, { type TestingLibraryMatchers } from '@testing-library/jest-dom/matchers'
 import { cleanup } from '@testing-library/react'
 import { afterAll, afterEach, beforeAll, expect } from 'vitest'
-// our node fetch polyfill of choice
-import 'whatwg-fetch'
 
 import { resetDb } from '@oxide/api-mocks'
 

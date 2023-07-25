@@ -10,7 +10,12 @@ import { Outlet } from 'react-router-dom'
 import { Link, useNavigate } from 'react-router-dom'
 
 import type { Project } from '@oxide/api'
-import { apiQueryClient, useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
+import {
+  apiQueryClient,
+  useApiMutation,
+  useApiQueryClient,
+  usePrefetchedApiQuery,
+} from '@oxide/api'
 import type { MenuAction } from '@oxide/table'
 import { DateCell, linkCell, useQueryTable } from '@oxide/table'
 import {
@@ -38,9 +43,7 @@ const EmptyState = () => (
 )
 
 ProjectsPage.loader = async () => {
-  await apiQueryClient.prefetchQuery('projectList', {
-    query: { limit: 10 },
-  })
+  await apiQueryClient.prefetchQuery('projectList', { query: { limit: 10 } })
   return null
 }
 
@@ -49,8 +52,7 @@ export default function ProjectsPage() {
 
   const queryClient = useApiQueryClient()
   const { Table, Column } = useQueryTable('projectList', {})
-
-  const { data: projects } = useApiQuery('projectList', {
+  const { data: projects } = usePrefetchedApiQuery('projectList', {
     query: { limit: 10 }, // limit to match QueryTable
   })
 

@@ -9,7 +9,12 @@ import { useForm } from 'react-hook-form'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 
-import { apiQueryClient, useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
+import {
+  apiQueryClient,
+  useApiMutation,
+  useApiQueryClient,
+  usePrefetchedApiQuery,
+} from '@oxide/api'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
 import { pb } from 'app/util/path-builder'
@@ -31,7 +36,7 @@ export function EditProjectSideModalForm() {
 
   const onDismiss = () => navigate(pb.projects())
 
-  const { data: project } = useApiQuery('projectView', { path: projectSelector })
+  const { data: project } = usePrefetchedApiQuery('projectView', { path: projectSelector })
 
   const editProject = useApiMutation('projectUpdate', {
     onSuccess(project) {

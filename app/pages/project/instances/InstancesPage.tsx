@@ -9,7 +9,7 @@ import { useMemo } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 import { Link, useNavigate } from 'react-router-dom'
 
-import { apiQueryClient, useApiQuery, useApiQueryClient } from '@oxide/api'
+import { apiQueryClient, useApiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import {
   DateCell,
   InstanceResourceCell,
@@ -60,7 +60,7 @@ export function InstancesPage() {
     onSuccess: refetchInstances,
   })
 
-  const { data: instances } = useApiQuery('instanceList', {
+  const { data: instances } = usePrefetchedApiQuery('instanceList', {
     query: { ...projectSelector, limit: 10 }, // to have same params as QueryTable
   })
 

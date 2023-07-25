@@ -5,9 +5,9 @@
  *
  * Copyright Oxide Computer Company
  */
-// for convenience so we can do `import type { ApiTypes } from '@oxide/api'`
 import { QueryClient } from '@tanstack/react-query'
 
+// for convenience so we can do `import type { ApiTypes } from '@oxide/api'`
 import type * as ApiTypes from './__generated__/Api'
 import { Api } from './__generated__/Api'
 import {
@@ -19,7 +19,10 @@ import {
   wrapQueryClient,
 } from './hooks'
 
-export const api = new Api()
+export const api = new Api({
+  // unit tests run in Node, whose fetch implementation requires a full URL
+  host: process.env.NODE_ENV === 'test' ? 'http://testhost' : '',
+})
 
 export type ApiMethods = typeof api.methods
 

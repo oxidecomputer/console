@@ -75,7 +75,7 @@ export function InstancePage() {
         // append "instance" to labels
         // TODO: if these were in an "Instance actions" subsection they might not
         // need the suffix for clarity
-        .map((a) => ({ onSelect: a.onActivate, value: `${a.label} instance` })),
+        .map((a) => ({ onSelect: a.onActivate, value: a.label })),
     [actions]
   )
   useQuickActions(quickActions)

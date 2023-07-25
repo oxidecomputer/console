@@ -72,7 +72,7 @@ function ProjectLayout({ overrideContentPane }: ProjectLayoutProps) {
           // filter out the entry for the path we're currently on
           .filter((i) => !matchPath(`${projectPathPattern}/${i.path}`, currentPath))
           .map((i) => ({
-            navGroup: `Project '${project}'`,
+            navGroup: `Project '${project.name}'`,
             value: i.value,
             // TODO: Update this to use the new path builder
             onSelect: () => navigate(i.path),

@@ -10,7 +10,13 @@ import { setupServer } from 'msw/node'
 
 import { handlers } from '@oxide/api-mocks'
 
-export const server = setupServer(...handlers)
+export const server = setupServer(
+  ...handlers.map((h) => {
+    // Node's Fetch implementation does not accept URLs with a protocol and host
+    h.info.path = 'http://testhost' + h.info.path
+    return h
+  })
+)
 
 // Override request handlers in order to test special cases
 export function overrideOnce(
