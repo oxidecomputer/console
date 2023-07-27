@@ -87,7 +87,7 @@ export function CreateDiskSideModalForm({
         const body = { size: size * GiB, ...rest }
         onSubmit ? onSubmit(body) : createDisk.mutate({ query: projectSelector, body })
       }}
-      loading={createDisk.isLoading}
+      loading={createDisk.isPending}
       submitError={createDisk.error}
     >
       <NameField name="name" control={form.control} />
@@ -173,14 +173,14 @@ const ImageSelectField = ({ control }: { control: Control<DiskCreate> }) => {
 }
 
 const DiskNameFromId = ({ disk }: { disk: string }) => {
-  const { data, isLoading, isError } = useApiQuery(
+  const { data, isPending, isError } = useApiQuery(
     'diskView',
     { path: { disk } },
     // this can 404 if the source disk has been deleted, and that's fine
-    { useErrorBoundary: false }
+    { throwOnError: false }
   )
 
-  if (isLoading || isError) return null
+  if (isPending || isError) return null
   return <> from {data.name}</>
 }
 

@@ -50,7 +50,7 @@ export function CreateVpcSideModalForm() {
       title="Create VPC"
       onSubmit={(values) => createVpc.mutate({ query: projectSelector, body: values })}
       onDismiss={() => navigate(pb.vpcs(projectSelector))}
-      loading={createVpc.isLoading}
+      loading={createVpc.isPending}
       submitError={createVpc.error}
     >
       <NameField name="name" control={form.control} />

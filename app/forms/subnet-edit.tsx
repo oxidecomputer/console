@@ -47,7 +47,7 @@ export function EditSubnetForm({ onDismiss, editing }: EditSubnetFormProps) {
           body,
         })
       }}
-      loading={updateSubnet.isLoading}
+      loading={updateSubnet.isPending}
       submitError={updateSubnet.error}
       submitLabel="Update subnet"
     >

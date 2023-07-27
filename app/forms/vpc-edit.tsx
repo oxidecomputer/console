@@ -67,7 +67,7 @@ export function EditVpcSideModalForm() {
           body: { name, description, dnsName },
         })
       }}
-      loading={editVpc.isLoading}
+      loading={editVpc.isPending}
       submitLabel="Save changes"
       submitError={editVpc.error}
     >

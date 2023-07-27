@@ -44,7 +44,7 @@ export function CreateSubnetForm({ onDismiss }: CreateSubnetFormProps) {
       form={form}
       onDismiss={onDismiss}
       onSubmit={(body) => createSubnet.mutate({ query: vpcSelector, body })}
-      loading={createSubnet.isLoading}
+      loading={createSubnet.isPending}
       submitError={createSubnet.error}
     >
       <NameField name="name" control={form.control} />

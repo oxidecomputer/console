@@ -50,7 +50,7 @@ export function CreateProjectSideModalForm() {
       onSubmit={({ name, description }) => {
         createProject.mutate({ body: { name, description } })
       }}
-      loading={createProject.isLoading}
+      loading={createProject.isPending}
       submitError={createProject.error}
     >
       <NameField name="name" control={form.control} />

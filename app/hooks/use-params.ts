@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { hashQueryKey } from '@tanstack/react-query'
+import { hashKey } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import type { Params } from 'react-router-dom'
 import { useParams } from 'react-router-dom'
@@ -51,7 +51,7 @@ export const requireUpdateParams = requireParams('version')
  * 1. throws an error if the desired params are missing (this is just what
  *    `getThingSelector` does), and
  * 2. more importantly, memoizes the result in a sneaky way, using React Query's
- *    `hashQueryKey` in the deps to only re-render if the contents actually
+ *    `hashKey` in the deps to only re-render if the contents actually
  *    change.
  *
  * Without 2, these hooks will produce a new object on every render, which is
@@ -62,7 +62,7 @@ export const requireUpdateParams = requireParams('version')
 function useSelectedParams<T>(getSelector: (params: AllParams) => T) {
   const sel = getSelector(useParams())
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  return useMemo(() => sel, [hashQueryKey([sel])])
+  return useMemo(() => sel, [hashKey([sel])])
 }
 
 // Wrappers for RR's `useParams` that guarantee (in dev) that the specified

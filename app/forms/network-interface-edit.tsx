@@ -51,7 +51,7 @@ export default function EditNetworkInterfaceForm({
           body,
         })
       }}
-      loading={editNetworkInterface.isLoading}
+      loading={editNetworkInterface.isPending}
       submitError={editNetworkInterface.error}
       submitLabel="Save changes"
     >

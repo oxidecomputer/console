@@ -141,7 +141,7 @@ describe('useApiQuery', () => {
           useApiQuery(
             'projectView',
             { path: { project: 'nonexistent' } },
-            { useErrorBoundary: false } // <----- the point
+            { throwOnError: false } // <----- the point
           ),
         config
       )
@@ -183,7 +183,7 @@ describe('useApiMutation', () => {
 
     expect(result.current.data).toBeFalsy()
     expect(result.current.error).toBeFalsy()
-    expect(result.current.isLoading).toBeFalsy()
+    expect(result.current.isPending).toBeFalsy()
   })
 
   describe('on error response', () => {

@@ -9,12 +9,11 @@ import type {
   FetchQueryOptions,
   InvalidateQueryFilters,
   QueryClient,
-  QueryFilters,
   QueryKey,
   UseMutationOptions,
-  UseQueryOptions,
 } from '@tanstack/react-query'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import type { UndefinedInitialDataOptions } from 'node_modules/@tanstack/react-query/build/modern/queryOptions'
 
 import { invariant } from '@oxide/util'
 
@@ -62,21 +61,22 @@ export const getUseApiQuery =
   <M extends string & keyof A>(
     method: M,
     params: Params<A[M]>,
-    options: UseQueryOptions<Result<A[M]>, ApiError> = {}
+    options: Omit<
+      UndefinedInitialDataOptions<Result<A[M]>, ApiError>,
+      'queryKey' | 'queryFn'
+    > = {}
   ) => {
-    return useQuery(
-      [method, params] as QueryKey,
-      ({ signal }) => api[method](params, { signal }).then(handleResult(method)),
+    return useQuery({
+      queryKey: [method, params] as QueryKey,
       // no catch, let unexpected errors bubble up
-      {
-        // In the case of 404s, let the error bubble up to the error boundary so
-        // we can say Not Found. If you need to allow a 404 and want it to show
-        // up as `error` state instead, pass `useErrorBoundary: false` as an
-        // option from the calling component and it will override this
-        useErrorBoundary: (err) => err.statusCode === 404,
-        ...options,
-      }
-    )
+      queryFn: ({ signal }) => api[method](params, { signal }).then(handleResult(method)),
+      // In the case of 404s, let the error bubble up to the error boundary so
+      // we can say Not Found. If you need to allow a 404 and want it to show
+      // up as `error` state instead, pass `useErrorBoundary: false` as an
+      // option from the calling component and it will override this
+      throwOnError: (err) => err.statusCode === 404,
+      ...options,
+    })
   }
 
 export const getUsePrefetchedApiQuery =
@@ -84,22 +84,23 @@ export const getUsePrefetchedApiQuery =
   <M extends string & keyof A>(
     method: M,
     params: Params<A[M]>,
-    options: UseQueryOptions<Result<A[M]>, ApiError> = {}
+    options: Omit<
+      UndefinedInitialDataOptions<Result<A[M]>, ApiError>,
+      'queryKey' | 'queryFn'
+    > = {}
   ) => {
     const queryKey = [method, params] as QueryKey
-    const { data, ...rest } = useQuery(
+    const { data, ...rest } = useQuery({
       queryKey,
-      ({ signal }) => api[method](params, { signal }).then(handleResult(method)),
       // no catch, let unexpected errors bubble up
-      {
-        // In the case of 404s, let the error bubble up to the error boundary so
-        // we can say Not Found. If you need to allow a 404 and want it to show
-        // up as `error` state instead, pass `useErrorBoundary: false` as an
-        // option from the calling component and it will override this
-        useErrorBoundary: (err) => err.statusCode === 404,
-        ...options,
-      }
-    )
+      queryFn: ({ signal }) => api[method](params, { signal }).then(handleResult(method)),
+
+      // we can say Not Found. If you need to allow a 404 and want it to show
+      // up as `error` state instead, pass `useErrorBoundary: false` as an
+      // option from the calling component and it will override this
+      throwOnError: (err) => err.statusCode === 404,
+      ...options,
+    })
     invariant(data, `Expected query to be prefetched. Key: ${JSON.stringify(queryKey)}`)
     return { data, ...rest }
   }
@@ -122,37 +123,40 @@ export const getUseApiQueryErrorsAllowed =
   <M extends string & keyof A>(
     method: M,
     params: Params<A[M]>,
-    options: UseQueryOptions<
-      { type: 'success'; data: Result<A[M]> } | { type: 'error'; data: ApiError },
-      ApiError
+    options: Omit<
+      UndefinedInitialDataOptions<
+        { type: 'success'; data: Result<A[M]> } | { type: 'error'; data: ApiError },
+        ApiError
+      >,
+      'queryKey' | 'queryFn'
     > = {}
   ) => {
-    return useQuery(
+    return useQuery({
       // extra bit of key is important to distinguish from normal query. if we
       // hit a a given endpoint twice on the same page, once the normal way and
       // once with errors allowed the responses have different shapes, so we do
       // not want to share the cache and mix them up
-      [method, params, ERRORS_ALLOWED] as QueryKey,
-      ({ signal }) =>
+      queryKey: [method, params, ERRORS_ALLOWED],
+      queryFn: ({ signal }) =>
         api[method](params, { signal })
           .then(handleResult(method))
           .then((data) => ({ type: 'success' as const, data }))
           .catch((data) => ({ type: 'error' as const, data })),
-      options
-    )
+      ...options,
+    })
   }
 
 export const getUseApiMutation =
   <A extends ApiClient>(api: A) =>
   <M extends string & keyof A>(
     method: M,
-    options?: UseMutationOptions<Result<A[M]>, ApiError, Params<A[M]>>
+    options?: Omit<UseMutationOptions<Result<A[M]>, ApiError, Params<A[M]>>, 'mutationFn'>
   ) =>
-    useMutation(
-      (params) => api[method](params).then(handleResult(method)),
+    useMutation({
+      mutationFn: (params) => api[method](params).then(handleResult(method)),
       // no catch, let unexpected errors bubble up
-      options
-    )
+      ...options,
+    })
 
 export const wrapQueryClient = <A extends ApiClient>(api: A, queryClient: QueryClient) => ({
   /**
@@ -163,23 +167,13 @@ export const wrapQueryClient = <A extends ApiClient>(api: A, queryClient: QueryC
    * for it.
    */
   invalidateQueries: <M extends keyof A>(method: M, filters?: InvalidateQueryFilters) =>
-    queryClient.invalidateQueries([method], filters),
+    queryClient.invalidateQueries({ queryKey: [method], ...filters }),
   setQueryData: <M extends keyof A>(method: M, params: Params<A[M]>, data: Result<A[M]>) =>
     queryClient.setQueryData([method, params], data),
-  cancelQueries: <M extends keyof A>(
-    method: M,
-    params?: Params<A[M]>,
-    filters?: QueryFilters
-  ) => queryClient.cancelQueries(params ? [method, params] : [method], filters),
-  refetchQueries: <M extends keyof A>(
-    method: M,
-    params?: Params<A[M]>,
-    filters?: QueryFilters
-  ) => queryClient.refetchQueries(params ? [method, params] : [method], filters),
   fetchQuery: <M extends string & keyof A>(
     method: M,
     params: Params<A[M]>,
-    options: FetchQueryOptions<Result<A[M]>, ApiError> = {}
+    options: Omit<FetchQueryOptions<Result<A[M]>, ApiError>, 'queryKey' | 'queryFn'> = {}
   ) =>
     queryClient.fetchQuery({
       queryKey: [method, params],
@@ -189,7 +183,7 @@ export const wrapQueryClient = <A extends ApiClient>(api: A, queryClient: QueryC
   prefetchQuery: <M extends string & keyof A>(
     method: M,
     params: Params<A[M]>,
-    options: FetchQueryOptions<Result<A[M]>, ApiError> = {}
+    options: Omit<FetchQueryOptions<Result<A[M]>, ApiError>, 'queryKey' | 'queryFn'> = {}
   ) =>
     queryClient.prefetchQuery({
       queryKey: [method, params],
@@ -203,17 +197,20 @@ export const wrapQueryClient = <A extends ApiClient>(api: A, queryClient: QueryC
   prefetchQueryErrorsAllowed: <M extends string & keyof A>(
     method: M,
     params: Params<A[M]>,
-    options: FetchQueryOptions<
-      { type: 'success'; data: Result<A[M]> } | { type: 'error'; data: ApiError },
-      ApiError
-    > & {
-      /**
-       * HTTP errors will show up unexplained in the browser console. It can be
-       * helpful to reassure people they're normal.
-       */
-      explanation: string
-      expectedStatusCode: 403 | 404
-    }
+    options: Omit<
+      FetchQueryOptions<
+        { type: 'success'; data: Result<A[M]> } | { type: 'error'; data: ApiError },
+        ApiError
+      > & {
+        /**
+         * HTTP errors will show up unexplained in the browser console. It can be
+         * helpful to reassure people they're normal.
+         */
+        explanation: string
+        expectedStatusCode: 403 | 404
+      },
+      'queryKey' | 'queryFn'
+    >
   ) =>
     queryClient.prefetchQuery({
       queryKey: [method, params, ERRORS_ALLOWED],

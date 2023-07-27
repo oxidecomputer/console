@@ -57,7 +57,7 @@ export function SiloMetric({
       path: { metricName },
       query: { project, startTime, endTime, limit: 3000 },
     },
-    { keepPreviousData: true }
+    { placeholderData: (x) => x }
   )
 
   // get last point before startTime to use as first point in graph
@@ -67,7 +67,7 @@ export function SiloMetric({
       path: { metricName },
       query: { project, endTime: startTime, ...staticParams },
     },
-    { keepPreviousData: true }
+    { placeholderData: (x) => x }
   )
 
   const ref = useRef<ChartDatum[] | undefined>(undefined)
@@ -137,7 +137,7 @@ export function SystemMetric({
       path: { metricName },
       query: { silo, startTime, endTime, limit: 3000 },
     },
-    { keepPreviousData: true }
+    { placeholderData: (x) => x }
   )
 
   // get last point before startTime to use as first point in graph
@@ -147,7 +147,7 @@ export function SystemMetric({
       path: { metricName },
       query: { silo, endTime: startTime, ...staticParams },
     },
-    { keepPreviousData: true }
+    { placeholderData: (x) => x }
   )
 
   const ref = useRef<ChartDatum[] | undefined>(undefined)

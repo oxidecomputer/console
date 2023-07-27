@@ -61,7 +61,7 @@ export function EditProjectSideModalForm() {
       onSubmit={({ name, description }) => {
         editProject.mutate({ path: projectSelector, body: { name, description } })
       }}
-      loading={editProject.isLoading}
+      loading={editProject.isPending}
       submitError={editProject.error}
       submitLabel="Save changes"
     >
