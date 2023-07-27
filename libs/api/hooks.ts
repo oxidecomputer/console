@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import type {
+  DefaultError,
   FetchQueryOptions,
   InvalidateQueryFilters,
   QueryClient,
@@ -13,6 +14,7 @@ import type {
   UseMutationOptions,
 } from '@tanstack/react-query'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+// TODO: either do this differently or get them to export this type
 import type { UndefinedInitialDataOptions } from 'node_modules/@tanstack/react-query/build/modern/queryOptions'
 
 import { invariant } from '@oxide/util'
@@ -56,15 +58,33 @@ const handleResult =
     throw processServerError(method, result)
   }
 
+/**
+ * `queryKey` and `queryFn` are always constructed by our helper hooks, so we
+ * only allow the rest of the options.
+ */
+type UseQueryOtherOptions<T, E = DefaultError> = Omit<
+  UndefinedInitialDataOptions<T, E>,
+  'queryKey' | 'queryFn'
+>
+
+/**
+ * `queryKey` and `queryFn` are always constructed by our helper hooks, so we
+ * only allow the rest of the options.
+ */
+type FetchQueryOtherOptions<T, E = DefaultError> = Omit<
+  FetchQueryOptions<T, E>,
+  'queryKey' | 'queryFn'
+>
+
+/** Result that includes both success and error so it can be cached by RQ */
+type ErrorsAllowed<T, E> = { type: 'success'; data: T } | { type: 'error'; data: E }
+
 export const getUseApiQuery =
   <A extends ApiClient>(api: A) =>
   <M extends string & keyof A>(
     method: M,
     params: Params<A[M]>,
-    options: Omit<
-      UndefinedInitialDataOptions<Result<A[M]>, ApiError>,
-      'queryKey' | 'queryFn'
-    > = {}
+    options: UseQueryOtherOptions<Result<A[M]>, ApiError> = {}
   ) => {
     return useQuery({
       queryKey: [method, params] as QueryKey,
@@ -84,10 +104,7 @@ export const getUsePrefetchedApiQuery =
   <M extends string & keyof A>(
     method: M,
     params: Params<A[M]>,
-    options: Omit<
-      UndefinedInitialDataOptions<Result<A[M]>, ApiError>,
-      'queryKey' | 'queryFn'
-    > = {}
+    options: UseQueryOtherOptions<Result<A[M]>, ApiError> = {}
   ) => {
     const queryKey = [method, params] as QueryKey
     const { data, ...rest } = useQuery({
@@ -123,13 +140,7 @@ export const getUseApiQueryErrorsAllowed =
   <M extends string & keyof A>(
     method: M,
     params: Params<A[M]>,
-    options: Omit<
-      UndefinedInitialDataOptions<
-        { type: 'success'; data: Result<A[M]> } | { type: 'error'; data: ApiError },
-        ApiError
-      >,
-      'queryKey' | 'queryFn'
-    > = {}
+    options: UseQueryOtherOptions<ErrorsAllowed<Result<A[M]>, ApiError>> = {}
   ) => {
     return useQuery({
       // extra bit of key is important to distinguish from normal query. if we
@@ -173,7 +184,7 @@ export const wrapQueryClient = <A extends ApiClient>(api: A, queryClient: QueryC
   fetchQuery: <M extends string & keyof A>(
     method: M,
     params: Params<A[M]>,
-    options: Omit<FetchQueryOptions<Result<A[M]>, ApiError>, 'queryKey' | 'queryFn'> = {}
+    options: FetchQueryOtherOptions<Result<A[M]>, ApiError> = {}
   ) =>
     queryClient.fetchQuery({
       queryKey: [method, params],
@@ -183,7 +194,7 @@ export const wrapQueryClient = <A extends ApiClient>(api: A, queryClient: QueryC
   prefetchQuery: <M extends string & keyof A>(
     method: M,
     params: Params<A[M]>,
-    options: Omit<FetchQueryOptions<Result<A[M]>, ApiError>, 'queryKey' | 'queryFn'> = {}
+    options: FetchQueryOtherOptions<Result<A[M]>, ApiError> = {}
   ) =>
     queryClient.prefetchQuery({
       queryKey: [method, params],
@@ -197,20 +208,14 @@ export const wrapQueryClient = <A extends ApiClient>(api: A, queryClient: QueryC
   prefetchQueryErrorsAllowed: <M extends string & keyof A>(
     method: M,
     params: Params<A[M]>,
-    options: Omit<
-      FetchQueryOptions<
-        { type: 'success'; data: Result<A[M]> } | { type: 'error'; data: ApiError },
-        ApiError
-      > & {
-        /**
-         * HTTP errors will show up unexplained in the browser console. It can be
-         * helpful to reassure people they're normal.
-         */
-        explanation: string
-        expectedStatusCode: 403 | 404
-      },
-      'queryKey' | 'queryFn'
-    >
+    options: FetchQueryOtherOptions<ErrorsAllowed<Result<A[M]>, ApiError>> & {
+      /**
+       * HTTP errors will show up unexplained in the browser console. It can be
+       * helpful to reassure people they're normal.
+       */
+      explanation: string
+      expectedStatusCode: 403 | 404
+    }
   ) =>
     queryClient.prefetchQuery({
       queryKey: [method, params, ERRORS_ALLOWED],
