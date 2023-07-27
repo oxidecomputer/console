@@ -4,7 +4,6 @@ name: Upload assets to dl.oxide.computer
 on:
   push:
     branches: [main]
-  pull_request:
 
 jobs:
   build-and-upload:
