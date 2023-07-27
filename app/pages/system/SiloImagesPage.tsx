@@ -206,8 +206,11 @@ const DemoteImageModal = ({
     demoteImage.mutate({ path: { image: image.id }, query: { project: data.project } })
   }
 
-  const projectsQuery = useApiQuery('projectList', {})
-  const projects = projectsQuery.data?.items || []
+  const projects = useApiQuery('projectList', {})
+  const projectItems = useMemo(
+    () => (projects.data?.items || []).map(({ name }) => ({ value: name, label: name })),
+    [projects.data]
+  )
 
   return (
     <Modal isOpen onDismiss={onDismiss} title="Demote image">
@@ -234,10 +237,8 @@ const DemoteImageModal = ({
               placeholder="Select project for image"
               name="project"
               label="Project"
-              items={projects.map((project) => {
-                return { value: project.name, label: project.name }
-              })}
-              isLoading={projectsQuery.isLoading}
+              items={projectItems}
+              isLoading={projects.isPending}
               required
               control={control}
             />

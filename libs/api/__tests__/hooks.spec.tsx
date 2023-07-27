@@ -55,6 +55,7 @@ describe('useApiQuery', () => {
     expect(result.current.data).toBeFalsy()
     expect(result.current.error).toBeFalsy()
     expect(result.current.isLoading).toBeTruthy()
+    expect(result.current.isPending).toBeTruthy()
   })
 
   describe('on error response', () => {

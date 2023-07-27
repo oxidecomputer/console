@@ -165,7 +165,7 @@ const ImageSelectField = ({ control }: { control: Control<DiskCreate> }) => {
       name="diskSource.imageId"
       label="Source image"
       placeholder="Select an image"
-      isLoading={projectImages.isLoading || siloImages.isLoading}
+      isLoading={projectImages.isPending || siloImages.isPending}
       items={images.map((i) => toListboxItem(i, true))}
       required
     />
@@ -212,7 +212,7 @@ const SnapshotSelectField = ({ control }: { control: Control<DiskCreate> }) => {
           ),
         }
       })}
-      isLoading={snapshotsQuery.isLoading}
+      isLoading={snapshotsQuery.isPending}
       required
     />
   )
