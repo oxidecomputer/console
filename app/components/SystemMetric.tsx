@@ -57,7 +57,7 @@ export function SiloMetric({
       path: { metricName },
       query: { project, startTime, endTime, limit: 3000 },
     },
-    { keepPreviousData: true }
+    { placeholderData: (x) => x }
   )
 
   // get last point before startTime to use as first point in graph
@@ -67,7 +67,7 @@ export function SiloMetric({
       path: { metricName },
       query: { project, endTime: startTime, ...staticParams },
     },
-    { keepPreviousData: true }
+    { placeholderData: (x) => x }
   )
 
   const ref = useRef<ChartDatum[] | undefined>(undefined)
@@ -92,7 +92,7 @@ export function SiloMetric({
     <div>
       <h2 className="flex items-center gap-1.5 px-3 text-mono-sm text-secondary">
         {title} {unit && <span className="text-quaternary">({unit})</span>}{' '}
-        {(inRange.isLoading || beforeStart.isLoading) && <Spinner />}
+        {(inRange.isPending || beforeStart.isPending) && <Spinner />}
       </h2>
       {/* TODO: proper skeleton for empty chart */}
       <Suspense fallback={<div />}>
@@ -137,7 +137,7 @@ export function SystemMetric({
       path: { metricName },
       query: { silo, startTime, endTime, limit: 3000 },
     },
-    { keepPreviousData: true }
+    { placeholderData: (x) => x }
   )
 
   // get last point before startTime to use as first point in graph
@@ -147,7 +147,7 @@ export function SystemMetric({
       path: { metricName },
       query: { silo, endTime: startTime, ...staticParams },
     },
-    { keepPreviousData: true }
+    { placeholderData: (x) => x }
   )
 
   const ref = useRef<ChartDatum[] | undefined>(undefined)
@@ -175,7 +175,7 @@ export function SystemMetric({
     <div>
       <h2 className="flex items-center gap-1.5 px-3 text-mono-sm text-secondary">
         {title} {unit && <span className="text-quaternary">({unit})</span>}{' '}
-        {(inRange.isLoading || beforeStart.isLoading) && <Spinner />}
+        {(inRange.isPending || beforeStart.isPending) && <Spinner />}
       </h2>
       {/* TODO: proper skeleton for empty chart */}
       <Suspense fallback={<div />}>

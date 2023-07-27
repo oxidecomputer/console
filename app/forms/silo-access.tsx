@@ -51,7 +51,7 @@ export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalPr
           body: updateRole({ identityId, identityType, roleName }, policy),
         })
       }}
-      loading={updatePolicy.isLoading}
+      loading={updatePolicy.isPending}
       submitError={updatePolicy.error}
       submitLabel="Assign role"
     >
@@ -100,7 +100,7 @@ export function SiloAccessEditUserSideModal({
           body: updateRole({ identityId, identityType, roleName }, policy),
         })
       }}
-      loading={updatePolicy.isLoading}
+      loading={updatePolicy.isPending}
       submitError={updatePolicy.error}
       submitLabel="Update role"
       onDismiss={onDismiss}

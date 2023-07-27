@@ -482,7 +482,7 @@ export function CreateFirewallRuleForm({
           },
         })
       }}
-      loading={updateRules.isLoading}
+      loading={updateRules.isPending}
       submitError={updateRules.error}
       submitLabel="Add rule"
     >

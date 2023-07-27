@@ -40,7 +40,7 @@ export function SledInstancesTab() {
   const { Table, Column } = useQueryTable(
     'sledInstanceList',
     { path: { sledId }, query: { limit: 10 } },
-    { keepPreviousData: true }
+    { placeholderData: (x) => x }
   )
 
   const makeActions = (): MenuAction[] => []

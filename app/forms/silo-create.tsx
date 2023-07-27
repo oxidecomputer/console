@@ -84,7 +84,7 @@ export function CreateSiloSideModalForm() {
           },
         })
       }}
-      loading={createSilo.isLoading}
+      loading={createSilo.isPending}
       submitError={createSilo.error}
     >
       <NameField name="name" control={form.control} />

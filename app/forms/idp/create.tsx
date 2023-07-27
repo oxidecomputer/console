@@ -99,7 +99,7 @@ export function CreateIdpSideModalForm() {
           },
         })
       }}
-      loading={createIdp.isLoading}
+      loading={createIdp.isPending}
       submitError={createIdp.error}
       submitLabel="Create provider"
     >

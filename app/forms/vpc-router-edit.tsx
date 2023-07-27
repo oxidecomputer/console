@@ -46,7 +46,7 @@ export function EditVpcRouterForm({ onDismiss, editing }: EditVpcRouterFormProps
           body: { name, description },
         })
       }}
-      loading={updateRouter.isLoading}
+      loading={updateRouter.isPending}
       submitError={updateRouter.error}
     >
       <NameField name="name" control={form.control} />

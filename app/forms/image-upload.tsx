@@ -61,13 +61,13 @@ const defaultValues: FormValues = {
 
 // subset of the mutation state we care about
 type MutationState = {
-  isLoading: boolean
+  isPending: boolean
   isSuccess: boolean
   isError: boolean
 }
 
 const initSyntheticState: MutationState = {
-  isLoading: false,
+  isPending: false,
   isSuccess: false,
   isError: false,
 }
@@ -84,7 +84,7 @@ function Step({ children, state, label, className }: StepProps) {
   /* eslint-disable react/jsx-key */
   const [status, icon] = state.isSuccess
     ? ['complete', <Success12Icon className="text-accent" />]
-    : state.isLoading
+    : state.isPending
     ? ['running', <Spinner />]
     : state.isError
     ? ['error', <Error12Icon className="text-error" />]
@@ -250,7 +250,7 @@ export function CreateImageSideModalForm() {
   const allMutations = [...mainFlowMutations, syntheticUploadState, ...cleanupMutations]
 
   // we don't want to be able to click submit while anything is running
-  const formLoading = allMutations.some((m) => m.isLoading)
+  const formLoading = allMutations.some((m) => m.isPending)
 
   // the created snapshot and disk. presence used in cleanup to decide whether we need to
   // attempt to delete them
@@ -371,7 +371,7 @@ export function CreateImageSideModalForm() {
     // be sitting around waiting for the browser to let the fetches through.
     // That sounds bad. So we use pMap to process at most 6 chunks at a time.
 
-    setSyntheticUploadState({ isLoading: true, isSuccess: false, isError: false })
+    setSyntheticUploadState({ isPending: true, isSuccess: false, isError: false })
 
     const nChunks = Math.ceil(imageFile.size / CHUNK_SIZE_BYTES)
 
@@ -413,12 +413,12 @@ export function CreateImageSideModalForm() {
       )
     } catch (e) {
       if (e !== ABORT_ERROR) {
-        setSyntheticUploadState({ isLoading: false, isSuccess: false, isError: true })
+        setSyntheticUploadState({ isPending: false, isSuccess: false, isError: true })
       }
       throw e // rethrow to get the usual the error handling in the wrapper function
     }
 
-    setSyntheticUploadState({ isLoading: false, isSuccess: true, isError: false })
+    setSyntheticUploadState({ isPending: false, isSuccess: true, isError: false })
 
     await stopImport.mutateAsync({ path })
     abortController.current?.signal.throwIfAborted()
@@ -592,7 +592,7 @@ export function CreateImageSideModalForm() {
                 <Step state={createImage} label="Create image" duration={15} />
                 <Step
                   state={{
-                    isLoading: deleteDisk.isLoading || deleteSnapshot.isLoading,
+                    isPending: deleteDisk.isPending || deleteSnapshot.isPending,
                     isSuccess: deleteDisk.isSuccess && deleteSnapshot.isSuccess,
                     isError: deleteDisk.isError || deleteSnapshot.isError,
                   }}
@@ -600,7 +600,7 @@ export function CreateImageSideModalForm() {
                 />
                 <Step
                   state={{
-                    isLoading: false,
+                    isPending: false,
                     isSuccess: allDone,
                     isError: false,
                   }}

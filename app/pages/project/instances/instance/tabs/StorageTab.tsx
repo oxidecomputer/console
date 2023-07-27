@@ -174,7 +174,7 @@ export function StorageTab() {
           onSubmit={({ name }) => {
             attachDisk.mutate({ ...instancePathQuery, body: { disk: name } })
           }}
-          loading={attachDisk.isLoading}
+          loading={attachDisk.isPending}
           submitError={attachDisk.error}
         />
       )}

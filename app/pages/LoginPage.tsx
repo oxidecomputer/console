@@ -78,7 +78,7 @@ export function LoginPage() {
             control={form.control}
           />
         </div>
-        <Button type="submit" className="w-full" disabled={loginPost.isLoading}>
+        <Button type="submit" className="w-full" disabled={loginPost.isPending}>
           Sign in
         </Button>
         {loginPost.isError && (

@@ -46,7 +46,7 @@ function DiskMetric({
       query: { project, startTime, endTime, limit: 3000 },
     },
     // avoid graphs flashing blank while loading when you change the time
-    { keepPreviousData: true }
+    { placeholderData: (x) => x }
   )
 
   const data = (metrics?.items || []).map(({ datum, timestamp }) => ({

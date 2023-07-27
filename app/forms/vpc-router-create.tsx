@@ -52,7 +52,7 @@ export function CreateVpcRouterForm({ onDismiss }: CreateVpcRouterFormProps) {
       onSubmit={({ name, description }) =>
         createRouter.mutate({ query: vpcSelector, body: { name, description } })
       }
-      loading={createRouter.isLoading}
+      loading={createRouter.isPending}
       submitError={createRouter.error}
     >
       <NameField name="name" control={form.control} />
