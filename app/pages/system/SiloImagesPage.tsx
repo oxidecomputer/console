@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { type FieldValues, useForm } from 'react-hook-form'
 import { Outlet } from 'react-router-dom'
 
@@ -104,17 +104,23 @@ const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
     onSettled: onDismiss,
   })
 
-  const projectsQuery = useApiQuery('projectList', {})
-  const projects = projectsQuery.data?.items || []
+  const projects = useApiQuery('projectList', {})
+  const projectItems = useMemo(
+    () => (projects.data?.items || []).map(({ name }) => ({ value: name, label: name })),
+    [projects.data]
+  )
   const selectedProject = watch('project')
 
   // can only fetch images if a project is selected
-  const imagesQuery = useApiQuery(
+  const images = useApiQuery(
     'imageList',
     { query: { project: selectedProject! } },
     { enabled: !!selectedProject }
   )
-  const images = imagesQuery.data?.items || []
+  const imageItems = useMemo(
+    () => (images.data?.items || []).map((i) => toListboxItem(i)),
+    [images.data]
+  )
 
   const onSubmit = ({ image, project }: Values) => {
     if (!image || !project) return
@@ -130,13 +136,11 @@ const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
               placeholder="Filter images by project"
               name="project"
               label="Project"
-              items={projects.map((project) => {
-                return { value: project.name, label: project.name }
-              })}
+              items={projectItems}
               onChange={() => {
                 resetField('image') // reset image field when the project changes
               }}
-              isLoading={projectsQuery.isLoading}
+              isLoading={projects.isPending}
               required
               control={control}
             />
@@ -144,8 +148,8 @@ const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
               control={control}
               name="image"
               placeholder="Select an image"
-              items={images.map((i) => toListboxItem(i))}
-              isLoading={imagesQuery.isLoading}
+              items={imageItems}
+              isLoading={images.isPending}
               required
               disabled={!selectedProject}
             />
