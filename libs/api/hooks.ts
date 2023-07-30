@@ -11,11 +11,10 @@ import type {
   InvalidateQueryFilters,
   QueryClient,
   QueryKey,
+  UndefinedInitialDataOptions,
   UseMutationOptions,
 } from '@tanstack/react-query'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-// TODO: either do this differently or get them to export this type
-import type { UndefinedInitialDataOptions } from 'node_modules/@tanstack/react-query/build/modern/queryOptions'
 
 import { invariant } from '@oxide/util'
 
