@@ -45,10 +45,7 @@ export function SubnetListbox<
     useApiQuery(
       'vpcSubnetList',
       { query: { ...projectSelector, vpc: vpcName } },
-      {
-        enabled: vpcExists,
-        useErrorBoundary: false,
-      }
+      { enabled: vpcExists, throwOnError: false }
     ).data?.items || []
 
   return (

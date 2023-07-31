@@ -43,7 +43,7 @@ export const CapacityMetric = ({
   const { data } = useApiQuery(
     'systemMetric',
     { path: { metricName }, query: capacityQueryParams },
-    { keepPreviousData: true }
+    { placeholderData: (x) => x }
   )
 
   const metrics = useMemo(() => data?.items || [], [data])

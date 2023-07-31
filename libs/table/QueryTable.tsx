@@ -8,7 +8,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { UseQueryOptions } from '@tanstack/react-query'
-import { hashQueryKey } from '@tanstack/react-query'
+import { hashKey } from '@tanstack/react-query'
 import type { AccessorFn, DeepKeys } from '@tanstack/react-table'
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import React, { useEffect } from 'react'
@@ -40,12 +40,12 @@ interface UseQueryTableResult<Item extends Record<string, unknown>> {
 export const useQueryTable = <A extends ApiListMethods, M extends keyof A>(
   query: M,
   params: Params<A[M]>,
-  options?: UseQueryOptions<Result<A[M]>, ApiError>
+  options?: Omit<UseQueryOptions<Result<A[M]>, ApiError>, 'queryKey' | 'queryFn'>
 ): UseQueryTableResult<ResultItem<A[M]>> => {
   const Table = useMemo(
     () => makeQueryTable<ResultItem<A[M]>>(query, params, options),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [query, hashQueryKey(params as any), hashQueryKey(options as any)]
+    [query, hashKey(params as any), hashKey(options as any)]
   )
 
   return { Table, Column: QueryTableColumn }

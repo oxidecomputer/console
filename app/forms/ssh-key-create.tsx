@@ -41,7 +41,7 @@ export function CreateSSHKeySideModalForm() {
       form={form}
       onDismiss={onDismiss}
       onSubmit={(body) => createSshKey.mutate({ body })}
-      loading={createSshKey.isLoading}
+      loading={createSshKey.isPending}
       submitError={createSshKey.error}
     >
       <NameField name="name" control={form.control} />
