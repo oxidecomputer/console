@@ -21,6 +21,8 @@ import type {
 
 // API limits encoded in https://github.com/oxidecomputer/omicron/blob/main/nexus/src/app/mod.rs
 
+export const MAX_NICS_PER_INSTANCE = 8
+
 export const INSTANCE_MAX_CPU = 64
 export const INSTANCE_MIN_RAM_GiB = 1
 export const INSTANCE_MAX_RAM_GiB = 256

@@ -8,7 +8,7 @@
 import { v4 as uuid } from 'uuid'
 
 import type { ApiTypes as Api, SamlIdentityProvider } from '@oxide/api'
-import { FLEET_ID, diskCan } from '@oxide/api'
+import { FLEET_ID, MAX_NICS_PER_INSTANCE, diskCan } from '@oxide/api'
 import type { Json } from '@oxide/gen/msw-handlers'
 import { json, makeHandlers } from '@oxide/gen/msw-handlers'
 import { pick, sortBy } from '@oxide/util'
@@ -298,6 +298,9 @@ export const handlers = makeHandlers({
      * being created if there's a failure. In omicron this is done automatically via an undo on the saga.
      */
     if (body.network_interfaces?.type === 'create') {
+      if (body.network_interfaces.params.length > MAX_NICS_PER_INSTANCE) {
+        throw `Cannot create more than ${MAX_NICS_PER_INSTANCE} nics per instance`
+      }
       body.network_interfaces.params.forEach(({ vpc_name, subnet_name }) => {
         lookup.vpc({ ...query, vpc: vpc_name })
         lookup.vpcSubnet({ ...query, vpc: vpc_name, subnet: subnet_name })
