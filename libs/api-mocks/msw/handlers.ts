@@ -8,10 +8,17 @@
 import { v4 as uuid } from 'uuid'
 
 import type { ApiTypes as Api, SamlIdentityProvider } from '@oxide/api'
-import { FLEET_ID, MAX_NICS_PER_INSTANCE, diskCan } from '@oxide/api'
+import {
+  FLEET_ID,
+  INSTANCE_MAX_CPU,
+  INSTANCE_MAX_RAM_GiB,
+  INSTANCE_MIN_RAM_GiB,
+  MAX_NICS_PER_INSTANCE,
+  diskCan,
+} from '@oxide/api'
 import type { Json } from '@oxide/gen/msw-handlers'
 import { json, makeHandlers } from '@oxide/gen/msw-handlers'
-import { pick, sortBy } from '@oxide/util'
+import { GiB, pick, sortBy } from '@oxide/util'
 
 import { genCumulativeI64Data } from '../metrics'
 import { serial } from '../serial'
@@ -279,6 +286,25 @@ export const handlers = makeHandlers({
     errIfExists(db.instances, { name: body.name, project_id: project.id }, 'instance')
 
     const instanceId = uuid()
+
+    // TODO: These values should ultimately be represented in the schema and
+    // checked with the generated schema validation code.
+
+    if (body.memory > INSTANCE_MAX_RAM_GiB * GiB) {
+      throw `Memory must be less than ${INSTANCE_MAX_RAM_GiB} GiB`
+    }
+
+    if (body.memory < INSTANCE_MIN_RAM_GiB * GiB) {
+      throw `Memory must be greater than ${INSTANCE_MIN_RAM_GiB} GiB`
+    }
+
+    if (body.ncpus > INSTANCE_MAX_CPU) {
+      throw `vCPUs must be less than ${INSTANCE_MAX_CPU}`
+    }
+
+    if (body.ncpus < 1) {
+      throw `Must have at least 1 vCPU`
+    }
 
     /**
      * Eagerly check for disk errors. Execution will stop early and prevent orphaned disks from
