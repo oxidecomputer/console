@@ -58,7 +58,7 @@ export function Modal({ children, onDismiss, title, isOpen }: ModalProps) {
             >
               <Dialog.Portal>
                 <div
-                  className="DialogOverlay pointer-events-auto"
+                  className="DialogOverlay pointer-events-auto relative"
                   onClick={onDismiss}
                   aria-hidden
                 />
@@ -75,6 +75,12 @@ export function Modal({ children, onDismiss, title, isOpen }: ModalProps) {
                     </Dialog.Title>
                   )}
                   {children}
+                  <Dialog.Close
+                    className="absolute right-2 top-3 flex rounded p-2 hover:bg-hover"
+                    aria-label="Close"
+                  >
+                    <Close12Icon className="text-secondary" />
+                  </Dialog.Close>
                 </AnimatedDialogContent>
               </Dialog.Portal>
             </Dialog.Root>
@@ -99,9 +105,6 @@ const ModalTitle = forwardRef<HTMLDivElement, ModalTitleProps>(({ children, id }
     <h2 className="text-sans-semi-lg" id={id}>
       {children}
     </h2>
-    <Dialog.Close className="-m-2 flex rounded p-2 hover:bg-hover" aria-label="Close">
-      <Close12Icon className="text-secondary" />
-    </Dialog.Close>
   </div>
 ))
 
