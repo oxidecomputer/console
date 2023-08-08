@@ -295,7 +295,7 @@ export const handlers = makeHandlers({
     }
 
     if (body.memory < INSTANCE_MIN_RAM_GiB * GiB) {
-      throw `Memory must be greater than ${INSTANCE_MIN_RAM_GiB} GiB`
+      throw `Memory must be at least ${INSTANCE_MIN_RAM_GiB} GiB`
     }
 
     if (body.ncpus > INSTANCE_MAX_CPU) {
