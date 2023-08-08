@@ -76,7 +76,7 @@ export function Modal({ children, onDismiss, title, isOpen }: ModalProps) {
                   )}
                   {children}
                   <Dialog.Close
-                    className="absolute right-4 top-3 flex rounded p-2 hover:bg-hover"
+                    className="absolute right-2 top-3 flex rounded p-2 hover:bg-hover"
                     aria-label="Close"
                   >
                     <Close12Icon className="text-secondary" />
