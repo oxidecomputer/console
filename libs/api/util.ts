@@ -19,23 +19,20 @@ import type {
   VpcFirewallRuleUpdate,
 } from './__generated__/Api'
 
-/**
- * CPUs limited to 32 due to bhyve restriction
- * @see https://github.com/oxidecomputer/omicron/issues/3212
- **/
-export const INSTANCE_MAX_CPU = 32
+// API limits encoded in https://github.com/oxidecomputer/omicron/blob/main/nexus/src/app/mod.rs
 
-/**
- * RAM limited to 64 GiB due to timeouts for larger memory sizes
- * @see https://github.com/oxidecomputer/omicron/issues/3417
- */
-export const INSTANCE_MAX_RAM_GiB = 64
+export const MAX_NICS_PER_INSTANCE = 8
 
+export const INSTANCE_MAX_CPU = 64
+export const INSTANCE_MIN_RAM_GiB = 1
+export const INSTANCE_MAX_RAM_GiB = 256
+
+export const MIN_DISK_SIZE_GiB = 1
 /**
- * Disk size limited to 1 TiB as that's the maximum we can safely allocate right now
+ * Disk size limited to 1023  as that's the maximum we can safely allocate right now
  * @see https://github.com/oxidecomputer/omicron/issues/3212#issuecomment-1634497344
  */
-export const MAX_DISK_SIZE_GiB = 1024
+export const MAX_DISK_SIZE_GiB = 1023
 
 type PortRange = [number, number]
 

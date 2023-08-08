@@ -8,10 +8,17 @@
 import { v4 as uuid } from 'uuid'
 
 import type { ApiTypes as Api, SamlIdentityProvider } from '@oxide/api'
-import { FLEET_ID, diskCan } from '@oxide/api'
+import {
+  FLEET_ID,
+  INSTANCE_MAX_CPU,
+  INSTANCE_MAX_RAM_GiB,
+  INSTANCE_MIN_RAM_GiB,
+  MAX_NICS_PER_INSTANCE,
+  diskCan,
+} from '@oxide/api'
 import type { Json } from '@oxide/gen/msw-handlers'
 import { json, makeHandlers } from '@oxide/gen/msw-handlers'
-import { pick, sortBy } from '@oxide/util'
+import { GiB, pick, sortBy } from '@oxide/util'
 
 import { genCumulativeI64Data } from '../metrics'
 import { serial } from '../serial'
@@ -280,6 +287,25 @@ export const handlers = makeHandlers({
 
     const instanceId = uuid()
 
+    // TODO: These values should ultimately be represented in the schema and
+    // checked with the generated schema validation code.
+
+    if (body.memory > INSTANCE_MAX_RAM_GiB * GiB) {
+      throw `Memory must be less than ${INSTANCE_MAX_RAM_GiB} GiB`
+    }
+
+    if (body.memory < INSTANCE_MIN_RAM_GiB * GiB) {
+      throw `Memory must be at least ${INSTANCE_MIN_RAM_GiB} GiB`
+    }
+
+    if (body.ncpus > INSTANCE_MAX_CPU) {
+      throw `vCPUs must be less than ${INSTANCE_MAX_CPU}`
+    }
+
+    if (body.ncpus < 1) {
+      throw `Must have at least 1 vCPU`
+    }
+
     /**
      * Eagerly check for disk errors. Execution will stop early and prevent orphaned disks from
      * being created if there's a failure. In omicron this is done automatically via an undo on the saga.
@@ -298,6 +324,9 @@ export const handlers = makeHandlers({
      * being created if there's a failure. In omicron this is done automatically via an undo on the saga.
      */
     if (body.network_interfaces?.type === 'create') {
+      if (body.network_interfaces.params.length > MAX_NICS_PER_INSTANCE) {
+        throw `Cannot create more than ${MAX_NICS_PER_INSTANCE} nics per instance`
+      }
       body.network_interfaces.params.forEach(({ vpc_name, subnet_name }) => {
         lookup.vpc({ ...query, vpc: vpc_name })
         lookup.vpcSubnet({ ...query, vpc: vpc_name, subnet: subnet_name })
