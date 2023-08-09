@@ -12,7 +12,7 @@ import { create } from 'zustand'
 import { ActionMenu, type QuickActionItem } from '@oxide/ui'
 import { invariant } from '@oxide/util'
 
-import { useGlobalKey } from './use-key'
+import { useKey } from './use-key'
 
 type Items = QuickActionItem[]
 
@@ -92,8 +92,7 @@ export function useQuickActions(itemsToAdd: QuickActionItem[]) {
   }, [itemsToAdd, globalItems, location.pathname])
 }
 
-// defined out here using imperative API so we don't have to memoize it
-function openDialog(e: Mousetrap.ExtendedKeyboardEvent) {
+function toggleDialog(e: Mousetrap.ExtendedKeyboardEvent) {
   const { items, isOpen } = useStore.getState()
 
   if (items.length > 0 && !isOpen) {
@@ -108,7 +107,7 @@ export function QuickActions() {
   const items = useStore((state) => state.items)
   const isOpen = useStore((state) => state.isOpen)
 
-  useGlobalKey('mod+k', openDialog)
+  useKey('mod+k', toggleDialog, { global: true })
 
   return (
     <ActionMenu
