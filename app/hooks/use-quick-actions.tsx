@@ -13,7 +13,7 @@ import { ActionMenu } from '@oxide/ui'
 import type { QuickActionItem } from '@oxide/ui'
 import { invariant } from '@oxide/util'
 
-import { useKey } from './use-key'
+import { useGlobalKey } from './use-key'
 
 type Items = QuickActionItem[]
 
@@ -76,7 +76,7 @@ export function QuickActions() {
     [isOpen, anyItems]
   )
 
-  useKey('mod+k', openDialog)
+  useGlobalKey('mod+k', openDialog)
 
   const closeDialog = useCallback(() => setIsOpen(false), [])
 
