@@ -49,7 +49,6 @@ export function SiloLayout() {
           .map((i) => ({
             navGroup: `Silo '${user.siloName}'`,
             value: i.value,
-            // TODO: Update this to use the new path builder
             onSelect: () => navigate(i.path),
           })),
       [pathname, navigate, user.siloName]
@@ -67,8 +66,7 @@ export function SiloLayout() {
           <DocsLinkItem />
         </Sidebar.Nav>
         <Divider />
-        {/* TODO: silo name in heading */}
-        <Sidebar.Nav heading="Silo">
+        <Sidebar.Nav heading={user.siloName}>
           <NavLinkItem to={pb.projects()}>
             <Folder16Icon /> Projects
           </NavLinkItem>
