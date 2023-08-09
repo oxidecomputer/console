@@ -10,6 +10,8 @@ import { NavLink } from 'react-router-dom'
 
 import { Action16Icon, Button, Document16Icon, Truncate } from '@oxide/ui'
 
+import { useQuickActionsStore } from 'app/hooks'
+
 const linkStyles =
   'flex h-7 items-center rounded px-2 text-sans-md hover:bg-hover svg:mr-2 svg:text-quinary text-secondary'
 
@@ -32,22 +34,28 @@ export const DocsLinkItem = () => (
 // https://github.com/ccampbell/mousetrap/blob/2f9a476b/mousetrap.js#L135
 const modKey = /Mac|iPod|iPhone|iPad/.test(navigator.platform) ? 'cmd' : 'ctrl'
 
-const JumpToButton = () => (
-  <Button
-    variant="ghost"
-    size="sm"
-    // TODO: click should open jump to menu
-    onClick={() => alert('click not implemented, press cmd+k')}
-    className="w-full !px-2"
-    // TODO: the more I use innerClassName the wronger it feels
-    innerClassName="w-full justify-between text-quaternary"
-  >
-    <span className="flex items-center">
-      <Action16Icon className="mr-2 text-quinary" /> Jump to
-    </span>
-    <div className="text-mono-xs">{modKey}+K</div>
-  </Button>
-)
+const JumpToButton = () => {
+  const { open } = useQuickActionsStore((state) => ({
+    open: state.open,
+  }))
+
+  return (
+    <Button
+      variant="ghost"
+      size="sm"
+      // TODO: click should open jump to menu
+      onClick={open}
+      className="w-full !px-2"
+      // TODO: the more I use innerClassName the wronger it feels
+      innerClassName="w-full justify-between text-quaternary"
+    >
+      <span className="flex items-center">
+        <Action16Icon className="mr-2 text-quinary" /> Jump to
+      </span>
+      <div className="text-mono-xs">{modKey}+K</div>
+    </Button>
+  )
+}
 
 export function Sidebar({ children }: { children: React.ReactNode }) {
   return (

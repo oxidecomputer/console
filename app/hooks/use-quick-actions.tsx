@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { useEffect } from 'react'
-import { useCallback, useState } from 'react'
+import { useCallback } from 'react'
 import { matchPath, useLocation, useNavigate } from 'react-router-dom'
 import { create } from 'zustand'
 
@@ -14,14 +14,17 @@ import { ActionMenu } from '@oxide/ui'
 import type { QuickActionItem } from '@oxide/ui'
 import { invariant } from '@oxide/util'
 
-import { useKey } from './use-key'
+import { useGlobalKey } from './use-key'
 
 type Items = QuickActionItem[]
 
 type StoreState = {
   items: Items
+  isOpen: boolean
   add: (toAdd: Items) => void
   remove: (toRemove: Items) => void
+  open: () => void
+  close: () => void
 }
 
 const removeByValue = (items: Items, toRemove: Items) => {
@@ -29,11 +32,14 @@ const removeByValue = (items: Items, toRemove: Items) => {
   return items.filter((i) => !valuesToRemove.has(i.value))
 }
 
-const useStore = create<StoreState>()((set) => ({
+export const useQuickActionsStore = create<StoreState>((set) => ({
   items: [],
+  isOpen: false,
   add: (toAdd) =>
     set(({ items }) => ({ items: removeByValue(items, toAdd).concat(toAdd) })),
   remove: (toRemove) => set(({ items }) => ({ items: removeByValue(items, toRemove) })),
+  open: () => set({ isOpen: true }),
+  close: () => set({ isOpen: false }),
 }))
 
 /**
@@ -48,8 +54,8 @@ export function useQuickActions(itemsToAdd: QuickActionItem[]) {
   const navigate = useNavigate()
   const location = useLocation()
 
-  const add = useStore((state) => state.add)
-  const remove = useStore((state) => state.remove)
+  const add = useQuickActionsStore((state) => state.add)
+  const remove = useQuickActionsStore((state) => state.remove)
 
   /*
     Adds a route to the quick actions menu if a condition is met
@@ -84,9 +90,12 @@ export function useQuickActions(itemsToAdd: QuickActionItem[]) {
 }
 
 export function QuickActions() {
-  const items = useStore((state) => state.items)
-  // TODO: move open state into store to make it easier to toggle from elsewhere
-  const [isOpen, setIsOpen] = useState(false)
+  const { items, isOpen, open, close } = useQuickActionsStore((state) => ({
+    items: state.items,
+    isOpen: state.isOpen,
+    open: state.open,
+    close: state.close,
+  }))
 
   const anyItems = items.length > 0
 
@@ -95,22 +104,20 @@ export function QuickActions() {
     (e: Mousetrap.ExtendedKeyboardEvent) => {
       if (anyItems && !isOpen) {
         e.preventDefault()
-        setIsOpen(true)
+        open()
       } else {
-        setIsOpen(false)
+        close()
       }
     },
-    [isOpen, anyItems]
+    [isOpen, anyItems, open, close]
   )
 
-  useKey('mod+k', openDialog)
-
-  const closeDialog = useCallback(() => setIsOpen(false), [])
+  useGlobalKey('mod+k', openDialog)
 
   return (
     <ActionMenu
       isOpen={isOpen}
-      onDismiss={closeDialog}
+      onDismiss={close}
       aria-label="Quick actions"
       items={items}
     />
