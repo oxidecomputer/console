@@ -10,7 +10,7 @@ import { NavLink } from 'react-router-dom'
 
 import { Action16Icon, Button, Document16Icon, Truncate } from '@oxide/ui'
 
-import { useOpenQuickActions } from 'app/hooks'
+import { openQuickActions } from 'app/hooks'
 
 const linkStyles =
   'flex h-7 items-center rounded px-2 text-sans-md hover:bg-hover svg:mr-2 svg:text-quinary text-secondary'
@@ -35,14 +35,11 @@ export const DocsLinkItem = () => (
 const modKey = /Mac|iPod|iPhone|iPad/.test(navigator.platform) ? 'cmd' : 'ctrl'
 
 const JumpToButton = () => {
-  const open = useOpenQuickActions()
-
   return (
     <Button
       variant="ghost"
       size="sm"
-      // TODO: click should open jump to menu
-      onClick={open}
+      onClick={openQuickActions}
       className="w-full !px-2"
       // TODO: the more I use innerClassName the wronger it feels
       innerClassName="w-full justify-between text-quaternary"

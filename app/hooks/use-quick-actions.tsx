@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useCallback, useEffect, useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { create } from 'zustand'
 
@@ -19,10 +19,6 @@ type Items = QuickActionItem[]
 type StoreState = {
   items: Items
   isOpen: boolean
-  add: (toAdd: Items) => void
-  remove: (toRemove: Items) => void
-  open: () => void
-  close: () => void
 }
 
 // removeByValue dedupes items so they can be added as many times as we want
@@ -32,15 +28,26 @@ const removeByValue = (items: Items, toRemove: Items) => {
   return items.filter((i) => !valuesToRemove.has(i.value))
 }
 
-const useStore = create<StoreState>((set) => ({
-  items: [],
-  isOpen: false,
-  add: (toAdd) =>
-    set(({ items }) => ({ items: removeByValue(items, toAdd).concat(toAdd) })),
-  remove: (toRemove) => set(({ items }) => ({ items: removeByValue(items, toRemove) })),
-  open: () => set({ isOpen: true }),
-  close: () => set({ isOpen: false }),
-}))
+const useStore = create<StoreState>(() => ({ items: [], isOpen: false }))
+
+// zustand docs say it's fine not to put your setters in the store
+// https://github.com/pmndrs/zustand/blob/0426978/docs/guides/practice-with-no-store-actions.md
+
+function addActions(toAdd: Items) {
+  useStore.setState(({ items }) => ({ items: removeByValue(items, toAdd).concat(toAdd) }))
+}
+
+function removeActions(toRemove: Items) {
+  useStore.setState(({ items }) => ({ items: removeByValue(items, toRemove) }))
+}
+
+export function openQuickActions() {
+  useStore.setState({ isOpen: true })
+}
+
+function closeQuickActions() {
+  useStore.setState({ isOpen: false })
+}
 
 function useGlobalActions() {
   const location = useLocation()
@@ -71,9 +78,6 @@ function useGlobalActions() {
 export function useQuickActions(itemsToAdd: QuickActionItem[]) {
   const location = useLocation()
 
-  const add = useStore((state) => state.add)
-  const remove = useStore((state) => state.remove)
-
   // Add routes without declaring them in every `useQuickActions` call
   const globalItems = useGlobalActions()
 
@@ -83,42 +87,35 @@ export function useQuickActions(itemsToAdd: QuickActionItem[]) {
       allItems.length === new Set(allItems.map((i) => i.value)).size,
       'Items being added to the list of quick actions must have unique `value` values.'
     )
-    add(allItems)
-    return () => remove(allItems)
-  }, [itemsToAdd, globalItems, add, remove, location.pathname])
+    addActions(allItems)
+    return () => removeActions(allItems)
+  }, [itemsToAdd, globalItems, location.pathname])
+}
+
+// defined out here using imperative API so we don't have to memoize it
+function openDialog(e: Mousetrap.ExtendedKeyboardEvent) {
+  const { items, isOpen } = useStore.getState()
+
+  if (items.length > 0 && !isOpen) {
+    e.preventDefault()
+    openQuickActions()
+  } else {
+    closeQuickActions()
+  }
 }
 
 export function QuickActions() {
   const items = useStore((state) => state.items)
   const isOpen = useStore((state) => state.isOpen)
-  const open = useStore((state) => state.open)
-  const close = useStore((state) => state.close)
-
-  const anyItems = items.length > 0
-
-  // only memoized to avoid render churn in useKey
-  const openDialog = useCallback(
-    (e: Mousetrap.ExtendedKeyboardEvent) => {
-      if (anyItems && !isOpen) {
-        e.preventDefault()
-        open()
-      } else {
-        close()
-      }
-    },
-    [isOpen, anyItems, open, close]
-  )
 
   useGlobalKey('mod+k', openDialog)
 
   return (
     <ActionMenu
       isOpen={isOpen}
-      onDismiss={close}
+      onDismiss={closeQuickActions}
       aria-label="Quick actions"
       items={items}
     />
   )
 }
-
-export const useOpenQuickActions = () => useStore((state) => state.open)
