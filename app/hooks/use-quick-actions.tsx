@@ -7,6 +7,7 @@
  */
 import { useEffect } from 'react'
 import { useCallback, useState } from 'react'
+import { matchPath, useLocation, useNavigate } from 'react-router-dom'
 import { create } from 'zustand'
 
 import { ActionMenu } from '@oxide/ui'
@@ -44,16 +45,42 @@ const useStore = create<StoreState>()((set) => ({
  * when the component is unmounted Just Works.
  */
 export function useQuickActions(itemsToAdd: QuickActionItem[]) {
+  const navigate = useNavigate()
+  const location = useLocation()
+
   const add = useStore((state) => state.add)
   const remove = useStore((state) => state.remove)
+
+  /*
+    Adds a route to the quick actions menu if a condition is met
+    This allows us to add routes without declaring it in every instance
+    of `useQuickActions`. If `include` is true the item is included
+  */
+  const conditions = [
+    {
+      // matchPath returns null if there is no match
+      // only show settings link if the user is not already on that page
+      include: matchPath('/settings/:route', location.pathname) === null,
+      item: {
+        navGroup: 'User',
+        value: 'Settings',
+        onSelect: () => navigate('/settings/profile'),
+      },
+    },
+  ]
+
+  const globalItems = conditions
+    .filter((condition) => condition.include)
+    .map((condition) => condition.item)
+
   useEffect(() => {
     invariant(
       itemsToAdd.length === new Set(itemsToAdd.map((i) => i.value)).size,
       'Items being added to the list of quick actions must have unique `value` values.'
     )
-    add(itemsToAdd)
+    add([...itemsToAdd, ...globalItems])
     return () => remove(itemsToAdd)
-  }, [itemsToAdd, add, remove])
+  }, [itemsToAdd, add, remove, navigate, location.pathname, globalItems])
 }
 
 export function QuickActions() {
