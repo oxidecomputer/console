@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { create } from 'zustand'
 
@@ -30,7 +30,7 @@ const removeByValue = (items: Items, toRemove: Items) => {
   return items.filter((i) => !valuesToRemove.has(i.value))
 }
 
-export const useQuickActionsStore = create<StoreState>((set) => ({
+const useStore = create<StoreState>((set) => ({
   items: [],
   isOpen: false,
   add: (toAdd) =>
@@ -39,6 +39,29 @@ export const useQuickActionsStore = create<StoreState>((set) => ({
   open: () => set({ isOpen: true }),
   close: () => set({ isOpen: false }),
 }))
+
+// extracted only to keep the logic clean in useQuickActions
+/**
+ * This allows us to add routes without declaring it in every instance
+ * of `useQuickActions`
+ */
+function useGlobalActions() {
+  const location = useLocation()
+  const navigate = useNavigate()
+
+  return useMemo(() => {
+    const actions = []
+    // only add settings link if we're not on a settings page
+    if (!location.pathname.startsWith('/settings/')) {
+      actions.push({
+        navGroup: 'User',
+        value: 'Settings',
+        onSelect: () => navigate('/settings/profile'),
+      })
+    }
+    return actions
+  }, [location.pathname, navigate])
+}
 
 /**
  * Register action items with the global quick actions menu. `itemsToAdd` must
@@ -49,34 +72,12 @@ export const useQuickActionsStore = create<StoreState>((set) => ({
  * when the component is unmounted Just Works.
  */
 export function useQuickActions(itemsToAdd: QuickActionItem[]) {
-  const navigate = useNavigate()
   const location = useLocation()
 
-  const add = useQuickActionsStore((state) => state.add)
-  const remove = useQuickActionsStore((state) => state.remove)
+  const add = useStore((state) => state.add)
+  const remove = useStore((state) => state.remove)
 
-  /*
-    Adds a route to the quick actions menu if a condition is met
-    This allows us to add routes without declaring it in every instance
-    of `useQuickActions`. If `include` is true the item is included
-  */
-  const conditions = [
-    {
-      // matchPath returns null if there is no match
-      // only show settings link if the user is not already on that page
-      include: !location.pathname.startsWith('/settings/'),
-      item: {
-        navGroup: 'User',
-        value: 'Settings',
-        onSelect: () => navigate('/settings/profile'),
-      },
-    },
-  ]
-
-  // TODO: this is new on every render, fix that
-  const globalItems = conditions
-    .filter((condition) => condition.include)
-    .map((condition) => condition.item)
+  const globalItems = useGlobalActions()
 
   useEffect(() => {
     const allItems = [...itemsToAdd, ...globalItems]
@@ -86,16 +87,14 @@ export function useQuickActions(itemsToAdd: QuickActionItem[]) {
     )
     add(allItems)
     return () => remove(allItems)
-  }, [itemsToAdd, globalItems, add, remove, navigate, location.pathname])
+  }, [itemsToAdd, globalItems, add, remove, location.pathname])
 }
 
 export function QuickActions() {
-  const { items, isOpen, open, close } = useQuickActionsStore((state) => ({
-    items: state.items,
-    isOpen: state.isOpen,
-    open: state.open,
-    close: state.close,
-  }))
+  const items = useStore((state) => state.items)
+  const isOpen = useStore((state) => state.isOpen)
+  const open = useStore((state) => state.open)
+  const close = useStore((state) => state.close)
 
   const anyItems = items.length > 0
 
@@ -123,3 +122,5 @@ export function QuickActions() {
     />
   )
 }
+
+export const useOpenQuickActions = () => useStore((state) => state.open)
