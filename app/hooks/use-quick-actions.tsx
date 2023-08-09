@@ -5,13 +5,11 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useEffect } from 'react'
-import { useCallback } from 'react'
-import { matchPath, useLocation, useNavigate } from 'react-router-dom'
+import { useCallback, useEffect } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { create } from 'zustand'
 
-import { ActionMenu } from '@oxide/ui'
-import type { QuickActionItem } from '@oxide/ui'
+import { ActionMenu, type QuickActionItem } from '@oxide/ui'
 import { invariant } from '@oxide/util'
 
 import { useGlobalKey } from './use-key'
@@ -66,7 +64,7 @@ export function useQuickActions(itemsToAdd: QuickActionItem[]) {
     {
       // matchPath returns null if there is no match
       // only show settings link if the user is not already on that page
-      include: matchPath('/settings/:route', location.pathname) === null,
+      include: !location.pathname.startsWith('/settings/'),
       item: {
         navGroup: 'User',
         value: 'Settings',
