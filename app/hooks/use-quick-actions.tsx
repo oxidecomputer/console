@@ -33,7 +33,7 @@ const removeByValue = (items: Items, toRemove: Items) => {
 
 export const useQuickActionsStore = create<StoreState>((set) => ({
   items: [],
-  isOpen: false, // Initial value
+  isOpen: false,
   add: (toAdd) =>
     set(({ items }) => ({ items: removeByValue(items, toAdd).concat(toAdd) })),
   remove: (toRemove) => set(({ items }) => ({ items: removeByValue(items, toRemove) })),
@@ -77,9 +77,9 @@ export function QuickActions() {
     (e: Mousetrap.ExtendedKeyboardEvent) => {
       if (anyItems && !isOpen) {
         e.preventDefault()
-        open() // Use open from the store
+        open()
       } else {
-        close() // Use close from the store
+        close()
       }
     },
     [isOpen, anyItems, open, close]
