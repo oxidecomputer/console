@@ -25,6 +25,8 @@ type StoreState = {
   close: () => void
 }
 
+// removeByValue dedupes items so they can be added as many times as we want
+// without appearing in the menu multiple times
 const removeByValue = (items: Items, toRemove: Items) => {
   const valuesToRemove = new Set(toRemove.map((i) => i.value))
   return items.filter((i) => !valuesToRemove.has(i.value))
@@ -40,11 +42,6 @@ const useStore = create<StoreState>((set) => ({
   close: () => set({ isOpen: false }),
 }))
 
-// extracted only to keep the logic clean in useQuickActions
-/**
- * This allows us to add routes without declaring it in every instance
- * of `useQuickActions`
- */
 function useGlobalActions() {
   const location = useLocation()
   const navigate = useNavigate()
@@ -77,6 +74,7 @@ export function useQuickActions(itemsToAdd: QuickActionItem[]) {
   const add = useStore((state) => state.add)
   const remove = useStore((state) => state.remove)
 
+  // Add routes without declaring them in every `useQuickActions` call
   const globalItems = useGlobalActions()
 
   useEffect(() => {
