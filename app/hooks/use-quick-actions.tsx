@@ -13,7 +13,7 @@ import { ActionMenu } from '@oxide/ui'
 import type { QuickActionItem } from '@oxide/ui'
 import { invariant } from '@oxide/util'
 
-import { useKey } from './use-key'
+import { useGlobalKey } from './use-key'
 
 type Items = QuickActionItem[]
 
@@ -85,7 +85,7 @@ export function QuickActions() {
     [isOpen, anyItems, open, close]
   )
 
-  useKey('mod+k', openDialog)
+  useGlobalKey('mod+k', openDialog)
 
   return (
     <ActionMenu

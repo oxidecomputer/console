@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import Mousetrap from 'mousetrap'
+import 'mousetrap/plugins/global-bind/mousetrap-global-bind'
 import { useEffect } from 'react'
 
 type Key = Parameters<typeof Mousetrap.bind>[0]
@@ -18,6 +19,22 @@ type Callback = Parameters<typeof Mousetrap.bind>[1]
 export const useKey = (key: Key, fn: Callback) => {
   useEffect(() => {
     Mousetrap.bind(key, fn)
+    return () => {
+      Mousetrap.unbind(key)
+    }
+    // JSON.stringify lets us avoid having to memoize the keys at the call site.
+    // Doing something similar with the callback makes less sense.
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+  }, [JSON.stringify(key), fn])
+}
+
+/**
+ * Uses the mousetrap-global-bind plugin
+ * Captures key presses from anywhere including inside textarea/input fields.
+ */
+export const useGlobalKey = (key: Key, fn: Callback) => {
+  useEffect(() => {
+    Mousetrap.bindGlobal(key, fn)
     return () => {
       Mousetrap.unbind(key)
     }
