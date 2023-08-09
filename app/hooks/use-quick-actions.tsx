@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { useEffect } from 'react'
-import { useCallback, useState } from 'react'
+import { useCallback } from 'react'
 import { create } from 'zustand'
 
 import { ActionMenu } from '@oxide/ui'
@@ -19,8 +19,11 @@ type Items = QuickActionItem[]
 
 type StoreState = {
   items: Items
+  isOpen: boolean
   add: (toAdd: Items) => void
   remove: (toRemove: Items) => void
+  open: () => void
+  close: () => void
 }
 
 const removeByValue = (items: Items, toRemove: Items) => {
@@ -28,11 +31,14 @@ const removeByValue = (items: Items, toRemove: Items) => {
   return items.filter((i) => !valuesToRemove.has(i.value))
 }
 
-const useStore = create<StoreState>()((set) => ({
+export const useQuickActionsStore = create<StoreState>((set) => ({
   items: [],
+  isOpen: false, // Initial value
   add: (toAdd) =>
     set(({ items }) => ({ items: removeByValue(items, toAdd).concat(toAdd) })),
   remove: (toRemove) => set(({ items }) => ({ items: removeByValue(items, toRemove) })),
+  open: () => set({ isOpen: true }),
+  close: () => set({ isOpen: false }),
 }))
 
 /**
@@ -44,8 +50,8 @@ const useStore = create<StoreState>()((set) => ({
  * when the component is unmounted Just Works.
  */
 export function useQuickActions(itemsToAdd: QuickActionItem[]) {
-  const add = useStore((state) => state.add)
-  const remove = useStore((state) => state.remove)
+  const add = useQuickActionsStore((state) => state.add)
+  const remove = useQuickActionsStore((state) => state.remove)
   useEffect(() => {
     invariant(
       itemsToAdd.length === new Set(itemsToAdd.map((i) => i.value)).size,
@@ -57,9 +63,12 @@ export function useQuickActions(itemsToAdd: QuickActionItem[]) {
 }
 
 export function QuickActions() {
-  const items = useStore((state) => state.items)
-  // TODO: move open state into store to make it easier to toggle from elsewhere
-  const [isOpen, setIsOpen] = useState(false)
+  const { items, isOpen, open, close } = useQuickActionsStore((state) => ({
+    items: state.items,
+    isOpen: state.isOpen,
+    open: state.open,
+    close: state.close,
+  }))
 
   const anyItems = items.length > 0
 
@@ -68,22 +77,20 @@ export function QuickActions() {
     (e: Mousetrap.ExtendedKeyboardEvent) => {
       if (anyItems && !isOpen) {
         e.preventDefault()
-        setIsOpen(true)
+        open() // Use open from the store
       } else {
-        setIsOpen(false)
+        close() // Use close from the store
       }
     },
-    [isOpen, anyItems]
+    [isOpen, anyItems, open, close]
   )
 
   useKey('mod+k', openDialog)
 
-  const closeDialog = useCallback(() => setIsOpen(false), [])
-
   return (
     <ActionMenu
       isOpen={isOpen}
-      onDismiss={closeDialog}
+      onDismiss={close}
       aria-label="Quick actions"
       items={items}
     />
