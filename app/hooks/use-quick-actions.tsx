@@ -75,18 +75,20 @@ export function useQuickActions(itemsToAdd: QuickActionItem[]) {
     },
   ]
 
+  // TODO: this is new on every render, fix that
   const globalItems = conditions
     .filter((condition) => condition.include)
     .map((condition) => condition.item)
 
   useEffect(() => {
+    const allItems = [...itemsToAdd, ...globalItems]
     invariant(
-      itemsToAdd.length === new Set(itemsToAdd.map((i) => i.value)).size,
+      allItems.length === new Set(allItems.map((i) => i.value)).size,
       'Items being added to the list of quick actions must have unique `value` values.'
     )
-    add([...itemsToAdd, ...globalItems])
-    return () => remove(itemsToAdd)
-  }, [itemsToAdd, add, remove, navigate, location.pathname, globalItems])
+    add(allItems)
+    return () => remove(allItems)
+  }, [itemsToAdd, globalItems, add, remove, navigate, location.pathname])
 }
 
 export function QuickActions() {
