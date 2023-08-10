@@ -5,9 +5,10 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useParams } from 'react-router-dom'
+import { useMemo } from 'react'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 
-import { apiQueryClient } from '@oxide/api'
+import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import {
   Cloud16Icon,
   Divider,
@@ -20,6 +21,7 @@ import { trigger404 } from 'app/components/ErrorBoundary'
 import { DocsLinkItem, NavLinkItem, Sidebar } from 'app/components/Sidebar'
 import { TopBar } from 'app/components/TopBar'
 import { SiloPicker, SiloSystemPicker } from 'app/components/TopBarPicker'
+import { useQuickActions } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 import { ContentPane, PageContainer } from './helpers'
@@ -43,6 +45,8 @@ SystemLayout.loader = async () => {
   // TODO: make sure 404 is the desired behavior. This situation should be
   // pretty unlikely.
   if (!isFleetViewer) throw trigger404
+
+  await apiQueryClient.prefetchQuery('currentUserView', {})
   return null
 }
 
@@ -52,6 +56,35 @@ export default function SystemLayout() {
   // silo-specific routes in the route config, but it's overkill considering
   // this is a one-liner. Switch to that approach at the first sign of trouble.
   const { silo } = useParams()
+  const navigate = useNavigate()
+  const { pathname } = useLocation()
+
+  const { data: user } = usePrefetchedApiQuery('currentUserView', {})
+
+  const actions = useMemo(() => {
+    const systemLinks = [
+      { value: 'Silos', path: pb.silos() },
+      { value: 'Utilization', path: pb.systemUtilization() },
+      { value: 'Inventory', path: pb.sledInventory() },
+    ]
+      // filter out the entry for the path we're currently on
+      .filter((i) => i.path !== pathname)
+      .map((i) => ({
+        navGroup: 'System',
+        value: i.value,
+        onSelect: () => navigate(i.path),
+      }))
+
+    const backToSilo = {
+      navGroup: `Back to current silo '${user.siloName}'`,
+      value: 'Projects',
+      onSelect: () => navigate(pb.projects()),
+    }
+    return [...systemLinks, backToSilo]
+  }, [pathname, navigate, user.siloName])
+
+  useQuickActions(actions)
+
   return (
     <PageContainer>
       <TopBar>

@@ -82,7 +82,7 @@ export default function SilosPage() {
         ...silos.items.map((o) => ({
           value: o.name,
           onSelect: () => navigate(pb.silo({ silo: o.name })),
-          navGroup: 'Go to silo',
+          navGroup: 'Silo detail',
         })),
       ],
       [navigate, silos]
