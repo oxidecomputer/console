@@ -15,6 +15,7 @@ import {
   DropdownMenu,
   Info16Icon,
   Profile16Icon,
+  buttonStyle,
 } from '@oxide/ui'
 
 import { pb } from 'app/util/path-builder'
@@ -58,16 +59,9 @@ export function TopBar({ children }: { children: React.ReactNode }) {
               target="_blank"
               rel="noreferrer"
               aria-label="Link to documentation"
-              tabIndex={-1}
+              className={buttonStyle({ size: 'icon', variant: 'secondary' })}
             >
-              <Button
-                variant="secondary"
-                size="icon"
-                title="Info"
-                aria-labelledby="topbar-info-link"
-              >
-                <Info16Icon className="text-quaternary" />
-              </Button>
+              <Info16Icon className="text-quaternary" />
             </a>
             {/* <Button variant="secondary" size="icon" className="ml-2" title="Notifications">
               <Notifications16Icon className="text-quaternary" />
