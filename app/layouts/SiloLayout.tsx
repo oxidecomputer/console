@@ -22,7 +22,8 @@ import { ProjectPicker, SiloSystemPicker } from 'app/components/TopBarPicker'
 import { useQuickActions } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
-import { ContentPane, PageContainer, useCurrentUser } from './helpers'
+import { useCurrentUser } from './AuthenticatedLayout'
+import { ContentPane, PageContainer } from './helpers'
 
 export function SiloLayout() {
   const navigate = useNavigate()

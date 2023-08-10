@@ -12,7 +12,7 @@ import { create } from 'zustand'
 import { ActionMenu, type QuickActionItem } from '@oxide/ui'
 import { invariant } from '@oxide/util'
 
-import { useCurrentUser } from 'app/layouts/helpers'
+import { useCurrentUser } from 'app/layouts/AuthenticatedLayout'
 import { pb } from 'app/util/path-builder'
 
 import { useKey } from './use-key'

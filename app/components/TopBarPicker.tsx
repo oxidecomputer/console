@@ -22,7 +22,7 @@ import {
 } from '@oxide/ui'
 
 import { useInstanceSelector, useSiloSelector } from 'app/hooks'
-import { useCurrentUser } from 'app/layouts/helpers'
+import { useCurrentUser } from 'app/layouts/AuthenticatedLayout'
 import { pb } from 'app/util/path-builder'
 
 type TopBarPickerItem = {

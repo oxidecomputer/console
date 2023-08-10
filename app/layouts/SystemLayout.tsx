@@ -24,7 +24,8 @@ import { SiloPicker, SiloSystemPicker } from 'app/components/TopBarPicker'
 import { useQuickActions } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
-import { ContentPane, PageContainer, useCurrentUser } from './helpers'
+import { useCurrentUser } from './AuthenticatedLayout'
+import { ContentPane, PageContainer } from './helpers'
 
 /**
  * If we can see the policy, we're a fleet viewer, and we need to be a fleet
