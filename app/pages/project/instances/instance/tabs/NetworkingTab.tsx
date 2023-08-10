@@ -20,7 +20,14 @@ import {
 } from '@oxide/api'
 import type { MenuAction } from '@oxide/table'
 import { useQueryTable } from '@oxide/table'
-import { Badge, Button, EmptyMessage, Networking24Icon, Success12Icon } from '@oxide/ui'
+import {
+  Badge,
+  Button,
+  EmptyMessage,
+  Networking24Icon,
+  Spinner,
+  Success12Icon,
+} from '@oxide/ui'
 
 import CreateNetworkInterfaceForm from 'app/forms/network-interface-create'
 import EditNetworkInterfaceForm from 'app/forms/network-interface-edit'
@@ -47,8 +54,7 @@ const VpcNameFromId = ({ value }: { value: string }) => {
   // possible because you can't delete a VPC that has child resources, but let's
   // be safe
   if (isError) return <Badge color="neutral">Deleted</Badge>
-  // otherwise we're loading
-  if (!vpc) return null
+  if (!vpc) return <Spinner /> // loading
   return (
     <Link
       className="text-sans-semi-md text-default hover:underline"
@@ -66,9 +72,9 @@ const SubnetNameFromId = ({ value }: { value: string }) => {
     { throwOnError: false }
   )
 
-  // same deal as VPC probably not possible but let's be safe
+  // same deal as VPC: probably not possible but let's be safe
   if (isError) return <Badge color="neutral">Deleted</Badge>
-  if (!subnet) return null
+  if (!subnet) return <Spinner /> // loading
 
   return <span className="text-secondary">{subnet.name}</span>
 }
