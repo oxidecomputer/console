@@ -20,7 +20,14 @@ import {
 } from '@oxide/api'
 import type { MenuAction } from '@oxide/table'
 import { useQueryTable } from '@oxide/table'
-import { Badge, Button, EmptyMessage, Networking24Icon, Success12Icon } from '@oxide/ui'
+import {
+  Badge,
+  Button,
+  EmptyMessage,
+  Networking24Icon,
+  Spinner,
+  Success12Icon,
+} from '@oxide/ui'
 
 import CreateNetworkInterfaceForm from 'app/forms/network-interface-create'
 import EditNetworkInterfaceForm from 'app/forms/network-interface-edit'
@@ -37,8 +44,17 @@ import { fancifyStates } from './common'
 
 const VpcNameFromId = ({ value }: { value: string }) => {
   const projectSelector = useProjectSelector()
-  const { data: vpc } = useApiQuery('vpcView', { path: { vpc: value } })
-  if (!vpc) return null
+  const { data: vpc, isError } = useApiQuery(
+    'vpcView',
+    { path: { vpc: value } },
+    { throwOnError: false }
+  )
+
+  // If we can't find it, it must have been deleted. This is probably not
+  // possible because you can't delete a VPC that has child resources, but let's
+  // be safe
+  if (isError) return <Badge color="neutral">Deleted</Badge>
+  if (!vpc) return <Spinner /> // loading
   return (
     <Link
       className="text-sans-semi-md text-default hover:underline"
@@ -49,11 +65,19 @@ const VpcNameFromId = ({ value }: { value: string }) => {
   )
 }
 
-const SubnetNameFromId = ({ value }: { value: string }) => (
-  <span className="text-secondary">
-    {useApiQuery('vpcSubnetView', { path: { subnet: value } }).data?.name}
-  </span>
-)
+const SubnetNameFromId = ({ value }: { value: string }) => {
+  const { data: subnet, isError } = useApiQuery(
+    'vpcSubnetView',
+    { path: { subnet: value } },
+    { throwOnError: false }
+  )
+
+  // same deal as VPC: probably not possible but let's be safe
+  if (isError) return <Badge color="neutral">Deleted</Badge>
+  if (!subnet) return <Spinner /> // loading
+
+  return <span className="text-secondary">{subnet.name}</span>
+}
 
 function ExternalIpsFromInstanceName({ value: primary }: { value: boolean }) {
   const { project, instance } = useInstanceSelector()
