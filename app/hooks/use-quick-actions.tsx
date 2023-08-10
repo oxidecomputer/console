@@ -12,6 +12,9 @@ import { create } from 'zustand'
 import { ActionMenu, type QuickActionItem } from '@oxide/ui'
 import { invariant } from '@oxide/util'
 
+import { useCurrentUser } from 'app/layouts/helpers'
+import { pb } from 'app/util/path-builder'
+
 import { useKey } from './use-key'
 
 type Items = QuickActionItem[]
@@ -55,6 +58,7 @@ function closeQuickActions() {
 function useGlobalActions() {
   const location = useLocation()
   const navigate = useNavigate()
+  const { isFleetViewer } = useCurrentUser()
 
   return useMemo(() => {
     const actions = []
@@ -63,11 +67,18 @@ function useGlobalActions() {
       actions.push({
         navGroup: 'User',
         value: 'Settings',
-        onSelect: () => navigate('/settings/profile'),
+        onSelect: () => navigate(pb.profile()),
+      })
+    }
+    if (isFleetViewer && !location.pathname.startsWith('/system/')) {
+      actions.push({
+        navGroup: 'System',
+        value: 'Manage system',
+        onSelect: () => navigate(pb.silos()),
       })
     }
     return actions
-  }, [location.pathname, navigate])
+  }, [location.pathname, navigate, isFleetViewer])
 }
 
 /**
