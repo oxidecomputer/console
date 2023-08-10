@@ -97,7 +97,12 @@ export function InstancesPage() {
         <PageTitle icon={<Instances24Icon />}>Instances</PageTitle>
       </PageHeader>
       <TableActions>
-        <Button size="icon" variant="ghost" onClick={refetchInstances}>
+        <Button
+          size="icon"
+          variant="ghost"
+          onClick={refetchInstances}
+          aria-label="Refresh instances table"
+        >
           <Refresh16Icon />
         </Button>
         <Link to={pb.instanceNew(projectSelector)} className={buttonStyle({ size: 'sm' })}>

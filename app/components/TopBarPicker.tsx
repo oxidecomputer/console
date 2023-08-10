@@ -11,6 +11,7 @@ import { Link } from 'react-router-dom'
 import type { Project } from '@oxide/api'
 import { useApiQuery, useApiQueryErrorsAllowed, usePrefetchedApiQuery } from '@oxide/api'
 import {
+  Button,
   DropdownMenu,
   Folder16Icon,
   Identicon,
@@ -89,13 +90,17 @@ const TopBarPicker = (props: TopBarPickerProps) => {
           </DropdownMenu.Trigger>
         )}
 
-        {/* aria-hidden is a tip from the Reach docs */}
         {props.items && (
-          <div className="ml-2 flex-shrink-0 overflow-hidden">
-            <DropdownMenu.Trigger className="group" aria-label={props['aria-label']}>
-              <div className="flex h-[2rem] w-[1.125rem] flex-shrink-0 items-center justify-center rounded border border-default group-hover:bg-hover">
+          <div className="ml-2 flex-shrink-0">
+            <DropdownMenu.Trigger
+              className="group"
+              aria-label={props['aria-label']}
+              asChild
+            >
+              <Button size="icon" variant="ghost" className="h-[2rem] w-[1.125rem]">
+                {/* aria-hidden is a tip from the Reach docs */}
                 <SelectArrows6Icon className="text-secondary" aria-hidden />
-              </div>
+              </Button>
             </DropdownMenu.Trigger>
           </div>
         )}
