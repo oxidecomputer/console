@@ -18,7 +18,7 @@ import {
   buttonStyle,
 } from '@oxide/ui'
 
-import { useCurrentUser } from 'app/layouts/helpers'
+import { useCurrentUser } from 'app/layouts/AuthenticatedLayout'
 import { pb } from 'app/util/path-builder'
 
 export function TopBar({ children }: { children: React.ReactNode }) {

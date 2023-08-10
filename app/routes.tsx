@@ -28,13 +28,14 @@ import { CreateVpcSideModalForm } from './forms/vpc-create'
 import { EditVpcSideModalForm } from './forms/vpc-edit'
 import type { CrumbFunc } from './hooks/use-crumbs'
 import AuthLayout from './layouts/AuthLayout'
+import { AuthenticatedLayout } from './layouts/AuthenticatedLayout'
 import { LoginLayout } from './layouts/LoginLayout'
 import ProjectLayout from './layouts/ProjectLayout'
 import RootLayout from './layouts/RootLayout'
 import SettingsLayout from './layouts/SettingsLayout'
 import { SiloLayout } from './layouts/SiloLayout'
 import SystemLayout from './layouts/SystemLayout'
-import { SerialConsoleContentPane, currentUserLoader } from './layouts/helpers'
+import { SerialConsoleContentPane } from './layouts/helpers'
 import DeviceAuthSuccessPage from './pages/DeviceAuthSuccessPage'
 import DeviceAuthVerifyPage from './pages/DeviceAuthVerifyPage'
 import { LoginPage } from './pages/LoginPage'
@@ -90,7 +91,8 @@ export const routes = createRoutesFromElements(
 
     {/* This wraps all routes that are supposed to be authenticated */}
     <Route
-      loader={currentUserLoader}
+      element={<AuthenticatedLayout />}
+      loader={AuthenticatedLayout.loader}
       errorElement={<RouterDataErrorBoundary />}
       // very important. see `currentUserLoader` and `useCurrentUser`
       shouldRevalidate={() => true}

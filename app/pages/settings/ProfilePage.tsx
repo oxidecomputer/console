@@ -12,7 +12,7 @@ import { Table, createColumnHelper, useReactTable } from '@oxide/table'
 import { Settings24Icon } from '@oxide/ui'
 
 import { FullPageForm, TextField } from 'app/components/form'
-import { useCurrentUser } from 'app/layouts/helpers'
+import { useCurrentUser } from 'app/layouts/AuthenticatedLayout'
 
 const colHelper = createColumnHelper<Group>()
 

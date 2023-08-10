@@ -16,7 +16,7 @@ import { SkipLink } from '@oxide/ui'
 
 import { ConfirmDeleteModal } from './components/ConfirmDeleteModal'
 import { ErrorBoundary } from './components/ErrorBoundary'
-import { QuickActions, ReduceMotion } from './hooks'
+import { ReduceMotion } from './hooks'
 // stripped out by rollup in production
 import { startMockAPI } from './msw-mock-api'
 import { routes } from './routes'
@@ -45,7 +45,6 @@ function render() {
     <StrictMode>
       <QueryClientProvider client={queryClient}>
         <ErrorBoundary>
-          <QuickActions />
           <ConfirmDeleteModal />
           <SkipLink id="skip-nav" />
           <ReduceMotion />
