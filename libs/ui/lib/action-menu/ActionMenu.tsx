@@ -38,6 +38,7 @@ const Outline = classed.div`absolute z-10 h-full w-full border border-accent poi
 
 export function ActionMenu(props: ActionMenuProps) {
   const [input, setInput] = useState('')
+  // TODO: filter by both nav group and item value
   const items = matchSorter(props.items, input, {
     keys: ['value'],
     // use original order as tiebreaker instead of, e.g., alphabetical
