@@ -34,7 +34,7 @@ import RootLayout from './layouts/RootLayout'
 import SettingsLayout from './layouts/SettingsLayout'
 import { SiloLayout } from './layouts/SiloLayout'
 import SystemLayout from './layouts/SystemLayout'
-import { SerialConsoleContentPane, userLoader } from './layouts/helpers'
+import { SerialConsoleContentPane, currentUserLoader } from './layouts/helpers'
 import DeviceAuthSuccessPage from './pages/DeviceAuthSuccessPage'
 import DeviceAuthVerifyPage from './pages/DeviceAuthVerifyPage'
 import { LoginPage } from './pages/LoginPage'
@@ -89,14 +89,14 @@ export const routes = createRoutesFromElements(
     </Route>
 
     {/* This wraps all routes that are supposed to be authenticated */}
-    <Route loader={userLoader} errorElement={<RouterDataErrorBoundary />}>
+    <Route
+      loader={currentUserLoader}
+      errorElement={<RouterDataErrorBoundary />}
+      // very important. see `currentUserLoader` and `useCurrentUser`
+      shouldRevalidate={() => true}
+    >
       <Route path="settings" handle={{ crumb: 'settings' }} element={<SettingsLayout />}>
-        <Route
-          path="profile"
-          element={<ProfilePage />}
-          loader={ProfilePage.loader}
-          handle={{ crumb: 'Profile' }}
-        />
+        <Route path="profile" element={<ProfilePage />} handle={{ crumb: 'Profile' }} />
         <Route element={<SSHKeysPage />} loader={SSHKeysPage.loader}>
           <Route path="ssh-keys" handle={{ crumb: 'SSH Keys' }} element={null} />
           <Route
@@ -172,7 +172,7 @@ export const routes = createRoutesFromElements(
       {/* These are done here instead of nested so we don't flash a layout on 404s */}
       <Route path="projects/:project" element={<Navigate to="instances" replace />} />
 
-      <Route element={<SiloLayout />} loader={SiloLayout.loader}>
+      <Route element={<SiloLayout />}>
         <Route
           path="images"
           element={<SiloImagesPage />}
