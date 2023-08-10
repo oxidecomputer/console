@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { useMemo } from 'react'
-import { matchPath, useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import { Divider, Folder16Icon, Key16Icon, Profile16Icon } from '@oxide/ui'
 
@@ -20,24 +20,23 @@ import { ContentPane, PageContainer } from './helpers'
 
 const SettingsLayout = () => {
   const navigate = useNavigate()
-  const currentPath = useLocation().pathname
+  const { pathname } = useLocation()
 
   useQuickActions(
     useMemo(
       () =>
         [
-          { value: 'Profile', path: 'profile' },
-          { value: 'SSH Keys', path: 'ssh-keys' },
+          { value: 'Profile', path: pb.profile() },
+          { value: 'SSH Keys', path: pb.sshKeys() },
         ]
           // filter out the entry for the path we're currently on
-          .filter((i) => !matchPath(`/settings/${i.path}`, currentPath))
+          .filter((i) => i.path !== pathname)
           .map((i) => ({
             navGroup: `Settings`,
             value: i.value,
-            // TODO: Update this to use the new path builder
             onSelect: () => navigate(i.path),
           })),
-      [currentPath, navigate]
+      [pathname, navigate]
     )
   )
 

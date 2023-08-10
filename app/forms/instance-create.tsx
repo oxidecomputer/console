@@ -458,9 +458,7 @@ const PRESETS = [
   { category: 'general', id: 'general-sm', memory: 16, ncpus: 4 },
   { category: 'general', id: 'general-md', memory: 32, ncpus: 8 },
   { category: 'general', id: 'general-lg', memory: 64, ncpus: 16 },
-  // RAM limited to 64 Gib
-  // https://github.com/oxidecomputer/omicron/issues/3417
-  // { category: 'general', id: 'general-xl', memory: 128, ncpus: 32 },
+  { category: 'general', id: 'general-xl', memory: 128, ncpus: 32 },
 
   { category: 'highCPU', id: 'highCPU-xs', memory: 4, ncpus: 2 },
   { category: 'highCPU', id: 'highCPU-sm', memory: 8, ncpus: 4 },
@@ -471,9 +469,7 @@ const PRESETS = [
   { category: 'highMemory', id: 'highMemory-xs', memory: 16, ncpus: 2 },
   { category: 'highMemory', id: 'highMemory-sm', memory: 32, ncpus: 4 },
   { category: 'highMemory', id: 'highMemory-md', memory: 64, ncpus: 8 },
-  // RAM limited to 64 Gib
-  // https://github.com/oxidecomputer/omicron/issues/3417
-  // { category: 'highMemory', id: 'highMemory-lg', memory: 128, ncpus: 16 },
+  { category: 'highMemory', id: 'highMemory-lg', memory: 128, ncpus: 16 },
 
   { category: 'custom', id: 'custom', memory: 0, ncpus: 0 },
 ] as const

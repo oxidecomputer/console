@@ -32,7 +32,7 @@ import { LoginLayout } from './layouts/LoginLayout'
 import ProjectLayout from './layouts/ProjectLayout'
 import RootLayout from './layouts/RootLayout'
 import SettingsLayout from './layouts/SettingsLayout'
-import SiloLayout from './layouts/SiloLayout'
+import { SiloLayout } from './layouts/SiloLayout'
 import SystemLayout from './layouts/SystemLayout'
 import { SerialConsoleContentPane, userLoader } from './layouts/helpers'
 import DeviceAuthSuccessPage from './pages/DeviceAuthSuccessPage'
@@ -172,7 +172,7 @@ export const routes = createRoutesFromElements(
       {/* These are done here instead of nested so we don't flash a layout on 404s */}
       <Route path="projects/:project" element={<Navigate to="instances" replace />} />
 
-      <Route element={<SiloLayout />}>
+      <Route element={<SiloLayout />} loader={SiloLayout.loader}>
         <Route
           path="images"
           element={<SiloImagesPage />}

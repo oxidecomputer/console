@@ -5,6 +5,10 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useMemo } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
+
+import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import {
   Access16Icon,
   Divider,
@@ -16,11 +20,41 @@ import {
 import { DocsLinkItem, NavLinkItem, Sidebar } from 'app/components/Sidebar'
 import { TopBar } from 'app/components/TopBar'
 import { ProjectPicker, SiloSystemPicker } from 'app/components/TopBarPicker'
+import { useQuickActions } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 import { ContentPane, PageContainer } from './helpers'
 
-export default function SiloLayout() {
+SiloLayout.loader = async () => {
+  await apiQueryClient.prefetchQuery('currentUserView', {})
+  return null
+}
+
+export function SiloLayout() {
+  const navigate = useNavigate()
+  const { pathname } = useLocation()
+  const { data: user } = usePrefetchedApiQuery('currentUserView', {})
+
+  useQuickActions(
+    useMemo(
+      () =>
+        [
+          { value: 'Projects', path: pb.projects() },
+          { value: 'Images', path: pb.siloImages() },
+          { value: 'Utilization', path: pb.siloUtilization() },
+          { value: 'Access & IAM', path: pb.siloAccess() },
+        ]
+          // filter out the entry for the path we're currently on
+          .filter((i) => i.path !== pathname)
+          .map((i) => ({
+            navGroup: `Silo '${user.siloName}'`,
+            value: i.value,
+            onSelect: () => navigate(i.path),
+          })),
+      [pathname, navigate, user.siloName]
+    )
+  )
+
   return (
     <PageContainer>
       <TopBar>
@@ -32,8 +66,7 @@ export default function SiloLayout() {
           <DocsLinkItem />
         </Sidebar.Nav>
         <Divider />
-        {/* TODO: silo name in heading */}
-        <Sidebar.Nav heading="Silo">
+        <Sidebar.Nav heading={user.siloName}>
           <NavLinkItem to={pb.projects()}>
             <Folder16Icon /> Projects
           </NavLinkItem>

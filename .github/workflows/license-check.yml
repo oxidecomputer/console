@@ -3,7 +3,12 @@
 # license-eye` and run `license-eye header check` or `license-eye header fix`.
 
 name: license-check
-on: pull_request
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
 jobs:
   license:
     runs-on: ubuntu-latest
