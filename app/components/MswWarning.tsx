@@ -35,7 +35,6 @@ export function MswWarning() {
         <button
           className="ml-2 flex items-center gap-0.5 text-sans-md hover:text-info"
           onClick={() => setIsOpen(true)}
-          aria-labelledby="technical-preview-banner"
         >
           Learn more <NextArrow12Icon />
         </button>
