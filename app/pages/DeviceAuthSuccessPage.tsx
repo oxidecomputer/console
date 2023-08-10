@@ -17,8 +17,8 @@ export default function DeviceAuthSuccessPage() {
         <div className="absolute h-12 w-12 rounded-full opacity-20 bg-accent motion-safe:animate-[ping_2s_cubic-bezier(0,0,0.2,1)_infinite]" />
         <Success12Icon className="relative h-8 w-8 text-accent" />
       </div>
-      <h1 className="mt-4 text-sans-2xl text-accent">Success</h1>
-      <p className="mt-1 text-sans-lg text-tertiary">Your device is now logged in</p>
+      <h1 className="mt-4 text-sans-2xl text-accent">Device logged in</h1>
+      <p className="mt-1 text-sans-lg text-tertiary">You can close this window</p>
     </div>
   )
 }

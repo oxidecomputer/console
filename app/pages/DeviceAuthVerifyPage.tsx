@@ -54,9 +54,7 @@ export default function DeviceAuthVerifyPage() {
       }}
     >
       <h1 className="mb-1 text-sans-2xl text-accent">Device Authentication</h1>
-      <p className="mb-8 text-sans-lg text-tertiary">
-        Make sure this code matches the one shown on the device you are authenticating
-      </p>
+      <p className="mb-8 text-sans-lg text-tertiary">Enter the code shown on your device</p>
       <AuthCodeInput
         onChange={(code) => setUserCode(code)}
         containerClassName="flex space-x-2 mb-6"
