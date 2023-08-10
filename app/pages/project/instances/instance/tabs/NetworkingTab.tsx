@@ -37,7 +37,17 @@ import { fancifyStates } from './common'
 
 const VpcNameFromId = ({ value }: { value: string }) => {
   const projectSelector = useProjectSelector()
-  const { data: vpc } = useApiQuery('vpcView', { path: { vpc: value } })
+  const { data: vpc, isError } = useApiQuery(
+    'vpcView',
+    { path: { vpc: value } },
+    { throwOnError: false }
+  )
+
+  // If we can't find it, it must have been deleted. This is probably not
+  // possible because you can't delete a VPC that has child resources, but let's
+  // be safe
+  if (isError) return <Badge color="neutral">Deleted</Badge>
+  // otherwise we're loading
   if (!vpc) return null
   return (
     <Link
@@ -49,11 +59,19 @@ const VpcNameFromId = ({ value }: { value: string }) => {
   )
 }
 
-const SubnetNameFromId = ({ value }: { value: string }) => (
-  <span className="text-secondary">
-    {useApiQuery('vpcSubnetView', { path: { subnet: value } }).data?.name}
-  </span>
-)
+const SubnetNameFromId = ({ value }: { value: string }) => {
+  const { data: subnet, isError } = useApiQuery(
+    'vpcSubnetView',
+    { path: { subnet: value } },
+    { throwOnError: false }
+  )
+
+  // same deal as VPC probably not possible but let's be safe
+  if (isError) return <Badge color="neutral">Deleted</Badge>
+  if (!subnet) return null
+
+  return <span className="text-secondary">{subnet.name}</span>
+}
 
 function ExternalIpsFromInstanceName({ value: primary }: { value: boolean }) {
   const { project, instance } = useInstanceSelector()

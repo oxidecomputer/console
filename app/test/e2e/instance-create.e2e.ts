@@ -7,7 +7,7 @@
  */
 import { images } from '@oxide/api-mocks'
 
-import { expect, expectVisible, test } from './utils'
+import { expect, expectRowVisible, expectVisible, test } from './utils'
 
 test('can create an instance', async ({ page }) => {
   await page.goto('/projects/mock-project/instances')
@@ -51,6 +51,11 @@ test('can create an instance', async ({ page }) => {
     'text=64 GiB',
     'text=from space',
   ])
+
+  // network tab works
+  await page.getByRole('tab', { name: 'Network Interfaces' }).click()
+  const table = await page.getByRole('table')
+  await expectRowVisible(table, { name: 'default', vpc: 'mock-vpc', subnet: 'mock-subnet' })
 
   // trying to create another instance with the same name produces a visible
   // error

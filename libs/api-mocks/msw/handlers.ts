@@ -354,7 +354,11 @@ export const handlers = makeHandlers({
       }
     }
 
-    if (body.network_interfaces?.type === 'default') {
+    // just use the first VPC in the project and first subnet in the VPC. bit of
+    // a hack but not very important
+    const anyVpc = db.vpcs.find((v) => v.project_id === project.id)
+    const anySubnet = db.vpcSubnets.find((s) => s.vpc_id === anyVpc?.id)
+    if (body.network_interfaces?.type === 'default' && anyVpc && anySubnet) {
       db.networkInterfaces.push({
         id: uuid(),
         description: 'The default network interface',
@@ -363,8 +367,8 @@ export const handlers = makeHandlers({
         mac: '00:00:00:00:00:00',
         ip: '127.0.0.1',
         name: 'default',
-        vpc_id: uuid(),
-        subnet_id: uuid(),
+        vpc_id: anyVpc.id,
+        subnet_id: anySubnet.id,
         ...getTimestamps(),
       })
     } else if (body.network_interfaces?.type === 'create') {
