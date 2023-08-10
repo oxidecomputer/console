@@ -52,7 +52,7 @@ function getOptions(): ITerminalOptions {
       yellow: style.getPropertyValue('--content-notice'),
       brightYellow: style.getPropertyValue('--content-notice-secondary'),
       cursor: style.getPropertyValue('--content-default'),
-      cursorAccent: style.getPropertyValue('--content-accent'),
+      cursorAccent: style.getPropertyValue('--surface-default'),
     },
   }
 }
