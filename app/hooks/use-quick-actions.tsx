@@ -21,6 +21,9 @@ type StoreState = {
   isOpen: boolean
 }
 
+// TODO: dedupe by group and value together so we can have, e.g., both silo and
+// system utilization at the same time
+
 // removeByValue dedupes items so they can be added as many times as we want
 // without appearing in the menu multiple times
 const removeByValue = (items: Items, toRemove: Items) => {

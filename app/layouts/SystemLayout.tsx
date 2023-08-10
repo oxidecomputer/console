@@ -74,8 +74,9 @@ export default function SystemLayout() {
         value: i.value,
         onSelect: () => navigate(i.path),
       }))
+
     const backToSilo = {
-      navGroup: `Silo '${user.siloName}'`,
+      navGroup: `Back to current silo '${user.siloName}'`,
       value: 'Projects',
       onSelect: () => navigate(pb.projects()),
     }
