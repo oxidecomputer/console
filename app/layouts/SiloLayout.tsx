@@ -8,7 +8,6 @@
 import { useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
-import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import {
   Access16Icon,
   Divider,
@@ -23,17 +22,12 @@ import { ProjectPicker, SiloSystemPicker } from 'app/components/TopBarPicker'
 import { useQuickActions } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
-import { ContentPane, PageContainer } from './helpers'
-
-SiloLayout.loader = async () => {
-  await apiQueryClient.prefetchQuery('currentUserView', {})
-  return null
-}
+import { ContentPane, PageContainer, useCurrentUser } from './helpers'
 
 export function SiloLayout() {
   const navigate = useNavigate()
   const { pathname } = useLocation()
-  const { data: user } = usePrefetchedApiQuery('currentUserView', {})
+  const { me } = useCurrentUser()
 
   useQuickActions(
     useMemo(
@@ -47,11 +41,11 @@ export function SiloLayout() {
           // filter out the entry for the path we're currently on
           .filter((i) => i.path !== pathname)
           .map((i) => ({
-            navGroup: `Silo '${user.siloName}'`,
+            navGroup: `Silo '${me.siloName}'`,
             value: i.value,
             onSelect: () => navigate(i.path),
           })),
-      [pathname, navigate, user.siloName]
+      [pathname, navigate, me.siloName]
     )
   )
 
@@ -66,7 +60,7 @@ export function SiloLayout() {
           <DocsLinkItem />
         </Sidebar.Nav>
         <Divider />
-        <Sidebar.Nav heading={user.siloName}>
+        <Sidebar.Nav heading={me.siloName}>
           <NavLinkItem to={pb.projects()}>
             <Folder16Icon /> Projects
           </NavLinkItem>

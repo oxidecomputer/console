@@ -8,7 +8,7 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { navToLogin, useApiMutation, usePrefetchedApiQuery } from '@oxide/api'
+import { navToLogin, useApiMutation } from '@oxide/api'
 import {
   Button,
   DirectionDownIcon,
@@ -17,6 +17,7 @@ import {
   Profile16Icon,
 } from '@oxide/ui'
 
+import { useCurrentUser } from 'app/layouts/helpers'
 import { pb } from 'app/util/path-builder'
 
 export function TopBar({ children }: { children: React.ReactNode }) {
@@ -30,9 +31,9 @@ export function TopBar({ children }: { children: React.ReactNode }) {
     },
   })
   // fetch happens in loader wrapping all authed pages
-  const { data: user } = usePrefetchedApiQuery('currentUserView', {})
+  const { me } = useCurrentUser()
 
-  const loggedIn = !!user
+  const loggedIn = !!me
 
   // toArray filters out nulls, which is essential because the silo/system
   // picker is going to come in null when the user isn't supposed to see it
@@ -71,7 +72,7 @@ export function TopBar({ children }: { children: React.ReactNode }) {
                 >
                   <Profile16Icon className="text-quaternary" />
                   <span className="normal-case text-sans-md text-secondary">
-                    {user?.displayName || 'User'}
+                    {me.displayName || 'User'}
                   </span>
                   <DirectionDownIcon className="!w-2.5" />
                 </Button>

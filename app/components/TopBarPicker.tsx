@@ -9,7 +9,7 @@ import cn from 'classnames'
 import { Link } from 'react-router-dom'
 
 import type { Project } from '@oxide/api'
-import { useApiQuery, useApiQueryErrorsAllowed, usePrefetchedApiQuery } from '@oxide/api'
+import { useApiQuery } from '@oxide/api'
 import {
   DropdownMenu,
   Folder16Icon,
@@ -19,9 +19,9 @@ import {
   Truncate,
   Wrap,
 } from '@oxide/ui'
-import { invariant } from '@oxide/util'
 
 import { useInstanceSelector, useSiloSelector } from 'app/hooks'
+import { useCurrentUser } from 'app/layouts/helpers'
 import { pb } from 'app/util/path-builder'
 
 type TopBarPickerItem = {
@@ -154,22 +154,11 @@ const BigIdenticon = ({ name }: { name: string }) => (
  * current silo.
  */
 export function SiloSystemPicker({ value }: { value: 'silo' | 'system' }) {
-  const { data: me } = usePrefetchedApiQuery('currentUserView', {})
-
-  // User can only get to system routes if they have viewer perms (at least) on
-  // the fleet. The natural place to find out whether they have such perms is
-  // the fleet (system) policy, but if the user doesn't have fleet read, we'll
-  // get a 403 from that endpoint. So we simply check whether that endpoint 200s
-  // or not to determine whether the user is a fleet viewer.
-  const { data: systemPolicy } = useApiQueryErrorsAllowed('systemPolicyView', {})
-  // don't use usePrefetchedApiQuery because it's not worth making an errors
-  // allowed version of that
-  invariant(systemPolicy, 'System policy must be prefetched')
-  const canSeeSystemPolicy = systemPolicy.type === 'success'
+  const { me, isFleetViewer } = useCurrentUser()
 
   // if the user can't see the picker, show a placeholder control with their
   // silo name that links to root/home
-  if (!canSeeSystemPolicy) {
+  if (!isFleetViewer) {
     return (
       <TopBarPicker
         aria-label={`${me.siloName} - Oxide Web Console`}

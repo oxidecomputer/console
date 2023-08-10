@@ -16,19 +16,17 @@ import { bytesToGiB, bytesToTiB } from '@oxide/util'
 import { useIntervalPicker } from 'app/components/RefetchIntervalPicker'
 import { SiloMetric } from 'app/components/SystemMetric'
 import { useDateTimeRangePicker } from 'app/components/form'
+import { useCurrentUser } from 'app/layouts/helpers'
 
 const toListboxItem = (x: { name: string; id: string }) => ({ label: x.name, value: x.id })
 
 SiloUtilizationPage.loader = async () => {
-  await Promise.all([
-    apiQueryClient.prefetchQuery('projectList', {}),
-    apiQueryClient.prefetchQuery('currentUserView', {}),
-  ])
+  await apiQueryClient.prefetchQuery('projectList', {})
   return null
 }
 
 export function SiloUtilizationPage() {
-  const { data: me } = usePrefetchedApiQuery('currentUserView', {})
+  const { me } = useCurrentUser()
 
   const siloId = me.siloId
 

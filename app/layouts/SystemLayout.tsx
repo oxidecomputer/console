@@ -8,7 +8,7 @@
 import { useMemo } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 
-import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
+import { apiQueryClient } from '@oxide/api'
 import {
   Cloud16Icon,
   Divider,
@@ -24,7 +24,7 @@ import { SiloPicker, SiloSystemPicker } from 'app/components/TopBarPicker'
 import { useQuickActions } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
-import { ContentPane, PageContainer } from './helpers'
+import { ContentPane, PageContainer, useCurrentUser } from './helpers'
 
 /**
  * If we can see the policy, we're a fleet viewer, and we need to be a fleet
@@ -46,7 +46,6 @@ SystemLayout.loader = async () => {
   // pretty unlikely.
   if (!isFleetViewer) throw trigger404
 
-  await apiQueryClient.prefetchQuery('currentUserView', {})
   return null
 }
 
@@ -59,7 +58,7 @@ export default function SystemLayout() {
   const navigate = useNavigate()
   const { pathname } = useLocation()
 
-  const { data: user } = usePrefetchedApiQuery('currentUserView', {})
+  const { me } = useCurrentUser()
 
   const actions = useMemo(() => {
     const systemLinks = [
@@ -76,12 +75,12 @@ export default function SystemLayout() {
       }))
 
     const backToSilo = {
-      navGroup: `Back to current silo '${user.siloName}'`,
+      navGroup: `Back to current silo '${me.siloName}'`,
       value: 'Projects',
       onSelect: () => navigate(pb.projects()),
     }
     return [...systemLinks, backToSilo]
-  }, [pathname, navigate, user.siloName])
+  }, [pathname, navigate, me.siloName])
 
   useQuickActions(actions)
 
