@@ -27,7 +27,7 @@ export function MswWarning() {
   const closeModal = () => setIsOpen(false)
   return (
     <>
-      <div
+      <label
         id="technical-preview-banner"
         className="flex h-10 w-full items-center justify-center text-sans-md text-info-secondary bg-info-secondary"
       >
@@ -39,7 +39,7 @@ export function MswWarning() {
         >
           Learn more <NextArrow12Icon />
         </button>
-      </div>
+      </label>
       <Modal isOpen={isOpen} onDismiss={closeModal} title="Console Technical Preview">
         <Modal.Section>
           <p>
