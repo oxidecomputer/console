@@ -179,19 +179,11 @@ To debug end-to-end failures on CI, check out the branch with the failure and ru
 
 ## Relevant documents
 
-All links below except RFDs 4 and 44 are currently only accessible to Oxide employees.
+Only RFD 4 is currently accessible to people outside Oxide.
 
 ### RFDs
 
 - [RFD 4 User-Facing API](https://rfd.shared.oxide.computer/rfd/0004)
-- [RFD 43 Identity and Access Management (IAM)](https://rfd.shared.oxide.computer/rfd/0043)
-- [RFD 44 Hierarchy and API for User Management and Organizations](https://rfd.shared.oxide.computer/rfd/0044)
-- [RFD 156 API Requirements for Console Prototype](https://rfd.shared.oxide.computer/rfd/0156)
 - [RFD 169 Console Authentication and Session Management](https://rfd.shared.oxide.computer/rfd/0169)
 - [RFD 180 Console v1 Scope](https://rfd.shared.oxide.computer/rfd/0180)
 - [RFD 223 Web Console Architecture](https://rfd.shared.oxide.computer/rfd/0223)
-
-### Figma
-
-- [Component Library](https://www.figma.com/file/D5ukCJbedrlGkUIh0E6QtX/Component-Library)
-- [Applied UI Exploration](https://www.figma.com/file/UDMGwny0LIyMUI9d35XVGl/Applied-UI-Exploration)
