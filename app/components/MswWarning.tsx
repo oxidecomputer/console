@@ -7,7 +7,7 @@
  */
 import { type ReactNode, useState } from 'react'
 
-import { Button, Info16Icon, Modal, NextArrow12Icon } from '@oxide/ui'
+import { Banner, Button, Info16Icon, Modal, NextArrow12Icon } from '@oxide/ui'
 
 function ExternalLink({ href, children }: { href: string; children: ReactNode }) {
   return (
@@ -27,7 +27,7 @@ export function MswWarning() {
   const closeModal = () => setIsOpen(false)
   return (
     <>
-      <label className="flex h-10 w-full items-center justify-center text-sans-md text-info-secondary bg-info-secondary">
+      <Banner>
         <Info16Icon className="mr-2" /> This is a technical preview.
         <button
           className="ml-2 flex items-center gap-0.5 text-sans-md hover:text-info"
@@ -35,7 +35,7 @@ export function MswWarning() {
         >
           Learn more <NextArrow12Icon />
         </button>
-      </label>
+      </Banner>
       <Modal isOpen={isOpen} onDismiss={closeModal} title="Console Technical Preview">
         <Modal.Section>
           <p>
