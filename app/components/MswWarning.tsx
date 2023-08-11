@@ -27,7 +27,8 @@ export function MswWarning() {
   const closeModal = () => setIsOpen(false)
   return (
     <>
-      <label className="absolute flex h-10 w-full items-center justify-center text-sans-md text-info-secondary bg-info-secondary next-sibiling:pt-10">
+      {/* The [&+*]:pt-10 style is to ensure the page container isn't pushed out of screen as it uses 100vh for layout */}
+      <label className="absolute flex h-10 w-full items-center justify-center text-sans-md text-info-secondary bg-info-secondary [&+*]:pt-10">
         <Info16Icon className="mr-2" /> This is a technical preview.
         <button
           className="ml-2 flex items-center gap-0.5 text-sans-md hover:text-info"

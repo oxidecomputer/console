@@ -59,7 +59,6 @@ module.exports = {
       addVariant('svg', '& > svg')
       addVariant('children', '& > *')
       addVariant('between', '& > * + *')
-      addVariant('next-sibiling', '& + *')
       addVariant('selected', '.is-selected &')
       addVariant('disabled', '&.visually-disabled, &:disabled')
       addUtilities(
