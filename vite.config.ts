@@ -9,6 +9,7 @@ import basicSsl from '@vitejs/plugin-basic-ssl'
 import react from '@vitejs/plugin-react'
 import { resolve } from 'path'
 import { defineConfig } from 'vite'
+import { createHtmlPlugin } from 'vite-plugin-html'
 import { z } from 'zod'
 
 import { dotPathFixPlugin } from './libs/vite-plugin-dot-path-fix'
@@ -43,6 +44,16 @@ const mapObj = <V0, V>(
 /** Match a semver string like 1.0.0-abc */
 const semverRegex = '\\d+\\.\\d+\\.\\d+([\\-\\+].+)?'
 
+const previewAnalyticsTag = {
+  injectTo: 'head' as const,
+  tag: 'script',
+  attrs: {
+    'data-domain': 'oxide-console-preview.vercel.app',
+    defer: true,
+    src: '/viewscript.js',
+  },
+}
+
 // see https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   build: {
@@ -66,6 +77,11 @@ export default defineConfig(({ mode }) => ({
     'process.env.CHAOS': JSON.stringify(mode !== 'production' && process.env.CHAOS),
   },
   plugins: [
+    createHtmlPlugin({
+      inject: {
+        tags: process.env.VERCEL ? [previewAnalyticsTag] : [],
+      },
+    }),
     react({
       babel: {
         plugins:
