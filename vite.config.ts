@@ -48,7 +48,12 @@ const previewAnalyticsTag = {
   injectTo: 'head' as const,
   tag: 'script',
   attrs: {
-    'data-domain': 'oxide-console-preview.vercel.app',
+    'data-domain':
+      process.env.VERCEL_ENV === 'production'
+        ? 'oxide-console-preview.vercel.app'
+        : // not a real domain. we're only using it to distinguish prod
+          // from preview traffic in plausible
+          'console-pr-preview.vercel.app',
     defer: true,
     src: '/viewscript.js',
   },
