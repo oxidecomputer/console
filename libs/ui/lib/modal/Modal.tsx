@@ -58,7 +58,7 @@ export function Modal({ children, onDismiss, title, isOpen }: ModalProps) {
             >
               <Dialog.Portal>
                 <div
-                  className="DialogOverlay pointer-events-auto relative"
+                  className="DialogOverlay pointer-events-auto"
                   onClick={onDismiss}
                   aria-hidden
                 />
