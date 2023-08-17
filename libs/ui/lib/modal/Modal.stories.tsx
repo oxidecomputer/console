@@ -46,15 +46,12 @@ export function Default() {
               <TextInput as="textarea" rows={5} placeholder="Enter your SSH key" />
             </div>
           </Modal.Section>
-          <Modal.Docs>
-            {/* todo: should turn this into a component for consistency */}
-            <a href="#/" className="text-tertiary">
-              Subnetworks
-            </a>
-            <a href="#/" className="text-tertiary">
-              External IPs
-            </a>
-          </Modal.Docs>
+          <Modal.Docs
+            links={[
+              { to: '#', label: 'Subnetworks' },
+              { to: '#', label: 'External IPs' },
+            ]}
+          />
         </Modal.Body>
 
         <Modal.Footer

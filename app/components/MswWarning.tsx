@@ -54,25 +54,23 @@ export function MswWarning() {
             . Behavior is only mocked in as much detail as is required for console
             development and testing and is not fully representative.
           </p>
-          <p>Some relevant repositories:</p>
-          <ul className="list-disc space-y-1 [&>*]:ml-6">
-            <li>
-              <ExternalLink href="https://github.com/oxidecomputer/console">
-                Web console
-              </ExternalLink>
-            </li>
-            <li>
-              <ExternalLink href="https://github.com/oxidecomputer/oxide.ts">
-                TypeScript API client generator
-              </ExternalLink>
-            </li>
-            <li>
-              <ExternalLink href="https://github.com/oxidecomputer/omicron">
-                Control plane and API
-              </ExternalLink>
-            </li>
-          </ul>
         </Modal.Section>
+        <Modal.Docs
+          links={[
+            {
+              to: 'https://github.com/oxidecomputer/console',
+              label: 'Web console',
+            },
+            {
+              to: 'https://github.com/oxidecomputer/oxide.ts',
+              label: 'TypeScript API client generator',
+            },
+            {
+              to: 'https://github.com/oxidecomputer/omicron',
+              label: 'Control plane and API',
+            },
+          ]}
+        />
         <footer className="flex items-center justify-end border-t px-3 py-3 border-secondary">
           <Button size="sm" onClick={closeModal}>
             Close

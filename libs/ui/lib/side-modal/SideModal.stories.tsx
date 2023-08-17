@@ -19,10 +19,12 @@ export function Default() {
       <SideModal isOpen={isOpen} onDismiss={() => setIsOpen(false)}>
         <SideModal.Body>
           <SideModal.Section>Section content</SideModal.Section>
-          <SideModal.Docs>
-            <a href="#/">Subnetworks</a>
-            <a href="#/">External IPs</a>
-          </SideModal.Docs>
+          <SideModal.Docs
+            links={[
+              { to: '#', label: 'Subnetworks' },
+              { to: '#', label: 'External IPs' },
+            ]}
+          />
         </SideModal.Body>
         <SideModal.Footer>
           <Button>Ok</Button>

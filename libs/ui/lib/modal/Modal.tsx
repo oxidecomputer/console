@@ -112,15 +112,28 @@ Modal.Body = classed.div`py-2 overflow-y-auto`
 
 Modal.Section = classed.div`p-4 space-y-4 border-b border-secondary text-secondary last-of-type:border-none text-sans-md`
 
-Modal.Docs = ({ children }: { children?: React.ReactNode }) => (
+type Link = {
+  to: string
+  label: string
+}
+
+Modal.Docs = ({ links }: { links?: Link[] }) => (
   <Modal.Section>
     <div>
-      <h3 className="mb-2 text-sans-semi-md">Relevant docs</h3>
-      <ul className="space-y-0.5 text-sans-md text-secondary">
-        {React.Children.map(children, (child) => (
-          <li className="flex items-center space-x-2">
-            <OpenLink12Icon className="mt-0.5 text-accent" />
-            {child}
+      <h3 className="mb-2 text-sans-semi-md text-default">Relevant docs</h3>
+      <ul className="space-y-1 text-sans-md text-tertiary">
+        {links?.map((link) => (
+          <li key={link.to}>
+            <a
+              href={link.to}
+              key={link.to}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex items-center space-x-2"
+            >
+              <OpenLink12Icon className="text-accent group-hover:text-accent" />
+              <span className="group-hover:text-default">{link.label}</span>
+            </a>
           </li>
         ))}
       </ul>
