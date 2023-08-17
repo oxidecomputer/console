@@ -22,7 +22,7 @@ function ExternalLink({ href, children }: { href: string; children: ReactNode })
   )
 }
 
-export function MswWarning() {
+export function MswBanner() {
   const [isOpen, setIsOpen] = useState(false)
   const closeModal = () => setIsOpen(false)
   return (
@@ -49,7 +49,7 @@ export function MswWarning() {
           <p>
             Request and response bodies in the mock API match the{' '}
             <ExternalLink href="https://github.com/oxidecomputer/omicron/blob/main/openapi/nexus.json">
-              OpenAPI spec
+              OpenAPI document
             </ExternalLink>
             . Behavior is only mocked in as much detail as is required for console
             development and testing and is not fully representative.

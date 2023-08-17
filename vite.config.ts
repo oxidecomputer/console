@@ -75,9 +75,7 @@ export default defineConfig(({ mode }) => ({
   define: {
     'process.env.MSW': JSON.stringify(apiMode === 'msw'),
     // we don't want to have to look at this banner all day
-    'process.env.MSW_BANNER': JSON.stringify(
-      true || (apiMode === 'msw' && mode === 'production')
-    ),
+    'process.env.MSW_BANNER': JSON.stringify(apiMode === 'msw' && mode === 'production'),
     // used in production build to console.log the SHA at page load
     'process.env.SHA': JSON.stringify(process.env.SHA),
     // used by MSW — number for % likelihood of API request failure (decimals allowed)
