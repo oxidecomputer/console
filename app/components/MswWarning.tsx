@@ -44,23 +44,31 @@ export function MswWarning() {
             web console running against an in-browser mock API powered by{' '}
             <ExternalLink href="https://mswjs.io/">Mock Service Worker</ExternalLink>. You
             can create mock resources and they will persist across client-side navigations,
-            but nobody else can see them and they will disappear on refresh. The console is
-            a work in progress.
+            but nobody else can see them and they will disappear on refresh.
           </p>
           <p>
             Request and response bodies in the mock API match the Oxide API&apos;s OpenAPI
             spec, but behavior is only mocked in as much detail as is required for
-            development and testing of the console and is not fully representative. See the{' '}
-            <ExternalLink href="https://github.com/oxidecomputer/oxide.ts">
-              oxide.ts
-            </ExternalLink>{' '}
-            repo for more about the mock API and the{' '}
-            <ExternalLink href="https://github.com/oxidecomputer/omicron">
-              omicron
-            </ExternalLink>{' '}
-            repo for more about the real API. The console itself will soon be open source as
-            well.
+            development and testing of the console and is not fully representative.
           </p>
+          <p>Some relevant repositories:</p>
+          <ul className="list-disc space-y-1 [&>*]:ml-6">
+            <li>
+              <ExternalLink href="https://github.com/oxidecomputer/console">
+                Web console
+              </ExternalLink>
+            </li>
+            <li>
+              <ExternalLink href="https://github.com/oxidecomputer/oxide.ts">
+                API client generator
+              </ExternalLink>
+            </li>
+            <li>
+              <ExternalLink href="https://github.com/oxidecomputer/omicron">
+                Control plane and API
+              </ExternalLink>
+            </li>
+          </ul>
         </Modal.Section>
         <footer className="flex items-center justify-end border-t px-3 py-3 border-secondary">
           <Button size="sm" onClick={closeModal}>
