@@ -8,7 +8,7 @@
 import { useEffect, useRef } from 'react'
 import { Outlet, useNavigation } from 'react-router-dom'
 
-import { MswWarning } from 'app/components/MswWarning'
+import { MswBanner } from 'app/components/MswBanner'
 import { ToastStack } from 'app/components/ToastStack'
 import { useCrumbs } from 'app/hooks/use-crumbs'
 
@@ -39,7 +39,7 @@ export default function RootLayout() {
   return (
     <>
       <LoadingBar />
-      {process.env.MSW_BANNER ? <MswWarning /> : null}
+      {process.env.MSW_BANNER ? <MswBanner /> : null}
       <Outlet />
       <ToastStack />
     </>
