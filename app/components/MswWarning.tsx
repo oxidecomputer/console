@@ -47,9 +47,12 @@ export function MswWarning() {
             but nobody else can see them and they will disappear on refresh.
           </p>
           <p>
-            Request and response bodies in the mock API match the Oxide API&apos;s OpenAPI
-            spec, but behavior is only mocked in as much detail as is required for
-            development and testing of the console and is not fully representative.
+            Request and response bodies in the mock API match the{' '}
+            <ExternalLink href="https://github.com/oxidecomputer/omicron/blob/main/openapi/nexus.json">
+              OpenAPI spec
+            </ExternalLink>
+            . Behavior is only mocked in as much detail as is required for console
+            development and testing and is not fully representative.
           </p>
           <p>Some relevant repositories:</p>
           <ul className="list-disc space-y-1 [&>*]:ml-6">
@@ -60,7 +63,7 @@ export function MswWarning() {
             </li>
             <li>
               <ExternalLink href="https://github.com/oxidecomputer/oxide.ts">
-                API client generator
+                TypeScript API client generator
               </ExternalLink>
             </li>
             <li>
