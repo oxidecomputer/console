@@ -46,12 +46,10 @@ export function Default() {
               <TextInput as="textarea" rows={5} placeholder="Enter your SSH key" />
             </div>
           </Modal.Section>
-          <Modal.Docs
-            links={[
-              { to: '#', label: 'Subnetworks' },
-              { to: '#', label: 'External IPs' },
-            ]}
-          />
+          <Modal.Links label="Relevant docs">
+            <Modal.Link to="#" label="Subnetworks" />
+            <Modal.Link to="#" label="External IPs" />
+          </Modal.Links>
         </Modal.Body>
 
         <Modal.Footer

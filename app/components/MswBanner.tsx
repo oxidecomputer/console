@@ -55,22 +55,17 @@ export function MswBanner() {
             development and testing and is not fully representative.
           </p>
         </Modal.Section>
-        <Modal.Docs
-          links={[
-            {
-              to: 'https://github.com/oxidecomputer/console',
-              label: 'Web console',
-            },
-            {
-              to: 'https://github.com/oxidecomputer/oxide.ts',
-              label: 'TypeScript API client generator',
-            },
-            {
-              to: 'https://github.com/oxidecomputer/omicron',
-              label: 'Control plane and API',
-            },
-          ]}
-        />
+        <Modal.Links label="Relevant repositories">
+          <Modal.Link to="https://github.com/oxidecomputer/console" label="Web console" />
+          <Modal.Link
+            to="https://github.com/oxidecomputer/oxide.ts"
+            label="TypeScript API client generator"
+          />
+          <Modal.Link
+            to="https://github.com/oxidecomputer/omicron"
+            label="Control plane and API"
+          />
+        </Modal.Links>
         <footer className="flex items-center justify-end border-t px-3 py-3 border-secondary">
           <Button size="sm" onClick={closeModal}>
             Close
