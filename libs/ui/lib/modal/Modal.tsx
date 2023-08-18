@@ -12,7 +12,7 @@ import React, { createContext, forwardRef, useContext, useId } from 'react'
 import { classed } from '@oxide/util'
 
 import { Button } from '../button/Button'
-import { Close12Icon, OpenLink12Icon } from '../icons'
+import { Close12Icon } from '../icons'
 
 const ModalContext = createContext(false)
 
@@ -111,30 +111,6 @@ const ModalTitle = forwardRef<HTMLDivElement, ModalTitleProps>(({ children, id }
 Modal.Body = classed.div`py-2 overflow-y-auto`
 
 Modal.Section = classed.div`p-4 space-y-4 border-b border-secondary text-secondary last-of-type:border-none text-sans-md`
-
-Modal.Links = ({ label, children }: { label: string; children: React.ReactNode }) => (
-  <Modal.Section>
-    <div>
-      <h3 className="mb-2 text-sans-semi-md text-default">{label}</h3>
-      <ul className="space-y-1 text-sans-md text-tertiary">{children}</ul>
-    </div>
-  </Modal.Section>
-)
-
-Modal.Link = ({ to, label }: { to: string; label: string }) => (
-  <li>
-    <a
-      href={to}
-      key={to}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="group flex items-center space-x-2"
-    >
-      <OpenLink12Icon className="text-accent group-hover:text-accent" />
-      <span className="group-hover:text-default">{label}</span>
-    </a>
-  </li>
-)
 
 Modal.Footer = ({
   children,

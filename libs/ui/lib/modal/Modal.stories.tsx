@@ -7,6 +7,7 @@
  */
 import { useState } from 'react'
 
+import { ModalLink, ModalLinks } from '../ModalLinks'
 import { Button } from '../button/Button'
 import { FieldLabel } from '../field-label/FieldLabel'
 import { TextInput, TextInputHint } from '../text-input/TextInput'
@@ -46,10 +47,12 @@ export function Default() {
               <TextInput as="textarea" rows={5} placeholder="Enter your SSH key" />
             </div>
           </Modal.Section>
-          <Modal.Links label="Relevant docs">
-            <Modal.Link to="#" label="Subnetworks" />
-            <Modal.Link to="#" label="External IPs" />
-          </Modal.Links>
+          <Modal.Section>
+            <ModalLinks heading="Relevant docs">
+              <ModalLink to="#" label="Subnetworks" />
+              <ModalLink to="#" label="External IPs" />
+            </ModalLinks>
+          </Modal.Section>
         </Modal.Body>
 
         <Modal.Footer

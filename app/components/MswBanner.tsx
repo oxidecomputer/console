@@ -7,7 +7,14 @@
  */
 import { type ReactNode, useState } from 'react'
 
-import { Button, Info16Icon, Modal, NextArrow12Icon } from '@oxide/ui'
+import {
+  Button,
+  Info16Icon,
+  Modal,
+  ModalLink,
+  ModalLinks,
+  NextArrow12Icon,
+} from '@oxide/ui'
 
 function ExternalLink({ href, children }: { href: string; children: ReactNode }) {
   return (
@@ -55,17 +62,19 @@ export function MswBanner() {
             development and testing and is not fully representative.
           </p>
         </Modal.Section>
-        <Modal.Links label="Relevant repositories">
-          <Modal.Link to="https://github.com/oxidecomputer/console" label="Web console" />
-          <Modal.Link
-            to="https://github.com/oxidecomputer/oxide.ts"
-            label="TypeScript API client generator"
-          />
-          <Modal.Link
-            to="https://github.com/oxidecomputer/omicron"
-            label="Control plane and API"
-          />
-        </Modal.Links>
+        <Modal.Section>
+          <ModalLinks heading="Relevant repositories">
+            <ModalLink to="https://github.com/oxidecomputer/console" label="Web console" />
+            <ModalLink
+              to="https://github.com/oxidecomputer/oxide.ts"
+              label="TypeScript API client generator"
+            />
+            <ModalLink
+              to="https://github.com/oxidecomputer/omicron"
+              label="Control plane and API"
+            />
+          </ModalLinks>
+        </Modal.Section>
         <footer className="flex items-center justify-end border-t px-3 py-3 border-secondary">
           <Button size="sm" onClick={closeModal}>
             Close

@@ -7,6 +7,7 @@
  */
 import { useState } from 'react'
 
+import { ModalLink, ModalLinks } from '../ModalLinks'
 import { Button } from '../button/Button'
 import { SideModal } from './SideModal'
 
@@ -19,10 +20,12 @@ export function Default() {
       <SideModal isOpen={isOpen} onDismiss={() => setIsOpen(false)}>
         <SideModal.Body>
           <SideModal.Section>Section content</SideModal.Section>
-          <SideModal.Links label="Relevant docs">
-            <SideModal.Link to="#" label="Subnetworks" />
-            <SideModal.Link to="#" label="External IPs" />
-          </SideModal.Links>
+          <SideModal.Section>
+            <ModalLinks heading="Relevant docs">
+              <ModalLink to="#" label="Subnetworks" />
+              <ModalLink to="#" label="External IPs" />
+            </ModalLinks>
+          </SideModal.Section>{' '}
         </SideModal.Body>
         <SideModal.Footer>
           <Button>Ok</Button>
