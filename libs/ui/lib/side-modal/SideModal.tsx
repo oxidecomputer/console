@@ -15,7 +15,7 @@ import { classed } from '@oxide/util'
 
 import { useIsOverflow } from 'app/hooks'
 
-import { Close12Icon, Error12Icon, OpenLink12Icon } from '../icons'
+import { Close12Icon, Error12Icon } from '../icons'
 import './side-modal.css'
 
 export type SideModalProps = {
@@ -156,22 +156,6 @@ function SideModalBody({ children }: { children?: ReactNode }) {
 SideModal.Body = SideModalBody
 
 SideModal.Section = classed.div`p-8 space-y-6 border-secondary`
-
-SideModal.Docs = ({ children }: { children?: ReactNode }) => (
-  <SideModal.Section>
-    <div>
-      <h3 className="mb-2 text-sans-semi-md">Relevant docs</h3>
-      <ul className="space-y-0.5 text-sans-md text-secondary">
-        {React.Children.map(children, (child) => (
-          <li className="flex items-center space-x-2">
-            <OpenLink12Icon className="mt-0.5 text-accent" />
-            {child}
-          </li>
-        ))}
-      </ul>
-    </div>
-  </SideModal.Section>
-)
 
 SideModal.Footer = ({ children, error }: { children: ReactNode; error?: boolean }) => (
   <footer className="flex w-full items-center justify-end gap-[0.625rem] border-t py-5 border-secondary children:shrink-0">

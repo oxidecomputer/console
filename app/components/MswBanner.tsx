@@ -7,7 +7,14 @@
  */
 import { type ReactNode, useState } from 'react'
 
-import { Button, Info16Icon, Modal, NextArrow12Icon } from '@oxide/ui'
+import {
+  Button,
+  Info16Icon,
+  Modal,
+  ModalLink,
+  ModalLinks,
+  NextArrow12Icon,
+} from '@oxide/ui'
 
 function ExternalLink({ href, children }: { href: string; children: ReactNode }) {
   return (
@@ -54,24 +61,19 @@ export function MswBanner() {
             . Behavior is only mocked in as much detail as is required for console
             development and testing and is not fully representative.
           </p>
-          <p>Some relevant repositories:</p>
-          <ul className="list-disc space-y-1 [&>*]:ml-6">
-            <li>
-              <ExternalLink href="https://github.com/oxidecomputer/console">
-                Web console
-              </ExternalLink>
-            </li>
-            <li>
-              <ExternalLink href="https://github.com/oxidecomputer/oxide.ts">
-                TypeScript API client generator
-              </ExternalLink>
-            </li>
-            <li>
-              <ExternalLink href="https://github.com/oxidecomputer/omicron">
-                Control plane and API
-              </ExternalLink>
-            </li>
-          </ul>
+        </Modal.Section>
+        <Modal.Section>
+          <ModalLinks heading="Relevant repositories">
+            <ModalLink to="https://github.com/oxidecomputer/console" label="Web console" />
+            <ModalLink
+              to="https://github.com/oxidecomputer/oxide.ts"
+              label="TypeScript API client generator"
+            />
+            <ModalLink
+              to="https://github.com/oxidecomputer/omicron"
+              label="Control plane and API"
+            />
+          </ModalLinks>
         </Modal.Section>
         <footer className="flex items-center justify-end border-t px-3 py-3 border-secondary">
           <Button size="sm" onClick={closeModal}>
