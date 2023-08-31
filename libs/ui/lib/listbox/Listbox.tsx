@@ -5,7 +5,14 @@
  *
  * Copyright Oxide Computer Company
  */
-import { FloatingPortal, flip, offset, size, useFloating } from '@floating-ui/react'
+import {
+  FloatingPortal,
+  autoUpdate,
+  flip,
+  offset,
+  size,
+  useFloating,
+} from '@floating-ui/react'
 import { Listbox as Select } from '@headlessui/react'
 import cn from 'classnames'
 import type { ReactNode } from 'react'
@@ -68,6 +75,7 @@ export const Listbox = <Value extends string = string>({
         },
       }),
     ],
+    whileElementsMounted: autoUpdate,
   })
 
   const selectedItem = selected && items.find((i) => i.value === selected)
@@ -134,7 +142,7 @@ export const Listbox = <Value extends string = string>({
               <Select.Options
                 ref={refs.setFloating}
                 style={floatingStyles}
-                className="ox-menu pointer-events-auto z-50 overflow-y-auto !outline-none"
+                className="ox-menu pointer-events-auto z-40 overflow-y-auto !outline-none"
               >
                 {items.map((item) => (
                   <Select.Option
