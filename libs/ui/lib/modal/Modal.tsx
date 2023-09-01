@@ -63,7 +63,7 @@ export function Modal({ children, onDismiss, title, isOpen }: ModalProps) {
                   aria-hidden
                 />
                 <AnimatedDialogContent
-                  className="DialogContent ox-modal pointer-events-auto fixed left-1/2 top-1/2 z-40 m-0 flex max-h-[min(800px,80vh)] w-auto min-w-[28rem] max-w-[32rem] flex-col justify-between rounded-lg border p-0 bg-raise border-secondary elevation-2"
+                  className="DialogContent ox-modal pointer-events-auto fixed left-1/2 top-1/2 z-10 m-0 flex max-h-[min(800px,80vh)] w-auto min-w-[28rem] max-w-[32rem] flex-col justify-between rounded-lg border p-0 bg-raise border-secondary elevation-2"
                   aria-labelledby={titleId}
                   style={{
                     transform: y.to((value) => `translate3d(-50%, ${-50 + value}%, 0px)`),

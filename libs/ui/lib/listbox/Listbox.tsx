@@ -142,7 +142,7 @@ export const Listbox = <Value extends string = string>({
               <Select.Options
                 ref={refs.setFloating}
                 style={floatingStyles}
-                className="ox-menu pointer-events-auto z-40 overflow-y-auto !outline-none"
+                className="ox-menu pointer-events-auto z-20 overflow-y-auto !outline-none"
               >
                 {items.map((item) => (
                   <Select.Option
