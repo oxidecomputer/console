@@ -45,6 +45,7 @@ export interface ListboxProps<Value extends string = string> {
   helpText?: string
   required?: boolean
   isLoading?: boolean
+  isInSidebar?: boolean
 }
 
 export const Listbox = <Value extends string = string>({
@@ -61,6 +62,7 @@ export const Listbox = <Value extends string = string>({
   required,
   disabled,
   isLoading = false,
+  isInSidebar = false,
   ...props
 }: ListboxProps<Value>) => {
   const { refs, floatingStyles } = useFloating({
@@ -142,7 +144,9 @@ export const Listbox = <Value extends string = string>({
               <Select.Options
                 ref={refs.setFloating}
                 style={floatingStyles}
-                className="ox-menu pointer-events-auto z-20 overflow-y-auto !outline-none"
+                className={`ox-menu pointer-events-auto ${
+                  isInSidebar ? 'z-50' : 'z-20'
+                } overflow-y-auto !outline-none`}
               >
                 {items.map((item) => (
                   <Select.Option
