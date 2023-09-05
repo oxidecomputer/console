@@ -125,9 +125,13 @@ test('can delete an image from a project', async ({ page }) => {
   await page.goto('/projects/mock-project/images')
 
   await clickRowAction(page, 'image-3', 'Delete')
+  const spinner = page.getByRole('dialog').getByLabel('Spinner')
+  await expect(spinner).toBeHidden()
   await page.getByRole('button', { name: 'Confirm' }).click()
+  await expect(spinner).toBeVisible()
 
   // Check deletion was successful
   await expectVisible(page, ['text="image-3 has been deleted"'])
   await expectNotVisible(page, ['role=cell[name="image-3"]'])
+  await expect(spinner).toBeHidden()
 })

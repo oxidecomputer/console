@@ -63,7 +63,11 @@ test('Error on delete snapshot', async ({ page }) => {
   const modal = page.getByRole('dialog', { name: 'Confirm delete' })
   await expect(modal).toBeVisible()
 
+  const spinner = page.getByRole('dialog').getByLabel('Spinner')
+  await expect(spinner).toBeHidden()
+
   await page.getByRole('button', { name: 'Confirm' }).click()
+  await expect(spinner).toBeVisible()
 
   // modal closes, but row is not gone and error toast is visible
   await expect(modal).toBeHidden()
