@@ -54,16 +54,15 @@ test('can create an instance', async ({ page }) => {
 
   // network tab works
   await page.getByRole('tab', { name: 'Network Interfaces' }).click()
-  const table = await page.getByRole('table')
+  const table = page.getByRole('table')
   await expectRowVisible(table, { name: 'default', vpc: 'mock-vpc', subnet: 'mock-subnet' })
+})
 
-  // trying to create another instance with the same name produces a visible
-  // error
-  await page.goto('/projects/mock-project/instances')
-  await page.locator('text="New Instance"').click()
-  await page.fill('input[name=name]', instanceName)
+test('duplicate instance name produces visible error', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances-new')
+  await page.fill('input[name=name]', 'db1')
   await page.locator('button:has-text("Create instance")').click()
-  await page.getByText('Instance name already exists')
+  await expect(page.getByText('Instance name already exists')).toBeVisible()
 })
 
 test('first preset is auto-selected in each tab', async ({ page }) => {

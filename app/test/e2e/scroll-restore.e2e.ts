@@ -8,13 +8,13 @@
 import { type Page, expect, test } from './utils'
 
 async function expectScrollTop(page: Page, expected: number) {
-  const container = await page.getByTestId('scroll-container')
+  const container = page.getByTestId('scroll-container')
   const getScrollTop = () => container.evaluate((el: HTMLElement) => el.scrollTop)
   await expect.poll(getScrollTop).toBe(expected)
 }
 
 async function scrollTo(page: Page, to: number) {
-  const container = await page.getByTestId('scroll-container')
+  const container = page.getByTestId('scroll-container')
   await container.evaluate((el: HTMLElement, to) => el.scrollTo(0, to), to)
 }
 

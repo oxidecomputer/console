@@ -22,6 +22,9 @@ test.describe('Disk create', () => {
     await expectVisible(page, ['role=cell[name="a-new-disk"]'])
   })
 
+  // expects are in the afterEach
+
+  /* eslint-disable playwright/expect-expect */
   test('from blank', async ({ page }) => {
     await page.getByRole('radio', { name: '512' }).click()
   })
@@ -42,4 +45,5 @@ test.describe('Disk create', () => {
     await page.getByRole('radio', { name: 'Snapshot' }).click()
     await page.getByRole('radio', { name: 'Blank' }).click()
   })
+  /* eslint-enable playwright/expect-expect */
 })
