@@ -70,7 +70,7 @@
     "xterm": "^5.2.1",
     "xterm-addon-attach": "^0.8.0",
     "xterm-addon-fit": "^0.7.0",
-    "zod": "^3.19.1",
+    "zod": "^3.22.2",
     "zustand": "^4.4.1"
   },
   "devDependencies": {
