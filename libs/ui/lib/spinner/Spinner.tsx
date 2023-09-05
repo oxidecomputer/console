@@ -38,7 +38,7 @@ export const Spinner = ({
       viewBox={`0 0 ${frameSize + ' ' + frameSize}`}
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      aria-labelledby="Spinner"
+      aria-label="Spinner"
       className={cn('spinner', `spinner-${variant}`, `spinner-${size}`, className)}
     >
       <circle
