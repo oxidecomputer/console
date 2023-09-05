@@ -12,7 +12,7 @@ import { MiB } from '@oxide/util'
 
 import { expectNotVisible, expectRowVisible, expectVisible } from './utils'
 
-async function chooseFile(page: Page, size = 10 * MiB) {
+async function chooseFile(page: Page, size = 20 * MiB) {
   const fileChooserPromise = page.waitForEvent('filechooser')
   await page.getByText('Image file', { exact: true }).click()
   const fileChooser = await fileChooserPromise
