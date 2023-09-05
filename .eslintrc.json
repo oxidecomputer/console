@@ -59,7 +59,13 @@
     },
     {
       "files": ["*.e2e.ts"],
-      "extends": ["plugin:playwright/playwright-test"]
+      "extends": ["plugin:playwright/playwright-test"],
+      "rules": {
+        "playwright/expect-expect": [
+          "warn",
+          { "additionalAssertFunctionNames": ["expectVisible"] }
+        ]
+      }
     }
   ]
 }
