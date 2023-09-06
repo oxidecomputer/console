@@ -42,6 +42,17 @@ module.exports = {
         lg: { min: '1024px', max: '1279px' },
         xl: { min: '1280px', max: '1535px' },
       },
+      zIndex: {
+        toast: '50',
+        modalDropdown: '50',
+        modal: '40',
+        sideModalDropdown: '40',
+        sideModal: '30',
+        topBar: '20',
+        popover: '10',
+        contentDropdown: '10',
+        content: '0',
+      },
     },
     borderRadius: {
       none: 0,

@@ -10,7 +10,7 @@ import { animated, useTransition } from '@react-spring/web'
 import cn from 'classnames'
 import React, { type ReactNode, createContext, useContext, useRef } from 'react'
 
-import { Message, zIndex } from '@oxide/ui'
+import { Message } from '@oxide/ui'
 import { classed } from '@oxide/util'
 
 import { useIsOverflow } from 'app/hooks'
@@ -77,7 +77,7 @@ export function SideModal({
                   aria-hidden
                 />
                 <AnimatedDialogContent
-                  className={`DialogContent ox-side-modal pointer-events-auto fixed bottom-0 right-0 top-0 ${zIndex.sideModal} m-0 flex w-[32rem] flex-col justify-between border-l p-0 bg-raise border-secondary elevation-2`}
+                  className="DialogContent ox-side-modal pointer-events-auto fixed bottom-0 right-0 top-0 z-sideModal m-0 flex w-[32rem] flex-col justify-between border-l p-0 bg-raise border-secondary elevation-2"
                   aria-labelledby={titleId}
                   style={{
                     transform: x.to((value) => `translate3d(${value}%, 0px, 0px)`),

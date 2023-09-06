@@ -17,13 +17,7 @@ import { Listbox as Select } from '@headlessui/react'
 import cn from 'classnames'
 import type { ReactNode } from 'react'
 
-import {
-  FieldLabel,
-  SelectArrows6Icon,
-  SpinnerLoader,
-  TextInputHint,
-  getDropdownZIndex,
-} from '@oxide/ui'
+import { FieldLabel, SelectArrows6Icon, SpinnerLoader, TextInputHint } from '@oxide/ui'
 
 import { useIsInModal } from '../modal/Modal'
 import { useIsInSideModal } from '../side-modal/SideModal'
@@ -89,7 +83,13 @@ export const Listbox = <Value extends string = string>({
   const selectedItem = selected && items.find((i) => i.value === selected)
   const noItems = !isLoading && items.length === 0
   const isDisabled = disabled || noItems
-  const zIndex = getDropdownZIndex(useIsInModal(), useIsInSideModal())
+  const isInModal = useIsInModal()
+  const isInSideModal = useIsInSideModal()
+  const zIndex = isInModal
+    ? 'z-modalDropdown'
+    : isInSideModal
+    ? 'z-sideModalDropdown'
+    : 'z-contentDropdown'
 
   return (
     <div className={cn('relative', className)}>

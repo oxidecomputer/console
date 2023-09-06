@@ -7,7 +7,7 @@
  */
 import { animated, useTransition } from '@react-spring/web'
 
-import { Toast, zIndex } from '@oxide/ui'
+import { Toast } from '@oxide/ui'
 
 import { useToastStore } from 'app/stores/toast'
 
@@ -24,9 +24,7 @@ export function ToastStack() {
   })
 
   return (
-    <div
-      className={`pointer-events-auto fixed bottom-4 left-4 ${zIndex.toast} flex flex-col items-end space-y-2`}
-    >
+    <div className="pointer-events-auto fixed bottom-4 left-4 z-toast flex flex-col items-end space-y-2">
       {transition((style, item) => (
         <animated.div
           style={{

@@ -16,7 +16,6 @@ import {
   Info16Icon,
   Profile16Icon,
   buttonStyle,
-  zIndex,
 } from '@oxide/ui'
 
 import { useCurrentUser } from 'app/layouts/AuthenticatedLayout'
@@ -51,7 +50,7 @@ export function TopBar({ children }: { children: React.ReactNode }) {
       </div>
       {/* Height is governed by PageContainer grid */}
       {/* shrink-0 is needed to prevent getting squished by body content */}
-      <div className={`${zIndex.topBar} border-b bg-default border-secondary`}>
+      <div className="z-topBar border-b bg-default border-secondary">
         <div className="mx-3 flex h-[60px] shrink-0 items-center justify-between">
           <div className="flex items-center">{otherPickers}</div>
           <div>
