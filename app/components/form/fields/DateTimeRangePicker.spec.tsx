@@ -7,6 +7,7 @@
  */
 import { getLocalTimeZone, now as getNow } from '@internationalized/date'
 import { fireEvent, render, screen } from '@testing-library/react'
+import ResizeObserverPolyfill from 'resize-observer-polyfill'
 import { beforeAll, describe, expect, it, vi } from 'vitest'
 
 import { clickByRole } from 'app/test/unit'
@@ -34,6 +35,8 @@ function renderLastDay() {
 }
 
 beforeAll(() => {
+  global.ResizeObserver = ResizeObserverPolyfill
+
   vi.useFakeTimers()
   vi.setSystemTime(now.toDate())
 

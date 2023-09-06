@@ -120,3 +120,23 @@ export async function getDevUserPage(browser: Browser): Promise<Page> {
   ])
   return await browserContext.newPage()
 }
+
+/**
+ * Assert that the item is visible and in the viewport but obscured by something
+ * else, as indicated by it not being clickable. In order to avoid false
+ * positives where something is not clickable due to it being not attached or
+ * something, we assert visible and in viewport first.
+ */
+export async function expectObscured(locator: Locator) {
+  // counterintuitively, expect visible does not mean actually visible, it just
+  // means attached and not having display: none
+  await expect(locator).toBeVisible()
+  await expect(locator).toBeInViewport()
+
+  // Attempt click with `trial: true`, which means only the actionability checks
+  // run but the click does not actually happen. Short timeout means this will
+  // fail fast if not clickable.
+  await expect(
+    async () => await locator.click({ trial: true, timeout: 50 })
+  ).rejects.toThrow(/locator.click: Timeout 50ms exceeded/)
+}

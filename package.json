@@ -130,6 +130,7 @@
     "postcss-pseudo-classes": "^0.2.1",
     "prettier": "^2.8.8",
     "prettier-plugin-tailwindcss": "^0.3.0",
+    "resize-observer-polyfill": "^1.5.1",
     "semver": "^7.5.2",
     "strict-event-emitter": "^0.5.0",
     "style-dictionary": "^3.1.1",

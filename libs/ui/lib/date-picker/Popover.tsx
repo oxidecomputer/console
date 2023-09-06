@@ -36,7 +36,7 @@ export function Popover(props: PopoverProps) {
       <div
         {...popoverProps}
         ref={ref}
-        className="rounded-md absolute top-full z-10 mt-2 rounded-lg border bg-raise border-secondary elevation-2"
+        className="rounded-md absolute top-full z-popover mt-2 rounded-lg border bg-raise border-secondary elevation-2"
       >
         <DismissButton onDismiss={state.close} />
         {children}
