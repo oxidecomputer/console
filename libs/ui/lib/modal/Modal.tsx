@@ -66,6 +66,12 @@ export function Modal({ children, onDismiss, title, isOpen }: ModalProps) {
                   style={{
                     transform: y.to((value) => `translate3d(-50%, ${-50 + value}%, 0px)`),
                   }}
+                  // Prevents cancel loop on clicking on background over side
+                  // modal to get out of image upload modal. Canceling out of
+                  // confirm dialog returns focus to the dismissable layer,
+                  // which triggers onDismiss again. And again.
+                  // https://github.com/oxidecomputer/console/issues/1745
+                  onFocusOutside={(e) => e.preventDefault()}
                 >
                   {title && (
                     <Dialog.Title asChild>
