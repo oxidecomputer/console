@@ -7,25 +7,37 @@
  */
 import { expect, test } from '@playwright/test'
 
+import { expectObscured } from './utils'
+
 test('Dropdown content can scroll off page and doesn’t hide TopBar', async ({ page }) => {
   // load the page
   await page.goto('/utilization')
   await expect(page.getByText('Capacity & Utilization')).toBeVisible()
 
+  const button = page.getByRole('button', { name: 'All projects' })
+
   // click on the 'All projects' dropdown
-  page.locator('text=All projects').click()
-  // verify that the options are visible
-  await expect(page.getByText('mock-project')).toBeVisible()
-  await expect(page.getByText('other-project')).toBeVisible()
+  await button.click()
+  const options = ['All projects', 'mock-project', 'other-project']
+  for (const name of options) {
+    const option = page.getByRole('option', { name })
+    await expect(option).toBeVisible()
+    await expect(option).toBeInViewport()
+  }
 
   // scroll the page down by 275px
   await page.mouse.wheel(0, 275)
 
-  // the 'All projects' button (just above the list) should not be on the screen
-  await expect(page.getByRole('button', { name: 'All projects' })).not.toBeInViewport()
+  // if we don't do this, the test doesn't wait long enough for the following
+  // assertions to become true
+  await expect(button).not.toBeInViewport()
 
-  // the 'other-project' option (last option on the list) should still be visible
-  await expect(page.getByText('other-project')).toBeVisible()
+  // now the top the listbox option is obscured by the topbar
+  await expectObscured(page.getByRole('option', { name: 'All projects' }))
+
+  // but we can still click the bottom one
+  await page.getByRole('option', { name: 'other-project' }).click()
+  await expect(page.getByRole('button', { name: 'other-project' })).toBeVisible()
 })
 
 test('Dropdown content in SidebarModal shows on screen', async ({ page }) => {
@@ -39,36 +51,20 @@ test('Dropdown content in SidebarModal shows on screen', async ({ page }) => {
   // open the add network interface side modal
   await page.getByRole('button', { name: 'Add network interface' }).click()
 
-  const sidebar = page.getByRole('dialog', { name: 'Add network interface' })
-
   // fill out the form
-  await sidebar.getByLabel('Name').fill('alt-nic')
+  await page.getByLabel('Name').fill('alt-nic')
 
-  // select the VPC and subnet via the dropdowns
-  await sidebar.getByLabel('VPC').click()
-  // dropdowns are rendered in a portal, so get component from the `page`, rather than the `sidebar`
+  // select the VPC and subnet via the dropdowns. The fact that the options are
+  // clickable means they are not obscured due to having a too-low z-index
+  await page.getByRole('button', { name: 'VPC' }).click()
   await page.getByRole('option', { name: 'mock-vpc' }).click()
-  await sidebar.getByLabel('Subnet').click()
+  await page.getByRole('button', { name: 'Subnet' }).click()
   await page.getByRole('option', { name: 'mock-subnet' }).click()
 
-  /*
-    A curious Playwright falsifiabilty problem here: even when the z-index values
-    are shuffled in a way that should cause the test to fail, the tests still pass.
-    I suspect it has to do with Playwright being able to “see” grid-positioned
-    elements even when they are behind other elements?
-  */
+  const sidebar = page.getByRole('dialog', { name: 'Add network interface' })
 
   // verify that the SideModal header is positioned above the TopBar
-  await expect(
-    sidebar.getByRole('heading', { name: 'Add network interface' })
-  ).toBeVisible()
-  await expect(sidebar.getByRole('button', { name: 'Close' })).toBeVisible()
-
-  /*
-    Similarly, Playwright can still see the UserMenu, even when manual testing shows that a user can’t
-  */
-  // await expect(page.getByRole('button', { name: 'User menu' })).toBeHidden()
-  /* end of problematic tests */
+  await expectObscured(page.getByRole('button', { name: 'User menu' }))
 
   // test that the form can be submitted and a new network interface is created
   await sidebar.getByRole('button', { name: 'Add network interface' }).click()
