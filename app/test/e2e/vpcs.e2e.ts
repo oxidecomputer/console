@@ -13,13 +13,13 @@ test('can nav to VpcPage from /', async ({ page }) => {
   await page.click('a:has-text("Networking")')
   await page.click('a:has-text("mock-vpc")')
   await expect(page.locator('text=mock-subnet')).toBeVisible()
-  await expect(await page.title()).toEqual('mock-vpc / VPCs / mock-project / Oxide Console')
+  expect(await page.title()).toEqual('mock-vpc / VPCs / mock-project / Oxide Console')
 })
 
 test('can create and delete subnet', async ({ page }) => {
   await page.goto('/projects/mock-project/vpcs/mock-vpc')
   // only one row in table, the default mock-subnet
-  const rows = await page.locator('tbody >> tr')
+  const rows = page.locator('tbody >> tr')
   await expect(rows).toHaveCount(1)
   await expect(rows.nth(0).locator('text="mock-subnet"')).toBeVisible()
 

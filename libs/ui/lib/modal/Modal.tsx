@@ -116,6 +116,7 @@ Modal.Footer = ({
   onAction,
   actionType = 'primary',
   actionText,
+  actionLoading,
   cancelText,
   disabled = false,
 }: {
@@ -124,6 +125,7 @@ Modal.Footer = ({
   onAction: () => void
   actionType?: 'primary' | 'danger'
   actionText: React.ReactNode
+  actionLoading?: boolean
   cancelText?: string
   disabled?: boolean
 }) => (
@@ -133,7 +135,13 @@ Modal.Footer = ({
       <Button variant="secondary" size="sm" onClick={onDismiss}>
         {cancelText || 'Cancel'}
       </Button>
-      <Button size="sm" variant={actionType} onClick={onAction} disabled={disabled}>
+      <Button
+        size="sm"
+        variant={actionType}
+        onClick={onAction}
+        disabled={disabled}
+        loading={actionLoading}
+      >
         {actionText}
       </Button>
     </div>

@@ -177,13 +177,8 @@ To debug end-to-end failures on CI, check out the branch with the failure and ru
 | `npm run gen-api`        | Generate API client (see [`docs/update-pinned-api.md`](docs/update-pinned-api.md)) |
 | `npm run start:mock-api` | Serve mock API on port 12220                                                       |
 
-## Relevant documents
-
-Only RFD 4 is currently accessible to people outside Oxide.
-
-### RFDs
+## Relevant RFDs
 
 - [RFD 4 User-Facing API](https://rfd.shared.oxide.computer/rfd/0004)
 - [RFD 169 Console Authentication and Session Management](https://rfd.shared.oxide.computer/rfd/0169)
-- [RFD 180 Console v1 Scope](https://rfd.shared.oxide.computer/rfd/0180)
 - [RFD 223 Web Console Architecture](https://rfd.shared.oxide.computer/rfd/0223)

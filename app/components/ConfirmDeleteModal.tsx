@@ -5,6 +5,9 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useState } from 'react'
+
+import { type ApiError } from '@oxide/api'
 import { Message, Modal } from '@oxide/ui'
 import { classed } from '@oxide/util'
 
@@ -15,6 +18,12 @@ export const HL = classed.span`text-sans-semi-md text-default`
 
 export function ConfirmDeleteModal() {
   const deleteConfig = useConfirmDelete((state) => state.deleteConfig)
+
+  // this is a bit sad -- ideally we would be able to use the loading state
+  // from the mutation directly, but that would require a lot of line changes
+  // and would require us to hook this up in a way that re-renders whenever the
+  // loading state changes
+  const [loading, setLoading] = useState(false)
 
   if (!deleteConfig) return null
 
@@ -31,19 +40,26 @@ export function ConfirmDeleteModal() {
       <Modal.Footer
         onDismiss={clearConfirmDelete}
         onAction={async () => {
-          await doDelete().catch((error) =>
+          setLoading(true)
+          try {
+            await doDelete()
+          } catch (error) {
             addToast({
               variant: 'error',
               title: 'Could not delete resource',
-              content: error.message,
+              content: (error as ApiError).message,
             })
-          )
+          }
+
+          setLoading(false) // do this regardless of success or error
+
           // TODO: generic success toast?
           clearConfirmDelete()
         }}
         cancelText="Cancel"
         actionText="Confirm"
         actionType="danger"
+        actionLoading={loading}
       />
     </Modal>
   )
