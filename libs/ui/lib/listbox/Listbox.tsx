@@ -17,8 +17,16 @@ import { Listbox as Select } from '@headlessui/react'
 import cn from 'classnames'
 import type { ReactNode } from 'react'
 
-import { FieldLabel, SpinnerLoader, TextInputHint } from '@oxide/ui'
-import { SelectArrows6Icon } from '@oxide/ui'
+import {
+  FieldLabel,
+  SelectArrows6Icon,
+  SpinnerLoader,
+  TextInputHint,
+  getDropdownZIndex,
+} from '@oxide/ui'
+
+import { useIsInModal } from '../modal/Modal'
+import { useIsInSideModal } from '../side-modal/SideModal'
 
 export type ListboxItem<Value extends string = string> = {
   value: Value
@@ -45,7 +53,6 @@ export interface ListboxProps<Value extends string = string> {
   helpText?: string
   required?: boolean
   isLoading?: boolean
-  isInSidebar?: boolean
 }
 
 export const Listbox = <Value extends string = string>({
@@ -62,7 +69,6 @@ export const Listbox = <Value extends string = string>({
   required,
   disabled,
   isLoading = false,
-  isInSidebar = false,
   ...props
 }: ListboxProps<Value>) => {
   const { refs, floatingStyles } = useFloating({
@@ -83,6 +89,7 @@ export const Listbox = <Value extends string = string>({
   const selectedItem = selected && items.find((i) => i.value === selected)
   const noItems = !isLoading && items.length === 0
   const isDisabled = disabled || noItems
+  const zIndex = getDropdownZIndex(useIsInModal(), useIsInSideModal())
 
   return (
     <div className={cn('relative', className)}>
@@ -144,9 +151,7 @@ export const Listbox = <Value extends string = string>({
               <Select.Options
                 ref={refs.setFloating}
                 style={floatingStyles}
-                className={`ox-menu pointer-events-auto ${
-                  isInSidebar ? 'z-50' : 'z-20'
-                } overflow-y-auto !outline-none`}
+                className={`ox-menu pointer-events-auto ${zIndex} overflow-y-auto !outline-none`}
               >
                 {items.map((item) => (
                   <Select.Option

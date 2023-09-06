@@ -74,7 +74,6 @@ export default function CreateNetworkInterfaceForm({
         items={vpcs.map(({ name }) => ({ label: name, value: name }))}
         required
         control={form.control}
-        isInSidebar
       />
       <SubnetListbox
         name="subnetName"
@@ -82,7 +81,6 @@ export default function CreateNetworkInterfaceForm({
         vpcNameField="vpcName"
         required
         control={form.control}
-        isInSidebar
       />
       <TextField name="ip" label="IP Address" control={form.control} />
     </SideModalForm>

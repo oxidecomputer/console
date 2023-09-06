@@ -9,6 +9,7 @@ import * as Dialog from '@radix-ui/react-dialog'
 import { animated, useTransition } from '@react-spring/web'
 import React, { createContext, forwardRef, useContext, useId } from 'react'
 
+import { zIndex } from '@oxide/ui'
 import { classed } from '@oxide/util'
 
 import { Button } from '../button/Button'
@@ -16,9 +17,7 @@ import { Close12Icon } from '../icons'
 
 const ModalContext = createContext(false)
 
-export const useIsInModal = () => {
-  return useContext(ModalContext)
-}
+export const useIsInModal = () => useContext(ModalContext)
 
 export type ModalProps = {
   title?: string
@@ -63,7 +62,7 @@ export function Modal({ children, onDismiss, title, isOpen }: ModalProps) {
                   aria-hidden
                 />
                 <AnimatedDialogContent
-                  className="DialogContent ox-modal pointer-events-auto fixed left-1/2 top-1/2 z-10 m-0 flex max-h-[min(800px,80vh)] w-auto min-w-[28rem] max-w-[32rem] flex-col justify-between rounded-lg border p-0 bg-raise border-secondary elevation-2"
+                  className={`DialogContent ox-modal pointer-events-auto fixed left-1/2 top-1/2 ${zIndex.modal} m-0 flex max-h-[min(800px,80vh)] w-auto min-w-[28rem] max-w-[32rem] flex-col justify-between rounded-lg border p-0 bg-raise border-secondary elevation-2`}
                   aria-labelledby={titleId}
                   style={{
                     transform: y.to((value) => `translate3d(-50%, ${-50 + value}%, 0px)`),

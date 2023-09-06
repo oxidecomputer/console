@@ -31,7 +31,6 @@ export type ListboxFieldProps<
   items: ListboxItem[]
   onChange?: (value: string | null | undefined) => void
   isLoading?: boolean
-  isInSidebar?: boolean
 }
 
 export function ListboxField<
@@ -50,7 +49,6 @@ export function ListboxField<
   control,
   onChange,
   isLoading,
-  isInSidebar,
 }: ListboxFieldProps<TFieldValues, TName>) {
   // TODO: recreate this logic
   //   validate: (v) => (required && !v ? `${name} is required` : undefined),
@@ -80,7 +78,6 @@ export function ListboxField<
               name={name}
               hasError={error !== undefined}
               isLoading={isLoading}
-              isInSidebar={isInSidebar}
             />
             <ErrorMessage error={error} label={label} />
           </>
