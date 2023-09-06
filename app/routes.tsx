@@ -19,6 +19,7 @@ import {
 import { CreateImageFromSnapshotSideModalForm } from './forms/image-from-snapshot'
 import { CreateImageSideModalForm } from './forms/image-upload'
 import { CreateInstanceForm } from './forms/instance-create'
+import { ModalLoopSideModal } from './forms/modal-loop'
 import { CreateProjectSideModalForm } from './forms/project-create'
 import { EditProjectSideModalForm } from './forms/project-edit'
 import { CreateSiloSideModalForm } from './forms/silo-create'
@@ -341,6 +342,7 @@ export const routes = createRoutesFromElements(
             handle={{ crumb: 'Upload image' }}
             element={<CreateImageSideModalForm />}
           />
+          <Route path="modal-loop" element={<ModalLoopSideModal />} />
           <Route
             path="images/:image/edit"
             element={<EditProjectImageSideModalForm />}
