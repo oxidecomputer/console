@@ -96,7 +96,7 @@ jobs:
         if: steps.playwright-cache.outputs.cache-hit == 'true'
         run: npx playwright install-deps
       - name: Run Playwright browser tests
-        run: npx playwright test --workers=2 --project=${{matrix.browser}}
+        run: npx playwright test --project=${{matrix.browser}}
       - uses: actions/upload-artifact@v3
         if: always()
         with:
