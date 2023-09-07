@@ -14,10 +14,12 @@ import { devices } from '@playwright/test'
 const config: PlaywrightTestConfig = {
   testDir: './app/test/e2e',
   testMatch: /\.e2e\.ts/,
-  /* Fail the build on CI if you accidentally left test.only in the source code. */
+  // Fail the build on CI if you accidentally left test.only in the source code
   forbidOnly: !!process.env.CI,
-  /* Retry on CI only */
+  // Retry on CI only
   retries: process.env.CI ? 2 : 0,
+  // use all available cores (2) on github actions. default is 50%, use that locally
+  workers: process.env.CI ? '100%' : undefined,
   timeout: 2 * 60 * 1000, // 2 minutes, surely overkill
   fullyParallel: true,
   use: {
