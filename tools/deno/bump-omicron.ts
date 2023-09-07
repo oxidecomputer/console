@@ -65,7 +65,17 @@ function getUploadAssetsWorkflowId() {
  */
 function linkifyGitLog(line: string): string {
   const sha = line.slice(2, 10)
-  const rest = line.slice(11).replace(/#\d+/g, (s) => 'oxidecomputer/console' + s)
+  let rest = line.slice(11)
+
+  // if the test ends with '(#123)',  make the number the whole text, otherwise
+  // it's redundant when it renders in the PR
+  const endsWithPr = rest.match(/\(#\d+\)$/)
+  if (endsWithPr) {
+    rest = endsWithPr[0].replace(/[()]/g, '')
+  }
+
+  rest = rest.replace(/#\d+/g, (s) => 'oxidecomputer/console' + s)
+
   const shaLink = `[${sha}](https://github.com/oxidecomputer/console/commit/${sha})`
 
   return `* ${shaLink} ${rest}`
