@@ -9,7 +9,8 @@ set -e
 set -o pipefail
 
 # Get the ID of the last github actions run if there was one
-RUN_ID=$(gh run list -b $(git rev-parse --abbrev-ref HEAD) -L 1 --json databaseId --jq '.[0].databaseId')
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+RUN_ID=$(gh run list -b "$BRANCH" -w CI -L 1 --json databaseId --jq '.[0].databaseId')
 
 if [ -z "$RUN_ID" ]; then
   echo "No action runs found for this branch"
