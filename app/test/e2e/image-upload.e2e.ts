@@ -186,7 +186,7 @@ test.describe('Image upload', () => {
     // now let's try canceling by clicking out on the background over the side modal
     await page.getByLabel('4096').click()
 
-    await sleep(100)
+    await sleep(300)
 
     // without the onFocusOutside fix this is a higher number
     expect(confirmCount).toEqual(2)
