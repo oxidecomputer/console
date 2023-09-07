@@ -871,7 +871,9 @@ export const IpPool = z.preprocess(
   z.object({
     description: z.string(),
     id: z.string().uuid(),
+    isDefault: SafeBoolean,
     name: Name,
+    siloId: z.string().uuid().optional(),
     timeCreated: z.coerce.date(),
     timeModified: z.coerce.date(),
   })
@@ -882,7 +884,12 @@ export const IpPool = z.preprocess(
  */
 export const IpPoolCreate = z.preprocess(
   processResponseBody,
-  z.object({ description: z.string(), name: Name })
+  z.object({
+    description: z.string(),
+    isDefault: SafeBoolean.default(false).optional(),
+    name: Name,
+    silo: NameOrId.optional(),
+  })
 )
 
 /**

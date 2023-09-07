@@ -860,8 +860,10 @@ export type IpPool = {
   description: string
   /** unique, immutable, system-controlled identifier for each resource */
   id: string
+  isDefault: boolean
   /** unique, mutable, user-controlled identifier for each resource */
   name: Name
+  siloId?: string
   /** timestamp when this resource was created */
   timeCreated: Date
   /** timestamp when this resource was last modified */
@@ -871,7 +873,14 @@ export type IpPool = {
 /**
  * Create-time parameters for an `IpPool`
  */
-export type IpPoolCreate = { description: string; name: Name }
+export type IpPoolCreate = {
+  description: string
+  /** Whether the IP pool is considered a default pool for its scope (fleet or silo). If a pool is marked default and is associated with a silo, instances created in that silo will draw IPs from that pool unless another pool is specified at instance create time. */
+  isDefault?: boolean
+  name: Name
+  /** If an IP pool is associated with a silo, instance IP allocations in that silo can draw from that pool. */
+  silo?: NameOrId
+}
 
 /**
  * A non-decreasing IPv4 address range, inclusive of both ends.
