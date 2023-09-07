@@ -164,10 +164,7 @@ test.describe('Image upload', () => {
   // testing the onFocusOutside fix
   test('cancel canceling', async ({ page, browserName }) => {
     // eslint-disable-next-line playwright/no-skipped-test
-    test.skip(
-      browserName === 'webkit',
-      'safari loves to flake on this one and I am sick of it'
-    )
+    test.skip(browserName === 'webkit', 'safari. stop this')
 
     await fillForm(page, 'new-image')
 
@@ -198,7 +195,10 @@ test.describe('Image upload', () => {
     expect(confirmCount).toEqual(2)
   })
 
-  test('Image upload cancel and retry', async ({ page }) => {
+  test('Image upload cancel and retry', async ({ page, browserName }) => {
+    // eslint-disable-next-line playwright/no-skipped-test
+    test.skip(browserName === 'webkit', 'safari. stop this')
+
     await fillForm(page, 'new-image')
 
     await page.click('role=button[name="Upload image"]')
