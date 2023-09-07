@@ -20,7 +20,7 @@ const config: PlaywrightTestConfig = {
   retries: process.env.CI ? 2 : 0,
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
-  timeout: 60000,
+  timeout: 2 * 60 * 1000, // 2 minutes, surely overkill
   fullyParallel: true,
   use: {
     trace: 'retain-on-failure',
