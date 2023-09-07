@@ -59,6 +59,18 @@ function getUploadAssetsWorkflowId() {
   ])
 }
 
+/**
+ * These lines get printed in an Omicron PR, so any references to commits or
+ * issues need to be qualified.
+ */
+function linkifyGitLog(line: string): string {
+  const sha = line.slice(2, 10)
+  const rest = line.slice(11).replace(/#\d+/g, (s) => 'oxidecomputer/console' + s)
+  const shaLink = `[${sha}](https://github.com/oxidecomputer/console/commit/${sha})`
+
+  return `* ${shaLink} ${rest}`
+}
+
 // script starts here
 
 const args = flags.parse(Deno.args, {
@@ -108,9 +120,18 @@ if (oldCommit === newCommit) {
 
 const commitRange = `${oldCommit.slice(0, 8)}...${newCommit.slice(0, 8)}`
 
+const commits = run('git', ['log', '--graph', '--oneline', commitRange])
+// commits are console commits, so they won't auto-link in omicron
+const commitsMarkdown = commits.split('\n').map(linkifyGitLog).join('\n')
+
+const changesLine = `https://github.com/oxidecomputer/console/compare/${commitRange}`
+
 const branchName = 'bump-console-' + newCommit.slice(0, 8)
 const prTitle = 'Bump web console' + (args.message ? ` (${args.message})` : '')
-const prBody = `Changes: https://github.com/oxidecomputer/console/compare/${commitRange}`
+const prBody = `${changesLine}\n\n${commitsMarkdown}`
+
+// markdown links make the inline preview unreadable, so leave them out
+const prBodyPreview = `${changesLine}\n\n${commits}`
 
 console.log(`
 New contents of <omicron>/tools/console_version:
@@ -119,11 +140,12 @@ ${newVersionFile}
 
 Branch:    ${branchName}
 PR title:  ${prTitle}
-PR body:   ${prBody}
 
-Console commits since current pinned version:
-
-${run('git', ['log', '--graph', '--oneline', '--color=always', commitRange])}`)
+--------
+PR body
+--------
+  
+${prBodyPreview}`)
 
 if (args.dryRun || !confirm('\nMake Omicron PR with these changes?')) {
   Deno.exit()
