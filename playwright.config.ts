@@ -24,7 +24,7 @@ const config: PlaywrightTestConfig = {
   fullyParallel: true,
   use: {
     trace: 'retain-on-failure',
-    baseURL: 'http://localhost:4009',
+    baseURL: process.env.CI ? process.env.BASE_URL : 'http://localhost:4009',
   },
   projects: [
     {

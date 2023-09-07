@@ -1,0 +1,41 @@
+name: Playwright
+
+# This is an unusual job because it's triggered by deploy events rather than
+# PR/push. The if condition means we only run on deployment_status events where
+# the status is success, i.e., we only run after Vercel deploy has succeeded.
+
+on:
+  deployment_status:
+jobs:
+  playwright:
+    name: Playwright (${{ matrix.browser }})
+    if:
+      github.event_name == 'deployment_status' && github.event.deployment_status.state == 'success'
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: ['chrome', 'firefox', 'safari']
+    steps:
+      # This repo is unstable and unnecessary: https://github.com/microsoft/linux-package-repositories/issues/34
+      - name: Disable packages.microsoft.com repo
+        run: sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Install dependencies
+        run: npm ci
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+      - name: Run Playwright tests
+        run: npx playwright test --workers=2 --project=${{matrix.browser}}
+        env:
+          BASE_URL: ${{ github.event.deployment_status.target_url }}
+      - uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: test-results
+          path: test-results/
+          retention-days: 30
