@@ -12,7 +12,7 @@ import { MiB } from '@oxide/util'
 
 import { expectNotVisible, expectRowVisible, expectVisible, sleep } from './utils'
 
-async function chooseFile(page: Page, size = 10 * MiB) {
+async function chooseFile(page: Page, size = 15 * MiB) {
   const fileChooserPromise = page.waitForEvent('filechooser')
   await page.getByText('Image file', { exact: true }).click()
   const fileChooser = await fileChooserPromise
@@ -215,12 +215,10 @@ test.describe('Image upload', () => {
     await expect(progressModal).toBeHidden()
 
     // form's back
-    await expectVisible(page, [
-      'role=textbox[name="Name"]',
-      // need to wait for submit button to come back because it's in a loading
-      // state while the cleanup runs
-      'role=button[name="Upload image"]',
-    ])
+    await expect(page.getByRole('textbox', { name: 'Name' })).toBeVisible()
+    // need to wait for submit button to come back because it's in a loading
+    // state while the cleanup runs
+    await expect(page.getByRole('button', { name: 'Upload image' })).toBeVisible()
 
     // resubmit and it should work fine
     await page.getByRole('button', { name: 'Upload image' }).click()
