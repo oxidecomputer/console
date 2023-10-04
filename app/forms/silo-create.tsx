@@ -5,7 +5,6 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 
 import type { SiloCreate } from '@oxide/api'
@@ -19,7 +18,7 @@ import {
   SideModalForm,
   TextField,
 } from 'app/components/form'
-import { useToast } from 'app/hooks'
+import { useForm, useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 type FormValues = Omit<SiloCreate, 'mappedFleetRoles'> & {
@@ -54,7 +53,7 @@ export function CreateSiloSideModalForm() {
     },
   })
 
-  const form = useForm({ mode: 'all', defaultValues })
+  const form = useForm({ defaultValues })
 
   return (
     <SideModalForm

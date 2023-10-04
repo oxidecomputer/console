@@ -5,14 +5,12 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useForm } from 'react-hook-form'
-
 import type { VpcSubnetCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { FormDivider } from '@oxide/ui'
 
 import { DescriptionField, NameField, SideModalForm, TextField } from 'app/components/form'
-import { useVpcSelector } from 'app/hooks'
+import { useForm, useVpcSelector } from 'app/hooks'
 
 const defaultValues: VpcSubnetCreate = {
   name: '',
@@ -35,7 +33,7 @@ export function CreateSubnetForm({ onDismiss }: CreateSubnetFormProps) {
     },
   })
 
-  const form = useForm({ mode: 'all', defaultValues })
+  const form = useForm({ defaultValues })
 
   return (
     <SideModalForm

@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useForm, useWatch } from 'react-hook-form'
+import { useWatch } from 'react-hook-form'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 import type { SetRequired } from 'type-fest'
@@ -50,7 +50,7 @@ import {
   RadioFieldDyn,
   TextField,
 } from 'app/components/form'
-import { getProjectSelector, useProjectSelector, useToast } from 'app/hooks'
+import { getProjectSelector, useForm, useProjectSelector, useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 export type InstanceCreateInput = Assign<
@@ -132,7 +132,7 @@ export function CreateInstanceForm() {
     bootDiskSize: Math.ceil(defaultImage?.size / GiB) * 2 || 10,
   }
 
-  const form = useForm({ mode: 'all', defaultValues })
+  const form = useForm({ defaultValues })
   const { control, setValue } = form
 
   const imageInput = useWatch({ control: control, name: 'image' })

@@ -5,13 +5,13 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 
 import type { ProjectCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
+import { useForm } from 'app/hooks'
 import { addToast } from 'app/stores/toast'
 import { pb } from 'app/util/path-builder'
 
@@ -39,7 +39,7 @@ export function CreateProjectSideModalForm() {
 
   // TODO: RHF docs warn about the performance impact of validating on every
   // change
-  const form = useForm({ mode: 'all', defaultValues })
+  const form = useForm({ defaultValues })
 
   return (
     <SideModalForm

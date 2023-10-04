@@ -5,14 +5,12 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useForm } from 'react-hook-form'
-
 import type { VpcSubnet } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { pick } from '@oxide/util'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
-import { useVpcSelector } from 'app/hooks'
+import { useForm, useVpcSelector } from 'app/hooks'
 
 type EditSubnetFormProps = {
   onDismiss: () => void
@@ -32,7 +30,7 @@ export function EditSubnetForm({ onDismiss, editing }: EditSubnetFormProps) {
 
   const defaultValues = pick(editing, 'name', 'description') /* satisfies VpcSubnetUpdate */
 
-  const form = useForm({ mode: 'all', defaultValues })
+  const form = useForm({ defaultValues })
 
   return (
     <SideModalForm

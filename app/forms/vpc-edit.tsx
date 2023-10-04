@@ -5,7 +5,6 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useForm } from 'react-hook-form'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 
@@ -17,7 +16,7 @@ import {
 } from '@oxide/api'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
-import { getVpcSelector, useToast, useVpcSelector } from 'app/hooks'
+import { getVpcSelector, useForm, useToast, useVpcSelector } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 EditVpcSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
@@ -52,7 +51,7 @@ export function EditVpcSideModalForm() {
     },
   })
 
-  const form = useForm({ mode: 'all', defaultValues: vpc })
+  const form = useForm({ defaultValues: vpc })
 
   return (
     <SideModalForm

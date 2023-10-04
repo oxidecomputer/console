@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { useMemo, useState } from 'react'
-import { type FieldValues, useForm } from 'react-hook-form'
+import { type FieldValues } from 'react-hook-form'
 import { Outlet } from 'react-router-dom'
 
 import {
@@ -29,7 +29,7 @@ import {
 } from '@oxide/ui'
 
 import { ListboxField, toListboxItem } from 'app/components/form'
-import { useToast } from 'app/hooks'
+import { useForm, useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 const EmptyState = () => (

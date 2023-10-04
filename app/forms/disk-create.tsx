@@ -7,7 +7,6 @@
  */
 import { format } from 'date-fns'
 import type { Control } from 'react-hook-form'
-import { useForm } from 'react-hook-form'
 import { useController } from 'react-hook-form'
 import type { NavigateFunction } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
@@ -27,7 +26,7 @@ import {
   SideModalForm,
   toListboxItem,
 } from 'app/components/form'
-import { useProjectSelector, useToast } from 'app/hooks'
+import { useForm, useProjectSelector, useToast } from 'app/hooks'
 
 const blankDiskSource: DiskSource = {
   type: 'blank',
@@ -75,7 +74,7 @@ export function CreateDiskSideModalForm({
     },
   })
 
-  const form = useForm({ mode: 'all', defaultValues })
+  const form = useForm({ defaultValues })
 
   return (
     <SideModalForm

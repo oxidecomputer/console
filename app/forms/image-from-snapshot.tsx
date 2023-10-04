@@ -6,7 +6,6 @@
  * Copyright Oxide Computer Company
  */
 import fileSize from 'filesize'
-import { useForm } from 'react-hook-form'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 
@@ -20,7 +19,7 @@ import {
 import { PropertiesTable } from '@oxide/ui'
 
 import { DescriptionField, NameField, SideModalForm, TextField } from 'app/components/form'
-import { getProjectSnapshotSelector, useProjectSnapshotSelector } from 'app/hooks'
+import { getProjectSnapshotSelector, useForm, useProjectSnapshotSelector } from 'app/hooks'
 import { addToast } from 'app/stores/toast'
 import { pb } from 'app/util/path-builder'
 
@@ -60,7 +59,6 @@ export function CreateImageFromSnapshotSideModalForm() {
   })
 
   const form = useForm({
-    mode: 'all',
     defaultValues: {
       ...defaultValues,
       name: data.name,

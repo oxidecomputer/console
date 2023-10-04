@@ -5,8 +5,6 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useForm } from 'react-hook-form'
-
 import {
   updateRole,
   useActorsNotInPolicy,
@@ -15,7 +13,7 @@ import {
 } from '@oxide/api'
 
 import { ListboxField, SideModalForm } from 'app/components/form'
-import { useProjectSelector } from 'app/hooks'
+import { useForm, useProjectSelector } from 'app/hooks'
 
 import type { AddRoleModalProps, EditRoleModalProps } from './access-util'
 import { actorToItem, defaultValues, roleItems } from './access-util'
@@ -33,7 +31,7 @@ export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModa
     },
   })
 
-  const form = useForm({ mode: 'all', defaultValues })
+  const form = useForm({ defaultValues })
 
   return (
     <SideModalForm
@@ -93,7 +91,7 @@ export function ProjectAccessEditUserSideModal({
     },
   })
 
-  const form = useForm({ mode: 'all', defaultValues })
+  const form = useForm({ defaultValues })
 
   return (
     <SideModalForm

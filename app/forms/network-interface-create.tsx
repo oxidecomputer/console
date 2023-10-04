@@ -6,7 +6,6 @@
  * Copyright Oxide Computer Company
  */
 import { useMemo } from 'react'
-import { useForm } from 'react-hook-form'
 
 import type { ApiError, InstanceNetworkInterfaceCreate } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
@@ -20,7 +19,7 @@ import {
   SubnetListbox,
   TextField,
 } from 'app/components/form'
-import { useProjectSelector } from 'app/hooks'
+import { useForm, useProjectSelector } from 'app/hooks'
 
 const defaultValues: InstanceNetworkInterfaceCreate = {
   name: '',
@@ -52,7 +51,7 @@ export default function CreateNetworkInterfaceForm({
   const { data: vpcsData } = useApiQuery('vpcList', { query: projectSelector })
   const vpcs = useMemo(() => vpcsData?.items || [], [vpcsData])
 
-  const form = useForm({ mode: 'all', defaultValues })
+  const form = useForm({ defaultValues })
 
   return (
     <SideModalForm

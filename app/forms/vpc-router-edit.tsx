@@ -5,14 +5,12 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useForm } from 'react-hook-form'
-
 import type { VpcRouter } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { pick } from '@oxide/util'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
-import { useVpcSelector } from 'app/hooks'
+import { useForm, useVpcSelector } from 'app/hooks'
 
 type EditVpcRouterFormProps = {
   onDismiss: () => void
@@ -31,7 +29,7 @@ export function EditVpcRouterForm({ onDismiss, editing }: EditVpcRouterFormProps
   })
 
   const defaultValues = pick(editing, 'name', 'description') /* satisfies VpcRouterUpdate */
-  const form = useForm({ mode: 'all', defaultValues })
+  const form = useForm({ defaultValues })
 
   return (
     <SideModalForm
