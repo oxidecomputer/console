@@ -14,10 +14,10 @@ import {
   Cpu16Icon,
   Divider,
   Listbox,
+  Metrics24Icon,
   PageHeader,
   PageTitle,
   Ram16Icon,
-  Snapshots24Icon,
   Ssd16Icon,
 } from '@oxide/ui'
 import { bytesToGiB, bytesToTiB } from '@oxide/util'
@@ -85,7 +85,7 @@ export function CapacityUtilizationPage() {
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<Snapshots24Icon />}>Capacity &amp; Utilization</PageTitle>
+        <PageTitle icon={<Metrics24Icon />}>Capacity &amp; Utilization</PageTitle>
       </PageHeader>
 
       <div className="mb-12 flex min-w-min flex-col gap-3 lg+:flex-row">

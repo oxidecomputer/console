@@ -5,7 +5,8 @@
  *
  * Copyright Oxide Computer Company
  */
-import { Instances24Icon } from '../icons'
+import { Instances24Icon } from '@oxide/design-system/icons/react'
+
 import { EmptyMessage } from './EmptyMessage'
 
 export const Default = () => (

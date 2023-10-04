@@ -7,7 +7,7 @@
  */
 import cn from 'classnames'
 
-import { DirectionLeftIcon, DirectionRightIcon } from '../icons'
+import { DirectionLeftIcon, DirectionRightIcon } from '@oxide/design-system/icons/react'
 
 interface PageInputProps {
   number: number

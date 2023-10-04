@@ -12,8 +12,8 @@ import { apiQueryClient } from '@oxide/api'
 import {
   Cloud16Icon,
   Divider,
+  Metrics16Icon,
   Settings16Icon,
-  Snapshots16Icon,
   Storage16Icon,
 } from '@oxide/ui'
 
@@ -104,7 +104,7 @@ export default function SystemLayout() {
             <Instances16Icon /> Issues
           </NavLinkItem> */}
           <NavLinkItem to={pb.systemUtilization()}>
-            <Snapshots16Icon /> Utilization
+            <Metrics16Icon /> Utilization
           </NavLinkItem>
           <NavLinkItem to={pb.sledInventory()}>
             <Storage16Icon /> Inventory

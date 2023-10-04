@@ -7,7 +7,7 @@
  */
 import cn from 'classnames'
 
-import { Close8Icon } from '../icons'
+import { Close8Icon } from '@oxide/design-system/icons/react'
 
 export type TagColor = 'default' | 'destructive' | 'notice' | 'neutral'
 export type TagVariant = 'default' | 'secondary'

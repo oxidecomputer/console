@@ -7,7 +7,7 @@
  */
 import cn from 'classnames'
 
-import { Checkmark12Icon } from '@oxide/ui'
+import { Checkmark12Icon } from '@oxide/design-system/icons/react'
 import { classed } from '@oxide/util'
 
 const Check = () => (

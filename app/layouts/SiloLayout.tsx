@@ -8,13 +8,7 @@
 import { useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
-import {
-  Access16Icon,
-  Divider,
-  Folder16Icon,
-  Images16Icon,
-  Snapshots16Icon,
-} from '@oxide/ui'
+import { Access16Icon, Divider, Folder16Icon, Images16Icon, Metrics16Icon } from '@oxide/ui'
 
 import { DocsLinkItem, NavLinkItem, Sidebar } from 'app/components/Sidebar'
 import { TopBar } from 'app/components/TopBar'
@@ -69,7 +63,7 @@ export function SiloLayout() {
             <Images16Icon /> Images
           </NavLinkItem>
           <NavLinkItem to={pb.siloUtilization()}>
-            <Snapshots16Icon /> Utilization
+            <Metrics16Icon /> Utilization
           </NavLinkItem>
           <NavLinkItem to={pb.siloAccess()}>
             <Access16Icon /> Access & IAM
