@@ -10,7 +10,7 @@ import cn from 'classnames'
 import { matchSorter } from 'match-sorter'
 import React, { useState } from 'react'
 
-import { Close12Icon } from '@oxide/ui'
+import { Close12Icon } from '@oxide/design-system/icons/react'
 import { classed, groupBy } from '@oxide/util'
 
 import { useSteppedScroll } from '../hooks/use-stepped-scroll'

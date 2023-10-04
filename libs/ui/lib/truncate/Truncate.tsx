@@ -7,7 +7,8 @@
  */
 import { useState } from 'react'
 
-import { Clipboard16Icon, Success12Icon } from '../../'
+import { Clipboard16Icon, Success12Icon } from '@oxide/design-system/icons/react'
+
 import useTimeout from '../hooks/use-timeout'
 import { Tooltip } from '../tooltip/Tooltip'
 

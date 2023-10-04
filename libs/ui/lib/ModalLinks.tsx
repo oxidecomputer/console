@@ -7,7 +7,7 @@
  */
 import type { ReactNode } from 'react'
 
-import { OpenLink12Icon } from '../'
+import { OpenLink12Icon } from '@oxide/design-system/icons/react'
 
 export const ModalLinks = ({
   heading,

@@ -9,9 +9,12 @@ import cn from 'classnames'
 import type { ReactElement, ReactNode } from 'react'
 import { Link, type To } from 'react-router-dom'
 
-import { OpenLink12Icon } from '@oxide/ui'
-
-import { Error12Icon, Success12Icon, Warning12Icon } from '../../'
+import {
+  Error12Icon,
+  OpenLink12Icon,
+  Success12Icon,
+  Warning12Icon,
+} from '@oxide/design-system/icons/react'
 
 type Variant = 'success' | 'error' | 'notice' | 'info'
 

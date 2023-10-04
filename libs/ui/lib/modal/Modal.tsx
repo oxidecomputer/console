@@ -9,9 +9,9 @@ import * as Dialog from '@radix-ui/react-dialog'
 import { animated, useTransition } from '@react-spring/web'
 import React, { createContext, forwardRef, useContext, useId } from 'react'
 
+import { Close12Icon } from '@oxide/design-system/icons/react'
 import { classed } from '@oxide/util'
 
-import { Close12Icon } from '../../'
 import { Button } from '../button/Button'
 
 const ModalContext = createContext(false)

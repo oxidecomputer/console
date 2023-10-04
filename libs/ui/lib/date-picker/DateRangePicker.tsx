@@ -14,7 +14,8 @@ import { useDateFormatter } from 'react-aria'
 import { useDateRangePickerState } from 'react-stately'
 import type { DateRangePickerStateOptions } from 'react-stately'
 
-import { Calendar16Icon, Error12Icon } from '../../'
+import { Calendar16Icon, Error12Icon } from '@oxide/design-system/icons/react'
+
 import { TimeField } from './DateField'
 import { Dialog } from './Dialog'
 import { Popover } from './Popover'
