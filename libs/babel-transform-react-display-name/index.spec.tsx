@@ -146,7 +146,7 @@ describe('functions returning JSX', () => {
       });
       exports.Button = void 0;
       var _extends2 = _interopRequireDefault(require(\\"@babel/runtime/helpers/extends\\"));
-      const Button = forwardRef((_ref, ref) => {
+      const Button = exports.Button = forwardRef((_ref, ref) => {
         let {
           children,
           ...props
@@ -156,7 +156,6 @@ describe('functions returning JSX', () => {
           type: \\"button\\"
         }, props), children);
       });
-      exports.Button = Button;
       Button.displayName = \\"Button - libs/babel-transform-react-display-name/index.spec.tsx\\""
     `)
     expect(result).toContain('Button.displayName = ')
