@@ -10,7 +10,7 @@ import { useIsFetching } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
-import { Divider, Listbox, PageHeader, PageTitle, Snapshots24Icon } from '@oxide/ui'
+import { Divider, Listbox, Metrics24Icon, PageHeader, PageTitle } from '@oxide/ui'
 import { bytesToGiB, bytesToTiB } from '@oxide/util'
 
 import { useIntervalPicker } from 'app/components/RefetchIntervalPicker'
@@ -63,7 +63,7 @@ export function SiloUtilizationPage() {
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<Snapshots24Icon />}>Capacity &amp; Utilization</PageTitle>
+        <PageTitle icon={<Metrics24Icon />}>Capacity &amp; Utilization</PageTitle>
       </PageHeader>
 
       <div className="flex justify-between gap-3">
