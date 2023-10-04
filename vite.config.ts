@@ -87,12 +87,7 @@ export default defineConfig(({ mode }) => ({
         tags: process.env.VERCEL ? [previewAnalyticsTag] : [],
       },
     }),
-    react({
-      babel: {
-        plugins:
-          mode === 'development' ? ['./libs/babel-transform-react-display-name'] : [],
-      },
-    }),
+    react(),
     dotPathFixPlugin([new RegExp('^/system/update/updates/' + semverRegex)]),
     apiMode === 'dogfood' && basicSsl(),
   ],
