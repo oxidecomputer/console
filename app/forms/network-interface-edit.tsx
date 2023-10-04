@@ -5,14 +5,12 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useForm } from 'react-hook-form'
-
 import type { InstanceNetworkInterface } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { pick } from '@oxide/util'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
-import { useInstanceSelector } from 'app/hooks'
+import { useForm, useInstanceSelector } from 'app/hooks'
 
 type EditNetworkInterfaceFormProps = {
   editing: InstanceNetworkInterface
@@ -35,7 +33,7 @@ export default function EditNetworkInterfaceForm({
 
   const defaultValues = pick(editing, 'name', 'description') // satisfies NetworkInterfaceUpdate
 
-  const form = useForm({ mode: 'all', defaultValues })
+  const form = useForm({ defaultValues })
 
   return (
     <SideModalForm

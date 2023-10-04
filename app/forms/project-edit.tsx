@@ -5,7 +5,6 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useForm } from 'react-hook-form'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 
@@ -17,6 +16,7 @@ import {
 } from '@oxide/api'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
+import { useForm } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 import { getProjectSelector, useProjectSelector, useToast } from '../hooks'
@@ -50,7 +50,7 @@ export function EditProjectSideModalForm() {
     },
   })
 
-  const form = useForm({ mode: 'all', defaultValues: project })
+  const form = useForm({ defaultValues: project })
 
   return (
     <SideModalForm

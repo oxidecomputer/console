@@ -5,13 +5,11 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useForm } from 'react-hook-form'
-
 import type { VpcRouterCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
-import { useToast, useVpcSelector } from 'app/hooks'
+import { useForm, useToast, useVpcSelector } from 'app/hooks'
 
 const defaultValues: VpcRouterCreate = {
   name: '',
@@ -41,7 +39,7 @@ export function CreateVpcRouterForm({ onDismiss }: CreateVpcRouterFormProps) {
     },
   })
 
-  const form = useForm({ mode: 'all', defaultValues })
+  const form = useForm({ defaultValues })
 
   return (
     <SideModalForm

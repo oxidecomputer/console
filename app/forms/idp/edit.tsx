@@ -5,7 +5,6 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useForm } from 'react-hook-form'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 
@@ -14,7 +13,7 @@ import { Access16Icon, PropertiesTable, ResourceLabel, Truncate } from '@oxide/u
 import { formatDateTime } from '@oxide/util'
 
 import { DescriptionField, NameField, SideModalForm, TextField } from 'app/components/form'
-import { getIdpSelector, useIdpSelector } from 'app/hooks'
+import { getIdpSelector, useForm, useIdpSelector } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 EditIdpSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
@@ -36,7 +35,7 @@ export function EditIdpSideModalForm() {
   const navigate = useNavigate()
   const onDismiss = () => navigate(pb.silo({ silo }))
 
-  const form = useForm({ mode: 'all', defaultValues: idp })
+  const form = useForm({ defaultValues: idp })
 
   return (
     <SideModalForm

@@ -5,13 +5,12 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useForm } from 'react-hook-form'
-
 import type { Group } from '@oxide/api'
 import { Table, createColumnHelper, useReactTable } from '@oxide/table'
 import { Settings24Icon } from '@oxide/ui'
 
 import { FullPageForm, TextField } from 'app/components/form'
+import { useForm } from 'app/hooks'
 import { useCurrentUser } from 'app/layouts/AuthenticatedLayout'
 
 const colHelper = createColumnHelper<Group>()
@@ -27,7 +26,6 @@ export function ProfilePage() {
   const groupsTable = useReactTable({ columns, data: myGroups.items })
 
   const form = useForm({
-    mode: 'all',
     defaultValues: {
       id: me.id,
     },

@@ -5,13 +5,11 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useForm } from 'react-hook-form'
-
 import type { ApiError } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 
 import { ListboxField, SideModalForm } from 'app/components/form'
-import { useProjectSelector } from 'app/hooks'
+import { useForm, useProjectSelector } from 'app/hooks'
 
 const defaultValues = { name: '' }
 
@@ -44,7 +42,7 @@ export function AttachDiskSideModalForm({
       (d) => d.state.state === 'detached'
     ) || []
 
-  const form = useForm({ mode: 'all', defaultValues })
+  const form = useForm({ defaultValues })
 
   return (
     <SideModalForm

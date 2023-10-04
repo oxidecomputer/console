@@ -5,7 +5,6 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 
 import type { PathParams as PP, SnapshotCreate } from '@oxide/api'
@@ -18,7 +17,7 @@ import {
   NameField,
   SideModalForm,
 } from 'app/components/form'
-import { useProjectSelector, useToast } from 'app/hooks'
+import { useForm, useProjectSelector, useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 const useSnapshotDiskItems = (projectSelector: PP.Project) => {
@@ -56,7 +55,7 @@ export function CreateSnapshotSideModalForm() {
     },
   })
 
-  const form = useForm({ mode: 'all', defaultValues })
+  const form = useForm({ defaultValues })
 
   return (
     <SideModalForm

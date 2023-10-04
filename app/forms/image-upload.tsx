@@ -10,7 +10,6 @@ import filesize from 'filesize'
 import pMap from 'p-map'
 import pRetry from 'p-retry'
 import { useRef, useState } from 'react'
-import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 
 import type { ApiError, BlockSize, Disk, Snapshot } from '@oxide/api'
@@ -34,7 +33,7 @@ import {
   TextField,
 } from 'app/components/form'
 import { FileField } from 'app/components/form/fields'
-import { useProjectSelector } from 'app/hooks'
+import { useForm, useProjectSelector } from 'app/hooks'
 import { readBlobAsBase64 } from 'app/util/file'
 import { pb } from 'app/util/path-builder'
 
@@ -462,7 +461,7 @@ export function CreateImageSideModalForm() {
     setAllDone(true)
   }
 
-  const form = useForm({ mode: 'all', defaultValues })
+  const form = useForm({ defaultValues })
   const file = form.watch('imageFile')
 
   return (

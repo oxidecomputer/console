@@ -5,7 +5,6 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useForm } from 'react-hook-form'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 
@@ -17,6 +16,7 @@ import { DescriptionField, NameField, SideModalForm, TextField } from 'app/compo
 import {
   getProjectImageSelector,
   getSiloImageSelector,
+  useForm,
   useProjectImageSelector,
   useSiloImageSelector,
 } from 'app/hooks'
@@ -62,7 +62,7 @@ export function EditImageSideModalForm({
   type: 'Project' | 'Silo'
 }) {
   const navigate = useNavigate()
-  const form = useForm({ mode: 'all', defaultValues: image })
+  const form = useForm({ defaultValues: image })
 
   return (
     <SideModalForm

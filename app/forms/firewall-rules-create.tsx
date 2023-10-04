@@ -6,7 +6,6 @@
  * Copyright Oxide Computer Company
  */
 import type { Control } from 'react-hook-form'
-import { useForm } from 'react-hook-form'
 import { useController } from 'react-hook-form'
 
 import {
@@ -33,7 +32,7 @@ import {
   SideModalForm,
   TextField,
 } from 'app/components/form'
-import { useVpcSelector } from 'app/hooks'
+import { useForm, useVpcSelector } from 'app/hooks'
 
 export type FirewallRuleValues = {
   enabled: boolean
@@ -461,7 +460,7 @@ export function CreateFirewallRuleForm({
     },
   })
 
-  const form = useForm({ mode: 'all', defaultValues })
+  const form = useForm({ defaultValues })
 
   return (
     <SideModalForm
