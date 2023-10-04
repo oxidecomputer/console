@@ -15,7 +15,7 @@ import { useLocale, useRangeCalendar } from 'react-aria'
 import { useRangeCalendarState } from 'react-stately'
 import type { CalendarState, RangeCalendarState } from 'react-stately'
 
-import { DirectionLeftIcon, DirectionRightIcon } from '../icons'
+import { DirectionLeftIcon, DirectionRightIcon } from '../../'
 import { CalendarGrid } from './CalendarGrid'
 
 export function RangeCalendar(props: RangeCalendarProps<DateValue>) {

@@ -11,7 +11,7 @@ import type { ReactElement } from 'react'
 import { useEffect } from 'react'
 import { Link, type To } from 'react-router-dom'
 
-import { Close12Icon, Error12Icon, Success12Icon, Warning12Icon } from '../icons'
+import { Close12Icon, Error12Icon, Success12Icon, Warning12Icon } from '../../'
 import { TimeoutIndicator } from '../timeout-indicator/TimeoutIndicator'
 import { Truncate } from '../truncate/Truncate'
 

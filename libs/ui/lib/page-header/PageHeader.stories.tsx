@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { Folder24Icon } from '../icons'
+import { Folder24Icon } from '../../'
 import { PageHeader, PageTitle } from './PageHeader'
 
 export const Default = () => (

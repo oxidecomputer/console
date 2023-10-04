@@ -23,7 +23,6 @@ export * from './lib/dropdown-menu/DropdownMenu'
 export * from './lib/file-input/FileInput'
 export * from './lib/empty-message/EmptyMessage'
 export * from './lib/field-label/FieldLabel'
-export * from '@oxide/design-system/icons/react'
 
 export * from './lib/identicon/Identicon'
 export * from './lib/message/Message'
@@ -49,3 +48,5 @@ export * from './lib/toast/Toast'
 export * from './lib/tooltip/Tooltip'
 export * from './lib/truncate/Truncate'
 export * from './util/wrap'
+
+export * from '@oxide/design-system/icons/react'

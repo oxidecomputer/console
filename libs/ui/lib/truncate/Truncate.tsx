@@ -7,8 +7,8 @@
  */
 import { useState } from 'react'
 
+import { Clipboard16Icon, Success12Icon } from '../../'
 import useTimeout from '../hooks/use-timeout'
-import { Clipboard16Icon, Success12Icon } from '../icons'
 import { Tooltip } from '../tooltip/Tooltip'
 
 type TruncatePosition = 'middle' | 'end'

@@ -7,7 +7,7 @@
  */
 import type { ReactNode } from 'react'
 
-import { OpenLink12Icon } from './icons'
+import { OpenLink12Icon } from '../'
 
 export const ModalLinks = ({
   heading,

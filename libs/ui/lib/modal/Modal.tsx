@@ -11,8 +11,8 @@ import React, { createContext, forwardRef, useContext, useId } from 'react'
 
 import { classed } from '@oxide/util'
 
+import { Close12Icon } from '../../'
 import { Button } from '../button/Button'
-import { Close12Icon } from '../icons'
 
 const ModalContext = createContext(false)
 

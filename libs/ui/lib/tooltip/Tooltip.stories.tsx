@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { Filter12Icon } from '../icons'
+import { Filter12Icon } from '../../'
 import { Tooltip } from './Tooltip'
 
 export const Default = () => (

@@ -15,7 +15,7 @@ import { classed } from '@oxide/util'
 
 import { useIsOverflow } from 'app/hooks'
 
-import { Close12Icon, Error12Icon } from '../icons'
+import { Close12Icon, Error12Icon } from '../../'
 import './side-modal.css'
 
 const SideModalContext = createContext(false)

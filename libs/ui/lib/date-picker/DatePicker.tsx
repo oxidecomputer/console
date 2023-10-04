@@ -15,7 +15,7 @@ import { useDateFormatter } from 'react-aria'
 import { useDatePickerState } from 'react-stately'
 import type { DatePickerStateOptions } from 'react-stately'
 
-import { Calendar16Icon, Error12Icon } from '../icons'
+import { Calendar16Icon, Error12Icon } from '../../'
 import { Calendar } from './Calendar'
 import { TimeField } from './DateField'
 import { Dialog } from './Dialog'

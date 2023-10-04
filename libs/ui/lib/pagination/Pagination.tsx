@@ -7,7 +7,7 @@
  */
 import cn from 'classnames'
 
-import { DirectionLeftIcon, DirectionRightIcon } from '../icons'
+import { DirectionLeftIcon, DirectionRightIcon } from '../../'
 
 interface PageInputProps {
   number: number

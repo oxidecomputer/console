@@ -11,7 +11,7 @@ import { Link, type To } from 'react-router-dom'
 
 import { OpenLink12Icon } from '@oxide/ui'
 
-import { Error12Icon, Success12Icon, Warning12Icon } from '../icons'
+import { Error12Icon, Success12Icon, Warning12Icon } from '../../'
 
 type Variant = 'success' | 'error' | 'notice' | 'info'
 
