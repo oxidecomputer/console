@@ -71,14 +71,8 @@ export const NumberInput = React.forwardRef<
 })
 
 function IncrementButton(props: AriaButtonProps<'button'> & { className?: string }) {
-  const { children } = props
   const ref = useRef(null)
-  const { buttonProps } = useButton(
-    {
-      ...props,
-    },
-    ref
-  )
+  const { buttonProps } = useButton(props, ref)
 
   return (
     <button
@@ -89,7 +83,7 @@ function IncrementButton(props: AriaButtonProps<'button'> & { className?: string
       )}
       ref={ref}
     >
-      {children}
+      {props.children}
     </button>
   )
 }
