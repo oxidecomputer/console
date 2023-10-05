@@ -22,7 +22,7 @@ test('can create an instance', async ({ page }) => {
     'role=textbox[name="Name"]',
     'role=textbox[name="Description"]',
     'role=textbox[name="Disk name"]',
-    'role=spinbutton[name="Disk size (GiB)"]',
+    'role=textbox[name="Disk size (GiB)"]',
     'role=radiogroup[name="Network interface"]',
     'role=textbox[name="Hostname"]',
     'role=button[name="Create instance"]',
@@ -33,8 +33,9 @@ test('can create an instance', async ({ page }) => {
   await page.fill('textarea[name=description]', 'An instance... from space!')
   await page.locator('.ox-radio-card').nth(3).click()
 
-  await page.fill('input[name=bootDiskName]', 'my-boot-disk')
-  await page.fill('input[name=bootDiskSize]', '20')
+  await page.getByRole('textbox', { name: 'Disk name' }).fill('my-boot-disk')
+  const diskSizeInput = page.getByRole('textbox', { name: 'Disk size (GiB)' })
+  await diskSizeInput.fill('20')
 
   // pick a project image just to show we can
   await page.getByRole('tab', { name: 'Project images' }).click()
@@ -95,8 +96,9 @@ test('can create an instance with custom hardware', async ({ page }) => {
   await page.fill('input[name=ncpus]', '29')
   await page.fill('input[name=memory]', '53')
 
-  await page.fill('input[name=bootDiskName]', 'my-boot-disk')
-  await page.fill('input[name=bootDiskSize]', '20')
+  await page.getByRole('textbox', { name: 'Disk name' }).fill('my-boot-disk')
+  const diskSizeInput = page.getByRole('textbox', { name: 'Disk size (GiB)' })
+  await diskSizeInput.fill('20')
 
   // pick a project image just to show we can
   await page.getByRole('tab', { name: 'Project images' }).click()
@@ -104,11 +106,12 @@ test('can create an instance with custom hardware', async ({ page }) => {
   await page.getByRole('option', { name: images[2].name }).click()
 
   // test disk size validation against image size
-  await page.getByRole('spinbutton', { name: 'Disk size (GiB)' }).fill('5')
+  await diskSizeInput.fill('5')
+  await diskSizeInput.blur() // need blur to trigger validation
   await expectVisible(page, [
     'main >> text=Must be as large as selected image (min. 6 GiB)',
   ])
-  await page.getByRole('spinbutton', { name: 'Disk size (GiB)' }).fill('10')
+  await diskSizeInput.fill('10')
 
   await page.getByRole('button', { name: 'Create instance' }).click()
 

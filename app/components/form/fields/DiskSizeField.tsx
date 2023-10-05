@@ -5,12 +5,12 @@
  *
  * Copyright Oxide Computer Company
  */
-import type { FieldPath, FieldValues } from 'react-hook-form'
+import type { FieldPath, FieldPathByValue, FieldValues } from 'react-hook-form'
 
 import { MAX_DISK_SIZE_GiB } from '@oxide/api'
 
+import { NumberField } from './NumberField'
 import type { TextFieldProps } from './TextField'
-import { TextField } from './TextField'
 
 interface DiskSizeProps<
   TFieldValues extends FieldValues,
@@ -21,10 +21,10 @@ interface DiskSizeProps<
 
 export function DiskSizeField<
   TFieldValues extends FieldValues,
-  TName extends FieldPath<TFieldValues>
+  TName extends FieldPathByValue<TFieldValues, number>
 >({ required = true, name, minSize = 1, ...props }: DiskSizeProps<TFieldValues, TName>) {
   return (
-    <TextField
+    <NumberField
       units="GiB"
       type="number"
       required={required}
