@@ -10,7 +10,6 @@ import { useId } from 'react'
 import type { FieldPathByValue, FieldValues } from 'react-hook-form'
 import { Controller } from 'react-hook-form'
 
-import type { NumberInputProps as UINumberFieldProps } from '@oxide/ui'
 import { FieldLabel, TextInputHint, NumberInput as UINumberField } from '@oxide/ui'
 import { capitalize } from '@oxide/util'
 
@@ -70,8 +69,7 @@ export const NumberFieldInner = <
   description,
   required,
   id: idProp,
-  ...props
-}: TextFieldProps<TFieldValues, TName> & UINumberFieldProps) => {
+}: TextFieldProps<TFieldValues, TName>) => {
   const generatedId = useId()
   const id = idProp || generatedId
 
@@ -85,19 +83,15 @@ export const NumberFieldInner = <
           <>
             <UINumberField
               id={id}
-              title={label}
+              // title={label}
               error={!!error}
               aria-labelledby={cn(`${id}-label`, {
                 [`${id}-help-text`]: !!description,
               })}
               aria-describedby={description ? `${id}-label-tip` : undefined}
-              {...fieldRest}
-              {...props}
-              // these have to go after the spread so they take precedence
               defaultValue={value}
-              onChange={(val) => {
-                onChange(val)
-              }}
+              onChange={onChange}
+              {...fieldRest}
             />
             <ErrorMessage error={error} label={label} />
           </>
