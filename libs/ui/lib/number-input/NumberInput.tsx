@@ -1,5 +1,5 @@
 import cn from 'classnames'
-import { useRef } from 'react'
+import React, { useRef } from 'react'
 import {
   type AriaButtonProps,
   type AriaNumberFieldProps,
@@ -7,14 +7,18 @@ import {
   useLocale,
   useNumberField,
 } from 'react-aria'
+import { mergeRefs } from 'react-merge-refs'
 import { useNumberFieldState } from 'react-stately'
 
-type NumberInputProps = {
+export type NumberInputProps = {
   className?: string
   error?: boolean
 }
 
-export const NumberInput = (props: AriaNumberFieldProps & NumberInputProps) => {
+export const NumberInput = React.forwardRef<
+  HTMLInputElement,
+  AriaNumberFieldProps & NumberInputProps
+>((props: AriaNumberFieldProps & NumberInputProps, forwardedRef) => {
   const { locale } = useLocale()
   const state = useNumberFieldState({ ...props, locale })
 
@@ -36,17 +40,17 @@ export const NumberInput = (props: AriaNumberFieldProps & NumberInputProps) => {
     >
       <input
         {...inputProps}
-        ref={inputRef}
+        ref={mergeRefs([forwardedRef, inputRef])}
         className={cn(
-          `w-full rounded border-none py-[0.6875rem]
-      px-3 !outline-offset-1 text-sans-md
+          `w-full rounded border-none px-3
+      py-[0.6875rem] !outline-offset-1 text-sans-md
       text-default bg-default placeholder:text-quaternary
       focus:outline-none disabled:cursor-not-allowed disabled:text-tertiary disabled:bg-disabled`,
           props.error && 'focus-error',
           props.isDisabled && 'text-disabled bg-disabled'
         )}
       />
-      <div className="absolute right-0 top-0 bottom-0 flex flex-col border-l border-default">
+      <div className="absolute bottom-0 right-0 top-0 flex flex-col border-l border-default">
         <IncrementButton {...incrementButtonProps}>
           <InputArrowIcon />
         </IncrementButton>
@@ -57,7 +61,7 @@ export const NumberInput = (props: AriaNumberFieldProps & NumberInputProps) => {
       </div>
     </div>
   )
-}
+})
 
 function IncrementButton(props: AriaButtonProps<'button'> & { className?: string }) {
   const { children } = props
@@ -68,8 +72,6 @@ function IncrementButton(props: AriaButtonProps<'button'> & { className?: string
     },
     ref
   )
-
-  console.log(buttonProps.disabled)
 
   return (
     <button
