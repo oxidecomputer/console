@@ -7,7 +7,7 @@
  */
 import cn from 'classnames'
 import { useId } from 'react'
-import type { FieldPath, FieldValues } from 'react-hook-form'
+import type { FieldPathByValue, FieldValues } from 'react-hook-form'
 import { Controller } from 'react-hook-form'
 
 import type { NumberInputProps as UINumberFieldProps } from '@oxide/ui'
@@ -19,7 +19,8 @@ import type { TextFieldProps } from './TextField'
 
 export function NumberField<
   TFieldValues extends FieldValues,
-  TName extends FieldPath<TFieldValues>
+  // can only be used on fields with number values
+  TName extends FieldPathByValue<TFieldValues, number>
 >({
   name,
   label = capitalize(name),
@@ -60,7 +61,7 @@ export function NumberField<
  */
 export const NumberFieldInner = <
   TFieldValues extends FieldValues,
-  TName extends FieldPath<TFieldValues>
+  TName extends FieldPathByValue<TFieldValues, number>
 >({
   name,
   label = capitalize(name),
@@ -90,12 +91,13 @@ export const NumberFieldInner = <
                 [`${id}-help-text`]: !!description,
               })}
               aria-describedby={description ? `${id}-label-tip` : undefined}
+              {...fieldRest}
+              {...props}
+              // these have to go after the spread so they take precedence
               defaultValue={value}
               onChange={(val) => {
                 onChange(val)
               }}
-              {...fieldRest}
-              {...props}
             />
             <ErrorMessage error={error} label={label} />
           </>
