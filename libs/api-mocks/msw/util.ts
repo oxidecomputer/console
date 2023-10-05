@@ -235,8 +235,9 @@ export function generateUtilization(
   // Find the current maximum value in the generated data
   const currentMax = Math.max(...values)
 
-  // Normalize the data to sit within the range of 0 to overall capacity (with some headroom)
-  const normalizedValues = values.map((value) => (value / currentMax) * cap * 0.8)
+  // Normalize the data to sit within the range of 0 to overall capacity
+  const randomFactor = Math.random() * (1 - 0.33) + 0.33
+  const normalizedValues = values.map((value) => (value / currentMax) * cap * randomFactor)
 
   return normalizedValues
 }
