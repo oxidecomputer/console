@@ -52,7 +52,7 @@ test('Click through disks page', async ({ page }) => {
     'role=textbox[name="Name"]',
     'role=textbox[name="Description"]',
     'role=radiogroup[name="Block size (Bytes)"]',
-    'role=spinbutton[name="Size (GiB)"]',
+    'role=textbox[name="Size (GiB)"]',
     'role=button[name="Create Disk"]',
   ])
   await page.goBack()
