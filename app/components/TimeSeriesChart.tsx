@@ -125,13 +125,22 @@ export default function TimeSeriesChart({
   maxValue,
   unit,
 }: Props) {
+  // We use the largest data point +20% for the graph scale
+  // clamping at `maxValue` (if set) which is usually overall capacity
+  const calculatedMaxValue = useMemo(() => {
+    if (!maxValue) return null
+    if (!rawData) return maxValue
+    const dataMax = Math.max(...rawData.map((datum) => datum.value))
+    return Math.min(maxValue, dataMax * 1.2)
+  }, [rawData, maxValue])
+
   // If max value is set we normalize the graph so that
   // is the maximum, we also use our own function as recharts
   // doesn't fill the whole domain (just upto the data max)
-  const yTicks = maxValue
+  const yTicks = calculatedMaxValue
     ? {
-        domain: [0, maxValue],
-        ticks: getVerticalTicks(6, maxValue),
+        domain: [0, calculatedMaxValue],
+        ticks: getVerticalTicks(6, calculatedMaxValue),
       }
     : {
         tickSize: 6,
