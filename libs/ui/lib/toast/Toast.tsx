@@ -1,11 +1,25 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import { announce } from '@react-aria/live-announcer'
 import cn from 'classnames'
 import type { ReactElement } from 'react'
 import { useEffect } from 'react'
 import { Link, type To } from 'react-router-dom'
 
-import { Close12Icon, Error12Icon, Success12Icon, Warning12Icon } from '../icons'
+import {
+  Close12Icon,
+  Error12Icon,
+  Success12Icon,
+  Warning12Icon,
+} from '@oxide/design-system/icons/react'
+
 import { TimeoutIndicator } from '../timeout-indicator/TimeoutIndicator'
+import { Truncate } from '../truncate/Truncate'
 
 type Variant = 'success' | 'error' | 'info'
 
@@ -88,7 +102,7 @@ export const Toast = ({
             className="mt-3 block text-mono-sm text-accent-secondary hover:text-accent"
             to={cta.link}
           >
-            {cta.text}
+            <Truncate text={cta.text} maxLength={36} />
           </Link>
         )}
       </div>

@@ -1,9 +1,17 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *  
+ * Copyright Oxide Computer Company
+ */
+
 .ox-button {
   @apply relative;
 }
 .ox-button:after {
   content: '';
-  @apply absolute top-0 left-0 right-0 bottom-0 rounded border border-current opacity-[0.05];
+  @apply absolute bottom-0 left-0 right-0 top-0 rounded border border-current opacity-[0.05];
 }
 .btn-primary {
   @apply text-accent bg-accent-secondary hover:bg-accent-secondary-hover disabled:text-accent-disabled disabled:bg-accent-secondary;

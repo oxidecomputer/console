@@ -1,12 +1,17 @@
-import { useForm } from 'react-hook-form'
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import { useNavigate } from 'react-router-dom'
 
 import type { VpcCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import { toPathQuery } from '@oxide/util'
 
 import { DescriptionField, NameField, SideModalForm, TextField } from 'app/components/form'
-import { useProjectSelector, useToast } from 'app/hooks'
+import { useForm, useProjectSelector, useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 const defaultValues: VpcCreate = {
@@ -23,18 +28,19 @@ export function CreateVpcSideModalForm() {
 
   const createVpc = useApiMutation('vpcCreate', {
     onSuccess(vpc) {
-      const vpcSelector = { ...projectSelector, vpc: vpc.name }
-      queryClient.invalidateQueries('vpcList', { query: projectSelector })
+      queryClient.invalidateQueries('vpcList')
       // avoid the vpc fetch when the vpc page loads since we have the data
-      queryClient.setQueryData('vpcView', toPathQuery('vpc', vpcSelector), vpc)
-      addToast({
-        content: 'Your VPC has been created',
-      })
-      navigate(pb.vpc(vpcSelector))
+      queryClient.setQueryData(
+        'vpcView',
+        { path: { vpc: vpc.name }, query: projectSelector },
+        vpc
+      )
+      addToast({ content: 'Your VPC has been created' })
+      navigate(pb.vpc({ vpc: vpc.name, ...projectSelector }))
     },
   })
 
-  const form = useForm({ mode: 'all', defaultValues })
+  const form = useForm({ defaultValues })
 
   return (
     <SideModalForm
@@ -43,7 +49,7 @@ export function CreateVpcSideModalForm() {
       title="Create VPC"
       onSubmit={(values) => createVpc.mutate({ query: projectSelector, body: values })}
       onDismiss={() => navigate(pb.vpcs(projectSelector))}
-      loading={createVpc.isLoading}
+      loading={createVpc.isPending}
       submitError={createVpc.error}
     >
       <NameField name="name" control={form.control} />

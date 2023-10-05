@@ -1,3 +1,10 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import type { DateValue } from '@internationalized/date'
 import { createCalendar } from '@internationalized/date'
 import type { TimeValue } from '@react-types/datepicker'
@@ -8,10 +15,17 @@ import type { AriaDateFieldProps, AriaTimeFieldProps } from 'react-aria'
 import { useDateFieldState, useTimeFieldState } from 'react-stately'
 import type { DateFieldState, DateSegment as DateSegmentType } from 'react-stately'
 
-export function DateField(props: AriaDateFieldProps<DateValue>) {
+const dateTimeFieldStyles = 'flex items-center rounded border p-2'
+
+interface DateFieldProps extends AriaDateFieldProps<DateValue> {
+  className?: string
+}
+
+export function DateField(props: DateFieldProps) {
   const { locale } = useLocale()
   const state = useDateFieldState({
     ...props,
+    granularity: 'day',
     locale,
     createCalendar,
   })
@@ -20,7 +34,15 @@ export function DateField(props: AriaDateFieldProps<DateValue>) {
   const { fieldProps } = useDateField(props, state, ref)
 
   return (
-    <div {...fieldProps} ref={ref} className="flex items-center">
+    <div
+      {...fieldProps}
+      ref={ref}
+      className={cn(
+        state.value === null ? 'border-error' : 'border-default',
+        dateTimeFieldStyles,
+        props.className
+      )}
+    >
       {state.segments.map((segment, i) => (
         <DateSegment key={i} segment={segment} state={state} />
       ))}
@@ -46,7 +68,11 @@ export function TimeField(props: TimeFieldProps) {
     <div
       {...fieldProps}
       ref={ref}
-      className={cn('flex items-center rounded border p-2 border-default', props.className)}
+      className={cn(
+        state.value === null ? 'border-error' : 'border-default',
+        dateTimeFieldStyles,
+        props.className
+      )}
     >
       {state.segments.map((segment, i) => (
         <DateSegment key={i} segment={segment} state={state} />

@@ -1,9 +1,22 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import { Navigate, Route, createRoutesFromElements } from 'react-router-dom'
 
 import { RouterDataErrorBoundary } from './components/ErrorBoundary'
+import { NotFound } from './components/ErrorPage'
 import { CreateDiskSideModalForm } from './forms/disk-create'
 import { CreateIdpSideModalForm } from './forms/idp/create'
 import { EditIdpSideModalForm } from './forms/idp/edit'
+import {
+  EditProjectImageSideModalForm,
+  EditSiloImageSideModalForm,
+} from './forms/image-edit'
+import { CreateImageFromSnapshotSideModalForm } from './forms/image-from-snapshot'
 import { CreateImageSideModalForm } from './forms/image-upload'
 import { CreateInstanceForm } from './forms/instance-create'
 import { CreateProjectSideModalForm } from './forms/project-create'
@@ -15,18 +28,18 @@ import { CreateVpcSideModalForm } from './forms/vpc-create'
 import { EditVpcSideModalForm } from './forms/vpc-edit'
 import type { CrumbFunc } from './hooks/use-crumbs'
 import AuthLayout from './layouts/AuthLayout'
+import { AuthenticatedLayout } from './layouts/AuthenticatedLayout'
 import { LoginLayout } from './layouts/LoginLayout'
 import ProjectLayout from './layouts/ProjectLayout'
 import RootLayout from './layouts/RootLayout'
 import SettingsLayout from './layouts/SettingsLayout'
-import SiloLayout from './layouts/SiloLayout'
+import { SiloLayout } from './layouts/SiloLayout'
 import SystemLayout from './layouts/SystemLayout'
-import { SerialConsoleContentPane, userLoader } from './layouts/helpers'
+import { SerialConsoleContentPane } from './layouts/helpers'
 import DeviceAuthSuccessPage from './pages/DeviceAuthSuccessPage'
 import DeviceAuthVerifyPage from './pages/DeviceAuthVerifyPage'
 import { LoginPage } from './pages/LoginPage'
 import { LoginPageSaml } from './pages/LoginPageSaml'
-import NotFound from './pages/NotFound'
 import ProjectsPage from './pages/ProjectsPage'
 import { SiloAccessPage } from './pages/SiloAccessPage'
 import { SiloUtilizationPage } from './pages/SiloUtilizationPage'
@@ -56,13 +69,6 @@ import { InventoryPage } from './pages/system/inventory/InventoryPage'
 import { SledsTab } from './pages/system/inventory/SledsTab'
 import { SledInstancesTab } from './pages/system/inventory/sled/SledInstancesTab'
 import { SledPage } from './pages/system/inventory/sled/SledPage'
-// import { UpdateDetailSideModal } from './pages/system/UpdateDetailSideModal'
-// import {
-//   UpdatePage,
-//   UpdatePageComponents,
-//   UpdatePageHistory,
-//   UpdatePageUpdates,
-// } from './pages/system/UpdatePage'
 import { pb } from './util/path-builder'
 
 const projectCrumb: CrumbFunc = (m) => m.params.project!
@@ -84,9 +90,14 @@ export const routes = createRoutesFromElements(
     </Route>
 
     {/* This wraps all routes that are supposed to be authenticated */}
-    <Route loader={userLoader} errorElement={<RouterDataErrorBoundary />}>
+    <Route
+      element={<AuthenticatedLayout />}
+      loader={AuthenticatedLayout.loader}
+      errorElement={<RouterDataErrorBoundary />}
+      // very important. see `currentUserLoader` and `useCurrentUser`
+      shouldRevalidate={() => true}
+    >
       <Route path="settings" handle={{ crumb: 'settings' }} element={<SettingsLayout />}>
-        <Route index element={<Navigate to="profile" replace />} />
         <Route path="profile" element={<ProfilePage />} handle={{ crumb: 'Profile' }} />
         <Route element={<SSHKeysPage />} loader={SSHKeysPage.loader}>
           <Route path="ssh-keys" handle={{ crumb: 'SSH Keys' }} element={null} />
@@ -136,7 +147,6 @@ export const routes = createRoutesFromElements(
           loader={InventoryPage.loader}
           handle={{ crumb: 'Inventory' }}
         >
-          <Route index element={<Navigate to="sleds" replace />} />
           <Route path="sleds" element={<SledsTab />} loader={SledsTab.loader} />
           <Route path="disks" element={<DisksTab />} loader={DisksTab.loader} />
         </Route>
@@ -144,6 +154,7 @@ export const routes = createRoutesFromElements(
           path="inventory/sleds/:sledId"
           element={<SledPage />}
           loader={SledPage.loader}
+          handle={{ crumb: 'Sleds' }}
         >
           <Route index element={<Navigate to="instances" replace />} />
           <Route
@@ -154,35 +165,6 @@ export const routes = createRoutesFromElements(
         </Route>
         <Route path="health" element={null} handle={{ crumb: 'Health' }} />
         <Route path="update" element={null} handle={{ crumb: 'Update' }} />
-        {/* <Route
-          path="update"
-          element={<UpdatePage />}
-          loader={UpdatePage.loader}
-          handle={{ crumb: 'Update' }}
-        >
-          <Route index element={<Navigate to="updates" replace />} />
-          <Route
-            path="updates"
-            element={<UpdatePageUpdates />}
-            loader={UpdatePageUpdates.loader}
-          >
-            <Route
-              path=":version"
-              element={<UpdateDetailSideModal />}
-              loader={UpdateDetailSideModal.loader}
-            />
-          </Route>
-          <Route
-            path="components"
-            element={<UpdatePageComponents />}
-            loader={UpdatePageComponents.loader}
-          />
-          <Route
-            path="history"
-            element={<UpdatePageHistory />}
-            loader={UpdatePageHistory.loader}
-          />
-        </Route> */}
         <Route path="networking" element={null} handle={{ crumb: 'Networking' }} />
         <Route path="settings" element={null} handle={{ crumb: 'Settings' }} />
       </Route>
@@ -198,7 +180,14 @@ export const routes = createRoutesFromElements(
           element={<SiloImagesPage />}
           loader={SiloImagesPage.loader}
           handle={{ crumb: 'Images' }}
-        />
+        >
+          <Route
+            path=":image/edit"
+            element={<EditSiloImageSideModalForm />}
+            loader={EditSiloImageSideModalForm.loader}
+            handle={{ crumb: 'Edit Image' }}
+          />
+        </Route>
         <Route
           path="utilization"
           element={<SiloUtilizationPage />}
@@ -234,6 +223,7 @@ export const routes = createRoutesFromElements(
       <Route
         path="projects/:project"
         element={<ProjectLayout overrideContentPane={<SerialConsoleContentPane />} />}
+        loader={ProjectLayout.loader}
         handle={{ crumb: projectCrumb }}
       >
         <Route path="instances" handle={{ crumb: 'Instances' }}>
@@ -250,6 +240,7 @@ export const routes = createRoutesFromElements(
       <Route
         path="projects/:project"
         element={<ProjectLayout />}
+        loader={ProjectLayout.loader}
         handle={{ crumb: projectCrumb }}
       >
         <Route
@@ -335,6 +326,12 @@ export const routes = createRoutesFromElements(
             element={<CreateSnapshotSideModalForm />}
             handle={{ crumb: 'New snapshot' }}
           />
+          <Route
+            path="snapshots/:snapshot/image-new"
+            element={<CreateImageFromSnapshotSideModalForm />}
+            loader={CreateImageFromSnapshotSideModalForm.loader}
+            handle={{ crumb: 'Create image from snapshot' }}
+          />
         </Route>
 
         <Route element={<ImagesPage />} loader={ImagesPage.loader}>
@@ -343,6 +340,12 @@ export const routes = createRoutesFromElements(
             path="images-new"
             handle={{ crumb: 'Upload image' }}
             element={<CreateImageSideModalForm />}
+          />
+          <Route
+            path="images/:image/edit"
+            element={<EditProjectImageSideModalForm />}
+            loader={EditProjectImageSideModalForm.loader}
+            handle={{ crumb: 'Edit Image' }}
           />
         </Route>
         <Route

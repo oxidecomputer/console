@@ -1,25 +1,17 @@
-import { test } from '@playwright/test'
-
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import { user3, user4 } from '@oxide/api-mocks'
 
-import {
-  expectNotVisible,
-  expectRowVisible,
-  expectSimultaneous,
-  expectVisible,
-} from './utils'
+import { expect, expectNotVisible, expectRowVisible, expectVisible, test } from './utils'
 
 test('Click through project access page', async ({ page }) => {
   await page.goto('/projects/mock-project')
   await page.click('role=link[name*="Access & IAM"]')
-
-  // has to be before anything else is checked. ensures we've prefetched
-  // users list and groups list properly
-  await expectSimultaneous(page, [
-    'role=button[name="Add user or group"]', // important to include a static element
-    'role=cell[name="real-estate-devs Group"]',
-    'role=cell[name="Hannah Arendt"]',
-  ])
 
   // page is there, we see user 1-3 but not 4
   await expectVisible(page, ['role=heading[name*="Access & IAM"]'])
@@ -37,7 +29,7 @@ test('Click through project access page', async ({ page }) => {
   await expectRowVisible(table, {
     // no space because expectRowVisible uses textContent, not accessible name
     Name: 'real-estate-devsGroup',
-    'Silo role': 'admin',
+    'Silo role': 'collaborator',
   })
   await expectRowVisible(table, {
     // no space because expectRowVisible uses textContent, not accessible name
@@ -97,13 +89,12 @@ test('Click through project access page', async ({ page }) => {
 
   // now delete user 3. has to be 3 or 4 because they're the only ones that come
   // from the project policy
-  await expectVisible(page, [`role=cell[name="${user3.display_name}"]`])
-  await page
-    .locator('role=row', { hasText: user3.display_name })
-    .locator('role=button[name="Row actions"]')
-    .click()
-  await page.click('role=menuitem[name="Delete"]')
-  await expectNotVisible(page, [`role=cell[name="${user3.display_name}"]`])
+  const user3Row = page.getByRole('row', { name: user3.display_name, exact: false })
+  await expect(user3Row).toBeVisible()
+  await user3Row.getByRole('button', { name: 'Row actions' }).click()
+  await page.getByRole('menuitem', { name: 'Delete' }).click()
+  await page.getByRole('button', { name: 'Confirm' }).click()
+  await expect(user3Row).toBeHidden()
 
   // now add a project role to user 1, who currently only has silo role
   await page.click('role=button[name="Add user or group"]')

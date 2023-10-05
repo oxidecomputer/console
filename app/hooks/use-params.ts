@@ -1,8 +1,16 @@
-import { hashQueryKey } from '@tanstack/react-query'
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
+import { hashKey } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import type { Params } from 'react-router-dom'
 import { useParams } from 'react-router-dom'
-import invariant from 'tiny-invariant'
+
+import { invariant } from '@oxide/util'
 
 const err = (param: string) =>
   `Param '${param}' not found in route. You might be rendering a component under the wrong route.`
@@ -29,7 +37,10 @@ export const getProjectSelector = requireParams('project')
 export const getInstanceSelector = requireParams('project', 'instance')
 export const getVpcSelector = requireParams('project', 'vpc')
 export const getSiloSelector = requireParams('silo')
+export const getSiloImageSelector = requireParams('image')
 export const getIdpSelector = requireParams('silo', 'provider')
+export const getProjectImageSelector = requireParams('project', 'image')
+export const getProjectSnapshotSelector = requireParams('project', 'snapshot')
 export const requireSledParams = requireParams('sledId')
 export const requireUpdateParams = requireParams('version')
 
@@ -40,7 +51,7 @@ export const requireUpdateParams = requireParams('version')
  * 1. throws an error if the desired params are missing (this is just what
  *    `getThingSelector` does), and
  * 2. more importantly, memoizes the result in a sneaky way, using React Query's
- *    `hashQueryKey` in the deps to only re-render if the contents actually
+ *    `hashKey` in the deps to only re-render if the contents actually
  *    change.
  *
  * Without 2, these hooks will produce a new object on every render, which is
@@ -51,7 +62,7 @@ export const requireUpdateParams = requireParams('version')
 function useSelectedParams<T>(getSelector: (params: AllParams) => T) {
   const sel = getSelector(useParams())
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  return useMemo(() => sel, [hashQueryKey([sel])])
+  return useMemo(() => sel, [hashKey([sel])])
 }
 
 // Wrappers for RR's `useParams` that guarantee (in dev) that the specified
@@ -59,9 +70,13 @@ function useSelectedParams<T>(getSelector: (params: AllParams) => T) {
 // we do not error if there are other params present in the query string.
 
 export const useProjectSelector = () => useSelectedParams(getProjectSelector)
+export const useProjectImageSelector = () => useSelectedParams(getProjectImageSelector)
+export const useProjectSnapshotSelector = () =>
+  useSelectedParams(getProjectSnapshotSelector)
 export const useInstanceSelector = () => useSelectedParams(getInstanceSelector)
 export const useVpcSelector = () => useSelectedParams(getVpcSelector)
 export const useSiloSelector = () => useSelectedParams(getSiloSelector)
+export const useSiloImageSelector = () => useSelectedParams(getSiloImageSelector)
 export const useIdpSelector = () => useSelectedParams(getIdpSelector)
 export const useSledParams = () => useSelectedParams(requireSledParams)
 export const useUpdateParams = () => useSelectedParams(requireUpdateParams)

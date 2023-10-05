@@ -1,5 +1,13 @@
 /* eslint-disable */
-import type { RequestParams } from './http-client'
+
+/**
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
+import type { FetchParams } from './http-client'
 import { HttpClient, toQueryString } from './http-client'
 
 export type { ApiConfig, ApiResult, ErrorBody, ErrorResult } from './http-client'
@@ -239,11 +247,11 @@ export type Certificate = {
  * Create-time parameters for a `Certificate`
  */
 export type CertificateCreate = {
-  /** PEM file containing public certificate chain */
-  cert: number[]
+  /** PEM-formatted string containing public certificate chain */
+  cert: string
   description: string
-  /** PEM file containing private key */
-  key: number[]
+  /** PEM-formatted string containing private key */
+  key: string
   name: Name
   /** The service using this certificate */
   service: ServiceUsingCertificate
@@ -255,46 +263,6 @@ export type CertificateCreate = {
 export type CertificateResultsPage = {
   /** list of items on this page of results */
   items: Certificate[]
-  /** token used to fetch the next page of results (if any) */
-  nextPage?: string
-}
-
-export type UpdateableComponentType =
-  | 'bootloader_for_rot'
-  | 'bootloader_for_sp'
-  | 'bootloader_for_host_proc'
-  | 'hubris_for_psc_rot'
-  | 'hubris_for_psc_sp'
-  | 'hubris_for_sidecar_rot'
-  | 'hubris_for_sidecar_sp'
-  | 'hubris_for_gimlet_rot'
-  | 'hubris_for_gimlet_sp'
-  | 'helios_host_phase1'
-  | 'helios_host_phase2'
-  | 'host_omicron'
-
-export type SemverVersion = string
-
-/**
- * Identity-related metadata that's included in "asset" public API objects (which generally have no name or description)
- */
-export type ComponentUpdate = {
-  componentType: UpdateableComponentType
-  /** unique, immutable, system-controlled identifier for each resource */
-  id: string
-  /** timestamp when this resource was created */
-  timeCreated: Date
-  /** timestamp when this resource was last modified */
-  timeModified: Date
-  version: SemverVersion
-}
-
-/**
- * A single page of results
- */
-export type ComponentUpdateResultsPage = {
-  /** list of items on this page of results */
-  items: ComponentUpdate[]
   /** token used to fetch the next page of results (if any) */
   nextPage?: string
 }
@@ -620,7 +588,12 @@ export type Image = {
  * The source of the underlying image.
  */
 export type ImageSource =
-  | { type: 'url'; url: string }
+  | {
+      /** The block size in bytes */
+      blockSize: BlockSize
+      type: 'url'
+      url: string
+    }
   | { id: string; type: 'snapshot' }
   /** Boot the Alpine ISO that ships with the Propolis zone. Intended for development purposes only. */
   | { type: 'you_can_boot_anything_as_long_as_its_alpine' }
@@ -629,8 +602,6 @@ export type ImageSource =
  * Create-time parameters for an `Image`
  */
 export type ImageCreate = {
-  /** block size in bytes */
-  blockSize: BlockSize
   description: string
   name: Name
   /** The family of the operating system (e.g. Debian, Ubuntu, etc.) */
@@ -889,8 +860,10 @@ export type IpPool = {
   description: string
   /** unique, immutable, system-controlled identifier for each resource */
   id: string
+  isDefault: boolean
   /** unique, mutable, user-controlled identifier for each resource */
   name: Name
+  siloId?: string
   /** timestamp when this resource was created */
   timeCreated: Date
   /** timestamp when this resource was last modified */
@@ -900,7 +873,14 @@ export type IpPool = {
 /**
  * Create-time parameters for an `IpPool`
  */
-export type IpPoolCreate = { description: string; name: Name }
+export type IpPoolCreate = {
+  description: string
+  /** Whether the IP pool is considered a default pool for its scope (fleet or silo). If a pool is marked default and is associated with a silo, instances created in that silo will draw IPs from that pool unless another pool is specified at instance create time. */
+  isDefault?: boolean
+  name: Name
+  /** If an IP pool is associated with a silo, instance IP allocations in that silo can draw from that pool. */
+  silo?: NameOrId
+}
 
 /**
  * A non-decreasing IPv4 address range, inclusive of both ends.
@@ -918,7 +898,12 @@ export type Ipv6Range = { first: string; last: string }
 
 export type IpRange = Ipv4Range | Ipv6Range
 
-export type IpPoolRange = { id: string; range: IpRange; timeCreated: Date }
+export type IpPoolRange = {
+  id: string
+  ipPoolId: string
+  range: IpRange
+  timeCreated: Date
+}
 
 /**
  * A single page of results
@@ -996,6 +981,8 @@ export type LoopbackAddressCreate = {
   address: string
   /** The name or id of the address lot this loopback address will pull an address from. */
   addressLot: NameOrId
+  /** Address is an anycast address. This allows the address to be assigned to multiple locations simultaneously. */
+  anycast: boolean
   /** The subnet mask to use for the address. */
   mask: number
   /** The containing the switch this loopback address will be configured on. */
@@ -1036,7 +1023,10 @@ export type MeasurementResultsPage = {
  */
 export type Password = string
 
-export type PhysicalDiskType = 'internal' | 'external'
+/**
+ * Describes the form factor of physical disks.
+ */
+export type PhysicalDiskKind = 'm2' | 'u2'
 
 /**
  * View of a Physical Disk
@@ -1044,7 +1034,7 @@ export type PhysicalDiskType = 'internal' | 'external'
  * Physical disks reside in a particular sled and are used to store both Instance Disk data as well as internal metadata.
  */
 export type PhysicalDisk = {
-  diskType: PhysicalDiskType
+  formFactor: PhysicalDiskKind
   /** unique, immutable, system-controlled identifier for each resource */
   id: string
   model: string
@@ -1179,6 +1169,8 @@ export type Route = {
   dst: IpNet
   /** The route gateway. */
   gw: string
+  /** VLAN id the gateway is reachable over. */
+  vid?: number
 }
 
 /**
@@ -1371,6 +1363,10 @@ export type Silo = {
   id: string
   /** How users and groups are managed in this Silo */
   identityMode: SiloIdentityMode
+  /** Mapping of which Fleet roles are conferred by each Silo role
+
+The default is that no Fleet roles are conferred by any Silo roles unless there's a corresponding entry in this map. */
+  mappedFleetRoles: Record<string, FleetRole[]>
   /** unique, mutable, user-controlled identifier for each resource */
   name: Name
   /** timestamp when this resource was created */
@@ -1390,6 +1386,10 @@ Note that if configuring a SAML based identity provider, group_attribute_name mu
   description: string
   discoverable: boolean
   identityMode: SiloIdentityMode
+  /** Mapping of which Fleet roles are conferred by each Silo role
+
+The default is that no Fleet roles are conferred by any Silo roles unless there's a corresponding entry in this map. */
+  mappedFleetRoles?: Record<string, FleetRole[]>
   name: Name
   /** Initial TLS certificates to be used for the new Silo's console and API endpoints.  These should be valid for the Silo's DNS name(s). */
   tlsCertificates: CertificateCreate[]
@@ -1514,8 +1514,8 @@ export type Snapshot = {
  */
 export type SnapshotCreate = {
   description: string
-  /** The name of the disk to be snapshotted */
-  disk: Name
+  /** The disk to be snapshotted */
+  disk: NameOrId
   name: Name
 }
 
@@ -1718,6 +1718,8 @@ export type SwitchPortRouteConfig = {
   interfaceName: string
   /** The port settings object this route configuration belongs to. */
   portSettingsId: string
+  /** The VLAN identifier for the route. Use this if the gateway is reachable over an 802.1Q tagged L2 segment. */
+  vlanId?: number
 }
 
 /**
@@ -1741,19 +1743,19 @@ export type SwitchPortSettings = {
  */
 export type SwitchPortSettingsCreate = {
   /** Addresses indexed by interface name. */
-  addresses: {}
+  addresses: Record<string, AddressConfig>
   /** BGP peers indexed by interface name. */
-  bgpPeers: {}
+  bgpPeers: Record<string, BgpPeerConfig>
   description: string
   groups: NameOrId[]
   /** Interfaces indexed by link name. */
-  interfaces: {}
+  interfaces: Record<string, SwitchInterfaceConfig>
   /** Links indexed by phy name. On ports that are not broken out, this is always phy0. On a 2x breakout the options are phy0 and phy1, on 4x phy0-phy3, etc. */
-  links: {}
+  links: Record<string, LinkConfig>
   name: Name
   portConfig: SwitchPortConfig
   /** Routes indexed by interface name. */
-  routes: {}
+  routes: Record<string, RouteConfig>
 }
 
 /**
@@ -1782,8 +1784,8 @@ export type SwitchPortSettingsResultsPage = {
 export type SwitchVlanInterfaceConfig = {
   /** The switch interface configuration this VLAN interface configuration belongs to. */
   interfaceConfigId: string
-  /** The virtual network id (VID) that distinguishes this interface and is used for producing and consuming 802.1Q Ethernet tags. This field has a maximum value of 4095 as 802.1Q tags are twelve bits. */
-  vid: number
+  /** The virtual network id for this interface that is used for producing and consuming 802.1Q Ethernet tags. This field has a maximum value of 4095 as 802.1Q tags are twelve bits. */
+  vlanId: number
 }
 
 /**
@@ -1818,88 +1820,6 @@ export type SwitchPortSettingsView = {
 export type SwitchResultsPage = {
   /** list of items on this page of results */
   items: Switch[]
-  /** token used to fetch the next page of results (if any) */
-  nextPage?: string
-}
-
-/**
- * Identity-related metadata that's included in "asset" public API objects (which generally have no name or description)
- */
-export type SystemUpdate = {
-  /** unique, immutable, system-controlled identifier for each resource */
-  id: string
-  /** timestamp when this resource was created */
-  timeCreated: Date
-  /** timestamp when this resource was last modified */
-  timeModified: Date
-  version: SemverVersion
-}
-
-/**
- * A single page of results
- */
-export type SystemUpdateResultsPage = {
-  /** list of items on this page of results */
-  items: SystemUpdate[]
-  /** token used to fetch the next page of results (if any) */
-  nextPage?: string
-}
-
-export type SystemUpdateStart = { version: SemverVersion }
-
-export type UpdateStatus = { status: 'updating' } | { status: 'steady' }
-
-export type VersionRange = { high: SemverVersion; low: SemverVersion }
-
-export type SystemVersion = { status: UpdateStatus; versionRange: VersionRange }
-
-/**
- * Identity-related metadata that's included in "asset" public API objects (which generally have no name or description)
- */
-export type UpdateDeployment = {
-  /** unique, immutable, system-controlled identifier for each resource */
-  id: string
-  status: UpdateStatus
-  /** timestamp when this resource was created */
-  timeCreated: Date
-  /** timestamp when this resource was last modified */
-  timeModified: Date
-  version: SemverVersion
-}
-
-/**
- * A single page of results
- */
-export type UpdateDeploymentResultsPage = {
-  /** list of items on this page of results */
-  items: UpdateDeployment[]
-  /** token used to fetch the next page of results (if any) */
-  nextPage?: string
-}
-
-/**
- * Identity-related metadata that's included in "asset" public API objects (which generally have no name or description)
- */
-export type UpdateableComponent = {
-  componentType: UpdateableComponentType
-  deviceId: string
-  /** unique, immutable, system-controlled identifier for each resource */
-  id: string
-  status: UpdateStatus
-  systemVersion: SemverVersion
-  /** timestamp when this resource was created */
-  timeCreated: Date
-  /** timestamp when this resource was last modified */
-  timeModified: Date
-  version: SemverVersion
-}
-
-/**
- * A single page of results
- */
-export type UpdateableComponentResultsPage = {
-  /** list of items on this page of results */
-  items: UpdateableComponent[]
   /** token used to fetch the next page of results (if any) */
   nextPage?: string
 }
@@ -1955,9 +1875,9 @@ export type UserId = string
  */
 export type UserPassword =
   /** Sets the user's password to the provided value */
-  | { details: Password; userPasswordValue: 'password' }
+  | { mode: 'password'; value: Password }
   /** Invalidates any current password (disabling password authentication) */
-  | { userPasswordValue: 'invalid_password' }
+  | { mode: 'login_disallowed' }
 
 /**
  * Create-time parameters for a `User`
@@ -1965,7 +1885,7 @@ export type UserPassword =
 export type UserCreate = {
   /** username used to log in */
   externalId: UserId
-  /** password used to log in */
+  /** how to set the user's login password */
   password: UserPassword
 }
 
@@ -2315,7 +2235,7 @@ export interface DiskListQueryParams {
 }
 
 export interface DiskCreateQueryParams {
-  project?: NameOrId
+  project: NameOrId
 }
 
 export interface DiskViewPathParams {
@@ -2399,7 +2319,6 @@ export interface GroupViewPathParams {
 }
 
 export interface ImageListQueryParams {
-  includeSiloImages?: boolean
   limit?: number
   pageToken?: string
   project?: NameOrId
@@ -2431,7 +2350,7 @@ export interface ImageDemotePathParams {
 }
 
 export interface ImageDemoteQueryParams {
-  project?: NameOrId
+  project: NameOrId
 }
 
 export interface ImagePromotePathParams {
@@ -2450,7 +2369,7 @@ export interface InstanceListQueryParams {
 }
 
 export interface InstanceCreateQueryParams {
-  project?: NameOrId
+  project: NameOrId
 }
 
 export interface InstanceViewPathParams {
@@ -2595,6 +2514,19 @@ export interface CurrentUserSshKeyDeletePathParams {
   sshKey: NameOrId
 }
 
+export interface SiloMetricPathParams {
+  metricName: SystemMetricName
+}
+
+export interface SiloMetricQueryParams {
+  endTime?: Date
+  limit?: number
+  order?: PaginationOrder
+  pageToken?: string
+  startTime?: Date
+  project?: NameOrId
+}
+
 export interface InstanceNetworkInterfaceListQueryParams {
   instance?: NameOrId
   limit?: number
@@ -2604,7 +2536,7 @@ export interface InstanceNetworkInterfaceListQueryParams {
 }
 
 export interface InstanceNetworkInterfaceCreateQueryParams {
-  instance?: NameOrId
+  instance: NameOrId
   project?: NameOrId
 }
 
@@ -2669,7 +2601,7 @@ export interface SnapshotListQueryParams {
 }
 
 export interface SnapshotCreateQueryParams {
-  project?: NameOrId
+  project: NameOrId
 }
 
 export interface SnapshotViewPathParams {
@@ -2746,8 +2678,8 @@ export interface NetworkingSwitchPortApplySettingsPathParams {
 }
 
 export interface NetworkingSwitchPortApplySettingsQueryParams {
-  rackId?: string
-  switchLocation?: Name
+  rackId: string
+  switchLocation: Name
 }
 
 export interface NetworkingSwitchPortClearSettingsPathParams {
@@ -2755,8 +2687,8 @@ export interface NetworkingSwitchPortClearSettingsPathParams {
 }
 
 export interface NetworkingSwitchPortClearSettingsQueryParams {
-  rackId?: string
-  switchLocation?: Name
+  rackId: string
+  switchLocation: Name
 }
 
 export interface SwitchListQueryParams {
@@ -2777,7 +2709,7 @@ export interface SiloIdentityProviderListQueryParams {
 }
 
 export interface LocalIdpUserCreateQueryParams {
-  silo?: NameOrId
+  silo: NameOrId
 }
 
 export interface LocalIdpUserDeletePathParams {
@@ -2785,7 +2717,7 @@ export interface LocalIdpUserDeletePathParams {
 }
 
 export interface LocalIdpUserDeleteQueryParams {
-  silo?: NameOrId
+  silo: NameOrId
 }
 
 export interface LocalIdpUserSetPasswordPathParams {
@@ -2793,11 +2725,11 @@ export interface LocalIdpUserSetPasswordPathParams {
 }
 
 export interface LocalIdpUserSetPasswordQueryParams {
-  silo?: NameOrId
+  silo: NameOrId
 }
 
 export interface SamlIdentityProviderCreateQueryParams {
-  silo?: NameOrId
+  silo: NameOrId
 }
 
 export interface SamlIdentityProviderViewPathParams {
@@ -2805,7 +2737,7 @@ export interface SamlIdentityProviderViewPathParams {
 }
 
 export interface SamlIdentityProviderViewQueryParams {
-  silo?: NameOrId
+  silo: NameOrId
 }
 
 export interface IpPoolListQueryParams {
@@ -2858,7 +2790,7 @@ export interface SystemMetricQueryParams {
   order?: PaginationOrder
   pageToken?: string
   startTime?: Date
-  id?: string
+  silo?: NameOrId
 }
 
 export interface NetworkingAddressLotListQueryParams {
@@ -2940,36 +2872,6 @@ export interface SiloPolicyUpdatePathParams {
   silo: NameOrId
 }
 
-export interface SystemComponentVersionListQueryParams {
-  limit?: number
-  pageToken?: string
-  sortBy?: IdSortMode
-}
-
-export interface UpdateDeploymentsListQueryParams {
-  limit?: number
-  pageToken?: string
-  sortBy?: IdSortMode
-}
-
-export interface UpdateDeploymentViewPathParams {
-  id: string
-}
-
-export interface SystemUpdateListQueryParams {
-  limit?: number
-  pageToken?: string
-  sortBy?: IdSortMode
-}
-
-export interface SystemUpdateViewPathParams {
-  version: SemverVersion
-}
-
-export interface SystemUpdateComponentsListPathParams {
-  version: SemverVersion
-}
-
 export interface SiloUserListQueryParams {
   limit?: number
   pageToken?: string
@@ -2982,7 +2884,7 @@ export interface SiloUserViewPathParams {
 }
 
 export interface SiloUserViewQueryParams {
-  silo?: NameOrId
+  silo: NameOrId
 }
 
 export interface UserBuiltinListQueryParams {
@@ -3004,12 +2906,12 @@ export interface UserListQueryParams {
 
 export interface VpcFirewallRulesViewQueryParams {
   project?: NameOrId
-  vpc?: NameOrId
+  vpc: NameOrId
 }
 
 export interface VpcFirewallRulesUpdateQueryParams {
   project?: NameOrId
-  vpc?: NameOrId
+  vpc: NameOrId
 }
 
 export interface VpcRouterRouteListQueryParams {
@@ -3023,7 +2925,7 @@ export interface VpcRouterRouteListQueryParams {
 
 export interface VpcRouterRouteCreateQueryParams {
   project?: NameOrId
-  router?: NameOrId
+  router: NameOrId
   vpc?: NameOrId
 }
 
@@ -3033,7 +2935,7 @@ export interface VpcRouterRouteViewPathParams {
 
 export interface VpcRouterRouteViewQueryParams {
   project?: NameOrId
-  router?: NameOrId
+  router: NameOrId
   vpc?: NameOrId
 }
 
@@ -3067,7 +2969,7 @@ export interface VpcRouterListQueryParams {
 
 export interface VpcRouterCreateQueryParams {
   project?: NameOrId
-  vpc?: NameOrId
+  vpc: NameOrId
 }
 
 export interface VpcRouterViewPathParams {
@@ -3107,7 +3009,7 @@ export interface VpcSubnetListQueryParams {
 
 export interface VpcSubnetCreateQueryParams {
   project?: NameOrId
-  vpc?: NameOrId
+  vpc: NameOrId
 }
 
 export interface VpcSubnetViewPathParams {
@@ -3157,7 +3059,7 @@ export interface VpcListQueryParams {
 }
 
 export interface VpcCreateQueryParams {
-  project?: NameOrId
+  project: NameOrId
 }
 
 export interface VpcViewPathParams {
@@ -3216,10 +3118,6 @@ export type ApiListMethods = Pick<
   | 'networkingSwitchPortSettingsList'
   | 'roleList'
   | 'siloList'
-  | 'systemComponentVersionList'
-  | 'updateDeploymentsList'
-  | 'systemUpdateList'
-  | 'systemUpdateComponentsList'
   | 'siloUserList'
   | 'userBuiltinList'
   | 'userList'
@@ -3235,7 +3133,7 @@ export class Api extends HttpClient {
     /**
      * Start an OAuth 2.0 Device Authorization Grant
      */
-    deviceAuthRequest: (_: EmptyObj, params: RequestParams = {}) => {
+    deviceAuthRequest: (_: EmptyObj, params: FetchParams = {}) => {
       return this.request<void>({
         path: `/device/auth`,
         method: 'POST',
@@ -3245,10 +3143,7 @@ export class Api extends HttpClient {
     /**
      * Confirm an OAuth 2.0 Device Authorization Grant
      */
-    deviceAuthConfirm: (
-      { body }: { body: DeviceAuthVerify },
-      params: RequestParams = {}
-    ) => {
+    deviceAuthConfirm: ({ body }: { body: DeviceAuthVerify }, params: FetchParams = {}) => {
       return this.request<void>({
         path: `/device/confirm`,
         method: 'POST',
@@ -3259,7 +3154,7 @@ export class Api extends HttpClient {
     /**
      * Request a device access token
      */
-    deviceAccessToken: (_: EmptyObj, params: RequestParams = {}) => {
+    deviceAccessToken: (_: EmptyObj, params: FetchParams = {}) => {
       return this.request<void>({
         path: `/device/token`,
         method: 'POST',
@@ -3269,7 +3164,7 @@ export class Api extends HttpClient {
     /**
      * Authenticate a user via SAML
      */
-    loginSaml: ({ path }: { path: LoginSamlPathParams }, params: RequestParams = {}) => {
+    loginSaml: ({ path }: { path: LoginSamlPathParams }, params: FetchParams = {}) => {
       return this.request<void>({
         path: `/login/${path.siloName}/saml/${path.providerName}`,
         method: 'POST',
@@ -3281,7 +3176,7 @@ export class Api extends HttpClient {
      */
     certificateList: (
       { query = {} }: { query?: CertificateListQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<CertificateResultsPage>({
         path: `/v1/certificates`,
@@ -3295,7 +3190,7 @@ export class Api extends HttpClient {
      */
     certificateCreate: (
       { body }: { body: CertificateCreate },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<Certificate>({
         path: `/v1/certificates`,
@@ -3309,7 +3204,7 @@ export class Api extends HttpClient {
      */
     certificateView: (
       { path }: { path: CertificateViewPathParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<Certificate>({
         path: `/v1/certificates/${path.certificate}`,
@@ -3322,7 +3217,7 @@ export class Api extends HttpClient {
      */
     certificateDelete: (
       { path }: { path: CertificateDeletePathParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<void>({
         path: `/v1/certificates/${path.certificate}`,
@@ -3335,7 +3230,7 @@ export class Api extends HttpClient {
      */
     diskList: (
       { query = {} }: { query?: DiskListQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<DiskResultsPage>({
         path: `/v1/disks`,
@@ -3348,8 +3243,8 @@ export class Api extends HttpClient {
      * Create a disk
      */
     diskCreate: (
-      { query = {}, body }: { query?: DiskCreateQueryParams; body: DiskCreate },
-      params: RequestParams = {}
+      { query, body }: { query?: DiskCreateQueryParams; body: DiskCreate },
+      params: FetchParams = {}
     ) => {
       return this.request<Disk>({
         path: `/v1/disks`,
@@ -3364,7 +3259,7 @@ export class Api extends HttpClient {
      */
     diskView: (
       { path, query = {} }: { path: DiskViewPathParams; query?: DiskViewQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<Disk>({
         path: `/v1/disks/${path.disk}`,
@@ -3378,7 +3273,7 @@ export class Api extends HttpClient {
      */
     diskDelete: (
       { path, query = {} }: { path: DiskDeletePathParams; query?: DiskDeleteQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<void>({
         path: `/v1/disks/${path.disk}`,
@@ -3400,7 +3295,7 @@ export class Api extends HttpClient {
         query?: DiskBulkWriteImportQueryParams
         body: ImportBlocksBulkWrite
       },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<void>({
         path: `/v1/disks/${path.disk}/bulk-write`,
@@ -3421,7 +3316,7 @@ export class Api extends HttpClient {
         path: DiskBulkWriteImportStartPathParams
         query?: DiskBulkWriteImportStartQueryParams
       },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<void>({
         path: `/v1/disks/${path.disk}/bulk-write-start`,
@@ -3441,7 +3336,7 @@ export class Api extends HttpClient {
         path: DiskBulkWriteImportStopPathParams
         query?: DiskBulkWriteImportStopQueryParams
       },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<void>({
         path: `/v1/disks/${path.disk}/bulk-write-stop`,
@@ -3463,7 +3358,7 @@ export class Api extends HttpClient {
         query?: DiskFinalizeImportQueryParams
         body: FinalizeDisk
       },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<void>({
         path: `/v1/disks/${path.disk}/finalize`,
@@ -3486,7 +3381,7 @@ export class Api extends HttpClient {
         query?: DiskImportBlocksFromUrlQueryParams
         body: ImportBlocksFromUrl
       },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<void>({
         path: `/v1/disks/${path.disk}/import`,
@@ -3504,7 +3399,7 @@ export class Api extends HttpClient {
         path,
         query = {},
       }: { path: DiskMetricsListPathParams; query?: DiskMetricsListQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<MeasurementResultsPage>({
         path: `/v1/disks/${path.disk}/metrics/${path.metric}`,
@@ -3518,7 +3413,7 @@ export class Api extends HttpClient {
      */
     groupList: (
       { query = {} }: { query?: GroupListQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<GroupResultsPage>({
         path: `/v1/groups`,
@@ -3530,7 +3425,7 @@ export class Api extends HttpClient {
     /**
      * Fetch group
      */
-    groupView: ({ path }: { path: GroupViewPathParams }, params: RequestParams = {}) => {
+    groupView: ({ path }: { path: GroupViewPathParams }, params: FetchParams = {}) => {
       return this.request<Group>({
         path: `/v1/groups/${path.groupId}`,
         method: 'GET',
@@ -3542,7 +3437,7 @@ export class Api extends HttpClient {
      */
     imageList: (
       { query = {} }: { query?: ImageListQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<ImageResultsPage>({
         path: `/v1/images`,
@@ -3556,7 +3451,7 @@ export class Api extends HttpClient {
      */
     imageCreate: (
       { query = {}, body }: { query?: ImageCreateQueryParams; body: ImageCreate },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<Image>({
         path: `/v1/images`,
@@ -3571,7 +3466,7 @@ export class Api extends HttpClient {
      */
     imageView: (
       { path, query = {} }: { path: ImageViewPathParams; query?: ImageViewQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<Image>({
         path: `/v1/images/${path.image}`,
@@ -3585,7 +3480,7 @@ export class Api extends HttpClient {
      */
     imageDelete: (
       { path, query = {} }: { path: ImageDeletePathParams; query?: ImageDeleteQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<void>({
         path: `/v1/images/${path.image}`,
@@ -3598,8 +3493,8 @@ export class Api extends HttpClient {
      * Demote a silo image
      */
     imageDemote: (
-      { path, query = {} }: { path: ImageDemotePathParams; query?: ImageDemoteQueryParams },
-      params: RequestParams = {}
+      { path, query }: { path: ImageDemotePathParams; query?: ImageDemoteQueryParams },
+      params: FetchParams = {}
     ) => {
       return this.request<Image>({
         path: `/v1/images/${path.image}/demote`,
@@ -3616,7 +3511,7 @@ export class Api extends HttpClient {
         path,
         query = {},
       }: { path: ImagePromotePathParams; query?: ImagePromoteQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<Image>({
         path: `/v1/images/${path.image}/promote`,
@@ -3630,7 +3525,7 @@ export class Api extends HttpClient {
      */
     instanceList: (
       { query = {} }: { query?: InstanceListQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<InstanceResultsPage>({
         path: `/v1/instances`,
@@ -3643,8 +3538,8 @@ export class Api extends HttpClient {
      * Create an instance
      */
     instanceCreate: (
-      { query = {}, body }: { query?: InstanceCreateQueryParams; body: InstanceCreate },
-      params: RequestParams = {}
+      { query, body }: { query?: InstanceCreateQueryParams; body: InstanceCreate },
+      params: FetchParams = {}
     ) => {
       return this.request<Instance>({
         path: `/v1/instances`,
@@ -3662,7 +3557,7 @@ export class Api extends HttpClient {
         path,
         query = {},
       }: { path: InstanceViewPathParams; query?: InstanceViewQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<Instance>({
         path: `/v1/instances/${path.instance}`,
@@ -3679,7 +3574,7 @@ export class Api extends HttpClient {
         path,
         query = {},
       }: { path: InstanceDeletePathParams; query?: InstanceDeleteQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<void>({
         path: `/v1/instances/${path.instance}`,
@@ -3696,7 +3591,7 @@ export class Api extends HttpClient {
         path,
         query = {},
       }: { path: InstanceDiskListPathParams; query?: InstanceDiskListQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<DiskResultsPage>({
         path: `/v1/instances/${path.instance}/disks`,
@@ -3718,7 +3613,7 @@ export class Api extends HttpClient {
         query?: InstanceDiskAttachQueryParams
         body: DiskPath
       },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<Disk>({
         path: `/v1/instances/${path.instance}/disks/attach`,
@@ -3741,7 +3636,7 @@ export class Api extends HttpClient {
         query?: InstanceDiskDetachQueryParams
         body: DiskPath
       },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<Disk>({
         path: `/v1/instances/${path.instance}/disks/detach`,
@@ -3762,7 +3657,7 @@ export class Api extends HttpClient {
         path: InstanceExternalIpListPathParams
         query?: InstanceExternalIpListQueryParams
       },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<ExternalIpResultsPage>({
         path: `/v1/instances/${path.instance}/external-ips`,
@@ -3784,7 +3679,7 @@ export class Api extends HttpClient {
         query?: InstanceMigrateQueryParams
         body: InstanceMigrate
       },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<Instance>({
         path: `/v1/instances/${path.instance}/migrate`,
@@ -3802,7 +3697,7 @@ export class Api extends HttpClient {
         path,
         query = {},
       }: { path: InstanceRebootPathParams; query?: InstanceRebootQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<Instance>({
         path: `/v1/instances/${path.instance}/reboot`,
@@ -3822,7 +3717,7 @@ export class Api extends HttpClient {
         path: InstanceSerialConsolePathParams
         query?: InstanceSerialConsoleQueryParams
       },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<InstanceSerialConsoleData>({
         path: `/v1/instances/${path.instance}/serial-console`,
@@ -3839,7 +3734,7 @@ export class Api extends HttpClient {
         path,
         query = {},
       }: { path: InstanceStartPathParams; query?: InstanceStartQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<Instance>({
         path: `/v1/instances/${path.instance}/start`,
@@ -3856,7 +3751,7 @@ export class Api extends HttpClient {
         path,
         query = {},
       }: { path: InstanceStopPathParams; query?: InstanceStopQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<Instance>({
         path: `/v1/instances/${path.instance}/stop`,
@@ -3870,7 +3765,7 @@ export class Api extends HttpClient {
      */
     projectIpPoolList: (
       { query = {} }: { query?: ProjectIpPoolListQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<IpPoolResultsPage>({
         path: `/v1/ip-pools`,
@@ -3887,7 +3782,7 @@ export class Api extends HttpClient {
         path,
         query = {},
       }: { path: ProjectIpPoolViewPathParams; query?: ProjectIpPoolViewQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<IpPool>({
         path: `/v1/ip-pools/${path.pool}`,
@@ -3901,7 +3796,7 @@ export class Api extends HttpClient {
      */
     loginLocal: (
       { path, body }: { path: LoginLocalPathParams; body: UsernamePasswordCredentials },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<void>({
         path: `/v1/login/${path.siloName}/local`,
@@ -3913,7 +3808,7 @@ export class Api extends HttpClient {
     /**
      * Log user out of web console by deleting session on client and server
      */
-    logout: (_: EmptyObj, params: RequestParams = {}) => {
+    logout: (_: EmptyObj, params: FetchParams = {}) => {
       return this.request<void>({
         path: `/v1/logout`,
         method: 'POST',
@@ -3923,7 +3818,7 @@ export class Api extends HttpClient {
     /**
      * Fetch the user associated with the current session
      */
-    currentUserView: (_: EmptyObj, params: RequestParams = {}) => {
+    currentUserView: (_: EmptyObj, params: FetchParams = {}) => {
       return this.request<CurrentUser>({
         path: `/v1/me`,
         method: 'GET',
@@ -3935,7 +3830,7 @@ export class Api extends HttpClient {
      */
     currentUserGroups: (
       { query = {} }: { query?: CurrentUserGroupsQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<GroupResultsPage>({
         path: `/v1/me/groups`,
@@ -3949,7 +3844,7 @@ export class Api extends HttpClient {
      */
     currentUserSshKeyList: (
       { query = {} }: { query?: CurrentUserSshKeyListQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<SshKeyResultsPage>({
         path: `/v1/me/ssh-keys`,
@@ -3963,7 +3858,7 @@ export class Api extends HttpClient {
      */
     currentUserSshKeyCreate: (
       { body }: { body: SshKeyCreate },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<SshKey>({
         path: `/v1/me/ssh-keys`,
@@ -3977,7 +3872,7 @@ export class Api extends HttpClient {
      */
     currentUserSshKeyView: (
       { path }: { path: CurrentUserSshKeyViewPathParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<SshKey>({
         path: `/v1/me/ssh-keys/${path.sshKey}`,
@@ -3990,7 +3885,7 @@ export class Api extends HttpClient {
      */
     currentUserSshKeyDelete: (
       { path }: { path: CurrentUserSshKeyDeletePathParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<void>({
         path: `/v1/me/ssh-keys/${path.sshKey}`,
@@ -3999,11 +3894,25 @@ export class Api extends HttpClient {
       })
     },
     /**
+     * Access metrics data
+     */
+    siloMetric: (
+      { path, query = {} }: { path: SiloMetricPathParams; query?: SiloMetricQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<MeasurementResultsPage>({
+        path: `/v1/metrics/${path.metricName}`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
      * List network interfaces
      */
     instanceNetworkInterfaceList: (
       { query = {} }: { query?: InstanceNetworkInterfaceListQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<InstanceNetworkInterfaceResultsPage>({
         path: `/v1/network-interfaces`,
@@ -4017,13 +3926,13 @@ export class Api extends HttpClient {
      */
     instanceNetworkInterfaceCreate: (
       {
-        query = {},
+        query,
         body,
       }: {
         query?: InstanceNetworkInterfaceCreateQueryParams
         body: InstanceNetworkInterfaceCreate
       },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<InstanceNetworkInterface>({
         path: `/v1/network-interfaces`,
@@ -4044,7 +3953,7 @@ export class Api extends HttpClient {
         path: InstanceNetworkInterfaceViewPathParams
         query?: InstanceNetworkInterfaceViewQueryParams
       },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<InstanceNetworkInterface>({
         path: `/v1/network-interfaces/${path.interface}`,
@@ -4066,7 +3975,7 @@ export class Api extends HttpClient {
         query?: InstanceNetworkInterfaceUpdateQueryParams
         body: InstanceNetworkInterfaceUpdate
       },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<InstanceNetworkInterface>({
         path: `/v1/network-interfaces/${path.interface}`,
@@ -4087,7 +3996,7 @@ export class Api extends HttpClient {
         path: InstanceNetworkInterfaceDeletePathParams
         query?: InstanceNetworkInterfaceDeleteQueryParams
       },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<void>({
         path: `/v1/network-interfaces/${path.interface}`,
@@ -4099,7 +4008,7 @@ export class Api extends HttpClient {
     /**
      * Fetch the current silo's IAM policy
      */
-    policyView: (_: EmptyObj, params: RequestParams = {}) => {
+    policyView: (_: EmptyObj, params: FetchParams = {}) => {
       return this.request<SiloRolePolicy>({
         path: `/v1/policy`,
         method: 'GET',
@@ -4109,7 +4018,7 @@ export class Api extends HttpClient {
     /**
      * Update the current silo's IAM policy
      */
-    policyUpdate: ({ body }: { body: SiloRolePolicy }, params: RequestParams = {}) => {
+    policyUpdate: ({ body }: { body: SiloRolePolicy }, params: FetchParams = {}) => {
       return this.request<SiloRolePolicy>({
         path: `/v1/policy`,
         method: 'PUT',
@@ -4122,7 +4031,7 @@ export class Api extends HttpClient {
      */
     projectList: (
       { query = {} }: { query?: ProjectListQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<ProjectResultsPage>({
         path: `/v1/projects`,
@@ -4134,7 +4043,7 @@ export class Api extends HttpClient {
     /**
      * Create a project
      */
-    projectCreate: ({ body }: { body: ProjectCreate }, params: RequestParams = {}) => {
+    projectCreate: ({ body }: { body: ProjectCreate }, params: FetchParams = {}) => {
       return this.request<Project>({
         path: `/v1/projects`,
         method: 'POST',
@@ -4145,10 +4054,7 @@ export class Api extends HttpClient {
     /**
      * Fetch a project
      */
-    projectView: (
-      { path }: { path: ProjectViewPathParams },
-      params: RequestParams = {}
-    ) => {
+    projectView: ({ path }: { path: ProjectViewPathParams }, params: FetchParams = {}) => {
       return this.request<Project>({
         path: `/v1/projects/${path.project}`,
         method: 'GET',
@@ -4160,7 +4066,7 @@ export class Api extends HttpClient {
      */
     projectUpdate: (
       { path, body }: { path: ProjectUpdatePathParams; body: ProjectUpdate },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<Project>({
         path: `/v1/projects/${path.project}`,
@@ -4174,7 +4080,7 @@ export class Api extends HttpClient {
      */
     projectDelete: (
       { path }: { path: ProjectDeletePathParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<void>({
         path: `/v1/projects/${path.project}`,
@@ -4187,7 +4093,7 @@ export class Api extends HttpClient {
      */
     projectPolicyView: (
       { path }: { path: ProjectPolicyViewPathParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<ProjectRolePolicy>({
         path: `/v1/projects/${path.project}/policy`,
@@ -4200,7 +4106,7 @@ export class Api extends HttpClient {
      */
     projectPolicyUpdate: (
       { path, body }: { path: ProjectPolicyUpdatePathParams; body: ProjectRolePolicy },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<ProjectRolePolicy>({
         path: `/v1/projects/${path.project}/policy`,
@@ -4214,7 +4120,7 @@ export class Api extends HttpClient {
      */
     snapshotList: (
       { query = {} }: { query?: SnapshotListQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<SnapshotResultsPage>({
         path: `/v1/snapshots`,
@@ -4227,8 +4133,8 @@ export class Api extends HttpClient {
      * Create a snapshot
      */
     snapshotCreate: (
-      { query = {}, body }: { query?: SnapshotCreateQueryParams; body: SnapshotCreate },
-      params: RequestParams = {}
+      { query, body }: { query?: SnapshotCreateQueryParams; body: SnapshotCreate },
+      params: FetchParams = {}
     ) => {
       return this.request<Snapshot>({
         path: `/v1/snapshots`,
@@ -4246,7 +4152,7 @@ export class Api extends HttpClient {
         path,
         query = {},
       }: { path: SnapshotViewPathParams; query?: SnapshotViewQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<Snapshot>({
         path: `/v1/snapshots/${path.snapshot}`,
@@ -4263,7 +4169,7 @@ export class Api extends HttpClient {
         path,
         query = {},
       }: { path: SnapshotDeletePathParams; query?: SnapshotDeleteQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<void>({
         path: `/v1/snapshots/${path.snapshot}`,
@@ -4277,7 +4183,7 @@ export class Api extends HttpClient {
      */
     physicalDiskList: (
       { query = {} }: { query?: PhysicalDiskListQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<PhysicalDiskResultsPage>({
         path: `/v1/system/hardware/disks`,
@@ -4291,7 +4197,7 @@ export class Api extends HttpClient {
      */
     rackList: (
       { query = {} }: { query?: RackListQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<RackResultsPage>({
         path: `/v1/system/hardware/racks`,
@@ -4303,7 +4209,7 @@ export class Api extends HttpClient {
     /**
      * Fetch a rack
      */
-    rackView: ({ path }: { path: RackViewPathParams }, params: RequestParams = {}) => {
+    rackView: ({ path }: { path: RackViewPathParams }, params: FetchParams = {}) => {
       return this.request<Rack>({
         path: `/v1/system/hardware/racks/${path.rackId}`,
         method: 'GET',
@@ -4315,7 +4221,7 @@ export class Api extends HttpClient {
      */
     sledList: (
       { query = {} }: { query?: SledListQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<SledResultsPage>({
         path: `/v1/system/hardware/sleds`,
@@ -4327,7 +4233,7 @@ export class Api extends HttpClient {
     /**
      * Fetch a sled
      */
-    sledView: ({ path }: { path: SledViewPathParams }, params: RequestParams = {}) => {
+    sledView: ({ path }: { path: SledViewPathParams }, params: FetchParams = {}) => {
       return this.request<Sled>({
         path: `/v1/system/hardware/sleds/${path.sledId}`,
         method: 'GET',
@@ -4342,7 +4248,7 @@ export class Api extends HttpClient {
         path,
         query = {},
       }: { path: SledPhysicalDiskListPathParams; query?: SledPhysicalDiskListQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<PhysicalDiskResultsPage>({
         path: `/v1/system/hardware/sleds/${path.sledId}/disks`,
@@ -4359,7 +4265,7 @@ export class Api extends HttpClient {
         path,
         query = {},
       }: { path: SledInstanceListPathParams; query?: SledInstanceListQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<SledInstanceResultsPage>({
         path: `/v1/system/hardware/sleds/${path.sledId}/instances`,
@@ -4373,7 +4279,7 @@ export class Api extends HttpClient {
      */
     networkingSwitchPortList: (
       { query = {} }: { query?: NetworkingSwitchPortListQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<SwitchPortResultsPage>({
         path: `/v1/system/hardware/switch-port`,
@@ -4388,14 +4294,14 @@ export class Api extends HttpClient {
     networkingSwitchPortApplySettings: (
       {
         path,
-        query = {},
+        query,
         body,
       }: {
         path: NetworkingSwitchPortApplySettingsPathParams
         query?: NetworkingSwitchPortApplySettingsQueryParams
         body: SwitchPortApplySettings
       },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<void>({
         path: `/v1/system/hardware/switch-port/${path.port}/settings`,
@@ -4411,12 +4317,12 @@ export class Api extends HttpClient {
     networkingSwitchPortClearSettings: (
       {
         path,
-        query = {},
+        query,
       }: {
         path: NetworkingSwitchPortClearSettingsPathParams
         query?: NetworkingSwitchPortClearSettingsQueryParams
       },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<void>({
         path: `/v1/system/hardware/switch-port/${path.port}/settings`,
@@ -4430,7 +4336,7 @@ export class Api extends HttpClient {
      */
     switchList: (
       { query = {} }: { query?: SwitchListQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<SwitchResultsPage>({
         path: `/v1/system/hardware/switches`,
@@ -4442,7 +4348,7 @@ export class Api extends HttpClient {
     /**
      * Fetch a switch
      */
-    switchView: ({ path }: { path: SwitchViewPathParams }, params: RequestParams = {}) => {
+    switchView: ({ path }: { path: SwitchViewPathParams }, params: FetchParams = {}) => {
       return this.request<Switch>({
         path: `/v1/system/hardware/switches/${path.switchId}`,
         method: 'GET',
@@ -4454,7 +4360,7 @@ export class Api extends HttpClient {
      */
     siloIdentityProviderList: (
       { query = {} }: { query?: SiloIdentityProviderListQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<IdentityProviderResultsPage>({
         path: `/v1/system/identity-providers`,
@@ -4467,8 +4373,8 @@ export class Api extends HttpClient {
      * Create a user
      */
     localIdpUserCreate: (
-      { query = {}, body }: { query?: LocalIdpUserCreateQueryParams; body: UserCreate },
-      params: RequestParams = {}
+      { query, body }: { query?: LocalIdpUserCreateQueryParams; body: UserCreate },
+      params: FetchParams = {}
     ) => {
       return this.request<User>({
         path: `/v1/system/identity-providers/local/users`,
@@ -4484,9 +4390,9 @@ export class Api extends HttpClient {
     localIdpUserDelete: (
       {
         path,
-        query = {},
+        query,
       }: { path: LocalIdpUserDeletePathParams; query?: LocalIdpUserDeleteQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<void>({
         path: `/v1/system/identity-providers/local/users/${path.userId}`,
@@ -4501,14 +4407,14 @@ export class Api extends HttpClient {
     localIdpUserSetPassword: (
       {
         path,
-        query = {},
+        query,
         body,
       }: {
         path: LocalIdpUserSetPasswordPathParams
         query?: LocalIdpUserSetPasswordQueryParams
         body: UserPassword
       },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<void>({
         path: `/v1/system/identity-providers/local/users/${path.userId}/set-password`,
@@ -4523,13 +4429,13 @@ export class Api extends HttpClient {
      */
     samlIdentityProviderCreate: (
       {
-        query = {},
+        query,
         body,
       }: {
         query?: SamlIdentityProviderCreateQueryParams
         body: SamlIdentityProviderCreate
       },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<SamlIdentityProvider>({
         path: `/v1/system/identity-providers/saml`,
@@ -4545,12 +4451,12 @@ export class Api extends HttpClient {
     samlIdentityProviderView: (
       {
         path,
-        query = {},
+        query,
       }: {
         path: SamlIdentityProviderViewPathParams
         query?: SamlIdentityProviderViewQueryParams
       },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<SamlIdentityProvider>({
         path: `/v1/system/identity-providers/saml/${path.provider}`,
@@ -4564,7 +4470,7 @@ export class Api extends HttpClient {
      */
     ipPoolList: (
       { query = {} }: { query?: IpPoolListQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<IpPoolResultsPage>({
         path: `/v1/system/ip-pools`,
@@ -4576,7 +4482,7 @@ export class Api extends HttpClient {
     /**
      * Create an IP pool
      */
-    ipPoolCreate: ({ body }: { body: IpPoolCreate }, params: RequestParams = {}) => {
+    ipPoolCreate: ({ body }: { body: IpPoolCreate }, params: FetchParams = {}) => {
       return this.request<IpPool>({
         path: `/v1/system/ip-pools`,
         method: 'POST',
@@ -4587,7 +4493,7 @@ export class Api extends HttpClient {
     /**
      * Fetch an IP pool
      */
-    ipPoolView: ({ path }: { path: IpPoolViewPathParams }, params: RequestParams = {}) => {
+    ipPoolView: ({ path }: { path: IpPoolViewPathParams }, params: FetchParams = {}) => {
       return this.request<IpPool>({
         path: `/v1/system/ip-pools/${path.pool}`,
         method: 'GET',
@@ -4599,7 +4505,7 @@ export class Api extends HttpClient {
      */
     ipPoolUpdate: (
       { path, body }: { path: IpPoolUpdatePathParams; body: IpPoolUpdate },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<IpPool>({
         path: `/v1/system/ip-pools/${path.pool}`,
@@ -4613,7 +4519,7 @@ export class Api extends HttpClient {
      */
     ipPoolDelete: (
       { path }: { path: IpPoolDeletePathParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<void>({
         path: `/v1/system/ip-pools/${path.pool}`,
@@ -4629,7 +4535,7 @@ export class Api extends HttpClient {
         path,
         query = {},
       }: { path: IpPoolRangeListPathParams; query?: IpPoolRangeListQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<IpPoolRangeResultsPage>({
         path: `/v1/system/ip-pools/${path.pool}/ranges`,
@@ -4643,7 +4549,7 @@ export class Api extends HttpClient {
      */
     ipPoolRangeAdd: (
       { path, body }: { path: IpPoolRangeAddPathParams; body: IpRange },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<IpPoolRange>({
         path: `/v1/system/ip-pools/${path.pool}/ranges/add`,
@@ -4657,7 +4563,7 @@ export class Api extends HttpClient {
      */
     ipPoolRangeRemove: (
       { path, body }: { path: IpPoolRangeRemovePathParams; body: IpRange },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<void>({
         path: `/v1/system/ip-pools/${path.pool}/ranges/remove`,
@@ -4669,7 +4575,7 @@ export class Api extends HttpClient {
     /**
      * Fetch the IP pool used for Oxide services
      */
-    ipPoolServiceView: (_: EmptyObj, params: RequestParams = {}) => {
+    ipPoolServiceView: (_: EmptyObj, params: FetchParams = {}) => {
       return this.request<IpPool>({
         path: `/v1/system/ip-pools-service`,
         method: 'GET',
@@ -4681,7 +4587,7 @@ export class Api extends HttpClient {
      */
     ipPoolServiceRangeList: (
       { query = {} }: { query?: IpPoolServiceRangeListQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<IpPoolRangeResultsPage>({
         path: `/v1/system/ip-pools-service/ranges`,
@@ -4693,7 +4599,7 @@ export class Api extends HttpClient {
     /**
      * Add a range to an IP pool used for Oxide services
      */
-    ipPoolServiceRangeAdd: ({ body }: { body: IpRange }, params: RequestParams = {}) => {
+    ipPoolServiceRangeAdd: ({ body }: { body: IpRange }, params: FetchParams = {}) => {
       return this.request<IpPoolRange>({
         path: `/v1/system/ip-pools-service/ranges/add`,
         method: 'POST',
@@ -4704,7 +4610,7 @@ export class Api extends HttpClient {
     /**
      * Remove a range from an IP pool used for Oxide services
      */
-    ipPoolServiceRangeRemove: ({ body }: { body: IpRange }, params: RequestParams = {}) => {
+    ipPoolServiceRangeRemove: ({ body }: { body: IpRange }, params: FetchParams = {}) => {
       return this.request<void>({
         path: `/v1/system/ip-pools-service/ranges/remove`,
         method: 'POST',
@@ -4720,7 +4626,7 @@ export class Api extends HttpClient {
         path,
         query = {},
       }: { path: SystemMetricPathParams; query?: SystemMetricQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<MeasurementResultsPage>({
         path: `/v1/system/metrics/${path.metricName}`,
@@ -4734,7 +4640,7 @@ export class Api extends HttpClient {
      */
     networkingAddressLotList: (
       { query = {} }: { query?: NetworkingAddressLotListQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<AddressLotResultsPage>({
         path: `/v1/system/networking/address-lot`,
@@ -4748,7 +4654,7 @@ export class Api extends HttpClient {
      */
     networkingAddressLotCreate: (
       { body }: { body: AddressLotCreate },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<AddressLotCreateResponse>({
         path: `/v1/system/networking/address-lot`,
@@ -4762,7 +4668,7 @@ export class Api extends HttpClient {
      */
     networkingAddressLotDelete: (
       { path }: { path: NetworkingAddressLotDeletePathParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<void>({
         path: `/v1/system/networking/address-lot/${path.addressLot}`,
@@ -4781,7 +4687,7 @@ export class Api extends HttpClient {
         path: NetworkingAddressLotBlockListPathParams
         query?: NetworkingAddressLotBlockListQueryParams
       },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<AddressLotBlockResultsPage>({
         path: `/v1/system/networking/address-lot/${path.addressLot}/blocks`,
@@ -4795,7 +4701,7 @@ export class Api extends HttpClient {
      */
     networkingLoopbackAddressList: (
       { query = {} }: { query?: NetworkingLoopbackAddressListQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<LoopbackAddressResultsPage>({
         path: `/v1/system/networking/loopback-address`,
@@ -4809,7 +4715,7 @@ export class Api extends HttpClient {
      */
     networkingLoopbackAddressCreate: (
       { body }: { body: LoopbackAddressCreate },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<LoopbackAddress>({
         path: `/v1/system/networking/loopback-address`,
@@ -4823,7 +4729,7 @@ export class Api extends HttpClient {
      */
     networkingLoopbackAddressDelete: (
       { path }: { path: NetworkingLoopbackAddressDeletePathParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<void>({
         path: `/v1/system/networking/loopback-address/${path.rackId}/${path.switchLocation}/${path.address}/${path.subnetMask}`,
@@ -4836,7 +4742,7 @@ export class Api extends HttpClient {
      */
     networkingSwitchPortSettingsList: (
       { query = {} }: { query?: NetworkingSwitchPortSettingsListQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<SwitchPortSettingsResultsPage>({
         path: `/v1/system/networking/switch-port-settings`,
@@ -4850,7 +4756,7 @@ export class Api extends HttpClient {
      */
     networkingSwitchPortSettingsCreate: (
       { body }: { body: SwitchPortSettingsCreate },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<SwitchPortSettingsView>({
         path: `/v1/system/networking/switch-port-settings`,
@@ -4864,7 +4770,7 @@ export class Api extends HttpClient {
      */
     networkingSwitchPortSettingsDelete: (
       { query = {} }: { query?: NetworkingSwitchPortSettingsDeleteQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<void>({
         path: `/v1/system/networking/switch-port-settings`,
@@ -4878,7 +4784,7 @@ export class Api extends HttpClient {
      */
     networkingSwitchPortSettingsView: (
       { path }: { path: NetworkingSwitchPortSettingsViewPathParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<SwitchPortSettingsView>({
         path: `/v1/system/networking/switch-port-settings/${path.port}`,
@@ -4889,7 +4795,7 @@ export class Api extends HttpClient {
     /**
      * Fetch the top-level IAM policy
      */
-    systemPolicyView: (_: EmptyObj, params: RequestParams = {}) => {
+    systemPolicyView: (_: EmptyObj, params: FetchParams = {}) => {
       return this.request<FleetRolePolicy>({
         path: `/v1/system/policy`,
         method: 'GET',
@@ -4899,10 +4805,7 @@ export class Api extends HttpClient {
     /**
      * Update the top-level IAM policy
      */
-    systemPolicyUpdate: (
-      { body }: { body: FleetRolePolicy },
-      params: RequestParams = {}
-    ) => {
+    systemPolicyUpdate: ({ body }: { body: FleetRolePolicy }, params: FetchParams = {}) => {
       return this.request<FleetRolePolicy>({
         path: `/v1/system/policy`,
         method: 'PUT',
@@ -4915,7 +4818,7 @@ export class Api extends HttpClient {
      */
     roleList: (
       { query = {} }: { query?: RoleListQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<RoleResultsPage>({
         path: `/v1/system/roles`,
@@ -4927,7 +4830,7 @@ export class Api extends HttpClient {
     /**
      * Fetch a built-in role
      */
-    roleView: ({ path }: { path: RoleViewPathParams }, params: RequestParams = {}) => {
+    roleView: ({ path }: { path: RoleViewPathParams }, params: FetchParams = {}) => {
       return this.request<Role>({
         path: `/v1/system/roles/${path.roleName}`,
         method: 'GET',
@@ -4939,7 +4842,7 @@ export class Api extends HttpClient {
      */
     siloList: (
       { query = {} }: { query?: SiloListQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<SiloResultsPage>({
         path: `/v1/system/silos`,
@@ -4951,7 +4854,7 @@ export class Api extends HttpClient {
     /**
      * Create a silo
      */
-    siloCreate: ({ body }: { body: SiloCreate }, params: RequestParams = {}) => {
+    siloCreate: ({ body }: { body: SiloCreate }, params: FetchParams = {}) => {
       return this.request<Silo>({
         path: `/v1/system/silos`,
         method: 'POST',
@@ -4962,7 +4865,7 @@ export class Api extends HttpClient {
     /**
      * Fetch a silo
      */
-    siloView: ({ path }: { path: SiloViewPathParams }, params: RequestParams = {}) => {
+    siloView: ({ path }: { path: SiloViewPathParams }, params: FetchParams = {}) => {
       return this.request<Silo>({
         path: `/v1/system/silos/${path.silo}`,
         method: 'GET',
@@ -4972,7 +4875,7 @@ export class Api extends HttpClient {
     /**
      * Delete a silo
      */
-    siloDelete: ({ path }: { path: SiloDeletePathParams }, params: RequestParams = {}) => {
+    siloDelete: ({ path }: { path: SiloDeletePathParams }, params: FetchParams = {}) => {
       return this.request<void>({
         path: `/v1/system/silos/${path.silo}`,
         method: 'DELETE',
@@ -4984,7 +4887,7 @@ export class Api extends HttpClient {
      */
     siloPolicyView: (
       { path }: { path: SiloPolicyViewPathParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<SiloRolePolicy>({
         path: `/v1/system/silos/${path.silo}/policy`,
@@ -4997,7 +4900,7 @@ export class Api extends HttpClient {
      */
     siloPolicyUpdate: (
       { path, body }: { path: SiloPolicyUpdatePathParams; body: SiloRolePolicy },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<SiloRolePolicy>({
         path: `/v1/system/silos/${path.silo}/policy`,
@@ -5007,136 +4910,11 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * View version and update status of component tree
-     */
-    systemComponentVersionList: (
-      { query = {} }: { query?: SystemComponentVersionListQueryParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<UpdateableComponentResultsPage>({
-        path: `/v1/system/update/components`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * List all update deployments
-     */
-    updateDeploymentsList: (
-      { query = {} }: { query?: UpdateDeploymentsListQueryParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<UpdateDeploymentResultsPage>({
-        path: `/v1/system/update/deployments`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Fetch a system update deployment
-     */
-    updateDeploymentView: (
-      { path }: { path: UpdateDeploymentViewPathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<UpdateDeployment>({
-        path: `/v1/system/update/deployments/${path.id}`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * Refresh update data
-     */
-    systemUpdateRefresh: (_: EmptyObj, params: RequestParams = {}) => {
-      return this.request<void>({
-        path: `/v1/system/update/refresh`,
-        method: 'POST',
-        ...params,
-      })
-    },
-    /**
-     * Start system update
-     */
-    systemUpdateStart: (
-      { body }: { body: SystemUpdateStart },
-      params: RequestParams = {}
-    ) => {
-      return this.request<UpdateDeployment>({
-        path: `/v1/system/update/start`,
-        method: 'POST',
-        body,
-        ...params,
-      })
-    },
-    /**
-     * Stop system update
-     */
-    systemUpdateStop: (_: EmptyObj, params: RequestParams = {}) => {
-      return this.request<void>({
-        path: `/v1/system/update/stop`,
-        method: 'POST',
-        ...params,
-      })
-    },
-    /**
-     * List all updates
-     */
-    systemUpdateList: (
-      { query = {} }: { query?: SystemUpdateListQueryParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<SystemUpdateResultsPage>({
-        path: `/v1/system/update/updates`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * View system update
-     */
-    systemUpdateView: (
-      { path }: { path: SystemUpdateViewPathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<SystemUpdate>({
-        path: `/v1/system/update/updates/${path.version}`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * View system update component tree
-     */
-    systemUpdateComponentsList: (
-      { path }: { path: SystemUpdateComponentsListPathParams },
-      params: RequestParams = {}
-    ) => {
-      return this.request<ComponentUpdateResultsPage>({
-        path: `/v1/system/update/updates/${path.version}/components`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * View system version and update status
-     */
-    systemVersion: (_: EmptyObj, params: RequestParams = {}) => {
-      return this.request<SystemVersion>({
-        path: `/v1/system/update/version`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * List users in a silo
+     * List built-in (system) users in a silo
      */
     siloUserList: (
       { query = {} }: { query?: SiloUserListQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<UserResultsPage>({
         path: `/v1/system/users`,
@@ -5146,14 +4924,11 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Fetch a user
+     * Fetch a built-in (system) user
      */
     siloUserView: (
-      {
-        path,
-        query = {},
-      }: { path: SiloUserViewPathParams; query?: SiloUserViewQueryParams },
-      params: RequestParams = {}
+      { path, query }: { path: SiloUserViewPathParams; query?: SiloUserViewQueryParams },
+      params: FetchParams = {}
     ) => {
       return this.request<User>({
         path: `/v1/system/users/${path.userId}`,
@@ -5167,7 +4942,7 @@ export class Api extends HttpClient {
      */
     userBuiltinList: (
       { query = {} }: { query?: UserBuiltinListQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<UserBuiltinResultsPage>({
         path: `/v1/system/users-builtin`,
@@ -5181,7 +4956,7 @@ export class Api extends HttpClient {
      */
     userBuiltinView: (
       { path }: { path: UserBuiltinViewPathParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<UserBuiltin>({
         path: `/v1/system/users-builtin/${path.user}`,
@@ -5194,7 +4969,7 @@ export class Api extends HttpClient {
      */
     userList: (
       { query = {} }: { query?: UserListQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<UserResultsPage>({
         path: `/v1/users`,
@@ -5207,8 +4982,8 @@ export class Api extends HttpClient {
      * List firewall rules
      */
     vpcFirewallRulesView: (
-      { query = {} }: { query?: VpcFirewallRulesViewQueryParams },
-      params: RequestParams = {}
+      { query }: { query?: VpcFirewallRulesViewQueryParams },
+      params: FetchParams = {}
     ) => {
       return this.request<VpcFirewallRules>({
         path: `/v1/vpc-firewall-rules`,
@@ -5222,10 +4997,10 @@ export class Api extends HttpClient {
      */
     vpcFirewallRulesUpdate: (
       {
-        query = {},
+        query,
         body,
       }: { query?: VpcFirewallRulesUpdateQueryParams; body: VpcFirewallRuleUpdateParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<VpcFirewallRules>({
         path: `/v1/vpc-firewall-rules`,
@@ -5240,7 +5015,7 @@ export class Api extends HttpClient {
      */
     vpcRouterRouteList: (
       { query = {} }: { query?: VpcRouterRouteListQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<RouterRouteResultsPage>({
         path: `/v1/vpc-router-routes`,
@@ -5253,11 +5028,8 @@ export class Api extends HttpClient {
      * Create a router
      */
     vpcRouterRouteCreate: (
-      {
-        query = {},
-        body,
-      }: { query?: VpcRouterRouteCreateQueryParams; body: RouterRouteCreate },
-      params: RequestParams = {}
+      { query, body }: { query?: VpcRouterRouteCreateQueryParams; body: RouterRouteCreate },
+      params: FetchParams = {}
     ) => {
       return this.request<RouterRoute>({
         path: `/v1/vpc-router-routes`,
@@ -5273,9 +5045,9 @@ export class Api extends HttpClient {
     vpcRouterRouteView: (
       {
         path,
-        query = {},
+        query,
       }: { path: VpcRouterRouteViewPathParams; query?: VpcRouterRouteViewQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<RouterRoute>({
         path: `/v1/vpc-router-routes/${path.route}`,
@@ -5297,7 +5069,7 @@ export class Api extends HttpClient {
         query?: VpcRouterRouteUpdateQueryParams
         body: RouterRouteUpdate
       },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<RouterRoute>({
         path: `/v1/vpc-router-routes/${path.route}`,
@@ -5315,7 +5087,7 @@ export class Api extends HttpClient {
         path,
         query = {},
       }: { path: VpcRouterRouteDeletePathParams; query?: VpcRouterRouteDeleteQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<void>({
         path: `/v1/vpc-router-routes/${path.route}`,
@@ -5329,7 +5101,7 @@ export class Api extends HttpClient {
      */
     vpcRouterList: (
       { query = {} }: { query?: VpcRouterListQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<VpcRouterResultsPage>({
         path: `/v1/vpc-routers`,
@@ -5342,8 +5114,8 @@ export class Api extends HttpClient {
      * Create a VPC router
      */
     vpcRouterCreate: (
-      { query = {}, body }: { query?: VpcRouterCreateQueryParams; body: VpcRouterCreate },
-      params: RequestParams = {}
+      { query, body }: { query?: VpcRouterCreateQueryParams; body: VpcRouterCreate },
+      params: FetchParams = {}
     ) => {
       return this.request<VpcRouter>({
         path: `/v1/vpc-routers`,
@@ -5361,7 +5133,7 @@ export class Api extends HttpClient {
         path,
         query = {},
       }: { path: VpcRouterViewPathParams; query?: VpcRouterViewQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<VpcRouter>({
         path: `/v1/vpc-routers/${path.router}`,
@@ -5383,7 +5155,7 @@ export class Api extends HttpClient {
         query?: VpcRouterUpdateQueryParams
         body: VpcRouterUpdate
       },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<VpcRouter>({
         path: `/v1/vpc-routers/${path.router}`,
@@ -5401,7 +5173,7 @@ export class Api extends HttpClient {
         path,
         query = {},
       }: { path: VpcRouterDeletePathParams; query?: VpcRouterDeleteQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<void>({
         path: `/v1/vpc-routers/${path.router}`,
@@ -5415,7 +5187,7 @@ export class Api extends HttpClient {
      */
     vpcSubnetList: (
       { query = {} }: { query?: VpcSubnetListQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<VpcSubnetResultsPage>({
         path: `/v1/vpc-subnets`,
@@ -5428,8 +5200,8 @@ export class Api extends HttpClient {
      * Create a subnet
      */
     vpcSubnetCreate: (
-      { query = {}, body }: { query?: VpcSubnetCreateQueryParams; body: VpcSubnetCreate },
-      params: RequestParams = {}
+      { query, body }: { query?: VpcSubnetCreateQueryParams; body: VpcSubnetCreate },
+      params: FetchParams = {}
     ) => {
       return this.request<VpcSubnet>({
         path: `/v1/vpc-subnets`,
@@ -5447,7 +5219,7 @@ export class Api extends HttpClient {
         path,
         query = {},
       }: { path: VpcSubnetViewPathParams; query?: VpcSubnetViewQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<VpcSubnet>({
         path: `/v1/vpc-subnets/${path.subnet}`,
@@ -5469,7 +5241,7 @@ export class Api extends HttpClient {
         query?: VpcSubnetUpdateQueryParams
         body: VpcSubnetUpdate
       },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<VpcSubnet>({
         path: `/v1/vpc-subnets/${path.subnet}`,
@@ -5487,7 +5259,7 @@ export class Api extends HttpClient {
         path,
         query = {},
       }: { path: VpcSubnetDeletePathParams; query?: VpcSubnetDeleteQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<void>({
         path: `/v1/vpc-subnets/${path.subnet}`,
@@ -5507,7 +5279,7 @@ export class Api extends HttpClient {
         path: VpcSubnetListNetworkInterfacesPathParams
         query?: VpcSubnetListNetworkInterfacesQueryParams
       },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<InstanceNetworkInterfaceResultsPage>({
         path: `/v1/vpc-subnets/${path.subnet}/network-interfaces`,
@@ -5519,10 +5291,7 @@ export class Api extends HttpClient {
     /**
      * List VPCs
      */
-    vpcList: (
-      { query = {} }: { query?: VpcListQueryParams },
-      params: RequestParams = {}
-    ) => {
+    vpcList: ({ query = {} }: { query?: VpcListQueryParams }, params: FetchParams = {}) => {
       return this.request<VpcResultsPage>({
         path: `/v1/vpcs`,
         method: 'GET',
@@ -5534,8 +5303,8 @@ export class Api extends HttpClient {
      * Create a VPC
      */
     vpcCreate: (
-      { query = {}, body }: { query?: VpcCreateQueryParams; body: VpcCreate },
-      params: RequestParams = {}
+      { query, body }: { query?: VpcCreateQueryParams; body: VpcCreate },
+      params: FetchParams = {}
     ) => {
       return this.request<Vpc>({
         path: `/v1/vpcs`,
@@ -5550,7 +5319,7 @@ export class Api extends HttpClient {
      */
     vpcView: (
       { path, query = {} }: { path: VpcViewPathParams; query?: VpcViewQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<Vpc>({
         path: `/v1/vpcs/${path.vpc}`,
@@ -5568,7 +5337,7 @@ export class Api extends HttpClient {
         query = {},
         body,
       }: { path: VpcUpdatePathParams; query?: VpcUpdateQueryParams; body: VpcUpdate },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<Vpc>({
         path: `/v1/vpcs/${path.vpc}`,
@@ -5583,7 +5352,7 @@ export class Api extends HttpClient {
      */
     vpcDelete: (
       { path, query = {} }: { path: VpcDeletePathParams; query?: VpcDeleteQueryParams },
-      params: RequestParams = {}
+      params: FetchParams = {}
     ) => {
       return this.request<void>({
         path: `/v1/vpcs/${path.vpc}`,

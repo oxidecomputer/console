@@ -1,13 +1,22 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import type {
+  DefaultError,
   FetchQueryOptions,
   InvalidateQueryFilters,
   QueryClient,
-  QueryFilters,
   QueryKey,
+  UndefinedInitialDataOptions,
   UseMutationOptions,
-  UseQueryOptions,
 } from '@tanstack/react-query'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+
+import { invariant } from '@oxide/util'
 
 import type { ApiResult } from './__generated__/Api'
 import { type ApiError, processServerError } from './errors'
@@ -48,62 +57,133 @@ const handleResult =
     throw processServerError(method, result)
   }
 
+/**
+ * `queryKey` and `queryFn` are always constructed by our helper hooks, so we
+ * only allow the rest of the options.
+ */
+type UseQueryOtherOptions<T, E = DefaultError> = Omit<
+  UndefinedInitialDataOptions<T, E>,
+  'queryKey' | 'queryFn'
+>
+
+/**
+ * `queryKey` and `queryFn` are always constructed by our helper hooks, so we
+ * only allow the rest of the options.
+ */
+type FetchQueryOtherOptions<T, E = DefaultError> = Omit<
+  FetchQueryOptions<T, E>,
+  'queryKey' | 'queryFn'
+>
+
+/** Result that includes both success and error so it can be cached by RQ */
+type ErrorsAllowed<T, E> = { type: 'success'; data: T } | { type: 'error'; data: E }
+
 export const getUseApiQuery =
   <A extends ApiClient>(api: A) =>
   <M extends string & keyof A>(
     method: M,
     params: Params<A[M]>,
-    options: UseQueryOptions<Result<A[M]>, ApiError> = {}
+    options: UseQueryOtherOptions<Result<A[M]>, ApiError> = {}
   ) => {
-    return useQuery(
-      [method, params] as QueryKey,
-      ({ signal }) => api[method](params, { signal }).then(handleResult(method)),
+    return useQuery({
+      queryKey: [method, params] as QueryKey,
       // no catch, let unexpected errors bubble up
-      {
-        // In the case of 404s, let the error bubble up to the error boundary so
-        // we can say Not Found. If you need to allow a 404 and want it to show
-        // up as `error` state instead, pass `useErrorBoundary: false` as an
-        // option from the calling component and it will override this
-        useErrorBoundary: (err) => err.statusCode === 404,
-        ...options,
-      }
-    )
+      queryFn: ({ signal }) => api[method](params, { signal }).then(handleResult(method)),
+      // In the case of 404s, let the error bubble up to the error boundary so
+      // we can say Not Found. If you need to allow a 404 and want it to show
+      // up as `error` state instead, pass `useErrorBoundary: false` as an
+      // option from the calling component and it will override this
+      throwOnError: (err) => err.statusCode === 404,
+      ...options,
+    })
+  }
+
+export const getUsePrefetchedApiQuery =
+  <A extends ApiClient>(api: A) =>
+  <M extends string & keyof A>(
+    method: M,
+    params: Params<A[M]>,
+    options: UseQueryOtherOptions<Result<A[M]>, ApiError> = {}
+  ) => {
+    const queryKey = [method, params] as QueryKey
+    const { data, ...rest } = useQuery({
+      queryKey,
+      // no catch, let unexpected errors bubble up
+      queryFn: ({ signal }) => api[method](params, { signal }).then(handleResult(method)),
+
+      // we can say Not Found. If you need to allow a 404 and want it to show
+      // up as `error` state instead, pass `useErrorBoundary: false` as an
+      // option from the calling component and it will override this
+      throwOnError: (err) => err.statusCode === 404,
+      ...options,
+    })
+    invariant(data, `Expected query to be prefetched. Key: ${JSON.stringify(queryKey)}`)
+    return { data, ...rest }
+  }
+
+const ERRORS_ALLOWED = 'errors-allowed'
+
+/**
+ * Variant of `getUseApiQuery` that allows error responses as a valid result,
+ * which importantly means they can be cached by RQ. This means we can prefetch
+ * an endpoint that might error (see `prefetchQueryErrorsAllowed`) and use this
+ * hook to retrieve the error result.
+ *
+ * Concretely, the only difference from `getUseApiQuery`: we turn all errors
+ * into successes. Instead of throwing the error, we return it as a valid
+ * result. This means `data` has a type that includes the possibility of error,
+ * plus a discriminant to let us handle both sides properly in the calling code.
+ */
+export const getUseApiQueryErrorsAllowed =
+  <A extends ApiClient>(api: A) =>
+  <M extends string & keyof A>(
+    method: M,
+    params: Params<A[M]>,
+    options: UseQueryOtherOptions<ErrorsAllowed<Result<A[M]>, ApiError>> = {}
+  ) => {
+    return useQuery({
+      // extra bit of key is important to distinguish from normal query. if we
+      // hit a a given endpoint twice on the same page, once the normal way and
+      // once with errors allowed the responses have different shapes, so we do
+      // not want to share the cache and mix them up
+      queryKey: [method, params, ERRORS_ALLOWED],
+      queryFn: ({ signal }) =>
+        api[method](params, { signal })
+          .then(handleResult(method))
+          .then((data) => ({ type: 'success' as const, data }))
+          .catch((data) => ({ type: 'error' as const, data })),
+      ...options,
+    })
   }
 
 export const getUseApiMutation =
   <A extends ApiClient>(api: A) =>
   <M extends string & keyof A>(
     method: M,
-    options?: UseMutationOptions<Result<A[M]>, ApiError, Params<A[M]>>
+    options?: Omit<UseMutationOptions<Result<A[M]>, ApiError, Params<A[M]>>, 'mutationFn'>
   ) =>
-    useMutation(
-      (params) => api[method](params).then(handleResult(method)),
+    useMutation({
+      mutationFn: (params) => api[method](params).then(handleResult(method)),
       // no catch, let unexpected errors bubble up
-      options
-    )
+      ...options,
+    })
 
 export const wrapQueryClient = <A extends ApiClient>(api: A, queryClient: QueryClient) => ({
-  invalidateQueries: <M extends keyof A>(
-    method: M,
-    params?: Params<A[M]>,
-    filters?: InvalidateQueryFilters
-  ) => queryClient.invalidateQueries(params ? [method, params] : [method], filters),
+  /**
+   * Note that we only take a single argument, `method`, rather than allowing
+   * the full query key `[query, params]` to be specified. This is to avoid
+   * accidentally overspecifying and therefore failing to match the desired
+   * query. The params argument can be added back in if we ever have a use case
+   * for it.
+   */
+  invalidateQueries: <M extends keyof A>(method: M, filters?: InvalidateQueryFilters) =>
+    queryClient.invalidateQueries({ queryKey: [method], ...filters }),
   setQueryData: <M extends keyof A>(method: M, params: Params<A[M]>, data: Result<A[M]>) =>
     queryClient.setQueryData([method, params], data),
-  cancelQueries: <M extends keyof A>(
-    method: M,
-    params?: Params<A[M]>,
-    filters?: QueryFilters
-  ) => queryClient.cancelQueries(params ? [method, params] : [method], filters),
-  refetchQueries: <M extends keyof A>(
-    method: M,
-    params?: Params<A[M]>,
-    filters?: QueryFilters
-  ) => queryClient.refetchQueries(params ? [method, params] : [method], filters),
   fetchQuery: <M extends string & keyof A>(
     method: M,
     params: Params<A[M]>,
-    options: FetchQueryOptions<Result<A[M]>, ApiError> = {}
+    options: FetchQueryOtherOptions<Result<A[M]>, ApiError> = {}
   ) =>
     queryClient.fetchQuery({
       queryKey: [method, params],
@@ -113,11 +193,45 @@ export const wrapQueryClient = <A extends ApiClient>(api: A, queryClient: QueryC
   prefetchQuery: <M extends string & keyof A>(
     method: M,
     params: Params<A[M]>,
-    options: FetchQueryOptions<Result<A[M]>, ApiError> = {}
+    options: FetchQueryOtherOptions<Result<A[M]>, ApiError> = {}
   ) =>
     queryClient.prefetchQuery({
       queryKey: [method, params],
       queryFn: () => api[method](params).then(handleResult(method)),
+      ...options,
+    }),
+  /**
+   * Loader analog to `useApiQueryErrorsAllowed`. Prefetch a query that can
+   * error, converting the error to a valid result so RQ will cache it.
+   */
+  prefetchQueryErrorsAllowed: <M extends string & keyof A>(
+    method: M,
+    params: Params<A[M]>,
+    options: FetchQueryOtherOptions<ErrorsAllowed<Result<A[M]>, ApiError>> & {
+      /**
+       * HTTP errors will show up unexplained in the browser console. It can be
+       * helpful to reassure people they're normal.
+       */
+      explanation: string
+      expectedStatusCode: 403 | 404
+    }
+  ) =>
+    queryClient.prefetchQuery({
+      queryKey: [method, params, ERRORS_ALLOWED],
+      queryFn: () =>
+        api[method](params)
+          .then(handleResult(method))
+          .then((data) => ({ type: 'success' as const, data }))
+          .catch((data: ApiError) => {
+            // if we get an unexpected error, we're still throwing
+            if (data.statusCode !== options.expectedStatusCode) {
+              // data is the result of handleResult, so it's ready to through
+              // directly without further processing
+              throw data
+            }
+            console.log(options.explanation)
+            return { type: 'error' as const, data }
+          }),
       ...options,
     }),
 })

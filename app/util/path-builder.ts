@@ -1,3 +1,10 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import type { PathParams as PP } from '@oxide/api'
 
 // TODO: required versions of path params probably belong somewhere else,
@@ -6,10 +13,12 @@ import type { PathParams as PP } from '@oxide/api'
 type Project = Required<PP.Project>
 type Instance = Required<PP.Instance>
 type Vpc = Required<PP.Vpc>
-type SystemUpdate = Required<PP.SystemUpdate>
 type Silo = Required<PP.Silo>
 type IdentityProvider = Required<PP.IdentityProvider>
 type Sled = Required<PP.Sled>
+type Image = Required<PP.Image>
+type Snapshot = Required<PP.Snapshot>
+type SiloImage = Required<PP.SiloImage>
 
 export const pb = {
   projects: () => `/projects`,
@@ -20,6 +29,8 @@ export const pb = {
   projectAccess: (params: Project) => `${pb.project(params)}/access`,
   projectImages: (params: Project) => `${pb.project(params)}/images`,
   projectImageNew: (params: Project) => `${pb.project(params)}/images-new`,
+  projectImage: (params: Image) => `${pb.projectImages(params)}/${params.image}`,
+  projectImageEdit: (params: Image) => `${pb.projectImage(params)}/edit`,
 
   instances: (params: Project) => `${pb.project(params)}/instances`,
   instanceNew: (params: Project) => `${pb.project(params)}/instances-new`,
@@ -47,6 +58,8 @@ export const pb = {
 
   snapshotNew: (params: Project) => `${pb.project(params)}/snapshots-new`,
   snapshots: (params: Project) => `${pb.project(params)}/snapshots`,
+  snapshotImageCreate: (params: Snapshot) =>
+    `${pb.project(params)}/snapshots/${params.snapshot}/image-new`,
 
   vpcNew: (params: Project) => `${pb.project(params)}/vpcs-new`,
   vpcs: (params: Project) => `${pb.project(params)}/vpcs`,
@@ -56,16 +69,13 @@ export const pb = {
   siloUtilization: () => '/utilization',
   siloAccess: () => '/access',
   siloImages: () => '/images',
+  siloImage: (params: SiloImage) => `${pb.siloImages()}/${params.image}`,
+  siloImageEdit: (params: SiloImage) => `${pb.siloImage(params)}/edit`,
 
   system: () => '/system',
   systemIssues: () => '/system/issues',
   systemUtilization: () => '/system/utilization',
   systemHealth: () => '/system/health',
-
-  systemUpdates: () => '/system/update/updates',
-  systemUpdateDetail: ({ version }: SystemUpdate) => `${pb.systemUpdates()}/${version}`,
-  systemUpdateHistory: () => '/system/update/history',
-  updateableComponents: () => '/system/update/components',
 
   systemNetworking: () => '/system/networking',
   systemSettings: () => '/system/settings',
@@ -82,7 +92,6 @@ export const pb = {
   siloIdpNew: (params: Silo) => `${pb.silo(params)}/idps-new`,
   samlIdp: (params: IdentityProvider) => `${pb.silo(params)}/idps/saml/${params.provider}`,
 
-  settings: () => '/settings',
   profile: () => '/settings/profile',
   sshKeys: () => '/settings/ssh-keys',
   sshKeyNew: () => '/settings/ssh-keys-new',

@@ -1,3 +1,10 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import { camelCaseToWords, capitalize } from '@oxide/util'
 
 import type { ErrorResult } from '.'
@@ -61,7 +68,9 @@ export function processServerError(method: string, resp: ErrorResult): ApiError 
   // error code, for some reason
   if (!message) {
     message =
-      getParseError(resp.data.message) || resp.data.message || 'Unknown server error'
+      getParseError(resp.data.message) ||
+      capitalize(resp.data.message) ||
+      'Unknown server error'
   }
 
   return {

@@ -1,3 +1,10 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import type { CalendarDate } from '@internationalized/date'
 import { getDayOfWeek, getLocalTimeZone, isSameDay, isToday } from '@internationalized/date'
 import cn from 'classnames'
@@ -75,7 +82,7 @@ export function CalendarCell({ state, date }: CalendarCellProps) {
       >
         <div
           className={cn(
-            'pointer-events-none absolute top-[0] left-[0] right-[0] bottom-[0] rounded',
+            'pointer-events-none absolute bottom-[0] left-[1px] right-[1px] top-[0] rounded',
             isSelectionStart || isSelectionEnd
               ? isInvalid
                 ? 'border border-error-secondary'
@@ -101,7 +108,7 @@ export function CalendarCell({ state, date }: CalendarCellProps) {
         </div>
 
         {cellIsToday && (
-          <div className="absolute left-1/2 bottom-[3px] h-1 w-1 -translate-x-1/2 rounded-full bg-[var(--content-accent-tertiary)] content-['']" />
+          <div className="absolute bottom-[5px] left-1/2 h-[3px] w-[3px] -translate-x-1/2 rounded-full bg-[var(--content-accent-tertiary)] content-['']" />
         )}
       </div>
     </td>

@@ -1,3 +1,10 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import type { Image } from '@oxide/api'
 import { GiB } from '@oxide/util'
 
@@ -7,7 +14,7 @@ import { project } from './project'
 const base = {
   time_created: new Date().toISOString(),
   time_modified: new Date().toISOString(),
-  block_size: 4096,
+  block_size: 512,
 }
 
 export const images: Json<Image>[] = [

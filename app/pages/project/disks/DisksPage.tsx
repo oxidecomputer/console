@@ -1,12 +1,18 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import type { LoaderFunctionArgs } from 'react-router-dom'
 import { Outlet } from 'react-router-dom'
 import { Link } from 'react-router-dom'
 
 import type { Disk } from '@oxide/api'
 import {
-  DISK_DELETE_STATES,
-  DISK_SNAPSHOT_STATES,
   apiQueryClient,
+  diskCan,
   genName,
   useApiMutation,
   useApiQuery,
@@ -24,7 +30,10 @@ import {
 
 import { DiskStatusBadge } from 'app/components/StatusBadge'
 import { getProjectSelector, useProjectSelector, useToast } from 'app/hooks'
+import { confirmDelete } from 'app/stores/confirm-delete'
 import { pb } from 'app/util/path-builder'
+
+import { fancifyStates } from '../instances/instance/tabs/common'
 
 function AttachedInstance({
   instanceId,
@@ -71,16 +80,14 @@ export function DisksPage() {
 
   const deleteDisk = useApiMutation('diskDelete', {
     onSuccess() {
-      queryClient.invalidateQueries('diskList', { query: projectSelector })
+      queryClient.invalidateQueries('diskList')
     },
   })
 
   const createSnapshot = useApiMutation('snapshotCreate', {
     onSuccess() {
-      queryClient.invalidateQueries('snapshotList', { query: projectSelector })
-      addToast({
-        content: 'Snapshot successfully created',
-      })
+      queryClient.invalidateQueries('snapshotList')
+      addToast({ content: 'Snapshot successfully created' })
     },
   })
 
@@ -97,20 +104,24 @@ export function DisksPage() {
           },
         })
       },
-      disabled:
-        !DISK_SNAPSHOT_STATES.has(disk.state.state) &&
-        "Only disks in state 'attached' or 'detached' can be snapshotted",
+      disabled: !diskCan.snapshot(disk) && (
+        <>Only disks in state {fancifyStates(diskCan.snapshot.states)} can be snapshotted</>
+      ),
     },
     {
       label: 'Delete',
-      onActivate: () => {
-        deleteDisk.mutate({ path: { disk: disk.name }, query: projectSelector })
-      },
+      onActivate: confirmDelete({
+        doDelete: () =>
+          deleteDisk.mutateAsync({ path: { disk: disk.name }, query: projectSelector }),
+        label: disk.name,
+      }),
       disabled:
-        !DISK_DELETE_STATES.has(disk.state.state) &&
-        (disk.state.state === 'attached'
-          ? 'Disk must be detached before it can be deleted'
-          : `A ${disk.state.state} disk cannot be deleted`),
+        !diskCan.delete(disk) &&
+        (disk.state.state === 'attached' ? (
+          'Disk must be detached before it can be deleted'
+        ) : (
+          <>Only disks in state {fancifyStates(diskCan.delete.states)} can be deleted</>
+        )),
     },
   ]
 

@@ -1,8 +1,14 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import fileSize from 'filesize'
 import type { LoaderFunctionArgs } from 'react-router-dom'
-import invariant from 'tiny-invariant'
 
-import { apiQueryClient, useApiQuery } from '@oxide/api'
+import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import { PageHeader, PageTitle, PropertiesTable, Racks24Icon } from '@oxide/ui'
 
 import { RouteTabs, Tab } from 'app/components/RouteTabs'
@@ -19,19 +25,17 @@ SledPage.loader = async ({ params }: LoaderFunctionArgs) => {
 
 export function SledPage() {
   const { sledId } = useSledParams()
-  const { data: sled } = useApiQuery('sledView', { path: { sledId } })
-
-  invariant(sled, 'sled should be prefetched')
+  const { data: sled } = usePrefetchedApiQuery('sledView', { path: { sledId } })
 
   const ram = fileSize(sled.usablePhysicalRam, { output: 'object', base: 2 })
 
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<Racks24Icon />}>Sled 0</PageTitle>
+        <PageTitle icon={<Racks24Icon />}>Sled</PageTitle>
       </PageHeader>
 
-      <PropertiesTable.Group className="mb-16 -mt-8">
+      <PropertiesTable.Group className="-mt-8 mb-16">
         <PropertiesTable>
           <PropertiesTable.Row label="sled id">
             <span className="text-secondary">{sled.id}</span>

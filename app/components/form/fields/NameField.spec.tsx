@@ -1,3 +1,12 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
+import { describe, expect, it } from 'vitest'
+
 import { validateName } from './NameField'
 
 describe('validateName', () => {
@@ -26,5 +35,8 @@ describe('validateName', () => {
     expect(validate('asldk:c')).toEqual(
       'Can only contain lower-case letters, numbers, and dashes'
     )
+  })
+  it('rejects names that are too long', () => {
+    expect(validate('a'.repeat(64))).toEqual('Must be 63 characters or fewer')
   })
 })

@@ -1,3 +1,10 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import type { Snapshot } from '@oxide/api'
 
 import { disks } from './disk'
@@ -29,7 +36,7 @@ export const snapshots: Json<Snapshot>[] = [
   },
   {
     id: 'e6c58826-62fb-4205-820e-620407cd04e7',
-    name: 'snapshot-3',
+    name: 'delete-500',
     description: "it's a third snapshot",
     project_id: project.id,
     time_created: new Date().toISOString(),

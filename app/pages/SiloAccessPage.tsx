@@ -1,13 +1,19 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import { useMemo, useState } from 'react'
 
 import type { IdentityType, RoleKey } from '@oxide/api'
-import { deleteRole } from '@oxide/api'
+import { deleteRole, usePrefetchedApiQuery } from '@oxide/api'
 import {
   apiQueryClient,
   byGroupThenName,
   getEffectiveRole,
   useApiMutation,
-  useApiQuery,
   useApiQueryClient,
   useUserRows,
 } from '@oxide/api'
@@ -24,11 +30,13 @@ import {
 import { groupBy, isTruthy } from '@oxide/util'
 
 import { AccessNameCell } from 'app/components/AccessNameCell'
+import { HL } from 'app/components/ConfirmDeleteModal'
 import { RoleBadgeCell } from 'app/components/RoleBadgeCell'
 import {
   SiloAccessAddUserSideModal,
   SiloAccessEditUserSideModal,
 } from 'app/forms/silo-access'
+import { confirmDelete } from 'app/stores/confirm-delete'
 
 const EmptyState = ({ onClick }: { onClick: () => void }) => (
   <TableEmptyBox>
@@ -66,8 +74,8 @@ export function SiloAccessPage() {
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [editingUserRow, setEditingUserRow] = useState<UserRow | null>(null)
 
-  const { data: siloPolicy } = useApiQuery('policyView', {})
-  const siloRows = useUserRows(siloPolicy?.roleAssignments, 'silo')
+  const { data: siloPolicy } = usePrefetchedApiQuery('policyView', {})
+  const siloRows = useUserRows(siloPolicy.roleAssignments, 'silo')
 
   const rows = useMemo(() => {
     return groupBy(siloRows, (u) => u.id)
@@ -94,7 +102,7 @@ export function SiloAccessPage() {
 
   const queryClient = useApiQueryClient()
   const updatePolicy = useApiMutation('policyUpdate', {
-    onSuccess: () => queryClient.invalidateQueries('policyView', {}),
+    onSuccess: () => queryClient.invalidateQueries('policyView'),
     // TODO: handle 403
   })
 
@@ -118,13 +126,18 @@ export function SiloAccessPage() {
         // TODO: only show if you have permission to do this
         {
           label: 'Delete',
-          onActivate() {
-            // TODO: confirm delete
-            updatePolicy.mutate({
-              // we know policy is there, otherwise there's no row to display
-              body: deleteRole(row.id, siloPolicy!),
-            })
-          },
+          onActivate: confirmDelete({
+            doDelete: () =>
+              updatePolicy.mutateAsync({
+                // we know policy is there, otherwise there's no row to display
+                body: deleteRole(row.id, siloPolicy!),
+              }),
+            label: (
+              <span>
+                the <HL>{row.siloRole}</HL> role for <HL>{row.name}</HL>
+              </span>
+            ),
+          }),
           disabled: !row.siloRole && "You don't have permission to delete this user",
         },
       ]),

@@ -1,13 +1,19 @@
-import { useForm } from 'react-hook-form'
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import { useNavigate } from 'react-router-dom'
 
 import type { ProjectCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
+import { useForm } from 'app/hooks'
+import { addToast } from 'app/stores/toast'
 import { pb } from 'app/util/path-builder'
-
-import { useToast } from '../hooks'
 
 const defaultValues: ProjectCreate = {
   name: '',
@@ -17,26 +23,23 @@ const defaultValues: ProjectCreate = {
 export function CreateProjectSideModalForm() {
   const navigate = useNavigate()
   const queryClient = useApiQueryClient()
-  const addToast = useToast()
 
   const onDismiss = () => navigate(pb.projects())
 
   const createProject = useApiMutation('projectCreate', {
     onSuccess(project) {
       // refetch list of projects in sidebar
-      queryClient.invalidateQueries('projectList', {})
+      queryClient.invalidateQueries('projectList')
       // avoid the project fetch when the project page loads since we have the data
       queryClient.setQueryData('projectView', { path: { project: project.name } }, project)
-      addToast({
-        content: 'Your project has been created',
-      })
+      addToast({ content: 'Your project has been created' })
       navigate(pb.instances({ project: project.name }))
     },
   })
 
   // TODO: RHF docs warn about the performance impact of validating on every
   // change
-  const form = useForm({ mode: 'all', defaultValues })
+  const form = useForm({ defaultValues })
 
   return (
     <SideModalForm
@@ -47,7 +50,7 @@ export function CreateProjectSideModalForm() {
       onSubmit={({ name, description }) => {
         createProject.mutate({ body: { name, description } })
       }}
-      loading={createProject.isLoading}
+      loading={createProject.isPending}
       submitError={createProject.error}
     >
       <NameField name="name" control={form.control} />

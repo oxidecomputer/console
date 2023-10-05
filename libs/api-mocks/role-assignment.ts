@@ -1,5 +1,11 @@
-import type { IdentityType } from 'libs/api/__generated__/Api'
-import type { RoleKey } from 'libs/api/roles'
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
+import { FLEET_ID, type IdentityType, type RoleKey } from '@oxide/api'
 
 import { project } from './project'
 import { defaultSilo } from './silo'
@@ -20,9 +26,6 @@ type DbRoleAssignment = {
   role_name: RoleKey
 }
 
-// this is hard-coded in the API. there can only be one
-export const FLEET_ID = '001de000-1334-4000-8000-000000000000'
-
 export const roleAssignments: DbRoleAssignment[] = [
   {
     resource_type: 'fleet',
@@ -36,7 +39,7 @@ export const roleAssignments: DbRoleAssignment[] = [
     resource_id: defaultSilo.id,
     identity_id: userGroup3.id,
     identity_type: 'silo_group',
-    role_name: 'admin',
+    role_name: 'collaborator',
   },
   {
     resource_type: 'silo',

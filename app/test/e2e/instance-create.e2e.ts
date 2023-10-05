@@ -1,6 +1,13 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import { images } from '@oxide/api-mocks'
 
-import { expect, expectVisible, test } from './utils'
+import { expect, expectRowVisible, expectVisible, test } from './utils'
 
 test('can create an instance', async ({ page }) => {
   await page.goto('/projects/mock-project/instances')
@@ -45,13 +52,17 @@ test('can create an instance', async ({ page }) => {
     'text=from space',
   ])
 
-  // trying to create another instance with the same name produces a visible
-  // error
-  await page.goto('/projects/mock-project/instances')
-  await page.locator('text="New Instance"').click()
-  await page.fill('input[name=name]', instanceName)
+  // network tab works
+  await page.getByRole('tab', { name: 'Network Interfaces' }).click()
+  const table = page.getByRole('table')
+  await expectRowVisible(table, { name: 'default', vpc: 'mock-vpc', subnet: 'mock-subnet' })
+})
+
+test('duplicate instance name produces visible error', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances-new')
+  await page.fill('input[name=name]', 'db1')
   await page.locator('button:has-text("Create instance")').click()
-  await page.getByText('Instance name already exists')
+  await expect(page.getByText('Instance name already exists')).toBeVisible()
 })
 
 test('first preset is auto-selected in each tab', async ({ page }) => {

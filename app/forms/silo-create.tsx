@@ -1,4 +1,10 @@
-import { useForm } from 'react-hook-form'
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import { useNavigate } from 'react-router-dom'
 
 import type { SiloCreate } from '@oxide/api'
@@ -12,16 +18,23 @@ import {
   SideModalForm,
   TextField,
 } from 'app/components/form'
-import { useToast } from 'app/hooks'
+import { useForm, useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
-const defaultValues: SiloCreate = {
+type FormValues = Omit<SiloCreate, 'mappedFleetRoles'> & {
+  siloAdminGetsFleetAdmin: boolean
+  siloViewerGetsFleetViewer: boolean
+}
+
+const defaultValues: FormValues = {
   name: '',
   description: '',
   discoverable: true,
   identityMode: 'saml_jit',
   adminGroupName: '',
   tlsCertificates: [],
+  siloAdminGetsFleetAdmin: false,
+  siloViewerGetsFleetViewer: false,
 }
 
 export function CreateSiloSideModalForm() {
@@ -33,16 +46,14 @@ export function CreateSiloSideModalForm() {
 
   const createSilo = useApiMutation('siloCreate', {
     onSuccess(silo) {
-      queryClient.invalidateQueries('siloList', {})
+      queryClient.invalidateQueries('siloList')
       queryClient.setQueryData('siloView', { path: { silo: silo.name } }, silo)
-      addToast({
-        content: 'Your silo has been created',
-      })
+      addToast({ content: 'Your silo has been created' })
       onDismiss()
     },
   })
 
-  const form = useForm({ mode: 'all', defaultValues })
+  const form = useForm({ defaultValues })
 
   return (
     <SideModalForm
@@ -50,16 +61,29 @@ export function CreateSiloSideModalForm() {
       title="Create silo"
       form={form}
       onDismiss={onDismiss}
-      onSubmit={({ adminGroupName, ...rest }) =>
+      onSubmit={({
+        adminGroupName,
+        siloAdminGetsFleetAdmin,
+        siloViewerGetsFleetViewer,
+        ...rest
+      }) => {
+        const mappedFleetRoles: SiloCreate['mappedFleetRoles'] = {}
+        if (siloAdminGetsFleetAdmin) {
+          mappedFleetRoles['admin'] = ['admin']
+        }
+        if (siloViewerGetsFleetViewer) {
+          mappedFleetRoles['viewer'] = ['viewer']
+        }
         createSilo.mutate({
           body: {
             // no point setting it to empty string or whitespace
             adminGroupName: adminGroupName?.trim() || undefined,
+            mappedFleetRoles,
             ...rest,
           },
         })
-      }
-      loading={createSilo.isLoading}
+      }}
+      loading={createSilo.isPending}
       submitError={createSilo.error}
     >
       <NameField name="name" control={form.control} />
@@ -83,6 +107,16 @@ export function CreateSiloSideModalForm() {
         helpText="This group will be created and granted the Silo Admin role"
         control={form.control}
       />
+      <div>
+        <CheckboxField name="siloAdminGetsFleetAdmin" control={form.control}>
+          Grant fleet admin role to silo admins
+        </CheckboxField>
+      </div>
+      <div className="!mt-2">
+        <CheckboxField name="siloViewerGetsFleetViewer" control={form.control}>
+          Grant fleet viewer role to silo viewers
+        </CheckboxField>
+      </div>
     </SideModalForm>
   )
 }

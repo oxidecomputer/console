@@ -1,10 +1,15 @@
-import { useForm } from 'react-hook-form'
-
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import type { VpcFirewallRule } from '@oxide/api'
 import { firewallRuleGetToPut, useApiMutation, useApiQueryClient } from '@oxide/api'
 
 import { SideModalForm } from 'app/components/form'
-import { useVpcSelector } from 'app/hooks'
+import { useForm, useVpcSelector } from 'app/hooks'
 
 import { CommonFields, valuesToRuleUpdate } from './firewall-rules-create'
 import type { FirewallRuleValues } from './firewall-rules-create'
@@ -25,7 +30,7 @@ export function EditFirewallRuleForm({
 
   const updateRules = useApiMutation('vpcFirewallRulesUpdate', {
     onSuccess() {
-      queryClient.invalidateQueries('vpcFirewallRulesView', { query: vpcSelector })
+      queryClient.invalidateQueries('vpcFirewallRulesView')
       onDismiss()
     },
   })
@@ -46,7 +51,7 @@ export function EditFirewallRuleForm({
     targets: originalRule.targets,
   }
 
-  const form = useForm({ mode: 'all', defaultValues })
+  const form = useForm({ defaultValues })
 
   // TODO: uhhhh how can this happen
   if (Object.keys(originalRule).length === 0) return null
@@ -72,7 +77,7 @@ export function EditFirewallRuleForm({
       }}
       // validationSchema={validationSchema}
       // validateOnBlur
-      loading={updateRules.isLoading}
+      loading={updateRules.isPending}
       submitError={updateRules.error}
       submitLabel="Update rule"
     >

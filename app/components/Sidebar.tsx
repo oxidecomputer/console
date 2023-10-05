@@ -1,7 +1,16 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import cn from 'classnames'
 import { NavLink } from 'react-router-dom'
 
 import { Action16Icon, Button, Document16Icon, Truncate } from '@oxide/ui'
+
+import { openQuickActions } from 'app/hooks'
 
 const linkStyles =
   'flex h-7 items-center rounded px-2 text-sans-md hover:bg-hover svg:mr-2 svg:text-quinary text-secondary'
@@ -25,22 +34,23 @@ export const DocsLinkItem = () => (
 // https://github.com/ccampbell/mousetrap/blob/2f9a476b/mousetrap.js#L135
 const modKey = /Mac|iPod|iPhone|iPad/.test(navigator.platform) ? 'cmd' : 'ctrl'
 
-const JumpToButton = () => (
-  <Button
-    variant="ghost"
-    size="sm"
-    // TODO: click should open jump to menu
-    onClick={() => alert('click not implemented, press cmd+k')}
-    className="w-full !px-2"
-    // TODO: the more I use innerClassName the wronger it feels
-    innerClassName="w-full justify-between text-quaternary"
-  >
-    <span className="flex items-center">
-      <Action16Icon className="mr-2 text-quinary" /> Jump to
-    </span>
-    <div className="text-mono-xs">{modKey}+K</div>
-  </Button>
-)
+const JumpToButton = () => {
+  return (
+    <Button
+      variant="ghost"
+      size="sm"
+      onClick={openQuickActions}
+      className="w-full !px-2"
+      // TODO: the more I use innerClassName the wronger it feels
+      innerClassName="w-full justify-between text-quaternary"
+    >
+      <span className="flex items-center">
+        <Action16Icon className="mr-2 text-quinary" /> Jump to
+      </span>
+      <div className="text-mono-xs">{modKey}+K</div>
+    </Button>
+  )
+}
 
 export function Sidebar({ children }: { children: React.ReactNode }) {
   return (
@@ -59,7 +69,7 @@ interface SidebarNav {
 }
 
 Sidebar.Nav = ({ children, heading }: SidebarNav) => (
-  <div className="my-4 mx-3 space-y-1">
+  <div className="mx-3 my-4 space-y-1">
     {heading && (
       <div className="mb-2 text-mono-sm text-quaternary">
         <Truncate text={heading} maxLength={24} />

@@ -1,4 +1,12 @@
 /*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
+
+/*
  * Utilities around resource roles and policies. This logic belongs in the data
  * layer and not in app/ because we are experimenting with it to decide whether
  * it belongs in the API proper.
@@ -7,7 +15,7 @@ import { useMemo } from 'react'
 
 import { lowestBy, sortBy } from '@oxide/util'
 
-import { useApiQuery } from '.'
+import { usePrefetchedApiQuery } from '.'
 import type { FleetRole, IdentityType, ProjectRole, SiloRole } from './__generated__/Api'
 
 /**
@@ -85,18 +93,18 @@ type UserAccessRow = {
  * identical between projects and orgs so it is worth sharing.
  */
 export function useUserRows(
-  roleAssignments: RoleAssignment[] | undefined,
+  roleAssignments: RoleAssignment[],
   roleSource: string
 ): UserAccessRow[] {
   // HACK: because the policy has no names, we are fetching ~all the users,
   // putting them in a dictionary, and adding the names to the rows
-  const { data: users } = useApiQuery('userList', {})
-  const { data: groups } = useApiQuery('groupList', {})
+  const { data: users } = usePrefetchedApiQuery('userList', {})
+  const { data: groups } = usePrefetchedApiQuery('groupList', {})
   return useMemo(() => {
     const userItems = users?.items || []
     const groupItems = groups?.items || []
     const usersDict = Object.fromEntries(userItems.concat(groupItems).map((u) => [u.id, u]))
-    return (roleAssignments || []).map((ra) => ({
+    return roleAssignments.map((ra) => ({
       id: ra.identityId,
       identityType: ra.identityType,
       name: usersDict[ra.identityId]?.displayName || '', // placeholder until we get names, obviously
@@ -128,20 +136,17 @@ export type Actor = {
  * Fetch lists of users and groups, filtering out the ones that are already in
  * the given policy.
  */
-export function useActorsNotInPolicy(
-  // allow undefined because this is fetched with RQ
-  policy: Policy | undefined
-): Actor[] {
-  const { data: users } = useApiQuery('userList', {})
-  const { data: groups } = useApiQuery('groupList', {})
+export function useActorsNotInPolicy(policy: Policy): Actor[] {
+  const { data: users } = usePrefetchedApiQuery('userList', {})
+  const { data: groups } = usePrefetchedApiQuery('groupList', {})
   return useMemo(() => {
     // IDs are UUIDs, so no need to include identity type in set value to disambiguate
     const actorsInPolicy = new Set(policy?.roleAssignments.map((ra) => ra.identityId) || [])
-    const allGroups = (groups?.items || []).map((g) => ({
+    const allGroups = groups.items.map((g) => ({
       ...g,
       identityType: 'silo_group' as IdentityType,
     }))
-    const allUsers = (users?.items || []).map((u) => ({
+    const allUsers = users.items.map((u) => ({
       ...u,
       identityType: 'silo_user' as IdentityType,
     }))

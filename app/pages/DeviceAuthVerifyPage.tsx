@@ -1,3 +1,10 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -47,9 +54,7 @@ export default function DeviceAuthVerifyPage() {
       }}
     >
       <h1 className="mb-1 text-sans-2xl text-accent">Device Authentication</h1>
-      <p className="mb-8 text-sans-lg text-tertiary">
-        Make sure this code matches the one shown on the device you are authenticating
-      </p>
+      <p className="mb-8 text-sans-lg text-tertiary">Enter the code shown on your device</p>
       <AuthCodeInput
         onChange={(code) => setUserCode(code)}
         containerClassName="flex space-x-2 mb-6"
@@ -60,8 +65,8 @@ export default function DeviceAuthVerifyPage() {
       <Button
         className="w-full !text-mono-sm"
         type="submit"
-        loading={confirmPost.isLoading}
-        disabled={confirmPost.isLoading || confirmPost.isSuccess || userCode.length < 8}
+        loading={confirmPost.isPending}
+        disabled={confirmPost.isPending || confirmPost.isSuccess || userCode.length < 8}
       >
         Log in on device
       </Button>

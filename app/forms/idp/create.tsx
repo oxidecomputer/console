@@ -1,11 +1,17 @@
-import { useForm } from 'react-hook-form'
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import { useNavigate } from 'react-router-dom'
 
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 
 import { DescriptionField, NameField, SideModalForm, TextField } from 'app/components/form'
 import { FileField } from 'app/components/form/fields'
-import { useSiloSelector, useToast } from 'app/hooks'
+import { useForm, useSiloSelector, useToast } from 'app/hooks'
 import { readBlobAsBase64 } from 'app/util/file'
 import { pb } from 'app/util/path-builder'
 
@@ -43,15 +49,13 @@ export function CreateIdpSideModalForm() {
 
   const createIdp = useApiMutation('samlIdentityProviderCreate', {
     onSuccess() {
-      queryClient.invalidateQueries('siloIdentityProviderList', { query: { silo } })
-      addToast({
-        content: 'Your identity provider has been created',
-      })
+      queryClient.invalidateQueries('siloIdentityProviderList')
+      addToast({ content: 'Your identity provider has been created' })
       onDismiss()
     },
   })
 
-  const form = useForm({ mode: 'all', defaultValues })
+  const form = useForm({ defaultValues })
 
   return (
     <SideModalForm
@@ -94,7 +98,7 @@ export function CreateIdpSideModalForm() {
           },
         })
       }}
-      loading={createIdp.isLoading}
+      loading={createIdp.isPending}
       submitError={createIdp.error}
       submitLabel="Create provider"
     >

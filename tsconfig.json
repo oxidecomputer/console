@@ -1,6 +1,7 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "allowImportingTsExtensions": true,
     "baseUrl": ".",
     "esModuleInterop": true,
     "importHelpers": true,
@@ -26,7 +27,7 @@
     "sourceMap": true,
     "strict": true,
     "target": "es2015",
-    "types": ["node", "vite/client", "vitest/importMeta", "vitest/globals"]
+    "types": ["node", "vite/client", "vitest/importMeta"]
   },
   "exclude": ["tools/deno"]
 }

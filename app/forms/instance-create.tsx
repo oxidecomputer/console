@@ -1,21 +1,30 @@
-import { useForm, useWatch } from 'react-hook-form'
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
+import { useWatch } from 'react-hook-form'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
-import invariant from 'tiny-invariant'
 import type { SetRequired } from 'type-fest'
 
 import type { InstanceCreate } from '@oxide/api'
 import {
+  INSTANCE_MAX_CPU,
+  INSTANCE_MAX_RAM_GiB,
+  MAX_DISK_SIZE_GiB,
   apiQueryClient,
   genName,
   useApiMutation,
-  useApiQuery,
   useApiQueryClient,
+  usePrefetchedApiQuery,
 } from '@oxide/api'
 import {
-  Divider,
   EmptyMessage,
   FieldLabel,
+  FormDivider,
   Images16Icon,
   Instances24Icon,
   Key16Icon,
@@ -26,8 +35,7 @@ import {
   TextInputHint,
   Truncate,
 } from '@oxide/ui'
-import { formatDateTime } from '@oxide/util'
-import { GiB } from '@oxide/util'
+import { GiB, formatDateTime, invariant } from '@oxide/util'
 
 import { Form, FullPageForm } from 'app/components/form'
 import type { DiskTableItem } from 'app/components/form'
@@ -42,7 +50,7 @@ import {
   RadioFieldDyn,
   TextField,
 } from 'app/components/form'
-import { getProjectSelector, useProjectSelector, useToast } from 'app/hooks'
+import { getProjectSelector, useForm, useProjectSelector, useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 export type InstanceCreateInput = Assign<
@@ -81,9 +89,9 @@ const baseDefaultValues: InstanceCreateInput = {
 
 CreateInstanceForm.loader = async ({ params }: LoaderFunctionArgs) => {
   await Promise.all([
-    apiQueryClient.prefetchQuery('imageList', {
-      query: { includeSiloImages: true, ...getProjectSelector(params) },
-    }),
+    // fetch both project and silo images
+    apiQueryClient.prefetchQuery('imageList', { query: getProjectSelector(params) }),
+    apiQueryClient.prefetchQuery('imageList', {}),
     apiQueryClient.prefetchQuery('currentUserSshKeyList', {}),
   ])
   return null
@@ -98,27 +106,24 @@ export function CreateInstanceForm() {
   const createInstance = useApiMutation('instanceCreate', {
     onSuccess(instance) {
       // refetch list of instances
-      queryClient.invalidateQueries('instanceList', { query: projectSelector })
+      queryClient.invalidateQueries('instanceList')
       // avoid the instance fetch when the instance page loads since we have the data
       queryClient.setQueryData(
         'instanceView',
         { path: { instance: instance.name }, query: projectSelector },
         instance
       )
-      addToast({
-        content: 'Your instance has been created',
-      })
+      addToast({ content: 'Your instance has been created' })
       navigate(pb.instancePage({ ...projectSelector, instance: instance.name }))
     },
   })
 
-  const images =
-    useApiQuery('imageList', { query: { includeSiloImages: true, ...projectSelector } })
-      .data?.items || []
-  const siloImages = images.filter((i) => !i.projectId)
-  const projectImages = images.filter((i) => i.projectId)
+  const siloImages = usePrefetchedApiQuery('imageList', {}).data.items
+  const projectImages = usePrefetchedApiQuery('imageList', { query: projectSelector }).data
+    .items
+  const allImages = [...siloImages, ...projectImages]
 
-  const defaultImage = images[0]
+  const defaultImage = allImages[0]
 
   const defaultValues: InstanceCreateInput = {
     ...baseDefaultValues,
@@ -127,11 +132,11 @@ export function CreateInstanceForm() {
     bootDiskSize: Math.ceil(defaultImage?.size / GiB) * 2 || 10,
   }
 
-  const form = useForm({ mode: 'all', defaultValues })
+  const form = useForm({ defaultValues })
   const { control, setValue } = form
 
   const imageInput = useWatch({ control: control, name: 'image' })
-  const image = images.find((i) => i.id === imageInput)
+  const image = allImages.find((i) => i.id === imageInput)
 
   return (
     <FullPageForm
@@ -148,7 +153,7 @@ export function CreateInstanceForm() {
             : { memory: preset.memory, ncpus: preset.ncpus }
 
         // we should also never have an image ID that's not in the list
-        const image = images.find((i) => values.image === i.id)
+        const image = allImages.find((i) => values.image === i.id)
         invariant(image, 'Expected image to be defined')
 
         const bootDiskName = values.bootDiskName || genName(values.name, image.name)
@@ -184,7 +189,7 @@ export function CreateInstanceForm() {
           },
         })
       }}
-      loading={createInstance.isLoading}
+      loading={createInstance.isPending}
       submitError={createInstance.error}
     >
       <NameField name="name" control={control} />
@@ -193,7 +198,7 @@ export function CreateInstanceForm() {
         Start Instance
       </CheckboxField>
 
-      <Divider />
+      <FormDivider />
 
       <Form.Heading id="hardware">Hardware</Form.Heading>
 
@@ -247,8 +252,16 @@ export function CreateInstanceForm() {
             label="CPUs"
             name="ncpus"
             min={1}
-            max={32}
+            max={INSTANCE_MAX_CPU}
             control={control}
+            validate={(cpus) => {
+              if (cpus < 1) {
+                return `Must be at least 1 vCPU`
+              }
+              if (cpus > INSTANCE_MAX_CPU) {
+                return `CPUs capped to ${INSTANCE_MAX_CPU}`
+              }
+            }}
           />
           <TextField
             units="GiB"
@@ -257,13 +270,21 @@ export function CreateInstanceForm() {
             label="Memory"
             name="memory"
             min={1}
-            max={128}
+            max={INSTANCE_MAX_RAM_GiB}
             control={control}
+            validate={(memory) => {
+              if (memory < 1) {
+                return `Must be at least 1 GiB`
+              }
+              if (memory > INSTANCE_MAX_RAM_GiB) {
+                return `Can be at most ${INSTANCE_MAX_RAM_GiB} GiB`
+              }
+            }}
           />
         </Tabs.Content>
       </Tabs.Root>
 
-      <Divider />
+      <FormDivider />
 
       <Form.Heading id="boot-disk">Boot disk</Form.Heading>
       <Tabs.Root id="boot-disk-tabs" className="full-width" defaultValue="project">
@@ -314,6 +335,9 @@ export function CreateInstanceForm() {
             const minSize = Math.ceil(image.size / GiB)
             return `Must be as large as selected image (min. ${minSize} GiB)`
           }
+          if (diskSizeGiB > MAX_DISK_SIZE_GiB) {
+            return `Can be at most ${MAX_DISK_SIZE_GiB} GiB`
+          }
         }}
       />
       <NameField
@@ -323,17 +347,17 @@ export function CreateInstanceForm() {
         required={false}
         control={control}
       />
-      <Divider />
+      <FormDivider />
       <Form.Heading id="additional-disks">Additional disks</Form.Heading>
 
       <DisksTableField control={control} />
 
-      <Divider />
+      <FormDivider />
       <Form.Heading id="authentication">Authentication</Form.Heading>
 
       <SshKeysTable />
 
-      <Divider />
+      <FormDivider />
       <Form.Heading id="networking">Networking</Form.Heading>
 
       <NetworkInterfaceField control={control} />
@@ -345,7 +369,7 @@ export function CreateInstanceForm() {
       />
 
       <Form.Actions>
-        <Form.Submit loading={createInstance.isLoading}>Create instance</Form.Submit>
+        <Form.Submit loading={createInstance.isPending}>Create instance</Form.Submit>
         <Form.Cancel onClick={() => navigate(pb.instances(projectSelector))} />
       </Form.Actions>
     </FullPageForm>
@@ -353,7 +377,7 @@ export function CreateInstanceForm() {
 }
 
 const SshKeysTable = () => {
-  const keys = useApiQuery('currentUserSshKeyList', {}).data?.items || []
+  const keys = usePrefetchedApiQuery('currentUserSshKeyList', {}).data?.items || []
 
   return (
     <div className="max-w-lg">

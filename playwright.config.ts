@@ -1,3 +1,10 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import type { PlaywrightTestConfig } from '@playwright/test'
 import { devices } from '@playwright/test'
 
@@ -7,13 +14,13 @@ import { devices } from '@playwright/test'
 const config: PlaywrightTestConfig = {
   testDir: './app/test/e2e',
   testMatch: /\.e2e\.ts/,
-  /* Fail the build on CI if you accidentally left test.only in the source code. */
+  // Fail the build on CI if you accidentally left test.only in the source code
   forbidOnly: !!process.env.CI,
-  /* Retry on CI only */
+  // Retry on CI only
   retries: process.env.CI ? 2 : 0,
-  /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
-  timeout: 60000,
+  // use all available cores (2) on github actions. default is 50%, use that locally
+  workers: process.env.CI ? '100%' : undefined,
+  timeout: 2 * 60 * 1000, // 2 minutes, surely overkill
   fullyParallel: true,
   use: {
     trace: 'retain-on-failure',
@@ -22,7 +29,12 @@ const config: PlaywrightTestConfig = {
   projects: [
     {
       name: 'chrome',
-      use: { ...devices['Desktop Chrome'] },
+      use: {
+        contextOptions: {
+          permissions: ['clipboard-read', 'clipboard-write'],
+        },
+        ...devices['Desktop Chrome'],
+      },
     },
     {
       name: 'firefox',

@@ -1,9 +1,21 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import { useMemo } from 'react'
 import { Outlet } from 'react-router-dom'
 import { Link, useNavigate } from 'react-router-dom'
 
 import type { Project } from '@oxide/api'
-import { apiQueryClient, useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
+import {
+  apiQueryClient,
+  useApiMutation,
+  useApiQueryClient,
+  usePrefetchedApiQuery,
+} from '@oxide/api'
 import type { MenuAction } from '@oxide/table'
 import { DateCell, linkCell, useQueryTable } from '@oxide/table'
 import {
@@ -15,6 +27,7 @@ import {
   buttonStyle,
 } from '@oxide/ui'
 
+import { confirmDelete } from 'app/stores/confirm-delete'
 import { pb } from 'app/util/path-builder'
 
 import { useQuickActions } from '../hooks'
@@ -30,9 +43,7 @@ const EmptyState = () => (
 )
 
 ProjectsPage.loader = async () => {
-  await apiQueryClient.prefetchQuery('projectList', {
-    query: { limit: 10 },
-  })
+  await apiQueryClient.prefetchQuery('projectList', { query: { limit: 10 } })
   return null
 }
 
@@ -41,8 +52,7 @@ export default function ProjectsPage() {
 
   const queryClient = useApiQueryClient()
   const { Table, Column } = useQueryTable('projectList', {})
-
-  const { data: projects } = useApiQuery('projectList', {
+  const { data: projects } = usePrefetchedApiQuery('projectList', {
     query: { limit: 10 }, // limit to match QueryTable
   })
 
@@ -50,7 +60,7 @@ export default function ProjectsPage() {
     onSuccess() {
       // TODO: figure out if this is invalidating as expected, can we leave out the query
       // altogether, etc. Look at whether limit param matters.
-      queryClient.invalidateQueries('projectList', {})
+      queryClient.invalidateQueries('projectList')
     },
   })
 
@@ -70,9 +80,10 @@ export default function ProjectsPage() {
     },
     {
       label: 'Delete',
-      onActivate: () => {
-        deleteProject.mutate({ path: { project: project.name } })
-      },
+      onActivate: confirmDelete({
+        doDelete: () => deleteProject.mutateAsync({ path: { project: project.name } }),
+        label: project.name,
+      }),
     },
   ]
 

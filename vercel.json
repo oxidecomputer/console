@@ -1,0 +1,18 @@
+{
+  "buildCommand": "API_MODE=msw npm run build && cp mockServiceWorker.js dist/",
+  "outputDirectory": "dist",
+  "rewrites": [
+    {
+      "source": "/viewscript.js",
+      "destination": "https://trck.oxide.computer/js/plausible.js"
+    },
+    {
+      "source": "/api/event",
+      "destination": "https://trck.oxide.computer/api/event"
+    },
+    {
+      "source": "/:path((?!assets/|mockServiceWorker\\.js$).*)",
+      "destination": "/index.html"
+    }
+  ]
+}

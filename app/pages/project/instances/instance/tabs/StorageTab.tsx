@@ -1,62 +1,51 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import { useCallback, useMemo, useState } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 
 import {
   type Disk,
   apiQueryClient,
+  instanceCan,
   useApiMutation,
-  useApiQuery,
   useApiQueryClient,
+  usePrefetchedApiQuery,
 } from '@oxide/api'
 import type { MenuAction } from '@oxide/table'
-import {
-  DateCell,
-  SizeCell,
-  Table,
-  createColumnHelper,
-  getActionsCol,
-  useReactTable,
-} from '@oxide/table'
-import { Button, OpenLink12Icon } from '@oxide/ui'
-import { toPathQuery } from '@oxide/util'
+import { DateCell, SizeCell, useQueryTable } from '@oxide/table'
+import { Button, EmptyMessage, Storage24Icon } from '@oxide/ui'
 
 import { DiskStatusBadge } from 'app/components/StatusBadge'
 import AttachDiskSideModalForm from 'app/forms/disk-attach'
 import { CreateDiskSideModalForm } from 'app/forms/disk-create'
 import { getInstanceSelector, useInstanceSelector, useToast } from 'app/hooks'
 
-const colHelper = createColumnHelper<Disk>()
-
-const staticCols = [
-  colHelper.accessor('name', {
-    header: 'Name',
-    cell: (info) => <div>{info.getValue()}</div>,
-  }),
-  colHelper.accessor('size', {
-    header: 'Size',
-    cell: (info) => <SizeCell value={info.getValue()} />,
-  }),
-  colHelper.accessor('state.state', {
-    id: 'status',
-    header: 'Status',
-    cell: (info) => <DiskStatusBadge status={info.getValue()} />,
-  }),
-  colHelper.accessor('timeCreated', {
-    header: 'Created',
-    cell: (info) => <DateCell value={info.getValue()} />,
-  }),
-]
+import { fancifyStates } from './common'
 
 StorageTab.loader = async ({ params }: LoaderFunctionArgs) => {
-  const instancePathQuery = toPathQuery('instance', getInstanceSelector(params))
+  const { project, instance } = getInstanceSelector(params)
   await Promise.all([
-    apiQueryClient.prefetchQuery('instanceDiskList', instancePathQuery),
+    apiQueryClient.prefetchQuery('instanceDiskList', {
+      path: { instance },
+      query: { project, limit: 10 }, // querytable
+    }),
     // This is covered by the InstancePage loader but there's no downside to
     // being redundant. If it were removed there, we'd still want it here.
-    apiQueryClient.prefetchQuery('instanceView', instancePathQuery),
+    apiQueryClient.prefetchQuery('instanceView', {
+      path: { instance },
+      query: { project },
+    }),
   ])
   return null
 }
+
+const attachableStates = fancifyStates(instanceCan.attachDisk.states)
+const detachableStates = fancifyStates(instanceCan.detachDisk.states)
 
 export function StorageTab() {
   const [showDiskCreate, setShowDiskCreate] = useState(false)
@@ -64,39 +53,41 @@ export function StorageTab() {
 
   const addToast = useToast()
   const queryClient = useApiQueryClient()
-  const instancePathQuery = toPathQuery('instance', useInstanceSelector())
-
-  const { data } = useApiQuery('instanceDiskList', instancePathQuery)
+  const { instance: instanceName, project } = useInstanceSelector()
+  const instancePathQuery = useMemo(
+    () => ({ path: { instance: instanceName }, query: { project } }),
+    [instanceName, project]
+  )
 
   const detachDisk = useApiMutation('instanceDiskDetach', {})
 
-  const instanceStopped =
-    useApiQuery('instanceView', instancePathQuery).data?.runState === 'stopped'
+  const { data: instance } = usePrefetchedApiQuery('instanceView', instancePathQuery)
 
   const makeActions = useCallback(
     (disk: Disk): MenuAction[] => [
       {
         label: 'Detach',
-        disabled:
-          !instanceStopped && 'Instance must be stopped before disk can be detached',
+        disabled: !instanceCan.detachDisk(instance) && (
+          <>Instance must be in state {detachableStates} before disk can be detached</>
+        ),
         onActivate() {
           detachDisk.mutate(
             { body: { disk: disk.name }, ...instancePathQuery },
             {
               onSuccess: () => {
-                queryClient.invalidateQueries('instanceDiskList', instancePathQuery)
+                queryClient.invalidateQueries('instanceDiskList')
               },
             }
           )
         },
       },
     ],
-    [detachDisk, instanceStopped, queryClient, instancePathQuery]
+    [detachDisk, instance, queryClient, instancePathQuery]
   )
 
   const attachDisk = useApiMutation('instanceDiskAttach', {
     onSuccess() {
-      queryClient.invalidateQueries('instanceDiskList', instancePathQuery)
+      queryClient.invalidateQueries('instanceDiskList')
       // cover all our bases. this is called by both modals
       setShowDiskCreate(false)
       setShowDiskAttach(false)
@@ -110,29 +101,44 @@ export function StorageTab() {
     },
   })
 
-  const disks = useMemo(() => data?.items || [], [data])
+  const { Table, Column } = useQueryTable('instanceDiskList', instancePathQuery)
 
-  const columns = useMemo(() => [...staticCols, getActionsCol(makeActions)], [makeActions])
-
-  const disksTable = useReactTable({ columns, data: disks })
-  const disksTableLabelId = 'disks-label'
-
-  if (!data) return null
+  const emptyState = (
+    <EmptyMessage
+      icon={<Storage24Icon />}
+      title="No disks"
+      body="You need to attach a disk to this instance to be able to see it here"
+    />
+  )
 
   return (
     <>
-      <h2 id={disksTableLabelId} className="mb-4 text-mono-sm text-secondary">
+      <h2 id="disks-label" className="mb-4 text-mono-sm text-secondary">
         Disks
       </h2>
       {/* TODO: need 40px high rows. another table or a flag on Table (ew) */}
-      <Table table={disksTable} rowClassName="!h-10" aria-labelledby={disksTableLabelId} />
+
+      <Table
+        emptyState={emptyState}
+        makeActions={makeActions}
+        aria-labelledby="disks-label"
+      >
+        <Column accessor="name" />
+        <Column header="Size" accessor="size" cell={SizeCell} />
+        <Column
+          id="status"
+          accessor={(row) => row.state.state}
+          cell={({ value }) => <DiskStatusBadge status={value} />}
+        />
+        <Column header="Created" accessor="timeCreated" cell={DateCell} />
+      </Table>
       <div className="mt-4 flex flex-col gap-3">
         <div className="flex gap-3">
           <Button
             size="sm"
             onClick={() => setShowDiskCreate(true)}
-            disabledReason="Instance must be stopped to create a disk"
-            disabled={!instanceStopped}
+            disabledReason={<>Instance must be {attachableStates} to create a disk</>}
+            disabled={!instanceCan.attachDisk(instance)}
           >
             Create new disk
           </Button>
@@ -140,19 +146,15 @@ export function StorageTab() {
             variant="secondary"
             size="sm"
             onClick={() => setShowDiskAttach(true)}
-            disabledReason="Instance must be stopped to attach a disk"
-            disabled={!instanceStopped}
+            disabledReason={<>Instance must be {attachableStates} to attach a disk</>}
+            disabled={!instanceCan.attachDisk(instance)}
           >
             Attach existing disk
           </Button>
         </div>
-        {!instanceStopped && (
+        {!instanceCan.attachDisk(instance) && (
           <span className="max-w-xs text-sans-md text-tertiary">
-            A disk cannot be added or attached without first{' '}
-            <a href="#/" className="text-accent-secondary">
-              stopping the instance
-              <OpenLink12Icon className="ml-1 align-middle" />
-            </a>
+            A disk cannot be added or attached unless the instance is {attachableStates}.
           </span>
         )}
       </div>
@@ -172,7 +174,7 @@ export function StorageTab() {
           onSubmit={({ name }) => {
             attachDisk.mutate({ ...instancePathQuery, body: { disk: name } })
           }}
-          loading={attachDisk.isLoading}
+          loading={attachDisk.isPending}
           submitError={attachDisk.error}
         />
       )}

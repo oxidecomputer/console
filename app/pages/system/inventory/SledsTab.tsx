@@ -1,5 +1,12 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import { apiQueryClient } from '@oxide/api'
-import { LabelCell, linkCell, useQueryTable } from '@oxide/table'
+import { linkCell, useQueryTable } from '@oxide/table'
 import { EmptyMessage, Racks24Icon } from '@oxide/ui'
 
 import { pb } from 'app/util/path-builder'
@@ -22,14 +29,12 @@ SledsTab.loader = async () => {
 }
 
 export function SledsTab() {
-  const { Table, Column } = useQueryTable('sledList', {}, { keepPreviousData: true })
+  const { Table, Column } = useQueryTable('sledList', {}, { placeholderData: (x) => x })
 
   return (
     <>
       <Table emptyState={<EmptyState />}>
         <Column accessor="id" cell={linkCell((sledId) => pb.sled({ sledId }))} />
-        <Column id="location" accessor={(_, index) => `SLD${index}`} header="location" />
-        <Column id="status" accessor={() => 'active'} header="status" cell={LabelCell} />
         {/* TODO */}
         {/* <Column accessor="serviceAddress" header="service address" /> */}
         <Column accessor="baseboard.part" header="part number" />

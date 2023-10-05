@@ -1,7 +1,16 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import type { ReactElement } from 'react'
 import { useMemo } from 'react'
-import { matchPath, useLocation, useNavigate, useParams } from 'react-router-dom'
+import type { LoaderFunctionArgs } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 
+import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import {
   Access16Icon,
   Divider,
@@ -19,7 +28,7 @@ import {
   ProjectPicker,
   SiloSystemPicker,
 } from 'app/components/TopBarPicker'
-import { useProjectSelector, useQuickActions } from 'app/hooks'
+import { getProjectSelector, useProjectSelector, useQuickActions } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 import { DocsLinkItem, NavLinkItem, Sidebar } from '../components/Sidebar'
@@ -32,35 +41,40 @@ type ProjectLayoutProps = {
   overrideContentPane?: ReactElement
 }
 
-const projectPathPattern = pb.project({ project: ':project' })
+ProjectLayout.loader = async ({ params }: LoaderFunctionArgs) => {
+  await apiQueryClient.prefetchQuery('projectView', {
+    path: getProjectSelector(params),
+  })
+  return null
+}
 
-const ProjectLayout = ({ overrideContentPane }: ProjectLayoutProps) => {
+function ProjectLayout({ overrideContentPane }: ProjectLayoutProps) {
   const navigate = useNavigate()
-  // org and project will always be there, instance may not
+  // project will always be there, instance may not
   const projectSelector = useProjectSelector()
-  const { project } = projectSelector
+  const { data: project } = usePrefetchedApiQuery('projectView', { path: projectSelector })
+
   const { instance } = useParams()
-  const currentPath = useLocation().pathname
+  const { pathname } = useLocation()
   useQuickActions(
     useMemo(
       () =>
         [
-          { value: 'Instances', path: 'instances' },
-          { value: 'Disks', path: 'disks' },
-          { value: 'Snapshots', path: 'snapshots' },
-          { value: 'Images', path: 'images' },
-          { value: 'Networking', path: 'vpcs' },
-          { value: 'Access & IAM', path: 'access' },
+          { value: 'Instances', path: pb.instances(projectSelector) },
+          { value: 'Disks', path: pb.disks(projectSelector) },
+          { value: 'Snapshots', path: pb.snapshots(projectSelector) },
+          { value: 'Images', path: pb.projectImages(projectSelector) },
+          { value: 'Networking', path: pb.vpcs(projectSelector) },
+          { value: 'Access & IAM', path: pb.projectAccess(projectSelector) },
         ]
           // filter out the entry for the path we're currently on
-          .filter((i) => !matchPath(`${projectPathPattern}/${i.path}`, currentPath))
+          .filter((i) => i.path !== pathname)
           .map((i) => ({
-            navGroup: `Project '${project}'`,
+            navGroup: `Project '${project.name}'`,
             value: i.value,
-            // TODO: Update this to use the new path builder
             onSelect: () => navigate(i.path),
           })),
-      [currentPath, navigate, project]
+      [pathname, navigate, project.name, projectSelector]
     )
   )
 
@@ -68,7 +82,7 @@ const ProjectLayout = ({ overrideContentPane }: ProjectLayoutProps) => {
     <PageContainer>
       <TopBar>
         <SiloSystemPicker value="silo" />
-        <ProjectPicker />
+        <ProjectPicker project={project} />
         {instance && <InstancePicker />}
       </TopBar>
       <Sidebar>
@@ -80,7 +94,7 @@ const ProjectLayout = ({ overrideContentPane }: ProjectLayoutProps) => {
           <DocsLinkItem />
         </Sidebar.Nav>
         <Divider />
-        <Sidebar.Nav heading={project}>
+        <Sidebar.Nav heading={project.name}>
           <NavLinkItem to={pb.instances(projectSelector)}>
             <Instances16Icon /> Instances
           </NavLinkItem>

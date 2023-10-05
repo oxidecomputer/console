@@ -1,14 +1,19 @@
-import { useForm } from 'react-hook-form'
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import type { LoaderFunctionArgs } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
-import invariant from 'tiny-invariant'
 
-import { apiQueryClient, useApiQuery } from '@oxide/api'
+import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import { Access16Icon, PropertiesTable, ResourceLabel, Truncate } from '@oxide/ui'
 import { formatDateTime } from '@oxide/util'
 
 import { DescriptionField, NameField, SideModalForm, TextField } from 'app/components/form'
-import { getIdpSelector, useIdpSelector } from 'app/hooks'
+import { getIdpSelector, useForm, useIdpSelector } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 EditIdpSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
@@ -22,20 +27,19 @@ EditIdpSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
 
 export function EditIdpSideModalForm() {
   const { silo, provider } = useIdpSelector()
-  const { data: idp } = useApiQuery('samlIdentityProviderView', {
+  const { data: idp } = usePrefetchedApiQuery('samlIdentityProviderView', {
     path: { provider },
     query: { silo },
   })
-  invariant(idp, 'IdP was not prefetched in loader')
 
   const navigate = useNavigate()
   const onDismiss = () => navigate(pb.silo({ silo }))
 
-  const form = useForm({ mode: 'all', defaultValues: idp })
+  const form = useForm({ defaultValues: idp })
 
   return (
     <SideModalForm
-      id="edit-project-form"
+      id="edit-idp-form"
       form={form}
       title="Identity provider"
       onDismiss={onDismiss}

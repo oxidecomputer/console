@@ -1,3 +1,10 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import type { IdentityProvider, SamlIdentityProvider, Silo } from '@oxide/api'
 import { pick } from '@oxide/util'
 
@@ -12,6 +19,7 @@ export const silos: Json<Silo[]> = [
     time_modified: new Date(2021, 4, 2).toISOString(),
     discoverable: true,
     identity_mode: 'saml_jit',
+    mapped_fleet_roles: {},
   },
 ]
 

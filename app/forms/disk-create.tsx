@@ -1,13 +1,19 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import { format } from 'date-fns'
 import type { Control } from 'react-hook-form'
-import { useForm } from 'react-hook-form'
 import { useController } from 'react-hook-form'
 import type { NavigateFunction } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 
 import type { BlockSize, Disk, DiskCreate, DiskSource } from '@oxide/api'
 import { useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
-import { Divider } from '@oxide/ui'
+import { FormDivider } from '@oxide/ui'
 import { FieldLabel, Radio, RadioGroup } from '@oxide/ui'
 import { GiB } from '@oxide/util'
 
@@ -20,11 +26,11 @@ import {
   SideModalForm,
   toListboxItem,
 } from 'app/components/form'
-import { useProjectSelector, useToast } from 'app/hooks'
+import { useForm, useProjectSelector, useToast } from 'app/hooks'
 
 const blankDiskSource: DiskSource = {
   type: 'blank',
-  blockSize: 4096,
+  blockSize: 512,
 }
 
 const defaultValues: DiskCreate = {
@@ -61,16 +67,14 @@ export function CreateDiskSideModalForm({
 
   const createDisk = useApiMutation('diskCreate', {
     onSuccess(data) {
-      queryClient.invalidateQueries('diskList', { query: projectSelector })
-      addToast({
-        content: 'Your disk has been created',
-      })
+      queryClient.invalidateQueries('diskList')
+      addToast({ content: 'Your disk has been created' })
       onSuccess?.(data)
       onDismiss(navigate)
     },
   })
 
-  const form = useForm({ mode: 'all', defaultValues })
+  const form = useForm({ defaultValues })
 
   return (
     <SideModalForm
@@ -82,12 +86,12 @@ export function CreateDiskSideModalForm({
         const body = { size: size * GiB, ...rest }
         onSubmit ? onSubmit(body) : createDisk.mutate({ query: projectSelector, body })
       }}
-      loading={createDisk.isLoading}
+      loading={createDisk.isPending}
       submitError={createDisk.error}
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
-      <Divider />
+      <FormDivider />
       <DiskSourceField control={form.control} />
       <DiskSizeField name="size" control={form.control} />
     </SideModalForm>
@@ -130,8 +134,9 @@ const DiskSourceField = ({ control }: { control: Control<DiskCreate> }) => {
             control={control}
             parseValue={(val) => parseInt(val, 10) as BlockSize}
             items={[
-              { label: '4096', value: 4096 },
               { label: '512', value: 512 },
+              { label: '2048', value: 2048 },
+              { label: '4096', value: 4096 },
             ]}
           />
         )}
@@ -144,13 +149,14 @@ const DiskSourceField = ({ control }: { control: Control<DiskCreate> }) => {
 }
 
 const ImageSelectField = ({ control }: { control: Control<DiskCreate> }) => {
-  const projectSelector = useProjectSelector()
+  const { project } = useProjectSelector()
 
-  const imagesQuery = useApiQuery('imageList', {
-    query: { includeSiloImages: true, ...projectSelector },
-  })
+  const projectImages = useApiQuery('imageList', { query: { project } })
+  const siloImages = useApiQuery('imageList', {})
 
-  const images = imagesQuery.data?.items || []
+  // put project images first because if there are any, there probably aren't
+  // very many and they're probably relevant
+  const images = [...(projectImages.data?.items || []), ...(siloImages.data?.items || [])]
 
   return (
     <ListboxField
@@ -158,7 +164,7 @@ const ImageSelectField = ({ control }: { control: Control<DiskCreate> }) => {
       name="diskSource.imageId"
       label="Source image"
       placeholder="Select an image"
-      isLoading={imagesQuery.isLoading}
+      isLoading={projectImages.isPending || siloImages.isPending}
       items={images.map((i) => toListboxItem(i, true))}
       required
     />
@@ -166,14 +172,14 @@ const ImageSelectField = ({ control }: { control: Control<DiskCreate> }) => {
 }
 
 const DiskNameFromId = ({ disk }: { disk: string }) => {
-  const { data, isLoading, isError } = useApiQuery(
+  const { data, isPending, isError } = useApiQuery(
     'diskView',
     { path: { disk } },
     // this can 404 if the source disk has been deleted, and that's fine
-    { useErrorBoundary: false }
+    { throwOnError: false }
   )
 
-  if (isLoading || isError) return null
+  if (isPending || isError) return null
   return <> from {data.name}</>
 }
 
@@ -205,7 +211,7 @@ const SnapshotSelectField = ({ control }: { control: Control<DiskCreate> }) => {
           ),
         }
       })}
-      isLoading={snapshotsQuery.isLoading}
+      isLoading={snapshotsQuery.isPending}
       required
     />
   )

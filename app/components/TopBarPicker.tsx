@@ -1,9 +1,17 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import cn from 'classnames'
-import { Link, useParams } from 'react-router-dom'
-import invariant from 'tiny-invariant'
+import { Link } from 'react-router-dom'
 
+import type { Project } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 import {
+  Button,
   DropdownMenu,
   Folder16Icon,
   Identicon,
@@ -14,6 +22,7 @@ import {
 } from '@oxide/ui'
 
 import { useInstanceSelector, useSiloSelector } from 'app/hooks'
+import { useCurrentUser } from 'app/layouts/AuthenticatedLayout'
 import { pb } from 'app/util/path-builder'
 
 type TopBarPickerItem = {
@@ -81,13 +90,17 @@ const TopBarPicker = (props: TopBarPickerProps) => {
           </DropdownMenu.Trigger>
         )}
 
-        {/* aria-hidden is a tip from the Reach docs */}
         {props.items && (
-          <div className="ml-2 flex-shrink-0 overflow-hidden">
-            <DropdownMenu.Trigger className="group" aria-label={props['aria-label']}>
-              <div className="flex h-[2rem] w-[1.125rem] flex-shrink-0 items-center justify-center rounded border border-default group-hover:bg-hover">
+          <div className="ml-2 flex-shrink-0">
+            <DropdownMenu.Trigger
+              className="group"
+              aria-label={props['aria-label']}
+              asChild
+            >
+              <Button size="icon" variant="ghost" className="h-[2rem] w-[1.125rem]">
+                {/* aria-hidden is a tip from the Reach docs */}
                 <SelectArrows6Icon className="text-secondary" aria-hidden />
-              </div>
+              </Button>
             </DropdownMenu.Trigger>
           </div>
         )}
@@ -146,19 +159,11 @@ const BigIdenticon = ({ name }: { name: string }) => (
  * current silo.
  */
 export function SiloSystemPicker({ value }: { value: 'silo' | 'system' }) {
-  const { data: me } = useApiQuery('currentUserView', {})
-  invariant(me, 'Current user should be prefetched')
-
-  // User can only get to system routes if they have viewer perms (at least) on
-  // the fleet. The natural place to find out whether they have such perms is
-  // the fleet (system) policy, but if the user doesn't have fleet read, we'll
-  // get a 403 from that endpoint. So we simply check whether that endpoint 200s
-  // or not to determine whether the user is a fleet viewer.
-  const { isSuccess: canSeeSystemPolicy } = useApiQuery('systemPolicyView', {})
+  const { me, isFleetViewer } = useCurrentUser()
 
   // if the user can't see the picker, show a placeholder control with their
   // silo name that links to root/home
-  if (!canSeeSystemPolicy) {
+  if (!isFleetViewer) {
     return (
       <TopBarPicker
         aria-label={`${me.siloName} - Oxide Web Console`}
@@ -227,11 +232,9 @@ const NoProjectLogo = () => (
   </div>
 )
 
-export function ProjectPicker() {
-  // picker only shows up when a project is in scope
-  const { project } = useParams()
-  const { data } = useApiQuery('projectList', { query: { limit: 20 } })
-  const items = (data?.items || []).map(({ name }) => ({
+export function ProjectPicker({ project }: { project?: Project }) {
+  const { data: projects } = useApiQuery('projectList', { query: { limit: 20 } })
+  const items = (projects?.items || []).map(({ name }) => ({
     label: name,
     to: pb.instances({ project: name }),
   }))
@@ -241,8 +244,8 @@ export function ProjectPicker() {
       aria-label="Switch project"
       icon={project ? undefined : <NoProjectLogo />}
       category="Project"
-      current={project}
-      to={project ? pb.project({ project }) : undefined}
+      current={project?.name}
+      to={project ? pb.project({ project: project.name }) : undefined}
       items={items}
       noItemsText="No projects found"
     />

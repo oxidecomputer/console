@@ -1,14 +1,22 @@
-import { getLocalTimeZone } from '@internationalized/date'
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
+import { getLocalTimeZone, now } from '@internationalized/date'
+import { useIsFetching } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 
-import { apiQueryClient, useApiQuery } from '@oxide/api'
-import { Divider, Listbox, PageHeader, PageTitle, Snapshots24Icon } from '@oxide/ui'
-import { bytesToGiB } from '@oxide/util'
+import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
+import { Divider, Listbox, Metrics24Icon, PageHeader, PageTitle } from '@oxide/ui'
+import { bytesToGiB, bytesToTiB } from '@oxide/util'
 
-import { SystemMetric } from 'app/components/SystemMetric'
+import { useIntervalPicker } from 'app/components/RefetchIntervalPicker'
+import { SiloMetric } from 'app/components/SystemMetric'
 import { useDateTimeRangePicker } from 'app/components/form'
-
-const DEFAULT_SILO_ID = '001de000-5110-4000-8000-000000000000'
+import { useCurrentUser } from 'app/layouts/AuthenticatedLayout'
 
 const toListboxItem = (x: { name: string; id: string }) => ({ label: x.name, value: x.id })
 
@@ -18,75 +26,82 @@ SiloUtilizationPage.loader = async () => {
 }
 
 export function SiloUtilizationPage() {
-  // this will come from /session/me
-  const siloId = DEFAULT_SILO_ID
+  const { me } = useCurrentUser()
 
-  // silo ID or project ID
-  const [filterId, setFilterId] = useState<string>(siloId)
+  const siloId = me.siloId
 
-  const { data: projects } = useApiQuery('projectList', {})
-
-  const { startTime, endTime, dateTimeRangePicker } = useDateTimeRangePicker('lastHour')
+  const { data: projects } = usePrefetchedApiQuery('projectList', {})
 
   const projectItems = useMemo(() => {
-    const items = projects?.items.map(toListboxItem) || []
+    const items = projects.items.map(toListboxItem) || []
     return [{ label: 'All projects', value: siloId }, ...items]
   }, [projects, siloId])
 
+  const [filterId, setFilterId] = useState<string>(siloId)
+
+  // pass refetch interval to this to keep the date up to date
+  const { preset, startTime, endTime, dateTimeRangePicker, onRangeChange } =
+    useDateTimeRangePicker({
+      initialPreset: 'lastHour',
+      maxValue: now(getLocalTimeZone()),
+    })
+
+  const { intervalPicker } = useIntervalPicker({
+    enabled: preset !== 'custom',
+    isLoading: useIsFetching({ queryKey: ['siloMetric'] }) > 0,
+    // sliding the range forward is sufficient to trigger a refetch
+    fn: () => onRangeChange(preset),
+  })
+
   const commonProps = {
-    startTime: startTime.toDate(getLocalTimeZone()),
-    endTime: endTime.toDate(getLocalTimeZone()),
-    filterId,
+    startTime,
+    endTime,
+    // the way we tell the API we want the silo is by passing no filter
+    project: filterId === siloId ? undefined : filterId,
   }
 
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<Snapshots24Icon />}>Capacity &amp; Utilization</PageTitle>
+        <PageTitle icon={<Metrics24Icon />}>Capacity &amp; Utilization</PageTitle>
       </PageHeader>
 
-      <div className="mt-8 flex justify-between">
-        <div className="flex">
-          <div className="mr-8">
-            <div className="mb-2">
-              {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-              <label id="project-id-label" className="flex text-sans-sm">
-                Choose project
-              </label>
-            </div>
-            <Listbox
-              selected={filterId}
-              className="w-36"
-              aria-labelledby="project-id-label"
-              name="project-id"
-              items={projectItems}
-              onChange={setFilterId}
-            />
-            {/* TODO: need a button to clear the silo */}
-          </div>
-        </div>
-
-        {dateTimeRangePicker}
-      </div>
-      {/* TODO: this divider is supposed to go all the way across */}
-      <Divider className="mb-6" />
-
-      <div className="mt-8 space-y-8">
-        {/* TODO: convert numbers to GiB PLEASE */}
-        <SystemMetric
-          {...commonProps}
-          metricName="virtual_disk_space_provisioned"
-          title="Disk Space (GiB)"
-          valueTransform={bytesToGiB}
+      <div className="flex justify-between gap-3">
+        <Listbox
+          selected={filterId}
+          className="w-48"
+          aria-labelledby="filter-id-label"
+          name="filter-id"
+          items={projectItems}
+          onChange={setFilterId}
         />
 
-        {/* TODO: figure out how to make this not show .5s in the y axis when the numbers are low */}
-        <SystemMetric {...commonProps} metricName="cpus_provisioned" title="CPU (count)" />
+        <div className="flex items-center gap-2">{dateTimeRangePicker}</div>
+      </div>
 
-        <SystemMetric
+      <Divider className="my-6" />
+
+      {intervalPicker}
+
+      <div className="mb-12 space-y-12">
+        <SiloMetric
+          {...commonProps}
+          metricName="virtual_disk_space_provisioned"
+          title="Disk Space"
+          unit="TiB"
+          valueTransform={bytesToTiB}
+        />
+        <SiloMetric
+          {...commonProps}
+          metricName="cpus_provisioned"
+          title="CPU"
+          unit="count"
+        />
+        <SiloMetric
           {...commonProps}
           metricName="ram_provisioned"
-          title="Memory (GiB)"
+          title="Memory"
+          unit="GiB"
           valueTransform={bytesToGiB}
         />
       </div>

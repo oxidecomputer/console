@@ -1,3 +1,12 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
+import { describe, expect, it } from 'vitest'
+
 import { getParseError, getResourceName, processServerError } from '../errors'
 
 describe('getParseError', () => {
@@ -78,7 +87,7 @@ describe('processServerError', () => {
     const error = makeError({ errorCode: 'WeirdError', message: 'whatever' })
     expect(processServerError('womp', error)).toEqual({
       errorCode: 'WeirdError',
-      message: 'whatever',
+      message: 'Whatever',
       statusCode: 400,
     })
   })

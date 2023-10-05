@@ -1,3 +1,11 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
+
 export const capitalize = (s: string) => s && s.charAt(0).toUpperCase() + s.slice(1)
 
 export const pluralize = (s: string, n: number) => `${n} ${s}${n === 1 ? '' : 's'}`
@@ -26,4 +34,11 @@ export const kebabCase = (s: string) =>
 
 export const camelCaseToWords = (s: string): string[] => {
   return s.split(/(?=[A-Z])/).map((w) => w.toLowerCase())
+}
+
+export const commaSeries = (items: string[], conj: string) => {
+  if (items.length <= 2) {
+    return items.join(` ${conj} `)
+  }
+  return [...items.slice(0, -1), `${conj} ${items.at(-1)}`].join(', ')
 }

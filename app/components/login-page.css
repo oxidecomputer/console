@@ -1,5 +1,13 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *  
+ * Copyright Oxide Computer Company
+ */
+
 .hero-rack {
-  @apply absolute top-[15%] left-[calc(50%+40px)] h-[115%] max-h-[1080px] -translate-x-1/2 object-contain md:-mr-10;
+  @apply absolute left-[calc(50%+40px)] top-[15%] h-[115%] max-h-[1080px] -translate-x-1/2 object-contain md:-mr-10;
 }
 
 .hero-rack-wrapper {

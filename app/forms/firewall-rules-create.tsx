@@ -1,5 +1,11 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import type { Control } from 'react-hook-form'
-import { useForm } from 'react-hook-form'
 import { useController } from 'react-hook-form'
 
 import {
@@ -15,7 +21,7 @@ import type {
   VpcFirewallRuleTarget,
   VpcFirewallRuleUpdate,
 } from '@oxide/api'
-import { Button, Close12Icon, Divider, Table } from '@oxide/ui'
+import { Button, Close12Icon, FormDivider, Table } from '@oxide/ui'
 
 import {
   CheckboxField,
@@ -26,7 +32,7 @@ import {
   SideModalForm,
   TextField,
 } from 'app/components/form'
-import { useVpcSelector } from 'app/hooks'
+import { useForm, useVpcSelector } from 'app/hooks'
 
 export type FirewallRuleValues = {
   enabled: boolean
@@ -146,7 +152,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
       <NameField name="name" control={control} />
       <DescriptionField name="description" control={control} />
 
-      <Divider />
+      <FormDivider />
 
       <TextField
         type="number"
@@ -175,7 +181,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
         ]}
       />
 
-      <Divider />
+      <FormDivider />
 
       {/* Really this should be its own <form>, but you can't have a form inside a form,
           so we just stick the submit handler in a button onClick */}
@@ -260,7 +266,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
         </Table.Body>
       </Table>
 
-      <Divider />
+      <FormDivider />
 
       <h3 className="mb-4 text-sans-xl">Host filters</h3>
       <ListboxField
@@ -343,7 +349,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
         </Table.Body>
       </Table>
 
-      <Divider />
+      <FormDivider />
 
       <TextField
         name="portRange"
@@ -399,7 +405,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
         </Table.Body>
       </Table>
 
-      <Divider />
+      <FormDivider />
 
       <fieldset className="space-y-0.5">
         <legend>Protocols</legend>
@@ -422,7 +428,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
 
       {error && (
         <>
-          <Divider />
+          <FormDivider />
           <div className="text-destructive">{error.message}</div>
         </>
       )}
@@ -449,12 +455,12 @@ export function CreateFirewallRuleForm({
 
   const updateRules = useApiMutation('vpcFirewallRulesUpdate', {
     onSuccess() {
-      queryClient.invalidateQueries('vpcFirewallRulesView', { query: vpcSelector })
+      queryClient.invalidateQueries('vpcFirewallRulesView')
       onDismiss()
     },
   })
 
-  const form = useForm({ mode: 'all', defaultValues })
+  const form = useForm({ defaultValues })
 
   return (
     <SideModalForm
@@ -475,7 +481,7 @@ export function CreateFirewallRuleForm({
           },
         })
       }}
-      loading={updateRules.isLoading}
+      loading={updateRules.isPending}
       submitError={updateRules.error}
       submitLabel="Add rule"
     >

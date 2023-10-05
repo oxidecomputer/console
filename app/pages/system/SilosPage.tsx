@@ -1,9 +1,20 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import { useMemo } from 'react'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 
 import type { Silo } from '@oxide/api'
-import { apiQueryClient } from '@oxide/api'
-import { useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
+import {
+  apiQueryClient,
+  useApiMutation,
+  useApiQueryClient,
+  usePrefetchedApiQuery,
+} from '@oxide/api'
 import type { MenuAction } from '@oxide/table'
 import { linkCell } from '@oxide/table'
 import { BooleanCell } from '@oxide/table'
@@ -20,6 +31,7 @@ import {
 } from '@oxide/ui'
 
 import { useQuickActions } from 'app/hooks/use-quick-actions'
+import { confirmDelete } from 'app/stores/confirm-delete'
 import { pb } from 'app/util/path-builder'
 
 const EmptyState = () => (
@@ -43,22 +55,23 @@ export default function SilosPage() {
   const { Table, Column } = useQueryTable('siloList', {})
   const queryClient = useApiQueryClient()
 
-  const { data: silos } = useApiQuery('siloList', {
+  const { data: silos } = usePrefetchedApiQuery('siloList', {
     query: { limit: 10 },
   })
 
   const deleteSilo = useApiMutation('siloDelete', {
     onSuccess() {
-      queryClient.invalidateQueries('siloList', {})
+      queryClient.invalidateQueries('siloList')
     },
   })
 
   const makeActions = (silo: Silo): MenuAction[] => [
     {
       label: 'Delete',
-      onActivate() {
-        deleteSilo.mutate({ path: { silo: silo.name } })
-      },
+      onActivate: confirmDelete({
+        doDelete: () => deleteSilo.mutateAsync({ path: { silo: silo.name } }),
+        label: silo.name,
+      }),
     },
   ]
 
@@ -66,10 +79,10 @@ export default function SilosPage() {
     useMemo(
       () => [
         { value: 'New silo', onSelect: () => navigate(pb.siloNew()) },
-        ...(silos?.items || []).map((o) => ({
+        ...silos.items.map((o) => ({
           value: o.name,
           onSelect: () => navigate(pb.silo({ silo: o.name })),
-          navGroup: 'Go to silo',
+          navGroup: 'Silo detail',
         })),
       ],
       [navigate, silos]

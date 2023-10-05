@@ -1,3 +1,10 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import { useMemo, useState } from 'react'
 
 import type { VpcFirewallRule } from '@oxide/api'
@@ -17,6 +24,7 @@ import { Button, EmptyMessage, TableEmptyBox } from '@oxide/ui'
 import { CreateFirewallRuleForm } from 'app/forms/firewall-rules-create'
 import { EditFirewallRuleForm } from 'app/forms/firewall-rules-edit'
 import { useVpcSelector } from 'app/hooks'
+import { confirmDelete } from 'app/stores/confirm-delete'
 
 const colHelper = createColumnHelper<VpcFirewallRule>()
 
@@ -55,7 +63,7 @@ export const VpcFirewallRulesTab = () => {
 
   const updateRules = useApiMutation('vpcFirewallRulesUpdate', {
     onSuccess() {
-      queryClient.invalidateQueries('vpcFirewallRulesView', { query: vpcSelector })
+      queryClient.invalidateQueries('vpcFirewallRulesView')
     },
   })
 
@@ -67,14 +75,16 @@ export const VpcFirewallRulesTab = () => {
         { label: 'Edit', onActivate: () => setEditing(rule) },
         {
           label: 'Delete',
-          onActivate: () => {
-            updateRules.mutate({
-              query: vpcSelector,
-              body: {
-                rules: rules.filter((r) => r.id !== rule.id),
-              },
-            })
-          },
+          onActivate: confirmDelete({
+            doDelete: () =>
+              updateRules.mutateAsync({
+                query: vpcSelector,
+                body: {
+                  rules: rules.filter((r) => r.id !== rule.id),
+                },
+              }),
+            label: rule.name,
+          }),
         },
       ]),
     ]

@@ -1,10 +1,22 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import { useMemo } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 import { Outlet } from 'react-router-dom'
 import { Link, useNavigate } from 'react-router-dom'
 
 import type { Vpc } from '@oxide/api'
-import { apiQueryClient, useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
+import {
+  apiQueryClient,
+  useApiMutation,
+  useApiQueryClient,
+  usePrefetchedApiQuery,
+} from '@oxide/api'
 import { DateCell, type MenuAction, linkCell, useQueryTable } from '@oxide/table'
 import {
   EmptyMessage,
@@ -16,6 +28,7 @@ import {
 } from '@oxide/ui'
 
 import { getProjectSelector, useProjectSelector, useQuickActions } from 'app/hooks'
+import { confirmDelete } from 'app/stores/confirm-delete'
 import { pb } from 'app/util/path-builder'
 
 const EmptyState = () => (
@@ -40,14 +53,14 @@ VpcsPage.loader = async ({ params }: LoaderFunctionArgs) => {
 export function VpcsPage() {
   const queryClient = useApiQueryClient()
   const projectSelector = useProjectSelector()
-  const { data: vpcs } = useApiQuery('vpcList', {
+  const { data: vpcs } = usePrefetchedApiQuery('vpcList', {
     query: { ...projectSelector, limit: 10 }, // to have same params as QueryTable
   })
   const navigate = useNavigate()
 
   const deleteVpc = useApiMutation('vpcDelete', {
     onSuccess() {
-      queryClient.invalidateQueries('vpcList', { query: projectSelector })
+      queryClient.invalidateQueries('vpcList')
     },
   })
 
@@ -60,16 +73,18 @@ export function VpcsPage() {
     },
     {
       label: 'Delete',
-      onActivate() {
-        deleteVpc.mutate({ path: { vpc: vpc.name }, query: projectSelector })
-      },
+      onActivate: confirmDelete({
+        doDelete: () =>
+          deleteVpc.mutateAsync({ path: { vpc: vpc.name }, query: projectSelector }),
+        label: vpc.name,
+      }),
     },
   ]
 
   useQuickActions(
     useMemo(
       () =>
-        (vpcs?.items || []).map((v) => ({
+        vpcs.items.map((v) => ({
           value: v.name,
           onSelect: () => navigate(pb.vpc({ ...projectSelector, vpc: v.name })),
           navGroup: 'Go to VPC',

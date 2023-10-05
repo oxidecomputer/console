@@ -1,8 +1,15 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import { useMemo } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 import { Link, useNavigate } from 'react-router-dom'
 
-import { apiQueryClient, useApiQuery, useApiQueryClient } from '@oxide/api'
+import { apiQueryClient, useApiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import {
   DateCell,
   InstanceResourceCell,
@@ -47,14 +54,13 @@ export function InstancesPage() {
   const projectSelector = useProjectSelector()
 
   const queryClient = useApiQueryClient()
-  const refetchInstances = () =>
-    queryClient.invalidateQueries('instanceList', { query: projectSelector })
+  const refetchInstances = () => queryClient.invalidateQueries('instanceList')
 
   const makeActions = useMakeInstanceActions(projectSelector, {
     onSuccess: refetchInstances,
   })
 
-  const { data: instances } = useApiQuery('instanceList', {
+  const { data: instances } = usePrefetchedApiQuery('instanceList', {
     query: { ...projectSelector, limit: 10 }, // to have same params as QueryTable
   })
 
@@ -80,7 +86,7 @@ export function InstancesPage() {
   const { Table, Column } = useQueryTable(
     'instanceList',
     { query: projectSelector },
-    { keepPreviousData: true }
+    { placeholderData: (x) => x }
   )
 
   if (!instances) return null
@@ -91,7 +97,12 @@ export function InstancesPage() {
         <PageTitle icon={<Instances24Icon />}>Instances</PageTitle>
       </PageHeader>
       <TableActions>
-        <Button size="icon" variant="ghost" onClick={refetchInstances}>
+        <Button
+          size="icon"
+          variant="ghost"
+          onClick={refetchInstances}
+          aria-label="Refresh instances table"
+        >
           <Refresh16Icon />
         </Button>
         <Link to={pb.instanceNew(projectSelector)} className={buttonStyle({ size: 'sm' })}>

@@ -1,10 +1,17 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import { format } from 'date-fns'
 import filesize from 'filesize'
 import { useMemo } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 
-import { apiQueryClient, useApiQuery, useApiQueryClient } from '@oxide/api'
+import { apiQueryClient, useApiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import {
   Instances24Icon,
   PageHeader,
@@ -12,7 +19,6 @@ import {
   PropertiesTable,
   Truncate,
 } from '@oxide/ui'
-import { toPathQuery } from '@oxide/util'
 
 import { MoreActionsMenu } from 'app/components/MoreActionsMenu'
 import { RouteTabs, Tab } from 'app/components/RouteTabs'
@@ -23,30 +29,42 @@ import { pb } from 'app/util/path-builder'
 import { useMakeInstanceActions } from '../actions'
 
 InstancePage.loader = async ({ params }: LoaderFunctionArgs) => {
-  await apiQueryClient.prefetchQuery(
-    'instanceView',
-    toPathQuery('instance', getInstanceSelector(params))
-  )
+  const { project, instance } = getInstanceSelector(params)
+  await apiQueryClient.prefetchQuery('instanceView', {
+    path: { instance },
+    query: { project },
+  })
   return null
 }
 
 export function InstancePage() {
   const instanceSelector = useInstanceSelector()
-  const instancePathQuery = toPathQuery('instance', instanceSelector)
 
   const navigate = useNavigate()
   const queryClient = useApiQueryClient()
   const makeActions = useMakeInstanceActions(instanceSelector, {
     onSuccess: () => {
-      queryClient.invalidateQueries('instanceView', instancePathQuery)
+      queryClient.invalidateQueries('instanceView')
     },
     // go to project instances list since there's no more instance
     onDelete: () => navigate(pb.instances(instanceSelector)),
   })
 
-  const { data: instance } = useApiQuery('instanceView', instancePathQuery)
+  const { data: instance } = usePrefetchedApiQuery('instanceView', {
+    path: { instance: instanceSelector.instance },
+    query: { project: instanceSelector.project },
+  })
+
   const actions = useMemo(
-    () => (instance ? makeActions(instance) : []),
+    () => [
+      {
+        label: 'Copy ID',
+        onActivate() {
+          window.navigator.clipboard.writeText(instance.id || '')
+        },
+      },
+      ...makeActions(instance),
+    ],
     [instance, makeActions]
   )
   const quickActions = useMemo(
@@ -57,12 +75,10 @@ export function InstancePage() {
         // append "instance" to labels
         // TODO: if these were in an "Instance actions" subsection they might not
         // need the suffix for clarity
-        .map((a) => ({ onSelect: a.onActivate, value: `${a.label} instance` })),
+        .map((a) => ({ onSelect: a.onActivate, value: a.label })),
     [actions]
   )
   useQuickActions(quickActions)
-
-  if (!instance) return null
 
   const memory = filesize(instance.memory, { output: 'object', base: 2 })
 
@@ -72,7 +88,7 @@ export function InstancePage() {
         <PageTitle icon={<Instances24Icon />}>{instance.name}</PageTitle>
         <MoreActionsMenu label="Instance actions" actions={actions} />
       </PageHeader>
-      <PropertiesTable.Group className="mb-16 -mt-8">
+      <PropertiesTable.Group className="-mt-8 mb-16">
         <PropertiesTable>
           <PropertiesTable.Row label="cpu">
             <span className="text-secondary">{instance.ncpus}</span>

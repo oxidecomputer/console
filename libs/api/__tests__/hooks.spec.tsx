@@ -1,6 +1,13 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { act, render, renderHook, waitFor } from '@testing-library/react'
-import { vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { project } from '@oxide/api-mocks'
 
@@ -48,6 +55,7 @@ describe('useApiQuery', () => {
     expect(result.current.data).toBeFalsy()
     expect(result.current.error).toBeFalsy()
     expect(result.current.isLoading).toBeTruthy()
+    expect(result.current.isPending).toBeTruthy()
   })
 
   describe('on error response', () => {
@@ -69,7 +77,7 @@ describe('useApiQuery', () => {
     })
 
     it('contains client_error if error body is not json', async () => {
-      overrideOnce('get', '/api/v1/projects', 503, 'not json')
+      overrideOnce('get', 'http://testhost/v1/projects', 503, 'not json')
 
       const { result } = renderProjectList()
 
@@ -82,7 +90,7 @@ describe('useApiQuery', () => {
     })
 
     it('does not client_error if response body is empty', async () => {
-      overrideOnce('get', '/api/v1/projects', 503, '')
+      overrideOnce('get', 'http://testhost/v1/projects', 503, '')
 
       const { result } = renderProjectList()
 
@@ -134,7 +142,7 @@ describe('useApiQuery', () => {
           useApiQuery(
             'projectView',
             { path: { project: 'nonexistent' } },
-            { useErrorBoundary: false } // <----- the point
+            { throwOnError: false } // <----- the point
           ),
         config
       )
@@ -159,7 +167,7 @@ describe('useApiQuery', () => {
 
     // RQ doesn't like a value of undefined for data, so we're using {} for now
     it('returns success with empty object if response body is empty', async () => {
-      overrideOnce('get', '/api/v1/projects', 204, '')
+      overrideOnce('get', 'http://testhost/v1/projects', 201, '')
 
       const { result } = renderProjectList()
 
@@ -176,14 +184,14 @@ describe('useApiMutation', () => {
 
     expect(result.current.data).toBeFalsy()
     expect(result.current.error).toBeFalsy()
-    expect(result.current.isLoading).toBeFalsy()
+    expect(result.current.isPending).toBeFalsy()
   })
 
   describe('on error response', () => {
     const diskCreate: DiskCreate = {
       name: 'will-fail',
       description: '',
-      diskSource: { type: 'blank', blockSize: 4096 },
+      diskSource: { type: 'blank', blockSize: 512 },
       size: 10,
     }
     const diskCreate404Params = {
@@ -219,7 +227,7 @@ describe('useApiMutation', () => {
     })
 
     it('contains client_error if error body is not json', async () => {
-      overrideOnce('post', '/api/v1/projects', 404, 'not json')
+      overrideOnce('post', 'http://testhost/v1/projects', 404, 'not json')
 
       const { result } = renderCreateProject()
       act(() => result.current.mutate(createParams))
@@ -234,7 +242,7 @@ describe('useApiMutation', () => {
     })
 
     it('does not client_error if response body is empty', async () => {
-      overrideOnce('post', '/api/v1/projects', 503, '')
+      overrideOnce('post', 'http://testhost/v1/projects', 503, '')
 
       const { result } = renderCreateProject()
       act(() => result.current.mutate(createParams))
@@ -262,7 +270,7 @@ describe('useApiMutation', () => {
 
     // RQ doesn't like a value of undefined for data, so we're using {} for now
     it('returns success with empty object if response body is empty', async () => {
-      overrideOnce('post', '/api/v1/projects', 204, '')
+      overrideOnce('post', 'http://testhost/v1/projects', 201, '')
 
       const { result } = renderCreateProject()
       act(() => result.current.mutate(createParams))

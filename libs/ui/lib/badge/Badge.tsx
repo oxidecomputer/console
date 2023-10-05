@@ -1,3 +1,10 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import cn from 'classnames'
 
 export type BadgeColor =
@@ -46,7 +53,7 @@ export const Badge = ({
       className={cn(
         'ox-badge',
         `variant-${variant}`,
-        'inline-flex h-4 items-center whitespace-nowrap rounded-sm py-[1px] px-[3px] uppercase text-mono-sm',
+        'inline-flex h-4 items-center whitespace-nowrap rounded-sm px-[3px] py-[1px] uppercase text-mono-sm',
         badgeColors[variant][color],
         className
       )}

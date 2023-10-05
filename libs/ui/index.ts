@@ -1,3 +1,10 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import useInterval from './lib/hooks/use-interval'
 import useTimeout from './lib/hooks/use-timeout'
 import './styles/index.css'
@@ -16,12 +23,13 @@ export * from './lib/dropdown-menu/DropdownMenu'
 export * from './lib/file-input/FileInput'
 export * from './lib/empty-message/EmptyMessage'
 export * from './lib/field-label/FieldLabel'
-export * from './lib/icons'
+
 export * from './lib/identicon/Identicon'
 export * from './lib/message/Message'
 export * from './lib/listbox/Listbox'
 export * from './lib/message/Message'
 export * from './lib/modal/Modal'
+export * from './lib/ModalLinks'
 export * as MiniTable from './lib/mini-table/MiniTable'
 export * from './lib/number-input/NumberInput'
 export * from './lib/page-header/PageHeader'
@@ -41,3 +49,5 @@ export * from './lib/toast/Toast'
 export * from './lib/tooltip/Tooltip'
 export * from './lib/truncate/Truncate'
 export * from './util/wrap'
+
+export * from '@oxide/design-system/icons/react'

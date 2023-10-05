@@ -1,3 +1,10 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 
 import type { SshKey } from '@oxide/api'
@@ -16,6 +23,7 @@ import {
   buttonStyle,
 } from '@oxide/ui'
 
+import { confirmDelete } from 'app/stores/confirm-delete'
 import { pb } from 'app/util/path-builder'
 
 SSHKeysPage.loader = async () => {
@@ -29,21 +37,19 @@ export function SSHKeysPage() {
   const { Table, Column } = useQueryTable('currentUserSshKeyList', {})
   const queryClient = useApiQueryClient()
 
-  const deleteSshKey = useApiMutation('currentUserSshKeyDelete', {})
+  const deleteSshKey = useApiMutation('currentUserSshKeyDelete', {
+    onSuccess: () => {
+      queryClient.invalidateQueries('currentUserSshKeyList')
+    },
+  })
 
   const makeActions = (sshKey: SshKey): MenuAction[] => [
     {
       label: 'Delete',
-      onActivate() {
-        deleteSshKey.mutate(
-          { path: { sshKey: sshKey.name } },
-          {
-            onSuccess: () => {
-              queryClient.invalidateQueries('currentUserSshKeyList', {})
-            },
-          }
-        )
-      },
+      onActivate: confirmDelete({
+        doDelete: () => deleteSshKey.mutateAsync({ path: { sshKey: sshKey.name } }),
+        label: sshKey.name,
+      }),
     },
   ]
 

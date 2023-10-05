@@ -1,15 +1,24 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { navToLogin, useApiMutation, useApiQuery } from '@oxide/api'
+import { navToLogin, useApiMutation } from '@oxide/api'
 import {
   Button,
   DirectionDownIcon,
   DropdownMenu,
   Info16Icon,
   Profile16Icon,
+  buttonStyle,
 } from '@oxide/ui'
 
+import { useCurrentUser } from 'app/layouts/AuthenticatedLayout'
 import { pb } from 'app/util/path-builder'
 
 export function TopBar({ children }: { children: React.ReactNode }) {
@@ -22,9 +31,10 @@ export function TopBar({ children }: { children: React.ReactNode }) {
       navToLogin({ includeCurrent: false })
     },
   })
-  const { data: user } = useApiQuery('currentUserView', {}, { cacheTime: 0 })
+  // fetch happens in loader wrapping all authed pages
+  const { me } = useCurrentUser()
 
-  const loggedIn = !!user
+  const loggedIn = !!me
 
   // toArray filters out nulls, which is essential because the silo/system
   // picker is going to come in null when the user isn't supposed to see it
@@ -40,14 +50,19 @@ export function TopBar({ children }: { children: React.ReactNode }) {
       </div>
       {/* Height is governed by PageContainer grid */}
       {/* shrink-0 is needed to prevent getting squished by body content */}
-      <div className="border-b bg-default border-secondary">
+      <div className="z-topBar border-b bg-default border-secondary">
         <div className="mx-3 flex h-[60px] shrink-0 items-center justify-between">
           <div className="flex items-center">{otherPickers}</div>
           <div>
-            <a href="https://docs.oxide.computer/guides" target="_blank" rel="noreferrer">
-              <Button variant="secondary" size="icon" title="Info">
-                <Info16Icon className="text-quaternary" />
-              </Button>
+            <a
+              id="topbar-info-link"
+              href="https://docs.oxide.computer/guides"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Link to documentation"
+              className={buttonStyle({ size: 'icon', variant: 'secondary' })}
+            >
+              <Info16Icon className="text-quaternary" />
             </a>
             {/* <Button variant="secondary" size="icon" className="ml-2" title="Notifications">
               <Notifications16Icon className="text-quaternary" />
@@ -63,7 +78,7 @@ export function TopBar({ children }: { children: React.ReactNode }) {
                 >
                   <Profile16Icon className="text-quaternary" />
                   <span className="normal-case text-sans-md text-secondary">
-                    {user?.displayName || 'User'}
+                    {me.displayName || 'User'}
                   </span>
                   <DirectionDownIcon className="!w-2.5" />
                 </Button>
@@ -73,7 +88,7 @@ export function TopBar({ children }: { children: React.ReactNode }) {
                 sideOffset={8}
                 className="min-w-[12.8125rem]"
               >
-                <DropdownMenu.Item onSelect={() => navigate(pb.settings())}>
+                <DropdownMenu.Item onSelect={() => navigate(pb.profile())}>
                   Settings
                 </DropdownMenu.Item>
                 {loggedIn ? (

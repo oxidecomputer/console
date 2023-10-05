@@ -1,33 +1,37 @@
-import { useForm } from 'react-hook-form'
-
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import {
   updateRole,
   useActorsNotInPolicy,
   useApiMutation,
   useApiQueryClient,
 } from '@oxide/api'
-import { toPathQuery } from '@oxide/util'
 
 import { ListboxField, SideModalForm } from 'app/components/form'
-import { useProjectSelector } from 'app/hooks'
+import { useForm, useProjectSelector } from 'app/hooks'
 
 import type { AddRoleModalProps, EditRoleModalProps } from './access-util'
 import { actorToItem, defaultValues, roleItems } from './access-util'
 
 export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalProps) {
-  const projectPathQuery = toPathQuery('project', useProjectSelector())
+  const { project } = useProjectSelector()
 
   const actors = useActorsNotInPolicy(policy)
 
   const queryClient = useApiQueryClient()
   const updatePolicy = useApiMutation('projectPolicyUpdate', {
     onSuccess: () => {
-      queryClient.invalidateQueries('projectPolicyView', projectPathQuery)
+      queryClient.invalidateQueries('projectPolicyView')
       onDismiss()
     },
   })
 
-  const form = useForm({ mode: 'all', defaultValues })
+  const form = useForm({ defaultValues })
 
   return (
     <SideModalForm
@@ -43,11 +47,11 @@ export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModa
         const identityType = actors.find((a) => a.id === identityId)!.identityType
 
         updatePolicy.mutate({
-          ...projectPathQuery,
+          path: { project },
           body: updateRole({ identityId, identityType, roleName }, policy),
         })
       }}
-      loading={updatePolicy.isLoading}
+      loading={updatePolicy.isPending}
       submitError={updatePolicy.error}
       submitLabel="Assign role"
       onDismiss={onDismiss}
@@ -77,17 +81,17 @@ export function ProjectAccessEditUserSideModal({
   policy,
   defaultValues,
 }: EditRoleModalProps) {
-  const projectPathQuery = toPathQuery('project', useProjectSelector())
+  const { project } = useProjectSelector()
 
   const queryClient = useApiQueryClient()
   const updatePolicy = useApiMutation('projectPolicyUpdate', {
     onSuccess: () => {
-      queryClient.invalidateQueries('projectPolicyView', projectPathQuery)
+      queryClient.invalidateQueries('projectPolicyView')
       onDismiss()
     },
   })
 
-  const form = useForm({ mode: 'all', defaultValues })
+  const form = useForm({ defaultValues })
 
   return (
     <SideModalForm
@@ -97,11 +101,11 @@ export function ProjectAccessEditUserSideModal({
       form={form}
       onSubmit={({ roleName }) => {
         updatePolicy.mutate({
-          ...projectPathQuery,
+          path: { project },
           body: updateRole({ identityId, identityType, roleName }, policy),
         })
       }}
-      loading={updatePolicy.isLoading}
+      loading={updatePolicy.isPending}
       submitError={updatePolicy.error}
       submitLabel="Update role"
       onDismiss={onDismiss}

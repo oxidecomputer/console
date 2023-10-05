@@ -1,3 +1,10 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import { Suspense, lazy, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 
@@ -11,9 +18,6 @@ import { useInstanceSelector } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 const Terminal = lazy(() => import('app/components/Terminal'))
-
-// need prefix so Vite dev server can handle it specially
-const pathPrefix = process.env.NODE_ENV === 'development' ? '/ws-serial-console' : ''
 
 type WsState = 'connecting' | 'open' | 'closed' | 'error'
 
@@ -54,7 +58,7 @@ export function SerialConsolePage() {
       const { project, instance } = instanceSelector
       ws.current = api.ws.instanceSerialConsoleStream({
         secure: window.location.protocol === 'https:',
-        host: window.location.host + pathPrefix,
+        host: window.location.host,
         path: { instance },
         query: { project, mostRecent: 262144 },
       })
@@ -99,7 +103,7 @@ export function SerialConsolePage() {
     <div className="!mx-0 flex h-full max-h-[calc(100vh-60px)] !w-full flex-col">
       <Link
         to={pb.instance(instanceSelector)}
-        className="mx-3 mt-3 mb-6 flex h-10 flex-shrink-0 items-center rounded px-3 bg-accent-secondary"
+        className="mx-3 mb-6 mt-3 flex h-10 flex-shrink-0 items-center rounded px-3 bg-accent-secondary"
       >
         <PrevArrow12Icon className="text-accent-tertiary" />
         <div className="ml-2 text-mono-sm text-accent">
@@ -149,7 +153,7 @@ function SerialSkeleton() {
           background: 'linear-gradient(180deg, rgba(8, 15, 17, 0) 0%, #080F11 100%)',
         }}
       />
-      <div className="absolute top-1/2 left-1/2 flex w-96 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center space-y-4 rounded-lg border p-12 !bg-raise border-secondary elevation-3">
+      <div className="absolute left-1/2 top-1/2 flex w-96 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center space-y-4 rounded-lg border p-12 !bg-raise border-secondary elevation-3">
         <Spinner size="lg" />
 
         <div className="space-y-2">

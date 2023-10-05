@@ -1,11 +1,19 @@
-import { useParams } from 'react-router-dom'
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
+import { useMemo } from 'react'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 
 import { apiQueryClient } from '@oxide/api'
 import {
   Cloud16Icon,
   Divider,
+  Metrics16Icon,
   Settings16Icon,
-  Snapshots16Icon,
   Storage16Icon,
 } from '@oxide/ui'
 
@@ -13,8 +21,10 @@ import { trigger404 } from 'app/components/ErrorBoundary'
 import { DocsLinkItem, NavLinkItem, Sidebar } from 'app/components/Sidebar'
 import { TopBar } from 'app/components/TopBar'
 import { SiloPicker, SiloSystemPicker } from 'app/components/TopBarPicker'
+import { useQuickActions } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
+import { useCurrentUser } from './AuthenticatedLayout'
 import { ContentPane, PageContainer } from './helpers'
 
 /**
@@ -26,6 +36,8 @@ import { ContentPane, PageContainer } from './helpers'
  * other than a 403, that would be strange and we would want to know.
  */
 SystemLayout.loader = async () => {
+  // we don't need to use the ErrorsAllowed version here because we're 404ing
+  // immediately on error, so we don't need to pick the result up from the cache
   const isFleetViewer = await apiQueryClient
     .fetchQuery('systemPolicyView', {})
     .then(() => true)
@@ -34,6 +46,7 @@ SystemLayout.loader = async () => {
   // TODO: make sure 404 is the desired behavior. This situation should be
   // pretty unlikely.
   if (!isFleetViewer) throw trigger404
+
   return null
 }
 
@@ -43,6 +56,35 @@ export default function SystemLayout() {
   // silo-specific routes in the route config, but it's overkill considering
   // this is a one-liner. Switch to that approach at the first sign of trouble.
   const { silo } = useParams()
+  const navigate = useNavigate()
+  const { pathname } = useLocation()
+
+  const { me } = useCurrentUser()
+
+  const actions = useMemo(() => {
+    const systemLinks = [
+      { value: 'Silos', path: pb.silos() },
+      { value: 'Utilization', path: pb.systemUtilization() },
+      { value: 'Inventory', path: pb.sledInventory() },
+    ]
+      // filter out the entry for the path we're currently on
+      .filter((i) => i.path !== pathname)
+      .map((i) => ({
+        navGroup: 'System',
+        value: i.value,
+        onSelect: () => navigate(i.path),
+      }))
+
+    const backToSilo = {
+      navGroup: `Back to silo '${me.siloName}'`,
+      value: 'Projects',
+      onSelect: () => navigate(pb.projects()),
+    }
+    return [...systemLinks, backToSilo]
+  }, [pathname, navigate, me.siloName])
+
+  useQuickActions(actions)
+
   return (
     <PageContainer>
       <TopBar>
@@ -62,7 +104,7 @@ export default function SystemLayout() {
             <Instances16Icon /> Issues
           </NavLinkItem> */}
           <NavLinkItem to={pb.systemUtilization()}>
-            <Snapshots16Icon /> Utilization
+            <Metrics16Icon /> Utilization
           </NavLinkItem>
           <NavLinkItem to={pb.sledInventory()}>
             <Storage16Icon /> Inventory

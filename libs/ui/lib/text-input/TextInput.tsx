@@ -1,3 +1,10 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import { announce } from '@react-aria/live-announcer'
 import cn from 'classnames'
 import React, { useEffect } from 'react'
@@ -66,8 +73,8 @@ export const TextInput = React.forwardRef<
           ref={ref}
           type={type}
           className={cn(
-            `w-full rounded border-none py-[0.6875rem]
-        px-3 !outline-offset-1 text-sans-md
+            `w-full rounded border-none px-3
+        py-[0.6875rem] !outline-offset-1 text-sans-md
         text-default bg-default placeholder:text-quaternary
         focus:outline-none disabled:cursor-not-allowed disabled:text-tertiary disabled:bg-disabled`,
             error && 'focus-error',

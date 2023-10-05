@@ -1,5 +1,13 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *  
+ * Copyright Oxide Computer Company
+ */
+
 .ox-menu {
-  @apply z-50 max-h-[17.5rem] overflow-y-auto rounded border bg-raise border-secondary elevation-2;
+  @apply max-h-[17.5rem] overflow-y-auto rounded border bg-raise border-secondary elevation-2;
 }
 
 .ox-menu-item {
@@ -24,5 +32,5 @@
 
 .ox-menu-item.is-selected:after {
   content: '';
-  @apply absolute top-0 bottom-0 right-0 left-0 block rounded border border-accent;
+  @apply absolute bottom-0 left-0 right-0 top-0 block rounded border border-accent;
 }

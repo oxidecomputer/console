@@ -1,3 +1,10 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import { apiQueryClient } from '@oxide/api'
 import { LabelCell, useQueryTable } from '@oxide/table'
 import { EmptyMessage, Racks24Icon } from '@oxide/ui'
@@ -24,9 +31,12 @@ export function DisksTab() {
     <>
       <Table emptyState={<EmptyState />}>
         <Column accessor="id" />
-        <Column id="sled" accessor={() => `SLD0`} header="sled" />
-        <Column id="location" accessor={(_, index) => `N${index}`} header="location" />
-        <Column id="status" accessor={() => 'active'} header="status" cell={LabelCell} />
+        <Column
+          id="form-factor"
+          accessor={(d) => (d.formFactor === 'u2' ? 'U.2' : 'M.2')}
+          header="Form factor"
+          cell={LabelCell}
+        />
         <Column accessor="model" header="model number" />
         <Column accessor="serial" header="serial number" />
       </Table>

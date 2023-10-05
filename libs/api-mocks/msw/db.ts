@@ -1,3 +1,10 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 // note that isUuid checks for any kind of UUID. strictly speaking, we should
 // only be checking for v4
 import { validate as isUuid } from 'uuid'
@@ -127,16 +134,22 @@ export const lookup = {
 
     return subnet
   },
-  image({ image: id, ...projectSelector }: PP.Image): Json<Api.Image> {
+  image({ image: id, project: projectId }: PP.Image): Json<Api.Image> {
     if (!id) throw notFoundErr
-
-    const project = lookup.project(projectSelector)
 
     if (isUuid(id)) return lookupById(db.images, id)
 
-    const image = db.images.find((d) => d.project_id === project.id && d.name === id)
-    if (!image) throw notFoundErr
+    let image: Json<Api.Image> | undefined
+    if (projectId === undefined) {
+      // silo image
+      image = db.images.find((d) => d.project_id === undefined && d.name === id)
+    } else {
+      // project image
+      const project = lookup.project({ project: projectId })
+      image = db.images.find((d) => d.project_id === project.id && d.name === id)
+    }
 
+    if (!image) throw notFoundErr
     return image
   },
   samlIdp({
@@ -170,11 +183,6 @@ export const lookup = {
 
     return lookupById(db.sleds, id)
   },
-  systemUpdate({ version }: PP.SystemUpdate): Json<Api.SystemUpdate> {
-    const update = db.systemUpdates.find((o) => o.version === version)
-    if (!update) throw notFoundErr
-    return update
-  },
   sshKey({ sshKey: id }: PP.SshKey): Json<Api.SshKey> {
     // we don't have a concept of mock session. assume the user is user1
     const userSshKeys = db.sshKeys.filter((key) => key.silo_user_id === user1.id)
@@ -201,7 +209,7 @@ const initDb = {
   /** Join table for `users` and `userGroups` */
   groupMemberships: [...mock.groupMemberships],
   images: [...mock.images],
-  instances: [mock.instance],
+  instances: [...mock.instances],
   networkInterfaces: [mock.networkInterface],
   physicalDisks: [...mock.physicalDisks],
   projects: [...mock.projects],
@@ -213,11 +221,6 @@ const initDb = {
   sleds: [...mock.sleds],
   snapshots: [...mock.snapshots],
   sshKeys: [...mock.sshKeys],
-  componentUpdates: [...mock.componentUpdates],
-  systemUpdates: [...mock.systemUpdates],
-  systemUpdateComponentUpdates: [...mock.systemUpdateComponentUpdates],
-  updateableComponents: [...mock.updateableComponents],
-  updateDeployments: [...mock.updateDeployments],
   users: [...mock.users],
   vpcFirewallRules: [...mock.defaultFirewallRules],
   vpcRouterRoutes: [mock.vpcRouterRoute],

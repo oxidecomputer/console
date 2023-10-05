@@ -1,12 +1,16 @@
-import { getLocalTimeZone } from '@internationalized/date'
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import React, { Suspense, useMemo, useState } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
-import invariant from 'tiny-invariant'
 
 import type { Cumulativeint64, DiskMetricName } from '@oxide/api'
-import { apiQueryClient, useApiQuery } from '@oxide/api'
-import { Listbox, Spinner } from '@oxide/ui'
-import { toPathQuery } from '@oxide/util'
+import { apiQueryClient, useApiQuery, usePrefetchedApiQuery } from '@oxide/api'
+import { EmptyMessage, Listbox, Spinner, Storage24Icon, TableEmptyBox } from '@oxide/ui'
 
 import { useDateTimeRangePicker } from 'app/components/form'
 import { getInstanceSelector, useInstanceSelector } from 'app/hooks'
@@ -39,10 +43,10 @@ function DiskMetric({
     'diskMetricsList',
     {
       path: { disk, metric },
-      query: { project, startTime, endTime, limit: 1000 },
+      query: { project, startTime, endTime, limit: 3000 },
     },
     // avoid graphs flashing blank while loading when you change the time
-    { keepPreviousData: true }
+    { placeholderData: (x) => x }
   )
 
   const data = (metrics?.items || []).map(({ datum, timestamp }) => ({
@@ -78,40 +82,52 @@ function DiskMetric({
 // date range, I'm inclined to punt.
 
 MetricsTab.loader = async ({ params }: LoaderFunctionArgs) => {
-  await apiQueryClient.prefetchQuery(
-    'instanceDiskList',
-    toPathQuery('instance', getInstanceSelector(params))
-  )
+  const { project, instance } = getInstanceSelector(params)
+  await apiQueryClient.prefetchQuery('instanceDiskList', {
+    path: { instance },
+    query: { project },
+  })
   return null
 }
 
 export function MetricsTab() {
-  const instanceSelector = useInstanceSelector()
-  const { project } = instanceSelector
-  const { data } = useApiQuery(
-    'instanceDiskList',
-    toPathQuery('instance', instanceSelector)
-  )
+  const { project, instance } = useInstanceSelector()
+  const { data } = usePrefetchedApiQuery('instanceDiskList', {
+    path: { instance },
+    query: { project },
+  })
   const disks = useMemo(() => data?.items || [], [data])
 
-  // because of prefetch in the loader and because an instance should always
-  // have a disk, we should never see an empty list here
-  invariant(disks.length > 0, 'Instance disks list should never be empty')
+  const { startTime, endTime, dateTimeRangePicker } = useDateTimeRangePicker({
+    initialPreset: 'lastDay',
+  })
 
-  const { startTime, endTime, dateTimeRangePicker } = useDateTimeRangePicker('lastDay')
-
-  const [diskName, setDiskName] = useState<string>(disks[0].name)
+  // The fallback here is kind of silly — it is only invoked when there are no
+  // disks, in which case we show the fallback UI and diskName is never used. We
+  // only need to do it this way because hooks cannot be called conditionally.
+  const [diskName, setDiskName] = useState<string>(disks[0]?.name || '')
   const diskItems = disks.map(({ name }) => ({ label: name, value: name }))
 
+  if (disks.length === 0) {
+    return (
+      <TableEmptyBox>
+        <EmptyMessage
+          icon={<Storage24Icon />}
+          title="No metrics available"
+          body="Metrics are only available if there are disks attached"
+        />
+      </TableEmptyBox>
+    )
+  }
+
   const commonProps = {
-    startTime: startTime.toDate(getLocalTimeZone()),
-    endTime: endTime.toDate(getLocalTimeZone()),
+    startTime,
+    endTime,
     diskSelector: { project, disk: diskName },
   }
 
   return (
     <>
-      <h2 className="text-sans-xl">Disk metrics</h2>
       <div className="mb-4 flex justify-between">
         <Listbox
           className="w-48"

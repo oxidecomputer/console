@@ -1,8 +1,15 @@
-import { test } from '@playwright/test'
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
+import { expect, test } from '@playwright/test'
 
 import { expectNotVisible, expectVisible } from './utils'
 
-test('Click through networking', async ({ page }) => {
+test('Create and edit VPC', async ({ page }) => {
   await page.goto('/projects/mock-project')
 
   await page.click('role=link[name*="Networking"]')
@@ -41,13 +48,15 @@ test('Click through networking', async ({ page }) => {
   // Close toast, it holds up the test for some reason
   await page.click('role=button[name="Dismiss notification"]')
 
-  await expectVisible(page, ['role=link[name="new-vpc"]'])
+  await expect(page.getByRole('link', { name: 'new-vpc' })).toBeVisible()
+})
 
-  await page.click('role=link[name="new-vpc"]')
+test('Create and edit subnet', async ({ page }) => {
+  await page.goto('/projects/mock-project/vpcs/mock-vpc')
 
   // VPC detail, subnets tab
   await expectVisible(page, [
-    'role=heading[name*="new-vpc"]',
+    'role=heading[name*="mock-vpc"]',
     'role=tab[name="Subnets"]',
     // 'role=tab[name="System Routes"]',
     // 'role=tab[name="Routers"]',
@@ -84,22 +93,6 @@ test('Click through networking', async ({ page }) => {
 
   await expectNotVisible(page, ['role=cell[name="new-subnet"]'])
   await expectVisible(page, ['role=cell[name="edited-subnet"]'])
-
-  // // System routes
-  // await page.click('role=tab[name="System Routes"]')
-  // await expectVisible(page, ['role=cell[name="system"]'])
-
-  // // Routers
-  // await page.click('role=tab[name="Routers"]')
-  // await expectVisible(page, ['role=cell[name="system"] >> nth=0'])
-  // await page.click('role=button[name="New router"]')
-  // await expectVisible(page, [
-  //   'role=heading[name="Create VPC Router"]',
-  //   'role=button[name="Create VPC Router"]',
-  // ])
-  // await page.fill('role=textbox[name="Name"]', 'new-router')
-  // await page.click('role=button[name="Create VPC Router"]')
-  // await expectVisible(page, ['role=cell[name="new-router"]', 'role=cell[name="custom"]'])
 
   // Firewall rules
   await page.click('role=tab[name="Firewall Rules"]')

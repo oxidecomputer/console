@@ -1,9 +1,16 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import * as Dialog from '@radix-ui/react-dialog'
 import cn from 'classnames'
 import { matchSorter } from 'match-sorter'
 import React, { useState } from 'react'
 
-import { Close12Icon } from '@oxide/ui'
+import { Close12Icon } from '@oxide/design-system/icons/react'
 import { classed, groupBy } from '@oxide/util'
 
 import { useSteppedScroll } from '../hooks/use-stepped-scroll'
@@ -31,6 +38,7 @@ const Outline = classed.div`absolute z-10 h-full w-full border border-accent poi
 
 export function ActionMenu(props: ActionMenuProps) {
   const [input, setInput] = useState('')
+  // TODO: filter by both nav group and item value
   const items = matchSorter(props.items, input, {
     keys: ['value'],
     // use original order as tiebreaker instead of, e.g., alphabetical
@@ -215,7 +223,7 @@ export const ActionMenuHotkey = ({ keys, action }: ActionMenuHotkeyProps) => (
       {keys.map((hotkey) => (
         <kbd
           key={hotkey}
-          className="mr-1 inline-block rounded border border-[rgba(255,255,255,.15)] py-1 px-2 text-mono-xs text-default"
+          className="mr-1 inline-block rounded border border-[rgba(255,255,255,.15)] px-2 py-1 text-mono-xs text-default"
         >
           {hotkey}
         </kbd>

@@ -1,25 +1,39 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import { v4 as uuid } from 'uuid'
 
-import type { ApiTypes as Api, SamlIdentityProvider, UpdateDeployment } from '@oxide/api'
-import { DISK_DELETE_STATES, DISK_SNAPSHOT_STATES } from '@oxide/api'
+import type { ApiTypes as Api, SamlIdentityProvider } from '@oxide/api'
+import {
+  FLEET_ID,
+  INSTANCE_MAX_CPU,
+  INSTANCE_MAX_RAM_GiB,
+  INSTANCE_MIN_RAM_GiB,
+  MAX_NICS_PER_INSTANCE,
+  diskCan,
+} from '@oxide/api'
 import type { Json } from '@oxide/gen/msw-handlers'
 import { json, makeHandlers } from '@oxide/gen/msw-handlers'
-import { pick, sortBy } from '@oxide/util'
+import { GiB, pick, sortBy } from '@oxide/util'
 
-import { genCumulativeI64Data, genI64Data } from '../metrics'
-import { FLEET_ID } from '../role-assignment'
+import { genCumulativeI64Data } from '../metrics'
 import { serial } from '../serial'
 import { defaultSilo, toIdp } from '../silo'
-import { sortBySemverDesc } from '../update'
-import { user1 } from '../user'
 import { db, lookup, lookupById, notFoundErr } from './db'
 import {
   NotImplemented,
+  currentUser,
   errIfExists,
   errIfInvalidDiskSize,
   getStartAndEndTime,
   getTimestamps,
+  handleMetrics,
   paginated,
+  requireFleetViewer,
   unavailableErr,
 } from './util'
 
@@ -50,7 +64,7 @@ export const handlers = makeHandlers({
     return json(newProject, { status: 201 })
   },
   projectView: ({ path }) => {
-    if (path.project.endsWith('-error-503')) {
+    if (path.project.endsWith('error-503')) {
       throw unavailableErr
     }
 
@@ -68,6 +82,11 @@ export const handlers = makeHandlers({
   },
   projectDelete({ path }) {
     const project = lookup.project({ ...path })
+
+    // imitate API logic (TODO: check for every other kind of project child)
+    if (db.vpcs.some((vpc) => vpc.project_id === project.id)) {
+      throw 'Project to be deleted contains a VPC'
+    }
 
     db.projects = db.projects.filter((p) => p.id !== project.id)
 
@@ -100,7 +119,7 @@ export const handlers = makeHandlers({
       size,
       // TODO: for non-blank disk sources, look up image or snapshot by ID and
       // pull block size from there
-      block_size: disk_source.type === 'blank' ? disk_source.block_size : 4096,
+      block_size: disk_source.type === 'blank' ? disk_source.block_size : 512,
       ...getTimestamps(),
     }
     db.disks.push(newDisk)
@@ -111,7 +130,7 @@ export const handlers = makeHandlers({
   diskDelete({ path, query }) {
     const disk = lookup.disk({ ...path, ...query })
 
-    if (!DISK_DELETE_STATES.has(disk.state.state)) {
+    if (!diskCan.delete(disk)) {
       throw 'Cannot delete disk in state ' + disk.state.state
     }
 
@@ -199,18 +218,14 @@ export const handlers = makeHandlers({
     return 204
   },
   imageList({ query }) {
-    let images: Json<Api.Image>[] = []
     if (query.project) {
       const project = lookup.project(query)
-      images = db.images.filter((i) => i.project_id === project.id)
-
-      if (query.includeSiloImages) {
-        images = images.concat(db.images.filter((i) => !i.project_id))
-      }
-    } else {
-      images = db.images.filter((i) => !i.project_id)
+      const images = db.images.filter((i) => i.project_id === project.id)
+      return paginated(query, images)
     }
 
+    // silo images
+    const images = db.images.filter((i) => !i.project_id)
     return paginated(query, images)
   },
   imageCreate({ body, query }) {
@@ -225,10 +240,13 @@ export const handlers = makeHandlers({
         ? lookup.snapshot({ snapshot: body.source.id }).size
         : 100
 
+    const block_size = body.source.type === 'url' ? body.source.block_size : 512
+
     const newImage: Json<Api.Image> = {
       id: uuid(),
       project_id,
       size,
+      block_size,
       ...body,
       ...getTimestamps(),
     }
@@ -249,6 +267,14 @@ export const handlers = makeHandlers({
 
     return json(image, { status: 202 })
   },
+  imageDemote({ path, query }) {
+    const image = lookup.image({ ...path, ...query })
+    const project = lookup.project({ ...path, ...query })
+
+    image.project_id = project.id
+
+    return json(image, { status: 202 })
+  },
   instanceList({ query }) {
     const project = lookup.project(query)
     const instances = db.instances.filter((i) => i.project_id === project.id)
@@ -260,6 +286,25 @@ export const handlers = makeHandlers({
     errIfExists(db.instances, { name: body.name, project_id: project.id }, 'instance')
 
     const instanceId = uuid()
+
+    // TODO: These values should ultimately be represented in the schema and
+    // checked with the generated schema validation code.
+
+    if (body.memory > INSTANCE_MAX_RAM_GiB * GiB) {
+      throw `Memory must be less than ${INSTANCE_MAX_RAM_GiB} GiB`
+    }
+
+    if (body.memory < INSTANCE_MIN_RAM_GiB * GiB) {
+      throw `Memory must be at least ${INSTANCE_MIN_RAM_GiB} GiB`
+    }
+
+    if (body.ncpus > INSTANCE_MAX_CPU) {
+      throw `vCPUs must be less than ${INSTANCE_MAX_CPU}`
+    }
+
+    if (body.ncpus < 1) {
+      throw `Must have at least 1 vCPU`
+    }
 
     /**
      * Eagerly check for disk errors. Execution will stop early and prevent orphaned disks from
@@ -279,6 +324,9 @@ export const handlers = makeHandlers({
      * being created if there's a failure. In omicron this is done automatically via an undo on the saga.
      */
     if (body.network_interfaces?.type === 'create') {
+      if (body.network_interfaces.params.length > MAX_NICS_PER_INSTANCE) {
+        throw `Cannot create more than ${MAX_NICS_PER_INSTANCE} nics per instance`
+      }
       body.network_interfaces.params.forEach(({ vpc_name, subnet_name }) => {
         lookup.vpc({ ...query, vpc: vpc_name })
         lookup.vpcSubnet({ ...query, vpc: vpc_name, subnet: subnet_name })
@@ -306,7 +354,11 @@ export const handlers = makeHandlers({
       }
     }
 
-    if (body.network_interfaces?.type === 'default') {
+    // just use the first VPC in the project and first subnet in the VPC. bit of
+    // a hack but not very important
+    const anyVpc = db.vpcs.find((v) => v.project_id === project.id)
+    const anySubnet = db.vpcSubnets.find((s) => s.vpc_id === anyVpc?.id)
+    if (body.network_interfaces?.type === 'default' && anyVpc && anySubnet) {
       db.networkInterfaces.push({
         id: uuid(),
         description: 'The default network interface',
@@ -315,8 +367,8 @@ export const handlers = makeHandlers({
         mac: '00:00:00:00:00:00',
         ip: '127.0.0.1',
         name: 'default',
-        vpc_id: uuid(),
-        subnet_id: uuid(),
+        vpc_id: anyVpc.id,
+        subnet_id: anySubnet.id,
         ...getTimestamps(),
       })
     } else if (body.network_interfaces?.type === 'create') {
@@ -527,7 +579,7 @@ export const handlers = makeHandlers({
     errIfExists(db.snapshots, { name: body.name })
 
     const disk = lookup.disk({ ...query, disk: body.disk })
-    if (!DISK_SNAPSHOT_STATES.has(disk.state.state)) {
+    if (!diskCan.snapshot(disk)) {
       throw 'Cannot snapshot disk in state ' + disk.state.state
     }
 
@@ -546,6 +598,8 @@ export const handlers = makeHandlers({
   },
   snapshotView: ({ path, query }) => lookup.snapshot({ ...path, ...query }),
   snapshotDelete({ path, query }) {
+    if (path.snapshot === 'delete-500') return 500
+
     const snapshot = lookup.snapshot({ ...path, ...query })
     db.snapshots = db.snapshots.filter((s) => s.id !== snapshot.id)
     return 204
@@ -770,12 +824,16 @@ export const handlers = makeHandlers({
     const nics = db.networkInterfaces.filter((n) => n.subnet_id === subnet.id)
     return paginated(query, nics)
   },
-  sledPhysicalDiskList({ path, query }) {
+  sledPhysicalDiskList({ path, query, req }) {
+    requireFleetViewer(req)
     const sled = lookup.sled(path)
     const disks = db.physicalDisks.filter((n) => n.sled_id === sled.id)
     return paginated(query, disks)
   },
-  physicalDiskList: ({ query }) => paginated(query, db.physicalDisks),
+  physicalDiskList({ query, req }) {
+    requireFleetViewer(req)
+    return paginated(query, db.physicalDisks)
+  },
   policyView() {
     // assume we're in the default silo
     const siloId = defaultSilo.id
@@ -801,26 +859,32 @@ export const handlers = makeHandlers({
 
     return body
   },
-  rackList: ({ query }) => paginated(query, db.racks),
-  currentUserView() {
-    return { ...user1, silo_name: defaultSilo.name }
+  rackList: ({ query, req }) => {
+    requireFleetViewer(req)
+    return paginated(query, db.racks)
   },
-  currentUserGroups() {
-    const memberships = db.groupMemberships.filter((gm) => gm.userId === user1.id)
+  currentUserView({ req }) {
+    return { ...currentUser(req), silo_name: defaultSilo.name }
+  },
+  currentUserGroups({ req }) {
+    const user = currentUser(req)
+    const memberships = db.groupMemberships.filter((gm) => gm.userId === user.id)
     const groupIds = new Set(memberships.map((gm) => gm.groupId))
     const groups = db.userGroups.filter((g) => groupIds.has(g.id))
     return { items: groups }
   },
-  currentUserSshKeyList({ query }) {
-    const keys = db.sshKeys.filter((k) => k.silo_user_id === user1.id)
+  currentUserSshKeyList({ query, req }) {
+    const user = currentUser(req)
+    const keys = db.sshKeys.filter((k) => k.silo_user_id === user.id)
     return paginated(query, keys)
   },
-  currentUserSshKeyCreate({ body }) {
-    errIfExists(db.sshKeys, { silo_user_id: user1.id, name: body.name })
+  currentUserSshKeyCreate({ body, req }) {
+    const user = currentUser(req)
+    errIfExists(db.sshKeys, { silo_user_id: user.id, name: body.name })
 
     const newSshKey: Json<Api.SshKey> = {
       id: uuid(),
-      silo_user_id: user1.id,
+      silo_user_id: user.id,
       ...body,
       ...getTimestamps(),
     }
@@ -833,9 +897,16 @@ export const handlers = makeHandlers({
     db.sshKeys = db.sshKeys.filter((i) => i.id !== sshKey.id)
     return 204
   },
-  sledView: ({ path }) => lookup.sled(path),
-  sledList: (params) => paginated(params.query, db.sleds),
-  sledInstanceList({ query, path }) {
+  sledView({ path, req }) {
+    requireFleetViewer(req)
+    return lookup.sled(path)
+  },
+  sledList({ query, req }) {
+    requireFleetViewer(req)
+    return paginated(query, db.sleds)
+  },
+  sledInstanceList({ query, path, req }) {
+    requireFleetViewer(req)
     const sled = lookupById(db.sleds, path.sledId)
     return paginated(
       query,
@@ -851,44 +922,55 @@ export const handlers = makeHandlers({
       })
     )
   },
-  siloList: (params) => paginated(params.query, db.silos),
-  siloCreate({ body }) {
+  siloList({ query, req }) {
+    requireFleetViewer(req)
+    return paginated(query, db.silos)
+  },
+  siloCreate({ body, req }) {
+    requireFleetViewer(req)
     errIfExists(db.silos, { name: body.name })
     const newSilo: Json<Api.Silo> = {
       id: uuid(),
       ...getTimestamps(),
       ...body,
+      mapped_fleet_roles: body.mapped_fleet_roles || {},
     }
     db.silos.push(newSilo)
     return json(newSilo, { status: 201 })
   },
-  siloView: ({ path }) => lookup.silo(path),
-  siloDelete({ path }) {
+  siloView({ path, req }) {
+    requireFleetViewer(req)
+    return lookup.silo(path)
+  },
+  siloDelete({ path, req }) {
+    requireFleetViewer(req)
     const silo = lookup.silo(path)
     db.silos = db.silos.filter((i) => i.id !== silo.id)
     return 204
   },
-  siloIdentityProviderList({ query }) {
+  siloIdentityProviderList({ query, req }) {
+    requireFleetViewer(req)
     const silo = lookup.silo(query)
     const idps = db.identityProviders.filter(({ siloId }) => siloId === silo.id).map(toIdp)
     return { items: idps }
   },
 
-  samlIdentityProviderCreate(params) {
-    const silo = lookup.silo(params.query)
+  samlIdentityProviderCreate({ query, body, req }) {
+    requireFleetViewer(req)
+    const silo = lookup.silo(query)
 
     // this is a bit silly, but errIfExists doesn't handle nested keys like
     // provider.name, so to do the check we make a flatter object
     errIfExists(
       db.identityProviders.map(({ siloId, provider }) => ({ siloId, name: provider.name })),
-      { siloId: silo.id, name: params.body.name }
+      { siloId: silo.id, name: body.name }
     )
 
     // we just decode to string and store that, which is probably fine for local
     // dev, but note that the API decodes to bytes and passes that to
     // https://docs.rs/openssl/latest/openssl/x509/struct.X509.html#method.from_der
     // and that will error if can't be parsed that way
-    let public_cert = params.body.signing_keypair?.public_cert
+    let public_cert = body.signing_keypair?.public_cert
     public_cert = public_cert ? atob(public_cert) : undefined
 
     // we ignore the private key because it's not returned in the get response,
@@ -899,7 +981,7 @@ export const handlers = makeHandlers({
     const provider: Json<SamlIdentityProvider> = {
       id: uuid(),
       ...pick(
-        params.body,
+        body,
         'name',
         'acs_url',
         'description',
@@ -930,84 +1012,20 @@ export const handlers = makeHandlers({
     return paginated(query, db.users)
   },
 
-  systemPolicyView() {
+  systemPolicyView({ req }) {
+    requireFleetViewer(req)
+
     const role_assignments = db.roleAssignments
       .filter((r) => r.resource_type === 'fleet' && r.resource_id === FLEET_ID)
       .map((r) => pick(r, 'identity_id', 'identity_type', 'role_name'))
 
     return { role_assignments }
   },
-
-  systemUpdateList: (params) => paginated(params.query, db.systemUpdates),
-  systemUpdateView: ({ path }) => lookup.systemUpdate(path),
-  systemUpdateComponentsList: (params) => {
-    const systemUpdate = lookup.systemUpdate(params.path)
-    const ids = new Set(
-      db.systemUpdateComponentUpdates
-        .filter((o) => o.system_update_id === systemUpdate.id)
-        .map((o) => o.component_update_id)
-    )
-    return { items: db.componentUpdates.filter(({ id }) => ids.has(id)) }
+  systemMetric(params) {
+    requireFleetViewer(params.req)
+    return handleMetrics(params)
   },
-
-  systemComponentVersionList: (params) => paginated(params.query, db.updateableComponents),
-
-  systemUpdateStart: ({ body }) => {
-    const latestDeployment = db.updateDeployments[0]
-    if (latestDeployment?.status.status === 'updating') {
-      // TODO: do nothing, return some kind of failure
-    }
-
-    const newDeployment: Json<UpdateDeployment> = {
-      id: uuid(),
-      version: body.version,
-      status: { status: 'updating' },
-      ...getTimestamps(),
-    }
-
-    // add to the beginning of to he list to maintain sort by most recent
-    db.updateDeployments = [newDeployment, ...db.updateDeployments]
-
-    return newDeployment
-  },
-  systemUpdateStop: () => 204,
-  systemUpdateRefresh: NotImplemented,
-
-  systemVersion() {
-    const sortedComponents = sortBySemverDesc(db.updateableComponents)
-    const low = sortedComponents[sortedComponents.length - 1].system_version
-    const high = sortedComponents[0].system_version
-
-    // assume they're sorted by most recent first
-    const latestDeployment = db.updateDeployments[0]
-    return {
-      version_range: { low, high },
-      status: latestDeployment.status,
-    }
-  },
-  updateDeploymentsList: (params) => paginated(params.query, db.updateDeployments),
-  updateDeploymentView: ({ path: { id } }) => lookupById(db.updateDeployments, id),
-
-  systemMetric: (params) => {
-    // const result = ZVal.ResourceName.safeParse(req.params.resourceName)
-    // if (!result.success) return res(notFoundErr)
-    // const resourceName = result.data
-    const cap = params.path.metricName === 'cpus_provisioned' ? 3000 : 4000000000000
-
-    // note we're ignoring the required id query param. since the data is fake
-    // it wouldn't matter, though we should probably 400 if it's missing
-    const { startTime, endTime } = getStartAndEndTime(params.query)
-
-    if (endTime <= startTime) return { items: [] }
-
-    return {
-      items: genI64Data(
-        new Array(1000).fill(0).map((x, i) => Math.floor(Math.tanh(i / 500) * cap)),
-        startTime,
-        endTime
-      ),
-    }
-  },
+  siloMetric: handleMetrics,
 
   // Misc endpoints we're not using yet in the console
   certificateCreate: NotImplemented,
@@ -1015,7 +1033,6 @@ export const handlers = makeHandlers({
   certificateList: NotImplemented,
   certificateView: NotImplemented,
   diskImportBlocksFromUrl: NotImplemented,
-  imageDemote: NotImplemented,
   instanceMigrate: NotImplemented,
   instanceSerialConsoleStream: NotImplemented,
   ipPoolCreate: NotImplemented,

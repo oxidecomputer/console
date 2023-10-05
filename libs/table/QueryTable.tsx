@@ -1,19 +1,26 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { UseQueryOptions } from '@tanstack/react-query'
-import { hashQueryKey } from '@tanstack/react-query'
+import { hashKey } from '@tanstack/react-query'
 import type { AccessorFn, DeepKeys } from '@tanstack/react-table'
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import React, { useEffect } from 'react'
 import { useCallback } from 'react'
 import { useMemo } from 'react'
 import type { ComponentType, ReactElement } from 'react'
-import invariant from 'tiny-invariant'
 
 import { useApiQuery } from '@oxide/api'
 import type { ApiError, ApiListMethods, Params, Result, ResultItem } from '@oxide/api'
 import { Pagination, usePagination } from '@oxide/pagination'
 import { EmptyMessage, TableEmptyBox } from '@oxide/ui'
-import { isOneOf } from '@oxide/util'
+import { invariant, isOneOf } from '@oxide/util'
 
 import { Table } from './Table'
 import { DefaultCell } from './cells'
@@ -33,12 +40,12 @@ interface UseQueryTableResult<Item extends Record<string, unknown>> {
 export const useQueryTable = <A extends ApiListMethods, M extends keyof A>(
   query: M,
   params: Params<A[M]>,
-  options?: UseQueryOptions<Result<A[M]>, ApiError>
+  options?: Omit<UseQueryOptions<Result<A[M]>, ApiError>, 'queryKey' | 'queryFn'>
 ): UseQueryTableResult<ResultItem<A[M]>> => {
   const Table = useMemo(
     () => makeQueryTable<ResultItem<A[M]>>(query, params, options),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [query, hashQueryKey(params as any), hashQueryKey(options as any)]
+    [query, hashKey(params as any), hashKey(options as any)]
   )
 
   return { Table, Column: QueryTableColumn }

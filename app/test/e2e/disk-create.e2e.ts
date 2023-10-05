@@ -1,3 +1,10 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import { expectVisible, test } from './utils'
 
 test.describe('Disk create', () => {
@@ -15,6 +22,9 @@ test.describe('Disk create', () => {
     await expectVisible(page, ['role=cell[name="a-new-disk"]'])
   })
 
+  // expects are in the afterEach
+
+  /* eslint-disable playwright/expect-expect */
   test('from blank', async ({ page }) => {
     await page.getByRole('radio', { name: '512' }).click()
   })
@@ -22,7 +32,7 @@ test.describe('Disk create', () => {
   test('from snapshot', async ({ page }) => {
     await page.getByRole('radio', { name: 'Snapshot' }).click()
     await page.getByRole('button', { name: 'Source snapshot' }).click()
-    await page.getByRole('option', { name: 'snapshot-3' }).click()
+    await page.getByRole('option', { name: 'delete-500' }).click()
   })
 
   test('from image', async ({ page }) => {
@@ -35,4 +45,5 @@ test.describe('Disk create', () => {
     await page.getByRole('radio', { name: 'Snapshot' }).click()
     await page.getByRole('radio', { name: 'Blank' }).click()
   })
+  /* eslint-enable playwright/expect-expect */
 })

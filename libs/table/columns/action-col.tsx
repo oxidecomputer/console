@@ -1,3 +1,10 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import type { ColumnDef } from '@tanstack/react-table'
 import cn from 'classnames'
 
@@ -9,7 +16,7 @@ export type MakeActions<Item> = (item: Item) => Array<MenuAction>
 export type MenuAction = {
   label: string
   onActivate: () => void
-  disabled?: false | string
+  disabled?: false | React.ReactNode
   className?: string
 }
 
@@ -41,7 +48,7 @@ export const getActionsCol = <TData extends { id?: string }>(
           </DropdownMenu.Trigger>
           {/* portal fixes mysterious z-index issue where menu is behind button */}
           <DropdownMenu.Portal>
-            <DropdownMenu.Content align="end">
+            <DropdownMenu.Content align="end" className="-mt-3 mr-2">
               {id && (
                 <DropdownMenu.Item
                   onSelect={() => {

@@ -1,5 +1,11 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import { useEffect } from 'react'
-import { useForm } from 'react-hook-form'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import type { UsernamePasswordCredentials } from '@oxide/api'
@@ -8,6 +14,7 @@ import { Button, Identicon } from '@oxide/ui'
 
 import { TextFieldInner } from 'app/components/form'
 import 'app/components/login-page.css'
+import { useForm } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 import { useSiloSelector, useToast } from '../hooks'
@@ -71,7 +78,7 @@ export function LoginPage() {
             control={form.control}
           />
         </div>
-        <Button type="submit" className="w-full" disabled={loginPost.isLoading}>
+        <Button type="submit" className="w-full" disabled={loginPost.isPending}>
           Sign in
         </Button>
         {loginPost.isError && (

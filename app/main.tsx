@@ -1,3 +1,10 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import { QueryClientProvider } from '@tanstack/react-query'
 // import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { StrictMode } from 'react'
@@ -7,8 +14,9 @@ import { RouterProvider, createBrowserRouter } from 'react-router-dom'
 import { queryClient } from '@oxide/api'
 import { SkipLink } from '@oxide/ui'
 
+import { ConfirmDeleteModal } from './components/ConfirmDeleteModal'
 import { ErrorBoundary } from './components/ErrorBoundary'
-import { QuickActions, ReduceMotion } from './hooks'
+import { ReduceMotion } from './hooks'
 // stripped out by rollup in production
 import { startMockAPI } from './msw-mock-api'
 import { routes } from './routes'
@@ -37,7 +45,7 @@ function render() {
     <StrictMode>
       <QueryClientProvider client={queryClient}>
         <ErrorBoundary>
-          <QuickActions />
+          <ConfirmDeleteModal />
           <SkipLink id="skip-nav" />
           <ReduceMotion />
           <RouterProvider router={router} />
@@ -48,7 +56,7 @@ function render() {
   )
 }
 
-if (process.env.NODE_ENV !== 'production' && process.env.MSW) {
+if (process.env.MSW) {
   // MSW has NODE_ENV !== prod built into it, but let's be extra safe
   // need to defer requests until after the mock server starts up
   startMockAPI().then(render)

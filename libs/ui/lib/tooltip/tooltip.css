@@ -1,5 +1,13 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *  
+ * Copyright Oxide Computer Company
+ */
+
 .ox-tooltip {
-  @apply z-20 rounded border p-2 text-sans-md text-secondary border-secondary elevation-2;
+  @apply z-20 rounded border p-2 text-sans-md text-secondary bg-raise border-secondary elevation-2;
 }
 
 .ox-tooltip-arrow {
@@ -11,7 +19,7 @@
 }
 
 .ox-tooltip[data-placement^='top'] .ox-tooltip-arrow {
-  @apply border-t border-l;
+  @apply border-l border-t;
   margin-top: 2.5px;
 }
 

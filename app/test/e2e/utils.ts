@@ -1,5 +1,14 @@
-import type { Locator, Page } from '@playwright/test'
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
+import type { Browser, Locator, Page } from '@playwright/test'
 import { expect } from '@playwright/test'
+
+import { MSW_USER_COOKIE } from '@oxide/api-mocks'
 
 export * from '@playwright/test'
 
@@ -81,24 +90,55 @@ export async function expectRowVisible(
     .toEqual(expect.arrayContaining([expect.objectContaining(expectedRow)]))
 }
 
-async function timeToAppear(page: Page, selector: string): Promise<number> {
-  const start = Date.now()
-  await page.locator(selector).waitFor()
-  return Date.now() - start
-}
-
-/**
- * Assert a set of elements all appeared within a 20ms range
- */
-export async function expectSimultaneous(page: Page, selectors: string[]) {
-  const times = await Promise.all(selectors.map((sel) => timeToAppear(page, sel)))
-  times.sort()
-  expect(times[times.length - 1] - times[0]).toBeLessThan(40)
-}
-
 export async function stopInstance(page: Page) {
   await page.click('role=button[name="Instance actions"]')
   await page.click('role=menuitem[name="Stop"]')
   // close toast. for some reason it prevents things from happening
   await page.click('role=button[name="Dismiss notification"]')
 }
+
+/**
+ * This will not work in Firefox, which only supports reading from the clipboard in extensions.
+ * See [MDN: readText](https://developer.mozilla.org/en-US/docs/Web/API/Clipboard/readText#browser_compatibility).
+ */
+export const clipboardText = async (page: Page) =>
+  page.evaluate(() => navigator.clipboard.readText())
+
+/** Select row by `rowText`, click the row actions button, and click `actionName` */
+export async function clickRowAction(page: Page, rowText: string, actionName: string) {
+  await page
+    .getByRole('row', { name: rowText, exact: false })
+    .getByRole('button', { name: 'Row actions' })
+    .click()
+  await page.getByRole('menuitem', { name: actionName }).click()
+}
+
+export async function getDevUserPage(browser: Browser): Promise<Page> {
+  const browserContext = await browser.newContext()
+  await browserContext.addCookies([
+    { name: MSW_USER_COOKIE, value: 'Hans Jonas', domain: 'localhost', path: '/' },
+  ])
+  return await browserContext.newPage()
+}
+
+/**
+ * Assert that the item is visible and in the viewport but obscured by something
+ * else, as indicated by it not being clickable. In order to avoid false
+ * positives where something is not clickable due to it being not attached or
+ * something, we assert visible and in viewport first.
+ */
+export async function expectObscured(locator: Locator) {
+  // counterintuitively, expect visible does not mean actually visible, it just
+  // means attached and not having display: none
+  await expect(locator).toBeVisible()
+  await expect(locator).toBeInViewport()
+
+  // Attempt click with `trial: true`, which means only the actionability checks
+  // run but the click does not actually happen. Short timeout means this will
+  // fail fast if not clickable.
+  await expect(
+    async () => await locator.click({ trial: true, timeout: 50 })
+  ).rejects.toThrow(/locator.click: Timeout 50ms exceeded/)
+}
+
+export const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))

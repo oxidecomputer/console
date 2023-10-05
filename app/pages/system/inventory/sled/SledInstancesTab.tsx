@@ -1,3 +1,10 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import type { LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient } from '@oxide/api'
@@ -33,7 +40,7 @@ export function SledInstancesTab() {
   const { Table, Column } = useQueryTable(
     'sledInstanceList',
     { path: { sledId }, query: { limit: 10 } },
-    { keepPreviousData: true }
+    { placeholderData: (x) => x }
   )
 
   const makeActions = (): MenuAction[] => []

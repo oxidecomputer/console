@@ -1,10 +1,20 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import cn from 'classnames'
 import type { ReactElement, ReactNode } from 'react'
 import { Link, type To } from 'react-router-dom'
 
-import { OpenLink12Icon } from '@oxide/ui'
-
-import { Error12Icon, Success12Icon, Warning12Icon } from '../icons'
+import {
+  Error12Icon,
+  OpenLink12Icon,
+  Success12Icon,
+  Warning12Icon,
+} from '@oxide/design-system/icons/react'
 
 type Variant = 'success' | 'error' | 'notice' | 'info'
 

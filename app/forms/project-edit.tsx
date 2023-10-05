@@ -1,20 +1,29 @@
-import { useForm } from 'react-hook-form'
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import type { LoaderFunctionArgs } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 
-import { apiQueryClient, useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
-import { toPathQuery } from '@oxide/util'
+import {
+  apiQueryClient,
+  useApiMutation,
+  useApiQueryClient,
+  usePrefetchedApiQuery,
+} from '@oxide/api'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
+import { useForm } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 import { getProjectSelector, useProjectSelector, useToast } from '../hooks'
 
 EditProjectSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
-  await apiQueryClient.prefetchQuery(
-    'projectView',
-    toPathQuery('project', getProjectSelector(params))
-  )
+  const { project } = getProjectSelector(params)
+  await apiQueryClient.prefetchQuery('projectView', { path: { project } })
   return null
 }
 
@@ -24,27 +33,24 @@ export function EditProjectSideModalForm() {
   const navigate = useNavigate()
 
   const projectSelector = useProjectSelector()
-  const projectPathQuery = toPathQuery('project', projectSelector)
 
   const onDismiss = () => navigate(pb.projects())
 
-  const { data: project } = useApiQuery('projectView', projectPathQuery)
+  const { data: project } = usePrefetchedApiQuery('projectView', { path: projectSelector })
 
   const editProject = useApiMutation('projectUpdate', {
     onSuccess(project) {
       // refetch list of projects in sidebar
       // TODO: check this invalidation
-      queryClient.invalidateQueries('projectList', {})
+      queryClient.invalidateQueries('projectList')
       // avoid the project fetch when the project page loads since we have the data
       queryClient.setQueryData('projectView', { path: { project: project.name } }, project)
-      addToast({
-        content: 'Your project has been updated',
-      })
+      addToast({ content: 'Your project has been updated' })
       onDismiss()
     },
   })
 
-  const form = useForm({ mode: 'all', defaultValues: project })
+  const form = useForm({ defaultValues: project })
 
   return (
     <SideModalForm
@@ -53,9 +59,9 @@ export function EditProjectSideModalForm() {
       title="Edit project"
       onDismiss={onDismiss}
       onSubmit={({ name, description }) => {
-        editProject.mutate({ ...projectPathQuery, body: { name, description } })
+        editProject.mutate({ path: projectSelector, body: { name, description } })
       }}
-      loading={editProject.isLoading}
+      loading={editProject.isPending}
       submitError={editProject.error}
       submitLabel="Save changes"
     >

@@ -1,8 +1,14 @@
-import { useForm } from 'react-hook-form'
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import { useNavigate } from 'react-router-dom'
 
 import type { PathParams as PP, SnapshotCreate } from '@oxide/api'
-import { DISK_SNAPSHOT_STATES } from '@oxide/api'
+import { diskCan } from '@oxide/api'
 import { useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
 
 import {
@@ -11,7 +17,7 @@ import {
   NameField,
   SideModalForm,
 } from 'app/components/form'
-import { useProjectSelector, useToast } from 'app/hooks'
+import { useForm, useProjectSelector, useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 const useSnapshotDiskItems = (projectSelector: PP.Project) => {
@@ -20,7 +26,7 @@ const useSnapshotDiskItems = (projectSelector: PP.Project) => {
   })
   return (
     disks?.items
-      .filter((disk) => DISK_SNAPSHOT_STATES.has(disk.state.state))
+      .filter(diskCan.snapshot)
       .map((disk) => ({ value: disk.name, label: disk.name })) || []
   )
 }
@@ -43,15 +49,13 @@ export function CreateSnapshotSideModalForm() {
 
   const createSnapshot = useApiMutation('snapshotCreate', {
     onSuccess() {
-      queryClient.invalidateQueries('snapshotList', { query: projectSelector })
-      addToast({
-        content: 'Your snapshot has been created',
-      })
+      queryClient.invalidateQueries('snapshotList')
+      addToast({ content: 'Your snapshot has been created' })
       onDismiss()
     },
   })
 
-  const form = useForm({ mode: 'all', defaultValues })
+  const form = useForm({ defaultValues })
 
   return (
     <SideModalForm

@@ -1,7 +1,15 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import { useState } from 'react'
 
+import { Clipboard16Icon, Success12Icon } from '@oxide/design-system/icons/react'
+
 import useTimeout from '../hooks/use-timeout'
-import { Clipboard16Icon, Success12Icon } from '../icons'
 import { Tooltip } from '../tooltip/Tooltip'
 
 type TruncatePosition = 'middle' | 'end'

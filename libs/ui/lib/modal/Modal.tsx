@@ -1,17 +1,22 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import * as Dialog from '@radix-ui/react-dialog'
 import { animated, useTransition } from '@react-spring/web'
-import React, { createContext, useContext, useId } from 'react'
+import React, { createContext, forwardRef, useContext, useId } from 'react'
 
+import { Close12Icon } from '@oxide/design-system/icons/react'
 import { classed } from '@oxide/util'
 
 import { Button } from '../button/Button'
-import { Close12Icon, OpenLink12Icon } from '../icons'
 
 const ModalContext = createContext(false)
 
-export const useIsInModal = () => {
-  return useContext(ModalContext)
-}
+export const useIsInModal = () => useContext(ModalContext)
 
 export type ModalProps = {
   title?: string
@@ -56,11 +61,17 @@ export function Modal({ children, onDismiss, title, isOpen }: ModalProps) {
                   aria-hidden
                 />
                 <AnimatedDialogContent
-                  className="DialogContent ox-modal pointer-events-auto fixed left-1/2 top-1/2 z-40 m-0 flex max-h-[min(800px,80vh)] w-auto min-w-[28rem] max-w-[32rem] flex-col justify-between rounded-lg border p-0 bg-raise border-secondary elevation-2"
+                  className="DialogContent ox-modal pointer-events-auto fixed left-1/2 top-1/2 z-modal m-0 flex max-h-[min(800px,80vh)] w-auto min-w-[28rem] max-w-[32rem] flex-col justify-between rounded-lg border p-0 bg-raise border-secondary elevation-2"
                   aria-labelledby={titleId}
                   style={{
                     transform: y.to((value) => `translate3d(-50%, ${-50 + value}%, 0px)`),
                   }}
+                  // Prevents cancel loop on clicking on background over side
+                  // modal to get out of image upload modal. Canceling out of
+                  // confirm dialog returns focus to the dismissable layer,
+                  // which triggers onDismiss again. And again.
+                  // https://github.com/oxidecomputer/console/issues/1745
+                  onFocusOutside={(e) => e.preventDefault()}
                 >
                   {title && (
                     <Dialog.Title asChild>
@@ -68,6 +79,12 @@ export function Modal({ children, onDismiss, title, isOpen }: ModalProps) {
                     </Dialog.Title>
                   )}
                   {children}
+                  <Dialog.Close
+                    className="absolute right-2 top-3 flex rounded p-2 hover:bg-hover"
+                    aria-label="Close"
+                  >
+                    <Close12Icon className="text-secondary" />
+                  </Dialog.Close>
                 </AnimatedDialogContent>
               </Dialog.Portal>
             </Dialog.Root>
@@ -77,38 +94,27 @@ export function Modal({ children, onDismiss, title, isOpen }: ModalProps) {
   )
 }
 
+interface ModalTitleProps {
+  children?: React.ReactNode
+  id?: string
+}
+
 // not exported because we want to use the `title` prop on Modal so the aria
 // label gets hooked up properly
-const ModalTitle = ({ children, id }: { children?: React.ReactNode; id?: string }) => (
-  <div className="flex items-center justify-between border-b py-4 px-4 bg-secondary border-b-secondary">
+const ModalTitle = forwardRef<HTMLDivElement, ModalTitleProps>(({ children, id }, ref) => (
+  <div
+    ref={ref}
+    className="flex items-center justify-between border-b px-4 py-4 bg-secondary border-b-secondary"
+  >
     <h2 className="text-sans-semi-lg" id={id}>
       {children}
     </h2>
-    <Dialog.Close className="-m-2 flex rounded p-2 hover:bg-hover" aria-label="Close">
-      <Close12Icon className="text-secondary" />
-    </Dialog.Close>
   </div>
-)
+))
 
 Modal.Body = classed.div`py-2 overflow-y-auto`
 
 Modal.Section = classed.div`p-4 space-y-4 border-b border-secondary text-secondary last-of-type:border-none text-sans-md`
-
-Modal.Docs = ({ children }: { children?: React.ReactNode }) => (
-  <Modal.Section>
-    <div>
-      <h3 className="mb-2 text-sans-semi-md">Relevant docs</h3>
-      <ul className="space-y-0.5 text-sans-md text-secondary">
-        {React.Children.map(children, (child) => (
-          <li className="flex items-center space-x-2">
-            <OpenLink12Icon className="mt-0.5 text-accent" />
-            {child}
-          </li>
-        ))}
-      </ul>
-    </div>
-  </Modal.Section>
-)
 
 Modal.Footer = ({
   children,
@@ -116,6 +122,7 @@ Modal.Footer = ({
   onAction,
   actionType = 'primary',
   actionText,
+  actionLoading,
   cancelText,
   disabled = false,
 }: {
@@ -124,6 +131,7 @@ Modal.Footer = ({
   onAction: () => void
   actionType?: 'primary' | 'danger'
   actionText: React.ReactNode
+  actionLoading?: boolean
   cancelText?: string
   disabled?: boolean
 }) => (
@@ -133,7 +141,13 @@ Modal.Footer = ({
       <Button variant="secondary" size="sm" onClick={onDismiss}>
         {cancelText || 'Cancel'}
       </Button>
-      <Button size="sm" variant={actionType} onClick={onAction} disabled={disabled}>
+      <Button
+        size="sm"
+        variant={actionType}
+        onClick={onAction}
+        disabled={disabled}
+        loading={actionLoading}
+      >
         {actionText}
       </Button>
     </div>

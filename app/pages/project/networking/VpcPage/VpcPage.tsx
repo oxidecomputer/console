@@ -1,8 +1,15 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import type { LoaderFunctionArgs } from 'react-router-dom'
 
-import { apiQueryClient, useApiQuery } from '@oxide/api'
+import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import { Networking24Icon, PageHeader, PageTitle, PropertiesTable, Tabs } from '@oxide/ui'
-import { formatDateTime, toPathQuery } from '@oxide/util'
+import { formatDateTime } from '@oxide/util'
 
 import { QueryParamTabs } from 'app/components/QueryParamTabs'
 import { getVpcSelector, useVpcSelector } from 'app/hooks'
@@ -14,30 +21,34 @@ import { VpcSubnetsTab } from './tabs/VpcSubnetsTab'
 // import { VpcSystemRoutesTab } from './tabs/VpcSystemRoutesTab'
 
 VpcPage.loader = async ({ params }: LoaderFunctionArgs) => {
-  await apiQueryClient.prefetchQuery('vpcView', toPathQuery('vpc', getVpcSelector(params)))
+  const { project, vpc } = getVpcSelector(params)
+  await apiQueryClient.prefetchQuery('vpcView', { path: { vpc }, query: { project } })
   return null
 }
 
 export function VpcPage() {
-  const vpcSelector = useVpcSelector()
-  const { data: vpc } = useApiQuery('vpcView', toPathQuery('vpc', vpcSelector))
+  const { project, vpc: vpcName } = useVpcSelector()
+  const { data: vpc } = usePrefetchedApiQuery('vpcView', {
+    path: { vpc: vpcName },
+    query: { project },
+  })
 
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<Networking24Icon />}>{vpc?.name || ''}</PageTitle>
+        <PageTitle icon={<Networking24Icon />}>{vpc.name}</PageTitle>
       </PageHeader>
       <PropertiesTable.Group className="mb-16">
         <PropertiesTable>
-          <PropertiesTable.Row label="Description">{vpc?.description}</PropertiesTable.Row>
-          <PropertiesTable.Row label="DNS Name">{vpc?.dnsName}</PropertiesTable.Row>
+          <PropertiesTable.Row label="Description">{vpc.description}</PropertiesTable.Row>
+          <PropertiesTable.Row label="DNS Name">{vpc.dnsName}</PropertiesTable.Row>
         </PropertiesTable>
         <PropertiesTable>
           <PropertiesTable.Row label="Creation Date">
-            {vpc?.timeCreated && formatDateTime(vpc.timeCreated)}
+            {vpc.timeCreated && formatDateTime(vpc.timeCreated)}
           </PropertiesTable.Row>
           <PropertiesTable.Row label="Last Modified">
-            {vpc?.timeModified && formatDateTime(vpc.timeModified)}
+            {vpc.timeModified && formatDateTime(vpc.timeModified)}
           </PropertiesTable.Row>
         </PropertiesTable>
       </PropertiesTable.Group>

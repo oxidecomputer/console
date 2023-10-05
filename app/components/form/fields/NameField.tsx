@@ -1,3 +1,10 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import type { FieldPath, FieldValues } from 'react-hook-form'
 
 import { capitalize } from '@oxide/util'
@@ -28,6 +35,10 @@ export function NameField<
 // TODO Update JSON schema to match this, add fuzz testing between this and name pattern
 export const validateName = (name: string, label: string, required: boolean) => {
   if (!required && !name) return
+
+  if (name.length > 63) {
+    return 'Must be 63 characters or fewer'
+  }
 
   if (name.length === 0) {
     return `${label} is required`

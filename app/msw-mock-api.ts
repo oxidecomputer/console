@@ -1,3 +1,11 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
+
 function getChaos() {
   const chaos = parseFloat(process.env.CHAOS || '')
   return Number.isNaN(chaos) ? null : chaos
@@ -52,26 +60,19 @@ export async function startMockAPI() {
   const { setupWorker, rest, compose } = await import('msw')
 
   // defined in here because it depends on the dynamic import
-  const interceptAll = rest.all('/api/*', async (_req, res, ctx) => {
+  const interceptAll = rest.all('/v1/*', async (_req, res, ctx) => {
     // random delay on all requests to simulate a real API
-    await sleep(randInt(100, 300))
+    await sleep(randInt(200, 400))
 
     if (shouldFail(chaos)) {
       // special header lets client indicate chaos failures so we don't get confused
-      // TODO: randomize status code
       return res(compose(ctx.status(randomStatus()), ctx.set('X-Chaos', '')))
     }
     // don't return anything means fall through to the real handlers
   })
 
   // https://mswjs.io/docs/api/setup-worker/start#options
-  await setupWorker(
-    interceptAll,
-    ...handlers.map((h) => {
-      h.info.path = '/api' + h.info.path
-      return h
-    })
-  ).start({
+  await setupWorker(interceptAll, ...handlers).start({
     quiet: true, // don't log successfully handled requests
     // custom handler only to make logging less noisy. unhandled requests still
     // pass through to the server

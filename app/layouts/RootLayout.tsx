@@ -1,8 +1,16 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import { useEffect, useRef } from 'react'
 import { Outlet, useNavigation } from 'react-router-dom'
 
+import { MswBanner } from 'app/components/MswBanner'
+import { ToastStack } from 'app/components/ToastStack'
 import { useCrumbs } from 'app/hooks/use-crumbs'
-import { ToastStack } from 'app/hooks/use-toast/ToastStack'
 
 function useSetTitle() {
   const crumbs = useCrumbs()
@@ -31,6 +39,7 @@ export default function RootLayout() {
   return (
     <>
       <LoadingBar />
+      {process.env.MSW_BANNER ? <MswBanner /> : null}
       <Outlet />
       <ToastStack />
     </>
@@ -128,7 +137,7 @@ function LoadingBar() {
   }, [navigation])
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50">
+    <div className="fixed left-0 right-0 top-0 z-50">
       <div ref={barRef} className="global-loading-bar h-px bg-accent" />
     </div>
   )

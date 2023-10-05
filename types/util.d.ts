@@ -1,3 +1,11 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
+
 /** Keep only keys whose values extend V */
 type PickByValue<T, V> = {
   [K in keyof T as T[K] extends V ? K : never]: T[K]

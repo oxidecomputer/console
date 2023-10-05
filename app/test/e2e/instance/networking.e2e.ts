@@ -1,3 +1,10 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import { expect, test } from '@playwright/test'
 
 import { expectNotVisible, expectRowVisible, expectVisible, stopInstance } from '../utils'
@@ -67,5 +74,6 @@ test('Instance networking tab', async ({ page }) => {
     .locator('role=button[name="Row actions"]')
     .click()
   await page.click('role=menuitem[name="Delete"]')
+  await page.getByRole('button', { name: 'Confirm' }).click()
   await expectNotVisible(page, ['role=cell[name="nic-3"]'])
 })

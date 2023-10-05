@@ -1,3 +1,10 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import cn from 'classnames'
 import type { ReactElement } from 'react'
 import React, { useRef } from 'react'
@@ -105,7 +112,7 @@ Table.Cell = ({ height = 'large', className, children, ...props }: TableCellProp
     >
       <div
         className={cn(
-          '-my-[1px] -mr-[2px] flex items-center border-l border-b py-3 pl-3 pr-3 border-secondary',
+          '-my-[1px] -mr-[2px] flex items-center border-b border-l py-3 pl-3 pr-3 border-secondary',
           heightClass
         )}
       >

@@ -1,10 +1,15 @@
-import { useForm } from 'react-hook-form'
-
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import type { ApiError } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
 
 import { ListboxField, SideModalForm } from 'app/components/form'
-import { useProjectSelector } from 'app/hooks'
+import { useForm, useProjectSelector } from 'app/hooks'
 
 const defaultValues = { name: '' }
 
@@ -37,7 +42,7 @@ export function AttachDiskSideModalForm({
       (d) => d.state.state === 'detached'
     ) || []
 
-  const form = useForm({ mode: 'all', defaultValues })
+  const form = useForm({ defaultValues })
 
   return (
     <SideModalForm

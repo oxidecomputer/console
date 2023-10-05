@@ -1,11 +1,16 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import cn from 'classnames'
 import filesize from 'filesize'
 import pMap from 'p-map'
 import pRetry from 'p-retry'
 import { useRef, useState } from 'react'
-import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
-import invariant from 'tiny-invariant'
 
 import type { ApiError, BlockSize, Disk, Snapshot } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
@@ -18,7 +23,7 @@ import {
   Success12Icon,
   Unauthorized12Icon,
 } from '@oxide/ui'
-import { GiB, KiB } from '@oxide/util'
+import { GiB, KiB, invariant } from '@oxide/util'
 
 import {
   DescriptionField,
@@ -28,7 +33,7 @@ import {
   TextField,
 } from 'app/components/form'
 import { FileField } from 'app/components/form/fields'
-import { useProjectSelector } from 'app/hooks'
+import { useForm, useProjectSelector } from 'app/hooks'
 import { readBlobAsBase64 } from 'app/util/file'
 import { pb } from 'app/util/path-builder'
 
@@ -55,13 +60,13 @@ const defaultValues: FormValues = {
 
 // subset of the mutation state we care about
 type MutationState = {
-  isLoading: boolean
+  isPending: boolean
   isSuccess: boolean
   isError: boolean
 }
 
 const initSyntheticState: MutationState = {
-  isLoading: false,
+  isPending: false,
   isSuccess: false,
   isError: false,
 }
@@ -78,7 +83,7 @@ function Step({ children, state, label, className }: StepProps) {
   /* eslint-disable react/jsx-key */
   const [status, icon] = state.isSuccess
     ? ['complete', <Success12Icon className="text-accent" />]
-    : state.isLoading
+    : state.isPending
     ? ['running', <Spinner />]
     : state.isError
     ? ['error', <Error12Icon className="text-error" />]
@@ -86,7 +91,7 @@ function Step({ children, state, label, className }: StepProps) {
   /* eslint-enable react/jsx-key */
   return (
     // data-status used only for e2e testing
-    <div className={cn('items-top flex gap-2 py-3 px-4', className)} data-status={status}>
+    <div className={cn('items-top flex gap-2 px-4 py-3', className)} data-status={status}>
       {/* padding on icon to align it with text since everything is aligned to top */}
       <div className="pt-px">{icon}</div>
       <div
@@ -131,12 +136,10 @@ function getTmpDiskName(imageName: string) {
 const ABORT_ERROR = new Error('Upload canceled')
 
 /**
- * base64 encoding increases the size of the data by 1/3, so we need to
- * compensate for that. In many contexts (like email attachements), headers and
- * line breaks can introduce up 4% more overhead, but that doesn't apply here
- * because we are only sending the encoded data itself.
+ * Crucible currently enforces a limit of 512 KiB. See [crucible
+ * source](https://github.com/oxidecomputer/crucible/blob/c574ff1232/pantry/src/pantry.rs#L239-L253).
  */
-const CHUNK_SIZE = Math.floor((512 * KiB * 3) / 4)
+const CHUNK_SIZE_BYTES = 512 * KiB
 
 // States
 //
@@ -246,7 +249,7 @@ export function CreateImageSideModalForm() {
   const allMutations = [...mainFlowMutations, syntheticUploadState, ...cleanupMutations]
 
   // we don't want to be able to click submit while anything is running
-  const formLoading = allMutations.some((m) => m.isLoading)
+  const formLoading = allMutations.some((m) => m.isPending)
 
   // the created snapshot and disk. presence used in cleanup to decide whether we need to
   // attempt to delete them
@@ -329,7 +332,7 @@ export function CreateImageSideModalForm() {
     os,
     version,
   }: FormValues) {
-    invariant(imageFile) // shouldn't be possible to fail bc file is a required field
+    invariant(imageFile, 'imageFile must exist') // shouldn't be possible to fail bc file is a required field
 
     // this is done up here instead of next to the upload step because after
     // upload is canceled, a few outstanding bulk writes will complete, setting
@@ -367,17 +370,17 @@ export function CreateImageSideModalForm() {
     // be sitting around waiting for the browser to let the fetches through.
     // That sounds bad. So we use pMap to process at most 6 chunks at a time.
 
-    setSyntheticUploadState({ isLoading: true, isSuccess: false, isError: false })
+    setSyntheticUploadState({ isPending: true, isSuccess: false, isError: false })
 
-    const nChunks = Math.ceil(imageFile.size / CHUNK_SIZE)
+    const nChunks = Math.ceil(imageFile.size / CHUNK_SIZE_BYTES)
 
     // TODO: try to warn user if they try to close the tab while this is going
 
     let chunksProcessed = 0
 
     const postChunk = async (i: number) => {
-      const offset = i * CHUNK_SIZE
-      const end = Math.min(offset + CHUNK_SIZE, imageFile.size)
+      const offset = i * CHUNK_SIZE_BYTES
+      const end = Math.min(offset + CHUNK_SIZE_BYTES, imageFile.size)
       const base64EncodedData = await readBlobAsBase64(imageFile.slice(offset, end))
 
       // Disk space is all zeros by default, so we can skip any chunks that are
@@ -409,12 +412,12 @@ export function CreateImageSideModalForm() {
       )
     } catch (e) {
       if (e !== ABORT_ERROR) {
-        setSyntheticUploadState({ isLoading: false, isSuccess: false, isError: true })
+        setSyntheticUploadState({ isPending: false, isSuccess: false, isError: true })
       }
       throw e // rethrow to get the usual the error handling in the wrapper function
     }
 
-    setSyntheticUploadState({ isLoading: false, isSuccess: true, isError: false })
+    setSyntheticUploadState({ isPending: false, isSuccess: true, isError: false })
 
     await stopImport.mutateAsync({ path })
     abortController.current?.signal.throwIfAborted()
@@ -441,7 +444,6 @@ export function CreateImageSideModalForm() {
       body: {
         name: imageName,
         description: imageDescription,
-        blockSize,
         os,
         version,
         source: { type: 'snapshot', id: snapshot.current.id },
@@ -459,7 +461,7 @@ export function CreateImageSideModalForm() {
     setAllDone(true)
   }
 
-  const form = useForm({ mode: 'all', defaultValues })
+  const form = useForm({ defaultValues })
   const file = form.watch('imageFile')
 
   return (
@@ -485,7 +487,7 @@ export function CreateImageSideModalForm() {
             // eat a 404 since that's what we want. anything else should still blow up
             if (e.statusCode === 404) {
               console.log(
-                '/api/v1/images 404 is expected. It means the image name is not taken.'
+                '/v1/images 404 is expected. It means the image name is not taken.'
               )
               return null
             }
@@ -589,7 +591,7 @@ export function CreateImageSideModalForm() {
                 <Step state={createImage} label="Create image" duration={15} />
                 <Step
                   state={{
-                    isLoading: deleteDisk.isLoading || deleteSnapshot.isLoading,
+                    isPending: deleteDisk.isPending || deleteSnapshot.isPending,
                     isSuccess: deleteDisk.isSuccess && deleteSnapshot.isSuccess,
                     isError: deleteDisk.isError || deleteSnapshot.isError,
                   }}
@@ -597,7 +599,7 @@ export function CreateImageSideModalForm() {
                 />
                 <Step
                   state={{
-                    isLoading: false,
+                    isPending: false,
                     isSuccess: allDone,
                     isError: false,
                   }}

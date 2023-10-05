@@ -1,9 +1,15 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import { useMemo } from 'react'
-import { useForm } from 'react-hook-form'
 
 import type { ApiError, InstanceNetworkInterfaceCreate } from '@oxide/api'
 import { useApiQuery } from '@oxide/api'
-import { Divider } from '@oxide/ui'
+import { FormDivider } from '@oxide/ui'
 
 import {
   DescriptionField,
@@ -13,7 +19,7 @@ import {
   SubnetListbox,
   TextField,
 } from 'app/components/form'
-import { useProjectSelector } from 'app/hooks'
+import { useForm, useProjectSelector } from 'app/hooks'
 
 const defaultValues: InstanceNetworkInterfaceCreate = {
   name: '',
@@ -45,7 +51,7 @@ export default function CreateNetworkInterfaceForm({
   const { data: vpcsData } = useApiQuery('vpcList', { query: projectSelector })
   const vpcs = useMemo(() => vpcsData?.items || [], [vpcsData])
 
-  const form = useForm({ mode: 'all', defaultValues })
+  const form = useForm({ defaultValues })
 
   return (
     <SideModalForm
@@ -59,7 +65,7 @@ export default function CreateNetworkInterfaceForm({
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
-      <Divider />
+      <FormDivider />
 
       <ListboxField
         name="vpcName"

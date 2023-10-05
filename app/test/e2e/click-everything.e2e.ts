@@ -1,6 +1,11 @@
-import { test } from '@playwright/test'
-
-import { expectNotVisible, expectRowVisible, expectVisible } from './utils'
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
+import { expectNotVisible, expectVisible, test } from './utils'
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/projects/mock-project')
@@ -15,31 +20,14 @@ test('Click through instance page', async ({ page }) => {
     'role=tab[name="Storage"]',
     'role=tab[name="Metrics"]',
     'role=tab[name="Network Interfaces"]',
-    'role=table[name="Disks"] >> role=cell[name="disk-1"]',
-    'role=table[name="Disks"] >> role=cell[name="disk-2"]',
+    'role=cell[name="disk-1"]',
+    'role=cell[name="disk-2"]',
     // buttons disabled while instance is running
     'role=button[name="Create new disk"][disabled]',
     'role=button[name="Attach existing disk"][disabled]',
     // TODO: assert minitable contents
   ])
   await expectNotVisible(page, ['role=cell[name="disk-3"]'])
-})
-
-test('Click through snapshots page', async ({ page }) => {
-  await page.click('role=link[name*="Snapshots"]')
-  await expectVisible(page, [
-    'role=heading[name*="Snapshots"]',
-    'role=cell[name="snapshot-1"]',
-    'role=cell[name="snapshot-2"]',
-    'role=cell[name="snapshot-3"]',
-    'role=cell[name="snapshot-4"]',
-    'role=cell[name="snapshot-disk-deleted"]',
-  ])
-
-  // test async disk name fetch
-  const table = page.locator('role=table')
-  await expectRowVisible(table, { name: 'snapshot-1', disk: 'disk-1' })
-  await expectRowVisible(table, { name: 'snapshot-disk-deleted', disk: 'Deleted' })
 })
 
 test('Click through disks page', async ({ page }) => {
@@ -70,9 +58,9 @@ test('Click through disks page', async ({ page }) => {
   await page.goBack()
 
   // Test pagination
-  await page.click('role=button[name="next"]')
+  await page.getByRole('button', { name: 'next' }).click()
   await expectVisible(page, ['role=heading[name*="Disks"]', 'role=cell[name="disk-11"]'])
-  await page.click('role=button[name*="prev"]')
+  await page.getByRole('button', { name: 'prev', exact: true }).click()
   await expectVisible(page, [
     'role=heading[name*="Disks"]',
     'role=cell[name="disk-1"]',
@@ -80,12 +68,6 @@ test('Click through disks page', async ({ page }) => {
     'role=cell[name="disk-3"]',
     'role=cell[name="disk-4"]',
   ])
-})
-
-// eslint-disable-next-line playwright/no-skipped-test
-test.skip('Click through access & IAM', async ({ page }) => {
-  await page.click('role=link[name*="Access & IAM"]')
-  // not implemented
 })
 
 test('Click through images', async ({ page }) => {

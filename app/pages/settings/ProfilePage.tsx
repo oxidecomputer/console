@@ -1,13 +1,17 @@
-import { useMemo } from 'react'
-import { useForm } from 'react-hook-form'
-import invariant from 'tiny-invariant'
-
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import type { Group } from '@oxide/api'
-import { useApiQuery } from '@oxide/api'
 import { Table, createColumnHelper, useReactTable } from '@oxide/table'
 import { Settings24Icon } from '@oxide/ui'
 
 import { FullPageForm, TextField } from 'app/components/form'
+import { useForm } from 'app/hooks'
+import { useCurrentUser } from 'app/layouts/AuthenticatedLayout'
 
 const colHelper = createColumnHelper<Group>()
 
@@ -17,19 +21,13 @@ const columns = [
 ]
 
 export function ProfilePage() {
-  const { data: user } = useApiQuery('currentUserView', {})
-  const { data: groups } = useApiQuery('currentUserGroups', {})
+  const { me, myGroups } = useCurrentUser()
 
-  const groupRows = useMemo(() => groups?.items || [], [groups])
-
-  const groupsTable = useReactTable({ columns, data: groupRows })
-
-  invariant(user, 'User must be prefetched in a loader')
+  const groupsTable = useReactTable({ columns, data: myGroups.items })
 
   const form = useForm({
-    mode: 'all',
     defaultValues: {
-      id: user.id,
+      id: me.id,
     },
   })
 
@@ -48,7 +46,7 @@ export function ProfilePage() {
         required
         disabled
         fieldClassName="!cursor-default"
-        value={user?.id}
+        value={me.id}
         control={form.control}
       />
       <h2>Groups</h2>

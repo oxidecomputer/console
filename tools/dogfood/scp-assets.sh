@@ -1,4 +1,10 @@
 #! /usr/bin/env bash
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, you can obtain one at https://mozilla.org/MPL/2.0/.
+#  
+# Copyright Oxide Computer Company
+
 
 set -e
 set -o pipefail
@@ -14,14 +20,17 @@ set -o pipefail
 #
 # Usage:
 #
-# First use find-nexus.sh to find the gimlet with the nexus zone, then run this
+# First use `find-zone.sh nexus` to find the gimlets running nexus, then run this
 #
 #   ./scp-assets.sh gc21 1234567890abcdef1234567890abcdef12345678
 
 GIMLET="$1"
 COMMIT="$2"
 
-NEXUS_DIR="/zone/oxz_nexus/root/var/nexus"
+# kinda silly but we have to find the zone name, then we use the log file name to infer the nexus dir
+LOG_FILE=$(ssh $GIMLET 'NEXUS_ZONE=$(pfexec svcs -H -o ZONE -Z nexus); LOG_FILE=$(pfexec svcs -z $NEXUS_ZONE -L svc:/oxide/nexus:default); echo $LOG_FILE')
+NEXUS_DIR="$(echo $LOG_FILE | sed 's/\/svc\/log.*//')/nexus"
+
 STATIC_DIR="static"
 TMP_DIR="static-tmp"
 TARBALL_URL="https://dl.oxide.computer/releases/console/$COMMIT.tar.gz"

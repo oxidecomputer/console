@@ -1,4 +1,14 @@
-import { paginated } from './util'
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
+import { describe, expect, it } from 'vitest'
+
+import { users } from '..'
+import { paginated, userIsFleetViewer } from './util'
 
 describe('paginated', () => {
   it('should return the first page', () => {
@@ -69,4 +79,13 @@ describe('paginated', () => {
     expect(page.items).toEqual([{ id: 'b' }, { id: 'c' }, { id: 'd' }])
     expect(page.nextPage).toBeNull()
   })
+})
+
+it('userIsFleetViewer', () => {
+  expect(users.map((u) => [u.display_name, userIsFleetViewer(u)])).toEqual([
+    ['Hannah Arendt', true],
+    ['Hans Jonas', false],
+    ['Jacob Klein', false],
+    ['Simone de Beauvoir', false],
+  ])
 })

@@ -1,11 +1,16 @@
-import { useForm } from 'react-hook-form'
-
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import type { VpcSubnet } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 import { pick } from '@oxide/util'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
-import { useVpcSelector } from 'app/hooks'
+import { useForm, useVpcSelector } from 'app/hooks'
 
 type EditSubnetFormProps = {
   onDismiss: () => void
@@ -18,14 +23,14 @@ export function EditSubnetForm({ onDismiss, editing }: EditSubnetFormProps) {
 
   const updateSubnet = useApiMutation('vpcSubnetUpdate', {
     onSuccess() {
-      queryClient.invalidateQueries('vpcSubnetList', { query: vpcSelector })
+      queryClient.invalidateQueries('vpcSubnetList')
       onDismiss()
     },
   })
 
   const defaultValues = pick(editing, 'name', 'description') /* satisfies VpcSubnetUpdate */
 
-  const form = useForm({ mode: 'all', defaultValues })
+  const form = useForm({ defaultValues })
 
   return (
     <SideModalForm
@@ -40,7 +45,7 @@ export function EditSubnetForm({ onDismiss, editing }: EditSubnetFormProps) {
           body,
         })
       }}
-      loading={updateSubnet.isLoading}
+      loading={updateSubnet.isPending}
       submitError={updateSubnet.error}
       submitLabel="Update subnet"
     >

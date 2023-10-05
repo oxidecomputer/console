@@ -1,15 +1,26 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import * as Dialog from '@radix-ui/react-dialog'
 import { animated, useTransition } from '@react-spring/web'
 import cn from 'classnames'
-import React, { type ReactNode, useRef } from 'react'
+import React, { type ReactNode, createContext, useContext, useRef } from 'react'
 
+import { Close12Icon, Error12Icon } from '@oxide/design-system/icons/react'
 import { Message } from '@oxide/ui'
 import { classed } from '@oxide/util'
 
 import { useIsOverflow } from 'app/hooks'
 
-import { Close12Icon, Error12Icon, OpenLink12Icon } from '../icons'
 import './side-modal.css'
+
+const SideModalContext = createContext(false)
+
+export const useIsInSideModal = () => useContext(SideModalContext)
 
 export type SideModalProps = {
   title?: string
@@ -46,65 +57,69 @@ export function SideModal({
     config: isOpen && animate ? config : { duration: 0 },
   })
 
-  return transitions(
-    ({ x }, item) =>
-      item && (
-        <Dialog.Root
-          open
-          onOpenChange={(open) => {
-            if (!open) onDismiss()
-          }}
-          // https://github.com/radix-ui/primitives/issues/1159#issuecomment-1559813266
-          modal={false}
-        >
-          <Dialog.Portal>
-            <div
-              className="DialogOverlay pointer-events-auto"
-              onClick={onDismiss}
-              aria-hidden
-            />
-            <AnimatedDialogContent
-              className="DialogContent ox-side-modal pointer-events-auto fixed right-0 top-0 bottom-0 m-0 flex w-[32rem] flex-col justify-between border-l p-0 bg-raise border-secondary elevation-2"
-              aria-labelledby={titleId}
-              style={{
-                transform: x.to((value) => `translate3d(${value}%, 0px, 0px)`),
+  return (
+    <SideModalContext.Provider value>
+      {transitions(
+        ({ x }, item) =>
+          item && (
+            <Dialog.Root
+              open
+              onOpenChange={(open) => {
+                if (!open) onDismiss()
               }}
+              // https://github.com/radix-ui/primitives/issues/1159#issuecomment-1559813266
+              modal={false}
             >
-              {title && (
-                <Dialog.Title asChild>
-                  <>
-                    <SideModal.Title id={titleId} title={title} subtitle={subtitle} />
+              <Dialog.Portal>
+                <div
+                  className="DialogOverlay pointer-events-auto"
+                  onClick={onDismiss}
+                  aria-hidden
+                />
+                <AnimatedDialogContent
+                  className="DialogContent ox-side-modal pointer-events-auto fixed bottom-0 right-0 top-0 z-sideModal m-0 flex w-[32rem] flex-col justify-between border-l p-0 bg-raise border-secondary elevation-2"
+                  aria-labelledby={titleId}
+                  style={{
+                    transform: x.to((value) => `translate3d(${value}%, 0px, 0px)`),
+                  }}
+                >
+                  {title && (
+                    <Dialog.Title asChild>
+                      <>
+                        <SideModal.Title id={titleId} title={title} subtitle={subtitle} />
 
-                    {errors && errors.length > 0 && (
-                      <div className="mb-6">
-                        <Message
-                          variant="error"
-                          content={
-                            errors.length === 1 ? (
-                              errors[0]
-                            ) : (
-                              <>
-                                <div>{errors.length} issues:</div>
-                                <ul className="ml-4 list-disc">
-                                  {errors.map((error, idx) => (
-                                    <li key={idx}>{error}</li>
-                                  ))}
-                                </ul>
-                              </>
-                            )
-                          }
-                          title={errors.length > 1 ? 'Errors' : 'Error'}
-                        />
-                      </div>
-                    )}
-                  </>
-                </Dialog.Title>
-              )}
-              {children}
-            </AnimatedDialogContent>
-          </Dialog.Portal>
-        </Dialog.Root>
-      )
+                        {errors && errors.length > 0 && (
+                          <div className="mb-6">
+                            <Message
+                              variant="error"
+                              content={
+                                errors.length === 1 ? (
+                                  errors[0]
+                                ) : (
+                                  <>
+                                    <div>{errors.length} issues:</div>
+                                    <ul className="ml-4 list-disc">
+                                      {errors.map((error, idx) => (
+                                        <li key={idx}>{error}</li>
+                                      ))}
+                                    </ul>
+                                  </>
+                                )
+                              }
+                              title={errors.length > 1 ? 'Errors' : 'Error'}
+                            />
+                          </div>
+                        )}
+                      </>
+                    </Dialog.Title>
+                  )}
+                  {children}
+                </AnimatedDialogContent>
+              </Dialog.Portal>
+            </Dialog.Root>
+          )
+      )}
+    </SideModalContext.Provider>
   )
 }
 
@@ -119,7 +134,7 @@ SideModal.Title = ({
   id?: string
   subtitle?: ReactNode
 }) => (
-  <div className="items-top mt-8 mb-4">
+  <div className="items-top mb-4 mt-8">
     <h2 className="flex w-full items-center justify-between pr-8 text-sans-2xl" id={id}>
       {title}
     </h2>
@@ -149,22 +164,6 @@ function SideModalBody({ children }: { children?: ReactNode }) {
 SideModal.Body = SideModalBody
 
 SideModal.Section = classed.div`p-8 space-y-6 border-secondary`
-
-SideModal.Docs = ({ children }: { children?: ReactNode }) => (
-  <SideModal.Section>
-    <div>
-      <h3 className="mb-2 text-sans-semi-md">Relevant docs</h3>
-      <ul className="space-y-0.5 text-sans-md text-secondary">
-        {React.Children.map(children, (child) => (
-          <li className="flex items-center space-x-2">
-            <OpenLink12Icon className="mt-0.5 text-accent" />
-            {child}
-          </li>
-        ))}
-      </ul>
-    </div>
-  </SideModal.Section>
-)
 
 SideModal.Footer = ({ children, error }: { children: ReactNode; error?: boolean }) => (
   <footer className="flex w-full items-center justify-end gap-[0.625rem] border-t py-5 border-secondary children:shrink-0">

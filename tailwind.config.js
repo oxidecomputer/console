@@ -1,3 +1,11 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
+
 // @ts-check
 
 /** @type {import('tailwindcss/lib/util/createPlugin').default} */
@@ -33,6 +41,17 @@ module.exports = {
         md: { min: '768px', max: '1023px' },
         lg: { min: '1024px', max: '1279px' },
         xl: { min: '1280px', max: '1535px' },
+      },
+      zIndex: {
+        toast: '50',
+        modalDropdown: '50',
+        modal: '40',
+        sideModalDropdown: '40',
+        sideModal: '30',
+        topBar: '20',
+        popover: '10',
+        contentDropdown: '10',
+        content: '0',
       },
     },
     borderRadius: {

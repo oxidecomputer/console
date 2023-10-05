@@ -1,5 +1,10 @@
-import { useForm } from 'react-hook-form'
-
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import {
   updateRole,
   useActorsNotInPolicy,
@@ -8,6 +13,7 @@ import {
 } from '@oxide/api'
 
 import { ListboxField, SideModalForm } from 'app/components/form'
+import { useForm } from 'app/hooks'
 
 import { actorToItem, defaultValues, roleItems } from './access-util'
 import type { AddRoleModalProps, EditRoleModalProps } from './access-util'
@@ -18,12 +24,12 @@ export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalPr
   const queryClient = useApiQueryClient()
   const updatePolicy = useApiMutation('policyUpdate', {
     onSuccess: () => {
-      queryClient.invalidateQueries('policyView', {})
+      queryClient.invalidateQueries('policyView')
       onDismiss()
     },
   })
 
-  const form = useForm({ mode: 'all', defaultValues })
+  const form = useForm({ defaultValues })
 
   return (
     <SideModalForm
@@ -44,7 +50,7 @@ export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalPr
           body: updateRole({ identityId, identityType, roleName }, policy),
         })
       }}
-      loading={updatePolicy.isLoading}
+      loading={updatePolicy.isPending}
       submitError={updatePolicy.error}
       submitLabel="Assign role"
     >
@@ -76,11 +82,11 @@ export function SiloAccessEditUserSideModal({
   const queryClient = useApiQueryClient()
   const updatePolicy = useApiMutation('policyUpdate', {
     onSuccess: () => {
-      queryClient.invalidateQueries('policyView', {})
+      queryClient.invalidateQueries('policyView')
       onDismiss()
     },
   })
-  const form = useForm({ mode: 'all', defaultValues })
+  const form = useForm({ defaultValues })
 
   return (
     <SideModalForm
@@ -93,7 +99,7 @@ export function SiloAccessEditUserSideModal({
           body: updateRole({ identityId, identityType, roleName }, policy),
         })
       }}
-      loading={updatePolicy.isLoading}
+      loading={updatePolicy.isPending}
       submitError={updatePolicy.error}
       submitLabel="Update role"
       onDismiss={onDismiss}

@@ -1,7 +1,13 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import { useRef } from 'react'
 import { Outlet } from 'react-router-dom'
 
-import { apiQueryClient } from '@oxide/api'
 import { Pagination } from '@oxide/pagination'
 import { SkipLinkTarget } from '@oxide/ui'
 import { classed } from '@oxide/util'
@@ -46,18 +52,3 @@ export const SerialConsoleContentPane = () => (
     </div>
   </div>
 )
-
-/** Loader for the `<Route>` that wraps all authenticated routes. */
-export const userLoader = async () => {
-  await Promise.all([
-    apiQueryClient.prefetchQuery('currentUserView', {}),
-    apiQueryClient.prefetchQuery('currentUserGroups', {}),
-    // Need to prefetch this because every layout hits it when deciding whether
-    // to show the silo/system picker. It's also fetched by the SystemLayout
-    // loader to figure out whether to 404, but RQ dedupes the request.
-    apiQueryClient.fetchQuery('systemPolicyView', {}).catch(() => {
-      console.log('/api/v1/system/policy 403 is expected if user is not a fleet viewer.')
-    }),
-  ])
-  return null
-}

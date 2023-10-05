@@ -1,3 +1,10 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import { useEffect, useRef, useState } from 'react'
 import type { ITerminalOptions } from 'xterm'
 import { Terminal as XTerm } from 'xterm'
@@ -33,7 +40,7 @@ function getOptions(): ITerminalOptions {
       background: style.getPropertyValue('--surface-default'),
       foreground: style.getPropertyValue('--content-default'),
       black: style.getPropertyValue('--surface-default'),
-      brightBlack: style.getPropertyValue('--surface-secondary'),
+      brightBlack: style.getPropertyValue('--content-quinary'),
       white: style.getPropertyValue('--content-default'),
       brightWhite: style.getPropertyValue('--content-secondary'),
       blue: style.getPropertyValue('--base-blue-500'),
@@ -45,7 +52,7 @@ function getOptions(): ITerminalOptions {
       yellow: style.getPropertyValue('--content-notice'),
       brightYellow: style.getPropertyValue('--content-notice-secondary'),
       cursor: style.getPropertyValue('--content-default'),
-      cursorAccent: style.getPropertyValue('--content-accent'),
+      cursorAccent: style.getPropertyValue('--surface-default'),
     },
   }
 }

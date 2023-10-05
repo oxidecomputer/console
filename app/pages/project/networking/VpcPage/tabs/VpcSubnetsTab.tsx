@@ -1,3 +1,10 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import { useState } from 'react'
 
 import type { VpcSubnet } from '@oxide/api'
@@ -9,6 +16,7 @@ import { Button, EmptyMessage } from '@oxide/ui'
 import { CreateSubnetForm } from 'app/forms/subnet-create'
 import { EditSubnetForm } from 'app/forms/subnet-edit'
 import { useVpcSelector } from 'app/hooks'
+import { confirmDelete } from 'app/stores/confirm-delete'
 
 export const VpcSubnetsTab = () => {
   const vpcSelector = useVpcSelector()
@@ -32,10 +40,10 @@ export const VpcSubnetsTab = () => {
     // TODO: only show if you have permission to do this
     {
       label: 'Delete',
-      onActivate() {
-        // TODO: confirm delete
-        deleteSubnet.mutate({ path: { subnet: subnet.id } })
-      },
+      onActivate: confirmDelete({
+        doDelete: () => deleteSubnet.mutateAsync({ path: { subnet: subnet.id } }),
+        label: subnet.name,
+      }),
     },
   ]
 
@@ -65,7 +73,7 @@ export const VpcSubnetsTab = () => {
           accessor={(vpc) => [vpc.ipv4Block, vpc.ipv6Block]}
           cell={TwoLineCell}
         />
-        <Column accessor="timeCreated" cell={DateCell} />
+        <Column accessor="timeCreated" header="Created" cell={DateCell} />
       </Table>
     </>
   )

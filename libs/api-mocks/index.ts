@@ -1,3 +1,11 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
+
 export * from './disk'
 export * from './image'
 export * from './instance'
@@ -10,12 +18,11 @@ export * from './silo'
 export * from './sled'
 export * from './snapshot'
 export * from './sshKeys'
-export * from './update'
 export * from './user'
 export * from './user-group'
 export * from './user'
 export * from './vpc'
 
 export { handlers } from './msw/handlers'
-export { json } from './msw/util'
+export { json, MSW_USER_COOKIE } from './msw/util'
 export { resetDb } from './msw/db'

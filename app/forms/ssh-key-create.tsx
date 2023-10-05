@@ -1,10 +1,17 @@
-import { useForm } from 'react-hook-form'
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import { useNavigate } from 'react-router-dom'
 
 import type { SshKeyCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 
 import { DescriptionField, NameField, SideModalForm, TextField } from 'app/components/form'
+import { useForm } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 const defaultValues: SshKeyCreate = {
@@ -21,11 +28,11 @@ export function CreateSSHKeySideModalForm() {
 
   const createSshKey = useApiMutation('currentUserSshKeyCreate', {
     onSuccess() {
-      queryClient.invalidateQueries('currentUserSshKeyList', {})
+      queryClient.invalidateQueries('currentUserSshKeyList')
       onDismiss()
     },
   })
-  const form = useForm({ mode: 'all', defaultValues })
+  const form = useForm({ defaultValues })
 
   return (
     <SideModalForm
@@ -34,7 +41,7 @@ export function CreateSSHKeySideModalForm() {
       form={form}
       onDismiss={onDismiss}
       onSubmit={(body) => createSshKey.mutate({ body })}
-      loading={createSshKey.isLoading}
+      loading={createSshKey.isPending}
       submitError={createSshKey.error}
     >
       <NameField name="name" control={form.control} />

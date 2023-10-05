@@ -1,4 +1,12 @@
 #! /usr/bin/env -S deno run --allow-run --allow-net --allow-read --allow-write
+
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import * as flags from 'https://deno.land/std@0.159.0/flags/mod.ts'
 import * as path from 'https://deno.land/std@0.159.0/path/mod.ts'
 
@@ -51,6 +59,28 @@ function getUploadAssetsWorkflowId() {
   ])
 }
 
+/**
+ * These lines get printed in an Omicron PR, so any references to commits or
+ * issues need to be qualified.
+ */
+function linkifyGitLog(line: string): string {
+  const sha = line.slice(2, 10)
+  let rest = line.slice(11)
+
+  // if the test ends with '(#123)',  make the number the whole text, otherwise
+  // it's redundant when it renders in the PR
+  const endsWithPr = rest.match(/\(#\d+\)$/)
+  if (endsWithPr) {
+    rest = endsWithPr[0].replace(/[()]/g, '')
+  }
+
+  rest = rest.replace(/#\d+/g, (s) => 'oxidecomputer/console' + s)
+
+  const shaLink = `[${sha}](https://github.com/oxidecomputer/console/commit/${sha})`
+
+  return `* ${shaLink} ${rest}`
+}
+
 // script starts here
 
 const args = flags.parse(Deno.args, {
@@ -100,9 +130,18 @@ if (oldCommit === newCommit) {
 
 const commitRange = `${oldCommit.slice(0, 8)}...${newCommit.slice(0, 8)}`
 
+const commits = run('git', ['log', '--graph', '--oneline', commitRange])
+// commits are console commits, so they won't auto-link in omicron
+const commitsMarkdown = commits.split('\n').map(linkifyGitLog).join('\n')
+
+const changesLine = `https://github.com/oxidecomputer/console/compare/${commitRange}`
+
 const branchName = 'bump-console-' + newCommit.slice(0, 8)
 const prTitle = 'Bump web console' + (args.message ? ` (${args.message})` : '')
-const prBody = `Changes: https://github.com/oxidecomputer/console/compare/${commitRange}`
+const prBody = `${changesLine}\n\n${commitsMarkdown}`
+
+// markdown links make the inline preview unreadable, so leave them out
+const prBodyPreview = `${changesLine}\n\n${commits}`
 
 console.log(`
 New contents of <omicron>/tools/console_version:
@@ -111,11 +150,12 @@ ${newVersionFile}
 
 Branch:    ${branchName}
 PR title:  ${prTitle}
-PR body:   ${prBody}
 
-Console commits since current pinned version:
-
-${run('git', ['log', '--graph', '--oneline', '--color=always', commitRange])}`)
+--------
+PR body
+--------
+  
+${prBodyPreview}`)
 
 if (args.dryRun || !confirm('\nMake Omicron PR with these changes?')) {
   Deno.exit()

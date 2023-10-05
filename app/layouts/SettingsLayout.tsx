@@ -1,10 +1,17 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
 import { useMemo } from 'react'
-import { matchPath, useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import { Divider, Folder16Icon, Key16Icon, Profile16Icon } from '@oxide/ui'
 
 import { TopBar } from 'app/components/TopBar'
-import { ProjectPicker, SiloSystemPicker } from 'app/components/TopBarPicker'
+import { SiloSystemPicker } from 'app/components/TopBarPicker'
 import { useQuickActions } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
@@ -13,24 +20,23 @@ import { ContentPane, PageContainer } from './helpers'
 
 const SettingsLayout = () => {
   const navigate = useNavigate()
-  const currentPath = useLocation().pathname
+  const { pathname } = useLocation()
 
   useQuickActions(
     useMemo(
       () =>
         [
-          { value: 'Profile', path: 'profile' },
-          { value: 'SSH Keys', path: 'ssh-keys' },
+          { value: 'Profile', path: pb.profile() },
+          { value: 'SSH Keys', path: pb.sshKeys() },
         ]
           // filter out the entry for the path we're currently on
-          .filter((i) => !matchPath(`/settings/${i.path}`, currentPath))
+          .filter((i) => i.path !== pathname)
           .map((i) => ({
             navGroup: `Settings`,
             value: i.value,
-            // TODO: Update this to use the new path builder
             onSelect: () => navigate(i.path),
           })),
-      [currentPath, navigate]
+      [pathname, navigate]
     )
   )
 
@@ -38,7 +44,6 @@ const SettingsLayout = () => {
     <PageContainer>
       <TopBar>
         <SiloSystemPicker value="silo" />
-        <ProjectPicker />
       </TopBar>
       <Sidebar>
         <Sidebar.Nav>
