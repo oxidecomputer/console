@@ -78,19 +78,17 @@ export const NumberFieldInner = <
       name={name}
       control={control}
       rules={{ required, validate }}
-      render={({ field: { onChange, value, ...fieldRest }, fieldState: { error } }) => {
+      render={({ field: { value, ...fieldRest }, fieldState: { error } }) => {
         return (
           <>
             <UINumberField
               id={id}
-              // title={label}
               error={!!error}
               aria-labelledby={cn(`${id}-label`, {
                 [`${id}-help-text`]: !!description,
               })}
               aria-describedby={description ? `${id}-label-tip` : undefined}
               defaultValue={value}
-              onChange={onChange}
               {...fieldRest}
             />
             <ErrorMessage error={error} label={label} />
