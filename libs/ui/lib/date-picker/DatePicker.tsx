@@ -66,14 +66,14 @@ export function DatePicker(props: DatePickerProps) {
           className={cn(
             state.isOpen && 'z-10 ring-2',
             'relative flex h-10  items-center rounded-l rounded-r border text-sans-md border-default focus-within:ring-2 hover:border-raise focus:z-10',
-            state.validationState === 'invalid'
+            state.isInvalid
               ? 'focus-error border-error ring-error-secondary'
               : 'border-default ring-accent-secondary'
           )}
         >
           <div className={cn('relative flex w-[10rem] items-center px-3 text-sans-md')}>
             {label}
-            {state.validationState === 'invalid' && (
+            {state.isInvalid && (
               <div className="absolute bottom-0 right-2 top-0 flex items-center text-error">
                 <Error12Icon className="h-3 w-3" />
               </div>
@@ -84,7 +84,7 @@ export function DatePicker(props: DatePickerProps) {
           </div>
         </button>
       </div>
-      {state.validationState === 'invalid' && (
+      {state.isInvalid && (
         <p {...errorMessageProps} className="py-2 text-sans-md text-error">
           Date is invalid
         </p>

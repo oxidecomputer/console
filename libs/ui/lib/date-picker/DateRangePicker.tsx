@@ -41,14 +41,17 @@ export function DateRangePicker(props: DateRangePickerProps) {
     hourCycle: 'h24',
   })
 
-  const label = useMemo(
-    () =>
-      formatter.formatRange(
-        state.dateRange.start.toDate(getLocalTimeZone()),
-        state.dateRange.end.toDate(getLocalTimeZone())
-      ),
-    [state, formatter]
-  )
+  const label = useMemo(() => {
+    // This is here to make TS happy. This should be impossible in practice
+    // because we always pass a value to this component and there is no way to
+    // unset the value through the UI.
+    if (!state.dateRange) return 'No range selected'
+
+    return formatter.formatRange(
+      state.dateRange.start.toDate(getLocalTimeZone()),
+      state.dateRange.end.toDate(getLocalTimeZone())
+    )
+  }, [state.dateRange, formatter])
 
   return (
     <div
@@ -62,14 +65,14 @@ export function DateRangePicker(props: DateRangePickerProps) {
           className={cn(
             state.isOpen && 'z-10 ring-2',
             'relative flex h-10  items-center rounded-l rounded-r border text-sans-md border-default focus-within:ring-2 hover:border-raise focus:z-10',
-            state.validationState === 'invalid'
+            state.isInvalid
               ? 'focus-error border-error ring-error-secondary'
               : 'border-default ring-accent-secondary'
           )}
         >
           <div className={cn('relative flex w-[16rem] items-center px-3 text-sans-md')}>
             {label}
-            {state.validationState === 'invalid' && (
+            {state.isInvalid && (
               <div className="absolute bottom-0 right-2 top-0 flex items-center text-error">
                 <Error12Icon className="h-3 w-3" />
               </div>
@@ -80,7 +83,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
           </div>
         </button>
       </div>
-      {state.validationState === 'invalid' && (
+      {state.isInvalid && (
         <p {...errorMessageProps} className="py-2 text-sans-md text-error">
           Date range is invalid
         </p>
