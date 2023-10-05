@@ -11,6 +11,8 @@ import type { LoaderFunctionArgs } from 'react-router-dom'
 import {
   type Disk,
   apiQueryClient,
+  diskCan,
+  genName,
   instanceCan,
   useApiMutation,
   useApiQueryClient,
@@ -60,11 +62,35 @@ export function StorageTab() {
   )
 
   const detachDisk = useApiMutation('instanceDiskDetach', {})
+  const createSnapshot = useApiMutation('snapshotCreate', {
+    onSuccess() {
+      queryClient.invalidateQueries('snapshotList')
+      addToast({ content: 'Snapshot successfully created' })
+    },
+  })
 
   const { data: instance } = usePrefetchedApiQuery('instanceView', instancePathQuery)
 
   const makeActions = useCallback(
     (disk: Disk): MenuAction[] => [
+      {
+        label: 'Snapshot',
+        disabled: !diskCan.snapshot(disk) && (
+          <>
+            Only disks in state {fancifyStates(diskCan.snapshot.states)} can be snapshotted
+          </>
+        ),
+        onActivate() {
+          createSnapshot.mutate({
+            query: { project },
+            body: {
+              name: genName(disk.name),
+              disk: disk.name,
+              description: '',
+            },
+          })
+        },
+      },
       {
         label: 'Detach',
         disabled: !instanceCan.detachDisk(instance) && (
@@ -82,7 +108,7 @@ export function StorageTab() {
         },
       },
     ],
-    [detachDisk, instance, queryClient, instancePathQuery]
+    [detachDisk, instance, queryClient, instancePathQuery, createSnapshot, project]
   )
 
   const attachDisk = useApiMutation('instanceDiskAttach', {

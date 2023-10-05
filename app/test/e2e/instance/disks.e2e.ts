@@ -5,7 +5,15 @@
  *
  * Copyright Oxide Computer Company
  */
-import { expect, expectNotVisible, expectVisible, stopInstance, test } from '../utils'
+import {
+  clickRowAction,
+  expect,
+  expectNotVisible,
+  expectRowVisible,
+  expectVisible,
+  stopInstance,
+  test,
+} from '../utils'
 
 test('Attach disk', async ({ page }) => {
   await page.goto('/projects/mock-project/instances/db1')
@@ -56,4 +64,24 @@ test('Attach disk', async ({ page }) => {
 
   await page.click('role=button[name="Attach Disk"]')
   await expectVisible(page, ['role=cell[name="disk-3"]'])
+})
+
+test('Snapshot disk', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances/db1')
+
+  // have to use nth with toasts because the text shows up in multiple spots
+  const successMsg = page.getByText('Snapshot successfully created').nth(0)
+  await expect(successMsg).toBeHidden()
+
+  await clickRowAction(page, 'disk-2', 'Snapshot')
+
+  await expect(successMsg).toBeVisible() // we see the toast!
+
+  // now go see the snapshot on the snapshots page
+  await page.getByRole('link', { name: 'Snapshots' }).click()
+  const table = page.getByRole('table')
+  await expectRowVisible(table, {
+    name: expect.stringMatching(/^disk-2-/),
+    disk: 'disk-2',
+  })
 })
