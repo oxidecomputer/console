@@ -5,7 +5,6 @@
  *
  * Copyright Oxide Computer Company
  */
-
 import { NumberInput } from './NumberInput'
 
 export const Default = () => (

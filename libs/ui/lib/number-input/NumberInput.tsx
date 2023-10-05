@@ -5,7 +5,6 @@
  *
  * Copyright Oxide Computer Company
  */
-
 import cn from 'classnames'
 import React, { useRef } from 'react'
 import {
