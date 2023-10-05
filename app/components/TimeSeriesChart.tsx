@@ -131,7 +131,11 @@ export default function TimeSeriesChart({
     if (!maxValue) return null
     if (!rawData) return maxValue
     const dataMax = Math.max(...rawData.map((datum) => datum.value))
-    return Math.min(maxValue, dataMax * 1.2)
+    const unroundedValue = Math.min(maxValue, dataMax * 1.2)
+
+    // Round up to the nearest number divisible by 6
+    // This avoids uneven ticks
+    return Math.ceil(unroundedValue / 6) * 6
   }, [rawData, maxValue])
 
   // If max value is set we normalize the graph so that
