@@ -47,6 +47,12 @@ export async function expectNotVisible(page: Page, selectors: Selector[]) {
   }
 }
 
+// Technically this has type AsymmetricMatcher, which is not exported by
+// Playwright and is (surprisingly) just Record<string, any>. Rather than use
+// that, I think it's smarter to do the following in case they ever make the
+// type more interesting; this will still do what it's supposed to.
+type StringMatcher = ReturnType<typeof expect.stringMatching>
+
 /**
  * Assert that a row matching `expectedRow` is present in `table`. The match
  * uses `objectContaining`, so `expectedRow` does not need to contain every
@@ -55,7 +61,7 @@ export async function expectNotVisible(page: Page, selectors: Selector[]) {
  */
 export async function expectRowVisible(
   table: Locator,
-  expectedRow: Record<string, string>
+  expectedRow: Record<string, string | StringMatcher>
 ) {
   // wait for header and rows to avoid flake town
   const headerLoc = table.locator('thead >> role=cell')
