@@ -78,6 +78,7 @@ export function CreateImageFromSnapshotSideModalForm() {
           body: { ...body, source: { type: 'snapshot', id: data.id } },
         })
       }
+      submitError={createImage.error}
     >
       <PropertiesTable>
         <PropertiesTable.Row label="Snapshot">{data.name}</PropertiesTable.Row>
