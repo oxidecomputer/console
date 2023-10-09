@@ -101,3 +101,18 @@ test('Create image from snapshot', async ({ page }) => {
     description: 'image description',
   })
 })
+
+test('Create image from snapshot, name taken', async ({ page }) => {
+  await page.goto('/projects/mock-project/snapshots')
+
+  const row = page.getByRole('row', { name: 'snapshot-1' })
+  await row.getByRole('button', { name: 'Row actions' }).click()
+  await page.getByRole('menuitem', { name: 'Create image' }).click()
+
+  await expectVisible(page, ['role=dialog[name="Create image from snapshot"]'])
+
+  await page.fill('role=textbox[name="Name"]', 'image-1')
+  await page.click('role=button[name="Create image"]')
+
+  await expect(page.getByText('name already exists').nth(0)).toBeVisible()
+})

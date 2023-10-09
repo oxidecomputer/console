@@ -48,6 +48,8 @@ export function EditIdpSideModalForm() {
           <Access16Icon /> {idp.name}
         </ResourceLabel>
       }
+      // TODO: pass actual error when this form is hooked up
+      submitError={null}
     >
       <PropertiesTable>
         <PropertiesTable.Row label="ID">
