@@ -23,10 +23,12 @@ import { useQueryTable } from '@oxide/table'
 import {
   Badge,
   Button,
+  Clipboard16Icon,
   EmptyMessage,
   Networking24Icon,
   Spinner,
   Success12Icon,
+  useTimeout,
 } from '@oxide/ui'
 
 import CreateNetworkInterfaceForm from 'app/forms/network-interface-create'
@@ -81,12 +83,44 @@ const SubnetNameFromId = ({ value }: { value: string }) => {
 
 function ExternalIpsFromInstanceName({ value: primary }: { value: boolean }) {
   const { project, instance } = useInstanceSelector()
+  const [hasCopied, setHasCopied] = useState(false)
+
+  useTimeout(() => setHasCopied(false), hasCopied ? 2000 : null)
+
   const { data } = useApiQuery('instanceExternalIpList', {
     path: { instance },
     query: { project },
   })
   const ips = data?.items.map((eip) => eip.ip).join(', ')
-  return <span className="text-secondary">{primary ? ips : <>&mdash;</>}</span>
+
+  const handleCopy = () => {
+    window.navigator.clipboard.writeText(ips || '').then(() => {
+      setHasCopied(true)
+    })
+  }
+
+  return (
+    <span className="text-secondary">
+      {primary ? (
+        <div className="flex space-x-4">
+          <div>{ips}</div>
+          {hasCopied ? (
+            <Success12Icon className="h-4 w-4 text-accent-secondary" />
+          ) : (
+            <button
+              className="text-tertiary hover:text-accent-secondary"
+              onClick={handleCopy}
+              type="button"
+            >
+              <Clipboard16Icon className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+      ) : (
+        <>&mdash;</>
+      )}
+    </span>
+  )
 }
 
 NetworkingTab.loader = async ({ params }: LoaderFunctionArgs) => {
