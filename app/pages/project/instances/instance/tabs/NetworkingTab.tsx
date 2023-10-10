@@ -23,6 +23,7 @@ import { useQueryTable } from '@oxide/table'
 import {
   Badge,
   Button,
+  Document24Icon,
   EmptyMessage,
   Networking24Icon,
   Spinner,
@@ -86,7 +87,25 @@ function ExternalIpsFromInstanceName({ value: primary }: { value: boolean }) {
     query: { project },
   })
   const ips = data?.items.map((eip) => eip.ip).join(', ')
-  return <span className="text-secondary">{primary ? ips : <>&mdash;</>}</span>
+  return (
+    <span className="text-secondary">
+      {primary ? (
+        <div className="flex space-x-4">
+          <div>{ips}</div>
+          <button
+            className="cursor-pointer"
+            onClick={() => {
+              window.navigator.clipboard.writeText(ips || '')
+            }}
+          >
+            <Document24Icon />
+          </button>
+        </div>
+      ) : (
+        <>&mdash;</>
+      )}
+    </span>
+  )
 }
 
 NetworkingTab.loader = async ({ params }: LoaderFunctionArgs) => {
