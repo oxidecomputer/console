@@ -104,7 +104,7 @@ const AddCertModal = ({
   const { control, handleSubmit } = useForm<TlsCertificate>({ defaultValues })
 
   return (
-    <Modal isOpen onDismiss={onDismiss} title="Add TLS Certificate">
+    <Modal isOpen onDismiss={onDismiss} title="Add TLS certificate">
       <Modal.Body>
         <form
           autoComplete="off"
