@@ -23,7 +23,7 @@ import { useQueryTable } from '@oxide/table'
 import {
   Badge,
   Button,
-  Document24Icon,
+  Clipboard12Icon,
   EmptyMessage,
   Networking24Icon,
   Spinner,
@@ -98,7 +98,7 @@ function ExternalIpsFromInstanceName({ value: primary }: { value: boolean }) {
               window.navigator.clipboard.writeText(ips || '')
             }}
           >
-            <Document24Icon />
+            <Clipboard12Icon />
           </button>
         </div>
       ) : (
