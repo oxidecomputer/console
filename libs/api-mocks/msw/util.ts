@@ -197,7 +197,7 @@ export function generateUtilization(
   const valueInterval = Math.floor(dataCount / timeInterval)
 
   // Pick a reasonable start value
-  const startVal = cap / 2
+  const startVal = 500
   const values = new Array<number>(dataCount)
   values[0] = startVal
 
@@ -213,15 +213,10 @@ export function generateUtilization(
       const threshold = i < 250 || (i > 500 && i < 750) ? 1 : 0.375
 
       if (random < threshold) {
-        const amount =
-          metricName === 'cpus_provisioned'
-            ? 3
-            : metricName === 'virtual_disk_space_provisioned'
-            ? TiB
-            : TiB / 20
+        const amount = 50
         offset = Math.floor(random * amount)
 
-        if (random < threshold / 3) {
+        if (random < threshold / 2.5) {
           offset = offset * -1
         }
       }
@@ -237,7 +232,14 @@ export function generateUtilization(
     }
   }
 
-  return values
+  // Find the current maximum value in the generated data
+  const currentMax = Math.max(...values)
+
+  // Normalize the data to sit within the range of 0 to overall capacity
+  const randomFactor = Math.random() * (1 - 0.33) + 0.33
+  const normalizedValues = values.map((value) => (value / currentMax) * cap * randomFactor)
+
+  return normalizedValues
 }
 
 type MetricParams = {
