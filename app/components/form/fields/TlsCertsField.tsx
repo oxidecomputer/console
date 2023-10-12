@@ -6,18 +6,12 @@
  * Copyright Oxide Computer Company
  */
 import { useState } from 'react'
-import type { Control, FieldPath, FieldValues } from 'react-hook-form'
+import type { Control } from 'react-hook-form'
 import { useController } from 'react-hook-form'
 
 import { Button, Error16Icon, FieldLabel, MiniTable, Modal } from '@oxide/ui'
-import { capitalize } from '@oxide/util'
 
-import {
-  DescriptionField,
-  FileField,
-  TextField,
-  type TextFieldProps,
-} from 'app/components/form'
+import { DescriptionField, FileField, TextField, validateName } from 'app/components/form'
 import type { SiloCreateInput } from 'app/forms/silo-create'
 import { useForm } from 'app/hooks'
 
@@ -101,32 +95,6 @@ const defaultValues: Partial<TlsCertificate> = {
   service: 'external_api',
 }
 
-function UniqueNameField<
-  TFieldValues extends FieldValues,
-  TName extends FieldPath<TFieldValues>
->({
-  required = true,
-  name,
-  label = capitalize(name),
-  allNames,
-  ...textFieldProps
-}: Omit<TextFieldProps<TFieldValues, TName>, 'validate'> & {
-  label?: string
-  allNames: string[]
-}) {
-  return (
-    <TextField
-      validate={(name) =>
-        allNames.includes(name) ? 'Certificate with this name already exists' : true
-      }
-      required={required}
-      label={label}
-      name={name}
-      {...textFieldProps}
-    />
-  )
-}
-
 const AddCertModal = ({
   onDismiss,
   onSubmit,
@@ -149,7 +117,20 @@ const AddCertModal = ({
           }}
         >
           <Modal.Section>
-            <UniqueNameField name="name" control={control} allNames={allNames} />
+            <TextField
+              name="name"
+              control={control}
+              required
+              // this field is identical to NameField (which just does
+              // validateName for you) except we also want to check that the
+              // name is not in the list of certs you've already added
+              validate={(name) => {
+                if (allNames.includes(name)) {
+                  return 'A certificate with this name already exists'
+                }
+                return validateName(name, 'Name', true)
+              }}
+            />
             <DescriptionField name="description" control={control} />
             <FileField
               id="cert-input"
