@@ -8,14 +8,12 @@
 import { type FieldValues, type UseFormProps, useForm as _useForm } from 'react-hook-form'
 
 /**
- * Same as built-in `useForm` except `mode: 'onTouched'` is hard-coded and the
- * caller can't set it. `onTouched` means the first validation on a field is
- * triggered by blur, after which it updates with every change.
- *
+ * Same as built-in `useForm` except we can hard-code some props and prevent the
+ * caller from setting them.
  * See https://react-hook-form.com/docs/useform#mode
  */
 export function useForm<TFieldValues extends FieldValues = FieldValues>(
   props?: Omit<UseFormProps<TFieldValues>, 'mode'>
 ) {
-  return _useForm({ mode: 'onTouched', ...props })
+  return _useForm({ mode: 'onSubmit', ...props })
 }

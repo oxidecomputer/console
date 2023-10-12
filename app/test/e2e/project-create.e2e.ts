@@ -32,9 +32,10 @@ test.describe('Project create', () => {
   test('shows field-level validation error and does not POST', async ({ page }) => {
     await page.fill('role=textbox[name="Name"]', 'Invalid name')
 
-    await page.click('role=textbox[name="Description"]') // just to blur name input
-    // role=dialog to distinguish from live announce
-    await expectVisible(page, ['role=dialog >> text="Must start with a lower-case letter"'])
+    // submit to trigger validation
+    await page.getByRole('button', { name: 'Create project' }).click()
+
+    await expect(page.getByText('Must start with a lower-case letter').nth(0)).toBeVisible()
   })
 
   test('shows form-level error for known server error', async ({ page }) => {
