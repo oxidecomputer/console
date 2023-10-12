@@ -107,13 +107,16 @@ test('can create an instance with custom hardware', async ({ page }) => {
 
   // test disk size validation against image size
   await diskSizeInput.fill('5')
-  await diskSizeInput.blur() // need blur to trigger validation
+
+  const submitButton = page.getByRole('button', { name: 'Create instance' })
+  await submitButton.click() // submit to trigger validation
+
   await expectVisible(page, [
     'main >> text=Must be as large as selected image (min. 6 GiB)',
   ])
   await diskSizeInput.fill('10')
 
-  await page.getByRole('button', { name: 'Create instance' }).click()
+  await submitButton.click()
 
   await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)
 
