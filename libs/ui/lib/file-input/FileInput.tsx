@@ -62,10 +62,6 @@ export const FileInput = forwardRef(
           onDragEnter={() => setDragOver(true)}
           onDragLeave={() => setDragOver(false)}
           onDrop={() => setDragOver(false)}
-          /* Validating this onBlur causes the required 
-              error message to appear on click. Instead we can
-              validate on form submit by overriding onBlur */
-          onBlur={() => {}}
         />
         <div
           className={cn(
