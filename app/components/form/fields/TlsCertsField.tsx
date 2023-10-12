@@ -14,7 +14,6 @@ import { Button, Error16Icon, FieldLabel, MiniTable, Modal } from '@oxide/ui'
 import { DescriptionField, FileField, NameField } from 'app/components/form'
 import type { SiloCreateInput } from 'app/forms/silo-create'
 import { useForm } from 'app/hooks'
-import { readBlobAsText } from 'app/util/file'
 
 export function TlsCertsField({ control }: { control: Control<SiloCreateInput> }) {
   const [showAddCert, setShowAddCert] = useState(false)
@@ -67,11 +66,12 @@ export function TlsCertsField({ control }: { control: Control<SiloCreateInput> }
         <AddCertModal
           onDismiss={() => setShowAddCert(false)}
           onSubmit={async (values) => {
-            const keypair = {
-              cert: await readBlobAsText(values.cert),
-              key: await readBlobAsText(values.key),
+            const certCreate: (typeof items)[number] = {
+              ...values,
+              cert: await values.cert.text(),
+              key: await values.key.text(),
             }
-            onChange([...items, { ...values, ...keypair }])
+            onChange([...items, certCreate])
             setShowAddCert(false)
           }}
         />
