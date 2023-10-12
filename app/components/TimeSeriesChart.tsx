@@ -100,7 +100,7 @@ function renderTooltip(props: TooltipProps<number, string>, unit?: string) {
   )
 }
 
-type Props = {
+type TimeSeriesChartProps = {
   className?: string
   data: ChartDatum[] | undefined
   title: string
@@ -109,8 +109,14 @@ type Props = {
   interpolation?: 'linear' | 'stepAfter'
   startTime: Date
   endTime: Date
-  maxValue?: number
   unit?: string
+}
+
+const TICK_COUNT = 6
+
+/** Round `value` up to nearest number divisible by `divisor` */
+function roundUpToDivBy(value: number, divisor: number) {
+  return Math.ceil(value / divisor) * divisor
 }
 
 export default function TimeSeriesChart({
@@ -122,20 +128,23 @@ export default function TimeSeriesChart({
   interpolation = 'linear',
   startTime,
   endTime,
-  maxValue,
   unit,
-}: Props) {
+}: TimeSeriesChartProps) {
+  // We use the largest data point +20% for the graph scale. !rawData doesn't
+  // mean it's empty (it will never be empty because we fill in artificial 0s at
+  // beginning and end), it means the metrics requests haven't come back yet
+  const maxY = useMemo(() => {
+    if (!rawData) return null
+    const dataMax = Math.max(...rawData.map((datum) => datum.value))
+    return roundUpToDivBy(dataMax * 1.2, TICK_COUNT) // avoid uneven ticks
+  }, [rawData])
+
   // If max value is set we normalize the graph so that
   // is the maximum, we also use our own function as recharts
-  // doesn't fill the whole domain (just upto the data max)
-  const yTicks = maxValue
-    ? {
-        domain: [0, maxValue],
-        ticks: getVerticalTicks(6, maxValue),
-      }
-    : {
-        tickSize: 6,
-      }
+  // doesn't fill the whole domain (just up to the data max)
+  const yTicks = maxY
+    ? { domain: [0, maxY], ticks: getVerticalTicks(TICK_COUNT, maxY) }
+    : undefined
 
   // falling back here instead of in the parent lets us avoid causing a
   // re-render on every render of the parent when the data is undefined
