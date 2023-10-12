@@ -188,7 +188,6 @@ export function SystemMetric({
             interpolation="stepAfter"
             startTime={startTime}
             endTime={endTime}
-            maxValue={capacity}
             unit={unit !== 'count' ? unit : undefined}
           />
         </div>
