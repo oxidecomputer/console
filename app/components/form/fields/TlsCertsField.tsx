@@ -6,12 +6,18 @@
  * Copyright Oxide Computer Company
  */
 import { useState } from 'react'
-import type { Control } from 'react-hook-form'
+import type { Control, FieldPath, FieldValues } from 'react-hook-form'
 import { useController } from 'react-hook-form'
 
 import { Button, Error16Icon, FieldLabel, MiniTable, Modal } from '@oxide/ui'
+import { capitalize } from '@oxide/util'
 
-import { DescriptionField, FileField, NameField } from 'app/components/form'
+import {
+  DescriptionField,
+  FileField,
+  TextField,
+  type TextFieldProps,
+} from 'app/components/form'
 import type { SiloCreateInput } from 'app/forms/silo-create'
 import { useForm } from 'app/hooks'
 
@@ -74,6 +80,7 @@ export function TlsCertsField({ control }: { control: Control<SiloCreateInput> }
             onChange([...items, certCreate])
             setShowAddCert(false)
           }}
+          allNames={items.map((item) => item.name)}
         />
       )}
     </>
@@ -94,12 +101,40 @@ const defaultValues: Partial<TlsCertificate> = {
   service: 'external_api',
 }
 
+function UniqueNameField<
+  TFieldValues extends FieldValues,
+  TName extends FieldPath<TFieldValues>
+>({
+  required = true,
+  name,
+  label = capitalize(name),
+  allNames,
+  ...textFieldProps
+}: Omit<TextFieldProps<TFieldValues, TName>, 'validate'> & {
+  label?: string
+  allNames: string[]
+}) {
+  return (
+    <TextField
+      validate={(name) =>
+        allNames.includes(name) ? 'Certificate with this name already exists' : true
+      }
+      required={required}
+      label={label}
+      name={name}
+      {...textFieldProps}
+    />
+  )
+}
+
 const AddCertModal = ({
   onDismiss,
   onSubmit,
+  allNames,
 }: {
   onDismiss: () => void
   onSubmit: (values: TlsCertificate) => void
+  allNames: string[]
 }) => {
   const { control, handleSubmit } = useForm<TlsCertificate>({ defaultValues })
 
@@ -114,7 +149,7 @@ const AddCertModal = ({
           }}
         >
           <Modal.Section>
-            <NameField name="name" control={control} />
+            <UniqueNameField name="name" control={control} allNames={allNames} />
             <DescriptionField name="description" control={control} />
             <FileField
               id="cert-input"
