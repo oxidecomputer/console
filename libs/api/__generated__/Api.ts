@@ -183,7 +183,111 @@ export type BinRangedouble =
  *
  * This type supports ranges similar to the `RangeTo`, `Range` and `RangeFrom` types in the standard library. Those cover `(..end)`, `(start..end)`, and `(start..)` respectively.
  */
+export type BinRangefloat =
+  /** A range unbounded below and exclusively above, `..end`. */
+  | { end: number; type: 'range_to' }
+  /** A range bounded inclusively below and exclusively above, `start..end`. */
+  | { end: number; start: number; type: 'range' }
+  /** A range bounded inclusively below and unbounded above, `start..`. */
+  | { start: number; type: 'range_from' }
+
+/**
+ * A type storing a range over `T`.
+ *
+ * This type supports ranges similar to the `RangeTo`, `Range` and `RangeFrom` types in the standard library. Those cover `(..end)`, `(start..end)`, and `(start..)` respectively.
+ */
+export type BinRangeint16 =
+  /** A range unbounded below and exclusively above, `..end`. */
+  | { end: number; type: 'range_to' }
+  /** A range bounded inclusively below and exclusively above, `start..end`. */
+  | { end: number; start: number; type: 'range' }
+  /** A range bounded inclusively below and unbounded above, `start..`. */
+  | { start: number; type: 'range_from' }
+
+/**
+ * A type storing a range over `T`.
+ *
+ * This type supports ranges similar to the `RangeTo`, `Range` and `RangeFrom` types in the standard library. Those cover `(..end)`, `(start..end)`, and `(start..)` respectively.
+ */
+export type BinRangeint32 =
+  /** A range unbounded below and exclusively above, `..end`. */
+  | { end: number; type: 'range_to' }
+  /** A range bounded inclusively below and exclusively above, `start..end`. */
+  | { end: number; start: number; type: 'range' }
+  /** A range bounded inclusively below and unbounded above, `start..`. */
+  | { start: number; type: 'range_from' }
+
+/**
+ * A type storing a range over `T`.
+ *
+ * This type supports ranges similar to the `RangeTo`, `Range` and `RangeFrom` types in the standard library. Those cover `(..end)`, `(start..end)`, and `(start..)` respectively.
+ */
 export type BinRangeint64 =
+  /** A range unbounded below and exclusively above, `..end`. */
+  | { end: number; type: 'range_to' }
+  /** A range bounded inclusively below and exclusively above, `start..end`. */
+  | { end: number; start: number; type: 'range' }
+  /** A range bounded inclusively below and unbounded above, `start..`. */
+  | { start: number; type: 'range_from' }
+
+/**
+ * A type storing a range over `T`.
+ *
+ * This type supports ranges similar to the `RangeTo`, `Range` and `RangeFrom` types in the standard library. Those cover `(..end)`, `(start..end)`, and `(start..)` respectively.
+ */
+export type BinRangeint8 =
+  /** A range unbounded below and exclusively above, `..end`. */
+  | { end: number; type: 'range_to' }
+  /** A range bounded inclusively below and exclusively above, `start..end`. */
+  | { end: number; start: number; type: 'range' }
+  /** A range bounded inclusively below and unbounded above, `start..`. */
+  | { start: number; type: 'range_from' }
+
+/**
+ * A type storing a range over `T`.
+ *
+ * This type supports ranges similar to the `RangeTo`, `Range` and `RangeFrom` types in the standard library. Those cover `(..end)`, `(start..end)`, and `(start..)` respectively.
+ */
+export type BinRangeuint16 =
+  /** A range unbounded below and exclusively above, `..end`. */
+  | { end: number; type: 'range_to' }
+  /** A range bounded inclusively below and exclusively above, `start..end`. */
+  | { end: number; start: number; type: 'range' }
+  /** A range bounded inclusively below and unbounded above, `start..`. */
+  | { start: number; type: 'range_from' }
+
+/**
+ * A type storing a range over `T`.
+ *
+ * This type supports ranges similar to the `RangeTo`, `Range` and `RangeFrom` types in the standard library. Those cover `(..end)`, `(start..end)`, and `(start..)` respectively.
+ */
+export type BinRangeuint32 =
+  /** A range unbounded below and exclusively above, `..end`. */
+  | { end: number; type: 'range_to' }
+  /** A range bounded inclusively below and exclusively above, `start..end`. */
+  | { end: number; start: number; type: 'range' }
+  /** A range bounded inclusively below and unbounded above, `start..`. */
+  | { start: number; type: 'range_from' }
+
+/**
+ * A type storing a range over `T`.
+ *
+ * This type supports ranges similar to the `RangeTo`, `Range` and `RangeFrom` types in the standard library. Those cover `(..end)`, `(start..end)`, and `(start..)` respectively.
+ */
+export type BinRangeuint64 =
+  /** A range unbounded below and exclusively above, `..end`. */
+  | { end: number; type: 'range_to' }
+  /** A range bounded inclusively below and exclusively above, `start..end`. */
+  | { end: number; start: number; type: 'range' }
+  /** A range bounded inclusively below and unbounded above, `start..`. */
+  | { start: number; type: 'range_from' }
+
+/**
+ * A type storing a range over `T`.
+ *
+ * This type supports ranges similar to the `RangeTo`, `Range` and `RangeFrom` types in the standard library. Those cover `(..end)`, `(start..end)`, and `(start..)` respectively.
+ */
+export type BinRangeuint8 =
   /** A range unbounded below and exclusively above, `..end`. */
   | { end: number; type: 'range_to' }
   /** A range bounded inclusively below and exclusively above, `start..end`. */
@@ -204,11 +308,91 @@ export type Bindouble = {
 /**
  * Type storing bin edges and a count of samples within it.
  */
+export type Binfloat = {
+  /** The total count of samples in this bin. */
+  count: number
+  /** The range of the support covered by this bin. */
+  range: BinRangefloat
+}
+
+/**
+ * Type storing bin edges and a count of samples within it.
+ */
+export type Binint16 = {
+  /** The total count of samples in this bin. */
+  count: number
+  /** The range of the support covered by this bin. */
+  range: BinRangeint16
+}
+
+/**
+ * Type storing bin edges and a count of samples within it.
+ */
+export type Binint32 = {
+  /** The total count of samples in this bin. */
+  count: number
+  /** The range of the support covered by this bin. */
+  range: BinRangeint32
+}
+
+/**
+ * Type storing bin edges and a count of samples within it.
+ */
 export type Binint64 = {
   /** The total count of samples in this bin. */
   count: number
   /** The range of the support covered by this bin. */
   range: BinRangeint64
+}
+
+/**
+ * Type storing bin edges and a count of samples within it.
+ */
+export type Binint8 = {
+  /** The total count of samples in this bin. */
+  count: number
+  /** The range of the support covered by this bin. */
+  range: BinRangeint8
+}
+
+/**
+ * Type storing bin edges and a count of samples within it.
+ */
+export type Binuint16 = {
+  /** The total count of samples in this bin. */
+  count: number
+  /** The range of the support covered by this bin. */
+  range: BinRangeuint16
+}
+
+/**
+ * Type storing bin edges and a count of samples within it.
+ */
+export type Binuint32 = {
+  /** The total count of samples in this bin. */
+  count: number
+  /** The range of the support covered by this bin. */
+  range: BinRangeuint32
+}
+
+/**
+ * Type storing bin edges and a count of samples within it.
+ */
+export type Binuint64 = {
+  /** The total count of samples in this bin. */
+  count: number
+  /** The range of the support covered by this bin. */
+  range: BinRangeuint64
+}
+
+/**
+ * Type storing bin edges and a count of samples within it.
+ */
+export type Binuint8 = {
+  /** The total count of samples in this bin. */
+  count: number
+  /** The range of the support covered by this bin. */
+  range: BinRangeuint8
 }
 
 /**
@@ -275,7 +459,17 @@ export type Cumulativedouble = { startTime: Date; value: number }
 /**
  * A cumulative or counter data type.
  */
+export type Cumulativefloat = { startTime: Date; value: number }
+
+/**
+ * A cumulative or counter data type.
+ */
 export type Cumulativeint64 = { startTime: Date; value: number }
+
+/**
+ * A cumulative or counter data type.
+ */
+export type Cumulativeuint64 = { startTime: Date; value: number }
 
 /**
  * Info about the current user
@@ -297,7 +491,79 @@ export type CurrentUser = {
  *
  * Note that any gaps, unsorted bins, or non-finite values will result in an error.
  */
+export type Histogramint8 = { bins: Binint8[]; nSamples: number; startTime: Date }
+
+/**
+ * Histogram metric
+ *
+ * A histogram maintains the count of any number of samples, over a set of bins. Bins are specified on construction via their _left_ edges, inclusive. There can't be any "gaps" in the bins, and an additional bin may be added to the left, right, or both so that the bins extend to the entire range of the support.
+ *
+ * Note that any gaps, unsorted bins, or non-finite values will result in an error.
+ */
+export type Histogramuint8 = { bins: Binuint8[]; nSamples: number; startTime: Date }
+
+/**
+ * Histogram metric
+ *
+ * A histogram maintains the count of any number of samples, over a set of bins. Bins are specified on construction via their _left_ edges, inclusive. There can't be any "gaps" in the bins, and an additional bin may be added to the left, right, or both so that the bins extend to the entire range of the support.
+ *
+ * Note that any gaps, unsorted bins, or non-finite values will result in an error.
+ */
+export type Histogramint16 = { bins: Binint16[]; nSamples: number; startTime: Date }
+
+/**
+ * Histogram metric
+ *
+ * A histogram maintains the count of any number of samples, over a set of bins. Bins are specified on construction via their _left_ edges, inclusive. There can't be any "gaps" in the bins, and an additional bin may be added to the left, right, or both so that the bins extend to the entire range of the support.
+ *
+ * Note that any gaps, unsorted bins, or non-finite values will result in an error.
+ */
+export type Histogramuint16 = { bins: Binuint16[]; nSamples: number; startTime: Date }
+
+/**
+ * Histogram metric
+ *
+ * A histogram maintains the count of any number of samples, over a set of bins. Bins are specified on construction via their _left_ edges, inclusive. There can't be any "gaps" in the bins, and an additional bin may be added to the left, right, or both so that the bins extend to the entire range of the support.
+ *
+ * Note that any gaps, unsorted bins, or non-finite values will result in an error.
+ */
+export type Histogramint32 = { bins: Binint32[]; nSamples: number; startTime: Date }
+
+/**
+ * Histogram metric
+ *
+ * A histogram maintains the count of any number of samples, over a set of bins. Bins are specified on construction via their _left_ edges, inclusive. There can't be any "gaps" in the bins, and an additional bin may be added to the left, right, or both so that the bins extend to the entire range of the support.
+ *
+ * Note that any gaps, unsorted bins, or non-finite values will result in an error.
+ */
+export type Histogramuint32 = { bins: Binuint32[]; nSamples: number; startTime: Date }
+
+/**
+ * Histogram metric
+ *
+ * A histogram maintains the count of any number of samples, over a set of bins. Bins are specified on construction via their _left_ edges, inclusive. There can't be any "gaps" in the bins, and an additional bin may be added to the left, right, or both so that the bins extend to the entire range of the support.
+ *
+ * Note that any gaps, unsorted bins, or non-finite values will result in an error.
+ */
 export type Histogramint64 = { bins: Binint64[]; nSamples: number; startTime: Date }
+
+/**
+ * Histogram metric
+ *
+ * A histogram maintains the count of any number of samples, over a set of bins. Bins are specified on construction via their _left_ edges, inclusive. There can't be any "gaps" in the bins, and an additional bin may be added to the left, right, or both so that the bins extend to the entire range of the support.
+ *
+ * Note that any gaps, unsorted bins, or non-finite values will result in an error.
+ */
+export type Histogramuint64 = { bins: Binuint64[]; nSamples: number; startTime: Date }
+
+/**
+ * Histogram metric
+ *
+ * A histogram maintains the count of any number of samples, over a set of bins. Bins are specified on construction via their _left_ edges, inclusive. There can't be any "gaps" in the bins, and an additional bin may be added to the left, right, or both so that the bins extend to the entire range of the support.
+ *
+ * Note that any gaps, unsorted bins, or non-finite values will result in an error.
+ */
+export type Histogramfloat = { bins: Binfloat[]; nSamples: number; startTime: Date }
 
 /**
  * Histogram metric
@@ -313,13 +579,31 @@ export type Histogramdouble = { bins: Bindouble[]; nSamples: number; startTime: 
  */
 export type Datum =
   | { datum: boolean; type: 'bool' }
+  | { datum: number; type: 'i8' }
+  | { datum: number; type: 'u8' }
+  | { datum: number; type: 'i16' }
+  | { datum: number; type: 'u16' }
+  | { datum: number; type: 'i32' }
+  | { datum: number; type: 'u32' }
   | { datum: number; type: 'i64' }
+  | { datum: number; type: 'u64' }
+  | { datum: number; type: 'f32' }
   | { datum: number; type: 'f64' }
   | { datum: string; type: 'string' }
   | { datum: number[]; type: 'bytes' }
   | { datum: Cumulativeint64; type: 'cumulative_i64' }
+  | { datum: Cumulativeuint64; type: 'cumulative_u64' }
+  | { datum: Cumulativefloat; type: 'cumulative_f32' }
   | { datum: Cumulativedouble; type: 'cumulative_f64' }
+  | { datum: Histogramint8; type: 'histogram_i8' }
+  | { datum: Histogramuint8; type: 'histogram_u8' }
+  | { datum: Histogramint16; type: 'histogram_i16' }
+  | { datum: Histogramuint16; type: 'histogram_u16' }
+  | { datum: Histogramint32; type: 'histogram_i32' }
+  | { datum: Histogramuint32; type: 'histogram_u32' }
   | { datum: Histogramint64; type: 'histogram_i64' }
+  | { datum: Histogramuint64; type: 'histogram_u64' }
+  | { datum: Histogramfloat; type: 'histogram_f32' }
   | { datum: Histogramdouble; type: 'histogram_f64' }
 
 export type DerEncodedKeyPair = {
@@ -380,11 +664,13 @@ export type Disk = {
   devicePath: string
   /** unique, immutable, system-controlled identifier for each resource */
   id: string
+  /** ID of image from which disk was created, if any */
   imageId?: string
   /** unique, mutable, user-controlled identifier for each resource */
   name: Name
   projectId: string
   size: ByteCount
+  /** ID of snapshot from which disk was created, if any */
   snapshotId?: string
   state: DiskState
   /** timestamp when this resource was created */
@@ -1056,6 +1342,13 @@ export type PhysicalDiskResultsPage = {
   items: PhysicalDisk[]
   /** token used to fetch the next page of results (if any) */
   nextPage?: string
+}
+
+export type PingStatus = 'ok'
+
+export type Ping = {
+  /** Whether the external API is reachable. Will always be Ok if the endpoint returns anything at all. */
+  status: PingStatus
 }
 
 /**
@@ -4002,6 +4295,16 @@ export class Api extends HttpClient {
         path: `/v1/network-interfaces/${path.interface}`,
         method: 'DELETE',
         query,
+        ...params,
+      })
+    },
+    /**
+     * Ping API
+     */
+    ping: (_: EmptyObj, params: FetchParams = {}) => {
+      return this.request<Ping>({
+        path: `/v1/ping`,
+        method: 'GET',
         ...params,
       })
     },
