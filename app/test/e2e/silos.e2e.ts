@@ -5,26 +5,13 @@
  *
  * Copyright Oxide Computer Company
  */
-import { type Page, expect, test } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 
 import { MiB } from '@oxide/util'
 
-import { expectNotVisible, expectRowVisible, expectVisible } from './utils'
+import { chooseFile, expectNotVisible, expectRowVisible, expectVisible } from './utils'
 
-async function chooseFile(fieldName: string, page: Page) {
-  const fileChooserPromise = page.waitForEvent('filechooser')
-  await page.getByLabel(fieldName, { exact: true }).click()
-  const fileChooser = await fileChooserPromise
-  await fileChooser.setFiles({
-    name: 'my-image.iso',
-    mimeType: 'application/octet-stream',
-    // fill with nonzero content, otherwise we'll skip the whole thing, which
-    // makes the test too fast for playwright to catch anything
-    buffer: Buffer.alloc(0.1 * MiB, 'a'),
-  })
-}
-
-test('Silos page', async ({ page }) => {
+test('Create silo', async ({ page }) => {
   await page.goto('/system/silos')
 
   await expectVisible(page, ['role=heading[name*="Silos"]'])
@@ -48,47 +35,54 @@ test('Silos page', async ({ page }) => {
   await page.click('role=checkbox[name="Grant fleet admin role to silo admins"]')
 
   // Add a TLS cert
-  await page.click('role=button[name="Add TLS certificate"]')
+  await test.step('Add TLS cert', async () => {
+    const openCertModalButton = page.getByRole('button', { name: 'Add TLS certificate' })
+    await openCertModalButton.click()
 
-  const certRequired = 'role=dialog[name="Add TLS certificate"] >> text="Cert is required"'
-  const keyRequired = 'role=dialog[name="Add TLS certificate"] >> text="Key is required"'
-  await expectNotVisible(page, [certRequired, keyRequired])
-  await page.click('role=button[name="Add Certificate"]')
-  // Check that the modal cannot be submitted without cert and
-  // key and that an error is displayed
-  await expectVisible(page, [certRequired, keyRequired])
+    const certDialog = page.getByRole('dialog', { name: 'Add TLS certificate' })
 
-  await chooseFile('Cert', page)
-  await chooseFile('Key', page)
-  await page.fill(
-    'role=dialog[name="Add TLS certificate"] >> role=textbox[name="Name"]',
-    'test-cert'
-  )
+    const certRequired = certDialog.getByText('Cert is required')
+    const keyRequired = certDialog.getByText('Key is required')
+    const nameRequired = certDialog.getByText('Name is required')
+    await expectNotVisible(page, [certRequired, keyRequired, nameRequired])
 
-  await page.click('role=button[name="Add Certificate"]')
+    const certSubmit = page.getByRole('button', { name: 'Add Certificate' })
+    await certSubmit.click()
 
-  // Check cert appears in the mini-table
-  await expectVisible(page, ['role=cell[name="test-cert"]'])
+    // Validation error for missing name + key and cert files
+    await expectVisible(page, [certRequired, keyRequired, nameRequired])
 
-  await page.click('role=button[name="remove test-cert"]')
-  // Cert should not appear after it has been deleted
-  await expectNotVisible(page, ['role=cell[name="test-cert"]'])
+    await chooseFile(page, page.getByLabel('Cert', { exact: true }), 0.1 * MiB)
+    await chooseFile(page, page.getByLabel('Key'), 0.1 * MiB)
+    const certName = certDialog.getByRole('textbox', { name: 'Name' })
+    await certName.fill('test-cert')
 
-  await page.click('role=button[name="Add TLS certificate"]')
+    await certSubmit.click()
 
-  // Adding another after the first cert is deleted
-  await page.fill(
-    'role=dialog[name="Add TLS certificate"] >> role=textbox[name="Name"]',
-    'test-cert-2'
-  )
-  await page.fill(
-    'role=dialog[name="Add TLS certificate"] >> role=textbox[name="Description"]',
-    'definitely a cert'
-  )
-  await chooseFile('Cert', page)
-  await chooseFile('Key', page)
-  await page.click('role=button[name="Add Certificate"]')
-  await expectVisible(page, ['role=cell[name="test-cert-2"]'])
+    // Check cert appears in the mini-table
+    const certCell = page.getByRole('cell', { name: 'test-cert', exact: true })
+    await expect(certCell).toBeVisible()
+
+    // check unique name validation
+    await openCertModalButton.click()
+    await certName.fill('test-cert')
+    await certSubmit.click()
+    await expect(
+      certDialog.getByText('A certificate with this name already exists')
+    ).toBeVisible()
+
+    // Change the name so it's unique
+    await certName.fill('test-cert-2')
+    await chooseFile(page, page.getByLabel('Cert', { exact: true }), 0.1 * MiB)
+    await chooseFile(page, page.getByLabel('Key'), 0.1 * MiB)
+    await certSubmit.click()
+    await expect(page.getByRole('cell', { name: 'test-cert-2', exact: true })).toBeVisible()
+
+    // now delete the first
+    await page.getByRole('button', { name: 'remove test-cert', exact: true }).click()
+    // Cert should not appear after it has been deleted
+    await expect(certCell).toBeHidden()
+  })
 
   await page.click('role=button[name="Create silo"]')
 
