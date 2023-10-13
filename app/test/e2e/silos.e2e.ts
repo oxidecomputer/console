@@ -35,54 +35,52 @@ test('Create silo', async ({ page }) => {
   await page.click('role=checkbox[name="Grant fleet admin role to silo admins"]')
 
   // Add a TLS cert
-  await test.step('Add TLS cert', async () => {
-    const openCertModalButton = page.getByRole('button', { name: 'Add TLS certificate' })
-    await openCertModalButton.click()
+  const openCertModalButton = page.getByRole('button', { name: 'Add TLS certificate' })
+  await openCertModalButton.click()
 
-    const certDialog = page.getByRole('dialog', { name: 'Add TLS certificate' })
+  const certDialog = page.getByRole('dialog', { name: 'Add TLS certificate' })
 
-    const certRequired = certDialog.getByText('Cert is required')
-    const keyRequired = certDialog.getByText('Key is required')
-    const nameRequired = certDialog.getByText('Name is required')
-    await expectNotVisible(page, [certRequired, keyRequired, nameRequired])
+  const certRequired = certDialog.getByText('Cert is required')
+  const keyRequired = certDialog.getByText('Key is required')
+  const nameRequired = certDialog.getByText('Name is required')
+  await expectNotVisible(page, [certRequired, keyRequired, nameRequired])
 
-    const certSubmit = page.getByRole('button', { name: 'Add Certificate' })
-    await certSubmit.click()
+  const certSubmit = page.getByRole('button', { name: 'Add Certificate' })
+  await certSubmit.click()
 
-    // Validation error for missing name + key and cert files
-    await expectVisible(page, [certRequired, keyRequired, nameRequired])
+  // Validation error for missing name + key and cert files
+  await expectVisible(page, [certRequired, keyRequired, nameRequired])
 
-    await chooseFile(page, page.getByLabel('Cert', { exact: true }), 0.1 * MiB)
-    await chooseFile(page, page.getByLabel('Key'), 0.1 * MiB)
-    const certName = certDialog.getByRole('textbox', { name: 'Name' })
-    await certName.fill('test-cert')
+  await chooseFile(page, page.getByLabel('Cert', { exact: true }), 0.1 * MiB)
+  await chooseFile(page, page.getByLabel('Key'), 0.1 * MiB)
+  const certName = certDialog.getByRole('textbox', { name: 'Name' })
+  await certName.fill('test-cert')
 
-    await certSubmit.click()
+  await certSubmit.click()
 
-    // Check cert appears in the mini-table
-    const certCell = page.getByRole('cell', { name: 'test-cert', exact: true })
-    await expect(certCell).toBeVisible()
+  // Check cert appears in the mini-table
+  const certCell = page.getByRole('cell', { name: 'test-cert', exact: true })
+  await expect(certCell).toBeVisible()
 
-    // check unique name validation
-    await openCertModalButton.click()
-    await certName.fill('test-cert')
-    await certSubmit.click()
-    await expect(
-      certDialog.getByText('A certificate with this name already exists')
-    ).toBeVisible()
+  // check unique name validation
+  await openCertModalButton.click()
+  await certName.fill('test-cert')
+  await certSubmit.click()
+  await expect(
+    certDialog.getByText('A certificate with this name already exists')
+  ).toBeVisible()
 
-    // Change the name so it's unique
-    await certName.fill('test-cert-2')
-    await chooseFile(page, page.getByLabel('Cert', { exact: true }), 0.1 * MiB)
-    await chooseFile(page, page.getByLabel('Key'), 0.1 * MiB)
-    await certSubmit.click()
-    await expect(page.getByRole('cell', { name: 'test-cert-2', exact: true })).toBeVisible()
+  // Change the name so it's unique
+  await certName.fill('test-cert-2')
+  await chooseFile(page, page.getByLabel('Cert', { exact: true }), 0.1 * MiB)
+  await chooseFile(page, page.getByLabel('Key'), 0.1 * MiB)
+  await certSubmit.click()
+  await expect(page.getByRole('cell', { name: 'test-cert-2', exact: true })).toBeVisible()
 
-    // now delete the first
-    await page.getByRole('button', { name: 'remove test-cert', exact: true }).click()
-    // Cert should not appear after it has been deleted
-    await expect(certCell).toBeHidden()
-  })
+  // now delete the first
+  await page.getByRole('button', { name: 'remove test-cert', exact: true }).click()
+  // Cert should not appear after it has been deleted
+  await expect(certCell).toBeHidden()
 
   await page.click('role=button[name="Create silo"]')
 
