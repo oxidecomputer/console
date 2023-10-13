@@ -23,12 +23,12 @@ import {
 import { useForm, useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
-export type SiloCreateInput = Omit<SiloCreate, 'mappedFleetRoles'> & {
+export type SiloCreateFormValues = Omit<SiloCreate, 'mappedFleetRoles'> & {
   siloAdminGetsFleetAdmin: boolean
   siloViewerGetsFleetViewer: boolean
 }
 
-const defaultValues: SiloCreateInput = {
+const defaultValues: SiloCreateFormValues = {
   name: '',
   description: '',
   discoverable: true,

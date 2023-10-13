@@ -8,14 +8,16 @@
 import { useState } from 'react'
 import type { Control } from 'react-hook-form'
 import { useController } from 'react-hook-form'
+import type { Merge } from 'type-fest'
 
+import type { CertificateCreate } from '@oxide/api'
 import { Button, Error16Icon, FieldLabel, MiniTable, Modal } from '@oxide/ui'
 
 import { DescriptionField, FileField, TextField, validateName } from 'app/components/form'
-import type { SiloCreateInput } from 'app/forms/silo-create'
+import type { SiloCreateFormValues } from 'app/forms/silo-create'
 import { useForm } from 'app/hooks'
 
-export function TlsCertsField({ control }: { control: Control<SiloCreateInput> }) {
+export function TlsCertsField({ control }: { control: Control<SiloCreateFormValues> }) {
   const [showAddCert, setShowAddCert] = useState(false)
 
   const {
@@ -68,8 +70,9 @@ export function TlsCertsField({ control }: { control: Control<SiloCreateInput> }
           onSubmit={async (values) => {
             const certCreate: (typeof items)[number] = {
               ...values,
-              cert: await values.cert.text(),
-              key: await values.key.text(),
+              // cert and key are required fields. they will always be present if we get here
+              cert: await values.cert!.text(),
+              key: await values.key!.text(),
             }
             onChange([...items, certCreate])
             setShowAddCert(false)
@@ -81,41 +84,32 @@ export function TlsCertsField({ control }: { control: Control<SiloCreateInput> }
   )
 }
 
-export type TlsCertificate = Omit<
-  SiloCreateInput['tlsCertificates'][number],
-  'key' | 'cert'
-> & {
-  key: File
-  cert: File
-}
+export type CertFormValues = Merge<
+  CertificateCreate,
+  { key: File | null; cert: File | null } // swap strings for Files
+>
 
-const defaultValues: Partial<TlsCertificate> = {
+const defaultValues: CertFormValues = {
   description: '',
   name: '',
   service: 'external_api',
+  key: null,
+  cert: null,
 }
 
-const AddCertModal = ({
-  onDismiss,
-  onSubmit,
-  allNames,
-}: {
+type AddCertModalProps = {
   onDismiss: () => void
-  onSubmit: (values: TlsCertificate) => void
+  onSubmit: (values: CertFormValues) => void
   allNames: string[]
-}) => {
-  const { control, handleSubmit } = useForm<TlsCertificate>({ defaultValues })
+}
+
+const AddCertModal = ({ onDismiss, onSubmit, allNames }: AddCertModalProps) => {
+  const { control, handleSubmit } = useForm<CertFormValues>({ defaultValues })
 
   return (
     <Modal isOpen onDismiss={onDismiss} title="Add TLS certificate">
       <Modal.Body>
-        <form
-          autoComplete="off"
-          onSubmit={(e) => {
-            e.stopPropagation()
-            handleSubmit(onSubmit)(e)
-          }}
-        >
+        <form autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
           <Modal.Section>
             <TextField
               name="name"
