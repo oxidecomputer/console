@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom'
 
 import type { SiloCreate } from '@oxide/api'
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
+import { FormDivider } from '@oxide/ui'
 
 import {
   CheckboxField,
@@ -17,16 +18,17 @@ import {
   RadioField,
   SideModalForm,
   TextField,
+  TlsCertsField,
 } from 'app/components/form'
 import { useForm, useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
-type FormValues = Omit<SiloCreate, 'mappedFleetRoles'> & {
+export type SiloCreateFormValues = Omit<SiloCreate, 'mappedFleetRoles'> & {
   siloAdminGetsFleetAdmin: boolean
   siloViewerGetsFleetViewer: boolean
 }
 
-const defaultValues: FormValues = {
+const defaultValues: SiloCreateFormValues = {
   name: '',
   description: '',
   discoverable: true,
@@ -117,6 +119,8 @@ export function CreateSiloSideModalForm() {
           Grant fleet viewer role to silo viewers
         </CheckboxField>
       </div>
+      <FormDivider />
+      <TlsCertsField control={form.control} />
     </SideModalForm>
   )
 }

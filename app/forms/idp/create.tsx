@@ -9,8 +9,13 @@ import { useNavigate } from 'react-router-dom'
 
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 
-import { DescriptionField, NameField, SideModalForm, TextField } from 'app/components/form'
-import { FileField } from 'app/components/form/fields'
+import {
+  DescriptionField,
+  FileField,
+  NameField,
+  SideModalForm,
+  TextField,
+} from 'app/components/form'
 import { useForm, useSiloSelector, useToast } from 'app/hooks'
 import { readBlobAsBase64 } from 'app/util/file'
 import { pb } from 'app/util/path-builder'

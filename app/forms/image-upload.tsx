@@ -27,12 +27,12 @@ import { GiB, KiB, invariant } from '@oxide/util'
 
 import {
   DescriptionField,
+  FileField,
   NameField,
   RadioField,
   SideModalForm,
   TextField,
 } from 'app/components/form'
-import { FileField } from 'app/components/form/fields'
 import { useForm, useProjectSelector } from 'app/hooks'
 import { readBlobAsBase64 } from 'app/util/file'
 import { pb } from 'app/util/path-builder'
