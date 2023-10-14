@@ -365,6 +365,8 @@ export interface MSWHandlers {
     query: Api.InstanceNetworkInterfaceDeleteQueryParams
     req: RestRequest
   }) => StatusCode
+  /** `GET /v1/ping` */
+  ping: (params: { req: RestRequest }) => HandlerResult<Api.Ping>
   /** `GET /v1/policy` */
   policyView: (params: { req: RestRequest }) => HandlerResult<Api.SiloRolePolicy>
   /** `PUT /v1/policy` */
@@ -1214,6 +1216,7 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
         null
       )
     ),
+    rest.get('/v1/ping', handler(handlers['ping'], null, null)),
     rest.get('/v1/policy', handler(handlers['policyView'], null, null)),
     rest.put('/v1/policy', handler(handlers['policyUpdate'], null, schema.SiloRolePolicy)),
     rest.get(
