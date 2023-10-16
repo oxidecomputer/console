@@ -9,12 +9,14 @@ import type {
   DefaultError,
   FetchQueryOptions,
   InvalidateQueryFilters,
+  QueriesResults,
   QueryClient,
   QueryKey,
   UndefinedInitialDataOptions,
   UseMutationOptions,
+  UseQueryOptions,
 } from '@tanstack/react-query'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { invariant } from '@oxide/util'
 
@@ -95,6 +97,28 @@ export const getUseApiQuery =
       // option from the calling component and it will override this
       throwOnError: (err) => err.statusCode === 404,
       ...options,
+    })
+  }
+
+export const getUseApiQueries =
+  <A extends ApiClient>(api: A) =>
+  <M extends string & keyof A>(
+    method: M,
+    paramsArray: Params<A[M]>[],
+    options: UseQueryOtherOptions<Result<A[M]>, ApiError> = {},
+    combine?: (result: QueriesResults<Result<A[M]>>) => QueriesResults<Result<A[M]>>
+  ) => {
+    return useQueries({
+      queries: paramsArray.map<
+        UseQueryOptions<any, Error, { data: any; params: Params<A[M]> }>
+      >((params) => ({
+        queryKey: [method, params] as QueryKey,
+        queryFn: ({ signal }) => api[method](params, { signal }).then(handleResult(method)),
+        throwOnError: (err) => err.statusCode === 404,
+        ...options,
+        select: (data) => ({ data, params }), // Add params to the result
+      })),
+      combine: combine,
     })
   }
 

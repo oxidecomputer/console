@@ -7,18 +7,27 @@
  */
 import { getLocalTimeZone, now } from '@internationalized/date'
 import { useIsFetching } from '@tanstack/react-query'
-import { useMemo, useState } from 'react'
+import { memo, useMemo, useState } from 'react'
 
-import { FLEET_ID, apiQueryClient, totalCapacity, usePrefetchedApiQuery } from '@oxide/api'
+import type { SiloResultsPage } from '@oxide/api'
+import {
+  FLEET_ID,
+  type SystemMetricName,
+  apiQueryClient,
+  totalCapacity,
+  useApiQueries,
+  usePrefetchedApiQuery,
+} from '@oxide/api'
 import {
   Cpu16Icon,
-  Divider,
   Listbox,
   Metrics24Icon,
   PageHeader,
   PageTitle,
   Ram16Icon,
   Ssd16Icon,
+  Table,
+  Tabs,
 } from '@oxide/ui'
 import { bytesToGiB, bytesToTiB } from '@oxide/util'
 
@@ -48,39 +57,10 @@ CapacityUtilizationPage.loader = async () => {
 }
 
 export function CapacityUtilizationPage() {
+  const { data: sleds } = usePrefetchedApiQuery('sledList', {})
   const { data: silos } = usePrefetchedApiQuery('siloList', {})
 
-  const siloItems = useMemo(() => {
-    const items = silos?.items.map((silo) => ({ label: silo.name, value: silo.id })) || []
-    return [{ label: 'All silos', value: FLEET_ID }, ...items]
-  }, [silos])
-
-  const { data: sleds } = usePrefetchedApiQuery('sledList', {})
-
   const capacity = totalCapacity(sleds.items)
-
-  const [filterId, setFilterId] = useState<string>(FLEET_ID)
-
-  // pass refetch interval to this to keep the date up to date
-  const { preset, startTime, endTime, dateTimeRangePicker, onRangeChange } =
-    useDateTimeRangePicker({
-      initialPreset: 'lastHour',
-      maxValue: now(getLocalTimeZone()),
-    })
-
-  const { intervalPicker } = useIntervalPicker({
-    enabled: preset !== 'custom',
-    isLoading: useIsFetching({ queryKey: ['systemMetric'] }) > 0,
-    // sliding the range forward is sufficient to trigger a refetch
-    fn: () => onRangeChange(preset),
-  })
-
-  const commonProps = {
-    startTime,
-    endTime,
-    // the way we tell the API we want the fleet is by passing no filter
-    silo: filterId === FLEET_ID ? undefined : filterId,
-  }
 
   return (
     <>
@@ -110,8 +90,60 @@ export function CapacityUtilizationPage() {
           capacity={capacity.ram_gib}
         />
       </div>
+      <Tabs.Root defaultValue="metrics">
+        <Tabs.List>
+          <Tabs.Trigger value="metrics">Metrics</Tabs.Trigger>
+          <Tabs.Trigger value="usage">Usage</Tabs.Trigger>
+        </Tabs.List>
+        <Tabs.Content value="metrics">
+          <MetricsTab capacity={capacity} silos={silos} />
+        </Tabs.Content>
+        <Tabs.Content value="usage">
+          <UsageTab silos={silos} />
+        </Tabs.Content>
+      </Tabs.Root>
+    </>
+  )
+}
 
-      <div className="mt-8 flex justify-between gap-3">
+const MetricsTab = ({
+  capacity,
+  silos,
+}: {
+  capacity: ReturnType<typeof totalCapacity>
+  silos: SiloResultsPage
+}) => {
+  const siloItems = useMemo(() => {
+    const items = silos?.items.map((silo) => ({ label: silo.name, value: silo.id })) || []
+    return [{ label: 'All silos', value: FLEET_ID }, ...items]
+  }, [silos])
+
+  const [filterId, setFilterId] = useState<string>(FLEET_ID)
+
+  // pass refetch interval to this to keep the date up to date
+  const { preset, startTime, endTime, dateTimeRangePicker, onRangeChange } =
+    useDateTimeRangePicker({
+      initialPreset: 'lastHour',
+      maxValue: now(getLocalTimeZone()),
+    })
+
+  const { intervalPicker } = useIntervalPicker({
+    enabled: preset !== 'custom',
+    isLoading: useIsFetching({ queryKey: ['systemMetric'] }) > 0,
+    // sliding the range forward is sufficient to trigger a refetch
+    fn: () => onRangeChange(preset),
+  })
+
+  const commonProps = {
+    startTime,
+    endTime,
+    // the way we tell the API we want the fleet is by passing no filter
+    silo: filterId === FLEET_ID ? undefined : filterId,
+  }
+
+  return (
+    <>
+      <div className="mb-3 mt-8 flex justify-between gap-3">
         <Listbox
           selected={filterId}
           className="w-48"
@@ -123,8 +155,6 @@ export function CapacityUtilizationPage() {
 
         <div className="flex items-center gap-2">{dateTimeRangePicker}</div>
       </div>
-
-      <Divider className="my-6" />
 
       {intervalPicker}
 
@@ -155,4 +185,105 @@ export function CapacityUtilizationPage() {
       </div>
     </>
   )
+}
+
+const UsageTab = memo(({ silos }: { silos: SiloResultsPage }) => {
+  const siloList = silos?.items.map((silo) => ({ name: silo.name, id: silo.id })) || []
+
+  const params = {
+    startTime: new Date(0),
+    endTime: capacityQueryParams.endTime,
+    limit: 1,
+    order: 'descending' as const,
+  }
+
+  const results = useApiQueries(
+    'systemMetric',
+    [
+      ...siloList.map((silo) => ({
+        path: { metricName: 'virtual_disk_space_provisioned' as SystemMetricName },
+        query: { ...params, silo: silo.name },
+      })),
+      ...siloList.map((silo) => ({
+        path: { metricName: 'ram_provisioned' as SystemMetricName },
+        query: { ...params, silo: silo.name },
+      })),
+      ...siloList.map((silo) => ({
+        path: { metricName: 'cpus_provisioned' as SystemMetricName },
+        query: { ...params, silo: silo.name },
+      })),
+    ],
+    {},
+    (results) => {
+      const isPending = results.some((result) => result.isPending)
+
+      if (isPending) {
+        return []
+      }
+
+      const mergedResults = results
+        .map((result) => {
+          if (result.data && result.data.params && result.data.data) {
+            const params = result.data.params
+            return {
+              siloName: params.query.silo,
+              [params.path.metricName]: result.data.data.items[0].datum.datum,
+            } as SiloMetric
+          }
+        })
+        .filter((item): item is SiloMetric => Boolean(item))
+
+      return { data: mergeResults(mergedResults), pending: isPending }
+    }
+  )
+
+  if (!results || !results.data) return null
+
+  return (
+    <Table className="w-full">
+      <Table.Header>
+        <Table.HeaderRow>
+          <Table.HeadCell>Silo</Table.HeadCell>
+          <Table.HeadCell colSpan={3}>Provisioned</Table.HeadCell>
+        </Table.HeaderRow>
+        <Table.HeaderRow>
+          <Table.HeadCell></Table.HeadCell>
+          <Table.HeadCell>CPU</Table.HeadCell>
+          <Table.HeadCell>Disk</Table.HeadCell>
+          <Table.HeadCell>Memory</Table.HeadCell>
+        </Table.HeaderRow>
+      </Table.Header>
+      <Table.Body>
+        {results.data.map((result) => (
+          <Table.Row key={result.siloName}>
+            <Table.Cell width="25%">{result.siloName}</Table.Cell>
+            <Table.Cell width="25%">{result.cpus_provisioned}</Table.Cell>
+            <Table.Cell width="25%">
+              {bytesToTiB(result.virtual_disk_space_provisioned)}
+              TiB
+            </Table.Cell>
+            <Table.Cell width="25%">{bytesToGiB(result.ram_provisioned)} GiB</Table.Cell>
+          </Table.Row>
+        ))}
+      </Table.Body>
+    </Table>
+  )
+})
+
+const mergeResults = (results: SiloMetric[]): SiloMetric[] => {
+  const merged = results.flat().reduce((acc, { siloName, ...rest }) => {
+    if (!acc[siloName]) {
+      acc[siloName] = { siloName, ...rest }
+    } else {
+      acc[siloName] = { ...acc[siloName], ...rest }
+    }
+    return acc
+  }, {} as { [key: string]: SiloMetric })
+
+  return Object.values(merged)
+}
+
+type SiloMetric = {
+  siloName: string
+  [metricName: string]: number | string
 }
