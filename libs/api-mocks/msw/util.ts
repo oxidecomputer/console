@@ -237,7 +237,14 @@ export function generateUtilization(
 
   // Normalize the data to sit within the range of 0 to overall capacity
   const randomFactor = Math.random() * (1 - 0.33) + 0.33
-  const normalizedValues = values.map((value) => (value / currentMax) * cap * randomFactor)
+  const normalizedValues = values.map((value) => {
+    let v = (value / currentMax) * cap * randomFactor
+    if (metricName === 'cpus_provisioned') {
+      // CPU utilization should be whole numbers
+      v = Math.floor(v)
+    }
+    return v
+  })
 
   return normalizedValues
 }
