@@ -12,7 +12,6 @@ import { memo, useMemo, useState } from 'react'
 import type { SiloResultsPage } from '@oxide/api'
 import {
   FLEET_ID,
-  type SystemMetricName,
   apiQueryClient,
   totalCapacity,
   useApiQueries,
@@ -199,15 +198,15 @@ const UsageTab = memo(({ silos }: { silos: SiloResultsPage }) => {
 
   const results = useApiQueries('systemMetric', [
     ...siloList.map((silo) => ({
-      path: { metricName: 'virtual_disk_space_provisioned' as SystemMetricName },
+      path: { metricName: 'virtual_disk_space_provisioned' as const },
       query: { ...params, silo: silo.name },
     })),
     ...siloList.map((silo) => ({
-      path: { metricName: 'ram_provisioned' as SystemMetricName },
+      path: { metricName: 'ram_provisioned' as const },
       query: { ...params, silo: silo.name },
     })),
     ...siloList.map((silo) => ({
-      path: { metricName: 'cpus_provisioned' as SystemMetricName },
+      path: { metricName: 'cpus_provisioned' as const },
       query: { ...params, silo: silo.name },
     })),
   ])
