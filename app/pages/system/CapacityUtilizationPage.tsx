@@ -197,24 +197,20 @@ const UsageTab = memo(({ silos }: { silos: SiloResultsPage }) => {
     order: 'descending' as const,
   }
 
-  const results = useApiQueries(
-    'systemMetric',
-    [
-      ...siloList.map((silo) => ({
-        path: { metricName: 'virtual_disk_space_provisioned' as SystemMetricName },
-        query: { ...params, silo: silo.name },
-      })),
-      ...siloList.map((silo) => ({
-        path: { metricName: 'ram_provisioned' as SystemMetricName },
-        query: { ...params, silo: silo.name },
-      })),
-      ...siloList.map((silo) => ({
-        path: { metricName: 'cpus_provisioned' as SystemMetricName },
-        query: { ...params, silo: silo.name },
-      })),
-    ],
-    {}
-  )
+  const results = useApiQueries('systemMetric', [
+    ...siloList.map((silo) => ({
+      path: { metricName: 'virtual_disk_space_provisioned' as SystemMetricName },
+      query: { ...params, silo: silo.name },
+    })),
+    ...siloList.map((silo) => ({
+      path: { metricName: 'ram_provisioned' as SystemMetricName },
+      query: { ...params, silo: silo.name },
+    })),
+    ...siloList.map((silo) => ({
+      path: { metricName: 'cpus_provisioned' as SystemMetricName },
+      query: { ...params, silo: silo.name },
+    })),
+  ])
 
   const isPending = results.some((result) => result.isPending)
 
