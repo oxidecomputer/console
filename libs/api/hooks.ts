@@ -99,6 +99,12 @@ export const getUseApiQuery =
     })
   }
 
+/**
+ * Our version of `useQueries`, but with the key difference that all queries in
+ * a given call are using the same API method, and therefore all have the same
+ * request and response (`Params` and `Result`) types. Otherwise the types would
+ * be (perhaps literally) impossible.
+ */
 export const getUseApiQueries =
   <A extends ApiClient>(api: A) =>
   <M extends string & keyof A>(
@@ -107,16 +113,18 @@ export const getUseApiQueries =
     options: UseQueryOtherOptions<Result<A[M]>, ApiError> = {}
   ) => {
     return useQueries({
-      queries: paramsArray.map<
-        UseQueryOptions<any, ApiError, Result<A[M]> & { params: Params<A[M]> }>
-      >((params) => ({
-        queryKey: [method, params] as QueryKey,
-        queryFn: ({ signal }) => api[method](params, { signal }).then(handleResult(method)),
-        throwOnError: (err: ApiError) => err.statusCode === 404,
-        ...options,
-        // Add params to the result for reassembly after the queries are returned
-        select: (data) => ({ ...data, params }),
-      })),
+      queries: paramsArray.map(
+        (params) =>
+          ({
+            queryKey: [method, params] as QueryKey,
+            queryFn: ({ signal }) =>
+              api[method](params, { signal }).then(handleResult(method)),
+            throwOnError: (err: ApiError) => err.statusCode === 404,
+            ...options,
+            // Add params to the result for reassembly after the queries are returned
+            select: (data) => ({ ...data, params }),
+          } satisfies UseQueryOptions<Result<A[M]> & { params: Params<A[M]> }, ApiError>)
+      ),
     })
   }
 
