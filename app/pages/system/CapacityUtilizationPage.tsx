@@ -35,6 +35,9 @@ import { useIntervalPicker } from 'app/components/RefetchIntervalPicker'
 import { SystemMetric } from 'app/components/SystemMetric'
 import { useDateTimeRangePicker } from 'app/components/form'
 
+import type { SiloMetric } from './metrics-util'
+import { mergeSiloMetrics } from './metrics-util'
+
 CapacityUtilizationPage.loader = async () => {
   await Promise.all([
     apiQueryClient.prefetchQuery('siloList', {}),
@@ -266,25 +269,3 @@ const UsageTab = memo(({ silos }: { silos: SiloResultsPage }) => {
     </Table>
   )
 })
-
-const mergeSiloMetrics = (results: SiloMetric[]): SiloMetric[] => {
-  const merged = results.flat().reduce((acc, { siloName, ...rest }) => {
-    if (!acc[siloName]) {
-      acc[siloName] = { siloName, metrics: { ...rest.metrics } }
-    } else {
-      acc[siloName] = { siloName, metrics: { ...acc[siloName].metrics, ...rest.metrics } }
-    }
-    return acc
-  }, {} as { [key: string]: SiloMetric })
-
-  return Object.values(merged)
-}
-
-type Metrics = {
-  [metricName: string]: number
-}
-
-type SiloMetric = {
-  siloName: string
-  metrics: Metrics
-}
