@@ -43,6 +43,7 @@ import {
 // is *JSON type.
 
 export const handlers = makeHandlers({
+  ping: () => ({ status: 'ok' }),
   deviceAuthRequest: () => 200,
   deviceAuthConfirm: ({ body }) => (body.user_code === 'ERRO-RABC' ? 400 : 200),
   deviceAccessToken: () => 200,

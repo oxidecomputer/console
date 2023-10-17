@@ -204,12 +204,154 @@ export const BinRangedouble = z.preprocess(
  *
  * This type supports ranges similar to the `RangeTo`, `Range` and `RangeFrom` types in the standard library. Those cover `(..end)`, `(start..end)`, and `(start..)` respectively.
  */
+export const BinRangefloat = z.preprocess(
+  processResponseBody,
+  z.union([
+    z.object({ end: z.number(), type: z.enum(['range_to']) }),
+    z.object({ end: z.number(), start: z.number(), type: z.enum(['range']) }),
+    z.object({ start: z.number(), type: z.enum(['range_from']) }),
+  ])
+)
+
+/**
+ * A type storing a range over `T`.
+ *
+ * This type supports ranges similar to the `RangeTo`, `Range` and `RangeFrom` types in the standard library. Those cover `(..end)`, `(start..end)`, and `(start..)` respectively.
+ */
+export const BinRangeint16 = z.preprocess(
+  processResponseBody,
+  z.union([
+    z.object({ end: z.number().min(-32767).max(32767), type: z.enum(['range_to']) }),
+    z.object({
+      end: z.number().min(-32767).max(32767),
+      start: z.number().min(-32767).max(32767),
+      type: z.enum(['range']),
+    }),
+    z.object({ start: z.number().min(-32767).max(32767), type: z.enum(['range_from']) }),
+  ])
+)
+
+/**
+ * A type storing a range over `T`.
+ *
+ * This type supports ranges similar to the `RangeTo`, `Range` and `RangeFrom` types in the standard library. Those cover `(..end)`, `(start..end)`, and `(start..)` respectively.
+ */
+export const BinRangeint32 = z.preprocess(
+  processResponseBody,
+  z.union([
+    z.object({
+      end: z.number().min(-2147483647).max(2147483647),
+      type: z.enum(['range_to']),
+    }),
+    z.object({
+      end: z.number().min(-2147483647).max(2147483647),
+      start: z.number().min(-2147483647).max(2147483647),
+      type: z.enum(['range']),
+    }),
+    z.object({
+      start: z.number().min(-2147483647).max(2147483647),
+      type: z.enum(['range_from']),
+    }),
+  ])
+)
+
+/**
+ * A type storing a range over `T`.
+ *
+ * This type supports ranges similar to the `RangeTo`, `Range` and `RangeFrom` types in the standard library. Those cover `(..end)`, `(start..end)`, and `(start..)` respectively.
+ */
 export const BinRangeint64 = z.preprocess(
   processResponseBody,
   z.union([
     z.object({ end: z.number(), type: z.enum(['range_to']) }),
     z.object({ end: z.number(), start: z.number(), type: z.enum(['range']) }),
     z.object({ start: z.number(), type: z.enum(['range_from']) }),
+  ])
+)
+
+/**
+ * A type storing a range over `T`.
+ *
+ * This type supports ranges similar to the `RangeTo`, `Range` and `RangeFrom` types in the standard library. Those cover `(..end)`, `(start..end)`, and `(start..)` respectively.
+ */
+export const BinRangeint8 = z.preprocess(
+  processResponseBody,
+  z.union([
+    z.object({ end: z.number().min(-127).max(127), type: z.enum(['range_to']) }),
+    z.object({
+      end: z.number().min(-127).max(127),
+      start: z.number().min(-127).max(127),
+      type: z.enum(['range']),
+    }),
+    z.object({ start: z.number().min(-127).max(127), type: z.enum(['range_from']) }),
+  ])
+)
+
+/**
+ * A type storing a range over `T`.
+ *
+ * This type supports ranges similar to the `RangeTo`, `Range` and `RangeFrom` types in the standard library. Those cover `(..end)`, `(start..end)`, and `(start..)` respectively.
+ */
+export const BinRangeuint16 = z.preprocess(
+  processResponseBody,
+  z.union([
+    z.object({ end: z.number().min(0).max(65535), type: z.enum(['range_to']) }),
+    z.object({
+      end: z.number().min(0).max(65535),
+      start: z.number().min(0).max(65535),
+      type: z.enum(['range']),
+    }),
+    z.object({ start: z.number().min(0).max(65535), type: z.enum(['range_from']) }),
+  ])
+)
+
+/**
+ * A type storing a range over `T`.
+ *
+ * This type supports ranges similar to the `RangeTo`, `Range` and `RangeFrom` types in the standard library. Those cover `(..end)`, `(start..end)`, and `(start..)` respectively.
+ */
+export const BinRangeuint32 = z.preprocess(
+  processResponseBody,
+  z.union([
+    z.object({ end: z.number().min(0).max(4294967295), type: z.enum(['range_to']) }),
+    z.object({
+      end: z.number().min(0).max(4294967295),
+      start: z.number().min(0).max(4294967295),
+      type: z.enum(['range']),
+    }),
+    z.object({ start: z.number().min(0).max(4294967295), type: z.enum(['range_from']) }),
+  ])
+)
+
+/**
+ * A type storing a range over `T`.
+ *
+ * This type supports ranges similar to the `RangeTo`, `Range` and `RangeFrom` types in the standard library. Those cover `(..end)`, `(start..end)`, and `(start..)` respectively.
+ */
+export const BinRangeuint64 = z.preprocess(
+  processResponseBody,
+  z.union([
+    z.object({ end: z.number().min(0), type: z.enum(['range_to']) }),
+    z.object({ end: z.number().min(0), start: z.number().min(0), type: z.enum(['range']) }),
+    z.object({ start: z.number().min(0), type: z.enum(['range_from']) }),
+  ])
+)
+
+/**
+ * A type storing a range over `T`.
+ *
+ * This type supports ranges similar to the `RangeTo`, `Range` and `RangeFrom` types in the standard library. Those cover `(..end)`, `(start..end)`, and `(start..)` respectively.
+ */
+export const BinRangeuint8 = z.preprocess(
+  processResponseBody,
+  z.union([
+    z.object({ end: z.number().min(0).max(255), type: z.enum(['range_to']) }),
+    z.object({
+      end: z.number().min(0).max(255),
+      start: z.number().min(0).max(255),
+      type: z.enum(['range']),
+    }),
+    z.object({ start: z.number().min(0).max(255), type: z.enum(['range_from']) }),
   ])
 )
 
@@ -224,9 +366,73 @@ export const Bindouble = z.preprocess(
 /**
  * Type storing bin edges and a count of samples within it.
  */
+export const Binfloat = z.preprocess(
+  processResponseBody,
+  z.object({ count: z.number().min(0), range: BinRangefloat })
+)
+
+/**
+ * Type storing bin edges and a count of samples within it.
+ */
+export const Binint16 = z.preprocess(
+  processResponseBody,
+  z.object({ count: z.number().min(0), range: BinRangeint16 })
+)
+
+/**
+ * Type storing bin edges and a count of samples within it.
+ */
+export const Binint32 = z.preprocess(
+  processResponseBody,
+  z.object({ count: z.number().min(0), range: BinRangeint32 })
+)
+
+/**
+ * Type storing bin edges and a count of samples within it.
+ */
 export const Binint64 = z.preprocess(
   processResponseBody,
   z.object({ count: z.number().min(0), range: BinRangeint64 })
+)
+
+/**
+ * Type storing bin edges and a count of samples within it.
+ */
+export const Binint8 = z.preprocess(
+  processResponseBody,
+  z.object({ count: z.number().min(0), range: BinRangeint8 })
+)
+
+/**
+ * Type storing bin edges and a count of samples within it.
+ */
+export const Binuint16 = z.preprocess(
+  processResponseBody,
+  z.object({ count: z.number().min(0), range: BinRangeuint16 })
+)
+
+/**
+ * Type storing bin edges and a count of samples within it.
+ */
+export const Binuint32 = z.preprocess(
+  processResponseBody,
+  z.object({ count: z.number().min(0), range: BinRangeuint32 })
+)
+
+/**
+ * Type storing bin edges and a count of samples within it.
+ */
+export const Binuint64 = z.preprocess(
+  processResponseBody,
+  z.object({ count: z.number().min(0), range: BinRangeuint64 })
+)
+
+/**
+ * Type storing bin edges and a count of samples within it.
+ */
+export const Binuint8 = z.preprocess(
+  processResponseBody,
+  z.object({ count: z.number().min(0), range: BinRangeuint8 })
 )
 
 /**
@@ -298,9 +504,25 @@ export const Cumulativedouble = z.preprocess(
 /**
  * A cumulative or counter data type.
  */
+export const Cumulativefloat = z.preprocess(
+  processResponseBody,
+  z.object({ startTime: z.coerce.date(), value: z.number() })
+)
+
+/**
+ * A cumulative or counter data type.
+ */
 export const Cumulativeint64 = z.preprocess(
   processResponseBody,
   z.object({ startTime: z.coerce.date(), value: z.number() })
+)
+
+/**
+ * A cumulative or counter data type.
+ */
+export const Cumulativeuint64 = z.preprocess(
+  processResponseBody,
+  z.object({ startTime: z.coerce.date(), value: z.number().min(0) })
 )
 
 /**
@@ -323,10 +545,138 @@ export const CurrentUser = z.preprocess(
  *
  * Note that any gaps, unsorted bins, or non-finite values will result in an error.
  */
+export const Histogramint8 = z.preprocess(
+  processResponseBody,
+  z.object({
+    bins: Binint8.array(),
+    nSamples: z.number().min(0),
+    startTime: z.coerce.date(),
+  })
+)
+
+/**
+ * Histogram metric
+ *
+ * A histogram maintains the count of any number of samples, over a set of bins. Bins are specified on construction via their _left_ edges, inclusive. There can't be any "gaps" in the bins, and an additional bin may be added to the left, right, or both so that the bins extend to the entire range of the support.
+ *
+ * Note that any gaps, unsorted bins, or non-finite values will result in an error.
+ */
+export const Histogramuint8 = z.preprocess(
+  processResponseBody,
+  z.object({
+    bins: Binuint8.array(),
+    nSamples: z.number().min(0),
+    startTime: z.coerce.date(),
+  })
+)
+
+/**
+ * Histogram metric
+ *
+ * A histogram maintains the count of any number of samples, over a set of bins. Bins are specified on construction via their _left_ edges, inclusive. There can't be any "gaps" in the bins, and an additional bin may be added to the left, right, or both so that the bins extend to the entire range of the support.
+ *
+ * Note that any gaps, unsorted bins, or non-finite values will result in an error.
+ */
+export const Histogramint16 = z.preprocess(
+  processResponseBody,
+  z.object({
+    bins: Binint16.array(),
+    nSamples: z.number().min(0),
+    startTime: z.coerce.date(),
+  })
+)
+
+/**
+ * Histogram metric
+ *
+ * A histogram maintains the count of any number of samples, over a set of bins. Bins are specified on construction via their _left_ edges, inclusive. There can't be any "gaps" in the bins, and an additional bin may be added to the left, right, or both so that the bins extend to the entire range of the support.
+ *
+ * Note that any gaps, unsorted bins, or non-finite values will result in an error.
+ */
+export const Histogramuint16 = z.preprocess(
+  processResponseBody,
+  z.object({
+    bins: Binuint16.array(),
+    nSamples: z.number().min(0),
+    startTime: z.coerce.date(),
+  })
+)
+
+/**
+ * Histogram metric
+ *
+ * A histogram maintains the count of any number of samples, over a set of bins. Bins are specified on construction via their _left_ edges, inclusive. There can't be any "gaps" in the bins, and an additional bin may be added to the left, right, or both so that the bins extend to the entire range of the support.
+ *
+ * Note that any gaps, unsorted bins, or non-finite values will result in an error.
+ */
+export const Histogramint32 = z.preprocess(
+  processResponseBody,
+  z.object({
+    bins: Binint32.array(),
+    nSamples: z.number().min(0),
+    startTime: z.coerce.date(),
+  })
+)
+
+/**
+ * Histogram metric
+ *
+ * A histogram maintains the count of any number of samples, over a set of bins. Bins are specified on construction via their _left_ edges, inclusive. There can't be any "gaps" in the bins, and an additional bin may be added to the left, right, or both so that the bins extend to the entire range of the support.
+ *
+ * Note that any gaps, unsorted bins, or non-finite values will result in an error.
+ */
+export const Histogramuint32 = z.preprocess(
+  processResponseBody,
+  z.object({
+    bins: Binuint32.array(),
+    nSamples: z.number().min(0),
+    startTime: z.coerce.date(),
+  })
+)
+
+/**
+ * Histogram metric
+ *
+ * A histogram maintains the count of any number of samples, over a set of bins. Bins are specified on construction via their _left_ edges, inclusive. There can't be any "gaps" in the bins, and an additional bin may be added to the left, right, or both so that the bins extend to the entire range of the support.
+ *
+ * Note that any gaps, unsorted bins, or non-finite values will result in an error.
+ */
 export const Histogramint64 = z.preprocess(
   processResponseBody,
   z.object({
     bins: Binint64.array(),
+    nSamples: z.number().min(0),
+    startTime: z.coerce.date(),
+  })
+)
+
+/**
+ * Histogram metric
+ *
+ * A histogram maintains the count of any number of samples, over a set of bins. Bins are specified on construction via their _left_ edges, inclusive. There can't be any "gaps" in the bins, and an additional bin may be added to the left, right, or both so that the bins extend to the entire range of the support.
+ *
+ * Note that any gaps, unsorted bins, or non-finite values will result in an error.
+ */
+export const Histogramuint64 = z.preprocess(
+  processResponseBody,
+  z.object({
+    bins: Binuint64.array(),
+    nSamples: z.number().min(0),
+    startTime: z.coerce.date(),
+  })
+)
+
+/**
+ * Histogram metric
+ *
+ * A histogram maintains the count of any number of samples, over a set of bins. Bins are specified on construction via their _left_ edges, inclusive. There can't be any "gaps" in the bins, and an additional bin may be added to the left, right, or both so that the bins extend to the entire range of the support.
+ *
+ * Note that any gaps, unsorted bins, or non-finite values will result in an error.
+ */
+export const Histogramfloat = z.preprocess(
+  processResponseBody,
+  z.object({
+    bins: Binfloat.array(),
     nSamples: z.number().min(0),
     startTime: z.coerce.date(),
   })
@@ -355,13 +705,31 @@ export const Datum = z.preprocess(
   processResponseBody,
   z.union([
     z.object({ datum: SafeBoolean, type: z.enum(['bool']) }),
+    z.object({ datum: z.number().min(-127).max(127), type: z.enum(['i8']) }),
+    z.object({ datum: z.number().min(0).max(255), type: z.enum(['u8']) }),
+    z.object({ datum: z.number().min(-32767).max(32767), type: z.enum(['i16']) }),
+    z.object({ datum: z.number().min(0).max(65535), type: z.enum(['u16']) }),
+    z.object({ datum: z.number().min(-2147483647).max(2147483647), type: z.enum(['i32']) }),
+    z.object({ datum: z.number().min(0).max(4294967295), type: z.enum(['u32']) }),
     z.object({ datum: z.number(), type: z.enum(['i64']) }),
+    z.object({ datum: z.number().min(0), type: z.enum(['u64']) }),
+    z.object({ datum: z.number(), type: z.enum(['f32']) }),
     z.object({ datum: z.number(), type: z.enum(['f64']) }),
     z.object({ datum: z.string(), type: z.enum(['string']) }),
     z.object({ datum: z.number().min(0).max(255).array(), type: z.enum(['bytes']) }),
     z.object({ datum: Cumulativeint64, type: z.enum(['cumulative_i64']) }),
+    z.object({ datum: Cumulativeuint64, type: z.enum(['cumulative_u64']) }),
+    z.object({ datum: Cumulativefloat, type: z.enum(['cumulative_f32']) }),
     z.object({ datum: Cumulativedouble, type: z.enum(['cumulative_f64']) }),
+    z.object({ datum: Histogramint8, type: z.enum(['histogram_i8']) }),
+    z.object({ datum: Histogramuint8, type: z.enum(['histogram_u8']) }),
+    z.object({ datum: Histogramint16, type: z.enum(['histogram_i16']) }),
+    z.object({ datum: Histogramuint16, type: z.enum(['histogram_u16']) }),
+    z.object({ datum: Histogramint32, type: z.enum(['histogram_i32']) }),
+    z.object({ datum: Histogramuint32, type: z.enum(['histogram_u32']) }),
     z.object({ datum: Histogramint64, type: z.enum(['histogram_i64']) }),
+    z.object({ datum: Histogramuint64, type: z.enum(['histogram_u64']) }),
+    z.object({ datum: Histogramfloat, type: z.enum(['histogram_f32']) }),
     z.object({ datum: Histogramdouble, type: z.enum(['histogram_f64']) }),
   ])
 )
@@ -1069,6 +1437,10 @@ export const PhysicalDiskResultsPage = z.preprocess(
   processResponseBody,
   z.object({ items: PhysicalDisk.array(), nextPage: z.string().optional() })
 )
+
+export const PingStatus = z.preprocess(processResponseBody, z.enum(['ok']))
+
+export const Ping = z.preprocess(processResponseBody, z.object({ status: PingStatus }))
 
 /**
  * View of a Project
@@ -2782,6 +3154,14 @@ export const InstanceNetworkInterfaceDeleteParams = z.preprocess(
       instance: NameOrId.optional(),
       project: NameOrId.optional(),
     }),
+  })
+)
+
+export const PingParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
   })
 )
 

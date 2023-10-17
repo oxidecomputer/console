@@ -9,6 +9,7 @@ import type { Browser, Locator, Page } from '@playwright/test'
 import { expect } from '@playwright/test'
 
 import { MSW_USER_COOKIE } from '@oxide/api-mocks'
+import { MiB } from '@oxide/util'
 
 export * from '@playwright/test'
 
@@ -148,3 +149,16 @@ export async function expectObscured(locator: Locator) {
 }
 
 export const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+
+export async function chooseFile(page: Page, inputLocator: Locator, size = 15 * MiB) {
+  const fileChooserPromise = page.waitForEvent('filechooser')
+  await inputLocator.click()
+  const fileChooser = await fileChooserPromise
+  await fileChooser.setFiles({
+    name: 'my-image.iso',
+    mimeType: 'application/octet-stream',
+    // fill with nonzero content, otherwise we'll skip the whole thing, which
+    // makes the test too fast for playwright to catch anything
+    buffer: Buffer.alloc(size, 'a'),
+  })
+}
