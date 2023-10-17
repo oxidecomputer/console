@@ -186,36 +186,33 @@ const MetricsTab = ({
   )
 }
 
+const usageTableParams = {
+  startTime: new Date(0),
+  endTime: capacityQueryParams.endTime,
+  limit: 1,
+  order: 'descending' as const,
+}
+
 const UsageTab = memo(({ silos }: { silos: SiloResultsPage }) => {
   const siloList = silos?.items.map((silo) => ({ name: silo.name, id: silo.id })) || []
-
-  const params = {
-    startTime: new Date(0),
-    endTime: capacityQueryParams.endTime,
-    limit: 1,
-    order: 'descending' as const,
-  }
 
   const results = useApiQueries('systemMetric', [
     ...siloList.map((silo) => ({
       path: { metricName: 'virtual_disk_space_provisioned' as const },
-      query: { ...params, silo: silo.name },
+      query: { ...usageTableParams, silo: silo.name },
     })),
     ...siloList.map((silo) => ({
       path: { metricName: 'ram_provisioned' as const },
-      query: { ...params, silo: silo.name },
+      query: { ...usageTableParams, silo: silo.name },
     })),
     ...siloList.map((silo) => ({
       path: { metricName: 'cpus_provisioned' as const },
-      query: { ...params, silo: silo.name },
+      query: { ...usageTableParams, silo: silo.name },
     })),
   ])
 
-  const isPending = results.some((result) => result.isPending)
-
-  if (isPending) {
-    return null
-  }
+  // TODO: loading state, this could take some time
+  if (results.some((result) => result.isPending)) return null
 
   const siloResults = results
     .map((result) => {
