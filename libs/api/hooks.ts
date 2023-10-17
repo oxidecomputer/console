@@ -9,7 +9,6 @@ import type {
   DefaultError,
   FetchQueryOptions,
   InvalidateQueryFilters,
-  QueriesResults,
   QueryClient,
   QueryKey,
   UndefinedInitialDataOptions,
@@ -105,20 +104,19 @@ export const getUseApiQueries =
   <M extends string & keyof A>(
     method: M,
     paramsArray: Params<A[M]>[],
-    options: UseQueryOtherOptions<Result<A[M]>, ApiError> = {},
-    combine?: (result: QueriesResults<Result<A[M]>>) => QueriesResults<Result<A[M]>>
+    options: UseQueryOtherOptions<Result<A[M]>, ApiError> = {}
   ) => {
     return useQueries({
       queries: paramsArray.map<
-        UseQueryOptions<any, Error, { data: any; params: Params<A[M]> }>
+        UseQueryOptions<any, ApiError, Result<A[M]> & { params: Params<A[M]> }>
       >((params) => ({
         queryKey: [method, params] as QueryKey,
         queryFn: ({ signal }) => api[method](params, { signal }).then(handleResult(method)),
-        throwOnError: (err) => err.statusCode === 404,
+        throwOnError: (err: ApiError) => err.statusCode === 404,
         ...options,
-        select: (data) => ({ data, params }), // Add params to the result
+        // Add params to the result for reassembly after the queries are returned
+        select: (data) => ({ ...data, params }),
       })),
-      combine: combine,
     })
   }
 

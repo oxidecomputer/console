@@ -29,7 +29,7 @@ import {
   Table,
   Tabs,
 } from '@oxide/ui'
-import { bytesToGiB, bytesToTiB } from '@oxide/util'
+import { bytesToGiB, bytesToTiB, camelCase } from '@oxide/util'
 
 import { CapacityMetric, capacityQueryParams } from 'app/components/CapacityMetric'
 import { useIntervalPicker } from 'app/components/RefetchIntervalPicker'
@@ -213,31 +213,35 @@ const UsageTab = memo(({ silos }: { silos: SiloResultsPage }) => {
         query: { ...params, silo: silo.name },
       })),
     ],
-    {},
-    (results) => {
-      const isPending = results.some((result) => result.isPending)
-
-      if (isPending) {
-        return []
-      }
-
-      const mergedResults = results
-        .map((result) => {
-          if (result.data && result.data.params && result.data.data) {
-            const params = result.data.params
-            return {
-              siloName: params.query.silo,
-              [params.path.metricName]: result.data.data.items[0].datum.datum,
-            } as SiloMetric
-          }
-        })
-        .filter((item): item is SiloMetric => Boolean(item))
-
-      return { data: mergeResults(mergedResults), pending: isPending }
-    }
+    {}
   )
 
-  if (!results || !results.data) return null
+  const isPending = results.some((result) => result.isPending)
+
+  if (isPending) {
+    return null
+  }
+
+  const siloResults = results
+    .map((result) => {
+      if (result.data && result.data.params) {
+        const params = result.data.params
+
+        if (!params.query) {
+          return undefined
+        }
+
+        return {
+          siloName: params.query.silo,
+          metrics: {
+            [camelCase(params.path.metricName)]: result.data.items[0].datum.datum,
+          },
+        } as SiloMetric
+      }
+    })
+    .filter((item): item is SiloMetric => Boolean(item))
+
+  const mergedResults = mergeSiloMetrics(siloResults)
 
   return (
     <Table className="w-full">
@@ -254,15 +258,16 @@ const UsageTab = memo(({ silos }: { silos: SiloResultsPage }) => {
         </Table.HeaderRow>
       </Table.Header>
       <Table.Body>
-        {results.data.map((result) => (
+        {mergedResults.map((result) => (
           <Table.Row key={result.siloName}>
             <Table.Cell width="25%">{result.siloName}</Table.Cell>
-            <Table.Cell width="25%">{result.cpus_provisioned}</Table.Cell>
+            <Table.Cell width="25%">{result.metrics.cpusProvisioned}</Table.Cell>
             <Table.Cell width="25%">
-              {bytesToTiB(result.virtual_disk_space_provisioned)}
-              TiB
+              {bytesToTiB(result.metrics.virtualDiskSpaceProvisioned)} TiB
             </Table.Cell>
-            <Table.Cell width="25%">{bytesToGiB(result.ram_provisioned)} GiB</Table.Cell>
+            <Table.Cell width="25%">
+              {bytesToGiB(result.metrics.ramProvisioned)} GiB
+            </Table.Cell>
           </Table.Row>
         ))}
       </Table.Body>
@@ -270,12 +275,12 @@ const UsageTab = memo(({ silos }: { silos: SiloResultsPage }) => {
   )
 })
 
-const mergeResults = (results: SiloMetric[]): SiloMetric[] => {
+const mergeSiloMetrics = (results: SiloMetric[]): SiloMetric[] => {
   const merged = results.flat().reduce((acc, { siloName, ...rest }) => {
     if (!acc[siloName]) {
-      acc[siloName] = { siloName, ...rest }
+      acc[siloName] = { siloName, metrics: { ...rest.metrics } }
     } else {
-      acc[siloName] = { ...acc[siloName], ...rest }
+      acc[siloName] = { siloName, metrics: { ...acc[siloName].metrics, ...rest.metrics } }
     }
     return acc
   }, {} as { [key: string]: SiloMetric })
@@ -283,7 +288,11 @@ const mergeResults = (results: SiloMetric[]): SiloMetric[] => {
   return Object.values(merged)
 }
 
+type Metrics = {
+  [metricName: string]: number
+}
+
 type SiloMetric = {
   siloName: string
-  [metricName: string]: number | string
+  metrics: Metrics
 }
