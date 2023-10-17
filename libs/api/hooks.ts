@@ -10,7 +10,6 @@ import type {
   FetchQueryOptions,
   InvalidateQueryFilters,
   QueryClient,
-  QueryKey,
   UndefinedInitialDataOptions,
   UseMutationOptions,
   UseQueryOptions,
@@ -87,7 +86,7 @@ export const getUseApiQuery =
     options: UseQueryOtherOptions<Result<A[M]>, ApiError> = {}
   ) => {
     return useQuery({
-      queryKey: [method, params] as QueryKey,
+      queryKey: [method, params],
       // no catch, let unexpected errors bubble up
       queryFn: ({ signal }) => api[method](params, { signal }).then(handleResult(method)),
       // In the case of 404s, let the error bubble up to the error boundary so
@@ -116,7 +115,7 @@ export const getUseApiQueries =
       queries: paramsArray.map(
         (params) =>
           ({
-            queryKey: [method, params] as QueryKey,
+            queryKey: [method, params],
             queryFn: ({ signal }) =>
               api[method](params, { signal }).then(handleResult(method)),
             throwOnError: (err: ApiError) => err.statusCode === 404,
@@ -135,7 +134,7 @@ export const getUsePrefetchedApiQuery =
     params: Params<A[M]>,
     options: UseQueryOtherOptions<Result<A[M]>, ApiError> = {}
   ) => {
-    const queryKey = [method, params] as QueryKey
+    const queryKey = [method, params]
     const { data, ...rest } = useQuery({
       queryKey,
       // no catch, let unexpected errors bubble up
