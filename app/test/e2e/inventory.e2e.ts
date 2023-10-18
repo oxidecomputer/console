@@ -31,7 +31,7 @@ test('Sled inventory page', async ({ page }) => {
 
   const instancesTable = page.getByRole('table')
   await expectRowVisible(instancesTable, {
-    name: 'default-silo / mock-projectdb1',
+    name: 'maze-war / mock-projectdb1',
   })
 })
 

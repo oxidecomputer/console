@@ -17,7 +17,7 @@ test('Create silo', async ({ page }) => {
   await expectVisible(page, ['role=heading[name*="Silos"]'])
   const table = page.locator('role=table')
   await expectRowVisible(table, {
-    name: 'default-silo',
+    name: 'maze-war',
     'Identity mode': 'saml jit',
     // not easy to assert this until we can calculate accessible name instead of text content
     // discoverable: 'true',
@@ -105,7 +105,7 @@ test('Create silo', async ({ page }) => {
   await page.goBack()
 
   // now delete it
-  await page.locator('role=button[name="Row actions"]').nth(1).click()
+  await page.locator('role=button[name="Row actions"]').nth(2).click()
   await page.click('role=menuitem[name="Delete"]')
   await page.getByRole('button', { name: 'Confirm' }).click()
 
@@ -114,9 +114,9 @@ test('Create silo', async ({ page }) => {
 
 test('Default silo', async ({ page }) => {
   await page.goto('/system/silos')
-  await page.getByRole('link', { name: 'default-silo' }).click()
+  await page.getByRole('link', { name: 'myriad' }).click()
 
-  await expect(page.getByRole('heading', { name: 'default-silo' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'myriad' })).toBeVisible()
   await expectNotVisible(page, [
     page.getByText('Silo adminFleet admin'),
     page.getByText('Silo viewerFleet viewer'),
@@ -124,9 +124,9 @@ test('Default silo', async ({ page }) => {
 })
 
 test('Identity providers', async ({ page }) => {
-  await page.goto('/system/silos/default-silo')
+  await page.goto('/system/silos/maze-war')
 
-  await expectVisible(page, ['role=heading[name*=default-silo]'])
+  await expectVisible(page, ['role=heading[name*=maze-war]'])
 
   await page.getByRole('link', { name: 'mock-idp' }).click()
 
