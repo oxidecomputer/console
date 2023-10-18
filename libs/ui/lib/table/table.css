@@ -137,6 +137,15 @@ table.ox-table {
     @apply border-r;
   }
 
+  & tr:not(:first-of-type) th {
+    @apply border-t-0;
+  }
+
+  & tr:not(:first-of-type) th:after,
+  & tr:not(:first-of-type) th:last-of-type:not(.action-col) {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    @apply border-t-0;
   /* === Begin table selection styles === */
 
   /**
