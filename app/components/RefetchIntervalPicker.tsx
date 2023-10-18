@@ -77,8 +77,6 @@ export function useIntervalPicker({ enabled, isLoading, fn }: Props) {
           <Listbox
             selected={enabled ? intervalPreset : 'Off'}
             className="w-24 [&>button]:!rounded-l-none"
-            aria-labelledby="silo-id-label"
-            name="silo-id"
             items={intervalItems}
             onChange={setIntervalPreset}
             disabled={!enabled}
