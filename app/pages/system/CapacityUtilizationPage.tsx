@@ -258,10 +258,12 @@ const UsageTab = memo(({ silos }: { silos: SiloResultsPage }) => {
             <Table.Cell width="25%">{result.siloName}</Table.Cell>
             <Table.Cell width="25%">{result.metrics.cpusProvisioned}</Table.Cell>
             <Table.Cell width="25%">
-              {bytesToTiB(result.metrics.virtualDiskSpaceProvisioned)} TiB
+              {bytesToTiB(result.metrics.virtualDiskSpaceProvisioned)}
+              <span className="ml-1 inline-block text-quaternary">TiB</span>
             </Table.Cell>
             <Table.Cell width="25%">
-              {bytesToGiB(result.metrics.ramProvisioned)} GiB
+              {bytesToGiB(result.metrics.ramProvisioned)}
+              <span className="ml-1 inline-block text-quaternary">GiB</span>
             </Table.Cell>
           </Table.Row>
         ))}
