@@ -92,7 +92,7 @@ export function CapacityUtilizationPage() {
           capacity={capacity.ram_gib}
         />
       </div>
-      <Tabs.Root defaultValue="metrics">
+      <Tabs.Root defaultValue="metrics" className="full-width">
         <Tabs.List>
           <Tabs.Trigger value="metrics">Metrics</Tabs.Trigger>
           <Tabs.Trigger value="usage">Usage</Tabs.Trigger>
