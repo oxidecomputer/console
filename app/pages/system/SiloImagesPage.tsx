@@ -61,9 +61,6 @@ export function SiloImagesPage() {
       addToast({ content: `${variables.path.image} has been deleted` })
       queryClient.invalidateQueries('imageList')
     },
-    onError: (err) => {
-      addToast({ title: 'Error', content: err.message, variant: 'error' })
-    },
   })
 
   const makeActions = (image: Image): MenuAction[] => [
