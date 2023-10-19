@@ -306,8 +306,11 @@ const roleOrStronger: Record<RoleKey, RoleKey[]> = {
 }
 
 /**
- * Determine whether a user has a role at least as strong as the specified role
- * on the specified resource.
+ * Determine whether a user has a role at least as strong as `role` on the
+ * specified resource. Note that this does not yet do parent-child inheritance
+ * like Nexus does, i.e., if a user has collaborator on a silo, then it inherits
+ * collaborator on all projects in the silo even if it has no explicit role on
+ * those projects. This does NOT do that.
  */
 export function userHasRole(
   user: Json<User>,
