@@ -30,6 +30,8 @@ import {
 
 import { ListboxField, toListboxItem } from 'app/components/form'
 import { useForm, useToast } from 'app/hooks'
+import { confirmDelete } from 'app/stores/confirm-delete'
+import { addToast } from 'app/stores/toast'
 import { pb } from 'app/util/path-builder'
 
 const EmptyState = () => (
@@ -53,10 +55,28 @@ export function SiloImagesPage() {
 
   const [demoteImage, setDemoteImage] = useState<Image | null>(null)
 
+  const queryClient = useApiQueryClient()
+  const deleteImage = useApiMutation('imageDelete', {
+    onSuccess(_data, variables) {
+      addToast({ content: `${variables.path.image} has been deleted` })
+      queryClient.invalidateQueries('imageList')
+    },
+    onError: (err) => {
+      addToast({ title: 'Error', content: err.message, variant: 'error' })
+    },
+  })
+
   const makeActions = (image: Image): MenuAction[] => [
     {
       label: 'Demote',
       onActivate: () => setDemoteImage(image),
+    },
+    {
+      label: 'Delete',
+      onActivate: confirmDelete({
+        doDelete: () => deleteImage.mutateAsync({ path: { image: image.name } }),
+        label: image.name,
+      }),
     },
   ]
 
