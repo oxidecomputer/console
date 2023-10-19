@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { expect, getDevUserPage, test } from './utils'
+import { expect, getPageAsUser, test } from './utils'
 
 test.describe('Silo/system picker', () => {
   test('appears for fleet viewer', async ({ page }) => {
@@ -17,7 +17,7 @@ test.describe('Silo/system picker', () => {
   })
 
   test('does not appear to for dev user', async ({ browser }) => {
-    const page = await getDevUserPage(browser)
+    const page = await getPageAsUser(browser, 'Hans Jonas')
     await page.goto('/projects')
     await expect(page.getByRole('link', { name: 'SILO default-silo' })).toBeVisible()
     await expect(
@@ -27,7 +27,7 @@ test.describe('Silo/system picker', () => {
 })
 
 test('dev user gets 404 on system pages', async ({ browser }) => {
-  const page = await getDevUserPage(browser)
+  const page = await getPageAsUser(browser, 'Hans Jonas')
   await page.goto('/system/silos')
   await expect(page.getByText('Page not found')).toBeVisible()
 

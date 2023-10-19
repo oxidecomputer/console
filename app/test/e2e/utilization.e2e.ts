@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { expect, expectNotVisible, expectVisible, getDevUserPage, test } from './utils'
+import { expect, expectNotVisible, expectVisible, getPageAsUser, test } from './utils'
 
 // not trying to get elaborate here. just make sure the pages load, which
 // exercises the loader prefetches and invariant checks
@@ -24,7 +24,7 @@ test.describe('System utilization', () => {
   })
 
   test('does not appear for dev user', async ({ browser }) => {
-    const page = await getDevUserPage(browser)
+    const page = await getPageAsUser(browser, 'Hans Jonas')
     await page.goto('/system/utilization')
     await expect(page.getByText('Page not found')).toBeVisible()
   })
@@ -46,7 +46,7 @@ test.describe('Silo utilization', () => {
   })
 
   test('works for dev user', async ({ browser }) => {
-    const page = await getDevUserPage(browser)
+    const page = await getPageAsUser(browser, 'Hans Jonas')
     await page.goto('/utilization')
     await expectVisible(page, [
       page.getByRole('heading', { name: 'Capacity & Utilization' }),

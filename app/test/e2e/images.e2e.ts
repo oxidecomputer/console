@@ -13,6 +13,7 @@ import {
   expect,
   expectNotVisible,
   expectVisible,
+  getPageAsUser,
 } from './utils'
 
 test('can promote an image from silo', async ({ page }) => {
@@ -156,5 +157,27 @@ test('can delete an image from a silo', async ({ page }) => {
     page.getByText('ubuntu-20-04 has been deleted', { exact: true })
   ).toBeVisible()
   await expect(cell).toBeHidden()
+  await expect(spinner).toBeHidden()
+})
+
+// this is to some extent a test of our mock server implementation, but I want
+// to check the error handling as well because we expect people to run into this
+test("Silo viewer can't delete silo image", async ({ browser }) => {
+  const page = await getPageAsUser(browser, 'Simone de Beauvoir')
+
+  await page.goto('/images')
+
+  const cell = page.getByRole('cell', { name: 'ubuntu-20-04' })
+  await expect(cell).toBeVisible()
+
+  await clickRowAction(page, 'ubuntu-20-04', 'Delete')
+  const spinner = page.getByRole('dialog').getByLabel('Spinner')
+  await expect(spinner).toBeHidden()
+  await page.getByRole('button', { name: 'Confirm' }).click()
+  await expect(spinner).toBeVisible()
+
+  // Check deletion was successful
+  await expect(page.getByText('Could not delete resource', { exact: true })).toBeVisible()
+  await expect(cell).toBeVisible()
   await expect(spinner).toBeHidden()
 })
