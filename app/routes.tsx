@@ -60,10 +60,10 @@ import { NetworkingTab } from './pages/project/instances/instance/tabs/Networkin
 import { StorageTab } from './pages/project/instances/instance/tabs/StorageTab'
 import { ProfilePage } from './pages/settings/ProfilePage'
 import { SSHKeysPage } from './pages/settings/SSHKeysPage'
-import { CapacityUtilizationPage } from './pages/system/CapacityUtilizationPage'
 import { SiloImagesPage } from './pages/system/SiloImagesPage'
 import { SiloPage } from './pages/system/SiloPage'
 import SilosPage from './pages/system/SilosPage'
+import { SystemUtilizationPage } from './pages/system/UtilizationPage'
 import { DisksTab } from './pages/system/inventory/DisksTab'
 import { InventoryPage } from './pages/system/inventory/InventoryPage'
 import { SledsTab } from './pages/system/inventory/SledsTab'
@@ -137,8 +137,8 @@ export const routes = createRoutesFromElements(
         <Route path="issues" element={null} />
         <Route
           path="utilization"
-          element={<CapacityUtilizationPage />}
-          loader={CapacityUtilizationPage.loader}
+          element={<SystemUtilizationPage />}
+          loader={SystemUtilizationPage.loader}
           handle={{ crumb: 'Utilization' }}
         />
         <Route

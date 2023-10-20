@@ -14,7 +14,7 @@ test.describe('System utilization', () => {
   test('works for fleet viewer', async ({ page }) => {
     await page.goto('/system/utilization')
     await expectVisible(page, [
-      page.getByRole('heading', { name: 'Capacity & Utilization' }),
+      page.getByRole('heading', { name: 'Utilization' }),
       page.getByText('Disk utilization'),
       page.getByText('CPU utilization'),
       page.getByText('Memory utilization'),
@@ -33,9 +33,7 @@ test.describe('System utilization', () => {
 test.describe('Silo utilization', () => {
   test('works for fleet viewer', async ({ page }) => {
     await page.goto('/utilization')
-    await expectVisible(page, [
-      page.getByRole('heading', { name: 'Capacity & Utilization' }),
-    ])
+    await expectVisible(page, [page.getByRole('heading', { name: 'Utilization' })])
     await expectNotVisible(page, [
       page.getByText('Disk utilization'),
       page.getByText('CPU utilization'),
@@ -48,9 +46,7 @@ test.describe('Silo utilization', () => {
   test('works for dev user', async ({ browser }) => {
     const page = await getDevUserPage(browser)
     await page.goto('/utilization')
-    await expectVisible(page, [
-      page.getByRole('heading', { name: 'Capacity & Utilization' }),
-    ])
+    await expectVisible(page, [page.getByRole('heading', { name: 'Utilization' })])
     await expectNotVisible(page, [
       page.getByText('Disk utilization'),
       page.getByText('CPU utilization'),

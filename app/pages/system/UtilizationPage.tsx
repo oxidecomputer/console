@@ -37,7 +37,7 @@ import { useDateTimeRangePicker } from 'app/components/form'
 
 import { tabularizeSiloMetrics } from './metrics-util'
 
-CapacityUtilizationPage.loader = async () => {
+SystemUtilizationPage.loader = async () => {
   await Promise.all([
     apiQueryClient.prefetchQuery('siloList', {}),
     apiQueryClient.prefetchQuery('systemMetric', {
@@ -57,7 +57,7 @@ CapacityUtilizationPage.loader = async () => {
   return null
 }
 
-export function CapacityUtilizationPage() {
+export function SystemUtilizationPage() {
   const { data: sleds } = usePrefetchedApiQuery('sledList', {})
   const { data: silos } = usePrefetchedApiQuery('siloList', {})
 
@@ -66,7 +66,7 @@ export function CapacityUtilizationPage() {
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<Metrics24Icon />}>Capacity &amp; Utilization</PageTitle>
+        <PageTitle icon={<Metrics24Icon />}>Utilization</PageTitle>
       </PageHeader>
 
       <div className="mb-12 flex min-w-min flex-col gap-3 lg+:flex-row">
