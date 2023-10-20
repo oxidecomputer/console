@@ -7,7 +7,7 @@
  */
 import { getLocalTimeZone, now } from '@internationalized/date'
 import { useIsFetching } from '@tanstack/react-query'
-import { memo, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 
 import type { SiloResultsPage } from '@oxide/api'
 import {
@@ -28,15 +28,14 @@ import {
   Table,
   Tabs,
 } from '@oxide/ui'
-import { bytesToGiB, bytesToTiB, camelCase } from '@oxide/util'
+import { bytesToGiB, bytesToTiB } from '@oxide/util'
 
 import { CapacityMetric, capacityQueryParams } from 'app/components/CapacityMetric'
 import { useIntervalPicker } from 'app/components/RefetchIntervalPicker'
 import { SystemMetric } from 'app/components/SystemMetric'
 import { useDateTimeRangePicker } from 'app/components/form'
 
-import type { SiloMetric } from './metrics-util'
-import { mergeSiloMetrics } from './metrics-util'
+import { tabularizeSiloMetrics } from './metrics-util'
 
 CapacityUtilizationPage.loader = async () => {
   await Promise.all([
@@ -189,54 +188,23 @@ const MetricsTab = ({
   )
 }
 
-const usageTableParams = {
-  startTime: new Date(0),
-  endTime: capacityQueryParams.endTime,
-  limit: 1,
-  order: 'descending' as const,
-}
-
-const UsageTab = memo(({ silos }: { silos: SiloResultsPage }) => {
-  const siloList = silos?.items.map((silo) => ({ name: silo.name, id: silo.id })) || []
-
-  const results = useApiQueries('systemMetric', [
-    ...siloList.map((silo) => ({
-      path: { metricName: 'virtual_disk_space_provisioned' as const },
-      query: { ...usageTableParams, silo: silo.name },
-    })),
-    ...siloList.map((silo) => ({
-      path: { metricName: 'ram_provisioned' as const },
-      query: { ...usageTableParams, silo: silo.name },
-    })),
-    ...siloList.map((silo) => ({
-      path: { metricName: 'cpus_provisioned' as const },
-      query: { ...usageTableParams, silo: silo.name },
-    })),
-  ])
+function UsageTab({ silos }: { silos: SiloResultsPage }) {
+  const results = useApiQueries(
+    'systemMetric',
+    silos.items.flatMap((silo) => {
+      const query = { ...capacityQueryParams, silo: silo.name }
+      return [
+        { path: { metricName: 'virtual_disk_space_provisioned' as const }, query },
+        { path: { metricName: 'ram_provisioned' as const }, query },
+        { path: { metricName: 'cpus_provisioned' as const }, query },
+      ]
+    })
+  )
 
   // TODO: loading state, this could take some time
   if (results.some((result) => result.isPending)) return null
 
-  const siloResults = results
-    .map((result) => {
-      if (result.data && result.data.params) {
-        const params = result.data.params
-
-        if (!params.query) {
-          return undefined
-        }
-
-        return {
-          siloName: params.query.silo,
-          metrics: {
-            [camelCase(params.path.metricName)]: result.data.items[0].datum.datum,
-          },
-        } as SiloMetric
-      }
-    })
-    .filter((item): item is SiloMetric => Boolean(item))
-
-  const mergedResults = mergeSiloMetrics(siloResults)
+  const mergedResults = tabularizeSiloMetrics(results)
 
   return (
     <Table className="w-full">
@@ -256,13 +224,13 @@ const UsageTab = memo(({ silos }: { silos: SiloResultsPage }) => {
         {mergedResults.map((result) => (
           <Table.Row key={result.siloName}>
             <Table.Cell width="25%">{result.siloName}</Table.Cell>
-            <Table.Cell width="25%">{result.metrics.cpusProvisioned}</Table.Cell>
+            <Table.Cell width="25%">{result.metrics.cpus_provisioned}</Table.Cell>
             <Table.Cell width="25%">
-              {bytesToTiB(result.metrics.virtualDiskSpaceProvisioned)}
+              {bytesToTiB(result.metrics.virtual_disk_space_provisioned)}
               <span className="ml-1 inline-block text-quaternary">TiB</span>
             </Table.Cell>
             <Table.Cell width="25%">
-              {bytesToGiB(result.metrics.ramProvisioned)}
+              {bytesToGiB(result.metrics.ram_provisioned)}
               <span className="ml-1 inline-block text-quaternary">GiB</span>
             </Table.Cell>
           </Table.Row>
@@ -270,4 +238,4 @@ const UsageTab = memo(({ silos }: { silos: SiloResultsPage }) => {
       </Table.Body>
     </Table>
   )
-})
+}

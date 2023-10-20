@@ -5,16 +5,46 @@
  *
  * Copyright Oxide Computer Company
  */
+import type {
+  MeasurementResultsPage,
+  SystemMetricName,
+  SystemMetricPathParams,
+  SystemMetricQueryParams,
+} from '@oxide/api'
 import { groupBy } from '@oxide/util'
 
-export type SiloMetric = {
-  siloName: string
-  metrics: Record<string, number>
+export type MetricsResult = {
+  data?: MeasurementResultsPage & {
+    params: {
+      path: SystemMetricPathParams
+      query?: SystemMetricQueryParams
+    }
+  }
 }
 
-export const mergeSiloMetrics = (results: SiloMetric[]): SiloMetric[] => {
-  return groupBy(results, (result) => result.siloName).map(([siloName, values]) => ({
-    siloName,
-    metrics: Object.assign({}, ...values.map((v) => v.metrics)),
-  }))
+type SiloMetric = {
+  siloName: string
+  metrics: Record<SystemMetricName, number>
+}
+
+/**
+ * Turn the big list of query results into something we can display in a table.
+ * See the tests for an example.
+ */
+export function tabularizeSiloMetrics(results: MetricsResult[]): SiloMetric[] {
+  const processed = results
+    // filter mostly to ensure we don't try to pull data off an error response
+    .filter((r) => r.data?.params.query?.silo)
+    .map((r) => {
+      const metricName = r.data!.params.path.metricName
+      const value = r.data!.items[0].datum.datum as number
+      return {
+        siloName: r.data!.params.query!.silo!,
+        metrics: { [metricName]: value },
+      }
+    })
+
+  return groupBy(processed, (r) => r.siloName).map(([siloName, results]) => {
+    return { siloName, metrics: Object.assign({}, ...results.map((r) => r.metrics)) }
+  })
 }

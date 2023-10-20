@@ -7,27 +7,59 @@
  */
 import { expect, test } from 'vitest'
 
-import { mergeSiloMetrics } from './metrics-util'
+import type { SystemMetricName } from '@oxide/api'
 
-test('mergeSiloMetrics', () => {
-  expect(mergeSiloMetrics([])).toEqual([])
-  expect(mergeSiloMetrics([{ siloName: 'a', metrics: { m1: 1 } }])).toEqual([
-    { siloName: 'a', metrics: { m1: 1 } },
-  ])
+import type { MetricsResult } from './metrics-util'
+import { tabularizeSiloMetrics } from './metrics-util'
+
+function makeResult(
+  silo: string,
+  metricName: SystemMetricName,
+  value: number
+): MetricsResult {
+  return {
+    data: {
+      items: [
+        {
+          datum: { type: 'i64', datum: value },
+          timestamp: new Date(),
+        },
+      ],
+      params: { query: { silo }, path: { metricName } },
+    },
+  }
+}
+
+test('tabularizeSiloMetrics', () => {
+  expect(tabularizeSiloMetrics([])).toEqual([])
   expect(
-    mergeSiloMetrics([
-      { siloName: 'a', metrics: { m1: 1 } },
-      { siloName: 'a', metrics: { m2: 2 } },
-    ])
-  ).toEqual([{ siloName: 'a', metrics: { m1: 1, m2: 2 } }])
-  expect(
-    mergeSiloMetrics([
-      { siloName: 'a', metrics: { m1: 1 } },
-      { siloName: 'a', metrics: { m2: 2 } },
-      { siloName: 'b', metrics: { m1: 3 } },
+    tabularizeSiloMetrics([
+      makeResult('a', 'virtual_disk_space_provisioned', 1),
+      makeResult('b', 'virtual_disk_space_provisioned', 2),
+      makeResult('a', 'cpus_provisioned', 3),
+      makeResult('b', 'cpus_provisioned', 4),
+      makeResult('a', 'ram_provisioned', 5),
+      makeResult('b', 'ram_provisioned', 6),
+      // here to make sure it gets ignored and doesn't break anything
+      // @ts-expect-error
+      { error: 'whoops' },
     ])
   ).toEqual([
-    { siloName: 'a', metrics: { m1: 1, m2: 2 } },
-    { siloName: 'b', metrics: { m1: 3 } },
+    {
+      siloName: 'a',
+      metrics: {
+        virtual_disk_space_provisioned: 1,
+        cpus_provisioned: 3,
+        ram_provisioned: 5,
+      },
+    },
+    {
+      siloName: 'b',
+      metrics: {
+        virtual_disk_space_provisioned: 2,
+        cpus_provisioned: 4,
+        ram_provisioned: 6,
+      },
+    },
   ])
 })
