@@ -34,6 +34,7 @@ import {
   handleMetrics,
   paginated,
   requireFleetViewer,
+  requireRole,
   unavailableErr,
 } from './util'
 
@@ -255,7 +256,12 @@ export const handlers = makeHandlers({
     return json(newImage, { status: 201 })
   },
   imageView: ({ path, query }) => lookup.image({ ...path, ...query }),
-  imageDelete({ path, query }) {
+  imageDelete({ path, query, req }) {
+    // if it's a silo image, you need silo write to delete it
+    if (!query.project) {
+      requireRole(req, 'silo', defaultSilo.id, 'collaborator')
+    }
+
     const image = lookup.image({ ...path, ...query })
     db.images = db.images.filter((i) => i.id !== image.id)
 
