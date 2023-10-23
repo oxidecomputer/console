@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import type { SystemMetricName } from '@oxide/api'
 
@@ -30,36 +30,61 @@ function makeResult(
   }
 }
 
-test('tabularizeSiloMetrics', () => {
-  expect(tabularizeSiloMetrics([])).toEqual([])
-  expect(
-    tabularizeSiloMetrics([
-      makeResult('a', 'virtual_disk_space_provisioned', 1),
-      makeResult('b', 'virtual_disk_space_provisioned', 2),
-      makeResult('a', 'cpus_provisioned', 3),
-      makeResult('b', 'cpus_provisioned', 4),
-      makeResult('a', 'ram_provisioned', 5),
-      makeResult('b', 'ram_provisioned', 6),
-      // here to make sure it gets ignored and doesn't break anything
-      // @ts-expect-error
-      { error: 'whoops' },
+describe('tabularizeSiloMetrics', () => {
+  it('handles zero silos', () => {
+    expect(tabularizeSiloMetrics([])).toEqual([])
+  })
+  it('handles multiple silos', () => {
+    expect(
+      tabularizeSiloMetrics([
+        makeResult('a', 'virtual_disk_space_provisioned', 1),
+        makeResult('b', 'virtual_disk_space_provisioned', 2),
+        makeResult('a', 'cpus_provisioned', 3),
+        makeResult('b', 'cpus_provisioned', 4),
+        makeResult('a', 'ram_provisioned', 5),
+        makeResult('b', 'ram_provisioned', 6),
+        // here to make sure it gets ignored and doesn't break anything
+        // @ts-expect-error
+        { error: 'whoops' },
+      ])
+    ).toEqual([
+      {
+        siloName: 'a',
+        metrics: {
+          virtual_disk_space_provisioned: 1,
+          cpus_provisioned: 3,
+          ram_provisioned: 5,
+        },
+      },
+      {
+        siloName: 'b',
+        metrics: {
+          virtual_disk_space_provisioned: 2,
+          cpus_provisioned: 4,
+          ram_provisioned: 6,
+        },
+      },
     ])
-  ).toEqual([
-    {
-      siloName: 'a',
-      metrics: {
-        virtual_disk_space_provisioned: 1,
-        cpus_provisioned: 3,
-        ram_provisioned: 5,
+  })
+
+  it('handles silo with empty metrics response', () => {
+    expect(
+      tabularizeSiloMetrics([
+        {
+          data: {
+            items: [],
+            params: {
+              query: { silo: 'whatever' },
+              path: { metricName: 'ram_provisioned' },
+            },
+          },
+        },
+      ])
+    ).toEqual([
+      {
+        metrics: { ram_provisioned: 0 },
+        siloName: 'whatever',
       },
-    },
-    {
-      siloName: 'b',
-      metrics: {
-        virtual_disk_space_provisioned: 2,
-        cpus_provisioned: 4,
-        ram_provisioned: 6,
-      },
-    },
-  ])
+    ])
+  })
 })

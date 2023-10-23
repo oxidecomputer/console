@@ -37,7 +37,7 @@ export function tabularizeSiloMetrics(results: MetricsResult[]): SiloMetric[] {
     .filter((r) => r.data?.params.query?.silo)
     .map((r) => {
       const metricName = r.data!.params.path.metricName
-      const value = r.data!.items[0].datum.datum as number
+      const value = (r.data!.items[0]?.datum.datum || 0) as number
       return {
         siloName: r.data!.params.query!.silo!,
         metrics: { [metricName]: value },
