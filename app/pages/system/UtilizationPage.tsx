@@ -24,6 +24,7 @@ import {
   PageHeader,
   PageTitle,
   Ram16Icon,
+  Spinner,
   Ssd16Icon,
   Table,
   Tabs,
@@ -31,6 +32,7 @@ import {
 import { bytesToGiB, bytesToTiB } from '@oxide/util'
 
 import { CapacityMetric, capacityQueryParams } from 'app/components/CapacityMetric'
+import { QueryParamTabs } from 'app/components/QueryParamTabs'
 import { useIntervalPicker } from 'app/components/RefetchIntervalPicker'
 import { SystemMetric } from 'app/components/SystemMetric'
 import { useDateTimeRangePicker } from 'app/components/form'
@@ -91,7 +93,7 @@ export function SystemUtilizationPage() {
           capacity={capacity.ram_gib}
         />
       </div>
-      <Tabs.Root defaultValue="metrics" className="full-width">
+      <QueryParamTabs defaultValue="metrics" className="full-width">
         <Tabs.List>
           <Tabs.Trigger value="metrics">Metrics</Tabs.Trigger>
           <Tabs.Trigger value="summary">Summary</Tabs.Trigger>
@@ -102,7 +104,7 @@ export function SystemUtilizationPage() {
         <Tabs.Content value="summary">
           <UsageTab silos={silos} />
         </Tabs.Content>
-      </Tabs.Root>
+      </QueryParamTabs>
     </>
   )
 }
@@ -201,8 +203,8 @@ function UsageTab({ silos }: { silos: SiloResultsPage }) {
     })
   )
 
-  // TODO: loading state, this could take some time
-  if (results.some((result) => result.isPending)) return null
+  if (results.some((result) => result.isPending))
+    return <Spinner className="ml-6" size="lg" />
 
   const mergedResults = tabularizeSiloMetrics(results)
 
