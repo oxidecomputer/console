@@ -12,6 +12,7 @@ import type * as ApiTypes from './__generated__/Api'
 import { Api } from './__generated__/Api'
 import {
   getUseApiMutation,
+  getUseApiQueries,
   getUseApiQuery,
   getUseApiQueryClient,
   getUseApiQueryErrorsAllowed,
@@ -27,6 +28,7 @@ export const api = new Api({
 export type ApiMethods = typeof api.methods
 
 export const useApiQuery = getUseApiQuery(api.methods)
+export const useApiQueries = getUseApiQueries(api.methods)
 /**
  * Same as `useApiQuery`, except we use `invariant(data)` to ensure the data is
  * already there in the cache at request time, which means it has been

@@ -10,11 +10,11 @@ import type {
   FetchQueryOptions,
   InvalidateQueryFilters,
   QueryClient,
-  QueryKey,
   UndefinedInitialDataOptions,
   UseMutationOptions,
+  UseQueryOptions,
 } from '@tanstack/react-query'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { invariant } from '@oxide/util'
 
@@ -86,7 +86,7 @@ export const getUseApiQuery =
     options: UseQueryOtherOptions<Result<A[M]>, ApiError> = {}
   ) => {
     return useQuery({
-      queryKey: [method, params] as QueryKey,
+      queryKey: [method, params],
       // no catch, let unexpected errors bubble up
       queryFn: ({ signal }) => api[method](params, { signal }).then(handleResult(method)),
       // In the case of 404s, let the error bubble up to the error boundary so
@@ -98,6 +98,35 @@ export const getUseApiQuery =
     })
   }
 
+/**
+ * Our version of `useQueries`, but with the key difference that all queries in
+ * a given call are using the same API method, and therefore all have the same
+ * request and response (`Params` and `Result`) types. Otherwise the types would
+ * be (perhaps literally) impossible.
+ */
+export const getUseApiQueries =
+  <A extends ApiClient>(api: A) =>
+  <M extends string & keyof A>(
+    method: M,
+    paramsArray: Params<A[M]>[],
+    options: UseQueryOtherOptions<Result<A[M]>, ApiError> = {}
+  ) => {
+    return useQueries({
+      queries: paramsArray.map(
+        (params) =>
+          ({
+            queryKey: [method, params],
+            queryFn: ({ signal }) =>
+              api[method](params, { signal }).then(handleResult(method)),
+            throwOnError: (err: ApiError) => err.statusCode === 404,
+            ...options,
+            // Add params to the result for reassembly after the queries are returned
+            select: (data) => ({ ...data, params }),
+          } satisfies UseQueryOptions<Result<A[M]> & { params: Params<A[M]> }, ApiError>)
+      ),
+    })
+  }
+
 export const getUsePrefetchedApiQuery =
   <A extends ApiClient>(api: A) =>
   <M extends string & keyof A>(
@@ -105,7 +134,7 @@ export const getUsePrefetchedApiQuery =
     params: Params<A[M]>,
     options: UseQueryOtherOptions<Result<A[M]>, ApiError> = {}
   ) => {
-    const queryKey = [method, params] as QueryKey
+    const queryKey = [method, params]
     const { data, ...rest } = useQuery({
       queryKey,
       // no catch, let unexpected errors bubble up
