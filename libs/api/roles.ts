@@ -21,7 +21,6 @@ import type { FleetRole, IdentityType, ProjectRole, SiloRole } from './__generat
 /**
  * Union of all the specific roles, which are all the same, which makes making
  * our methods generic on the *Role type is pointless (until they stop being the same).
- * Only named `RoleName` because the API client already exports `Role`.
  */
 export type RoleKey = FleetRole | SiloRole | ProjectRole
 

@@ -10,16 +10,18 @@ import type { RestRequest } from 'msw'
 
 import type {
   DiskCreate,
+  RoleKey,
   Sled,
   SystemMetricName,
   SystemMetricQueryParams,
   User,
 } from '@oxide/api'
-import { MAX_DISK_SIZE_GiB, MIN_DISK_SIZE_GiB, totalCapacity } from '@oxide/api'
+import { FLEET_ID, MAX_DISK_SIZE_GiB, MIN_DISK_SIZE_GiB, totalCapacity } from '@oxide/api'
 import type { Json } from '@oxide/gen/msw-handlers'
 import { json } from '@oxide/gen/msw-handlers'
 import { GiB, TiB, isTruthy } from '@oxide/util'
 
+import type { DbRoleAssignmentResourceType } from '..'
 import { genI64Data } from '../metrics'
 import { db } from './db'
 
@@ -299,24 +301,48 @@ export function currentUser(req: RestRequest): Json<User> {
 }
 
 /**
- * Look for fleet roles in roles for the user as well as for groups the user is
- * in. Testable core of `requireFleetViewer`.
+ * Given a role A, get a list of the roles (including A) that confer *at least*
+ * the powers of A.
  */
-export function userIsFleetViewer(user: Json<User>): boolean {
+// could implement with `takeUntil(allRoles, r => r === role)`, but that is so
+// much harder to understand
+const roleOrStronger: Record<RoleKey, RoleKey[]> = {
+  viewer: ['viewer', 'collaborator', 'admin'],
+  collaborator: ['collaborator', 'admin'],
+  admin: ['admin'],
+}
+
+/**
+ * Determine whether a user has a role at least as strong as `role` on the
+ * specified resource. Note that this does not yet do parent-child inheritance
+ * like Nexus does, i.e., if a user has collaborator on a silo, then it inherits
+ * collaborator on all projects in the silo even if it has no explicit role on
+ * those projects. This does NOT do that.
+ */
+export function userHasRole(
+  user: Json<User>,
+  resourceType: DbRoleAssignmentResourceType,
+  resourceId: string,
+  role: RoleKey
+): boolean {
   const userGroupIds = db.groupMemberships
     .filter((gm) => gm.userId === user.id)
     .map((gm) => db.userGroups.find((g) => g.id === gm.groupId))
     .filter(isTruthy)
     .map((g) => g.id)
 
-  // don't need to filter by role because any role is at least viewer
-  const actorsWithFleetRole = db.roleAssignments
-    .filter((ra) => ra.resource_type === 'fleet')
+  /** All actors with *at least* the specified role on the resource */
+  const actorsWithRole = db.roleAssignments
+    .filter(
+      (ra) =>
+        ra.resource_type === resourceType &&
+        ra.resource_id === resourceId &&
+        roleOrStronger[role].includes(ra.role_name)
+    )
     .map((ra) => ra.identity_id)
 
-  // user is a fleet viewer if their own ID or any of their groups is
-  // associated with any fleet role
-  return [user.id, ...userGroupIds].some((id) => actorsWithFleetRole.includes(id))
+  // user has role if their own ID or any of their groups is associated with the role
+  return [user.id, ...userGroupIds].some((id) => actorsWithRole.includes(id))
 }
 
 /**
@@ -325,6 +351,21 @@ export function userIsFleetViewer(user: Json<User>): boolean {
  * throw 403 if no.
  */
 export function requireFleetViewer(req: RestRequest) {
+  requireRole(req, 'fleet', FLEET_ID, 'viewer')
+}
+
+/**
+ * Determine whether current user has a role on a resource by looking roles
+ * for the user as well as for the user's groups. Do nothing if yes, throw 403
+ * if no.
+ */
+export function requireRole(
+  req: RestRequest,
+  resourceType: DbRoleAssignmentResourceType,
+  resourceId: string,
+  role: RoleKey
+) {
   const user = currentUser(req)
-  if (!userIsFleetViewer(user)) throw 403 // should it 404? I think the API is a mix
+  // should it 404? I think the API is a mix
+  if (!userHasRole(user, resourceType, resourceId, role)) throw 403
 }

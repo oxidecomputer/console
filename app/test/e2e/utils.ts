@@ -126,10 +126,13 @@ export async function clickRowAction(page: Page, rowText: string, actionName: st
   await page.getByRole('menuitem', { name: actionName }).click()
 }
 
-export async function getDevUserPage(browser: Browser): Promise<Page> {
+export async function getPageAsUser(
+  browser: Browser,
+  user: 'Hans Jonas' | 'Simone de Beauvoir'
+): Promise<Page> {
   const browserContext = await browser.newContext()
   await browserContext.addCookies([
-    { name: MSW_USER_COOKIE, value: 'Hans Jonas', domain: 'localhost', path: '/' },
+    { name: MSW_USER_COOKIE, value: user, domain: 'localhost', path: '/' },
   ])
   return await browserContext.newPage()
 }

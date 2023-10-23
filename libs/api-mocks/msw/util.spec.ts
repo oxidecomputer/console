@@ -7,8 +7,10 @@
  */
 import { describe, expect, it } from 'vitest'
 
-import { users } from '..'
-import { paginated, userIsFleetViewer } from './util'
+import { FLEET_ID } from '@oxide/api'
+
+import { defaultSilo, users } from '..'
+import { paginated, userHasRole } from './util'
 
 describe('paginated', () => {
   it('should return the first page', () => {
@@ -81,11 +83,29 @@ describe('paginated', () => {
   })
 })
 
-it('userIsFleetViewer', () => {
-  expect(users.map((u) => [u.display_name, userIsFleetViewer(u)])).toEqual([
-    ['Hannah Arendt', true],
-    ['Hans Jonas', false],
-    ['Jacob Klein', false],
-    ['Simone de Beauvoir', false],
-  ])
+describe('userHasRole', () => {
+  it('fleet viewer', () => {
+    expect(
+      users.map((u) => [u.display_name, userHasRole(u, 'fleet', FLEET_ID, 'viewer')])
+    ).toEqual([
+      ['Hannah Arendt', true],
+      ['Hans Jonas', false],
+      ['Jacob Klein', false],
+      ['Simone de Beauvoir', false],
+    ])
+  })
+
+  it('silo collaborator', () => {
+    expect(
+      users.map((u) => [
+        u.display_name,
+        userHasRole(u, 'silo', defaultSilo.id, 'collaborator'),
+      ])
+    ).toEqual([
+      ['Hannah Arendt', true],
+      ['Hans Jonas', true],
+      ['Jacob Klein', false],
+      ['Simone de Beauvoir', false],
+    ])
+  })
 })

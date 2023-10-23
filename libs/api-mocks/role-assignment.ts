@@ -18,8 +18,11 @@ import { userGroup2, userGroup3 } from './user-group'
 // imitating the API's actual DB schema and behavior, storing individual role
 // assignments and then collecting them into a policy object at request time.
 // See https://github.com/oxidecomputer/omicron/issues/1165
+
+export type DbRoleAssignmentResourceType = 'fleet' | 'silo' | 'project'
+
 type DbRoleAssignment = {
-  resource_type: 'fleet' | 'silo' | 'project'
+  resource_type: DbRoleAssignmentResourceType
   resource_id: string
   identity_id: string
   identity_type: IdentityType

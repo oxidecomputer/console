@@ -10,7 +10,7 @@ import {
   expectNotVisible,
   expectRowVisible,
   expectVisible,
-  getDevUserPage,
+  getPageAsUser,
   test,
 } from './utils'
 
@@ -46,7 +46,7 @@ test.describe('System utilization', () => {
   })
 
   test('does not appear for dev user', async ({ browser }) => {
-    const page = await getDevUserPage(browser)
+    const page = await getPageAsUser(browser, 'Hans Jonas')
     await page.goto('/system/utilization')
     await expect(page.getByText('Page not found')).toBeVisible()
   })
@@ -66,7 +66,7 @@ test.describe('Silo utilization', () => {
   })
 
   test('works for dev user', async ({ browser }) => {
-    const page = await getDevUserPage(browser)
+    const page = await getPageAsUser(browser, 'Hans Jonas')
     await page.goto('/utilization')
     await expectVisible(page, [page.getByRole('heading', { name: 'Utilization' })])
     await expectNotVisible(page, [
