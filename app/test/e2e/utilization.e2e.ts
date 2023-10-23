@@ -32,7 +32,7 @@ test.describe('System utilization', () => {
 
   test('Table view', async ({ page }) => {
     await page.goto('/system/utilization')
-    await page.getByRole('tab', { name: 'Usage' }).click()
+    await page.getByRole('tab', { name: 'Summary' }).click()
 
     const statCells = {
       CPU: expect.stringMatching(/^\d+$/),

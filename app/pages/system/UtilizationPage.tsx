@@ -94,12 +94,12 @@ export function SystemUtilizationPage() {
       <Tabs.Root defaultValue="metrics" className="full-width">
         <Tabs.List>
           <Tabs.Trigger value="metrics">Metrics</Tabs.Trigger>
-          <Tabs.Trigger value="usage">Usage</Tabs.Trigger>
+          <Tabs.Trigger value="summary">Summary</Tabs.Trigger>
         </Tabs.List>
         <Tabs.Content value="metrics">
           <MetricsTab capacity={capacity} silos={silos} />
         </Tabs.Content>
-        <Tabs.Content value="usage">
+        <Tabs.Content value="summary">
           <UsageTab silos={silos} />
         </Tabs.Content>
       </Tabs.Root>
