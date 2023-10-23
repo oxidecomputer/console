@@ -5,7 +5,14 @@
  *
  * Copyright Oxide Computer Company
  */
-import { expect, expectNotVisible, expectVisible, getDevUserPage, test } from './utils'
+import {
+  expect,
+  expectNotVisible,
+  expectRowVisible,
+  expectVisible,
+  getDevUserPage,
+  test,
+} from './utils'
 
 // not trying to get elaborate here. just make sure the pages load, which
 // exercises the loader prefetches and invariant checks
@@ -21,6 +28,21 @@ test.describe('System utilization', () => {
       // stats under the graph which require capacity info
       page.getByText('In-use').first(),
     ])
+  })
+
+  test('Table view', async ({ page }) => {
+    await page.goto('/system/utilization')
+    await page.getByRole('tab', { name: 'Usage' }).click()
+
+    const statCells = {
+      CPU: expect.stringMatching(/^\d+$/),
+      Disk: expect.stringMatching(/^\d+.\d+TiB$/),
+      Memory: expect.stringMatching(/^\d+.\d+GiB$/),
+    }
+
+    const table = page.getByRole('table')
+    await expectRowVisible(table, { Silo: 'maze-war', ...statCells })
+    await expectRowVisible(table, { Silo: 'myriad', ...statCells })
   })
 
   test('does not appear for dev user', async ({ browser }) => {

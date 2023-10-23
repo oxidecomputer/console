@@ -74,7 +74,13 @@ export async function expectRowVisible(
   async function getRows() {
     // need to pull header keys every time because the whole page can change
     // while we're polling
-    const headerKeys = await table.locator('thead >> role=cell').allTextContents()
+
+    // filter out data-test-ignore is specifically for making the header cells
+    // match up with the contents on the double-header utilization table
+    const headerKeys = await table
+      .locator('thead >> th:not([data-test-ignore])')
+      .allTextContents()
+
     const rows = await map(table.locator('tbody >> role=row'), async (row) => {
       // accessible name would be better than cell text but it's not in yet
       // https://github.com/microsoft/playwright/issues/13517
