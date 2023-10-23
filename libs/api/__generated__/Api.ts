@@ -152,6 +152,120 @@ export type AddressLotResultsPage = {
 export type Baseboard = { part: string; revision: number; serial: string }
 
 /**
+ * Represents a BGP announce set by id. The id can be used with other API calls to view and manage the announce set.
+ */
+export type BgpAnnounceSet = {
+  /** human-readable free-form text about a resource */
+  description: string
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+}
+
+/**
+ * A BGP announcement tied to a particular address lot block.
+ */
+export type BgpAnnouncementCreate = {
+  /** Address lot this announcement is drawn from. */
+  addressLotBlock: NameOrId
+  /** The network being announced. */
+  network: IpNet
+}
+
+/**
+ * Parameters for creating a named set of BGP announcements.
+ */
+export type BgpAnnounceSetCreate = {
+  /** The announcements in this set. */
+  announcement: BgpAnnouncementCreate[]
+  description: string
+  name: Name
+}
+
+/**
+ * A BGP announcement tied to an address lot block.
+ */
+export type BgpAnnouncement = {
+  /** The address block the IP network being announced is drawn from. */
+  addressLotBlockId: string
+  /** The id of the set this announcement is a part of. */
+  announceSetId: string
+  /** The IP network being announced. */
+  network: IpNet
+}
+
+/**
+ * A base BGP configuration.
+ */
+export type BgpConfig = {
+  /** The autonomous system number of this BGP configuration. */
+  asn: number
+  /** human-readable free-form text about a resource */
+  description: string
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+  /** Optional virtual routing and forwarding identifier for this BGP configuration. */
+  vrf?: string
+}
+
+/**
+ * Parameters for creating a BGP configuration. This includes and autonomous system number (ASN) and a virtual routing and forwarding (VRF) identifier.
+ */
+export type BgpConfigCreate = {
+  /** The autonomous system number of this BGP configuration. */
+  asn: number
+  bgpAnnounceSetId: NameOrId
+  description: string
+  name: Name
+  /** Optional virtual routing and forwarding identifier for this BGP configuration. */
+  vrf?: Name
+}
+
+/**
+ * A single page of results
+ */
+export type BgpConfigResultsPage = {
+  /** list of items on this page of results */
+  items: BgpConfig[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
+ * Identifies switch physical location
+ */
+export type SwitchLocation =
+  /** Switch in upper slot */
+  | 'switch0'
+  /** Switch in lower slot */
+  | 'switch1'
+
+/**
+ * A route imported from a BGP peer.
+ */
+export type BgpImportedRouteIpv4 = {
+  /** BGP identifier of the originating router. */
+  id: number
+  /** The nexthop the prefix is reachable through. */
+  nexthop: string
+  /** The destination network prefix. */
+  prefix: Ipv4Net
+  /** Switch the route is imported into. */
+  switch: SwitchLocation
+}
+
+/**
  * A BGP peer configuration for an interface. Includes the set of announcements that will be advertised to the peer identified by `addr`. The `bgp_config` parameter is a reference to global BGP parameters. The `interface_name` indicates what interface the peer should be contacted on.
  */
 export type BgpPeerConfig = {
@@ -161,8 +275,55 @@ export type BgpPeerConfig = {
   bgpAnnounceSet: NameOrId
   /** The global BGP configuration used for establishing a session with this peer. */
   bgpConfig: NameOrId
+  /** How long to to wait between TCP connection retries (seconds). */
+  connectRetry: number
+  /** How long to delay sending an open request after establishing a TCP session (seconds). */
+  delayOpen: number
+  /** How long to hold peer connections between keppalives (seconds). */
+  holdTime: number
+  /** How long to hold a peer in idle before attempting a new session (seconds). */
+  idleHoldTime: number
   /** The name of interface to peer on. This is relative to the port configuration this BGP peer configuration is a part of. For example this value could be phy0 to refer to a primary physical interface. Or it could be vlan47 to refer to a VLAN interface. */
   interfaceName: string
+  /** How often to send keepalive requests (seconds). */
+  keepalive: number
+}
+
+/**
+ * The current state of a BGP peer.
+ */
+export type BgpPeerState =
+  /** Initial state. Refuse all incomming BGP connections. No resources allocated to peer. */
+  | 'idle'
+  /** Waiting for the TCP connection to be completed. */
+  | 'connect'
+  /** Trying to acquire peer by listening for and accepting a TCP connection. */
+  | 'active'
+  /** Waiting for open message from peer. */
+  | 'open_sent'
+  /** Waiting for keepaliave or notification from peer. */
+  | 'open_confirm'
+  /** Synchronizing with peer. */
+  | 'session_setup'
+  /** Session established. Able to exchange update, notification and keepliave messages with peers. */
+  | 'established'
+
+/**
+ * The current status of a BGP peer.
+ */
+export type BgpPeerStatus = {
+  /** IP address of the peer. */
+  addr: string
+  /** Local autonomous system number. */
+  localAsn: number
+  /** Remote autonomous system number. */
+  remoteAsn: number
+  /** State of the peer. */
+  state: BgpPeerState
+  /** Time of last state change. */
+  stateDurationMillis: number
+  /** Switch with the peer session. */
+  switch: SwitchLocation
 }
 
 /**
@@ -1224,6 +1385,17 @@ export type IpPoolUpdate = { description?: string; name?: Name }
 export type L4PortRange = string
 
 /**
+ * The forward error correction mode of a link.
+ */
+export type LinkFec =
+  /** Firecode foward error correction. */
+  | 'firecode'
+  /** No forward error correction. */
+  | 'none'
+  /** Reed-Solomon forward error correction. */
+  | 'rs'
+
+/**
  * The LLDP configuration associated with a port. LLDP may be either enabled or disabled, if enabled, an LLDP configuration must be provided by name or id.
  */
 export type LldpServiceConfig = {
@@ -1234,13 +1406,40 @@ export type LldpServiceConfig = {
 }
 
 /**
+ * The speed of a link.
+ */
+export type LinkSpeed =
+  /** Zero gigabits per second. */
+  | 'speed0_g'
+  /** 1 gigabit per second. */
+  | 'speed1_g'
+  /** 10 gigabits per second. */
+  | 'speed10_g'
+  /** 25 gigabits per second. */
+  | 'speed25_g'
+  /** 40 gigabits per second. */
+  | 'speed40_g'
+  /** 50 gigabits per second. */
+  | 'speed50_g'
+  /** 100 gigabits per second. */
+  | 'speed100_g'
+  /** 200 gigabits per second. */
+  | 'speed200_g'
+  /** 400 gigabits per second. */
+  | 'speed400_g'
+
+/**
  * Switch link configuration.
  */
 export type LinkConfig = {
+  /** The forward error correction mode of the link. */
+  fec: LinkFec
   /** The link-layer discovery protocol (LLDP) configuration for the link. */
   lldp: LldpServiceConfig
   /** Maximum transmission unit for the link. */
   mtu: number
+  /** The speed of the link. */
+  speed: LinkSpeed
 }
 
 /**
@@ -1946,8 +2145,6 @@ export type SwitchPortApplySettings = {
 export type SwitchPortBgpPeerConfig = {
   /** The address of the peer. */
   addr: string
-  /** The id for the set of prefixes announced in this peer configuration. */
-  bgpAnnounceSetId: string
   /** The id of the global BGP configuration referenced by this peer configuration. */
   bgpConfigId: string
   /** The interface name used to establish a peer session. */
@@ -3106,6 +3303,29 @@ export interface NetworkingAddressLotBlockListQueryParams {
   sortBy?: IdSortMode
 }
 
+export interface NetworkingBgpConfigListQueryParams {
+  limit?: number
+  nameOrId?: NameOrId
+  pageToken?: string
+  sortBy?: NameOrIdSortMode
+}
+
+export interface NetworkingBgpConfigDeleteQueryParams {
+  nameOrId: NameOrId
+}
+
+export interface NetworkingBgpAnnounceSetListQueryParams {
+  nameOrId: NameOrId
+}
+
+export interface NetworkingBgpAnnounceSetDeleteQueryParams {
+  nameOrId: NameOrId
+}
+
+export interface NetworkingBgpImportedRoutesIpv4QueryParams {
+  asn: number
+}
+
 export interface NetworkingLoopbackAddressListQueryParams {
   limit?: number
   pageToken?: string
@@ -3407,6 +3627,8 @@ export type ApiListMethods = Pick<
   | 'ipPoolServiceRangeList'
   | 'networkingAddressLotList'
   | 'networkingAddressLotBlockList'
+  | 'networkingBgpConfigList'
+  | 'networkingBgpAnnounceSetList'
   | 'networkingLoopbackAddressList'
   | 'networkingSwitchPortSettingsList'
   | 'roleList'
@@ -4996,6 +5218,114 @@ export class Api extends HttpClient {
         path: `/v1/system/networking/address-lot/${path.addressLot}/blocks`,
         method: 'GET',
         query,
+        ...params,
+      })
+    },
+    /**
+     * Get BGP configurations.
+     */
+    networkingBgpConfigList: (
+      { query = {} }: { query?: NetworkingBgpConfigListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<BgpConfigResultsPage>({
+        path: `/v1/system/networking/bgp`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create a new BGP configuration.
+     */
+    networkingBgpConfigCreate: (
+      { body }: { body: BgpConfigCreate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<BgpConfig>({
+        path: `/v1/system/networking/bgp`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Delete a BGP configuration.
+     */
+    networkingBgpConfigDelete: (
+      { query }: { query?: NetworkingBgpConfigDeleteQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/networking/bgp`,
+        method: 'DELETE',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Get originated routes for a given BGP configuration.
+     */
+    networkingBgpAnnounceSetList: (
+      { query }: { query?: NetworkingBgpAnnounceSetListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/networking/bgp-announce`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create a new BGP announce set.
+     */
+    networkingBgpAnnounceSetCreate: (
+      { body }: { body: BgpAnnounceSetCreate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<BgpAnnounceSet>({
+        path: `/v1/system/networking/bgp-announce`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Delete a BGP announce set.
+     */
+    networkingBgpAnnounceSetDelete: (
+      { query }: { query?: NetworkingBgpAnnounceSetDeleteQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/networking/bgp-announce`,
+        method: 'DELETE',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Get imported IPv4 BGP routes.
+     */
+    networkingBgpImportedRoutesIpv4: (
+      { query }: { query?: NetworkingBgpImportedRoutesIpv4QueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/networking/bgp-routes-ipv4`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Get BGP peer status
+     */
+    networkingBgpStatus: (_: EmptyObj, params: FetchParams = {}) => {
+      return this.request<void>({
+        path: `/v1/system/networking/bgp-status`,
+        method: 'GET',
         ...params,
       })
     },

@@ -623,6 +623,43 @@ export interface MSWHandlers {
     query: Api.NetworkingAddressLotBlockListQueryParams
     req: RestRequest
   }) => HandlerResult<Api.AddressLotBlockResultsPage>
+  /** `GET /v1/system/networking/bgp` */
+  networkingBgpConfigList: (params: {
+    query: Api.NetworkingBgpConfigListQueryParams
+    req: RestRequest
+  }) => HandlerResult<Api.BgpConfigResultsPage>
+  /** `POST /v1/system/networking/bgp` */
+  networkingBgpConfigCreate: (params: {
+    body: Json<Api.BgpConfigCreate>
+    req: RestRequest
+  }) => HandlerResult<Api.BgpConfig>
+  /** `DELETE /v1/system/networking/bgp` */
+  networkingBgpConfigDelete: (params: {
+    query: Api.NetworkingBgpConfigDeleteQueryParams
+    req: RestRequest
+  }) => StatusCode
+  /** `GET /v1/system/networking/bgp-announce` */
+  networkingBgpAnnounceSetList: (params: {
+    query: Api.NetworkingBgpAnnounceSetListQueryParams
+    req: RestRequest
+  }) => StatusCode
+  /** `POST /v1/system/networking/bgp-announce` */
+  networkingBgpAnnounceSetCreate: (params: {
+    body: Json<Api.BgpAnnounceSetCreate>
+    req: RestRequest
+  }) => HandlerResult<Api.BgpAnnounceSet>
+  /** `DELETE /v1/system/networking/bgp-announce` */
+  networkingBgpAnnounceSetDelete: (params: {
+    query: Api.NetworkingBgpAnnounceSetDeleteQueryParams
+    req: RestRequest
+  }) => StatusCode
+  /** `GET /v1/system/networking/bgp-routes-ipv4` */
+  networkingBgpImportedRoutesIpv4: (params: {
+    query: Api.NetworkingBgpImportedRoutesIpv4QueryParams
+    req: RestRequest
+  }) => StatusCode
+  /** `GET /v1/system/networking/bgp-status` */
+  networkingBgpStatus: (params: { req: RestRequest }) => StatusCode
   /** `GET /v1/system/networking/loopback-address` */
   networkingLoopbackAddressList: (params: {
     query: Api.NetworkingLoopbackAddressListQueryParams
@@ -1454,6 +1491,58 @@ export function makeHandlers(handlers: MSWHandlers): RestHandler[] {
         schema.NetworkingAddressLotBlockListParams,
         null
       )
+    ),
+    rest.get(
+      '/v1/system/networking/bgp',
+      handler(
+        handlers['networkingBgpConfigList'],
+        schema.NetworkingBgpConfigListParams,
+        null
+      )
+    ),
+    rest.post(
+      '/v1/system/networking/bgp',
+      handler(handlers['networkingBgpConfigCreate'], null, schema.BgpConfigCreate)
+    ),
+    rest.delete(
+      '/v1/system/networking/bgp',
+      handler(
+        handlers['networkingBgpConfigDelete'],
+        schema.NetworkingBgpConfigDeleteParams,
+        null
+      )
+    ),
+    rest.get(
+      '/v1/system/networking/bgp-announce',
+      handler(
+        handlers['networkingBgpAnnounceSetList'],
+        schema.NetworkingBgpAnnounceSetListParams,
+        null
+      )
+    ),
+    rest.post(
+      '/v1/system/networking/bgp-announce',
+      handler(handlers['networkingBgpAnnounceSetCreate'], null, schema.BgpAnnounceSetCreate)
+    ),
+    rest.delete(
+      '/v1/system/networking/bgp-announce',
+      handler(
+        handlers['networkingBgpAnnounceSetDelete'],
+        schema.NetworkingBgpAnnounceSetDeleteParams,
+        null
+      )
+    ),
+    rest.get(
+      '/v1/system/networking/bgp-routes-ipv4',
+      handler(
+        handlers['networkingBgpImportedRoutesIpv4'],
+        schema.NetworkingBgpImportedRoutesIpv4Params,
+        null
+      )
+    ),
+    rest.get(
+      '/v1/system/networking/bgp-status',
+      handler(handlers['networkingBgpStatus'], null, null)
     ),
     rest.get(
       '/v1/system/networking/loopback-address',

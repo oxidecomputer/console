@@ -173,6 +173,111 @@ export const Baseboard = z.preprocess(
 )
 
 /**
+ * Represents a BGP announce set by id. The id can be used with other API calls to view and manage the announce set.
+ */
+export const BgpAnnounceSet = z.preprocess(
+  processResponseBody,
+  z.object({
+    description: z.string(),
+    id: z.string().uuid(),
+    name: Name,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
+  })
+)
+
+/**
+ * A BGP announcement tied to a particular address lot block.
+ */
+export const BgpAnnouncementCreate = z.preprocess(
+  processResponseBody,
+  z.object({ addressLotBlock: NameOrId, network: IpNet })
+)
+
+/**
+ * Parameters for creating a named set of BGP announcements.
+ */
+export const BgpAnnounceSetCreate = z.preprocess(
+  processResponseBody,
+  z.object({
+    announcement: BgpAnnouncementCreate.array(),
+    description: z.string(),
+    name: Name,
+  })
+)
+
+/**
+ * A BGP announcement tied to an address lot block.
+ */
+export const BgpAnnouncement = z.preprocess(
+  processResponseBody,
+  z.object({
+    addressLotBlockId: z.string().uuid(),
+    announceSetId: z.string().uuid(),
+    network: IpNet,
+  })
+)
+
+/**
+ * A base BGP configuration.
+ */
+export const BgpConfig = z.preprocess(
+  processResponseBody,
+  z.object({
+    asn: z.number().min(0).max(4294967295),
+    description: z.string(),
+    id: z.string().uuid(),
+    name: Name,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
+    vrf: z.string().optional(),
+  })
+)
+
+/**
+ * Parameters for creating a BGP configuration. This includes and autonomous system number (ASN) and a virtual routing and forwarding (VRF) identifier.
+ */
+export const BgpConfigCreate = z.preprocess(
+  processResponseBody,
+  z.object({
+    asn: z.number().min(0).max(4294967295),
+    bgpAnnounceSetId: NameOrId,
+    description: z.string(),
+    name: Name,
+    vrf: Name.optional(),
+  })
+)
+
+/**
+ * A single page of results
+ */
+export const BgpConfigResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: BgpConfig.array(), nextPage: z.string().optional() })
+)
+
+/**
+ * Identifies switch physical location
+ */
+export const SwitchLocation = z.preprocess(
+  processResponseBody,
+  z.enum(['switch0', 'switch1'])
+)
+
+/**
+ * A route imported from a BGP peer.
+ */
+export const BgpImportedRouteIpv4 = z.preprocess(
+  processResponseBody,
+  z.object({
+    id: z.number().min(0).max(4294967295),
+    nexthop: z.string(),
+    prefix: Ipv4Net,
+    switch: SwitchLocation,
+  })
+)
+
+/**
  * A BGP peer configuration for an interface. Includes the set of announcements that will be advertised to the peer identified by `addr`. The `bgp_config` parameter is a reference to global BGP parameters. The `interface_name` indicates what interface the peer should be contacted on.
  */
 export const BgpPeerConfig = z.preprocess(
@@ -181,7 +286,43 @@ export const BgpPeerConfig = z.preprocess(
     addr: z.string(),
     bgpAnnounceSet: NameOrId,
     bgpConfig: NameOrId,
+    connectRetry: z.number().min(0).max(4294967295),
+    delayOpen: z.number().min(0).max(4294967295),
+    holdTime: z.number().min(0).max(4294967295),
+    idleHoldTime: z.number().min(0).max(4294967295),
     interfaceName: z.string(),
+    keepalive: z.number().min(0).max(4294967295),
+  })
+)
+
+/**
+ * The current state of a BGP peer.
+ */
+export const BgpPeerState = z.preprocess(
+  processResponseBody,
+  z.enum([
+    'idle',
+    'connect',
+    'active',
+    'open_sent',
+    'open_confirm',
+    'session_setup',
+    'established',
+  ])
+)
+
+/**
+ * The current status of a BGP peer.
+ */
+export const BgpPeerStatus = z.preprocess(
+  processResponseBody,
+  z.object({
+    addr: z.string(),
+    localAsn: z.number().min(0).max(4294967295),
+    remoteAsn: z.number().min(0).max(4294967295),
+    state: BgpPeerState,
+    stateDurationMillis: z.number().min(0),
+    switch: SwitchLocation,
   })
 )
 
@@ -1331,6 +1472,11 @@ export const L4PortRange = z.preprocess(
 )
 
 /**
+ * The forward error correction mode of a link.
+ */
+export const LinkFec = z.preprocess(processResponseBody, z.enum(['firecode', 'none', 'rs']))
+
+/**
  * The LLDP configuration associated with a port. LLDP may be either enabled or disabled, if enabled, an LLDP configuration must be provided by name or id.
  */
 export const LldpServiceConfig = z.preprocess(
@@ -1339,11 +1485,34 @@ export const LldpServiceConfig = z.preprocess(
 )
 
 /**
+ * The speed of a link.
+ */
+export const LinkSpeed = z.preprocess(
+  processResponseBody,
+  z.enum([
+    'speed0_g',
+    'speed1_g',
+    'speed10_g',
+    'speed25_g',
+    'speed40_g',
+    'speed50_g',
+    'speed100_g',
+    'speed200_g',
+    'speed400_g',
+  ])
+)
+
+/**
  * Switch link configuration.
  */
 export const LinkConfig = z.preprocess(
   processResponseBody,
-  z.object({ lldp: LldpServiceConfig, mtu: z.number().min(0).max(65535) })
+  z.object({
+    fec: LinkFec,
+    lldp: LldpServiceConfig,
+    mtu: z.number().min(0).max(65535),
+    speed: LinkSpeed,
+  })
 )
 
 /**
@@ -1986,7 +2155,6 @@ export const SwitchPortBgpPeerConfig = z.preprocess(
   processResponseBody,
   z.object({
     addr: z.string(),
-    bgpAnnounceSetId: z.string().uuid(),
     bgpConfigId: z.string().uuid(),
     interfaceName: z.string(),
     portSettingsId: z.string().uuid(),
@@ -3688,6 +3856,83 @@ export const NetworkingAddressLotBlockListParams = z.preprocess(
       pageToken: z.string().optional(),
       sortBy: IdSortMode.optional(),
     }),
+  })
+)
+
+export const NetworkingBgpConfigListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      nameOrId: NameOrId.optional(),
+      pageToken: z.string().optional(),
+      sortBy: NameOrIdSortMode.optional(),
+    }),
+  })
+)
+
+export const NetworkingBgpConfigCreateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
+  })
+)
+
+export const NetworkingBgpConfigDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      nameOrId: NameOrId,
+    }),
+  })
+)
+
+export const NetworkingBgpAnnounceSetListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      nameOrId: NameOrId,
+    }),
+  })
+)
+
+export const NetworkingBgpAnnounceSetCreateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
+  })
+)
+
+export const NetworkingBgpAnnounceSetDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      nameOrId: NameOrId,
+    }),
+  })
+)
+
+export const NetworkingBgpImportedRoutesIpv4Params = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      asn: z.number().min(0).max(4294967295),
+    }),
+  })
+)
+
+export const NetworkingBgpStatusParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
   })
 )
 
