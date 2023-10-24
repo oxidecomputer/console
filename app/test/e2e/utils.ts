@@ -154,7 +154,7 @@ export async function expectObscured(locator: Locator) {
   // fail fast if not clickable.
   await expect(
     async () => await locator.click({ trial: true, timeout: 50 })
-  ).rejects.toThrow(/locator.click: Timeout 50ms exceeded/)
+  ).rejects.toThrow(/Timeout 50ms exceeded/)
 }
 
 export const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
