@@ -25,7 +25,8 @@ import { Button, EmptyMessage, Storage24Icon } from '@oxide/ui'
 import { DiskStatusBadge } from 'app/components/StatusBadge'
 import AttachDiskSideModalForm from 'app/forms/disk-attach'
 import { CreateDiskSideModalForm } from 'app/forms/disk-create'
-import { getInstanceSelector, useInstanceSelector, useToast } from 'app/hooks'
+import { getInstanceSelector, useInstanceSelector } from 'app/hooks'
+import { addToast } from 'app/stores/toast'
 
 import { fancifyStates } from './common'
 
@@ -53,7 +54,6 @@ export function StorageTab() {
   const [showDiskCreate, setShowDiskCreate] = useState(false)
   const [showDiskAttach, setShowDiskAttach] = useState(false)
 
-  const addToast = useToast()
   const queryClient = useApiQueryClient()
   const { instance: instanceName, project } = useInstanceSelector()
   const instancePathQuery = useMemo(
@@ -61,11 +61,30 @@ export function StorageTab() {
     [instanceName, project]
   )
 
-  const detachDisk = useApiMutation('instanceDiskDetach', {})
+  const detachDisk = useApiMutation('instanceDiskDetach', {
+    onSuccess() {
+      queryClient.invalidateQueries('instanceDiskList')
+      addToast({ content: 'Disk detached' })
+    },
+    onError(err) {
+      addToast({
+        title: 'Failed to detach disk',
+        content: err.message,
+        variant: 'error',
+      })
+    },
+  })
   const createSnapshot = useApiMutation('snapshotCreate', {
     onSuccess() {
       queryClient.invalidateQueries('snapshotList')
-      addToast({ content: 'Snapshot successfully created' })
+      addToast({ content: 'Snapshot created' })
+    },
+    onError(err) {
+      addToast({
+        title: 'Failed to create snapshot',
+        content: err.message,
+        variant: 'error',
+      })
     },
   })
 
@@ -97,18 +116,11 @@ export function StorageTab() {
           <>Instance must be in state {detachableStates} before disk can be detached</>
         ),
         onActivate() {
-          detachDisk.mutate(
-            { body: { disk: disk.name }, ...instancePathQuery },
-            {
-              onSuccess: () => {
-                queryClient.invalidateQueries('instanceDiskList')
-              },
-            }
-          )
+          detachDisk.mutate({ body: { disk: disk.name }, ...instancePathQuery })
         },
       },
     ],
-    [detachDisk, instance, queryClient, instancePathQuery, createSnapshot, project]
+    [detachDisk, instance, instancePathQuery, createSnapshot, project]
   )
 
   const attachDisk = useApiMutation('instanceDiskAttach', {

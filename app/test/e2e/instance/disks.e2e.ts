@@ -66,11 +66,27 @@ test('Attach disk', async ({ page }) => {
   await expectVisible(page, ['role=cell[name="disk-3"]'])
 })
 
+test('Detach disk', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances/db1')
+
+  // Have to stop instance to edit disks
+  await stopInstance(page)
+
+  const successMsg = page.getByText('Disk detached').nth(0)
+  const row = page.getByRole('row', { name: 'disk-1' })
+  await expect(row).toBeVisible()
+  await expect(successMsg).toBeHidden()
+
+  await clickRowAction(page, 'disk-1', 'Detach')
+  await expect(successMsg).toBeVisible()
+  await expect(row).toBeHidden() // disk row goes away
+})
+
 test('Snapshot disk', async ({ page }) => {
   await page.goto('/projects/mock-project/instances/db1')
 
   // have to use nth with toasts because the text shows up in multiple spots
-  const successMsg = page.getByText('Snapshot successfully created').nth(0)
+  const successMsg = page.getByText('Snapshot created').nth(0)
   await expect(successMsg).toBeHidden()
 
   await clickRowAction(page, 'disk-2', 'Snapshot')
