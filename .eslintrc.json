@@ -6,9 +6,10 @@
   },
   "extends": [
     "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:@typescript-eslint/stylistic",
     "plugin:jsx-a11y/recommended",
     "plugin:react/recommended",
-    "plugin:@typescript-eslint/recommended",
     "prettier",
     "plugin:react-hook-form/recommended"
   ],
@@ -28,6 +29,8 @@
     "node": true
   },
   "rules": {
+    "@typescript-eslint/array-type": "off",
+    "@typescript-eslint/consistent-type-definitions": "off",
     "@typescript-eslint/consistent-type-imports": ["error", { "prefer": "type-imports" }],
     "@typescript-eslint/no-empty-function": "off",
     "@typescript-eslint/no-empty-interface": "off",
