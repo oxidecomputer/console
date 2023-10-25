@@ -156,7 +156,11 @@ export const routes = createRoutesFromElements(
           loader={SledPage.loader}
           handle={{ crumb: 'Sleds' }}
         >
-          <Route index element={<Navigate to="instances" replace />} />
+          <Route
+            index
+            element={<Navigate to="instances" replace />}
+            loader={SledInstancesTab.loader}
+          />
           <Route
             path="instances"
             element={<SledInstancesTab />}
