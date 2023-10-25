@@ -438,7 +438,7 @@ export const handlers = makeHandlers({
   instanceDiskDetach({ body, path, query: projectParams }) {
     const instance = lookup.instance({ ...path, ...projectParams })
     if (instance.run_state !== 'stopped') {
-      throw 'Cannot detach disk to instance that is not stopped'
+      throw 'Cannot detach disk from instance that is not stopped'
     }
     const disk = lookup.disk({ ...projectParams, disk: body.disk })
     disk.state = { state: 'detached' }
