@@ -14,14 +14,14 @@ import type { TextFieldProps } from './TextField'
 
 interface DiskSizeProps<
   TFieldValues extends FieldValues,
-  TName extends FieldPath<TFieldValues>
+  TName extends FieldPath<TFieldValues>,
 > extends TextFieldProps<TFieldValues, TName> {
   minSize?: number
 }
 
 export function DiskSizeField<
   TFieldValues extends FieldValues,
-  TName extends FieldPathByValue<TFieldValues, number>
+  TName extends FieldPathByValue<TFieldValues, number>,
 >({ required = true, name, minSize = 1, ...props }: DiskSizeProps<TFieldValues, TName>) {
   return (
     <NumberField

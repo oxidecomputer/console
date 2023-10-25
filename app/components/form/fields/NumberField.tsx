@@ -19,7 +19,7 @@ import type { TextFieldProps } from './TextField'
 export function NumberField<
   TFieldValues extends FieldValues,
   // can only be used on fields with number values
-  TName extends FieldPathByValue<TFieldValues, number>
+  TName extends FieldPathByValue<TFieldValues, number>,
 >({
   name,
   label = capitalize(name),
@@ -60,7 +60,7 @@ export function NumberField<
  */
 export const NumberFieldInner = <
   TFieldValues extends FieldValues,
-  TName extends FieldPathByValue<TFieldValues, number>
+  TName extends FieldPathByValue<TFieldValues, number>,
 >({
   name,
   label = capitalize(name),

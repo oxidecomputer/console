@@ -14,7 +14,7 @@ import { TextField } from './TextField'
 
 export function NameField<
   TFieldValues extends FieldValues,
-  TName extends FieldPath<TFieldValues>
+  TName extends FieldPath<TFieldValues>,
 >({
   required = true,
   name,

@@ -17,7 +17,7 @@ import { ErrorMessage } from './ErrorMessage'
 
 export type ListboxFieldProps<
   TFieldValues extends FieldValues,
-  TName extends FieldPath<TFieldValues>
+  TName extends FieldPath<TFieldValues>,
 > = {
   name: TName
   placeholder?: string
@@ -35,7 +35,7 @@ export type ListboxFieldProps<
 
 export function ListboxField<
   TFieldValues extends FieldValues,
-  TName extends FieldPath<TFieldValues>
+  TName extends FieldPath<TFieldValues>,
 >({
   items,
   name,

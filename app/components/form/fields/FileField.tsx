@@ -14,7 +14,7 @@ import { ErrorMessage } from './ErrorMessage'
 
 export function FileField<
   TFieldValues extends FieldValues,
-  TName extends FieldPath<TFieldValues>
+  TName extends FieldPath<TFieldValues>,
 >({
   id,
   name,

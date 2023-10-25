@@ -122,7 +122,7 @@ export const getUseApiQueries =
             ...options,
             // Add params to the result for reassembly after the queries are returned
             select: (data) => ({ ...data, params }),
-          } satisfies UseQueryOptions<Result<A[M]> & { params: Params<A[M]> }, ApiError>)
+          }) satisfies UseQueryOptions<Result<A[M]> & { params: Params<A[M]> }, ApiError>
       ),
     })
   }

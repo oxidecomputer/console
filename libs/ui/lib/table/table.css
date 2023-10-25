@@ -166,19 +166,25 @@ table.ox-table {
   & .is-selected:not(.multi-selection) td:first-child > div {
     border-top-left-radius: 0.1875rem;
     border-bottom-left-radius: 0.1875rem;
-    box-shadow: -1px -1px var(--stroke-accent), -1px 1px var(--stroke-accent);
+    box-shadow:
+      -1px -1px var(--stroke-accent),
+      -1px 1px var(--stroke-accent);
   }
 
   /* Right-most cell of a single selection */
   & .is-selected:not(.multi-selection) td:last-child > div {
     border-top-right-radius: 0.1875rem;
-    box-shadow: 1px -1px var(--stroke-accent), 1px 1px var(--stroke-accent);
+    box-shadow:
+      1px -1px var(--stroke-accent),
+      1px 1px var(--stroke-accent);
     border-bottom-right-radius: 0.1875rem;
   }
 
   /* All cells of a single selection */
   & .is-selected:not(.multi-selection) td > div {
-    box-shadow: 0px 1px var(--stroke-accent), 0px -1px var(--stroke-accent);
+    box-shadow:
+      0px 1px var(--stroke-accent),
+      0px -1px var(--stroke-accent);
     margin-top: -2px;
     border-bottom: 0;
     height: calc(100% + 1px);

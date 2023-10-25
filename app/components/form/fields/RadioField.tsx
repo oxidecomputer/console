@@ -17,7 +17,7 @@ import { capitalize } from '@oxide/util'
 
 export type RadioFieldProps<
   TFieldValues extends FieldValues,
-  TName extends FieldPath<TFieldValues>
+  TName extends FieldPath<TFieldValues>,
 > = Omit<RadioGroupProps, 'name' | 'children'> & {
   name: TName
   /** Will default to name if not provided */
@@ -55,7 +55,7 @@ export type RadioFieldProps<
 
 export function RadioField<
   TFieldValues extends FieldValues,
-  TName extends FieldPath<TFieldValues>
+  TName extends FieldPath<TFieldValues>,
 >({
   name,
   label = capitalize(name),
@@ -111,7 +111,7 @@ export function RadioField<
 
 export type RadioFieldDynProps<
   TFieldValues extends FieldValues,
-  TName extends FieldPath<TFieldValues>
+  TName extends FieldPath<TFieldValues>,
 > = Omit<RadioFieldProps<TFieldValues, TName>, 'parseValue' | 'items'> & {
   children: React.ReactElement | React.ReactElement[]
 }
@@ -124,7 +124,7 @@ export type RadioFieldDynProps<
  */
 export function RadioFieldDyn<
   TFieldValues extends FieldValues,
-  TName extends FieldPath<TFieldValues>
+  TName extends FieldPath<TFieldValues>,
 >({
   name,
   label = capitalize(name),

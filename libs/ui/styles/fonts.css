@@ -10,7 +10,8 @@
 /* Source: https://www.grillitype.com/typeface/gt-america */
 @font-face {
   font-family: 'GT America Mono';
-  src: url('../assets/fonts/GT-America-Mono-Regular-OCC.woff2') format('woff2'),
+  src:
+    url('../assets/fonts/GT-America-Mono-Regular-OCC.woff2') format('woff2'),
     url('../assets/fonts/GT-America-Mono-Regular-OCC.woff') format('woff');
   font-weight: 400;
   font-style: normal;
@@ -18,7 +19,8 @@
 
 @font-face {
   font-family: 'GT America Mono';
-  src: url('../assets/fonts/GT-America-Mono-Medium.woff2') format('woff2'),
+  src:
+    url('../assets/fonts/GT-America-Mono-Medium.woff2') format('woff2'),
     url('../assets/fonts/GT-America-Mono-Medium.woff') format('woff');
   font-weight: 500;
   font-style: normal;
@@ -28,7 +30,8 @@
 /* Source: https://www.swisstypefaces.com/fonts/suisse/ */
 @font-face {
   font-family: 'SuisseIntl';
-  src: url('../assets/fonts/SuisseIntl-Light-WebS.woff2') format('woff2'),
+  src:
+    url('../assets/fonts/SuisseIntl-Light-WebS.woff2') format('woff2'),
     url('../assets/fonts/SuisseIntl-Light-WebS.woff') format('woff');
   font-weight: 300;
   font-style: normal;
@@ -36,7 +39,8 @@
 
 @font-face {
   font-family: 'SuisseIntl';
-  src: url('../assets/fonts/SuisseIntl-Regular-WebS.woff2') format('woff2'),
+  src:
+    url('../assets/fonts/SuisseIntl-Regular-WebS.woff2') format('woff2'),
     url('../assets/fonts/SuisseIntl-Regular-WebS.woff') format('woff');
   font-weight: 400;
   font-style: normal;
@@ -44,7 +48,8 @@
 
 @font-face {
   font-family: 'SuisseIntl';
-  src: url('../assets/fonts/SuisseIntl-RegularItalic-WebS.woff2') format('woff2'),
+  src:
+    url('../assets/fonts/SuisseIntl-RegularItalic-WebS.woff2') format('woff2'),
     url('../assets/fonts/SuisseIntl-RegularItalic-WebS.woff') format('woff');
   font-weight: 400;
   font-style: italic;
@@ -52,7 +57,8 @@
 
 @font-face {
   font-family: 'SuisseIntl';
-  src: url('../assets/fonts/SuisseIntl-Book-WebS.woff2') format('woff2'),
+  src:
+    url('../assets/fonts/SuisseIntl-Book-WebS.woff2') format('woff2'),
     url('../assets/fonts/SuisseIntl-Book-WebS.woff') format('woff');
   font-weight: 600;
   font-style: normal;
