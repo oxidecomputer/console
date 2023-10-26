@@ -165,7 +165,7 @@ export const handlers = makeHandlers({
 
     // throw 400
 
-    db.diskBulkImportState[disk.id] = { blocks: {} }
+    db.diskBulkImportState.set(disk.id, { blocks: {} })
     disk.state = { state: 'importing_from_bulk_writes' }
     return 204
   },
@@ -178,13 +178,13 @@ export const handlers = makeHandlers({
       throw 'Can only stop import for disk in state importing_from_bulk_write'
     }
 
-    delete db.diskBulkImportState[disk.id]
+    db.diskBulkImportState.delete(disk.id)
     disk.state = { state: 'import_ready' }
     return 204
   },
   diskBulkWriteImport: ({ path, query, body }) => {
     const disk = lookup.disk({ ...path, ...query })
-    const diskImport = db.diskBulkImportState[disk.id]
+    const diskImport = db.diskBulkImportState.get(disk.id)
     if (!diskImport) throw notFoundErr
     // if (Math.random() < 0.01) throw 400
     diskImport.blocks[body.offset] = true

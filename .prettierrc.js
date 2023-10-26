@@ -7,7 +7,7 @@
  */
 
 module.exports = {
-  // note: it seems like prettier has to be last for it to work
+  // note: it seems like tailwind has to be last for it to work
   plugins: ['@trivago/prettier-plugin-sort-imports', 'prettier-plugin-tailwindcss'],
   printWidth: 92,
   singleQuote: true,

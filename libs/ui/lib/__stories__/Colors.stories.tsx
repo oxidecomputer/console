@@ -6,9 +6,6 @@
  * Copyright Oxide Computer Company
  */
 
-// @ts-ignore
-// import twConfig from '../../../../tailwind.config'
-
 interface ColorProps {
   name?: string
   value: string

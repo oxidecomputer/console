@@ -204,7 +204,9 @@ type DiskBulkImport = {
 
 const initDb = {
   disks: [...mock.disks],
-  diskBulkImportState: {} as Record<string, DiskBulkImport>,
+  // TODO: this works with structuredClone but won't work with the fallback for
+  // when that's not defined. However, I think it is always defined.
+  diskBulkImportState: new Map<string, DiskBulkImport>(),
   userGroups: [...mock.userGroups],
   /** Join table for `users` and `userGroups` */
   groupMemberships: [...mock.groupMemberships],

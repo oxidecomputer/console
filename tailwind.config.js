@@ -9,7 +9,7 @@
 // @ts-check
 
 /** @type {import('tailwindcss/lib/util/createPlugin').default} */
-// @ts-ignore
+// @ts-expect-error
 const plugin = require('tailwindcss/plugin')
 const {
   textUtilities,

@@ -125,7 +125,7 @@ function DateSegment({
         segment.type === 'timeZoneName' ? 'ml-1 text-sans-sm' : 'text-sans-md'
       )}
       // Segment props turns this into a focusable element
-      // @ts-ignore
+      // @ts-expect-error
       disabled={readOnly ? true : false}
     >
       {/* Always reserve space for the placeholder, to prevent layout shift when editing. */}
