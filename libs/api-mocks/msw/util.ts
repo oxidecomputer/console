@@ -69,11 +69,6 @@ export const paginated = <P extends PaginateOptions, I extends { id: string }>(
 export const repeat = <T extends { id: string; name: string }>(obj: T, n: number): T[] =>
   new Array(n).fill(0).map((_, i) => ({ ...obj, id: obj.id + i, name: obj.name + i }))
 
-export const clone = <T extends object>(obj: T): T =>
-  typeof structuredClone !== 'undefined'
-    ? structuredClone(obj)
-    : JSON.parse(JSON.stringify(obj))
-
 export function getStartAndEndTime(params: { startTime?: Date; endTime?: Date }) {
   // if no start time or end time, give the last 24 hours. in this case the
   // API will give all data available for the metric (paginated of course),
