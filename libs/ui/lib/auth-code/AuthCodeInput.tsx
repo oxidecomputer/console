@@ -101,8 +101,8 @@ export const AuthCodeInput = forwardRef<AuthCodeRef, AuthCodeProps>(
       },
       clear: () => {
         if (inputsRef.current) {
-          for (let i = 0; i < inputsRef.current.length; i++) {
-            inputsRef.current[i].value = ''
+          for (const input of inputsRef.current) {
+            input.value = ''
           }
           inputsRef.current[0].focus()
         }

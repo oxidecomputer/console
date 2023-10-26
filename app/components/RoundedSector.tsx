@@ -202,26 +202,26 @@ function getPath(angle: number, thickness: number, size: number, cornerRadius: n
       ${+(Math.abs(newOuterAngle) > 180)},0,
       ${outerLineEndCornerXY1.x},${outerLineEndCornerXY1.y}
       C ${outerLineEndCornerXY1.x} ${outerLineEndCornerXY1.y} ${
-    outerLineEndCornerBezier.x
-  } ${outerLineEndCornerBezier.y}  ${outerLineEndCornerXY2.x} ${outerLineEndCornerXY2.y}
+        outerLineEndCornerBezier.x
+      } ${outerLineEndCornerBezier.y}  ${outerLineEndCornerXY2.x} ${outerLineEndCornerXY2.y}
       L ${innerLineStartCornerXY1.x} ${innerLineStartCornerXY1.y}
       C ${innerLineStartCornerXY1.x} ${innerLineStartCornerXY1.y} ${
-    innerLineStartCornerBezier.x
-  } ${innerLineStartCornerBezier.y}  ${innerLineStartCornerXY2.x} ${
-    innerLineStartCornerXY2.y
-  }
+        innerLineStartCornerBezier.x
+      } ${innerLineStartCornerBezier.y}  ${innerLineStartCornerXY2.x} ${
+        innerLineStartCornerXY2.y
+      }
     A ${innerRadius},${innerRadius},0,
     ${+(Math.abs(newInnerAngle) > 180)},1,
     ${innerLineEndCornerXY1.x},${innerLineEndCornerXY1.y}
     C ${innerLineEndCornerXY1.x} ${innerLineEndCornerXY1.y} ${innerLineEndCornerBezier.x} ${
-    innerLineEndCornerBezier.y
-  }  ${innerLineEndCornerXY2.x} ${innerLineEndCornerXY2.y}
+      innerLineEndCornerBezier.y
+    }  ${innerLineEndCornerXY2.x} ${innerLineEndCornerXY2.y}
     L ${outerLinerStartCornerXY1.x} ${outerLinerStartCornerXY1.y}
     C ${outerLinerStartCornerXY1.x} ${outerLinerStartCornerXY1.y} ${
-    outerLineStartCornerBezier.x
-  } ${outerLineStartCornerBezier.y}  ${outerLineStartCornerXY2.x} ${
-    outerLineStartCornerXY2.y
-  }
+      outerLineStartCornerBezier.x
+    } ${outerLineStartCornerBezier.y}  ${outerLineStartCornerXY2.x} ${
+      outerLineStartCornerXY2.y
+    }
     `
 }
 

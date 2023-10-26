@@ -14,7 +14,7 @@ import { Badge } from '@oxide/ui'
  * Display the user or group name. If the row is for a group, add a GROUP badge.
  */
 export const AccessNameCell = <
-  RowData extends { name: string; identityType: IdentityType }
+  RowData extends { name: string; identityType: IdentityType },
 >(
   info: CellContext<RowData, string>
 ) => {

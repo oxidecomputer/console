@@ -13,7 +13,7 @@ import { Checkbox } from '@oxide/ui'
 
 type CheckboxFieldProps<
   TFieldValues extends FieldValues,
-  TName extends FieldPath<TFieldValues>
+  TName extends FieldPath<TFieldValues>,
 > = Omit<CheckboxProps, 'name'> & {
   name: TName
   control: Control<TFieldValues>
@@ -21,7 +21,7 @@ type CheckboxFieldProps<
 
 export const CheckboxField = <
   TFieldValues extends FieldValues,
-  TName extends FieldPath<TFieldValues>
+  TName extends FieldPath<TFieldValues>,
 >({
   control,
   name,

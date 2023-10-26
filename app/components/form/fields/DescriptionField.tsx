@@ -15,7 +15,7 @@ const MAX_LEN = 512
 
 export function DescriptionField<
   TFieldValues extends FieldValues,
-  TName extends FieldPath<TFieldValues>
+  TName extends FieldPath<TFieldValues>,
 >(props: Omit<TextFieldProps<TFieldValues, TName>, 'validate'>) {
   return <TextField as="textarea" validate={validateDescription} {...props} />
 }

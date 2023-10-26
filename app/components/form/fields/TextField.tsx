@@ -28,7 +28,7 @@ import { ErrorMessage } from './ErrorMessage'
 
 export interface TextFieldProps<
   TFieldValues extends FieldValues,
-  TName extends FieldPath<TFieldValues>
+  TName extends FieldPath<TFieldValues>,
 > extends UITextFieldProps {
   name: TName
   /** HTML type attribute, defaults to text */
@@ -59,7 +59,7 @@ export interface TextFieldProps<
 
 export function TextField<
   TFieldValues extends FieldValues,
-  TName extends FieldPath<TFieldValues>
+  TName extends FieldPath<TFieldValues>,
 >({
   name,
   label = capitalize(name),
@@ -108,7 +108,7 @@ function numberToInputValue(value: number) {
  */
 export const TextFieldInner = <
   TFieldValues extends FieldValues,
-  TName extends FieldPath<TFieldValues>
+  TName extends FieldPath<TFieldValues>,
 >({
   name,
   type = 'text',

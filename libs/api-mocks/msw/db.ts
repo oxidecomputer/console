@@ -14,7 +14,7 @@ import type { ApiTypes as Api, PathParams as PP } from '@oxide/api'
 import { user1 } from '@oxide/api-mocks'
 
 import type { Json } from '../json-type'
-import { clone, json } from './util'
+import { json } from './util'
 
 const notFoundBody = { error_code: 'ObjectNotFound' } as const
 export type NotFound = typeof notFoundBody
@@ -204,7 +204,7 @@ type DiskBulkImport = {
 
 const initDb = {
   disks: [...mock.disks],
-  diskBulkImportState: {} as Record<string, DiskBulkImport>,
+  diskBulkImportState: new Map<string, DiskBulkImport>(),
   userGroups: [...mock.userGroups],
   /** Join table for `users` and `userGroups` */
   groupMemberships: [...mock.groupMemberships],
@@ -229,8 +229,8 @@ const initDb = {
   vpcSubnets: [mock.vpcSubnet],
 }
 
-export let db = clone(initDb)
+export let db = structuredClone(initDb)
 
 export function resetDb() {
-  db = clone(initDb)
+  db = structuredClone(initDb)
 }

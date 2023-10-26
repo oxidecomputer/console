@@ -69,7 +69,7 @@ export const TextInput = React.forwardRef<
         )}
       >
         <Component
-          // @ts-ignore this is fine, it's just mad because Component is a variable
+          // @ts-expect-error this is fine, it's just mad because Component is a variable
           ref={ref}
           type={type}
           className={cn(

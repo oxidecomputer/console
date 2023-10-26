@@ -17,7 +17,7 @@ import { ListboxField } from './ListboxField'
 
 type SubnetListboxProps<
   TFieldValues extends FieldValues,
-  TName extends FieldPath<TFieldValues>
+  TName extends FieldPath<TFieldValues>,
 > = Omit<ListboxFieldProps<TFieldValues, TName>, 'items'> & {
   vpcNameField: FieldPath<TFieldValues>
 }
@@ -31,7 +31,7 @@ type SubnetListboxProps<
  */
 export function SubnetListbox<
   TFieldValues extends FieldValues,
-  TName extends FieldPath<TFieldValues>
+  TName extends FieldPath<TFieldValues>,
 >({ vpcNameField, control, ...fieldProps }: SubnetListboxProps<TFieldValues, TName>) {
   const projectSelector = useProjectSelector()
 

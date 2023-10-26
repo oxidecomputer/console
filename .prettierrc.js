@@ -6,33 +6,13 @@
  * Copyright Oxide Computer Company
  */
 
-const twPlugin = require('prettier-plugin-tailwindcss')
-const importsPlugin = require('@trivago/prettier-plugin-sort-imports')
-
-// The Tailwind plugin and the imports plugin can't both be used at the same
-// time because they both rely on the same underlying mechanism, which can only
-// take one plugin. So we manually combine them into a single plugin and use
-// that. Approach recommended here:
-// https://github.com/tailwindlabs/prettier-plugin-tailwindcss/issues/31#issuecomment-1195411734
-
-/** @type {import("prettier").Parser}  */
-const combinedParser = {
-  ...importsPlugin.parsers.typescript,
-  parse: twPlugin.parsers.typescript.parse,
-}
-
-/** @type {import("prettier").Plugin}  */
-const combinedPlugin = {
-  parsers: {
-    typescript: combinedParser,
-  },
-}
-
 module.exports = {
-  plugins: [combinedPlugin],
+  // note: it seems like tailwind has to be last for it to work
+  plugins: ['@trivago/prettier-plugin-sort-imports', 'prettier-plugin-tailwindcss'],
   printWidth: 92,
   singleQuote: true,
   semi: false,
+  trailingComma: 'es5', // default changed to all in prettier 3, wanted to minimize diff
   importOrder: ['<THIRD_PARTY_MODULES>', '^@oxide/(.*)$', '^app/(.*)$', '^[./]'],
   importOrderGroupNamespaceSpecifiers: true,
   importOrderSeparation: true,
