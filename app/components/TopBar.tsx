@@ -11,11 +11,11 @@ import { useNavigate } from 'react-router-dom'
 import { navToLogin, useApiMutation } from '@oxide/api'
 import {
   Button,
+  buttonStyle,
   DirectionDownIcon,
   DropdownMenu,
   Info16Icon,
   Profile16Icon,
-  buttonStyle,
 } from '@oxide/ui'
 
 import { useCurrentUser } from 'app/layouts/AuthenticatedLayout'

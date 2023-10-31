@@ -5,15 +5,12 @@
  *
  * Copyright Oxide Computer Company
  */
-import { getLocalTimeZone } from '@internationalized/date'
-import type { DateValue } from '@internationalized/date'
+import { getLocalTimeZone, type DateValue } from '@internationalized/date'
 import type { TimeValue } from '@react-types/datepicker'
 import cn from 'classnames'
 import { useMemo, useRef } from 'react'
-import { useButton, useDatePicker } from 'react-aria'
-import { useDateFormatter } from 'react-aria'
-import { useDatePickerState } from 'react-stately'
-import type { DatePickerStateOptions } from 'react-stately'
+import { useButton, useDateFormatter, useDatePicker } from 'react-aria'
+import { useDatePickerState, type DatePickerStateOptions } from 'react-stately'
 
 import { Calendar16Icon, Error12Icon } from '@oxide/design-system/icons/react'
 

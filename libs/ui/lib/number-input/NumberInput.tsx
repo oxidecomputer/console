@@ -8,11 +8,11 @@
 import cn from 'classnames'
 import React, { useRef } from 'react'
 import {
-  type AriaButtonProps,
-  type AriaNumberFieldProps,
   useButton,
   useLocale,
   useNumberField,
+  type AriaButtonProps,
+  type AriaNumberFieldProps,
 } from 'react-aria'
 import { mergeRefs } from 'react-merge-refs'
 import { useNumberFieldState } from 'react-stately'

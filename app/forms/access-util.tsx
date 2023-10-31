@@ -5,10 +5,14 @@
  *
  * Copyright Oxide Computer Company
  */
-import type { Actor, IdentityType, Policy, RoleKey } from '@oxide/api'
-import { allRoles } from '@oxide/api'
-import type { ListboxItem } from '@oxide/ui'
-import { Badge } from '@oxide/ui'
+import {
+  allRoles,
+  type Actor,
+  type IdentityType,
+  type Policy,
+  type RoleKey,
+} from '@oxide/api'
+import { Badge, type ListboxItem } from '@oxide/ui'
 import { capitalize } from '@oxide/util'
 
 type AddUserValues = {

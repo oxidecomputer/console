@@ -5,21 +5,18 @@
  *
  * Copyright Oxide Computer Company
  */
-import type { Control } from 'react-hook-form'
-import { useController } from 'react-hook-form'
+import { useController, type Control } from 'react-hook-form'
 
 import {
   firewallRuleGetToPut,
   parsePortRange,
   useApiMutation,
   useApiQueryClient,
-} from '@oxide/api'
-import type {
-  ApiError,
-  VpcFirewallRule,
-  VpcFirewallRuleHostFilter,
-  VpcFirewallRuleTarget,
-  VpcFirewallRuleUpdate,
+  type ApiError,
+  type VpcFirewallRule,
+  type VpcFirewallRuleHostFilter,
+  type VpcFirewallRuleTarget,
+  type VpcFirewallRuleUpdate,
 } from '@oxide/api'
 import { Button, Close12Icon, FormDivider, Table } from '@oxide/ui'
 

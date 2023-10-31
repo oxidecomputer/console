@@ -5,8 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import type { Control } from 'react-hook-form'
-import { useController } from 'react-hook-form'
+import { useController, type Control } from 'react-hook-form'
 
 import type { Image } from '@oxide/api'
 import type { ListboxItem } from '@oxide/ui'

@@ -9,8 +9,7 @@ import type { FieldPath, FieldValues } from 'react-hook-form'
 
 import { capitalize } from '@oxide/util'
 
-import type { TextFieldProps } from './TextField'
-import { TextField } from './TextField'
+import { TextField, type TextFieldProps } from './TextField'
 
 export function NameField<
   TFieldValues extends FieldValues,

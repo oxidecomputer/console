@@ -5,8 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import type { AvatarProps, AvatarSize } from '../avatar/Avatar'
-import { Avatar } from '../avatar/Avatar'
+import { Avatar, type AvatarProps, type AvatarSize } from '../avatar/Avatar'
 
 export interface AvatarStackProps {
   data: Array<AvatarProps>

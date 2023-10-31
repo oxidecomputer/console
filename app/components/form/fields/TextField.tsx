@@ -7,21 +7,22 @@
  */
 import cn from 'classnames'
 import { useId } from 'react'
-import type {
-  Control,
-  FieldPath,
-  FieldPathValue,
-  FieldValues,
-  Validate,
+import {
+  Controller,
+  type Control,
+  type FieldPath,
+  type FieldPathValue,
+  type FieldValues,
+  type Validate,
 } from 'react-hook-form'
-import { Controller } from 'react-hook-form'
 
-import type {
-  TextAreaProps as UITextAreaProps,
-  TextInputBaseProps as UITextFieldProps,
+import {
+  FieldLabel,
+  TextInputHint,
+  TextInput as UITextField,
+  type TextAreaProps as UITextAreaProps,
+  type TextInputBaseProps as UITextFieldProps,
 } from '@oxide/ui'
-import { TextInputHint } from '@oxide/ui'
-import { FieldLabel, TextInput as UITextField } from '@oxide/ui'
 import { capitalize } from '@oxide/util'
 
 import { ErrorMessage } from './ErrorMessage'

@@ -6,12 +6,12 @@
  * Copyright Oxide Computer Company
  */
 import {
-  FloatingArrow,
-  FloatingPortal,
   arrow,
   autoPlacement,
   autoUpdate,
   flip,
+  FloatingArrow,
+  FloatingPortal,
   offset,
   useDismiss,
   useFloating,
@@ -19,11 +19,17 @@ import {
   useHover,
   useInteractions,
   useRole,
+  type Placement,
 } from '@floating-ui/react'
-import type { Placement } from '@floating-ui/react'
 import cn from 'classnames'
-import type { ReactElement } from 'react'
-import { Children, cloneElement, forwardRef, useRef, useState } from 'react'
+import {
+  Children,
+  cloneElement,
+  forwardRef,
+  useRef,
+  useState,
+  type ReactElement,
+} from 'react'
 import { mergeRefs } from 'react-merge-refs'
 
 import './tooltip.css'

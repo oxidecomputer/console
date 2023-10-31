@@ -6,25 +6,23 @@
  * Copyright Oxide Computer Company
  */
 import { useMemo } from 'react'
-import { Outlet } from 'react-router-dom'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, Outlet, useNavigate } from 'react-router-dom'
 
-import type { Project } from '@oxide/api'
 import {
   apiQueryClient,
   useApiMutation,
   useApiQueryClient,
   usePrefetchedApiQuery,
+  type Project,
 } from '@oxide/api'
-import type { MenuAction } from '@oxide/table'
-import { DateCell, linkCell, useQueryTable } from '@oxide/table'
+import { DateCell, linkCell, useQueryTable, type MenuAction } from '@oxide/table'
 import {
+  buttonStyle,
   EmptyMessage,
   Folder24Icon,
   PageHeader,
   PageTitle,
   TableActions,
-  buttonStyle,
 } from '@oxide/ui'
 
 import { confirmDelete } from 'app/stores/confirm-delete'

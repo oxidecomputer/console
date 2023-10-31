@@ -11,6 +11,7 @@ import type { ReactNode } from 'react'
 import { invariant, isOneOf } from '@oxide/util'
 
 import { Badge } from '../badge/Badge'
+
 import './properties-table.css'
 
 export interface PropertiesTableProps {

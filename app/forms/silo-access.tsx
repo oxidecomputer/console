@@ -15,8 +15,13 @@ import {
 import { ListboxField, SideModalForm } from 'app/components/form'
 import { useForm } from 'app/hooks'
 
-import { actorToItem, defaultValues, roleItems } from './access-util'
-import type { AddRoleModalProps, EditRoleModalProps } from './access-util'
+import {
+  actorToItem,
+  defaultValues,
+  roleItems,
+  type AddRoleModalProps,
+  type EditRoleModalProps,
+} from './access-util'
 
 export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalProps) {
   const actors = useActorsNotInPolicy(policy)

@@ -5,15 +5,13 @@
  *
  * Copyright Oxide Computer Company
  */
-import type { FieldPath, FieldValues } from 'react-hook-form'
-import { useWatch } from 'react-hook-form'
+import { useWatch, type FieldPath, type FieldValues } from 'react-hook-form'
 
 import { useApiQuery } from '@oxide/api'
 
 import { useProjectSelector } from 'app/hooks'
 
-import type { ListboxFieldProps } from './ListboxField'
-import { ListboxField } from './ListboxField'
+import { ListboxField, type ListboxFieldProps } from './ListboxField'
 
 type SubnetListboxProps<
   TFieldValues extends FieldValues,

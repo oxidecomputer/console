@@ -5,8 +5,13 @@
  *
  * Copyright Oxide Computer Company
  */
-import type { CalendarDate } from '@internationalized/date'
-import { getDayOfWeek, getLocalTimeZone, isSameDay, isToday } from '@internationalized/date'
+import {
+  getDayOfWeek,
+  getLocalTimeZone,
+  isSameDay,
+  isToday,
+  type CalendarDate,
+} from '@internationalized/date'
 import cn from 'classnames'
 import { useRef } from 'react'
 import { mergeProps, useCalendarCell, useFocusRing, useLocale } from 'react-aria'

@@ -6,8 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { Section } from '../../util/story-section'
-import type { TagColor, TagVariant } from './Tag'
-import { Tag, tagColors } from './Tag'
+import { Tag, tagColors, type TagColor, type TagVariant } from './Tag'
 
 export const Default = () => {
   return (

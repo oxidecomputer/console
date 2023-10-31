@@ -5,8 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import type { VpcSubnet } from '@oxide/api'
-import { useApiMutation, useApiQueryClient } from '@oxide/api'
+import { useApiMutation, useApiQueryClient, type VpcSubnet } from '@oxide/api'
 import { pick } from '@oxide/util'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'

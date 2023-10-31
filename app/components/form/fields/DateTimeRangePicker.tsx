@@ -5,8 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import type { DateValue } from '@internationalized/date'
-import { getLocalTimeZone, now as getNow } from '@internationalized/date'
+import { getLocalTimeZone, now as getNow, type DateValue } from '@internationalized/date'
 import { useMemo, useState } from 'react'
 
 import { DateRangePicker, Listbox } from '@oxide/ui'

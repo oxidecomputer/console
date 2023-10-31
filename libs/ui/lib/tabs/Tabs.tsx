@@ -5,13 +5,16 @@
  *
  * Copyright Oxide Computer Company
  */
-import type {
-  TabsContentProps,
-  TabsListProps,
-  TabsProps,
-  TabsTriggerProps,
+import {
+  Content,
+  List,
+  Root,
+  Trigger,
+  type TabsContentProps,
+  type TabsListProps,
+  type TabsProps,
+  type TabsTriggerProps,
 } from '@radix-ui/react-tabs'
-import { Content, List, Root, Trigger } from '@radix-ui/react-tabs'
 import cn from 'classnames'
 import type { SetRequired } from 'type-fest'
 

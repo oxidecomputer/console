@@ -5,8 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import type { RefObject } from 'react'
-import { useEffect } from 'react'
+import { useEffect, type RefObject } from 'react'
 
 // appreciate this. I suffered
 

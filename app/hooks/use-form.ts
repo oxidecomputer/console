@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { type FieldValues, type UseFormProps, useForm as _useForm } from 'react-hook-form'
+import { useForm as _useForm, type FieldValues, type UseFormProps } from 'react-hook-form'
 
 /**
  * Same as built-in `useForm` except we can hard-code some props and prevent the

@@ -5,8 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import type { Table as TableInstance } from '@tanstack/react-table'
-import { flexRender } from '@tanstack/react-table'
+import { flexRender, type Table as TableInstance } from '@tanstack/react-table'
 import cn from 'classnames'
 
 import { Table as UITable } from '@oxide/ui'

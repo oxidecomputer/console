@@ -8,8 +8,12 @@
 import type { LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient } from '@oxide/api'
-import type { MenuAction } from '@oxide/table'
-import { DateCell, InstanceResourceCell, useQueryTable } from '@oxide/table'
+import {
+  DateCell,
+  InstanceResourceCell,
+  useQueryTable,
+  type MenuAction,
+} from '@oxide/table'
 import { EmptyMessage, Instances24Icon } from '@oxide/ui'
 import { pick } from '@oxide/util'
 

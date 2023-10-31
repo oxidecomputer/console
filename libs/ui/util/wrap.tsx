@@ -5,8 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import React from 'react'
-import type { ReactElement, ReactNode } from 'react'
+import React, { type ReactElement, type ReactNode } from 'react'
 
 interface WrapProps {
   when: unknown

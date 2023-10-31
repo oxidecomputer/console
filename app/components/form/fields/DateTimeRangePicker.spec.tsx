@@ -12,8 +12,7 @@ import { beforeAll, describe, expect, it, vi } from 'vitest'
 
 import { clickByRole } from 'app/test/unit'
 
-import type { RangeKey } from './DateTimeRangePicker'
-import { DateTimeRangePicker } from './DateTimeRangePicker'
+import { DateTimeRangePicker, type RangeKey } from './DateTimeRangePicker'
 
 const now = getNow(getLocalTimeZone())
 

@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { type Page, expect, test } from './utils'
+import { expect, test, type Page } from './utils'
 
 async function expectScrollTop(page: Page, expected: number) {
   const container = page.getByTestId('scroll-container')

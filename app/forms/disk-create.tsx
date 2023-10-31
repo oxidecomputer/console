@@ -6,15 +6,19 @@
  * Copyright Oxide Computer Company
  */
 import { format } from 'date-fns'
-import type { Control } from 'react-hook-form'
-import { useController } from 'react-hook-form'
-import type { NavigateFunction } from 'react-router-dom'
-import { useNavigate } from 'react-router-dom'
+import { useController, type Control } from 'react-hook-form'
+import { useNavigate, type NavigateFunction } from 'react-router-dom'
 
-import type { BlockSize, Disk, DiskCreate, DiskSource } from '@oxide/api'
-import { useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
-import { FormDivider } from '@oxide/ui'
-import { FieldLabel, Radio, RadioGroup } from '@oxide/ui'
+import {
+  useApiMutation,
+  useApiQuery,
+  useApiQueryClient,
+  type BlockSize,
+  type Disk,
+  type DiskCreate,
+  type DiskSource,
+} from '@oxide/api'
+import { FieldLabel, FormDivider, Radio, RadioGroup } from '@oxide/ui'
 import { GiB } from '@oxide/util'
 
 import {

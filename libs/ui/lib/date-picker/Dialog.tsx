@@ -5,10 +5,8 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useRef } from 'react'
-import type { ReactNode } from 'react'
-import { useDialog } from 'react-aria'
-import type { AriaDialogProps } from 'react-aria'
+import { useRef, type ReactNode } from 'react'
+import { useDialog, type AriaDialogProps } from 'react-aria'
 
 interface DialogProps extends AriaDialogProps {
   children: ReactNode

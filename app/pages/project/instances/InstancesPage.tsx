@@ -6,8 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { useMemo } from 'react'
-import type { LoaderFunctionArgs } from 'react-router-dom'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, useApiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import {
@@ -19,13 +18,13 @@ import {
 } from '@oxide/table'
 import {
   Button,
+  buttonStyle,
   EmptyMessage,
   Instances24Icon,
   PageHeader,
   PageTitle,
   Refresh16Icon,
   TableActions,
-  buttonStyle,
 } from '@oxide/ui'
 
 import { getProjectSelector, useProjectSelector, useQuickActions } from 'app/hooks'

@@ -5,14 +5,13 @@
  *
  * Copyright Oxide Computer Company
  */
-import type { LoaderFunctionArgs } from 'react-router-dom'
-import { Link } from 'react-router-dom'
-import { Outlet } from 'react-router-dom'
+import { Link, Outlet, type LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
-import { DateCell, DefaultCell, TruncateCell, linkCell, useQueryTable } from '@oxide/table'
+import { DateCell, DefaultCell, linkCell, TruncateCell, useQueryTable } from '@oxide/table'
 import {
   Badge,
+  buttonStyle,
   Cloud16Icon,
   Cloud24Icon,
   Divider,
@@ -23,7 +22,6 @@ import {
   Question12Icon,
   TableActions,
   Tooltip,
-  buttonStyle,
 } from '@oxide/ui'
 
 import { getSiloSelector, useSiloSelector } from 'app/hooks'

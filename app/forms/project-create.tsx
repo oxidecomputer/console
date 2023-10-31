@@ -7,8 +7,7 @@
  */
 import { useNavigate } from 'react-router-dom'
 
-import type { ProjectCreate } from '@oxide/api'
-import { useApiMutation, useApiQueryClient } from '@oxide/api'
+import { useApiMutation, useApiQueryClient, type ProjectCreate } from '@oxide/api'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
 import { useForm } from 'app/hooks'

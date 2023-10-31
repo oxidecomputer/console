@@ -5,13 +5,17 @@
  *
  * Copyright Oxide Computer Company
  */
-import type {
-  DropdownMenuContentProps,
-  DropdownMenuItemProps,
+import {
+  Content,
+  Item,
+  Portal,
+  Root,
+  Trigger,
+  type DropdownMenuContentProps,
+  type DropdownMenuItemProps,
 } from '@radix-ui/react-dropdown-menu'
-import { Content, Item, Portal, Root, Trigger } from '@radix-ui/react-dropdown-menu'
 import cn from 'classnames'
-import { type ForwardedRef, forwardRef } from 'react'
+import { forwardRef, type ForwardedRef } from 'react'
 
 type DivRef = ForwardedRef<HTMLDivElement>
 

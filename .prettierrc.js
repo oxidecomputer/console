@@ -8,13 +8,19 @@
 
 module.exports = {
   // note: it seems like tailwind has to be last for it to work
-  plugins: ['@trivago/prettier-plugin-sort-imports', 'prettier-plugin-tailwindcss'],
+  plugins: ['@ianvs/prettier-plugin-sort-imports', 'prettier-plugin-tailwindcss'],
   printWidth: 92,
   singleQuote: true,
   semi: false,
   trailingComma: 'es5', // default changed to all in prettier 3, wanted to minimize diff
-  importOrder: ['<THIRD_PARTY_MODULES>', '^@oxide/(.*)$', '^app/(.*)$', '^[./]'],
-  importOrderGroupNamespaceSpecifiers: true,
-  importOrderSeparation: true,
-  importOrderSortSpecifiers: true,
+  importOrder: [
+    '<THIRD_PARTY_MODULES>',
+    '',
+    '^@oxide/(.*)$',
+    '',
+    '^app/(.*)$',
+    '',
+    '^[./]',
+  ],
+  importOrderTypeScriptVersion: '5.2.2',
 }

@@ -12,8 +12,14 @@ import pRetry from 'p-retry'
 import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import type { ApiError, BlockSize, Disk, Snapshot } from '@oxide/api'
-import { useApiMutation, useApiQueryClient } from '@oxide/api'
+import {
+  useApiMutation,
+  useApiQueryClient,
+  type ApiError,
+  type BlockSize,
+  type Disk,
+  type Snapshot,
+} from '@oxide/api'
 import {
   Error12Icon,
   Message,
@@ -23,7 +29,7 @@ import {
   Success12Icon,
   Unauthorized12Icon,
 } from '@oxide/ui'
-import { GiB, KiB, invariant } from '@oxide/util'
+import { GiB, invariant, KiB } from '@oxide/util'
 
 import {
   DescriptionField,

@@ -5,8 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import type { Control, FieldPath, FieldValues } from 'react-hook-form'
-import { Controller } from 'react-hook-form'
+import { Controller, type Control, type FieldPath, type FieldValues } from 'react-hook-form'
 
 import { FieldLabel, FileInput, TextInputHint } from '@oxide/ui'
 

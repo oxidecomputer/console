@@ -7,8 +7,7 @@
  */
 import { useNavigate } from 'react-router-dom'
 
-import type { SshKeyCreate } from '@oxide/api'
-import { useApiMutation, useApiQueryClient } from '@oxide/api'
+import { useApiMutation, useApiQueryClient, type SshKeyCreate } from '@oxide/api'
 
 import { DescriptionField, NameField, SideModalForm, TextField } from 'app/components/form'
 import { useForm } from 'app/hooks'

@@ -7,9 +7,9 @@
  */
 import { useState } from 'react'
 
-import { ModalLink, ModalLinks } from '../ModalLinks'
 import { Button } from '../button/Button'
 import { FieldLabel } from '../field-label/FieldLabel'
+import { ModalLink, ModalLinks } from '../ModalLinks'
 import { TextInput, TextInputHint } from '../text-input/TextInput'
 import { Modal } from './Modal'
 

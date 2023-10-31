@@ -8,26 +8,28 @@
 import { useMemo } from 'react'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 
-import type { Silo } from '@oxide/api'
 import {
   apiQueryClient,
   useApiMutation,
   useApiQueryClient,
   usePrefetchedApiQuery,
+  type Silo,
 } from '@oxide/api'
-import type { MenuAction } from '@oxide/table'
-import { linkCell } from '@oxide/table'
-import { BooleanCell } from '@oxide/table'
-import { DateCell } from '@oxide/table'
-import { useQueryTable } from '@oxide/table'
+import {
+  BooleanCell,
+  DateCell,
+  linkCell,
+  useQueryTable,
+  type MenuAction,
+} from '@oxide/table'
 import {
   Badge,
+  buttonStyle,
   Cloud24Icon,
   EmptyMessage,
   PageHeader,
   PageTitle,
   TableActions,
-  buttonStyle,
 } from '@oxide/ui'
 
 import { useQuickActions } from 'app/hooks/use-quick-actions'

@@ -8,6 +8,7 @@
 import { classed } from '@oxide/util'
 
 import { Table as BigTable } from '../table/Table'
+
 import './mini-table.css'
 
 type Children = { children: React.ReactNode }

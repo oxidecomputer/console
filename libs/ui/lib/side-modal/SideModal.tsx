@@ -8,7 +8,7 @@
 import * as Dialog from '@radix-ui/react-dialog'
 import { animated, useTransition } from '@react-spring/web'
 import cn from 'classnames'
-import React, { type ReactNode, createContext, useContext, useRef } from 'react'
+import React, { createContext, useContext, useRef, type ReactNode } from 'react'
 
 import { Close12Icon, Error12Icon } from '@oxide/design-system/icons/react'
 import { Message } from '@oxide/ui'

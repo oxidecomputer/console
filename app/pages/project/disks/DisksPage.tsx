@@ -5,11 +5,8 @@
  *
  * Copyright Oxide Computer Company
  */
-import type { LoaderFunctionArgs } from 'react-router-dom'
-import { Outlet } from 'react-router-dom'
-import { Link } from 'react-router-dom'
+import { Link, Outlet, type LoaderFunctionArgs } from 'react-router-dom'
 
-import type { Disk } from '@oxide/api'
 import {
   apiQueryClient,
   diskCan,
@@ -17,15 +14,16 @@ import {
   useApiMutation,
   useApiQuery,
   useApiQueryClient,
+  type Disk,
 } from '@oxide/api'
-import { DateCell, type MenuAction, SizeCell, useQueryTable } from '@oxide/table'
+import { DateCell, SizeCell, useQueryTable, type MenuAction } from '@oxide/table'
 import {
+  buttonStyle,
   EmptyMessage,
   PageHeader,
   PageTitle,
   Storage24Icon,
   TableActions,
-  buttonStyle,
 } from '@oxide/ui'
 
 import { DiskStatusBadge } from 'app/components/StatusBadge'

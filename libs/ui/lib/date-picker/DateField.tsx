@@ -5,15 +5,24 @@
  *
  * Copyright Oxide Computer Company
  */
-import type { DateValue } from '@internationalized/date'
-import { createCalendar } from '@internationalized/date'
+import { createCalendar, type DateValue } from '@internationalized/date'
 import type { TimeValue } from '@react-types/datepicker'
 import cn from 'classnames'
 import { useRef } from 'react'
-import { useDateField, useDateSegment, useLocale, useTimeField } from 'react-aria'
-import type { AriaDateFieldProps, AriaTimeFieldProps } from 'react-aria'
-import { useDateFieldState, useTimeFieldState } from 'react-stately'
-import type { DateFieldState, DateSegment as DateSegmentType } from 'react-stately'
+import {
+  useDateField,
+  useDateSegment,
+  useLocale,
+  useTimeField,
+  type AriaDateFieldProps,
+  type AriaTimeFieldProps,
+} from 'react-aria'
+import {
+  useDateFieldState,
+  useTimeFieldState,
+  type DateFieldState,
+  type DateSegment as DateSegmentType,
+} from 'react-stately'
 
 const dateTimeFieldStyles = 'flex items-center rounded border p-2'
 

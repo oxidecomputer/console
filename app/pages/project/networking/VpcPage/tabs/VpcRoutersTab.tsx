@@ -8,8 +8,7 @@
 import { useState } from 'react'
 
 import type { VpcRouter } from '@oxide/api'
-import type { MenuAction } from '@oxide/table'
-import { DateCell, LabelCell, useQueryTable } from '@oxide/table'
+import { DateCell, LabelCell, useQueryTable, type MenuAction } from '@oxide/table'
 import { Button, EmptyMessage } from '@oxide/ui'
 
 import { CreateVpcRouterForm } from 'app/forms/vpc-router-create'

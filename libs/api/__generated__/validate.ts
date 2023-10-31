@@ -7,7 +7,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { ZodType, z } from 'zod'
+import { z, ZodType } from 'zod'
 
 import { processResponseBody, uniqueItems } from './util'
 

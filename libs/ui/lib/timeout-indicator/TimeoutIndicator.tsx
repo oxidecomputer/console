@@ -5,8 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { animated, useTransition } from '@react-spring/web'
-import { Globals } from '@react-spring/web'
+import { animated, Globals, useTransition } from '@react-spring/web'
 import cn from 'classnames'
 
 import useTimeout from '../hooks/use-timeout'

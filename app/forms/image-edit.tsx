@@ -5,10 +5,9 @@
  *
  * Copyright Oxide Computer Company
  */
-import type { LoaderFunctionArgs } from 'react-router-dom'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
-import { type Image, apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
+import { apiQueryClient, usePrefetchedApiQuery, type Image } from '@oxide/api'
 import { Images16Icon, PropertiesTable, ResourceLabel, Truncate } from '@oxide/ui'
 import { bytesToGiB, formatDateTime } from '@oxide/util'
 

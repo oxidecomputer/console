@@ -9,13 +9,13 @@ import { getLocalTimeZone, now } from '@internationalized/date'
 import { useIsFetching } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 
-import type { SiloResultsPage } from '@oxide/api'
 import {
-  FLEET_ID,
   apiQueryClient,
+  FLEET_ID,
   totalCapacity,
   useApiQueries,
   usePrefetchedApiQuery,
+  type SiloResultsPage,
 } from '@oxide/api'
 import {
   Cpu16Icon,
@@ -32,10 +32,10 @@ import {
 import { bytesToGiB, bytesToTiB } from '@oxide/util'
 
 import { CapacityMetric, capacityQueryParams } from 'app/components/CapacityMetric'
+import { useDateTimeRangePicker } from 'app/components/form'
 import { QueryParamTabs } from 'app/components/QueryParamTabs'
 import { useIntervalPicker } from 'app/components/RefetchIntervalPicker'
 import { SystemMetric } from 'app/components/SystemMetric'
-import { useDateTimeRangePicker } from 'app/components/form'
 
 import { tabularizeSiloMetrics } from './metrics-util'
 

@@ -7,8 +7,7 @@
  */
 import type { FieldPath, FieldValues } from 'react-hook-form'
 
-import type { TextFieldProps } from './TextField'
-import { TextField } from './TextField'
+import { TextField, type TextFieldProps } from './TextField'
 
 // TODO: Pull this from generated types
 const MAX_LEN = 512

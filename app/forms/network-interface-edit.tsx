@@ -5,8 +5,11 @@
  *
  * Copyright Oxide Computer Company
  */
-import type { InstanceNetworkInterface } from '@oxide/api'
-import { useApiMutation, useApiQueryClient } from '@oxide/api'
+import {
+  useApiMutation,
+  useApiQueryClient,
+  type InstanceNetworkInterface,
+} from '@oxide/api'
 import { pick } from '@oxide/util'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'

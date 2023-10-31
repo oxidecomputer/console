@@ -6,13 +6,12 @@
  * Copyright Oxide Computer Company
  */
 import { useState } from 'react'
-import type { LoaderFunctionArgs } from 'react-router-dom'
-import { Outlet } from 'react-router-dom'
-import { Link } from 'react-router-dom'
+import { Link, Outlet, type LoaderFunctionArgs } from 'react-router-dom'
 
-import { type Image, apiQueryClient, useApiMutation, useApiQueryClient } from '@oxide/api'
-import { DateCell, type MenuAction, SizeCell, linkCell, useQueryTable } from '@oxide/table'
+import { apiQueryClient, useApiMutation, useApiQueryClient, type Image } from '@oxide/api'
+import { DateCell, linkCell, SizeCell, useQueryTable, type MenuAction } from '@oxide/table'
 import {
+  buttonStyle,
   EmptyMessage,
   Images24Icon,
   Message,
@@ -20,7 +19,6 @@ import {
   PageHeader,
   PageTitle,
   TableActions,
-  buttonStyle,
 } from '@oxide/ui'
 
 import { getProjectSelector, useProjectSelector, useToast } from 'app/hooks'

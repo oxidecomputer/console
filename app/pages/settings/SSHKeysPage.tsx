@@ -7,20 +7,16 @@
  */
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 
-import type { SshKey } from '@oxide/api'
-import { apiQueryClient } from '@oxide/api'
-import { useApiQueryClient } from '@oxide/api'
-import { useApiMutation } from '@oxide/api'
-import type { MenuAction } from '@oxide/table'
-import { DateCell, useQueryTable } from '@oxide/table'
+import { apiQueryClient, useApiMutation, useApiQueryClient, type SshKey } from '@oxide/api'
+import { DateCell, useQueryTable, type MenuAction } from '@oxide/table'
 import {
+  buttonStyle,
   EmptyMessage,
   Key16Icon,
   Key24Icon,
   PageHeader,
   PageTitle,
   TableActions,
-  buttonStyle,
 } from '@oxide/ui'
 
 import { confirmDelete } from 'app/stores/confirm-delete'

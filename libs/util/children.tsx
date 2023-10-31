@@ -5,8 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import type { ComponentType, ReactElement, ReactNode } from 'react'
-import React from 'react'
+import React, { type ComponentType, type ReactElement, type ReactNode } from 'react'
 
 type ReactChildren = typeof React.Children
 

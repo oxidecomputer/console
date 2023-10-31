@@ -7,8 +7,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import type { FetchParams } from './http-client'
-import { HttpClient, toQueryString } from './http-client'
+import { HttpClient, toQueryString, type FetchParams } from './http-client'
 
 export type { ApiConfig, ApiResult, ErrorBody, ErrorResult } from './http-client'
 

@@ -20,8 +20,7 @@ import { useForm, useSiloSelector, useToast } from 'app/hooks'
 import { readBlobAsBase64 } from 'app/util/file'
 import { pb } from 'app/util/path-builder'
 
-import type { IdpCreateFormValues } from './shared'
-import { MetadataSourceField } from './shared'
+import { MetadataSourceField, type IdpCreateFormValues } from './shared'
 
 const defaultValues: IdpCreateFormValues = {
   type: 'saml',

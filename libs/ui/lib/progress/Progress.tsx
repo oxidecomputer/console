@@ -7,8 +7,7 @@
  */
 import cn from 'classnames'
 
-import type { AriaLabel } from '../../util/aria'
-import { ariaLabel } from '../../util/aria'
+import { ariaLabel, type AriaLabel } from '../../util/aria'
 
 export type ProgressProps = {
   value: number // always out of 100

@@ -7,8 +7,7 @@
  */
 import { useNavigate } from 'react-router-dom'
 
-import type { SiloCreate } from '@oxide/api'
-import { useApiMutation, useApiQueryClient } from '@oxide/api'
+import { useApiMutation, useApiQueryClient, type SiloCreate } from '@oxide/api'
 import { FormDivider } from '@oxide/ui'
 
 import {

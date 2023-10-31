@@ -5,11 +5,13 @@
  *
  * Copyright Oxide Computer Company
  */
-import type { CellContext, RowData, TableOptions } from '@tanstack/react-table'
 import {
   createColumnHelper,
   getCoreRowModel,
   useReactTable as useReactTableOrig,
+  type CellContext,
+  type RowData,
+  type TableOptions,
 } from '@tanstack/react-table'
 
 /**

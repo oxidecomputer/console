@@ -6,8 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { Section } from '../../util/story-section'
-import { Badge, badgeColors } from './Badge'
-import type { BadgeColor, BadgeVariant } from './Badge'
+import { Badge, badgeColors, type BadgeColor, type BadgeVariant } from './Badge'
 
 export const All = () => {
   return (

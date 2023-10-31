@@ -5,14 +5,21 @@
  *
  * Copyright Oxide Computer Company
  */
-import type { VpcFirewallRule } from '@oxide/api'
-import { firewallRuleGetToPut, useApiMutation, useApiQueryClient } from '@oxide/api'
+import {
+  firewallRuleGetToPut,
+  useApiMutation,
+  useApiQueryClient,
+  type VpcFirewallRule,
+} from '@oxide/api'
 
 import { SideModalForm } from 'app/components/form'
 import { useForm, useVpcSelector } from 'app/hooks'
 
-import { CommonFields, valuesToRuleUpdate } from './firewall-rules-create'
-import type { FirewallRuleValues } from './firewall-rules-create'
+import {
+  CommonFields,
+  valuesToRuleUpdate,
+  type FirewallRuleValues,
+} from './firewall-rules-create'
 
 type EditFirewallRuleFormProps = {
   onDismiss: () => void

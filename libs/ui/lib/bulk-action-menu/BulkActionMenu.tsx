@@ -7,8 +7,7 @@
  */
 import { flattenChildren } from '@oxide/util'
 
-import type { ButtonProps } from '../button/Button'
-import { Button } from '../button/Button'
+import { Button, type ButtonProps } from '../button/Button'
 
 export interface BulkActionMenuProps {
   selectedCount: number

@@ -6,8 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import throttle from 'lodash.throttle'
-import type { MutableRefObject } from 'react'
-import { useLayoutEffect, useState } from 'react'
+import { useLayoutEffect, useState, type MutableRefObject } from 'react'
 
 export const useIsOverflow = (
   ref: MutableRefObject<HTMLDivElement | null>,

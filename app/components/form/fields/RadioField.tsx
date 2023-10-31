@@ -7,12 +7,21 @@
  */
 import cn from 'classnames'
 import React, { useId } from 'react'
-import type { Control, FieldPath, FieldValues, PathValue } from 'react-hook-form'
-import { Controller } from 'react-hook-form'
+import {
+  Controller,
+  type Control,
+  type FieldPath,
+  type FieldValues,
+  type PathValue,
+} from 'react-hook-form'
 
-import type { RadioGroupProps } from '@oxide/ui'
-import { Radio } from '@oxide/ui'
-import { FieldLabel, RadioGroup, TextInputHint } from '@oxide/ui'
+import {
+  FieldLabel,
+  Radio,
+  RadioGroup,
+  TextInputHint,
+  type RadioGroupProps,
+} from '@oxide/ui'
 import { capitalize } from '@oxide/util'
 
 export type RadioFieldProps<

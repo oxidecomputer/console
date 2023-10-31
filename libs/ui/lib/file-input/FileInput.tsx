@@ -7,8 +7,14 @@
  */
 import cn from 'classnames'
 import filesize from 'filesize'
-import type { ChangeEvent, ComponentProps, MouseEvent } from 'react'
-import { forwardRef, useRef, useState } from 'react'
+import {
+  forwardRef,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type ComponentProps,
+  type MouseEvent,
+} from 'react'
 import { mergeRefs } from 'react-merge-refs'
 
 import { Document16Icon, Error16Icon, Truncate } from '@oxide/ui'

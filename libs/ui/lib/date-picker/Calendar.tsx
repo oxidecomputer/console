@@ -5,10 +5,8 @@
  *
  * Copyright Oxide Computer Company
  */
-import type { DateValue } from '@internationalized/date'
-import { createCalendar } from '@internationalized/date'
-import type { CalendarProps } from 'react-aria'
-import { useCalendar, useLocale } from 'react-aria'
+import { createCalendar, type DateValue } from '@internationalized/date'
+import { useCalendar, useLocale, type CalendarProps } from 'react-aria'
 import { useCalendarState } from 'react-stately'
 
 import { CalendarGrid } from './CalendarGrid'

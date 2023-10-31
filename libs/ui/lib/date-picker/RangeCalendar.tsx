@@ -5,15 +5,20 @@
  *
  * Copyright Oxide Computer Company
  */
-import type { DateValue } from '@internationalized/date'
-import { createCalendar } from '@internationalized/date'
+import { createCalendar, type DateValue } from '@internationalized/date'
 import cn from 'classnames'
-import { useRef } from 'react'
-import type { ReactNode } from 'react'
-import type { AriaButtonProps, RangeCalendarProps } from 'react-aria'
-import { useLocale, useRangeCalendar } from 'react-aria'
-import { useRangeCalendarState } from 'react-stately'
-import type { CalendarState, RangeCalendarState } from 'react-stately'
+import { useRef, type ReactNode } from 'react'
+import {
+  useLocale,
+  useRangeCalendar,
+  type AriaButtonProps,
+  type RangeCalendarProps,
+} from 'react-aria'
+import {
+  useRangeCalendarState,
+  type CalendarState,
+  type RangeCalendarState,
+} from 'react-stately'
 
 import { DirectionLeftIcon, DirectionRightIcon } from '@oxide/design-system/icons/react'
 

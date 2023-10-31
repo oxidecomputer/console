@@ -15,8 +15,13 @@ import {
 import { ListboxField, SideModalForm } from 'app/components/form'
 import { useForm, useProjectSelector } from 'app/hooks'
 
-import type { AddRoleModalProps, EditRoleModalProps } from './access-util'
-import { actorToItem, defaultValues, roleItems } from './access-util'
+import {
+  actorToItem,
+  defaultValues,
+  roleItems,
+  type AddRoleModalProps,
+  type EditRoleModalProps,
+} from './access-util'
 
 export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalProps) {
   const { project } = useProjectSelector()
