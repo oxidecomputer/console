@@ -37,6 +37,7 @@ test('path builder', () => {
         "instancePage": "/projects/p/instances/i/storage",
         "instanceStorage": "/projects/p/instances/i/storage",
         "instances": "/projects/p/instances",
+        "inventory": "/system/inventory",
         "nics": "/projects/p/instances/i/network-interfaces",
         "profile": "/settings/profile",
         "project": "/projects/p",

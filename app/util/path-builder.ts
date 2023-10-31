@@ -80,6 +80,7 @@ export const pb = {
   systemNetworking: () => '/system/networking',
   systemSettings: () => '/system/settings',
 
+  inventory: () => '/system/inventory',
   rackInventory: () => '/system/inventory/racks',
   sledInventory: () => '/system/inventory/sleds',
   diskInventory: () => '/system/inventory/disks',

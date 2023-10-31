@@ -147,6 +147,7 @@ export const routes = createRoutesFromElements(
           loader={InventoryPage.loader}
           handle={{ crumb: 'Inventory' }}
         >
+          <Route index element={<Navigate to="sleds" replace />} loader={SledsTab.loader} />
           <Route path="sleds" element={<SledsTab />} loader={SledsTab.loader} />
           <Route path="disks" element={<DisksTab />} loader={DisksTab.loader} />
         </Route>
@@ -156,7 +157,11 @@ export const routes = createRoutesFromElements(
           loader={SledPage.loader}
           handle={{ crumb: 'Sleds' }}
         >
-          <Route index element={<Navigate to="instances" replace />} />
+          <Route
+            index
+            element={<Navigate to="instances" replace />}
+            loader={SledInstancesTab.loader}
+          />
           <Route
             path="instances"
             element={<SledInstancesTab />}
