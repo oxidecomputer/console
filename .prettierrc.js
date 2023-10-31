@@ -22,4 +22,5 @@ module.exports = {
     '',
     '^[./]',
   ],
+  importOrderTypeScriptVersion: '5.2.2',
 }

@@ -7,7 +7,6 @@
  */
 import { useMemo, useState } from 'react'
 
-import type { IdentityType, RoleKey } from '@oxide/api'
 import {
   apiQueryClient,
   byGroupThenName,
@@ -17,6 +16,8 @@ import {
   useApiQueryClient,
   usePrefetchedApiQuery,
   useUserRows,
+  type IdentityType,
+  type RoleKey,
 } from '@oxide/api'
 import { createColumnHelper, getActionsCol, Table, useReactTable } from '@oxide/table'
 import {

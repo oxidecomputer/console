@@ -6,8 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { useState } from 'react'
-import type { Control } from 'react-hook-form'
-import { useController } from 'react-hook-form'
+import { useController, type Control } from 'react-hook-form'
 import type { Merge } from 'type-fest'
 
 import type { CertificateCreate } from '@oxide/api'

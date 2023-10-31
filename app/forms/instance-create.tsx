@@ -6,11 +6,9 @@
  * Copyright Oxide Computer Company
  */
 import { useWatch } from 'react-hook-form'
-import type { LoaderFunctionArgs } from 'react-router-dom'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 import type { SetRequired } from 'type-fest'
 
-import type { InstanceCreate } from '@oxide/api'
 import {
   apiQueryClient,
   genName,
@@ -20,6 +18,7 @@ import {
   useApiMutation,
   useApiQueryClient,
   usePrefetchedApiQuery,
+  type InstanceCreate,
 } from '@oxide/api'
 import {
   EmptyMessage,
@@ -49,8 +48,8 @@ import {
   NetworkInterfaceField,
   RadioFieldDyn,
   TextField,
+  type DiskTableItem,
 } from 'app/components/form'
-import type { DiskTableItem } from 'app/components/form'
 import { getProjectSelector, useForm, useProjectSelector, useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 

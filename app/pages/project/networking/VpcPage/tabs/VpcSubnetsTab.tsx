@@ -7,10 +7,8 @@
  */
 import { useState } from 'react'
 
-import type { VpcSubnet } from '@oxide/api'
-import { useApiMutation, useApiQueryClient } from '@oxide/api'
-import type { MenuAction } from '@oxide/table'
-import { DateCell, TwoLineCell, useQueryTable } from '@oxide/table'
+import { useApiMutation, useApiQueryClient, type VpcSubnet } from '@oxide/api'
+import { DateCell, TwoLineCell, useQueryTable, type MenuAction } from '@oxide/table'
 import { Button, EmptyMessage } from '@oxide/ui'
 
 import { CreateSubnetForm } from 'app/forms/subnet-create'

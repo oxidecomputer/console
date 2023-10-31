@@ -7,8 +7,14 @@
  */
 import { useNavigate } from 'react-router-dom'
 
-import type { PathParams as PP, SnapshotCreate } from '@oxide/api'
-import { diskCan, useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
+import {
+  diskCan,
+  useApiMutation,
+  useApiQuery,
+  useApiQueryClient,
+  type PathParams as PP,
+  type SnapshotCreate,
+} from '@oxide/api'
 
 import {
   DescriptionField,

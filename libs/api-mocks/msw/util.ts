@@ -8,17 +8,19 @@
 import { differenceInSeconds, subHours } from 'date-fns'
 import type { RestRequest } from 'msw'
 
-import type {
-  DiskCreate,
-  RoleKey,
-  Sled,
-  SystemMetricName,
-  SystemMetricQueryParams,
-  User,
+import {
+  FLEET_ID,
+  MAX_DISK_SIZE_GiB,
+  MIN_DISK_SIZE_GiB,
+  totalCapacity,
+  type DiskCreate,
+  type RoleKey,
+  type Sled,
+  type SystemMetricName,
+  type SystemMetricQueryParams,
+  type User,
 } from '@oxide/api'
-import { FLEET_ID, MAX_DISK_SIZE_GiB, MIN_DISK_SIZE_GiB, totalCapacity } from '@oxide/api'
-import type { Json } from '@oxide/gen/msw-handlers'
-import { json } from '@oxide/gen/msw-handlers'
+import { json, type Json } from '@oxide/gen/msw-handlers'
 import { GiB, isTruthy, TiB } from '@oxide/util'
 
 import type { DbRoleAssignmentResourceType } from '..'

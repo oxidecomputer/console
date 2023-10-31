@@ -5,11 +5,12 @@
  *
  * Copyright Oxide Computer Company
  */
-import type { ReactElement, ReactNode } from 'react'
-import { cloneElement, useEffect } from 'react'
+import { cloneElement, useEffect, type ReactElement, type ReactNode } from 'react'
 import type { FieldValues, UseFormReturn } from 'react-hook-form'
-import type { unstable_Blocker as Blocker } from 'react-router-dom'
-import { unstable_useBlocker as useBlocker } from 'react-router-dom'
+import {
+  unstable_useBlocker as useBlocker,
+  type unstable_Blocker as Blocker,
+} from 'react-router-dom'
 
 import type { ApiError } from '@oxide/api'
 import { Modal, PageHeader, PageTitle } from '@oxide/ui'

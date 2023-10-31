@@ -7,8 +7,10 @@
  */
 import tunnel from 'tunnel-rat'
 
-import type { PaginationProps as UIPaginationProps } from '@oxide/ui'
-import { Pagination as UIPagination } from '@oxide/ui'
+import {
+  Pagination as UIPagination,
+  type PaginationProps as UIPaginationProps,
+} from '@oxide/ui'
 
 const Tunnel = tunnel('pagination')
 

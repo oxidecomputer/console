@@ -6,8 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import fileSize from 'filesize'
-import type { LoaderFunctionArgs } from 'react-router-dom'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
   apiQueryClient,

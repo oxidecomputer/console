@@ -7,8 +7,7 @@
  */
 import { useMemo } from 'react'
 
-import type { SystemMetricName } from '@oxide/api'
-import { useApiQuery } from '@oxide/api'
+import { useApiQuery, type SystemMetricName } from '@oxide/api'
 import { splitDecimal } from '@oxide/util'
 
 import RoundedSector from 'app/components/RoundedSector'

@@ -6,8 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { getWeeksInMonth } from '@internationalized/date'
-import { useCalendarGrid, useLocale } from 'react-aria'
-import type { AriaCalendarGridProps } from 'react-aria'
+import { useCalendarGrid, useLocale, type AriaCalendarGridProps } from 'react-aria'
 import type { CalendarState, RangeCalendarState } from 'react-stately'
 
 import { CalendarCell } from './CalendarCell'

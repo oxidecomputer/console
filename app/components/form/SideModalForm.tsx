@@ -5,8 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import type { ReactNode } from 'react'
-import { useEffect } from 'react'
+import { useEffect, type ReactNode } from 'react'
 import type { FieldValues, UseFormReturn } from 'react-hook-form'
 import { useNavigationType } from 'react-router-dom'
 

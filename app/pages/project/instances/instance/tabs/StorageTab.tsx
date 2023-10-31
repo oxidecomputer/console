@@ -18,8 +18,7 @@ import {
   usePrefetchedApiQuery,
   type Disk,
 } from '@oxide/api'
-import type { MenuAction } from '@oxide/table'
-import { DateCell, SizeCell, useQueryTable } from '@oxide/table'
+import { DateCell, SizeCell, useQueryTable, type MenuAction } from '@oxide/table'
 import { Button, EmptyMessage, Storage24Icon } from '@oxide/ui'
 
 import { DiskStatusBadge } from 'app/components/StatusBadge'

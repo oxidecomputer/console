@@ -5,18 +5,16 @@
  *
  * Copyright Oxide Computer Company
  */
-import type { LoaderFunctionArgs } from 'react-router-dom'
-import { Link, Outlet, useNavigate } from 'react-router-dom'
+import { Link, Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
-import type { Snapshot } from '@oxide/api'
 import {
   apiQueryClient,
   useApiMutation,
   useApiQueryClient,
   useApiQueryErrorsAllowed,
+  type Snapshot,
 } from '@oxide/api'
-import type { MenuAction } from '@oxide/table'
-import { DateCell, SizeCell, useQueryTable } from '@oxide/table'
+import { DateCell, SizeCell, useQueryTable, type MenuAction } from '@oxide/table'
 import {
   Badge,
   buttonStyle,

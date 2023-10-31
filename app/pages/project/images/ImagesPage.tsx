@@ -6,8 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { useState } from 'react'
-import type { LoaderFunctionArgs } from 'react-router-dom'
-import { Link, Outlet } from 'react-router-dom'
+import { Link, Outlet, type LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, useApiMutation, useApiQueryClient, type Image } from '@oxide/api'
 import { DateCell, linkCell, SizeCell, useQueryTable, type MenuAction } from '@oxide/table'

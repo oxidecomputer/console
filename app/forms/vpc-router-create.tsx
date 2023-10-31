@@ -5,8 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import type { VpcRouterCreate } from '@oxide/api'
-import { useApiMutation, useApiQueryClient } from '@oxide/api'
+import { useApiMutation, useApiQueryClient, type VpcRouterCreate } from '@oxide/api'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
 import { useForm, useToast, useVpcSelector } from 'app/hooks'

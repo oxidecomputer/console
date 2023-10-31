@@ -7,8 +7,12 @@
  */
 import React, { Suspense, useMemo, useRef } from 'react'
 
-import type { ChartDatum, SystemMetricName } from '@oxide/api'
-import { synthesizeData, useApiQuery } from '@oxide/api'
+import {
+  synthesizeData,
+  useApiQuery,
+  type ChartDatum,
+  type SystemMetricName,
+} from '@oxide/api'
 import { Badge, DirectionDownIcon, DirectionUpIcon, Spinner } from '@oxide/ui'
 import { splitDecimal } from '@oxide/util'
 

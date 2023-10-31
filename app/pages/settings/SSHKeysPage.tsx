@@ -7,10 +7,8 @@
  */
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 
-import type { SshKey } from '@oxide/api'
-import { apiQueryClient, useApiMutation, useApiQueryClient } from '@oxide/api'
-import type { MenuAction } from '@oxide/table'
-import { DateCell, useQueryTable } from '@oxide/table'
+import { apiQueryClient, useApiMutation, useApiQueryClient, type SshKey } from '@oxide/api'
+import { DateCell, useQueryTable, type MenuAction } from '@oxide/table'
 import {
   buttonStyle,
   EmptyMessage,

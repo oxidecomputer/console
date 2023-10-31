@@ -6,10 +6,8 @@
  * Copyright Oxide Computer Company
  */
 import { useState } from 'react'
-import type { LoaderFunctionArgs } from 'react-router-dom'
-import { Link } from 'react-router-dom'
+import { Link, type LoaderFunctionArgs } from 'react-router-dom'
 
-import type { InstanceNetworkInterface } from '@oxide/api'
 import {
   apiQueryClient,
   instanceCan,
@@ -17,9 +15,9 @@ import {
   useApiQuery,
   useApiQueryClient,
   usePrefetchedApiQuery,
+  type InstanceNetworkInterface,
 } from '@oxide/api'
-import type { MenuAction } from '@oxide/table'
-import { useQueryTable } from '@oxide/table'
+import { useQueryTable, type MenuAction } from '@oxide/table'
 import {
   Badge,
   Button,

@@ -9,13 +9,13 @@ import { getLocalTimeZone, now } from '@internationalized/date'
 import { useIsFetching } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 
-import type { SiloResultsPage } from '@oxide/api'
 import {
   apiQueryClient,
   FLEET_ID,
   totalCapacity,
   useApiQueries,
   usePrefetchedApiQuery,
+  type SiloResultsPage,
 } from '@oxide/api'
 import {
   Cpu16Icon,

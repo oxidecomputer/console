@@ -8,8 +8,7 @@
 import { useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
-import type { UsernamePasswordCredentials } from '@oxide/api'
-import { useApiMutation } from '@oxide/api'
+import { useApiMutation, type UsernamePasswordCredentials } from '@oxide/api'
 import { Button, Identicon } from '@oxide/ui'
 
 import { TextFieldInner } from 'app/components/form'

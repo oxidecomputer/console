@@ -7,8 +7,7 @@
  */
 import { hashKey } from '@tanstack/react-query'
 import { useMemo } from 'react'
-import type { Params } from 'react-router-dom'
-import { useParams } from 'react-router-dom'
+import { useParams, type Params } from 'react-router-dom'
 
 import { invariant } from '@oxide/util'
 

@@ -8,8 +8,13 @@
 import React, { Suspense, useMemo, useState } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 
-import type { Cumulativeint64, DiskMetricName } from '@oxide/api'
-import { apiQueryClient, useApiQuery, usePrefetchedApiQuery } from '@oxide/api'
+import {
+  apiQueryClient,
+  useApiQuery,
+  usePrefetchedApiQuery,
+  type Cumulativeint64,
+  type DiskMetricName,
+} from '@oxide/api'
 import { EmptyMessage, Listbox, Spinner, Storage24Icon, TableEmptyBox } from '@oxide/ui'
 
 import { useDateTimeRangePicker } from 'app/components/form'

@@ -7,7 +7,6 @@
  */
 import { v4 as uuid } from 'uuid'
 
-import type { ApiTypes as Api, SamlIdentityProvider } from '@oxide/api'
 import {
   diskCan,
   FLEET_ID,
@@ -15,9 +14,10 @@ import {
   INSTANCE_MAX_RAM_GiB,
   INSTANCE_MIN_RAM_GiB,
   MAX_NICS_PER_INSTANCE,
+  type ApiTypes as Api,
+  type SamlIdentityProvider,
 } from '@oxide/api'
-import type { Json } from '@oxide/gen/msw-handlers'
-import { json, makeHandlers } from '@oxide/gen/msw-handlers'
+import { json, makeHandlers, type Json } from '@oxide/gen/msw-handlers'
 import { GiB, pick, sortBy } from '@oxide/util'
 
 import { genCumulativeI64Data } from '../metrics'

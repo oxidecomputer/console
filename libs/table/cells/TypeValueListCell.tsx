@@ -5,8 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import type { Cell, TypeValue } from '.'
-import { TypeValueCell } from '.'
+import { TypeValueCell, type Cell, type TypeValue } from '.'
 
 export const TypeValueListCell = ({ value }: Cell<TypeValue[]>) => (
   <div>

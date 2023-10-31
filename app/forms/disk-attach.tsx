@@ -5,8 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import type { ApiError } from '@oxide/api'
-import { useApiQuery } from '@oxide/api'
+import { useApiQuery, type ApiError } from '@oxide/api'
 
 import { ListboxField, SideModalForm } from 'app/components/form'
 import { useForm, useProjectSelector } from 'app/hooks'

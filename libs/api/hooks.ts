@@ -5,16 +5,19 @@
  *
  * Copyright Oxide Computer Company
  */
-import type {
-  DefaultError,
-  FetchQueryOptions,
-  InvalidateQueryFilters,
-  QueryClient,
-  UndefinedInitialDataOptions,
-  UseMutationOptions,
-  UseQueryOptions,
+import {
+  useMutation,
+  useQueries,
+  useQuery,
+  useQueryClient,
+  type DefaultError,
+  type FetchQueryOptions,
+  type InvalidateQueryFilters,
+  type QueryClient,
+  type UndefinedInitialDataOptions,
+  type UseMutationOptions,
+  type UseQueryOptions,
 } from '@tanstack/react-query'
-import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { invariant } from '@oxide/util'
 

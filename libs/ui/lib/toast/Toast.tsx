@@ -7,8 +7,7 @@
  */
 import { announce } from '@react-aria/live-announcer'
 import cn from 'classnames'
-import type { ReactElement } from 'react'
-import { useEffect } from 'react'
+import { useEffect, type ReactElement } from 'react'
 import { Link, type To } from 'react-router-dom'
 
 import {

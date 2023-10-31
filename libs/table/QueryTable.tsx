@@ -7,22 +7,36 @@
  */
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { UseQueryOptions } from '@tanstack/react-query'
-import { hashKey } from '@tanstack/react-query'
-import type { AccessorFn, DeepKeys } from '@tanstack/react-table'
-import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
-import React, { useCallback, useEffect, useMemo } from 'react'
-import type { ComponentType, ReactElement } from 'react'
+import { hashKey, type UseQueryOptions } from '@tanstack/react-query'
+import {
+  createColumnHelper,
+  getCoreRowModel,
+  useReactTable,
+  type AccessorFn,
+  type DeepKeys,
+} from '@tanstack/react-table'
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  type ComponentType,
+  type ReactElement,
+} from 'react'
 
-import { useApiQuery } from '@oxide/api'
-import type { ApiError, ApiListMethods, Params, Result, ResultItem } from '@oxide/api'
+import {
+  useApiQuery,
+  type ApiError,
+  type ApiListMethods,
+  type Params,
+  type Result,
+  type ResultItem,
+} from '@oxide/api'
 import { Pagination, usePagination } from '@oxide/pagination'
 import { EmptyMessage, TableEmptyBox } from '@oxide/ui'
 import { invariant, isOneOf } from '@oxide/util'
 
 import { DefaultCell } from './cells'
-import { getActionsCol, getMultiSelectCol, getSelectCol } from './columns'
-import type { MakeActions } from './columns'
+import { getActionsCol, getMultiSelectCol, getSelectCol, type MakeActions } from './columns'
 import { Table } from './Table'
 
 interface UseQueryTableResult<Item extends Record<string, unknown>> {

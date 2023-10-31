@@ -8,8 +8,7 @@
 import { format } from 'date-fns'
 import filesize from 'filesize'
 import { useMemo } from 'react'
-import type { LoaderFunctionArgs } from 'react-router-dom'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, useApiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import {

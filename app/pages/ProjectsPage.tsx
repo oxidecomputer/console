@@ -8,15 +8,14 @@
 import { useMemo } from 'react'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 
-import type { Project } from '@oxide/api'
 import {
   apiQueryClient,
   useApiMutation,
   useApiQueryClient,
   usePrefetchedApiQuery,
+  type Project,
 } from '@oxide/api'
-import type { MenuAction } from '@oxide/table'
-import { DateCell, linkCell, useQueryTable } from '@oxide/table'
+import { DateCell, linkCell, useQueryTable, type MenuAction } from '@oxide/table'
 import {
   buttonStyle,
   EmptyMessage,

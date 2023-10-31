@@ -9,8 +9,7 @@ import { describe, expect, it } from 'vitest'
 
 import type { SystemMetricName } from '@oxide/api'
 
-import type { MetricsResult } from './metrics-util'
-import { tabularizeSiloMetrics } from './metrics-util'
+import { tabularizeSiloMetrics, type MetricsResult } from './metrics-util'
 
 function makeResult(
   silo: string,

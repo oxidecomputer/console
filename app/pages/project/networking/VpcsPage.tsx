@@ -6,15 +6,14 @@
  * Copyright Oxide Computer Company
  */
 import { useMemo } from 'react'
-import type { LoaderFunctionArgs } from 'react-router-dom'
-import { Link, Outlet, useNavigate } from 'react-router-dom'
+import { Link, Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
-import type { Vpc } from '@oxide/api'
 import {
   apiQueryClient,
   useApiMutation,
   useApiQueryClient,
   usePrefetchedApiQuery,
+  type Vpc,
 } from '@oxide/api'
 import { DateCell, linkCell, useQueryTable, type MenuAction } from '@oxide/table'
 import {

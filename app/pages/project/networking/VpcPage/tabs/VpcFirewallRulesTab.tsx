@@ -7,8 +7,12 @@
  */
 import { useMemo, useState } from 'react'
 
-import type { VpcFirewallRule } from '@oxide/api'
-import { useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
+import {
+  useApiMutation,
+  useApiQuery,
+  useApiQueryClient,
+  type VpcFirewallRule,
+} from '@oxide/api'
 import {
   createColumnHelper,
   DateCell,

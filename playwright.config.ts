@@ -5,8 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import type { PlaywrightTestConfig } from '@playwright/test'
-import { devices } from '@playwright/test'
+import { devices, type PlaywrightTestConfig } from '@playwright/test'
 
 /**
  * See https://playwright.dev/docs/test-configuration.

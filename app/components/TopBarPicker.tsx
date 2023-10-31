@@ -8,8 +8,7 @@
 import cn from 'classnames'
 import { Link } from 'react-router-dom'
 
-import type { Project } from '@oxide/api'
-import { useApiQuery } from '@oxide/api'
+import { useApiQuery, type Project } from '@oxide/api'
 import {
   Button,
   DropdownMenu,

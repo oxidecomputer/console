@@ -5,8 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import type { Browser, Locator, Page } from '@playwright/test'
-import { expect } from '@playwright/test'
+import { expect, type Browser, type Locator, type Page } from '@playwright/test'
 
 import { MSW_USER_COOKIE } from '@oxide/api-mocks'
 import { MiB } from '@oxide/util'

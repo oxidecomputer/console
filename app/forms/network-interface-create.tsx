@@ -7,8 +7,7 @@
  */
 import { useMemo } from 'react'
 
-import type { ApiError, InstanceNetworkInterfaceCreate } from '@oxide/api'
-import { useApiQuery } from '@oxide/api'
+import { useApiQuery, type ApiError, type InstanceNetworkInterfaceCreate } from '@oxide/api'
 import { FormDivider } from '@oxide/ui'
 
 import {

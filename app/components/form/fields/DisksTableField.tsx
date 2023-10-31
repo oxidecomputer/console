@@ -6,8 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { useState } from 'react'
-import type { Control } from 'react-hook-form'
-import { useController } from 'react-hook-form'
+import { useController, type Control } from 'react-hook-form'
 
 import type { DiskCreate } from '@oxide/api'
 import { Badge, Button, Error16Icon, FieldLabel, MiniTable } from '@oxide/ui'

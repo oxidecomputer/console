@@ -6,8 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
-import type { MouseEventHandler, ReactNode } from 'react'
-import { forwardRef } from 'react'
+import { forwardRef, type MouseEventHandler, type ReactNode } from 'react'
 
 import { Spinner, Tooltip, Wrap } from '@oxide/ui'
 

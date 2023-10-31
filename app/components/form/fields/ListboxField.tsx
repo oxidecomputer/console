@@ -6,11 +6,9 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
-import type { Control, FieldPath, FieldValues } from 'react-hook-form'
-import { Controller } from 'react-hook-form'
+import { Controller, type Control, type FieldPath, type FieldValues } from 'react-hook-form'
 
-import type { ListboxItem } from '@oxide/ui'
-import { Listbox } from '@oxide/ui'
+import { Listbox, type ListboxItem } from '@oxide/ui'
 import { capitalize } from '@oxide/util'
 
 import { ErrorMessage } from './ErrorMessage'

@@ -7,8 +7,7 @@
  */
 import cn from 'classnames'
 import { useId } from 'react'
-import type { FieldPathByValue, FieldValues } from 'react-hook-form'
-import { Controller } from 'react-hook-form'
+import { Controller, type FieldPathByValue, type FieldValues } from 'react-hook-form'
 
 import { FieldLabel, TextInputHint, NumberInput as UINumberField } from '@oxide/ui'
 import { capitalize } from '@oxide/util'

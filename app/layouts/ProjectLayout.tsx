@@ -5,10 +5,13 @@
  *
  * Copyright Oxide Computer Company
  */
-import type { ReactElement } from 'react'
-import { useMemo } from 'react'
-import type { LoaderFunctionArgs } from 'react-router-dom'
-import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { useMemo, type ReactElement } from 'react'
+import {
+  useLocation,
+  useNavigate,
+  useParams,
+  type LoaderFunctionArgs,
+} from 'react-router-dom'
 
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import {

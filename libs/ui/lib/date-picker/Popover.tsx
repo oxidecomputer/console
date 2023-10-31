@@ -5,10 +5,13 @@
  *
  * Copyright Oxide Computer Company
  */
-import { DismissButton, Overlay, usePopover } from '@react-aria/overlays'
-import type { AriaPopoverProps } from '@react-aria/overlays'
-import { useRef } from 'react'
-import type { ReactNode } from 'react'
+import {
+  DismissButton,
+  Overlay,
+  usePopover,
+  type AriaPopoverProps,
+} from '@react-aria/overlays'
+import { useRef, type ReactNode } from 'react'
 import type { OverlayTriggerState } from 'react-stately'
 
 interface PopoverProps extends Omit<AriaPopoverProps, 'popoverRef'> {

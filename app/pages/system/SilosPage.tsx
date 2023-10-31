@@ -8,15 +8,20 @@
 import { useMemo } from 'react'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 
-import type { Silo } from '@oxide/api'
 import {
   apiQueryClient,
   useApiMutation,
   useApiQueryClient,
   usePrefetchedApiQuery,
+  type Silo,
 } from '@oxide/api'
-import type { MenuAction } from '@oxide/table'
-import { BooleanCell, DateCell, linkCell, useQueryTable } from '@oxide/table'
+import {
+  BooleanCell,
+  DateCell,
+  linkCell,
+  useQueryTable,
+  type MenuAction,
+} from '@oxide/table'
 import {
   Badge,
   buttonStyle,
