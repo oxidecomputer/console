@@ -32,7 +32,8 @@ if (!apiModeResult.success) {
  */
 const apiMode = apiModeResult.data
 
-const DOGFOOD_HOST = 'oxide.sys.rack2.eng.oxide.computer'
+// if you want a different host you can override it with EXT_HOST
+const DOGFOOD_HOST = process.env.EXT_HOST || 'oxide.sys.rack2.eng.oxide.computer'
 
 const mapObj = <V0, V>(
   obj: Record<string, V0>,

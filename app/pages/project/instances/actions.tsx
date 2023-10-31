@@ -11,8 +11,8 @@ import { useNavigate } from 'react-router-dom'
 import { type Instance, instanceCan, useApiMutation } from '@oxide/api'
 import type { MakeActions } from '@oxide/table'
 
-import { useToast } from 'app/hooks'
 import { confirmDelete } from 'app/stores/confirm-delete'
+import { addToast } from 'app/stores/toast'
 import { pb } from 'app/util/path-builder'
 
 import { fancifyStates } from './instance/tabs/common'
@@ -31,7 +31,6 @@ export const useMakeInstanceActions = (
   options: Options = {}
 ): MakeActions<Instance> => {
   const navigate = useNavigate()
-  const addToast = useToast()
 
   // if you also pass onSuccess to mutate(), this one is not overridden — this
   // one runs first, then the one passed to mutate()
@@ -43,7 +42,6 @@ export const useMakeInstanceActions = (
 
   return useCallback(
     (instance) => {
-      const successToast = (title: string) => addToast({ title })
       const instanceSelector = { ...projectSelector, instance: instance.name }
       const instanceParams = { path: { instance: instance.name }, query: projectSelector }
       return [
@@ -51,7 +49,13 @@ export const useMakeInstanceActions = (
           label: 'Start',
           onActivate() {
             startInstance.mutate(instanceParams, {
-              onSuccess: () => successToast(`Starting instance '${instance.name}'`),
+              onSuccess: () => addToast({ title: `Starting instance '${instance.name}'` }),
+              onError: (error) =>
+                addToast({
+                  variant: 'error',
+                  title: `Error starting instance '${instance.name}'`,
+                  content: error.message,
+                }),
             })
           },
           disabled: !instanceCan.start(instance) && (
@@ -62,7 +66,13 @@ export const useMakeInstanceActions = (
           label: 'Stop',
           onActivate() {
             stopInstance.mutate(instanceParams, {
-              onSuccess: () => successToast(`Stopping instance '${instance.name}'`),
+              onSuccess: () => addToast({ title: `Stopping instance '${instance.name}'` }),
+              onError: (error) =>
+                addToast({
+                  variant: 'error',
+                  title: `Error stopping instance '${instance.name}'`,
+                  content: error.message,
+                }),
             })
           },
           disabled: !instanceCan.stop(instance) && (
@@ -73,7 +83,13 @@ export const useMakeInstanceActions = (
           label: 'Reboot',
           onActivate() {
             rebootInstance.mutate(instanceParams, {
-              onSuccess: () => successToast(`Rebooting instance '${instance.name}'`),
+              onSuccess: () => addToast({ title: `Rebooting instance '${instance.name}'` }),
+              onError: (error) =>
+                addToast({
+                  variant: 'error',
+                  title: `Error rebooting instance '${instance.name}'`,
+                  content: error.message,
+                }),
             })
           },
           disabled: !instanceCan.reboot(instance) && (
@@ -93,8 +109,14 @@ export const useMakeInstanceActions = (
               deleteInstance.mutateAsync(instanceParams, {
                 onSuccess: () => {
                   options.onDelete?.()
-                  successToast(`Deleting instance '${instance.name}'`)
+                  addToast({ title: `Deleting instance '${instance.name}'` })
                 },
+                onError: (error) =>
+                  addToast({
+                    variant: 'error',
+                    title: `Error deleting instance '${instance.name}'`,
+                    content: error.message,
+                  }),
               }),
             label: instance.name,
           }),
@@ -113,7 +135,6 @@ export const useMakeInstanceActions = (
       rebootInstance,
       startInstance,
       stopInstance,
-      addToast,
     ]
   )
 }
