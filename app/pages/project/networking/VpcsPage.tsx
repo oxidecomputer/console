@@ -7,8 +7,7 @@
  */
 import { useMemo } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
-import { Outlet } from 'react-router-dom'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, Outlet, useNavigate } from 'react-router-dom'
 
 import type { Vpc } from '@oxide/api'
 import {
@@ -17,14 +16,14 @@ import {
   useApiQueryClient,
   usePrefetchedApiQuery,
 } from '@oxide/api'
-import { DateCell, type MenuAction, linkCell, useQueryTable } from '@oxide/table'
+import { DateCell, linkCell, useQueryTable, type MenuAction } from '@oxide/table'
 import {
+  buttonStyle,
   EmptyMessage,
   Networking24Icon,
   PageHeader,
   PageTitle,
   TableActions,
-  buttonStyle,
 } from '@oxide/ui'
 
 import { getProjectSelector, useProjectSelector, useQuickActions } from 'app/hooks'

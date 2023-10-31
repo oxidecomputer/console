@@ -20,8 +20,7 @@ import type {
   TextAreaProps as UITextAreaProps,
   TextInputBaseProps as UITextFieldProps,
 } from '@oxide/ui'
-import { TextInputHint } from '@oxide/ui'
-import { FieldLabel, TextInput as UITextField } from '@oxide/ui'
+import { FieldLabel, TextInputHint, TextInput as UITextField } from '@oxide/ui'
 import { capitalize } from '@oxide/util'
 
 import { ErrorMessage } from './ErrorMessage'

@@ -11,11 +11,11 @@ import { useEffect, useState } from 'react'
 
 import {
   Listbox,
-  type ListboxItem,
   Refresh16Icon,
   SpinnerLoader,
   Time16Icon,
   useInterval,
+  type ListboxItem,
 } from '@oxide/ui'
 
 const intervalPresets = {

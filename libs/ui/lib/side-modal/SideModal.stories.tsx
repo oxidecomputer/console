@@ -7,8 +7,8 @@
  */
 import { useState } from 'react'
 
-import { ModalLink, ModalLinks } from '../ModalLinks'
 import { Button } from '../button/Button'
+import { ModalLink, ModalLinks } from '../ModalLinks'
 import { SideModal } from './SideModal'
 
 // TODO: styling on modal mostly doesn't work

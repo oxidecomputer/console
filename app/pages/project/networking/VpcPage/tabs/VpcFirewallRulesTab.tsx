@@ -10,13 +10,13 @@ import { useMemo, useState } from 'react'
 import type { VpcFirewallRule } from '@oxide/api'
 import { useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
 import {
+  createColumnHelper,
   DateCell,
   EnabledCell,
   FirewallFilterCell,
+  getActionsCol,
   Table,
   TypeValueListCell,
-  createColumnHelper,
-  getActionsCol,
   useReactTable,
 } from '@oxide/table'
 import { Button, EmptyMessage, TableEmptyBox } from '@oxide/ui'

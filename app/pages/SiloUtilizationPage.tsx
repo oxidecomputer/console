@@ -13,9 +13,9 @@ import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import { Divider, Listbox, Metrics24Icon, PageHeader, PageTitle } from '@oxide/ui'
 import { bytesToGiB, bytesToTiB } from '@oxide/util'
 
+import { useDateTimeRangePicker } from 'app/components/form'
 import { useIntervalPicker } from 'app/components/RefetchIntervalPicker'
 import { SiloMetric } from 'app/components/SystemMetric'
-import { useDateTimeRangePicker } from 'app/components/form'
 import { useCurrentUser } from 'app/layouts/AuthenticatedLayout'
 
 const toListboxItem = (x: { name: string; id: string }) => ({ label: x.name, value: x.id })

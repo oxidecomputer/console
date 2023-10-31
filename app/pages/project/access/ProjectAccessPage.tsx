@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import '@tanstack/react-table'
+
 import { useMemo, useState } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 
@@ -20,7 +21,7 @@ import {
   usePrefetchedApiQuery,
   useUserRows,
 } from '@oxide/api'
-import { Table, createColumnHelper, getActionsCol, useReactTable } from '@oxide/table'
+import { createColumnHelper, getActionsCol, Table, useReactTable } from '@oxide/table'
 import {
   Access24Icon,
   Button,

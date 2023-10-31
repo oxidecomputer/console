@@ -11,9 +11,7 @@ import type { UseQueryOptions } from '@tanstack/react-query'
 import { hashKey } from '@tanstack/react-query'
 import type { AccessorFn, DeepKeys } from '@tanstack/react-table'
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
-import React, { useEffect } from 'react'
-import { useCallback } from 'react'
-import { useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 import type { ComponentType, ReactElement } from 'react'
 
 import { useApiQuery } from '@oxide/api'
@@ -22,10 +20,10 @@ import { Pagination, usePagination } from '@oxide/pagination'
 import { EmptyMessage, TableEmptyBox } from '@oxide/ui'
 import { invariant, isOneOf } from '@oxide/util'
 
-import { Table } from './Table'
 import { DefaultCell } from './cells'
 import { getActionsCol, getMultiSelectCol, getSelectCol } from './columns'
 import type { MakeActions } from './columns'
+import { Table } from './Table'
 
 interface UseQueryTableResult<Item extends Record<string, unknown>> {
   Table: ComponentType<QueryTableProps<Item>>

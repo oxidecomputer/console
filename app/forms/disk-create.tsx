@@ -13,8 +13,7 @@ import { useNavigate } from 'react-router-dom'
 
 import type { BlockSize, Disk, DiskCreate, DiskSource } from '@oxide/api'
 import { useApiMutation, useApiQuery, useApiQueryClient } from '@oxide/api'
-import { FormDivider } from '@oxide/ui'
-import { FieldLabel, Radio, RadioGroup } from '@oxide/ui'
+import { FieldLabel, FormDivider, Radio, RadioGroup } from '@oxide/ui'
 import { GiB } from '@oxide/util'
 
 import {

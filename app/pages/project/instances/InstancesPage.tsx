@@ -19,13 +19,13 @@ import {
 } from '@oxide/table'
 import {
   Button,
+  buttonStyle,
   EmptyMessage,
   Instances24Icon,
   PageHeader,
   PageTitle,
   Refresh16Icon,
   TableActions,
-  buttonStyle,
 } from '@oxide/ui'
 
 import { getProjectSelector, useProjectSelector, useQuickActions } from 'app/hooks'

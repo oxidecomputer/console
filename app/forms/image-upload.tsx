@@ -23,7 +23,7 @@ import {
   Success12Icon,
   Unauthorized12Icon,
 } from '@oxide/ui'
-import { GiB, KiB, invariant } from '@oxide/util'
+import { GiB, invariant, KiB } from '@oxide/util'
 
 import {
   DescriptionField,

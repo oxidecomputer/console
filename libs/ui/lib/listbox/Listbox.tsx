@@ -6,9 +6,9 @@
  * Copyright Oxide Computer Company
  */
 import {
-  FloatingPortal,
   autoUpdate,
   flip,
+  FloatingPortal,
   offset,
   size,
   useFloating,

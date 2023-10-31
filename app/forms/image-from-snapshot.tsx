@@ -10,11 +10,11 @@ import type { LoaderFunctionArgs } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 
 import {
-  type ImageCreate,
   apiQueryClient,
   useApiMutation,
   useApiQueryClient,
   usePrefetchedApiQuery,
+  type ImageCreate,
 } from '@oxide/api'
 import { PropertiesTable } from '@oxide/ui'
 

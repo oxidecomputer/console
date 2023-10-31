@@ -5,13 +5,12 @@
  *
  * Copyright Oxide Computer Company
  */
-import { Suspense, lazy, useEffect, useRef, useState } from 'react'
+import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import { api } from '@oxide/api'
 import type { BadgeColor } from '@oxide/ui'
-import { Badge } from '@oxide/ui'
-import { PrevArrow12Icon, Spinner } from '@oxide/ui'
+import { Badge, PrevArrow12Icon, Spinner } from '@oxide/ui'
 
 import EquivalentCliCommand from 'app/components/EquivalentCliCommand'
 import { useInstanceSelector } from 'app/hooks'

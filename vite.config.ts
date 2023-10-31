@@ -5,9 +5,9 @@
  *
  * Copyright Oxide Computer Company
  */
+import { resolve } from 'path'
 import basicSsl from '@vitejs/plugin-basic-ssl'
 import react from '@vitejs/plugin-react-swc'
-import { resolve } from 'path'
 import { defineConfig } from 'vite'
 import { createHtmlPlugin } from 'vite-plugin-html'
 import { z } from 'zod'

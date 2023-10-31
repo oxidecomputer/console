@@ -9,8 +9,8 @@
 // only be checking for v4
 import { validate as isUuid } from 'uuid'
 
-import * as mock from '@oxide/api-mocks'
 import type { ApiTypes as Api, PathParams as PP } from '@oxide/api'
+import * as mock from '@oxide/api-mocks'
 import { user1 } from '@oxide/api-mocks'
 
 import type { Json } from '../json-type'

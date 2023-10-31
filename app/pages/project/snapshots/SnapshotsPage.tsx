@@ -19,13 +19,13 @@ import type { MenuAction } from '@oxide/table'
 import { DateCell, SizeCell, useQueryTable } from '@oxide/table'
 import {
   Badge,
+  buttonStyle,
   EmptyMessage,
   PageHeader,
   PageTitle,
   Snapshots24Icon,
   Spinner,
   TableActions,
-  buttonStyle,
 } from '@oxide/ui'
 
 import { SnapshotStatusBadge } from 'app/components/StatusBadge'

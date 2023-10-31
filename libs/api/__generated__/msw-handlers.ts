@@ -8,21 +8,21 @@
  * Copyright Oxide Computer Company
  */
 import {
+  compose,
+  context,
   ResponseComposition,
   ResponseTransformer,
+  rest,
   RestContext,
   RestHandler,
   RestRequest,
-  compose,
-  context,
-  rest,
 } from 'msw'
 import type { SnakeCasedPropertiesDeep as Snakify } from 'type-fest'
-import { ZodSchema, z } from 'zod'
+import { z, ZodSchema } from 'zod'
 
 import type * as Api from './Api'
-import * as schema from './validate'
 import { snakeify } from './util'
+import * as schema from './validate'
 
 type HandlerResult<T> = Json<T> | ResponseTransformer<Json<T>>
 type StatusCode = number

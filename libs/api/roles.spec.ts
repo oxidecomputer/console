@@ -8,13 +8,13 @@
 import { describe, expect, it, test } from 'vitest'
 
 import {
-  type Policy,
   byGroupThenName,
   deleteRole,
   getEffectiveRole,
   roleOrder,
   updateRole,
   userRoleFromPolicies,
+  type Policy,
 } from './roles'
 
 describe('getEffectiveRole', () => {

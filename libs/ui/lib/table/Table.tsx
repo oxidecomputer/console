@@ -9,6 +9,7 @@ import cn from 'classnames'
 import type { ReactElement } from 'react'
 import React, { useRef } from 'react'
 import SimpleBar from 'simplebar-react'
+
 import 'simplebar-react/dist/simplebar.min.css'
 
 import { classed } from '@oxide/util'

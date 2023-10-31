@@ -8,7 +8,7 @@
 import { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { type Instance, instanceCan, useApiMutation } from '@oxide/api'
+import { instanceCan, useApiMutation, type Instance } from '@oxide/api'
 import type { MakeActions } from '@oxide/table'
 
 import { confirmDelete } from 'app/stores/confirm-delete'

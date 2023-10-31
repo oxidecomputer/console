@@ -6,12 +6,12 @@
  * Copyright Oxide Computer Company
  */
 import {
-  FloatingArrow,
-  FloatingPortal,
   arrow,
   autoPlacement,
   autoUpdate,
   flip,
+  FloatingArrow,
+  FloatingPortal,
   offset,
   useDismiss,
   useFloating,

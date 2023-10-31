@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { type Control, useController } from 'react-hook-form'
+import { useController, type Control } from 'react-hook-form'
 import type { Merge } from 'type-fest'
 
 import type { IdpMetadataSource, SamlIdentityProviderCreate } from '@oxide/api'

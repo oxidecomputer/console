@@ -9,7 +9,6 @@ import { useCallback, useMemo, useState } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 
 import {
-  type Disk,
   apiQueryClient,
   diskCan,
   genName,
@@ -17,6 +16,7 @@ import {
   useApiMutation,
   useApiQueryClient,
   usePrefetchedApiQuery,
+  type Disk,
 } from '@oxide/api'
 import type { MenuAction } from '@oxide/table'
 import { DateCell, SizeCell, useQueryTable } from '@oxide/table'

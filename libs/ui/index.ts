@@ -7,6 +7,7 @@
  */
 import useInterval from './lib/hooks/use-interval'
 import useTimeout from './lib/hooks/use-timeout'
+
 import './styles/index.css'
 
 export { useInterval, useTimeout }

@@ -19,7 +19,7 @@ import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/rea
 import { invariant } from '@oxide/util'
 
 import type { ApiResult } from './__generated__/Api'
-import { type ApiError, processServerError } from './errors'
+import { processServerError, type ApiError } from './errors'
 import { navToLogin } from './nav-to-login'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */

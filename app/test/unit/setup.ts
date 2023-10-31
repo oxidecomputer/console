@@ -11,6 +11,7 @@
  * in this file does _not_ impact end-to-end tests.
  */
 import '@testing-library/jest-dom/vitest'
+
 import { cleanup } from '@testing-library/react'
 import { afterAll, afterEach, beforeAll } from 'vitest'
 

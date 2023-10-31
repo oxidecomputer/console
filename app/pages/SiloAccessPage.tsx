@@ -8,16 +8,17 @@
 import { useMemo, useState } from 'react'
 
 import type { IdentityType, RoleKey } from '@oxide/api'
-import { deleteRole, usePrefetchedApiQuery } from '@oxide/api'
 import {
   apiQueryClient,
   byGroupThenName,
+  deleteRole,
   getEffectiveRole,
   useApiMutation,
   useApiQueryClient,
+  usePrefetchedApiQuery,
   useUserRows,
 } from '@oxide/api'
-import { Table, createColumnHelper, getActionsCol, useReactTable } from '@oxide/table'
+import { createColumnHelper, getActionsCol, Table, useReactTable } from '@oxide/table'
 import {
   Access24Icon,
   Button,
