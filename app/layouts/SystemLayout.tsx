@@ -65,7 +65,7 @@ export default function SystemLayout() {
     const systemLinks = [
       { value: 'Silos', path: pb.silos() },
       { value: 'Utilization', path: pb.systemUtilization() },
-      { value: 'Inventory', path: pb.sledInventory() },
+      { value: 'Inventory', path: pb.inventory() },
     ]
       // filter out the entry for the path we're currently on
       .filter((i) => i.path !== pathname)
