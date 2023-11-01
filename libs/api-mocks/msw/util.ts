@@ -6,7 +6,6 @@
  * Copyright Oxide Computer Company
  */
 import { differenceInSeconds, subHours } from 'date-fns'
-import type { RestRequest } from 'msw'
 
 import {
   FLEET_ID,
@@ -20,14 +19,12 @@ import {
   type SystemMetricQueryParams,
   type User,
 } from '@oxide/api'
-import { json, type Json } from '@oxide/gen/msw-handlers'
+import { HttpResponse, type Json } from '@oxide/gen/msw-handlers'
 import { GiB, isTruthy, TiB } from '@oxide/util'
 
 import type { DbRoleAssignmentResourceType } from '..'
 import { genI64Data } from '../metrics'
 import { db } from './db'
-
-export { json } from '@oxide/gen/msw-handlers'
 
 interface PaginateOptions {
   limit?: number
@@ -88,10 +85,13 @@ export function getTimestamps() {
   return { time_created: now, time_modified: now }
 }
 
-export const unavailableErr = json({ error_code: 'ServiceUnavailable' }, { status: 503 })
+export const unavailableErr = HttpResponse.json(
+  { error_code: 'ServiceUnavailable' },
+  { status: 503 }
+)
 
 export const NotImplemented = () => {
-  throw json({ error_code: 'NotImplemented' }, { status: 501 })
+  throw HttpResponse.json({ error_code: 'NotImplemented' }, { status: 501 })
 }
 
 export const errIfExists = <T extends Record<string, unknown>>(
@@ -105,7 +105,7 @@ export const errIfExists = <T extends Record<string, unknown>>(
     )
   ) {
     const name = 'name' in match ? match.name : 'id' in match ? match.id : '<resource>'
-    throw json(
+    throw HttpResponse.json(
       {
         error_code: 'ObjectAlreadyExists',
         message: `already exists: ${resourceLabel} "${name}"`,
@@ -292,8 +292,8 @@ export const MSW_USER_COOKIE = 'msw-user'
  * If cookie is empty or name is not found, return the first user in the list,
  * who has admin on everything.
  */
-export function currentUser(req: RestRequest): Json<User> {
-  const name = req.cookies[MSW_USER_COOKIE]
+export function currentUser(cookies: Record<string, string>): Json<User> {
+  const name = cookies[MSW_USER_COOKIE]
   return db.users.find((u) => u.display_name === name) ?? db.users[0]
 }
 
@@ -347,8 +347,8 @@ export function userHasRole(
  * fleet roles for the user as well as for the user's groups. Do nothing if yes,
  * throw 403 if no.
  */
-export function requireFleetViewer(req: RestRequest) {
-  requireRole(req, 'fleet', FLEET_ID, 'viewer')
+export function requireFleetViewer(cookies: Record<string, string>) {
+  requireRole(cookies, 'fleet', FLEET_ID, 'viewer')
 }
 
 /**
@@ -357,12 +357,12 @@ export function requireFleetViewer(req: RestRequest) {
  * if no.
  */
 export function requireRole(
-  req: RestRequest,
+  cookies: Record<string, string>,
   resourceType: DbRoleAssignmentResourceType,
   resourceId: string,
   role: RoleKey
 ) {
-  const user = currentUser(req)
+  const user = currentUser(cookies)
   // should it 404? I think the API is a mix
   if (!userHasRole(user, resourceType, resourceId, role)) throw 403
 }

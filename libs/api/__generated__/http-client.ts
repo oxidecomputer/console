@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+
 import { camelToSnake, isNotNull, processResponseBody, snakeify } from './util'
 
 /** Success responses from the API */

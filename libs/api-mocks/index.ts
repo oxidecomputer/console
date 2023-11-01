@@ -24,5 +24,5 @@ export * from './user'
 export * from './vpc'
 
 export { handlers } from './msw/handlers'
-export { json, MSW_USER_COOKIE } from './msw/util'
+export { MSW_USER_COOKIE } from './msw/util'
 export { resetDb } from './msw/db'
