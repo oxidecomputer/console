@@ -90,7 +90,11 @@ export function getTimestamps() {
 export const unavailableErr = () =>
   json({ error_code: 'ServiceUnavailable' }, { status: 503 })
 
-export const NotImplemented = () => json({ error_code: 'NotImplemented' }, { status: 501 })
+export const NotImplemented = () => {
+  // This doesn't just return the response because it broadens the type to be usable
+  // directly as a handler
+  throw json({ error_code: 'NotImplemented' }, { status: 501 })
+}
 
 export const errIfExists = <T extends Record<string, unknown>>(
   collection: T[],
