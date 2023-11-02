@@ -87,7 +87,8 @@ export function getTimestamps() {
   return { time_created: now, time_modified: now }
 }
 
-export const unavailableErr = json({ error_code: 'ServiceUnavailable' }, { status: 503 })
+export const unavailableErr = () =>
+  json({ error_code: 'ServiceUnavailable' }, { status: 503 })
 
 export const NotImplemented = () => {
   throw json({ error_code: 'NotImplemented' }, { status: 501 })
