@@ -261,11 +261,12 @@ describe('useApiMutation', () => {
       const { result } = renderCreateProject()
       act(() => result.current.mutate(createParams))
 
-      await waitFor(() =>
-        expect(result.current.data).toMatchObject({
+      await waitFor(() => {
+        console.log('result', result.current)
+        return expect(result.current.data).toMatchObject({
           name: createParams.body.name,
         })
-      )
+      })
     })
 
     // RQ doesn't like a value of undefined for data, so we're using {} for now

@@ -1145,6 +1145,9 @@ const handler =
       if (typeof result === 'function') {
         return result()
       }
+      if (result instanceof Response) {
+        return result
+      }
       return json(result)
     } catch (thrown) {
       if (typeof thrown === 'number') {
@@ -1155,6 +1158,9 @@ const handler =
       }
       if (typeof thrown === 'string') {
         return json({ message: thrown }, { status: 400 })
+      }
+      if (thrown instanceof Response) {
+        return thrown
       }
       console.error('Unexpected mock error', thrown)
       return json({ message: 'Unknown Server Error' }, { status: 500 })
