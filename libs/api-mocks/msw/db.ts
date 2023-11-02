@@ -7,7 +7,6 @@
  */
 // note that isUuid checks for any kind of UUID. strictly speaking, we should
 // only be checking for v4
-import { HttpResponse } from 'msw'
 import { validate as isUuid } from 'uuid'
 
 import type { ApiTypes as Api, PathParams as PP } from '@oxide/api'
@@ -15,12 +14,11 @@ import * as mock from '@oxide/api-mocks'
 import { user1 } from '@oxide/api-mocks'
 
 import type { Json } from '../json-type'
+import { json } from './util'
 
 const notFoundBody = { error_code: 'ObjectNotFound' } as const
 export type NotFound = typeof notFoundBody
-export const notFoundErr = HttpResponse.json({ error_code: 'ObjectNotFound' } as const, {
-  status: 404,
-})
+export const notFoundErr = json({ error_code: 'ObjectNotFound' } as const, { status: 404 })
 
 export const lookupById = <T extends { id: string }>(table: T[], id: string) => {
   const item = table.find((i) => i.id === id)

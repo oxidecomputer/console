@@ -35,6 +35,7 @@ type StringifyDates<T> = T extends Date
  * purpose JSON type!
  */
 export type Json<B> = Snakify<StringifyDates<B>>
+export const json = HttpResponse.json
 
 // Shortcut to reduce number of imports required in consumers
 export { HttpResponse }
@@ -1073,7 +1074,7 @@ function validateBody<S extends ZodSchema>(schema: S, body: unknown) {
   if (result.success) {
     return { body: result.data as Json<z.infer<S>> }
   }
-  return { bodyErr: HttpResponse.json(result.error.issues, { status: 400 }) }
+  return { bodyErr: json(result.error.issues, { status: 400 }) }
 }
 function validateParams<S extends ZodSchema>(
   schema: S,
@@ -1101,7 +1102,7 @@ function validateParams<S extends ZodSchema>(
   // exist if there's no valid name
   const { issues } = result.error
   const status = issues.some((e) => e.path[0] === 'path') ? 404 : 400
-  return { paramsErr: HttpResponse.json(issues, { status }) }
+  return { paramsErr: json(issues, { status }) }
 }
 
 const handler =
@@ -1117,19 +1118,19 @@ const handler =
   }: {
     request: Request
     params: PathParams
-    cookies: Record<string, string>
+    cookies: Record<string, string | string[]>
   }) => {
     const { params, paramsErr } = paramSchema
       ? validateParams(paramSchema, req, pathParams)
       : { params: {}, paramsErr: undefined }
-    if (paramsErr) return HttpResponse.json(paramsErr, { status: 400 })
+    if (paramsErr) return json(paramsErr, { status: 400 })
 
     const { path, query } = params
 
     const { body, bodyErr } = bodySchema
       ? validateBody(bodySchema, await req.json())
       : { body: undefined, bodyErr: undefined }
-    if (bodyErr) return HttpResponse.json(bodyErr, { status: 400 })
+    if (bodyErr) return json(bodyErr, { status: 400 })
 
     try {
       // TypeScript can't narrow the handler down because there's not an explicit relationship between the schema
@@ -1144,7 +1145,7 @@ const handler =
       if (typeof result === 'function') {
         return result()
       }
-      return HttpResponse.json(result)
+      return json(result)
     } catch (thrown) {
       if (typeof thrown === 'number') {
         return new HttpResponse(null, { status: thrown })
@@ -1153,10 +1154,10 @@ const handler =
         return thrown()
       }
       if (typeof thrown === 'string') {
-        return HttpResponse.json({ message: thrown }, { status: 400 })
+        return json({ message: thrown }, { status: 400 })
       }
       console.error('Unexpected mock error', thrown)
-      return HttpResponse.json({ message: 'Unknown Server Error' }, { status: 500 })
+      return json({ message: 'Unknown Server Error' }, { status: 500 })
     }
   }
 

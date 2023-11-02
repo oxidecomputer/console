@@ -19,12 +19,14 @@ import {
   type SystemMetricQueryParams,
   type User,
 } from '@oxide/api'
-import { HttpResponse, type Json } from '@oxide/gen/msw-handlers'
+import { json, type Json } from '@oxide/gen/msw-handlers'
 import { GiB, isTruthy, TiB } from '@oxide/util'
 
 import type { DbRoleAssignmentResourceType } from '..'
 import { genI64Data } from '../metrics'
 import { db } from './db'
+
+export { json } from '@oxide/gen/msw-handlers'
 
 interface PaginateOptions {
   limit?: number
@@ -85,13 +87,10 @@ export function getTimestamps() {
   return { time_created: now, time_modified: now }
 }
 
-export const unavailableErr = HttpResponse.json(
-  { error_code: 'ServiceUnavailable' },
-  { status: 503 }
-)
+export const unavailableErr = json({ error_code: 'ServiceUnavailable' }, { status: 503 })
 
 export const NotImplemented = () => {
-  throw HttpResponse.json({ error_code: 'NotImplemented' }, { status: 501 })
+  throw json({ error_code: 'NotImplemented' }, { status: 501 })
 }
 
 export const errIfExists = <T extends Record<string, unknown>>(
@@ -105,7 +104,7 @@ export const errIfExists = <T extends Record<string, unknown>>(
     )
   ) {
     const name = 'name' in match ? match.name : 'id' in match ? match.id : '<resource>'
-    throw HttpResponse.json(
+    throw json(
       {
         error_code: 'ObjectAlreadyExists',
         message: `already exists: ${resourceLabel} "${name}"`,

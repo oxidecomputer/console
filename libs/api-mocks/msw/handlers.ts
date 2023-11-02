@@ -18,7 +18,7 @@ import {
   type ApiTypes as Api,
   type SamlIdentityProvider,
 } from '@oxide/api'
-import { HttpResponse, makeHandlers, type Json } from '@oxide/gen/msw-handlers'
+import { json, makeHandlers, type Json } from '@oxide/gen/msw-handlers'
 import { GiB, pick, sortBy } from '@oxide/util'
 
 import { genCumulativeI64Data } from '../metrics'
@@ -64,7 +64,7 @@ export const handlers = makeHandlers({
     }
     db.projects.push(newProject)
 
-    return HttpResponse.json(newProject, { status: 201 })
+    return json(newProject, { status: 201 })
   },
   projectView: ({ path }) => {
     if (path.project.endsWith('error-503')) {
@@ -127,7 +127,7 @@ export const handlers = makeHandlers({
     }
     db.disks.push(newDisk)
 
-    return HttpResponse.json(newDisk, { status: 201 })
+    return json(newDisk, { status: 201 })
   },
   diskView: ({ path, query }) => lookup.disk({ ...path, ...query }),
   diskDelete({ path, query }) {
@@ -254,7 +254,7 @@ export const handlers = makeHandlers({
       ...getTimestamps(),
     }
     db.images.push(newImage)
-    return HttpResponse.json(newImage, { status: 201 })
+    return json(newImage, { status: 201 })
   },
   imageView: ({ path, query }) => lookup.image({ ...path, ...query }),
   imageDelete({ path, query, cookies }) {
@@ -273,7 +273,7 @@ export const handlers = makeHandlers({
 
     delete image.project_id
 
-    return HttpResponse.json(image, { status: 202 })
+    return json(image, { status: 202 })
   },
   imageDemote({ path, query }) {
     const image = lookup.image({ ...path, ...query })
@@ -281,7 +281,7 @@ export const handlers = makeHandlers({
 
     image.project_id = project.id
 
-    return HttpResponse.json(image, { status: 202 })
+    return json(image, { status: 202 })
   },
   instanceList({ query }) {
     const project = lookup.project(query)
@@ -408,7 +408,7 @@ export const handlers = makeHandlers({
       time_run_state_updated: new Date().toISOString(),
     }
     db.instances.push(newInstance)
-    return HttpResponse.json(newInstance, { status: 201 })
+    return json(newInstance, { status: 201 })
   },
   instanceView: ({ path, query }) => lookup.instance({ ...path, ...query }),
   instanceDelete({ path, query }) {
@@ -531,23 +531,23 @@ export const handlers = makeHandlers({
       instance.run_state = 'running'
     }, 3000)
 
-    return HttpResponse.json(instance, { status: 202 })
+    return json(instance, { status: 202 })
   },
   async instanceSerialConsole(_params) {
     await delay(3000)
-    return HttpResponse.json(serial)
+    return json(serial)
   },
   instanceStart({ path, query }) {
     const instance = lookup.instance({ ...path, ...query })
     instance.run_state = 'running'
 
-    return HttpResponse.json(instance, { status: 202 })
+    return json(instance, { status: 202 })
   },
   instanceStop({ path, query }) {
     const instance = lookup.instance({ ...path, ...query })
     instance.run_state = 'stopped'
 
-    return HttpResponse.json(instance, { status: 202 })
+    return json(instance, { status: 202 })
   },
   projectPolicyView({ path }) {
     const project = lookup.project(path)
@@ -602,7 +602,7 @@ export const handlers = makeHandlers({
     }
     db.snapshots.push(newSnapshot)
 
-    return HttpResponse.json(newSnapshot, { status: 201 })
+    return json(newSnapshot, { status: 201 })
   },
   snapshotView: ({ path, query }) => lookup.snapshot({ ...path, ...query }),
   snapshotDelete({ path, query }) {
@@ -644,7 +644,7 @@ export const handlers = makeHandlers({
     }
     db.vpcSubnets.push(newSubnet)
 
-    return HttpResponse.json(newVpc, { status: 201 })
+    return json(newVpc, { status: 201 })
   },
   vpcView: ({ path, query }) => lookup.vpc({ ...path, ...query }),
   vpcUpdate({ body, path, query }) {
@@ -721,7 +721,7 @@ export const handlers = makeHandlers({
       ...getTimestamps(),
     }
     db.vpcRouters.push(newRouter)
-    return HttpResponse.json(newRouter, { status: 201 })
+    return json(newRouter, { status: 201 })
   },
   vpcRouterView: ({ path, query }) => lookup.vpcRouter({ ...path, ...query }),
   vpcRouterUpdate({ body, path, query }) {
@@ -761,7 +761,7 @@ export const handlers = makeHandlers({
       ...body,
       ...getTimestamps(),
     }
-    return HttpResponse.json(newRoute, { status: 201 })
+    return json(newRoute, { status: 201 })
   },
   vpcRouterRouteView: ({ path, query }) => lookup.vpcRouterRoute({ ...path, ...query }),
   vpcRouterRouteUpdate({ body, path, query }) {
@@ -806,7 +806,7 @@ export const handlers = makeHandlers({
       ...getTimestamps(),
     }
     db.vpcSubnets.push(newSubnet)
-    return HttpResponse.json(newSubnet, { status: 201 })
+    return json(newSubnet, { status: 201 })
   },
   vpcSubnetView: ({ path, query }) => lookup.vpcSubnet({ ...path, ...query }),
   vpcSubnetUpdate({ body, path, query }) {
@@ -897,7 +897,7 @@ export const handlers = makeHandlers({
       ...getTimestamps(),
     }
     db.sshKeys.push(newSshKey)
-    return HttpResponse.json(newSshKey, { status: 201 })
+    return json(newSshKey, { status: 201 })
   },
   currentUserSshKeyView: ({ path }) => lookup.sshKey(path),
   currentUserSshKeyDelete({ path }) {
@@ -944,7 +944,7 @@ export const handlers = makeHandlers({
       mapped_fleet_roles: body.mapped_fleet_roles || {},
     }
     db.silos.push(newSilo)
-    return HttpResponse.json(newSilo, { status: 201 })
+    return json(newSilo, { status: 201 })
   },
   siloView({ path, cookies }) {
     requireFleetViewer(cookies)
