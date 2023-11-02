@@ -1113,10 +1113,10 @@ const handler =
   async ({
     request: req,
     params: pathParams,
-    cookies
+    cookies,
   }: {
     request: Request
-    params: PathParams,
+    params: PathParams
     cookies: Record<string, string>
   }) => {
     const { params, paramsErr } = paramSchema
