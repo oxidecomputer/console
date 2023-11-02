@@ -8,15 +8,7 @@
  * Copyright Oxide Computer Company
  */
 
-import {
-  DefaultBodyType,
-  delay as doDelay,
-  http,
-  HttpHandler,
-  HttpResponse,
-  PathParams,
-  StrictResponse,
-} from 'msw'
+import { http, HttpHandler, HttpResponse, PathParams, StrictResponse } from 'msw'
 import type { Promisable, SnakeCasedPropertiesDeep as Snakify } from 'type-fest'
 import { z, ZodSchema } from 'zod'
 
@@ -1121,9 +1113,11 @@ const handler =
   async ({
     request: req,
     params: pathParams,
+    cookies
   }: {
     request: Request
-    params: PathParams
+    params: PathParams,
+    cookies: Record<string, string>
   }) => {
     const { params, paramsErr } = paramSchema
       ? validateParams(paramSchema, req, pathParams)
@@ -1141,7 +1135,9 @@ const handler =
       // TypeScript can't narrow the handler down because there's not an explicit relationship between the schema
       // being present and the shape of the handler API. The type of this function could be resolved such that the
       // relevant schema is required if and only if the handler has a type that matches the inferred schema
-      const result = await (handler as any).apply(null, [{ path, query, body, req }])
+      const result = await (handler as any).apply(null, [
+        { path, query, body, req, cookies },
+      ])
       if (typeof result === 'number') {
         return new HttpResponse(null, { status: result })
       }
