@@ -57,16 +57,22 @@ const sleep = async (ms: number) => new Promise((res) => setTimeout(res, ms))
 export async function startMockAPI() {
   // dynamic imports to make extremely sure none of this code ends up in the prod bundle
   const { handlers } = await import('@oxide/api-mocks')
-  const { setupWorker, rest, compose } = await import('msw')
+  const { http, HttpResponse } = await import('msw')
+  const { setupWorker } = await import('msw/browser')
 
   // defined in here because it depends on the dynamic import
-  const interceptAll = rest.all('/v1/*', async (_req, res, ctx) => {
+  const interceptAll = http.all('/v1/*', async () => {
     // random delay on all requests to simulate a real API
     await sleep(randInt(200, 400))
 
     if (shouldFail(chaos)) {
       // special header lets client indicate chaos failures so we don't get confused
-      return res(compose(ctx.status(randomStatus()), ctx.set('X-Chaos', '')))
+      return new HttpResponse(null, {
+        status: randomStatus(),
+        headers: {
+          'X-Chaos': '',
+        },
+      })
     }
     // don't return anything means fall through to the real handlers
   })
@@ -77,7 +83,7 @@ export async function startMockAPI() {
     // custom handler only to make logging less noisy. unhandled requests still
     // pass through to the server
     onUnhandledRequest(req) {
-      const path = req.url.pathname
+      const path = new URL(req.url).pathname
       const ignore = [
         path.includes('libs/ui/assets'), // assets obviously loaded from file system
         path.startsWith('/forms/'), // lazy loaded forms
@@ -86,7 +92,7 @@ export async function startMockAPI() {
         // message format copied from MSW source
         console.warn(`[MSW] Warning: captured an API request without a matching request handler:
 
-  • ${req.method} ${req.url.pathname}
+  • ${req.method} ${path}
 
 If you want to intercept this unhandled request, create a request handler for it.`)
       }

@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { delay } from 'msw'
 import { v4 as uuid } from 'uuid'
 
 import {
@@ -256,10 +257,10 @@ export const handlers = makeHandlers({
     return json(newImage, { status: 201 })
   },
   imageView: ({ path, query }) => lookup.image({ ...path, ...query }),
-  imageDelete({ path, query, req }) {
+  imageDelete({ path, query, cookies }) {
     // if it's a silo image, you need silo write to delete it
     if (!query.project) {
-      requireRole(req, 'silo', defaultSilo.id, 'collaborator')
+      requireRole(cookies, 'silo', defaultSilo.id, 'collaborator')
     }
 
     const image = lookup.image({ ...path, ...query })
@@ -532,9 +533,9 @@ export const handlers = makeHandlers({
 
     return json(instance, { status: 202 })
   },
-  instanceSerialConsole(_params) {
-    // TODO: Add support for params
-    return json(serial, { delay: 3000 })
+  async instanceSerialConsole(_params) {
+    await delay(3000)
+    return json(serial)
   },
   instanceStart({ path, query }) {
     const instance = lookup.instance({ ...path, ...query })
@@ -831,14 +832,14 @@ export const handlers = makeHandlers({
     const nics = db.networkInterfaces.filter((n) => n.subnet_id === subnet.id)
     return paginated(query, nics)
   },
-  sledPhysicalDiskList({ path, query, req }) {
-    requireFleetViewer(req)
+  sledPhysicalDiskList({ path, query, cookies }) {
+    requireFleetViewer(cookies)
     const sled = lookup.sled(path)
     const disks = db.physicalDisks.filter((n) => n.sled_id === sled.id)
     return paginated(query, disks)
   },
-  physicalDiskList({ query, req }) {
-    requireFleetViewer(req)
+  physicalDiskList({ query, cookies }) {
+    requireFleetViewer(cookies)
     return paginated(query, db.physicalDisks)
   },
   policyView() {
@@ -866,27 +867,27 @@ export const handlers = makeHandlers({
 
     return body
   },
-  rackList: ({ query, req }) => {
-    requireFleetViewer(req)
+  rackList: ({ query, cookies }) => {
+    requireFleetViewer(cookies)
     return paginated(query, db.racks)
   },
-  currentUserView({ req }) {
-    return { ...currentUser(req), silo_name: defaultSilo.name }
+  currentUserView({ cookies }) {
+    return { ...currentUser(cookies), silo_name: defaultSilo.name }
   },
-  currentUserGroups({ req }) {
-    const user = currentUser(req)
+  currentUserGroups({ cookies }) {
+    const user = currentUser(cookies)
     const memberships = db.groupMemberships.filter((gm) => gm.userId === user.id)
     const groupIds = new Set(memberships.map((gm) => gm.groupId))
     const groups = db.userGroups.filter((g) => groupIds.has(g.id))
     return { items: groups }
   },
-  currentUserSshKeyList({ query, req }) {
-    const user = currentUser(req)
+  currentUserSshKeyList({ query, cookies }) {
+    const user = currentUser(cookies)
     const keys = db.sshKeys.filter((k) => k.silo_user_id === user.id)
     return paginated(query, keys)
   },
-  currentUserSshKeyCreate({ body, req }) {
-    const user = currentUser(req)
+  currentUserSshKeyCreate({ body, cookies }) {
+    const user = currentUser(cookies)
     errIfExists(db.sshKeys, { silo_user_id: user.id, name: body.name })
 
     const newSshKey: Json<Api.SshKey> = {
@@ -904,16 +905,16 @@ export const handlers = makeHandlers({
     db.sshKeys = db.sshKeys.filter((i) => i.id !== sshKey.id)
     return 204
   },
-  sledView({ path, req }) {
-    requireFleetViewer(req)
+  sledView({ path, cookies }) {
+    requireFleetViewer(cookies)
     return lookup.sled(path)
   },
-  sledList({ query, req }) {
-    requireFleetViewer(req)
+  sledList({ query, cookies }) {
+    requireFleetViewer(cookies)
     return paginated(query, db.sleds)
   },
-  sledInstanceList({ query, path, req }) {
-    requireFleetViewer(req)
+  sledInstanceList({ query, path, cookies }) {
+    requireFleetViewer(cookies)
     const sled = lookupById(db.sleds, path.sledId)
     return paginated(
       query,
@@ -929,12 +930,12 @@ export const handlers = makeHandlers({
       })
     )
   },
-  siloList({ query, req }) {
-    requireFleetViewer(req)
+  siloList({ query, cookies }) {
+    requireFleetViewer(cookies)
     return paginated(query, db.silos)
   },
-  siloCreate({ body, req }) {
-    requireFleetViewer(req)
+  siloCreate({ body, cookies }) {
+    requireFleetViewer(cookies)
     errIfExists(db.silos, { name: body.name })
     const newSilo: Json<Api.Silo> = {
       id: uuid(),
@@ -945,25 +946,25 @@ export const handlers = makeHandlers({
     db.silos.push(newSilo)
     return json(newSilo, { status: 201 })
   },
-  siloView({ path, req }) {
-    requireFleetViewer(req)
+  siloView({ path, cookies }) {
+    requireFleetViewer(cookies)
     return lookup.silo(path)
   },
-  siloDelete({ path, req }) {
-    requireFleetViewer(req)
+  siloDelete({ path, cookies }) {
+    requireFleetViewer(cookies)
     const silo = lookup.silo(path)
     db.silos = db.silos.filter((i) => i.id !== silo.id)
     return 204
   },
-  siloIdentityProviderList({ query, req }) {
-    requireFleetViewer(req)
+  siloIdentityProviderList({ query, cookies }) {
+    requireFleetViewer(cookies)
     const silo = lookup.silo(query)
     const idps = db.identityProviders.filter(({ siloId }) => siloId === silo.id).map(toIdp)
     return { items: idps }
   },
 
-  samlIdentityProviderCreate({ query, body, req }) {
-    requireFleetViewer(req)
+  samlIdentityProviderCreate({ query, body, cookies }) {
+    requireFleetViewer(cookies)
     const silo = lookup.silo(query)
 
     // this is a bit silly, but errIfExists doesn't handle nested keys like
@@ -1019,8 +1020,8 @@ export const handlers = makeHandlers({
     return paginated(query, db.users)
   },
 
-  systemPolicyView({ req }) {
-    requireFleetViewer(req)
+  systemPolicyView({ cookies }) {
+    requireFleetViewer(cookies)
 
     const role_assignments = db.roleAssignments
       .filter((r) => r.resource_type === 'fleet' && r.resource_id === FLEET_ID)
@@ -1029,7 +1030,7 @@ export const handlers = makeHandlers({
     return { role_assignments }
   },
   systemMetric(params) {
-    requireFleetViewer(params.req)
+    requireFleetViewer(params.cookies)
     return handleMetrics(params)
   },
   siloMetric: handleMetrics,
