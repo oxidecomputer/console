@@ -84,9 +84,13 @@ export async function startMockAPI() {
     // pass through to the server
     onUnhandledRequest(req) {
       const path = new URL(req.url).pathname
+      // Files that get pulled in dynamic imports. It is expected that MSW will
+      // not handle them and they fall through to the dev server, so warning
+      // about them is just noise.
       const ignore = [
-        path.includes('libs/ui/assets'), // assets obviously loaded from file system
-        path.startsWith('/forms/'), // lazy loaded forms
+        path.includes('libs/ui/assets'),
+        path.startsWith('/app'),
+        path.startsWith('/node_modules'),
       ].some(Boolean)
       if (!ignore) {
         // message format copied from MSW source
