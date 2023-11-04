@@ -2,7 +2,7 @@
 /* tslint:disable */
 
 /**
- * Mock Service Worker (2.0.2).
+ * Mock Service Worker (2.0.3).
  * @see https://github.com/mswjs/msw
  * - Please do NOT modify this file.
  * - Please do NOT serve this file on production.
@@ -125,7 +125,7 @@ async function handleRequest(event, requestId) {
       // always be a ReadableStream, even for 204 responses.
       // But when creating a new Response instance on the client,
       // the body for a 204 response must be null.
-      const responseBody = getSafeBody(response.status, responseClone.body)
+      const responseBody = response.status === 204 ? null : responseClone.body
 
       sendToClient(
         client,
@@ -281,7 +281,7 @@ async function respondWithMock(response) {
     return Response.error()
   }
 
-  const mockedResponse = new Response(getSafeBody(response.status, response.body), response)
+  const mockedResponse = new Response(response.body, response)
 
   Reflect.defineProperty(mockedResponse, IS_MOCKED_RESPONSE, {
     value: true,
@@ -289,24 +289,4 @@ async function respondWithMock(response) {
   })
 
   return mockedResponse
-}
-
-/**
- * Ensures that the response body is only included when the status code doesn't indicate
- * the body should be empty
- * 
- * This is a workaround required due to a bug in MSW's implementation. Once fixed this file
- * should be regenerated. 
- * 
- * @see https://github.com/mswjs/msw/issues/1827
- * 
- * @param {number} status
- * @param {B} body 
- * @returns {B | null}
- */
-function getSafeBody(status, body) {
-  if (status === 101 || status=== 103 || status === 204 || status === 205 || status === 304) {
-    return null
-  }
-  return body
 }
