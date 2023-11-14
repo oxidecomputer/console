@@ -23,7 +23,7 @@ import { useForm, useProjectSelector } from 'app/hooks'
 const defaultValues: InstanceNetworkInterfaceCreate = {
   name: '',
   description: '',
-  ip: '',
+  ip: undefined,
   subnetName: '',
   vpcName: '',
 }
