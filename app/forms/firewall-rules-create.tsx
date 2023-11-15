@@ -29,6 +29,7 @@ import {
   SideModalForm,
   TextField,
 } from 'app/components/form'
+import { NumberField } from 'app/components/form/fields/NumberField'
 import { useForm, useVpcSelector } from 'app/hooks'
 
 export type FirewallRuleValues = {
@@ -151,8 +152,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
 
       <FormDivider />
 
-      <TextField
-        type="number"
+      <NumberField
         name="priority"
         helpText="Must be 0&ndash;65535"
         required

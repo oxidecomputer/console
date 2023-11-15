@@ -46,6 +46,7 @@ export const NumberInput = React.forwardRef<
       {...groupProps}
     >
       <input
+        type="number"
         {...inputProps}
         ref={mergeRefs([forwardedRef, inputRef])}
         className={cn(

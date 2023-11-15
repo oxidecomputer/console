@@ -50,6 +50,7 @@ import {
   TextField,
   type DiskTableItem,
 } from 'app/components/form'
+import { NumberField } from 'app/components/form/fields/NumberField'
 import { getProjectSelector, useForm, useProjectSelector, useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
@@ -246,8 +247,7 @@ export function CreateInstanceForm() {
         </Tabs.Content>
 
         <Tabs.Content value="custom">
-          <TextField
-            type="number"
+          <NumberField
             required
             label="CPUs"
             name="ncpus"
@@ -263,9 +263,8 @@ export function CreateInstanceForm() {
               }
             }}
           />
-          <TextField
+          <NumberField
             units="GiB"
-            type="number"
             required
             label="Memory"
             name="memory"
