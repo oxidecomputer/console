@@ -27,7 +27,7 @@ export function NumberField<
   helpText,
   required,
   ...props
-}: Omit<TextFieldProps<TFieldValues, TName>, 'id'>) {
+}: Omit<TextFieldProps<TFieldValues, TName>, 'id' | 'type'>) {
   // id is omitted from props because we generate it here
   const id = useId()
   return (
