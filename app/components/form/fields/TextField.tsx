@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
-import { useId } from 'react'
+import { useId, type HTMLInputTypeAttribute } from 'react'
 import {
   Controller,
   type Control,
@@ -30,10 +30,10 @@ import { ErrorMessage } from './ErrorMessage'
 export interface TextFieldProps<
   TFieldValues extends FieldValues,
   TName extends FieldPath<TFieldValues>,
-> extends UITextFieldProps {
+> extends Omit<UITextFieldProps, 'type'> {
   name: TName
   /** HTML type attribute, defaults to text */
-  type?: string
+  type?: Omit<HTMLInputTypeAttribute, 'number'>
   /** Will default to name if not provided */
   label?: string
   /**
@@ -134,7 +134,7 @@ export const TextFieldInner = <
             <UITextField
               id={id}
               title={label}
-              type={type}
+              type={type as string}
               error={!!error}
               aria-labelledby={cn(`${id}-label`, {
                 [`${id}-help-text`]: !!description,
