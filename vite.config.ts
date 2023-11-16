@@ -106,7 +106,6 @@ export default defineConfig(({ mode }) => ({
   },
   server: {
     port: 4000,
-    https: apiMode === 'dogfood',
     // these only get hit when MSW doesn't intercept the request
     proxy: {
       '/v1': {

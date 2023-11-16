@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-module.exports = {
+export default {
   // note: it seems like tailwind has to be last for it to work
   plugins: ['@ianvs/prettier-plugin-sort-imports', 'prettier-plugin-tailwindcss'],
   printWidth: 92,
