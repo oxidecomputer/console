@@ -60,8 +60,6 @@ async function genForCommit(commit: string) {
 
 if (!$.commandExistsSync('gh')) throw Error('Need gh (GitHub CLI)')
 
-const diffTool = $.commandExistsSync('difft') ? 'difft' : 'diff'
-
 const prNum = await pickPr()
 
 if (!/^\d+$/.test(prNum)) {
@@ -74,4 +72,5 @@ const { base, head } = await getPrRange(prNum)
 const tmpDirBase = await genForCommit(base)
 const tmpDirHead = await genForCommit(head)
 
-await $`${diffTool} ${tmpDirBase} ${tmpDirHead} || true`
+// git difftool is a trick to diff with whatever you have git set to use
+await $`git --no-pager difftool ${tmpDirBase}/Api.ts ${tmpDirHead}/Api.ts || true`
