@@ -74,7 +74,7 @@ const previewMetaTag = [
     tag: 'meta',
     attrs: {
       property: 'og:description',
-      content: 'Preview of the Oxide web console running against an in-browser mock API',
+      content: 'Preview of the Oxide web console with in-browser mock API',
     },
   },
 ]
