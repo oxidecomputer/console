@@ -1,4 +1,6 @@
 header:
+  # default is 80, need to make it slightly longer for a long shebang
+  license-location-threshold: 100
   license:
     spdx-id: MPL-2.0
     content: |
