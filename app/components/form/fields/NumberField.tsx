@@ -68,6 +68,7 @@ export const NumberFieldInner = <
   description,
   required,
   id: idProp,
+  transform,
 }: TextFieldProps<TFieldValues, TName>) => {
   const generatedId = useId()
   const id = idProp || generatedId
@@ -77,7 +78,7 @@ export const NumberFieldInner = <
       name={name}
       control={control}
       rules={{ required, validate }}
-      render={({ field: { value, ...fieldRest }, fieldState: { error } }) => {
+      render={({ field: { value, onChange, ...fieldRest }, fieldState: { error } }) => {
         return (
           <>
             <UINumberField
@@ -88,6 +89,7 @@ export const NumberFieldInner = <
               })}
               aria-describedby={description ? `${id}-label-tip` : undefined}
               defaultValue={value}
+              onChange={(v) => onChange(transform ? transform(v) : v)}
               {...fieldRest}
             />
             <ErrorMessage error={error} label={label} />

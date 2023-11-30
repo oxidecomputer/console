@@ -56,6 +56,7 @@ export interface TextFieldProps<
   units?: string
   validate?: Validate<FieldPathValue<TFieldValues, TName>, TFieldValues>
   control: Control<TFieldValues>
+  transform?: <T>(value: T) => T
 }
 
 export function TextField<
@@ -111,6 +112,7 @@ export const TextFieldInner = <
   description,
   required,
   id: idProp,
+  transform,
   ...props
 }: TextFieldProps<TFieldValues, TName> & UITextAreaProps) => {
   const generatedId = useId()
@@ -120,7 +122,7 @@ export const TextFieldInner = <
       name={name}
       control={control}
       rules={{ required, validate }}
-      render={({ field, fieldState: { error } }) => {
+      render={({ field: { onChange, ...fieldRest }, fieldState: { error } }) => {
         return (
           <>
             <UITextField
@@ -132,7 +134,10 @@ export const TextFieldInner = <
                 [`${id}-help-text`]: !!description,
               })}
               aria-describedby={description ? `${id}-label-tip` : undefined}
-              {...field}
+              onChange={(e) =>
+                onChange(transform ? transform(e.target.value) : e.target.value)
+              }
+              {...fieldRest}
               {...props}
             />
             <ErrorMessage error={error} label={label} />
