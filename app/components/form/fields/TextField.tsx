@@ -57,6 +57,10 @@ export interface TextFieldProps<
   units?: string
   validate?: Validate<FieldPathValue<TFieldValues, TName>, TFieldValues>
   control: Control<TFieldValues>
+  /**
+   * This function can be provided to alter the value of the input
+   * as the input is changed
+   */
   transform?: (value: Type) => Type | undefined
 }
 
