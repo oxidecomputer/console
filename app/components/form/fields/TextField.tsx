@@ -28,6 +28,7 @@ import { capitalize } from '@oxide/util'
 import { ErrorMessage } from './ErrorMessage'
 
 export interface TextFieldProps<
+  Type,
   TFieldValues extends FieldValues,
   TName extends FieldPath<TFieldValues>,
 > extends Omit<UITextFieldProps, 'type'> {
@@ -56,7 +57,7 @@ export interface TextFieldProps<
   units?: string
   validate?: Validate<FieldPathValue<TFieldValues, TName>, TFieldValues>
   control: Control<TFieldValues>
-  transform?: <T>(value: T) => T
+  transform?: (value: Type) => Type | undefined
 }
 
 export function TextField<
@@ -70,7 +71,7 @@ export function TextField<
   helpText,
   required,
   ...props
-}: Omit<TextFieldProps<TFieldValues, TName>, 'id'> & UITextAreaProps) {
+}: Omit<TextFieldProps<string, TFieldValues, TName>, 'id'> & UITextAreaProps) {
   // id is omitted from props because we generate it here
   const id = useId()
   return (
@@ -114,7 +115,7 @@ export const TextFieldInner = <
   id: idProp,
   transform,
   ...props
-}: TextFieldProps<TFieldValues, TName> & UITextAreaProps) => {
+}: TextFieldProps<string, TFieldValues, TName> & UITextAreaProps) => {
   const generatedId = useId()
   const id = idProp || generatedId
   return (

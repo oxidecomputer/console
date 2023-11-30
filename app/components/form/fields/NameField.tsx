@@ -19,7 +19,7 @@ export function NameField<
   name,
   label = capitalize(name),
   ...textFieldProps
-}: Omit<TextFieldProps<TFieldValues, TName>, 'validate'> & { label?: string }) {
+}: Omit<TextFieldProps<string, TFieldValues, TName>, 'validate'> & { label?: string }) {
   return (
     <TextField
       validate={(name) => validateName(name, label, required)}

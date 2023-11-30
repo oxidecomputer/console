@@ -15,7 +15,7 @@ import type { TextFieldProps } from './TextField'
 interface DiskSizeProps<
   TFieldValues extends FieldValues,
   TName extends FieldPath<TFieldValues>,
-> extends TextFieldProps<TFieldValues, TName> {
+> extends TextFieldProps<number, TFieldValues, TName> {
   minSize?: number
 }
 

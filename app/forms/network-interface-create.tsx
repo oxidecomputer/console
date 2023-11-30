@@ -23,7 +23,7 @@ import { useForm, useProjectSelector } from 'app/hooks'
 const defaultValues: InstanceNetworkInterfaceCreate = {
   name: '',
   description: '',
-  ip: '',
+  ip: undefined,
   subnetName: '',
   vpcName: '',
 }
@@ -80,7 +80,12 @@ export default function CreateNetworkInterfaceForm({
         required
         control={form.control}
       />
-      <TextField name="ip" label="IP Address" control={form.control} />
+      <TextField
+        name="ip"
+        label="IP Address"
+        control={form.control}
+        transform={(ip) => (ip.trim() === '' ? undefined : ip)}
+      />
     </SideModalForm>
   )
 }

@@ -27,7 +27,7 @@ export function NumberField<
   helpText,
   required,
   ...props
-}: Omit<TextFieldProps<TFieldValues, TName>, 'id' | 'type'>) {
+}: Omit<TextFieldProps<number, TFieldValues, TName>, 'id' | 'type'>) {
   // id is omitted from props because we generate it here
   const id = useId()
   return (
@@ -69,7 +69,7 @@ export const NumberFieldInner = <
   required,
   id: idProp,
   transform,
-}: TextFieldProps<TFieldValues, TName>) => {
+}: TextFieldProps<number, TFieldValues, TName>) => {
   const generatedId = useId()
   const id = idProp || generatedId
 
