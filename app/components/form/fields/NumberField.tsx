@@ -69,6 +69,8 @@ export const NumberFieldInner = <
   required,
   id: idProp,
   transform,
+  min,
+  max,
 }: TextFieldProps<number, TFieldValues, TName>) => {
   const generatedId = useId()
   const id = idProp || generatedId
@@ -90,6 +92,8 @@ export const NumberFieldInner = <
               aria-describedby={description ? `${id}-label-tip` : undefined}
               defaultValue={value}
               onChange={(v) => onChange(transform ? transform(v) : v)}
+              minValue={typeof min !== 'undefined' ? Number(min) : undefined}
+              maxValue={typeof max !== 'undefined' ? Number(max) : undefined}
               {...fieldRest}
             />
             <ErrorMessage error={error} label={label} />
