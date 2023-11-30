@@ -60,6 +60,25 @@ const previewAnalyticsTag = {
   },
 }
 
+const previewMetaTag = [
+  {
+    injectTo: 'head' as const,
+    tag: 'meta',
+    attrs: {
+      property: 'og:image',
+      content: '/assets/og-preview-image.webp',
+    },
+  },
+  {
+    injectTo: 'head' as const,
+    tag: 'meta',
+    attrs: {
+      property: 'og:description',
+      content: 'Preview of the Oxide web console with in-browser mock API',
+    },
+  },
+]
+
 // see https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   build: {
@@ -85,7 +104,7 @@ export default defineConfig(({ mode }) => ({
   plugins: [
     createHtmlPlugin({
       inject: {
-        tags: process.env.VERCEL ? [previewAnalyticsTag] : [],
+        tags: process.env.VERCEL ? [previewAnalyticsTag, ...previewMetaTag] : [],
       },
     }),
     react(),
@@ -106,7 +125,6 @@ export default defineConfig(({ mode }) => ({
   },
   server: {
     port: 4000,
-    https: apiMode === 'dogfood',
     // these only get hit when MSW doesn't intercept the request
     proxy: {
       '/v1': {
