@@ -31,6 +31,11 @@ Parameters:
   PR number <int>: If left out, interactive picker is shown
 `.trim()
 
+function printHelpAndExit() {
+  console.log(HELP)
+  Deno.exit()
+}
+
 // inspired by: https://github.com/dsherret/dax/issues/137#issuecomment-1603848769
 declare module 'https://deno.land/x/dax@0.35.0/mod.ts' {
   interface CommandBuilder {
@@ -55,8 +60,7 @@ async function pickPr() {
 
   const prNum = await listPRs().pipe(picker()).pipe(cut()).text()
   if (!/^\d+$/.test(prNum)) {
-    console.error(`Error picking PR. Expected number, got '${prNum}'`)
-    Deno.exit()
+    throw new Error(`Error picking PR. Expected number, got '${prNum}'`)
   }
   return parseInt(prNum, 10)
 }
@@ -101,16 +105,12 @@ const args = flags.parse(Deno.args, {
   boolean: ['force', 'help'],
 })
 
-if (args.help) {
-  console.log(HELP)
-  Deno.exit()
-}
+if (args.help) printHelpAndExit()
 
 const prNum = args._[0] ? args._[0] : await pickPr()
 
 if (typeof prNum !== 'number') {
-  console.error(`PR number must be a number. Got '${prNum}' instead.`)
-  Deno.exit()
+  throw new Error(`PR number must be a number. Got '${prNum}' instead.`)
 }
 
 const { base, head } = await getPrRange(prNum)
