@@ -1069,13 +1069,6 @@ export interface MSWHandlers {
   }) => Promisable<StatusCode>
 }
 
-function validateBody<S extends ZodSchema>(schema: S, body: unknown) {
-  const result = schema.transform(snakeify).safeParse(body)
-  if (result.success) {
-    return { body: result.data as Json<z.infer<S>> }
-  }
-  return { bodyErr: json(result.error.issues, { status: 400 }) }
-}
 function validateParams<S extends ZodSchema>(
   schema: S,
   req: Request,
@@ -1127,10 +1120,13 @@ const handler =
 
     const { path, query } = params
 
-    const { body, bodyErr } = bodySchema
-      ? validateBody(bodySchema, await req.json())
-      : { body: undefined, bodyErr: undefined }
-    if (bodyErr) return json(bodyErr, { status: 400 })
+    let body = undefined
+    if (bodySchema) {
+      const rawBody = await req.json()
+      const result = bodySchema.transform(snakeify).safeParse(rawBody)
+      if (!result.success) return json(result.error.issues, { status: 400 })
+      body = result.data
+    }
 
     try {
       // TypeScript can't narrow the handler down because there's not an explicit relationship between the schema

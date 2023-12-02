@@ -117,7 +117,11 @@ export const AddressLot = z.preprocess(
  */
 export const AddressLotBlock = z.preprocess(
   processResponseBody,
-  z.object({ firstAddress: z.string(), id: z.string().uuid(), lastAddress: z.string() })
+  z.object({
+    firstAddress: z.string().ip(),
+    id: z.string().uuid(),
+    lastAddress: z.string().ip(),
+  })
 )
 
 /**
@@ -125,7 +129,7 @@ export const AddressLotBlock = z.preprocess(
  */
 export const AddressLotBlockCreate = z.preprocess(
   processResponseBody,
-  z.object({ firstAddress: z.string(), lastAddress: z.string() })
+  z.object({ firstAddress: z.string().ip(), lastAddress: z.string().ip() })
 )
 
 /**
@@ -284,7 +288,7 @@ export const BgpImportedRouteIpv4 = z.preprocess(
 export const BgpPeerConfig = z.preprocess(
   processResponseBody,
   z.object({
-    addr: z.string(),
+    addr: z.string().ip(),
     bgpAnnounceSet: NameOrId,
     bgpConfig: NameOrId,
     connectRetry: z.number().min(0).max(4294967295),
@@ -318,7 +322,7 @@ export const BgpPeerState = z.preprocess(
 export const BgpPeerStatus = z.preprocess(
   processResponseBody,
   z.object({
-    addr: z.string(),
+    addr: z.string().ip(),
     localAsn: z.number().min(0).max(4294967295),
     remoteAsn: z.number().min(0).max(4294967295),
     state: BgpPeerState,
@@ -994,7 +998,7 @@ export const IpKind = z.preprocess(processResponseBody, z.enum(['ephemeral', 'fl
 
 export const ExternalIp = z.preprocess(
   processResponseBody,
-  z.object({ ip: z.string(), kind: IpKind })
+  z.object({ ip: z.string().ip(), kind: IpKind })
 )
 
 /**
@@ -1253,7 +1257,7 @@ export const InstanceNetworkInterfaceCreate = z.preprocess(
   processResponseBody,
   z.object({
     description: z.string(),
-    ip: z.string().optional(),
+    ip: z.string().ip().optional(),
     name: Name,
     subnetName: Name,
     vpcName: Name,
@@ -1324,7 +1328,7 @@ export const InstanceNetworkInterface = z.preprocess(
     description: z.string(),
     id: z.string().uuid(),
     instanceId: z.string().uuid(),
-    ip: z.string(),
+    ip: z.string().ip(),
     mac: MacAddr,
     name: Name,
     primary: SafeBoolean,
@@ -1536,7 +1540,7 @@ export const LoopbackAddress = z.preprocess(
 export const LoopbackAddressCreate = z.preprocess(
   processResponseBody,
   z.object({
-    address: z.string(),
+    address: z.string().ip(),
     addressLot: NameOrId,
     anycast: SafeBoolean,
     mask: z.number().min(0).max(255),
@@ -1733,7 +1737,11 @@ export const RoleResultsPage = z.preprocess(
  */
 export const Route = z.preprocess(
   processResponseBody,
-  z.object({ dst: IpNet, gw: z.string(), vid: z.number().min(0).max(65535).optional() })
+  z.object({
+    dst: IpNet,
+    gw: z.string().ip(),
+    vid: z.number().min(0).max(65535).optional(),
+  })
 )
 
 /**
@@ -1752,7 +1760,7 @@ export const RouteConfig = z.preprocess(
 export const RouteDestination = z.preprocess(
   processResponseBody,
   z.union([
-    z.object({ type: z.enum(['ip']), value: z.string() }),
+    z.object({ type: z.enum(['ip']), value: z.string().ip() }),
     z.object({ type: z.enum(['ip_net']), value: IpNet }),
     z.object({ type: z.enum(['vpc']), value: Name }),
     z.object({ type: z.enum(['subnet']), value: Name }),
@@ -1765,7 +1773,7 @@ export const RouteDestination = z.preprocess(
 export const RouteTarget = z.preprocess(
   processResponseBody,
   z.union([
-    z.object({ type: z.enum(['ip']), value: z.string() }),
+    z.object({ type: z.enum(['ip']), value: z.string().ip() }),
     z.object({ type: z.enum(['vpc']), value: Name }),
     z.object({ type: z.enum(['subnet']), value: Name }),
     z.object({ type: z.enum(['instance']), value: Name }),
@@ -2155,7 +2163,7 @@ export const SwitchPortApplySettings = z.preprocess(
 export const SwitchPortBgpPeerConfig = z.preprocess(
   processResponseBody,
   z.object({
-    addr: z.string(),
+    addr: z.string().ip(),
     bgpConfigId: z.string().uuid(),
     interfaceName: z.string(),
     portSettingsId: z.string().uuid(),
@@ -2429,7 +2437,7 @@ export const VpcFirewallRuleHostFilter = z.preprocess(
     z.object({ type: z.enum(['vpc']), value: Name }),
     z.object({ type: z.enum(['subnet']), value: Name }),
     z.object({ type: z.enum(['instance']), value: Name }),
-    z.object({ type: z.enum(['ip']), value: z.string() }),
+    z.object({ type: z.enum(['ip']), value: z.string().ip() }),
     z.object({ type: z.enum(['ip_net']), value: IpNet }),
   ])
 )
@@ -2468,7 +2476,7 @@ export const VpcFirewallRuleTarget = z.preprocess(
     z.object({ type: z.enum(['vpc']), value: Name }),
     z.object({ type: z.enum(['subnet']), value: Name }),
     z.object({ type: z.enum(['instance']), value: Name }),
-    z.object({ type: z.enum(['ip']), value: z.string() }),
+    z.object({ type: z.enum(['ip']), value: z.string().ip() }),
     z.object({ type: z.enum(['ip_net']), value: IpNet }),
   ])
 )
@@ -3961,7 +3969,7 @@ export const NetworkingLoopbackAddressDeleteParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
-      address: z.string(),
+      address: z.string().ip(),
       rackId: z.string().uuid(),
       subnetMask: z.number().min(0).max(255),
       switchLocation: Name,
