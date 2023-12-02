@@ -16,13 +16,20 @@ interface DiskSizeProps<
   TFieldValues extends FieldValues,
   TName extends FieldPath<TFieldValues>,
 > extends TextFieldProps<TFieldValues, TName> {
+  imageSize?: number
   minSize?: number
 }
 
 export function DiskSizeField<
   TFieldValues extends FieldValues,
   TName extends FieldPathByValue<TFieldValues, number>,
->({ required = true, name, minSize = 1, ...props }: DiskSizeProps<TFieldValues, TName>) {
+>({
+  required = true,
+  name,
+  imageSize,
+  minSize = 1,
+  ...props
+}: DiskSizeProps<TFieldValues, TName>) {
   return (
     <NumberField
       units="GiB"
@@ -32,6 +39,12 @@ export function DiskSizeField<
       min={minSize}
       max={MAX_DISK_SIZE_GiB}
       validate={(diskSizeGiB) => {
+        if (Number.isNaN(diskSizeGiB)) {
+          return 'Disk size is required'
+        }
+        if (imageSize && diskSizeGiB < imageSize) {
+          return `Must be as large as selected image (min. ${imageSize} GiB)`
+        }
         if (diskSizeGiB < minSize) {
           return `Must be at least ${minSize} GiB`
         }

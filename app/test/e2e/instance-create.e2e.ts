@@ -128,6 +128,43 @@ test('can create an instance with custom hardware', async ({ page }) => {
   ])
 })
 
+test('automatically updates disk size when larger image selected', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances-new')
+
+  const instanceName = 'my-new-instance'
+  await page.fill('input[name=name]', instanceName)
+
+  // set the disk size larger than it needs to be, to verify it doesn't get reduced
+  const diskSizeInput = page.getByRole('textbox', { name: 'Disk size (GiB)' })
+  await diskSizeInput.fill('5')
+
+  // pick a disk image that's smaller than 5GiB (the first project image works [4GiB])
+  await page.getByRole('tab', { name: 'Project images' }).click()
+  await page.getByRole('button', { name: 'Image' }).click()
+  await page.getByRole('option', { name: images[0].name }).click()
+
+  // test that it still says 5, as that's larger than the given image
+  await expect(diskSizeInput).toHaveValue('5')
+
+  // pick a disk image that's larger than 5GiB (the third project image works [6GiB])
+  await page.getByRole('button', { name: 'Image' }).click()
+  await page.getByRole('option', { name: images[2].name }).click()
+
+  // test that it has been automatically increased to next-largest incremement of 10
+  await expect(diskSizeInput).toHaveValue('10')
+
+  // pick another image, just to verify that the diskSizeInput stays as it was
+  await page.getByRole('button', { name: 'Image' }).click()
+  await page.getByRole('option', { name: images[1].name }).click()
+  await expect(diskSizeInput).toHaveValue('10')
+
+  const submitButton = page.getByRole('button', { name: 'Create instance' })
+  await submitButton.click()
+
+  await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)
+  await expectVisible(page, [`h1:has-text("${instanceName}")`, 'text=10 GiB'])
+})
+
 test('with disk name already taken', async ({ page }) => {
   await page.goto('/projects/mock-project/instances-new')
   await page.fill('input[name=name]', 'my-instance')
