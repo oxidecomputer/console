@@ -1,4 +1,4 @@
-#! /usr/bin/env -S deno run --allow-run --allow-net --allow-read --allow-write
+#! /usr/bin/env -S deno run --allow-run --allow-net --allow-read --allow-write --allow-env
 
 /*
  * This Source Code Form is subject to the terms of the Mozilla Public
@@ -9,6 +9,7 @@
  */
 import * as flags from 'https://deno.land/std@0.159.0/flags/mod.ts'
 import * as path from 'https://deno.land/std@0.159.0/path/mod.ts'
+import $ from 'https://deno.land/x/dax@0.35.0/mod.ts'
 
 const HELP = `
 Update tools/console_version in ../omicron with current console commit
@@ -33,31 +34,8 @@ const VERSION_FILE = path.join(OMICRON_DIR, 'tools/console_version')
 const GH_MISSING = 'GitHub CLI not found. Please install it and try again.'
 const VERSION_FILE_MISSING = `Omicron console version file at '${VERSION_FILE}' not found. This script assumes Omicron is cloned in a sibling directory next to Console.`
 
-/** Run shell command, get output as string */
-function run(cmd: string, args: string[]): string {
-  const { success, stdout } = new Deno.Command(cmd, { args, stdout: 'piped' }).outputSync()
-
-  if (!success) {
-    throw Error(`Shell command '${cmd} ${args.join(' ')}' failed`)
-  }
-
-  return new TextDecoder().decode(stdout).trim()
-}
-
-function getUploadAssetsWorkflowId() {
-  return run('gh', [
-    'run',
-    'list',
-    '-L',
-    '1',
-    '-w',
-    'Upload assets to dl.oxide.computer',
-    '--json',
-    'databaseId',
-    '--jq',
-    '.[0].databaseId',
-  ])
-}
+const getUploadAssetsWorkflowId = () =>
+  $`gh run list -L 1 -w 'Upload assets to dl.oxide.computer' --json databaseId --jq '.[0].databaseId'`.text()
 
 /**
  * These lines get printed in an Omicron PR, so any references to commits or
@@ -94,7 +72,7 @@ if (args.help) {
   Deno.exit()
 }
 
-const newCommit = run('git', ['rev-parse', 'HEAD'])
+const newCommit = await $`git rev-parse HEAD`.text()
 
 const shaUrl = `https://dl.oxide.computer/releases/console/${newCommit}.sha256.txt`
 const shaResp = await fetch(shaUrl)
@@ -104,7 +82,7 @@ if (!shaResp.ok) {
     `
 Failed to fetch console tarball SHA. Either the current commit has not been pushed to origin/main or the CI job that uploads the assets is still running.
 
-Run 'gh run watch ${getUploadAssetsWorkflowId()}' to watch the latest asset upload action.
+Run 'gh run watch ${await getUploadAssetsWorkflowId()}' to watch the latest asset upload action.
 `
   )
   console.error('URL:', shaUrl)
@@ -130,7 +108,7 @@ if (oldCommit === newCommit) {
 
 const commitRange = `${oldCommit.slice(0, 8)}...${newCommit.slice(0, 8)}`
 
-const commits = run('git', ['log', '--graph', '--oneline', commitRange])
+const commits = await $`git log --graph --oneline ${commitRange}`.text()
 // commits are console commits, so they won't auto-link in omicron
 const commitsMarkdown = commits.split('\n').map(linkifyGitLog).join('\n')
 
@@ -161,11 +139,7 @@ if (args.dryRun || !confirm('\nMake Omicron PR with these changes?')) {
   Deno.exit()
 }
 
-try {
-  run('which', ['gh'])
-} catch (_e) {
-  throw Error(GH_MISSING)
-}
+if (!$.commandExistsSync('gh')) throw Error(GH_MISSING)
 
 await Deno.writeTextFile(VERSION_FILE, newVersionFile)
 console.log('Updated ', VERSION_FILE)
@@ -173,24 +147,25 @@ console.log('Updated ', VERSION_FILE)
 // cd to omicron, pull main, create new branch, commit changes, push, PR it, go back to
 // main, delete branch
 Deno.chdir(OMICRON_DIR)
-run('git', ['checkout', 'main'])
-run('git', ['pull'])
-run('git', ['checkout', '-b', branchName])
+await $`git checkout main`
+await $`git pull`
+await $`git checkout -b ${branchName}`
 console.log('Created branch', branchName)
-run('git', ['add', 'tools/console_version'])
-run('git', ['commit', '-m', prTitle, '-m', prBody])
-run('git', ['push', '--set-upstream', 'origin', branchName])
+
+await $`git add tools/console_version`
+await $`git commit -m ${prTitle} -m ${prBody}`
+await $`git push --set-upstream origin ${branchName}`
 console.log('Committed changes and pushed')
 
 // create PR
-const prUrl = run('gh', ['pr', 'create', '--title', prTitle, '--body', prBody])
+const prUrl = await $`gh pr create --title ${prTitle} --body ${prBody}`.text()
 console.log('PR created:', prUrl)
 
 // set it to auto merge
 const prNum = prUrl.match(/\d+$/)![0]
-run('gh', ['pr', 'merge', prNum, '--auto', '--squash'])
+await $`gh pr merge ${prNum} --auto --squash`
 console.log('PR set to auto-merge when CI passes')
 
-run('git', ['checkout', 'main'])
-run('git', ['branch', '-D', branchName])
+await $`git checkout main`
+await $`git branch -D ${branchName}`
 console.log('Checked out omicron main, deleted branch', branchName)
