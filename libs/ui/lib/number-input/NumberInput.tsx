@@ -20,6 +20,7 @@ import { useNumberFieldState } from 'react-stately'
 export type NumberInputProps = {
   className?: string
   error?: boolean
+  name?: string
 }
 
 export const NumberInput = React.forwardRef<
@@ -49,6 +50,7 @@ export const NumberInput = React.forwardRef<
         type="number"
         {...inputProps}
         ref={mergeRefs([forwardedRef, inputRef])}
+        name={props.name}
         className={cn(
           `w-full rounded border-none px-3
       py-[0.6875rem] !outline-offset-1 text-sans-md

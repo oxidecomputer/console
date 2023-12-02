@@ -118,7 +118,7 @@ test('can update firewall rule', async ({ page }) => {
   await expect(page.locator('input[name=name]')).toHaveValue('allow-icmp')
 
   // priority is populated
-  await expect(page.locator('input[name=priority]')).toHaveValue('65534')
+  await expect(page.locator('input[name=priority]')).toHaveValue('65,534')
 
   // protocol is populated
   await expect(page.locator('label >> text=ICMP')).toBeChecked()
