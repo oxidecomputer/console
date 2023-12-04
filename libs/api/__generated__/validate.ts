@@ -285,7 +285,7 @@ export const BgpImportedRouteIpv4 = z.preprocess(
 /**
  * A BGP peer configuration for an interface. Includes the set of announcements that will be advertised to the peer identified by `addr`. The `bgp_config` parameter is a reference to global BGP parameters. The `interface_name` indicates what interface the peer should be contacted on.
  */
-export const BgpPeerConfig = z.preprocess(
+export const BgpPeer = z.preprocess(
   processResponseBody,
   z.object({
     addr: z.string().ip(),
@@ -298,6 +298,11 @@ export const BgpPeerConfig = z.preprocess(
     interfaceName: z.string(),
     keepalive: z.number().min(0).max(4294967295),
   })
+)
+
+export const BgpPeerConfig = z.preprocess(
+  processResponseBody,
+  z.object({ peers: BgpPeer.array() })
 )
 
 /**
@@ -845,6 +850,47 @@ export const Histogramdouble = z.preprocess(
 )
 
 /**
+ * The type of an individual datum of a metric.
+ */
+export const DatumType = z.preprocess(
+  processResponseBody,
+  z.enum([
+    'bool',
+    'i8',
+    'u8',
+    'i16',
+    'u16',
+    'i32',
+    'u32',
+    'i64',
+    'u64',
+    'f32',
+    'f64',
+    'string',
+    'bytes',
+    'cumulative_i64',
+    'cumulative_u64',
+    'cumulative_f32',
+    'cumulative_f64',
+    'histogram_i8',
+    'histogram_u8',
+    'histogram_i16',
+    'histogram_u16',
+    'histogram_i32',
+    'histogram_u32',
+    'histogram_i64',
+    'histogram_u64',
+    'histogram_f32',
+    'histogram_f64',
+  ])
+)
+
+export const MissingDatum = z.preprocess(
+  processResponseBody,
+  z.object({ datumType: DatumType, startTime: z.coerce.date().optional() })
+)
+
+/**
  * A `Datum` is a single sampled data point from a metric.
  */
 export const Datum = z.preprocess(
@@ -877,6 +923,7 @@ export const Datum = z.preprocess(
     z.object({ datum: Histogramuint64, type: z.enum(['histogram_u64']) }),
     z.object({ datum: Histogramfloat, type: z.enum(['histogram_f32']) }),
     z.object({ datum: Histogramdouble, type: z.enum(['histogram_f64']) }),
+    z.object({ datum: MissingDatum, type: z.enum(['missing']) }),
   ])
 )
 
@@ -1513,6 +1560,7 @@ export const LinkSpeed = z.preprocess(
 export const LinkConfig = z.preprocess(
   processResponseBody,
   z.object({
+    autoneg: SafeBoolean,
     fec: LinkFec,
     lldp: LldpServiceConfig,
     mtu: z.number().min(0).max(65535),
@@ -1753,97 +1801,6 @@ export const RouteConfig = z.preprocess(
 )
 
 /**
- * A `RouteDestination` is used to match traffic with a routing rule, on the destination of that traffic.
- *
- * When traffic is to be sent to a destination that is within a given `RouteDestination`, the corresponding `RouterRoute` applies, and traffic will be forward to the `RouteTarget` for that rule.
- */
-export const RouteDestination = z.preprocess(
-  processResponseBody,
-  z.union([
-    z.object({ type: z.enum(['ip']), value: z.string().ip() }),
-    z.object({ type: z.enum(['ip_net']), value: IpNet }),
-    z.object({ type: z.enum(['vpc']), value: Name }),
-    z.object({ type: z.enum(['subnet']), value: Name }),
-  ])
-)
-
-/**
- * A `RouteTarget` describes the possible locations that traffic matching a route destination can be sent.
- */
-export const RouteTarget = z.preprocess(
-  processResponseBody,
-  z.union([
-    z.object({ type: z.enum(['ip']), value: z.string().ip() }),
-    z.object({ type: z.enum(['vpc']), value: Name }),
-    z.object({ type: z.enum(['subnet']), value: Name }),
-    z.object({ type: z.enum(['instance']), value: Name }),
-    z.object({ type: z.enum(['internet_gateway']), value: Name }),
-  ])
-)
-
-/**
- * The kind of a `RouterRoute`
- *
- * The kind determines certain attributes such as if the route is modifiable and describes how or where the route was created.
- */
-export const RouterRouteKind = z.preprocess(
-  processResponseBody,
-  z.enum(['default', 'vpc_subnet', 'vpc_peering', 'custom'])
-)
-
-/**
- * A route defines a rule that governs where traffic should be sent based on its destination.
- */
-export const RouterRoute = z.preprocess(
-  processResponseBody,
-  z.object({
-    description: z.string(),
-    destination: RouteDestination,
-    id: z.string().uuid(),
-    kind: RouterRouteKind,
-    name: Name,
-    target: RouteTarget,
-    timeCreated: z.coerce.date(),
-    timeModified: z.coerce.date(),
-    vpcRouterId: z.string().uuid(),
-  })
-)
-
-/**
- * Create-time parameters for a `RouterRoute`
- */
-export const RouterRouteCreate = z.preprocess(
-  processResponseBody,
-  z.object({
-    description: z.string(),
-    destination: RouteDestination,
-    name: Name,
-    target: RouteTarget,
-  })
-)
-
-/**
- * A single page of results
- */
-export const RouterRouteResultsPage = z.preprocess(
-  processResponseBody,
-  z.object({ items: RouterRoute.array(), nextPage: z.string().optional() })
-)
-
-/**
- * Updateable properties of a `RouterRoute`
- */
-export const RouterRouteUpdate = z.preprocess(
-  processResponseBody,
-  z.object({
-    description: z.string().optional(),
-    destination: RouteDestination,
-    name: Name.optional(),
-    target: RouteTarget,
-  })
-)
-
-/**
  * Identity-related metadata that's included in nearly all public API objects
  */
 export const SamlIdentityProvider = z.preprocess(
@@ -1966,6 +1923,16 @@ export const SiloRolePolicy = z.preprocess(
 )
 
 /**
+ * The provision state of a sled.
+ *
+ * This controls whether new resources are going to be provisioned on this sled.
+ */
+export const SledProvisionState = z.preprocess(
+  processResponseBody,
+  z.enum(['provisionable', 'non_provisionable', 'unknown'])
+)
+
+/**
  * An operator's view of a Sled.
  */
 export const Sled = z.preprocess(
@@ -1973,6 +1940,7 @@ export const Sled = z.preprocess(
   z.object({
     baseboard: Baseboard,
     id: z.string().uuid(),
+    provisionState: SledProvisionState,
     rackId: z.string().uuid(),
     timeCreated: z.coerce.date(),
     timeModified: z.coerce.date(),
@@ -2007,6 +1975,22 @@ export const SledInstance = z.preprocess(
 export const SledInstanceResultsPage = z.preprocess(
   processResponseBody,
   z.object({ items: SledInstance.array(), nextPage: z.string().optional() })
+)
+
+/**
+ * Parameters for `sled_set_provision_state`.
+ */
+export const SledProvisionStateParams = z.preprocess(
+  processResponseBody,
+  z.object({ state: SledProvisionState })
+)
+
+/**
+ * Response to `sled_set_provision_state`.
+ */
+export const SledProvisionStateResponse = z.preprocess(
+  processResponseBody,
+  z.object({ newState: SledProvisionState, oldState: SledProvisionState })
 )
 
 /**
@@ -2305,6 +2289,18 @@ export const SwitchResultsPage = z.preprocess(
 )
 
 /**
+ * A sled that has not been added to an initialized rack yet
+ */
+export const UninitializedSled = z.preprocess(
+  processResponseBody,
+  z.object({
+    baseboard: Baseboard,
+    cubby: z.number().min(0).max(65535),
+    rackId: z.string().uuid(),
+  })
+)
+
+/**
  * View of a User
  */
 export const User = z.preprocess(
@@ -2541,48 +2537,6 @@ export const VpcFirewallRules = z.preprocess(
 export const VpcResultsPage = z.preprocess(
   processResponseBody,
   z.object({ items: Vpc.array(), nextPage: z.string().optional() })
-)
-
-export const VpcRouterKind = z.preprocess(processResponseBody, z.enum(['system', 'custom']))
-
-/**
- * A VPC router defines a series of rules that indicate where traffic should be sent depending on its destination.
- */
-export const VpcRouter = z.preprocess(
-  processResponseBody,
-  z.object({
-    description: z.string(),
-    id: z.string().uuid(),
-    kind: VpcRouterKind,
-    name: Name,
-    timeCreated: z.coerce.date(),
-    timeModified: z.coerce.date(),
-    vpcId: z.string().uuid(),
-  })
-)
-
-/**
- * Create-time parameters for a `VpcRouter`
- */
-export const VpcRouterCreate = z.preprocess(
-  processResponseBody,
-  z.object({ description: z.string(), name: Name })
-)
-
-/**
- * A single page of results
- */
-export const VpcRouterResultsPage = z.preprocess(
-  processResponseBody,
-  z.object({ items: VpcRouter.array(), nextPage: z.string().optional() })
-)
-
-/**
- * Updateable properties of a `VpcRouter`
- */
-export const VpcRouterUpdate = z.preprocess(
-  processResponseBody,
-  z.object({ description: z.string().optional(), name: Name.optional() })
 )
 
 /**
@@ -3521,6 +3475,14 @@ export const SledListParams = z.preprocess(
   })
 )
 
+export const AddSledToInitializedRackParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
+  })
+)
+
 export const SledViewParams = z.preprocess(
   processResponseBody,
   z.object({
@@ -3556,6 +3518,16 @@ export const SledInstanceListParams = z.preprocess(
       pageToken: z.string().optional(),
       sortBy: IdSortMode.optional(),
     }),
+  })
+)
+
+export const SledSetProvisionStateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      sledId: z.string().uuid(),
+    }),
+    query: z.object({}),
   })
 )
 
@@ -3616,6 +3588,14 @@ export const SwitchViewParams = z.preprocess(
     path: z.object({
       switchId: z.string().uuid(),
     }),
+    query: z.object({}),
+  })
+)
+
+export const UninitializedSledListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
     query: z.object({}),
   })
 )
@@ -4194,139 +4174,6 @@ export const VpcFirewallRulesUpdateParams = z.preprocess(
     query: z.object({
       project: NameOrId.optional(),
       vpc: NameOrId,
-    }),
-  })
-)
-
-export const VpcRouterRouteListParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({}),
-    query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
-      project: NameOrId.optional(),
-      router: NameOrId.optional(),
-      sortBy: NameOrIdSortMode.optional(),
-      vpc: NameOrId.optional(),
-    }),
-  })
-)
-
-export const VpcRouterRouteCreateParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({}),
-    query: z.object({
-      project: NameOrId.optional(),
-      router: NameOrId,
-      vpc: NameOrId.optional(),
-    }),
-  })
-)
-
-export const VpcRouterRouteViewParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      route: NameOrId,
-    }),
-    query: z.object({
-      project: NameOrId.optional(),
-      router: NameOrId,
-      vpc: NameOrId.optional(),
-    }),
-  })
-)
-
-export const VpcRouterRouteUpdateParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      route: NameOrId,
-    }),
-    query: z.object({
-      project: NameOrId.optional(),
-      router: NameOrId.optional(),
-      vpc: NameOrId.optional(),
-    }),
-  })
-)
-
-export const VpcRouterRouteDeleteParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      route: NameOrId,
-    }),
-    query: z.object({
-      project: NameOrId.optional(),
-      router: NameOrId.optional(),
-      vpc: NameOrId.optional(),
-    }),
-  })
-)
-
-export const VpcRouterListParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({}),
-    query: z.object({
-      limit: z.number().min(1).max(4294967295).optional(),
-      pageToken: z.string().optional(),
-      project: NameOrId.optional(),
-      sortBy: NameOrIdSortMode.optional(),
-      vpc: NameOrId.optional(),
-    }),
-  })
-)
-
-export const VpcRouterCreateParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({}),
-    query: z.object({
-      project: NameOrId.optional(),
-      vpc: NameOrId,
-    }),
-  })
-)
-
-export const VpcRouterViewParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      router: NameOrId,
-    }),
-    query: z.object({
-      project: NameOrId.optional(),
-      vpc: NameOrId.optional(),
-    }),
-  })
-)
-
-export const VpcRouterUpdateParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      router: NameOrId,
-    }),
-    query: z.object({
-      project: NameOrId.optional(),
-      vpc: NameOrId.optional(),
-    }),
-  })
-)
-
-export const VpcRouterDeleteParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      router: NameOrId,
-    }),
-    query: z.object({
-      project: NameOrId.optional(),
-      vpc: NameOrId.optional(),
     }),
   })
 )
