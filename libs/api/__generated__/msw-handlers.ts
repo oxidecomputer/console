@@ -1,5 +1,3 @@
-/* eslint-disable */
-
 /**
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -8,9 +6,15 @@
  * Copyright Oxide Computer Company
  */
 
-import { http, HttpHandler, HttpResponse, PathParams, StrictResponse } from 'msw'
+import {
+  http,
+  HttpResponse,
+  type HttpHandler,
+  type PathParams,
+  type StrictResponse,
+} from 'msw'
 import type { Promisable, SnakeCasedPropertiesDeep as Snakify } from 'type-fest'
-import { z, ZodSchema } from 'zod'
+import { type ZodSchema } from 'zod'
 
 import type * as Api from './Api'
 import { snakeify } from './util'
@@ -1069,13 +1073,6 @@ export interface MSWHandlers {
   }) => Promisable<StatusCode>
 }
 
-function validateBody<S extends ZodSchema>(schema: S, body: unknown) {
-  const result = schema.transform(snakeify).safeParse(body)
-  if (result.success) {
-    return { body: result.data as Json<z.infer<S>> }
-  }
-  return { bodyErr: json(result.error.issues, { status: 400 }) }
-}
 function validateParams<S extends ZodSchema>(
   schema: S,
   req: Request,
@@ -1127,15 +1124,19 @@ const handler =
 
     const { path, query } = params
 
-    const { body, bodyErr } = bodySchema
-      ? validateBody(bodySchema, await req.json())
-      : { body: undefined, bodyErr: undefined }
-    if (bodyErr) return json(bodyErr, { status: 400 })
+    let body = undefined
+    if (bodySchema) {
+      const rawBody = await req.json()
+      const result = bodySchema.transform(snakeify).safeParse(rawBody)
+      if (!result.success) return json(result.error.issues, { status: 400 })
+      body = result.data
+    }
 
     try {
       // TypeScript can't narrow the handler down because there's not an explicit relationship between the schema
       // being present and the shape of the handler API. The type of this function could be resolved such that the
       // relevant schema is required if and only if the handler has a type that matches the inferred schema
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const result = await (handler as any).apply(null, [
         { path, query, body, req, cookies },
       ])
