@@ -841,23 +841,6 @@ export const handlers = makeHandlers({
       })
     )
   },
-  sledSetProvisionState({ query, path, cookies }) {
-    requireFleetViewer(cookies)
-    const sled = lookupById(db.sleds, path.sledId)
-    return paginated(
-      query,
-      db.instances.map((i) => {
-        const project = lookupById(db.projects, i.project_id)
-        return {
-          ...pick(i, 'id', 'name', 'time_created', 'time_modified', 'memory', 'ncpus'),
-          state: 'running',
-          active_sled_id: sled.id,
-          project_name: project.name,
-          silo_name: defaultSilo.name,
-        }
-      })
-    )
-  },
   siloList({ query, cookies }) {
     requireFleetViewer(cookies)
     return paginated(query, db.silos)
@@ -1020,6 +1003,7 @@ export const handlers = makeHandlers({
   siloPolicyView: NotImplemented,
   siloUserList: NotImplemented,
   siloUserView: NotImplemented,
+  sledSetProvisionState: NotImplemented,
   switchList: NotImplemented,
   switchView: NotImplemented,
   systemPolicyUpdate: NotImplemented,
