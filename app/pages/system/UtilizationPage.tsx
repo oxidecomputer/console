@@ -93,16 +93,16 @@ export function SystemUtilizationPage() {
           capacity={capacity.ram_gib}
         />
       </div>
-      <QueryParamTabs defaultValue="summary" className="full-width">
+      <QueryParamTabs defaultValue="metrics" className="full-width">
         <Tabs.List>
-          <Tabs.Trigger value="summary">Summary</Tabs.Trigger>
           <Tabs.Trigger value="metrics">Metrics</Tabs.Trigger>
+          <Tabs.Trigger value="summary">Summary</Tabs.Trigger>
         </Tabs.List>
-        <Tabs.Content value="summary">
-          <UsageTab silos={silos} />
-        </Tabs.Content>
         <Tabs.Content value="metrics">
           <MetricsTab capacity={capacity} silos={silos} />
+        </Tabs.Content>
+        <Tabs.Content value="summary">
+          <UsageTab silos={silos} />
         </Tabs.Content>
       </QueryParamTabs>
     </>
