@@ -268,7 +268,7 @@ export type BgpImportedRouteIpv4 = {
 /**
  * A BGP peer configuration for an interface. Includes the set of announcements that will be advertised to the peer identified by `addr`. The `bgp_config` parameter is a reference to global BGP parameters. The `interface_name` indicates what interface the peer should be contacted on.
  */
-export type BgpPeerConfig = {
+export type BgpPeer = {
   /** The address of the host to peer with. */
   addr: string
   /** The set of announcements advertised by the peer. */
@@ -288,6 +288,8 @@ export type BgpPeerConfig = {
   /** How often to send keepalive requests (seconds). */
   keepalive: number
 }
+
+export type BgpPeerConfig = { peers: BgpPeer[] }
 
 /**
  * The current state of a BGP peer.
@@ -736,6 +738,40 @@ export type Histogramfloat = { bins: Binfloat[]; nSamples: number; startTime: Da
 export type Histogramdouble = { bins: Bindouble[]; nSamples: number; startTime: Date }
 
 /**
+ * The type of an individual datum of a metric.
+ */
+export type DatumType =
+  | 'bool'
+  | 'i8'
+  | 'u8'
+  | 'i16'
+  | 'u16'
+  | 'i32'
+  | 'u32'
+  | 'i64'
+  | 'u64'
+  | 'f32'
+  | 'f64'
+  | 'string'
+  | 'bytes'
+  | 'cumulative_i64'
+  | 'cumulative_u64'
+  | 'cumulative_f32'
+  | 'cumulative_f64'
+  | 'histogram_i8'
+  | 'histogram_u8'
+  | 'histogram_i16'
+  | 'histogram_u16'
+  | 'histogram_i32'
+  | 'histogram_u32'
+  | 'histogram_i64'
+  | 'histogram_u64'
+  | 'histogram_f32'
+  | 'histogram_f64'
+
+export type MissingDatum = { datumType: DatumType; startTime?: Date }
+
+/**
  * A `Datum` is a single sampled data point from a metric.
  */
 export type Datum =
@@ -766,6 +802,7 @@ export type Datum =
   | { datum: Histogramuint64; type: 'histogram_u64' }
   | { datum: Histogramfloat; type: 'histogram_f32' }
   | { datum: Histogramdouble; type: 'histogram_f64' }
+  | { datum: MissingDatum; type: 'missing' }
 
 export type DerEncodedKeyPair = {
   /** request signing private key (base64 encoded der file) */
@@ -1432,6 +1469,8 @@ export type LinkSpeed =
  * Switch link configuration.
  */
 export type LinkConfig = {
+  /** Whether or not to set autonegotiation */
+  autoneg: boolean
   /** The forward error correction mode of the link. */
   fec: LinkFec
   /** The link-layer discovery protocol (LLDP) configuration for the link. */
@@ -1674,111 +1713,6 @@ export type RouteConfig = {
 }
 
 /**
- * A `RouteDestination` is used to match traffic with a routing rule, on the destination of that traffic.
- *
- * When traffic is to be sent to a destination that is within a given `RouteDestination`, the corresponding `RouterRoute` applies, and traffic will be forward to the `RouteTarget` for that rule.
- */
-export type RouteDestination =
-  /** Route applies to traffic destined for a specific IP address */
-  | { type: 'ip'; value: string }
-  /** Route applies to traffic destined for a specific IP subnet */
-  | { type: 'ip_net'; value: IpNet }
-  /** Route applies to traffic destined for the given VPC. */
-  | { type: 'vpc'; value: Name }
-  /** Route applies to traffic */
-  | { type: 'subnet'; value: Name }
-
-/**
- * A `RouteTarget` describes the possible locations that traffic matching a route destination can be sent.
- */
-export type RouteTarget =
-  /** Forward traffic to a particular IP address. */
-  | { type: 'ip'; value: string }
-  /** Forward traffic to a VPC */
-  | { type: 'vpc'; value: Name }
-  /** Forward traffic to a VPC Subnet */
-  | { type: 'subnet'; value: Name }
-  /** Forward traffic to a specific instance */
-  | { type: 'instance'; value: Name }
-  /** Forward traffic to an internet gateway */
-  | { type: 'internet_gateway'; value: Name }
-
-/**
- * The kind of a `RouterRoute`
- *
- * The kind determines certain attributes such as if the route is modifiable and describes how or where the route was created.
- */
-export type RouterRouteKind =
-  /** Determines the default destination of traffic, such as whether it goes to the internet or not.
-
-`Destination: An Internet Gateway` `Modifiable: true` */
-  | 'default'
-  /** Automatically added for each VPC Subnet in the VPC
-
-`Destination: A VPC Subnet` `Modifiable: false` */
-  | 'vpc_subnet'
-  /** Automatically added when VPC peering is established
-
-`Destination: A different VPC` `Modifiable: false` */
-  | 'vpc_peering'
-  /** Created by a user; see `RouteTarget`
-
-`Destination: User defined` `Modifiable: true` */
-  | 'custom'
-
-/**
- * A route defines a rule that governs where traffic should be sent based on its destination.
- */
-export type RouterRoute = {
-  /** human-readable free-form text about a resource */
-  description: string
-  destination: RouteDestination
-  /** unique, immutable, system-controlled identifier for each resource */
-  id: string
-  /** Describes the kind of router. Set at creation. `read-only` */
-  kind: RouterRouteKind
-  /** unique, mutable, user-controlled identifier for each resource */
-  name: Name
-  target: RouteTarget
-  /** timestamp when this resource was created */
-  timeCreated: Date
-  /** timestamp when this resource was last modified */
-  timeModified: Date
-  /** The ID of the VPC Router to which the route belongs */
-  vpcRouterId: string
-}
-
-/**
- * Create-time parameters for a `RouterRoute`
- */
-export type RouterRouteCreate = {
-  description: string
-  destination: RouteDestination
-  name: Name
-  target: RouteTarget
-}
-
-/**
- * A single page of results
- */
-export type RouterRouteResultsPage = {
-  /** list of items on this page of results */
-  items: RouterRoute[]
-  /** token used to fetch the next page of results (if any) */
-  nextPage?: string
-}
-
-/**
- * Updateable properties of a `RouterRoute`
- */
-export type RouterRouteUpdate = {
-  description?: string
-  destination: RouteDestination
-  name?: Name
-  target: RouteTarget
-}
-
-/**
  * Identity-related metadata that's included in nearly all public API objects
  */
 export type SamlIdentityProvider = {
@@ -1921,12 +1855,29 @@ export type SiloRolePolicy = {
 }
 
 /**
+ * The provision state of a sled.
+ *
+ * This controls whether new resources are going to be provisioned on this sled.
+ */
+export type SledProvisionState =
+  /** New resources will be provisioned on this sled. */
+  | 'provisionable'
+  /** New resources will not be provisioned on this sled. However, existing resources will continue to be on this sled unless manually migrated off. */
+  | 'non_provisionable'
+  /** This is a state that isn't known yet.
+
+This is defined to avoid API breakage. */
+  | 'unknown'
+
+/**
  * An operator's view of a Sled.
  */
 export type Sled = {
   baseboard: Baseboard
   /** unique, immutable, system-controlled identifier for each resource */
   id: string
+  /** The provision state of the sled. */
+  provisionState: SledProvisionState
   /** The rack to which this Sled is currently attached */
   rackId: string
   /** timestamp when this resource was created */
@@ -1967,6 +1918,24 @@ export type SledInstanceResultsPage = {
   items: SledInstance[]
   /** token used to fetch the next page of results (if any) */
   nextPage?: string
+}
+
+/**
+ * Parameters for `sled_set_provision_state`.
+ */
+export type SledProvisionStateParams = {
+  /** The provision state. */
+  state: SledProvisionState
+}
+
+/**
+ * Response to `sled_set_provision_state`.
+ */
+export type SledProvisionStateResponse = {
+  /** The new provision state. */
+  newState: SledProvisionState
+  /** The old provision state. */
+  oldState: SledProvisionState
 }
 
 /**
@@ -2315,6 +2284,11 @@ export type SwitchResultsPage = {
 }
 
 /**
+ * A sled that has not been added to an initialized rack yet
+ */
+export type UninitializedSled = { baseboard: Baseboard; cubby: number; rackId: string }
+
+/**
  * View of a User
  */
 export type User = {
@@ -2555,47 +2529,6 @@ export type VpcResultsPage = {
   /** token used to fetch the next page of results (if any) */
   nextPage?: string
 }
-
-export type VpcRouterKind = 'system' | 'custom'
-
-/**
- * A VPC router defines a series of rules that indicate where traffic should be sent depending on its destination.
- */
-export type VpcRouter = {
-  /** human-readable free-form text about a resource */
-  description: string
-  /** unique, immutable, system-controlled identifier for each resource */
-  id: string
-  kind: VpcRouterKind
-  /** unique, mutable, user-controlled identifier for each resource */
-  name: Name
-  /** timestamp when this resource was created */
-  timeCreated: Date
-  /** timestamp when this resource was last modified */
-  timeModified: Date
-  /** The VPC to which the router belongs. */
-  vpcId: string
-}
-
-/**
- * Create-time parameters for a `VpcRouter`
- */
-export type VpcRouterCreate = { description: string; name: Name }
-
-/**
- * A single page of results
- */
-export type VpcRouterResultsPage = {
-  /** list of items on this page of results */
-  items: VpcRouter[]
-  /** token used to fetch the next page of results (if any) */
-  nextPage?: string
-}
-
-/**
- * Updateable properties of a `VpcRouter`
- */
-export type VpcRouterUpdate = { description?: string; name?: Name }
 
 /**
  * A VPC subnet represents a logical grouping for instances that allows network traffic between them, within a IPv4 subnetwork or optionall an IPv6 subnetwork.
@@ -3156,6 +3089,10 @@ export interface SledInstanceListQueryParams {
   sortBy?: IdSortMode
 }
 
+export interface SledSetProvisionStatePathParams {
+  sledId: string
+}
+
 export interface NetworkingSwitchPortListQueryParams {
   limit?: number
   pageToken?: string
@@ -3427,91 +3364,6 @@ export interface VpcFirewallRulesUpdateQueryParams {
   vpc: NameOrId
 }
 
-export interface VpcRouterRouteListQueryParams {
-  limit?: number
-  pageToken?: string
-  project?: NameOrId
-  router?: NameOrId
-  sortBy?: NameOrIdSortMode
-  vpc?: NameOrId
-}
-
-export interface VpcRouterRouteCreateQueryParams {
-  project?: NameOrId
-  router: NameOrId
-  vpc?: NameOrId
-}
-
-export interface VpcRouterRouteViewPathParams {
-  route: NameOrId
-}
-
-export interface VpcRouterRouteViewQueryParams {
-  project?: NameOrId
-  router: NameOrId
-  vpc?: NameOrId
-}
-
-export interface VpcRouterRouteUpdatePathParams {
-  route: NameOrId
-}
-
-export interface VpcRouterRouteUpdateQueryParams {
-  project?: NameOrId
-  router?: NameOrId
-  vpc?: NameOrId
-}
-
-export interface VpcRouterRouteDeletePathParams {
-  route: NameOrId
-}
-
-export interface VpcRouterRouteDeleteQueryParams {
-  project?: NameOrId
-  router?: NameOrId
-  vpc?: NameOrId
-}
-
-export interface VpcRouterListQueryParams {
-  limit?: number
-  pageToken?: string
-  project?: NameOrId
-  sortBy?: NameOrIdSortMode
-  vpc?: NameOrId
-}
-
-export interface VpcRouterCreateQueryParams {
-  project?: NameOrId
-  vpc: NameOrId
-}
-
-export interface VpcRouterViewPathParams {
-  router: NameOrId
-}
-
-export interface VpcRouterViewQueryParams {
-  project?: NameOrId
-  vpc?: NameOrId
-}
-
-export interface VpcRouterUpdatePathParams {
-  router: NameOrId
-}
-
-export interface VpcRouterUpdateQueryParams {
-  project?: NameOrId
-  vpc?: NameOrId
-}
-
-export interface VpcRouterDeletePathParams {
-  router: NameOrId
-}
-
-export interface VpcRouterDeleteQueryParams {
-  project?: NameOrId
-  vpc?: NameOrId
-}
-
 export interface VpcSubnetListQueryParams {
   limit?: number
   pageToken?: string
@@ -3621,6 +3473,7 @@ export type ApiListMethods = Pick<
   | 'sledInstanceList'
   | 'networkingSwitchPortList'
   | 'switchList'
+  | 'uninitializedSledList'
   | 'siloIdentityProviderList'
   | 'ipPoolList'
   | 'ipPoolRangeList'
@@ -3636,8 +3489,6 @@ export type ApiListMethods = Pick<
   | 'siloUserList'
   | 'userBuiltinList'
   | 'userList'
-  | 'vpcRouterRouteList'
-  | 'vpcRouterList'
   | 'vpcSubnetList'
   | 'vpcList'
 >
@@ -4756,6 +4607,20 @@ export class Api extends HttpClient {
       })
     },
     /**
+     * Add a sled to an initialized rack
+     */
+    addSledToInitializedRack: (
+      { body }: { body: UninitializedSled },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/hardware/sleds`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
      * Fetch a sled
      */
     sledView: ({ path }: { path: SledViewPathParams }, params: FetchParams = {}) => {
@@ -4796,6 +4661,23 @@ export class Api extends HttpClient {
         path: `/v1/system/hardware/sleds/${path.sledId}/instances`,
         method: 'GET',
         query,
+        ...params,
+      })
+    },
+    /**
+     * Set the sled's provision state.
+     */
+    sledSetProvisionState: (
+      {
+        path,
+        body,
+      }: { path: SledSetProvisionStatePathParams; body: SledProvisionStateParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SledProvisionStateResponse>({
+        path: `/v1/system/hardware/sleds/${path.sledId}/provision-state`,
+        method: 'PUT',
+        body,
         ...params,
       })
     },
@@ -4876,6 +4758,16 @@ export class Api extends HttpClient {
     switchView: ({ path }: { path: SwitchViewPathParams }, params: FetchParams = {}) => {
       return this.request<Switch>({
         path: `/v1/system/hardware/switches/${path.switchId}`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * List uninitialized sleds in a given rack
+     */
+    uninitializedSledList: (_: EmptyObj, params: FetchParams = {}) => {
+      return this.request<void>({
+        path: `/v1/system/hardware/uninitialized-sleds`,
         method: 'GET',
         ...params,
       })
@@ -5222,7 +5114,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Get BGP configurations.
+     * List BGP configurations
      */
     networkingBgpConfigList: (
       { query = {} }: { query?: NetworkingBgpConfigListQueryParams },
@@ -5236,7 +5128,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Create a new BGP configuration.
+     * Create a new BGP configuration
      */
     networkingBgpConfigCreate: (
       { body }: { body: BgpConfigCreate },
@@ -5250,7 +5142,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Delete a BGP configuration.
+     * Delete a BGP configuration
      */
     networkingBgpConfigDelete: (
       { query }: { query?: NetworkingBgpConfigDeleteQueryParams },
@@ -5264,7 +5156,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Get originated routes for a given BGP configuration.
+     * Get originated routes for a BGP configuration
      */
     networkingBgpAnnounceSetList: (
       { query }: { query?: NetworkingBgpAnnounceSetListQueryParams },
@@ -5278,7 +5170,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Create a new BGP announce set.
+     * Create a new BGP announce set
      */
     networkingBgpAnnounceSetCreate: (
       { body }: { body: BgpAnnounceSetCreate },
@@ -5292,7 +5184,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Delete a BGP announce set.
+     * Delete a BGP announce set
      */
     networkingBgpAnnounceSetDelete: (
       { query }: { query?: NetworkingBgpAnnounceSetDeleteQueryParams },
@@ -5306,7 +5198,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Get imported IPv4 BGP routes.
+     * Get imported IPv4 BGP routes
      */
     networkingBgpImportedRoutesIpv4: (
       { query }: { query?: NetworkingBgpImportedRoutesIpv4QueryParams },
@@ -5330,7 +5222,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Get loopback addresses, optionally filtering by id
+     * List loopback addresses
      */
     networkingLoopbackAddressList: (
       { query = {} }: { query?: NetworkingLoopbackAddressListQueryParams },
@@ -5639,178 +5531,6 @@ export class Api extends HttpClient {
         path: `/v1/vpc-firewall-rules`,
         method: 'PUT',
         body,
-        query,
-        ...params,
-      })
-    },
-    /**
-     * List routes
-     */
-    vpcRouterRouteList: (
-      { query = {} }: { query?: VpcRouterRouteListQueryParams },
-      params: FetchParams = {}
-    ) => {
-      return this.request<RouterRouteResultsPage>({
-        path: `/v1/vpc-router-routes`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Create a router
-     */
-    vpcRouterRouteCreate: (
-      { query, body }: { query?: VpcRouterRouteCreateQueryParams; body: RouterRouteCreate },
-      params: FetchParams = {}
-    ) => {
-      return this.request<RouterRoute>({
-        path: `/v1/vpc-router-routes`,
-        method: 'POST',
-        body,
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Fetch a route
-     */
-    vpcRouterRouteView: (
-      {
-        path,
-        query,
-      }: { path: VpcRouterRouteViewPathParams; query?: VpcRouterRouteViewQueryParams },
-      params: FetchParams = {}
-    ) => {
-      return this.request<RouterRoute>({
-        path: `/v1/vpc-router-routes/${path.route}`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Update a route
-     */
-    vpcRouterRouteUpdate: (
-      {
-        path,
-        query = {},
-        body,
-      }: {
-        path: VpcRouterRouteUpdatePathParams
-        query?: VpcRouterRouteUpdateQueryParams
-        body: RouterRouteUpdate
-      },
-      params: FetchParams = {}
-    ) => {
-      return this.request<RouterRoute>({
-        path: `/v1/vpc-router-routes/${path.route}`,
-        method: 'PUT',
-        body,
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Delete a route
-     */
-    vpcRouterRouteDelete: (
-      {
-        path,
-        query = {},
-      }: { path: VpcRouterRouteDeletePathParams; query?: VpcRouterRouteDeleteQueryParams },
-      params: FetchParams = {}
-    ) => {
-      return this.request<void>({
-        path: `/v1/vpc-router-routes/${path.route}`,
-        method: 'DELETE',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * List routers
-     */
-    vpcRouterList: (
-      { query = {} }: { query?: VpcRouterListQueryParams },
-      params: FetchParams = {}
-    ) => {
-      return this.request<VpcRouterResultsPage>({
-        path: `/v1/vpc-routers`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Create a VPC router
-     */
-    vpcRouterCreate: (
-      { query, body }: { query?: VpcRouterCreateQueryParams; body: VpcRouterCreate },
-      params: FetchParams = {}
-    ) => {
-      return this.request<VpcRouter>({
-        path: `/v1/vpc-routers`,
-        method: 'POST',
-        body,
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Fetch a router
-     */
-    vpcRouterView: (
-      {
-        path,
-        query = {},
-      }: { path: VpcRouterViewPathParams; query?: VpcRouterViewQueryParams },
-      params: FetchParams = {}
-    ) => {
-      return this.request<VpcRouter>({
-        path: `/v1/vpc-routers/${path.router}`,
-        method: 'GET',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Update a router
-     */
-    vpcRouterUpdate: (
-      {
-        path,
-        query = {},
-        body,
-      }: {
-        path: VpcRouterUpdatePathParams
-        query?: VpcRouterUpdateQueryParams
-        body: VpcRouterUpdate
-      },
-      params: FetchParams = {}
-    ) => {
-      return this.request<VpcRouter>({
-        path: `/v1/vpc-routers/${path.router}`,
-        method: 'PUT',
-        body,
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Delete a router
-     */
-    vpcRouterDelete: (
-      {
-        path,
-        query = {},
-      }: { path: VpcRouterDeletePathParams; query?: VpcRouterDeleteQueryParams },
-      params: FetchParams = {}
-    ) => {
-      return this.request<void>({
-        path: `/v1/vpc-routers/${path.router}`,
-        method: 'DELETE',
         query,
         ...params,
       })

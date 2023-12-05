@@ -81,7 +81,7 @@ async function getPrRange(prNum: number) {
 
 async function genForCommit(commit: string, force: boolean) {
   const tmpDir = `/tmp/api-diff/${commit}`
-  const alreadyExists = await exists(tmpDir)
+  const alreadyExists = await exists(tmpDir + '/Api.ts')
 
   // if the directory already exists, skip it
   if (force || !alreadyExists) {
@@ -99,6 +99,9 @@ async function genForCommit(commit: string, force: boolean) {
 //////////////////////////////
 
 if (!$.commandExistsSync('gh')) throw Error('Need gh (GitHub CLI)')
+
+// prefer difftastic if it exists. https://difftastic.wilfred.me.uk/
+const diffTool = $.commandExistsSync('difft') ? 'difft' : 'diff'
 
 const args = flags.parse(Deno.args, {
   alias: { force: ['f'], h: 'help' },
@@ -118,5 +121,4 @@ const { base, head } = await getPrRange(prNum)
 const tmpDirBase = await genForCommit(base, args.force)
 const tmpDirHead = await genForCommit(head, args.force)
 
-// git difftool is a trick to diff with whatever you have git set to use
-await $`git --no-pager difftool ${tmpDirBase}/Api.ts ${tmpDirHead}/Api.ts || true`
+await $`${diffTool} ${tmpDirBase}/Api.ts ${tmpDirHead}/Api.ts || true`

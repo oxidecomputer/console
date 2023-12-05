@@ -670,14 +670,6 @@ export const handlers = makeHandlers({
     db.vpcSubnets = db.vpcSubnets.filter((s) => s.vpc_id !== vpc.id)
     db.vpcFirewallRules = db.vpcFirewallRules.filter((r) => r.vpc_id !== vpc.id)
 
-    const routersToRemove = db.vpcRouters
-      .filter((r) => r.vpc_id === vpc.id)
-      .map((r) => r.id)
-    db.vpcRouterRoutes = db.vpcRouterRoutes.filter(
-      (r) => !routersToRemove.includes(r.vpc_router_id)
-    )
-    db.vpcRouters = db.vpcRouters.filter((r) => r.vpc_id !== vpc.id)
-
     return 204
   },
   vpcFirewallRulesView({ query }) {
@@ -703,87 +695,6 @@ export const handlers = makeHandlers({
     ]
 
     return { rules: sortBy(rules, (r) => r.name) }
-  },
-  vpcRouterList({ query }) {
-    const vpc = lookup.vpc(query)
-    const routers = db.vpcRouters.filter((r) => r.vpc_id === vpc.id)
-    return paginated(query, routers)
-  },
-  vpcRouterCreate({ body, query }) {
-    const vpc = lookup.vpc(query)
-    errIfExists(db.vpcRouters, { vpc_id: vpc.id, name: body.name })
-
-    const newRouter: Json<Api.VpcRouter> = {
-      id: uuid(),
-      vpc_id: vpc.id,
-      kind: 'custom',
-      ...body,
-      ...getTimestamps(),
-    }
-    db.vpcRouters.push(newRouter)
-    return json(newRouter, { status: 201 })
-  },
-  vpcRouterView: ({ path, query }) => lookup.vpcRouter({ ...path, ...query }),
-  vpcRouterUpdate({ body, path, query }) {
-    const router = lookup.vpcRouter({ ...path, ...query })
-
-    if (body.name) {
-      router.name = body.name
-    }
-    if (typeof body.description === 'string') {
-      router.description = body.description
-    }
-
-    return router
-  },
-  vpcRouterDelete({ path, query }) {
-    const router = lookup.vpcRouter({ ...path, ...query })
-
-    // TODO: Are there routers that can't be deleted?
-    db.vpcRouters = db.vpcRouters.filter((r) => r.id !== router.id)
-
-    return 204
-  },
-  vpcRouterRouteList({ query }) {
-    const router = lookup.vpcRouter(query)
-    const routers = db.vpcRouterRoutes.filter((s) => s.vpc_router_id === router.id)
-    return paginated(query, routers)
-  },
-  vpcRouterRouteCreate({ body, query }) {
-    const router = lookup.vpcRouter(query)
-
-    errIfExists(db.vpcRouterRoutes, { vpc_router_id: router.id, name: body.name })
-
-    const newRoute: Json<Api.RouterRoute> = {
-      id: uuid(),
-      vpc_router_id: router.id,
-      kind: 'custom',
-      ...body,
-      ...getTimestamps(),
-    }
-    return json(newRoute, { status: 201 })
-  },
-  vpcRouterRouteView: ({ path, query }) => lookup.vpcRouterRoute({ ...path, ...query }),
-  vpcRouterRouteUpdate({ body, path, query }) {
-    const route = lookup.vpcRouterRoute({ ...path, ...query })
-    if (route.kind !== 'custom') {
-      throw 'Only custom routes may be modified'
-    }
-    if (body.name) {
-      route.name = body.name
-    }
-    if (typeof body.description === 'string') {
-      route.description = body.description
-    }
-    return route
-  },
-  vpcRouterRouteDelete({ path, query }) {
-    const route = lookup.vpcRouterRoute({ ...path, ...query })
-    if (route.kind !== 'custom') {
-      throw 'Only custom routes may be modified'
-    }
-    db.vpcRouterRoutes = db.vpcRouterRoutes.filter((r) => r.id !== route.id)
-    return 204
   },
   vpcSubnetList({ query }) {
     const vpc = lookup.vpc(query)
@@ -1036,6 +947,7 @@ export const handlers = makeHandlers({
   siloMetric: handleMetrics,
 
   // Misc endpoints we're not using yet in the console
+  addSledToInitializedRack: NotImplemented,
   certificateCreate: NotImplemented,
   certificateDelete: NotImplemented,
   certificateList: NotImplemented,
@@ -1091,9 +1003,11 @@ export const handlers = makeHandlers({
   siloPolicyView: NotImplemented,
   siloUserList: NotImplemented,
   siloUserView: NotImplemented,
+  sledSetProvisionState: NotImplemented,
   switchList: NotImplemented,
   switchView: NotImplemented,
   systemPolicyUpdate: NotImplemented,
+  uninitializedSledList: NotImplemented,
   userBuiltinList: NotImplemented,
   userBuiltinView: NotImplemented,
 })
