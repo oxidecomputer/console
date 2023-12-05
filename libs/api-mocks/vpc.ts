@@ -5,9 +5,8 @@
  *
  * Copyright Oxide Computer Company
  */
-import type { RouterRoute } from 'libs/api/__generated__/Api'
 
-import type { Vpc, VpcFirewallRule, VpcRouter, VpcSubnet } from '@oxide/api'
+import type { Vpc, VpcFirewallRule, VpcSubnet } from '@oxide/api'
 
 import type { Json } from './json-type'
 import { project } from './project'
@@ -119,25 +118,3 @@ export const defaultFirewallRules: Json<VpcFirewallRule[]> = [
     vpc_id: vpc.id,
   },
 ]
-
-export const vpcRouter: Json<VpcRouter> = {
-  description: 'a vpc router',
-  id: systemRouterId,
-  kind: 'system',
-  name: 'system',
-  time_created,
-  time_modified,
-  vpc_id: vpc.id,
-}
-
-export const vpcRouterRoute: Json<RouterRoute> = {
-  description: 'a vpc router route',
-  id: '3784f74a-728e-4ee6-950d-2167b1072e29',
-  name: 'system',
-  kind: 'default',
-  target: { type: 'instance', value: 'an-instance' },
-  destination: { type: 'vpc', value: 'a-vpc' },
-  time_created,
-  time_modified,
-  vpc_router_id: vpcRouter.id,
-}
