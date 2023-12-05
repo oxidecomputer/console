@@ -100,30 +100,6 @@ export const lookup = {
 
     return vpc
   },
-  vpcRouter({ router: id, ...vpcSelector }: PP.VpcRouter): Json<Api.VpcRouter> {
-    if (!id) throw notFoundErr
-
-    if (isUuid(id)) return lookupById(db.vpcRouters, id)
-
-    const vpc = lookup.vpc(vpcSelector)
-    const router = db.vpcRouters.find((s) => s.vpc_id === vpc.id && s.name === id)
-    if (!router) throw notFoundErr
-
-    return router
-  },
-  vpcRouterRoute({ route: id, ...routerSelector }: PP.RouterRoute): Json<Api.RouterRoute> {
-    if (!id) throw notFoundErr
-
-    if (isUuid(id)) return lookupById(db.vpcRouterRoutes, id)
-
-    const router = lookup.vpcRouter(routerSelector)
-    const route = db.vpcRouterRoutes.find(
-      (s) => s.vpc_router_id === router.id && s.name === id
-    )
-    if (!route) throw notFoundErr
-
-    return route
-  },
   vpcSubnet({ subnet: id, ...vpcSelector }: PP.VpcSubnet): Json<Api.VpcSubnet> {
     if (!id) throw notFoundErr
 
@@ -224,8 +200,6 @@ const initDb = {
   sshKeys: [...mock.sshKeys],
   users: [...mock.users],
   vpcFirewallRules: [...mock.defaultFirewallRules],
-  vpcRouterRoutes: [mock.vpcRouterRoute],
-  vpcRouters: [mock.vpcRouter],
   vpcs: [mock.vpc],
   vpcSubnets: [mock.vpcSubnet],
 }
