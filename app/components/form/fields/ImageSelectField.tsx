@@ -41,7 +41,9 @@ export function ImageSelectField({ images, control }: ImageSelectFieldProps) {
   )
 }
 
-const Slash = () => <span className="mx-0.5 text-quinary">/</span>
+const Slash = () => (
+  <span className="mx-0.5 text-quinary selected:text-accent-disabled">/</span>
+)
 
 export function toListboxItem(i: Image, includeProjectSiloIndicator = false): ListboxItem {
   const { name, os, projectId, size, version } = i
@@ -85,7 +87,9 @@ export function toListboxItem(i: Image, includeProjectSiloIndicator = false): Li
     label: (
       <>
         <div>{name}</div>
-        <div>{metadataForLabel}</div>
+        <div className="text-tertiary selected:text-accent-secondary">
+          {metadataForLabel}
+        </div>
       </>
     ),
   }
