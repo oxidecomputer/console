@@ -9,7 +9,7 @@ import { useController, type Control } from 'react-hook-form'
 
 import type { Image } from '@oxide/api'
 import type { ListboxItem } from '@oxide/ui'
-import { GiB } from '@oxide/util'
+import { bytesToGiB, GiB } from '@oxide/util'
 
 import type { InstanceCreateInput } from 'app/forms/instance-create'
 
@@ -44,20 +44,48 @@ export function ImageSelectField({ images, control }: ImageSelectFieldProps) {
 const Slash = () => <span className="mx-0.5 text-quinary">/</span>
 
 export function toListboxItem(i: Image, includeProjectSiloIndicator = false): ListboxItem {
-  const projectSiloIndicator = includeProjectSiloIndicator ? (
+  const { name, os, projectId, size, version } = i
+  const formattedSize = `${bytesToGiB(size, 1)} GiB`
+
+  // filter out any undefined metadata and create a comma-separated list
+  // for the selected listbox item (shown in labelString)
+  const condensedImageMetadata = [os, version, formattedSize].filter((i) => !!i).join(', ')
+  const metadataForLabelString = condensedImageMetadata.length
+    ? ` (${condensedImageMetadata})`
+    : ''
+
+  // for metadata showing in the dropdown's options, include the project / silo indicator if requested
+  const versionInfo = includeProjectSiloIndicator ? (
     <>
-      <Slash /> {i.projectId ? 'Project image' : 'Silo image'}
+      {version} <Slash /> {projectId ? 'Project image' : 'Silo image'}
     </>
-  ) : null
+  ) : (
+    version
+  )
+  // filter out undefined metadata here, as well, and create a `<Slash />`-separated list
+  // for the listbox item (shown for each item in the dropdown)
+  const metadataForLabel = [os, versionInfo, formattedSize]
+    .filter((i) => !!i)
+    .map((i, index) => (
+      <span key={`${i}`}>
+        {index > 0 ? (
+          <>
+            {' '}
+            <Slash />{' '}
+          </>
+        ) : (
+          ''
+        )}
+        {i}
+      </span>
+    ))
   return {
     value: i.id,
-    labelString: `${i.name} (${i.os}, ${i.version})`,
+    labelString: `${name}${metadataForLabelString}`,
     label: (
       <>
-        <div>{i.name}</div>
-        <div className="text-secondary">
-          {i.os} <Slash /> {i.version} {projectSiloIndicator}
-        </div>
+        <div>{name}</div>
+        <div>{metadataForLabel}</div>
       </>
     ),
   }
