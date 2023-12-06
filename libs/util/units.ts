@@ -12,5 +12,5 @@ export const MiB = 1024 * KiB
 export const GiB = 1024 * MiB
 export const TiB = 1024 * GiB
 
-export const bytesToGiB = (b: number, precision = 2) => round(b / GiB, precision)
-export const bytesToTiB = (b: number, precision = 2) => round(b / TiB, precision)
+export const bytesToGiB = (b: number, digits = 2) => round(b / GiB, digits)
+export const bytesToTiB = (b: number, digits = 2) => round(b / TiB, digits)
