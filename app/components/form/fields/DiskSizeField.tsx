@@ -5,7 +5,12 @@
  *
  * Copyright Oxide Computer Company
  */
-import type { FieldPath, FieldPathByValue, FieldValues } from 'react-hook-form'
+import type {
+  FieldPath,
+  FieldPathByValue,
+  FieldValues,
+  ValidateResult,
+} from 'react-hook-form'
 
 import { MAX_DISK_SIZE_GiB } from '@oxide/api'
 
@@ -16,8 +21,8 @@ interface DiskSizeProps<
   TFieldValues extends FieldValues,
   TName extends FieldPath<TFieldValues>,
 > extends TextFieldProps<TFieldValues, TName> {
-  imageSize?: number
   minSize?: number
+  validate?(diskSizeGiB: number): ValidateResult
 }
 
 export function DiskSizeField<
@@ -26,8 +31,8 @@ export function DiskSizeField<
 >({
   required = true,
   name,
-  imageSize,
   minSize = 1,
+  validate,
   ...props
 }: DiskSizeProps<TFieldValues, TName>) {
   return (
@@ -39,11 +44,9 @@ export function DiskSizeField<
       min={minSize}
       max={MAX_DISK_SIZE_GiB}
       validate={(diskSizeGiB) => {
+        // Run a number of default validators
         if (Number.isNaN(diskSizeGiB)) {
           return 'Disk size is required'
-        }
-        if (imageSize && diskSizeGiB < imageSize) {
-          return `Must be as large as selected image (min. ${imageSize} GiB)`
         }
         if (diskSizeGiB < minSize) {
           return `Must be at least ${minSize} GiB`
@@ -51,6 +54,8 @@ export function DiskSizeField<
         if (diskSizeGiB > MAX_DISK_SIZE_GiB) {
           return `Can be at most ${MAX_DISK_SIZE_GiB} GiB`
         }
+        // Run any additional validators passed in from the callsite
+        return validate?.(diskSizeGiB)
       }}
       {...props}
     />

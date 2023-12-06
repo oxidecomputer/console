@@ -136,6 +136,7 @@ export function CreateInstanceForm() {
 
   const imageInput = useWatch({ control: control, name: 'image' })
   const image = allImages.find((i) => i.id === imageInput)
+  const imageSize = image?.size ? Math.ceil(image.size / GiB) : undefined
 
   return (
     <FullPageForm
@@ -343,7 +344,12 @@ export function CreateInstanceForm() {
         label="Disk size"
         name="bootDiskSize"
         control={control}
-        imageSize={image?.size ? Math.ceil(image.size / GiB) : undefined}
+        validate={(diskSizeGiB: number) => {
+          // ensure the created disk is larger than the selected image
+          if (imageSize && diskSizeGiB < imageSize) {
+            return `Must be as large as selected image (min. ${imageSize} GiB)`
+          }
+        }}
       />
       <NameField
         name="bootDiskName"
