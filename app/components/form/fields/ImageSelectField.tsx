@@ -42,7 +42,7 @@ export function ImageSelectField({ images, control }: ImageSelectFieldProps) {
 }
 
 const Slash = () => (
-  <span className="mx-0.5 text-quinary selected:text-accent-disabled">/</span>
+  <span className="mx-1 text-quinary selected:text-accent-disabled">/</span>
 )
 
 export function toListboxItem(i: Image, includeProjectSiloIndicator = false): ListboxItem {
@@ -57,27 +57,16 @@ export function toListboxItem(i: Image, includeProjectSiloIndicator = false): Li
     : ''
 
   // for metadata showing in the dropdown's options, include the project / silo indicator if requested
-  const versionInfo = includeProjectSiloIndicator ? (
-    <>
-      {version} <Slash /> {projectId ? 'Project image' : 'Silo image'}
-    </>
-  ) : (
-    version
-  )
+  const projectSiloIndicator = includeProjectSiloIndicator
+    ? `${projectId ? 'Project' : 'Silo'} image`
+    : null
   // filter out undefined metadata here, as well, and create a `<Slash />`-separated list
   // for the listbox item (shown for each item in the dropdown)
-  const metadataForLabel = [os, versionInfo, formattedSize]
+  const metadataForLabel = [os, version, formattedSize, projectSiloIndicator]
     .filter((i) => !!i)
     .map((i, index) => (
       <span key={`${i}`}>
-        {index > 0 ? (
-          <>
-            {' '}
-            <Slash />{' '}
-          </>
-        ) : (
-          ''
-        )}
+        {index > 0 ? <Slash /> : ''}
         {i}
       </span>
     ))
