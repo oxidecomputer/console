@@ -7,7 +7,20 @@
  */
 import { expect, it } from 'vitest'
 
-import { splitDecimal } from './math'
+import { GiB } from '.'
+import { round, splitDecimal } from './math'
+
+it('rounds properly', () => {
+  expect(round(123.456, 0)).toEqual(123)
+  expect(round(123.456, 1)).toEqual(123.5)
+  expect(round(123.456, 2)).toEqual(123.46)
+  expect(round(123.456, 3)).toEqual(123.456)
+  expect(round(123.456, 4)).toEqual(123.456) // trailing zeros are culled
+  expect(round(1.9, 0)).toEqual(2)
+  expect(round(1.9, 1)).toEqual(1.9)
+  expect(round(5 / 2, 2)).toEqual(2.5) // math expressions are resolved
+  expect(round(1879048192 / GiB, 2)).toEqual(1.75) // constants can be evaluated
+})
 
 it.each([
   [1.23, ['1', '.23']],
