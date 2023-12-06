@@ -345,7 +345,6 @@ export function CreateInstanceForm() {
         name="bootDiskSize"
         control={control}
         validate={(diskSizeGiB: number) => {
-          // ensure the created disk is larger than the selected image
           if (imageSize && diskSizeGiB < imageSize) {
             return `Must be as large as selected image (min. ${imageSize} GiB)`
           }
