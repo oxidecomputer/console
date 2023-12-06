@@ -20,15 +20,15 @@ Requirements:
   - GitHub CLI (gh)
 
 Usage:
-  ./tools/deno/api-diff.ts [-f] [PR number]
+  ./tools/deno/api-diff.ts [-f] [PR number or commit SHA]
   ./tools/deno/api-diff.ts -h
 
 Flags:
-  -f, --force          Download spec and regen client even if dir already exists
-  -h, --help           Show this help message
+  -f, --force       Download spec and regen client even if dir already exists
+  -h, --help        Show this help message
 
 Parameters:
-  PR number <int>: If left out, interactive picker is shown
+  PR number or commit SHA: If left out, interactive picker is shown
 `.trim()
 
 function printHelpAndExit() {
@@ -62,11 +62,13 @@ async function pickPr() {
   if (!/^\d+$/.test(prNum)) {
     throw new Error(`Error picking PR. Expected number, got '${prNum}'`)
   }
-  return parseInt(prNum, 10)
+  return prNum
 }
 
-async function getPrRange(prNum: number) {
-  const query = `{
+async function getCommitRange(arg: string): Promise<{ base: string; head: string }> {
+  if (!arg || /^\d+$/.test(arg)) {
+    const prNum = arg || (await pickPr())
+    const query = `{
       repository(owner: "oxidecomputer", name: "omicron") {
         pullRequest(number: ${prNum}) {
           baseRefOid
@@ -74,9 +76,16 @@ async function getPrRange(prNum: number) {
         }
       }
     }`
-  const pr = await $`gh api graphql -f query=${query}`.json()
-  const { baseRefOid: base, headRefOid: head } = pr.data.repository.pullRequest
-  return { base, head } as { base: string; head: string }
+    const pr = await $`gh api graphql -f query=${query}`.json()
+    const { baseRefOid: base, headRefOid: head } = pr.data.repository.pullRequest
+    return { base, head }
+  }
+
+  // otherwise assume it's a commit
+  const parents =
+    await $`gh api repos/oxidecomputer/omicron/commits/${arg} --jq '.parents'`.json()
+  if (parents.length > 1) throw new Error(`Commit has multiple parents:`)
+  return { base: parents[0].sha, head: arg }
 }
 
 async function genForCommit(commit: string, force: boolean) {
@@ -104,19 +113,13 @@ if (!$.commandExistsSync('gh')) throw Error('Need gh (GitHub CLI)')
 const diffTool = $.commandExistsSync('difft') ? 'difft' : 'diff'
 
 const args = flags.parse(Deno.args, {
-  alias: { force: ['f'], h: 'help' },
+  alias: { force: 'f', help: 'h' },
   boolean: ['force', 'help'],
 })
 
 if (args.help) printHelpAndExit()
 
-const prNum = args._[0] ? args._[0] : await pickPr()
-
-if (typeof prNum !== 'number') {
-  throw new Error(`PR number must be a number. Got '${prNum}' instead.`)
-}
-
-const { base, head } = await getPrRange(prNum)
+const { base, head } = await getCommitRange(args._[0])
 
 const tmpDirBase = await genForCommit(base, args.force)
 const tmpDirHead = await genForCommit(head, args.force)
