@@ -12,7 +12,21 @@ import { instance } from './instance'
 import type { Json } from './json-type'
 import { project } from './project'
 
+const moreDisks: Json<Disk>[] = new Array(5000).fill(0).map((_, i) => ({
+  id: `disk-id-${i}`,
+  name: `more-disk-${i}`,
+  description: "it's a disk",
+  project_id: project.id,
+  time_created: new Date().toISOString(),
+  time_modified: new Date().toISOString(),
+  state: { state: 'detached' },
+  device_path: '/abc',
+  size: 2 * GiB,
+  block_size: 2048,
+}))
+
 export const disks: Json<Disk>[] = [
+  ...moreDisks,
   {
     id: '7f2309a5-13e3-47e0-8a4c-2a3b3bc992fd',
     name: 'disk-1',
