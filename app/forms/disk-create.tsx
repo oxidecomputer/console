@@ -17,9 +17,10 @@ import {
   type Disk,
   type DiskCreate,
   type DiskSource,
+  type Image,
 } from '@oxide/api'
 import { FieldLabel, FormDivider, Radio, RadioGroup } from '@oxide/ui'
-import { GiB } from '@oxide/util'
+import { bytesToGiB, GiB } from '@oxide/util'
 
 import {
   DescriptionField,
@@ -79,6 +80,19 @@ export function CreateDiskSideModalForm({
   })
 
   const form = useForm({ defaultValues })
+  const control = form.control
+  const { project } = useProjectSelector()
+  const projectImages = useApiQuery('imageList', { query: { project } })
+  const siloImages = useApiQuery('imageList', {})
+
+  // put project images first because if there are any, there probably aren't
+  // very many and they're probably relevant
+  const images = [...(projectImages.data?.items || []), ...(siloImages.data?.items || [])]
+  const areImagesLoading = projectImages.isPending || siloImages.isPending
+
+  const selectedImageId = control?._formValues?.diskSource?.imageId
+  const selectedImageSize = images.find((image) => image.id === selectedImageId)?.size
+  const imageSize = selectedImageSize ? bytesToGiB(selectedImageSize) : undefined
 
   return (
     <SideModalForm
@@ -93,16 +107,36 @@ export function CreateDiskSideModalForm({
       loading={createDisk.isPending}
       submitError={createDisk.error}
     >
-      <NameField name="name" control={form.control} />
-      <DescriptionField name="description" control={form.control} />
+      <NameField name="name" control={control} />
+      <DescriptionField name="description" control={control} />
       <FormDivider />
-      <DiskSourceField control={form.control} />
-      <DiskSizeField name="size" control={form.control} />
+      <DiskSourceField
+        control={control}
+        images={images}
+        areImagesLoading={areImagesLoading}
+      />
+      <DiskSizeField
+        name="size"
+        control={control}
+        validate={(diskSizeGiB: number) => {
+          if (imageSize && diskSizeGiB < imageSize) {
+            return `Must be as large as selected image (min. ${imageSize} GiB)`
+          }
+        }}
+      />
     </SideModalForm>
   )
 }
 
-const DiskSourceField = ({ control }: { control: Control<DiskCreate> }) => {
+const DiskSourceField = ({
+  control,
+  images,
+  areImagesLoading,
+}: {
+  control: Control<DiskCreate>
+  images: Image[]
+  areImagesLoading: boolean
+}) => {
   const {
     field: { value, onChange },
   } = useController({ control, name: 'diskSource' })
@@ -144,7 +178,13 @@ const DiskSourceField = ({ control }: { control: Control<DiskCreate> }) => {
             ]}
           />
         )}
-        {value.type === 'image' && <ImageSelectField control={control} />}
+        {value.type === 'image' && (
+          <ImageSelectField
+            control={control}
+            images={images}
+            areImagesLoading={areImagesLoading}
+          />
+        )}
 
         {value.type === 'snapshot' && <SnapshotSelectField control={control} />}
       </div>
@@ -152,23 +192,22 @@ const DiskSourceField = ({ control }: { control: Control<DiskCreate> }) => {
   )
 }
 
-const ImageSelectField = ({ control }: { control: Control<DiskCreate> }) => {
-  const { project } = useProjectSelector()
-
-  const projectImages = useApiQuery('imageList', { query: { project } })
-  const siloImages = useApiQuery('imageList', {})
-
-  // put project images first because if there are any, there probably aren't
-  // very many and they're probably relevant
-  const images = [...(projectImages.data?.items || []), ...(siloImages.data?.items || [])]
-
+const ImageSelectField = ({
+  control,
+  images,
+  areImagesLoading,
+}: {
+  control: Control<DiskCreate>
+  images: Image[]
+  areImagesLoading: boolean
+}) => {
   return (
     <ListboxField
       control={control}
       name="diskSource.imageId"
       label="Source image"
       placeholder="Select an image"
-      isLoading={projectImages.isPending || siloImages.isPending}
+      isLoading={areImagesLoading}
       items={images.map((i) => toListboxItem(i, true))}
       required
     />
