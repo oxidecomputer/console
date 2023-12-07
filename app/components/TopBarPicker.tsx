@@ -110,7 +110,10 @@ const TopBarPicker = (props: TopBarPickerProps) => {
         // portal is necessary to avoid the menu popover getting its own after:
         // separator thing
         <DropdownMenu.Portal>
-          <DropdownMenu.Content className="mt-2 min-w-[12.8125rem]" align="start">
+          <DropdownMenu.Content
+            className="mt-2 max-h-80 min-w-[12.8125rem] overflow-y-auto"
+            align="start"
+          >
             {props.items.length > 0 ? (
               props.items.map(({ label, to }) => {
                 const isSelected = props.current === label
@@ -232,7 +235,7 @@ const NoProjectLogo = () => (
 )
 
 export function ProjectPicker({ project }: { project?: Project }) {
-  const { data: projects } = useApiQuery('projectList', { query: { limit: 20 } })
+  const { data: projects } = useApiQuery('projectList', { query: { limit: 200 } })
   const items = (projects?.items || []).map(({ name }) => ({
     label: name,
     to: pb.instances({ project: name }),
