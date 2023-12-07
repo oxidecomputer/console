@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { format } from 'date-fns'
+import { useMemo } from 'react'
 import { useController, type Control } from 'react-hook-form'
 import { useNavigate, type NavigateFunction } from 'react-router-dom'
 
@@ -80,19 +81,21 @@ export function CreateDiskSideModalForm({
   })
 
   const form = useForm({ defaultValues })
-  const control = form.control
   const { project } = useProjectSelector()
   const projectImages = useApiQuery('imageList', { query: { project } })
   const siloImages = useApiQuery('imageList', {})
 
   // put project images first because if there are any, there probably aren't
   // very many and they're probably relevant
-  const images = [...(projectImages.data?.items || []), ...(siloImages.data?.items || [])]
+  const images = useMemo(
+    () => [...(projectImages.data?.items || []), ...(siloImages.data?.items || [])],
+    [projectImages.data, siloImages.data]
+  )
   const areImagesLoading = projectImages.isPending || siloImages.isPending
 
-  const selectedImageId = control?._formValues?.diskSource?.imageId
+  const selectedImageId = form.watch('diskSource.imageId')
   const selectedImageSize = images.find((image) => image.id === selectedImageId)?.size
-  const imageSize = selectedImageSize ? bytesToGiB(selectedImageSize) : undefined
+  const imageSizeGiB = selectedImageSize ? bytesToGiB(selectedImageSize) : undefined
 
   return (
     <SideModalForm
@@ -107,20 +110,20 @@ export function CreateDiskSideModalForm({
       loading={createDisk.isPending}
       submitError={createDisk.error}
     >
-      <NameField name="name" control={control} />
-      <DescriptionField name="description" control={control} />
+      <NameField name="name" control={form.control} />
+      <DescriptionField name="description" control={form.control} />
       <FormDivider />
       <DiskSourceField
-        control={control}
+        control={form.control}
         images={images}
         areImagesLoading={areImagesLoading}
       />
       <DiskSizeField
         name="size"
-        control={control}
+        control={form.control}
         validate={(diskSizeGiB: number) => {
-          if (imageSize && diskSizeGiB < imageSize) {
-            return `Must be as large as selected image (min. ${imageSize} GiB)`
+          if (imageSizeGiB && diskSizeGiB < imageSizeGiB) {
+            return `Must be as large as selected image (min. ${imageSizeGiB} GiB)`
           }
         }}
       />
@@ -179,38 +182,20 @@ const DiskSourceField = ({
           />
         )}
         {value.type === 'image' && (
-          <ImageSelectField
+          <ListboxField
             control={control}
-            images={images}
-            areImagesLoading={areImagesLoading}
+            name="diskSource.imageId"
+            label="Source image"
+            placeholder="Select an image"
+            isLoading={areImagesLoading}
+            items={images.map((i) => toListboxItem(i, true))}
+            required
           />
         )}
 
         {value.type === 'snapshot' && <SnapshotSelectField control={control} />}
       </div>
     </>
-  )
-}
-
-const ImageSelectField = ({
-  control,
-  images,
-  areImagesLoading,
-}: {
-  control: Control<DiskCreate>
-  images: Image[]
-  areImagesLoading: boolean
-}) => {
-  return (
-    <ListboxField
-      control={control}
-      name="diskSource.imageId"
-      label="Source image"
-      placeholder="Select an image"
-      isLoading={areImagesLoading}
-      items={images.map((i) => toListboxItem(i, true))}
-      required
-    />
   )
 }
 
