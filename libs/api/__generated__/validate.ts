@@ -1033,11 +1033,6 @@ export const Error = z.preprocess(
   z.object({ errorCode: z.string().optional(), message: z.string(), requestId: z.string() })
 )
 
-export const ExpectedDigest = z.preprocess(
-  processResponseBody,
-  z.object({ sha256: z.string() })
-)
-
 /**
  * The kind of an external IP address for an instance
  */
@@ -1053,7 +1048,10 @@ export const ExternalIp = z.preprocess(
  */
 export const ExternalIpCreate = z.preprocess(
   processResponseBody,
-  z.object({ poolName: Name.optional(), type: z.enum(['ephemeral']) })
+  z.union([
+    z.object({ poolName: Name.optional(), type: z.enum(['ephemeral']) }),
+    z.object({ floatingIpName: Name, type: z.enum(['floating']) }),
+  ])
 )
 
 /**
@@ -1107,6 +1105,44 @@ export const FleetRoleRoleAssignment = z.preprocess(
 export const FleetRolePolicy = z.preprocess(
   processResponseBody,
   z.object({ roleAssignments: FleetRoleRoleAssignment.array() })
+)
+
+/**
+ * A Floating IP is a well-known IP address which can be attached and detached from instances.
+ */
+export const FloatingIp = z.preprocess(
+  processResponseBody,
+  z.object({
+    description: z.string(),
+    id: z.string().uuid(),
+    instanceId: z.string().uuid().optional(),
+    ip: z.string().ip(),
+    name: Name,
+    projectId: z.string().uuid(),
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
+  })
+)
+
+/**
+ * Parameters for creating a new floating IP address for instances.
+ */
+export const FloatingIpCreate = z.preprocess(
+  processResponseBody,
+  z.object({
+    address: z.string().ip().optional(),
+    description: z.string(),
+    name: Name,
+    pool: NameOrId.optional(),
+  })
+)
+
+/**
+ * A single page of results
+ */
+export const FloatingIpResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: FloatingIp.array(), nextPage: z.string().optional() })
 )
 
 /**
@@ -1176,7 +1212,6 @@ export const Image = z.preprocess(
     size: ByteCount,
     timeCreated: z.coerce.date(),
     timeModified: z.coerce.date(),
-    url: z.string().optional(),
     version: z.string(),
   })
 )
@@ -1187,7 +1222,6 @@ export const Image = z.preprocess(
 export const ImageSource = z.preprocess(
   processResponseBody,
   z.union([
-    z.object({ blockSize: BlockSize, type: z.enum(['url']), url: z.string() }),
     z.object({ id: z.string().uuid(), type: z.enum(['snapshot']) }),
     z.object({ type: z.enum(['you_can_boot_anything_as_long_as_its_alpine']) }),
   ])
@@ -1221,14 +1255,6 @@ export const ImageResultsPage = z.preprocess(
 export const ImportBlocksBulkWrite = z.preprocess(
   processResponseBody,
   z.object({ base64EncodedData: z.string(), offset: z.number().min(0) })
-)
-
-/**
- * Parameters for importing blocks from a URL to a disk
- */
-export const ImportBlocksFromUrl = z.preprocess(
-  processResponseBody,
-  z.object({ expectedDigest: ExpectedDigest.optional(), url: z.string() })
 )
 
 /**
@@ -1929,7 +1955,7 @@ export const SiloRolePolicy = z.preprocess(
  */
 export const SledProvisionState = z.preprocess(
   processResponseBody,
-  z.enum(['provisionable', 'non_provisionable', 'unknown'])
+  z.enum(['provisionable', 'non_provisionable'])
 )
 
 /**
@@ -2807,18 +2833,6 @@ export const DiskFinalizeImportParams = z.preprocess(
   })
 )
 
-export const DiskImportBlocksFromUrlParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      disk: NameOrId,
-    }),
-    query: z.object({
-      project: NameOrId.optional(),
-    }),
-  })
-)
-
 export const DiskMetricsListParams = z.preprocess(
   processResponseBody,
   z.object({
@@ -2832,6 +2846,53 @@ export const DiskMetricsListParams = z.preprocess(
       order: PaginationOrder.optional(),
       pageToken: z.string().optional(),
       startTime: z.coerce.date().optional(),
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const FloatingIpListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      project: NameOrId.optional(),
+      sortBy: NameOrIdSortMode.optional(),
+    }),
+  })
+)
+
+export const FloatingIpCreateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      project: NameOrId,
+    }),
+  })
+)
+
+export const FloatingIpViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      floatingIp: NameOrId,
+    }),
+    query: z.object({
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const FloatingIpDeleteParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      floatingIp: NameOrId,
+    }),
+    query: z.object({
       project: NameOrId.optional(),
     }),
   })

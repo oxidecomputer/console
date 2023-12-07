@@ -921,8 +921,6 @@ export type DiskResultsPage = {
   nextPage?: string
 }
 
-export type ExpectedDigest = { sha256: string }
-
 /**
  * The kind of an external IP address for an instance
  */
@@ -933,7 +931,13 @@ export type ExternalIp = { ip: string; kind: IpKind }
 /**
  * Parameters for creating an external IP address for instances.
  */
-export type ExternalIpCreate = { poolName?: Name; type: 'ephemeral' }
+export type ExternalIpCreate =
+  /** An IP address providing both inbound and outbound access. The address is automatically-assigned from the provided IP Pool, or all available pools if not specified. */
+  | { poolName?: Name; type: 'ephemeral' }
+  /** An IP address providing both inbound and outbound access. The address is an existing Floating IP object assigned to the current project.
+
+The floating IP must not be in use by another instance or service. */
+  | { floatingIpName: Name; type: 'floating' }
 
 /**
  * A single page of results
@@ -979,6 +983,50 @@ export type FleetRoleRoleAssignment = {
 export type FleetRolePolicy = {
   /** Roles directly assigned on this resource */
   roleAssignments: FleetRoleRoleAssignment[]
+}
+
+/**
+ * A Floating IP is a well-known IP address which can be attached and detached from instances.
+ */
+export type FloatingIp = {
+  /** human-readable free-form text about a resource */
+  description: string
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** The ID of the instance that this Floating IP is attached to, if it is presently in use. */
+  instanceId?: string
+  /** The IP address held by this resource. */
+  ip: string
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  /** The project this resource exists within. */
+  projectId: string
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+}
+
+/**
+ * Parameters for creating a new floating IP address for instances.
+ */
+export type FloatingIpCreate = {
+  /** An IP address to reserve for use as a floating IP. This field is optional: when not set, an address will be automatically chosen from `pool`. If set, then the IP must be available in the resolved `pool`. */
+  address?: string
+  description: string
+  name: Name
+  /** The parent IP pool that a floating IP is pulled from. If unset, the default pool is selected. */
+  pool?: NameOrId
+}
+
+/**
+ * A single page of results
+ */
+export type FloatingIpResultsPage = {
+  /** list of items on this page of results */
+  items: FloatingIp[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
 }
 
 /**
@@ -1062,8 +1110,6 @@ export type Image = {
   timeCreated: Date
   /** timestamp when this resource was last modified */
   timeModified: Date
-  /** URL source of this image, if any */
-  url?: string
   /** Version of the operating system */
   version: string
 }
@@ -1072,12 +1118,6 @@ export type Image = {
  * The source of the underlying image.
  */
 export type ImageSource =
-  | {
-      /** The block size in bytes */
-      blockSize: BlockSize
-      type: 'url'
-      url: string
-    }
   | { id: string; type: 'snapshot' }
   /** Boot the Alpine ISO that ships with the Propolis zone. Intended for development purposes only. */
   | { type: 'you_can_boot_anything_as_long_as_its_alpine' }
@@ -1110,16 +1150,6 @@ export type ImageResultsPage = {
  * Parameters for importing blocks with a bulk write
  */
 export type ImportBlocksBulkWrite = { base64EncodedData: string; offset: number }
-
-/**
- * Parameters for importing blocks from a URL to a disk
- */
-export type ImportBlocksFromUrl = {
-  /** Expected digest of all blocks when importing from a URL */
-  expectedDigest?: ExpectedDigest
-  /** the source to pull blocks from */
-  url: string
-}
 
 /**
  * The number of CPUs in an Instance
@@ -1864,10 +1894,6 @@ export type SledProvisionState =
   | 'provisionable'
   /** New resources will not be provisioned on this sled. However, existing resources will continue to be on this sled unless manually migrated off. */
   | 'non_provisionable'
-  /** This is a state that isn't known yet.
-
-This is defined to avoid API breakage. */
-  | 'unknown'
 
 /**
  * An operator's view of a Sled.
@@ -2709,14 +2735,6 @@ export interface DiskFinalizeImportQueryParams {
   project?: NameOrId
 }
 
-export interface DiskImportBlocksFromUrlPathParams {
-  disk: NameOrId
-}
-
-export interface DiskImportBlocksFromUrlQueryParams {
-  project?: NameOrId
-}
-
 export interface DiskMetricsListPathParams {
   disk: NameOrId
   metric: DiskMetricName
@@ -2728,6 +2746,33 @@ export interface DiskMetricsListQueryParams {
   order?: PaginationOrder
   pageToken?: string
   startTime?: Date
+  project?: NameOrId
+}
+
+export interface FloatingIpListQueryParams {
+  limit?: number
+  pageToken?: string
+  project?: NameOrId
+  sortBy?: NameOrIdSortMode
+}
+
+export interface FloatingIpCreateQueryParams {
+  project: NameOrId
+}
+
+export interface FloatingIpViewPathParams {
+  floatingIp: NameOrId
+}
+
+export interface FloatingIpViewQueryParams {
+  project?: NameOrId
+}
+
+export interface FloatingIpDeletePathParams {
+  floatingIp: NameOrId
+}
+
+export interface FloatingIpDeleteQueryParams {
   project?: NameOrId
 }
 
@@ -3456,6 +3501,7 @@ export type ApiListMethods = Pick<
   | 'certificateList'
   | 'diskList'
   | 'diskMetricsList'
+  | 'floatingIpList'
   | 'groupList'
   | 'imageList'
   | 'instanceList'
@@ -3735,29 +3781,6 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Request to import blocks from URL
-     */
-    diskImportBlocksFromUrl: (
-      {
-        path,
-        query = {},
-        body,
-      }: {
-        path: DiskImportBlocksFromUrlPathParams
-        query?: DiskImportBlocksFromUrlQueryParams
-        body: ImportBlocksFromUrl
-      },
-      params: FetchParams = {}
-    ) => {
-      return this.request<void>({
-        path: `/v1/disks/${path.disk}/import`,
-        method: 'POST',
-        body,
-        query,
-        ...params,
-      })
-    },
-    /**
      * Fetch disk metrics
      */
     diskMetricsList: (
@@ -3770,6 +3793,69 @@ export class Api extends HttpClient {
       return this.request<MeasurementResultsPage>({
         path: `/v1/disks/${path.disk}/metrics/${path.metric}`,
         method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List all Floating IPs
+     */
+    floatingIpList: (
+      { query = {} }: { query?: FloatingIpListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<FloatingIpResultsPage>({
+        path: `/v1/floating-ips`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create a Floating IP
+     */
+    floatingIpCreate: (
+      { query, body }: { query?: FloatingIpCreateQueryParams; body: FloatingIpCreate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<FloatingIp>({
+        path: `/v1/floating-ips`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch a floating IP
+     */
+    floatingIpView: (
+      {
+        path,
+        query = {},
+      }: { path: FloatingIpViewPathParams; query?: FloatingIpViewQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<FloatingIp>({
+        path: `/v1/floating-ips/${path.floatingIp}`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Delete a Floating IP
+     */
+    floatingIpDelete: (
+      {
+        path,
+        query = {},
+      }: { path: FloatingIpDeletePathParams; query?: FloatingIpDeleteQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/floating-ips/${path.floatingIp}`,
+        method: 'DELETE',
         query,
         ...params,
       })
