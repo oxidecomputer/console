@@ -7,10 +7,7 @@
  */
 import { cloneElement, useEffect, type ReactElement, type ReactNode } from 'react'
 import type { FieldValues, UseFormReturn } from 'react-hook-form'
-import {
-  unstable_useBlocker as useBlocker,
-  type unstable_Blocker as Blocker,
-} from 'react-router-dom'
+import { useBlocker, type unstable_Blocker as Blocker } from 'react-router-dom'
 
 import type { ApiError } from '@oxide/api'
 import { Modal, PageHeader, PageTitle } from '@oxide/ui'
