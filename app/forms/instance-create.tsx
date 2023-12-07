@@ -14,7 +14,6 @@ import {
   genName,
   INSTANCE_MAX_CPU,
   INSTANCE_MAX_RAM_GiB,
-  MAX_DISK_SIZE_GiB,
   useApiMutation,
   useApiQueryClient,
   usePrefetchedApiQuery,
@@ -137,9 +136,11 @@ export function CreateInstanceForm() {
 
   const imageInput = useWatch({ control: control, name: 'image' })
   const image = allImages.find((i) => i.id === imageInput)
+  const imageSize = image?.size ? Math.ceil(image.size / GiB) : undefined
 
   return (
     <FullPageForm
+      submitDisabled={allImages.length ? undefined : 'Image required'}
       id="create-instance-form"
       form={form}
       title="Create instance"
@@ -151,9 +152,10 @@ export function CreateInstanceForm() {
           values.presetId === 'custom'
             ? { memory: values.memory, ncpus: values.ncpus }
             : { memory: preset.memory, ncpus: preset.ncpus }
-
-        // we should also never have an image ID that's not in the list
         const image = allImages.find((i) => values.image === i.id)
+        // There should always be an image present, because …
+        // - The form is disabled unless there are images available.
+        // - The form defaults to including at least one image.
         invariant(image, 'Expected image to be defined')
 
         const bootDiskName = values.bootDiskName || genName(values.name, image.name)
@@ -287,11 +289,38 @@ export function CreateInstanceForm() {
       <FormDivider />
 
       <Form.Heading id="boot-disk">Boot disk</Form.Heading>
-      <Tabs.Root id="boot-disk-tabs" className="full-width" defaultValue="project">
+      <Tabs.Root
+        id="boot-disk-tabs"
+        className="full-width"
+        // default to the project images tab if there are only project images
+        defaultValue={
+          projectImages.length > 0 && siloImages.length === 0 ? 'project' : 'silo'
+        }
+      >
         <Tabs.List aria-describedby="boot-disk">
-          <Tabs.Trigger value="project">Project images</Tabs.Trigger>
           <Tabs.Trigger value="silo">Silo images</Tabs.Trigger>
+          <Tabs.Trigger value="project">Project images</Tabs.Trigger>
         </Tabs.List>
+        {allImages.length === 0 && (
+          <Message
+            className="mb-8 ml-10 max-w-lg"
+            variant="notice"
+            content="Images are required to create a boot disk."
+          />
+        )}
+        <Tabs.Content value="silo" className="space-y-4">
+          {siloImages.length === 0 ? (
+            <div className="flex max-w-lg items-center justify-center rounded-lg border p-6 border-default">
+              <EmptyMessage
+                icon={<Images16Icon />}
+                title="No silo images found"
+                body="Project images need to be promoted to be seen here"
+              />
+            </div>
+          ) : (
+            <ImageSelectField images={siloImages} control={control} />
+          )}
+        </Tabs.Content>
         <Tabs.Content value="project" className="space-y-4">
           {projectImages.length === 0 ? (
             <div className="flex max-w-lg items-center justify-center rounded-lg border p-6 border-default">
@@ -307,19 +336,6 @@ export function CreateInstanceForm() {
             <ImageSelectField images={projectImages} control={control} />
           )}
         </Tabs.Content>
-        <Tabs.Content value="silo" className="space-y-4">
-          {siloImages.length === 0 ? (
-            <div className="flex max-w-lg items-center justify-center rounded-lg border p-6 border-default">
-              <EmptyMessage
-                icon={<Images16Icon />}
-                title="No silo images found"
-                body="Project images need to be promoted to be seen here"
-              />
-            </div>
-          ) : (
-            <ImageSelectField images={siloImages} control={control} />
-          )}
-        </Tabs.Content>
       </Tabs.Root>
 
       <div className="!my-16 content-['a']"></div>
@@ -328,15 +344,9 @@ export function CreateInstanceForm() {
         label="Disk size"
         name="bootDiskSize"
         control={control}
-        // Imitate API logic: only require that the disk is big enough to fit the image
-        validate={(diskSizeGiB) => {
-          if (!image) return true
-          if (diskSizeGiB < image.size / GiB) {
-            const minSize = Math.ceil(image.size / GiB)
-            return `Must be as large as selected image (min. ${minSize} GiB)`
-          }
-          if (diskSizeGiB > MAX_DISK_SIZE_GiB) {
-            return `Can be at most ${MAX_DISK_SIZE_GiB} GiB`
+        validate={(diskSizeGiB: number) => {
+          if (imageSize && diskSizeGiB < imageSize) {
+            return `Must be as large as selected image (min. ${imageSize} GiB)`
           }
         }}
       />
