@@ -148,14 +148,6 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
-  /** `POST /v1/disks/:disk/import` */
-  diskImportBlocksFromUrl: (params: {
-    path: Api.DiskImportBlocksFromUrlPathParams
-    query: Api.DiskImportBlocksFromUrlQueryParams
-    body: Json<Api.ImportBlocksFromUrl>
-    req: Request
-    cookies: Record<string, string>
-  }) => Promisable<StatusCode>
   /** `GET /v1/disks/:disk/metrics/:metric` */
   diskMetricsList: (params: {
     path: Api.DiskMetricsListPathParams
@@ -163,6 +155,33 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.MeasurementResultsPage>>
+  /** `GET /v1/floating-ips` */
+  floatingIpList: (params: {
+    query: Api.FloatingIpListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.FloatingIpResultsPage>>
+  /** `POST /v1/floating-ips` */
+  floatingIpCreate: (params: {
+    query: Api.FloatingIpCreateQueryParams
+    body: Json<Api.FloatingIpCreate>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.FloatingIp>>
+  /** `GET /v1/floating-ips/:floatingIp` */
+  floatingIpView: (params: {
+    path: Api.FloatingIpViewPathParams
+    query: Api.FloatingIpViewQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.FloatingIp>>
+  /** `DELETE /v1/floating-ips/:floatingIp` */
+  floatingIpDelete: (params: {
+    path: Api.FloatingIpDeletePathParams
+    query: Api.FloatingIpDeleteQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
   /** `GET /v1/groups` */
   groupList: (params: {
     query: Api.GroupListQueryParams
@@ -1186,17 +1205,29 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
         schema.FinalizeDisk
       )
     ),
-    http.post(
-      '/v1/disks/:disk/import',
-      handler(
-        handlers['diskImportBlocksFromUrl'],
-        schema.DiskImportBlocksFromUrlParams,
-        schema.ImportBlocksFromUrl
-      )
-    ),
     http.get(
       '/v1/disks/:disk/metrics/:metric',
       handler(handlers['diskMetricsList'], schema.DiskMetricsListParams, null)
+    ),
+    http.get(
+      '/v1/floating-ips',
+      handler(handlers['floatingIpList'], schema.FloatingIpListParams, null)
+    ),
+    http.post(
+      '/v1/floating-ips',
+      handler(
+        handlers['floatingIpCreate'],
+        schema.FloatingIpCreateParams,
+        schema.FloatingIpCreate
+      )
+    ),
+    http.get(
+      '/v1/floating-ips/:floatingIp',
+      handler(handlers['floatingIpView'], schema.FloatingIpViewParams, null)
+    ),
+    http.delete(
+      '/v1/floating-ips/:floatingIp',
+      handler(handlers['floatingIpDelete'], schema.FloatingIpDeleteParams, null)
     ),
     http.get('/v1/groups', handler(handlers['groupList'], schema.GroupListParams, null)),
     http.get(

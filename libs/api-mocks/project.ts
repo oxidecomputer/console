@@ -26,7 +26,15 @@ export const project2: Json<Project> = {
   time_modified: new Date(2021, 0, 16).toISOString(),
 }
 
-export const projects: Json<Project[]> = [project, project2]
+const moreProjects: Json<Project>[] = new Array(2000).fill(0).map((_, i) => ({
+  id: `project-id-${i}`,
+  name: `project-${i}`,
+  description: 'another fake project',
+  time_created: new Date().toISOString(),
+  time_modified: new Date().toISOString(),
+}))
+
+export const projects: Json<Project[]> = [project, project2, ...moreProjects]
 
 export const projectRolePolicy: Json<ProjectRolePolicy> = {
   role_assignments: [

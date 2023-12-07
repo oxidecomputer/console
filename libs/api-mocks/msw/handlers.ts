@@ -243,13 +243,11 @@ export const handlers = makeHandlers({
         ? lookup.snapshot({ snapshot: body.source.id }).size
         : 100
 
-    const block_size = body.source.type === 'url' ? body.source.block_size : 512
-
     const newImage: Json<Api.Image> = {
       id: uuid(),
       project_id,
       size,
-      block_size,
+      block_size: 512,
       ...body,
       ...getTimestamps(),
     }
@@ -952,7 +950,10 @@ export const handlers = makeHandlers({
   certificateDelete: NotImplemented,
   certificateList: NotImplemented,
   certificateView: NotImplemented,
-  diskImportBlocksFromUrl: NotImplemented,
+  floatingIpCreate: NotImplemented,
+  floatingIpDelete: NotImplemented,
+  floatingIpList: NotImplemented,
+  floatingIpView: NotImplemented,
   instanceMigrate: NotImplemented,
   instanceSerialConsoleStream: NotImplemented,
   ipPoolCreate: NotImplemented,
