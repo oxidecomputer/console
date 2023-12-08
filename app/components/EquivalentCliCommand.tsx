@@ -32,8 +32,7 @@ export default function EquivalentCliCommand({ command }: { command: string }) {
       </Button>
       <Modal isOpen={isOpen} onDismiss={handleDismiss} title="CLI command">
         <Modal.Section>
-          {/* todo: fix the token to disable contextual alternates in the mono font */}
-          <pre className="flex w-full rounded border px-4 py-3 !normal-case !tracking-normal text-mono-md bg-default border-secondary [font-feature-settings:_'calt'_off]">
+          <pre className="flex w-full rounded border px-4 py-3 !normal-case !tracking-normal text-mono-md bg-default border-secondary">
             <div className="mr-2 select-none text-quaternary">$</div>
             {command}
           </pre>

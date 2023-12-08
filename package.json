@@ -33,7 +33,7 @@
   "dependencies": {
     "@floating-ui/react": "^0.26.0",
     "@headlessui/react": "^0.0.0-insiders.a9e8563",
-    "@oxide/design-system": "^1.2.2",
+    "@oxide/design-system": "^1.2.9",
     "@oxide/identicon": "0.0.4",
     "@radix-ui/react-dialog": "^1.0.3",
     "@radix-ui/react-dropdown-menu": "^2.0.4",

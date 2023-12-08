@@ -101,10 +101,7 @@ export const Terminal = ({ ws }: TerminalProps) => {
 
   return (
     <>
-      <div
-        className="h-full w-[calc(100%-3rem)] [font-feature-settings:_'calt'_off]"
-        ref={terminalRef}
-      />
+      <div className="h-full w-[calc(100%-3rem)] text-mono-code" ref={terminalRef} />
       <div className="absolute right-0 top-0 space-y-2 text-secondary">
         <ScrollButton onClick={() => term?.scrollToTop()}>
           <DirectionUpIcon />
