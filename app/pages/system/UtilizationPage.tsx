@@ -31,8 +31,7 @@ import {
 } from '@oxide/ui'
 import { bytesToGiB, bytesToTiB } from '@oxide/util'
 
-import { CapacityBar } from 'app/components/CapacityBar'
-import { CapacityMetric, capacityQueryParams } from 'app/components/CapacityMetric'
+import { CapacityBar, capacityQueryParams } from 'app/components/CapacityBar'
 import { useDateTimeRangePicker } from 'app/components/form'
 import { QueryParamTabs } from 'app/components/QueryParamTabs'
 import { useIntervalPicker } from 'app/components/RefetchIntervalPicker'
@@ -84,28 +83,6 @@ export function SystemUtilizationPage() {
         <PageTitle icon={<Metrics24Icon />}>Utilization</PageTitle>
       </PageHeader>
 
-      <div className="mb-12 flex min-w-min flex-col gap-3 lg+:flex-row">
-        <CapacityMetric
-          icon={<Ssd16Icon />}
-          title="Disk utilization"
-          metricName="virtual_disk_space_provisioned"
-          valueTransform={bytesToTiB}
-          capacity={capacity.disk_tib}
-        />
-        <CapacityMetric
-          icon={<Cpu16Icon />}
-          title="CPU utilization"
-          metricName="cpus_provisioned"
-          capacity={capacity.cpu}
-        />
-        <CapacityMetric
-          icon={<Ram16Icon />}
-          title="Memory utilization"
-          metricName="ram_provisioned"
-          valueTransform={bytesToGiB}
-          capacity={capacity.ram_gib}
-        />
-      </div>
       <h2 className="flex items-center gap-1.5 p-3 text-mono-sm text-secondary ">
         Capacity available
       </h2>
@@ -115,7 +92,6 @@ export function SystemUtilizationPage() {
           title="CPU"
           unit="nCPUs"
           metricName="cpus_provisioned"
-          valueTransform={bytesToGiB}
           provisioned={57}
           quota={80}
           capacity={capacity.cpu}
