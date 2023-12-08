@@ -2647,8 +2647,11 @@ export type IdSortMode = 'id_ascending'
 
 export type SystemMetricName =
   | 'virtual_disk_space_provisioned'
+  | 'virtual_disk_space_quota'
   | 'cpus_provisioned'
+  | 'cpus_quota'
   | 'ram_provisioned'
+  | 'ram_quota'
 
 /**
  * Supported set of sort modes for scanning by name only

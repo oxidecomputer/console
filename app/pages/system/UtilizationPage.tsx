@@ -31,6 +31,7 @@ import {
 } from '@oxide/ui'
 import { bytesToGiB, bytesToTiB } from '@oxide/util'
 
+import { CapacityBar } from 'app/components/CapacityBar'
 import { CapacityMetric, capacityQueryParams } from 'app/components/CapacityMetric'
 import { useDateTimeRangePicker } from 'app/components/form'
 import { QueryParamTabs } from 'app/components/QueryParamTabs'
@@ -47,11 +48,23 @@ SystemUtilizationPage.loader = async () => {
       query: capacityQueryParams,
     }),
     apiQueryClient.prefetchQuery('systemMetric', {
+      path: { metricName: 'cpus_quota' },
+      query: capacityQueryParams,
+    }),
+    apiQueryClient.prefetchQuery('systemMetric', {
       path: { metricName: 'ram_provisioned' },
       query: capacityQueryParams,
     }),
     apiQueryClient.prefetchQuery('systemMetric', {
+      path: { metricName: 'ram_quota' },
+      query: capacityQueryParams,
+    }),
+    apiQueryClient.prefetchQuery('systemMetric', {
       path: { metricName: 'virtual_disk_space_provisioned' },
+      query: capacityQueryParams,
+    }),
+    apiQueryClient.prefetchQuery('systemMetric', {
+      path: { metricName: 'virtual_disk_space_quota' },
       query: capacityQueryParams,
     }),
     apiQueryClient.prefetchQuery('sledList', {}),
@@ -93,16 +106,51 @@ export function SystemUtilizationPage() {
           capacity={capacity.ram_gib}
         />
       </div>
-      <QueryParamTabs defaultValue="metrics" className="full-width">
+      <h2 className="flex items-center gap-1.5 p-3 text-mono-sm text-secondary ">
+        Capacity available
+      </h2>
+      <div className="mb-12 flex min-w-min flex-col gap-3 lg+:flex-row">
+        <CapacityBar
+          icon={<Cpu16Icon />}
+          title="CPU"
+          unit="nCPUs"
+          metricName="cpus_provisioned"
+          valueTransform={bytesToGiB}
+          provisioned={57}
+          quota={80}
+          capacity={capacity.cpu}
+        />
+        <CapacityBar
+          icon={<Ssd16Icon />}
+          title="Disk"
+          unit="GiB"
+          metricName="virtual_disk_space_provisioned"
+          valueTransform={bytesToGiB}
+          provisioned={2}
+          quota={15}
+          capacity={capacity.disk_tib}
+        />
+        <CapacityBar
+          icon={<Ram16Icon />}
+          title="Memory"
+          unit="GiB"
+          metricName="ram_provisioned"
+          valueTransform={bytesToGiB}
+          provisioned={391}
+          quota={500}
+          capacity={capacity.ram_gib}
+        />
+      </div>
+      <QueryParamTabs defaultValue="summary" className="full-width">
         <Tabs.List>
-          <Tabs.Trigger value="metrics">Metrics</Tabs.Trigger>
           <Tabs.Trigger value="summary">Summary</Tabs.Trigger>
+          <Tabs.Trigger value="metrics">Metrics</Tabs.Trigger>
         </Tabs.List>
-        <Tabs.Content value="metrics">
-          <MetricsTab capacity={capacity} silos={silos} />
-        </Tabs.Content>
         <Tabs.Content value="summary">
           <UsageTab silos={silos} />
+        </Tabs.Content>
+        <Tabs.Content value="metrics">
+          <MetricsTab capacity={capacity} silos={silos} />
         </Tabs.Content>
       </QueryParamTabs>
     </>
@@ -197,8 +245,11 @@ function UsageTab({ silos }: { silos: SiloResultsPage }) {
       const query = { ...capacityQueryParams, silo: silo.name }
       return [
         { path: { metricName: 'virtual_disk_space_provisioned' as const }, query },
+        { path: { metricName: 'virtual_disk_space_quota' as const }, query },
         { path: { metricName: 'ram_provisioned' as const }, query },
+        { path: { metricName: 'ram_quota' as const }, query },
         { path: { metricName: 'cpus_provisioned' as const }, query },
+        { path: { metricName: 'cpus_quota' as const }, query },
       ]
     })
   )
@@ -215,11 +266,17 @@ function UsageTab({ silos }: { silos: SiloResultsPage }) {
           <Table.HeadCell>Silo</Table.HeadCell>
           {/* data-test-ignore makes the row asserts work in the e2e tests */}
           <Table.HeadCell colSpan={3} data-test-ignore>
-            Provisioned
+            Provisioned / Quota
+          </Table.HeadCell>
+          <Table.HeadCell colSpan={3} data-test-ignore>
+            Available
           </Table.HeadCell>
         </Table.HeaderRow>
         <Table.HeaderRow>
           <Table.HeadCell data-test-ignore></Table.HeadCell>
+          <Table.HeadCell>CPU</Table.HeadCell>
+          <Table.HeadCell>Disk</Table.HeadCell>
+          <Table.HeadCell>Memory</Table.HeadCell>
           <Table.HeadCell>CPU</Table.HeadCell>
           <Table.HeadCell>Disk</Table.HeadCell>
           <Table.HeadCell>Memory</Table.HeadCell>
@@ -228,15 +285,50 @@ function UsageTab({ silos }: { silos: SiloResultsPage }) {
       <Table.Body>
         {mergedResults.map((result) => (
           <Table.Row key={result.siloName}>
-            <Table.Cell width="25%">{result.siloName}</Table.Cell>
-            <Table.Cell width="25%">{result.metrics.cpus_provisioned}</Table.Cell>
-            <Table.Cell width="25%">
-              {bytesToTiB(result.metrics.virtual_disk_space_provisioned)}
-              <span className="ml-1 inline-block text-quaternary">TiB</span>
+            <Table.Cell width="16%">{result.siloName}</Table.Cell>
+            <Table.Cell width="14%">
+              <div className="flex flex-col">
+                <div>{result.metrics.cpus_provisioned} /</div>
+                <div className="text-quaternary">{result.metrics.cpus_provisioned}</div>
+              </div>
             </Table.Cell>
-            <Table.Cell width="25%">
-              {bytesToGiB(result.metrics.ram_provisioned)}
-              <span className="ml-1 inline-block text-quaternary">GiB</span>
+            <Table.Cell width="14%">
+              <div className="flex flex-col">
+                <div>{bytesToTiB(result.metrics.virtual_disk_space_provisioned)} /</div>
+                <div className="inline-block text-quaternary">
+                  {bytesToTiB(result.metrics.virtual_disk_space_provisioned)} TiB
+                </div>
+              </div>
+            </Table.Cell>
+            <Table.Cell width="14%">
+              <div className="flex flex-col">
+                <div>{bytesToGiB(result.metrics.ram_provisioned)} /</div>
+                <div className="inline-block text-quaternary">
+                  {bytesToGiB(result.metrics.ram_provisioned)} GiB
+                </div>
+              </div>
+            </Table.Cell>
+            <Table.Cell width="14%">
+              <div>
+                <div className="flex flex-col">{result.metrics.cpus_provisioned} /</div>
+                <div className="text-quaternary">{result.metrics.cpus_provisioned}</div>
+              </div>
+            </Table.Cell>
+            <Table.Cell width="14%">
+              <div className="flex flex-col">
+                <div>{bytesToTiB(result.metrics.virtual_disk_space_provisioned)} /</div>
+                <div className="inline-block text-quaternary">
+                  {bytesToTiB(result.metrics.virtual_disk_space_provisioned)} TiB
+                </div>
+              </div>
+            </Table.Cell>
+            <Table.Cell width="14%">
+              <div className="flex flex-col">
+                <div>{bytesToGiB(result.metrics.ram_provisioned)} /</div>
+                <div className="inline-block text-quaternary">
+                  {bytesToGiB(result.metrics.ram_provisioned)} GiB
+                </div>
+              </div>
             </Table.Cell>
           </Table.Row>
         ))}
