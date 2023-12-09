@@ -27,7 +27,6 @@ import {
   Success12Icon,
 } from '@oxide/ui'
 
-import { CopyToClipboard } from 'app/components/CopyToClipboard'
 import CreateNetworkInterfaceForm from 'app/forms/network-interface-create'
 import EditNetworkInterfaceForm from 'app/forms/network-interface-edit'
 import {
@@ -85,18 +84,7 @@ function ExternalIpsFromInstanceName({ value: primary }: { value: boolean }) {
     query: { project },
   })
   const ips = data?.items.map((eip) => eip.ip).join(', ')
-  return (
-    <div className="flex w-full items-center justify-between text-secondary">
-      {primary ? (
-        <>
-          <span>{ips}</span>
-          <CopyToClipboard text={`${ips}`} />
-        </>
-      ) : (
-        <>&mdash;</>
-      )}
-    </div>
-  )
+  return <span className="text-secondary">{primary ? ips : <>&mdash;</>}</span>
 }
 
 NetworkingTab.loader = async ({ params }: LoaderFunctionArgs) => {
