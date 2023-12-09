@@ -5,11 +5,9 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useState } from 'react'
 
-import { Clipboard16Icon, Success12Icon } from '@oxide/design-system/icons/react'
+import { CopyToClipboard } from 'app/components/CopyToClipboard'
 
-import useTimeout from '../hooks/use-timeout'
 import { Tooltip } from '../tooltip/Tooltip'
 
 type TruncatePosition = 'middle' | 'end'
@@ -29,18 +27,8 @@ export const Truncate = ({
   hasCopyButton,
   tooltipDelay = 300,
 }: TruncateProps) => {
-  const [hasCopied, setHasCopied] = useState(false)
-
-  useTimeout(() => setHasCopied(false), hasCopied ? 2000 : null)
-
   if (text.length <= maxLength) {
     return <div>{text}</div>
-  }
-
-  const handleCopy = () => {
-    window.navigator.clipboard.writeText(text).then(() => {
-      setHasCopied(true)
-    })
   }
 
   // Only use the tooltip if the text is longer than maxLength
@@ -49,18 +37,7 @@ export const Truncate = ({
       <Tooltip content={text} delay={tooltipDelay}>
         <div aria-label={text}>{truncate(text, maxLength, position)}</div>
       </Tooltip>
-      {hasCopyButton &&
-        (hasCopied ? (
-          <Success12Icon className="text-accent-secondary" />
-        ) : (
-          <button
-            className="text-tertiary hover:text-accent-secondary"
-            onClick={handleCopy}
-            type="button"
-          >
-            <Clipboard16Icon className="h-3 w-3" />
-          </button>
-        ))}
+      {hasCopyButton && <CopyToClipboard text={text} />}
     </div>
   )
 }
