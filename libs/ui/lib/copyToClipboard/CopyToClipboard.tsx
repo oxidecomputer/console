@@ -10,7 +10,13 @@ import { useState } from 'react'
 
 import { Clipboard16Icon, Success12Icon, useTimeout } from '@oxide/ui'
 
-export const CopyToClipboard = ({ text }: { text: string }) => {
+export const CopyToClipboard = ({
+  ariaLabel = 'Click to copy this text',
+  text,
+}: {
+  ariaLabel?: string
+  text: string
+}) => {
   const [hasCopied, setHasCopied] = useState(false)
 
   useTimeout(() => setHasCopied(false), hasCopied ? 2000 : null)
@@ -21,15 +27,18 @@ export const CopyToClipboard = ({ text }: { text: string }) => {
     })
   }
 
-  return hasCopied ? (
-    <Success12Icon className="text-accent-secondary" />
-  ) : (
+  return (
     <button
       className="text-tertiary hover:text-accent-secondary"
       onClick={handleCopy}
       type="button"
+      aria-label={hasCopied ? 'Copied' : ariaLabel}
     >
-      <Clipboard16Icon className="h-3 w-3" />
+      {hasCopied ? (
+        <Success12Icon className="text-accent-secondary" />
+      ) : (
+        <Clipboard16Icon className="h-3 w-3" />
+      )}
     </button>
   )
 }

@@ -13,9 +13,16 @@ export const Default = () => (
       <span>This is the text to be copied.</span>
       <CopyToClipboard text="This is the text to be copied." />
     </div>
+    <p>
+      Note that the text rendered on the screen is independent of the text copied to the
+      clipboard …
+    </p>
     <div className="flex items-center gap-2">
-      <span>Though you can copy whatever you like …</span>
-      <CopyToClipboard text="Just put it in the component’s `text` prop." />
+      <span>This text, for example, is different from the text that’ll be copied …</span>
+      <CopyToClipboard
+        text="Clicking this button will copy the text you are currently reading"
+        ariaLabel="You can customize the ariaLabel for the prompt to copy"
+      />
     </div>
   </div>
 )
