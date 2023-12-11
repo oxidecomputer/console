@@ -24,6 +24,7 @@ import {
   PageHeader,
   PageTitle,
   Ram16Icon,
+  ResourceMeter,
   Spinner,
   Ssd16Icon,
   Table,
@@ -265,6 +266,7 @@ function UsageTab({ silos }: { silos: SiloResultsPage }) {
             <Table.Cell width="14%">
               <div className="flex flex-col">
                 <div>{result.metrics.cpus_provisioned} /</div>
+                {/* dummy data for now */}
                 <div className="text-quaternary">{result.metrics.cpus_provisioned}</div>
               </div>
             </Table.Cell>
@@ -285,25 +287,22 @@ function UsageTab({ silos }: { silos: SiloResultsPage }) {
               </div>
             </Table.Cell>
             <Table.Cell width="14%">
-              <div>
-                <div className="flex flex-col">{result.metrics.cpus_provisioned} /</div>
-                <div className="text-quaternary">{result.metrics.cpus_provisioned}</div>
+              <div className="flex w-full items-center justify-between">
+                {/* dummy data for now */}
+                <div>8</div>
+                <ResourceMeter value={60} />
               </div>
             </Table.Cell>
             <Table.Cell width="14%">
-              <div className="flex flex-col">
-                <div>{bytesToTiB(result.metrics.virtual_disk_space_provisioned)} /</div>
-                <div className="inline-block text-quaternary">
-                  {bytesToTiB(result.metrics.virtual_disk_space_provisioned)} TiB
-                </div>
+              <div className="flex w-full items-center justify-between">
+                <div>100</div>
+                <ResourceMeter value={40} />
               </div>
             </Table.Cell>
             <Table.Cell width="14%">
-              <div className="flex flex-col">
-                <div>{bytesToGiB(result.metrics.ram_provisioned)} /</div>
-                <div className="inline-block text-quaternary">
-                  {bytesToGiB(result.metrics.ram_provisioned)} GiB
-                </div>
+              <div className="flex w-full items-center justify-between">
+                <div>552</div>
+                <ResourceMeter value={80} />
               </div>
             </Table.Cell>
           </Table.Row>
