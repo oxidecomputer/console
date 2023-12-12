@@ -93,7 +93,7 @@ export function DisksPage() {
     {
       label: 'Snapshot',
       onActivate() {
-        addToast({ content: `Creating snapshot of disk '${disk.name}'` })
+        addToast({ title: `Creating snapshot of disk '${disk.name}'` })
         createSnapshot.mutate({
           query: projectSelector,
           body: {
