@@ -80,7 +80,16 @@ export default function CreateNetworkInterfaceForm({
         required
         control={form.control}
       />
-      <TextField name="ip" label="IP Address" control={form.control} />
+      <TextField
+        name="ip"
+        label="IP Address"
+        control={form.control}
+        onBlur={() => {
+          if (form.getValues('ip')?.trim() === '') {
+            form.setValue('ip', undefined)
+          }
+        }}
+      />
     </SideModalForm>
   )
 }
