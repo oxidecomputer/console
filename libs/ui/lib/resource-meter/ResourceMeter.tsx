@@ -27,11 +27,13 @@ export const ResourceMeter = ({
   warningThreshold = 50,
   errorThreshold = 75,
 }: ResourceMeterProps) => {
-  const isError = errorThreshold && value > errorThreshold
-  const isWarning = !isError && warningThreshold && value > warningThreshold
   const usagePercent = `${value}%`
   const label = `${usagePercent} used`
-  const bg = isError ? 'bg-destructive' : isWarning ? 'bg-notice' : 'bg-success'
+  // prettier-ignore
+  const bg =
+    value > errorThreshold ? 'bg-destructive'
+    : value > warningThreshold ? 'bg-notice'
+    : 'bg-success'
   return (
     <Tooltip content={label} placement="top">
       <div
