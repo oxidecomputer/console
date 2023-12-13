@@ -81,11 +81,9 @@ export const CapacityBar = ({
           <span className="text-mono-sm text-secondary">{title}</span>
           <span className="ml-1 text-mono-sm text-quaternary">({unit})</span>
         </div>
-        <div className="flex items-end [font-size:36px] [line-height:1]">
+        <div className="flex items-baseline [font-size:36px] [line-height:1]">
           <div className="font-light">{wholeNumber.toLocaleString()}</div>
-          <div className="ml-0.5 -translate-y-0.5 text-quaternary [font-size:18px]">
-            {decimal || ''}%
-          </div>
+          <div className="text-quaternary [font-size:18px]">{decimal || ''}%</div>
         </div>
       </div>
       <div className="p-3 pt-1">
