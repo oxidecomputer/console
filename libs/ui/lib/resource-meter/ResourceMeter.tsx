@@ -6,6 +6,8 @@
  * Copyright Oxide Computer Company
  */
 
+import cn from 'classnames'
+
 import { Tooltip } from '../tooltip/Tooltip'
 
 type ResourceMeterProps = {
@@ -24,24 +26,31 @@ type ResourceMeterProps = {
  */
 export const ResourceMeter = ({
   value,
-  warningThreshold = 50,
+  warningThreshold = 66,
   errorThreshold = 75,
 }: ResourceMeterProps) => {
-  const usagePercent = `${value}%`
+  const usagePercent = `${value.toFixed(2)}%`
   const label = `${usagePercent} used`
   // prettier-ignore
-  const bg =
+  const fg =
     value > errorThreshold ? 'bg-destructive'
     : value > warningThreshold ? 'bg-notice'
-    : 'bg-success'
+    : 'bg-accent'
+
+  const bg =
+    value > errorThreshold
+      ? 'bg-destructive-secondary'
+      : value > warningThreshold
+      ? 'bg-notice-secondary'
+      : 'bg-accent-secondary'
   return (
     <Tooltip content={label} placement="top">
       <div
         aria-label={label}
-        className="flex h-5 w-1.5 flex-col justify-end rounded-[1px] bg-tertiary"
+        className={cn('flex h-5 w-1.5 flex-col justify-end rounded-[1px]', bg)}
       >
         <div
-          className={`w-full rounded-[1px] ${bg}`}
+          className={cn('w-full rounded-[1px]', fg)}
           style={{ height: usagePercent }}
         ></div>
       </div>

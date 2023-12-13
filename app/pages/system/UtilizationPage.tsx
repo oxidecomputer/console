@@ -264,50 +264,82 @@ function UsageTab({ silos }: { silos: SiloResultsPage }) {
           <Table.Row key={result.siloName}>
             <Table.Cell width="16%">{result.siloName}</Table.Cell>
             <Table.Cell width="14%">
-              <div className="flex flex-col">
-                <div>{result.metrics.cpus_provisioned} /</div>
-                {/* dummy data for now */}
-                <div className="text-quaternary">{result.metrics.cpus_provisioned}</div>
-              </div>
+              {/* dummy data for now */}
+              <UsageCell
+                numerator={result.metrics.cpus_provisioned}
+                denominator={result.metrics.cpus_provisioned}
+              />
             </Table.Cell>
             <Table.Cell width="14%">
-              <div className="flex flex-col">
-                <div>{bytesToTiB(result.metrics.virtual_disk_space_provisioned)} /</div>
-                <div className="inline-block text-quaternary">
-                  {bytesToTiB(result.metrics.virtual_disk_space_provisioned)} TiB
-                </div>
-              </div>
+              <UsageCell
+                numerator={bytesToTiB(result.metrics.virtual_disk_space_provisioned)}
+                denominator={bytesToTiB(result.metrics.virtual_disk_space_provisioned)}
+                unit="TiB"
+              />
             </Table.Cell>
             <Table.Cell width="14%">
-              <div className="flex flex-col">
-                <div>{bytesToGiB(result.metrics.ram_provisioned)} /</div>
-                <div className="inline-block text-quaternary">
-                  {bytesToGiB(result.metrics.ram_provisioned)} GiB
-                </div>
-              </div>
+              <UsageCell
+                numerator={bytesToTiB(result.metrics.ram_provisioned)}
+                denominator={bytesToTiB(result.metrics.ram_provisioned)}
+                unit="GiB"
+              />
             </Table.Cell>
-            <Table.Cell width="14%">
-              <div className="flex w-full items-center justify-between">
-                {/* dummy data for now */}
-                <div>8</div>
-                <ResourceMeter value={60} />
-              </div>
+            <Table.Cell width="14%" className="relative">
+              <AvailableCell used={8} total={60} />
             </Table.Cell>
-            <Table.Cell width="14%">
-              <div className="flex w-full items-center justify-between">
-                <div>100</div>
-                <ResourceMeter value={40} />
-              </div>
+            <Table.Cell width="14%" className="relative">
+              <AvailableCell used={100} total={150} unit="TiB" />
             </Table.Cell>
-            <Table.Cell width="14%">
-              <div className="flex w-full items-center justify-between">
-                <div>552</div>
-                <ResourceMeter value={80} />
-              </div>
+            <Table.Cell width="14%" className="relative">
+              <AvailableCell used={500} total={600} unit="GiB" />
             </Table.Cell>
           </Table.Row>
         ))}
       </Table.Body>
     </Table>
+  )
+}
+
+const UsageCell = ({
+  numerator,
+  denominator,
+  unit,
+}: {
+  numerator: number
+  denominator: number
+  unit?: string
+}) => (
+  <div className="flex flex-col text-tertiary">
+    <div>
+      <span className="text-default">{numerator}</span> /
+    </div>
+    <div className="text-tertiary">
+      {denominator} {unit && <span className="text-quaternary">{unit}</span>}
+    </div>
+  </div>
+)
+
+const AvailableCell = ({
+  used,
+  total,
+  unit,
+}: {
+  used: number
+  total: number
+  unit?: string
+}) => {
+  const usagePercent = (used / total) * 100
+  return (
+    <div className="flex w-full items-center justify-between">
+      <div>
+        {used} {unit && <span className="text-tertiary">{unit}</span>}
+      </div>
+      {/* We only show the ResourceMeter if the percent crosses the warning threshold (66%) */}
+      {usagePercent > 66 && (
+        <div className="absolute right-3">
+          <ResourceMeter value={usagePercent} />
+        </div>
+      )}
+    </div>
   )
 }
