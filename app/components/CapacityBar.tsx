@@ -66,7 +66,7 @@ export const CapacityBar = ({
   }) => (
     <div className="p-3 text-mono-sm">
       <div className="text-quaternary">{name}</div>
-      <div className="text-secondary">{amount}</div>
+      <div className="text-secondary">{amount.toLocaleString()}</div>
     </div>
   )
 
