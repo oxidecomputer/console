@@ -92,19 +92,19 @@ export const CapacityBar = ({
         {/* the bar */}
         <div className="flex w-full gap-0.5">
           <div
-            className="h-3 rounded-l border border-solid bg-accent-secondary border-accent-secondary"
+            className="h-3 rounded-l border bg-accent-secondary border-accent-secondary"
             style={{ width: provisionedPercent }}
           ></div>
           <div
-            className="h-3 border border-solid bg-info-secondary border-info-secondary"
+            className="h-3 border bg-info-secondary border-info-secondary"
             style={{ width: quotaAvailablePercent }}
           ></div>
-          <div className="bg-surface-secondary h-3 grow rounded-r border border-solid border-default"></div>
+          <div className="bg-surface-secondary h-3 grow rounded-r border border-default"></div>
         </div>
       </div>
       <div>
         {/* the more detailed data */}
-        <div className="flex justify-between border-t border-solid border-default">
+        <div className="flex justify-between border-t border-default">
           <UtilizationDatum name="Provisioned" amount={provisioned} />
           <UtilizationDatum name="Quota" amount={quota} />
           <UtilizationDatum name="Capacity" amount={capacity} />
