@@ -33,7 +33,7 @@ export const CapacityBar = ({
 }: {
   icon: JSX.Element
   title: 'CPU' | 'Disk' | 'Memory'
-  unit: 'nCPUs' | 'GiB'
+  unit: 'nCPUs' | 'GiB' | 'TiB'
   metricName: SystemMetricName
   valueTransform?: (n: number) => number
   provisioned: number

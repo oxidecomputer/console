@@ -100,9 +100,9 @@ export function SystemUtilizationPage() {
         <CapacityBar
           icon={<Ssd16Icon />}
           title="Disk"
-          unit="GiB"
+          unit="TiB"
           metricName="virtual_disk_space_provisioned"
-          valueTransform={bytesToGiB}
+          valueTransform={bytesToTiB}
           provisioned={2}
           quota={15}
           capacity={capacity.disk_tib}
