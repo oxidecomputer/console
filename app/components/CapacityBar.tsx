@@ -104,7 +104,7 @@ export const CapacityBar = ({
       </div>
       <div>
         {/* the more detailed data */}
-        <div className="flex justify-between border-t border-default">
+        <div className="flex justify-between border-t border-secondary">
           <UtilizationDatum name="Provisioned" amount={provisioned} />
           <UtilizationDatum name="Quota" amount={quota} />
           <UtilizationDatum name="Capacity" amount={capacity} />
