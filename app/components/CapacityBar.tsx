@@ -79,7 +79,7 @@ export const CapacityBar = ({
         </div>
         <div className="flex flex-grow items-start">
           <span className="text-mono-sm text-secondary">{title}</span>
-          <span className="ml-1 text-mono-sm text-quaternary">({unit})</span>
+          <span className="ml-1 !normal-case text-mono-sm text-quaternary">({unit})</span>
         </div>
         <div className="flex items-baseline [font-size:36px] [line-height:1]">
           <div className="font-light">{wholeNumber.toLocaleString()}</div>
