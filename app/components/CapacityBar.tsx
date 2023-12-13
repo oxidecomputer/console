@@ -74,16 +74,16 @@ export const CapacityBar = ({
     <div className="w-full min-w-min rounded-lg border border-default">
       <div className="flex p-3">
         {/* the icon, title, and hero datum */}
-        <div className="mr-1 flex h-6 w-6 items-start justify-center text-accent">
+        <div className="-ml-0.5 mr-1 flex h-6 w-6 items-start justify-center text-accent">
           {icon}
         </div>
         <div className="flex flex-grow items-start">
           <span className="text-mono-sm text-secondary">{title}</span>
           <span className="ml-1 !normal-case text-mono-sm text-quaternary">({unit})</span>
         </div>
-        <div className="flex items-baseline [font-size:36px] [line-height:1]">
-          <div className="font-light">{wholeNumber.toLocaleString()}</div>
-          <div className="text-quaternary [font-size:18px]">{decimal || ''}%</div>
+        <div className="flex -translate-y-0.5 items-baseline">
+          <div className="font-light text-sans-2xl">{wholeNumber.toLocaleString()}</div>
+          <div className="text-sans-xl text-quaternary">{decimal || ''}%</div>
         </div>
       </div>
       <div className="p-3 pt-1">
@@ -97,7 +97,7 @@ export const CapacityBar = ({
             className="h-3 border bg-info-secondary border-info-secondary"
             style={{ width: quotaAvailablePercent }}
           ></div>
-          <div className="bg-surface-secondary h-3 grow rounded-r border border-default"></div>
+          <div className="bg-surface-secondary h-3 grow rounded-r border bg-raise border-default"></div>
         </div>
       </div>
       <div>

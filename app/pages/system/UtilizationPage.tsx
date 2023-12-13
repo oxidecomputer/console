@@ -84,7 +84,7 @@ export function SystemUtilizationPage() {
         <PageTitle icon={<Metrics24Icon />}>Utilization</PageTitle>
       </PageHeader>
 
-      <h2 className="flex items-center gap-1.5 p-3 text-mono-sm text-secondary ">
+      <h2 className="flex items-center gap-1.5 p-3 text-mono-sm text-secondary">
         Capacity available
       </h2>
       <div className="mb-12 flex min-w-min flex-col gap-3 lg+:flex-row">
