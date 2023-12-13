@@ -65,8 +65,8 @@ export const CapacityBar = ({
     amount: number
   }) => (
     <div className="p-3 text-mono-sm">
-      <div className="text-secondary">{name}</div>
-      <div className="text-quarternary">{amount}</div>
+      <div className="text-quaternary">{name}</div>
+      <div className="text-secondary">{amount}</div>
     </div>
   )
 
