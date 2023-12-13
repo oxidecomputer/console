@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { CopyToClipboard } from '../copyToClipboard/CopyToClipboard'
+import { CopyToClipboard } from '../copy-to-clipboard/CopyToClipboard'
 import { Tooltip } from '../tooltip/Tooltip'
 
 type TruncatePosition = 'middle' | 'end'
