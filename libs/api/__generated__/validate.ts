@@ -1894,6 +1894,14 @@ export const Silo = z.preprocess(
 )
 
 /**
+ * The amount of provisionable resources for a Silo
+ */
+export const SiloQuotasCreate = z.preprocess(
+  processResponseBody,
+  z.object({ cpus: z.number(), memory: ByteCount, storage: ByteCount })
+)
+
+/**
  * Create-time parameters for a `Silo`
  */
 export const SiloCreate = z.preprocess(
@@ -1907,7 +1915,38 @@ export const SiloCreate = z.preprocess(
       .record(z.string().min(1), FleetRole.array().refine(...uniqueItems))
       .optional(),
     name: Name,
+    quotas: SiloQuotasCreate,
     tlsCertificates: CertificateCreate.array(),
+  })
+)
+
+export const SiloQuotas = z.preprocess(
+  processResponseBody,
+  z.object({
+    cpus: z.number(),
+    memory: ByteCount,
+    siloId: z.string().uuid(),
+    storage: ByteCount,
+  })
+)
+
+/**
+ * A single page of results
+ */
+export const SiloQuotasResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: SiloQuotas.array(), nextPage: z.string().optional() })
+)
+
+/**
+ * Updateable properties of a Silo's resource limits. If a value is omitted it will not be updated.
+ */
+export const SiloQuotasUpdate = z.preprocess(
+  processResponseBody,
+  z.object({
+    cpus: z.number().optional(),
+    memory: ByteCount.optional(),
+    storage: ByteCount.optional(),
   })
 )
 
@@ -4097,6 +4136,18 @@ export const RoleViewParams = z.preprocess(
   })
 )
 
+export const SystemQuotasListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      sortBy: IdSortMode.optional(),
+    }),
+  })
+)
+
 export const SiloListParams = z.preprocess(
   processResponseBody,
   z.object({
@@ -4148,6 +4199,26 @@ export const SiloPolicyViewParams = z.preprocess(
 )
 
 export const SiloPolicyUpdateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      silo: NameOrId,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SiloQuotasViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      silo: NameOrId,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SiloQuotasUpdateParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({

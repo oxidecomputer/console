@@ -880,6 +880,12 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.Role>>
+  /** `GET /v1/system/silo-quotas` */
+  systemQuotasList: (params: {
+    query: Api.SystemQuotasListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.SiloQuotasResultsPage>>
   /** `GET /v1/system/silos` */
   siloList: (params: {
     query: Api.SiloListQueryParams
@@ -917,6 +923,19 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.SiloRolePolicy>>
+  /** `GET /v1/system/silos/:silo/quotas` */
+  siloQuotasView: (params: {
+    path: Api.SiloQuotasViewPathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.SiloQuotas>>
+  /** `PUT /v1/system/silos/:silo/quotas` */
+  siloQuotasUpdate: (params: {
+    path: Api.SiloQuotasUpdatePathParams
+    body: Json<Api.SiloQuotasUpdate>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.SiloQuotas>>
   /** `GET /v1/system/users` */
   siloUserList: (params: {
     query: Api.SiloUserListQueryParams
@@ -1794,6 +1813,10 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       handler(handlers['roleView'], schema.RoleViewParams, null)
     ),
     http.get(
+      '/v1/system/silo-quotas',
+      handler(handlers['systemQuotasList'], schema.SystemQuotasListParams, null)
+    ),
+    http.get(
       '/v1/system/silos',
       handler(handlers['siloList'], schema.SiloListParams, null)
     ),
@@ -1816,6 +1839,18 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
         handlers['siloPolicyUpdate'],
         schema.SiloPolicyUpdateParams,
         schema.SiloRolePolicy
+      )
+    ),
+    http.get(
+      '/v1/system/silos/:silo/quotas',
+      handler(handlers['siloQuotasView'], schema.SiloQuotasViewParams, null)
+    ),
+    http.put(
+      '/v1/system/silos/:silo/quotas',
+      handler(
+        handlers['siloQuotasUpdate'],
+        schema.SiloQuotasUpdateParams,
+        schema.SiloQuotasUpdate
       )
     ),
     http.get(
