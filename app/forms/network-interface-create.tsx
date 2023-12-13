@@ -84,11 +84,7 @@ export default function CreateNetworkInterfaceForm({
         name="ip"
         label="IP Address"
         control={form.control}
-        onBlur={() => {
-          if (form.getValues('ip')?.trim() === '') {
-            form.setValue('ip', undefined)
-          }
-        }}
+        transform={(ip) => (ip.trim() === '' ? undefined : ip)}
       />
     </SideModalForm>
   )

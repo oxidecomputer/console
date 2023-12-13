@@ -56,6 +56,11 @@ export interface TextFieldProps<
   units?: string
   validate?: Validate<FieldPathValue<TFieldValues, TName>, TFieldValues>
   control: Control<TFieldValues>
+  /**
+   * This function can be provided to alter the value of the input
+   * as the input is changed
+   */
+  transform?: (value: string) => string | undefined
 }
 
 export function TextField<
@@ -75,7 +80,7 @@ export function TextField<
   return (
     <div className="max-w-lg">
       <div className="mb-2">
-        <FieldLabel id={`${id}-label`} tip={description} optional={!required}>
+        <FieldLabel htmlFor={id} id={`${id}-label`} tip={description} optional={!required}>
           {label} {units && <span className="ml-1 text-secondary">({units})</span>}
         </FieldLabel>
         {helpText && (
@@ -119,6 +124,7 @@ export const TextFieldInner = <
   description,
   required,
   id: idProp,
+  transform,
   ...props
 }: TextFieldProps<TFieldValues, TName> & UITextAreaProps) => {
   const generatedId = useId()
@@ -144,6 +150,10 @@ export const TextFieldInner = <
               // for the calling code despite the actual input value necessarily
               // being a string.
               onChange={(e) => {
+                if (transform) {
+                  onChange(transform(e.target.value))
+                  return
+                }
                 if (type === 'number') {
                   if (e.target.value.trim() === '') {
                     onChange(0)
