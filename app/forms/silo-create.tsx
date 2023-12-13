@@ -36,6 +36,11 @@ const defaultValues: SiloCreateFormValues = {
   tlsCertificates: [],
   siloAdminGetsFleetAdmin: false,
   siloViewerGetsFleetViewer: false,
+  quotas: {
+    cpus: 0,
+    memory: 0,
+    storage: 0,
+  },
 }
 
 export function CreateSiloSideModalForm() {
