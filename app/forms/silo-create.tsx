@@ -19,6 +19,7 @@ import {
   TextField,
   TlsCertsField,
 } from 'app/components/form'
+import { NumberField } from 'app/components/form/fields/NumberField'
 import { useForm, useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
@@ -41,6 +42,10 @@ const defaultValues: SiloCreateFormValues = {
     memory: 0,
     storage: 0,
   },
+}
+
+function validateQuota(value: number) {
+  if (value < 0) return 'Must be at least 0'
 }
 
 export function CreateSiloSideModalForm() {
@@ -97,6 +102,35 @@ export function CreateSiloSideModalForm() {
       <CheckboxField name="discoverable" control={form.control}>
         Discoverable
       </CheckboxField>
+      <FormDivider />
+      <NumberField
+        control={form.control}
+        label="CPU quota"
+        name="quotas.cpus"
+        required
+        type="number"
+        units="nCPUs"
+        validate={validateQuota}
+      />
+      <NumberField
+        control={form.control}
+        label="Memory quota"
+        name="quotas.memory"
+        required
+        type="number"
+        units="GiB"
+        validate={validateQuota}
+      />
+      <NumberField
+        control={form.control}
+        label="Storage quota"
+        name="quotas.storage"
+        required
+        type="number"
+        units="GiB"
+        validate={validateQuota}
+      />
+      <FormDivider />
       <RadioField
         name="identityMode"
         label="Identity mode"
