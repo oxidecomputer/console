@@ -19,6 +19,7 @@ import {
   TextField,
   TlsCertsField,
 } from 'app/components/form'
+import { NumberField } from 'app/components/form/fields/NumberField'
 import { useForm, useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
@@ -97,6 +98,32 @@ export function CreateSiloSideModalForm() {
       <CheckboxField name="discoverable" control={form.control}>
         Discoverable
       </CheckboxField>
+      <FormDivider />
+      <NumberField
+        control={form.control}
+        label="CPU quota"
+        name="quotas.cpus"
+        required
+        type="number"
+        units="nCPUs"
+      />
+      <NumberField
+        control={form.control}
+        label="Memory quota"
+        name="quotas.memory"
+        required
+        type="number"
+        units="GiB"
+      />
+      <NumberField
+        control={form.control}
+        label="Disk quota"
+        name="quotas.storage"
+        required
+        type="number"
+        units="GiB"
+      />
+      <FormDivider />
       <RadioField
         name="identityMode"
         label="Identity mode"
