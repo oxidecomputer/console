@@ -117,7 +117,7 @@ export function CreateSiloSideModalForm() {
       />
       <NumberField
         control={form.control}
-        label="Disk quota"
+        label="Storage quota"
         name="quotas.storage"
         required
         type="number"
