@@ -1920,6 +1920,9 @@ export const SiloCreate = z.preprocess(
   })
 )
 
+/**
+ * A collection of resource counts used to set the virtual capacity of a silo
+ */
 export const SiloQuotas = z.preprocess(
   processResponseBody,
   z.object({
@@ -1985,6 +1988,35 @@ export const SiloRoleRoleAssignment = z.preprocess(
 export const SiloRolePolicy = z.preprocess(
   processResponseBody,
   z.object({ roleAssignments: SiloRoleRoleAssignment.array() })
+)
+
+/**
+ * A collection of resource counts used to describe capacity and utilization
+ */
+export const VirtualResourceCounts = z.preprocess(
+  processResponseBody,
+  z.object({ cpus: z.number(), memory: ByteCount, storage: ByteCount })
+)
+
+/**
+ * View of a silo's resource utilization and capacity
+ */
+export const SiloUtilization = z.preprocess(
+  processResponseBody,
+  z.object({
+    allocated: VirtualResourceCounts,
+    provisioned: VirtualResourceCounts,
+    siloId: z.string().uuid(),
+    siloName: Name,
+  })
+)
+
+/**
+ * A single page of results
+ */
+export const SiloUtilizationResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: SiloUtilization.array(), nextPage: z.string().optional() })
 )
 
 /**
@@ -2446,6 +2478,14 @@ export const UserResultsPage = z.preprocess(
 export const UsernamePasswordCredentials = z.preprocess(
   processResponseBody,
   z.object({ password: Password, username: UserId })
+)
+
+/**
+ * View of the current silo's resource utilization and capacity
+ */
+export const Utilization = z.preprocess(
+  processResponseBody,
+  z.object({ capacity: VirtualResourceCounts, provisioned: VirtualResourceCounts })
 )
 
 /**
@@ -4275,6 +4315,28 @@ export const UserBuiltinViewParams = z.preprocess(
   })
 )
 
+export const SiloUtilizationListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      sortBy: NameOrIdSortMode.optional(),
+    }),
+  })
+)
+
+export const SiloUtilizationViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      silo: NameOrId,
+    }),
+    query: z.object({}),
+  })
+)
+
 export const UserListParams = z.preprocess(
   processResponseBody,
   z.object({
@@ -4285,6 +4347,14 @@ export const UserListParams = z.preprocess(
       pageToken: z.string().optional(),
       sortBy: IdSortMode.optional(),
     }),
+  })
+)
+
+export const UtilizationViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
   })
 )
 

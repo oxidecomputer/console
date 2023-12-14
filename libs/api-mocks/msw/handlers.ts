@@ -610,6 +610,33 @@ export const handlers = makeHandlers({
     db.snapshots = db.snapshots.filter((s) => s.id !== snapshot.id)
     return 204
   },
+  utilizationView() {
+    return {
+      capacity: { cpus: 0, storage: 0, memory: 0 },
+      provisioned: { cpus: 0, storage: 0, memory: 0 },
+    }
+  },
+  siloUtilizationView({ path }) {
+    const silo = lookup.silo(path)
+    return {
+      allocated: { cpus: 0, storage: 0, memory: 0 },
+      provisioned: { cpus: 0, storage: 0, memory: 0 },
+      silo_id: silo.id,
+      silo_name: silo.name,
+    }
+  },
+  siloUtilizationList({ query }) {
+    const { nextPage, items: silos } = paginated(query, db.silos)
+    return {
+      nextPage,
+      items: silos.map((silo) => ({
+        allocated: { cpus: 0, storage: 0, memory: 0 },
+        provisioned: { cpus: 0, storage: 0, memory: 0 },
+        silo_id: silo.id,
+        silo_name: silo.name,
+      })),
+    }
+  },
   vpcList({ query }) {
     const project = lookup.project(query)
     const vpcs = db.vpcs.filter((v) => v.project_id === project.id)

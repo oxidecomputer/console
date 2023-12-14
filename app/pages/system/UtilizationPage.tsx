@@ -48,26 +48,16 @@ SystemUtilizationPage.loader = async () => {
       query: capacityQueryParams,
     }),
     apiQueryClient.prefetchQuery('systemMetric', {
-      path: { metricName: 'cpus_quota' },
-      query: capacityQueryParams,
-    }),
-    apiQueryClient.prefetchQuery('systemMetric', {
       path: { metricName: 'ram_provisioned' },
-      query: capacityQueryParams,
-    }),
-    apiQueryClient.prefetchQuery('systemMetric', {
-      path: { metricName: 'ram_quota' },
       query: capacityQueryParams,
     }),
     apiQueryClient.prefetchQuery('systemMetric', {
       path: { metricName: 'virtual_disk_space_provisioned' },
       query: capacityQueryParams,
     }),
-    apiQueryClient.prefetchQuery('systemMetric', {
-      path: { metricName: 'virtual_disk_space_quota' },
-      query: capacityQueryParams,
-    }),
     apiQueryClient.prefetchQuery('sledList', {}),
+    apiQueryClient.prefetchQuery('utilizationView', {}),
+    apiQueryClient.prefetchQuery('siloUtilizationList', {}),
   ])
   return null
 }
@@ -75,6 +65,7 @@ SystemUtilizationPage.loader = async () => {
 export function SystemUtilizationPage() {
   const { data: sleds } = usePrefetchedApiQuery('sledList', {})
   const { data: silos } = usePrefetchedApiQuery('siloList', {})
+  // const { data: utilization } = usePrefetchedApiQuery('utilizationView', {})
 
   const capacity = totalCapacity(sleds.items)
 
@@ -222,14 +213,13 @@ function UsageTab({ silos }: { silos: SiloResultsPage }) {
       const query = { ...capacityQueryParams, silo: silo.name }
       return [
         { path: { metricName: 'virtual_disk_space_provisioned' as const }, query },
-        { path: { metricName: 'virtual_disk_space_quota' as const }, query },
         { path: { metricName: 'ram_provisioned' as const }, query },
-        { path: { metricName: 'ram_quota' as const }, query },
         { path: { metricName: 'cpus_provisioned' as const }, query },
-        { path: { metricName: 'cpus_quota' as const }, query },
       ]
     })
   )
+  const { data: siloUtilization } = usePrefetchedApiQuery('siloUtilizationList', {})
+  console.log(siloUtilization)
 
   if (results.some((result) => result.isPending))
     return <Spinner className="ml-6" size="lg" />
