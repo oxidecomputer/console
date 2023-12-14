@@ -53,7 +53,6 @@ export interface TextFieldProps<
    */
   description?: string
   placeholder?: string
-  tooltip?: string
   units?: string
   validate?: Validate<FieldPathValue<TFieldValues, TName>, TFieldValues>
   control: Control<TFieldValues>
