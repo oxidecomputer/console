@@ -24,7 +24,7 @@ import { GiB, pick, sortBy } from '@oxide/util'
 import { genCumulativeI64Data } from '../metrics'
 import { serial } from '../serial'
 import { defaultSilo, toIdp } from '../silo'
-import { db, lookup, lookupById, notFoundErr } from './db'
+import { db, lookup, lookupById, notFoundErr, utilizationForSilo } from './db'
 import {
   currentUser,
   errIfExists,
@@ -609,6 +609,21 @@ export const handlers = makeHandlers({
     const snapshot = lookup.snapshot({ ...path, ...query })
     db.snapshots = db.snapshots.filter((s) => s.id !== snapshot.id)
     return 204
+  },
+  utilizationView() {
+    const { allocated: capacity, provisioned } = utilizationForSilo(defaultSilo)
+    return { capacity, provisioned }
+  },
+  siloUtilizationView({ path }) {
+    const silo = lookup.silo(path)
+    return utilizationForSilo(silo)
+  },
+  siloUtilizationList({ query }) {
+    const { items: silos, nextPage } = paginated(query, db.silos)
+    return {
+      items: silos.map(utilizationForSilo),
+      nextPage,
+    }
   },
   vpcList({ query }) {
     const project = lookup.project(query)

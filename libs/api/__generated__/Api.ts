@@ -1865,10 +1865,16 @@ The default is that no Fleet roles are conferred by any Silo roles unless there'
   tlsCertificates: CertificateCreate[]
 }
 
+/**
+ * A collection of resource counts used to set the virtual capacity of a silo
+ */
 export type SiloQuotas = {
+  /** Number of virtual CPUs */
   cpus: number
+  /** Amount of memory in bytes */
   memory: ByteCount
   siloId: string
+  /** Amount of disk storage in bytes */
   storage: ByteCount
 }
 
@@ -1925,6 +1931,40 @@ export type SiloRoleRoleAssignment = {
 export type SiloRolePolicy = {
   /** Roles directly assigned on this resource */
   roleAssignments: SiloRoleRoleAssignment[]
+}
+
+/**
+ * A collection of resource counts used to describe capacity and utilization
+ */
+export type VirtualResourceCounts = {
+  /** Number of virtual CPUs */
+  cpus: number
+  /** Amount of memory in bytes */
+  memory: ByteCount
+  /** Amount of disk storage in bytes */
+  storage: ByteCount
+}
+
+/**
+ * View of a silo's resource utilization and capacity
+ */
+export type SiloUtilization = {
+  /** Accounts for the total amount of resources reserved for silos via their quotas */
+  allocated: VirtualResourceCounts
+  /** Accounts for resources allocated by in silos like CPU or memory for running instances and storage for disks and snapshots Note that CPU and memory resources associated with a stopped instances are not counted here */
+  provisioned: VirtualResourceCounts
+  siloId: string
+  siloName: Name
+}
+
+/**
+ * A single page of results
+ */
+export type SiloUtilizationResultsPage = {
+  /** list of items on this page of results */
+  items: SiloUtilization[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
 }
 
 /**
@@ -2436,6 +2476,16 @@ export type UserResultsPage = {
  * Credentials for local user login
  */
 export type UsernamePasswordCredentials = { password: Password; username: UserId }
+
+/**
+ * View of the current silo's resource utilization and capacity
+ */
+export type Utilization = {
+  /** The total amount of resources that can be provisioned in this silo Actions that would exceed this limit will fail */
+  capacity: VirtualResourceCounts
+  /** Accounts for resources allocated to running instances or storage allocated via disks or snapshots Note that CPU and memory resources associated with a stopped instances are not counted here whereas associated disks will still be counted */
+  provisioned: VirtualResourceCounts
+}
 
 /**
  * View of a VPC
@@ -3449,6 +3499,16 @@ export interface UserBuiltinViewPathParams {
   user: NameOrId
 }
 
+export interface SiloUtilizationListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: NameOrIdSortMode
+}
+
+export interface SiloUtilizationViewPathParams {
+  silo: NameOrId
+}
+
 export interface UserListQueryParams {
   group?: string
   limit?: number
@@ -3592,6 +3652,7 @@ export type ApiListMethods = Pick<
   | 'siloList'
   | 'siloUserList'
   | 'userBuiltinList'
+  | 'siloUtilizationList'
   | 'userList'
   | 'vpcSubnetList'
   | 'vpcList'
@@ -5675,6 +5736,33 @@ export class Api extends HttpClient {
       })
     },
     /**
+     * List current utilization state for all silos
+     */
+    siloUtilizationList: (
+      { query = {} }: { query?: SiloUtilizationListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SiloUtilizationResultsPage>({
+        path: `/v1/system/utilization/silos`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * View the current utilization of a given silo
+     */
+    siloUtilizationView: (
+      { path }: { path: SiloUtilizationViewPathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SiloUtilization>({
+        path: `/v1/system/utilization/silos/${path.silo}`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
      * List users
      */
     userList: (
@@ -5685,6 +5773,16 @@ export class Api extends HttpClient {
         path: `/v1/users`,
         method: 'GET',
         query,
+        ...params,
+      })
+    },
+    /**
+     * View the resource utilization of the user's current silo
+     */
+    utilizationView: (_: EmptyObj, params: FetchParams = {}) => {
+      return this.request<Utilization>({
+        path: `/v1/utilization`,
+        method: 'GET',
         ...params,
       })
     },
