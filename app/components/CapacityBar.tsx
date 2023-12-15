@@ -8,6 +8,8 @@
 
 import { splitDecimal } from '@oxide/util'
 
+import { UtilizationDatum } from './UtilizationDatum'
+
 // exported to use in the loader because it needs to be identical
 export const capacityQueryParams = {
   // beginning of time, aka 1970
@@ -36,19 +38,6 @@ export const CapacityBar = ({
   const [wholeNumber, decimal] = splitDecimal(percentOfQuotaUsed)
 
   const formattedPercentUsed = `${percentOfQuotaUsed}%`
-
-  const UtilizationDatum = ({
-    name,
-    amount,
-  }: {
-    name: 'Provisioned' | 'Quota'
-    amount: number
-  }) => (
-    <div className="p-3 text-mono-sm">
-      <div className="text-quaternary">{name}</div>
-      <div className="text-secondary">{amount.toLocaleString()}</div>
-    </div>
-  )
 
   return (
     <div className="w-full min-w-min rounded-lg border border-default">
