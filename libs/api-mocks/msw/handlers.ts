@@ -612,15 +612,15 @@ export const handlers = makeHandlers({
   },
   utilizationView() {
     return {
-      capacity: { cpus: 0, storage: 0, memory: 0 },
-      provisioned: { cpus: 0, storage: 0, memory: 0 },
+      capacity: { cpus: 100, storage: 12345678, memory: 876543 },
+      provisioned: { cpus: 80, storage: 65432, memory: 45678 },
     }
   },
   siloUtilizationView({ path }) {
     const silo = lookup.silo(path)
     return {
-      allocated: { cpus: 0, storage: 0, memory: 0 },
-      provisioned: { cpus: 0, storage: 0, memory: 0 },
+      allocated: { cpus: 33, storage: 333333, memory: 444444 },
+      provisioned: { cpus: 55, storage: 33333, memory: 44444 },
       silo_id: silo.id,
       silo_name: silo.name,
     }
@@ -630,8 +630,8 @@ export const handlers = makeHandlers({
     return {
       nextPage,
       items: silos.map((silo) => ({
-        allocated: { cpus: 0, storage: 0, memory: 0 },
-        provisioned: { cpus: 0, storage: 0, memory: 0 },
+        allocated: { cpus: 52, storage: 26, memory: 130 },
+        provisioned: { cpus: 20, storage: 18, memory: 30 },
         silo_id: silo.id,
         silo_name: silo.name,
       })),

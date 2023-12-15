@@ -14,6 +14,7 @@ import type {
   Instance,
   InstanceState,
   Measurement,
+  SiloUtilization,
   Sled,
   VpcFirewallRule,
   VpcFirewallRuleUpdate,
@@ -138,6 +139,22 @@ export function totalCapacity(
     ram_gib: Math.ceil(bytesToGiB(FUDGE * sumBy(sleds, (s) => s.usablePhysicalRam))),
     cpu: Math.ceil(FUDGE * sumBy(sleds, (s) => s.usableHardwareThreads)),
   }
+}
+
+export function totalUtilization(siloUtilizationListItems: SiloUtilization[]) {
+  const totalAllocated = { cpus: 0, memory: 0, storage: 0 }
+  const totalProvisioned = { cpus: 0, memory: 0, storage: 0 }
+
+  siloUtilizationListItems.forEach(({ allocated, provisioned }) => {
+    totalProvisioned.cpus += provisioned.cpus
+    totalProvisioned.memory += provisioned.memory
+    totalProvisioned.storage += provisioned.storage
+    totalAllocated.cpus += allocated.cpus
+    totalAllocated.memory += allocated.memory
+    totalAllocated.storage += allocated.storage
+  })
+
+  return { totalAllocated, totalProvisioned }
 }
 
 export type ChartDatum = {

@@ -13,9 +13,8 @@ import {
   apiQueryClient,
   FLEET_ID,
   totalCapacity,
-  useApiQueries,
+  totalUtilization,
   usePrefetchedApiQuery,
-  type SiloResultsPage,
 } from '@oxide/api'
 import {
   Cpu16Icon,
@@ -25,7 +24,6 @@ import {
   PageTitle,
   Ram16Icon,
   ResourceMeter,
-  Spinner,
   Ssd16Icon,
   Table,
   Tabs,
@@ -37,8 +35,6 @@ import { useDateTimeRangePicker } from 'app/components/form'
 import { QueryParamTabs } from 'app/components/QueryParamTabs'
 import { useIntervalPicker } from 'app/components/RefetchIntervalPicker'
 import { SystemMetric } from 'app/components/SystemMetric'
-
-import { tabularizeSiloMetrics } from './metrics-util'
 
 SystemUtilizationPage.loader = async () => {
   await Promise.all([
@@ -63,11 +59,9 @@ SystemUtilizationPage.loader = async () => {
 }
 
 export function SystemUtilizationPage() {
-  const { data: sleds } = usePrefetchedApiQuery('sledList', {})
-  const { data: silos } = usePrefetchedApiQuery('siloList', {})
-  // const { data: utilization } = usePrefetchedApiQuery('utilizationView', {})
+  const { data: siloUtilizationList } = usePrefetchedApiQuery('siloUtilizationList', {})
 
-  const capacity = totalCapacity(sleds.items)
+  const { totalAllocated, totalProvisioned } = totalUtilization(siloUtilizationList.items)
 
   return (
     <>
@@ -83,30 +77,22 @@ export function SystemUtilizationPage() {
           icon={<Cpu16Icon />}
           title="CPU"
           unit="nCPUs"
-          metricName="cpus_provisioned"
-          provisioned={57}
-          quota={80}
-          capacity={capacity.cpu}
+          provisioned={totalProvisioned.cpus}
+          quota={totalAllocated.cpus}
         />
         <CapacityBar
           icon={<Ssd16Icon />}
           title="Disk"
           unit="TiB"
-          metricName="virtual_disk_space_provisioned"
-          valueTransform={bytesToTiB}
-          provisioned={2}
-          quota={15}
-          capacity={capacity.disk_tib}
+          provisioned={totalProvisioned.storage}
+          quota={totalAllocated.storage}
         />
         <CapacityBar
           icon={<Ram16Icon />}
           title="Memory"
           unit="GiB"
-          metricName="ram_provisioned"
-          valueTransform={bytesToGiB}
-          provisioned={391}
-          quota={500}
-          capacity={capacity.ram_gib}
+          provisioned={totalProvisioned.memory}
+          quota={totalAllocated.memory}
         />
       </div>
       <QueryParamTabs defaultValue="summary" className="full-width">
@@ -115,23 +101,21 @@ export function SystemUtilizationPage() {
           <Tabs.Trigger value="metrics">Metrics</Tabs.Trigger>
         </Tabs.List>
         <Tabs.Content value="summary">
-          <UsageTab silos={silos} />
+          <UsageTab />
         </Tabs.Content>
         <Tabs.Content value="metrics">
-          <MetricsTab capacity={capacity} silos={silos} />
+          <MetricsTab />
         </Tabs.Content>
       </QueryParamTabs>
     </>
   )
 }
 
-const MetricsTab = ({
-  capacity,
-  silos,
-}: {
-  capacity: ReturnType<typeof totalCapacity>
-  silos: SiloResultsPage
-}) => {
+const MetricsTab = () => {
+  const { data: silos } = usePrefetchedApiQuery('siloList', {})
+  const { data: sleds } = usePrefetchedApiQuery('sledList', {})
+  const capacity = totalCapacity(sleds.items)
+
   const siloItems = useMemo(() => {
     const items = silos?.items.map((silo) => ({ label: silo.name, value: silo.id })) || []
     return [{ label: 'All silos', value: FLEET_ID }, ...items]
@@ -206,26 +190,8 @@ const MetricsTab = ({
   )
 }
 
-function UsageTab({ silos }: { silos: SiloResultsPage }) {
-  const results = useApiQueries(
-    'systemMetric',
-    silos.items.flatMap((silo) => {
-      const query = { ...capacityQueryParams, silo: silo.name }
-      return [
-        { path: { metricName: 'virtual_disk_space_provisioned' as const }, query },
-        { path: { metricName: 'ram_provisioned' as const }, query },
-        { path: { metricName: 'cpus_provisioned' as const }, query },
-      ]
-    })
-  )
-  const { data: siloUtilization } = usePrefetchedApiQuery('siloUtilizationList', {})
-  console.log(siloUtilization)
-
-  if (results.some((result) => result.isPending))
-    return <Spinner className="ml-6" size="lg" />
-
-  const mergedResults = tabularizeSiloMetrics(results)
-
+function UsageTab() {
+  const { data: siloUtilizations } = usePrefetchedApiQuery('siloUtilizationList', {})
   return (
     <Table className="w-full">
       <Table.Header>
@@ -250,38 +216,45 @@ function UsageTab({ silos }: { silos: SiloResultsPage }) {
         </Table.HeaderRow>
       </Table.Header>
       <Table.Body>
-        {mergedResults.map((result) => (
-          <Table.Row key={result.siloName}>
-            <Table.Cell width="16%">{result.siloName}</Table.Cell>
+        {siloUtilizations.items.map((silo) => (
+          <Table.Row key={silo.siloName}>
+            <Table.Cell width="16%">{silo.siloName}</Table.Cell>
             <Table.Cell width="14%">
-              {/* dummy data for now */}
-              <UsageCell
-                numerator={result.metrics.cpus_provisioned}
-                denominator={result.metrics.cpus_provisioned}
-              />
+              <UsageCell provisioned={silo.provisioned.cpus} quota={silo.allocated.cpus} />
             </Table.Cell>
             <Table.Cell width="14%">
               <UsageCell
-                numerator={bytesToTiB(result.metrics.virtual_disk_space_provisioned)}
-                denominator={bytesToTiB(result.metrics.virtual_disk_space_provisioned)}
+                provisioned={silo.provisioned.storage}
+                quota={silo.allocated.storage}
                 unit="TiB"
               />
             </Table.Cell>
             <Table.Cell width="14%">
               <UsageCell
-                numerator={bytesToTiB(result.metrics.ram_provisioned)}
-                denominator={bytesToTiB(result.metrics.ram_provisioned)}
+                provisioned={silo.provisioned.memory}
+                quota={silo.allocated.memory}
                 unit="GiB"
               />
             </Table.Cell>
             <Table.Cell width="14%" className="relative">
-              <AvailableCell used={8} total={60} />
+              <AvailableCell
+                provisioned={silo.provisioned.cpus}
+                quota={silo.allocated.cpus}
+              />
             </Table.Cell>
             <Table.Cell width="14%" className="relative">
-              <AvailableCell used={100} total={150} unit="TiB" />
+              <AvailableCell
+                provisioned={silo.provisioned.storage}
+                quota={silo.allocated.storage}
+                unit="TiB"
+              />
             </Table.Cell>
             <Table.Cell width="14%" className="relative">
-              <AvailableCell used={500} total={600} unit="GiB" />
+              <AvailableCell
+                provisioned={silo.provisioned.memory}
+                quota={silo.allocated.memory}
+                unit="GiB"
+              />
             </Table.Cell>
           </Table.Row>
         ))}
@@ -291,38 +264,38 @@ function UsageTab({ silos }: { silos: SiloResultsPage }) {
 }
 
 const UsageCell = ({
-  numerator,
-  denominator,
+  provisioned,
+  quota,
   unit,
 }: {
-  numerator: number
-  denominator: number
+  provisioned: number
+  quota: number
   unit?: string
 }) => (
   <div className="flex flex-col text-tertiary">
     <div>
-      <span className="text-default">{numerator}</span> /
+      <span className="text-default">{provisioned}</span> /
     </div>
     <div className="text-tertiary">
-      {denominator} {unit && <span className="text-quaternary">{unit}</span>}
+      {quota} {unit && <span className="text-quaternary">{unit}</span>}
     </div>
   </div>
 )
 
 const AvailableCell = ({
-  used,
-  total,
+  provisioned,
+  quota,
   unit,
 }: {
-  used: number
-  total: number
+  provisioned: number
+  quota: number
   unit?: string
 }) => {
-  const usagePercent = (used / total) * 100
+  const usagePercent = (provisioned / quota) * 100
   return (
     <div className="flex w-full items-center justify-between">
       <div>
-        {used} {unit && <span className="text-tertiary">{unit}</span>}
+        {quota - provisioned} {unit && <span className="text-tertiary">{unit}</span>}
       </div>
       {/* We only show the ResourceMeter if the percent crosses the warning threshold (66%) */}
       {usagePercent > 66 && (
