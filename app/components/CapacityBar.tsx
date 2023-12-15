@@ -26,10 +26,17 @@ export const CapacityBar = ({
   includeUnit?: boolean
 }) => {
   const percentOfAllocatedUsed = (provisioned / allocated) * 100
-
   const [wholeNumber, decimal] = splitDecimal(percentOfAllocatedUsed)
-
   const formattedPercentUsed = `${percentOfAllocatedUsed}%`
+  const warningThreshold = 66
+  const errorThreshold = 75
+
+  const barColor =
+    percentOfAllocatedUsed > errorThreshold
+      ? 'bg-destructive-secondary border-destructive-secondary'
+      : percentOfAllocatedUsed > warningThreshold
+      ? 'bg-notice-secondary border-notice-secondary'
+      : 'bg-accent-secondary border-accent-secondary'
 
   return (
     <div className="w-full min-w-min rounded-lg border border-default">
@@ -51,7 +58,7 @@ export const CapacityBar = ({
         {/* the bar */}
         <div className="flex w-full gap-0.5">
           <div
-            className="h-3 rounded-l border bg-accent-secondary border-accent-secondary"
+            className={`h-3 rounded-l border ${barColor}`}
             style={{ width: formattedPercentUsed }}
           ></div>
           <div className="h-3 grow rounded-r border bg-info-secondary border-info-secondary"></div>

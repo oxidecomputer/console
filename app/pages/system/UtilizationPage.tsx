@@ -51,23 +51,46 @@ export function SystemUtilizationPage() {
         <PageTitle icon={<Metrics24Icon />}>Utilization</PageTitle>
       </PageHeader>
 
+      <h2 className="p-3 text-mono-sm text-secondary">Total used across fleet</h2>
       <CapacityBars
         allocated={totalAllocated}
         provisioned={totalProvisioned}
         allocatedLabel="Quota (Total)"
       />
-      <QueryParamTabs defaultValue="summary" className="full-width">
+      <QueryParamTabs defaultValue="charts" className="full-width">
         <Tabs.List>
-          <Tabs.Trigger value="summary">Summary</Tabs.Trigger>
-          <Tabs.Trigger value="metrics">Metrics</Tabs.Trigger>
+          <Tabs.Trigger value="charts">Silo Charts</Tabs.Trigger>
+          <Tabs.Trigger value="table">Silo Table</Tabs.Trigger>
+          <Tabs.Trigger value="metrics">Fleet Metrics</Tabs.Trigger>
         </Tabs.List>
-        <Tabs.Content value="summary">
+        <Tabs.Content value="charts">
+          <ChartsTab />
+        </Tabs.Content>
+        <Tabs.Content value="table">
           <UsageTab />
         </Tabs.Content>
         <Tabs.Content value="metrics">
           <MetricsTab />
         </Tabs.Content>
       </QueryParamTabs>
+    </>
+  )
+}
+
+function ChartsTab() {
+  const { data: siloUtilizations } = usePrefetchedApiQuery('siloUtilizationList', {})
+  return (
+    <>
+      {siloUtilizations.items.map((silo) => (
+        <>
+          <h2 className="p-3 text-mono-sm text-secondary">{silo.siloName}</h2>
+          <CapacityBars
+            allocated={silo.allocated}
+            provisioned={silo.provisioned}
+            allocatedLabel="Quota"
+          />
+        </>
+      ))}
     </>
   )
 }
