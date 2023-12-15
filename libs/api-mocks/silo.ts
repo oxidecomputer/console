@@ -5,8 +5,8 @@
  *
  * Copyright Oxide Computer Company
  */
-import type { IdentityProvider, SamlIdentityProvider, Silo } from '@oxide/api'
-import { pick } from '@oxide/util'
+import type { IdentityProvider, SamlIdentityProvider, Silo, SiloQuotas } from '@oxide/api'
+import { GiB, pick, TiB } from '@oxide/util'
 
 import type { Json } from './json-type'
 
@@ -34,6 +34,39 @@ export const silos: Json<Silo[]> = [
 ]
 
 export const defaultSilo = silos[0]
+
+export const siloQuotas: Json<SiloQuotas[]> = [
+  {
+    silo_id: silos[0].id,
+    cpus: 50,
+    memory: 300 * GiB,
+    storage: 7 * TiB,
+  },
+  {
+    silo_id: silos[1].id,
+    cpus: 34,
+    memory: 500 * GiB,
+    storage: 9 * TiB,
+  },
+]
+
+// unlike siloQuotas, this doesn't exactly match how it's done in Nexus, but
+// it's good enough. All we need is to be able to pull the provisioned amounts
+// for a given silo. Note it has the same shape as the quotas object.
+export const siloProvisioned: Json<SiloQuotas[]> = [
+  {
+    silo_id: silos[0].id,
+    cpus: 30,
+    memory: 234 * GiB,
+    storage: 4.3 * TiB,
+  },
+  {
+    silo_id: silos[1].id,
+    cpus: 8,
+    memory: 150 * GiB,
+    storage: 2 * TiB,
+  },
+]
 
 export const samlIdp: Json<SamlIdentityProvider> = {
   id: '2a96ce6f-c178-4631-9cde-607d65b539c7',

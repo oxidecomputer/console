@@ -84,15 +84,15 @@ export function SystemUtilizationPage() {
           icon={<Ssd16Icon />}
           title="Disk"
           unit="TiB"
-          provisioned={totalProvisioned.storage}
-          quota={totalAllocated.storage}
+          provisioned={bytesToTiB(totalProvisioned.storage)}
+          quota={bytesToTiB(totalAllocated.storage)}
         />
         <CapacityBar
           icon={<Ram16Icon />}
           title="Memory"
           unit="GiB"
-          provisioned={totalProvisioned.memory}
-          quota={totalAllocated.memory}
+          provisioned={bytesToGiB(totalProvisioned.memory)}
+          quota={bytesToGiB(totalAllocated.memory)}
         />
       </div>
       <QueryParamTabs defaultValue="summary" className="full-width">
@@ -224,15 +224,15 @@ function UsageTab() {
             </Table.Cell>
             <Table.Cell width="14%">
               <UsageCell
-                provisioned={silo.provisioned.storage}
-                quota={silo.allocated.storage}
+                provisioned={bytesToTiB(silo.provisioned.storage)}
+                quota={bytesToTiB(silo.allocated.storage)}
                 unit="TiB"
               />
             </Table.Cell>
             <Table.Cell width="14%">
               <UsageCell
-                provisioned={silo.provisioned.memory}
-                quota={silo.allocated.memory}
+                provisioned={bytesToGiB(silo.provisioned.memory)}
+                quota={bytesToGiB(silo.allocated.memory)}
                 unit="GiB"
               />
             </Table.Cell>
@@ -244,15 +244,15 @@ function UsageTab() {
             </Table.Cell>
             <Table.Cell width="14%" className="relative">
               <AvailableCell
-                provisioned={silo.provisioned.storage}
-                quota={silo.allocated.storage}
+                provisioned={bytesToTiB(silo.provisioned.storage)}
+                quota={bytesToTiB(silo.allocated.storage)}
                 unit="TiB"
               />
             </Table.Cell>
             <Table.Cell width="14%" className="relative">
               <AvailableCell
-                provisioned={silo.provisioned.memory}
-                quota={silo.allocated.memory}
+                provisioned={bytesToGiB(silo.provisioned.memory)}
+                quota={bytesToGiB(silo.allocated.memory)}
                 unit="GiB"
               />
             </Table.Cell>

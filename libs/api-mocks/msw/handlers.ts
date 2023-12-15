@@ -24,7 +24,7 @@ import { GiB, pick, sortBy } from '@oxide/util'
 import { genCumulativeI64Data } from '../metrics'
 import { serial } from '../serial'
 import { defaultSilo, toIdp } from '../silo'
-import { db, lookup, lookupById, notFoundErr } from './db'
+import { db, lookup, lookupById, notFoundErr, utilizationForSilo } from './db'
 import {
   currentUser,
   errIfExists,
@@ -611,30 +611,18 @@ export const handlers = makeHandlers({
     return 204
   },
   utilizationView() {
-    return {
-      capacity: { cpus: 100, storage: 12345678, memory: 876543 },
-      provisioned: { cpus: 80, storage: 65432, memory: 45678 },
-    }
+    const { allocated: capacity, provisioned } = utilizationForSilo(defaultSilo)
+    return { capacity, provisioned }
   },
   siloUtilizationView({ path }) {
     const silo = lookup.silo(path)
-    return {
-      allocated: { cpus: 33, storage: 333333, memory: 444444 },
-      provisioned: { cpus: 55, storage: 33333, memory: 44444 },
-      silo_id: silo.id,
-      silo_name: silo.name,
-    }
+    return utilizationForSilo(silo)
   },
   siloUtilizationList({ query }) {
-    const { nextPage, items: silos } = paginated(query, db.silos)
+    const { items: silos, nextPage } = paginated(query, db.silos)
     return {
+      items: silos.map(utilizationForSilo),
       nextPage,
-      items: silos.map((silo) => ({
-        allocated: { cpus: 52, storage: 26, memory: 130 },
-        provisioned: { cpus: 20, storage: 18, memory: 30 },
-        silo_id: silo.id,
-        silo_name: silo.name,
-      })),
     }
   },
   vpcList({ query }) {
