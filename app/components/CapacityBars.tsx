@@ -15,9 +15,11 @@ import { CapacityBar } from './CapacityBar'
 export const CapacityBars = ({
   allocated,
   provisioned,
+  allocatedLabel,
 }: {
   allocated: VirtualResourceCounts
   provisioned: VirtualResourceCounts
+  allocatedLabel: string
 }) => {
   return (
     <div className="mb-12 flex min-w-min flex-col gap-3 lg+:flex-row">
@@ -28,6 +30,7 @@ export const CapacityBars = ({
         provisioned={provisioned.cpus}
         allocated={allocated.cpus}
         includeUnit={false}
+        allocatedLabel={allocatedLabel}
       />
       <CapacityBar
         icon={<Ram16Icon />}
@@ -35,6 +38,7 @@ export const CapacityBars = ({
         unit="GiB"
         provisioned={bytesToGiB(provisioned.memory)}
         allocated={bytesToGiB(allocated.memory)}
+        allocatedLabel={allocatedLabel}
       />
       <CapacityBar
         icon={<Ssd16Icon />}
@@ -42,6 +46,7 @@ export const CapacityBars = ({
         unit="TiB"
         provisioned={bytesToTiB(provisioned.storage)}
         allocated={bytesToTiB(allocated.storage)}
+        allocatedLabel={allocatedLabel}
       />
     </div>
   )

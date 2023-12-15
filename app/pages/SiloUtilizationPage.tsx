@@ -74,6 +74,7 @@ export function SiloUtilizationPage() {
       <CapacityBars
         provisioned={utilization.provisioned}
         allocated={utilization.capacity}
+        allocatedLabel="Quota"
       />
 
       <Divider className="my-6" />

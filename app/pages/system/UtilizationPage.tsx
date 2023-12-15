@@ -53,7 +53,11 @@ export function SystemUtilizationPage() {
         <PageTitle icon={<Metrics24Icon />}>Utilization</PageTitle>
       </PageHeader>
 
-      <CapacityBars allocated={totalAllocated} provisioned={totalProvisioned} />
+      <CapacityBars
+        allocated={totalAllocated}
+        provisioned={totalProvisioned}
+        allocatedLabel="Quota (Total)"
+      />
       <QueryParamTabs defaultValue="summary" className="full-width">
         <Tabs.List>
           <Tabs.Trigger value="summary">Summary</Tabs.Trigger>
@@ -158,7 +162,7 @@ function UsageTab() {
           <Table.HeadCell>Silo</Table.HeadCell>
           {/* data-test-ignore makes the row asserts work in the e2e tests */}
           <Table.HeadCell colSpan={3} data-test-ignore>
-            Provisioned / Allocated
+            Provisioned / Quota
           </Table.HeadCell>
           <Table.HeadCell colSpan={3} data-test-ignore>
             Available

@@ -17,7 +17,7 @@ test.describe('System utilization', () => {
     await expect(page.getByRole('heading', { name: 'Utilization' })).toBeVisible()
     await expect(page.getByText('Provisioned384 GiB')).toBeVisible()
 
-    await expect(page.getByText('Provisioned / Allocated')).toBeVisible()
+    await expect(page.getByText('Provisioned / Quota')).toBeVisible()
 
     const table = page.getByRole('table')
     await expectRowVisible(table, {
