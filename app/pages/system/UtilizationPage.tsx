@@ -51,11 +51,7 @@ export function SystemUtilizationPage() {
         <PageTitle icon={<Metrics24Icon />}>Utilization</PageTitle>
       </PageHeader>
 
-      <CapacityBars
-        allocated={totalAllocated}
-        provisioned={totalProvisioned}
-        allocatedLabel="Quota (Total)"
-      />
+      <CapacityBars allocated={totalAllocated} provisioned={totalProvisioned} />
       <QueryParamTabs defaultValue="summary" className="full-width">
         <Tabs.List>
           <Tabs.Trigger value="summary">Summary</Tabs.Trigger>
