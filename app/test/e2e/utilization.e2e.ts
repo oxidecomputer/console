@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { expect, expectNotVisible, expectRowVisible, getPageAsUser, test } from './utils'
+import { expect, expectRowVisible, getPageAsUser, test } from './utils'
 
 // not trying to get elaborate here. just make sure the pages load, which
 // exercises the loader prefetches and invariant checks
@@ -34,8 +34,6 @@ test.describe('System utilization', () => {
     })
 
     await page.getByRole('tab', { name: 'Metrics' }).click()
-    // stats under the graph which require capacity info
-    await expect(page.getByText('In-use').first()).toBeVisible()
   })
 
   test('does not appear for dev user', async ({ browser }) => {
@@ -53,9 +51,6 @@ test.describe('Silo utilization', () => {
     ).toBeVisible()
     // Capacity bars are showing up
     await expect(page.getByText('Provisioned234 GiB')).toBeVisible()
-
-    // stats under the graph which require capacity info
-    await expectNotVisible(page, [page.getByText('In-use').first()])
   })
 
   test('works for dev user', async ({ browser }) => {
@@ -66,9 +61,6 @@ test.describe('Silo utilization', () => {
     ).toBeVisible()
     // Capacity bars are showing up
     await expect(page.getByText('Provisioned234 GiB')).toBeVisible()
-
-    // stats under the graph which require capacity info
-    await expectNotVisible(page, [page.getByText('In-use').first()])
   })
 })
 

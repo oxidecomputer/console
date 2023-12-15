@@ -12,7 +12,6 @@ import { useMemo, useState } from 'react'
 import {
   apiQueryClient,
   FLEET_ID,
-  totalCapacity,
   totalUtilization,
   usePrefetchedApiQuery,
 } from '@oxide/api'
@@ -36,7 +35,6 @@ import { SystemMetric } from 'app/components/SystemMetric'
 SystemUtilizationPage.loader = async () => {
   await Promise.all([
     apiQueryClient.prefetchQuery('siloList', {}),
-    apiQueryClient.prefetchQuery('sledList', {}),
     apiQueryClient.prefetchQuery('siloUtilizationList', {}),
   ])
   return null
@@ -76,8 +74,6 @@ export function SystemUtilizationPage() {
 
 const MetricsTab = () => {
   const { data: silos } = usePrefetchedApiQuery('siloList', {})
-  const { data: sleds } = usePrefetchedApiQuery('sledList', {})
-  const capacity = totalCapacity(sleds.items)
 
   const siloItems = useMemo(() => {
     const items = silos?.items.map((silo) => ({ label: silo.name, value: silo.id })) || []
@@ -130,7 +126,6 @@ const MetricsTab = () => {
           metricName="cpus_provisioned"
           title="CPU"
           unit="count"
-          capacity={capacity?.cpu}
         />
         <SystemMetric
           {...commonProps}
@@ -138,7 +133,6 @@ const MetricsTab = () => {
           title="Memory"
           unit="GiB"
           valueTransform={bytesToGiB}
-          capacity={capacity?.ram_gib}
         />
         <SystemMetric
           {...commonProps}
@@ -146,7 +140,6 @@ const MetricsTab = () => {
           title="Storage"
           unit="TiB"
           valueTransform={bytesToTiB}
-          capacity={capacity?.disk_tib}
         />
       </div>
     </>
