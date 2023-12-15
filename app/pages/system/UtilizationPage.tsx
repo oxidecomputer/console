@@ -37,7 +37,6 @@ SystemUtilizationPage.loader = async () => {
   await Promise.all([
     apiQueryClient.prefetchQuery('siloList', {}),
     apiQueryClient.prefetchQuery('sledList', {}),
-    apiQueryClient.prefetchQuery('utilizationView', {}),
     apiQueryClient.prefetchQuery('siloUtilizationList', {}),
   ])
   return null
