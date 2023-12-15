@@ -54,9 +54,6 @@ export function SystemUtilizationPage() {
         <PageTitle icon={<Metrics24Icon />}>Utilization</PageTitle>
       </PageHeader>
 
-      <h2 className="flex items-center gap-1.5 p-3 text-mono-sm text-secondary">
-        Capacity available
-      </h2>
       <CapacityBars allocated={totalAllocated} provisioned={totalProvisioned} />
       <QueryParamTabs defaultValue="summary" className="full-width">
         <Tabs.List>

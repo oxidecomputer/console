@@ -57,23 +57,23 @@ test.describe('System utilization', () => {
 test.describe('Silo utilization', () => {
   test('works for fleet viewer', async ({ page }) => {
     await page.goto('/utilization')
-    await expectVisible(page, [page.getByRole('heading', { name: 'Utilization' })])
-    await expectNotVisible(page, [
+    await expectVisible(page, [
+      page.getByRole('heading', { name: 'Utilization' }),
       page.getByText('Capacity available'),
-      // stats under the graph which require capacity info
-      page.getByText('In-use'),
     ])
+    // stats under the graph which require capacity info
+    await expectNotVisible(page, [page.getByText('In-use').first()])
   })
 
   test('works for dev user', async ({ browser }) => {
     const page = await getPageAsUser(browser, 'Hans Jonas')
     await page.goto('/utilization')
-    await expectVisible(page, [page.getByRole('heading', { name: 'Utilization' })])
-    await expectNotVisible(page, [
+    await expectVisible(page, [
+      page.getByRole('heading', { name: 'Utilization' }),
       page.getByText('Capacity available'),
-      // stats under the graph which require capacity info
-      page.getByText('In-use'),
     ])
+    // stats under the graph which require capacity info
+    await expectNotVisible(page, [page.getByText('In-use').first()])
   })
 })
 
