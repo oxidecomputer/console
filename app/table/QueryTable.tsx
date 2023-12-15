@@ -170,7 +170,11 @@ const makeQueryTable = <Item extends Record<string, unknown>>(
         path: params.path,
         query: { ...params.query, page_token: currentPage, limit: pageSize },
       },
-      options
+      {
+        // keep current page items in place while we load the next page
+        placeholderData: (x) => x,
+        ...options,
+      }
     )
 
     const tableData: any[] = useMemo(() => (data as any)?.items || [], [data])
