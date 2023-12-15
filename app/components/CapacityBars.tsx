@@ -20,33 +20,28 @@ export const CapacityBars = ({
   provisioned: VirtualResourceCounts
 }) => {
   return (
-    <>
-      <h2 className="flex items-center gap-1.5 p-3 text-mono-sm text-secondary">
-        Capacity available
-      </h2>
-      <div className="mb-12 flex min-w-min flex-col gap-3 lg+:flex-row">
-        <CapacityBar
-          icon={<Cpu16Icon />}
-          title="CPU"
-          unit="nCPUs"
-          provisioned={provisioned.cpus}
-          allocated={allocated.cpus}
-        />
-        <CapacityBar
-          icon={<Ram16Icon />}
-          title="Memory"
-          unit="GiB"
-          provisioned={bytesToGiB(provisioned.memory)}
-          allocated={bytesToGiB(allocated.memory)}
-        />
-        <CapacityBar
-          icon={<Ssd16Icon />}
-          title="Disk"
-          unit="TiB"
-          provisioned={bytesToTiB(provisioned.storage)}
-          allocated={bytesToTiB(allocated.storage)}
-        />
-      </div>
-    </>
+    <div className="mb-12 flex min-w-min flex-col gap-3 lg+:flex-row">
+      <CapacityBar
+        icon={<Cpu16Icon />}
+        title="CPU"
+        unit="nCPUs"
+        provisioned={provisioned.cpus}
+        allocated={allocated.cpus}
+      />
+      <CapacityBar
+        icon={<Ram16Icon />}
+        title="Memory"
+        unit="GiB"
+        provisioned={bytesToGiB(provisioned.memory)}
+        allocated={bytesToGiB(allocated.memory)}
+      />
+      <CapacityBar
+        icon={<Ssd16Icon />}
+        title="Disk"
+        unit="TiB"
+        provisioned={bytesToTiB(provisioned.storage)}
+        allocated={bytesToTiB(allocated.storage)}
+      />
+    </div>
   )
 }
