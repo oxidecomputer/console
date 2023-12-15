@@ -17,7 +17,7 @@ export const CapacityBar = ({
   includeUnit = true,
 }: {
   icon: JSX.Element
-  title: 'CPU' | 'Disk' | 'Memory'
+  title: 'CPU' | 'Memory' | 'Storage'
   unit: 'nCPUs' | 'GiB' | 'TiB'
   provisioned: number
   allocated: number

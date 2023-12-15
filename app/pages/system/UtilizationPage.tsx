@@ -140,7 +140,7 @@ const MetricsTab = () => {
         <SystemMetric
           {...commonProps}
           metricName="virtual_disk_space_provisioned"
-          title="Disk Space"
+          title="Storage"
           unit="TiB"
           valueTransform={bytesToTiB}
           capacity={capacity?.disk_tib}
@@ -169,10 +169,10 @@ function UsageTab() {
           <Table.HeadCell data-test-ignore></Table.HeadCell>
           <Table.HeadCell>CPU</Table.HeadCell>
           <Table.HeadCell>Memory</Table.HeadCell>
-          <Table.HeadCell>Disk</Table.HeadCell>
+          <Table.HeadCell>Storage</Table.HeadCell>
           <Table.HeadCell>CPU</Table.HeadCell>
           <Table.HeadCell>Memory</Table.HeadCell>
-          <Table.HeadCell>Disk</Table.HeadCell>
+          <Table.HeadCell>Storage</Table.HeadCell>
         </Table.HeaderRow>
       </Table.Header>
       <Table.Body>

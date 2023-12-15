@@ -38,7 +38,7 @@ export const CapacityBars = ({
       />
       <CapacityBar
         icon={<Ssd16Icon />}
-        title="Disk"
+        title="Storage"
         unit="TiB"
         provisioned={bytesToTiB(provisioned.storage)}
         allocated={bytesToTiB(allocated.storage)}

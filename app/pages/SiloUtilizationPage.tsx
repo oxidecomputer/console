@@ -96,13 +96,6 @@ export function SiloUtilizationPage() {
       <div className="mb-12 space-y-12">
         <SiloMetric
           {...commonProps}
-          metricName="virtual_disk_space_provisioned"
-          title="Disk Space"
-          unit="TiB"
-          valueTransform={bytesToTiB}
-        />
-        <SiloMetric
-          {...commonProps}
           metricName="cpus_provisioned"
           title="CPU"
           unit="count"
@@ -113,6 +106,13 @@ export function SiloUtilizationPage() {
           title="Memory"
           unit="GiB"
           valueTransform={bytesToGiB}
+        />
+        <SiloMetric
+          {...commonProps}
+          metricName="virtual_disk_space_provisioned"
+          title="Storage"
+          unit="TiB"
+          valueTransform={bytesToTiB}
         />
       </div>
     </>

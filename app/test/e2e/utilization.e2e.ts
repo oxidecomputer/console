@@ -22,13 +22,13 @@ test.describe('System utilization', () => {
     const table = page.getByRole('table')
     await expectRowVisible(table, {
       CPU: '20 ',
-      Disk: '2.7 TiB',
+      Storage: '2.7 TiB',
       Memory: '66 GiB',
       Silo: 'maze-war',
     })
     await expectRowVisible(table, {
       CPU: '26 ',
-      Disk: '7 TiB',
+      Storage: '7 TiB',
       Memory: '350 GiB',
       Silo: 'myriad',
     })
