@@ -69,18 +69,18 @@ export function SystemUtilizationPage() {
           quota={totalAllocated.cpus}
         />
         <CapacityBar
-          icon={<Ssd16Icon />}
-          title="Disk"
-          unit="TiB"
-          provisioned={bytesToTiB(totalProvisioned.storage)}
-          quota={bytesToTiB(totalAllocated.storage)}
-        />
-        <CapacityBar
           icon={<Ram16Icon />}
           title="Memory"
           unit="GiB"
           provisioned={bytesToGiB(totalProvisioned.memory)}
           quota={bytesToGiB(totalAllocated.memory)}
+        />
+        <CapacityBar
+          icon={<Ssd16Icon />}
+          title="Disk"
+          unit="TiB"
+          provisioned={bytesToTiB(totalProvisioned.storage)}
+          quota={bytesToTiB(totalAllocated.storage)}
         />
       </div>
       <QueryParamTabs defaultValue="summary" className="full-width">
@@ -152,14 +152,6 @@ const MetricsTab = () => {
       <div className="mb-12 space-y-12">
         <SystemMetric
           {...commonProps}
-          metricName="virtual_disk_space_provisioned"
-          title="Disk Space"
-          unit="TiB"
-          valueTransform={bytesToTiB}
-          capacity={capacity?.disk_tib}
-        />
-        <SystemMetric
-          {...commonProps}
           metricName="cpus_provisioned"
           title="CPU"
           unit="count"
@@ -172,6 +164,14 @@ const MetricsTab = () => {
           unit="GiB"
           valueTransform={bytesToGiB}
           capacity={capacity?.ram_gib}
+        />
+        <SystemMetric
+          {...commonProps}
+          metricName="virtual_disk_space_provisioned"
+          title="Disk Space"
+          unit="TiB"
+          valueTransform={bytesToTiB}
+          capacity={capacity?.disk_tib}
         />
       </div>
     </>
@@ -196,11 +196,11 @@ function UsageTab() {
         <Table.HeaderRow>
           <Table.HeadCell data-test-ignore></Table.HeadCell>
           <Table.HeadCell>CPU</Table.HeadCell>
-          <Table.HeadCell>Disk</Table.HeadCell>
           <Table.HeadCell>Memory</Table.HeadCell>
+          <Table.HeadCell>Disk</Table.HeadCell>
           <Table.HeadCell>CPU</Table.HeadCell>
-          <Table.HeadCell>Disk</Table.HeadCell>
           <Table.HeadCell>Memory</Table.HeadCell>
+          <Table.HeadCell>Disk</Table.HeadCell>
         </Table.HeaderRow>
       </Table.Header>
       <Table.Body>
@@ -212,16 +212,16 @@ function UsageTab() {
             </Table.Cell>
             <Table.Cell width="14%">
               <UsageCell
-                provisioned={bytesToTiB(silo.provisioned.storage)}
-                quota={bytesToTiB(silo.allocated.storage)}
-                unit="TiB"
+                provisioned={bytesToGiB(silo.provisioned.memory)}
+                quota={bytesToGiB(silo.allocated.memory)}
+                unit="GiB"
               />
             </Table.Cell>
             <Table.Cell width="14%">
               <UsageCell
-                provisioned={bytesToGiB(silo.provisioned.memory)}
-                quota={bytesToGiB(silo.allocated.memory)}
-                unit="GiB"
+                provisioned={bytesToTiB(silo.provisioned.storage)}
+                quota={bytesToTiB(silo.allocated.storage)}
+                unit="TiB"
               />
             </Table.Cell>
             <Table.Cell width="14%" className="relative">
@@ -232,16 +232,16 @@ function UsageTab() {
             </Table.Cell>
             <Table.Cell width="14%" className="relative">
               <AvailableCell
-                provisioned={bytesToTiB(silo.provisioned.storage)}
-                quota={bytesToTiB(silo.allocated.storage)}
-                unit="TiB"
+                provisioned={bytesToGiB(silo.provisioned.memory)}
+                quota={bytesToGiB(silo.allocated.memory)}
+                unit="GiB"
               />
             </Table.Cell>
             <Table.Cell width="14%" className="relative">
               <AvailableCell
-                provisioned={bytesToGiB(silo.provisioned.memory)}
-                quota={bytesToGiB(silo.allocated.memory)}
-                unit="GiB"
+                provisioned={bytesToTiB(silo.provisioned.storage)}
+                quota={bytesToTiB(silo.allocated.storage)}
+                unit="TiB"
               />
             </Table.Cell>
           </Table.Row>
