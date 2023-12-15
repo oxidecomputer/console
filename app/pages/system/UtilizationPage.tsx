@@ -17,20 +17,17 @@ import {
   usePrefetchedApiQuery,
 } from '@oxide/api'
 import {
-  Cpu16Icon,
   Listbox,
   Metrics24Icon,
   PageHeader,
   PageTitle,
-  Ram16Icon,
   ResourceMeter,
-  Ssd16Icon,
   Table,
   Tabs,
 } from '@oxide/ui'
 import { bytesToGiB, bytesToTiB } from '@oxide/util'
 
-import { CapacityBar } from 'app/components/CapacityBar'
+import { CapacityBars } from 'app/components/CapacityBars'
 import { useDateTimeRangePicker } from 'app/components/form'
 import { QueryParamTabs } from 'app/components/QueryParamTabs'
 import { useIntervalPicker } from 'app/components/RefetchIntervalPicker'
@@ -60,29 +57,7 @@ export function SystemUtilizationPage() {
       <h2 className="flex items-center gap-1.5 p-3 text-mono-sm text-secondary">
         Capacity available
       </h2>
-      <div className="mb-12 flex min-w-min flex-col gap-3 lg+:flex-row">
-        <CapacityBar
-          icon={<Cpu16Icon />}
-          title="CPU"
-          unit="nCPUs"
-          provisioned={totalProvisioned.cpus}
-          allocated={totalAllocated.cpus}
-        />
-        <CapacityBar
-          icon={<Ram16Icon />}
-          title="Memory"
-          unit="GiB"
-          provisioned={bytesToGiB(totalProvisioned.memory)}
-          allocated={bytesToGiB(totalAllocated.memory)}
-        />
-        <CapacityBar
-          icon={<Ssd16Icon />}
-          title="Disk"
-          unit="TiB"
-          provisioned={bytesToTiB(totalProvisioned.storage)}
-          allocated={bytesToTiB(totalAllocated.storage)}
-        />
-      </div>
+      <CapacityBars allocated={totalAllocated} provisioned={totalProvisioned} />
       <QueryParamTabs defaultValue="summary" className="full-width">
         <Tabs.List>
           <Tabs.Trigger value="summary">Summary</Tabs.Trigger>
