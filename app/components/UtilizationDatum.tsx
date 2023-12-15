@@ -10,7 +10,7 @@ export const UtilizationDatum = ({
   name,
   amount,
 }: {
-  name: 'Provisioned' | 'Quota' | 'Capacity'
+  name: 'Provisioned' | 'Allocated' | 'Capacity'
   amount: number
 }) => (
   <div className="p-3 text-mono-sm">

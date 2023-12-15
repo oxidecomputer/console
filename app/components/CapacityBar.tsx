@@ -15,18 +15,18 @@ export const CapacityBar = ({
   title,
   unit,
   provisioned,
-  quota,
+  allocated,
 }: {
   icon: JSX.Element
   title: 'CPU' | 'Disk' | 'Memory'
   unit: 'nCPUs' | 'GiB' | 'TiB'
   provisioned: number
-  quota: number
+  allocated: number
 }) => {
-  const percentOfQuotaUsed = (provisioned / quota) * 100
-  const [wholeNumber, decimal] = splitDecimal(percentOfQuotaUsed)
+  const percentOfAllocatedUsed = (provisioned / allocated) * 100
+  const [wholeNumber, decimal] = splitDecimal(percentOfAllocatedUsed)
 
-  const formattedPercentUsed = `${percentOfQuotaUsed}%`
+  const formattedPercentUsed = `${percentOfAllocatedUsed}%`
 
   return (
     <div className="w-full min-w-min rounded-lg border border-default">
@@ -58,7 +58,7 @@ export const CapacityBar = ({
         {/* the more detailed data */}
         <div className="flex justify-between border-t border-secondary">
           <UtilizationDatum name="Provisioned" amount={provisioned} />
-          <UtilizationDatum name="Quota" amount={quota} />
+          <UtilizationDatum name="Allocated" amount={allocated} />
         </div>
       </div>
     </div>

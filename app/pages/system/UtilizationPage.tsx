@@ -66,21 +66,21 @@ export function SystemUtilizationPage() {
           title="CPU"
           unit="nCPUs"
           provisioned={totalProvisioned.cpus}
-          quota={totalAllocated.cpus}
+          allocated={totalAllocated.cpus}
         />
         <CapacityBar
           icon={<Ram16Icon />}
           title="Memory"
           unit="GiB"
           provisioned={bytesToGiB(totalProvisioned.memory)}
-          quota={bytesToGiB(totalAllocated.memory)}
+          allocated={bytesToGiB(totalAllocated.memory)}
         />
         <CapacityBar
           icon={<Ssd16Icon />}
           title="Disk"
           unit="TiB"
           provisioned={bytesToTiB(totalProvisioned.storage)}
-          quota={bytesToTiB(totalAllocated.storage)}
+          allocated={bytesToTiB(totalAllocated.storage)}
         />
       </div>
       <QueryParamTabs defaultValue="summary" className="full-width">
@@ -187,7 +187,7 @@ function UsageTab() {
           <Table.HeadCell>Silo</Table.HeadCell>
           {/* data-test-ignore makes the row asserts work in the e2e tests */}
           <Table.HeadCell colSpan={3} data-test-ignore>
-            Provisioned / Quota
+            Provisioned / Allocated
           </Table.HeadCell>
           <Table.HeadCell colSpan={3} data-test-ignore>
             Available
@@ -208,39 +208,42 @@ function UsageTab() {
           <Table.Row key={silo.siloName}>
             <Table.Cell width="16%">{silo.siloName}</Table.Cell>
             <Table.Cell width="14%">
-              <UsageCell provisioned={silo.provisioned.cpus} quota={silo.allocated.cpus} />
+              <UsageCell
+                provisioned={silo.provisioned.cpus}
+                allocated={silo.allocated.cpus}
+              />
             </Table.Cell>
             <Table.Cell width="14%">
               <UsageCell
                 provisioned={bytesToGiB(silo.provisioned.memory)}
-                quota={bytesToGiB(silo.allocated.memory)}
+                allocated={bytesToGiB(silo.allocated.memory)}
                 unit="GiB"
               />
             </Table.Cell>
             <Table.Cell width="14%">
               <UsageCell
                 provisioned={bytesToTiB(silo.provisioned.storage)}
-                quota={bytesToTiB(silo.allocated.storage)}
+                allocated={bytesToTiB(silo.allocated.storage)}
                 unit="TiB"
               />
             </Table.Cell>
             <Table.Cell width="14%" className="relative">
               <AvailableCell
                 provisioned={silo.provisioned.cpus}
-                quota={silo.allocated.cpus}
+                allocated={silo.allocated.cpus}
               />
             </Table.Cell>
             <Table.Cell width="14%" className="relative">
               <AvailableCell
                 provisioned={bytesToGiB(silo.provisioned.memory)}
-                quota={bytesToGiB(silo.allocated.memory)}
+                allocated={bytesToGiB(silo.allocated.memory)}
                 unit="GiB"
               />
             </Table.Cell>
             <Table.Cell width="14%" className="relative">
               <AvailableCell
                 provisioned={bytesToTiB(silo.provisioned.storage)}
-                quota={bytesToTiB(silo.allocated.storage)}
+                allocated={bytesToTiB(silo.allocated.storage)}
                 unit="TiB"
               />
             </Table.Cell>
@@ -253,11 +256,11 @@ function UsageTab() {
 
 const UsageCell = ({
   provisioned,
-  quota,
+  allocated,
   unit,
 }: {
   provisioned: number
-  quota: number
+  allocated: number
   unit?: string
 }) => (
   <div className="flex flex-col text-tertiary">
@@ -265,25 +268,25 @@ const UsageCell = ({
       <span className="text-default">{provisioned}</span> /
     </div>
     <div className="text-tertiary">
-      {quota} {unit && <span className="text-quaternary">{unit}</span>}
+      {allocated} {unit && <span className="text-quaternary">{unit}</span>}
     </div>
   </div>
 )
 
 const AvailableCell = ({
   provisioned,
-  quota,
+  allocated,
   unit,
 }: {
   provisioned: number
-  quota: number
+  allocated: number
   unit?: string
 }) => {
-  const usagePercent = (provisioned / quota) * 100
+  const usagePercent = (provisioned / allocated) * 100
   return (
     <div className="flex w-full items-center justify-between">
       <div>
-        {quota - provisioned} {unit && <span className="text-tertiary">{unit}</span>}
+        {allocated - provisioned} {unit && <span className="text-tertiary">{unit}</span>}
       </div>
       {/* We only show the ResourceMeter if the percent crosses the warning threshold (66%) */}
       {usagePercent > 66 && (
