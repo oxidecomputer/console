@@ -8,20 +8,20 @@
 
 import { splitDecimal } from '@oxide/util'
 
-import { UtilizationDatum } from './UtilizationDatum'
-
 export const CapacityBar = ({
   icon,
   title,
   unit,
   provisioned,
   allocated,
+  includeUnit = true,
 }: {
   icon: JSX.Element
   title: 'CPU' | 'Disk' | 'Memory'
   unit: 'nCPUs' | 'GiB' | 'TiB'
   provisioned: number
   allocated: number
+  includeUnit?: boolean
 }) => {
   const percentOfAllocatedUsed = (provisioned / allocated) * 100
   const [wholeNumber, decimal] = splitDecimal(percentOfAllocatedUsed)
@@ -55,10 +55,21 @@ export const CapacityBar = ({
         </div>
       </div>
       <div>
-        {/* the more detailed data */}
         <div className="flex justify-between border-t border-secondary">
-          <UtilizationDatum name="Provisioned" amount={provisioned} />
-          <UtilizationDatum name="Allocated" amount={allocated} />
+          <div className="p-3 text-mono-sm">
+            <div className="text-quaternary">Provisioned</div>
+            <div className="text-secondary">
+              {provisioned.toLocaleString()}
+              <span className="normal-case">{includeUnit ? ' ' + unit : ''}</span>
+            </div>
+          </div>
+          <div className="p-3 text-mono-sm">
+            <div className="text-quaternary">Allocated</div>
+            <div className="text-secondary">
+              {allocated.toLocaleString()}
+              <span className="normal-case">{includeUnit ? ' ' + unit : ''}</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>

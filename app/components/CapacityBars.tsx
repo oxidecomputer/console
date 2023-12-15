@@ -27,6 +27,7 @@ export const CapacityBars = ({
         unit="nCPUs"
         provisioned={provisioned.cpus}
         allocated={allocated.cpus}
+        includeUnit={false}
       />
       <CapacityBar
         icon={<Ram16Icon />}
