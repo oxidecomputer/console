@@ -13,13 +13,13 @@ import { bytesToGiB, bytesToTiB } from '@oxide/util'
 import { CapacityBar } from './CapacityBar'
 
 export const CapacityBars = ({
-  allocated,
   provisioned,
-  allocatedLabel,
+  allocated,
+  capacity,
 }: {
-  allocated: VirtualResourceCounts
   provisioned: VirtualResourceCounts
-  allocatedLabel: string
+  allocated?: VirtualResourceCounts
+  capacity?: VirtualResourceCounts
 }) => {
   return (
     <div className="mb-12 flex min-w-min flex-col gap-3 lg+:flex-row">
@@ -28,25 +28,25 @@ export const CapacityBars = ({
         title="CPU"
         unit="nCPUs"
         provisioned={provisioned.cpus}
-        allocated={allocated.cpus}
+        allocated={allocated?.cpus}
+        capacity={capacity?.cpus}
         includeUnit={false}
-        allocatedLabel={allocatedLabel}
       />
       <CapacityBar
         icon={<Ram16Icon />}
         title="Memory"
         unit="GiB"
         provisioned={bytesToGiB(provisioned.memory)}
-        allocated={bytesToGiB(allocated.memory)}
-        allocatedLabel={allocatedLabel}
+        allocated={allocated && bytesToGiB(allocated?.memory)}
+        capacity={capacity && bytesToGiB(capacity?.memory)}
       />
       <CapacityBar
         icon={<Ssd16Icon />}
         title="Storage"
         unit="TiB"
         provisioned={bytesToTiB(provisioned.storage)}
-        allocated={bytesToTiB(allocated.storage)}
-        allocatedLabel={allocatedLabel}
+        allocated={allocated && bytesToTiB(allocated?.storage)}
+        capacity={capacity && bytesToTiB(capacity?.storage)}
       />
     </div>
   )

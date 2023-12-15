@@ -71,11 +71,7 @@ export function SiloUtilizationPage() {
         <PageTitle icon={<Metrics24Icon />}>Capacity &amp; Utilization</PageTitle>
       </PageHeader>
 
-      <CapacityBars
-        provisioned={utilization.provisioned}
-        allocated={utilization.capacity}
-        allocatedLabel="Quota"
-      />
+      <CapacityBars provisioned={utilization.provisioned} capacity={utilization.capacity} />
 
       <Divider className="my-6" />
 

@@ -6,7 +6,9 @@
  * Copyright Oxide Computer Company
  */
 
-import { splitDecimal } from '@oxide/util'
+import cn from 'classnames'
+
+import { invariant, splitDecimal } from '@oxide/util'
 
 export const CapacityBar = ({
   icon,
@@ -14,22 +16,31 @@ export const CapacityBar = ({
   unit,
   provisioned,
   allocated,
-  allocatedLabel,
+  capacity,
   includeUnit = true,
 }: {
   icon: JSX.Element
   title: 'CPU' | 'Memory' | 'Storage'
   unit: 'nCPUs' | 'GiB' | 'TiB'
   provisioned: number
-  allocated: number
-  allocatedLabel: string
+  allocated?: number
+  capacity?: number
   includeUnit?: boolean
 }) => {
-  const percentOfAllocatedUsed = (provisioned / allocated) * 100
+  invariant(
+    typeof allocated === 'number' || typeof capacity === 'number',
+    'CapacityBar must be provided with at least one of allocated or capacity'
+  )
+  const hasAllocated = Number.isInteger(allocated)
+  const hasCapacity = Number.isInteger(capacity)
 
-  const [wholeNumber, decimal] = splitDecimal(percentOfAllocatedUsed)
+  const percentOfAllocatedUsed = (provisioned / (allocated || 0)) * 100
+  const percentOfCapacityUsed = ((allocated ?? provisioned) / (capacity || 0)) * 100
+  const allocatedDisplay = hasAllocated && splitDecimal(percentOfAllocatedUsed)
+  const capacityDisplay = hasCapacity && splitDecimal(percentOfCapacityUsed)
 
-  const formattedPercentUsed = `${percentOfAllocatedUsed}%`
+  const percentStyling = (percent: number) =>
+    isFinite(percent) ? { width: `${percent}%` } : { display: 'none' }
 
   return (
     <div className="w-full min-w-min rounded-lg border border-default">
@@ -42,17 +53,38 @@ export const CapacityBar = ({
           <span className="text-mono-sm text-secondary">{title}</span>
           <span className="ml-1 !normal-case text-mono-sm text-quaternary">({unit})</span>
         </div>
-        <div className="flex -translate-y-0.5 items-baseline">
-          <div className="font-light text-sans-2xl">{wholeNumber.toLocaleString()}</div>
-          <div className="text-sans-xl text-quaternary">{decimal || ''}%</div>
-        </div>
+        {allocatedDisplay && !capacityDisplay && (
+          <div className="flex -translate-y-0.5 items-baseline">
+            <div className="font-light text-sans-2xl">
+              {allocatedDisplay[0].toLocaleString()}
+            </div>
+            <div className="text-sans-xl text-quaternary">{allocatedDisplay[1] || ''}%</div>
+          </div>
+        )}
+        {capacityDisplay && (
+          <div className="flex -translate-y-0.5 items-baseline">
+            <div className="font-light text-sans-2xl">
+              {capacityDisplay[0].toLocaleString()}
+            </div>
+            <div className="text-sans-xl text-quaternary">{capacityDisplay[1] || ''}%</div>
+          </div>
+        )}
       </div>
       <div className="p-3 pt-1">
         {/* the bar */}
         <div className="flex w-full gap-0.5">
           <div
             className="h-3 rounded-l border bg-accent-secondary border-accent-secondary"
-            style={{ width: formattedPercentUsed }}
+            style={percentStyling(percentOfAllocatedUsed)}
+          ></div>
+          <div
+            className={cn(
+              'h-3 rounded-l border',
+              hasAllocated
+                ? 'bg-secondary border-default'
+                : 'bg-accent-secondary border-accent-secondary'
+            )}
+            style={percentStyling(percentOfCapacityUsed)}
           ></div>
           <div className="h-3 grow rounded-r border bg-info-secondary border-info-secondary"></div>
         </div>
@@ -66,13 +98,24 @@ export const CapacityBar = ({
               <span className="normal-case">{includeUnit ? ' ' + unit : ''}</span>
             </div>
           </div>
-          <div className="p-3 text-mono-sm">
-            <div className="text-quaternary">{allocatedLabel}</div>
-            <div className="text-secondary">
-              {allocated.toLocaleString()}
-              <span className="normal-case">{includeUnit ? ' ' + unit : ''}</span>
+          {hasAllocated && (
+            <div className="p-3 text-mono-sm">
+              <div className="text-quaternary">Quota (Total)</div>
+              <div className="text-secondary">
+                {allocated?.toLocaleString()}
+                <span className="normal-case">{includeUnit ? ' ' + unit : ''}</span>
+              </div>
             </div>
-          </div>
+          )}
+          {hasCapacity && (
+            <div className="p-3 text-mono-sm">
+              <div className="text-quaternary">Capacity</div>
+              <div className="text-secondary">
+                {capacity?.toLocaleString()}
+                <span className="normal-case">{includeUnit ? ' ' + unit : ''}</span>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
