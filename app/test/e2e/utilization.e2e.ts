@@ -12,7 +12,7 @@ import { expect, expectRowVisible, getPageAsUser, test } from './utils'
 
 test.describe('System utilization', () => {
   test('Works for fleet viewer', async ({ page }) => {
-    await page.goto('/system/utilization')
+    await page.goto('/system/utilization?tab=table')
 
     await expect(page.getByRole('heading', { name: 'Utilization' })).toBeVisible()
     await expect(page.getByText('Provisioned384 GiB')).toBeVisible()
@@ -45,7 +45,7 @@ test.describe('System utilization', () => {
 
 test.describe('Silo utilization', () => {
   test('works for fleet viewer', async ({ page }) => {
-    await page.goto('/utilization')
+    await page.goto('/utilization?tab=table')
     await expect(
       page.getByRole('heading', { name: 'Capacity & Utilization' })
     ).toBeVisible()
