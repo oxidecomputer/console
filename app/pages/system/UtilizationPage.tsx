@@ -30,7 +30,7 @@ import {
 } from '@oxide/ui'
 import { bytesToGiB, bytesToTiB } from '@oxide/util'
 
-import { CapacityBar, capacityQueryParams } from 'app/components/CapacityBar'
+import { CapacityBar } from 'app/components/CapacityBar'
 import { useDateTimeRangePicker } from 'app/components/form'
 import { QueryParamTabs } from 'app/components/QueryParamTabs'
 import { useIntervalPicker } from 'app/components/RefetchIntervalPicker'
@@ -39,18 +39,6 @@ import { SystemMetric } from 'app/components/SystemMetric'
 SystemUtilizationPage.loader = async () => {
   await Promise.all([
     apiQueryClient.prefetchQuery('siloList', {}),
-    apiQueryClient.prefetchQuery('systemMetric', {
-      path: { metricName: 'cpus_provisioned' },
-      query: capacityQueryParams,
-    }),
-    apiQueryClient.prefetchQuery('systemMetric', {
-      path: { metricName: 'ram_provisioned' },
-      query: capacityQueryParams,
-    }),
-    apiQueryClient.prefetchQuery('systemMetric', {
-      path: { metricName: 'virtual_disk_space_provisioned' },
-      query: capacityQueryParams,
-    }),
     apiQueryClient.prefetchQuery('sledList', {}),
     apiQueryClient.prefetchQuery('utilizationView', {}),
     apiQueryClient.prefetchQuery('siloUtilizationList', {}),

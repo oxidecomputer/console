@@ -10,17 +10,6 @@ import { splitDecimal } from '@oxide/util'
 
 import { UtilizationDatum } from './UtilizationDatum'
 
-// exported to use in the loader because it needs to be identical
-export const capacityQueryParams = {
-  // beginning of time, aka 1970
-  startTime: new Date(0),
-  // kind of janky to use pageload time. we can think about making it live
-  // later. ideally refetch would be coordinated with the graphs
-  endTime: new Date(),
-  limit: 1,
-  order: 'descending' as const,
-}
-
 export const CapacityBar = ({
   icon,
   title,
