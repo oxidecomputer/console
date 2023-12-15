@@ -19,12 +19,10 @@ import {
 
 test.describe('System utilization', () => {
   test('works for fleet viewer', async ({ page }) => {
-    await page.goto('/system/utilization')
+    await page.goto('/system/utilization?tab=metrics')
     await expectVisible(page, [
       page.getByRole('heading', { name: 'Utilization' }),
-      page.getByText('Disk utilization'),
-      page.getByText('CPU utilization'),
-      page.getByText('Memory utilization'),
+      page.getByText('Capacity available'),
       // stats under the graph which require capacity info
       page.getByText('In-use').first(),
     ])
@@ -34,15 +32,19 @@ test.describe('System utilization', () => {
     await page.goto('/system/utilization')
     await page.getByRole('tab', { name: 'Summary' }).click()
 
-    const statCells = {
-      CPU: expect.stringMatching(/^\d+$/),
-      Disk: expect.stringMatching(/^\d+.\d+TiB$/),
-      Memory: expect.stringMatching(/^\d+.\d+GiB$/),
-    }
-
     const table = page.getByRole('table')
-    await expectRowVisible(table, { Silo: 'maze-war', ...statCells })
-    await expectRowVisible(table, { Silo: 'myriad', ...statCells })
+    await expectRowVisible(table, {
+      CPU: '20 ',
+      Disk: '2.7 TiB',
+      Memory: '66 GiB',
+      Silo: 'maze-war',
+    })
+    await expectRowVisible(table, {
+      CPU: '26 ',
+      Disk: '7 TiB',
+      Memory: '350 GiB',
+      Silo: 'myriad',
+    })
   })
 
   test('does not appear for dev user', async ({ browser }) => {
@@ -57,9 +59,7 @@ test.describe('Silo utilization', () => {
     await page.goto('/utilization')
     await expectVisible(page, [page.getByRole('heading', { name: 'Utilization' })])
     await expectNotVisible(page, [
-      page.getByText('Disk utilization'),
-      page.getByText('CPU utilization'),
-      page.getByText('Memory utilization'),
+      page.getByText('Capacity available'),
       // stats under the graph which require capacity info
       page.getByText('In-use'),
     ])
@@ -70,9 +70,7 @@ test.describe('Silo utilization', () => {
     await page.goto('/utilization')
     await expectVisible(page, [page.getByRole('heading', { name: 'Utilization' })])
     await expectNotVisible(page, [
-      page.getByText('Disk utilization'),
-      page.getByText('CPU utilization'),
-      page.getByText('Memory utilization'),
+      page.getByText('Capacity available'),
       // stats under the graph which require capacity info
       page.getByText('In-use'),
     ])
