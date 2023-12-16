@@ -24,7 +24,7 @@ import { GiB, pick, sortBy } from '@oxide/util'
 import { genCumulativeI64Data } from '../metrics'
 import { serial } from '../serial'
 import { defaultSilo, toIdp } from '../silo'
-import { db, lookup, lookupById, notFoundErr } from './db'
+import { db, lookup, lookupById, notFoundErr, utilizationForSilo } from './db'
 import {
   currentUser,
   errIfExists,
@@ -610,6 +610,21 @@ export const handlers = makeHandlers({
     db.snapshots = db.snapshots.filter((s) => s.id !== snapshot.id)
     return 204
   },
+  utilizationView() {
+    const { allocated: capacity, provisioned } = utilizationForSilo(defaultSilo)
+    return { capacity, provisioned }
+  },
+  siloUtilizationView({ path }) {
+    const silo = lookup.silo(path)
+    return utilizationForSilo(silo)
+  },
+  siloUtilizationList({ query }) {
+    const { items: silos, nextPage } = paginated(query, db.silos)
+    return {
+      items: silos.map(utilizationForSilo),
+      nextPage,
+    }
+  },
   vpcList({ query }) {
     const project = lookup.project(query)
     const vpcs = db.vpcs.filter((v) => v.project_id === project.id)
@@ -1002,12 +1017,15 @@ export const handlers = makeHandlers({
   roleView: NotImplemented,
   siloPolicyUpdate: NotImplemented,
   siloPolicyView: NotImplemented,
+  siloQuotasUpdate: NotImplemented,
+  siloQuotasView: NotImplemented,
   siloUserList: NotImplemented,
   siloUserView: NotImplemented,
   sledSetProvisionState: NotImplemented,
   switchList: NotImplemented,
   switchView: NotImplemented,
   systemPolicyUpdate: NotImplemented,
+  systemQuotasList: NotImplemented,
   uninitializedSledList: NotImplemented,
   userBuiltinList: NotImplemented,
   userBuiltinView: NotImplemented,

@@ -880,6 +880,12 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.Role>>
+  /** `GET /v1/system/silo-quotas` */
+  systemQuotasList: (params: {
+    query: Api.SystemQuotasListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.SiloQuotasResultsPage>>
   /** `GET /v1/system/silos` */
   siloList: (params: {
     query: Api.SiloListQueryParams
@@ -917,6 +923,19 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.SiloRolePolicy>>
+  /** `GET /v1/system/silos/:silo/quotas` */
+  siloQuotasView: (params: {
+    path: Api.SiloQuotasViewPathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.SiloQuotas>>
+  /** `PUT /v1/system/silos/:silo/quotas` */
+  siloQuotasUpdate: (params: {
+    path: Api.SiloQuotasUpdatePathParams
+    body: Json<Api.SiloQuotasUpdate>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.SiloQuotas>>
   /** `GET /v1/system/users` */
   siloUserList: (params: {
     query: Api.SiloUserListQueryParams
@@ -942,12 +961,29 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.UserBuiltin>>
+  /** `GET /v1/system/utilization/silos` */
+  siloUtilizationList: (params: {
+    query: Api.SiloUtilizationListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.SiloUtilizationResultsPage>>
+  /** `GET /v1/system/utilization/silos/:silo` */
+  siloUtilizationView: (params: {
+    path: Api.SiloUtilizationViewPathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.SiloUtilization>>
   /** `GET /v1/users` */
   userList: (params: {
     query: Api.UserListQueryParams
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.UserResultsPage>>
+  /** `GET /v1/utilization` */
+  utilizationView: (params: {
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.Utilization>>
   /** `GET /v1/vpc-firewall-rules` */
   vpcFirewallRulesView: (params: {
     query: Api.VpcFirewallRulesViewQueryParams
@@ -1794,6 +1830,10 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       handler(handlers['roleView'], schema.RoleViewParams, null)
     ),
     http.get(
+      '/v1/system/silo-quotas',
+      handler(handlers['systemQuotasList'], schema.SystemQuotasListParams, null)
+    ),
+    http.get(
       '/v1/system/silos',
       handler(handlers['siloList'], schema.SiloListParams, null)
     ),
@@ -1819,6 +1859,18 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       )
     ),
     http.get(
+      '/v1/system/silos/:silo/quotas',
+      handler(handlers['siloQuotasView'], schema.SiloQuotasViewParams, null)
+    ),
+    http.put(
+      '/v1/system/silos/:silo/quotas',
+      handler(
+        handlers['siloQuotasUpdate'],
+        schema.SiloQuotasUpdateParams,
+        schema.SiloQuotasUpdate
+      )
+    ),
+    http.get(
       '/v1/system/users',
       handler(handlers['siloUserList'], schema.SiloUserListParams, null)
     ),
@@ -1834,7 +1886,16 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       '/v1/system/users-builtin/:user',
       handler(handlers['userBuiltinView'], schema.UserBuiltinViewParams, null)
     ),
+    http.get(
+      '/v1/system/utilization/silos',
+      handler(handlers['siloUtilizationList'], schema.SiloUtilizationListParams, null)
+    ),
+    http.get(
+      '/v1/system/utilization/silos/:silo',
+      handler(handlers['siloUtilizationView'], schema.SiloUtilizationViewParams, null)
+    ),
     http.get('/v1/users', handler(handlers['userList'], schema.UserListParams, null)),
+    http.get('/v1/utilization', handler(handlers['utilizationView'], null, null)),
     http.get(
       '/v1/vpc-firewall-rules',
       handler(handlers['vpcFirewallRulesView'], schema.VpcFirewallRulesViewParams, null)

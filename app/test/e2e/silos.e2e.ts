@@ -25,7 +25,7 @@ test('Create silo', async ({ page }) => {
 
   await page.click('role=link[name="New silo"]')
 
-  // fill out form and submit
+  // fill out form
   await page.fill('role=textbox[name="Name"]', 'other-silo')
   await page.fill('role=textbox[name="Description"]', 'definitely a silo')
   await expect(page.locator('role=checkbox[name="Discoverable"]')).toBeChecked()
@@ -33,6 +33,9 @@ test('Create silo', async ({ page }) => {
   await page.click('role=radio[name="Local only"]')
   await page.fill('role=textbox[name="Admin group name"]', 'admins')
   await page.click('role=checkbox[name="Grant fleet admin role to silo admins"]')
+  await page.getByRole('textbox', { name: 'CPU quota (nCPUs)' }).fill('3')
+  await page.getByRole('textbox', { name: 'Memory quota (GiB)' }).fill('5')
+  await page.getByRole('textbox', { name: 'Storage quota (GiB)' }).fill('7')
 
   // Add a TLS cert
   const openCertModalButton = page.getByRole('button', { name: 'Add TLS certificate' })

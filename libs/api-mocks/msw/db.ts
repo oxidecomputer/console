@@ -12,9 +12,10 @@ import { validate as isUuid } from 'uuid'
 import type { ApiTypes as Api, PathParams as PP } from '@oxide/api'
 import * as mock from '@oxide/api-mocks'
 import { user1 } from '@oxide/api-mocks'
+import { pick } from '@oxide/util'
 
 import type { Json } from '../json-type'
-import { json } from './util'
+import { internalError, json } from './util'
 
 const notFoundBody = { error_code: 'ObjectNotFound' } as const
 export type NotFound = typeof notFoundBody
@@ -172,6 +173,21 @@ export const lookup = {
   },
 }
 
+export function utilizationForSilo(silo: Json<Api.Silo>) {
+  const quotas = db.siloQuotas.find((q) => q.silo_id === silo.id)
+  if (!quotas) throw internalError()
+
+  const provisioned = db.siloProvisioned.find((p) => p.silo_id === silo.id)
+  if (!provisioned) throw internalError()
+
+  return {
+    allocated: pick(quotas, 'cpus', 'storage', 'memory'),
+    provisioned: pick(provisioned, 'cpus', 'storage', 'memory'),
+    silo_id: silo.id,
+    silo_name: silo.name,
+  }
+}
+
 /** Track the upload state of an imported image */
 type DiskBulkImport = {
   // for now, each block (keyed by offset) just tracks the fact that it was
@@ -192,8 +208,9 @@ const initDb = {
   projects: [...mock.projects],
   racks: [...mock.racks],
   roleAssignments: [...mock.roleAssignments],
-  /** Join table for `silos` and `identityProviders` */
   silos: [...mock.silos],
+  siloQuotas: [...mock.siloQuotas],
+  siloProvisioned: [...mock.siloProvisioned],
   identityProviders: [...mock.identityProviders],
   sleds: [...mock.sleds],
   snapshots: [...mock.snapshots],
