@@ -254,7 +254,8 @@ const AvailableCell = ({
   return (
     <div className="flex w-full items-center justify-between">
       <div>
-        {allocated - provisioned} {unit && <span className="text-tertiary">{unit}</span>}
+        {allocated - provisioned}
+        {unit && <span className="text-tertiary"> {unit}</span>}
       </div>
       {/* We only show the ResourceMeter if the percent crosses the warning threshold (66%) */}
       {usagePercent > 66 && (

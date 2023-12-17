@@ -16,6 +16,7 @@ it('rounds properly', () => {
   expect(round(123.456, 2)).toEqual(123.46)
   expect(round(123.456, 3)).toEqual(123.456)
   expect(round(123.456, 4)).toEqual(123.456) // trailing zeros are culled
+  expect(round(123.0001, 3)).toEqual(123) // decimal is culled if decimals are all zeros
   expect(round(1.9, 0)).toEqual(2)
   expect(round(1.9, 1)).toEqual(1.9)
   expect(round(5 / 2, 2)).toEqual(2.5) // math expressions are resolved
