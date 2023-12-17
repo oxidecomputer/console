@@ -24,7 +24,7 @@ import {
   Table,
   Tabs,
 } from '@oxide/ui'
-import { bytesToGiB, bytesToTiB } from '@oxide/util'
+import { bytesToGiB, bytesToTiB, round } from '@oxide/util'
 
 import { CapacityBars } from 'app/components/CapacityBars'
 import { useDateTimeRangePicker } from 'app/components/form'
@@ -254,7 +254,8 @@ const AvailableCell = ({
   return (
     <div className="flex w-full items-center justify-between">
       <div>
-        {allocated - provisioned} {unit && <span className="text-tertiary">{unit}</span>}
+        {round(allocated - provisioned, 2)}
+        {unit && <span className="text-tertiary"> {unit}</span>}
       </div>
       {/* We only show the ResourceMeter if the percent crosses the warning threshold (66%) */}
       {usagePercent > 66 && (
