@@ -13,6 +13,7 @@ import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import { Divider, Listbox, Metrics24Icon, PageHeader, PageTitle } from '@oxide/ui'
 import { bytesToGiB, bytesToTiB } from '@oxide/util'
 
+import { CapacityBars } from 'app/components/CapacityBars'
 import { useDateTimeRangePicker } from 'app/components/form'
 import { useIntervalPicker } from 'app/components/RefetchIntervalPicker'
 import { SiloMetric } from 'app/components/SystemMetric'
@@ -21,7 +22,10 @@ import { useCurrentUser } from 'app/layouts/AuthenticatedLayout'
 const toListboxItem = (x: { name: string; id: string }) => ({ label: x.name, value: x.id })
 
 SiloUtilizationPage.loader = async () => {
-  await apiQueryClient.prefetchQuery('projectList', {})
+  await Promise.all([
+    apiQueryClient.prefetchQuery('projectList', {}),
+    apiQueryClient.prefetchQuery('utilizationView', {}),
+  ])
   return null
 }
 
@@ -31,6 +35,7 @@ export function SiloUtilizationPage() {
   const siloId = me.siloId
 
   const { data: projects } = usePrefetchedApiQuery('projectList', {})
+  const { data: utilization } = usePrefetchedApiQuery('utilizationView', {})
 
   const projectItems = useMemo(() => {
     const items = projects.items.map(toListboxItem) || []
@@ -66,7 +71,15 @@ export function SiloUtilizationPage() {
         <PageTitle icon={<Metrics24Icon />}>Capacity &amp; Utilization</PageTitle>
       </PageHeader>
 
-      <div className="flex justify-between gap-3">
+      <CapacityBars
+        provisioned={utilization.provisioned}
+        allocated={utilization.capacity}
+        allocatedLabel="Quota"
+      />
+
+      <Divider className="my-6" />
+
+      <div className="mb-3 mt-8 flex justify-between gap-3">
         <Listbox
           selected={filterId}
           className="w-48"
@@ -79,18 +92,9 @@ export function SiloUtilizationPage() {
         <div className="flex items-center gap-2">{dateTimeRangePicker}</div>
       </div>
 
-      <Divider className="my-6" />
-
       {intervalPicker}
 
       <div className="mb-12 space-y-12">
-        <SiloMetric
-          {...commonProps}
-          metricName="virtual_disk_space_provisioned"
-          title="Disk Space"
-          unit="TiB"
-          valueTransform={bytesToTiB}
-        />
         <SiloMetric
           {...commonProps}
           metricName="cpus_provisioned"
@@ -103,6 +107,13 @@ export function SiloUtilizationPage() {
           title="Memory"
           unit="GiB"
           valueTransform={bytesToGiB}
+        />
+        <SiloMetric
+          {...commonProps}
+          metricName="virtual_disk_space_provisioned"
+          title="Storage"
+          unit="TiB"
+          valueTransform={bytesToTiB}
         />
       </div>
     </>

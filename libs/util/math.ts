@@ -16,6 +16,5 @@ export function splitDecimal(value: number) {
 }
 
 export function round(num: number, digits: number) {
-  const pow10 = Math.pow(10, digits)
-  return Math.round((num + Number.EPSILON) * pow10) / pow10
+  return Number(num.toFixed(digits))
 }
