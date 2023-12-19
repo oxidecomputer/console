@@ -10,13 +10,14 @@ import type { ReactElement, ReactNode } from 'react'
 import { Link, type To } from 'react-router-dom'
 
 import {
+  Access16Icon,
   Error12Icon,
   OpenLink12Icon,
   Success12Icon,
   Warning12Icon,
 } from '@oxide/design-system/icons/react'
 
-type Variant = 'success' | 'error' | 'notice' | 'info'
+type Variant = 'success' | 'error' | 'notice' | 'info' | 'access'
 
 export interface MessageProps {
   title?: string
@@ -34,6 +35,7 @@ const icon: Record<Variant, ReactElement> = {
   error: <Error12Icon />,
   notice: <Warning12Icon />,
   info: <Error12Icon className="rotate-180" />,
+  access: <Access16Icon />,
 }
 
 const color: Record<Variant, string> = {
@@ -41,6 +43,7 @@ const color: Record<Variant, string> = {
   error: 'bg-error-secondary',
   notice: 'bg-notice-secondary',
   info: 'bg-info-secondary',
+  access: 'bg-notice-secondary',
 }
 
 const textColor: Record<Variant, string> = {
@@ -48,6 +51,7 @@ const textColor: Record<Variant, string> = {
   error: 'text-error children:text-error',
   notice: 'text-notice children:text-notice',
   info: 'text-info children:text-info',
+  access: 'text-notice children:text-notice',
 }
 
 const secondaryTextColor: Record<Variant, string> = {
@@ -55,6 +59,7 @@ const secondaryTextColor: Record<Variant, string> = {
   error: 'text-error-secondary',
   notice: 'text-notice-secondary',
   info: 'text-info-secondary',
+  access: 'text-notice-secondary',
 }
 
 const linkColor: Record<Variant, string> = {
@@ -62,6 +67,7 @@ const linkColor: Record<Variant, string> = {
   error: 'text-error-secondary hover:text-error',
   notice: 'text-notice-secondary hover:text-notice',
   info: 'text-info-secondary hover:text-info',
+  access: 'text-notice-secondary hover:text-notice',
 }
 
 export const Message = ({
