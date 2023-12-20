@@ -27,6 +27,7 @@ export interface MessageProps {
     text: string
     link: To
   }
+  // try to use icons from the ___12Icon set, rather than forcing a 16px or 24px icon
   alternateIcon?: ReactElement
 }
 
