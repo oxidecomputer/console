@@ -27,6 +27,7 @@ import {
   Instances24Icon,
   Key16Icon,
   Message,
+  OpenLink12Icon,
   RadioCard,
   Tabs,
   TextInputHint,
@@ -383,11 +384,13 @@ export function CreateInstanceForm() {
                 <br />
                 <div className="mt-2">
                   <a
+                    className="flex items-center gap-x-1"
                     target="_blank"
-                    href="https://cloudinit.readthedocs.io/en/latest/"
+                    href="https://docs.oxide.computer/guides/configuring-access"
                     rel="noreferrer"
                   >
-                    Learn more about SSH keys
+                    <span className="underline">Learn more about SSH keys</span>
+                    <OpenLink12Icon className="text-warning" />
                   </a>
                 </div>
               </div>
