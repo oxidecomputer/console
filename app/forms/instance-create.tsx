@@ -369,7 +369,6 @@ export function CreateInstanceForm() {
       <FormDivider />
       <Form.Heading id="authentication">Authentication</Form.Heading>
 
-      {/* We want to pass, to the sshKeyIds field, an array of strings */}
       <div className="max-w-lg">
         <div className="mb-2">
           <FieldLabel id="ssh-keys-label">SSH keys</FieldLabel>
