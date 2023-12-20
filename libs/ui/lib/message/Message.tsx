@@ -27,6 +27,7 @@ export interface MessageProps {
     text: string
     link: To
   }
+  alternateIcon?: ReactElement
 }
 
 const icon: Record<Variant, ReactElement> = {
@@ -70,6 +71,7 @@ export const Message = ({
   className,
   variant = 'success',
   cta,
+  alternateIcon,
 }: MessageProps) => {
   return (
     <div
@@ -80,7 +82,7 @@ export const Message = ({
         className
       )}
     >
-      <div className="mt-[2px] flex svg:h-3 svg:w-3">{icon[variant]}</div>
+      <div className="mt-[2px] flex svg:h-3 svg:w-3">{alternateIcon || icon[variant]}</div>
       <div className="flex-1 pl-2.5">
         {title && <div className="text-sans-semi-md">{title}</div>}
         <div
