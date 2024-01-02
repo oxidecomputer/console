@@ -75,7 +75,7 @@ export function TextField<
   return (
     <div className="max-w-lg">
       <div className="mb-2">
-        <FieldLabel id={`${id}-label`} tip={description} optional={!required}>
+        <FieldLabel htmlFor={id} id={`${id}-label`} tip={description} optional={!required}>
           {label} {units && <span className="ml-1 text-secondary">({units})</span>}
         </FieldLabel>
         {helpText && (
