@@ -28,10 +28,10 @@ export interface MessageProps {
     link: To
   }
   // try to use icons from the ___12Icon set, rather than forcing a 16px or 24px icon
-  alternateIcon?: ReactElement
+  icon?: ReactElement
 }
 
-const icon: Record<Variant, ReactElement> = {
+const defaultIcon: Record<Variant, ReactElement> = {
   success: <Success12Icon />,
   error: <Error12Icon />,
   notice: <Warning12Icon />,
@@ -72,7 +72,7 @@ export const Message = ({
   className,
   variant = 'success',
   cta,
-  alternateIcon,
+  icon = defaultIcon[variant],
 }: MessageProps) => {
   return (
     <div
@@ -83,7 +83,7 @@ export const Message = ({
         className
       )}
     >
-      <div className="mt-[2px] flex svg:h-3 svg:w-3">{alternateIcon || icon[variant]}</div>
+      <div className="mt-[2px] flex svg:h-3 svg:w-3">{icon}</div>
       <div className="flex-1 pl-2.5">
         {title && <div className="text-sans-semi-md">{title}</div>}
         <div
