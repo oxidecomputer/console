@@ -179,8 +179,8 @@ export function generateUtilization(
     metricName === 'cpus_provisioned'
       ? capacity.cpu
       : metricName === 'virtual_disk_space_provisioned'
-      ? capacity.disk_tib * TiB
-      : capacity.ram_gib * GiB
+        ? capacity.disk_tib * TiB
+        : capacity.ram_gib * GiB
   const metricNameSeed = Array.from(metricName).reduce(
     (acc, char) => acc + char.charCodeAt(0),
     0

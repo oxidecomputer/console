@@ -90,10 +90,10 @@ function Step({ children, state, label, className }: StepProps) {
   const [status, icon] = state.isSuccess
     ? ['complete', <Success12Icon className="text-accent" />]
     : state.isPending
-    ? ['running', <Spinner />]
-    : state.isError
-    ? ['error', <Error12Icon className="text-error" />]
-    : ['ready', <Unauthorized12Icon className="text-disabled" />]
+      ? ['running', <Spinner />]
+      : state.isError
+        ? ['error', <Error12Icon className="text-error" />]
+        : ['ready', <Unauthorized12Icon className="text-disabled" />]
   /* eslint-enable react/jsx-key */
   return (
     // data-status used only for e2e testing
