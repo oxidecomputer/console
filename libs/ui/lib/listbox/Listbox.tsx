@@ -88,8 +88,8 @@ export const Listbox = <Value extends string = string>({
   const zIndex = isInModal
     ? 'z-modalDropdown'
     : isInSideModal
-    ? 'z-sideModalDropdown'
-    : 'z-contentDropdown'
+      ? 'z-sideModalDropdown'
+      : 'z-contentDropdown'
 
   return (
     <div className={cn('relative', className)}>
