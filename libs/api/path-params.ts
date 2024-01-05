@@ -21,5 +21,6 @@ export type IdentityProvider = Merge<Silo, { provider: string }>
 export type SystemUpdate = { version: string }
 export type SshKey = { sshKey: string }
 export type Sled = { sledId?: string }
+export type IpPool = { pool?: string }
 
 export type Id = { id: string }
