@@ -16,7 +16,6 @@ export function ConnectTab() {
   return (
     <SettingsGroup
       title="Serial Console"
-      docs={{ text: 'Serial Console', link: '/' }}
       cta={pb.serialConsole({ project, instance })}
       ctaText="Connect"
     >
