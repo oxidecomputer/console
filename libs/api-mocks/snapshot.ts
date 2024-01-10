@@ -6,6 +6,8 @@
  * Copyright Oxide Computer Company
  */
 
+import { v4 as uuid } from 'uuid'
+
 import type { Snapshot } from '@oxide/api'
 
 import { disks } from './disk'
@@ -77,7 +79,7 @@ export const snapshots: Json<Snapshot>[] = [
 
 function generateSnapshot(index: number): Json<Snapshot> {
   return {
-    id: generateUUID(),
+    id: uuid(),
     name: `disk-1-snapshot-${index + 5}`,
     description: '',
     project_id: project.id,
@@ -87,13 +89,4 @@ function generateSnapshot(index: number): Json<Snapshot> {
     disk_id: disks[0].id,
     state: 'ready',
   }
-}
-
-// Can't use `crypto.randomUUID()` with playwright
-function generateUUID() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-    const r = (Math.random() * 16) | 0,
-      v = c === 'x' ? r : (r & 0x3) | 0x8
-    return v.toString(16)
-  })
 }
