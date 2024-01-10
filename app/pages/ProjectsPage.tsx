@@ -41,7 +41,7 @@ const EmptyState = () => (
 )
 
 ProjectsPage.loader = async () => {
-  await apiQueryClient.prefetchQuery('projectList', { query: { limit: 10 } })
+  await apiQueryClient.prefetchQuery('projectList', { query: { limit: 25 } })
   return null
 }
 
@@ -51,7 +51,7 @@ export default function ProjectsPage() {
   const queryClient = useApiQueryClient()
   const { Table, Column } = useQueryTable('projectList', {})
   const { data: projects } = usePrefetchedApiQuery('projectList', {
-    query: { limit: 10 }, // limit to match QueryTable
+    query: { limit: 25 }, // limit to match QueryTable
   })
 
   const deleteProject = useApiMutation('projectDelete', {

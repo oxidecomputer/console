@@ -44,7 +44,7 @@ const EmptyState = () => (
 
 SiloImagesPage.loader = async () => {
   await apiQueryClient.prefetchQuery('imageList', {
-    query: { limit: 10 },
+    query: { limit: 25 },
   })
   return null
 }

@@ -65,7 +65,7 @@ const EmptyState = () => (
 
 DisksPage.loader = async ({ params }: LoaderFunctionArgs) => {
   await apiQueryClient.prefetchQuery('diskList', {
-    query: { ...getProjectSelector(params), limit: 10 },
+    query: { ...getProjectSelector(params), limit: 25 },
   })
   return null
 }

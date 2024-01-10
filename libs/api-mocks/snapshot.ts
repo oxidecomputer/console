@@ -5,11 +5,18 @@
  *
  * Copyright Oxide Computer Company
  */
+
+import { v4 as uuid } from 'uuid'
+
 import type { Snapshot } from '@oxide/api'
 
 import { disks } from './disk'
 import type { Json } from './json-type'
 import { project } from './project'
+
+const generatedSnapshots: Json<Snapshot>[] = Array.from({ length: 25 }, (_, i) =>
+  generateSnapshot(i)
+)
 
 export const snapshots: Json<Snapshot>[] = [
   {
@@ -67,4 +74,19 @@ export const snapshots: Json<Snapshot>[] = [
     disk_id: 'a6f61e3f-25c1-49b0-a013-ac6a2d98a948',
     state: 'ready',
   },
+  ...generatedSnapshots,
 ]
+
+function generateSnapshot(index: number): Json<Snapshot> {
+  return {
+    id: uuid(),
+    name: `disk-1-snapshot-${index + 5}`,
+    description: '',
+    project_id: project.id,
+    time_created: new Date().toISOString(),
+    time_modified: new Date().toISOString(),
+    size: 1024 * (index + 1),
+    disk_id: disks[0].id,
+    state: 'ready',
+  }
+}

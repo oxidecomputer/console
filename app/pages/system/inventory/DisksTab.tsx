@@ -20,7 +20,7 @@ const EmptyState = () => {
 }
 
 DisksTab.loader = async () => {
-  await apiQueryClient.prefetchQuery('physicalDiskList', { query: { limit: 10 } })
+  await apiQueryClient.prefetchQuery('physicalDiskList', { query: { limit: 25 } })
   return null
 }
 

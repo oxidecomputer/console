@@ -23,7 +23,7 @@ const EmptyState = () => {
 
 SledsTab.loader = async () => {
   await apiQueryClient.prefetchQuery('sledList', {
-    query: { limit: 10 },
+    query: { limit: 25 },
   })
   return null
 }
