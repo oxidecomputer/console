@@ -7,7 +7,7 @@
  */
 import { expectRowVisible, expectVisible, test } from './utils'
 
-test('Test pagination', async ({ page }) => {
+test('pagination', async ({ page }) => {
   await page.goto('/projects/mock-project/snapshots')
 
   // Test pagination
