@@ -51,7 +51,7 @@ const EmptyState = () => (
 
 SnapshotsPage.loader = async ({ params }: LoaderFunctionArgs) => {
   await apiQueryClient.prefetchQuery('snapshotList', {
-    query: { ...getProjectSelector(params), limit: 10 },
+    query: { ...getProjectSelector(params), limit: 25 },
   })
   return null
 }

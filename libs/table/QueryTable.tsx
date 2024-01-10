@@ -106,7 +106,7 @@ const makeQueryTable = <Item extends Record<string, unknown>>(
     makeActions,
     debug,
     pagination = 'page',
-    pageSize = 32,
+    pageSize = 25,
     emptyState,
     onSingleSelect,
     onMultiSelect,

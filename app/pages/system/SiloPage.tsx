@@ -44,7 +44,7 @@ SiloPage.loader = async ({ params }: LoaderFunctionArgs) => {
   await Promise.all([
     apiQueryClient.prefetchQuery('siloView', { path: { silo } }),
     apiQueryClient.prefetchQuery('siloIdentityProviderList', {
-      query: { silo, limit: 10 }, // same as query table
+      query: { silo, limit: 25 }, // same as query table
     }),
   ])
   return null

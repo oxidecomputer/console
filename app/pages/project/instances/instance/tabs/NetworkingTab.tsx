@@ -91,7 +91,7 @@ NetworkingTab.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project, instance } = getInstanceSelector(params)
   await Promise.all([
     apiQueryClient.prefetchQuery('instanceNetworkInterfaceList', {
-      query: { project, instance, limit: 10 },
+      query: { project, instance, limit: 25 },
     }),
     // This is covered by the InstancePage loader but there's no downside to
     // being redundant. If it were removed there, we'd still want it here.

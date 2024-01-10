@@ -13,13 +13,13 @@ import { pb } from 'app/util/path-builder'
 
 InventoryPage.loader = async () => {
   await apiQueryClient.prefetchQuery('rackList', {
-    query: { limit: 10 },
+    query: { limit: 25 },
   })
   return null
 }
 
 export function InventoryPage() {
-  const { data: racks } = usePrefetchedApiQuery('rackList', { query: { limit: 10 } })
+  const { data: racks } = usePrefetchedApiQuery('rackList', { query: { limit: 25 } })
   const rack = racks?.items[0]
 
   if (!rack) return null
