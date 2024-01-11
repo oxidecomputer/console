@@ -16,7 +16,7 @@ export const InstanceStatusCell = ({
   value,
 }: Cell<Pick<Instance, 'runState' | 'timeRunStateUpdated'>>) => {
   return (
-    <div className="space-y-0.5">
+    <div className="flex flex-col">
       <InstanceStatusBadge key="run-state" status={value.runState} />
       <TimeAgo description="Run state updated" datetime={value.timeRunStateUpdated} />
     </div>
