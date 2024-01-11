@@ -130,6 +130,28 @@ export const lookup = {
     if (!image) throw notFoundErr
     return image
   },
+  ipPool({ pool: id }: PP.IpPool): Json<Api.IpPool> {
+    if (!id) throw notFoundErr
+
+    if (isUuid(id)) return lookupById(db.ipPools, id)
+
+    const pool = db.ipPools.find((p) => p.name === id)
+    if (!pool) throw notFoundErr
+
+    return pool
+  },
+  // unusual one because it's a sibling relationship. we look up both the pool and the silo first
+  ipPoolSilo({ pool: poolId, silo: siloId }: PP.IpPool & PP.Silo): Json<Api.IpPoolSilo> {
+    const pool = lookup.ipPool({ pool: poolId })
+    const silo = lookup.silo({ silo: siloId })
+
+    const ipPoolSilo = db.ipPoolSilos.find(
+      (ips) => ips.ip_pool_id === pool.id && ips.silo_id === silo.id
+    )
+    if (!ipPoolSilo) throw notFoundErr
+
+    return ipPoolSilo
+  },
   samlIdp({
     provider: id,
     ...siloSelector
@@ -203,6 +225,8 @@ const initDb = {
   groupMemberships: [...mock.groupMemberships],
   images: [...mock.images],
   instances: [...mock.instances],
+  ipPools: [...mock.ipPools],
+  ipPoolSilos: [...mock.ipPoolSilos],
   networkInterfaces: [mock.networkInterface],
   physicalDisks: [...mock.physicalDisks],
   projects: [...mock.projects],

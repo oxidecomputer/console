@@ -547,6 +547,66 @@ export const handlers = makeHandlers({
 
     return json(instance, { status: 202 })
   },
+  ipPoolList: ({ query }) => paginated(query, db.ipPools),
+  ipPoolView: ({ path }) => lookup.ipPool(path),
+  ipPoolSiloList({ path /*query*/ }) {
+    // TODO: paginated wants an id field, but this is a join table, so it  has a
+    // composite pk
+    // return paginated(query, db.ipPoolResources)
+
+    const pool = lookup.ipPool(path)
+    const assocs = db.ipPoolSilos.filter((ipr) => ipr.ip_pool_id === pool.id)
+    return { items: assocs }
+  },
+  ipPoolSiloLink({ path, body }) {
+    const pool = lookup.ipPool(path)
+    const silo_id = lookup.silo({ silo: body.silo }).id
+
+    const assoc = {
+      ip_pool_id: pool.id,
+      silo_id,
+      is_default: body.is_default,
+    }
+
+    const alreadyThere = db.ipPoolSilos.find(
+      (ips) => ips.ip_pool_id === pool.id && ips.silo_id === silo_id
+    )
+
+    // TODO: this matches current API logic but makes no sense because is_default
+    // could be different. Need to fix that. Should 400 or 409 on conflict.
+    if (!alreadyThere) db.ipPoolSilos.push(assoc)
+
+    return assoc
+  },
+  ipPoolSiloUnlink({ path }) {
+    const pool = lookup.ipPool(path)
+    const silo = lookup.silo(path)
+
+    // ignore is_default when deleting, it's not part of the pk
+    db.ipPoolSilos = db.ipPoolSilos.filter(
+      (ips) => !(ips.ip_pool_id === pool.id && ips.silo_id === silo.id)
+    )
+
+    return 204
+  },
+  ipPoolSiloUpdate: ({ path, body }) => {
+    const ipPoolSilo = lookup.ipPoolSilo(path)
+
+    // if we're setting default, we need to set is_default false on the existing default
+    if (body.is_default) {
+      const silo = lookup.silo(path)
+      const existingDefault = db.ipPoolSilos.find(
+        (ips) => ips.silo_id === silo.id && ips.is_default
+      )
+      if (existingDefault) {
+        existingDefault.is_default = false
+      }
+    }
+
+    ipPoolSilo.is_default = body.is_default
+
+    return ipPoolSilo
+  },
   projectPolicyView({ path }) {
     const project = lookup.project(path)
 
@@ -960,7 +1020,6 @@ export const handlers = makeHandlers({
   siloMetric: handleMetrics,
 
   // Misc endpoints we're not using yet in the console
-  addSledToInitializedRack: NotImplemented,
   certificateCreate: NotImplemented,
   certificateDelete: NotImplemented,
   certificateList: NotImplemented,
@@ -973,7 +1032,6 @@ export const handlers = makeHandlers({
   instanceSerialConsoleStream: NotImplemented,
   ipPoolCreate: NotImplemented,
   ipPoolDelete: NotImplemented,
-  ipPoolList: NotImplemented,
   ipPoolRangeAdd: NotImplemented,
   ipPoolRangeList: NotImplemented,
   ipPoolRangeRemove: NotImplemented,
@@ -982,7 +1040,6 @@ export const handlers = makeHandlers({
   ipPoolServiceRangeRemove: NotImplemented,
   ipPoolServiceView: NotImplemented,
   ipPoolUpdate: NotImplemented,
-  ipPoolView: NotImplemented,
   localIdpUserCreate: NotImplemented,
   localIdpUserDelete: NotImplemented,
   localIdpUserSetPassword: NotImplemented,
@@ -1021,12 +1078,13 @@ export const handlers = makeHandlers({
   siloQuotasView: NotImplemented,
   siloUserList: NotImplemented,
   siloUserView: NotImplemented,
+  sledAdd: NotImplemented,
+  sledListUninitialized: NotImplemented,
   sledSetProvisionState: NotImplemented,
   switchList: NotImplemented,
   switchView: NotImplemented,
   systemPolicyUpdate: NotImplemented,
   systemQuotasList: NotImplemented,
-  uninitializedSledList: NotImplemented,
   userBuiltinList: NotImplemented,
   userBuiltinView: NotImplemented,
 })
