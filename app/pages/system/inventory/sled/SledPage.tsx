@@ -9,7 +9,13 @@ import fileSize from 'filesize'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
-import { PageHeader, PageTitle, PropertiesTable, Racks24Icon } from '@oxide/ui'
+import {
+  CopyOnTruncate,
+  PageHeader,
+  PageTitle,
+  PropertiesTable,
+  Racks24Icon,
+} from '@oxide/ui'
 
 import { RouteTabs, Tab } from 'app/components/RouteTabs'
 import { requireSledParams, useSledParams } from 'app/hooks'
@@ -52,7 +58,7 @@ export function SledPage() {
         </PropertiesTable>
         <PropertiesTable>
           <PropertiesTable.Row label="rack id">
-            <span className="text-secondary">{sled.rackId}</span>
+            <CopyOnTruncate value={sled.rackId} className="text-secondary" />
           </PropertiesTable.Row>
           <PropertiesTable.Row label="location">
             <span className="text-disabled">Coming soon</span>
