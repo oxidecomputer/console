@@ -6,11 +6,6 @@
  * Copyright Oxide Computer Company
  */
 
-import cn from 'classnames'
-import { useRef } from 'react'
-
-import { useIsOverflow } from 'app/hooks'
-
 import { CopyToClipboard } from '../copy-to-clipboard/CopyToClipboard'
 import { Tooltip } from '../tooltip/Tooltip'
 
@@ -65,27 +60,4 @@ export function truncate(
   const firstHalf = text.substring(0, halfLength)
   const secondHalf = text.substring(text.length - halfLength)
   return `${firstHalf}…${secondHalf}`
-}
-
-export const CopyOnTruncate = ({
-  value,
-  className,
-}: {
-  value: string
-  className?: string
-}) => {
-  const overflowRef = useRef<HTMLDivElement>(null)
-  const { isOverflow } = useIsOverflow(overflowRef, 'horizontal')
-
-  return (
-    <>
-      <div
-        ref={overflowRef}
-        className={cn('overflow-hidden text-ellipsis whitespace-nowrap', className)}
-      >
-        {value}
-      </div>
-      {isOverflow && <CopyToClipboard text={value} />}
-    </>
-  )
 }

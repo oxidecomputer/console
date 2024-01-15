@@ -12,7 +12,6 @@ import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, useApiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import {
-  CopyOnTruncate,
   Instances24Icon,
   PageHeader,
   PageTitle,
@@ -140,7 +139,9 @@ export function InstancePage() {
             </span>
           </PropertiesTable.Row>
           <PropertiesTable.Row label="id">
-            <CopyOnTruncate value={instance.id} className="text-secondary" />
+            <span className="overflow-hidden text-ellipsis whitespace-nowrap text-secondary">
+              {instance.id}
+            </span>
           </PropertiesTable.Row>
           <PropertiesTable.Row label="external IP">
             {ExternalIpsFromInstanceName({ value: true })}
