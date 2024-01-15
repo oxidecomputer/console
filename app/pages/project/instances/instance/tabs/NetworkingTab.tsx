@@ -97,7 +97,7 @@ export function ExternalIpsFromInstanceName({ value: primary }: { value: boolean
       >
         {eip.ip}
       </a>
-      {index < array.length - 1 && ', '}
+      {index < array.length - 1 && <span className="text-quinary"> / </span>}
     </Fragment>
   ))
 
