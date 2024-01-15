@@ -21,6 +21,7 @@ import { useQueryTable, type MenuAction } from '@oxide/table'
 import {
   Badge,
   Button,
+  CopyToClipboard,
   EmptyMessage,
   Networking24Icon,
   Spinner,
@@ -101,7 +102,13 @@ export function ExternalIpsFromInstanceName({ value: primary }: { value: boolean
     </Fragment>
   ))
 
-  return <span className="text-secondary">{primary ? ips : <>&mdash;</>}</span>
+  return (
+    <div className="flex items-center gap-1 text-secondary">
+      {primary ? ips : <>&mdash;</>}
+      {/* If there's exactly one IP here, render a copy to clipboard button */}
+      {data?.items.length === 1 && <CopyToClipboard text={data.items[0].ip} />}
+    </div>
+  )
 }
 
 NetworkingTab.loader = async ({ params }: LoaderFunctionArgs) => {
