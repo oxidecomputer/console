@@ -13,8 +13,14 @@ export const linkCell =
   (makeHref: (value: string) => string) =>
   ({ value }: Cell<string>) => {
     return (
-      <Link className="text-sans-semi-md text-default hover:underline" to={makeHref(value)}>
-        {value}
-      </Link>
+      <>
+        <Link
+          className="link-cell absolute inset-0 flex h-full w-full"
+          to={makeHref(value)}
+        />
+        <span className="text-sans-semi-md text-default group-hover/cell:underline">
+          {value}
+        </span>
+      </>
     )
   }
