@@ -26,10 +26,18 @@ import { getInstanceSelector, useInstanceSelector, useQuickActions } from 'app/h
 import { pb } from 'app/util/path-builder'
 
 import { useMakeInstanceActions } from '../actions'
+import { ExternalIpsFromInstanceName, VpcNameFromId } from './tabs/NetworkingTab'
 
 InstancePage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project, instance } = getInstanceSelector(params)
   await apiQueryClient.prefetchQuery('instanceView', {
+    path: { instance },
+    query: { project },
+  })
+  await apiQueryClient.prefetchQuery('instanceNetworkInterfaceList', {
+    query: { project, instance, limit: 10 },
+  })
+  await apiQueryClient.prefetchQuery('instanceExternalIpList', {
     path: { instance },
     query: { project },
   })
@@ -52,6 +60,14 @@ export function InstancePage() {
   const { data: instance } = usePrefetchedApiQuery('instanceView', {
     path: { instance: instanceSelector.instance },
     query: { project: instanceSelector.project },
+  })
+
+  const { data: nicList } = usePrefetchedApiQuery('instanceNetworkInterfaceList', {
+    query: {
+      project: instanceSelector.project,
+      instance: instanceSelector.instance,
+      limit: 10,
+    },
   })
 
   const actions = useMemo(
@@ -81,6 +97,8 @@ export function InstancePage() {
 
   const memory = filesize(instance.memory, { output: 'object', base: 2 })
 
+  const primaryVpcId = nicList.items && nicList.items.length > 0 && nicList.items[0].vpcId
+
   return (
     <>
       <PageHeader>
@@ -100,6 +118,11 @@ export function InstancePage() {
           <PropertiesTable.Row label="status">
             <InstanceStatusBadge status={instance.runState} />
           </PropertiesTable.Row>
+          <PropertiesTable.Row label="vpc">
+            <span className="text-secondary">
+              {primaryVpcId ? VpcNameFromId({ value: primaryVpcId }) : '-'}
+            </span>
+          </PropertiesTable.Row>
         </PropertiesTable>
         <PropertiesTable>
           <PropertiesTable.Row label="description">
@@ -107,9 +130,6 @@ export function InstancePage() {
               <Truncate text={instance.description} maxLength={40} />
             </span>
           </PropertiesTable.Row>
-          {/* <PropertiesTable.Row label="dns name">
-            <span className="text-secondary">{instance.hostname || '–'}</span>
-          </PropertiesTable.Row> */}
           <PropertiesTable.Row label="created">
             <span className="text-secondary">
               {format(instance.timeCreated, 'MMM d, yyyy')}{' '}
@@ -121,6 +141,11 @@ export function InstancePage() {
           <PropertiesTable.Row label="id">
             <span className="overflow-hidden text-ellipsis whitespace-nowrap text-secondary">
               {instance.id}
+            </span>
+          </PropertiesTable.Row>
+          <PropertiesTable.Row label="external IP">
+            <span className="text-secondary">
+              {ExternalIpsFromInstanceName({ value: true })}
             </span>
           </PropertiesTable.Row>
         </PropertiesTable>

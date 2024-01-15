@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useState } from 'react'
+import { Fragment, useState } from 'react'
 import { Link, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
@@ -40,7 +40,7 @@ import { pb } from 'app/util/path-builder'
 
 import { fancifyStates } from './common'
 
-const VpcNameFromId = ({ value }: { value: string }) => {
+export const VpcNameFromId = ({ value }: { value: string }) => {
   const projectSelector = useProjectSelector()
   const { data: vpc, isError } = useApiQuery(
     'vpcView',
@@ -52,10 +52,11 @@ const VpcNameFromId = ({ value }: { value: string }) => {
   // possible because you can't delete a VPC that has child resources, but let's
   // be safe
   if (isError) return <Badge color="neutral">Deleted</Badge>
-  if (!vpc) return <Spinner /> // loading
+  if (!vpc)
+    return <div className="h-4 w-12 rounded bg-tertiary motion-safe:animate-pulse" /> // loading
   return (
     <Link
-      className="text-sans-semi-md text-default hover:underline"
+      className="underline text-sans-semi-md text-secondary hover:text-default"
       to={pb.vpc({ ...projectSelector, vpc: vpc.name })}
     >
       {vpc.name}
@@ -77,13 +78,29 @@ const SubnetNameFromId = ({ value }: { value: string }) => {
   return <span className="text-secondary">{subnet.name}</span>
 }
 
-function ExternalIpsFromInstanceName({ value: primary }: { value: boolean }) {
+export function ExternalIpsFromInstanceName({ value: primary }: { value: boolean }) {
   const { project, instance } = useInstanceSelector()
-  const { data } = useApiQuery('instanceExternalIpList', {
+  const { data, isLoading } = useApiQuery('instanceExternalIpList', {
     path: { instance },
     query: { project },
   })
-  const ips = data?.items.map((eip) => eip.ip).join(', ')
+  if (isLoading)
+    return <div className="h-4 w-12 rounded bg-tertiary motion-safe:animate-pulse" /> // loading
+
+  const ips = data?.items.map((eip, index, array) => (
+    <Fragment key={eip.ip}>
+      <a
+        className="underline text-sans-semi-md text-secondary hover:text-default"
+        href={eip.ip}
+        target="_blank"
+        rel="noreferrer"
+      >
+        {eip.ip}
+      </a>
+      {index < array.length - 1 && ', '}
+    </Fragment>
+  ))
+
   return <span className="text-secondary">{primary ? ips : <>&mdash;</>}</span>
 }
 
