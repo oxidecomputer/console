@@ -24,6 +24,7 @@ import {
   useReactTable,
 } from '@oxide/table'
 import { Button, EmptyMessage, TableEmptyBox } from '@oxide/ui'
+import { titleCase } from '@oxide/util'
 
 import { CreateFirewallRuleForm } from 'app/forms/firewall-rules-create'
 import { EditFirewallRuleForm } from 'app/forms/firewall-rules-edit'
@@ -32,10 +33,17 @@ import { confirmDelete } from 'app/stores/confirm-delete'
 
 const colHelper = createColumnHelper<VpcFirewallRule>()
 
+const directionMap = {
+  inbound: 'Incoming',
+  outbound: 'Outgoing',
+}
+
 /** columns that don't depend on anything in `render` */
 const staticColumns = [
-  colHelper.accessor('name', { header: 'Name' }),
-  colHelper.accessor('action', { header: 'Action' }),
+  colHelper.accessor('action', {
+    header: 'Action',
+    cell: (info) => <div className="text-secondary">{titleCase(info.getValue())}</div>,
+  }),
   colHelper.accessor('targets', {
     header: 'Targets',
     cell: (info) => <TypeValueListCell value={info.getValue()} />,
@@ -47,6 +55,14 @@ const staticColumns = [
   colHelper.accessor('status', {
     header: 'Status',
     cell: (info) => <EnabledCell value={info.getValue()} />,
+  }),
+  colHelper.accessor('direction', {
+    header: 'Direction',
+    cell: (info) => (
+      <div className="text-secondary">
+        {directionMap[info.getValue()] || info.getValue()}
+      </div>
+    ),
   }),
   colHelper.accessor('timeCreated', {
     id: 'created',
@@ -74,6 +90,18 @@ export const VpcFirewallRulesTab = () => {
   // the whole thing can't be static because the action depends on setEditing
   const columns = useMemo(() => {
     return [
+      colHelper.accessor('name', {
+        header: 'Name',
+        cell: (info) => (
+          <>
+            <button
+              className="peer absolute inset-0"
+              onClick={() => setEditing(info.row.original)}
+            />
+            <div className="peer-hover:underline">{info.getValue()}</div>
+          </>
+        ),
+      }),
       ...staticColumns,
       getActionsCol((rule: VpcFirewallRule) => [
         { label: 'Edit', onActivate: () => setEditing(rule) },
