@@ -67,8 +67,6 @@ export function truncate(
   return `${firstHalf}…${secondHalf}`
 }
 
-/* Adds a copy button if the text is truncated (and the div is overflowing).
-Useful for long resource IDs inside dynamically sized containers, e.g the instance page */
 export const CopyOnTruncate = ({
   value,
   className,
