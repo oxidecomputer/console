@@ -32,6 +32,9 @@ import {
 } from 'react'
 import { mergeRefs } from 'react-merge-refs'
 
+import { useIsInModal } from '../modal/Modal'
+import { useIsInSideModal } from '../side-modal/SideModal'
+
 import './tooltip.css'
 
 export interface TooltipProps {
@@ -83,6 +86,14 @@ export const Tooltip = forwardRef(
       ref: mergeRefs([refs.setReference, elRef]),
     })
 
+    const isInModal = useIsInModal()
+    const isInSideModal = useIsInSideModal()
+    const zIndex = isInModal
+      ? 'z-modalDropdown'
+      : isInSideModal
+        ? 'z-sideModalDropdown'
+        : 'z-contentDropdown'
+
     return (
       <>
         {child}
@@ -90,7 +101,7 @@ export const Tooltip = forwardRef(
           {open && (
             <div
               ref={refs.setFloating}
-              className={cn('ox-tooltip max-content max-w-sm')}
+              className={cn('ox-tooltip max-content max-w-sm', zIndex)}
               {...getFloatingProps()}
               style={floatingStyles}
             >
