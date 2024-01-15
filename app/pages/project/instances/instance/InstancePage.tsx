@@ -144,9 +144,7 @@ export function InstancePage() {
             </span>
           </PropertiesTable.Row>
           <PropertiesTable.Row label="external IP">
-            <span className="text-secondary">
-              {ExternalIpsFromInstanceName({ value: true })}
-            </span>
+            {ExternalIpsFromInstanceName({ value: true })}
           </PropertiesTable.Row>
         </PropertiesTable>
       </PropertiesTable.Group>
