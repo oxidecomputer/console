@@ -429,7 +429,6 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
       <CheckboxGroupField
         name="protocols"
         label="Protocols"
-        column
         control={control}
         items={[
           { value: 'TCP', label: 'TCP' },
