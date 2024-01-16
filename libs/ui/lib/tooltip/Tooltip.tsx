@@ -32,8 +32,7 @@ import {
 } from 'react'
 import { mergeRefs } from 'react-merge-refs'
 
-import { useIsInModal } from '../modal/Modal'
-import { useIsInSideModal } from '../side-modal/SideModal'
+import { usePopoverZIndex } from '@oxide/ui'
 
 import './tooltip.css'
 
@@ -86,13 +85,7 @@ export const Tooltip = forwardRef(
       ref: mergeRefs([refs.setReference, elRef]),
     })
 
-    const isInModal = useIsInModal()
-    const isInSideModal = useIsInSideModal()
-    const zIndex = isInModal
-      ? 'z-modalDropdown'
-      : isInSideModal
-        ? 'z-sideModalDropdown'
-        : 'z-contentDropdown'
+    const zIndex = usePopoverZIndex()
 
     return (
       <>
