@@ -27,7 +27,7 @@ import {
   Spinner,
   Success12Icon,
 } from '@oxide/ui'
-import { intersperse } from '@oxide/util'
+import { classed, intersperse } from '@oxide/util'
 
 import CreateNetworkInterfaceForm from 'app/forms/network-interface-create'
 import EditNetworkInterfaceForm from 'app/forms/network-interface-edit'
@@ -42,6 +42,8 @@ import { pb } from 'app/util/path-builder'
 
 import { fancifyStates } from './common'
 
+export const Skeleton = classed.div`h-4 w-12 rounded bg-tertiary motion-safe:animate-pulse`
+
 export const VpcNameFromId = ({ value }: { value: string }) => {
   const projectSelector = useProjectSelector()
   const { data: vpc, isError } = useApiQuery(
@@ -54,8 +56,7 @@ export const VpcNameFromId = ({ value }: { value: string }) => {
   // possible because you can't delete a VPC that has child resources, but let's
   // be safe
   if (isError) return <Badge color="neutral">Deleted</Badge>
-  if (!vpc)
-    return <div className="h-4 w-12 rounded bg-tertiary motion-safe:animate-pulse" /> // loading
+  if (!vpc) return <Skeleton />
   return (
     <Link
       className="underline text-sans-semi-md text-secondary hover:text-default"
@@ -99,8 +100,7 @@ export function ExternalIpsFromInstanceName({ value: primary }: { value: boolean
     path: { instance },
     query: { project },
   })
-  if (isLoading)
-    return <div className="h-4 w-12 rounded bg-tertiary motion-safe:animate-pulse" /> // loading
+  if (isLoading) return <Skeleton />
 
   const ips = data?.items
     ? intersperse(
