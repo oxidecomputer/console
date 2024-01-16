@@ -34,7 +34,7 @@ test('can create firewall rule', async ({ page }) => {
   await page.fill('input[name=name]', 'my-new-rule')
   await page.locator('text=Outbound').click()
 
-  await page.fill('role=spinbutton[name="Priority"]', '5')
+  await page.fill('role=textbox[name="Priority"]', '5')
 
   // add target VPC "my-target-vpc"
   await page.locator('role=button[name*="Target type"]').click()
@@ -43,7 +43,7 @@ test('can create firewall rule', async ({ page }) => {
   await page.locator('text="Add target"').click()
 
   // target is added to targets table
-  await expect(page.locator('td:has-text("192.168.0.1")')).toBeVisible()
+  await expect(page.locator('role=cell >> text="192.168.0.1"')).toBeVisible()
 
   // add host filter instance "host-filter-instance"
   await page.locator('role=button[name*="Host type"]').click()
@@ -52,14 +52,14 @@ test('can create firewall rule', async ({ page }) => {
   await page.locator('text="Add host filter"').click()
 
   // host is added to hosts table
-  await expect(page.locator('td:has-text("host-filter-instance")')).toBeVisible()
+  await expect(page.locator('role=cell >> text="host-filter-instance"')).toBeVisible()
 
   // TODO: test invalid port range once I put an error message in there
   await page.fill('role=textbox[name="Port filter"]', '123-456')
   await page.locator('text="Add port filter"').click()
 
   // port range is added to port ranges table
-  await expect(page.locator('td:has-text("123-456")')).toBeVisible()
+  await expect(page.locator('role=cell >> text="123-456"')).toBeVisible()
 
   // check the UDP box
   await page.locator('text=UDP').click()
