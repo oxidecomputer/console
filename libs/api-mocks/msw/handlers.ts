@@ -444,9 +444,12 @@ export const handlers = makeHandlers({
     return disk
   },
   instanceExternalIpList({ path, query }) {
-    lookup.instance({ ...path, ...query })
+    const instance = lookup.instance({ ...path, ...query })
+    const externalIps = db.externalIps
+      .filter((eip) => eip.instance_id === instance.id)
+      .map((eip) => eip.external_ip)
     // endpoint is not paginated. or rather, it's fake paginated
-    return { items: db.externalIps }
+    return { items: externalIps }
   },
   instanceNetworkInterfaceList({ query }) {
     const instance = lookup.instance(query)
