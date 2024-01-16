@@ -119,7 +119,7 @@ export function InstancePage() {
           </PropertiesTable.Row>
           <PropertiesTable.Row label="vpc">
             <span className="text-secondary">
-              {primaryVpcId ? VpcNameFromId({ value: primaryVpcId }) : '-'}
+              {primaryVpcId ? VpcNameFromId({ value: primaryVpcId }) : <>&mdash;</>}
             </span>
           </PropertiesTable.Row>
         </PropertiesTable>

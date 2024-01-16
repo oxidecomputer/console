@@ -27,6 +27,7 @@ import {
   Spinner,
   Success12Icon,
 } from '@oxide/ui'
+import { intersperse } from '@oxide/util'
 
 import CreateNetworkInterfaceForm from 'app/forms/network-interface-create'
 import EditNetworkInterfaceForm from 'app/forms/network-interface-edit'
@@ -79,6 +80,19 @@ const SubnetNameFromId = ({ value }: { value: string }) => {
   return <span className="text-secondary">{subnet.name}</span>
 }
 
+function IpLink({ ip }: { ip: string }) {
+  return (
+    <a
+      className="underline text-sans-semi-md text-secondary hover:text-default"
+      href={ip}
+      target="_blank"
+      rel="noreferrer"
+    >
+      {ip}
+    </a>
+  )
+}
+
 export function ExternalIpsFromInstanceName({ value: primary }: { value: boolean }) {
   const { project, instance } = useInstanceSelector()
   const { data, isLoading } = useApiQuery('instanceExternalIpList', {
@@ -88,23 +102,18 @@ export function ExternalIpsFromInstanceName({ value: primary }: { value: boolean
   if (isLoading)
     return <div className="h-4 w-12 rounded bg-tertiary motion-safe:animate-pulse" /> // loading
 
-  const ips = data?.items.map((eip, index, array) => (
-    <Fragment key={eip.ip}>
-      <a
-        className="underline text-sans-semi-md text-secondary hover:text-default"
-        href={eip.ip}
-        target="_blank"
-        rel="noreferrer"
-      >
-        {eip.ip}
-      </a>
-      {index < array.length - 1 && <span className="text-quinary"> / </span>}
-    </Fragment>
-  ))
+  const ips = data?.items
+    ? intersperse(
+        data.items.map((eip) => <IpLink ip={eip.ip} key={eip.ip} />),
+        <span className="text-quinary"> / </span>
+      )
+    : undefined
 
   return (
     <div className="flex items-center gap-1 text-secondary">
-      {primary ? ips : <>&mdash;</>}
+      {/* primary is about the networking tab call site, ips.length check is
+       * about the table at the top of the instance page */}
+      {primary && ips && ips.length > 0 ? ips : <>&mdash;</>}
       {/* If there's exactly one IP here, render a copy to clipboard button */}
       {data?.items.length === 1 && <CopyToClipboard text={data.items[0].ip} />}
     </div>
