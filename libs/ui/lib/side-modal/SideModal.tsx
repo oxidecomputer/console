@@ -11,7 +11,7 @@ import cn from 'classnames'
 import React, { createContext, useContext, useRef, type ReactNode } from 'react'
 
 import { Close12Icon, Error12Icon } from '@oxide/design-system/icons/react'
-import { Message } from '@oxide/ui'
+import { Message, useIsInModal } from '@oxide/ui'
 import { classed } from '@oxide/util'
 
 import { useIsOverflow } from 'app/hooks'
@@ -21,6 +21,16 @@ import './side-modal.css'
 const SideModalContext = createContext(false)
 
 export const useIsInSideModal = () => useContext(SideModalContext)
+
+export function usePopoverZIndex() {
+  const isInModal = useIsInModal()
+  const isInSideModal = useIsInSideModal()
+  return isInModal
+    ? 'z-modalDropdown'
+    : isInSideModal
+      ? 'z-sideModalDropdown'
+      : 'z-contentDropdown'
+}
 
 export type SideModalProps = {
   title?: string
