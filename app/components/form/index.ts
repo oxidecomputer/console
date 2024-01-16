@@ -11,6 +11,7 @@ export * from './FullPageForm'
 export * from './SideModalForm'
 
 export * from './fields/CheckboxField'
+export * from './fields/CheckboxGroupField'
 export * from './fields/DateTimeRangePicker'
 export * from './fields/DescriptionField'
 export * from './fields/DiskSizeField'
