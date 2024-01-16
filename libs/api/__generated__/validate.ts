@@ -1012,7 +1012,12 @@ export const DiskSource = z.preprocess(
  */
 export const DiskCreate = z.preprocess(
   processResponseBody,
-  z.object({ description: z.string(), diskSource: DiskSource, name: Name, size: ByteCount })
+  z.object({
+    description: z.string(),
+    diskSource: DiskSource,
+    name: Name,
+    size: ByteCount,
+  })
 )
 
 export const DiskPath = z.preprocess(processResponseBody, z.object({ disk: NameOrId }))
@@ -1030,7 +1035,11 @@ export const DiskResultsPage = z.preprocess(
  */
 export const Error = z.preprocess(
   processResponseBody,
-  z.object({ errorCode: z.string().optional(), message: z.string(), requestId: z.string() })
+  z.object({
+    errorCode: z.string().optional(),
+    message: z.string(),
+    requestId: z.string(),
+  })
 )
 
 /**

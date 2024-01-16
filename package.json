@@ -21,7 +21,7 @@
     "e2ec": "playwright test --project=chrome",
     "lint": "eslint --ext .js,.ts,.tsx,.json .",
     "lint-fast": "eslint --cache --fix --ext .js,.ts,.tsx,.json .",
-    "fmt": "prettier --cache --write . && npm run lint -- --fix",
+    "fmt": "biome format --write .",
     "gen-api": "./tools/generate_api_client.sh",
     "ladle": "IS_LADLE=1 ladle serve",
     "build:ladle": "IS_LADLE=1 ladle build",

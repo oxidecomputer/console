@@ -23,8 +23,9 @@ const params = {
 }
 
 test('path builder', () => {
-  expect(Object.fromEntries(Object.entries(pb).map(([key, fn]) => [key, fn(params)])))
-    .toMatchInlineSnapshot(`
+  expect(
+    Object.fromEntries(Object.entries(pb).map(([key, fn]) => [key, fn(params)]))
+  ).toMatchInlineSnapshot(`
       {
         "deviceSuccess": "/device/success",
         "diskInventory": "/system/inventory/disks",

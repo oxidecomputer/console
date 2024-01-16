@@ -96,8 +96,9 @@ export function ProjectAccessPage() {
     return groupBy(siloRows.concat(projectRows), (u) => u.id)
       .map(([userId, userAssignments]) => {
         const siloRole = userAssignments.find((a) => a.roleSource === 'silo')?.roleName
-        const projectRole = userAssignments.find((a) => a.roleSource === 'project')
-          ?.roleName
+        const projectRole = userAssignments.find(
+          (a) => a.roleSource === 'project'
+        )?.roleName
 
         const roles = [siloRole, projectRole].filter(isTruthy)
 

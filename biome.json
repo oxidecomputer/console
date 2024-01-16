@@ -1,0 +1,21 @@
+{
+  "$schema": "https://biomejs.dev/schemas/1.5.2/schema.json",
+  "files": {
+    "ignore": ["./dist"]
+  },
+  "vcs": {
+    "useIgnoreFile": true
+  },
+  "formatter": {
+    "indentWidth": 2,
+    "lineWidth": 92,
+    "indentStyle": "space"
+  },
+  "javascript": {
+    "formatter": {
+      "trailingComma": "es5",
+      "quoteStyle": "single",
+      "semicolons": "asNeeded"
+    }
+  }
+}

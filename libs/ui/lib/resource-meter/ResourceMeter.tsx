@@ -33,9 +33,11 @@ export const ResourceMeter = ({
   const label = `${usagePercent} used`
   // prettier-ignore
   const fg =
-    value > errorThreshold ? 'bg-destructive'
-    : value > warningThreshold ? 'bg-notice'
-    : 'bg-accent'
+    value > errorThreshold
+      ? 'bg-destructive'
+      : value > warningThreshold
+        ? 'bg-notice'
+        : 'bg-accent'
 
   const bg =
     value > errorThreshold
