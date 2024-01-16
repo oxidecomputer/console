@@ -6,6 +6,20 @@
   "vcs": {
     "useIgnoreFile": true
   },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "style": {
+        "noNonNullAssertion": "off",
+        "noUnusedTemplateLiteral": "off",
+        "noUselessElse": "off",
+        "useTemplate": "off"
+      },
+      "complexity": {
+        "useArrowFunction": "off"
+      }
+    }
+  },
   "formatter": {
     "indentWidth": 2,
     "lineWidth": 92,
