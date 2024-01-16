@@ -19,9 +19,9 @@ test('Instance networking tab', async ({ page }) => {
   await expectRowVisible(table, { name: 'my-nic', primary: 'primary' })
 
   // check VPC link in table points to the right page
-  await expect(page.locator('role=cell >> role=link[name="mock-vpc"]')).toHaveAttribute(
+  await expect(page.locator('role=cell >> role=link[name="default"]')).toHaveAttribute(
     'href',
-    '/projects/mock-project/vpcs/mock-vpc'
+    '/projects/mock-project/vpcs/default'
   )
 
   // Have to stop instance to edit NICs
@@ -42,7 +42,7 @@ test('Instance networking tab', async ({ page }) => {
 
   await page.fill('role=textbox[name="Name"]', 'nic-2')
   await page.click('role=button[name*="VPC"]')
-  await page.click('role=option[name="mock-vpc"]')
+  await page.click('role=option[name="default"]')
   await page.click('role=button[name*="Subnet"]')
   await page.click('role=option[name="mock-subnet"]')
   await page.click('role=dialog >> role=button[name="Add network interface"]')

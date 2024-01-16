@@ -62,6 +62,8 @@ export const VpcFirewallRulesTab = () => {
   const { data, isLoading } = useApiQuery('vpcFirewallRulesView', { query: vpcSelector })
   const rules = useMemo(() => data?.rules || [], [data])
 
+  console.log(vpcSelector)
+
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [editing, setEditing] = useState<VpcFirewallRule | null>(null)
 

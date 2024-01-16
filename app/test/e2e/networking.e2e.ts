@@ -15,7 +15,7 @@ test('Create and edit VPC', async ({ page }) => {
   await page.click('role=link[name*="Networking"]')
   await expectVisible(page, [
     'role=heading[name*="VPCs"]',
-    'role=cell[name="mock-vpc"] >> nth=0',
+    'role=cell[name="default"] >> nth=0',
   ])
 
   // New VPC form
@@ -30,9 +30,9 @@ test('Create and edit VPC', async ({ page }) => {
   await page.goBack()
 
   // Edit VPC form
-  await expectVisible(page, ['role=link[name="mock-vpc"]'])
+  await expectVisible(page, ['role=link[name="default"]'])
   await page
-    .locator('role=row', { hasText: 'mock-vpc' })
+    .locator('role=row', { hasText: 'default' })
     .locator('role=button[name="Row actions"]')
     .click()
   await page.click('role=menuitem[name="Edit"]')
@@ -52,11 +52,11 @@ test('Create and edit VPC', async ({ page }) => {
 })
 
 test('Create and edit subnet', async ({ page }) => {
-  await page.goto('/projects/mock-project/vpcs/mock-vpc')
+  await page.goto('/projects/mock-project/vpcs/default')
 
   // VPC detail, subnets tab
   await expectVisible(page, [
-    'role=heading[name*="mock-vpc"]',
+    'role=heading[name*="default"]',
     'role=tab[name="Subnets"]',
     // 'role=tab[name="System Routes"]',
     // 'role=tab[name="Routers"]',

@@ -5,7 +5,8 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useState } from 'react'
+import ipRangeCheck from 'ip-range-check'
+import { useMemo, useState } from 'react'
 import { Link, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
@@ -16,11 +17,23 @@ import {
   useApiQueryClient,
   usePrefetchedApiQuery,
   type InstanceNetworkInterface,
+  type VpcFirewallRule,
 } from '@oxide/api'
-import { useQueryTable, type MenuAction } from '@oxide/table'
+import {
+  createColumnHelper,
+  DateCell,
+  EnabledCell,
+  FirewallFilterCell,
+  Table,
+  TypeValueListCell,
+  useQueryTable,
+  useReactTable,
+  type MenuAction,
+} from '@oxide/table'
 import {
   Badge,
   Button,
+  Divider,
   EmptyMessage,
   Networking24Icon,
   Spinner,
@@ -256,6 +269,145 @@ export function NetworkingTab() {
       {editing && (
         <EditNetworkInterfaceForm editing={editing} onDismiss={() => setEditing(null)} />
       )}
+
+      <AssociatedFirewallRules />
     </>
   )
+}
+
+const colHelper = createColumnHelper<VpcFirewallRule>()
+
+/** columns that don't depend on anything in `render` */
+const staticColumns = [
+  colHelper.accessor('name', { header: 'Name' }),
+  colHelper.accessor('action', { header: 'Action' }),
+  colHelper.accessor('targets', {
+    header: 'Targets',
+    cell: (info) => <TypeValueListCell value={info.getValue()} />,
+  }),
+  colHelper.accessor('filters', {
+    header: 'Filters',
+    cell: (info) => <FirewallFilterCell value={info.getValue()} />,
+  }),
+  colHelper.accessor('status', {
+    header: 'Status',
+    cell: (info) => <EnabledCell value={info.getValue()} />,
+  }),
+  colHelper.accessor('timeCreated', {
+    id: 'created',
+    header: 'Created',
+    cell: (info) => <DateCell value={info.getValue()} />,
+  }),
+]
+
+// Todo: get name from instance, it can be an ID
+// Currently just works with the first NIC
+const AssociatedFirewallRules = () => {
+  const instanceSelector = useInstanceSelector()
+
+  const { data: nicList } = useApiQuery('instanceNetworkInterfaceList', {
+    query: {
+      project: instanceSelector.project,
+      instance: instanceSelector.instance,
+      limit: 10,
+    },
+  })
+
+  const vpcId = nicList?.items[0].vpcId
+
+  const { data: vpc } = useApiQuery(
+    'vpcView',
+    { path: { vpc: vpcId as string } }, // Safe because query is disabled when this is undefined
+    { throwOnError: false, enabled: !!vpcId }
+  )
+
+  const { data: firewallRules } = useApiQuery(
+    'vpcFirewallRulesView',
+    {
+      query: {
+        project: instanceSelector.project,
+        vpc: vpcId as string,
+      },
+    },
+    { enabled: !!vpcId && !!vpc }
+  )
+
+  const { data: subnet } = useApiQuery(
+    'vpcSubnetView',
+    { path: { subnet: nicList?.items[0].subnetId as string } },
+    { throwOnError: false, enabled: nicList && nicList?.items.length > 0 }
+  )
+
+  if (vpc && firewallRules && firewallRules.rules && subnet) {
+    const vpcs = [vpc.name]
+    const subnets = [subnet.name]
+    const ips = nicList && nicList.items.length > 0 ? [nicList?.items[0].ip] : []
+
+    const applicableFirewallRules = firewallRules.rules.filter((rule) =>
+      isRuleApplicableToInstance(rule, instanceSelector.instance, vpcs, subnets, ips)
+    )
+
+    return <FirewallRuleTable data={applicableFirewallRules} />
+  } else {
+    return null
+  }
+}
+
+const FirewallRuleTable = ({ data }: { data: VpcFirewallRule[] }) => {
+  const columns = useMemo(() => {
+    return [...staticColumns]
+  }, [])
+
+  const table = useReactTable({ columns, data })
+  return (
+    <>
+      <Divider className="my-12" />
+
+      <h2 id="firewall-rules-label" className="mb-4 text-mono-sm text-secondary">
+        Associated Firewall Rules
+      </h2>
+      <Table table={table} />
+    </>
+  )
+}
+
+function isRuleApplicableToInstance(
+  rule: VpcFirewallRule,
+  instanceName: string,
+  vpcs: string[],
+  subnets: string[],
+  ips: string[]
+): boolean {
+  for (const target of rule.targets) {
+    switch (target.type) {
+      case 'vpc':
+        if (vpcs.includes(target.value)) {
+          return true
+        }
+        break
+      case 'subnet':
+        if (subnets.includes(target.value)) {
+          return true
+        }
+        break
+      case 'instance':
+        if (instanceName === target.value) {
+          return true
+        }
+        break
+      case 'ip':
+        if (ips.includes(target.value)) {
+          return true
+        }
+        break
+      case 'ip_net':
+        for (const ip of ips) {
+          if (ipRangeCheck(ip, target.value)) {
+            return true
+          }
+        }
+        break
+    }
+  }
+  return false
 }
