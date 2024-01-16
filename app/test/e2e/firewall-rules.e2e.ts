@@ -32,7 +32,7 @@ test('can create firewall rule', async ({ page }) => {
   await expectVisible(page, [modal])
 
   await page.fill('input[name=name]', 'my-new-rule')
-  await page.locator('text=Outgoing').click()
+  await page.locator('text=Outbound').click()
 
   await page.fill('role=spinbutton[name="Priority"]', '5')
 
@@ -118,7 +118,7 @@ test('can update firewall rule', async ({ page }) => {
   await expect(page.locator('input[name=name]')).toHaveValue('allow-icmp')
 
   // priority is populated
-  await expect(page.locator('input[name=priority]')).toHaveValue('65534')
+  await expect(page.locator('role=textbox[name=Priority]')).toHaveValue('65534')
 
   // protocol is populated
   await expect(page.locator('label >> text=ICMP')).toBeChecked()
@@ -139,7 +139,7 @@ test('can update firewall rule', async ({ page }) => {
   await page.locator('text="Add host filter"').click()
 
   // new host is added to hosts table
-  await expect(page.locator('td:has-text("edit-filter-subnet")')).toBeVisible()
+  await expect(page.locator('role=cell >> text="edit-filter-subnet"')).toBeVisible()
 
   // submit the form
   await page.locator('text="Update rule"').click()
