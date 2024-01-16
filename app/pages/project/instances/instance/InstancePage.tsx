@@ -35,7 +35,7 @@ InstancePage.loader = async ({ params }: LoaderFunctionArgs) => {
     query: { project },
   })
   await apiQueryClient.prefetchQuery('instanceNetworkInterfaceList', {
-    query: { project, instance, limit: 10 },
+    query: { project, instance },
   })
   await apiQueryClient.prefetchQuery('instanceExternalIpList', {
     path: { instance },
@@ -66,7 +66,6 @@ export function InstancePage() {
     query: {
       project: instanceSelector.project,
       instance: instanceSelector.instance,
-      limit: 10,
     },
   })
 
