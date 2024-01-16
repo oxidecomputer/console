@@ -88,6 +88,9 @@ export const NumberFieldInner = <
               })}
               aria-describedby={description ? `${id}-label-tip` : undefined}
               {...field}
+              formatOptions={{
+                useGrouping: false,
+              }}
             />
             <ErrorMessage error={error} label={label} />
           </>
