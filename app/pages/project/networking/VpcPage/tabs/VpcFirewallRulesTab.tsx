@@ -33,11 +33,6 @@ import { confirmDelete } from 'app/stores/confirm-delete'
 
 const colHelper = createColumnHelper<VpcFirewallRule>()
 
-const directionMap = {
-  inbound: 'Incoming',
-  outbound: 'Outgoing',
-}
-
 /** columns that don't depend on anything in `render` */
 const staticColumns = [
   colHelper.accessor('action', {
@@ -58,11 +53,7 @@ const staticColumns = [
   }),
   colHelper.accessor('direction', {
     header: 'Direction',
-    cell: (info) => (
-      <div className="text-secondary">
-        {directionMap[info.getValue()] || info.getValue()}
-      </div>
-    ),
+    cell: (info) => <div className="text-secondary">{titleCase(info.getValue())}</div>,
   }),
   colHelper.accessor('timeCreated', {
     id: 'created',

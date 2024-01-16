@@ -173,8 +173,8 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
         column
         control={control}
         items={[
-          { value: 'inbound', label: 'Incoming' },
-          { value: 'outbound', label: 'Outgoing' },
+          { value: 'inbound', label: 'Inbound' },
+          { value: 'outbound', label: 'Outbound' },
         ]}
       />
 
