@@ -32,17 +32,19 @@ import { VpcNameFromId } from './tabs/NetworkingTab'
 
 InstancePage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project, instance } = getInstanceSelector(params)
-  await apiQueryClient.prefetchQuery('instanceView', {
-    path: { instance },
-    query: { project },
-  })
-  await apiQueryClient.prefetchQuery('instanceNetworkInterfaceList', {
-    query: { project, instance },
-  })
-  await apiQueryClient.prefetchQuery('instanceExternalIpList', {
-    path: { instance },
-    query: { project },
-  })
+  await Promise.all([
+    apiQueryClient.prefetchQuery('instanceView', {
+      path: { instance },
+      query: { project },
+    }),
+    apiQueryClient.prefetchQuery('instanceNetworkInterfaceList', {
+      query: { project, instance },
+    }),
+    apiQueryClient.prefetchQuery('instanceExternalIpList', {
+      path: { instance },
+      query: { project },
+    }),
+  ])
   return null
 }
 
@@ -98,7 +100,7 @@ export function InstancePage() {
 
   const memory = filesize(instance.memory, { output: 'object', base: 2 })
 
-  const primaryVpcId = nicList.items && nicList.items.length > 0 && nicList.items[0].vpcId
+  const primaryVpcId = nicList.items.length > 0 ? nicList.items[0].vpcId : undefined
 
   return (
     <>
