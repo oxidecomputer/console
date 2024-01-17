@@ -24,7 +24,13 @@ export type DiskTableItem =
  * Designed less for reuse, more to encapsulate logic that would otherwise
  * clutter the instance create form.
  */
-export function DisksTableField({ control }: { control: Control<InstanceCreateInput> }) {
+export function DisksTableField({
+  control,
+  isSubmitting,
+}: {
+  control: Control<InstanceCreateInput>
+  isSubmitting: boolean
+}) {
   const [showDiskCreate, setShowDiskCreate] = useState(false)
   const [showDiskAttach, setShowDiskAttach] = useState(false)
 
@@ -81,16 +87,31 @@ export function DisksTableField({ control }: { control: Control<InstanceCreateIn
         )}
 
         <div className="space-x-3">
-          <Button size="sm" onClick={() => setShowDiskCreate(true)}>
+          <Button
+            size="sm"
+            onClick={() => {
+              if (!isSubmitting) {
+                setShowDiskCreate(true)
+              }
+            }}
+          >
             Create new disk
           </Button>
-          <Button variant="ghost" size="sm" onClick={() => setShowDiskAttach(true)}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              if (!isSubmitting) {
+                setShowDiskAttach(true)
+              }
+            }}
+          >
             Attach existing disk
           </Button>
         </div>
       </div>
 
-      {showDiskCreate && (
+      {showDiskCreate && !isSubmitting && (
         <CreateDiskSideModalForm
           onSubmit={(values) => {
             onChange([...items, { type: 'create', ...values }])
@@ -99,7 +120,7 @@ export function DisksTableField({ control }: { control: Control<InstanceCreateIn
           onDismiss={() => setShowDiskCreate(false)}
         />
       )}
-      {showDiskAttach && (
+      {showDiskAttach && !isSubmitting && (
         <AttachDiskSideModalForm
           onDismiss={() => setShowDiskAttach(false)}
           onSubmit={(values) => {

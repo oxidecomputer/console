@@ -18,12 +18,14 @@ import { ListboxField } from './ListboxField'
 type ImageSelectFieldProps = {
   images: Image[]
   control: Control<InstanceCreateInput>
+  disabled?: boolean
 }
 
-export function ImageSelectField({ images, control }: ImageSelectFieldProps) {
+export function ImageSelectField({ images, control, disabled }: ImageSelectFieldProps) {
   const diskSizeField = useController({ control, name: 'bootDiskSize' }).field
   return (
     <ListboxField
+      disabled={disabled}
       control={control}
       name="image"
       placeholder="Select an image"

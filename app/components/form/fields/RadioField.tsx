@@ -142,6 +142,7 @@ export function RadioFieldDyn<
   units,
   control,
   children,
+  disabled,
   ...props
 }: RadioFieldDynProps<TFieldValues, TName>) {
   const id = useId()
@@ -168,6 +169,7 @@ export function RadioFieldDyn<
             aria-describedby={description ? `${id}-label-tip` : undefined}
             onChange={onChange}
             name={name}
+            disabled={disabled}
             {...props}
           >
             {children}

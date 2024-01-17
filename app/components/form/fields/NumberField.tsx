@@ -68,6 +68,7 @@ export const NumberFieldInner = <
   description,
   required,
   id: idProp,
+  disabled,
 }: TextFieldProps<TFieldValues, TName>) => {
   const generatedId = useId()
   const id = idProp || generatedId
@@ -87,6 +88,7 @@ export const NumberFieldInner = <
                 [`${id}-help-text`]: !!description,
               })}
               aria-describedby={description ? `${id}-label-tip` : undefined}
+              isDisabled={disabled}
               {...field}
             />
             <ErrorMessage error={error} label={label} />
