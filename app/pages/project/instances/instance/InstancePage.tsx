@@ -11,6 +11,7 @@ import { useMemo } from 'react'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, useApiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
+import { EmptyCell } from '@oxide/table'
 import {
   Instances24Icon,
   PageHeader,
@@ -19,6 +20,7 @@ import {
   Truncate,
 } from '@oxide/ui'
 
+import { ExternalIps } from 'app/components/ExternalIps'
 import { MoreActionsMenu } from 'app/components/MoreActionsMenu'
 import { RouteTabs, Tab } from 'app/components/RouteTabs'
 import { InstanceStatusBadge } from 'app/components/StatusBadge'
@@ -26,11 +28,7 @@ import { getInstanceSelector, useInstanceSelector, useQuickActions } from 'app/h
 import { pb } from 'app/util/path-builder'
 
 import { useMakeInstanceActions } from '../actions'
-import {
-  EmptyCellContent,
-  ExternalIpsFromInstanceName,
-  VpcNameFromId,
-} from './tabs/NetworkingTab'
+import { VpcNameFromId } from './tabs/NetworkingTab'
 
 InstancePage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project, instance } = getInstanceSelector(params)
@@ -123,7 +121,7 @@ export function InstancePage() {
           </PropertiesTable.Row>
           <PropertiesTable.Row label="vpc">
             <span className="text-secondary">
-              {primaryVpcId ? VpcNameFromId({ value: primaryVpcId }) : <EmptyCellContent />}
+              {primaryVpcId ? VpcNameFromId({ value: primaryVpcId }) : <EmptyCell />}
             </span>
           </PropertiesTable.Row>
         </PropertiesTable>
@@ -147,7 +145,7 @@ export function InstancePage() {
             </span>
           </PropertiesTable.Row>
           <PropertiesTable.Row label="external IP">
-            {ExternalIpsFromInstanceName({ value: true })}
+            {<ExternalIps {...instanceSelector} />}
           </PropertiesTable.Row>
         </PropertiesTable>
       </PropertiesTable.Group>

@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { Fragment, useState } from 'react'
+import { useState } from 'react'
 import { Link, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
@@ -17,18 +17,18 @@ import {
   usePrefetchedApiQuery,
   type InstanceNetworkInterface,
 } from '@oxide/api'
-import { useQueryTable, type MenuAction } from '@oxide/table'
+import { EmptyCell, useQueryTable, type MenuAction } from '@oxide/table'
 import {
   Badge,
   Button,
-  CopyToClipboard,
   EmptyMessage,
   Networking24Icon,
   Spinner,
   Success12Icon,
 } from '@oxide/ui'
-import { classed, intersperse } from '@oxide/util'
+import { classed } from '@oxide/util'
 
+import { ExternalIps } from 'app/components/ExternalIps'
 import CreateNetworkInterfaceForm from 'app/forms/network-interface-create'
 import EditNetworkInterfaceForm from 'app/forms/network-interface-edit'
 import {
@@ -43,10 +43,6 @@ import { pb } from 'app/util/path-builder'
 import { fancifyStates } from './common'
 
 export const Skeleton = classed.div`h-4 w-12 rounded bg-tertiary motion-safe:animate-pulse`
-
-export const EmptyCellContent = () => (
-  <span className="text-sans-md text-quinary">&mdash;</span>
-)
 
 export const VpcNameFromId = ({ value }: { value: string }) => {
   const projectSelector = useProjectSelector()
@@ -83,45 +79,6 @@ const SubnetNameFromId = ({ value }: { value: string }) => {
   if (!subnet) return <Spinner /> // loading
 
   return <span className="text-secondary">{subnet.name}</span>
-}
-
-function IpLink({ ip }: { ip: string }) {
-  return (
-    <a
-      className="underline text-sans-semi-md text-secondary hover:text-default"
-      href={ip}
-      target="_blank"
-      rel="noreferrer"
-    >
-      {ip}
-    </a>
-  )
-}
-
-export function ExternalIpsFromInstanceName({ value: primary }: { value: boolean }) {
-  const { project, instance } = useInstanceSelector()
-  const { data, isLoading } = useApiQuery('instanceExternalIpList', {
-    path: { instance },
-    query: { project },
-  })
-  if (isLoading) return <Skeleton />
-
-  const ips = data?.items
-    ? intersperse(
-        data.items.map((eip) => <IpLink ip={eip.ip} key={eip.ip} />),
-        <span className="text-quinary"> / </span>
-      )
-    : undefined
-
-  return (
-    <div className="flex items-center gap-1 text-secondary">
-      {/* primary is about the networking tab call site, ips.length check is
-       * about the table at the top of the instance page */}
-      {primary && ips && ips.length > 0 ? ips : <EmptyCellContent />}
-      {/* If there's exactly one IP here, render a copy to clipboard button */}
-      {data?.items.length === 1 && <CopyToClipboard text={data.items[0].ip} />}
-    </div>
-  )
 }
 
 NetworkingTab.loader = async ({ params }: LoaderFunctionArgs) => {
@@ -246,7 +203,9 @@ export function NetworkingTab() {
           // we use primary to decide whether to show the IP in that row
           accessor="primary"
           id="external_ip"
-          cell={ExternalIpsFromInstanceName}
+          cell={({ value: primary }) =>
+            primary ? <ExternalIps {...instanceSelector} /> : <EmptyCell />
+          }
         />
         <Column header="vpc" accessor="vpcId" cell={VpcNameFromId} />
         <Column header="subnet" accessor="subnetId" cell={SubnetNameFromId} />
