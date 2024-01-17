@@ -10,13 +10,11 @@
     "plugin:@typescript-eslint/stylistic",
     "plugin:jsx-a11y/recommended",
     "plugin:react/recommended",
-    "prettier",
     "plugin:react-hook-form/recommended"
   ],
   "plugins": [
     "@typescript-eslint",
     "react-hooks",
-    "prettier",
     "jsx-a11y",
     "react-hook-form"
   ],
@@ -31,19 +29,27 @@
   "rules": {
     "@typescript-eslint/array-type": "off",
     "@typescript-eslint/consistent-type-definitions": "off",
-    "@typescript-eslint/consistent-type-imports": ["error", { "prefer": "type-imports" }],
+    "@typescript-eslint/consistent-type-imports": [
+      "error",
+      { "prefer": "type-imports" }
+    ],
     "@typescript-eslint/no-empty-function": "off",
     "@typescript-eslint/no-empty-interface": "off",
     "@typescript-eslint/ban-ts-comment": "off",
     "@typescript-eslint/no-non-null-assertion": "off",
-    "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      { "argsIgnorePattern": "^_" }
+    ],
     "eqeqeq": ["error", "always", { "null": "ignore" }],
-    "jsx-a11y/label-has-associated-control": [2, { "controlComponents": ["button"] }],
+    "jsx-a11y/label-has-associated-control": [
+      2,
+      { "controlComponents": ["button"] }
+    ],
     "no-param-reassign": "error",
     "no-return-assign": "error",
     "no-unused-vars": "off",
     "prefer-arrow-callback": "off",
-    "prettier/prettier": "error",
     "radix": "error",
     "react-hooks/exhaustive-deps": "error",
     "react-hooks/rules-of-hooks": "error",
@@ -66,7 +72,12 @@
       "rules": {
         "playwright/expect-expect": [
           "warn",
-          { "additionalAssertFunctionNames": ["expectVisible", "expectRowVisible"] }
+          {
+            "additionalAssertFunctionNames": [
+              "expectVisible",
+              "expectRowVisible"
+            ]
+          }
         ]
       }
     }

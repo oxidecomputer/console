@@ -49,6 +49,8 @@ jobs:
         run: npm run lint
       - name: Test
         run: VITEST_MAX_THREADS=1 VITEST_MIN_THREADS=1 npm run test run
+      - name: Format check
+        run: npm run fmt-check
       - name: Build
         run: npm run build
   playwright:
