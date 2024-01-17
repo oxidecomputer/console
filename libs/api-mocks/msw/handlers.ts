@@ -444,17 +444,12 @@ export const handlers = makeHandlers({
     return disk
   },
   instanceExternalIpList({ path, query }) {
-    lookup.instance({ ...path, ...query })
-
-    // TODO: proper mock table
-    return {
-      items: [
-        {
-          ip: '123.4.56.7',
-          kind: 'ephemeral',
-        } as const,
-      ],
-    }
+    const instance = lookup.instance({ ...path, ...query })
+    const externalIps = db.externalIps
+      .filter((eip) => eip.instance_id === instance.id)
+      .map((eip) => eip.external_ip)
+    // endpoint is not paginated. or rather, it's fake paginated
+    return { items: externalIps }
   },
   instanceNetworkInterfaceList({ query }) {
     const instance = lookup.instance(query)

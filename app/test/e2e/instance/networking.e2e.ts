@@ -12,6 +12,10 @@ import { expectNotVisible, expectRowVisible, expectVisible, stopInstance } from 
 test('Instance networking tab', async ({ page }) => {
   await page.goto('/projects/mock-project/instances/db1')
 
+  // links to VPC and external IPs appear in table
+  await expect(page.getByRole('link', { name: 'mock-vpc' })).toBeVisible()
+  await expect(page.getByRole('link', { name: '123.4.56.0' })).toBeVisible()
+
   // Instance networking tab
   await page.click('role=tab[name="Network Interfaces"]')
 
