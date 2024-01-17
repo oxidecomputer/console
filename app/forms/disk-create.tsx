@@ -132,7 +132,6 @@ export function CreateDiskSideModalForm({
       <DiskSourceField
         control={form.control}
         images={images}
-        snapshots={snapshots}
         areImagesLoading={areImagesLoading}
       />
       <DiskSizeField
