@@ -44,6 +44,10 @@ import { fancifyStates } from './common'
 
 export const Skeleton = classed.div`h-4 w-12 rounded bg-tertiary motion-safe:animate-pulse`
 
+export const EmptyCellContent = () => (
+  <span className="text-sans-md text-quinary">&mdash;</span>
+)
+
 export const VpcNameFromId = ({ value }: { value: string }) => {
   const projectSelector = useProjectSelector()
   const { data: vpc, isError } = useApiQuery(
@@ -113,7 +117,7 @@ export function ExternalIpsFromInstanceName({ value: primary }: { value: boolean
     <div className="flex items-center gap-1 text-secondary">
       {/* primary is about the networking tab call site, ips.length check is
        * about the table at the top of the instance page */}
-      {primary && ips && ips.length > 0 ? ips : <>&mdash;</>}
+      {primary && ips && ips.length > 0 ? ips : <EmptyCellContent />}
       {/* If there's exactly one IP here, render a copy to clipboard button */}
       {data?.items.length === 1 && <CopyToClipboard text={data.items[0].ip} />}
     </div>

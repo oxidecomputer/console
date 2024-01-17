@@ -27,6 +27,8 @@ import {
 import { getSiloSelector, useSiloSelector } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
+import { EmptyCellContent } from '../project/instances/instance/tabs/NetworkingTab'
+
 const EmptyState = () => (
   <EmptyMessage icon={<Cloud16Icon />} title="No identity providers" />
 )
@@ -73,7 +75,7 @@ export function SiloPage() {
         Fleet role mapping <RoleMappingTooltip />
       </h2>
       {roleMapPairs.length === 0 ? (
-        <p className="text-secondary">&mdash;</p>
+        <EmptyCellContent />
       ) : (
         <ul className="space-y-3">
           {roleMapPairs.map(([siloRole, fleetRole]) => (

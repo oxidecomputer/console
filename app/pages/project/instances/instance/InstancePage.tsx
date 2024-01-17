@@ -26,7 +26,11 @@ import { getInstanceSelector, useInstanceSelector, useQuickActions } from 'app/h
 import { pb } from 'app/util/path-builder'
 
 import { useMakeInstanceActions } from '../actions'
-import { ExternalIpsFromInstanceName, VpcNameFromId } from './tabs/NetworkingTab'
+import {
+  EmptyCellContent,
+  ExternalIpsFromInstanceName,
+  VpcNameFromId,
+} from './tabs/NetworkingTab'
 
 InstancePage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project, instance } = getInstanceSelector(params)
@@ -119,7 +123,7 @@ export function InstancePage() {
           </PropertiesTable.Row>
           <PropertiesTable.Row label="vpc">
             <span className="text-secondary">
-              {primaryVpcId ? VpcNameFromId({ value: primaryVpcId }) : <>&mdash;</>}
+              {primaryVpcId ? VpcNameFromId({ value: primaryVpcId }) : <EmptyCellContent />}
             </span>
           </PropertiesTable.Row>
         </PropertiesTable>
