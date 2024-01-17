@@ -26,10 +26,10 @@ export type DiskTableItem =
  */
 export function DisksTableField({
   control,
-  isSubmitting,
+  disabled,
 }: {
   control: Control<InstanceCreateInput>
-  isSubmitting: boolean
+  disabled: boolean
 }) {
   const [showDiskCreate, setShowDiskCreate] = useState(false)
   const [showDiskAttach, setShowDiskAttach] = useState(false)
@@ -90,7 +90,7 @@ export function DisksTableField({
           <Button
             size="sm"
             onClick={() => {
-              if (!isSubmitting) {
+              if (!disabled) {
                 setShowDiskCreate(true)
               }
             }}
@@ -101,7 +101,7 @@ export function DisksTableField({
             variant="ghost"
             size="sm"
             onClick={() => {
-              if (!isSubmitting) {
+              if (!disabled) {
                 setShowDiskAttach(true)
               }
             }}
@@ -111,7 +111,7 @@ export function DisksTableField({
         </div>
       </div>
 
-      {showDiskCreate && !isSubmitting && (
+      {showDiskCreate && !disabled && (
         <CreateDiskSideModalForm
           onSubmit={(values) => {
             onChange([...items, { type: 'create', ...values }])
@@ -120,7 +120,7 @@ export function DisksTableField({
           onDismiss={() => setShowDiskCreate(false)}
         />
       )}
-      {showDiskAttach && !isSubmitting && (
+      {showDiskAttach && !disabled && (
         <AttachDiskSideModalForm
           onDismiss={() => setShowDiskAttach(false)}
           onSubmit={(values) => {

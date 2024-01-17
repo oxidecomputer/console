@@ -388,7 +388,7 @@ export function CreateInstanceForm() {
       <FormDivider />
       <Form.Heading id="additional-disks">Additional disks</Form.Heading>
 
-      <DisksTableField control={control} isSubmitting={isSubmitting} />
+      <DisksTableField control={control} disabled={isSubmitting} />
 
       <FormDivider />
       <Form.Heading id="authentication">Authentication</Form.Heading>
