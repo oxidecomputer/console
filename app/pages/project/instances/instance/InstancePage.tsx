@@ -37,13 +37,29 @@ InstancePage.loader = async ({ params }: LoaderFunctionArgs) => {
       path: { instance },
       query: { project },
     }),
-    apiQueryClient.prefetchQuery('instanceNetworkInterfaceList', {
-      query: { project, instance },
-    }),
     apiQueryClient.prefetchQuery('instanceExternalIpList', {
       path: { instance },
       query: { project },
     }),
+    // The VPC fetch here ensures that the VPC shows up at pageload time without
+    // a loading state. This is an unusual prefetch in that
+    //
+    //   a) one call depends on the result of another, so they are in sequence
+    //   b) the corresponding render-time query is not right next to the loader
+    //      (which is what we usually prefer) but inside VpcNameFromId
+    //
+    // Using .then() like this instead of doing the NICs call before the
+    // entire Promise.all() means this whole *pair* of requests can happen in
+    // parallel with the other two instead of only the second one.
+    apiQueryClient
+      .fetchQuery('instanceNetworkInterfaceList', {
+        query: { project, instance },
+      })
+      .then((nics) => {
+        const primaryVpcId = nics.items.length > 0 ? nics.items[0].vpcId : undefined
+        if (!primaryVpcId) return Promise.resolve()
+        return apiQueryClient.prefetchQuery('vpcView', { path: { vpc: primaryVpcId } })
+      }),
   ])
   return null
 }
@@ -66,7 +82,7 @@ export function InstancePage() {
     query: { project: instanceSelector.project },
   })
 
-  const { data: nicList } = usePrefetchedApiQuery('instanceNetworkInterfaceList', {
+  const { data: nics } = usePrefetchedApiQuery('instanceNetworkInterfaceList', {
     query: {
       project: instanceSelector.project,
       instance: instanceSelector.instance,
@@ -100,7 +116,7 @@ export function InstancePage() {
 
   const memory = filesize(instance.memory, { output: 'object', base: 2 })
 
-  const primaryVpcId = nicList.items.length > 0 ? nicList.items[0].vpcId : undefined
+  const primaryVpcId = nics.items.length > 0 ? nics.items[0].vpcId : undefined
 
   return (
     <>
