@@ -40,7 +40,7 @@ function IpLink({ ip }: { ip: string }) {
   return (
     <a
       className="underline text-sans-semi-md text-secondary hover:text-default"
-      href={ip}
+      href={`https://${ip}`}
       target="_blank"
       rel="noreferrer"
     >
