@@ -10,7 +10,12 @@ import filesize from 'filesize'
 import { useMemo } from 'react'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
-import { apiQueryClient, useApiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
+import {
+  apiQueryClient,
+  useApiQueryClient,
+  usePrefetchedApiQuery,
+  type InstanceNetworkInterface,
+} from '@oxide/api'
 import { EmptyCell } from '@oxide/table'
 import {
   Instances24Icon,
@@ -29,6 +34,11 @@ import { pb } from 'app/util/path-builder'
 
 import { useMakeInstanceActions } from '../actions'
 import { VpcNameFromId } from './tabs/NetworkingTab'
+
+function getPrimaryVpcId(nics: InstanceNetworkInterface[]) {
+  const nic = nics.find((nic) => nic.primary)
+  return nic ? nic.vpcId : undefined
+}
 
 InstancePage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project, instance } = getInstanceSelector(params)
@@ -56,9 +66,9 @@ InstancePage.loader = async ({ params }: LoaderFunctionArgs) => {
         query: { project, instance },
       })
       .then((nics) => {
-        const primaryVpcId = nics.items.length > 0 ? nics.items[0].vpcId : undefined
-        if (!primaryVpcId) return Promise.resolve()
-        return apiQueryClient.prefetchQuery('vpcView', { path: { vpc: primaryVpcId } })
+        const vpc = getPrimaryVpcId(nics.items)
+        if (!vpc) return Promise.resolve()
+        return apiQueryClient.prefetchQuery('vpcView', { path: { vpc } })
       }),
   ])
   return null
@@ -88,6 +98,7 @@ export function InstancePage() {
       instance: instanceSelector.instance,
     },
   })
+  const primaryVpcId = getPrimaryVpcId(nics.items)
 
   const actions = useMemo(
     () => [
@@ -115,8 +126,6 @@ export function InstancePage() {
   useQuickActions(quickActions)
 
   const memory = filesize(instance.memory, { output: 'object', base: 2 })
-
-  const primaryVpcId = nics.items.length > 0 ? nics.items[0].vpcId : undefined
 
   return (
     <>
