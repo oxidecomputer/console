@@ -21,7 +21,6 @@ import {
   type DiskSource,
   type Image,
 } from '@oxide/api'
-import { snapshots } from '@oxide/api-mocks'
 import { FieldLabel, FormDivider, Radio, RadioGroup } from '@oxide/ui'
 import { bytesToGiB, GiB } from '@oxide/util'
 
@@ -95,6 +94,9 @@ export function CreateDiskSideModalForm({
   )
   const areImagesLoading = projectImages.isPending || siloImages.isPending
 
+  const snapshotsQuery = useApiQuery('snapshotList', { query: projectSelector })
+  const snapshots = snapshotsQuery.data?.items || []
+
   // validate disk source size
   const diskSource = form.watch('diskSource').type
 
@@ -130,6 +132,7 @@ export function CreateDiskSideModalForm({
       <DiskSourceField
         control={form.control}
         images={images}
+        snapshots={snapshots}
         areImagesLoading={areImagesLoading}
       />
       <DiskSizeField
