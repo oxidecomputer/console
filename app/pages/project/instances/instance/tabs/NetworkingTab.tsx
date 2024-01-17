@@ -17,7 +17,7 @@ import {
   usePrefetchedApiQuery,
   type InstanceNetworkInterface,
 } from '@oxide/api'
-import { EmptyCell, useQueryTable, type MenuAction } from '@oxide/table'
+import { useQueryTable, type MenuAction } from '@oxide/table'
 import {
   Badge,
   Button,
@@ -28,7 +28,6 @@ import {
 } from '@oxide/ui'
 import { classed } from '@oxide/util'
 
-import { ExternalIps } from 'app/components/ExternalIps'
 import CreateNetworkInterfaceForm from 'app/forms/network-interface-create'
 import EditNetworkInterfaceForm from 'app/forms/network-interface-edit'
 import {
@@ -196,17 +195,7 @@ export function NetworkingTab() {
       <Table labeled-by="nic-label" makeActions={makeActions} emptyState={emptyState}>
         <Column accessor="name" />
         <Column accessor="description" />
-        {/* TODO: mark v4 or v6 explicitly? */}
         <Column accessor="ip" />
-        <Column
-          header="External IP"
-          // we use primary to decide whether to show the IP in that row
-          accessor="primary"
-          id="external_ip"
-          cell={({ value: primary }) =>
-            primary ? <ExternalIps {...instanceSelector} /> : <EmptyCell />
-          }
-        />
         <Column header="vpc" accessor="vpcId" cell={VpcNameFromId} />
         <Column header="subnet" accessor="subnetId" cell={SubnetNameFromId} />
         <Column
