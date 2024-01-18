@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useWatch } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 import type { SetRequired } from 'type-fest'
@@ -139,6 +139,12 @@ export function CreateInstanceForm() {
   const imageInput = useWatch({ control: control, name: 'image' })
   const image = allImages.find((i) => i.id === imageInput)
   const imageSize = image?.size ? Math.ceil(image.size / GiB) : undefined
+
+  useEffect(() => {
+    if (createInstance.error) {
+      setIsSubmitting(false)
+    }
+  }, [createInstance])
 
   return (
     <FullPageForm

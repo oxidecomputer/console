@@ -101,7 +101,7 @@ export function DisksTableField({
         </div>
       </div>
 
-      {showDiskCreate && !disabled && (
+      {showDiskCreate && (
         <CreateDiskSideModalForm
           onSubmit={(values) => {
             onChange([...items, { type: 'create', ...values }])
@@ -110,7 +110,7 @@ export function DisksTableField({
           onDismiss={() => setShowDiskCreate(false)}
         />
       )}
-      {showDiskAttach && !disabled && (
+      {showDiskAttach && (
         <AttachDiskSideModalForm
           onDismiss={() => setShowDiskAttach(false)}
           onSubmit={(values) => {
