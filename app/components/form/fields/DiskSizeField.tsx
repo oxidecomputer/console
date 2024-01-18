@@ -23,7 +23,6 @@ interface DiskSizeProps<
 > extends TextFieldProps<TFieldValues, TName> {
   minSize?: number
   validate?(diskSizeGiB: number): ValidateResult
-  disabled?: boolean
 }
 
 export function DiskSizeField<
@@ -34,7 +33,6 @@ export function DiskSizeField<
   name,
   minSize = 1,
   validate,
-  disabled,
   ...props
 }: DiskSizeProps<TFieldValues, TName>) {
   return (
@@ -59,7 +57,6 @@ export function DiskSizeField<
         // Run any additional validators passed in from the callsite
         return validate?.(diskSizeGiB)
       }}
-      disabled={disabled}
       {...props}
     />
   )
