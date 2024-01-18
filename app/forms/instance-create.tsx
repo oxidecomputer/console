@@ -316,8 +316,12 @@ export function CreateInstanceForm() {
         }
       >
         <Tabs.List aria-describedby="boot-disk">
-          <Tabs.Trigger value="silo">Silo images</Tabs.Trigger>
-          <Tabs.Trigger value="project">Project images</Tabs.Trigger>
+          <Tabs.Trigger value="silo" disabled={isSubmitting}>
+            Silo images
+          </Tabs.Trigger>
+          <Tabs.Trigger value="project" disabled={isSubmitting}>
+            Project images
+          </Tabs.Trigger>
         </Tabs.List>
         {allImages.length === 0 && (
           <Message
