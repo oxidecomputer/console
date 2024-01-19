@@ -144,7 +144,7 @@ export function CreateInstanceForm() {
     if (createInstance.error) {
       setIsSubmitting(false)
     }
-  }, [createInstance])
+  }, [createInstance.error])
 
   return (
     <FullPageForm
