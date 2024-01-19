@@ -43,7 +43,7 @@ const cardLabelStyles = `
   peer-focus:ring-2 peer-focus:ring-accent-secondary
   peer-checked:bg-accent-secondary peer-checked:hover:border-accent
   peer-checked:border-accent-secondary peer-checked:text-accent peer-checked:[&>*_.text-secondary]:text-accent-secondary
-  peer-disabled:bg-disabled peer-disabled:text-secondary w-44
+  peer-disabled:bg-disabled w-44
 
   children:py-3 children:px-3 children:-mx-4 children:border-secondary
   first:children:-mt-2 last:children:-mb-2

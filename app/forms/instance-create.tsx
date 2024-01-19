@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useEffect, useState } from 'react'
 import { useWatch } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 import type { SetRequired } from 'type-fest'
@@ -97,6 +98,7 @@ CreateInstanceForm.loader = async ({ params }: LoaderFunctionArgs) => {
 }
 
 export function CreateInstanceForm() {
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const queryClient = useApiQueryClient()
   const addToast = useToast()
   const projectSelector = useProjectSelector()
@@ -138,6 +140,12 @@ export function CreateInstanceForm() {
   const image = allImages.find((i) => i.id === imageInput)
   const imageSize = image?.size ? Math.ceil(image.size / GiB) : undefined
 
+  useEffect(() => {
+    if (createInstance.error) {
+      setIsSubmitting(false)
+    }
+  }, [createInstance.error])
+
   return (
     <FullPageForm
       submitDisabled={allImages.length ? undefined : 'Image required'}
@@ -146,6 +154,7 @@ export function CreateInstanceForm() {
       title="Create instance"
       icon={<Instances24Icon />}
       onSubmit={(values) => {
+        setIsSubmitting(true)
         // we should never have a presetId that's not in the list
         const preset = PRESETS.find((option) => option.id === values.presetId)!
         const instance =
@@ -194,9 +203,14 @@ export function CreateInstanceForm() {
       loading={createInstance.isPending}
       submitError={createInstance.error}
     >
-      <NameField name="name" control={control} />
-      <DescriptionField name="description" control={control} />
-      <CheckboxField id="start-instance" name="start" control={control}>
+      <NameField name="name" control={control} disabled={isSubmitting} />
+      <DescriptionField name="description" control={control} disabled={isSubmitting} />
+      <CheckboxField
+        id="start-instance"
+        name="start"
+        control={control}
+        disabled={isSubmitting}
+      >
         Start Instance
       </CheckboxField>
 
@@ -224,13 +238,21 @@ export function CreateInstanceForm() {
         }}
       >
         <Tabs.List aria-labelledby="hardware">
-          <Tabs.Trigger value="general">General Purpose</Tabs.Trigger>
-          <Tabs.Trigger value="highCPU">High CPU</Tabs.Trigger>
-          <Tabs.Trigger value="highMemory">High Memory</Tabs.Trigger>
-          <Tabs.Trigger value="custom">Custom</Tabs.Trigger>
+          <Tabs.Trigger value="general" disabled={isSubmitting}>
+            General Purpose
+          </Tabs.Trigger>
+          <Tabs.Trigger value="highCPU" disabled={isSubmitting}>
+            High CPU
+          </Tabs.Trigger>
+          <Tabs.Trigger value="highMemory" disabled={isSubmitting}>
+            High Memory
+          </Tabs.Trigger>
+          <Tabs.Trigger value="custom" disabled={isSubmitting}>
+            Custom
+          </Tabs.Trigger>
         </Tabs.List>
         <Tabs.Content value="general">
-          <RadioFieldDyn name="presetId" label="" control={control}>
+          <RadioFieldDyn name="presetId" label="" control={control} disabled={isSubmitting}>
             {renderLargeRadioCards('general')}
           </RadioFieldDyn>
         </Tabs.Content>
@@ -264,6 +286,7 @@ export function CreateInstanceForm() {
                 return `CPUs capped to ${INSTANCE_MAX_CPU}`
               }
             }}
+            disabled={isSubmitting}
           />
           <TextField
             units="GiB"
@@ -282,6 +305,7 @@ export function CreateInstanceForm() {
                 return `Can be at most ${INSTANCE_MAX_RAM_GiB} GiB`
               }
             }}
+            disabled={isSubmitting}
           />
         </Tabs.Content>
       </Tabs.Root>
@@ -298,8 +322,12 @@ export function CreateInstanceForm() {
         }
       >
         <Tabs.List aria-describedby="boot-disk">
-          <Tabs.Trigger value="silo">Silo images</Tabs.Trigger>
-          <Tabs.Trigger value="project">Project images</Tabs.Trigger>
+          <Tabs.Trigger value="silo" disabled={isSubmitting}>
+            Silo images
+          </Tabs.Trigger>
+          <Tabs.Trigger value="project" disabled={isSubmitting}>
+            Project images
+          </Tabs.Trigger>
         </Tabs.List>
         {allImages.length === 0 && (
           <Message
@@ -318,7 +346,11 @@ export function CreateInstanceForm() {
               />
             </div>
           ) : (
-            <ImageSelectField images={siloImages} control={control} />
+            <ImageSelectField
+              images={siloImages}
+              control={control}
+              disabled={isSubmitting}
+            />
           )}
         </Tabs.Content>
         <Tabs.Content value="project" className="space-y-4">
@@ -333,7 +365,11 @@ export function CreateInstanceForm() {
               />
             </div>
           ) : (
-            <ImageSelectField images={projectImages} control={control} />
+            <ImageSelectField
+              images={projectImages}
+              control={control}
+              disabled={isSubmitting}
+            />
           )}
         </Tabs.Content>
       </Tabs.Root>
@@ -349,6 +385,7 @@ export function CreateInstanceForm() {
             return `Must be as large as selected image (min. ${imageSize} GiB)`
           }
         }}
+        disabled={isSubmitting}
       />
       <NameField
         name="bootDiskName"
@@ -356,11 +393,12 @@ export function CreateInstanceForm() {
         description="Will be autogenerated if name not provided"
         required={false}
         control={control}
+        disabled={isSubmitting}
       />
       <FormDivider />
       <Form.Heading id="additional-disks">Additional disks</Form.Heading>
 
-      <DisksTableField control={control} />
+      <DisksTableField control={control} disabled={isSubmitting} />
 
       <FormDivider />
       <Form.Heading id="authentication">Authentication</Form.Heading>
@@ -370,12 +408,13 @@ export function CreateInstanceForm() {
       <FormDivider />
       <Form.Heading id="networking">Networking</Form.Heading>
 
-      <NetworkInterfaceField control={control} />
+      <NetworkInterfaceField control={control} disabled={isSubmitting} />
 
       <TextField
         name="hostname"
         description="Will be generated if not provided"
         control={control}
+        disabled={isSubmitting}
       />
 
       <Form.Actions>

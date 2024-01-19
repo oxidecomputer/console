@@ -23,8 +23,10 @@ import CreateNetworkInterfaceForm from 'app/forms/network-interface-create'
  */
 export function NetworkInterfaceField({
   control,
+  disabled,
 }: {
   control: Control<InstanceCreateInput>
+  disabled: boolean
 }) {
   const [showForm, setShowForm] = useState(false)
 
@@ -58,6 +60,7 @@ export function NetworkInterfaceField({
             ? onChange({ type: newType, params: oldParams })
             : onChange({ type: newType })
         }}
+        disabled={disabled}
       >
         <Radio value="none">None</Radio>
         <Radio value="default">Default</Radio>
