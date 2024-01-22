@@ -439,7 +439,8 @@ export function CreateInstanceForm() {
           <AccordionContent>
             <FileField
               id="user-data-input"
-              helpText="Description or instructions for input"
+              helpText="User data for instance initialization systems (such as cloud-init)"
+              description="Reads the selected file as a string. Maximum 32 KiB unencoded data."
               name="userData"
               label="User Data"
               control={control}
