@@ -286,7 +286,7 @@ export const handlers = makeHandlers({
     const instances = db.instances.filter((i) => i.project_id === project.id)
     return paginated(query, instances)
   },
-  instanceCreate({ body, query }) {
+  async instanceCreate({ body, query }) {
     const project = lookup.project(query)
 
     errIfExists(db.instances, { name: body.name, project_id: project.id }, 'instance')
@@ -406,6 +406,9 @@ export const handlers = makeHandlers({
       time_run_state_updated: new Date().toISOString(),
     }
     db.instances.push(newInstance)
+
+    await new Promise((resolve) => setTimeout(resolve, 5000))
+
     return json(newInstance, { status: 201 })
   },
   instanceView: ({ path, query }) => lookup.instance({ ...path, ...query }),
