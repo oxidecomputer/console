@@ -171,7 +171,6 @@ export const routes = createRoutesFromElements(
         <Route path="health" element={null} handle={{ crumb: 'Health' }} />
         <Route path="update" element={null} handle={{ crumb: 'Update' }} />
         <Route path="networking" element={null} handle={{ crumb: 'Networking' }} />
-        <Route path="settings" element={null} handle={{ crumb: 'Settings' }} />
       </Route>
 
       <Route index element={<Navigate to={pb.projects()} replace />} />
