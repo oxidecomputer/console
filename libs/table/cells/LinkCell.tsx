@@ -14,7 +14,7 @@ export const linkCell =
   ({ value }: Cell<string>) => {
     return (
       <Link
-        className="flex h-full w-full items-center text-sans-semi-md text-default hover:underline"
+        className="flex h-full w-full items-center underline text-sans-semi-md text-secondary hover:text-default"
         to={makeHref(value)}
       >
         {value}
