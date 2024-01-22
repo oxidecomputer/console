@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import * as Accordion from '@radix-ui/react-accordion'
 import { useEffect, useState } from 'react'
 import { useWatch } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
@@ -21,6 +22,7 @@ import {
   type InstanceCreate,
 } from '@oxide/api'
 import {
+  DirectionRightIcon,
   EmptyMessage,
   FieldLabel,
   FormDivider,
@@ -41,6 +43,7 @@ import {
   DescriptionField,
   DiskSizeField,
   DisksTableField,
+  FileField,
   Form,
   FullPageForm,
   ImageSelectField,
@@ -51,6 +54,7 @@ import {
   type DiskTableItem,
 } from 'app/components/form'
 import { getProjectSelector, useForm, useProjectSelector, useToast } from 'app/hooks'
+import { readBlobAsBase64 } from 'app/util/file'
 import { pb } from 'app/util/path-builder'
 
 export type InstanceCreateInput = Assign<
@@ -62,6 +66,7 @@ export type InstanceCreateInput = Assign<
     bootDiskName: string
     bootDiskSize: number
     image: string
+    userData: File | null
   }
 >
 
@@ -85,6 +90,8 @@ const baseDefaultValues: InstanceCreateInput = {
   networkInterfaces: { type: 'default' },
 
   start: true,
+
+  userData: null,
 }
 
 CreateInstanceForm.loader = async ({ params }: LoaderFunctionArgs) => {
@@ -153,7 +160,7 @@ export function CreateInstanceForm() {
       form={form}
       title="Create instance"
       icon={<Instances24Icon />}
-      onSubmit={(values) => {
+      onSubmit={async (values) => {
         setIsSubmitting(true)
         // we should never have a presetId that's not in the list
         const preset = PRESETS.find((option) => option.id === values.presetId)!
@@ -168,6 +175,10 @@ export function CreateInstanceForm() {
         invariant(image, 'Expected image to be defined')
 
         const bootDiskName = values.bootDiskName || genName(values.name, image.name)
+
+        const userData = values.userData
+          ? await readBlobAsBase64(values.userData)
+          : undefined
 
         createInstance.mutate({
           query: projectSelector,
@@ -197,6 +208,7 @@ export function CreateInstanceForm() {
             externalIps: [{ type: 'ephemeral' }],
             start: values.start,
             networkInterfaces: values.networkInterfaces,
+            userData,
           },
         })
       }}
@@ -406,16 +418,35 @@ export function CreateInstanceForm() {
       <SshKeysTable />
 
       <FormDivider />
-      <Form.Heading id="networking">Networking</Form.Heading>
+      <Form.Heading id="advanced">Advanced</Form.Heading>
 
-      <NetworkInterfaceField control={control} disabled={isSubmitting} />
+      <Accordion.Root type="multiple" className="mt-12">
+        <Accordion.Item value="networking">
+          <AccordionHeader id="networking">Networking</AccordionHeader>
+          <AccordionContent>
+            <NetworkInterfaceField control={control} disabled={isSubmitting} />
 
-      <TextField
-        name="hostname"
-        description="Will be generated if not provided"
-        control={control}
-        disabled={isSubmitting}
-      />
+            <TextField
+              name="hostname"
+              description="Will be generated if not provided"
+              control={control}
+              disabled={isSubmitting}
+            />
+          </AccordionContent>
+        </Accordion.Item>
+        <Accordion.Item value="configuration">
+          <AccordionHeader id="configuration">Configuration</AccordionHeader>
+          <AccordionContent>
+            <FileField
+              id="user-data-input"
+              helpText="Description or instructions for input"
+              name="userData"
+              label="User Data"
+              control={control}
+            />
+          </AccordionContent>
+        </Accordion.Item>
+      </Accordion.Root>
 
       <Form.Actions>
         <Form.Submit loading={createInstance.isPending}>Create instance</Form.Submit>
@@ -424,6 +455,21 @@ export function CreateInstanceForm() {
     </FullPageForm>
   )
 }
+
+const AccordionHeader = ({ id, children }: { id: string; children: React.ReactNode }) => (
+  <Accordion.Header id={id} className="max-w-lg">
+    <Accordion.Trigger className="group flex w-full items-center justify-between border-t py-2 text-sans-xl border-secondary [&>svg]:data-[state=open]:rotate-90">
+      <div className="text-secondary">{children}</div>
+      <DirectionRightIcon className="transition-all text-secondary" />
+    </Accordion.Trigger>
+  </Accordion.Header>
+)
+
+const AccordionContent = ({ children }: { children: React.ReactNode }) => (
+  <Accordion.Content className="AccordionContent max-w-lg overflow-hidden">
+    <div className="ox-accordion-content py-8">{children}</div>
+  </Accordion.Content>
+)
 
 const SshKeysTable = () => {
   const keys = usePrefetchedApiQuery('currentUserSshKeyList', {}).data?.items || []
