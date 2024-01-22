@@ -15,11 +15,9 @@ export const linkCell =
     return (
       <Link
         className="flex h-full w-full items-center text-sans-semi-md text-default hover:underline"
-        aria-label={value}
         to={makeHref(value)}
       >
         {value}
-
         <div className="absolute inset-0" />
       </Link>
     )
