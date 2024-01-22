@@ -18,6 +18,7 @@ export const linkCell =
         to={makeHref(value)}
       >
         {value}
+        {/* Pushes out the link area to the entire cell for improved clickability™ */}
         <div className="absolute inset-0" />
       </Link>
     )
