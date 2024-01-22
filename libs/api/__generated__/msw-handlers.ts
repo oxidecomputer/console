@@ -340,13 +340,13 @@ export interface MSWHandlers {
     query: Api.ProjectIpPoolListQueryParams
     req: Request
     cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.IpPoolResultsPage>>
+  }) => Promisable<HandlerResult<Api.SiloIpPoolResultsPage>>
   /** `GET /v1/ip-pools/:pool` */
   projectIpPoolView: (params: {
     path: Api.ProjectIpPoolViewPathParams
     req: Request
     cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.IpPool>>
+  }) => Promisable<HandlerResult<Api.SiloIpPool>>
   /** `POST /v1/login/:siloName/local` */
   loginLocal: (params: {
     path: Api.LoginLocalPathParams
@@ -719,21 +719,21 @@ export interface MSWHandlers {
     query: Api.IpPoolSiloListQueryParams
     req: Request
     cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.IpPoolSiloResultsPage>>
+  }) => Promisable<HandlerResult<Api.IpPoolSiloLinkResultsPage>>
   /** `POST /v1/system/ip-pools/:pool/silos` */
   ipPoolSiloLink: (params: {
     path: Api.IpPoolSiloLinkPathParams
-    body: Json<Api.IpPoolSiloLink>
+    body: Json<Api.IpPoolLinkSilo>
     req: Request
     cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.IpPoolSilo>>
+  }) => Promisable<HandlerResult<Api.IpPoolSiloLink>>
   /** `PUT /v1/system/ip-pools/:pool/silos/:silo` */
   ipPoolSiloUpdate: (params: {
     path: Api.IpPoolSiloUpdatePathParams
     body: Json<Api.IpPoolSiloUpdate>
     req: Request
     cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.IpPoolSilo>>
+  }) => Promisable<HandlerResult<Api.IpPoolSiloLink>>
   /** `DELETE /v1/system/ip-pools/:pool/silos/:silo` */
   ipPoolSiloUnlink: (params: {
     path: Api.IpPoolSiloUnlinkPathParams
@@ -937,6 +937,13 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
+  /** `GET /v1/system/silos/:silo/ip-pools` */
+  siloIpPoolList: (params: {
+    path: Api.SiloIpPoolListPathParams
+    query: Api.SiloIpPoolListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.SiloIpPoolResultsPage>>
   /** `GET /v1/system/silos/:silo/policy` */
   siloPolicyView: (params: {
     path: Api.SiloPolicyViewPathParams
@@ -1696,7 +1703,7 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       handler(
         handlers['ipPoolSiloLink'],
         schema.IpPoolSiloLinkParams,
-        schema.IpPoolSiloLink
+        schema.IpPoolLinkSilo
       )
     ),
     http.put(
@@ -1896,6 +1903,10 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
     http.delete(
       '/v1/system/silos/:silo',
       handler(handlers['siloDelete'], schema.SiloDeleteParams, null)
+    ),
+    http.get(
+      '/v1/system/silos/:silo/ip-pools',
+      handler(handlers['siloIpPoolList'], schema.SiloIpPoolListParams, null)
     ),
     http.get(
       '/v1/system/silos/:silo/policy',

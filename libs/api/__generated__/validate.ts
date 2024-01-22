@@ -1472,6 +1472,11 @@ export const IpPoolCreate = z.preprocess(
   z.object({ description: z.string(), name: Name })
 )
 
+export const IpPoolLinkSilo = z.preprocess(
+  processResponseBody,
+  z.object({ isDefault: SafeBoolean, silo: NameOrId })
+)
+
 /**
  * A non-decreasing IPv4 address range, inclusive of both ends.
  *
@@ -1523,7 +1528,7 @@ export const IpPoolResultsPage = z.preprocess(
 /**
  * A link between an IP pool and a silo that allows one to allocate IPs from the pool within the silo
  */
-export const IpPoolSilo = z.preprocess(
+export const IpPoolSiloLink = z.preprocess(
   processResponseBody,
   z.object({
     ipPoolId: z.string().uuid(),
@@ -1532,17 +1537,12 @@ export const IpPoolSilo = z.preprocess(
   })
 )
 
-export const IpPoolSiloLink = z.preprocess(
-  processResponseBody,
-  z.object({ isDefault: SafeBoolean, silo: NameOrId })
-)
-
 /**
  * A single page of results
  */
-export const IpPoolSiloResultsPage = z.preprocess(
+export const IpPoolSiloLinkResultsPage = z.preprocess(
   processResponseBody,
-  z.object({ items: IpPoolSilo.array(), nextPage: z.string().optional() })
+  z.object({ items: IpPoolSiloLink.array(), nextPage: z.string().optional() })
 )
 
 export const IpPoolSiloUpdate = z.preprocess(
@@ -1953,6 +1953,29 @@ export const SiloCreate = z.preprocess(
     quotas: SiloQuotasCreate,
     tlsCertificates: CertificateCreate.array(),
   })
+)
+
+/**
+ * An IP pool in the context of a silo
+ */
+export const SiloIpPool = z.preprocess(
+  processResponseBody,
+  z.object({
+    description: z.string(),
+    id: z.string().uuid(),
+    isDefault: SafeBoolean,
+    name: Name,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
+  })
+)
+
+/**
+ * A single page of results
+ */
+export const SiloIpPoolResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: SiloIpPool.array(), nextPage: z.string().optional() })
 )
 
 /**
@@ -4360,6 +4383,20 @@ export const SiloDeleteParams = z.preprocess(
       silo: NameOrId,
     }),
     query: z.object({}),
+  })
+)
+
+export const SiloIpPoolListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      silo: NameOrId,
+    }),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      sortBy: NameOrIdSortMode.optional(),
+    }),
   })
 )
 

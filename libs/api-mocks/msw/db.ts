@@ -141,7 +141,10 @@ export const lookup = {
     return pool
   },
   // unusual one because it's a sibling relationship. we look up both the pool and the silo first
-  ipPoolSilo({ pool: poolId, silo: siloId }: PP.IpPool & PP.Silo): Json<Api.IpPoolSilo> {
+  ipPoolSiloLink({
+    pool: poolId,
+    silo: siloId,
+  }: PP.IpPool & PP.Silo): Json<Api.IpPoolSiloLink> {
     const pool = lookup.ipPool({ pool: poolId })
     const silo = lookup.silo({ silo: siloId })
 
@@ -151,6 +154,26 @@ export const lookup = {
     if (!ipPoolSilo) throw notFoundErr
 
     return ipPoolSilo
+  },
+  // unusual because it returns a list, but we need it for multiple endpoints
+  siloIpPools(path: PP.Silo): Json<Api.SiloIpPool>[] {
+    const silo = lookup.silo(path)
+
+    // effectively join db.ipPools and db.ipPoolSilos on ip_pool_id
+    return db.ipPoolSilos
+      .filter((link) => link.silo_id === silo.id)
+      .map((link) => {
+        const pool = db.ipPools.find((pool) => pool.id === link.ip_pool_id)
+
+        // this should never happen
+        if (!pool) {
+          const linkStr = JSON.stringify(link)
+          const message = `Found IP pool-silo link without corresponding pool: ${linkStr}`
+          throw json({ message }, { status: 500 })
+        }
+
+        return { ...pool, is_default: link.is_default }
+      })
   },
   samlIdp({
     provider: id,
