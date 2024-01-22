@@ -45,7 +45,12 @@ table.ox-table {
   /* First column is sticky */
   & th:first-of-type,
   & td:first-of-type {
-    @apply sticky left-0 bg-default;
+    @apply sticky left-0 z-10 bg-default;
+  }
+
+  & tr:hover td,
+  & tr:hover td:last-of-type.action-col {
+    @apply bg-raise;
   }
 
   /*
@@ -75,7 +80,7 @@ table.ox-table {
   below with a background colour and still keep the styling
   */
   & tr:last-of-type td:last-of-type.action-col {
-    @apply border-b-0 border-r-0 !bg-default;
+    @apply border-b-0 border-r-0;
   }
 
   & tr:last-of-type td:last-of-type.action-col > div {
