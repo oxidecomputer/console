@@ -55,6 +55,7 @@ import {
 } from 'app/components/form'
 import { getProjectSelector, useForm, useProjectSelector, useToast } from 'app/hooks'
 import { readBlobAsBase64 } from 'app/util/file'
+import links from 'app/util/links'
 import { pb } from 'app/util/path-builder'
 
 export type InstanceCreateInput = Assign<
@@ -439,6 +440,22 @@ export function CreateInstanceForm() {
           <AccordionContent>
             <FileField
               id="user-data-input"
+              description={
+                <>
+                  Data or scripts to be passed to cloud-init as{' '}
+                  <a href={links.external.cloudInitFormat} target="_blank" rel="noreferrer">
+                    user data
+                  </a>{' '}
+                  <a
+                    href={links.external.cloudInitExamples}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    (examples)
+                  </a>{' '}
+                  if the selected boot image supports it. Maximum size 32 KiB.
+                </>
+              }
               name="userData"
               label="User Data"
               control={control}
