@@ -81,7 +81,7 @@ export function FullPageForm<TFieldValues extends FieldValues>({
       <form
         className="ox-form pb-20"
         id={id}
-        onSubmit={async (e) => {
+        onSubmit={(e) => {
           // This modal being in a portal doesn't prevent the submit event
           // from bubbling up out of the portal. Normally that's not a
           // problem, but sometimes (e.g., instance create) we render the
