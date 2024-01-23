@@ -9,12 +9,18 @@ import { useMemo } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 
 import { apiQueryClient } from '@oxide/api'
-import { Cloud16Icon, Divider, Metrics16Icon, Storage16Icon } from '@oxide/ui'
+import {
+  Cloud16Icon,
+  Divider,
+  Metrics16Icon,
+  Networking16Icon,
+  Storage16Icon,
+} from '@oxide/ui'
 
 import { trigger404 } from 'app/components/ErrorBoundary'
 import { DocsLinkItem, NavLinkItem, Sidebar } from 'app/components/Sidebar'
 import { TopBar } from 'app/components/TopBar'
-import { SiloPicker, SiloSystemPicker } from 'app/components/TopBarPicker'
+import { IpPoolPicker, SiloPicker, SiloSystemPicker } from 'app/components/TopBarPicker'
 import { useQuickActions } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
@@ -49,7 +55,7 @@ export default function SystemLayout() {
   // robust way of doing this would be to make a separate layout for the
   // silo-specific routes in the route config, but it's overkill considering
   // this is a one-liner. Switch to that approach at the first sign of trouble.
-  const { silo } = useParams()
+  const { silo, pool } = useParams()
   const navigate = useNavigate()
   const { pathname } = useLocation()
 
@@ -84,6 +90,7 @@ export default function SystemLayout() {
       <TopBar>
         <SiloSystemPicker value="system" />
         {silo && <SiloPicker />}
+        {pool && <IpPoolPicker />}
       </TopBar>
       <Sidebar>
         <Sidebar.Nav>
@@ -108,10 +115,10 @@ export default function SystemLayout() {
           </NavLinkItem>
           <NavLinkItem to={pb.systemUpdates()} disabled>
             <SoftwareUpdate16Icon /> System Update
-          </NavLinkItem>
-          <NavLinkItem to={pb.systemNetworking()} disabled>
-            <Networking16Icon /> Networking
           </NavLinkItem> */}
+          <NavLinkItem to={pb.systemNetworking()}>
+            <Networking16Icon /> Networking
+          </NavLinkItem>
         </Sidebar.Nav>
       </Sidebar>
       <ContentPane />

@@ -65,6 +65,8 @@ import { InventoryPage } from './pages/system/inventory/InventoryPage'
 import { SledInstancesTab } from './pages/system/inventory/sled/SledInstancesTab'
 import { SledPage } from './pages/system/inventory/sled/SledPage'
 import { SledsTab } from './pages/system/inventory/SledsTab'
+import { IpPoolPage } from './pages/system/networking/IpPoolPage'
+import { NetworkingPage } from './pages/system/networking/NetworkingPage'
 import { SiloImagesPage } from './pages/system/SiloImagesPage'
 import { SiloPage } from './pages/system/SiloPage'
 import SilosPage from './pages/system/SilosPage'
@@ -170,7 +172,15 @@ export const routes = createRoutesFromElements(
         </Route>
         <Route path="health" element={null} handle={{ crumb: 'Health' }} />
         <Route path="update" element={null} handle={{ crumb: 'Update' }} />
-        <Route path="networking" element={null} handle={{ crumb: 'Networking' }} />
+        <Route path="networking" handle={{ crumb: 'Networking' }}>
+          <Route index element={<Navigate to="ip-pools" replace />} />
+          <Route path="ip-pool-new" element={null} />
+          {/* TODO: make this a tab on the networking page */}
+          <Route path="ip-pools">
+            <Route index element={<NetworkingPage />} loader={NetworkingPage.loader} />
+            <Route path=":pool" element={<IpPoolPage />} loader={IpPoolPage.loader} />
+          </Route>
+        </Route>
       </Route>
 
       <Route index element={<Navigate to={pb.projects()} replace />} />

@@ -19,6 +19,7 @@ type Sled = Required<PP.Sled>
 type Image = Required<PP.Image>
 type Snapshot = Required<PP.Snapshot>
 type SiloImage = Required<PP.SiloImage>
+type IpPool = Required<PP.IpPool>
 
 export const pb = {
   projects: () => `/projects`,
@@ -78,6 +79,9 @@ export const pb = {
   systemHealth: () => '/system/health',
 
   systemNetworking: () => '/system/networking',
+  ipPools: () => '/system/networking/ip-pools',
+  ipPoolNew: () => '/system/networking/ip-pool-new',
+  ipPool: (params: IpPool) => `${pb.ipPools()}/${params.pool}`,
 
   inventory: () => '/system/inventory',
   rackInventory: () => '/system/inventory/racks',

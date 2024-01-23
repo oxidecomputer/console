@@ -20,6 +20,7 @@ const params = {
   sledId: 'sl',
   image: 'im',
   snapshot: 'sn',
+  pool: 'pl',
 }
 
 test('path builder', () => {
@@ -38,6 +39,9 @@ test('path builder', () => {
         "instanceStorage": "/projects/p/instances/i/storage",
         "instances": "/projects/p/instances",
         "inventory": "/system/inventory",
+        "ipPool": "/system/networking/ip-pools/pl",
+        "ipPoolNew": "/system/networking/ip-pool-new",
+        "ipPools": "/system/networking/ip-pools",
         "nics": "/projects/p/instances/i/network-interfaces",
         "profile": "/settings/profile",
         "project": "/projects/p",
