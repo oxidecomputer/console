@@ -106,7 +106,7 @@ const makeQueryTable = <Item extends Record<string, unknown>>(
     makeActions,
     debug,
     pagination = 'page',
-    pageSize = 10,
+    pageSize = 25,
     emptyState,
     onSingleSelect,
     onMultiSelect,
@@ -135,8 +135,8 @@ const makeQueryTable = <Item extends Record<string, unknown>>(
           'id' in column
             ? column.id
             : typeof column.accessor === 'string'
-            ? column.accessor
-            : undefined // should never happen because id is required if accessor is a function
+              ? column.accessor
+              : undefined // should never happen because id is required if accessor is a function
 
         return colHelper.accessor(column.accessor, {
           id: id!, // undefined not really possible, and helper doesn't allow it

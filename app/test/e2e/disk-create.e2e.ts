@@ -17,8 +17,6 @@ test.describe('Disk create', () => {
     await page.getByRole('button', { name: 'Create disk' }).click()
 
     await expectVisible(page, ['text="Your disk has been created"'])
-
-    await page.getByRole('button', { name: 'Next' }).click()
     await expectVisible(page, ['role=cell[name="a-new-disk"]'])
   })
 

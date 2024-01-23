@@ -144,7 +144,7 @@ export function CreateSiloSideModalForm() {
       <TextField
         name="adminGroupName"
         label="Admin group name"
-        helpText="This group will be created and granted the Silo Admin role"
+        description="This group will be created and granted the Silo Admin role"
         control={form.control}
       />
       <div>

@@ -23,7 +23,7 @@ import { confirmDelete } from 'app/stores/confirm-delete'
 import { pb } from 'app/util/path-builder'
 
 SSHKeysPage.loader = async () => {
-  await apiQueryClient.prefetchQuery('currentUserSshKeyList', { query: { limit: 10 } })
+  await apiQueryClient.prefetchQuery('currentUserSshKeyList', { query: { limit: 25 } })
   return null
 }
 

@@ -26,6 +26,7 @@ import {
   Spinner,
   Success12Icon,
 } from '@oxide/ui'
+import { classed } from '@oxide/util'
 
 import CreateNetworkInterfaceForm from 'app/forms/network-interface-create'
 import EditNetworkInterfaceForm from 'app/forms/network-interface-edit'
@@ -40,7 +41,9 @@ import { pb } from 'app/util/path-builder'
 
 import { fancifyStates } from './common'
 
-const VpcNameFromId = ({ value }: { value: string }) => {
+export const Skeleton = classed.div`h-4 w-12 rounded bg-tertiary motion-safe:animate-pulse`
+
+export const VpcNameFromId = ({ value }: { value: string }) => {
   const projectSelector = useProjectSelector()
   const { data: vpc, isError } = useApiQuery(
     'vpcView',
@@ -52,10 +55,10 @@ const VpcNameFromId = ({ value }: { value: string }) => {
   // possible because you can't delete a VPC that has child resources, but let's
   // be safe
   if (isError) return <Badge color="neutral">Deleted</Badge>
-  if (!vpc) return <Spinner /> // loading
+  if (!vpc) return <Skeleton />
   return (
     <Link
-      className="text-sans-semi-md text-default hover:underline"
+      className="underline text-sans-semi-md text-secondary hover:text-default"
       to={pb.vpc({ ...projectSelector, vpc: vpc.name })}
     >
       {vpc.name}
@@ -77,21 +80,11 @@ const SubnetNameFromId = ({ value }: { value: string }) => {
   return <span className="text-secondary">{subnet.name}</span>
 }
 
-function ExternalIpsFromInstanceName({ value: primary }: { value: boolean }) {
-  const { project, instance } = useInstanceSelector()
-  const { data } = useApiQuery('instanceExternalIpList', {
-    path: { instance },
-    query: { project },
-  })
-  const ips = data?.items.map((eip) => eip.ip).join(', ')
-  return <span className="text-secondary">{primary ? ips : <>&mdash;</>}</span>
-}
-
 NetworkingTab.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project, instance } = getInstanceSelector(params)
   await Promise.all([
     apiQueryClient.prefetchQuery('instanceNetworkInterfaceList', {
-      query: { project, instance, limit: 10 },
+      query: { project, instance, limit: 25 },
     }),
     // This is covered by the InstancePage loader but there's no downside to
     // being redundant. If it were removed there, we'd still want it here.
@@ -202,15 +195,7 @@ export function NetworkingTab() {
       <Table labeled-by="nic-label" makeActions={makeActions} emptyState={emptyState}>
         <Column accessor="name" />
         <Column accessor="description" />
-        {/* TODO: mark v4 or v6 explicitly? */}
         <Column accessor="ip" />
-        <Column
-          header="External IP"
-          // we use primary to decide whether to show the IP in that row
-          accessor="primary"
-          id="external_ip"
-          cell={ExternalIpsFromInstanceName}
-        />
         <Column header="vpc" accessor="vpcId" cell={VpcNameFromId} />
         <Column header="subnet" accessor="subnetId" cell={SubnetNameFromId} />
         <Column

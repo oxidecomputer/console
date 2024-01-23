@@ -44,7 +44,7 @@ const EmptyState = () => (
 
 InstancesPage.loader = async ({ params }: LoaderFunctionArgs) => {
   await apiQueryClient.prefetchQuery('instanceList', {
-    query: { ...getProjectSelector(params), limit: 10 },
+    query: { ...getProjectSelector(params), limit: 25 },
   })
   return null
 }
@@ -60,7 +60,7 @@ export function InstancesPage() {
   })
 
   const { data: instances } = usePrefetchedApiQuery('instanceList', {
-    query: { ...projectSelector, limit: 10 }, // to have same params as QueryTable
+    query: { ...projectSelector, limit: 25 }, // to have same params as QueryTable
   })
 
   const navigate = useNavigate()

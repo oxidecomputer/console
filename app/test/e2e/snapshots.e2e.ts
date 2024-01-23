@@ -28,7 +28,7 @@ test('Click through snapshots', async ({ page }) => {
 test('Confirm delete snapshot', async ({ page }) => {
   await page.goto('/projects/mock-project/snapshots')
 
-  const row = page.getByRole('row', { name: 'snapshot-2' })
+  const row = page.getByRole('row', { name: 'disk-1-snapshot-5' })
 
   async function clickDelete() {
     await row.getByRole('button', { name: 'Row actions' }).click()
@@ -80,13 +80,13 @@ test('Error on delete snapshot', async ({ page }) => {
 test('Create image from snapshot', async ({ page }) => {
   await page.goto('/projects/mock-project/snapshots')
 
-  const row = page.getByRole('row', { name: 'snapshot-1' })
+  const row = page.getByRole('row', { name: 'snapshot-4' })
   await row.getByRole('button', { name: 'Row actions' }).click()
   await page.getByRole('menuitem', { name: 'Create image' }).click()
 
   await expectVisible(page, ['role=dialog[name="Create image from snapshot"]'])
 
-  await page.fill('role=textbox[name="Name"]', 'image-from-snapshot-1')
+  await page.fill('role=textbox[name="Name"]', 'image-from-snapshot-4')
   await page.fill('role=textbox[name="Description"]', 'image description')
   await page.fill('role=textbox[name="OS"]', 'Ubuntu')
   await page.fill('role=textbox[name="Version"]', '20.02')
@@ -97,7 +97,7 @@ test('Create image from snapshot', async ({ page }) => {
 
   await page.click('role=link[name*="Images"]')
   await expectRowVisible(page.getByRole('table'), {
-    name: 'image-from-snapshot-1',
+    name: 'image-from-snapshot-4',
     description: 'image description',
   })
 })
@@ -105,7 +105,7 @@ test('Create image from snapshot', async ({ page }) => {
 test('Create image from snapshot, name taken', async ({ page }) => {
   await page.goto('/projects/mock-project/snapshots')
 
-  const row = page.getByRole('row', { name: 'snapshot-1' })
+  const row = page.getByRole('row', { name: 'snapshot-4' })
   await row.getByRole('button', { name: 'Row actions' }).click()
   await page.getByRole('menuitem', { name: 'Create image' }).click()
 

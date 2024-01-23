@@ -41,8 +41,8 @@ export const ResourceMeter = ({
     value > errorThreshold
       ? 'bg-destructive-secondary'
       : value > warningThreshold
-      ? 'bg-notice-secondary'
-      : 'bg-accent-secondary'
+        ? 'bg-notice-secondary'
+        : 'bg-accent-secondary'
   return (
     <Tooltip content={label} placement="top">
       <div

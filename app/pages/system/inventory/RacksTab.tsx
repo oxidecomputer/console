@@ -21,7 +21,7 @@ const EmptyState = () => {
 
 RacksTab.loader = async () => {
   await apiQueryClient.prefetchQuery('rackList', {
-    query: { limit: 10 },
+    query: { limit: 25 },
   })
   return null
 }

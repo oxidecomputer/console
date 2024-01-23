@@ -7,8 +7,10 @@
  */
 
 export * from './disk'
+export * from './external-ip'
 export * from './image'
 export * from './instance'
+export * from './ip-pool'
 export * from './network-interface'
 export * from './physical-disk'
 export * from './project'

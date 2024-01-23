@@ -24,7 +24,13 @@ export type DiskTableItem =
  * Designed less for reuse, more to encapsulate logic that would otherwise
  * clutter the instance create form.
  */
-export function DisksTableField({ control }: { control: Control<InstanceCreateInput> }) {
+export function DisksTableField({
+  control,
+  disabled,
+}: {
+  control: Control<InstanceCreateInput>
+  disabled: boolean
+}) {
   const [showDiskCreate, setShowDiskCreate] = useState(false)
   const [showDiskAttach, setShowDiskAttach] = useState(false)
 
@@ -81,10 +87,15 @@ export function DisksTableField({ control }: { control: Control<InstanceCreateIn
         )}
 
         <div className="space-x-3">
-          <Button size="sm" onClick={() => setShowDiskCreate(true)}>
+          <Button size="sm" onClick={() => setShowDiskCreate(true)} disabled={disabled}>
             Create new disk
           </Button>
-          <Button variant="ghost" size="sm" onClick={() => setShowDiskAttach(true)}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowDiskAttach(true)}
+            disabled={disabled}
+          >
             Attach existing disk
           </Button>
         </div>

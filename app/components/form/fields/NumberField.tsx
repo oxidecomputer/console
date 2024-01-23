@@ -23,8 +23,8 @@ export function NumberField<
   name,
   label = capitalize(name),
   units,
+  tooltipText,
   description,
-  helpText,
   required,
   ...props
 }: Omit<TextFieldProps<TFieldValues, TName>, 'id'>) {
@@ -33,12 +33,12 @@ export function NumberField<
   return (
     <div className="max-w-lg">
       <div className="mb-2">
-        <FieldLabel id={`${id}-label`} tip={description} optional={!required}>
+        <FieldLabel htmlFor={id} id={`${id}-label`} tip={tooltipText} optional={!required}>
           {label} {units && <span className="ml-1 text-secondary">({units})</span>}
         </FieldLabel>
-        {helpText && (
+        {description && (
           <TextInputHint id={`${id}-help-text`} className="mb-2">
-            {helpText}
+            {description}
           </TextInputHint>
         )}
       </div>
@@ -65,9 +65,10 @@ export const NumberFieldInner = <
   label = capitalize(name),
   validate,
   control,
-  description,
+  tooltipText,
   required,
   id: idProp,
+  disabled,
 }: TextFieldProps<TFieldValues, TName>) => {
   const generatedId = useId()
   const id = idProp || generatedId
@@ -84,9 +85,10 @@ export const NumberFieldInner = <
               id={id}
               error={!!error}
               aria-labelledby={cn(`${id}-label`, {
-                [`${id}-help-text`]: !!description,
+                [`${id}-help-text`]: !!tooltipText,
               })}
-              aria-describedby={description ? `${id}-label-tip` : undefined}
+              aria-describedby={tooltipText ? `${id}-label-tip` : undefined}
+              isDisabled={disabled}
               {...field}
             />
             <ErrorMessage error={error} label={label} />

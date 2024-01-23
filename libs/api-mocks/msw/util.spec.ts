@@ -20,24 +20,12 @@ describe('paginated', () => {
     expect(page.nextPage).toBeNull()
   })
 
-  it('should return the first 10 items with no limit passed', () => {
-    const items = [
-      { id: 'a' },
-      { id: 'b' },
-      { id: 'c' },
-      { id: 'd' },
-      { id: 'e' },
-      { id: 'f' },
-      { id: 'g' },
-      { id: 'h' },
-      { id: 'i' },
-      { id: 'j' },
-      { id: 'k' },
-    ]
+  it('should return the first 100 items with no limit passed', () => {
+    const items = new Array(200).fill(0).map((_, i) => ({ id: 'i' + i }))
     const page = paginated({}, items)
-    expect(page.items.length).toBe(10)
-    expect(page.items).toEqual(items.slice(0, 10))
-    expect(page.nextPage).toBe('k')
+    expect(page.items.length).toBe(100)
+    expect(page.items).toEqual(items.slice(0, 100))
+    expect(page.nextPage).toBe('i100')
   })
 
   it('should return page with null `nextPage` if items equal page', () => {
