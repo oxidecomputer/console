@@ -37,7 +37,7 @@ export type RadioFieldProps<
    * complete the input. This will be announced in tandem with the
    * label when using a screen reader.
    */
-  helpText?: string | React.ReactNode
+  description?: string | React.ReactNode
   /**
    * Displayed in a tooltip beside the title. This field should be used
    * for auxiliary context that helps users understand extra context about
@@ -68,7 +68,7 @@ export function RadioField<
 >({
   name,
   label = capitalize(name),
-  helpText,
+  description,
   tooltipText,
   units,
   control,
@@ -86,7 +86,7 @@ export function RadioField<
           </FieldLabel>
         )}
         {/* TODO: Figure out where this hint field def should live */}
-        {helpText && <TextInputHint id={`${id}-help-text`}>{helpText}</TextInputHint>}
+        {description && <TextInputHint id={`${id}-help-text`}>{description}</TextInputHint>}
       </div>
       <Controller
         name={name}
@@ -137,7 +137,7 @@ export function RadioFieldDyn<
 >({
   name,
   label = capitalize(name),
-  helpText,
+  description,
   tooltipText,
   units,
   control,
@@ -154,7 +154,7 @@ export function RadioFieldDyn<
           </FieldLabel>
         )}
         {/* TODO: Figure out where this hint field def should live */}
-        {helpText && <TextInputHint id={`${id}-help-text`}>{helpText}</TextInputHint>}
+        {description && <TextInputHint id={`${id}-help-text`}>{description}</TextInputHint>}
       </div>
       <Controller
         name={name}

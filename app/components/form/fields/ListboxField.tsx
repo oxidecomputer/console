@@ -22,7 +22,7 @@ export type ListboxFieldProps<
   className?: string
   label?: string
   required?: boolean
-  helpText?: string | React.ReactNode | React.ReactNode
+  description?: string | React.ReactNode | React.ReactNode
   tooltipText?: string
   control: Control<TFieldValues>
   disabled?: boolean
@@ -42,7 +42,7 @@ export function ListboxField<
   disabled,
   required,
   tooltipText,
-  helpText,
+  description,
   className,
   control,
   onChange,
@@ -59,7 +59,7 @@ export function ListboxField<
         render={({ field, fieldState: { error } }) => (
           <>
             <Listbox
-              helpText={helpText}
+              description={description}
               label={label}
               tooltipText={tooltipText}
               required={required}

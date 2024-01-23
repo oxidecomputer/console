@@ -22,7 +22,7 @@ export function FileField<
   control,
   required = false,
   accept,
-  helpText,
+  description,
 }: {
   id: string
   name: TName
@@ -31,7 +31,7 @@ export function FileField<
   control: Control<TFieldValues>
   required?: boolean
   accept?: string
-  helpText?: string | React.ReactNode
+  description?: string | React.ReactNode
 }) {
   return (
     <Controller
@@ -49,7 +49,9 @@ export function FileField<
             >
               {label}
             </FieldLabel>
-            {helpText && <TextInputHint id={`${id}-help-text`}>{helpText}</TextInputHint>}
+            {description && (
+              <TextInputHint id={`${id}-help-text`}>{description}</TextInputHint>
+            )}
           </div>
           <FileInput id={id} className="mt-2" accept={accept} {...rest} error={!!error} />
           <ErrorMessage error={error} label={label} />

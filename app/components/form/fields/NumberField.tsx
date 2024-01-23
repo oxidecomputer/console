@@ -24,7 +24,7 @@ export function NumberField<
   label = capitalize(name),
   units,
   tooltipText,
-  helpText,
+  description,
   required,
   ...props
 }: Omit<TextFieldProps<TFieldValues, TName>, 'id'>) {
@@ -36,9 +36,9 @@ export function NumberField<
         <FieldLabel htmlFor={id} id={`${id}-label`} tip={tooltipText} optional={!required}>
           {label} {units && <span className="ml-1 text-secondary">({units})</span>}
         </FieldLabel>
-        {helpText && (
+        {description && (
           <TextInputHint id={`${id}-help-text`} className="mb-2">
-            {helpText}
+            {description}
           </TextInputHint>
         )}
       </div>

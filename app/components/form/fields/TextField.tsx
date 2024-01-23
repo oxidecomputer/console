@@ -42,7 +42,7 @@ export interface TextFieldProps<
    * complete the input. This will be announced in tandem with the
    * label when using a screen reader.
    */
-  helpText?: string | React.ReactNode
+  description?: string | React.ReactNode
   /**
    * Displayed in a tooltip beside the title. This field should be used
    * for auxiliary context that helps users understand extra context about
@@ -66,7 +66,7 @@ export function TextField<
   label = capitalize(name),
   units,
   tooltipText,
-  helpText,
+  description,
   required,
   ...props
 }: Omit<TextFieldProps<TFieldValues, TName>, 'id'> & UITextAreaProps) {
@@ -78,9 +78,9 @@ export function TextField<
         <FieldLabel htmlFor={id} id={`${id}-label`} tip={tooltipText} optional={!required}>
           {label} {units && <span className="ml-1 text-secondary">({units})</span>}
         </FieldLabel>
-        {helpText && (
+        {description && (
           <TextInputHint id={`${id}-help-text`} className="mb-2">
-            {helpText}
+            {description}
           </TextInputHint>
         )}
       </div>
