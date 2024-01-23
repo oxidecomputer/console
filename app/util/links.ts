@@ -7,6 +7,5 @@
  */
 export const links: Record<string, string> = {
   cloudInitFormat: 'https://cloudinit.readthedocs.io/en/latest/explanation/format.html',
-  cloudInitExamples:
-    'https://cloudinit.readthedocs.io/en/latest/reference/examples.html#yaml-examples',
+  cloudInitExamples: 'https://cloudinit.readthedocs.io/en/latest/reference/examples.html',
 }
