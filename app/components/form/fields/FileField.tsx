@@ -18,7 +18,7 @@ export function FileField<
   id,
   name,
   label,
-  description,
+  tooltipText,
   control,
   required = false,
   accept,
@@ -27,11 +27,11 @@ export function FileField<
   id: string
   name: TName
   label: string
-  description?: string
+  tooltipText?: string
   control: Control<TFieldValues>
   required?: boolean
   accept?: string
-  helpText?: string
+  helpText?: string | React.ReactNode
 }) {
   return (
     <Controller
@@ -44,7 +44,7 @@ export function FileField<
             <FieldLabel
               id={`${id}-label`}
               htmlFor={id}
-              tip={description}
+              tip={tooltipText}
               optional={!required}
             >
               {label}

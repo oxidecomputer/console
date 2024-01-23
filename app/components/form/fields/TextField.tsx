@@ -42,7 +42,7 @@ export interface TextFieldProps<
    * complete the input. This will be announced in tandem with the
    * label when using a screen reader.
    */
-  helpText?: string
+  helpText?: string | React.ReactNode
   /**
    * Displayed in a tooltip beside the title. This field should be used
    * for auxiliary context that helps users understand extra context about
@@ -51,7 +51,7 @@ export interface TextFieldProps<
    *
    * @see https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Attributes/aria-description
    */
-  description?: string
+  tooltipText?: string
   placeholder?: string
   units?: string
   validate?: Validate<FieldPathValue<TFieldValues, TName>, TFieldValues>
@@ -65,7 +65,7 @@ export function TextField<
   name,
   label = capitalize(name),
   units,
-  description,
+  tooltipText,
   helpText,
   required,
   ...props
@@ -75,7 +75,7 @@ export function TextField<
   return (
     <div className="max-w-lg">
       <div className="mb-2">
-        <FieldLabel htmlFor={id} id={`${id}-label`} tip={description} optional={!required}>
+        <FieldLabel htmlFor={id} id={`${id}-label`} tip={tooltipText} optional={!required}>
           {label} {units && <span className="ml-1 text-secondary">({units})</span>}
         </FieldLabel>
         {helpText && (
@@ -116,7 +116,7 @@ export const TextFieldInner = <
   label = capitalize(name),
   validate,
   control,
-  description,
+  tooltipText,
   required,
   id: idProp,
   ...props
@@ -137,9 +137,9 @@ export const TextFieldInner = <
               type={type}
               error={!!error}
               aria-labelledby={cn(`${id}-label`, {
-                [`${id}-help-text`]: !!description,
+                [`${id}-help-text`]: !!tooltipText,
               })}
-              aria-describedby={description ? `${id}-label-tip` : undefined}
+              aria-describedby={tooltipText ? `${id}-label-tip` : undefined}
               // note special handling for number fields, which produce a number
               // for the calling code despite the actual input value necessarily
               // being a string.
