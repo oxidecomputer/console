@@ -111,7 +111,7 @@ export function CreateIdpSideModalForm() {
       <TextField
         name="acsUrl"
         label="ACS URL"
-        helpText="Service provider endpoint for the IdP to send the SAML response"
+        description="Service provider endpoint for the IdP to send the SAML response"
         required
         control={form.control}
       />
@@ -120,7 +120,7 @@ export function CreateIdpSideModalForm() {
       <TextField
         name="sloUrl"
         label="Single Logout (SLO) URL"
-        helpText="Service provider endpoint for log out requests"
+        description="Service provider endpoint for log out requests"
         required
         control={form.control}
       />
@@ -134,7 +134,7 @@ export function CreateIdpSideModalForm() {
       <TextField
         name="groupAttributeName"
         label="Group attribute name"
-        helpText="Name of SAML attribute where we can find a comma-separated list of names of groups the user belongs to"
+        description="Name of SAML attribute where we can find a comma-separated list of names of groups the user belongs to"
         control={form.control}
       />
       {/* TODO: Email field, probably */}
@@ -151,14 +151,14 @@ export function CreateIdpSideModalForm() {
       <FileField
         id="public-cert-file-input"
         name="signingKeypair.publicCert"
-        helpText="DER-encoded X.509 certificate"
+        description="DER-encoded X.509 certificate"
         label="Public cert"
         control={form.control}
       />
       <FileField
         id="private-key-file-input"
         name="signingKeypair.privateKey"
-        helpText="DER-encoded private key"
+        description="DER-encoded private key"
         label="Private key"
         control={form.control}
       />

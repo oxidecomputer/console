@@ -18,7 +18,7 @@ export const InstanceStatusCell = ({
   return (
     <div className="flex flex-col">
       <InstanceStatusBadge key="run-state" status={value.runState} />
-      <TimeAgo description="Run state updated" datetime={value.timeRunStateUpdated} />
+      <TimeAgo tooltipText="Run state updated" datetime={value.timeRunStateUpdated} />
     </div>
   )
 }

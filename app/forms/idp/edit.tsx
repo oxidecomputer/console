@@ -67,7 +67,7 @@ export function EditIdpSideModalForm() {
       <TextField
         name="acsUrl"
         label="ACS URL"
-        helpText="Service provider endpoint for the IdP to send the SAML response"
+        description="Service provider endpoint for the IdP to send the SAML response"
         required
         control={form.control}
         disabled
@@ -83,7 +83,7 @@ export function EditIdpSideModalForm() {
       <TextField
         name="sloUrl"
         label="Single Logout (SLO) URL"
-        helpText="Service provider endpoint for log out requests"
+        description="Service provider endpoint for log out requests"
         required
         control={form.control}
         disabled
@@ -100,7 +100,7 @@ export function EditIdpSideModalForm() {
           <TextField
             name="groupAttributeName"
             label="Group attribute name"
-            helpText="Name of SAML attribute where we can find a comma-separated list of names of groups the user belongs to"
+            description="Name of SAML attribute where we can find a comma-separated list of names of groups the user belongs to"
             control={form.control}
             disabled
           /> */}

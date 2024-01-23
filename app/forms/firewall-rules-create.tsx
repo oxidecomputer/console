@@ -154,7 +154,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
       <TextField
         type="number"
         name="priority"
-        helpText="Must be 0&ndash;65535"
+        description="Must be 0&ndash;65535"
         required
         control={control}
       />
@@ -351,7 +351,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
       <TextField
         name="portRange"
         label="Port filter"
-        helpText="A single port (1234) or a range (1234-2345)"
+        description="A single port (1234) or a range (1234-2345)"
         required
         control={portRangeForm.control}
       />
