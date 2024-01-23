@@ -7,28 +7,14 @@
  */
 import { describe, expect, test } from 'vitest'
 
-import links from './links'
+import { links } from './links'
 
 describe('check links are accessible', () => {
-  for (const category in links) {
-    const categoryKey = category as keyof typeof links
-    for (const link in links[categoryKey]) {
-      test(`${category}.${link}`, async () => {
-        const linkKey = link as keyof (typeof links)[typeof categoryKey]
-        let response
-        try {
-          response = await fetch(links[categoryKey][linkKey], { method: 'HEAD' })
-        } catch (error) {
-          // If HEAD request fails, try GET
-          if (error instanceof TypeError) {
-            response = await fetch(links[categoryKey][linkKey])
-          } else {
-            throw error
-          }
-        }
-        // Check if the status code is 200
-        expect(response.status).toEqual(200)
-      })
-    }
+  for (const [key, url] of Object.entries(links)) {
+    test(key, async () => {
+      // if we run into a page where HEAD doesn't work, we can fall back to GET
+      const response = await fetch(url, { method: 'HEAD' })
+      expect(response.status).toEqual(200)
+    })
   }
 })

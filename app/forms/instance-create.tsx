@@ -55,7 +55,7 @@ import {
 } from 'app/components/form'
 import { getProjectSelector, useForm, useProjectSelector, useToast } from 'app/hooks'
 import { readBlobAsBase64 } from 'app/util/file'
-import links from 'app/util/links'
+import { links } from 'app/util/links'
 import { pb } from 'app/util/path-builder'
 
 export type InstanceCreateInput = Assign<
@@ -443,14 +443,10 @@ export function CreateInstanceForm() {
               description={
                 <>
                   Data or scripts to be passed to cloud-init as{' '}
-                  <a href={links.external.cloudInitFormat} target="_blank" rel="noreferrer">
+                  <a href={links.cloudInitFormat} target="_blank" rel="noreferrer">
                     user data
                   </a>{' '}
-                  <a
-                    href={links.external.cloudInitExamples}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
+                  <a href={links.cloudInitExamples} target="_blank" rel="noreferrer">
                     (examples)
                   </a>{' '}
                   if the selected boot image supports it. Maximum size 32 KiB.

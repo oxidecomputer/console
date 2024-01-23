@@ -5,14 +5,8 @@
  *
  * Copyright Oxide Computer Company
  */
-export const external = {
+export const links: Record<string, string> = {
   cloudInitFormat: 'https://cloudinit.readthedocs.io/en/latest/explanation/format.html',
   cloudInitExamples:
     'https://cloudinit.readthedocs.io/en/latest/reference/examples.html#yaml-examples',
 }
-
-const links = {
-  external,
-}
-
-export default links
