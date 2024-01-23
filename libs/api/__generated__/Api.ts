@@ -1387,6 +1387,12 @@ export type IpPool = {
  */
 export type IpPoolCreate = { description: string; name: Name }
 
+export type IpPoolLinkSilo = {
+  /** When a pool is the default for a silo, floating IPs and instance ephemeral IPs will come from that pool when no other pool is specified. There can be at most one default for a given silo. */
+  isDefault: boolean
+  silo: NameOrId
+}
+
 /**
  * A non-decreasing IPv4 address range, inclusive of both ends.
  *
@@ -1433,25 +1439,19 @@ export type IpPoolResultsPage = {
 /**
  * A link between an IP pool and a silo that allows one to allocate IPs from the pool within the silo
  */
-export type IpPoolSilo = {
+export type IpPoolSiloLink = {
   ipPoolId: string
   /** When a pool is the default for a silo, floating IPs and instance ephemeral IPs will come from that pool when no other pool is specified. There can be at most one default for a given silo. */
   isDefault: boolean
   siloId: string
 }
 
-export type IpPoolSiloLink = {
-  /** When a pool is the default for a silo, floating IPs and instance ephemeral IPs will come from that pool when no other pool is specified. There can be at most one default for a given silo. */
-  isDefault: boolean
-  silo: NameOrId
-}
-
 /**
  * A single page of results
  */
-export type IpPoolSiloResultsPage = {
+export type IpPoolSiloLinkResultsPage = {
   /** list of items on this page of results */
-  items: IpPoolSilo[]
+  items: IpPoolSiloLink[]
   /** token used to fetch the next page of results (if any) */
   nextPage?: string
 }
@@ -1897,6 +1897,34 @@ The default is that no Fleet roles are conferred by any Silo roles unless there'
   quotas: SiloQuotasCreate
   /** Initial TLS certificates to be used for the new Silo's console and API endpoints.  These should be valid for the Silo's DNS name(s). */
   tlsCertificates: CertificateCreate[]
+}
+
+/**
+ * An IP pool in the context of a silo
+ */
+export type SiloIpPool = {
+  /** human-readable free-form text about a resource */
+  description: string
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** When a pool is the default for a silo, floating IPs and instance ephemeral IPs will come from that pool when no other pool is specified. There can be at most one default for a given silo. */
+  isDefault: boolean
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+}
+
+/**
+ * A single page of results
+ */
+export type SiloIpPoolResultsPage = {
+  /** list of items on this page of results */
+  items: SiloIpPool[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
 }
 
 /**
@@ -3579,6 +3607,16 @@ export interface SiloDeletePathParams {
   silo: NameOrId
 }
 
+export interface SiloIpPoolListPathParams {
+  silo: NameOrId
+}
+
+export interface SiloIpPoolListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: NameOrIdSortMode
+}
+
 export interface SiloPolicyViewPathParams {
   silo: NameOrId
 }
@@ -3771,6 +3809,7 @@ export type ApiListMethods = Pick<
   | 'roleList'
   | 'systemQuotasList'
   | 'siloList'
+  | 'siloIpPoolList'
   | 'siloUserList'
   | 'userBuiltinList'
   | 'siloUtilizationList'
@@ -4459,7 +4498,7 @@ export class Api extends HttpClient {
       { query = {} }: { query?: ProjectIpPoolListQueryParams },
       params: FetchParams = {}
     ) => {
-      return this.request<IpPoolResultsPage>({
+      return this.request<SiloIpPoolResultsPage>({
         path: `/v1/ip-pools`,
         method: 'GET',
         query,
@@ -4473,7 +4512,7 @@ export class Api extends HttpClient {
       { path }: { path: ProjectIpPoolViewPathParams },
       params: FetchParams = {}
     ) => {
-      return this.request<IpPool>({
+      return this.request<SiloIpPool>({
         path: `/v1/ip-pools/${path.pool}`,
         method: 'GET',
         ...params,
@@ -5322,7 +5361,7 @@ export class Api extends HttpClient {
       }: { path: IpPoolSiloListPathParams; query?: IpPoolSiloListQueryParams },
       params: FetchParams = {}
     ) => {
-      return this.request<IpPoolSiloResultsPage>({
+      return this.request<IpPoolSiloLinkResultsPage>({
         path: `/v1/system/ip-pools/${path.pool}/silos`,
         method: 'GET',
         query,
@@ -5333,10 +5372,10 @@ export class Api extends HttpClient {
      * Make an IP pool available within a silo
      */
     ipPoolSiloLink: (
-      { path, body }: { path: IpPoolSiloLinkPathParams; body: IpPoolSiloLink },
+      { path, body }: { path: IpPoolSiloLinkPathParams; body: IpPoolLinkSilo },
       params: FetchParams = {}
     ) => {
-      return this.request<IpPoolSilo>({
+      return this.request<IpPoolSiloLink>({
         path: `/v1/system/ip-pools/${path.pool}/silos`,
         method: 'POST',
         body,
@@ -5350,7 +5389,7 @@ export class Api extends HttpClient {
       { path, body }: { path: IpPoolSiloUpdatePathParams; body: IpPoolSiloUpdate },
       params: FetchParams = {}
     ) => {
-      return this.request<IpPoolSilo>({
+      return this.request<IpPoolSiloLink>({
         path: `/v1/system/ip-pools/${path.pool}/silos/${path.silo}`,
         method: 'PUT',
         body,
@@ -5799,6 +5838,23 @@ export class Api extends HttpClient {
       return this.request<void>({
         path: `/v1/system/silos/${path.silo}`,
         method: 'DELETE',
+        ...params,
+      })
+    },
+    /**
+     * List IP pools available within silo
+     */
+    siloIpPoolList: (
+      {
+        path,
+        query = {},
+      }: { path: SiloIpPoolListPathParams; query?: SiloIpPoolListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SiloIpPoolResultsPage>({
+        path: `/v1/system/silos/${path.silo}/ip-pools`,
+        method: 'GET',
+        query,
         ...params,
       })
     },
