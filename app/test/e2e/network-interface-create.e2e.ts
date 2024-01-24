@@ -7,7 +7,7 @@
  */
 import { test } from '@playwright/test'
 
-import { expect } from './utils'
+import { expect, expectRowVisible } from './utils'
 
 test('can create a NIC with a specified IP address', async ({ page }) => {
   // go to an instance’s Network Interfaces page
@@ -32,9 +32,9 @@ test('can create a NIC with a specified IP address', async ({ page }) => {
 
   // test that the form can be submitted and a new network interface is created
   await sidebar.getByRole('button', { name: 'Add network interface' }).click()
-  const lastRow = page.getByRole('table').locator('tr:last-child')
+  await expect(sidebar).toBeHidden()
 
-  await expect(lastRow.getByText('1.2.3.4')).toBeVisible()
+  await expectRowVisible(page.getByRole('table'), { name: 'nic-1', ip: '1.2.3.4' })
 })
 
 test('can create a NIC with a blank IP address', async ({ page }) => {
@@ -71,9 +71,8 @@ test('can create a NIC with a blank IP address', async ({ page }) => {
 
   // test that the form can be submitted and a new network interface is created
   await sidebar.getByRole('button', { name: 'Add network interface' }).click()
-  const lastRow = page.getByRole('table').locator('tr:last-child')
+  await expect(sidebar).toBeHidden()
 
-  await expect(lastRow.getByText('nic-2')).toBeVisible()
-  // it should use the default value
-  await expect(lastRow.getByText('123.45.68.8')).toBeVisible()
+  // ip address is auto-assigned
+  await expectRowVisible(page.getByRole('table'), { name: 'nic-2', ip: '123.45.68.8' })
 })
