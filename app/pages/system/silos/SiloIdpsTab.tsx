@@ -38,7 +38,6 @@ export function SiloIdpsTab() {
 
   return (
     <>
-      <h2 className="mb-4 mt-12 text-mono-sm text-secondary">Identity providers</h2>
       <TableActions>
         <Link to={pb.siloIdpNew(siloSelector)} className={buttonStyle({ size: 'sm' })}>
           New provider
