@@ -81,7 +81,7 @@ export function SiloPage() {
       <QueryParamTabs id="silo-networking-tabs" className="full-width" defaultValue="idps">
         <Tabs.List>
           <Tabs.Trigger value="idps">Identity Providers</Tabs.Trigger>
-          <Tabs.Trigger value="silo-ip-pools">Firewall Rules</Tabs.Trigger>
+          <Tabs.Trigger value="silo-ip-pools">IP Pools</Tabs.Trigger>
         </Tabs.List>
         <Tabs.Content value="idps">
           <SiloIdpsTab />

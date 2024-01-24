@@ -47,7 +47,7 @@ export function SiloIpPoolsTab() {
   //   })
   return (
     <>
-      ip pools tab coming
+      IP Pools tab coming
       {/* <Table emptyState={<EmptyState />} aria-labelledby="links-label">
         <Column accessor="siloId" id="Silo ID" />
         <Column accessor="isDefault" id="Default" cell={BooleanCell} />
