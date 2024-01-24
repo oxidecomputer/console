@@ -340,14 +340,13 @@ export interface MSWHandlers {
     query: Api.ProjectIpPoolListQueryParams
     req: Request
     cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.IpPoolResultsPage>>
+  }) => Promisable<HandlerResult<Api.SiloIpPoolResultsPage>>
   /** `GET /v1/ip-pools/:pool` */
   projectIpPoolView: (params: {
     path: Api.ProjectIpPoolViewPathParams
-    query: Api.ProjectIpPoolViewQueryParams
     req: Request
     cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.IpPool>>
+  }) => Promisable<HandlerResult<Api.SiloIpPool>>
   /** `POST /v1/login/:siloName/local` */
   loginLocal: (params: {
     path: Api.LoginLocalPathParams
@@ -549,8 +548,8 @@ export interface MSWHandlers {
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.SledResultsPage>>
   /** `POST /v1/system/hardware/sleds` */
-  addSledToInitializedRack: (params: {
-    body: Json<Api.UninitializedSled>
+  sledAdd: (params: {
+    body: Json<Api.UninitializedSledId>
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
@@ -581,6 +580,12 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.SledProvisionStateResponse>>
+  /** `GET /v1/system/hardware/sleds-uninitialized` */
+  sledListUninitialized: (params: {
+    query: Api.SledListUninitializedQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.UninitializedSledResultsPage>>
   /** `GET /v1/system/hardware/switch-port` */
   networkingSwitchPortList: (params: {
     query: Api.NetworkingSwitchPortListQueryParams
@@ -614,11 +619,6 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.Switch>>
-  /** `GET /v1/system/hardware/uninitialized-sleds` */
-  uninitializedSledList: (params: {
-    req: Request
-    cookies: Record<string, string>
-  }) => Promisable<StatusCode>
   /** `GET /v1/system/identity-providers` */
   siloIdentityProviderList: (params: {
     query: Api.SiloIdentityProviderListQueryParams
@@ -710,6 +710,33 @@ export interface MSWHandlers {
   ipPoolRangeRemove: (params: {
     path: Api.IpPoolRangeRemovePathParams
     body: Json<Api.IpRange>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
+  /** `GET /v1/system/ip-pools/:pool/silos` */
+  ipPoolSiloList: (params: {
+    path: Api.IpPoolSiloListPathParams
+    query: Api.IpPoolSiloListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.IpPoolSiloLinkResultsPage>>
+  /** `POST /v1/system/ip-pools/:pool/silos` */
+  ipPoolSiloLink: (params: {
+    path: Api.IpPoolSiloLinkPathParams
+    body: Json<Api.IpPoolLinkSilo>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.IpPoolSiloLink>>
+  /** `PUT /v1/system/ip-pools/:pool/silos/:silo` */
+  ipPoolSiloUpdate: (params: {
+    path: Api.IpPoolSiloUpdatePathParams
+    body: Json<Api.IpPoolSiloUpdate>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.IpPoolSiloLink>>
+  /** `DELETE /v1/system/ip-pools/:pool/silos/:silo` */
+  ipPoolSiloUnlink: (params: {
+    path: Api.IpPoolSiloUnlinkPathParams
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
@@ -880,6 +907,12 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.Role>>
+  /** `GET /v1/system/silo-quotas` */
+  systemQuotasList: (params: {
+    query: Api.SystemQuotasListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.SiloQuotasResultsPage>>
   /** `GET /v1/system/silos` */
   siloList: (params: {
     query: Api.SiloListQueryParams
@@ -904,6 +937,13 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
+  /** `GET /v1/system/silos/:silo/ip-pools` */
+  siloIpPoolList: (params: {
+    path: Api.SiloIpPoolListPathParams
+    query: Api.SiloIpPoolListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.SiloIpPoolResultsPage>>
   /** `GET /v1/system/silos/:silo/policy` */
   siloPolicyView: (params: {
     path: Api.SiloPolicyViewPathParams
@@ -917,6 +957,19 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.SiloRolePolicy>>
+  /** `GET /v1/system/silos/:silo/quotas` */
+  siloQuotasView: (params: {
+    path: Api.SiloQuotasViewPathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.SiloQuotas>>
+  /** `PUT /v1/system/silos/:silo/quotas` */
+  siloQuotasUpdate: (params: {
+    path: Api.SiloQuotasUpdatePathParams
+    body: Json<Api.SiloQuotasUpdate>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.SiloQuotas>>
   /** `GET /v1/system/users` */
   siloUserList: (params: {
     query: Api.SiloUserListQueryParams
@@ -942,12 +995,29 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.UserBuiltin>>
+  /** `GET /v1/system/utilization/silos` */
+  siloUtilizationList: (params: {
+    query: Api.SiloUtilizationListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.SiloUtilizationResultsPage>>
+  /** `GET /v1/system/utilization/silos/:silo` */
+  siloUtilizationView: (params: {
+    path: Api.SiloUtilizationViewPathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.SiloUtilization>>
   /** `GET /v1/users` */
   userList: (params: {
     query: Api.UserListQueryParams
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.UserResultsPage>>
+  /** `GET /v1/utilization` */
+  utilizationView: (params: {
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.Utilization>>
   /** `GET /v1/vpc-firewall-rules` */
   vpcFirewallRulesView: (params: {
     query: Api.VpcFirewallRulesViewQueryParams
@@ -1490,7 +1560,7 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
     ),
     http.post(
       '/v1/system/hardware/sleds',
-      handler(handlers['addSledToInitializedRack'], null, schema.UninitializedSled)
+      handler(handlers['sledAdd'], null, schema.UninitializedSledId)
     ),
     http.get(
       '/v1/system/hardware/sleds/:sledId',
@@ -1511,6 +1581,10 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
         schema.SledSetProvisionStateParams,
         schema.SledProvisionStateParams
       )
+    ),
+    http.get(
+      '/v1/system/hardware/sleds-uninitialized',
+      handler(handlers['sledListUninitialized'], schema.SledListUninitializedParams, null)
     ),
     http.get(
       '/v1/system/hardware/switch-port',
@@ -1543,10 +1617,6 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
     http.get(
       '/v1/system/hardware/switches/:switchId',
       handler(handlers['switchView'], schema.SwitchViewParams, null)
-    ),
-    http.get(
-      '/v1/system/hardware/uninitialized-sleds',
-      handler(handlers['uninitializedSledList'], null, null)
     ),
     http.get(
       '/v1/system/identity-providers',
@@ -1623,6 +1693,30 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
     http.post(
       '/v1/system/ip-pools/:pool/ranges/remove',
       handler(handlers['ipPoolRangeRemove'], schema.IpPoolRangeRemoveParams, schema.IpRange)
+    ),
+    http.get(
+      '/v1/system/ip-pools/:pool/silos',
+      handler(handlers['ipPoolSiloList'], schema.IpPoolSiloListParams, null)
+    ),
+    http.post(
+      '/v1/system/ip-pools/:pool/silos',
+      handler(
+        handlers['ipPoolSiloLink'],
+        schema.IpPoolSiloLinkParams,
+        schema.IpPoolLinkSilo
+      )
+    ),
+    http.put(
+      '/v1/system/ip-pools/:pool/silos/:silo',
+      handler(
+        handlers['ipPoolSiloUpdate'],
+        schema.IpPoolSiloUpdateParams,
+        schema.IpPoolSiloUpdate
+      )
+    ),
+    http.delete(
+      '/v1/system/ip-pools/:pool/silos/:silo',
+      handler(handlers['ipPoolSiloUnlink'], schema.IpPoolSiloUnlinkParams, null)
     ),
     http.get(
       '/v1/system/ip-pools-service',
@@ -1794,6 +1888,10 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       handler(handlers['roleView'], schema.RoleViewParams, null)
     ),
     http.get(
+      '/v1/system/silo-quotas',
+      handler(handlers['systemQuotasList'], schema.SystemQuotasListParams, null)
+    ),
+    http.get(
       '/v1/system/silos',
       handler(handlers['siloList'], schema.SiloListParams, null)
     ),
@@ -1807,6 +1905,10 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       handler(handlers['siloDelete'], schema.SiloDeleteParams, null)
     ),
     http.get(
+      '/v1/system/silos/:silo/ip-pools',
+      handler(handlers['siloIpPoolList'], schema.SiloIpPoolListParams, null)
+    ),
+    http.get(
       '/v1/system/silos/:silo/policy',
       handler(handlers['siloPolicyView'], schema.SiloPolicyViewParams, null)
     ),
@@ -1816,6 +1918,18 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
         handlers['siloPolicyUpdate'],
         schema.SiloPolicyUpdateParams,
         schema.SiloRolePolicy
+      )
+    ),
+    http.get(
+      '/v1/system/silos/:silo/quotas',
+      handler(handlers['siloQuotasView'], schema.SiloQuotasViewParams, null)
+    ),
+    http.put(
+      '/v1/system/silos/:silo/quotas',
+      handler(
+        handlers['siloQuotasUpdate'],
+        schema.SiloQuotasUpdateParams,
+        schema.SiloQuotasUpdate
       )
     ),
     http.get(
@@ -1834,7 +1948,16 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       '/v1/system/users-builtin/:user',
       handler(handlers['userBuiltinView'], schema.UserBuiltinViewParams, null)
     ),
+    http.get(
+      '/v1/system/utilization/silos',
+      handler(handlers['siloUtilizationList'], schema.SiloUtilizationListParams, null)
+    ),
+    http.get(
+      '/v1/system/utilization/silos/:silo',
+      handler(handlers['siloUtilizationView'], schema.SiloUtilizationViewParams, null)
+    ),
     http.get('/v1/users', handler(handlers['userList'], schema.UserListParams, null)),
+    http.get('/v1/utilization', handler(handlers['utilizationView'], null, null)),
     http.get(
       '/v1/vpc-firewall-rules',
       handler(handlers['vpcFirewallRulesView'], schema.VpcFirewallRulesViewParams, null)

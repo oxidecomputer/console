@@ -38,7 +38,7 @@ const EmptyState = () => (
 ImagesPage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project } = getProjectSelector(params)
   await apiQueryClient.prefetchQuery('imageList', {
-    query: { project, limit: 10 },
+    query: { project, limit: 25 },
   })
   return null
 }

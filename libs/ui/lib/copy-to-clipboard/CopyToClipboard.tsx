@@ -6,9 +6,11 @@
  * Copyright Oxide Computer Company
  */
 
+import { animated, config, useTransition } from '@react-spring/web'
+import cn from 'classnames'
 import { useState } from 'react'
 
-import { Clipboard16Icon, Success12Icon, useTimeout } from '@oxide/ui'
+import { Copy12Icon, Success12Icon, useTimeout } from '@oxide/ui'
 
 export const CopyToClipboard = ({
   ariaLabel = 'Click to copy this text',
@@ -27,18 +29,35 @@ export const CopyToClipboard = ({
     })
   }
 
+  const transitions = useTransition(hasCopied, {
+    from: { opacity: 0, transform: 'scale(0.8)' },
+    enter: { opacity: 1, transform: 'scale(1)' },
+    leave: { opacity: 0, transform: 'scale(0.8)' },
+    config: config.stiff,
+    trail: 100,
+    initial: null,
+  })
+
   return (
     <button
-      className="text-tertiary hover:text-accent-secondary"
+      className={cn(
+        'relative h-5 w-5 rounded',
+        hasCopied
+          ? 'text-accent bg-accent-secondary'
+          : 'text-quaternary hover:text-secondary hover:bg-hover'
+      )}
       onClick={handleCopy}
       type="button"
       aria-label={hasCopied ? 'Copied' : ariaLabel}
     >
-      {hasCopied ? (
-        <Success12Icon className="text-accent-secondary" />
-      ) : (
-        <Clipboard16Icon className="h-3 w-3" />
-      )}
+      {transitions((styles, item) => (
+        <animated.div
+          style={styles}
+          className="absolute inset-0 flex items-center justify-center"
+        >
+          {item ? <Success12Icon /> : <Copy12Icon />}
+        </animated.div>
+      ))}
     </button>
   )
 }

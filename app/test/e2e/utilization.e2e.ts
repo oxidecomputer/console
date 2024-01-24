@@ -5,44 +5,35 @@
  *
  * Copyright Oxide Computer Company
  */
-import {
-  expect,
-  expectNotVisible,
-  expectRowVisible,
-  expectVisible,
-  getPageAsUser,
-  test,
-} from './utils'
+import { expect, expectRowVisible, getPageAsUser, test } from './utils'
 
 // not trying to get elaborate here. just make sure the pages load, which
 // exercises the loader prefetches and invariant checks
 
 test.describe('System utilization', () => {
-  test('works for fleet viewer', async ({ page }) => {
+  test('Works for fleet viewer', async ({ page }) => {
     await page.goto('/system/utilization')
-    await expectVisible(page, [
-      page.getByRole('heading', { name: 'Utilization' }),
-      page.getByText('Disk utilization'),
-      page.getByText('CPU utilization'),
-      page.getByText('Memory utilization'),
-      // stats under the graph which require capacity info
-      page.getByText('In-use').first(),
-    ])
-  })
 
-  test('Table view', async ({ page }) => {
-    await page.goto('/system/utilization')
-    await page.getByRole('tab', { name: 'Summary' }).click()
+    await expect(page.getByRole('heading', { name: 'Utilization' })).toBeVisible()
+    await expect(page.getByText('Provisioned384 GiB')).toBeVisible()
 
-    const statCells = {
-      CPU: expect.stringMatching(/^\d+$/),
-      Disk: expect.stringMatching(/^\d+.\d+TiB$/),
-      Memory: expect.stringMatching(/^\d+.\d+GiB$/),
-    }
+    await expect(page.getByText('Provisioned / Quota')).toBeVisible()
 
     const table = page.getByRole('table')
-    await expectRowVisible(table, { Silo: 'maze-war', ...statCells })
-    await expectRowVisible(table, { Silo: 'myriad', ...statCells })
+    await expectRowVisible(table, {
+      CPU: '20',
+      Storage: '2.7 TiB',
+      Memory: '66 GiB',
+      Silo: 'maze-war',
+    })
+    await expectRowVisible(table, {
+      CPU: '26',
+      Storage: '7 TiB',
+      Memory: '350 GiB',
+      Silo: 'myriad',
+    })
+
+    await page.getByRole('tab', { name: 'Metrics' }).click()
   })
 
   test('does not appear for dev user', async ({ browser }) => {
@@ -55,27 +46,21 @@ test.describe('System utilization', () => {
 test.describe('Silo utilization', () => {
   test('works for fleet viewer', async ({ page }) => {
     await page.goto('/utilization')
-    await expectVisible(page, [page.getByRole('heading', { name: 'Utilization' })])
-    await expectNotVisible(page, [
-      page.getByText('Disk utilization'),
-      page.getByText('CPU utilization'),
-      page.getByText('Memory utilization'),
-      // stats under the graph which require capacity info
-      page.getByText('In-use'),
-    ])
+    await expect(
+      page.getByRole('heading', { name: 'Capacity & Utilization' })
+    ).toBeVisible()
+    // Capacity bars are showing up
+    await expect(page.getByText('Provisioned234 GiB')).toBeVisible()
   })
 
   test('works for dev user', async ({ browser }) => {
     const page = await getPageAsUser(browser, 'Hans Jonas')
     await page.goto('/utilization')
-    await expectVisible(page, [page.getByRole('heading', { name: 'Utilization' })])
-    await expectNotVisible(page, [
-      page.getByText('Disk utilization'),
-      page.getByText('CPU utilization'),
-      page.getByText('Memory utilization'),
-      // stats under the graph which require capacity info
-      page.getByText('In-use'),
-    ])
+    await expect(
+      page.getByRole('heading', { name: 'Capacity & Utilization' })
+    ).toBeVisible()
+    // Capacity bars are showing up
+    await expect(page.getByText('Provisioned234 GiB')).toBeVisible()
   })
 })
 

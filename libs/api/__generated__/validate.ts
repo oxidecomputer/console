@@ -67,7 +67,7 @@ export const Name = z.preprocess(
     .min(1)
     .max(63)
     .regex(
-      /^(?![0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$)^[a-z][a-z0-9-]*[a-zA-Z0-9]*$/
+      /^(?![0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$)^[a-z]([a-zA-Z0-9-]*[a-zA-Z0-9]+)?$/
     )
 )
 
@@ -1451,16 +1451,14 @@ export const InstanceSerialConsoleData = z.preprocess(
 )
 
 /**
- * Identity-related metadata that's included in nearly all public API objects
+ * A collection of IP ranges. If a pool is linked to a silo, IP addresses from the pool can be allocated within that silo
  */
 export const IpPool = z.preprocess(
   processResponseBody,
   z.object({
     description: z.string(),
     id: z.string().uuid(),
-    isDefault: SafeBoolean,
     name: Name,
-    siloId: z.string().uuid().optional(),
     timeCreated: z.coerce.date(),
     timeModified: z.coerce.date(),
   })
@@ -1471,12 +1469,12 @@ export const IpPool = z.preprocess(
  */
 export const IpPoolCreate = z.preprocess(
   processResponseBody,
-  z.object({
-    description: z.string(),
-    isDefault: SafeBoolean.default(false).optional(),
-    name: Name,
-    silo: NameOrId.optional(),
-  })
+  z.object({ description: z.string(), name: Name })
+)
+
+export const IpPoolLinkSilo = z.preprocess(
+  processResponseBody,
+  z.object({ isDefault: SafeBoolean, silo: NameOrId })
 )
 
 /**
@@ -1528,6 +1526,31 @@ export const IpPoolResultsPage = z.preprocess(
 )
 
 /**
+ * A link between an IP pool and a silo that allows one to allocate IPs from the pool within the silo
+ */
+export const IpPoolSiloLink = z.preprocess(
+  processResponseBody,
+  z.object({
+    ipPoolId: z.string().uuid(),
+    isDefault: SafeBoolean,
+    siloId: z.string().uuid(),
+  })
+)
+
+/**
+ * A single page of results
+ */
+export const IpPoolSiloLinkResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: IpPoolSiloLink.array(), nextPage: z.string().optional() })
+)
+
+export const IpPoolSiloUpdate = z.preprocess(
+  processResponseBody,
+  z.object({ isDefault: SafeBoolean })
+)
+
+/**
  * Parameters for updating an IP Pool
  */
 export const IpPoolUpdate = z.preprocess(
@@ -1557,7 +1580,7 @@ export const LinkFec = z.preprocess(processResponseBody, z.enum(['firecode', 'no
 /**
  * The LLDP configuration associated with a port. LLDP may be either enabled or disabled, if enabled, an LLDP configuration must be provided by name or id.
  */
-export const LldpServiceConfig = z.preprocess(
+export const LldpServiceConfigCreate = z.preprocess(
   processResponseBody,
   z.object({ enabled: SafeBoolean, lldpConfig: NameOrId.optional() })
 )
@@ -1583,14 +1606,26 @@ export const LinkSpeed = z.preprocess(
 /**
  * Switch link configuration.
  */
-export const LinkConfig = z.preprocess(
+export const LinkConfigCreate = z.preprocess(
   processResponseBody,
   z.object({
     autoneg: SafeBoolean,
     fec: LinkFec,
-    lldp: LldpServiceConfig,
+    lldp: LldpServiceConfigCreate,
     mtu: z.number().min(0).max(65535),
     speed: LinkSpeed,
+  })
+)
+
+/**
+ * A link layer discovery protocol (LLDP) service configuration.
+ */
+export const LldpServiceConfig = z.preprocess(
+  processResponseBody,
+  z.object({
+    enabled: SafeBoolean,
+    id: z.string().uuid(),
+    lldpConfigId: z.string().uuid().optional(),
   })
 )
 
@@ -1894,6 +1929,14 @@ export const Silo = z.preprocess(
 )
 
 /**
+ * The amount of provisionable resources for a Silo
+ */
+export const SiloQuotasCreate = z.preprocess(
+  processResponseBody,
+  z.object({ cpus: z.number(), memory: ByteCount, storage: ByteCount })
+)
+
+/**
  * Create-time parameters for a `Silo`
  */
 export const SiloCreate = z.preprocess(
@@ -1907,7 +1950,64 @@ export const SiloCreate = z.preprocess(
       .record(z.string().min(1), FleetRole.array().refine(...uniqueItems))
       .optional(),
     name: Name,
+    quotas: SiloQuotasCreate,
     tlsCertificates: CertificateCreate.array(),
+  })
+)
+
+/**
+ * An IP pool in the context of a silo
+ */
+export const SiloIpPool = z.preprocess(
+  processResponseBody,
+  z.object({
+    description: z.string(),
+    id: z.string().uuid(),
+    isDefault: SafeBoolean,
+    name: Name,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
+  })
+)
+
+/**
+ * A single page of results
+ */
+export const SiloIpPoolResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: SiloIpPool.array(), nextPage: z.string().optional() })
+)
+
+/**
+ * A collection of resource counts used to set the virtual capacity of a silo
+ */
+export const SiloQuotas = z.preprocess(
+  processResponseBody,
+  z.object({
+    cpus: z.number(),
+    memory: ByteCount,
+    siloId: z.string().uuid(),
+    storage: ByteCount,
+  })
+)
+
+/**
+ * A single page of results
+ */
+export const SiloQuotasResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: SiloQuotas.array(), nextPage: z.string().optional() })
+)
+
+/**
+ * Updateable properties of a Silo's resource limits. If a value is omitted it will not be updated.
+ */
+export const SiloQuotasUpdate = z.preprocess(
+  processResponseBody,
+  z.object({
+    cpus: z.number().optional(),
+    memory: ByteCount.optional(),
+    storage: ByteCount.optional(),
   })
 )
 
@@ -1946,6 +2046,35 @@ export const SiloRoleRoleAssignment = z.preprocess(
 export const SiloRolePolicy = z.preprocess(
   processResponseBody,
   z.object({ roleAssignments: SiloRoleRoleAssignment.array() })
+)
+
+/**
+ * A collection of resource counts used to describe capacity and utilization
+ */
+export const VirtualResourceCounts = z.preprocess(
+  processResponseBody,
+  z.object({ cpus: z.number(), memory: ByteCount, storage: ByteCount })
+)
+
+/**
+ * View of a silo's resource utilization and capacity
+ */
+export const SiloUtilization = z.preprocess(
+  processResponseBody,
+  z.object({
+    allocated: VirtualResourceCounts,
+    provisioned: VirtualResourceCounts,
+    siloId: z.string().uuid(),
+    siloName: Name,
+  })
+)
+
+/**
+ * A single page of results
+ */
+export const SiloUtilizationResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: SiloUtilization.array(), nextPage: z.string().optional() })
 )
 
 /**
@@ -2113,6 +2242,28 @@ export const Switch = z.preprocess(
 )
 
 /**
+ * Describes the kind of an switch interface.
+ */
+export const SwitchInterfaceKind2 = z.preprocess(
+  processResponseBody,
+  z.enum(['primary', 'vlan', 'loopback'])
+)
+
+/**
+ * A switch port interface configuration for a port settings object.
+ */
+export const SwitchInterfaceConfig = z.preprocess(
+  processResponseBody,
+  z.object({
+    id: z.string().uuid(),
+    interfaceName: z.string(),
+    kind: SwitchInterfaceKind2,
+    portSettingsId: z.string().uuid(),
+    v6Enabled: SafeBoolean,
+  })
+)
+
+/**
  * Indicates the kind for a switch interface.
  */
 export const SwitchInterfaceKind = z.preprocess(
@@ -2127,7 +2278,7 @@ export const SwitchInterfaceKind = z.preprocess(
 /**
  * A layer-3 switch interface configuration. When IPv6 is enabled, a link local address will be created for the interface.
  */
-export const SwitchInterfaceConfig = z.preprocess(
+export const SwitchInterfaceConfigCreate = z.preprocess(
   processResponseBody,
   z.object({ kind: SwitchInterfaceKind, v6Enabled: SafeBoolean })
 )
@@ -2183,6 +2334,22 @@ export const SwitchPortBgpPeerConfig = z.preprocess(
 /**
  * The link geometry associated with a switch port.
  */
+export const SwitchPortGeometry2 = z.preprocess(
+  processResponseBody,
+  z.enum(['qsfp28x1', 'qsfp28x2', 'sfp28x4'])
+)
+
+/**
+ * A physical port configuration for a port settings object.
+ */
+export const SwitchPortConfig = z.preprocess(
+  processResponseBody,
+  z.object({ geometry: SwitchPortGeometry2, portSettingsId: z.string().uuid() })
+)
+
+/**
+ * The link geometry associated with a switch port.
+ */
 export const SwitchPortGeometry = z.preprocess(
   processResponseBody,
   z.enum(['qsfp28x1', 'qsfp28x2', 'sfp28x4'])
@@ -2191,7 +2358,7 @@ export const SwitchPortGeometry = z.preprocess(
 /**
  * Physical switch port configuration.
  */
-export const SwitchPortConfig = z.preprocess(
+export const SwitchPortConfigCreate = z.preprocess(
   processResponseBody,
   z.object({ geometry: SwitchPortGeometry })
 )
@@ -2255,10 +2422,10 @@ export const SwitchPortSettingsCreate = z.preprocess(
     bgpPeers: z.record(z.string().min(1), BgpPeerConfig),
     description: z.string(),
     groups: NameOrId.array(),
-    interfaces: z.record(z.string().min(1), SwitchInterfaceConfig),
-    links: z.record(z.string().min(1), LinkConfig),
+    interfaces: z.record(z.string().min(1), SwitchInterfaceConfigCreate),
+    links: z.record(z.string().min(1), LinkConfigCreate),
     name: Name,
-    portConfig: SwitchPortConfig,
+    portConfig: SwitchPortConfigCreate,
     routes: z.record(z.string().min(1), RouteConfig),
   })
 )
@@ -2327,6 +2494,22 @@ export const UninitializedSled = z.preprocess(
 )
 
 /**
+ * The unique hardware ID for a sled
+ */
+export const UninitializedSledId = z.preprocess(
+  processResponseBody,
+  z.object({ part: z.string(), serial: z.string() })
+)
+
+/**
+ * A single page of results
+ */
+export const UninitializedSledResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: UninitializedSled.array(), nextPage: z.string().optional() })
+)
+
+/**
  * View of a User
  */
 export const User = z.preprocess(
@@ -2370,7 +2553,7 @@ export const UserId = z.preprocess(
     .min(1)
     .max(63)
     .regex(
-      /^(?![0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$)^[a-z][a-z0-9-]*[a-zA-Z0-9]*$/
+      /^(?![0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$)^[a-z]([a-zA-Z0-9-]*[a-zA-Z0-9]+)?$/
     )
 )
 
@@ -2407,6 +2590,14 @@ export const UserResultsPage = z.preprocess(
 export const UsernamePasswordCredentials = z.preprocess(
   processResponseBody,
   z.object({ password: Password, username: UserId })
+)
+
+/**
+ * View of the current silo's resource utilization and capacity
+ */
+export const Utilization = z.preprocess(
+  processResponseBody,
+  z.object({ capacity: VirtualResourceCounts, provisioned: VirtualResourceCounts })
 )
 
 /**
@@ -3172,7 +3363,6 @@ export const ProjectIpPoolListParams = z.preprocess(
     query: z.object({
       limit: z.number().min(1).max(4294967295).optional(),
       pageToken: z.string().optional(),
-      project: NameOrId.optional(),
       sortBy: NameOrIdSortMode.optional(),
     }),
   })
@@ -3184,9 +3374,7 @@ export const ProjectIpPoolViewParams = z.preprocess(
     path: z.object({
       pool: NameOrId,
     }),
-    query: z.object({
-      project: NameOrId.optional(),
-    }),
+    query: z.object({}),
   })
 )
 
@@ -3536,7 +3724,7 @@ export const SledListParams = z.preprocess(
   })
 )
 
-export const AddSledToInitializedRackParams = z.preprocess(
+export const SledAddParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({}),
@@ -3589,6 +3777,17 @@ export const SledSetProvisionStateParams = z.preprocess(
       sledId: z.string().uuid(),
     }),
     query: z.object({}),
+  })
+)
+
+export const SledListUninitializedParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+    }),
   })
 )
 
@@ -3649,14 +3848,6 @@ export const SwitchViewParams = z.preprocess(
     path: z.object({
       switchId: z.string().uuid(),
     }),
-    query: z.object({}),
-  })
-)
-
-export const UninitializedSledListParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({}),
     query: z.object({}),
   })
 )
@@ -3808,6 +3999,52 @@ export const IpPoolRangeRemoveParams = z.preprocess(
   z.object({
     path: z.object({
       pool: NameOrId,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const IpPoolSiloListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      pool: NameOrId,
+    }),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      sortBy: IdSortMode.optional(),
+    }),
+  })
+)
+
+export const IpPoolSiloLinkParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      pool: NameOrId,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const IpPoolSiloUpdateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      pool: NameOrId,
+      silo: NameOrId,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const IpPoolSiloUnlinkParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      pool: NameOrId,
+      silo: NameOrId,
     }),
     query: z.object({}),
   })
@@ -4097,6 +4334,18 @@ export const RoleViewParams = z.preprocess(
   })
 )
 
+export const SystemQuotasListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      sortBy: IdSortMode.optional(),
+    }),
+  })
+)
+
 export const SiloListParams = z.preprocess(
   processResponseBody,
   z.object({
@@ -4137,6 +4386,20 @@ export const SiloDeleteParams = z.preprocess(
   })
 )
 
+export const SiloIpPoolListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      silo: NameOrId,
+    }),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      sortBy: NameOrIdSortMode.optional(),
+    }),
+  })
+)
+
 export const SiloPolicyViewParams = z.preprocess(
   processResponseBody,
   z.object({
@@ -4148,6 +4411,26 @@ export const SiloPolicyViewParams = z.preprocess(
 )
 
 export const SiloPolicyUpdateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      silo: NameOrId,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SiloQuotasViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      silo: NameOrId,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const SiloQuotasUpdateParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
@@ -4204,6 +4487,28 @@ export const UserBuiltinViewParams = z.preprocess(
   })
 )
 
+export const SiloUtilizationListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      sortBy: NameOrIdSortMode.optional(),
+    }),
+  })
+)
+
+export const SiloUtilizationViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      silo: NameOrId,
+    }),
+    query: z.object({}),
+  })
+)
+
 export const UserListParams = z.preprocess(
   processResponseBody,
   z.object({
@@ -4214,6 +4519,14 @@ export const UserListParams = z.preprocess(
       pageToken: z.string().optional(),
       sortBy: IdSortMode.optional(),
     }),
+  })
+)
+
+export const UtilizationViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
   })
 )
 

@@ -5,6 +5,8 @@
  *
  * Copyright Oxide Computer Company
  */
+import * as Accordion from '@radix-ui/react-accordion'
+import { useEffect, useState } from 'react'
 import { useWatch } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 import type { SetRequired } from 'type-fest'
@@ -20,6 +22,7 @@ import {
   type InstanceCreate,
 } from '@oxide/api'
 import {
+  DirectionRightIcon,
   EmptyMessage,
   FormDivider,
   Images16Icon,
@@ -36,6 +39,7 @@ import {
   DescriptionField,
   DiskSizeField,
   DisksTableField,
+  FileField,
   Form,
   FullPageForm,
   ImageSelectField,
@@ -47,6 +51,8 @@ import {
   type DiskTableItem,
 } from 'app/components/form'
 import { getProjectSelector, useForm, useProjectSelector, useToast } from 'app/hooks'
+import { readBlobAsBase64 } from 'app/util/file'
+import { links } from 'app/util/links'
 import { pb } from 'app/util/path-builder'
 
 export type InstanceCreateInput = Assign<
@@ -58,6 +64,7 @@ export type InstanceCreateInput = Assign<
     bootDiskName: string
     bootDiskSize: number
     image: string
+    userData: File | null
   }
 >
 
@@ -83,6 +90,8 @@ const baseDefaultValues: InstanceCreateInput = {
   publicKeys: [],
 
   start: true,
+
+  userData: null,
 }
 
 CreateInstanceForm.loader = async ({ params }: LoaderFunctionArgs) => {
@@ -96,6 +105,7 @@ CreateInstanceForm.loader = async ({ params }: LoaderFunctionArgs) => {
 }
 
 export function CreateInstanceForm() {
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const queryClient = useApiQueryClient()
   const addToast = useToast()
   const projectSelector = useProjectSelector()
@@ -137,6 +147,12 @@ export function CreateInstanceForm() {
   const image = allImages.find((i) => i.id === imageInput)
   const imageSize = image?.size ? Math.ceil(image.size / GiB) : undefined
 
+  useEffect(() => {
+    if (createInstance.error) {
+      setIsSubmitting(false)
+    }
+  }, [createInstance.error])
+
   return (
     <FullPageForm
       submitDisabled={allImages.length ? undefined : 'Image required'}
@@ -144,7 +160,8 @@ export function CreateInstanceForm() {
       form={form}
       title="Create instance"
       icon={<Instances24Icon />}
-      onSubmit={(values) => {
+      onSubmit={async (values) => {
+        setIsSubmitting(true)
         // we should never have a presetId that's not in the list
         const preset = PRESETS.find((option) => option.id === values.presetId)!
         const instance =
@@ -158,6 +175,10 @@ export function CreateInstanceForm() {
         invariant(image, 'Expected image to be defined')
 
         const bootDiskName = values.bootDiskName || genName(values.name, image.name)
+
+        const userData = values.userData
+          ? await readBlobAsBase64(values.userData)
+          : undefined
 
         createInstance.mutate({
           query: projectSelector,
@@ -188,15 +209,21 @@ export function CreateInstanceForm() {
             start: values.start,
             networkInterfaces: values.networkInterfaces,
             publicKeys: values.publicKeys,
+            userData,
           },
         })
       }}
       loading={createInstance.isPending}
       submitError={createInstance.error}
     >
-      <NameField name="name" control={control} />
-      <DescriptionField name="description" control={control} />
-      <CheckboxField id="start-instance" name="start" control={control}>
+      <NameField name="name" control={control} disabled={isSubmitting} />
+      <DescriptionField name="description" control={control} disabled={isSubmitting} />
+      <CheckboxField
+        id="start-instance"
+        name="start"
+        control={control}
+        disabled={isSubmitting}
+      >
         Start Instance
       </CheckboxField>
 
@@ -224,13 +251,21 @@ export function CreateInstanceForm() {
         }}
       >
         <Tabs.List aria-labelledby="hardware">
-          <Tabs.Trigger value="general">General Purpose</Tabs.Trigger>
-          <Tabs.Trigger value="highCPU">High CPU</Tabs.Trigger>
-          <Tabs.Trigger value="highMemory">High Memory</Tabs.Trigger>
-          <Tabs.Trigger value="custom">Custom</Tabs.Trigger>
+          <Tabs.Trigger value="general" disabled={isSubmitting}>
+            General Purpose
+          </Tabs.Trigger>
+          <Tabs.Trigger value="highCPU" disabled={isSubmitting}>
+            High CPU
+          </Tabs.Trigger>
+          <Tabs.Trigger value="highMemory" disabled={isSubmitting}>
+            High Memory
+          </Tabs.Trigger>
+          <Tabs.Trigger value="custom" disabled={isSubmitting}>
+            Custom
+          </Tabs.Trigger>
         </Tabs.List>
         <Tabs.Content value="general">
-          <RadioFieldDyn name="presetId" label="" control={control}>
+          <RadioFieldDyn name="presetId" label="" control={control} disabled={isSubmitting}>
             {renderLargeRadioCards('general')}
           </RadioFieldDyn>
         </Tabs.Content>
@@ -264,6 +299,7 @@ export function CreateInstanceForm() {
                 return `CPUs capped to ${INSTANCE_MAX_CPU}`
               }
             }}
+            disabled={isSubmitting}
           />
           <TextField
             units="GiB"
@@ -282,6 +318,7 @@ export function CreateInstanceForm() {
                 return `Can be at most ${INSTANCE_MAX_RAM_GiB} GiB`
               }
             }}
+            disabled={isSubmitting}
           />
         </Tabs.Content>
       </Tabs.Root>
@@ -298,8 +335,12 @@ export function CreateInstanceForm() {
         }
       >
         <Tabs.List aria-describedby="boot-disk">
-          <Tabs.Trigger value="silo">Silo images</Tabs.Trigger>
-          <Tabs.Trigger value="project">Project images</Tabs.Trigger>
+          <Tabs.Trigger value="silo" disabled={isSubmitting}>
+            Silo images
+          </Tabs.Trigger>
+          <Tabs.Trigger value="project" disabled={isSubmitting}>
+            Project images
+          </Tabs.Trigger>
         </Tabs.List>
         {allImages.length === 0 && (
           <Message
@@ -318,7 +359,11 @@ export function CreateInstanceForm() {
               />
             </div>
           ) : (
-            <ImageSelectField images={siloImages} control={control} />
+            <ImageSelectField
+              images={siloImages}
+              control={control}
+              disabled={isSubmitting}
+            />
           )}
         </Tabs.Content>
         <Tabs.Content value="project" className="space-y-4">
@@ -333,7 +378,11 @@ export function CreateInstanceForm() {
               />
             </div>
           ) : (
-            <ImageSelectField images={projectImages} control={control} />
+            <ImageSelectField
+              images={projectImages}
+              control={control}
+              disabled={isSubmitting}
+            />
           )}
         </Tabs.Content>
       </Tabs.Root>
@@ -349,18 +398,20 @@ export function CreateInstanceForm() {
             return `Must be as large as selected image (min. ${imageSize} GiB)`
           }
         }}
+        disabled={isSubmitting}
       />
       <NameField
         name="bootDiskName"
         label="Disk name"
-        description="Will be autogenerated if name not provided"
+        tooltipText="Will be autogenerated if name not provided"
         required={false}
         control={control}
+        disabled={isSubmitting}
       />
       <FormDivider />
       <Form.Heading id="additional-disks">Additional disks</Form.Heading>
 
-      <DisksTableField control={control} />
+      <DisksTableField control={control} disabled={isSubmitting} />
 
       <FormDivider />
       <Form.Heading id="authentication">Authentication</Form.Heading>
@@ -368,15 +419,46 @@ export function CreateInstanceForm() {
       <SshKeysField control={control} />
 
       <FormDivider />
-      <Form.Heading id="networking">Networking</Form.Heading>
+      <Form.Heading id="advanced">Advanced</Form.Heading>
 
-      <NetworkInterfaceField control={control} />
+      <Accordion.Root type="multiple" className="mt-12">
+        <Accordion.Item value="networking">
+          <AccordionHeader id="networking">Networking</AccordionHeader>
+          <AccordionContent>
+            <NetworkInterfaceField control={control} disabled={isSubmitting} />
 
-      <TextField
-        name="hostname"
-        description="Will be generated if not provided"
-        control={control}
-      />
+            <TextField
+              name="hostname"
+              tooltipText="Will be generated if not provided"
+              control={control}
+              disabled={isSubmitting}
+            />
+          </AccordionContent>
+        </Accordion.Item>
+        <Accordion.Item value="configuration">
+          <AccordionHeader id="configuration">Configuration</AccordionHeader>
+          <AccordionContent>
+            <FileField
+              id="user-data-input"
+              description={
+                <>
+                  Data or scripts to be passed to cloud-init as{' '}
+                  <a href={links.cloudInitFormat} target="_blank" rel="noreferrer">
+                    user data
+                  </a>{' '}
+                  <a href={links.cloudInitExamples} target="_blank" rel="noreferrer">
+                    (examples)
+                  </a>{' '}
+                  if the selected boot image supports it. Maximum size 32 KiB.
+                </>
+              }
+              name="userData"
+              label="User Data"
+              control={control}
+            />
+          </AccordionContent>
+        </Accordion.Item>
+      </Accordion.Root>
 
       <Form.Actions>
         <Form.Submit loading={createInstance.isPending}>Create instance</Form.Submit>
@@ -385,6 +467,21 @@ export function CreateInstanceForm() {
     </FullPageForm>
   )
 }
+
+const AccordionHeader = ({ id, children }: { id: string; children: React.ReactNode }) => (
+  <Accordion.Header id={id} className="max-w-lg">
+    <Accordion.Trigger className="group flex w-full items-center justify-between border-t py-2 text-sans-xl border-secondary [&>svg]:data-[state=open]:rotate-90">
+      <div className="text-secondary">{children}</div>
+      <DirectionRightIcon className="transition-all text-secondary" />
+    </Accordion.Trigger>
+  </Accordion.Header>
+)
+
+const AccordionContent = ({ children }: { children: React.ReactNode }) => (
+  <Accordion.Content className="AccordionContent max-w-lg overflow-hidden">
+    <div className="ox-accordion-content py-8">{children}</div>
+  </Accordion.Content>
+)
 
 const renderLargeRadioCards = (category: string) => {
   return PRESETS.filter((option) => option.category === category).map((option) => (

@@ -32,6 +32,8 @@ import {
 } from 'react'
 import { mergeRefs } from 'react-merge-refs'
 
+import { usePopoverZIndex } from '@oxide/ui'
+
 import './tooltip.css'
 
 export interface TooltipProps {
@@ -83,6 +85,8 @@ export const Tooltip = forwardRef(
       ref: mergeRefs([refs.setReference, elRef]),
     })
 
+    const zIndex = usePopoverZIndex()
+
     return (
       <>
         {child}
@@ -90,7 +94,7 @@ export const Tooltip = forwardRef(
           {open && (
             <div
               ref={refs.setFloating}
-              className={cn('ox-tooltip max-content max-w-sm')}
+              className={cn('ox-tooltip max-content max-w-sm', zIndex)}
               {...getFloatingProps()}
               style={floatingStyles}
             >

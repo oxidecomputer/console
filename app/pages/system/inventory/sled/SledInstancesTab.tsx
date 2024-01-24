@@ -34,7 +34,7 @@ SledInstancesTab.loader = async ({ params }: LoaderFunctionArgs) => {
   const { sledId } = requireSledParams(params)
   await apiQueryClient.prefetchQuery('sledInstanceList', {
     path: { sledId },
-    query: { limit: 10 },
+    query: { limit: 25 },
   })
   return null
 }
@@ -43,7 +43,7 @@ export function SledInstancesTab() {
   const { sledId } = useSledParams()
   const { Table, Column } = useQueryTable(
     'sledInstanceList',
-    { path: { sledId }, query: { limit: 10 } },
+    { path: { sledId }, query: { limit: 25 } },
     { placeholderData: (x) => x }
   )
 

@@ -1367,17 +1367,15 @@ export type InstanceSerialConsoleData = {
 }
 
 /**
- * Identity-related metadata that's included in nearly all public API objects
+ * A collection of IP ranges. If a pool is linked to a silo, IP addresses from the pool can be allocated within that silo
  */
 export type IpPool = {
   /** human-readable free-form text about a resource */
   description: string
   /** unique, immutable, system-controlled identifier for each resource */
   id: string
-  isDefault: boolean
   /** unique, mutable, user-controlled identifier for each resource */
   name: Name
-  siloId?: string
   /** timestamp when this resource was created */
   timeCreated: Date
   /** timestamp when this resource was last modified */
@@ -1387,13 +1385,12 @@ export type IpPool = {
 /**
  * Create-time parameters for an `IpPool`
  */
-export type IpPoolCreate = {
-  description: string
-  /** Whether the IP pool is considered a default pool for its scope (fleet or silo). If a pool is marked default and is associated with a silo, instances created in that silo will draw IPs from that pool unless another pool is specified at instance create time. */
-  isDefault?: boolean
-  name: Name
-  /** If an IP pool is associated with a silo, instance IP allocations in that silo can draw from that pool. */
-  silo?: NameOrId
+export type IpPoolCreate = { description: string; name: Name }
+
+export type IpPoolLinkSilo = {
+  /** When a pool is the default for a silo, floating IPs and instance ephemeral IPs will come from that pool when no other pool is specified. There can be at most one default for a given silo. */
+  isDefault: boolean
+  silo: NameOrId
 }
 
 /**
@@ -1440,6 +1437,31 @@ export type IpPoolResultsPage = {
 }
 
 /**
+ * A link between an IP pool and a silo that allows one to allocate IPs from the pool within the silo
+ */
+export type IpPoolSiloLink = {
+  ipPoolId: string
+  /** When a pool is the default for a silo, floating IPs and instance ephemeral IPs will come from that pool when no other pool is specified. There can be at most one default for a given silo. */
+  isDefault: boolean
+  siloId: string
+}
+
+/**
+ * A single page of results
+ */
+export type IpPoolSiloLinkResultsPage = {
+  /** list of items on this page of results */
+  items: IpPoolSiloLink[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+export type IpPoolSiloUpdate = {
+  /** When a pool is the default for a silo, floating IPs and instance ephemeral IPs will come from that pool when no other pool is specified. There can be at most one default for a given silo, so when a pool is made default, an existing default will remain linked but will no longer be the default. */
+  isDefault: boolean
+}
+
+/**
  * Parameters for updating an IP Pool
  */
 export type IpPoolUpdate = { description?: string; name?: Name }
@@ -1465,7 +1487,7 @@ export type LinkFec =
 /**
  * The LLDP configuration associated with a port. LLDP may be either enabled or disabled, if enabled, an LLDP configuration must be provided by name or id.
  */
-export type LldpServiceConfig = {
+export type LldpServiceConfigCreate = {
   /** Whether or not LLDP is enabled. */
   enabled: boolean
   /** A reference to the LLDP configuration used. Must not be `None` when `enabled` is `true`. */
@@ -1498,17 +1520,29 @@ export type LinkSpeed =
 /**
  * Switch link configuration.
  */
-export type LinkConfig = {
+export type LinkConfigCreate = {
   /** Whether or not to set autonegotiation */
   autoneg: boolean
   /** The forward error correction mode of the link. */
   fec: LinkFec
   /** The link-layer discovery protocol (LLDP) configuration for the link. */
-  lldp: LldpServiceConfig
+  lldp: LldpServiceConfigCreate
   /** Maximum transmission unit for the link. */
   mtu: number
   /** The speed of the link. */
   speed: LinkSpeed
+}
+
+/**
+ * A link layer discovery protocol (LLDP) service configuration.
+ */
+export type LldpServiceConfig = {
+  /** Whether or not the LLDP service is enabled. */
+  enabled: boolean
+  /** The id of this LLDP service instance. */
+  id: string
+  /** The link-layer discovery protocol configuration for this service. */
+  lldpConfigId?: string
 }
 
 /**
@@ -1832,6 +1866,18 @@ The default is that no Fleet roles are conferred by any Silo roles unless there'
 }
 
 /**
+ * The amount of provisionable resources for a Silo
+ */
+export type SiloQuotasCreate = {
+  /** The amount of virtual CPUs available for running instances in the Silo */
+  cpus: number
+  /** The amount of RAM (in bytes) available for running instances in the Silo */
+  memory: ByteCount
+  /** The amount of storage (in bytes) available for disks or snapshots */
+  storage: ByteCount
+}
+
+/**
  * Create-time parameters for a `Silo`
  */
 export type SiloCreate = {
@@ -1847,8 +1893,73 @@ Note that if configuring a SAML based identity provider, group_attribute_name mu
 The default is that no Fleet roles are conferred by any Silo roles unless there's a corresponding entry in this map. */
   mappedFleetRoles?: Record<string, FleetRole[]>
   name: Name
+  /** Limits the amount of provisionable CPU, memory, and storage in the Silo. CPU and memory are only consumed by running instances, while storage is consumed by any disk or snapshot. A value of 0 means that resource is *not* provisionable. */
+  quotas: SiloQuotasCreate
   /** Initial TLS certificates to be used for the new Silo's console and API endpoints.  These should be valid for the Silo's DNS name(s). */
   tlsCertificates: CertificateCreate[]
+}
+
+/**
+ * An IP pool in the context of a silo
+ */
+export type SiloIpPool = {
+  /** human-readable free-form text about a resource */
+  description: string
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** When a pool is the default for a silo, floating IPs and instance ephemeral IPs will come from that pool when no other pool is specified. There can be at most one default for a given silo. */
+  isDefault: boolean
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+}
+
+/**
+ * A single page of results
+ */
+export type SiloIpPoolResultsPage = {
+  /** list of items on this page of results */
+  items: SiloIpPool[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
+ * A collection of resource counts used to set the virtual capacity of a silo
+ */
+export type SiloQuotas = {
+  /** Number of virtual CPUs */
+  cpus: number
+  /** Amount of memory in bytes */
+  memory: ByteCount
+  siloId: string
+  /** Amount of disk storage in bytes */
+  storage: ByteCount
+}
+
+/**
+ * A single page of results
+ */
+export type SiloQuotasResultsPage = {
+  /** list of items on this page of results */
+  items: SiloQuotas[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
+ * Updateable properties of a Silo's resource limits. If a value is omitted it will not be updated.
+ */
+export type SiloQuotasUpdate = {
+  /** The amount of virtual CPUs available for running instances in the Silo */
+  cpus?: number
+  /** The amount of RAM (in bytes) available for running instances in the Silo */
+  memory?: ByteCount
+  /** The amount of storage (in bytes) available for disks or snapshots */
+  storage?: ByteCount
 }
 
 /**
@@ -1882,6 +1993,40 @@ export type SiloRoleRoleAssignment = {
 export type SiloRolePolicy = {
   /** Roles directly assigned on this resource */
   roleAssignments: SiloRoleRoleAssignment[]
+}
+
+/**
+ * A collection of resource counts used to describe capacity and utilization
+ */
+export type VirtualResourceCounts = {
+  /** Number of virtual CPUs */
+  cpus: number
+  /** Amount of memory in bytes */
+  memory: ByteCount
+  /** Amount of disk storage in bytes */
+  storage: ByteCount
+}
+
+/**
+ * View of a silo's resource utilization and capacity
+ */
+export type SiloUtilization = {
+  /** Accounts for the total amount of resources reserved for silos via their quotas */
+  allocated: VirtualResourceCounts
+  /** Accounts for resources allocated by in silos like CPU or memory for running instances and storage for disks and snapshots Note that CPU and memory resources associated with a stopped instances are not counted here */
+  provisioned: VirtualResourceCounts
+  siloId: string
+  siloName: Name
+}
+
+/**
+ * A single page of results
+ */
+export type SiloUtilizationResultsPage = {
+  /** list of items on this page of results */
+  items: SiloUtilization[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
 }
 
 /**
@@ -2072,6 +2217,33 @@ export type Switch = {
 }
 
 /**
+ * Describes the kind of an switch interface.
+ */
+export type SwitchInterfaceKind2 =
+  /** Primary interfaces are associated with physical links. There is exactly one primary interface per physical link. */
+  | 'primary'
+  /** VLAN interfaces allow physical interfaces to be multiplexed onto multiple logical links, each distinguished by a 12-bit 802.1Q Ethernet tag. */
+  | 'vlan'
+  /** Loopback interfaces are anchors for IP addresses that are not specific to any particular port. */
+  | 'loopback'
+
+/**
+ * A switch port interface configuration for a port settings object.
+ */
+export type SwitchInterfaceConfig = {
+  /** A unique identifier for this switch interface. */
+  id: string
+  /** The name of this switch interface. */
+  interfaceName: string
+  /** The switch interface kind. */
+  kind: SwitchInterfaceKind2
+  /** The port settings object this switch interface configuration belongs to. */
+  portSettingsId: string
+  /** Whether or not IPv6 is enabled on this interface. */
+  v6Enabled: boolean
+}
+
+/**
  * Indicates the kind for a switch interface.
  */
 export type SwitchInterfaceKind =
@@ -2089,7 +2261,7 @@ export type SwitchInterfaceKind =
 /**
  * A layer-3 switch interface configuration. When IPv6 is enabled, a link local address will be created for the interface.
  */
-export type SwitchInterfaceConfig = {
+export type SwitchInterfaceConfigCreate = {
   /** What kind of switch interface this configuration represents. */
   kind: SwitchInterfaceKind
   /** Whether or not IPv6 is enabled. */
@@ -2151,6 +2323,27 @@ export type SwitchPortBgpPeerConfig = {
 /**
  * The link geometry associated with a switch port.
  */
+export type SwitchPortGeometry2 =
+  /** The port contains a single QSFP28 link with four lanes. */
+  | 'qsfp28x1'
+  /** The port contains two QSFP28 links each with two lanes. */
+  | 'qsfp28x2'
+  /** The port contains four SFP28 links each with one lane. */
+  | 'sfp28x4'
+
+/**
+ * A physical port configuration for a port settings object.
+ */
+export type SwitchPortConfig = {
+  /** The physical link geometry of the port. */
+  geometry: SwitchPortGeometry2
+  /** The id of the port settings object this configuration belongs to. */
+  portSettingsId: string
+}
+
+/**
+ * The link geometry associated with a switch port.
+ */
 export type SwitchPortGeometry =
   /** The port contains a single QSFP28 link with four lanes. */
   | 'qsfp28x1'
@@ -2162,7 +2355,7 @@ export type SwitchPortGeometry =
 /**
  * Physical switch port configuration.
  */
-export type SwitchPortConfig = {
+export type SwitchPortConfigCreate = {
   /** Link geometry for the switch port. */
   geometry: SwitchPortGeometry
 }
@@ -2234,11 +2427,11 @@ export type SwitchPortSettingsCreate = {
   description: string
   groups: NameOrId[]
   /** Interfaces indexed by link name. */
-  interfaces: Record<string, SwitchInterfaceConfig>
+  interfaces: Record<string, SwitchInterfaceConfigCreate>
   /** Links indexed by phy name. On ports that are not broken out, this is always phy0. On a 2x breakout the options are phy0 and phy1, on 4x phy0-phy3, etc. */
-  links: Record<string, LinkConfig>
+  links: Record<string, LinkConfigCreate>
   name: Name
-  portConfig: SwitchPortConfig
+  portConfig: SwitchPortConfigCreate
   /** Routes indexed by interface name. */
   routes: Record<string, RouteConfig>
 }
@@ -2313,6 +2506,21 @@ export type SwitchResultsPage = {
  * A sled that has not been added to an initialized rack yet
  */
 export type UninitializedSled = { baseboard: Baseboard; cubby: number; rackId: string }
+
+/**
+ * The unique hardware ID for a sled
+ */
+export type UninitializedSledId = { part: string; serial: string }
+
+/**
+ * A single page of results
+ */
+export type UninitializedSledResultsPage = {
+  /** list of items on this page of results */
+  items: UninitializedSled[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
 
 /**
  * View of a User
@@ -2393,6 +2601,16 @@ export type UserResultsPage = {
  * Credentials for local user login
  */
 export type UsernamePasswordCredentials = { password: Password; username: UserId }
+
+/**
+ * View of the current silo's resource utilization and capacity
+ */
+export type Utilization = {
+  /** The total amount of resources that can be provisioned in this silo Actions that would exceed this limit will fail */
+  capacity: VirtualResourceCounts
+  /** Accounts for resources allocated to running instances or storage allocated via disks or snapshots Note that CPU and memory resources associated with a stopped instances are not counted here whereas associated disks will still be counted */
+  provisioned: VirtualResourceCounts
+}
 
 /**
  * View of a VPC
@@ -2946,16 +3164,11 @@ export interface InstanceStopQueryParams {
 export interface ProjectIpPoolListQueryParams {
   limit?: number
   pageToken?: string
-  project?: NameOrId
   sortBy?: NameOrIdSortMode
 }
 
 export interface ProjectIpPoolViewPathParams {
   pool: NameOrId
-}
-
-export interface ProjectIpPoolViewQueryParams {
-  project?: NameOrId
 }
 
 export interface LoginLocalPathParams {
@@ -3138,6 +3351,11 @@ export interface SledSetProvisionStatePathParams {
   sledId: string
 }
 
+export interface SledListUninitializedQueryParams {
+  limit?: number
+  pageToken?: string
+}
+
 export interface NetworkingSwitchPortListQueryParams {
   limit?: number
   pageToken?: string
@@ -3247,6 +3465,30 @@ export interface IpPoolRangeRemovePathParams {
   pool: NameOrId
 }
 
+export interface IpPoolSiloListPathParams {
+  pool: NameOrId
+}
+
+export interface IpPoolSiloListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: IdSortMode
+}
+
+export interface IpPoolSiloLinkPathParams {
+  pool: NameOrId
+}
+
+export interface IpPoolSiloUpdatePathParams {
+  pool: NameOrId
+  silo: NameOrId
+}
+
+export interface IpPoolSiloUnlinkPathParams {
+  pool: NameOrId
+  silo: NameOrId
+}
+
 export interface IpPoolServiceRangeListQueryParams {
   limit?: number
   pageToken?: string
@@ -3345,6 +3587,12 @@ export interface RoleViewPathParams {
   roleName: string
 }
 
+export interface SystemQuotasListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: IdSortMode
+}
+
 export interface SiloListQueryParams {
   limit?: number
   pageToken?: string
@@ -3359,11 +3607,29 @@ export interface SiloDeletePathParams {
   silo: NameOrId
 }
 
+export interface SiloIpPoolListPathParams {
+  silo: NameOrId
+}
+
+export interface SiloIpPoolListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: NameOrIdSortMode
+}
+
 export interface SiloPolicyViewPathParams {
   silo: NameOrId
 }
 
 export interface SiloPolicyUpdatePathParams {
+  silo: NameOrId
+}
+
+export interface SiloQuotasViewPathParams {
+  silo: NameOrId
+}
+
+export interface SiloQuotasUpdatePathParams {
   silo: NameOrId
 }
 
@@ -3390,6 +3656,16 @@ export interface UserBuiltinListQueryParams {
 
 export interface UserBuiltinViewPathParams {
   user: NameOrId
+}
+
+export interface SiloUtilizationListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: NameOrIdSortMode
+}
+
+export interface SiloUtilizationViewPathParams {
+  silo: NameOrId
 }
 
 export interface UserListQueryParams {
@@ -3519,10 +3795,10 @@ export type ApiListMethods = Pick<
   | 'sledInstanceList'
   | 'networkingSwitchPortList'
   | 'switchList'
-  | 'uninitializedSledList'
   | 'siloIdentityProviderList'
   | 'ipPoolList'
   | 'ipPoolRangeList'
+  | 'ipPoolSiloList'
   | 'ipPoolServiceRangeList'
   | 'networkingAddressLotList'
   | 'networkingAddressLotBlockList'
@@ -3531,9 +3807,12 @@ export type ApiListMethods = Pick<
   | 'networkingLoopbackAddressList'
   | 'networkingSwitchPortSettingsList'
   | 'roleList'
+  | 'systemQuotasList'
   | 'siloList'
+  | 'siloIpPoolList'
   | 'siloUserList'
   | 'userBuiltinList'
+  | 'siloUtilizationList'
   | 'userList'
   | 'vpcSubnetList'
   | 'vpcList'
@@ -3798,7 +4077,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * List all Floating IPs
+     * List all floating IPs
      */
     floatingIpList: (
       { query = {} }: { query?: FloatingIpListQueryParams },
@@ -3812,7 +4091,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Create a Floating IP
+     * Create a floating IP
      */
     floatingIpCreate: (
       { query, body }: { query?: FloatingIpCreateQueryParams; body: FloatingIpCreate },
@@ -3844,7 +4123,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Delete a Floating IP
+     * Delete a floating IP
      */
     floatingIpDelete: (
       {
@@ -4213,13 +4492,13 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * List all IP Pools that can be used by a given project.
+     * List all IP pools
      */
     projectIpPoolList: (
       { query = {} }: { query?: ProjectIpPoolListQueryParams },
       params: FetchParams = {}
     ) => {
-      return this.request<IpPoolResultsPage>({
+      return this.request<SiloIpPoolResultsPage>({
         path: `/v1/ip-pools`,
         method: 'GET',
         query,
@@ -4230,16 +4509,12 @@ export class Api extends HttpClient {
      * Fetch an IP pool
      */
     projectIpPoolView: (
-      {
-        path,
-        query = {},
-      }: { path: ProjectIpPoolViewPathParams; query?: ProjectIpPoolViewQueryParams },
+      { path }: { path: ProjectIpPoolViewPathParams },
       params: FetchParams = {}
     ) => {
-      return this.request<IpPool>({
+      return this.request<SiloIpPool>({
         path: `/v1/ip-pools/${path.pool}`,
         method: 'GET',
-        query,
         ...params,
       })
     },
@@ -4695,10 +4970,7 @@ export class Api extends HttpClient {
     /**
      * Add a sled to an initialized rack
      */
-    addSledToInitializedRack: (
-      { body }: { body: UninitializedSled },
-      params: FetchParams = {}
-    ) => {
+    sledAdd: ({ body }: { body: UninitializedSledId }, params: FetchParams = {}) => {
       return this.request<void>({
         path: `/v1/system/hardware/sleds`,
         method: 'POST',
@@ -4751,7 +5023,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Set the sled's provision state.
+     * Set the sled's provision state
      */
     sledSetProvisionState: (
       {
@@ -4764,6 +5036,20 @@ export class Api extends HttpClient {
         path: `/v1/system/hardware/sleds/${path.sledId}/provision-state`,
         method: 'PUT',
         body,
+        ...params,
+      })
+    },
+    /**
+     * List uninitialized sleds in a given rack
+     */
+    sledListUninitialized: (
+      { query = {} }: { query?: SledListUninitializedQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<UninitializedSledResultsPage>({
+        path: `/v1/system/hardware/sleds-uninitialized`,
+        method: 'GET',
+        query,
         ...params,
       })
     },
@@ -4844,16 +5130,6 @@ export class Api extends HttpClient {
     switchView: ({ path }: { path: SwitchViewPathParams }, params: FetchParams = {}) => {
       return this.request<Switch>({
         path: `/v1/system/hardware/switches/${path.switchId}`,
-        method: 'GET',
-        ...params,
-      })
-    },
-    /**
-     * List uninitialized sleds in a given rack
-     */
-    uninitializedSledList: (_: EmptyObj, params: FetchParams = {}) => {
-      return this.request<void>({
-        path: `/v1/system/hardware/uninitialized-sleds`,
         method: 'GET',
         ...params,
       })
@@ -5004,7 +5280,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Update an IP Pool
+     * Update an IP pool
      */
     ipPoolUpdate: (
       { path, body }: { path: IpPoolUpdatePathParams; body: IpPoolUpdate },
@@ -5018,7 +5294,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Delete an IP Pool
+     * Delete an IP pool
      */
     ipPoolDelete: (
       { path }: { path: IpPoolDeletePathParams },
@@ -5072,6 +5348,64 @@ export class Api extends HttpClient {
         path: `/v1/system/ip-pools/${path.pool}/ranges/remove`,
         method: 'POST',
         body,
+        ...params,
+      })
+    },
+    /**
+     * List an IP pool's linked silos
+     */
+    ipPoolSiloList: (
+      {
+        path,
+        query = {},
+      }: { path: IpPoolSiloListPathParams; query?: IpPoolSiloListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<IpPoolSiloLinkResultsPage>({
+        path: `/v1/system/ip-pools/${path.pool}/silos`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Make an IP pool available within a silo
+     */
+    ipPoolSiloLink: (
+      { path, body }: { path: IpPoolSiloLinkPathParams; body: IpPoolLinkSilo },
+      params: FetchParams = {}
+    ) => {
+      return this.request<IpPoolSiloLink>({
+        path: `/v1/system/ip-pools/${path.pool}/silos`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Make an IP pool default or not-default for a silo
+     */
+    ipPoolSiloUpdate: (
+      { path, body }: { path: IpPoolSiloUpdatePathParams; body: IpPoolSiloUpdate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<IpPoolSiloLink>({
+        path: `/v1/system/ip-pools/${path.pool}/silos/${path.silo}`,
+        method: 'PUT',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Unlink an IP pool from a silo
+     */
+    ipPoolSiloUnlink: (
+      { path }: { path: IpPoolSiloUnlinkPathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/ip-pools/${path.pool}/silos/${path.silo}`,
+        method: 'DELETE',
         ...params,
       })
     },
@@ -5449,6 +5783,20 @@ export class Api extends HttpClient {
       })
     },
     /**
+     * Lists resource quotas for all silos
+     */
+    systemQuotasList: (
+      { query = {} }: { query?: SystemQuotasListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SiloQuotasResultsPage>({
+        path: `/v1/system/silo-quotas`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
      * List silos
      */
     siloList: (
@@ -5494,6 +5842,23 @@ export class Api extends HttpClient {
       })
     },
     /**
+     * List IP pools available within silo
+     */
+    siloIpPoolList: (
+      {
+        path,
+        query = {},
+      }: { path: SiloIpPoolListPathParams; query?: SiloIpPoolListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SiloIpPoolResultsPage>({
+        path: `/v1/system/silos/${path.silo}/ip-pools`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
      * Fetch a silo's IAM policy
      */
     siloPolicyView: (
@@ -5515,6 +5880,33 @@ export class Api extends HttpClient {
     ) => {
       return this.request<SiloRolePolicy>({
         path: `/v1/system/silos/${path.silo}/policy`,
+        method: 'PUT',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * View the resource quotas of a given silo
+     */
+    siloQuotasView: (
+      { path }: { path: SiloQuotasViewPathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SiloQuotas>({
+        path: `/v1/system/silos/${path.silo}/quotas`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Update the resource quotas of a given silo
+     */
+    siloQuotasUpdate: (
+      { path, body }: { path: SiloQuotasUpdatePathParams; body: SiloQuotasUpdate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SiloQuotas>({
+        path: `/v1/system/silos/${path.silo}/quotas`,
         method: 'PUT',
         body,
         ...params,
@@ -5576,6 +5968,33 @@ export class Api extends HttpClient {
       })
     },
     /**
+     * List current utilization state for all silos
+     */
+    siloUtilizationList: (
+      { query = {} }: { query?: SiloUtilizationListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SiloUtilizationResultsPage>({
+        path: `/v1/system/utilization/silos`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * View the current utilization of a given silo
+     */
+    siloUtilizationView: (
+      { path }: { path: SiloUtilizationViewPathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SiloUtilization>({
+        path: `/v1/system/utilization/silos/${path.silo}`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
      * List users
      */
     userList: (
@@ -5586,6 +6005,16 @@ export class Api extends HttpClient {
         path: `/v1/users`,
         method: 'GET',
         query,
+        ...params,
+      })
+    },
+    /**
+     * View the resource utilization of the user's current silo
+     */
+    utilizationView: (_: EmptyObj, params: FetchParams = {}) => {
+      return this.request<Utilization>({
+        path: `/v1/utilization`,
+        method: 'GET',
         ...params,
       })
     },

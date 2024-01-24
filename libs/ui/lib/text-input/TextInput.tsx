@@ -101,7 +101,13 @@ type HintProps = {
  * Pass id here and include that ID in aria-describedby on the TextField
  */
 export const TextInputHint = ({ id, children, className }: HintProps) => (
-  <div id={id} className={cn('mt-1 text-sans-sm text-tertiary', className)}>
+  <div
+    id={id}
+    className={cn(
+      'mt-1 text-sans-sm text-tertiary [&_>_a]:underline hover:[&_>_a]:text-default',
+      className
+    )}
+  >
     {children}
   </div>
 )

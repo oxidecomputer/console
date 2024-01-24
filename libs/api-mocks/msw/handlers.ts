@@ -24,7 +24,7 @@ import { GiB, pick, sortBy } from '@oxide/util'
 import { genCumulativeI64Data } from '../metrics'
 import { serial } from '../serial'
 import { defaultSilo, toIdp } from '../silo'
-import { db, lookup, lookupById, notFoundErr } from './db'
+import { db, lookup, lookupById, notFoundErr, utilizationForSilo } from './db'
 import {
   currentUser,
   errIfExists,
@@ -444,17 +444,12 @@ export const handlers = makeHandlers({
     return disk
   },
   instanceExternalIpList({ path, query }) {
-    lookup.instance({ ...path, ...query })
-
-    // TODO: proper mock table
-    return {
-      items: [
-        {
-          ip: '123.4.56.7',
-          kind: 'ephemeral',
-        } as const,
-      ],
-    }
+    const instance = lookup.instance({ ...path, ...query })
+    const externalIps = db.externalIps
+      .filter((eip) => eip.instance_id === instance.id)
+      .map((eip) => eip.external_ip)
+    // endpoint is not paginated. or rather, it's fake paginated
+    return { items: externalIps }
   },
   instanceNetworkInterfaceList({ query }) {
     const instance = lookup.instance(query)
@@ -547,6 +542,85 @@ export const handlers = makeHandlers({
 
     return json(instance, { status: 202 })
   },
+  ipPoolList: ({ query }) => paginated(query, db.ipPools),
+  siloIpPoolList({ path, query }) {
+    const pools = lookup.siloIpPools(path)
+    return paginated(query, pools)
+  },
+  projectIpPoolList({ query }) {
+    const pools = lookup.siloIpPools({ silo: defaultSilo.id })
+    return paginated(query, pools)
+  },
+  projectIpPoolView({ path }) {
+    // this will 404 if it doesn't exist at all...
+    const pool = lookup.ipPool(path)
+    // but we also want to 404 if it exists but isn't in the silo
+    const link = db.ipPoolSilos.find(
+      (link) => link.ip_pool_id === pool.id && link.silo_id === defaultSilo.id
+    )
+    if (!link) throw notFoundErr()
+
+    return { ...pool, is_default: link.is_default }
+  },
+  ipPoolView: ({ path }) => lookup.ipPool(path),
+  ipPoolSiloList({ path /*query*/ }) {
+    // TODO: paginated wants an id field, but this is a join table, so it  has a
+    // composite pk
+    // return paginated(query, db.ipPoolResources)
+
+    const pool = lookup.ipPool(path)
+    const assocs = db.ipPoolSilos.filter((ipr) => ipr.ip_pool_id === pool.id)
+    return { items: assocs }
+  },
+  ipPoolSiloLink({ path, body }) {
+    const pool = lookup.ipPool(path)
+    const silo_id = lookup.silo({ silo: body.silo }).id
+
+    const assoc = {
+      ip_pool_id: pool.id,
+      silo_id,
+      is_default: body.is_default,
+    }
+
+    const alreadyThere = db.ipPoolSilos.find(
+      (ips) => ips.ip_pool_id === pool.id && ips.silo_id === silo_id
+    )
+
+    // TODO: this matches current API logic but makes no sense because is_default
+    // could be different. Need to fix that. Should 400 or 409 on conflict.
+    if (!alreadyThere) db.ipPoolSilos.push(assoc)
+
+    return assoc
+  },
+  ipPoolSiloUnlink({ path }) {
+    const pool = lookup.ipPool(path)
+    const silo = lookup.silo(path)
+
+    // ignore is_default when deleting, it's not part of the pk
+    db.ipPoolSilos = db.ipPoolSilos.filter(
+      (ips) => !(ips.ip_pool_id === pool.id && ips.silo_id === silo.id)
+    )
+
+    return 204
+  },
+  ipPoolSiloUpdate: ({ path, body }) => {
+    const ipPoolSilo = lookup.ipPoolSiloLink(path)
+
+    // if we're setting default, we need to set is_default false on the existing default
+    if (body.is_default) {
+      const silo = lookup.silo(path)
+      const existingDefault = db.ipPoolSilos.find(
+        (ips) => ips.silo_id === silo.id && ips.is_default
+      )
+      if (existingDefault) {
+        existingDefault.is_default = false
+      }
+    }
+
+    ipPoolSilo.is_default = body.is_default
+
+    return ipPoolSilo
+  },
   projectPolicyView({ path }) {
     const project = lookup.project(path)
 
@@ -609,6 +683,21 @@ export const handlers = makeHandlers({
     const snapshot = lookup.snapshot({ ...path, ...query })
     db.snapshots = db.snapshots.filter((s) => s.id !== snapshot.id)
     return 204
+  },
+  utilizationView() {
+    const { allocated: capacity, provisioned } = utilizationForSilo(defaultSilo)
+    return { capacity, provisioned }
+  },
+  siloUtilizationView({ path }) {
+    const silo = lookup.silo(path)
+    return utilizationForSilo(silo)
+  },
+  siloUtilizationList({ query }) {
+    const { items: silos, nextPage } = paginated(query, db.silos)
+    return {
+      items: silos.map(utilizationForSilo),
+      nextPage,
+    }
   },
   vpcList({ query }) {
     const project = lookup.project(query)
@@ -945,7 +1034,6 @@ export const handlers = makeHandlers({
   siloMetric: handleMetrics,
 
   // Misc endpoints we're not using yet in the console
-  addSledToInitializedRack: NotImplemented,
   certificateCreate: NotImplemented,
   certificateDelete: NotImplemented,
   certificateList: NotImplemented,
@@ -958,7 +1046,6 @@ export const handlers = makeHandlers({
   instanceSerialConsoleStream: NotImplemented,
   ipPoolCreate: NotImplemented,
   ipPoolDelete: NotImplemented,
-  ipPoolList: NotImplemented,
   ipPoolRangeAdd: NotImplemented,
   ipPoolRangeList: NotImplemented,
   ipPoolRangeRemove: NotImplemented,
@@ -967,7 +1054,6 @@ export const handlers = makeHandlers({
   ipPoolServiceRangeRemove: NotImplemented,
   ipPoolServiceView: NotImplemented,
   ipPoolUpdate: NotImplemented,
-  ipPoolView: NotImplemented,
   localIdpUserCreate: NotImplemented,
   localIdpUserDelete: NotImplemented,
   localIdpUserSetPassword: NotImplemented,
@@ -995,20 +1081,22 @@ export const handlers = makeHandlers({
   networkingSwitchPortSettingsDelete: NotImplemented,
   networkingSwitchPortSettingsView: NotImplemented,
   networkingSwitchPortSettingsList: NotImplemented,
-  projectIpPoolList: NotImplemented,
-  projectIpPoolView: NotImplemented,
   rackView: NotImplemented,
   roleList: NotImplemented,
   roleView: NotImplemented,
   siloPolicyUpdate: NotImplemented,
   siloPolicyView: NotImplemented,
+  siloQuotasUpdate: NotImplemented,
+  siloQuotasView: NotImplemented,
   siloUserList: NotImplemented,
   siloUserView: NotImplemented,
+  sledAdd: NotImplemented,
+  sledListUninitialized: NotImplemented,
   sledSetProvisionState: NotImplemented,
   switchList: NotImplemented,
   switchView: NotImplemented,
   systemPolicyUpdate: NotImplemented,
-  uninitializedSledList: NotImplemented,
+  systemQuotasList: NotImplemented,
   userBuiltinList: NotImplemented,
   userBuiltinView: NotImplemented,
 })

@@ -12,9 +12,10 @@ import { validate as isUuid } from 'uuid'
 import type { ApiTypes as Api, PathParams as PP } from '@oxide/api'
 import * as mock from '@oxide/api-mocks'
 import { user1 } from '@oxide/api-mocks'
+import { pick } from '@oxide/util'
 
 import type { Json } from '../json-type'
-import { json } from './util'
+import { internalError, json } from './util'
 
 const notFoundBody = { error_code: 'ObjectNotFound' } as const
 export type NotFound = typeof notFoundBody
@@ -129,6 +130,51 @@ export const lookup = {
     if (!image) throw notFoundErr
     return image
   },
+  ipPool({ pool: id }: PP.IpPool): Json<Api.IpPool> {
+    if (!id) throw notFoundErr
+
+    if (isUuid(id)) return lookupById(db.ipPools, id)
+
+    const pool = db.ipPools.find((p) => p.name === id)
+    if (!pool) throw notFoundErr
+
+    return pool
+  },
+  // unusual one because it's a sibling relationship. we look up both the pool and the silo first
+  ipPoolSiloLink({
+    pool: poolId,
+    silo: siloId,
+  }: PP.IpPool & PP.Silo): Json<Api.IpPoolSiloLink> {
+    const pool = lookup.ipPool({ pool: poolId })
+    const silo = lookup.silo({ silo: siloId })
+
+    const ipPoolSilo = db.ipPoolSilos.find(
+      (ips) => ips.ip_pool_id === pool.id && ips.silo_id === silo.id
+    )
+    if (!ipPoolSilo) throw notFoundErr
+
+    return ipPoolSilo
+  },
+  // unusual because it returns a list, but we need it for multiple endpoints
+  siloIpPools(path: PP.Silo): Json<Api.SiloIpPool>[] {
+    const silo = lookup.silo(path)
+
+    // effectively join db.ipPools and db.ipPoolSilos on ip_pool_id
+    return db.ipPoolSilos
+      .filter((link) => link.silo_id === silo.id)
+      .map((link) => {
+        const pool = db.ipPools.find((pool) => pool.id === link.ip_pool_id)
+
+        // this should never happen
+        if (!pool) {
+          const linkStr = JSON.stringify(link)
+          const message = `Found IP pool-silo link without corresponding pool: ${linkStr}`
+          throw json({ message }, { status: 500 })
+        }
+
+        return { ...pool, is_default: link.is_default }
+      })
+  },
   samlIdp({
     provider: id,
     ...siloSelector
@@ -172,6 +218,21 @@ export const lookup = {
   },
 }
 
+export function utilizationForSilo(silo: Json<Api.Silo>) {
+  const quotas = db.siloQuotas.find((q) => q.silo_id === silo.id)
+  if (!quotas) throw internalError()
+
+  const provisioned = db.siloProvisioned.find((p) => p.silo_id === silo.id)
+  if (!provisioned) throw internalError()
+
+  return {
+    allocated: pick(quotas, 'cpus', 'storage', 'memory'),
+    provisioned: pick(provisioned, 'cpus', 'storage', 'memory'),
+    silo_id: silo.id,
+    silo_name: silo.name,
+  }
+}
+
 /** Track the upload state of an imported image */
 type DiskBulkImport = {
   // for now, each block (keyed by offset) just tracks the fact that it was
@@ -186,14 +247,18 @@ const initDb = {
   /** Join table for `users` and `userGroups` */
   groupMemberships: [...mock.groupMemberships],
   images: [...mock.images],
+  externalIps: [...mock.externalIps],
   instances: [...mock.instances],
+  ipPools: [...mock.ipPools],
+  ipPoolSilos: [...mock.ipPoolSilos],
   networkInterfaces: [mock.networkInterface],
   physicalDisks: [...mock.physicalDisks],
   projects: [...mock.projects],
   racks: [...mock.racks],
   roleAssignments: [...mock.roleAssignments],
-  /** Join table for `silos` and `identityProviders` */
   silos: [...mock.silos],
+  siloQuotas: [...mock.siloQuotas],
+  siloProvisioned: [...mock.siloProvisioned],
   identityProviders: [...mock.identityProviders],
   sleds: [...mock.sleds],
   snapshots: [...mock.snapshots],

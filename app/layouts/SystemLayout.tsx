@@ -9,13 +9,7 @@ import { useMemo } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 
 import { apiQueryClient } from '@oxide/api'
-import {
-  Cloud16Icon,
-  Divider,
-  Metrics16Icon,
-  Settings16Icon,
-  Storage16Icon,
-} from '@oxide/ui'
+import { Cloud16Icon, Divider, Metrics16Icon, Storage16Icon } from '@oxide/ui'
 
 import { trigger404 } from 'app/components/ErrorBoundary'
 import { DocsLinkItem, NavLinkItem, Sidebar } from 'app/components/Sidebar'
@@ -118,9 +112,6 @@ export default function SystemLayout() {
           <NavLinkItem to={pb.systemNetworking()} disabled>
             <Networking16Icon /> Networking
           </NavLinkItem> */}
-          <NavLinkItem to={pb.systemSettings()} disabled>
-            <Settings16Icon /> Settings
-          </NavLinkItem>
         </Sidebar.Nav>
       </Sidebar>
       <ContentPane />

@@ -40,15 +40,19 @@ export const Radio = ({ children, className, ...inputProps }: RadioProps) => (
 
 const cardLabelStyles = `
   py-2 px-4 text-sans-md border rounded border-default bg-default hover:border-hover
-  peer-focus:ring-2 peer-focus:ring-accent-secondary
-  peer-checked:bg-accent-secondary peer-checked:hover:border-accent
-  peer-checked:border-accent-secondary peer-checked:text-accent peer-checked:[&>*_.text-secondary]:text-accent-secondary
-  peer-disabled:bg-disabled peer-disabled:text-secondary w-44
+  peer-focus:ring-2 peer-focus:ring-accent-secondary  w-44
 
   children:py-3 children:px-3 children:-mx-4 children:border-secondary
-  first:children:-mt-2 last:children:-mb-2
-  peer-checked:children:border-accent peer-checked:children:border-accent-secondary
-  cursor-pointer peer-disabled:cursor-default
+  first:children:-mt-2 last:children:-mb-2 cursor-pointer
+
+  peer-checked:bg-accent-secondary
+  peer-checked:border-accent-secondary peer-checked:hover:border-accent peer-checked:children:border-accent peer-checked:children:border-accent-secondary
+  peer-checked:text-accent peer-checked:[&>*_.text-secondary]:text-accent-secondary
+
+  peer-disabled:cursor-not-allowed
+  peer-disabled:bg-disabled peer-disabled:peer-checked:bg-accent-secondary
+  peer-checked:peer-disabled:hover:border-accent-secondary peer-disabled:hover:border-default
+  peer-disabled:[&>*_.text-secondary]:text-disabled peer-disabled:text-disabled peer-disabled:peer-checked:text-accent-disabled peer-disabled:peer-checked:[&>*_.text-secondary]:text-accent-disabled
 `
 
 export function RadioCard({ children, className, ...inputProps }: RadioProps) {

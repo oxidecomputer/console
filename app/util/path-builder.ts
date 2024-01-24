@@ -78,7 +78,6 @@ export const pb = {
   systemHealth: () => '/system/health',
 
   systemNetworking: () => '/system/networking',
-  systemSettings: () => '/system/settings',
 
   inventory: () => '/system/inventory',
   rackInventory: () => '/system/inventory/racks',

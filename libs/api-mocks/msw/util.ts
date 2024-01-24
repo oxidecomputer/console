@@ -41,7 +41,7 @@ export const paginated = <P extends PaginateOptions, I extends { id: string }>(
   params: P,
   items: I[]
 ) => {
-  const { limit = 10, pageToken } = params || {}
+  const { limit = 100, pageToken } = params || {}
   let startIndex = pageToken ? items.findIndex((i) => i.id === pageToken) : 0
   startIndex = startIndex < 0 ? 0 : startIndex
 
@@ -95,6 +95,8 @@ export const NotImplemented = () => {
   // directly as a handler
   throw json({ error_code: 'NotImplemented' }, { status: 501 })
 }
+
+export const internalError = () => json({ error_code: 'InternalError' }, { status: 500 })
 
 export const errIfExists = <T extends Record<string, unknown>>(
   collection: T[],
@@ -177,8 +179,8 @@ export function generateUtilization(
     metricName === 'cpus_provisioned'
       ? capacity.cpu
       : metricName === 'virtual_disk_space_provisioned'
-      ? capacity.disk_tib * TiB
-      : capacity.ram_gib * GiB
+        ? capacity.disk_tib * TiB
+        : capacity.ram_gib * GiB
   const metricNameSeed = Array.from(metricName).reduce(
     (acc, char) => acc + char.charCodeAt(0),
     0

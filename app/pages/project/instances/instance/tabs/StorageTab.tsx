@@ -34,7 +34,7 @@ StorageTab.loader = async ({ params }: LoaderFunctionArgs) => {
   await Promise.all([
     apiQueryClient.prefetchQuery('instanceDiskList', {
       path: { instance },
-      query: { project, limit: 10 }, // querytable
+      query: { project, limit: 25 }, // querytable
     }),
     // This is covered by the InstancePage loader but there's no downside to
     // being redundant. If it were removed there, we'd still want it here.

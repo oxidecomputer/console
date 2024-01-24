@@ -210,7 +210,7 @@ export function SiloSystemPicker({ value }: { value: 'silo' | 'system' }) {
 export function SiloPicker() {
   // picker only shows up when a silo is in scope
   const { silo: siloName } = useSiloSelector()
-  const { data } = useApiQuery('siloList', { query: { limit: 10 } })
+  const { data } = useApiQuery('siloList', { query: { limit: 25 } })
   const items = (data?.items || []).map((silo) => ({
     label: silo.name,
     to: pb.silo({ silo: silo.name }),

@@ -95,6 +95,7 @@ test('Snapshot disk', async ({ page }) => {
 
   // now go see the snapshot on the snapshots page
   await page.getByRole('link', { name: 'Snapshots' }).click()
+  await page.getByRole('button', { name: 'next' }).click()
   const table = page.getByRole('table')
   await expectRowVisible(table, {
     name: expect.stringMatching(/^disk-2-/),
