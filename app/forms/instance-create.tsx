@@ -7,9 +7,10 @@
  */
 import * as Accordion from '@radix-ui/react-accordion'
 import { animated, useSpring } from '@react-spring/web'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useWatch, type Control } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
+import useMeasure from 'react-use-measure'
 import type { SetRequired } from 'type-fest'
 
 import {
@@ -515,28 +516,12 @@ const AccordionContent = ({
   children: React.ReactNode
   isOpen: boolean
 }) => {
-  const ref = useRef<HTMLDivElement>(null)
-  const [contentHeight, setContentHeight] = useState(isOpen ? 'auto' : '0px')
-
-  useEffect(() => {
-    if (isOpen) {
-      setContentHeight(`${ref.current?.offsetHeight}px`)
-    } else {
-      setContentHeight('0px')
-    }
-  }, [isOpen])
+  const [ref, { height }] = useMeasure()
 
   const styles = useSpring({
-    height: contentHeight,
+    height: isOpen ? height : 0,
     overflow: 'hidden',
     config: { tension: 220, friction: 26 },
-    // when animation is finished we reset back to auto
-    // so that the div stretches to fit any changes in content
-    onRest: () => {
-      if (isOpen) {
-        setContentHeight('auto')
-      }
-    },
   })
 
   return (

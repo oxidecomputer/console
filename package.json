@@ -62,6 +62,7 @@
     "react-merge-refs": "^2.1.1",
     "react-router-dom": "^6.21.1",
     "react-stately": "^3.29.0",
+    "react-use-measure": "^2.1.1",
     "recharts": "^2.10.3",
     "simplebar-react": "^3.2.4",
     "ts-dedent": "^2.2.0",
