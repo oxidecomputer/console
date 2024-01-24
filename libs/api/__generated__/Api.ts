@@ -1274,6 +1274,8 @@ By default, all instances have outbound connectivity, but no inbound connectivit
   ncpus: InstanceCpuCount
   /** The network interfaces to be created for this instance. */
   networkInterfaces?: InstanceNetworkInterfaceAttachment
+  /** List of public SSH keys (identified by ID or name) to be associated with the instance. If not provided, all public keys from the user's profile will be used. If an empty list is provided, no public keys will be transmitted to the instance. */
+  sshKeys?: NameOrId[]
   /** Should this instance be started upon creation; true by default. */
   start?: boolean
   /** User data for instance initialization systems (such as cloud-init). Must be a Base64-encoded string, as specified in RFC 4648 § 4 (+ and / characters with padding). Maximum 32 KiB unencoded data. */

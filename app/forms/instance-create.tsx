@@ -87,7 +87,7 @@ const baseDefaultValues: InstanceCreateInput = {
   disks: [],
   networkInterfaces: { type: 'default' },
 
-  publicKeys: [],
+  sshKeys: [],
 
   start: true,
 
@@ -208,7 +208,7 @@ export function CreateInstanceForm() {
             externalIps: [{ type: 'ephemeral' }],
             start: values.start,
             networkInterfaces: values.networkInterfaces,
-            publicKeys: values.publicKeys,
+            sshKeys: values.sshKeys,
             userData,
           },
         })
