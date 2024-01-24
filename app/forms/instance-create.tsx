@@ -6,7 +6,8 @@
  * Copyright Oxide Computer Company
  */
 import * as Accordion from '@radix-ui/react-accordion'
-import { useEffect, useState } from 'react'
+import { animated, useSpring } from '@react-spring/web'
+import { useEffect, useRef, useState } from 'react'
 import { useWatch } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 import type { SetRequired } from 'type-fest'
@@ -153,6 +154,8 @@ export function CreateInstanceForm() {
       setIsSubmitting(false)
     }
   }, [createInstance.error])
+
+  const [advancedAccordionVal, setAdvanceAccordionVal] = useState<string[]>([])
 
   return (
     <FullPageForm
@@ -421,10 +424,15 @@ export function CreateInstanceForm() {
       <FormDivider />
       <Form.Heading id="advanced">Advanced</Form.Heading>
 
-      <Accordion.Root type="multiple" className="mt-12">
+      <Accordion.Root
+        type="multiple"
+        className="mt-12 max-w-lg"
+        value={advancedAccordionVal}
+        onValueChange={setAdvanceAccordionVal}
+      >
         <Accordion.Item value="networking">
           <AccordionHeader id="networking">Networking</AccordionHeader>
-          <AccordionContent>
+          <AccordionContent isOpen={advancedAccordionVal.includes('networking')}>
             <NetworkInterfaceField control={control} disabled={isSubmitting} />
 
             <TextField
@@ -435,9 +443,9 @@ export function CreateInstanceForm() {
             />
           </AccordionContent>
         </Accordion.Item>
-        <Accordion.Item value="configuration">
+        <Accordion.Item value="configuration" className="border-b border-b-secondary">
           <AccordionHeader id="configuration">Configuration</AccordionHeader>
-          <AccordionContent>
+          <AccordionContent isOpen={advancedAccordionVal.includes('configuration')}>
             <FileField
               id="user-data-input"
               description={
@@ -477,11 +485,32 @@ const AccordionHeader = ({ id, children }: { id: string; children: React.ReactNo
   </Accordion.Header>
 )
 
-const AccordionContent = ({ children }: { children: React.ReactNode }) => (
-  <Accordion.Content className="AccordionContent max-w-lg overflow-hidden">
-    <div className="ox-accordion-content py-8">{children}</div>
-  </Accordion.Content>
-)
+const AccordionContent = ({
+  children,
+  isOpen,
+}: {
+  children: React.ReactNode
+  isOpen: boolean
+}) => {
+  const ref = useRef<HTMLDivElement>(null)
+  const contentHeight = ref.current ? `${ref.current.offsetHeight}px` : ''
+
+  const styles = useSpring({
+    height: isOpen ? contentHeight : '0px',
+    overflow: 'hidden',
+    config: { tension: 220, friction: 26 },
+  })
+
+  return (
+    <Accordion.Content forceMount asChild>
+      <animated.div style={styles}>
+        <div className="ox-accordion-content overflow-hidden py-8" ref={ref}>
+          {children}
+        </div>
+      </animated.div>
+    </Accordion.Content>
+  )
+}
 
 const SshKeysTable = () => {
   const keys = usePrefetchedApiQuery('currentUserSshKeyList', {}).data?.items || []
