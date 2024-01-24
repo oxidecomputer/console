@@ -126,6 +126,8 @@ export function CreateInstanceForm() {
         instance
       )
       addToast({ content: 'Your instance has been created' })
+      // this navigate does not wait for the form to switch to isSubmitSuccessful,
+      // so it can get blocked
       navigate(pb.instancePage({ ...projectSelector, instance: instance.name }))
     },
   })
@@ -188,7 +190,7 @@ export function CreateInstanceForm() {
           ? await readBlobAsBase64(values.userData)
           : undefined
 
-        createInstance.mutate({
+        await createInstance.mutateAsync({
           query: projectSelector,
           body: {
             name: values.name,

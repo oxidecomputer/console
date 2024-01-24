@@ -53,7 +53,7 @@ export function FullPageForm<TFieldValues extends FieldValues>({
   onSubmit,
   submitError,
 }: FullPageFormProps<TFieldValues>) {
-  const { isSubmitting, isDirty } = form.formState
+  const { isSubmitting, isDirty, isSubmitSuccessful } = form.formState
 
   /*
     Confirms with the user if they want to navigate away
@@ -61,7 +61,11 @@ export function FullPageForm<TFieldValues extends FieldValues>({
     refreshes or closing the tab but serves to reduce
     the possibility of a user accidentally losing their progress
   */
-  const blocker = useBlocker(isDirty)
+  // I think this would work if the nav didn't happen until after handleSubmit completes.
+  // as it stands it's in a race because both the end of handleSubmit and the onSuccess
+  // of the instance create mutation are kicked off by the completion of the create request
+  const blocker = useBlocker(isDirty && !isSubmitSuccessful)
+  console.log({ isSubmitting, isDirty, isSubmitSuccessful, blockerState: blocker.state })
 
   // Reset blocker if form is no longer dirty
   useEffect(() => {
@@ -81,17 +85,16 @@ export function FullPageForm<TFieldValues extends FieldValues>({
       <form
         className="ox-form pb-20"
         id={id}
-        onSubmit={(e) => {
+        onSubmit={async (e) => {
           // This modal being in a portal doesn't prevent the submit event
           // from bubbling up out of the portal. Normally that's not a
           // problem, but sometimes (e.g., instance create) we render the
           // SideModalForm from inside another form, in which case submitting
           // the inner form submits the outer form unless we stop propagation
           e.stopPropagation()
-          // This resets `isDirty` whilst keeping the values meaning
-          // we are not prevented from navigating away by the blocker
-          form.reset({} as TFieldValues, { keepValues: true })
-          form.handleSubmit(onSubmit)(e)
+          console.log('a')
+          await form.handleSubmit(onSubmit)(e)
+          console.log('b')
         }}
         autoComplete="off"
       >
