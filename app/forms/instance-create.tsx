@@ -8,7 +8,7 @@
 import * as Accordion from '@radix-ui/react-accordion'
 import { animated, useSpring } from '@react-spring/web'
 import { useEffect, useRef, useState } from 'react'
-import { useWatch } from 'react-hook-form'
+import { useWatch, type Control } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 import type { SetRequired } from 'type-fest'
 
@@ -154,8 +154,6 @@ export function CreateInstanceForm() {
       setIsSubmitting(false)
     }
   }, [createInstance.error])
-
-  const [advancedAccordionVal, setAdvanceAccordionVal] = useState<string[]>([])
 
   return (
     <FullPageForm
@@ -424,55 +422,63 @@ export function CreateInstanceForm() {
       <FormDivider />
       <Form.Heading id="advanced">Advanced</Form.Heading>
 
-      <Accordion.Root
-        type="multiple"
-        className="mt-12 max-w-lg"
-        value={advancedAccordionVal}
-        onValueChange={setAdvanceAccordionVal}
-      >
-        <Accordion.Item value="networking">
-          <AccordionHeader id="networking">Networking</AccordionHeader>
-          <AccordionContent isOpen={advancedAccordionVal.includes('networking')}>
-            <NetworkInterfaceField control={control} disabled={isSubmitting} />
-
-            <TextField
-              name="hostname"
-              tooltipText="Will be generated if not provided"
-              control={control}
-              disabled={isSubmitting}
-            />
-          </AccordionContent>
-        </Accordion.Item>
-        <Accordion.Item value="configuration" className="border-b border-b-secondary">
-          <AccordionHeader id="configuration">Configuration</AccordionHeader>
-          <AccordionContent isOpen={advancedAccordionVal.includes('configuration')}>
-            <FileField
-              id="user-data-input"
-              description={
-                <>
-                  Data or scripts to be passed to cloud-init as{' '}
-                  <a href={links.cloudInitFormat} target="_blank" rel="noreferrer">
-                    user data
-                  </a>{' '}
-                  <a href={links.cloudInitExamples} target="_blank" rel="noreferrer">
-                    (examples)
-                  </a>{' '}
-                  if the selected boot image supports it. Maximum size 32 KiB.
-                </>
-              }
-              name="userData"
-              label="User Data"
-              control={control}
-            />
-          </AccordionContent>
-        </Accordion.Item>
-      </Accordion.Root>
+      <AdvancedAccordion control={control} isSubmitting={isSubmitting} />
 
       <Form.Actions>
         <Form.Submit loading={createInstance.isPending}>Create instance</Form.Submit>
         <Form.Cancel onClick={() => navigate(pb.instances(projectSelector))} />
       </Form.Actions>
     </FullPageForm>
+  )
+}
+
+const AdvancedAccordion = ({
+  control,
+  isSubmitting,
+}: {
+  control: Control<InstanceCreateInput>
+  isSubmitting: boolean
+}) => {
+  const [value, setValue] = useState<string[]>([])
+
+  return (
+    <Accordion.Root
+      type="multiple"
+      className="mt-12 max-w-lg"
+      value={value}
+      onValueChange={setValue}
+    >
+      <AccordionItem id="networking" label="Networking" value={value}>
+        <NetworkInterfaceField control={control} disabled={isSubmitting} />
+
+        <TextField
+          name="hostname"
+          tooltipText="Will be generated if not provided"
+          control={control}
+          disabled={isSubmitting}
+        />
+      </AccordionItem>
+      <AccordionItem id="configuration" label="Configuration" value={value}>
+        <FileField
+          id="user-data-input"
+          description={
+            <>
+              Data or scripts to be passed to cloud-init as{' '}
+              <a href={links.cloudInitFormat} target="_blank" rel="noreferrer">
+                user data
+              </a>{' '}
+              <a href={links.cloudInitExamples} target="_blank" rel="noreferrer">
+                (examples)
+              </a>{' '}
+              if the selected boot image supports it. Maximum size 32 KiB.
+            </>
+          }
+          name="userData"
+          label="User Data"
+          control={control}
+        />
+      </AccordionItem>
+    </Accordion.Root>
   )
 }
 
@@ -485,6 +491,23 @@ const AccordionHeader = ({ id, children }: { id: string; children: React.ReactNo
   </Accordion.Header>
 )
 
+const AccordionItem = ({
+  id,
+  label,
+  children,
+  value,
+}: {
+  id: string
+  label: string
+  children: React.ReactNode
+  value: string[]
+}) => (
+  <Accordion.Item value={id}>
+    <AccordionHeader id={id}>{label}</AccordionHeader>
+    <AccordionContent isOpen={value.includes(id)}>{children}</AccordionContent>
+  </Accordion.Item>
+)
+
 const AccordionContent = ({
   children,
   isOpen,
@@ -493,12 +516,27 @@ const AccordionContent = ({
   isOpen: boolean
 }) => {
   const ref = useRef<HTMLDivElement>(null)
-  const contentHeight = ref.current ? `${ref.current.offsetHeight}px` : ''
+  const [contentHeight, setContentHeight] = useState(isOpen ? 'auto' : '0px')
+
+  useEffect(() => {
+    if (isOpen) {
+      setContentHeight(`${ref.current?.offsetHeight}px`)
+    } else {
+      setContentHeight('0px')
+    }
+  }, [isOpen])
 
   const styles = useSpring({
-    height: isOpen ? contentHeight : '0px',
+    height: contentHeight,
     overflow: 'hidden',
     config: { tension: 220, friction: 26 },
+    // when animation is finished we reset back to auto
+    // so that the div stretches to fit any changes in content
+    onRest: () => {
+      if (isOpen) {
+        setContentHeight('auto')
+      }
+    },
   })
 
   return (
