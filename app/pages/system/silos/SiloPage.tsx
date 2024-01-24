@@ -17,12 +17,15 @@ import {
   PageHeader,
   PageTitle,
   Question12Icon,
+  Tabs,
   Tooltip,
 } from '@oxide/ui'
 
-import { RouteTabs, Tab } from 'app/components/RouteTabs'
+import { QueryParamTabs } from 'app/components/QueryParamTabs'
 import { getSiloSelector, useSiloSelector } from 'app/hooks'
-import { pb } from 'app/util/path-builder'
+
+import { SiloIdpsTab } from './SiloIdpsTab'
+import { SiloIpPoolsTab } from './SiloIpPoolsTab'
 
 const RoleMappingTooltip = () => (
   <Tooltip content="Silo roles can automatically grant a fleet role" placement="top">
@@ -75,10 +78,18 @@ export function SiloPage() {
         </ul>
       )}
       <Divider className="mt-10" />
-      <RouteTabs fullWidth>
-        <Tab to={pb.siloIdps(siloSelector)}>Identity providers</Tab>
-        <Tab to={pb.siloIpPools(siloSelector)}>IP pools</Tab>
-      </RouteTabs>
+      <QueryParamTabs id="silo-networking-tabs" className="full-width" defaultValue="idps">
+        <Tabs.List>
+          <Tabs.Trigger value="idps">Identity Providers</Tabs.Trigger>
+          <Tabs.Trigger value="silo-ip-pools">Firewall Rules</Tabs.Trigger>
+        </Tabs.List>
+        <Tabs.Content value="idps">
+          <SiloIdpsTab />
+        </Tabs.Content>
+        <Tabs.Content value="silo-ip-pools">
+          <SiloIpPoolsTab />
+        </Tabs.Content>
+      </QueryParamTabs>
     </>
   )
 }
