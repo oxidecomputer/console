@@ -3796,6 +3796,7 @@ export type ApiListMethods = Pick<
   | 'networkingSwitchPortList'
   | 'switchList'
   | 'siloIdentityProviderList'
+  | 'siloIpPoolsList'
   | 'ipPoolList'
   | 'ipPoolRangeList'
   | 'ipPoolSiloList'
@@ -5143,6 +5144,21 @@ export class Api extends HttpClient {
     ) => {
       return this.request<IdentityProviderResultsPage>({
         path: `/v1/system/identity-providers`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List a silo's IP pools' names
+     */
+    siloIpPoolsList: (
+      { query = {} }: { query?: IpPoolListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<IpPoolResultsPage>({
+        // TODO: update to use silo-specific endpoint
+        path: `/v1/system/ip-pools`,
         method: 'GET',
         query,
         ...params,

@@ -47,7 +47,7 @@ export function IpPoolPage() {
       {/* TODO: I think this page needs a back to pools button. clicking 
       Networking again is not at all obvious */}
       <PageHeader>
-        <PageTitle icon={<Networking24Icon />}>IP Pool: {pool.name}</PageTitle>
+        <PageTitle icon={<Networking24Icon />}>{`IP Pool: ${pool.name}`}</PageTitle>
       </PageHeader>
       <h2 id="links-label" className="mb-4 text-mono-sm text-secondary">
         Linked resources

@@ -68,8 +68,10 @@ import { SledsTab } from './pages/system/inventory/SledsTab'
 import { IpPoolPage } from './pages/system/networking/IpPoolPage'
 import { NetworkingPage } from './pages/system/networking/NetworkingPage'
 import { SiloImagesPage } from './pages/system/SiloImagesPage'
-import { SiloPage } from './pages/system/SiloPage'
-import SilosPage from './pages/system/SilosPage'
+import { SiloIdpsTab } from './pages/system/silos/SiloIdpsTab'
+import { SiloIpPoolsTab } from './pages/system/silos/SiloIpPoolsTab'
+import { SiloPage } from './pages/system/silos/SiloPage'
+import SilosPage from './pages/system/silos/SilosPage'
 import { SystemUtilizationPage } from './pages/system/UtilizationPage'
 import { pb } from './util/path-builder'
 
@@ -127,7 +129,13 @@ export const routes = createRoutesFromElements(
             loader={SiloPage.loader}
             handle={{ crumb: siloCrumb }}
           >
-            <Route index element={null} />
+            <Route
+              index
+              element={<Navigate to="idps" replace />}
+              loader={SiloIdpsTab.loader}
+            />
+            <Route path="idps" element={<SiloIdpsTab />} loader={SiloIdpsTab.loader} />
+            <Route path="ip-pools" element={<SiloIpPoolsTab />} />
             <Route path="idps-new" element={<CreateIdpSideModalForm />} />
             <Route
               path="idps/saml/:provider"
