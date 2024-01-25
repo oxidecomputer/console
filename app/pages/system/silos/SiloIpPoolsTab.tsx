@@ -6,18 +6,11 @@
  * Copyright Oxide Computer Company
  */
 
-import { type LoaderFunctionArgs } from 'react-router-dom'
-
-import {
-  apiQueryClient,
-  useApiMutation,
-  useApiQueryClient,
-  type SiloIpPool,
-} from '@oxide/api'
+import { useApiMutation, useApiQueryClient, type SiloIpPool } from '@oxide/api'
 import { BooleanCell, linkCell, useQueryTable, type MenuAction } from '@oxide/table'
 import { EmptyMessage, Networking24Icon } from '@oxide/ui'
 
-import { getSiloSelector, useSiloSelector } from 'app/hooks'
+import { useSiloSelector } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 const EmptyState = () => (
@@ -29,15 +22,6 @@ const EmptyState = () => (
     buttonTo={pb.ipPoolNew()}
   />
 )
-
-SiloIpPoolsTab.loader = async function ({ params }: LoaderFunctionArgs) {
-  const { silo } = getSiloSelector(params)
-  await apiQueryClient.prefetchQuery('siloIpPoolList', {
-    query: { limit: 25 }, // match QueryTable
-    path: { silo },
-  })
-  return null
-}
 
 export function SiloIpPoolsTab() {
   const { silo } = useSiloSelector()

@@ -5,29 +5,17 @@
  *
  * Copyright Oxide Computer Company
  */
-import { Link, Outlet, type LoaderFunctionArgs } from 'react-router-dom'
+import { Link, Outlet } from 'react-router-dom'
 
-import { apiQueryClient } from '@oxide/api'
 import { DateCell, DefaultCell, linkCell, TruncateCell, useQueryTable } from '@oxide/table'
 import { Badge, buttonStyle, Cloud16Icon, EmptyMessage, TableActions } from '@oxide/ui'
 
-import { getSiloSelector, useSiloSelector } from 'app/hooks'
+import { useSiloSelector } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 const EmptyState = () => (
   <EmptyMessage icon={<Cloud16Icon />} title="No identity providers" />
 )
-
-SiloIdpsTab.loader = async ({ params }: LoaderFunctionArgs) => {
-  const { silo } = getSiloSelector(params)
-  await Promise.all([
-    apiQueryClient.prefetchQuery('siloView', { path: { silo } }),
-    apiQueryClient.prefetchQuery('siloIdentityProviderList', {
-      query: { silo, limit: 25 }, // same as query table
-    }),
-  ])
-  return null
-}
 
 export function SiloIdpsTab() {
   const siloSelector = useSiloSelector()
