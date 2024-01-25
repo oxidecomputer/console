@@ -33,20 +33,31 @@ export function SiloIpPoolsTab() {
       queryClient.invalidateQueries('siloIpPoolList')
     },
   })
+  const unlinkPool = useApiMutation('ipPoolSiloUnlink', {
+    onSuccess() {
+      queryClient.invalidateQueries('siloIpPoolList')
+    },
+  })
 
+  // TODO: confirm both actions. explain that make default clears existing default
   const makeActions = (pool: SiloIpPool): MenuAction[] => [
     {
       label: pool.isDefault ? 'Clear default' : 'Make default',
       onActivate() {
-        // TODO: confirm these actions. message should explain that making
-        // default clears the other one from being default
         updatePoolLink.mutate({
           path: { silo, pool: pool.id },
           body: { isDefault: !pool.isDefault },
         })
       },
     },
+    {
+      label: 'Unlink',
+      onActivate() {
+        unlinkPool.mutate({ path: { silo, pool: pool.id } })
+      },
+    },
   ]
+
   return (
     <>
       <Table emptyState={<EmptyState />} makeActions={makeActions}>
