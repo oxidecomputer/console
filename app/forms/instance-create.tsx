@@ -416,7 +416,7 @@ export function CreateInstanceForm() {
       <FormDivider />
       <Form.Heading id="authentication">Authentication</Form.Heading>
 
-      <SshKeysField control={control} />
+      <SshKeysField control={control} clearErrors={form.clearErrors} />
 
       <FormDivider />
       <Form.Heading id="advanced">Advanced</Form.Heading>

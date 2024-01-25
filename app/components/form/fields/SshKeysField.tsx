@@ -5,8 +5,13 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useState } from 'react'
-import { useController, type Control } from 'react-hook-form'
+import { useEffect, useState } from 'react'
+import {
+  useController,
+  useWatch,
+  type Control,
+  type UseFormClearErrors,
+} from 'react-hook-form'
 
 import { usePrefetchedApiQuery } from '@oxide/api'
 import { Button, Checkbox, Divider, EmptyMessage, Key16Icon, Message } from '@oxide/ui'
@@ -16,13 +21,39 @@ import { CreateSSHKeySideModalForm } from 'app/forms/ssh-key-create'
 
 import { CheckboxGroupField } from './CheckboxGroupField'
 
-export function SshKeysField({ control }: { control: Control<InstanceCreateInput> }) {
+const MAX_KEYS_PER_INSTANCE = 8
+
+export function SshKeysField({
+  control,
+  clearErrors,
+}: {
+  control: Control<InstanceCreateInput>
+  clearErrors: UseFormClearErrors<InstanceCreateInput>
+}) {
   const keys = usePrefetchedApiQuery('currentUserSshKeyList', {}).data?.items || []
   const [showAddSshKey, setShowAddSshKey] = useState(false)
 
   const {
     field: { value, onChange },
   } = useController({ control, name: 'sshKeys' })
+
+  const sshKeys = useWatch({
+    control,
+    name: 'sshKeys',
+    defaultValue: [],
+  })
+
+  useEffect(() => {
+    // todo: find some way to ensure that this is not out of date with the omicron limit
+    if (sshKeys && sshKeys.length > MAX_KEYS_PER_INSTANCE) {
+      control.setError('sshKeys', {
+        type: 'manual',
+        message: `An instance supports a maximum of ${MAX_KEYS_PER_INSTANCE} SSH keys`,
+      })
+    } else {
+      clearErrors()
+    }
+  }, [sshKeys, control, clearErrors])
 
   return (
     <div className="max-w-lg">

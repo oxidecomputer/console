@@ -17,6 +17,8 @@ import {
 } from '@oxide/ui'
 import { capitalize } from '@oxide/util'
 
+import { ErrorMessage } from './ErrorMessage'
+
 type CheckboxGroupFieldProps<
   TFieldValues extends FieldValues,
   TName extends FieldPath<TFieldValues>,
@@ -65,28 +67,31 @@ export const CheckboxGroupField = <
       <Controller
         name={name}
         control={control}
-        render={({ field: { onChange, value } }) => (
-          <CheckboxGroup
-            name={name}
-            {...props}
-            onChange={(e) => {
-              const newValue = e.target.checked
-                ? [...value, e.target.value]
-                : value.filter((x: string) => x !== e.target.value)
-              onChange(newValue)
-            }}
-            defaultChecked={value}
-          >
-            {items.map(({ value: itemValue, label }) => (
-              <Checkbox
-                key={itemValue}
-                value={itemValue}
-                checked={value.includes(itemValue)}
-              >
-                {label}
-              </Checkbox>
-            ))}
-          </CheckboxGroup>
+        render={({ field: { onChange, value }, fieldState: { error } }) => (
+          <>
+            <CheckboxGroup
+              name={name}
+              {...props}
+              onChange={(e) => {
+                const newValue = e.target.checked
+                  ? [...value, e.target.value]
+                  : value.filter((x: string) => x !== e.target.value)
+                onChange(newValue)
+              }}
+              defaultChecked={value}
+            >
+              {items.map(({ value: itemValue, label }) => (
+                <Checkbox
+                  key={itemValue}
+                  value={itemValue}
+                  checked={value.includes(itemValue)}
+                >
+                  {label}
+                </Checkbox>
+              ))}
+            </CheckboxGroup>
+            <ErrorMessage error={error} label={label} />
+          </>
         )}
       />
     </div>
