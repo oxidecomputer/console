@@ -133,9 +133,13 @@ export function CreateInstanceForm() {
 
   const defaultImage = allImages[0]
 
+  const keys = usePrefetchedApiQuery('currentUserSshKeyList', {}).data?.items || []
+  const defaultKeys = keys.map((key) => key.id)
+
   const defaultValues: InstanceCreateInput = {
     ...baseDefaultValues,
     image: defaultImage?.id || '',
+    sshKeys: defaultKeys || [],
     // Use 2x the image size as the default boot disk size
     bootDiskSize: Math.ceil(defaultImage?.size / GiB) * 2 || 10,
   }
