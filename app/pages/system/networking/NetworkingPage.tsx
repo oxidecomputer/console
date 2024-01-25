@@ -23,7 +23,7 @@ const EmptyState = () => (
 )
 
 NetworkingPage.loader = async function () {
-  await apiQueryClient.prefetchQuery('ipPoolList', { query: { limit: 10 } })
+  await apiQueryClient.prefetchQuery('ipPoolList', { query: { limit: 25 } })
   return null
 }
 

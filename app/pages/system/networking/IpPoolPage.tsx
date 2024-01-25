@@ -21,7 +21,7 @@ IpPoolPage.loader = async function ({ params }: LoaderFunctionArgs) {
     apiQueryClient.prefetchQuery('ipPoolView', { path: { pool } }),
     apiQueryClient.prefetchQuery('ipPoolSiloList', {
       path: { pool },
-      query: { limit: 10 },
+      query: { limit: 25 }, // match QueryTable
     }),
   ])
   return null

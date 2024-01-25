@@ -8,13 +8,13 @@
 import { Link, Outlet } from 'react-router-dom'
 
 import { DateCell, DefaultCell, linkCell, TruncateCell, useQueryTable } from '@oxide/table'
-import { Badge, buttonStyle, Cloud16Icon, EmptyMessage } from '@oxide/ui'
+import { Badge, buttonStyle, Cloud24Icon, EmptyMessage } from '@oxide/ui'
 
 import { useSiloSelector } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 const EmptyState = () => (
-  <EmptyMessage icon={<Cloud16Icon />} title="No identity providers" />
+  <EmptyMessage icon={<Cloud24Icon />} title="No identity providers" />
 )
 
 export function SiloIdpsTab() {

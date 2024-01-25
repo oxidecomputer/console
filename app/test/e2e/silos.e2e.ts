@@ -99,6 +99,7 @@ test('Create silo', async ({ page }) => {
 
   // click into detail view and check the fleet role map
   await otherSiloCell.getByRole('link').click()
+  await page.getByRole('tab', { name: 'Fleet roles' }).click()
   await expectVisible(page, [
     page.getByRole('heading', { name: 'other-silo' }),
     page.getByText('Silo adminFleet admin'),
@@ -120,6 +121,12 @@ test('Default silo', async ({ page }) => {
   await page.getByRole('link', { name: 'myriad' }).click()
 
   await expect(page.getByRole('heading', { name: 'myriad' })).toBeVisible()
+  await page.getByRole('tab', { name: 'Fleet roles' }).click()
+
+  await expect(
+    page.getByText('Silo roles can automatically grant a fleet role.')
+  ).toBeVisible()
+
   await expectNotVisible(page, [
     page.getByText('Silo adminFleet admin'),
     page.getByText('Silo viewerFleet viewer'),

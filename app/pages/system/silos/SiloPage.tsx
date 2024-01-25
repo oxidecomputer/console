@@ -8,14 +8,15 @@
 import { type LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
-import { EmptyCell } from '@oxide/table'
 import {
   Badge,
   Cloud24Icon,
+  EmptyMessage,
   NextArrow12Icon,
   PageHeader,
   PageTitle,
   PropertiesTable,
+  TableEmptyBox,
   Tabs,
 } from '@oxide/ui'
 import { formatDateTime } from '@oxide/util'
@@ -85,22 +86,30 @@ export function SiloPage() {
           <SiloIpPoolsTab />
         </Tabs.Content>
         <Tabs.Content value="fleet-roles">
-          <p className="mb-4 text-secondary">
-            Silo roles can automatically grant a fleet role. EXPLAIN BETTER
-          </p>
           {/* TODO: better empty state explaining that no roles are mapped so nothing will happen */}
           {roleMapPairs.length === 0 ? (
-            <EmptyCell />
+            <TableEmptyBox>
+              <EmptyMessage
+                icon={<Cloud24Icon />}
+                title="Mapped fleet roles"
+                body="Silo roles can automatically grant a fleet role. This silo has no role mappings configured."
+              />
+            </TableEmptyBox>
           ) : (
-            <ul className="space-y-3">
-              {roleMapPairs.map(([siloRole, fleetRole]) => (
-                <li key={siloRole + '|' + fleetRole} className="flex items-center">
-                  <Badge>Silo {siloRole}</Badge>
-                  <NextArrow12Icon className="mx-3 text-secondary" aria-label="maps to" />
-                  <span className="text-sans-md text-secondary">Fleet {fleetRole}</span>
-                </li>
-              ))}
-            </ul>
+            <>
+              <p className="mb-4 text-secondary">
+                Silo roles can automatically grant a fleet role.
+              </p>
+              <ul className="space-y-3">
+                {roleMapPairs.map(([siloRole, fleetRole]) => (
+                  <li key={siloRole + '|' + fleetRole} className="flex items-center">
+                    <Badge>Silo {siloRole}</Badge>
+                    <NextArrow12Icon className="mx-3 text-secondary" aria-label="maps to" />
+                    <span className="text-sans-md text-secondary">Fleet {fleetRole}</span>
+                  </li>
+                ))}
+              </ul>
+            </>
           )}
         </Tabs.Content>
       </QueryParamTabs>
