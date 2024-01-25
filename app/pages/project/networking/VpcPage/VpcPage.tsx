@@ -42,10 +42,10 @@ export function VpcPage() {
         </PropertiesTable>
         <PropertiesTable>
           <PropertiesTable.Row label="Creation Date">
-            {vpc.timeCreated && formatDateTime(vpc.timeCreated)}
+            {formatDateTime(vpc.timeCreated)}
           </PropertiesTable.Row>
           <PropertiesTable.Row label="Last Modified">
-            {vpc.timeModified && formatDateTime(vpc.timeModified)}
+            {formatDateTime(vpc.timeModified)}
           </PropertiesTable.Row>
         </PropertiesTable>
       </PropertiesTable.Group>

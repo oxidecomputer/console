@@ -9,7 +9,16 @@ import { type LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import { EmptyCell } from '@oxide/table'
-import { Badge, Cloud24Icon, NextArrow12Icon, PageHeader, PageTitle, Tabs } from '@oxide/ui'
+import {
+  Badge,
+  Cloud24Icon,
+  NextArrow12Icon,
+  PageHeader,
+  PageTitle,
+  PropertiesTable,
+  Tabs,
+} from '@oxide/ui'
+import { formatDateTime } from '@oxide/util'
 
 import { QueryParamTabs } from 'app/components/QueryParamTabs'
 import { getSiloSelector, useSiloSelector } from 'app/hooks'
@@ -47,7 +56,22 @@ export function SiloPage() {
       <PageHeader>
         <PageTitle icon={<Cloud24Icon />}>{silo.name}</PageTitle>
       </PageHeader>
-      {/* TODO: add properties table with ID, blah blah blah */}
+
+      <PropertiesTable.Group className="mb-16">
+        <PropertiesTable>
+          <PropertiesTable.Row label="ID">{silo.id}</PropertiesTable.Row>
+          <PropertiesTable.Row label="Description">{silo.description}</PropertiesTable.Row>
+        </PropertiesTable>
+        <PropertiesTable>
+          <PropertiesTable.Row label="Creation Date">
+            {formatDateTime(silo.timeCreated)}
+          </PropertiesTable.Row>
+          <PropertiesTable.Row label="Last Modified">
+            {formatDateTime(silo.timeModified)}
+          </PropertiesTable.Row>
+        </PropertiesTable>
+      </PropertiesTable.Group>
+
       <QueryParamTabs id="silo-networking-tabs" className="full-width" defaultValue="idps">
         <Tabs.List>
           <Tabs.Trigger value="idps">Identity Providers</Tabs.Trigger>
