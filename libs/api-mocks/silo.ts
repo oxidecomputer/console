@@ -19,7 +19,9 @@ export const silos: Json<Silo[]> = [
     time_modified: new Date(2021, 4, 2).toISOString(),
     discoverable: true,
     identity_mode: 'saml_jit',
-    mapped_fleet_roles: {},
+    mapped_fleet_roles: {
+      admin: ['admin'],
+    },
   },
   {
     id: '68b58556-15b9-4ccb-adff-9fd3c7de1f9a',

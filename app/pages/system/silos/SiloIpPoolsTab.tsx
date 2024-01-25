@@ -7,8 +7,8 @@
  */
 
 import { useApiMutation, useApiQueryClient, type SiloIpPool } from '@oxide/api'
-import { BooleanCell, linkCell, useQueryTable, type MenuAction } from '@oxide/table'
-import { EmptyMessage, Networking24Icon } from '@oxide/ui'
+import { linkCell, useQueryTable, type MenuAction } from '@oxide/table'
+import { Badge, EmptyMessage, Networking24Icon, Success12Icon } from '@oxide/ui'
 
 import { useSiloSelector } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
@@ -55,8 +55,14 @@ export function SiloIpPoolsTab() {
         <Column
           accessor="isDefault"
           header="Default"
-          // ternary means show nothing when it's false rather than yellow circle
-          cell={({ value }) => (value ? <BooleanCell value={value} /> : null)}
+          cell={({ value }) =>
+            value && (
+              <>
+                <Success12Icon className="mr-1 text-accent" />
+                <Badge>default</Badge>
+              </>
+            )
+          }
         />
       </Table>
     </>

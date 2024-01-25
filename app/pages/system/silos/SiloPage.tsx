@@ -12,7 +12,6 @@ import { EmptyCell } from '@oxide/table'
 import {
   Badge,
   Cloud24Icon,
-  Divider,
   NextArrow12Icon,
   PageHeader,
   PageTitle,
@@ -65,6 +64,8 @@ export function SiloPage() {
       <PageHeader>
         <PageTitle icon={<Cloud24Icon />}>{silo.name}</PageTitle>
       </PageHeader>
+      {/* TODO: add properties table with ID, blah blah blah */}
+      {/* TODO: move fleet role mapping into a tab */}
       <h2 className="mb-6 flex items-center text-mono-sm text-secondary">
         Fleet role mapping <RoleMappingTooltip />
       </h2>
@@ -81,7 +82,6 @@ export function SiloPage() {
           ))}
         </ul>
       )}
-      <Divider className="mt-10" />
       <QueryParamTabs id="silo-networking-tabs" className="full-width" defaultValue="idps">
         <Tabs.List>
           <Tabs.Trigger value="idps">Identity Providers</Tabs.Trigger>

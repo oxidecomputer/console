@@ -8,7 +8,7 @@
 import { Link, Outlet } from 'react-router-dom'
 
 import { DateCell, DefaultCell, linkCell, TruncateCell, useQueryTable } from '@oxide/table'
-import { Badge, buttonStyle, Cloud16Icon, EmptyMessage, TableActions } from '@oxide/ui'
+import { Badge, buttonStyle, Cloud16Icon, EmptyMessage } from '@oxide/ui'
 
 import { useSiloSelector } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
@@ -26,11 +26,11 @@ export function SiloIdpsTab() {
 
   return (
     <>
-      <TableActions>
+      <div className="mb-3 flex justify-end space-x-2">
         <Link to={pb.siloIdpNew(siloSelector)} className={buttonStyle({ size: 'sm' })}>
           New provider
         </Link>
-      </TableActions>
+      </div>
       <Table emptyState={<EmptyState />}>
         {/* TODO: this link will only really work for saml IdPs. */}
         <Column
