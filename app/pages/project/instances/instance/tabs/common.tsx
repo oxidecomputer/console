@@ -5,6 +5,8 @@
  *
  * Copyright Oxide Computer Company
  */
+import { Fragment } from 'react'
+
 import { intersperse } from '@oxide/util'
 
 const white = (s: string) => (
@@ -14,4 +16,8 @@ const white = (s: string) => (
 )
 
 export const fancifyStates = (states: string[]) =>
-  intersperse(states.map(white), <>, </>, <> or </>)
+  intersperse(
+    states.map(white),
+    <Fragment key="comma">, </Fragment>,
+    <Fragment key="or"> or </Fragment>
+  )
