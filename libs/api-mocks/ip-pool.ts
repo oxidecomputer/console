@@ -27,12 +27,24 @@ const ipPool2: Json<IpPool> = {
   time_modified: new Date().toISOString(),
 }
 
-export const ipPools: Json<IpPool>[] = [ipPool1, ipPool2]
+const ipPool3: Json<IpPool> = {
+  id: '8929a9ec-03d7-4027-8bf3-dda76627de07',
+  name: 'ip-pool-3',
+  description: '',
+  time_created: new Date().toISOString(),
+  time_modified: new Date().toISOString(),
+}
+export const ipPools: Json<IpPool>[] = [ipPool1, ipPool2, ipPool3]
 
 export const ipPoolSilos: Json<IpPoolSiloLink>[] = [
   {
     ip_pool_id: ipPool1.id,
     silo_id: defaultSilo.id,
     is_default: true,
+  },
+  {
+    ip_pool_id: ipPool2.id,
+    silo_id: defaultSilo.id,
+    is_default: false,
   },
 ]
