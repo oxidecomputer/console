@@ -77,8 +77,12 @@ export const CheckboxGroupField = <
             }}
             defaultChecked={value}
           >
-            {items.map(({ value, label }) => (
-              <Checkbox key={value} value={value}>
+            {items.map(({ value: itemValue, label }) => (
+              <Checkbox
+                key={itemValue}
+                value={itemValue}
+                checked={value.includes(itemValue)}
+              >
                 {label}
               </Checkbox>
             ))}

@@ -21,7 +21,7 @@ const inputStyle = `
   disabled:cursor-not-allowed
   hover:border-hover hover:cursor-pointer
   checked:bg-accent-secondary checked:border-accent-secondary checked:hover:border-accent [&:checked+svg]:block
-  indeterminate:bg-accent-secondary indeterminate:border-accent hover:indeterminate:bg-accent-secondary-hover
+  indeterminate:bg-accent-secondary indeterminate:border-accent-secondary indeterminate:hover:border-accent hover:indeterminate:bg-accent-secondary-hover
 `
 
 export type CheckboxProps = {
