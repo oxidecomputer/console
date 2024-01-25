@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { Fragment } from 'react'
+import { cloneElement } from 'react'
 
 import { intersperse } from '@oxide/util'
 
@@ -16,8 +16,6 @@ const white = (s: string) => (
 )
 
 export const fancifyStates = (states: string[]) =>
-  intersperse(
-    states.map(white),
-    <Fragment key="comma">, </Fragment>,
-    <Fragment key="or"> or </Fragment>
+  intersperse(states.map(white), <>, </>, <> or </>).map((item, index) =>
+    cloneElement(item, { key: index })
   )
