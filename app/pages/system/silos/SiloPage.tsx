@@ -9,30 +9,13 @@ import { type LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import { EmptyCell } from '@oxide/table'
-import {
-  Badge,
-  Cloud24Icon,
-  NextArrow12Icon,
-  PageHeader,
-  PageTitle,
-  Question12Icon,
-  Tabs,
-  Tooltip,
-} from '@oxide/ui'
+import { Badge, Cloud24Icon, NextArrow12Icon, PageHeader, PageTitle, Tabs } from '@oxide/ui'
 
 import { QueryParamTabs } from 'app/components/QueryParamTabs'
 import { getSiloSelector, useSiloSelector } from 'app/hooks'
 
 import { SiloIdpsTab } from './SiloIdpsTab'
 import { SiloIpPoolsTab } from './SiloIpPoolsTab'
-
-const RoleMappingTooltip = () => (
-  <Tooltip content="Silo roles can automatically grant a fleet role" placement="top">
-    <button className="ml-2 flex svg:pointer-events-none">
-      <Question12Icon className="text-quinary" />
-    </button>
-  </Tooltip>
-)
 
 SiloPage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { silo } = getSiloSelector(params)
@@ -65,33 +48,36 @@ export function SiloPage() {
         <PageTitle icon={<Cloud24Icon />}>{silo.name}</PageTitle>
       </PageHeader>
       {/* TODO: add properties table with ID, blah blah blah */}
-      {/* TODO: move fleet role mapping into a tab */}
-      <h2 className="mb-6 flex items-center text-mono-sm text-secondary">
-        Fleet role mapping <RoleMappingTooltip />
-      </h2>
-      {roleMapPairs.length === 0 ? (
-        <EmptyCell />
-      ) : (
-        <ul className="space-y-3">
-          {roleMapPairs.map(([siloRole, fleetRole]) => (
-            <li key={siloRole + '|' + fleetRole} className="flex items-center">
-              <Badge>Silo {siloRole}</Badge>
-              <NextArrow12Icon className="mx-3 text-secondary" aria-label="maps to" />
-              <span className="text-sans-md text-secondary">Fleet {fleetRole}</span>
-            </li>
-          ))}
-        </ul>
-      )}
       <QueryParamTabs id="silo-networking-tabs" className="full-width" defaultValue="idps">
         <Tabs.List>
           <Tabs.Trigger value="idps">Identity Providers</Tabs.Trigger>
-          <Tabs.Trigger value="silo-ip-pools">IP Pools</Tabs.Trigger>
+          <Tabs.Trigger value="ip-pools">IP Pools</Tabs.Trigger>
+          <Tabs.Trigger value="fleet-roles">Fleet roles</Tabs.Trigger>
         </Tabs.List>
         <Tabs.Content value="idps">
           <SiloIdpsTab />
         </Tabs.Content>
-        <Tabs.Content value="silo-ip-pools">
+        <Tabs.Content value="ip-pools">
           <SiloIpPoolsTab />
+        </Tabs.Content>
+        <Tabs.Content value="fleet-roles">
+          <p className="mb-4 text-secondary">
+            Silo roles can automatically grant a fleet role. EXPLAIN BETTER
+          </p>
+          {/* TODO: better empty state explaining that no roles are mapped so nothing will happen */}
+          {roleMapPairs.length === 0 ? (
+            <EmptyCell />
+          ) : (
+            <ul className="space-y-3">
+              {roleMapPairs.map(([siloRole, fleetRole]) => (
+                <li key={siloRole + '|' + fleetRole} className="flex items-center">
+                  <Badge>Silo {siloRole}</Badge>
+                  <NextArrow12Icon className="mx-3 text-secondary" aria-label="maps to" />
+                  <span className="text-sans-md text-secondary">Fleet {fleetRole}</span>
+                </li>
+              ))}
+            </ul>
+          )}
         </Tabs.Content>
       </QueryParamTabs>
     </>
