@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import * as Accordion from '@radix-ui/react-accordion'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useWatch } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 import type { SetRequired } from 'type-fest'
@@ -133,13 +133,13 @@ export function CreateInstanceForm() {
 
   const defaultImage = allImages[0]
 
-  const keys = usePrefetchedApiQuery('currentUserSshKeyList', {}).data?.items || []
-  const defaultKeys = keys.map((key) => key.id)
+  const { data: sshKeys } = usePrefetchedApiQuery('currentUserSshKeyList', {})
+  const allKeys = useMemo(() => (sshKeys?.items || []).map((key) => key.id), [sshKeys])
 
   const defaultValues: InstanceCreateInput = {
     ...baseDefaultValues,
     image: defaultImage?.id || '',
-    sshKeys: defaultKeys || [],
+    sshKeys: allKeys || [],
     // Use 2x the image size as the default boot disk size
     bootDiskSize: Math.ceil(defaultImage?.size / GiB) * 2 || 10,
   }

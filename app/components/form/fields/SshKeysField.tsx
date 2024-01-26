@@ -57,11 +57,7 @@ export function SshKeysField({
     },
   })
 
-  const sshKeys = useWatch({
-    control,
-    name: 'sshKeys',
-    defaultValue: [],
-  })
+  const sshKeys = useWatch({ control, name: 'sshKeys' })
 
   useEffect(() => {
     // todo: find some way to ensure that this is not out of date with the omicron limit
