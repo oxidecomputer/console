@@ -23,7 +23,7 @@ import {
 import type { InstanceCreateInput } from 'app/forms/instance-create'
 import { CreateSSHKeySideModalForm } from 'app/forms/ssh-key-create'
 
-import { CheckboxField } from '..'
+import { CheckboxField } from './CheckboxField'
 import { ErrorMessage } from './ErrorMessage'
 
 const MAX_KEYS_PER_INSTANCE = 8

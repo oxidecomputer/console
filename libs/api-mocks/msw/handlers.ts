@@ -400,7 +400,7 @@ export const handlers = makeHandlers({
     const newInstance: Json<Api.Instance> = {
       id: instanceId,
       project_id: project.id,
-      ...pick(body, 'name', 'description', 'hostname', 'memory', 'ncpus', 'ssh_keys'),
+      ...pick(body, 'name', 'description', 'hostname', 'memory', 'ncpus'),
       ...getTimestamps(),
       run_state: 'running',
       time_run_state_updated: new Date().toISOString(),
