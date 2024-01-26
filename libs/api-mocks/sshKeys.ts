@@ -29,4 +29,13 @@ export const sshKeys: Json<SshKey>[] = [
     public_key: 'aslsddlfkjsdlfkjsdlfkjsdlfkjsdflkjsdlfkjsdlfkjsd',
     silo_user_id: user1.id,
   },
+  ...new Array(20).fill(0).map((_, i) => ({
+    id: `id-${i}`,
+    name: `mac-mini-${i}`,
+    description: '',
+    time_created: new Date().toISOString(),
+    time_modified: new Date().toISOString(),
+    public_key: 'aslsddlfkjsdlfkjsdlfkjsdlfkjsdflkjsdlfkjsdlfkjsd',
+    silo_user_id: user1.id,
+  })),
 ]

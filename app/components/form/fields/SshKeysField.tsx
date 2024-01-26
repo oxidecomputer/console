@@ -14,12 +14,21 @@ import {
 } from 'react-hook-form'
 
 import { usePrefetchedApiQuery } from '@oxide/api'
-import { Button, Checkbox, Divider, EmptyMessage, Key16Icon, Message } from '@oxide/ui'
+import {
+  Button,
+  Checkbox,
+  Divider,
+  EmptyMessage,
+  FieldLabel,
+  Key16Icon,
+  Message,
+  TextInputHint,
+} from '@oxide/ui'
 
 import type { InstanceCreateInput } from 'app/forms/instance-create'
 import { CreateSSHKeySideModalForm } from 'app/forms/ssh-key-create'
 
-import { CheckboxGroupField } from './CheckboxGroupField'
+import { CheckboxField } from '..'
 
 const MAX_KEYS_PER_INSTANCE = 8
 
@@ -35,7 +44,16 @@ export function SshKeysField({
 
   const {
     field: { value, onChange },
-  } = useController({ control, name: 'sshKeys' })
+  } = useController({
+    control,
+    name: 'sshKeys',
+    rules: {
+      validate(props) {
+        console.log(props)
+        return undefined
+      },
+    },
+  })
 
   const sshKeys = useWatch({
     control,
@@ -57,19 +75,23 @@ export function SshKeysField({
 
   return (
     <div className="max-w-lg">
+      <div className="mb-2">
+        <FieldLabel id="ssh-keys-label">SSH keys</FieldLabel>
+        <TextInputHint id="ssh-keys-help-text">
+          SSH keys can be added and removed in your user settings
+        </TextInputHint>
+      </div>
       {keys.length > 0 ? (
         <>
           <div className="space-y-2">
-            <CheckboxGroupField
-              name="sshKeys"
-              label="SSH keys"
-              description="SSH keys can be added and removed in your user settings"
-              column
-              className="mt-4"
-              items={keys.map((key) => ({ label: key.name, value: key.id }))}
-              control={control}
-              onChange={onChange}
-            />
+            <div className="flex flex-col space-y-2">
+              {keys.map((key) => (
+                <CheckboxField name="sshKeys" control={control} value={key.id} key={key.id}>
+                  {key.name}
+                </CheckboxField>
+              ))}
+            </div>
+
             <Divider />
             <Checkbox
               checked={value && value.length === keys.length}
