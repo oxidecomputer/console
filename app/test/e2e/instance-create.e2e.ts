@@ -7,7 +7,7 @@
  */
 import { images } from '@oxide/api-mocks'
 
-import { expect, expectRowVisible, expectVisible, test } from './utils'
+import { expect, expectNotVisible, expectRowVisible, expectVisible, test } from './utils'
 
 test('can create an instance', async ({ page }) => {
   await page.goto('/projects/mock-project/instances')
@@ -39,6 +39,17 @@ test('can create an instance', async ({ page }) => {
   await page.getByRole('tab', { name: 'Project images' }).click()
   await page.getByRole('button', { name: 'Image' }).click()
   await page.getByRole('option', { name: images[2].name }).click()
+
+  // should be hidden in accordion
+  await expectNotVisible(page, [
+    'role=radiogroup[name="Network interface"]',
+    'role=textbox[name="Hostname"]',
+    'text="User Data"',
+  ])
+
+  // open networking and config accordions
+  await page.getByRole('button', { name: 'Networking' }).click()
+  await page.getByRole('button', { name: 'Configuration' }).click()
 
   // should be visible in accordion
   await expectVisible(page, [
