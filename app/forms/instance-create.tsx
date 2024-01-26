@@ -7,7 +7,7 @@
  */
 import * as Accordion from '@radix-ui/react-accordion'
 import cn from 'classnames'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useWatch, type Control } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 import type { SetRequired } from 'type-fest'
@@ -515,8 +515,17 @@ const AccordionContent = ({
   children: React.ReactNode
   isOpen: boolean
 }) => {
+  const contentRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (isOpen && contentRef.current) {
+      contentRef.current.scrollIntoView({ behavior: 'smooth' })
+    }
+  }, [isOpen])
+
   return (
     <Accordion.Content
+      ref={contentRef}
       forceMount
       className={cn('ox-accordion-content overflow-hidden py-8', !isOpen && 'hidden')}
     >
