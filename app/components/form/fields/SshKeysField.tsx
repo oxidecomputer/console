@@ -28,6 +28,27 @@ import { ErrorMessage } from './ErrorMessage'
 
 const MAX_KEYS_PER_INSTANCE = 8
 
+const CloudInitMessage = () => (
+  <Message
+    variant="notice"
+    className="mt-4"
+    content={
+      <>
+        If your image supports the cidata volume and{' '}
+        <a
+          target="_blank"
+          href="https://cloudinit.readthedocs.io/en/latest/"
+          rel="noreferrer"
+        >
+          cloud-init
+        </a>
+        , the keys above will be added to your instance. Keys are added when the instance is
+        created and are not updated after instance launch.
+      </>
+    }
+  />
+)
+
 export function SshKeysField({ control }: { control: Control<InstanceCreateInput> }) {
   const keys = usePrefetchedApiQuery('currentUserSshKeyList', {}).data?.items || []
   const [showAddSshKey, setShowAddSshKey] = useState(false)
@@ -86,24 +107,7 @@ export function SshKeysField({ control }: { control: Control<InstanceCreateInput
               </Button>
             </div>
           </div>
-          <Message
-            variant="notice"
-            className="mt-4"
-            content={
-              <>
-                If your image supports the cidata volume and{' '}
-                <a
-                  target="_blank"
-                  href="https://cloudinit.readthedocs.io/en/latest/"
-                  rel="noreferrer"
-                >
-                  cloud-init
-                </a>
-                , the keys above will be added to your instance. Keys are added when the
-                instance is created and are not updated after instance launch.
-              </>
-            }
-          />
+          <CloudInitMessage />
         </>
       ) : (
         <div className="mt-4 flex max-w-lg items-center justify-center rounded-lg border p-6 border-default">
