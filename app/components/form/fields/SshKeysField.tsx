@@ -94,17 +94,11 @@ export function SshKeysField({
 
             <Divider />
             <Checkbox
-              checked={value && value.length === keys.length}
-              indeterminate={value && value.length > 0 && value.length < keys.length}
+              checked={value.length === keys.length}
+              indeterminate={value.length > 0 && value.length < keys.length}
               onChange={() => {
-                const count = value ? value.length : 0
-                if (count < keys.length) {
-                  // check all
-                  onChange(keys.map((key) => key.id))
-                } else {
-                  // uncheck all
-                  onChange([])
-                }
+                // if fewer than all are checked, check all. if all are checked, check none
+                onChange(value.length < keys.length ? keys.map((key) => key.id) : [])
               }}
             >
               <span className="select-none">Select all</span>

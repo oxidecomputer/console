@@ -65,6 +65,8 @@ export type InstanceCreateInput = Assign<
     bootDiskSize: number
     image: string
     userData: File | null
+    // ssh keys are always specified. we do not need the undefined case
+    sshKeys: NonNullable<InstanceCreate['sshKeys']>
   }
 >
 
@@ -134,12 +136,12 @@ export function CreateInstanceForm() {
   const defaultImage = allImages[0]
 
   const { data: sshKeys } = usePrefetchedApiQuery('currentUserSshKeyList', {})
-  const allKeys = useMemo(() => (sshKeys?.items || []).map((key) => key.id), [sshKeys])
+  const allKeys = useMemo(() => sshKeys.items.map((key) => key.id), [sshKeys])
 
   const defaultValues: InstanceCreateInput = {
     ...baseDefaultValues,
     image: defaultImage?.id || '',
-    sshKeys: allKeys || [],
+    sshKeys: allKeys,
     // Use 2x the image size as the default boot disk size
     bootDiskSize: Math.ceil(defaultImage?.size / GiB) * 2 || 10,
   }
