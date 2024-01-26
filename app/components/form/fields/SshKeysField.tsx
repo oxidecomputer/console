@@ -29,6 +29,7 @@ import type { InstanceCreateInput } from 'app/forms/instance-create'
 import { CreateSSHKeySideModalForm } from 'app/forms/ssh-key-create'
 
 import { CheckboxField } from '..'
+import { ErrorMessage } from './ErrorMessage'
 
 const MAX_KEYS_PER_INSTANCE = 8
 
@@ -44,12 +45,13 @@ export function SshKeysField({
 
   const {
     field: { value, onChange },
+    fieldState: { error },
   } = useController({
     control,
     name: 'sshKeys',
     rules: {
       validate(props) {
-        console.log(props)
+        console.log('validate', props)
         return undefined
       },
     },
@@ -91,6 +93,8 @@ export function SshKeysField({
                 </CheckboxField>
               ))}
             </div>
+
+            <ErrorMessage error={error} label="SSH keys" />
 
             <Divider />
             <Checkbox
