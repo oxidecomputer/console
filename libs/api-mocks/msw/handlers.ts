@@ -444,17 +444,12 @@ export const handlers = makeHandlers({
     return disk
   },
   instanceExternalIpList({ path, query }) {
-    lookup.instance({ ...path, ...query })
-
-    // TODO: proper mock table
-    return {
-      items: [
-        {
-          ip: '123.4.56.7',
-          kind: 'ephemeral',
-        } as const,
-      ],
-    }
+    const instance = lookup.instance({ ...path, ...query })
+    const externalIps = db.externalIps
+      .filter((eip) => eip.instance_id === instance.id)
+      .map((eip) => eip.external_ip)
+    // endpoint is not paginated. or rather, it's fake paginated
+    return { items: externalIps }
   },
   instanceNetworkInterfaceList({ query }) {
     const instance = lookup.instance(query)
@@ -548,6 +543,25 @@ export const handlers = makeHandlers({
     return json(instance, { status: 202 })
   },
   ipPoolList: ({ query }) => paginated(query, db.ipPools),
+  siloIpPoolList({ path, query }) {
+    const pools = lookup.siloIpPools(path)
+    return paginated(query, pools)
+  },
+  projectIpPoolList({ query }) {
+    const pools = lookup.siloIpPools({ silo: defaultSilo.id })
+    return paginated(query, pools)
+  },
+  projectIpPoolView({ path }) {
+    // this will 404 if it doesn't exist at all...
+    const pool = lookup.ipPool(path)
+    // but we also want to 404 if it exists but isn't in the silo
+    const link = db.ipPoolSilos.find(
+      (link) => link.ip_pool_id === pool.id && link.silo_id === defaultSilo.id
+    )
+    if (!link) throw notFoundErr()
+
+    return { ...pool, is_default: link.is_default }
+  },
   ipPoolView: ({ path }) => lookup.ipPool(path),
   ipPoolSiloList({ path /*query*/ }) {
     // TODO: paginated wants an id field, but this is a join table, so it  has a
@@ -590,7 +604,7 @@ export const handlers = makeHandlers({
     return 204
   },
   ipPoolSiloUpdate: ({ path, body }) => {
-    const ipPoolSilo = lookup.ipPoolSilo(path)
+    const ipPoolSilo = lookup.ipPoolSiloLink(path)
 
     // if we're setting default, we need to set is_default false on the existing default
     if (body.is_default) {
@@ -1028,6 +1042,10 @@ export const handlers = makeHandlers({
   floatingIpDelete: NotImplemented,
   floatingIpList: NotImplemented,
   floatingIpView: NotImplemented,
+  floatingIpAttach: NotImplemented,
+  floatingIpDetach: NotImplemented,
+  instanceEphemeralIpDetach: NotImplemented,
+  instanceEphemeralIpAttach: NotImplemented,
   instanceMigrate: NotImplemented,
   instanceSerialConsoleStream: NotImplemented,
   ipPoolCreate: NotImplemented,
@@ -1067,8 +1085,6 @@ export const handlers = makeHandlers({
   networkingSwitchPortSettingsDelete: NotImplemented,
   networkingSwitchPortSettingsView: NotImplemented,
   networkingSwitchPortSettingsList: NotImplemented,
-  projectIpPoolList: NotImplemented,
-  projectIpPoolView: NotImplemented,
   rackView: NotImplemented,
   roleList: NotImplemented,
   roleView: NotImplemented,

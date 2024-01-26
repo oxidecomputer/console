@@ -182,6 +182,21 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
+  /** `POST /v1/floating-ips/:floatingIp/attach` */
+  floatingIpAttach: (params: {
+    path: Api.FloatingIpAttachPathParams
+    query: Api.FloatingIpAttachQueryParams
+    body: Json<Api.FloatingIpAttach>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.FloatingIp>>
+  /** `POST /v1/floating-ips/:floatingIp/detach` */
+  floatingIpDetach: (params: {
+    path: Api.FloatingIpDetachPathParams
+    query: Api.FloatingIpDetachQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.FloatingIp>>
   /** `GET /v1/groups` */
   groupList: (params: {
     query: Api.GroupListQueryParams
@@ -292,6 +307,21 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.ExternalIpResultsPage>>
+  /** `POST /v1/instances/:instance/external-ips/ephemeral` */
+  instanceEphemeralIpAttach: (params: {
+    path: Api.InstanceEphemeralIpAttachPathParams
+    query: Api.InstanceEphemeralIpAttachQueryParams
+    body: Json<Api.EphemeralIpCreate>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.ExternalIp>>
+  /** `DELETE /v1/instances/:instance/external-ips/ephemeral` */
+  instanceEphemeralIpDetach: (params: {
+    path: Api.InstanceEphemeralIpDetachPathParams
+    query: Api.InstanceEphemeralIpDetachQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
   /** `POST /v1/instances/:instance/migrate` */
   instanceMigrate: (params: {
     path: Api.InstanceMigratePathParams
@@ -340,13 +370,13 @@ export interface MSWHandlers {
     query: Api.ProjectIpPoolListQueryParams
     req: Request
     cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.IpPoolResultsPage>>
+  }) => Promisable<HandlerResult<Api.SiloIpPoolResultsPage>>
   /** `GET /v1/ip-pools/:pool` */
   projectIpPoolView: (params: {
     path: Api.ProjectIpPoolViewPathParams
     req: Request
     cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.IpPool>>
+  }) => Promisable<HandlerResult<Api.SiloIpPool>>
   /** `POST /v1/login/:siloName/local` */
   loginLocal: (params: {
     path: Api.LoginLocalPathParams
@@ -719,21 +749,21 @@ export interface MSWHandlers {
     query: Api.IpPoolSiloListQueryParams
     req: Request
     cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.IpPoolSiloResultsPage>>
+  }) => Promisable<HandlerResult<Api.IpPoolSiloLinkResultsPage>>
   /** `POST /v1/system/ip-pools/:pool/silos` */
   ipPoolSiloLink: (params: {
     path: Api.IpPoolSiloLinkPathParams
-    body: Json<Api.IpPoolSiloLink>
+    body: Json<Api.IpPoolLinkSilo>
     req: Request
     cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.IpPoolSilo>>
+  }) => Promisable<HandlerResult<Api.IpPoolSiloLink>>
   /** `PUT /v1/system/ip-pools/:pool/silos/:silo` */
   ipPoolSiloUpdate: (params: {
     path: Api.IpPoolSiloUpdatePathParams
     body: Json<Api.IpPoolSiloUpdate>
     req: Request
     cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.IpPoolSilo>>
+  }) => Promisable<HandlerResult<Api.IpPoolSiloLink>>
   /** `DELETE /v1/system/ip-pools/:pool/silos/:silo` */
   ipPoolSiloUnlink: (params: {
     path: Api.IpPoolSiloUnlinkPathParams
@@ -937,6 +967,13 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
+  /** `GET /v1/system/silos/:silo/ip-pools` */
+  siloIpPoolList: (params: {
+    path: Api.SiloIpPoolListPathParams
+    query: Api.SiloIpPoolListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.SiloIpPoolResultsPage>>
   /** `GET /v1/system/silos/:silo/policy` */
   siloPolicyView: (params: {
     path: Api.SiloPolicyViewPathParams
@@ -1292,6 +1329,18 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       '/v1/floating-ips/:floatingIp',
       handler(handlers['floatingIpDelete'], schema.FloatingIpDeleteParams, null)
     ),
+    http.post(
+      '/v1/floating-ips/:floatingIp/attach',
+      handler(
+        handlers['floatingIpAttach'],
+        schema.FloatingIpAttachParams,
+        schema.FloatingIpAttach
+      )
+    ),
+    http.post(
+      '/v1/floating-ips/:floatingIp/detach',
+      handler(handlers['floatingIpDetach'], schema.FloatingIpDetachParams, null)
+    ),
     http.get('/v1/groups', handler(handlers['groupList'], schema.GroupListParams, null)),
     http.get(
       '/v1/groups/:groupId',
@@ -1361,6 +1410,22 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
     http.get(
       '/v1/instances/:instance/external-ips',
       handler(handlers['instanceExternalIpList'], schema.InstanceExternalIpListParams, null)
+    ),
+    http.post(
+      '/v1/instances/:instance/external-ips/ephemeral',
+      handler(
+        handlers['instanceEphemeralIpAttach'],
+        schema.InstanceEphemeralIpAttachParams,
+        schema.EphemeralIpCreate
+      )
+    ),
+    http.delete(
+      '/v1/instances/:instance/external-ips/ephemeral',
+      handler(
+        handlers['instanceEphemeralIpDetach'],
+        schema.InstanceEphemeralIpDetachParams,
+        null
+      )
     ),
     http.post(
       '/v1/instances/:instance/migrate',
@@ -1696,7 +1761,7 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       handler(
         handlers['ipPoolSiloLink'],
         schema.IpPoolSiloLinkParams,
-        schema.IpPoolSiloLink
+        schema.IpPoolLinkSilo
       )
     ),
     http.put(
@@ -1896,6 +1961,10 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
     http.delete(
       '/v1/system/silos/:silo',
       handler(handlers['siloDelete'], schema.SiloDeleteParams, null)
+    ),
+    http.get(
+      '/v1/system/silos/:silo/ip-pools',
+      handler(handlers['siloIpPoolList'], schema.SiloIpPoolListParams, null)
     ),
     http.get(
       '/v1/system/silos/:silo/policy',

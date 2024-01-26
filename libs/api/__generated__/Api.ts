@@ -922,22 +922,46 @@ export type DiskResultsPage = {
 }
 
 /**
- * The kind of an external IP address for an instance
+ * Parameters for creating an ephemeral IP address for an instance.
  */
-export type IpKind = 'ephemeral' | 'floating'
+export type EphemeralIpCreate = {
+  /** Name or ID of the IP pool used to allocate an address */
+  pool?: NameOrId
+}
 
-export type ExternalIp = { ip: string; kind: IpKind }
+export type ExternalIp =
+  | { ip: string; kind: 'ephemeral' }
+  /** A Floating IP is a well-known IP address which can be attached and detached from instances. */
+  | {
+      /** human-readable free-form text about a resource */
+      description: string
+      /** unique, immutable, system-controlled identifier for each resource */
+      id: string
+      /** The ID of the instance that this Floating IP is attached to, if it is presently in use. */
+      instanceId?: string
+      /** The IP address held by this resource. */
+      ip: string
+      kind: 'floating'
+      /** unique, mutable, user-controlled identifier for each resource */
+      name: Name
+      /** The project this resource exists within. */
+      projectId: string
+      /** timestamp when this resource was created */
+      timeCreated: Date
+      /** timestamp when this resource was last modified */
+      timeModified: Date
+    }
 
 /**
  * Parameters for creating an external IP address for instances.
  */
 export type ExternalIpCreate =
-  /** An IP address providing both inbound and outbound access. The address is automatically-assigned from the provided IP Pool, or all available pools if not specified. */
-  | { poolName?: Name; type: 'ephemeral' }
-  /** An IP address providing both inbound and outbound access. The address is an existing Floating IP object assigned to the current project.
+  /** An IP address providing both inbound and outbound access. The address is automatically-assigned from the provided IP Pool, or the current silo's default pool if not specified. */
+  | { pool?: NameOrId; type: 'ephemeral' }
+  /** An IP address providing both inbound and outbound access. The address is an existing floating IP object assigned to the current project.
 
 The floating IP must not be in use by another instance or service. */
-  | { floatingIpName: Name; type: 'floating' }
+  | { floatingIp: NameOrId; type: 'floating' }
 
 /**
  * A single page of results
@@ -1005,6 +1029,21 @@ export type FloatingIp = {
   timeCreated: Date
   /** timestamp when this resource was last modified */
   timeModified: Date
+}
+
+/**
+ * The type of resource that a floating IP is attached to
+ */
+export type FloatingIpParentKind = 'instance'
+
+/**
+ * Parameters for attaching a floating IP address to another resource
+ */
+export type FloatingIpAttach = {
+  /** The type of `parent`'s resource */
+  kind: FloatingIpParentKind
+  /** Name or ID of the resource that this IP address should be attached to */
+  parent: NameOrId
 }
 
 /**
@@ -1387,6 +1426,12 @@ export type IpPool = {
  */
 export type IpPoolCreate = { description: string; name: Name }
 
+export type IpPoolLinkSilo = {
+  /** When a pool is the default for a silo, floating IPs and instance ephemeral IPs will come from that pool when no other pool is specified. There can be at most one default for a given silo. */
+  isDefault: boolean
+  silo: NameOrId
+}
+
 /**
  * A non-decreasing IPv4 address range, inclusive of both ends.
  *
@@ -1433,25 +1478,19 @@ export type IpPoolResultsPage = {
 /**
  * A link between an IP pool and a silo that allows one to allocate IPs from the pool within the silo
  */
-export type IpPoolSilo = {
+export type IpPoolSiloLink = {
   ipPoolId: string
   /** When a pool is the default for a silo, floating IPs and instance ephemeral IPs will come from that pool when no other pool is specified. There can be at most one default for a given silo. */
   isDefault: boolean
   siloId: string
 }
 
-export type IpPoolSiloLink = {
-  /** When a pool is the default for a silo, floating IPs and instance ephemeral IPs will come from that pool when no other pool is specified. There can be at most one default for a given silo. */
-  isDefault: boolean
-  silo: NameOrId
-}
-
 /**
  * A single page of results
  */
-export type IpPoolSiloResultsPage = {
+export type IpPoolSiloLinkResultsPage = {
   /** list of items on this page of results */
-  items: IpPoolSilo[]
+  items: IpPoolSiloLink[]
   /** token used to fetch the next page of results (if any) */
   nextPage?: string
 }
@@ -1897,6 +1936,34 @@ The default is that no Fleet roles are conferred by any Silo roles unless there'
   quotas: SiloQuotasCreate
   /** Initial TLS certificates to be used for the new Silo's console and API endpoints.  These should be valid for the Silo's DNS name(s). */
   tlsCertificates: CertificateCreate[]
+}
+
+/**
+ * An IP pool in the context of a silo
+ */
+export type SiloIpPool = {
+  /** human-readable free-form text about a resource */
+  description: string
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** When a pool is the default for a silo, floating IPs and instance ephemeral IPs will come from that pool when no other pool is specified. There can be at most one default for a given silo. */
+  isDefault: boolean
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+}
+
+/**
+ * A single page of results
+ */
+export type SiloIpPoolResultsPage = {
+  /** list of items on this page of results */
+  items: SiloIpPool[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
 }
 
 /**
@@ -2966,6 +3033,22 @@ export interface FloatingIpDeleteQueryParams {
   project?: NameOrId
 }
 
+export interface FloatingIpAttachPathParams {
+  floatingIp: NameOrId
+}
+
+export interface FloatingIpAttachQueryParams {
+  project?: NameOrId
+}
+
+export interface FloatingIpDetachPathParams {
+  floatingIp: NameOrId
+}
+
+export interface FloatingIpDetachQueryParams {
+  project?: NameOrId
+}
+
 export interface GroupListQueryParams {
   limit?: number
   pageToken?: string
@@ -3078,6 +3161,22 @@ export interface InstanceExternalIpListPathParams {
 }
 
 export interface InstanceExternalIpListQueryParams {
+  project?: NameOrId
+}
+
+export interface InstanceEphemeralIpAttachPathParams {
+  instance: NameOrId
+}
+
+export interface InstanceEphemeralIpAttachQueryParams {
+  project?: NameOrId
+}
+
+export interface InstanceEphemeralIpDetachPathParams {
+  instance: NameOrId
+}
+
+export interface InstanceEphemeralIpDetachQueryParams {
   project?: NameOrId
 }
 
@@ -3579,6 +3678,16 @@ export interface SiloDeletePathParams {
   silo: NameOrId
 }
 
+export interface SiloIpPoolListPathParams {
+  silo: NameOrId
+}
+
+export interface SiloIpPoolListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: NameOrIdSortMode
+}
+
 export interface SiloPolicyViewPathParams {
   silo: NameOrId
 }
@@ -3771,6 +3880,7 @@ export type ApiListMethods = Pick<
   | 'roleList'
   | 'systemQuotasList'
   | 'siloList'
+  | 'siloIpPoolList'
   | 'siloUserList'
   | 'userBuiltinList'
   | 'siloUtilizationList'
@@ -4101,6 +4211,46 @@ export class Api extends HttpClient {
       })
     },
     /**
+     * Attach a floating IP to an instance or other resource
+     */
+    floatingIpAttach: (
+      {
+        path,
+        query = {},
+        body,
+      }: {
+        path: FloatingIpAttachPathParams
+        query?: FloatingIpAttachQueryParams
+        body: FloatingIpAttach
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<FloatingIp>({
+        path: `/v1/floating-ips/${path.floatingIp}/attach`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Detach a floating IP from an instance or other resource
+     */
+    floatingIpDetach: (
+      {
+        path,
+        query = {},
+      }: { path: FloatingIpDetachPathParams; query?: FloatingIpDetachQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<FloatingIp>({
+        path: `/v1/floating-ips/${path.floatingIp}/detach`,
+        method: 'POST',
+        query,
+        ...params,
+      })
+    },
+    /**
      * List groups
      */
     groupList: (
@@ -4359,6 +4509,49 @@ export class Api extends HttpClient {
       })
     },
     /**
+     * Allocate and attach an ephemeral IP to an instance
+     */
+    instanceEphemeralIpAttach: (
+      {
+        path,
+        query = {},
+        body,
+      }: {
+        path: InstanceEphemeralIpAttachPathParams
+        query?: InstanceEphemeralIpAttachQueryParams
+        body: EphemeralIpCreate
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<ExternalIp>({
+        path: `/v1/instances/${path.instance}/external-ips/ephemeral`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Detach and deallocate an ephemeral IP from an instance
+     */
+    instanceEphemeralIpDetach: (
+      {
+        path,
+        query = {},
+      }: {
+        path: InstanceEphemeralIpDetachPathParams
+        query?: InstanceEphemeralIpDetachQueryParams
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/instances/${path.instance}/external-ips/ephemeral`,
+        method: 'DELETE',
+        query,
+        ...params,
+      })
+    },
+    /**
      * Migrate an instance
      */
     instanceMigrate: (
@@ -4459,7 +4652,7 @@ export class Api extends HttpClient {
       { query = {} }: { query?: ProjectIpPoolListQueryParams },
       params: FetchParams = {}
     ) => {
-      return this.request<IpPoolResultsPage>({
+      return this.request<SiloIpPoolResultsPage>({
         path: `/v1/ip-pools`,
         method: 'GET',
         query,
@@ -4473,7 +4666,7 @@ export class Api extends HttpClient {
       { path }: { path: ProjectIpPoolViewPathParams },
       params: FetchParams = {}
     ) => {
-      return this.request<IpPool>({
+      return this.request<SiloIpPool>({
         path: `/v1/ip-pools/${path.pool}`,
         method: 'GET',
         ...params,
@@ -5322,7 +5515,7 @@ export class Api extends HttpClient {
       }: { path: IpPoolSiloListPathParams; query?: IpPoolSiloListQueryParams },
       params: FetchParams = {}
     ) => {
-      return this.request<IpPoolSiloResultsPage>({
+      return this.request<IpPoolSiloLinkResultsPage>({
         path: `/v1/system/ip-pools/${path.pool}/silos`,
         method: 'GET',
         query,
@@ -5333,10 +5526,10 @@ export class Api extends HttpClient {
      * Make an IP pool available within a silo
      */
     ipPoolSiloLink: (
-      { path, body }: { path: IpPoolSiloLinkPathParams; body: IpPoolSiloLink },
+      { path, body }: { path: IpPoolSiloLinkPathParams; body: IpPoolLinkSilo },
       params: FetchParams = {}
     ) => {
-      return this.request<IpPoolSilo>({
+      return this.request<IpPoolSiloLink>({
         path: `/v1/system/ip-pools/${path.pool}/silos`,
         method: 'POST',
         body,
@@ -5350,7 +5543,7 @@ export class Api extends HttpClient {
       { path, body }: { path: IpPoolSiloUpdatePathParams; body: IpPoolSiloUpdate },
       params: FetchParams = {}
     ) => {
-      return this.request<IpPoolSilo>({
+      return this.request<IpPoolSiloLink>({
         path: `/v1/system/ip-pools/${path.pool}/silos/${path.silo}`,
         method: 'PUT',
         body,
@@ -5799,6 +5992,23 @@ export class Api extends HttpClient {
       return this.request<void>({
         path: `/v1/system/silos/${path.silo}`,
         method: 'DELETE',
+        ...params,
+      })
+    },
+    /**
+     * List IP pools available within silo
+     */
+    siloIpPoolList: (
+      {
+        path,
+        query = {},
+      }: { path: SiloIpPoolListPathParams; query?: SiloIpPoolListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SiloIpPoolResultsPage>({
+        path: `/v1/system/silos/${path.silo}/ip-pools`,
+        method: 'GET',
+        query,
         ...params,
       })
     },

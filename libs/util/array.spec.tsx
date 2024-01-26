@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { type ReactElement } from 'react'
 import { expect, test } from 'vitest'
 
 import { groupBy, intersperse, lowestBy, sortBy, sumBy } from './array'
@@ -68,12 +69,31 @@ test('sumBy', () => {
 })
 
 test('intersperse', () => {
-  expect(intersperse([], 'x')).toEqual([])
-  expect(intersperse(['a'], 'x')).toEqual(['a'])
+  expect(intersperse([], <>,</>)).toEqual([])
 
-  expect(intersperse(['a', 'b'], ',')).toEqual(['a', ',', 'b'])
-  expect(intersperse(['a', 'b'], ',', 'or')).toEqual(['a', 'or', 'b'])
+  const a = <span key="a">a</span>
+  const b = <span key="b">b</span>
+  const c = <span key="c">c</span>
+  const comma = <>,</>
+  const or = <>or</>
 
-  expect(intersperse(['a', 'b', 'c'], ',')).toEqual(['a', ',', 'b', ',', 'c'])
-  expect(intersperse(['a', 'b', 'c'], ',', 'or')).toEqual(['a', ',', 'b', ',', 'or', 'c'])
+  const getText = (el: ReactElement) => el.props.children
+  const getKey = (el: ReactElement) => el.key
+
+  expect(intersperse([a], comma).map(getText)).toEqual(['a'])
+  expect(intersperse([a], comma).map(getKey)).toEqual(['a'])
+
+  expect(intersperse([a, b], comma).map(getText)).toEqual(['a', ',', 'b'])
+  expect(intersperse([a, b], comma).map(getKey)).toEqual(['a', 'sep-1', 'b'])
+
+  expect(intersperse([a, b], comma, or).map(getText)).toEqual(['a', 'or', 'b'])
+  expect(intersperse([a, b], comma, or).map(getKey)).toEqual(['a', 'conj', 'b'])
+
+  let result = intersperse([a, b, c], comma)
+  expect(result.map(getText)).toEqual(['a', ',', 'b', ',', 'c'])
+  expect(result.map(getKey)).toEqual(['a', 'sep-1', 'b', 'sep-2', 'c'])
+
+  result = intersperse([a, b, c], comma, or)
+  expect(result.map(getText)).toEqual(['a', ',', 'b', ',', 'or', 'c'])
+  expect(result.map(getKey)).toEqual(['a', 'sep-1', 'b', 'sep-2', 'conj', 'c'])
 })

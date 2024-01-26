@@ -28,7 +28,7 @@ export function PropertiesTable({ className, children }: PropertiesTableProps) {
     <div
       className={cn(
         className,
-        'properties-table grid min-w-min basis-6/12 divide-y rounded-lg border border-default children:p-3 children:pr-6 children:border-secondary'
+        'properties-table grid min-w-min basis-6/12 divide-y rounded-lg border border-default children:pl-3 children:pr-6 children:border-secondary'
       )}
     >
       {children}
@@ -45,7 +45,7 @@ PropertiesTable.Row = ({ label, children }: PropertiesTableRowProps) => (
     <span className="flex items-center">
       <Badge>{label}</Badge>
     </span>
-    <div className="flex items-center overflow-hidden whitespace-nowrap pr-4 text-sans-md text-secondary">
+    <div className="flex h-11 items-center overflow-hidden whitespace-nowrap pr-4 text-sans-md text-secondary">
       {children}
     </div>
   </>

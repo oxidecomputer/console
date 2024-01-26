@@ -17,10 +17,13 @@ import { Listbox as Select } from '@headlessui/react'
 import cn from 'classnames'
 import type { ReactNode } from 'react'
 
-import { FieldLabel, SelectArrows6Icon, SpinnerLoader, TextInputHint } from '@oxide/ui'
-
-import { useIsInModal } from '../modal/Modal'
-import { useIsInSideModal } from '../side-modal/SideModal'
+import {
+  FieldLabel,
+  SelectArrows6Icon,
+  SpinnerLoader,
+  TextInputHint,
+  usePopoverZIndex,
+} from '@oxide/ui'
 
 export type ListboxItem<Value extends string = string> = {
   value: Value
@@ -43,8 +46,8 @@ export interface ListboxProps<Value extends string = string> {
   hasError?: boolean
   name?: string
   label?: string
-  description?: string
-  helpText?: string
+  tooltipText?: string
+  description?: string | React.ReactNode
   required?: boolean
   isLoading?: boolean
 }
@@ -58,8 +61,8 @@ export const Listbox = <Value extends string = string>({
   onChange,
   hasError = false,
   label,
+  tooltipText,
   description,
-  helpText,
   required,
   disabled,
   isLoading = false,
@@ -83,13 +86,7 @@ export const Listbox = <Value extends string = string>({
   const selectedItem = selected && items.find((i) => i.value === selected)
   const noItems = !isLoading && items.length === 0
   const isDisabled = disabled || noItems
-  const isInModal = useIsInModal()
-  const isInSideModal = useIsInSideModal()
-  const zIndex = isInModal
-    ? 'z-modalDropdown'
-    : isInSideModal
-      ? 'z-sideModalDropdown'
-      : 'z-contentDropdown'
+  const zIndex = usePopoverZIndex()
 
   return (
     <div className={cn('relative', className)}>
@@ -105,10 +102,10 @@ export const Listbox = <Value extends string = string>({
           <>
             {label && (
               <div className="mb-2">
-                <FieldLabel id={``} as="div" tip={description} optional={!required}>
+                <FieldLabel id={``} as="div" tip={tooltipText} optional={!required}>
                   <Select.Label>{label}</Select.Label>
                 </FieldLabel>
-                {helpText && <TextInputHint id={``}>{helpText}</TextInputHint>}
+                {description && <TextInputHint id={``}>{description}</TextInputHint>}
               </div>
             )}
             <Select.Button

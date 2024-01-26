@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { type IpPool, type IpPoolSilo } from '@oxide/api'
+import { type IpPool, type IpPoolSiloLink } from '@oxide/api'
 
 import type { Json } from './json-type'
 import { defaultSilo } from './silo'
@@ -29,7 +29,7 @@ const ipPool2: Json<IpPool> = {
 
 export const ipPools: Json<IpPool>[] = [ipPool1, ipPool2]
 
-export const ipPoolSilos: Json<IpPoolSilo>[] = [
+export const ipPoolSilos: Json<IpPoolSiloLink>[] = [
   {
     ip_pool_id: ipPool1.id,
     silo_id: defaultSilo.id,
