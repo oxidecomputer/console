@@ -22,7 +22,6 @@ import { Badge, Button, Error16Icon, FormDivider, MiniTable } from '@oxide/ui'
 
 import {
   CheckboxField,
-  CheckboxGroupField,
   DescriptionField,
   ListboxField,
   NameField,
@@ -426,16 +425,24 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
 
       <FormDivider />
 
-      <CheckboxGroupField
-        name="protocols"
-        label="Protocols"
-        control={control}
-        items={[
-          { value: 'TCP', label: 'TCP' },
-          { value: 'UDP', label: 'UDP' },
-          { value: 'ICMP', label: 'ICMP' },
-        ]}
-      />
+      <fieldset className="space-y-0.5">
+        <legend>Protocols</legend>
+        <div>
+          <CheckboxField name="protocols" value="TCP" control={control}>
+            TCP
+          </CheckboxField>
+        </div>
+        <div>
+          <CheckboxField name="protocols" value="UDP" control={control}>
+            UDP
+          </CheckboxField>
+        </div>
+        <div>
+          <CheckboxField name="protocols" value="ICMP" control={control}>
+            ICMP
+          </CheckboxField>
+        </div>
+      </fieldset>
 
       {error && (
         <>
