@@ -6,11 +6,10 @@
  * Copyright Oxide Computer Company
  */
 import * as Accordion from '@radix-ui/react-accordion'
-import { animated, useSpring } from '@react-spring/web'
+import cn from 'classnames'
 import { useEffect, useState } from 'react'
 import { useWatch, type Control } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
-import useMeasure from 'react-use-measure'
 import type { SetRequired } from 'type-fest'
 
 import {
@@ -516,21 +515,12 @@ const AccordionContent = ({
   children: React.ReactNode
   isOpen: boolean
 }) => {
-  const [ref, { height }] = useMeasure()
-
-  const styles = useSpring({
-    height: isOpen ? height : 0,
-    overflow: 'hidden',
-    config: { tension: 220, friction: 26 },
-  })
-
   return (
-    <Accordion.Content forceMount asChild>
-      <animated.div style={styles}>
-        <div className="ox-accordion-content overflow-hidden py-8" ref={ref}>
-          {children}
-        </div>
-      </animated.div>
+    <Accordion.Content
+      forceMount
+      className={cn('ox-accordion-content overflow-hidden py-8', !isOpen && 'hidden')}
+    >
+      {children}
     </Accordion.Content>
   )
 }
