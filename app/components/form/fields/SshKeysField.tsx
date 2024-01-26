@@ -5,13 +5,8 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useEffect, useState } from 'react'
-import {
-  useController,
-  useWatch,
-  type Control,
-  type UseFormClearErrors,
-} from 'react-hook-form'
+import { useState } from 'react'
+import { useController, type Control } from 'react-hook-form'
 
 import { usePrefetchedApiQuery } from '@oxide/api'
 import {
@@ -33,13 +28,7 @@ import { ErrorMessage } from './ErrorMessage'
 
 const MAX_KEYS_PER_INSTANCE = 8
 
-export function SshKeysField({
-  control,
-  clearErrors,
-}: {
-  control: Control<InstanceCreateInput>
-  clearErrors: UseFormClearErrors<InstanceCreateInput>
-}) {
+export function SshKeysField({ control }: { control: Control<InstanceCreateInput> }) {
   const keys = usePrefetchedApiQuery('currentUserSshKeyList', {}).data?.items || []
   const [showAddSshKey, setShowAddSshKey] = useState(false)
 
@@ -50,26 +39,13 @@ export function SshKeysField({
     control,
     name: 'sshKeys',
     rules: {
-      validate(props) {
-        console.log('validate', props)
-        return undefined
+      validate(keys) {
+        if (keys.length > MAX_KEYS_PER_INSTANCE) {
+          return `An instance supports a maximum of ${MAX_KEYS_PER_INSTANCE} SSH keys`
+        }
       },
     },
   })
-
-  const sshKeys = useWatch({ control, name: 'sshKeys' })
-
-  useEffect(() => {
-    // todo: find some way to ensure that this is not out of date with the omicron limit
-    if (sshKeys && sshKeys.length > MAX_KEYS_PER_INSTANCE) {
-      control.setError('sshKeys', {
-        type: 'manual',
-        message: `An instance supports a maximum of ${MAX_KEYS_PER_INSTANCE} SSH keys`,
-      })
-    } else {
-      clearErrors()
-    }
-  }, [sshKeys, control, clearErrors])
 
   return (
     <div className="max-w-lg">
@@ -96,10 +72,10 @@ export function SshKeysField({
             <Checkbox
               checked={value.length === keys.length}
               indeterminate={value.length > 0 && value.length < keys.length}
-              onChange={() => {
-                // if fewer than all are checked, check all. if all are checked, check none
+              // if fewer than all are checked, check all. if all are checked, check none
+              onChange={() =>
                 onChange(value.length < keys.length ? keys.map((key) => key.id) : [])
-              }}
+              }
             >
               <span className="select-none">Select all</span>
             </Checkbox>
