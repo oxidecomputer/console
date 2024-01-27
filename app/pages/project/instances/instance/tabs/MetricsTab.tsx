@@ -24,7 +24,7 @@ const TimeSeriesChart = React.lazy(() => import('app/components/TimeSeriesChart'
 
 type DiskMetricParams = {
   title: string
-  unit?: string
+  unit: 'Bytes' | 'Count'
   startTime: Date
   endTime: Date
   metric: DiskMetricName
@@ -54,16 +54,47 @@ function DiskMetric({
     { placeholderData: (x) => x }
   )
 
+  // Because we're using cumulative metrics, we can use the last (and therefore largest)
+  // value in the set to determine the unit and the divisor for the set.
+  let unitForSet = ''
+  let cycleCount = 0
+  let label
+  const divisorBase = unit === 'Bytes' ? 1024 : 1000
+  if (metrics?.items?.length) {
+    const largestValue =
+      (metrics?.items?.[metrics.items.length - 1].datum.datum as Cumulativeint64).value || 0
+
+    // We'll need to divide each number in the set by a consistent multiple of 1024 (for Bytes) or 1000 (for Counts)
+    // Figure out what that multiple is:
+    let transformedValue = largestValue
+    while (transformedValue > divisorBase) {
+      transformedValue = transformedValue / divisorBase
+      cycleCount++
+    }
+
+    // Now that we know how many cycles of "divide by 1024 || 1000" to run through,
+    // we can determine the proper unit for the set
+    if (unit === 'Bytes') {
+      const byteUnits = ['Bytes', 'KiB', 'MiB', 'GiB', 'TiB']
+      unitForSet = byteUnits[cycleCount]
+      label = `(${unitForSet})`
+    } else {
+      const countUnits = ['', 'K', 'M', 'B', 'T']
+      unitForSet = countUnits[cycleCount]
+      label = `(COUNT × ${unitForSet})`
+    }
+  }
+
   const data = (metrics?.items || []).map(({ datum, timestamp }) => ({
     timestamp: timestamp.getTime(),
     // all of these metrics are cumulative ints
-    value: (datum.datum as Cumulativeint64).value,
+    value: (datum.datum as Cumulativeint64).value / (divisorBase ^ cycleCount),
   }))
 
   return (
     <div className="flex w-1/2 flex-grow flex-col">
-      <h2 className="ml-3 flex items-center text-mono-xs text-secondary">
-        {title} {unit && <div className="ml-1 text-quaternary">{unit}</div>}
+      <h2 className="ml-3 flex items-center text-mono-xs text-secondary ">
+        {title} <div className="ml-1 normal-case text-quaternary">{label}</div>
         {isLoading && <Spinner className="ml-2" />}
       </h2>
       <Suspense fallback={<div className="mt-3 h-[300px]" />}>
@@ -71,6 +102,7 @@ function DiskMetric({
           className="mt-3"
           data={data}
           title={title}
+          unit={unitForSet}
           width={480}
           height={240}
           startTime={startTime}
@@ -151,17 +183,17 @@ export function MetricsTab() {
         {/* see the following link for the source of truth on what these mean
             https://github.com/oxidecomputer/crucible/blob/258f162b/upstairs/src/stats.rs#L9-L50 */}
         <div className="flex w-full space-x-4">
-          <DiskMetric {...commonProps} title="Reads" unit="(Count)" metric="read" />
-          <DiskMetric {...commonProps} title="Read" unit="(Bytes)" metric="read_bytes" />
+          <DiskMetric {...commonProps} title="Reads" unit="Count" metric="read" />
+          <DiskMetric {...commonProps} title="Read" unit="Bytes" metric="read_bytes" />
         </div>
 
         <div className="flex w-full space-x-4">
-          <DiskMetric {...commonProps} title="Writes" unit="(Count)" metric="write" />
-          <DiskMetric {...commonProps} title="Write" unit="(Bytes)" metric="write_bytes" />
+          <DiskMetric {...commonProps} title="Writes" unit="Count" metric="write" />
+          <DiskMetric {...commonProps} title="Write" unit="Bytes" metric="write_bytes" />
         </div>
 
         <div className="flex w-full space-x-4">
-          <DiskMetric {...commonProps} title="Flushes" unit="(Count)" metric="flush" />
+          <DiskMetric {...commonProps} title="Flushes" unit="Count" metric="flush" />
         </div>
       </div>
     </>
