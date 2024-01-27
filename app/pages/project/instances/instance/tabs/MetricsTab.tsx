@@ -81,7 +81,7 @@ function DiskMetric({
     } else {
       const countUnits = ['', 'K', 'M', 'B', 'T']
       unitForSet = countUnits[cycleCount]
-      label = `(COUNT × ${unitForSet})`
+      label = unitForSet.length ? `(COUNT × ${unitForSet})` : '(COUNT)'
     }
   }
 
