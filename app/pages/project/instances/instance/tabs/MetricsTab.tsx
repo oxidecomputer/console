@@ -85,10 +85,12 @@ function DiskMetric({
     }
   }
 
+  const divisor = divisorBase ^ cycleCount
+
   const data = (metrics?.items || []).map(({ datum, timestamp }) => ({
     timestamp: timestamp.getTime(),
     // all of these metrics are cumulative ints
-    value: (datum.datum as Cumulativeint64).value / (divisorBase ^ cycleCount),
+    value: (datum.datum as Cumulativeint64).value / divisor,
   }))
 
   return (
