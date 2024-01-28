@@ -108,7 +108,7 @@ const MetricsTab = () => {
       <div className="mb-3 mt-8 flex justify-between gap-3">
         <Listbox
           selected={filterId}
-          className="w-48"
+          className="w-80"
           aria-labelledby="filter-id-label"
           name="filter-id"
           items={siloItems}

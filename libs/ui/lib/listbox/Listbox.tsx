@@ -126,7 +126,7 @@ export const Listbox = <Value extends string = string>({
               )}
               {...props}
             >
-              <div className="w-full px-3 text-left">
+              <div className="w-full overflow-hidden whitespace-pre px-3 text-left">
                 {selectedItem ? (
                   // labelString is one line, which is what we need when label is a ReactNode
                   selectedItem.labelString || selectedItem.label
