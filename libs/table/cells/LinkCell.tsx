@@ -7,19 +7,32 @@
  */
 import { Link } from 'react-router-dom'
 
+import { classed } from '@oxide/util'
+
 import type { Cell } from './Cell'
+
+const linkClass =
+  'link-with-underline group flex h-full w-full items-center text-sans-semi-md'
+
+/** Pushes out the link area to the entire cell for improved clickability™ */
+const Pusher = classed.div`absolute inset-0 right-px group-hover:bg-raise`
 
 export const linkCell =
   (makeHref: (value: string) => string) =>
   ({ value }: Cell<string>) => {
     return (
-      <Link
-        className="link-with-underline group flex h-full w-full items-center text-sans-semi-md"
-        to={makeHref(value)}
-      >
-        {/* Pushes out the link area to the entire cell for improved clickability™ */}
-        <div className="absolute inset-0 right-px group-hover:bg-raise" />
+      <Link className={linkClass} to={makeHref(value)}>
+        <Pusher />
         <div className="relative">{value}</div>
       </Link>
     )
   }
+
+export const ButtonCell = ({ children, ...props }: React.ComponentProps<'button'>) => {
+  return (
+    <button className={linkClass} {...props}>
+      <Pusher />
+      <div className="relative">{children}</div>
+    </button>
+  )
+}

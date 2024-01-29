@@ -202,14 +202,8 @@ test('can update firewall rule', async ({ page }) => {
   const modal = page.getByRole('dialog', { name: 'Edit rule' })
   await expect(modal).toBeHidden()
 
-  // click more button on allow-icmp row to get menu, then click Edit
-  await page
-    .locator('role=row', { hasText: 'allow-icmp' })
-    .locator('role=button[name="Row actions"]')
-    .click()
-
-  // filter visible to distinguish from all the hidden menus' Edit button
-  await page.locator('text="Edit" >> visible=true').click()
+  // can click name cell to edit
+  await page.getByRole('button', { name: 'allow-icmp' }).click()
 
   // modal is now open
   await expect(modal).toBeVisible()
