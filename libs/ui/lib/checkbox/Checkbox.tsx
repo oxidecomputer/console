@@ -11,7 +11,7 @@ import { Checkmark12Icon } from '@oxide/design-system/icons/react'
 import { classed } from '@oxide/util'
 
 const Check = () => (
-  <Checkmark12Icon className="pointer-events-none absolute left-0.5 top-0.5 hidden h-3 w-3 fill-current text-accent" />
+  <Checkmark12Icon className="pointer-events-none absolute left-0.5 top-0.5 h-3 w-3 fill-current text-accent" />
 )
 
 const Indeterminate = classed.div`absolute w-2 h-0.5 left-1 top-[7px] bg-accent pointer-events-none`
@@ -20,7 +20,7 @@ const inputStyle = `
   appearance-none border border-default bg-default h-4 w-4 rounded-sm absolute left-0 outline-none
   disabled:cursor-not-allowed
   hover:border-hover hover:cursor-pointer
-  checked:bg-accent-secondary checked:border-accent-secondary checked:hover:border-accent [&:checked+svg]:block
+  checked:bg-accent-secondary checked:border-accent-secondary checked:hover:border-accent
   indeterminate:bg-accent-secondary indeterminate:border-accent hover:indeterminate:bg-accent-secondary-hover
 `
 
@@ -43,7 +43,7 @@ export const Checkbox = ({
   className,
   ...inputProps
 }: CheckboxProps) => (
-  <label className="items-top inline-flex">
+  <label className="inline-flex items-center">
     <span className="relative h-4 w-4">
       <input
         className={cn(inputStyle, className)}
@@ -51,7 +51,7 @@ export const Checkbox = ({
         ref={(el) => el && (el.indeterminate = !!indeterminate)}
         {...inputProps}
       />
-      {!indeterminate && <Check />}
+      {inputProps.checked && !indeterminate && <Check />}
       {indeterminate && <Indeterminate />}
     </span>
 
