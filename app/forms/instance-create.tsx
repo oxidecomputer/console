@@ -439,6 +439,9 @@ const AdvancedAccordion = ({
   control: Control<InstanceCreateInput>
   isSubmitting: boolean
 }) => {
+  // we track this state manually for the sole reason that we need to be able to
+  // tell, inside AccordionItem, when an accordion is opened so we can scroll its
+  // contents into view
   const [openItems, setOpenItems] = useState<string[]>([])
 
   return (
