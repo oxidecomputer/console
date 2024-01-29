@@ -14,12 +14,12 @@ export const linkCell =
   ({ value }: Cell<string>) => {
     return (
       <Link
-        className="flex h-full w-full items-center underline text-sans-semi-md text-secondary hover:text-default"
+        className="link-with-underline group flex h-full w-full items-center text-sans-semi-md"
         to={makeHref(value)}
       >
-        {value}
         {/* Pushes out the link area to the entire cell for improved clickability™ */}
-        <div className="absolute inset-0" />
+        <div className="absolute inset-0 group-hover:bg-raise" />
+        <div className="relative">{value}</div>
       </Link>
     )
   }

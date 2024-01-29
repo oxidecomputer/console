@@ -48,11 +48,6 @@ table.ox-table {
     @apply sticky left-0 z-10 bg-default;
   }
 
-  & tr:hover td,
-  & tr:hover td:last-of-type.action-col {
-    @apply bg-raise;
-  }
-
   /*
   Last column is sticky if it
   is a more actions cell
@@ -69,7 +64,7 @@ table.ox-table {
     Highlight when hovering over the action-col cell
   */
   & td.action-col:hover > div {
-    @apply bg-hover;
+    @apply bg-raise;
   }
 
   /*
