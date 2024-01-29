@@ -35,7 +35,6 @@ export const requireParams =
 export const getProjectSelector = requireParams('project')
 export const getInstanceSelector = requireParams('project', 'instance')
 export const getVpcSelector = requireParams('project', 'vpc')
-export const getVpcFirewallRuleSelector = requireParams('project', 'vpc', 'firewallRule')
 export const getSiloSelector = requireParams('silo')
 export const getSiloImageSelector = requireParams('image')
 export const getIdpSelector = requireParams('silo', 'provider')
@@ -75,8 +74,6 @@ export const useProjectSnapshotSelector = () =>
   useSelectedParams(getProjectSnapshotSelector)
 export const useInstanceSelector = () => useSelectedParams(getInstanceSelector)
 export const useVpcSelector = () => useSelectedParams(getVpcSelector)
-export const useVpcFirewallRuleSelector = () =>
-  useSelectedParams(getVpcFirewallRuleSelector)
 export const useSiloSelector = () => useSelectedParams(getSiloSelector)
 export const useSiloImageSelector = () => useSelectedParams(getSiloImageSelector)
 export const useIdpSelector = () => useSelectedParams(getIdpSelector)
