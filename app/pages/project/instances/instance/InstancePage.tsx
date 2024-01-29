@@ -8,10 +8,11 @@
 import { format } from 'date-fns'
 import filesize from 'filesize'
 import { useMemo } from 'react'
-import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
+import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
   apiQueryClient,
+  useApiQuery,
   useApiQueryClient,
   usePrefetchedApiQuery,
   type InstanceNetworkInterface,
@@ -33,7 +34,6 @@ import { getInstanceSelector, useInstanceSelector, useQuickActions } from 'app/h
 import { pb } from 'app/util/path-builder'
 
 import { useMakeInstanceActions } from '../actions'
-import { VpcNameFromId } from './tabs/NetworkingTab'
 
 function getPrimaryVpcId(nics: InstanceNetworkInterface[]) {
   const nic = nics.find((nic) => nic.primary)
@@ -100,6 +100,15 @@ export function InstancePage() {
   })
   const primaryVpcId = getPrimaryVpcId(nics.items)
 
+  // a little funny, as noted in the loader -- this should always be prefetched
+  // when primaryVpcId is defined, but primaryVpcId might not be defined, so
+  // we can't use usePrefetchedApiQuery
+  const { data: vpc } = useApiQuery(
+    'vpcView',
+    { path: { vpc: primaryVpcId! } },
+    { enabled: !!primaryVpcId }
+  )
+
   const actions = useMemo(
     () => [
       {
@@ -147,9 +156,16 @@ export function InstancePage() {
             <InstanceStatusBadge status={instance.runState} />
           </PropertiesTable.Row>
           <PropertiesTable.Row label="vpc">
-            <span className="text-secondary">
-              {primaryVpcId ? VpcNameFromId({ value: primaryVpcId }) : <EmptyCell />}
-            </span>
+            {vpc ? (
+              <Link
+                className="link-with-underline group text-sans-semi-md"
+                to={pb.vpc({ project: instanceSelector.project, vpc: vpc.name })}
+              >
+                {vpc.name}
+              </Link>
+            ) : (
+              <EmptyCell />
+            )}
           </PropertiesTable.Row>
         </PropertiesTable>
         <PropertiesTable>

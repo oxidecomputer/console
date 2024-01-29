@@ -16,7 +16,7 @@ import {
   useApiQueryClient,
   type Disk,
 } from '@oxide/api'
-import { DateCell, SizeCell, useQueryTable, type MenuAction } from '@oxide/table'
+import { DateCell, linkCell, SizeCell, useQueryTable, type MenuAction } from '@oxide/table'
 import {
   buttonStyle,
   EmptyMessage,
@@ -43,14 +43,12 @@ function AttachedInstance({
   const { data: instance } = useApiQuery('instanceView', {
     path: { instance: instanceId },
   })
-  return instance ? (
-    <Link
-      className="text-sans-semi-md text-accent hover:underline"
-      to={pb.instancePage({ ...projectSelector, instance: instance.name })}
-    >
-      {instance.name}
-    </Link>
-  ) : null
+
+  const instanceLinkCell = linkCell((instanceName) =>
+    pb.instancePage({ ...projectSelector, instance: instanceName })
+  )
+
+  return instance ? instanceLinkCell({ value: instance.name }) : null
 }
 
 const EmptyState = () => (
