@@ -14,6 +14,7 @@ import {
   type VpcFirewallRule,
 } from '@oxide/api'
 import {
+  ButtonCell,
   createColumnHelper,
   DateCell,
   EnabledCell,
@@ -35,7 +36,6 @@ const colHelper = createColumnHelper<VpcFirewallRule>()
 
 /** columns that don't depend on anything in `render` */
 const staticColumns = [
-  colHelper.accessor('name', { header: 'Name' }),
   colHelper.accessor('priority', {
     header: 'Priority',
     cell: (info) => <div className="text-secondary">{info.getValue()}</div>,
@@ -88,6 +88,14 @@ export const VpcFirewallRulesTab = () => {
   // the whole thing can't be static because the action depends on setEditing
   const columns = useMemo(() => {
     return [
+      colHelper.accessor('name', {
+        header: 'Name',
+        cell: (info) => (
+          <ButtonCell onClick={() => setEditing(info.row.original)}>
+            {info.getValue()}
+          </ButtonCell>
+        ),
+      }),
       ...staticColumns,
       getActionsCol((rule: VpcFirewallRule) => [
         { label: 'Edit', onActivate: () => setEditing(rule) },
