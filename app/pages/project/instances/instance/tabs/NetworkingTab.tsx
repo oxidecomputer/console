@@ -58,7 +58,7 @@ export const VpcNameFromId = ({ value }: { value: string }) => {
   if (!vpc) return <Skeleton />
   return (
     <Link
-      className="underline text-sans-semi-md text-secondary hover:text-default"
+      className="link-with-underline text-sans-semi-md"
       to={pb.vpc({ ...projectSelector, vpc: vpc.name })}
     >
       {vpc.name}
