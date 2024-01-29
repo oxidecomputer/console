@@ -8,14 +8,12 @@
 import type { LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
-import { Networking24Icon, PageHeader, PageTitle, PropertiesTable, Tabs } from '@oxide/ui'
+import { Networking24Icon, PageHeader, PageTitle, PropertiesTable } from '@oxide/ui'
 import { formatDateTime } from '@oxide/util'
 
-import { QueryParamTabs } from 'app/components/QueryParamTabs'
+import { RouteTabs, Tab } from 'app/components/RouteTabs'
 import { getVpcSelector, useVpcSelector } from 'app/hooks'
-
-import { VpcFirewallRulesTab } from './tabs/VpcFirewallRulesTab'
-import { VpcSubnetsTab } from './tabs/VpcSubnetsTab'
+import { pb } from 'app/util/path-builder'
 
 VpcPage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project, vpc } = getVpcSelector(params)
@@ -58,18 +56,12 @@ export function VpcPage() {
         </PropertiesTable>
       </PropertiesTable.Group>
 
-      <QueryParamTabs id="tabs-vpc-sections" className="full-width" defaultValue="subnets">
-        <Tabs.List>
-          <Tabs.Trigger value="subnets">Subnets</Tabs.Trigger>
-          <Tabs.Trigger value="firewall-rules">Firewall Rules</Tabs.Trigger>
-        </Tabs.List>
-        <Tabs.Content value="subnets">
-          <VpcSubnetsTab />
-        </Tabs.Content>
-        <Tabs.Content value="firewall-rules">
-          <VpcFirewallRulesTab />
-        </Tabs.Content>
-      </QueryParamTabs>
+      <RouteTabs fullWidth>
+        <Tab to={pb.vpcSubnets({ project: project, vpc: vpc.name })}>Subnets</Tab>
+        <Tab to={pb.vpcFirewallRules({ project: project, vpc: vpc.name })}>
+          Firewall Rules
+        </Tab>
+      </RouteTabs>
     </>
   )
 }

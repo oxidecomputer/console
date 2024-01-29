@@ -27,7 +27,6 @@ import { Button, EmptyMessage, TableEmptyBox } from '@oxide/ui'
 import { sortBy, titleCase } from '@oxide/util'
 
 import { CreateFirewallRuleForm } from 'app/forms/firewall-rules-create'
-import { EditFirewallRuleForm } from 'app/forms/firewall-rules-edit'
 import { useVpcSelector } from 'app/hooks'
 import { confirmDelete } from 'app/stores/confirm-delete'
 
@@ -76,7 +75,6 @@ export const VpcFirewallRulesTab = () => {
   const rules = useMemo(() => sortBy(data.rules, (r) => r.priority), [data])
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
-  const [editing, setEditing] = useState<VpcFirewallRule | null>(null)
 
   const updateRules = useApiMutation('vpcFirewallRulesUpdate', {
     onSuccess() {
@@ -87,21 +85,21 @@ export const VpcFirewallRulesTab = () => {
   // the whole thing can't be static because the action depends on setEditing
   const columns = useMemo(() => {
     return [
-      colHelper.accessor('name', {
-        header: 'Name',
-        cell: (info) => (
-          <>
-            <button
-              className="peer absolute inset-0"
-              onClick={() => setEditing(info.row.original)}
-            />
-            <div className="peer-hover:underline">{info.getValue()}</div>
-          </>
-        ),
-      }),
+      // colHelper.accessor('name', {
+      //   header: 'Name',
+      //   cell: (info) => (
+      //     <>
+      //       <button
+      //         className="peer absolute inset-0"
+      //         onClick={() => setEditing(info.row.original)}
+      //       />
+      //       <div className="peer-hover:underline">{info.getValue()}</div>
+      //     </>
+      //   ),
+      // }),
       ...staticColumns,
       getActionsCol((rule: VpcFirewallRule) => [
-        { label: 'Edit', onActivate: () => setEditing(rule) },
+        // { label: 'Edit', onActivate: () => setEditing(rule) },
         {
           label: 'Delete',
           onActivate: confirmDelete({
@@ -117,7 +115,7 @@ export const VpcFirewallRulesTab = () => {
         },
       ]),
     ]
-  }, [setEditing, rules, updateRules, vpcSelector])
+  }, [rules, updateRules, vpcSelector])
 
   const table = useReactTable({ columns, data: rules })
 
@@ -144,13 +142,13 @@ export const VpcFirewallRulesTab = () => {
             onDismiss={() => setCreateModalOpen(false)}
           />
         )}
-        {editing && (
+        {/* {editing && (
           <EditFirewallRuleForm
             existingRules={rules}
             originalRule={editing}
             onDismiss={() => setEditing(null)}
           />
-        )}
+        )} */}
       </div>
       {rules.length > 0 ? <Table table={table} /> : emptyState}
     </>

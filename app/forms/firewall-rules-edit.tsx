@@ -5,15 +5,21 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useMemo } from 'react'
+import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
+
 import {
+  apiQueryClient,
   firewallRuleGetToPut,
   useApiMutation,
   useApiQueryClient,
-  type VpcFirewallRule,
+  usePrefetchedApiQuery,
 } from '@oxide/api'
+import { invariant } from '@oxide/util'
 
 import { SideModalForm } from 'app/components/form'
-import { useForm, useVpcSelector } from 'app/hooks'
+import { getVpcSelector, useForm, useVpcFirewallRuleSelector } from 'app/hooks'
+import { pb } from 'app/util/path-builder'
 
 import {
   CommonFields,
@@ -21,18 +27,32 @@ import {
   type FirewallRuleValues,
 } from './firewall-rules-create'
 
-type EditFirewallRuleFormProps = {
-  onDismiss: () => void
-  existingRules: VpcFirewallRule[]
-  originalRule: VpcFirewallRule
+EditFirewallRuleForm.loader = async ({ params }: LoaderFunctionArgs) => {
+  const { project, vpc } = getVpcSelector(params)
+  await apiQueryClient.prefetchQuery('vpcFirewallRulesView', {
+    query: { project, vpc },
+  })
+  return null
 }
 
-export function EditFirewallRuleForm({
-  onDismiss,
-  existingRules,
-  originalRule,
-}: EditFirewallRuleFormProps) {
-  const vpcSelector = useVpcSelector()
+export function EditFirewallRuleForm() {
+  const navigate = useNavigate()
+
+  const { project, vpc, firewallRule } = useVpcFirewallRuleSelector()
+  const { data } = usePrefetchedApiQuery('vpcFirewallRulesView', {
+    query: { project, vpc },
+  })
+
+  const [existingRules, originalRule] = useMemo(() => {
+    const rules = data?.rules || []
+
+    return [rules, rules.find((rule) => rule.name === firewallRule)]
+  }, [data, firewallRule])
+
+  invariant(originalRule, 'Firewall rule must exist')
+
+  const onDismiss = () => navigate(pb.vpcFirewallRules({ project, vpc }))
+
   const queryClient = useApiQueryClient()
 
   const updateRules = useApiMutation('vpcFirewallRulesUpdate', {
@@ -76,7 +96,7 @@ export function EditFirewallRuleForm({
           .filter((r) => r.name !== originalRule.name)
           .map(firewallRuleGetToPut)
         updateRules.mutate({
-          query: vpcSelector,
+          query: { project, vpc },
           body: {
             rules: [...otherRules, valuesToRuleUpdate(values)],
           },

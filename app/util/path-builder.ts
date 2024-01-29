@@ -65,6 +65,8 @@ export const pb = {
   vpcs: (params: Project) => `${pb.project(params)}/vpcs`,
   vpc: (params: Vpc) => `${pb.vpcs(params)}/${params.vpc}`,
   vpcEdit: (params: Vpc) => `${pb.vpc(params)}/edit`,
+  vpcSubnets: (params: Vpc) => `${pb.vpc(params)}/subnets`,
+  vpcFirewallRules: (params: Vpc) => `${pb.vpc(params)}/firewall-rules`,
 
   siloUtilization: () => '/utilization',
   siloAccess: () => '/access',

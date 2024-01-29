@@ -10,6 +10,7 @@ import { createRoutesFromElements, Navigate, Route } from 'react-router-dom'
 import { RouterDataErrorBoundary } from './components/ErrorBoundary'
 import { NotFound } from './components/ErrorPage'
 import { CreateDiskSideModalForm } from './forms/disk-create'
+import { EditFirewallRuleForm } from './forms/firewall-rules-edit'
 import { CreateIdpSideModalForm } from './forms/idp/create'
 import { EditIdpSideModalForm } from './forms/idp/edit'
 import {
@@ -55,6 +56,8 @@ import { ConnectTab } from './pages/project/instances/instance/tabs/ConnectTab'
 import { MetricsTab } from './pages/project/instances/instance/tabs/MetricsTab'
 import { NetworkingTab } from './pages/project/instances/instance/tabs/NetworkingTab'
 import { StorageTab } from './pages/project/instances/instance/tabs/StorageTab'
+import { VpcFirewallRulesTab } from './pages/project/networking/VpcPage/tabs/VpcFirewallRulesTab'
+import { VpcSubnetsTab } from './pages/project/networking/VpcPage/tabs/VpcSubnetsTab'
 import ProjectsPage from './pages/ProjectsPage'
 import { ProfilePage } from './pages/settings/ProfilePage'
 import { SSHKeysPage } from './pages/settings/SSHKeysPage'
@@ -306,7 +309,24 @@ export const routes = createRoutesFromElements(
             element={<VpcPage />}
             loader={VpcPage.loader}
             handle={{ crumb: vpcCrumb }}
-          />
+          >
+            <Route
+              path="subnets"
+              element={<VpcSubnetsTab />}
+              handle={{ crumb: 'Subnets' }}
+            />
+            <Route
+              path="firewall-rules"
+              element={<VpcFirewallRulesTab />}
+              handle={{ crumb: 'Subnets' }}
+            />
+            <Route
+              path="firewall-rules/:firewallRule/edit"
+              element={<EditFirewallRuleForm />}
+              loader={EditFirewallRuleForm.loader}
+              handle={{ crumb: 'Edit Firewall Rule' }}
+            />
+          </Route>
         </Route>
 
         <Route element={<DisksPage />} loader={DisksPage.loader}>
