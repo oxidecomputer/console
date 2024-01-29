@@ -56,6 +56,8 @@ export interface TextFieldProps<
   units?: string
   validate?: Validate<FieldPathValue<TFieldValues, TName>, TFieldValues>
   control: Control<TFieldValues>
+  /** Alters the value of the input during the field's onChange event. */
+  transform?: (value: string) => FieldPathValue<TFieldValues, TName>
 }
 
 export function TextField<
@@ -119,6 +121,7 @@ export const TextFieldInner = <
   tooltipText,
   required,
   id: idProp,
+  transform,
   ...props
 }: TextFieldProps<TFieldValues, TName> & UITextAreaProps) => {
   const generatedId = useId()
@@ -144,6 +147,10 @@ export const TextFieldInner = <
               // for the calling code despite the actual input value necessarily
               // being a string.
               onChange={(e) => {
+                if (transform) {
+                  onChange(transform(e.target.value))
+                  return
+                }
                 if (type === 'number') {
                   if (e.target.value.trim() === '') {
                     onChange(0)

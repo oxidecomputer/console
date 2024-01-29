@@ -51,11 +51,6 @@
 }
 
 @layer utilities {
-  .dashed-underline {
-    text-decoration: underline;
-    text-decoration-style: dashed;
-  }
-
   .external-link {
     @apply text-accent-secondary hover:text-accent;
   }
@@ -64,6 +59,16 @@
     width: calc(100% - var(--content-gutter) * 2);
     margin-left: var(--content-gutter);
     margin-right: var(--content-gutter);
+  }
+
+  .link-with-underline {
+    @apply text-secondary hover:text-default;
+    text-decoration: underline;
+    text-decoration-color: var(--content-quinary);
+
+    &:hover {
+      text-decoration-color: var(--content-tertiary);
+    }
   }
 }
 
