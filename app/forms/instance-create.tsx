@@ -469,18 +469,7 @@ const AdvancedAccordion = ({
       >
         <FileField
           id="user-data-input"
-          description={
-            <>
-              Data or scripts to be passed to cloud-init as{' '}
-              <a href={links.cloudInitFormat} target="_blank" rel="noreferrer">
-                user data
-              </a>{' '}
-              <a href={links.cloudInitExamples} target="_blank" rel="noreferrer">
-                (examples)
-              </a>{' '}
-              if the selected boot image supports it. Maximum size 32 KiB.
-            </>
-          }
+          description={<UserDataDescription />}
           name="userData"
           label="User Data"
           control={control}
@@ -622,3 +611,16 @@ const PRESETS = [
 
   { category: 'custom', id: 'custom', memory: 0, ncpus: 0 },
 ] as const
+
+const UserDataDescription = () => (
+  <>
+    Data or scripts to be passed to cloud-init as{' '}
+    <a href={links.cloudInitFormat} target="_blank" rel="noreferrer">
+      user data
+    </a>{' '}
+    <a href={links.cloudInitExamples} target="_blank" rel="noreferrer">
+      (examples)
+    </a>{' '}
+    if the selected boot image supports it. Maximum size 32 KiB.
+  </>
+)
