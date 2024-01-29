@@ -18,7 +18,7 @@ export const linkCell =
         to={makeHref(value)}
       >
         {/* Pushes out the link area to the entire cell for improved clickability™ */}
-        <div className="absolute inset-0 right-[1px] group-hover:bg-raise" />
+        <div className="absolute inset-0 right-px group-hover:bg-raise" />
         <div className="relative">{value}</div>
       </Link>
     )
