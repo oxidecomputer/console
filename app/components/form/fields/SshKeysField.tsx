@@ -26,7 +26,8 @@ import { CreateSSHKeySideModalForm } from 'app/forms/ssh-key-create'
 import { CheckboxField } from './CheckboxField'
 import { ErrorMessage } from './ErrorMessage'
 
-const MAX_KEYS_PER_INSTANCE = 8
+// todo: keep this in sync with the limit set in the control plane
+const MAX_KEYS_PER_INSTANCE = 100
 
 const CloudInitMessage = () => (
   <Message
