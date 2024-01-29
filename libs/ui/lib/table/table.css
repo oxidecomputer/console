@@ -32,6 +32,7 @@ table.ox-table {
   & td {
     min-width: fit-content;
     white-space: nowrap;
+    @apply text-secondary;
   }
 
   /*
