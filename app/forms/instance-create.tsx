@@ -439,16 +439,20 @@ const AdvancedAccordion = ({
   control: Control<InstanceCreateInput>
   isSubmitting: boolean
 }) => {
-  const [value, setValue] = useState<string[]>([])
+  const [openItems, setOpenItems] = useState<string[]>([])
 
   return (
     <Accordion.Root
       type="multiple"
       className="mt-12 max-w-lg"
-      value={value}
-      onValueChange={setValue}
+      value={openItems}
+      onValueChange={setOpenItems}
     >
-      <AccordionItem id="networking" label="Networking" value={value}>
+      <AccordionItem
+        value="networking"
+        label="Networking"
+        isOpen={openItems.includes('networking')}
+      >
         <NetworkInterfaceField control={control} disabled={isSubmitting} />
 
         <TextField
@@ -458,7 +462,11 @@ const AdvancedAccordion = ({
           disabled={isSubmitting}
         />
       </AccordionItem>
-      <AccordionItem id="configuration" label="Configuration" value={value}>
+      <AccordionItem
+        value="configuration"
+        label="Configuration"
+        isOpen={openItems.includes('configuration')}
+      >
         <FileField
           id="user-data-input"
           description={
@@ -482,39 +490,14 @@ const AdvancedAccordion = ({
   )
 }
 
-const AccordionHeader = ({ id, children }: { id: string; children: React.ReactNode }) => (
-  <Accordion.Header id={id} className="max-w-lg">
-    <Accordion.Trigger className="group flex w-full items-center justify-between border-t py-2 text-sans-xl border-secondary [&>svg]:data-[state=open]:rotate-90">
-      <div className="text-secondary">{children}</div>
-      <DirectionRightIcon className="transition-all text-secondary" />
-    </Accordion.Trigger>
-  </Accordion.Header>
-)
-
-const AccordionItem = ({
-  id,
-  label,
-  children,
-  value,
-}: {
-  id: string
+type AccordionItemProps = {
+  value: string
+  isOpen: boolean
   label: string
   children: React.ReactNode
-  value: string[]
-}) => (
-  <Accordion.Item value={id}>
-    <AccordionHeader id={id}>{label}</AccordionHeader>
-    <AccordionContent isOpen={value.includes(id)}>{children}</AccordionContent>
-  </Accordion.Item>
-)
+}
 
-const AccordionContent = ({
-  children,
-  isOpen,
-}: {
-  children: React.ReactNode
-  isOpen: boolean
-}) => {
+function AccordionItem({ value, label, children, isOpen }: AccordionItemProps) {
   const contentRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -524,13 +507,21 @@ const AccordionContent = ({
   }, [isOpen])
 
   return (
-    <Accordion.Content
-      ref={contentRef}
-      forceMount
-      className={cn('ox-accordion-content overflow-hidden py-8', !isOpen && 'hidden')}
-    >
-      {children}
-    </Accordion.Content>
+    <Accordion.Item value={value}>
+      <Accordion.Header className="max-w-lg">
+        <Accordion.Trigger className="group flex w-full items-center justify-between border-t py-2 text-sans-xl border-secondary [&>svg]:data-[state=open]:rotate-90">
+          <div className="text-secondary">{label}</div>
+          <DirectionRightIcon className="transition-all text-secondary" />
+        </Accordion.Trigger>
+      </Accordion.Header>
+      <Accordion.Content
+        ref={contentRef}
+        forceMount
+        className={cn('ox-accordion-content overflow-hidden py-8', { hidden: !isOpen })}
+      >
+        {children}
+      </Accordion.Content>
+    </Accordion.Item>
   )
 }
 
