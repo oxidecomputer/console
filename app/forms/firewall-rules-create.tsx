@@ -219,16 +219,14 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
           <Button
             size="sm"
             onClick={targetForm.handleSubmit(({ type, value }) => {
-              // TODO: show error instead of ignoring click
               // TODO: do this with a normal validation
-              if (
-                type &&
-                value &&
-                !targets.value.some((t) => t.value === value && t.type === type)
-              ) {
-                targets.onChange([...targets.value, { type, value }])
-                targetForm.reset()
-              }
+              // ignore click if empty or a duplicate
+              // TODO: show error instead of ignoring click
+              if (!type || !value) return
+              if (targets.value.some((t) => t.value === value && t.type === type)) return
+
+              targets.onChange([...targets.value, { type, value }])
+              targetForm.reset()
             })}
           >
             Add target
@@ -317,16 +315,13 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
           <Button
             size="sm"
             onClick={hostForm.handleSubmit(({ type, value }) => {
-              // ignore click if it's a duplicate
+              // ignore click if empty or a duplicate
               // TODO: show error instead of ignoring click
-              if (
-                type &&
-                value &&
-                !hosts.value.some((t) => t.value === value && t.type === type)
-              ) {
-                hosts.onChange([...hosts.value, { type, value }])
-                hostForm.reset()
-              }
+              if (!type || !value) return
+              if (hosts.value.some((t) => t.value === value && t.type === type)) return
+
+              hosts.onChange([...hosts.value, { type, value }])
+              hostForm.reset()
             })}
           >
             Add host filter
