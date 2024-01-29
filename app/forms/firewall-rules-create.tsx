@@ -182,7 +182,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
 
       {/* Really this should be its own <form>, but you can't have a form inside a form,
           so we just stick the submit handler in a button onClick */}
-      <h3 className="mb-4 text-sans-xl">Targets</h3>
+      <h3 className="mb-4 text-sans-xl">Target</h3>
       {/* TODO: make ListboxField smarter with the values like RadioField is */}
       <ListboxField
         name="type"
@@ -237,10 +237,10 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
       </div>
 
       {!!targets.value.length && (
-        <MiniTable.Table className="mb-4">
+        <MiniTable.Table className="mb-4" aria-label="Targets">
           <MiniTable.Header>
             <MiniTable.HeadCell>Type</MiniTable.HeadCell>
-            <MiniTable.HeadCell>Name</MiniTable.HeadCell>
+            <MiniTable.HeadCell>Value</MiniTable.HeadCell>
             {/* For remove button */}
             <MiniTable.HeadCell className="w-12" />
           </MiniTable.Header>
@@ -259,7 +259,11 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
                 <MiniTable.Cell>
                   <button
                     onClick={() =>
-                      targets.onChange(targets.value.filter((i) => i.value !== t.value))
+                      targets.onChange(
+                        targets.value.filter(
+                          (i) => !(i.value === t.value && i.type === t.type)
+                        )
+                      )
                     }
                   >
                     <Error16Icon title={`remove ${t.value}`} />
@@ -313,11 +317,12 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
           <Button
             size="sm"
             onClick={hostForm.handleSubmit(({ type, value }) => {
+              // ignore click if it's a duplicate
               // TODO: show error instead of ignoring click
               if (
                 type &&
                 value &&
-                !hosts.value.some((t) => t.value === value || t.type === type)
+                !hosts.value.some((t) => t.value === value && t.type === type)
               ) {
                 hosts.onChange([...hosts.value, { type, value }])
                 hostForm.reset()
@@ -330,7 +335,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
       </div>
 
       {!!hosts.value.length && (
-        <MiniTable.Table className="mb-4">
+        <MiniTable.Table className="mb-4" aria-label="Host filters">
           <MiniTable.Header>
             <MiniTable.HeadCell>Type</MiniTable.HeadCell>
             <MiniTable.HeadCell>Value</MiniTable.HeadCell>
@@ -352,7 +357,11 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
                 <MiniTable.Cell>
                   <button
                     onClick={() =>
-                      hosts.onChange(hosts.value.filter((i) => i.value !== h.value))
+                      hosts.onChange(
+                        hosts.value.filter(
+                          (i) => !(i.value === h.value && i.type === h.type)
+                        )
+                      )
                     }
                   >
                     <Error16Icon title={`remove ${h.value}`} />
@@ -388,8 +397,10 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
             size="sm"
             onClick={portRangeForm.handleSubmit(({ portRange }) => {
               const portRangeValue = portRange.trim()
+              // ignore click if invalid or already in the list
               // TODO: show error instead of ignoring the click
               if (!parsePortRange(portRangeValue)) return
+              if (ports.value.includes(portRangeValue)) return
               ports.onChange([...ports.value, portRangeValue])
               portRangeForm.reset()
             })}
@@ -400,7 +411,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
       </div>
 
       {!!ports.value.length && (
-        <MiniTable.Table className="mb-4">
+        <MiniTable.Table className="mb-4" aria-label="Ports">
           <MiniTable.Header>
             <MiniTable.HeadCell>Range</MiniTable.HeadCell>
             {/* For remove button */}
