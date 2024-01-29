@@ -43,13 +43,7 @@ import { fancifyStates } from './common'
 
 export const Skeleton = classed.div`h-4 w-12 rounded bg-tertiary motion-safe:animate-pulse`
 
-export const VpcNameFromId = ({
-  value,
-  isLinkCell = false,
-}: {
-  value: string
-  isLinkCell?: boolean
-}) => {
+const VpcNameFromId = ({ value }: { value: string }) => {
   const projectSelector = useProjectSelector()
   const { data: vpc, isError } = useApiQuery(
     'vpcView',
@@ -68,7 +62,7 @@ export const VpcNameFromId = ({
       to={pb.vpc({ ...projectSelector, vpc: vpc.name })}
     >
       {/* Pushes out the link area to the entire cell for improved clickability™ */}
-      {isLinkCell && <div className="absolute inset-0 right-px group-hover:bg-raise" />}
+      <div className="absolute inset-0 right-px group-hover:bg-raise" />
       <div className="relative">{vpc.name}</div>
     </Link>
   )
@@ -204,11 +198,7 @@ export function NetworkingTab() {
         <Column accessor="name" />
         <Column accessor="description" />
         <Column accessor="ip" />
-        <Column
-          header="vpc"
-          accessor="vpcId"
-          cell={(props) => <VpcNameFromId {...props} isLinkCell />}
-        />
+        <Column header="vpc" accessor="vpcId" cell={VpcNameFromId} />
         <Column header="subnet" accessor="subnetId" cell={SubnetNameFromId} />
         <Column
           accessor="primary"
