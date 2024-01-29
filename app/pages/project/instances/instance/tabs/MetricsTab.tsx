@@ -54,13 +54,15 @@ function DiskMetric({
     { placeholderData: (x) => x }
   )
 
-  // Because we're using cumulative metrics, we can use the last (and therefore largest)
-  // value in the set to determine the unit and the divisor for the set.
+  const isBytesChart = unit === 'Bytes'
+
   let unitForSet = ''
   let cycleCount = 0
   let label
-  const divisorBase = unit === 'Bytes' ? 1024 : 1000
+  const divisorBase = isBytesChart ? 1024 : 1000
   if (metrics?.items?.length) {
+    // Because we're using cumulative metrics, we can use the last (and therefore largest)
+    // value in the set to determine the unit and the divisor for the set.
     const largestValue =
       (metrics?.items?.[metrics.items.length - 1].datum.datum as Cumulativeint64).value || 0
 
@@ -72,16 +74,14 @@ function DiskMetric({
       cycleCount++
     }
 
-    // Now that we know how many cycles of "divide by 1024 || 1000" to run through,
-    // we can determine the proper unit for the set
-    if (unit === 'Bytes') {
+    // Now that we know how many cycles of "divide by 1024 || 1000" to run through
+    // (via cylceCount), we can determine the proper unit for the set
+    if (isBytesChart) {
       const byteUnits = ['Bytes', 'KiB', 'MiB', 'GiB', 'TiB']
       unitForSet = byteUnits[cycleCount]
       label = `(${unitForSet})`
     } else {
-      const countUnits = ['', 'K', 'M', 'B', 'T']
-      unitForSet = countUnits[cycleCount]
-      label = unitForSet.length ? `(COUNT × ${unitForSet})` : '(COUNT)'
+      label = '(COUNT)'
     }
   }
 
@@ -89,9 +89,28 @@ function DiskMetric({
 
   const data = (metrics?.items || []).map(({ datum, timestamp }) => ({
     timestamp: timestamp.getTime(),
-    // all of these metrics are cumulative ints
-    value: (datum.datum as Cumulativeint64).value / divisor,
+    // All of these metrics are cumulative ints.
+    // The value passed in is what will render in the tooltip.
+    value: isBytesChart
+      ? // We pass a pre-divided value to the chart if the unit is Bytes
+        (datum.datum as Cumulativeint64).value / divisor
+      : // If the unit is Count, we pass the raw value
+        (datum.datum as Cumulativeint64).value,
   }))
+
+  // Create a label for the y-axis ticks. "Count" charts will be
+  // abbreviated and will have a suffix (e.g. "k") appended. Because
+  // "Bytes" charts will have already been divided by the divisor
+  // before the yAxis is created, we can use their given value.
+  const yAxisTickFormatter = (val: number) => {
+    if (isBytesChart) {
+      return val.toLocaleString()
+    }
+    const tickValue = (val / divisor).toFixed(2)
+    const countUnits = ['', 'k', 'm', 'b', 't']
+    const unitForTick = countUnits[cycleCount]
+    return `${tickValue}${unitForTick}`
+  }
 
   return (
     <div className="flex w-1/2 flex-grow flex-col">
@@ -109,6 +128,7 @@ function DiskMetric({
           height={240}
           startTime={startTime}
           endTime={endTime}
+          yAxisTickFormatter={yAxisTickFormatter}
         />
       </Suspense>
     </div>

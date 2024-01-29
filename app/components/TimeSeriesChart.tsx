@@ -110,6 +110,7 @@ type TimeSeriesChartProps = {
   startTime: Date
   endTime: Date
   unit?: string
+  yAxisTickFormatter?: (val: number) => string
 }
 
 const TICK_COUNT = 6
@@ -129,6 +130,7 @@ export default function TimeSeriesChart({
   startTime,
   endTime,
   unit,
+  yAxisTickFormatter,
 }: TimeSeriesChartProps) {
   // We use the largest data point +20% for the graph scale. !rawData doesn't
   // mean it's empty (it will never be empty because we fill in artificial 0s at
@@ -182,7 +184,7 @@ export default function TimeSeriesChart({
           orientation="right"
           tick={textMonoMd}
           tickMargin={8}
-          tickFormatter={(val) => val.toLocaleString()}
+          tickFormatter={yAxisTickFormatter || ((val: number) => val.toLocaleString())}
           padding={{ top: 32 }}
           {...yTicks}
         />
