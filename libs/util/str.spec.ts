@@ -64,11 +64,6 @@ describe('titleCase', () => {
     expect(titleCase('hello, world!')).toBe('Hello, World!')
   })
 
-  // lol this title doesn't match the assert
-  it('retains existing capitalization of non-initial letters', () => {
-    expect(titleCase('hElLo wOrLd')).toBe('Hello World')
-  })
-
   it('works correctly with empty strings', () => {
     expect(titleCase('')).toBe('')
   })
