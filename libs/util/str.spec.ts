@@ -7,7 +7,7 @@
  */
 import { describe, expect, it } from 'vitest'
 
-import { camelCase, capitalize, commaSeries, kebabCase } from './str'
+import { camelCase, capitalize, commaSeries, kebabCase, titleCase } from './str'
 
 describe('capitalize', () => {
   it('capitalizes the first letter', () => {
@@ -45,4 +45,34 @@ it('commaSeries', () => {
   expect(commaSeries(['a', 'b'], 'or')).toBe('a or b')
   expect(commaSeries(['a', 'b'], 'or')).toBe('a or b')
   expect(commaSeries(['a', 'b', 'c'], 'or')).toBe('a, b, or c')
+})
+
+describe('titleCase', () => {
+  it('converts single words to title case', () => {
+    expect(titleCase('hello')).toBe('Hello')
+  })
+
+  it('converts multiple words to title case', () => {
+    expect(titleCase('hello world')).toBe('Hello World')
+  })
+
+  it('handles mixed case input correctly', () => {
+    expect(titleCase('hElLo WoRlD')).toBe('Hello World')
+  })
+
+  it('works correctly with strings containing punctuation', () => {
+    expect(titleCase('hello, world!')).toBe('Hello, World!')
+  })
+
+  it('works correctly with empty strings', () => {
+    expect(titleCase('')).toBe('')
+  })
+
+  it('handles strings with only one character', () => {
+    expect(titleCase('a')).toBe('A')
+  })
+
+  it('doesn’t modify non-letter characters', () => {
+    expect(titleCase('123 abc')).toBe('123 Abc')
+  })
 })

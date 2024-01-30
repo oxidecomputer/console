@@ -9,11 +9,12 @@ import { useMemo, useState } from 'react'
 
 import {
   useApiMutation,
-  useApiQuery,
   useApiQueryClient,
+  usePrefetchedApiQuery,
   type VpcFirewallRule,
 } from '@oxide/api'
 import {
+  ButtonCell,
   createColumnHelper,
   DateCell,
   EnabledCell,
@@ -24,6 +25,7 @@ import {
   useReactTable,
 } from '@oxide/table'
 import { Button, EmptyMessage, TableEmptyBox } from '@oxide/ui'
+import { sortBy, titleCase } from '@oxide/util'
 
 import { CreateFirewallRuleForm } from 'app/forms/firewall-rules-create'
 import { EditFirewallRuleForm } from 'app/forms/firewall-rules-edit'
@@ -34,8 +36,18 @@ const colHelper = createColumnHelper<VpcFirewallRule>()
 
 /** columns that don't depend on anything in `render` */
 const staticColumns = [
-  colHelper.accessor('name', { header: 'Name' }),
-  colHelper.accessor('action', { header: 'Action' }),
+  colHelper.accessor('priority', {
+    header: 'Priority',
+    cell: (info) => <div className="text-secondary">{info.getValue()}</div>,
+  }),
+  colHelper.accessor('action', {
+    header: 'Action',
+    cell: (info) => <div className="text-secondary">{titleCase(info.getValue())}</div>,
+  }),
+  colHelper.accessor('direction', {
+    header: 'Direction',
+    cell: (info) => <div className="text-secondary">{titleCase(info.getValue())}</div>,
+  }),
   colHelper.accessor('targets', {
     header: 'Targets',
     cell: (info) => <TypeValueListCell value={info.getValue()} />,
@@ -59,8 +71,10 @@ export const VpcFirewallRulesTab = () => {
   const queryClient = useApiQueryClient()
   const vpcSelector = useVpcSelector()
 
-  const { data, isLoading } = useApiQuery('vpcFirewallRulesView', { query: vpcSelector })
-  const rules = useMemo(() => data?.rules || [], [data])
+  const { data } = usePrefetchedApiQuery('vpcFirewallRulesView', {
+    query: vpcSelector,
+  })
+  const rules = useMemo(() => sortBy(data.rules, (r) => r.priority), [data])
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [editing, setEditing] = useState<VpcFirewallRule | null>(null)
@@ -74,6 +88,14 @@ export const VpcFirewallRulesTab = () => {
   // the whole thing can't be static because the action depends on setEditing
   const columns = useMemo(() => {
     return [
+      colHelper.accessor('name', {
+        header: 'Name',
+        cell: (info) => (
+          <ButtonCell onClick={() => setEditing(info.row.original)}>
+            {info.getValue()}
+          </ButtonCell>
+        ),
+      }),
       ...staticColumns,
       getActionsCol((rule: VpcFirewallRule) => [
         { label: 'Edit', onActivate: () => setEditing(rule) },
@@ -127,7 +149,7 @@ export const VpcFirewallRulesTab = () => {
           />
         )}
       </div>
-      {rules.length > 0 || isLoading ? <Table table={table} /> : emptyState}
+      {rules.length > 0 ? <Table table={table} /> : emptyState}
     </>
   )
 }

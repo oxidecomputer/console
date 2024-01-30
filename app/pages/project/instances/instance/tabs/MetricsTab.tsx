@@ -189,7 +189,7 @@ export function MetricsTab() {
     <>
       <div className="mb-4 flex justify-between">
         <Listbox
-          className="w-48"
+          className="w-64"
           aria-label="Choose disk"
           name="disk-name"
           selected={diskName}
