@@ -87,16 +87,20 @@ function DiskMetric({
 
   const divisor = divisorBase ** cycleCount
 
-  const data = (metrics?.items || []).map(({ datum, timestamp }) => ({
-    timestamp: timestamp.getTime(),
-    // All of these metrics are cumulative ints.
-    // The value passed in is what will render in the tooltip.
-    value: isBytesChart
-      ? // We pass a pre-divided value to the chart if the unit is Bytes
-        (datum.datum as Cumulativeint64).value / divisor
-      : // If the unit is Count, we pass the raw value
-        (datum.datum as Cumulativeint64).value,
-  }))
+  const data = useMemo(
+    () =>
+      (metrics?.items || []).map(({ datum, timestamp }) => ({
+        timestamp: timestamp.getTime(),
+        // All of these metrics are cumulative ints.
+        // The value passed in is what will render in the tooltip.
+        value: isBytesChart
+          ? // We pass a pre-divided value to the chart if the unit is Bytes
+            (datum.datum as Cumulativeint64).value / divisor
+          : // If the unit is Count, we pass the raw value
+            (datum.datum as Cumulativeint64).value,
+      })),
+    [metrics, isBytesChart, divisor]
+  )
 
   // Create a label for the y-axis ticks. "Count" charts will be
   // abbreviated and will have a suffix (e.g. "k") appended. Because
@@ -107,7 +111,7 @@ function DiskMetric({
       return val.toLocaleString()
     }
     const tickValue = (val / divisor).toFixed(2)
-    const countUnits = ['', 'k', 'm', 'b', 't']
+    const countUnits = ['', 'k', 'M', 'B', 'T']
     const unitForTick = countUnits[cycleCount]
     return `${tickValue}${unitForTick}`
   }
