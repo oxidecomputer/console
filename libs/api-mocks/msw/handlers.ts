@@ -76,8 +76,8 @@ export const handlers = makeHandlers({
   projectUpdate({ body, path }) {
     const project = lookup.project({ ...path })
     if (body.name) {
-      project.name = body.name
       errIfExists(db.projects, { name: body.name })
+      project.name = body.name
     }
     project.description = body.description || ''
 
@@ -654,7 +654,17 @@ export const handlers = makeHandlers({
 
     return 204
   },
-  ipPoolUpdate: NotImplemented,
+  ipPoolUpdate({ path, body }) {
+    const pool = lookup.ipPool(path)
+
+    if (body.name) {
+      errIfExists(db.ipPools, { name: body.name })
+      pool.name = body.name
+    }
+    pool.description = body.description || ''
+
+    return pool
+  },
   projectPolicyView({ path }) {
     const project = lookup.project(path)
 

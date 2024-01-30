@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { Link, Outlet } from 'react-router-dom'
+import { Link, Outlet, useNavigate } from 'react-router-dom'
 
 import { apiQueryClient, useApiMutation, type IpPool } from '@oxide/api'
 import { DateCell, linkCell, useQueryTable, type MenuAction } from '@oxide/table'
@@ -38,7 +38,7 @@ IpPoolsPage.loader = async function () {
 }
 
 export function IpPoolsPage() {
-  // const navigate = useNavigate()
+  const navigate = useNavigate()
   const { Table, Column } = useQueryTable('ipPoolList', {})
 
   const deletePool = useApiMutation('ipPoolDelete', {
@@ -48,15 +48,15 @@ export function IpPoolsPage() {
   })
 
   const makeActions = (pool: IpPool): MenuAction[] => [
-    // {
-    //   label: 'Edit',
-    //   onActivate: () => {
-    //     // the edit view has its own loader, but we can make the modal open
-    //     // instantaneously by preloading the fetch result
-    //     apiQueryClient.setQueryData('ipPoolView', { path: { pool: pool.name } }, pool)
-    //     navigate(pb.ipPoolEdit({ pool: pool.name }))
-    //   },
-    // },
+    {
+      label: 'Edit',
+      onActivate: () => {
+        // the edit view has its own loader, but we can make the modal open
+        // instantaneously by preloading the fetch result
+        apiQueryClient.setQueryData('ipPoolView', { path: { pool: pool.name } }, pool)
+        navigate(pb.ipPoolEdit({ pool: pool.name }))
+      },
+    },
     {
       label: 'Delete',
       onActivate: confirmDelete({

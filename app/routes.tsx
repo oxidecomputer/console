@@ -20,6 +20,7 @@ import { CreateImageFromSnapshotSideModalForm } from './forms/image-from-snapsho
 import { CreateImageSideModalForm } from './forms/image-upload'
 import { CreateInstanceForm } from './forms/instance-create'
 import { CreateIpPoolSideModalForm } from './forms/ip-pool-create'
+import { EditIpPoolSideModalForm } from './forms/ip-pool-edit'
 import { CreateProjectSideModalForm } from './forms/project-create'
 import { EditProjectSideModalForm } from './forms/project-edit'
 import { CreateSiloSideModalForm } from './forms/silo-create'
@@ -176,6 +177,12 @@ export const routes = createRoutesFromElements(
           <Route element={<IpPoolsPage />} loader={IpPoolsPage.loader}>
             <Route path="ip-pools" element={null} />
             <Route path="ip-pools-new" element={<CreateIpPoolSideModalForm />} />
+            <Route
+              path="ip-pools/:pool/edit"
+              element={<EditIpPoolSideModalForm />}
+              loader={EditIpPoolSideModalForm.loader}
+              handle={{ crumb: 'Edit IP pool' }}
+            />
           </Route>
           <Route
             path="ip-pools/:pool"
