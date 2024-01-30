@@ -13,7 +13,7 @@ export const PageHeader = classed.header`mb-16 mt-12 flex items-center justify-b
 
 interface PageTitleProps {
   icon?: ReactElement
-  children: string
+  children: React.ReactNode
 }
 export const PageTitle = ({ children: title, icon }: PageTitleProps) => {
   return (

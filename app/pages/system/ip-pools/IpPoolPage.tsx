@@ -37,10 +37,8 @@ export function IpPoolPage() {
   const { data: pool } = usePrefetchedApiQuery('ipPoolView', { path: poolSelector })
   return (
     <>
-      {/* TODO: I think this page needs a back to pools button. clicking 
-      Networking again is not at all obvious */}
       <PageHeader>
-        <PageTitle icon={<Networking24Icon />}>{`IP Pool: ${pool.name}`}</PageTitle>
+        <PageTitle icon={<Networking24Icon />}>IP pool: {pool.name}</PageTitle>
       </PageHeader>
       <QueryParamTabs className="full-width" defaultValue="ranges">
         <Tabs.List>

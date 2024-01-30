@@ -8,7 +8,7 @@
 
 import { apiQueryClient } from '@oxide/api'
 import { DateCell, linkCell, useQueryTable } from '@oxide/table'
-import { EmptyMessage, Networking24Icon, PageHeader, PageTitle } from '@oxide/ui'
+import { EmptyMessage, Message, Networking24Icon, PageHeader, PageTitle } from '@oxide/ui'
 
 import { pb } from 'app/util/path-builder'
 
@@ -34,6 +34,11 @@ export function IpPoolsPage() {
       <PageHeader>
         <PageTitle icon={<Networking24Icon />}>IP pools</PageTitle>
       </PageHeader>
+      <Message
+        className="-mt-8 mb-12"
+        variant="info"
+        content="This page is a work in progress. Use the CLI or API for full control over pools, IP ranges, and linked silos."
+      />
       <Table emptyState={<EmptyState />}>
         <Column accessor="name" cell={linkCell((pool) => pb.ipPool({ pool }))} />
         <Column accessor="description" />
