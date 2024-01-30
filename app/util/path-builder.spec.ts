@@ -40,6 +40,7 @@ test('path builder', () => {
         "instances": "/projects/p/instances",
         "inventory": "/system/inventory",
         "ipPool": "/system/ip-pools/pl",
+        "ipPoolEdit": "/system/ip-pools/pl/edit",
         "ipPoolNew": "/system/ip-pools-new",
         "ipPools": "/system/ip-pools",
         "nics": "/projects/p/instances/i/network-interfaces",
