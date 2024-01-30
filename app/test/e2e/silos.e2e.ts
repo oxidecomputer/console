@@ -9,7 +9,13 @@ import { expect, test } from '@playwright/test'
 
 import { MiB } from '@oxide/util'
 
-import { chooseFile, expectNotVisible, expectRowVisible, expectVisible } from './utils'
+import {
+  chooseFile,
+  clickRowAction,
+  expectNotVisible,
+  expectRowVisible,
+  expectVisible,
+} from './utils'
 
 test('Create silo', async ({ page }) => {
   await page.goto('/system/silos')
@@ -150,4 +156,31 @@ test('Identity providers', async ({ page }) => {
 
   await page.getByRole('button', { name: 'Cancel' }).click()
   await expectNotVisible(page, ['role=dialog[name="Identity provider"]'])
+})
+
+test('Silo IP pools', async ({ page }) => {
+  await page.goto('/system/silos/maze-war?tab=ip-pools')
+
+  const table = page.getByRole('table')
+  await expectRowVisible(table, { name: 'ip-pool-1', Default: 'default' })
+  await expectRowVisible(table, { name: 'ip-pool-2', Default: '' })
+
+  // clicking on pool goes to pool detail
+  await page.getByRole('link', { name: 'ip-pool-1' }).click()
+  await expect(page).toHaveURL('/system/ip-pools/ip-pool-1')
+  await page.goBack()
+
+  // make default
+  await clickRowAction(page, 'ip-pool-2', 'Make default')
+  await expectRowVisible(table, { name: 'ip-pool-1', Default: '' })
+  await expectRowVisible(table, { name: 'ip-pool-2', Default: 'default' })
+
+  // unlink
+  await clickRowAction(page, 'ip-pool-1', 'Unlink')
+  await expect(page.getByRole('cell', { name: 'ip-pool-1' })).toBeHidden()
+  await expectRowVisible(table, { name: 'ip-pool-2', Default: 'default' })
+
+  // clear default
+  await clickRowAction(page, 'ip-pool-2', 'Clear default')
+  await expectRowVisible(table, { name: 'ip-pool-2', Default: '' })
 })
