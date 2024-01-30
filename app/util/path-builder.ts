@@ -78,7 +78,7 @@ export const pb = {
   systemUtilization: () => '/system/utilization',
   systemHealth: () => '/system/health',
 
-  systemNetworking: () => '/system/networking',
+  systemNetworking: () => '/system/networking/ip-pools',
   ipPools: () => '/system/networking/ip-pools',
   ipPoolNew: () => '/system/networking/ip-pool-new',
   ipPool: (params: IpPool) => `${pb.ipPools()}/${params.pool}`,

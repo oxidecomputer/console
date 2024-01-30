@@ -9,9 +9,10 @@
 import type { LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
-import { BooleanCell, useQueryTable } from '@oxide/table'
-import { EmptyMessage, Networking24Icon, PageHeader, PageTitle } from '@oxide/ui'
+import { BooleanCell, DateCell, useQueryTable } from '@oxide/table'
+import { EmptyMessage, Networking24Icon, PageHeader, PageTitle, Tabs } from '@oxide/ui'
 
+import { QueryParamTabs } from 'app/components/QueryParamTabs'
 import { getIpPoolSelector, useIpPoolSelector } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
@@ -23,25 +24,17 @@ IpPoolPage.loader = async function ({ params }: LoaderFunctionArgs) {
       path: { pool },
       query: { limit: 25 }, // match QueryTable
     }),
+    apiQueryClient.prefetchQuery('ipPoolRangeList', {
+      path: { pool },
+      query: { limit: 25 }, // match QueryTable
+    }),
   ])
   return null
 }
 
-const EmptyState = () => (
-  <EmptyMessage
-    icon={<Networking24Icon />}
-    title="No IP pool associations"
-    body="You need to link an IP pool to the fleet or a silo to be able to see it here"
-    buttonText="Link IP pool"
-    // TODO: correct link
-    buttonTo={pb.ipPoolNew()}
-  />
-)
-
 export function IpPoolPage() {
   const poolSelector = useIpPoolSelector()
   const { data: pool } = usePrefetchedApiQuery('ipPoolView', { path: poolSelector })
-  const { Table, Column } = useQueryTable('ipPoolSiloList', { path: poolSelector })
   return (
     <>
       {/* TODO: I think this page needs a back to pools button. clicking 
@@ -49,14 +42,68 @@ export function IpPoolPage() {
       <PageHeader>
         <PageTitle icon={<Networking24Icon />}>{`IP Pool: ${pool.name}`}</PageTitle>
       </PageHeader>
-      <h2 id="links-label" className="mb-4 text-mono-sm text-secondary">
-        Linked resources
-      </h2>
-      <Table emptyState={<EmptyState />} aria-labelledby="links-label">
-        <Column accessor="siloId" id="Silo ID" />
-        {/* TODO: we're going to want a tooltip to explain what the f this means */}
-        <Column accessor="isDefault" id="Default" cell={BooleanCell} />
-      </Table>
+      <QueryParamTabs className="full-width" defaultValue="ranges">
+        <Tabs.List>
+          <Tabs.Trigger value="ranges">IP ranges</Tabs.Trigger>
+          <Tabs.Trigger value="silos">Linked silos</Tabs.Trigger>
+        </Tabs.List>
+        <Tabs.Content value="ranges">
+          <IpRangesTable />
+        </Tabs.Content>
+        <Tabs.Content value="silos">
+          <LinkedSilosTable />
+        </Tabs.Content>
+      </QueryParamTabs>
     </>
+  )
+}
+
+const RangesEmptyState = () => (
+  <EmptyMessage
+    icon={<Networking24Icon />}
+    title="No IP ranges"
+    body="Add a range to see it here"
+    buttonText="Add range"
+    // TODO: correct link
+    buttonTo={pb.ipPoolNew()}
+  />
+)
+
+function IpRangesTable() {
+  const poolSelector = useIpPoolSelector()
+  const { Table, Column } = useQueryTable('ipPoolRangeList', { path: poolSelector })
+
+  return (
+    <Table emptyState={<RangesEmptyState />}>
+      {/* TODO: only showing the ID is ridiculous. we need names */}
+      <Column accessor="range.first" header="First" />
+      <Column accessor="range.last" header="Last" />
+      <Column accessor="timeCreated" header="Created" cell={DateCell} />
+    </Table>
+  )
+}
+
+const SilosEmptyState = () => (
+  <EmptyMessage
+    icon={<Networking24Icon />}
+    title="No IP pool associations"
+    body="You need to link the IP pool to a silo to be able to see it here"
+    buttonText="Link IP pool"
+    // TODO: correct link
+    buttonTo={pb.ipPoolNew()}
+  />
+)
+
+function LinkedSilosTable() {
+  const poolSelector = useIpPoolSelector()
+  const { Table, Column } = useQueryTable('ipPoolSiloList', { path: poolSelector })
+
+  return (
+    <Table emptyState={<SilosEmptyState />}>
+      {/* TODO: only showing the ID is ridiculous. we need names */}
+      <Column accessor="siloId" id="Silo ID" />
+      {/* TODO: we're going to want a tooltip to explain what the f this means */}
+      <Column accessor="isDefault" id="Default for silo" cell={BooleanCell} />
+    </Table>
   )
 }

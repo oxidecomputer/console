@@ -7,7 +7,7 @@
  */
 
 import { apiQueryClient } from '@oxide/api'
-import { linkCell, useQueryTable } from '@oxide/table'
+import { DateCell, linkCell, useQueryTable } from '@oxide/table'
 import { EmptyMessage, Networking24Icon, PageHeader, PageTitle } from '@oxide/ui'
 
 import { pb } from 'app/util/path-builder'
@@ -37,6 +37,7 @@ export function NetworkingPage() {
       <Table emptyState={<EmptyState />}>
         <Column accessor="name" cell={linkCell((pool) => pb.ipPool({ pool }))} />
         <Column accessor="description" />
+        <Column accessor="timeCreated" header="Created" cell={DateCell} />
       </Table>
     </>
   )

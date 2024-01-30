@@ -58,7 +58,7 @@ export function VpcPage() {
         </PropertiesTable>
       </PropertiesTable.Group>
 
-      <QueryParamTabs id="tabs-vpc-sections" className="full-width" defaultValue="subnets">
+      <QueryParamTabs className="full-width" defaultValue="subnets">
         <Tabs.List>
           <Tabs.Trigger value="subnets">Subnets</Tabs.Trigger>
           <Tabs.Trigger value="firewall-rules">Firewall Rules</Tabs.Trigger>

@@ -73,7 +73,7 @@ export function SiloPage() {
         </PropertiesTable>
       </PropertiesTable.Group>
 
-      <QueryParamTabs id="silo-networking-tabs" className="full-width" defaultValue="idps">
+      <QueryParamTabs className="full-width" defaultValue="idps">
         <Tabs.List>
           <Tabs.Trigger value="idps">Identity Providers</Tabs.Trigger>
           <Tabs.Trigger value="ip-pools">IP Pools</Tabs.Trigger>

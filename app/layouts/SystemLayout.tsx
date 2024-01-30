@@ -66,6 +66,7 @@ export default function SystemLayout() {
       { value: 'Silos', path: pb.silos() },
       { value: 'Utilization', path: pb.systemUtilization() },
       { value: 'Inventory', path: pb.inventory() },
+      { value: 'Networking', path: pb.systemNetworking() },
     ]
       // filter out the entry for the path we're currently on
       .filter((i) => i.path !== pathname)

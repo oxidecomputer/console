@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { type IpPool, type IpPoolSiloLink } from '@oxide/api'
+import { type IpPool, type IpPoolRange, type IpPoolSiloLink } from '@oxide/api'
 
 import type { Json } from './json-type'
 import { defaultSilo } from './silo'
@@ -46,5 +46,35 @@ export const ipPoolSilos: Json<IpPoolSiloLink>[] = [
     ip_pool_id: ipPool2.id,
     silo_id: defaultSilo.id,
     is_default: false,
+  },
+]
+
+export const ipPoolRanges: Json<IpPoolRange[]> = [
+  {
+    id: 'bbfcf3f2-061e-4334-a0e7-dfcd8171f87e',
+    ip_pool_id: ipPool1.id,
+    range: {
+      first: '10.0.0.1',
+      last: '10.0.0.5',
+    },
+    time_created: new Date().toISOString(),
+  },
+  {
+    id: 'df05795b-cb88-4971-9865-ac2995c2b2d4',
+    ip_pool_id: ipPool1.id,
+    range: {
+      first: '10.0.0.20',
+      last: '10.0.0.22',
+    },
+    time_created: new Date().toISOString(),
+  },
+  {
+    id: '7e6e94b9-748e-4219-83a3-cec76253ec70',
+    ip_pool_id: ipPool2.id,
+    range: {
+      first: '10.0.0.33',
+      last: '10.0.0.38',
+    },
+    time_created: new Date().toISOString(),
   },
 ]

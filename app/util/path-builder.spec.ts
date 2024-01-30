@@ -76,7 +76,7 @@ test('path builder', () => {
         "system": "/system",
         "systemHealth": "/system/health",
         "systemIssues": "/system/issues",
-        "systemNetworking": "/system/networking",
+        "systemNetworking": "/system/networking/ip-pools",
         "systemUtilization": "/system/utilization",
         "vpc": "/projects/p/vpcs/v",
         "vpcEdit": "/projects/p/vpcs/v/edit",
