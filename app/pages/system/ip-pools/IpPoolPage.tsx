@@ -14,7 +14,6 @@ import { EmptyMessage, Networking24Icon, PageHeader, PageTitle, Tabs } from '@ox
 
 import { QueryParamTabs } from 'app/components/QueryParamTabs'
 import { getIpPoolSelector, useIpPoolSelector } from 'app/hooks'
-import { pb } from 'app/util/path-builder'
 
 IpPoolPage.loader = async function ({ params }: LoaderFunctionArgs) {
   const { pool } = getIpPoolSelector(params)
@@ -61,9 +60,9 @@ const RangesEmptyState = () => (
     icon={<Networking24Icon />}
     title="No IP ranges"
     body="Add a range to see it here"
-    buttonText="Add range"
-    // TODO: correct link
-    buttonTo={pb.ipPoolNew()}
+    // TODO: link add range button
+    // buttonText="Add range"
+    // buttonTo={pb.ipPoolNew()}
   />
 )
 
@@ -86,9 +85,9 @@ const SilosEmptyState = () => (
     icon={<Networking24Icon />}
     title="No IP pool associations"
     body="You need to link the IP pool to a silo to be able to see it here"
-    buttonText="Link IP pool"
-    // TODO: correct link
-    buttonTo={pb.ipPoolNew()}
+    // TODO: link silo button
+    // buttonText="Link IP pool"
+    // buttonTo={pb.ipPoolNew()}
   />
 )
 

@@ -6,9 +6,19 @@
  * Copyright Oxide Computer Company
  */
 
+import { Link, Outlet } from 'react-router-dom'
+
 import { apiQueryClient } from '@oxide/api'
 import { DateCell, linkCell, useQueryTable } from '@oxide/table'
-import { EmptyMessage, Message, Networking24Icon, PageHeader, PageTitle } from '@oxide/ui'
+import {
+  buttonStyle,
+  EmptyMessage,
+  Message,
+  Networking24Icon,
+  PageHeader,
+  PageTitle,
+  TableActions,
+} from '@oxide/ui'
 
 import { pb } from 'app/util/path-builder'
 
@@ -35,15 +45,21 @@ export function IpPoolsPage() {
         <PageTitle icon={<Networking24Icon />}>IP pools</PageTitle>
       </PageHeader>
       <Message
-        className="-mt-8 mb-12"
+        className="-mt-8 mb-20"
         variant="info"
         content="This page is a work in progress. Use the CLI or API for full control over pools, IP ranges, and linked silos."
       />
+      <TableActions>
+        <Link to={pb.ipPoolNew()} className={buttonStyle({ size: 'sm' })}>
+          New IP Pool
+        </Link>
+      </TableActions>
       <Table emptyState={<EmptyState />}>
         <Column accessor="name" cell={linkCell((pool) => pb.ipPool({ pool }))} />
         <Column accessor="description" />
         <Column accessor="timeCreated" header="Created" cell={DateCell} />
       </Table>
+      <Outlet />
     </>
   )
 }

@@ -19,6 +19,7 @@ import {
 import { CreateImageFromSnapshotSideModalForm } from './forms/image-from-snapshot'
 import { CreateImageSideModalForm } from './forms/image-upload'
 import { CreateInstanceForm } from './forms/instance-create'
+import { CreateIpPoolSideModalForm } from './forms/ip-pool-create'
 import { CreateProjectSideModalForm } from './forms/project-create'
 import { EditProjectSideModalForm } from './forms/project-edit'
 import { CreateSiloSideModalForm } from './forms/silo-create'
@@ -171,10 +172,16 @@ export const routes = createRoutesFromElements(
         </Route>
         <Route path="health" element={null} handle={{ crumb: 'Health' }} />
         <Route path="update" element={null} handle={{ crumb: 'Update' }} />
-        <Route path="ip-pools" handle={{ crumb: 'IP pools' }}>
-          <Route index element={<IpPoolsPage />} loader={IpPoolsPage.loader} />
-          <Route path=":pool" element={<IpPoolPage />} loader={IpPoolPage.loader} />
-          <Route path="ip-pools-new" element={null} />
+        <Route handle={{ crumb: 'IP pools' }}>
+          <Route element={<IpPoolsPage />} loader={IpPoolsPage.loader}>
+            <Route path="ip-pools" element={null} />
+            <Route path="ip-pools-new" element={<CreateIpPoolSideModalForm />} />
+          </Route>
+          <Route
+            path="ip-pools/:pool"
+            element={<IpPoolPage />}
+            loader={IpPoolPage.loader}
+          />
         </Route>
       </Route>
 

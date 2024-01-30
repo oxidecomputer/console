@@ -628,6 +628,20 @@ export const handlers = makeHandlers({
     return paginated(query, ranges)
   },
   ipPoolRangeRemove: NotImplemented,
+  ipPoolCreate({ body }) {
+    errIfExists(db.ipPools, { name: body.name }, 'IP pool')
+
+    const newPool: Json<Api.IpPool> = {
+      id: uuid(),
+      ...body,
+      ...getTimestamps(),
+    }
+    db.ipPools.push(newPool)
+
+    return json(newPool, { status: 201 })
+  },
+  ipPoolDelete: NotImplemented,
+  ipPoolUpdate: NotImplemented,
   projectPolicyView({ path }) {
     const project = lookup.project(path)
 
@@ -1055,13 +1069,10 @@ export const handlers = makeHandlers({
   instanceEphemeralIpAttach: NotImplemented,
   instanceMigrate: NotImplemented,
   instanceSerialConsoleStream: NotImplemented,
-  ipPoolCreate: NotImplemented,
-  ipPoolDelete: NotImplemented,
   ipPoolServiceRangeAdd: NotImplemented,
   ipPoolServiceRangeList: NotImplemented,
   ipPoolServiceRangeRemove: NotImplemented,
   ipPoolServiceView: NotImplemented,
-  ipPoolUpdate: NotImplemented,
   localIdpUserCreate: NotImplemented,
   localIdpUserDelete: NotImplemented,
   localIdpUserSetPassword: NotImplemented,
