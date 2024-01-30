@@ -8,18 +8,18 @@
 
 import { Link, Outlet } from 'react-router-dom'
 
-import { apiQueryClient } from '@oxide/api'
-import { DateCell, linkCell, useQueryTable } from '@oxide/table'
+import { apiQueryClient, useApiMutation, type IpPool } from '@oxide/api'
+import { DateCell, linkCell, useQueryTable, type MenuAction } from '@oxide/table'
 import {
   buttonStyle,
   EmptyMessage,
-  Message,
   Networking24Icon,
   PageHeader,
   PageTitle,
   TableActions,
 } from '@oxide/ui'
 
+import { confirmDelete } from 'app/stores/confirm-delete'
 import { pb } from 'app/util/path-builder'
 
 const EmptyState = () => (
@@ -38,23 +38,45 @@ IpPoolsPage.loader = async function () {
 }
 
 export function IpPoolsPage() {
+  // const navigate = useNavigate()
   const { Table, Column } = useQueryTable('ipPoolList', {})
+
+  const deletePool = useApiMutation('ipPoolDelete', {
+    onSuccess() {
+      apiQueryClient.invalidateQueries('ipPoolList')
+    },
+  })
+
+  const makeActions = (pool: IpPool): MenuAction[] => [
+    // {
+    //   label: 'Edit',
+    //   onActivate: () => {
+    //     // the edit view has its own loader, but we can make the modal open
+    //     // instantaneously by preloading the fetch result
+    //     apiQueryClient.setQueryData('ipPoolView', { path: { pool: pool.name } }, pool)
+    //     navigate(pb.ipPoolEdit({ pool: pool.name }))
+    //   },
+    // },
+    {
+      label: 'Delete',
+      onActivate: confirmDelete({
+        doDelete: () => deletePool.mutateAsync({ path: { pool: pool.name } }),
+        label: pool.name,
+      }),
+    },
+  ]
+
   return (
     <>
       <PageHeader>
         <PageTitle icon={<Networking24Icon />}>IP pools</PageTitle>
       </PageHeader>
-      <Message
-        className="-mt-8 mb-20"
-        variant="info"
-        content="This page is a work in progress. Use the CLI or API for full control over pools, IP ranges, and linked silos."
-      />
       <TableActions>
         <Link to={pb.ipPoolNew()} className={buttonStyle({ size: 'sm' })}>
           New IP Pool
         </Link>
       </TableActions>
-      <Table emptyState={<EmptyState />}>
+      <Table emptyState={<EmptyState />} makeActions={makeActions}>
         <Column accessor="name" cell={linkCell((pool) => pb.ipPool({ pool }))} />
         <Column accessor="description" />
         <Column accessor="timeCreated" header="Created" cell={DateCell} />

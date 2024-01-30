@@ -562,6 +562,7 @@ export const handlers = makeHandlers({
 
     return { ...pool, is_default: link.is_default }
   },
+  // TODO: require admin permissions for system IP pool endpoints
   ipPoolView: ({ path }) => lookup.ipPool(path),
   ipPoolSiloList({ path /*query*/ }) {
     // TODO: paginated wants an id field, but this is a join table, so it  has a
@@ -640,7 +641,19 @@ export const handlers = makeHandlers({
 
     return json(newPool, { status: 201 })
   },
-  ipPoolDelete: NotImplemented,
+  ipPoolDelete({ path }) {
+    const pool = lookup.ipPool(path)
+
+    if (db.ipPoolRanges.some((r) => r.ip_pool_id === pool.id)) {
+      throw 'IP pool cannot be deleted while it contains IP ranges'
+    }
+
+    // delete pools and silo links
+    db.ipPools = db.ipPools.filter((p) => p.id !== pool.id)
+    db.ipPoolSilos = db.ipPoolSilos.filter((s) => s.ip_pool_id !== pool.id)
+
+    return 204
+  },
   ipPoolUpdate: NotImplemented,
   projectPolicyView({ path }) {
     const project = lookup.project(path)
@@ -973,6 +986,7 @@ export const handlers = makeHandlers({
     requireFleetViewer(cookies)
     const silo = lookup.silo(path)
     db.silos = db.silos.filter((i) => i.id !== silo.id)
+    db.ipPoolSilos = db.ipPoolSilos.filter((i) => i.silo_id !== silo.id)
     return 204
   },
   siloIdentityProviderList({ query, cookies }) {

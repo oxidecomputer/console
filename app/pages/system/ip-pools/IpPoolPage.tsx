@@ -10,7 +10,14 @@ import type { LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import { BooleanCell, DateCell, useQueryTable } from '@oxide/table'
-import { EmptyMessage, Networking24Icon, PageHeader, PageTitle, Tabs } from '@oxide/ui'
+import {
+  EmptyMessage,
+  Message,
+  Networking24Icon,
+  PageHeader,
+  PageTitle,
+  Tabs,
+} from '@oxide/ui'
 
 import { QueryParamTabs } from 'app/components/QueryParamTabs'
 import { getIpPoolSelector, useIpPoolSelector } from 'app/hooks'
@@ -39,6 +46,11 @@ export function IpPoolPage() {
       <PageHeader>
         <PageTitle icon={<Networking24Icon />}>IP pool: {pool.name}</PageTitle>
       </PageHeader>
+      <Message
+        className="-mt-8 mb-12"
+        variant="info"
+        content="This page is a work in progress. Use the CLI or API for full control over IP ranges and linked silos."
+      />
       <QueryParamTabs className="full-width" defaultValue="ranges">
         <Tabs.List>
           <Tabs.Trigger value="ranges">IP ranges</Tabs.Trigger>
