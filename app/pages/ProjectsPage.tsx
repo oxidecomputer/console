@@ -115,7 +115,7 @@ export default function ProjectsPage() {
       <Table emptyState={<EmptyState />} makeActions={makeActions}>
         <Column accessor="name" cell={linkCell((project) => pb.instances({ project }))} />
         <Column accessor="description" />
-        <Column accessor="timeModified" header="Last updated" cell={DateCell} />
+        <Column accessor="timeCreated" header="Created" cell={DateCell} />
       </Table>
       <Outlet />
     </>

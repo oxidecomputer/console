@@ -6,6 +6,8 @@
  * Copyright Oxide Computer Company
  */
 
+import { cloneElement, type ReactElement } from 'react'
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const identity = (x: any) => x
 
@@ -80,12 +82,23 @@ export function sumBy<T>(items: T[], fn: (item: T) => number): number {
 /**
  * If a conjunction is included, use that instead of `sep` when there are two items.
  */
-export function intersperse<T>(items: T[], sep: T, conj?: T): T[] {
+export function intersperse(
+  items: ReactElement[],
+  sep: ReactElement,
+  conj?: ReactElement
+): ReactElement[] {
   if (items.length <= 1) return items
-  if (conj && items.length === 2) return [items[0], conj, items[1]]
+  if (conj && items.length === 2) {
+    const conj0 = cloneElement(conj, { key: `conj` })
+    return [items[0], conj0, items[1]]
+  }
   return items.flatMap((item, i) => {
     if (i === 0) return [item]
-    if (conj && i === items.length - 1) return [sep, conj, item]
-    return [sep, item]
+    const sep0 = cloneElement(sep, { key: `sep-${i}` })
+    if (conj && i === items.length - 1) {
+      const conj0 = cloneElement(conj, { key: `conj` })
+      return [sep0, conj0, item]
+    }
+    return [sep0, item]
   })
 }

@@ -51,11 +51,6 @@
 }
 
 @layer utilities {
-  .dashed-underline {
-    text-decoration: underline;
-    text-decoration-style: dashed;
-  }
-
   .external-link {
     @apply text-accent-secondary hover:text-accent;
   }
@@ -65,42 +60,14 @@
     margin-left: var(--content-gutter);
     margin-right: var(--content-gutter);
   }
-}
 
-@layer components {
-  @media screen and (min-width: 720px) {
-    .AccordionContent[data-state='open'] {
-      animation: accordionSlideDown 300ms cubic-bezier(0.87, 0, 0.13, 1);
-    }
-    .AccordionContent[data-state='closed'] {
-      animation: accordionSlideUp 300ms cubic-bezier(0.87, 0, 0.13, 1);
-    }
-  }
+  .link-with-underline {
+    @apply text-secondary hover:text-default;
+    text-decoration: underline;
+    text-decoration-color: var(--content-quinary);
 
-  @media screen and (prefers-reduced-motion) {
-    .AccordionContent[data-state='open'] {
-      animation-name: none;
-    }
-    .AccordionContent[data-state='closed'] {
-      animation-name: none;
-    }
-  }
-
-  @keyframes accordionSlideDown {
-    from {
-      height: 0;
-    }
-    to {
-      height: var(--radix-accordion-content-height);
-    }
-  }
-
-  @keyframes accordionSlideUp {
-    from {
-      height: var(--radix-accordion-content-height);
-    }
-    to {
-      height: 0;
+    &:hover {
+      text-decoration-color: var(--content-tertiary);
     }
   }
 }

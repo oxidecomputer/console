@@ -43,7 +43,7 @@ import { fancifyStates } from './common'
 
 export const Skeleton = classed.div`h-4 w-12 rounded bg-tertiary motion-safe:animate-pulse`
 
-export const VpcNameFromId = ({ value }: { value: string }) => {
+const VpcNameFromId = ({ value }: { value: string }) => {
   const projectSelector = useProjectSelector()
   const { data: vpc, isError } = useApiQuery(
     'vpcView',
@@ -58,10 +58,12 @@ export const VpcNameFromId = ({ value }: { value: string }) => {
   if (!vpc) return <Skeleton />
   return (
     <Link
-      className="underline text-sans-semi-md text-secondary hover:text-default"
+      className="link-with-underline group text-sans-semi-md"
       to={pb.vpc({ ...projectSelector, vpc: vpc.name })}
     >
-      {vpc.name}
+      {/* Pushes out the link area to the entire cell for improved clickability™ */}
+      <div className="absolute inset-0 right-px group-hover:bg-raise" />
+      <div className="relative">{vpc.name}</div>
     </Link>
   )
 }

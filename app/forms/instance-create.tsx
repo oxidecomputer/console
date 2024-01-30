@@ -6,8 +6,9 @@
  * Copyright Oxide Computer Company
  */
 import * as Accordion from '@radix-ui/react-accordion'
-import { useEffect, useState } from 'react'
-import { useWatch } from 'react-hook-form'
+import cn from 'classnames'
+import { useEffect, useRef, useState } from 'react'
+import { useWatch, type Control } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 import type { SetRequired } from 'type-fest'
 
@@ -421,44 +422,7 @@ export function CreateInstanceForm() {
       <FormDivider />
       <Form.Heading id="advanced">Advanced</Form.Heading>
 
-      <Accordion.Root type="multiple" className="mt-12">
-        <Accordion.Item value="networking">
-          <AccordionHeader id="networking">Networking</AccordionHeader>
-          <AccordionContent>
-            <NetworkInterfaceField control={control} disabled={isSubmitting} />
-
-            <TextField
-              name="hostname"
-              tooltipText="Will be generated if not provided"
-              control={control}
-              disabled={isSubmitting}
-            />
-          </AccordionContent>
-        </Accordion.Item>
-        <Accordion.Item value="configuration">
-          <AccordionHeader id="configuration">Configuration</AccordionHeader>
-          <AccordionContent>
-            <FileField
-              id="user-data-input"
-              description={
-                <>
-                  Data or scripts to be passed to cloud-init as{' '}
-                  <a href={links.cloudInitFormat} target="_blank" rel="noreferrer">
-                    user data
-                  </a>{' '}
-                  <a href={links.cloudInitExamples} target="_blank" rel="noreferrer">
-                    (examples)
-                  </a>{' '}
-                  if the selected boot image supports it. Maximum size 32 KiB.
-                </>
-              }
-              name="userData"
-              label="User Data"
-              control={control}
-            />
-          </AccordionContent>
-        </Accordion.Item>
-      </Accordion.Root>
+      <AdvancedAccordion control={control} isSubmitting={isSubmitting} />
 
       <Form.Actions>
         <Form.Submit loading={createInstance.isPending}>Create instance</Form.Submit>
@@ -468,20 +432,90 @@ export function CreateInstanceForm() {
   )
 }
 
-const AccordionHeader = ({ id, children }: { id: string; children: React.ReactNode }) => (
-  <Accordion.Header id={id} className="max-w-lg">
-    <Accordion.Trigger className="group flex w-full items-center justify-between border-t py-2 text-sans-xl border-secondary [&>svg]:data-[state=open]:rotate-90">
-      <div className="text-secondary">{children}</div>
-      <DirectionRightIcon className="transition-all text-secondary" />
-    </Accordion.Trigger>
-  </Accordion.Header>
-)
+const AdvancedAccordion = ({
+  control,
+  isSubmitting,
+}: {
+  control: Control<InstanceCreateInput>
+  isSubmitting: boolean
+}) => {
+  // we track this state manually for the sole reason that we need to be able to
+  // tell, inside AccordionItem, when an accordion is opened so we can scroll its
+  // contents into view
+  const [openItems, setOpenItems] = useState<string[]>([])
 
-const AccordionContent = ({ children }: { children: React.ReactNode }) => (
-  <Accordion.Content className="AccordionContent max-w-lg overflow-hidden">
-    <div className="ox-accordion-content py-8">{children}</div>
-  </Accordion.Content>
-)
+  return (
+    <Accordion.Root
+      type="multiple"
+      className="mt-12 max-w-lg"
+      value={openItems}
+      onValueChange={setOpenItems}
+    >
+      <AccordionItem
+        value="networking"
+        label="Networking"
+        isOpen={openItems.includes('networking')}
+      >
+        <NetworkInterfaceField control={control} disabled={isSubmitting} />
+
+        <TextField
+          name="hostname"
+          tooltipText="Will be generated if not provided"
+          control={control}
+          disabled={isSubmitting}
+        />
+      </AccordionItem>
+      <AccordionItem
+        value="configuration"
+        label="Configuration"
+        isOpen={openItems.includes('configuration')}
+      >
+        <FileField
+          id="user-data-input"
+          description={<UserDataDescription />}
+          name="userData"
+          label="User Data"
+          control={control}
+        />
+      </AccordionItem>
+    </Accordion.Root>
+  )
+}
+
+type AccordionItemProps = {
+  value: string
+  isOpen: boolean
+  label: string
+  children: React.ReactNode
+}
+
+function AccordionItem({ value, label, children, isOpen }: AccordionItemProps) {
+  const contentRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (isOpen && contentRef.current) {
+      contentRef.current.scrollIntoView({ behavior: 'smooth' })
+    }
+  }, [isOpen])
+
+  return (
+    <Accordion.Item value={value}>
+      <Accordion.Header className="max-w-lg">
+        <Accordion.Trigger className="group flex w-full items-center justify-between border-t py-2 text-sans-xl border-secondary [&>svg]:data-[state=open]:rotate-90">
+          <div className="text-secondary">{label}</div>
+          <DirectionRightIcon className="transition-all text-secondary" />
+        </Accordion.Trigger>
+      </Accordion.Header>
+      <Accordion.Content
+        ref={contentRef}
+        forceMount
+        className={cn('ox-accordion-content overflow-hidden py-8', { hidden: !isOpen })}
+      >
+        {children}
+      </Accordion.Content>
+    </Accordion.Item>
+  )
+}
 
 const SshKeysTable = () => {
   const keys = usePrefetchedApiQuery('currentUserSshKeyList', {}).data?.items || []
@@ -580,3 +614,16 @@ const PRESETS = [
 
   { category: 'custom', id: 'custom', memory: 0, ncpus: 0 },
 ] as const
+
+const UserDataDescription = () => (
+  <>
+    Data or scripts to be passed to cloud-init as{' '}
+    <a href={links.cloudInitFormat} target="_blank" rel="noreferrer">
+      user data
+    </a>{' '}
+    <a href={links.cloudInitExamples} target="_blank" rel="noreferrer">
+      (examples)
+    </a>{' '}
+    if the selected boot image supports it. Maximum size 32 KiB.
+  </>
+)

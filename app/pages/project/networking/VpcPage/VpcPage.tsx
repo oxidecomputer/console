@@ -19,7 +19,15 @@ import { VpcSubnetsTab } from './tabs/VpcSubnetsTab'
 
 VpcPage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project, vpc } = getVpcSelector(params)
-  await apiQueryClient.prefetchQuery('vpcView', { path: { vpc }, query: { project } })
+  await Promise.all([
+    apiQueryClient.prefetchQuery('vpcView', { path: { vpc }, query: { project } }),
+    apiQueryClient.prefetchQuery('vpcFirewallRulesView', {
+      query: { project, vpc },
+    }),
+    apiQueryClient.prefetchQuery('vpcSubnetList', {
+      query: { project, vpc, limit: 25 },
+    }),
+  ])
   return null
 }
 
