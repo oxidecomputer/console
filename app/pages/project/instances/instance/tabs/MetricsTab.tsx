@@ -85,7 +85,7 @@ function DiskMetric({
     }
   }
 
-  const divisor = divisorBase ^ cycleCount
+  const divisor = divisorBase ** cycleCount
 
   const data = (metrics?.items || []).map(({ datum, timestamp }) => ({
     timestamp: timestamp.getTime(),
