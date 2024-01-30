@@ -89,7 +89,7 @@ export async function startMockAPI() {
       // about them is just noise.
       const ignore = [
         path.startsWith('/app'),
-        path.startsWith('/libs/ui'),
+        path.startsWith('/libs'),
         path.startsWith('/node_modules'),
       ].some(Boolean)
       if (!ignore) {
