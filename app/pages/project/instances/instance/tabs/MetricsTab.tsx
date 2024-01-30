@@ -22,6 +22,16 @@ import { getInstanceSelector, useInstanceSelector } from 'app/hooks'
 
 const TimeSeriesChart = React.lazy(() => import('app/components/TimeSeriesChart'))
 
+export function getCycleCount(num: number, base: number) {
+  let cycleCount = 0
+  let transformedValue = num
+  while (transformedValue > base) {
+    transformedValue = transformedValue / base
+    cycleCount++
+  }
+  return cycleCount
+}
+
 type DiskMetricParams = {
   title: string
   unit: 'Bytes' | 'Count'
@@ -56,36 +66,28 @@ function DiskMetric({
 
   const isBytesChart = unit === 'Bytes'
 
+  const largestValue = useMemo(() => {
+    if (!metrics || metrics.items.length === 0) return 0
+    return Math.max(...metrics.items.map((m) => (m.datum.datum as Cumulativeint64).value))
+  }, [metrics])
+
+  // We'll need to divide each number in the set by a consistent exponent
+  // of 1024 (for Bytes) or 1000 (for Counts)
+  const base = isBytesChart ? 1024 : 1000
+  // Figure out what that exponent is:
+  const cycleCount = getCycleCount(largestValue, base)
+
+  // Now that we know how many cycles of "divide by 1024 || 1000" to run through
+  // (via cycleCount), we can determine the proper unit for the set
   let unitForSet = ''
-  let cycleCount = 0
-  let label
-  const divisorBase = isBytesChart ? 1024 : 1000
-  if (metrics?.items?.length) {
-    // Because we're using cumulative metrics, we can use the last (and therefore largest)
-    // value in the set to determine the unit and the divisor for the set.
-    const largestValue =
-      (metrics?.items?.[metrics.items.length - 1].datum.datum as Cumulativeint64).value || 0
-
-    // We'll need to divide each number in the set by a consistent multiple of 1024 (for Bytes) or 1000 (for Counts)
-    // Figure out what that multiple is:
-    let transformedValue = largestValue
-    while (transformedValue > divisorBase) {
-      transformedValue = transformedValue / divisorBase
-      cycleCount++
-    }
-
-    // Now that we know how many cycles of "divide by 1024 || 1000" to run through
-    // (via cylceCount), we can determine the proper unit for the set
-    if (isBytesChart) {
-      const byteUnits = ['Bytes', 'KiB', 'MiB', 'GiB', 'TiB']
-      unitForSet = byteUnits[cycleCount]
-      label = `(${unitForSet})`
-    } else {
-      label = '(COUNT)'
-    }
+  let label = '(COUNT)'
+  if (isBytesChart) {
+    const byteUnits = ['Bytes', 'KiB', 'MiB', 'GiB', 'TiB']
+    unitForSet = byteUnits[cycleCount]
+    label = `(${unitForSet})`
   }
 
-  const divisor = divisorBase ** cycleCount
+  const divisor = base ** cycleCount
 
   const data = useMemo(
     () =>

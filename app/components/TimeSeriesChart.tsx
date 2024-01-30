@@ -130,7 +130,7 @@ export default function TimeSeriesChart({
   startTime,
   endTime,
   unit,
-  yAxisTickFormatter,
+  yAxisTickFormatter = (val) => val.toLocaleString(),
 }: TimeSeriesChartProps) {
   // We use the largest data point +20% for the graph scale. !rawData doesn't
   // mean it's empty (it will never be empty because we fill in artificial 0s at
@@ -184,7 +184,7 @@ export default function TimeSeriesChart({
           orientation="right"
           tick={textMonoMd}
           tickMargin={8}
-          tickFormatter={yAxisTickFormatter || ((val: number) => val.toLocaleString())}
+          tickFormatter={yAxisTickFormatter}
           padding={{ top: 32 }}
           {...yTicks}
         />
