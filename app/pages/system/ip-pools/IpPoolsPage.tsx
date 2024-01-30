@@ -22,17 +22,17 @@ const EmptyState = () => (
   />
 )
 
-NetworkingPage.loader = async function () {
+IpPoolsPage.loader = async function () {
   await apiQueryClient.prefetchQuery('ipPoolList', { query: { limit: 25 } })
   return null
 }
 
-export function NetworkingPage() {
+export function IpPoolsPage() {
   const { Table, Column } = useQueryTable('ipPoolList', {})
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<Networking24Icon />}>Networking</PageTitle>
+        <PageTitle icon={<Networking24Icon />}>IP pools</PageTitle>
       </PageHeader>
       <Table emptyState={<EmptyState />}>
         <Column accessor="name" cell={linkCell((pool) => pb.ipPool({ pool }))} />
