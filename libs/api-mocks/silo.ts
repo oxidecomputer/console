@@ -14,17 +14,19 @@ export const silos: Json<Silo[]> = [
   {
     id: '6d3a9c06-475e-4f75-b272-c0d0e3f980fa',
     name: 'maze-war',
-    description: 'a fake default silo',
+    description: 'a silo',
     time_created: new Date(2021, 3, 1).toISOString(),
     time_modified: new Date(2021, 4, 2).toISOString(),
     discoverable: true,
     identity_mode: 'saml_jit',
-    mapped_fleet_roles: {},
+    mapped_fleet_roles: {
+      admin: ['admin'],
+    },
   },
   {
     id: '68b58556-15b9-4ccb-adff-9fd3c7de1f9a',
     name: 'myriad',
-    description: 'a fake default silo',
+    description: 'a second silo',
     time_created: new Date(2023, 1, 28).toISOString(),
     time_modified: new Date(2023, 6, 12).toISOString(),
     discoverable: true,

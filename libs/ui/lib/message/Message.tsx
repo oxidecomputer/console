@@ -98,7 +98,7 @@ export const Message = ({
         {cta && (
           <Link
             className={cn(
-              'mt-1 block flex items-center underline text-sans-md',
+              'mt-1 flex items-center underline text-sans-md',
               linkColor[variant]
             )}
             to={cta.link}

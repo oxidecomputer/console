@@ -76,8 +76,11 @@ export const handlers = makeHandlers({
   projectUpdate({ body, path }) {
     const project = lookup.project({ ...path })
     if (body.name) {
+      // only check for existing name if it's being changed
+      if (body.name !== project.name) {
+        errIfExists(db.projects, { name: body.name })
+      }
       project.name = body.name
-      errIfExists(db.projects, { name: body.name })
     }
     project.description = body.description || ''
 
@@ -562,6 +565,7 @@ export const handlers = makeHandlers({
 
     return { ...pool, is_default: link.is_default }
   },
+  // TODO: require admin permissions for system IP pool endpoints
   ipPoolView: ({ path }) => lookup.ipPool(path),
   ipPoolSiloList({ path /*query*/ }) {
     // TODO: paginated wants an id field, but this is a join table, so it  has a
@@ -620,6 +624,52 @@ export const handlers = makeHandlers({
     ipPoolSilo.is_default = body.is_default
 
     return ipPoolSilo
+  },
+  ipPoolRangeAdd: NotImplemented,
+  ipPoolRangeList({ path, query }) {
+    const pool = lookup.ipPool(path)
+    const ranges = db.ipPoolRanges.filter((r) => r.ip_pool_id === pool.id)
+    return paginated(query, ranges)
+  },
+  ipPoolRangeRemove: NotImplemented,
+  ipPoolCreate({ body }) {
+    errIfExists(db.ipPools, { name: body.name }, 'IP pool')
+
+    const newPool: Json<Api.IpPool> = {
+      id: uuid(),
+      ...body,
+      ...getTimestamps(),
+    }
+    db.ipPools.push(newPool)
+
+    return json(newPool, { status: 201 })
+  },
+  ipPoolDelete({ path }) {
+    const pool = lookup.ipPool(path)
+
+    if (db.ipPoolRanges.some((r) => r.ip_pool_id === pool.id)) {
+      throw 'IP pool cannot be deleted while it contains IP ranges'
+    }
+
+    // delete pools and silo links
+    db.ipPools = db.ipPools.filter((p) => p.id !== pool.id)
+    db.ipPoolSilos = db.ipPoolSilos.filter((s) => s.ip_pool_id !== pool.id)
+
+    return 204
+  },
+  ipPoolUpdate({ path, body }) {
+    const pool = lookup.ipPool(path)
+
+    if (body.name) {
+      // only check for existing name if it's being changed
+      if (body.name !== pool.name) {
+        errIfExists(db.ipPools, { name: body.name })
+      }
+      pool.name = body.name
+    }
+    pool.description = body.description || ''
+
+    return pool
   },
   projectPolicyView({ path }) {
     const project = lookup.project(path)
@@ -952,6 +1002,7 @@ export const handlers = makeHandlers({
     requireFleetViewer(cookies)
     const silo = lookup.silo(path)
     db.silos = db.silos.filter((i) => i.id !== silo.id)
+    db.ipPoolSilos = db.ipPoolSilos.filter((i) => i.silo_id !== silo.id)
     return 204
   },
   siloIdentityProviderList({ query, cookies }) {
@@ -1049,16 +1100,10 @@ export const handlers = makeHandlers({
   instanceMigrate: NotImplemented,
   instanceSerialConsoleStream: NotImplemented,
   instanceSshPublicKeyList: NotImplemented,
-  ipPoolCreate: NotImplemented,
-  ipPoolDelete: NotImplemented,
-  ipPoolRangeAdd: NotImplemented,
-  ipPoolRangeList: NotImplemented,
-  ipPoolRangeRemove: NotImplemented,
   ipPoolServiceRangeAdd: NotImplemented,
   ipPoolServiceRangeList: NotImplemented,
   ipPoolServiceRangeRemove: NotImplemented,
   ipPoolServiceView: NotImplemented,
-  ipPoolUpdate: NotImplemented,
   localIdpUserCreate: NotImplemented,
   localIdpUserDelete: NotImplemented,
   localIdpUserSetPassword: NotImplemented,

@@ -9,12 +9,18 @@ import { useMemo } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 
 import { apiQueryClient } from '@oxide/api'
-import { Cloud16Icon, Divider, Metrics16Icon, Storage16Icon } from '@oxide/ui'
+import {
+  Cloud16Icon,
+  Divider,
+  Metrics16Icon,
+  Networking16Icon,
+  Storage16Icon,
+} from '@oxide/ui'
 
 import { trigger404 } from 'app/components/ErrorBoundary'
 import { DocsLinkItem, NavLinkItem, Sidebar } from 'app/components/Sidebar'
 import { TopBar } from 'app/components/TopBar'
-import { SiloPicker, SiloSystemPicker } from 'app/components/TopBarPicker'
+import { IpPoolPicker, SiloPicker, SiloSystemPicker } from 'app/components/TopBarPicker'
 import { useQuickActions } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
@@ -49,7 +55,7 @@ export default function SystemLayout() {
   // robust way of doing this would be to make a separate layout for the
   // silo-specific routes in the route config, but it's overkill considering
   // this is a one-liner. Switch to that approach at the first sign of trouble.
-  const { silo } = useParams()
+  const { silo, pool } = useParams()
   const navigate = useNavigate()
   const { pathname } = useLocation()
 
@@ -60,6 +66,7 @@ export default function SystemLayout() {
       { value: 'Silos', path: pb.silos() },
       { value: 'Utilization', path: pb.systemUtilization() },
       { value: 'Inventory', path: pb.inventory() },
+      { value: 'Networking', path: pb.ipPools() },
     ]
       // filter out the entry for the path we're currently on
       .filter((i) => i.path !== pathname)
@@ -84,6 +91,7 @@ export default function SystemLayout() {
       <TopBar>
         <SiloSystemPicker value="system" />
         {silo && <SiloPicker />}
+        {pool && <IpPoolPicker />}
       </TopBar>
       <Sidebar>
         <Sidebar.Nav>
@@ -103,15 +111,9 @@ export default function SystemLayout() {
           <NavLinkItem to={pb.sledInventory()}>
             <Storage16Icon /> Inventory
           </NavLinkItem>
-          {/* <NavLinkItem to={pb.systemHealth()} disabled>
-            <Health16Icon /> Health
-          </NavLinkItem>
-          <NavLinkItem to={pb.systemUpdates()} disabled>
-            <SoftwareUpdate16Icon /> System Update
-          </NavLinkItem>
-          <NavLinkItem to={pb.systemNetworking()} disabled>
+          <NavLinkItem to={pb.ipPools()}>
             <Networking16Icon /> Networking
-          </NavLinkItem> */}
+          </NavLinkItem>
         </Sidebar.Nav>
       </Sidebar>
       <ContentPane />

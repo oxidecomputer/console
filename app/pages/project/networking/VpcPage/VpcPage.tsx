@@ -49,16 +49,16 @@ export function VpcPage() {
           <PropertiesTable.Row label="DNS Name">{vpc.dnsName}</PropertiesTable.Row>
         </PropertiesTable>
         <PropertiesTable>
-          <PropertiesTable.Row label="Creation Date">
-            {vpc.timeCreated && formatDateTime(vpc.timeCreated)}
+          <PropertiesTable.Row label="Created">
+            {formatDateTime(vpc.timeCreated)}
           </PropertiesTable.Row>
           <PropertiesTable.Row label="Last Modified">
-            {vpc.timeModified && formatDateTime(vpc.timeModified)}
+            {formatDateTime(vpc.timeModified)}
           </PropertiesTable.Row>
         </PropertiesTable>
       </PropertiesTable.Group>
 
-      <QueryParamTabs id="tabs-vpc-sections" className="full-width" defaultValue="subnets">
+      <QueryParamTabs className="full-width" defaultValue="subnets">
         <Tabs.List>
           <Tabs.Trigger value="subnets">Subnets</Tabs.Trigger>
           <Tabs.Trigger value="firewall-rules">Firewall Rules</Tabs.Trigger>

@@ -19,6 +19,7 @@ type Sled = Required<PP.Sled>
 type Image = Required<PP.Image>
 type Snapshot = Required<PP.Snapshot>
 type SiloImage = Required<PP.SiloImage>
+type IpPool = Required<PP.IpPool>
 
 export const pb = {
   projects: () => `/projects`,
@@ -77,7 +78,12 @@ export const pb = {
   systemUtilization: () => '/system/utilization',
   systemHealth: () => '/system/health',
 
-  systemNetworking: () => '/system/networking',
+  // there is only one tab on networking and it's IP pools, so we just treat
+  // that as the networking route for now
+  ipPools: () => '/system/networking/ip-pools',
+  ipPoolNew: () => '/system/networking/ip-pools-new',
+  ipPool: (params: IpPool) => `${pb.ipPools()}/${params.pool}`,
+  ipPoolEdit: (params: IpPool) => `${pb.ipPool(params)}/edit`,
 
   inventory: () => '/system/inventory',
   rackInventory: () => '/system/inventory/racks',
@@ -89,6 +95,7 @@ export const pb = {
   silos: () => '/system/silos',
   siloNew: () => '/system/silos-new',
   silo: ({ silo }: Silo) => `/system/silos/${silo}`,
+  siloIpPools: (params: Silo) => `${pb.silo(params)}?tab=ip-pools`,
   siloIdpNew: (params: Silo) => `${pb.silo(params)}/idps-new`,
   samlIdp: (params: IdentityProvider) => `${pb.silo(params)}/idps/saml/${params.provider}`,
 

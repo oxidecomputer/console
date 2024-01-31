@@ -19,6 +19,8 @@ import {
 import { CreateImageFromSnapshotSideModalForm } from './forms/image-from-snapshot'
 import { CreateImageSideModalForm } from './forms/image-upload'
 import { CreateInstanceForm } from './forms/instance-create'
+import { CreateIpPoolSideModalForm } from './forms/ip-pool-create'
+import { EditIpPoolSideModalForm } from './forms/ip-pool-edit'
 import { CreateProjectSideModalForm } from './forms/project-create'
 import { EditProjectSideModalForm } from './forms/project-edit'
 import { CreateSiloSideModalForm } from './forms/silo-create'
@@ -65,9 +67,12 @@ import { InventoryPage } from './pages/system/inventory/InventoryPage'
 import { SledInstancesTab } from './pages/system/inventory/sled/SledInstancesTab'
 import { SledPage } from './pages/system/inventory/sled/SledPage'
 import { SledsTab } from './pages/system/inventory/SledsTab'
+import { IpPoolPage } from './pages/system/networking/IpPoolPage'
+import { IpPoolsTab } from './pages/system/networking/IpPoolsTab'
+import { NetworkingPage } from './pages/system/networking/NetworkingPage'
 import { SiloImagesPage } from './pages/system/SiloImagesPage'
-import { SiloPage } from './pages/system/SiloPage'
-import SilosPage from './pages/system/SilosPage'
+import { SiloPage } from './pages/system/silos/SiloPage'
+import SilosPage from './pages/system/silos/SilosPage'
 import { SystemUtilizationPage } from './pages/system/UtilizationPage'
 import { pb } from './util/path-builder'
 
@@ -125,7 +130,6 @@ export const routes = createRoutesFromElements(
             loader={SiloPage.loader}
             handle={{ crumb: siloCrumb }}
           >
-            <Route index element={null} />
             <Route path="idps-new" element={<CreateIdpSideModalForm />} />
             <Route
               path="idps/saml/:provider"
@@ -170,7 +174,31 @@ export const routes = createRoutesFromElements(
         </Route>
         <Route path="health" element={null} handle={{ crumb: 'Health' }} />
         <Route path="update" element={null} handle={{ crumb: 'Update' }} />
-        <Route path="networking" element={null} handle={{ crumb: 'Networking' }} />
+        <Route
+          path="networking"
+          element={<NetworkingPage />}
+          handle={{ crumb: 'Networking' }}
+        >
+          <Route
+            element={<IpPoolsTab />}
+            loader={IpPoolsTab.loader}
+            handle={{ crumb: 'IP pools' }}
+          >
+            <Route path="ip-pools" element={null} />
+            <Route path="ip-pools-new" element={<CreateIpPoolSideModalForm />} />
+            <Route
+              path="ip-pools/:pool/edit"
+              element={<EditIpPoolSideModalForm />}
+              loader={EditIpPoolSideModalForm.loader}
+              handle={{ crumb: 'Edit IP pool' }}
+            />
+          </Route>
+        </Route>
+        <Route
+          path="networking/ip-pools/:pool"
+          element={<IpPoolPage />}
+          loader={IpPoolPage.loader}
+        />
       </Route>
 
       <Route index element={<Navigate to={pb.projects()} replace />} />

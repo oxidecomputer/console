@@ -20,13 +20,17 @@ const Pusher = classed.div`absolute inset-0 right-px group-hover:bg-raise`
 export const linkCell =
   (makeHref: (value: string) => string) =>
   ({ value }: Cell<string>) => {
-    return (
-      <Link className={linkClass} to={makeHref(value)}>
-        <Pusher />
-        <div className="relative">{value}</div>
-      </Link>
-    )
+    return <LinkCell to={makeHref(value)}>{value}</LinkCell>
   }
+
+export function LinkCell({ to, children }: { to: string; children: React.ReactNode }) {
+  return (
+    <Link className={linkClass} to={to}>
+      <Pusher />
+      <div className="relative">{children}</div>
+    </Link>
+  )
+}
 
 export const ButtonCell = ({ children, ...props }: React.ComponentProps<'button'>) => {
   return (

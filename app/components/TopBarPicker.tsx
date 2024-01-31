@@ -20,7 +20,7 @@ import {
   Wrap,
 } from '@oxide/ui'
 
-import { useInstanceSelector, useSiloSelector } from 'app/hooks'
+import { useInstanceSelector, useIpPoolSelector, useSiloSelector } from 'app/hooks'
 import { useCurrentUser } from 'app/layouts/AuthenticatedLayout'
 import { pb } from 'app/util/path-builder'
 
@@ -224,6 +224,27 @@ export function SiloPicker() {
       current={siloName}
       items={items}
       noItemsText="No silos found"
+    />
+  )
+}
+
+/** Used when drilling down into a pool from the System/Networking view. */
+export function IpPoolPicker() {
+  // picker only shows up when a pool is in scope
+  const { pool: poolName } = useIpPoolSelector()
+  const { data } = useApiQuery('ipPoolList', { query: { limit: 10 } })
+  const items = (data?.items || []).map((pool) => ({
+    label: pool.name,
+    to: pb.ipPool({ pool: pool.name }),
+  }))
+
+  return (
+    <TopBarPicker
+      aria-label="Switch pool"
+      category="IP Pools"
+      current={poolName}
+      items={items}
+      noItemsText="No IP pools found"
     />
   )
 }

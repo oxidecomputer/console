@@ -20,6 +20,7 @@ const params = {
   sledId: 'sl',
   image: 'im',
   snapshot: 'sn',
+  pool: 'pl',
 }
 
 test('path builder', () => {
@@ -38,6 +39,10 @@ test('path builder', () => {
         "instanceStorage": "/projects/p/instances/i/storage",
         "instances": "/projects/p/instances",
         "inventory": "/system/inventory",
+        "ipPool": "/system/networking/ip-pools/pl",
+        "ipPoolEdit": "/system/networking/ip-pools/pl/edit",
+        "ipPoolNew": "/system/networking/ip-pools-new",
+        "ipPools": "/system/networking/ip-pools",
         "nics": "/projects/p/instances/i/network-interfaces",
         "profile": "/settings/profile",
         "project": "/projects/p",
@@ -58,6 +63,7 @@ test('path builder', () => {
         "siloImage": "/images/im",
         "siloImageEdit": "/images/im/edit",
         "siloImages": "/images",
+        "siloIpPools": "/system/silos/s?tab=ip-pools",
         "siloNew": "/system/silos-new",
         "siloUtilization": "/utilization",
         "silos": "/system/silos",
@@ -72,7 +78,6 @@ test('path builder', () => {
         "system": "/system",
         "systemHealth": "/system/health",
         "systemIssues": "/system/issues",
-        "systemNetworking": "/system/networking",
         "systemUtilization": "/system/utilization",
         "vpc": "/projects/p/vpcs/v",
         "vpcEdit": "/projects/p/vpcs/v/edit",

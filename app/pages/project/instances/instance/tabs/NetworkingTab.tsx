@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { useState } from 'react'
-import { Link, type LoaderFunctionArgs } from 'react-router-dom'
+import { type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
   apiQueryClient,
@@ -17,16 +17,8 @@ import {
   usePrefetchedApiQuery,
   type InstanceNetworkInterface,
 } from '@oxide/api'
-import { useQueryTable, type MenuAction } from '@oxide/table'
-import {
-  Badge,
-  Button,
-  EmptyMessage,
-  Networking24Icon,
-  Spinner,
-  Success12Icon,
-} from '@oxide/ui'
-import { classed } from '@oxide/util'
+import { LinkCell, SkeletonCell, useQueryTable, type MenuAction } from '@oxide/table'
+import { Badge, Button, EmptyMessage, Networking24Icon, Success12Icon } from '@oxide/ui'
 
 import CreateNetworkInterfaceForm from 'app/forms/network-interface-create'
 import EditNetworkInterfaceForm from 'app/forms/network-interface-edit'
@@ -41,8 +33,6 @@ import { pb } from 'app/util/path-builder'
 
 import { fancifyStates } from './common'
 
-export const Skeleton = classed.div`h-4 w-12 rounded bg-tertiary motion-safe:animate-pulse`
-
 const VpcNameFromId = ({ value }: { value: string }) => {
   const projectSelector = useProjectSelector()
   const { data: vpc, isError } = useApiQuery(
@@ -55,17 +45,8 @@ const VpcNameFromId = ({ value }: { value: string }) => {
   // possible because you can't delete a VPC that has child resources, but let's
   // be safe
   if (isError) return <Badge color="neutral">Deleted</Badge>
-  if (!vpc) return <Skeleton />
-  return (
-    <Link
-      className="link-with-underline group text-sans-semi-md"
-      to={pb.vpc({ ...projectSelector, vpc: vpc.name })}
-    >
-      {/* Pushes out the link area to the entire cell for improved clickability™ */}
-      <div className="absolute inset-0 right-px group-hover:bg-raise" />
-      <div className="relative">{vpc.name}</div>
-    </Link>
-  )
+  if (!vpc) return <SkeletonCell />
+  return <LinkCell to={pb.vpc({ ...projectSelector, vpc: vpc.name })}>{vpc.name}</LinkCell>
 }
 
 const SubnetNameFromId = ({ value }: { value: string }) => {
@@ -77,7 +58,7 @@ const SubnetNameFromId = ({ value }: { value: string }) => {
 
   // same deal as VPC: probably not possible but let's be safe
   if (isError) return <Badge color="neutral">Deleted</Badge>
-  if (!subnet) return <Spinner /> // loading
+  if (!subnet) return <SkeletonCell /> // loading
 
   return <span className="text-secondary">{subnet.name}</span>
 }

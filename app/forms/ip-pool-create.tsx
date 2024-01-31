@@ -7,32 +7,29 @@
  */
 import { useNavigate } from 'react-router-dom'
 
-import { useApiMutation, useApiQueryClient, type ProjectCreate } from '@oxide/api'
+import { useApiMutation, useApiQueryClient, type IpPoolCreate } from '@oxide/api'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
 import { useForm } from 'app/hooks'
 import { addToast } from 'app/stores/toast'
 import { pb } from 'app/util/path-builder'
 
-const defaultValues: ProjectCreate = {
+const defaultValues: IpPoolCreate = {
   name: '',
   description: '',
 }
 
-export function CreateProjectSideModalForm() {
+export function CreateIpPoolSideModalForm() {
   const navigate = useNavigate()
   const queryClient = useApiQueryClient()
 
-  const onDismiss = () => navigate(pb.projects())
+  const onDismiss = () => navigate(pb.ipPools())
 
-  const createProject = useApiMutation('projectCreate', {
-    onSuccess(project) {
-      // refetch list of projects in sidebar
-      queryClient.invalidateQueries('projectList')
-      // avoid the project fetch when the project page loads since we have the data
-      queryClient.setQueryData('projectView', { path: { project: project.name } }, project)
-      addToast({ content: 'Your project has been created' })
-      navigate(pb.instances({ project: project.name }))
+  const createPool = useApiMutation('ipPoolCreate', {
+    onSuccess(_pool) {
+      queryClient.invalidateQueries('ipPoolList')
+      addToast({ content: 'Your IP pool has been created' })
+      navigate(pb.ipPools())
     },
   })
 
@@ -40,15 +37,15 @@ export function CreateProjectSideModalForm() {
 
   return (
     <SideModalForm
-      id="create-project-form"
+      id="create-pool-form"
       form={form}
-      title="Create project"
+      title="Create IP pool"
       onDismiss={onDismiss}
       onSubmit={({ name, description }) => {
-        createProject.mutate({ body: { name, description } })
+        createPool.mutate({ body: { name, description } })
       }}
-      loading={createProject.isPending}
-      submitError={createProject.error}
+      loading={createPool.isPending}
+      submitError={createPool.error}
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
