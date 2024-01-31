@@ -8,25 +8,22 @@
 import type { ReactNode } from 'react'
 import { create } from 'zustand'
 
-type DeleteConfig = {
+type ActionConfig = {
   /** Must be `mutateAsync`, otherwise we can't catch the error generically */
-  doDelete: () => Promise<unknown>
-  warning?: string
-  /**
-   * Label identifying the resource. Could be a name or something more elaborate
-   * "the Admin role for user Harry Styles". If a string, the modal will
-   * automatically give it a highlighted style. Otherwise it will be rendered
-   * directly.
-   */
-  label: ReactNode
+  doAction: () => Promise<unknown>
+  /** e.g., Confirm delete, Confirm unlink */
+  modalTitle: string
+  modalContent: ReactNode
+  /** Title of error toast */
+  errorTitle: string
 }
 
-type ConfirmDeleteStore = {
-  deleteConfig: DeleteConfig | null
+type ConfirmActionStore = {
+  actionConfig: ActionConfig | null
 }
 
-export const useConfirmDelete = create<ConfirmDeleteStore>(() => ({
-  deleteConfig: null,
+export const useConfirmAction = create<ConfirmActionStore>(() => ({
+  actionConfig: null,
 }))
 
 // zustand docs say this pattern is equivalent to putting the actions on the
@@ -39,10 +36,10 @@ export const useConfirmDelete = create<ConfirmDeleteStore>(() => ({
 /**
  * Note that this returns a function so we can save a line in the calling code.
  */
-export const confirmDelete = (deleteConfig: DeleteConfig) => () => {
-  useConfirmDelete.setState({ deleteConfig })
+export const confirmAction = (actionConfig: ActionConfig) => () => {
+  useConfirmAction.setState({ actionConfig })
 }
 
-export function clearConfirmDelete() {
-  useConfirmDelete.setState({ deleteConfig: null })
+export function clearConfirmAction() {
+  useConfirmAction.setState({ actionConfig: null })
 }

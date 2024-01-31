@@ -42,3 +42,10 @@ export const commaSeries = (items: string[], conj: string) => {
   }
   return [...items.slice(0, -1), `${conj} ${items.at(-1)}`].join(', ')
 }
+
+export const titleCase = (text: string): string => {
+  return text.replace(
+    /\w\S*/g,
+    (text) => text.charAt(0).toUpperCase() + text.substring(1).toLowerCase()
+  )
+}

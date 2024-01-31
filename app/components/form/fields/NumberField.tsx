@@ -90,6 +90,9 @@ export const NumberFieldInner = <
               aria-describedby={tooltipText ? `${id}-label-tip` : undefined}
               isDisabled={disabled}
               {...field}
+              formatOptions={{
+                useGrouping: false,
+              }}
             />
             <ErrorMessage error={error} label={label} />
           </>

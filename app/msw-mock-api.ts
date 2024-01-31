@@ -88,8 +88,8 @@ export async function startMockAPI() {
       // not handle them and they fall through to the dev server, so warning
       // about them is just noise.
       const ignore = [
-        path.includes('libs/ui/assets'),
         path.startsWith('/app'),
+        path.startsWith('/libs'),
         path.startsWith('/node_modules'),
       ].some(Boolean)
       if (!ignore) {

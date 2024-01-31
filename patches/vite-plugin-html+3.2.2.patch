@@ -1,0 +1,13 @@
+diff --git a/node_modules/vite-plugin-html/dist/index.mjs b/node_modules/vite-plugin-html/dist/index.mjs
+index 5495ed8..357d10f 100644
+--- a/node_modules/vite-plugin-html/dist/index.mjs
++++ b/node_modules/vite-plugin-html/dist/index.mjs
+@@ -339,7 +339,7 @@ function createMinifyHtmlPlugin({
+   };
+ }
+ 
+-consola.wrapConsole();
++// consola.wrapConsole();
+ function createHtmlPlugin(userOptions = {}) {
+   return [createPlugin(userOptions), createMinifyHtmlPlugin(userOptions)];
+ }

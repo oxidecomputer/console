@@ -43,7 +43,7 @@ export const FieldLabel = ({
       </Component>
       {tip && (
         <Tooltip content={tip} placement="top">
-          <button className="svg:pointer-events-none">
+          <button className="svg:pointer-events-none" type="button">
             <Question12Icon className="text-quinary" />
           </button>
         </Tooltip>
