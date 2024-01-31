@@ -189,3 +189,31 @@ test('with disk name already taken', async ({ page }) => {
   await page.getByRole('button', { name: 'Create instance' }).click()
   await expectVisible(page, ['text=Disk name already exists'])
 })
+
+test('add ssh key from instance create form', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances-new')
+
+  await expect(page.getByRole('checkbox', { name: 'm1-macbook-pro' })).toBeChecked()
+  await expect(page.getByRole('checkbox', { name: 'mac-mini' })).toBeChecked()
+
+  const newKey = 'new-key'
+  const newCheckbox = page.getByRole('checkbox', { name: newKey })
+  await expect(newCheckbox).toBeHidden()
+
+  // open model, fill form, and submit
+  const dialog = page.getByRole('dialog')
+  await page.getByRole('button', { name: 'Add SSH Key' }).click()
+  await dialog.getByRole('textbox', { name: 'Name' }).fill(newKey)
+  await dialog.getByRole('textbox', { name: 'Description' }).fill('hi')
+  await dialog.getByRole('textbox', { name: 'Public key' }).fill('some stuff, whatever')
+  await dialog.getByRole('button', { name: 'Add SSH Key' }).click()
+
+  await expect(newCheckbox).toBeVisible()
+  await expect(newCheckbox).not.toBeChecked()
+
+  // pop over to the real SSH keys page and see it there, why not
+  await page.getByLabel('User menu').click()
+  await page.getByRole('menuitem', { name: 'Settings' }).click()
+  await page.getByRole('link', { name: 'SSH Keys' }).click()
+  await expectRowVisible(page.getByRole('table'), { Name: newKey, Description: 'hi' })
+})

@@ -7,7 +7,7 @@
  */
 import * as Accordion from '@radix-ui/react-accordion'
 import cn from 'classnames'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useWatch, type Control } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 import type { SetRequired } from 'type-fest'
@@ -25,19 +25,15 @@ import {
 import {
   DirectionRightIcon,
   EmptyMessage,
-  FieldLabel,
   FormDivider,
   Images16Icon,
   Instances24Icon,
-  Key16Icon,
   Message,
   RadioCard,
-  Table,
   Tabs,
   TextInputHint,
-  Truncate,
 } from '@oxide/ui'
-import { formatDateTime, GiB, invariant } from '@oxide/util'
+import { GiB, invariant } from '@oxide/util'
 
 import {
   CheckboxField,
@@ -51,6 +47,7 @@ import {
   NameField,
   NetworkInterfaceField,
   RadioFieldDyn,
+  SshKeysField,
   TextField,
   type DiskTableItem,
 } from 'app/components/form'
@@ -69,6 +66,8 @@ export type InstanceCreateInput = Assign<
     bootDiskSize: number
     image: string
     userData: File | null
+    // ssh keys are always specified. we do not need the undefined case
+    sshPublicKeys: NonNullable<InstanceCreate['sshPublicKeys']>
   }
 >
 
@@ -90,6 +89,8 @@ const baseDefaultValues: InstanceCreateInput = {
 
   disks: [],
   networkInterfaces: { type: 'default' },
+
+  sshPublicKeys: [],
 
   start: true,
 
@@ -135,9 +136,13 @@ export function CreateInstanceForm() {
 
   const defaultImage = allImages[0]
 
+  const { data: sshKeys } = usePrefetchedApiQuery('currentUserSshKeyList', {})
+  const allKeys = useMemo(() => sshKeys.items.map((key) => key.id), [sshKeys])
+
   const defaultValues: InstanceCreateInput = {
     ...baseDefaultValues,
     image: defaultImage?.id || '',
+    sshPublicKeys: allKeys,
     // Use 2x the image size as the default boot disk size
     bootDiskSize: Math.ceil(defaultImage?.size / GiB) * 2 || 10,
   }
@@ -210,6 +215,7 @@ export function CreateInstanceForm() {
             externalIps: [{ type: 'ephemeral' }],
             start: values.start,
             networkInterfaces: values.networkInterfaces,
+            sshPublicKeys: values.sshPublicKeys,
             userData,
           },
         })
@@ -417,7 +423,7 @@ export function CreateInstanceForm() {
       <FormDivider />
       <Form.Heading id="authentication">Authentication</Form.Heading>
 
-      <SshKeysTable />
+      <SshKeysField control={control} />
 
       <FormDivider />
       <Form.Heading id="advanced">Advanced</Form.Heading>
@@ -514,70 +520,6 @@ function AccordionItem({ value, label, children, isOpen }: AccordionItemProps) {
         {children}
       </Accordion.Content>
     </Accordion.Item>
-  )
-}
-
-const SshKeysTable = () => {
-  const keys = usePrefetchedApiQuery('currentUserSshKeyList', {}).data?.items || []
-
-  return (
-    <div className="max-w-lg">
-      <div className="mb-2">
-        <FieldLabel id="ssh-keys-label">SSH keys</FieldLabel>
-        <TextInputHint id="ssh-keys-label-help-text">
-          SSH keys can be added and removed in your user settings
-        </TextInputHint>
-      </div>
-
-      {keys.length > 0 ? (
-        <Table className="w-full">
-          <Table.Header>
-            <Table.HeaderRow>
-              <Table.HeadCell>Name</Table.HeadCell>
-              <Table.HeadCell>Created</Table.HeadCell>
-            </Table.HeaderRow>
-          </Table.Header>
-          <Table.Body>
-            {keys.map((key) => (
-              <Table.Row key={key.id}>
-                <Table.Cell height="auto">
-                  <Truncate text={key.name} maxLength={28} />
-                </Table.Cell>
-                <Table.Cell height="auto" className="text-secondary">
-                  {formatDateTime(key.timeCreated)}
-                </Table.Cell>
-              </Table.Row>
-            ))}
-          </Table.Body>
-        </Table>
-      ) : (
-        <div className="mb-4 flex max-w-lg items-center justify-center rounded-lg border p-6 border-default">
-          <EmptyMessage
-            icon={<Key16Icon />}
-            title="No SSH keys"
-            body="You need to add a SSH key to be able to see it here"
-          />
-        </div>
-      )}
-
-      <Message
-        variant="notice"
-        content={
-          <>
-            If your image supports the cidata volume and{' '}
-            <a
-              target="_blank"
-              href="https://cloudinit.readthedocs.io/en/latest/"
-              rel="noreferrer"
-            >
-              cloud-init
-            </a>
-            , the keys above will be added to your instance. Keys are added when the
-            instance is created and are not updated after instance launch.
-          </>
-        }
-      />
-    </div>
   )
 }
 

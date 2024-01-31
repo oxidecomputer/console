@@ -351,6 +351,13 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
+  /** `GET /v1/instances/:instance/ssh-public-keys` */
+  instanceSshPublicKeyList: (params: {
+    path: Api.InstanceSshPublicKeyListPathParams
+    query: Api.InstanceSshPublicKeyListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.SshKeyResultsPage>>
   /** `POST /v1/instances/:instance/start` */
   instanceStart: (params: {
     path: Api.InstanceStartPathParams
@@ -1448,6 +1455,14 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       handler(
         handlers['instanceSerialConsoleStream'],
         schema.InstanceSerialConsoleStreamParams,
+        null
+      )
+    ),
+    http.get(
+      '/v1/instances/:instance/ssh-public-keys',
+      handler(
+        handlers['instanceSshPublicKeyList'],
+        schema.InstanceSshPublicKeyListParams,
         null
       )
     ),

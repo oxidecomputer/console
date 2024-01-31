@@ -19,16 +19,22 @@ const defaultValues: SshKeyCreate = {
   publicKey: '',
 }
 
-export function CreateSSHKeySideModalForm() {
+export function CreateSSHKeySideModalForm({
+  onDismiss,
+  message,
+}: {
+  onDismiss?: () => void
+  message?: React.ReactNode
+}) {
   const queryClient = useApiQueryClient()
   const navigate = useNavigate()
 
-  const onDismiss = () => navigate(pb.sshKeys())
+  const handleDismiss = onDismiss ? onDismiss : () => navigate(pb.sshKeys())
 
   const createSshKey = useApiMutation('currentUserSshKeyCreate', {
     onSuccess() {
       queryClient.invalidateQueries('currentUserSshKeyList')
-      onDismiss()
+      handleDismiss()
     },
   })
   const form = useForm({ defaultValues })
@@ -38,7 +44,7 @@ export function CreateSSHKeySideModalForm() {
       id="create-ssh-key-form"
       title="Add SSH key"
       form={form}
-      onDismiss={onDismiss}
+      onDismiss={handleDismiss}
       onSubmit={(body) => createSshKey.mutate({ body })}
       loading={createSshKey.isPending}
       submitError={createSshKey.error}
@@ -53,6 +59,7 @@ export function CreateSSHKeySideModalForm() {
         rows={8}
         control={form.control}
       />
+      {message}
     </SideModalForm>
   )
 }

@@ -17,7 +17,16 @@ export const sshKeys: Json<SshKey>[] = [
     description: 'For use on personal projects',
     time_created: new Date().toISOString(),
     time_modified: new Date().toISOString(),
-    public_key: 'aslsddlfkjsdlfkjsdlfkjsdflkjsdlfkjsdlfkjsdlfkjsd',
+    public_key: 'aslsddlfkjsdlfkjsdlfkjsdlfkjsdflkjsdlfkjsdlfkjsd',
+    silo_user_id: user1.id,
+  },
+  {
+    id: 'b2c3d4e5-6f7g-8h9i-0j1k-2l3m4n5o6p7q',
+    name: 'mac-mini',
+    description: '',
+    time_created: new Date().toISOString(),
+    time_modified: new Date().toISOString(),
+    public_key: 'aslsddlfkjsdlfkjsdlfkjsdlfkjsdflkjsdlfkjsdlfkjsd',
     silo_user_id: user1.id,
   },
 ]

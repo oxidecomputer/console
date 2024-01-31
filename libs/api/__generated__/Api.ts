@@ -1313,6 +1313,10 @@ By default, all instances have outbound connectivity, but no inbound connectivit
   ncpus: InstanceCpuCount
   /** The network interfaces to be created for this instance. */
   networkInterfaces?: InstanceNetworkInterfaceAttachment
+  /** An allowlist of SSH public keys to be transferred to the instance via cloud-init during instance creation.
+
+If not provided, all SSH public keys from the user's profile will be sent. If an empty list is provided, no public keys will be transmitted to the instance. */
+  sshPublicKeys?: NameOrId[]
   /** Should this instance be started upon creation; true by default. */
   start?: boolean
   /** User data for instance initialization systems (such as cloud-init). Must be a Base64-encoded string, as specified in RFC 4648 § 4 (+ and / characters with padding). Maximum 32 KiB unencoded data. */
@@ -3216,6 +3220,17 @@ export interface InstanceSerialConsoleStreamQueryParams {
   project?: NameOrId
 }
 
+export interface InstanceSshPublicKeyListPathParams {
+  instance: NameOrId
+}
+
+export interface InstanceSshPublicKeyListQueryParams {
+  limit?: number
+  pageToken?: string
+  project?: NameOrId
+  sortBy?: NameOrIdSortMode
+}
+
 export interface InstanceStartPathParams {
   instance: NameOrId
 }
@@ -3854,6 +3869,7 @@ export type ApiListMethods = Pick<
   | 'instanceList'
   | 'instanceDiskList'
   | 'instanceExternalIpList'
+  | 'instanceSshPublicKeyList'
   | 'projectIpPoolList'
   | 'currentUserSshKeyList'
   | 'instanceNetworkInterfaceList'
@@ -4606,6 +4622,26 @@ export class Api extends HttpClient {
     ) => {
       return this.request<InstanceSerialConsoleData>({
         path: `/v1/instances/${path.instance}/serial-console`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List the SSH public keys added to the instance via cloud-init during instance creation
+     */
+    instanceSshPublicKeyList: (
+      {
+        path,
+        query = {},
+      }: {
+        path: InstanceSshPublicKeyListPathParams
+        query?: InstanceSshPublicKeyListQueryParams
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SshKeyResultsPage>({
+        path: `/v1/instances/${path.instance}/ssh-public-keys`,
         method: 'GET',
         query,
         ...params,
