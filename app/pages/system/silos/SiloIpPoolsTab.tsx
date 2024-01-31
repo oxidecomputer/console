@@ -12,9 +12,11 @@ import { useApiMutation, useApiQuery, useApiQueryClient, type SiloIpPool } from 
 import { linkCell, useQueryTable, type MenuAction } from '@oxide/table'
 import { Badge, EmptyMessage, Networking24Icon, Success12Icon } from '@oxide/ui'
 
+import { ExternalLink } from 'app/components/ExternalLink'
 import { HL } from 'app/components/HL'
 import { useSiloSelector } from 'app/hooks'
 import { confirmAction } from 'app/stores/confirm-action'
+import { links } from 'app/util/links'
 import { pb } from 'app/util/path-builder'
 
 const EmptyState = () => (
@@ -128,7 +130,8 @@ export function SiloIpPoolsTab() {
       <p className="mb-8 max-w-2xl text-sans-md text-secondary">
         Users in this silo can allocate external IPs from these pools for their instances. A
         silo can have at most one default pool. IPs are allocated from the default pool when
-        users ask for one without specifying a pool.
+        users ask for one without specifying a pool. Read the docs to learn more about{' '}
+        <ExternalLink href={links.ipPoolsDocs}>managing IP pools</ExternalLink>.
       </p>
       <Table emptyState={<EmptyState />} makeActions={makeActions}>
         <Column accessor="name" cell={linkCell((pool) => pb.ipPool({ pool }))} />

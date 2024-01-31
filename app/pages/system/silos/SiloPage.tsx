@@ -64,7 +64,7 @@ export function SiloPage() {
           <PropertiesTable.Row label="Description">{silo.description}</PropertiesTable.Row>
         </PropertiesTable>
         <PropertiesTable>
-          <PropertiesTable.Row label="Creation Date">
+          <PropertiesTable.Row label="Created">
             {formatDateTime(silo.timeCreated)}
           </PropertiesTable.Row>
           <PropertiesTable.Row label="Last Modified">

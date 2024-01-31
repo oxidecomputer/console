@@ -49,7 +49,7 @@ export function VpcPage() {
           <PropertiesTable.Row label="DNS Name">{vpc.dnsName}</PropertiesTable.Row>
         </PropertiesTable>
         <PropertiesTable>
-          <PropertiesTable.Row label="Creation Date">
+          <PropertiesTable.Row label="Created">
             {formatDateTime(vpc.timeCreated)}
           </PropertiesTable.Row>
           <PropertiesTable.Row label="Last Modified">

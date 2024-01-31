@@ -26,7 +26,6 @@ import {
 import {
   Badge,
   EmptyMessage,
-  Message,
   Networking24Icon,
   PageHeader,
   PageTitle,
@@ -34,8 +33,10 @@ import {
   Tabs,
 } from '@oxide/ui'
 
+import { ExternalLink } from 'app/components/ExternalLink'
 import { QueryParamTabs } from 'app/components/QueryParamTabs'
 import { getIpPoolSelector, useIpPoolSelector } from 'app/hooks'
+import { links } from 'app/util/links'
 import { pb } from 'app/util/path-builder'
 
 IpPoolPage.loader = async function ({ params }: LoaderFunctionArgs) {
@@ -62,11 +63,6 @@ export function IpPoolPage() {
       <PageHeader>
         <PageTitle icon={<Networking24Icon />}>{pool.name}</PageTitle>
       </PageHeader>
-      <Message
-        className="-mt-8 mb-12"
-        variant="info"
-        content="This page is a work in progress. Use the CLI or API for full control over IP ranges and linked silos."
-      />
       <QueryParamTabs className="full-width" defaultValue="ranges">
         <Tabs.List>
           <Tabs.Trigger value="ranges">IP ranges</Tabs.Trigger>
@@ -153,7 +149,8 @@ function LinkedSilosTable() {
       <p className="mb-8 max-w-2xl text-sans-md text-secondary">
         Users in linked silos can allocate external IPs from this pool for their instances.
         A silo can have at most one default pool. IPs are allocated from the default pool
-        when users ask for one without specifying a pool.
+        when users ask for one without specifying a pool. Read the docs to learn more about{' '}
+        <ExternalLink href={links.ipPoolsDocs}>managing IP pools</ExternalLink>.
       </p>
       <Table emptyState={<SilosEmptyState />} makeActions={makeActions}>
         <Column accessor="siloId" id="Silo" cell={SiloNameFromId} />

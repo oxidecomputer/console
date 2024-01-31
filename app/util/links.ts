@@ -8,4 +8,5 @@
 export const links: Record<string, string> = {
   cloudInitFormat: 'https://cloudinit.readthedocs.io/en/latest/explanation/format.html',
   cloudInitExamples: 'https://cloudinit.readthedocs.io/en/latest/reference/examples.html',
+  ipPoolsDocs: 'https://docs.oxide.computer/guides/operator/ip-pool-management',
 }

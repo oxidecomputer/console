@@ -27,10 +27,8 @@ export const TwoColumnResponsive = () => (
       <PropertiesTable.Row label="Dns Name">frontend-production-vpn</PropertiesTable.Row>
     </PropertiesTable>
     <PropertiesTable>
-      <PropertiesTable.Row label="Creation date">
-        2 Nov 2020, 06:12:52 UTC
-      </PropertiesTable.Row>
-      <PropertiesTable.Row label="last modified">
+      <PropertiesTable.Row label="Created">2 Nov 2020, 06:12:52 UTC</PropertiesTable.Row>
+      <PropertiesTable.Row label="Last modified">
         14 Nov 2020, 12:21:52 UTC
       </PropertiesTable.Row>
     </PropertiesTable>
