@@ -1026,6 +1026,14 @@ export const DiskResultsPage = z.preprocess(
 )
 
 /**
+ * Parameters for creating an ephemeral IP address for an instance.
+ */
+export const EphemeralIpCreate = z.preprocess(
+  processResponseBody,
+  z.object({ pool: NameOrId.optional() })
+)
+
+/**
  * Error information from a response.
  */
 export const Error = z.preprocess(
@@ -1033,14 +1041,22 @@ export const Error = z.preprocess(
   z.object({ errorCode: z.string().optional(), message: z.string(), requestId: z.string() })
 )
 
-/**
- * The kind of an external IP address for an instance
- */
-export const IpKind = z.preprocess(processResponseBody, z.enum(['ephemeral', 'floating']))
-
 export const ExternalIp = z.preprocess(
   processResponseBody,
-  z.object({ ip: z.string().ip(), kind: IpKind })
+  z.union([
+    z.object({ ip: z.string().ip(), kind: z.enum(['ephemeral']) }),
+    z.object({
+      description: z.string(),
+      id: z.string().uuid(),
+      instanceId: z.string().uuid().optional(),
+      ip: z.string().ip(),
+      kind: z.enum(['floating']),
+      name: Name,
+      projectId: z.string().uuid(),
+      timeCreated: z.coerce.date(),
+      timeModified: z.coerce.date(),
+    }),
+  ])
 )
 
 /**
@@ -1049,8 +1065,8 @@ export const ExternalIp = z.preprocess(
 export const ExternalIpCreate = z.preprocess(
   processResponseBody,
   z.union([
-    z.object({ poolName: Name.optional(), type: z.enum(['ephemeral']) }),
-    z.object({ floatingIpName: Name, type: z.enum(['floating']) }),
+    z.object({ pool: NameOrId.optional(), type: z.enum(['ephemeral']) }),
+    z.object({ floatingIp: NameOrId, type: z.enum(['floating']) }),
   ])
 )
 
@@ -1122,6 +1138,19 @@ export const FloatingIp = z.preprocess(
     timeCreated: z.coerce.date(),
     timeModified: z.coerce.date(),
   })
+)
+
+/**
+ * The type of resource that a floating IP is attached to
+ */
+export const FloatingIpParentKind = z.preprocess(processResponseBody, z.enum(['instance']))
+
+/**
+ * Parameters for attaching a floating IP address to another resource
+ */
+export const FloatingIpAttach = z.preprocess(
+  processResponseBody,
+  z.object({ kind: FloatingIpParentKind, parent: NameOrId })
 )
 
 /**
@@ -3090,6 +3119,30 @@ export const FloatingIpDeleteParams = z.preprocess(
   })
 )
 
+export const FloatingIpAttachParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      floatingIp: NameOrId,
+    }),
+    query: z.object({
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const FloatingIpDetachParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      floatingIp: NameOrId,
+    }),
+    query: z.object({
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
 export const GroupListParams = z.preprocess(
   processResponseBody,
   z.object({
@@ -3281,6 +3334,30 @@ export const InstanceExternalIpListParams = z.preprocess(
   })
 )
 
+export const InstanceEphemeralIpAttachParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      instance: NameOrId,
+    }),
+    query: z.object({
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const InstanceEphemeralIpDetachParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      instance: NameOrId,
+    }),
+    query: z.object({
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
 export const InstanceMigrateParams = z.preprocess(
   processResponseBody,
   z.object({
@@ -3329,6 +3406,21 @@ export const InstanceSerialConsoleStreamParams = z.preprocess(
     query: z.object({
       mostRecent: z.number().min(0).optional(),
       project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const InstanceSshPublicKeyListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      instance: NameOrId,
+    }),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      project: NameOrId.optional(),
+      sortBy: NameOrIdSortMode.optional(),
     }),
   })
 )

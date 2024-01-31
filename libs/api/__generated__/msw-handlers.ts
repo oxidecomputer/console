@@ -182,6 +182,21 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
+  /** `POST /v1/floating-ips/:floatingIp/attach` */
+  floatingIpAttach: (params: {
+    path: Api.FloatingIpAttachPathParams
+    query: Api.FloatingIpAttachQueryParams
+    body: Json<Api.FloatingIpAttach>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.FloatingIp>>
+  /** `POST /v1/floating-ips/:floatingIp/detach` */
+  floatingIpDetach: (params: {
+    path: Api.FloatingIpDetachPathParams
+    query: Api.FloatingIpDetachQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.FloatingIp>>
   /** `GET /v1/groups` */
   groupList: (params: {
     query: Api.GroupListQueryParams
@@ -292,6 +307,21 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.ExternalIpResultsPage>>
+  /** `POST /v1/instances/:instance/external-ips/ephemeral` */
+  instanceEphemeralIpAttach: (params: {
+    path: Api.InstanceEphemeralIpAttachPathParams
+    query: Api.InstanceEphemeralIpAttachQueryParams
+    body: Json<Api.EphemeralIpCreate>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.ExternalIp>>
+  /** `DELETE /v1/instances/:instance/external-ips/ephemeral` */
+  instanceEphemeralIpDetach: (params: {
+    path: Api.InstanceEphemeralIpDetachPathParams
+    query: Api.InstanceEphemeralIpDetachQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
   /** `POST /v1/instances/:instance/migrate` */
   instanceMigrate: (params: {
     path: Api.InstanceMigratePathParams
@@ -321,6 +351,13 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
+  /** `GET /v1/instances/:instance/ssh-public-keys` */
+  instanceSshPublicKeyList: (params: {
+    path: Api.InstanceSshPublicKeyListPathParams
+    query: Api.InstanceSshPublicKeyListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.SshKeyResultsPage>>
   /** `POST /v1/instances/:instance/start` */
   instanceStart: (params: {
     path: Api.InstanceStartPathParams
@@ -1299,6 +1336,18 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       '/v1/floating-ips/:floatingIp',
       handler(handlers['floatingIpDelete'], schema.FloatingIpDeleteParams, null)
     ),
+    http.post(
+      '/v1/floating-ips/:floatingIp/attach',
+      handler(
+        handlers['floatingIpAttach'],
+        schema.FloatingIpAttachParams,
+        schema.FloatingIpAttach
+      )
+    ),
+    http.post(
+      '/v1/floating-ips/:floatingIp/detach',
+      handler(handlers['floatingIpDetach'], schema.FloatingIpDetachParams, null)
+    ),
     http.get('/v1/groups', handler(handlers['groupList'], schema.GroupListParams, null)),
     http.get(
       '/v1/groups/:groupId',
@@ -1370,6 +1419,22 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       handler(handlers['instanceExternalIpList'], schema.InstanceExternalIpListParams, null)
     ),
     http.post(
+      '/v1/instances/:instance/external-ips/ephemeral',
+      handler(
+        handlers['instanceEphemeralIpAttach'],
+        schema.InstanceEphemeralIpAttachParams,
+        schema.EphemeralIpCreate
+      )
+    ),
+    http.delete(
+      '/v1/instances/:instance/external-ips/ephemeral',
+      handler(
+        handlers['instanceEphemeralIpDetach'],
+        schema.InstanceEphemeralIpDetachParams,
+        null
+      )
+    ),
+    http.post(
       '/v1/instances/:instance/migrate',
       handler(
         handlers['instanceMigrate'],
@@ -1390,6 +1455,14 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       handler(
         handlers['instanceSerialConsoleStream'],
         schema.InstanceSerialConsoleStreamParams,
+        null
+      )
+    ),
+    http.get(
+      '/v1/instances/:instance/ssh-public-keys',
+      handler(
+        handlers['instanceSshPublicKeyList'],
+        schema.InstanceSshPublicKeyListParams,
         null
       )
     ),

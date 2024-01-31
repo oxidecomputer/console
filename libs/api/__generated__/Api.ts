@@ -922,22 +922,46 @@ export type DiskResultsPage = {
 }
 
 /**
- * The kind of an external IP address for an instance
+ * Parameters for creating an ephemeral IP address for an instance.
  */
-export type IpKind = 'ephemeral' | 'floating'
+export type EphemeralIpCreate = {
+  /** Name or ID of the IP pool used to allocate an address */
+  pool?: NameOrId
+}
 
-export type ExternalIp = { ip: string; kind: IpKind }
+export type ExternalIp =
+  | { ip: string; kind: 'ephemeral' }
+  /** A Floating IP is a well-known IP address which can be attached and detached from instances. */
+  | {
+      /** human-readable free-form text about a resource */
+      description: string
+      /** unique, immutable, system-controlled identifier for each resource */
+      id: string
+      /** The ID of the instance that this Floating IP is attached to, if it is presently in use. */
+      instanceId?: string
+      /** The IP address held by this resource. */
+      ip: string
+      kind: 'floating'
+      /** unique, mutable, user-controlled identifier for each resource */
+      name: Name
+      /** The project this resource exists within. */
+      projectId: string
+      /** timestamp when this resource was created */
+      timeCreated: Date
+      /** timestamp when this resource was last modified */
+      timeModified: Date
+    }
 
 /**
  * Parameters for creating an external IP address for instances.
  */
 export type ExternalIpCreate =
-  /** An IP address providing both inbound and outbound access. The address is automatically-assigned from the provided IP Pool, or all available pools if not specified. */
-  | { poolName?: Name; type: 'ephemeral' }
-  /** An IP address providing both inbound and outbound access. The address is an existing Floating IP object assigned to the current project.
+  /** An IP address providing both inbound and outbound access. The address is automatically-assigned from the provided IP Pool, or the current silo's default pool if not specified. */
+  | { pool?: NameOrId; type: 'ephemeral' }
+  /** An IP address providing both inbound and outbound access. The address is an existing floating IP object assigned to the current project.
 
 The floating IP must not be in use by another instance or service. */
-  | { floatingIpName: Name; type: 'floating' }
+  | { floatingIp: NameOrId; type: 'floating' }
 
 /**
  * A single page of results
@@ -1005,6 +1029,21 @@ export type FloatingIp = {
   timeCreated: Date
   /** timestamp when this resource was last modified */
   timeModified: Date
+}
+
+/**
+ * The type of resource that a floating IP is attached to
+ */
+export type FloatingIpParentKind = 'instance'
+
+/**
+ * Parameters for attaching a floating IP address to another resource
+ */
+export type FloatingIpAttach = {
+  /** The type of `parent`'s resource */
+  kind: FloatingIpParentKind
+  /** Name or ID of the resource that this IP address should be attached to */
+  parent: NameOrId
 }
 
 /**
@@ -1274,7 +1313,9 @@ By default, all instances have outbound connectivity, but no inbound connectivit
   ncpus: InstanceCpuCount
   /** The network interfaces to be created for this instance. */
   networkInterfaces?: InstanceNetworkInterfaceAttachment
-  /** List of public SSH keys (identified by ID or name) to be associated with the instance. If not provided, all public keys from the user's profile will be used. If an empty list is provided, no public keys will be transmitted to the instance. */
+  /** An allowlist of SSH public keys to be transferred to the instance via cloud-init during instance creation.
+
+If not provided, all SSH public keys from the user's profile will be sent. If an empty list is provided, no public keys will be transmitted to the instance. */
   sshKeys?: NameOrId[]
   /** Should this instance be started upon creation; true by default. */
   start?: boolean
@@ -2996,6 +3037,22 @@ export interface FloatingIpDeleteQueryParams {
   project?: NameOrId
 }
 
+export interface FloatingIpAttachPathParams {
+  floatingIp: NameOrId
+}
+
+export interface FloatingIpAttachQueryParams {
+  project?: NameOrId
+}
+
+export interface FloatingIpDetachPathParams {
+  floatingIp: NameOrId
+}
+
+export interface FloatingIpDetachQueryParams {
+  project?: NameOrId
+}
+
 export interface GroupListQueryParams {
   limit?: number
   pageToken?: string
@@ -3111,6 +3168,22 @@ export interface InstanceExternalIpListQueryParams {
   project?: NameOrId
 }
 
+export interface InstanceEphemeralIpAttachPathParams {
+  instance: NameOrId
+}
+
+export interface InstanceEphemeralIpAttachQueryParams {
+  project?: NameOrId
+}
+
+export interface InstanceEphemeralIpDetachPathParams {
+  instance: NameOrId
+}
+
+export interface InstanceEphemeralIpDetachQueryParams {
+  project?: NameOrId
+}
+
 export interface InstanceMigratePathParams {
   instance: NameOrId
 }
@@ -3145,6 +3218,17 @@ export interface InstanceSerialConsoleStreamPathParams {
 export interface InstanceSerialConsoleStreamQueryParams {
   mostRecent?: number
   project?: NameOrId
+}
+
+export interface InstanceSshPublicKeyListPathParams {
+  instance: NameOrId
+}
+
+export interface InstanceSshPublicKeyListQueryParams {
+  limit?: number
+  pageToken?: string
+  project?: NameOrId
+  sortBy?: NameOrIdSortMode
 }
 
 export interface InstanceStartPathParams {
@@ -3785,6 +3869,7 @@ export type ApiListMethods = Pick<
   | 'instanceList'
   | 'instanceDiskList'
   | 'instanceExternalIpList'
+  | 'instanceSshPublicKeyList'
   | 'projectIpPoolList'
   | 'currentUserSshKeyList'
   | 'instanceNetworkInterfaceList'
@@ -4142,6 +4227,46 @@ export class Api extends HttpClient {
       })
     },
     /**
+     * Attach a floating IP to an instance or other resource
+     */
+    floatingIpAttach: (
+      {
+        path,
+        query = {},
+        body,
+      }: {
+        path: FloatingIpAttachPathParams
+        query?: FloatingIpAttachQueryParams
+        body: FloatingIpAttach
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<FloatingIp>({
+        path: `/v1/floating-ips/${path.floatingIp}/attach`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Detach a floating IP from an instance or other resource
+     */
+    floatingIpDetach: (
+      {
+        path,
+        query = {},
+      }: { path: FloatingIpDetachPathParams; query?: FloatingIpDetachQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<FloatingIp>({
+        path: `/v1/floating-ips/${path.floatingIp}/detach`,
+        method: 'POST',
+        query,
+        ...params,
+      })
+    },
+    /**
      * List groups
      */
     groupList: (
@@ -4400,6 +4525,49 @@ export class Api extends HttpClient {
       })
     },
     /**
+     * Allocate and attach an ephemeral IP to an instance
+     */
+    instanceEphemeralIpAttach: (
+      {
+        path,
+        query = {},
+        body,
+      }: {
+        path: InstanceEphemeralIpAttachPathParams
+        query?: InstanceEphemeralIpAttachQueryParams
+        body: EphemeralIpCreate
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<ExternalIp>({
+        path: `/v1/instances/${path.instance}/external-ips/ephemeral`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Detach and deallocate an ephemeral IP from an instance
+     */
+    instanceEphemeralIpDetach: (
+      {
+        path,
+        query = {},
+      }: {
+        path: InstanceEphemeralIpDetachPathParams
+        query?: InstanceEphemeralIpDetachQueryParams
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/instances/${path.instance}/external-ips/ephemeral`,
+        method: 'DELETE',
+        query,
+        ...params,
+      })
+    },
+    /**
      * Migrate an instance
      */
     instanceMigrate: (
@@ -4454,6 +4622,26 @@ export class Api extends HttpClient {
     ) => {
       return this.request<InstanceSerialConsoleData>({
         path: `/v1/instances/${path.instance}/serial-console`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List the SSH public keys added to the instance via cloud-init during instance creation
+     */
+    instanceSshPublicKeyList: (
+      {
+        path,
+        query = {},
+      }: {
+        path: InstanceSshPublicKeyListPathParams
+        query?: InstanceSshPublicKeyListQueryParams
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SshKeyResultsPage>({
+        path: `/v1/instances/${path.instance}/ssh-public-keys`,
         method: 'GET',
         query,
         ...params,
