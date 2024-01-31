@@ -30,8 +30,10 @@ import { ErrorMessage } from './ErrorMessage'
 export interface TextFieldProps<
   TFieldValues extends FieldValues,
   TName extends FieldPath<TFieldValues>,
-> extends Omit<UITextFieldProps, 'type'> {
+> extends UITextFieldProps {
   name: TName
+  /** HTML type attribute, defaults to text */
+  type?: 'text' | 'password'
   /** Will default to name if not provided */
   label?: string
   /**
@@ -104,6 +106,7 @@ export const TextFieldInner = <
   TName extends FieldPath<TFieldValues>,
 >({
   name,
+  type = 'text',
   label = capitalize(name),
   validate,
   control,
@@ -126,6 +129,7 @@ export const TextFieldInner = <
             <UITextField
               id={id}
               title={label}
+              type={type}
               error={!!error}
               aria-labelledby={cn(`${id}-label`, {
                 [`${id}-help-text`]: !!tooltipText,
