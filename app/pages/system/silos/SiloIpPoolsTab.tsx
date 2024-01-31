@@ -60,6 +60,11 @@ export function SiloIpPoolsTab() {
 
   return (
     <>
+      <p className="mb-8 max-w-2xl text-sans-md text-secondary">
+        Users in this silo can allocate external IPs from these pools for their instances. A
+        silo can have at most one default pool. IPs are allocated from the default pool when
+        users ask for one without specifying a pool.
+      </p>
       <Table emptyState={<EmptyState />} makeActions={makeActions}>
         <Column accessor="name" cell={linkCell((pool) => pb.ipPool({ pool }))} />
         <Column accessor="description" />

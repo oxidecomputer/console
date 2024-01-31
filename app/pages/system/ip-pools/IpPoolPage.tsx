@@ -6,21 +6,31 @@
  * Copyright Oxide Computer Company
  */
 
-import type { LoaderFunctionArgs } from 'react-router-dom'
+import { Link, type LoaderFunctionArgs } from 'react-router-dom'
 
-import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
-import { BooleanCell, DateCell, useQueryTable } from '@oxide/table'
 import {
+  apiQueryClient,
+  useApiMutation,
+  useApiQuery,
+  useApiQueryClient,
+  usePrefetchedApiQuery,
+  type IpPoolSiloLink,
+} from '@oxide/api'
+import { DateCell, SkeletonCell, useQueryTable, type MenuAction } from '@oxide/table'
+import {
+  Badge,
   EmptyMessage,
   Message,
   Networking24Icon,
   PageHeader,
   PageTitle,
+  Success12Icon,
   Tabs,
 } from '@oxide/ui'
 
 import { QueryParamTabs } from 'app/components/QueryParamTabs'
 import { getIpPoolSelector, useIpPoolSelector } from 'app/hooks'
+import { pb } from 'app/util/path-builder'
 
 IpPoolPage.loader = async function ({ params }: LoaderFunctionArgs) {
   const { pool } = getIpPoolSelector(params)
@@ -103,16 +113,67 @@ const SilosEmptyState = () => (
   />
 )
 
-function LinkedSilosTable() {
-  const poolSelector = useIpPoolSelector()
-  const { Table, Column } = useQueryTable('ipPoolSiloList', { path: poolSelector })
+function SiloNameFromId({ value: siloId }: { value: string }) {
+  const { data: silo } = useApiQuery('siloView', { path: { silo: siloId } })
+
+  if (!silo) return <SkeletonCell />
 
   return (
-    <Table emptyState={<SilosEmptyState />}>
-      {/* TODO: only showing the ID is ridiculous. we need names */}
-      <Column accessor="siloId" id="Silo ID" />
-      {/* TODO: we're going to want a tooltip to explain what the f this means */}
-      <Column accessor="isDefault" id="Default for silo" cell={BooleanCell} />
-    </Table>
+    <Link
+      className="link-with-underline group text-sans-semi-md"
+      to={pb.siloIpPools({ silo: silo.name })}
+    >
+      {/* Pushes out the link area to the entire cell for improved clickability™ */}
+      <div className="absolute inset-0 right-px group-hover:bg-raise" />
+      <div className="relative">{silo.name}</div>
+    </Link>
+  )
+}
+
+function LinkedSilosTable() {
+  const poolSelector = useIpPoolSelector()
+  const queryClient = useApiQueryClient()
+  const { Table, Column } = useQueryTable('ipPoolSiloList', { path: poolSelector })
+
+  const unlinkSilo = useApiMutation('ipPoolSiloUnlink', {
+    onSuccess() {
+      queryClient.invalidateQueries('ipPoolSiloList')
+    },
+  })
+
+  // TODO: confirm action. make clear what linking means
+  const makeActions = (link: IpPoolSiloLink): MenuAction[] => [
+    {
+      label: 'Unlink',
+      onActivate() {
+        unlinkSilo.mutate({ path: { silo: link.siloId, pool: link.ipPoolId } })
+      },
+    },
+  ]
+
+  return (
+    <>
+      <p className="mb-8 max-w-2xl text-sans-md text-secondary">
+        Users in linked silos can allocate external IPs from this pool for their instances.
+        A silo can have at most one default pool. IPs are allocated from the default pool
+        when users ask for one without specifying a pool.
+      </p>
+      <Table emptyState={<SilosEmptyState />} makeActions={makeActions}>
+        <Column accessor="siloId" id="Silo" cell={SiloNameFromId} />
+        <Column
+          accessor="isDefault"
+          id="Default"
+          header="Pool is silo default?"
+          cell={({ value }) =>
+            value && (
+              <>
+                <Success12Icon className="mr-1 text-accent" />
+                <Badge>default</Badge>
+              </>
+            )
+          }
+        />
+      </Table>
+    </>
   )
 }

@@ -24,6 +24,25 @@ test('IP pool list', async ({ page }) => {
   await expect(page.getByRole('cell', { name: 'ip-pool-3' })).toBeVisible()
 })
 
+test('IP pool silo list', async ({ page }) => {
+  await page.goto('/system/ip-pools')
+  await page.getByRole('link', { name: 'ip-pool-1' }).click()
+  await page.getByRole('tab', { name: 'Linked silos' }).click()
+
+  const table = page.getByRole('table')
+  await expectRowVisible(table, { Silo: 'maze-war', 'Pool is silo default?': 'default' })
+
+  // clicking silo takes you to silo page
+  const siloLink = page.getByRole('link', { name: 'maze-war' })
+  await siloLink.click()
+  await expect(page).toHaveURL('/system/silos/maze-war?tab=ip-pools')
+  await page.goBack()
+
+  // unlink silo and the row is gone
+  await clickRowAction(page, 'maze-war', 'Unlink')
+  await expect(siloLink).toBeHidden()
+})
+
 test('IP pool delete', async ({ page }) => {
   await page.goto('/system/ip-pools')
 

@@ -93,6 +93,7 @@ export const pb = {
   silos: () => '/system/silos',
   siloNew: () => '/system/silos-new',
   silo: ({ silo }: Silo) => `/system/silos/${silo}`,
+  siloIpPools: (params: Silo) => `${pb.silo(params)}?tab=ip-pools`,
   siloIdpNew: (params: Silo) => `${pb.silo(params)}/idps-new`,
   samlIdp: (params: IdentityProvider) => `${pb.silo(params)}/idps/saml/${params.provider}`,
 
