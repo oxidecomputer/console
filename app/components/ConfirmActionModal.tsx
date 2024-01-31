@@ -8,16 +8,13 @@
 import { useState } from 'react'
 
 import { type ApiError } from '@oxide/api'
-import { Message, Modal } from '@oxide/ui'
-import { classed } from '@oxide/util'
+import { Modal } from '@oxide/ui'
 
-import { clearConfirmDelete, useConfirmDelete } from 'app/stores/confirm-delete'
+import { clearConfirmAction, useConfirmAction } from 'app/stores/confirm-action'
 import { addToast } from 'app/stores/toast'
 
-export const HL = classed.span`text-sans-semi-md text-default`
-
-export function ConfirmDeleteModal() {
-  const deleteConfig = useConfirmDelete((state) => state.deleteConfig)
+export function ConfirmActionModal() {
+  const actionConfig = useConfirmAction((state) => state.actionConfig)
 
   // this is a bit sad -- ideally we would be able to use the loading state
   // from the mutation directly, but that would require a lot of line changes
@@ -25,28 +22,23 @@ export function ConfirmDeleteModal() {
   // loading state changes
   const [loading, setLoading] = useState(false)
 
-  if (!deleteConfig) return null
+  if (!actionConfig) return null
 
-  const { doDelete, warning, label } = deleteConfig
-
-  const displayLabel = typeof label === 'string' ? <HL>{label}</HL> : label
+  const { doAction, modalContent, errorTitle, modalTitle } = actionConfig
 
   return (
-    <Modal isOpen onDismiss={clearConfirmDelete} title="Confirm delete">
-      <Modal.Section>
-        <p>Are you sure you want to delete {displayLabel}?</p>
-        {warning && <Message variant="error" content={warning} />}
-      </Modal.Section>
+    <Modal isOpen onDismiss={clearConfirmAction} title={modalTitle}>
+      <Modal.Section>{modalContent}</Modal.Section>
       <Modal.Footer
-        onDismiss={clearConfirmDelete}
+        onDismiss={clearConfirmAction}
         onAction={async () => {
           setLoading(true)
           try {
-            await doDelete()
+            await doAction()
           } catch (error) {
             addToast({
               variant: 'error',
-              title: 'Could not delete resource',
+              title: errorTitle,
               content: (error as ApiError).message,
             })
           }
@@ -54,7 +46,7 @@ export function ConfirmDeleteModal() {
           setLoading(false) // do this regardless of success or error
 
           // TODO: generic success toast?
-          clearConfirmDelete()
+          clearConfirmAction()
         }}
         cancelText="Cancel"
         actionText="Confirm"

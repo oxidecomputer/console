@@ -18,6 +18,7 @@ import {
   type UseMutationOptions,
   type UseQueryOptions,
 } from '@tanstack/react-query'
+import { type SetNonNullable } from 'type-fest'
 
 import { invariant } from '@oxide/util'
 
@@ -138,7 +139,7 @@ export const getUsePrefetchedApiQuery =
     options: UseQueryOtherOptions<Result<A[M]>, ApiError> = {}
   ) => {
     const queryKey = [method, params]
-    const { data, ...rest } = useQuery({
+    const result = useQuery({
       queryKey,
       // no catch, let unexpected errors bubble up
       queryFn: ({ signal }) => api[method](params, { signal }).then(handleResult(method)),
@@ -149,8 +150,13 @@ export const getUsePrefetchedApiQuery =
       throwOnError: (err) => err.statusCode === 404,
       ...options,
     })
-    invariant(data, `Expected query to be prefetched. Key: ${JSON.stringify(queryKey)}`)
-    return { data, ...rest }
+    invariant(
+      result.data,
+      `Expected query to be prefetched. Key: ${JSON.stringify(queryKey)}`
+    )
+    // TS infers non-nullable on a freestanding variable, but doesn't like to do
+    // it on a property. So we give it a hint
+    return result as SetNonNullable<typeof result, 'data'>
   }
 
 const ERRORS_ALLOWED = 'errors-allowed'
