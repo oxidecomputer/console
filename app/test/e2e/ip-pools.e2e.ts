@@ -41,6 +41,8 @@ test('IP pool silo list', async ({ page }) => {
 
   // unlink silo and the row is gone
   await clickRowAction(page, 'maze-war', 'Unlink')
+  await expect(page.getByRole('dialog', { name: 'Confirm unlink' })).toBeVisible()
+  await page.getByRole('button', { name: 'Confirm' }).click()
   await expect(siloLink).toBeHidden()
 })
 
