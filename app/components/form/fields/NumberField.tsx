@@ -70,7 +70,7 @@ export const NumberFieldInner = <
   id: idProp,
   disabled,
   max,
-  min,
+  min = 0,
 }: TextFieldProps<TFieldValues, TName>) => {
   const generatedId = useId()
   const id = idProp || generatedId
