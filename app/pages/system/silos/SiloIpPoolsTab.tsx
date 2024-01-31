@@ -6,15 +6,24 @@
  * Copyright Oxide Computer Company
  */
 
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 
 import { useApiMutation, useApiQuery, useApiQueryClient, type SiloIpPool } from '@oxide/api'
 import { linkCell, useQueryTable, type MenuAction } from '@oxide/table'
-import { Badge, EmptyMessage, Networking24Icon, Success12Icon } from '@oxide/ui'
+import {
+  Badge,
+  Button,
+  EmptyMessage,
+  Message,
+  Modal,
+  Networking24Icon,
+  Success12Icon,
+} from '@oxide/ui'
 
 import { ExternalLink } from 'app/components/ExternalLink'
+import { ListboxField } from 'app/components/form'
 import { HL } from 'app/components/HL'
-import { useSiloSelector } from 'app/hooks'
+import { useForm, useSiloSelector } from 'app/hooks'
 import { confirmAction } from 'app/stores/confirm-action'
 import { links } from 'app/util/links'
 import { pb } from 'app/util/path-builder'
@@ -31,6 +40,7 @@ const EmptyState = () => (
 
 export function SiloIpPoolsTab() {
   const { silo } = useSiloSelector()
+  const [showLinkModal, setShowLinkModal] = useState(false)
   const { Table, Column } = useQueryTable('siloIpPoolList', { path: { silo } })
   const queryClient = useApiQueryClient()
 
@@ -127,12 +137,17 @@ export function SiloIpPoolsTab() {
 
   return (
     <>
-      <p className="mb-8 max-w-2xl text-sans-md text-secondary">
-        Users in this silo can allocate external IPs from these pools for their instances. A
-        silo can have at most one default pool. IPs are allocated from the default pool when
-        users ask for one without specifying a pool. Read the docs to learn more about{' '}
-        <ExternalLink href={links.ipPoolsDocs}>managing IP pools</ExternalLink>.
-      </p>
+      <div className="mb-8 flex items-end justify-between space-x-2">
+        <p className="mr-8 max-w-2xl text-sans-md text-secondary">
+          Users in this silo can allocate external IPs from these pools for their instances.
+          A silo can have at most one default pool. IPs are allocated from the default pool
+          when users ask for one without specifying a pool. Read the docs to learn more
+          about <ExternalLink href={links.ipPoolsDocs}>managing IP pools</ExternalLink>.
+        </p>
+        <Button onClick={() => setShowLinkModal(true)} size="sm" className="shrink-0">
+          Link pool
+        </Button>
+      </div>
       <Table emptyState={<EmptyState />} makeActions={makeActions}>
         <Column accessor="name" cell={linkCell((pool) => pb.ipPool({ pool }))} />
         <Column accessor="description" />
@@ -149,6 +164,91 @@ export function SiloIpPoolsTab() {
           }
         />
       </Table>
+      {showLinkModal && <LinkPoolModal onDismiss={() => setShowLinkModal(false)} />}
     </>
+  )
+}
+
+type LinkPoolFormValues = {
+  pool: string | undefined
+}
+
+const defaultValues: LinkPoolFormValues = { pool: undefined }
+
+function LinkPoolModal({ onDismiss }: { onDismiss: () => void }) {
+  const queryClient = useApiQueryClient()
+  const { silo } = useSiloSelector()
+  const { control, handleSubmit } = useForm({ defaultValues })
+
+  const linkPool = useApiMutation('ipPoolSiloLink', {
+    onSuccess() {
+      queryClient.invalidateQueries('siloIpPoolList')
+    },
+    onSettled: onDismiss,
+  })
+
+  function onSubmit({ pool }: LinkPoolFormValues) {
+    if (!pool) return // can't happen, silo is required
+    linkPool.mutate({ path: { pool }, body: { silo, isDefault: false } })
+  }
+
+  const linkedPools = useApiQuery('siloIpPoolList', {
+    path: { silo },
+    query: { limit: 1000 },
+  })
+  const allPools = useApiQuery('ipPoolList', { query: { limit: 1000 } })
+
+  // in order to get the list of remaining unlinked pools, we have to get the
+  // list of all pools and remove the already linked ones
+
+  const linkedPoolIds = useMemo(
+    () => (linkedPools.data ? new Set(linkedPools.data.items.map((p) => p.id)) : undefined),
+    [linkedPools]
+  )
+  const unlinkedPoolItems = useMemo(
+    () =>
+      allPools.data && linkedPoolIds
+        ? allPools.data.items
+            .filter((p) => !linkedPoolIds.has(p.id))
+            .map((p) => ({ value: p.name, label: p.name }))
+        : [],
+    [allPools, linkedPoolIds]
+  )
+
+  return (
+    <Modal isOpen onDismiss={onDismiss} title="Link pool">
+      <Modal.Body>
+        <Modal.Section>
+          <form
+            autoComplete="off"
+            onSubmit={(e) => {
+              e.stopPropagation()
+              handleSubmit(onSubmit)(e)
+            }}
+            className="space-y-4"
+          >
+            <Message
+              variant="info"
+              content="Users in this silo will be able to allocate IPs from the selected pool."
+            />
+
+            <ListboxField
+              placeholder="Select pool"
+              name="pool"
+              label="IP pool"
+              items={unlinkedPoolItems}
+              isLoading={linkedPools.isPending || allPools.isPending}
+              required
+              control={control}
+            />
+          </form>
+        </Modal.Section>
+      </Modal.Body>
+      <Modal.Footer
+        onDismiss={onDismiss}
+        onAction={handleSubmit(onSubmit)}
+        actionText="Link"
+      />
+    </Modal>
   )
 }

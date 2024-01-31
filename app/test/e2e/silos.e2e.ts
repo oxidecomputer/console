@@ -164,6 +164,7 @@ test('Silo IP pools', async ({ page }) => {
   const table = page.getByRole('table')
   await expectRowVisible(table, { name: 'ip-pool-1', Default: 'default' })
   await expectRowVisible(table, { name: 'ip-pool-2', Default: '' })
+  await expect(table.getByRole('row')).toHaveCount(3) // header + 2
 
   // clicking on pool goes to pool detail
   await page.getByRole('link', { name: 'ip-pool-1' }).click()
@@ -203,4 +204,37 @@ test('Silo IP pools', async ({ page }) => {
   ).toBeVisible()
   await page.getByRole('button', { name: 'Confirm' }).click()
   await expectRowVisible(table, { name: 'ip-pool-2', Default: '' })
+})
+
+test('Silo IP pools link pool', async ({ page }) => {
+  await page.goto('/system/silos/maze-war?tab=ip-pools')
+
+  const table = page.getByRole('table')
+  await expectRowVisible(table, { name: 'ip-pool-1', Default: 'default' })
+  await expectRowVisible(table, { name: 'ip-pool-2', Default: '' })
+  await expect(table.getByRole('row')).toHaveCount(3) // header + 2
+
+  const modal = page.getByRole('dialog', { name: 'Link pool' })
+  await expect(modal).toBeHidden()
+
+  // open link modal
+  await page.getByRole('button', { name: 'Link pool' }).click()
+  await expect(modal).toBeVisible()
+
+  // close modal works
+  await page.getByRole('button', { name: 'Cancel' }).click()
+  await expect(modal).toBeHidden()
+
+  // reopen
+  await page.getByRole('button', { name: 'Link pool' }).click()
+  await expect(modal).toBeVisible()
+
+  // select silo in listbox and click link
+  await page.getByRole('button', { name: 'Select pool' }).click()
+  await page.getByRole('option', { name: 'ip-pool-3' }).click()
+  await modal.getByRole('button', { name: 'Link' }).click()
+
+  // modal closes and we see the thing in the table
+  await expect(modal).toBeHidden()
+  await expectRowVisible(table, { name: 'ip-pool-3', Default: '' })
 })
