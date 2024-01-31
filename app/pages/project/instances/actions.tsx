@@ -111,12 +111,6 @@ export const useMakeInstanceActions = (
                   options.onDelete?.()
                   addToast({ title: `Deleting instance '${instance.name}'` })
                 },
-                onError: (error) =>
-                  addToast({
-                    variant: 'error',
-                    title: `Error deleting instance '${instance.name}'`,
-                    content: error.message,
-                  }),
               }),
             label: instance.name,
           }),

@@ -14,7 +14,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { queryClient } from '@oxide/api'
 import { SkipLink } from '@oxide/ui'
 
-import { ConfirmDeleteModal } from './components/ConfirmDeleteModal'
+import { ConfirmActionModal } from './components/ConfirmActionModal'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { ReduceMotion } from './hooks'
 // stripped out by rollup in production
@@ -45,7 +45,7 @@ function render() {
     <StrictMode>
       <QueryClientProvider client={queryClient}>
         <ErrorBoundary>
-          <ConfirmDeleteModal />
+          <ConfirmActionModal />
           <SkipLink id="skip-nav" />
           <ReduceMotion />
           <RouterProvider router={router} />
