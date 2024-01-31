@@ -40,6 +40,7 @@ import {
 
 import { ExternalLink } from 'app/components/ExternalLink'
 import { ListboxField } from 'app/components/form'
+import { HL } from 'app/components/HL'
 import { QueryParamTabs } from 'app/components/QueryParamTabs'
 import { getIpPoolSelector, useForm, useIpPoolSelector } from 'app/hooks'
 import { confirmAction } from 'app/stores/confirm-action'
@@ -98,17 +99,41 @@ const RangesEmptyState = () => (
   />
 )
 
-const makeRangeActions = (_range: IpPoolRange): MenuAction[] => [
-  {
-    disabled: 'Coming soon. Use the CLI or API to remove a range.',
-    label: 'Remove',
-    onActivate() {},
-  },
-]
-
 function IpRangesTable() {
-  const poolSelector = useIpPoolSelector()
-  const { Table, Column } = useQueryTable('ipPoolRangeList', { path: poolSelector })
+  const { pool } = useIpPoolSelector()
+  const { Table, Column } = useQueryTable('ipPoolRangeList', { path: { pool } })
+  const queryClient = useApiQueryClient()
+
+  const removeRange = useApiMutation('ipPoolRangeRemove', {
+    onSuccess() {
+      queryClient.invalidateQueries('ipPoolRangeList')
+    },
+  })
+
+  const makeRangeActions = ({ range }: IpPoolRange): MenuAction[] => [
+    {
+      label: 'Remove',
+      onActivate: () =>
+        confirmAction({
+          doAction: () =>
+            removeRange.mutateAsync({
+              path: { pool },
+              body: range,
+            }),
+          errorTitle: 'Could not remove range',
+          modalTitle: 'Confirm remove range',
+          modalContent: (
+            <p>
+              Are you sure you want to remove range{' '}
+              <HL>
+                {range.first}&ndash;{range.last}
+              </HL>{' '}
+              from the pool?
+            </p>
+          ),
+        }),
+    },
+  ]
 
   return (
     <>
