@@ -25,6 +25,7 @@ import { ListboxField } from 'app/components/form'
 import { HL } from 'app/components/HL'
 import { useForm, useSiloSelector } from 'app/hooks'
 import { confirmAction } from 'app/stores/confirm-action'
+import { addToast } from 'app/stores/toast'
 import { links } from 'app/util/links'
 import { pb } from 'app/util/path-builder'
 
@@ -184,6 +185,9 @@ function LinkPoolModal({ onDismiss }: { onDismiss: () => void }) {
     onSuccess() {
       queryClient.invalidateQueries('siloIpPoolList')
     },
+    onError(err) {
+      addToast({ title: 'Could not link pool', content: err.message, variant: 'error' })
+    },
     onSettled: onDismiss,
   })
 
@@ -248,6 +252,7 @@ function LinkPoolModal({ onDismiss }: { onDismiss: () => void }) {
         onDismiss={onDismiss}
         onAction={handleSubmit(onSubmit)}
         actionText="Link"
+        actionLoading={linkPool.isPending}
       />
     </Modal>
   )

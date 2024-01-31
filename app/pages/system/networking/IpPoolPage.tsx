@@ -42,6 +42,7 @@ import { ListboxField } from 'app/components/form'
 import { QueryParamTabs } from 'app/components/QueryParamTabs'
 import { getIpPoolSelector, useForm, useIpPoolSelector } from 'app/hooks'
 import { confirmAction } from 'app/stores/confirm-action'
+import { addToast } from 'app/stores/toast'
 import { links } from 'app/util/links'
 import { pb } from 'app/util/path-builder'
 
@@ -218,6 +219,9 @@ function LinkSiloModal({ onDismiss }: { onDismiss: () => void }) {
     onSuccess() {
       queryClient.invalidateQueries('ipPoolSiloList')
     },
+    onError(err) {
+      addToast({ title: 'Could not link silo', content: err.message, variant: 'error' })
+    },
     onSettled: onDismiss,
   })
 
@@ -282,6 +286,7 @@ function LinkSiloModal({ onDismiss }: { onDismiss: () => void }) {
       <Modal.Footer
         onDismiss={onDismiss}
         onAction={handleSubmit(onSubmit)}
+        actionLoading={linkSilo.isPending}
         actionText="Link"
       />
     </Modal>
