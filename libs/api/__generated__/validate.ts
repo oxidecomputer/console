@@ -1394,7 +1394,7 @@ export const InstanceCreate = z.preprocess(
     networkInterfaces: InstanceNetworkInterfaceAttachment.default({
       type: 'default',
     }).optional(),
-    sshKeys: NameOrId.array().optional(),
+    sshPublicKeys: NameOrId.array().optional(),
     start: SafeBoolean.default(true).optional(),
     userData: z.string().default('').optional(),
   })

@@ -59,7 +59,7 @@ export function SshKeysField({ control }: { control: Control<InstanceCreateInput
     fieldState: { error },
   } = useController({
     control,
-    name: 'sshKeys',
+    name: 'sshPublicKeys',
     rules: {
       validate(keys) {
         if (keys.length > MAX_KEYS_PER_INSTANCE) {
@@ -82,7 +82,12 @@ export function SshKeysField({ control }: { control: Control<InstanceCreateInput
           <div className="space-y-2">
             <div className="flex flex-col space-y-2">
               {keys.map((key) => (
-                <CheckboxField name="sshKeys" control={control} value={key.id} key={key.id}>
+                <CheckboxField
+                  name="sshPublicKeys"
+                  control={control}
+                  value={key.id}
+                  key={key.id}
+                >
                   {key.name}
                 </CheckboxField>
               ))}

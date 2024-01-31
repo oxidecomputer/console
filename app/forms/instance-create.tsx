@@ -67,7 +67,7 @@ export type InstanceCreateInput = Assign<
     image: string
     userData: File | null
     // ssh keys are always specified. we do not need the undefined case
-    sshKeys: NonNullable<InstanceCreate['sshKeys']>
+    sshPublicKeys: NonNullable<InstanceCreate['sshPublicKeys']>
   }
 >
 
@@ -90,7 +90,7 @@ const baseDefaultValues: InstanceCreateInput = {
   disks: [],
   networkInterfaces: { type: 'default' },
 
-  sshKeys: [],
+  sshPublicKeys: [],
 
   start: true,
 
@@ -142,7 +142,7 @@ export function CreateInstanceForm() {
   const defaultValues: InstanceCreateInput = {
     ...baseDefaultValues,
     image: defaultImage?.id || '',
-    sshKeys: allKeys,
+    sshPublicKeys: allKeys,
     // Use 2x the image size as the default boot disk size
     bootDiskSize: Math.ceil(defaultImage?.size / GiB) * 2 || 10,
   }
@@ -215,7 +215,7 @@ export function CreateInstanceForm() {
             externalIps: [{ type: 'ephemeral' }],
             start: values.start,
             networkInterfaces: values.networkInterfaces,
-            sshKeys: values.sshKeys,
+            sshPublicKeys: values.sshPublicKeys,
             userData,
           },
         })
