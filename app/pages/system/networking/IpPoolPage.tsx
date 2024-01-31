@@ -36,6 +36,7 @@ import {
 import { ExternalLink } from 'app/components/ExternalLink'
 import { QueryParamTabs } from 'app/components/QueryParamTabs'
 import { getIpPoolSelector, useIpPoolSelector } from 'app/hooks'
+import { confirmAction } from 'app/stores/confirm-action'
 import { links } from 'app/util/links'
 import { pb } from 'app/util/path-builder'
 
@@ -139,7 +140,23 @@ function LinkedSilosTable() {
     {
       label: 'Unlink',
       onActivate() {
-        unlinkSilo.mutate({ path: { silo: link.siloId, pool: link.ipPoolId } })
+        confirmAction({
+          doAction: () =>
+            unlinkSilo.mutateAsync({ path: { silo: link.siloId, pool: link.ipPoolId } }),
+          modalTitle: 'Confirm unlink silo',
+          // Would be nice to reference the silo by name like we reference the
+          // pool by name on unlink in the silo pools list, but it's a pain to
+          // get the name here. Could use useQueries to get all the names, and
+          // RQ would dedupe the requests since they're already being fetched
+          // for the table. Not worth it right now.
+          modalContent: (
+            <p>
+              Are you sure you want to unlink the silo? Users in this silo will no longer be
+              able to allocate IPs from this pool.
+            </p>
+          ),
+          errorTitle: 'Could not unlink silo',
+        })
       },
     },
   ]
