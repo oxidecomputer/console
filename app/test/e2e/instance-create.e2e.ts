@@ -109,8 +109,8 @@ test('can create an instance with custom hardware', async ({ page }) => {
 
   // Fill in custom specs
   await page.getByRole('tab', { name: 'Custom' }).click()
-  await page.fill('input[name=ncpus]', '29')
-  await page.fill('input[name=memory]', '53')
+  await page.getByRole('textbox', { name: 'cpus' }).fill('29')
+  await page.getByRole('textbox', { name: 'memory' }).fill('53')
 
   await page.getByRole('textbox', { name: 'Disk name' }).fill('my-boot-disk')
   const diskSizeInput = page.getByRole('textbox', { name: 'Disk size (GiB)' })
