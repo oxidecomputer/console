@@ -68,6 +68,11 @@ export function SideModalForm<TFieldValues extends FieldValues>({
     }
   }, [submitError, form])
 
+  // Disable side modal forms while submitting
+  useEffect(() => {
+    form.control._disableForm(loading)
+  }, [form.control, loading])
+
   return (
     <SideModal
       onDismiss={onDismiss}
