@@ -1394,6 +1394,7 @@ export const InstanceCreate = z.preprocess(
     networkInterfaces: InstanceNetworkInterfaceAttachment.default({
       type: 'default',
     }).optional(),
+    sshPublicKeys: NameOrId.array().optional(),
     start: SafeBoolean.default(true).optional(),
     userData: z.string().default('').optional(),
   })
@@ -3405,6 +3406,21 @@ export const InstanceSerialConsoleStreamParams = z.preprocess(
     query: z.object({
       mostRecent: z.number().min(0).optional(),
       project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const InstanceSshPublicKeyListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      instance: NameOrId,
+    }),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      project: NameOrId.optional(),
+      sortBy: NameOrIdSortMode.optional(),
     }),
   })
 )

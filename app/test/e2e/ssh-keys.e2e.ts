@@ -16,9 +16,16 @@ test('SSH keys', async ({ page }) => {
   await expectVisible(page, [
     'role=heading[name*="SSH Keys"]',
     'role=cell[name="m1-macbook-pro"]',
+    'role=cell[name="mac-mini"]',
   ])
 
-  // delete the only ssh key
+  // delete the two ssh keys
+  await page.click('role=button[name="Row actions"]')
+  await page.click('role=menuitem[name="Delete"]')
+  await page.getByRole('button', { name: 'Confirm' }).click()
+
+  await expectNotVisible(page, ['role=cell[name="m1-macbook-pro"]'])
+
   await page.click('role=button[name="Row actions"]')
   await page.click('role=menuitem[name="Delete"]')
   await page.getByRole('button', { name: 'Confirm' }).click()
