@@ -108,7 +108,6 @@ export function CreateSiloSideModalForm() {
         label="CPU quota"
         name="quotas.cpus"
         required
-        type="number"
         units="nCPUs"
         validate={validateQuota}
       />
@@ -117,7 +116,6 @@ export function CreateSiloSideModalForm() {
         label="Memory quota"
         name="quotas.memory"
         required
-        type="number"
         units="GiB"
         validate={validateQuota}
       />
@@ -126,7 +124,6 @@ export function CreateSiloSideModalForm() {
         label="Storage quota"
         name="quotas.storage"
         required
-        type="number"
         units="GiB"
         validate={validateQuota}
       />

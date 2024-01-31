@@ -52,9 +52,9 @@ export function NumberField<
  * Primarily exists for `NumberField`, but we occasionally also need a plain field
  * without a label on it.
  *
- * Note that `id` is an allowed prop, unlike in `TextField`, where it is always
+ * Note that `id` is an allowed prop, unlike in `NumberField`, where it is always
  * generated from `name`. This is because we need to pass the generated ID in
- * from there to here. For the case where `TextFieldInner` is used
+ * from there to here. For the case where `NumberFieldInner` is used
  * independently, we also generate an ID for use only if none is passed in.
  */
 export const NumberFieldInner = <
@@ -69,6 +69,8 @@ export const NumberFieldInner = <
   required,
   id: idProp,
   disabled,
+  max,
+  min = 0,
 }: TextFieldProps<TFieldValues, TName>) => {
   const generatedId = useId()
   const id = idProp || generatedId
@@ -89,6 +91,8 @@ export const NumberFieldInner = <
               })}
               aria-describedby={tooltipText ? `${id}-label-tip` : undefined}
               isDisabled={disabled}
+              maxValue={max ? Number(max) : undefined}
+              minValue={min !== undefined ? Number(min) : undefined}
               {...field}
               formatOptions={{
                 useGrouping: false,

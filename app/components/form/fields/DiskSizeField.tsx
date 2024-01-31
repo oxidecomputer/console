@@ -38,7 +38,6 @@ export function DiskSizeField<
   return (
     <NumberField
       units="GiB"
-      type="number"
       required={required}
       name={name}
       min={minSize}

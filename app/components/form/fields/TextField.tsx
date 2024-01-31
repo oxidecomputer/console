@@ -33,7 +33,7 @@ export interface TextFieldProps<
 > extends UITextFieldProps {
   name: TName
   /** HTML type attribute, defaults to text */
-  type?: string
+  type?: 'text' | 'password'
   /** Will default to name if not provided */
   label?: string
   /**
@@ -92,17 +92,9 @@ export function TextField<
   )
 }
 
-function numberToInputValue(value: number) {
-  // could add `|| value === 0`, but that means when the value is 0, we always
-  // show an empty string, which is weird, and doubly bad because then the
-  // browser apparently fails to validate it against minimum (if one is
-  // provided). I found it let me submit instance create with 0 CPUs.
-  return isNaN(value) ? '' : value.toString()
-}
-
 /**
  * Primarily exists for `TextField`, but we occasionally also need a plain field
- * without a label on it. Note special handling of `type="number"`.
+ * without a label on it.
  *
  * Note that `id` is an allowed prop, unlike in `TextField`, where it is always
  * generated from `name`. This is because we need to pass the generated ID in
@@ -131,7 +123,7 @@ export const TextFieldInner = <
       name={name}
       control={control}
       rules={{ required, validate }}
-      render={({ field: { onChange, value, ...fieldRest }, fieldState: { error } }) => {
+      render={({ field: { onChange, ...fieldRest }, fieldState: { error } }) => {
         return (
           <>
             <UITextField
@@ -143,32 +135,9 @@ export const TextFieldInner = <
                 [`${id}-help-text`]: !!tooltipText,
               })}
               aria-describedby={tooltipText ? `${id}-label-tip` : undefined}
-              // note special handling for number fields, which produce a number
-              // for the calling code despite the actual input value necessarily
-              // being a string.
               onChange={(e) => {
-                if (transform) {
-                  onChange(transform(e.target.value))
-                  return
-                }
-                if (type === 'number') {
-                  if (e.target.value.trim() === '') {
-                    onChange(0)
-                  } else if (!isNaN(e.target.valueAsNumber)) {
-                    onChange(e.target.valueAsNumber)
-                  }
-                  // otherwise ignore the input. this means, for example, typing
-                  // letters does nothing. If we instead said take anything
-                  // that's NaN and fall back to 0, typing a letter would reset
-                  // the field to 0, which is silly. Browsers are supposed to
-                  // ignore non-numeric input for you anyway, but Firefox does
-                  // not.
-                  return
-                }
-
-                onChange(e.target.value)
+                onChange(transform ? transform(e.target.value) : e.target.value)
               }}
-              value={type === 'number' ? numberToInputValue(value) : value}
               {...fieldRest}
               {...props}
             />
