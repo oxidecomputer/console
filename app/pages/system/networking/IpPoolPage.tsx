@@ -15,6 +15,7 @@ import {
   useApiQuery,
   useApiQueryClient,
   usePrefetchedApiQuery,
+  type IpPoolRange,
   type IpPoolSiloLink,
 } from '@oxide/api'
 import {
@@ -97,17 +98,37 @@ const RangesEmptyState = () => (
   />
 )
 
+const makeRangeActions = (_range: IpPoolRange): MenuAction[] => [
+  {
+    disabled: 'Coming soon. Use the CLI or API to remove a range.',
+    label: 'Remove',
+    onActivate() {},
+  },
+]
+
 function IpRangesTable() {
   const poolSelector = useIpPoolSelector()
   const { Table, Column } = useQueryTable('ipPoolRangeList', { path: poolSelector })
 
   return (
-    <Table emptyState={<RangesEmptyState />}>
-      {/* TODO: only showing the ID is ridiculous. we need names */}
-      <Column accessor="range.first" header="First" />
-      <Column accessor="range.last" header="Last" />
-      <Column accessor="timeCreated" header="Created" cell={DateCell} />
-    </Table>
+    <>
+      <div className="mb-3 flex justify-end space-x-2">
+        <Button
+          onClick={() => {}}
+          size="sm"
+          disabled
+          disabledReason="Coming soon. Use the CLI or API to add a range."
+        >
+          Add range
+        </Button>
+      </div>
+      <Table emptyState={<RangesEmptyState />} makeActions={makeRangeActions}>
+        {/* TODO: only showing the ID is ridiculous. we need names */}
+        <Column accessor="range.first" header="First" />
+        <Column accessor="range.last" header="Last" />
+        <Column accessor="timeCreated" header="Created" cell={DateCell} />
+      </Table>
+    </>
   )
 }
 
@@ -171,7 +192,7 @@ function LinkedSilosTable() {
 
   return (
     <>
-      <div className="mb-8 flex items-end justify-between space-x-2">
+      <div className="mb-4 flex items-end justify-between space-x-2">
         <p className="mr-8 max-w-2xl text-sans-md text-secondary">
           Users in linked silos can allocate external IPs from this pool for their
           instances. A silo can have at most one default pool. IPs are allocated from the
