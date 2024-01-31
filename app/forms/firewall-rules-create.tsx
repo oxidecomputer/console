@@ -134,12 +134,41 @@ function getFilterValueProps(hostType: VpcFirewallRuleHostFilter['type']) {
 export const CommonFields = ({ error, control }: CommonFieldsProps) => {
   const portRangeForm = useForm({ defaultValues: portRangeDefaultValues })
   const ports = useController({ name: 'ports', control }).field
+  const submitPortRange = portRangeForm.handleSubmit(({ portRange }) => {
+    const portRangeValue = portRange.trim()
+    // ignore click if invalid or already in the list
+    // TODO: show error instead of ignoring the click
+    if (!parsePortRange(portRangeValue)) return
+    if (ports.value.includes(portRangeValue)) return
+    ports.onChange([...ports.value, portRangeValue])
+    portRangeForm.reset()
+  })
 
   const hostForm = useForm({ defaultValues: hostDefaultValues })
   const hosts = useController({ name: 'hosts', control }).field
+  const submitHost = hostForm.handleSubmit(({ type, value }) => {
+    // ignore click if empty or a duplicate
+    // TODO: show error instead of ignoring click
+    if (!type || !value) return
+    if (hosts.value.some((t) => t.value === value && t.type === type)) return
+
+    hosts.onChange([...hosts.value, { type, value }])
+    hostForm.reset()
+  })
 
   const targetForm = useForm({ defaultValues: targetDefaultValues })
   const targets = useController({ name: 'targets', control }).field
+  const submitTarget = targetForm.handleSubmit(({ type, value }) => {
+    // TODO: do this with a normal validation
+    // ignore click if empty or a duplicate
+    // TODO: show error instead of ignoring click
+    if (!type || !value) return
+    if (targets.value.some((t) => t.value === value && t.type === type)) return
+
+    targets.onChange([...targets.value, { type, value }])
+    targetForm.reset()
+  })
+
   return (
     <>
       {/* omitting value prop makes it a boolean value. beautiful */}
@@ -204,6 +233,12 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
           {...getFilterValueProps(targetForm.watch('type'))}
           required
           control={targetForm.control}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault() // prevent full form submission
+              submitTarget(e)
+            }
+          }}
         />
 
         <div className="flex justify-end">
@@ -216,19 +251,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
           >
             Clear
           </Button>
-          <Button
-            size="sm"
-            onClick={targetForm.handleSubmit(({ type, value }) => {
-              // TODO: do this with a normal validation
-              // ignore click if empty or a duplicate
-              // TODO: show error instead of ignoring click
-              if (!type || !value) return
-              if (targets.value.some((t) => t.value === value && t.type === type)) return
-
-              targets.onChange([...targets.value, { type, value }])
-              targetForm.reset()
-            })}
-          >
+          <Button size="sm" onClick={submitTarget}>
             Add target
           </Button>
         </div>
@@ -300,6 +323,12 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
           {...getFilterValueProps(hostForm.watch('type'))}
           required
           control={hostForm.control}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault() // prevent full form submission
+              submitHost(e)
+            }
+          }}
         />
 
         <div className="flex justify-end">
@@ -312,18 +341,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
           >
             Clear
           </Button>
-          <Button
-            size="sm"
-            onClick={hostForm.handleSubmit(({ type, value }) => {
-              // ignore click if empty or a duplicate
-              // TODO: show error instead of ignoring click
-              if (!type || !value) return
-              if (hosts.value.some((t) => t.value === value && t.type === type)) return
-
-              hosts.onChange([...hosts.value, { type, value }])
-              hostForm.reset()
-            })}
-          >
+          <Button size="sm" onClick={submitHost}>
             Add host filter
           </Button>
         </div>
@@ -377,6 +395,12 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
           description="A single port (1234) or a range (1234-2345)"
           required
           control={portRangeForm.control}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault() // prevent full form submission
+              submitPortRange(e)
+            }
+          }}
         />
         <div className="flex justify-end">
           <Button
@@ -388,18 +412,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
           >
             Clear
           </Button>
-          <Button
-            size="sm"
-            onClick={portRangeForm.handleSubmit(({ portRange }) => {
-              const portRangeValue = portRange.trim()
-              // ignore click if invalid or already in the list
-              // TODO: show error instead of ignoring the click
-              if (!parsePortRange(portRangeValue)) return
-              if (ports.value.includes(portRangeValue)) return
-              ports.onChange([...ports.value, portRangeValue])
-              portRangeForm.reset()
-            })}
-          >
+          <Button size="sm" onClick={submitPortRange}>
             Add port filter
           </Button>
         </div>
