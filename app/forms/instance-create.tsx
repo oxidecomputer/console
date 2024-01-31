@@ -50,6 +50,7 @@ import {
   ImageSelectField,
   NameField,
   NetworkInterfaceField,
+  NumberField,
   RadioFieldDyn,
   TextField,
   type DiskTableItem,
@@ -284,8 +285,7 @@ export function CreateInstanceForm() {
         </Tabs.Content>
 
         <Tabs.Content value="custom">
-          <TextField
-            type="number"
+          <NumberField
             required
             label="CPUs"
             name="ncpus"
@@ -302,9 +302,8 @@ export function CreateInstanceForm() {
             }}
             disabled={isSubmitting}
           />
-          <TextField
+          <NumberField
             units="GiB"
-            type="number"
             required
             label="Memory"
             name="memory"

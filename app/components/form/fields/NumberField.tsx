@@ -69,6 +69,8 @@ export const NumberFieldInner = <
   required,
   id: idProp,
   disabled,
+  max,
+  min,
 }: TextFieldProps<TFieldValues, TName>) => {
   const generatedId = useId()
   const id = idProp || generatedId
@@ -89,6 +91,8 @@ export const NumberFieldInner = <
               })}
               aria-describedby={tooltipText ? `${id}-label-tip` : undefined}
               isDisabled={disabled}
+              maxValue={max ? Number(max) : undefined}
+              minValue={min !== undefined ? Number(min) : undefined}
               {...field}
               formatOptions={{
                 useGrouping: false,

@@ -108,8 +108,8 @@ export function CreateSiloSideModalForm() {
         label="CPU quota"
         name="quotas.cpus"
         required
-        type="number"
         units="nCPUs"
+        min={0}
         validate={validateQuota}
       />
       <NumberField
@@ -117,8 +117,8 @@ export function CreateSiloSideModalForm() {
         label="Memory quota"
         name="quotas.memory"
         required
-        type="number"
         units="GiB"
+        min={0}
         validate={validateQuota}
       />
       <NumberField
@@ -126,8 +126,8 @@ export function CreateSiloSideModalForm() {
         label="Storage quota"
         name="quotas.storage"
         required
-        type="number"
         units="GiB"
+        min={0}
         validate={validateQuota}
       />
       <FormDivider />
