@@ -33,10 +33,7 @@ export const useConfirmAction = create<ConfirmActionStore>(() => ({
 // in the store need to the hook.
 // https://github.com/pmndrs/zustand/blob/a5343354/docs/guides/practice-with-no-store-actions.md
 
-/**
- * Note that this returns a function so we can save a line in the calling code.
- */
-export const confirmAction = (actionConfig: ActionConfig) => () => {
+export function confirmAction(actionConfig: ActionConfig) {
   useConfirmAction.setState({ actionConfig })
 }
 

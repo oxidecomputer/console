@@ -35,13 +35,14 @@ import {
 import { groupBy, isTruthy } from '@oxide/util'
 
 import { AccessNameCell } from 'app/components/AccessNameCell'
+import { HL } from 'app/components/HL'
 import { RoleBadgeCell } from 'app/components/RoleBadgeCell'
 import {
   ProjectAccessAddUserSideModal,
   ProjectAccessEditUserSideModal,
 } from 'app/forms/project-access'
 import { getProjectSelector, useProjectSelector } from 'app/hooks'
-import { confirmDelete, HL } from 'app/stores/confirm-delete'
+import { confirmDelete } from 'app/stores/confirm-delete'
 
 const EmptyState = ({ onClick }: { onClick: () => void }) => (
   <TableEmptyBox>

@@ -172,15 +172,35 @@ test('Silo IP pools', async ({ page }) => {
 
   // make default
   await clickRowAction(page, 'ip-pool-2', 'Make default')
+  await expect(
+    page
+      .getByRole('dialog', { name: 'Confirm change default' })
+      .getByText(
+        'Are you sure you want to change the default pool from ip-pool-1 to ip-pool-2?'
+      )
+  ).toBeVisible()
+  await page.getByRole('button', { name: 'Confirm' }).click()
   await expectRowVisible(table, { name: 'ip-pool-1', Default: '' })
   await expectRowVisible(table, { name: 'ip-pool-2', Default: 'default' })
 
   // unlink
   await clickRowAction(page, 'ip-pool-1', 'Unlink')
+  await expect(
+    page
+      .getByRole('dialog', { name: 'Confirm unlink pool' })
+      .getByText('Are you sure you want to unlink ip-pool-1?')
+  ).toBeVisible()
+  await page.getByRole('button', { name: 'Confirm' }).click()
   await expect(page.getByRole('cell', { name: 'ip-pool-1' })).toBeHidden()
   await expectRowVisible(table, { name: 'ip-pool-2', Default: 'default' })
 
   // clear default
   await clickRowAction(page, 'ip-pool-2', 'Clear default')
+  await expect(
+    page
+      .getByRole('dialog', { name: 'Confirm clear default' })
+      .getByText('Are you sure you want to clear the default pool?')
+  ).toBeVisible()
+  await page.getByRole('button', { name: 'Confirm' }).click()
   await expectRowVisible(table, { name: 'ip-pool-2', Default: '' })
 })

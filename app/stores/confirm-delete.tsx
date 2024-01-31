@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { classed } from '@oxide/util'
+import { HL } from 'app/components/HL'
 
 import { useConfirmAction } from './confirm-action'
 
@@ -24,8 +24,6 @@ type DeleteConfig = {
    */
   label: React.ReactNode
 }
-
-export const HL = classed.span`text-sans-semi-md text-default`
 
 export const confirmDelete =
   ({ doDelete, label }: DeleteConfig) =>
