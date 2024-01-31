@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { Link, type LoaderFunctionArgs } from 'react-router-dom'
+import { type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
   apiQueryClient,
@@ -16,7 +16,13 @@ import {
   usePrefetchedApiQuery,
   type IpPoolSiloLink,
 } from '@oxide/api'
-import { DateCell, SkeletonCell, useQueryTable, type MenuAction } from '@oxide/table'
+import {
+  DateCell,
+  LinkCell,
+  SkeletonCell,
+  useQueryTable,
+  type MenuAction,
+} from '@oxide/table'
 import {
   Badge,
   EmptyMessage,
@@ -118,16 +124,7 @@ function SiloNameFromId({ value: siloId }: { value: string }) {
 
   if (!silo) return <SkeletonCell />
 
-  return (
-    <Link
-      className="link-with-underline group text-sans-semi-md"
-      to={pb.siloIpPools({ silo: silo.name })}
-    >
-      {/* Pushes out the link area to the entire cell for improved clickability™ */}
-      <div className="absolute inset-0 right-px group-hover:bg-raise" />
-      <div className="relative">{silo.name}</div>
-    </Link>
-  )
+  return <LinkCell to={pb.siloIpPools({ silo: silo.name })}>{silo.name}</LinkCell>
 }
 
 function LinkedSilosTable() {

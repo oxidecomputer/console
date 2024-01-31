@@ -14,7 +14,13 @@ import {
   useApiQueryErrorsAllowed,
   type Snapshot,
 } from '@oxide/api'
-import { DateCell, SizeCell, useQueryTable, type MenuAction } from '@oxide/table'
+import {
+  DateCell,
+  SizeCell,
+  SkeletonCell,
+  useQueryTable,
+  type MenuAction,
+} from '@oxide/table'
 import {
   Badge,
   buttonStyle,
@@ -22,7 +28,6 @@ import {
   PageHeader,
   PageTitle,
   Snapshots24Icon,
-  Spinner,
   TableActions,
 } from '@oxide/ui'
 
@@ -34,7 +39,7 @@ import { pb } from 'app/util/path-builder'
 const DiskNameFromId = ({ value }: { value: string }) => {
   const { data } = useApiQueryErrorsAllowed('diskView', { path: { disk: value } })
 
-  if (!data) return <Spinner />
+  if (!data) return <SkeletonCell />
   if (data.type === 'error') return <Badge color="neutral">Deleted</Badge>
   return <span className="text-secondary">{data.data.name}</span>
 }

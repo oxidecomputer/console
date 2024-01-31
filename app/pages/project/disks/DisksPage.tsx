@@ -16,7 +16,14 @@ import {
   useApiQueryClient,
   type Disk,
 } from '@oxide/api'
-import { DateCell, linkCell, SizeCell, useQueryTable, type MenuAction } from '@oxide/table'
+import {
+  DateCell,
+  LinkCell,
+  SizeCell,
+  SkeletonCell,
+  useQueryTable,
+  type MenuAction,
+} from '@oxide/table'
 import {
   buttonStyle,
   EmptyMessage,
@@ -33,22 +40,22 @@ import { pb } from 'app/util/path-builder'
 
 import { fancifyStates } from '../instances/instance/tabs/common'
 
-function AttachedInstance({
-  instanceId,
-  ...projectSelector
-}: {
-  project: string
-  instanceId: string
-}) {
-  const { data: instance } = useApiQuery('instanceView', {
-    path: { instance: instanceId },
-  })
-
-  const instanceLinkCell = linkCell((instanceName) =>
-    pb.instancePage({ ...projectSelector, instance: instanceName })
+function InstanceNameFromId({ value: instanceId }: { value: string | null }) {
+  const { project } = useProjectSelector()
+  const { data: instance } = useApiQuery(
+    'instanceView',
+    { path: { instance: instanceId! } },
+    { enabled: !!instanceId }
   )
 
-  return instance ? instanceLinkCell({ value: instance.name }) : null
+  if (!instanceId) return null
+  if (!instance) return <SkeletonCell />
+
+  return (
+    <LinkCell to={pb.instancePage({ project, instance: instance.name })}>
+      {instance.name}
+    </LinkCell>
+  )
 }
 
 const EmptyState = () => (
@@ -143,9 +150,7 @@ export function DisksPage() {
             // whether it has an instance field
             'instance' in disk.state ? disk.state.instance : null
           }
-          cell={({ value }: { value: string | undefined }) =>
-            value ? <AttachedInstance {...projectSelector} instanceId={value} /> : null
-          }
+          cell={InstanceNameFromId}
         />
         <Column header="Size" accessor="size" cell={SizeCell} />
         <Column
