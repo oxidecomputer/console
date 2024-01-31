@@ -1048,6 +1048,7 @@ export const handlers = makeHandlers({
   instanceEphemeralIpAttach: NotImplemented,
   instanceMigrate: NotImplemented,
   instanceSerialConsoleStream: NotImplemented,
+  instanceSshPublicKeyList: NotImplemented,
   ipPoolCreate: NotImplemented,
   ipPoolDelete: NotImplemented,
   ipPoolRangeAdd: NotImplemented,
