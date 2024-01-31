@@ -11,9 +11,10 @@ import { expect, test } from '@playwright/test'
 import { clickRowAction, expectRowVisible } from './utils'
 
 test('IP pool list', async ({ page }) => {
-  await page.goto('/system/ip-pools')
+  await page.goto('/system/networking/ip-pools')
 
-  await expect(page.getByRole('heading', { name: 'IP pools' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Networking' })).toBeVisible()
+  await expect(page.getByRole('tab', { name: 'IP pools' })).toBeVisible()
 
   const table = page.getByRole('table')
 
@@ -25,7 +26,7 @@ test('IP pool list', async ({ page }) => {
 })
 
 test('IP pool silo list', async ({ page }) => {
-  await page.goto('/system/ip-pools')
+  await page.goto('/system/networking/ip-pools')
   await page.getByRole('link', { name: 'ip-pool-1' }).click()
   await page.getByRole('tab', { name: 'Linked silos' }).click()
 
@@ -44,7 +45,7 @@ test('IP pool silo list', async ({ page }) => {
 })
 
 test('IP pool delete', async ({ page }) => {
-  await page.goto('/system/ip-pools')
+  await page.goto('/system/networking/ip-pools')
 
   // can't delete a pool containing ranges
   await clickRowAction(page, 'ip-pool-1', 'Delete')
@@ -67,7 +68,7 @@ test('IP pool delete', async ({ page }) => {
 })
 
 test('IP pool create', async ({ page }) => {
-  await page.goto('/system/ip-pools')
+  await page.goto('/system/networking/ip-pools')
   await expect(page.getByRole('cell', { name: 'another-pool' })).toBeHidden()
 
   const modal = page.getByRole('dialog', { name: 'Create IP pool' })

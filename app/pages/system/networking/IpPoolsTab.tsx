@@ -10,14 +10,7 @@ import { Link, Outlet, useNavigate } from 'react-router-dom'
 
 import { apiQueryClient, useApiMutation, type IpPool } from '@oxide/api'
 import { DateCell, linkCell, useQueryTable, type MenuAction } from '@oxide/table'
-import {
-  buttonStyle,
-  EmptyMessage,
-  Networking24Icon,
-  PageHeader,
-  PageTitle,
-  TableActions,
-} from '@oxide/ui'
+import { buttonStyle, EmptyMessage, Networking24Icon } from '@oxide/ui'
 
 import { confirmDelete } from 'app/stores/confirm-delete'
 import { pb } from 'app/util/path-builder'
@@ -32,12 +25,12 @@ const EmptyState = () => (
   />
 )
 
-IpPoolsPage.loader = async function () {
+IpPoolsTab.loader = async function () {
   await apiQueryClient.prefetchQuery('ipPoolList', { query: { limit: 25 } })
   return null
 }
 
-export function IpPoolsPage() {
+export function IpPoolsTab() {
   const navigate = useNavigate()
   const { Table, Column } = useQueryTable('ipPoolList', {})
 
@@ -68,14 +61,11 @@ export function IpPoolsPage() {
 
   return (
     <>
-      <PageHeader>
-        <PageTitle icon={<Networking24Icon />}>IP pools</PageTitle>
-      </PageHeader>
-      <TableActions>
+      <div className="mb-3 flex justify-end space-x-2">
         <Link to={pb.ipPoolNew()} className={buttonStyle({ size: 'sm' })}>
           New IP Pool
         </Link>
-      </TableActions>
+      </div>
       <Table emptyState={<EmptyState />} makeActions={makeActions}>
         <Column accessor="name" cell={linkCell((pool) => pb.ipPool({ pool }))} />
         <Column accessor="description" />

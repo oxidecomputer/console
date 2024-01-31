@@ -60,7 +60,7 @@ export function IpPoolPage() {
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<Networking24Icon />}>IP pool: {pool.name}</PageTitle>
+        <PageTitle icon={<Networking24Icon />}>{pool.name}</PageTitle>
       </PageHeader>
       <Message
         className="-mt-8 mb-12"

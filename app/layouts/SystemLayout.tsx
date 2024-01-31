@@ -66,7 +66,7 @@ export default function SystemLayout() {
       { value: 'Silos', path: pb.silos() },
       { value: 'Utilization', path: pb.systemUtilization() },
       { value: 'Inventory', path: pb.inventory() },
-      { value: 'IP pools', path: pb.ipPools() },
+      { value: 'Networking', path: pb.ipPools() },
     ]
       // filter out the entry for the path we're currently on
       .filter((i) => i.path !== pathname)
@@ -112,7 +112,7 @@ export default function SystemLayout() {
             <Storage16Icon /> Inventory
           </NavLinkItem>
           <NavLinkItem to={pb.ipPools()}>
-            <Networking16Icon /> IP pools
+            <Networking16Icon /> Networking
           </NavLinkItem>
         </Sidebar.Nav>
       </Sidebar>

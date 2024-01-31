@@ -67,8 +67,9 @@ import { InventoryPage } from './pages/system/inventory/InventoryPage'
 import { SledInstancesTab } from './pages/system/inventory/sled/SledInstancesTab'
 import { SledPage } from './pages/system/inventory/sled/SledPage'
 import { SledsTab } from './pages/system/inventory/SledsTab'
-import { IpPoolPage } from './pages/system/ip-pools/IpPoolPage'
-import { IpPoolsPage } from './pages/system/ip-pools/IpPoolsPage'
+import { IpPoolPage } from './pages/system/networking/IpPoolPage'
+import { IpPoolsTab } from './pages/system/networking/IpPoolsTab'
+import { NetworkingPage } from './pages/system/networking/NetworkingPage'
 import { SiloImagesPage } from './pages/system/SiloImagesPage'
 import { SiloPage } from './pages/system/silos/SiloPage'
 import SilosPage from './pages/system/silos/SilosPage'
@@ -173,8 +174,16 @@ export const routes = createRoutesFromElements(
         </Route>
         <Route path="health" element={null} handle={{ crumb: 'Health' }} />
         <Route path="update" element={null} handle={{ crumb: 'Update' }} />
-        <Route handle={{ crumb: 'IP pools' }}>
-          <Route element={<IpPoolsPage />} loader={IpPoolsPage.loader}>
+        <Route
+          path="networking"
+          element={<NetworkingPage />}
+          handle={{ crumb: 'Networking' }}
+        >
+          <Route
+            element={<IpPoolsTab />}
+            loader={IpPoolsTab.loader}
+            handle={{ crumb: 'IP pools' }}
+          >
             <Route path="ip-pools" element={null} />
             <Route path="ip-pools-new" element={<CreateIpPoolSideModalForm />} />
             <Route
@@ -184,12 +193,12 @@ export const routes = createRoutesFromElements(
               handle={{ crumb: 'Edit IP pool' }}
             />
           </Route>
-          <Route
-            path="ip-pools/:pool"
-            element={<IpPoolPage />}
-            loader={IpPoolPage.loader}
-          />
         </Route>
+        <Route
+          path="networking/ip-pools/:pool"
+          element={<IpPoolPage />}
+          loader={IpPoolPage.loader}
+        />
       </Route>
 
       <Route index element={<Navigate to={pb.projects()} replace />} />

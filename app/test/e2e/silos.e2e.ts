@@ -167,7 +167,7 @@ test('Silo IP pools', async ({ page }) => {
 
   // clicking on pool goes to pool detail
   await page.getByRole('link', { name: 'ip-pool-1' }).click()
-  await expect(page).toHaveURL('/system/ip-pools/ip-pool-1')
+  await expect(page).toHaveURL('/system/networking/ip-pools/ip-pool-1')
   await page.goBack()
 
   // make default
