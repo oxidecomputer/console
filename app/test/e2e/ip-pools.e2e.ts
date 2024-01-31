@@ -44,6 +44,38 @@ test('IP pool silo list', async ({ page }) => {
   await expect(siloLink).toBeHidden()
 })
 
+test('IP pool link silo', async ({ page }) => {
+  await page.goto('/system/networking/ip-pools/ip-pool-1?tab=silos')
+
+  const table = page.getByRole('table')
+  await expectRowVisible(table, { Silo: 'maze-war', 'Pool is silo default?': 'default' })
+  await expect(table.getByRole('row')).toHaveCount(2) // header and 1 row
+
+  const modal = page.getByRole('dialog', { name: 'Link silo' })
+  await expect(modal).toBeHidden()
+
+  // open link modal
+  await page.getByRole('button', { name: 'Link silo' }).click()
+  await expect(modal).toBeVisible()
+
+  // close modal works
+  await page.getByRole('button', { name: 'Cancel' }).click()
+  await expect(modal).toBeHidden()
+
+  // reopen
+  await page.getByRole('button', { name: 'Link silo' }).click()
+  await expect(modal).toBeVisible()
+
+  // select silo in listbox and click link
+  await page.getByRole('button', { name: 'Select silo' }).click()
+  await page.getByRole('option', { name: 'myriad' }).click()
+  await modal.getByRole('button', { name: 'Link' }).click()
+
+  // modal closes and we see the thing in the table
+  await expect(modal).toBeHidden()
+  await expectRowVisible(table, { Silo: 'myriad', 'Pool is silo default?': '' })
+})
+
 test('IP pool delete', async ({ page }) => {
   await page.goto('/system/networking/ip-pools')
 

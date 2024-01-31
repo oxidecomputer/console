@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
+import { useMemo, useState } from 'react'
 import { type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
@@ -25,7 +26,10 @@ import {
 } from '@oxide/table'
 import {
   Badge,
+  Button,
   EmptyMessage,
+  Message,
+  Modal,
   Networking24Icon,
   PageHeader,
   PageTitle,
@@ -34,8 +38,9 @@ import {
 } from '@oxide/ui'
 
 import { ExternalLink } from 'app/components/ExternalLink'
+import { ListboxField } from 'app/components/form'
 import { QueryParamTabs } from 'app/components/QueryParamTabs'
-import { getIpPoolSelector, useIpPoolSelector } from 'app/hooks'
+import { getIpPoolSelector, useForm, useIpPoolSelector } from 'app/hooks'
 import { confirmAction } from 'app/stores/confirm-action'
 import { links } from 'app/util/links'
 import { pb } from 'app/util/path-builder'
@@ -161,14 +166,22 @@ function LinkedSilosTable() {
     },
   ]
 
+  const [showLinkModal, setShowLinkModal] = useState(false)
+
   return (
     <>
-      <p className="mb-8 max-w-2xl text-sans-md text-secondary">
-        Users in linked silos can allocate external IPs from this pool for their instances.
-        A silo can have at most one default pool. IPs are allocated from the default pool
-        when users ask for one without specifying a pool. Read the docs to learn more about{' '}
-        <ExternalLink href={links.ipPoolsDocs}>managing IP pools</ExternalLink>.
-      </p>
+      <div className="mb-8 flex items-end justify-between space-x-2">
+        <p className="mr-8 max-w-2xl text-sans-md text-secondary">
+          Users in linked silos can allocate external IPs from this pool for their
+          instances. A silo can have at most one default pool. IPs are allocated from the
+          default pool when users ask for one without specifying a pool. Read the docs to
+          learn more about{' '}
+          <ExternalLink href={links.ipPoolsDocs}>managing IP pools</ExternalLink>.
+        </p>
+        <Button onClick={() => setShowLinkModal(true)} size="sm" className="shrink-0">
+          Link silo
+        </Button>
+      </div>
       <Table emptyState={<SilosEmptyState />} makeActions={makeActions}>
         <Column accessor="siloId" id="Silo" cell={SiloNameFromId} />
         <Column
@@ -185,6 +198,92 @@ function LinkedSilosTable() {
           }
         />
       </Table>
+      {showLinkModal && <LinkSiloModal onDismiss={() => setShowLinkModal(false)} />}
     </>
+  )
+}
+
+type LinkSiloFormValues = {
+  silo: string | undefined
+}
+
+const defaultValues: LinkSiloFormValues = { silo: undefined }
+
+function LinkSiloModal({ onDismiss }: { onDismiss: () => void }) {
+  const queryClient = useApiQueryClient()
+  const { pool } = useIpPoolSelector()
+  const { control, handleSubmit } = useForm({ defaultValues })
+
+  const linkSilo = useApiMutation('ipPoolSiloLink', {
+    onSuccess() {
+      queryClient.invalidateQueries('ipPoolSiloList')
+    },
+    onSettled: onDismiss,
+  })
+
+  function onSubmit({ silo }: LinkSiloFormValues) {
+    if (!silo) return // can't happen, silo is required
+    linkSilo.mutate({ path: { pool }, body: { silo, isDefault: false } })
+  }
+
+  const linkedSilos = useApiQuery('ipPoolSiloList', {
+    path: { pool },
+    query: { limit: 1000 },
+  })
+  const allSilos = useApiQuery('siloList', { query: { limit: 1000 } })
+
+  // in order to get the list of remaining unlinked silos, we have to get the
+  // list of all silos and remove the already linked ones
+
+  const linkedSiloIds = useMemo(
+    () =>
+      linkedSilos.data ? new Set(linkedSilos.data.items.map((s) => s.siloId)) : undefined,
+    [linkedSilos]
+  )
+  const unlinkedSiloItems = useMemo(
+    () =>
+      allSilos.data && linkedSiloIds
+        ? allSilos.data.items
+            .filter((s) => !linkedSiloIds.has(s.id))
+            .map((s) => ({ value: s.name, label: s.name }))
+        : [],
+    [allSilos, linkedSiloIds]
+  )
+
+  return (
+    <Modal isOpen onDismiss={onDismiss} title="Link silo">
+      <Modal.Body>
+        <Modal.Section>
+          <form
+            autoComplete="off"
+            onSubmit={(e) => {
+              e.stopPropagation()
+              handleSubmit(onSubmit)(e)
+            }}
+            className="space-y-4"
+          >
+            <Message
+              variant="info"
+              content="Users in the selected silo will be able to allocate IPs from this pool."
+            />
+
+            <ListboxField
+              placeholder="Select silo"
+              name="silo"
+              label="Silo"
+              items={unlinkedSiloItems}
+              isLoading={linkedSilos.isPending || allSilos.isPending}
+              required
+              control={control}
+            />
+          </form>
+        </Modal.Section>
+      </Modal.Body>
+      <Modal.Footer
+        onDismiss={onDismiss}
+        onAction={handleSubmit(onSubmit)}
+        actionText="Link"
+      />
+    </Modal>
   )
 }
