@@ -1190,6 +1190,19 @@ export const GroupResultsPage = z.preprocess(
   z.object({ items: Group.array(), nextPage: z.string().optional() })
 )
 
+/**
+ * An RFC-1035-compliant hostname
+ *
+ * A hostname identifies a host on a network, and is usually a dot-delimited sequence of labels, where each label contains only letters, digits, or the hyphen. See RFCs 1035 an 952 for more details.
+ */
+export const Hostname = z.preprocess(
+  processResponseBody,
+  z
+    .string()
+    .max(253)
+    .regex(/^([a-zA-Z0-9]+[a-zA-Z0-9\-]*(?<!-))(\.[a-zA-Z1-9]+[a-zA-Z0-9\-]*(?<!-))*$/)
+)
+
 export const IdentityProviderType = z.preprocess(processResponseBody, z.enum(['saml']))
 
 /**
@@ -1322,7 +1335,7 @@ export const Instance = z.preprocess(
   processResponseBody,
   z.object({
     description: z.string(),
-    hostname: z.string(),
+    hostname: Hostname,
     id: z.string().uuid(),
     memory: ByteCount,
     name: Name,
@@ -1387,7 +1400,7 @@ export const InstanceCreate = z.preprocess(
     description: z.string(),
     disks: InstanceDiskAttachment.array().default([]).optional(),
     externalIps: ExternalIpCreate.array().default([]).optional(),
-    hostname: z.string(),
+    hostname: Hostname,
     memory: ByteCount,
     name: Name,
     ncpus: InstanceCpuCount,

@@ -1089,6 +1089,13 @@ export type GroupResultsPage = {
   nextPage?: string
 }
 
+/**
+ * An RFC-1035-compliant hostname
+ *
+ * A hostname identifies a host on a network, and is usually a dot-delimited sequence of labels, where each label contains only letters, digits, or the hyphen. See RFCs 1035 an 952 for more details.
+ */
+export type Hostname = string
+
 export type IdentityProviderType = 'saml'
 
 /**
@@ -1229,7 +1236,7 @@ export type Instance = {
   /** human-readable free-form text about a resource */
   description: string
   /** RFC1035-compliant hostname for the Instance. */
-  hostname: string
+  hostname: Hostname
   /** unique, immutable, system-controlled identifier for each resource */
   id: string
   /** memory allocated for this Instance */
@@ -1307,7 +1314,7 @@ export type InstanceCreate = {
 
 By default, all instances have outbound connectivity, but no inbound connectivity. These external addresses can be used to provide a fixed, known IP address for making inbound connections to the instance. */
   externalIps?: ExternalIpCreate[]
-  hostname: string
+  hostname: Hostname
   memory: ByteCount
   name: Name
   ncpus: InstanceCpuCount

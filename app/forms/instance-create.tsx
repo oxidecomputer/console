@@ -192,7 +192,7 @@ export function CreateInstanceForm() {
           query: projectSelector,
           body: {
             name: values.name,
-            hostname: values.hostname || values.name,
+            hostname: values.hostname.trim() || values.name,
             description: values.description,
             memory: instance.memory * GiB,
             ncpus: instance.ncpus,
