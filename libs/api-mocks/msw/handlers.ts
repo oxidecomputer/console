@@ -39,8 +39,6 @@ import {
   unavailableErr,
 } from './util'
 
-export const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
-
 // Note the *JSON types. Those represent actual API request and response bodies,
 // the snake-cased objects coming straight from the API before the generated
 // client camel-cases the keys and parses date fields. Inside the mock API everything
@@ -411,7 +409,6 @@ export const handlers = makeHandlers({
       time_run_state_updated: new Date().toISOString(),
     }
     db.instances.push(newInstance)
-    await sleep(2000)
     return json(newInstance, { status: 201 })
   },
   instanceView: ({ path, query }) => lookup.instance({ ...path, ...query }),
