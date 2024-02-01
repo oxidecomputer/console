@@ -90,17 +90,6 @@ export function IpPoolPage() {
   )
 }
 
-const RangesEmptyState = () => (
-  <EmptyMessage
-    icon={<Networking24Icon />}
-    title="No IP ranges"
-    body="Add a range to see it here"
-    // TODO: link add range button
-    // buttonText="Add range"
-    // buttonTo={pb.ipPoolNew()}
-  />
-)
-
 function IpRangesTable() {
   const { pool } = useIpPoolSelector()
   const { Table, Column } = useQueryTable('ipPoolRangeList', { path: { pool } })
@@ -111,6 +100,15 @@ function IpRangesTable() {
       queryClient.invalidateQueries('ipPoolRangeList')
     },
   })
+  const emptyState = (
+    <EmptyMessage
+      icon={<Networking24Icon />}
+      title="No IP ranges"
+      body="Add a range to see it here"
+      buttonText="Add range"
+      buttonTo={pb.ipPoolRangeAdd({ pool })}
+    />
+  )
 
   const makeRangeActions = ({ range }: IpPoolRange): MenuAction[] => [
     {
@@ -144,8 +142,7 @@ function IpRangesTable() {
           Add range
         </Link>
       </div>
-      <Table emptyState={<RangesEmptyState />} makeActions={makeRangeActions}>
-        {/* TODO: only showing the ID is ridiculous. we need names */}
+      <Table emptyState={emptyState} makeActions={makeRangeActions}>
         <Column accessor="range.first" header="First" />
         <Column accessor="range.last" header="Last" />
         <Column accessor="timeCreated" header="Created" cell={DateCell} />
@@ -159,9 +156,8 @@ const SilosEmptyState = () => (
     icon={<Networking24Icon />}
     title="No IP pool associations"
     body="You need to link the IP pool to a silo to be able to see it here"
-    // TODO: link silo button
-    // buttonText="Link IP pool"
-    // buttonTo={pb.ipPoolNew()}
+    buttonText="Link IP pool"
+    buttonTo={pb.ipPoolNew()}
   />
 )
 
@@ -184,7 +180,6 @@ function LinkedSilosTable() {
     },
   })
 
-  // TODO: confirm action. make clear what linking means
   const makeActions = (link: IpPoolSiloLink): MenuAction[] => [
     {
       label: 'Unlink',
