@@ -21,6 +21,7 @@ import { CreateImageSideModalForm } from './forms/image-upload'
 import { CreateInstanceForm } from './forms/instance-create'
 import { CreateIpPoolSideModalForm } from './forms/ip-pool-create'
 import { EditIpPoolSideModalForm } from './forms/ip-pool-edit'
+import { IpPoolAddRangeSideModalForm } from './forms/ip-pool-range-add'
 import { CreateProjectSideModalForm } from './forms/project-create'
 import { EditProjectSideModalForm } from './forms/project-edit'
 import { CreateSiloSideModalForm } from './forms/silo-create'
@@ -198,7 +199,9 @@ export const routes = createRoutesFromElements(
           path="networking/ip-pools/:pool"
           element={<IpPoolPage />}
           loader={IpPoolPage.loader}
-        />
+        >
+          <Route path="ranges-add" element={<IpPoolAddRangeSideModalForm />} />
+        </Route>
       </Route>
 
       <Route index element={<Navigate to={pb.projects()} replace />} />

@@ -42,6 +42,7 @@ test('path builder', () => {
         "ipPool": "/system/networking/ip-pools/pl",
         "ipPoolEdit": "/system/networking/ip-pools/pl/edit",
         "ipPoolNew": "/system/networking/ip-pools-new",
+        "ipPoolRangeAdd": "/system/networking/ip-pools/pl/ranges-add",
         "ipPools": "/system/networking/ip-pools",
         "nics": "/projects/p/instances/i/network-interfaces",
         "profile": "/settings/profile",

@@ -7,7 +7,7 @@
  */
 
 import { useMemo, useState } from 'react'
-import { type LoaderFunctionArgs } from 'react-router-dom'
+import { Link, Outlet, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
   apiQueryClient,
@@ -28,6 +28,7 @@ import {
 import {
   Badge,
   Button,
+  buttonStyle,
   EmptyMessage,
   Message,
   Modal,
@@ -84,6 +85,7 @@ export function IpPoolPage() {
           <LinkedSilosTable />
         </Tabs.Content>
       </QueryParamTabs>
+      <Outlet /> {/* for add range form */}
     </>
   )
 }
@@ -138,14 +140,9 @@ function IpRangesTable() {
   return (
     <>
       <div className="mb-3 flex justify-end space-x-2">
-        <Button
-          onClick={() => {}}
-          size="sm"
-          disabled
-          disabledReason="Coming soon. Use the CLI or API to add a range."
-        >
+        <Link to={pb.ipPoolRangeAdd({ pool })} className={buttonStyle({ size: 'sm' })}>
           Add range
-        </Button>
+        </Link>
       </div>
       <Table emptyState={<RangesEmptyState />} makeActions={makeRangeActions}>
         {/* TODO: only showing the ID is ridiculous. we need names */}
