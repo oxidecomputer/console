@@ -55,19 +55,18 @@ export function FullPageForm<TFieldValues extends FieldValues>({
 }: FullPageFormProps<TFieldValues>) {
   const { isSubmitting, isDirty, isSubmitSuccessful } = form.formState
 
-  /*
-    Confirms with the user if they want to navigate away
-    if the form is dirty. Does not intercept everything e.g.
-    refreshes or closing the tab but serves to reduce
-    the possibility of a user accidentally losing their progress
-  */
-  // I think this would work if the nav didn't happen until after handleSubmit completes.
-  // as it stands it's in a race because both the end of handleSubmit and the onSuccess
-  // of the instance create mutation are kicked off by the completion of the create request
+  // Confirms with the user if they want to navigate away if the form is
+  // dirty. Does not intercept everything e.g. refreshes or closing the tab
+  // but serves to reduce the possibility of a user accidentally losing their
+  // progress.
   const blocker = useBlocker(isDirty && !isSubmitSuccessful)
-  console.log({ isSubmitting, isDirty, isSubmitSuccessful, blockerState: blocker.state })
 
-  // Reset blocker if form is no longer dirty
+  // Gating on !isSubmitSuccessful above makes the blocker stop blocking nav
+  // after a successful submit. However, this can take a little time (there is a
+  // render in between when isSubmitSuccessful is true but the blocker is still
+  // ready to block), so we also have this useEffect that lets blocked requests
+  // through if submit is succesful but the blocker hasn't gotten a chance to
+  // stop blocking yet.
   useEffect(() => {
     if (blocker.state === 'blocked' && isSubmitSuccessful) {
       blocker.proceed()
@@ -92,16 +91,19 @@ export function FullPageForm<TFieldValues extends FieldValues>({
           // SideModalForm from inside another form, in which case submitting
           // the inner form submits the outer form unless we stop propagation
           e.stopPropagation()
-          console.log('a')
-          // important to await
+          // Important to await here so isSubmitSuccessful doesn't become true
+          // until the submit is actually successful. Note you must use await
+          // mutateAsync() inside onSubmit in order to make this wait
           await form.handleSubmit(onSubmit)(e)
-          console.log('b')
         }}
         autoComplete="off"
       >
         {childArray}
       </form>
 
+      {/* rendering of the modal must be gated on isSubmitSuccessful because
+          there is a brief moment where isSubmitSuccessful is true but the proceed() 
+          hasn't fired yet, which means we get a brief flash of this modal */}
       {!isSubmitSuccessful && <ConfirmNavigation blocker={blocker} />}
 
       {actions && (
