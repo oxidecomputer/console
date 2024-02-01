@@ -69,10 +69,10 @@ export function FullPageForm<TFieldValues extends FieldValues>({
 
   // Reset blocker if form is no longer dirty
   useEffect(() => {
-    if (blocker.state === 'blocked' && !isDirty) {
-      blocker.reset()
+    if (blocker.state === 'blocked' && isSubmitSuccessful) {
+      blocker.proceed()
     }
-  }, [blocker, isDirty])
+  }, [blocker, isSubmitSuccessful])
 
   const childArray = flattenChildren(children)
   const actions = pluckFirstOfType(childArray, Form.Actions)
@@ -93,6 +93,7 @@ export function FullPageForm<TFieldValues extends FieldValues>({
           // the inner form submits the outer form unless we stop propagation
           e.stopPropagation()
           console.log('a')
+          // important to await
           await form.handleSubmit(onSubmit)(e)
           console.log('b')
         }}
@@ -101,7 +102,7 @@ export function FullPageForm<TFieldValues extends FieldValues>({
         {childArray}
       </form>
 
-      {blocker ? <ConfirmNavigation blocker={blocker} /> : null}
+      {!isSubmitSuccessful && <ConfirmNavigation blocker={blocker} />}
 
       {actions && (
         <PageActions>
