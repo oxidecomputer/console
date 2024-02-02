@@ -292,6 +292,10 @@ export const handlers = makeHandlers({
   instanceCreate({ body, query }) {
     const project = lookup.project(query)
 
+    if (body.name === 'no-default-pool') {
+      throw notFoundErr('default IP pool for current silo')
+    }
+
     errIfExists(db.instances, { name: body.name, project_id: project.id }, 'instance')
 
     const instanceId = uuid()

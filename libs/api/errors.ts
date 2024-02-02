@@ -7,7 +7,7 @@
  */
 import { camelCaseToWords, capitalize } from '@oxide/util'
 
-import type { ErrorResult } from '.'
+import type { ErrorResult } from './__generated__/Api'
 
 /**
  * Processed API error ready for display in the console. Note that it's possible
@@ -56,7 +56,7 @@ export function processServerError(method: string, resp: ErrorResult): ApiError 
   if (code === 'Forbidden') {
     message = 'Action not authorized'
   } else if (code === 'ObjectNotFound') {
-    message = 'Object not found'
+    message = capitalize(resp.data.message)
   } else if (code === 'ObjectAlreadyExists') {
     const resource = getResourceName(method, resp.data.message)
     if (resource) {
