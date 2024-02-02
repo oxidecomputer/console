@@ -6,12 +6,19 @@
  * Copyright Oxide Computer Company
  */
 
+import { useMemo } from 'react'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 
-import { apiQueryClient, useApiMutation, type IpPool } from '@oxide/api'
+import {
+  apiQueryClient,
+  useApiMutation,
+  usePrefetchedApiQuery,
+  type IpPool,
+} from '@oxide/api'
 import { DateCell, linkCell, useQueryTable, type MenuAction } from '@oxide/table'
 import { buttonStyle, EmptyMessage, Networking24Icon } from '@oxide/ui'
 
+import { useQuickActions } from 'app/hooks'
 import { confirmDelete } from 'app/stores/confirm-delete'
 import { pb } from 'app/util/path-builder'
 
@@ -33,6 +40,7 @@ IpPoolsTab.loader = async function () {
 export function IpPoolsTab() {
   const navigate = useNavigate()
   const { Table, Column } = useQueryTable('ipPoolList', {})
+  const { data: pools } = usePrefetchedApiQuery('ipPoolList', { query: { limit: 25 } })
 
   const deletePool = useApiMutation('ipPoolDelete', {
     onSuccess() {
@@ -58,6 +66,23 @@ export function IpPoolsTab() {
       }),
     },
   ]
+
+  useQuickActions(
+    useMemo(
+      () => [
+        {
+          value: 'New IP pool',
+          onSelect: () => navigate(pb.projectNew()),
+        },
+        ...(pools.items || []).map((p) => ({
+          value: p.name,
+          onSelect: () => navigate(pb.ipPool({ pool: p.name })),
+          navGroup: 'Go to IP pool',
+        })),
+      ],
+      [navigate, pools]
+    )
+  )
 
   return (
     <>
