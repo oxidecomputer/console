@@ -55,12 +55,20 @@ export const defaultFirewallRules: Json<VpcFirewallRule[]> = [
     name: 'allow-internal-inbound',
     status: 'enabled',
     direction: 'inbound',
-    targets: [{ type: 'vpc', value: 'default' }],
+    targets: [
+      { type: 'vpc', value: 'default' },
+      { type: 'subnet', value: 'default' },
+    ],
     action: 'allow',
     description:
       'allow inbound traffic to all instances within the VPC if originated within the VPC',
     filters: {
-      hosts: [{ type: 'vpc', value: 'default' }],
+      hosts: [
+        { type: 'vpc', value: 'default' },
+        { type: 'subnet', value: 'default' },
+      ],
+      ports: ['0-65535', '1234', '5678', '8080'],
+      protocols: ['TCP'],
     },
     priority: 65534,
     time_created,

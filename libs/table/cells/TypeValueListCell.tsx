@@ -8,7 +8,7 @@
 import { TypeValueCell, type Cell, type TypeValue } from '.'
 
 export const TypeValueListCell = ({ value }: Cell<TypeValue[]>) => (
-  <div>
+  <div className="flex flex-col gap-1">
     {value.map((v, i) => (
       <TypeValueCell key={i} value={v} />
     ))}

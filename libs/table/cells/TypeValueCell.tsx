@@ -15,7 +15,7 @@ export type TypeValue = {
 }
 
 export const TypeValueCell = ({ value: { type, value } }: Cell<TypeValue>) => (
-  <div className="space-x-1">
+  <div className="flex gap-0.5">
     <Badge>{type}</Badge>
     <Badge>{value}</Badge>
   </div>
