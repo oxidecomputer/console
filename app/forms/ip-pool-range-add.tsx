@@ -8,6 +8,7 @@
 import { useNavigate } from 'react-router-dom'
 
 import { useApiMutation, useApiQueryClient, type IpRange } from '@oxide/api'
+import { Message } from '@oxide/ui'
 
 import { SideModalForm, TextField } from 'app/components/form'
 import { useForm, useIpPoolSelector } from 'app/hooks'
@@ -47,12 +48,24 @@ export function IpPoolAddRangeSideModalForm() {
       loading={addRange.isPending}
       submitError={addRange.error}
     >
-      {/* TODO: Add help text to form explaining validation rules */}
-      {/* TODO: figure out why mock API isn't validating these as IPs like it does with some things */}
+      <Message
+        variant="info"
+        content="IP ranges are inclusive. Addresses can be either IPv4 or IPv6, but both first and last must be the same type, and first must be less than or equal to last."
+      />
       {/* TODO: validate these as IP addresses */}
       {/* TODO: validate that they're either both v4 or both v6 */}
-      <TextField name="first" control={form.control} required />
-      <TextField name="last" control={form.control} required />
+      <TextField
+        name="first"
+        description="First address in the range"
+        control={form.control}
+        required
+      />
+      <TextField
+        name="last"
+        description="Last address in the range"
+        control={form.control}
+        required
+      />
     </SideModalForm>
   )
 }
