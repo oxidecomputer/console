@@ -151,6 +151,56 @@ export type AddressLotResultsPage = {
  */
 export type Baseboard = { part: string; revision: number; serial: string }
 
+export type BfdMode = 'single_hop' | 'multi_hop'
+
+/**
+ * Information needed to disable a BFD session
+ */
+export type BfdSessionDisable = {
+  /** Address of the remote peer to disable a BFD session for. */
+  remote: string
+  /** The switch to enable this session on. Must be `switch0` or `switch1`. */
+  switch: Name
+}
+
+/**
+ * Information about a bidirectional forwarding detection (BFD) session.
+ */
+export type BfdSessionEnable = {
+  /** The negotiated Control packet transmission interval, multiplied by this variable, will be the Detection Time for this session (as seen by the remote system) */
+  detectionThreshold: number
+  /** Address the Oxide switch will listen on for BFD traffic. If `None` then the unspecified address (0.0.0.0 or ::) is used. */
+  local?: string
+  /** Select either single-hop (RFC 5881) or multi-hop (RFC 5883) */
+  mode: BfdMode
+  /** Address of the remote peer to establish a BFD session with. */
+  remote: string
+  /** The minimum interval, in microseconds, between received BFD Control packets that this system requires */
+  requiredRx: number
+  /** The switch to enable this session on. Must be `switch0` or `switch1`. */
+  switch: Name
+}
+
+export type BfdState =
+  /** A stable down state. Non-responsive to incoming messages. */
+  | 'admin_down'
+  /** The initial state. */
+  | 'down'
+  /** The peer has detected a remote peer in the down state. */
+  | 'init'
+  /** The peer has detected a remote peer in the up or init state while in the init state. */
+  | 'up'
+
+export type BfdStatus = {
+  detectionThreshold: number
+  local?: string
+  mode: BfdMode
+  peer: string
+  requiredRx: number
+  state: BfdState
+  switch: Name
+}
+
 /**
  * Represents a BGP announce set by id. The id can be used with other API calls to view and manage the announce set.
  */
@@ -1089,6 +1139,13 @@ export type GroupResultsPage = {
   nextPage?: string
 }
 
+/**
+ * An RFC-1035-compliant hostname
+ *
+ * A hostname identifies a host on a network, and is usually a dot-delimited sequence of labels, where each label contains only letters, digits, or the hyphen. See RFCs 1035 and 952 for more details.
+ */
+export type Hostname = string
+
 export type IdentityProviderType = 'saml'
 
 /**
@@ -1307,7 +1364,7 @@ export type InstanceCreate = {
 
 By default, all instances have outbound connectivity, but no inbound connectivity. These external addresses can be used to provide a fixed, known IP address for making inbound connections to the instance. */
   externalIps?: ExternalIpCreate[]
-  hostname: string
+  hostname: Hostname
   memory: ByteCount
   name: Name
   ncpus: InstanceCpuCount
@@ -5720,6 +5777,44 @@ export class Api extends HttpClient {
         path: `/v1/system/networking/address-lot/${path.addressLot}/blocks`,
         method: 'GET',
         query,
+        ...params,
+      })
+    },
+    /**
+     * Disable a BFD session.
+     */
+    networkingBfdDisable: (
+      { body }: { body: BfdSessionDisable },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/networking/bfd-disable`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Enable a BFD session.
+     */
+    networkingBfdEnable: (
+      { body }: { body: BfdSessionEnable },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/networking/bfd-enable`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Get BFD status.
+     */
+    networkingBfdStatus: (_: EmptyObj, params: FetchParams = {}) => {
+      return this.request<void>({
+        path: `/v1/system/networking/bfd-status`,
+        method: 'GET',
         ...params,
       })
     },
