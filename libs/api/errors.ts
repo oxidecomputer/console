@@ -56,7 +56,7 @@ export function processServerError(method: string, resp: ErrorResult): ApiError 
   if (code === 'Forbidden') {
     message = 'Action not authorized'
   } else if (code === 'ObjectNotFound') {
-    message = resp.data.message ? capitalize(resp.data.message) : 'Object not found'
+    message = capitalize(resp.data.message)
   } else if (code === 'ObjectAlreadyExists') {
     const resource = getResourceName(method, resp.data.message)
     if (resource) {

@@ -83,6 +83,21 @@ describe('processServerError', () => {
     })
   })
 
+  describe('ObjectNotFound', () => {
+    it('passes through the API error', () => {
+      const error = makeError({
+        errorCode: 'ObjectNotFound',
+        message: 'not found: whatever',
+        statusCode: 404,
+      })
+      expect(processServerError('fakeThingCreate', error)).toEqual({
+        errorCode: 'ObjectNotFound',
+        message: 'Not found: whatever',
+        statusCode: 404,
+      })
+    })
+  })
+
   it('falls back to server error message if code not found', () => {
     const error = makeError({ errorCode: 'WeirdError', message: 'whatever' })
     expect(processServerError('womp', error)).toEqual({
@@ -100,6 +115,6 @@ it.each([
   ['instanceNetworkInterfaceCreate', '', 'interface'],
   ['instanceNetworkInterfaceCreate', 'already exists: something else', 'something else'],
   ['doesNotContainC-reate', '', null],
-])('getResourceName', (method, message, resource) => {
+])('getResourceName: %s', (method, message, resource) => {
   expect(getResourceName(method, message)).toEqual(resource)
 })
