@@ -177,6 +177,52 @@ export const Baseboard = z.preprocess(
   z.object({ part: z.string(), revision: z.number(), serial: z.string() })
 )
 
+export const BfdMode = z.preprocess(
+  processResponseBody,
+  z.enum(['single_hop', 'multi_hop'])
+)
+
+/**
+ * Information needed to disable a BFD session
+ */
+export const BfdSessionDisable = z.preprocess(
+  processResponseBody,
+  z.object({ remote: z.string().ip(), switch: Name })
+)
+
+/**
+ * Information about a bidirectional forwarding detection (BFD) session.
+ */
+export const BfdSessionEnable = z.preprocess(
+  processResponseBody,
+  z.object({
+    detectionThreshold: z.number().min(0).max(255),
+    local: z.string().ip().optional(),
+    mode: BfdMode,
+    remote: z.string().ip(),
+    requiredRx: z.number().min(0),
+    switch: Name,
+  })
+)
+
+export const BfdState = z.preprocess(
+  processResponseBody,
+  z.enum(['admin_down', 'down', 'init', 'up'])
+)
+
+export const BfdStatus = z.preprocess(
+  processResponseBody,
+  z.object({
+    detectionThreshold: z.number().min(0).max(255),
+    local: z.string().ip().optional(),
+    mode: BfdMode,
+    peer: z.string().ip(),
+    requiredRx: z.number().min(0),
+    state: BfdState,
+    switch: Name,
+  })
+)
+
 /**
  * Represents a BGP announce set by id. The id can be used with other API calls to view and manage the announce set.
  */
@@ -276,7 +322,7 @@ export const BgpImportedRouteIpv4 = z.preprocess(
   processResponseBody,
   z.object({
     id: z.number().min(0).max(4294967295),
-    nexthop: z.string(),
+    nexthop: z.string().ip({ version: 'v4' }),
     prefix: Ipv4Net,
     switch: SwitchLocation,
   })
@@ -1190,6 +1236,20 @@ export const GroupResultsPage = z.preprocess(
   z.object({ items: Group.array(), nextPage: z.string().optional() })
 )
 
+/**
+ * An RFC-1035-compliant hostname
+ *
+ * A hostname identifies a host on a network, and is usually a dot-delimited sequence of labels, where each label contains only letters, digits, or the hyphen. See RFCs 1035 and 952 for more details.
+ */
+export const Hostname = z.preprocess(
+  processResponseBody,
+  z
+    .string()
+    .min(1)
+    .max(253)
+    .regex(/^([a-zA-Z0-9]+[a-zA-Z0-9\-]*(?<!-))(\.[a-zA-Z0-9]+[a-zA-Z0-9\-]*(?<!-))*$/)
+)
+
 export const IdentityProviderType = z.preprocess(processResponseBody, z.enum(['saml']))
 
 /**
@@ -1387,7 +1447,7 @@ export const InstanceCreate = z.preprocess(
     description: z.string(),
     disks: InstanceDiskAttachment.array().default([]).optional(),
     externalIps: ExternalIpCreate.array().default([]).optional(),
-    hostname: z.string(),
+    hostname: Hostname,
     memory: ByteCount,
     name: Name,
     ncpus: InstanceCpuCount,
@@ -1514,7 +1574,10 @@ export const IpPoolLinkSilo = z.preprocess(
  */
 export const Ipv4Range = z.preprocess(
   processResponseBody,
-  z.object({ first: z.string(), last: z.string() })
+  z.object({
+    first: z.string().ip({ version: 'v4' }),
+    last: z.string().ip({ version: 'v4' }),
+  })
 )
 
 /**
@@ -1524,7 +1587,10 @@ export const Ipv4Range = z.preprocess(
  */
 export const Ipv6Range = z.preprocess(
   processResponseBody,
-  z.object({ first: z.string(), last: z.string() })
+  z.object({
+    first: z.string().ip({ version: 'v6' }),
+    last: z.string().ip({ version: 'v6' }),
+  })
 )
 
 export const IpRange = z.preprocess(processResponseBody, z.union([Ipv4Range, Ipv6Range]))
@@ -4236,6 +4302,30 @@ export const NetworkingAddressLotBlockListParams = z.preprocess(
       pageToken: z.string().optional(),
       sortBy: IdSortMode.optional(),
     }),
+  })
+)
+
+export const NetworkingBfdDisableParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
+  })
+)
+
+export const NetworkingBfdEnableParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
+  })
+)
+
+export const NetworkingBfdStatusParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
   })
 )
 
