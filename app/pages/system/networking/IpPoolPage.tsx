@@ -128,7 +128,7 @@ function IpRangesTable() {
               <HL>
                 {range.first}&ndash;{range.last}
               </HL>{' '}
-              from the pool?
+              from the pool? This will fail if the range has any addresses in use.
             </p>
           ),
         }),
@@ -186,7 +186,8 @@ function LinkedSilosTable() {
           modalContent: (
             <p>
               Are you sure you want to unlink the silo? Users in this silo will no longer be
-              able to allocate IPs from this pool.
+              able to allocate IPs from this pool. Unlink will fail if there are any IPs
+              from the pool in use in this silo.
             </p>
           ),
           errorTitle: 'Could not unlink silo',

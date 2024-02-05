@@ -127,7 +127,8 @@ export function SiloIpPoolsTab() {
           modalContent: (
             <p>
               Are you sure you want to unlink <HL>{pool.name}</HL>? Users in this silo will
-              no longer be able to allocate IPs from this pool.
+              no longer be able to allocate IPs from this pool. Unlink will fail if there
+              are any IPs from <HL>{pool.name}</HL> in use in this silo.
             </p>
           ),
           errorTitle: `Could not unlink pool`,
