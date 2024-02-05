@@ -75,6 +75,7 @@ export function SiloIpPoolsTab() {
   const makeActions = (pool: SiloIpPool): MenuAction[] => [
     {
       label: pool.isDefault ? 'Clear default' : 'Make default',
+      className: pool.isDefault ? 'destructive' : undefined,
       onActivate() {
         if (pool.isDefault) {
           confirmAction({
@@ -91,6 +92,7 @@ export function SiloIpPoolsTab() {
               </p>
             ),
             errorTitle: 'Could not clear default',
+            actionType: 'danger',
           })
         } else {
           const modalContent = defaultPool ? (
@@ -114,12 +116,14 @@ export function SiloIpPoolsTab() {
             modalTitle: `Confirm ${verb} default`,
             modalContent,
             errorTitle: `Could not ${verb} default`,
+            actionType: 'primary',
           })
         }
       },
     },
     {
       label: 'Unlink',
+      className: 'destructive',
       onActivate() {
         confirmAction({
           doAction: () => unlinkPool.mutateAsync({ path: { silo, pool: pool.id } }),
@@ -132,6 +136,7 @@ export function SiloIpPoolsTab() {
             </p>
           ),
           errorTitle: `Could not unlink pool`,
+          actionType: 'danger',
         })
       },
     },

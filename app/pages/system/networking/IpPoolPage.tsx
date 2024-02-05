@@ -113,6 +113,7 @@ function IpRangesTable() {
   const makeRangeActions = ({ range }: IpPoolRange): MenuAction[] => [
     {
       label: 'Remove',
+      className: 'destructive',
       onActivate: () =>
         confirmAction({
           doAction: () =>
@@ -131,6 +132,7 @@ function IpRangesTable() {
               from the pool? This will fail if the range has any addresses in use.
             </p>
           ),
+          actionType: 'danger',
         }),
     },
   ]
@@ -173,6 +175,7 @@ function LinkedSilosTable() {
   const makeActions = (link: IpPoolSiloLink): MenuAction[] => [
     {
       label: 'Unlink',
+      className: 'destructive',
       onActivate() {
         confirmAction({
           doAction: () =>
@@ -191,6 +194,7 @@ function LinkedSilosTable() {
             </p>
           ),
           errorTitle: 'Could not unlink silo',
+          actionType: 'danger',
         })
       },
     },

@@ -24,7 +24,7 @@ export function ConfirmActionModal() {
 
   if (!actionConfig) return null
 
-  const { doAction, modalContent, errorTitle, modalTitle } = actionConfig
+  const { doAction, modalContent, errorTitle, modalTitle, actionType } = actionConfig
 
   return (
     <Modal isOpen onDismiss={clearConfirmAction} title={modalTitle}>
@@ -50,7 +50,7 @@ export function ConfirmActionModal() {
         }}
         cancelText="Cancel"
         actionText="Confirm"
-        actionType="danger"
+        actionType={actionType}
         actionLoading={loading}
       />
     </Modal>
