@@ -88,31 +88,33 @@ describe('titleCase', () => {
 // Rust playground showing the results of these test cases match the results of std::net::{Ipv4Addr, Ipv6Addr}
 // https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=babc49cd34bf19669137e22b9202d2eb
 
-test.each([
-  ['', false],
-  ['1', false],
-  ['abc', false],
-  ['a.b.c.d', false],
-  // some implementations (I think incorrectly) allow leading zeros but nexus does not
-  ['01.102.103.104', false],
-  ['123.4.56.7', true],
-  ['1.2.3.4', true],
-])('ipv4Regex %s', (s, result) => {
-  expect(IPV4_REGEX.test(s)).toBe(result)
+test.each(['123.4.56.7', '1.2.3.4'])('ipv4Regex passes: %s', (s) => {
+  expect(IPV4_REGEX.test(s)).toBe(true)
 })
 
 test.each([
-  ['', false],
-  ['1', false],
-  ['abc', false],
-  ['123.4.56.7', false],
-  ['2001:db8:3333:4444:5555:6666:7777:8888', true],
-  ['2001:db8:3333:4444:CCCC:DDDD:EEEE:FFFF', true],
-  ['::', true],
-  ['2001:db8::', true],
-  ['::1234:5678', true],
-  ['2001:db8::1234:5678', true],
-  ['2001:0db8:85a3:0000:0000:8a2e:0370:7334', true],
-])('ipv6Regex %s', (s, result) => {
-  expect(IPV6_REGEX.test(s)).toBe(result)
+  '',
+  '1',
+  'abc',
+  'a.b.c.d',
+  // some implementations (I think incorrectly) allow leading zeros but nexus does not
+  '01.102.103.104',
+])('ipv4Regex fails: %s', (s) => {
+  expect(IPV4_REGEX.test(s)).toBe(false)
+})
+
+test.each([
+  '2001:db8:3333:4444:5555:6666:7777:8888',
+  '2001:db8:3333:4444:CCCC:DDDD:EEEE:FFFF',
+  '::',
+  '2001:db8::',
+  '::1234:5678',
+  '2001:db8::1234:5678',
+  '2001:0db8:85a3:0000:0000:8a2e:0370:7334',
+])('ipv6Regex passes: %s', (s) => {
+  expect(IPV6_REGEX.test(s)).toBe(true)
+})
+
+test.each(['', '1', 'abc', '123.4.56.7'])('ipv6Regex fails: %s', (s) => {
+  expect(IPV6_REGEX.test(s)).toBe(false)
 })
