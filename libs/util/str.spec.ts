@@ -5,9 +5,17 @@
  *
  * Copyright Oxide Computer Company
  */
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, test } from 'vitest'
 
-import { camelCase, capitalize, commaSeries, kebabCase, titleCase } from './str'
+import {
+  camelCase,
+  capitalize,
+  commaSeries,
+  IPV4_REGEX,
+  IPV6_REGEX,
+  kebabCase,
+  titleCase,
+} from './str'
 
 describe('capitalize', () => {
   it('capitalizes the first letter', () => {
@@ -75,4 +83,36 @@ describe('titleCase', () => {
   it('doesn’t modify non-letter characters', () => {
     expect(titleCase('123 abc')).toBe('123 Abc')
   })
+})
+
+// Rust playground showing the results of these test cases match the results of std::net::{Ipv4Addr, Ipv6Addr}
+// https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=babc49cd34bf19669137e22b9202d2eb
+
+test.each([
+  ['', false],
+  ['1', false],
+  ['abc', false],
+  ['a.b.c.d', false],
+  // some implementations (I think incorrectly) allow leading zeros but nexus does not
+  ['01.102.103.104', false],
+  ['123.4.56.7', true],
+  ['1.2.3.4', true],
+])('ipv4Regex %s', (s, result) => {
+  expect(IPV4_REGEX.test(s)).toBe(result)
+})
+
+test.each([
+  ['', false],
+  ['1', false],
+  ['abc', false],
+  ['123.4.56.7', false],
+  ['2001:db8:3333:4444:5555:6666:7777:8888', true],
+  ['2001:db8:3333:4444:CCCC:DDDD:EEEE:FFFF', true],
+  ['::', true],
+  ['2001:db8::', true],
+  ['::1234:5678', true],
+  ['2001:db8::1234:5678', true],
+  ['2001:0db8:85a3:0000:0000:8a2e:0370:7334', true],
+])('ipv6Regex %s', (s, result) => {
+  expect(IPV6_REGEX.test(s)).toBe(result)
 })

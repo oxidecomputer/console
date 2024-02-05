@@ -16,6 +16,7 @@ type ActionConfig = {
   modalContent: ReactNode
   /** Title of error toast */
   errorTitle: string
+  actionType: 'primary' | 'danger'
 }
 
 type ConfirmActionStore = {

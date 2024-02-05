@@ -35,6 +35,7 @@ export const confirmDelete =
         modalContent: <p>Are you sure you want to delete {displayLabel}?</p>,
         errorTitle: 'Could not delete resource',
         modalTitle: 'Confirm delete',
+        actionType: 'danger',
       },
     })
   }

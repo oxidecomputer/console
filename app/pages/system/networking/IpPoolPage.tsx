@@ -7,7 +7,7 @@
  */
 
 import { useMemo, useState } from 'react'
-import { type LoaderFunctionArgs } from 'react-router-dom'
+import { Link, Outlet, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
   apiQueryClient,
@@ -28,6 +28,7 @@ import {
 import {
   Badge,
   Button,
+  buttonStyle,
   EmptyMessage,
   Message,
   Modal,
@@ -40,6 +41,7 @@ import {
 
 import { ExternalLink } from 'app/components/ExternalLink'
 import { ListboxField } from 'app/components/form'
+import { HL } from 'app/components/HL'
 import { QueryParamTabs } from 'app/components/QueryParamTabs'
 import { getIpPoolSelector, useForm, useIpPoolSelector } from 'app/hooks'
 import { confirmAction } from 'app/stores/confirm-action'
@@ -83,47 +85,66 @@ export function IpPoolPage() {
           <LinkedSilosTable />
         </Tabs.Content>
       </QueryParamTabs>
+      <Outlet /> {/* for add range form */}
     </>
   )
 }
 
-const RangesEmptyState = () => (
-  <EmptyMessage
-    icon={<Networking24Icon />}
-    title="No IP ranges"
-    body="Add a range to see it here"
-    // TODO: link add range button
-    // buttonText="Add range"
-    // buttonTo={pb.ipPoolNew()}
-  />
-)
-
-const makeRangeActions = (_range: IpPoolRange): MenuAction[] => [
-  {
-    disabled: 'Coming soon. Use the CLI or API to remove a range.',
-    label: 'Remove',
-    onActivate() {},
-  },
-]
-
 function IpRangesTable() {
-  const poolSelector = useIpPoolSelector()
-  const { Table, Column } = useQueryTable('ipPoolRangeList', { path: poolSelector })
+  const { pool } = useIpPoolSelector()
+  const { Table, Column } = useQueryTable('ipPoolRangeList', { path: { pool } })
+  const queryClient = useApiQueryClient()
+
+  const removeRange = useApiMutation('ipPoolRangeRemove', {
+    onSuccess() {
+      queryClient.invalidateQueries('ipPoolRangeList')
+    },
+  })
+  const emptyState = (
+    <EmptyMessage
+      icon={<Networking24Icon />}
+      title="No IP ranges"
+      body="Add a range to see it here"
+      buttonText="Add range"
+      buttonTo={pb.ipPoolRangeAdd({ pool })}
+    />
+  )
+
+  const makeRangeActions = ({ range }: IpPoolRange): MenuAction[] => [
+    {
+      label: 'Remove',
+      className: 'destructive',
+      onActivate: () =>
+        confirmAction({
+          doAction: () =>
+            removeRange.mutateAsync({
+              path: { pool },
+              body: range,
+            }),
+          errorTitle: 'Could not remove range',
+          modalTitle: 'Confirm remove range',
+          modalContent: (
+            <p>
+              Are you sure you want to remove range{' '}
+              <HL>
+                {range.first}&ndash;{range.last}
+              </HL>{' '}
+              from the pool? This will fail if the range has any addresses in use.
+            </p>
+          ),
+          actionType: 'danger',
+        }),
+    },
+  ]
 
   return (
     <>
       <div className="mb-3 flex justify-end space-x-2">
-        <Button
-          onClick={() => {}}
-          size="sm"
-          disabled
-          disabledReason="Coming soon. Use the CLI or API to add a range."
-        >
+        <Link to={pb.ipPoolRangeAdd({ pool })} className={buttonStyle({ size: 'sm' })}>
           Add range
-        </Button>
+        </Link>
       </div>
-      <Table emptyState={<RangesEmptyState />} makeActions={makeRangeActions}>
-        {/* TODO: only showing the ID is ridiculous. we need names */}
+      <Table emptyState={emptyState} makeActions={makeRangeActions}>
         <Column accessor="range.first" header="First" />
         <Column accessor="range.last" header="Last" />
         <Column accessor="timeCreated" header="Created" cell={DateCell} />
@@ -131,17 +152,6 @@ function IpRangesTable() {
     </>
   )
 }
-
-const SilosEmptyState = () => (
-  <EmptyMessage
-    icon={<Networking24Icon />}
-    title="No IP pool associations"
-    body="You need to link the IP pool to a silo to be able to see it here"
-    // TODO: link silo button
-    // buttonText="Link IP pool"
-    // buttonTo={pb.ipPoolNew()}
-  />
-)
 
 function SiloNameFromId({ value: siloId }: { value: string }) {
   const { data: silo } = useApiQuery('siloView', { path: { silo: siloId } })
@@ -162,10 +172,10 @@ function LinkedSilosTable() {
     },
   })
 
-  // TODO: confirm action. make clear what linking means
   const makeActions = (link: IpPoolSiloLink): MenuAction[] => [
     {
       label: 'Unlink',
+      className: 'destructive',
       onActivate() {
         confirmAction({
           doAction: () =>
@@ -179,16 +189,28 @@ function LinkedSilosTable() {
           modalContent: (
             <p>
               Are you sure you want to unlink the silo? Users in this silo will no longer be
-              able to allocate IPs from this pool.
+              able to allocate IPs from this pool. Unlink will fail if there are any IPs
+              from the pool in use in this silo.
             </p>
           ),
           errorTitle: 'Could not unlink silo',
+          actionType: 'danger',
         })
       },
     },
   ]
 
   const [showLinkModal, setShowLinkModal] = useState(false)
+
+  const emptyState = (
+    <EmptyMessage
+      icon={<Networking24Icon />}
+      title="No linked silos"
+      body="You can link this pool to a silo to see it here"
+      buttonText="Link silo"
+      onClick={() => setShowLinkModal(true)}
+    />
+  )
 
   return (
     <>
@@ -204,7 +226,7 @@ function LinkedSilosTable() {
           Link silo
         </Button>
       </div>
-      <Table emptyState={<SilosEmptyState />} makeActions={makeActions}>
+      <Table emptyState={emptyState} makeActions={makeActions}>
         <Column accessor="siloId" id="Silo" cell={SiloNameFromId} />
         <Column
           accessor="isDefault"

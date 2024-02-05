@@ -75,6 +75,7 @@ export function SiloIpPoolsTab() {
   const makeActions = (pool: SiloIpPool): MenuAction[] => [
     {
       label: pool.isDefault ? 'Clear default' : 'Make default',
+      className: pool.isDefault ? 'destructive' : undefined,
       onActivate() {
         if (pool.isDefault) {
           confirmAction({
@@ -86,11 +87,13 @@ export function SiloIpPoolsTab() {
             modalTitle: 'Confirm clear default',
             modalContent: (
               <p>
-                Are you sure you want to clear the default pool? If there is no default,
-                users in this silo will have to specify a pool when allocating IPs.
+                Are you sure you want <HL>{pool.name}</HL> to stop being the default pool
+                for this silo? If there is no default, users in this silo will have to
+                specify a pool when allocating IPs.
               </p>
             ),
             errorTitle: 'Could not clear default',
+            actionType: 'danger',
           })
         } else {
           const modalContent = defaultPool ? (
@@ -114,12 +117,14 @@ export function SiloIpPoolsTab() {
             modalTitle: `Confirm ${verb} default`,
             modalContent,
             errorTitle: `Could not ${verb} default`,
+            actionType: 'primary',
           })
         }
       },
     },
     {
       label: 'Unlink',
+      className: 'destructive',
       onActivate() {
         confirmAction({
           doAction: () => unlinkPool.mutateAsync({ path: { silo, pool: pool.id } }),
@@ -127,10 +132,12 @@ export function SiloIpPoolsTab() {
           modalContent: (
             <p>
               Are you sure you want to unlink <HL>{pool.name}</HL>? Users in this silo will
-              no longer be able to allocate IPs from this pool.
+              no longer be able to allocate IPs from this pool. Unlink will fail if there
+              are any IPs from <HL>{pool.name}</HL> in use in this silo.
             </p>
           ),
           errorTitle: `Could not unlink pool`,
+          actionType: 'danger',
         })
       },
     },
