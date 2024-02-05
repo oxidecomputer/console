@@ -123,7 +123,7 @@ test('IP pool create', async ({ page }) => {
   })
 })
 
-test('range validation', async ({ page }) => {
+test('IP range validation and add', async ({ page }) => {
   await page.goto('/system/networking/ip-pools/ip-pool-1/ranges-add')
 
   const dialog = page.getByRole('dialog', { name: 'Add IP range' })
@@ -175,4 +175,26 @@ test('range validation', async ({ page }) => {
   await expect(dialog).toBeHidden()
 
   await expectRowVisible(page.getByRole('table'), { First: v6Addr, Last: v6Addr })
+})
+
+test('remove range', async ({ page }) => {
+  await page.goto('/system/networking/ip-pools/ip-pool-1')
+
+  const table = page.getByRole('table')
+  await expectRowVisible(table, { First: '10.0.0.20', Last: '10.0.0.22' })
+  await expect(table.getByRole('row')).toHaveCount(3) // header + 2 rows
+
+  await clickRowAction(page, '10.0.0.20', 'Remove')
+
+  const confirmModal = page.getByRole('dialog', { name: 'Confirm remove range' })
+  await expect(confirmModal.getByText('range 10.0.0.20–10.0.0.22')).toBeVisible()
+
+  await page.getByRole('button', { name: 'Cancel' }).click()
+  await expect(confirmModal).toBeHidden()
+
+  await clickRowAction(page, '10.0.0.20', 'Remove')
+  await confirmModal.getByRole('button', { name: 'Confirm' }).click()
+
+  await expect(table.getByRole('cell', { name: '10.0.0.20' })).toBeHidden()
+  await expect(table.getByRole('row')).toHaveCount(2)
 })
