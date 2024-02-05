@@ -87,8 +87,9 @@ export function SiloIpPoolsTab() {
             modalTitle: 'Confirm clear default',
             modalContent: (
               <p>
-                Are you sure you want to clear the default pool? If there is no default,
-                users in this silo will have to specify a pool when allocating IPs.
+                Are you sure you want <HL>{pool.name}</HL> to stop being the default pool
+                for this silo? If there is no default, users in this silo will have to
+                specify a pool when allocating IPs.
               </p>
             ),
             errorTitle: 'Could not clear default',

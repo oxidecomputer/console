@@ -200,7 +200,7 @@ test('Silo IP pools', async ({ page }) => {
   await expect(
     page
       .getByRole('dialog', { name: 'Confirm clear default' })
-      .getByText('Are you sure you want to clear the default pool?')
+      .getByText('Are you sure you want ip-pool-2 to stop being the default')
   ).toBeVisible()
   await page.getByRole('button', { name: 'Confirm' }).click()
   await expectRowVisible(table, { name: 'ip-pool-2', Default: '' })
