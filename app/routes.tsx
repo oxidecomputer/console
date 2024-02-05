@@ -51,13 +51,16 @@ import {
   ProjectAccessPage,
   SnapshotsPage,
   VpcPage,
-  VpcsPage,
+  VpcsTab,
 } from './pages/project'
 import { SerialConsolePage } from './pages/project/instances/instance/SerialConsolePage'
 import { ConnectTab } from './pages/project/instances/instance/tabs/ConnectTab'
 import { MetricsTab } from './pages/project/instances/instance/tabs/MetricsTab'
 import { NetworkingTab } from './pages/project/instances/instance/tabs/NetworkingTab'
 import { StorageTab } from './pages/project/instances/instance/tabs/StorageTab'
+import { FloatingIpPage } from './pages/project/networking/FloatingIpPage'
+import { FloatingIpsTab } from './pages/project/networking/FloatingIpsTab'
+import { ProjectNetworkingPage } from './pages/project/networking/ProjectNetworkingPage'
 import ProjectsPage from './pages/ProjectsPage'
 import { ProfilePage } from './pages/settings/ProfilePage'
 import { SSHKeysPage } from './pages/settings/SSHKeysPage'
@@ -79,6 +82,7 @@ import { pb } from './util/path-builder'
 
 const projectCrumb: CrumbFunc = (m) => m.params.project!
 const instanceCrumb: CrumbFunc = (m) => m.params.instance!
+const floatingIpcCrumb: CrumbFunc = (m) => m.params.floatingIp!
 const vpcCrumb: CrumbFunc = (m) => m.params.vpc!
 const siloCrumb: CrumbFunc = (m) => m.params.silo!
 
@@ -316,28 +320,55 @@ export const routes = createRoutesFromElements(
           </Route>
         </Route>
 
-        <Route loader={VpcsPage.loader} element={<VpcsPage />}>
-          <Route path="vpcs" handle={{ crumb: 'VPCs' }} element={null} />
-          <Route
-            path="vpcs-new"
-            element={<CreateVpcSideModalForm />}
-            handle={{ crumb: 'New VPC' }}
-          />
-          <Route
-            path="vpcs/:vpc/edit"
-            element={<EditVpcSideModalForm />}
-            loader={EditVpcSideModalForm.loader}
-            handle={{ crumb: 'Edit VPC' }}
-          />
+        <Route path="networking" element={<ProjectNetworkingPage />}>
+          <Route loader={VpcsTab.loader} element={<VpcsTab />}>
+            <Route path="vpcs" handle={{ crumb: 'VPCs' }} element={null} />
+            <Route
+              path="vpcs-new"
+              element={<CreateVpcSideModalForm />}
+              handle={{ crumb: 'New VPC' }}
+            />
+            <Route
+              path="vpcs/:vpc/edit"
+              element={<EditVpcSideModalForm />}
+              loader={EditVpcSideModalForm.loader}
+              handle={{ crumb: 'Edit VPC' }}
+            />
+          </Route>
+
+          <Route loader={FloatingIpsTab.loader} element={<FloatingIpsTab />}>
+            <Route path="floating-ips" handle={{ crumb: 'Floating IPs' }} element={null} />
+            {/* <Route
+              path="floating-ips-new"
+              element={<CreateFloatingIpSideModalForm />}
+              handle={{ crumb: 'New Floating IP' }}
+            /> */}
+            {/* <Route
+              path="floating-ips/:floatingIp/edit"
+              element={<EditFloatingIpSideModalForm />}
+              loader={EditFloatingIpSideModalForm.loader}
+              handle={{ crumb: 'Edit Floating IP' }}
+            /> */}
+          </Route>
         </Route>
 
-        <Route path="vpcs" handle={{ crumb: 'VPCs' }}>
-          <Route
-            path=":vpc"
-            element={<VpcPage />}
-            loader={VpcPage.loader}
-            handle={{ crumb: vpcCrumb }}
-          />
+        <Route path="networking" element={null}>
+          <Route path="vpcs" handle={{ crumb: 'VPCs' }}>
+            <Route
+              path=":vpc"
+              element={<VpcPage />}
+              loader={VpcPage.loader}
+              handle={{ crumb: vpcCrumb }}
+            />
+          </Route>
+          <Route path="floating-ips" handle={{ crumb: 'Floating IPs' }}>
+            <Route
+              path=":floatingIp"
+              element={<FloatingIpPage />}
+              loader={FloatingIpPage.loader}
+              handle={{ crumb: floatingIpcCrumb }}
+            />
+          </Route>
         </Route>
 
         <Route element={<DisksPage />} loader={DisksPage.loader}>

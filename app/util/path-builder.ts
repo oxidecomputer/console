@@ -62,10 +62,12 @@ export const pb = {
   snapshotImageCreate: (params: Snapshot) =>
     `${pb.project(params)}/snapshots/${params.snapshot}/image-new`,
 
-  vpcNew: (params: Project) => `${pb.project(params)}/vpcs-new`,
-  vpcs: (params: Project) => `${pb.project(params)}/vpcs`,
+  projectNetworking: (params: Project) => `${pb.project(params)}/networking`,
+  vpcNew: (params: Project) => `${pb.projectNetworking(params)}/vpcs-new`,
+  vpcs: (params: Project) => `${pb.projectNetworking(params)}/vpcs`,
   vpc: (params: Vpc) => `${pb.vpcs(params)}/${params.vpc}`,
   vpcEdit: (params: Vpc) => `${pb.vpc(params)}/edit`,
+  floatingIps: (params: Project) => `${pb.projectNetworking(params)}/floating-ips`,
 
   siloUtilization: () => '/utilization',
   siloAccess: () => '/access',
