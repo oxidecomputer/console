@@ -151,16 +151,6 @@ function IpRangesTable() {
   )
 }
 
-const SilosEmptyState = () => (
-  <EmptyMessage
-    icon={<Networking24Icon />}
-    title="No IP pool associations"
-    body="You need to link the IP pool to a silo to be able to see it here"
-    buttonText="Link IP pool"
-    buttonTo={pb.ipPoolNew()}
-  />
-)
-
 function SiloNameFromId({ value: siloId }: { value: string }) {
   const { data: silo } = useApiQuery('siloView', { path: { silo: siloId } })
 
@@ -207,6 +197,16 @@ function LinkedSilosTable() {
 
   const [showLinkModal, setShowLinkModal] = useState(false)
 
+  const emptyState = (
+    <EmptyMessage
+      icon={<Networking24Icon />}
+      title="No linked silos"
+      body="You can link this pool to a silo to see it here"
+      buttonText="Link silo"
+      onClick={() => setShowLinkModal(true)}
+    />
+  )
+
   return (
     <>
       <div className="mb-4 flex items-end justify-between space-x-2">
@@ -221,7 +221,7 @@ function LinkedSilosTable() {
           Link silo
         </Button>
       </div>
-      <Table emptyState={<SilosEmptyState />} makeActions={makeActions}>
+      <Table emptyState={emptyState} makeActions={makeActions}>
         <Column accessor="siloId" id="Silo" cell={SiloNameFromId} />
         <Column
           accessor="isDefault"
