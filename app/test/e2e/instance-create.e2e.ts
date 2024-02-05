@@ -217,3 +217,11 @@ test('add ssh key from instance create form', async ({ page }) => {
   await page.getByRole('link', { name: 'SSH Keys' }).click()
   await expectRowVisible(page.getByRole('table'), { Name: newKey, Description: 'hi' })
 })
+
+test('shows object not found error on no default pool', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances-new')
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill('no-default-pool')
+  await page.getByRole('button', { name: 'Create instance' }).click()
+
+  await expect(page.getByText('Not found: default IP pool')).toBeVisible()
+})

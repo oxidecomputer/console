@@ -19,8 +19,10 @@ import { internalError, json } from './util'
 
 const notFoundBody = { error_code: 'ObjectNotFound' } as const
 export type NotFound = typeof notFoundBody
-export const notFoundErr = () =>
-  json({ error_code: 'ObjectNotFound' } as const, { status: 404 })
+export const notFoundErr = (msg?: string) => {
+  const message = msg ? `not found: ${msg}` : 'not found'
+  return json({ error_code: 'ObjectNotFound', message } as const, { status: 404 })
+}
 
 export const lookupById = <T extends { id: string }>(table: T[], id: string) => {
   const item = table.find((i) => i.id === id)
