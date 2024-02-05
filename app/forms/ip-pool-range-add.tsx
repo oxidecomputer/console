@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { useApiMutation, useApiQueryClient, type IpRange } from '@oxide/api'
 import { Message } from '@oxide/ui'
+import { IPV4_REGEX, IPV6_REGEX } from '@oxide/util'
 
 import { SideModalForm, TextField } from 'app/components/form'
 import { useForm, useIpPoolSelector } from 'app/hooks'
@@ -18,6 +19,47 @@ import { pb } from 'app/util/path-builder'
 const defaultValues: IpRange = {
   first: '',
   last: '',
+}
+
+function validateIp(s: string) {
+  const isv4 = IPV4_REGEX.test(s)
+  const isv6 = !isv4 && IPV6_REGEX.test(s)
+  return { isv4, isv6, valid: isv4 || isv6 }
+}
+
+const invalidAddressError = { type: 'pattern', message: 'Not a valid IP address' }
+
+const diffVersionError = {
+  type: 'custom',
+  message: 'First and last must be the same version',
+}
+
+/**
+ * Pretty straightforward -- make sure IPs are valid and both first and last
+ * are the same version. Because we're putting the same version error on both
+ * fields, this could also work as a regular validate() on each field, where
+ * each field compares itself to the other. It seems silly to run the giant
+ * regex twice, though.
+ */
+function resolver(values: IpRange) {
+  const first = validateIp(values.first)
+  const last = validateIp(values.last)
+
+  let errors = undefined
+
+  if (!first.valid || !last.valid) {
+    errors = {
+      first: first.valid ? undefined : invalidAddressError,
+      last: last.valid ? undefined : invalidAddressError,
+    }
+  } else if ((first.isv4 && last.isv6) || (first.isv6 && last.isv4)) {
+    errors = { first: diffVersionError, last: diffVersionError }
+  }
+
+  // TODO: if we were really cool we could check first <= last but that sounds
+  // like a pain
+
+  return errors ? { values: {}, errors } : { values, errors: {} }
 }
 
 export function IpPoolAddRangeSideModalForm() {
@@ -36,7 +78,7 @@ export function IpPoolAddRangeSideModalForm() {
     },
   })
 
-  const form = useForm({ defaultValues })
+  const form = useForm({ defaultValues, resolver })
 
   return (
     <SideModalForm
@@ -50,10 +92,8 @@ export function IpPoolAddRangeSideModalForm() {
     >
       <Message
         variant="info"
-        content="IP ranges are inclusive. Addresses can be either IPv4 or IPv6, but both first and last must be the same type, and first must be less than or equal to last."
+        content="IP ranges are inclusive. Addresses can be either IPv4 or IPv6, but first and last must be the same version, and first must be less than or equal to last."
       />
-      {/* TODO: validate these as IP addresses */}
-      {/* TODO: validate that they're either both v4 or both v6 */}
       <TextField
         name="first"
         description="First address in the range"
