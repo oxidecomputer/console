@@ -34,3 +34,5 @@ export const floatingIp2: Json<FloatingIp> = {
   time_created: new Date().toISOString(),
   time_modified: new Date().toISOString(),
 }
+
+export const floatingIps = [floatingIp, floatingIp2]

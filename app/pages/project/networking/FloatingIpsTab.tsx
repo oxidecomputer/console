@@ -97,7 +97,7 @@ export function FloatingIpsTab() {
           to={pb.floatingIpNew(projectSelector)}
           className={buttonStyle({ size: 'sm' })}
         >
-          New FloatingIp
+          New Floating IP
         </Link>
       </div>
       <Table emptyState={<EmptyState />} makeActions={makeActions}>
