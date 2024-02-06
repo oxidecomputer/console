@@ -15,7 +15,7 @@ import {
   usePrefetchedApiQuery,
   type FloatingIp,
 } from '@oxide/api'
-import { DateCell, linkCell, useQueryTable, type MenuAction } from '@oxide/table'
+import { linkCell, useQueryTable, type MenuAction } from '@oxide/table'
 import { buttonStyle, EmptyMessage, Networking24Icon } from '@oxide/ui'
 
 import { getProjectSelector, useProjectSelector, useQuickActions } from 'app/hooks'
@@ -32,7 +32,6 @@ const EmptyState = () => (
   />
 )
 
-// 🐛👀 This isn't actually prefetching the Floating IPs at the moment
 FloatingIpsTab.loader = async ({ params }: LoaderFunctionArgs) => {
   await apiQueryClient.prefetchQuery('floatingIpList', {
     query: { ...getProjectSelector(params), limit: 25 },
@@ -46,6 +45,7 @@ export function FloatingIpsTab() {
   const { data: floatingIps } = usePrefetchedApiQuery('floatingIpList', {
     query: { ...projectSelector, limit: 25 }, // to have same params as QueryTable
   })
+
   const navigate = useNavigate()
 
   const deleteFloatingIp = useApiMutation('floatingIpDelete', {
@@ -106,7 +106,8 @@ export function FloatingIpsTab() {
           cell={linkCell((floatingIp) => pb.floatingIp({ ...projectSelector, floatingIp }))}
         />
         <Column accessor="description" />
-        <Column accessor="timeCreated" header="Created" cell={DateCell} />
+        <Column accessor="ip" />
+        <Column accessor="instanceId" header="Instance ID [update this to be name]" />
       </Table>
       <Outlet />
     </>
