@@ -16,7 +16,7 @@ import {
   type Vpc,
 } from '@oxide/api'
 import { DateCell, linkCell, useQueryTable, type MenuAction } from '@oxide/table'
-import { buttonStyle, EmptyMessage, Networking24Icon, TableActions } from '@oxide/ui'
+import { buttonStyle, EmptyMessage, Networking24Icon } from '@oxide/ui'
 
 import { getProjectSelector, useProjectSelector, useQuickActions } from 'app/hooks'
 import { confirmDelete } from 'app/stores/confirm-delete'
@@ -87,11 +87,11 @@ export function VpcsTab() {
   const { Table, Column } = useQueryTable('vpcList', { query: projectSelector })
   return (
     <>
-      <TableActions>
+      <div className="mb-3 flex justify-end space-x-2">
         <Link to={pb.vpcNew(projectSelector)} className={buttonStyle({ size: 'sm' })}>
           New Vpc
         </Link>
-      </TableActions>
+      </div>
       <Table emptyState={<EmptyState />} makeActions={makeActions}>
         <Column
           accessor="name"
