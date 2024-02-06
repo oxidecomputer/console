@@ -13,7 +13,7 @@ import {
   useApiMutation,
   useApiQueryClient,
   usePrefetchedApiQuery,
-  type Vpc,
+  type FloatingIp,
 } from '@oxide/api'
 import { DateCell, linkCell, useQueryTable, type MenuAction } from '@oxide/table'
 import { buttonStyle, EmptyMessage, Networking24Icon, TableActions } from '@oxide/ui'
@@ -25,17 +25,16 @@ import { pb } from 'app/util/path-builder'
 const EmptyState = () => (
   <EmptyMessage
     icon={<Networking24Icon />}
-    title="No VPCs"
-    body="You need to create a VPC to be able to see it here"
-    buttonText="New VPC"
-    buttonTo={pb.vpcNew(useProjectSelector())}
+    title="No Floating IPs"
+    body="You need to create a Floating IP to be able to see it here"
+    buttonText="New Floating IP"
+    buttonTo={pb.floatingIpNew(useProjectSelector())}
   />
 )
 
-// just as in the vpcList call for the quick actions menu, include limit: 25 to make
-// sure it matches the call in the QueryTable
+// 🐛👀 This isn't actually prefetching the Floating IPs at the moment
 FloatingIpsTab.loader = async ({ params }: LoaderFunctionArgs) => {
-  await apiQueryClient.prefetchQuery('vpcList', {
+  await apiQueryClient.prefetchQuery('floatingIpList', {
     query: { ...getProjectSelector(params), limit: 25 },
   })
   return null
@@ -44,30 +43,35 @@ FloatingIpsTab.loader = async ({ params }: LoaderFunctionArgs) => {
 export function FloatingIpsTab() {
   const queryClient = useApiQueryClient()
   const projectSelector = useProjectSelector()
-  const { data: vpcs } = usePrefetchedApiQuery('vpcList', {
+  const { data: floatingIps } = usePrefetchedApiQuery('floatingIpList', {
     query: { ...projectSelector, limit: 25 }, // to have same params as QueryTable
   })
   const navigate = useNavigate()
 
-  const deleteVpc = useApiMutation('vpcDelete', {
+  const deleteFloatingIp = useApiMutation('floatingIpDelete', {
     onSuccess() {
-      queryClient.invalidateQueries('vpcList')
+      queryClient.invalidateQueries('floatingIpList')
     },
   })
 
-  const makeActions = (vpc: Vpc): MenuAction[] => [
+  const makeActions = (floatingIp: FloatingIp): MenuAction[] => [
     {
       label: 'Edit',
       onActivate() {
-        navigate(pb.vpcEdit({ ...projectSelector, vpc: vpc.name }), { state: vpc })
+        navigate(pb.floatingIpEdit({ ...projectSelector, floatingIp: floatingIp.name }), {
+          state: floatingIp,
+        })
       },
     },
     {
       label: 'Delete',
       onActivate: confirmDelete({
         doDelete: () =>
-          deleteVpc.mutateAsync({ path: { vpc: vpc.name }, query: projectSelector }),
-        label: vpc.name,
+          deleteFloatingIp.mutateAsync({
+            path: { floatingIp: floatingIp.name },
+            query: projectSelector,
+          }),
+        label: floatingIp.name,
       }),
     },
   ]
@@ -75,29 +79,32 @@ export function FloatingIpsTab() {
   useQuickActions(
     useMemo(
       () =>
-        vpcs.items.map((v) => ({
+        floatingIps.items.map((v) => ({
           value: v.name,
-          onSelect: () => navigate(pb.vpc({ ...projectSelector, vpc: v.name })),
-          navGroup: 'Go to VPC',
+          onSelect: () =>
+            navigate(pb.floatingIp({ ...projectSelector, floatingIp: v.name })),
+          navGroup: 'Go to Floating IP',
         })),
-      [projectSelector, vpcs, navigate]
+      [projectSelector, floatingIps, navigate]
     )
   )
 
-  const { Table, Column } = useQueryTable('vpcList', { query: projectSelector })
+  const { Table, Column } = useQueryTable('floatingIpList', { query: projectSelector })
   return (
     <>
       <TableActions>
-        <Link to={pb.vpcNew(projectSelector)} className={buttonStyle({ size: 'sm' })}>
-          New Vpc
+        <Link
+          to={pb.floatingIpNew(projectSelector)}
+          className={buttonStyle({ size: 'sm' })}
+        >
+          New FloatingIp
         </Link>
       </TableActions>
       <Table emptyState={<EmptyState />} makeActions={makeActions}>
         <Column
           accessor="name"
-          cell={linkCell((vpc) => pb.vpc({ ...projectSelector, vpc }))}
+          cell={linkCell((floatingIp) => pb.floatingIp({ ...projectSelector, floatingIp }))}
         />
-        <Column accessor="dnsName" header="DNS name" />
         <Column accessor="description" />
         <Column accessor="timeCreated" header="Created" cell={DateCell} />
       </Table>
