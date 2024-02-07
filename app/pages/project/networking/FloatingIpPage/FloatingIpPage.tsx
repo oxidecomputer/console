@@ -8,61 +8,62 @@
 import type { LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
-import { Networking24Icon, PageHeader, PageTitle, PropertiesTable, Tabs } from '@oxide/ui'
+import { Networking24Icon, PageHeader, PageTitle, PropertiesTable } from '@oxide/ui'
 import { formatDateTime } from '@oxide/util'
 
-import { QueryParamTabs } from 'app/components/QueryParamTabs'
-import { getVpcSelector, useVpcSelector } from 'app/hooks'
+import { getFloatingIpSelector, useFloatingIpSelector } from 'app/hooks'
 
 FloatingIpPage.loader = async ({ params }: LoaderFunctionArgs) => {
-  const { project, vpc } = getVpcSelector(params)
+  const { project, floatingIp } = getFloatingIpSelector(params)
   await Promise.all([
-    apiQueryClient.prefetchQuery('vpcView', { path: { vpc }, query: { project } }),
-    apiQueryClient.prefetchQuery('vpcFirewallRulesView', {
-      query: { project, vpc },
-    }),
-    apiQueryClient.prefetchQuery('vpcSubnetList', {
-      query: { project, vpc, limit: 25 },
+    // fetch all instances so we can map their id to their name
+    apiQueryClient.prefetchQuery('instanceList', { query: { project } }),
+
+    // const { data } = usePrefetchedApiQuery('imageView', { path: { image } })
+
+    apiQueryClient.prefetchQuery('floatingIpView', {
+      path: { floatingIp },
+      query: { project },
     }),
   ])
   return null
 }
 
 export function FloatingIpPage() {
-  const { project, vpc: vpcName } = useVpcSelector()
-  const { data: vpc } = usePrefetchedApiQuery('vpcView', {
-    path: { vpc: vpcName },
+  // get the project name from the url
+  const { project, floatingIp } = useFloatingIpSelector()
+  // set the instances to the data from the instanceList query and console log them
+  const { data: instances } = usePrefetchedApiQuery('instanceList', { query: { project } })
+  console.log(instances)
+  // get the floatingIp data
+  // const { data } = usePrefetchedApiQuery('imageView', { path: { image } })
+  const { data: fip } = usePrefetchedApiQuery('floatingIpView', {
+    path: { floatingIp },
     query: { project },
   })
-
+  console.log(fip)
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<Networking24Icon />}>{vpc.name}</PageTitle>
+        <PageTitle icon={<Networking24Icon />}>{fip.name}</PageTitle>
       </PageHeader>
       <PropertiesTable.Group className="mb-16">
         <PropertiesTable>
-          <PropertiesTable.Row label="Description">{vpc.description}</PropertiesTable.Row>
-          <PropertiesTable.Row label="DNS Name">{vpc.dnsName}</PropertiesTable.Row>
+          <PropertiesTable.Row label="Description">{fip.description}</PropertiesTable.Row>
         </PropertiesTable>
         <PropertiesTable>
           <PropertiesTable.Row label="Created">
-            {formatDateTime(vpc.timeCreated)}
+            {formatDateTime(fip.timeCreated)}
           </PropertiesTable.Row>
           <PropertiesTable.Row label="Last Modified">
-            {formatDateTime(vpc.timeModified)}
+            {formatDateTime(fip.timeModified)}
           </PropertiesTable.Row>
         </PropertiesTable>
       </PropertiesTable.Group>
-
-      <QueryParamTabs className="full-width" defaultValue="subnets">
-        <Tabs.List>
-          <Tabs.Trigger value="subnets">Subnets</Tabs.Trigger>
-          <Tabs.Trigger value="firewall-rules">Firewall Rules</Tabs.Trigger>
-        </Tabs.List>
-        <Tabs.Content value="subnets">x</Tabs.Content>
-        <Tabs.Content value="firewall-rules">y</Tabs.Content>
-      </QueryParamTabs>
+      <p>
+        We, uh, don’t actually need a page for this; this was more of a proof-of-concept as
+        I figured out routing and data fetching
+      </p>
     </>
   )
 }

@@ -33,6 +33,7 @@ export const requireParams =
   }
 
 export const getProjectSelector = requireParams('project')
+export const getFloatingIpSelector = requireParams('project', 'floatingIp')
 export const getInstanceSelector = requireParams('project', 'instance')
 export const getVpcSelector = requireParams('project', 'vpc')
 export const getSiloSelector = requireParams('silo')
@@ -69,6 +70,7 @@ function useSelectedParams<T>(getSelector: (params: AllParams) => T) {
 // params are present. Only the specified keys end up in the result object, but
 // we do not error if there are other params present in the query string.
 
+export const useFloatingIpSelector = () => useSelectedParams(getFloatingIpSelector)
 export const useProjectSelector = () => useSelectedParams(getProjectSelector)
 export const useProjectImageSelector = () => useSelectedParams(getProjectImageSelector)
 export const useProjectSnapshotSelector = () =>

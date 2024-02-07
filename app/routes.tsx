@@ -83,7 +83,7 @@ import { pb } from './util/path-builder'
 
 const projectCrumb: CrumbFunc = (m) => m.params.project!
 const instanceCrumb: CrumbFunc = (m) => m.params.instance!
-const floatingIpcCrumb: CrumbFunc = (m) => m.params.floatingIp!
+const floatingIpCrumb: CrumbFunc = (m) => m.params.floatingIp!
 const vpcCrumb: CrumbFunc = (m) => m.params.vpc!
 const siloCrumb: CrumbFunc = (m) => m.params.silo!
 
@@ -367,7 +367,7 @@ export const routes = createRoutesFromElements(
               path=":floatingIp"
               element={<FloatingIpPage />}
               loader={FloatingIpPage.loader}
-              handle={{ crumb: floatingIpcCrumb }}
+              handle={{ crumb: floatingIpCrumb }}
             />
           </Route>
         </Route>
