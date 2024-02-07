@@ -25,7 +25,11 @@ interface FullPageFormProps<TFieldValues extends FieldValues> {
   error?: Error
   form: UseFormReturn<TFieldValues>
   loading?: boolean
-  onSubmit: (values: TFieldValues) => void
+  /**
+   * Use await mutateAsync(), otherwise you'll break the logic below that relies
+   * on knowing when the submit is done.
+   */
+  onSubmit: (values: TFieldValues) => Promise<void>
   /** Error from the API call */
   submitError: ApiError | null
   /**
