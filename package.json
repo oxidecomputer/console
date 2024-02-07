@@ -45,7 +45,7 @@
     "@tanstack/react-query-devtools": "^5.17.4",
     "@tanstack/react-table": "^8.11.3",
     "classnames": "^2.5.1",
-    "date-fns": "^2.30.0",
+    "date-fns": "^3.3.1",
     "filesize": "^10.1.0",
     "lodash.throttle": "^4.1.1",
     "match-sorter": "^6.3.1",
