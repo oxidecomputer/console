@@ -96,6 +96,8 @@ export function CreateFloatingIpSideModalForm({
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
+      <p>Pool Select</p>
+      <p>IP Address select</p>
     </SideModalForm>
   )
 }

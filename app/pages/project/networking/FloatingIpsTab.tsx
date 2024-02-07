@@ -54,27 +54,46 @@ export function FloatingIpsTab() {
     },
   })
 
-  const makeActions = (floatingIp: FloatingIp): MenuAction[] => [
-    {
-      label: 'Edit',
-      onActivate() {
-        navigate(pb.floatingIpEdit({ ...projectSelector, floatingIp: floatingIp.name }), {
-          state: floatingIp,
-        })
+  const makeActions = (floatingIp: FloatingIp): MenuAction[] => {
+    const isAttachedToAnInstance = floatingIp.instanceId !== null
+    return [
+      {
+        label: 'Edit',
+        onActivate() {
+          navigate(pb.floatingIpEdit({ ...projectSelector, floatingIp: floatingIp.name }), {
+            state: floatingIp,
+          })
+        },
       },
-    },
-    {
-      label: 'Delete',
-      onActivate: confirmDelete({
-        doDelete: () =>
-          deleteFloatingIp.mutateAsync({
-            path: { floatingIp: floatingIp.name },
-            query: projectSelector,
-          }),
-        label: floatingIp.name,
-      }),
-    },
-  ]
+      {
+        label: 'Attach',
+        // this should be available even if the floating IP is already attached
+        onActivate() {
+          // Open a modal to attach the floating IP to an instance
+        },
+      },
+      {
+        label: 'Detach',
+        disabled: !isAttachedToAnInstance,
+        onActivate() {
+          // Open a modal to attach the floating IP to an instance
+        },
+      },
+      {
+        label: 'Delete',
+        // Only available if the floating IP is not attached
+        disabled: isAttachedToAnInstance,
+        onActivate: confirmDelete({
+          doDelete: () =>
+            deleteFloatingIp.mutateAsync({
+              path: { floatingIp: floatingIp.name },
+              query: projectSelector,
+            }),
+          label: floatingIp.name,
+        }),
+      },
+    ]
+  }
 
   useQuickActions(
     useMemo(
