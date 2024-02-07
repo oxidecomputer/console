@@ -29,11 +29,12 @@ import { navToLogin } from './nav-to-login'
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export type Params<F> = F extends (p: infer P) => any ? P : never
 export type Result<F> = F extends (p: any) => Promise<ApiResult<infer R>> ? R : never
-export type ResultItem<F> = Result<F> extends { items: (infer R)[] }
-  ? R extends Record<string, unknown>
-    ? R
+export type ResultItem<F> =
+  Result<F> extends { items: (infer R)[] }
+    ? R extends Record<string, unknown>
+      ? R
+      : never
     : never
-  : never
 
 type ApiClient = Record<string, (...args: any) => Promise<ApiResult<any>>>
 /* eslint-enable @typescript-eslint/no-explicit-any */
