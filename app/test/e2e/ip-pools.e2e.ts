@@ -122,3 +122,79 @@ test('IP pool create', async ({ page }) => {
     description: 'whatever',
   })
 })
+
+test('IP range validation and add', async ({ page }) => {
+  await page.goto('/system/networking/ip-pools/ip-pool-1/ranges-add')
+
+  const dialog = page.getByRole('dialog', { name: 'Add IP range' })
+  const first = dialog.getByRole('textbox', { name: 'First' })
+  const last = dialog.getByRole('textbox', { name: 'Last' })
+  const submit = dialog.getByRole('button', { name: 'Add IP range' })
+  const invalidMsg = dialog.getByText('Not a valid IP address')
+  // exact to differentiate from same text in help message at the top of the form
+  const sameVersionMsg = dialog.getByText('First and last must be the same version', {
+    exact: true,
+  })
+
+  const v6Addr = '2001:db8::1234:5678'
+
+  await expect(dialog).toBeVisible()
+
+  await first.fill('abc')
+  // last is empty
+  await submit.click()
+
+  await expect(invalidMsg).toHaveCount(2)
+
+  // fix last
+  await last.fill('123.4.56.7')
+
+  // first is still bad
+  await expect(invalidMsg).toHaveCount(1)
+
+  // change first to a valid ipv6
+  await first.fill(v6Addr)
+
+  // now we get the error about the same version on first because it has had
+  // an error, so it is now validating onChange, but it doesn't show up on last
+  // until we try to submit
+  await expect(sameVersionMsg).toHaveCount(1)
+  await expect(invalidMsg).toBeHidden()
+
+  await submit.click()
+  await expect(sameVersionMsg).toHaveCount(2)
+
+  // now make last also a v6 and we're good
+  await last.fill(v6Addr)
+
+  // actually first's error doesn't disappear until we blur it or submit
+  await expect(sameVersionMsg).toHaveCount(1)
+  await expect(invalidMsg).toBeHidden()
+
+  await submit.click()
+  await expect(dialog).toBeHidden()
+
+  await expectRowVisible(page.getByRole('table'), { First: v6Addr, Last: v6Addr })
+})
+
+test('remove range', async ({ page }) => {
+  await page.goto('/system/networking/ip-pools/ip-pool-1')
+
+  const table = page.getByRole('table')
+  await expectRowVisible(table, { First: '10.0.0.20', Last: '10.0.0.22' })
+  await expect(table.getByRole('row')).toHaveCount(3) // header + 2 rows
+
+  await clickRowAction(page, '10.0.0.20', 'Remove')
+
+  const confirmModal = page.getByRole('dialog', { name: 'Confirm remove range' })
+  await expect(confirmModal.getByText('range 10.0.0.20–10.0.0.22')).toBeVisible()
+
+  await page.getByRole('button', { name: 'Cancel' }).click()
+  await expect(confirmModal).toBeHidden()
+
+  await clickRowAction(page, '10.0.0.20', 'Remove')
+  await confirmModal.getByRole('button', { name: 'Confirm' }).click()
+
+  await expect(table.getByRole('cell', { name: '10.0.0.20' })).toBeHidden()
+  await expect(table.getByRole('row')).toHaveCount(2)
+})

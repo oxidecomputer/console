@@ -130,7 +130,7 @@ describe('useApiQuery', () => {
         const error = onError.mock.lastCall?.[0]
         expect(error).toEqual({
           errorCode: 'ObjectNotFound',
-          message: 'Object not found',
+          message: 'Not found',
           statusCode: 404,
         })
       })
@@ -208,7 +208,7 @@ describe('useApiMutation', () => {
 
       expect(result.current.error).toEqual({
         errorCode: 'ObjectNotFound',
-        message: 'Object not found',
+        message: 'Not found',
         statusCode: 404,
       })
     })

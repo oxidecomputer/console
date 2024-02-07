@@ -292,6 +292,10 @@ export const handlers = makeHandlers({
   async instanceCreate({ body, query }) {
     const project = lookup.project(query)
 
+    if (body.name === 'no-default-pool') {
+      throw notFoundErr('default IP pool for current silo')
+    }
+
     errIfExists(db.instances, { name: body.name, project_id: project.id }, 'instance')
 
     const instanceId = uuid()
@@ -625,13 +629,45 @@ export const handlers = makeHandlers({
 
     return ipPoolSilo
   },
-  ipPoolRangeAdd: NotImplemented,
   ipPoolRangeList({ path, query }) {
     const pool = lookup.ipPool(path)
     const ranges = db.ipPoolRanges.filter((r) => r.ip_pool_id === pool.id)
     return paginated(query, ranges)
   },
-  ipPoolRangeRemove: NotImplemented,
+  ipPoolRangeAdd({ path, body }) {
+    const pool = lookup.ipPool(path)
+
+    const newRange: Json<Api.IpPoolRange> = {
+      id: uuid(),
+      ip_pool_id: pool.id,
+      range: body,
+      time_created: new Date().toISOString(),
+    }
+
+    // TODO: validate that it doesn't overlap with existing ranges
+    db.ipPoolRanges.push(newRange)
+
+    return json(newRange, { status: 201 })
+  },
+  ipPoolRangeRemove({ path, body }) {
+    const pool = lookup.ipPool(path)
+
+    const idsToDelete = db.ipPoolRanges
+      .filter(
+        (r) =>
+          r.ip_pool_id === pool.id &&
+          r.range.first === body.first &&
+          r.range.last === body.last
+      )
+      .map((r) => r.id)
+
+    // if nothing in the DB matches, 404
+    if (idsToDelete.length === 0) throw notFoundErr()
+
+    db.ipPoolRanges = db.ipPoolRanges.filter((r) => !idsToDelete.includes(r.id))
+
+    return 204
+  },
   ipPoolCreate({ body }) {
     errIfExists(db.ipPools, { name: body.name }, 'IP pool')
 
@@ -1113,6 +1149,9 @@ export const handlers = makeHandlers({
   networkingAddressLotCreate: NotImplemented,
   networkingAddressLotDelete: NotImplemented,
   networkingAddressLotList: NotImplemented,
+  networkingBfdDisable: NotImplemented,
+  networkingBfdEnable: NotImplemented,
+  networkingBfdStatus: NotImplemented,
   networkingBgpAnnounceSetCreate: NotImplemented,
   networkingBgpAnnounceSetDelete: NotImplemented,
   networkingBgpAnnounceSetList: NotImplemented,

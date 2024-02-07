@@ -832,6 +832,23 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.AddressLotBlockResultsPage>>
+  /** `POST /v1/system/networking/bfd-disable` */
+  networkingBfdDisable: (params: {
+    body: Json<Api.BfdSessionDisable>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
+  /** `POST /v1/system/networking/bfd-enable` */
+  networkingBfdEnable: (params: {
+    body: Json<Api.BfdSessionEnable>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
+  /** `GET /v1/system/networking/bfd-status` */
+  networkingBfdStatus: (params: {
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
   /** `GET /v1/system/networking/bgp` */
   networkingBgpConfigList: (params: {
     query: Api.NetworkingBgpConfigListQueryParams
@@ -1838,6 +1855,18 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
         schema.NetworkingAddressLotBlockListParams,
         null
       )
+    ),
+    http.post(
+      '/v1/system/networking/bfd-disable',
+      handler(handlers['networkingBfdDisable'], null, schema.BfdSessionDisable)
+    ),
+    http.post(
+      '/v1/system/networking/bfd-enable',
+      handler(handlers['networkingBfdEnable'], null, schema.BfdSessionEnable)
+    ),
+    http.get(
+      '/v1/system/networking/bfd-status',
+      handler(handlers['networkingBfdStatus'], null, null)
     ),
     http.get(
       '/v1/system/networking/bgp',

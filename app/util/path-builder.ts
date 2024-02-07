@@ -84,6 +84,7 @@ export const pb = {
   ipPoolNew: () => '/system/networking/ip-pools-new',
   ipPool: (params: IpPool) => `${pb.ipPools()}/${params.pool}`,
   ipPoolEdit: (params: IpPool) => `${pb.ipPool(params)}/edit`,
+  ipPoolRangeAdd: (params: IpPool) => `${pb.ipPool(params)}/ranges-add`,
 
   inventory: () => '/system/inventory',
   rackInventory: () => '/system/inventory/racks',
