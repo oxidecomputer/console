@@ -223,6 +223,21 @@ export const handlers = makeHandlers({
 
     return 204
   },
+  floatingIpCreate({ body, query }) {
+    const project = lookup.project(query)
+    errIfExists(db.vpcs, { name: body.name })
+
+    const newFloatingIp: Json<Api.FloatingIp> = {
+      id: uuid(),
+      project_id: project.id,
+      ip: '', // 👀 needs a legit ip
+      ...body,
+      ...getTimestamps(),
+    }
+    db.floatingIps.push(newFloatingIp)
+    return json(newFloatingIp, { status: 201 })
+  },
+
   floatingIpList({ query }) {
     const project = lookup.project(query)
     const ips = db.floatingIps.filter((i) => i.project_id === project.id)
@@ -1130,7 +1145,6 @@ export const handlers = makeHandlers({
   certificateDelete: NotImplemented,
   certificateList: NotImplemented,
   certificateView: NotImplemented,
-  floatingIpCreate: NotImplemented,
   floatingIpDelete: NotImplemented,
   floatingIpView: NotImplemented,
   floatingIpAttach: NotImplemented,

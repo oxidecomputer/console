@@ -10,6 +10,7 @@ import { createRoutesFromElements, Navigate, Route } from 'react-router-dom'
 import { RouterDataErrorBoundary } from './components/ErrorBoundary'
 import { NotFound } from './components/ErrorPage'
 import { CreateDiskSideModalForm } from './forms/disk-create'
+import { CreateFloatingIpSideModalForm } from './forms/floating-ip-create'
 import { CreateIdpSideModalForm } from './forms/idp/create'
 import { EditIdpSideModalForm } from './forms/idp/edit'
 import {
@@ -338,11 +339,11 @@ export const routes = createRoutesFromElements(
 
           <Route loader={FloatingIpsTab.loader} element={<FloatingIpsTab />}>
             <Route path="floating-ips" handle={{ crumb: 'Floating IPs' }} element={null} />
-            {/* <Route
+            <Route
               path="floating-ips-new"
               element={<CreateFloatingIpSideModalForm />}
               handle={{ crumb: 'New Floating IP' }}
-            /> */}
+            />
             {/* <Route
               path="floating-ips/:floatingIp/edit"
               element={<EditFloatingIpSideModalForm />}
