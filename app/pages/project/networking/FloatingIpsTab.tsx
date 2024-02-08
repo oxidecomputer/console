@@ -33,19 +33,27 @@ const EmptyState = () => (
 )
 
 FloatingIpsTab.loader = async ({ params }: LoaderFunctionArgs) => {
-  await apiQueryClient.prefetchQuery('floatingIpList', {
-    query: { ...getProjectSelector(params), limit: 25 },
-  })
+  const { project } = getProjectSelector(params)
+  await Promise.all([
+    apiQueryClient.prefetchQuery('floatingIpList', {
+      query: { project, limit: 25 },
+    }),
+    apiQueryClient.prefetchQuery('instanceList', {
+      query: { project },
+    }),
+  ])
   return null
 }
 
 export function FloatingIpsTab() {
   const queryClient = useApiQueryClient()
-  const projectSelector = useProjectSelector()
+  const { project } = useProjectSelector()
   const { data: floatingIps } = usePrefetchedApiQuery('floatingIpList', {
-    query: { ...projectSelector, limit: 25 }, // to have same params as QueryTable
+    query: { project, limit: 25 }, // to have same params as QueryTable
   })
-
+  const { data: instances } = usePrefetchedApiQuery('instanceList', {
+    query: { project },
+  })
   const navigate = useNavigate()
 
   const deleteFloatingIp = useApiMutation('floatingIpDelete', {
@@ -60,7 +68,7 @@ export function FloatingIpsTab() {
       {
         label: 'Edit',
         onActivate() {
-          navigate(pb.floatingIpEdit({ ...projectSelector, floatingIp: floatingIp.name }), {
+          navigate(pb.floatingIpEdit({ project, floatingIp: floatingIp.name }), {
             state: floatingIp,
           })
         },
@@ -87,7 +95,7 @@ export function FloatingIpsTab() {
           doDelete: () =>
             deleteFloatingIp.mutateAsync({
               path: { floatingIp: floatingIp.name },
-              query: projectSelector,
+              query: { project },
             }),
           label: floatingIp.name,
         }),
@@ -100,33 +108,35 @@ export function FloatingIpsTab() {
       () =>
         floatingIps.items.map((v) => ({
           value: v.name,
-          onSelect: () =>
-            navigate(pb.floatingIp({ ...projectSelector, floatingIp: v.name })),
+          onSelect: () => navigate(pb.floatingIp({ project, floatingIp: v.name })),
           navGroup: 'Go to Floating IP',
         })),
-      [projectSelector, floatingIps, navigate]
+      [project, floatingIps, navigate]
     )
   )
+  const getInstanceName = (instanceId: string) =>
+    instances.items.find((i) => i.id === instanceId)?.name
 
-  const { Table, Column } = useQueryTable('floatingIpList', { query: projectSelector })
+  const { Table, Column } = useQueryTable('floatingIpList', { query: { project } })
   return (
     <>
       <div className="mb-3 flex justify-end space-x-2">
-        <Link
-          to={pb.floatingIpNew(projectSelector)}
-          className={buttonStyle({ size: 'sm' })}
-        >
+        <Link to={pb.floatingIpNew({ project })} className={buttonStyle({ size: 'sm' })}>
           New Floating IP
         </Link>
       </div>
       <Table emptyState={<EmptyState />} makeActions={makeActions}>
         <Column
           accessor="name"
-          cell={linkCell((floatingIp) => pb.floatingIp({ ...projectSelector, floatingIp }))}
+          cell={linkCell((floatingIp) => pb.floatingIp({ project, floatingIp }))}
         />
         <Column accessor="description" />
         <Column accessor="ip" />
-        <Column accessor="instanceId" header="Instance ID [update this to be name]" />
+        <Column
+          accessor="instanceId"
+          header="Attached Instance"
+          cell={({ value: instanceId }) => getInstanceName(instanceId)}
+        />
       </Table>
       <Outlet />
     </>
