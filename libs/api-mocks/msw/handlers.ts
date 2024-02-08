@@ -742,6 +742,10 @@ export const handlers = makeHandlers({
   snapshotCreate({ body, query }) {
     const project = lookup.project(query)
 
+    if (body.disk === 'disk-snapshot-error') {
+      throw 'Cannot snapshot disk'
+    }
+
     errIfExists(db.snapshots, { name: body.name })
 
     const disk = lookup.disk({ ...query, disk: body.disk })

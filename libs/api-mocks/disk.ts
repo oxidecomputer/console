@@ -135,7 +135,7 @@ export const disks: Json<Disk>[] = [
   },
   {
     id: '3f23c80f-c523-4d86-8292-2ca3f807bb12',
-    name: 'disk-11',
+    name: 'disk-snapshot-error',
     description: '',
     project_id: project.id,
     time_created: new Date().toISOString(),

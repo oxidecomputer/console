@@ -5,7 +5,44 @@
  *
  * Copyright Oxide Computer Company
  */
-import { expectVisible, test } from './utils'
+import { clickRowAction, expect, expectRowVisible, expectVisible, test } from './utils'
+
+test('List disks and snapshot', async ({ page }) => {
+  await page.goto('/projects/mock-project/disks')
+
+  const table = page.getByRole('table')
+  await expect(table.getByRole('row')).toHaveCount(12) // 11 + header
+
+  // check one attached and one not attached
+  await expectRowVisible(table, {
+    'Attached To': 'db1',
+    Disk: 'disk-1',
+    Size: '2 GiB',
+    status: 'attached',
+  })
+  await expectRowVisible(table, {
+    'Attached To': '',
+    Disk: 'disk-3',
+    Size: '6 GiB',
+    status: 'detached',
+  })
+
+  await clickRowAction(page, 'disk-1 db1', 'Snapshot')
+  await expect(page.getByText("Creating snapshot of disk 'disk-1'").nth(0)).toBeVisible()
+  await expect(page.getByText('Snapshot successfully created').nth(0)).toBeVisible()
+})
+
+test('Disk snapshot error', async ({ page }) => {
+  await page.goto('/projects/mock-project/disks')
+
+  // special disk that triggers snapshot error
+  await clickRowAction(page, 'disk-snapshot-error', 'Snapshot')
+  await expect(
+    page.getByText("Creating snapshot of disk 'disk-snapshot-error'").nth(0)
+  ).toBeVisible()
+  await expect(page.getByText('Failed to create snapshot').nth(0)).toBeVisible()
+  await expect(page.getByText('Cannot snapshot disk').nth(0)).toBeVisible()
+})
 
 test.describe('Disk create', () => {
   test.beforeEach(async ({ page }) => {
