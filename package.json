@@ -132,7 +132,9 @@
     "not IE 11"
   ],
   "msw": {
-    "workerDirectory": ""
+    "workerDirectory": [
+      ""
+    ]
   },
   "lint-staged": {
     "*.{js,ts,tsx,json}": "eslint --cache --fix"
