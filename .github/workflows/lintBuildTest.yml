@@ -10,10 +10,10 @@ jobs:
     timeout-minutes: 60
     runs-on: macos-14
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
           cache: 'npm'
       - name: Cache node_modules
         uses: actions/cache@v3
@@ -29,10 +29,10 @@ jobs:
     runs-on: macos-14
     needs: install
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
           cache: 'npm'
       - name: Get node_modules from cache
         uses: actions/cache@v3
@@ -58,8 +58,8 @@ jobs:
       matrix:
         browser: ['chrome', 'firefox', 'safari']
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 18
           cache: 'npm'
