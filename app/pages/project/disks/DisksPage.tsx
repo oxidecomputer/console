@@ -92,6 +92,13 @@ export function DisksPage() {
       queryClient.invalidateQueries('snapshotList')
       addToast({ content: 'Snapshot successfully created' })
     },
+    onError(err) {
+      addToast({
+        title: 'Failed to create snapshot',
+        content: err.message,
+        variant: 'error',
+      })
+    },
   })
 
   const makeActions = (disk: Disk): MenuAction[] => [
