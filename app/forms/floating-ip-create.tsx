@@ -5,24 +5,37 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useNavigate, type NavigateFunction } from 'react-router-dom'
+import { useMemo } from 'react'
+import {
+  useNavigate,
+  type LoaderFunctionArgs,
+  type NavigateFunction,
+} from 'react-router-dom'
 
 import {
+  apiQueryClient,
   useApiMutation,
+  useApiQuery,
   useApiQueryClient,
   type FloatingIp,
   type FloatingIpCreate,
 } from '@oxide/api'
 
-import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
-import { useForm, useProjectSelector, useToast } from 'app/hooks'
+import {
+  DescriptionField,
+  ListboxField,
+  NameField,
+  SideModalForm,
+  TextField,
+} from 'app/components/form'
+import { getProjectSelector, useForm, useProjectSelector, useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
-const defaultValues: FloatingIpCreate = {
-  address: '',
-  description: '',
-  name: '',
-  pool: '',
+CreateFloatingIpSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
+  await apiQueryClient.prefetchQuery('projectIpPoolList', {
+    query: { ...getProjectSelector(params), limit: 1000 },
+  })
+  return null
 }
 
 type CreateSideModalFormProps = {
@@ -44,24 +57,26 @@ export function CreateFloatingIpSideModalForm({
   onSubmit,
   onSuccess,
 }: CreateSideModalFormProps) {
-  const { project } = useProjectSelector()
-  console.log(project)
-
   // Fetch 1000 to we can be sure to get them all. There should only be a few
   // anyway. Not prefetched because the prefetched one only gets 25 to match the
   // query table. This req is better to do async because they can't click make
   // default that fast anyway.
-  //   const { data: allPools } = useApiQuery('siloIpPoolList', {
-  //     path: { project },
-  //     query: { limit: 1000 },
-  //   })
-  //   console.log(allPools)
+  const { data: allPools } = useApiQuery('projectIpPoolList', {
+    query: { limit: 1000 },
+  })
 
-  // used in change default confirm modal
-  //   const defaultPool = useMemo(
-  //     () => (allPools ? allPools.items.find((p) => p.isDefault)?.name : undefined),
-  //     [allPools]
-  //   )
+  const defaultPool = useMemo(
+    () => (allPools ? allPools.items.find((p) => p.isDefault)?.name : undefined),
+    [allPools]
+  )
+
+  const defaultValues: FloatingIpCreate = {
+    name: '',
+    description: '',
+    // defaultPool doesn't seem to be getting set in the form for some reason
+    pool: defaultPool,
+    address: undefined,
+  }
 
   const queryClient = useApiQueryClient()
   const projectSelector = useProjectSelector()
@@ -96,8 +111,20 @@ export function CreateFloatingIpSideModalForm({
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
-      <p>Pool Select</p>
-      <p>IP Address select</p>
+      {allPools && (
+        <ListboxField
+          name="pool"
+          items={allPools?.items.map((p) => ({ value: p.name, label: p.name }))}
+          label="Pool"
+          required
+          control={form.control}
+        />
+      )}
+      <TextField
+        name="address"
+        control={form.control}
+        transform={(ip) => (ip.trim() === '' ? undefined : ip)}
+      />
     </SideModalForm>
   )
 }
