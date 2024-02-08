@@ -8,7 +8,7 @@ on:
 jobs:
   install:
     timeout-minutes: 60
-    runs-on: ubuntu-latest
+    runs-on: macos-14
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
@@ -26,12 +26,9 @@ jobs:
         run: npm install
   ci:
     timeout-minutes: 5
-    runs-on: ubuntu-latest
+    runs-on: macos-14
     needs: install
     steps:
-      # This repo is unstable and unnecessary: https://github.com/microsoft/linux-package-repositories/issues/34
-      - name: Disable packages.microsoft.com repo
-        run: sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
@@ -54,16 +51,13 @@ jobs:
   playwright:
     name: Playwright (${{ matrix.browser }})
     timeout-minutes: 20
-    runs-on: ubuntu-latest
+    runs-on: macos-14
     needs: install
     strategy:
       fail-fast: false
       matrix:
         browser: ['chrome', 'firefox', 'safari']
     steps:
-      # This repo is unstable and unnecessary: https://github.com/microsoft/linux-package-repositories/issues/34
-      - name: Disable packages.microsoft.com repo
-        run: sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
