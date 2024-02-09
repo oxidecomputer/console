@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { useMemo } from 'react'
+import { useWatch } from 'react-hook-form'
 import {
   useNavigate,
   type LoaderFunctionArgs,
@@ -19,6 +20,7 @@ import {
   useApiQueryClient,
   type FloatingIp,
   type FloatingIpCreate,
+  type SiloIpPool,
 } from '@oxide/api'
 
 import {
@@ -73,7 +75,7 @@ export function CreateFloatingIpSideModalForm({
   const defaultValues: FloatingIpCreate = {
     name: '',
     description: '',
-    // defaultPool doesn't seem to be getting set in the form for some reason
+    // defaultPool doesn't seem to be getting set in the form when page is loaded directly
     pool: defaultPool,
     address: undefined,
   }
@@ -93,6 +95,27 @@ export function CreateFloatingIpSideModalForm({
   })
 
   const form = useForm({ defaultValues })
+
+  const toListboxItem = (p: SiloIpPool) => ({
+    value: p.name,
+    label: p.name === defaultPool ? `${p.name} (default)` : p.name,
+  })
+
+  const validateIpAddress = (ip?: string) => {
+    if (!ip) return
+
+    // regex from https://stackoverflow.com/a/26671130
+    if (
+      !/^(?=\d+\.\d+\.\d+\.\d+$)(?:(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9])\.?){4}$/.test(
+        ip
+      )
+    ) {
+      return 'Must match the format of an IPv4 address'
+    }
+  }
+
+  const [poolName] = useWatch({ control: form.control, name: ['pool'] })
+  const isPoolSelected = poolName && poolName.length > 0
 
   return (
     <SideModalForm
@@ -114,7 +137,7 @@ export function CreateFloatingIpSideModalForm({
       {allPools && (
         <ListboxField
           name="pool"
-          items={allPools?.items.map((p) => ({ value: p.name, label: p.name }))}
+          items={allPools?.items.map((p) => toListboxItem(p))}
           label="Pool"
           required
           control={form.control}
@@ -123,7 +146,9 @@ export function CreateFloatingIpSideModalForm({
       <TextField
         name="address"
         control={form.control}
+        disabled={!isPoolSelected}
         transform={(ip) => (ip.trim() === '' ? undefined : ip)}
+        validate={(ip) => validateIpAddress(ip)}
       />
     </SideModalForm>
   )
