@@ -230,7 +230,7 @@ export const handlers = makeHandlers({
     const newFloatingIp: Json<Api.FloatingIp> = {
       id: uuid(),
       project_id: project.id,
-      ip: '', // 👀 needs a legit ip
+      ip: body.address || '', // 👀 needs a legit ip
       ...body,
       ...getTimestamps(),
     }
