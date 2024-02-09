@@ -53,12 +53,7 @@ The app is in [`app`](app). You can see the route structure in [`app/routes.tsx`
 
 ### Node.js version
 
-We recommend Node.js v18+, and we specify 18 in `engines` in our `package.json`. That said, everything should work with Node 16 except for a couple of spots that run MSW in Node (as opposed to the browser):
-
-- Unit tests for the API hooks ([`hooks.spec.tsx`](libs/api/__tests__/hooks.spec.tsx))
-- Script to run MSW API as a standalone web server ([`tools/start_mock_api.ts`](tools/start_mock_api.ts))
-
-Neither of these are relevant to the vast majority of dev work, and the tests will run in CI anyway.
+Use Node.js v18+.
 
 ### Install dependencies
 

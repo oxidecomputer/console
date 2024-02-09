@@ -316,7 +316,7 @@ export const handlers = makeHandlers({
     const instances = db.instances.filter((i) => i.project_id === project.id)
     return paginated(query, instances)
   },
-  instanceCreate({ body, query }) {
+  async instanceCreate({ body, query }) {
     const project = lookup.project(query)
 
     if (body.name === 'no-default-pool') {
@@ -768,6 +768,10 @@ export const handlers = makeHandlers({
   },
   snapshotCreate({ body, query }) {
     const project = lookup.project(query)
+
+    if (body.disk === 'disk-snapshot-error') {
+      throw 'Cannot snapshot disk'
+    }
 
     errIfExists(db.snapshots, { name: body.name })
 

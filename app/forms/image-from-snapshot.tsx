@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import fileSize from 'filesize'
+import { filesize } from 'filesize'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
@@ -83,7 +83,7 @@ export function CreateImageFromSnapshotSideModalForm() {
         <PropertiesTable.Row label="Snapshot">{data.name}</PropertiesTable.Row>
         <PropertiesTable.Row label="Project">{project}</PropertiesTable.Row>
         <PropertiesTable.Row label="Size">
-          {fileSize(data.size, { base: 2 })}
+          {filesize(data.size, { base: 2 })}
         </PropertiesTable.Row>
       </PropertiesTable>
 
