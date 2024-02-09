@@ -15,6 +15,7 @@ import {
   IPV6_REGEX,
   kebabCase,
   titleCase,
+  validateIp,
 } from './str'
 
 describe('capitalize', () => {
@@ -90,6 +91,7 @@ describe('titleCase', () => {
 
 test.each(['123.4.56.7', '1.2.3.4'])('ipv4Regex passes: %s', (s) => {
   expect(IPV4_REGEX.test(s)).toBe(true)
+  expect(validateIp(s)).toStrictEqual({ isv4: true, isv6: false, valid: true })
 })
 
 test.each([
@@ -131,6 +133,7 @@ test.each([
   'ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff',
 ])('ipv6Regex passes: %s', (s) => {
   expect(IPV6_REGEX.test(s)).toBe(true)
+  expect(validateIp(s)).toStrictEqual({ isv4: false, isv6: true, valid: true })
 })
 
 test.each([
@@ -153,4 +156,26 @@ test.each([
   'fe08::7:8interface',
 ])('ipv6Regex fails: %s', (s) => {
   expect(IPV6_REGEX.test(s)).toBe(false)
+})
+
+test.each([
+  '',
+  '1',
+  'abc',
+  '256.1.1.1',
+  '2001:0db8:85a3:0000:0000:8a2e:0370:7334 ',
+  ' 2001:db8::',
+  '1:2:3:4:5:6:7:8:9',
+  '1:2:3:4:5:6::7:8',
+  ':1:2:3:4:5:6:7:8',
+  '1:2:3:4:5:6:7:8:',
+  '::1:2:3:4:5:6:7:8',
+  '1:2:3:4:5:6:7:8::',
+  '1:2:3:4:5:6:7:88888',
+  '2001:db8:3:4:5::192.0.2.33', // std::new::Ipv6Net allows this one
+  'fe08::7:8%',
+  'fe08::7:8i',
+  'fe08::7:8interface',
+])('validateIp catches invalid IP: %s', (s) => {
+  expect(validateIp(s)).toStrictEqual({ isv4: false, isv6: false, valid: false })
 })
