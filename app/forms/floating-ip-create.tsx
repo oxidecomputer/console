@@ -22,6 +22,7 @@ import {
   type FloatingIpCreate,
   type SiloIpPool,
 } from '@oxide/api'
+import { validateIp } from '@oxide/util'
 
 import {
   DescriptionField,
@@ -116,19 +117,6 @@ export function CreateFloatingIpSideModalForm({
     }
   }
 
-  const validateIpAddress = (ip?: string) => {
-    if (!ip) return
-
-    // regex from https://stackoverflow.com/a/26671130
-    if (
-      !/^(?=\d+\.\d+\.\d+\.\d+$)(?:(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9])\.?){4}$/.test(
-        ip
-      )
-    ) {
-      return 'Must match the format of an IPv4 address'
-    }
-  }
-
   const [poolName] = useWatch({ control: form.control, name: ['pool'] })
   const isPoolSelected = poolName && poolName.length > 0
 
@@ -163,7 +151,7 @@ export function CreateFloatingIpSideModalForm({
         control={form.control}
         disabled={!isPoolSelected}
         transform={(ip) => (ip.trim() === '' ? undefined : ip)}
-        validate={(ip) => validateIpAddress(ip)}
+        validate={(ip) => (ip && !validateIp(ip).valid ? 'Not a valid IP address' : true)}
       />
     </SideModalForm>
   )
