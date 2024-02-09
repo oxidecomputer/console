@@ -96,10 +96,25 @@ export function CreateFloatingIpSideModalForm({
 
   const form = useForm({ defaultValues })
 
-  const toListboxItem = (p: SiloIpPool) => ({
-    value: p.name,
-    label: p.name === defaultPool ? `${p.name} (default)` : p.name,
-  })
+  const toListboxItem = (p: SiloIpPool) => {
+    if (p.name !== defaultPool) {
+      return {
+        value: p.name,
+        label: p.name,
+      }
+    }
+    // For the default pool, add a label to the dropdown
+    return {
+      value: p.name,
+      labelString: p.name,
+      label: (
+        <>
+          {p.name}{' '}
+          <span className="text-quaternary selected:text-accent-secondary">(default)</span>
+        </>
+      ),
+    }
+  }
 
   const validateIpAddress = (ip?: string) => {
     if (!ip) return
