@@ -63,7 +63,7 @@ export function FloatingIpsTab() {
   })
 
   const makeActions = (floatingIp: FloatingIp): MenuAction[] => {
-    const isAttachedToAnInstance = floatingIp.instanceId !== null
+    const isAttachedToAnInstance = !!floatingIp.instanceId
     return [
       {
         label: 'Edit',
@@ -82,7 +82,9 @@ export function FloatingIpsTab() {
       },
       {
         label: 'Detach',
-        disabled: !isAttachedToAnInstance,
+        disabled: isAttachedToAnInstance
+          ? false
+          : 'This floating IP is not attached to an instance',
         onActivate() {
           // Open a modal to attach the floating IP to an instance
         },
@@ -90,7 +92,9 @@ export function FloatingIpsTab() {
       {
         label: 'Delete',
         // Only available if the floating IP is not attached
-        disabled: isAttachedToAnInstance,
+        disabled: isAttachedToAnInstance
+          ? 'This floating IP must be detached from the instance before it can be deleted'
+          : false,
         onActivate: confirmDelete({
           doDelete: () =>
             deleteFloatingIp.mutateAsync({
