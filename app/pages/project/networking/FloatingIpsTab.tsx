@@ -20,6 +20,7 @@ import { buttonStyle, EmptyMessage, Networking24Icon } from '@oxide/ui'
 
 import { getProjectSelector, useProjectSelector, useQuickActions } from 'app/hooks'
 import { confirmDelete } from 'app/stores/confirm-delete'
+import { addToast } from 'app/stores/toast'
 import { pb } from 'app/util/path-builder'
 
 const EmptyState = () => (
@@ -59,6 +60,7 @@ export function FloatingIpsTab() {
   const deleteFloatingIp = useApiMutation('floatingIpDelete', {
     onSuccess() {
       queryClient.invalidateQueries('floatingIpList')
+      addToast({ content: 'Your Floating IP has been deleted' })
     },
   })
 

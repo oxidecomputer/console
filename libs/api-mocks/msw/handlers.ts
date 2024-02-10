@@ -250,6 +250,12 @@ export const handlers = makeHandlers({
     )[0]
     return ip
   },
+  floatingIpDelete({ path, query }) {
+    const floatingIp = lookup.floatingIp({ ...path, ...query })
+    db.floatingIps = db.floatingIps.filter((i) => i.id !== floatingIp.id)
+
+    return 204
+  },
   imageList({ query }) {
     if (query.project) {
       const project = lookup.project(query)
@@ -1156,7 +1162,6 @@ export const handlers = makeHandlers({
   certificateDelete: NotImplemented,
   certificateList: NotImplemented,
   certificateView: NotImplemented,
-  floatingIpDelete: NotImplemented,
   floatingIpAttach: NotImplemented,
   floatingIpDetach: NotImplemented,
   instanceEphemeralIpDetach: NotImplemented,
