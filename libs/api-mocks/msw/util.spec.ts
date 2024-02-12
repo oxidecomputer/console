@@ -76,7 +76,7 @@ describe('userHasRole', () => {
     expect(
       users.map((u) => [u.display_name, userHasRole(u, 'fleet', FLEET_ID, 'viewer')])
     ).toEqual([
-      ['Hannah Arendt', true],
+      ['Simone Weil', true],
       ['Hans Jonas', false],
       ['Jacob Klein', false],
       ['Simone de Beauvoir', false],
@@ -90,7 +90,7 @@ describe('userHasRole', () => {
         userHasRole(u, 'silo', defaultSilo.id, 'collaborator'),
       ])
     ).toEqual([
-      ['Hannah Arendt', true],
+      ['Simone Weil', true],
       ['Hans Jonas', true],
       ['Jacob Klein', false],
       ['Simone de Beauvoir', false],

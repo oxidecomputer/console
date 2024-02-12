@@ -24,7 +24,7 @@ test('Click through silo access page', async ({ page }) => {
     'Silo role': 'collaborator',
   })
   await expectRowVisible(table, {
-    Name: 'Hannah Arendt',
+    Name: 'Simone Weil',
     'Silo role': 'admin',
   })
   await expectNotVisible(page, [`role=cell[name="${user4.display_name}"]`])
@@ -35,7 +35,7 @@ test('Click through silo access page', async ({ page }) => {
 
   await page.click('role=button[name*="User or group"]')
   // only users not already on the org should be visible
-  await expectNotVisible(page, ['role=option[name="Hannah Arendt"]'])
+  await expectNotVisible(page, ['role=option[name="Simone Weil"]'])
   await expectVisible(page, [
     'role=option[name="Hans Jonas"]',
     'role=option[name="Jacob Klein"]',

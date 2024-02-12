@@ -12,7 +12,7 @@ import { defaultSilo } from './silo'
 
 export const user1: Json<User> = {
   id: '2e28576d-43e0-4e9e-9132-838a7b66f602',
-  display_name: 'Hannah Arendt',
+  display_name: 'Simone Weil',
   silo_id: defaultSilo.id,
 }
 

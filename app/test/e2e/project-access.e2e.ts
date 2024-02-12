@@ -17,7 +17,7 @@ test('Click through project access page', async ({ page }) => {
   await expectVisible(page, ['role=heading[name*="Access & IAM"]'])
   const table = page.locator('table')
   await expectRowVisible(table, {
-    Name: 'Hannah Arendt',
+    Name: 'Simone Weil',
     'Silo role': 'admin',
     'Project role': '',
   })
@@ -48,7 +48,7 @@ test('Click through project access page', async ({ page }) => {
   // only users not already on the project should be visible
   await expectNotVisible(page, ['role=option[name="Jacob Klein"]'])
   await expectVisible(page, [
-    'role=option[name="Hannah Arendt"]',
+    'role=option[name="Simone Weil"]',
     'role=option[name="Hans Jonas"]',
     'role=option[name="Simone de Beauvoir"]',
   ])
@@ -99,12 +99,12 @@ test('Click through project access page', async ({ page }) => {
   // now add a project role to user 1, who currently only has silo role
   await page.click('role=button[name="Add user or group"]')
   await page.click('role=button[name*="User or group"]')
-  await page.click('role=option[name="Hannah Arendt"]')
+  await page.click('role=option[name="Simone Weil"]')
   await page.click('role=button[name*="Role"]')
   await page.click('role=option[name="Viewer"]')
   await page.click('role=button[name="Assign role"]')
   await expectRowVisible(table, {
-    Name: 'Hannah Arendt',
+    Name: 'Simone Weil',
     'Silo role': 'admin',
     'Project role': 'viewer',
   })
