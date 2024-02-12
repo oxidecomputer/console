@@ -7,9 +7,14 @@
  */
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
-import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import {
-  FormDivider,
+  apiQueryClient,
+  useApiMutation,
+  useApiQueryClient,
+  usePrefetchedApiQuery,
+} from '@oxide/api'
+import {
+  Listbox,
   Networking16Icon,
   PropertiesTable,
   ResourceLabel,
@@ -17,12 +22,10 @@ import {
 } from '@oxide/ui'
 import { formatDateTime } from '@oxide/util'
 
-import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
+import { SideModalForm } from 'app/components/form'
 import { getFloatingIpSelector, useFloatingIpSelector, useForm } from 'app/hooks'
+import { addToast } from 'app/stores/toast'
 import { pb } from 'app/util/path-builder'
-
-// ROUGH EDGE: Trying to get this working, in sidebar
-// This is copied off of the Image edit form, but it's not working yet
 
 EditFloatingIpSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project, floatingIp } = getFloatingIpSelector(params)
@@ -32,6 +35,9 @@ EditFloatingIpSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
       query: { project },
     }),
     apiQueryClient.prefetchQuery('instanceList', {
+      query: { project },
+    }),
+    apiQueryClient.prefetchQuery('floatingIpList', {
       query: { project },
     }),
   ])
@@ -44,17 +50,47 @@ export function EditFloatingIpSideModalForm() {
     path: { floatingIp: floatingIpName },
     query: { project },
   })
+  const { data: instances } = usePrefetchedApiQuery('instanceList', {
+    query: { project },
+  })
+  const { data: floatingIps } = usePrefetchedApiQuery('floatingIpList', {
+    query: { project },
+  })
+  console.log(instances, floatingIps)
 
   const dismissLink = pb.floatingIps({ project })
   const navigate = useNavigate()
-  const form = useForm({ defaultValues: floatingIp })
+  const form = useForm({ defaultValues: { instanceId: floatingIp.instanceId } })
+  const onDismiss = () => navigate(dismissLink)
+
+  const queryClient = useApiQueryClient()
+
+  const updateAttachment = useApiMutation('floatingIpAttach', {
+    onSuccess() {
+      addToast({ content: 'Floating IP attached' })
+      queryClient.invalidateQueries('floatingIpView')
+      queryClient.invalidateQueries('floatingIpList')
+      onDismiss()
+    },
+  })
 
   return (
     <SideModalForm
       id="edit-floating-ip-form"
       form={form}
       title="Floating IP"
-      onDismiss={() => navigate(dismissLink)}
+      onSubmit={(values) => {
+        updateAttachment.mutate({
+          path: { floatingIp: floatingIpName },
+          query: { project },
+          body: {
+            kind: 'instance',
+            parent: values.instanceId,
+          },
+        })
+      }}
+      submitLabel="Attach"
+      onDismiss={onDismiss}
       subtitle={
         <ResourceLabel>
           <Networking16Icon /> {floatingIp.name}
@@ -69,16 +105,23 @@ export function EditFloatingIpSideModalForm() {
           <Truncate text={floatingIp.id} maxLength={32} hasCopyButton />
         </PropertiesTable.Row>
         <PropertiesTable.Row label="IP">{floatingIp.ip}</PropertiesTable.Row>
+        <PropertiesTable.Row label="Attached Instance">
+          <>{instances.items.find((i) => i.id === floatingIp.instanceId)?.name || '–'}</>
+        </PropertiesTable.Row>
         <PropertiesTable.Row label="Created">
           {formatDateTime(floatingIp.timeCreated)}
         </PropertiesTable.Row>
       </PropertiesTable>
 
-      {/* TODO: Add a dropdown for attaching to an instance */}
-
-      <NameField name="name" control={form.control} disabled />
-      <DescriptionField name="description" control={form.control} required disabled />
-      <FormDivider />
+      <Listbox
+        name="instanceId"
+        items={instances.items.map((i) => ({ value: i.id, label: i.name }))}
+        label="Instance"
+        onChange={(e) => {
+          form.setValue('instanceId', e)
+        }}
+        selected={form.watch('instanceId')}
+      />
     </SideModalForm>
   )
 }
