@@ -11,6 +11,7 @@ import { RouterDataErrorBoundary } from './components/ErrorBoundary'
 import { NotFound } from './components/ErrorPage'
 import { CreateDiskSideModalForm } from './forms/disk-create'
 import { CreateFloatingIpSideModalForm } from './forms/floating-ip-create'
+import { EditFloatingIpSideModalForm } from './forms/floating-ip-edit'
 import { CreateIdpSideModalForm } from './forms/idp/create'
 import { EditIdpSideModalForm } from './forms/idp/edit'
 import {
@@ -59,7 +60,6 @@ import { ConnectTab } from './pages/project/instances/instance/tabs/ConnectTab'
 import { MetricsTab } from './pages/project/instances/instance/tabs/MetricsTab'
 import { NetworkingTab } from './pages/project/instances/instance/tabs/NetworkingTab'
 import { StorageTab } from './pages/project/instances/instance/tabs/StorageTab'
-import { FloatingIpPage } from './pages/project/networking/FloatingIpPage'
 import { FloatingIpsTab } from './pages/project/networking/FloatingIpsTab'
 import { ProjectNetworkingPage } from './pages/project/networking/ProjectNetworkingPage'
 import ProjectsPage from './pages/ProjectsPage'
@@ -345,12 +345,12 @@ export const routes = createRoutesFromElements(
               element={<CreateFloatingIpSideModalForm />}
               handle={{ crumb: 'New Floating IP' }}
             />
-            {/* <Route
+            <Route
               path="floating-ips/:floatingIp/edit"
               element={<EditFloatingIpSideModalForm />}
               loader={EditFloatingIpSideModalForm.loader}
-              handle={{ crumb: 'Edit Floating IP' }}
-            /> */}
+              handle={{ crumb: floatingIpCrumb }}
+            />
           </Route>
         </Route>
 
@@ -361,14 +361,6 @@ export const routes = createRoutesFromElements(
               element={<VpcPage />}
               loader={VpcPage.loader}
               handle={{ crumb: vpcCrumb }}
-            />
-          </Route>
-          <Route path="floating-ips" handle={{ crumb: 'Floating IPs' }}>
-            <Route
-              path=":floatingIp"
-              element={<FloatingIpPage />}
-              loader={FloatingIpPage.loader}
-              handle={{ crumb: floatingIpCrumb }}
             />
           </Route>
         </Route>

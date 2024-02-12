@@ -134,7 +134,7 @@ export function FloatingIpsTab() {
       <Table emptyState={<EmptyState />} makeActions={makeActions}>
         <Column
           accessor="name"
-          cell={linkCell((floatingIp) => pb.floatingIp({ project, floatingIp }))}
+          cell={linkCell((floatingIp) => pb.floatingIpEdit({ project, floatingIp }))}
         />
         <Column accessor="description" />
         <Column accessor="ip" />
