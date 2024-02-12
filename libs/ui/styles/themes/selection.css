@@ -27,7 +27,6 @@
   & .ox-badge,
   & .ox-tag,
   & .ox-button:not(.btn-ghost),
-  & .ox-avatar,
   & .ox-radio-card {
     --content-accent: var(--content-inverse);
     --surface-accent-secondary: var(--theme-accent-1);
