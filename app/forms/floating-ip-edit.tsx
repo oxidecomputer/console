@@ -7,8 +7,15 @@
  */
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
-import { apiQueryClient, usePrefetchedApiQuery, type FloatingIp } from '@oxide/api'
-import { Networking16Icon, ResourceLabel } from '@oxide/ui'
+import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
+import {
+  FormDivider,
+  Networking16Icon,
+  PropertiesTable,
+  ResourceLabel,
+  Truncate,
+} from '@oxide/ui'
+import { formatDateTime } from '@oxide/util'
 
 import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
 import { getFloatingIpSelector, useFloatingIpSelector, useForm } from 'app/hooks'
@@ -19,44 +26,26 @@ import { pb } from 'app/util/path-builder'
 
 EditFloatingIpSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project, floatingIp } = getFloatingIpSelector(params)
-  await apiQueryClient.prefetchQuery('floatingIpView', {
-    path: { floatingIp },
-    query: { project },
-  })
+  await Promise.all([
+    apiQueryClient.prefetchQuery('floatingIpView', {
+      path: { floatingIp },
+      query: { project },
+    }),
+    apiQueryClient.prefetchQuery('instanceList', {
+      query: { project },
+    }),
+  ])
   return null
 }
 
 export function EditFloatingIpSideModalForm() {
-  const { project, floatingIp } = useFloatingIpSelector()
-  const { data } = usePrefetchedApiQuery('floatingIpView', {
-    path: { floatingIp },
+  const { project, floatingIp: floatingIpName } = useFloatingIpSelector()
+  const { data: floatingIp } = usePrefetchedApiQuery('floatingIpView', {
+    path: { floatingIp: floatingIpName },
     query: { project },
   })
 
   const dismissLink = pb.floatingIps({ project })
-  return <EditImageSideModalForm floatingIp={data} dismissLink={dismissLink} />
-}
-
-EditSiloImageSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
-  const { floatingIp } = getFloatingIpSelector(params)
-  await apiQueryClient.prefetchQuery('floatingIpView', { path: { floatingIp } })
-  return null
-}
-
-export function EditSiloImageSideModalForm() {
-  const { floatingIp } = useFloatingIpSelector()
-  const { data } = usePrefetchedApiQuery('floatingIpView', { path: { floatingIp } })
-
-  return <EditImageSideModalForm floatingIp={data} dismissLink={pb.siloImages()} />
-}
-
-export function EditImageSideModalForm({
-  floatingIp,
-  dismissLink,
-}: {
-  floatingIp: FloatingIp
-  dismissLink: string
-}) {
   const navigate = useNavigate()
   const form = useForm({ defaultValues: floatingIp })
 
@@ -74,8 +63,22 @@ export function EditImageSideModalForm({
       // TODO: pass actual error when this form is hooked up
       submitError={null}
     >
-      <NameField name="name" control={form.control} />
-      <DescriptionField name="description" control={form.control} required />
+      <PropertiesTable>
+        <PropertiesTable.Row label="Name">{floatingIp.name}</PropertiesTable.Row>
+        <PropertiesTable.Row label="ID">
+          <Truncate text={floatingIp.id} maxLength={32} hasCopyButton />
+        </PropertiesTable.Row>
+        <PropertiesTable.Row label="IP">{floatingIp.ip}</PropertiesTable.Row>
+        <PropertiesTable.Row label="Created">
+          {formatDateTime(floatingIp.timeCreated)}
+        </PropertiesTable.Row>
+      </PropertiesTable>
+
+      {/* TODO: Add a dropdown for attaching to an instance */}
+
+      <NameField name="name" control={form.control} disabled />
+      <DescriptionField name="description" control={form.control} required disabled />
+      <FormDivider />
     </SideModalForm>
   )
 }

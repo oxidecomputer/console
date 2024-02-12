@@ -354,6 +354,7 @@ export const routes = createRoutesFromElements(
           </Route>
         </Route>
 
+        {/* Individual VPC pages don't include top-level VPC navigation */}
         <Route path="networking" element={null}>
           <Route path="vpcs" handle={{ crumb: 'VPCs' }}>
             <Route
