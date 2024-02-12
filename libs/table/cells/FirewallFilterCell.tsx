@@ -8,19 +8,22 @@
 import type { VpcFirewallRuleFilter } from '@oxide/api'
 import { Badge } from '@oxide/ui'
 
-import { TypeValueCell, type Cell } from '.'
+import { type Cell } from '.'
 
 export const FirewallFilterCell = ({
   value: { hosts, ports, protocols },
 }: Cell<VpcFirewallRuleFilter>) => (
-  <div className="space-x-1">
-    {hosts && hosts.map((tv, i) => <TypeValueCell key={`${tv}-${i}`} value={tv} />)}
-    {protocols &&
-      protocols.map((p, i) => (
-        <Badge key={`${p}-${i}`} variant="default">
-          {p}
-        </Badge>
+  <div className="flex flex-col gap-1">
+    {hosts &&
+      hosts.map(({ type, value }) => (
+        <div key={`${type}-${value}`} className="flex gap-0.5">
+          <Badge>{type}</Badge>
+          <Badge>{value}</Badge>
+        </div>
       ))}
-    {ports && ports.map((p, i) => <Badge key={`${p}-${i}`}>{p}</Badge>)}
+    <div className="flex gap-0.5">
+      {protocols && protocols.map((p, i) => <Badge key={`${p}-${i}`}>{p}</Badge>)}
+      {ports && ports.map((p, i) => <Badge key={`${p}-${i}`}>{p}</Badge>)}
+    </div>
   </div>
 )
