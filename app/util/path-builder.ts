@@ -20,7 +20,6 @@ type Image = Required<PP.Image>
 type Snapshot = Required<PP.Snapshot>
 type SiloImage = Required<PP.SiloImage>
 type IpPool = Required<PP.IpPool>
-type FloatingIp = Required<PP.FloatingIp>
 
 export const pb = {
   projects: () => `/projects`,
@@ -70,8 +69,6 @@ export const pb = {
   vpcEdit: (params: Vpc) => `${pb.vpc(params)}/edit`,
   floatingIps: (params: Project) => `${pb.projectNetworking(params)}/floating-ips`,
   floatingIpNew: (params: Project) => `${pb.projectNetworking(params)}/floating-ips-new`,
-  floatingIp: (params: FloatingIp) => `${pb.floatingIps(params)}/${params.floatingIp}`,
-  floatingIpEdit: (params: FloatingIp) => `${pb.floatingIp(params)}/edit`,
 
   siloUtilization: () => '/utilization',
   siloAccess: () => '/access',

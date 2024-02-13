@@ -5,8 +5,8 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useMemo } from 'react'
-import { Link, Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
+import { useState } from 'react'
+import { Link, Outlet, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
   apiQueryClient,
@@ -15,10 +15,10 @@ import {
   usePrefetchedApiQuery,
   type FloatingIp,
 } from '@oxide/api'
-import { linkCell, useQueryTable, type MenuAction } from '@oxide/table'
-import { buttonStyle, EmptyMessage, Networking24Icon } from '@oxide/ui'
+import { useQueryTable, type MenuAction } from '@oxide/table'
+import { buttonStyle, EmptyMessage, Modal, Networking24Icon } from '@oxide/ui'
 
-import { getProjectSelector, useProjectSelector, useQuickActions } from 'app/hooks'
+import { getProjectSelector, useProjectSelector } from 'app/hooks'
 import { confirmDelete } from 'app/stores/confirm-delete'
 import { addToast } from 'app/stores/toast'
 import { pb } from 'app/util/path-builder'
@@ -47,15 +47,13 @@ FloatingIpsTab.loader = async ({ params }: LoaderFunctionArgs) => {
 }
 
 export function FloatingIpsTab() {
+  const [attachModalOpen, setAttachModalOpen] = useState(true)
+  const [detachModalOpen, setDetachModalOpen] = useState(false)
   const queryClient = useApiQueryClient()
   const { project } = useProjectSelector()
-  const { data: floatingIps } = usePrefetchedApiQuery('floatingIpList', {
-    query: { project, limit: 25 }, // to have same params as QueryTable
-  })
   const { data: instances } = usePrefetchedApiQuery('instanceList', {
     query: { project },
   })
-  const navigate = useNavigate()
 
   const deleteFloatingIp = useApiMutation('floatingIpDelete', {
     onSuccess() {
@@ -68,18 +66,12 @@ export function FloatingIpsTab() {
     const isAttachedToAnInstance = !!floatingIp.instanceId
     return [
       {
-        label: 'Edit',
-        onActivate() {
-          navigate(pb.floatingIpEdit({ project, floatingIp: floatingIp.name }), {
-            state: floatingIp,
-          })
-        },
-      },
-      {
         label: 'Attach',
-        // this should be available even if the floating IP is already attached
+        disabled: isAttachedToAnInstance
+          ? 'This floating IP must be detached from the existing instance before it can be attached to a new one'
+          : false,
         onActivate() {
-          // Open a modal to attach the floating IP to an instance
+          setAttachModalOpen(true)
         },
       },
       {
@@ -88,12 +80,11 @@ export function FloatingIpsTab() {
           ? false
           : 'This floating IP is not attached to an instance',
         onActivate() {
-          // Open a modal to attach the floating IP to an instance
+          setDetachModalOpen(true)
         },
       },
       {
         label: 'Delete',
-        // Only available if the floating IP is not attached
         disabled: isAttachedToAnInstance
           ? 'This floating IP must be detached from the instance before it can be deleted'
           : false,
@@ -109,17 +100,6 @@ export function FloatingIpsTab() {
     ]
   }
 
-  useQuickActions(
-    useMemo(
-      () =>
-        floatingIps.items.map((v) => ({
-          value: v.name,
-          onSelect: () => navigate(pb.floatingIp({ project, floatingIp: v.name })),
-          navGroup: 'Go to Floating IP',
-        })),
-      [project, floatingIps, navigate]
-    )
-  )
   const getInstanceName = (instanceId: string) =>
     instances.items.find((i) => i.id === instanceId)?.name
 
@@ -132,10 +112,7 @@ export function FloatingIpsTab() {
         </Link>
       </div>
       <Table emptyState={<EmptyState />} makeActions={makeActions}>
-        <Column
-          accessor="name"
-          cell={linkCell((floatingIp) => pb.floatingIpEdit({ project, floatingIp }))}
-        />
+        <Column accessor="name" />
         <Column accessor="description" />
         <Column accessor="ip" />
         <Column
@@ -145,6 +122,42 @@ export function FloatingIpsTab() {
         />
       </Table>
       <Outlet />
+      {attachModalOpen && (
+        <AttachFloatingIpModal onDismiss={() => setAttachModalOpen(false)} />
+      )}
+      {detachModalOpen && (
+        <DetachFloatingIpModal onDismiss={() => setDetachModalOpen(false)} />
+      )}
     </>
+  )
+}
+
+const AttachFloatingIpModal = ({ onDismiss }: { onDismiss: () => void }) => {
+  return (
+    <Modal isOpen title="Attach Floating IP" onDismiss={onDismiss}>
+      <Modal.Body>
+        <Modal.Section>womp womp 1</Modal.Section>
+      </Modal.Body>
+      <Modal.Footer
+        actionText="Attach"
+        onAction={() => alert('hi')}
+        onDismiss={onDismiss}
+      ></Modal.Footer>
+    </Modal>
+  )
+}
+
+const DetachFloatingIpModal = ({ onDismiss }: { onDismiss: () => void }) => {
+  return (
+    <Modal isOpen title="Detach Floating IP" onDismiss={onDismiss}>
+      <Modal.Body>
+        <Modal.Section>womp womp 2</Modal.Section>
+      </Modal.Body>
+      <Modal.Footer
+        actionText="Detach"
+        onAction={() => alert('hi')}
+        onDismiss={onDismiss}
+      ></Modal.Footer>
+    </Modal>
   )
 }
