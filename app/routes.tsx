@@ -43,6 +43,7 @@ import DeviceAuthSuccessPage from './pages/DeviceAuthSuccessPage'
 import DeviceAuthVerifyPage from './pages/DeviceAuthVerifyPage'
 import { LoginPage } from './pages/LoginPage'
 import { LoginPageSaml } from './pages/LoginPageSaml'
+import { instanceLookupLoader } from './pages/lookups'
 import {
   DisksPage,
   ImagesPage,
@@ -229,6 +230,15 @@ export const routes = createRoutesFromElements(
           loader={SiloUtilizationPage.loader}
           handle={{ crumb: 'Utilization' }}
         />
+
+        {/* let's do both. what could go wrong*/}
+        <Route
+          path="lookup/instances/:instance"
+          element={null}
+          loader={instanceLookupLoader}
+        />
+        <Route path="lookup/i/:instance" element={null} loader={instanceLookupLoader} />
+
         <Route loader={ProjectsPage.loader} element={<ProjectsPage />}>
           <Route path="projects" handle={{ crumb: 'Projects' }} element={null} />
           <Route
