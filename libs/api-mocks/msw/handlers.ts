@@ -16,6 +16,7 @@ import {
   INSTANCE_MIN_RAM_GiB,
   MAX_NICS_PER_INSTANCE,
   type ApiTypes as Api,
+  type FloatingIp,
   type SamlIdentityProvider,
 } from '@oxide/api'
 import { json, makeHandlers, type Json } from '@oxide/gen/msw-handlers'
@@ -266,6 +267,17 @@ export const handlers = makeHandlers({
     console.log(floatingIp)
 
     return floatingIp
+  },
+  floatingIpDetach({ path, query }) {
+    const floatingIp: FloatingIp = lookup.floatingIp({ ...path, ...query })
+    db.floatingIps = db.floatingIps.map((ip) => {
+      if (ip.id !== floatingIp.id) {
+        return ip
+      }
+      return { ...ip, instance_id: undefined }
+    })
+
+    return 204
   },
   imageList({ query }) {
     if (query.project) {
@@ -1173,7 +1185,6 @@ export const handlers = makeHandlers({
   certificateDelete: NotImplemented,
   certificateList: NotImplemented,
   certificateView: NotImplemented,
-  floatingIpDetach: NotImplemented,
   instanceEphemeralIpDetach: NotImplemented,
   instanceEphemeralIpAttach: NotImplemented,
   instanceMigrate: NotImplemented,
