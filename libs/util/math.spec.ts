@@ -11,6 +11,8 @@ import { GiB } from '.'
 import { round, splitDecimal } from './math'
 
 it('rounds properly', () => {
+  expect(round(0.456, 2)).toEqual(0.46)
+  expect(round(-0.456, 2)).toEqual(-0.46)
   expect(round(123.456, 0)).toEqual(123)
   expect(round(123.456, 1)).toEqual(123.5)
   expect(round(123.456, 2)).toEqual(123.46)
@@ -27,12 +29,17 @@ it('rounds properly', () => {
 describe('splitDecimal', () => {
   describe('with default locale', () => {
     it.each([
+      [0.23, ['0', '.23']],
+      [0.236, ['0', '.24']],
+      [-0.236, ['-0', '.24']],
       [1.23, ['1', '.23']],
       [1, ['1', '']], // whole number decimal should be an empty string
 
       // values just below whole numbers
       [5 - Number.EPSILON, ['5', '']],
       [4.997, ['5', '']],
+      [-4.997, ['-5', '']],
+      [0.997, ['1', '']],
 
       // values just above whole numbers
       [49.00000001, ['49', '']],
@@ -58,12 +65,17 @@ describe('splitDecimal', () => {
     })
 
     it.each([
+      [0.23, ['0', ',23']],
+      [0.236, ['0', ',24']],
+      [-0.236, ['-0', ',24']],
       [1.23, ['1', ',23']],
       [1, ['1', '']], // whole number decimal should be an empty string
 
       // values just below whole numbers
       [5 - Number.EPSILON, ['5', '']],
       [4.997, ['5', '']],
+      [-4.997, ['-5', '']],
+      [0.997, ['1', '']],
 
       // values just above whole numbers
       [49.00000001, ['49', '']],
