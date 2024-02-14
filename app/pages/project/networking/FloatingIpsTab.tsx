@@ -133,10 +133,10 @@ export function FloatingIpsTab() {
       )}
       {detachModalOpen && floatingIpToModify?.instanceId && (
         <DetachFloatingIpModal
+          floatingIp={floatingIpToModify.name}
+          instance={getInstanceName(floatingIpToModify.instanceId) || 'this instance'}
+          project={project}
           onDismiss={() => setDetachModalOpen(false)}
-          floatingIpName={floatingIpToModify.name}
-          instanceName={getInstanceName(floatingIpToModify.instanceId) || 'this instance'}
-          projectName={project}
         />
       )}
     </>
@@ -147,7 +147,7 @@ const AttachFloatingIpModal = ({ onDismiss }: { onDismiss: () => void }) => {
   return (
     <Modal isOpen title="Attach Floating IP" onDismiss={onDismiss}>
       <Modal.Body>
-        <Modal.Section>womp womp 1</Modal.Section>
+        <Modal.Section>Select an instance to attach $name to</Modal.Section>
       </Modal.Body>
       <Modal.Footer
         actionText="Attach"
@@ -159,15 +159,15 @@ const AttachFloatingIpModal = ({ onDismiss }: { onDismiss: () => void }) => {
 }
 
 const DetachFloatingIpModal = ({
-  floatingIpName,
-  instanceName,
+  floatingIp,
+  instance,
+  project,
   onDismiss,
-  projectName,
 }: {
-  floatingIpName: string
-  instanceName: string
+  floatingIp: string
+  instance: string
+  project: string
   onDismiss: () => void
-  projectName: string
 }) => {
   const queryClient = useApiQueryClient()
   const floatingIpDetach = useApiMutation('floatingIpDetach', {
@@ -184,18 +184,13 @@ const DetachFloatingIpModal = ({
     <Modal isOpen title="Detach Floating IP" onDismiss={onDismiss}>
       <Modal.Body>
         <Modal.Section>
-          Detach <b>{floatingIpName}</b> from <b>{instanceName}</b>?
+          Detach {floatingIp} from {instance}?
         </Modal.Section>
       </Modal.Body>
       <Modal.Footer
         actionText="Detach"
         onAction={() =>
-          floatingIpName
-            ? floatingIpDetach.mutate({
-                path: { floatingIp: floatingIpName },
-                query: { project: projectName },
-              })
-            : undefined
+          floatingIpDetach.mutate({ path: { floatingIp }, query: { project } })
         }
         onDismiss={onDismiss}
       ></Modal.Footer>
