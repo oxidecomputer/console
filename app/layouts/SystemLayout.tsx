@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useMemo } from 'react'
+import { useMemo, type ReactElement } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 
 import { apiQueryClient } from '@oxide/api'
@@ -18,6 +18,7 @@ import {
 } from '@oxide/ui'
 
 import { trigger404 } from 'app/components/ErrorBoundary'
+import { Monitoring16Icon } from 'app/components/monitoring/Icons'
 import { DocsLinkItem, NavLinkItem, Sidebar } from 'app/components/Sidebar'
 import { TopBar } from 'app/components/TopBar'
 import { IpPoolPicker, SiloPicker, SiloSystemPicker } from 'app/components/TopBarPicker'
@@ -50,7 +51,14 @@ SystemLayout.loader = async () => {
   return null
 }
 
-export default function SystemLayout() {
+type SystemLayoutProps = {
+  /** Sometimes we need a different layout for the content pane. Like
+   * `<ContentPane />`, the element passed here should contain an `<Outlet />`.
+   */
+  overrideContentPane?: ReactElement
+}
+
+export default function SystemLayout({ overrideContentPane }: SystemLayoutProps) {
   // Only show silo picker if we are looking at a particular silo. The more
   // robust way of doing this would be to make a separate layout for the
   // silo-specific routes in the route config, but it's overkill considering
@@ -67,6 +75,7 @@ export default function SystemLayout() {
       { value: 'Utilization', path: pb.systemUtilization() },
       { value: 'Inventory', path: pb.inventory() },
       { value: 'Networking', path: pb.ipPools() },
+      { value: 'Monitoring', path: pb.systemMonitoring() },
     ]
       // filter out the entry for the path we're currently on
       .filter((i) => i.path !== pathname)
@@ -114,9 +123,12 @@ export default function SystemLayout() {
           <NavLinkItem to={pb.ipPools()}>
             <Networking16Icon /> Networking
           </NavLinkItem>
+          <NavLinkItem to={pb.systemMonitoring()}>
+            <Monitoring16Icon /> Monitoring
+          </NavLinkItem>
         </Sidebar.Nav>
       </Sidebar>
-      <ContentPane />
+      {overrideContentPane || <ContentPane />}
     </PageContainer>
   )
 }

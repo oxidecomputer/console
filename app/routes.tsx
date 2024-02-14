@@ -32,7 +32,7 @@ import { EditVpcSideModalForm } from './forms/vpc-edit'
 import type { CrumbFunc } from './hooks/use-crumbs'
 import { AuthenticatedLayout } from './layouts/AuthenticatedLayout'
 import AuthLayout from './layouts/AuthLayout'
-import { SerialConsoleContentPane } from './layouts/helpers'
+import { ExplorerContentPane, SerialConsoleContentPane } from './layouts/helpers'
 import { LoginLayout } from './layouts/LoginLayout'
 import ProjectLayout from './layouts/ProjectLayout'
 import RootLayout from './layouts/RootLayout'
@@ -68,6 +68,12 @@ import { InventoryPage } from './pages/system/inventory/InventoryPage'
 import { SledInstancesTab } from './pages/system/inventory/sled/SledInstancesTab'
 import { SledPage } from './pages/system/inventory/sled/SledPage'
 import { SledsTab } from './pages/system/inventory/SledsTab'
+import { ExplorerPage } from './pages/system/monitoring/ExplorerPage'
+import {
+  ExplorerTab,
+  SensorTreeTab,
+  SystemMonitoringPage,
+} from './pages/system/monitoring/MonitoringPage'
 import { IpPoolPage } from './pages/system/networking/IpPoolPage'
 import { IpPoolsTab } from './pages/system/networking/IpPoolsTab'
 import { NetworkingPage } from './pages/system/networking/NetworkingPage'
@@ -81,6 +87,7 @@ const projectCrumb: CrumbFunc = (m) => m.params.project!
 const instanceCrumb: CrumbFunc = (m) => m.params.instance!
 const vpcCrumb: CrumbFunc = (m) => m.params.vpc!
 const siloCrumb: CrumbFunc = (m) => m.params.silo!
+const sledExplorerCrumb: CrumbFunc = (m) => `Sled ${m.params.sled}`!
 
 export const routes = createRoutesFromElements(
   <Route element={<RootLayout />}>
@@ -157,7 +164,7 @@ export const routes = createRoutesFromElements(
           <Route path="disks" element={<DisksTab />} loader={DisksTab.loader} />
         </Route>
         <Route
-          path="inventory/sleds/:sledId"
+          path="inventory/sleds/:sled"
           element={<SledPage />}
           loader={SledPage.loader}
           handle={{ crumb: 'Sleds' }}
@@ -201,6 +208,35 @@ export const routes = createRoutesFromElements(
           loader={IpPoolPage.loader}
         >
           <Route path="ranges-add" element={<IpPoolAddRangeSideModalForm />} />
+        </Route>
+        <Route path="monitoring" handle={{ crumb: 'Monitoring' }}>
+          <Route index element={<Navigate to="sensor-tree" replace />} />
+          <Route element={<SystemMonitoringPage />}>
+            <Route
+              path="sensor-tree"
+              element={<SensorTreeTab />}
+              handle={{ crumb: 'Sensor Tree' }}
+            />
+            <Route path="explore" element={<ExplorerTab />} handle={{ crumb: 'Explore' }} />
+          </Route>
+        </Route>
+      </Route>
+
+      <Route
+        path="system"
+        element={<SystemLayout overrideContentPane={<ExplorerContentPane />} />}
+        loader={SystemLayout.loader}
+      >
+        <Route
+          path="monitoring/explorer"
+          element={<ExplorerPage />}
+          handle={{ crumb: 'Explorer' }}
+        >
+          <Route
+            path="sleds/:sled"
+            handle={{ crumb: sledExplorerCrumb }}
+            element={<ExplorerPage />}
+          />
         </Route>
       </Route>
 

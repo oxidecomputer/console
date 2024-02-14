@@ -21,6 +21,7 @@ const params = {
   image: 'im',
   snapshot: 'sn',
   pool: 'pl',
+  sled: '23',
 }
 
 test('path builder', () => {
@@ -84,6 +85,7 @@ test('path builder', () => {
         "vpcEdit": "/projects/p/vpcs/v/edit",
         "vpcNew": "/projects/p/vpcs-new",
         "vpcs": "/projects/p/vpcs",
+        "systemMonitoringExplorerSled": "/system/monitoring/explorer/sled/23",
       }
     `)
 })

@@ -78,6 +78,13 @@ export const pb = {
   systemUtilization: () => '/system/utilization',
   systemHealth: () => '/system/health',
 
+  systemMonitoring: () => '/system/monitoring',
+  systemMonitoringSensorTree: () => '/system/monitoring/sensor-tree',
+  systemMonitoringExplore: () => '/system/monitoring/explore',
+  systemMonitoringExplorer: () => '/system/monitoring/explorer',
+  systemMonitoringExplorerSled: (params: { sled: string }) =>
+    `/system/monitoring/explorer/sled/${params.sled}`,
+
   // there is only one tab on networking and it's IP pools, so we just treat
   // that as the networking route for now
   ipPools: () => '/system/networking/ip-pools',

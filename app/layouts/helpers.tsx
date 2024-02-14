@@ -52,3 +52,14 @@ export const SerialConsoleContentPane = () => (
     </div>
   </div>
 )
+
+export const ExplorerContentPane = () => (
+  <div className="flex flex-col overflow-auto">
+    <div className="flex flex-grow flex-col">
+      <SkipLinkTarget />
+      <main className="h-full">
+        <Outlet />
+      </main>
+    </div>
+  </div>
+)

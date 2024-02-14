@@ -66,3 +66,13 @@
 .ox-tab.is-selected > .ox-badge {
   @apply bg-accent-secondary;
 }
+
+.ox-tabs.pane {
+  .ox-tabs-list {
+    @apply mb-0;
+  }
+  .ox-tabs-list:before {
+    @apply block w-full border-b border-secondary;
+    content: ' ';
+  }
+}
