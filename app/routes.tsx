@@ -11,7 +11,6 @@ import { RouterDataErrorBoundary } from './components/ErrorBoundary'
 import { NotFound } from './components/ErrorPage'
 import { CreateDiskSideModalForm } from './forms/disk-create'
 import { CreateFloatingIpSideModalForm } from './forms/floating-ip-create'
-import { EditFloatingIpSideModalForm } from './forms/floating-ip-edit'
 import { CreateIdpSideModalForm } from './forms/idp/create'
 import { EditIdpSideModalForm } from './forms/idp/edit'
 import {
@@ -83,7 +82,6 @@ import { pb } from './util/path-builder'
 
 const projectCrumb: CrumbFunc = (m) => m.params.project!
 const instanceCrumb: CrumbFunc = (m) => m.params.instance!
-const floatingIpCrumb: CrumbFunc = (m) => m.params.floatingIp!
 const vpcCrumb: CrumbFunc = (m) => m.params.vpc!
 const siloCrumb: CrumbFunc = (m) => m.params.silo!
 
@@ -344,12 +342,6 @@ export const routes = createRoutesFromElements(
               path="floating-ips-new"
               element={<CreateFloatingIpSideModalForm />}
               handle={{ crumb: 'New Floating IP' }}
-            />
-            <Route
-              path="floating-ips/:floatingIp/edit"
-              element={<EditFloatingIpSideModalForm />}
-              loader={EditFloatingIpSideModalForm.loader}
-              handle={{ crumb: floatingIpCrumb }}
             />
           </Route>
         </Route>

@@ -16,7 +16,6 @@ import {
   INSTANCE_MIN_RAM_GiB,
   MAX_NICS_PER_INSTANCE,
   type ApiTypes as Api,
-  type FloatingIp,
   type SamlIdentityProvider,
 } from '@oxide/api'
 import { json, makeHandlers, type Json } from '@oxide/gen/msw-handlers'
@@ -226,12 +225,12 @@ export const handlers = makeHandlers({
   },
   floatingIpCreate({ body, query }) {
     const project = lookup.project(query)
-    errIfExists(db.vpcs, { name: body.name })
+    errIfExists(db.floatingIps, { name: body.name })
 
     const newFloatingIp: Json<Api.FloatingIp> = {
       id: uuid(),
       project_id: project.id,
-      ip: body.address || '12.34.56.7',
+      ip: `${[...Array(4)].map(() => Math.floor(Math.random() * 256)).join('.')}`,
       ...body,
       ...getTimestamps(),
     }
@@ -256,27 +255,20 @@ export const handlers = makeHandlers({
 
     return 204
   },
-  floatingIpAttach({ body, path, query }) {
+  floatingIpAttach({ path, query, body }) {
     const floatingIp = lookup.floatingIp({ ...path, ...query })
-    const instance = lookup.instance({ instance: body.parent })
-    console.log(instance)
-
+    const instance = lookup.instance({ ...path, ...query, instance: body.parent })
     floatingIp.instance_id = instance.id
-
-    console.log(floatingIp)
 
     return floatingIp
   },
   floatingIpDetach({ path, query }) {
-    const floatingIp: FloatingIp = lookup.floatingIp({ ...path, ...query })
-    db.floatingIps = db.floatingIps.map((ip) => {
-      if (ip.id !== floatingIp.id) {
-        return ip
-      }
-      return { ...ip, instance_id: undefined }
-    })
+    const floatingIp = lookup.floatingIp({ ...path, ...query })
+    db.floatingIps = db.floatingIps.map((ip) =>
+      ip.id !== floatingIp.id ? ip : { ...ip, instance_id: undefined }
+    )
 
-    return 204
+    return floatingIp
   },
   imageList({ query }) {
     if (query.project) {
