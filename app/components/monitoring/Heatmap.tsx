@@ -160,9 +160,10 @@ class SimpleHeat {
     ctx.shadowOffsetX = size.width - blur / 2
     ctx.shadowOffsetY = size.height - blur / 2
     ctx.shadowBlur = blur / 2
-    const colorVal = Math.min((value / max) * 255, 255)
-    const alphaVal = (value / (max - 10)) ** 8 * distance
-    ctx.shadowColor = `rgba(${colorVal},${colorVal},${colorVal},${alphaVal})`
+    // Using a cubic curve to bias the brightness towards the ends
+    const x = Math.min((value / max) * 1, 1)
+    const alphaVal = x ** 3
+    ctx.shadowColor = `rgba(255, 255, 255,${alphaVal})`
     const cornerRadius = Math.min(offsetWidth, offsetHeight)
 
     ctx.beginPath()

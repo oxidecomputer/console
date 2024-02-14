@@ -188,8 +188,7 @@ const SensorTimelineBar = ({
       <div className="group flex h-full w-full items-end">
         <div
           className={cn(
-            'w-full rounded-sm border border-[rgba(255,255,255,0.03)] transition-[height]',
-            !selectedComponent && 'bg-[var(--base-neutral-300)]',
+            'w-full rounded-sm border border-[rgba(255,255,255,0.1)] bg-[var(--base-neutral-300)] ease-[cubic-bezier(0,0,0.2,1)]  [transition:background-color_250ms,height_350ms]',
             state === 'normal' && selectedComponent && 'bg-[var(--base-neutral-500)]',
             state === 'notice' && 'bg-[var(--base-yellow-500)]',
             state === 'urgent' && 'bg-[var(--base-red-500)]',

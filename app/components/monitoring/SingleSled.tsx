@@ -269,11 +269,15 @@ const Sensor = ({
   const temperatureRange = temperatureRanges[data.type]
   const isUnhealthy = temperature >= temperatureRange[1]
 
-  const color = isUnhealthy
-    ? temperature < temperatureRange[2]
-      ? '#F5B944'
-      : '#FB6E88'
-    : '#7E8385'
+  const noticeColor = new Color('#F5B944')
+  const urgentColor = new Color('#FB6E88')
+
+  const mixPercentage =
+    ((temperature - temperatureRange[1]) / (temperatureRange[2] - temperatureRange[1])) *
+    100
+  const unhealthyColor = noticeColor.mix(urgentColor, mixPercentage)
+
+  const color = isUnhealthy ? unhealthyColor.toHexString() : '#7E8385'
 
   const isSelected = data.label === selectedComponent
 

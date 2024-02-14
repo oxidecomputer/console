@@ -171,6 +171,7 @@ const ExplorerSidebar = ({ sensorData }: { sensorData: SensorValues }) => {
       label,
       value,
       showWarning: sensor ? value > temperatureRanges[sensor.type][1] : false,
+      showUrgent: sensor ? value > temperatureRanges[sensor.type][2] : false,
     }
   })
 
@@ -241,6 +242,7 @@ type SensorItemType = {
   label: string
   value: number
   showWarning?: boolean
+  showUrgent?: boolean
 }
 
 const SensorGroup = ({ value, items }: { value: string; items: SensorItemType[] }) => {
@@ -315,7 +317,11 @@ const SensorItem = ({
       )}
       <div>{sensor.label}</div>{' '}
       <div>
-        {sensor.showWarning && <Warning12Icon className="mr-1 text-notice" />}
+        {sensor.showWarning && (
+          <Warning12Icon
+            className={`mr-1 ${sensor.showUrgent ? 'text-destructive' : 'text-notice'}`}
+          />
+        )}
         <span className="text-mono-sm text-tertiary">{sensor.value.toFixed(2)}</span>
       </div>
     </button>
