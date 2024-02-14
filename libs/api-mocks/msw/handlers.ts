@@ -289,7 +289,7 @@ export const handlers = makeHandlers({
     const instances = db.instances.filter((i) => i.project_id === project.id)
     return paginated(query, instances)
   },
-  async instanceCreate({ body, query }) {
+  instanceCreate({ body, query }) {
     const project = lookup.project(query)
 
     if (body.name === 'no-default-pool') {

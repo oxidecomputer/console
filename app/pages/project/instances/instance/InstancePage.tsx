@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { format } from 'date-fns'
-import { filesize } from 'filesize'
+import filesize from 'filesize'
 import { useMemo } from 'react'
 import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 

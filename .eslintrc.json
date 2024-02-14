@@ -66,7 +66,7 @@
       "rules": {
         "playwright/expect-expect": [
           "warn",
-          { "assertFunctionNames": ["expectVisible", "expectRowVisible"] }
+          { "additionalAssertFunctionNames": ["expectVisible", "expectRowVisible"] }
         ]
       }
     }

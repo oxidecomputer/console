@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { useApiMutation, useApiQueryClient, type IpRange } from '@oxide/api'
 import { Message } from '@oxide/ui'
-import { validateIp } from '@oxide/util'
+import { IPV4_REGEX, IPV6_REGEX } from '@oxide/util'
 
 import { SideModalForm, TextField } from 'app/components/form'
 import { useForm, useIpPoolSelector } from 'app/hooks'
@@ -19,6 +19,12 @@ import { pb } from 'app/util/path-builder'
 const defaultValues: IpRange = {
   first: '',
   last: '',
+}
+
+function validateIp(s: string) {
+  const isv4 = IPV4_REGEX.test(s)
+  const isv6 = !isv4 && IPV6_REGEX.test(s)
+  return { isv4, isv6, valid: isv4 || isv6 }
 }
 
 const invalidAddressError = { type: 'pattern', message: 'Not a valid IP address' }

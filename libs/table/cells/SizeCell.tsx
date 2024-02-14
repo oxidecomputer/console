@@ -5,13 +5,13 @@
  *
  * Copyright Oxide Computer Company
  */
-import { filesize } from 'filesize'
+import fileSize from 'filesize'
 
 import type { Cell } from './Cell'
 
 /** Human-readable format for size in bytes */
 export const SizeCell = ({ value: bytes }: Cell<number>) => {
-  const size = filesize(bytes, { base: 2, output: 'object' })
+  const size = fileSize(bytes, { base: 2, output: 'object' })
   return (
     <span className="text-secondary">
       {size.value} <span className="text-quaternary">{size.unit}</span>
