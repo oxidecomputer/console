@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { useState } from 'react'
+import { useForm } from 'react-hook-form'
 import { Link, Outlet, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
@@ -14,9 +15,10 @@ import {
   useApiQueryClient,
   usePrefetchedApiQuery,
   type FloatingIp,
+  type Instance,
 } from '@oxide/api'
 import { useQueryTable, type MenuAction } from '@oxide/table'
-import { buttonStyle, EmptyMessage, Modal, Networking24Icon } from '@oxide/ui'
+import { buttonStyle, EmptyMessage, Listbox, Modal, Networking24Icon } from '@oxide/ui'
 
 import { getProjectSelector, useProjectSelector } from 'app/hooks'
 import { confirmDelete } from 'app/stores/confirm-delete'
@@ -128,8 +130,13 @@ export function FloatingIpsTab() {
         />
       </Table>
       <Outlet />
-      {attachModalOpen && (
-        <AttachFloatingIpModal onDismiss={() => setAttachModalOpen(false)} />
+      {attachModalOpen && floatingIpToModify && (
+        <AttachFloatingIpModal
+          floatingIp={floatingIpToModify.name}
+          instances={instances.items}
+          project={project}
+          onDismiss={() => setAttachModalOpen(false)}
+        />
       )}
       {detachModalOpen && floatingIpToModify?.instanceId && (
         <DetachFloatingIpModal
@@ -143,15 +150,57 @@ export function FloatingIpsTab() {
   )
 }
 
-const AttachFloatingIpModal = ({ onDismiss }: { onDismiss: () => void }) => {
+const AttachFloatingIpModal = ({
+  floatingIp,
+  instances,
+  project,
+  onDismiss,
+}: {
+  floatingIp: string
+  instances: Array<Instance>
+  project: string
+  onDismiss: () => void
+}) => {
+  const queryClient = useApiQueryClient()
+  const floatingIpAttach = useApiMutation('floatingIpAttach', {
+    onSuccess() {
+      queryClient.invalidateQueries('floatingIpList')
+      addToast({ content: 'Your Floating IP has been attached' })
+      onDismiss()
+    },
+    onError: (err) => {
+      addToast({ title: 'Error', content: err.message, variant: 'error' })
+    },
+  })
+  const form = useForm({ defaultValues: { instanceId: '' } })
+
   return (
     <Modal isOpen title="Attach Floating IP" onDismiss={onDismiss}>
       <Modal.Body>
-        <Modal.Section>Select an instance to attach $name to</Modal.Section>
+        <Modal.Section>
+          <form>
+            <Listbox
+              name="instanceId"
+              items={instances.map((i) => ({ value: i.id, label: i.name }))}
+              label="Select an instance"
+              onChange={(e) => {
+                form.setValue('instanceId', e)
+              }}
+              selected={form.watch('instanceId')}
+            />
+          </form>
+        </Modal.Section>
       </Modal.Body>
       <Modal.Footer
         actionText="Attach"
-        onAction={() => alert('hi')}
+        disabled={!form.getValues('instanceId')}
+        onAction={() =>
+          floatingIpAttach.mutate({
+            path: { floatingIp },
+            query: { project },
+            body: { kind: 'instance', parent: form.getValues('instanceId') },
+          })
+        }
         onDismiss={onDismiss}
       ></Modal.Footer>
     </Modal>
