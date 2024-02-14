@@ -66,10 +66,8 @@ export const CapacityMetric = ({
           </div>
 
           <div className="[font-size:36px] [line-height:1]">
-            <span className="font-light">{wholeNumber.toLocaleString()}</span>
-            <span className="ml-0.5 text-quaternary [font-size:18px]">
-              {decimal || ''}%
-            </span>
+            <span className="font-light">{wholeNumber}</span>
+            <span className="ml-0.5 text-quaternary [font-size:18px]">{decimal}%</span>
           </div>
         </div>
       </div>

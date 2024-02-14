@@ -6,13 +6,9 @@
  * Copyright Oxide Computer Company
  */
 
-export function splitDecimal(value: number) {
-  const wholeNumber = Math.trunc(value)
-  const decimal = value % 1 !== 0 ? round(value % 1, 2) : null
-  return [
-    wholeNumber.toLocaleString(),
-    decimal ? '.' + decimal.toLocaleString().split('.')[1] : '',
-  ]
+export function splitDecimal(value: number): [string, string] {
+  const [whole, decimal] = round(value, 2).toLocaleString().split('.')
+  return [whole, decimal ? '.' + decimal : '']
 }
 
 export function round(num: number, digits: number) {
