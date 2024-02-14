@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
-import { filesize } from 'filesize'
+import filesize from 'filesize'
 import {
   forwardRef,
   useRef,

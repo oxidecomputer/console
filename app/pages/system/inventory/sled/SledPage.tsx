@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { filesize } from 'filesize'
+import fileSize from 'filesize'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
@@ -27,7 +27,7 @@ export function SledPage() {
   const { sledId } = useSledParams()
   const { data: sled } = usePrefetchedApiQuery('sledView', { path: { sledId } })
 
-  const ram = filesize(sled.usablePhysicalRam, { output: 'object', base: 2 })
+  const ram = fileSize(sled.usablePhysicalRam, { output: 'object', base: 2 })
 
   return (
     <>

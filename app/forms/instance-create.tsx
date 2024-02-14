@@ -188,7 +188,7 @@ export function CreateInstanceForm() {
           ? await readBlobAsBase64(values.userData)
           : undefined
 
-        await createInstance.mutateAsync({
+        createInstance.mutate({
           query: projectSelector,
           body: {
             name: values.name,
