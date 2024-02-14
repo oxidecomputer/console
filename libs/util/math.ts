@@ -6,15 +6,29 @@
  * Copyright Oxide Computer Company
  */
 
-export function splitDecimal(value: number) {
-  const wholeNumber = Math.trunc(value)
-  const decimal = value % 1 !== 0 ? round(value % 1, 2) : null
+import { splitOnceBy } from '.'
+
+/**
+ * Get the two parts of a number (before decimal and after-and-including
+ * decimal) as strings. Round to 2 decimal points if necessary.
+ *
+ * If there is no decimal, we will only have whole parts (which can include
+ * minus sign, group separators [comma in en-US], and of course actual number
+ * groups). Those will get joined and the decimal part will be the empty string.
+ */
+export function splitDecimal(value: number): [string, string] {
+  const nf = Intl.NumberFormat(navigator.language, { maximumFractionDigits: 2 })
+  const parts = nf.formatToParts(value)
+
+  const [wholeParts, decimalParts] = splitOnceBy(parts, (p) => p.type === 'decimal')
+
   return [
-    wholeNumber.toLocaleString(),
-    decimal ? '.' + decimal.toLocaleString().split('.')[1] : '',
+    wholeParts.map((p) => p.value).join(''),
+    decimalParts.map((p) => p.value).join(''),
   ]
 }
 
 export function round(num: number, digits: number) {
-  return Number(num.toFixed(digits))
+  const nf = Intl.NumberFormat(navigator.language, { maximumFractionDigits: digits })
+  return Number(nf.format(num))
 }

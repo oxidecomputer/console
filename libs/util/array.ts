@@ -102,3 +102,11 @@ export function intersperse(
     return [sep0, item]
   })
 }
+
+/**
+ * Split array at first element where `by` is true. That element lands in the second array.
+ */
+export function splitOnceBy<T>(array: T[], by: (t: T) => boolean) {
+  const i = array.findIndex(by)
+  return i === -1 ? [array, []] : [array.slice(0, i), array.slice(i)]
+}
