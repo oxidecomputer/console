@@ -231,14 +231,13 @@ export const handlers = makeHandlers({
     const newFloatingIp: Json<Api.FloatingIp> = {
       id: uuid(),
       project_id: project.id,
-      ip: body.address || '', // 👀 needs a legit ip
+      ip: body.address || '12.34.56.7',
       ...body,
       ...getTimestamps(),
     }
     db.floatingIps.push(newFloatingIp)
     return json(newFloatingIp, { status: 201 })
   },
-
   floatingIpList({ query }) {
     const project = lookup.project(query)
     const ips = db.floatingIps.filter((i) => i.project_id === project.id)
