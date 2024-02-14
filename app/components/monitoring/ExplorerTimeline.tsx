@@ -13,6 +13,8 @@ import { Button, More12Icon, NextArrow12Icon, PrevArrow12Icon } from '@oxide/ui'
 
 import { useMonitoring } from 'app/pages/system/monitoring/ExplorerPage'
 
+import { sensors, temperatureRanges, type Sensor } from './data'
+
 const ExplorerTimeline = () => {
   const { selectedComponent, selectedTime, setSelectedTime, sensorDataArray } =
     useMonitoring()
@@ -53,6 +55,8 @@ const ExplorerTimeline = () => {
     },
     { pointer: { keys: false } }
   )
+
+  const sensor = sensors.find((s) => s.label === selectedComponent)
 
   return (
     <div className="flex select-none flex-col overflow-hidden border-t border-t-secondary">
@@ -118,29 +122,13 @@ const ExplorerTimeline = () => {
             <div className="flex h-full flex-col">
               <div className="flex h-full w-full gap-[3px] pb-[38px]">
                 {sensorDataArray.map((sensorValues, i) => (
-                  <div key={i} className="relative flex h-full w-[8px] flex-shrink-0">
-                    <div className="group flex h-full w-full items-end">
-                      <div
-                        className={cn(
-                          'w-full rounded-sm border border-[rgba(255,255,255,0.03)] transition-all',
-                          selectedComponent
-                            ? 'bg-[var(--base-neutral-300)]'
-                            : 'bg-[var(--base-neutral-200)]',
-                          hovered === i && '!bg-[var(--base-neutral-500)]'
-                        )}
-                        style={{
-                          height: `${
-                            selectedComponent ? sensorValues[selectedComponent] : 100
-                          }%`,
-                        }}
-                      />
-                    </div>
-                    {i === selectedTime && (
-                      <div className="absolute flex h-full w-[8px] flex-col items-center gap-1">
-                        <div className="h-full w-[1px] bg-[var(--content-accent)]" />
-                      </div>
-                    )}
-                  </div>
+                  <SensorTimelineBar
+                    key={i}
+                    time={i}
+                    isHovered={hovered === i}
+                    value={selectedComponent ? sensorValues[selectedComponent] : 100}
+                    sensorType={sensor ? sensor.type : undefined}
+                  />
                 ))}
               </div>
               <div className="absolute bottom-0 mt-[6px] h-[32px] w-full border-t border-default">
@@ -172,6 +160,51 @@ const ExplorerTimeline = () => {
           </button>
         </div>
       </div>
+    </div>
+  )
+}
+
+const SensorTimelineBar = ({
+  time,
+  isHovered,
+  value,
+  sensorType,
+}: {
+  time: number
+  isHovered: boolean
+  value: number
+  sensorType: Sensor['type'] | undefined
+}) => {
+  const { selectedComponent, selectedTime } = useMonitoring()
+  let state = 'normal'
+  if (sensorType && value > temperatureRanges[sensorType][2]) {
+    state = 'urgent'
+  } else if (sensorType && value > temperatureRanges[sensorType][1]) {
+    state = 'notice'
+  }
+
+  return (
+    <div className="relative flex h-full w-[8px] flex-shrink-0">
+      <div className="group flex h-full w-full items-end">
+        <div
+          className={cn(
+            'w-full rounded-sm border border-[rgba(255,255,255,0.03)] transition-[height]',
+            !selectedComponent && 'bg-[var(--base-neutral-300)]',
+            state === 'normal' && selectedComponent && 'bg-[var(--base-neutral-500)]',
+            state === 'notice' && 'bg-[var(--base-yellow-500)]',
+            state === 'urgent' && 'bg-[var(--base-red-500)]',
+            !isHovered && 'opacity-80'
+          )}
+          style={{
+            height: `${value}%`,
+          }}
+        />
+      </div>
+      {time === selectedTime && (
+        <div className="absolute flex h-full w-[8px] flex-col items-center gap-1">
+          <div className="h-full w-[1px] bg-[var(--content-accent)]" />
+        </div>
+      )}
     </div>
   )
 }
