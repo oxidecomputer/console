@@ -26,11 +26,19 @@ it('rounds properly', () => {
 it.each([
   [1.23, ['1', '.23']],
   [1, ['1', '']], // whole number decimal should be an empty string
+
+  // values just below whole numbers
+  [5 - Number.EPSILON, ['5', '']],
+  [4.997, ['5', '']],
+
+  // values just above whole numbers
+  [49.00000001, ['49', '']],
+  [5 + Number.EPSILON, ['5', '']],
+
   [1.252525, ['1', '.25']],
   [1.259, ['1', '.26']], // should correctly round the decimal
   [-50.2, ['-50', '.2']], // should correctly not round down to -51
   [1000.5, ['1,000', '.5']], // testing localeString
-  [49.00000001, ['49', '']],
-])('splitDecimal', (input, output) => {
+])('splitDecimal %d', (input, output) => {
   expect(splitDecimal(input)).toEqual(output)
 })
