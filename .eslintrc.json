@@ -40,6 +40,7 @@
     "eqeqeq": ["error", "always", { "null": "ignore" }],
     "jsx-a11y/label-has-associated-control": [2, { "controlComponents": ["button"] }],
     "no-param-reassign": "error",
+    "no-restricted-imports": ["error", { "paths": ["."] }],
     "no-return-assign": "error",
     "no-unused-vars": "off",
     "prefer-arrow-callback": "off",

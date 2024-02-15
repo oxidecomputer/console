@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { splitOnceBy } from '.'
+import { splitOnceBy } from './array'
 
 /**
  * Get the two parts of a number (before decimal and after-and-including

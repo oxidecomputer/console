@@ -15,8 +15,8 @@ import { useMemo } from 'react'
 
 import { lowestBy, sortBy } from '@oxide/util'
 
-import { usePrefetchedApiQuery } from '.'
 import type { FleetRole, IdentityType, ProjectRole, SiloRole } from './__generated__/Api'
+import { usePrefetchedApiQuery } from './client'
 
 /**
  * Union of all the specific roles, which are all the same, which makes making
