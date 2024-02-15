@@ -67,7 +67,7 @@ export const pb = {
   vpc: (params: Vpc) => `${pb.vpcs(params)}/${params.vpc}`,
   vpcEdit: (params: Vpc) => `${pb.vpc(params)}/edit`,
   floatingIps: (params: Project) => `${pb.project(params)}/floating-ips`,
-  floatingIpNew: (params: Project) => `${pb.project(params)}/floating-ips-new`,
+  floatingIpsNew: (params: Project) => `${pb.project(params)}/floating-ips-new`,
 
   siloUtilization: () => '/utilization',
   siloAccess: () => '/access',
