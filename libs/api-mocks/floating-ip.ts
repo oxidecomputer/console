@@ -8,8 +8,9 @@
 
 import type { FloatingIp } from '@oxide/api'
 
-import { instance, project } from '.'
+import { instance } from './instance'
 import type { Json } from './json-type'
+import { project } from './project'
 
 // A floating IP from the default pool
 export const floatingIp: Json<FloatingIp> = {
