@@ -11,7 +11,7 @@
 // "true" because it insists it's a boolean
 import { Disabled12Icon, Success12Icon } from '@oxide/ui'
 
-import type { Cell } from '.'
+import type { Cell } from './Cell'
 
 export const BooleanCell = ({ value }: Cell<boolean>) =>
   value ? (

@@ -8,7 +8,8 @@
 import type { VpcFirewallRuleFilter } from '@oxide/api'
 import { Badge } from '@oxide/ui'
 
-import { TypeValueCell, type Cell } from '.'
+import { type Cell } from './Cell'
+import { TypeValueCell } from './TypeValueCell'
 
 export const FirewallFilterCell = ({
   value: { hosts, ports, protocols },

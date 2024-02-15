@@ -7,8 +7,8 @@
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
-import { GiB } from '.'
 import { round, splitDecimal } from './math'
+import { GiB } from './units'
 
 it('rounds properly', () => {
   expect(round(0.456, 2)).toEqual(0.46)
