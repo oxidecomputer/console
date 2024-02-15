@@ -31,7 +31,7 @@ test('path builder', () => {
         "diskInventory": "/system/inventory/disks",
         "diskNew": "/projects/p/disks-new",
         "disks": "/projects/p/disks",
-        "floatingIpNew": "/projects/p/floating-ip-new",
+        "floatingIpsNew": "/projects/p/floating-ips-new",
         "floatingIps": "/projects/p/floating-ips",
         "instance": "/projects/p/instances/i",
         "instanceConnect": "/projects/p/instances/i/connect",
