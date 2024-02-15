@@ -93,17 +93,14 @@ export function FloatingIpsTab() {
         disabled: isAttachedToAnInstance
           ? 'This floating IP must be detached from the instance before it can be deleted'
           : false,
-        onActivate: () => {
-          confirmDelete({
-            doDelete: () =>
-              deleteFloatingIp.mutateAsync({
-                path: { floatingIp: floatingIp.name },
-                query: { project },
-              }),
-            label: floatingIp.name,
-          }),
-            setFloatingIpToModify(null)
-        },
+        onActivate: confirmDelete({
+          doDelete: () =>
+            deleteFloatingIp.mutateAsync({
+              path: { floatingIp: floatingIp.name },
+              query: { project },
+            }),
+          label: floatingIp.name,
+        }),
       },
     ]
   }
