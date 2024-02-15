@@ -62,7 +62,6 @@ export const pb = {
   snapshotImageCreate: (params: Snapshot) =>
     `${pb.project(params)}/snapshots/${params.snapshot}/image-new`,
 
-  projectNetworking: (params: Project) => `${pb.project(params)}/networking`,
   vpcNew: (params: Project) => `${pb.project(params)}/vpcs-new`,
   vpcs: (params: Project) => `${pb.project(params)}/vpcs`,
   vpc: (params: Vpc) => `${pb.vpcs(params)}/${params.vpc}`,
