@@ -140,9 +140,8 @@ export function CreateFloatingIpSideModalForm({
       {allPools && (
         <ListboxField
           name="pool"
-          items={allPools?.items.map((p) => toListboxItem(p))}
+          items={allPools.items.map((p) => toListboxItem(p))}
           label="Pool"
-          required
           control={form.control}
         />
       )}
