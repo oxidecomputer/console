@@ -20,6 +20,7 @@ import {
   Folder16Icon,
   Images16Icon,
   Instances16Icon,
+  IpGlobal16Icon,
   Networking16Icon,
   Snapshots16Icon,
   Storage16Icon,
@@ -67,7 +68,8 @@ function ProjectLayout({ overrideContentPane }: ProjectLayoutProps) {
           { value: 'Disks', path: pb.disks(projectSelector) },
           { value: 'Snapshots', path: pb.snapshots(projectSelector) },
           { value: 'Images', path: pb.projectImages(projectSelector) },
-          { value: 'Networking', path: pb.vpcs(projectSelector) },
+          { value: 'VPCs', path: pb.vpcs(projectSelector) },
+          { value: 'Floating IPs', path: pb.floatingIps(projectSelector) },
           { value: 'Access & IAM', path: pb.projectAccess(projectSelector) },
         ]
           // filter out the entry for the path we're currently on
@@ -111,7 +113,10 @@ function ProjectLayout({ overrideContentPane }: ProjectLayoutProps) {
             <Images16Icon title="images" /> Images
           </NavLinkItem>
           <NavLinkItem to={pb.vpcs(projectSelector)}>
-            <Networking16Icon /> Networking
+            <Networking16Icon /> VPCs
+          </NavLinkItem>
+          <NavLinkItem to={pb.floatingIps(projectSelector)}>
+            <IpGlobal16Icon /> Floating IPs
           </NavLinkItem>
           <NavLinkItem to={pb.projectAccess(projectSelector)}>
             <Access16Icon title="Access & IAM" /> Access &amp; IAM

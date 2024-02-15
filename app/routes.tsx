@@ -47,21 +47,20 @@ import { LoginPageSaml } from './pages/LoginPageSaml'
 import { instanceLookupLoader } from './pages/lookups'
 import {
   DisksPage,
+  FloatingIpsPage,
   ImagesPage,
   InstancePage,
   InstancesPage,
   ProjectAccessPage,
   SnapshotsPage,
   VpcPage,
-  VpcsTab,
+  VpcsPage,
 } from './pages/project'
 import { SerialConsolePage } from './pages/project/instances/instance/SerialConsolePage'
 import { ConnectTab } from './pages/project/instances/instance/tabs/ConnectTab'
 import { MetricsTab } from './pages/project/instances/instance/tabs/MetricsTab'
 import { NetworkingTab } from './pages/project/instances/instance/tabs/NetworkingTab'
 import { StorageTab } from './pages/project/instances/instance/tabs/StorageTab'
-import { FloatingIpsTab } from './pages/project/networking/FloatingIpsTab'
-import { ProjectNetworkingPage } from './pages/project/networking/ProjectNetworkingPage'
 import ProjectsPage from './pages/ProjectsPage'
 import { ProfilePage } from './pages/settings/ProfilePage'
 import { SSHKeysPage } from './pages/settings/SSHKeysPage'
@@ -329,44 +328,41 @@ export const routes = createRoutesFromElements(
           </Route>
         </Route>
 
-        <Route path="networking" element={<ProjectNetworkingPage />}>
-          <Route index element={<Navigate to="vpcs" replace />} />
-          <Route loader={VpcsTab.loader} element={<VpcsTab />}>
-            <Route path="vpcs" handle={{ crumb: 'VPCs' }} element={null} />
-            <Route
-              path="vpcs-new"
-              element={<CreateVpcSideModalForm />}
-              handle={{ crumb: 'New VPC' }}
-            />
-            <Route
-              path="vpcs/:vpc/edit"
-              element={<EditVpcSideModalForm />}
-              loader={EditVpcSideModalForm.loader}
-              handle={{ crumb: 'Edit VPC' }}
-            />
-          </Route>
-
-          <Route loader={FloatingIpsTab.loader} element={<FloatingIpsTab />}>
-            <Route path="floating-ips" handle={{ crumb: 'Floating IPs' }} element={null} />
-            <Route
-              path="floating-ips-new"
-              element={<CreateFloatingIpSideModalForm />}
-              handle={{ crumb: 'New Floating IP' }}
-            />
-          </Route>
+        <Route loader={VpcsPage.loader} element={<VpcsPage />}>
+          <Route path="vpcs" handle={{ crumb: 'VPCs' }} element={null} />
+          <Route
+            path="vpcs-new"
+            element={<CreateVpcSideModalForm />}
+            handle={{ crumb: 'New VPC' }}
+          />
+          <Route
+            path="vpcs/:vpc/edit"
+            element={<EditVpcSideModalForm />}
+            loader={EditVpcSideModalForm.loader}
+            handle={{ crumb: 'Edit VPC' }}
+          />
         </Route>
 
-        {/* Individual VPC pages don't include top-level VPC navigation */}
-        <Route path="networking" element={null}>
-          <Route path="vpcs" handle={{ crumb: 'VPCs' }}>
-            <Route
-              path=":vpc"
-              element={<VpcPage />}
-              loader={VpcPage.loader}
-              handle={{ crumb: vpcCrumb }}
-            />
-          </Route>
+        <Route path="vpcs" handle={{ crumb: 'VPCs' }}>
+          <Route
+            path=":vpc"
+            element={<VpcPage />}
+            loader={VpcPage.loader}
+            handle={{ crumb: vpcCrumb }}
+          />
         </Route>
+
+        <Route
+          path="floating-ips"
+          handle={{ crumb: 'Floating IPs' }}
+          loader={FloatingIpsPage.loader}
+          element={<FloatingIpsPage />}
+        />
+        <Route
+          path="floating-ips-new"
+          element={<CreateFloatingIpSideModalForm />}
+          handle={{ crumb: 'New Floating IP' }}
+        />
 
         <Route element={<DisksPage />} loader={DisksPage.loader}>
           <Route

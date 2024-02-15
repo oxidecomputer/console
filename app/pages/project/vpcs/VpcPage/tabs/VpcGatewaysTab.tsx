@@ -5,6 +5,3 @@
  *
  * Copyright Oxide Computer Company
  */
-
-export * from './VpcPage'
-export * from './VpcsPage'

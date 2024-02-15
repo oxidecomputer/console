@@ -18,7 +18,17 @@ import {
   type Instance,
 } from '@oxide/api'
 import { useQueryTable, type MenuAction } from '@oxide/table'
-import { buttonStyle, EmptyMessage, Listbox, Modal, Networking24Icon } from '@oxide/ui'
+import {
+  buttonStyle,
+  EmptyMessage,
+  IpGlobal24Icon,
+  Listbox,
+  Modal,
+  Networking24Icon,
+  PageHeader,
+  PageTitle,
+  TableActions,
+} from '@oxide/ui'
 
 import { getProjectSelector, useProjectSelector } from 'app/hooks'
 import { confirmDelete } from 'app/stores/confirm-delete'
@@ -35,7 +45,7 @@ const EmptyState = () => (
   />
 )
 
-FloatingIpsTab.loader = async ({ params }: LoaderFunctionArgs) => {
+FloatingIpsPage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project } = getProjectSelector(params)
   await Promise.all([
     apiQueryClient.prefetchQuery('floatingIpList', {
@@ -48,7 +58,7 @@ FloatingIpsTab.loader = async ({ params }: LoaderFunctionArgs) => {
   return null
 }
 
-export function FloatingIpsTab() {
+export function FloatingIpsPage() {
   const [attachModalOpen, setAttachModalOpen] = useState(false)
   const [detachModalOpen, setDetachModalOpen] = useState(false)
   const [floatingIpToModify, setFloatingIpToModify] = useState<FloatingIp | null>(null)
@@ -111,11 +121,14 @@ export function FloatingIpsTab() {
   const { Table, Column } = useQueryTable('floatingIpList', { query: { project } })
   return (
     <>
-      <div className="mb-3 flex justify-end space-x-2">
+      <PageHeader>
+        <PageTitle icon={<IpGlobal24Icon />}>Floating IPs</PageTitle>
+      </PageHeader>
+      <TableActions>
         <Link to={pb.floatingIpNew({ project })} className={buttonStyle({ size: 'sm' })}>
           New Floating IP
         </Link>
-      </div>
+      </TableActions>
       <Table emptyState={<EmptyState />} makeActions={makeActions}>
         <Column accessor="name" />
         <Column accessor="description" />

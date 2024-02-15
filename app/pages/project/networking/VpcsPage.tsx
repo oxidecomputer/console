@@ -16,7 +16,14 @@ import {
   type Vpc,
 } from '@oxide/api'
 import { DateCell, linkCell, useQueryTable, type MenuAction } from '@oxide/table'
-import { buttonStyle, EmptyMessage, Networking24Icon } from '@oxide/ui'
+import {
+  buttonStyle,
+  EmptyMessage,
+  Networking24Icon,
+  PageHeader,
+  PageTitle,
+  TableActions,
+} from '@oxide/ui'
 
 import { getProjectSelector, useProjectSelector, useQuickActions } from 'app/hooks'
 import { confirmDelete } from 'app/stores/confirm-delete'
@@ -34,14 +41,14 @@ const EmptyState = () => (
 
 // just as in the vpcList call for the quick actions menu, include limit: 25 to make
 // sure it matches the call in the QueryTable
-VpcsTab.loader = async ({ params }: LoaderFunctionArgs) => {
+VpcsPage.loader = async ({ params }: LoaderFunctionArgs) => {
   await apiQueryClient.prefetchQuery('vpcList', {
     query: { ...getProjectSelector(params), limit: 25 },
   })
   return null
 }
 
-export function VpcsTab() {
+export function VpcsPage() {
   const queryClient = useApiQueryClient()
   const projectSelector = useProjectSelector()
   const { data: vpcs } = usePrefetchedApiQuery('vpcList', {
@@ -87,11 +94,14 @@ export function VpcsTab() {
   const { Table, Column } = useQueryTable('vpcList', { query: projectSelector })
   return (
     <>
-      <div className="mb-3 flex justify-end space-x-2">
+      <PageHeader>
+        <PageTitle icon={<Networking24Icon />}>VPCs</PageTitle>
+      </PageHeader>
+      <TableActions>
         <Link to={pb.vpcNew(projectSelector)} className={buttonStyle({ size: 'sm' })}>
           New Vpc
         </Link>
-      </div>
+      </TableActions>
       <Table emptyState={<EmptyState />} makeActions={makeActions}>
         <Column
           accessor="name"

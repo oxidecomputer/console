@@ -63,12 +63,12 @@ export const pb = {
     `${pb.project(params)}/snapshots/${params.snapshot}/image-new`,
 
   projectNetworking: (params: Project) => `${pb.project(params)}/networking`,
-  vpcNew: (params: Project) => `${pb.projectNetworking(params)}/vpcs-new`,
-  vpcs: (params: Project) => `${pb.projectNetworking(params)}/vpcs`,
+  vpcNew: (params: Project) => `${pb.project(params)}/vpcs-new`,
+  vpcs: (params: Project) => `${pb.project(params)}/vpcs`,
   vpc: (params: Vpc) => `${pb.vpcs(params)}/${params.vpc}`,
   vpcEdit: (params: Vpc) => `${pb.vpc(params)}/edit`,
-  floatingIps: (params: Project) => `${pb.projectNetworking(params)}/floating-ips`,
-  floatingIpNew: (params: Project) => `${pb.projectNetworking(params)}/floating-ips-new`,
+  floatingIps: (params: Project) => `${pb.project(params)}/floating-ips`,
+  floatingIpNew: (params: Project) => `${pb.project(params)}/floating-ips-new`,
 
   siloUtilization: () => '/utilization',
   siloAccess: () => '/access',
