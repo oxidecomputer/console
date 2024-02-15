@@ -328,6 +328,8 @@ export const routes = createRoutesFromElements(
           </Route>
         </Route>
 
+        <Route path="networking" element={<Navigate to="../vpcs" replace />} />
+
         <Route loader={VpcsPage.loader} element={<VpcsPage />}>
           <Route path="vpcs" handle={{ crumb: 'VPCs' }} element={null} />
           <Route
@@ -342,7 +344,6 @@ export const routes = createRoutesFromElements(
             handle={{ crumb: 'Edit VPC' }}
           />
         </Route>
-
         <Route path="vpcs" handle={{ crumb: 'VPCs' }}>
           <Route
             path=":vpc"
