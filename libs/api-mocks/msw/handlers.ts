@@ -242,7 +242,7 @@ export const handlers = makeHandlers({
     const ips = db.floatingIps.filter((i) => i.project_id === project.id)
     return paginated(query, ips)
   },
-  floatingIp: ({ path, query }) => lookup.floatingIp({ ...path, ...query }),
+  floatingIpView: ({ path, query }) => lookup.floatingIp({ ...path, ...query }),
   floatingIpDelete({ path, query }) {
     const floatingIp = lookup.floatingIp({ ...path, ...query })
     db.floatingIps = db.floatingIps.filter((i) => i.id !== floatingIp.id)
@@ -251,6 +251,9 @@ export const handlers = makeHandlers({
   },
   floatingIpAttach({ path, query, body }) {
     const floatingIp = lookup.floatingIp({ ...path, ...query })
+    if (floatingIp.instance_id) {
+      throw 'floating IP cannot be attached to one instance while still attached to another'
+    }
     const instance = lookup.instance({ ...path, ...query, instance: body.parent })
     floatingIp.instance_id = instance.id
 
