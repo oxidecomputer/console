@@ -12,15 +12,13 @@ import {
   diskCan,
   genName,
   useApiMutation,
-  useApiQuery,
   useApiQueryClient,
   type Disk,
 } from '@oxide/api'
 import {
   DateCell,
-  LinkCell,
+  InstanceLinkCell,
   SizeCell,
-  SkeletonCell,
   useQueryTable,
   type MenuAction,
 } from '@oxide/table'
@@ -39,24 +37,6 @@ import { confirmDelete } from 'app/stores/confirm-delete'
 import { pb } from 'app/util/path-builder'
 
 import { fancifyStates } from '../instances/instance/tabs/common'
-
-function InstanceNameFromId({ value: instanceId }: { value: string | null }) {
-  const { project } = useProjectSelector()
-  const { data: instance } = useApiQuery(
-    'instanceView',
-    { path: { instance: instanceId! } },
-    { enabled: !!instanceId }
-  )
-
-  if (!instanceId) return null
-  if (!instance) return <SkeletonCell />
-
-  return (
-    <LinkCell to={pb.instancePage({ project, instance: instance.name })}>
-      {instance.name}
-    </LinkCell>
-  )
-}
 
 const EmptyState = () => (
   <EmptyMessage
@@ -157,7 +137,7 @@ export function DisksPage() {
             // whether it has an instance field
             'instance' in disk.state ? disk.state.instance : null
           }
-          cell={InstanceNameFromId}
+          cell={InstanceLinkCell}
         />
         <Column header="Size" accessor="size" cell={SizeCell} />
         <Column

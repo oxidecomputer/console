@@ -17,7 +17,7 @@ import {
   type FloatingIp,
   type Instance,
 } from '@oxide/api'
-import { useQueryTable, type MenuAction } from '@oxide/table'
+import { InstanceLinkCell, useQueryTable, type MenuAction } from '@oxide/table'
 import {
   buttonStyle,
   EmptyMessage,
@@ -136,7 +136,7 @@ export function FloatingIpsPage() {
         <Column
           accessor="instanceId"
           header="Attached to instance"
-          cell={({ value: instanceId }) => getInstanceName(instanceId)}
+          cell={InstanceLinkCell}
         />
       </Table>
       <Outlet />
