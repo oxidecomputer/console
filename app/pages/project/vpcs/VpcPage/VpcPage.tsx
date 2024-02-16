@@ -41,9 +41,7 @@ export function VpcPage() {
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<Networking24Icon />}>
-          {vpc.name} adasdasdasdasdasdasdasdadasdasdasd
-        </PageTitle>
+        <PageTitle icon={<Networking24Icon />}>{vpc.name}</PageTitle>
       </PageHeader>
       <PropertiesTable.Group className="mb-16">
         <PropertiesTable>
