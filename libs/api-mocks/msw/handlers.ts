@@ -230,7 +230,7 @@ export const handlers = makeHandlers({
     const newFloatingIp: Json<Api.FloatingIp> = {
       id: uuid(),
       project_id: project.id,
-      ip: `${[...Array(4)].map(() => Math.floor(Math.random() * 256)).join('.')}`,
+      ip: [...Array(4)].map(() => Math.floor(Math.random() * 256)).join('.'),
       ...body,
       ...getTimestamps(),
     }
