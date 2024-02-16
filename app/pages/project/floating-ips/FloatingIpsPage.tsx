@@ -30,7 +30,9 @@ import {
   TableActions,
 } from '@oxide/ui'
 
+import { HL } from 'app/components/HL'
 import { getProjectSelector, useProjectSelector } from 'app/hooks'
+import { confirmAction } from 'app/stores/confirm-action'
 import { confirmDelete } from 'app/stores/confirm-delete'
 import { addToast } from 'app/stores/toast'
 import { pb } from 'app/util/path-builder'
@@ -60,14 +62,24 @@ FloatingIpsPage.loader = async ({ params }: LoaderFunctionArgs) => {
 
 export function FloatingIpsPage() {
   const [attachModalOpen, setAttachModalOpen] = useState(false)
-  const [detachModalOpen, setDetachModalOpen] = useState(false)
   const [floatingIpToModify, setFloatingIpToModify] = useState<FloatingIp | null>(null)
   const queryClient = useApiQueryClient()
   const { project } = useProjectSelector()
   const { data: instances } = usePrefetchedApiQuery('instanceList', {
     query: { project },
   })
+  const getInstanceName = (instanceId: string) =>
+    instances.items.find((i) => i.id === instanceId)?.name
 
+  const floatingIpDetach = useApiMutation('floatingIpDetach', {
+    onSuccess() {
+      queryClient.invalidateQueries('floatingIpList')
+      addToast({ content: 'Your Floating IP has been detached' })
+    },
+    onError: (err) => {
+      addToast({ title: 'Error', content: err.message, variant: 'error' })
+    },
+  })
   const deleteFloatingIp = useApiMutation('floatingIpDelete', {
     onSuccess() {
       queryClient.invalidateQueries('floatingIpList')
@@ -93,10 +105,30 @@ export function FloatingIpsPage() {
         disabled: isAttachedToAnInstance
           ? false
           : 'This floating IP is not attached to an instance',
-        onActivate() {
-          setFloatingIpToModify(floatingIp)
-          setDetachModalOpen(true)
-        },
+        onActivate: () =>
+          confirmAction({
+            actionType: 'danger',
+            doAction: () =>
+              floatingIpDetach.mutateAsync({
+                path: { floatingIp: floatingIp.name },
+                query: { project },
+              }),
+            modalTitle: 'Detach Floating IP',
+            modalContent: (
+              <p>
+                Are you sure you want to detach the floating IP <HL>{floatingIp.name}</HL>{' '}
+                from the instance{' '}
+                <HL>
+                  {
+                    // instanceId is guaranteed to be non-null here
+                    getInstanceName(floatingIp.instanceId!)
+                  }
+                </HL>
+                ?
+              </p>
+            ),
+            errorTitle: 'Error detaching floating IP',
+          }),
       },
       {
         label: 'Delete',
@@ -114,9 +146,6 @@ export function FloatingIpsPage() {
       },
     ]
   }
-
-  const getInstanceName = (instanceId: string) =>
-    instances.items.find((i) => i.id === instanceId)?.name
 
   const { Table, Column } = useQueryTable('floatingIpList', { query: { project } })
   return (
@@ -146,14 +175,6 @@ export function FloatingIpsPage() {
           instances={instances.items}
           project={project}
           onDismiss={() => setAttachModalOpen(false)}
-        />
-      )}
-      {detachModalOpen && floatingIpToModify?.instanceId && (
-        <DetachFloatingIpModal
-          floatingIp={floatingIpToModify.name}
-          instance={getInstanceName(floatingIpToModify.instanceId) || 'this instance'}
-          project={project}
-          onDismiss={() => setDetachModalOpen(false)}
         />
       )}
     </>
@@ -210,46 +231,6 @@ const AttachFloatingIpModal = ({
             query: { project },
             body: { kind: 'instance', parent: form.getValues('instanceId') },
           })
-        }
-        onDismiss={onDismiss}
-      ></Modal.Footer>
-    </Modal>
-  )
-}
-
-const DetachFloatingIpModal = ({
-  floatingIp,
-  instance,
-  project,
-  onDismiss,
-}: {
-  floatingIp: string
-  instance: string
-  project: string
-  onDismiss: () => void
-}) => {
-  const queryClient = useApiQueryClient()
-  const floatingIpDetach = useApiMutation('floatingIpDetach', {
-    onSuccess() {
-      queryClient.invalidateQueries('floatingIpList')
-      addToast({ content: 'Your Floating IP has been detached' })
-      onDismiss()
-    },
-    onError: (err) => {
-      addToast({ title: 'Error', content: err.message, variant: 'error' })
-    },
-  })
-  return (
-    <Modal isOpen title="Detach Floating IP" onDismiss={onDismiss}>
-      <Modal.Body>
-        <Modal.Section>
-          Detach {floatingIp} from {instance}?
-        </Modal.Section>
-      </Modal.Body>
-      <Modal.Footer
-        actionText="Detach"
-        onAction={() =>
-          floatingIpDetach.mutate({ path: { floatingIp }, query: { project } })
         }
         onDismiss={onDismiss}
       ></Modal.Footer>
