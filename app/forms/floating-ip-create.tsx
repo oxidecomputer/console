@@ -5,7 +5,6 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useMemo } from 'react'
 import { useWatch } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import type { SetRequired } from 'type-fest'
@@ -18,6 +17,7 @@ import {
   type FloatingIpCreate,
   type SiloIpPool,
 } from '@oxide/api'
+import { Badge, Divider, Message } from '@oxide/ui'
 import { validateIp } from '@oxide/util'
 
 import {
@@ -43,15 +43,10 @@ export function CreateFloatingIpSideModalForm() {
     query: { limit: 1000 },
   })
 
-  const defaultPool = useMemo(
-    () => allPools.items.find((p) => p.isDefault)?.name,
-    [allPools]
-  )
-
   const defaultValues: SetRequired<FloatingIpCreate, 'address'> = {
     name: '',
     description: '',
-    pool: defaultPool,
+    pool: undefined,
     address: '',
   }
 
@@ -71,7 +66,7 @@ export function CreateFloatingIpSideModalForm() {
   const form = useForm({ defaultValues })
 
   const toListboxItem = (p: SiloIpPool) => {
-    if (p.name !== defaultPool) {
+    if (!p.isDefault) {
       return {
         value: p.name,
         label: p.name,
@@ -84,7 +79,9 @@ export function CreateFloatingIpSideModalForm() {
       label: (
         <>
           {p.name}{' '}
-          <span className="text-quaternary selected:text-accent-secondary">(default)</span>
+          <Badge className="ml-1" color="neutral">
+            default
+          </Badge>
         </>
       ),
     }
@@ -109,13 +106,21 @@ export function CreateFloatingIpSideModalForm() {
       loading={createFloatingIp.isPending}
       submitError={createFloatingIp.error}
     >
+      <Message
+        variant="info"
+        content="If you don’t specify a pool, the default will be used."
+      />
+
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
+      <Divider />
+      {/* Todo: collapse these two fields under an "advanced" section */}
       <ListboxField
         name="pool"
         items={allPools.items.map((p) => toListboxItem(p))}
-        label="Pool"
+        label="IP pool"
         control={form.control}
+        placeholder="Select pool"
       />
       <TextField
         name="address"

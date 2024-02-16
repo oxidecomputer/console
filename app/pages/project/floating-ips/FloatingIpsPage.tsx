@@ -209,6 +209,7 @@ const AttachFloatingIpModal = ({
     <Modal isOpen title="Attach Floating IP" onDismiss={onDismiss}>
       <Modal.Body>
         <Modal.Section>
+          {/* Todo: Add help text explaining what selecting an instance will do */}
           <form>
             <Listbox
               name="instanceId"
@@ -217,6 +218,8 @@ const AttachFloatingIpModal = ({
               onChange={(e) => {
                 form.setValue('instanceId', e)
               }}
+              required
+              placeholder="Select instance"
               selected={form.watch('instanceId')}
             />
           </form>
