@@ -242,13 +242,7 @@ export const handlers = makeHandlers({
     const ips = db.floatingIps.filter((i) => i.project_id === project.id)
     return paginated(query, ips)
   },
-  floatingIpView({ query, path }) {
-    const project = lookup.project(query)
-    const ip = db.floatingIps.filter(
-      (i) => i.project_id === project.id && i.name === path.floatingIp
-    )[0]
-    return ip
-  },
+  floatingIp: ({ path, query }) => lookup.floatingIp({ ...path, ...query }),
   floatingIpDelete({ path, query }) {
     const floatingIp = lookup.floatingIp({ ...path, ...query })
     db.floatingIps = db.floatingIps.filter((i) => i.id !== floatingIp.id)
