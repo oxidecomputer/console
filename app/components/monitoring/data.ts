@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-export const sledSize = { x: 550, y: 100, z: 265 }
+export const sledSize = { x: 55.0, y: 10.0, z: 26.5 }
 export const normalizedSledSize = {
   x: 1,
   y: sledSize.y / sledSize.x,
@@ -13,28 +13,24 @@ export const normalizedSledSize = {
 }
 
 export const rackSize = {
-  x: normalizedSledSize.x,
-  y: normalizedSledSize.y * 18,
-  z: normalizedSledSize.z * 2,
+  x: sledSize.x,
+  y: sledSize.y * 18,
+  z: sledSize.z * 2,
 }
 
 export const sizeMultiplier = sledSize.x / normalizedSledSize.x
 
-export const rackOrigin = [
-  0,
-  rackSize.y / 2 - normalizedSledSize.y / 2,
-  normalizedSledSize.z / 2,
-]
+export const rackOrigin = [rackSize.x / 2, rackSize.y / 2, rackSize.z / 2]
 
 // Calculate the position for each Sled based on its index
 export function getSledPosition(index: number) {
   const row = Math.floor(index / 2)
   const column = index % 2
-  const yOffset = index > 15 ? normalizedSledSize.y * 2 : 0
+  const yOffset = index > 15 ? sledSize.y * 2 : 0
   return [
-    0 - rackOrigin[0],
-    row * normalizedSledSize.y - rackOrigin[1] + yOffset,
-    column * normalizedSledSize.z - rackOrigin[2],
+    0,
+    row * sledSize.y + sledSize.y / 2 + yOffset,
+    column * sledSize.z - rackOrigin[2] / 2,
   ]
 }
 
@@ -59,224 +55,218 @@ export type Sensor = {
 export const sensors: Sensor[] = [
   {
     label: 'Southwest',
-    position: { x: 120, y: 5, z: 45 },
+    position: { x: 12, y: 0.5, z: 4.5 },
     type: 'air',
-    size: { x: 5, y: 15, z: 10 },
+    size: { x: 0.5, y: 1.5, z: 1 },
   },
   {
     label: 'South',
-    position: { x: 120, y: 5, z: 120 },
+    position: { x: 12, y: 0.5, z: 12 },
     type: 'air',
-    size: { x: 5, y: 15, z: 10 },
+    size: { x: 0.5, y: 1.5, z: 1 },
   },
   {
     label: 'Southeast',
-    position: { x: 120, y: 5, z: 190 },
+    position: { x: 12, y: 0.5, z: 19 },
     type: 'air',
-    size: { x: 5, y: 15, z: 10 },
+    size: { x: 0.5, y: 1.5, z: 1 },
   },
   {
     label: 'Northwest',
-    position: { x: 445, y: 5, z: 40 },
+    position: { x: 44.5, y: 0.5, z: 4 },
     type: 'air',
-    size: { x: 5, y: 15, z: 10 },
+    size: { x: 0.5, y: 1.5, z: 1 },
   },
   {
     label: 'North',
-    position: { x: 445, y: 5, z: 120 },
+    position: { x: 44.5, y: 0.5, z: 12 },
     type: 'air',
-    size: { x: 5, y: 15, z: 10 },
+    size: { x: 0.5, y: 1.5, z: 1 },
   },
   {
     label: 'Northeast',
-    position: { x: 445, y: 5, z: 190 },
+    position: { x: 44.5, y: 0.5, z: 19 },
     type: 'air',
-    size: { x: 5, y: 15, z: 10 },
+    size: { x: 0.5, y: 1.5, z: 1 },
   },
   {
     label: 'U2_N0',
-    position: { x: 20, y: 4, z: 10 },
-    size: { x: 60, y: 80, z: 15 },
-
+    position: { x: 2, y: 0.4, z: 1 },
+    size: { x: 6, y: 8, z: 1.5 },
     type: 'u2',
   },
   {
     label: 'U2_N1',
-    position: { x: 20, y: 4, z: 35 },
-    size: { x: 60, y: 80, z: 15 },
-
+    position: { x: 2, y: 0.4, z: 3.5 },
+    size: { x: 6, y: 8, z: 1.5 },
     type: 'u2',
   },
   {
     label: 'U2_N2',
-    position: { x: 20, y: 4, z: 60 },
-    size: { x: 60, y: 80, z: 15 },
-
+    position: { x: 2, y: 0.4, z: 6 },
+    size: { x: 6, y: 8, z: 1.5 },
     type: 'u2',
   },
   {
     label: 'U2_N3',
-    position: { x: 20, y: 4, z: 85 },
-    size: { x: 60, y: 80, z: 15 },
-
+    position: { x: 2, y: 0.4, z: 8.5 },
+    size: { x: 6, y: 8, z: 1.5 },
     type: 'u2',
   },
   {
     label: 'U2_N4',
-    position: { x: 20, y: 4, z: 110 },
-    size: { x: 60, y: 80, z: 15 },
-
+    position: { x: 2, y: 0.4, z: 11 },
+    size: { x: 6, y: 8, z: 1.5 },
     type: 'u2',
   },
   {
     label: 'U2_N5',
-    position: { x: 20, y: 4, z: 135 },
-    size: { x: 60, y: 80, z: 15 },
-
+    position: { x: 2, y: 0.4, z: 13.5 },
+    size: { x: 6, y: 8, z: 1.5 },
     type: 'u2',
   },
   {
     label: 'U2_N6',
-    position: { x: 20, y: 4, z: 160 },
-    size: { x: 60, y: 80, z: 15 },
+    position: { x: 2, y: 0.4, z: 16 },
+    size: { x: 6, y: 8, z: 1.5 },
     type: 'u2',
   },
   {
     label: 'U2_N7',
-    position: { x: 20, y: 4, z: 185 },
-    size: { x: 60, y: 80, z: 15 },
+    position: { x: 2, y: 0.4, z: 18.5 },
+    size: { x: 6, y: 8, z: 1.5 },
     type: 'u2',
   },
   {
     label: 'U2_N8',
-    position: { x: 20, y: 4, z: 210 },
-    size: { x: 60, y: 80, z: 15 },
+    position: { x: 2, y: 0.4, z: 21 },
+    size: { x: 6, y: 8, z: 1.5 },
     type: 'u2',
   },
   {
     label: 'U2_N9',
-    position: { x: 20, y: 4, z: 235 },
-    size: { x: 60, y: 80, z: 15 },
+    position: { x: 2, y: 0.4, z: 23.5 },
+    size: { x: 6, y: 8, z: 1.5 },
     type: 'u2',
   },
   {
     label: 'CPU',
-    position: { x: 190, y: 4, z: 93 },
-    size: { x: 80, y: 3, z: 62.5 },
+    position: { x: 19, y: 0.4, z: 9.3 },
+    size: { x: 8, y: 0.3, z: 6.25 },
     type: 'cpu',
   },
   {
     label: 'DIMM_D1',
-    position: { x: 160, y: 4, z: 16 },
-    size: { x: 142, y: 30, z: 2 },
+    position: { x: 16, y: 0.4, z: 1.6 },
+    size: { x: 14.2, y: 3, z: 0.2 },
     type: 'dimm',
   },
   {
     label: 'DIMM_D0',
-    position: { x: 160, y: 4, z: 24 },
-    size: { x: 142, y: 30, z: 2 },
+    position: { x: 16, y: 0.4, z: 2.4 },
+    size: { x: 14.2, y: 3, z: 0.2 },
     type: 'dimm',
   },
   {
     label: 'DIMM_C1',
-    position: { x: 160, y: 4, z: 32 },
-    size: { x: 142, y: 30, z: 2 },
+    position: { x: 16, y: 0.4, z: 3.2 },
+    size: { x: 14.2, y: 3, z: 0.2 },
     type: 'dimm',
   },
   {
     label: 'DIMM_C0',
-    position: { x: 160, y: 4, z: 40 },
-    size: { x: 142, y: 30, z: 2 },
+    position: { x: 16, y: 0.4, z: 4 },
+    size: { x: 14.2, y: 3, z: 0.2 },
     type: 'dimm',
   },
   {
     label: 'DIMM_B1',
-    position: { x: 160, y: 4, z: 48 },
-    size: { x: 142, y: 30, z: 2 },
+    position: { x: 16, y: 0.4, z: 4.8 },
+    size: { x: 14.2, y: 3, z: 0.2 },
     type: 'dimm',
   },
   {
     label: 'DIMM_B0',
-    position: { x: 160, y: 4, z: 56 },
-    size: { x: 142, y: 30, z: 2 },
+    position: { x: 16, y: 0.4, z: 5.6 },
+    size: { x: 14.2, y: 3, z: 0.2 },
     type: 'dimm',
   },
   {
     label: 'DIMM_A1',
-    position: { x: 160, y: 4, z: 64 },
-    size: { x: 142, y: 30, z: 2 },
+    position: { x: 16, y: 0.4, z: 6.4 },
+    size: { x: 14.2, y: 3, z: 0.2 },
     type: 'dimm',
   },
   {
     label: 'DIMM_A0',
-    position: { x: 160, y: 4, z: 72 },
-    size: { x: 142, y: 30, z: 2 },
+    position: { x: 16, y: 0.4, z: 7.2 },
+    size: { x: 14.2, y: 3, z: 0.2 },
     type: 'dimm',
   },
   {
     label: 'DIMM_E0',
-    position: { x: 160, y: 4, z: 180 },
-    size: { x: 142, y: 30, z: 2 },
+    position: { x: 16, y: 0.4, z: 18 },
+    size: { x: 14.2, y: 3, z: 0.2 },
     type: 'dimm',
   },
   {
     label: 'DIMM_E1',
-    position: { x: 160, y: 4, z: 188 },
-    size: { x: 142, y: 30, z: 2 },
+    position: { x: 16, y: 0.4, z: 18.8 },
+    size: { x: 14.2, y: 3, z: 0.2 },
     type: 'dimm',
   },
   {
     label: 'DIMM_F0',
-    position: { x: 160, y: 4, z: 196 },
-    size: { x: 142, y: 30, z: 2 },
+    position: { x: 16, y: 0.4, z: 19.6 },
+    size: { x: 14.2, y: 3, z: 0.2 },
     type: 'dimm',
   },
   {
     label: 'DIMM_F1',
-    position: { x: 160, y: 4, z: 204 },
-    size: { x: 142, y: 30, z: 2 },
+    position: { x: 16, y: 0.4, z: 20.4 },
+    size: { x: 14.2, y: 3, z: 0.2 },
     type: 'dimm',
   },
   {
     label: 'DIMM_G0',
-    position: { x: 160, y: 4, z: 212 },
-    size: { x: 142, y: 30, z: 2 },
+    position: { x: 16, y: 0.4, z: 21.2 },
+    size: { x: 14.2, y: 3, z: 0.2 },
     type: 'dimm',
   },
   {
     label: 'DIMM_G1',
-    position: { x: 160, y: 4, z: 220 },
-    size: { x: 142, y: 30, z: 2 },
+    position: { x: 16, y: 0.4, z: 22 },
+    size: { x: 14.2, y: 3, z: 0.2 },
     type: 'dimm',
   },
   {
     label: 'DIMM_H0',
-    position: { x: 160, y: 4, z: 228 },
-    size: { x: 142, y: 30, z: 2 },
+    position: { x: 16, y: 0.4, z: 22.8 },
+    size: { x: 14.2, y: 3, z: 0.2 },
     type: 'dimm',
   },
   {
     label: 'DIMM_H1',
-    position: { x: 160, y: 4, z: 236 },
-    size: { x: 142, y: 30, z: 2 },
+    position: { x: 16, y: 0.4, z: 23.6 },
+    size: { x: 14.2, y: 3, z: 0.2 },
     type: 'dimm',
   },
   {
     label: 'T6',
-    position: { x: 490, y: 4, z: 100 },
-    size: { x: 33, y: 4, z: 33 },
+    position: { x: 49, y: 0.4, z: 10 },
+    size: { x: 3.3, y: 0.4, z: 3.3 },
     type: 'cpu',
   },
   {
     label: 'M2_A',
-    position: { x: 340, y: 4, z: 12 },
-    size: { x: 20, y: 4, z: 115 },
+    position: { x: 34, y: 0.4, z: 1.2 },
+    size: { x: 2, y: 0.4, z: 11.5 },
     type: 'm2',
   },
   {
     label: 'M2_B',
-    position: { x: 340, y: 4, z: 140 },
-    size: { x: 20, y: 4, z: 115 },
+    position: { x: 34, y: 0.4, z: 14 },
+    size: { x: 2, y: 0.4, z: 11.5 },
     type: 'm2',
   },
 ]

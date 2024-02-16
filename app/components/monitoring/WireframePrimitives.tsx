@@ -67,12 +67,14 @@ const FanLine = ({ timeOffset = 0.01, ...props }: { timeOffset: number } & MeshP
 type CuboidProps = {
   color?: string
   lineWidth?: number
+  transparent?: boolean
 }
 
 const Cuboid = ({
   color = 'white',
   lineWidth = 1,
   children,
+  transparent = false,
   ...props
 }: CuboidProps & MeshProps) => {
   const { size } = useThree()
@@ -89,6 +91,7 @@ const Cuboid = ({
           transparent
           linewidth={lineWidth}
           color={color}
+          opacity={transparent ? 0.1 : 1.0}
           depthWrite={false}
           toneMapped={false}
           resolution={new Vector2(size.width, size.height)}

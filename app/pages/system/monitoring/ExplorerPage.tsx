@@ -9,7 +9,7 @@ import * as Accordion from '@radix-ui/react-accordion'
 import cn from 'classnames'
 import fuzzysort from 'fuzzysort'
 import { useEffect, useRef } from 'react'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 
 import { sensors, type SensorValues } from 'app/components/monitoring/data'
 
@@ -40,10 +40,17 @@ import {
 } from 'app/components/monitoring/data'
 import ExplorerTimeline from 'app/components/monitoring/ExplorerTimeline'
 import { Minus12Icon } from 'app/components/monitoring/Icons'
-import SingleSled from 'app/components/monitoring/SingleSled'
+import Scene from 'app/components/monitoring/Scene'
+import { useMonitoringStore } from 'app/components/monitoring/Store'
 
 const mockData = generateMockSensorData()
 const sensorDataArray = generateSensorValuesArray(mockData)
+
+export type CameraSettings = {
+  position: [number, number, number]
+  target: [number, number, number]
+  zoom: number
+}
 
 type MonitoringContextType = {
   selectedTime: number | null
@@ -51,14 +58,20 @@ type MonitoringContextType = {
   selectedComponent: string | null
   setSelectedComponent: (value: string | null) => void
   sensorDataArray: SensorValues[]
+  sled: number | undefined
+  cameraSettings: CameraSettings
+  setCameraSettings: (props: CameraSettings) => void
 }
 
-const defaultState: MonitoringContextType = {
+export const defaultState: MonitoringContextType = {
   selectedTime: 20,
   setSelectedTime: () => {},
   selectedComponent: null,
   setSelectedComponent: () => {},
   sensorDataArray: [],
+  sled: undefined,
+  cameraSettings: { position: [0, 0, 0], target: [0, 0, 0], zoom: 10 },
+  setCameraSettings: () => {},
 }
 
 const MonitoringContext = createContext<MonitoringContextType>(defaultState)
@@ -68,10 +81,15 @@ export const useMonitoring = () => useContext(MonitoringContext)
 export function ExplorerPage() {
   const [selectedTime, setSelectedTime] = useState<number | null>(20)
   const [selectedComponent, setSelectedComponent] = useState<string | null>(null)
+  const [cameraSettings, setCameraSettings] = useState<CameraSettings>(
+    defaultState.cameraSettings
+  )
+
+  const { fitRack } = useMonitoringStore()
 
   const cameraRef = useRef<OrthographicCamera>(null)
 
-  const data = sensorDataArray[selectedTime || 0]
+  const navigate = useNavigate()
 
   const handleBack = () => {
     if (selectedComponent) {
@@ -98,22 +116,39 @@ export function ExplorerPage() {
   }
 
   const { sled } = useParams()
+  const sledNum = sled ? parseInt(sled, 10) : undefined
+
   return (
     <MonitoringContext.Provider
       value={{
+        sled: sledNum,
         selectedTime,
         setSelectedTime,
         selectedComponent,
         setSelectedComponent,
         sensorDataArray,
+        cameraSettings,
+        setCameraSettings,
       }}
     >
       <div className="grid h-full max-h-[calc(100vh-60px)] grid-cols-[1fr,14.25rem]">
         <div className="grid grid-rows-[1fr,12.75rem]">
           <div className="relative max-h-[calc(100vh-60px-204px)] bg-raise">
-            <SingleSled setZoom={setZoom} cameraRef={cameraRef} sensorData={data} />
+            <Scene setZoom={setZoom} cameraRef={cameraRef} />
             <div className="absolute left-4 top-4 flex gap-2">
-              <Button size="sm" variant="secondary" className="w-8" onClick={handleBack}>
+              <Button
+                size="sm"
+                variant="secondary"
+                className="w-8"
+                onClick={() => {
+                  if (sled && !selectedComponent) {
+                    navigate('/system/monitoring/explorer')
+                    fitRack()
+                  } else {
+                    handleBack()
+                  }
+                }}
+              >
                 <PrevArrow12Icon />
               </Button>
               {sled && (
@@ -155,15 +190,17 @@ export function ExplorerPage() {
           </div>
           <ExplorerTimeline />
         </div>
-        <ExplorerSidebar sensorData={data} />
+        <ExplorerSidebar />
       </div>
     </MonitoringContext.Provider>
   )
 }
 
-const ExplorerSidebar = ({ sensorData }: { sensorData: SensorValues }) => {
+const ExplorerSidebar = () => {
   const [filterInput, setFilterInput] = useState('')
-  const { selectedComponent } = useMonitoring()
+  const { selectedComponent, selectedTime } = useMonitoring()
+
+  const sensorData = sensorDataArray[selectedTime || 0]
 
   const allSensors = Object.entries(sensorData).map(([label, value]) => {
     const sensor = sensors.find((s) => s.label === label)

@@ -10,43 +10,65 @@ import { useFrame, type Euler, type Vector3 } from '@react-three/fiber'
 import { useEffect, useRef } from 'react'
 import { DoubleSide, type CanvasTexture, type Mesh } from 'three'
 
-import { sensors, temperatureRanges, type SensorValues } from './data'
+import {
+  normalizedSledSize,
+  sensors,
+  sledSize,
+  temperatureRanges,
+  type SensorValues,
+} from './data'
 
 const SledHeatmap = ({
-  canvas,
-  id,
   sensorValues,
   ...props
 }: {
-  canvas: React.MutableRefObject<HTMLCanvasElement | null>
-  id: string
   position: Vector3
   rotation: Euler
   scale: Vector3
   sensorValues: SensorValues
 }) => {
+  const makeCanvas = () => {
+    const canvas = document.createElement('canvas')
+    canvas.width = normalizedSledSize.x * 64
+    canvas.height = normalizedSledSize.z * 64
+    return canvas
+  }
   const heat = useRef<SimpleHeat>()
   const meshRef = useRef<Mesh>(null)
   const textureRef = useRef<CanvasTexture>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(makeCanvas())
+
+  heat.current = new SimpleHeat(canvasRef.current)
 
   useEffect(() => {
-    heat.current = new SimpleHeat(id)
-  }, [id])
+    const canvas = canvasRef.current
+    document.body.appendChild(canvas)
+    canvas.style.display = 'none'
+
+    heat.current = new SimpleHeat(canvas)
+
+    return () => {
+      document.body.removeChild(canvas)
+    }
+  }, [])
 
   useEffect(() => {
-    if (!meshRef.current || !heat.current) {
+    if (!meshRef.current || !heat.current || !canvasRef.current) {
       return
     }
+
+    const canvasWidth = canvasRef.current.width
+    const canvasHeight = canvasRef.current.height
 
     heat.current.clear()
 
     for (const sensor of sensors) {
       const temperature = sensorValues[sensor.label]
       heat.current.add({
-        x: sensor.position.x,
-        y: sensor.position.z,
-        width: sensor.size.x,
-        height: sensor.size.z,
+        x: (sensor.position.x / sledSize.x) * canvasWidth,
+        y: (sensor.position.z / sledSize.z) * canvasHeight,
+        width: (sensor.size.x / sledSize.x) * canvasWidth,
+        height: (sensor.size.z / sledSize.z) * canvasHeight,
         value: temperature,
         max: temperatureRanges[sensor.type][2],
         distance: 1,
@@ -54,10 +76,11 @@ const SledHeatmap = ({
     }
 
     heat.current.draw()
-  }, [sensorValues, meshRef, heat, id])
+  }, [sensorValues, meshRef, heat])
 
   useFrame(() => {
     if (textureRef.current) {
+      textureRef.current.image = canvasRef.current
       textureRef.current.needsUpdate = true
     }
   })
@@ -65,12 +88,12 @@ const SledHeatmap = ({
   return (
     <mesh {...props} ref={meshRef}>
       <planeGeometry />
-      <meshBasicMaterial transparent side={DoubleSide}>
+      <meshBasicMaterial side={DoubleSide} transparent>
         <canvasTexture
           colorSpace="srgb"
           ref={textureRef}
           attach="map"
-          image={canvas.current}
+          image={canvasRef.current}
         />
       </meshBasicMaterial>
     </mesh>
@@ -107,12 +130,9 @@ class SimpleHeat {
     1.0: '#ED3153',
   }
 
-  constructor(canvas: HTMLCanvasElement | string) {
-    this._canvas =
-      typeof canvas === 'string'
-        ? (document.getElementById(canvas) as HTMLCanvasElement)
-        : canvas
-    this._ctx = this._canvas.getContext('2d') as CanvasRenderingContext2D
+  constructor(canvas: HTMLCanvasElement) {
+    this._canvas = canvas
+    this._ctx = this._canvas.getContext('2d')
     this._width = this._canvas.width
     this._height = this._canvas.height
     this._data = []
@@ -209,8 +229,8 @@ class SimpleHeat {
       p = this._data[i]
 
       // Generate circle based on sensor
-      const blur = 75
-      const offset = 10
+      const blur = this._canvas.width / 10
+      const offset = this._canvas.width / 100
       const { size, canvas } = this.rectangle(
         p.width,
         p.height,
