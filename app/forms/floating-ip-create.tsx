@@ -7,14 +7,13 @@
  */
 import { useMemo } from 'react'
 import { useWatch } from 'react-hook-form'
-import { useNavigate, type NavigateFunction } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import {
   apiQueryClient,
   useApiMutation,
   useApiQueryClient,
   usePrefetchedApiQuery,
-  type FloatingIp,
   type FloatingIpCreate,
   type SiloIpPool,
 } from '@oxide/api'
@@ -37,25 +36,7 @@ CreateFloatingIpSideModalForm.loader = async () => {
   return null
 }
 
-type CreateSideModalFormProps = {
-  /**
-   * If defined, this overrides the usual mutation. Caller is responsible for
-   * doing a dismiss behavior in onSubmit as well, because we are not calling
-   * the RQ `onSuccess` defined for the mutation.
-   */
-  onSubmit?: (floatingIpCreate: FloatingIpCreate) => void
-  /**
-   * Passing navigate is a bit of a hack to be able to do a nav from the routes
-   * file. The callers that don't need the arg can ignore it.
-   */
-  onDismiss?: (navigate: NavigateFunction) => void
-  onSuccess?: (floatingIp: FloatingIp) => void
-}
-
-export function CreateFloatingIpSideModalForm({
-  onSubmit,
-  onSuccess,
-}: CreateSideModalFormProps) {
+export function CreateFloatingIpSideModalForm() {
   // Fetch 1000 to we can be sure to get them all.
   const { data: allPools } = usePrefetchedApiQuery('projectIpPoolList', {
     query: { limit: 1000 },
@@ -79,10 +60,9 @@ export function CreateFloatingIpSideModalForm({
   const navigate = useNavigate()
 
   const createFloatingIp = useApiMutation('floatingIpCreate', {
-    onSuccess(data) {
+    onSuccess() {
       queryClient.invalidateQueries('floatingIpList')
       addToast({ content: 'Your Floating IP has been created' })
-      onSuccess?.(data)
       navigate(pb.floatingIps(projectSelector))
     },
   })
@@ -118,11 +98,8 @@ export function CreateFloatingIpSideModalForm({
       title="Create Floating IP"
       form={form}
       onDismiss={() => navigate(pb.floatingIps(projectSelector))}
-      onSubmit={({ ...rest }) => {
-        const body = { ...rest }
-        onSubmit
-          ? onSubmit(body)
-          : createFloatingIp.mutate({ query: projectSelector, body })
+      onSubmit={(body) => {
+        createFloatingIp.mutate({ query: projectSelector, body })
       }}
       loading={createFloatingIp.isPending}
       submitError={createFloatingIp.error}
