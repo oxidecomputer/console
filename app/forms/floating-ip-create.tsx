@@ -5,7 +5,6 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useWatch } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import type { SetRequired } from 'type-fest'
 
@@ -37,18 +36,37 @@ CreateFloatingIpSideModalForm.loader = async () => {
   return null
 }
 
+const toListboxItem = (p: SiloIpPool) => {
+  if (!p.isDefault) {
+    return { value: p.name, label: p.name }
+  }
+  // For the default pool, add a label to the dropdown
+  return {
+    value: p.name,
+    labelString: p.name,
+    label: (
+      <>
+        {p.name}{' '}
+        <Badge className="ml-1" color="neutral">
+          default
+        </Badge>
+      </>
+    ),
+  }
+}
+
+const defaultValues: SetRequired<FloatingIpCreate, 'address'> = {
+  name: '',
+  description: '',
+  pool: undefined,
+  address: '',
+}
+
 export function CreateFloatingIpSideModalForm() {
   // Fetch 1000 to we can be sure to get them all.
   const { data: allPools } = usePrefetchedApiQuery('projectIpPoolList', {
     query: { limit: 1000 },
   })
-
-  const defaultValues: SetRequired<FloatingIpCreate, 'address'> = {
-    name: '',
-    description: '',
-    pool: undefined,
-    address: '',
-  }
 
   const queryClient = useApiQueryClient()
   const projectSelector = useProjectSelector()
@@ -64,31 +82,7 @@ export function CreateFloatingIpSideModalForm() {
   })
 
   const form = useForm({ defaultValues })
-
-  const toListboxItem = (p: SiloIpPool) => {
-    if (!p.isDefault) {
-      return {
-        value: p.name,
-        label: p.name,
-      }
-    }
-    // For the default pool, add a label to the dropdown
-    return {
-      value: p.name,
-      labelString: p.name,
-      label: (
-        <>
-          {p.name}{' '}
-          <Badge className="ml-1" color="neutral">
-            default
-          </Badge>
-        </>
-      ),
-    }
-  }
-
-  const [poolName] = useWatch({ control: form.control, name: ['pool'] })
-  const isPoolSelected = poolName && poolName.length > 0
+  const isPoolSelected = !!form.watch('pool')
 
   return (
     <SideModalForm
