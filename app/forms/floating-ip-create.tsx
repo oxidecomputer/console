@@ -8,6 +8,7 @@
 import { useMemo } from 'react'
 import { useWatch } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
+import type { SetRequired } from 'type-fest'
 
 import {
   apiQueryClient,
@@ -47,11 +48,11 @@ export function CreateFloatingIpSideModalForm() {
     [allPools]
   )
 
-  const defaultValues: FloatingIpCreate = {
+  const defaultValues: SetRequired<FloatingIpCreate, 'address'> = {
     name: '',
     description: '',
     pool: defaultPool,
-    address: undefined,
+    address: '',
   }
 
   const queryClient = useApiQueryClient()
@@ -98,8 +99,12 @@ export function CreateFloatingIpSideModalForm() {
       title="Create Floating IP"
       form={form}
       onDismiss={() => navigate(pb.floatingIps(projectSelector))}
-      onSubmit={(body) => {
-        createFloatingIp.mutate({ query: projectSelector, body })
+      onSubmit={({ address, ...rest }) => {
+        createFloatingIp.mutate({
+          query: projectSelector,
+          // if address is '', evaluate as false and send as undefined
+          body: { address: address || undefined, ...rest },
+        })
       }}
       loading={createFloatingIp.isPending}
       submitError={createFloatingIp.error}
@@ -116,7 +121,7 @@ export function CreateFloatingIpSideModalForm() {
         name="address"
         control={form.control}
         disabled={!isPoolSelected}
-        transform={(ip) => (ip.trim() === '' ? undefined : ip)}
+        transform={(v) => v.replace(/\s/g, '')}
         validate={(ip) => (ip && !validateIp(ip).valid ? 'Not a valid IP address' : true)}
       />
     </SideModalForm>
