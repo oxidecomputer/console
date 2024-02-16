@@ -7,17 +7,13 @@
  */
 import { useMemo } from 'react'
 import { useWatch } from 'react-hook-form'
-import {
-  useNavigate,
-  type LoaderFunctionArgs,
-  type NavigateFunction,
-} from 'react-router-dom'
+import { useNavigate, type NavigateFunction } from 'react-router-dom'
 
 import {
   apiQueryClient,
   useApiMutation,
-  useApiQuery,
   useApiQueryClient,
+  usePrefetchedApiQuery,
   type FloatingIp,
   type FloatingIpCreate,
   type SiloIpPool,
@@ -31,12 +27,12 @@ import {
   SideModalForm,
   TextField,
 } from 'app/components/form'
-import { getProjectSelector, useForm, useProjectSelector, useToast } from 'app/hooks'
+import { useForm, useProjectSelector, useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
-CreateFloatingIpSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
+CreateFloatingIpSideModalForm.loader = async () => {
   await apiQueryClient.prefetchQuery('projectIpPoolList', {
-    query: { ...getProjectSelector(params), limit: 1000 },
+    query: { limit: 1000 },
   })
   return null
 }
@@ -60,23 +56,19 @@ export function CreateFloatingIpSideModalForm({
   onSubmit,
   onSuccess,
 }: CreateSideModalFormProps) {
-  // Fetch 1000 to we can be sure to get them all. There should only be a few
-  // anyway. Not prefetched because the prefetched one only gets 25 to match the
-  // query table. This req is better to do async because they can't click make
-  // default that fast anyway.
-  const { data: allPools } = useApiQuery('projectIpPoolList', {
+  // Fetch 1000 to we can be sure to get them all.
+  const { data: allPools } = usePrefetchedApiQuery('projectIpPoolList', {
     query: { limit: 1000 },
   })
 
   const defaultPool = useMemo(
-    () => allPools?.items.find((p) => p.isDefault)?.name,
+    () => allPools.items.find((p) => p.isDefault)?.name,
     [allPools]
   )
 
   const defaultValues: FloatingIpCreate = {
     name: '',
     description: '',
-    // defaultPool doesn't seem to be getting set in the form when page is loaded directly
     pool: defaultPool,
     address: undefined,
   }
@@ -137,14 +129,12 @@ export function CreateFloatingIpSideModalForm({
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
-      {allPools && (
-        <ListboxField
-          name="pool"
-          items={allPools.items.map((p) => toListboxItem(p))}
-          label="Pool"
-          control={form.control}
-        />
-      )}
+      <ListboxField
+        name="pool"
+        items={allPools.items.map((p) => toListboxItem(p))}
+        label="Pool"
+        control={form.control}
+      />
       <TextField
         name="address"
         control={form.control}

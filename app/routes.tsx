@@ -356,6 +356,7 @@ export const routes = createRoutesFromElements(
           <Route path="floating-ips" handle={{ crumb: 'Floating IPs' }} element={null} />
           <Route
             path="floating-ips-new"
+            loader={CreateFloatingIpSideModalForm.loader}
             element={<CreateFloatingIpSideModalForm />}
             handle={{ crumb: 'New Floating IP' }}
           />
