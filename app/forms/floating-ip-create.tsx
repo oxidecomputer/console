@@ -69,7 +69,7 @@ export function CreateFloatingIpSideModalForm({
   })
 
   const defaultPool = useMemo(
-    () => (allPools ? allPools.items.find((p) => p.isDefault)?.name : undefined),
+    () => allPools?.items.find((p) => p.isDefault)?.name,
     [allPools]
   )
 
