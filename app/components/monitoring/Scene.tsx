@@ -11,6 +11,7 @@ import { Grid, OrbitControls, OrthographicCamera, useCursor } from '@react-three
 import {
   Canvas,
   useFrame,
+  useThree,
   type MeshProps,
   type ThreeEvent,
   type Vector3,
@@ -26,14 +27,14 @@ import {
 import { useNavigate } from 'react-router-dom'
 import {
   Box3,
+  Euler,
   Vector3 as Vec3,
   type Mesh,
   type OrthographicCamera as OrthographicCameraType,
 } from 'three'
 
-import { useMonitoring } from 'app/pages/system/monitoring/ExplorerPage'
+import { maxZoom, minZoom, useMonitoring } from 'app/pages/system/monitoring/ExplorerPage'
 
-import { Bounds, useBounds } from './Bounds'
 import {
   getSledPosition,
   rackSize,
@@ -43,10 +44,13 @@ import {
   type Sensor as SensorType,
   type SensorValues,
 } from './data'
-import { SledHeatmap as Heatmap } from './Heatmap'
+import { RackHeatmap, SledHeatmap } from './Heatmap'
 import { Select } from './Select'
 import { useMonitoringStore } from './Store'
 import { Cuboid, Cylinder, FanLine } from './WireframePrimitives'
+
+const defaultSledZoom = 12
+const defaultRackZoom = 3
 
 const Scene = ({
   setZoom,
@@ -55,22 +59,37 @@ const Scene = ({
   setZoom: Dispatch<SetStateAction<number>>
   cameraRef: RefObject<OrthographicCameraType> | undefined
 }) => {
+  const { sled } = useMonitoring()
+
+  const { center, position, rotation } = getCameraPositionRotation(
+    sled !== undefined ? getSledBounds(sled) : getRackBounds()
+  )
+
+  const defaultCamera = useRef({
+    position,
+    rotation,
+    zoom: sled !== undefined ? defaultSledZoom : defaultRackZoom,
+  })
+
   return (
     <>
       <Canvas orthographic style={{ background: '#101618' }}>
         <ZoomUpdater cameraRef={cameraRef} onZoom={(value) => setZoom(value)} />
         <OrthographicCamera
           makeDefault
-          position={[1000, 1000, 1000]}
+          position={defaultCamera.current.position}
+          rotation={defaultCamera.current.rotation}
           near={100}
           far={10000}
+          zoom={defaultCamera.current.zoom}
           ref={cameraRef}
         />
         <OrbitControls
           makeDefault
-          minZoom={3}
-          maxZoom={50}
+          minZoom={minZoom}
+          maxZoom={maxZoom}
           rotateSpeed={1}
+          target={center}
           maxPolarAngle={Math.PI / 2}
         />
         <Grid
@@ -80,54 +99,41 @@ const Scene = ({
           scale={100}
           position={[0, -0.5, 0]}
           fadeDistance={1000}
-          fadeStrength={5}
+          fadeStrength={0}
         />
-        <Bounds margin={1.2} maxDuration={0}>
-          <SceneInner />
-        </Bounds>
+        <SceneInner cameraRef={cameraRef} />
       </Canvas>
     </>
   )
 }
 
-const SceneInner = () => {
+const SceneInner = ({
+  cameraRef,
+}: {
+  cameraRef: RefObject<OrthographicCameraType> | undefined
+}) => {
   const { setFitSledFn, setFitRackFn } = useMonitoringStore()
   const { sled } = useMonitoring()
-  const bounds = useBounds()
 
-  const boundsBoxRef = useRef(new Box3())
+  const controls = useThree((state) => state.controls as unknown as ControlsProto)
 
   useEffect(() => {
-    if (!bounds) {
-      return
-    }
-
     setFitSledFn((index: number) => {
-      if (!bounds) {
+      if (!cameraRef?.current || !controls) {
         return
       }
 
-      const fitPosition = new Vec3(...getSledPosition(index))
-      fitPosition.y = fitPosition.y + sledSize.y / 2
-      const size = new Vec3(...Object.values(sledSize))
-      boundsBoxRef.current.setFromCenterAndSize(fitPosition, size)
-
-      bounds.refresh(boundsBoxRef.current).reset().fit()
+      fitCameraToTarget(getSledBounds(index), controls, cameraRef.current, defaultSledZoom)
     })
 
     setFitRackFn(() => {
-      if (!bounds) {
+      if (!cameraRef?.current || !controls) {
         return
       }
 
-      const fitPosition = new Vec3(0, rackSize.y / 2, 0)
-      fitPosition.y = fitPosition.y + sledSize.y / 2
-      const size = new Vec3(...Object.values(rackSize))
-      boundsBoxRef.current.setFromCenterAndSize(fitPosition, size)
-
-      bounds.refresh(boundsBoxRef.current).reset().fit()
+      fitCameraToTarget(getRackBounds(), controls, cameraRef.current, defaultRackZoom)
     })
-  }, [setFitSledFn, setFitRackFn, bounds])
+  }, [setFitSledFn, setFitRackFn, cameraRef, controls])
 
   return (
     <mesh position={[0, sledSize.y / 2, 0]}>
@@ -135,6 +141,73 @@ const SceneInner = () => {
       <Rack visible={sled === undefined} />
     </mesh>
   )
+}
+
+type ControlsProto = {
+  update(): void
+  target: THREE.Vector3
+  maxDistance: number
+}
+
+const getRackBounds = () => {
+  const box = new Box3()
+  const fitPosition = new Vec3(0, rackSize.y / 2, 0)
+  fitPosition.y = fitPosition.y + sledSize.y / 2
+  const size = new Vec3(...Object.values(rackSize))
+  box.setFromCenterAndSize(fitPosition, size)
+
+  return box
+}
+
+const getSledBounds = (index: number) => {
+  const box = new Box3()
+  const fitPosition = new Vec3(...getSledPosition(index))
+  fitPosition.y = fitPosition.y + sledSize.y / 2
+  const size = new Vec3(...Object.values(sledSize))
+  box.setFromCenterAndSize(fitPosition, size)
+
+  return box
+}
+
+const getCameraPositionRotation = (target: Box3) => {
+  // Calculate the center of the target Box3
+  const center = new Vec3()
+  target.getCenter(center)
+
+  // Calculate the size of the target Box3
+  const size = new Vec3()
+  target.getSize(size)
+
+  // Determine the maximum dimension of the box to calculate the distance
+  const maxDim = Math.max(size.x, size.y, size.z)
+  const distance = maxDim * 4
+
+  // Calculate the camera position for an isometric view (45 degrees on Y axis, 35.264 degrees on X axis)
+  const position = new Vec3(
+    center.x + distance * Math.sqrt(1 / 3),
+    center.y + distance * Math.sqrt(1 / 3),
+    center.z + distance * Math.sqrt(1 / 3)
+  )
+
+  // Isometric rotation
+  const rotation = new Euler(-Math.atan(1 / Math.sqrt(2)), Math.PI / 4, 0)
+
+  return { center, position, rotation }
+}
+
+const fitCameraToTarget = (
+  target: Box3,
+  controls: ControlsProto,
+  camera: OrthographicCameraType,
+  zoom: number
+) => {
+  const { center, position, rotation } = getCameraPositionRotation(target)
+
+  controls.target = center
+  camera.position.set(position.x, position.y, position.z)
+  camera.rotation.set(rotation.x, rotation.y, rotation.z)
+  camera.zoom = zoom
+  camera.updateProjectionMatrix()
 }
 
 const Sled = (props: { visible: boolean }) => {
@@ -154,12 +227,14 @@ const Sled = (props: { visible: boolean }) => {
       {...props}
       name="sled"
     >
-      <Heatmap
-        position={[sledSize.x / 2, 0, sledSize.z / 2]}
-        scale={[sledSize.x, sledSize.z, 1]}
-        rotation={[-Math.PI / 2, 0, 0]}
-        sensorValues={sensorData}
-      />
+      {props.visible && (
+        <SledHeatmap
+          position={[sledSize.x / 2, 0, sledSize.z / 2]}
+          scale={[sledSize.x, sledSize.z, 1]}
+          rotation={[-Math.PI / 2, 0, 0]}
+          sensorValues={sensorData}
+        />
+      )}
       <Select
         selected={selectedComponent}
         setSelected={(value) => setSelectedComponent(value)}
@@ -187,10 +262,39 @@ const Sled = (props: { visible: boolean }) => {
 }
 
 const Rack = (props: { visible: boolean }) => {
+  const { sensorDataArray, selectedTime } = useMonitoring()
+  const sensorData = sensorDataArray[selectedTime || 0]
+
   const sleds = Array.from({ length: 32 })
   const { sled } = useMonitoring()
   return (
     <mesh name="rack">
+      <mesh visible={props.visible}>
+        <RackHeatmap
+          position={[0, rackSize.y / 2, rackSize.z / 2]}
+          scale={[rackSize.x, rackSize.y, 1]}
+          rotation={[0, 0, 0]}
+          sensorValues={sensorData}
+          dimension1="x"
+          dimension2="y"
+        />
+        <RackHeatmap
+          position={[rackSize.x / 2, rackSize.y / 2, 0]}
+          scale={[rackSize.z, rackSize.y, 1]}
+          rotation={[0, Math.PI / 2, 0]}
+          sensorValues={sensorData}
+          dimension1="z"
+          dimension2="y"
+        />
+        <RackHeatmap
+          position={[0, rackSize.y, 0]}
+          scale={[rackSize.x, rackSize.z, 1]}
+          rotation={[-Math.PI / 2, 0, 0]}
+          sensorValues={sensorData}
+          dimension1="x"
+          dimension2="z"
+        />
+      </mesh>
       {sleds.map((_, index) => (
         <RackSled
           key={index}
@@ -224,6 +328,7 @@ const RackSled = ({
 }) => {
   const navigate = useNavigate()
   const { fitSled } = useMonitoringStore()
+  const { setSelectedComponent } = useMonitoring()
 
   return (
     <Cube
@@ -242,6 +347,7 @@ const RackSled = ({
         e.stopPropagation()
         navigate(`/system/monitoring/explorer/sleds/${index}`)
         fitSled(index)
+        setSelectedComponent(null)
       }}
     />
   )
@@ -312,7 +418,7 @@ export function Cube({
       {/* Roughly shrink the box to smaller than the stroke so it doesn't look smaller
          at different angles */}
       <mesh
-        scale={addToScale(props.scale || 1, -0.0001)}
+        scale={addToScale(props.scale || 1, -0.01)}
         name={name}
         onPointerOver={!disabled ? (e) => (e.stopPropagation(), setHover(true)) : undefined}
         onPointerOut={!disabled ? () => setHover(false) : undefined}

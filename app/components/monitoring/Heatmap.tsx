@@ -7,11 +7,14 @@
  */
 /* eslint-disable react/no-unknown-property */
 import { useFrame, type Euler, type Vector3 } from '@react-three/fiber'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { DoubleSide, type CanvasTexture, type Mesh } from 'three'
 
 import {
+  getSledPosition,
+  normalizedRackSize,
   normalizedSledSize,
+  rackSize,
   sensors,
   sledSize,
   temperatureRanges,
@@ -100,7 +103,112 @@ const SledHeatmap = ({
   )
 }
 
-export { SledHeatmap }
+const RackHeatmap = ({
+  sensorValues,
+  dimension1,
+  dimension2,
+  ...props
+}: {
+  position: Vector3
+  rotation: Euler
+  dimension1: 'x' | 'y' | 'z'
+  dimension2: 'x' | 'y' | 'z'
+  scale: Vector3
+  sensorValues: SensorValues
+}) => {
+  const makeCanvas = () => {
+    const canvas = document.createElement('canvas')
+    canvas.width = Math.floor(normalizedRackSize[dimension1] * 128)
+    canvas.height = Math.floor(normalizedRackSize[dimension2] * 128)
+    return canvas
+  }
+  const heat = useRef<SimpleHeat>()
+  const meshRef = useRef<Mesh>(null)
+  const textureRef = useRef<CanvasTexture>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(makeCanvas())
+
+  const [drawn, setDrawn] = useState(false)
+
+  heat.current = new SimpleHeat(canvasRef.current)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    document.body.appendChild(canvas)
+    canvas.style.display = 'none'
+
+    heat.current = new SimpleHeat(canvas)
+
+    return () => {
+      document.body.removeChild(canvas)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!meshRef.current || !heat.current || !canvasRef.current || drawn) {
+      return
+    }
+
+    const canvasWidth = canvasRef.current.width
+    const canvasHeight = canvasRef.current.height
+
+    heat.current.clear()
+
+    const sleds = Array.from({ length: 32 })
+    for (let i = 0; i < sleds.length; i++) {
+      const pos = getSledPosition(i)
+      const sledPosition = {
+        x: pos[0],
+        y: pos[1],
+        z: pos[2],
+      }
+
+      for (const sensor of sensors) {
+        const temperature = sensorValues[sensor.label]
+        heat.current.add({
+          x:
+            ((sledPosition[dimension1] + sensor.position[dimension1]) /
+              rackSize[dimension1]) *
+            canvasWidth,
+          y:
+            ((sledPosition[dimension2] + sensor.position[dimension2]) /
+              rackSize[dimension2]) *
+            canvasHeight,
+          width: (sensor.size[dimension1] / rackSize[dimension1]) * canvasWidth,
+          height: (sensor.size[dimension2] / rackSize[dimension2]) * canvasHeight,
+          value: temperature,
+          max: temperatureRanges[sensor.type][2],
+          distance: 0.2,
+        })
+      }
+    }
+
+    heat.current.draw()
+    setDrawn(true)
+  }, [sensorValues, meshRef, heat, dimension1, dimension2, drawn])
+
+  useFrame(() => {
+    if (textureRef.current) {
+      textureRef.current.image = canvasRef.current
+      textureRef.current.needsUpdate = true
+    }
+  })
+
+  return (
+    <mesh {...props} ref={meshRef}>
+      <planeGeometry />
+      <meshBasicMaterial transparent>
+        <canvasTexture
+          colorSpace="srgb"
+          ref={textureRef}
+          attach="map"
+          image={canvasRef.current}
+        />
+      </meshBasicMaterial>
+    </mesh>
+  )
+}
+
+export { SledHeatmap, RackHeatmap }
 
 // Based on https://github.com/mourner/simpleheat/blob/gh-pages/simpleheat.js
 type Point = {
@@ -182,7 +290,7 @@ class SimpleHeat {
     ctx.shadowBlur = blur / 2
     // Using a cubic curve to bias the brightness towards the ends
     const x = Math.min((value / max) * 1, 1)
-    const alphaVal = x ** 3
+    const alphaVal = x ** 3 * distance
     ctx.shadowColor = `rgba(255, 255, 255,${alphaVal})`
     const cornerRadius = Math.min(offsetWidth, offsetHeight)
 

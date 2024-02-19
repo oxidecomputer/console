@@ -8,7 +8,7 @@
 import * as Accordion from '@radix-ui/react-accordion'
 import cn from 'classnames'
 import fuzzysort from 'fuzzysort'
-import { useEffect, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import { sensors, type SensorValues } from 'app/components/monitoring/data'
@@ -43,9 +43,6 @@ import { Minus12Icon } from 'app/components/monitoring/Icons'
 import Scene from 'app/components/monitoring/Scene'
 import { useMonitoringStore } from 'app/components/monitoring/Store'
 
-const mockData = generateMockSensorData()
-const sensorDataArray = generateSensorValuesArray(mockData)
-
 export type CameraSettings = {
   position: [number, number, number]
   target: [number, number, number]
@@ -74,6 +71,9 @@ export const defaultState: MonitoringContextType = {
   setCameraSettings: () => {},
 }
 
+export const minZoom = 3
+export const maxZoom = 48
+
 const MonitoringContext = createContext<MonitoringContextType>(defaultState)
 
 export const useMonitoring = () => useContext(MonitoringContext)
@@ -84,6 +84,15 @@ export function ExplorerPage() {
   const [cameraSettings, setCameraSettings] = useState<CameraSettings>(
     defaultState.cameraSettings
   )
+
+  const { sled } = useParams()
+  const sledNum = sled ? parseInt(sled, 10) : undefined
+
+  const sensorDataArray = useMemo(() => {
+    const mockData = generateMockSensorData()
+    return generateSensorValuesArray(mockData)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sled])
 
   const { fitRack } = useMonitoringStore()
 
@@ -97,26 +106,23 @@ export function ExplorerPage() {
     }
   }
 
-  const [zoom, setZoom] = useState(1000)
+  const [zoom, setZoom] = useState(3)
 
   const handleZoomIn = () => {
-    if (zoom < 2000 && cameraRef.current) {
-      const roundedZoom = Math.floor(cameraRef.current.zoom / 500) * 500
-      cameraRef.current.zoom = roundedZoom + 500
+    if (zoom < maxZoom && cameraRef.current) {
+      const roundedZoom = Math.floor(cameraRef.current.zoom / 3) * 3
+      cameraRef.current.zoom = roundedZoom + 3
       setZoom(cameraRef.current.zoom)
     }
   }
 
   const handleZoomOut = () => {
-    if (zoom > 500 && cameraRef.current) {
-      const roundedZoom = Math.ceil(cameraRef.current.zoom / 500) * 500
-      cameraRef.current.zoom = roundedZoom - 500
+    if (zoom > minZoom && cameraRef.current) {
+      const roundedZoom = Math.ceil(cameraRef.current.zoom / 3) * 3
+      cameraRef.current.zoom = roundedZoom - 3
       setZoom(cameraRef.current.zoom)
     }
   }
-
-  const { sled } = useParams()
-  const sledNum = sled ? parseInt(sled, 10) : undefined
 
   return (
     <MonitoringContext.Provider
@@ -173,7 +179,7 @@ export function ExplorerPage() {
                 variant="secondary"
                 className="w-8"
                 onClick={handleZoomIn}
-                disabled={zoom >= 2000}
+                disabled={zoom >= maxZoom}
               >
                 <Add12Icon />
               </Button>
@@ -182,7 +188,7 @@ export function ExplorerPage() {
                 variant="secondary"
                 className="w-8"
                 onClick={handleZoomOut}
-                disabled={zoom <= 500}
+                disabled={zoom <= minZoom}
               >
                 <Minus12Icon />
               </Button>
@@ -198,7 +204,8 @@ export function ExplorerPage() {
 
 const ExplorerSidebar = () => {
   const [filterInput, setFilterInput] = useState('')
-  const { selectedComponent, selectedTime } = useMonitoring()
+  const { sled, selectedComponent, setSelectedComponent, selectedTime, sensorDataArray } =
+    useMonitoring()
 
   const sensorData = sensorDataArray[selectedTime || 0]
 
@@ -248,6 +255,9 @@ const ExplorerSidebar = () => {
                       key={result.target}
                       sensor={result.obj}
                       isSelected={selectedComponent === result.obj.label}
+                      onClick={() => {
+                        setSelectedComponent(result.obj.label)
+                      }}
                     />
                   ))}
                 </div>
@@ -262,9 +272,20 @@ const ExplorerSidebar = () => {
               )
             ) : (
               <Accordion.Root type="multiple" defaultValue={['sensors']}>
-                <SensorGroup value="sensors" items={allSensors} />
-                <SensorGroup value="fans" items={[]} />
-                <SensorGroup value="regulators" items={[]} />
+                {sled ? (
+                  <>
+                    <SensorGroup value="sensors" items={allSensors} />
+                    <SensorGroup value="fans" items={[]} />
+                    <SensorGroup value="regulators" items={[]} />
+                  </>
+                ) : (
+                  <SledGroup
+                    value="sleds"
+                    items={[...Array(32).keys()].map((index) => ({
+                      label: `Sled ${index}`,
+                    }))}
+                  />
+                )}
               </Accordion.Root>
             )}
           </div>
@@ -277,13 +298,13 @@ const ExplorerSidebar = () => {
 
 type SensorItemType = {
   label: string
-  value: number
+  value?: number
   showWarning?: boolean
   showUrgent?: boolean
 }
 
 const SensorGroup = ({ value, items }: { value: string; items: SensorItemType[] }) => {
-  const { selectedComponent } = useMonitoring()
+  const { selectedComponent, setSelectedComponent } = useMonitoring()
 
   return (
     <Accordion.Item
@@ -302,6 +323,41 @@ const SensorGroup = ({ value, items }: { value: string; items: SensorItemType[] 
             key={sensor.label}
             sensor={sensor}
             isSelected={selectedComponent === sensor.label}
+            onClick={() => {
+              setSelectedComponent(sensor.label)
+            }}
+          />
+        ))}
+      </Accordion.Content>
+    </Accordion.Item>
+  )
+}
+
+const SledGroup = ({ value, items }: { value: string; items: SensorItemType[] }) => {
+  const navigate = useNavigate()
+  const { fitSled } = useMonitoringStore()
+
+  return (
+    <Accordion.Item
+      value={value}
+      className="accordion-item border-b p-4 border-b-secondary"
+    >
+      <Accordion.Header>
+        <Accordion.Trigger className="-m-4 flex items-center p-4 text-sans-md text-default">
+          <NextArrow12Icon className="arrow mr-2 transition-transform text-quaternary" />{' '}
+          {titleCase(value)}
+        </Accordion.Trigger>
+      </Accordion.Header>
+      <Accordion.Content className="pb-3 pt-2">
+        {items.map((sensor, index) => (
+          <SensorItem
+            key={sensor.label}
+            sensor={sensor}
+            isSelected={false}
+            onClick={() => {
+              navigate(`/system/monitoring/explorer/sleds/${index}`)
+              fitSled(index)
+            }}
           />
         ))}
       </Accordion.Content>
@@ -312,9 +368,11 @@ const SensorGroup = ({ value, items }: { value: string; items: SensorItemType[] 
 const SensorItem = ({
   sensor,
   isSelected,
+  onClick,
 }: {
   sensor: SensorItemType
   isSelected: boolean
+  onClick: () => void
 }) => {
   const { setSelectedComponent } = useMonitoring()
 
@@ -339,9 +397,7 @@ const SensorItem = ({
         isSelected &&
           'text-accent bg-accent-secondary hover:bg-accent-secondary-hover [&_span]:text-accent-secondary'
       )}
-      onClick={() => {
-        setSelectedComponent(sensor.label)
-      }}
+      onClick={onClick}
     >
       {isSelected && (
         <Close8Icon
@@ -359,7 +415,9 @@ const SensorItem = ({
             className={`mr-1 ${sensor.showUrgent ? 'text-destructive' : 'text-notice'}`}
           />
         )}
-        <span className="text-mono-sm text-tertiary">{sensor.value.toFixed(2)}</span>
+        {sensor.value && (
+          <span className="text-mono-sm text-tertiary">{sensor.value.toFixed(2)}</span>
+        )}
       </div>
     </button>
   )

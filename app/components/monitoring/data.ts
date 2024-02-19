@@ -18,6 +18,12 @@ export const rackSize = {
   z: sledSize.z * 2,
 }
 
+export const normalizedRackSize = {
+  x: rackSize.x / rackSize.y,
+  y: 1,
+  z: rackSize.z / rackSize.y,
+}
+
 export const sizeMultiplier = sledSize.x / normalizedSledSize.x
 
 export const rackOrigin = [rackSize.x / 2, rackSize.y / 2, rackSize.z / 2]
