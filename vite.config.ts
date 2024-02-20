@@ -9,6 +9,7 @@ import { resolve } from 'path'
 import basicSsl from '@vitejs/plugin-basic-ssl'
 import react from '@vitejs/plugin-react-swc'
 import { defineConfig } from 'vite'
+import glsl from 'vite-plugin-glsl'
 import { createHtmlPlugin } from 'vite-plugin-html'
 import { z } from 'zod'
 
@@ -110,6 +111,7 @@ export default defineConfig(({ mode }) => ({
     react(),
     dotPathFixPlugin([new RegExp('^/system/update/updates/' + semverRegex)]),
     apiMode === 'dogfood' && basicSsl(),
+    glsl(),
   ],
   resolve: {
     // turn relative paths from tsconfig into absolute paths

@@ -6,9 +6,18 @@
  * Copyright Oxide Computer Company
  */
 /* eslint-disable react/no-unknown-property */
-import { useFrame, type Euler, type Vector3 } from '@react-three/fiber'
-import { useEffect, useRef, useState } from 'react'
-import { DoubleSide, type CanvasTexture, type Mesh } from 'three'
+import { extend, useFrame, useThree, type Euler, type Vector3 } from '@react-three/fiber'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import {
+  DataTexture,
+  DoubleSide,
+  FloatType,
+  RGBAFormat,
+  ShaderMaterial,
+  Texture,
+  type CanvasTexture,
+  type Mesh,
+} from 'three'
 
 import {
   getSledPosition,
@@ -18,10 +27,15 @@ import {
   sensors,
   sledSize,
   temperatureRanges,
+  type Sensor,
   type SensorValues,
 } from './data'
+import fragmentShader from './frag.glsl'
+import vertexShader from './vert.glsl'
 
-const SledHeatmap = ({
+extend({ ShaderMaterial })
+
+export const SledHeatmap = ({
   sensorValues,
   ...props
 }: {
@@ -103,7 +117,131 @@ const SledHeatmap = ({
   )
 }
 
-const RackHeatmap = ({
+const createSensorDataTextures = (sensors: Sensor[], sensorValues: SensorValues) => {
+  const textureWidth = sensors.length
+  const textureHeight = 1
+  const positionSizeData = new Float32Array(textureWidth * textureHeight * 4) // RGBA
+  const temperatureData = new Float32Array(textureWidth * textureHeight * 4) // Only R channel used
+
+  sensors.forEach((sensor, index) => {
+    const baseIndex = index * 4 // 4 entries per sensor (RGBA)
+    positionSizeData[baseIndex] = sensor.position.x / sledSize.x
+    positionSizeData[baseIndex + 1] = sensor.position.z / sledSize.z
+    positionSizeData[baseIndex + 2] = sensor.size.x / sledSize.x
+    positionSizeData[baseIndex + 3] = sensor.size.z / sledSize.z
+
+    const temperature = sensorValues[sensor.label]
+    // temperatureData[baseIndex] = (temperature / temperatureRanges[sensor.type][2]) ** 3; // Normalize temperature
+    // The other components of temperatureData are not used in this example
+    temperatureData[baseIndex] = (temperature / temperatureRanges[sensor.type][2]) ** 3
+  })
+
+  const positionSizeTexture = new DataTexture(
+    positionSizeData,
+    textureWidth,
+    textureHeight,
+    RGBAFormat,
+    FloatType
+  )
+  const temperatureTexture = new DataTexture(
+    temperatureData,
+    textureWidth,
+    textureHeight,
+    RGBAFormat,
+    FloatType
+  )
+
+  return { positionSizeTexture, temperatureTexture }
+}
+
+export function createGradientTexture(grad: Gradient): Texture {
+  const canvas = document.createElement('canvas')
+  const ctx = canvas.getContext('2d')!
+  const gradient = ctx.createLinearGradient(0, 0, 0, 256)
+
+  canvas.width = 1
+  canvas.height = 256
+
+  for (const i in grad) {
+    gradient.addColorStop(+i, grad[i])
+  }
+
+  ctx.fillStyle = gradient
+  ctx.fillRect(0, 0, 1, 256)
+
+  const texture = new Texture(canvas)
+  texture.needsUpdate = true
+  return texture
+}
+
+export const ShaderSledHeatmap = ({
+  sensorValues,
+  ...props
+}: {
+  position: Vector3
+  rotation: Euler
+  scale: Vector3
+  sensorValues: SensorValues
+}) => {
+  const meshRef = useRef<Mesh>(null)
+  const positionSizeTextureRef = useRef<DataTexture>()
+  const temperatureTextureRef = useRef<DataTexture>()
+
+  // Generate the gradient texture
+  const gradientTexture = useMemo(
+    () =>
+      createGradientTexture({
+        0.4: '#4669FF',
+        0.6: '#24AB6F',
+        0.8: '#FAB122',
+        1.0: '#ED3153',
+      }),
+    []
+  )
+
+  useEffect(() => {
+    if (!meshRef.current) return
+
+    const { positionSizeTexture, temperatureTexture } = createSensorDataTextures(
+      sensors,
+      sensorValues
+    )
+    positionSizeTexture.needsUpdate = true
+    temperatureTexture.needsUpdate = true
+    positionSizeTextureRef.current = positionSizeTexture
+    temperatureTextureRef.current = temperatureTexture
+    meshRef.current.material.uniforms.u_position_size_texture.value = positionSizeTexture
+    meshRef.current.material.uniforms.u_temperature_texture.value = temperatureTexture
+  }, [meshRef, sensorValues])
+
+  const { size } = useThree()
+
+  const uniforms = useMemo(
+    () => ({
+      u_position_size_texture: { value: positionSizeTextureRef.current },
+      u_temperature_texture: { value: temperatureTextureRef.current },
+      u_sensor_count: { value: sensors.length },
+      u_aspect_ratio: { value: sledSize.z / sledSize.x },
+      u_gradient_texture: { value: gradientTexture },
+      u_resolution: { value: [size.width, size.height] },
+    }),
+    [gradientTexture, size]
+  )
+
+  return (
+    <mesh {...props} ref={meshRef}>
+      <planeGeometry />
+      <shaderMaterial
+        transparent
+        uniforms={uniforms}
+        vertexShader={vertexShader}
+        fragmentShader={fragmentShader}
+      />
+    </mesh>
+  )
+}
+
+export const RackHeatmap = ({
   sensorValues,
   dimension1,
   dimension2,
@@ -207,8 +345,6 @@ const RackHeatmap = ({
     </mesh>
   )
 }
-
-export { SledHeatmap, RackHeatmap }
 
 // Based on https://github.com/mourner/simpleheat/blob/gh-pages/simpleheat.js
 type Point = {

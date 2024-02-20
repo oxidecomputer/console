@@ -7,7 +7,7 @@
  */
 /* eslint-disable react/no-unknown-property */
 import { TinyColor as Color } from '@ctrl/tinycolor'
-import { Grid, OrbitControls, OrthographicCamera, useCursor } from '@react-three/drei'
+import { OrbitControls, OrthographicCamera, useCursor } from '@react-three/drei'
 import {
   Canvas,
   useFrame,
@@ -44,7 +44,7 @@ import {
   type Sensor as SensorType,
   type SensorValues,
 } from './data'
-import { RackHeatmap, SledHeatmap } from './Heatmap'
+import { ShaderSledHeatmap } from './Heatmap'
 import { Select } from './Select'
 import { useMonitoringStore } from './Store'
 import { Cuboid, Cylinder, FanLine } from './WireframePrimitives'
@@ -70,7 +70,6 @@ const Scene = ({
     rotation,
     zoom: sled !== undefined ? defaultSledZoom : defaultRackZoom,
   })
-
   return (
     <>
       <Canvas orthographic style={{ background: '#101618' }}>
@@ -92,7 +91,7 @@ const Scene = ({
           target={center}
           maxPolarAngle={Math.PI / 2}
         />
-        <Grid
+        {/* <Grid
           cellSize={0.025}
           sectionSize={0.05}
           sectionColor="#373F41"
@@ -100,7 +99,7 @@ const Scene = ({
           position={[0, -0.5, 0]}
           fadeDistance={1000}
           fadeStrength={0}
-        />
+        /> */}
         <SceneInner cameraRef={cameraRef} />
       </Canvas>
     </>
@@ -227,14 +226,20 @@ const Sled = (props: { visible: boolean }) => {
       {...props}
       name="sled"
     >
-      {props.visible && (
+      {/* {props.visible && (
         <SledHeatmap
           position={[sledSize.x / 2, 0, sledSize.z / 2]}
           scale={[sledSize.x, sledSize.z, 1]}
           rotation={[-Math.PI / 2, 0, 0]}
           sensorValues={sensorData}
         />
-      )}
+      )} */}
+      <ShaderSledHeatmap
+        position={[sledSize.x / 2, 0, sledSize.z / 2]}
+        scale={[sledSize.x, -sledSize.z, 1]}
+        rotation={[-Math.PI / 2, 0, 0]}
+        sensorValues={sensorData}
+      />
       <Select
         selected={selectedComponent}
         setSelected={(value) => setSelectedComponent(value)}
@@ -250,7 +255,6 @@ const Sled = (props: { visible: boolean }) => {
         ))}
       </Select>
       <Fans />
-
       {/* Sled */}
       <Cuboid
         position={[sledSize.x / 2, sledSize.y / 2, sledSize.z / 2]}
@@ -262,14 +266,14 @@ const Sled = (props: { visible: boolean }) => {
 }
 
 const Rack = (props: { visible: boolean }) => {
-  const { sensorDataArray, selectedTime } = useMonitoring()
-  const sensorData = sensorDataArray[selectedTime || 0]
+  // const { sensorDataArray, selectedTime } = useMonitoring()
+  // const sensorData = sensorDataArray[selectedTime || 0]
 
   const sleds = Array.from({ length: 32 })
   const { sled } = useMonitoring()
   return (
     <mesh name="rack">
-      <mesh visible={props.visible}>
+      {/* <mesh visible={props.visible}>
         <RackHeatmap
           position={[0, rackSize.y / 2, rackSize.z / 2]}
           scale={[rackSize.x, rackSize.y, 1]}
@@ -294,7 +298,7 @@ const Rack = (props: { visible: boolean }) => {
           dimension1="x"
           dimension2="z"
         />
-      </mesh>
+      </mesh> */}
       {sleds.map((_, index) => (
         <RackSled
           key={index}
