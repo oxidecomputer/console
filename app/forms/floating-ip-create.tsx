@@ -5,6 +5,9 @@
  *
  * Copyright Oxide Computer Company
  */
+import * as Accordion from '@radix-ui/react-accordion'
+import cn from 'classnames'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import type { SetRequired } from 'type-fest'
 
@@ -16,7 +19,7 @@ import {
   type FloatingIpCreate,
   type SiloIpPool,
 } from '@oxide/api'
-import { Badge, Divider, Message } from '@oxide/ui'
+import { Badge, DirectionRightIcon, Message } from '@oxide/ui'
 import { validateIp } from '@oxide/util'
 
 import {
@@ -84,6 +87,8 @@ export function CreateFloatingIpSideModalForm() {
   const form = useForm({ defaultValues })
   const isPoolSelected = !!form.watch('pool')
 
+  const [openItems, setOpenItems] = useState<string[]>([])
+
   return (
     <SideModalForm
       id="create-floating-ip-form"
@@ -100,29 +105,78 @@ export function CreateFloatingIpSideModalForm() {
       loading={createFloatingIp.isPending}
       submitError={createFloatingIp.error}
     >
-      <Message
-        variant="info"
-        content="If you don’t specify a pool, the default will be used."
-      />
-
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
-      <Divider />
-      {/* Todo: collapse these two fields under an "advanced" section */}
-      <ListboxField
-        name="pool"
-        items={allPools.items.map((p) => toListboxItem(p))}
-        label="IP pool"
-        control={form.control}
-        placeholder="Select pool"
-      />
-      <TextField
-        name="address"
-        control={form.control}
-        disabled={!isPoolSelected}
-        transform={(v) => v.replace(/\s/g, '')}
-        validate={(ip) => (ip && !validateIp(ip).valid ? 'Not a valid IP address' : true)}
-      />
+
+      <Accordion.Root
+        type="multiple"
+        className="mt-12 max-w-lg"
+        value={openItems}
+        onValueChange={setOpenItems}
+      >
+        <AccordionItem
+          value="advanced"
+          label="Advanced"
+          isOpen={openItems.includes('advanced')}
+        >
+          <Message
+            variant="info"
+            content="If you don’t specify a pool, the default will be used."
+          />
+
+          <ListboxField
+            name="pool"
+            items={allPools.items.map((p) => toListboxItem(p))}
+            label="IP pool"
+            control={form.control}
+            placeholder="Select pool"
+          />
+          <TextField
+            name="address"
+            control={form.control}
+            disabled={!isPoolSelected}
+            transform={(v) => v.replace(/\s/g, '')}
+            validate={(ip) =>
+              ip && !validateIp(ip).valid ? 'Not a valid IP address' : true
+            }
+          />
+        </AccordionItem>
+      </Accordion.Root>
     </SideModalForm>
+  )
+}
+
+type AccordionItemProps = {
+  value: string
+  isOpen: boolean
+  label: string
+  children: React.ReactNode
+}
+
+function AccordionItem({ value, label, children, isOpen }: AccordionItemProps) {
+  const contentRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (isOpen && contentRef.current) {
+      contentRef.current.scrollIntoView({ behavior: 'smooth' })
+    }
+  }, [isOpen])
+
+  return (
+    <Accordion.Item value={value}>
+      <Accordion.Header className="max-w-lg">
+        <Accordion.Trigger className="group flex w-full items-center justify-between border-t pt-2 text-sans-xl border-secondary [&>svg]:data-[state=open]:rotate-90">
+          <div className="text-secondary">{label}</div>
+          <DirectionRightIcon className="transition-all text-secondary" />
+        </Accordion.Trigger>
+      </Accordion.Header>
+      <Accordion.Content
+        ref={contentRef}
+        forceMount
+        className={cn('ox-accordion-content overflow-hidden py-4', { hidden: !isOpen })}
+      >
+        {children}
+      </Accordion.Content>
+    </Accordion.Item>
   )
 }
