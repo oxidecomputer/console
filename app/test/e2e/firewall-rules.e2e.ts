@@ -6,7 +6,14 @@
  * Copyright Oxide Computer Company
  */
 
-import { expect, expectRowVisible, test } from './utils'
+import {
+  clickButton,
+  clickListboxItem,
+  expect,
+  expectRowVisible,
+  fillTextbox,
+  test,
+} from './utils'
 
 const defaultRules = ['allow-internal-inbound', 'allow-ssh', 'allow-icmp', 'allow-rdp']
 
@@ -25,7 +32,7 @@ test('can create firewall rule', async ({ page }) => {
   await expect(modal).toBeHidden()
 
   // open modal
-  await page.getByRole('button', { name: 'New rule' }).click()
+  await clickButton(page, 'New rule')
 
   // modal is now open
   await expect(modal).toBeVisible()
@@ -38,10 +45,9 @@ test('can create firewall rule', async ({ page }) => {
   // add targets with overlapping names and types to test delete
   const targets = page.getByRole('table', { name: 'Targets' })
 
-  await page.getByRole('button', { name: 'Target type' }).click()
-  await page.getByRole('option', { name: 'IP', exact: true }).click()
-  await page.getByRole('textbox', { name: 'IP address' }).fill('192.168.0.1')
-  await page.getByRole('button', { name: 'Add target' }).click()
+  await clickListboxItem(page, 'Target type', 'IP', true)
+  await fillTextbox(page, 'IP address', '192.168.0.1')
+  await clickButton(page, 'Add target')
   await expectRowVisible(targets, { Type: 'ip', Value: '192.168.0.1' })
 
   // add host filter instance "host-filter-instance"
@@ -55,8 +61,8 @@ test('can create firewall rule', async ({ page }) => {
   await expectRowVisible(hosts, { Type: 'instance', Value: 'host-filter-instance' })
 
   // TODO: test invalid port range once I put an error message in there
-  await page.fill('role=textbox[name="Port filter"]', '123-456')
-  await page.getByRole('button', { name: 'Add port filter' }).click()
+  await fillTextbox(page, 'Port filter', '123-456')
+  await clickButton(page, 'Add port filter')
 
   // port range is added to port ranges table
   const ports = page.getByRole('table', { name: 'Ports' })
@@ -66,7 +72,7 @@ test('can create firewall rule', async ({ page }) => {
   await page.locator('text=UDP').click()
 
   // submit the form
-  await page.locator('text="Add rule"').click()
+  await clickButton(page, 'Add rule')
 
   // modal closes again
   await expect(modal).toBeHidden()
@@ -90,7 +96,7 @@ test('firewall rule form targets table', async ({ page }) => {
   await page.getByRole('tab', { name: 'Firewall Rules' }).click()
 
   // open modal
-  await page.getByRole('button', { name: 'New rule' }).click()
+  await clickButton(page, 'New rule')
 
   const targets = page.getByRole('table', { name: 'Targets' })
   const addButton = page.getByRole('button', { name: 'Add target' })
@@ -106,14 +112,12 @@ test('firewall rule form targets table', async ({ page }) => {
   await addButton.click()
   await expectRowVisible(targets, { Type: 'vpc', Value: 'def' })
 
-  await page.getByRole('button', { name: 'Target type' }).click()
-  await page.getByRole('option', { name: 'VPC Subnet' }).click()
+  await clickListboxItem(page, 'Target type', 'VPC Subnet')
   await page.getByRole('textbox', { name: 'Subnet name' }).fill('abc')
   await addButton.click()
   await expectRowVisible(targets, { Type: 'subnet', Value: 'abc' })
 
-  await page.getByRole('button', { name: 'Target type' }).click()
-  await page.getByRole('option', { name: 'IP', exact: true }).click()
+  await clickListboxItem(page, 'Target type', 'IP', true)
   await page.getByRole('textbox', { name: 'IP address' }).fill('192.168.0.1')
   await addButton.click()
   await expectRowVisible(targets, { Type: 'ip', Value: '192.168.0.1' })
@@ -140,7 +144,7 @@ test('firewall rule form hosts table', async ({ page }) => {
   await page.getByRole('tab', { name: 'Firewall Rules' }).click()
 
   // open modal
-  await page.getByRole('button', { name: 'New rule' }).click()
+  await clickButton(page, 'New rule')
 
   const hosts = page.getByRole('table', { name: 'Host filters' })
   const addButton = page.getByRole('button', { name: 'Add host filter' })
@@ -156,15 +160,13 @@ test('firewall rule form hosts table', async ({ page }) => {
   await addButton.click()
   await expectRowVisible(hosts, { Type: 'vpc', Value: 'def' })
 
-  await page.getByRole('button', { name: 'Host type' }).click()
-  await page.getByRole('option', { name: 'VPC Subnet' }).click()
-  await page.getByRole('textbox', { name: 'Subnet name' }).fill('abc')
+  await clickListboxItem(page, 'Host type', 'VPC Subnet')
+  await fillTextbox(page, 'Subnet name', 'abc')
   await addButton.click()
   await expectRowVisible(hosts, { Type: 'subnet', Value: 'abc' })
 
-  await page.getByRole('button', { name: 'Host type' }).click()
-  await page.getByRole('option', { name: 'IP', exact: true }).click()
-  await page.getByRole('textbox', { name: 'IP address' }).fill('192.168.0.1')
+  await clickListboxItem(page, 'Host type', 'IP', true)
+  await fillTextbox(page, 'IP address', '192.168.0.1')
   await addButton.click()
   await expectRowVisible(hosts, { Type: 'ip', Value: '192.168.0.1' })
 
@@ -203,7 +205,7 @@ test('can update firewall rule', async ({ page }) => {
   await expect(modal).toBeHidden()
 
   // can click name cell to edit
-  await page.getByRole('button', { name: 'allow-icmp' }).click()
+  await clickButton(page, 'allow-icmp')
 
   // modal is now open
   await expect(modal).toBeVisible()
@@ -229,16 +231,15 @@ test('can update firewall rule', async ({ page }) => {
   await page.fill('input[name=name]', 'new-rule-name')
 
   // add host filter
-  await page.locator('role=button[name*="Host type"]').click()
-  await page.locator('role=option[name="VPC Subnet"]').click()
-  await page.fill('role=textbox[name="Subnet name"]', 'edit-filter-subnet')
-  await page.locator('text="Add host filter"').click()
+  await clickListboxItem(page, 'Host type', 'VPC Subnet')
+  await fillTextbox(page, 'Subnet name', 'edit-filter-subnet')
+  await clickButton(page, 'Add host filter')
 
   // new host is added to hosts table
   await expect(page.locator('role=cell >> text="edit-filter-subnet"')).toBeVisible()
 
   // submit the form
-  await page.locator('text="Update rule"').click()
+  await clickButton(page, 'Update rule')
 
   // modal closes again
   await expect(modal).toBeHidden()

@@ -5,7 +5,15 @@
  *
  * Copyright Oxide Computer Company
  */
-import { clickRowAction, expect, expectRowVisible, expectVisible, test } from './utils'
+import {
+  clickListboxItem,
+  clickRowAction,
+  expect,
+  expectRowVisible,
+  expectVisible,
+  fillTextbox,
+  test,
+} from './utils'
 
 test('List disks and snapshot', async ({ page }) => {
   await page.goto('/projects/mock-project/disks')
@@ -47,7 +55,7 @@ test('Disk snapshot error', async ({ page }) => {
 test.describe('Disk create', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/projects/mock-project/disks-new')
-    await page.getByRole('textbox', { name: 'Name' }).fill('a-new-disk')
+    await fillTextbox(page, 'Name', 'a-new-disk')
   })
 
   test.afterEach(async ({ page }) => {
@@ -66,14 +74,12 @@ test.describe('Disk create', () => {
 
   test('from snapshot', async ({ page }) => {
     await page.getByRole('radio', { name: 'Snapshot' }).click()
-    await page.getByRole('button', { name: 'Source snapshot' }).click()
-    await page.getByRole('option', { name: 'delete-500' }).click()
+    await clickListboxItem(page, 'Source snapshot', 'delete-500')
   })
 
   test('from image', async ({ page }) => {
     await page.getByRole('radio', { name: 'Image' }).click()
-    await page.getByRole('button', { name: 'Source image' }).click()
-    await page.getByRole('option', { name: 'image-3' }).click()
+    await clickListboxItem(page, 'Source image', 'image-3')
   })
 
   test('switching to snapshot and back to blank', async ({ page }) => {
