@@ -45,29 +45,27 @@ test('can create a Floating IP', async ({ page }) => {
   ])
 })
 
-test.skip('can detach and attach a Floating IP', async ({ page }) => {
+test('can detach and attach a Floating IP', async ({ page }) => {
   await page.goto(floatingIpsPage)
 
   await expectVisible(page, ['text=db1'])
   await clickRowAction(page, 'cola-float', 'Detach')
-
-  await page.locator('text="Select an instance"').click()
-
-  await expectVisible(page, ['role=heading[name*="Detach Floating IP"]'])
-
   await page.getByRole('button', { name: 'Confirm' }).click()
-  await expect(page).toHaveURL(floatingIpsPage)
+
+  await expectNotVisible(page, ['role=heading[name*="Detach Floating IP"]'])
+  // Since we detached it, we don't expect to see db1 any longer
   await expectNotVisible(page, ['text=db1'])
 
   // Reattach it to db1
   await clickRowAction(page, 'cola-float', 'Attach')
   await page.locator('text="Select instance"').click()
-  //   click the down arrow
-  await page.locator('role=button[name="Instance"]').click()
-  //   click the option
-  await page.locator('role=option[name="db1"]').click()
-  await page.getByRole('button', { name: 'Confirm' }).click()
-  await expect(page).toHaveURL(floatingIpsPage)
 
+  // Click the down arrow and select top option
+  await page.keyboard.press('ArrowDown')
+  await page.keyboard.press('Enter')
+  await page.getByRole('button', { name: 'Attach' }).click()
+
+  // The dialog should be gone
+  await expectNotVisible(page, ['role=heading[name*="Attach Floating IP"]'])
   await expectVisible(page, ['text=db1'])
 })
