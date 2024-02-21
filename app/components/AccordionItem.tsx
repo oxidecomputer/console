@@ -7,18 +7,25 @@
  */
 import * as Accordion from '@radix-ui/react-accordion'
 import cn from 'classnames'
+import { useEffect, useRef } from 'react'
 
 import { DirectionRightIcon } from '@oxide/design-system/icons/react'
 
 type AccordionItemProps = {
   children: React.ReactNode
+  isOpen: boolean
   label: string
   value: string
 }
 
-// This is a simplified AccordionItem component that does not concern itself with scrolling into view when expanded
-// See instance-create for a more involved example, including scrolling
-export const AccordionItem = ({ children, label, value }: AccordionItemProps) => {
+export const AccordionItem = ({ children, isOpen, label, value }: AccordionItemProps) => {
+  const contentRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (isOpen && contentRef.current) {
+      contentRef.current.scrollIntoView({ behavior: 'smooth' })
+    }
+  }, [isOpen])
+
   return (
     <Accordion.Item value={value}>
       <Accordion.Header className="max-w-lg">
@@ -27,7 +34,11 @@ export const AccordionItem = ({ children, label, value }: AccordionItemProps) =>
           <DirectionRightIcon className="transition-all text-secondary" />
         </Accordion.Trigger>
       </Accordion.Header>
-      <Accordion.Content className={cn('ox-accordion-content overflow-hidden py-4')}>
+      <Accordion.Content
+        ref={contentRef}
+        forceMount
+        className={cn('ox-accordion-content overflow-hidden py-8', { hidden: !isOpen })}
+      >
         {children}
       </Accordion.Content>
     </Accordion.Item>

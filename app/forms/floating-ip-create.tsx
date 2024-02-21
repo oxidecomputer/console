@@ -114,7 +114,11 @@ export function CreateFloatingIpSideModalForm() {
         value={openItems}
         onValueChange={setOpenItems}
       >
-        <AccordionItem value="advanced" label="Advanced">
+        <AccordionItem
+          isOpen={openItems.includes('advanced')}
+          label="Advanced"
+          value="advanced"
+        >
           <Message
             variant="info"
             content="If you don’t specify a pool, the default will be used."
