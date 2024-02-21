@@ -127,6 +127,33 @@ export async function clickRowAction(page: Page, rowText: string, actionName: st
   await page.getByRole('menuitem', { name: actionName }).click()
 }
 
+/** Select a Listbox and click the specified option */
+export async function clickListboxItem(
+  page: Page,
+  buttonName: string,
+  optionName: string,
+  exact?: boolean
+) {
+  await page.getByRole('button', { name: buttonName }).click()
+  await page.getByRole('option', { name: optionName, exact }).click()
+}
+
+export async function clickButton(page: Page, name: string) {
+  await page.getByRole('button', { name }).click()
+}
+
+export async function clickLink(page: Page, name: string) {
+  await page.getByRole('link', { name }).click()
+}
+
+export async function fillTextbox(page: Page, name: string, value: string) {
+  await page.getByRole('textbox', { name }).fill(value)
+}
+
+export async function clearTextbox(page: Page, name: string) {
+  await page.getByRole('textbox', { name }).clear()
+}
+
 export async function getPageAsUser(
   browser: Browser,
   user: 'Hans Jonas' | 'Simone de Beauvoir'
