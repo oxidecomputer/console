@@ -6,8 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import * as Accordion from '@radix-ui/react-accordion'
-import cn from 'classnames'
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import type { SetRequired } from 'type-fest'
 
@@ -19,9 +18,10 @@ import {
   type FloatingIpCreate,
   type SiloIpPool,
 } from '@oxide/api'
-import { Badge, DirectionRightIcon, Message } from '@oxide/ui'
+import { Badge, Message } from '@oxide/ui'
 import { validateIp } from '@oxide/util'
 
+import { AccordionItem } from 'app/components/AccordionItem'
 import {
   DescriptionField,
   ListboxField,
@@ -114,11 +114,7 @@ export function CreateFloatingIpSideModalForm() {
         value={openItems}
         onValueChange={setOpenItems}
       >
-        <AccordionItem
-          value="advanced"
-          label="Advanced"
-          isOpen={openItems.includes('advanced')}
-        >
+        <AccordionItem value="advanced" label="Advanced">
           <Message
             variant="info"
             content="If you don’t specify a pool, the default will be used."
@@ -143,40 +139,5 @@ export function CreateFloatingIpSideModalForm() {
         </AccordionItem>
       </Accordion.Root>
     </SideModalForm>
-  )
-}
-
-type AccordionItemProps = {
-  value: string
-  isOpen: boolean
-  label: string
-  children: React.ReactNode
-}
-
-function AccordionItem({ value, label, children, isOpen }: AccordionItemProps) {
-  const contentRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    if (isOpen && contentRef.current) {
-      contentRef.current.scrollIntoView({ behavior: 'smooth' })
-    }
-  }, [isOpen])
-
-  return (
-    <Accordion.Item value={value}>
-      <Accordion.Header className="max-w-lg">
-        <Accordion.Trigger className="group flex w-full items-center justify-between border-t pt-2 text-sans-xl border-secondary [&>svg]:data-[state=open]:rotate-90">
-          <div className="text-secondary">{label}</div>
-          <DirectionRightIcon className="transition-all text-secondary" />
-        </Accordion.Trigger>
-      </Accordion.Header>
-      <Accordion.Content
-        ref={contentRef}
-        forceMount
-        className={cn('ox-accordion-content overflow-hidden py-4', { hidden: !isOpen })}
-      >
-        {children}
-      </Accordion.Content>
-    </Accordion.Item>
   )
 }
