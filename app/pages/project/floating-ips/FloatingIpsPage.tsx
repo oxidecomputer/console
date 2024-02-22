@@ -23,6 +23,7 @@ import {
   EmptyMessage,
   IpGlobal24Icon,
   Listbox,
+  Message,
   Modal,
   Networking24Icon,
   PageHeader,
@@ -89,47 +90,43 @@ export function FloatingIpsPage() {
 
   const makeActions = (floatingIp: FloatingIp): MenuAction[] => {
     const isAttachedToAnInstance = !!floatingIp.instanceId
+    const attachOrDetachAction = isAttachedToAnInstance
+      ? {
+          label: 'Detach',
+          onActivate: () =>
+            confirmAction({
+              actionType: 'danger',
+              doAction: () =>
+                floatingIpDetach.mutateAsync({
+                  path: { floatingIp: floatingIp.name },
+                  query: { project },
+                }),
+              modalTitle: 'Detach Floating IP',
+              modalContent: (
+                <p>
+                  Are you sure you want to detach floating IP <HL>{floatingIp.name}</HL>{' '}
+                  from instance{' '}
+                  <HL>
+                    {
+                      // instanceId is guaranteed to be non-null here
+                      getInstanceName(floatingIp.instanceId!)
+                    }
+                  </HL>
+                  ? The instance will no longer be reachable at <HL>{floatingIp.ip}</HL>.
+                </p>
+              ),
+              errorTitle: 'Error detaching floating IP',
+            }),
+        }
+      : {
+          label: 'Attach',
+          onActivate() {
+            setFloatingIpToModify(floatingIp)
+            setAttachModalOpen(true)
+          },
+        }
     return [
-      {
-        label: 'Attach',
-        disabled: isAttachedToAnInstance
-          ? 'This floating IP must be detached from the existing instance before it can be attached to a new one'
-          : false,
-        onActivate() {
-          setFloatingIpToModify(floatingIp)
-          setAttachModalOpen(true)
-        },
-      },
-      {
-        label: 'Detach',
-        disabled: isAttachedToAnInstance
-          ? false
-          : 'This floating IP is not attached to an instance',
-        onActivate: () =>
-          confirmAction({
-            actionType: 'danger',
-            doAction: () =>
-              floatingIpDetach.mutateAsync({
-                path: { floatingIp: floatingIp.name },
-                query: { project },
-              }),
-            modalTitle: 'Detach Floating IP',
-            modalContent: (
-              <p>
-                Are you sure you want to detach the floating IP <HL>{floatingIp.name}</HL>{' '}
-                from the instance{' '}
-                <HL>
-                  {
-                    // instanceId is guaranteed to be non-null here
-                    getInstanceName(floatingIp.instanceId!)
-                  }
-                </HL>
-                ?
-              </p>
-            ),
-            errorTitle: 'Error detaching floating IP',
-          }),
-      },
+      attachOrDetachAction,
       {
         label: 'Delete',
         disabled: isAttachedToAnInstance
@@ -172,6 +169,7 @@ export function FloatingIpsPage() {
       {attachModalOpen && floatingIpToModify && (
         <AttachFloatingIpModal
           floatingIp={floatingIpToModify.name}
+          address={floatingIpToModify.ip}
           instances={instances.items}
           project={project}
           onDismiss={() => setAttachModalOpen(false)}
@@ -183,11 +181,13 @@ export function FloatingIpsPage() {
 
 const AttachFloatingIpModal = ({
   floatingIp,
+  address,
   instances,
   project,
   onDismiss,
 }: {
   floatingIp: string
+  address: string
   instances: Array<Instance>
   project: string
   onDismiss: () => void
@@ -209,12 +209,19 @@ const AttachFloatingIpModal = ({
     <Modal isOpen title="Attach Floating IP" onDismiss={onDismiss}>
       <Modal.Body>
         <Modal.Section>
-          {/* Todo: Add help text explaining what selecting an instance will do */}
+          <Message
+            variant="info"
+            content={
+              <>
+                The selected instance will be reachable at <HL>{address}</HL>
+              </>
+            }
+          ></Message>
           <form>
             <Listbox
               name="instanceId"
               items={instances.map((i) => ({ value: i.id, label: i.name }))}
-              label="Select an instance"
+              label="Instance"
               onChange={(e) => {
                 form.setValue('instanceId', e)
               }}
