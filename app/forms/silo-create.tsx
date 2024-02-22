@@ -5,10 +5,10 @@
  *
  * Copyright Oxide Computer Company
  */
+import { FormDivider } from 'libs/ui/lib/divider/Divider'
 import { useNavigate } from 'react-router-dom'
 
 import { useApiMutation, useApiQueryClient, type SiloCreate } from '@oxide/api'
-import { FormDivider } from '@oxide/ui'
 
 import {
   CheckboxField,

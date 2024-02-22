@@ -7,6 +7,7 @@
  */
 import { Badge } from 'libs/ui/lib/badge/Badge'
 import { Button } from 'libs/ui/lib/button/Button'
+import { FormDivider } from 'libs/ui/lib/divider/Divider'
 import { useController, type Control } from 'react-hook-form'
 
 import {
@@ -20,7 +21,7 @@ import {
   type VpcFirewallRuleTarget,
   type VpcFirewallRuleUpdate,
 } from '@oxide/api'
-import { Error16Icon, FormDivider, MiniTable } from '@oxide/ui'
+import { Error16Icon, MiniTable } from '@oxide/ui'
 
 import {
   CheckboxField,

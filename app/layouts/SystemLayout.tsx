@@ -5,17 +5,12 @@
  *
  * Copyright Oxide Computer Company
  */
+import { Divider } from 'libs/ui/lib/divider/Divider'
 import { useMemo } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 
 import { apiQueryClient } from '@oxide/api'
-import {
-  Cloud16Icon,
-  Divider,
-  Metrics16Icon,
-  Networking16Icon,
-  Storage16Icon,
-} from '@oxide/ui'
+import { Cloud16Icon, Metrics16Icon, Networking16Icon, Storage16Icon } from '@oxide/ui'
 
 import { trigger404 } from 'app/components/ErrorBoundary'
 import { DocsLinkItem, NavLinkItem, Sidebar } from 'app/components/Sidebar'

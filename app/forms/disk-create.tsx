@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { format } from 'date-fns'
+import { FormDivider } from 'libs/ui/lib/divider/Divider'
 import { useMemo } from 'react'
 import { useController, type Control } from 'react-hook-form'
 import { useNavigate, type NavigateFunction } from 'react-router-dom'
@@ -20,7 +21,7 @@ import {
   type DiskSource,
   type Image,
 } from '@oxide/api'
-import { FieldLabel, FormDivider, Radio, RadioGroup } from '@oxide/ui'
+import { FieldLabel, Radio, RadioGroup } from '@oxide/ui'
 import { bytesToGiB, GiB } from '@oxide/util'
 
 import {

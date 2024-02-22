@@ -7,10 +7,11 @@
  */
 import { getLocalTimeZone, now } from '@internationalized/date'
 import { useIsFetching } from '@tanstack/react-query'
+import { Divider } from 'libs/ui/lib/divider/Divider'
 import { useMemo, useState } from 'react'
 
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
-import { Divider, Listbox, Metrics24Icon, PageHeader, PageTitle } from '@oxide/ui'
+import { Listbox, Metrics24Icon, PageHeader, PageTitle } from '@oxide/ui'
 import { bytesToGiB, bytesToTiB } from '@oxide/util'
 
 import { CapacityBars } from 'app/components/CapacityBars'

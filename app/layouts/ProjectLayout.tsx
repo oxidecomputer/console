@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { Divider } from 'libs/ui/lib/divider/Divider'
 import { useMemo, type ReactElement } from 'react'
 import {
   useLocation,
@@ -16,7 +17,6 @@ import {
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import {
   Access16Icon,
-  Divider,
   Folder16Icon,
   Images16Icon,
   Instances16Icon,

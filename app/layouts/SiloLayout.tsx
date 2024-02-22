@@ -5,10 +5,11 @@
  *
  * Copyright Oxide Computer Company
  */
+import { Divider } from 'libs/ui/lib/divider/Divider'
 import { useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
-import { Access16Icon, Divider, Folder16Icon, Images16Icon, Metrics16Icon } from '@oxide/ui'
+import { Access16Icon, Folder16Icon, Images16Icon, Metrics16Icon } from '@oxide/ui'
 
 import { DocsLinkItem, NavLinkItem, Sidebar } from 'app/components/Sidebar'
 import { TopBar } from 'app/components/TopBar'

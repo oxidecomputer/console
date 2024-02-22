@@ -5,10 +5,10 @@
  *
  * Copyright Oxide Computer Company
  */
+import { FormDivider } from 'libs/ui/lib/divider/Divider'
 import { useMemo } from 'react'
 
 import { useApiQuery, type ApiError, type InstanceNetworkInterfaceCreate } from '@oxide/api'
-import { FormDivider } from '@oxide/ui'
 
 import {
   DescriptionField,
