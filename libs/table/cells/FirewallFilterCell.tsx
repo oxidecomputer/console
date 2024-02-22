@@ -5,8 +5,9 @@
  *
  * Copyright Oxide Computer Company
  */
+import { Badge } from 'libs/ui/lib/badge/Badge'
+
 import type { VpcFirewallRuleFilter } from '@oxide/api'
-import { Badge } from '@oxide/ui'
 
 import { type Cell } from './Cell'
 import { TypeValueCell } from './TypeValueCell'

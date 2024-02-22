@@ -5,10 +5,11 @@
  *
  * Copyright Oxide Computer Company
  */
+import { Badge } from 'libs/ui/lib/badge/Badge'
 import { Link, Outlet } from 'react-router-dom'
 
 import { DateCell, DefaultCell, linkCell, TruncateCell, useQueryTable } from '@oxide/table'
-import { Badge, buttonStyle, Cloud24Icon, EmptyMessage } from '@oxide/ui'
+import { buttonStyle, Cloud24Icon, EmptyMessage } from '@oxide/ui'
 
 import { useSiloSelector } from 'app/hooks'
 import { pb } from 'app/util/path-builder'

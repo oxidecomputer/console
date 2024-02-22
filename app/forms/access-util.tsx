@@ -5,6 +5,8 @@
  *
  * Copyright Oxide Computer Company
  */
+import { Badge } from 'libs/ui/lib/badge/Badge'
+
 import {
   allRoles,
   type Actor,
@@ -12,7 +14,7 @@ import {
   type Policy,
   type RoleKey,
 } from '@oxide/api'
-import { Badge, type ListboxItem } from '@oxide/ui'
+import { type ListboxItem } from '@oxide/ui'
 import { capitalize } from '@oxide/util'
 
 type AddUserValues = {

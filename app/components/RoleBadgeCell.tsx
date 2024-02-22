@@ -6,9 +6,9 @@
  * Copyright Oxide Computer Company
  */
 import type { CellContext } from '@tanstack/react-table'
+import { Badge } from 'libs/ui/lib/badge/Badge'
 
 import type { RoleKey } from '@oxide/api'
-import { Badge } from '@oxide/ui'
 
 /**
  * Highlight the "effective" role in green, others gray.

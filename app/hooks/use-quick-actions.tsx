@@ -5,11 +5,11 @@
  *
  * Copyright Oxide Computer Company
  */
+import { ActionMenu, type QuickActionItem } from 'libs/ui/lib/action-menu/ActionMenu'
 import { useEffect, useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { create } from 'zustand'
 
-import { ActionMenu, type QuickActionItem } from '@oxide/ui'
 import { invariant } from '@oxide/util'
 
 import { useCurrentUser } from 'app/layouts/AuthenticatedLayout'

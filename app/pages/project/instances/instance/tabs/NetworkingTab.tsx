@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { Badge } from 'libs/ui/lib/badge/Badge'
 import { useState } from 'react'
 import { type LoaderFunctionArgs } from 'react-router-dom'
 
@@ -18,7 +19,7 @@ import {
   type InstanceNetworkInterface,
 } from '@oxide/api'
 import { LinkCell, SkeletonCell, useQueryTable, type MenuAction } from '@oxide/table'
-import { Badge, Button, EmptyMessage, Networking24Icon, Success12Icon } from '@oxide/ui'
+import { Button, EmptyMessage, Networking24Icon, Success12Icon } from '@oxide/ui'
 
 import CreateNetworkInterfaceForm from 'app/forms/network-interface-create'
 import EditNetworkInterfaceForm from 'app/forms/network-interface-edit'

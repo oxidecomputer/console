@@ -5,8 +5,10 @@
  *
  * Copyright Oxide Computer Company
  */
+import { Badge } from 'libs/ui/lib/badge/Badge'
+
 import type { VpcFirewallRuleStatus } from '@oxide/api'
-import { Badge, Success12Icon } from '@oxide/ui'
+import { Success12Icon } from '@oxide/ui'
 
 import type { Cell } from './Cell'
 

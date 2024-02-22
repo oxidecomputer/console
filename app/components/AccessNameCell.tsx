@@ -6,9 +6,9 @@
  * Copyright Oxide Computer Company
  */
 import type { CellContext } from '@tanstack/react-table'
+import { Badge } from 'libs/ui/lib/badge/Badge'
 
 import type { IdentityType } from '@oxide/api'
-import { Badge } from '@oxide/ui'
 
 /**
  * Display the user or group name. If the row is for a group, add a GROUP badge.

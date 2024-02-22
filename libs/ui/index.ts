@@ -12,9 +12,6 @@ import './styles/index.css'
 
 export { useInterval, useTimeout }
 
-export * from './lib/action-menu/ActionMenu'
-export * from './lib/auth-code/AuthCodeInput'
-export * from './lib/badge/Badge'
 export * from './lib/button/Button'
 export * from './lib/checkbox/Checkbox'
 export * from './lib/copy-to-clipboard/CopyToClipboard'
