@@ -8,17 +8,11 @@
 import cn from 'classnames'
 import { Button } from 'libs/ui/lib/button/Button'
 import { DropdownMenu } from 'libs/ui/lib/dropdown-menu/DropdownMenu'
+import { Identicon } from 'libs/ui/lib/identicon/Identicon'
 import { Link } from 'react-router-dom'
 
 import { useApiQuery, type Project } from '@oxide/api'
-import {
-  Folder16Icon,
-  Identicon,
-  SelectArrows6Icon,
-  Success12Icon,
-  Truncate,
-  Wrap,
-} from '@oxide/ui'
+import { Folder16Icon, SelectArrows6Icon, Success12Icon, Truncate, Wrap } from '@oxide/ui'
 
 import { useInstanceSelector, useIpPoolSelector, useSiloSelector } from 'app/hooks'
 import { useCurrentUser } from 'app/layouts/AuthenticatedLayout'
