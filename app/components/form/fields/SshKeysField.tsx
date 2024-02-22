@@ -7,18 +7,12 @@
  */
 import { Button } from 'libs/ui/lib/button/Button'
 import { Checkbox } from 'libs/ui/lib/checkbox/Checkbox'
+import { Divider } from 'libs/ui/lib/divider/Divider'
 import { useState } from 'react'
 import { useController, type Control } from 'react-hook-form'
 
 import { usePrefetchedApiQuery } from '@oxide/api'
-import {
-  Divider,
-  EmptyMessage,
-  FieldLabel,
-  Key16Icon,
-  Message,
-  TextInputHint,
-} from '@oxide/ui'
+import { EmptyMessage, FieldLabel, Key16Icon, Message, TextInputHint } from '@oxide/ui'
 
 import type { InstanceCreateInput } from 'app/forms/instance-create'
 import { CreateSSHKeySideModalForm } from 'app/forms/ssh-key-create'
