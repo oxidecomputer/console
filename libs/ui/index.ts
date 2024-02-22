@@ -12,8 +12,6 @@ import './styles/index.css'
 
 export { useInterval, useTimeout }
 
-export * from './lib/field-label/FieldLabel'
-
 export * from './lib/identicon/Identicon'
 export * from './lib/message/Message'
 export * from './lib/listbox/Listbox'

@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { Button } from 'libs/ui/lib/button/Button'
+import { FieldLabel } from 'libs/ui/lib/field-label/FieldLabel'
 import { useState } from 'react'
 import { useController, type Control } from 'react-hook-form'
 
@@ -13,7 +14,7 @@ import type {
   InstanceNetworkInterfaceAttachment,
   InstanceNetworkInterfaceCreate,
 } from '@oxide/api'
-import { Error16Icon, FieldLabel, MiniTable, Radio, RadioGroup } from '@oxide/ui'
+import { Error16Icon, MiniTable, Radio, RadioGroup } from '@oxide/ui'
 
 import type { InstanceCreateInput } from 'app/forms/instance-create'
 import CreateNetworkInterfaceForm from 'app/forms/network-interface-create'

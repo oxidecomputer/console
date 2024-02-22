@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
+import { FieldLabel } from 'libs/ui/lib/field-label/FieldLabel'
 import { useId } from 'react'
 import {
   Controller,
@@ -17,7 +18,6 @@ import {
 } from 'react-hook-form'
 
 import {
-  FieldLabel,
   TextInputHint,
   TextInput as UITextField,
   type TextAreaProps as UITextAreaProps,

@@ -15,10 +15,10 @@ import {
 } from '@floating-ui/react'
 import { Listbox as Select } from '@headlessui/react'
 import cn from 'classnames'
+import { FieldLabel } from 'libs/ui/lib/field-label/FieldLabel'
 import type { ReactNode } from 'react'
 
 import {
-  FieldLabel,
   SelectArrows6Icon,
   SpinnerLoader,
   TextInputHint,

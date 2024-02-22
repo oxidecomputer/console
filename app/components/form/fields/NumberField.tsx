@@ -6,10 +6,11 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
+import { FieldLabel } from 'libs/ui/lib/field-label/FieldLabel'
 import { useId } from 'react'
 import { Controller, type FieldPathByValue, type FieldValues } from 'react-hook-form'
 
-import { FieldLabel, TextInputHint, NumberInput as UINumberField } from '@oxide/ui'
+import { TextInputHint, NumberInput as UINumberField } from '@oxide/ui'
 import { capitalize } from '@oxide/util'
 
 import { ErrorMessage } from './ErrorMessage'

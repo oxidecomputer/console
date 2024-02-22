@@ -5,10 +5,11 @@
  *
  * Copyright Oxide Computer Company
  */
+import { FieldLabel } from 'libs/ui/lib/field-label/FieldLabel'
 import { FileInput } from 'libs/ui/lib/file-input/FileInput'
 import { Controller, type Control, type FieldPath, type FieldValues } from 'react-hook-form'
 
-import { FieldLabel, TextInputHint } from '@oxide/ui'
+import { TextInputHint } from '@oxide/ui'
 
 import { ErrorMessage } from './ErrorMessage'
 

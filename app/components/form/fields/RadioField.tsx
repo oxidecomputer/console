@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
+import { FieldLabel } from 'libs/ui/lib/field-label/FieldLabel'
 import React, { useId } from 'react'
 import {
   Controller,
@@ -15,13 +16,7 @@ import {
   type PathValue,
 } from 'react-hook-form'
 
-import {
-  FieldLabel,
-  Radio,
-  RadioGroup,
-  TextInputHint,
-  type RadioGroupProps,
-} from '@oxide/ui'
+import { Radio, RadioGroup, TextInputHint, type RadioGroupProps } from '@oxide/ui'
 import { capitalize } from '@oxide/util'
 
 export type RadioFieldProps<
