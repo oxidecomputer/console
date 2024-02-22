@@ -12,7 +12,6 @@ import './styles/index.css'
 
 export { useInterval, useTimeout }
 
-export * from './lib/date-picker/DateRangePicker'
 export * from './lib/divider/Divider'
 export * from './lib/dropdown-menu/DropdownMenu'
 export * from './lib/file-input/FileInput'
