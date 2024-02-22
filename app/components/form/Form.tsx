@@ -6,9 +6,10 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
+import { Button, type ButtonProps } from 'libs/ui/lib/button/Button'
 import { cloneElement } from 'react'
 
-import { Button, Error12Icon, type ButtonProps } from '@oxide/ui'
+import { Error12Icon } from '@oxide/ui'
 import { classed, flattenChildren, invariant, isOneOf, pluckFirstOfType } from '@oxide/util'
 
 import './form.css'

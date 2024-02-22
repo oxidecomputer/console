@@ -12,7 +12,6 @@ import './styles/index.css'
 
 export { useInterval, useTimeout }
 
-export * from './lib/button/Button'
 export * from './lib/checkbox/Checkbox'
 export * from './lib/copy-to-clipboard/CopyToClipboard'
 export * from './lib/date-picker/DateRangePicker'

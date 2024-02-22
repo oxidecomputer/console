@@ -5,9 +5,10 @@
  *
  * Copyright Oxide Computer Company
  */
+import { Button, buttonStyle } from 'libs/ui/lib/button/Button'
 import { Link } from 'react-router-dom'
 
-import { Button, buttonStyle, OpenLink12Icon } from '@oxide/ui'
+import { OpenLink12Icon } from '@oxide/ui'
 
 type Props = {
   title: string

@@ -5,12 +5,13 @@
  *
  * Copyright Oxide Computer Company
  */
+import { Button } from 'libs/ui/lib/button/Button'
 import { useState } from 'react'
 import { useController, type Control } from 'react-hook-form'
 import type { Merge } from 'type-fest'
 
 import type { CertificateCreate } from '@oxide/api'
-import { Button, Error16Icon, FieldLabel, MiniTable, Modal } from '@oxide/ui'
+import { Error16Icon, FieldLabel, MiniTable, Modal } from '@oxide/ui'
 
 import { DescriptionField, FileField, TextField, validateName } from 'app/components/form'
 import type { SiloCreateFormValues } from 'app/forms/silo-create'

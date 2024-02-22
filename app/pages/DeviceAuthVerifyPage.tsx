@@ -6,11 +6,12 @@
  * Copyright Oxide Computer Company
  */
 import { AuthCodeInput } from 'libs/ui/lib/auth-code/AuthCodeInput'
+import { Button } from 'libs/ui/lib/button/Button'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { useApiMutation } from '@oxide/api'
-import { Button, Warning12Icon } from '@oxide/ui'
+import { Warning12Icon } from '@oxide/ui'
 
 import { pb } from 'app/util/path-builder'
 

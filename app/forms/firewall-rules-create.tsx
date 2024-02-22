@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { Badge } from 'libs/ui/lib/badge/Badge'
+import { Button } from 'libs/ui/lib/button/Button'
 import { useController, type Control } from 'react-hook-form'
 
 import {
@@ -19,7 +20,7 @@ import {
   type VpcFirewallRuleTarget,
   type VpcFirewallRuleUpdate,
 } from '@oxide/api'
-import { Button, Error16Icon, FormDivider, MiniTable } from '@oxide/ui'
+import { Error16Icon, FormDivider, MiniTable } from '@oxide/ui'
 
 import {
   CheckboxField,

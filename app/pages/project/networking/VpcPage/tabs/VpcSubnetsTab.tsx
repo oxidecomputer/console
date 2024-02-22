@@ -5,11 +5,12 @@
  *
  * Copyright Oxide Computer Company
  */
+import { Button } from 'libs/ui/lib/button/Button'
 import { useState } from 'react'
 
 import { useApiMutation, useApiQueryClient, type VpcSubnet } from '@oxide/api'
 import { DateCell, TwoLineCell, useQueryTable, type MenuAction } from '@oxide/table'
-import { Button, EmptyMessage } from '@oxide/ui'
+import { EmptyMessage } from '@oxide/ui'
 
 import { CreateSubnetForm } from 'app/forms/subnet-create'
 import { EditSubnetForm } from 'app/forms/subnet-edit'

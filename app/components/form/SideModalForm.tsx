@@ -5,12 +5,13 @@
  *
  * Copyright Oxide Computer Company
  */
+import { Button } from 'libs/ui/lib/button/Button'
 import { useEffect, type ReactNode } from 'react'
 import type { FieldValues, UseFormReturn } from 'react-hook-form'
 import { useNavigationType } from 'react-router-dom'
 
 import type { ApiError } from '@oxide/api'
-import { Button, SideModal } from '@oxide/ui'
+import { SideModal } from '@oxide/ui'
 
 type SideModalFormProps<TFieldValues extends FieldValues> = {
   id: string
