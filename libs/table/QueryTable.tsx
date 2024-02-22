@@ -15,6 +15,7 @@ import {
   type AccessorFn,
   type DeepKeys,
 } from '@tanstack/react-table'
+import { EmptyMessage } from 'libs/ui/lib/empty-message/EmptyMessage'
 import React, {
   useCallback,
   useEffect,
@@ -32,7 +33,7 @@ import {
   type ResultItem,
 } from '@oxide/api'
 import { Pagination, usePagination } from '@oxide/pagination'
-import { EmptyMessage, TableEmptyBox } from '@oxide/ui'
+import { TableEmptyBox } from '@oxide/ui'
 import { invariant, isOneOf } from '@oxide/util'
 
 import { DefaultCell } from './cells'

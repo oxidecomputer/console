@@ -6,13 +6,13 @@
  * Copyright Oxide Computer Company
  */
 import { buttonStyle } from 'libs/ui/lib/button/Button'
+import { EmptyMessage } from 'libs/ui/lib/empty-message/EmptyMessage'
 import { useState } from 'react'
 import { Link, Outlet, type LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, useApiMutation, useApiQueryClient, type Image } from '@oxide/api'
 import { DateCell, linkCell, SizeCell, useQueryTable, type MenuAction } from '@oxide/table'
 import {
-  EmptyMessage,
   Images24Icon,
   Message,
   Modal,

@@ -5,9 +5,11 @@
  *
  * Copyright Oxide Computer Company
  */
+import { EmptyMessage } from 'libs/ui/lib/empty-message/EmptyMessage'
+
 import { apiQueryClient } from '@oxide/api'
 import { linkCell, useQueryTable } from '@oxide/table'
-import { EmptyMessage, Racks24Icon } from '@oxide/ui'
+import { Racks24Icon } from '@oxide/ui'
 
 import { pb } from 'app/util/path-builder'
 

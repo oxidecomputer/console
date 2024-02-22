@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { Button } from 'libs/ui/lib/button/Button'
+import { EmptyMessage } from 'libs/ui/lib/empty-message/EmptyMessage'
 import { useMemo, useState } from 'react'
 
 import {
@@ -21,14 +22,7 @@ import {
   type RoleKey,
 } from '@oxide/api'
 import { createColumnHelper, getActionsCol, Table, useReactTable } from '@oxide/table'
-import {
-  Access24Icon,
-  EmptyMessage,
-  PageHeader,
-  PageTitle,
-  TableActions,
-  TableEmptyBox,
-} from '@oxide/ui'
+import { Access24Icon, PageHeader, PageTitle, TableActions, TableEmptyBox } from '@oxide/ui'
 import { groupBy, isTruthy } from '@oxide/util'
 
 import { AccessNameCell } from 'app/components/AccessNameCell'

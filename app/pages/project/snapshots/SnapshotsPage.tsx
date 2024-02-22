@@ -7,6 +7,7 @@
  */
 import { Badge } from 'libs/ui/lib/badge/Badge'
 import { buttonStyle } from 'libs/ui/lib/button/Button'
+import { EmptyMessage } from 'libs/ui/lib/empty-message/EmptyMessage'
 import { Link, Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
@@ -23,13 +24,7 @@ import {
   useQueryTable,
   type MenuAction,
 } from '@oxide/table'
-import {
-  EmptyMessage,
-  PageHeader,
-  PageTitle,
-  Snapshots24Icon,
-  TableActions,
-} from '@oxide/ui'
+import { PageHeader, PageTitle, Snapshots24Icon, TableActions } from '@oxide/ui'
 
 import { SnapshotStatusBadge } from 'app/components/StatusBadge'
 import { getProjectSelector, useProjectSelector } from 'app/hooks'

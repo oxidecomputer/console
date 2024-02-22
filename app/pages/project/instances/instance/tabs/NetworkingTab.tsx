@@ -7,6 +7,7 @@
  */
 import { Badge } from 'libs/ui/lib/badge/Badge'
 import { Button } from 'libs/ui/lib/button/Button'
+import { EmptyMessage } from 'libs/ui/lib/empty-message/EmptyMessage'
 import { useState } from 'react'
 import { type LoaderFunctionArgs } from 'react-router-dom'
 
@@ -20,7 +21,7 @@ import {
   type InstanceNetworkInterface,
 } from '@oxide/api'
 import { LinkCell, SkeletonCell, useQueryTable, type MenuAction } from '@oxide/table'
-import { EmptyMessage, Networking24Icon, Success12Icon } from '@oxide/ui'
+import { Networking24Icon, Success12Icon } from '@oxide/ui'
 
 import CreateNetworkInterfaceForm from 'app/forms/network-interface-create'
 import EditNetworkInterfaceForm from 'app/forms/network-interface-edit'

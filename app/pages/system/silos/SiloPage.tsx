@@ -6,12 +6,12 @@
  * Copyright Oxide Computer Company
  */
 import { Badge } from 'libs/ui/lib/badge/Badge'
+import { EmptyMessage } from 'libs/ui/lib/empty-message/EmptyMessage'
 import { type LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import {
   Cloud24Icon,
-  EmptyMessage,
   NextArrow12Icon,
   PageHeader,
   PageTitle,

@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { Button, buttonStyle } from 'libs/ui/lib/button/Button'
+import { EmptyMessage } from 'libs/ui/lib/empty-message/EmptyMessage'
 import { useMemo } from 'react'
 import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
@@ -18,7 +19,6 @@ import {
   useQueryTable,
 } from '@oxide/table'
 import {
-  EmptyMessage,
   Instances24Icon,
   PageHeader,
   PageTitle,

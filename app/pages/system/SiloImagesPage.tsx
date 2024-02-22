@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { Button } from 'libs/ui/lib/button/Button'
+import { EmptyMessage } from 'libs/ui/lib/empty-message/EmptyMessage'
 import { useMemo, useState } from 'react'
 import { type FieldValues } from 'react-hook-form'
 import { Outlet } from 'react-router-dom'
@@ -19,7 +20,6 @@ import {
 } from '@oxide/api'
 import { DateCell, linkCell, SizeCell, useQueryTable, type MenuAction } from '@oxide/table'
 import {
-  EmptyMessage,
   Images24Icon,
   Message,
   Modal,

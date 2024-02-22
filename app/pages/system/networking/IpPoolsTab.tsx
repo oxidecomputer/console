@@ -7,6 +7,7 @@
  */
 
 import { buttonStyle } from 'libs/ui/lib/button/Button'
+import { EmptyMessage } from 'libs/ui/lib/empty-message/EmptyMessage'
 import { useMemo } from 'react'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 
@@ -17,7 +18,7 @@ import {
   type IpPool,
 } from '@oxide/api'
 import { DateCell, linkCell, useQueryTable, type MenuAction } from '@oxide/table'
-import { EmptyMessage, Networking24Icon } from '@oxide/ui'
+import { Networking24Icon } from '@oxide/ui'
 
 import { useQuickActions } from 'app/hooks'
 import { confirmDelete } from 'app/stores/confirm-delete'

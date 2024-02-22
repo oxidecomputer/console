@@ -7,10 +7,11 @@
  */
 import { Badge } from 'libs/ui/lib/badge/Badge'
 import { buttonStyle } from 'libs/ui/lib/button/Button'
+import { EmptyMessage } from 'libs/ui/lib/empty-message/EmptyMessage'
 import { Link, Outlet } from 'react-router-dom'
 
 import { DateCell, DefaultCell, linkCell, TruncateCell, useQueryTable } from '@oxide/table'
-import { Cloud24Icon, EmptyMessage } from '@oxide/ui'
+import { Cloud24Icon } from '@oxide/ui'
 
 import { useSiloSelector } from 'app/hooks'
 import { pb } from 'app/util/path-builder'

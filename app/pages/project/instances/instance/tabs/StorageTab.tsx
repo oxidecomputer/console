@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { Button } from 'libs/ui/lib/button/Button'
+import { EmptyMessage } from 'libs/ui/lib/empty-message/EmptyMessage'
 import { useCallback, useMemo, useState } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 
@@ -20,7 +21,7 @@ import {
   type Disk,
 } from '@oxide/api'
 import { DateCell, SizeCell, useQueryTable, type MenuAction } from '@oxide/table'
-import { EmptyMessage, Storage24Icon } from '@oxide/ui'
+import { Storage24Icon } from '@oxide/ui'
 
 import { DiskStatusBadge } from 'app/components/StatusBadge'
 import AttachDiskSideModalForm from 'app/forms/disk-attach'

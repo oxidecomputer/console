@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { EmptyMessage } from 'libs/ui/lib/empty-message/EmptyMessage'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient } from '@oxide/api'
@@ -14,7 +15,7 @@ import {
   useQueryTable,
   type MenuAction,
 } from '@oxide/table'
-import { EmptyMessage, Instances24Icon } from '@oxide/ui'
+import { Instances24Icon } from '@oxide/ui'
 import { pick } from '@oxide/util'
 
 import { InstanceStatusBadge } from 'app/components/StatusBadge'

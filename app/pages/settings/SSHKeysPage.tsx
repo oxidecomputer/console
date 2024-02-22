@@ -6,18 +6,12 @@
  * Copyright Oxide Computer Company
  */
 import { buttonStyle } from 'libs/ui/lib/button/Button'
+import { EmptyMessage } from 'libs/ui/lib/empty-message/EmptyMessage'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 
 import { apiQueryClient, useApiMutation, useApiQueryClient, type SshKey } from '@oxide/api'
 import { DateCell, useQueryTable, type MenuAction } from '@oxide/table'
-import {
-  EmptyMessage,
-  Key16Icon,
-  Key24Icon,
-  PageHeader,
-  PageTitle,
-  TableActions,
-} from '@oxide/ui'
+import { Key16Icon, Key24Icon, PageHeader, PageTitle, TableActions } from '@oxide/ui'
 
 import { confirmDelete } from 'app/stores/confirm-delete'
 import { pb } from 'app/util/path-builder'

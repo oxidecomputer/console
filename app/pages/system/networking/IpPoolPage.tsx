@@ -8,6 +8,7 @@
 
 import { Badge } from 'libs/ui/lib/badge/Badge'
 import { Button, buttonStyle } from 'libs/ui/lib/button/Button'
+import { EmptyMessage } from 'libs/ui/lib/empty-message/EmptyMessage'
 import { useMemo, useState } from 'react'
 import { Link, Outlet, type LoaderFunctionArgs } from 'react-router-dom'
 
@@ -28,7 +29,6 @@ import {
   type MenuAction,
 } from '@oxide/table'
 import {
-  EmptyMessage,
   Message,
   Modal,
   Networking24Icon,

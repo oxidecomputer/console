@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { Button } from 'libs/ui/lib/button/Button'
+import { EmptyMessage } from 'libs/ui/lib/empty-message/EmptyMessage'
 import { useMemo, useState } from 'react'
 
 import {
@@ -25,7 +26,7 @@ import {
   TypeValueListCell,
   useReactTable,
 } from '@oxide/table'
-import { EmptyMessage, TableEmptyBox } from '@oxide/ui'
+import { TableEmptyBox } from '@oxide/ui'
 import { sortBy, titleCase } from '@oxide/util'
 
 import { CreateFirewallRuleForm } from 'app/forms/firewall-rules-create'

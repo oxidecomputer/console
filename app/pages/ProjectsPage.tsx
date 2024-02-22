@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { buttonStyle } from 'libs/ui/lib/button/Button'
+import { EmptyMessage } from 'libs/ui/lib/empty-message/EmptyMessage'
 import { useMemo } from 'react'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 
@@ -17,7 +18,7 @@ import {
   type Project,
 } from '@oxide/api'
 import { DateCell, linkCell, useQueryTable, type MenuAction } from '@oxide/table'
-import { EmptyMessage, Folder24Icon, PageHeader, PageTitle, TableActions } from '@oxide/ui'
+import { Folder24Icon, PageHeader, PageTitle, TableActions } from '@oxide/ui'
 
 import { confirmDelete } from 'app/stores/confirm-delete'
 import { pb } from 'app/util/path-builder'
