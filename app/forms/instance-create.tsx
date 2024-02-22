@@ -9,6 +9,7 @@ import * as Accordion from '@radix-ui/react-accordion'
 import cn from 'classnames'
 import { FormDivider } from 'libs/ui/lib/divider/Divider'
 import { EmptyMessage } from 'libs/ui/lib/empty-message/EmptyMessage'
+import { Message } from 'libs/ui/lib/message/Message'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useWatch, type Control } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
@@ -28,7 +29,6 @@ import {
   DirectionRightIcon,
   Images16Icon,
   Instances24Icon,
-  Message,
   RadioCard,
   Tabs,
   TextInputHint,

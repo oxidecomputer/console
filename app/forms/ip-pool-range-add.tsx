@@ -5,10 +5,10 @@
  *
  * Copyright Oxide Computer Company
  */
+import { Message } from 'libs/ui/lib/message/Message'
 import { useNavigate } from 'react-router-dom'
 
 import { useApiMutation, useApiQueryClient, type IpRange } from '@oxide/api'
-import { Message } from '@oxide/ui'
 import { validateIp } from '@oxide/util'
 
 import { SideModalForm, TextField } from 'app/components/form'

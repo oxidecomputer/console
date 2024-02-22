@@ -7,6 +7,7 @@
  */
 import cn from 'classnames'
 import { filesize } from 'filesize'
+import { Message } from 'libs/ui/lib/message/Message'
 import pMap from 'p-map'
 import pRetry from 'p-retry'
 import { useRef, useState } from 'react'
@@ -22,7 +23,6 @@ import {
 } from '@oxide/api'
 import {
   Error12Icon,
-  Message,
   Modal,
   Progress,
   Spinner,

@@ -12,7 +12,6 @@ import './styles/index.css'
 
 export { useInterval, useTimeout }
 
-export * from './lib/message/Message'
 export * from './lib/listbox/Listbox'
 export * from './lib/message/Message'
 export * from './lib/modal/Modal'
