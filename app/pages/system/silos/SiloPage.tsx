@@ -5,11 +5,11 @@
  *
  * Copyright Oxide Computer Company
  */
+import { Badge } from 'libs/ui/lib/badge/Badge'
 import { type LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import {
-  Badge,
   Cloud24Icon,
   EmptyMessage,
   NextArrow12Icon,

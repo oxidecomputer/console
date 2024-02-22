@@ -5,6 +5,8 @@
  *
  * Copyright Oxide Computer Company
  */
+import { Badge } from 'libs/ui/lib/badge/Badge'
+import { buttonStyle } from 'libs/ui/lib/button/Button'
 import { useMemo } from 'react'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 
@@ -22,15 +24,7 @@ import {
   useQueryTable,
   type MenuAction,
 } from '@oxide/table'
-import {
-  Badge,
-  buttonStyle,
-  Cloud24Icon,
-  EmptyMessage,
-  PageHeader,
-  PageTitle,
-  TableActions,
-} from '@oxide/ui'
+import { Cloud24Icon, EmptyMessage, PageHeader, PageTitle, TableActions } from '@oxide/ui'
 
 import { useQuickActions } from 'app/hooks/use-quick-actions'
 import { confirmDelete } from 'app/stores/confirm-delete'

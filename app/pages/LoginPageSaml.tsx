@@ -8,9 +8,11 @@
 import cn from 'classnames'
 import { useSearchParams } from 'react-router-dom'
 
-import { buttonStyle, Identicon } from '@oxide/ui'
+import { Identicon } from '@oxide/ui'
 
 import 'app/components/login-page.css'
+
+import { buttonStyle } from 'libs/ui/lib/button/Button'
 
 import { useIdpSelector } from '../hooks'
 

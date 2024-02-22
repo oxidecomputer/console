@@ -5,12 +5,12 @@
  *
  * Copyright Oxide Computer Company
  */
+import { buttonStyle } from 'libs/ui/lib/button/Button'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 
 import { apiQueryClient, useApiMutation, useApiQueryClient, type SshKey } from '@oxide/api'
 import { DateCell, useQueryTable, type MenuAction } from '@oxide/table'
 import {
-  buttonStyle,
   EmptyMessage,
   Key16Icon,
   Key24Icon,

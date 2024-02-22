@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
+import { buttonStyle } from 'libs/ui/lib/button/Button'
 import { useMemo } from 'react'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 
@@ -16,7 +17,7 @@ import {
   type IpPool,
 } from '@oxide/api'
 import { DateCell, linkCell, useQueryTable, type MenuAction } from '@oxide/table'
-import { buttonStyle, EmptyMessage, Networking24Icon } from '@oxide/ui'
+import { EmptyMessage, Networking24Icon } from '@oxide/ui'
 
 import { useQuickActions } from 'app/hooks'
 import { confirmDelete } from 'app/stores/confirm-delete'

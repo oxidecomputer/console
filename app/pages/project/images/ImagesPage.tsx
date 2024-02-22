@@ -5,13 +5,13 @@
  *
  * Copyright Oxide Computer Company
  */
+import { buttonStyle } from 'libs/ui/lib/button/Button'
 import { useState } from 'react'
 import { Link, Outlet, type LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, useApiMutation, useApiQueryClient, type Image } from '@oxide/api'
 import { DateCell, linkCell, SizeCell, useQueryTable, type MenuAction } from '@oxide/table'
 import {
-  buttonStyle,
   EmptyMessage,
   Images24Icon,
   Message,

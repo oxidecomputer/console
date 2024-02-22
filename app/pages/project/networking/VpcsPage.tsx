@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { buttonStyle } from 'libs/ui/lib/button/Button'
 import { useMemo } from 'react'
 import { Link, Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
@@ -17,7 +18,6 @@ import {
 } from '@oxide/api'
 import { DateCell, linkCell, useQueryTable, type MenuAction } from '@oxide/table'
 import {
-  buttonStyle,
   EmptyMessage,
   Networking24Icon,
   PageHeader,

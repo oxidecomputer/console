@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { buttonStyle } from 'libs/ui/lib/button/Button'
 import { Link, Outlet, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
@@ -24,14 +25,7 @@ import {
   useQueryTable,
   type MenuAction,
 } from '@oxide/table'
-import {
-  buttonStyle,
-  EmptyMessage,
-  PageHeader,
-  PageTitle,
-  Storage24Icon,
-  TableActions,
-} from '@oxide/ui'
+import { EmptyMessage, PageHeader, PageTitle, Storage24Icon, TableActions } from '@oxide/ui'
 
 import { DiskStatusBadge } from 'app/components/StatusBadge'
 import { getProjectSelector, useProjectSelector, useToast } from 'app/hooks'
