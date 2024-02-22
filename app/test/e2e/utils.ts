@@ -127,17 +127,6 @@ export async function clickRowAction(page: Page, rowText: string, actionName: st
   await page.getByRole('menuitem', { name: actionName }).click()
 }
 
-/** Select a Listbox and click the specified option */
-export async function clickListboxItem(
-  page: Page,
-  buttonName: string,
-  optionName: string,
-  exact?: boolean
-) {
-  await page.getByRole('button', { name: buttonName }).click()
-  await page.getByRole('option', { name: optionName, exact }).click()
-}
-
 export async function getPageAsUser(
   browser: Browser,
   user: 'Hans Jonas' | 'Simone de Beauvoir'

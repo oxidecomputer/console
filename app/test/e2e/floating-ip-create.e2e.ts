@@ -7,7 +7,6 @@
  */
 
 import {
-  clickListboxItem,
   clickRowAction,
   expect,
   expectNotVisible,
@@ -48,7 +47,8 @@ test('can create a Floating IP', async ({ page }) => {
   await expectVisible(page, [page.getByRole('button', { name: 'IP pool' }), addressTextbox])
 
   // test that the IP validation works
-  await clickListboxItem(page, 'IP pool', 'ip-pool-1')
+  await page.getByRole('button', { name: 'IP pool' }).click()
+  await page.getByRole('option', { name: 'ip-pool-1', exact: true }).click()
   await addressTextbox.fill('256.256.256.256')
   await page.getByRole('button', { name: 'Create Floating IP' }).click()
   await expect(page.getByText('Not a valid IP address').first()).toBeVisible()
@@ -82,7 +82,9 @@ test('can detach and attach a Floating IP', async ({ page }) => {
 
   // Reattach it to db1
   await clickRowAction(page, 'cola-float', 'Attach')
-  await clickListboxItem(page, 'Select instance', 'db1')
+  await page.getByRole('button', { name: 'Select instance' }).click()
+  await page.getByRole('option', { name: 'db1' }).click()
+
   await page.getByRole('button', { name: 'Attach' }).click()
 
   // The dialog should be gone
