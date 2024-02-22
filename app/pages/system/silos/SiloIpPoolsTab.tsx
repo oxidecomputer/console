@@ -6,19 +6,13 @@
  * Copyright Oxide Computer Company
  */
 
+import { Badge } from 'libs/ui/lib/badge/Badge'
+import { Button } from 'libs/ui/lib/button/Button'
 import { useMemo, useState } from 'react'
 
 import { useApiMutation, useApiQuery, useApiQueryClient, type SiloIpPool } from '@oxide/api'
 import { linkCell, useQueryTable, type MenuAction } from '@oxide/table'
-import {
-  Badge,
-  Button,
-  EmptyMessage,
-  Message,
-  Modal,
-  Networking24Icon,
-  Success12Icon,
-} from '@oxide/ui'
+import { EmptyMessage, Message, Modal, Networking24Icon, Success12Icon } from '@oxide/ui'
 
 import { ExternalLink } from 'app/components/ExternalLink'
 import { ListboxField } from 'app/components/form'

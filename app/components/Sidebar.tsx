@@ -6,9 +6,10 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
+import { Button } from 'libs/ui/lib/button/Button'
 import { NavLink } from 'react-router-dom'
 
-import { Action16Icon, Button, Document16Icon, Truncate } from '@oxide/ui'
+import { Action16Icon, Document16Icon, Truncate } from '@oxide/ui'
 
 import { openQuickActions } from 'app/hooks'
 

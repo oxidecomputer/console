@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { Button } from 'libs/ui/lib/button/Button'
 import { useMemo, useState } from 'react'
 
 import {
@@ -22,7 +23,6 @@ import {
 import { createColumnHelper, getActionsCol, Table, useReactTable } from '@oxide/table'
 import {
   Access24Icon,
-  Button,
   EmptyMessage,
   PageHeader,
   PageTitle,

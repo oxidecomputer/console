@@ -6,11 +6,11 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
+import { Button } from 'libs/ui/lib/button/Button'
 import { Link } from 'react-router-dom'
 
 import { useApiQuery, type Project } from '@oxide/api'
 import {
-  Button,
   DropdownMenu,
   Folder16Icon,
   Identicon,

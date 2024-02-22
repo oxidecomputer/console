@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { Button, buttonStyle } from 'libs/ui/lib/button/Button'
 import { useMemo } from 'react'
 import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
@@ -17,8 +18,6 @@ import {
   useQueryTable,
 } from '@oxide/table'
 import {
-  Button,
-  buttonStyle,
   EmptyMessage,
   Instances24Icon,
   PageHeader,

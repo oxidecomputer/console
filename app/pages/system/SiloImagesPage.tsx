@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { Button } from 'libs/ui/lib/button/Button'
 import { useMemo, useState } from 'react'
 import { type FieldValues } from 'react-hook-form'
 import { Outlet } from 'react-router-dom'
@@ -18,7 +19,6 @@ import {
 } from '@oxide/api'
 import { DateCell, linkCell, SizeCell, useQueryTable, type MenuAction } from '@oxide/table'
 import {
-  Button,
   EmptyMessage,
   Images24Icon,
   Message,

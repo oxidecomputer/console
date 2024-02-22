@@ -7,6 +7,7 @@
  */
 import '@tanstack/react-table'
 
+import { Button } from 'libs/ui/lib/button/Button'
 import { useMemo, useState } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 
@@ -25,7 +26,6 @@ import {
 import { createColumnHelper, getActionsCol, Table, useReactTable } from '@oxide/table'
 import {
   Access24Icon,
-  Button,
   EmptyMessage,
   PageHeader,
   PageTitle,

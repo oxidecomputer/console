@@ -6,8 +6,9 @@
  * Copyright Oxide Computer Company
  */
 import type { Row, Table } from '@tanstack/react-table'
+import { Checkbox } from 'libs/ui/lib/checkbox/Checkbox'
 
-import { Checkbox, Radio } from '@oxide/ui'
+import { Radio } from '@oxide/ui'
 
 // only needs to be a function because of the generic params
 export const getSelectCol = <TData,>() => ({

@@ -6,6 +6,8 @@
  * Copyright Oxide Computer Company
  */
 
+import { Badge } from 'libs/ui/lib/badge/Badge'
+import { Button, buttonStyle } from 'libs/ui/lib/button/Button'
 import { useMemo, useState } from 'react'
 import { Link, Outlet, type LoaderFunctionArgs } from 'react-router-dom'
 
@@ -26,9 +28,6 @@ import {
   type MenuAction,
 } from '@oxide/table'
 import {
-  Badge,
-  Button,
-  buttonStyle,
   EmptyMessage,
   Message,
   Modal,

@@ -5,13 +5,13 @@
  *
  * Copyright Oxide Computer Company
  */
+import { Button } from 'libs/ui/lib/button/Button'
+import { Checkbox } from 'libs/ui/lib/checkbox/Checkbox'
 import { useState } from 'react'
 import { useController, type Control } from 'react-hook-form'
 
 import { usePrefetchedApiQuery } from '@oxide/api'
 import {
-  Button,
-  Checkbox,
   Divider,
   EmptyMessage,
   FieldLabel,

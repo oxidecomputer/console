@@ -5,9 +5,8 @@
  *
  * Copyright Oxide Computer Company
  */
+import { Checkbox, type CheckboxProps } from 'libs/ui/lib/checkbox/Checkbox'
 import { Controller, type Control, type FieldPath, type FieldValues } from 'react-hook-form'
-
-import { Checkbox, type CheckboxProps } from '@oxide/ui'
 
 type CheckboxFieldProps<
   TFieldValues extends FieldValues,
