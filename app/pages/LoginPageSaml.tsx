@@ -6,9 +6,8 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
+import { Identicon } from 'libs/ui/lib/identicon/Identicon'
 import { useSearchParams } from 'react-router-dom'
-
-import { Identicon } from '@oxide/ui'
 
 import 'app/components/login-page.css'
 

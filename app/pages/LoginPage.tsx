@@ -6,11 +6,11 @@
  * Copyright Oxide Computer Company
  */
 import { Button } from 'libs/ui/lib/button/Button'
+import { Identicon } from 'libs/ui/lib/identicon/Identicon'
 import { useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import { useApiMutation, type UsernamePasswordCredentials } from '@oxide/api'
-import { Identicon } from '@oxide/ui'
 
 import { TextFieldInner } from 'app/components/form'
 
