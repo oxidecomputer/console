@@ -6,11 +6,12 @@
  * Copyright Oxide Computer Company
  */
 import { Button, buttonStyle } from 'libs/ui/lib/button/Button'
+import { DropdownMenu } from 'libs/ui/lib/dropdown-menu/DropdownMenu'
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { navToLogin, useApiMutation } from '@oxide/api'
-import { DirectionDownIcon, DropdownMenu, Info16Icon, Profile16Icon } from '@oxide/ui'
+import { DirectionDownIcon, Info16Icon, Profile16Icon } from '@oxide/ui'
 
 import { useCurrentUser } from 'app/layouts/AuthenticatedLayout'
 import { pb } from 'app/util/path-builder'

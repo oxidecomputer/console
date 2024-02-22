@@ -7,11 +7,11 @@
  */
 import cn from 'classnames'
 import { Button } from 'libs/ui/lib/button/Button'
+import { DropdownMenu } from 'libs/ui/lib/dropdown-menu/DropdownMenu'
 import { Link } from 'react-router-dom'
 
 import { useApiQuery, type Project } from '@oxide/api'
 import {
-  DropdownMenu,
   Folder16Icon,
   Identicon,
   SelectArrows6Icon,

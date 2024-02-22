@@ -12,7 +12,6 @@ import './styles/index.css'
 
 export { useInterval, useTimeout }
 
-export * from './lib/dropdown-menu/DropdownMenu'
 export * from './lib/file-input/FileInput'
 export * from './lib/empty-message/EmptyMessage'
 export * from './lib/field-label/FieldLabel'
