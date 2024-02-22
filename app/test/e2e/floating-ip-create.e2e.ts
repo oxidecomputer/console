@@ -48,7 +48,7 @@ test('can create a Floating IP', async ({ page }) => {
 
   // test that the IP validation works
   await page.getByRole('button', { name: 'IP pool' }).click()
-  await page.getByRole('option', { name: 'ip-pool-1', exact: true }).click()
+  await page.getByRole('option', { name: 'ip-pool-1' }).click()
   await addressTextbox.fill('256.256.256.256')
   await page.getByRole('button', { name: 'Create Floating IP' }).click()
   await expect(page.getByText('Not a valid IP address').first()).toBeVisible()
