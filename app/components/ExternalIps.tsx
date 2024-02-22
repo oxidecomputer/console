@@ -6,9 +6,10 @@
  * Copyright Oxide Computer Company
  */
 
+import { CopyToClipboard } from 'libs/ui/lib/copy-to-clipboard/CopyToClipboard'
+
 import { useApiQuery } from '@oxide/api'
 import { EmptyCell, SkeletonCell } from '@oxide/table'
-import { CopyToClipboard } from '@oxide/ui'
 import { intersperse } from '@oxide/util'
 
 type InstanceSelector = { project: string; instance: string }
