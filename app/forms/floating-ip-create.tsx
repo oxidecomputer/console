@@ -121,7 +121,7 @@ export function CreateFloatingIpSideModalForm() {
         >
           <Message
             variant="info"
-            content="If you don’t specify a pool, the default will be used."
+            content="If you don’t specify a pool, the default will be used"
           />
 
           <ListboxField
