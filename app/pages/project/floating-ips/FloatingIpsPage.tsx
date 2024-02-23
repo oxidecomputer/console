@@ -62,7 +62,6 @@ FloatingIpsPage.loader = async ({ params }: LoaderFunctionArgs) => {
 }
 
 export function FloatingIpsPage() {
-  const [attachModalOpen, setAttachModalOpen] = useState(false)
   const [floatingIpToModify, setFloatingIpToModify] = useState<FloatingIp | null>(null)
   const queryClient = useApiQueryClient()
   const { project } = useProjectSelector()
@@ -122,7 +121,6 @@ export function FloatingIpsPage() {
           label: 'Attach',
           onActivate() {
             setFloatingIpToModify(floatingIp)
-            setAttachModalOpen(true)
           },
         }
     return [
@@ -166,13 +164,13 @@ export function FloatingIpsPage() {
         />
       </Table>
       <Outlet />
-      {attachModalOpen && floatingIpToModify && (
+      {floatingIpToModify && (
         <AttachFloatingIpModal
           floatingIp={floatingIpToModify.name}
           address={floatingIpToModify.ip}
           instances={instances.items}
           project={project}
-          onDismiss={() => setAttachModalOpen(false)}
+          onDismiss={() => setFloatingIpToModify(null)}
         />
       )}
     </>
