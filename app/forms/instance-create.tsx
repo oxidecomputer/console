@@ -6,8 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import * as Accordion from '@radix-ui/react-accordion'
-import cn from 'classnames'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useWatch, type Control } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 import type { SetRequired } from 'type-fest'
@@ -23,7 +22,6 @@ import {
   type InstanceCreate,
 } from '@oxide/api'
 import {
-  DirectionRightIcon,
   EmptyMessage,
   FormDivider,
   Images16Icon,
@@ -35,6 +33,7 @@ import {
 } from '@oxide/ui'
 import { GiB, invariant } from '@oxide/util'
 
+import { AccordionItem } from 'app/components/AccordionItem'
 import {
   CheckboxField,
   DescriptionField,
@@ -484,41 +483,6 @@ const AdvancedAccordion = ({
         />
       </AccordionItem>
     </Accordion.Root>
-  )
-}
-
-type AccordionItemProps = {
-  value: string
-  isOpen: boolean
-  label: string
-  children: React.ReactNode
-}
-
-function AccordionItem({ value, label, children, isOpen }: AccordionItemProps) {
-  const contentRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    if (isOpen && contentRef.current) {
-      contentRef.current.scrollIntoView({ behavior: 'smooth' })
-    }
-  }, [isOpen])
-
-  return (
-    <Accordion.Item value={value}>
-      <Accordion.Header className="max-w-lg">
-        <Accordion.Trigger className="group flex w-full items-center justify-between border-t py-2 text-sans-xl border-secondary [&>svg]:data-[state=open]:rotate-90">
-          <div className="text-secondary">{label}</div>
-          <DirectionRightIcon className="transition-all text-secondary" />
-        </Accordion.Trigger>
-      </Accordion.Header>
-      <Accordion.Content
-        ref={contentRef}
-        forceMount
-        className={cn('ox-accordion-content overflow-hidden py-8', { hidden: !isOpen })}
-      >
-        {children}
-      </Accordion.Content>
-    </Accordion.Item>
   )
 }
 

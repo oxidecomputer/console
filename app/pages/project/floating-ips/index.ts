@@ -6,10 +6,4 @@
  * Copyright Oxide Computer Company
  */
 
-export * from './access'
-export * from './disks'
-export * from './images'
-export * from './instances'
-export * from './vpcs'
-export * from './floating-ips'
-export * from './snapshots'
+export * from './FloatingIpsPage'

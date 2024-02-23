@@ -81,6 +81,19 @@ export const lookup = {
 
     return disk
   },
+  floatingIp({ floatingIp: id, ...projectSelector }: PP.FloatingIp): Json<Api.FloatingIp> {
+    if (!id) throw notFoundErr
+
+    if (isUuid(id)) return lookupById(db.floatingIps, id)
+
+    const project = lookup.project(projectSelector)
+    const floatingIp = db.floatingIps.find(
+      (i) => i.project_id === project.id && i.name === id
+    )
+    if (!floatingIp) throw notFoundErr
+
+    return floatingIp
+  },
   snapshot({ snapshot: id, ...projectSelector }: PP.Snapshot): Json<Api.Snapshot> {
     if (!id) throw notFoundErr
 
@@ -245,6 +258,7 @@ type DiskBulkImport = {
 const initDb = {
   disks: [...mock.disks],
   diskBulkImportState: new Map<string, DiskBulkImport>(),
+  floatingIps: [...mock.floatingIps],
   userGroups: [...mock.userGroups],
   /** Join table for `users` and `userGroups` */
   groupMemberships: [...mock.groupMemberships],

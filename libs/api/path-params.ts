@@ -22,5 +22,6 @@ export type SystemUpdate = { version: string }
 export type SshKey = { sshKey: string }
 export type Sled = { sledId?: string }
 export type IpPool = { pool?: string }
+export type FloatingIp = Merge<Project, { floatingIp?: string }>
 
 export type Id = { id: string }

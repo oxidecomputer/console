@@ -12,7 +12,7 @@ import { expectNotVisible, expectVisible } from './utils'
 test('Create and edit VPC', async ({ page }) => {
   await page.goto('/projects/mock-project')
 
-  await page.click('role=link[name*="Networking"]')
+  await page.click('role=link[name*="VPCs"]')
   await expectVisible(page, [
     'role=heading[name*="VPCs"]',
     'role=cell[name="mock-vpc"] >> nth=0',

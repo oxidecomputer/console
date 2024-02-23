@@ -10,7 +10,7 @@ import { expect, test } from '@playwright/test'
 test('can nav to VpcPage from /', async ({ page }) => {
   await page.goto('/')
   await page.click('table :text("mock-project")')
-  await page.click('a:has-text("Networking")')
+  await page.click('a:has-text("VPCs")')
   await page.click('a:has-text("mock-vpc")')
   await expect(page.locator('text=mock-subnet')).toBeVisible()
   expect(await page.title()).toEqual('mock-vpc / VPCs / mock-project / Oxide Console')

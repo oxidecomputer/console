@@ -223,6 +223,50 @@ export const handlers = makeHandlers({
 
     return 204
   },
+  floatingIpCreate({ body, query }) {
+    const project = lookup.project(query)
+    errIfExists(db.floatingIps, { name: body.name })
+
+    const newFloatingIp: Json<Api.FloatingIp> = {
+      id: uuid(),
+      project_id: project.id,
+      ip: [...Array(4)].map(() => Math.floor(Math.random() * 256)).join('.'),
+      ...body,
+      ...getTimestamps(),
+    }
+    db.floatingIps.push(newFloatingIp)
+    return json(newFloatingIp, { status: 201 })
+  },
+  floatingIpList({ query }) {
+    const project = lookup.project(query)
+    const ips = db.floatingIps.filter((i) => i.project_id === project.id)
+    return paginated(query, ips)
+  },
+  floatingIpView: ({ path, query }) => lookup.floatingIp({ ...path, ...query }),
+  floatingIpDelete({ path, query }) {
+    const floatingIp = lookup.floatingIp({ ...path, ...query })
+    db.floatingIps = db.floatingIps.filter((i) => i.id !== floatingIp.id)
+
+    return 204
+  },
+  floatingIpAttach({ path, query, body }) {
+    const floatingIp = lookup.floatingIp({ ...path, ...query })
+    if (floatingIp.instance_id) {
+      throw 'floating IP cannot be attached to one instance while still attached to another'
+    }
+    const instance = lookup.instance({ ...path, ...query, instance: body.parent })
+    floatingIp.instance_id = instance.id
+
+    return floatingIp
+  },
+  floatingIpDetach({ path, query }) {
+    const floatingIp = lookup.floatingIp({ ...path, ...query })
+    db.floatingIps = db.floatingIps.map((ip) =>
+      ip.id !== floatingIp.id ? ip : { ...ip, instance_id: undefined }
+    )
+
+    return floatingIp
+  },
   imageList({ query }) {
     if (query.project) {
       const project = lookup.project(query)
@@ -1129,12 +1173,6 @@ export const handlers = makeHandlers({
   certificateDelete: NotImplemented,
   certificateList: NotImplemented,
   certificateView: NotImplemented,
-  floatingIpCreate: NotImplemented,
-  floatingIpDelete: NotImplemented,
-  floatingIpList: NotImplemented,
-  floatingIpView: NotImplemented,
-  floatingIpAttach: NotImplemented,
-  floatingIpDetach: NotImplemented,
   instanceEphemeralIpDetach: NotImplemented,
   instanceEphemeralIpAttach: NotImplemented,
   instanceMigrate: NotImplemented,

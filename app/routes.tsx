@@ -10,6 +10,7 @@ import { createRoutesFromElements, Navigate, Route } from 'react-router-dom'
 import { RouterDataErrorBoundary } from './components/ErrorBoundary'
 import { NotFound } from './components/ErrorPage'
 import { CreateDiskSideModalForm } from './forms/disk-create'
+import { CreateFloatingIpSideModalForm } from './forms/floating-ip-create'
 import { CreateIdpSideModalForm } from './forms/idp/create'
 import { EditIdpSideModalForm } from './forms/idp/edit'
 import {
@@ -46,6 +47,7 @@ import { LoginPageSaml } from './pages/LoginPageSaml'
 import { instanceLookupLoader } from './pages/lookups'
 import {
   DisksPage,
+  FloatingIpsPage,
   ImagesPage,
   InstancePage,
   InstancesPage,
@@ -347,6 +349,16 @@ export const routes = createRoutesFromElements(
             element={<VpcPage />}
             loader={VpcPage.loader}
             handle={{ crumb: vpcCrumb }}
+          />
+        </Route>
+
+        <Route loader={FloatingIpsPage.loader} element={<FloatingIpsPage />}>
+          <Route path="floating-ips" handle={{ crumb: 'Floating IPs' }} element={null} />
+          <Route
+            path="floating-ips-new"
+            loader={CreateFloatingIpSideModalForm.loader}
+            element={<CreateFloatingIpSideModalForm />}
+            handle={{ crumb: 'New Floating IP' }}
           />
         </Route>
 
