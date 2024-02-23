@@ -25,7 +25,6 @@
     "gen-api": "./tools/generate_api_client.sh",
     "ladle": "IS_LADLE=1 ladle serve",
     "build:ladle": "IS_LADLE=1 ladle build",
-    "unused-exports": "ts-unused-exports tsconfig.json --ignoreFiles=\\.stories --excludePathsFromReport=\"libs/api/index.ts;libs/ui/index.ts\"",
     "postinstall": "patch-package",
     "prepare": "husky"
   },
