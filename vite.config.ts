@@ -144,7 +144,7 @@ export default defineConfig(({ mode }) => ({
   },
   test: {
     environment: 'jsdom',
-    setupFiles: ['app/test/unit/setup.ts'],
+    setupFiles: ['test/unit/setup.ts'],
     includeSource: ['app/**/*.ts', 'libs/**/*.ts'],
   },
 }))

@@ -10,9 +10,12 @@ import { fireEvent, render, screen } from '@testing-library/react'
 import ResizeObserverPolyfill from 'resize-observer-polyfill'
 import { beforeAll, describe, expect, it, vi } from 'vitest'
 
-import { clickByRole } from 'app/test/unit'
-
 import { DateTimeRangePicker, type RangeKey } from './DateTimeRangePicker'
+
+export function clickByRole(role: string, name: string) {
+  const element = screen.getByRole(role, { name })
+  fireEvent.click(element)
+}
 
 const now = getNow(getLocalTimeZone())
 
