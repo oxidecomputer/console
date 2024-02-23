@@ -11,7 +11,9 @@ import { useBlocker, type Blocker } from 'react-router-dom'
 
 import type { ApiError } from '@oxide/api'
 import { Modal, PageHeader, PageTitle } from '@oxide/ui'
-import { classed, flattenChildren, pluckFirstOfType } from '@oxide/util'
+import { flattenChildren, pluckFirstOfType } from '@oxide/util'
+
+import { classed } from '~/util/classed'
 
 import { Form } from '../form/Form'
 import { PageActions } from '../PageActions'

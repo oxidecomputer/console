@@ -50,7 +50,7 @@
 import cn from 'classnames'
 import React from 'react'
 
-import { classed } from '@oxide/util'
+import { classed } from '~/util/classed'
 
 export const RadioGroupHint = classed.p`text-base text-secondary text-sans-sm max-w-3xl`
 

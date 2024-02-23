@@ -12,8 +12,8 @@ import React, { createContext, useContext, useRef, type ReactNode } from 'react'
 
 import { Close12Icon, Error12Icon } from '@oxide/design-system/icons/react'
 import { Message, useIsInModal } from '@oxide/ui'
-import { classed } from '@oxide/util'
 
+import { classed } from '~/util/classed'
 import { useIsOverflow } from 'app/hooks'
 
 import './side-modal.css'

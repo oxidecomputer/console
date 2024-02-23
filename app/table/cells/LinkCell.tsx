@@ -7,7 +7,7 @@
  */
 import { Link } from 'react-router-dom'
 
-import { classed } from '@oxide/util'
+import { classed } from '~/util/classed'
 
 import type { Cell } from './Cell'
 

@@ -9,9 +9,9 @@ import { useRef } from 'react'
 import { Outlet } from 'react-router-dom'
 
 import { SkipLinkTarget } from '@oxide/ui'
-import { classed } from '@oxide/util'
 
 import { Pagination } from '~/components/Pagination'
+import { classed } from '~/util/classed'
 import { PageActionsTarget } from 'app/components/PageActions'
 import { useScrollRestoration } from 'app/hooks/use-scroll-restoration'
 

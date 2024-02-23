@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { classed } from '@oxide/util'
+import { classed } from '~/util/classed'
 
 /** Gets special styling from being inside `.ox-form` */
 export const FormDivider = classed.hr`ox-divider w-full border-t border-secondary`

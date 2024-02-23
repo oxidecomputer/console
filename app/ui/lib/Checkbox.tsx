@@ -8,7 +8,8 @@
 import cn from 'classnames'
 
 import { Checkmark12Icon } from '@oxide/design-system/icons/react'
-import { classed } from '@oxide/util'
+
+import { classed } from '~/util/classed'
 
 const Check = () => (
   <Checkmark12Icon className="pointer-events-none absolute left-0.5 top-0.5 h-3 w-3 fill-current text-accent" />

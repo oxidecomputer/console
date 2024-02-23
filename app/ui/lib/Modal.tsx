@@ -10,7 +10,8 @@ import { animated, useTransition } from '@react-spring/web'
 import React, { createContext, forwardRef, useContext, useId } from 'react'
 
 import { Close12Icon } from '@oxide/design-system/icons/react'
-import { classed } from '@oxide/util'
+
+import { classed } from '~/util/classed'
 
 import { Button } from './Button'
 

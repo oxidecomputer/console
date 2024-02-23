@@ -11,8 +11,7 @@ import SimpleBar from 'simplebar-react'
 
 import 'simplebar-react/dist/simplebar.min.css'
 
-import { classed } from '@oxide/util'
-
+import { classed } from '~/util/classed'
 import { useIsOverflow } from 'app/hooks'
 
 import './table.css'

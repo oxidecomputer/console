@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { classed } from '@oxide/util'
+import { classed } from '~/util/classed'
 
 export const EmptyCell = () => <span className="text-sans-md text-quinary">&mdash;</span>
 

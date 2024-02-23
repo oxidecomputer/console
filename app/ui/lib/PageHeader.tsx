@@ -7,7 +7,7 @@
  */
 import type { ReactElement } from 'react'
 
-import { classed } from '@oxide/util'
+import { classed } from '~/util/classed'
 
 export const PageHeader = classed.header`mb-16 mt-12 flex items-center justify-between`
 

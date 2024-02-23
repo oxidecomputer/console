@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { classed } from '@oxide/util'
+import { classed } from '~/util/classed'
 
 import { Table as BigTable } from './Table'
 

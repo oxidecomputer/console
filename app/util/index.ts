@@ -8,7 +8,6 @@
 
 export * from './array'
 export * from './children'
-export * from './classed'
 export * from './date'
 export * from './invariant'
 export * from './math'

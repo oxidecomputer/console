@@ -10,7 +10,8 @@ import { Terminal as XTerm, type ITerminalOptions } from 'xterm'
 import { FitAddon } from 'xterm-addon-fit'
 
 import { DirectionDownIcon, DirectionUpIcon } from '@oxide/ui'
-import { classed } from '@oxide/util'
+
+import { classed } from '~/util/classed'
 
 import { AttachAddon } from './AttachAddon'
 
