@@ -7,7 +7,7 @@
  */
 import { createServer } from '@mswjs/http-middleware'
 
-import { handlers } from '@oxide/api-mocks'
+import { handlers } from '../mock-api/msw/handlers'
 
 // TODO: take port argument
 createServer(...handlers).listen(12220)

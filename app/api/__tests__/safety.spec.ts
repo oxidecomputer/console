@@ -32,17 +32,26 @@ const grepFiles = (s: string) =>
     .split('\n')
     .filter((f) => !/safety\.spec\.ts/.test(f)) // this file doesn't count
 
-it('@oxide/api-mocks is only referenced in test files', () => {
+it('mock-api is only referenced in test files', () => {
   expect(grepFiles('api-mocks')).toMatchInlineSnapshot(`
     [
       "app/api/__tests__/hooks.spec.tsx",
-      "app/msw-mock-api.ts",
       "mock-api/msw/db.ts",
       "test/e2e/instance-create.e2e.ts",
       "test/e2e/inventory.e2e.ts",
       "test/e2e/profile.e2e.ts",
       "test/e2e/project-access.e2e.ts",
       "test/e2e/silo-access.e2e.ts",
+      "tsconfig.json",
+    ]
+  `)
+  expect(grepFiles('mock-api')).toMatchInlineSnapshot(`
+    [
+      "README.md",
+      "app/main.tsx",
+      "app/msw-mock-api.ts",
+      "docs/mock-api-differences.md",
+      "package.json",
       "test/e2e/utils.ts",
       "test/unit/server.ts",
       "test/unit/setup.ts",

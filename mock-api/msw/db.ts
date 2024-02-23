@@ -11,7 +11,6 @@ import { validate as isUuid } from 'uuid'
 
 import type { ApiTypes as Api, PathParams as PP } from '@oxide/api'
 import * as mock from '@oxide/api-mocks'
-import { user1 } from '@oxide/api-mocks'
 import { pick } from '@oxide/util'
 
 import type { Json } from '../json-type'
@@ -223,7 +222,7 @@ export const lookup = {
   },
   sshKey({ sshKey: id }: PP.SshKey): Json<Api.SshKey> {
     // we don't have a concept of mock session. assume the user is user1
-    const userSshKeys = db.sshKeys.filter((key) => key.silo_user_id === user1.id)
+    const userSshKeys = db.sshKeys.filter((key) => key.silo_user_id === mock.user1.id)
 
     if (isUuid(id)) return lookupById(userSshKeys, id)
 

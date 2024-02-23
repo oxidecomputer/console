@@ -8,7 +8,7 @@
 import { http, HttpResponse } from 'msw'
 import { setupServer } from 'msw/node'
 
-import { handlers } from '@oxide/api-mocks'
+import { handlers } from '../../mock-api/msw/handlers'
 
 export const server = setupServer(
   ...handlers.map((h) => {
