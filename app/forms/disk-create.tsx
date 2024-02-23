@@ -23,15 +23,13 @@ import {
 import { FieldLabel, FormDivider, Radio, RadioGroup } from '@oxide/ui'
 import { bytesToGiB, GiB } from '@oxide/util'
 
-import {
-  DescriptionField,
-  DiskSizeField,
-  ListboxField,
-  NameField,
-  RadioField,
-  SideModalForm,
-  toListboxItem,
-} from 'app/components/form'
+import { DescriptionField } from '~/components/form/fields/DescriptionField'
+import { DiskSizeField } from '~/components/form/fields/DiskSizeField'
+import { toListboxItem } from '~/components/form/fields/ImageSelectField'
+import { ListboxField } from '~/components/form/fields/ListboxField'
+import { NameField } from '~/components/form/fields/NameField'
+import { RadioField } from '~/components/form/fields/RadioField'
+import { SideModalForm } from '~/components/form/SideModalForm'
 import { useForm, useProjectSelector, useToast } from 'app/hooks'
 
 const blankDiskSource: DiskSource = {

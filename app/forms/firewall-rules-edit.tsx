@@ -12,7 +12,7 @@ import {
   type VpcFirewallRule,
 } from '@oxide/api'
 
-import { SideModalForm } from 'app/components/form'
+import { SideModalForm } from '~/components/form/SideModalForm'
 import { useForm, useVpcSelector } from 'app/hooks'
 
 import {

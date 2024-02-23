@@ -20,16 +20,14 @@ import {
 } from '@oxide/api'
 import { Badge, Button, Error16Icon, FormDivider, MiniTable } from '@oxide/ui'
 
-import {
-  CheckboxField,
-  DescriptionField,
-  ListboxField,
-  NameField,
-  NumberField,
-  RadioField,
-  SideModalForm,
-  TextField,
-} from 'app/components/form'
+import { CheckboxField } from '~/components/form/fields/CheckboxField'
+import { DescriptionField } from '~/components/form/fields/DescriptionField'
+import { ListboxField } from '~/components/form/fields/ListboxField'
+import { NameField } from '~/components/form/fields/NameField'
+import { NumberField } from '~/components/form/fields/NumberField'
+import { RadioField } from '~/components/form/fields/RadioField'
+import { TextField } from '~/components/form/fields/TextField'
+import { SideModalForm } from '~/components/form/SideModalForm'
 import { useForm, useVpcSelector } from 'app/hooks'
 
 export type FirewallRuleValues = {

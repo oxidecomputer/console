@@ -28,7 +28,8 @@ import {
   TableActions,
 } from '@oxide/ui'
 
-import { ListboxField, toListboxItem } from 'app/components/form'
+import { toListboxItem } from '~/components/form/fields/ImageSelectField'
+import { ListboxField } from '~/components/form/fields/ListboxField'
 import { useForm, useToast } from 'app/hooks'
 import { confirmDelete } from 'app/stores/confirm-delete'
 import { addToast } from 'app/stores/toast'

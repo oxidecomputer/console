@@ -20,14 +20,12 @@ import {
 import { Badge, Message } from '@oxide/ui'
 import { validateIp } from '@oxide/util'
 
+import { DescriptionField } from '~/components/form/fields/DescriptionField'
+import { ListboxField } from '~/components/form/fields/ListboxField'
+import { NameField } from '~/components/form/fields/NameField'
+import { TextField } from '~/components/form/fields/TextField'
+import { SideModalForm } from '~/components/form/SideModalForm'
 import { AccordionItem } from 'app/components/AccordionItem'
-import {
-  DescriptionField,
-  ListboxField,
-  NameField,
-  SideModalForm,
-  TextField,
-} from 'app/components/form'
 import { useForm, useProjectSelector, useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 

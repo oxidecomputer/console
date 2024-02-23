@@ -32,25 +32,25 @@ import {
 } from '@oxide/ui'
 import { GiB, invariant } from '@oxide/util'
 
+import { CheckboxField } from '~/components/form/fields/CheckboxField'
+import { DescriptionField } from '~/components/form/fields/DescriptionField'
+import { DiskSizeField } from '~/components/form/fields/DiskSizeField'
+import {
+  DisksTableField,
+  type DiskTableItem,
+} from '~/components/form/fields/DisksTableField'
+import { FileField } from '~/components/form/fields/FileField'
+import { ImageSelectField } from '~/components/form/fields/ImageSelectField'
+import { NameField } from '~/components/form/fields/NameField'
+import { NetworkInterfaceField } from '~/components/form/fields/NetworkInterfaceField'
+import { NumberField } from '~/components/form/fields/NumberField'
+import { RadioFieldDyn } from '~/components/form/fields/RadioField'
+import { SshKeysField } from '~/components/form/fields/SshKeysField'
+import { TextField } from '~/components/form/fields/TextField'
+import { Form } from '~/components/form/Form'
+import { FullPageForm } from '~/components/form/FullPageForm'
 import { TextInputHint } from '~/ui/lib/TextInput'
 import { AccordionItem } from 'app/components/AccordionItem'
-import {
-  CheckboxField,
-  DescriptionField,
-  DiskSizeField,
-  DisksTableField,
-  FileField,
-  Form,
-  FullPageForm,
-  ImageSelectField,
-  NameField,
-  NetworkInterfaceField,
-  NumberField,
-  RadioFieldDyn,
-  SshKeysField,
-  TextField,
-  type DiskTableItem,
-} from 'app/components/form'
 import { getProjectSelector, useForm, useProjectSelector, useToast } from 'app/hooks'
 import { readBlobAsBase64 } from 'app/util/file'
 import { links } from 'app/util/links'

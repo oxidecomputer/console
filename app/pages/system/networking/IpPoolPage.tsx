@@ -39,8 +39,8 @@ import {
   Tabs,
 } from '@oxide/ui'
 
+import { ListboxField } from '~/components/form/fields/ListboxField'
 import { ExternalLink } from 'app/components/ExternalLink'
-import { ListboxField } from 'app/components/form'
 import { HL } from 'app/components/HL'
 import { QueryParamTabs } from 'app/components/QueryParamTabs'
 import { getIpPoolSelector, useForm, useIpPoolSelector } from 'app/hooks'

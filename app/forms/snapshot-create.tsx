@@ -16,12 +16,10 @@ import {
   type SnapshotCreate,
 } from '@oxide/api'
 
-import {
-  DescriptionField,
-  ListboxField,
-  NameField,
-  SideModalForm,
-} from 'app/components/form'
+import { DescriptionField } from '~/components/form/fields/DescriptionField'
+import { ListboxField } from '~/components/form/fields/ListboxField'
+import { NameField } from '~/components/form/fields/NameField'
+import { SideModalForm } from '~/components/form/SideModalForm'
 import { useForm, useProjectSelector, useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 

@@ -11,7 +11,10 @@ import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import { Access16Icon, PropertiesTable, ResourceLabel, Truncate } from '@oxide/ui'
 import { formatDateTime } from '@oxide/util'
 
-import { DescriptionField, NameField, SideModalForm, TextField } from 'app/components/form'
+import { DescriptionField } from '~/components/form/fields/DescriptionField'
+import { NameField } from '~/components/form/fields/NameField'
+import { TextField } from '~/components/form/fields/TextField'
+import { SideModalForm } from '~/components/form/SideModalForm'
 import { getIdpSelector, useForm, useIdpSelector } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 

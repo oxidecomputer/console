@@ -30,15 +30,13 @@ import {
 } from '@oxide/ui'
 import { GiB, invariant, KiB } from '@oxide/util'
 
+import { DescriptionField } from '~/components/form/fields/DescriptionField'
+import { FileField } from '~/components/form/fields/FileField'
+import { NameField } from '~/components/form/fields/NameField'
+import { RadioField } from '~/components/form/fields/RadioField'
+import { TextField } from '~/components/form/fields/TextField'
+import { SideModalForm } from '~/components/form/SideModalForm'
 import { Progress } from '~/ui/lib/Progress'
-import {
-  DescriptionField,
-  FileField,
-  NameField,
-  RadioField,
-  SideModalForm,
-  TextField,
-} from 'app/components/form'
 import { useForm, useProjectSelector } from 'app/hooks'
 import { readBlobAsBase64 } from 'app/util/file'
 import { pb } from 'app/util/path-builder'
