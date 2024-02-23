@@ -11,10 +11,9 @@ import { useNavigate } from 'react-router-dom'
 import type { SetRequired } from 'type-fest'
 
 import {
-  apiQueryClient,
   useApiMutation,
+  useApiQuery,
   useApiQueryClient,
-  usePrefetchedApiQuery,
   type FloatingIpCreate,
   type SiloIpPool,
 } from '@oxide/api'
@@ -31,13 +30,6 @@ import {
 } from 'app/components/form'
 import { useForm, useProjectSelector, useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
-
-CreateFloatingIpSideModalForm.loader = async () => {
-  await apiQueryClient.prefetchQuery('projectIpPoolList', {
-    query: { limit: 1000 },
-  })
-  return null
-}
 
 const toListboxItem = (p: SiloIpPool) => {
   if (!p.isDefault) {
@@ -66,8 +58,9 @@ const defaultValues: SetRequired<FloatingIpCreate, 'address'> = {
 }
 
 export function CreateFloatingIpSideModalForm() {
-  // Fetch 1000 to we can be sure to get them all.
-  const { data: allPools } = usePrefetchedApiQuery('projectIpPoolList', {
+  // Fetch 1000 to we can be sure to get them all. Don't bother prefetching
+  // because the list is hidden under the Advanced accordion.
+  const { data: allPools } = useApiQuery('projectIpPoolList', {
     query: { limit: 1000 },
   })
 
@@ -126,7 +119,7 @@ export function CreateFloatingIpSideModalForm() {
 
           <ListboxField
             name="pool"
-            items={allPools.items.map((p) => toListboxItem(p))}
+            items={(allPools?.items || []).map((p) => toListboxItem(p))}
             label="IP pool"
             control={form.control}
             placeholder="Select pool"
