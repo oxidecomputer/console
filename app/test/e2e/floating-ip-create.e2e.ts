@@ -68,19 +68,34 @@ test('can create a Floating IP', async ({ page }) => {
 })
 
 test('can detach and attach a Floating IP', async ({ page }) => {
+  // check floating IP is visible on instance detail
+  await page.goto('/projects/mock-project/instances/db1')
+  await expect(page.getByText('192.168.64.64')).toBeVisible()
+
+  // now go detach it
   await page.goto(floatingIpsPage)
 
   await expectRowVisible(page.getByRole('table'), {
+    name: 'cola-float',
+    ip: '192.168.64.64',
     'Attached to instance': 'db1',
   })
   await clickRowAction(page, 'cola-float', 'Detach')
   await page.getByRole('button', { name: 'Confirm' }).click()
 
-  await expectNotVisible(page, ['role=heading[name*="Detach Floating IP"]'])
+  await expect(page.getByRole('dialog')).toBeHidden()
   // Since we detached it, we don't expect to see db1 any longer
-  await expectNotVisible(page, ['text=db1'])
+  await expect(page.getByRole('cell', { name: 'db1' })).toBeHidden()
 
-  // Reattach it to db1
+  // click back over to instance page (can't use goto because it refreshes) and
+  // confirm the IP is no longer there either
+  await page.getByRole('link', { name: 'Instances' }).click()
+  await page.getByRole('link', { name: 'db1' }).click()
+  await expect(page.getByRole('heading', { name: 'db1' })).toBeVisible()
+  await expect(page.getByText('192.168.64.64')).toBeHidden()
+
+  // Now click back to floating IPs and reattach it to db1
+  await page.getByRole('link', { name: 'Floating IPs' }).click()
   await clickRowAction(page, 'cola-float', 'Attach')
   await page.getByRole('button', { name: 'Select instance' }).click()
   await page.getByRole('option', { name: 'db1' }).click()
@@ -88,8 +103,10 @@ test('can detach and attach a Floating IP', async ({ page }) => {
   await page.getByRole('button', { name: 'Attach' }).click()
 
   // The dialog should be gone
-  await expectNotVisible(page, ['role=heading[name*="Attach Floating IP"]'])
+  await expect(page.getByRole('dialog')).toBeHidden()
   await expectRowVisible(page.getByRole('table'), {
+    name: 'cola-float',
+    ip: '192.168.64.64',
     'Attached to instance': 'db1',
   })
 })
