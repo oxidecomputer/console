@@ -8,10 +8,10 @@
 import { useRef } from 'react'
 import { Outlet } from 'react-router-dom'
 
-import { Pagination } from '@oxide/pagination'
 import { SkipLinkTarget } from '@oxide/ui'
 import { classed } from '@oxide/util'
 
+import { Pagination } from '~/components/Pagination'
 import { PageActionsTarget } from 'app/components/PageActions'
 import { useScrollRestoration } from 'app/hooks/use-scroll-restoration'
 

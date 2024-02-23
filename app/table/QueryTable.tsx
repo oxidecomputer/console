@@ -31,9 +31,11 @@ import {
   type Result,
   type ResultItem,
 } from '@oxide/api'
-import { Pagination, usePagination } from '@oxide/pagination'
 import { EmptyMessage, TableEmptyBox } from '@oxide/ui'
 import { invariant, isOneOf } from '@oxide/util'
+
+import { Pagination } from '~/components/Pagination'
+import { usePagination } from '~/hooks/use-pagination'
 
 import { DefaultCell } from './cells'
 import { getActionsCol, getMultiSelectCol, getSelectCol, type MakeActions } from './columns'
