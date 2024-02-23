@@ -5,7 +5,11 @@
  *
  * Copyright Oxide Computer Company
  */
-import { formatDistanceToNowStrict, type FormatDistanceToNowStrictOptions } from 'date-fns'
+import {
+  format,
+  formatDistanceToNowStrict,
+  type FormatDistanceToNowStrictOptions,
+} from 'date-fns'
 
 // locale setup and formatDistance function copied from here and modified
 // https://github.com/date-fns/date-fns/blob/56a3856/src/locale/en-US/_lib/formatDistance/index.js
@@ -42,3 +46,5 @@ export const timeAgoAbbr = (d: Date, options?: FormatDistanceToNowStrictOptions)
       },
     },
   })
+
+export const formatDateTime = (d: Date) => format(d, 'MMM d, yyyy H:mm aa')
