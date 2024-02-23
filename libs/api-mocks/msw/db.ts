@@ -263,7 +263,7 @@ const initDb = {
   /** Join table for `users` and `userGroups` */
   groupMemberships: [...mock.groupMemberships],
   images: [...mock.images],
-  externalIps: [...mock.externalIps],
+  ephemeralIps: [...mock.ephemeralIps],
   instances: [...mock.instances],
   ipPools: [...mock.ipPools],
   ipPoolSilos: [...mock.ipPoolSilos],

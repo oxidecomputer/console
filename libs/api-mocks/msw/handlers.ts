@@ -496,11 +496,18 @@ export const handlers = makeHandlers({
   },
   instanceExternalIpList({ path, query }) {
     const instance = lookup.instance({ ...path, ...query })
-    const externalIps = db.externalIps
+
+    const ephemeralIps = db.ephemeralIps
       .filter((eip) => eip.instance_id === instance.id)
       .map((eip) => eip.external_ip)
+
+    // floating IPs are missing their `kind` field in the DB so we add it
+    const floatingIps = db.floatingIps
+      .filter((f) => f.instance_id === instance.id)
+      .map((f) => ({ kind: 'floating' as const, ...f }))
+
     // endpoint is not paginated. or rather, it's fake paginated
-    return { items: externalIps }
+    return { items: [...ephemeralIps, ...floatingIps] }
   },
   instanceNetworkInterfaceList({ query }) {
     const instance = lookup.instance(query)
