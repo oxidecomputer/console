@@ -7,6 +7,7 @@
  */
 import { getLocalTimeZone, now } from '@internationalized/date'
 import { useIsFetching } from '@tanstack/react-query'
+import { Listbox } from 'libs/ui/lib/listbox/Listbox'
 import { useMemo, useState } from 'react'
 
 import {
@@ -15,15 +16,7 @@ import {
   totalUtilization,
   usePrefetchedApiQuery,
 } from '@oxide/api'
-import {
-  Listbox,
-  Metrics24Icon,
-  PageHeader,
-  PageTitle,
-  ResourceMeter,
-  Table,
-  Tabs,
-} from '@oxide/ui'
+import { Metrics24Icon, PageHeader, PageTitle, ResourceMeter, Table, Tabs } from '@oxide/ui'
 import { bytesToGiB, bytesToTiB, round } from '@oxide/util'
 
 import { CapacityBars } from 'app/components/CapacityBars'

@@ -6,9 +6,9 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
+import { Listbox, type ListboxItem } from 'libs/ui/lib/listbox/Listbox'
 import { Controller, type Control, type FieldPath, type FieldValues } from 'react-hook-form'
 
-import { Listbox, type ListboxItem } from '@oxide/ui'
 import { capitalize } from '@oxide/util'
 
 import { ErrorMessage } from './ErrorMessage'

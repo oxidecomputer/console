@@ -5,10 +5,10 @@
  *
  * Copyright Oxide Computer Company
  */
+import type { ListboxItem } from 'libs/ui/lib/listbox/Listbox'
 import { useController, type Control } from 'react-hook-form'
 
 import type { Image } from '@oxide/api'
-import type { ListboxItem } from '@oxide/ui'
 import { bytesToGiB, GiB } from '@oxide/util'
 
 import type { InstanceCreateInput } from 'app/forms/instance-create'

@@ -7,16 +7,10 @@
  */
 import cn from 'classnames'
 import { format } from 'date-fns'
+import { Listbox, type ListboxItem } from 'libs/ui/lib/listbox/Listbox'
 import { useEffect, useState } from 'react'
 
-import {
-  Listbox,
-  Refresh16Icon,
-  SpinnerLoader,
-  Time16Icon,
-  useInterval,
-  type ListboxItem,
-} from '@oxide/ui'
+import { Refresh16Icon, SpinnerLoader, Time16Icon, useInterval } from '@oxide/ui'
 
 const intervalPresets = {
   Off: undefined,

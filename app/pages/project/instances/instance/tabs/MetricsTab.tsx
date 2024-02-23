@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { EmptyMessage } from 'libs/ui/lib/empty-message/EmptyMessage'
+import { Listbox } from 'libs/ui/lib/listbox/Listbox'
 import React, { Suspense, useMemo, useState } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 
@@ -16,7 +17,7 @@ import {
   type Cumulativeint64,
   type DiskMetricName,
 } from '@oxide/api'
-import { Listbox, Spinner, Storage24Icon, TableEmptyBox } from '@oxide/ui'
+import { Spinner, Storage24Icon, TableEmptyBox } from '@oxide/ui'
 
 import { useDateTimeRangePicker } from 'app/components/form'
 import { getInstanceSelector, useInstanceSelector } from 'app/hooks'

@@ -7,9 +7,8 @@
  */
 import { getLocalTimeZone, now as getNow, type DateValue } from '@internationalized/date'
 import { DateRangePicker } from 'libs/ui/lib/date-picker/DateRangePicker'
+import { Listbox } from 'libs/ui/lib/listbox/Listbox'
 import { useMemo, useState } from 'react'
-
-import { Listbox } from '@oxide/ui'
 
 const rangePresets = [
   { label: 'Last hour', value: 'lastHour' as const },
