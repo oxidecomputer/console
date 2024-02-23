@@ -5,12 +5,6 @@
  *
  * Copyright Oxide Computer Company
  */
-import useInterval from './lib/use-interval'
-import useTimeout from './lib/use-timeout'
-
-import './styles/index.css'
-
-export { useInterval, useTimeout }
 
 export * from './lib/ActionMenu'
 export * from './lib/AuthCodeInput'

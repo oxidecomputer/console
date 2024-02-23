@@ -14,9 +14,10 @@ import {
   Refresh16Icon,
   SpinnerLoader,
   Time16Icon,
-  useInterval,
   type ListboxItem,
 } from '@oxide/ui'
+
+import useInterval from '~/ui/lib/use-interval'
 
 const intervalPresets = {
   Off: undefined,

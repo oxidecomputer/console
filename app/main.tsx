@@ -21,6 +21,8 @@ import { ReduceMotion } from './hooks'
 import { startMockAPI } from './msw-mock-api'
 import { routes } from './routes'
 
+import './ui/styles/index.css'
+
 if (process.env.SHA) {
   console.info(
     'Oxide Web Console version',
