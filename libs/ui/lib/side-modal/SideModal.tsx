@@ -9,10 +9,10 @@ import * as Dialog from '@radix-ui/react-dialog'
 import { animated, useTransition } from '@react-spring/web'
 import cn from 'classnames'
 import { Message } from 'libs/ui/lib/message/Message'
+import { useIsInModal } from 'libs/ui/lib/modal/Modal'
 import React, { createContext, useContext, useRef, type ReactNode } from 'react'
 
 import { Close12Icon, Error12Icon } from '@oxide/design-system/icons/react'
-import { useIsInModal } from '@oxide/ui'
 import { classed } from '@oxide/util'
 
 import { useIsOverflow } from 'app/hooks'

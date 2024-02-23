@@ -12,8 +12,6 @@ import './styles/index.css'
 
 export { useInterval, useTimeout }
 
-export * from './lib/message/Message'
-export * from './lib/modal/Modal'
 export * from './lib/ModalLinks'
 export * as MiniTable from './lib/mini-table/MiniTable'
 export * from './lib/number-input/NumberInput'

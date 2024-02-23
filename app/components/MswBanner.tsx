@@ -6,9 +6,10 @@
  * Copyright Oxide Computer Company
  */
 import { Button } from 'libs/ui/lib/button/Button'
+import { Modal } from 'libs/ui/lib/modal/Modal'
 import { useState, type ReactNode } from 'react'
 
-import { Info16Icon, Modal, ModalLink, ModalLinks, NextArrow12Icon } from '@oxide/ui'
+import { Info16Icon, ModalLink, ModalLinks, NextArrow12Icon } from '@oxide/ui'
 
 function ExternalLink({ href, children }: { href: string; children: ReactNode }) {
   return (

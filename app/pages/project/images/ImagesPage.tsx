@@ -8,12 +8,13 @@
 import { buttonStyle } from 'libs/ui/lib/button/Button'
 import { EmptyMessage } from 'libs/ui/lib/empty-message/EmptyMessage'
 import { Message } from 'libs/ui/lib/message/Message'
+import { Modal } from 'libs/ui/lib/modal/Modal'
 import { useState } from 'react'
 import { Link, Outlet, type LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, useApiMutation, useApiQueryClient, type Image } from '@oxide/api'
 import { DateCell, linkCell, SizeCell, useQueryTable, type MenuAction } from '@oxide/table'
-import { Images24Icon, Modal, PageHeader, PageTitle, TableActions } from '@oxide/ui'
+import { Images24Icon, PageHeader, PageTitle, TableActions } from '@oxide/ui'
 
 import { getProjectSelector, useProjectSelector, useToast } from 'app/hooks'
 import { confirmDelete } from 'app/stores/confirm-delete'

@@ -10,6 +10,7 @@ import { Badge } from 'libs/ui/lib/badge/Badge'
 import { Button, buttonStyle } from 'libs/ui/lib/button/Button'
 import { EmptyMessage } from 'libs/ui/lib/empty-message/EmptyMessage'
 import { Message } from 'libs/ui/lib/message/Message'
+import { Modal } from 'libs/ui/lib/modal/Modal'
 import { useMemo, useState } from 'react'
 import { Link, Outlet, type LoaderFunctionArgs } from 'react-router-dom'
 
@@ -29,14 +30,7 @@ import {
   useQueryTable,
   type MenuAction,
 } from '@oxide/table'
-import {
-  Modal,
-  Networking24Icon,
-  PageHeader,
-  PageTitle,
-  Success12Icon,
-  Tabs,
-} from '@oxide/ui'
+import { Networking24Icon, PageHeader, PageTitle, Success12Icon, Tabs } from '@oxide/ui'
 
 import { ExternalLink } from 'app/components/ExternalLink'
 import { ListboxField } from 'app/components/form'

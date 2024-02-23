@@ -8,6 +8,7 @@
 import { Button } from 'libs/ui/lib/button/Button'
 import { EmptyMessage } from 'libs/ui/lib/empty-message/EmptyMessage'
 import { Message } from 'libs/ui/lib/message/Message'
+import { Modal } from 'libs/ui/lib/modal/Modal'
 import { useMemo, useState } from 'react'
 import { type FieldValues } from 'react-hook-form'
 import { Outlet } from 'react-router-dom'
@@ -20,7 +21,7 @@ import {
   type Image,
 } from '@oxide/api'
 import { DateCell, linkCell, SizeCell, useQueryTable, type MenuAction } from '@oxide/table'
-import { Images24Icon, Modal, PageHeader, PageTitle, TableActions } from '@oxide/ui'
+import { Images24Icon, PageHeader, PageTitle, TableActions } from '@oxide/ui'
 
 import { ListboxField, toListboxItem } from 'app/components/form'
 import { useForm, useToast } from 'app/hooks'

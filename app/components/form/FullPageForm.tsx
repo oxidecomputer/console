@@ -5,12 +5,13 @@
  *
  * Copyright Oxide Computer Company
  */
+import { Modal } from 'libs/ui/lib/modal/Modal'
 import { cloneElement, useEffect, type ReactElement, type ReactNode } from 'react'
 import type { FieldValues, UseFormReturn } from 'react-hook-form'
 import { useBlocker, type Blocker } from 'react-router-dom'
 
 import type { ApiError } from '@oxide/api'
-import { Modal, PageHeader, PageTitle } from '@oxide/ui'
+import { PageHeader, PageTitle } from '@oxide/ui'
 import { classed, flattenChildren, pluckFirstOfType } from '@oxide/util'
 
 import { Form } from '../form/Form'

@@ -6,9 +6,10 @@
  * Copyright Oxide Computer Company
  */
 import { Button } from 'libs/ui/lib/button/Button'
+import { Modal } from 'libs/ui/lib/modal/Modal'
 import { useState } from 'react'
 
-import { Modal, Success12Icon, useTimeout } from '@oxide/ui'
+import { Success12Icon, useTimeout } from '@oxide/ui'
 
 export default function EquivalentCliCommand({ command }: { command: string }) {
   const [isOpen, setIsOpen] = useState(false)

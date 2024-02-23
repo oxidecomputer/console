@@ -5,10 +5,10 @@
  *
  * Copyright Oxide Computer Company
  */
+import { Modal } from 'libs/ui/lib/modal/Modal'
 import { useState } from 'react'
 
 import { type ApiError } from '@oxide/api'
-import { Modal } from '@oxide/ui'
 
 import { clearConfirmAction, useConfirmAction } from 'app/stores/confirm-action'
 import { addToast } from 'app/stores/toast'

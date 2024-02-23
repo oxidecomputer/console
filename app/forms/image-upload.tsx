@@ -8,6 +8,7 @@
 import cn from 'classnames'
 import { filesize } from 'filesize'
 import { Message } from 'libs/ui/lib/message/Message'
+import { Modal } from 'libs/ui/lib/modal/Modal'
 import pMap from 'p-map'
 import pRetry from 'p-retry'
 import { useRef, useState } from 'react'
@@ -23,7 +24,6 @@ import {
 } from '@oxide/api'
 import {
   Error12Icon,
-  Modal,
   Progress,
   Spinner,
   Success12Icon,
