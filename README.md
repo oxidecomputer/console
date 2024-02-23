@@ -75,7 +75,7 @@ and navigate to http://localhost:4000 in the browser. The running app will autom
 #### Specifying non-default user
 
 Pick a user from the list of users in
-[`libs/api-mocks/user.ts`](/libs/api-mocks/user.ts). The one without fleet
+[`mock-api/user.ts`](/mock-api/user.ts). The one without fleet
 viewer permissions is `Hans Jonas`. Open the browser console and run:
 
 ```js
