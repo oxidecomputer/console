@@ -8,7 +8,7 @@
 import { act, renderHook } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 
-import { usePagination } from '../use-pagination'
+import { usePagination } from '../index.tsx'
 
 describe('usePagination', () => {
   it('starts with empty state', () => {
