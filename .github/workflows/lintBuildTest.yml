@@ -16,7 +16,7 @@ jobs:
           node-version: 20
           cache: 'npm'
       - name: Cache node_modules
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         id: cache-node-modules
         with:
           path: node_modules
@@ -35,7 +35,7 @@ jobs:
           node-version: 20
           cache: 'npm'
       - name: Get node_modules from cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         id: cache-node-modules
         with:
           path: node_modules
@@ -64,7 +64,7 @@ jobs:
           node-version: 20
           cache: 'npm'
       - name: Get node_modules from cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: node_modules
           key: modules-${{ hashFiles('package-lock.json') }}
@@ -74,7 +74,7 @@ jobs:
           echo "PLAYWRIGHT_VERSION=$PLAYWRIGHT_VERSION" >> $GITHUB_ENV
       # Cache browser binaries, cache key is based on Playwright version and OS
       - name: Cache Playwright browser binaries
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         id: playwright-cache
         with:
           path: '~/.cache/ms-playwright'
