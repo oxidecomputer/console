@@ -24,13 +24,13 @@ import {
   Error12Icon,
   Message,
   Modal,
-  Progress,
   Spinner,
   Success12Icon,
   Unauthorized12Icon,
 } from '@oxide/ui'
 import { GiB, invariant, KiB } from '@oxide/util'
 
+import { Progress } from '~/ui/lib/Progress'
 import {
   DescriptionField,
   FileField,

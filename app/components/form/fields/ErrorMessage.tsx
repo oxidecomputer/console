@@ -7,7 +7,7 @@
  */
 import type { FieldError } from 'react-hook-form'
 
-import { TextInputError } from '@oxide/ui'
+import { TextInputError } from '~/ui/lib/TextInput'
 
 type ErrorMessageProps = {
   error: FieldError | undefined

@@ -7,7 +7,10 @@
  */
 import { Controller, type Control, type FieldPath, type FieldValues } from 'react-hook-form'
 
-import { FieldLabel, FileInput, TextInputHint } from '@oxide/ui'
+import { FieldLabel } from '@oxide/ui'
+
+import { FileInput } from '~/ui/lib/FileInput'
+import { TextInputHint } from '~/ui/lib/TextInput'
 
 import { ErrorMessage } from './ErrorMessage'
 

@@ -29,10 +29,10 @@ import {
   Message,
   RadioCard,
   Tabs,
-  TextInputHint,
 } from '@oxide/ui'
 import { GiB, invariant } from '@oxide/util'
 
+import { TextInputHint } from '~/ui/lib/TextInput'
 import { AccordionItem } from 'app/components/AccordionItem'
 import {
   CheckboxField,

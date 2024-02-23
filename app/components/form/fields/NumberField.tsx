@@ -9,8 +9,11 @@ import cn from 'classnames'
 import { useId } from 'react'
 import { Controller, type FieldPathByValue, type FieldValues } from 'react-hook-form'
 
-import { FieldLabel, TextInputHint, NumberInput as UINumberField } from '@oxide/ui'
+import { FieldLabel } from '@oxide/ui'
 import { capitalize } from '@oxide/util'
+
+import { NumberInput } from '~/ui/lib/NumberInput'
+import { TextInputHint } from '~/ui/lib/TextInput'
 
 import { ErrorMessage } from './ErrorMessage'
 import type { TextFieldProps } from './TextField'
@@ -83,7 +86,7 @@ export const NumberFieldInner = <
       render={({ field, fieldState: { error } }) => {
         return (
           <>
-            <UINumberField
+            <NumberInput
               id={id}
               error={!!error}
               aria-labelledby={cn(`${id}-label`, {
