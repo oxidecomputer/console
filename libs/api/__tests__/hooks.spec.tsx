@@ -11,10 +11,9 @@ import { describe, expect, it, vi } from 'vitest'
 
 import { project } from '@oxide/api-mocks'
 
-import { overrideOnce } from 'app/test/unit'
-
 import { useApiMutation, useApiQuery } from '..'
 import type { DiskCreate } from '../__generated__/Api'
+import { overrideOnce } from '../../../test/unit/server'
 
 // because useApiQuery and useApiMutation are almost entirely typed wrappers
 // around React Query's useQuery and useMutation, these tests are mostly about

@@ -33,22 +33,19 @@ const grepFiles = (s: string) =>
     .filter((f) => !/safety\.spec\.ts/.test(f)) // this file doesn't count
 
 it('@oxide/api-mocks is only referenced in test files', () => {
-  const files = grepFiles('api-mocks')
-  expect(files).toMatchInlineSnapshot(`
+  expect(grepFiles('api-mocks')).toMatchInlineSnapshot(`
     [
-      "README.md",
       "app/msw-mock-api.ts",
-      "app/test/e2e/instance-create.e2e.ts",
-      "app/test/e2e/inventory.e2e.ts",
-      "app/test/e2e/profile.e2e.ts",
-      "app/test/e2e/project-access.e2e.ts",
-      "app/test/e2e/silo-access.e2e.ts",
-      "app/test/e2e/utils.ts",
-      "app/test/unit/server.ts",
-      "app/test/unit/setup.ts",
-      "docs/mock-api-differences.md",
-      "libs/api-mocks/msw/db.ts",
       "libs/api/__tests__/hooks.spec.tsx",
+      "mock-api/msw/db.ts",
+      "test/e2e/instance-create.e2e.ts",
+      "test/e2e/inventory.e2e.ts",
+      "test/e2e/profile.e2e.ts",
+      "test/e2e/project-access.e2e.ts",
+      "test/e2e/silo-access.e2e.ts",
+      "test/e2e/utils.ts",
+      "test/unit/server.ts",
+      "test/unit/setup.ts",
       "tools/start_mock_api.ts",
       "tsconfig.json",
     ]
@@ -66,8 +63,8 @@ const listFiles = (s: string) =>
   execSync(`git ls-files | grep "${s}"`).toString().trim().split('\n')
 
 // avoid accidentally making an e2e file in the wrong place
-it('e2e tests are only in app/test/e2e', () => {
+it('e2e tests are only in test/e2e', () => {
   for (const file of listFiles('\\.e2e\\.')) {
-    expect(file).toMatch(/^app\/test\/e2e/)
+    expect(file).toMatch(/^test\/e2e/)
   }
 })
