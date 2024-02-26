@@ -10,9 +10,8 @@ import basicSsl from '@vitejs/plugin-basic-ssl'
 import react from '@vitejs/plugin-react-swc'
 import { defineConfig, type Plugin } from 'vite'
 import { createHtmlPlugin } from 'vite-plugin-html'
+import tsconfigPaths from 'vite-tsconfig-paths'
 import { z } from 'zod'
-
-import tsConfig from './tsconfig.json'
 
 const ApiMode = z.enum(['msw', 'dogfood', 'nexus'])
 
@@ -33,13 +32,6 @@ const apiMode = apiModeResult.data
 
 // if you want a different host you can override it with EXT_HOST
 const DOGFOOD_HOST = process.env.EXT_HOST || 'oxide.sys.rack2.eng.oxide.computer'
-
-const mapObj = <V0, V>(
-  obj: Record<string, V0>,
-  kf: (t: string) => string,
-  vf: (t: V0) => V
-): Record<string, V> =>
-  Object.fromEntries(Object.entries(obj).map(([k, v]) => [kf(k), vf(v)]))
 
 /** Match a semver string like 1.0.0-abc */
 const semverRegex = '\\d+\\.\\d+\\.\\d+([\\-\\+].+)?'
@@ -101,6 +93,7 @@ export default defineConfig(({ mode }) => ({
     'process.env.CHAOS': JSON.stringify(mode !== 'production' && process.env.CHAOS),
   },
   plugins: [
+    tsconfigPaths(),
     createHtmlPlugin({
       inject: {
         tags: process.env.VERCEL ? [previewAnalyticsTag, ...previewMetaTag] : [],
@@ -110,18 +103,6 @@ export default defineConfig(({ mode }) => ({
     dotPathFixPlugin([new RegExp('^/system/update/updates/' + semverRegex)]),
     apiMode === 'dogfood' && basicSsl(),
   ],
-  resolve: {
-    // turn relative paths from tsconfig into absolute paths
-    // replace is there to turn
-    //   "app/*" => "app/*"
-    // into
-    //   "app" => "app"
-    alias: mapObj(
-      tsConfig.compilerOptions.paths,
-      (k) => k.replace('/*', ''),
-      (paths) => resolve(__dirname, paths[0].replace('/*', ''))
-    ),
-  },
   server: {
     port: 4000,
     // these only get hit when MSW doesn't intercept the request
