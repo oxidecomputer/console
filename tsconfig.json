@@ -14,7 +14,6 @@
     "paths": {
       "~/*": ["app/*"],
       "app/*": ["app/*"],
-      "@oxide/gen/*": ["app/api/__generated__/*"],
       "@oxide/api": ["app/api/index.ts"],
       "@oxide/api-mocks": ["mock-api/index.ts"],
       "@oxide/ui": ["app/ui/index.ts"],

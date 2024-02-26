@@ -13,8 +13,10 @@ import type { ApiTypes as Api, PathParams as PP } from '@oxide/api'
 import * as mock from '@oxide/api-mocks'
 import { pick } from '@oxide/util'
 
+import { json } from '~/api/__generated__/msw-handlers'
+
 import type { Json } from '../json-type'
-import { internalError, json } from './util'
+import { internalError } from './util'
 
 const notFoundBody = { error_code: 'ObjectNotFound' } as const
 export type NotFound = typeof notFoundBody

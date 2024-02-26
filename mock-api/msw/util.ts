@@ -19,14 +19,13 @@ import {
   type SystemMetricQueryParams,
   type User,
 } from '@oxide/api'
-import { json, type Json } from '@oxide/gen/msw-handlers'
 import { GiB, isTruthy, TiB } from '@oxide/util'
+
+import { json, type Json } from '~/api/__generated__/msw-handlers'
 
 import type { DbRoleAssignmentResourceType } from '..'
 import { genI64Data } from '../metrics'
 import { db } from './db'
-
-export { json } from '@oxide/gen/msw-handlers'
 
 interface PaginateOptions {
   limit?: number
