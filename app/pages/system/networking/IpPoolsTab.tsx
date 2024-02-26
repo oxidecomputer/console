@@ -15,9 +15,12 @@ import {
   usePrefetchedApiQuery,
   type IpPool,
 } from '@oxide/api'
-import { DateCell, linkCell, useQueryTable, type MenuAction } from '@oxide/table'
 import { buttonStyle, EmptyMessage, Networking24Icon } from '@oxide/ui'
 
+import { DateCell } from '~/table/cells/DateCell'
+import { linkCell } from '~/table/cells/LinkCell'
+import type { MenuAction } from '~/table/columns/action-col'
+import { useQueryTable } from '~/table/QueryTable'
 import { useQuickActions } from 'app/hooks'
 import { confirmDelete } from 'app/stores/confirm-delete'
 import { pb } from 'app/util/path-builder'

@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useMemo, useState } from 'react'
 
 import {
@@ -13,20 +14,16 @@ import {
   usePrefetchedApiQuery,
   type VpcFirewallRule,
 } from '@oxide/api'
-import {
-  ButtonCell,
-  createColumnHelper,
-  DateCell,
-  EnabledCell,
-  FirewallFilterCell,
-  getActionsCol,
-  Table,
-  TypeValueListCell,
-  useReactTable,
-} from '@oxide/table'
 import { Button, EmptyMessage, TableEmptyBox } from '@oxide/ui'
 import { sortBy, titleCase } from '@oxide/util'
 
+import { DateCell } from '~/table/cells/DateCell'
+import { EnabledCell } from '~/table/cells/EnabledCell'
+import { FirewallFilterCell } from '~/table/cells/FirewallFilterCell'
+import { ButtonCell } from '~/table/cells/LinkCell'
+import { TypeValueListCell } from '~/table/cells/TypeValueListCell'
+import { getActionsCol } from '~/table/columns/action-col'
+import { Table } from '~/table/Table'
 import { CreateFirewallRuleForm } from 'app/forms/firewall-rules-create'
 import { EditFirewallRuleForm } from 'app/forms/firewall-rules-edit'
 import { useVpcSelector } from 'app/hooks'
@@ -116,7 +113,7 @@ export const VpcFirewallRulesTab = () => {
     ]
   }, [setEditing, rules, updateRules, vpcSelector])
 
-  const table = useReactTable({ columns, data: rules })
+  const table = useReactTable({ columns, data: rules, getCoreRowModel: getCoreRowModel() })
 
   const emptyState = (
     <TableEmptyBox>

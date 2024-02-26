@@ -6,9 +6,10 @@
  * Copyright Oxide Computer Company
  */
 import { apiQueryClient } from '@oxide/api'
-import { linkCell, useQueryTable } from '@oxide/table'
 import { EmptyMessage, Racks24Icon } from '@oxide/ui'
 
+import { linkCell } from '~/table/cells/LinkCell'
+import { useQueryTable } from '~/table/QueryTable'
 import { pb } from 'app/util/path-builder'
 
 const EmptyState = () => {

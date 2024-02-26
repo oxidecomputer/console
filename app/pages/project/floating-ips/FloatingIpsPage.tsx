@@ -17,7 +17,6 @@ import {
   type FloatingIp,
   type Instance,
 } from '@oxide/api'
-import { InstanceLinkCell, useQueryTable, type MenuAction } from '@oxide/table'
 import {
   buttonStyle,
   EmptyMessage,
@@ -31,6 +30,9 @@ import {
   TableActions,
 } from '@oxide/ui'
 
+import { InstanceLinkCell } from '~/table/cells/InstanceLinkCell'
+import type { MenuAction } from '~/table/columns/action-col'
+import { useQueryTable } from '~/table/QueryTable'
 import { HL } from 'app/components/HL'
 import { getProjectSelector, useProjectSelector } from 'app/hooks'
 import { confirmAction } from 'app/stores/confirm-action'

@@ -15,13 +15,6 @@ import {
   type Snapshot,
 } from '@oxide/api'
 import {
-  DateCell,
-  SizeCell,
-  SkeletonCell,
-  useQueryTable,
-  type MenuAction,
-} from '@oxide/table'
-import {
   Badge,
   buttonStyle,
   EmptyMessage,
@@ -31,6 +24,11 @@ import {
   TableActions,
 } from '@oxide/ui'
 
+import { DateCell } from '~/table/cells/DateCell'
+import { SkeletonCell } from '~/table/cells/EmptyCell'
+import { SizeCell } from '~/table/cells/SizeCell'
+import type { MenuAction } from '~/table/columns/action-col'
+import { useQueryTable } from '~/table/QueryTable'
 import { SnapshotStatusBadge } from 'app/components/StatusBadge'
 import { getProjectSelector, useProjectSelector } from 'app/hooks'
 import { confirmDelete } from 'app/stores/confirm-delete'

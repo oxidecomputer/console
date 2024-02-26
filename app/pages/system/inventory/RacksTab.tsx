@@ -6,8 +6,9 @@
  * Copyright Oxide Computer Company
  */
 import { apiQueryClient } from '@oxide/api'
-import { useQueryTable } from '@oxide/table'
 import { EmptyMessage, Racks24Icon } from '@oxide/ui'
+
+import { useQueryTable } from '~/table/QueryTable'
 
 const EmptyState = () => {
   return (

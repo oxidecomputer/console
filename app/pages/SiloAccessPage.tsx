@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useMemo, useState } from 'react'
 
 import {
@@ -19,7 +20,6 @@ import {
   type IdentityType,
   type RoleKey,
 } from '@oxide/api'
-import { createColumnHelper, getActionsCol, Table, useReactTable } from '@oxide/table'
 import {
   Access24Icon,
   Button,
@@ -31,6 +31,8 @@ import {
 } from '@oxide/ui'
 import { groupBy, isTruthy } from '@oxide/util'
 
+import { getActionsCol } from '~/table/columns/action-col'
+import { Table } from '~/table/Table'
 import { AccessNameCell } from 'app/components/AccessNameCell'
 import { HL } from 'app/components/HL'
 import { RoleBadgeCell } from 'app/components/RoleBadgeCell'
@@ -147,7 +149,11 @@ export function SiloAccessPage() {
     [siloPolicy, updatePolicy]
   )
 
-  const tableInstance = useReactTable({ columns, data: rows })
+  const tableInstance = useReactTable({
+    columns,
+    data: rows,
+    getCoreRowModel: getCoreRowModel(),
+  })
 
   return (
     <>

@@ -18,9 +18,12 @@ import {
   usePrefetchedApiQuery,
   type Disk,
 } from '@oxide/api'
-import { DateCell, SizeCell, useQueryTable, type MenuAction } from '@oxide/table'
 import { Button, EmptyMessage, Storage24Icon } from '@oxide/ui'
 
+import { DateCell } from '~/table/cells/DateCell'
+import { SizeCell } from '~/table/cells/SizeCell'
+import type { MenuAction } from '~/table/columns/action-col'
+import { useQueryTable } from '~/table/QueryTable'
 import { DiskStatusBadge } from 'app/components/StatusBadge'
 import AttachDiskSideModalForm from 'app/forms/disk-attach'
 import { CreateDiskSideModalForm } from 'app/forms/disk-create'
