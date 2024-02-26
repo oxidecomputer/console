@@ -7,6 +7,7 @@
  */
 import '@tanstack/react-table'
 
+import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useMemo, useState } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 
@@ -22,7 +23,7 @@ import {
   type IdentityType,
   type RoleKey,
 } from '@oxide/api'
-import { createColumnHelper, getActionsCol, useReactTable } from '@oxide/table'
+import { getActionsCol } from '@oxide/table'
 import {
   Access24Icon,
   Button,
@@ -175,7 +176,11 @@ export function ProjectAccessPage() {
     [projectPolicy, project, updatePolicy]
   )
 
-  const tableInstance = useReactTable({ columns, data: rows })
+  const tableInstance = useReactTable({
+    columns,
+    data: rows,
+    getCoreRowModel: getCoreRowModel(),
+  })
 
   return (
     <>

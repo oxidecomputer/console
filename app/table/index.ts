@@ -9,4 +9,3 @@
 export * from './cells'
 export * from './columns'
 export * from './QueryTable'
-export * from './react-table'

@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useMemo, useState } from 'react'
 
 import {
@@ -15,13 +16,11 @@ import {
 } from '@oxide/api'
 import {
   ButtonCell,
-  createColumnHelper,
   DateCell,
   EnabledCell,
   FirewallFilterCell,
   getActionsCol,
   TypeValueListCell,
-  useReactTable,
 } from '@oxide/table'
 import { Button, EmptyMessage, TableEmptyBox } from '@oxide/ui'
 import { sortBy, titleCase } from '@oxide/util'
@@ -116,7 +115,7 @@ export const VpcFirewallRulesTab = () => {
     ]
   }, [setEditing, rules, updateRules, vpcSelector])
 
-  const table = useReactTable({ columns, data: rules })
+  const table = useReactTable({ columns, data: rules, getCoreRowModel: getCoreRowModel() })
 
   const emptyState = (
     <TableEmptyBox>
