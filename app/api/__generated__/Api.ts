@@ -1100,9 +1100,9 @@ export type FloatingIpAttach = {
  * Parameters for creating a new floating IP address for instances.
  */
 export type FloatingIpCreate = {
-  /** An IP address to reserve for use as a floating IP. This field is optional: when not set, an address will be automatically chosen from `pool`. If set, then the IP must be available in the resolved `pool`. */
-  address?: string
   description: string
+  /** An IP address to reserve for use as a floating IP. This field is optional: when not set, an address will be automatically chosen from `pool`. If set, then the IP must be available in the resolved `pool`. */
+  ip?: string
   name: Name
   /** The parent IP pool that a floating IP is pulled from. If unset, the default pool is selected. */
   pool?: NameOrId
@@ -2130,15 +2130,43 @@ export type SiloUtilizationResultsPage = {
 }
 
 /**
- * The provision state of a sled.
+ * The operator-defined provision policy of a sled.
  *
  * This controls whether new resources are going to be provisioned on this sled.
  */
-export type SledProvisionState =
+export type SledProvisionPolicy =
   /** New resources will be provisioned on this sled. */
   | 'provisionable'
-  /** New resources will not be provisioned on this sled. However, existing resources will continue to be on this sled unless manually migrated off. */
+  /** New resources will not be provisioned on this sled. However, if the sled is currently in service, existing resources will continue to be on this sled unless manually migrated off. */
   | 'non_provisionable'
+
+/**
+ * The operator-defined policy of a sled.
+ */
+export type SledPolicy =
+  /** The operator has indicated that the sled is in-service. */
+  | {
+      kind: 'in_service'
+      /** Determines whether new resources can be provisioned onto the sled. */
+      provisionPolicy: SledProvisionPolicy
+    }
+  /** The operator has indicated that the sled has been permanently removed from service.
+
+This is a terminal state: once a particular sled ID is expunged, it will never return to service. (The actual hardware may be reused, but it will be treated as a brand-new sled.)
+
+An expunged sled is always non-provisionable. */
+  | { kind: 'expunged' }
+
+/**
+ * The current state of the sled, as determined by Nexus.
+ */
+export type SledState =
+  /** The sled is currently active, and has resources allocated on it. */
+  | 'active'
+  /** The sled has been permanently removed from service.
+
+This is a terminal state: once a particular sled ID is decommissioned, it will never return to service. (The actual hardware may be reused, but it will be treated as a brand-new sled.) */
+  | 'decommissioned'
 
 /**
  * An operator's view of a Sled.
@@ -2147,10 +2175,12 @@ export type Sled = {
   baseboard: Baseboard
   /** unique, immutable, system-controlled identifier for each resource */
   id: string
-  /** The provision state of the sled. */
-  provisionState: SledProvisionState
+  /** The operator-defined policy of a sled. */
+  policy: SledPolicy
   /** The rack to which this Sled is currently attached */
   rackId: string
+  /** The current state Nexus believes the sled to be in. */
+  state: SledState
   /** timestamp when this resource was created */
   timeCreated: Date
   /** timestamp when this resource was last modified */
@@ -2192,21 +2222,21 @@ export type SledInstanceResultsPage = {
 }
 
 /**
- * Parameters for `sled_set_provision_state`.
+ * Parameters for `sled_set_provision_policy`.
  */
-export type SledProvisionStateParams = {
+export type SledProvisionPolicyParams = {
   /** The provision state. */
-  state: SledProvisionState
+  state: SledProvisionPolicy
 }
 
 /**
- * Response to `sled_set_provision_state`.
+ * Response to `sled_set_provision_policy`.
  */
-export type SledProvisionStateResponse = {
+export type SledProvisionPolicyResponse = {
   /** The new provision state. */
-  newState: SledProvisionState
+  newState: SledProvisionPolicy
   /** The old provision state. */
-  oldState: SledProvisionState
+  oldState: SledProvisionPolicy
 }
 
 /**
@@ -3490,7 +3520,7 @@ export interface SledInstanceListQueryParams {
   sortBy?: IdSortMode
 }
 
-export interface SledSetProvisionStatePathParams {
+export interface SledSetProvisionPolicyPathParams {
   sledId: string
 }
 
@@ -4021,7 +4051,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Create a new system-wide x.509 certificate
+     * Create new system-wide x.509 certificate
      */
     certificateCreate: (
       { body }: { body: CertificateCreate },
@@ -4035,7 +4065,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Fetch a certificate
+     * Fetch certificate
      */
     certificateView: (
       { path }: { path: CertificateViewPathParams },
@@ -4048,7 +4078,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Delete a certificate
+     * Delete certificate
      */
     certificateDelete: (
       { path }: { path: CertificateDeletePathParams },
@@ -4090,7 +4120,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Fetch a disk
+     * Fetch disk
      */
     diskView: (
       { path, query = {} }: { path: DiskViewPathParams; query?: DiskViewQueryParams },
@@ -4104,7 +4134,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Delete a disk
+     * Delete disk
      */
     diskDelete: (
       { path, query = {} }: { path: DiskDeletePathParams; query?: DiskDeleteQueryParams },
@@ -4118,7 +4148,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Import blocks into a disk
+     * Import blocks into disk
      */
     diskBulkWriteImport: (
       {
@@ -4141,7 +4171,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Start importing blocks into a disk
+     * Start importing blocks into disk
      */
     diskBulkWriteImportStart: (
       {
@@ -4161,7 +4191,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Stop importing blocks into a disk
+     * Stop importing blocks into disk
      */
     diskBulkWriteImportStop: (
       {
@@ -4235,7 +4265,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Create a floating IP
+     * Create floating IP
      */
     floatingIpCreate: (
       { query, body }: { query?: FloatingIpCreateQueryParams; body: FloatingIpCreate },
@@ -4250,7 +4280,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Fetch a floating IP
+     * Fetch floating IP
      */
     floatingIpView: (
       {
@@ -4267,7 +4297,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Delete a floating IP
+     * Delete floating IP
      */
     floatingIpDelete: (
       {
@@ -4284,7 +4314,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Attach a floating IP to an instance or other resource
+     * Attach floating IP
      */
     floatingIpAttach: (
       {
@@ -4307,7 +4337,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Detach a floating IP from an instance or other resource
+     * Detach floating IP
      */
     floatingIpDetach: (
       {
@@ -4362,7 +4392,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Create an image
+     * Create image
      */
     imageCreate: (
       { query = {}, body }: { query?: ImageCreateQueryParams; body: ImageCreate },
@@ -4377,7 +4407,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Fetch an image
+     * Fetch image
      */
     imageView: (
       { path, query = {} }: { path: ImageViewPathParams; query?: ImageViewQueryParams },
@@ -4391,7 +4421,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Delete an image
+     * Delete image
      */
     imageDelete: (
       { path, query = {} }: { path: ImageDeletePathParams; query?: ImageDeleteQueryParams },
@@ -4405,7 +4435,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Demote a silo image
+     * Demote silo image
      */
     imageDemote: (
       { path, query }: { path: ImageDemotePathParams; query?: ImageDemoteQueryParams },
@@ -4419,7 +4449,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Promote a project image
+     * Promote project image
      */
     imagePromote: (
       {
@@ -4450,7 +4480,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Create an instance
+     * Create instance
      */
     instanceCreate: (
       { query, body }: { query?: InstanceCreateQueryParams; body: InstanceCreate },
@@ -4465,7 +4495,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Fetch an instance
+     * Fetch instance
      */
     instanceView: (
       {
@@ -4482,7 +4512,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Delete an instance
+     * Delete instance
      */
     instanceDelete: (
       {
@@ -4499,7 +4529,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * List an instance's disks
+     * List disks for instance
      */
     instanceDiskList: (
       {
@@ -4516,7 +4546,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Attach a disk to an instance
+     * Attach disk to instance
      */
     instanceDiskAttach: (
       {
@@ -4539,7 +4569,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Detach a disk from an instance
+     * Detach disk from instance
      */
     instanceDiskDetach: (
       {
@@ -4582,7 +4612,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Allocate and attach an ephemeral IP to an instance
+     * Allocate and attach ephemeral IP to instance
      */
     instanceEphemeralIpAttach: (
       {
@@ -4605,7 +4635,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Detach and deallocate an ephemeral IP from an instance
+     * Detach and deallocate ephemeral IP from instance
      */
     instanceEphemeralIpDetach: (
       {
@@ -4665,7 +4695,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Fetch an instance's serial console
+     * Fetch instance serial console
      */
     instanceSerialConsole: (
       {
@@ -4685,7 +4715,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * List the SSH public keys added to the instance via cloud-init during instance creation
+     * List SSH public keys for instance
      */
     instanceSshPublicKeyList: (
       {
@@ -4705,7 +4735,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Boot an instance
+     * Boot instance
      */
     instanceStart: (
       {
@@ -4722,7 +4752,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Stop an instance
+     * Stop instance
      */
     instanceStop: (
       {
@@ -4753,7 +4783,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Fetch an IP pool
+     * Fetch IP pool
      */
     projectIpPoolView: (
       { path }: { path: ProjectIpPoolViewPathParams },
@@ -4790,7 +4820,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Fetch the user associated with the current session
+     * Fetch user for current session
      */
     currentUserView: (_: EmptyObj, params: FetchParams = {}) => {
       return this.request<CurrentUser>({
@@ -4800,7 +4830,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Fetch the silo groups the current user belongs to
+     * Fetch current user's groups
      */
     currentUserGroups: (
       { query = {} }: { query?: CurrentUserGroupsQueryParams },
@@ -4828,7 +4858,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Create an SSH public key
+     * Create SSH public key
      */
     currentUserSshKeyCreate: (
       { body }: { body: SshKeyCreate },
@@ -4842,7 +4872,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Fetch an SSH public key
+     * Fetch SSH public key
      */
     currentUserSshKeyView: (
       { path }: { path: CurrentUserSshKeyViewPathParams },
@@ -4855,7 +4885,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Delete an SSH public key
+     * Delete SSH public key
      */
     currentUserSshKeyDelete: (
       { path }: { path: CurrentUserSshKeyDeletePathParams },
@@ -4896,7 +4926,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Create a network interface
+     * Create network interface
      */
     instanceNetworkInterfaceCreate: (
       {
@@ -4917,7 +4947,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Fetch a network interface
+     * Fetch network interface
      */
     instanceNetworkInterfaceView: (
       {
@@ -4937,7 +4967,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Update a network interface
+     * Update network interface
      */
     instanceNetworkInterfaceUpdate: (
       {
@@ -4960,7 +4990,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Delete a network interface
+     * Delete network interface
      */
     instanceNetworkInterfaceDelete: (
       {
@@ -4990,7 +5020,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Fetch the current silo's IAM policy
+     * Fetch current silo's IAM policy
      */
     policyView: (_: EmptyObj, params: FetchParams = {}) => {
       return this.request<SiloRolePolicy>({
@@ -5000,7 +5030,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Update the current silo's IAM policy
+     * Update current silo's IAM policy
      */
     policyUpdate: ({ body }: { body: SiloRolePolicy }, params: FetchParams = {}) => {
       return this.request<SiloRolePolicy>({
@@ -5025,7 +5055,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Create a project
+     * Create project
      */
     projectCreate: ({ body }: { body: ProjectCreate }, params: FetchParams = {}) => {
       return this.request<Project>({
@@ -5036,7 +5066,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Fetch a project
+     * Fetch project
      */
     projectView: ({ path }: { path: ProjectViewPathParams }, params: FetchParams = {}) => {
       return this.request<Project>({
@@ -5060,7 +5090,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Delete a project
+     * Delete project
      */
     projectDelete: (
       { path }: { path: ProjectDeletePathParams },
@@ -5073,7 +5103,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Fetch a project's IAM policy
+     * Fetch project's IAM policy
      */
     projectPolicyView: (
       { path }: { path: ProjectPolicyViewPathParams },
@@ -5086,7 +5116,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Update a project's IAM policy
+     * Update project's IAM policy
      */
     projectPolicyUpdate: (
       { path, body }: { path: ProjectPolicyUpdatePathParams; body: ProjectRolePolicy },
@@ -5114,7 +5144,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Create a snapshot
+     * Create snapshot
      */
     snapshotCreate: (
       { query, body }: { query?: SnapshotCreateQueryParams; body: SnapshotCreate },
@@ -5129,7 +5159,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Fetch a snapshot
+     * Fetch snapshot
      */
     snapshotView: (
       {
@@ -5146,7 +5176,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Delete a snapshot
+     * Delete snapshot
      */
     snapshotDelete: (
       {
@@ -5191,7 +5221,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Fetch a rack
+     * Fetch rack
      */
     rackView: ({ path }: { path: RackViewPathParams }, params: FetchParams = {}) => {
       return this.request<Rack>({
@@ -5215,7 +5245,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Add a sled to an initialized rack
+     * Add sled to initialized rack
      */
     sledAdd: ({ body }: { body: UninitializedSledId }, params: FetchParams = {}) => {
       return this.request<void>({
@@ -5226,7 +5256,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Fetch a sled
+     * Fetch sled
      */
     sledView: ({ path }: { path: SledViewPathParams }, params: FetchParams = {}) => {
       return this.request<Sled>({
@@ -5253,7 +5283,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * List instances running on a given sled
+     * List instances running on given sled
      */
     sledInstanceList: (
       {
@@ -5270,24 +5300,24 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Set the sled's provision state
+     * Set sled provision policy
      */
-    sledSetProvisionState: (
+    sledSetProvisionPolicy: (
       {
         path,
         body,
-      }: { path: SledSetProvisionStatePathParams; body: SledProvisionStateParams },
+      }: { path: SledSetProvisionPolicyPathParams; body: SledProvisionPolicyParams },
       params: FetchParams = {}
     ) => {
-      return this.request<SledProvisionStateResponse>({
-        path: `/v1/system/hardware/sleds/${path.sledId}/provision-state`,
+      return this.request<SledProvisionPolicyResponse>({
+        path: `/v1/system/hardware/sleds/${path.sledId}/provision-policy`,
         method: 'PUT',
         body,
         ...params,
       })
     },
     /**
-     * List uninitialized sleds in a given rack
+     * List uninitialized sleds
      */
     sledListUninitialized: (
       { query = {} }: { query?: SledListUninitializedQueryParams },
@@ -5372,7 +5402,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Fetch a switch
+     * Fetch switch
      */
     switchView: ({ path }: { path: SwitchViewPathParams }, params: FetchParams = {}) => {
       return this.request<Switch>({
@@ -5396,7 +5426,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Create a user
+     * Create user
      */
     localIdpUserCreate: (
       { query, body }: { query?: LocalIdpUserCreateQueryParams; body: UserCreate },
@@ -5411,7 +5441,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Delete a user
+     * Delete user
      */
     localIdpUserDelete: (
       {
@@ -5428,7 +5458,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Set or invalidate a user's password
+     * Set or invalidate user's password
      */
     localIdpUserSetPassword: (
       {
@@ -5451,7 +5481,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Create a SAML IdP
+     * Create SAML IdP
      */
     samlIdentityProviderCreate: (
       {
@@ -5472,7 +5502,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Fetch a SAML IdP
+     * Fetch SAML IdP
      */
     samlIdentityProviderView: (
       {
@@ -5506,7 +5536,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Create an IP pool
+     * Create IP pool
      */
     ipPoolCreate: ({ body }: { body: IpPoolCreate }, params: FetchParams = {}) => {
       return this.request<IpPool>({
@@ -5517,7 +5547,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Fetch an IP pool
+     * Fetch IP pool
      */
     ipPoolView: ({ path }: { path: IpPoolViewPathParams }, params: FetchParams = {}) => {
       return this.request<IpPool>({
@@ -5527,7 +5557,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Update an IP pool
+     * Update IP pool
      */
     ipPoolUpdate: (
       { path, body }: { path: IpPoolUpdatePathParams; body: IpPoolUpdate },
@@ -5541,7 +5571,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Delete an IP pool
+     * Delete IP pool
      */
     ipPoolDelete: (
       { path }: { path: IpPoolDeletePathParams },
@@ -5554,7 +5584,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * List ranges for an IP pool
+     * List ranges for IP pool
      */
     ipPoolRangeList: (
       {
@@ -5571,7 +5601,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Add a range to an IP pool
+     * Add range to IP pool
      */
     ipPoolRangeAdd: (
       { path, body }: { path: IpPoolRangeAddPathParams; body: IpRange },
@@ -5585,7 +5615,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Remove a range from an IP pool
+     * Remove range from IP pool
      */
     ipPoolRangeRemove: (
       { path, body }: { path: IpPoolRangeRemovePathParams; body: IpRange },
@@ -5599,7 +5629,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * List an IP pool's linked silos
+     * List IP pool's linked silos
      */
     ipPoolSiloList: (
       {
@@ -5616,7 +5646,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Make an IP pool available within a silo
+     * Link IP pool to silo
      */
     ipPoolSiloLink: (
       { path, body }: { path: IpPoolSiloLinkPathParams; body: IpPoolLinkSilo },
@@ -5630,7 +5660,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Make an IP pool default or not-default for a silo
+     * Make IP pool default for silo
      */
     ipPoolSiloUpdate: (
       { path, body }: { path: IpPoolSiloUpdatePathParams; body: IpPoolSiloUpdate },
@@ -5644,7 +5674,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Unlink an IP pool from a silo
+     * Unlink IP pool from silo
      */
     ipPoolSiloUnlink: (
       { path }: { path: IpPoolSiloUnlinkPathParams },
@@ -5657,7 +5687,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Fetch the IP pool used for Oxide services
+     * Fetch Oxide service IP pool
      */
     ipPoolServiceView: (_: EmptyObj, params: FetchParams = {}) => {
       return this.request<IpPool>({
@@ -5667,7 +5697,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * List ranges for the IP pool used for Oxide services
+     * List IP ranges for the Oxide service pool
      */
     ipPoolServiceRangeList: (
       { query = {} }: { query?: IpPoolServiceRangeListQueryParams },
@@ -5681,7 +5711,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Add a range to an IP pool used for Oxide services
+     * Add IP range to Oxide service pool
      */
     ipPoolServiceRangeAdd: ({ body }: { body: IpRange }, params: FetchParams = {}) => {
       return this.request<IpPoolRange>({
@@ -5692,7 +5722,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Remove a range from an IP pool used for Oxide services
+     * Remove IP range from Oxide service pool
      */
     ipPoolServiceRangeRemove: ({ body }: { body: IpRange }, params: FetchParams = {}) => {
       return this.request<void>({
@@ -5734,7 +5764,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Create an address lot
+     * Create address lot
      */
     networkingAddressLotCreate: (
       { body }: { body: AddressLotCreate },
@@ -5748,7 +5778,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Delete an address lot
+     * Delete address lot
      */
     networkingAddressLotDelete: (
       { path }: { path: NetworkingAddressLotDeletePathParams },
@@ -5761,7 +5791,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * List the blocks in an address lot
+     * List blocks in address lot
      */
     networkingAddressLotBlockList: (
       {
@@ -5781,7 +5811,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Disable a BFD session.
+     * Disable a BFD session
      */
     networkingBfdDisable: (
       { body }: { body: BfdSessionDisable },
@@ -5795,7 +5825,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Enable a BFD session.
+     * Enable a BFD session
      */
     networkingBfdEnable: (
       { body }: { body: BfdSessionEnable },
@@ -5809,7 +5839,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Get BFD status.
+     * Get BFD status
      */
     networkingBfdStatus: (_: EmptyObj, params: FetchParams = {}) => {
       return this.request<void>({
@@ -5833,7 +5863,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Create a new BGP configuration
+     * Create new BGP configuration
      */
     networkingBgpConfigCreate: (
       { body }: { body: BgpConfigCreate },
@@ -5847,7 +5877,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Delete a BGP configuration
+     * Delete BGP configuration
      */
     networkingBgpConfigDelete: (
       { query }: { query?: NetworkingBgpConfigDeleteQueryParams },
@@ -5875,7 +5905,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Create a new BGP announce set
+     * Create new BGP announce set
      */
     networkingBgpAnnounceSetCreate: (
       { body }: { body: BgpAnnounceSetCreate },
@@ -5889,7 +5919,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Delete a BGP announce set
+     * Delete BGP announce set
      */
     networkingBgpAnnounceSetDelete: (
       { query }: { query?: NetworkingBgpAnnounceSetDeleteQueryParams },
@@ -5941,7 +5971,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Create a loopback address
+     * Create loopback address
      */
     networkingLoopbackAddressCreate: (
       { body }: { body: LoopbackAddressCreate },
@@ -5955,7 +5985,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Delete a loopback address
+     * Delete loopback address
      */
     networkingLoopbackAddressDelete: (
       { path }: { path: NetworkingLoopbackAddressDeletePathParams },
@@ -6010,7 +6040,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Get information about a switch port
+     * Get information about switch port
      */
     networkingSwitchPortSettingsView: (
       { path }: { path: NetworkingSwitchPortSettingsViewPathParams },
@@ -6023,7 +6053,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Fetch the top-level IAM policy
+     * Fetch top-level IAM policy
      */
     systemPolicyView: (_: EmptyObj, params: FetchParams = {}) => {
       return this.request<FleetRolePolicy>({
@@ -6033,7 +6063,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Update the top-level IAM policy
+     * Update top-level IAM policy
      */
     systemPolicyUpdate: ({ body }: { body: FleetRolePolicy }, params: FetchParams = {}) => {
       return this.request<FleetRolePolicy>({
@@ -6058,7 +6088,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Fetch a built-in role
+     * Fetch built-in role
      */
     roleView: ({ path }: { path: RoleViewPathParams }, params: FetchParams = {}) => {
       return this.request<Role>({
@@ -6107,7 +6137,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Fetch a silo
+     * Fetch silo
      */
     siloView: ({ path }: { path: SiloViewPathParams }, params: FetchParams = {}) => {
       return this.request<Silo>({
@@ -6127,7 +6157,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * List IP pools available within silo
+     * List IP pools linked to silo
      */
     siloIpPoolList: (
       {
@@ -6144,7 +6174,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Fetch a silo's IAM policy
+     * Fetch silo IAM policy
      */
     siloPolicyView: (
       { path }: { path: SiloPolicyViewPathParams },
@@ -6157,7 +6187,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Update a silo's IAM policy
+     * Update silo IAM policy
      */
     siloPolicyUpdate: (
       { path, body }: { path: SiloPolicyUpdatePathParams; body: SiloRolePolicy },
@@ -6171,7 +6201,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * View the resource quotas of a given silo
+     * Fetch resource quotas for silo
      */
     siloQuotasView: (
       { path }: { path: SiloQuotasViewPathParams },
@@ -6184,7 +6214,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Update the resource quotas of a given silo
+     * Update resource quotas for silo
      */
     siloQuotasUpdate: (
       { path, body }: { path: SiloQuotasUpdatePathParams; body: SiloQuotasUpdate },
@@ -6198,7 +6228,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * List built-in (system) users in a silo
+     * List built-in (system) users in silo
      */
     siloUserList: (
       { query = {} }: { query?: SiloUserListQueryParams },
@@ -6212,7 +6242,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Fetch a built-in (system) user
+     * Fetch built-in (system) user
      */
     siloUserView: (
       { path, query }: { path: SiloUserViewPathParams; query?: SiloUserViewQueryParams },
@@ -6240,7 +6270,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Fetch a built-in user
+     * Fetch built-in user
      */
     userBuiltinView: (
       { path }: { path: UserBuiltinViewPathParams },
@@ -6267,7 +6297,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * View the current utilization of a given silo
+     * Fetch current utilization for given silo
      */
     siloUtilizationView: (
       { path }: { path: SiloUtilizationViewPathParams },
@@ -6294,7 +6324,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * View the resource utilization of the user's current silo
+     * Fetch resource utilization for user's current silo
      */
     utilizationView: (_: EmptyObj, params: FetchParams = {}) => {
       return this.request<Utilization>({
@@ -6350,7 +6380,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Create a subnet
+     * Create subnet
      */
     vpcSubnetCreate: (
       { query, body }: { query?: VpcSubnetCreateQueryParams; body: VpcSubnetCreate },
@@ -6365,7 +6395,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Fetch a subnet
+     * Fetch subnet
      */
     vpcSubnetView: (
       {
@@ -6382,7 +6412,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Update a subnet
+     * Update subnet
      */
     vpcSubnetUpdate: (
       {
@@ -6405,7 +6435,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Delete a subnet
+     * Delete subnet
      */
     vpcSubnetDelete: (
       {
@@ -6453,7 +6483,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Create a VPC
+     * Create VPC
      */
     vpcCreate: (
       { query, body }: { query?: VpcCreateQueryParams; body: VpcCreate },
@@ -6468,7 +6498,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Fetch a VPC
+     * Fetch VPC
      */
     vpcView: (
       { path, query = {} }: { path: VpcViewPathParams; query?: VpcViewQueryParams },
@@ -6501,7 +6531,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Delete a VPC
+     * Delete VPC
      */
     vpcDelete: (
       { path, query = {} }: { path: VpcDeletePathParams; query?: VpcDeleteQueryParams },
@@ -6517,7 +6547,7 @@ export class Api extends HttpClient {
   }
   ws = {
     /**
-     * Stream an instance's serial console
+     * Stream instance serial console
      */
     instanceSerialConsoleStream: ({
       host,

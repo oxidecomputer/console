@@ -1205,8 +1205,8 @@ export const FloatingIpAttach = z.preprocess(
 export const FloatingIpCreate = z.preprocess(
   processResponseBody,
   z.object({
-    address: z.string().ip().optional(),
     description: z.string(),
+    ip: z.string().ip().optional(),
     name: Name,
     pool: NameOrId.optional(),
   })
@@ -2174,13 +2174,32 @@ export const SiloUtilizationResultsPage = z.preprocess(
 )
 
 /**
- * The provision state of a sled.
+ * The operator-defined provision policy of a sled.
  *
  * This controls whether new resources are going to be provisioned on this sled.
  */
-export const SledProvisionState = z.preprocess(
+export const SledProvisionPolicy = z.preprocess(
   processResponseBody,
   z.enum(['provisionable', 'non_provisionable'])
+)
+
+/**
+ * The operator-defined policy of a sled.
+ */
+export const SledPolicy = z.preprocess(
+  processResponseBody,
+  z.union([
+    z.object({ kind: z.enum(['in_service']), provisionPolicy: SledProvisionPolicy }),
+    z.object({ kind: z.enum(['expunged']) }),
+  ])
+)
+
+/**
+ * The current state of the sled, as determined by Nexus.
+ */
+export const SledState = z.preprocess(
+  processResponseBody,
+  z.enum(['active', 'decommissioned'])
 )
 
 /**
@@ -2191,8 +2210,9 @@ export const Sled = z.preprocess(
   z.object({
     baseboard: Baseboard,
     id: z.string().uuid(),
-    provisionState: SledProvisionState,
+    policy: SledPolicy,
     rackId: z.string().uuid(),
+    state: SledState,
     timeCreated: z.coerce.date(),
     timeModified: z.coerce.date(),
     usableHardwareThreads: z.number().min(0).max(4294967295),
@@ -2229,19 +2249,19 @@ export const SledInstanceResultsPage = z.preprocess(
 )
 
 /**
- * Parameters for `sled_set_provision_state`.
+ * Parameters for `sled_set_provision_policy`.
  */
-export const SledProvisionStateParams = z.preprocess(
+export const SledProvisionPolicyParams = z.preprocess(
   processResponseBody,
-  z.object({ state: SledProvisionState })
+  z.object({ state: SledProvisionPolicy })
 )
 
 /**
- * Response to `sled_set_provision_state`.
+ * Response to `sled_set_provision_policy`.
  */
-export const SledProvisionStateResponse = z.preprocess(
+export const SledProvisionPolicyResponse = z.preprocess(
   processResponseBody,
-  z.object({ newState: SledProvisionState, oldState: SledProvisionState })
+  z.object({ newState: SledProvisionPolicy, oldState: SledProvisionPolicy })
 )
 
 /**
@@ -3929,7 +3949,7 @@ export const SledInstanceListParams = z.preprocess(
   })
 )
 
-export const SledSetProvisionStateParams = z.preprocess(
+export const SledSetProvisionPolicyParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({

@@ -610,13 +610,13 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.SledInstanceResultsPage>>
-  /** `PUT /v1/system/hardware/sleds/:sledId/provision-state` */
-  sledSetProvisionState: (params: {
-    path: Api.SledSetProvisionStatePathParams
-    body: Json<Api.SledProvisionStateParams>
+  /** `PUT /v1/system/hardware/sleds/:sledId/provision-policy` */
+  sledSetProvisionPolicy: (params: {
+    path: Api.SledSetProvisionPolicyPathParams
+    body: Json<Api.SledProvisionPolicyParams>
     req: Request
     cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.SledProvisionStateResponse>>
+  }) => Promisable<HandlerResult<Api.SledProvisionPolicyResponse>>
   /** `GET /v1/system/hardware/sleds-uninitialized` */
   sledListUninitialized: (params: {
     query: Api.SledListUninitializedQueryParams
@@ -1665,11 +1665,11 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       handler(handlers['sledInstanceList'], schema.SledInstanceListParams, null)
     ),
     http.put(
-      '/v1/system/hardware/sleds/:sledId/provision-state',
+      '/v1/system/hardware/sleds/:sledId/provision-policy',
       handler(
-        handlers['sledSetProvisionState'],
-        schema.SledSetProvisionStateParams,
-        schema.SledProvisionStateParams
+        handlers['sledSetProvisionPolicy'],
+        schema.SledSetProvisionPolicyParams,
+        schema.SledProvisionPolicyParams
       )
     ),
     http.get(
