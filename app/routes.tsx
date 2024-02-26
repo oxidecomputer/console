@@ -45,22 +45,20 @@ import DeviceAuthVerifyPage from './pages/DeviceAuthVerifyPage'
 import { LoginPage } from './pages/LoginPage'
 import { LoginPageSaml } from './pages/LoginPageSaml'
 import { instanceLookupLoader } from './pages/lookups'
-import {
-  DisksPage,
-  FloatingIpsPage,
-  ImagesPage,
-  InstancePage,
-  InstancesPage,
-  ProjectAccessPage,
-  SnapshotsPage,
-  VpcPage,
-  VpcsPage,
-} from './pages/project'
+import { ProjectAccessPage } from './pages/project/access/ProjectAccessPage'
+import { DisksPage } from './pages/project/disks/DisksPage'
+import { FloatingIpsPage } from './pages/project/floating-ips/FloatingIpsPage'
+import { ImagesPage } from './pages/project/images/ImagesPage'
+import { InstancePage } from './pages/project/instances/instance/InstancePage'
 import { SerialConsolePage } from './pages/project/instances/instance/SerialConsolePage'
 import { ConnectTab } from './pages/project/instances/instance/tabs/ConnectTab'
 import { MetricsTab } from './pages/project/instances/instance/tabs/MetricsTab'
 import { NetworkingTab } from './pages/project/instances/instance/tabs/NetworkingTab'
 import { StorageTab } from './pages/project/instances/instance/tabs/StorageTab'
+import { InstancesPage } from './pages/project/instances/InstancesPage'
+import { SnapshotsPage } from './pages/project/snapshots/SnapshotsPage'
+import { VpcPage } from './pages/project/vpcs/VpcPage/VpcPage'
+import { VpcsPage } from './pages/project/vpcs/VpcsPage'
 import ProjectsPage from './pages/ProjectsPage'
 import { ProfilePage } from './pages/settings/ProfilePage'
 import { SSHKeysPage } from './pages/settings/SSHKeysPage'
