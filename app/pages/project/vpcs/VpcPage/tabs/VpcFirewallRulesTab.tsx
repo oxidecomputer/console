@@ -20,13 +20,13 @@ import {
   EnabledCell,
   FirewallFilterCell,
   getActionsCol,
-  Table,
   TypeValueListCell,
   useReactTable,
 } from '@oxide/table'
 import { Button, EmptyMessage, TableEmptyBox } from '@oxide/ui'
 import { sortBy, titleCase } from '@oxide/util'
 
+import { Table } from '~/table/Table'
 import { CreateFirewallRuleForm } from 'app/forms/firewall-rules-create'
 import { EditFirewallRuleForm } from 'app/forms/firewall-rules-edit'
 import { useVpcSelector } from 'app/hooks'

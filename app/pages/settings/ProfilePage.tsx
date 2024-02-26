@@ -6,11 +6,12 @@
  * Copyright Oxide Computer Company
  */
 import type { Group } from '@oxide/api'
-import { createColumnHelper, Table, useReactTable } from '@oxide/table'
+import { createColumnHelper, useReactTable } from '@oxide/table'
 import { Settings24Icon } from '@oxide/ui'
 
 import { TextField } from '~/components/form/fields/TextField'
 import { FullPageForm } from '~/components/form/FullPageForm'
+import { Table } from '~/table/Table'
 import { useForm } from 'app/hooks'
 import { useCurrentUser } from 'app/layouts/AuthenticatedLayout'
 

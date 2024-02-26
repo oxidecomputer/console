@@ -19,7 +19,7 @@ import {
   type IdentityType,
   type RoleKey,
 } from '@oxide/api'
-import { createColumnHelper, getActionsCol, Table, useReactTable } from '@oxide/table'
+import { createColumnHelper, getActionsCol, useReactTable } from '@oxide/table'
 import {
   Access24Icon,
   Button,
@@ -31,6 +31,7 @@ import {
 } from '@oxide/ui'
 import { groupBy, isTruthy } from '@oxide/util'
 
+import { Table } from '~/table/Table'
 import { AccessNameCell } from 'app/components/AccessNameCell'
 import { HL } from 'app/components/HL'
 import { RoleBadgeCell } from 'app/components/RoleBadgeCell'
