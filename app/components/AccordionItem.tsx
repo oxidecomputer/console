@@ -29,7 +29,7 @@ export const AccordionItem = ({ children, isOpen, label, value }: AccordionItemP
   return (
     <Accordion.Item value={value}>
       <Accordion.Header className="max-w-lg">
-        <Accordion.Trigger className="group flex w-full items-center justify-between border-t pt-2 text-sans-xl border-secondary [&>svg]:data-[state=open]:rotate-90">
+        <Accordion.Trigger className="group flex w-full items-center justify-between border-t py-2 text-sans-xl border-secondary [&>svg]:data-[state=open]:rotate-90">
           <div className="text-secondary">{label}</div>
           <DirectionRightIcon className="transition-all text-secondary" />
         </Accordion.Trigger>
