@@ -10,16 +10,14 @@ import { useNavigate } from 'react-router-dom'
 import { useApiMutation, useApiQueryClient, type SiloCreate } from '@oxide/api'
 import { FormDivider } from '@oxide/ui'
 
-import {
-  CheckboxField,
-  DescriptionField,
-  NameField,
-  RadioField,
-  SideModalForm,
-  TextField,
-  TlsCertsField,
-} from 'app/components/form'
-import { NumberField } from 'app/components/form/fields/NumberField'
+import { CheckboxField } from '~/components/form/fields/CheckboxField'
+import { DescriptionField } from '~/components/form/fields/DescriptionField'
+import { NameField } from '~/components/form/fields/NameField'
+import { NumberField } from '~/components/form/fields/NumberField'
+import { RadioField } from '~/components/form/fields/RadioField'
+import { TextField } from '~/components/form/fields/TextField'
+import { TlsCertsField } from '~/components/form/fields/TlsCertsField'
+import { SideModalForm } from '~/components/form/SideModalForm'
 import { useForm, useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 

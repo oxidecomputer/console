@@ -12,7 +12,8 @@ import {
   useApiQueryClient,
 } from '@oxide/api'
 
-import { ListboxField, SideModalForm } from 'app/components/form'
+import { ListboxField } from 'app/components/form/fields/ListboxField'
+import { SideModalForm } from 'app/components/form/SideModalForm'
 import { useForm, useProjectSelector } from 'app/hooks'
 
 import {

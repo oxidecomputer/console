@@ -11,7 +11,8 @@ import type { Merge } from 'type-fest'
 import type { IdpMetadataSource, SamlIdentityProviderCreate } from '@oxide/api'
 import { Radio, RadioGroup } from '@oxide/ui'
 
-import { FileField, TextField } from 'app/components/form'
+import { FileField } from '~/components/form/fields/FileField'
+import { TextField } from '~/components/form/fields/TextField'
 
 export type IdpCreateFormValues = { type: 'saml' } & Merge<
   SamlIdentityProviderCreate,

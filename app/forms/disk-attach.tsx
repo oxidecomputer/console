@@ -7,7 +7,8 @@
  */
 import { useApiQuery, type ApiError } from '@oxide/api'
 
-import { ListboxField, SideModalForm } from 'app/components/form'
+import { ListboxField } from '~/components/form/fields/ListboxField'
+import { SideModalForm } from '~/components/form/SideModalForm'
 import { useForm, useProjectSelector } from 'app/hooks'
 
 const defaultValues = { name: '' }

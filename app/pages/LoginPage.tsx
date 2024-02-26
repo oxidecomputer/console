@@ -11,7 +11,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useApiMutation, type UsernamePasswordCredentials } from '@oxide/api'
 import { Button, Identicon } from '@oxide/ui'
 
-import { TextFieldInner } from 'app/components/form'
+import { TextFieldInner } from '~/components/form/fields/TextField'
 
 import 'app/components/login-page.css'
 

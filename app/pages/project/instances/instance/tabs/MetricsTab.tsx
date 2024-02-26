@@ -17,7 +17,7 @@ import {
 } from '@oxide/api'
 import { EmptyMessage, Listbox, Spinner, Storage24Icon, TableEmptyBox } from '@oxide/ui'
 
-import { useDateTimeRangePicker } from 'app/components/form'
+import { useDateTimeRangePicker } from '~/components/form/fields/DateTimeRangePicker'
 import { getInstanceSelector, useInstanceSelector } from 'app/hooks'
 
 const TimeSeriesChart = React.lazy(() => import('app/components/TimeSeriesChart'))

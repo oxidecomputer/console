@@ -16,14 +16,15 @@ import {
   type Validate,
 } from 'react-hook-form'
 
+import { FieldLabel } from '@oxide/ui'
+import { capitalize } from '@oxide/util'
+
 import {
-  FieldLabel,
   TextInputHint,
   TextInput as UITextField,
   type TextAreaProps as UITextAreaProps,
   type TextInputBaseProps as UITextFieldProps,
-} from '@oxide/ui'
-import { capitalize } from '@oxide/util'
+} from '~/ui/lib/TextInput'
 
 import { ErrorMessage } from './ErrorMessage'
 

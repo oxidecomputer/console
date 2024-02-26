@@ -20,8 +20,8 @@ import {
   Success12Icon,
 } from '@oxide/ui'
 
+import { ListboxField } from '~/components/form/fields/ListboxField'
 import { ExternalLink } from 'app/components/ExternalLink'
-import { ListboxField } from 'app/components/form'
 import { HL } from 'app/components/HL'
 import { useForm, useSiloSelector } from 'app/hooks'
 import { confirmAction } from 'app/stores/confirm-action'

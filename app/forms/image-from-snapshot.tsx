@@ -17,7 +17,10 @@ import {
 } from '@oxide/api'
 import { PropertiesTable } from '@oxide/ui'
 
-import { DescriptionField, NameField, SideModalForm, TextField } from 'app/components/form'
+import { DescriptionField } from '~/components/form/fields/DescriptionField'
+import { NameField } from '~/components/form/fields/NameField'
+import { TextField } from '~/components/form/fields/TextField'
+import { SideModalForm } from '~/components/form/SideModalForm'
 import { getProjectSnapshotSelector, useForm, useProjectSnapshotSelector } from 'app/hooks'
 import { addToast } from 'app/stores/toast'
 import { pb } from 'app/util/path-builder'

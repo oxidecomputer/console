@@ -5,8 +5,8 @@
  *
  * Copyright Oxide Computer Company
  */
-import { SettingsGroup } from '@oxide/ui'
 
+import { SettingsGroup } from '~/ui/lib/SettingsGroup'
 import { useInstanceSelector } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 

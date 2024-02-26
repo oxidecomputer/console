@@ -17,9 +17,9 @@ import {
   FieldLabel,
   Key16Icon,
   Message,
-  TextInputHint,
 } from '@oxide/ui'
 
+import { TextInputHint } from '~/ui/lib/TextInput'
 import type { InstanceCreateInput } from 'app/forms/instance-create'
 import { CreateSSHKeySideModalForm } from 'app/forms/ssh-key-create'
 

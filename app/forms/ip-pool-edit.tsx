@@ -14,7 +14,9 @@ import {
   usePrefetchedApiQuery,
 } from '@oxide/api'
 
-import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
+import { DescriptionField } from '~/components/form/fields/DescriptionField'
+import { NameField } from '~/components/form/fields/NameField'
+import { SideModalForm } from '~/components/form/SideModalForm'
 import { getIpPoolSelector, useForm, useIpPoolSelector, useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 

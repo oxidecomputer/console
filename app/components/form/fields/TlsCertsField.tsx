@@ -12,9 +12,13 @@ import type { Merge } from 'type-fest'
 import type { CertificateCreate } from '@oxide/api'
 import { Button, Error16Icon, FieldLabel, MiniTable, Modal } from '@oxide/ui'
 
-import { DescriptionField, FileField, TextField, validateName } from 'app/components/form'
 import type { SiloCreateFormValues } from 'app/forms/silo-create'
 import { useForm } from 'app/hooks'
+
+import { DescriptionField } from './DescriptionField'
+import { FileField } from './FileField'
+import { validateName } from './NameField'
+import { TextField } from './TextField'
 
 export function TlsCertsField({ control }: { control: Control<SiloCreateFormValues> }) {
   const [showAddCert, setShowAddCert] = useState(false)

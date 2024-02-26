@@ -10,7 +10,9 @@ import { animated, config, useTransition } from '@react-spring/web'
 import cn from 'classnames'
 import { useState } from 'react'
 
-import { Copy12Icon, Success12Icon, useTimeout } from '@oxide/ui'
+import { Copy12Icon, Success12Icon } from '@oxide/ui'
+
+import useTimeout from './use-timeout'
 
 export const CopyToClipboard = ({
   ariaLabel = 'Click to copy this text',

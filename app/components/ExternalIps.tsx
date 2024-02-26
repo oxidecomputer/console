@@ -8,8 +8,9 @@
 
 import { useApiQuery } from '@oxide/api'
 import { EmptyCell, SkeletonCell } from '@oxide/table'
-import { CopyToClipboard } from '@oxide/ui'
 import { intersperse } from '@oxide/util'
+
+import { CopyToClipboard } from '~/ui/lib/CopyToClipboard'
 
 type InstanceSelector = { project: string; instance: string }
 

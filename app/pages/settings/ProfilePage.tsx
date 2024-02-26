@@ -9,7 +9,8 @@ import type { Group } from '@oxide/api'
 import { createColumnHelper, Table, useReactTable } from '@oxide/table'
 import { Settings24Icon } from '@oxide/ui'
 
-import { FullPageForm, TextField } from 'app/components/form'
+import { TextField } from '~/components/form/fields/TextField'
+import { FullPageForm } from '~/components/form/FullPageForm'
 import { useForm } from 'app/hooks'
 import { useCurrentUser } from 'app/layouts/AuthenticatedLayout'
 

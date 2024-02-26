@@ -8,7 +8,7 @@
 import { v4 as uuid } from 'uuid'
 import { create } from 'zustand'
 
-import type { ToastProps } from '@oxide/ui'
+import type { ToastProps } from '~/ui/lib/Toast'
 
 type Toast = {
   id: string

@@ -12,7 +12,9 @@ import {
 } from '@oxide/api'
 import { pick } from '@oxide/util'
 
-import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
+import { DescriptionField } from '~/components/form/fields/DescriptionField'
+import { NameField } from '~/components/form/fields/NameField'
+import { SideModalForm } from '~/components/form/SideModalForm'
 import { useForm, useInstanceSelector } from 'app/hooks'
 
 type EditNetworkInterfaceFormProps = {

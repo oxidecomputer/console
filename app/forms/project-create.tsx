@@ -9,7 +9,9 @@ import { useNavigate } from 'react-router-dom'
 
 import { useApiMutation, useApiQueryClient, type ProjectCreate } from '@oxide/api'
 
-import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
+import { DescriptionField } from '~/components/form/fields/DescriptionField'
+import { NameField } from '~/components/form/fields/NameField'
+import { SideModalForm } from '~/components/form/SideModalForm'
 import { useForm } from 'app/hooks'
 import { addToast } from 'app/stores/toast'
 import { pb } from 'app/util/path-builder'
