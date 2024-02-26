@@ -8,7 +8,7 @@
 import { resolve } from 'path'
 import basicSsl from '@vitejs/plugin-basic-ssl'
 import react from '@vitejs/plugin-react-swc'
-import { defineConfig, type Plugin } from 'vite'
+import { defineConfig } from 'vite'
 import { createHtmlPlugin } from 'vite-plugin-html'
 import tsconfigPaths from 'vite-tsconfig-paths'
 import { z } from 'zod'
@@ -32,9 +32,6 @@ const apiMode = apiModeResult.data
 
 // if you want a different host you can override it with EXT_HOST
 const DOGFOOD_HOST = process.env.EXT_HOST || 'oxide.sys.rack2.eng.oxide.computer'
-
-/** Match a semver string like 1.0.0-abc */
-const semverRegex = '\\d+\\.\\d+\\.\\d+([\\-\\+].+)?'
 
 const previewAnalyticsTag = {
   injectTo: 'head' as const,
@@ -100,7 +97,6 @@ export default defineConfig(({ mode }) => ({
       },
     }),
     react(),
-    dotPathFixPlugin([new RegExp('^/system/update/updates/' + semverRegex)]),
     apiMode === 'dogfood' && basicSsl(),
   ],
   server: {
@@ -129,34 +125,3 @@ export default defineConfig(({ mode }) => ({
     includeSource: ['app/**/*.ts'],
   },
 }))
-
-/**
- * Configure a safelist of path patterns that can be redirected to `/` despite
- * having a dot in them.
- *
- * Vite does not rewrite paths with dots in them to serve `/index.html`, likely
- * because it wants to assume they are static files that should be served
- * directly. See https://github.com/vitejs/vite/issues/2415.
- *
- * We have a few non-file console paths that we expect to contain a dot. Names
- * cannot contain dots, but semver versions always will. So we safelist some
- * paths that we expect to have dots so they will work in the dev server.
- *
- * If a path needs to be added to this safelist, it will show up as a blank page
- * in local dev and the Vite `--debug` output will say:
- *
- * "Not rewriting GET /has.dot because the path includes a dot (.) character."
- */
-function dotPathFixPlugin(safeDotPaths: RegExp[]): Plugin {
-  return {
-    name: 'dot-path-fix',
-    configureServer: (server) => {
-      server.middlewares.use((req, _, next) => {
-        if (req.url && safeDotPaths.some((p) => req.url?.match(p))) {
-          req.url = '/'
-        }
-        next()
-      })
-    },
-  }
-}
