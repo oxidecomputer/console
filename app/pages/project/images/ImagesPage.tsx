@@ -9,7 +9,6 @@ import { useState } from 'react'
 import { Link, Outlet, type LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, useApiMutation, useApiQueryClient, type Image } from '@oxide/api'
-import { DateCell, linkCell, SizeCell, useQueryTable, type MenuAction } from '@oxide/table'
 import {
   buttonStyle,
   EmptyMessage,
@@ -21,6 +20,11 @@ import {
   TableActions,
 } from '@oxide/ui'
 
+import { DateCell } from '~/table/cells/DateCell'
+import { linkCell } from '~/table/cells/LinkCell'
+import { SizeCell } from '~/table/cells/SizeCell'
+import type { MenuAction } from '~/table/columns/action-col'
+import { useQueryTable } from '~/table/QueryTable'
 import { getProjectSelector, useProjectSelector, useToast } from 'app/hooks'
 import { confirmDelete } from 'app/stores/confirm-delete'
 import { pb } from 'app/util/path-builder'

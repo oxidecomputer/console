@@ -9,8 +9,8 @@ import { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { instanceCan, useApiMutation, type Instance } from '@oxide/api'
-import type { MakeActions } from '@oxide/table'
 
+import type { MakeActions } from '~/table/columns/action-col'
 import { confirmDelete } from 'app/stores/confirm-delete'
 import { addToast } from 'app/stores/toast'
 import { pb } from 'app/util/path-builder'

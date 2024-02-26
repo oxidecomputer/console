@@ -14,17 +14,15 @@ import {
   usePrefetchedApiQuery,
   type VpcFirewallRule,
 } from '@oxide/api'
-import {
-  ButtonCell,
-  DateCell,
-  EnabledCell,
-  FirewallFilterCell,
-  getActionsCol,
-  TypeValueListCell,
-} from '@oxide/table'
 import { Button, EmptyMessage, TableEmptyBox } from '@oxide/ui'
 import { sortBy, titleCase } from '@oxide/util'
 
+import { DateCell } from '~/table/cells/DateCell'
+import { EnabledCell } from '~/table/cells/EnabledCell'
+import { FirewallFilterCell } from '~/table/cells/FirewallFilterCell'
+import { ButtonCell } from '~/table/cells/LinkCell'
+import { TypeValueListCell } from '~/table/cells/TypeValueListCell'
+import { getActionsCol } from '~/table/columns/action-col'
 import { Table } from '~/table/Table'
 import { CreateFirewallRuleForm } from 'app/forms/firewall-rules-create'
 import { EditFirewallRuleForm } from 'app/forms/firewall-rules-edit'

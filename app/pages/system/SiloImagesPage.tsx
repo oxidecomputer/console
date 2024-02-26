@@ -16,7 +16,6 @@ import {
   useApiQueryClient,
   type Image,
 } from '@oxide/api'
-import { DateCell, linkCell, SizeCell, useQueryTable, type MenuAction } from '@oxide/table'
 import {
   Button,
   EmptyMessage,
@@ -30,6 +29,11 @@ import {
 
 import { toListboxItem } from '~/components/form/fields/ImageSelectField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
+import { DateCell } from '~/table/cells/DateCell'
+import { linkCell } from '~/table/cells/LinkCell'
+import { SizeCell } from '~/table/cells/SizeCell'
+import type { MenuAction } from '~/table/columns/action-col'
+import { useQueryTable } from '~/table/QueryTable'
 import { useForm, useToast } from 'app/hooks'
 import { confirmDelete } from 'app/stores/confirm-delete'
 import { addToast } from 'app/stores/toast'

@@ -23,7 +23,6 @@ import {
   type IdentityType,
   type RoleKey,
 } from '@oxide/api'
-import { getActionsCol } from '@oxide/table'
 import {
   Access24Icon,
   Button,
@@ -35,6 +34,7 @@ import {
 } from '@oxide/ui'
 import { groupBy, isTruthy } from '@oxide/util'
 
+import { getActionsCol } from '~/table/columns/action-col'
 import { Table } from '~/table/Table'
 import { AccessNameCell } from 'app/components/AccessNameCell'
 import { HL } from 'app/components/HL'

@@ -19,13 +19,6 @@ import {
   type IpPoolSiloLink,
 } from '@oxide/api'
 import {
-  DateCell,
-  LinkCell,
-  SkeletonCell,
-  useQueryTable,
-  type MenuAction,
-} from '@oxide/table'
-import {
   Badge,
   Button,
   buttonStyle,
@@ -40,6 +33,11 @@ import {
 } from '@oxide/ui'
 
 import { ListboxField } from '~/components/form/fields/ListboxField'
+import { DateCell } from '~/table/cells/DateCell'
+import { SkeletonCell } from '~/table/cells/EmptyCell'
+import { LinkCell } from '~/table/cells/LinkCell'
+import type { MenuAction } from '~/table/columns/action-col'
+import { useQueryTable } from '~/table/QueryTable'
 import { ExternalLink } from 'app/components/ExternalLink'
 import { HL } from 'app/components/HL'
 import { QueryParamTabs } from 'app/components/QueryParamTabs'

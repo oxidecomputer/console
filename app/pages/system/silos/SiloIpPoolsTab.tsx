@@ -9,7 +9,6 @@
 import { useMemo, useState } from 'react'
 
 import { useApiMutation, useApiQuery, useApiQueryClient, type SiloIpPool } from '@oxide/api'
-import { linkCell, useQueryTable, type MenuAction } from '@oxide/table'
 import {
   Badge,
   Button,
@@ -21,6 +20,9 @@ import {
 } from '@oxide/ui'
 
 import { ListboxField } from '~/components/form/fields/ListboxField'
+import { linkCell } from '~/table/cells/LinkCell'
+import type { MenuAction } from '~/table/columns/action-col'
+import { useQueryTable } from '~/table/QueryTable'
 import { ExternalLink } from 'app/components/ExternalLink'
 import { HL } from 'app/components/HL'
 import { useForm, useSiloSelector } from 'app/hooks'

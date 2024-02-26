@@ -16,13 +16,6 @@ import {
   type Silo,
 } from '@oxide/api'
 import {
-  BooleanCell,
-  DateCell,
-  linkCell,
-  useQueryTable,
-  type MenuAction,
-} from '@oxide/table'
-import {
   Badge,
   buttonStyle,
   Cloud24Icon,
@@ -32,6 +25,11 @@ import {
   TableActions,
 } from '@oxide/ui'
 
+import { BooleanCell } from '~/table/cells/BooleanCell'
+import { DateCell } from '~/table/cells/DateCell'
+import { linkCell } from '~/table/cells/LinkCell'
+import type { MenuAction } from '~/table/columns/action-col'
+import { useQueryTable } from '~/table/QueryTable'
 import { useQuickActions } from 'app/hooks/use-quick-actions'
 import { confirmDelete } from 'app/stores/confirm-delete'
 import { pb } from 'app/util/path-builder'

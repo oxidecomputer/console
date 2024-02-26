@@ -17,7 +17,6 @@ import {
   usePrefetchedApiQuery,
   type InstanceNetworkInterface,
 } from '@oxide/api'
-import { EmptyCell } from '@oxide/table'
 import {
   Instances24Icon,
   PageHeader,
@@ -26,6 +25,7 @@ import {
   Truncate,
 } from '@oxide/ui'
 
+import { EmptyCell } from '~/table/cells/EmptyCell'
 import { ExternalIps } from 'app/components/ExternalIps'
 import { MoreActionsMenu } from 'app/components/MoreActionsMenu'
 import { RouteTabs, Tab } from 'app/components/RouteTabs'

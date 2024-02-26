@@ -37,8 +37,9 @@ import { invariant, isOneOf } from '@oxide/util'
 import { Pagination } from '~/components/Pagination'
 import { usePagination } from '~/hooks/use-pagination'
 
-import { DefaultCell } from './cells'
-import { getActionsCol, getMultiSelectCol, getSelectCol, type MakeActions } from './columns'
+import { DefaultCell } from './cells/DefaultCell'
+import { getActionsCol, type MakeActions } from './columns/action-col'
+import { getMultiSelectCol, getSelectCol } from './columns/select-col'
 import { Table } from './Table'
 
 interface UseQueryTableResult<Item extends Record<string, unknown>> {
