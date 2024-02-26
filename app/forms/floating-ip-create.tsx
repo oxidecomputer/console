@@ -48,11 +48,11 @@ const toListboxItem = (p: SiloIpPool) => {
   }
 }
 
-const defaultValues: SetRequired<FloatingIpCreate, 'address'> = {
+const defaultValues: SetRequired<FloatingIpCreate, 'ip'> = {
   name: '',
   description: '',
   pool: undefined,
-  address: '',
+  ip: '',
 }
 
 export function CreateFloatingIpSideModalForm() {
@@ -86,11 +86,11 @@ export function CreateFloatingIpSideModalForm() {
       title="Create Floating IP"
       form={form}
       onDismiss={() => navigate(pb.floatingIps(projectSelector))}
-      onSubmit={({ address, ...rest }) => {
+      onSubmit={({ ip, ...rest }) => {
         createFloatingIp.mutate({
           query: projectSelector,
           // if address is '', evaluate as false and send as undefined
-          body: { address: address || undefined, ...rest },
+          body: { ip: ip || undefined, ...rest },
         })
       }}
       loading={createFloatingIp.isPending}
@@ -123,7 +123,7 @@ export function CreateFloatingIpSideModalForm() {
             placeholder="Select pool"
           />
           <TextField
-            name="address"
+            name="ip"
             control={form.control}
             disabled={!isPoolSelected}
             transform={(v) => v.replace(/\s/g, '')}

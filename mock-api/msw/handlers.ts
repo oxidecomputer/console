@@ -1230,7 +1230,7 @@ export const handlers = makeHandlers({
   siloUserView: NotImplemented,
   sledAdd: NotImplemented,
   sledListUninitialized: NotImplemented,
-  sledSetProvisionState: NotImplemented,
+  sledSetProvisionPolicy: NotImplemented,
   switchList: NotImplemented,
   switchView: NotImplemented,
   systemPolicyUpdate: NotImplemented,
