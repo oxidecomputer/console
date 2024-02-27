@@ -35,27 +35,28 @@ test('can create a Floating IP', async ({ page }) => {
     .getByRole('textbox', { name: 'Description' })
     .fill('A description for this Floating IP')
 
+  const poolListbox = page.getByRole('button', { name: 'IP pool' })
+  const ipTextbox = page.getByRole('textbox', { name: 'IP address' })
+
   // accordion content should be hidden
-  await expectNotVisible(page, ['role=textbox[name="Address"]'])
+  await expectNotVisible(page, [ipTextbox])
 
   // open accordion
   await page.getByRole('button', { name: 'Advanced' }).click()
 
-  const addressTextbox = page.getByRole('textbox', { name: 'Address' })
-
   // accordion content should be visible
-  await expectVisible(page, [page.getByRole('button', { name: 'IP pool' }), addressTextbox])
+  await expectVisible(page, [poolListbox, ipTextbox])
 
   // test that the IP validation works
-  await page.getByRole('button', { name: 'IP pool' }).click()
+  await poolListbox.click()
   await page.getByRole('option', { name: 'ip-pool-1' }).click()
-  await addressTextbox.fill('256.256.256.256')
+  await ipTextbox.fill('256.256.256.256')
   await page.getByRole('button', { name: 'Create Floating IP' }).click()
   await expect(page.getByText('Not a valid IP address').first()).toBeVisible()
 
   // correct IP and submit
-  await addressTextbox.clear()
-  await addressTextbox.fill('12.34.56.78')
+  await ipTextbox.clear()
+  await ipTextbox.fill('12.34.56.78')
 
   await page.getByRole('button', { name: 'Create Floating IP' }).click()
 
