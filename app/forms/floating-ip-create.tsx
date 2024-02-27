@@ -124,6 +124,7 @@ export function CreateFloatingIpSideModalForm() {
           />
           <TextField
             name="ip"
+            label="Address"
             control={form.control}
             disabled={!isPoolSelected}
             transform={(v) => v.replace(/\s/g, '')}
