@@ -72,7 +72,11 @@ test('can create an instance', async ({ page }) => {
   // network tab works
   await page.getByRole('tab', { name: 'Network Interfaces' }).click()
   const table = page.getByRole('table')
-  await expectRowVisible(table, { name: 'default', vpc: 'mock-vpc', subnet: 'mock-subnet' })
+  await expectRowVisible(table, {
+    name: 'defaultprimary',
+    vpc: 'mock-vpc',
+    subnet: 'mock-subnet',
+  })
 })
 
 test('duplicate instance name produces visible error', async ({ page }) => {
