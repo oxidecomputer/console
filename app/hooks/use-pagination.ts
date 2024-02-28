@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 
 type PageToken = string | undefined
 
@@ -13,16 +13,19 @@ export function usePagination() {
   const [prevPages, setPrevPages] = useState<PageToken[]>([])
   const [currentPage, setCurrentPage] = useState<PageToken>()
 
-  const goToPrevPage = () => {
+  const goToPrevPage = useCallback(() => {
     const prevPage = prevPages.pop()
     setCurrentPage(prevPage)
     setPrevPages(prevPages)
-  }
+  }, [prevPages])
 
-  const goToNextPage = (nextPageToken: string) => {
-    setPrevPages([...prevPages, currentPage])
-    setCurrentPage(nextPageToken)
-  }
+  const goToNextPage = useCallback(
+    (nextPageToken: string) => {
+      setPrevPages((prevPages) => [...prevPages, currentPage])
+      setCurrentPage(nextPageToken)
+    },
+    [currentPage]
+  )
 
   return {
     currentPage,
