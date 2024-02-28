@@ -193,19 +193,6 @@ const makeQueryTable = <Item extends Record<string, unknown>>(
 
     if (debug) console.table((data as { items?: any[] })?.items || data)
 
-    const paginationParams = useMemo(
-      () => ({
-        pageSize,
-        hasNext: tableData.length === pageSize,
-        hasPrev,
-        nextPage: (data as any)?.nextPage,
-        onNext: goToNextPage,
-        onPrev: goToPrevPage,
-      }),
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      [pageSize, tableData.length, (data as any)?.nextPage]
-    )
-
     if (isLoading) return null
 
     const isEmpty = tableData.length === 0 && !hasPrev
@@ -222,7 +209,15 @@ const makeQueryTable = <Item extends Record<string, unknown>>(
           singleSelect={!!onSingleSelect}
           multiSelect={!!onMultiSelect}
         />
-        <Pagination inline={pagination === 'inline'} {...paginationParams} />
+        <Pagination
+          inline={pagination === 'inline'}
+          pageSize={pageSize}
+          hasNext={tableData.length === pageSize}
+          hasPrev={hasPrev}
+          nextPage={(data as any)?.nextPage}
+          onNext={goToNextPage}
+          onPrev={goToPrevPage}
+        />
       </>
     )
   }

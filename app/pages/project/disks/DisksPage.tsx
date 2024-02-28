@@ -125,7 +125,7 @@ export function DisksPage() {
         </Link>
       </TableActions>
       <Table emptyState={<EmptyState />} makeActions={makeActions}>
-        <Column accessor="name" header="Disk" />
+        <Column accessor="name" />
         {/* TODO: show info about the instance it's attached to */}
         <Column
           id="attached-to"

@@ -5,23 +5,37 @@
  *
  * Copyright Oxide Computer Company
  */
-import { expectRowVisible, expectVisible, test } from './utils'
+import { expect, test } from '@playwright/test'
+
+import { expectRowVisible } from './utils'
 
 test('pagination', async ({ page }) => {
-  await page.goto('/projects/mock-project/snapshots')
+  await page.goto('/projects/other-project/disks')
 
-  // Test pagination
-  await page.getByRole('button', { name: 'next' }).click()
-  await expectRowVisible(page.getByRole('table'), {
-    name: 'disk-1-snapshot-25',
-    disk: 'disk-1',
-  })
-  await page.getByRole('button', { name: 'prev', exact: true }).click()
-  await expectVisible(page, [
-    'role=heading[name*="Snapshots"]',
-    'role=cell[name="snapshot-1"]',
-    'role=cell[name="snapshot-2"]',
-    'role=cell[name="delete-500"]',
-    'role=cell[name="snapshot-4"]',
-  ])
+  const table = page.getByRole('table')
+  const rows = page.getByRole('row')
+  const nextButton = page.getByRole('button', { name: 'next' })
+  const prevButton = page.getByRole('button', { name: 'prev', exact: true })
+
+  await expect(rows).toHaveCount(26)
+  await expectRowVisible(table, { name: 'disk-01' })
+  await expectRowVisible(table, { name: 'disk-25' })
+
+  await nextButton.click()
+  await expect(rows).toHaveCount(26)
+  await expectRowVisible(table, { name: 'disk-26' })
+  await expectRowVisible(table, { name: 'disk-50' })
+
+  await prevButton.click()
+  await expect(rows).toHaveCount(26)
+  await expectRowVisible(table, { name: 'disk-01' })
+  await expectRowVisible(table, { name: 'disk-25' })
+
+  await nextButton.click()
+  await nextButton.click()
+  await expect(rows).toHaveCount(6)
+  await expectRowVisible(table, { name: 'disk-51' })
+  await expectRowVisible(table, { name: 'disk-55' })
+
+  await expect(nextButton).toBeDisabled() // no more pages
 })
