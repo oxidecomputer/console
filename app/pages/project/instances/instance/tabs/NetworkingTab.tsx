@@ -17,7 +17,7 @@ import {
   usePrefetchedApiQuery,
   type InstanceNetworkInterface,
 } from '@oxide/api'
-import { Badge, Button, EmptyMessage, Networking24Icon, Success12Icon } from '@oxide/ui'
+import { Badge, Button, EmptyMessage, Networking24Icon } from '@oxide/ui'
 
 import { SkeletonCell } from '~/table/cells/EmptyCell'
 import { LinkCell } from '~/table/cells/LinkCell'
@@ -179,22 +179,26 @@ export function NetworkingTab() {
         Network Interfaces
       </h2>
       <Table labeled-by="nic-label" makeActions={makeActions} emptyState={emptyState}>
-        <Column accessor="name" />
+        <Column
+          accessor={(i) => ({ name: i.name, primary: i.primary })}
+          id="name"
+          cell={({ value: { name, primary } }) => (
+            <>
+              <span>{name}</span>
+              {primary ? (
+                // space is there for neater asserts in the e2es, possibly better a11y
+                <>
+                  {' '}
+                  <Badge className="ml-2">primary</Badge>
+                </>
+              ) : null}
+            </>
+          )}
+        />
         <Column accessor="description" />
         <Column accessor="ip" />
         <Column header="vpc" accessor="vpcId" cell={VpcNameFromId} />
         <Column header="subnet" accessor="subnetId" cell={SubnetNameFromId} />
-        <Column
-          accessor="primary"
-          cell={({ value }) =>
-            value && (
-              <>
-                <Success12Icon className="mr-1 text-accent" />
-                <Badge>primary</Badge>
-              </>
-            )
-          }
-        />
       </Table>
       <div className="mt-4 flex flex-col gap-3">
         <div className="flex gap-3">
