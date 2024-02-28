@@ -30,7 +30,7 @@ SledsTab.loader = async () => {
 }
 
 export function SledsTab() {
-  const { Table, Column } = useQueryTable('sledList', {}, { placeholderData: (x) => x })
+  const { Table, Column } = useQueryTable('sledList', {})
 
   return (
     <>

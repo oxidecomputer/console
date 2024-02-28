@@ -39,11 +39,10 @@ SledInstancesTab.loader = async ({ params }: LoaderFunctionArgs) => {
 
 export function SledInstancesTab() {
   const { sledId } = useSledParams()
-  const { Table, Column } = useQueryTable(
-    'sledInstanceList',
-    { path: { sledId }, query: { limit: 25 } },
-    { placeholderData: (x) => x }
-  )
+  const { Table, Column } = useQueryTable('sledInstanceList', {
+    path: { sledId },
+    query: { limit: 25 },
+  })
 
   const makeActions = (): MenuAction[] => []
 

@@ -80,11 +80,7 @@ export function InstancesPage() {
     )
   )
 
-  const { Table, Column } = useQueryTable(
-    'instanceList',
-    { query: projectSelector },
-    { placeholderData: (x) => x }
-  )
+  const { Table, Column } = useQueryTable('instanceList', { query: projectSelector })
 
   if (!instances) return null
 
