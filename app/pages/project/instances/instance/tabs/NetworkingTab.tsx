@@ -185,13 +185,7 @@ export function NetworkingTab() {
           cell={({ value: { name, primary } }) => (
             <>
               <span>{name}</span>
-              {primary ? (
-                // space is there for neater asserts in the e2es, possibly better a11y
-                <>
-                  {' '}
-                  <Badge className="ml-2">primary</Badge>
-                </>
-              ) : null}
+              {primary ? <Badge className="ml-2">primary</Badge> : null}
             </>
           )}
         />
