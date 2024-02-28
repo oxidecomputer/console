@@ -7,7 +7,13 @@
  */
 import { expect, test } from '@playwright/test'
 
-import { expectNotVisible, expectRowVisible, expectVisible, stopInstance } from '../utils'
+import {
+  clickRowAction,
+  expectNotVisible,
+  expectRowVisible,
+  expectVisible,
+  stopInstance,
+} from '../utils'
 
 test('Instance networking tab', async ({ page }) => {
   await page.goto('/projects/mock-project/instances/db1')
@@ -20,7 +26,7 @@ test('Instance networking tab', async ({ page }) => {
   await page.click('role=tab[name="Network Interfaces"]')
 
   const table = page.locator('table')
-  await expectRowVisible(table, { name: 'my-nic', primary: 'primary' })
+  await expectRowVisible(table, { name: 'my-nicprimary' })
 
   // check VPC link in table points to the right page
   await expect(page.locator('role=cell >> role=link[name="mock-vpc"]')).toHaveAttribute(
@@ -53,31 +59,20 @@ test('Instance networking tab', async ({ page }) => {
   await expectVisible(page, ['role=cell[name="nic-2"]'])
 
   // Make this interface primary
-  await page
-    .locator('role=row', { hasText: 'nic-2' })
-    .locator('role=button[name="Row actions"]')
-    .click()
-  await page.click('role=menuitem[name="Make primary"]')
-  await expectRowVisible(table, { name: 'my-nic', primary: '' })
-  await expectRowVisible(table, { name: 'nic-2', primary: 'primary' })
+  await clickRowAction(page, 'nic-2', 'Make primary')
+  await expectRowVisible(table, { name: 'my-nic' })
+  await expectRowVisible(table, { name: 'nic-2primary' })
 
   // Make an edit to the network interface
-  await page
-    .locator('role=row', { hasText: 'nic-2' })
-    .locator('role=button[name="Row actions"]')
-    .click()
-  await page.click('role=menuitem[name="Edit"]')
+  await clickRowAction(page, 'nic-2', 'Edit')
   await page.fill('role=textbox[name="Name"]', 'nic-3')
   await page.click('role=button[name="Save changes"]')
   await expectNotVisible(page, ['role=cell[name="nic-2"]'])
-  await expectVisible(page, ['role=cell[name="nic-3"]'])
+  const nic3 = page.getByRole('cell', { name: 'nic-3' })
+  await expect(nic3).toBeVisible()
 
   // Delete just-added network interface
-  await page
-    .locator('role=row', { hasText: 'nic-3' })
-    .locator('role=button[name="Row actions"]')
-    .click()
-  await page.click('role=menuitem[name="Delete"]')
+  await clickRowAction(page, 'nic-3', 'Delete')
   await page.getByRole('button', { name: 'Confirm' }).click()
-  await expectNotVisible(page, ['role=cell[name="nic-3"]'])
+  await expect(nic3).toBeHidden()
 })
