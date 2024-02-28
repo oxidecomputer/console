@@ -11,6 +11,7 @@ import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import { Networking24Icon, PageHeader, PageTitle, PropertiesTable, Tabs } from '@oxide/ui'
 import { formatDateTime } from '@oxide/util'
 
+import { EmptyCell } from '~/table/cells/EmptyCell'
 import { QueryParamTabs } from 'app/components/QueryParamTabs'
 import { getVpcSelector, useVpcSelector } from 'app/hooks'
 
@@ -45,7 +46,9 @@ export function VpcPage() {
       </PageHeader>
       <PropertiesTable.Group className="mb-16">
         <PropertiesTable>
-          <PropertiesTable.Row label="Description">{vpc.description}</PropertiesTable.Row>
+          <PropertiesTable.Row label="Description">
+            {vpc.description || <EmptyCell />}
+          </PropertiesTable.Row>
           <PropertiesTable.Row label="DNS Name">{vpc.dnsName}</PropertiesTable.Row>
         </PropertiesTable>
         <PropertiesTable>

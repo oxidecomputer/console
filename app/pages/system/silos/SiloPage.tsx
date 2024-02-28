@@ -21,6 +21,7 @@ import {
 } from '@oxide/ui'
 import { formatDateTime } from '@oxide/util'
 
+import { EmptyCell } from '~/table/cells/EmptyCell'
 import { QueryParamTabs } from 'app/components/QueryParamTabs'
 import { getSiloSelector, useSiloSelector } from 'app/hooks'
 
@@ -61,7 +62,9 @@ export function SiloPage() {
       <PropertiesTable.Group className="mb-16">
         <PropertiesTable>
           <PropertiesTable.Row label="ID">{silo.id}</PropertiesTable.Row>
-          <PropertiesTable.Row label="Description">{silo.description}</PropertiesTable.Row>
+          <PropertiesTable.Row label="Description">
+            {silo.description || <EmptyCell />}
+          </PropertiesTable.Row>
         </PropertiesTable>
         <PropertiesTable>
           <PropertiesTable.Row label="Created">
