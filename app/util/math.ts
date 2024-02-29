@@ -29,6 +29,10 @@ export function splitDecimal(value: number): [string, string] {
 }
 
 export function round(num: number, digits: number) {
-  const nf = Intl.NumberFormat(navigator.language, { maximumFractionDigits: digits })
+  const nf = Intl.NumberFormat(navigator.language, {
+    maximumFractionDigits: digits,
+    // very important, otherwise turning back into number will fail on > 1000 due to commas
+    useGrouping: false,
+  })
   return Number(nf.format(num))
 }
