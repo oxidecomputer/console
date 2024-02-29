@@ -6,7 +6,6 @@
  * Copyright Oxide Computer Company
  */
 
-export * from './lib/Badge'
 export * from './lib/Button'
 export * from './lib/Checkbox'
 export * from './lib/DateRangePicker'

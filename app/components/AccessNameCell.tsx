@@ -8,7 +8,8 @@
 import type { CellContext } from '@tanstack/react-table'
 
 import type { IdentityType } from '@oxide/api'
-import { Badge } from '@oxide/ui'
+
+import { Badge } from '~/ui/lib/Badge'
 
 /**
  * Display the user or group name. If the row is for a group, add a GROUP badge.
