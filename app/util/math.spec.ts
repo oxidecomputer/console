@@ -11,6 +11,12 @@ import { round, splitDecimal } from './math'
 import { GiB } from './units'
 
 it('rounds properly', () => {
+  expect(round(1, 2)).toEqual(1)
+  expect(round(100, 2)).toEqual(100)
+  expect(round(999, 2)).toEqual(999)
+  expect(round(1000, 2)).toEqual(1000)
+  expect(round(1000.1, 2)).toEqual(1000.1)
+  expect(round(1438972340398.648, 2)).toEqual(1438972340398.65)
   expect(round(0.456, 2)).toEqual(0.46)
   expect(round(-0.456, 2)).toEqual(-0.46)
   expect(round(123.456, 0)).toEqual(123)
