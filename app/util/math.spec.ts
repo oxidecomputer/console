@@ -10,7 +10,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { round, splitDecimal } from './math'
 import { GiB } from './units'
 
-it('rounds properly', () => {
+function roundTest() {
   expect(round(1, 2)).toEqual(1)
   expect(round(100, 2)).toEqual(100)
   expect(round(999, 2)).toEqual(999)
@@ -30,76 +30,79 @@ it('rounds properly', () => {
   expect(round(4.997, 2)).toEqual(5)
   expect(round(5 / 2, 2)).toEqual(2.5) // math expressions are resolved
   expect(round(1879048192 / GiB, 2)).toEqual(1.75) // constants can be evaluated
+}
+
+it('round', roundTest)
+
+describe('with default locale', () => {
+  it.each([
+    [0.23, ['0', '.23']],
+    [0.236, ['0', '.24']],
+    [-0.236, ['-0', '.24']],
+    [1.23, ['1', '.23']],
+    [1, ['1', '']], // whole number decimal should be an empty string
+
+    // values just below whole numbers
+    [5 - Number.EPSILON, ['5', '']],
+    [4.997, ['5', '']],
+    [-4.997, ['-5', '']],
+    [0.997, ['1', '']],
+
+    // values just above whole numbers
+    [49.00000001, ['49', '']],
+    [5 + Number.EPSILON, ['5', '']],
+
+    [1.252525, ['1', '.25']],
+    [1.259, ['1', '.26']], // should correctly round the decimal
+    [-50.2, ['-50', '.2']], // should correctly not round down to -51
+    [1000.5, ['1,000', '.5']], // test localeString grouping
+  ])('splitDecimal %d -> %s', (input, output) => {
+    expect(splitDecimal(input)).toEqual(output)
+  })
 })
 
-describe('splitDecimal', () => {
-  describe('with default locale', () => {
-    it.each([
-      [0.23, ['0', '.23']],
-      [0.236, ['0', '.24']],
-      [-0.236, ['-0', '.24']],
-      [1.23, ['1', '.23']],
-      [1, ['1', '']], // whole number decimal should be an empty string
+describe('with de-DE locale', () => {
+  const originalLanguage = global.navigator.language
 
-      // values just below whole numbers
-      [5 - Number.EPSILON, ['5', '']],
-      [4.997, ['5', '']],
-      [-4.997, ['-5', '']],
-      [0.997, ['1', '']],
-
-      // values just above whole numbers
-      [49.00000001, ['49', '']],
-      [5 + Number.EPSILON, ['5', '']],
-
-      [1.252525, ['1', '.25']],
-      [1.259, ['1', '.26']], // should correctly round the decimal
-      [-50.2, ['-50', '.2']], // should correctly not round down to -51
-      [1000.5, ['1,000', '.5']], // test localeString grouping
-    ])('splitDecimal %d -> %s', (input, output) => {
-      expect(splitDecimal(input)).toEqual(output)
+  beforeAll(() => {
+    Object.defineProperty(global.navigator, 'language', {
+      value: 'de-DE',
+      writable: true,
     })
   })
 
-  describe('with de-DE locale', () => {
-    const originalLanguage = global.navigator.language
+  it.each([
+    [0.23, ['0', ',23']],
+    [0.236, ['0', ',24']],
+    [-0.236, ['-0', ',24']],
+    [1.23, ['1', ',23']],
+    [1, ['1', '']], // whole number decimal should be an empty string
 
-    beforeAll(() => {
-      Object.defineProperty(global.navigator, 'language', {
-        value: 'de-DE',
-        writable: true,
-      })
-    })
+    // values just below whole numbers
+    [5 - Number.EPSILON, ['5', '']],
+    [4.997, ['5', '']],
+    [-4.997, ['-5', '']],
+    [0.997, ['1', '']],
 
-    it.each([
-      [0.23, ['0', ',23']],
-      [0.236, ['0', ',24']],
-      [-0.236, ['-0', ',24']],
-      [1.23, ['1', ',23']],
-      [1, ['1', '']], // whole number decimal should be an empty string
+    // values just above whole numbers
+    [49.00000001, ['49', '']],
+    [5 + Number.EPSILON, ['5', '']],
 
-      // values just below whole numbers
-      [5 - Number.EPSILON, ['5', '']],
-      [4.997, ['5', '']],
-      [-4.997, ['-5', '']],
-      [0.997, ['1', '']],
+    [1.252525, ['1', ',25']],
+    [1.259, ['1', ',26']], // should correctly round the decimal
+    [-50.2, ['-50', ',2']], // should correctly not round down to -51
+    [1000.5, ['1.000', ',5']], // test localeString grouping
+  ])('splitDecimal %d -> %s', (input, output) => {
+    expect(splitDecimal(input)).toEqual(output)
+  })
 
-      // values just above whole numbers
-      [49.00000001, ['49', '']],
-      [5 + Number.EPSILON, ['5', '']],
+  // rounding must work the same irrespective of locale
+  it('round', roundTest)
 
-      [1.252525, ['1', ',25']],
-      [1.259, ['1', ',26']], // should correctly round the decimal
-      [-50.2, ['-50', ',2']], // should correctly not round down to -51
-      [1000.5, ['1.000', ',5']], // test localeString grouping
-    ])('splitDecimal %d -> %s', (input, output) => {
-      expect(splitDecimal(input)).toEqual(output)
-    })
-
-    afterAll(() => {
-      Object.defineProperty(global.navigator, 'language', {
-        value: originalLanguage,
-        writable: true,
-      })
+  afterAll(() => {
+    Object.defineProperty(global.navigator, 'language', {
+      value: originalLanguage,
+      writable: true,
     })
   })
 })

@@ -29,9 +29,12 @@ export function splitDecimal(value: number): [string, string] {
 }
 
 export function round(num: number, digits: number) {
-  const nf = Intl.NumberFormat(navigator.language, {
+  // unlike with splitDecimal, we hard-code en-US to ensure that Number() will
+  // be able to parse the result
+  const nf = Intl.NumberFormat('en-US', {
     maximumFractionDigits: digits,
-    // very important, otherwise turning back into number will fail on > 1000 due to commas
+    // very important, otherwise turning back into number will fail on n >= 1000
+    // due to commas
     useGrouping: false,
   })
   return Number(nf.format(num))
