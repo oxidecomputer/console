@@ -10,7 +10,7 @@ import type { ReactNode } from 'react'
 
 import { invariant, isOneOf } from '@oxide/util'
 
-import { Badge } from './Badge'
+import { Badge } from '~/ui/lib/Badge'
 
 import './properties-table.css'
 

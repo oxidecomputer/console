@@ -5,7 +5,8 @@
  *
  * Copyright Oxide Computer Company
  */
-import { Badge } from '@oxide/ui'
+
+import { Badge } from '~/ui/lib/Badge'
 
 import type { Cell } from './Cell'
 

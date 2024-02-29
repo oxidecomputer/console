@@ -12,8 +12,10 @@ import {
   type Policy,
   type RoleKey,
 } from '@oxide/api'
-import { Badge, type ListboxItem } from '@oxide/ui'
+import { type ListboxItem } from '@oxide/ui'
 import { capitalize } from '@oxide/util'
+
+import { Badge } from '~/ui/lib/Badge'
 
 type AddUserValues = {
   identityId: string

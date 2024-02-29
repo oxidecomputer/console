@@ -16,7 +16,6 @@ import {
   type Silo,
 } from '@oxide/api'
 import {
-  Badge,
   buttonStyle,
   Cloud24Icon,
   EmptyMessage,
@@ -30,6 +29,7 @@ import { DateCell } from '~/table/cells/DateCell'
 import { linkCell } from '~/table/cells/LinkCell'
 import type { MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
+import { Badge } from '~/ui/lib/Badge'
 import { useQuickActions } from 'app/hooks/use-quick-actions'
 import { confirmDelete } from 'app/stores/confirm-delete'
 import { pb } from 'app/util/path-builder'

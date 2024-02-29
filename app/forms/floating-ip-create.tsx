@@ -17,7 +17,7 @@ import {
   type FloatingIpCreate,
   type SiloIpPool,
 } from '@oxide/api'
-import { Badge, Message } from '@oxide/ui'
+import { Message } from '@oxide/ui'
 import { validateIp } from '@oxide/util'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
@@ -25,6 +25,7 @@ import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
+import { Badge } from '~/ui/lib/Badge'
 import { AccordionItem } from 'app/components/AccordionItem'
 import { useForm, useProjectSelector, useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'

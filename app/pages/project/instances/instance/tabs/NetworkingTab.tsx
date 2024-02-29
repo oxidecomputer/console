@@ -17,12 +17,13 @@ import {
   usePrefetchedApiQuery,
   type InstanceNetworkInterface,
 } from '@oxide/api'
-import { Badge, Button, EmptyMessage, Networking24Icon } from '@oxide/ui'
+import { Button, EmptyMessage, Networking24Icon } from '@oxide/ui'
 
 import { SkeletonCell } from '~/table/cells/EmptyCell'
 import { LinkCell } from '~/table/cells/LinkCell'
 import type { MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
+import { Badge } from '~/ui/lib/Badge'
 import CreateNetworkInterfaceForm from 'app/forms/network-interface-create'
 import EditNetworkInterfaceForm from 'app/forms/network-interface-edit'
 import {

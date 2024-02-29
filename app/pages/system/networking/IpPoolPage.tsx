@@ -19,7 +19,6 @@ import {
   type IpPoolSiloLink,
 } from '@oxide/api'
 import {
-  Badge,
   Button,
   buttonStyle,
   EmptyMessage,
@@ -38,6 +37,7 @@ import { SkeletonCell } from '~/table/cells/EmptyCell'
 import { LinkCell } from '~/table/cells/LinkCell'
 import type { MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
+import { Badge } from '~/ui/lib/Badge'
 import { ExternalLink } from 'app/components/ExternalLink'
 import { HL } from 'app/components/HL'
 import { QueryParamTabs } from 'app/components/QueryParamTabs'
