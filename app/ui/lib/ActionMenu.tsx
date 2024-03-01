@@ -13,6 +13,7 @@ import React, { useState } from 'react'
 import { Close12Icon } from '@oxide/design-system/icons/react'
 import { groupBy } from '@oxide/util'
 
+import { KEYS } from '~/ui/util/keys'
 import { classed } from '~/util/classed'
 
 import { useSteppedScroll } from './use-stepped-scroll'
@@ -94,15 +95,15 @@ export function ActionMenu(props: ActionMenuProps) {
           <div
             onKeyDown={(e) => {
               const lastIdx = itemsInOrder.length - 1
-              if (e.key === 'Enter') {
+              if (e.key === KEYS.enter) {
                 if (selectedItem) {
                   selectedItem.onSelect()
                   onDismiss()
                 }
-              } else if (e.key === 'ArrowDown') {
+              } else if (e.key === KEYS.down) {
                 const newIdx = selectedIdx === lastIdx ? 0 : selectedIdx + 1
                 setSelectedIdx(newIdx)
-              } else if (e.key === 'ArrowUp') {
+              } else if (e.key === KEYS.up) {
                 const newIdx = selectedIdx === 0 ? lastIdx : selectedIdx - 1
                 setSelectedIdx(newIdx)
               }

@@ -30,6 +30,7 @@ import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { Badge } from '~/ui/lib/Badge'
 import { Button } from '~/ui/lib/Button'
+import { KEYS } from '~/ui/util/keys'
 import { useForm, useVpcSelector } from 'app/hooks'
 
 export type FirewallRuleValues = {
@@ -234,7 +235,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
           required
           control={targetForm.control}
           onKeyDown={(e) => {
-            if (e.key === 'Enter') {
+            if (e.key === KEYS.enter) {
               e.preventDefault() // prevent full form submission
               submitTarget(e)
             }
@@ -324,7 +325,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
           required
           control={hostForm.control}
           onKeyDown={(e) => {
-            if (e.key === 'Enter') {
+            if (e.key === KEYS.enter) {
               e.preventDefault() // prevent full form submission
               submitHost(e)
             }
@@ -396,7 +397,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
           required
           control={portRangeForm.control}
           onKeyDown={(e) => {
-            if (e.key === 'Enter') {
+            if (e.key === KEYS.enter) {
               e.preventDefault() // prevent full form submission
               submitPortRange(e)
             }
