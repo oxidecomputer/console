@@ -7,8 +7,9 @@
  */
 import { useState } from 'react'
 
-import { Button, Modal, Success12Icon } from '@oxide/ui'
+import { Button, Success12Icon } from '@oxide/ui'
 
+import { Modal } from '~/ui/lib/Modal'
 import useTimeout from '~/ui/lib/use-timeout'
 
 export default function EquivalentCliCommand({ command }: { command: string }) {

@@ -14,7 +14,6 @@ import {
   EmptyMessage,
   Images24Icon,
   Message,
-  Modal,
   PageHeader,
   PageTitle,
   TableActions,
@@ -25,6 +24,7 @@ import { linkCell } from '~/table/cells/LinkCell'
 import { SizeCell } from '~/table/cells/SizeCell'
 import type { MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
+import { Modal } from '~/ui/lib/Modal'
 import { getProjectSelector, useProjectSelector, useToast } from 'app/hooks'
 import { confirmDelete } from 'app/stores/confirm-delete'
 import { pb } from 'app/util/path-builder'

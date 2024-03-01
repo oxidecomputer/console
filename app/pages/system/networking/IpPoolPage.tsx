@@ -23,7 +23,6 @@ import {
   buttonStyle,
   EmptyMessage,
   Message,
-  Modal,
   Networking24Icon,
   PageHeader,
   PageTitle,
@@ -38,6 +37,7 @@ import { LinkCell } from '~/table/cells/LinkCell'
 import type { MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
 import { Badge } from '~/ui/lib/Badge'
+import { Modal } from '~/ui/lib/Modal'
 import { ExternalLink } from 'app/components/ExternalLink'
 import { HL } from 'app/components/HL'
 import { QueryParamTabs } from 'app/components/QueryParamTabs'
