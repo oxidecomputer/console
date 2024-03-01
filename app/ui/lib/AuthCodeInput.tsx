@@ -18,6 +18,8 @@ import React, { forwardRef, useEffect, useImperativeHandle, useRef } from 'react
 
 import { invariant } from '@oxide/util'
 
+import { KEYS } from '~/ui/util/keys'
+
 export type AuthCodeProps = {
   ariaLabel?: string
   autoFocus?: boolean
@@ -148,7 +150,7 @@ export const AuthCodeInput = forwardRef<AuthCodeRef, AuthCodeProps>(
 
     const handleOnKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
       const target = e.target as HTMLInputElement
-      if (e.key === 'Backspace') {
+      if (e.key === KEYS.backspace) {
         if (target.value === '') {
           const prevInput = getPrevInputSibling(target)
           if (prevInput !== null) {

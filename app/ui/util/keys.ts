@@ -16,6 +16,7 @@ export const KEYS = {
   right: 'ArrowRight',
   down: 'ArrowDown',
   delete: 'Delete',
+  backspace: 'Backspace',
   enter: 'Enter',
   space: ' ',
   escape: 'Escape',
