@@ -36,11 +36,15 @@ function checkCrumbType(m: MatchWithCrumb): MatchWithCrumb {
   return m
 }
 
-export const useCrumbs = () =>
+/**
+ * non top-level route: Instances / mock-project / Projects / maze-war / Oxide Console
+ * top-level route: Oxide Console
+ */
+export const useTitle = () =>
   useMatches()
     .filter(hasCrumb)
     .map(checkCrumbType)
-    .map((m) => ({
-      label: typeof m.handle.crumb === 'function' ? m.handle.crumb(m) : m.handle.crumb,
-      href: m.pathname,
-    }))
+    .map((m) => (typeof m.handle.crumb === 'function' ? m.handle.crumb(m) : m.handle.crumb))
+    .reverse()
+    .concat('Oxide Console') // if there are no crumbs, we're still Oxide Console
+    .join(' / ')

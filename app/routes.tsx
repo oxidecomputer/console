@@ -30,7 +30,7 @@ import { CreateSnapshotSideModalForm } from './forms/snapshot-create'
 import { CreateSSHKeySideModalForm } from './forms/ssh-key-create'
 import { CreateVpcSideModalForm } from './forms/vpc-create'
 import { EditVpcSideModalForm } from './forms/vpc-edit'
-import type { CrumbFunc } from './hooks/use-crumbs'
+import type { CrumbFunc } from './hooks/use-title'
 import { AuthenticatedLayout } from './layouts/AuthenticatedLayout'
 import AuthLayout from './layouts/AuthLayout'
 import { SerialConsoleContentPane } from './layouts/helpers'
@@ -82,6 +82,7 @@ const projectCrumb: CrumbFunc = (m) => m.params.project!
 const instanceCrumb: CrumbFunc = (m) => m.params.instance!
 const vpcCrumb: CrumbFunc = (m) => m.params.vpc!
 const siloCrumb: CrumbFunc = (m) => m.params.silo!
+const poolCrumb: CrumbFunc = (m) => m.params.pool!
 
 export const routes = createRoutesFromElements(
   <Route element={<RootLayout />}>
@@ -176,11 +177,7 @@ export const routes = createRoutesFromElements(
         </Route>
         <Route path="health" element={null} handle={{ crumb: 'Health' }} />
         <Route path="update" element={null} handle={{ crumb: 'Update' }} />
-        <Route
-          path="networking"
-          element={<NetworkingPage />}
-          handle={{ crumb: 'Networking' }}
-        >
+        <Route path="networking" element={<NetworkingPage />}>
           <Route
             element={<IpPoolsTab />}
             loader={IpPoolsTab.loader}
@@ -196,12 +193,15 @@ export const routes = createRoutesFromElements(
             />
           </Route>
         </Route>
-        <Route
-          path="networking/ip-pools/:pool"
-          element={<IpPoolPage />}
-          loader={IpPoolPage.loader}
-        >
-          <Route path="ranges-add" element={<IpPoolAddRangeSideModalForm />} />
+        <Route path="networking/ip-pools" handle={{ crumb: 'IP pools' }}>
+          <Route
+            path=":pool"
+            element={<IpPoolPage />}
+            loader={IpPoolPage.loader}
+            handle={{ crumb: poolCrumb }}
+          >
+            <Route path="ranges-add" element={<IpPoolAddRangeSideModalForm />} />
+          </Route>
         </Route>
       </Route>
 
