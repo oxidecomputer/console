@@ -52,9 +52,9 @@
     "p-map": "^7.0.1",
     "p-retry": "^6.2.0",
     "prop-types": "^15.7.2",
-    "react": "^18.2.0",
+    "react": "18.3.0-canary-a515d753b-20240220",
     "react-aria": "^3.31.1",
-    "react-dom": "^18.2.0",
+    "react-dom": "18.3.0-canary-a515d753b-20240220",
     "react-error-boundary": "^4.0.12",
     "react-hook-form": "^7.50.1",
     "react-is": "^18.2.0",
@@ -126,6 +126,10 @@
     "vite-plugin-html": "^3.2.2",
     "vite-tsconfig-paths": "^4.3.1",
     "vitest": "^1.2.2"
+  },
+  "overrides": {
+    "react": "18.3.0-canary-a515d753b-20240220",
+    "react-dom": "18.3.0-canary-a515d753b-20240220"
   },
   "browserslist": [
     "defaults",
