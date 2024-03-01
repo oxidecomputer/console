@@ -15,11 +15,12 @@ import {
   type Cumulativeint64,
   type DiskMetricName,
 } from '@oxide/api'
-import { Listbox, Storage24Icon, TableEmptyBox } from '@oxide/ui'
+import { Listbox, Storage24Icon } from '@oxide/ui'
 
 import { useDateTimeRangePicker } from '~/components/form/fields/DateTimeRangePicker'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Spinner } from '~/ui/lib/Spinner'
+import { TableEmptyBox } from '~/ui/lib/Table'
 import { getInstanceSelector, useInstanceSelector } from 'app/hooks'
 
 const TimeSeriesChart = React.lazy(() => import('app/components/TimeSeriesChart'))

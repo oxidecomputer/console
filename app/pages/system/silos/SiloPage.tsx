@@ -14,7 +14,6 @@ import {
   PageHeader,
   PageTitle,
   PropertiesTable,
-  TableEmptyBox,
   Tabs,
 } from '@oxide/ui'
 import { formatDateTime } from '@oxide/util'
@@ -22,6 +21,7 @@ import { formatDateTime } from '@oxide/util'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { Badge } from '~/ui/lib/Badge'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { TableEmptyBox } from '~/ui/lib/Table'
 import { QueryParamTabs } from 'app/components/QueryParamTabs'
 import { getSiloSelector, useSiloSelector } from 'app/hooks'
 

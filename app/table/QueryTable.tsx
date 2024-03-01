@@ -31,12 +31,12 @@ import {
   type Result,
   type ResultItem,
 } from '@oxide/api'
-import { TableEmptyBox } from '@oxide/ui'
 import { invariant, isOneOf } from '@oxide/util'
 
 import { Pagination } from '~/components/Pagination'
 import { usePagination } from '~/hooks/use-pagination'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { TableEmptyBox } from '~/ui/lib/Table'
 
 import { DefaultCell } from './cells/DefaultCell'
 import { getActionsCol, type MakeActions } from './columns/action-col'

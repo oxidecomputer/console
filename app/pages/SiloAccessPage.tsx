@@ -20,13 +20,14 @@ import {
   type IdentityType,
   type RoleKey,
 } from '@oxide/api'
-import { Access24Icon, PageHeader, PageTitle, TableActions, TableEmptyBox } from '@oxide/ui'
+import { Access24Icon, PageHeader, PageTitle } from '@oxide/ui'
 import { groupBy, isTruthy } from '@oxide/util'
 
 import { getActionsCol } from '~/table/columns/action-col'
 import { Table } from '~/table/Table'
 import { Button } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { TableActions, TableEmptyBox } from '~/ui/lib/Table'
 import { AccessNameCell } from 'app/components/AccessNameCell'
 import { HL } from 'app/components/HL'
 import { RoleBadgeCell } from 'app/components/RoleBadgeCell'
