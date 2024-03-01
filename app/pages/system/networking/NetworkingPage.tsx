@@ -5,8 +5,9 @@
  *
  * Copyright Oxide Computer Company
  */
-import { Networking24Icon, PageHeader, PageTitle } from '@oxide/ui'
+import { Networking24Icon } from '@oxide/ui'
 
+import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { RouteTabs, Tab } from 'app/components/RouteTabs'
 import { pb } from 'app/util/path-builder'
 

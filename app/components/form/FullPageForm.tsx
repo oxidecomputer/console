@@ -10,10 +10,10 @@ import type { FieldValues, UseFormReturn } from 'react-hook-form'
 import { useBlocker, type Blocker } from 'react-router-dom'
 
 import type { ApiError } from '@oxide/api'
-import { PageHeader, PageTitle } from '@oxide/ui'
 import { flattenChildren, pluckFirstOfType } from '@oxide/util'
 
 import { Modal } from '~/ui/lib/Modal'
+import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { classed } from '~/util/classed'
 
 import { Form } from '../form/Form'
