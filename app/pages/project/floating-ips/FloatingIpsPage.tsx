@@ -18,7 +18,6 @@ import {
   type Instance,
 } from '@oxide/api'
 import {
-  EmptyMessage,
   IpGlobal24Icon,
   Listbox,
   Message,
@@ -32,6 +31,7 @@ import { InstanceLinkCell } from '~/table/cells/InstanceLinkCell'
 import type { MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
 import { buttonStyle } from '~/ui/lib/Button'
+import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Modal } from '~/ui/lib/Modal'
 import { HL } from 'app/components/HL'
 import { getProjectSelector, useProjectSelector } from 'app/hooks'

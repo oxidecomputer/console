@@ -14,13 +14,7 @@ import {
   useApiQueryErrorsAllowed,
   type Snapshot,
 } from '@oxide/api'
-import {
-  EmptyMessage,
-  PageHeader,
-  PageTitle,
-  Snapshots24Icon,
-  TableActions,
-} from '@oxide/ui'
+import { PageHeader, PageTitle, Snapshots24Icon, TableActions } from '@oxide/ui'
 
 import { DateCell } from '~/table/cells/DateCell'
 import { SkeletonCell } from '~/table/cells/EmptyCell'
@@ -29,6 +23,7 @@ import type { MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
 import { Badge } from '~/ui/lib/Badge'
 import { buttonStyle } from '~/ui/lib/Button'
+import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { SnapshotStatusBadge } from 'app/components/StatusBadge'
 import { getProjectSelector, useProjectSelector } from 'app/hooks'
 import { confirmDelete } from 'app/stores/confirm-delete'

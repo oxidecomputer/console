@@ -15,7 +15,7 @@ import {
   usePrefetchedApiQuery,
   type Silo,
 } from '@oxide/api'
-import { Cloud24Icon, EmptyMessage, PageHeader, PageTitle, TableActions } from '@oxide/ui'
+import { Cloud24Icon, PageHeader, PageTitle, TableActions } from '@oxide/ui'
 
 import { BooleanCell } from '~/table/cells/BooleanCell'
 import { DateCell } from '~/table/cells/DateCell'
@@ -24,6 +24,7 @@ import type { MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
 import { Badge } from '~/ui/lib/Badge'
 import { buttonStyle } from '~/ui/lib/Button'
+import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { useQuickActions } from 'app/hooks/use-quick-actions'
 import { confirmDelete } from 'app/stores/confirm-delete'
 import { pb } from 'app/util/path-builder'

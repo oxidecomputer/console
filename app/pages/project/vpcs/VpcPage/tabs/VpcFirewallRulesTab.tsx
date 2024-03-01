@@ -14,7 +14,7 @@ import {
   usePrefetchedApiQuery,
   type VpcFirewallRule,
 } from '@oxide/api'
-import { EmptyMessage, TableEmptyBox } from '@oxide/ui'
+import { TableEmptyBox } from '@oxide/ui'
 import { sortBy, titleCase } from '@oxide/util'
 
 import { DateCell } from '~/table/cells/DateCell'
@@ -25,6 +25,7 @@ import { TypeValueListCell } from '~/table/cells/TypeValueListCell'
 import { getActionsCol } from '~/table/columns/action-col'
 import { Table } from '~/table/Table'
 import { Button } from '~/ui/lib/Button'
+import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { CreateFirewallRuleForm } from 'app/forms/firewall-rules-create'
 import { EditFirewallRuleForm } from 'app/forms/firewall-rules-edit'
 import { useVpcSelector } from 'app/hooks'

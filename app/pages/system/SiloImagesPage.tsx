@@ -16,14 +16,7 @@ import {
   useApiQueryClient,
   type Image,
 } from '@oxide/api'
-import {
-  EmptyMessage,
-  Images24Icon,
-  Message,
-  PageHeader,
-  PageTitle,
-  TableActions,
-} from '@oxide/ui'
+import { Images24Icon, Message, PageHeader, PageTitle, TableActions } from '@oxide/ui'
 
 import { toListboxItem } from '~/components/form/fields/ImageSelectField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
@@ -33,6 +26,7 @@ import { SizeCell } from '~/table/cells/SizeCell'
 import type { MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
 import { Button } from '~/ui/lib/Button'
+import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Modal } from '~/ui/lib/Modal'
 import { useForm, useToast } from 'app/hooks'
 import { confirmDelete } from 'app/stores/confirm-delete'

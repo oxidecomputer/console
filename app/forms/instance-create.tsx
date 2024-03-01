@@ -22,7 +22,6 @@ import {
   type InstanceCreate,
 } from '@oxide/api'
 import {
-  EmptyMessage,
   FormDivider,
   Images16Icon,
   Instances24Icon,
@@ -49,6 +48,7 @@ import { SshKeysField } from '~/components/form/fields/SshKeysField'
 import { TextField } from '~/components/form/fields/TextField'
 import { Form } from '~/components/form/Form'
 import { FullPageForm } from '~/components/form/FullPageForm'
+import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TextInputHint } from '~/ui/lib/TextInput'
 import { AccordionItem } from 'app/components/AccordionItem'
 import { getProjectSelector, useForm, useProjectSelector, useToast } from 'app/hooks'

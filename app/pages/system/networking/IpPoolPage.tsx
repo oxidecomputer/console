@@ -19,7 +19,6 @@ import {
   type IpPoolSiloLink,
 } from '@oxide/api'
 import {
-  EmptyMessage,
   Message,
   Networking24Icon,
   PageHeader,
@@ -36,6 +35,7 @@ import type { MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
 import { Badge } from '~/ui/lib/Badge'
 import { Button, buttonStyle } from '~/ui/lib/Button'
+import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Modal } from '~/ui/lib/Modal'
 import { ExternalLink } from 'app/components/ExternalLink'
 import { HL } from 'app/components/HL'
