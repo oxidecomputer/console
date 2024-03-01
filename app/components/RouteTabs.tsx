@@ -9,11 +9,12 @@ import cn from 'classnames'
 import type { ReactNode } from 'react'
 import { Link, Outlet } from 'react-router-dom'
 
+import { KEYS } from '~/ui/util/keys'
 import { useIsActivePath } from 'app/hooks/use-is-active-path'
 
 const selectTab = (e: React.KeyboardEvent<HTMLDivElement>) => {
   const target = e.target as HTMLDivElement
-  if (e.key === 'ArrowLeft') {
+  if (e.key === KEYS.left) {
     e.stopPropagation()
     e.preventDefault()
 
@@ -22,7 +23,7 @@ const selectTab = (e: React.KeyboardEvent<HTMLDivElement>) => {
 
     sibling.focus()
     sibling.click()
-  } else if (e.key === 'ArrowRight') {
+  } else if (e.key === KEYS.right) {
     e.stopPropagation()
     e.preventDefault()
 
