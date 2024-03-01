@@ -20,7 +20,7 @@ import {
   type Disk,
   type Snapshot,
 } from '@oxide/api'
-import { Error12Icon, Message, Spinner, Success12Icon, Unauthorized12Icon } from '@oxide/ui'
+import { Error12Icon, Message, Success12Icon, Unauthorized12Icon } from '@oxide/ui'
 import { GiB, invariant, KiB } from '@oxide/util'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
@@ -31,6 +31,7 @@ import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { Modal } from '~/ui/lib/Modal'
 import { Progress } from '~/ui/lib/Progress'
+import { Spinner } from '~/ui/lib/Spinner'
 import { useForm, useProjectSelector } from 'app/hooks'
 import { readBlobAsBase64 } from 'app/util/file'
 import { pb } from 'app/util/path-builder'
