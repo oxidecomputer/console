@@ -9,9 +9,10 @@ import { useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import { useApiMutation, type UsernamePasswordCredentials } from '@oxide/api'
-import { Button, Identicon } from '@oxide/ui'
+import { Identicon } from '@oxide/ui'
 
 import { TextFieldInner } from '~/components/form/fields/TextField'
+import { Button } from '~/ui/lib/Button'
 
 import 'app/components/login-page.css'
 

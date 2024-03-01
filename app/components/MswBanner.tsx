@@ -7,8 +7,10 @@
  */
 import { useState, type ReactNode } from 'react'
 
-import { Button, Info16Icon, Modal, NextArrow12Icon } from '@oxide/ui'
+import { Info16Icon, NextArrow12Icon } from '@oxide/ui'
 
+import { Button } from '~/ui/lib/Button'
+import { Modal } from '~/ui/lib/Modal'
 import { ModalLink, ModalLinks } from '~/ui/lib/ModalLinks'
 
 function ExternalLink({ href, children }: { href: string; children: ReactNode }) {

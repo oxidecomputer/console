@@ -9,16 +9,10 @@ import { useState } from 'react'
 import { useController, type Control } from 'react-hook-form'
 
 import { usePrefetchedApiQuery } from '@oxide/api'
-import {
-  Button,
-  Checkbox,
-  Divider,
-  EmptyMessage,
-  FieldLabel,
-  Key16Icon,
-  Message,
-} from '@oxide/ui'
+import { Checkbox, Divider, FieldLabel, Key16Icon, Message } from '@oxide/ui'
 
+import { Button } from '~/ui/lib/Button'
+import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TextInputHint } from '~/ui/lib/TextInput'
 import type { InstanceCreateInput } from 'app/forms/instance-create'
 import { CreateSSHKeySideModalForm } from 'app/forms/ssh-key-create'

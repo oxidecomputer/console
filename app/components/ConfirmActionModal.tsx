@@ -8,8 +8,8 @@
 import { useState } from 'react'
 
 import { type ApiError } from '@oxide/api'
-import { Modal } from '@oxide/ui'
 
+import { Modal } from '~/ui/lib/Modal'
 import { clearConfirmAction, useConfirmAction } from 'app/stores/confirm-action'
 import { addToast } from 'app/stores/toast'
 

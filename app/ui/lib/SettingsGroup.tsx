@@ -7,7 +7,9 @@
  */
 import { Link } from 'react-router-dom'
 
-import { Button, buttonStyle, OpenLink12Icon } from '@oxide/ui'
+import { OpenLink12Icon } from '@oxide/ui'
+
+import { Button, buttonStyle } from '~/ui/lib/Button'
 
 type Props = {
   title: string

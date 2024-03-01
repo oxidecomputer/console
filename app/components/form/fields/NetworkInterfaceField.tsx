@@ -12,8 +12,9 @@ import type {
   InstanceNetworkInterfaceAttachment,
   InstanceNetworkInterfaceCreate,
 } from '@oxide/api'
-import { Button, Error16Icon, FieldLabel, MiniTable, Radio, RadioGroup } from '@oxide/ui'
+import { Error16Icon, FieldLabel, MiniTable, Radio, RadioGroup } from '@oxide/ui'
 
+import { Button } from '~/ui/lib/Button'
 import type { InstanceCreateInput } from 'app/forms/instance-create'
 import CreateNetworkInterfaceForm from 'app/forms/network-interface-create'
 

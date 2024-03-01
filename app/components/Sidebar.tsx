@@ -8,8 +8,9 @@
 import cn from 'classnames'
 import { NavLink } from 'react-router-dom'
 
-import { Action16Icon, Button, Document16Icon, Truncate } from '@oxide/ui'
+import { Action16Icon, Document16Icon, Truncate } from '@oxide/ui'
 
+import { Button } from '~/ui/lib/Button'
 import { openQuickActions } from 'app/hooks'
 
 const linkStyles =

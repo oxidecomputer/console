@@ -10,9 +10,6 @@ import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, useApiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import {
-  Button,
-  buttonStyle,
-  EmptyMessage,
   Instances24Icon,
   PageHeader,
   PageTitle,
@@ -25,6 +22,8 @@ import { InstanceResourceCell } from '~/table/cells/InstanceResourceCell'
 import { InstanceStatusCell } from '~/table/cells/InstanceStatusCell'
 import { linkCell } from '~/table/cells/LinkCell'
 import { useQueryTable } from '~/table/QueryTable'
+import { Button, buttonStyle } from '~/ui/lib/Button'
+import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { getProjectSelector, useProjectSelector, useQuickActions } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
