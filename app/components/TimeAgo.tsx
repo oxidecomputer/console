@@ -8,8 +8,7 @@
 import type { Placement } from '@floating-ui/react'
 import { format } from 'date-fns'
 
-import { Tooltip } from '@oxide/ui'
-
+import { Tooltip } from '~/ui/lib/Tooltip'
 import { timeAgoAbbr } from 'app/util/date'
 
 export const TimeAgo = ({

@@ -8,7 +8,9 @@
 import cn from 'classnames'
 import type { ElementType, PropsWithChildren } from 'react'
 
-import { Question12Icon, Tooltip } from '@oxide/ui'
+import { Question12Icon } from '@oxide/ui'
+
+import { Tooltip } from '~/ui/lib/Tooltip'
 
 interface FieldLabelProps {
   id: string
