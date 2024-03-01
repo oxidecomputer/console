@@ -10,7 +10,6 @@ import { Link, Outlet, type LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, useApiMutation, useApiQueryClient, type Image } from '@oxide/api'
 import {
-  buttonStyle,
   EmptyMessage,
   Images24Icon,
   Message,
@@ -24,6 +23,7 @@ import { linkCell } from '~/table/cells/LinkCell'
 import { SizeCell } from '~/table/cells/SizeCell'
 import type { MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
+import { buttonStyle } from '~/ui/lib/Button'
 import { Modal } from '~/ui/lib/Modal'
 import { getProjectSelector, useProjectSelector, useToast } from 'app/hooks'
 import { confirmDelete } from 'app/stores/confirm-delete'

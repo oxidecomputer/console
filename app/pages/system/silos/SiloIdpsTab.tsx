@@ -7,7 +7,7 @@
  */
 import { Link, Outlet } from 'react-router-dom'
 
-import { buttonStyle, Cloud24Icon, EmptyMessage } from '@oxide/ui'
+import { Cloud24Icon, EmptyMessage } from '@oxide/ui'
 
 import { DateCell } from '~/table/cells/DateCell'
 import { DefaultCell } from '~/table/cells/DefaultCell'
@@ -15,6 +15,7 @@ import { linkCell } from '~/table/cells/LinkCell'
 import { TruncateCell } from '~/table/cells/TruncateCell'
 import { useQueryTable } from '~/table/QueryTable'
 import { Badge } from '~/ui/lib/Badge'
+import { buttonStyle } from '~/ui/lib/Button'
 import { useSiloSelector } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 

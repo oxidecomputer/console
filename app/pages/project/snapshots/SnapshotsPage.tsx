@@ -15,7 +15,6 @@ import {
   type Snapshot,
 } from '@oxide/api'
 import {
-  buttonStyle,
   EmptyMessage,
   PageHeader,
   PageTitle,
@@ -29,6 +28,7 @@ import { SizeCell } from '~/table/cells/SizeCell'
 import type { MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
 import { Badge } from '~/ui/lib/Badge'
+import { buttonStyle } from '~/ui/lib/Button'
 import { SnapshotStatusBadge } from 'app/components/StatusBadge'
 import { getProjectSelector, useProjectSelector } from 'app/hooks'
 import { confirmDelete } from 'app/stores/confirm-delete'

@@ -10,8 +10,8 @@ import type { FieldValues, UseFormReturn } from 'react-hook-form'
 import { useNavigationType } from 'react-router-dom'
 
 import type { ApiError } from '@oxide/api'
-import { Button } from '@oxide/ui'
 
+import { Button } from '~/ui/lib/Button'
 import { SideModal } from '~/ui/lib/SideModal'
 
 type SideModalFormProps<TFieldValues extends FieldValues> = {

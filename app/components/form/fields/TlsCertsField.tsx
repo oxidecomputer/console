@@ -10,8 +10,9 @@ import { useController, type Control } from 'react-hook-form'
 import type { Merge } from 'type-fest'
 
 import type { CertificateCreate } from '@oxide/api'
-import { Button, Error16Icon, FieldLabel, MiniTable } from '@oxide/ui'
+import { Error16Icon, FieldLabel, MiniTable } from '@oxide/ui'
 
+import { Button } from '~/ui/lib/Button'
 import { Modal } from '~/ui/lib/Modal'
 import type { SiloCreateFormValues } from 'app/forms/silo-create'
 import { useForm } from 'app/hooks'

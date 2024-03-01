@@ -9,9 +9,10 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { useApiMutation } from '@oxide/api'
-import { Button, Warning12Icon } from '@oxide/ui'
+import { Warning12Icon } from '@oxide/ui'
 
 import { AuthCodeInput } from '~/ui/lib/AuthCodeInput'
+import { Button } from '~/ui/lib/Button'
 import { pb } from 'app/util/path-builder'
 
 const DASH_AFTER_IDXS = [3]

@@ -9,7 +9,6 @@ import { Link, Outlet, useNavigate } from 'react-router-dom'
 
 import { apiQueryClient, useApiMutation, useApiQueryClient, type SshKey } from '@oxide/api'
 import {
-  buttonStyle,
   EmptyMessage,
   Key16Icon,
   Key24Icon,
@@ -21,6 +20,7 @@ import {
 import { DateCell } from '~/table/cells/DateCell'
 import type { MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
+import { buttonStyle } from '~/ui/lib/Button'
 import { confirmDelete } from 'app/stores/confirm-delete'
 import { pb } from 'app/util/path-builder'
 

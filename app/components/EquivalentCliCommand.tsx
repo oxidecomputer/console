@@ -7,8 +7,9 @@
  */
 import { useState } from 'react'
 
-import { Button, Success12Icon } from '@oxide/ui'
+import { Success12Icon } from '@oxide/ui'
 
+import { Button } from '~/ui/lib/Button'
 import { Modal } from '~/ui/lib/Modal'
 import useTimeout from '~/ui/lib/use-timeout'
 

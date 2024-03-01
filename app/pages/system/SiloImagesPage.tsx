@@ -17,7 +17,6 @@ import {
   type Image,
 } from '@oxide/api'
 import {
-  Button,
   EmptyMessage,
   Images24Icon,
   Message,
@@ -33,6 +32,7 @@ import { linkCell } from '~/table/cells/LinkCell'
 import { SizeCell } from '~/table/cells/SizeCell'
 import type { MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
+import { Button } from '~/ui/lib/Button'
 import { Modal } from '~/ui/lib/Modal'
 import { useForm, useToast } from 'app/hooks'
 import { confirmDelete } from 'app/stores/confirm-delete'
