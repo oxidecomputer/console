@@ -8,7 +8,7 @@
 import { flexRender, type Table as TableInstance } from '@tanstack/react-table'
 import cn from 'classnames'
 
-import { Table as UITable } from '@oxide/ui'
+import { Table as UITable } from '~/ui/lib/Table'
 
 export type TableProps<TData> = JSX.IntrinsicElements['table'] & {
   rowClassName?: string

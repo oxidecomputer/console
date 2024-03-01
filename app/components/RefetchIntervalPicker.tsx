@@ -9,14 +9,9 @@ import cn from 'classnames'
 import { format } from 'date-fns'
 import { useEffect, useState } from 'react'
 
-import {
-  Listbox,
-  Refresh16Icon,
-  SpinnerLoader,
-  Time16Icon,
-  type ListboxItem,
-} from '@oxide/ui'
+import { Listbox, Refresh16Icon, Time16Icon, type ListboxItem } from '@oxide/ui'
 
+import { SpinnerLoader } from '~/ui/lib/Spinner'
 import useInterval from '~/ui/lib/use-interval'
 
 const intervalPresets = {
