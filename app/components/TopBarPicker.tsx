@@ -9,11 +9,12 @@ import cn from 'classnames'
 import { Link } from 'react-router-dom'
 
 import { useApiQuery, type Project } from '@oxide/api'
-import { Folder16Icon, SelectArrows6Icon, Success12Icon, Truncate, Wrap } from '@oxide/ui'
+import { Folder16Icon, SelectArrows6Icon, Success12Icon, Wrap } from '@oxide/ui'
 
 import { Button } from '~/ui/lib/Button'
 import { DropdownMenu } from '~/ui/lib/DropdownMenu'
 import { Identicon } from '~/ui/lib/Identicon'
+import { Truncate } from '~/ui/lib/Truncate'
 import { useInstanceSelector, useIpPoolSelector, useSiloSelector } from 'app/hooks'
 import { useCurrentUser } from 'app/layouts/AuthenticatedLayout'
 import { pb } from 'app/util/path-builder'

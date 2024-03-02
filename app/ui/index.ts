@@ -7,7 +7,6 @@
  */
 
 export * as MiniTable from './lib/MiniTable'
-export * from './lib/Truncate'
 export * from './util/wrap'
 
 export * from '@oxide/design-system/icons/react'

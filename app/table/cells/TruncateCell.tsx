@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { Truncate } from '@oxide/ui'
+import { Truncate } from '~/ui/lib/Truncate'
 
 import type { Cell } from './Cell'
 

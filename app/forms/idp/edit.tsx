@@ -8,7 +8,7 @@
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
-import { Access16Icon, Truncate } from '@oxide/ui'
+import { Access16Icon } from '@oxide/ui'
 import { formatDateTime } from '@oxide/util'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
@@ -17,6 +17,7 @@ import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { ResourceLabel } from '~/ui/lib/SideModal'
+import { Truncate } from '~/ui/lib/Truncate'
 import { getIdpSelector, useForm, useIdpSelector } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 

@@ -17,11 +17,12 @@ import {
   usePrefetchedApiQuery,
   type InstanceNetworkInterface,
 } from '@oxide/api'
-import { Instances24Icon, Truncate } from '@oxide/ui'
+import { Instances24Icon } from '@oxide/ui'
 
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
+import { Truncate } from '~/ui/lib/Truncate'
 import { ExternalIps } from 'app/components/ExternalIps'
 import { MoreActionsMenu } from 'app/components/MoreActionsMenu'
 import { RouteTabs, Tab } from 'app/components/RouteTabs'
