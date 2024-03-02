@@ -8,11 +8,11 @@
 import { useNavigate } from 'react-router-dom'
 
 import { useApiMutation, useApiQueryClient, type IpRange } from '@oxide/api'
-import { Message } from '@oxide/ui'
 import { validateIp } from '@oxide/util'
 
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
+import { Message } from '~/ui/lib/Message'
 import { useForm, useIpPoolSelector } from 'app/hooks'
 import { addToast } from 'app/stores/toast'
 import { pb } from 'app/util/path-builder'

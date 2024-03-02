@@ -18,7 +18,7 @@ import {
   type IpPoolRange,
   type IpPoolSiloLink,
 } from '@oxide/api'
-import { Message, Networking24Icon, Success12Icon, Tabs } from '@oxide/ui'
+import { Networking24Icon, Success12Icon, Tabs } from '@oxide/ui'
 
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { DateCell } from '~/table/cells/DateCell'
@@ -29,6 +29,7 @@ import { useQueryTable } from '~/table/QueryTable'
 import { Badge } from '~/ui/lib/Badge'
 import { Button, buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { ExternalLink } from 'app/components/ExternalLink'

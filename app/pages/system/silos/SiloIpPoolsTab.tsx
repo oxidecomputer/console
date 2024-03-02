@@ -9,7 +9,7 @@
 import { useMemo, useState } from 'react'
 
 import { useApiMutation, useApiQuery, useApiQueryClient, type SiloIpPool } from '@oxide/api'
-import { Message, Networking24Icon, Success12Icon } from '@oxide/ui'
+import { Networking24Icon, Success12Icon } from '@oxide/ui'
 
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { linkCell } from '~/table/cells/LinkCell'
@@ -18,6 +18,7 @@ import { useQueryTable } from '~/table/QueryTable'
 import { Badge } from '~/ui/lib/Badge'
 import { Button } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { ExternalLink } from 'app/components/ExternalLink'
 import { HL } from 'app/components/HL'
