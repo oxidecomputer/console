@@ -10,10 +10,11 @@ import { useIsFetching } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
-import { Divider, Listbox, Metrics24Icon } from '@oxide/ui'
+import { Divider, Metrics24Icon } from '@oxide/ui'
 import { bytesToGiB, bytesToTiB } from '@oxide/util'
 
 import { useDateTimeRangePicker } from '~/components/form/fields/DateTimeRangePicker'
+import { Listbox } from '~/ui/lib/Listbox'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { CapacityBars } from 'app/components/CapacityBars'
 import { useIntervalPicker } from 'app/components/RefetchIntervalPicker'

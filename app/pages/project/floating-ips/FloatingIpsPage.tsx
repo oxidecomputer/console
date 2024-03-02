@@ -17,13 +17,14 @@ import {
   type FloatingIp,
   type Instance,
 } from '@oxide/api'
-import { IpGlobal24Icon, Listbox, Networking24Icon } from '@oxide/ui'
+import { IpGlobal24Icon, Networking24Icon } from '@oxide/ui'
 
 import { InstanceLinkCell } from '~/table/cells/InstanceLinkCell'
 import type { MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
 import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { Listbox } from '~/ui/lib/Listbox'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'

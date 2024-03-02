@@ -15,10 +15,11 @@ import {
   totalUtilization,
   usePrefetchedApiQuery,
 } from '@oxide/api'
-import { Listbox, Metrics24Icon } from '@oxide/ui'
+import { Metrics24Icon } from '@oxide/ui'
 import { bytesToGiB, bytesToTiB, round } from '@oxide/util'
 
 import { useDateTimeRangePicker } from '~/components/form/fields/DateTimeRangePicker'
+import { Listbox } from '~/ui/lib/Listbox'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { ResourceMeter } from '~/ui/lib/ResourceMeter'
 import { Table } from '~/ui/lib/Table'

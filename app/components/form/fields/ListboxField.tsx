@@ -8,8 +8,9 @@
 import cn from 'classnames'
 import { Controller, type Control, type FieldPath, type FieldValues } from 'react-hook-form'
 
-import { Listbox, type ListboxItem } from '@oxide/ui'
 import { capitalize } from '@oxide/util'
+
+import { Listbox, type ListboxItem } from '~/ui/lib/Listbox'
 
 import { ErrorMessage } from './ErrorMessage'
 
