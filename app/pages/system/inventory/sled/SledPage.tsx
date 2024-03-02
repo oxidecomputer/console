@@ -9,9 +9,10 @@ import { filesize } from 'filesize'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
-import { PropertiesTable, Racks24Icon } from '@oxide/ui'
+import { Racks24Icon } from '@oxide/ui'
 
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
+import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { RouteTabs, Tab } from 'app/components/RouteTabs'
 import { requireSledParams, useSledParams } from 'app/hooks'
 import { pb } from 'app/util/path-builder'

@@ -8,11 +8,12 @@
 import type { LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
-import { Networking24Icon, PropertiesTable, Tabs } from '@oxide/ui'
+import { Networking24Icon, Tabs } from '@oxide/ui'
 import { formatDateTime } from '@oxide/util'
 
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
+import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { QueryParamTabs } from 'app/components/QueryParamTabs'
 import { getVpcSelector, useVpcSelector } from 'app/hooks'
 

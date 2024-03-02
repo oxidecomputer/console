@@ -8,13 +8,14 @@
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, usePrefetchedApiQuery, type Image } from '@oxide/api'
-import { Images16Icon, PropertiesTable, ResourceLabel, Truncate } from '@oxide/ui'
+import { Images16Icon, ResourceLabel, Truncate } from '@oxide/ui'
 import { bytesToGiB, formatDateTime } from '@oxide/util'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
+import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import {
   getProjectImageSelector,
   getSiloImageSelector,
