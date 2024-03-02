@@ -7,8 +7,6 @@
  */
 
 export * as MiniTable from './lib/MiniTable'
-export * from './lib/Radio'
-export * from './lib/SideModal'
 export * from './lib/Truncate'
 export * from './util/wrap'
 

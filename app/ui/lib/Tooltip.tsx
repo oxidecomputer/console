@@ -32,7 +32,7 @@ import {
 } from 'react'
 import { mergeRefs } from 'react-merge-refs'
 
-import { usePopoverZIndex } from '@oxide/ui'
+import { usePopoverZIndex } from './SideModal'
 
 import './tooltip.css'
 

@@ -17,9 +17,10 @@ import { Listbox as Select } from '@headlessui/react'
 import cn from 'classnames'
 import type { ReactNode } from 'react'
 
-import { SelectArrows6Icon, usePopoverZIndex } from '@oxide/ui'
+import { SelectArrows6Icon } from '@oxide/ui'
 
 import { FieldLabel } from './FieldLabel'
+import { usePopoverZIndex } from './SideModal'
 import { SpinnerLoader } from './Spinner'
 import { TextInputHint } from './TextInput'
 

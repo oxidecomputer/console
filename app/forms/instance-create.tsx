@@ -21,7 +21,7 @@ import {
   usePrefetchedApiQuery,
   type InstanceCreate,
 } from '@oxide/api'
-import { Images16Icon, Instances24Icon, RadioCard } from '@oxide/ui'
+import { Images16Icon, Instances24Icon } from '@oxide/ui'
 import { GiB, invariant } from '@oxide/util'
 
 import { CheckboxField } from '~/components/form/fields/CheckboxField'
@@ -44,6 +44,7 @@ import { FullPageForm } from '~/components/form/FullPageForm'
 import { FormDivider } from '~/ui/lib/Divider'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
+import { RadioCard } from '~/ui/lib/Radio'
 import { Tabs } from '~/ui/lib/Tabs'
 import { TextInputHint } from '~/ui/lib/TextInput'
 import { AccordionItem } from 'app/components/AccordionItem'

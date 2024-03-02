@@ -20,7 +20,6 @@ import {
   type DiskSource,
   type Image,
 } from '@oxide/api'
-import { Radio } from '@oxide/ui'
 import { bytesToGiB, GiB } from '@oxide/util'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
@@ -32,6 +31,7 @@ import { RadioField } from '~/components/form/fields/RadioField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { FormDivider } from '~/ui/lib/Divider'
 import { FieldLabel } from '~/ui/lib/FieldLabel'
+import { Radio } from '~/ui/lib/Radio'
 import { RadioGroup } from '~/ui/lib/RadioGroup'
 import { useForm, useProjectSelector, useToast } from 'app/hooks'
 
