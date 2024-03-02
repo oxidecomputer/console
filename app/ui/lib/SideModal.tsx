@@ -11,9 +11,9 @@ import cn from 'classnames'
 import React, { createContext, useContext, useRef, type ReactNode } from 'react'
 
 import { Close12Icon, Error12Icon } from '@oxide/design-system/icons/react'
-import { useIsInModal } from '@oxide/ui'
 
 import { Message } from '~/ui/lib/Message'
+import { useIsInModal } from '~/ui/lib/Modal'
 import { classed } from '~/util/classed'
 import { useIsOverflow } from 'app/hooks'
 
