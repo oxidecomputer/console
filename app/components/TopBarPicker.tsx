@@ -10,7 +10,6 @@ import { Link } from 'react-router-dom'
 
 import { useApiQuery, type Project } from '@oxide/api'
 import {
-  DropdownMenu,
   Folder16Icon,
   Identicon,
   SelectArrows6Icon,
@@ -20,6 +19,7 @@ import {
 } from '@oxide/ui'
 
 import { Button } from '~/ui/lib/Button'
+import { DropdownMenu } from '~/ui/lib/DropdownMenu'
 import { useInstanceSelector, useIpPoolSelector, useSiloSelector } from 'app/hooks'
 import { useCurrentUser } from 'app/layouts/AuthenticatedLayout'
 import { pb } from 'app/util/path-builder'

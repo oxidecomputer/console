@@ -9,9 +9,10 @@ import React from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { navToLogin, useApiMutation } from '@oxide/api'
-import { DirectionDownIcon, DropdownMenu, Info16Icon, Profile16Icon } from '@oxide/ui'
+import { DirectionDownIcon, Info16Icon, Profile16Icon } from '@oxide/ui'
 
 import { Button, buttonStyle } from '~/ui/lib/Button'
+import { DropdownMenu } from '~/ui/lib/DropdownMenu'
 import { useCurrentUser } from 'app/layouts/AuthenticatedLayout'
 import { pb } from 'app/util/path-builder'
 

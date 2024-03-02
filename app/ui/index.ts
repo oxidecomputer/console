@@ -6,7 +6,6 @@
  * Copyright Oxide Computer Company
  */
 
-export * from './lib/DropdownMenu'
 export * from './lib/FieldLabel'
 export * from './lib/Identicon'
 export * as MiniTable from './lib/MiniTable'
