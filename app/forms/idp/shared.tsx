@@ -9,10 +9,11 @@ import { useController, type Control } from 'react-hook-form'
 import type { Merge } from 'type-fest'
 
 import type { IdpMetadataSource, SamlIdentityProviderCreate } from '@oxide/api'
-import { Radio, RadioGroup } from '@oxide/ui'
+import { Radio } from '@oxide/ui'
 
 import { FileField } from '~/components/form/fields/FileField'
 import { TextField } from '~/components/form/fields/TextField'
+import { RadioGroup } from '~/ui/lib/RadioGroup'
 
 export type IdpCreateFormValues = { type: 'saml' } & Merge<
   SamlIdentityProviderCreate,
