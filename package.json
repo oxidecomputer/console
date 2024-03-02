@@ -128,8 +128,8 @@
     "vitest": "^1.2.2"
   },
   "overrides": {
-    "react": "18.3.0-canary-a515d753b-20240220",
-    "react-dom": "18.3.0-canary-a515d753b-20240220"
+    "react": "18.3.0-next-fecc288b7-20221025",
+    "react-dom": "18.3.0-next-fecc288b7-20221025"
   },
   "browserslist": [
     "defaults",
