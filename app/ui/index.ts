@@ -6,29 +6,16 @@
  * Copyright Oxide Computer Company
  */
 
-export * from './lib/Button'
 export * from './lib/Checkbox'
 export * from './lib/DateRangePicker'
 export * from './lib/Divider'
 export * from './lib/DropdownMenu'
-export * from './lib/EmptyMessage'
 export * from './lib/FieldLabel'
-
 export * from './lib/Identicon'
-export * from './lib/Message'
-export * from './lib/Listbox'
-export * from './lib/Message'
-export * from './lib/Modal'
 export * as MiniTable from './lib/MiniTable'
-export * from './lib/PageHeader'
-export * from './lib/PropertiesTable'
 export * from './lib/RadioGroup'
 export * from './lib/Radio'
 export * from './lib/SideModal'
-export * from './lib/Spinner'
-export * from './lib/Table'
-export * from './lib/Tabs'
-export * from './lib/Tooltip'
 export * from './lib/Truncate'
 export * from './util/wrap'
 

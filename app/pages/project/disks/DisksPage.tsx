@@ -15,7 +15,7 @@ import {
   useApiQueryClient,
   type Disk,
 } from '@oxide/api'
-import { PageHeader, PageTitle, Storage24Icon, TableActions } from '@oxide/ui'
+import { Storage24Icon } from '@oxide/ui'
 
 import { DateCell } from '~/table/cells/DateCell'
 import { InstanceLinkCell } from '~/table/cells/InstanceLinkCell'
@@ -24,6 +24,8 @@ import type { MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
 import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
+import { TableActions } from '~/ui/lib/Table'
 import { DiskStatusBadge } from 'app/components/StatusBadge'
 import { getProjectSelector, useProjectSelector, useToast } from 'app/hooks'
 import { confirmDelete } from 'app/stores/confirm-delete'

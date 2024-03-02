@@ -17,8 +17,9 @@ import { Listbox as Select } from '@headlessui/react'
 import cn from 'classnames'
 import type { ReactNode } from 'react'
 
-import { FieldLabel, SelectArrows6Icon, SpinnerLoader, usePopoverZIndex } from '@oxide/ui'
+import { FieldLabel, SelectArrows6Icon, usePopoverZIndex } from '@oxide/ui'
 
+import { SpinnerLoader } from './Spinner'
 import { TextInputHint } from './TextInput'
 
 export type ListboxItem<Value extends string = string> = {

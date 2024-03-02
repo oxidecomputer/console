@@ -8,8 +8,9 @@
 import cn from 'classnames'
 import { forwardRef, type MouseEventHandler, type ReactNode } from 'react'
 
-import { Spinner, Wrap } from '@oxide/ui'
+import { Wrap } from '@oxide/ui'
 
+import { Spinner } from '~/ui/lib/Spinner'
 import { Tooltip } from '~/ui/lib/Tooltip'
 
 import './button.css'

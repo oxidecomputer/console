@@ -8,20 +8,16 @@
 import { type LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
-import {
-  Cloud24Icon,
-  NextArrow12Icon,
-  PageHeader,
-  PageTitle,
-  PropertiesTable,
-  TableEmptyBox,
-  Tabs,
-} from '@oxide/ui'
+import { Cloud24Icon, NextArrow12Icon } from '@oxide/ui'
 import { formatDateTime } from '@oxide/util'
 
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { Badge } from '~/ui/lib/Badge'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
+import { PropertiesTable } from '~/ui/lib/PropertiesTable'
+import { TableEmptyBox } from '~/ui/lib/Table'
+import { Tabs } from '~/ui/lib/Tabs'
 import { QueryParamTabs } from 'app/components/QueryParamTabs'
 import { getSiloSelector, useSiloSelector } from 'app/hooks'
 
