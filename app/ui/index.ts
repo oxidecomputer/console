@@ -6,7 +6,6 @@
  * Copyright Oxide Computer Company
  */
 
-export * from './lib/Divider'
 export * from './lib/DropdownMenu'
 export * from './lib/FieldLabel'
 export * from './lib/Identicon'

@@ -9,10 +9,11 @@ import { useState } from 'react'
 import { useController, type Control } from 'react-hook-form'
 
 import { usePrefetchedApiQuery } from '@oxide/api'
-import { Divider, FieldLabel, Key16Icon } from '@oxide/ui'
+import { FieldLabel, Key16Icon } from '@oxide/ui'
 
 import { Button } from '~/ui/lib/Button'
 import { Checkbox } from '~/ui/lib/Checkbox'
+import { Divider } from '~/ui/lib/Divider'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
 import { TextInputHint } from '~/ui/lib/TextInput'

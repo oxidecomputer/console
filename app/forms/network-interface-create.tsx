@@ -8,7 +8,6 @@
 import { useMemo } from 'react'
 
 import { useApiQuery, type ApiError, type InstanceNetworkInterfaceCreate } from '@oxide/api'
-import { FormDivider } from '@oxide/ui'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
@@ -16,6 +15,7 @@ import { NameField } from '~/components/form/fields/NameField'
 import { SubnetListbox } from '~/components/form/fields/SubnetListbox'
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
+import { FormDivider } from '~/ui/lib/Divider'
 import { useForm, useProjectSelector } from 'app/hooks'
 
 const defaultValues: InstanceNetworkInterfaceCreate = {
