@@ -6,8 +6,6 @@
  * Copyright Oxide Computer Company
  */
 
-export * from './lib/Checkbox'
-export * from './lib/DateRangePicker'
 export * from './lib/Divider'
 export * from './lib/DropdownMenu'
 export * from './lib/FieldLabel'
