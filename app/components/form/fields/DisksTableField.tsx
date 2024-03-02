@@ -9,11 +9,12 @@ import { useState } from 'react'
 import { useController, type Control } from 'react-hook-form'
 
 import type { DiskCreate } from '@oxide/api'
-import { Error16Icon, FieldLabel, MiniTable } from '@oxide/ui'
+import { Error16Icon, MiniTable } from '@oxide/ui'
 import { bytesToGiB } from '@oxide/util'
 
 import { Badge } from '~/ui/lib/Badge'
 import { Button } from '~/ui/lib/Button'
+import { FieldLabel } from '~/ui/lib/FieldLabel'
 import AttachDiskSideModalForm from 'app/forms/disk-attach'
 import { CreateDiskSideModalForm } from 'app/forms/disk-create'
 import type { InstanceCreateInput } from 'app/forms/instance-create'
