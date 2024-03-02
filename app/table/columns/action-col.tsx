@@ -8,11 +8,12 @@
 import type { ColumnDef } from '@tanstack/react-table'
 import cn from 'classnames'
 
-import { More12Icon, Wrap } from '@oxide/ui'
+import { More12Icon } from '@oxide/ui'
 import { kebabCase } from '@oxide/util'
 
 import { DropdownMenu } from '~/ui/lib/DropdownMenu'
 import { Tooltip } from '~/ui/lib/Tooltip'
+import { Wrap } from '~/ui/util/wrap'
 
 export type MakeActions<Item> = (item: Item) => Array<MenuAction>
 
