@@ -13,6 +13,8 @@ import { clickRowAction, expectRowVisible } from './utils'
 test('IP pool list', async ({ page }) => {
   await page.goto('/system/networking/ip-pools')
 
+  await expect(page).toHaveTitle('IP pools / Oxide Console')
+
   await expect(page.getByRole('heading', { name: 'Networking' })).toBeVisible()
   await expect(page.getByRole('tab', { name: 'IP pools' })).toBeVisible()
 
@@ -27,7 +29,10 @@ test('IP pool list', async ({ page }) => {
 
 test('IP pool silo list', async ({ page }) => {
   await page.goto('/system/networking/ip-pools')
+
   await page.getByRole('link', { name: 'ip-pool-1' }).click()
+  await expect(page).toHaveTitle('ip-pool-1 / IP pools / Oxide Console')
+
   await page.getByRole('tab', { name: 'Linked silos' }).click()
 
   const table = page.getByRole('table')

@@ -10,6 +10,8 @@ import { expect, test } from '../utils'
 test('can delete a failed instance', async ({ page }) => {
   await page.goto('/projects/mock-project/instances')
 
+  await expect(page).toHaveTitle('Instances / mock-project / Oxide Console')
+
   const row = page.getByRole('row', { name: 'you-fail', exact: false })
   await expect(row).toBeVisible()
   await expect(row.getByRole('cell', { name: /failed/ })).toBeVisible()
