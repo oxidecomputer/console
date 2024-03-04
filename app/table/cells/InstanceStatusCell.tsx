@@ -7,8 +7,8 @@
  */
 import type { Instance } from '@oxide/api'
 
-import { InstanceStatusBadge } from 'app/components/StatusBadge'
-import { TimeAgo } from 'app/components/TimeAgo'
+import { InstanceStatusBadge } from '~/components/StatusBadge'
+import { TimeAgo } from '~/components/TimeAgo'
 
 import type { Cell } from './Cell'
 

@@ -17,6 +17,8 @@ import {
 } from '@oxide/api'
 import { Cloud24Icon } from '@oxide/design-system/icons/react'
 
+import { useQuickActions } from '~/hooks/use-quick-actions'
+import { confirmDelete } from '~/stores/confirm-delete'
 import { BooleanCell } from '~/table/cells/BooleanCell'
 import { DateCell } from '~/table/cells/DateCell'
 import { linkCell } from '~/table/cells/LinkCell'
@@ -27,9 +29,7 @@ import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
-import { useQuickActions } from 'app/hooks/use-quick-actions'
-import { confirmDelete } from 'app/stores/confirm-delete'
-import { pb } from 'app/util/path-builder'
+import { pb } from '~/util/path-builder'
 
 const EmptyState = () => (
   <EmptyMessage

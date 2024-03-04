@@ -25,6 +25,15 @@ import {
 } from '@oxide/api'
 import { Access24Icon } from '@oxide/design-system/icons/react'
 
+import { AccessNameCell } from '~/components/AccessNameCell'
+import { HL } from '~/components/HL'
+import { RoleBadgeCell } from '~/components/RoleBadgeCell'
+import {
+  ProjectAccessAddUserSideModal,
+  ProjectAccessEditUserSideModal,
+} from '~/forms/project-access'
+import { getProjectSelector, useProjectSelector } from '~/hooks'
+import { confirmDelete } from '~/stores/confirm-delete'
 import { getActionsCol } from '~/table/columns/action-col'
 import { Table } from '~/table/Table'
 import { Button } from '~/ui/lib/Button'
@@ -32,15 +41,6 @@ import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions, TableEmptyBox } from '~/ui/lib/Table'
 import { groupBy, isTruthy } from '~/util/array'
-import { AccessNameCell } from 'app/components/AccessNameCell'
-import { HL } from 'app/components/HL'
-import { RoleBadgeCell } from 'app/components/RoleBadgeCell'
-import {
-  ProjectAccessAddUserSideModal,
-  ProjectAccessEditUserSideModal,
-} from 'app/forms/project-access'
-import { getProjectSelector, useProjectSelector } from 'app/hooks'
-import { confirmDelete } from 'app/stores/confirm-delete'
 
 const EmptyState = ({ onClick }: { onClick: () => void }) => (
   <TableEmptyBox>

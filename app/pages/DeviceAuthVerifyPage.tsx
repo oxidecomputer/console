@@ -13,7 +13,7 @@ import { Warning12Icon } from '@oxide/design-system/icons/react'
 
 import { AuthCodeInput } from '~/ui/lib/AuthCodeInput'
 import { Button } from '~/ui/lib/Button'
-import { pb } from 'app/util/path-builder'
+import { pb } from '~/util/path-builder'
 
 const DASH_AFTER_IDXS = [3]
 

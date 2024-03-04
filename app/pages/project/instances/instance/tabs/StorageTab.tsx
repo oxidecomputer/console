@@ -20,17 +20,17 @@ import {
 } from '@oxide/api'
 import { Storage24Icon } from '@oxide/design-system/icons/react'
 
+import { DiskStatusBadge } from '~/components/StatusBadge'
+import AttachDiskSideModalForm from '~/forms/disk-attach'
+import { CreateDiskSideModalForm } from '~/forms/disk-create'
+import { getInstanceSelector, useInstanceSelector } from '~/hooks'
+import { addToast } from '~/stores/toast'
 import { DateCell } from '~/table/cells/DateCell'
 import { SizeCell } from '~/table/cells/SizeCell'
 import type { MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
 import { Button } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
-import { DiskStatusBadge } from 'app/components/StatusBadge'
-import AttachDiskSideModalForm from 'app/forms/disk-attach'
-import { CreateDiskSideModalForm } from 'app/forms/disk-create'
-import { getInstanceSelector, useInstanceSelector } from 'app/hooks'
-import { addToast } from 'app/stores/toast'
 
 import { fancifyStates } from './common'
 

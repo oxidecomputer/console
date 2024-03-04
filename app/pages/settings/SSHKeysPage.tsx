@@ -10,6 +10,7 @@ import { Link, Outlet, useNavigate } from 'react-router-dom'
 import { apiQueryClient, useApiMutation, useApiQueryClient, type SshKey } from '@oxide/api'
 import { Key16Icon, Key24Icon } from '@oxide/design-system/icons/react'
 
+import { confirmDelete } from '~/stores/confirm-delete'
 import { DateCell } from '~/table/cells/DateCell'
 import type { MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
@@ -17,8 +18,7 @@ import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
-import { confirmDelete } from 'app/stores/confirm-delete'
-import { pb } from 'app/util/path-builder'
+import { pb } from '~/util/path-builder'
 
 SSHKeysPage.loader = async () => {
   await apiQueryClient.prefetchQuery('currentUserSshKeyList', { query: { limit: 25 } })

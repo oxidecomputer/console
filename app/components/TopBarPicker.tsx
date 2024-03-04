@@ -15,14 +15,14 @@ import {
   Success12Icon,
 } from '@oxide/design-system/icons/react'
 
+import { useInstanceSelector, useIpPoolSelector, useSiloSelector } from '~/hooks'
+import { useCurrentUser } from '~/layouts/AuthenticatedLayout'
 import { Button } from '~/ui/lib/Button'
 import { DropdownMenu } from '~/ui/lib/DropdownMenu'
 import { Identicon } from '~/ui/lib/Identicon'
 import { Truncate } from '~/ui/lib/Truncate'
 import { Wrap } from '~/ui/util/wrap'
-import { useInstanceSelector, useIpPoolSelector, useSiloSelector } from 'app/hooks'
-import { useCurrentUser } from 'app/layouts/AuthenticatedLayout'
-import { pb } from 'app/util/path-builder'
+import { pb } from '~/util/path-builder'
 
 type TopBarPickerItem = {
   label: string

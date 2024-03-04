@@ -19,6 +19,11 @@ import {
 } from '@oxide/api'
 import { IpGlobal24Icon, Networking24Icon } from '@oxide/design-system/icons/react'
 
+import { HL } from '~/components/HL'
+import { getProjectSelector, useProjectSelector } from '~/hooks'
+import { confirmAction } from '~/stores/confirm-action'
+import { confirmDelete } from '~/stores/confirm-delete'
+import { addToast } from '~/stores/toast'
 import { InstanceLinkCell } from '~/table/cells/InstanceLinkCell'
 import type { MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
@@ -29,12 +34,7 @@ import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
-import { HL } from 'app/components/HL'
-import { getProjectSelector, useProjectSelector } from 'app/hooks'
-import { confirmAction } from 'app/stores/confirm-action'
-import { confirmDelete } from 'app/stores/confirm-delete'
-import { addToast } from 'app/stores/toast'
-import { pb } from 'app/util/path-builder'
+import { pb } from '~/util/path-builder'
 
 const EmptyState = () => (
   <EmptyMessage

@@ -13,7 +13,7 @@ import {
 } from '@oxide/api'
 
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { useForm, useVpcSelector } from 'app/hooks'
+import { useForm, useVpcSelector } from '~/hooks'
 
 import {
   CommonFields,

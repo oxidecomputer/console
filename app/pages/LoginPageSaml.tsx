@@ -11,7 +11,7 @@ import { useSearchParams } from 'react-router-dom'
 import { buttonStyle } from '~/ui/lib/Button'
 import { Identicon } from '~/ui/lib/Identicon'
 
-import 'app/components/login-page.css'
+import '~/components/login-page.css'
 
 import { useIdpSelector } from '../hooks'
 

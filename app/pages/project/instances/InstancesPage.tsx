@@ -11,6 +11,7 @@ import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 import { apiQueryClient, useApiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import { Instances24Icon, Refresh16Icon } from '@oxide/design-system/icons/react'
 
+import { getProjectSelector, useProjectSelector, useQuickActions } from '~/hooks'
 import { DateCell } from '~/table/cells/DateCell'
 import { InstanceResourceCell } from '~/table/cells/InstanceResourceCell'
 import { InstanceStatusCell } from '~/table/cells/InstanceStatusCell'
@@ -20,8 +21,7 @@ import { Button, buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
-import { getProjectSelector, useProjectSelector, useQuickActions } from 'app/hooks'
-import { pb } from 'app/util/path-builder'
+import { pb } from '~/util/path-builder'
 
 import { useMakeInstanceActions } from './actions'
 

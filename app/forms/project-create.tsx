@@ -12,9 +12,9 @@ import { useApiMutation, useApiQueryClient, type ProjectCreate } from '@oxide/ap
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { useForm } from 'app/hooks'
-import { addToast } from 'app/stores/toast'
-import { pb } from 'app/util/path-builder'
+import { useForm } from '~/hooks'
+import { addToast } from '~/stores/toast'
+import { pb } from '~/util/path-builder'
 
 const defaultValues: ProjectCreate = {
   name: '',

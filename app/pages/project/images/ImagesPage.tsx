@@ -11,6 +11,8 @@ import { Link, Outlet, type LoaderFunctionArgs } from 'react-router-dom'
 import { apiQueryClient, useApiMutation, useApiQueryClient, type Image } from '@oxide/api'
 import { Images24Icon } from '@oxide/design-system/icons/react'
 
+import { getProjectSelector, useProjectSelector, useToast } from '~/hooks'
+import { confirmDelete } from '~/stores/confirm-delete'
 import { DateCell } from '~/table/cells/DateCell'
 import { linkCell } from '~/table/cells/LinkCell'
 import { SizeCell } from '~/table/cells/SizeCell'
@@ -22,9 +24,7 @@ import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
-import { getProjectSelector, useProjectSelector, useToast } from 'app/hooks'
-import { confirmDelete } from 'app/stores/confirm-delete'
-import { pb } from 'app/util/path-builder'
+import { pb } from '~/util/path-builder'
 
 const EmptyState = () => (
   <EmptyMessage

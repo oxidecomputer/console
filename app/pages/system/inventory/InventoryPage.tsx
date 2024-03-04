@@ -8,9 +8,9 @@
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import { Racks24Icon } from '@oxide/design-system/icons/react'
 
+import { RouteTabs, Tab } from '~/components/RouteTabs'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
-import { RouteTabs, Tab } from 'app/components/RouteTabs'
-import { pb } from 'app/util/path-builder'
+import { pb } from '~/util/path-builder'
 
 InventoryPage.loader = async () => {
   await apiQueryClient.prefetchQuery('rackList', {

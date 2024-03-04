@@ -14,19 +14,19 @@ import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { PropertiesTable } from '~/ui/lib/PropertiesTable'
-import { ResourceLabel } from '~/ui/lib/SideModal'
-import { Truncate } from '~/ui/lib/Truncate'
-import { formatDateTime } from '~/util/date'
-import { bytesToGiB } from '~/util/units'
 import {
   getProjectImageSelector,
   getSiloImageSelector,
   useForm,
   useProjectImageSelector,
   useSiloImageSelector,
-} from 'app/hooks'
-import { pb } from 'app/util/path-builder'
+} from '~/hooks'
+import { PropertiesTable } from '~/ui/lib/PropertiesTable'
+import { ResourceLabel } from '~/ui/lib/SideModal'
+import { Truncate } from '~/ui/lib/Truncate'
+import { formatDateTime } from '~/util/date'
+import { pb } from '~/util/path-builder'
+import { bytesToGiB } from '~/util/units'
 
 EditProjectImageSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project, image } = getProjectImageSelector(params)

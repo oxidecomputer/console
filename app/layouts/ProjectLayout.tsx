@@ -25,15 +25,11 @@ import {
   Storage16Icon,
 } from '@oxide/design-system/icons/react'
 
+import { TopBar } from '~/components/TopBar'
+import { InstancePicker, ProjectPicker, SiloSystemPicker } from '~/components/TopBarPicker'
+import { getProjectSelector, useProjectSelector, useQuickActions } from '~/hooks'
 import { Divider } from '~/ui/lib/Divider'
-import { TopBar } from 'app/components/TopBar'
-import {
-  InstancePicker,
-  ProjectPicker,
-  SiloSystemPicker,
-} from 'app/components/TopBarPicker'
-import { getProjectSelector, useProjectSelector, useQuickActions } from 'app/hooks'
-import { pb } from 'app/util/path-builder'
+import { pb } from '~/util/path-builder'
 
 import { DocsLinkItem, NavLinkItem, Sidebar } from '../components/Sidebar'
 import { ContentPane, PageContainer } from './helpers'

@@ -11,7 +11,7 @@ import { Racks24Icon } from '@oxide/design-system/icons/react'
 import { linkCell } from '~/table/cells/LinkCell'
 import { useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
-import { pb } from 'app/util/path-builder'
+import { pb } from '~/util/path-builder'
 
 const EmptyState = () => {
   return (

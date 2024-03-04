@@ -15,8 +15,8 @@ import { NameField } from '~/components/form/fields/NameField'
 import { SubnetListbox } from '~/components/form/fields/SubnetListbox'
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
+import { useForm, useProjectSelector } from '~/hooks'
 import { FormDivider } from '~/ui/lib/Divider'
-import { useForm, useProjectSelector } from 'app/hooks'
 
 const defaultValues: InstanceNetworkInterfaceCreate = {
   name: '',

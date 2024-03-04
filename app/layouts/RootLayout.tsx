@@ -8,9 +8,9 @@
 import { useEffect, useRef } from 'react'
 import { Outlet, useNavigation } from 'react-router-dom'
 
-import { MswBanner } from 'app/components/MswBanner'
-import { ToastStack } from 'app/components/ToastStack'
-import { useTitle } from 'app/hooks/use-title'
+import { MswBanner } from '~/components/MswBanner'
+import { ToastStack } from '~/components/ToastStack'
+import { useTitle } from '~/hooks/use-title'
 
 /**
  * Root layout that applies to the entire app. Modify sparingly. It's rare for

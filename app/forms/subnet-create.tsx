@@ -11,8 +11,8 @@ import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
+import { useForm, useVpcSelector } from '~/hooks'
 import { FormDivider } from '~/ui/lib/Divider'
-import { useForm, useVpcSelector } from 'app/hooks'
 
 const defaultValues: VpcSubnetCreate = {
   name: '',

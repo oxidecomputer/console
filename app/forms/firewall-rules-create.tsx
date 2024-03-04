@@ -28,12 +28,12 @@ import { NumberField } from '~/components/form/fields/NumberField'
 import { RadioField } from '~/components/form/fields/RadioField'
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
+import { useForm, useVpcSelector } from '~/hooks'
 import { Badge } from '~/ui/lib/Badge'
 import { Button } from '~/ui/lib/Button'
 import { FormDivider } from '~/ui/lib/Divider'
 import * as MiniTable from '~/ui/lib/MiniTable'
 import { KEYS } from '~/ui/util/keys'
-import { useForm, useVpcSelector } from 'app/hooks'
 
 export type FirewallRuleValues = {
   enabled: boolean

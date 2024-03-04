@@ -10,8 +10,8 @@ import { useApiMutation, useApiQueryClient, type VpcSubnet } from '@oxide/api'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
+import { useForm, useVpcSelector } from '~/hooks'
 import { pick } from '~/util/object'
-import { useForm, useVpcSelector } from 'app/hooks'
 
 type EditSubnetFormProps = {
   onDismiss: () => void

@@ -32,15 +32,15 @@ import { NameField } from '~/components/form/fields/NameField'
 import { RadioField } from '~/components/form/fields/RadioField'
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
+import { useForm, useProjectSelector } from '~/hooks'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { Progress } from '~/ui/lib/Progress'
 import { Spinner } from '~/ui/lib/Spinner'
+import { readBlobAsBase64 } from '~/util/file'
 import { invariant } from '~/util/invariant'
+import { pb } from '~/util/path-builder'
 import { GiB, KiB } from '~/util/units'
-import { useForm, useProjectSelector } from 'app/hooks'
-import { readBlobAsBase64 } from 'app/util/file'
-import { pb } from 'app/util/path-builder'
 
 /** Format file size with two decimal points */
 const fsize = (bytes: number) => filesize(bytes, { base: 2, pad: true })

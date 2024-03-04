@@ -12,9 +12,9 @@ import { Settings24Icon } from '@oxide/design-system/icons/react'
 
 import { TextField } from '~/components/form/fields/TextField'
 import { FullPageForm } from '~/components/form/FullPageForm'
+import { useForm } from '~/hooks'
+import { useCurrentUser } from '~/layouts/AuthenticatedLayout'
 import { Table } from '~/table/Table'
-import { useForm } from 'app/hooks'
-import { useCurrentUser } from 'app/layouts/AuthenticatedLayout'
 
 const colHelper = createColumnHelper<Group>()
 

@@ -17,6 +17,8 @@ import {
 } from '@oxide/api'
 import { Networking24Icon } from '@oxide/design-system/icons/react'
 
+import { getProjectSelector, useProjectSelector, useQuickActions } from '~/hooks'
+import { confirmDelete } from '~/stores/confirm-delete'
 import { DateCell } from '~/table/cells/DateCell'
 import { linkCell } from '~/table/cells/LinkCell'
 import type { MenuAction } from '~/table/columns/action-col'
@@ -25,9 +27,7 @@ import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
-import { getProjectSelector, useProjectSelector, useQuickActions } from 'app/hooks'
-import { confirmDelete } from 'app/stores/confirm-delete'
-import { pb } from 'app/util/path-builder'
+import { pb } from '~/util/path-builder'
 
 const EmptyState = () => (
   <EmptyMessage

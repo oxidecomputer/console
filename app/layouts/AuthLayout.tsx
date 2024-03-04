@@ -7,7 +7,7 @@
  */
 import { Outlet } from 'react-router-dom'
 
-import { OxideLogo } from 'app/components/OxideLogo'
+import { OxideLogo } from '~/components/OxideLogo'
 
 const AuthLayout = () => {
   return (

@@ -20,8 +20,8 @@ import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { useForm, useProjectSelector, useToast } from 'app/hooks'
-import { pb } from 'app/util/path-builder'
+import { useForm, useProjectSelector, useToast } from '~/hooks'
+import { pb } from '~/util/path-builder'
 
 const useSnapshotDiskItems = (projectSelector: PP.Project) => {
   const { data: disks } = useApiQuery('diskList', {

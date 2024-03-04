@@ -12,15 +12,15 @@ import { useMemo, useState } from 'react'
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import { Metrics24Icon } from '@oxide/design-system/icons/react'
 
+import { CapacityBars } from '~/components/CapacityBars'
 import { useDateTimeRangePicker } from '~/components/form/fields/DateTimeRangePicker'
+import { useIntervalPicker } from '~/components/RefetchIntervalPicker'
+import { SiloMetric } from '~/components/SystemMetric'
+import { useCurrentUser } from '~/layouts/AuthenticatedLayout'
 import { Divider } from '~/ui/lib/Divider'
 import { Listbox } from '~/ui/lib/Listbox'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { bytesToGiB, bytesToTiB } from '~/util/units'
-import { CapacityBars } from 'app/components/CapacityBars'
-import { useIntervalPicker } from 'app/components/RefetchIntervalPicker'
-import { SiloMetric } from 'app/components/SystemMetric'
-import { useCurrentUser } from 'app/layouts/AuthenticatedLayout'
 
 const toListboxItem = (x: { name: string; id: string }) => ({ label: x.name, value: x.id })
 

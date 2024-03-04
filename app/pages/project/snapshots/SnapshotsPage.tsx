@@ -16,6 +16,9 @@ import {
 } from '@oxide/api'
 import { Snapshots24Icon } from '@oxide/design-system/icons/react'
 
+import { SnapshotStatusBadge } from '~/components/StatusBadge'
+import { getProjectSelector, useProjectSelector } from '~/hooks'
+import { confirmDelete } from '~/stores/confirm-delete'
 import { DateCell } from '~/table/cells/DateCell'
 import { SkeletonCell } from '~/table/cells/EmptyCell'
 import { SizeCell } from '~/table/cells/SizeCell'
@@ -26,10 +29,7 @@ import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
-import { SnapshotStatusBadge } from 'app/components/StatusBadge'
-import { getProjectSelector, useProjectSelector } from 'app/hooks'
-import { confirmDelete } from 'app/stores/confirm-delete'
-import { pb } from 'app/util/path-builder'
+import { pb } from '~/util/path-builder'
 
 const DiskNameFromId = ({ value }: { value: string }) => {
   const { data } = useApiQueryErrorsAllowed('diskView', { path: { disk: value } })

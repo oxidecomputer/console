@@ -18,17 +18,17 @@ import {
   type SiloIpPool,
 } from '@oxide/api'
 
+import { AccordionItem } from '~/components/AccordionItem'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
+import { useForm, useProjectSelector, useToast } from '~/hooks'
 import { Badge } from '~/ui/lib/Badge'
 import { Message } from '~/ui/lib/Message'
+import { pb } from '~/util/path-builder'
 import { validateIp } from '~/util/str'
-import { AccordionItem } from 'app/components/AccordionItem'
-import { useForm, useProjectSelector, useToast } from 'app/hooks'
-import { pb } from 'app/util/path-builder'
 
 const toListboxItem = (p: SiloIpPool) => {
   if (!p.isDefault) {

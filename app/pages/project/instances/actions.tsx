@@ -10,10 +10,10 @@ import { useNavigate } from 'react-router-dom'
 
 import { instanceCan, useApiMutation, type Instance } from '@oxide/api'
 
+import { confirmDelete } from '~/stores/confirm-delete'
+import { addToast } from '~/stores/toast'
 import type { MakeActions } from '~/table/columns/action-col'
-import { confirmDelete } from 'app/stores/confirm-delete'
-import { addToast } from 'app/stores/toast'
-import { pb } from 'app/util/path-builder'
+import { pb } from '~/util/path-builder'
 
 import { fancifyStates } from './instance/tabs/common'
 

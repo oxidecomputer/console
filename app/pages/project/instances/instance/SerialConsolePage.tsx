@@ -11,13 +11,13 @@ import { Link } from 'react-router-dom'
 import { api } from '@oxide/api'
 import { PrevArrow12Icon } from '@oxide/design-system/icons/react'
 
+import EquivalentCliCommand from '~/components/EquivalentCliCommand'
+import { useInstanceSelector } from '~/hooks'
 import { Badge, type BadgeColor } from '~/ui/lib/Badge'
 import { Spinner } from '~/ui/lib/Spinner'
-import EquivalentCliCommand from 'app/components/EquivalentCliCommand'
-import { useInstanceSelector } from 'app/hooks'
-import { pb } from 'app/util/path-builder'
+import { pb } from '~/util/path-builder'
 
-const Terminal = lazy(() => import('app/components/Terminal'))
+const Terminal = lazy(() => import('~/components/Terminal'))
 
 type WsState = 'connecting' | 'open' | 'closed' | 'error'
 

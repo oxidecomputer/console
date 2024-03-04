@@ -15,12 +15,12 @@ import {
   Metrics16Icon,
 } from '@oxide/design-system/icons/react'
 
+import { DocsLinkItem, NavLinkItem, Sidebar } from '~/components/Sidebar'
+import { TopBar } from '~/components/TopBar'
+import { ProjectPicker, SiloSystemPicker } from '~/components/TopBarPicker'
+import { useQuickActions } from '~/hooks'
 import { Divider } from '~/ui/lib/Divider'
-import { DocsLinkItem, NavLinkItem, Sidebar } from 'app/components/Sidebar'
-import { TopBar } from 'app/components/TopBar'
-import { ProjectPicker, SiloSystemPicker } from 'app/components/TopBarPicker'
-import { useQuickActions } from 'app/hooks'
-import { pb } from 'app/util/path-builder'
+import { pb } from '~/util/path-builder'
 
 import { useCurrentUser } from './AuthenticatedLayout'
 import { ContentPane, PageContainer } from './helpers'

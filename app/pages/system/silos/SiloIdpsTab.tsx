@@ -9,6 +9,7 @@ import { Link, Outlet } from 'react-router-dom'
 
 import { Cloud24Icon } from '@oxide/design-system/icons/react'
 
+import { useSiloSelector } from '~/hooks'
 import { DateCell } from '~/table/cells/DateCell'
 import { DefaultCell } from '~/table/cells/DefaultCell'
 import { linkCell } from '~/table/cells/LinkCell'
@@ -17,8 +18,7 @@ import { useQueryTable } from '~/table/QueryTable'
 import { Badge } from '~/ui/lib/Badge'
 import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
-import { useSiloSelector } from 'app/hooks'
-import { pb } from 'app/util/path-builder'
+import { pb } from '~/util/path-builder'
 
 const EmptyState = () => (
   <EmptyMessage icon={<Cloud24Icon />} title="No identity providers" />

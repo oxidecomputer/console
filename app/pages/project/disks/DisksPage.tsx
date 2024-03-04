@@ -17,6 +17,9 @@ import {
 } from '@oxide/api'
 import { Storage24Icon } from '@oxide/design-system/icons/react'
 
+import { DiskStatusBadge } from '~/components/StatusBadge'
+import { getProjectSelector, useProjectSelector, useToast } from '~/hooks'
+import { confirmDelete } from '~/stores/confirm-delete'
 import { DateCell } from '~/table/cells/DateCell'
 import { InstanceLinkCell } from '~/table/cells/InstanceLinkCell'
 import { SizeCell } from '~/table/cells/SizeCell'
@@ -26,10 +29,7 @@ import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
-import { DiskStatusBadge } from 'app/components/StatusBadge'
-import { getProjectSelector, useProjectSelector, useToast } from 'app/hooks'
-import { confirmDelete } from 'app/stores/confirm-delete'
-import { pb } from 'app/util/path-builder'
+import { pb } from '~/util/path-builder'
 
 import { fancifyStates } from '../instances/instance/tabs/common'
 

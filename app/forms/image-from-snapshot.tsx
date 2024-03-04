@@ -20,10 +20,10 @@ import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
+import { getProjectSnapshotSelector, useForm, useProjectSnapshotSelector } from '~/hooks'
+import { addToast } from '~/stores/toast'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
-import { getProjectSnapshotSelector, useForm, useProjectSnapshotSelector } from 'app/hooks'
-import { addToast } from 'app/stores/toast'
-import { pb } from 'app/util/path-builder'
+import { pb } from '~/util/path-builder'
 
 const defaultValues: Omit<ImageCreate, 'source'> = {
   name: '',

@@ -6,9 +6,9 @@
  * Copyright Oxide Computer Company
  */
 
+import { useInstanceSelector } from '~/hooks'
 import { SettingsGroup } from '~/ui/lib/SettingsGroup'
-import { useInstanceSelector } from 'app/hooks'
-import { pb } from 'app/util/path-builder'
+import { pb } from '~/util/path-builder'
 
 export function ConnectTab() {
   const { project, instance } = useInstanceSelector()

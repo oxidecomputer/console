@@ -9,7 +9,7 @@ import type { Placement } from '@floating-ui/react'
 import { format } from 'date-fns'
 
 import { Tooltip } from '~/ui/lib/Tooltip'
-import { timeAgoAbbr } from 'app/util/date'
+import { timeAgoAbbr } from '~/util/date'
 
 export const TimeAgo = ({
   datetime,

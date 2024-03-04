@@ -11,8 +11,8 @@ import SimpleBar from 'simplebar-react'
 
 import 'simplebar-react/dist/simplebar.min.css'
 
+import { useIsOverflow } from '~/hooks'
 import { classed } from '~/util/classed'
-import { useIsOverflow } from 'app/hooks'
 
 import './table.css'
 

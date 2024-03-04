@@ -14,13 +14,13 @@ import type {
 } from '@oxide/api'
 import { Error16Icon } from '@oxide/design-system/icons/react'
 
+import type { InstanceCreateInput } from '~/forms/instance-create'
+import CreateNetworkInterfaceForm from '~/forms/network-interface-create'
 import { Button } from '~/ui/lib/Button'
 import { FieldLabel } from '~/ui/lib/FieldLabel'
 import * as MiniTable from '~/ui/lib/MiniTable'
 import { Radio } from '~/ui/lib/Radio'
 import { RadioGroup } from '~/ui/lib/RadioGroup'
-import type { InstanceCreateInput } from 'app/forms/instance-create'
-import CreateNetworkInterfaceForm from 'app/forms/network-interface-create'
 
 /**
  * Designed less for reuse, more to encapsulate logic that would otherwise

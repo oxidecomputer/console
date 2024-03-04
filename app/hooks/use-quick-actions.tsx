@@ -9,10 +9,10 @@ import { useEffect, useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { create } from 'zustand'
 
+import { useCurrentUser } from '~/layouts/AuthenticatedLayout'
 import { ActionMenu, type QuickActionItem } from '~/ui/lib/ActionMenu'
 import { invariant } from '~/util/invariant'
-import { useCurrentUser } from 'app/layouts/AuthenticatedLayout'
-import { pb } from 'app/util/path-builder'
+import { pb } from '~/util/path-builder'
 
 import { useKey } from './use-key'
 

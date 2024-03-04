@@ -8,8 +8,8 @@
 
 import { useApiQuery } from '@oxide/api'
 
-import { useProjectSelector } from 'app/hooks'
-import { pb } from 'app/util/path-builder'
+import { useProjectSelector } from '~/hooks'
+import { pb } from '~/util/path-builder'
 
 import { SkeletonCell } from './EmptyCell'
 import { LinkCell } from './LinkCell'

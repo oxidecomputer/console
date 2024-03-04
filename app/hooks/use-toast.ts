@@ -5,6 +5,6 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useToastStore } from 'app/stores/toast'
+import { useToastStore } from '~/stores/toast'
 
 export const useToast = () => useToastStore(({ add }) => add)

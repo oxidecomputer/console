@@ -19,6 +19,15 @@ import {
 } from '@oxide/api'
 import { Networking24Icon } from '@oxide/design-system/icons/react'
 
+import CreateNetworkInterfaceForm from '~/forms/network-interface-create'
+import EditNetworkInterfaceForm from '~/forms/network-interface-edit'
+import {
+  getInstanceSelector,
+  useInstanceSelector,
+  useProjectSelector,
+  useToast,
+} from '~/hooks'
+import { confirmDelete } from '~/stores/confirm-delete'
 import { SkeletonCell } from '~/table/cells/EmptyCell'
 import { LinkCell } from '~/table/cells/LinkCell'
 import type { MenuAction } from '~/table/columns/action-col'
@@ -26,16 +35,7 @@ import { useQueryTable } from '~/table/QueryTable'
 import { Badge } from '~/ui/lib/Badge'
 import { Button } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
-import CreateNetworkInterfaceForm from 'app/forms/network-interface-create'
-import EditNetworkInterfaceForm from 'app/forms/network-interface-edit'
-import {
-  getInstanceSelector,
-  useInstanceSelector,
-  useProjectSelector,
-  useToast,
-} from 'app/hooks'
-import { confirmDelete } from 'app/stores/confirm-delete'
-import { pb } from 'app/util/path-builder'
+import { pb } from '~/util/path-builder'
 
 import { fancifyStates } from './common'
 

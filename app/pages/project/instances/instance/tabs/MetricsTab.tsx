@@ -18,13 +18,13 @@ import {
 import { Storage24Icon } from '@oxide/design-system/icons/react'
 
 import { useDateTimeRangePicker } from '~/components/form/fields/DateTimeRangePicker'
+import { getInstanceSelector, useInstanceSelector } from '~/hooks'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Listbox } from '~/ui/lib/Listbox'
 import { Spinner } from '~/ui/lib/Spinner'
 import { TableEmptyBox } from '~/ui/lib/Table'
-import { getInstanceSelector, useInstanceSelector } from 'app/hooks'
 
-const TimeSeriesChart = React.lazy(() => import('app/components/TimeSeriesChart'))
+const TimeSeriesChart = React.lazy(() => import('~/components/TimeSeriesChart'))
 
 export function getCycleCount(num: number, base: number) {
   let cycleCount = 0

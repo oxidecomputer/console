@@ -19,16 +19,16 @@ import {
 } from '@oxide/api'
 import { Instances24Icon } from '@oxide/design-system/icons/react'
 
+import { ExternalIps } from '~/components/ExternalIps'
+import { MoreActionsMenu } from '~/components/MoreActionsMenu'
+import { RouteTabs, Tab } from '~/components/RouteTabs'
+import { InstanceStatusBadge } from '~/components/StatusBadge'
+import { getInstanceSelector, useInstanceSelector, useQuickActions } from '~/hooks'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { Truncate } from '~/ui/lib/Truncate'
-import { ExternalIps } from 'app/components/ExternalIps'
-import { MoreActionsMenu } from 'app/components/MoreActionsMenu'
-import { RouteTabs, Tab } from 'app/components/RouteTabs'
-import { InstanceStatusBadge } from 'app/components/StatusBadge'
-import { getInstanceSelector, useInstanceSelector, useQuickActions } from 'app/hooks'
-import { pb } from 'app/util/path-builder'
+import { pb } from '~/util/path-builder'
 
 import { useMakeInstanceActions } from '../actions'
 

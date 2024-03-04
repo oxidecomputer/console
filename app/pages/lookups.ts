@@ -9,8 +9,8 @@ import { redirect, type LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient } from '@oxide/api'
 
-import { trigger404 } from 'app/components/ErrorBoundary'
-import { pb } from 'app/util/path-builder'
+import { trigger404 } from '~/components/ErrorBoundary'
+import { pb } from '~/util/path-builder'
 
 export async function instanceLookupLoader({ params }: LoaderFunctionArgs) {
   try {

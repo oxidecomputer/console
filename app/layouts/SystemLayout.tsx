@@ -16,13 +16,13 @@ import {
   Storage16Icon,
 } from '@oxide/design-system/icons/react'
 
+import { trigger404 } from '~/components/ErrorBoundary'
+import { DocsLinkItem, NavLinkItem, Sidebar } from '~/components/Sidebar'
+import { TopBar } from '~/components/TopBar'
+import { IpPoolPicker, SiloPicker, SiloSystemPicker } from '~/components/TopBarPicker'
+import { useQuickActions } from '~/hooks'
 import { Divider } from '~/ui/lib/Divider'
-import { trigger404 } from 'app/components/ErrorBoundary'
-import { DocsLinkItem, NavLinkItem, Sidebar } from 'app/components/Sidebar'
-import { TopBar } from 'app/components/TopBar'
-import { IpPoolPicker, SiloPicker, SiloSystemPicker } from 'app/components/TopBarPicker'
-import { useQuickActions } from 'app/hooks'
-import { pb } from 'app/util/path-builder'
+import { pb } from '~/util/path-builder'
 
 import { useCurrentUser } from './AuthenticatedLayout'
 import { ContentPane, PageContainer } from './helpers'

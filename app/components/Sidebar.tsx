@@ -10,9 +10,9 @@ import { NavLink } from 'react-router-dom'
 
 import { Action16Icon, Document16Icon } from '@oxide/design-system/icons/react'
 
+import { openQuickActions } from '~/hooks'
 import { Button } from '~/ui/lib/Button'
 import { Truncate } from '~/ui/lib/Truncate'
-import { openQuickActions } from 'app/hooks'
 
 const linkStyles =
   'flex h-7 items-center rounded px-2 text-sans-md hover:bg-hover svg:mr-2 svg:text-quinary text-secondary'

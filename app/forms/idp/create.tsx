@@ -14,9 +14,9 @@ import { FileField } from '~/components/form/fields/FileField'
 import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { useForm, useSiloSelector, useToast } from 'app/hooks'
-import { readBlobAsBase64 } from 'app/util/file'
-import { pb } from 'app/util/path-builder'
+import { useForm, useSiloSelector, useToast } from '~/hooks'
+import { readBlobAsBase64 } from '~/util/file'
+import { pb } from '~/util/path-builder'
 
 import { MetadataSourceField, type IdpCreateFormValues } from './shared'
 

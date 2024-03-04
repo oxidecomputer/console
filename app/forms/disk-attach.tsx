@@ -9,7 +9,7 @@ import { useApiQuery, type ApiError } from '@oxide/api'
 
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { useForm, useProjectSelector } from 'app/hooks'
+import { useForm, useProjectSelector } from '~/hooks'
 
 const defaultValues = { name: '' }
 

@@ -9,8 +9,8 @@ import cn from 'classnames'
 import type { ReactNode } from 'react'
 import { Link, Outlet } from 'react-router-dom'
 
+import { useIsActivePath } from '~/hooks/use-is-active-path'
 import { KEYS } from '~/ui/util/keys'
-import { useIsActivePath } from 'app/hooks/use-is-active-path'
 
 const selectTab = (e: React.KeyboardEvent<HTMLDivElement>) => {
   const target = e.target as HTMLDivElement

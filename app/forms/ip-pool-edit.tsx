@@ -17,8 +17,8 @@ import {
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { getIpPoolSelector, useForm, useIpPoolSelector, useToast } from 'app/hooks'
-import { pb } from 'app/util/path-builder'
+import { getIpPoolSelector, useForm, useIpPoolSelector, useToast } from '~/hooks'
+import { pb } from '~/util/path-builder'
 
 EditIpPoolSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
   const { pool } = getIpPoolSelector(params)
