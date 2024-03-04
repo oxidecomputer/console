@@ -7,7 +7,7 @@
  */
 import { Controller, type Control, type FieldPath, type FieldValues } from 'react-hook-form'
 
-import { Checkbox, type CheckboxProps } from '@oxide/ui'
+import { Checkbox, type CheckboxProps } from '~/ui/lib/Checkbox'
 
 type CheckboxFieldProps<
   TFieldValues extends FieldValues,

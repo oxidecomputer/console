@@ -16,9 +16,9 @@ import {
   type Validate,
 } from 'react-hook-form'
 
-import { FieldLabel } from '@oxide/ui'
 import { capitalize } from '@oxide/util'
 
+import { FieldLabel } from '~/ui/lib/FieldLabel'
 import {
   TextInputHint,
   TextInput as UITextField,

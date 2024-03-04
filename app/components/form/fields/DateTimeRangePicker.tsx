@@ -8,8 +8,7 @@
 import { getLocalTimeZone, now as getNow, type DateValue } from '@internationalized/date'
 import { useMemo, useState } from 'react'
 
-import { DateRangePicker } from '@oxide/ui'
-
+import { DateRangePicker } from '~/ui/lib/DateRangePicker'
 import { Listbox } from '~/ui/lib/Listbox'
 
 const rangePresets = [

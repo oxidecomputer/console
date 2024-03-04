@@ -17,7 +17,9 @@ import {
 } from 'react'
 import { mergeRefs } from 'react-merge-refs'
 
-import { Document16Icon, Error16Icon, Truncate } from '@oxide/ui'
+import { Document16Icon, Error16Icon } from '@oxide/ui'
+
+import { Truncate } from '~/ui/lib/Truncate'
 
 export type FileInputProps = Omit<ComponentProps<'input'>, 'type' | 'onChange'> & {
   onChange: (f: File | null) => void

@@ -6,12 +6,12 @@
  * Copyright Oxide Computer Company
  */
 import { useApiMutation, useApiQueryClient, type VpcSubnetCreate } from '@oxide/api'
-import { FormDivider } from '@oxide/ui'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
+import { FormDivider } from '~/ui/lib/Divider'
 import { useForm, useVpcSelector } from 'app/hooks'
 
 const defaultValues: VpcSubnetCreate = {

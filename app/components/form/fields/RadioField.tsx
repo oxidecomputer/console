@@ -15,9 +15,11 @@ import {
   type PathValue,
 } from 'react-hook-form'
 
-import { FieldLabel, Radio, RadioGroup, type RadioGroupProps } from '@oxide/ui'
 import { capitalize } from '@oxide/util'
 
+import { FieldLabel } from '~/ui/lib/FieldLabel'
+import { Radio } from '~/ui/lib/Radio'
+import { RadioGroup, type RadioGroupProps } from '~/ui/lib/RadioGroup'
 import { TextInputHint } from '~/ui/lib/TextInput'
 
 export type RadioFieldProps<

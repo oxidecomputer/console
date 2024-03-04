@@ -16,7 +16,6 @@ import {
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import {
   Access16Icon,
-  Divider,
   Folder16Icon,
   Images16Icon,
   Instances16Icon,
@@ -26,6 +25,7 @@ import {
   Storage16Icon,
 } from '@oxide/ui'
 
+import { Divider } from '~/ui/lib/Divider'
 import { TopBar } from 'app/components/TopBar'
 import {
   InstancePicker,

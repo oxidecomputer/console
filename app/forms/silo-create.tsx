@@ -8,7 +8,6 @@
 import { useNavigate } from 'react-router-dom'
 
 import { useApiMutation, useApiQueryClient, type SiloCreate } from '@oxide/api'
-import { FormDivider } from '@oxide/ui'
 
 import { CheckboxField } from '~/components/form/fields/CheckboxField'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
@@ -18,6 +17,7 @@ import { RadioField } from '~/components/form/fields/RadioField'
 import { TextField } from '~/components/form/fields/TextField'
 import { TlsCertsField } from '~/components/form/fields/TlsCertsField'
 import { SideModalForm } from '~/components/form/SideModalForm'
+import { FormDivider } from '~/ui/lib/Divider'
 import { useForm, useToast } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 

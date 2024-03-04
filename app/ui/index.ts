@@ -6,17 +6,4 @@
  * Copyright Oxide Computer Company
  */
 
-export * from './lib/Checkbox'
-export * from './lib/DateRangePicker'
-export * from './lib/Divider'
-export * from './lib/DropdownMenu'
-export * from './lib/FieldLabel'
-export * from './lib/Identicon'
-export * as MiniTable from './lib/MiniTable'
-export * from './lib/RadioGroup'
-export * from './lib/Radio'
-export * from './lib/SideModal'
-export * from './lib/Truncate'
-export * from './util/wrap'
-
 export * from '@oxide/design-system/icons/react'
