@@ -10,7 +10,7 @@ import { animated, config, useTransition } from '@react-spring/web'
 import cn from 'classnames'
 import { useState } from 'react'
 
-import { Copy12Icon, Success12Icon } from '@oxide/ui'
+import { Copy12Icon, Success12Icon } from '@oxide/design-system/icons/react'
 
 import useTimeout from './use-timeout'
 

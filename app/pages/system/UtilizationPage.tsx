@@ -15,7 +15,7 @@ import {
   totalUtilization,
   usePrefetchedApiQuery,
 } from '@oxide/api'
-import { Metrics24Icon } from '@oxide/ui'
+import { Metrics24Icon } from '@oxide/design-system/icons/react'
 import { bytesToGiB, bytesToTiB, round } from '@oxide/util'
 
 import { useDateTimeRangePicker } from '~/components/form/fields/DateTimeRangePicker'

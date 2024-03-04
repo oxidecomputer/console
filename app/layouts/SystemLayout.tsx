@@ -9,7 +9,12 @@ import { useMemo } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 
 import { apiQueryClient } from '@oxide/api'
-import { Cloud16Icon, Metrics16Icon, Networking16Icon, Storage16Icon } from '@oxide/ui'
+import {
+  Cloud16Icon,
+  Metrics16Icon,
+  Networking16Icon,
+  Storage16Icon,
+} from '@oxide/design-system/icons/react'
 
 import { Divider } from '~/ui/lib/Divider'
 import { trigger404 } from 'app/components/ErrorBoundary'

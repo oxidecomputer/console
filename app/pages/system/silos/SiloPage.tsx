@@ -8,7 +8,7 @@
 import { type LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
-import { Cloud24Icon, NextArrow12Icon } from '@oxide/ui'
+import { Cloud24Icon, NextArrow12Icon } from '@oxide/design-system/icons/react'
 import { formatDateTime } from '@oxide/util'
 
 import { EmptyCell } from '~/table/cells/EmptyCell'

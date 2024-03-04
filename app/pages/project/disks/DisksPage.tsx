@@ -15,7 +15,7 @@ import {
   useApiQueryClient,
   type Disk,
 } from '@oxide/api'
-import { Storage24Icon } from '@oxide/ui'
+import { Storage24Icon } from '@oxide/design-system/icons/react'
 
 import { DateCell } from '~/table/cells/DateCell'
 import { InstanceLinkCell } from '~/table/cells/InstanceLinkCell'

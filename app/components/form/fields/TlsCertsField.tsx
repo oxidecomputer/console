@@ -10,7 +10,7 @@ import { useController, type Control } from 'react-hook-form'
 import type { Merge } from 'type-fest'
 
 import type { CertificateCreate } from '@oxide/api'
-import { Error16Icon } from '@oxide/ui'
+import { Error16Icon } from '@oxide/design-system/icons/react'
 
 import { Button } from '~/ui/lib/Button'
 import { FieldLabel } from '~/ui/lib/FieldLabel'

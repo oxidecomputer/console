@@ -16,7 +16,7 @@ import {
   useApiQueryClient,
   type Image,
 } from '@oxide/api'
-import { Images24Icon } from '@oxide/ui'
+import { Images24Icon } from '@oxide/design-system/icons/react'
 
 import { toListboxItem } from '~/components/form/fields/ImageSelectField'
 import { ListboxField } from '~/components/form/fields/ListboxField'

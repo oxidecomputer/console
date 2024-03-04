@@ -17,7 +17,7 @@ import {
   usePrefetchedApiQuery,
   type InstanceNetworkInterface,
 } from '@oxide/api'
-import { Instances24Icon } from '@oxide/ui'
+import { Instances24Icon } from '@oxide/design-system/icons/react'
 
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'

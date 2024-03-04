@@ -9,7 +9,7 @@
 import { useMemo, useState } from 'react'
 
 import { useApiMutation, useApiQuery, useApiQueryClient, type SiloIpPool } from '@oxide/api'
-import { Networking24Icon, Success12Icon } from '@oxide/ui'
+import { Networking24Icon, Success12Icon } from '@oxide/design-system/icons/react'
 
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { linkCell } from '~/table/cells/LinkCell'

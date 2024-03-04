@@ -7,7 +7,7 @@
  */
 import { useState, type ReactNode } from 'react'
 
-import { Info16Icon, NextArrow12Icon } from '@oxide/ui'
+import { Info16Icon, NextArrow12Icon } from '@oxide/design-system/icons/react'
 
 import { Button } from '~/ui/lib/Button'
 import { Modal } from '~/ui/lib/Modal'

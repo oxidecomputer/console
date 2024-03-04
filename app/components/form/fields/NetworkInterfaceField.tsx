@@ -12,7 +12,7 @@ import type {
   InstanceNetworkInterfaceAttachment,
   InstanceNetworkInterfaceCreate,
 } from '@oxide/api'
-import { Error16Icon } from '@oxide/ui'
+import { Error16Icon } from '@oxide/design-system/icons/react'
 
 import { Button } from '~/ui/lib/Button'
 import { FieldLabel } from '~/ui/lib/FieldLabel'

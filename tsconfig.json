@@ -16,7 +16,6 @@
       "app/*": ["app/*"],
       "@oxide/api": ["app/api/index.ts"],
       "@oxide/api-mocks": ["mock-api/index.ts"],
-      "@oxide/ui": ["app/ui/index.ts"],
       "@oxide/util": ["app/util/index.ts"]
     },
     "resolveJsonModule": true,

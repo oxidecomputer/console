@@ -7,7 +7,7 @@
  */
 import { useState } from 'react'
 
-import { Success12Icon } from '@oxide/ui'
+import { Success12Icon } from '@oxide/design-system/icons/react'
 
 import { Button } from '~/ui/lib/Button'
 import { Modal } from '~/ui/lib/Modal'

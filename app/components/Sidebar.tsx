@@ -8,7 +8,7 @@
 import cn from 'classnames'
 import { NavLink } from 'react-router-dom'
 
-import { Action16Icon, Document16Icon } from '@oxide/ui'
+import { Action16Icon, Document16Icon } from '@oxide/design-system/icons/react'
 
 import { Button } from '~/ui/lib/Button'
 import { Truncate } from '~/ui/lib/Truncate'
@@ -94,7 +94,7 @@ export const NavLinkItem = (props: {
       to={props.to}
       className={({ isActive }) =>
         cn(linkStyles, {
-          'text-accent !bg-accent-secondary hover:!bg-accent-secondary-hover svg:!text-accent-tertiary':
+          '!bg-accent-secondary hover:!bg-accent-secondary-hover svg:!text-accent-tertiary':
             isActive,
           'pointer-events-none text-disabled': props.disabled,
         })

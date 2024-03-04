@@ -47,7 +47,7 @@ The web console has no special privileges as an API consumer. Logging in sets a 
 
 ## Directory structure
 
-The app is in [`app`](app). You can see the route structure in [`app/routes.tsx`](app/routes.tsx). Also in [`app`](app) we have a [`ui`](app/ui) dir where the low-level components live and an [`api`](app/api) dir where we keep the generated API client and a React Query wrapper for it. These directories are aliased in [`tsconfig.json`](tsconfig.json) for easy import from the main app as `@oxide/ui` and `@oxide/api`, respectively.
+The app is in [`app`](app). You can see the route structure in [`app/routes.tsx`](app/routes.tsx). Also in [`app`](app) we have a [`ui`](app/ui) dir where the low-level components live and an [`api`](app/api) dir where we keep the generated API client and a React Query wrapper for it. The latter is aliased in [`tsconfig.json`](tsconfig.json) for easy import from the main app as `@oxide/api`.
 
 ## Development
 

@@ -7,7 +7,7 @@
  */
 import { Link, Outlet } from 'react-router-dom'
 
-import { Cloud24Icon } from '@oxide/ui'
+import { Cloud24Icon } from '@oxide/design-system/icons/react'
 
 import { DateCell } from '~/table/cells/DateCell'
 import { DefaultCell } from '~/table/cells/DefaultCell'

@@ -20,7 +20,7 @@ import {
   type IdentityType,
   type RoleKey,
 } from '@oxide/api'
-import { Access24Icon } from '@oxide/ui'
+import { Access24Icon } from '@oxide/design-system/icons/react'
 import { groupBy, isTruthy } from '@oxide/util'
 
 import { getActionsCol } from '~/table/columns/action-col'

@@ -7,7 +7,7 @@
  */
 import { Link } from 'react-router-dom'
 
-import { OpenLink12Icon } from '@oxide/ui'
+import { OpenLink12Icon } from '@oxide/design-system/icons/react'
 
 import { Button, buttonStyle } from '~/ui/lib/Button'
 

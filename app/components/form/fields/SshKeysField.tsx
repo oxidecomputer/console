@@ -9,7 +9,7 @@ import { useState } from 'react'
 import { useController, type Control } from 'react-hook-form'
 
 import { usePrefetchedApiQuery } from '@oxide/api'
-import { Key16Icon } from '@oxide/ui'
+import { Key16Icon } from '@oxide/design-system/icons/react'
 
 import { Button } from '~/ui/lib/Button'
 import { Checkbox } from '~/ui/lib/Checkbox'

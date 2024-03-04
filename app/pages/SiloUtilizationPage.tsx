@@ -10,7 +10,7 @@ import { useIsFetching } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
-import { Metrics24Icon } from '@oxide/ui'
+import { Metrics24Icon } from '@oxide/design-system/icons/react'
 import { bytesToGiB, bytesToTiB } from '@oxide/util'
 
 import { useDateTimeRangePicker } from '~/components/form/fields/DateTimeRangePicker'

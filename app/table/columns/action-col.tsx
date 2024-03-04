@@ -8,7 +8,7 @@
 import type { ColumnDef } from '@tanstack/react-table'
 import cn from 'classnames'
 
-import { More12Icon } from '@oxide/ui'
+import { More12Icon } from '@oxide/design-system/icons/react'
 import { kebabCase } from '@oxide/util'
 
 import { DropdownMenu } from '~/ui/lib/DropdownMenu'

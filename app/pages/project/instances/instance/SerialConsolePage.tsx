@@ -9,7 +9,7 @@ import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import { api } from '@oxide/api'
-import { PrevArrow12Icon } from '@oxide/ui'
+import { PrevArrow12Icon } from '@oxide/design-system/icons/react'
 
 import { Badge, type BadgeColor } from '~/ui/lib/Badge'
 import { Spinner } from '~/ui/lib/Spinner'

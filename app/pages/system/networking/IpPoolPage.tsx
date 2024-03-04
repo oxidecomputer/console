@@ -18,7 +18,7 @@ import {
   type IpPoolRange,
   type IpPoolSiloLink,
 } from '@oxide/api'
-import { Networking24Icon, Success12Icon } from '@oxide/ui'
+import { Networking24Icon, Success12Icon } from '@oxide/design-system/icons/react'
 
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { DateCell } from '~/table/cells/DateCell'

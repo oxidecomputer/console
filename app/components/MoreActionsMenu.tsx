@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { More12Icon } from '@oxide/ui'
+import { More12Icon } from '@oxide/design-system/icons/react'
 
 import type { MenuAction } from '~/table/columns/action-col'
 import { DropdownMenu } from '~/ui/lib/DropdownMenu'

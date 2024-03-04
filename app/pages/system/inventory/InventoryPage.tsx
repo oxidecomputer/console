@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
-import { Racks24Icon } from '@oxide/ui'
+import { Racks24Icon } from '@oxide/design-system/icons/react'
 
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { RouteTabs, Tab } from 'app/components/RouteTabs'

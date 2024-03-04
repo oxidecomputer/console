@@ -23,7 +23,7 @@ import {
   Networking16Icon,
   Snapshots16Icon,
   Storage16Icon,
-} from '@oxide/ui'
+} from '@oxide/design-system/icons/react'
 
 import { Divider } from '~/ui/lib/Divider'
 import { TopBar } from 'app/components/TopBar'
