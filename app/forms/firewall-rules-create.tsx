@@ -18,7 +18,7 @@ import {
   type VpcFirewallRuleTarget,
   type VpcFirewallRuleUpdate,
 } from '@oxide/api'
-import { Error16Icon, MiniTable } from '@oxide/ui'
+import { Error16Icon } from '@oxide/ui'
 
 import { CheckboxField } from '~/components/form/fields/CheckboxField'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
@@ -31,6 +31,7 @@ import { SideModalForm } from '~/components/form/SideModalForm'
 import { Badge } from '~/ui/lib/Badge'
 import { Button } from '~/ui/lib/Button'
 import { FormDivider } from '~/ui/lib/Divider'
+import * as MiniTable from '~/ui/lib/MiniTable'
 import { KEYS } from '~/ui/util/keys'
 import { useForm, useVpcSelector } from 'app/hooks'
 

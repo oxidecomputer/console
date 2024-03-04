@@ -6,6 +6,4 @@
  * Copyright Oxide Computer Company
  */
 
-export * as MiniTable from './lib/MiniTable'
-
 export * from '@oxide/design-system/icons/react'
