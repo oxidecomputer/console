@@ -19,9 +19,10 @@ import {
   type SystemMetricQueryParams,
   type User,
 } from '@oxide/api'
-import { GiB, isTruthy, TiB } from '@oxide/util'
 
 import { json, type Json } from '~/api/__generated__/msw-handlers'
+import { isTruthy } from '~/util/array'
+import { GiB, TiB } from '~/util/units'
 
 import type { DbRoleAssignmentResourceType } from '..'
 import { genI64Data } from '../metrics'

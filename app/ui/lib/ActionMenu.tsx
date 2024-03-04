@@ -11,9 +11,9 @@ import { matchSorter } from 'match-sorter'
 import React, { useState } from 'react'
 
 import { Close12Icon } from '@oxide/design-system/icons/react'
-import { groupBy } from '@oxide/util'
 
 import { KEYS } from '~/ui/util/keys'
+import { groupBy } from '~/util/array'
 import { classed } from '~/util/classed'
 
 import { useSteppedScroll } from './use-stepped-scroll'

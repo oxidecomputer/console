@@ -8,7 +8,7 @@
 import cn from 'classnames'
 import type { ReactNode } from 'react'
 
-import { capitalize } from '@oxide/util'
+import { capitalize } from '~/util/str'
 
 /**
  * This is a utility component that helps prettify sections of stories when there are a lot of

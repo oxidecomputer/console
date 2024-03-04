@@ -20,7 +20,6 @@ import {
   type DiskSource,
   type Image,
 } from '@oxide/api'
-import { bytesToGiB, GiB } from '@oxide/util'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { DiskSizeField } from '~/components/form/fields/DiskSizeField'
@@ -33,6 +32,7 @@ import { FormDivider } from '~/ui/lib/Divider'
 import { FieldLabel } from '~/ui/lib/FieldLabel'
 import { Radio } from '~/ui/lib/Radio'
 import { RadioGroup } from '~/ui/lib/RadioGroup'
+import { bytesToGiB, GiB } from '~/util/units'
 import { useForm, useProjectSelector, useToast } from 'app/hooks'
 
 const blankDiskSource: DiskSource = {

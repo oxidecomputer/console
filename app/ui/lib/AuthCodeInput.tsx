@@ -16,9 +16,8 @@
  */
 import React, { forwardRef, useEffect, useImperativeHandle, useRef } from 'react'
 
-import { invariant } from '@oxide/util'
-
 import { KEYS } from '~/ui/util/keys'
+import { invariant } from '~/util/invariant'
 
 export type AuthCodeProps = {
   ariaLabel?: string

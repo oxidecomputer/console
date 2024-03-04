@@ -13,7 +13,7 @@
  */
 import { useMemo } from 'react'
 
-import { lowestBy, sortBy } from '@oxide/util'
+import { lowestBy, sortBy } from '~/util/array'
 
 import type { FleetRole, IdentityType, ProjectRole, SiloRole } from './__generated__/Api'
 import { usePrefetchedApiQuery } from './client'

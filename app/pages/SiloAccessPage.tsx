@@ -21,7 +21,6 @@ import {
   type RoleKey,
 } from '@oxide/api'
 import { Access24Icon } from '@oxide/design-system/icons/react'
-import { groupBy, isTruthy } from '@oxide/util'
 
 import { getActionsCol } from '~/table/columns/action-col'
 import { Table } from '~/table/Table'
@@ -29,6 +28,7 @@ import { Button } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions, TableEmptyBox } from '~/ui/lib/Table'
+import { groupBy, isTruthy } from '~/util/array'
 import { AccessNameCell } from 'app/components/AccessNameCell'
 import { HL } from 'app/components/HL'
 import { RoleBadgeCell } from 'app/components/RoleBadgeCell'

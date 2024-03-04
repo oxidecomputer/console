@@ -25,7 +25,6 @@ import {
   Success12Icon,
   Unauthorized12Icon,
 } from '@oxide/design-system/icons/react'
-import { GiB, invariant, KiB } from '@oxide/util'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { FileField } from '~/components/form/fields/FileField'
@@ -37,6 +36,8 @@ import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { Progress } from '~/ui/lib/Progress'
 import { Spinner } from '~/ui/lib/Spinner'
+import { invariant } from '~/util/invariant'
+import { GiB, KiB } from '~/util/units'
 import { useForm, useProjectSelector } from 'app/hooks'
 import { readBlobAsBase64 } from 'app/util/file'
 import { pb } from 'app/util/path-builder'

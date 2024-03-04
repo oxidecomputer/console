@@ -6,7 +6,8 @@
  * Copyright Oxide Computer Company
  */
 import type { Disk } from '@oxide/api'
-import { GiB } from '@oxide/util'
+
+import { GiB } from '~/util/units'
 
 import { instance } from './instance'
 import type { Json } from './json-type'

@@ -22,7 +22,6 @@ import {
   type InstanceCreate,
 } from '@oxide/api'
 import { Images16Icon, Instances24Icon } from '@oxide/design-system/icons/react'
-import { GiB, invariant } from '@oxide/util'
 
 import { CheckboxField } from '~/components/form/fields/CheckboxField'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
@@ -47,6 +46,8 @@ import { Message } from '~/ui/lib/Message'
 import { RadioCard } from '~/ui/lib/Radio'
 import { Tabs } from '~/ui/lib/Tabs'
 import { TextInputHint } from '~/ui/lib/TextInput'
+import { invariant } from '~/util/invariant'
+import { GiB } from '~/util/units'
 import { AccordionItem } from 'app/components/AccordionItem'
 import { getProjectSelector, useForm, useProjectSelector, useToast } from 'app/hooks'
 import { readBlobAsBase64 } from 'app/util/file'

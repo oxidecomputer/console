@@ -9,11 +9,10 @@ import cn from 'classnames'
 import { useId } from 'react'
 import { Controller, type FieldPathByValue, type FieldValues } from 'react-hook-form'
 
-import { capitalize } from '@oxide/util'
-
 import { FieldLabel } from '~/ui/lib/FieldLabel'
 import { NumberInput } from '~/ui/lib/NumberInput'
 import { TextInputHint } from '~/ui/lib/TextInput'
+import { capitalize } from '~/util/str'
 
 import { ErrorMessage } from './ErrorMessage'
 import type { TextFieldProps } from './TextField'

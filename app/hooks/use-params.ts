@@ -9,7 +9,7 @@ import { hashKey } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { useParams, type Params } from 'react-router-dom'
 
-import { invariant } from '@oxide/util'
+import { invariant } from '~/util/invariant'
 
 const err = (param: string) =>
   `Param '${param}' not found in route. You might be rendering a component under the wrong route.`

@@ -8,7 +8,7 @@
 import { useMatches } from 'react-router-dom'
 import type { Spread } from 'type-fest'
 
-import { invariant } from '@oxide/util'
+import { invariant } from '~/util/invariant'
 
 type UseMatchesMatch = ReturnType<typeof useMatches>[number]
 

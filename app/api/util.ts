@@ -6,7 +6,9 @@
  * Copyright Oxide Computer Company
  */
 /// Helpers for working with API objects
-import { bytesToGiB, mapValues, pick, sumBy } from '@oxide/util'
+import { sumBy } from '~/util/array'
+import { mapValues, pick } from '~/util/object'
+import { bytesToGiB } from '~/util/units'
 
 import type {
   Disk,

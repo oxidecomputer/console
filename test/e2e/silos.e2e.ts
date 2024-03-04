@@ -7,7 +7,7 @@
  */
 import { expect, test } from '@playwright/test'
 
-import { MiB } from '@oxide/util'
+import { MiB } from '~/util/units'
 
 import {
   chooseFile,

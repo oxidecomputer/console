@@ -6,7 +6,9 @@
  * Copyright Oxide Computer Company
  */
 import type { IdentityProvider, SamlIdentityProvider, Silo, SiloQuotas } from '@oxide/api'
-import { GiB, pick, TiB } from '@oxide/util'
+
+import { pick } from '~/util/object'
+import { GiB, TiB } from '~/util/units'
 
 import type { Json } from './json-type'
 

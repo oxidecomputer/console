@@ -6,7 +6,8 @@
  * Copyright Oxide Computer Company
  */
 import type { Image } from '@oxide/api'
-import { GiB } from '@oxide/util'
+
+import { GiB } from '~/util/units'
 
 import type { Json } from './json-type'
 import { project } from './project'

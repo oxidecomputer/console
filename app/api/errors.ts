@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { camelCaseToWords, capitalize } from '@oxide/util'
+import { camelCaseToWords, capitalize } from '~/util/str'
 
 import type { ErrorResult } from './__generated__/Api'
 

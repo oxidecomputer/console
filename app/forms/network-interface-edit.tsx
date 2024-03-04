@@ -10,11 +10,11 @@ import {
   useApiQueryClient,
   type InstanceNetworkInterface,
 } from '@oxide/api'
-import { pick } from '@oxide/util'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
+import { pick } from '~/util/object'
 import { useForm, useInstanceSelector } from 'app/hooks'
 
 type EditNetworkInterfaceFormProps = {

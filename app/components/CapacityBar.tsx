@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { splitDecimal } from '@oxide/util'
+import { splitDecimal } from '~/util/math'
 
 export const CapacityBar = ({
   icon,

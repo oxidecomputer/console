@@ -8,9 +8,9 @@
 import cn from 'classnames'
 import type { ReactNode } from 'react'
 
-import { invariant, isOneOf } from '@oxide/util'
-
 import { Badge } from '~/ui/lib/Badge'
+import { isOneOf } from '~/util/children'
+import { invariant } from '~/util/invariant'
 
 import './properties-table.css'
 

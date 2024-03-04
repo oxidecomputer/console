@@ -18,9 +18,11 @@ import {
   type ApiTypes as Api,
   type SamlIdentityProvider,
 } from '@oxide/api'
-import { GiB, pick, sortBy } from '@oxide/util'
 
 import { json, makeHandlers, type Json } from '~/api/__generated__/msw-handlers'
+import { sortBy } from '~/util/array'
+import { pick } from '~/util/object'
+import { GiB } from '~/util/units'
 
 import { genCumulativeI64Data } from '../metrics'
 import { serial } from '../serial'

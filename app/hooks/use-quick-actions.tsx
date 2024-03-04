@@ -9,9 +9,8 @@ import { useEffect, useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { create } from 'zustand'
 
-import { invariant } from '@oxide/util'
-
 import { ActionMenu, type QuickActionItem } from '~/ui/lib/ActionMenu'
+import { invariant } from '~/util/invariant'
 import { useCurrentUser } from 'app/layouts/AuthenticatedLayout'
 import { pb } from 'app/util/path-builder'
 

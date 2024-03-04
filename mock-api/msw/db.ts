@@ -11,9 +11,9 @@ import { validate as isUuid } from 'uuid'
 
 import type { ApiTypes as Api, PathParams as PP } from '@oxide/api'
 import * as mock from '@oxide/api-mocks'
-import { pick } from '@oxide/util'
 
 import { json } from '~/api/__generated__/msw-handlers'
+import { pick } from '~/util/object'
 
 import type { Json } from '../json-type'
 import { internalError } from './util'

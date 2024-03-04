@@ -11,12 +11,12 @@ import { useMemo, useState } from 'react'
 
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import { Metrics24Icon } from '@oxide/design-system/icons/react'
-import { bytesToGiB, bytesToTiB } from '@oxide/util'
 
 import { useDateTimeRangePicker } from '~/components/form/fields/DateTimeRangePicker'
 import { Divider } from '~/ui/lib/Divider'
 import { Listbox } from '~/ui/lib/Listbox'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
+import { bytesToGiB, bytesToTiB } from '~/util/units'
 import { CapacityBars } from 'app/components/CapacityBars'
 import { useIntervalPicker } from 'app/components/RefetchIntervalPicker'
 import { SiloMetric } from 'app/components/SystemMetric'

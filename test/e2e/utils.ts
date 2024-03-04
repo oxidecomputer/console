@@ -7,7 +7,7 @@
  */
 import { expect, type Browser, type Locator, type Page } from '@playwright/test'
 
-import { MiB } from '@oxide/util'
+import { MiB } from '~/util/units'
 
 import { MSW_USER_COOKIE } from '../../mock-api/msw/util'
 

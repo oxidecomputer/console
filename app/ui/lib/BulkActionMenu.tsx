@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { flattenChildren } from '@oxide/util'
+import { flattenChildren } from '~/util/children'
 
 import { Button, type ButtonProps } from './Button'
 

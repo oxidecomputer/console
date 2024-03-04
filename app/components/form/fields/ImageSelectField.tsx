@@ -8,9 +8,9 @@
 import { useController, type Control } from 'react-hook-form'
 
 import type { Image } from '@oxide/api'
-import { bytesToGiB, GiB } from '@oxide/util'
 
 import type { ListboxItem } from '~/ui/lib/Listbox'
+import { bytesToGiB, GiB } from '~/util/units'
 import type { InstanceCreateInput } from 'app/forms/instance-create'
 
 import { ListboxField } from './ListboxField'

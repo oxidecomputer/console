@@ -20,7 +20,7 @@ import {
 } from '@tanstack/react-query'
 import { type SetNonNullable } from 'type-fest'
 
-import { invariant } from '@oxide/util'
+import { invariant } from '~/util/invariant'
 
 import type { ApiResult } from './__generated__/Api'
 import { processServerError, type ApiError } from './errors'

@@ -8,8 +8,8 @@
 import { Outlet } from 'react-router-dom'
 
 import { apiQueryClient, useApiQueryErrorsAllowed, usePrefetchedApiQuery } from '@oxide/api'
-import { invariant } from '@oxide/util'
 
+import { invariant } from '~/util/invariant'
 import { QuickActions } from 'app/hooks'
 
 /**
