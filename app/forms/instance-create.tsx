@@ -377,7 +377,7 @@ export function CreateInstanceForm() {
                 title="No project images found"
                 body="An image needs to be uploaded to be seen here"
                 buttonText="Upload image"
-                onClick={() => navigate(pb.projectImageNew(projectSelector))}
+                onClick={() => navigate(pb.projectImagesNew(projectSelector))}
               />
             </div>
           ) : (

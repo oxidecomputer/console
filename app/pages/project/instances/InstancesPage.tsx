@@ -31,7 +31,7 @@ const EmptyState = () => (
     title="No instances"
     body="You need to create an instance to be able to see it here"
     buttonText="New instance"
-    buttonTo={pb.instanceNew(useProjectSelector())}
+    buttonTo={pb.instancesNew(useProjectSelector())}
   />
 )
 
@@ -62,7 +62,7 @@ export function InstancesPage() {
       () => [
         {
           value: 'New instance',
-          onSelect: () => navigate(pb.instanceNew(projectSelector)),
+          onSelect: () => navigate(pb.instancesNew(projectSelector)),
         },
         ...(instances?.items || []).map((i) => ({
           value: i.name,
@@ -97,7 +97,7 @@ export function InstancesPage() {
         >
           <Refresh16Icon />
         </Button>
-        <Link to={pb.instanceNew(projectSelector)} className={buttonStyle({ size: 'sm' })}>
+        <Link to={pb.instancesNew(projectSelector)} className={buttonStyle({ size: 'sm' })}>
           New Instance
         </Link>
       </TableActions>

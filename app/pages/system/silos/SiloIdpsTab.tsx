@@ -34,7 +34,7 @@ export function SiloIdpsTab() {
   return (
     <>
       <div className="mb-3 flex justify-end space-x-2">
-        <Link to={pb.siloIdpNew(siloSelector)} className={buttonStyle({ size: 'sm' })}>
+        <Link to={pb.siloIdpsNew(siloSelector)} className={buttonStyle({ size: 'sm' })}>
           New provider
         </Link>
       </div>

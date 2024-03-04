@@ -34,7 +34,7 @@ const EmptyState = () => (
     title="No IP pools"
     body="You need to create an IP pool to be able to see it here"
     buttonText="New IP pool"
-    buttonTo={pb.ipPoolNew()}
+    buttonTo={pb.ipPoolsNew()}
   />
 )
 

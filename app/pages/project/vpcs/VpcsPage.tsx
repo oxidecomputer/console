@@ -35,7 +35,7 @@ const EmptyState = () => (
     title="No VPCs"
     body="You need to create a VPC to be able to see it here"
     buttonText="New VPC"
-    buttonTo={pb.vpcNew(useProjectSelector())}
+    buttonTo={pb.vpcsNew(useProjectSelector())}
   />
 )
 
@@ -98,7 +98,7 @@ export function VpcsPage() {
         <PageTitle icon={<Networking24Icon />}>VPCs</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link to={pb.vpcNew(projectSelector)} className={buttonStyle({ size: 'sm' })}>
+        <Link to={pb.vpcsNew(projectSelector)} className={buttonStyle({ size: 'sm' })}>
           New Vpc
         </Link>
       </TableActions>

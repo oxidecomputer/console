@@ -45,7 +45,7 @@ const EmptyState = () => (
     title="No snapshots"
     body="You need to create a snapshot to be able to see it here"
     buttonText="New snapshot"
-    buttonTo={pb.snapshotNew(useProjectSelector())}
+    buttonTo={pb.snapshotsNew(useProjectSelector())}
   />
 )
 
@@ -72,7 +72,7 @@ export function SnapshotsPage() {
     {
       label: 'Create image',
       onActivate() {
-        navigate(pb.snapshotImageCreate({ ...projectSelector, snapshot: snapshot.name }))
+        navigate(pb.snapshotImagesNew({ ...projectSelector, snapshot: snapshot.name }))
       },
     },
     {
@@ -94,7 +94,7 @@ export function SnapshotsPage() {
         <PageTitle icon={<Snapshots24Icon />}>Snapshots</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link to={pb.snapshotNew(projectSelector)} className={buttonStyle({ size: 'sm' })}>
+        <Link to={pb.snapshotsNew(projectSelector)} className={buttonStyle({ size: 'sm' })}>
           New Snapshot
         </Link>
       </TableActions>
