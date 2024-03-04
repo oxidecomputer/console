@@ -9,7 +9,7 @@ import { useState } from 'react'
 import { Link, Outlet, type LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, useApiMutation, useApiQueryClient, type Image } from '@oxide/api'
-import { Images24Icon } from '@oxide/ui'
+import { Images24Icon } from '@oxide/design-system/icons/react'
 
 import { DateCell } from '~/table/cells/DateCell'
 import { linkCell } from '~/table/cells/LinkCell'

@@ -8,7 +8,7 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 
-import { Error12Icon, PrevArrow12Icon } from '@oxide/ui'
+import { Error12Icon, PrevArrow12Icon } from '@oxide/design-system/icons/react'
 
 const GradientBackground = () => (
   <div

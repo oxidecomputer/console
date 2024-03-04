@@ -17,7 +17,7 @@ import {
 } from 'react'
 import { mergeRefs } from 'react-merge-refs'
 
-import { Document16Icon, Error16Icon } from '@oxide/ui'
+import { Document16Icon, Error16Icon } from '@oxide/design-system/icons/react'
 
 import { Truncate } from '~/ui/lib/Truncate'
 

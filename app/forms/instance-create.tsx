@@ -21,7 +21,7 @@ import {
   usePrefetchedApiQuery,
   type InstanceCreate,
 } from '@oxide/api'
-import { Images16Icon, Instances24Icon } from '@oxide/ui'
+import { Images16Icon, Instances24Icon } from '@oxide/design-system/icons/react'
 import { GiB, invariant } from '@oxide/util'
 
 import { CheckboxField } from '~/components/form/fields/CheckboxField'

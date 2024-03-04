@@ -9,7 +9,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { useApiMutation } from '@oxide/api'
-import { Warning12Icon } from '@oxide/ui'
+import { Warning12Icon } from '@oxide/design-system/icons/react'
 
 import { AuthCodeInput } from '~/ui/lib/AuthCodeInput'
 import { Button } from '~/ui/lib/Button'

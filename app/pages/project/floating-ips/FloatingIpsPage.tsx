@@ -17,7 +17,7 @@ import {
   type FloatingIp,
   type Instance,
 } from '@oxide/api'
-import { IpGlobal24Icon, Networking24Icon } from '@oxide/ui'
+import { IpGlobal24Icon, Networking24Icon } from '@oxide/design-system/icons/react'
 
 import { InstanceLinkCell } from '~/table/cells/InstanceLinkCell'
 import type { MenuAction } from '~/table/columns/action-col'

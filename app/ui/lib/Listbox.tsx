@@ -17,7 +17,7 @@ import { Listbox as Select } from '@headlessui/react'
 import cn from 'classnames'
 import type { ReactNode } from 'react'
 
-import { SelectArrows6Icon } from '@oxide/ui'
+import { SelectArrows6Icon } from '@oxide/design-system/icons/react'
 
 import { FieldLabel } from './FieldLabel'
 import { usePopoverZIndex } from './SideModal'

@@ -20,7 +20,11 @@ import {
   type Disk,
   type Snapshot,
 } from '@oxide/api'
-import { Error12Icon, Success12Icon, Unauthorized12Icon } from '@oxide/ui'
+import {
+  Error12Icon,
+  Success12Icon,
+  Unauthorized12Icon,
+} from '@oxide/design-system/icons/react'
 import { GiB, invariant, KiB } from '@oxide/util'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'

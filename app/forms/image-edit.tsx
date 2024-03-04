@@ -8,7 +8,7 @@
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, usePrefetchedApiQuery, type Image } from '@oxide/api'
-import { Images16Icon } from '@oxide/ui'
+import { Images16Icon } from '@oxide/design-system/icons/react'
 import { bytesToGiB, formatDateTime } from '@oxide/util'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'

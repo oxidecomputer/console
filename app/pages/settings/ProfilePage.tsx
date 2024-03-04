@@ -8,7 +8,7 @@
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 
 import type { Group } from '@oxide/api'
-import { Settings24Icon } from '@oxide/ui'
+import { Settings24Icon } from '@oxide/design-system/icons/react'
 
 import { TextField } from '~/components/form/fields/TextField'
 import { FullPageForm } from '~/components/form/FullPageForm'

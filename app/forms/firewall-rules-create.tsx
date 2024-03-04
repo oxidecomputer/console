@@ -18,7 +18,7 @@ import {
   type VpcFirewallRuleTarget,
   type VpcFirewallRuleUpdate,
 } from '@oxide/api'
-import { Error16Icon } from '@oxide/ui'
+import { Error16Icon } from '@oxide/design-system/icons/react'
 
 import { CheckboxField } from '~/components/form/fields/CheckboxField'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'

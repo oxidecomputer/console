@@ -15,7 +15,7 @@ import {
   usePrefetchedApiQuery,
   type Project,
 } from '@oxide/api'
-import { Folder24Icon } from '@oxide/ui'
+import { Folder24Icon } from '@oxide/design-system/icons/react'
 
 import { DateCell } from '~/table/cells/DateCell'
 import { linkCell } from '~/table/cells/LinkCell'

@@ -15,7 +15,7 @@ import {
   type Cumulativeint64,
   type DiskMetricName,
 } from '@oxide/api'
-import { Storage24Icon } from '@oxide/ui'
+import { Storage24Icon } from '@oxide/design-system/icons/react'
 
 import { useDateTimeRangePicker } from '~/components/form/fields/DateTimeRangePicker'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'

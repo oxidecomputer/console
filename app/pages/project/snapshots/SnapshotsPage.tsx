@@ -14,7 +14,7 @@ import {
   useApiQueryErrorsAllowed,
   type Snapshot,
 } from '@oxide/api'
-import { Snapshots24Icon } from '@oxide/ui'
+import { Snapshots24Icon } from '@oxide/design-system/icons/react'
 
 import { DateCell } from '~/table/cells/DateCell'
 import { SkeletonCell } from '~/table/cells/EmptyCell'

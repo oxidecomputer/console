@@ -15,7 +15,7 @@ import {
   usePrefetchedApiQuery,
   type Vpc,
 } from '@oxide/api'
-import { Networking24Icon } from '@oxide/ui'
+import { Networking24Icon } from '@oxide/design-system/icons/react'
 
 import { DateCell } from '~/table/cells/DateCell'
 import { linkCell } from '~/table/cells/LinkCell'

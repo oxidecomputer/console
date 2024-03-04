@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { apiQueryClient } from '@oxide/api'
-import { Racks24Icon } from '@oxide/ui'
+import { Racks24Icon } from '@oxide/design-system/icons/react'
 
 import { useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'

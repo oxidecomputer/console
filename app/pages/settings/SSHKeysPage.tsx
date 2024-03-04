@@ -8,7 +8,7 @@
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 
 import { apiQueryClient, useApiMutation, useApiQueryClient, type SshKey } from '@oxide/api'
-import { Key16Icon, Key24Icon } from '@oxide/ui'
+import { Key16Icon, Key24Icon } from '@oxide/design-system/icons/react'
 
 import { DateCell } from '~/table/cells/DateCell'
 import type { MenuAction } from '~/table/columns/action-col'

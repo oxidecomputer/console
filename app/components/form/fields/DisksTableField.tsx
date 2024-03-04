@@ -9,7 +9,7 @@ import { useState } from 'react'
 import { useController, type Control } from 'react-hook-form'
 
 import type { DiskCreate } from '@oxide/api'
-import { Error16Icon } from '@oxide/ui'
+import { Error16Icon } from '@oxide/design-system/icons/react'
 import { bytesToGiB } from '@oxide/util'
 
 import { Badge } from '~/ui/lib/Badge'

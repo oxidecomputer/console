@@ -17,7 +17,7 @@ import {
   usePrefetchedApiQuery,
   type InstanceNetworkInterface,
 } from '@oxide/api'
-import { Networking24Icon } from '@oxide/ui'
+import { Networking24Icon } from '@oxide/design-system/icons/react'
 
 import { SkeletonCell } from '~/table/cells/EmptyCell'
 import { LinkCell } from '~/table/cells/LinkCell'

@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { Success12Icon } from '@oxide/ui'
+import { Success12Icon } from '@oxide/design-system/icons/react'
 
 /**
  * Device authorization success page

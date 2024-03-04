@@ -8,7 +8,7 @@
 import type { LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient } from '@oxide/api'
-import { Instances24Icon } from '@oxide/ui'
+import { Instances24Icon } from '@oxide/design-system/icons/react'
 import { pick } from '@oxide/util'
 
 import { DateCell } from '~/table/cells/DateCell'

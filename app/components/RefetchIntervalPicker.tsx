@@ -9,7 +9,7 @@ import cn from 'classnames'
 import { format } from 'date-fns'
 import { useEffect, useState } from 'react'
 
-import { Refresh16Icon, Time16Icon } from '@oxide/ui'
+import { Refresh16Icon, Time16Icon } from '@oxide/design-system/icons/react'
 
 import { Listbox, type ListboxItem } from '~/ui/lib/Listbox'
 import { SpinnerLoader } from '~/ui/lib/Spinner'

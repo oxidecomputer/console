@@ -8,7 +8,7 @@
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
-import { Access16Icon } from '@oxide/ui'
+import { Access16Icon } from '@oxide/design-system/icons/react'
 import { formatDateTime } from '@oxide/util'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'

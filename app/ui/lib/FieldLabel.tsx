@@ -8,7 +8,7 @@
 import cn from 'classnames'
 import type { ElementType, PropsWithChildren } from 'react'
 
-import { Question12Icon } from '@oxide/ui'
+import { Question12Icon } from '@oxide/design-system/icons/react'
 
 import { Tooltip } from '~/ui/lib/Tooltip'
 

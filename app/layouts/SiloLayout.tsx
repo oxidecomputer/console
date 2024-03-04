@@ -8,7 +8,12 @@
 import { useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
-import { Access16Icon, Folder16Icon, Images16Icon, Metrics16Icon } from '@oxide/ui'
+import {
+  Access16Icon,
+  Folder16Icon,
+  Images16Icon,
+  Metrics16Icon,
+} from '@oxide/design-system/icons/react'
 
 import { Divider } from '~/ui/lib/Divider'
 import { DocsLinkItem, NavLinkItem, Sidebar } from 'app/components/Sidebar'

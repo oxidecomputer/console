@@ -8,7 +8,7 @@
 import cn from 'classnames'
 import { cloneElement } from 'react'
 
-import { Error12Icon } from '@oxide/ui'
+import { Error12Icon } from '@oxide/design-system/icons/react'
 import { flattenChildren, invariant, isOneOf, pluckFirstOfType } from '@oxide/util'
 
 import { Button, type ButtonProps } from '~/ui/lib/Button'

@@ -9,7 +9,7 @@ import { filesize } from 'filesize'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
-import { Racks24Icon } from '@oxide/ui'
+import { Racks24Icon } from '@oxide/design-system/icons/react'
 
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'

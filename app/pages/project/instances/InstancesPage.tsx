@@ -9,7 +9,7 @@ import { useMemo } from 'react'
 import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, useApiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
-import { Instances24Icon, Refresh16Icon } from '@oxide/ui'
+import { Instances24Icon, Refresh16Icon } from '@oxide/design-system/icons/react'
 
 import { DateCell } from '~/table/cells/DateCell'
 import { InstanceResourceCell } from '~/table/cells/InstanceResourceCell'

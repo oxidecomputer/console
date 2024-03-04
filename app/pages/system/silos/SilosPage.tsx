@@ -15,7 +15,7 @@ import {
   usePrefetchedApiQuery,
   type Silo,
 } from '@oxide/api'
-import { Cloud24Icon } from '@oxide/ui'
+import { Cloud24Icon } from '@oxide/design-system/icons/react'
 
 import { BooleanCell } from '~/table/cells/BooleanCell'
 import { DateCell } from '~/table/cells/DateCell'
