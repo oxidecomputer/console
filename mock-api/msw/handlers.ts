@@ -251,7 +251,7 @@ export const handlers = makeHandlers({
     if (body.name) {
       // only check for existing name if it's being changed
       if (body.name !== floatingIp.name) {
-        errIfExists(db.floatingIps, { name: body.name })
+        errIfExists(db.floatingIps, { name: body.name, project_id: floatingIp.project_id })
       }
       floatingIp.name = body.name
     }

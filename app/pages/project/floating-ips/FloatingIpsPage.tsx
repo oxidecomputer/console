@@ -126,9 +126,15 @@ export function FloatingIpsPage() {
       {
         label: 'Edit',
         onActivate: () => {
-          navigate(pb.floatingIpEdit({ project, floatingIp: floatingIp.name }), {
-            state: floatingIp,
-          })
+          apiQueryClient.setQueryData(
+            'floatingIpView',
+            {
+              path: { floatingIp: floatingIp.name },
+              query: { project },
+            },
+            floatingIp
+          )
+          navigate(pb.floatingIpEdit({ project, floatingIp: floatingIp.name }))
         },
       },
       attachOrDetachAction,

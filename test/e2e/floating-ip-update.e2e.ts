@@ -12,45 +12,34 @@ const floatingIpsPage = '/projects/mock-project/floating-ips'
 const originalName = 'cola-float'
 const updatedName = 'updated-cola-float'
 const updatedDescription = 'An updated description for this Floating IP'
+const expectedFormElements = [
+  'role=heading[name*="Edit floating IP"]',
+  'role=textbox[name="Name"]',
+  'role=textbox[name="Description"]',
+  'role=button[name="Save changes"]',
+]
 
-test('can update a Floating IP', async ({ page }) => {
+test('can update a floating IP', async ({ page }) => {
   await page.goto(floatingIpsPage)
   await clickRowAction(page, 'cola-float', 'Edit')
-
-  await expectVisible(page, [
-    'role=heading[name*="Edit floating IP"]',
-    'role=textbox[name="Name"]',
-    'role=textbox[name="Description"]',
-    'role=button[name="Save changes"]',
-  ])
+  await expectVisible(page, expectedFormElements)
 
   await page.fill('input[name=name]', updatedName)
   await page.getByRole('textbox', { name: 'Description' }).fill(updatedDescription)
-
   await page.getByRole('button', { name: 'Save changes' }).click()
-
   await expect(page).toHaveURL(floatingIpsPage)
-
   await expectRowVisible(page.getByRole('table'), {
     name: updatedName,
     description: updatedDescription,
   })
 })
 
-test('updating a Floating IP description works (even without updating name)', async ({
-  page,
-}) => {
-  await page.goto(floatingIpsPage)
-  await clickRowAction(page, originalName, 'Edit')
+// Make sure that it still works even if the name doesn't change
+test('can update *just* the floating IP description', async ({ page }) => {
+  // Go to the edit page for the original floating IP
+  await page.goto(`${floatingIpsPage}/${originalName}/edit`)
+  await expectVisible(page, expectedFormElements)
 
-  await expectVisible(page, [
-    'role=heading[name*="Edit floating IP"]',
-    'role=textbox[name="Name"]',
-    'role=textbox[name="Description"]',
-    'role=button[name="Save changes"]',
-  ])
-
-  const updatedDescription = 'An updated description for this Floating IP'
   await page.getByRole('textbox', { name: 'Description' }).fill(updatedDescription)
   await page.getByRole('button', { name: 'Save changes' }).click()
   await expect(page).toHaveURL(floatingIpsPage)
