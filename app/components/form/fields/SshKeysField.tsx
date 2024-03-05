@@ -118,7 +118,9 @@ export function SshKeysField({ control }: { control: Control<InstanceCreateInput
           <EmptyMessage
             icon={<Key16Icon />}
             title="No SSH keys"
-            body="You need to add a SSH key to be able to see it here"
+            body="You need to add a key to be able to see it here"
+            buttonText="Add SSH Key"
+            onClick={() => setShowAddSshKey(true)}
           />
         </div>
       )}
