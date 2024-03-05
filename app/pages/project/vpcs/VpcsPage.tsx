@@ -66,6 +66,11 @@ export function VpcsPage() {
     {
       label: 'Edit',
       onActivate() {
+        apiQueryClient.setQueryData(
+          'vpcView',
+          { path: { vpc: vpc.name }, query: projectSelector },
+          vpc
+        )
         navigate(pb.vpcEdit({ ...projectSelector, vpc: vpc.name }), { state: vpc })
       },
     },
