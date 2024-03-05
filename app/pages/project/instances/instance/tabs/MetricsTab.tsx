@@ -86,7 +86,7 @@ function DiskMetric({
   let unitForSet = ''
   let label = '(COUNT)'
   if (isBytesChart) {
-    const byteUnits = ['Bytes', 'KiB', 'MiB', 'GiB', 'TiB']
+    const byteUnits = ['BYTES', 'KiB', 'MiB', 'GiB', 'TiB']
     unitForSet = byteUnits[cycleCount]
     label = `(${unitForSet})`
   }
