@@ -6,7 +6,12 @@
  * Copyright Oxide Computer Company
  */
 
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
 @import './fonts.css';
+@import './components/button.css';
 @import './components/dialog.css';
 @import './components/menu-button.css';
 @import './components/menu-list.css';
@@ -16,10 +21,6 @@
 @import './themes/selection.css';
 
 @import 'xterm/css/xterm.css';
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
 
 :root {
   --content-gutter: 2.5rem;
