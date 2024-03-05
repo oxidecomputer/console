@@ -37,7 +37,7 @@ const EmptyState = () => (
     title="No silos"
     body="You need to create a silo to be able to see it here"
     buttonText="New silo"
-    buttonTo={pb.siloNew()}
+    buttonTo={pb.silosNew()}
   />
 )
 
@@ -75,7 +75,7 @@ export default function SilosPage() {
   useQuickActions(
     useMemo(
       () => [
-        { value: 'New silo', onSelect: () => navigate(pb.siloNew()) },
+        { value: 'New silo', onSelect: () => navigate(pb.silosNew()) },
         ...silos.items.map((o) => ({
           value: o.name,
           onSelect: () => navigate(pb.silo({ silo: o.name })),
@@ -92,7 +92,7 @@ export default function SilosPage() {
         <PageTitle icon={<Cloud24Icon />}>Silos</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link to={pb.siloNew()} className={buttonStyle({ size: 'sm' })}>
+        <Link to={pb.silosNew()} className={buttonStyle({ size: 'sm' })}>
           New silo
         </Link>
       </TableActions>

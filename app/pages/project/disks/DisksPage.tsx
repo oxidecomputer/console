@@ -39,7 +39,7 @@ const EmptyState = () => (
     title="No disks"
     body="You need to create a disk to be able to see it here"
     buttonText="New disk"
-    buttonTo={pb.diskNew(useProjectSelector())}
+    buttonTo={pb.disksNew(useProjectSelector())}
   />
 )
 
@@ -117,7 +117,7 @@ export function DisksPage() {
         <PageTitle icon={<Storage24Icon />}>Disks</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link to={pb.diskNew(projectSelector)} className={buttonStyle({ size: 'sm' })}>
+        <Link to={pb.disksNew(projectSelector)} className={buttonStyle({ size: 'sm' })}>
           New Disk
         </Link>
       </TableActions>

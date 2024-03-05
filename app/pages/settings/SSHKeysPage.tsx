@@ -53,7 +53,7 @@ export function SSHKeysPage() {
         <PageTitle icon={<Key24Icon />}>SSH Keys</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link className={buttonStyle({ size: 'sm' })} to={pb.sshKeyNew()}>
+        <Link className={buttonStyle({ size: 'sm' })} to={pb.sshKeysNew()}>
           Add SSH key
         </Link>
       </TableActions>
@@ -65,7 +65,7 @@ export function SSHKeysPage() {
             title="No SSH keys"
             body="You need to add a SSH key to be able to see it here"
             buttonText="Add SSH key"
-            onClick={() => navigate(pb.sshKeyNew())}
+            onClick={() => navigate(pb.sshKeysNew())}
           />
         }
       >

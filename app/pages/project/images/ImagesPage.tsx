@@ -81,7 +81,7 @@ export function ImagesPage() {
       </PageHeader>
       <TableActions>
         <Link
-          to={pb.projectImageNew(projectSelector)}
+          to={pb.projectImagesNew(projectSelector)}
           className={buttonStyle({ size: 'sm' })}
         >
           Upload image

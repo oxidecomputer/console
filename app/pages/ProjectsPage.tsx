@@ -36,7 +36,7 @@ const EmptyState = () => (
     title="No projects"
     body="You need to create a project to be able to see it here"
     buttonText="New project"
-    buttonTo={pb.projectNew()}
+    buttonTo={pb.projectsNew()}
   />
 )
 
@@ -90,7 +90,7 @@ export default function ProjectsPage() {
       () => [
         {
           value: 'New project',
-          onSelect: () => navigate(pb.projectNew()),
+          onSelect: () => navigate(pb.projectsNew()),
         },
         ...(projects?.items || []).map((p) => ({
           value: p.name,
@@ -108,7 +108,7 @@ export default function ProjectsPage() {
         <PageTitle icon={<Folder24Icon />}>Projects</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link to={pb.projectNew()} className={buttonStyle({ size: 'sm' })}>
+        <Link to={pb.projectsNew()} className={buttonStyle({ size: 'sm' })}>
           New Project
         </Link>
       </TableActions>

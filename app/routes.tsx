@@ -381,7 +381,7 @@ export const routes = createRoutesFromElements(
             handle={{ crumb: 'New snapshot' }}
           />
           <Route
-            path="snapshots/:snapshot/image-new"
+            path="snapshots/:snapshot/images-new"
             element={<CreateImageFromSnapshotSideModalForm />}
             loader={CreateImageFromSnapshotSideModalForm.loader}
             handle={{ crumb: 'Create image from snapshot' }}

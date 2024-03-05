@@ -42,7 +42,7 @@ const EmptyState = () => (
     title="No Floating IPs"
     body="You need to create a Floating IP to be able to see it here"
     buttonText="New Floating IP"
-    buttonTo={pb.floatingIpNew(useProjectSelector())}
+    buttonTo={pb.floatingIpsNew(useProjectSelector())}
   />
 )
 
@@ -147,7 +147,7 @@ export function FloatingIpsPage() {
         <PageTitle icon={<IpGlobal24Icon />}>Floating IPs</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link to={pb.floatingIpNew({ project })} className={buttonStyle({ size: 'sm' })}>
+        <Link to={pb.floatingIpsNew({ project })} className={buttonStyle({ size: 'sm' })}>
           New Floating IP
         </Link>
       </TableActions>

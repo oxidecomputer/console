@@ -33,7 +33,7 @@ const EmptyState = () => (
     title="No IP pools"
     body="You need to create an IP pool to be able to see it here"
     buttonText="New IP pool"
-    buttonTo={pb.ipPoolNew()}
+    buttonTo={pb.ipPoolsNew()}
   />
 )
 
@@ -77,7 +77,7 @@ export function IpPoolsTab() {
       () => [
         {
           value: 'New IP pool',
-          onSelect: () => navigate(pb.projectNew()),
+          onSelect: () => navigate(pb.projectsNew()),
         },
         ...(pools.items || []).map((p) => ({
           value: p.name,
@@ -92,7 +92,7 @@ export function IpPoolsTab() {
   return (
     <>
       <div className="mb-3 flex justify-end space-x-2">
-        <Link to={pb.ipPoolNew()} className={buttonStyle({ size: 'sm' })}>
+        <Link to={pb.ipPoolsNew()} className={buttonStyle({ size: 'sm' })}>
           New IP Pool
         </Link>
       </div>
