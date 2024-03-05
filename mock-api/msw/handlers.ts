@@ -246,6 +246,20 @@ export const handlers = makeHandlers({
     return paginated(query, ips)
   },
   floatingIpView: ({ path, query }) => lookup.floatingIp({ ...path, ...query }),
+  floatingIpUpdate: ({ path, query, body }) => {
+    const floatingIp = lookup.floatingIp({ ...path, ...query })
+    if (body.name) {
+      // only check for existing name if it's being changed
+      if (body.name !== floatingIp.name) {
+        errIfExists(db.floatingIps, { name: body.name })
+      }
+      floatingIp.name = body.name
+    }
+    if (body.description) {
+      floatingIp.description = body.description
+    }
+    return floatingIp
+  },
   floatingIpDelete({ path, query }) {
     const floatingIp = lookup.floatingIp({ ...path, ...query })
     db.floatingIps = db.floatingIps.filter((i) => i.id !== floatingIp.id)
@@ -554,9 +568,7 @@ export const handlers = makeHandlers({
     if (body.name) {
       nic.name = body.name
     }
-    if (typeof body.description === 'string') {
-      nic.description = body.description
-    }
+    nic.description = body.description || ''
 
     if (typeof body.primary === 'boolean' && body.primary !== nic.primary) {
       if (nic.primary) {

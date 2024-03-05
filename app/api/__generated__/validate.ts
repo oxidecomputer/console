@@ -1221,6 +1221,14 @@ export const FloatingIpResultsPage = z.preprocess(
 )
 
 /**
+ * Updateable identity-related parameters
+ */
+export const FloatingIpUpdate = z.preprocess(
+  processResponseBody,
+  z.object({ description: z.string().optional(), name: Name.optional() })
+)
+
+/**
  * View of a Group
  */
 export const Group = z.preprocess(
@@ -3182,6 +3190,18 @@ export const FloatingIpCreateParams = z.preprocess(
 )
 
 export const FloatingIpViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      floatingIp: NameOrId,
+    }),
+    query: z.object({
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const FloatingIpUpdateParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({

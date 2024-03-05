@@ -11,6 +11,7 @@ import { pb } from './path-builder'
 
 // params can be the same for all of them because they only use what they need
 const params = {
+  floatingIp: 'f',
   project: 'p',
   instance: 'i',
   vpc: 'v',
@@ -31,6 +32,7 @@ test('path builder', () => {
         "diskInventory": "/system/inventory/disks",
         "disks": "/projects/p/disks",
         "disksNew": "/projects/p/disks-new",
+        "floatingIpEdit": "/projects/p/floating-ips/f/edit",
         "floatingIps": "/projects/p/floating-ips",
         "floatingIpsNew": "/projects/p/floating-ips-new",
         "instance": "/projects/p/instances/i",

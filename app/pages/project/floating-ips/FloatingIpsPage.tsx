@@ -7,7 +7,7 @@
  */
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Link, Outlet, type LoaderFunctionArgs } from 'react-router-dom'
+import { Link, Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
   apiQueryClient,
@@ -66,6 +66,7 @@ export function FloatingIpsPage() {
   const { data: instances } = usePrefetchedApiQuery('instanceList', {
     query: { project },
   })
+  const navigate = useNavigate()
   const getInstanceName = (instanceId: string) =>
     instances.items.find((i) => i.id === instanceId)?.name
 
@@ -122,6 +123,14 @@ export function FloatingIpsPage() {
           },
         }
     return [
+      {
+        label: 'Edit',
+        onActivate: () => {
+          navigate(pb.floatingIpEdit({ project, floatingIp: floatingIp.name }), {
+            state: floatingIp,
+          })
+        },
+      },
       attachOrDetachAction,
       {
         label: 'Delete',

@@ -175,6 +175,14 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.FloatingIp>>
+  /** `PUT /v1/floating-ips/:floatingIp` */
+  floatingIpUpdate: (params: {
+    path: Api.FloatingIpUpdatePathParams
+    query: Api.FloatingIpUpdateQueryParams
+    body: Json<Api.FloatingIpUpdate>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.FloatingIp>>
   /** `DELETE /v1/floating-ips/:floatingIp` */
   floatingIpDelete: (params: {
     path: Api.FloatingIpDeletePathParams
@@ -1348,6 +1356,14 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
     http.get(
       '/v1/floating-ips/:floatingIp',
       handler(handlers['floatingIpView'], schema.FloatingIpViewParams, null)
+    ),
+    http.put(
+      '/v1/floating-ips/:floatingIp',
+      handler(
+        handlers['floatingIpUpdate'],
+        schema.FloatingIpUpdateParams,
+        schema.FloatingIpUpdate
+      )
     ),
     http.delete(
       '/v1/floating-ips/:floatingIp',
