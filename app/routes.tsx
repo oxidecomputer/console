@@ -11,6 +11,7 @@ import { RouterDataErrorBoundary } from './components/ErrorBoundary'
 import { NotFound } from './components/ErrorPage'
 import { CreateDiskSideModalForm } from './forms/disk-create'
 import { CreateFloatingIpSideModalForm } from './forms/floating-ip-create'
+import { EditFloatingIpSideModalForm } from './forms/floating-ip-edit'
 import { CreateIdpSideModalForm } from './forms/idp/create'
 import { EditIdpSideModalForm } from './forms/idp/edit'
 import {
@@ -350,12 +351,18 @@ export const routes = createRoutesFromElements(
           />
         </Route>
 
-        <Route loader={FloatingIpsPage.loader} element={<FloatingIpsPage />}>
+        <Route element={<FloatingIpsPage />} loader={FloatingIpsPage.loader}>
           <Route path="floating-ips" handle={{ crumb: 'Floating IPs' }} element={null} />
           <Route
             path="floating-ips-new"
             element={<CreateFloatingIpSideModalForm />}
             handle={{ crumb: 'New Floating IP' }}
+          />
+          <Route
+            path="floating-ips/:floatingIp/edit"
+            element={<EditFloatingIpSideModalForm />}
+            loader={EditFloatingIpSideModalForm.loader}
+            handle={{ crumb: 'Edit Floating IP' }}
           />
         </Route>
 

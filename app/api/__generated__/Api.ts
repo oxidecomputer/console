@@ -1119,6 +1119,11 @@ export type FloatingIpResultsPage = {
 }
 
 /**
+ * Updateable identity-related parameters
+ */
+export type FloatingIpUpdate = { description?: string; name?: Name }
+
+/**
  * View of a Group
  */
 export type Group = {
@@ -3116,6 +3121,14 @@ export interface FloatingIpViewQueryParams {
   project?: NameOrId
 }
 
+export interface FloatingIpUpdatePathParams {
+  floatingIp: NameOrId
+}
+
+export interface FloatingIpUpdateQueryParams {
+  project?: NameOrId
+}
+
 export interface FloatingIpDeletePathParams {
   floatingIp: NameOrId
 }
@@ -4292,6 +4305,29 @@ export class Api extends HttpClient {
       return this.request<FloatingIp>({
         path: `/v1/floating-ips/${path.floatingIp}`,
         method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Update floating IP
+     */
+    floatingIpUpdate: (
+      {
+        path,
+        query = {},
+        body,
+      }: {
+        path: FloatingIpUpdatePathParams
+        query?: FloatingIpUpdateQueryParams
+        body: FloatingIpUpdate
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<FloatingIp>({
+        path: `/v1/floating-ips/${path.floatingIp}`,
+        method: 'PUT',
+        body,
         query,
         ...params,
       })
