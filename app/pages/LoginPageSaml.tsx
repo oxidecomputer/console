@@ -11,8 +11,6 @@ import { useSearchParams } from 'react-router-dom'
 import { buttonStyle } from '~/ui/lib/Button'
 import { Identicon } from '~/ui/lib/Identicon'
 
-import '~/components/login-page.css'
-
 import { useIdpSelector } from '../hooks'
 
 /** SAML "login page" that just links to the actual IdP */

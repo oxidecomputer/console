@@ -11,12 +11,9 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useApiMutation, type UsernamePasswordCredentials } from '@oxide/api'
 
 import { TextFieldInner } from '~/components/form/fields/TextField'
+import { useForm } from '~/hooks'
 import { Button } from '~/ui/lib/Button'
 import { Identicon } from '~/ui/lib/Identicon'
-
-import '~/components/login-page.css'
-
-import { useForm } from '~/hooks'
 import { pb } from '~/util/path-builder'
 
 import { useSiloSelector, useToast } from '../hooks'

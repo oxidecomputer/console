@@ -19,7 +19,8 @@ import { ReduceMotion } from './hooks'
 // stripped out by rollup in production
 import { startMockAPI } from './msw-mock-api'
 import { routes } from './routes'
-
+// this is the only allowed css import
+// eslint-disable-next-line no-restricted-imports
 import '~/ui/styles/index.css'
 
 import { SkipLink } from '~/ui/lib/SkipLink'

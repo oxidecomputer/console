@@ -34,8 +34,6 @@ import { mergeRefs } from 'react-merge-refs'
 
 import { usePopoverZIndex } from './SideModal'
 
-import './tooltip.css'
-
 export interface TooltipProps {
   delay?: number
   children?: React.ReactNode

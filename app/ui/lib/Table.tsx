@@ -9,12 +9,8 @@ import cn from 'classnames'
 import React, { useRef, type ReactElement } from 'react'
 import SimpleBar from 'simplebar-react'
 
-import 'simplebar-react/dist/simplebar.min.css'
-
 import { useIsOverflow } from '~/hooks'
 import { classed } from '~/util/classed'
-
-import './table.css'
 
 export type TableProps = JSX.IntrinsicElements['table']
 export function Table({ className, ...props }: TableProps) {

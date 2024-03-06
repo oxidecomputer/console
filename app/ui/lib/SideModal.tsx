@@ -17,8 +17,6 @@ import { Message } from '~/ui/lib/Message'
 import { useIsInModal } from '~/ui/lib/Modal'
 import { classed } from '~/util/classed'
 
-import './side-modal.css'
-
 import { DialogOverlay } from './DialogOverlay'
 
 const SideModalContext = createContext(false)

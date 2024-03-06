@@ -9,8 +9,6 @@ import { classed } from '~/util/classed'
 
 import { Table as BigTable } from './Table'
 
-import './mini-table.css'
-
 type Children = { children: React.ReactNode }
 
 export const Table = classed.table`ox-mini-table w-full border-separate text-sans-md`
