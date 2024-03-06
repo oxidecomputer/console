@@ -82,13 +82,7 @@ export function SideModal({
               modal={false}
             >
               <Dialog.Portal>
-                {/* TODO: what's up with aria-hidden and pointer-events-auto? click background to dismiss 
-                    actually works without either one... what's that about? */}
-                <DialogOverlay
-                  onClick={onDismiss}
-                  className="pointer-events-auto"
-                  aria-hidden
-                />
+                <DialogOverlay />
                 <AnimatedDialogContent
                   className="DialogContent ox-side-modal pointer-events-auto fixed bottom-0 right-0 top-0 z-sideModal m-0 flex w-[32rem] flex-col justify-between border-l p-0 bg-raise border-secondary elevation-2"
                   aria-labelledby={titleId}

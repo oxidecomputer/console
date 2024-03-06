@@ -57,12 +57,7 @@ export function Modal({ children, onDismiss, title, isOpen }: ModalProps) {
               modal={false}
             >
               <Dialog.Portal>
-                {/* TODO: what's up with aria-hidden and pointer-events-auto */}
-                <DialogOverlay
-                  onClick={onDismiss}
-                  className="pointer-events-auto"
-                  aria-hidden
-                />
+                <DialogOverlay />
                 <AnimatedDialogContent
                   className="pointer-events-auto fixed left-1/2 top-1/2 z-modal m-0 flex max-h-[min(800px,80vh)] w-auto min-w-[28rem] max-w-[32rem] flex-col justify-between rounded-lg border p-0 bg-raise border-secondary elevation-2"
                   aria-labelledby={titleId}

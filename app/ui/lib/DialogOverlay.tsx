@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { classed } from '~/util/classed'
 
-export const DialogOverlay = classed.div`fixed inset-0 z-10 overflow-auto bg-scrim`
+export const DialogOverlay = () => (
+  <div aria-hidden className="fixed inset-0 z-10 overflow-auto bg-scrim" />
+)

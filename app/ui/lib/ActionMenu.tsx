@@ -92,10 +92,7 @@ export function ActionMenu(props: ActionMenuProps) {
     >
       <Dialog.Portal>
         <DialogOverlay />
-        {/* TODO: it was getting z-20 from .DialogContent before. this should
-            probably go in the z-* things in the tw config. also: Modal and SideModal put
-            pointer-events-auto on their modals, but this one works fine (click overlay to dismiss works) without it */}
-        <Dialog.Content className="fixed inset-0 z-20 mx-auto mt-[20vh] w-[46rem] bg-transparent p-0">
+        <Dialog.Content className="fixed inset-0 z-modal mx-auto mt-[20vh] w-[46rem] bg-transparent p-0">
           <div
             onKeyDown={(e) => {
               const lastIdx = itemsInOrder.length - 1
