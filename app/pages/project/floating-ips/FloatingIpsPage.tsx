@@ -39,8 +39,8 @@ import { pb } from '~/util/path-builder'
 const EmptyState = () => (
   <EmptyMessage
     icon={<Networking24Icon />}
-    title="No Floating IPs"
-    body="You need to create a Floating IP to be able to see it here"
+    title="No floating IPs"
+    body="You need to create a floating IP to be able to see it here"
     buttonText="New Floating IP"
     buttonTo={pb.floatingIpsNew(useProjectSelector())}
   />
@@ -73,7 +73,7 @@ export function FloatingIpsPage() {
   const floatingIpDetach = useApiMutation('floatingIpDetach', {
     onSuccess() {
       queryClient.invalidateQueries('floatingIpList')
-      addToast({ content: 'Your Floating IP has been detached' })
+      addToast({ content: 'Your floating IP has been detached' })
     },
     onError: (err) => {
       addToast({ title: 'Error', content: err.message, variant: 'error' })
@@ -82,7 +82,7 @@ export function FloatingIpsPage() {
   const deleteFloatingIp = useApiMutation('floatingIpDelete', {
     onSuccess() {
       queryClient.invalidateQueries('floatingIpList')
-      addToast({ content: 'Your Floating IP has been deleted' })
+      addToast({ content: 'Your floating IP has been deleted' })
     },
   })
 

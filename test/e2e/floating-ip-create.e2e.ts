@@ -17,7 +17,7 @@ import {
 
 const floatingIpsPage = '/projects/mock-project/floating-ips'
 
-test('can create a Floating IP', async ({ page }) => {
+test('can create a floating IP', async ({ page }) => {
   await page.goto(floatingIpsPage)
   await page.locator('text="New Floating IP"').click()
 
@@ -68,7 +68,7 @@ test('can create a Floating IP', async ({ page }) => {
   })
 })
 
-test('can detach and attach a Floating IP', async ({ page }) => {
+test('can detach and attach a floating IP', async ({ page }) => {
   // check floating IP is visible on instance detail
   await page.goto('/projects/mock-project/instances/db1')
   await expect(page.getByText('192.168.64.64')).toBeVisible()
