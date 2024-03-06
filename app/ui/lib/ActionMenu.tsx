@@ -16,6 +16,7 @@ import { KEYS } from '~/ui/util/keys'
 import { groupBy } from '~/util/array'
 import { classed } from '~/util/classed'
 
+import { DialogOverlay } from './DialogOverlay'
 import { useSteppedScroll } from './use-stepped-scroll'
 
 export interface QuickActionItem {
@@ -90,8 +91,11 @@ export function ActionMenu(props: ActionMenuProps) {
       }}
     >
       <Dialog.Portal>
-        <Dialog.Overlay className="DialogOverlay" />
-        <Dialog.Content className="DialogContent fixed inset-0 mt-[20vh] !w-[46rem] bg-transparent p-0">
+        <DialogOverlay />
+        {/* TODO: it was getting z-20 from .DialogContent before. this should
+            probably go in the z-* things in the tw config. also: Modal and SideModal put
+            pointer-events-auto on their modals, but this one works fine (click overlay to dismiss works) without it */}
+        <Dialog.Content className="fixed inset-0 z-20 mx-auto mt-[20vh] w-[46rem] bg-transparent p-0">
           <div
             onKeyDown={(e) => {
               const lastIdx = itemsInOrder.length - 1

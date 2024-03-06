@@ -19,6 +19,8 @@ import { classed } from '~/util/classed'
 
 import './side-modal.css'
 
+import { DialogOverlay } from './DialogOverlay'
+
 const SideModalContext = createContext(false)
 
 export const useIsInSideModal = () => useContext(SideModalContext)
@@ -82,9 +84,11 @@ export function SideModal({
               modal={false}
             >
               <Dialog.Portal>
-                <div
-                  className="DialogOverlay pointer-events-auto"
+                {/* TODO: what's up with aria-hidden and pointer-events-auto? click background to dismiss 
+                    actually works without either one... what's that about? */}
+                <DialogOverlay
                   onClick={onDismiss}
+                  className="pointer-events-auto"
                   aria-hidden
                 />
                 <AnimatedDialogContent
