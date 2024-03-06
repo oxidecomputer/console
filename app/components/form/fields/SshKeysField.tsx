@@ -48,7 +48,13 @@ const CloudInitMessage = () => (
   />
 )
 
-export function SshKeysField({ control }: { control: Control<InstanceCreateInput> }) {
+export function SshKeysField({
+  control,
+  isSubmitting,
+}: {
+  control: Control<InstanceCreateInput>
+  isSubmitting: boolean
+}) {
   const keys = usePrefetchedApiQuery('currentUserSshKeyList', {}).data?.items || []
   const [showAddSshKey, setShowAddSshKey] = useState(false)
 
@@ -85,6 +91,7 @@ export function SshKeysField({ control }: { control: Control<InstanceCreateInput
                   control={control}
                   value={key.id}
                   key={key.id}
+                  disabled={isSubmitting}
                 >
                   {key.name}
                 </CheckboxField>
@@ -101,12 +108,18 @@ export function SshKeysField({ control }: { control: Control<InstanceCreateInput
               onChange={() =>
                 onChange(value.length < keys.length ? keys.map((key) => key.id) : [])
               }
+              disabled={isSubmitting}
             >
               <span className="select-none">Select all</span>
             </Checkbox>
 
             <div className="space-x-3">
-              <Button variant="ghost" size="sm" onClick={() => setShowAddSshKey(true)}>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowAddSshKey(true)}
+                disabled={isSubmitting}
+              >
                 Add SSH Key
               </Button>
             </div>

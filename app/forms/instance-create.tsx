@@ -276,13 +276,13 @@ export function CreateInstanceForm() {
         </Tabs.Content>
 
         <Tabs.Content value="highCPU">
-          <RadioFieldDyn name="presetId" label="" control={control}>
+          <RadioFieldDyn name="presetId" label="" control={control} disabled={isSubmitting}>
             {renderLargeRadioCards('highCPU')}
           </RadioFieldDyn>
         </Tabs.Content>
 
         <Tabs.Content value="highMemory">
-          <RadioFieldDyn name="presetId" label="" control={control}>
+          <RadioFieldDyn name="presetId" label="" control={control} disabled={isSubmitting}>
             {renderLargeRadioCards('highMemory')}
           </RadioFieldDyn>
         </Tabs.Content>
@@ -419,7 +419,7 @@ export function CreateInstanceForm() {
       <FormDivider />
       <Form.Heading id="authentication">Authentication</Form.Heading>
 
-      <SshKeysField control={control} />
+      <SshKeysField control={control} isSubmitting={isSubmitting} />
 
       <FormDivider />
       <Form.Heading id="advanced">Advanced</Form.Heading>
@@ -478,6 +478,7 @@ const AdvancedAccordion = ({
           name="userData"
           label="User Data"
           control={control}
+          disabled={isSubmitting}
         />
       </AccordionItem>
     </Accordion.Root>
