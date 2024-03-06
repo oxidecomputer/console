@@ -12,8 +12,6 @@ import { Badge } from '~/ui/lib/Badge'
 import { isOneOf } from '~/util/children'
 import { invariant } from '~/util/invariant'
 
-import './properties-table.css'
-
 export interface PropertiesTableProps {
   className?: string
   children: ReactNode

@@ -8,8 +8,6 @@
 import cn from 'classnames'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 
-import './spinner.css'
-
 export const spinnerSizes = ['base', 'lg'] as const
 export const spinnerVariants = ['primary', 'secondary', 'ghost', 'danger'] as const
 export type SpinnerSize = (typeof spinnerSizes)[number]

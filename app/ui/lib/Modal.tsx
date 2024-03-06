@@ -14,6 +14,7 @@ import { Close12Icon } from '@oxide/design-system/icons/react'
 import { classed } from '~/util/classed'
 
 import { Button } from './Button'
+import { DialogOverlay } from './DialogOverlay'
 
 const ModalContext = createContext(false)
 
@@ -56,13 +57,9 @@ export function Modal({ children, onDismiss, title, isOpen }: ModalProps) {
               modal={false}
             >
               <Dialog.Portal>
-                <div
-                  className="DialogOverlay pointer-events-auto"
-                  onClick={onDismiss}
-                  aria-hidden
-                />
+                <DialogOverlay />
                 <AnimatedDialogContent
-                  className="DialogContent ox-modal pointer-events-auto fixed left-1/2 top-1/2 z-modal m-0 flex max-h-[min(800px,80vh)] w-auto min-w-[28rem] max-w-[32rem] flex-col justify-between rounded-lg border p-0 bg-raise border-secondary elevation-2"
+                  className="pointer-events-auto fixed left-1/2 top-1/2 z-modal m-0 flex max-h-[min(800px,80vh)] w-auto min-w-[28rem] max-w-[32rem] flex-col justify-between rounded-lg border p-0 bg-raise border-secondary elevation-2"
                   aria-labelledby={titleId}
                   style={{
                     transform: y.to((value) => `translate3d(-50%, ${-50 + value}%, 0px)`),

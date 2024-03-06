@@ -18,8 +18,6 @@ import {
 import cn from 'classnames'
 import type { SetRequired } from 'type-fest'
 
-import './Tabs.css'
-
 // They don't require a default value, but without it there is no tab selected
 // by default.
 export type TabsRootProps = SetRequired<TabsProps, 'defaultValue'>

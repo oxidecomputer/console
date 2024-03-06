@@ -6,20 +6,41 @@
  * Copyright Oxide Computer Company
  */
 
+/*
+ * We import all of these here instead of in the corresponding component files
+ * so we can control the order things are imported in. In theory that's what the
+ * @layer directives are for, but Vite's usage of postcss-import didn't  seem
+ * to be aware of the @tailwind directives here. I suspect it was not following
+ * the order specified in our postcss config. In any case we don't need to worry
+ * about that if we're controlling the order directly here. All of these end up
+ * inlined into a single file by postcss-import.
+ */
+
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+@import '@oxide/design-system/styles/dist/main.css';
+@import 'simplebar-react/dist/simplebar.min.css';
+
 @import './fonts.css';
-@import './components/dialog.css';
+@import './components/button.css';
 @import './components/menu-button.css';
 @import './components/menu-list.css';
 @import './components/loading-bar.css';
+@import './components/Tabs.css';
+@import './components/form.css';
+@import './components/login-page.css';
+@import './components/mini-table.css';
+@import './components/properties-table.css';
+@import './components/side-modal.css';
+@import './components/spinner.css';
+@import './components/table.css';
+@import './components/tooltip.css';
 
-@import '@oxide/design-system/styles/dist/main.css';
 @import './themes/selection.css';
 
 @import 'xterm/css/xterm.css';
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
 
 :root {
   --content-gutter: 2.5rem;

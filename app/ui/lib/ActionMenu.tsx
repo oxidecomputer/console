@@ -16,6 +16,7 @@ import { KEYS } from '~/ui/util/keys'
 import { groupBy } from '~/util/array'
 import { classed } from '~/util/classed'
 
+import { DialogOverlay } from './DialogOverlay'
 import { useSteppedScroll } from './use-stepped-scroll'
 
 export interface QuickActionItem {
@@ -90,8 +91,8 @@ export function ActionMenu(props: ActionMenuProps) {
       }}
     >
       <Dialog.Portal>
-        <Dialog.Overlay className="DialogOverlay" />
-        <Dialog.Content className="DialogContent fixed inset-0 mt-[20vh] !w-[46rem] bg-transparent p-0">
+        <DialogOverlay />
+        <Dialog.Content className="fixed inset-0 z-modal mx-auto mt-[20vh] w-[46rem] bg-transparent p-0">
           <div
             onKeyDown={(e) => {
               const lastIdx = itemsInOrder.length - 1

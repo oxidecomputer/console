@@ -15,8 +15,6 @@ import { flattenChildren, isOneOf, pluckFirstOfType } from '~/util/children'
 import { classed } from '~/util/classed'
 import { invariant } from '~/util/invariant'
 
-import './form.css'
-
 interface FormActionsProps {
   formId?: string
   children: React.ReactNode

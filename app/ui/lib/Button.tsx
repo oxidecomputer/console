@@ -12,8 +12,6 @@ import { Spinner } from '~/ui/lib/Spinner'
 import { Tooltip } from '~/ui/lib/Tooltip'
 import { Wrap } from '~/ui/util/wrap'
 
-import './button.css'
-
 export const buttonSizes = ['sm', 'icon', 'base'] as const
 export const variants = ['primary', 'secondary', 'ghost', 'danger'] as const
 

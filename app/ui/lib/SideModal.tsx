@@ -17,7 +17,7 @@ import { Message } from '~/ui/lib/Message'
 import { useIsInModal } from '~/ui/lib/Modal'
 import { classed } from '~/util/classed'
 
-import './side-modal.css'
+import { DialogOverlay } from './DialogOverlay'
 
 const SideModalContext = createContext(false)
 
@@ -82,11 +82,7 @@ export function SideModal({
               modal={false}
             >
               <Dialog.Portal>
-                <div
-                  className="DialogOverlay pointer-events-auto"
-                  onClick={onDismiss}
-                  aria-hidden
-                />
+                <DialogOverlay />
                 <AnimatedDialogContent
                   className="DialogContent ox-side-modal pointer-events-auto fixed bottom-0 right-0 top-0 z-sideModal m-0 flex w-[32rem] flex-col justify-between border-l p-0 bg-raise border-secondary elevation-2"
                   aria-labelledby={titleId}
