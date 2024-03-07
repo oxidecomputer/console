@@ -95,10 +95,6 @@ export function SerialConsolePage() {
     }
   }, [])
 
-  const command = `oxide instance serial console
-  --project ${project}
-  --instance ${instance}`
-
   return (
     <div className="!mx-0 flex h-full max-h-[calc(100vh-60px)] !w-full flex-col">
       <Link
@@ -118,7 +114,7 @@ export function SerialConsolePage() {
       <div className="flex-shrink-0 justify-between overflow-hidden border-t bg-default border-secondary empty:border-t-0">
         <div className="gutter flex h-20 items-center justify-between">
           <div>
-            <EquivalentCliCommand command={command} />
+            <EquivalentCliCommand command={serialConsoleCliCommand(project, instance)} />
           </div>
 
           <Badge color={statusColor[connectionStatus]}>
@@ -129,6 +125,13 @@ export function SerialConsolePage() {
     </div>
   )
 }
+
+export const serialConsoleCliCommand = (
+  project: string,
+  instance: string
+) => `oxide instance serial console
+--project ${project}
+--instance ${instance}`
 
 function SerialSkeleton() {
   const instanceSelector = useInstanceSelector()

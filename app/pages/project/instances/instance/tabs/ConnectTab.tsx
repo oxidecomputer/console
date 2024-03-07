@@ -6,20 +6,36 @@
  * Copyright Oxide Computer Company
  */
 
+import { useState } from 'react'
+
+import { EquivalentCliCommandModal } from '~/components/EquivalentCliCommand'
 import { useInstanceSelector } from '~/hooks'
 import { SettingsGroup } from '~/ui/lib/SettingsGroup'
 import { pb } from '~/util/path-builder'
 
+import { serialConsoleCliCommand } from '../SerialConsolePage'
+
 export function ConnectTab() {
   const { project, instance } = useInstanceSelector()
 
+  const [cliModalOpen, setCliModalOpen] = useState(false)
+
   return (
-    <SettingsGroup
-      title="Serial Console"
-      cta={pb.serialConsole({ project, instance })}
-      ctaText="Connect"
-    >
-      Connect to your instance&rsquo;s serial console
-    </SettingsGroup>
+    <>
+      <EquivalentCliCommandModal
+        isOpen={cliModalOpen}
+        handleDismiss={() => setCliModalOpen(false)}
+        command={serialConsoleCliCommand(project, instance)}
+      />
+      <SettingsGroup
+        title="Serial Console"
+        cta={pb.serialConsole({ project, instance })}
+        ctaText="Connect"
+        secondaryCta={() => setCliModalOpen(true)}
+        secondaryCtaText="Equivalent CLI Command"
+      >
+        Connect to your instance&rsquo;s serial console
+      </SettingsGroup>
+    </>
   )
 }

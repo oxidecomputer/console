@@ -21,9 +21,20 @@ type Props = {
   /** String action is a link */
   cta: string | (() => void)
   ctaText: string
-}
+} & (
+  | { secondaryCta: string | (() => void); secondaryCtaText: string }
+  | { secondaryCta?: undefined; secondaryCtaText?: undefined }
+)
 
-export const SettingsGroup = ({ title, docs, children, cta, ctaText }: Props) => {
+export const SettingsGroup = ({
+  title,
+  docs,
+  children,
+  cta,
+  ctaText,
+  secondaryCta,
+  secondaryCtaText,
+}: Props) => {
   return (
     <div className="w-full max-w-[660px] rounded-lg border text-sans-md text-secondary border-default">
       <div className="p-6">
@@ -44,15 +55,31 @@ export const SettingsGroup = ({ title, docs, children, cta, ctaText }: Props) =>
           )}
         </div>
 
-        {typeof cta === 'string' ? (
-          <Link to={cta} className={buttonStyle({ size: 'sm' })}>
-            {ctaText}
-          </Link>
-        ) : (
-          <Button size="sm" onClick={cta}>
-            {ctaText}
-          </Button>
-        )}
+        <div className="flex gap-3">
+          {secondaryCta &&
+            (typeof secondaryCta === 'string' ? (
+              <Link
+                to={secondaryCta}
+                className={buttonStyle({ size: 'sm', variant: 'secondary' })}
+              >
+                {secondaryCtaText}
+              </Link>
+            ) : (
+              <Button size="sm" variant="secondary" onClick={secondaryCta}>
+                {secondaryCtaText}
+              </Button>
+            ))}
+
+          {typeof cta === 'string' ? (
+            <Link to={cta} className={buttonStyle({ size: 'sm' })}>
+              {ctaText}
+            </Link>
+          ) : (
+            <Button size="sm" onClick={cta}>
+              {ctaText}
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   )

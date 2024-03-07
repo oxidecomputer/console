@@ -19,7 +19,13 @@ export const Default = () => (
 )
 
 export const WithoutDocs = () => (
-  <SettingsGroup title="Serial Console" cta="/" ctaText="Connect">
+  <SettingsGroup
+    title="Serial Console"
+    cta="/"
+    ctaText="Connect"
+    secondaryCta={() => {}}
+    secondaryCtaText="Secondary"
+  >
     Connect to your instance&rsquo;s serial console
   </SettingsGroup>
 )
