@@ -5,27 +5,40 @@
  *
  * Copyright Oxide Computer Company
  */
+import { Link } from 'react-router-dom'
+
+import { Button, buttonStyle } from './Button'
 import { SettingsGroup } from './SettingsGroup'
 
 export const Default = () => (
-  <SettingsGroup
-    title="Serial Console"
-    docs={{ text: 'Serial Console', link: '/' }}
-    cta="/"
-    ctaText="Connect"
-  >
-    Connect to your instance&rsquo;s serial console
-  </SettingsGroup>
+  <SettingsGroup.Container>
+    <SettingsGroup.Body>
+      <SettingsGroup.Title>Serial console</SettingsGroup.Title>
+      Connect to your instance&rsquo;s serial console
+    </SettingsGroup.Body>
+    <SettingsGroup.Footer
+      docsLink={{ text: 'math', href: 'https://en.wikipedia.org/wiki/Mathematics' }}
+    >
+      <Link to="/" className={buttonStyle({ size: 'sm' })}>
+        Connect
+      </Link>
+    </SettingsGroup.Footer>
+  </SettingsGroup.Container>
 )
 
 export const WithoutDocs = () => (
-  <SettingsGroup title="Serial Console" cta="/" ctaText="Connect">
-    Connect to your instance&rsquo;s serial console
-  </SettingsGroup>
-)
-
-export const FunctionAction = () => (
-  <SettingsGroup title="Serial Console" cta={() => alert('hi')} ctaText="Connect">
-    Connect to your instance&rsquo;s serial console
-  </SettingsGroup>
+  <SettingsGroup.Container>
+    <SettingsGroup.Body>
+      <SettingsGroup.Title>Serial console</SettingsGroup.Title>
+      Connect to your instance&rsquo;s serial console
+    </SettingsGroup.Body>
+    <SettingsGroup.Footer>
+      <Link to="/" className={buttonStyle({ size: 'sm' })}>
+        Connect
+      </Link>
+      <Button size="sm" variant="secondary" onClick={() => {}}>
+        Secondary
+      </Button>
+    </SettingsGroup.Footer>
+  </SettingsGroup.Container>
 )

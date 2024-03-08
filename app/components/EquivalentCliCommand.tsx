@@ -13,7 +13,7 @@ import { Button } from '~/ui/lib/Button'
 import { Modal } from '~/ui/lib/Modal'
 import useTimeout from '~/ui/lib/use-timeout'
 
-export default function EquivalentCliCommand({ command }: { command: string }) {
+export function EquivalentCliCommand({ command }: { command: string }) {
   const [isOpen, setIsOpen] = useState(false)
   const [hasCopied, setHasCopied] = useState(false)
 
