@@ -31,9 +31,18 @@ type ResourceName =
   | 'subnet'
   | 'VPC'
 
+type CreateFormProps = {
+  formType: 'create'
+  submitLabel?: string
+}
+
+type EditFormProps = {
+  formType: 'edit'
+  submitLabel?: never
+}
+
 type SideModalFormProps<TFieldValues extends FieldValues> = {
   form: UseFormReturn<TFieldValues>
-  formType: 'create' | 'edit'
   /**
    * A function that returns the fields.
    *
@@ -53,8 +62,7 @@ type SideModalFormProps<TFieldValues extends FieldValues> = {
   title: string
   subtitle?: ReactNode
   onSubmit?: (values: TFieldValues) => void
-  submitLabel?: string
-}
+} & (CreateFormProps | EditFormProps)
 
 /**
  * Only animate the modal in when we're navigating by a client-side click.
