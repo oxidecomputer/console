@@ -19,7 +19,7 @@ import { pb } from '~/util/path-builder'
 import { DocsLinkItem, NavLinkItem, Sidebar } from '../components/Sidebar'
 import { ContentPane, PageContainer } from './helpers'
 
-const SettingsLayout = () => {
+export function SettingsLayout() {
   const navigate = useNavigate()
   const { pathname } = useLocation()
 
@@ -67,5 +67,3 @@ const SettingsLayout = () => {
     </PageContainer>
   )
 }
-
-export default SettingsLayout

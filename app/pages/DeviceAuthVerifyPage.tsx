@@ -32,7 +32,7 @@ export function addDashes(dashAfterIdxs: number[], code: string) {
 /**
  * Device authorization verification page
  */
-export default function DeviceAuthVerifyPage() {
+export function DeviceAuthVerifyPage() {
   const navigate = useNavigate()
   const confirmPost = useApiMutation('deviceAuthConfirm', {
     onSuccess: () => {

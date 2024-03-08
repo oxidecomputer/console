@@ -16,7 +16,7 @@ import { useTitle } from '~/hooks/use-title'
  * Root layout that applies to the entire app. Modify sparingly. It's rare for
  * anything to actually belong here.
  */
-export default function RootLayout() {
+export function RootLayout() {
   const title = useTitle()
 
   return (

@@ -5,7 +5,6 @@
  *
  * Copyright Oxide Computer Company
  */
-import '@tanstack/react-table'
 
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useMemo, useState } from 'react'

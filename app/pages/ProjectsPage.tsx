@@ -45,7 +45,7 @@ ProjectsPage.loader = async () => {
   return null
 }
 
-export default function ProjectsPage() {
+export function ProjectsPage() {
   const navigate = useNavigate()
 
   const queryClient = useApiQueryClient()

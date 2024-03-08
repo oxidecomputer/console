@@ -8,7 +8,7 @@
 import { animated, Globals, useTransition } from '@react-spring/web'
 import cn from 'classnames'
 
-import useTimeout from './use-timeout'
+import { useTimeout } from './use-timeout'
 
 export interface TimeoutIndicatorProps {
   timeout: number

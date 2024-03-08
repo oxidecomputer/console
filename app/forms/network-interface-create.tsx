@@ -37,7 +37,7 @@ type CreateNetworkInterfaceFormProps = {
  * Can be used with either a `setState` or a real mutation as `onSubmit`, hence
  * the optional `loading` and `submitError`
  */
-export default function CreateNetworkInterfaceForm({
+export function CreateNetworkInterfaceForm({
   onSubmit,
   onDismiss,
   loading,

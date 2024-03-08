@@ -48,7 +48,7 @@ ProjectLayout.loader = async ({ params }: LoaderFunctionArgs) => {
   return null
 }
 
-function ProjectLayout({ overrideContentPane }: ProjectLayoutProps) {
+export function ProjectLayout({ overrideContentPane }: ProjectLayoutProps) {
   const navigate = useNavigate()
   // project will always be there, instance may not
   const projectSelector = useProjectSelector()
@@ -123,5 +123,3 @@ function ProjectLayout({ overrideContentPane }: ProjectLayoutProps) {
     </PageContainer>
   )
 }
-
-export default ProjectLayout

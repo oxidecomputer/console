@@ -21,7 +21,7 @@ import {
 import { Storage24Icon } from '@oxide/design-system/icons/react'
 
 import { DiskStatusBadge } from '~/components/StatusBadge'
-import AttachDiskSideModalForm from '~/forms/disk-attach'
+import { AttachDiskSideModalForm } from '~/forms/disk-attach'
 import { CreateDiskSideModalForm } from '~/forms/disk-create'
 import { getInstanceSelector, useInstanceSelector } from '~/hooks'
 import { addToast } from '~/stores/toast'

@@ -22,7 +22,7 @@ type EditNetworkInterfaceFormProps = {
   onDismiss: () => void
 }
 
-export default function EditNetworkInterfaceForm({
+export function EditNetworkInterfaceForm({
   onDismiss,
   editing,
 }: EditNetworkInterfaceFormProps) {
