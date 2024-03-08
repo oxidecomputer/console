@@ -5,82 +5,44 @@
  *
  * Copyright Oxide Computer Company
  */
-import { Link } from 'react-router-dom'
 
 import { OpenLink12Icon } from '@oxide/design-system/icons/react'
 
-import { Button, buttonStyle } from '~/ui/lib/Button'
+import { classed } from '~/util/classed'
 
-type Props = {
-  title: string
-  docs?: {
-    text: string
-    link: string
-  }
+type LearnMoreProps = {
+  href: string
+  /** Link text */
+  text: React.ReactNode
+}
+
+type FooterProps = {
+  /** Link text */
   children: React.ReactNode
-  /** String action is a link */
-  cta: string | (() => void)
-  ctaText: string
-} & (
-  | { secondaryCta: string | (() => void); secondaryCtaText: string }
-  | { secondaryCta?: undefined; secondaryCtaText?: undefined }
-)
+  docsLink?: { text: string; href: string }
+}
 
-export const SettingsGroup = ({
-  title,
-  docs,
-  children,
-  cta,
-  ctaText,
-  secondaryCta,
-  secondaryCtaText,
-}: Props) => {
-  return (
-    <div className="w-full max-w-[660px] rounded-lg border text-sans-md text-secondary border-default">
-      <div className="p-6">
-        <div className="mb-1 text-sans-lg text-default">{title}</div>
-        {children}
-      </div>
-      <div className="flex items-center justify-between border-t px-6 py-3 border-default">
-        {/* div always present to keep the button right-aligned */}
-        <div className="text-tertiary">
-          {docs && (
-            <>
-              Learn more about{' '}
-              <a href={docs.link} className="text-accent-secondary hover:text-accent">
-                {docs.text}
-                <OpenLink12Icon className="ml-1 align-middle" />
-              </a>
-            </>
-          )}
-        </div>
-
-        <div className="flex gap-3">
-          {secondaryCta &&
-            (typeof secondaryCta === 'string' ? (
-              <Link
-                to={secondaryCta}
-                className={buttonStyle({ size: 'sm', variant: 'secondary' })}
-              >
-                {secondaryCtaText}
-              </Link>
-            ) : (
-              <Button size="sm" variant="secondary" onClick={secondaryCta}>
-                {secondaryCtaText}
-              </Button>
-            ))}
-
-          {typeof cta === 'string' ? (
-            <Link to={cta} className={buttonStyle({ size: 'sm' })}>
-              {ctaText}
-            </Link>
-          ) : (
-            <Button size="sm" onClick={cta}>
-              {ctaText}
-            </Button>
-          )}
-        </div>
-      </div>
+/** Use size=sm on buttons and links! */
+export const SettingsGroup = {
+  Container: classed.div`w-full max-w-[660px] rounded-lg border text-sans-md text-secondary border-default`,
+  LearnMore: ({ href, text }: LearnMoreProps) => (
+    <div>
+      Learn more about{' '}
+      <a href={href} className="text-accent-secondary hover:text-accent">
+        {text}
+        <OpenLink12Icon className="ml-1 align-middle" />
+      </a>
     </div>
-  )
+  ),
+  Body: classed.div`p-6`,
+  Title: classed.div`mb-1 text-sans-lg text-default`,
+  Footer: ({ children, docsLink }: FooterProps) => (
+    <div className="flex items-center justify-between border-t px-6 py-3 border-default">
+      {/* div always present to keep the buttons right-aligned */}
+      <div className="text-tertiary">
+        {docsLink && <SettingsGroup.LearnMore {...docsLink} />}
+      </div>
+      <div className="flex gap-3">{children}</div>
+    </div>
+  ),
 }

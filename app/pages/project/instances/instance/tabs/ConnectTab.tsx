@@ -6,36 +6,33 @@
  * Copyright Oxide Computer Company
  */
 
-import { useState } from 'react'
+import { Link } from 'react-router-dom'
 
-import { EquivalentCliCommandModal } from '~/components/EquivalentCliCommand'
+import { EquivalentCliCommand } from '~/components/EquivalentCliCommand'
 import { useInstanceSelector } from '~/hooks'
+import { buttonStyle } from '~/ui/lib/Button'
 import { SettingsGroup } from '~/ui/lib/SettingsGroup'
+import { cliCmd } from '~/util/cli-cmd'
 import { pb } from '~/util/path-builder'
-
-import { serialConsoleCliCommand } from '../SerialConsolePage'
 
 export function ConnectTab() {
   const { project, instance } = useInstanceSelector()
 
-  const [cliModalOpen, setCliModalOpen] = useState(false)
-
   return (
-    <>
-      <EquivalentCliCommandModal
-        isOpen={cliModalOpen}
-        handleDismiss={() => setCliModalOpen(false)}
-        command={serialConsoleCliCommand(project, instance)}
-      />
-      <SettingsGroup
-        title="Serial Console"
-        cta={pb.serialConsole({ project, instance })}
-        ctaText="Connect"
-        secondaryCta={() => setCliModalOpen(true)}
-        secondaryCtaText="Equivalent CLI Command"
-      >
+    <SettingsGroup.Container>
+      <SettingsGroup.Body>
+        <SettingsGroup.Title>Serial console</SettingsGroup.Title>
         Connect to your instance&rsquo;s serial console
-      </SettingsGroup>
-    </>
+      </SettingsGroup.Body>
+      <SettingsGroup.Footer>
+        <EquivalentCliCommand command={cliCmd.serialConsole({ project, instance })} />
+        <Link
+          to={pb.serialConsole({ project, instance })}
+          className={buttonStyle({ size: 'sm' })}
+        >
+          Connect
+        </Link>
+      </SettingsGroup.Footer>
+    </SettingsGroup.Container>
   )
 }
