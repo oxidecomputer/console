@@ -9,7 +9,7 @@ import { useEffect, useMemo, useState } from 'react'
 
 import { useReducedMotion } from '~/hooks'
 
-const RoundedSector = ({
+export function RoundedSector({
   angle,
   size,
   thickness,
@@ -19,7 +19,7 @@ const RoundedSector = ({
   size: number
   thickness: number
   cornerRadius?: number
-}) => {
+}) {
   const prefersReducedMotion = useReducedMotion()
   const [interpolatedAngle, setInterpolatedAngle] = useState(0)
 
@@ -290,5 +290,3 @@ const polarToCartesian = (cx: number, cy: number, radius: number, angle: number)
   x: cx + Math.cos((-Math.PI / 180) * angle) * radius,
   y: cy + Math.sin((-Math.PI / 180) * angle) * radius,
 })
-
-export default RoundedSector

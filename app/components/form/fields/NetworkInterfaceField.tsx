@@ -15,7 +15,7 @@ import type {
 import { Error16Icon } from '@oxide/design-system/icons/react'
 
 import type { InstanceCreateInput } from '~/forms/instance-create'
-import CreateNetworkInterfaceForm from '~/forms/network-interface-create'
+import { CreateNetworkInterfaceForm } from '~/forms/network-interface-create'
 import { Button } from '~/ui/lib/Button'
 import { FieldLabel } from '~/ui/lib/FieldLabel'
 import * as MiniTable from '~/ui/lib/MiniTable'

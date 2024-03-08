@@ -46,7 +46,7 @@ SilosPage.loader = async () => {
   return null
 }
 
-export default function SilosPage() {
+export function SilosPage() {
   const navigate = useNavigate()
 
   const { Table, Column } = useQueryTable('siloList', {})

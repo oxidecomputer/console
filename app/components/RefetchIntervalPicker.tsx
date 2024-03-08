@@ -13,7 +13,7 @@ import { Refresh16Icon, Time16Icon } from '@oxide/design-system/icons/react'
 
 import { Listbox, type ListboxItem } from '~/ui/lib/Listbox'
 import { SpinnerLoader } from '~/ui/lib/Spinner'
-import useInterval from '~/ui/lib/use-interval'
+import { useInterval } from '~/ui/lib/use-interval'
 
 const intervalPresets = {
   Off: undefined,

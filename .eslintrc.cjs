@@ -15,8 +15,16 @@ module.exports = {
     'plugin:react/recommended',
     'prettier',
     'plugin:react-hook-form/recommended',
+    'plugin:import/recommended',
   ],
-  plugins: ['@typescript-eslint', 'react-hooks', 'prettier', 'jsx-a11y', 'react-hook-form'],
+  plugins: [
+    '@typescript-eslint',
+    'react-hooks',
+    'prettier',
+    'jsx-a11y',
+    'react-hook-form',
+    'import',
+  ],
   settings: {
     react: {
       version: 'detect',
@@ -35,6 +43,8 @@ module.exports = {
     '@typescript-eslint/no-non-null-assertion': 'off',
     '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
     eqeqeq: ['error', 'always', { null: 'ignore' }],
+    'import/no-default-export': 'error',
+    'import/no-unresolved': 'off', // plugin doesn't know anything
     'jsx-a11y/label-has-associated-control': [2, { controlComponents: ['button'] }],
     'no-param-reassign': 'error',
     'no-restricted-imports': [
@@ -64,6 +74,11 @@ module.exports = {
   },
   ignorePatterns: ['dist/'],
   overrides: [
+    {
+      // default export is needed in config files
+      files: ['*.config.ts'],
+      rules: { 'import/no-default-export': 'off' },
+    },
     {
       files: ['*.js'],
       rules: {

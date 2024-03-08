@@ -21,7 +21,7 @@ interface UseIntervalProps {
  * force a render, which cleans up the currently set interval and possibly sets
  * a new one.
  */
-export default function useInterval({ fn, delay, key }: UseIntervalProps) {
+export function useInterval({ fn, delay, key }: UseIntervalProps) {
   const callbackRef = useRef<() => void>()
 
   useEffect(() => {

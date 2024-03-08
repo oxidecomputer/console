@@ -50,7 +50,7 @@ SystemLayout.loader = async () => {
   return null
 }
 
-export default function SystemLayout() {
+export function SystemLayout() {
   // Only show silo picker if we are looking at a particular silo. The more
   // robust way of doing this would be to make a separate layout for the
   // silo-specific routes in the route config, but it's overkill considering

@@ -11,7 +11,7 @@ import { Success12Icon } from '@oxide/design-system/icons/react'
 
 import { Button } from '~/ui/lib/Button'
 import { Modal } from '~/ui/lib/Modal'
-import useTimeout from '~/ui/lib/use-timeout'
+import { useTimeout } from '~/ui/lib/use-timeout'
 
 export function EquivalentCliCommand({ command }: { command: string }) {
   const [isOpen, setIsOpen] = useState(false)

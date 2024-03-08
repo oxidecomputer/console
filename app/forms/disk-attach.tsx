@@ -64,5 +64,3 @@ export function AttachDiskSideModalForm({
     </SideModalForm>
   )
 }
-
-export default AttachDiskSideModalForm

@@ -12,7 +12,7 @@ import { useState } from 'react'
 
 import { Copy12Icon, Success12Icon } from '@oxide/design-system/icons/react'
 
-import useTimeout from './use-timeout'
+import { useTimeout } from './use-timeout'
 
 export const CopyToClipboard = ({
   ariaLabel = 'Click to copy this text',

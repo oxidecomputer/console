@@ -19,8 +19,8 @@ import {
 } from '@oxide/api'
 import { Networking24Icon } from '@oxide/design-system/icons/react'
 
-import CreateNetworkInterfaceForm from '~/forms/network-interface-create'
-import EditNetworkInterfaceForm from '~/forms/network-interface-edit'
+import { CreateNetworkInterfaceForm } from '~/forms/network-interface-create'
+import { EditNetworkInterfaceForm } from '~/forms/network-interface-edit'
 import {
   getInstanceSelector,
   useInstanceSelector,

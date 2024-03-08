@@ -61,7 +61,9 @@ interface TerminalProps {
   ws: WebSocket
 }
 
-export const Terminal = ({ ws }: TerminalProps) => {
+// default export is most convenient for dynamic import
+// eslint-disable-next-line import/no-default-export
+export default function Terminal({ ws }: TerminalProps) {
   const [term, setTerm] = useState<XTerm | null>(null)
   const terminalRef = useRef<HTMLDivElement>(null)
 
@@ -114,5 +116,3 @@ export const Terminal = ({ ws }: TerminalProps) => {
     </>
   )
 }
-
-export default Terminal

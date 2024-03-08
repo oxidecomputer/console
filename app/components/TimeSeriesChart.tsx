@@ -120,6 +120,8 @@ function roundUpToDivBy(value: number, divisor: number) {
   return Math.ceil(value / divisor) * divisor
 }
 
+// default export is most convenient for dynamic import
+// eslint-disable-next-line import/no-default-export
 export default function TimeSeriesChart({
   className,
   data: rawData,
