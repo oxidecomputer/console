@@ -44,9 +44,9 @@ export function CreateSSHKeySideModalForm({
 
   return (
     <SideModalForm
-      id="create-ssh-key-form"
       title="Add SSH key"
       form={form}
+      formType="create"
       onDismiss={handleDismiss}
       onSubmit={(body) => createSshKey.mutate({ body })}
       loading={createSshKey.isPending}

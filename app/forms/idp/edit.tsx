@@ -44,8 +44,8 @@ export function EditIdpSideModalForm() {
 
   return (
     <SideModalForm
-      id="edit-idp-form"
       form={form}
+      formType="edit"
       title="Identity provider"
       onDismiss={onDismiss}
       subtitle={

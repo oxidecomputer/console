@@ -72,8 +72,8 @@ export function EditImageSideModalForm({
 
   return (
     <SideModalForm
-      id="edit-project-image-form"
       form={form}
+      formType="edit"
       title={`${type} image`}
       onDismiss={() => navigate(dismissLink)}
       subtitle={

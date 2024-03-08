@@ -49,8 +49,8 @@ export function EditIpPoolSideModalForm() {
 
   return (
     <SideModalForm
-      id="edit-pool-form"
       form={form}
+      formType="edit"
       title="Edit IP pool"
       onDismiss={onDismiss}
       onSubmit={({ name, description }) => {
@@ -58,7 +58,6 @@ export function EditIpPoolSideModalForm() {
       }}
       loading={editPool.isPending}
       submitError={editPool.error}
-      submitLabel="Save changes"
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />

@@ -39,8 +39,8 @@ export function CreateIpPoolSideModalForm() {
 
   return (
     <SideModalForm
-      id="create-pool-form"
       form={form}
+      formType="create"
       title="Create IP pool"
       onDismiss={onDismiss}
       onSubmit={({ name, description }) => {

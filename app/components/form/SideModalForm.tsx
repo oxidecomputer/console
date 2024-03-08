@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useEffect, type ReactNode } from 'react'
+import { useEffect, useId, type ReactNode } from 'react'
 import type { FieldValues, UseFormReturn } from 'react-hook-form'
 import { useNavigationType } from 'react-router-dom'
 
@@ -15,8 +15,8 @@ import { Button } from '~/ui/lib/Button'
 import { SideModal } from '~/ui/lib/SideModal'
 
 type SideModalFormProps<TFieldValues extends FieldValues> = {
-  id: string
   form: UseFormReturn<TFieldValues>
+  formType: 'create' | 'edit'
   /**
    * A function that returns the fields.
    *
@@ -49,8 +49,8 @@ export function useShouldAnimateModal() {
 }
 
 export function SideModalForm<TFieldValues extends FieldValues>({
-  id,
   form,
+  formType,
   children,
   onDismiss,
   submitDisabled,
@@ -61,6 +61,7 @@ export function SideModalForm<TFieldValues extends FieldValues>({
   loading,
   subtitle,
 }: SideModalFormProps<TFieldValues>) {
+  const id = useId()
   const { isSubmitting } = form.formState
 
   useEffect(() => {
@@ -69,6 +70,7 @@ export function SideModalForm<TFieldValues extends FieldValues>({
       form.setError('name', { message: 'Name already exists' })
     }
   }, [submitError, form])
+  const defaultLabel = formType === 'edit' ? 'Save changes' : title
 
   return (
     <SideModal
@@ -106,12 +108,12 @@ export function SideModalForm<TFieldValues extends FieldValues>({
           <Button
             type="submit"
             size="sm"
-            disabled={!!submitDisabled}
+            disabled={!form.formState.isDirty || !!submitDisabled}
             disabledReason={submitDisabled}
             loading={loading || isSubmitting}
             form={id}
           >
-            {submitLabel || title}
+            {submitLabel || defaultLabel}
           </Button>
         )}
       </SideModal.Footer>

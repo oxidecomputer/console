@@ -66,9 +66,9 @@ export function CreateSiloSideModalForm() {
 
   return (
     <SideModalForm
-      id="create-silo-form"
       title="Create silo"
       form={form}
+      formType="create"
       onDismiss={onDismiss}
       onSubmit={({
         adminGroupName,

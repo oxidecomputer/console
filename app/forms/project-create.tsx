@@ -42,8 +42,8 @@ export function CreateProjectSideModalForm() {
 
   return (
     <SideModalForm
-      id="create-project-form"
       form={form}
+      formType="create"
       title="Create project"
       onDismiss={onDismiss}
       onSubmit={({ name, description }) => {

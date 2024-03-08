@@ -55,8 +55,8 @@ export function EditProjectSideModalForm() {
 
   return (
     <SideModalForm
-      id="edit-project-form"
       form={form}
+      formType="edit"
       title="Edit project"
       onDismiss={onDismiss}
       onSubmit={({ name, description }) => {
@@ -64,7 +64,6 @@ export function EditProjectSideModalForm() {
       }}
       loading={editProject.isPending}
       submitError={editProject.error}
-      submitLabel="Save changes"
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />

@@ -52,9 +52,9 @@ export default function CreateNetworkInterfaceForm({
 
   return (
     <SideModalForm
-      id="create-network-interface-form"
       title="Add network interface"
       form={form}
+      formType="create"
       onDismiss={onDismiss}
       onSubmit={onSubmit}
       loading={loading}

@@ -65,9 +65,9 @@ export function EditFirewallRuleForm({
 
   return (
     <SideModalForm
-      id="create-firewall-rule-form"
       title="Edit rule"
       form={form}
+      formType="edit"
       onDismiss={onDismiss}
       onSubmit={(values) => {
         // note different filter logic from create: filter out the rule with the
@@ -86,7 +86,6 @@ export function EditFirewallRuleForm({
       // validateOnBlur
       loading={updateRules.isPending}
       submitError={updateRules.error}
-      submitLabel="Update rule"
     >
       <CommonFields error={updateRules.error} control={form.control} />
     </SideModalForm>

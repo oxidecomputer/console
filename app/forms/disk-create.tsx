@@ -100,9 +100,9 @@ export function CreateDiskSideModalForm({
 
   return (
     <SideModalForm
-      id="create-disk-form"
       title="Create Disk"
       form={form}
+      formType="create"
       onDismiss={() => onDismiss(navigate)}
       onSubmit={({ size, ...rest }) => {
         const body = { size: size * GiB, ...rest }
