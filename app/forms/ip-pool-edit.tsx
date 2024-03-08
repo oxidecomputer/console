@@ -52,7 +52,6 @@ export function EditIpPoolSideModalForm() {
       form={form}
       resourceName="IP pool"
       formType="edit"
-      title="Edit IP pool"
       onDismiss={onDismiss}
       onSubmit={({ name, description }) => {
         editPool.mutate({ path: poolSelector, body: { name, description } })

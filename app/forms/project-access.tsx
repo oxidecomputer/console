@@ -103,7 +103,6 @@ export function ProjectAccessEditUserSideModal({
   return (
     <SideModalForm
       // TODO: show user name in header or SOMEWHERE
-      title="Change user role"
       resourceName="role"
       form={form}
       formType="edit"

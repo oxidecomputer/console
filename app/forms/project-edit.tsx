@@ -55,7 +55,6 @@ export function EditProjectSideModalForm() {
 
   return (
     <SideModalForm
-      title="Edit project"
       resourceName="project"
       form={form}
       formType="edit"

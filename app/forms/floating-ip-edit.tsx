@@ -58,7 +58,6 @@ export function EditFloatingIpSideModalForm() {
       form={form}
       resourceName="floating IP"
       formType="edit"
-      title="Edit floating IP"
       onDismiss={onDismiss}
       onSubmit={({ name, description }) => {
         editFloatingIp.mutate({

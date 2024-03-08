@@ -35,7 +35,6 @@ export function EditSubnetForm({ onDismiss, editing }: EditSubnetFormProps) {
 
   return (
     <SideModalForm
-      title="Edit subnet"
       resourceName="subnet"
       onDismiss={onDismiss}
       form={form}

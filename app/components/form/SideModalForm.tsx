@@ -23,9 +23,11 @@ type ResourceName =
   | 'IP range'
   | 'network interface'
   | 'project'
+  | 'project image'
   | 'role'
   | 'rule'
   | 'silo'
+  | 'silo image'
   | 'snapshot'
   | 'SSH key'
   | 'subnet'
@@ -34,11 +36,13 @@ type ResourceName =
 type CreateFormProps = {
   formType: 'create'
   submitLabel?: string
+  title?: string
 }
 
 type EditFormProps = {
   formType: 'edit'
   submitLabel?: never
+  title?: never
 }
 
 type SideModalFormProps<TFieldValues extends FieldValues> = {
@@ -59,7 +63,6 @@ type SideModalFormProps<TFieldValues extends FieldValues> = {
   /** Error from the API call */
   submitError: ApiError | null
   loading?: boolean
-  title: string
   subtitle?: ReactNode
   onSubmit?: (values: TFieldValues) => void
 } & (CreateFormProps | EditFormProps)
@@ -98,7 +101,7 @@ export function SideModalForm<TFieldValues extends FieldValues>({
     }
   }, [submitError, form])
   const defaultTitle = formType === 'edit' ? `Edit ${resourceName}` : title
-  const defaultLabel = formType === 'edit' ? `Update ${resourceName}` : submitLabel || title
+  const label = formType === 'edit' ? `Update ${resourceName}` : submitLabel || title
 
   return (
     <SideModal
@@ -141,7 +144,7 @@ export function SideModalForm<TFieldValues extends FieldValues>({
             loading={loading || isSubmitting}
             form={id}
           >
-            {submitLabel || defaultLabel}
+            {label}
           </Button>
         )}
       </SideModal.Footer>

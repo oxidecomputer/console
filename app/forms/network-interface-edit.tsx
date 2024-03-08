@@ -42,7 +42,6 @@ export default function EditNetworkInterfaceForm({
 
   return (
     <SideModalForm
-      title="Edit network interface"
       resourceName="network interface"
       form={form}
       formType="edit"
