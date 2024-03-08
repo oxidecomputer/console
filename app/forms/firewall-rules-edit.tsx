@@ -66,6 +66,7 @@ export function EditFirewallRuleForm({
   return (
     <SideModalForm
       title="Edit rule"
+      resourceName="rule"
       form={form}
       formType="edit"
       onDismiss={onDismiss}

@@ -50,6 +50,7 @@ export function EditIpPoolSideModalForm() {
   return (
     <SideModalForm
       form={form}
+      resourceName="IP pool"
       formType="edit"
       title="Edit IP pool"
       onDismiss={onDismiss}

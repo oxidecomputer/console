@@ -62,6 +62,7 @@ export function CreateIdpSideModalForm() {
   return (
     <SideModalForm
       form={form}
+      resourceName="identity provider"
       formType="create"
       title="Create identity provider"
       onDismiss={onDismiss}

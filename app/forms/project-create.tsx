@@ -43,6 +43,7 @@ export function CreateProjectSideModalForm() {
   return (
     <SideModalForm
       form={form}
+      resourceName="project"
       formType="create"
       title="Create project"
       onDismiss={onDismiss}

@@ -14,6 +14,23 @@ import type { ApiError } from '@oxide/api'
 import { Button } from '~/ui/lib/Button'
 import { SideModal } from '~/ui/lib/SideModal'
 
+type ResourceName =
+  | 'disk'
+  | 'floating IP'
+  | 'identity provider'
+  | 'image'
+  | 'IP pool'
+  | 'IP range'
+  | 'network interface'
+  | 'project'
+  | 'role'
+  | 'rule'
+  | 'silo'
+  | 'snapshot'
+  | 'SSH key'
+  | 'subnet'
+  | 'VPC'
+
 type SideModalFormProps<TFieldValues extends FieldValues> = {
   form: UseFormReturn<TFieldValues>
   formType: 'create' | 'edit'
@@ -27,6 +44,7 @@ type SideModalFormProps<TFieldValues extends FieldValues> = {
    */
   children: ReactNode
   onDismiss: () => void
+  resourceName: ResourceName
   /** Must be provided with a reason describing why it's disabled */
   submitDisabled?: string
   /** Error from the API call */
@@ -53,6 +71,7 @@ export function SideModalForm<TFieldValues extends FieldValues>({
   formType,
   children,
   onDismiss,
+  resourceName,
   submitDisabled,
   submitError,
   title,
@@ -70,13 +89,14 @@ export function SideModalForm<TFieldValues extends FieldValues>({
       form.setError('name', { message: 'Name already exists' })
     }
   }, [submitError, form])
-  const defaultLabel = formType === 'edit' ? 'Save changes' : title
+  const defaultTitle = formType === 'edit' ? `Edit ${resourceName}` : title
+  const defaultLabel = formType === 'edit' ? `Update ${resourceName}` : submitLabel || title
 
   return (
     <SideModal
       onDismiss={onDismiss}
       isOpen
-      title={title}
+      title={defaultTitle}
       animate={useShouldAnimateModal()}
       subtitle={subtitle}
       errors={submitError ? [submitError.message] : []}

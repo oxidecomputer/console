@@ -45,6 +45,7 @@ export function CreateSSHKeySideModalForm({
   return (
     <SideModalForm
       title="Add SSH key"
+      resourceName="SSH key"
       form={form}
       formType="create"
       onDismiss={handleDismiss}

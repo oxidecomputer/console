@@ -57,6 +57,7 @@ export function EditVpcSideModalForm() {
   return (
     <SideModalForm
       title="Edit VPC"
+      resourceName="VPC"
       form={form}
       formType="edit"
       onDismiss={onDismiss}

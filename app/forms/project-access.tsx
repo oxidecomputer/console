@@ -42,6 +42,7 @@ export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModa
   return (
     <SideModalForm
       title="Add user or group"
+      resourceName="role"
       form={form}
       formType="create"
       onSubmit={({ identityId, roleName }) => {
@@ -103,6 +104,7 @@ export function ProjectAccessEditUserSideModal({
     <SideModalForm
       // TODO: show user name in header or SOMEWHERE
       title="Change user role"
+      resourceName="role"
       form={form}
       formType="edit"
       onSubmit={({ roleName }) => {

@@ -505,6 +505,7 @@ export function CreateFirewallRuleForm({
   return (
     <SideModalForm
       title="Add firewall rule"
+      resourceName="rule"
       form={form}
       formType="create"
       onDismiss={onDismiss}

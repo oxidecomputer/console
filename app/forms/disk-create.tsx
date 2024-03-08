@@ -101,6 +101,7 @@ export function CreateDiskSideModalForm({
   return (
     <SideModalForm
       title="Create Disk"
+      resourceName="disk"
       form={form}
       formType="create"
       onDismiss={() => onDismiss(navigate)}

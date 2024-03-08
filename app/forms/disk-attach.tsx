@@ -47,6 +47,7 @@ export function AttachDiskSideModalForm({
   return (
     <SideModalForm
       title="Attach Disk"
+      resourceName="disk"
       form={form}
       formType="create"
       onSubmit={onSubmit}

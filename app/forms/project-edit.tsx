@@ -55,9 +55,10 @@ export function EditProjectSideModalForm() {
 
   return (
     <SideModalForm
+      title="Edit project"
+      resourceName="project"
       form={form}
       formType="edit"
-      title="Edit project"
       onDismiss={onDismiss}
       onSubmit={({ name, description }) => {
         editProject.mutate({ path: projectSelector, body: { name, description } })

@@ -39,6 +39,7 @@ export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalPr
 
   return (
     <SideModalForm
+      resourceName="role"
       onDismiss={onDismiss}
       title="Add user or group"
       form={form}
@@ -98,6 +99,7 @@ export function SiloAccessEditUserSideModal({
     <SideModalForm
       // TODO: show user name in header or SOMEWHERE
       title="Change user role"
+      resourceName="role"
       form={form}
       formType="edit"
       onSubmit={({ roleName }) => {
