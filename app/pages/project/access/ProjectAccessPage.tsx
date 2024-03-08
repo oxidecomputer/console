@@ -129,6 +129,10 @@ export function ProjectAccessPage() {
   const columns = useMemo(
     () => [
       colHelper.accessor('name', { header: 'Name', cell: AccessNameCell }),
+      colHelper.accessor('effectiveRole', {
+        header: 'Effective role',
+        cell: RoleBadgeCell,
+      }),
       colHelper.accessor('siloRole', {
         header: 'Silo role',
         cell: RoleBadgeCell,
