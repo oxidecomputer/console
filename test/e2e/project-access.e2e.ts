@@ -83,7 +83,7 @@ test('Click through project access page', async ({ page }) => {
 
   await page.click('role=button[name*="Role"]')
   await page.click('role=option[name="Viewer"]')
-  await page.click('role=button[name="Update role"]')
+  await page.click('role=button[name="Save changes"]')
 
   await expectRowVisible(table, { Name: user4.display_name, 'Project role': 'viewer' })
 

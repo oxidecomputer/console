@@ -108,7 +108,7 @@ export function SideModalForm<TFieldValues extends FieldValues>({
           <Button
             type="submit"
             size="sm"
-            disabled={!form.formState.isDirty || !!submitDisabled}
+            disabled={!!submitDisabled}
             disabledReason={submitDisabled}
             loading={loading || isSubmitting}
             form={id}

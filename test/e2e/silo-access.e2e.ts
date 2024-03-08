@@ -72,7 +72,7 @@ test('Click through silo access page', async ({ page }) => {
 
   await page.click('role=button[name*="Role"]')
   await page.click('role=option[name="Viewer"]')
-  await page.click('role=button[name="Update role"]')
+  await page.click('role=button[name="Save changes"]')
 
   await expectRowVisible(table, { Name: user3.display_name, 'Silo role': 'viewer' })
 
