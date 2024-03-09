@@ -40,10 +40,10 @@ test('Create and edit VPC', async ({ page }) => {
     'role=textbox[name="Name"]',
     'role=textbox[name="Description"]',
     'role=textbox[name="DNS name"]',
-    'role=button[name="Save changes"]',
+    'role=button[name="Update VPC"]',
   ])
   await page.fill('role=textbox[name="Name"]', 'new-vpc')
-  await page.click('role=button[name="Save changes"]')
+  await page.click('role=button[name="Update VPC"]')
 
   // Close toast, it holds up the test for some reason
   await page.click('role=button[name="Dismiss notification"]')

@@ -62,7 +62,6 @@ export function CreateSnapshotSideModalForm() {
 
   return (
     <SideModalForm
-      title="Create Snapshot"
       resourceName="snapshot"
       form={form}
       formType="create"

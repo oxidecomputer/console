@@ -22,11 +22,11 @@ test('can create a floating IP', async ({ page }) => {
   await page.locator('text="New Floating IP"').click()
 
   await expectVisible(page, [
-    'role=heading[name*="Create Floating IP"]',
+    'role=heading[name*="Create floating IP"]',
     'role=textbox[name="Name"]',
     'role=textbox[name="Description"]',
     'role=button[name="Advanced"]',
-    'role=button[name="Create Floating IP"]',
+    'role=button[name="Create floating IP"]',
   ])
 
   const floatingIpName = 'my-floating-ip'
@@ -51,14 +51,14 @@ test('can create a floating IP', async ({ page }) => {
   await poolListbox.click()
   await page.getByRole('option', { name: 'ip-pool-1' }).click()
   await ipTextbox.fill('256.256.256.256')
-  await page.getByRole('button', { name: 'Create Floating IP' }).click()
+  await page.getByRole('button', { name: 'Create floating IP' }).click()
   await expect(page.getByText('Not a valid IP address').first()).toBeVisible()
 
   // correct IP and submit
   await ipTextbox.clear()
   await ipTextbox.fill('12.34.56.78')
 
-  await page.getByRole('button', { name: 'Create Floating IP' }).click()
+  await page.getByRole('button', { name: 'Create floating IP' }).click()
 
   await expect(page).toHaveURL(floatingIpsPage)
 

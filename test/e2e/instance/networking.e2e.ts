@@ -66,7 +66,7 @@ test('Instance networking tab', async ({ page }) => {
   // Make an edit to the network interface
   await clickRowAction(page, 'nic-2', 'Edit')
   await page.fill('role=textbox[name="Name"]', 'nic-3')
-  await page.click('role=button[name="Save changes"]')
+  await page.click('role=button[name="Update network interface"]')
   await expectNotVisible(page, ['role=cell[name="nic-2"]'])
   const nic3 = page.getByRole('cell', { name: 'nic-3' })
   await expect(nic3).toBeVisible()

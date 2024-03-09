@@ -66,7 +66,6 @@ export function CreateSiloSideModalForm() {
 
   return (
     <SideModalForm
-      title="Create silo"
       resourceName="silo"
       form={form}
       formType="create"

@@ -72,7 +72,7 @@ export function CreateImageFromSnapshotSideModalForm() {
       form={form}
       resourceName="image"
       formType="create"
-      title={`Create image from snapshot`}
+      title="Create image from snapshot"
       submitLabel="Create image"
       onDismiss={onDismiss}
       onSubmit={(body) =>

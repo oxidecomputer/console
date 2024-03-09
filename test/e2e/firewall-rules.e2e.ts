@@ -238,7 +238,7 @@ test('can update firewall rule', async ({ page }) => {
   await expect(page.locator('role=cell >> text="edit-filter-subnet"')).toBeVisible()
 
   // submit the form
-  await page.locator('text="Save changes"').click()
+  await page.locator('text="Update rule"').click()
 
   // modal closes again
   await expect(modal).toBeHidden()

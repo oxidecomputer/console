@@ -14,35 +14,14 @@ import type { ApiError } from '@oxide/api'
 import { Button } from '~/ui/lib/Button'
 import { SideModal } from '~/ui/lib/SideModal'
 
-type ResourceName =
-  | 'disk'
-  | 'floating IP'
-  | 'identity provider'
-  | 'image'
-  | 'IP pool'
-  | 'IP range'
-  | 'network interface'
-  | 'project'
-  | 'project image'
-  | 'role'
-  | 'rule'
-  | 'silo'
-  | 'silo image'
-  | 'snapshot'
-  | 'SSH key'
-  | 'subnet'
-  | 'VPC'
-
 type CreateFormProps = {
   formType: 'create'
   submitLabel?: string
-  title?: string
 }
 
 type EditFormProps = {
   formType: 'edit'
   submitLabel?: never
-  title?: never
 }
 
 type SideModalFormProps<TFieldValues extends FieldValues> = {
@@ -57,12 +36,13 @@ type SideModalFormProps<TFieldValues extends FieldValues> = {
    */
   children: ReactNode
   onDismiss: () => void
-  resourceName: ResourceName
+  resourceName: string
   /** Must be provided with a reason describing why it's disabled */
   submitDisabled?: string
   /** Error from the API call */
   submitError: ApiError | null
   loading?: boolean
+  title?: string
   subtitle?: ReactNode
   onSubmit?: (values: TFieldValues) => void
 } & (CreateFormProps | EditFormProps)
@@ -100,8 +80,9 @@ export function SideModalForm<TFieldValues extends FieldValues>({
       form.setError('name', { message: 'Name already exists' })
     }
   }, [submitError, form])
-  const defaultTitle = formType === 'edit' ? `Edit ${resourceName}` : title
-  const label = formType === 'edit' ? `Update ${resourceName}` : submitLabel || title
+  const defaultTitle = title || `${formType === 'edit' ? 'Edit' : 'Create'} ${resourceName}`
+  const label =
+    submitLabel || title || `${formType === 'edit' ? 'Update' : 'Create'} ${resourceName}`
 
   return (
     <SideModal

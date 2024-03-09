@@ -78,12 +78,12 @@ test('Click through project access page', async ({ page }) => {
     .click()
   await page.click('role=menuitem[name="Change role"]')
 
-  await expectVisible(page, ['role=heading[name*="Change user role"]'])
+  await expectVisible(page, ['role=heading[name*="Edit role"]'])
   await expectVisible(page, ['button:has-text("Collaborator")'])
 
   await page.click('role=button[name*="Role"]')
   await page.click('role=option[name="Viewer"]')
-  await page.click('role=button[name="Save changes"]')
+  await page.click('role=button[name="Update role"]')
 
   await expectRowVisible(table, { Name: user4.display_name, 'Project role': 'viewer' })
 

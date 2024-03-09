@@ -39,7 +39,6 @@ export function CreateSubnetForm({ onDismiss }: CreateSubnetFormProps) {
 
   return (
     <SideModalForm
-      title="Create subnet"
       resourceName="subnet"
       form={form}
       formType="create"

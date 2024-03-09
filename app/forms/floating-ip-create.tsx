@@ -83,7 +83,6 @@ export function CreateFloatingIpSideModalForm() {
 
   return (
     <SideModalForm
-      title="Create Floating IP"
       resourceName="floating IP"
       form={form}
       formType="create"
