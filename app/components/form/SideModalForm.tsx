@@ -16,11 +16,13 @@ import { SideModal } from '~/ui/lib/SideModal'
 
 type CreateFormProps = {
   formType: 'create'
+  /** Only needed if you need to override the default button text (`Create ${resourceName}`) */
   submitLabel?: string
 }
 
 type EditFormProps = {
   formType: 'edit'
+  /** Not permitted, as all edit form buttons should read `Update ${resourceName}` */
   submitLabel?: never
 }
 
@@ -42,6 +44,7 @@ type SideModalFormProps<TFieldValues extends FieldValues> = {
   /** Error from the API call */
   submitError: ApiError | null
   loading?: boolean
+  /** Only needed if you need to override the default title (Create/Edit ${resourceName}) */
   title?: string
   subtitle?: ReactNode
   onSubmit?: (values: TFieldValues) => void
