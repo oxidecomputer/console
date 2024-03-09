@@ -65,9 +65,9 @@ export function EditFirewallRuleForm({
 
   return (
     <SideModalForm
-      resourceName="rule"
       form={form}
       formType="edit"
+      resourceName="rule"
       onDismiss={onDismiss}
       onSubmit={(values) => {
         // note different filter logic from create: filter out the rule with the

@@ -103,9 +103,9 @@ export function ProjectAccessEditUserSideModal({
   return (
     <SideModalForm
       // TODO: show user name in header or SOMEWHERE
-      resourceName="role"
       form={form}
       formType="edit"
+      resourceName="role"
       onSubmit={({ roleName }) => {
         updatePolicy.mutate({
           path: { project },

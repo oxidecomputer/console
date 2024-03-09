@@ -39,11 +39,11 @@ export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalPr
 
   return (
     <SideModalForm
-      resourceName="role"
-      onDismiss={onDismiss}
-      title="Add user or group"
       form={form}
       formType="create"
+      resourceName="role"
+      title="Add user or group"
+      onDismiss={onDismiss}
       onSubmit={({ identityId, roleName }) => {
         // can't happen because roleName is validated not to be '', but TS
         // wants to be sure
@@ -98,9 +98,9 @@ export function SiloAccessEditUserSideModal({
   return (
     <SideModalForm
       // TODO: show user name in header or SOMEWHERE
-      resourceName="role"
       form={form}
       formType="edit"
+      resourceName="role"
       onSubmit={({ roleName }) => {
         updatePolicy.mutate({
           body: updateRole({ identityId, identityType, roleName }, policy),

@@ -45,9 +45,9 @@ export function EditIdpSideModalForm() {
   return (
     <SideModalForm
       form={form}
+      formType="edit"
       resourceName="identity provider"
       title="Identity provider"
-      formType="edit"
       onDismiss={onDismiss}
       subtitle={
         <ResourceLabel>

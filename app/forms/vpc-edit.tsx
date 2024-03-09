@@ -56,9 +56,9 @@ export function EditVpcSideModalForm() {
 
   return (
     <SideModalForm
-      resourceName="VPC"
       form={form}
       formType="edit"
+      resourceName="VPC"
       onDismiss={onDismiss}
       onSubmit={({ name, description, dnsName }) => {
         editVpc.mutate({

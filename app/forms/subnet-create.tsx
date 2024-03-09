@@ -39,9 +39,9 @@ export function CreateSubnetForm({ onDismiss }: CreateSubnetFormProps) {
 
   return (
     <SideModalForm
-      resourceName="subnet"
       form={form}
       formType="create"
+      resourceName="subnet"
       onDismiss={onDismiss}
       onSubmit={(body) => createSubnet.mutate({ query: vpcSelector, body })}
       loading={createSubnet.isPending}

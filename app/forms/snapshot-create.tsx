@@ -62,9 +62,9 @@ export function CreateSnapshotSideModalForm() {
 
   return (
     <SideModalForm
-      resourceName="snapshot"
       form={form}
       formType="create"
+      resourceName="snapshot"
       onDismiss={onDismiss}
       onSubmit={(values) => {
         createSnapshot.mutate({ query: projectSelector, body: values })

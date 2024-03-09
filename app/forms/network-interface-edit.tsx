@@ -42,9 +42,9 @@ export default function EditNetworkInterfaceForm({
 
   return (
     <SideModalForm
-      resourceName="network interface"
       form={form}
       formType="edit"
+      resourceName="network interface"
       onDismiss={onDismiss}
       onSubmit={(body) => {
         const interfaceName = defaultValues.name

@@ -44,10 +44,10 @@ export function CreateSSHKeySideModalForm({
 
   return (
     <SideModalForm
-      title="Add SSH key"
-      resourceName="SSH key"
       form={form}
       formType="create"
+      resourceName="SSH key"
+      title="Add SSH key"
       onDismiss={handleDismiss}
       onSubmit={(body) => createSshKey.mutate({ body })}
       loading={createSshKey.isPending}
