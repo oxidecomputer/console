@@ -80,15 +80,12 @@ export function SideModalForm<TFieldValues extends FieldValues>({
       form.setError('name', { message: 'Name already exists' })
     }
   }, [submitError, form])
-  const defaultTitle = title || `${formType === 'edit' ? 'Edit' : 'Create'} ${resourceName}`
-  const label =
-    submitLabel || title || `${formType === 'edit' ? 'Update' : 'Create'} ${resourceName}`
 
   return (
     <SideModal
       onDismiss={onDismiss}
       isOpen
-      title={defaultTitle}
+      title={title || `${formType === 'edit' ? 'Edit' : 'Create'} ${resourceName}`}
       animate={useShouldAnimateModal()}
       subtitle={subtitle}
       errors={submitError ? [submitError.message] : []}
@@ -125,7 +122,9 @@ export function SideModalForm<TFieldValues extends FieldValues>({
             loading={loading || isSubmitting}
             form={id}
           >
-            {label}
+            {submitLabel ||
+              title ||
+              `${formType === 'edit' ? 'Update' : 'Create'} ${resourceName}`}
           </Button>
         )}
       </SideModal.Footer>
