@@ -83,6 +83,7 @@ export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModa
 
 export function ProjectAccessEditUserSideModal({
   onDismiss,
+  name,
   identityId,
   identityType,
   policy,
@@ -106,6 +107,7 @@ export function ProjectAccessEditUserSideModal({
       form={form}
       formType="edit"
       resourceName="role"
+      title={`Change role for ${name}`}
       onSubmit={({ roleName }) => {
         updatePolicy.mutate({
           path: { project },

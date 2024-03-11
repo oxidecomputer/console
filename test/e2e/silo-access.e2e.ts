@@ -67,7 +67,7 @@ test('Click through silo access page', async ({ page }) => {
     .click()
   await page.click('role=menuitem[name="Change role"]')
 
-  await expectVisible(page, ['role=heading[name*="Edit role"]'])
+  await expectVisible(page, ['role=heading[name*="Change role for Jacob Klein"]'])
   await expectVisible(page, ['button:has-text("Collaborator")'])
 
   await page.click('role=button[name*="Role"]')

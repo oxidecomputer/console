@@ -81,6 +81,7 @@ export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalPr
 
 export function SiloAccessEditUserSideModal({
   onDismiss,
+  name,
   identityId,
   identityType,
   policy,
@@ -101,6 +102,7 @@ export function SiloAccessEditUserSideModal({
       form={form}
       formType="edit"
       resourceName="role"
+      title={`Change role for ${name}`}
       onSubmit={({ roleName }) => {
         updatePolicy.mutate({
           body: updateRole({ identityId, identityType, roleName }, policy),

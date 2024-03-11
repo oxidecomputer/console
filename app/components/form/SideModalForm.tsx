@@ -84,6 +84,11 @@ export function SideModalForm<TFieldValues extends FieldValues>({
     }
   }, [submitError, form])
 
+  const label =
+    formType === 'edit'
+      ? `Update ${resourceName}`
+      : submitLabel || title || `Create ${resourceName}`
+
   return (
     <SideModal
       onDismiss={onDismiss}
@@ -125,9 +130,7 @@ export function SideModalForm<TFieldValues extends FieldValues>({
             loading={loading || isSubmitting}
             form={id}
           >
-            {submitLabel ||
-              title ||
-              `${formType === 'edit' ? 'Update' : 'Create'} ${resourceName}`}
+            {label}
           </Button>
         )}
       </SideModal.Footer>
