@@ -83,9 +83,9 @@ export function CreateFloatingIpSideModalForm() {
 
   return (
     <SideModalForm
-      id="create-floating-ip-form"
-      title="Create Floating IP"
       form={form}
+      formType="create"
+      resourceName="floating IP"
       onDismiss={() => navigate(pb.floatingIps(projectSelector))}
       onSubmit={({ ip, ...rest }) => {
         createFloatingIp.mutate({

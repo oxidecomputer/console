@@ -56,9 +56,9 @@ export function EditVpcSideModalForm() {
 
   return (
     <SideModalForm
-      id="edit-vpc-form"
-      title="Edit VPC"
       form={form}
+      formType="edit"
+      resourceName="VPC"
       onDismiss={onDismiss}
       onSubmit={({ name, description, dnsName }) => {
         editVpc.mutate({
@@ -68,7 +68,6 @@ export function EditVpcSideModalForm() {
         })
       }}
       loading={editVpc.isPending}
-      submitLabel="Save changes"
       submitError={editVpc.error}
     >
       <NameField name="name" control={form.control} />

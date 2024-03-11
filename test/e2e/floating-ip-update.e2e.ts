@@ -16,7 +16,7 @@ const expectedFormElements = [
   'role=heading[name*="Edit floating IP"]',
   'role=textbox[name="Name"]',
   'role=textbox[name="Description"]',
-  'role=button[name="Save changes"]',
+  'role=button[name="Update floating IP"]',
 ]
 
 test('can update a floating IP', async ({ page }) => {
@@ -26,7 +26,7 @@ test('can update a floating IP', async ({ page }) => {
 
   await page.fill('input[name=name]', updatedName)
   await page.getByRole('textbox', { name: 'Description' }).fill(updatedDescription)
-  await page.getByRole('button', { name: 'Save changes' }).click()
+  await page.getByRole('button', { name: 'Update floating IP' }).click()
   await expect(page).toHaveURL(floatingIpsPage)
   await expectRowVisible(page.getByRole('table'), {
     name: updatedName,
@@ -41,7 +41,7 @@ test('can update *just* the floating IP description', async ({ page }) => {
   await expectVisible(page, expectedFormElements)
 
   await page.getByRole('textbox', { name: 'Description' }).fill(updatedDescription)
-  await page.getByRole('button', { name: 'Save changes' }).click()
+  await page.getByRole('button', { name: 'Update floating IP' }).click()
   await expect(page).toHaveURL(floatingIpsPage)
   await expectRowVisible(page.getByRole('table'), {
     name: originalName,

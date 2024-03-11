@@ -78,7 +78,7 @@ test('Click through project access page', async ({ page }) => {
     .click()
   await page.click('role=menuitem[name="Change role"]')
 
-  await expectVisible(page, ['role=heading[name*="Change user role"]'])
+  await expectVisible(page, ['role=heading[name*="Change role for Simone de Beauvoir"]'])
   await expectVisible(page, ['button:has-text("Collaborator")'])
 
   await page.click('role=button[name*="Role"]')

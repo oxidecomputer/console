@@ -72,9 +72,9 @@ export function EditImageSideModalForm({
 
   return (
     <SideModalForm
-      id="edit-project-image-form"
       form={form}
-      title={`${type} image`}
+      formType="edit"
+      resourceName={type === 'Project' ? 'project image' : 'silo image'}
       onDismiss={() => navigate(dismissLink)}
       subtitle={
         <ResourceLabel>

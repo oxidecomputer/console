@@ -35,10 +35,10 @@ export function EditSubnetForm({ onDismiss, editing }: EditSubnetFormProps) {
 
   return (
     <SideModalForm
-      id="edit-subnet-form"
-      title="Edit subnet"
-      onDismiss={onDismiss}
       form={form}
+      formType="edit"
+      resourceName="subnet"
+      onDismiss={onDismiss}
       onSubmit={(body) => {
         updateSubnet.mutate({
           path: { subnet: editing.name },
@@ -48,7 +48,6 @@ export function EditSubnetForm({ onDismiss, editing }: EditSubnetFormProps) {
       }}
       loading={updateSubnet.isPending}
       submitError={updateSubnet.error}
-      submitLabel="Update subnet"
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />

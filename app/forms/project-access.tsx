@@ -42,8 +42,9 @@ export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModa
   return (
     <SideModalForm
       title="Add user or group"
-      id="project-access-add-user"
+      resourceName="role"
       form={form}
+      formType="create"
       onSubmit={({ identityId, roleName }) => {
         // can't happen because roleName is validated not to be '', but TS
         // wants to be sure
@@ -82,6 +83,7 @@ export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModa
 
 export function ProjectAccessEditUserSideModal({
   onDismiss,
+  name,
   identityId,
   identityType,
   policy,
@@ -102,9 +104,10 @@ export function ProjectAccessEditUserSideModal({
   return (
     <SideModalForm
       // TODO: show user name in header or SOMEWHERE
-      title="Change user role"
-      id="project-access-edit-user"
       form={form}
+      formType="edit"
+      resourceName="role"
+      title={`Change role for ${name}`}
       onSubmit={({ roleName }) => {
         updatePolicy.mutate({
           path: { project },
@@ -113,7 +116,6 @@ export function ProjectAccessEditUserSideModal({
       }}
       loading={updatePolicy.isPending}
       submitError={updatePolicy.error}
-      submitLabel="Update role"
       onDismiss={onDismiss}
     >
       <ListboxField

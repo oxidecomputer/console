@@ -69,9 +69,10 @@ export function CreateImageFromSnapshotSideModalForm() {
 
   return (
     <SideModalForm
-      id="create-image-from-snapshot-form"
       form={form}
-      title={`Create image from snapshot`}
+      formType="create"
+      resourceName="image"
+      title="Create image from snapshot"
       submitLabel="Create image"
       onDismiss={onDismiss}
       onSubmit={(body) =>

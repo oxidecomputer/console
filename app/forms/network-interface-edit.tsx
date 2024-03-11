@@ -42,9 +42,9 @@ export function EditNetworkInterfaceForm({
 
   return (
     <SideModalForm
-      id="edit-network-interface-form"
-      title="Edit network interface"
       form={form}
+      formType="edit"
+      resourceName="network interface"
       onDismiss={onDismiss}
       onSubmit={(body) => {
         const interfaceName = defaultValues.name
@@ -56,7 +56,6 @@ export function EditNetworkInterfaceForm({
       }}
       loading={editNetworkInterface.isPending}
       submitError={editNetworkInterface.error}
-      submitLabel="Save changes"
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />

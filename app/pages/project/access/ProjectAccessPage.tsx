@@ -198,6 +198,7 @@ export function ProjectAccessPage() {
         <ProjectAccessEditUserSideModal
           onDismiss={() => setEditingUserRow(null)}
           policy={projectPolicy}
+          name={editingUserRow.name}
           identityId={editingUserRow.id}
           identityType={editingUserRow.identityType}
           defaultValues={{ roleName: editingUserRow.projectRole }}

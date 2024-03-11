@@ -172,6 +172,7 @@ export function SiloAccessPage() {
         <SiloAccessEditUserSideModal
           onDismiss={() => setEditingUserRow(null)}
           policy={siloPolicy}
+          name={editingUserRow.name}
           identityId={editingUserRow.id}
           identityType={editingUserRow.identityType}
           defaultValues={{ roleName: editingUserRow.siloRole }}

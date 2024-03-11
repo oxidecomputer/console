@@ -142,7 +142,10 @@ SideModal.Title = ({
   subtitle?: ReactNode
 }) => (
   <div className="items-top mb-4 mt-8">
-    <h2 className="flex w-full items-center justify-between pr-8 text-sans-2xl" id={id}>
+    <h2
+      className="flex w-full items-center justify-between break-words pr-8 text-sans-2xl"
+      id={id}
+    >
       {title}
     </h2>
     {subtitle}

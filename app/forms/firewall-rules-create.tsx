@@ -504,9 +504,10 @@ export function CreateFirewallRuleForm({
 
   return (
     <SideModalForm
-      id="create-firewall-rule-form"
-      title="Add firewall rule"
       form={form}
+      formType="create"
+      resourceName="rule"
+      title="Add firewall rule"
       onDismiss={onDismiss}
       onSubmit={(values) => {
         // TODO: this silently overwrites existing rules with the current name.

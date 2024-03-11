@@ -47,8 +47,8 @@ export function CreateVpcSideModalForm() {
   return (
     <SideModalForm
       form={form}
-      id="create-vpc-form"
-      title="Create VPC"
+      formType="create"
+      resourceName="VPC"
       onSubmit={(values) => createVpc.mutate({ query: projectSelector, body: values })}
       onDismiss={() => navigate(pb.vpcs(projectSelector))}
       loading={createVpc.isPending}

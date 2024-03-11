@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useEffect, type ReactNode } from 'react'
+import { useEffect, useId, type ReactNode } from 'react'
 import type { FieldValues, UseFormReturn } from 'react-hook-form'
 import { useNavigationType } from 'react-router-dom'
 
@@ -14,8 +14,19 @@ import type { ApiError } from '@oxide/api'
 import { Button } from '~/ui/lib/Button'
 import { SideModal } from '~/ui/lib/SideModal'
 
+type CreateFormProps = {
+  formType: 'create'
+  /** Only needed if you need to override the default button text (`Create ${resourceName}`) */
+  submitLabel?: string
+}
+
+type EditFormProps = {
+  formType: 'edit'
+  /** Not permitted, as all edit form buttons should read `Update ${resourceName}` */
+  submitLabel?: never
+}
+
 type SideModalFormProps<TFieldValues extends FieldValues> = {
-  id: string
   form: UseFormReturn<TFieldValues>
   /**
    * A function that returns the fields.
@@ -27,16 +38,17 @@ type SideModalFormProps<TFieldValues extends FieldValues> = {
    */
   children: ReactNode
   onDismiss: () => void
+  resourceName: string
   /** Must be provided with a reason describing why it's disabled */
   submitDisabled?: string
   /** Error from the API call */
   submitError: ApiError | null
   loading?: boolean
-  title: string
+  /** Only needed if you need to override the default title (Create/Edit ${resourceName}) */
+  title?: string
   subtitle?: ReactNode
   onSubmit?: (values: TFieldValues) => void
-  submitLabel?: string
-}
+} & (CreateFormProps | EditFormProps)
 
 /**
  * Only animate the modal in when we're navigating by a client-side click.
@@ -49,10 +61,11 @@ export function useShouldAnimateModal() {
 }
 
 export function SideModalForm<TFieldValues extends FieldValues>({
-  id,
   form,
+  formType,
   children,
   onDismiss,
+  resourceName,
   submitDisabled,
   submitError,
   title,
@@ -61,6 +74,7 @@ export function SideModalForm<TFieldValues extends FieldValues>({
   loading,
   subtitle,
 }: SideModalFormProps<TFieldValues>) {
+  const id = useId()
   const { isSubmitting } = form.formState
 
   useEffect(() => {
@@ -70,11 +84,16 @@ export function SideModalForm<TFieldValues extends FieldValues>({
     }
   }, [submitError, form])
 
+  const label =
+    formType === 'edit'
+      ? `Update ${resourceName}`
+      : submitLabel || title || `Create ${resourceName}`
+
   return (
     <SideModal
       onDismiss={onDismiss}
       isOpen
-      title={title}
+      title={title || `${formType === 'edit' ? 'Edit' : 'Create'} ${resourceName}`}
       animate={useShouldAnimateModal()}
       subtitle={subtitle}
       errors={submitError ? [submitError.message] : []}
@@ -111,7 +130,7 @@ export function SideModalForm<TFieldValues extends FieldValues>({
             loading={loading || isSubmitting}
             form={id}
           >
-            {submitLabel || title}
+            {label}
           </Button>
         )}
       </SideModal.Footer>

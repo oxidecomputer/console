@@ -77,8 +77,9 @@ export function IpPoolAddRangeSideModalForm() {
 
   return (
     <SideModalForm
-      id="add-ip-range-form"
       form={form}
+      formType="create"
+      resourceName="IP range"
       title="Add IP range"
       onDismiss={onDismiss}
       onSubmit={(body) => addRange.mutate({ path: { pool }, body })}

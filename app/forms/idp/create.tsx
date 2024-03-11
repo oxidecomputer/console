@@ -61,9 +61,9 @@ export function CreateIdpSideModalForm() {
 
   return (
     <SideModalForm
-      id="create-idp-form"
       form={form}
-      title="Create identity provider"
+      formType="create"
+      resourceName="identity provider"
       onDismiss={onDismiss}
       onSubmit={async ({
         signingKeypair,

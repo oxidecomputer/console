@@ -52,9 +52,10 @@ export function CreateNetworkInterfaceForm({
 
   return (
     <SideModalForm
-      id="create-network-interface-form"
-      title="Add network interface"
       form={form}
+      formType="create"
+      resourceName="network interface"
+      title="Add network interface"
       onDismiss={onDismiss}
       onSubmit={onSubmit}
       loading={loading}

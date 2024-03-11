@@ -55,16 +55,15 @@ export function EditProjectSideModalForm() {
 
   return (
     <SideModalForm
-      id="edit-project-form"
       form={form}
-      title="Edit project"
+      formType="edit"
+      resourceName="project"
       onDismiss={onDismiss}
       onSubmit={({ name, description }) => {
         editProject.mutate({ path: projectSelector, body: { name, description } })
       }}
       loading={editProject.isPending}
       submitError={editProject.error}
-      submitLabel="Save changes"
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />

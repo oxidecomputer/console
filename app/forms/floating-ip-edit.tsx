@@ -55,9 +55,9 @@ export function EditFloatingIpSideModalForm() {
 
   return (
     <SideModalForm
-      id="edit-floating-ip-form"
       form={form}
-      title="Edit floating IP"
+      formType="edit"
+      resourceName="floating IP"
       onDismiss={onDismiss}
       onSubmit={({ name, description }) => {
         editFloatingIp.mutate({
@@ -68,7 +68,6 @@ export function EditFloatingIpSideModalForm() {
       }}
       loading={editFloatingIp.isPending}
       submitError={editFloatingIp.error}
-      submitLabel="Save changes"
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />

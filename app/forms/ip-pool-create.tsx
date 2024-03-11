@@ -39,9 +39,9 @@ export function CreateIpPoolSideModalForm() {
 
   return (
     <SideModalForm
-      id="create-pool-form"
       form={form}
-      title="Create IP pool"
+      formType="create"
+      resourceName="IP pool"
       onDismiss={onDismiss}
       onSubmit={({ name, description }) => {
         createPool.mutate({ body: { name, description } })

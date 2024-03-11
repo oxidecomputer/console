@@ -471,8 +471,9 @@ export function CreateImageSideModalForm() {
 
   return (
     <SideModalForm
-      id="upload-image-form"
       form={form}
+      formType="create"
+      resourceName="image"
       title="Upload image"
       onDismiss={backToImages}
       onSubmit={async (values) => {

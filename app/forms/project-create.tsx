@@ -42,9 +42,9 @@ export function CreateProjectSideModalForm() {
 
   return (
     <SideModalForm
-      id="create-project-form"
       form={form}
-      title="Create project"
+      formType="create"
+      resourceName="project"
       onDismiss={onDismiss}
       onSubmit={({ name, description }) => {
         createProject.mutate({ body: { name, description } })
