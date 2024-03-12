@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
-import { NavLink } from 'react-router-dom'
+import { NavLink, useLocation } from 'react-router-dom'
 
 import { Action16Icon, Document16Icon } from '@oxide/design-system/icons/react'
 
@@ -88,20 +88,28 @@ export const NavLinkItem = (props: {
   children: React.ReactNode
   end?: boolean
   disabled?: boolean
-}) => (
-  <li>
-    <NavLink
-      to={props.to}
-      className={({ isActive }) =>
-        cn(linkStyles, {
-          'text-accent !bg-accent-secondary hover:!bg-accent-secondary-hover svg:!text-accent-tertiary':
-            isActive,
-          'pointer-events-none text-disabled': props.disabled,
-        })
-      }
-      end={props.end}
-    >
-      {props.children}
-    </NavLink>
-  </li>
-)
+}) => {
+  // "New" resource create forms have a url that doesn't match the top-level resource name, so `isActive` won't ever fire as true.
+  // Determine which resource in the Sidebar should be highlighted as active when on a create-form page.
+  const location = useLocation()
+  const resourcePath = location.pathname.split('/')[3]
+  const resourceName = resourcePath.includes('-new') ? resourcePath.replace('-new', '') : ''
+  const isLinkToThisResource = resourceName.length > 0 && props.to.includes(resourceName)
+  return (
+    <li>
+      <NavLink
+        to={props.to}
+        className={({ isActive }) =>
+          cn(linkStyles, {
+            'text-accent !bg-accent-secondary hover:!bg-accent-secondary-hover svg:!text-accent-tertiary':
+              isActive || isLinkToThisResource,
+            'pointer-events-none text-disabled': props.disabled,
+          })
+        }
+        end={props.end}
+      >
+        {props.children}
+      </NavLink>
+    </li>
+  )
+}
