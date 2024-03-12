@@ -44,9 +44,27 @@ const EmptyState = () => (
 )
 
 DisksPage.loader = async ({ params }: LoaderFunctionArgs) => {
-  await apiQueryClient.prefetchQuery('diskList', {
-    query: { ...getProjectSelector(params), limit: 25 },
-  })
+  const { project } = getProjectSelector(params)
+  await Promise.all([
+    apiQueryClient.prefetchQuery('diskList', {
+      query: { project, limit: 25 },
+    }),
+
+    // fetch instances and preload into RQ cache so fetches by ID in
+    // InstanceLinkCell can be mostly instant yet gracefully fall back to
+    // fetching individually if we don't fetch them all here
+    apiQueryClient
+      .fetchQuery('instanceList', { query: { project, limit: 200 } })
+      .then((instances) => {
+        for (const instance of instances.items) {
+          apiQueryClient.setQueryData(
+            'instanceView',
+            { path: { instance: instance.id } },
+            instance
+          )
+        }
+      }),
+  ])
   return null
 }
 
