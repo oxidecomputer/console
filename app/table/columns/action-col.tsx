@@ -6,14 +6,12 @@
  * Copyright Oxide Computer Company
  */
 import type { ColumnDef } from '@tanstack/react-table'
-import cn from 'classnames'
 
 import { More12Icon } from '@oxide/design-system/icons/react'
 
+import { MoreActionsMenuItem } from '~/components/MoreActionsMenuItem'
+import { MoreActionsTrigger } from '~/components/MoreActionsTrigger'
 import { DropdownMenu } from '~/ui/lib/DropdownMenu'
-import { Tooltip } from '~/ui/lib/Tooltip'
-import { Wrap } from '~/ui/util/wrap'
-import { kebabCase } from '~/util/str'
 
 export type MakeActions<Item> = (item: Item) => Array<MenuAction>
 
@@ -39,10 +37,23 @@ export const getActionsCol = <TData extends { id?: string }>(
       // TODO: control flow here has always confused me, would like to straighten it out
       const actions = makeActions(row.original)
       const id = row.original.id
+      if (id) {
+        actions.splice(0, 0, {
+          label: 'Copy ID!!!',
+          onActivate: () => {
+            window.navigator.clipboard.writeText(id)
+          },
+        })
+      }
       return (
         <DropdownMenu.Root>
           {/* TODO: This name should not suck; future us, make it so! */}
           {/* stopPropagation prevents clicks from toggling row select in a single select table */}
+          <MoreActionsTrigger
+            label="Row actions"
+            inTable
+            onClick={(e) => e.stopPropagation()}
+          />
           <DropdownMenu.Trigger
             className="flex h-full w-10 items-center justify-center"
             aria-label="Row actions"
@@ -53,34 +64,16 @@ export const getActionsCol = <TData extends { id?: string }>(
           {/* portal fixes mysterious z-index issue where menu is behind button */}
           <DropdownMenu.Portal>
             <DropdownMenu.Content align="end" className="-mt-3 mr-2">
-              {id && (
-                <DropdownMenu.Item
-                  onSelect={() => {
-                    window.navigator.clipboard.writeText(id)
-                  }}
-                >
-                  Copy ID
-                </DropdownMenu.Item>
-              )}
               {actions.map((action) => {
                 // TODO: Tooltip on disabled button broke, probably due to portal
                 return (
-                  <Wrap
-                    when={!!action.disabled}
-                    with={<Tooltip content={action.disabled} />}
-                    key={kebabCase(`action-${action.label}`)}
-                  >
-                    <DropdownMenu.Item
-                      className={cn(action.className, {
-                        destructive:
-                          action.label.toLowerCase() === 'delete' && !action.disabled,
-                      })}
-                      onSelect={action.onActivate}
-                      disabled={!!action.disabled}
-                    >
-                      {action.label}
-                    </DropdownMenu.Item>
-                  </Wrap>
+                  <MoreActionsMenuItem
+                    key={action.label}
+                    className={action.className}
+                    disabled={!!action.disabled}
+                    label={action.label}
+                    onActivate={action.onActivate}
+                  />
                 )
               })}
             </DropdownMenu.Content>
