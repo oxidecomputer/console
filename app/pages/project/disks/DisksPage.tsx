@@ -12,6 +12,7 @@ import {
   diskCan,
   genName,
   useApiMutation,
+  useApiQuery,
   useApiQueryClient,
   type Disk,
 } from '@oxide/api'
@@ -21,6 +22,7 @@ import { DiskStatusBadge } from '~/components/StatusBadge'
 import { getProjectSelector, useProjectSelector, useToast } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { DateCell } from '~/table/cells/DateCell'
+import { EmptyCell, SkeletonCell } from '~/table/cells/EmptyCell'
 import { InstanceLinkCell } from '~/table/cells/InstanceLinkCell'
 import { SizeCell } from '~/table/cells/SizeCell'
 import type { MenuAction } from '~/table/columns/action-col'
@@ -48,6 +50,28 @@ DisksPage.loader = async ({ params }: LoaderFunctionArgs) => {
     query: { ...getProjectSelector(params), limit: 25 },
   })
   return null
+}
+
+function DiskSource({
+  value: { imageId, snapshotId },
+}: {
+  value: { imageId?: string; snapshotId?: string }
+}) {
+  const image = useApiQuery(
+    'imageView',
+    { path: { image: imageId! } },
+    { enabled: !!imageId }
+  )
+  const snapshot = useApiQuery(
+    'snapshotView',
+    { path: { snapshot: snapshotId! } },
+    { enabled: !!snapshotId }
+  )
+  if ((imageId && image.isPending) || (snapshotId && snapshot.isPending)) {
+    return <SkeletonCell />
+  }
+
+  return image.data?.name || snapshot.data?.name || <EmptyCell />
 }
 
 export function DisksPage() {
@@ -135,6 +159,12 @@ export function DisksPage() {
           cell={InstanceLinkCell}
         />
         <Column header="Size" accessor="size" cell={SizeCell} />
+        <Column
+          id="source"
+          header="Source"
+          accessor={(disk) => ({ imageId: disk.imageId, snapshotId: disk.snapshotId })}
+          cell={DiskSource}
+        />
         <Column
           id="status"
           accessor={(row) => row.state.state}

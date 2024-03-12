@@ -14,10 +14,6 @@ import { disks } from './disk'
 import type { Json } from './json-type'
 import { project } from './project'
 
-const generatedSnapshots: Json<Snapshot>[] = Array.from({ length: 25 }, (_, i) =>
-  generateSnapshot(i)
-)
-
 export const snapshots: Json<Snapshot>[] = [
   {
     id: 'ab805e59-b6b8-4c73-8081-6a224b6b0698',
@@ -74,19 +70,15 @@ export const snapshots: Json<Snapshot>[] = [
     disk_id: 'a6f61e3f-25c1-49b0-a013-ac6a2d98a948',
     state: 'ready',
   },
-  ...generatedSnapshots,
-]
-
-function generateSnapshot(index: number): Json<Snapshot> {
-  return {
+  ...Array.from({ length: 25 }, (_, i) => ({
     id: uuid(),
-    name: `disk-1-snapshot-${index + 5}`,
+    name: `disk-1-snapshot-${i + 5}`,
     description: '',
     project_id: project.id,
     time_created: new Date().toISOString(),
     time_modified: new Date().toISOString(),
-    size: 1024 * (index + 1),
+    size: 1024 * (i + 1),
     disk_id: disks[0].id,
-    state: 'ready',
-  }
-}
+    state: 'ready' as const,
+  })),
+]
