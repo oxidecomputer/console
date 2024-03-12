@@ -54,6 +54,15 @@ IpPoolPage.loader = async function ({ params }: LoaderFunctionArgs) {
       path: { pool },
       query: { limit: 25 }, // match QueryTable
     }),
+
+    // fetch silos and preload into RQ cache so fetches by ID in SiloNameFromId
+    // can be mostly instant yet gracefully fall back to fetching individually
+    // if we don't fetch them all here
+    apiQueryClient.fetchQuery('siloList', { query: { limit: 200 } }).then((silos) => {
+      for (const silo of silos.items) {
+        apiQueryClient.setQueryData('siloView', { path: { silo: silo.id } }, silo)
+      }
+    }),
   ])
   return null
 }

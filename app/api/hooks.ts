@@ -219,6 +219,11 @@ export const wrapQueryClient = <A extends ApiClient>(api: A, queryClient: QueryC
     queryClient.invalidateQueries({ queryKey: [method], ...filters }),
   setQueryData: <M extends keyof A>(method: M, params: Params<A[M]>, data: Result<A[M]>) =>
     queryClient.setQueryData([method, params], data),
+  setQueryDataErrorsAllowed: <M extends keyof A>(
+    method: M,
+    params: Params<A[M]>,
+    data: ErrorsAllowed<Result<A[M]>, ApiError>
+  ) => queryClient.setQueryData([method, params, ERRORS_ALLOWED], data),
   fetchQuery: <M extends string & keyof A>(
     method: M,
     params: Params<A[M]>,
