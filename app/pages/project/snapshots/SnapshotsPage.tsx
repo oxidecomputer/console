@@ -50,9 +50,32 @@ const EmptyState = () => (
 )
 
 SnapshotsPage.loader = async ({ params }: LoaderFunctionArgs) => {
-  await apiQueryClient.prefetchQuery('snapshotList', {
-    query: { ...getProjectSelector(params), limit: 25 },
-  })
+  const { project } = getProjectSelector(params)
+  await Promise.all([
+    apiQueryClient.prefetchQuery('snapshotList', {
+      query: { project, limit: 25 },
+    }),
+
+    // Fetch disks and preload into RQ cache so fetches by ID in DiskNameFromId
+    // can be mostly instant yet gracefully fall back to fetching individually
+    // if we don't fetch them all here. This has to be the *ErrorsAllowed
+    // version of setQueryData because the disk fetchs are also the errors
+    // allowed version. If we use regular setQueryData, nothing blows up; the
+    // data is just never found in the cache. Note that the disks that error
+    // (delete disks) are not prefetched here because they are (obviously) not
+    // in the disk list response.
+    apiQueryClient
+      .fetchQuery('diskList', { query: { project, limit: 200 } })
+      .then((disks) => {
+        for (const disk of disks.items) {
+          apiQueryClient.setQueryDataErrorsAllowed(
+            'diskView',
+            { path: { disk: disk.id } },
+            { type: 'success', data: disk }
+          )
+        }
+      }),
+  ])
   return null
 }
 
