@@ -92,7 +92,7 @@ export const NavLinkItem = (props: {
   // "New" resource create forms have a url that doesn't match the top-level resource name, so `isActive` won't ever fire as true.
   // Determine which resource in the Sidebar should be highlighted as active when on a create-form page.
   const location = useLocation()
-  const resourcePath = location.pathname.split('/')[3]
+  const resourcePath = location.pathname.split('/').pop()
   const resourceName = resourcePath?.includes('-new')
     ? resourcePath.replace('-new', '')
     : ''
