@@ -93,7 +93,9 @@ export const NavLinkItem = (props: {
   // Determine which resource in the Sidebar should be highlighted as active when on a create-form page.
   const location = useLocation()
   const resourcePath = location.pathname.split('/')[3]
-  const resourceName = resourcePath.includes('-new') ? resourcePath.replace('-new', '') : ''
+  const resourceName = resourcePath?.includes('-new')
+    ? resourcePath.replace('-new', '')
+    : ''
   const isLinkToThisResource = resourceName.length > 0 && props.to.includes(resourceName)
   return (
     <li>
