@@ -14,9 +14,9 @@ import { Tooltip } from '~/ui/lib/Tooltip'
 import { getBadgeColor } from '~/util/access'
 
 /**
- * Highlight the "effective" role in green, others gray.
+ * Highlight the "effective" role, providing a tooltip for the alternate role.
  *
- * Example: User has collab on org and viewer on project. Collab supersedes
+ * Example: User has collab on silo and viewer on project. Collab supersedes
  * because it is the "stronger" role, i.e., it strictly includes the perms on
  * viewer. So collab is highlighted as the "effective" role.
  */
@@ -29,7 +29,7 @@ export const AccessRolesCell = <
 
   const siloRole = info.row.original.siloRole
   const formattedSiloRole = siloRole ? (
-    <Badge color={getBadgeColor(siloRole)}>{`org.${siloRole}`}</Badge>
+    <Badge color={getBadgeColor(siloRole)}>{`silo.${siloRole}`}</Badge>
   ) : undefined
 
   const projectRole = info.row.original.projectRole
