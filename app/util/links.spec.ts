@@ -7,7 +7,7 @@
  */
 import { describe, expect, test } from 'vitest'
 
-import { links } from './links'
+import { isRootResourceLink, links } from './links'
 
 describe('check links are accessible', () => {
   for (const [key, url] of Object.entries(links)) {
@@ -19,11 +19,17 @@ describe('check links are accessible', () => {
   }
 })
 
-// describe('check useIsNewResourcePage to evaluate Sidebar navigation links', () => {
-//   test('should return false for non-resource creation pages', () => {
-//     const fakeURL = new URL('https://oxide.computer/projects/mock-project/instances-new')
-//     vi.spyOn(window, 'location', 'get').mockReturnValue(fakeURL)
-//     const isNewResourcePage = useIsNewResourcePage('projects/mock-project/instances')
-//     expect(isNewResourcePage).toEqual(true)
-//   })
-// })
+describe('check isRootResourceLink to evaluate Sidebar navigation links', () => {
+  test('should return true for resource creation pages', () => {
+    const navUrl = 'projects/mock-project/instances'
+    const locationPathname = 'projects/mock-project/instances-new'
+    const isLinkToRootResource = isRootResourceLink(navUrl, locationPathname)
+    expect(isLinkToRootResource).toEqual(true)
+  })
+  test('should return false for non-resource creation pages', () => {
+    const navUrl = 'projects/mock-project/disks'
+    const locationPathname = 'projects/mock-project/instances-new'
+    const isLinkToRootResource = isRootResourceLink(navUrl, locationPathname)
+    expect(isLinkToRootResource).toEqual(false)
+  })
+})

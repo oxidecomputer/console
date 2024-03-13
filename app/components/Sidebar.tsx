@@ -6,14 +6,14 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
-import { NavLink } from 'react-router-dom'
+import { NavLink, useLocation } from 'react-router-dom'
 
 import { Action16Icon, Document16Icon } from '@oxide/design-system/icons/react'
 
 import { openQuickActions } from '~/hooks'
 import { Button } from '~/ui/lib/Button'
 import { Truncate } from '~/ui/lib/Truncate'
-import { useIsNewResourcePage } from '~/util/links'
+import { isRootResourceLink } from '~/util/links'
 
 const linkStyles =
   'flex h-7 items-center rounded px-2 text-sans-md hover:bg-hover svg:mr-2 svg:text-quinary text-secondary'
@@ -90,7 +90,8 @@ export const NavLinkItem = (props: {
   end?: boolean
   disabled?: boolean
 }) => {
-  const isLinkToThisResource = useIsNewResourcePage(props.to)
+  const location = useLocation()
+  const isLinkToRootResource = isRootResourceLink(props.to, location.pathname)
   return (
     <li>
       <NavLink
@@ -98,7 +99,7 @@ export const NavLinkItem = (props: {
         className={({ isActive }) =>
           cn(linkStyles, {
             'text-accent !bg-accent-secondary hover:!bg-accent-secondary-hover svg:!text-accent-tertiary':
-              isActive || isLinkToThisResource,
+              isActive || isLinkToRootResource,
             'pointer-events-none text-disabled': props.disabled,
           })
         }

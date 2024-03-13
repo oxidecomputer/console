@@ -1,5 +1,3 @@
-import { useLocation } from 'react-router-dom'
-
 /*
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -16,7 +14,5 @@ export const links: Record<string, string> = {
 // Resource creation pages (e.g. /instances-new) don't have a route that matches the top-level resource name,
 // so `isActive` won't ever fire as true, and the Sidebar won't highlight the correct resource.
 // Determine, for a given Sidebar URL, whether it's the matching top-level resource URL for the current page.
-export const useIsNewResourcePage = (resource: string): boolean => {
-  const location = useLocation()
-  return location.pathname === `${resource}-new`
-}
+export const isRootResourceLink = (navUrl: string, locationPathname: string): boolean =>
+  locationPathname === `${navUrl}-new`
