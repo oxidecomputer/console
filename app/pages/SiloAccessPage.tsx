@@ -22,7 +22,6 @@ import {
 } from '@oxide/api'
 import { Access24Icon } from '@oxide/design-system/icons/react'
 
-import { AccessNameCell } from '~/components/AccessNameCell'
 import { HL } from '~/components/HL'
 import { RoleBadgeCell } from '~/components/RoleBadgeCell'
 import {
@@ -112,7 +111,7 @@ export function SiloAccessPage() {
 
   const columns = useMemo(
     () => [
-      colHelper.accessor('name', { header: 'Name', cell: AccessNameCell }),
+      colHelper.accessor('name', { header: 'Name' }),
       colHelper.accessor('identityType', {
         header: 'Type',
         cell: (props) => accessTypeLabel(props.getValue()),
