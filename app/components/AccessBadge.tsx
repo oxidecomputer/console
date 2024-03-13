@@ -16,12 +16,9 @@ export const AccessBadge = ({
 }: {
   role: RoleKey
   labelPrefix?: string
-}) => {
-  const badgeColor = getBadgeColor(role)
-  return (
-    <Badge color={badgeColor}>
-      {labelPrefix}
-      {role}
-    </Badge>
-  )
-}
+}) => (
+  <Badge color={getBadgeColor(role)}>
+    {labelPrefix}
+    {role}
+  </Badge>
+)
