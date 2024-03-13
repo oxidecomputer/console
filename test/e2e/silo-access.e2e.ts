@@ -20,11 +20,13 @@ test('Click through silo access page', async ({ page }) => {
   await expectVisible(page, ['role=heading[name*="Access & IAM"]'])
   await expectRowVisible(table, {
     // no space because expectRowVisible uses textContent, not accessible name
-    Name: 'real-estate-devsGroup',
+    Name: 'real-estate-devs',
+    Type: 'Group',
     'Silo role': 'collaborator',
   })
   await expectRowVisible(table, {
     Name: 'Hannah Arendt',
+    Type: 'User',
     'Silo role': 'admin',
   })
   await expectNotVisible(page, [`role=cell[name="${user4.display_name}"]`])

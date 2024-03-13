@@ -7,9 +7,14 @@
  */
 import type { CellContext } from '@tanstack/react-table'
 
+import type { IdentityType } from '~/api'
+
 /**
  * Display the user or group name. If the row is for a group, add a GROUP badge.
  */
-export const AccessNameCell = <RowData extends { name: string }>(
+export const AccessTypeCell = <RowData extends { identityType: IdentityType }>(
   info: CellContext<RowData, string>
-) => <span>{info.getValue()}</span>
+) => {
+  const identityType = info.row.original.identityType
+  return <span>{identityType === 'silo_group' ? 'Group' : 'User'}</span>
+}
