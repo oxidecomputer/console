@@ -13,7 +13,6 @@ import { Action16Icon, Document16Icon } from '@oxide/design-system/icons/react'
 import { openQuickActions } from '~/hooks'
 import { Button } from '~/ui/lib/Button'
 import { Truncate } from '~/ui/lib/Truncate'
-import { isRootResourceLink } from '~/util/links'
 
 const linkStyles =
   'flex h-7 items-center rounded px-2 text-sans-md hover:bg-hover svg:mr-2 svg:text-quinary text-secondary'
@@ -90,8 +89,8 @@ export const NavLinkItem = (props: {
   end?: boolean
   disabled?: boolean
 }) => {
-  const location = useLocation()
-  const isLinkToRootResource = isRootResourceLink(props.to, location.pathname)
+  // If the current page's URL matches the create form for this NavLink resource, we want to highlight the NavLink in the sidebar.
+  const currentPathIsCreateForm = useLocation().pathname === `${props.to}-new`
   return (
     <li>
       <NavLink
@@ -99,7 +98,7 @@ export const NavLinkItem = (props: {
         className={({ isActive }) =>
           cn(linkStyles, {
             'text-accent !bg-accent-secondary hover:!bg-accent-secondary-hover svg:!text-accent-tertiary':
-              isActive || isLinkToRootResource,
+              isActive || currentPathIsCreateForm,
             'pointer-events-none text-disabled': props.disabled,
           })
         }

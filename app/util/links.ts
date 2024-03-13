@@ -10,9 +10,3 @@ export const links: Record<string, string> = {
   cloudInitExamples: 'https://cloudinit.readthedocs.io/en/latest/reference/examples.html',
   ipPoolsDocs: 'https://docs.oxide.computer/guides/operator/ip-pool-management',
 }
-
-// Resource creation pages (e.g. /instances-new) don't have a route that matches the top-level resource name,
-// so `isActive` won't ever fire as true, and the Sidebar won't highlight the correct resource.
-// Determine, for a given Sidebar URL, whether it's the matching top-level resource URL for the current page.
-export const isRootResourceLink = (navUrl: string, locationPathname: string): boolean =>
-  locationPathname === `${navUrl}-new`
