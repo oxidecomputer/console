@@ -25,7 +25,7 @@ import { Access24Icon } from '@oxide/design-system/icons/react'
 import { AccessNameCell } from '~/components/AccessNameCell'
 import { AccessTypeCell } from '~/components/AccessTypeCell'
 import { HL } from '~/components/HL'
-import { RoleBadgeCell } from '~/components/RoleBadgeCell'
+import { SiloAccessRoleCell } from '~/components/SiloAccessRoleCell'
 import {
   SiloAccessAddUserSideModal,
   SiloAccessEditUserSideModal,
@@ -114,10 +114,7 @@ export function SiloAccessPage() {
     () => [
       colHelper.accessor('name', { header: 'Name', cell: AccessNameCell }),
       colHelper.accessor('identityType', { header: 'Type', cell: AccessTypeCell }),
-      colHelper.accessor('siloRole', {
-        header: 'Silo role',
-        cell: RoleBadgeCell,
-      }),
+      colHelper.accessor('siloRole', { header: 'Role', cell: SiloAccessRoleCell }),
       // TODO: tooltips on disabled elements explaining why
       getActionsCol((row: UserRow) => [
         {

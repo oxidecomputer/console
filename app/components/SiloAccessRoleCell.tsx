@@ -14,9 +14,9 @@ import { AccessBadge } from './AccessBadge'
 /**
  * Show the silo role for a user or group, formatted in a badge.
  */
-export const RoleBadgeCell = <RowData extends { effectiveRole: RoleKey }>(
+export const SiloAccessRoleCell = <RowData extends { effectiveRole: RoleKey }>(
   info: CellContext<RowData, RoleKey>
 ) => {
   const cellRole = info.getValue()
-  return cellRole ? <AccessBadge role={cellRole} /> : null
+  return cellRole ? <AccessBadge role={cellRole} labelPrefix="silo." /> : null
 }

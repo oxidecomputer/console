@@ -10,15 +10,8 @@ import type { RoleKey } from '~/api'
 import { Badge } from '~/ui/lib/Badge'
 import { getBadgeColor } from '~/util/access'
 
-export const AccessBadge = ({
-  role,
-  labelPrefix,
-}: {
-  role: RoleKey
-  labelPrefix?: string
-}) => (
-  <Badge color={getBadgeColor(role)}>
-    {labelPrefix}
-    {role}
-  </Badge>
+type AccessBadgeProps = { labelPrefix: string; role: RoleKey }
+
+export const AccessBadge = ({ labelPrefix, role }: AccessBadgeProps) => (
+  <Badge color={getBadgeColor(role)}>{`${labelPrefix}${role}`}</Badge>
 )

@@ -20,7 +20,7 @@ import { AccessBadge } from './AccessBadge'
  * because it is the "stronger" role, i.e., it strictly includes the perms on
  * viewer. So collab is highlighted as the "effective" role.
  */
-export const AccessRolesCell = <
+export const ProjectAccessRolesCell = <
   RowData extends { projectRole?: RoleKey; siloRole?: RoleKey },
 >(
   info: CellContext<RowData, RoleKey>

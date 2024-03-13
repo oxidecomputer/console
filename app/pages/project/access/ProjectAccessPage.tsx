@@ -25,9 +25,9 @@ import {
 import { Access24Icon } from '@oxide/design-system/icons/react'
 
 import { AccessNameCell } from '~/components/AccessNameCell'
-import { AccessRolesCell } from '~/components/AccessRolesCell'
 import { AccessTypeCell } from '~/components/AccessTypeCell'
 import { HL } from '~/components/HL'
+import { ProjectAccessRolesCell } from '~/components/ProjectAccessRolesCell'
 import {
   ProjectAccessAddUserSideModal,
   ProjectAccessEditUserSideModal,
@@ -130,10 +130,7 @@ export function ProjectAccessPage() {
     () => [
       colHelper.accessor('name', { header: 'Name', cell: AccessNameCell }),
       colHelper.accessor('identityType', { header: 'Type', cell: AccessTypeCell }),
-      colHelper.accessor('effectiveRole', {
-        header: 'Role',
-        cell: AccessRolesCell,
-      }),
+      colHelper.accessor('effectiveRole', { header: 'Role', cell: ProjectAccessRolesCell }),
       // TODO: tooltips on disabled elements explaining why
       getActionsCol((row: UserRow) => [
         {
