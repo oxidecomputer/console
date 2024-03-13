@@ -89,8 +89,8 @@ export const NavLinkItem = (props: {
   end?: boolean
   disabled?: boolean
 }) => {
-  // If the current page's URL matches the create form for this NavLink resource, we want to highlight the NavLink in the sidebar.
-  const currentPathIsCreateForm = useLocation().pathname === `${props.to}-new`
+  // If the current page is the create form for this NavLinkItem's resource, highlight the NavLink in the sidebar
+  const currentPathIsCreateForm = useLocation().pathname.startsWith(`${props.to}-new`)
   return (
     <li>
       <NavLink
