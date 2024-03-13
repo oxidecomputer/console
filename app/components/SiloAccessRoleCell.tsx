@@ -18,5 +18,5 @@ export const SiloAccessRoleCell = <RowData extends { effectiveRole: RoleKey }>(
   info: CellContext<RowData, RoleKey>
 ) => {
   const cellRole = info.getValue()
-  return cellRole ? <AccessBadge role={cellRole} labelPrefix="silo." /> : null
+  return cellRole ? <AccessBadge role={cellRole} labelPrefix="silo" /> : null
 }

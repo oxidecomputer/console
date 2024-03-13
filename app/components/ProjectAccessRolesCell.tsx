@@ -30,24 +30,22 @@ export const ProjectAccessRolesCell = <
 
   const siloRole = info.row.original.siloRole
   const formattedSiloRole = siloRole ? (
-    <AccessBadge role={siloRole} labelPrefix="silo." />
+    <AccessBadge role={siloRole} labelPrefix="silo" />
   ) : undefined
 
   const projectRole = info.row.original.projectRole
   const formattedProjectRole = projectRole ? (
-    <AccessBadge role={projectRole} labelPrefix="project." />
+    <AccessBadge role={projectRole} labelPrefix="project" />
   ) : undefined
 
-  const multipleRoles = siloRole && projectRole ? 1 : 0
-  const effectiveRole =
-    effectiveRoleString === siloRole ? formattedSiloRole : formattedProjectRole
-  const alternateRole =
-    effectiveRoleString === siloRole ? formattedProjectRole : formattedSiloRole
+  const effectiveRoleIsSiloRole = effectiveRoleString === siloRole
+  const effectiveRole = effectiveRoleIsSiloRole ? formattedSiloRole : formattedProjectRole
+  const alternateRole = effectiveRoleIsSiloRole ? formattedProjectRole : formattedSiloRole
 
   return (
     <div className="flex items-baseline gap-1">
       {effectiveRole}
-      {multipleRoles ? (
+      {siloRole && projectRole ? (
         <Tooltip content={alternateRole} placement="top">
           <>+1</>
         </Tooltip>
