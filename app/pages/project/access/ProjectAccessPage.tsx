@@ -28,7 +28,6 @@ import { AccessNameCell } from '~/components/AccessNameCell'
 import { AccessRolesCell } from '~/components/AccessRolesCell'
 import { AccessTypeCell } from '~/components/AccessTypeCell'
 import { HL } from '~/components/HL'
-import { RoleBadgeCell } from '~/components/RoleBadgeCell'
 import {
   ProjectAccessAddUserSideModal,
   ProjectAccessEditUserSideModal,
@@ -134,14 +133,6 @@ export function ProjectAccessPage() {
       colHelper.accessor('effectiveRole', {
         header: 'Role',
         cell: AccessRolesCell,
-      }),
-      colHelper.accessor('siloRole', {
-        header: 'Silo role',
-        cell: RoleBadgeCell,
-      }),
-      colHelper.accessor('projectRole', {
-        header: 'Project role',
-        cell: RoleBadgeCell,
       }),
       // TODO: tooltips on disabled elements explaining why
       getActionsCol((row: UserRow) => [

@@ -9,9 +9,9 @@ import type { CellContext } from '@tanstack/react-table'
 
 import type { RoleKey } from '@oxide/api'
 
-import { Badge } from '~/ui/lib/Badge'
 import { Tooltip } from '~/ui/lib/Tooltip'
-import { getBadgeColor } from '~/util/access'
+
+import { AccessBadge } from './AccessBadge'
 
 /**
  * Highlight the "effective" role, providing a tooltip for the alternate role.
@@ -21,20 +21,21 @@ import { getBadgeColor } from '~/util/access'
  * viewer. So collab is highlighted as the "effective" role.
  */
 export const AccessRolesCell = <
-  RowData extends { projectRole: RoleKey; siloRole: RoleKey },
+  RowData extends { projectRole?: RoleKey; siloRole?: RoleKey },
 >(
   info: CellContext<RowData, RoleKey>
 ) => {
   const effectiveRoleString = info.getValue()
+  if (!effectiveRoleString) return null
 
   const siloRole = info.row.original.siloRole
   const formattedSiloRole = siloRole ? (
-    <Badge color={getBadgeColor(siloRole)}>{`silo.${siloRole}`}</Badge>
+    <AccessBadge role={siloRole} labelPrefix="silo." />
   ) : undefined
 
   const projectRole = info.row.original.projectRole
   const formattedProjectRole = projectRole ? (
-    <Badge color={getBadgeColor(projectRole)}>{`project.${projectRole}`}</Badge>
+    <AccessBadge role={projectRole} labelPrefix="project." />
   ) : undefined
 
   const multipleRoles = siloRole && projectRole ? 1 : 0
