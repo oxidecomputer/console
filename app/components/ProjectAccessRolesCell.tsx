@@ -40,14 +40,24 @@ export const ProjectAccessRolesCell = <
 
   const effectiveRoleIsSiloRole = effectiveRoleString === siloRole
   const effectiveRole = effectiveRoleIsSiloRole ? formattedSiloRole : formattedProjectRole
-  const alternateRole = effectiveRoleIsSiloRole ? formattedProjectRole : formattedSiloRole
+  const alternateRole = effectiveRoleIsSiloRole ? (
+    <div>
+      <div className="mb-2">Project role</div>
+      {formattedProjectRole}
+    </div>
+  ) : (
+    <div>
+      <div className="mb-2">Silo role</div>
+      {formattedSiloRole}
+    </div>
+  )
 
   return (
     <div className="flex items-baseline gap-1">
       {effectiveRole}
       {siloRole && projectRole ? (
-        <Tooltip content={alternateRole} placement="top">
-          <>+1</>
+        <Tooltip content={alternateRole} placement="bottom">
+          <div>+1</div>
         </Tooltip>
       ) : undefined}
     </div>
