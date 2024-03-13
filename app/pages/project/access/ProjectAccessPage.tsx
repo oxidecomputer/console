@@ -25,6 +25,7 @@ import {
 import { Access24Icon } from '@oxide/design-system/icons/react'
 
 import { AccessNameCell } from '~/components/AccessNameCell'
+import { AccessRolesCell } from '~/components/AccessRolesCell'
 import { AccessTypeCell } from '~/components/AccessTypeCell'
 import { HL } from '~/components/HL'
 import { RoleBadgeCell } from '~/components/RoleBadgeCell'
@@ -130,6 +131,10 @@ export function ProjectAccessPage() {
     () => [
       colHelper.accessor('name', { header: 'Name', cell: AccessNameCell }),
       colHelper.accessor('identityType', { header: 'Type', cell: AccessTypeCell }),
+      colHelper.accessor('effectiveRole', {
+        header: 'Role',
+        cell: AccessRolesCell,
+      }),
       colHelper.accessor('siloRole', {
         header: 'Silo role',
         cell: RoleBadgeCell,
