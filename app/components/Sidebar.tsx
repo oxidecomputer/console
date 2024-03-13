@@ -6,13 +6,14 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
-import { NavLink, useLocation } from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
 
 import { Action16Icon, Document16Icon } from '@oxide/design-system/icons/react'
 
 import { openQuickActions } from '~/hooks'
 import { Button } from '~/ui/lib/Button'
 import { Truncate } from '~/ui/lib/Truncate'
+import { useIsNewResourcePage } from '~/util/links'
 
 const linkStyles =
   'flex h-7 items-center rounded px-2 text-sans-md hover:bg-hover svg:mr-2 svg:text-quinary text-secondary'
@@ -89,14 +90,7 @@ export const NavLinkItem = (props: {
   end?: boolean
   disabled?: boolean
 }) => {
-  // "New" resource create forms have a url that doesn't match the top-level resource name, so `isActive` won't ever fire as true.
-  // Determine which resource in the Sidebar should be highlighted as active when on a create-form page.
-  const location = useLocation()
-  const resourcePath = location.pathname.split('/').pop()
-  const resourceName = resourcePath?.includes('-new')
-    ? resourcePath.replace('-new', '')
-    : ''
-  const isLinkToThisResource = resourceName.length > 0 && props.to.includes(resourceName)
+  const isLinkToThisResource = useIsNewResourcePage(props.to)
   return (
     <li>
       <NavLink

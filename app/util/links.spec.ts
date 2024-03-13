@@ -18,3 +18,12 @@ describe('check links are accessible', () => {
     })
   }
 })
+
+// describe('check useIsNewResourcePage to evaluate Sidebar navigation links', () => {
+//   test('should return false for non-resource creation pages', () => {
+//     const fakeURL = new URL('https://oxide.computer/projects/mock-project/instances-new')
+//     vi.spyOn(window, 'location', 'get').mockReturnValue(fakeURL)
+//     const isNewResourcePage = useIsNewResourcePage('projects/mock-project/instances')
+//     expect(isNewResourcePage).toEqual(true)
+//   })
+// })
