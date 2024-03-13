@@ -13,8 +13,7 @@ import type { IdentityType } from '@oxide/api'
  * Display whether this row displays a User or Group.
  */
 export const AccessTypeCell = <RowData extends { identityType: IdentityType }>(
-  info: CellContext<RowData, string>
+  info: CellContext<RowData, IdentityType>
 ) => {
-  const identityType = info.row.original.identityType
-  return <span>{identityType === 'silo_group' ? 'Group' : 'User'}</span>
+  return <>{info.getValue() === 'silo_group' ? 'Group' : 'User'}</>
 }
