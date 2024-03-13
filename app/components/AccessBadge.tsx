@@ -13,5 +13,7 @@ import { getBadgeColor } from '~/util/access'
 type AccessBadgeProps = { labelPrefix: 'silo' | 'project'; role: RoleKey }
 
 export const AccessBadge = ({ labelPrefix, role }: AccessBadgeProps) => (
-  <Badge color={getBadgeColor(role)}>{labelPrefix}.{role}</Badge>
+  <Badge color={getBadgeColor(role)}>
+    {labelPrefix}.{role}
+  </Badge>
 )
