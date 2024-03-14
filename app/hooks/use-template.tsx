@@ -59,8 +59,6 @@ export function useInstanceTemplate(setValue: UseFormSetValue<InstanceCreateInpu
     const disks = disksData?.items || []
     const bootDisk = disks.length > 0 ? disks[0] : null
 
-    console.log(disks)
-
     const additionalDisks: DiskTableItem[] = disks.slice(1).map((disk) => ({
       description: disk.description,
       diskSource: {
