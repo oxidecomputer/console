@@ -103,6 +103,12 @@ export const useMakeInstanceActions = (
           },
         },
         {
+          label: 'New similar instance',
+          onActivate() {
+            navigate(`${pb.instanceNew(projectSelector)}?template=${instance.id}`)
+          },
+        },
+        {
           label: 'Delete',
           onActivate: confirmDelete({
             doDelete: () =>

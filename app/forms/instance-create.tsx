@@ -53,7 +53,13 @@ import {
   TextField,
   type DiskTableItem,
 } from 'app/components/form'
-import { getProjectSelector, useForm, useProjectSelector, useToast } from 'app/hooks'
+import {
+  getProjectSelector,
+  useForm,
+  useInstanceTemplate,
+  useProjectSelector,
+  useToast,
+} from 'app/hooks'
 import { readBlobAsBase64 } from 'app/util/file'
 import { links } from 'app/util/links'
 import { pb } from 'app/util/path-builder'
@@ -71,7 +77,7 @@ export type InstanceCreateInput = Assign<
   }
 >
 
-const baseDefaultValues: InstanceCreateInput = {
+export const baseDefaultValues: InstanceCreateInput = {
   name: '',
   description: '',
   /**
@@ -143,6 +149,8 @@ export function CreateInstanceForm() {
 
   const form = useForm({ defaultValues })
   const { control, setValue } = form
+
+  useInstanceTemplate(setValue)
 
   const imageInput = useWatch({ control: control, name: 'image' })
   const image = allImages.find((i) => i.id === imageInput)
@@ -560,7 +568,7 @@ const renderLargeRadioCards = (category: string) => {
   ))
 }
 
-const PRESETS = [
+export const PRESETS = [
   { category: 'general', id: 'general-xs', memory: 8, ncpus: 2 },
   { category: 'general', id: 'general-sm', memory: 16, ncpus: 4 },
   { category: 'general', id: 'general-md', memory: 32, ncpus: 8 },
