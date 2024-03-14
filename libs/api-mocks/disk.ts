@@ -8,6 +8,7 @@
 import type { Disk } from '@oxide/api'
 import { GiB } from '@oxide/util'
 
+import { images } from './image'
 import { instance } from './instance'
 import type { Json } from './json-type'
 import { project } from './project'
@@ -22,6 +23,7 @@ export const disks: Json<Disk>[] = [
     time_modified: new Date().toISOString(),
     state: { state: 'attached', instance: instance.id },
     device_path: '/abc',
+    image_id: images[0].id,
     size: 2 * GiB,
     block_size: 2048,
   },
