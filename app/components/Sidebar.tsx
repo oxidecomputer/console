@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
-import { NavLink } from 'react-router-dom'
+import { NavLink, useLocation } from 'react-router-dom'
 
 import { Action16Icon, Document16Icon } from '@oxide/design-system/icons/react'
 
@@ -88,20 +88,24 @@ export const NavLinkItem = (props: {
   children: React.ReactNode
   end?: boolean
   disabled?: boolean
-}) => (
-  <li>
-    <NavLink
-      to={props.to}
-      className={({ isActive }) =>
-        cn(linkStyles, {
-          'text-accent !bg-accent-secondary hover:!bg-accent-secondary-hover svg:!text-accent-tertiary':
-            isActive,
-          'pointer-events-none text-disabled': props.disabled,
-        })
-      }
-      end={props.end}
-    >
-      {props.children}
-    </NavLink>
-  </li>
-)
+}) => {
+  // If the current page is the create form for this NavLinkItem's resource, highlight the NavLink in the sidebar
+  const currentPathIsCreateForm = useLocation().pathname.startsWith(`${props.to}-new`)
+  return (
+    <li>
+      <NavLink
+        to={props.to}
+        className={({ isActive }) =>
+          cn(linkStyles, {
+            'text-accent !bg-accent-secondary hover:!bg-accent-secondary-hover svg:!text-accent-tertiary':
+              isActive || currentPathIsCreateForm,
+            'pointer-events-none text-disabled': props.disabled,
+          })
+        }
+        end={props.end}
+      >
+        {props.children}
+      </NavLink>
+    </li>
+  )
+}
