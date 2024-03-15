@@ -133,6 +133,9 @@ export function ProjectAccessPage() {
         cell: (props) => accessTypeLabel(props.getValue()),
       }),
       colHelper.accessor('effectiveRole', { header: 'Role', cell: ProjectAccessRolesCell }),
+      colHelper.accessor('siloRole', { header: 'Silo Role' }),
+      colHelper.accessor('projectRole', { header: 'Project Role' }),
+
       // TODO: tooltips on disabled elements explaining why
       getActionsCol((row: UserRow) => [
         {

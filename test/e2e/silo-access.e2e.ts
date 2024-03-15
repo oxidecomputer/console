@@ -21,12 +21,12 @@ test('Click through silo access page', async ({ page }) => {
   await expectRowVisible(table, {
     Name: 'real-estate-devs',
     Type: 'Group',
-    'Silo role': 'collaborator',
+    Role: 'silo.admin',
   })
   await expectRowVisible(table, {
     Name: 'Hannah Arendt',
     Type: 'User',
-    'Silo role': 'admin',
+    Role: 'silo.admin',
   })
   await expectNotVisible(page, [`role=cell[name="${user4.display_name}"]`])
 
@@ -58,7 +58,8 @@ test('Click through silo access page', async ({ page }) => {
   // User 3 shows up in the table
   await expectRowVisible(table, {
     Name: 'Jacob Klein',
-    Role: 'collaborator',
+    Role: 'silo.collaborator',
+    Type: 'User',
   })
 
   // now change user 3's role from collab to viewer
