@@ -19,7 +19,9 @@ import {
 } from '@oxide/api'
 import { IpGlobal24Icon, Networking24Icon } from '@oxide/design-system/icons/react'
 
+import { ExternalLink } from '~/components/ExternalLink'
 import { HL } from '~/components/HL'
+import { TableResourceInformation } from '~/components/TableResourceInformation'
 import { getProjectSelector, useProjectSelector } from '~/hooks'
 import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
@@ -33,7 +35,7 @@ import { Listbox } from '~/ui/lib/Listbox'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
-import { TableActions } from '~/ui/lib/Table'
+import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 const EmptyState = () => (
@@ -161,11 +163,16 @@ export function FloatingIpsPage() {
       <PageHeader>
         <PageTitle icon={<IpGlobal24Icon />}>Floating IPs</PageTitle>
       </PageHeader>
-      <TableActions>
+      <div className="mb-8 flex items-end justify-between space-x-2">
+        <TableResourceInformation>
+          Floating IPs are public IP addresses that can be attached to instances. They allow
+          your instances to be reachable from the internet. Find out more about{' '}
+          <ExternalLink href={links.floatingIpsDocs}>managing floating IPs</ExternalLink>.
+        </TableResourceInformation>
         <Link to={pb.floatingIpsNew({ project })} className={buttonStyle({ size: 'sm' })}>
           New Floating IP
         </Link>
-      </TableActions>
+      </div>
       <Table emptyState={<EmptyState />} makeActions={makeActions}>
         <Column accessor="name" />
         <Column accessor="description" />

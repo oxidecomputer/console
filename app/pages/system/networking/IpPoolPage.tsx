@@ -24,6 +24,7 @@ import { ExternalLink } from '~/components/ExternalLink'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { HL } from '~/components/HL'
 import { QueryParamTabs } from '~/components/QueryParamTabs'
+import { TableResourceInformation } from '~/components/TableResourceInformation'
 import { getIpPoolSelector, useForm, useIpPoolSelector } from '~/hooks'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
@@ -217,13 +218,13 @@ function LinkedSilosTable() {
   return (
     <>
       <div className="mb-4 flex items-end justify-between space-x-2">
-        <p className="mr-8 max-w-2xl text-sans-md text-secondary">
+        <TableResourceInformation>
           Users in linked silos can allocate external IPs from this pool for their
           instances. A silo can have at most one default pool. IPs are allocated from the
           default pool when users ask for one without specifying a pool. Read the docs to
           learn more about{' '}
           <ExternalLink href={links.ipPoolsDocs}>managing IP pools</ExternalLink>.
-        </p>
+        </TableResourceInformation>
         <Button onClick={() => setShowLinkModal(true)} size="sm" className="shrink-0">
           Link silo
         </Button>

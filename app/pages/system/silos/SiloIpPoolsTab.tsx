@@ -14,6 +14,7 @@ import { Networking24Icon, Success12Icon } from '@oxide/design-system/icons/reac
 import { ExternalLink } from '~/components/ExternalLink'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { HL } from '~/components/HL'
+import { TableResourceInformation } from '~/components/TableResourceInformation'
 import { useForm, useSiloSelector } from '~/hooks'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
@@ -145,12 +146,12 @@ export function SiloIpPoolsTab() {
   return (
     <>
       <div className="mb-8 flex items-end justify-between space-x-2">
-        <p className="mr-8 max-w-2xl text-sans-md text-secondary">
+        <TableResourceInformation>
           Users in this silo can allocate external IPs from these pools for their instances.
           A silo can have at most one default pool. IPs are allocated from the default pool
           when users ask for one without specifying a pool. Read the docs to learn more
           about <ExternalLink href={links.ipPoolsDocs}>managing IP pools</ExternalLink>.
-        </p>
+        </TableResourceInformation>
         <Button onClick={() => setShowLinkModal(true)} size="sm" className="shrink-0">
           Link pool
         </Button>
