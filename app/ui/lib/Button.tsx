@@ -35,7 +35,7 @@ export const buttonStyle = ({
   variant = 'primary',
 }: ButtonStyleProps = {}) => {
   return cn(
-    'ox-button elevation-1 rounded inline-flex items-center justify-center align-top disabled:cursor-not-allowed',
+    'ox-button elevation-1 rounded inline-flex items-center justify-center align-top disabled:cursor-not-allowed shrink-0',
     `btn-${variant}`,
     sizeStyle[size],
     variant === 'danger'

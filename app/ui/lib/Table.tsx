@@ -139,6 +139,11 @@ type TableInformationAndActionProps = {
       onClick?: () => never
     }
 )
+
+/**
+ * Used _outside_ of the `Table`, this element displays information about the
+ * resource listed in the table (possibly inlcuding a docs link), and an action button.
+ */
 export const TableInformationAndAction = ({
   resourceInformation,
   actionLabel,
@@ -155,8 +160,8 @@ export const TableInformationAndAction = ({
     </Button>
   )
   return (
-    <div className="mb-4 flex items-end justify-between space-x-2">
-      <p className="mr-8 max-w-2xl text-sans-md text-secondary">{resourceInformation}</p>
+    <div className="mb-4 flex items-end justify-between space-x-8">
+      <p className="max-w-2xl text-sans-md text-secondary">{resourceInformation}</p>
       {action}
     </div>
   )
