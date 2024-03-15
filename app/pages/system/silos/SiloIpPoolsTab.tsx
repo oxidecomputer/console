@@ -14,7 +14,6 @@ import { Networking24Icon, Success12Icon } from '@oxide/design-system/icons/reac
 import { ExternalLink } from '~/components/ExternalLink'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { HL } from '~/components/HL'
-import { TableResourceInformation } from '~/components/TableResourceInformation'
 import { useForm, useSiloSelector } from '~/hooks'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
@@ -22,10 +21,10 @@ import { linkCell } from '~/table/cells/LinkCell'
 import type { MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
 import { Badge } from '~/ui/lib/Badge'
-import { Button } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
+import { TableInformationAndAction } from '~/ui/lib/Table'
 import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
@@ -143,19 +142,21 @@ export function SiloIpPoolsTab() {
     },
   ]
 
+  const resourceInformation = (
+    <>
+      Users in this silo can allocate external IPs from these pools for their instances. A
+      silo can have at most one default pool. IPs are allocated from the default pool when
+      users ask for one without specifying a pool. Read the docs to learn more about{' '}
+      <ExternalLink href={links.ipPoolsDocs}>managing IP pools</ExternalLink>.
+    </>
+  )
   return (
     <>
-      <div className="mb-8 flex items-end justify-between space-x-2">
-        <TableResourceInformation>
-          Users in this silo can allocate external IPs from these pools for their instances.
-          A silo can have at most one default pool. IPs are allocated from the default pool
-          when users ask for one without specifying a pool. Read the docs to learn more
-          about <ExternalLink href={links.ipPoolsDocs}>managing IP pools</ExternalLink>.
-        </TableResourceInformation>
-        <Button onClick={() => setShowLinkModal(true)} size="sm" className="shrink-0">
-          Link pool
-        </Button>
-      </div>
+      <TableInformationAndAction
+        resourceInformation={resourceInformation}
+        actionLabel="Link pool"
+        onClick={() => setShowLinkModal(true)}
+      />
       <Table emptyState={<EmptyState />} makeActions={makeActions}>
         <Column accessor="name" cell={linkCell((pool) => pb.ipPool({ pool }))} />
         <Column accessor="description" />

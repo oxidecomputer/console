@@ -7,10 +7,13 @@
  */
 import cn from 'classnames'
 import React, { useRef, type ReactElement } from 'react'
+import { Link } from 'react-router-dom'
 import SimpleBar from 'simplebar-react'
 
 import { useIsOverflow } from '~/hooks'
 import { classed } from '~/util/classed'
+
+import { Button, buttonStyle } from './Button'
 
 export type TableProps = JSX.IntrinsicElements['table']
 export function Table({ className, ...props }: TableProps) {
@@ -122,5 +125,41 @@ Table.Cell = ({ height = 'large', className, children, ...props }: TableCellProp
  * of the table.
  */
 export const TableActions = classed.div`-mt-11 mb-3 flex justify-end space-x-2`
+
+type TableInformationAndActionProps = {
+  resourceInformation: React.ReactNode
+  actionLabel?: string
+} & (
+  | {
+      linkTo?: never
+      onClick?: () => void
+    }
+  | {
+      linkTo?: string
+      onClick?: () => never
+    }
+)
+export const TableInformationAndAction = ({
+  resourceInformation,
+  actionLabel,
+  linkTo,
+  onClick,
+}: TableInformationAndActionProps) => {
+  const action = linkTo ? (
+    <Link to={linkTo} className={buttonStyle({ size: 'sm' })}>
+      {actionLabel}
+    </Link>
+  ) : (
+    <Button onClick={onClick} size="sm" className="shrink-0">
+      {actionLabel}
+    </Button>
+  )
+  return (
+    <div className="mb-4 flex items-end justify-between space-x-2">
+      <p className="mr-8 max-w-2xl text-sans-md text-secondary">{resourceInformation}</p>
+      {action}
+    </div>
+  )
+}
 
 export const TableEmptyBox = classed.div`flex h-full max-h-[480px] items-center justify-center rounded-lg border border-secondary p-4`
