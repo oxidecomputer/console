@@ -24,7 +24,8 @@ import { Badge } from '~/ui/lib/Badge'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
-import { TableInformationAndAction } from '~/ui/lib/Table'
+import { TableInformationAndActions } from '~/ui/lib/Table'
+import { TableActionButton } from '~/ui/lib/TableActionButton'
 import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
@@ -152,10 +153,11 @@ export function SiloIpPoolsTab() {
   )
   return (
     <>
-      <TableInformationAndAction
+      <TableInformationAndActions
         resourceInformation={resourceInformation}
-        actionLabel="Link pool"
-        onClick={() => setShowLinkModal(true)}
+        actions={
+          <TableActionButton label="Link pool" onClick={() => setShowLinkModal(true)} />
+        }
       />
       <Table emptyState={<EmptyState />} makeActions={makeActions}>
         <Column accessor="name" cell={linkCell((pool) => pb.ipPool({ pool }))} />

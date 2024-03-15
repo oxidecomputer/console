@@ -33,7 +33,8 @@ import { Listbox } from '~/ui/lib/Listbox'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
-import { TableInformationAndAction } from '~/ui/lib/Table'
+import { TableInformationAndActions } from '~/ui/lib/Table'
+import { TableActionButton } from '~/ui/lib/TableActionButton'
 import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
@@ -169,10 +170,14 @@ export function FloatingIpsPage() {
       <PageHeader>
         <PageTitle icon={<IpGlobal24Icon />}>Floating IPs</PageTitle>
       </PageHeader>
-      <TableInformationAndAction
+      <TableInformationAndActions
         resourceInformation={resourceInformation}
-        actionLabel="New Floating IP"
-        linkTo={pb.floatingIpsNew({ project })}
+        actions={
+          <TableActionButton
+            label="New Floating IP"
+            linkTo={pb.floatingIpsNew({ project })}
+          />
+        }
       />
       <Table emptyState={<EmptyState />} makeActions={makeActions}>
         <Column accessor="name" />

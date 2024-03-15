@@ -38,7 +38,8 @@ import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
-import { TableInformationAndAction } from '~/ui/lib/Table'
+import { TableInformationAndActions } from '~/ui/lib/Table'
+import { TableActionButton } from '~/ui/lib/TableActionButton'
 import { Tabs } from '~/ui/lib/Tabs'
 import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
@@ -225,10 +226,11 @@ function LinkedSilosTable() {
   )
   return (
     <>
-      <TableInformationAndAction
+      <TableInformationAndActions
         resourceInformation={resourceInformation}
-        actionLabel="Link silo"
-        onClick={() => setShowLinkModal(true)}
+        actions={
+          <TableActionButton label="Link silo" onClick={() => setShowLinkModal(true)} />
+        }
       />
       <Table emptyState={emptyState} makeActions={makeActions}>
         <Column accessor="siloId" id="Silo" cell={SiloNameFromId} />
