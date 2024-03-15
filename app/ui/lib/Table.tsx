@@ -160,7 +160,7 @@ export const TableInformationAndAction = ({
     </Button>
   )
   return (
-    <div className="mb-4 flex items-end justify-between space-x-8">
+    <div className="-mt-5 mb-4 flex items-end justify-between space-x-8">
       <p className="max-w-2xl text-sans-md text-secondary">{resourceInformation}</p>
       {action}
     </div>
