@@ -37,6 +37,8 @@ export const disks: Json<Disk>[] = [
     device_path: '/def',
     size: 4 * GiB,
     block_size: 2048,
+    // snapshot 1 ID, hardcoded to avoid circular ref between files
+    snapshot_id: 'ab805e59-b6b8-4c73-8081-6a224b6b0698',
   },
   {
     id: '3b768903-1d0b-4d78-9308-c12d3889bdfb',
@@ -49,6 +51,8 @@ export const disks: Json<Disk>[] = [
     device_path: '/ghi',
     size: 6 * GiB,
     block_size: 2048,
+    // image 1 ID, hardcoded to avoid circular ref between files
+    image_id: '7ea31aad-7004-4d1e-ada6-a2e447da40b7',
   },
   {
     id: '5695b16d-e1d6-44b0-a75c-7b4299831540',
