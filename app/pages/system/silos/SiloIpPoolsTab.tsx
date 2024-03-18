@@ -24,8 +24,7 @@ import { Badge } from '~/ui/lib/Badge'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
-import { TableInformationAndActions } from '~/ui/lib/Table'
-import { TableActionButton } from '~/ui/lib/TableActionButton'
+import { TableControls, TableControlsButton, TableControlsText } from '~/ui/lib/Table'
 import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
@@ -143,22 +142,19 @@ export function SiloIpPoolsTab() {
     },
   ]
 
-  const resourceInformation = (
-    <>
-      Users in this silo can allocate external IPs from these pools for their instances. A
-      silo can have at most one default pool. IPs are allocated from the default pool when
-      users ask for one without specifying a pool. Read the docs to learn more about{' '}
-      <ExternalLink href={links.ipPoolsDocs}>managing IP pools</ExternalLink>.
-    </>
-  )
   return (
     <>
-      <TableInformationAndActions
-        resourceInformation={resourceInformation}
-        actions={
-          <TableActionButton label="Link pool" onClick={() => setShowLinkModal(true)} />
-        }
-      />
+      <TableControls>
+        <TableControlsText>
+          Users in this silo can allocate external IPs from these pools for their instances.
+          A silo can have at most one default pool. IPs are allocated from the default pool
+          when users ask for one without specifying a pool. Read the docs to learn more
+          about <ExternalLink href={links.ipPoolsDocs}>managing IP pools</ExternalLink>.
+        </TableControlsText>
+        <TableControlsButton onClick={() => setShowLinkModal(true)}>
+          Link pool
+        </TableControlsButton>
+      </TableControls>
       <Table emptyState={<EmptyState />} makeActions={makeActions}>
         <Column accessor="name" cell={linkCell((pool) => pb.ipPool({ pool }))} />
         <Column accessor="description" />

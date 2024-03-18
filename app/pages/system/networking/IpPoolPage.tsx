@@ -38,8 +38,7 @@ import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
-import { TableInformationAndActions } from '~/ui/lib/Table'
-import { TableActionButton } from '~/ui/lib/TableActionButton'
+import { TableControls, TableControlsButton, TableControlsText } from '~/ui/lib/Table'
 import { Tabs } from '~/ui/lib/Tabs'
 import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
@@ -216,22 +215,20 @@ function LinkedSilosTable() {
     />
   )
 
-  const resourceInformation = (
-    <>
-      Users in linked silos can allocate external IPs from this pool for their instances. A
-      silo can have at most one default pool. IPs are allocated from the default pool when
-      users ask for one without specifying a pool. Read the docs to learn more about{' '}
-      <ExternalLink href={links.ipPoolsDocs}>managing IP pools</ExternalLink>.
-    </>
-  )
   return (
     <>
-      <TableInformationAndActions
-        resourceInformation={resourceInformation}
-        actions={
-          <TableActionButton label="Link silo" onClick={() => setShowLinkModal(true)} />
-        }
-      />
+      <TableControls>
+        <TableControlsText>
+          Users in linked silos can allocate external IPs from this pool for their
+          instances. A silo can have at most one default pool. IPs are allocated from the
+          default pool when users ask for one without specifying a pool. Read the docs to
+          learn more about{' '}
+          <ExternalLink href={links.ipPoolsDocs}>managing IP pools</ExternalLink>.
+        </TableControlsText>
+        <TableControlsButton onClick={() => setShowLinkModal(true)}>
+          Link silo
+        </TableControlsButton>
+      </TableControls>
       <Table emptyState={emptyState} makeActions={makeActions}>
         <Column accessor="siloId" id="Silo" cell={SiloNameFromId} />
         <Column

@@ -7,9 +7,11 @@
  */
 import cn from 'classnames'
 import React, { useRef, type ReactElement } from 'react'
+import { Link, type LinkProps } from 'react-router-dom'
 import SimpleBar from 'simplebar-react'
 
 import { useIsOverflow } from '~/hooks'
+import { Button, buttonStyle, type ButtonProps } from '~/ui/lib/Button'
 import { classed } from '~/util/classed'
 
 export type TableProps = JSX.IntrinsicElements['table']
@@ -123,23 +125,18 @@ Table.Cell = ({ height = 'large', className, children, ...props }: TableCellProp
  */
 export const TableActions = classed.div`-mt-11 mb-3 flex justify-end space-x-2`
 
-type TableInformationAndActionsProps = {
-  resourceInformation: React.ReactNode
-  actions: React.ReactNode
-}
+export const TableEmptyBox = classed.div`flex h-full max-h-[480px] items-center justify-center rounded-lg border border-secondary p-4`
 
 /**
- * Used _outside_ of the `Table`, this element displays information about the
- * resource listed in the table (possibly inlcuding a docs link), and an action button.
+ * Used _outside_ of the `Table`, this element includes a soon-to-be-removed description of the resource inside the table,
+ * along with a link to more info, and a button to take action on the resource listed in the table.
  */
-export const TableInformationAndActions = ({
-  resourceInformation,
-  actions,
-}: TableInformationAndActionsProps) => (
-  <div className="mb-4 flex items-end justify-between space-x-8">
-    <p className="max-w-2xl text-sans-md text-secondary">{resourceInformation}</p>
-    {actions}
-  </div>
-)
+export const TableControls = classed.div`mb-4 flex items-end justify-between space-x-8`
+export const TableControlsText = classed.p`max-w-2xl text-sans-md text-secondary`
 
-export const TableEmptyBox = classed.div`flex h-full max-h-[480px] items-center justify-center rounded-lg border border-secondary p-4`
+export const TableControlsButton = (props: ButtonProps) => (
+  <Button size="sm" className="shrink-0" {...props} />
+)
+export const TableControlsLink = (props: LinkProps) => (
+  <Link className={buttonStyle({ size: 'sm' })} {...props} />
+)

@@ -33,8 +33,7 @@ import { Listbox } from '~/ui/lib/Listbox'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
-import { TableInformationAndActions } from '~/ui/lib/Table'
-import { TableActionButton } from '~/ui/lib/TableActionButton'
+import { TableControls, TableControlsButton, TableControlsText } from '~/ui/lib/Table'
 import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
@@ -158,27 +157,21 @@ export function FloatingIpsPage() {
   }
 
   const { Table, Column } = useQueryTable('floatingIpList', { query: { project } })
-  const resourceInformation = (
-    <>
-      Floating IPs are public IP addresses that can be attached to instances. They allow
-      your instances to be reachable from the internet. Find out more about{' '}
-      <ExternalLink href={links.floatingIpsDocs}>managing floating IPs</ExternalLink>.
-    </>
-  )
   return (
     <>
       <PageHeader>
         <PageTitle icon={<IpGlobal24Icon />}>Floating IPs</PageTitle>
       </PageHeader>
-      <TableInformationAndActions
-        resourceInformation={resourceInformation}
-        actions={
-          <TableActionButton
-            label="New Floating IP"
-            linkTo={pb.floatingIpsNew({ project })}
-          />
-        }
-      />
+      <TableControls>
+        <TableControlsText>
+          Floating IPs are public IP addresses that can be attached to instances. They allow
+          your instances to be reachable from the internet. Find out more about{' '}
+          <ExternalLink href={links.floatingIpsDocs}>managing floating IPs</ExternalLink>.
+        </TableControlsText>
+        <TableControlsButton onClick={() => navigate(pb.floatingIpsNew({ project }))}>
+          New floating IP
+        </TableControlsButton>
+      </TableControls>
       <Table emptyState={<EmptyState />} makeActions={makeActions}>
         <Column accessor="name" />
         <Column accessor="description" />
