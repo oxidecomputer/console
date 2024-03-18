@@ -28,7 +28,7 @@ test('Click through snapshots', async ({ page }) => {
 test('Confirm delete snapshot', async ({ page }) => {
   await page.goto('/projects/mock-project/snapshots')
 
-  const row = page.getByRole('row', { name: 'disk-1-snapshot-5' })
+  const row = page.getByRole('row', { name: 'disk-1-snapshot-6' })
 
   async function clickDelete() {
     await row.getByRole('button', { name: 'Row actions' }).click()
