@@ -1471,6 +1471,8 @@ export type InstanceSerialConsoleData = {
   lastByteOffset: number
 }
 
+export type IpKind = 'snat' | 'floating' | 'ephemeral'
+
 /**
  * A collection of IP ranges. If a pool is linked to a silo, IP addresses from the pool can be allocated within that silo
  */
@@ -1570,6 +1572,27 @@ export type IpPoolSiloUpdate = {
  * Parameters for updating an IP Pool
  */
 export type IpPoolUpdate = { description?: string; name?: Name }
+
+export type Ipv4Utilization = {
+  /** The number of IPv4 addresses allocated from this pool */
+  allocated: number
+  /** The total number of IPv4 addresses in the pool, i.e., the sum of the lengths of the IPv4 ranges. Unlike IPv6 capacity, can be a 32-bit integer because there are only 2^32 IPv4 addresses. */
+  capacity: number
+}
+
+export type Ipv6Utilization = {
+  /** The number of IPv6 addresses allocated from this pool. A 128-bit integer string to match the capacity field. */
+  allocated: string
+  /** The total number of IPv6 addresses in the pool, i.e., the sum of the lengths of the IPv6 ranges. An IPv6 range can contain up to 2^128 addresses, so we represent this value in JSON as a numeric string with a custom "uint128" format. */
+  capacity: string
+}
+
+export type IpPoolUtilization = {
+  /** Number of allocated and total available IPv4 addresses in pool */
+  ipv4: Ipv4Utilization
+  /** Number of allocated and total available IPv6 addresses in pool */
+  ipv6: Ipv6Utilization
+}
 
 /**
  * A range of IP ports
@@ -1710,6 +1733,37 @@ export type MeasurementResultsPage = {
 }
 
 /**
+ * The type of network interface
+ */
+export type NetworkInterfaceKind =
+  /** A vNIC attached to a guest instance */
+  | { id: string; type: 'instance' }
+  /** A vNIC associated with an internal service */
+  | { id: string; type: 'service' }
+  /** A vNIC associated with a probe */
+  | { id: string; type: 'probe' }
+
+/**
+ * A Geneve Virtual Network Identifier
+ */
+export type Vni = number
+
+/**
+ * Information required to construct a virtual network interface
+ */
+export type NetworkInterface = {
+  id: string
+  ip: string
+  kind: NetworkInterfaceKind
+  mac: MacAddr
+  name: Name
+  primary: boolean
+  slot: number
+  subnet: IpNet
+  vni: Vni
+}
+
+/**
  * A password used to authenticate a user
  *
  * Passwords may be subject to additional constraints.
@@ -1756,6 +1810,58 @@ export type PingStatus = 'ok'
 export type Ping = {
   /** Whether the external API is reachable. Will always be Ok if the endpoint returns anything at all. */
   status: PingStatus
+}
+
+/**
+ * Identity-related metadata that's included in nearly all public API objects
+ */
+export type Probe = {
+  /** human-readable free-form text about a resource */
+  description: string
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  sled: string
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+}
+
+/**
+ * Create time parameters for probes.
+ */
+export type ProbeCreate = {
+  description: string
+  ipPool?: NameOrId
+  name: Name
+  sled: string
+}
+
+export type ProbeExternalIp = {
+  firstPort: number
+  ip: string
+  kind: IpKind
+  lastPort: number
+}
+
+export type ProbeInfo = {
+  externalIps: ProbeExternalIp[]
+  id: string
+  interface: NetworkInterface
+  name: Name
+  sled: string
+}
+
+/**
+ * A single page of results
+ */
+export type ProbeInfoResultsPage = {
+  /** list of items on this page of results */
+  items: ProbeInfo[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
 }
 
 /**
@@ -3010,6 +3116,33 @@ export type SystemMetricName =
  */
 export type NameSortMode = 'name_ascending'
 
+export interface ProbeListQueryParams {
+  limit?: number
+  pageToken?: string
+  project?: NameOrId
+  sortBy?: NameOrIdSortMode
+}
+
+export interface ProbeCreateQueryParams {
+  project: NameOrId
+}
+
+export interface ProbeViewPathParams {
+  probe: NameOrId
+}
+
+export interface ProbeViewQueryParams {
+  project: NameOrId
+}
+
+export interface ProbeDeletePathParams {
+  probe: NameOrId
+}
+
+export interface ProbeDeleteQueryParams {
+  project: NameOrId
+}
+
 export interface LoginSamlPathParams {
   providerName: Name
   siloName: Name
@@ -3675,6 +3808,10 @@ export interface IpPoolSiloUnlinkPathParams {
   silo: NameOrId
 }
 
+export interface IpPoolUtilizationViewPathParams {
+  pool: NameOrId
+}
+
 export interface IpPoolServiceRangeListQueryParams {
   limit?: number
   pageToken?: string
@@ -3960,6 +4097,7 @@ export interface VpcDeleteQueryParams {
 
 export type ApiListMethods = Pick<
   InstanceType<typeof Api>['methods'],
+  | 'probeList'
   | 'certificateList'
   | 'diskList'
   | 'diskMetricsList'
@@ -4036,6 +4174,63 @@ export class Api extends HttpClient {
       return this.request<void>({
         path: `/device/token`,
         method: 'POST',
+        ...params,
+      })
+    },
+    /**
+     * List instrumentation probes
+     */
+    probeList: (
+      { query = {} }: { query?: ProbeListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<ProbeInfoResultsPage>({
+        path: `/experimental/v1/probes`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create instrumentation probe
+     */
+    probeCreate: (
+      { query, body }: { query?: ProbeCreateQueryParams; body: ProbeCreate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<Probe>({
+        path: `/experimental/v1/probes`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * View instrumentation probe
+     */
+    probeView: (
+      { path, query }: { path: ProbeViewPathParams; query?: ProbeViewQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<ProbeInfo>({
+        path: `/experimental/v1/probes/${path.probe}`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Delete instrumentation probe
+     */
+    probeDelete: (
+      { path, query }: { path: ProbeDeletePathParams; query?: ProbeDeleteQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/experimental/v1/probes/${path.probe}`,
+        method: 'DELETE',
+        query,
         ...params,
       })
     },
@@ -5719,6 +5914,19 @@ export class Api extends HttpClient {
       return this.request<void>({
         path: `/v1/system/ip-pools/${path.pool}/silos/${path.silo}`,
         method: 'DELETE',
+        ...params,
+      })
+    },
+    /**
+     * Fetch IP pool utilization
+     */
+    ipPoolUtilizationView: (
+      { path }: { path: IpPoolUtilizationViewPathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<IpPoolUtilization>({
+        path: `/v1/system/ip-pools/${path.pool}/utilization`,
+        method: 'GET',
         ...params,
       })
     },
