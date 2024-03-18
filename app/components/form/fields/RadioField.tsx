@@ -15,14 +15,11 @@ import {
   type PathValue,
 } from 'react-hook-form'
 
-import {
-  FieldLabel,
-  Radio,
-  RadioGroup,
-  TextInputHint,
-  type RadioGroupProps,
-} from '@oxide/ui'
-import { capitalize } from '@oxide/util'
+import { FieldLabel } from '~/ui/lib/FieldLabel'
+import { Radio } from '~/ui/lib/Radio'
+import { RadioGroup, type RadioGroupProps } from '~/ui/lib/RadioGroup'
+import { TextInputHint } from '~/ui/lib/TextInput'
+import { capitalize } from '~/util/str'
 
 export type RadioFieldProps<
   TFieldValues extends FieldValues,
@@ -37,7 +34,7 @@ export type RadioFieldProps<
    * complete the input. This will be announced in tandem with the
    * label when using a screen reader.
    */
-  helpText?: string
+  description?: string | React.ReactNode
   /**
    * Displayed in a tooltip beside the title. This field should be used
    * for auxiliary context that helps users understand extra context about
@@ -46,7 +43,7 @@ export type RadioFieldProps<
    *
    * @see https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Attributes/aria-description
    */
-  description?: string
+  tooltipText?: string
   placeholder?: string
   units?: string
   control: Control<TFieldValues>
@@ -68,8 +65,8 @@ export function RadioField<
 >({
   name,
   label = capitalize(name),
-  helpText,
   description,
+  tooltipText,
   units,
   control,
   items,
@@ -81,12 +78,12 @@ export function RadioField<
     <div>
       <div className="mb-2">
         {label && (
-          <FieldLabel id={`${id}-label`} tip={description}>
+          <FieldLabel id={`${id}-label`} tip={tooltipText}>
             {label} {units && <span className="ml-1 text-secondary">({units})</span>}
           </FieldLabel>
         )}
         {/* TODO: Figure out where this hint field def should live */}
-        {helpText && <TextInputHint id={`${id}-help-text`}>{helpText}</TextInputHint>}
+        {description && <TextInputHint id={`${id}-help-text`}>{description}</TextInputHint>}
       </div>
       <Controller
         name={name}
@@ -95,9 +92,9 @@ export function RadioField<
           <RadioGroup
             defaultChecked={value}
             aria-labelledby={cn(`${id}-label`, {
-              [`${id}-help-text`]: !!description,
+              [`${id}-help-text`]: !!tooltipText,
             })}
-            aria-describedby={description ? `${id}-label-tip` : undefined}
+            aria-describedby={tooltipText ? `${id}-label-tip` : undefined}
             onChange={(e) =>
               parseValue ? onChange(parseValue(e.target.value)) : onChange(e)
             }
@@ -137,8 +134,8 @@ export function RadioFieldDyn<
 >({
   name,
   label = capitalize(name),
-  helpText,
   description,
+  tooltipText,
   units,
   control,
   children,
@@ -149,12 +146,12 @@ export function RadioFieldDyn<
     <div>
       <div className="mb-2">
         {label && (
-          <FieldLabel id={`${id}-label`} tip={description}>
+          <FieldLabel id={`${id}-label`} tip={tooltipText}>
             {label} {units && <span className="ml-1 text-secondary">({units})</span>}
           </FieldLabel>
         )}
         {/* TODO: Figure out where this hint field def should live */}
-        {helpText && <TextInputHint id={`${id}-help-text`}>{helpText}</TextInputHint>}
+        {description && <TextInputHint id={`${id}-help-text`}>{description}</TextInputHint>}
       </div>
       <Controller
         name={name}
@@ -163,9 +160,9 @@ export function RadioFieldDyn<
           <RadioGroup
             defaultChecked={value}
             aria-labelledby={cn(`${id}-label`, {
-              [`${id}-help-text`]: !!description,
+              [`${id}-help-text`]: !!tooltipText,
             })}
-            aria-describedby={description ? `${id}-label-tip` : undefined}
+            aria-describedby={tooltipText ? `${id}-label-tip` : undefined}
             onChange={onChange}
             name={name}
             {...props}

@@ -8,13 +8,19 @@
 import { useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
-import { Access16Icon, Divider, Folder16Icon, Images16Icon, Metrics16Icon } from '@oxide/ui'
+import {
+  Access16Icon,
+  Folder16Icon,
+  Images16Icon,
+  Metrics16Icon,
+} from '@oxide/design-system/icons/react'
 
-import { DocsLinkItem, NavLinkItem, Sidebar } from 'app/components/Sidebar'
-import { TopBar } from 'app/components/TopBar'
-import { ProjectPicker, SiloSystemPicker } from 'app/components/TopBarPicker'
-import { useQuickActions } from 'app/hooks'
-import { pb } from 'app/util/path-builder'
+import { DocsLinkItem, NavLinkItem, Sidebar } from '~/components/Sidebar'
+import { TopBar } from '~/components/TopBar'
+import { ProjectPicker, SiloSystemPicker } from '~/components/TopBarPicker'
+import { useQuickActions } from '~/hooks'
+import { Divider } from '~/ui/lib/Divider'
+import { pb } from '~/util/path-builder'
 
 import { useCurrentUser } from './AuthenticatedLayout'
 import { ContentPane, PageContainer } from './helpers'

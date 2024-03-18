@@ -7,9 +7,8 @@
  */
 import { animated, useTransition } from '@react-spring/web'
 
-import { Toast } from '@oxide/ui'
-
-import { useToastStore } from 'app/stores/toast'
+import { useToastStore } from '~/stores/toast'
+import { Toast } from '~/ui/lib/Toast'
 
 export function ToastStack() {
   const toasts = useToastStore((state) => state.toasts)

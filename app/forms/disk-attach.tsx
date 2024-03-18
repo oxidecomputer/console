@@ -7,8 +7,9 @@
  */
 import { useApiQuery, type ApiError } from '@oxide/api'
 
-import { ListboxField, SideModalForm } from 'app/components/form'
-import { useForm, useProjectSelector } from 'app/hooks'
+import { ListboxField } from '~/components/form/fields/ListboxField'
+import { SideModalForm } from '~/components/form/SideModalForm'
+import { useForm, useProjectSelector } from '~/hooks'
 
 const defaultValues = { name: '' }
 
@@ -45,9 +46,10 @@ export function AttachDiskSideModalForm({
 
   return (
     <SideModalForm
-      id="form-disk-attach"
-      title="Attach Disk"
       form={form}
+      formType="create"
+      resourceName="disk"
+      title="Attach Disk"
       onSubmit={onSubmit}
       loading={loading}
       submitError={submitError}
@@ -63,5 +65,3 @@ export function AttachDiskSideModalForm({
     </SideModalForm>
   )
 }
-
-export default AttachDiskSideModalForm

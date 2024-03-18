@@ -9,9 +9,12 @@ import { useNavigate } from 'react-router-dom'
 
 import { useApiMutation, useApiQueryClient, type SshKeyCreate } from '@oxide/api'
 
-import { DescriptionField, NameField, SideModalForm, TextField } from 'app/components/form'
-import { useForm } from 'app/hooks'
-import { pb } from 'app/util/path-builder'
+import { DescriptionField } from '~/components/form/fields/DescriptionField'
+import { NameField } from '~/components/form/fields/NameField'
+import { TextField } from '~/components/form/fields/TextField'
+import { SideModalForm } from '~/components/form/SideModalForm'
+import { useForm } from '~/hooks'
+import { pb } from '~/util/path-builder'
 
 const defaultValues: SshKeyCreate = {
   name: '',
@@ -19,26 +22,33 @@ const defaultValues: SshKeyCreate = {
   publicKey: '',
 }
 
-export function CreateSSHKeySideModalForm() {
+export function CreateSSHKeySideModalForm({
+  onDismiss,
+  message,
+}: {
+  onDismiss?: () => void
+  message?: React.ReactNode
+}) {
   const queryClient = useApiQueryClient()
   const navigate = useNavigate()
 
-  const onDismiss = () => navigate(pb.sshKeys())
+  const handleDismiss = onDismiss ? onDismiss : () => navigate(pb.sshKeys())
 
   const createSshKey = useApiMutation('currentUserSshKeyCreate', {
     onSuccess() {
       queryClient.invalidateQueries('currentUserSshKeyList')
-      onDismiss()
+      handleDismiss()
     },
   })
   const form = useForm({ defaultValues })
 
   return (
     <SideModalForm
-      id="create-ssh-key-form"
-      title="Add SSH key"
       form={form}
-      onDismiss={onDismiss}
+      formType="create"
+      resourceName="SSH key"
+      title="Add SSH key"
+      onDismiss={handleDismiss}
       onSubmit={(body) => createSshKey.mutate({ body })}
       loading={createSshKey.isPending}
       submitError={createSshKey.error}
@@ -53,6 +63,7 @@ export function CreateSSHKeySideModalForm() {
         rows={8}
         control={form.control}
       />
+      {message}
     </SideModalForm>
   )
 }

@@ -9,10 +9,12 @@ import { useNavigate } from 'react-router-dom'
 
 import { useApiMutation, useApiQueryClient, type ProjectCreate } from '@oxide/api'
 
-import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
-import { useForm } from 'app/hooks'
-import { addToast } from 'app/stores/toast'
-import { pb } from 'app/util/path-builder'
+import { DescriptionField } from '~/components/form/fields/DescriptionField'
+import { NameField } from '~/components/form/fields/NameField'
+import { SideModalForm } from '~/components/form/SideModalForm'
+import { useForm } from '~/hooks'
+import { addToast } from '~/stores/toast'
+import { pb } from '~/util/path-builder'
 
 const defaultValues: ProjectCreate = {
   name: '',
@@ -36,15 +38,13 @@ export function CreateProjectSideModalForm() {
     },
   })
 
-  // TODO: RHF docs warn about the performance impact of validating on every
-  // change
   const form = useForm({ defaultValues })
 
   return (
     <SideModalForm
-      id="create-project-form"
       form={form}
-      title="Create project"
+      formType="create"
+      resourceName="project"
       onDismiss={onDismiss}
       onSubmit={({ name, description }) => {
         createProject.mutate({ body: { name, description } })

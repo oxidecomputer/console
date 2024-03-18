@@ -18,18 +18,22 @@ import {
   type VpcFirewallRuleTarget,
   type VpcFirewallRuleUpdate,
 } from '@oxide/api'
-import { Button, Close12Icon, FormDivider, Table } from '@oxide/ui'
+import { Error16Icon } from '@oxide/design-system/icons/react'
 
-import {
-  CheckboxField,
-  DescriptionField,
-  ListboxField,
-  NameField,
-  RadioField,
-  SideModalForm,
-  TextField,
-} from 'app/components/form'
-import { useForm, useVpcSelector } from 'app/hooks'
+import { CheckboxField } from '~/components/form/fields/CheckboxField'
+import { DescriptionField } from '~/components/form/fields/DescriptionField'
+import { ListboxField } from '~/components/form/fields/ListboxField'
+import { NameField } from '~/components/form/fields/NameField'
+import { NumberField } from '~/components/form/fields/NumberField'
+import { RadioField } from '~/components/form/fields/RadioField'
+import { TextField } from '~/components/form/fields/TextField'
+import { SideModalForm } from '~/components/form/SideModalForm'
+import { useForm, useVpcSelector } from '~/hooks'
+import { Badge } from '~/ui/lib/Badge'
+import { Button } from '~/ui/lib/Button'
+import { FormDivider } from '~/ui/lib/Divider'
+import * as MiniTable from '~/ui/lib/MiniTable'
+import { KEYS } from '~/ui/util/keys'
 
 export type FirewallRuleValues = {
   enabled: boolean
@@ -133,12 +137,41 @@ function getFilterValueProps(hostType: VpcFirewallRuleHostFilter['type']) {
 export const CommonFields = ({ error, control }: CommonFieldsProps) => {
   const portRangeForm = useForm({ defaultValues: portRangeDefaultValues })
   const ports = useController({ name: 'ports', control }).field
+  const submitPortRange = portRangeForm.handleSubmit(({ portRange }) => {
+    const portRangeValue = portRange.trim()
+    // ignore click if invalid or already in the list
+    // TODO: show error instead of ignoring the click
+    if (!parsePortRange(portRangeValue)) return
+    if (ports.value.includes(portRangeValue)) return
+    ports.onChange([...ports.value, portRangeValue])
+    portRangeForm.reset()
+  })
 
   const hostForm = useForm({ defaultValues: hostDefaultValues })
   const hosts = useController({ name: 'hosts', control }).field
+  const submitHost = hostForm.handleSubmit(({ type, value }) => {
+    // ignore click if empty or a duplicate
+    // TODO: show error instead of ignoring click
+    if (!type || !value) return
+    if (hosts.value.some((t) => t.value === value && t.type === type)) return
+
+    hosts.onChange([...hosts.value, { type, value }])
+    hostForm.reset()
+  })
 
   const targetForm = useForm({ defaultValues: targetDefaultValues })
   const targets = useController({ name: 'targets', control }).field
+  const submitTarget = targetForm.handleSubmit(({ type, value }) => {
+    // TODO: do this with a normal validation
+    // ignore click if empty or a duplicate
+    // TODO: show error instead of ignoring click
+    if (!type || !value) return
+    if (targets.value.some((t) => t.value === value && t.type === type)) return
+
+    targets.onChange([...targets.value, { type, value }])
+    targetForm.reset()
+  })
+
   return (
     <>
       {/* omitting value prop makes it a boolean value. beautiful */}
@@ -151,10 +184,9 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
 
       <FormDivider />
 
-      <TextField
-        type="number"
+      <NumberField
         name="priority"
-        helpText="Must be 0&ndash;65535"
+        description="Must be 0&ndash;65535"
         required
         control={control}
       />
@@ -173,8 +205,8 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
         column
         control={control}
         items={[
-          { value: 'inbound', label: 'Incoming' },
-          { value: 'outbound', label: 'Outgoing' },
+          { value: 'inbound', label: 'Inbound' },
+          { value: 'outbound', label: 'Outbound' },
         ]}
       />
 
@@ -182,7 +214,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
 
       {/* Really this should be its own <form>, but you can't have a form inside a form,
           so we just stick the submit handler in a button onClick */}
-      <h3 className="mb-4 text-sans-xl">Targets</h3>
+      <h3 className="mb-4 text-sans-xl">Target</h3>
       {/* TODO: make ListboxField smarter with the values like RadioField is */}
       <ListboxField
         name="type"
@@ -197,71 +229,75 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
         required
         control={targetForm.control}
       />
-      <TextField
-        name="value"
-        {...getFilterValueProps(targetForm.watch('type'))}
-        required
-        control={targetForm.control}
-      />
 
-      <div className="flex justify-end">
-        <Button
-          variant="ghost"
-          size="sm"
-          className="mr-2.5"
-          onClick={() => targetForm.reset()}
-        >
-          Clear
-        </Button>
-        <Button
-          size="sm"
-          onClick={targetForm.handleSubmit(({ type, value }) => {
-            // TODO: show error instead of ignoring click
-            // TODO: do this with a normal validation
-            if (
-              type &&
-              value &&
-              !targets.value.some((t) => t.value === value && t.type === type)
-            ) {
-              targets.onChange([...targets.value, { type, value }])
-              targetForm.reset()
+      <div className="flex flex-col gap-3">
+        <TextField
+          name="value"
+          {...getFilterValueProps(targetForm.watch('type'))}
+          required
+          control={targetForm.control}
+          onKeyDown={(e) => {
+            if (e.key === KEYS.enter) {
+              e.preventDefault() // prevent full form submission
+              submitTarget(e)
             }
-          })}
-        >
-          Add target
-        </Button>
+          }}
+        />
+
+        <div className="flex justify-end">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="mr-2.5"
+            disabled={!targetForm.formState.isDirty}
+            onClick={() => targetForm.reset()}
+          >
+            Clear
+          </Button>
+          <Button size="sm" onClick={submitTarget}>
+            Add target
+          </Button>
+        </div>
       </div>
 
-      <Table className="w-full">
-        <Table.Header>
-          <Table.HeaderRow>
-            <Table.HeadCell>Type</Table.HeadCell>
-            <Table.HeadCell>Name</Table.HeadCell>
-            <Table.HeadCell />
-          </Table.HeaderRow>
-        </Table.Header>
-        <Table.Body>
-          {targets.value.map((t) => (
-            <Table.Row key={`${t.type}|${t.value}`}>
-              {/* TODO: should be the pretty type label, not the type key */}
-              <Table.Cell>{t.type}</Table.Cell>
-              <Table.Cell>{t.value}</Table.Cell>
-              <Table.Cell>
-                <Close12Icon
-                  className="cursor-pointer"
-                  onClick={() => {
-                    targets.onChange(
-                      targets.value.filter(
-                        (t1) => t1.value !== t.value || t1.type !== t.type
+      {!!targets.value.length && (
+        <MiniTable.Table className="mb-4" aria-label="Targets">
+          <MiniTable.Header>
+            <MiniTable.HeadCell>Type</MiniTable.HeadCell>
+            <MiniTable.HeadCell>Value</MiniTable.HeadCell>
+            {/* For remove button */}
+            <MiniTable.HeadCell className="w-12" />
+          </MiniTable.Header>
+          <MiniTable.Body>
+            {targets.value.map((t, index) => (
+              <MiniTable.Row
+                tabIndex={0}
+                aria-rowindex={index + 1}
+                aria-label={`Name: ${t.value}, Type: ${t.type}`}
+                key={`${t.type}|${t.value}`}
+              >
+                <MiniTable.Cell>
+                  <Badge variant="solid">{t.type}</Badge>
+                </MiniTable.Cell>
+                <MiniTable.Cell>{t.value}</MiniTable.Cell>
+                <MiniTable.Cell>
+                  <button
+                    onClick={() =>
+                      targets.onChange(
+                        targets.value.filter(
+                          (i) => !(i.value === t.value && i.type === t.type)
+                        )
                       )
-                    )
-                  }}
-                />
-              </Table.Cell>
-            </Table.Row>
-          ))}
-        </Table.Body>
-      </Table>
+                    }
+                  >
+                    <Error16Icon title={`remove ${t.value}`} />
+                  </button>
+                </MiniTable.Cell>
+              </MiniTable.Row>
+            ))}
+          </MiniTable.Body>
+        </MiniTable.Table>
+      )}
 
       <FormDivider />
 
@@ -279,128 +315,135 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
         required
         control={hostForm.control}
       />
-      {/* For everything but IP this is a name, but for IP it's an IP.
+
+      <div className="flex flex-col gap-3">
+        {/* For everything but IP this is a name, but for IP it's an IP.
           So we should probably have the label on this field change when the
           host type changes. Also need to confirm that it's just an IP and
           not a block. */}
-      <TextField
-        name="value"
-        {...getFilterValueProps(hostForm.watch('type'))}
-        required
-        control={hostForm.control}
-      />
-
-      <div className="flex justify-end">
-        <Button
-          variant="ghost"
-          size="sm"
-          className="mr-2.5"
-          onClick={() => hostForm.reset()}
-        >
-          Clear
-        </Button>
-        <Button
-          size="sm"
-          onClick={hostForm.handleSubmit(({ type, value }) => {
-            // TODO: show error instead of ignoring click
-            if (
-              type &&
-              value &&
-              !hosts.value.some((t) => t.value === value || t.type === type)
-            ) {
-              hosts.onChange([...hosts.value, { type, value }])
-              hostForm.reset()
+        <TextField
+          name="value"
+          {...getFilterValueProps(hostForm.watch('type'))}
+          required
+          control={hostForm.control}
+          onKeyDown={(e) => {
+            if (e.key === KEYS.enter) {
+              e.preventDefault() // prevent full form submission
+              submitHost(e)
             }
-          })}
-        >
-          Add host filter
-        </Button>
+          }}
+        />
+
+        <div className="flex justify-end">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="mr-2.5"
+            disabled={!hostForm.formState.isDirty}
+            onClick={() => hostForm.reset()}
+          >
+            Clear
+          </Button>
+          <Button size="sm" onClick={submitHost}>
+            Add host filter
+          </Button>
+        </div>
       </div>
 
-      <Table className="w-full">
-        <Table.Header>
-          <Table.HeaderRow>
-            <Table.HeadCell>Type</Table.HeadCell>
-            <Table.HeadCell>Value</Table.HeadCell>
-            <Table.HeadCell />
-          </Table.HeaderRow>
-        </Table.Header>
-        <Table.Body>
-          {hosts.value.map((h) => (
-            <Table.Row key={`${h.type}|${h.value}`}>
-              {/* TODO: should be the pretty type label, not the type key */}
-              <Table.Cell>{h.type}</Table.Cell>
-              <Table.Cell>{h.value}</Table.Cell>
-              <Table.Cell>
-                <Close12Icon
-                  className="cursor-pointer"
-                  onClick={() => {
-                    hosts.onChange(
-                      hosts.value.filter((h1) => h1.value !== h.value && h1.type !== h.type)
-                    )
-                  }}
-                />
-              </Table.Cell>
-            </Table.Row>
-          ))}
-        </Table.Body>
-      </Table>
+      {!!hosts.value.length && (
+        <MiniTable.Table className="mb-4" aria-label="Host filters">
+          <MiniTable.Header>
+            <MiniTable.HeadCell>Type</MiniTable.HeadCell>
+            <MiniTable.HeadCell>Value</MiniTable.HeadCell>
+            {/* For remove button */}
+            <MiniTable.HeadCell className="w-12" />
+          </MiniTable.Header>
+          <MiniTable.Body>
+            {hosts.value.map((h, index) => (
+              <MiniTable.Row
+                tabIndex={0}
+                aria-rowindex={index + 1}
+                aria-label={`Name: ${h.value}, Type: ${h.type}`}
+                key={`${h.type}|${h.value}`}
+              >
+                <MiniTable.Cell>
+                  <Badge variant="solid">{h.type}</Badge>
+                </MiniTable.Cell>
+                <MiniTable.Cell>{h.value}</MiniTable.Cell>
+                <MiniTable.Cell>
+                  <button
+                    onClick={() =>
+                      hosts.onChange(
+                        hosts.value.filter(
+                          (i) => !(i.value === h.value && i.type === h.type)
+                        )
+                      )
+                    }
+                  >
+                    <Error16Icon title={`remove ${h.value}`} />
+                  </button>
+                </MiniTable.Cell>
+              </MiniTable.Row>
+            ))}
+          </MiniTable.Body>
+        </MiniTable.Table>
+      )}
 
       <FormDivider />
 
-      <TextField
-        name="portRange"
-        label="Port filter"
-        helpText="A single port (1234) or a range (1234-2345)"
-        required
-        control={portRangeForm.control}
-      />
-      <div className="flex justify-end">
-        <Button
-          variant="ghost"
-          size="sm"
-          className="mr-2.5"
-          onClick={() => portRangeForm.reset()}
-        >
-          Clear
-        </Button>
-        <Button
-          size="sm"
-          onClick={portRangeForm.handleSubmit(({ portRange }) => {
-            const portRangeValue = portRange.trim()
-            // TODO: show error instead of ignoring the click
-            if (!parsePortRange(portRangeValue)) return
-            ports.onChange([...ports.value, portRangeValue])
-            portRangeForm.reset()
-          })}
-        >
-          Add port filter
-        </Button>
+      <div className="flex flex-col gap-3">
+        <TextField
+          name="portRange"
+          label="Port filter"
+          description="A single port (1234) or a range (1234-2345)"
+          required
+          control={portRangeForm.control}
+          onKeyDown={(e) => {
+            if (e.key === KEYS.enter) {
+              e.preventDefault() // prevent full form submission
+              submitPortRange(e)
+            }
+          }}
+        />
+        <div className="flex justify-end">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="mr-2.5"
+            disabled={!portRangeForm.formState.isDirty}
+            onClick={() => portRangeForm.reset()}
+          >
+            Clear
+          </Button>
+          <Button size="sm" onClick={submitPortRange}>
+            Add port filter
+          </Button>
+        </div>
       </div>
-      <Table className="w-full">
-        <Table.Header>
-          <Table.HeaderRow>
-            <Table.HeadCell>Range</Table.HeadCell>
-            <Table.HeadCell />
-          </Table.HeaderRow>
-        </Table.Header>
-        <Table.Body>
-          {ports.value.map((p) => (
-            <Table.Row key={p}>
-              {/* TODO: should be the pretty type label, not the type key */}
-              <Table.Cell>{p}</Table.Cell>
-              <Table.Cell>
-                <Close12Icon
-                  className="cursor-pointer"
-                  onClick={() => {
-                    ports.onChange(ports.value.filter((p1) => p1 !== p))
-                  }}
-                />
-              </Table.Cell>
-            </Table.Row>
-          ))}
-        </Table.Body>
-      </Table>
+
+      {!!ports.value.length && (
+        <MiniTable.Table className="mb-4" aria-label="Ports">
+          <MiniTable.Header>
+            <MiniTable.HeadCell>Range</MiniTable.HeadCell>
+            {/* For remove button */}
+            <MiniTable.HeadCell className="w-12" />
+          </MiniTable.Header>
+          <MiniTable.Body>
+            {ports.value.map((p) => (
+              <MiniTable.Row tabIndex={0} aria-label={p} key={p}>
+                <MiniTable.Cell>{p}</MiniTable.Cell>
+                <MiniTable.Cell>
+                  <button
+                    onClick={() => ports.onChange(ports.value.filter((p1) => p1 !== p))}
+                  >
+                    <Error16Icon title={`remove ${p}`} />
+                  </button>
+                </MiniTable.Cell>
+              </MiniTable.Row>
+            ))}
+          </MiniTable.Body>
+        </MiniTable.Table>
+      )}
 
       <FormDivider />
 
@@ -461,9 +504,10 @@ export function CreateFirewallRuleForm({
 
   return (
     <SideModalForm
-      id="create-firewall-rule-form"
-      title="Add firewall rule"
       form={form}
+      formType="create"
+      resourceName="rule"
+      title="Add firewall rule"
       onDismiss={onDismiss}
       onSubmit={(values) => {
         // TODO: this silently overwrites existing rules with the current name.

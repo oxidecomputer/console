@@ -8,15 +8,15 @@ on:
 jobs:
   install:
     timeout-minutes: 60
-    runs-on: ubuntu-latest
+    runs-on: macos-14
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
           cache: 'npm'
       - name: Cache node_modules
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         id: cache-node-modules
         with:
           path: node_modules
@@ -26,19 +26,16 @@ jobs:
         run: npm install
   ci:
     timeout-minutes: 5
-    runs-on: ubuntu-latest
+    runs-on: macos-14
     needs: install
     steps:
-      # This repo is unstable and unnecessary: https://github.com/microsoft/linux-package-repositories/issues/34
-      - name: Disable packages.microsoft.com repo
-        run: sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
           cache: 'npm'
       - name: Get node_modules from cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         id: cache-node-modules
         with:
           path: node_modules
@@ -54,23 +51,20 @@ jobs:
   playwright:
     name: Playwright (${{ matrix.browser }})
     timeout-minutes: 20
-    runs-on: ubuntu-latest
+    runs-on: macos-14
     needs: install
     strategy:
       fail-fast: false
       matrix:
         browser: ['chrome', 'firefox', 'safari']
     steps:
-      # This repo is unstable and unnecessary: https://github.com/microsoft/linux-package-repositories/issues/34
-      - name: Disable packages.microsoft.com repo
-        run: sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
           cache: 'npm'
       - name: Get node_modules from cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: node_modules
           key: modules-${{ hashFiles('package-lock.json') }}
@@ -80,7 +74,7 @@ jobs:
           echo "PLAYWRIGHT_VERSION=$PLAYWRIGHT_VERSION" >> $GITHUB_ENV
       # Cache browser binaries, cache key is based on Playwright version and OS
       - name: Cache Playwright browser binaries
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         id: playwright-cache
         with:
           path: '~/.cache/ms-playwright'

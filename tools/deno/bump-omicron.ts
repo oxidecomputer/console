@@ -9,7 +9,7 @@
  */
 import * as flags from 'https://deno.land/std@0.159.0/flags/mod.ts'
 import * as path from 'https://deno.land/std@0.159.0/path/mod.ts'
-import $ from 'https://deno.land/x/dax@0.35.0/mod.ts'
+import $ from 'https://deno.land/x/dax@0.39.2/mod.ts'
 
 const HELP = `
 Update tools/console_version in ../omicron with current console commit

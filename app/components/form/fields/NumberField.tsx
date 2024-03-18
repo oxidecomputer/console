@@ -9,8 +9,10 @@ import cn from 'classnames'
 import { useId } from 'react'
 import { Controller, type FieldPathByValue, type FieldValues } from 'react-hook-form'
 
-import { FieldLabel, TextInputHint, NumberInput as UINumberField } from '@oxide/ui'
-import { capitalize } from '@oxide/util'
+import { FieldLabel } from '~/ui/lib/FieldLabel'
+import { NumberInput } from '~/ui/lib/NumberInput'
+import { TextInputHint } from '~/ui/lib/TextInput'
+import { capitalize } from '~/util/str'
 
 import { ErrorMessage } from './ErrorMessage'
 import type { TextFieldProps } from './TextField'
@@ -23,8 +25,8 @@ export function NumberField<
   name,
   label = capitalize(name),
   units,
+  tooltipText,
   description,
-  helpText,
   required,
   ...props
 }: Omit<TextFieldProps<TFieldValues, TName>, 'id'>) {
@@ -33,12 +35,12 @@ export function NumberField<
   return (
     <div className="max-w-lg">
       <div className="mb-2">
-        <FieldLabel htmlFor={id} id={`${id}-label`} tip={description} optional={!required}>
+        <FieldLabel htmlFor={id} id={`${id}-label`} tip={tooltipText} optional={!required}>
           {label} {units && <span className="ml-1 text-secondary">({units})</span>}
         </FieldLabel>
-        {helpText && (
+        {description && (
           <TextInputHint id={`${id}-help-text`} className="mb-2">
-            {helpText}
+            {description}
           </TextInputHint>
         )}
       </div>
@@ -52,9 +54,9 @@ export function NumberField<
  * Primarily exists for `NumberField`, but we occasionally also need a plain field
  * without a label on it.
  *
- * Note that `id` is an allowed prop, unlike in `TextField`, where it is always
+ * Note that `id` is an allowed prop, unlike in `NumberField`, where it is always
  * generated from `name`. This is because we need to pass the generated ID in
- * from there to here. For the case where `TextFieldInner` is used
+ * from there to here. For the case where `NumberFieldInner` is used
  * independently, we also generate an ID for use only if none is passed in.
  */
 export const NumberFieldInner = <
@@ -65,9 +67,12 @@ export const NumberFieldInner = <
   label = capitalize(name),
   validate,
   control,
-  description,
+  tooltipText,
   required,
   id: idProp,
+  disabled,
+  max,
+  min = 0,
 }: TextFieldProps<TFieldValues, TName>) => {
   const generatedId = useId()
   const id = idProp || generatedId
@@ -80,14 +85,20 @@ export const NumberFieldInner = <
       render={({ field, fieldState: { error } }) => {
         return (
           <>
-            <UINumberField
+            <NumberInput
               id={id}
               error={!!error}
               aria-labelledby={cn(`${id}-label`, {
-                [`${id}-help-text`]: !!description,
+                [`${id}-help-text`]: !!tooltipText,
               })}
-              aria-describedby={description ? `${id}-label-tip` : undefined}
+              aria-describedby={tooltipText ? `${id}-label-tip` : undefined}
+              isDisabled={disabled}
+              maxValue={max ? Number(max) : undefined}
+              minValue={min !== undefined ? Number(min) : undefined}
               {...field}
+              formatOptions={{
+                useGrouping: false,
+              }}
             />
             <ErrorMessage error={error} label={label} />
           </>

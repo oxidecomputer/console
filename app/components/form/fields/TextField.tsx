@@ -16,14 +16,14 @@ import {
   type Validate,
 } from 'react-hook-form'
 
+import { FieldLabel } from '~/ui/lib/FieldLabel'
 import {
-  FieldLabel,
   TextInputHint,
   TextInput as UITextField,
   type TextAreaProps as UITextAreaProps,
   type TextInputBaseProps as UITextFieldProps,
-} from '@oxide/ui'
-import { capitalize } from '@oxide/util'
+} from '~/ui/lib/TextInput'
+import { capitalize } from '~/util/str'
 
 import { ErrorMessage } from './ErrorMessage'
 
@@ -33,7 +33,7 @@ export interface TextFieldProps<
 > extends UITextFieldProps {
   name: TName
   /** HTML type attribute, defaults to text */
-  type?: string
+  type?: 'text' | 'password'
   /** Will default to name if not provided */
   label?: string
   /**
@@ -42,7 +42,7 @@ export interface TextFieldProps<
    * complete the input. This will be announced in tandem with the
    * label when using a screen reader.
    */
-  helpText?: string
+  description?: string | React.ReactNode
   /**
    * Displayed in a tooltip beside the title. This field should be used
    * for auxiliary context that helps users understand extra context about
@@ -51,11 +51,13 @@ export interface TextFieldProps<
    *
    * @see https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Attributes/aria-description
    */
-  description?: string
+  tooltipText?: string
   placeholder?: string
   units?: string
   validate?: Validate<FieldPathValue<TFieldValues, TName>, TFieldValues>
   control: Control<TFieldValues>
+  /** Alters the value of the input during the field's onChange event. */
+  transform?: (value: string) => FieldPathValue<TFieldValues, TName>
 }
 
 export function TextField<
@@ -65,8 +67,8 @@ export function TextField<
   name,
   label = capitalize(name),
   units,
+  tooltipText,
   description,
-  helpText,
   required,
   ...props
 }: Omit<TextFieldProps<TFieldValues, TName>, 'id'> & UITextAreaProps) {
@@ -75,12 +77,12 @@ export function TextField<
   return (
     <div className="max-w-lg">
       <div className="mb-2">
-        <FieldLabel htmlFor={id} id={`${id}-label`} tip={description} optional={!required}>
+        <FieldLabel htmlFor={id} id={`${id}-label`} tip={tooltipText} optional={!required}>
           {label} {units && <span className="ml-1 text-secondary">({units})</span>}
         </FieldLabel>
-        {helpText && (
+        {description && (
           <TextInputHint id={`${id}-help-text`} className="mb-2">
-            {helpText}
+            {description}
           </TextInputHint>
         )}
       </div>
@@ -90,17 +92,9 @@ export function TextField<
   )
 }
 
-function numberToInputValue(value: number) {
-  // could add `|| value === 0`, but that means when the value is 0, we always
-  // show an empty string, which is weird, and doubly bad because then the
-  // browser apparently fails to validate it against minimum (if one is
-  // provided). I found it let me submit instance create with 0 CPUs.
-  return isNaN(value) ? '' : value.toString()
-}
-
 /**
  * Primarily exists for `TextField`, but we occasionally also need a plain field
- * without a label on it. Note special handling of `type="number"`.
+ * without a label on it.
  *
  * Note that `id` is an allowed prop, unlike in `TextField`, where it is always
  * generated from `name`. This is because we need to pass the generated ID in
@@ -116,9 +110,10 @@ export const TextFieldInner = <
   label = capitalize(name),
   validate,
   control,
-  description,
+  tooltipText,
   required,
   id: idProp,
+  transform,
   ...props
 }: TextFieldProps<TFieldValues, TName> & UITextAreaProps) => {
   const generatedId = useId()
@@ -128,7 +123,7 @@ export const TextFieldInner = <
       name={name}
       control={control}
       rules={{ required, validate }}
-      render={({ field: { onChange, value, ...fieldRest }, fieldState: { error } }) => {
+      render={({ field: { onChange, ...fieldRest }, fieldState: { error } }) => {
         return (
           <>
             <UITextField
@@ -137,31 +132,12 @@ export const TextFieldInner = <
               type={type}
               error={!!error}
               aria-labelledby={cn(`${id}-label`, {
-                [`${id}-help-text`]: !!description,
+                [`${id}-help-text`]: !!tooltipText,
               })}
-              aria-describedby={description ? `${id}-label-tip` : undefined}
-              // note special handling for number fields, which produce a number
-              // for the calling code despite the actual input value necessarily
-              // being a string.
+              aria-describedby={tooltipText ? `${id}-label-tip` : undefined}
               onChange={(e) => {
-                if (type === 'number') {
-                  if (e.target.value.trim() === '') {
-                    onChange(0)
-                  } else if (!isNaN(e.target.valueAsNumber)) {
-                    onChange(e.target.valueAsNumber)
-                  }
-                  // otherwise ignore the input. this means, for example, typing
-                  // letters does nothing. If we instead said take anything
-                  // that's NaN and fall back to 0, typing a letter would reset
-                  // the field to 0, which is silly. Browsers are supposed to
-                  // ignore non-numeric input for you anyway, but Firefox does
-                  // not.
-                  return
-                }
-
-                onChange(e.target.value)
+                onChange(transform ? transform(e.target.value) : e.target.value)
               }}
-              value={type === 'number' ? numberToInputValue(value) : value}
               {...fieldRest}
               {...props}
             />

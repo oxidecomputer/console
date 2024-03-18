@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import fileSize from 'filesize'
+import { filesize } from 'filesize'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
@@ -15,12 +15,15 @@ import {
   usePrefetchedApiQuery,
   type ImageCreate,
 } from '@oxide/api'
-import { PropertiesTable } from '@oxide/ui'
 
-import { DescriptionField, NameField, SideModalForm, TextField } from 'app/components/form'
-import { getProjectSnapshotSelector, useForm, useProjectSnapshotSelector } from 'app/hooks'
-import { addToast } from 'app/stores/toast'
-import { pb } from 'app/util/path-builder'
+import { DescriptionField } from '~/components/form/fields/DescriptionField'
+import { NameField } from '~/components/form/fields/NameField'
+import { TextField } from '~/components/form/fields/TextField'
+import { SideModalForm } from '~/components/form/SideModalForm'
+import { getProjectSnapshotSelector, useForm, useProjectSnapshotSelector } from '~/hooks'
+import { addToast } from '~/stores/toast'
+import { PropertiesTable } from '~/ui/lib/PropertiesTable'
+import { pb } from '~/util/path-builder'
 
 const defaultValues: Omit<ImageCreate, 'source'> = {
   name: '',
@@ -66,9 +69,10 @@ export function CreateImageFromSnapshotSideModalForm() {
 
   return (
     <SideModalForm
-      id="create-image-from-snapshot-form"
       form={form}
-      title={`Create image from snapshot`}
+      formType="create"
+      resourceName="image"
+      title="Create image from snapshot"
       submitLabel="Create image"
       onDismiss={onDismiss}
       onSubmit={(body) =>
@@ -83,7 +87,7 @@ export function CreateImageFromSnapshotSideModalForm() {
         <PropertiesTable.Row label="Snapshot">{data.name}</PropertiesTable.Row>
         <PropertiesTable.Row label="Project">{project}</PropertiesTable.Row>
         <PropertiesTable.Row label="Size">
-          {fileSize(data.size, { base: 2 })}
+          {filesize(data.size, { base: 2 })}
         </PropertiesTable.Row>
       </PropertiesTable>
 

@@ -5,12 +5,12 @@
  *
  * Copyright Oxide Computer Company
  */
-import { Success12Icon } from '@oxide/ui'
+import { Success12Icon } from '@oxide/design-system/icons/react'
 
 /**
  * Device authorization success page
  */
-export default function DeviceAuthSuccessPage() {
+export function DeviceAuthSuccessPage() {
   return (
     <div className="flex w-full max-w-[470px] flex-col items-center rounded-lg border p-9 text-center !bg-raise border-secondary elevation-3">
       <div className="my-2 flex h-12 w-12 items-center justify-center">

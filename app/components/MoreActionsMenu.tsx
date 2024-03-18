@@ -5,8 +5,12 @@
  *
  * Copyright Oxide Computer Company
  */
-import type { MenuAction } from '@oxide/table'
-import { DropdownMenu, More12Icon, Tooltip, Wrap } from '@oxide/ui'
+import { More12Icon } from '@oxide/design-system/icons/react'
+
+import type { MenuAction } from '~/table/columns/action-col'
+import { DropdownMenu } from '~/ui/lib/DropdownMenu'
+import { Tooltip } from '~/ui/lib/Tooltip'
+import { Wrap } from '~/ui/util/wrap'
 
 interface MoreActionsMenuProps {
   /** The accessible name for the menu button */

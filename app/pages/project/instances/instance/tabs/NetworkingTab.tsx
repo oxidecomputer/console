@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { useState } from 'react'
-import { Link, type LoaderFunctionArgs } from 'react-router-dom'
+import { type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
   apiQueryClient,
@@ -17,26 +17,25 @@ import {
   usePrefetchedApiQuery,
   type InstanceNetworkInterface,
 } from '@oxide/api'
-import { useQueryTable, type MenuAction } from '@oxide/table'
-import {
-  Badge,
-  Button,
-  EmptyMessage,
-  Networking24Icon,
-  Spinner,
-  Success12Icon,
-} from '@oxide/ui'
+import { Networking24Icon } from '@oxide/design-system/icons/react'
 
-import CreateNetworkInterfaceForm from 'app/forms/network-interface-create'
-import EditNetworkInterfaceForm from 'app/forms/network-interface-edit'
+import { CreateNetworkInterfaceForm } from '~/forms/network-interface-create'
+import { EditNetworkInterfaceForm } from '~/forms/network-interface-edit'
 import {
   getInstanceSelector,
   useInstanceSelector,
   useProjectSelector,
   useToast,
-} from 'app/hooks'
-import { confirmDelete } from 'app/stores/confirm-delete'
-import { pb } from 'app/util/path-builder'
+} from '~/hooks'
+import { confirmDelete } from '~/stores/confirm-delete'
+import { SkeletonCell } from '~/table/cells/EmptyCell'
+import { LinkCell } from '~/table/cells/LinkCell'
+import type { MenuAction } from '~/table/columns/action-col'
+import { useQueryTable } from '~/table/QueryTable'
+import { Badge } from '~/ui/lib/Badge'
+import { Button } from '~/ui/lib/Button'
+import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { pb } from '~/util/path-builder'
 
 import { fancifyStates } from './common'
 
@@ -52,15 +51,8 @@ const VpcNameFromId = ({ value }: { value: string }) => {
   // possible because you can't delete a VPC that has child resources, but let's
   // be safe
   if (isError) return <Badge color="neutral">Deleted</Badge>
-  if (!vpc) return <Spinner /> // loading
-  return (
-    <Link
-      className="text-sans-semi-md text-default hover:underline"
-      to={pb.vpc({ ...projectSelector, vpc: vpc.name })}
-    >
-      {vpc.name}
-    </Link>
-  )
+  if (!vpc) return <SkeletonCell />
+  return <LinkCell to={pb.vpc({ ...projectSelector, vpc: vpc.name })}>{vpc.name}</LinkCell>
 }
 
 const SubnetNameFromId = ({ value }: { value: string }) => {
@@ -72,19 +64,9 @@ const SubnetNameFromId = ({ value }: { value: string }) => {
 
   // same deal as VPC: probably not possible but let's be safe
   if (isError) return <Badge color="neutral">Deleted</Badge>
-  if (!subnet) return <Spinner /> // loading
+  if (!subnet) return <SkeletonCell /> // loading
 
   return <span className="text-secondary">{subnet.name}</span>
-}
-
-function ExternalIpsFromInstanceName({ value: primary }: { value: boolean }) {
-  const { project, instance } = useInstanceSelector()
-  const { data } = useApiQuery('instanceExternalIpList', {
-    path: { instance },
-    query: { project },
-  })
-  const ips = data?.items.map((eip) => eip.ip).join(', ')
-  return <span className="text-secondary">{primary ? ips : <>&mdash;</>}</span>
 }
 
 NetworkingTab.loader = async ({ params }: LoaderFunctionArgs) => {
@@ -200,30 +182,20 @@ export function NetworkingTab() {
         Network Interfaces
       </h2>
       <Table labeled-by="nic-label" makeActions={makeActions} emptyState={emptyState}>
-        <Column accessor="name" />
-        <Column accessor="description" />
-        {/* TODO: mark v4 or v6 explicitly? */}
-        <Column accessor="ip" />
         <Column
-          header="External IP"
-          // we use primary to decide whether to show the IP in that row
-          accessor="primary"
-          id="external_ip"
-          cell={ExternalIpsFromInstanceName}
+          accessor={(i) => ({ name: i.name, primary: i.primary })}
+          id="name"
+          cell={({ value: { name, primary } }) => (
+            <>
+              <span>{name}</span>
+              {primary ? <Badge className="ml-2">primary</Badge> : null}
+            </>
+          )}
         />
+        <Column accessor="description" />
+        <Column accessor="ip" />
         <Column header="vpc" accessor="vpcId" cell={VpcNameFromId} />
         <Column header="subnet" accessor="subnetId" cell={SubnetNameFromId} />
-        <Column
-          accessor="primary"
-          cell={({ value }) =>
-            value && (
-              <>
-                <Success12Icon className="mr-1 text-accent" />
-                <Badge>primary</Badge>
-              </>
-            )
-          }
-        />
       </Table>
       <div className="mt-4 flex flex-col gap-3">
         <div className="flex gap-3">

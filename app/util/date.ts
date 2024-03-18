@@ -5,7 +5,11 @@
  *
  * Copyright Oxide Computer Company
  */
-import { formatDistanceToNowStrict } from 'date-fns'
+import {
+  format,
+  formatDistanceToNowStrict,
+  type FormatDistanceToNowStrictOptions,
+} from 'date-fns'
 
 // locale setup and formatDistance function copied from here and modified
 // https://github.com/date-fns/date-fns/blob/56a3856/src/locale/en-US/_lib/formatDistance/index.js
@@ -29,21 +33,18 @@ const formatDistanceLocale = {
   almostXYears: '~ {{count}}y',
 }
 
-interface Options {
-  addSuffix: boolean
-}
+export const timeAgoAbbr = (d: Date, options?: FormatDistanceToNowStrictOptions) =>
+  formatDistanceToNowStrict(d, {
+    ...options,
+    locale: {
+      formatDistance: (token, count, options) => {
+        const result = formatDistanceLocale[token]?.replace('{{count}}', count.toString())
+        if (result && options?.addSuffix) {
+          return result + ' ago'
+        }
+        return result
+      },
+    },
+  })
 
-function formatDistance(
-  token: keyof typeof formatDistanceLocale,
-  count: string,
-  options: Options
-) {
-  const result = formatDistanceLocale[token]?.replace('{{count}}', count)
-  if (result && options.addSuffix) {
-    return result + ' ago'
-  }
-  return result
-}
-
-export const timeAgoAbbr = (d: Date, options: Options = { addSuffix: false }) =>
-  formatDistanceToNowStrict(d, { ...options, locale: { formatDistance } })
+export const formatDateTime = (d: Date) => format(d, 'MMM d, yyyy H:mm aa')

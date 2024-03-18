@@ -6,10 +6,11 @@
  * Copyright Oxide Computer Company
  */
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
-import { PageHeader, PageTitle, Racks24Icon } from '@oxide/ui'
+import { Racks24Icon } from '@oxide/design-system/icons/react'
 
-import { RouteTabs, Tab } from 'app/components/RouteTabs'
-import { pb } from 'app/util/path-builder'
+import { RouteTabs, Tab } from '~/components/RouteTabs'
+import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
+import { pb } from '~/util/path-builder'
 
 InventoryPage.loader = async () => {
   await apiQueryClient.prefetchQuery('rackList', {

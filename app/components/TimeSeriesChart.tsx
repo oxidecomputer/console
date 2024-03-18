@@ -110,6 +110,7 @@ type TimeSeriesChartProps = {
   startTime: Date
   endTime: Date
   unit?: string
+  yAxisTickFormatter?: (val: number) => string
 }
 
 const TICK_COUNT = 6
@@ -119,6 +120,8 @@ function roundUpToDivBy(value: number, divisor: number) {
   return Math.ceil(value / divisor) * divisor
 }
 
+// default export is most convenient for dynamic import
+// eslint-disable-next-line import/no-default-export
 export default function TimeSeriesChart({
   className,
   data: rawData,
@@ -129,6 +132,7 @@ export default function TimeSeriesChart({
   startTime,
   endTime,
   unit,
+  yAxisTickFormatter = (val) => val.toLocaleString(),
 }: TimeSeriesChartProps) {
   // We use the largest data point +20% for the graph scale. !rawData doesn't
   // mean it's empty (it will never be empty because we fill in artificial 0s at
@@ -182,7 +186,7 @@ export default function TimeSeriesChart({
           orientation="right"
           tick={textMonoMd}
           tickMargin={8}
-          tickFormatter={(val) => val.toLocaleString()}
+          tickFormatter={yAxisTickFormatter}
           padding={{ top: 32 }}
           {...yTicks}
         />

@@ -11,7 +11,8 @@ import type {
   SystemMetricPathParams,
   SystemMetricQueryParams,
 } from '@oxide/api'
-import { groupBy } from '@oxide/util'
+
+import { groupBy } from '~/util/array'
 
 export type MetricsResult = {
   data?: MeasurementResultsPage & {

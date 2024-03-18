@@ -9,11 +9,11 @@ import { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { instanceCan, useApiMutation, type Instance } from '@oxide/api'
-import type { MakeActions } from '@oxide/table'
 
-import { confirmDelete } from 'app/stores/confirm-delete'
-import { addToast } from 'app/stores/toast'
-import { pb } from 'app/util/path-builder'
+import { confirmDelete } from '~/stores/confirm-delete'
+import { addToast } from '~/stores/toast'
+import type { MakeActions } from '~/table/columns/action-col'
+import { pb } from '~/util/path-builder'
 
 import { fancifyStates } from './instance/tabs/common'
 
@@ -111,12 +111,6 @@ export const useMakeInstanceActions = (
                   options.onDelete?.()
                   addToast({ title: `Deleting instance '${instance.name}'` })
                 },
-                onError: (error) =>
-                  addToast({
-                    variant: 'error',
-                    title: `Error deleting instance '${instance.name}'`,
-                    content: error.message,
-                  }),
               }),
             label: instance.name,
           }),

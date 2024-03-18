@@ -8,22 +8,24 @@
 import { useController, type Control } from 'react-hook-form'
 
 import type { Image } from '@oxide/api'
-import type { ListboxItem } from '@oxide/ui'
-import { bytesToGiB, GiB } from '@oxide/util'
 
-import type { InstanceCreateInput } from 'app/forms/instance-create'
+import type { InstanceCreateInput } from '~/forms/instance-create'
+import type { ListboxItem } from '~/ui/lib/Listbox'
+import { bytesToGiB, GiB } from '~/util/units'
 
 import { ListboxField } from './ListboxField'
 
 type ImageSelectFieldProps = {
   images: Image[]
   control: Control<InstanceCreateInput>
+  disabled?: boolean
 }
 
-export function ImageSelectField({ images, control }: ImageSelectFieldProps) {
+export function ImageSelectField({ images, control, disabled }: ImageSelectFieldProps) {
   const diskSizeField = useController({ control, name: 'bootDiskSize' }).field
   return (
     <ListboxField
+      disabled={disabled}
       control={control}
       name="image"
       placeholder="Select an image"

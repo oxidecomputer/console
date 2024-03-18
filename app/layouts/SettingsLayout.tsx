@@ -8,17 +8,18 @@
 import { useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
-import { Divider, Folder16Icon, Key16Icon, Profile16Icon } from '@oxide/ui'
+import { Folder16Icon, Key16Icon, Profile16Icon } from '@oxide/design-system/icons/react'
 
-import { TopBar } from 'app/components/TopBar'
-import { SiloSystemPicker } from 'app/components/TopBarPicker'
-import { useQuickActions } from 'app/hooks'
-import { pb } from 'app/util/path-builder'
+import { TopBar } from '~/components/TopBar'
+import { SiloSystemPicker } from '~/components/TopBarPicker'
+import { useQuickActions } from '~/hooks'
+import { Divider } from '~/ui/lib/Divider'
+import { pb } from '~/util/path-builder'
 
 import { DocsLinkItem, NavLinkItem, Sidebar } from '../components/Sidebar'
 import { ContentPane, PageContainer } from './helpers'
 
-const SettingsLayout = () => {
+export function SettingsLayout() {
   const navigate = useNavigate()
   const { pathname } = useLocation()
 
@@ -66,5 +67,3 @@ const SettingsLayout = () => {
     </PageContainer>
   )
 }
-
-export default SettingsLayout

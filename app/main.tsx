@@ -12,14 +12,18 @@ import { createRoot } from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 
 import { queryClient } from '@oxide/api'
-import { SkipLink } from '@oxide/ui'
 
-import { ConfirmDeleteModal } from './components/ConfirmDeleteModal'
+import { ConfirmActionModal } from './components/ConfirmActionModal'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { ReduceMotion } from './hooks'
 // stripped out by rollup in production
 import { startMockAPI } from './msw-mock-api'
 import { routes } from './routes'
+// this is the only allowed css import
+// eslint-disable-next-line no-restricted-imports
+import '~/ui/styles/index.css'
+
+import { SkipLink } from '~/ui/lib/SkipLink'
 
 if (process.env.SHA) {
   console.info(
@@ -45,7 +49,7 @@ function render() {
     <StrictMode>
       <QueryClientProvider client={queryClient}>
         <ErrorBoundary>
-          <ConfirmDeleteModal />
+          <ConfirmActionModal />
           <SkipLink id="skip-nav" />
           <ReduceMotion />
           <RouterProvider router={router} />

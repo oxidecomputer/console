@@ -8,7 +8,8 @@
 
 import type { VirtualResourceCounts } from '@oxide/api'
 import { Cpu16Icon, Ram16Icon, Ssd16Icon } from '@oxide/design-system/icons/react'
-import { bytesToGiB, bytesToTiB } from '@oxide/util'
+
+import { bytesToGiB, bytesToTiB } from '~/util/units'
 
 import { CapacityBar } from './CapacityBar'
 

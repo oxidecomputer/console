@@ -8,20 +8,18 @@
 import { useNavigate } from 'react-router-dom'
 
 import { useApiMutation, useApiQueryClient, type SiloCreate } from '@oxide/api'
-import { FormDivider } from '@oxide/ui'
 
-import {
-  CheckboxField,
-  DescriptionField,
-  NameField,
-  RadioField,
-  SideModalForm,
-  TextField,
-  TlsCertsField,
-} from 'app/components/form'
-import { NumberField } from 'app/components/form/fields/NumberField'
-import { useForm, useToast } from 'app/hooks'
-import { pb } from 'app/util/path-builder'
+import { CheckboxField } from '~/components/form/fields/CheckboxField'
+import { DescriptionField } from '~/components/form/fields/DescriptionField'
+import { NameField } from '~/components/form/fields/NameField'
+import { NumberField } from '~/components/form/fields/NumberField'
+import { RadioField } from '~/components/form/fields/RadioField'
+import { TextField } from '~/components/form/fields/TextField'
+import { TlsCertsField } from '~/components/form/fields/TlsCertsField'
+import { SideModalForm } from '~/components/form/SideModalForm'
+import { useForm, useToast } from '~/hooks'
+import { FormDivider } from '~/ui/lib/Divider'
+import { pb } from '~/util/path-builder'
 
 export type SiloCreateFormValues = Omit<SiloCreate, 'mappedFleetRoles'> & {
   siloAdminGetsFleetAdmin: boolean
@@ -68,9 +66,9 @@ export function CreateSiloSideModalForm() {
 
   return (
     <SideModalForm
-      id="create-silo-form"
-      title="Create silo"
       form={form}
+      formType="create"
+      resourceName="silo"
       onDismiss={onDismiss}
       onSubmit={({
         adminGroupName,
@@ -108,7 +106,6 @@ export function CreateSiloSideModalForm() {
         label="CPU quota"
         name="quotas.cpus"
         required
-        type="number"
         units="nCPUs"
         validate={validateQuota}
       />
@@ -117,7 +114,6 @@ export function CreateSiloSideModalForm() {
         label="Memory quota"
         name="quotas.memory"
         required
-        type="number"
         units="GiB"
         validate={validateQuota}
       />
@@ -126,7 +122,6 @@ export function CreateSiloSideModalForm() {
         label="Storage quota"
         name="quotas.storage"
         required
-        type="number"
         units="GiB"
         validate={validateQuota}
       />
@@ -144,7 +139,7 @@ export function CreateSiloSideModalForm() {
       <TextField
         name="adminGroupName"
         label="Admin group name"
-        helpText="This group will be created and granted the Silo Admin role"
+        description="This group will be created and granted the Silo Admin role"
         control={form.control}
       />
       <div>

@@ -8,7 +8,8 @@
 import type { CellContext } from '@tanstack/react-table'
 
 import type { RoleKey } from '@oxide/api'
-import { Badge } from '@oxide/ui'
+
+import { Badge } from '~/ui/lib/Badge'
 
 /**
  * Highlight the "effective" role in green, others gray.

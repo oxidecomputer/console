@@ -7,7 +7,9 @@
  */
 import { Controller, type Control, type FieldPath, type FieldValues } from 'react-hook-form'
 
-import { FieldLabel, FileInput, TextInputHint } from '@oxide/ui'
+import { FieldLabel } from '~/ui/lib/FieldLabel'
+import { FileInput } from '~/ui/lib/FileInput'
+import { TextInputHint } from '~/ui/lib/TextInput'
 
 import { ErrorMessage } from './ErrorMessage'
 
@@ -18,20 +20,22 @@ export function FileField<
   id,
   name,
   label,
-  description,
+  tooltipText,
   control,
   required = false,
   accept,
-  helpText,
+  description,
+  disabled,
 }: {
   id: string
   name: TName
   label: string
-  description?: string
+  tooltipText?: string
   control: Control<TFieldValues>
   required?: boolean
   accept?: string
-  helpText?: string
+  description?: string | React.ReactNode
+  disabled?: boolean
 }) {
   return (
     <Controller
@@ -44,14 +48,23 @@ export function FileField<
             <FieldLabel
               id={`${id}-label`}
               htmlFor={id}
-              tip={description}
+              tip={tooltipText}
               optional={!required}
             >
               {label}
             </FieldLabel>
-            {helpText && <TextInputHint id={`${id}-help-text`}>{helpText}</TextInputHint>}
+            {description && (
+              <TextInputHint id={`${id}-help-text`}>{description}</TextInputHint>
+            )}
           </div>
-          <FileInput id={id} className="mt-2" accept={accept} {...rest} error={!!error} />
+          <FileInput
+            id={id}
+            className="mt-2"
+            accept={accept}
+            disabled={disabled}
+            {...rest}
+            error={!!error}
+          />
           <ErrorMessage error={error} label={label} />
         </div>
       )}

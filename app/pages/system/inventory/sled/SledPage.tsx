@@ -5,15 +5,17 @@
  *
  * Copyright Oxide Computer Company
  */
-import fileSize from 'filesize'
+import { filesize } from 'filesize'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
-import { PageHeader, PageTitle, PropertiesTable, Racks24Icon } from '@oxide/ui'
+import { Racks24Icon } from '@oxide/design-system/icons/react'
 
-import { RouteTabs, Tab } from 'app/components/RouteTabs'
-import { requireSledParams, useSledParams } from 'app/hooks'
-import { pb } from 'app/util/path-builder'
+import { RouteTabs, Tab } from '~/components/RouteTabs'
+import { requireSledParams, useSledParams } from '~/hooks'
+import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
+import { PropertiesTable } from '~/ui/lib/PropertiesTable'
+import { pb } from '~/util/path-builder'
 
 SledPage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { sledId } = requireSledParams(params)
@@ -27,7 +29,7 @@ export function SledPage() {
   const { sledId } = useSledParams()
   const { data: sled } = usePrefetchedApiQuery('sledView', { path: { sledId } })
 
-  const ram = fileSize(sled.usablePhysicalRam, { output: 'object', base: 2 })
+  const ram = filesize(sled.usablePhysicalRam, { output: 'object', base: 2 })
 
   return (
     <>

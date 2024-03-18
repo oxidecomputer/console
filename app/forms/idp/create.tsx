@@ -9,16 +9,14 @@ import { useNavigate } from 'react-router-dom'
 
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
 
-import {
-  DescriptionField,
-  FileField,
-  NameField,
-  SideModalForm,
-  TextField,
-} from 'app/components/form'
-import { useForm, useSiloSelector, useToast } from 'app/hooks'
-import { readBlobAsBase64 } from 'app/util/file'
-import { pb } from 'app/util/path-builder'
+import { DescriptionField } from '~/components/form/fields/DescriptionField'
+import { FileField } from '~/components/form/fields/FileField'
+import { NameField } from '~/components/form/fields/NameField'
+import { TextField } from '~/components/form/fields/TextField'
+import { SideModalForm } from '~/components/form/SideModalForm'
+import { useForm, useSiloSelector, useToast } from '~/hooks'
+import { readBlobAsBase64 } from '~/util/file'
+import { pb } from '~/util/path-builder'
 
 import { MetadataSourceField, type IdpCreateFormValues } from './shared'
 
@@ -63,9 +61,9 @@ export function CreateIdpSideModalForm() {
 
   return (
     <SideModalForm
-      id="create-idp-form"
       form={form}
-      title="Create identity provider"
+      formType="create"
+      resourceName="identity provider"
       onDismiss={onDismiss}
       onSubmit={async ({
         signingKeypair,
@@ -111,7 +109,7 @@ export function CreateIdpSideModalForm() {
       <TextField
         name="acsUrl"
         label="ACS URL"
-        helpText="Service provider endpoint for the IdP to send the SAML response"
+        description="Service provider endpoint for the IdP to send the SAML response"
         required
         control={form.control}
       />
@@ -120,7 +118,7 @@ export function CreateIdpSideModalForm() {
       <TextField
         name="sloUrl"
         label="Single Logout (SLO) URL"
-        helpText="Service provider endpoint for log out requests"
+        description="Service provider endpoint for log out requests"
         required
         control={form.control}
       />
@@ -134,7 +132,7 @@ export function CreateIdpSideModalForm() {
       <TextField
         name="groupAttributeName"
         label="Group attribute name"
-        helpText="Name of SAML attribute where we can find a comma-separated list of names of groups the user belongs to"
+        description="Name of SAML attribute where we can find a comma-separated list of names of groups the user belongs to"
         control={form.control}
       />
       {/* TODO: Email field, probably */}
@@ -151,14 +149,14 @@ export function CreateIdpSideModalForm() {
       <FileField
         id="public-cert-file-input"
         name="signingKeypair.publicCert"
-        helpText="DER-encoded X.509 certificate"
+        description="DER-encoded X.509 certificate"
         label="Public cert"
         control={form.control}
       />
       <FileField
         id="private-key-file-input"
         name="signingKeypair.privateKey"
-        helpText="DER-encoded private key"
+        description="DER-encoded private key"
         label="Private key"
         control={form.control}
       />

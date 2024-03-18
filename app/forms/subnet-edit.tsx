@@ -6,10 +6,12 @@
  * Copyright Oxide Computer Company
  */
 import { useApiMutation, useApiQueryClient, type VpcSubnet } from '@oxide/api'
-import { pick } from '@oxide/util'
 
-import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
-import { useForm, useVpcSelector } from 'app/hooks'
+import { DescriptionField } from '~/components/form/fields/DescriptionField'
+import { NameField } from '~/components/form/fields/NameField'
+import { SideModalForm } from '~/components/form/SideModalForm'
+import { useForm, useVpcSelector } from '~/hooks'
+import { pick } from '~/util/object'
 
 type EditSubnetFormProps = {
   onDismiss: () => void
@@ -33,10 +35,10 @@ export function EditSubnetForm({ onDismiss, editing }: EditSubnetFormProps) {
 
   return (
     <SideModalForm
-      id="edit-subnet-form"
-      title="Edit subnet"
-      onDismiss={onDismiss}
       form={form}
+      formType="edit"
+      resourceName="subnet"
+      onDismiss={onDismiss}
       onSubmit={(body) => {
         updateSubnet.mutate({
           path: { subnet: editing.name },
@@ -46,7 +48,6 @@ export function EditSubnetForm({ onDismiss, editing }: EditSubnetFormProps) {
       }}
       loading={updateSubnet.isPending}
       submitError={updateSubnet.error}
-      submitLabel="Update subnet"
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />

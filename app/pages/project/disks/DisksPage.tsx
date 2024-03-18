@@ -12,46 +12,26 @@ import {
   diskCan,
   genName,
   useApiMutation,
-  useApiQuery,
   useApiQueryClient,
   type Disk,
 } from '@oxide/api'
-import { DateCell, SizeCell, useQueryTable, type MenuAction } from '@oxide/table'
-import {
-  buttonStyle,
-  EmptyMessage,
-  PageHeader,
-  PageTitle,
-  Storage24Icon,
-  TableActions,
-} from '@oxide/ui'
+import { Storage24Icon } from '@oxide/design-system/icons/react'
 
-import { DiskStatusBadge } from 'app/components/StatusBadge'
-import { getProjectSelector, useProjectSelector, useToast } from 'app/hooks'
-import { confirmDelete } from 'app/stores/confirm-delete'
-import { pb } from 'app/util/path-builder'
+import { DiskStatusBadge } from '~/components/StatusBadge'
+import { getProjectSelector, useProjectSelector, useToast } from '~/hooks'
+import { confirmDelete } from '~/stores/confirm-delete'
+import { DateCell } from '~/table/cells/DateCell'
+import { InstanceLinkCell } from '~/table/cells/InstanceLinkCell'
+import { SizeCell } from '~/table/cells/SizeCell'
+import type { MenuAction } from '~/table/columns/action-col'
+import { useQueryTable } from '~/table/QueryTable'
+import { buttonStyle } from '~/ui/lib/Button'
+import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
+import { TableActions } from '~/ui/lib/Table'
+import { pb } from '~/util/path-builder'
 
 import { fancifyStates } from '../instances/instance/tabs/common'
-
-function AttachedInstance({
-  instanceId,
-  ...projectSelector
-}: {
-  project: string
-  instanceId: string
-}) {
-  const { data: instance } = useApiQuery('instanceView', {
-    path: { instance: instanceId },
-  })
-  return instance ? (
-    <Link
-      className="text-sans-semi-md text-accent hover:underline"
-      to={pb.instancePage({ ...projectSelector, instance: instance.name })}
-    >
-      {instance.name}
-    </Link>
-  ) : null
-}
 
 const EmptyState = () => (
   <EmptyMessage
@@ -59,14 +39,32 @@ const EmptyState = () => (
     title="No disks"
     body="You need to create a disk to be able to see it here"
     buttonText="New disk"
-    buttonTo={pb.diskNew(useProjectSelector())}
+    buttonTo={pb.disksNew(useProjectSelector())}
   />
 )
 
 DisksPage.loader = async ({ params }: LoaderFunctionArgs) => {
-  await apiQueryClient.prefetchQuery('diskList', {
-    query: { ...getProjectSelector(params), limit: 25 },
-  })
+  const { project } = getProjectSelector(params)
+  await Promise.all([
+    apiQueryClient.prefetchQuery('diskList', {
+      query: { project, limit: 25 },
+    }),
+
+    // fetch instances and preload into RQ cache so fetches by ID in
+    // InstanceLinkCell can be mostly instant yet gracefully fall back to
+    // fetching individually if we don't fetch them all here
+    apiQueryClient
+      .fetchQuery('instanceList', { query: { project, limit: 200 } })
+      .then((instances) => {
+        for (const instance of instances.items) {
+          apiQueryClient.setQueryData(
+            'instanceView',
+            { path: { instance: instance.id } },
+            instance
+          )
+        }
+      }),
+  ])
   return null
 }
 
@@ -86,6 +84,13 @@ export function DisksPage() {
     onSuccess() {
       queryClient.invalidateQueries('snapshotList')
       addToast({ content: 'Snapshot successfully created' })
+    },
+    onError(err) {
+      addToast({
+        title: 'Failed to create snapshot',
+        content: err.message,
+        variant: 'error',
+      })
     },
   })
 
@@ -130,12 +135,12 @@ export function DisksPage() {
         <PageTitle icon={<Storage24Icon />}>Disks</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link to={pb.diskNew(projectSelector)} className={buttonStyle({ size: 'sm' })}>
+        <Link to={pb.disksNew(projectSelector)} className={buttonStyle({ size: 'sm' })}>
           New Disk
         </Link>
       </TableActions>
       <Table emptyState={<EmptyState />} makeActions={makeActions}>
-        <Column accessor="name" header="Disk" />
+        <Column accessor="name" />
         {/* TODO: show info about the instance it's attached to */}
         <Column
           id="attached-to"
@@ -145,9 +150,7 @@ export function DisksPage() {
             // whether it has an instance field
             'instance' in disk.state ? disk.state.instance : null
           }
-          cell={({ value }: { value: string | undefined }) =>
-            value ? <AttachedInstance {...projectSelector} instanceId={value} /> : null
-          }
+          cell={InstanceLinkCell}
         />
         <Column header="Size" accessor="size" cell={SizeCell} />
         <Column

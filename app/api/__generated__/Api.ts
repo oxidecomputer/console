@@ -1,0 +1,6604 @@
+/* eslint-disable */
+
+/**
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
+
+import { HttpClient, toQueryString, type FetchParams } from './http-client'
+
+export type { ApiConfig, ApiResult, ErrorBody, ErrorResult } from './http-client'
+
+/**
+ * An IPv4 subnet
+ *
+ * An IPv4 subnet, including prefix and subnet mask
+ */
+export type Ipv4Net = string
+
+/**
+ * An IPv6 subnet
+ *
+ * An IPv6 subnet, including prefix and subnet mask
+ */
+export type Ipv6Net = string
+
+export type IpNet = Ipv4Net | Ipv6Net
+
+/**
+ * A name unique within the parent collection
+ *
+ * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. Names cannot be a UUID though they may contain a UUID.
+ */
+export type Name = string
+
+export type NameOrId = string | Name
+
+/**
+ * An address tied to an address lot.
+ */
+export type Address = {
+  /** The address and prefix length of this address. */
+  address: IpNet
+  /** The address lot this address is drawn from. */
+  addressLot: NameOrId
+}
+
+/**
+ * A set of addresses associated with a port configuration.
+ */
+export type AddressConfig = {
+  /** The set of addresses assigned to the port configuration. */
+  addresses: Address[]
+}
+
+/**
+ * The kind associated with an address lot.
+ */
+export type AddressLotKind =
+  /** Infrastructure address lots are used for network infrastructure like addresses assigned to rack switches. */
+  | 'infra'
+  /** Pool address lots are used by IP pools. */
+  | 'pool'
+
+/**
+ * Represents an address lot object, containing the id of the lot that can be used in other API calls.
+ */
+export type AddressLot = {
+  /** human-readable free-form text about a resource */
+  description: string
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** Desired use of `AddressLot` */
+  kind: AddressLotKind
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+}
+
+/**
+ * An address lot block is a part of an address lot and contains a range of addresses. The range is inclusive.
+ */
+export type AddressLotBlock = {
+  /** The first address of the block (inclusive). */
+  firstAddress: string
+  /** The id of the address lot block. */
+  id: string
+  /** The last address of the block (inclusive). */
+  lastAddress: string
+}
+
+/**
+ * Parameters for creating an address lot block. Fist and last addresses are inclusive.
+ */
+export type AddressLotBlockCreate = {
+  /** The first address in the lot (inclusive). */
+  firstAddress: string
+  /** The last address in the lot (inclusive). */
+  lastAddress: string
+}
+
+/**
+ * A single page of results
+ */
+export type AddressLotBlockResultsPage = {
+  /** list of items on this page of results */
+  items: AddressLotBlock[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
+ * Parameters for creating an address lot.
+ */
+export type AddressLotCreate = {
+  /** The blocks to add along with the new address lot. */
+  blocks: AddressLotBlockCreate[]
+  description: string
+  /** The kind of address lot to create. */
+  kind: AddressLotKind
+  name: Name
+}
+
+/**
+ * An address lot and associated blocks resulting from creating an address lot.
+ */
+export type AddressLotCreateResponse = {
+  /** The address lot blocks that were created. */
+  blocks: AddressLotBlock[]
+  /** The address lot that was created. */
+  lot: AddressLot
+}
+
+/**
+ * A single page of results
+ */
+export type AddressLotResultsPage = {
+  /** list of items on this page of results */
+  items: AddressLot[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
+ * Properties that uniquely identify an Oxide hardware component
+ */
+export type Baseboard = { part: string; revision: number; serial: string }
+
+export type BfdMode = 'single_hop' | 'multi_hop'
+
+/**
+ * Information needed to disable a BFD session
+ */
+export type BfdSessionDisable = {
+  /** Address of the remote peer to disable a BFD session for. */
+  remote: string
+  /** The switch to enable this session on. Must be `switch0` or `switch1`. */
+  switch: Name
+}
+
+/**
+ * Information about a bidirectional forwarding detection (BFD) session.
+ */
+export type BfdSessionEnable = {
+  /** The negotiated Control packet transmission interval, multiplied by this variable, will be the Detection Time for this session (as seen by the remote system) */
+  detectionThreshold: number
+  /** Address the Oxide switch will listen on for BFD traffic. If `None` then the unspecified address (0.0.0.0 or ::) is used. */
+  local?: string
+  /** Select either single-hop (RFC 5881) or multi-hop (RFC 5883) */
+  mode: BfdMode
+  /** Address of the remote peer to establish a BFD session with. */
+  remote: string
+  /** The minimum interval, in microseconds, between received BFD Control packets that this system requires */
+  requiredRx: number
+  /** The switch to enable this session on. Must be `switch0` or `switch1`. */
+  switch: Name
+}
+
+export type BfdState =
+  /** A stable down state. Non-responsive to incoming messages. */
+  | 'admin_down'
+  /** The initial state. */
+  | 'down'
+  /** The peer has detected a remote peer in the down state. */
+  | 'init'
+  /** The peer has detected a remote peer in the up or init state while in the init state. */
+  | 'up'
+
+export type BfdStatus = {
+  detectionThreshold: number
+  local?: string
+  mode: BfdMode
+  peer: string
+  requiredRx: number
+  state: BfdState
+  switch: Name
+}
+
+/**
+ * Represents a BGP announce set by id. The id can be used with other API calls to view and manage the announce set.
+ */
+export type BgpAnnounceSet = {
+  /** human-readable free-form text about a resource */
+  description: string
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+}
+
+/**
+ * A BGP announcement tied to a particular address lot block.
+ */
+export type BgpAnnouncementCreate = {
+  /** Address lot this announcement is drawn from. */
+  addressLotBlock: NameOrId
+  /** The network being announced. */
+  network: IpNet
+}
+
+/**
+ * Parameters for creating a named set of BGP announcements.
+ */
+export type BgpAnnounceSetCreate = {
+  /** The announcements in this set. */
+  announcement: BgpAnnouncementCreate[]
+  description: string
+  name: Name
+}
+
+/**
+ * A BGP announcement tied to an address lot block.
+ */
+export type BgpAnnouncement = {
+  /** The address block the IP network being announced is drawn from. */
+  addressLotBlockId: string
+  /** The id of the set this announcement is a part of. */
+  announceSetId: string
+  /** The IP network being announced. */
+  network: IpNet
+}
+
+/**
+ * A base BGP configuration.
+ */
+export type BgpConfig = {
+  /** The autonomous system number of this BGP configuration. */
+  asn: number
+  /** human-readable free-form text about a resource */
+  description: string
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+  /** Optional virtual routing and forwarding identifier for this BGP configuration. */
+  vrf?: string
+}
+
+/**
+ * Parameters for creating a BGP configuration. This includes and autonomous system number (ASN) and a virtual routing and forwarding (VRF) identifier.
+ */
+export type BgpConfigCreate = {
+  /** The autonomous system number of this BGP configuration. */
+  asn: number
+  bgpAnnounceSetId: NameOrId
+  description: string
+  name: Name
+  /** Optional virtual routing and forwarding identifier for this BGP configuration. */
+  vrf?: Name
+}
+
+/**
+ * A single page of results
+ */
+export type BgpConfigResultsPage = {
+  /** list of items on this page of results */
+  items: BgpConfig[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
+ * Identifies switch physical location
+ */
+export type SwitchLocation =
+  /** Switch in upper slot */
+  | 'switch0'
+  /** Switch in lower slot */
+  | 'switch1'
+
+/**
+ * A route imported from a BGP peer.
+ */
+export type BgpImportedRouteIpv4 = {
+  /** BGP identifier of the originating router. */
+  id: number
+  /** The nexthop the prefix is reachable through. */
+  nexthop: string
+  /** The destination network prefix. */
+  prefix: Ipv4Net
+  /** Switch the route is imported into. */
+  switch: SwitchLocation
+}
+
+/**
+ * A BGP peer configuration for an interface. Includes the set of announcements that will be advertised to the peer identified by `addr`. The `bgp_config` parameter is a reference to global BGP parameters. The `interface_name` indicates what interface the peer should be contacted on.
+ */
+export type BgpPeer = {
+  /** The address of the host to peer with. */
+  addr: string
+  /** The set of announcements advertised by the peer. */
+  bgpAnnounceSet: NameOrId
+  /** The global BGP configuration used for establishing a session with this peer. */
+  bgpConfig: NameOrId
+  /** How long to to wait between TCP connection retries (seconds). */
+  connectRetry: number
+  /** How long to delay sending an open request after establishing a TCP session (seconds). */
+  delayOpen: number
+  /** How long to hold peer connections between keppalives (seconds). */
+  holdTime: number
+  /** How long to hold a peer in idle before attempting a new session (seconds). */
+  idleHoldTime: number
+  /** The name of interface to peer on. This is relative to the port configuration this BGP peer configuration is a part of. For example this value could be phy0 to refer to a primary physical interface. Or it could be vlan47 to refer to a VLAN interface. */
+  interfaceName: string
+  /** How often to send keepalive requests (seconds). */
+  keepalive: number
+}
+
+export type BgpPeerConfig = { peers: BgpPeer[] }
+
+/**
+ * The current state of a BGP peer.
+ */
+export type BgpPeerState =
+  /** Initial state. Refuse all incomming BGP connections. No resources allocated to peer. */
+  | 'idle'
+  /** Waiting for the TCP connection to be completed. */
+  | 'connect'
+  /** Trying to acquire peer by listening for and accepting a TCP connection. */
+  | 'active'
+  /** Waiting for open message from peer. */
+  | 'open_sent'
+  /** Waiting for keepaliave or notification from peer. */
+  | 'open_confirm'
+  /** Synchronizing with peer. */
+  | 'session_setup'
+  /** Session established. Able to exchange update, notification and keepliave messages with peers. */
+  | 'established'
+
+/**
+ * The current status of a BGP peer.
+ */
+export type BgpPeerStatus = {
+  /** IP address of the peer. */
+  addr: string
+  /** Local autonomous system number. */
+  localAsn: number
+  /** Remote autonomous system number. */
+  remoteAsn: number
+  /** State of the peer. */
+  state: BgpPeerState
+  /** Time of last state change. */
+  stateDurationMillis: number
+  /** Switch with the peer session. */
+  switch: SwitchLocation
+}
+
+/**
+ * A type storing a range over `T`.
+ *
+ * This type supports ranges similar to the `RangeTo`, `Range` and `RangeFrom` types in the standard library. Those cover `(..end)`, `(start..end)`, and `(start..)` respectively.
+ */
+export type BinRangedouble =
+  /** A range unbounded below and exclusively above, `..end`. */
+  | { end: number; type: 'range_to' }
+  /** A range bounded inclusively below and exclusively above, `start..end`. */
+  | { end: number; start: number; type: 'range' }
+  /** A range bounded inclusively below and unbounded above, `start..`. */
+  | { start: number; type: 'range_from' }
+
+/**
+ * A type storing a range over `T`.
+ *
+ * This type supports ranges similar to the `RangeTo`, `Range` and `RangeFrom` types in the standard library. Those cover `(..end)`, `(start..end)`, and `(start..)` respectively.
+ */
+export type BinRangefloat =
+  /** A range unbounded below and exclusively above, `..end`. */
+  | { end: number; type: 'range_to' }
+  /** A range bounded inclusively below and exclusively above, `start..end`. */
+  | { end: number; start: number; type: 'range' }
+  /** A range bounded inclusively below and unbounded above, `start..`. */
+  | { start: number; type: 'range_from' }
+
+/**
+ * A type storing a range over `T`.
+ *
+ * This type supports ranges similar to the `RangeTo`, `Range` and `RangeFrom` types in the standard library. Those cover `(..end)`, `(start..end)`, and `(start..)` respectively.
+ */
+export type BinRangeint16 =
+  /** A range unbounded below and exclusively above, `..end`. */
+  | { end: number; type: 'range_to' }
+  /** A range bounded inclusively below and exclusively above, `start..end`. */
+  | { end: number; start: number; type: 'range' }
+  /** A range bounded inclusively below and unbounded above, `start..`. */
+  | { start: number; type: 'range_from' }
+
+/**
+ * A type storing a range over `T`.
+ *
+ * This type supports ranges similar to the `RangeTo`, `Range` and `RangeFrom` types in the standard library. Those cover `(..end)`, `(start..end)`, and `(start..)` respectively.
+ */
+export type BinRangeint32 =
+  /** A range unbounded below and exclusively above, `..end`. */
+  | { end: number; type: 'range_to' }
+  /** A range bounded inclusively below and exclusively above, `start..end`. */
+  | { end: number; start: number; type: 'range' }
+  /** A range bounded inclusively below and unbounded above, `start..`. */
+  | { start: number; type: 'range_from' }
+
+/**
+ * A type storing a range over `T`.
+ *
+ * This type supports ranges similar to the `RangeTo`, `Range` and `RangeFrom` types in the standard library. Those cover `(..end)`, `(start..end)`, and `(start..)` respectively.
+ */
+export type BinRangeint64 =
+  /** A range unbounded below and exclusively above, `..end`. */
+  | { end: number; type: 'range_to' }
+  /** A range bounded inclusively below and exclusively above, `start..end`. */
+  | { end: number; start: number; type: 'range' }
+  /** A range bounded inclusively below and unbounded above, `start..`. */
+  | { start: number; type: 'range_from' }
+
+/**
+ * A type storing a range over `T`.
+ *
+ * This type supports ranges similar to the `RangeTo`, `Range` and `RangeFrom` types in the standard library. Those cover `(..end)`, `(start..end)`, and `(start..)` respectively.
+ */
+export type BinRangeint8 =
+  /** A range unbounded below and exclusively above, `..end`. */
+  | { end: number; type: 'range_to' }
+  /** A range bounded inclusively below and exclusively above, `start..end`. */
+  | { end: number; start: number; type: 'range' }
+  /** A range bounded inclusively below and unbounded above, `start..`. */
+  | { start: number; type: 'range_from' }
+
+/**
+ * A type storing a range over `T`.
+ *
+ * This type supports ranges similar to the `RangeTo`, `Range` and `RangeFrom` types in the standard library. Those cover `(..end)`, `(start..end)`, and `(start..)` respectively.
+ */
+export type BinRangeuint16 =
+  /** A range unbounded below and exclusively above, `..end`. */
+  | { end: number; type: 'range_to' }
+  /** A range bounded inclusively below and exclusively above, `start..end`. */
+  | { end: number; start: number; type: 'range' }
+  /** A range bounded inclusively below and unbounded above, `start..`. */
+  | { start: number; type: 'range_from' }
+
+/**
+ * A type storing a range over `T`.
+ *
+ * This type supports ranges similar to the `RangeTo`, `Range` and `RangeFrom` types in the standard library. Those cover `(..end)`, `(start..end)`, and `(start..)` respectively.
+ */
+export type BinRangeuint32 =
+  /** A range unbounded below and exclusively above, `..end`. */
+  | { end: number; type: 'range_to' }
+  /** A range bounded inclusively below and exclusively above, `start..end`. */
+  | { end: number; start: number; type: 'range' }
+  /** A range bounded inclusively below and unbounded above, `start..`. */
+  | { start: number; type: 'range_from' }
+
+/**
+ * A type storing a range over `T`.
+ *
+ * This type supports ranges similar to the `RangeTo`, `Range` and `RangeFrom` types in the standard library. Those cover `(..end)`, `(start..end)`, and `(start..)` respectively.
+ */
+export type BinRangeuint64 =
+  /** A range unbounded below and exclusively above, `..end`. */
+  | { end: number; type: 'range_to' }
+  /** A range bounded inclusively below and exclusively above, `start..end`. */
+  | { end: number; start: number; type: 'range' }
+  /** A range bounded inclusively below and unbounded above, `start..`. */
+  | { start: number; type: 'range_from' }
+
+/**
+ * A type storing a range over `T`.
+ *
+ * This type supports ranges similar to the `RangeTo`, `Range` and `RangeFrom` types in the standard library. Those cover `(..end)`, `(start..end)`, and `(start..)` respectively.
+ */
+export type BinRangeuint8 =
+  /** A range unbounded below and exclusively above, `..end`. */
+  | { end: number; type: 'range_to' }
+  /** A range bounded inclusively below and exclusively above, `start..end`. */
+  | { end: number; start: number; type: 'range' }
+  /** A range bounded inclusively below and unbounded above, `start..`. */
+  | { start: number; type: 'range_from' }
+
+/**
+ * Type storing bin edges and a count of samples within it.
+ */
+export type Bindouble = {
+  /** The total count of samples in this bin. */
+  count: number
+  /** The range of the support covered by this bin. */
+  range: BinRangedouble
+}
+
+/**
+ * Type storing bin edges and a count of samples within it.
+ */
+export type Binfloat = {
+  /** The total count of samples in this bin. */
+  count: number
+  /** The range of the support covered by this bin. */
+  range: BinRangefloat
+}
+
+/**
+ * Type storing bin edges and a count of samples within it.
+ */
+export type Binint16 = {
+  /** The total count of samples in this bin. */
+  count: number
+  /** The range of the support covered by this bin. */
+  range: BinRangeint16
+}
+
+/**
+ * Type storing bin edges and a count of samples within it.
+ */
+export type Binint32 = {
+  /** The total count of samples in this bin. */
+  count: number
+  /** The range of the support covered by this bin. */
+  range: BinRangeint32
+}
+
+/**
+ * Type storing bin edges and a count of samples within it.
+ */
+export type Binint64 = {
+  /** The total count of samples in this bin. */
+  count: number
+  /** The range of the support covered by this bin. */
+  range: BinRangeint64
+}
+
+/**
+ * Type storing bin edges and a count of samples within it.
+ */
+export type Binint8 = {
+  /** The total count of samples in this bin. */
+  count: number
+  /** The range of the support covered by this bin. */
+  range: BinRangeint8
+}
+
+/**
+ * Type storing bin edges and a count of samples within it.
+ */
+export type Binuint16 = {
+  /** The total count of samples in this bin. */
+  count: number
+  /** The range of the support covered by this bin. */
+  range: BinRangeuint16
+}
+
+/**
+ * Type storing bin edges and a count of samples within it.
+ */
+export type Binuint32 = {
+  /** The total count of samples in this bin. */
+  count: number
+  /** The range of the support covered by this bin. */
+  range: BinRangeuint32
+}
+
+/**
+ * Type storing bin edges and a count of samples within it.
+ */
+export type Binuint64 = {
+  /** The total count of samples in this bin. */
+  count: number
+  /** The range of the support covered by this bin. */
+  range: BinRangeuint64
+}
+
+/**
+ * Type storing bin edges and a count of samples within it.
+ */
+export type Binuint8 = {
+  /** The total count of samples in this bin. */
+  count: number
+  /** The range of the support covered by this bin. */
+  range: BinRangeuint8
+}
+
+/**
+ * disk block size in bytes
+ */
+export type BlockSize = 512 | 2048 | 4096
+
+/**
+ * Byte count to express memory or storage capacity.
+ */
+export type ByteCount = number
+
+/**
+ * The service intended to use this certificate.
+ */
+export type ServiceUsingCertificate = 'external_api'
+
+/**
+ * View of a Certificate
+ */
+export type Certificate = {
+  /** human-readable free-form text about a resource */
+  description: string
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  service: ServiceUsingCertificate
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+}
+
+/**
+ * Create-time parameters for a `Certificate`
+ */
+export type CertificateCreate = {
+  /** PEM-formatted string containing public certificate chain */
+  cert: string
+  description: string
+  /** PEM-formatted string containing private key */
+  key: string
+  name: Name
+  /** The service using this certificate */
+  service: ServiceUsingCertificate
+}
+
+/**
+ * A single page of results
+ */
+export type CertificateResultsPage = {
+  /** list of items on this page of results */
+  items: Certificate[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
+ * A cumulative or counter data type.
+ */
+export type Cumulativedouble = { startTime: Date; value: number }
+
+/**
+ * A cumulative or counter data type.
+ */
+export type Cumulativefloat = { startTime: Date; value: number }
+
+/**
+ * A cumulative or counter data type.
+ */
+export type Cumulativeint64 = { startTime: Date; value: number }
+
+/**
+ * A cumulative or counter data type.
+ */
+export type Cumulativeuint64 = { startTime: Date; value: number }
+
+/**
+ * Info about the current user
+ */
+export type CurrentUser = {
+  /** Human-readable name that can identify the user */
+  displayName: string
+  id: string
+  /** Uuid of the silo to which this user belongs */
+  siloId: string
+  /** Name of the silo to which this user belongs. */
+  siloName: Name
+}
+
+/**
+ * Histogram metric
+ *
+ * A histogram maintains the count of any number of samples, over a set of bins. Bins are specified on construction via their _left_ edges, inclusive. There can't be any "gaps" in the bins, and an additional bin may be added to the left, right, or both so that the bins extend to the entire range of the support.
+ *
+ * Note that any gaps, unsorted bins, or non-finite values will result in an error.
+ */
+export type Histogramint8 = { bins: Binint8[]; nSamples: number; startTime: Date }
+
+/**
+ * Histogram metric
+ *
+ * A histogram maintains the count of any number of samples, over a set of bins. Bins are specified on construction via their _left_ edges, inclusive. There can't be any "gaps" in the bins, and an additional bin may be added to the left, right, or both so that the bins extend to the entire range of the support.
+ *
+ * Note that any gaps, unsorted bins, or non-finite values will result in an error.
+ */
+export type Histogramuint8 = { bins: Binuint8[]; nSamples: number; startTime: Date }
+
+/**
+ * Histogram metric
+ *
+ * A histogram maintains the count of any number of samples, over a set of bins. Bins are specified on construction via their _left_ edges, inclusive. There can't be any "gaps" in the bins, and an additional bin may be added to the left, right, or both so that the bins extend to the entire range of the support.
+ *
+ * Note that any gaps, unsorted bins, or non-finite values will result in an error.
+ */
+export type Histogramint16 = { bins: Binint16[]; nSamples: number; startTime: Date }
+
+/**
+ * Histogram metric
+ *
+ * A histogram maintains the count of any number of samples, over a set of bins. Bins are specified on construction via their _left_ edges, inclusive. There can't be any "gaps" in the bins, and an additional bin may be added to the left, right, or both so that the bins extend to the entire range of the support.
+ *
+ * Note that any gaps, unsorted bins, or non-finite values will result in an error.
+ */
+export type Histogramuint16 = { bins: Binuint16[]; nSamples: number; startTime: Date }
+
+/**
+ * Histogram metric
+ *
+ * A histogram maintains the count of any number of samples, over a set of bins. Bins are specified on construction via their _left_ edges, inclusive. There can't be any "gaps" in the bins, and an additional bin may be added to the left, right, or both so that the bins extend to the entire range of the support.
+ *
+ * Note that any gaps, unsorted bins, or non-finite values will result in an error.
+ */
+export type Histogramint32 = { bins: Binint32[]; nSamples: number; startTime: Date }
+
+/**
+ * Histogram metric
+ *
+ * A histogram maintains the count of any number of samples, over a set of bins. Bins are specified on construction via their _left_ edges, inclusive. There can't be any "gaps" in the bins, and an additional bin may be added to the left, right, or both so that the bins extend to the entire range of the support.
+ *
+ * Note that any gaps, unsorted bins, or non-finite values will result in an error.
+ */
+export type Histogramuint32 = { bins: Binuint32[]; nSamples: number; startTime: Date }
+
+/**
+ * Histogram metric
+ *
+ * A histogram maintains the count of any number of samples, over a set of bins. Bins are specified on construction via their _left_ edges, inclusive. There can't be any "gaps" in the bins, and an additional bin may be added to the left, right, or both so that the bins extend to the entire range of the support.
+ *
+ * Note that any gaps, unsorted bins, or non-finite values will result in an error.
+ */
+export type Histogramint64 = { bins: Binint64[]; nSamples: number; startTime: Date }
+
+/**
+ * Histogram metric
+ *
+ * A histogram maintains the count of any number of samples, over a set of bins. Bins are specified on construction via their _left_ edges, inclusive. There can't be any "gaps" in the bins, and an additional bin may be added to the left, right, or both so that the bins extend to the entire range of the support.
+ *
+ * Note that any gaps, unsorted bins, or non-finite values will result in an error.
+ */
+export type Histogramuint64 = { bins: Binuint64[]; nSamples: number; startTime: Date }
+
+/**
+ * Histogram metric
+ *
+ * A histogram maintains the count of any number of samples, over a set of bins. Bins are specified on construction via their _left_ edges, inclusive. There can't be any "gaps" in the bins, and an additional bin may be added to the left, right, or both so that the bins extend to the entire range of the support.
+ *
+ * Note that any gaps, unsorted bins, or non-finite values will result in an error.
+ */
+export type Histogramfloat = { bins: Binfloat[]; nSamples: number; startTime: Date }
+
+/**
+ * Histogram metric
+ *
+ * A histogram maintains the count of any number of samples, over a set of bins. Bins are specified on construction via their _left_ edges, inclusive. There can't be any "gaps" in the bins, and an additional bin may be added to the left, right, or both so that the bins extend to the entire range of the support.
+ *
+ * Note that any gaps, unsorted bins, or non-finite values will result in an error.
+ */
+export type Histogramdouble = { bins: Bindouble[]; nSamples: number; startTime: Date }
+
+/**
+ * The type of an individual datum of a metric.
+ */
+export type DatumType =
+  | 'bool'
+  | 'i8'
+  | 'u8'
+  | 'i16'
+  | 'u16'
+  | 'i32'
+  | 'u32'
+  | 'i64'
+  | 'u64'
+  | 'f32'
+  | 'f64'
+  | 'string'
+  | 'bytes'
+  | 'cumulative_i64'
+  | 'cumulative_u64'
+  | 'cumulative_f32'
+  | 'cumulative_f64'
+  | 'histogram_i8'
+  | 'histogram_u8'
+  | 'histogram_i16'
+  | 'histogram_u16'
+  | 'histogram_i32'
+  | 'histogram_u32'
+  | 'histogram_i64'
+  | 'histogram_u64'
+  | 'histogram_f32'
+  | 'histogram_f64'
+
+export type MissingDatum = { datumType: DatumType; startTime?: Date }
+
+/**
+ * A `Datum` is a single sampled data point from a metric.
+ */
+export type Datum =
+  | { datum: boolean; type: 'bool' }
+  | { datum: number; type: 'i8' }
+  | { datum: number; type: 'u8' }
+  | { datum: number; type: 'i16' }
+  | { datum: number; type: 'u16' }
+  | { datum: number; type: 'i32' }
+  | { datum: number; type: 'u32' }
+  | { datum: number; type: 'i64' }
+  | { datum: number; type: 'u64' }
+  | { datum: number; type: 'f32' }
+  | { datum: number; type: 'f64' }
+  | { datum: string; type: 'string' }
+  | { datum: number[]; type: 'bytes' }
+  | { datum: Cumulativeint64; type: 'cumulative_i64' }
+  | { datum: Cumulativeuint64; type: 'cumulative_u64' }
+  | { datum: Cumulativefloat; type: 'cumulative_f32' }
+  | { datum: Cumulativedouble; type: 'cumulative_f64' }
+  | { datum: Histogramint8; type: 'histogram_i8' }
+  | { datum: Histogramuint8; type: 'histogram_u8' }
+  | { datum: Histogramint16; type: 'histogram_i16' }
+  | { datum: Histogramuint16; type: 'histogram_u16' }
+  | { datum: Histogramint32; type: 'histogram_i32' }
+  | { datum: Histogramuint32; type: 'histogram_u32' }
+  | { datum: Histogramint64; type: 'histogram_i64' }
+  | { datum: Histogramuint64; type: 'histogram_u64' }
+  | { datum: Histogramfloat; type: 'histogram_f32' }
+  | { datum: Histogramdouble; type: 'histogram_f64' }
+  | { datum: MissingDatum; type: 'missing' }
+
+export type DerEncodedKeyPair = {
+  /** request signing private key (base64 encoded der file) */
+  privateKey: string
+  /** request signing public certificate (base64 encoded der file) */
+  publicCert: string
+}
+
+export type DeviceAccessTokenRequest = {
+  clientId: string
+  deviceCode: string
+  grantType: string
+}
+
+export type DeviceAuthRequest = { clientId: string }
+
+export type DeviceAuthVerify = { userCode: string }
+
+export type Digest = { type: 'sha256'; value: string }
+
+/**
+ * State of a Disk
+ */
+export type DiskState =
+  /** Disk is being initialized */
+  | { state: 'creating' }
+  /** Disk is ready but detached from any Instance */
+  | { state: 'detached' }
+  /** Disk is ready to receive blocks from an external source */
+  | { state: 'import_ready' }
+  /** Disk is importing blocks from a URL */
+  | { state: 'importing_from_url' }
+  /** Disk is importing blocks from bulk writes */
+  | { state: 'importing_from_bulk_writes' }
+  /** Disk is being finalized to state Detached */
+  | { state: 'finalizing' }
+  /** Disk is undergoing maintenance */
+  | { state: 'maintenance' }
+  /** Disk is being attached to the given Instance */
+  | { instance: string; state: 'attaching' }
+  /** Disk is attached to the given Instance */
+  | { instance: string; state: 'attached' }
+  /** Disk is being detached from the given Instance */
+  | { instance: string; state: 'detaching' }
+  /** Disk has been destroyed */
+  | { state: 'destroyed' }
+  /** Disk is unavailable */
+  | { state: 'faulted' }
+
+/**
+ * View of a Disk
+ */
+export type Disk = {
+  blockSize: ByteCount
+  /** human-readable free-form text about a resource */
+  description: string
+  devicePath: string
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** ID of image from which disk was created, if any */
+  imageId?: string
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  projectId: string
+  size: ByteCount
+  /** ID of snapshot from which disk was created, if any */
+  snapshotId?: string
+  state: DiskState
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+}
+
+/**
+ * Different sources for a disk
+ */
+export type DiskSource =
+  /** Create a blank disk */
+  | {
+      /** size of blocks for this Disk. valid values are: 512, 2048, or 4096 */
+      blockSize: BlockSize
+      type: 'blank'
+    }
+  /** Create a disk from a disk snapshot */
+  | { snapshotId: string; type: 'snapshot' }
+  /** Create a disk from an image */
+  | { imageId: string; type: 'image' }
+  /** Create a blank disk that will accept bulk writes or pull blocks from an external source. */
+  | { blockSize: BlockSize; type: 'importing_blocks' }
+
+/**
+ * Create-time parameters for a `Disk`
+ */
+export type DiskCreate = {
+  description: string
+  /** initial source for this disk */
+  diskSource: DiskSource
+  name: Name
+  /** total size of the Disk in bytes */
+  size: ByteCount
+}
+
+export type DiskPath = {
+  /** Name or ID of the disk */
+  disk: NameOrId
+}
+
+/**
+ * A single page of results
+ */
+export type DiskResultsPage = {
+  /** list of items on this page of results */
+  items: Disk[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
+ * Parameters for creating an ephemeral IP address for an instance.
+ */
+export type EphemeralIpCreate = {
+  /** Name or ID of the IP pool used to allocate an address */
+  pool?: NameOrId
+}
+
+export type ExternalIp =
+  | { ip: string; kind: 'ephemeral' }
+  /** A Floating IP is a well-known IP address which can be attached and detached from instances. */
+  | {
+      /** human-readable free-form text about a resource */
+      description: string
+      /** unique, immutable, system-controlled identifier for each resource */
+      id: string
+      /** The ID of the instance that this Floating IP is attached to, if it is presently in use. */
+      instanceId?: string
+      /** The IP address held by this resource. */
+      ip: string
+      kind: 'floating'
+      /** unique, mutable, user-controlled identifier for each resource */
+      name: Name
+      /** The project this resource exists within. */
+      projectId: string
+      /** timestamp when this resource was created */
+      timeCreated: Date
+      /** timestamp when this resource was last modified */
+      timeModified: Date
+    }
+
+/**
+ * Parameters for creating an external IP address for instances.
+ */
+export type ExternalIpCreate =
+  /** An IP address providing both inbound and outbound access. The address is automatically-assigned from the provided IP Pool, or the current silo's default pool if not specified. */
+  | { pool?: NameOrId; type: 'ephemeral' }
+  /** An IP address providing both inbound and outbound access. The address is an existing floating IP object assigned to the current project.
+
+The floating IP must not be in use by another instance or service. */
+  | { floatingIp: NameOrId; type: 'floating' }
+
+/**
+ * A single page of results
+ */
+export type ExternalIpResultsPage = {
+  /** list of items on this page of results */
+  items: ExternalIp[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
+ * Parameters for finalizing a disk
+ */
+export type FinalizeDisk = {
+  /** If specified a snapshot of the disk will be created with the given name during finalization. If not specified, a snapshot for the disk will _not_ be created. A snapshot can be manually created once the disk transitions into the `Detached` state. */
+  snapshotName?: Name
+}
+
+export type FleetRole = 'admin' | 'collaborator' | 'viewer'
+
+/**
+ * Describes what kind of identity is described by an id
+ */
+export type IdentityType = 'silo_user' | 'silo_group'
+
+/**
+ * Describes the assignment of a particular role on a particular resource to a particular identity (user, group, etc.)
+ *
+ * The resource is not part of this structure.  Rather, `RoleAssignment`s are put into a `Policy` and that Policy is applied to a particular resource.
+ */
+export type FleetRoleRoleAssignment = {
+  identityId: string
+  identityType: IdentityType
+  roleName: FleetRole
+}
+
+/**
+ * Policy for a particular resource
+ *
+ * Note that the Policy only describes access granted explicitly for this resource.  The policies of parent resources can also cause a user to have access to this resource.
+ */
+export type FleetRolePolicy = {
+  /** Roles directly assigned on this resource */
+  roleAssignments: FleetRoleRoleAssignment[]
+}
+
+/**
+ * A Floating IP is a well-known IP address which can be attached and detached from instances.
+ */
+export type FloatingIp = {
+  /** human-readable free-form text about a resource */
+  description: string
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** The ID of the instance that this Floating IP is attached to, if it is presently in use. */
+  instanceId?: string
+  /** The IP address held by this resource. */
+  ip: string
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  /** The project this resource exists within. */
+  projectId: string
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+}
+
+/**
+ * The type of resource that a floating IP is attached to
+ */
+export type FloatingIpParentKind = 'instance'
+
+/**
+ * Parameters for attaching a floating IP address to another resource
+ */
+export type FloatingIpAttach = {
+  /** The type of `parent`'s resource */
+  kind: FloatingIpParentKind
+  /** Name or ID of the resource that this IP address should be attached to */
+  parent: NameOrId
+}
+
+/**
+ * Parameters for creating a new floating IP address for instances.
+ */
+export type FloatingIpCreate = {
+  description: string
+  /** An IP address to reserve for use as a floating IP. This field is optional: when not set, an address will be automatically chosen from `pool`. If set, then the IP must be available in the resolved `pool`. */
+  ip?: string
+  name: Name
+  /** The parent IP pool that a floating IP is pulled from. If unset, the default pool is selected. */
+  pool?: NameOrId
+}
+
+/**
+ * A single page of results
+ */
+export type FloatingIpResultsPage = {
+  /** list of items on this page of results */
+  items: FloatingIp[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
+ * Updateable identity-related parameters
+ */
+export type FloatingIpUpdate = { description?: string; name?: Name }
+
+/**
+ * View of a Group
+ */
+export type Group = {
+  /** Human-readable name that can identify the group */
+  displayName: string
+  id: string
+  /** Uuid of the silo to which this group belongs */
+  siloId: string
+}
+
+/**
+ * A single page of results
+ */
+export type GroupResultsPage = {
+  /** list of items on this page of results */
+  items: Group[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
+ * An RFC-1035-compliant hostname
+ *
+ * A hostname identifies a host on a network, and is usually a dot-delimited sequence of labels, where each label contains only letters, digits, or the hyphen. See RFCs 1035 and 952 for more details.
+ */
+export type Hostname = string
+
+export type IdentityProviderType = 'saml'
+
+/**
+ * View of an Identity Provider
+ */
+export type IdentityProvider = {
+  /** human-readable free-form text about a resource */
+  description: string
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  /** Identity provider type */
+  providerType: IdentityProviderType
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+}
+
+/**
+ * A single page of results
+ */
+export type IdentityProviderResultsPage = {
+  /** list of items on this page of results */
+  items: IdentityProvider[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+export type IdpMetadataSource =
+  | { type: 'url'; url: string }
+  | { data: string; type: 'base64_encoded_xml' }
+
+/**
+ * View of an image
+ *
+ * If `project_id` is present then the image is only visible inside that project. If it's not present then the image is visible to all projects in the silo.
+ */
+export type Image = {
+  /** size of blocks in bytes */
+  blockSize: ByteCount
+  /** human-readable free-form text about a resource */
+  description: string
+  /** Hash of the image contents, if applicable */
+  digest?: Digest
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  /** The family of the operating system like Debian, Ubuntu, etc. */
+  os: string
+  /** ID of the parent project if the image is a project image */
+  projectId?: string
+  /** total size in bytes */
+  size: ByteCount
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+  /** Version of the operating system */
+  version: string
+}
+
+/**
+ * The source of the underlying image.
+ */
+export type ImageSource =
+  | { id: string; type: 'snapshot' }
+  /** Boot the Alpine ISO that ships with the Propolis zone. Intended for development purposes only. */
+  | { type: 'you_can_boot_anything_as_long_as_its_alpine' }
+
+/**
+ * Create-time parameters for an `Image`
+ */
+export type ImageCreate = {
+  description: string
+  name: Name
+  /** The family of the operating system (e.g. Debian, Ubuntu, etc.) */
+  os: string
+  /** The source of the image's contents. */
+  source: ImageSource
+  /** The version of the operating system (e.g. 18.04, 20.04, etc.) */
+  version: string
+}
+
+/**
+ * A single page of results
+ */
+export type ImageResultsPage = {
+  /** list of items on this page of results */
+  items: Image[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
+ * Parameters for importing blocks with a bulk write
+ */
+export type ImportBlocksBulkWrite = { base64EncodedData: string; offset: number }
+
+/**
+ * The number of CPUs in an Instance
+ */
+export type InstanceCpuCount = number
+
+/**
+ * Running state of an Instance (primarily: booted or stopped)
+ *
+ * This typically reflects whether it's starting, running, stopping, or stopped, but also includes states related to the Instance's lifecycle
+ */
+export type InstanceState =
+  /** The instance is being created. */
+  | 'creating'
+  /** The instance is currently starting up. */
+  | 'starting'
+  /** The instance is currently running. */
+  | 'running'
+  /** The instance has been requested to stop and a transition to "Stopped" is imminent. */
+  | 'stopping'
+  /** The instance is currently stopped. */
+  | 'stopped'
+  /** The instance is in the process of rebooting - it will remain in the "rebooting" state until the VM is starting once more. */
+  | 'rebooting'
+  /** The instance is in the process of migrating - it will remain in the "migrating" state until the migration process is complete and the destination propolis is ready to continue execution. */
+  | 'migrating'
+  /** The instance is attempting to recover from a failure. */
+  | 'repairing'
+  /** The instance has encountered a failure. */
+  | 'failed'
+  /** The instance has been deleted. */
+  | 'destroyed'
+
+/**
+ * View of an Instance
+ */
+export type Instance = {
+  /** human-readable free-form text about a resource */
+  description: string
+  /** RFC1035-compliant hostname for the Instance. */
+  hostname: string
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** memory allocated for this Instance */
+  memory: ByteCount
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  /** number of CPUs allocated for this Instance */
+  ncpus: InstanceCpuCount
+  /** id for the project containing this Instance */
+  projectId: string
+  runState: InstanceState
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+  timeRunStateUpdated: Date
+}
+
+/**
+ * Describe the instance's disks at creation time
+ */
+export type InstanceDiskAttachment =
+  /** During instance creation, create and attach disks */
+  | {
+      description: string
+      /** initial source for this disk */
+      diskSource: DiskSource
+      name: Name
+      /** total size of the Disk in bytes */
+      size: ByteCount
+      type: 'create'
+    }
+  /** During instance creation, attach this disk */
+  | {
+      /** A disk name to attach */
+      name: Name
+      type: 'attach'
+    }
+
+/**
+ * Create-time parameters for an `InstanceNetworkInterface`
+ */
+export type InstanceNetworkInterfaceCreate = {
+  description: string
+  /** The IP address for the interface. One will be auto-assigned if not provided. */
+  ip?: string
+  name: Name
+  /** The VPC Subnet in which to create the interface. */
+  subnetName: Name
+  /** The VPC in which to create the interface. */
+  vpcName: Name
+}
+
+/**
+ * Describes an attachment of an `InstanceNetworkInterface` to an `Instance`, at the time the instance is created.
+ */
+export type InstanceNetworkInterfaceAttachment =
+  /** Create one or more `InstanceNetworkInterface`s for the `Instance`.
+
+If more than one interface is provided, then the first will be designated the primary interface for the instance. */
+  | { params: InstanceNetworkInterfaceCreate[]; type: 'create' }
+  /** The default networking configuration for an instance is to create a single primary interface with an automatically-assigned IP address. The IP will be pulled from the Project's default VPC / VPC Subnet. */
+  | { type: 'default' }
+  /** No network interfaces at all will be created for the instance. */
+  | { type: 'none' }
+
+/**
+ * Create-time parameters for an `Instance`
+ */
+export type InstanceCreate = {
+  description: string
+  /** The disks to be created or attached for this instance. */
+  disks?: InstanceDiskAttachment[]
+  /** The external IP addresses provided to this instance.
+
+By default, all instances have outbound connectivity, but no inbound connectivity. These external addresses can be used to provide a fixed, known IP address for making inbound connections to the instance. */
+  externalIps?: ExternalIpCreate[]
+  hostname: Hostname
+  memory: ByteCount
+  name: Name
+  ncpus: InstanceCpuCount
+  /** The network interfaces to be created for this instance. */
+  networkInterfaces?: InstanceNetworkInterfaceAttachment
+  /** An allowlist of SSH public keys to be transferred to the instance via cloud-init during instance creation.
+
+If not provided, all SSH public keys from the user's profile will be sent. If an empty list is provided, no public keys will be transmitted to the instance. */
+  sshPublicKeys?: NameOrId[]
+  /** Should this instance be started upon creation; true by default. */
+  start?: boolean
+  /** User data for instance initialization systems (such as cloud-init). Must be a Base64-encoded string, as specified in RFC 4648 § 4 (+ and / characters with padding). Maximum 32 KiB unencoded data. */
+  userData?: string
+}
+
+/**
+ * Migration parameters for an `Instance`
+ */
+export type InstanceMigrate = { dstSledId: string }
+
+/**
+ * A MAC address
+ *
+ * A Media Access Control address, in EUI-48 format
+ */
+export type MacAddr = string
+
+/**
+ * An `InstanceNetworkInterface` represents a virtual network interface device attached to an instance.
+ */
+export type InstanceNetworkInterface = {
+  /** human-readable free-form text about a resource */
+  description: string
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** The Instance to which the interface belongs. */
+  instanceId: string
+  /** The IP address assigned to this interface. */
+  ip: string
+  /** The MAC address assigned to this interface. */
+  mac: MacAddr
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  /** True if this interface is the primary for the instance to which it's attached. */
+  primary: boolean
+  /** The subnet to which the interface belongs. */
+  subnetId: string
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+  /** The VPC to which the interface belongs. */
+  vpcId: string
+}
+
+/**
+ * A single page of results
+ */
+export type InstanceNetworkInterfaceResultsPage = {
+  /** list of items on this page of results */
+  items: InstanceNetworkInterface[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
+ * Parameters for updating an `InstanceNetworkInterface`
+ *
+ * Note that modifying IP addresses for an interface is not yet supported, a new interface must be created instead.
+ */
+export type InstanceNetworkInterfaceUpdate = {
+  description?: string
+  name?: Name
+  /** Make a secondary interface the instance's primary interface.
+
+If applied to a secondary interface, that interface will become the primary on the next reboot of the instance. Note that this may have implications for routing between instances, as the new primary interface will be on a distinct subnet from the previous primary interface.
+
+Note that this can only be used to select a new primary interface for an instance. Requests to change the primary interface into a secondary will return an error. */
+  primary?: boolean
+}
+
+/**
+ * A single page of results
+ */
+export type InstanceResultsPage = {
+  /** list of items on this page of results */
+  items: Instance[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
+ * Contents of an Instance's serial console buffer.
+ */
+export type InstanceSerialConsoleData = {
+  /** The bytes starting from the requested offset up to either the end of the buffer or the request's `max_bytes`. Provided as a u8 array rather than a string, as it may not be UTF-8. */
+  data: number[]
+  /** The absolute offset since boot (suitable for use as `byte_offset` in a subsequent request) of the last byte returned in `data`. */
+  lastByteOffset: number
+}
+
+/**
+ * A collection of IP ranges. If a pool is linked to a silo, IP addresses from the pool can be allocated within that silo
+ */
+export type IpPool = {
+  /** human-readable free-form text about a resource */
+  description: string
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+}
+
+/**
+ * Create-time parameters for an `IpPool`
+ */
+export type IpPoolCreate = { description: string; name: Name }
+
+export type IpPoolLinkSilo = {
+  /** When a pool is the default for a silo, floating IPs and instance ephemeral IPs will come from that pool when no other pool is specified. There can be at most one default for a given silo. */
+  isDefault: boolean
+  silo: NameOrId
+}
+
+/**
+ * A non-decreasing IPv4 address range, inclusive of both ends.
+ *
+ * The first address must be less than or equal to the last address.
+ */
+export type Ipv4Range = { first: string; last: string }
+
+/**
+ * A non-decreasing IPv6 address range, inclusive of both ends.
+ *
+ * The first address must be less than or equal to the last address.
+ */
+export type Ipv6Range = { first: string; last: string }
+
+export type IpRange = Ipv4Range | Ipv6Range
+
+export type IpPoolRange = {
+  id: string
+  ipPoolId: string
+  range: IpRange
+  timeCreated: Date
+}
+
+/**
+ * A single page of results
+ */
+export type IpPoolRangeResultsPage = {
+  /** list of items on this page of results */
+  items: IpPoolRange[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
+ * A single page of results
+ */
+export type IpPoolResultsPage = {
+  /** list of items on this page of results */
+  items: IpPool[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
+ * A link between an IP pool and a silo that allows one to allocate IPs from the pool within the silo
+ */
+export type IpPoolSiloLink = {
+  ipPoolId: string
+  /** When a pool is the default for a silo, floating IPs and instance ephemeral IPs will come from that pool when no other pool is specified. There can be at most one default for a given silo. */
+  isDefault: boolean
+  siloId: string
+}
+
+/**
+ * A single page of results
+ */
+export type IpPoolSiloLinkResultsPage = {
+  /** list of items on this page of results */
+  items: IpPoolSiloLink[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+export type IpPoolSiloUpdate = {
+  /** When a pool is the default for a silo, floating IPs and instance ephemeral IPs will come from that pool when no other pool is specified. There can be at most one default for a given silo, so when a pool is made default, an existing default will remain linked but will no longer be the default. */
+  isDefault: boolean
+}
+
+/**
+ * Parameters for updating an IP Pool
+ */
+export type IpPoolUpdate = { description?: string; name?: Name }
+
+/**
+ * A range of IP ports
+ *
+ * An inclusive-inclusive range of IP ports. The second port may be omitted to represent a single port
+ */
+export type L4PortRange = string
+
+/**
+ * The forward error correction mode of a link.
+ */
+export type LinkFec =
+  /** Firecode foward error correction. */
+  | 'firecode'
+  /** No forward error correction. */
+  | 'none'
+  /** Reed-Solomon forward error correction. */
+  | 'rs'
+
+/**
+ * The LLDP configuration associated with a port. LLDP may be either enabled or disabled, if enabled, an LLDP configuration must be provided by name or id.
+ */
+export type LldpServiceConfigCreate = {
+  /** Whether or not LLDP is enabled. */
+  enabled: boolean
+  /** A reference to the LLDP configuration used. Must not be `None` when `enabled` is `true`. */
+  lldpConfig?: NameOrId
+}
+
+/**
+ * The speed of a link.
+ */
+export type LinkSpeed =
+  /** Zero gigabits per second. */
+  | 'speed0_g'
+  /** 1 gigabit per second. */
+  | 'speed1_g'
+  /** 10 gigabits per second. */
+  | 'speed10_g'
+  /** 25 gigabits per second. */
+  | 'speed25_g'
+  /** 40 gigabits per second. */
+  | 'speed40_g'
+  /** 50 gigabits per second. */
+  | 'speed50_g'
+  /** 100 gigabits per second. */
+  | 'speed100_g'
+  /** 200 gigabits per second. */
+  | 'speed200_g'
+  /** 400 gigabits per second. */
+  | 'speed400_g'
+
+/**
+ * Switch link configuration.
+ */
+export type LinkConfigCreate = {
+  /** Whether or not to set autonegotiation */
+  autoneg: boolean
+  /** The forward error correction mode of the link. */
+  fec: LinkFec
+  /** The link-layer discovery protocol (LLDP) configuration for the link. */
+  lldp: LldpServiceConfigCreate
+  /** Maximum transmission unit for the link. */
+  mtu: number
+  /** The speed of the link. */
+  speed: LinkSpeed
+}
+
+/**
+ * A link layer discovery protocol (LLDP) service configuration.
+ */
+export type LldpServiceConfig = {
+  /** Whether or not the LLDP service is enabled. */
+  enabled: boolean
+  /** The id of this LLDP service instance. */
+  id: string
+  /** The link-layer discovery protocol configuration for this service. */
+  lldpConfigId?: string
+}
+
+/**
+ * A loopback address is an address that is assigned to a rack switch but is not associated with any particular port.
+ */
+export type LoopbackAddress = {
+  /** The loopback IP address and prefix length. */
+  address: IpNet
+  /** The address lot block this address came from. */
+  addressLotBlockId: string
+  /** The id of the loopback address. */
+  id: string
+  /** The id of the rack where this loopback address is assigned. */
+  rackId: string
+  /** Switch location where this loopback address is assigned. */
+  switchLocation: string
+}
+
+/**
+ * Parameters for creating a loopback address on a particular rack switch.
+ */
+export type LoopbackAddressCreate = {
+  /** The address to create. */
+  address: string
+  /** The name or id of the address lot this loopback address will pull an address from. */
+  addressLot: NameOrId
+  /** Address is an anycast address. This allows the address to be assigned to multiple locations simultaneously. */
+  anycast: boolean
+  /** The subnet mask to use for the address. */
+  mask: number
+  /** The containing the switch this loopback address will be configured on. */
+  rackId: string
+  /** The location of the switch within the rack this loopback address will be configured on. */
+  switchLocation: Name
+}
+
+/**
+ * A single page of results
+ */
+export type LoopbackAddressResultsPage = {
+  /** list of items on this page of results */
+  items: LoopbackAddress[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
+ * A `Measurement` is a timestamped datum from a single metric
+ */
+export type Measurement = { datum: Datum; timestamp: Date }
+
+/**
+ * A single page of results
+ */
+export type MeasurementResultsPage = {
+  /** list of items on this page of results */
+  items: Measurement[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
+ * A password used to authenticate a user
+ *
+ * Passwords may be subject to additional constraints.
+ */
+export type Password = string
+
+/**
+ * Describes the form factor of physical disks.
+ */
+export type PhysicalDiskKind = 'm2' | 'u2'
+
+/**
+ * View of a Physical Disk
+ *
+ * Physical disks reside in a particular sled and are used to store both Instance Disk data as well as internal metadata.
+ */
+export type PhysicalDisk = {
+  formFactor: PhysicalDiskKind
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  model: string
+  serial: string
+  /** The sled to which this disk is attached, if any. */
+  sledId?: string
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+  vendor: string
+}
+
+/**
+ * A single page of results
+ */
+export type PhysicalDiskResultsPage = {
+  /** list of items on this page of results */
+  items: PhysicalDisk[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+export type PingStatus = 'ok'
+
+export type Ping = {
+  /** Whether the external API is reachable. Will always be Ok if the endpoint returns anything at all. */
+  status: PingStatus
+}
+
+/**
+ * View of a Project
+ */
+export type Project = {
+  /** human-readable free-form text about a resource */
+  description: string
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+}
+
+/**
+ * Create-time parameters for a `Project`
+ */
+export type ProjectCreate = { description: string; name: Name }
+
+/**
+ * A single page of results
+ */
+export type ProjectResultsPage = {
+  /** list of items on this page of results */
+  items: Project[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+export type ProjectRole = 'admin' | 'collaborator' | 'viewer'
+
+/**
+ * Describes the assignment of a particular role on a particular resource to a particular identity (user, group, etc.)
+ *
+ * The resource is not part of this structure.  Rather, `RoleAssignment`s are put into a `Policy` and that Policy is applied to a particular resource.
+ */
+export type ProjectRoleRoleAssignment = {
+  identityId: string
+  identityType: IdentityType
+  roleName: ProjectRole
+}
+
+/**
+ * Policy for a particular resource
+ *
+ * Note that the Policy only describes access granted explicitly for this resource.  The policies of parent resources can also cause a user to have access to this resource.
+ */
+export type ProjectRolePolicy = {
+  /** Roles directly assigned on this resource */
+  roleAssignments: ProjectRoleRoleAssignment[]
+}
+
+/**
+ * Updateable properties of a `Project`
+ */
+export type ProjectUpdate = { description?: string; name?: Name }
+
+/**
+ * View of an Rack
+ */
+export type Rack = {
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+}
+
+/**
+ * A single page of results
+ */
+export type RackResultsPage = {
+  /** list of items on this page of results */
+  items: Rack[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
+ * A name for a built-in role
+ *
+ * Role names consist of two string components separated by dot (".").
+ */
+export type RoleName = string
+
+/**
+ * View of a Role
+ */
+export type Role = { description: string; name: RoleName }
+
+/**
+ * A single page of results
+ */
+export type RoleResultsPage = {
+  /** list of items on this page of results */
+  items: Role[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
+ * A route to a destination network through a gateway address.
+ */
+export type Route = {
+  /** The route destination. */
+  dst: IpNet
+  /** The route gateway. */
+  gw: string
+  /** VLAN id the gateway is reachable over. */
+  vid?: number
+}
+
+/**
+ * Route configuration data associated with a switch port configuration.
+ */
+export type RouteConfig = {
+  /** The set of routes assigned to a switch port. */
+  routes: Route[]
+}
+
+/**
+ * Identity-related metadata that's included in nearly all public API objects
+ */
+export type SamlIdentityProvider = {
+  /** Service provider endpoint where the response will be sent */
+  acsUrl: string
+  /** human-readable free-form text about a resource */
+  description: string
+  /** If set, attributes with this name will be considered to denote a user's group membership, where the values will be the group names. */
+  groupAttributeName?: string
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** IdP's entity id */
+  idpEntityId: string
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  /** Optional request signing public certificate (base64 encoded der file) */
+  publicCert?: string
+  /** Service provider endpoint where the idp should send log out requests */
+  sloUrl: string
+  /** SP's client id */
+  spClientId: string
+  /** Customer's technical contact for saml configuration */
+  technicalContactEmail: string
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+}
+
+/**
+ * Create-time identity-related parameters
+ */
+export type SamlIdentityProviderCreate = {
+  /** service provider endpoint where the response will be sent */
+  acsUrl: string
+  description: string
+  /** If set, SAML attributes with this name will be considered to denote a user's group membership, where the attribute value(s) should be a comma-separated list of group names. */
+  groupAttributeName?: string
+  /** idp's entity id */
+  idpEntityId: string
+  /** the source of an identity provider metadata descriptor */
+  idpMetadataSource: IdpMetadataSource
+  name: Name
+  /** request signing key pair */
+  signingKeypair?: DerEncodedKeyPair
+  /** service provider endpoint where the idp should send log out requests */
+  sloUrl: string
+  /** sp's client id */
+  spClientId: string
+  /** customer's technical contact for saml configuration */
+  technicalContactEmail: string
+}
+
+/**
+ * Describes how identities are managed and users are authenticated in this Silo
+ */
+export type SiloIdentityMode =
+  /** Users are authenticated with SAML using an external authentication provider.  The system updates information about users and groups only during successful authentication (i.e,. "JIT provisioning" of users and groups). */
+  | 'saml_jit'
+  /** The system is the source of truth about users.  There is no linkage to an external authentication provider or identity provider. */
+  | 'local_only'
+
+/**
+ * View of a Silo
+ *
+ * A Silo is the highest level unit of isolation.
+ */
+export type Silo = {
+  /** human-readable free-form text about a resource */
+  description: string
+  /** A silo where discoverable is false can be retrieved only by its id - it will not be part of the "list all silos" output. */
+  discoverable: boolean
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** How users and groups are managed in this Silo */
+  identityMode: SiloIdentityMode
+  /** Mapping of which Fleet roles are conferred by each Silo role
+
+The default is that no Fleet roles are conferred by any Silo roles unless there's a corresponding entry in this map. */
+  mappedFleetRoles: Record<string, FleetRole[]>
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+}
+
+/**
+ * The amount of provisionable resources for a Silo
+ */
+export type SiloQuotasCreate = {
+  /** The amount of virtual CPUs available for running instances in the Silo */
+  cpus: number
+  /** The amount of RAM (in bytes) available for running instances in the Silo */
+  memory: ByteCount
+  /** The amount of storage (in bytes) available for disks or snapshots */
+  storage: ByteCount
+}
+
+/**
+ * Create-time parameters for a `Silo`
+ */
+export type SiloCreate = {
+  /** If set, this group will be created during Silo creation and granted the "Silo Admin" role. Identity providers can assert that users belong to this group and those users can log in and further initialize the Silo.
+
+Note that if configuring a SAML based identity provider, group_attribute_name must be set for users to be considered part of a group. See `SamlIdentityProviderCreate` for more information. */
+  adminGroupName?: string
+  description: string
+  discoverable: boolean
+  identityMode: SiloIdentityMode
+  /** Mapping of which Fleet roles are conferred by each Silo role
+
+The default is that no Fleet roles are conferred by any Silo roles unless there's a corresponding entry in this map. */
+  mappedFleetRoles?: Record<string, FleetRole[]>
+  name: Name
+  /** Limits the amount of provisionable CPU, memory, and storage in the Silo. CPU and memory are only consumed by running instances, while storage is consumed by any disk or snapshot. A value of 0 means that resource is *not* provisionable. */
+  quotas: SiloQuotasCreate
+  /** Initial TLS certificates to be used for the new Silo's console and API endpoints.  These should be valid for the Silo's DNS name(s). */
+  tlsCertificates: CertificateCreate[]
+}
+
+/**
+ * An IP pool in the context of a silo
+ */
+export type SiloIpPool = {
+  /** human-readable free-form text about a resource */
+  description: string
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** When a pool is the default for a silo, floating IPs and instance ephemeral IPs will come from that pool when no other pool is specified. There can be at most one default for a given silo. */
+  isDefault: boolean
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+}
+
+/**
+ * A single page of results
+ */
+export type SiloIpPoolResultsPage = {
+  /** list of items on this page of results */
+  items: SiloIpPool[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
+ * A collection of resource counts used to set the virtual capacity of a silo
+ */
+export type SiloQuotas = {
+  /** Number of virtual CPUs */
+  cpus: number
+  /** Amount of memory in bytes */
+  memory: ByteCount
+  siloId: string
+  /** Amount of disk storage in bytes */
+  storage: ByteCount
+}
+
+/**
+ * A single page of results
+ */
+export type SiloQuotasResultsPage = {
+  /** list of items on this page of results */
+  items: SiloQuotas[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
+ * Updateable properties of a Silo's resource limits. If a value is omitted it will not be updated.
+ */
+export type SiloQuotasUpdate = {
+  /** The amount of virtual CPUs available for running instances in the Silo */
+  cpus?: number
+  /** The amount of RAM (in bytes) available for running instances in the Silo */
+  memory?: ByteCount
+  /** The amount of storage (in bytes) available for disks or snapshots */
+  storage?: ByteCount
+}
+
+/**
+ * A single page of results
+ */
+export type SiloResultsPage = {
+  /** list of items on this page of results */
+  items: Silo[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+export type SiloRole = 'admin' | 'collaborator' | 'viewer'
+
+/**
+ * Describes the assignment of a particular role on a particular resource to a particular identity (user, group, etc.)
+ *
+ * The resource is not part of this structure.  Rather, `RoleAssignment`s are put into a `Policy` and that Policy is applied to a particular resource.
+ */
+export type SiloRoleRoleAssignment = {
+  identityId: string
+  identityType: IdentityType
+  roleName: SiloRole
+}
+
+/**
+ * Policy for a particular resource
+ *
+ * Note that the Policy only describes access granted explicitly for this resource.  The policies of parent resources can also cause a user to have access to this resource.
+ */
+export type SiloRolePolicy = {
+  /** Roles directly assigned on this resource */
+  roleAssignments: SiloRoleRoleAssignment[]
+}
+
+/**
+ * A collection of resource counts used to describe capacity and utilization
+ */
+export type VirtualResourceCounts = {
+  /** Number of virtual CPUs */
+  cpus: number
+  /** Amount of memory in bytes */
+  memory: ByteCount
+  /** Amount of disk storage in bytes */
+  storage: ByteCount
+}
+
+/**
+ * View of a silo's resource utilization and capacity
+ */
+export type SiloUtilization = {
+  /** Accounts for the total amount of resources reserved for silos via their quotas */
+  allocated: VirtualResourceCounts
+  /** Accounts for resources allocated by in silos like CPU or memory for running instances and storage for disks and snapshots Note that CPU and memory resources associated with a stopped instances are not counted here */
+  provisioned: VirtualResourceCounts
+  siloId: string
+  siloName: Name
+}
+
+/**
+ * A single page of results
+ */
+export type SiloUtilizationResultsPage = {
+  /** list of items on this page of results */
+  items: SiloUtilization[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
+ * The operator-defined provision policy of a sled.
+ *
+ * This controls whether new resources are going to be provisioned on this sled.
+ */
+export type SledProvisionPolicy =
+  /** New resources will be provisioned on this sled. */
+  | 'provisionable'
+  /** New resources will not be provisioned on this sled. However, if the sled is currently in service, existing resources will continue to be on this sled unless manually migrated off. */
+  | 'non_provisionable'
+
+/**
+ * The operator-defined policy of a sled.
+ */
+export type SledPolicy =
+  /** The operator has indicated that the sled is in-service. */
+  | {
+      kind: 'in_service'
+      /** Determines whether new resources can be provisioned onto the sled. */
+      provisionPolicy: SledProvisionPolicy
+    }
+  /** The operator has indicated that the sled has been permanently removed from service.
+
+This is a terminal state: once a particular sled ID is expunged, it will never return to service. (The actual hardware may be reused, but it will be treated as a brand-new sled.)
+
+An expunged sled is always non-provisionable. */
+  | { kind: 'expunged' }
+
+/**
+ * The current state of the sled, as determined by Nexus.
+ */
+export type SledState =
+  /** The sled is currently active, and has resources allocated on it. */
+  | 'active'
+  /** The sled has been permanently removed from service.
+
+This is a terminal state: once a particular sled ID is decommissioned, it will never return to service. (The actual hardware may be reused, but it will be treated as a brand-new sled.) */
+  | 'decommissioned'
+
+/**
+ * An operator's view of a Sled.
+ */
+export type Sled = {
+  baseboard: Baseboard
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** The operator-defined policy of a sled. */
+  policy: SledPolicy
+  /** The rack to which this Sled is currently attached */
+  rackId: string
+  /** The current state Nexus believes the sled to be in. */
+  state: SledState
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+  /** The number of hardware threads which can execute on this sled */
+  usableHardwareThreads: number
+  /** Amount of RAM which may be used by the Sled's OS */
+  usablePhysicalRam: ByteCount
+}
+
+/**
+ * An operator's view of an instance running on a given sled
+ */
+export type SledInstance = {
+  activeSledId: string
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  memory: number
+  migrationId?: string
+  name: Name
+  ncpus: number
+  projectName: Name
+  siloName: Name
+  state: InstanceState
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+}
+
+/**
+ * A single page of results
+ */
+export type SledInstanceResultsPage = {
+  /** list of items on this page of results */
+  items: SledInstance[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
+ * Parameters for `sled_set_provision_policy`.
+ */
+export type SledProvisionPolicyParams = {
+  /** The provision state. */
+  state: SledProvisionPolicy
+}
+
+/**
+ * Response to `sled_set_provision_policy`.
+ */
+export type SledProvisionPolicyResponse = {
+  /** The new provision state. */
+  newState: SledProvisionPolicy
+  /** The old provision state. */
+  oldState: SledProvisionPolicy
+}
+
+/**
+ * A single page of results
+ */
+export type SledResultsPage = {
+  /** list of items on this page of results */
+  items: Sled[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+export type SnapshotState = 'creating' | 'ready' | 'faulted' | 'destroyed'
+
+/**
+ * View of a Snapshot
+ */
+export type Snapshot = {
+  /** human-readable free-form text about a resource */
+  description: string
+  diskId: string
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  projectId: string
+  size: ByteCount
+  state: SnapshotState
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+}
+
+/**
+ * Create-time parameters for a `Snapshot`
+ */
+export type SnapshotCreate = {
+  description: string
+  /** The disk to be snapshotted */
+  disk: NameOrId
+  name: Name
+}
+
+/**
+ * A single page of results
+ */
+export type SnapshotResultsPage = {
+  /** list of items on this page of results */
+  items: Snapshot[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
+ * View of an SSH Key
+ */
+export type SshKey = {
+  /** human-readable free-form text about a resource */
+  description: string
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  /** SSH public key, e.g., `"ssh-ed25519 AAAAC3NzaC..."` */
+  publicKey: string
+  /** The user to whom this key belongs */
+  siloUserId: string
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+}
+
+/**
+ * Create-time parameters for an `SshKey`
+ */
+export type SshKeyCreate = {
+  description: string
+  name: Name
+  /** SSH public key, e.g., `"ssh-ed25519 AAAAC3NzaC..."` */
+  publicKey: string
+}
+
+/**
+ * A single page of results
+ */
+export type SshKeyResultsPage = {
+  /** list of items on this page of results */
+  items: SshKey[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
+ * An operator's view of a Switch.
+ */
+export type Switch = {
+  baseboard: Baseboard
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** The rack to which this Switch is currently attached */
+  rackId: string
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+}
+
+/**
+ * Describes the kind of an switch interface.
+ */
+export type SwitchInterfaceKind2 =
+  /** Primary interfaces are associated with physical links. There is exactly one primary interface per physical link. */
+  | 'primary'
+  /** VLAN interfaces allow physical interfaces to be multiplexed onto multiple logical links, each distinguished by a 12-bit 802.1Q Ethernet tag. */
+  | 'vlan'
+  /** Loopback interfaces are anchors for IP addresses that are not specific to any particular port. */
+  | 'loopback'
+
+/**
+ * A switch port interface configuration for a port settings object.
+ */
+export type SwitchInterfaceConfig = {
+  /** A unique identifier for this switch interface. */
+  id: string
+  /** The name of this switch interface. */
+  interfaceName: string
+  /** The switch interface kind. */
+  kind: SwitchInterfaceKind2
+  /** The port settings object this switch interface configuration belongs to. */
+  portSettingsId: string
+  /** Whether or not IPv6 is enabled on this interface. */
+  v6Enabled: boolean
+}
+
+/**
+ * Indicates the kind for a switch interface.
+ */
+export type SwitchInterfaceKind =
+  /** Primary interfaces are associated with physical links. There is exactly one primary interface per physical link. */
+  | { type: 'primary' }
+  /** VLAN interfaces allow physical interfaces to be multiplexed onto multiple logical links, each distinguished by a 12-bit 802.1Q Ethernet tag. */
+  | {
+      type: 'vlan'
+      /** The virtual network id (VID) that distinguishes this interface and is used for producing and consuming 802.1Q Ethernet tags. This field has a maximum value of 4095 as 802.1Q tags are twelve bits. */
+      vid: number
+    }
+  /** Loopback interfaces are anchors for IP addresses that are not specific to any particular port. */
+  | { type: 'loopback' }
+
+/**
+ * A layer-3 switch interface configuration. When IPv6 is enabled, a link local address will be created for the interface.
+ */
+export type SwitchInterfaceConfigCreate = {
+  /** What kind of switch interface this configuration represents. */
+  kind: SwitchInterfaceKind
+  /** Whether or not IPv6 is enabled. */
+  v6Enabled: boolean
+}
+
+/**
+ * A switch port represents a physical external port on a rack switch.
+ */
+export type SwitchPort = {
+  /** The id of the switch port. */
+  id: string
+  /** The name of this switch port. */
+  portName: string
+  /** The primary settings group of this switch port. Will be `None` until this switch port is configured. */
+  portSettingsId?: string
+  /** The rack this switch port belongs to. */
+  rackId: string
+  /** The switch location of this switch port. */
+  switchLocation: string
+}
+
+/**
+ * An IP address configuration for a port settings object.
+ */
+export type SwitchPortAddressConfig = {
+  /** The IP address and prefix. */
+  address: IpNet
+  /** The id of the address lot block this address is drawn from. */
+  addressLotBlockId: string
+  /** The interface name this address belongs to. */
+  interfaceName: string
+  /** The port settings object this address configuration belongs to. */
+  portSettingsId: string
+}
+
+/**
+ * Parameters for applying settings to switch ports.
+ */
+export type SwitchPortApplySettings = {
+  /** A name or id to use when applying switch port settings. */
+  portSettings: NameOrId
+}
+
+/**
+ * A BGP peer configuration for a port settings object.
+ */
+export type SwitchPortBgpPeerConfig = {
+  /** The address of the peer. */
+  addr: string
+  /** The id of the global BGP configuration referenced by this peer configuration. */
+  bgpConfigId: string
+  /** The interface name used to establish a peer session. */
+  interfaceName: string
+  /** The port settings object this BGP configuration belongs to. */
+  portSettingsId: string
+}
+
+/**
+ * The link geometry associated with a switch port.
+ */
+export type SwitchPortGeometry2 =
+  /** The port contains a single QSFP28 link with four lanes. */
+  | 'qsfp28x1'
+  /** The port contains two QSFP28 links each with two lanes. */
+  | 'qsfp28x2'
+  /** The port contains four SFP28 links each with one lane. */
+  | 'sfp28x4'
+
+/**
+ * A physical port configuration for a port settings object.
+ */
+export type SwitchPortConfig = {
+  /** The physical link geometry of the port. */
+  geometry: SwitchPortGeometry2
+  /** The id of the port settings object this configuration belongs to. */
+  portSettingsId: string
+}
+
+/**
+ * The link geometry associated with a switch port.
+ */
+export type SwitchPortGeometry =
+  /** The port contains a single QSFP28 link with four lanes. */
+  | 'qsfp28x1'
+  /** The port contains two QSFP28 links each with two lanes. */
+  | 'qsfp28x2'
+  /** The port contains four SFP28 links each with one lane. */
+  | 'sfp28x4'
+
+/**
+ * Physical switch port configuration.
+ */
+export type SwitchPortConfigCreate = {
+  /** Link geometry for the switch port. */
+  geometry: SwitchPortGeometry
+}
+
+/**
+ * A link configuration for a port settings object.
+ */
+export type SwitchPortLinkConfig = {
+  /** The name of this link. */
+  linkName: string
+  /** The link-layer discovery protocol service configuration id for this link. */
+  lldpServiceConfigId: string
+  /** The maximum transmission unit for this link. */
+  mtu: number
+  /** The port settings this link configuration belongs to. */
+  portSettingsId: string
+}
+
+/**
+ * A single page of results
+ */
+export type SwitchPortResultsPage = {
+  /** list of items on this page of results */
+  items: SwitchPort[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
+ * A route configuration for a port settings object.
+ */
+export type SwitchPortRouteConfig = {
+  /** The route's destination network. */
+  dst: IpNet
+  /** The route's gateway address. */
+  gw: IpNet
+  /** The interface name this route configuration is assigned to. */
+  interfaceName: string
+  /** The port settings object this route configuration belongs to. */
+  portSettingsId: string
+  /** The VLAN identifier for the route. Use this if the gateway is reachable over an 802.1Q tagged L2 segment. */
+  vlanId?: number
+}
+
+/**
+ * A switch port settings identity whose id may be used to view additional details.
+ */
+export type SwitchPortSettings = {
+  /** human-readable free-form text about a resource */
+  description: string
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+}
+
+/**
+ * Parameters for creating switch port settings. Switch port settings are the central data structure for setting up external networking. Switch port settings include link, interface, route, address and dynamic network protocol configuration.
+ */
+export type SwitchPortSettingsCreate = {
+  /** Addresses indexed by interface name. */
+  addresses: Record<string, AddressConfig>
+  /** BGP peers indexed by interface name. */
+  bgpPeers: Record<string, BgpPeerConfig>
+  description: string
+  groups: NameOrId[]
+  /** Interfaces indexed by link name. */
+  interfaces: Record<string, SwitchInterfaceConfigCreate>
+  /** Links indexed by phy name. On ports that are not broken out, this is always phy0. On a 2x breakout the options are phy0 and phy1, on 4x phy0-phy3, etc. */
+  links: Record<string, LinkConfigCreate>
+  name: Name
+  portConfig: SwitchPortConfigCreate
+  /** Routes indexed by interface name. */
+  routes: Record<string, RouteConfig>
+}
+
+/**
+ * This structure maps a port settings object to a port settings groups. Port settings objects may inherit settings from groups. This mapping defines the relationship between settings objects and the groups they reference.
+ */
+export type SwitchPortSettingsGroups = {
+  /** The id of a port settings group being referenced by a port settings object. */
+  portSettingsGroupId: string
+  /** The id of a port settings object referencing a port settings group. */
+  portSettingsId: string
+}
+
+/**
+ * A single page of results
+ */
+export type SwitchPortSettingsResultsPage = {
+  /** list of items on this page of results */
+  items: SwitchPortSettings[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
+ * A switch port VLAN interface configuration for a port settings object.
+ */
+export type SwitchVlanInterfaceConfig = {
+  /** The switch interface configuration this VLAN interface configuration belongs to. */
+  interfaceConfigId: string
+  /** The virtual network id for this interface that is used for producing and consuming 802.1Q Ethernet tags. This field has a maximum value of 4095 as 802.1Q tags are twelve bits. */
+  vlanId: number
+}
+
+/**
+ * This structure contains all port settings information in one place. It's a convenience data structure for getting a complete view of a particular port's settings.
+ */
+export type SwitchPortSettingsView = {
+  /** Layer 3 IP address settings. */
+  addresses: SwitchPortAddressConfig[]
+  /** BGP peer settings. */
+  bgpPeers: SwitchPortBgpPeerConfig[]
+  /** Switch port settings included from other switch port settings groups. */
+  groups: SwitchPortSettingsGroups[]
+  /** Layer 3 interface settings. */
+  interfaces: SwitchInterfaceConfig[]
+  /** Link-layer discovery protocol (LLDP) settings. */
+  linkLldp: LldpServiceConfig[]
+  /** Layer 2 link settings. */
+  links: SwitchPortLinkConfig[]
+  /** Layer 1 physical port settings. */
+  port: SwitchPortConfig
+  /** IP route settings. */
+  routes: SwitchPortRouteConfig[]
+  /** The primary switch port settings handle. */
+  settings: SwitchPortSettings
+  /** Vlan interface settings. */
+  vlanInterfaces: SwitchVlanInterfaceConfig[]
+}
+
+/**
+ * A single page of results
+ */
+export type SwitchResultsPage = {
+  /** list of items on this page of results */
+  items: Switch[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
+ * A sled that has not been added to an initialized rack yet
+ */
+export type UninitializedSled = { baseboard: Baseboard; cubby: number; rackId: string }
+
+/**
+ * The unique hardware ID for a sled
+ */
+export type UninitializedSledId = { part: string; serial: string }
+
+/**
+ * A single page of results
+ */
+export type UninitializedSledResultsPage = {
+  /** list of items on this page of results */
+  items: UninitializedSled[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
+ * View of a User
+ */
+export type User = {
+  /** Human-readable name that can identify the user */
+  displayName: string
+  id: string
+  /** Uuid of the silo to which this user belongs */
+  siloId: string
+}
+
+/**
+ * View of a Built-in User
+ *
+ * A Built-in User is explicitly created as opposed to being derived from an Identify Provider.
+ */
+export type UserBuiltin = {
+  /** human-readable free-form text about a resource */
+  description: string
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+}
+
+/**
+ * A single page of results
+ */
+export type UserBuiltinResultsPage = {
+  /** list of items on this page of results */
+  items: UserBuiltin[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
+ * A name unique within the parent collection
+ *
+ * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. Names cannot be a UUID though they may contain a UUID.
+ */
+export type UserId = string
+
+/**
+ * Parameters for setting a user's password
+ */
+export type UserPassword =
+  /** Sets the user's password to the provided value */
+  | { mode: 'password'; value: Password }
+  /** Invalidates any current password (disabling password authentication) */
+  | { mode: 'login_disallowed' }
+
+/**
+ * Create-time parameters for a `User`
+ */
+export type UserCreate = {
+  /** username used to log in */
+  externalId: UserId
+  /** how to set the user's login password */
+  password: UserPassword
+}
+
+/**
+ * A single page of results
+ */
+export type UserResultsPage = {
+  /** list of items on this page of results */
+  items: User[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
+ * Credentials for local user login
+ */
+export type UsernamePasswordCredentials = { password: Password; username: UserId }
+
+/**
+ * View of the current silo's resource utilization and capacity
+ */
+export type Utilization = {
+  /** The total amount of resources that can be provisioned in this silo Actions that would exceed this limit will fail */
+  capacity: VirtualResourceCounts
+  /** Accounts for resources allocated to running instances or storage allocated via disks or snapshots Note that CPU and memory resources associated with a stopped instances are not counted here whereas associated disks will still be counted */
+  provisioned: VirtualResourceCounts
+}
+
+/**
+ * View of a VPC
+ */
+export type Vpc = {
+  /** human-readable free-form text about a resource */
+  description: string
+  /** The name used for the VPC in DNS. */
+  dnsName: Name
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** The unique local IPv6 address range for subnets in this VPC */
+  ipv6Prefix: Ipv6Net
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  /** id for the project containing this VPC */
+  projectId: string
+  /** id for the system router where subnet default routes are registered */
+  systemRouterId: string
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+}
+
+/**
+ * Create-time parameters for a `Vpc`
+ */
+export type VpcCreate = {
+  description: string
+  dnsName: Name
+  /** The IPv6 prefix for this VPC
+
+All IPv6 subnets created from this VPC must be taken from this range, which should be a Unique Local Address in the range `fd00::/48`. The default VPC Subnet will have the first `/64` range from this prefix. */
+  ipv6Prefix?: Ipv6Net
+  name: Name
+}
+
+export type VpcFirewallRuleAction = 'allow' | 'deny'
+
+export type VpcFirewallRuleDirection = 'inbound' | 'outbound'
+
+/**
+ * The `VpcFirewallRuleHostFilter` is used to filter traffic on the basis of its source or destination host.
+ */
+export type VpcFirewallRuleHostFilter =
+  /** The rule applies to traffic from/to all instances in the VPC */
+  | { type: 'vpc'; value: Name }
+  /** The rule applies to traffic from/to all instances in the VPC Subnet */
+  | { type: 'subnet'; value: Name }
+  /** The rule applies to traffic from/to this specific instance */
+  | { type: 'instance'; value: Name }
+  /** The rule applies to traffic from/to a specific IP address */
+  | { type: 'ip'; value: string }
+  /** The rule applies to traffic from/to a specific IP subnet */
+  | { type: 'ip_net'; value: IpNet }
+
+/**
+ * The protocols that may be specified in a firewall rule's filter
+ */
+export type VpcFirewallRuleProtocol = 'TCP' | 'UDP' | 'ICMP'
+
+/**
+ * Filter for a firewall rule. A given packet must match every field that is present for the rule to apply to it. A packet matches a field if any entry in that field matches the packet.
+ */
+export type VpcFirewallRuleFilter = {
+  /** If present, the sources (if incoming) or destinations (if outgoing) this rule applies to. */
+  hosts?: VpcFirewallRuleHostFilter[]
+  /** If present, the destination ports this rule applies to. */
+  ports?: L4PortRange[]
+  /** If present, the networking protocols this rule applies to. */
+  protocols?: VpcFirewallRuleProtocol[]
+}
+
+export type VpcFirewallRuleStatus = 'disabled' | 'enabled'
+
+/**
+ * A `VpcFirewallRuleTarget` is used to specify the set of `Instance`s to which a firewall rule applies.
+ */
+export type VpcFirewallRuleTarget =
+  /** The rule applies to all instances in the VPC */
+  | { type: 'vpc'; value: Name }
+  /** The rule applies to all instances in the VPC Subnet */
+  | { type: 'subnet'; value: Name }
+  /** The rule applies to this specific instance */
+  | { type: 'instance'; value: Name }
+  /** The rule applies to a specific IP address */
+  | { type: 'ip'; value: string }
+  /** The rule applies to a specific IP subnet */
+  | { type: 'ip_net'; value: IpNet }
+
+/**
+ * A single rule in a VPC firewall
+ */
+export type VpcFirewallRule = {
+  /** whether traffic matching the rule should be allowed or dropped */
+  action: VpcFirewallRuleAction
+  /** human-readable free-form text about a resource */
+  description: string
+  /** whether this rule is for incoming or outgoing traffic */
+  direction: VpcFirewallRuleDirection
+  /** reductions on the scope of the rule */
+  filters: VpcFirewallRuleFilter
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  /** the relative priority of this rule */
+  priority: number
+  /** whether this rule is in effect */
+  status: VpcFirewallRuleStatus
+  /** list of sets of instances that the rule applies to */
+  targets: VpcFirewallRuleTarget[]
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+  /** the VPC to which this rule belongs */
+  vpcId: string
+}
+
+/**
+ * A single rule in a VPC firewall
+ */
+export type VpcFirewallRuleUpdate = {
+  /** whether traffic matching the rule should be allowed or dropped */
+  action: VpcFirewallRuleAction
+  /** human-readable free-form text about a resource */
+  description: string
+  /** whether this rule is for incoming or outgoing traffic */
+  direction: VpcFirewallRuleDirection
+  /** reductions on the scope of the rule */
+  filters: VpcFirewallRuleFilter
+  /** name of the rule, unique to this VPC */
+  name: Name
+  /** the relative priority of this rule */
+  priority: number
+  /** whether this rule is in effect */
+  status: VpcFirewallRuleStatus
+  /** list of sets of instances that the rule applies to */
+  targets: VpcFirewallRuleTarget[]
+}
+
+/**
+ * Updateable properties of a `Vpc`'s firewall Note that VpcFirewallRules are implicitly created along with a Vpc, so there is no explicit creation.
+ */
+export type VpcFirewallRuleUpdateParams = { rules: VpcFirewallRuleUpdate[] }
+
+/**
+ * Collection of a Vpc's firewall rules
+ */
+export type VpcFirewallRules = { rules: VpcFirewallRule[] }
+
+/**
+ * A single page of results
+ */
+export type VpcResultsPage = {
+  /** list of items on this page of results */
+  items: Vpc[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
+ * A VPC subnet represents a logical grouping for instances that allows network traffic between them, within a IPv4 subnetwork or optionall an IPv6 subnetwork.
+ */
+export type VpcSubnet = {
+  /** human-readable free-form text about a resource */
+  description: string
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** The IPv4 subnet CIDR block. */
+  ipv4Block: Ipv4Net
+  /** The IPv6 subnet CIDR block. */
+  ipv6Block: Ipv6Net
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+  /** The VPC to which the subnet belongs. */
+  vpcId: string
+}
+
+/**
+ * Create-time parameters for a `VpcSubnet`
+ */
+export type VpcSubnetCreate = {
+  description: string
+  /** The IPv4 address range for this subnet.
+
+It must be allocated from an RFC 1918 private address range, and must not overlap with any other existing subnet in the VPC. */
+  ipv4Block: Ipv4Net
+  /** The IPv6 address range for this subnet.
+
+It must be allocated from the RFC 4193 Unique Local Address range, with the prefix equal to the parent VPC's prefix. A random `/64` block will be assigned if one is not provided. It must not overlap with any existing subnet in the VPC. */
+  ipv6Block?: Ipv6Net
+  name: Name
+}
+
+/**
+ * A single page of results
+ */
+export type VpcSubnetResultsPage = {
+  /** list of items on this page of results */
+  items: VpcSubnet[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
+ * Updateable properties of a `VpcSubnet`
+ */
+export type VpcSubnetUpdate = { description?: string; name?: Name }
+
+/**
+ * Updateable properties of a `Vpc`
+ */
+export type VpcUpdate = { description?: string; dnsName?: Name; name?: Name }
+
+/**
+ * Supported set of sort modes for scanning by name or id
+ */
+export type NameOrIdSortMode =
+  /** sort in increasing order of "name" */
+  | 'name_ascending'
+  /** sort in decreasing order of "name" */
+  | 'name_descending'
+  /** sort in increasing order of "id" */
+  | 'id_ascending'
+
+export type DiskMetricName =
+  | 'activated'
+  | 'flush'
+  | 'read'
+  | 'read_bytes'
+  | 'write'
+  | 'write_bytes'
+
+/**
+ * The order in which the client wants to page through the requested collection
+ */
+export type PaginationOrder = 'ascending' | 'descending'
+
+/**
+ * Supported set of sort modes for scanning by id only.
+ *
+ * Currently, we only support scanning in ascending order.
+ */
+export type IdSortMode = 'id_ascending'
+
+export type SystemMetricName =
+  | 'virtual_disk_space_provisioned'
+  | 'cpus_provisioned'
+  | 'ram_provisioned'
+
+/**
+ * Supported set of sort modes for scanning by name only
+ *
+ * Currently, we only support scanning in ascending order.
+ */
+export type NameSortMode = 'name_ascending'
+
+export interface LoginSamlPathParams {
+  providerName: Name
+  siloName: Name
+}
+
+export interface CertificateListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: NameOrIdSortMode
+}
+
+export interface CertificateViewPathParams {
+  certificate: NameOrId
+}
+
+export interface CertificateDeletePathParams {
+  certificate: NameOrId
+}
+
+export interface DiskListQueryParams {
+  limit?: number
+  pageToken?: string
+  project?: NameOrId
+  sortBy?: NameOrIdSortMode
+}
+
+export interface DiskCreateQueryParams {
+  project: NameOrId
+}
+
+export interface DiskViewPathParams {
+  disk: NameOrId
+}
+
+export interface DiskViewQueryParams {
+  project?: NameOrId
+}
+
+export interface DiskDeletePathParams {
+  disk: NameOrId
+}
+
+export interface DiskDeleteQueryParams {
+  project?: NameOrId
+}
+
+export interface DiskBulkWriteImportPathParams {
+  disk: NameOrId
+}
+
+export interface DiskBulkWriteImportQueryParams {
+  project?: NameOrId
+}
+
+export interface DiskBulkWriteImportStartPathParams {
+  disk: NameOrId
+}
+
+export interface DiskBulkWriteImportStartQueryParams {
+  project?: NameOrId
+}
+
+export interface DiskBulkWriteImportStopPathParams {
+  disk: NameOrId
+}
+
+export interface DiskBulkWriteImportStopQueryParams {
+  project?: NameOrId
+}
+
+export interface DiskFinalizeImportPathParams {
+  disk: NameOrId
+}
+
+export interface DiskFinalizeImportQueryParams {
+  project?: NameOrId
+}
+
+export interface DiskMetricsListPathParams {
+  disk: NameOrId
+  metric: DiskMetricName
+}
+
+export interface DiskMetricsListQueryParams {
+  endTime?: Date
+  limit?: number
+  order?: PaginationOrder
+  pageToken?: string
+  startTime?: Date
+  project?: NameOrId
+}
+
+export interface FloatingIpListQueryParams {
+  limit?: number
+  pageToken?: string
+  project?: NameOrId
+  sortBy?: NameOrIdSortMode
+}
+
+export interface FloatingIpCreateQueryParams {
+  project: NameOrId
+}
+
+export interface FloatingIpViewPathParams {
+  floatingIp: NameOrId
+}
+
+export interface FloatingIpViewQueryParams {
+  project?: NameOrId
+}
+
+export interface FloatingIpUpdatePathParams {
+  floatingIp: NameOrId
+}
+
+export interface FloatingIpUpdateQueryParams {
+  project?: NameOrId
+}
+
+export interface FloatingIpDeletePathParams {
+  floatingIp: NameOrId
+}
+
+export interface FloatingIpDeleteQueryParams {
+  project?: NameOrId
+}
+
+export interface FloatingIpAttachPathParams {
+  floatingIp: NameOrId
+}
+
+export interface FloatingIpAttachQueryParams {
+  project?: NameOrId
+}
+
+export interface FloatingIpDetachPathParams {
+  floatingIp: NameOrId
+}
+
+export interface FloatingIpDetachQueryParams {
+  project?: NameOrId
+}
+
+export interface GroupListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: IdSortMode
+}
+
+export interface GroupViewPathParams {
+  groupId: string
+}
+
+export interface ImageListQueryParams {
+  limit?: number
+  pageToken?: string
+  project?: NameOrId
+  sortBy?: NameOrIdSortMode
+}
+
+export interface ImageCreateQueryParams {
+  project?: NameOrId
+}
+
+export interface ImageViewPathParams {
+  image: NameOrId
+}
+
+export interface ImageViewQueryParams {
+  project?: NameOrId
+}
+
+export interface ImageDeletePathParams {
+  image: NameOrId
+}
+
+export interface ImageDeleteQueryParams {
+  project?: NameOrId
+}
+
+export interface ImageDemotePathParams {
+  image: NameOrId
+}
+
+export interface ImageDemoteQueryParams {
+  project: NameOrId
+}
+
+export interface ImagePromotePathParams {
+  image: NameOrId
+}
+
+export interface ImagePromoteQueryParams {
+  project?: NameOrId
+}
+
+export interface InstanceListQueryParams {
+  limit?: number
+  pageToken?: string
+  project?: NameOrId
+  sortBy?: NameOrIdSortMode
+}
+
+export interface InstanceCreateQueryParams {
+  project: NameOrId
+}
+
+export interface InstanceViewPathParams {
+  instance: NameOrId
+}
+
+export interface InstanceViewQueryParams {
+  project?: NameOrId
+}
+
+export interface InstanceDeletePathParams {
+  instance: NameOrId
+}
+
+export interface InstanceDeleteQueryParams {
+  project?: NameOrId
+}
+
+export interface InstanceDiskListPathParams {
+  instance: NameOrId
+}
+
+export interface InstanceDiskListQueryParams {
+  limit?: number
+  pageToken?: string
+  project?: NameOrId
+  sortBy?: NameOrIdSortMode
+}
+
+export interface InstanceDiskAttachPathParams {
+  instance: NameOrId
+}
+
+export interface InstanceDiskAttachQueryParams {
+  project?: NameOrId
+}
+
+export interface InstanceDiskDetachPathParams {
+  instance: NameOrId
+}
+
+export interface InstanceDiskDetachQueryParams {
+  project?: NameOrId
+}
+
+export interface InstanceExternalIpListPathParams {
+  instance: NameOrId
+}
+
+export interface InstanceExternalIpListQueryParams {
+  project?: NameOrId
+}
+
+export interface InstanceEphemeralIpAttachPathParams {
+  instance: NameOrId
+}
+
+export interface InstanceEphemeralIpAttachQueryParams {
+  project?: NameOrId
+}
+
+export interface InstanceEphemeralIpDetachPathParams {
+  instance: NameOrId
+}
+
+export interface InstanceEphemeralIpDetachQueryParams {
+  project?: NameOrId
+}
+
+export interface InstanceMigratePathParams {
+  instance: NameOrId
+}
+
+export interface InstanceMigrateQueryParams {
+  project?: NameOrId
+}
+
+export interface InstanceRebootPathParams {
+  instance: NameOrId
+}
+
+export interface InstanceRebootQueryParams {
+  project?: NameOrId
+}
+
+export interface InstanceSerialConsolePathParams {
+  instance: NameOrId
+}
+
+export interface InstanceSerialConsoleQueryParams {
+  fromStart?: number
+  maxBytes?: number
+  mostRecent?: number
+  project?: NameOrId
+}
+
+export interface InstanceSerialConsoleStreamPathParams {
+  instance: NameOrId
+}
+
+export interface InstanceSerialConsoleStreamQueryParams {
+  mostRecent?: number
+  project?: NameOrId
+}
+
+export interface InstanceSshPublicKeyListPathParams {
+  instance: NameOrId
+}
+
+export interface InstanceSshPublicKeyListQueryParams {
+  limit?: number
+  pageToken?: string
+  project?: NameOrId
+  sortBy?: NameOrIdSortMode
+}
+
+export interface InstanceStartPathParams {
+  instance: NameOrId
+}
+
+export interface InstanceStartQueryParams {
+  project?: NameOrId
+}
+
+export interface InstanceStopPathParams {
+  instance: NameOrId
+}
+
+export interface InstanceStopQueryParams {
+  project?: NameOrId
+}
+
+export interface ProjectIpPoolListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: NameOrIdSortMode
+}
+
+export interface ProjectIpPoolViewPathParams {
+  pool: NameOrId
+}
+
+export interface LoginLocalPathParams {
+  siloName: Name
+}
+
+export interface CurrentUserGroupsQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: IdSortMode
+}
+
+export interface CurrentUserSshKeyListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: NameOrIdSortMode
+}
+
+export interface CurrentUserSshKeyViewPathParams {
+  sshKey: NameOrId
+}
+
+export interface CurrentUserSshKeyDeletePathParams {
+  sshKey: NameOrId
+}
+
+export interface SiloMetricPathParams {
+  metricName: SystemMetricName
+}
+
+export interface SiloMetricQueryParams {
+  endTime?: Date
+  limit?: number
+  order?: PaginationOrder
+  pageToken?: string
+  startTime?: Date
+  project?: NameOrId
+}
+
+export interface InstanceNetworkInterfaceListQueryParams {
+  instance?: NameOrId
+  limit?: number
+  pageToken?: string
+  project?: NameOrId
+  sortBy?: NameOrIdSortMode
+}
+
+export interface InstanceNetworkInterfaceCreateQueryParams {
+  instance: NameOrId
+  project?: NameOrId
+}
+
+export interface InstanceNetworkInterfaceViewPathParams {
+  interface: NameOrId
+}
+
+export interface InstanceNetworkInterfaceViewQueryParams {
+  instance?: NameOrId
+  project?: NameOrId
+}
+
+export interface InstanceNetworkInterfaceUpdatePathParams {
+  interface: NameOrId
+}
+
+export interface InstanceNetworkInterfaceUpdateQueryParams {
+  instance?: NameOrId
+  project?: NameOrId
+}
+
+export interface InstanceNetworkInterfaceDeletePathParams {
+  interface: NameOrId
+}
+
+export interface InstanceNetworkInterfaceDeleteQueryParams {
+  instance?: NameOrId
+  project?: NameOrId
+}
+
+export interface ProjectListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: NameOrIdSortMode
+}
+
+export interface ProjectViewPathParams {
+  project: NameOrId
+}
+
+export interface ProjectUpdatePathParams {
+  project: NameOrId
+}
+
+export interface ProjectDeletePathParams {
+  project: NameOrId
+}
+
+export interface ProjectPolicyViewPathParams {
+  project: NameOrId
+}
+
+export interface ProjectPolicyUpdatePathParams {
+  project: NameOrId
+}
+
+export interface SnapshotListQueryParams {
+  limit?: number
+  pageToken?: string
+  project?: NameOrId
+  sortBy?: NameOrIdSortMode
+}
+
+export interface SnapshotCreateQueryParams {
+  project: NameOrId
+}
+
+export interface SnapshotViewPathParams {
+  snapshot: NameOrId
+}
+
+export interface SnapshotViewQueryParams {
+  project?: NameOrId
+}
+
+export interface SnapshotDeletePathParams {
+  snapshot: NameOrId
+}
+
+export interface SnapshotDeleteQueryParams {
+  project?: NameOrId
+}
+
+export interface PhysicalDiskListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: IdSortMode
+}
+
+export interface RackListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: IdSortMode
+}
+
+export interface RackViewPathParams {
+  rackId: string
+}
+
+export interface SledListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: IdSortMode
+}
+
+export interface SledViewPathParams {
+  sledId: string
+}
+
+export interface SledPhysicalDiskListPathParams {
+  sledId: string
+}
+
+export interface SledPhysicalDiskListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: IdSortMode
+}
+
+export interface SledInstanceListPathParams {
+  sledId: string
+}
+
+export interface SledInstanceListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: IdSortMode
+}
+
+export interface SledSetProvisionPolicyPathParams {
+  sledId: string
+}
+
+export interface SledListUninitializedQueryParams {
+  limit?: number
+  pageToken?: string
+}
+
+export interface NetworkingSwitchPortListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: IdSortMode
+  switchPortId?: string
+}
+
+export interface NetworkingSwitchPortApplySettingsPathParams {
+  port: Name
+}
+
+export interface NetworkingSwitchPortApplySettingsQueryParams {
+  rackId: string
+  switchLocation: Name
+}
+
+export interface NetworkingSwitchPortClearSettingsPathParams {
+  port: Name
+}
+
+export interface NetworkingSwitchPortClearSettingsQueryParams {
+  rackId: string
+  switchLocation: Name
+}
+
+export interface SwitchListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: IdSortMode
+}
+
+export interface SwitchViewPathParams {
+  switchId: string
+}
+
+export interface SiloIdentityProviderListQueryParams {
+  limit?: number
+  pageToken?: string
+  silo?: NameOrId
+  sortBy?: NameOrIdSortMode
+}
+
+export interface LocalIdpUserCreateQueryParams {
+  silo: NameOrId
+}
+
+export interface LocalIdpUserDeletePathParams {
+  userId: string
+}
+
+export interface LocalIdpUserDeleteQueryParams {
+  silo: NameOrId
+}
+
+export interface LocalIdpUserSetPasswordPathParams {
+  userId: string
+}
+
+export interface LocalIdpUserSetPasswordQueryParams {
+  silo: NameOrId
+}
+
+export interface SamlIdentityProviderCreateQueryParams {
+  silo: NameOrId
+}
+
+export interface SamlIdentityProviderViewPathParams {
+  provider: NameOrId
+}
+
+export interface SamlIdentityProviderViewQueryParams {
+  silo: NameOrId
+}
+
+export interface IpPoolListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: NameOrIdSortMode
+}
+
+export interface IpPoolViewPathParams {
+  pool: NameOrId
+}
+
+export interface IpPoolUpdatePathParams {
+  pool: NameOrId
+}
+
+export interface IpPoolDeletePathParams {
+  pool: NameOrId
+}
+
+export interface IpPoolRangeListPathParams {
+  pool: NameOrId
+}
+
+export interface IpPoolRangeListQueryParams {
+  limit?: number
+  pageToken?: string
+}
+
+export interface IpPoolRangeAddPathParams {
+  pool: NameOrId
+}
+
+export interface IpPoolRangeRemovePathParams {
+  pool: NameOrId
+}
+
+export interface IpPoolSiloListPathParams {
+  pool: NameOrId
+}
+
+export interface IpPoolSiloListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: IdSortMode
+}
+
+export interface IpPoolSiloLinkPathParams {
+  pool: NameOrId
+}
+
+export interface IpPoolSiloUpdatePathParams {
+  pool: NameOrId
+  silo: NameOrId
+}
+
+export interface IpPoolSiloUnlinkPathParams {
+  pool: NameOrId
+  silo: NameOrId
+}
+
+export interface IpPoolServiceRangeListQueryParams {
+  limit?: number
+  pageToken?: string
+}
+
+export interface SystemMetricPathParams {
+  metricName: SystemMetricName
+}
+
+export interface SystemMetricQueryParams {
+  endTime?: Date
+  limit?: number
+  order?: PaginationOrder
+  pageToken?: string
+  startTime?: Date
+  silo?: NameOrId
+}
+
+export interface NetworkingAddressLotListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: NameOrIdSortMode
+}
+
+export interface NetworkingAddressLotDeletePathParams {
+  addressLot: NameOrId
+}
+
+export interface NetworkingAddressLotBlockListPathParams {
+  addressLot: NameOrId
+}
+
+export interface NetworkingAddressLotBlockListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: IdSortMode
+}
+
+export interface NetworkingBgpConfigListQueryParams {
+  limit?: number
+  nameOrId?: NameOrId
+  pageToken?: string
+  sortBy?: NameOrIdSortMode
+}
+
+export interface NetworkingBgpConfigDeleteQueryParams {
+  nameOrId: NameOrId
+}
+
+export interface NetworkingBgpAnnounceSetListQueryParams {
+  nameOrId: NameOrId
+}
+
+export interface NetworkingBgpAnnounceSetDeleteQueryParams {
+  nameOrId: NameOrId
+}
+
+export interface NetworkingBgpImportedRoutesIpv4QueryParams {
+  asn: number
+}
+
+export interface NetworkingLoopbackAddressListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: IdSortMode
+}
+
+export interface NetworkingLoopbackAddressDeletePathParams {
+  address: string
+  rackId: string
+  subnetMask: number
+  switchLocation: Name
+}
+
+export interface NetworkingSwitchPortSettingsListQueryParams {
+  limit?: number
+  pageToken?: string
+  portSettings?: NameOrId
+  sortBy?: NameOrIdSortMode
+}
+
+export interface NetworkingSwitchPortSettingsDeleteQueryParams {
+  portSettings?: NameOrId
+}
+
+export interface NetworkingSwitchPortSettingsViewPathParams {
+  port: NameOrId
+}
+
+export interface RoleListQueryParams {
+  limit?: number
+  pageToken?: string
+}
+
+export interface RoleViewPathParams {
+  roleName: string
+}
+
+export interface SystemQuotasListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: IdSortMode
+}
+
+export interface SiloListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: NameOrIdSortMode
+}
+
+export interface SiloViewPathParams {
+  silo: NameOrId
+}
+
+export interface SiloDeletePathParams {
+  silo: NameOrId
+}
+
+export interface SiloIpPoolListPathParams {
+  silo: NameOrId
+}
+
+export interface SiloIpPoolListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: NameOrIdSortMode
+}
+
+export interface SiloPolicyViewPathParams {
+  silo: NameOrId
+}
+
+export interface SiloPolicyUpdatePathParams {
+  silo: NameOrId
+}
+
+export interface SiloQuotasViewPathParams {
+  silo: NameOrId
+}
+
+export interface SiloQuotasUpdatePathParams {
+  silo: NameOrId
+}
+
+export interface SiloUserListQueryParams {
+  limit?: number
+  pageToken?: string
+  silo?: NameOrId
+  sortBy?: IdSortMode
+}
+
+export interface SiloUserViewPathParams {
+  userId: string
+}
+
+export interface SiloUserViewQueryParams {
+  silo: NameOrId
+}
+
+export interface UserBuiltinListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: NameSortMode
+}
+
+export interface UserBuiltinViewPathParams {
+  user: NameOrId
+}
+
+export interface SiloUtilizationListQueryParams {
+  limit?: number
+  pageToken?: string
+  sortBy?: NameOrIdSortMode
+}
+
+export interface SiloUtilizationViewPathParams {
+  silo: NameOrId
+}
+
+export interface UserListQueryParams {
+  group?: string
+  limit?: number
+  pageToken?: string
+  sortBy?: IdSortMode
+}
+
+export interface VpcFirewallRulesViewQueryParams {
+  project?: NameOrId
+  vpc: NameOrId
+}
+
+export interface VpcFirewallRulesUpdateQueryParams {
+  project?: NameOrId
+  vpc: NameOrId
+}
+
+export interface VpcSubnetListQueryParams {
+  limit?: number
+  pageToken?: string
+  project?: NameOrId
+  sortBy?: NameOrIdSortMode
+  vpc?: NameOrId
+}
+
+export interface VpcSubnetCreateQueryParams {
+  project?: NameOrId
+  vpc: NameOrId
+}
+
+export interface VpcSubnetViewPathParams {
+  subnet: NameOrId
+}
+
+export interface VpcSubnetViewQueryParams {
+  project?: NameOrId
+  vpc?: NameOrId
+}
+
+export interface VpcSubnetUpdatePathParams {
+  subnet: NameOrId
+}
+
+export interface VpcSubnetUpdateQueryParams {
+  project?: NameOrId
+  vpc?: NameOrId
+}
+
+export interface VpcSubnetDeletePathParams {
+  subnet: NameOrId
+}
+
+export interface VpcSubnetDeleteQueryParams {
+  project?: NameOrId
+  vpc?: NameOrId
+}
+
+export interface VpcSubnetListNetworkInterfacesPathParams {
+  subnet: NameOrId
+}
+
+export interface VpcSubnetListNetworkInterfacesQueryParams {
+  limit?: number
+  pageToken?: string
+  project?: NameOrId
+  sortBy?: NameOrIdSortMode
+  vpc?: NameOrId
+}
+
+export interface VpcListQueryParams {
+  limit?: number
+  pageToken?: string
+  project?: NameOrId
+  sortBy?: NameOrIdSortMode
+}
+
+export interface VpcCreateQueryParams {
+  project: NameOrId
+}
+
+export interface VpcViewPathParams {
+  vpc: NameOrId
+}
+
+export interface VpcViewQueryParams {
+  project?: NameOrId
+}
+
+export interface VpcUpdatePathParams {
+  vpc: NameOrId
+}
+
+export interface VpcUpdateQueryParams {
+  project?: NameOrId
+}
+
+export interface VpcDeletePathParams {
+  vpc: NameOrId
+}
+
+export interface VpcDeleteQueryParams {
+  project?: NameOrId
+}
+
+export type ApiListMethods = Pick<
+  InstanceType<typeof Api>['methods'],
+  | 'certificateList'
+  | 'diskList'
+  | 'diskMetricsList'
+  | 'floatingIpList'
+  | 'groupList'
+  | 'imageList'
+  | 'instanceList'
+  | 'instanceDiskList'
+  | 'instanceExternalIpList'
+  | 'instanceSshPublicKeyList'
+  | 'projectIpPoolList'
+  | 'currentUserSshKeyList'
+  | 'instanceNetworkInterfaceList'
+  | 'projectList'
+  | 'snapshotList'
+  | 'physicalDiskList'
+  | 'rackList'
+  | 'sledList'
+  | 'sledPhysicalDiskList'
+  | 'sledInstanceList'
+  | 'networkingSwitchPortList'
+  | 'switchList'
+  | 'siloIdentityProviderList'
+  | 'ipPoolList'
+  | 'ipPoolRangeList'
+  | 'ipPoolSiloList'
+  | 'ipPoolServiceRangeList'
+  | 'networkingAddressLotList'
+  | 'networkingAddressLotBlockList'
+  | 'networkingBgpConfigList'
+  | 'networkingBgpAnnounceSetList'
+  | 'networkingLoopbackAddressList'
+  | 'networkingSwitchPortSettingsList'
+  | 'roleList'
+  | 'systemQuotasList'
+  | 'siloList'
+  | 'siloIpPoolList'
+  | 'siloUserList'
+  | 'userBuiltinList'
+  | 'siloUtilizationList'
+  | 'userList'
+  | 'vpcSubnetList'
+  | 'vpcList'
+>
+
+type EmptyObj = Record<string, never>
+export class Api extends HttpClient {
+  methods = {
+    /**
+     * Start an OAuth 2.0 Device Authorization Grant
+     */
+    deviceAuthRequest: (_: EmptyObj, params: FetchParams = {}) => {
+      return this.request<void>({
+        path: `/device/auth`,
+        method: 'POST',
+        ...params,
+      })
+    },
+    /**
+     * Confirm an OAuth 2.0 Device Authorization Grant
+     */
+    deviceAuthConfirm: ({ body }: { body: DeviceAuthVerify }, params: FetchParams = {}) => {
+      return this.request<void>({
+        path: `/device/confirm`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Request a device access token
+     */
+    deviceAccessToken: (_: EmptyObj, params: FetchParams = {}) => {
+      return this.request<void>({
+        path: `/device/token`,
+        method: 'POST',
+        ...params,
+      })
+    },
+    /**
+     * Authenticate a user via SAML
+     */
+    loginSaml: ({ path }: { path: LoginSamlPathParams }, params: FetchParams = {}) => {
+      return this.request<void>({
+        path: `/login/${path.siloName}/saml/${path.providerName}`,
+        method: 'POST',
+        ...params,
+      })
+    },
+    /**
+     * List certificates for external endpoints
+     */
+    certificateList: (
+      { query = {} }: { query?: CertificateListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<CertificateResultsPage>({
+        path: `/v1/certificates`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create new system-wide x.509 certificate
+     */
+    certificateCreate: (
+      { body }: { body: CertificateCreate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<Certificate>({
+        path: `/v1/certificates`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Fetch certificate
+     */
+    certificateView: (
+      { path }: { path: CertificateViewPathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<Certificate>({
+        path: `/v1/certificates/${path.certificate}`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Delete certificate
+     */
+    certificateDelete: (
+      { path }: { path: CertificateDeletePathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/certificates/${path.certificate}`,
+        method: 'DELETE',
+        ...params,
+      })
+    },
+    /**
+     * List disks
+     */
+    diskList: (
+      { query = {} }: { query?: DiskListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<DiskResultsPage>({
+        path: `/v1/disks`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create a disk
+     */
+    diskCreate: (
+      { query, body }: { query?: DiskCreateQueryParams; body: DiskCreate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<Disk>({
+        path: `/v1/disks`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch disk
+     */
+    diskView: (
+      { path, query = {} }: { path: DiskViewPathParams; query?: DiskViewQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<Disk>({
+        path: `/v1/disks/${path.disk}`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Delete disk
+     */
+    diskDelete: (
+      { path, query = {} }: { path: DiskDeletePathParams; query?: DiskDeleteQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/disks/${path.disk}`,
+        method: 'DELETE',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Import blocks into disk
+     */
+    diskBulkWriteImport: (
+      {
+        path,
+        query = {},
+        body,
+      }: {
+        path: DiskBulkWriteImportPathParams
+        query?: DiskBulkWriteImportQueryParams
+        body: ImportBlocksBulkWrite
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/disks/${path.disk}/bulk-write`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Start importing blocks into disk
+     */
+    diskBulkWriteImportStart: (
+      {
+        path,
+        query = {},
+      }: {
+        path: DiskBulkWriteImportStartPathParams
+        query?: DiskBulkWriteImportStartQueryParams
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/disks/${path.disk}/bulk-write-start`,
+        method: 'POST',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Stop importing blocks into disk
+     */
+    diskBulkWriteImportStop: (
+      {
+        path,
+        query = {},
+      }: {
+        path: DiskBulkWriteImportStopPathParams
+        query?: DiskBulkWriteImportStopQueryParams
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/disks/${path.disk}/bulk-write-stop`,
+        method: 'POST',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Confirm disk block import completion
+     */
+    diskFinalizeImport: (
+      {
+        path,
+        query = {},
+        body,
+      }: {
+        path: DiskFinalizeImportPathParams
+        query?: DiskFinalizeImportQueryParams
+        body: FinalizeDisk
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/disks/${path.disk}/finalize`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch disk metrics
+     */
+    diskMetricsList: (
+      {
+        path,
+        query = {},
+      }: { path: DiskMetricsListPathParams; query?: DiskMetricsListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<MeasurementResultsPage>({
+        path: `/v1/disks/${path.disk}/metrics/${path.metric}`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List all floating IPs
+     */
+    floatingIpList: (
+      { query = {} }: { query?: FloatingIpListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<FloatingIpResultsPage>({
+        path: `/v1/floating-ips`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create floating IP
+     */
+    floatingIpCreate: (
+      { query, body }: { query?: FloatingIpCreateQueryParams; body: FloatingIpCreate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<FloatingIp>({
+        path: `/v1/floating-ips`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch floating IP
+     */
+    floatingIpView: (
+      {
+        path,
+        query = {},
+      }: { path: FloatingIpViewPathParams; query?: FloatingIpViewQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<FloatingIp>({
+        path: `/v1/floating-ips/${path.floatingIp}`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Update floating IP
+     */
+    floatingIpUpdate: (
+      {
+        path,
+        query = {},
+        body,
+      }: {
+        path: FloatingIpUpdatePathParams
+        query?: FloatingIpUpdateQueryParams
+        body: FloatingIpUpdate
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<FloatingIp>({
+        path: `/v1/floating-ips/${path.floatingIp}`,
+        method: 'PUT',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Delete floating IP
+     */
+    floatingIpDelete: (
+      {
+        path,
+        query = {},
+      }: { path: FloatingIpDeletePathParams; query?: FloatingIpDeleteQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/floating-ips/${path.floatingIp}`,
+        method: 'DELETE',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Attach floating IP
+     */
+    floatingIpAttach: (
+      {
+        path,
+        query = {},
+        body,
+      }: {
+        path: FloatingIpAttachPathParams
+        query?: FloatingIpAttachQueryParams
+        body: FloatingIpAttach
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<FloatingIp>({
+        path: `/v1/floating-ips/${path.floatingIp}/attach`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Detach floating IP
+     */
+    floatingIpDetach: (
+      {
+        path,
+        query = {},
+      }: { path: FloatingIpDetachPathParams; query?: FloatingIpDetachQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<FloatingIp>({
+        path: `/v1/floating-ips/${path.floatingIp}/detach`,
+        method: 'POST',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List groups
+     */
+    groupList: (
+      { query = {} }: { query?: GroupListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<GroupResultsPage>({
+        path: `/v1/groups`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch group
+     */
+    groupView: ({ path }: { path: GroupViewPathParams }, params: FetchParams = {}) => {
+      return this.request<Group>({
+        path: `/v1/groups/${path.groupId}`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * List images
+     */
+    imageList: (
+      { query = {} }: { query?: ImageListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<ImageResultsPage>({
+        path: `/v1/images`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create image
+     */
+    imageCreate: (
+      { query = {}, body }: { query?: ImageCreateQueryParams; body: ImageCreate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<Image>({
+        path: `/v1/images`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch image
+     */
+    imageView: (
+      { path, query = {} }: { path: ImageViewPathParams; query?: ImageViewQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<Image>({
+        path: `/v1/images/${path.image}`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Delete image
+     */
+    imageDelete: (
+      { path, query = {} }: { path: ImageDeletePathParams; query?: ImageDeleteQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/images/${path.image}`,
+        method: 'DELETE',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Demote silo image
+     */
+    imageDemote: (
+      { path, query }: { path: ImageDemotePathParams; query?: ImageDemoteQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<Image>({
+        path: `/v1/images/${path.image}/demote`,
+        method: 'POST',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Promote project image
+     */
+    imagePromote: (
+      {
+        path,
+        query = {},
+      }: { path: ImagePromotePathParams; query?: ImagePromoteQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<Image>({
+        path: `/v1/images/${path.image}/promote`,
+        method: 'POST',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List instances
+     */
+    instanceList: (
+      { query = {} }: { query?: InstanceListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<InstanceResultsPage>({
+        path: `/v1/instances`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create instance
+     */
+    instanceCreate: (
+      { query, body }: { query?: InstanceCreateQueryParams; body: InstanceCreate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<Instance>({
+        path: `/v1/instances`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch instance
+     */
+    instanceView: (
+      {
+        path,
+        query = {},
+      }: { path: InstanceViewPathParams; query?: InstanceViewQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<Instance>({
+        path: `/v1/instances/${path.instance}`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Delete instance
+     */
+    instanceDelete: (
+      {
+        path,
+        query = {},
+      }: { path: InstanceDeletePathParams; query?: InstanceDeleteQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/instances/${path.instance}`,
+        method: 'DELETE',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List disks for instance
+     */
+    instanceDiskList: (
+      {
+        path,
+        query = {},
+      }: { path: InstanceDiskListPathParams; query?: InstanceDiskListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<DiskResultsPage>({
+        path: `/v1/instances/${path.instance}/disks`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Attach disk to instance
+     */
+    instanceDiskAttach: (
+      {
+        path,
+        query = {},
+        body,
+      }: {
+        path: InstanceDiskAttachPathParams
+        query?: InstanceDiskAttachQueryParams
+        body: DiskPath
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<Disk>({
+        path: `/v1/instances/${path.instance}/disks/attach`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Detach disk from instance
+     */
+    instanceDiskDetach: (
+      {
+        path,
+        query = {},
+        body,
+      }: {
+        path: InstanceDiskDetachPathParams
+        query?: InstanceDiskDetachQueryParams
+        body: DiskPath
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<Disk>({
+        path: `/v1/instances/${path.instance}/disks/detach`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List external IP addresses
+     */
+    instanceExternalIpList: (
+      {
+        path,
+        query = {},
+      }: {
+        path: InstanceExternalIpListPathParams
+        query?: InstanceExternalIpListQueryParams
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<ExternalIpResultsPage>({
+        path: `/v1/instances/${path.instance}/external-ips`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Allocate and attach ephemeral IP to instance
+     */
+    instanceEphemeralIpAttach: (
+      {
+        path,
+        query = {},
+        body,
+      }: {
+        path: InstanceEphemeralIpAttachPathParams
+        query?: InstanceEphemeralIpAttachQueryParams
+        body: EphemeralIpCreate
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<ExternalIp>({
+        path: `/v1/instances/${path.instance}/external-ips/ephemeral`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Detach and deallocate ephemeral IP from instance
+     */
+    instanceEphemeralIpDetach: (
+      {
+        path,
+        query = {},
+      }: {
+        path: InstanceEphemeralIpDetachPathParams
+        query?: InstanceEphemeralIpDetachQueryParams
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/instances/${path.instance}/external-ips/ephemeral`,
+        method: 'DELETE',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Migrate an instance
+     */
+    instanceMigrate: (
+      {
+        path,
+        query = {},
+        body,
+      }: {
+        path: InstanceMigratePathParams
+        query?: InstanceMigrateQueryParams
+        body: InstanceMigrate
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<Instance>({
+        path: `/v1/instances/${path.instance}/migrate`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Reboot an instance
+     */
+    instanceReboot: (
+      {
+        path,
+        query = {},
+      }: { path: InstanceRebootPathParams; query?: InstanceRebootQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<Instance>({
+        path: `/v1/instances/${path.instance}/reboot`,
+        method: 'POST',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch instance serial console
+     */
+    instanceSerialConsole: (
+      {
+        path,
+        query = {},
+      }: {
+        path: InstanceSerialConsolePathParams
+        query?: InstanceSerialConsoleQueryParams
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<InstanceSerialConsoleData>({
+        path: `/v1/instances/${path.instance}/serial-console`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List SSH public keys for instance
+     */
+    instanceSshPublicKeyList: (
+      {
+        path,
+        query = {},
+      }: {
+        path: InstanceSshPublicKeyListPathParams
+        query?: InstanceSshPublicKeyListQueryParams
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SshKeyResultsPage>({
+        path: `/v1/instances/${path.instance}/ssh-public-keys`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Boot instance
+     */
+    instanceStart: (
+      {
+        path,
+        query = {},
+      }: { path: InstanceStartPathParams; query?: InstanceStartQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<Instance>({
+        path: `/v1/instances/${path.instance}/start`,
+        method: 'POST',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Stop instance
+     */
+    instanceStop: (
+      {
+        path,
+        query = {},
+      }: { path: InstanceStopPathParams; query?: InstanceStopQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<Instance>({
+        path: `/v1/instances/${path.instance}/stop`,
+        method: 'POST',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List all IP pools
+     */
+    projectIpPoolList: (
+      { query = {} }: { query?: ProjectIpPoolListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SiloIpPoolResultsPage>({
+        path: `/v1/ip-pools`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch IP pool
+     */
+    projectIpPoolView: (
+      { path }: { path: ProjectIpPoolViewPathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SiloIpPool>({
+        path: `/v1/ip-pools/${path.pool}`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Authenticate a user via username and password
+     */
+    loginLocal: (
+      { path, body }: { path: LoginLocalPathParams; body: UsernamePasswordCredentials },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/login/${path.siloName}/local`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Log user out of web console by deleting session on client and server
+     */
+    logout: (_: EmptyObj, params: FetchParams = {}) => {
+      return this.request<void>({
+        path: `/v1/logout`,
+        method: 'POST',
+        ...params,
+      })
+    },
+    /**
+     * Fetch user for current session
+     */
+    currentUserView: (_: EmptyObj, params: FetchParams = {}) => {
+      return this.request<CurrentUser>({
+        path: `/v1/me`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Fetch current user's groups
+     */
+    currentUserGroups: (
+      { query = {} }: { query?: CurrentUserGroupsQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<GroupResultsPage>({
+        path: `/v1/me/groups`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List SSH public keys
+     */
+    currentUserSshKeyList: (
+      { query = {} }: { query?: CurrentUserSshKeyListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SshKeyResultsPage>({
+        path: `/v1/me/ssh-keys`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create SSH public key
+     */
+    currentUserSshKeyCreate: (
+      { body }: { body: SshKeyCreate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SshKey>({
+        path: `/v1/me/ssh-keys`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Fetch SSH public key
+     */
+    currentUserSshKeyView: (
+      { path }: { path: CurrentUserSshKeyViewPathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SshKey>({
+        path: `/v1/me/ssh-keys/${path.sshKey}`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Delete SSH public key
+     */
+    currentUserSshKeyDelete: (
+      { path }: { path: CurrentUserSshKeyDeletePathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/me/ssh-keys/${path.sshKey}`,
+        method: 'DELETE',
+        ...params,
+      })
+    },
+    /**
+     * Access metrics data
+     */
+    siloMetric: (
+      { path, query = {} }: { path: SiloMetricPathParams; query?: SiloMetricQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<MeasurementResultsPage>({
+        path: `/v1/metrics/${path.metricName}`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List network interfaces
+     */
+    instanceNetworkInterfaceList: (
+      { query = {} }: { query?: InstanceNetworkInterfaceListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<InstanceNetworkInterfaceResultsPage>({
+        path: `/v1/network-interfaces`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create network interface
+     */
+    instanceNetworkInterfaceCreate: (
+      {
+        query,
+        body,
+      }: {
+        query?: InstanceNetworkInterfaceCreateQueryParams
+        body: InstanceNetworkInterfaceCreate
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<InstanceNetworkInterface>({
+        path: `/v1/network-interfaces`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch network interface
+     */
+    instanceNetworkInterfaceView: (
+      {
+        path,
+        query = {},
+      }: {
+        path: InstanceNetworkInterfaceViewPathParams
+        query?: InstanceNetworkInterfaceViewQueryParams
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<InstanceNetworkInterface>({
+        path: `/v1/network-interfaces/${path.interface}`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Update network interface
+     */
+    instanceNetworkInterfaceUpdate: (
+      {
+        path,
+        query = {},
+        body,
+      }: {
+        path: InstanceNetworkInterfaceUpdatePathParams
+        query?: InstanceNetworkInterfaceUpdateQueryParams
+        body: InstanceNetworkInterfaceUpdate
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<InstanceNetworkInterface>({
+        path: `/v1/network-interfaces/${path.interface}`,
+        method: 'PUT',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Delete network interface
+     */
+    instanceNetworkInterfaceDelete: (
+      {
+        path,
+        query = {},
+      }: {
+        path: InstanceNetworkInterfaceDeletePathParams
+        query?: InstanceNetworkInterfaceDeleteQueryParams
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/network-interfaces/${path.interface}`,
+        method: 'DELETE',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Ping API
+     */
+    ping: (_: EmptyObj, params: FetchParams = {}) => {
+      return this.request<Ping>({
+        path: `/v1/ping`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Fetch current silo's IAM policy
+     */
+    policyView: (_: EmptyObj, params: FetchParams = {}) => {
+      return this.request<SiloRolePolicy>({
+        path: `/v1/policy`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Update current silo's IAM policy
+     */
+    policyUpdate: ({ body }: { body: SiloRolePolicy }, params: FetchParams = {}) => {
+      return this.request<SiloRolePolicy>({
+        path: `/v1/policy`,
+        method: 'PUT',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * List projects
+     */
+    projectList: (
+      { query = {} }: { query?: ProjectListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<ProjectResultsPage>({
+        path: `/v1/projects`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create project
+     */
+    projectCreate: ({ body }: { body: ProjectCreate }, params: FetchParams = {}) => {
+      return this.request<Project>({
+        path: `/v1/projects`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Fetch project
+     */
+    projectView: ({ path }: { path: ProjectViewPathParams }, params: FetchParams = {}) => {
+      return this.request<Project>({
+        path: `/v1/projects/${path.project}`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Update a project
+     */
+    projectUpdate: (
+      { path, body }: { path: ProjectUpdatePathParams; body: ProjectUpdate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<Project>({
+        path: `/v1/projects/${path.project}`,
+        method: 'PUT',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Delete project
+     */
+    projectDelete: (
+      { path }: { path: ProjectDeletePathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/projects/${path.project}`,
+        method: 'DELETE',
+        ...params,
+      })
+    },
+    /**
+     * Fetch project's IAM policy
+     */
+    projectPolicyView: (
+      { path }: { path: ProjectPolicyViewPathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<ProjectRolePolicy>({
+        path: `/v1/projects/${path.project}/policy`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Update project's IAM policy
+     */
+    projectPolicyUpdate: (
+      { path, body }: { path: ProjectPolicyUpdatePathParams; body: ProjectRolePolicy },
+      params: FetchParams = {}
+    ) => {
+      return this.request<ProjectRolePolicy>({
+        path: `/v1/projects/${path.project}/policy`,
+        method: 'PUT',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * List snapshots
+     */
+    snapshotList: (
+      { query = {} }: { query?: SnapshotListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SnapshotResultsPage>({
+        path: `/v1/snapshots`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create snapshot
+     */
+    snapshotCreate: (
+      { query, body }: { query?: SnapshotCreateQueryParams; body: SnapshotCreate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<Snapshot>({
+        path: `/v1/snapshots`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch snapshot
+     */
+    snapshotView: (
+      {
+        path,
+        query = {},
+      }: { path: SnapshotViewPathParams; query?: SnapshotViewQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<Snapshot>({
+        path: `/v1/snapshots/${path.snapshot}`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Delete snapshot
+     */
+    snapshotDelete: (
+      {
+        path,
+        query = {},
+      }: { path: SnapshotDeletePathParams; query?: SnapshotDeleteQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/snapshots/${path.snapshot}`,
+        method: 'DELETE',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List physical disks
+     */
+    physicalDiskList: (
+      { query = {} }: { query?: PhysicalDiskListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<PhysicalDiskResultsPage>({
+        path: `/v1/system/hardware/disks`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List racks
+     */
+    rackList: (
+      { query = {} }: { query?: RackListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<RackResultsPage>({
+        path: `/v1/system/hardware/racks`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch rack
+     */
+    rackView: ({ path }: { path: RackViewPathParams }, params: FetchParams = {}) => {
+      return this.request<Rack>({
+        path: `/v1/system/hardware/racks/${path.rackId}`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * List sleds
+     */
+    sledList: (
+      { query = {} }: { query?: SledListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SledResultsPage>({
+        path: `/v1/system/hardware/sleds`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Add sled to initialized rack
+     */
+    sledAdd: ({ body }: { body: UninitializedSledId }, params: FetchParams = {}) => {
+      return this.request<void>({
+        path: `/v1/system/hardware/sleds`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Fetch sled
+     */
+    sledView: ({ path }: { path: SledViewPathParams }, params: FetchParams = {}) => {
+      return this.request<Sled>({
+        path: `/v1/system/hardware/sleds/${path.sledId}`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * List physical disks attached to sleds
+     */
+    sledPhysicalDiskList: (
+      {
+        path,
+        query = {},
+      }: { path: SledPhysicalDiskListPathParams; query?: SledPhysicalDiskListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<PhysicalDiskResultsPage>({
+        path: `/v1/system/hardware/sleds/${path.sledId}/disks`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List instances running on given sled
+     */
+    sledInstanceList: (
+      {
+        path,
+        query = {},
+      }: { path: SledInstanceListPathParams; query?: SledInstanceListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SledInstanceResultsPage>({
+        path: `/v1/system/hardware/sleds/${path.sledId}/instances`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Set sled provision policy
+     */
+    sledSetProvisionPolicy: (
+      {
+        path,
+        body,
+      }: { path: SledSetProvisionPolicyPathParams; body: SledProvisionPolicyParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SledProvisionPolicyResponse>({
+        path: `/v1/system/hardware/sleds/${path.sledId}/provision-policy`,
+        method: 'PUT',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * List uninitialized sleds
+     */
+    sledListUninitialized: (
+      { query = {} }: { query?: SledListUninitializedQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<UninitializedSledResultsPage>({
+        path: `/v1/system/hardware/sleds-uninitialized`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List switch ports
+     */
+    networkingSwitchPortList: (
+      { query = {} }: { query?: NetworkingSwitchPortListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SwitchPortResultsPage>({
+        path: `/v1/system/hardware/switch-port`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Apply switch port settings
+     */
+    networkingSwitchPortApplySettings: (
+      {
+        path,
+        query,
+        body,
+      }: {
+        path: NetworkingSwitchPortApplySettingsPathParams
+        query?: NetworkingSwitchPortApplySettingsQueryParams
+        body: SwitchPortApplySettings
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/hardware/switch-port/${path.port}/settings`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Clear switch port settings
+     */
+    networkingSwitchPortClearSettings: (
+      {
+        path,
+        query,
+      }: {
+        path: NetworkingSwitchPortClearSettingsPathParams
+        query?: NetworkingSwitchPortClearSettingsQueryParams
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/hardware/switch-port/${path.port}/settings`,
+        method: 'DELETE',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List switches
+     */
+    switchList: (
+      { query = {} }: { query?: SwitchListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SwitchResultsPage>({
+        path: `/v1/system/hardware/switches`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch switch
+     */
+    switchView: ({ path }: { path: SwitchViewPathParams }, params: FetchParams = {}) => {
+      return this.request<Switch>({
+        path: `/v1/system/hardware/switches/${path.switchId}`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * List a silo's IdP's name
+     */
+    siloIdentityProviderList: (
+      { query = {} }: { query?: SiloIdentityProviderListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<IdentityProviderResultsPage>({
+        path: `/v1/system/identity-providers`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create user
+     */
+    localIdpUserCreate: (
+      { query, body }: { query?: LocalIdpUserCreateQueryParams; body: UserCreate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<User>({
+        path: `/v1/system/identity-providers/local/users`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Delete user
+     */
+    localIdpUserDelete: (
+      {
+        path,
+        query,
+      }: { path: LocalIdpUserDeletePathParams; query?: LocalIdpUserDeleteQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/identity-providers/local/users/${path.userId}`,
+        method: 'DELETE',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Set or invalidate user's password
+     */
+    localIdpUserSetPassword: (
+      {
+        path,
+        query,
+        body,
+      }: {
+        path: LocalIdpUserSetPasswordPathParams
+        query?: LocalIdpUserSetPasswordQueryParams
+        body: UserPassword
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/identity-providers/local/users/${path.userId}/set-password`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create SAML IdP
+     */
+    samlIdentityProviderCreate: (
+      {
+        query,
+        body,
+      }: {
+        query?: SamlIdentityProviderCreateQueryParams
+        body: SamlIdentityProviderCreate
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SamlIdentityProvider>({
+        path: `/v1/system/identity-providers/saml`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch SAML IdP
+     */
+    samlIdentityProviderView: (
+      {
+        path,
+        query,
+      }: {
+        path: SamlIdentityProviderViewPathParams
+        query?: SamlIdentityProviderViewQueryParams
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SamlIdentityProvider>({
+        path: `/v1/system/identity-providers/saml/${path.provider}`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List IP pools
+     */
+    ipPoolList: (
+      { query = {} }: { query?: IpPoolListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<IpPoolResultsPage>({
+        path: `/v1/system/ip-pools`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create IP pool
+     */
+    ipPoolCreate: ({ body }: { body: IpPoolCreate }, params: FetchParams = {}) => {
+      return this.request<IpPool>({
+        path: `/v1/system/ip-pools`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Fetch IP pool
+     */
+    ipPoolView: ({ path }: { path: IpPoolViewPathParams }, params: FetchParams = {}) => {
+      return this.request<IpPool>({
+        path: `/v1/system/ip-pools/${path.pool}`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Update IP pool
+     */
+    ipPoolUpdate: (
+      { path, body }: { path: IpPoolUpdatePathParams; body: IpPoolUpdate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<IpPool>({
+        path: `/v1/system/ip-pools/${path.pool}`,
+        method: 'PUT',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Delete IP pool
+     */
+    ipPoolDelete: (
+      { path }: { path: IpPoolDeletePathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/ip-pools/${path.pool}`,
+        method: 'DELETE',
+        ...params,
+      })
+    },
+    /**
+     * List ranges for IP pool
+     */
+    ipPoolRangeList: (
+      {
+        path,
+        query = {},
+      }: { path: IpPoolRangeListPathParams; query?: IpPoolRangeListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<IpPoolRangeResultsPage>({
+        path: `/v1/system/ip-pools/${path.pool}/ranges`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Add range to IP pool
+     */
+    ipPoolRangeAdd: (
+      { path, body }: { path: IpPoolRangeAddPathParams; body: IpRange },
+      params: FetchParams = {}
+    ) => {
+      return this.request<IpPoolRange>({
+        path: `/v1/system/ip-pools/${path.pool}/ranges/add`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Remove range from IP pool
+     */
+    ipPoolRangeRemove: (
+      { path, body }: { path: IpPoolRangeRemovePathParams; body: IpRange },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/ip-pools/${path.pool}/ranges/remove`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * List IP pool's linked silos
+     */
+    ipPoolSiloList: (
+      {
+        path,
+        query = {},
+      }: { path: IpPoolSiloListPathParams; query?: IpPoolSiloListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<IpPoolSiloLinkResultsPage>({
+        path: `/v1/system/ip-pools/${path.pool}/silos`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Link IP pool to silo
+     */
+    ipPoolSiloLink: (
+      { path, body }: { path: IpPoolSiloLinkPathParams; body: IpPoolLinkSilo },
+      params: FetchParams = {}
+    ) => {
+      return this.request<IpPoolSiloLink>({
+        path: `/v1/system/ip-pools/${path.pool}/silos`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Make IP pool default for silo
+     */
+    ipPoolSiloUpdate: (
+      { path, body }: { path: IpPoolSiloUpdatePathParams; body: IpPoolSiloUpdate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<IpPoolSiloLink>({
+        path: `/v1/system/ip-pools/${path.pool}/silos/${path.silo}`,
+        method: 'PUT',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Unlink IP pool from silo
+     */
+    ipPoolSiloUnlink: (
+      { path }: { path: IpPoolSiloUnlinkPathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/ip-pools/${path.pool}/silos/${path.silo}`,
+        method: 'DELETE',
+        ...params,
+      })
+    },
+    /**
+     * Fetch Oxide service IP pool
+     */
+    ipPoolServiceView: (_: EmptyObj, params: FetchParams = {}) => {
+      return this.request<IpPool>({
+        path: `/v1/system/ip-pools-service`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * List IP ranges for the Oxide service pool
+     */
+    ipPoolServiceRangeList: (
+      { query = {} }: { query?: IpPoolServiceRangeListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<IpPoolRangeResultsPage>({
+        path: `/v1/system/ip-pools-service/ranges`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Add IP range to Oxide service pool
+     */
+    ipPoolServiceRangeAdd: ({ body }: { body: IpRange }, params: FetchParams = {}) => {
+      return this.request<IpPoolRange>({
+        path: `/v1/system/ip-pools-service/ranges/add`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Remove IP range from Oxide service pool
+     */
+    ipPoolServiceRangeRemove: ({ body }: { body: IpRange }, params: FetchParams = {}) => {
+      return this.request<void>({
+        path: `/v1/system/ip-pools-service/ranges/remove`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Access metrics data
+     */
+    systemMetric: (
+      {
+        path,
+        query = {},
+      }: { path: SystemMetricPathParams; query?: SystemMetricQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<MeasurementResultsPage>({
+        path: `/v1/system/metrics/${path.metricName}`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List address lots
+     */
+    networkingAddressLotList: (
+      { query = {} }: { query?: NetworkingAddressLotListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<AddressLotResultsPage>({
+        path: `/v1/system/networking/address-lot`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create address lot
+     */
+    networkingAddressLotCreate: (
+      { body }: { body: AddressLotCreate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<AddressLotCreateResponse>({
+        path: `/v1/system/networking/address-lot`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Delete address lot
+     */
+    networkingAddressLotDelete: (
+      { path }: { path: NetworkingAddressLotDeletePathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/networking/address-lot/${path.addressLot}`,
+        method: 'DELETE',
+        ...params,
+      })
+    },
+    /**
+     * List blocks in address lot
+     */
+    networkingAddressLotBlockList: (
+      {
+        path,
+        query = {},
+      }: {
+        path: NetworkingAddressLotBlockListPathParams
+        query?: NetworkingAddressLotBlockListQueryParams
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<AddressLotBlockResultsPage>({
+        path: `/v1/system/networking/address-lot/${path.addressLot}/blocks`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Disable a BFD session
+     */
+    networkingBfdDisable: (
+      { body }: { body: BfdSessionDisable },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/networking/bfd-disable`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Enable a BFD session
+     */
+    networkingBfdEnable: (
+      { body }: { body: BfdSessionEnable },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/networking/bfd-enable`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Get BFD status
+     */
+    networkingBfdStatus: (_: EmptyObj, params: FetchParams = {}) => {
+      return this.request<void>({
+        path: `/v1/system/networking/bfd-status`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * List BGP configurations
+     */
+    networkingBgpConfigList: (
+      { query = {} }: { query?: NetworkingBgpConfigListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<BgpConfigResultsPage>({
+        path: `/v1/system/networking/bgp`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create new BGP configuration
+     */
+    networkingBgpConfigCreate: (
+      { body }: { body: BgpConfigCreate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<BgpConfig>({
+        path: `/v1/system/networking/bgp`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Delete BGP configuration
+     */
+    networkingBgpConfigDelete: (
+      { query }: { query?: NetworkingBgpConfigDeleteQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/networking/bgp`,
+        method: 'DELETE',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Get originated routes for a BGP configuration
+     */
+    networkingBgpAnnounceSetList: (
+      { query }: { query?: NetworkingBgpAnnounceSetListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/networking/bgp-announce`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create new BGP announce set
+     */
+    networkingBgpAnnounceSetCreate: (
+      { body }: { body: BgpAnnounceSetCreate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<BgpAnnounceSet>({
+        path: `/v1/system/networking/bgp-announce`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Delete BGP announce set
+     */
+    networkingBgpAnnounceSetDelete: (
+      { query }: { query?: NetworkingBgpAnnounceSetDeleteQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/networking/bgp-announce`,
+        method: 'DELETE',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Get imported IPv4 BGP routes
+     */
+    networkingBgpImportedRoutesIpv4: (
+      { query }: { query?: NetworkingBgpImportedRoutesIpv4QueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/networking/bgp-routes-ipv4`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Get BGP peer status
+     */
+    networkingBgpStatus: (_: EmptyObj, params: FetchParams = {}) => {
+      return this.request<void>({
+        path: `/v1/system/networking/bgp-status`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * List loopback addresses
+     */
+    networkingLoopbackAddressList: (
+      { query = {} }: { query?: NetworkingLoopbackAddressListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<LoopbackAddressResultsPage>({
+        path: `/v1/system/networking/loopback-address`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create loopback address
+     */
+    networkingLoopbackAddressCreate: (
+      { body }: { body: LoopbackAddressCreate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<LoopbackAddress>({
+        path: `/v1/system/networking/loopback-address`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Delete loopback address
+     */
+    networkingLoopbackAddressDelete: (
+      { path }: { path: NetworkingLoopbackAddressDeletePathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/networking/loopback-address/${path.rackId}/${path.switchLocation}/${path.address}/${path.subnetMask}`,
+        method: 'DELETE',
+        ...params,
+      })
+    },
+    /**
+     * List switch port settings
+     */
+    networkingSwitchPortSettingsList: (
+      { query = {} }: { query?: NetworkingSwitchPortSettingsListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SwitchPortSettingsResultsPage>({
+        path: `/v1/system/networking/switch-port-settings`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create switch port settings
+     */
+    networkingSwitchPortSettingsCreate: (
+      { body }: { body: SwitchPortSettingsCreate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SwitchPortSettingsView>({
+        path: `/v1/system/networking/switch-port-settings`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Delete switch port settings
+     */
+    networkingSwitchPortSettingsDelete: (
+      { query = {} }: { query?: NetworkingSwitchPortSettingsDeleteQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/system/networking/switch-port-settings`,
+        method: 'DELETE',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Get information about switch port
+     */
+    networkingSwitchPortSettingsView: (
+      { path }: { path: NetworkingSwitchPortSettingsViewPathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SwitchPortSettingsView>({
+        path: `/v1/system/networking/switch-port-settings/${path.port}`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Fetch top-level IAM policy
+     */
+    systemPolicyView: (_: EmptyObj, params: FetchParams = {}) => {
+      return this.request<FleetRolePolicy>({
+        path: `/v1/system/policy`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Update top-level IAM policy
+     */
+    systemPolicyUpdate: ({ body }: { body: FleetRolePolicy }, params: FetchParams = {}) => {
+      return this.request<FleetRolePolicy>({
+        path: `/v1/system/policy`,
+        method: 'PUT',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * List built-in roles
+     */
+    roleList: (
+      { query = {} }: { query?: RoleListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<RoleResultsPage>({
+        path: `/v1/system/roles`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch built-in role
+     */
+    roleView: ({ path }: { path: RoleViewPathParams }, params: FetchParams = {}) => {
+      return this.request<Role>({
+        path: `/v1/system/roles/${path.roleName}`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Lists resource quotas for all silos
+     */
+    systemQuotasList: (
+      { query = {} }: { query?: SystemQuotasListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SiloQuotasResultsPage>({
+        path: `/v1/system/silo-quotas`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List silos
+     */
+    siloList: (
+      { query = {} }: { query?: SiloListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SiloResultsPage>({
+        path: `/v1/system/silos`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create a silo
+     */
+    siloCreate: ({ body }: { body: SiloCreate }, params: FetchParams = {}) => {
+      return this.request<Silo>({
+        path: `/v1/system/silos`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Fetch silo
+     */
+    siloView: ({ path }: { path: SiloViewPathParams }, params: FetchParams = {}) => {
+      return this.request<Silo>({
+        path: `/v1/system/silos/${path.silo}`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Delete a silo
+     */
+    siloDelete: ({ path }: { path: SiloDeletePathParams }, params: FetchParams = {}) => {
+      return this.request<void>({
+        path: `/v1/system/silos/${path.silo}`,
+        method: 'DELETE',
+        ...params,
+      })
+    },
+    /**
+     * List IP pools linked to silo
+     */
+    siloIpPoolList: (
+      {
+        path,
+        query = {},
+      }: { path: SiloIpPoolListPathParams; query?: SiloIpPoolListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SiloIpPoolResultsPage>({
+        path: `/v1/system/silos/${path.silo}/ip-pools`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch silo IAM policy
+     */
+    siloPolicyView: (
+      { path }: { path: SiloPolicyViewPathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SiloRolePolicy>({
+        path: `/v1/system/silos/${path.silo}/policy`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Update silo IAM policy
+     */
+    siloPolicyUpdate: (
+      { path, body }: { path: SiloPolicyUpdatePathParams; body: SiloRolePolicy },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SiloRolePolicy>({
+        path: `/v1/system/silos/${path.silo}/policy`,
+        method: 'PUT',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * Fetch resource quotas for silo
+     */
+    siloQuotasView: (
+      { path }: { path: SiloQuotasViewPathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SiloQuotas>({
+        path: `/v1/system/silos/${path.silo}/quotas`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Update resource quotas for silo
+     */
+    siloQuotasUpdate: (
+      { path, body }: { path: SiloQuotasUpdatePathParams; body: SiloQuotasUpdate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SiloQuotas>({
+        path: `/v1/system/silos/${path.silo}/quotas`,
+        method: 'PUT',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * List built-in (system) users in silo
+     */
+    siloUserList: (
+      { query = {} }: { query?: SiloUserListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<UserResultsPage>({
+        path: `/v1/system/users`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch built-in (system) user
+     */
+    siloUserView: (
+      { path, query }: { path: SiloUserViewPathParams; query?: SiloUserViewQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<User>({
+        path: `/v1/system/users/${path.userId}`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List built-in users
+     */
+    userBuiltinList: (
+      { query = {} }: { query?: UserBuiltinListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<UserBuiltinResultsPage>({
+        path: `/v1/system/users-builtin`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch built-in user
+     */
+    userBuiltinView: (
+      { path }: { path: UserBuiltinViewPathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<UserBuiltin>({
+        path: `/v1/system/users-builtin/${path.user}`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * List current utilization state for all silos
+     */
+    siloUtilizationList: (
+      { query = {} }: { query?: SiloUtilizationListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SiloUtilizationResultsPage>({
+        path: `/v1/system/utilization/silos`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch current utilization for given silo
+     */
+    siloUtilizationView: (
+      { path }: { path: SiloUtilizationViewPathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SiloUtilization>({
+        path: `/v1/system/utilization/silos/${path.silo}`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * List users
+     */
+    userList: (
+      { query = {} }: { query?: UserListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<UserResultsPage>({
+        path: `/v1/users`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch resource utilization for user's current silo
+     */
+    utilizationView: (_: EmptyObj, params: FetchParams = {}) => {
+      return this.request<Utilization>({
+        path: `/v1/utilization`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * List firewall rules
+     */
+    vpcFirewallRulesView: (
+      { query }: { query?: VpcFirewallRulesViewQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<VpcFirewallRules>({
+        path: `/v1/vpc-firewall-rules`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Replace firewall rules
+     */
+    vpcFirewallRulesUpdate: (
+      {
+        query,
+        body,
+      }: { query?: VpcFirewallRulesUpdateQueryParams; body: VpcFirewallRuleUpdateParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<VpcFirewallRules>({
+        path: `/v1/vpc-firewall-rules`,
+        method: 'PUT',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List subnets
+     */
+    vpcSubnetList: (
+      { query = {} }: { query?: VpcSubnetListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<VpcSubnetResultsPage>({
+        path: `/v1/vpc-subnets`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create subnet
+     */
+    vpcSubnetCreate: (
+      { query, body }: { query?: VpcSubnetCreateQueryParams; body: VpcSubnetCreate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<VpcSubnet>({
+        path: `/v1/vpc-subnets`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch subnet
+     */
+    vpcSubnetView: (
+      {
+        path,
+        query = {},
+      }: { path: VpcSubnetViewPathParams; query?: VpcSubnetViewQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<VpcSubnet>({
+        path: `/v1/vpc-subnets/${path.subnet}`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Update subnet
+     */
+    vpcSubnetUpdate: (
+      {
+        path,
+        query = {},
+        body,
+      }: {
+        path: VpcSubnetUpdatePathParams
+        query?: VpcSubnetUpdateQueryParams
+        body: VpcSubnetUpdate
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<VpcSubnet>({
+        path: `/v1/vpc-subnets/${path.subnet}`,
+        method: 'PUT',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Delete subnet
+     */
+    vpcSubnetDelete: (
+      {
+        path,
+        query = {},
+      }: { path: VpcSubnetDeletePathParams; query?: VpcSubnetDeleteQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/vpc-subnets/${path.subnet}`,
+        method: 'DELETE',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List network interfaces
+     */
+    vpcSubnetListNetworkInterfaces: (
+      {
+        path,
+        query = {},
+      }: {
+        path: VpcSubnetListNetworkInterfacesPathParams
+        query?: VpcSubnetListNetworkInterfacesQueryParams
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<InstanceNetworkInterfaceResultsPage>({
+        path: `/v1/vpc-subnets/${path.subnet}/network-interfaces`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List VPCs
+     */
+    vpcList: ({ query = {} }: { query?: VpcListQueryParams }, params: FetchParams = {}) => {
+      return this.request<VpcResultsPage>({
+        path: `/v1/vpcs`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create VPC
+     */
+    vpcCreate: (
+      { query, body }: { query?: VpcCreateQueryParams; body: VpcCreate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<Vpc>({
+        path: `/v1/vpcs`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch VPC
+     */
+    vpcView: (
+      { path, query = {} }: { path: VpcViewPathParams; query?: VpcViewQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<Vpc>({
+        path: `/v1/vpcs/${path.vpc}`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Update a VPC
+     */
+    vpcUpdate: (
+      {
+        path,
+        query = {},
+        body,
+      }: { path: VpcUpdatePathParams; query?: VpcUpdateQueryParams; body: VpcUpdate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<Vpc>({
+        path: `/v1/vpcs/${path.vpc}`,
+        method: 'PUT',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Delete VPC
+     */
+    vpcDelete: (
+      { path, query = {} }: { path: VpcDeletePathParams; query?: VpcDeleteQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/vpcs/${path.vpc}`,
+        method: 'DELETE',
+        query,
+        ...params,
+      })
+    },
+  }
+  ws = {
+    /**
+     * Stream instance serial console
+     */
+    instanceSerialConsoleStream: ({
+      host,
+      secure = true,
+      path,
+      query = {},
+    }: {
+      host: string
+      secure?: boolean
+      path: InstanceSerialConsoleStreamPathParams
+      query?: InstanceSerialConsoleStreamQueryParams
+    }) => {
+      const protocol = secure ? 'wss:' : 'ws:'
+      const route = `/v1/instances/${path.instance}/serial-console/stream`
+      return new WebSocket(protocol + '//' + host + route + toQueryString(query))
+    },
+  }
+}

@@ -15,22 +15,20 @@ import {
   totalUtilization,
   usePrefetchedApiQuery,
 } from '@oxide/api'
-import {
-  Listbox,
-  Metrics24Icon,
-  PageHeader,
-  PageTitle,
-  ResourceMeter,
-  Table,
-  Tabs,
-} from '@oxide/ui'
-import { bytesToGiB, bytesToTiB, round } from '@oxide/util'
+import { Metrics24Icon } from '@oxide/design-system/icons/react'
 
-import { CapacityBars } from 'app/components/CapacityBars'
-import { useDateTimeRangePicker } from 'app/components/form'
-import { QueryParamTabs } from 'app/components/QueryParamTabs'
-import { useIntervalPicker } from 'app/components/RefetchIntervalPicker'
-import { SystemMetric } from 'app/components/SystemMetric'
+import { CapacityBars } from '~/components/CapacityBars'
+import { useDateTimeRangePicker } from '~/components/form/fields/DateTimeRangePicker'
+import { QueryParamTabs } from '~/components/QueryParamTabs'
+import { useIntervalPicker } from '~/components/RefetchIntervalPicker'
+import { SystemMetric } from '~/components/SystemMetric'
+import { Listbox } from '~/ui/lib/Listbox'
+import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
+import { ResourceMeter } from '~/ui/lib/ResourceMeter'
+import { Table } from '~/ui/lib/Table'
+import { Tabs } from '~/ui/lib/Tabs'
+import { round } from '~/util/math'
+import { bytesToGiB, bytesToTiB } from '~/util/units'
 
 SystemUtilizationPage.loader = async () => {
   await Promise.all([
@@ -108,7 +106,7 @@ const MetricsTab = () => {
       <div className="mb-3 mt-8 flex justify-between gap-3">
         <Listbox
           selected={filterId}
-          className="w-48"
+          className="w-64"
           aria-labelledby="filter-id-label"
           name="filter-id"
           items={siloItems}

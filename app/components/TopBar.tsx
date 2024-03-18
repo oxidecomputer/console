@@ -10,16 +10,15 @@ import { useNavigate } from 'react-router-dom'
 
 import { navToLogin, useApiMutation } from '@oxide/api'
 import {
-  Button,
-  buttonStyle,
   DirectionDownIcon,
-  DropdownMenu,
   Info16Icon,
   Profile16Icon,
-} from '@oxide/ui'
+} from '@oxide/design-system/icons/react'
 
-import { useCurrentUser } from 'app/layouts/AuthenticatedLayout'
-import { pb } from 'app/util/path-builder'
+import { useCurrentUser } from '~/layouts/AuthenticatedLayout'
+import { Button, buttonStyle } from '~/ui/lib/Button'
+import { DropdownMenu } from '~/ui/lib/DropdownMenu'
+import { pb } from '~/util/path-builder'
 
 export function TopBar({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate()

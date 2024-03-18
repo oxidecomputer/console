@@ -9,14 +9,12 @@ import { useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import { useApiMutation, type UsernamePasswordCredentials } from '@oxide/api'
-import { Button, Identicon } from '@oxide/ui'
 
-import { TextFieldInner } from 'app/components/form'
-
-import 'app/components/login-page.css'
-
-import { useForm } from 'app/hooks'
-import { pb } from 'app/util/path-builder'
+import { TextFieldInner } from '~/components/form/fields/TextField'
+import { useForm } from '~/hooks'
+import { Button } from '~/ui/lib/Button'
+import { Identicon } from '~/ui/lib/Identicon'
+import { pb } from '~/util/path-builder'
 
 import { useSiloSelector, useToast } from '../hooks'
 

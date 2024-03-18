@@ -8,12 +8,18 @@
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
-import { Access16Icon, PropertiesTable, ResourceLabel, Truncate } from '@oxide/ui'
-import { formatDateTime } from '@oxide/util'
+import { Access16Icon } from '@oxide/design-system/icons/react'
 
-import { DescriptionField, NameField, SideModalForm, TextField } from 'app/components/form'
-import { getIdpSelector, useForm, useIdpSelector } from 'app/hooks'
-import { pb } from 'app/util/path-builder'
+import { DescriptionField } from '~/components/form/fields/DescriptionField'
+import { NameField } from '~/components/form/fields/NameField'
+import { TextField } from '~/components/form/fields/TextField'
+import { SideModalForm } from '~/components/form/SideModalForm'
+import { getIdpSelector, useForm, useIdpSelector } from '~/hooks'
+import { PropertiesTable } from '~/ui/lib/PropertiesTable'
+import { ResourceLabel } from '~/ui/lib/SideModal'
+import { Truncate } from '~/ui/lib/Truncate'
+import { formatDateTime } from '~/util/date'
+import { pb } from '~/util/path-builder'
 
 EditIdpSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
   const { silo, provider } = getIdpSelector(params)
@@ -38,8 +44,9 @@ export function EditIdpSideModalForm() {
 
   return (
     <SideModalForm
-      id="edit-idp-form"
       form={form}
+      formType="edit"
+      resourceName="identity provider"
       title="Identity provider"
       onDismiss={onDismiss}
       subtitle={
@@ -67,7 +74,7 @@ export function EditIdpSideModalForm() {
       <TextField
         name="acsUrl"
         label="ACS URL"
-        helpText="Service provider endpoint for the IdP to send the SAML response"
+        description="Service provider endpoint for the IdP to send the SAML response"
         required
         control={form.control}
         disabled
@@ -83,7 +90,7 @@ export function EditIdpSideModalForm() {
       <TextField
         name="sloUrl"
         label="Single Logout (SLO) URL"
-        helpText="Service provider endpoint for log out requests"
+        description="Service provider endpoint for log out requests"
         required
         control={form.control}
         disabled
@@ -100,7 +107,7 @@ export function EditIdpSideModalForm() {
           <TextField
             name="groupAttributeName"
             label="Group attribute name"
-            helpText="Name of SAML attribute where we can find a comma-separated list of names of groups the user belongs to"
+            description="Name of SAML attribute where we can find a comma-separated list of names of groups the user belongs to"
             control={form.control}
             disabled
           /> */}

@@ -5,7 +5,9 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useWatch } from 'react-hook-form'
+import * as Accordion from '@radix-ui/react-accordion'
+import { useEffect, useMemo, useState } from 'react'
+import { useWatch, type Control } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 import type { SetRequired } from 'type-fest'
 
@@ -19,38 +21,38 @@ import {
   usePrefetchedApiQuery,
   type InstanceCreate,
 } from '@oxide/api'
-import {
-  EmptyMessage,
-  FieldLabel,
-  FormDivider,
-  Images16Icon,
-  Instances24Icon,
-  Key16Icon,
-  Message,
-  RadioCard,
-  Table,
-  Tabs,
-  TextInputHint,
-  Truncate,
-} from '@oxide/ui'
-import { formatDateTime, GiB, invariant } from '@oxide/util'
+import { Images16Icon, Instances24Icon } from '@oxide/design-system/icons/react'
 
+import { AccordionItem } from '~/components/AccordionItem'
+import { CheckboxField } from '~/components/form/fields/CheckboxField'
+import { DescriptionField } from '~/components/form/fields/DescriptionField'
+import { DiskSizeField } from '~/components/form/fields/DiskSizeField'
 import {
-  CheckboxField,
-  DescriptionField,
-  DiskSizeField,
   DisksTableField,
-  Form,
-  FullPageForm,
-  ImageSelectField,
-  NameField,
-  NetworkInterfaceField,
-  RadioFieldDyn,
-  TextField,
   type DiskTableItem,
-} from 'app/components/form'
-import { getProjectSelector, useForm, useProjectSelector, useToast } from 'app/hooks'
-import { pb } from 'app/util/path-builder'
+} from '~/components/form/fields/DisksTableField'
+import { FileField } from '~/components/form/fields/FileField'
+import { ImageSelectField } from '~/components/form/fields/ImageSelectField'
+import { NameField } from '~/components/form/fields/NameField'
+import { NetworkInterfaceField } from '~/components/form/fields/NetworkInterfaceField'
+import { NumberField } from '~/components/form/fields/NumberField'
+import { RadioFieldDyn } from '~/components/form/fields/RadioField'
+import { SshKeysField } from '~/components/form/fields/SshKeysField'
+import { TextField } from '~/components/form/fields/TextField'
+import { Form } from '~/components/form/Form'
+import { FullPageForm } from '~/components/form/FullPageForm'
+import { getProjectSelector, useForm, useProjectSelector, useToast } from '~/hooks'
+import { FormDivider } from '~/ui/lib/Divider'
+import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { Message } from '~/ui/lib/Message'
+import { RadioCard } from '~/ui/lib/Radio'
+import { Tabs } from '~/ui/lib/Tabs'
+import { TextInputHint } from '~/ui/lib/TextInput'
+import { readBlobAsBase64 } from '~/util/file'
+import { invariant } from '~/util/invariant'
+import { links } from '~/util/links'
+import { pb } from '~/util/path-builder'
+import { GiB } from '~/util/units'
 
 export type InstanceCreateInput = Assign<
   // API accepts undefined but it's easier if we don't
@@ -61,6 +63,9 @@ export type InstanceCreateInput = Assign<
     bootDiskName: string
     bootDiskSize: number
     image: string
+    userData: File | null
+    // ssh keys are always specified. we do not need the undefined case
+    sshPublicKeys: NonNullable<InstanceCreate['sshPublicKeys']>
   }
 >
 
@@ -83,7 +88,11 @@ const baseDefaultValues: InstanceCreateInput = {
   disks: [],
   networkInterfaces: { type: 'default' },
 
+  sshPublicKeys: [],
+
   start: true,
+
+  userData: null,
 }
 
 CreateInstanceForm.loader = async ({ params }: LoaderFunctionArgs) => {
@@ -97,6 +106,7 @@ CreateInstanceForm.loader = async ({ params }: LoaderFunctionArgs) => {
 }
 
 export function CreateInstanceForm() {
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const queryClient = useApiQueryClient()
   const addToast = useToast()
   const projectSelector = useProjectSelector()
@@ -124,9 +134,13 @@ export function CreateInstanceForm() {
 
   const defaultImage = allImages[0]
 
+  const { data: sshKeys } = usePrefetchedApiQuery('currentUserSshKeyList', {})
+  const allKeys = useMemo(() => sshKeys.items.map((key) => key.id), [sshKeys])
+
   const defaultValues: InstanceCreateInput = {
     ...baseDefaultValues,
     image: defaultImage?.id || '',
+    sshPublicKeys: allKeys,
     // Use 2x the image size as the default boot disk size
     bootDiskSize: Math.ceil(defaultImage?.size / GiB) * 2 || 10,
   }
@@ -138,6 +152,12 @@ export function CreateInstanceForm() {
   const image = allImages.find((i) => i.id === imageInput)
   const imageSize = image?.size ? Math.ceil(image.size / GiB) : undefined
 
+  useEffect(() => {
+    if (createInstance.error) {
+      setIsSubmitting(false)
+    }
+  }, [createInstance.error])
+
   return (
     <FullPageForm
       submitDisabled={allImages.length ? undefined : 'Image required'}
@@ -145,7 +165,8 @@ export function CreateInstanceForm() {
       form={form}
       title="Create instance"
       icon={<Instances24Icon />}
-      onSubmit={(values) => {
+      onSubmit={async (values) => {
+        setIsSubmitting(true)
         // we should never have a presetId that's not in the list
         const preset = PRESETS.find((option) => option.id === values.presetId)!
         const instance =
@@ -160,7 +181,11 @@ export function CreateInstanceForm() {
 
         const bootDiskName = values.bootDiskName || genName(values.name, image.name)
 
-        createInstance.mutate({
+        const userData = values.userData
+          ? await readBlobAsBase64(values.userData)
+          : undefined
+
+        await createInstance.mutateAsync({
           query: projectSelector,
           body: {
             name: values.name,
@@ -188,15 +213,22 @@ export function CreateInstanceForm() {
             externalIps: [{ type: 'ephemeral' }],
             start: values.start,
             networkInterfaces: values.networkInterfaces,
+            sshPublicKeys: values.sshPublicKeys,
+            userData,
           },
         })
       }}
       loading={createInstance.isPending}
       submitError={createInstance.error}
     >
-      <NameField name="name" control={control} />
-      <DescriptionField name="description" control={control} />
-      <CheckboxField id="start-instance" name="start" control={control}>
+      <NameField name="name" control={control} disabled={isSubmitting} />
+      <DescriptionField name="description" control={control} disabled={isSubmitting} />
+      <CheckboxField
+        id="start-instance"
+        name="start"
+        control={control}
+        disabled={isSubmitting}
+      >
         Start Instance
       </CheckboxField>
 
@@ -224,32 +256,39 @@ export function CreateInstanceForm() {
         }}
       >
         <Tabs.List aria-labelledby="hardware">
-          <Tabs.Trigger value="general">General Purpose</Tabs.Trigger>
-          <Tabs.Trigger value="highCPU">High CPU</Tabs.Trigger>
-          <Tabs.Trigger value="highMemory">High Memory</Tabs.Trigger>
-          <Tabs.Trigger value="custom">Custom</Tabs.Trigger>
+          <Tabs.Trigger value="general" disabled={isSubmitting}>
+            General Purpose
+          </Tabs.Trigger>
+          <Tabs.Trigger value="highCPU" disabled={isSubmitting}>
+            High CPU
+          </Tabs.Trigger>
+          <Tabs.Trigger value="highMemory" disabled={isSubmitting}>
+            High Memory
+          </Tabs.Trigger>
+          <Tabs.Trigger value="custom" disabled={isSubmitting}>
+            Custom
+          </Tabs.Trigger>
         </Tabs.List>
         <Tabs.Content value="general">
-          <RadioFieldDyn name="presetId" label="" control={control}>
+          <RadioFieldDyn name="presetId" label="" control={control} disabled={isSubmitting}>
             {renderLargeRadioCards('general')}
           </RadioFieldDyn>
         </Tabs.Content>
 
         <Tabs.Content value="highCPU">
-          <RadioFieldDyn name="presetId" label="" control={control}>
+          <RadioFieldDyn name="presetId" label="" control={control} disabled={isSubmitting}>
             {renderLargeRadioCards('highCPU')}
           </RadioFieldDyn>
         </Tabs.Content>
 
         <Tabs.Content value="highMemory">
-          <RadioFieldDyn name="presetId" label="" control={control}>
+          <RadioFieldDyn name="presetId" label="" control={control} disabled={isSubmitting}>
             {renderLargeRadioCards('highMemory')}
           </RadioFieldDyn>
         </Tabs.Content>
 
         <Tabs.Content value="custom">
-          <TextField
-            type="number"
+          <NumberField
             required
             label="CPUs"
             name="ncpus"
@@ -264,10 +303,10 @@ export function CreateInstanceForm() {
                 return `CPUs capped to ${INSTANCE_MAX_CPU}`
               }
             }}
+            disabled={isSubmitting}
           />
-          <TextField
+          <NumberField
             units="GiB"
-            type="number"
             required
             label="Memory"
             name="memory"
@@ -282,6 +321,7 @@ export function CreateInstanceForm() {
                 return `Can be at most ${INSTANCE_MAX_RAM_GiB} GiB`
               }
             }}
+            disabled={isSubmitting}
           />
         </Tabs.Content>
       </Tabs.Root>
@@ -298,8 +338,12 @@ export function CreateInstanceForm() {
         }
       >
         <Tabs.List aria-describedby="boot-disk">
-          <Tabs.Trigger value="silo">Silo images</Tabs.Trigger>
-          <Tabs.Trigger value="project">Project images</Tabs.Trigger>
+          <Tabs.Trigger value="silo" disabled={isSubmitting}>
+            Silo images
+          </Tabs.Trigger>
+          <Tabs.Trigger value="project" disabled={isSubmitting}>
+            Project images
+          </Tabs.Trigger>
         </Tabs.List>
         {allImages.length === 0 && (
           <Message
@@ -318,7 +362,11 @@ export function CreateInstanceForm() {
               />
             </div>
           ) : (
-            <ImageSelectField images={siloImages} control={control} />
+            <ImageSelectField
+              images={siloImages}
+              control={control}
+              disabled={isSubmitting}
+            />
           )}
         </Tabs.Content>
         <Tabs.Content value="project" className="space-y-4">
@@ -329,11 +377,15 @@ export function CreateInstanceForm() {
                 title="No project images found"
                 body="An image needs to be uploaded to be seen here"
                 buttonText="Upload image"
-                onClick={() => navigate(pb.projectImageNew(projectSelector))}
+                onClick={() => navigate(pb.projectImagesNew(projectSelector))}
               />
             </div>
           ) : (
-            <ImageSelectField images={projectImages} control={control} />
+            <ImageSelectField
+              images={projectImages}
+              control={control}
+              disabled={isSubmitting}
+            />
           )}
         </Tabs.Content>
       </Tabs.Root>
@@ -349,34 +401,30 @@ export function CreateInstanceForm() {
             return `Must be as large as selected image (min. ${imageSize} GiB)`
           }
         }}
+        disabled={isSubmitting}
       />
       <NameField
         name="bootDiskName"
         label="Disk name"
-        description="Will be autogenerated if name not provided"
+        tooltipText="Will be autogenerated if name not provided"
         required={false}
         control={control}
+        disabled={isSubmitting}
       />
       <FormDivider />
       <Form.Heading id="additional-disks">Additional disks</Form.Heading>
 
-      <DisksTableField control={control} />
+      <DisksTableField control={control} disabled={isSubmitting} />
 
       <FormDivider />
       <Form.Heading id="authentication">Authentication</Form.Heading>
 
-      <SshKeysTable />
+      <SshKeysField control={control} isSubmitting={isSubmitting} />
 
       <FormDivider />
-      <Form.Heading id="networking">Networking</Form.Heading>
+      <Form.Heading id="advanced">Advanced</Form.Heading>
 
-      <NetworkInterfaceField control={control} />
-
-      <TextField
-        name="hostname"
-        description="Will be generated if not provided"
-        control={control}
-      />
+      <AdvancedAccordion control={control} isSubmitting={isSubmitting} />
 
       <Form.Actions>
         <Form.Submit loading={createInstance.isPending}>Create instance</Form.Submit>
@@ -386,67 +434,54 @@ export function CreateInstanceForm() {
   )
 }
 
-const SshKeysTable = () => {
-  const keys = usePrefetchedApiQuery('currentUserSshKeyList', {}).data?.items || []
+const AdvancedAccordion = ({
+  control,
+  isSubmitting,
+}: {
+  control: Control<InstanceCreateInput>
+  isSubmitting: boolean
+}) => {
+  // we track this state manually for the sole reason that we need to be able to
+  // tell, inside AccordionItem, when an accordion is opened so we can scroll its
+  // contents into view
+  const [openItems, setOpenItems] = useState<string[]>([])
 
   return (
-    <div className="max-w-lg">
-      <div className="mb-2">
-        <FieldLabel id="ssh-keys-label">SSH keys</FieldLabel>
-        <TextInputHint id="ssh-keys-label-help-text">
-          SSH keys can be added and removed in your user settings
-        </TextInputHint>
-      </div>
+    <Accordion.Root
+      type="multiple"
+      className="mt-12 max-w-lg"
+      value={openItems}
+      onValueChange={setOpenItems}
+    >
+      <AccordionItem
+        value="networking"
+        label="Networking"
+        isOpen={openItems.includes('networking')}
+      >
+        <NetworkInterfaceField control={control} disabled={isSubmitting} />
 
-      {keys.length > 0 ? (
-        <Table className="w-full">
-          <Table.Header>
-            <Table.HeaderRow>
-              <Table.HeadCell>Name</Table.HeadCell>
-              <Table.HeadCell>Created</Table.HeadCell>
-            </Table.HeaderRow>
-          </Table.Header>
-          <Table.Body>
-            {keys.map((key) => (
-              <Table.Row key={key.id}>
-                <Table.Cell height="auto">
-                  <Truncate text={key.name} maxLength={28} />
-                </Table.Cell>
-                <Table.Cell height="auto" className="text-secondary">
-                  {formatDateTime(key.timeCreated)}
-                </Table.Cell>
-              </Table.Row>
-            ))}
-          </Table.Body>
-        </Table>
-      ) : (
-        <div className="mb-4 flex max-w-lg items-center justify-center rounded-lg border p-6 border-default">
-          <EmptyMessage
-            icon={<Key16Icon />}
-            title="No SSH keys"
-            body="You need to add a SSH key to be able to see it here"
-          />
-        </div>
-      )}
-
-      <Message
-        variant="notice"
-        content={
-          <>
-            If your image supports the cidata volume and{' '}
-            <a
-              target="_blank"
-              href="https://cloudinit.readthedocs.io/en/latest/"
-              rel="noreferrer"
-            >
-              cloud-init
-            </a>
-            , the keys above will be added to your instance. Keys are added when the
-            instance is created and are not updated after instance launch.
-          </>
-        }
-      />
-    </div>
+        <TextField
+          name="hostname"
+          tooltipText="Will be generated if not provided"
+          control={control}
+          disabled={isSubmitting}
+        />
+      </AccordionItem>
+      <AccordionItem
+        value="configuration"
+        label="Configuration"
+        isOpen={openItems.includes('configuration')}
+      >
+        <FileField
+          id="user-data-input"
+          description={<UserDataDescription />}
+          name="userData"
+          label="User Data"
+          control={control}
+          disabled={isSubmitting}
+        />
+      </AccordionItem>
+    </Accordion.Root>
   )
 }
 
@@ -483,3 +518,16 @@ const PRESETS = [
 
   { category: 'custom', id: 'custom', memory: 0, ncpus: 0 },
 ] as const
+
+const UserDataDescription = () => (
+  <>
+    Data or scripts to be passed to cloud-init as{' '}
+    <a href={links.cloudInitFormat} target="_blank" rel="noreferrer">
+      user data
+    </a>{' '}
+    <a href={links.cloudInitExamples} target="_blank" rel="noreferrer">
+      (examples)
+    </a>{' '}
+    if the selected boot image supports it. Maximum size 32 KiB.
+  </>
+)

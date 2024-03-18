@@ -8,9 +8,9 @@
 import { Outlet } from 'react-router-dom'
 
 import { apiQueryClient, useApiQueryErrorsAllowed, usePrefetchedApiQuery } from '@oxide/api'
-import { invariant } from '@oxide/util'
 
-import { QuickActions } from 'app/hooks'
+import { QuickActions } from '~/hooks'
+import { invariant } from '~/util/invariant'
 
 /**
  * We use `shouldRevalidate={() => true}` to force this to re-run on every nav,

@@ -16,23 +16,25 @@ import {
   useApiQueryClient,
   type Image,
 } from '@oxide/api'
-import { DateCell, linkCell, SizeCell, useQueryTable, type MenuAction } from '@oxide/table'
-import {
-  Button,
-  EmptyMessage,
-  Images24Icon,
-  Message,
-  Modal,
-  PageHeader,
-  PageTitle,
-  TableActions,
-} from '@oxide/ui'
+import { Images24Icon } from '@oxide/design-system/icons/react'
 
-import { ListboxField, toListboxItem } from 'app/components/form'
-import { useForm, useToast } from 'app/hooks'
-import { confirmDelete } from 'app/stores/confirm-delete'
-import { addToast } from 'app/stores/toast'
-import { pb } from 'app/util/path-builder'
+import { toListboxItem } from '~/components/form/fields/ImageSelectField'
+import { ListboxField } from '~/components/form/fields/ListboxField'
+import { useForm, useToast } from '~/hooks'
+import { confirmDelete } from '~/stores/confirm-delete'
+import { addToast } from '~/stores/toast'
+import { DateCell } from '~/table/cells/DateCell'
+import { linkCell } from '~/table/cells/LinkCell'
+import { SizeCell } from '~/table/cells/SizeCell'
+import type { MenuAction } from '~/table/columns/action-col'
+import { useQueryTable } from '~/table/QueryTable'
+import { Button } from '~/ui/lib/Button'
+import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { Message } from '~/ui/lib/Message'
+import { Modal } from '~/ui/lib/Modal'
+import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
+import { TableActions } from '~/ui/lib/Table'
+import { pb } from '~/util/path-builder'
 
 const EmptyState = () => (
   <EmptyMessage

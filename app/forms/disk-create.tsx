@@ -21,19 +21,20 @@ import {
   type DiskSource,
   type Image,
 } from '@oxide/api'
-import { FieldLabel, FormDivider, Radio, RadioGroup } from '@oxide/ui'
-import { bytesToGiB, GiB } from '@oxide/util'
 
-import {
-  DescriptionField,
-  DiskSizeField,
-  ListboxField,
-  NameField,
-  RadioField,
-  SideModalForm,
-  toListboxItem,
-} from 'app/components/form'
-import { useForm, useProjectSelector, useToast } from 'app/hooks'
+import { DescriptionField } from '~/components/form/fields/DescriptionField'
+import { DiskSizeField } from '~/components/form/fields/DiskSizeField'
+import { toListboxItem } from '~/components/form/fields/ImageSelectField'
+import { ListboxField } from '~/components/form/fields/ListboxField'
+import { NameField } from '~/components/form/fields/NameField'
+import { RadioField } from '~/components/form/fields/RadioField'
+import { SideModalForm } from '~/components/form/SideModalForm'
+import { useForm, useProjectSelector, useToast } from '~/hooks'
+import { FormDivider } from '~/ui/lib/Divider'
+import { FieldLabel } from '~/ui/lib/FieldLabel'
+import { Radio } from '~/ui/lib/Radio'
+import { RadioGroup } from '~/ui/lib/RadioGroup'
+import { bytesToGiB, GiB } from '~/util/units'
 
 const blankDiskSource: DiskSource = {
   type: 'blank',
@@ -115,9 +116,9 @@ export function CreateDiskSideModalForm({
 
   return (
     <SideModalForm
-      id="create-disk-form"
-      title="Create Disk"
       form={form}
+      formType="create"
+      resourceName="disk"
       onDismiss={() => onDismiss(navigate)}
       onSubmit={({ size, ...rest }) => {
         const body = { size: size * GiB, ...rest }

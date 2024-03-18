@@ -8,18 +8,25 @@
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, usePrefetchedApiQuery, type Image } from '@oxide/api'
-import { Images16Icon, PropertiesTable, ResourceLabel, Truncate } from '@oxide/ui'
-import { bytesToGiB, formatDateTime } from '@oxide/util'
+import { Images16Icon } from '@oxide/design-system/icons/react'
 
-import { DescriptionField, NameField, SideModalForm, TextField } from 'app/components/form'
+import { DescriptionField } from '~/components/form/fields/DescriptionField'
+import { NameField } from '~/components/form/fields/NameField'
+import { TextField } from '~/components/form/fields/TextField'
+import { SideModalForm } from '~/components/form/SideModalForm'
 import {
   getProjectImageSelector,
   getSiloImageSelector,
   useForm,
   useProjectImageSelector,
   useSiloImageSelector,
-} from 'app/hooks'
-import { pb } from 'app/util/path-builder'
+} from '~/hooks'
+import { PropertiesTable } from '~/ui/lib/PropertiesTable'
+import { ResourceLabel } from '~/ui/lib/SideModal'
+import { Truncate } from '~/ui/lib/Truncate'
+import { formatDateTime } from '~/util/date'
+import { pb } from '~/util/path-builder'
+import { bytesToGiB } from '~/util/units'
 
 EditProjectImageSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project, image } = getProjectImageSelector(params)
@@ -65,9 +72,9 @@ export function EditImageSideModalForm({
 
   return (
     <SideModalForm
-      id="edit-project-image-form"
       form={form}
-      title={`${type} image`}
+      formType="edit"
+      resourceName={type === 'Project' ? 'project image' : 'silo image'}
       onDismiss={() => navigate(dismissLink)}
       subtitle={
         <ResourceLabel>

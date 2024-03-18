@@ -7,11 +7,14 @@
  */
 import { cloneElement, useEffect, type ReactElement, type ReactNode } from 'react'
 import type { FieldValues, UseFormReturn } from 'react-hook-form'
-import { useBlocker, type unstable_Blocker as Blocker } from 'react-router-dom'
+import { useBlocker, type Blocker } from 'react-router-dom'
 
 import type { ApiError } from '@oxide/api'
-import { Modal, PageHeader, PageTitle } from '@oxide/ui'
-import { classed, flattenChildren, pluckFirstOfType } from '@oxide/util'
+
+import { Modal } from '~/ui/lib/Modal'
+import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
+import { flattenChildren, pluckFirstOfType } from '~/util/children'
+import { classed } from '~/util/classed'
 
 import { Form } from '../form/Form'
 import { PageActions } from '../PageActions'
@@ -25,7 +28,11 @@ interface FullPageFormProps<TFieldValues extends FieldValues> {
   error?: Error
   form: UseFormReturn<TFieldValues>
   loading?: boolean
-  onSubmit: (values: TFieldValues) => void
+  /**
+   * Use await mutateAsync(), otherwise you'll break the logic below that relies
+   * on knowing when the submit is done.
+   */
+  onSubmit: (values: TFieldValues) => Promise<void>
   /** Error from the API call */
   submitError: ApiError | null
   /**
@@ -53,22 +60,25 @@ export function FullPageForm<TFieldValues extends FieldValues>({
   onSubmit,
   submitError,
 }: FullPageFormProps<TFieldValues>) {
-  const { isSubmitting, isDirty } = form.formState
+  const { isSubmitting, isDirty, isSubmitSuccessful } = form.formState
 
-  /*
-    Confirms with the user if they want to navigate away
-    if the form is dirty. Does not intercept everything e.g.
-    refreshes or closing the tab but serves to reduce
-    the possibility of a user accidentally losing their progress
-  */
-  const blocker = useBlocker(isDirty)
+  // Confirms with the user if they want to navigate away if the form is
+  // dirty. Does not intercept everything e.g. refreshes or closing the tab
+  // but serves to reduce the possibility of a user accidentally losing their
+  // progress.
+  const blocker = useBlocker(isDirty && !isSubmitSuccessful)
 
-  // Reset blocker if form is no longer dirty
+  // Gating on !isSubmitSuccessful above makes the blocker stop blocking nav
+  // after a successful submit. However, this can take a little time (there is a
+  // render in between when isSubmitSuccessful is true but the blocker is still
+  // ready to block), so we also have this useEffect that lets blocked requests
+  // through if submit is succesful but the blocker hasn't gotten a chance to
+  // stop blocking yet.
   useEffect(() => {
-    if (blocker.state === 'blocked' && !isDirty) {
-      blocker.reset()
+    if (blocker.state === 'blocked' && isSubmitSuccessful) {
+      blocker.proceed()
     }
-  }, [blocker, isDirty])
+  }, [blocker, isSubmitSuccessful])
 
   const childArray = flattenChildren(children)
   const actions = pluckFirstOfType(childArray, Form.Actions)
@@ -81,24 +91,27 @@ export function FullPageForm<TFieldValues extends FieldValues>({
       <form
         className="ox-form pb-20"
         id={id}
-        onSubmit={(e) => {
+        onSubmit={async (e) => {
           // This modal being in a portal doesn't prevent the submit event
           // from bubbling up out of the portal. Normally that's not a
           // problem, but sometimes (e.g., instance create) we render the
           // SideModalForm from inside another form, in which case submitting
           // the inner form submits the outer form unless we stop propagation
           e.stopPropagation()
-          // This resets `isDirty` whilst keeping the values meaning
-          // we are not prevented from navigating away by the blocker
-          form.reset({} as TFieldValues, { keepValues: true })
-          form.handleSubmit(onSubmit)(e)
+          // Important to await here so isSubmitSuccessful doesn't become true
+          // until the submit is actually successful. Note you must use await
+          // mutateAsync() inside onSubmit in order to make this wait
+          await form.handleSubmit(onSubmit)(e)
         }}
         autoComplete="off"
       >
         {childArray}
       </form>
 
-      {blocker ? <ConfirmNavigation blocker={blocker} /> : null}
+      {/* rendering of the modal must be gated on isSubmitSuccessful because
+          there is a brief moment where isSubmitSuccessful is true but the proceed() 
+          hasn't fired yet, which means we get a brief flash of this modal */}
+      {!isSubmitSuccessful && <ConfirmNavigation blocker={blocker} />}
 
       {actions && (
         <PageActions>

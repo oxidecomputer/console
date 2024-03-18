@@ -9,7 +9,7 @@ import { hashKey } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { useParams, type Params } from 'react-router-dom'
 
-import { invariant } from '@oxide/util'
+import { invariant } from '~/util/invariant'
 
 const err = (param: string) =>
   `Param '${param}' not found in route. You might be rendering a component under the wrong route.`
@@ -33,6 +33,7 @@ export const requireParams =
   }
 
 export const getProjectSelector = requireParams('project')
+export const getFloatingIpSelector = requireParams('project', 'floatingIp')
 export const getInstanceSelector = requireParams('project', 'instance')
 export const getVpcSelector = requireParams('project', 'vpc')
 export const getSiloSelector = requireParams('silo')
@@ -42,6 +43,7 @@ export const getProjectImageSelector = requireParams('project', 'image')
 export const getProjectSnapshotSelector = requireParams('project', 'snapshot')
 export const requireSledParams = requireParams('sledId')
 export const requireUpdateParams = requireParams('version')
+export const getIpPoolSelector = requireParams('pool')
 
 /**
  * Turn `getThingSelector`, a pure function on a params object, into a hook
@@ -68,6 +70,7 @@ function useSelectedParams<T>(getSelector: (params: AllParams) => T) {
 // params are present. Only the specified keys end up in the result object, but
 // we do not error if there are other params present in the query string.
 
+export const useFloatingIpSelector = () => useSelectedParams(getFloatingIpSelector)
 export const useProjectSelector = () => useSelectedParams(getProjectSelector)
 export const useProjectImageSelector = () => useSelectedParams(getProjectImageSelector)
 export const useProjectSnapshotSelector = () =>
@@ -79,3 +82,4 @@ export const useSiloImageSelector = () => useSelectedParams(getSiloImageSelector
 export const useIdpSelector = () => useSelectedParams(getIdpSelector)
 export const useSledParams = () => useSelectedParams(requireSledParams)
 export const useUpdateParams = () => useSelectedParams(requireUpdateParams)
+export const useIpPoolSelector = () => useSelectedParams(getIpPoolSelector)

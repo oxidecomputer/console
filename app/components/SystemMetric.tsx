@@ -13,7 +13,8 @@ import {
   type ChartDatum,
   type SystemMetricName,
 } from '@oxide/api'
-import { Spinner } from '@oxide/ui'
+
+import { Spinner } from '~/ui/lib/Spinner'
 
 const TimeSeriesChart = React.lazy(() => import('./TimeSeriesChart'))
 

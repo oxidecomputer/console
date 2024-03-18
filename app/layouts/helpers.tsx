@@ -8,12 +8,11 @@
 import { useRef } from 'react'
 import { Outlet } from 'react-router-dom'
 
-import { Pagination } from '@oxide/pagination'
-import { SkipLinkTarget } from '@oxide/ui'
-import { classed } from '@oxide/util'
-
-import { PageActionsTarget } from 'app/components/PageActions'
-import { useScrollRestoration } from 'app/hooks/use-scroll-restoration'
+import { PageActionsTarget } from '~/components/PageActions'
+import { Pagination } from '~/components/Pagination'
+import { useScrollRestoration } from '~/hooks/use-scroll-restoration'
+import { SkipLinkTarget } from '~/ui/lib/SkipLink'
+import { classed } from '~/util/classed'
 
 export const PageContainer = classed.div`grid h-screen grid-cols-[14.25rem,1fr] grid-rows-[60px,1fr]`
 

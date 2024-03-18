@@ -7,7 +7,7 @@
  */
 import { useSearchParams } from 'react-router-dom'
 
-import { Tabs, type TabsRootProps } from '@oxide/ui'
+import { Tabs, type TabsRootProps } from '~/ui/lib/Tabs'
 
 /**
  * Use instead of `Tabs.Root` to sync current tab with arg in URL query string.

@@ -10,19 +10,19 @@ import { Link } from 'react-router-dom'
 
 import { useApiQuery, type Project } from '@oxide/api'
 import {
-  Button,
-  DropdownMenu,
   Folder16Icon,
-  Identicon,
   SelectArrows6Icon,
   Success12Icon,
-  Truncate,
-  Wrap,
-} from '@oxide/ui'
+} from '@oxide/design-system/icons/react'
 
-import { useInstanceSelector, useSiloSelector } from 'app/hooks'
-import { useCurrentUser } from 'app/layouts/AuthenticatedLayout'
-import { pb } from 'app/util/path-builder'
+import { useInstanceSelector, useIpPoolSelector, useSiloSelector } from '~/hooks'
+import { useCurrentUser } from '~/layouts/AuthenticatedLayout'
+import { Button } from '~/ui/lib/Button'
+import { DropdownMenu } from '~/ui/lib/DropdownMenu'
+import { Identicon } from '~/ui/lib/Identicon'
+import { Truncate } from '~/ui/lib/Truncate'
+import { Wrap } from '~/ui/util/wrap'
+import { pb } from '~/util/path-builder'
 
 type TopBarPickerItem = {
   label: string
@@ -224,6 +224,27 @@ export function SiloPicker() {
       current={siloName}
       items={items}
       noItemsText="No silos found"
+    />
+  )
+}
+
+/** Used when drilling down into a pool from the System/Networking view. */
+export function IpPoolPicker() {
+  // picker only shows up when a pool is in scope
+  const { pool: poolName } = useIpPoolSelector()
+  const { data } = useApiQuery('ipPoolList', { query: { limit: 10 } })
+  const items = (data?.items || []).map((pool) => ({
+    label: pool.name,
+    to: pb.ipPool({ pool: pool.name }),
+  }))
+
+  return (
+    <TopBarPicker
+      aria-label="Switch pool"
+      category="IP Pools"
+      current={poolName}
+      items={items}
+      noItemsText="No IP pools found"
     />
   )
 }

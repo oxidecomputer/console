@@ -9,7 +9,7 @@
  */
 import * as flags from 'https://deno.land/std@0.208.0/flags/mod.ts'
 import { exists } from 'https://deno.land/std@0.208.0/fs/mod.ts'
-import { $, CommandBuilder } from 'https://deno.land/x/dax@0.35.0/mod.ts'
+import { $ } from 'https://deno.land/x/dax@0.39.1/mod.ts'
 
 const HELP = `
 Display changes to API client caused by a given Omicron PR. Works by downloading
@@ -36,18 +36,6 @@ function printHelpAndExit() {
   Deno.exit()
 }
 
-// inspired by: https://github.com/dsherret/dax/issues/137#issuecomment-1603848769
-declare module 'https://deno.land/x/dax@0.35.0/mod.ts' {
-  interface CommandBuilder {
-    pipe(next: CommandBuilder): CommandBuilder
-  }
-}
-
-CommandBuilder.prototype.pipe = function (next: CommandBuilder): CommandBuilder {
-  const p = this.stdout('piped').spawn()
-  return next.stdin(p.stdout())
-}
-
 // have to do this this way because I couldn't figure out how to get
 // my stupid bash function to show up here. I'm sure it's possible
 async function pickPr() {
@@ -65,8 +53,10 @@ async function pickPr() {
   return prNum
 }
 
-async function getCommitRange(arg: string): Promise<{ base: string; head: string }> {
-  if (!arg || /^\d+$/.test(arg)) {
+async function getCommitRange(
+  arg: string | number | undefined
+): Promise<{ base: string; head: string }> {
+  if (!arg || typeof arg === 'number') {
     const prNum = arg || (await pickPr())
     const query = `{
       repository(owner: "oxidecomputer", name: "omicron") {

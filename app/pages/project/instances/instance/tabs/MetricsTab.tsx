@@ -15,16 +15,30 @@ import {
   type Cumulativeint64,
   type DiskMetricName,
 } from '@oxide/api'
-import { EmptyMessage, Listbox, Spinner, Storage24Icon, TableEmptyBox } from '@oxide/ui'
+import { Storage24Icon } from '@oxide/design-system/icons/react'
 
-import { useDateTimeRangePicker } from 'app/components/form'
-import { getInstanceSelector, useInstanceSelector } from 'app/hooks'
+import { useDateTimeRangePicker } from '~/components/form/fields/DateTimeRangePicker'
+import { getInstanceSelector, useInstanceSelector } from '~/hooks'
+import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { Listbox } from '~/ui/lib/Listbox'
+import { Spinner } from '~/ui/lib/Spinner'
+import { TableEmptyBox } from '~/ui/lib/Table'
 
-const TimeSeriesChart = React.lazy(() => import('app/components/TimeSeriesChart'))
+const TimeSeriesChart = React.lazy(() => import('~/components/TimeSeriesChart'))
+
+export function getCycleCount(num: number, base: number) {
+  let cycleCount = 0
+  let transformedValue = num
+  while (transformedValue > base) {
+    transformedValue = transformedValue / base
+    cycleCount++
+  }
+  return cycleCount
+}
 
 type DiskMetricParams = {
   title: string
-  unit?: string
+  unit: 'Bytes' | 'Count'
   startTime: Date
   endTime: Date
   metric: DiskMetricName
@@ -54,16 +68,64 @@ function DiskMetric({
     { placeholderData: (x) => x }
   )
 
-  const data = (metrics?.items || []).map(({ datum, timestamp }) => ({
-    timestamp: timestamp.getTime(),
-    // all of these metrics are cumulative ints
-    value: (datum.datum as Cumulativeint64).value,
-  }))
+  const isBytesChart = unit === 'Bytes'
+
+  const largestValue = useMemo(() => {
+    if (!metrics || metrics.items.length === 0) return 0
+    return Math.max(...metrics.items.map((m) => (m.datum.datum as Cumulativeint64).value))
+  }, [metrics])
+
+  // We'll need to divide each number in the set by a consistent exponent
+  // of 1024 (for Bytes) or 1000 (for Counts)
+  const base = isBytesChart ? 1024 : 1000
+  // Figure out what that exponent is:
+  const cycleCount = getCycleCount(largestValue, base)
+
+  // Now that we know how many cycles of "divide by 1024 || 1000" to run through
+  // (via cycleCount), we can determine the proper unit for the set
+  let unitForSet = ''
+  let label = '(COUNT)'
+  if (isBytesChart) {
+    const byteUnits = ['BYTES', 'KiB', 'MiB', 'GiB', 'TiB']
+    unitForSet = byteUnits[cycleCount]
+    label = `(${unitForSet})`
+  }
+
+  const divisor = base ** cycleCount
+
+  const data = useMemo(
+    () =>
+      (metrics?.items || []).map(({ datum, timestamp }) => ({
+        timestamp: timestamp.getTime(),
+        // All of these metrics are cumulative ints.
+        // The value passed in is what will render in the tooltip.
+        value: isBytesChart
+          ? // We pass a pre-divided value to the chart if the unit is Bytes
+            (datum.datum as Cumulativeint64).value / divisor
+          : // If the unit is Count, we pass the raw value
+            (datum.datum as Cumulativeint64).value,
+      })),
+    [metrics, isBytesChart, divisor]
+  )
+
+  // Create a label for the y-axis ticks. "Count" charts will be
+  // abbreviated and will have a suffix (e.g. "k") appended. Because
+  // "Bytes" charts will have already been divided by the divisor
+  // before the yAxis is created, we can use their given value.
+  const yAxisTickFormatter = (val: number) => {
+    if (isBytesChart) {
+      return val.toLocaleString()
+    }
+    const tickValue = (val / divisor).toFixed(2)
+    const countUnits = ['', 'k', 'M', 'B', 'T']
+    const unitForTick = countUnits[cycleCount]
+    return `${tickValue}${unitForTick}`
+  }
 
   return (
     <div className="flex w-1/2 flex-grow flex-col">
-      <h2 className="ml-3 flex items-center text-mono-xs text-secondary">
-        {title} {unit && <div className="ml-1 text-quaternary">{unit}</div>}
+      <h2 className="ml-3 flex items-center text-mono-xs text-secondary ">
+        {title} <div className="ml-1 normal-case text-quaternary">{label}</div>
         {isLoading && <Spinner className="ml-2" />}
       </h2>
       <Suspense fallback={<div className="mt-3 h-[300px]" />}>
@@ -71,10 +133,12 @@ function DiskMetric({
           className="mt-3"
           data={data}
           title={title}
+          unit={unitForSet}
           width={480}
           height={240}
           startTime={startTime}
           endTime={endTime}
+          yAxisTickFormatter={yAxisTickFormatter}
         />
       </Suspense>
     </div>
@@ -135,7 +199,7 @@ export function MetricsTab() {
     <>
       <div className="mb-4 flex justify-between">
         <Listbox
-          className="w-48"
+          className="w-64"
           aria-label="Choose disk"
           name="disk-name"
           selected={diskName}
@@ -151,17 +215,17 @@ export function MetricsTab() {
         {/* see the following link for the source of truth on what these mean
             https://github.com/oxidecomputer/crucible/blob/258f162b/upstairs/src/stats.rs#L9-L50 */}
         <div className="flex w-full space-x-4">
-          <DiskMetric {...commonProps} title="Reads" unit="(Count)" metric="read" />
-          <DiskMetric {...commonProps} title="Read" unit="(Bytes)" metric="read_bytes" />
+          <DiskMetric {...commonProps} title="Reads" unit="Count" metric="read" />
+          <DiskMetric {...commonProps} title="Read" unit="Bytes" metric="read_bytes" />
         </div>
 
         <div className="flex w-full space-x-4">
-          <DiskMetric {...commonProps} title="Writes" unit="(Count)" metric="write" />
-          <DiskMetric {...commonProps} title="Write" unit="(Bytes)" metric="write_bytes" />
+          <DiskMetric {...commonProps} title="Writes" unit="Count" metric="write" />
+          <DiskMetric {...commonProps} title="Write" unit="Bytes" metric="write_bytes" />
         </div>
 
         <div className="flex w-full space-x-4">
-          <DiskMetric {...commonProps} title="Flushes" unit="(Count)" metric="flush" />
+          <DiskMetric {...commonProps} title="Flushes" unit="Count" metric="flush" />
         </div>
       </div>
     </>

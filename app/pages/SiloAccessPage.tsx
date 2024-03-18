@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useMemo, useState } from 'react'
 
 import {
@@ -19,26 +20,23 @@ import {
   type IdentityType,
   type RoleKey,
 } from '@oxide/api'
-import { createColumnHelper, getActionsCol, Table, useReactTable } from '@oxide/table'
-import {
-  Access24Icon,
-  Button,
-  EmptyMessage,
-  PageHeader,
-  PageTitle,
-  TableActions,
-  TableEmptyBox,
-} from '@oxide/ui'
-import { groupBy, isTruthy } from '@oxide/util'
+import { Access24Icon } from '@oxide/design-system/icons/react'
 
-import { AccessNameCell } from 'app/components/AccessNameCell'
-import { HL } from 'app/components/ConfirmDeleteModal'
-import { RoleBadgeCell } from 'app/components/RoleBadgeCell'
+import { HL } from '~/components/HL'
+import { RoleBadgeCell } from '~/components/RoleBadgeCell'
 import {
   SiloAccessAddUserSideModal,
   SiloAccessEditUserSideModal,
-} from 'app/forms/silo-access'
-import { confirmDelete } from 'app/stores/confirm-delete'
+} from '~/forms/silo-access'
+import { confirmDelete } from '~/stores/confirm-delete'
+import { getActionsCol } from '~/table/columns/action-col'
+import { Table } from '~/table/Table'
+import { Button } from '~/ui/lib/Button'
+import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
+import { TableActions, TableEmptyBox } from '~/ui/lib/Table'
+import { accessTypeLabel } from '~/util/access'
+import { groupBy, isTruthy } from '~/util/array'
 
 const EmptyState = ({ onClick }: { onClick: () => void }) => (
   <TableEmptyBox>
@@ -113,7 +111,11 @@ export function SiloAccessPage() {
 
   const columns = useMemo(
     () => [
-      colHelper.accessor('name', { header: 'Name', cell: AccessNameCell }),
+      colHelper.accessor('name', { header: 'Name' }),
+      colHelper.accessor('identityType', {
+        header: 'Type',
+        cell: (props) => accessTypeLabel(props.getValue()),
+      }),
       colHelper.accessor('siloRole', {
         header: 'Silo role',
         cell: RoleBadgeCell,
@@ -147,7 +149,11 @@ export function SiloAccessPage() {
     [siloPolicy, updatePolicy]
   )
 
-  const tableInstance = useReactTable({ columns, data: rows })
+  const tableInstance = useReactTable({
+    columns,
+    data: rows,
+    getCoreRowModel: getCoreRowModel(),
+  })
 
   return (
     <>
@@ -170,6 +176,7 @@ export function SiloAccessPage() {
         <SiloAccessEditUserSideModal
           onDismiss={() => setEditingUserRow(null)}
           policy={siloPolicy}
+          name={editingUserRow.name}
           identityId={editingUserRow.id}
           identityType={editingUserRow.identityType}
           defaultValues={{ roleName: editingUserRow.siloRole }}

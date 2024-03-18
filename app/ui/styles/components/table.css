@@ -1,0 +1,340 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *  
+ * Copyright Oxide Computer Company
+ */
+
+table.ox-table {
+  border-spacing: 0px;
+
+  /*
+  Adds borders to first and last in a
+  row excluding table corners
+  */
+  & tbody tr:last-child td {
+    border-bottom-width: 1px;
+  }
+
+  & tbody tr td:first-child {
+    border-left-width: 1px;
+  }
+  & tbody tr td:last-child {
+    border-right-width: 1px;
+  }
+
+  & tr:last-child td > div {
+    border-bottom-width: 0px;
+  }
+
+  & th,
+  & td {
+    min-width: fit-content;
+    white-space: nowrap;
+    @apply text-secondary;
+  }
+
+  /*
+  Adds padding to all cells except from
+  the action cells since they are a fixed width
+  */
+  & td:not(.action-col) > div {
+    @apply pr-8;
+  }
+
+  /* First column is sticky */
+  & th:first-of-type,
+  & td:first-of-type {
+    @apply sticky left-0 z-10 bg-default;
+  }
+
+  /*
+  Last column is sticky if it
+  is a more actions cell
+  */
+  & th:last-of-type.action-col,
+  & td:last-of-type.action-col {
+    @apply sticky right-0 bg-default;
+  }
+  & th:last-of-type.action-col {
+    @apply bg-secondary;
+  }
+
+  /*
+    Highlight when hovering over the action-col cell
+  */
+  & td.action-col:hover > div {
+    @apply bg-raise;
+  }
+
+  /*
+  We hide the default border and background on the sticky
+  cells. This is to stop anything underneath it showing through
+  at the corner. By leaving the cell square, and instead applying
+  it to the div child which has a rounded corner we cover what's
+  below with a background colour and still keep the styling
+  */
+  & tr:last-of-type td:last-of-type.action-col {
+    @apply border-b-0 border-r-0;
+  }
+
+  & tr:last-of-type td:last-of-type.action-col > div {
+    border-bottom-right-radius: var(--border-radius-lg);
+  }
+
+  & tr:last-of-type td:first-of-type > div {
+    border-bottom-left-radius: var(--border-radius-lg);
+  }
+
+  & tr:last-of-type td:last-of-type.action-col:after {
+    border-bottom-right-radius: var(--border-radius-lg);
+    @apply pointer-events-none absolute bottom-0 left-0 right-0 top-0 border-b border-r content-[''] border-default;
+  }
+
+  & tr:last-of-type td:last-of-type:not(.action-col) {
+    border-bottom-right-radius: var(--border-radius-lg);
+  }
+
+  & tr:last-of-type td:first-of-type {
+    @apply !border-b-0 !border-l-0;
+  }
+
+  & tr:last-of-type td:first-of-type:after {
+    border-bottom-left-radius: var(--border-radius-lg);
+    @apply pointer-events-none absolute bottom-0 left-0 right-0 top-0 border-b border-l content-[''] border-default;
+  }
+
+  & th:first-of-type {
+    @apply border-l-0 border-t-0 !bg-default;
+  }
+
+  & th:first-of-type > div {
+    border-top-left-radius: var(--border-radius-lg);
+    @apply w-[calc(100%+1px)] bg-secondary;
+  }
+
+  & th:first-of-type:after {
+    border-top-left-radius: var(--border-radius-lg);
+    @apply pointer-events-none absolute bottom-0 left-0 right-0 top-0 border-l border-t content-[''] border-default;
+  }
+
+  & th:last-of-type.action-col {
+    @apply !border-r-0 !border-t-0 !bg-default;
+  }
+
+  & th:last-of-type.action-col > div {
+    border-top-right-radius: var(--border-radius-lg);
+    @apply bg-secondary;
+  }
+
+  & th:last-of-type.action-col:after {
+    border-top-right-radius: var(--border-radius-lg);
+    @apply pointer-events-none absolute bottom-0 left-0 right-0 top-0 border-r border-t content-[''] border-default;
+  }
+
+  & th:last-of-type:not(.action-col) {
+    border-top-right-radius: var(--border-radius-lg);
+    @apply border-r;
+  }
+
+  & tr:not(:first-of-type) th {
+    @apply border-t-0;
+  }
+
+  & tr:not(:first-of-type) th:after,
+  & tr:not(:first-of-type) th:last-of-type:not(.action-col) {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    @apply border-t-0;
+  }
+
+  /* === Begin table selection styles === */
+
+  /**
+   * Our table selection styles dictate complex behaviors like rounded selection corners,
+   * grouped selections, and seemless border overlap. To acheive this, `box-shadow` properties
+   * are used for selection border styles. To make this effect possible, special classes were
+   * added to the table. Those classes are:
+   *
+   * - `.is-selected` -- present on every selected row
+   * - `.multi-selection` -- present on every selected row that has at least one direct sibling which is also selected
+   * - `.selection-start` -- the first selected item in a `multi-selection` group
+   * - `.selection-end` -- the last selected item in a `multi-selection` group
+   */
+
+  /* Left-most cell of a single selection */
+  & .is-selected:not(.multi-selection) td:first-child > div {
+    border-top-left-radius: 0.1875rem;
+    border-bottom-left-radius: 0.1875rem;
+    box-shadow:
+      -1px -1px var(--stroke-accent),
+      -1px 1px var(--stroke-accent);
+  }
+
+  /* Right-most cell of a single selection */
+  & .is-selected:not(.multi-selection) td:last-child > div {
+    border-top-right-radius: 0.1875rem;
+    box-shadow:
+      1px -1px var(--stroke-accent),
+      1px 1px var(--stroke-accent);
+    border-bottom-right-radius: 0.1875rem;
+  }
+
+  /* All cells of a single selection */
+  & .is-selected:not(.multi-selection) td > div {
+    box-shadow:
+      0px 1px var(--stroke-accent),
+      0px -1px var(--stroke-accent);
+    margin-top: -2px;
+    border-bottom: 0;
+    height: calc(100% + 1px);
+  }
+
+  & .is-selected:not(.multi-selection):last-of-type td > div {
+    margin-top: -1px;
+    height: calc(100% + 3px);
+  }
+
+  /* Defines the top border of a selection */
+  & .is-selected td > div {
+    box-shadow: 0px -1px var(--stroke-accent);
+  }
+
+  /* Ensures subsequent, interior selected rows don't have a top border */
+  & .multi-selection:not(.selection-start):not(.selection-end) td > div {
+    box-shadow: none;
+  }
+
+  /* Adds the selected border for the top left corner of a selection */
+  & .selection-start td:first-child > div {
+    border-top-left-radius: 0.1875rem;
+    box-shadow: -1px -1px var(--stroke-accent);
+    margin-right: -3px;
+  }
+
+  /* Ensures subsequent, interior selections have side borders */
+  & .multi-selection:not(.selection-start):not(.selection-end) td:first-child > div {
+    box-shadow: -1px 0px var(--stroke-accent);
+  }
+
+  & .multi-selection:not(.selection-start):not(.selection-end) td:last-child > div {
+    box-shadow: 1px 0px var(--stroke-accent);
+  }
+
+  /* Fills gaps between borders that show up in Safari and Chrome on OSX */
+  & .multi-selection:not(.selection-end) td:first-child,
+  & .multi-selection:not(.selection-end) td:last-child {
+    @apply border-accent;
+  }
+
+  /* Adds the selected border for the top right corner of a selection */
+  & .selection-start td:last-child > div {
+    border-top-right-radius: 0.1875rem;
+    box-shadow: 1px -1px var(--stroke-accent);
+  }
+  /* Ensures the top right border and the cell next to it have their box-shadows overlap */
+  & .selection-start td:nth-last-child(2) > div {
+    margin-right: -3px;
+  }
+
+  & .selection-end td > div {
+    box-shadow: 0px 1px var(--stroke-accent);
+  }
+
+  & .selection-end td > div {
+    border-bottom: 0;
+    height: calc(100% + 3px);
+    margin-top: -5px;
+    padding-top: 3px;
+  }
+
+  /* Account for layout shift at the bottom of the table as best we can */
+  & .selection-end:last-of-type td > div {
+    margin-top: -4px;
+    height: calc(100% + 8px);
+    margin-bottom: -1px;
+  }
+
+  /* Correct for firefox's wider variation in table border spacing */
+  @supports (-moz-appearance: none) {
+    & .selection-end:last-of-type td > div {
+      margin-top: -2px;
+      height: calc(100% + 4px);
+      padding-top: 2px;
+      padding-bottom: 1px;
+    }
+  }
+
+  /* Adds the selected border for the bottom left corner of a selection */
+  & .selection-end td:first-child > div {
+    border-bottom-left-radius: 0.1875rem;
+    box-shadow: -1px 1px var(--stroke-accent);
+    margin-right: -4px;
+  }
+
+  & .selection-end td:last-child > div {
+    border-bottom-right-radius: 0.1875rem;
+    box-shadow: 1px 1px var(--stroke-accent);
+  }
+
+  & .selection-end td:last-child > div,
+  & .is-selected:not(.multi-selection) td:last-child > div {
+    @apply relative -ml-0.5 border-l-0 before:absolute before:bottom-1 before:left-0.5 before:top-0 before:block before:h-full before:border-l before:border-accent-tertiary;
+    /* Avoid layout shift caused by the border being inline with the content */
+    padding-left: calc(1rem - 1px);
+  }
+
+  /* === End table selection styles === */
+}
+
+/*
+Drop shadow appears if content is below a sticky
+cell and the table is overflowing
+*/
+.scrolled td:first-of-type,
+.scrolled th:first-of-type,
+.overflowing td:last-of-type.action-col,
+.overflowing th:last-of-type.action-col {
+  box-shadow: var(--elevation-2);
+}
+
+/*
+  Stops shadow from overflowing below
+  -1px helps with a visual glitch when a bit
+  underneath shows through
+*/
+.scrolled td:first-of-type,
+.scrolled th:first-of-type {
+  clip-path: inset(0px -40px 0px -1px);
+}
+.overflowing td:last-of-type.action-col,
+.overflowing th:last-of-type.action-col {
+  clip-path: inset(0px -1px 0px -40px);
+}
+
+.scrolled td:first-of-type:before,
+.scrolled th:first-of-type:before {
+  @apply absolute bottom-0 right-0 top-0 border-r content-[''] border-r-secondary;
+}
+
+.simplebar-scrollbar {
+  top: 0 !important;
+  height: 8px !important;
+}
+
+.simplebar-scrollbar:before {
+  background-color: rgba(255, 255, 255, 0.28);
+  left: 0 !important;
+  top: 0 !important;
+  right: 0 !important;
+  border-radius: 8px !important;
+}
+
+.simplebar-hover.simplebar-scrollbar:before {
+  background-color: rgba(255, 255, 255, 0.4);
+}
+
+.simplebar-track.simplebar-horizontal {
+  height: 8px;
+}

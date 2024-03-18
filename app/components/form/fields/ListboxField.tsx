@@ -8,8 +8,8 @@
 import cn from 'classnames'
 import { Controller, type Control, type FieldPath, type FieldValues } from 'react-hook-form'
 
-import { Listbox, type ListboxItem } from '@oxide/ui'
-import { capitalize } from '@oxide/util'
+import { Listbox, type ListboxItem } from '~/ui/lib/Listbox'
+import { capitalize } from '~/util/str'
 
 import { ErrorMessage } from './ErrorMessage'
 
@@ -22,8 +22,8 @@ export type ListboxFieldProps<
   className?: string
   label?: string
   required?: boolean
-  helpText?: string
-  description?: string
+  description?: string | React.ReactNode | React.ReactNode
+  tooltipText?: string
   control: Control<TFieldValues>
   disabled?: boolean
   items: ListboxItem[]
@@ -41,8 +41,8 @@ export function ListboxField<
   label = capitalize(name),
   disabled,
   required,
+  tooltipText,
   description,
-  helpText,
   className,
   control,
   onChange,
@@ -59,9 +59,9 @@ export function ListboxField<
         render={({ field, fieldState: { error } }) => (
           <>
             <Listbox
-              helpText={helpText}
-              label={label}
               description={description}
+              label={label}
+              tooltipText={tooltipText}
               required={required}
               placeholder={placeholder}
               selected={field.value || null}

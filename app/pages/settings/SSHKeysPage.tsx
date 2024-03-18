@@ -8,19 +8,17 @@
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 
 import { apiQueryClient, useApiMutation, useApiQueryClient, type SshKey } from '@oxide/api'
-import { DateCell, useQueryTable, type MenuAction } from '@oxide/table'
-import {
-  buttonStyle,
-  EmptyMessage,
-  Key16Icon,
-  Key24Icon,
-  PageHeader,
-  PageTitle,
-  TableActions,
-} from '@oxide/ui'
+import { Key16Icon, Key24Icon } from '@oxide/design-system/icons/react'
 
-import { confirmDelete } from 'app/stores/confirm-delete'
-import { pb } from 'app/util/path-builder'
+import { confirmDelete } from '~/stores/confirm-delete'
+import { DateCell } from '~/table/cells/DateCell'
+import type { MenuAction } from '~/table/columns/action-col'
+import { useQueryTable } from '~/table/QueryTable'
+import { buttonStyle } from '~/ui/lib/Button'
+import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
+import { TableActions } from '~/ui/lib/Table'
+import { pb } from '~/util/path-builder'
 
 SSHKeysPage.loader = async () => {
   await apiQueryClient.prefetchQuery('currentUserSshKeyList', { query: { limit: 25 } })
@@ -55,7 +53,7 @@ export function SSHKeysPage() {
         <PageTitle icon={<Key24Icon />}>SSH Keys</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link className={buttonStyle({ size: 'sm' })} to={pb.sshKeyNew()}>
+        <Link className={buttonStyle({ size: 'sm' })} to={pb.sshKeysNew()}>
           Add SSH key
         </Link>
       </TableActions>
@@ -67,7 +65,7 @@ export function SSHKeysPage() {
             title="No SSH keys"
             body="You need to add a SSH key to be able to see it here"
             buttonText="Add SSH key"
-            onClick={() => navigate(pb.sshKeyNew())}
+            onClick={() => navigate(pb.sshKeysNew())}
           />
         }
       >

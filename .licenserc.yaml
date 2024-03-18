@@ -22,4 +22,4 @@ header:
     - '.husky'
     - 'mockServiceWorker.js'
 
-  comment: on-failure
+  comment: never

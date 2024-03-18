@@ -12,8 +12,8 @@ import {
   type VpcFirewallRule,
 } from '@oxide/api'
 
-import { SideModalForm } from 'app/components/form'
-import { useForm, useVpcSelector } from 'app/hooks'
+import { SideModalForm } from '~/components/form/SideModalForm'
+import { useForm, useVpcSelector } from '~/hooks'
 
 import {
   CommonFields,
@@ -65,9 +65,9 @@ export function EditFirewallRuleForm({
 
   return (
     <SideModalForm
-      id="create-firewall-rule-form"
-      title="Edit rule"
       form={form}
+      formType="edit"
+      resourceName="rule"
       onDismiss={onDismiss}
       onSubmit={(values) => {
         // note different filter logic from create: filter out the rule with the
@@ -86,7 +86,6 @@ export function EditFirewallRuleForm({
       // validateOnBlur
       loading={updateRules.isPending}
       submitError={updateRules.error}
-      submitLabel="Update rule"
     >
       <CommonFields error={updateRules.error} control={form.control} />
     </SideModalForm>

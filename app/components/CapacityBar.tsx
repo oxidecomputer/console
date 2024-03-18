@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { splitDecimal } from '@oxide/util'
+import { splitDecimal } from '~/util/math'
 
 export const CapacityBar = ({
   icon,
@@ -43,8 +43,8 @@ export const CapacityBar = ({
           <span className="ml-1 !normal-case text-mono-sm text-quaternary">({unit})</span>
         </div>
         <div className="flex -translate-y-0.5 items-baseline">
-          <div className="font-light text-sans-2xl">{wholeNumber.toLocaleString()}</div>
-          <div className="text-sans-xl text-quaternary">{decimal || ''}%</div>
+          <div className="font-light text-sans-2xl">{wholeNumber}</div>
+          <div className="text-sans-xl text-quaternary">{decimal}%</div>
         </div>
       </div>
       <div className="p-3 pt-1">

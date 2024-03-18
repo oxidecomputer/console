@@ -8,22 +8,21 @@
 import type { Placement } from '@floating-ui/react'
 import { format } from 'date-fns'
 
-import { Tooltip } from '@oxide/ui'
-
-import { timeAgoAbbr } from 'app/util/date'
+import { Tooltip } from '~/ui/lib/Tooltip'
+import { timeAgoAbbr } from '~/util/date'
 
 export const TimeAgo = ({
   datetime,
-  description,
+  tooltipText,
   placement = 'top',
 }: {
   datetime: Date
-  description?: string
+  tooltipText?: string
   placement?: Placement
 }): JSX.Element => {
   const content = (
     <div className="flex flex-col">
-      <span className="text-tertiary">{description}</span>
+      <span className="text-tertiary">{tooltipText}</span>
       <span>{format(datetime, 'MMM d, yyyy p')}</span>
     </div>
   )

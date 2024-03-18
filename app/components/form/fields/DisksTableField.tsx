@@ -9,12 +9,16 @@ import { useState } from 'react'
 import { useController, type Control } from 'react-hook-form'
 
 import type { DiskCreate } from '@oxide/api'
-import { Badge, Button, Error16Icon, FieldLabel, MiniTable } from '@oxide/ui'
-import { bytesToGiB } from '@oxide/util'
+import { Error16Icon } from '@oxide/design-system/icons/react'
 
-import AttachDiskSideModalForm from 'app/forms/disk-attach'
-import { CreateDiskSideModalForm } from 'app/forms/disk-create'
-import type { InstanceCreateInput } from 'app/forms/instance-create'
+import { AttachDiskSideModalForm } from '~/forms/disk-attach'
+import { CreateDiskSideModalForm } from '~/forms/disk-create'
+import type { InstanceCreateInput } from '~/forms/instance-create'
+import { Badge } from '~/ui/lib/Badge'
+import { Button } from '~/ui/lib/Button'
+import { FieldLabel } from '~/ui/lib/FieldLabel'
+import * as MiniTable from '~/ui/lib/MiniTable'
+import { bytesToGiB } from '~/util/units'
 
 export type DiskTableItem =
   | (DiskCreate & { type: 'create' })
@@ -24,7 +28,13 @@ export type DiskTableItem =
  * Designed less for reuse, more to encapsulate logic that would otherwise
  * clutter the instance create form.
  */
-export function DisksTableField({ control }: { control: Control<InstanceCreateInput> }) {
+export function DisksTableField({
+  control,
+  disabled,
+}: {
+  control: Control<InstanceCreateInput>
+  disabled: boolean
+}) {
   const [showDiskCreate, setShowDiskCreate] = useState(false)
   const [showDiskAttach, setShowDiskAttach] = useState(false)
 
@@ -81,10 +91,15 @@ export function DisksTableField({ control }: { control: Control<InstanceCreateIn
         )}
 
         <div className="space-x-3">
-          <Button size="sm" onClick={() => setShowDiskCreate(true)}>
+          <Button size="sm" onClick={() => setShowDiskCreate(true)} disabled={disabled}>
             Create new disk
           </Button>
-          <Button variant="ghost" size="sm" onClick={() => setShowDiskAttach(true)}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowDiskAttach(true)}
+            disabled={disabled}
+          >
             Attach existing disk
           </Button>
         </div>

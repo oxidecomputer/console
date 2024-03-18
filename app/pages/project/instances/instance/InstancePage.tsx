@@ -6,33 +6,68 @@
  * Copyright Oxide Computer Company
  */
 import { format } from 'date-fns'
-import filesize from 'filesize'
+import { filesize } from 'filesize'
 import { useMemo } from 'react'
-import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
+import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
-import { apiQueryClient, useApiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import {
-  Instances24Icon,
-  PageHeader,
-  PageTitle,
-  PropertiesTable,
-  Truncate,
-} from '@oxide/ui'
+  apiQueryClient,
+  useApiQuery,
+  useApiQueryClient,
+  usePrefetchedApiQuery,
+  type InstanceNetworkInterface,
+} from '@oxide/api'
+import { Instances24Icon } from '@oxide/design-system/icons/react'
 
-import { MoreActionsMenu } from 'app/components/MoreActionsMenu'
-import { RouteTabs, Tab } from 'app/components/RouteTabs'
-import { InstanceStatusBadge } from 'app/components/StatusBadge'
-import { getInstanceSelector, useInstanceSelector, useQuickActions } from 'app/hooks'
-import { pb } from 'app/util/path-builder'
+import { ExternalIps } from '~/components/ExternalIps'
+import { MoreActionsMenu } from '~/components/MoreActionsMenu'
+import { RouteTabs, Tab } from '~/components/RouteTabs'
+import { InstanceStatusBadge } from '~/components/StatusBadge'
+import { getInstanceSelector, useInstanceSelector, useQuickActions } from '~/hooks'
+import { EmptyCell } from '~/table/cells/EmptyCell'
+import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
+import { PropertiesTable } from '~/ui/lib/PropertiesTable'
+import { Truncate } from '~/ui/lib/Truncate'
+import { pb } from '~/util/path-builder'
 
 import { useMakeInstanceActions } from '../actions'
 
+function getPrimaryVpcId(nics: InstanceNetworkInterface[]) {
+  const nic = nics.find((nic) => nic.primary)
+  return nic ? nic.vpcId : undefined
+}
+
 InstancePage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project, instance } = getInstanceSelector(params)
-  await apiQueryClient.prefetchQuery('instanceView', {
-    path: { instance },
-    query: { project },
-  })
+  await Promise.all([
+    apiQueryClient.prefetchQuery('instanceView', {
+      path: { instance },
+      query: { project },
+    }),
+    apiQueryClient.prefetchQuery('instanceExternalIpList', {
+      path: { instance },
+      query: { project },
+    }),
+    // The VPC fetch here ensures that the VPC shows up at pageload time without
+    // a loading state. This is an unusual prefetch in that
+    //
+    //   a) one call depends on the result of another, so they are in sequence
+    //   b) the corresponding render-time query is not right next to the loader
+    //      (which is what we usually prefer) but inside VpcNameFromId
+    //
+    // Using .then() like this instead of doing the NICs call before the
+    // entire Promise.all() means this whole *pair* of requests can happen in
+    // parallel with the other two instead of only the second one.
+    apiQueryClient
+      .fetchQuery('instanceNetworkInterfaceList', {
+        query: { project, instance },
+      })
+      .then((nics) => {
+        const vpc = getPrimaryVpcId(nics.items)
+        if (!vpc) return Promise.resolve()
+        return apiQueryClient.prefetchQuery('vpcView', { path: { vpc } })
+      }),
+  ])
   return null
 }
 
@@ -53,6 +88,23 @@ export function InstancePage() {
     path: { instance: instanceSelector.instance },
     query: { project: instanceSelector.project },
   })
+
+  const { data: nics } = usePrefetchedApiQuery('instanceNetworkInterfaceList', {
+    query: {
+      project: instanceSelector.project,
+      instance: instanceSelector.instance,
+    },
+  })
+  const primaryVpcId = getPrimaryVpcId(nics.items)
+
+  // a little funny, as noted in the loader -- this should always be prefetched
+  // when primaryVpcId is defined, but primaryVpcId might not be defined, so
+  // we can't use usePrefetchedApiQuery
+  const { data: vpc } = useApiQuery(
+    'vpcView',
+    { path: { vpc: primaryVpcId! } },
+    { enabled: !!primaryVpcId }
+  )
 
   const actions = useMemo(
     () => [
@@ -100,6 +152,18 @@ export function InstancePage() {
           <PropertiesTable.Row label="status">
             <InstanceStatusBadge status={instance.runState} />
           </PropertiesTable.Row>
+          <PropertiesTable.Row label="vpc">
+            {vpc ? (
+              <Link
+                className="link-with-underline group text-sans-semi-md"
+                to={pb.vpc({ project: instanceSelector.project, vpc: vpc.name })}
+              >
+                {vpc.name}
+              </Link>
+            ) : (
+              <EmptyCell />
+            )}
+          </PropertiesTable.Row>
         </PropertiesTable>
         <PropertiesTable>
           <PropertiesTable.Row label="description">
@@ -107,9 +171,6 @@ export function InstancePage() {
               <Truncate text={instance.description} maxLength={40} />
             </span>
           </PropertiesTable.Row>
-          {/* <PropertiesTable.Row label="dns name">
-            <span className="text-secondary">{instance.hostname || '–'}</span>
-          </PropertiesTable.Row> */}
           <PropertiesTable.Row label="created">
             <span className="text-secondary">
               {format(instance.timeCreated, 'MMM d, yyyy')}{' '}
@@ -122,6 +183,9 @@ export function InstancePage() {
             <span className="overflow-hidden text-ellipsis whitespace-nowrap text-secondary">
               {instance.id}
             </span>
+          </PropertiesTable.Row>
+          <PropertiesTable.Row label="external IP">
+            {<ExternalIps {...instanceSelector} />}
           </PropertiesTable.Row>
         </PropertiesTable>
       </PropertiesTable.Group>

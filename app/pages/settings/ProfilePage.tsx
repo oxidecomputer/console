@@ -5,13 +5,16 @@
  *
  * Copyright Oxide Computer Company
  */
-import type { Group } from '@oxide/api'
-import { createColumnHelper, Table, useReactTable } from '@oxide/table'
-import { Settings24Icon } from '@oxide/ui'
+import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 
-import { FullPageForm, TextField } from 'app/components/form'
-import { useForm } from 'app/hooks'
-import { useCurrentUser } from 'app/layouts/AuthenticatedLayout'
+import type { Group } from '@oxide/api'
+import { Settings24Icon } from '@oxide/design-system/icons/react'
+
+import { TextField } from '~/components/form/fields/TextField'
+import { FullPageForm } from '~/components/form/FullPageForm'
+import { useForm } from '~/hooks'
+import { useCurrentUser } from '~/layouts/AuthenticatedLayout'
+import { Table } from '~/table/Table'
 
 const colHelper = createColumnHelper<Group>()
 
@@ -23,7 +26,11 @@ const columns = [
 export function ProfilePage() {
   const { me, myGroups } = useCurrentUser()
 
-  const groupsTable = useReactTable({ columns, data: myGroups.items })
+  const groupsTable = useReactTable({
+    columns,
+    data: myGroups.items,
+    getCoreRowModel: getCoreRowModel(),
+  })
 
   const form = useForm({
     defaultValues: {

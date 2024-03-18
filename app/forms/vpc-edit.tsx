@@ -14,9 +14,11 @@ import {
   usePrefetchedApiQuery,
 } from '@oxide/api'
 
-import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
-import { getVpcSelector, useForm, useToast, useVpcSelector } from 'app/hooks'
-import { pb } from 'app/util/path-builder'
+import { DescriptionField } from '~/components/form/fields/DescriptionField'
+import { NameField } from '~/components/form/fields/NameField'
+import { SideModalForm } from '~/components/form/SideModalForm'
+import { getVpcSelector, useForm, useToast, useVpcSelector } from '~/hooks'
+import { pb } from '~/util/path-builder'
 
 EditVpcSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project, vpc } = getVpcSelector(params)
@@ -54,9 +56,9 @@ export function EditVpcSideModalForm() {
 
   return (
     <SideModalForm
-      id="edit-vpc-form"
-      title="Edit VPC"
       form={form}
+      formType="edit"
+      resourceName="VPC"
       onDismiss={onDismiss}
       onSubmit={({ name, description, dnsName }) => {
         editVpc.mutate({
@@ -66,7 +68,6 @@ export function EditVpcSideModalForm() {
         })
       }}
       loading={editVpc.isPending}
-      submitLabel="Save changes"
       submitError={editVpc.error}
     >
       <NameField name="name" control={form.control} />
