@@ -71,7 +71,7 @@ export type InstanceCreateInput = Assign<
     bootDiskName: string
     bootDiskSize: number
     bootDiskSourceType: 'disk' | 'image'
-    bootDiskSource: string | undefined
+    bootDiskSource: string
     userData: File | null
     // ssh keys are always specified. we do not need the undefined case
     sshPublicKeys: NonNullable<InstanceCreate['sshPublicKeys']>
@@ -93,7 +93,7 @@ const baseDefaultValues: InstanceCreateInput = {
   bootDiskName: '',
   bootDiskSize: 10,
 
-  bootDiskSource: undefined,
+  bootDiskSource: '',
   bootDiskSourceType: 'image',
 
   disks: [],
@@ -373,7 +373,6 @@ export function CreateInstanceForm() {
             'bootDiskSourceType',
             val === 'silo' || val === 'project' ? 'image' : 'disk'
           )
-          setValue('bootDiskSource', undefined)
         }}
       >
         <Tabs.List aria-describedby="boot-disk">
