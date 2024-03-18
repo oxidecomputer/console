@@ -12,6 +12,7 @@ import { Link, Outlet, useNavigate } from 'react-router-dom'
 import {
   apiQueryClient,
   useApiMutation,
+  useApiQuery,
   usePrefetchedApiQuery,
   type IpPool,
 } from '@oxide/api'
@@ -20,11 +21,14 @@ import { Networking24Icon } from '@oxide/design-system/icons/react'
 import { useQuickActions } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { DateCell } from '~/table/cells/DateCell'
+import { EmptyCell, SkeletonCell } from '~/table/cells/EmptyCell'
 import { linkCell } from '~/table/cells/LinkCell'
 import type { MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
+import { Badge } from '~/ui/lib/Badge'
 import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { displayBigNum } from '~/util/math'
 import { pb } from '~/util/path-builder'
 
 const EmptyState = () => (
@@ -36,6 +40,41 @@ const EmptyState = () => (
     buttonTo={pb.ipPoolsNew()}
   />
 )
+
+type IpLineProps = {
+  v: 4 | 6
+  allocated: number | bigint
+  capacity: number | bigint
+}
+
+const IpLine = ({ v, allocated, capacity }: IpLineProps) => (
+  <div>
+    <Badge color="neutral" className="mr-2">
+      v{v}
+    </Badge>
+    {capacity > 0 ? (
+      <>
+        {displayBigNum(allocated)} / {displayBigNum(capacity)}
+      </>
+    ) : (
+      <EmptyCell />
+    )}
+  </div>
+)
+
+function IpPoolUtilizationCell({ pool }: { pool: string }) {
+  const { data } = useApiQuery('ipPoolUtilizationView', { path: { pool } })
+
+  if (!data) return <SkeletonCell />
+
+  const { ipv4, ipv6 } = data
+  return (
+    <div className="space-y-1">
+      <IpLine v={4} allocated={ipv4.allocated} capacity={ipv4.capacity} />
+      <IpLine v={6} allocated={BigInt(ipv6.allocated)} capacity={BigInt(ipv6.capacity)} />
+    </div>
+  )
+}
 
 IpPoolsTab.loader = async function () {
   await apiQueryClient.prefetchQuery('ipPoolList', { query: { limit: 25 } })
@@ -99,6 +138,12 @@ export function IpPoolsTab() {
       <Table emptyState={<EmptyState />} makeActions={makeActions}>
         <Column accessor="name" cell={linkCell((pool) => pb.ipPool({ pool }))} />
         <Column accessor="description" />
+        <Column
+          accessor="name"
+          id="Utilization"
+          header="Utilization"
+          cell={({ value }) => <IpPoolUtilizationCell pool={value} />}
+        />
         <Column accessor="timeCreated" header="Created" cell={DateCell} />
       </Table>
       <Outlet />

@@ -39,3 +39,20 @@ export function round(num: number, digits: number) {
   })
   return Number(nf.format(num))
 }
+
+export function displayBigNum(num: bigint | number) {
+  const eng = Intl.NumberFormat(navigator.language, {
+    notation: 'engineering',
+    maximumFractionDigits: 1,
+  })
+  const compact = Intl.NumberFormat(navigator.language, {
+    notation: 'compact',
+    maximumFractionDigits: 1,
+  })
+
+  return num <= 1000000
+    ? num.toLocaleString()
+    : num < 1e15 // this the threshold where compact stops using nice letters. see tests
+      ? compact.format(num)
+      : eng.format(num)
+}

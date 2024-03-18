@@ -20,8 +20,9 @@ import {
 } from '@oxide/api'
 
 import { json, makeHandlers, type Json } from '~/api/__generated__/msw-handlers'
-import { sortBy } from '~/util/array'
+import { partitionBy, sortBy } from '~/util/array'
 import { pick } from '~/util/object'
+import { validateIp } from '~/util/str'
 import { GiB } from '~/util/units'
 
 import { genCumulativeI64Data } from '../metrics'
@@ -616,10 +617,22 @@ export const handlers = makeHandlers({
     return json(instance, { status: 202 })
   },
   ipPoolList: ({ query }) => paginated(query, db.ipPools),
-  ipPoolUtilizationView() {
+  ipPoolUtilizationView({ path }) {
+    const pool = lookup.ipPool(path)
+    const ranges = db.ipPoolRanges
+      .filter((r) => r.ip_pool_id === pool.id)
+      .map((r) => r.range)
+    const [ipv4Ranges, ipv6Ranges] = partitionBy(ranges, (r) => validateIp(r.first).isv4)
+    console.log(ipv4Ranges, ipv6Ranges)
+
     return {
-      ipv4: { allocated: 0, capacity: 0 },
-      ipv6: { allocated: '0', capacity: '0' },
+      ipv4: { allocated: 5, capacity: 20 },
+      ipv6: {
+        allocated: Math.floor(Math.random() * 1e8).toString(),
+        capacity: (
+          BigInt(Math.floor(Math.random() * 1e6)) ** BigInt(Math.floor(Math.random() * 7))
+        ).toString(),
+      },
     }
   },
   siloIpPoolList({ path, query }) {

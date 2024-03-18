@@ -7,7 +7,7 @@
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
-import { round, splitDecimal } from './math'
+import { displayBigNum, round, splitDecimal } from './math'
 import { GiB } from './units'
 
 function roundTest() {
@@ -59,6 +59,20 @@ describe('with default locale', () => {
   ])('splitDecimal %d -> %s', (input, output) => {
     expect(splitDecimal(input)).toEqual(output)
   })
+
+  it.each([
+    [0n, '0'],
+    [1n, '1'],
+    [155n, '155'],
+    [999999n, '999,999'],
+    [9999999n, '10M'],
+    [492038458320n, '492B'],
+    [894283412938921, '894.3T'],
+    [1293859032098219, '1.3E15'],
+    [23094304823948203952304920342n, '23.1E27'],
+  ])('displayBigNum %d -> %s', (input, output) => {
+    expect(displayBigNum(input)).toEqual(output)
+  })
 })
 
 describe('with de-DE locale', () => {
@@ -98,6 +112,20 @@ describe('with de-DE locale', () => {
 
   // rounding must work the same irrespective of locale
   it('round', roundTest)
+
+  it.each([
+    [0n, '0'],
+    [1n, '1'],
+    [155n, '155'],
+    [999999n, '999,999'],
+    [9999999n, '10 Mio.'], // note non-breaking space
+    [492038458320n, '492 Mrd.'], // note non-breaking space
+    [894283412938921, '894,3 Bio.'],
+    [1293859032098219, '1,3E15'],
+    [23094304823948203952304920342n, '23,1E27'],
+  ])('displayBigNum %d -> %s', (input, output) => {
+    expect(displayBigNum(input)).toEqual(output)
+  })
 
   afterAll(() => {
     Object.defineProperty(global.navigator, 'language', {
