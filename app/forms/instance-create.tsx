@@ -13,15 +13,22 @@ import type { SetRequired } from 'type-fest'
 
 import {
   apiQueryClient,
+  diskCan,
   genName,
   INSTANCE_MAX_CPU,
   INSTANCE_MAX_RAM_GiB,
   useApiMutation,
+  useApiQuery,
   useApiQueryClient,
   usePrefetchedApiQuery,
   type InstanceCreate,
+  type PathParams as PP,
 } from '@oxide/api'
-import { Images16Icon, Instances24Icon } from '@oxide/design-system/icons/react'
+import {
+  Images16Icon,
+  Instances24Icon,
+  Storage16Icon,
+} from '@oxide/design-system/icons/react'
 
 import { AccordionItem } from '~/components/AccordionItem'
 import { CheckboxField } from '~/components/form/fields/CheckboxField'
@@ -32,7 +39,8 @@ import {
   type DiskTableItem,
 } from '~/components/form/fields/DisksTableField'
 import { FileField } from '~/components/form/fields/FileField'
-import { ImageSelectField } from '~/components/form/fields/ImageSelectField'
+import { BootDiskImageSelectField as ImageSelectField } from '~/components/form/fields/ImageSelectField'
+import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
 import { NetworkInterfaceField } from '~/components/form/fields/NetworkInterfaceField'
 import { NumberField } from '~/components/form/fields/NumberField'
@@ -62,7 +70,8 @@ export type InstanceCreateInput = Assign<
     disks: DiskTableItem[]
     bootDiskName: string
     bootDiskSize: number
-    image: string
+    bootDiskSourceType: 'disk' | 'image'
+    bootDiskSource: string | undefined
     userData: File | null
     // ssh keys are always specified. we do not need the undefined case
     sshPublicKeys: NonNullable<InstanceCreate['sshPublicKeys']>
@@ -83,7 +92,9 @@ const baseDefaultValues: InstanceCreateInput = {
 
   bootDiskName: '',
   bootDiskSize: 10,
-  image: '',
+
+  bootDiskSource: undefined,
+  bootDiskSourceType: 'image',
 
   disks: [],
   networkInterfaces: { type: 'default' },
@@ -95,11 +106,23 @@ const baseDefaultValues: InstanceCreateInput = {
   userData: null,
 }
 
+const useBootDiskItems = (projectSelector: PP.Project) => {
+  const { data: disks } = useApiQuery('diskList', {
+    query: { ...projectSelector, limit: 1000 },
+  })
+  return (
+    disks?.items
+      .filter(diskCan.attach)
+      .map((disk) => ({ value: disk.name, label: disk.name })) || []
+  )
+}
+
 CreateInstanceForm.loader = async ({ params }: LoaderFunctionArgs) => {
   await Promise.all([
     // fetch both project and silo images
     apiQueryClient.prefetchQuery('imageList', { query: getProjectSelector(params) }),
     apiQueryClient.prefetchQuery('imageList', {}),
+    apiQueryClient.prefetchQuery('diskList', {}),
     apiQueryClient.prefetchQuery('currentUserSshKeyList', {}),
   ])
   return null
@@ -134,12 +157,14 @@ export function CreateInstanceForm() {
 
   const defaultImage = allImages[0]
 
+  const disks = useBootDiskItems(projectSelector)
+
   const { data: sshKeys } = usePrefetchedApiQuery('currentUserSshKeyList', {})
   const allKeys = useMemo(() => sshKeys.items.map((key) => key.id), [sshKeys])
 
   const defaultValues: InstanceCreateInput = {
     ...baseDefaultValues,
-    image: defaultImage?.id || '',
+    bootDiskSource: defaultImage?.id || '',
     sshPublicKeys: allKeys,
     // Use 2x the image size as the default boot disk size
     bootDiskSize: Math.ceil(defaultImage?.size / GiB) * 2 || 10,
@@ -148,9 +173,11 @@ export function CreateInstanceForm() {
   const form = useForm({ defaultValues })
   const { control, setValue } = form
 
-  const imageInput = useWatch({ control: control, name: 'image' })
+  const imageInput = useWatch({ control: control, name: 'bootDiskSource' })
   const image = allImages.find((i) => i.id === imageInput)
   const imageSize = image?.size ? Math.ceil(image.size / GiB) : undefined
+
+  const sourceType = useWatch({ control: control, name: 'bootDiskSourceType' })
 
   useEffect(() => {
     if (createInstance.error) {
@@ -173,13 +200,34 @@ export function CreateInstanceForm() {
           values.presetId === 'custom'
             ? { memory: values.memory, ncpus: values.ncpus }
             : { memory: preset.memory, ncpus: preset.ncpus }
-        const image = allImages.find((i) => values.image === i.id)
-        // There should always be an image present, because …
-        // - The form is disabled unless there are images available.
-        // - The form defaults to including at least one image.
-        invariant(image, 'Expected image to be defined')
 
-        const bootDiskName = values.bootDiskName || genName(values.name, image.name)
+        const isDisk = values.bootDiskSourceType === 'disk'
+        const image = !isDisk && allImages.find((i) => values.bootDiskSource === i.id)
+
+        // There should always be an image or disk present, because …
+        // - The form is disabled unless there are images or disks available.
+        // - The form defaults to including at least one image.
+        invariant(
+          (image && values.bootDiskSize) || (isDisk && values.bootDiskSource),
+          'Expected boot disk to be defined'
+        )
+
+        const bootDisk = image
+          ? {
+              type: 'create' as const,
+              // TODO: Determine the pattern of the default boot disk name
+              name: values.bootDiskName || genName(values.name, image.name),
+              description: `Created as a boot disk for ${values.name}`,
+
+              // Minimum size as greater than the image is validated
+              // directly on the boot disk size input
+              size: values.bootDiskSize * GiB,
+              diskSource: {
+                type: 'image' as const,
+                imageId: values.bootDiskSource,
+              },
+            }
+          : { type: 'attach' as const, name: values.bootDiskSource }
 
         const userData = values.userData
           ? await readBlobAsBase64(values.userData)
@@ -193,23 +241,7 @@ export function CreateInstanceForm() {
             description: values.description,
             memory: instance.memory * GiB,
             ncpus: instance.ncpus,
-            disks: [
-              {
-                type: 'create',
-                // TODO: Determine the pattern of the default boot disk name
-                name: bootDiskName,
-                description: `Created as a boot disk for ${values.name}`,
-
-                // Minimum size as greater than the image is validated
-                // directly on the boot disk size input
-                size: values.bootDiskSize * GiB,
-                diskSource: {
-                  type: 'image',
-                  imageId: values.image,
-                },
-              },
-              ...values.disks,
-            ],
+            disks: [bootDisk, ...values.disks],
             externalIps: [{ type: 'ephemeral' }],
             start: values.start,
             networkInterfaces: values.networkInterfaces,
@@ -334,8 +366,15 @@ export function CreateInstanceForm() {
         className="full-width"
         // default to the project images tab if there are only project images
         defaultValue={
-          projectImages.length > 0 && siloImages.length === 0 ? 'project' : 'silo'
+          siloImages.length > 0 ? 'silo' : projectImages.length > 0 ? 'project' : 'disk'
         }
+        onValueChange={(val) => {
+          setValue(
+            'bootDiskSourceType',
+            val === 'silo' || val === 'project' ? 'image' : 'disk'
+          )
+          setValue('bootDiskSource', undefined)
+        }}
       >
         <Tabs.List aria-describedby="boot-disk">
           <Tabs.Trigger value="silo" disabled={isSubmitting}>
@@ -344,12 +383,15 @@ export function CreateInstanceForm() {
           <Tabs.Trigger value="project" disabled={isSubmitting}>
             Project images
           </Tabs.Trigger>
+          <Tabs.Trigger value="disk" disabled={isSubmitting}>
+            Disks
+          </Tabs.Trigger>
         </Tabs.List>
-        {allImages.length === 0 && (
+        {allImages.length === 0 && disks.length === 0 && (
           <Message
             className="mb-8 ml-10 max-w-lg"
             variant="notice"
-            content="Images are required to create a boot disk."
+            content="Images or disks are required to create a boot disk."
           />
         )}
         <Tabs.Content value="silo" className="space-y-4">
@@ -388,29 +430,56 @@ export function CreateInstanceForm() {
             />
           )}
         </Tabs.Content>
+
+        <Tabs.Content value="disk" className="space-y-4">
+          {disks.length === 0 ? (
+            <div className="flex max-w-lg items-center justify-center rounded-lg border p-6 border-default">
+              <EmptyMessage
+                icon={<Storage16Icon />}
+                title="No disks found"
+                body="A disk needs to be created to be used as a boot disk"
+              />
+            </div>
+          ) : (
+            <ListboxField
+              label="Disk"
+              name="bootDiskSource"
+              items={disks}
+              required
+              control={control}
+            />
+          )}
+        </Tabs.Content>
       </Tabs.Root>
 
-      <div className="!my-16 content-['a']"></div>
+      {sourceType === 'image' && (
+        <>
+          <div key="divider" className="!my-12 content-['a']" />
 
-      <DiskSizeField
-        label="Disk size"
-        name="bootDiskSize"
-        control={control}
-        validate={(diskSizeGiB: number) => {
-          if (imageSize && diskSizeGiB < imageSize) {
-            return `Must be as large as selected image (min. ${imageSize} GiB)`
-          }
-        }}
-        disabled={isSubmitting}
-      />
-      <NameField
-        name="bootDiskName"
-        label="Disk name"
-        tooltipText="Will be autogenerated if name not provided"
-        required={false}
-        control={control}
-        disabled={isSubmitting}
-      />
+          <DiskSizeField
+            key="diskSizeField"
+            label="Disk size"
+            name="bootDiskSize"
+            control={control}
+            validate={(diskSizeGiB: number) => {
+              if (imageSize && diskSizeGiB < imageSize) {
+                return `Must be as large as selected image (min. ${imageSize} GiB)`
+              }
+            }}
+            disabled={isSubmitting}
+          />
+          <NameField
+            key="bootDiskName"
+            name="bootDiskName"
+            label="Disk name"
+            tooltipText="Will be autogenerated if name not provided"
+            required={false}
+            control={control}
+            disabled={isSubmitting}
+          />
+        </>
+      )}
+
       <FormDivider />
       <Form.Heading id="additional-disks">Additional disks</Form.Heading>
 
