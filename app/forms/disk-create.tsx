@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { format } from 'date-fns'
-import fileSize from 'filesize'
+import { filesize } from 'filesize'
 import { useMemo } from 'react'
 import { useController, type Control } from 'react-hook-form'
 import { useNavigate, type NavigateFunction } from 'react-router-dom'
@@ -252,7 +252,7 @@ const SnapshotSelectField = ({ control }: { control: Control<DiskCreate> }) => {
       label="Source snapshot"
       placeholder="Select a snapshot"
       items={snapshots.map((i) => {
-        const formattedSize = fileSize(i.size, { base: 2, output: 'object' })
+        const formattedSize = filesize(i.size, { base: 2, output: 'object' })
         return {
           value: i.id,
           labelString: `${i.name}`,
