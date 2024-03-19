@@ -33,11 +33,12 @@ import { LinkCell } from '~/table/cells/LinkCell'
 import type { MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
 import { Badge } from '~/ui/lib/Badge'
-import { Button, buttonStyle } from '~/ui/lib/Button'
+import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
+import { TableControls, TableControlsButton, TableControlsText } from '~/ui/lib/Table'
 import { Tabs } from '~/ui/lib/Tabs'
 import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
@@ -216,18 +217,18 @@ function LinkedSilosTable() {
 
   return (
     <>
-      <div className="mb-4 flex items-end justify-between space-x-2">
-        <p className="mr-8 max-w-2xl text-sans-md text-secondary">
+      <TableControls>
+        <TableControlsText>
           Users in linked silos can allocate external IPs from this pool for their
           instances. A silo can have at most one default pool. IPs are allocated from the
           default pool when users ask for one without specifying a pool. Read the docs to
           learn more about{' '}
           <ExternalLink href={links.ipPoolsDocs}>managing IP pools</ExternalLink>.
-        </p>
-        <Button onClick={() => setShowLinkModal(true)} size="sm" className="shrink-0">
+        </TableControlsText>
+        <TableControlsButton onClick={() => setShowLinkModal(true)}>
           Link silo
-        </Button>
-      </div>
+        </TableControlsButton>
+      </TableControls>
       <Table emptyState={emptyState} makeActions={makeActions}>
         <Column accessor="siloId" id="Silo" cell={SiloNameFromId} />
         <Column

@@ -7,7 +7,7 @@
  */
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Link, Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
+import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
   apiQueryClient,
@@ -19,6 +19,7 @@ import {
 } from '@oxide/api'
 import { IpGlobal24Icon, Networking24Icon } from '@oxide/design-system/icons/react'
 
+import { ExternalLink } from '~/components/ExternalLink'
 import { HL } from '~/components/HL'
 import { getProjectSelector, useProjectSelector } from '~/hooks'
 import { confirmAction } from '~/stores/confirm-action'
@@ -27,13 +28,13 @@ import { addToast } from '~/stores/toast'
 import { InstanceLinkCell } from '~/table/cells/InstanceLinkCell'
 import type { MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
-import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Listbox } from '~/ui/lib/Listbox'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
-import { TableActions } from '~/ui/lib/Table'
+import { TableControls, TableControlsLink, TableControlsText } from '~/ui/lib/Table'
+import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 const EmptyState = () => (
@@ -161,11 +162,16 @@ export function FloatingIpsPage() {
       <PageHeader>
         <PageTitle icon={<IpGlobal24Icon />}>Floating IPs</PageTitle>
       </PageHeader>
-      <TableActions>
-        <Link to={pb.floatingIpsNew({ project })} className={buttonStyle({ size: 'sm' })}>
+      <TableControls>
+        <TableControlsText>
+          Floating IPs are public IP addresses that can be attached to instances. They allow
+          your instances to be reachable from the internet. Find out more about{' '}
+          <ExternalLink href={links.floatingIpsDocs}>managing floating IPs</ExternalLink>.
+        </TableControlsText>
+        <TableControlsLink to={pb.floatingIpsNew({ project })}>
           New Floating IP
-        </Link>
-      </TableActions>
+        </TableControlsLink>
+      </TableControls>
       <Table emptyState={<EmptyState />} makeActions={makeActions}>
         <Column accessor="name" />
         <Column accessor="description" />

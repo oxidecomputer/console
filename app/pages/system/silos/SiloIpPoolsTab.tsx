@@ -21,10 +21,10 @@ import { linkCell } from '~/table/cells/LinkCell'
 import type { MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
 import { Badge } from '~/ui/lib/Badge'
-import { Button } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
+import { TableControls, TableControlsButton, TableControlsText } from '~/ui/lib/Table'
 import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
@@ -144,17 +144,17 @@ export function SiloIpPoolsTab() {
 
   return (
     <>
-      <div className="mb-8 flex items-end justify-between space-x-2">
-        <p className="mr-8 max-w-2xl text-sans-md text-secondary">
+      <TableControls>
+        <TableControlsText>
           Users in this silo can allocate external IPs from these pools for their instances.
           A silo can have at most one default pool. IPs are allocated from the default pool
           when users ask for one without specifying a pool. Read the docs to learn more
           about <ExternalLink href={links.ipPoolsDocs}>managing IP pools</ExternalLink>.
-        </p>
-        <Button onClick={() => setShowLinkModal(true)} size="sm" className="shrink-0">
+        </TableControlsText>
+        <TableControlsButton onClick={() => setShowLinkModal(true)}>
           Link pool
-        </Button>
-      </div>
+        </TableControlsButton>
+      </TableControls>
       <Table emptyState={<EmptyState />} makeActions={makeActions}>
         <Column accessor="name" cell={linkCell((pool) => pb.ipPool({ pool }))} />
         <Column accessor="description" />
