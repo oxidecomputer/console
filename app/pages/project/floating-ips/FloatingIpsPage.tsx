@@ -33,7 +33,7 @@ import { Listbox } from '~/ui/lib/Listbox'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
-import { TableControls, TableControlsButton, TableControlsText } from '~/ui/lib/Table'
+import { TableControls, TableControlsLink, TableControlsText } from '~/ui/lib/Table'
 import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
@@ -168,9 +168,9 @@ export function FloatingIpsPage() {
           your instances to be reachable from the internet. Find out more about{' '}
           <ExternalLink href={links.floatingIpsDocs}>managing floating IPs</ExternalLink>.
         </TableControlsText>
-        <TableControlsButton onClick={() => navigate(pb.floatingIpsNew({ project }))}>
+        <TableControlsLink to={pb.floatingIpsNew({ project })}>
           New Floating IP
-        </TableControlsButton>
+        </TableControlsLink>
       </TableControls>
       <Table emptyState={<EmptyState />} makeActions={makeActions}>
         <Column accessor="name" />
