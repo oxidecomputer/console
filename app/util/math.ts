@@ -40,12 +40,15 @@ export function round(num: number, digits: number) {
   return Number(nf.format(num))
 }
 
+// a separate function because I wanted to test it with a bunch of locales
+// to make sure the toLowerCase thing is ok
+export const toEngNotation = (num: number | bigint, locale = navigator.language) =>
+  Intl.NumberFormat(locale, { notation: 'engineering', maximumFractionDigits: 1 })
+    .format(num)
+    .toLowerCase()
+
 /** Boolean represents whether the number was abbreviated */
 export function displayBigNum(num: bigint | number): [string, boolean] {
-  const eng = Intl.NumberFormat(navigator.language, {
-    notation: 'engineering',
-    maximumFractionDigits: 1,
-  })
   const compact = Intl.NumberFormat(navigator.language, {
     notation: 'compact',
     maximumFractionDigits: 1,
@@ -56,7 +59,7 @@ export function displayBigNum(num: bigint | number): [string, boolean] {
   const result = abbreviate
     ? num < 1e15 // this the threshold where compact stops using nice letters. see tests
       ? compact.format(num)
-      : eng.format(num)
+      : toEngNotation(num)
     : num.toLocaleString()
 
   return [result, abbreviate]

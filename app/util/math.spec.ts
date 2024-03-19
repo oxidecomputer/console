@@ -7,7 +7,7 @@
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
-import { displayBigNum, round, splitDecimal } from './math'
+import { displayBigNum, round, splitDecimal, toEngNotation } from './math'
 import { GiB } from './units'
 
 function roundTest() {
@@ -68,8 +68,8 @@ describe('with default locale', () => {
     [9999999n, ['10M', true]],
     [492038458320n, ['492B', true]],
     [894283412938921, ['894.3T', true]],
-    [1293859032098219, ['1.3E15', true]],
-    [23094304823948203952304920342n, ['23.1E27', true]],
+    [1293859032098219, ['1.3e15', true]],
+    [23094304823948203952304920342n, ['23.1e27', true]],
   ])('displayBigNum %d -> %s', (input, output) => {
     expect(displayBigNum(input)).toEqual(output)
   })
@@ -121,8 +121,8 @@ describe('with de-DE locale', () => {
     [9999999n, ['10 Mio.', true]], // note non-breaking space
     [492038458320n, ['492 Mrd.', true]], // note non-breaking space
     [894283412938921, ['894,3 Bio.', true]],
-    [1293859032098219, ['1,3E15', true]],
-    [23094304823948203952304920342n, ['23,1E27', true]],
+    [1293859032098219, ['1,3e15', true]],
+    [23094304823948203952304920342n, ['23,1e27', true]],
   ])('displayBigNum %d -> %s', (input, output) => {
     expect(displayBigNum(input)).toEqual(output)
   })
@@ -133,4 +133,40 @@ describe('with de-DE locale', () => {
       writable: true,
     })
   })
+})
+
+// the point of these tests is to make sure the toLowerCase shenanigan in
+// toEngNotation doesn't go horribly wrong due some obscure locale's concept of
+// engineering notation
+
+const n = 23094304823948203952304920342n
+
+it.each([
+  ['en-US'],
+  ['zh-CN'],
+  ['es-419'],
+  ['en-GB'],
+  ['ja-JP'],
+  ['en-CA'],
+  ['en-IN'],
+  ['ko-KR'],
+])('toEngNotation dots %s', (locale) => {
+  expect(toEngNotation(n, locale)).toEqual('23.1e27')
+})
+
+it.each([
+  ['es-ES'],
+  ['ru-RU'],
+  ['de-DE'],
+  ['fr-FR'],
+  ['pt-BR'],
+  ['fr-CA'],
+  ['it-IT'],
+  ['pl-PL'],
+  ['nl-NL'],
+  ['tr-TR'],
+  ['pt-PT'],
+  // ['ar-SA'], // saudi arabia, arabic script
+])('toEngNotation commas %s', (locale) => {
+  expect(toEngNotation(n, locale)).toEqual('23,1e27')
 })
