@@ -169,7 +169,7 @@ export function FloatingIpsPage() {
           <ExternalLink href={links.floatingIpsDocs}>managing floating IPs</ExternalLink>.
         </TableControlsText>
         <TableControlsButton onClick={() => navigate(pb.floatingIpsNew({ project }))}>
-          New floating IP
+          New Floating IP
         </TableControlsButton>
       </TableControls>
       <Table emptyState={<EmptyState />} makeActions={makeActions}>
