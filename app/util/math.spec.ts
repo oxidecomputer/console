@@ -61,15 +61,15 @@ describe('with default locale', () => {
   })
 
   it.each([
-    [0n, '0'],
-    [1n, '1'],
-    [155n, '155'],
-    [999999n, '999,999'],
-    [9999999n, '10M'],
-    [492038458320n, '492B'],
-    [894283412938921, '894.3T'],
-    [1293859032098219, '1.3E15'],
-    [23094304823948203952304920342n, '23.1E27'],
+    [0n, ['0', false]],
+    [1n, ['1', false]],
+    [155n, ['155', false]],
+    [999999n, ['999,999', false]],
+    [9999999n, ['10M', true]],
+    [492038458320n, ['492B', true]],
+    [894283412938921, ['894.3T', true]],
+    [1293859032098219, ['1.3E15', true]],
+    [23094304823948203952304920342n, ['23.1E27', true]],
   ])('displayBigNum %d -> %s', (input, output) => {
     expect(displayBigNum(input)).toEqual(output)
   })
@@ -114,15 +114,15 @@ describe('with de-DE locale', () => {
   it('round', roundTest)
 
   it.each([
-    [0n, '0'],
-    [1n, '1'],
-    [155n, '155'],
-    [999999n, '999,999'],
-    [9999999n, '10 Mio.'], // note non-breaking space
-    [492038458320n, '492 Mrd.'], // note non-breaking space
-    [894283412938921, '894,3 Bio.'],
-    [1293859032098219, '1,3E15'],
-    [23094304823948203952304920342n, '23,1E27'],
+    [0n, ['0', false]],
+    [1n, ['1', false]],
+    [155n, ['155', false]],
+    [999999n, ['999,999', false]],
+    [9999999n, ['10 Mio.', true]], // note non-breaking space
+    [492038458320n, ['492 Mrd.', true]], // note non-breaking space
+    [894283412938921, ['894,3 Bio.', true]],
+    [1293859032098219, ['1,3E15', true]],
+    [23094304823948203952304920342n, ['23,1E27', true]],
   ])('displayBigNum %d -> %s', (input, output) => {
     expect(displayBigNum(input)).toEqual(output)
   })

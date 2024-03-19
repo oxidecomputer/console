@@ -26,9 +26,9 @@ import { linkCell } from '~/table/cells/LinkCell'
 import type { MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
 import { Badge } from '~/ui/lib/Badge'
+import { BigNum } from '~/ui/lib/BigNum'
 import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
-import { displayBigNum } from '~/util/math'
 import { pb } from '~/util/path-builder'
 
 const EmptyState = () => (
@@ -47,20 +47,22 @@ type IpLineProps = {
   capacity: number | bigint
 }
 
-const IpLine = ({ v, allocated, capacity }: IpLineProps) => (
-  <div>
-    <Badge color="neutral" className="mr-2">
-      v{v}
-    </Badge>
-    {capacity > 0 ? (
-      <>
-        {displayBigNum(allocated)} / {displayBigNum(capacity)}
-      </>
-    ) : (
-      <EmptyCell />
-    )}
-  </div>
-)
+function IpLine({ v, allocated, capacity }: IpLineProps) {
+  return (
+    <div>
+      <Badge color="neutral" className="mr-2">
+        v{v}
+      </Badge>
+      {capacity > 0 ? (
+        <>
+          <BigNum num={allocated} /> / <BigNum num={capacity} />
+        </>
+      ) : (
+        <EmptyCell />
+      )}
+    </div>
+  )
+}
 
 function IpPoolUtilizationCell({ pool }: { pool: string }) {
   const { data } = useApiQuery('ipPoolUtilizationView', { path: { pool } })
