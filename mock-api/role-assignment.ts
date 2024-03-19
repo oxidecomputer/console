@@ -42,9 +42,7 @@ export const roleAssignments: DbRoleAssignment[] = [
     resource_id: defaultSilo.id,
     identity_id: userGroup3.id,
     identity_type: 'silo_group',
-    // right now, trying to get the inherited roles working; if it works, Jacob Klein should be an admin because of the inherited role
-    role_name: 'admin',
-    // role_name: 'collaborator',
+    role_name: 'collaborator',
   },
   {
     resource_type: 'silo',

@@ -53,11 +53,11 @@ export const ProjectAccessRolesCell = <
   )
 
   return (
-    <div className="flex items-baseline gap-1">
+    <div className="flex items-baseline gap-2">
       {effectiveRole}
       {siloRole && projectRole ? (
         <Tooltip content={alternateRole} placement="bottom">
-          <div>+1</div>
+          <div className="text-mono-sm">+1</div>
         </Tooltip>
       ) : undefined}
     </div>

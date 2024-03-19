@@ -326,8 +326,6 @@ export function userHasRole(
   resourceId: string,
   role: RoleKey
 ): boolean {
-  const memberships = db.groupMemberships
-  console.log({ memberships })
   const userGroupIds = db.groupMemberships
     .filter((gm) => gm.userId === user.id)
     .map((gm) => db.userGroups.find((g) => g.id === gm.groupId))
