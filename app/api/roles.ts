@@ -154,6 +154,8 @@ export function useActorsNotInPolicy(policy: Policy): Actor[] {
   }, [users, groups, policy])
 }
 
+// so we need to get the user's groups so we can feed them all into userRoleFromPolicies
+
 export function userRoleFromPolicies(
   user: { id: string },
   groups: { id: string }[],
@@ -164,5 +166,20 @@ export function userRoleFromPolicies(
     .flatMap((p) => p.roleAssignments) // concat all the role assignments together
     .filter((ra) => myIds.has(ra.identityId))
     .map((ra) => ra.roleName)
+  console.log({ myRoles })
   return getEffectiveRole(myRoles) || null
+}
+
+export function userRolesFromPolicies(
+  user: { id: string },
+  groups: { id: string }[],
+  policies: Policy[]
+): Array<RoleKey> | null {
+  const myIds = new Set([user.id, ...groups.map((g) => g.id)])
+  const myRoles = policies
+    .flatMap((p) => p.roleAssignments) // concat all the role assignments together
+    .filter((ra) => myIds.has(ra.identityId))
+    .map((ra) => ra.roleName)
+  console.log({ myRoles })
+  return myRoles || null
 }

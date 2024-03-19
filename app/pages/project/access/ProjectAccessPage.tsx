@@ -61,6 +61,10 @@ ProjectAccessPage.loader = async ({ params }: LoaderFunctionArgs) => {
     // used to resolve user names
     apiQueryClient.prefetchQuery('userList', {}),
     apiQueryClient.prefetchQuery('groupList', {}),
+    // prefetch silo permissions list
+    apiQueryClient.prefetchQuery('siloPolicyView', {
+      path: { silo: 'default' },
+    }),
   ])
   return null
 }
@@ -82,17 +86,38 @@ export function ProjectAccessPage() {
   const { project } = useProjectSelector()
 
   const { data: siloPolicy } = usePrefetchedApiQuery('policyView', {})
+  console.log({ siloPolicy })
   const siloRows = useUserRows(siloPolicy.roleAssignments, 'silo')
+  console.log({ siloRows })
 
   const { data: projectPolicy } = usePrefetchedApiQuery('projectPolicyView', {
     path: { project },
   })
   const projectRows = useUserRows(projectPolicy.roleAssignments, 'project')
+  console.log({ projectPolicy })
+
+  const { data: groups } = usePrefetchedApiQuery('groupList', {})
+  console.log({ groups })
+
+  const { data: users } = usePrefetchedApiQuery('userList', {})
+  console.log({ users })
+
+  // We want to get a list of all users and groups with either silo or project permissions
+  // and then merge them into a single list of users with their effective role.
+  // We have a list of all groups in "groups" … let's see which ones have silo or project permissions
+  console.log('------------------------------------------')
+  console.log('let’s see who has silo or project permissions')
+  console.log('project: ', projectPolicy.roleAssignments)
+  console.log('silo: ', siloPolicy.roleAssignments)
+  console.log('we also want to see all users who are members of these groups')
 
   const rows = useMemo(() => {
-    return groupBy(siloRows.concat(projectRows), (u) => u.id)
+    const allRows = siloRows.concat(projectRows)
+    console.log({ allRows })
+    return groupBy(allRows, (u) => u.id)
       .map(([userId, userAssignments]) => {
         const siloRole = userAssignments.find((a) => a.roleSource === 'silo')?.roleName
+        console.log({ siloRole })
         const projectRole = userAssignments.find(
           (a) => a.roleSource === 'project'
         )?.roleName

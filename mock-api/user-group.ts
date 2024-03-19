@@ -9,7 +9,7 @@ import type { Group } from '@oxide/api'
 
 import type { Json } from './json-type'
 import { defaultSilo } from './silo'
-import { user1, user2, user3 } from './user'
+import { user1, user2, user4 } from './user'
 
 export const userGroup1: Json<Group> = {
   id: '0ff6da96-5d6d-4326-b059-2b72c1b51457',
@@ -50,7 +50,7 @@ export const groupMemberships: GroupMembership[] = [
     groupId: userGroup3.id,
   },
   {
-    userId: user3.id,
+    userId: user4.id,
     groupId: userGroup3.id,
   },
 ]
