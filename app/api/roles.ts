@@ -154,8 +154,6 @@ export function useActorsNotInPolicy(policy: Policy): Actor[] {
   }, [users, groups, policy])
 }
 
-// so we need to get the user's groups so we can feed them all into userRoleFromPolicies
-
 export function userRoleFromPolicies(
   user: { id: string },
   groups: { id: string }[],

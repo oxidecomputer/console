@@ -9,9 +9,8 @@ import type { CellContext } from '@tanstack/react-table'
 
 import type { RoleKey } from '@oxide/api'
 
-import { Tooltip } from '~/ui/lib/Tooltip'
-
 import { AccessBadge } from './AccessBadge'
+import { ExpandedCountWithDetails } from './ExpandedCountWithDetails'
 
 /**
  * Highlight the "effective" role, providing a tooltip for the alternate role.
@@ -40,26 +39,19 @@ export const ProjectAccessRolesCell = <
 
   const effectiveRoleIsSiloRole = effectiveRoleString === siloRole
   const effectiveRole = effectiveRoleIsSiloRole ? formattedSiloRole : formattedProjectRole
-  const alternateRole = effectiveRoleIsSiloRole ? (
-    <div>
-      <div className="mb-2">Project role</div>
-      {formattedProjectRole}
-    </div>
-  ) : (
-    <div>
-      <div className="mb-2">Silo role</div>
-      {formattedSiloRole}
-    </div>
-  )
+  const hasAlternateRole = Boolean(siloRole && projectRole)
+  const alternateRole = effectiveRoleIsSiloRole ? formattedProjectRole : formattedSiloRole
 
   return (
     <div className="flex items-baseline gap-2">
       {effectiveRole}
-      {siloRole && projectRole ? (
-        <Tooltip content={alternateRole} placement="bottom">
-          <div className="text-mono-sm">+1</div>
-        </Tooltip>
-      ) : undefined}
+      {hasAlternateRole && (
+        <ExpandedCountWithDetails
+          count={1}
+          title={effectiveRoleIsSiloRole ? 'Project role' : 'Silo role'}
+          details={alternateRole}
+        />
+      )}
     </div>
   )
 }

@@ -13,7 +13,7 @@ test('Click through project access page', async ({ page }) => {
   await page.goto('/projects/mock-project')
   await page.click('role=link[name*="Access & IAM"]')
 
-  // page is there, we see user 1 and 3 but not 4
+  // page is there, we see user 1 and 3 but not 2 or 4
   await expectVisible(page, ['role=heading[name*="Access & IAM"]'])
   const table = page.locator('table')
   await expectRowVisible(table, {
@@ -37,7 +37,8 @@ test('Click through project access page', async ({ page }) => {
     Role: 'project.viewer',
   })
 
-  await expectNotVisible(page, [`role=cell[name="${user4.display_name}"]`])
+  await expectNotVisible(page, [`role=cell[name="Hans Jonas"]`])
+  await expectNotVisible(page, [`role=cell[name="Simone de Beauvoir"]`])
 
   // Add user 4 as collab
   await page.click('role=button[name="Add user or group"]')
@@ -46,6 +47,7 @@ test('Click through project access page', async ({ page }) => {
   await page.click('role=button[name*="User or group"]')
   // only users not already on the project should be visible
   await expectNotVisible(page, ['role=option[name="Jacob Klein"]'])
+
   await expectVisible(page, [
     'role=option[name="Hannah Arendt"]',
     'role=option[name="Hans Jonas"]',
@@ -78,7 +80,9 @@ test('Click through project access page', async ({ page }) => {
     .click()
   await page.click('role=menuitem[name="Change role"]')
 
-  await expectVisible(page, ['role=heading[name*="Change role for Simone de Beauvoir"]'])
+  await expectVisible(page, [
+    'role=heading[name*="Change project role for Simone de Beauvoir"]',
+  ])
   await expectVisible(page, ['button:has-text("Collaborator")'])
 
   await page.click('role=button[name*="Role"]')
@@ -107,6 +111,6 @@ test('Click through project access page', async ({ page }) => {
   await expectRowVisible(table, {
     Name: 'Hannah Arendt',
     Type: 'User',
-    Role: 'silo.admin',
+    Role: 'silo.admin+1',
   })
 })

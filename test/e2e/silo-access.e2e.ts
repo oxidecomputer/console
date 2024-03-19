@@ -21,7 +21,7 @@ test('Click through silo access page', async ({ page }) => {
   await expectRowVisible(table, {
     Name: 'real-estate-devs',
     Type: 'Group',
-    Role: 'silo.admin',
+    Role: 'silo.collaborator',
   })
   await expectRowVisible(table, {
     Name: 'Hannah Arendt',
@@ -69,14 +69,14 @@ test('Click through silo access page', async ({ page }) => {
     .click()
   await page.click('role=menuitem[name="Change role"]')
 
-  await expectVisible(page, ['role=heading[name*="Change role for Jacob Klein"]'])
+  await expectVisible(page, ['role=heading[name*="Change silo role for Jacob Klein"]'])
   await expectVisible(page, ['button:has-text("Collaborator")'])
 
   await page.click('role=button[name*="Role"]')
   await page.click('role=option[name="Viewer"]')
   await page.click('role=button[name="Update role"]')
 
-  await expectRowVisible(table, { Name: user3.display_name, Role: 'viewer' })
+  await expectRowVisible(table, { Name: user3.display_name, Role: 'silo.viewer' })
 
   // now delete user 3
   const user3Row = page.getByRole('row', { name: user3.display_name, exact: false })
