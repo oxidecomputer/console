@@ -12,6 +12,8 @@ import { instance } from './instance'
 import type { Json } from './json-type'
 import { project } from './project'
 
+// TODO: the addresses here need to come from the right pool
+
 // A floating IP from the default pool
 export const floatingIp: Json<FloatingIp> = {
   id: '3ca0ccb7-d66d-4fde-a871-ab9855eaea8e',

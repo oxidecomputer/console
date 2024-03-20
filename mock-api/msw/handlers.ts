@@ -36,6 +36,8 @@ import {
   getStartAndEndTime,
   getTimestamps,
   handleMetrics,
+  ipInAnyRange,
+  ipRangeLen,
   NotImplemented,
   paginated,
   requireFleetViewer,
@@ -231,9 +233,12 @@ export const handlers = makeHandlers({
     const project = lookup.project(query)
     errIfExists(db.floatingIps, { name: body.name })
 
+    // TODO: when IP is specified, use ipInAnyRange to check that it is in the pool
+
     const newFloatingIp: Json<Api.FloatingIp> = {
       id: uuid(),
       project_id: project.id,
+      // TODO: use ip-num to actually get the next available IP in the pool
       ip: [...Array(4)].map(() => Math.floor(Math.random() * 256)).join('.'),
       ...body,
       ...getTimestamps(),
@@ -623,16 +628,27 @@ export const handlers = makeHandlers({
       .filter((r) => r.ip_pool_id === pool.id)
       .map((r) => r.range)
     const [ipv4Ranges, ipv6Ranges] = partitionBy(ranges, (r) => validateIp(r.first).isv4)
-    console.log(ipv4Ranges, ipv6Ranges)
+
+    // in the real backend there are also SNAT IPs, but we don't currently
+    // represent those because they are not exposed through the API (except
+    // through the counts)
+    const allIps = [
+      ...db.ephemeralIps.map((eip) => eip.external_ip.ip),
+      ...db.floatingIps.map((fip) => fip.ip),
+    ]
+
+    const ipv4sInPool = allIps.filter((ip) => ipInAnyRange(ip, ipv4Ranges)).length
+    const ipv6sInPool = allIps.filter((ip) => ipInAnyRange(ip, ipv6Ranges)).length
 
     return {
-      ipv4: { allocated: 5, capacity: 20 },
+      ipv4: {
+        allocated: ipv4sInPool,
+        // ok to convert to number because we know it's small enough
+        capacity: Number(ipv4Ranges.reduce((acc, r) => acc + ipRangeLen(r), 0n)),
+      },
       ipv6: {
-        allocated: '0', //Math.floor(Math.random() * 1e8).toString(),
-        capacity: '0',
-        // (
-        //   BigInt(Math.floor(Math.random() * 1e6)) ** BigInt(Math.floor(Math.random() * 7))
-        // ).toString(),
+        allocated: ipv6sInPool.toString(),
+        capacity: ipv6Ranges.reduce((acc, r) => acc + ipRangeLen(r), 0n).toString(),
       },
     }
   },
@@ -723,6 +739,9 @@ export const handlers = makeHandlers({
   ipPoolRangeAdd({ path, body }) {
     const pool = lookup.ipPool(path)
 
+    // TODO: reject IPv6 ranges to match API behavior, but designate a special
+    // address that will let us bypass that to test IPv6 handling
+
     const newRange: Json<Api.IpPoolRange> = {
       id: uuid(),
       ip_pool_id: pool.id,
@@ -737,6 +756,9 @@ export const handlers = makeHandlers({
   },
   ipPoolRangeRemove({ path, body }) {
     const pool = lookup.ipPool(path)
+
+    // TODO: use ips in range helpers to refuse to remove a range with IPs
+    // outstanding
 
     const idsToDelete = db.ipPoolRanges
       .filter(

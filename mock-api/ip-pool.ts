@@ -77,4 +77,13 @@ export const ipPoolRanges: Json<IpPoolRange[]> = [
     },
     time_created: new Date().toISOString(),
   },
+  {
+    id: '914b10e1-0452-4d87-bc9b-7b91cc7c7628',
+    ip_pool_id: ipPool3.id,
+    range: {
+      first: '::1',
+      last: '::ffff:ffff:ffff:ffff',
+    },
+    time_created: new Date().toISOString(),
+  },
 ]

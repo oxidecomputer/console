@@ -6,6 +6,9 @@
  * Copyright Oxide Computer Company
  */
 import { differenceInSeconds, subHours } from 'date-fns'
+// Works without the .js for dev server and prod build in MSW mode, but
+// playwright wants the .js. No idea why, let's just add the .js.
+import { IPv4, IPv6 } from 'ip-num/IPNumber.js'
 
 import {
   FLEET_ID,
@@ -13,6 +16,7 @@ import {
   MIN_DISK_SIZE_GiB,
   totalCapacity,
   type DiskCreate,
+  type IpRange,
   type RoleKey,
   type Sled,
   type SystemMetricName,
@@ -22,6 +26,7 @@ import {
 
 import { json, type Json } from '~/api/__generated__/msw-handlers'
 import { isTruthy } from '~/util/array'
+import { validateIp } from '~/util/str'
 import { GiB, TiB } from '~/util/units'
 
 import type { DbRoleAssignmentResourceType } from '..'
@@ -370,3 +375,24 @@ export function requireRole(
   // should it 404? I think the API is a mix
   if (!userHasRole(user, resourceType, resourceId, role)) throw 403
 }
+
+const ipToBigInt = (ip: string): bigint =>
+  validateIp(ip).isv4 ? new IPv4(ip).value : new IPv6(ip).value
+
+export const ipRangeLen = ({ first, last }: IpRange) =>
+  ipToBigInt(last) - ipToBigInt(first) + 1n
+
+function ipInRange(ip: string, { first, last }: IpRange): boolean {
+  const ipIsV4 = validateIp(ip).isv4
+  const rangeIsV4 = validateIp(first).isv4
+
+  // if they're not the same version then definitely false
+  if (ipIsV4 !== rangeIsV4) return false
+
+  // since they're the same version we can do a version-agnostic comparison
+  const ipNum = ipToBigInt(ip)
+  return ipToBigInt(first) <= ipNum && ipNum <= ipToBigInt(last)
+}
+
+export const ipInAnyRange = (ip: string, ranges: IpRange[]) =>
+  ranges.some((range) => ipInRange(ip, range))
