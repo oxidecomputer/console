@@ -38,6 +38,7 @@ import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
+import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { TableControls, TableControlsButton, TableControlsText } from '~/ui/lib/Table'
 import { Tabs } from '~/ui/lib/Tabs'
 import { links } from '~/util/links'
@@ -55,6 +56,9 @@ IpPoolPage.loader = async function ({ params }: LoaderFunctionArgs) {
       path: { pool },
       query: { limit: 25 }, // match QueryTable
     }),
+    apiQueryClient.prefetchQuery('ipPoolUtilizationView', {
+      path: { pool },
+    }),
 
     // fetch silos and preload into RQ cache so fetches by ID in SiloNameFromId
     // can be mostly instant yet gracefully fall back to fetching individually
@@ -71,11 +75,19 @@ IpPoolPage.loader = async function ({ params }: LoaderFunctionArgs) {
 export function IpPoolPage() {
   const poolSelector = useIpPoolSelector()
   const { data: pool } = usePrefetchedApiQuery('ipPoolView', { path: poolSelector })
+  const { data: utilization } = usePrefetchedApiQuery('ipPoolUtilizationView', {
+    path: poolSelector,
+  })
   return (
     <>
       <PageHeader>
         <PageTitle icon={<Networking24Icon />}>{pool.name}</PageTitle>
       </PageHeader>
+      <PropertiesTable className="mb-8">
+        <PropertiesTable.Row label="Utilization">
+          {utilization.ipv4.allocated} / {utilization.ipv4.capacity}
+        </PropertiesTable.Row>
+      </PropertiesTable>
       <QueryParamTabs className="full-width" defaultValue="ranges">
         <Tabs.List>
           <Tabs.Trigger value="ranges">IP ranges</Tabs.Trigger>

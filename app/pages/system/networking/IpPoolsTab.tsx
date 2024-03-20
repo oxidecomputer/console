@@ -18,6 +18,7 @@ import {
 } from '@oxide/api'
 import { Networking24Icon } from '@oxide/design-system/icons/react'
 
+import { IpUtilCell } from '~/components/IpPoolUtilization'
 import { useQuickActions } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { DateCell } from '~/table/cells/DateCell'
@@ -25,8 +26,6 @@ import { SkeletonCell } from '~/table/cells/EmptyCell'
 import { linkCell } from '~/table/cells/LinkCell'
 import type { MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
-import { Badge } from '~/ui/lib/Badge'
-import { BigNum } from '~/ui/lib/BigNum'
 import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { pb } from '~/util/path-builder'
@@ -41,51 +40,11 @@ const EmptyState = () => (
   />
 )
 
-const IpUtilFrac = (props: { allocated: number | bigint; capacity: number | bigint }) => (
-  <>
-    <BigNum className="text-default" num={props.allocated} /> /{' '}
-    <BigNum className="text-tertiary" num={props.capacity} />
-  </>
-)
-
-function IpPoolUtilizationCell({ pool }: { pool: string }) {
+function UtilizationCell({ pool }: { pool: string }) {
   const { data } = useApiQuery('ipPoolUtilizationView', { path: { pool } })
 
   if (!data) return <SkeletonCell />
-
-  const { ipv4 } = data
-  const ipv6 = {
-    allocated: BigInt(data.ipv6.allocated),
-    capacity: BigInt(data.ipv6.capacity),
-  }
-
-  if (ipv6.capacity === 0n) {
-    return (
-      <div className="space-y-1">
-        <IpUtilFrac {...ipv4} />
-      </div>
-    )
-  }
-
-  // the API doesn't let you add IPv6 ranges, but there's a remote possibility
-  // a pool already exists with IPv6 ranges, so we might as well show that. also
-  // this is nice for e2e testing the utilization logic
-  return (
-    <div className="space-y-1">
-      <div>
-        <Badge color="neutral" className="mr-2 !normal-case">
-          v4
-        </Badge>
-        <IpUtilFrac {...ipv4} />
-      </div>
-      <div>
-        <Badge color="neutral" className="mr-2 !normal-case">
-          v6
-        </Badge>
-        <IpUtilFrac {...ipv6} />
-      </div>
-    </div>
-  )
+  return <IpUtilCell {...data} />
 }
 
 IpPoolsTab.loader = async function () {
@@ -154,7 +113,7 @@ export function IpPoolsTab() {
           accessor="name"
           id="Utilization"
           header="Utilization"
-          cell={({ value }) => <IpPoolUtilizationCell pool={value} />}
+          cell={({ value }) => <UtilizationCell pool={value} />}
         />
         <Column accessor="timeCreated" header="Created" cell={DateCell} />
       </Table>
