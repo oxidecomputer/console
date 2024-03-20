@@ -19,10 +19,12 @@
     top: var(--navigation-height);
     @apply z-popover mb-0 bg-default;
   }
+}
 
-  .ox-tabs .ox-tabs-list + * {
-    @apply mt-8;
-  }
+/* We apply this to the next item not the tab bar so that
+the sticky tab bar finishes at the correct point */
+.ox-tabs .ox-tabs-list + * {
+  @apply mt-8;
 }
 
 .ox-tabs.full-width .ox-tabs-panel {
