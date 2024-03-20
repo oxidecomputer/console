@@ -18,8 +18,13 @@ import {
   type IpPoolRange,
   type IpPoolSiloLink,
 } from '@oxide/api'
-import { Networking24Icon, Success12Icon } from '@oxide/design-system/icons/react'
+import {
+  IpGlobal16Icon,
+  Networking24Icon,
+  Success12Icon,
+} from '@oxide/design-system/icons/react'
 
+import { CapacityBar } from '~/components/CapacityBar'
 import { ExternalLink } from '~/components/ExternalLink'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { HL } from '~/components/HL'
@@ -38,7 +43,6 @@ import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
-import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { TableControls, TableControlsButton, TableControlsText } from '~/ui/lib/Table'
 import { Tabs } from '~/ui/lib/Tabs'
 import { links } from '~/util/links'
@@ -83,11 +87,17 @@ export function IpPoolPage() {
       <PageHeader>
         <PageTitle icon={<Networking24Icon />}>{pool.name}</PageTitle>
       </PageHeader>
-      <PropertiesTable className="mb-8">
-        <PropertiesTable.Row label="Utilization">
-          {utilization.ipv4.allocated} / {utilization.ipv4.capacity}
-        </PropertiesTable.Row>
-      </PropertiesTable>
+      <div className="-mt-8 mb-8">
+        <CapacityBar
+          icon={<IpGlobal16Icon />}
+          title="Utilization"
+          provisioned={utilization.ipv4.allocated}
+          capacity={utilization.ipv4.capacity}
+          capacityLabel="Capacity"
+          unit="IPs"
+          includeUnit={false}
+        />
+      </div>
       <QueryParamTabs className="full-width" defaultValue="ranges">
         <Tabs.List>
           <Tabs.Trigger value="ranges">IP ranges</Tabs.Trigger>

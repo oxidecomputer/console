@@ -13,19 +13,19 @@ export const CapacityBar = ({
   title,
   unit,
   provisioned,
-  allocated,
-  allocatedLabel,
+  capacity,
+  capacityLabel,
   includeUnit = true,
 }: {
   icon: JSX.Element
-  title: 'CPU' | 'Memory' | 'Storage'
-  unit: 'nCPUs' | 'GiB' | 'TiB'
+  title: string
+  unit: string
   provisioned: number
-  allocated: number
-  allocatedLabel: string
+  capacity: number
+  capacityLabel: string
   includeUnit?: boolean
 }) => {
-  const percentOfAllocatedUsed = (provisioned / allocated) * 100
+  const percentOfAllocatedUsed = (provisioned / capacity) * 100
 
   const [wholeNumber, decimal] = splitDecimal(percentOfAllocatedUsed)
 
@@ -67,9 +67,9 @@ export const CapacityBar = ({
             </div>
           </div>
           <div className="p-3 text-mono-sm">
-            <div className="text-quaternary">{allocatedLabel}</div>
+            <div className="text-quaternary">{capacityLabel}</div>
             <div className="text-secondary">
-              {allocated.toLocaleString()}
+              {capacity.toLocaleString()}
               <span className="normal-case">{includeUnit ? ' ' + unit : ''}</span>
             </div>
           </div>

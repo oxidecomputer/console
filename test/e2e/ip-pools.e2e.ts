@@ -22,7 +22,7 @@ test('IP pool list', async ({ page }) => {
 
   await expect(table.getByRole('row')).toHaveCount(5) // header + 4 rows
 
-  await expectRowVisible(table, { name: 'ip-pool-1', Utilization: '0 / 8' })
+  await expectRowVisible(table, { name: 'ip-pool-1', Utilization: '4 / 8' })
   await expectRowVisible(table, { name: 'ip-pool-2', Utilization: '0 / 6' })
   await expectRowVisible(table, { name: 'ip-pool-3', Utilization: '0 / 0' })
   await expectRowVisible(table, {
@@ -190,7 +190,7 @@ test('IP range validation and add', async ({ page }) => {
   await page.getByRole('link', { name: 'Networking' }).click()
   await expectRowVisible(table, {
     name: 'ip-pool-1',
-    Utilization: 'v4' + '0 / 8' + 'v6' + '0 / 1',
+    Utilization: 'v4' + '4 / 8' + 'v6' + '0 / 1',
   })
 })
 
@@ -219,6 +219,6 @@ test('remove range', async ({ page }) => {
   await page.getByRole('link', { name: 'Networking' }).click()
   await expectRowVisible(table, {
     name: 'ip-pool-1',
-    Utilization: '0 / 5',
+    Utilization: '4 / 5',
   })
 })
