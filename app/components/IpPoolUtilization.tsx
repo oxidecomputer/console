@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import type { IpPoolUtilization } from '~/api'
+import { parseIpUtilization, type IpPoolUtilization } from '~/api'
 import { Badge } from '~/ui/lib/Badge'
 import { BigNum } from '~/ui/lib/BigNum'
 
@@ -17,13 +17,10 @@ const IpUtilFrac = (props: { allocated: number | bigint; capacity: number | bigi
   </>
 )
 
-export function IpUtilCell({ ipv4, ipv6 }: IpPoolUtilization) {
-  const ipv6Parsed = {
-    allocated: BigInt(ipv6.allocated),
-    capacity: BigInt(ipv6.capacity),
-  }
+export function IpUtilCell(util: IpPoolUtilization) {
+  const { ipv4, ipv6 } = parseIpUtilization(util)
 
-  if (ipv6Parsed.capacity === 0n) {
+  if (ipv6.capacity === 0n) {
     return (
       <div className="space-y-1">
         <IpUtilFrac {...ipv4} />
@@ -46,7 +43,7 @@ export function IpUtilCell({ ipv4, ipv6 }: IpPoolUtilization) {
         <Badge color="neutral" className="mr-2 !normal-case">
           v6
         </Badge>
-        <IpUtilFrac {...ipv6Parsed} />
+        <IpUtilFrac {...ipv6} />
       </div>
     </div>
   )
