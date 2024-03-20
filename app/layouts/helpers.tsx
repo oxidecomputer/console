@@ -14,14 +14,18 @@ import { useScrollRestoration } from '~/hooks/use-scroll-restoration'
 import { SkipLinkTarget } from '~/ui/lib/SkipLink'
 import { classed } from '~/util/classed'
 
-export const PageContainer = classed.div`grid h-screen grid-cols-[14.25rem,1fr] grid-rows-[60px,1fr]`
+export const PageContainer = classed.div`grid h-[100dvh] lg+:grid-cols-[14.25rem,auto] grid-rows-[60px,1fr]`
 
 export function ContentPane() {
   const ref = useRef<HTMLDivElement>(null)
   useScrollRestoration(ref)
   return (
-    <div ref={ref} className="flex flex-col overflow-auto" data-testid="scroll-container">
-      <div className="flex flex-grow flex-col pb-8">
+    <div
+      ref={ref}
+      className="flex flex-col overflow-auto lg-:col-span-2"
+      data-testid="scroll-container"
+    >
+      <div className="flex flex-grow flex-col pb-8 md-:pb-16">
         <SkipLinkTarget />
         <main className="[&>*]:gutter">
           <Outlet />
@@ -42,7 +46,7 @@ export function ContentPane() {
  * `<div>` because we don't need it.
  */
 export const SerialConsoleContentPane = () => (
-  <div className="flex flex-col overflow-auto">
+  <div className="flex flex-col overflow-auto lg-:col-span-2">
     <div className="flex flex-grow flex-col">
       <SkipLinkTarget />
       <main className="[&>*]:gutter h-full">

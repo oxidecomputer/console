@@ -46,7 +46,17 @@
   --content-gutter: 2.5rem;
 }
 
+@media (max-width: 768px) {
+  :root {
+    --content-gutter: 1.5rem;
+  }
+}
+
 @layer base {
+  html {
+    overscroll-behavior-y: none;
+  }
+
   body {
     @apply overflow-y-hidden text-default bg-default;
     font-family:

@@ -123,14 +123,13 @@ function DiskMetric({
   }
 
   return (
-    <div className="flex w-1/2 flex-grow flex-col">
-      <h2 className="ml-3 flex items-center text-mono-xs text-secondary ">
+    <div className="flex flex-grow flex-col lg+:w-1/2">
+      <h2 className="mb-3 ml-3 flex items-center text-mono-xs text-secondary">
         {title} <div className="ml-1 normal-case text-quaternary">{label}</div>
         {isLoading && <Spinner className="ml-2" />}
       </h2>
       <Suspense fallback={<div className="mt-3 h-[300px]" />}>
         <TimeSeriesChart
-          className="mt-3"
           data={data}
           title={title}
           unit={unitForSet}
@@ -197,9 +196,9 @@ export function MetricsTab() {
 
   return (
     <>
-      <div className="mb-4 flex justify-between">
+      <div className="mb-4 flex justify-between md-:flex-col md-:gap-2">
         <Listbox
-          className="w-64"
+          className="w-64 md-:w-full"
           aria-label="Choose disk"
           name="disk-name"
           selected={diskName}
@@ -211,20 +210,20 @@ export function MetricsTab() {
         {dateTimeRangePicker}
       </div>
 
-      <div className="mt-8 space-y-12">
+      <div className="mt-8 space-y-12 md-:space-y-4">
         {/* see the following link for the source of truth on what these mean
             https://github.com/oxidecomputer/crucible/blob/258f162b/upstairs/src/stats.rs#L9-L50 */}
-        <div className="flex w-full space-x-4">
+        <div className="flex w-full gap-4 lg-:flex-col">
           <DiskMetric {...commonProps} title="Reads" unit="Count" metric="read" />
           <DiskMetric {...commonProps} title="Read" unit="Bytes" metric="read_bytes" />
         </div>
 
-        <div className="flex w-full space-x-4">
+        <div className="flex w-full gap-4 lg-:flex-col">
           <DiskMetric {...commonProps} title="Writes" unit="Count" metric="write" />
           <DiskMetric {...commonProps} title="Write" unit="Bytes" metric="write_bytes" />
         </div>
 
-        <div className="flex w-full space-x-4">
+        <div className="flex w-full gap-4 lg-:flex-col">
           <DiskMetric {...commonProps} title="Flushes" unit="Count" metric="flush" />
         </div>
       </div>

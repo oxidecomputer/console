@@ -10,6 +10,17 @@
   @apply !mx-0 !w-full;
 }
 
+@media (max-width: 767px) {
+  .ox-tabs .ox-tabs-list {
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    position: sticky;
+    top: 1px;
+    @apply z-topBar bg-default;
+  }
+}
+
 .ox-tabs.full-width .ox-tabs-panel {
   @apply mx-[var(--content-gutter)];
 }
@@ -19,11 +30,11 @@
 }
 
 .ox-tabs-list:after {
-  @apply block w-full border-b border-secondary;
+  @apply block w-full border-b border-secondary md-:w-[var(--content-gutter)] md-:min-w-max md-:flex-shrink-0;
   content: ' ';
 }
 .ox-tabs.full-width .ox-tabs-list:before {
-  @apply block w-10 min-w-max flex-shrink-0 border-b border-secondary;
+  @apply block w-[var(--content-gutter)] min-w-max flex-shrink-0 border-b border-secondary;
   content: ' ';
 }
 

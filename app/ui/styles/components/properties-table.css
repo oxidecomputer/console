@@ -8,6 +8,14 @@
 
 .properties-table {
   grid-template-columns: minmax(min-content, 1fr) 3fr;
+  @apply children:pl-3 children:border-secondary;
+}
+
+@media (max-width: 768px) {
+  .properties-table {
+    grid-template-columns: 1fr;
+    @apply children:pr-6 odd:children:pb-1 odd:children:pt-2 odd:children:border-secondary even:children:border-none even:children:pb-2;
+  }
 }
 
 .properties-table > *:nth-child(2) {

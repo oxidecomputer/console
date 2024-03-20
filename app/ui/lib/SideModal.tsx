@@ -84,7 +84,7 @@ export function SideModal({
               <Dialog.Portal>
                 <DialogOverlay />
                 <AnimatedDialogContent
-                  className="DialogContent ox-side-modal pointer-events-auto fixed bottom-0 right-0 top-0 z-sideModal m-0 flex w-[32rem] flex-col justify-between border-l p-0 bg-raise border-secondary elevation-2"
+                  className="DialogContent ox-side-modal pointer-events-auto fixed bottom-0 right-0 top-0 z-sideModal m-0 flex w-full flex-col justify-between border-l p-0 bg-raise border-secondary elevation-2 md+:w-[32rem]"
                   aria-labelledby={titleId}
                   style={{
                     transform: x.to((value) => `translate3d(${value}%, 0px, 0px)`),

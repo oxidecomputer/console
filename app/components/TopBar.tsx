@@ -5,16 +5,19 @@
  *
  * Copyright Oxide Computer Company
  */
+import cn from 'classnames'
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { navToLogin, useApiMutation } from '@oxide/api'
 import {
+  Close12Icon,
   DirectionDownIcon,
   Info16Icon,
   Profile16Icon,
 } from '@oxide/design-system/icons/react'
 
+import { closeSidebar, openSidebar, useMenuState } from '~/hooks/use-menu-state'
 import { useCurrentUser } from '~/layouts/AuthenticatedLayout'
 import { Button, buttonStyle } from '~/ui/lib/Button'
 import { DropdownMenu } from '~/ui/lib/DropdownMenu'
@@ -39,19 +42,45 @@ export function TopBar({ children }: { children: React.ReactNode }) {
   // picker is going to come in null when the user isn't supposed to see it
   const [cornerPicker, ...otherPickers] = React.Children.toArray(children)
 
+  const { isOpen } = useMenuState()
+
   // The height of this component is governed by the `PageContainer`
   // It's important that this component returns two distinct elements (wrapped in a fragment).
   // Each element will occupy one of the top column slots provided by `PageContainer`.
   return (
-    <>
-      <div className="flex items-center border-b border-r px-3 border-secondary">
+    <div className="z-topBar col-span-2 grid grid-cols-[min-content,auto] lg+:grid-cols-[14.25rem,auto]">
+      <div className="flex items-center border-b pl-3 border-secondary lg+:border-r lg+:pr-3">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="mr-2 w-8 flex-shrink-0 lg+:hidden"
+          title="Notifications"
+          onClick={(e) => {
+            if (isOpen) {
+              closeSidebar()
+            } else {
+              openSidebar()
+            }
+            e.preventDefault()
+          }}
+        >
+          {isOpen ? (
+            <Close12Icon className="text-tertiary" />
+          ) : (
+            <Menu12Icon className="text-tertiary" />
+          )}
+        </Button>
+
         {cornerPicker}
       </div>
+
       {/* Height is governed by PageContainer grid */}
       {/* shrink-0 is needed to prevent getting squished by body content */}
-      <div className="z-topBar border-b bg-default border-secondary">
-        <div className="mx-3 flex h-[60px] shrink-0 items-center justify-between">
-          <div className="flex items-center">{otherPickers}</div>
+      <div className="border-b bg-default border-secondary">
+        <div className="mr-3 flex h-[60px] shrink-0 items-center justify-between lg+:ml-3">
+          <div className="pickers before:text-mono-lg flex items-center before:children:content-['/'] before:children:first:mx-3 before:children:first:text-quinary md-:children:hidden lg+:[&>div:first-of-type]:before:hidden md-:[&>div:last-of-type]:flex">
+            {otherPickers}
+          </div>
           <div>
             <a
               id="topbar-info-link"
@@ -59,7 +88,10 @@ export function TopBar({ children }: { children: React.ReactNode }) {
               target="_blank"
               rel="noreferrer"
               aria-label="Link to documentation"
-              className={buttonStyle({ size: 'icon', variant: 'secondary' })}
+              className={cn(
+                buttonStyle({ size: 'icon', variant: 'secondary' }),
+                'md-:hidden'
+              )}
             >
               <Info16Icon className="text-quaternary" />
             </a>
@@ -72,7 +104,7 @@ export function TopBar({ children }: { children: React.ReactNode }) {
                   size="sm"
                   variant="secondary"
                   aria-label="User menu"
-                  className="ml-2"
+                  className="ml-2 md-:hidden"
                   innerClassName="space-x-2"
                 >
                   <Profile16Icon className="text-quaternary" />
@@ -104,6 +136,24 @@ export function TopBar({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </div>
-    </>
+    </div>
   )
 }
+
+const Menu12Icon = ({ className }: { className: string }) => (
+  <svg
+    width="12"
+    height="12"
+    viewBox="0 0 12 12"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+  >
+    <path
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M1 1.667C1 1.29863 1.29863 1 1.667 1H10.333C10.7014 1 11 1.29863 11 1.667V2.333C11 2.70137 10.7014 3 10.333 3H1.667C1.29863 3 1 2.70137 1 2.333V1.667ZM1 5.667C1 5.29863 1.29863 5 1.667 5H10.333C10.7014 5 11 5.29863 11 5.667V6.333C11 6.70137 10.7014 7 10.333 7H1.667C1.29863 7 1 6.70137 1 6.333V5.667ZM11 9.667C11 9.29863 10.7014 9 10.333 9H1.667C1.29863 9 1 9.29863 1 9.667V10.333C1 10.7014 1.29863 11 1.667 11H10.333C10.7014 11 11 10.7014 11 10.333V9.667Z"
+      fill="currentColor"
+    />
+  </svg>
+)

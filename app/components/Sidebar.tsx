@@ -5,14 +5,26 @@
  *
  * Copyright Oxide Computer Company
  */
+import * as Dialog from '@radix-ui/react-dialog'
+import { animated, useTransition } from '@react-spring/web'
 import cn from 'classnames'
-import { NavLink } from 'react-router-dom'
+import { NavLink, useLocation } from 'react-router-dom'
 
-import { Action16Icon, Document16Icon } from '@oxide/design-system/icons/react'
+import {
+  Action16Icon,
+  Document16Icon,
+  Key16Icon,
+  Profile16Icon,
+} from '@oxide/design-system/icons/react'
 
+import { navToLogin, useApiMutation } from '~/api'
 import { openQuickActions } from '~/hooks'
+import { closeSidebar, useMenuState } from '~/hooks/use-menu-state'
+import { useCurrentUser } from '~/layouts/AuthenticatedLayout'
 import { Button } from '~/ui/lib/Button'
+import { Divider } from '~/ui/lib/Divider'
 import { Truncate } from '~/ui/lib/Truncate'
+import { pb } from '~/util/path-builder'
 
 const linkStyles =
   'flex h-7 items-center rounded px-2 text-sans-md hover:bg-hover svg:mr-2 svg:text-quinary text-secondary'
@@ -55,15 +67,112 @@ const JumpToButton = () => {
 }
 
 export function Sidebar({ children }: { children: React.ReactNode }) {
+  const AnimatedDialogContent = animated(Dialog.Content)
+  const { isOpen } = useMenuState()
+  const config = { tension: 1200, mass: 0.125 }
+  const { pathname } = useLocation()
+
+  const transitions = useTransition(isOpen, {
+    from: { x: -50 },
+    enter: { x: 0 },
+    config: isOpen ? config : { duration: 0 },
+  })
+
   return (
-    <div className="flex flex-col border-r text-sans-md text-default border-secondary">
-      <div className="mx-3 mt-4">
-        <JumpToButton />
-      </div>
-      {children}
+    <>
+      {transitions(
+        ({ x }, item) =>
+          item && (
+            <Dialog.Root
+              open
+              onOpenChange={(open) => {
+                if (!open) closeSidebar()
+              }}
+              // https://github.com/radix-ui/primitives/issues/1159#issuecomment-1559813266
+              modal={false}
+            >
+              <div
+                aria-hidden
+                className="fixed inset-0 top-[61px] z-10 overflow-auto bg-scrim lg+:hidden"
+              />
+              <AnimatedDialogContent
+                className="relative z-sideModal flex h-full flex-col border-r text-sans-md text-default border-secondary lg+:!transform-none lg-:fixed lg-:inset-y-0 lg-:top-[61px] lg-:w-[14.25rem] lg-:bg-default lg-:elevation-2"
+                style={{
+                  transform: x.to((value) => `translate3d(${value}%, 0px, 0px)`),
+                }}
+                forceMount
+              >
+                <div className="mx-3 mt-4">
+                  <JumpToButton />
+                </div>
+                {children}
+                {pathname.split('/')[1] !== 'settings' && <ProfileLinks />}
+              </AnimatedDialogContent>
+            </Dialog.Root>
+          )
+      )}
+    </>
+  )
+}
+
+export const ProfileLinks = () => {
+  const { me } = useCurrentUser()
+
+  const logout = useApiMutation('logout', {
+    onSuccess: () => {
+      // server will respond to /login with a login redirect
+      // TODO-usability: do we just want to dump them back to login or is there
+      // another page that would make sense, like a logged out homepage
+      navToLogin({ includeCurrent: false })
+    },
+  })
+
+  return (
+    <div className="md+:hidden">
+      <Divider />
+      <Sidebar.Nav heading={me.displayName || 'User'}>
+        <NavLinkItem to={pb.profile()}>
+          <Profile16Icon />
+          Profile
+        </NavLinkItem>
+        <NavLinkItem to={pb.sshKeys()}>
+          <Key16Icon /> SSH Keys
+        </NavLinkItem>
+        <NavButtonItem onClick={() => logout.mutate({})}>
+          <SignOut16Icon /> Sign out
+        </NavButtonItem>
+      </Sidebar.Nav>
     </div>
   )
 }
+
+const SignOut16Icon = () => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 16 16"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M7.25 2H3.25H2.75C2.33579 2 2 2.33579 2 2.75V3.25V12V13.25C2 13.6642 2.33579 14 2.75 14H4H7.25C7.66421 14 8 13.6642 8 13.25V12.75C8 12.3358 7.66421 12 7.25 12H4V4H7.25C7.66421 4 8 3.66421 8 3.25V2.75C8 2.33579 7.66421 2 7.25 2ZM13 7.75V8.25C13 8.66421 12.6642 9 12.25 9H7.75C7.33579 9 7 8.66421 7 8.25V7.75C7 7.33579 7.33579 7 7.75 7H12.25C12.6642 7 13 7.33579 13 7.75Z"
+      fill="currentColor"
+    />
+    <rect
+      width="4"
+      height="5"
+      rx="0.75"
+      transform="matrix(4.37114e-08 -1 -1 -4.37114e-08 11 10)"
+      fill="currentColor"
+    />
+    <path
+      d="M14.2679 8.58565C14.6432 8.2854 14.6432 7.71459 14.2679 7.41434L10.6093 4.48741C10.3637 4.29098 10 4.46579 10 4.78023L10 11.2198C10 11.5342 10.3637 11.709 10.6093 11.5126L14.2679 8.58565Z"
+      fill="currentColor"
+    />
+  </svg>
+)
 
 interface SidebarNav {
   children: React.ReactNode
@@ -103,5 +212,26 @@ export const NavLinkItem = (props: {
     >
       {props.children}
     </NavLink>
+  </li>
+)
+
+export const NavButtonItem = (props: {
+  onClick: () => void
+  children: React.ReactNode
+  disabled?: boolean
+}) => (
+  <li>
+    <button
+      onClick={props.onClick}
+      className={cn(
+        linkStyles,
+        {
+          'pointer-events-none text-disabled': props.disabled,
+        },
+        'w-full'
+      )}
+    >
+      {props.children}
+    </button>
   </li>
 )

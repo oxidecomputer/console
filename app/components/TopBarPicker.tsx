@@ -50,7 +50,7 @@ const TopBarPicker = (props: TopBarPickerProps) => {
         // left corner picker. The separator starts from the leftmost of "other
         // pickers". But the leftmost corner one is in its own container and
         // therefore always last-of-type, so it will never get one.
-        className="after:text-mono-lg flex w-full items-center justify-between after:mx-4 after:content-['/'] after:text-quinary last-of-type:after:content-none"
+        className="flex w-full items-center justify-between"
       >
         {props.current ? (
           <Wrap
@@ -62,11 +62,17 @@ const TopBarPicker = (props: TopBarPickerProps) => {
               />
             }
           >
-            <div className="flex min-w-[120px] max-w-[185px] items-center pr-2">
+            <div
+              className={cn(
+                'flex max-w-[185px] items-center pr-2 lg+:min-w-[120px]',
+                props.icon && 'md-:pr-0'
+              )}
+            >
               {props.icon ? (
-                <div className="mr-2 flex items-center">{props.icon}</div>
+                <div className="flex items-center md+:mr-2">{props.icon}</div>
               ) : null}
-              <div className="overflow-hidden">
+              {/* If it has an icon it must be a silo picker and has specific styling on mobile */}
+              <div className={cn('overflow-hidden', props.icon && 'md-:hidden')}>
                 <div className="text-mono-xs text-quaternary">{props.category}</div>
                 <div className="w-full overflow-hidden text-ellipsis whitespace-nowrap text-sans-md text-secondary">
                   {props.display ?? props.current}
@@ -81,7 +87,7 @@ const TopBarPicker = (props: TopBarPickerProps) => {
           >
             {props.icon ? <div className="mr-2 flex items-center">{props.icon}</div> : null}
 
-            <div className="min-w-[5rem] text-mono-xs text-quaternary">
+            <div className="text-mono-xs text-quaternary lg+:min-w-[5rem] lg-:mr-1">
               Select
               <br />
               {props.category}

@@ -101,9 +101,9 @@ export function DateTimeRangePicker({
   onRangeChange,
 }: DateTimeRangePickerProps) {
   return (
-    <form className="flex">
+    <form className="flex md-:w-full">
       <Listbox
-        className="z-10 w-[10rem] border-r border-r-default [&>button]:!rounded-r-none [&>button]:!border-r-0"
+        className="z-10 w-[10rem] border-r border-r-default md-:flex-grow [&>button]:!rounded-r-none [&>button]:!border-r-0"
         name="preset"
         selected={preset}
         aria-label="Choose a time range preset"
