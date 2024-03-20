@@ -14,14 +14,16 @@ import { Tooltip } from './Tooltip'
  * Possibly abbreviate number if it's big enough, and if it is, wrap it in a
  * tooltip showing the unabbreviated value.
  */
-export function BigNum({ num }: { num: number | bigint }) {
+export function BigNum({ num, className }: { num: number | bigint; className?: string }) {
   const [display, abbreviated] = displayBigNum(num)
 
-  if (!abbreviated) return display
+  const inner = <span className={className}>{display}</span>
+
+  if (!abbreviated) return inner
 
   return (
     <Tooltip placement="top" content={num.toLocaleString()}>
-      <span>{display}</span>
+      {inner}
     </Tooltip>
   )
 }

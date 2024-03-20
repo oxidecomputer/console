@@ -21,11 +21,10 @@ import { Networking24Icon } from '@oxide/design-system/icons/react'
 import { useQuickActions } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { DateCell } from '~/table/cells/DateCell'
-import { EmptyCell, SkeletonCell } from '~/table/cells/EmptyCell'
+import { SkeletonCell } from '~/table/cells/EmptyCell'
 import { linkCell } from '~/table/cells/LinkCell'
 import type { MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
-import { Badge } from '~/ui/lib/Badge'
 import { BigNum } from '~/ui/lib/BigNum'
 import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -41,39 +40,16 @@ const EmptyState = () => (
   />
 )
 
-type IpLineProps = {
-  v: 4 | 6
-  allocated: number | bigint
-  capacity: number | bigint
-}
-
-function IpLine({ v, allocated, capacity }: IpLineProps) {
-  return (
-    <div>
-      <Badge color="neutral" className="mr-2">
-        v{v}
-      </Badge>
-      {capacity > 0 ? (
-        <>
-          <BigNum num={allocated} /> / <BigNum num={capacity} />
-        </>
-      ) : (
-        <EmptyCell />
-      )}
-    </div>
-  )
-}
-
 function IpPoolUtilizationCell({ pool }: { pool: string }) {
   const { data } = useApiQuery('ipPoolUtilizationView', { path: { pool } })
 
   if (!data) return <SkeletonCell />
 
-  const { ipv4, ipv6 } = data
+  // don't bother displaying IPv6 while the API doesn't even let you add IPv6 ranges
   return (
     <div className="space-y-1">
-      <IpLine v={4} allocated={ipv4.allocated} capacity={ipv4.capacity} />
-      <IpLine v={6} allocated={BigInt(ipv6.allocated)} capacity={BigInt(ipv6.capacity)} />
+      <BigNum className="text-default" num={data.ipv4.allocated} /> /{' '}
+      <BigNum className="text-tertiary" num={data.ipv4.capacity} />
     </div>
   )
 }

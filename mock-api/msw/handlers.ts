@@ -628,10 +628,11 @@ export const handlers = makeHandlers({
     return {
       ipv4: { allocated: 5, capacity: 20 },
       ipv6: {
-        allocated: Math.floor(Math.random() * 1e8).toString(),
-        capacity: (
-          BigInt(Math.floor(Math.random() * 1e6)) ** BigInt(Math.floor(Math.random() * 7))
-        ).toString(),
+        allocated: '0', //Math.floor(Math.random() * 1e8).toString(),
+        capacity: '0',
+        // (
+        //   BigInt(Math.floor(Math.random() * 1e6)) ** BigInt(Math.floor(Math.random() * 7))
+        // ).toString(),
       },
     }
   },
