@@ -113,6 +113,7 @@ function IpRangesTable() {
   const removeRange = useApiMutation('ipPoolRangeRemove', {
     onSuccess() {
       queryClient.invalidateQueries('ipPoolRangeList')
+      queryClient.invalidateQueries('ipPoolUtilizationView')
     },
   })
   const emptyState = (

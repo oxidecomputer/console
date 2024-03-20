@@ -214,4 +214,11 @@ test('remove range', async ({ page }) => {
 
   await expect(table.getByRole('cell', { name: '10.0.0.20' })).toBeHidden()
   await expect(table.getByRole('row')).toHaveCount(2)
+
+  // go back to the pool and verify the utilization column changed
+  await page.getByRole('link', { name: 'Networking' }).click()
+  await expectRowVisible(table, {
+    name: 'ip-pool-1',
+    Utilization: '0 / 5',
+  })
 })
