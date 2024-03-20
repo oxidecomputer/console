@@ -21,7 +21,8 @@ const colHelper = createColumnHelper<Group>()
 
 const columns = [
   colHelper.accessor('displayName', { header: 'Name' }),
-  getActionsCol(() => []),
+  // use _row to prevent eslint from complaining about the unused variable
+  getActionsCol((_row: Group) => []),
 ]
 
 export function ProfilePage() {
