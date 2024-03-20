@@ -27,7 +27,7 @@ test('IP pool list', async ({ page }) => {
   await expectRowVisible(table, { name: 'ip-pool-3', Utilization: '0 / 0' })
   await expectRowVisible(table, {
     name: 'ip-pool-4',
-    Utilization: 'v4' + '0 / 0' + 'v6' + '0 / 18.4e18',
+    Utilization: 'v4' + '0 / 207' + 'v6' + '0 / 18.4e18',
   })
 })
 
@@ -133,7 +133,14 @@ test('IP pool create', async ({ page }) => {
 })
 
 test('IP range validation and add', async ({ page }) => {
-  await page.goto('/system/networking/ip-pools/ip-pool-1/ranges-add')
+  await page.goto('/system/networking/ip-pools/ip-pool-1')
+
+  // check the utilization bar
+  await expect(page.getByText('IPv4(IPs)50%')).toBeVisible()
+  await expect(page.getByText('Allocated4')).toBeVisible()
+  await expect(page.getByText('Capacity8')).toBeVisible()
+
+  await page.getByRole('link', { name: 'Add range' }).click()
 
   const dialog = page.getByRole('dialog', { name: 'Add IP range' })
   const first = dialog.getByRole('textbox', { name: 'First' })
@@ -186,6 +193,14 @@ test('IP range validation and add', async ({ page }) => {
   const table = page.getByRole('table')
   await expectRowVisible(table, { First: v6Addr, Last: v6Addr })
 
+  // now the utilization bars are split in two
+  await expect(page.getByText('IPv4(IPs)50%')).toBeVisible()
+  await expect(page.getByText('Allocated4')).toBeVisible()
+  await expect(page.getByText('Capacity8')).toBeVisible()
+  await expect(page.getByText('IPv6(IPs)0%')).toBeVisible()
+  await expect(page.getByText('Allocated0')).toBeVisible()
+  await expect(page.getByText('Capacity1')).toBeVisible()
+
   // go back to the pool and verify the utilization column changed
   await page.getByRole('link', { name: 'Networking' }).click()
   await expectRowVisible(table, {
@@ -215,10 +230,36 @@ test('remove range', async ({ page }) => {
   await expect(table.getByRole('cell', { name: '10.0.0.20' })).toBeHidden()
   await expect(table.getByRole('row')).toHaveCount(2)
 
+  // utilization updates
+  await expect(page.getByText('IPv4(IPs)80%')).toBeVisible()
+  await expect(page.getByText('Allocated4')).toBeVisible()
+  await expect(page.getByText('Capacity5')).toBeVisible()
+
   // go back to the pool and verify the utilization column changed
   await page.getByRole('link', { name: 'Networking' }).click()
   await expectRowVisible(table, {
     name: 'ip-pool-1',
     Utilization: '4 / 5',
   })
+})
+
+test('no ranges means no utilization bar', async ({ page }) => {
+  await page.goto('/system/networking/ip-pools/ip-pool-2')
+  await expect(page.getByText('IPv4(IPs)')).toBeVisible()
+  await expect(page.getByText('IPv6(IPs)')).toBeHidden()
+
+  await page.goto('/system/networking/ip-pools/ip-pool-3')
+  await expect(page.getByText('IPv4(IPs)')).toBeHidden()
+  await expect(page.getByText('IPv6(IPs)')).toBeHidden()
+
+  await page.goto('/system/networking/ip-pools/ip-pool-4')
+  await expect(page.getByText('IPv4(IPs)')).toBeVisible()
+  await expect(page.getByText('IPv6(IPs)')).toBeVisible()
+
+  await clickRowAction(page, '10.0.0.50', 'Remove')
+  const confirmModal = page.getByRole('dialog', { name: 'Confirm remove range' })
+  await confirmModal.getByRole('button', { name: 'Confirm' }).click()
+
+  await expect(page.getByText('IPv4(IPs)')).toBeHidden()
+  await expect(page.getByText('IPv6(IPs)')).toBeVisible()
 })

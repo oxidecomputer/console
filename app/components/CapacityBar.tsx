@@ -6,30 +6,35 @@
  * Copyright Oxide Computer Company
  */
 
-import { splitDecimal } from '~/util/math'
+import { displayBigNum, splitDecimal } from '~/util/math'
 
-export const CapacityBar = ({
+export const CapacityBar = <T extends number | bigint>({
   icon,
   title,
   unit,
   provisioned,
   capacity,
   capacityLabel,
+  provisionedLabel = 'Provisioned',
   includeUnit = true,
 }: {
   icon: JSX.Element
   title: string
   unit: string
-  provisioned: number
-  capacity: number
+  provisioned: T
+  capacity: T
+  provisionedLabel?: string
   capacityLabel: string
   includeUnit?: boolean
 }) => {
-  const percentOfAllocatedUsed = (provisioned / capacity) * 100
+  const percentage =
+    typeof provisioned === 'bigint'
+      ? (provisioned * 100n) / (capacity as bigint) // TS is being a jerk
+      : (provisioned * 100) / capacity
 
-  const [wholeNumber, decimal] = splitDecimal(percentOfAllocatedUsed)
+  const [wholeNumber, decimal] = splitDecimal(percentage)
 
-  const formattedPercentUsed = `${percentOfAllocatedUsed}%`
+  const formattedPercentUsed = `${percentage}%`
 
   return (
     <div className="w-full min-w-min rounded-lg border border-default">
@@ -39,7 +44,7 @@ export const CapacityBar = ({
           {icon}
         </div>
         <div className="flex flex-grow items-start">
-          <span className="text-mono-sm text-secondary">{title}</span>
+          <span className="!normal-case text-mono-sm text-secondary">{title}</span>
           <span className="ml-1 !normal-case text-mono-sm text-quaternary">({unit})</span>
         </div>
         <div className="flex -translate-y-0.5 items-baseline">
@@ -60,16 +65,16 @@ export const CapacityBar = ({
       <div>
         <div className="flex justify-between border-t border-secondary">
           <div className="p-3 text-mono-sm">
-            <div className="text-quaternary">Provisioned</div>
+            <div className="text-quaternary">{provisionedLabel}</div>
             <div className="text-secondary">
-              {provisioned.toLocaleString()}
+              {displayBigNum(provisioned)}
               <span className="normal-case">{includeUnit ? ' ' + unit : ''}</span>
             </div>
           </div>
           <div className="p-3 text-mono-sm">
             <div className="text-quaternary">{capacityLabel}</div>
-            <div className="text-secondary">
-              {capacity.toLocaleString()}
+            <div className="!normal-case text-secondary">
+              {displayBigNum(capacity)}
               <span className="normal-case">{includeUnit ? ' ' + unit : ''}</span>
             </div>
           </div>

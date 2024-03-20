@@ -35,7 +35,7 @@ export const CapacityBars = ({
       />
       <CapacityBar
         icon={<Ram16Icon />}
-        title="Memory"
+        title="MEMORY"
         unit="GiB"
         provisioned={bytesToGiB(provisioned.memory)}
         capacity={bytesToGiB(allocated.memory)}
@@ -43,7 +43,7 @@ export const CapacityBars = ({
       />
       <CapacityBar
         icon={<Ssd16Icon />}
-        title="Storage"
+        title="STORAGE"
         unit="TiB"
         provisioned={bytesToTiB(provisioned.storage)}
         capacity={bytesToTiB(allocated.storage)}

@@ -11,6 +11,7 @@ import { Link, Outlet, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
   apiQueryClient,
+  parseIpUtilization,
   useApiMutation,
   useApiQuery,
   useApiQueryClient,
@@ -79,25 +80,12 @@ IpPoolPage.loader = async function ({ params }: LoaderFunctionArgs) {
 export function IpPoolPage() {
   const poolSelector = useIpPoolSelector()
   const { data: pool } = usePrefetchedApiQuery('ipPoolView', { path: poolSelector })
-  const { data: utilization } = usePrefetchedApiQuery('ipPoolUtilizationView', {
-    path: poolSelector,
-  })
   return (
     <>
       <PageHeader>
         <PageTitle icon={<Networking24Icon />}>{pool.name}</PageTitle>
       </PageHeader>
-      <div className="-mt-8 mb-8">
-        <CapacityBar
-          icon={<IpGlobal16Icon />}
-          title="Utilization"
-          provisioned={utilization.ipv4.allocated}
-          capacity={utilization.ipv4.capacity}
-          capacityLabel="Capacity"
-          unit="IPs"
-          includeUnit={false}
-        />
-      </div>
+      <UtilizationBars />
       <QueryParamTabs className="full-width" defaultValue="ranges">
         <Tabs.List>
           <Tabs.Trigger value="ranges">IP ranges</Tabs.Trigger>
@@ -112,6 +100,43 @@ export function IpPoolPage() {
       </QueryParamTabs>
       <Outlet /> {/* for add range form */}
     </>
+  )
+}
+
+function UtilizationBars() {
+  const { pool } = useIpPoolSelector()
+  const { data } = usePrefetchedApiQuery('ipPoolUtilizationView', { path: { pool } })
+  const { ipv4, ipv6 } = parseIpUtilization(data)
+
+  if (ipv4.capacity === 0 && ipv6.capacity === 0n) return null
+
+  return (
+    <div className="-mt-8 mb-8 flex min-w-min flex-col gap-3 lg+:flex-row">
+      {ipv4.capacity > 0 && (
+        <CapacityBar
+          icon={<IpGlobal16Icon />}
+          title="IPv4"
+          provisioned={ipv4.allocated}
+          capacity={ipv4.capacity}
+          provisionedLabel="Allocated"
+          capacityLabel="Capacity"
+          unit="IPs"
+          includeUnit={false}
+        />
+      )}
+      {ipv6.capacity > 0 && (
+        <CapacityBar
+          icon={<IpGlobal16Icon />}
+          title="IPv6"
+          provisioned={ipv6.allocated}
+          capacity={ipv6.capacity}
+          provisionedLabel="Allocated"
+          capacityLabel="Capacity"
+          unit="IPs"
+          includeUnit={false}
+        />
+      )}
+    </div>
   )
 }
 
