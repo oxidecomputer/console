@@ -146,6 +146,35 @@ export type AddressLotResultsPage = {
   nextPage?: string
 }
 
+export type BgpMessageHistory = Record<string, unknown>
+
+/**
+ * Identifies switch physical location
+ */
+export type SwitchLocation =
+  /** Switch in upper slot */
+  | 'switch0'
+  /** Switch in lower slot */
+  | 'switch1'
+
+/**
+ * BGP message history for a particular switch.
+ */
+export type SwitchBgpHistory = {
+  /** Message history indexed by peer address. */
+  history: Record<string, BgpMessageHistory>
+  /** Switch this message history is associated with. */
+  switch: SwitchLocation
+}
+
+/**
+ * BGP message history for rack switches.
+ */
+export type AggregateBgpMessageHistory = {
+  /** BGP history organized by switch. */
+  switchHistories: SwitchBgpHistory[]
+}
+
 /**
  * Properties that uniquely identify an Oxide hardware component
  */
@@ -291,15 +320,6 @@ export type BgpConfigResultsPage = {
   /** token used to fetch the next page of results (if any) */
   nextPage?: string
 }
-
-/**
- * Identifies switch physical location
- */
-export type SwitchLocation =
-  /** Switch in upper slot */
-  | 'switch0'
-  /** Switch in lower slot */
-  | 'switch1'
 
 /**
  * A route imported from a BGP peer.
@@ -3869,6 +3889,10 @@ export interface NetworkingBgpAnnounceSetDeleteQueryParams {
   nameOrId: NameOrId
 }
 
+export interface NetworkingBgpMessageHistoryQueryParams {
+  asn: number
+}
+
 export interface NetworkingBgpImportedRoutesIpv4QueryParams {
   asn: number
 }
@@ -6172,6 +6196,20 @@ export class Api extends HttpClient {
       return this.request<void>({
         path: `/v1/system/networking/bgp-announce`,
         method: 'DELETE',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Get BGP router message history
+     */
+    networkingBgpMessageHistory: (
+      { query }: { query?: NetworkingBgpMessageHistoryQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<AggregateBgpMessageHistory>({
+        path: `/v1/system/networking/bgp-message-history`,
+        method: 'GET',
         query,
         ...params,
       })

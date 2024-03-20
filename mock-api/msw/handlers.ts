@@ -1265,6 +1265,7 @@ export const handlers = makeHandlers({
   networkingBgpConfigDelete: NotImplemented,
   networkingBgpConfigList: NotImplemented,
   networkingBgpImportedRoutesIpv4: NotImplemented,
+  networkingBgpMessageHistory: NotImplemented,
   networkingBgpStatus: NotImplemented,
   networkingLoopbackAddressCreate: NotImplemented,
   networkingLoopbackAddressDelete: NotImplemented,

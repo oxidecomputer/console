@@ -169,6 +169,35 @@ export const AddressLotResultsPage = z.preprocess(
   z.object({ items: AddressLot.array(), nextPage: z.string().optional() })
 )
 
+export const BgpMessageHistory = z.preprocess(processResponseBody, z.record(z.unknown()))
+
+/**
+ * Identifies switch physical location
+ */
+export const SwitchLocation = z.preprocess(
+  processResponseBody,
+  z.enum(['switch0', 'switch1'])
+)
+
+/**
+ * BGP message history for a particular switch.
+ */
+export const SwitchBgpHistory = z.preprocess(
+  processResponseBody,
+  z.object({
+    history: z.record(z.string().min(1), BgpMessageHistory),
+    switch: SwitchLocation,
+  })
+)
+
+/**
+ * BGP message history for rack switches.
+ */
+export const AggregateBgpMessageHistory = z.preprocess(
+  processResponseBody,
+  z.object({ switchHistories: SwitchBgpHistory.array() })
+)
+
 /**
  * Properties that uniquely identify an Oxide hardware component
  */
@@ -305,14 +334,6 @@ export const BgpConfigCreate = z.preprocess(
 export const BgpConfigResultsPage = z.preprocess(
   processResponseBody,
   z.object({ items: BgpConfig.array(), nextPage: z.string().optional() })
-)
-
-/**
- * Identifies switch physical location
- */
-export const SwitchLocation = z.preprocess(
-  processResponseBody,
-  z.enum(['switch0', 'switch1'])
 )
 
 /**
@@ -4596,6 +4617,16 @@ export const NetworkingBgpAnnounceSetDeleteParams = z.preprocess(
     path: z.object({}),
     query: z.object({
       nameOrId: NameOrId,
+    }),
+  })
+)
+
+export const NetworkingBgpMessageHistoryParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      asn: z.number().min(0).max(4294967295),
     }),
   })
 )

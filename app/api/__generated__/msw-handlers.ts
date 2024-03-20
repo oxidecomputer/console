@@ -926,6 +926,12 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
+  /** `GET /v1/system/networking/bgp-message-history` */
+  networkingBgpMessageHistory: (params: {
+    query: Api.NetworkingBgpMessageHistoryQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.AggregateBgpMessageHistory>>
   /** `GET /v1/system/networking/bgp-routes-ipv4` */
   networkingBgpImportedRoutesIpv4: (params: {
     query: Api.NetworkingBgpImportedRoutesIpv4QueryParams
@@ -1974,6 +1980,14 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       handler(
         handlers['networkingBgpAnnounceSetDelete'],
         schema.NetworkingBgpAnnounceSetDeleteParams,
+        null
+      )
+    ),
+    http.get(
+      '/v1/system/networking/bgp-message-history',
+      handler(
+        handlers['networkingBgpMessageHistory'],
+        schema.NetworkingBgpMessageHistoryParams,
         null
       )
     ),
