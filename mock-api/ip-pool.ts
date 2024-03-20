@@ -34,7 +34,16 @@ const ipPool3: Json<IpPool> = {
   time_created: new Date().toISOString(),
   time_modified: new Date().toISOString(),
 }
-export const ipPools: Json<IpPool>[] = [ipPool1, ipPool2, ipPool3]
+
+const ipPool4: Json<IpPool> = {
+  id: 'a5f395a8-650e-44c9-9af8-ec21d890f61c',
+  name: 'ip-pool-4',
+  description: '',
+  time_created: new Date().toISOString(),
+  time_modified: new Date().toISOString(),
+}
+
+export const ipPools: Json<IpPool>[] = [ipPool1, ipPool2, ipPool3, ipPool4]
 
 export const ipPoolSilos: Json<IpPoolSiloLink>[] = [
   {
@@ -77,13 +86,15 @@ export const ipPoolRanges: Json<IpPoolRange[]> = [
     },
     time_created: new Date().toISOString(),
   },
+  // IP pool 3 has no ranges
   {
     id: '914b10e1-0452-4d87-bc9b-7b91cc7c7628',
-    ip_pool_id: ipPool3.id,
+    ip_pool_id: ipPool4.id,
     range: {
       first: '::1',
       last: '::ffff:ffff:ffff:ffff',
     },
     time_created: new Date().toISOString(),
   },
+  // pool 4 has no ranges
 ]

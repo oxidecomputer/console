@@ -20,11 +20,15 @@ test('IP pool list', async ({ page }) => {
 
   const table = page.getByRole('table')
 
-  await expect(table.getByRole('row')).toHaveCount(4) // header + 3 rows
+  await expect(table.getByRole('row')).toHaveCount(5) // header + 4 rows
 
-  await expect(page.getByRole('cell', { name: 'ip-pool-1' })).toBeVisible()
-  await expect(page.getByRole('cell', { name: 'ip-pool-2' })).toBeVisible()
-  await expect(page.getByRole('cell', { name: 'ip-pool-3' })).toBeVisible()
+  await expectRowVisible(table, { name: 'ip-pool-1', Utilization: '0 / 8' })
+  await expectRowVisible(table, { name: 'ip-pool-2', Utilization: '0 / 6' })
+  await expectRowVisible(table, { name: 'ip-pool-3', Utilization: '0 / 0' })
+  await expectRowVisible(table, {
+    name: 'ip-pool-4',
+    Utilization: 'v4' + '0 / 0' + 'v6' + '0 / 18.4e18',
+  })
 })
 
 test('IP pool silo list', async ({ page }) => {
@@ -179,7 +183,15 @@ test('IP range validation and add', async ({ page }) => {
   await submit.click()
   await expect(dialog).toBeHidden()
 
-  await expectRowVisible(page.getByRole('table'), { First: v6Addr, Last: v6Addr })
+  const table = page.getByRole('table')
+  await expectRowVisible(table, { First: v6Addr, Last: v6Addr })
+
+  // go back to the pool and verify the utilization column changed
+  await page.getByRole('link', { name: 'Networking' }).click()
+  await expectRowVisible(table, {
+    name: 'ip-pool-1',
+    Utilization: 'v4' + '0 / 8' + 'v6' + '0 / 1',
+  })
 })
 
 test('remove range', async ({ page }) => {
