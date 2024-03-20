@@ -44,6 +44,8 @@
 
 :root {
   --content-gutter: 2.5rem;
+  --sidebar-width: 14.25rem;
+  --navigation-height: 3.75rem;
 }
 
 @media (max-width: 768px) {
@@ -53,12 +55,13 @@
 }
 
 @layer base {
-  html {
+  html,
+  body {
     overscroll-behavior-y: none;
   }
 
   body {
-    @apply overflow-y-hidden text-default bg-default;
+    @apply text-default bg-default;
     font-family:
       SuisseIntl,
       -apple-system,

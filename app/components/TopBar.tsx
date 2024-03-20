@@ -44,11 +44,8 @@ export function TopBar({ children }: { children: React.ReactNode }) {
 
   const { isOpen } = useMenuState()
 
-  // The height of this component is governed by the `PageContainer`
-  // It's important that this component returns two distinct elements (wrapped in a fragment).
-  // Each element will occupy one of the top column slots provided by `PageContainer`.
   return (
-    <div className="z-topBar col-span-2 grid grid-cols-[min-content,auto] lg+:grid-cols-[14.25rem,auto]">
+    <div className="fixed top-0 z-topBar col-span-2 grid h-[var(--navigation-height)] w-full grid-cols-[min-content,auto] bg-default lg+:grid-cols-[var(--sidebar-width),auto]">
       <div className="flex items-center border-b pl-3 border-secondary lg+:border-r lg+:pr-3">
         <Button
           variant="ghost"
@@ -74,10 +71,8 @@ export function TopBar({ children }: { children: React.ReactNode }) {
         {cornerPicker}
       </div>
 
-      {/* Height is governed by PageContainer grid */}
-      {/* shrink-0 is needed to prevent getting squished by body content */}
       <div className="border-b bg-default border-secondary">
-        <div className="mr-3 flex h-[60px] shrink-0 items-center justify-between lg+:ml-3">
+        <div className="mr-3 flex h-[var(--navigation-height)] shrink-0 items-center justify-between lg+:ml-3">
           <div className="pickers before:text-mono-lg flex items-center before:children:content-['/'] before:children:first:mx-3 before:children:first:text-quinary md-:children:hidden lg+:[&>div:first-of-type]:before:hidden md-:[&>div:last-of-type]:flex">
             {otherPickers}
           </div>

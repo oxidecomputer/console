@@ -16,8 +16,12 @@
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
     position: sticky;
-    top: 1px;
-    @apply z-topBar bg-default;
+    top: var(--navigation-height);
+    @apply z-popover mb-0 bg-default;
+  }
+
+  .ox-tabs .ox-tabs-list + * {
+    @apply mt-8;
   }
 }
 
@@ -26,7 +30,7 @@
 }
 
 .ox-tabs-list {
-  @apply mb-8 flex bg-transparent;
+  @apply flex bg-transparent;
 }
 
 .ox-tabs-list:after {
