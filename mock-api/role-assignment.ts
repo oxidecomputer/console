@@ -65,11 +65,4 @@ export const roleAssignments: DbRoleAssignment[] = [
     identity_type: 'silo_group',
     role_name: 'viewer',
   },
-  // {
-  //   resource_type: 'project',
-  //   resource_id: project.id,
-  //   identity_id: user1.id,
-  //   identity_type: 'silo_user',
-  //   role_name: 'viewer',
-  // },
 ]

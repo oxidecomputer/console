@@ -42,10 +42,6 @@ export const groupMemberships: GroupMembership[] = [
     groupId: userGroup1.id,
   },
   {
-    userId: user1.id,
-    groupId: userGroup3.id,
-  },
-  {
     userId: user2.id,
     groupId: userGroup3.id,
   },
