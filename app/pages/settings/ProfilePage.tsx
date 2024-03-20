@@ -14,13 +14,14 @@ import { TextField } from '~/components/form/fields/TextField'
 import { FullPageForm } from '~/components/form/FullPageForm'
 import { useForm } from '~/hooks'
 import { useCurrentUser } from '~/layouts/AuthenticatedLayout'
+import { getActionsCol } from '~/table/columns/action-col'
 import { Table } from '~/table/Table'
 
 const colHelper = createColumnHelper<Group>()
 
 const columns = [
-  colHelper.accessor('id', { header: 'ID' }),
   colHelper.accessor('displayName', { header: 'Name' }),
+  getActionsCol(() => []),
 ]
 
 export function ProfilePage() {
