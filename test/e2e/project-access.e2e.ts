@@ -37,8 +37,10 @@ test('Click through project access page', async ({ page }) => {
     Role: 'project.viewer',
   })
 
-  await expectNotVisible(page, [`role=cell[name="Hans Jonas"]`])
-  await expectNotVisible(page, [`role=cell[name="Simone de Beauvoir"]`])
+  await expectNotVisible(page, [
+    `role=cell[name="Hans Jonas"]`,
+    `role=cell[name="Simone de Beauvoir"]`,
+  ])
 
   // Add user 4 as collab
   await page.click('role=button[name="Add user or group"]')
@@ -107,7 +109,7 @@ test('Click through project access page', async ({ page }) => {
   await page.click('role=button[name*="Role"]')
   await page.click('role=option[name="Viewer"]')
   await page.click('role=button[name="Assign role"]')
-  // because we only show the "effective" role, we should still see the silo admin role
+  // because we only show the "effective" role, we should still see the silo admin role, but should now have an additional count value
   await expectRowVisible(table, {
     Name: 'Hannah Arendt',
     Type: 'User',
