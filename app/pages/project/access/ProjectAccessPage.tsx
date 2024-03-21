@@ -24,7 +24,6 @@ import {
 } from '@oxide/api'
 import { Access24Icon } from '@oxide/design-system/icons/react'
 
-import { AccessBadge } from '~/components/AccessBadge'
 import { HL } from '~/components/HL'
 import { ListPlusCell } from '~/components/ListPlusCell'
 import {
@@ -35,11 +34,12 @@ import { getProjectSelector, useProjectSelector } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { getActionsCol } from '~/table/columns/action-col'
 import { Table } from '~/table/Table'
+import { Badge } from '~/ui/lib/Badge'
 import { Button } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions, TableEmptyBox } from '~/ui/lib/Table'
-import { accessTypeLabel } from '~/util/access'
+import { accessTypeLabel, getBadgeColor } from '~/util/access'
 import { groupBy, isTruthy, sortBy } from '~/util/array'
 
 const EmptyState = ({ onClick }: { onClick: () => void }) => (
@@ -134,7 +134,9 @@ export function ProjectAccessPage() {
         cell: (props) => (
           <ListPlusCell tooltipTitle="Other roles">
             {props.getValue().map(({ roleName, roleSource }) => (
-              <AccessBadge key={roleSource} role={roleName} labelPrefix={roleSource} />
+              <Badge key={roleSource} color={getBadgeColor(roleName)}>
+                {roleSource}.{roleName}
+              </Badge>
             ))}
           </ListPlusCell>
         ),
