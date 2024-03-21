@@ -450,7 +450,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
 
       <fieldset className="space-y-0.5">
         <div className="mb-2">
-          <FieldLabel>Protocols</FieldLabel>
+          <FieldLabel id="protocols">Protocols</FieldLabel>
         </div>
         <div>
           <CheckboxField name="protocols" value="TCP" control={control}>
