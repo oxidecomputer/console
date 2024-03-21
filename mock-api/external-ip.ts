@@ -27,7 +27,7 @@ type DbExternalIp = {
 // IPs, but we only put the ephemeral ones here. We have a separate table for
 // floating IPs analogous to the floating_ip view in Nexus.
 
-// Note that these addreses should come from ip-pool-1
+// Note that these addresses should come from ranges in ip-pool-1
 
 export const ephemeralIps: DbExternalIp[] = [
   {

@@ -22,7 +22,7 @@ test('IP pool list', async ({ page }) => {
 
   await expect(table.getByRole('row')).toHaveCount(5) // header + 4 rows
 
-  await expectRowVisible(table, { name: 'ip-pool-1', Utilization: '4 / 8' })
+  await expectRowVisible(table, { name: 'ip-pool-1', Utilization: '6 / 24' })
   await expectRowVisible(table, { name: 'ip-pool-2', Utilization: '0 / 6' })
   await expectRowVisible(table, { name: 'ip-pool-3', Utilization: '0 / 0' })
   await expectRowVisible(table, {
@@ -136,9 +136,9 @@ test('IP range validation and add', async ({ page }) => {
   await page.goto('/system/networking/ip-pools/ip-pool-1')
 
   // check the utilization bar
-  await expect(page.getByText('IPv4(IPs)50%')).toBeVisible()
-  await expect(page.getByText('Allocated4')).toBeVisible()
-  await expect(page.getByText('Capacity8')).toBeVisible()
+  await expect(page.getByText('IPv4(IPs)25%')).toBeVisible()
+  await expect(page.getByText('Allocated6')).toBeVisible()
+  await expect(page.getByText('Capacity24')).toBeVisible()
 
   await page.getByRole('link', { name: 'Add range' }).click()
 
@@ -194,9 +194,9 @@ test('IP range validation and add', async ({ page }) => {
   await expectRowVisible(table, { First: v6Addr, Last: v6Addr })
 
   // now the utilization bars are split in two
-  await expect(page.getByText('IPv4(IPs)50%')).toBeVisible()
-  await expect(page.getByText('Allocated4')).toBeVisible()
-  await expect(page.getByText('Capacity8')).toBeVisible()
+  await expect(page.getByText('IPv4(IPs)25%')).toBeVisible()
+  await expect(page.getByText('Allocated6')).toBeVisible()
+  await expect(page.getByText('Capacity24')).toBeVisible()
   await expect(page.getByText('IPv6(IPs)0%')).toBeVisible()
   await expect(page.getByText('Allocated0')).toBeVisible()
   await expect(page.getByText('Capacity1')).toBeVisible()
@@ -205,7 +205,7 @@ test('IP range validation and add', async ({ page }) => {
   await page.getByRole('link', { name: 'Networking' }).click()
   await expectRowVisible(table, {
     name: 'ip-pool-1',
-    Utilization: 'v4' + '4 / 8' + 'v6' + '0 / 1',
+    Utilization: 'v4' + '6 / 24' + 'v6' + '0 / 1',
   })
 })
 
@@ -231,15 +231,15 @@ test('remove range', async ({ page }) => {
   await expect(table.getByRole('row')).toHaveCount(2)
 
   // utilization updates
-  await expect(page.getByText('IPv4(IPs)80%')).toBeVisible()
-  await expect(page.getByText('Allocated4')).toBeVisible()
-  await expect(page.getByText('Capacity5')).toBeVisible()
+  await expect(page.getByText('IPv4(IPs)28.57%')).toBeVisible()
+  await expect(page.getByText('Allocated6')).toBeVisible()
+  await expect(page.getByText('Capacity21')).toBeVisible()
 
   // go back to the pool and verify the utilization column changed
   await page.getByRole('link', { name: 'Networking' }).click()
   await expectRowVisible(table, {
     name: 'ip-pool-1',
-    Utilization: '4 / 5',
+    Utilization: '6 / 21',
   })
 })
 

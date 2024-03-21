@@ -64,7 +64,7 @@ export const ipPoolRanges: Json<IpPoolRange[]> = [
     ip_pool_id: ipPool1.id,
     range: {
       first: '123.4.56.0',
-      last: '123.4.56.4',
+      last: '123.4.56.20',
     },
     time_created: new Date().toISOString(),
   },

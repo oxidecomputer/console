@@ -12,7 +12,7 @@ import { instance } from './instance'
 import type { Json } from './json-type'
 import { project } from './project'
 
-// TODO: the addresses here need to come from the right pool
+// Note that these addresses should come from ranges in ip-pool-1
 
 // A floating IP from the default pool
 export const floatingIp: Json<FloatingIp> = {
@@ -20,7 +20,7 @@ export const floatingIp: Json<FloatingIp> = {
   name: 'rootbeer-float',
   description: 'A classic.',
   instance_id: undefined,
-  ip: '192.168.32.1',
+  ip: '123.4.56.4',
   project_id: project.id,
   time_created: new Date().toISOString(),
   time_modified: new Date().toISOString(),
@@ -32,7 +32,7 @@ export const floatingIp2: Json<FloatingIp> = {
   name: 'cola-float',
   description: 'A favourite.',
   instance_id: instance.id,
-  ip: '192.168.64.64',
+  ip: '123.4.56.5',
   project_id: project.id,
   time_created: new Date().toISOString(),
   time_modified: new Date().toISOString(),
