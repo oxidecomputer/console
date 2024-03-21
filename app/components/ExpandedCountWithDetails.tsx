@@ -11,7 +11,7 @@ import { Tooltip } from '~/ui/lib/Tooltip'
 type ExpandedCountWithDetailsProps = {
   count: number
   title: string
-  details: React.ReactNode
+  children: React.ReactNode
 }
 
 /**
@@ -20,12 +20,12 @@ type ExpandedCountWithDetailsProps = {
 export const ExpandedCountWithDetails = ({
   count,
   title,
-  details,
+  children,
 }: ExpandedCountWithDetailsProps) => {
   const content = (
     <div>
       <div className="mb-2">{title}</div>
-      {details}
+      {children}
     </div>
   )
   return (

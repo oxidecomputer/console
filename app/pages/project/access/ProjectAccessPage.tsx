@@ -14,7 +14,7 @@ import {
   apiQueryClient,
   byGroupThenName,
   deleteRole,
-  getEffectiveRole,
+  roleOrder,
   useApiMutation,
   useApiQueryClient,
   usePrefetchedApiQuery,
@@ -24,8 +24,9 @@ import {
 } from '@oxide/api'
 import { Access24Icon } from '@oxide/design-system/icons/react'
 
+import { AccessBadge } from '~/components/AccessBadge'
+import { ExpandedCountWithDetails } from '~/components/ExpandedCountWithDetails'
 import { HL } from '~/components/HL'
-import { ProjectAccessRolesCell } from '~/components/ProjectAccessRolesCell'
 import {
   ProjectAccessAddUserSideModal,
   ProjectAccessEditUserSideModal,
@@ -39,7 +40,7 @@ import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions, TableEmptyBox } from '~/ui/lib/Table'
 import { accessTypeLabel } from '~/util/access'
-import { groupBy, isTruthy } from '~/util/array'
+import { groupBy, isTruthy, sortBy } from '~/util/array'
 
 const EmptyState = ({ onClick }: { onClick: () => void }) => (
   <TableEmptyBox>
@@ -71,7 +72,7 @@ type UserRow = {
   name: string
   siloRole: RoleKey | undefined
   projectRole: RoleKey | undefined
-  effectiveRole: RoleKey
+  roleBadges: { roleSource: string; roleName: RoleKey }[]
 }
 
 const colHelper = createColumnHelper<UserRow>()
@@ -92,26 +93,24 @@ export function ProjectAccessPage() {
   const rows = useMemo(() => {
     return groupBy(siloRows.concat(projectRows), (u) => u.id)
       .map(([userId, userAssignments]) => {
-        const siloRole = userAssignments.find((a) => a.roleSource === 'silo')?.roleName
-        const projectRole = userAssignments.find(
-          (a) => a.roleSource === 'project'
-        )?.roleName
-
-        const roles = [siloRole, projectRole].filter(isTruthy)
-
         const { name, identityType } = userAssignments[0]
 
-        const row: UserRow = {
+        const siloAccessRow = userAssignments.find((a) => a.roleSource === 'silo')
+        const projectAccessRow = userAssignments.find((a) => a.roleSource === 'project')
+
+        const roleBadges = sortBy(
+          [siloAccessRow, projectAccessRow].filter(isTruthy),
+          (r) => roleOrder[r.roleName] // sorts strongest role first
+        )
+
+        return {
           id: userId,
           identityType,
           name,
-          siloRole,
-          projectRole,
-          // we know there has to be at least one
-          effectiveRole: getEffectiveRole(roles)!,
-        }
-
-        return row
+          siloRole: siloAccessRow?.roleName,
+          projectRole: projectAccessRow?.roleName,
+          roleBadges,
+        } satisfies UserRow
       })
       .sort(byGroupThenName)
   }, [siloRows, projectRows])
@@ -132,7 +131,28 @@ export function ProjectAccessPage() {
         header: 'Type',
         cell: (props) => accessTypeLabel(props.getValue()),
       }),
-      colHelper.accessor('effectiveRole', { header: 'Role', cell: ProjectAccessRolesCell }),
+      colHelper.accessor('roleBadges', {
+        header: 'Role',
+        cell: (props) => {
+          const [first, ...rest] = props.getValue()
+          return (
+            <div className="flex items-baseline gap-2">
+              <AccessBadge role={first.roleName} labelPrefix={first.roleSource} />
+              {rest.length > 0 && (
+                <ExpandedCountWithDetails count={rest.length} title="Other roles">
+                  {rest.map((x) => (
+                    <AccessBadge
+                      key={x.roleSource}
+                      role={x.roleName}
+                      labelPrefix={x.roleSource}
+                    />
+                  ))}
+                </ExpandedCountWithDetails>
+              )}
+            </div>
+          )
+        },
+      }),
 
       // TODO: tooltips on disabled elements explaining why
       getActionsCol((row: UserRow) => [
