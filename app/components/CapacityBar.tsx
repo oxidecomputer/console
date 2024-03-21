@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { displayBigNum, splitDecimal } from '~/util/math'
+import { displayBigNum, percentage, splitDecimal } from '~/util/math'
 
 export const CapacityBar = <T extends number | bigint>({
   icon,
@@ -27,14 +27,8 @@ export const CapacityBar = <T extends number | bigint>({
   capacityLabel: string
   includeUnit?: boolean
 }) => {
-  const percentage =
-    typeof provisioned === 'bigint'
-      ? (provisioned * 100n) / (capacity as bigint) // TS is being a jerk
-      : (provisioned * 100) / capacity
-
-  const [wholeNumber, decimal] = splitDecimal(percentage)
-
-  const formattedPercentUsed = `${percentage}%`
+  const pct = percentage(provisioned, capacity)
+  const [wholeNumber, decimal] = splitDecimal(pct)
 
   return (
     <div className="w-full min-w-min rounded-lg border border-default">
@@ -57,7 +51,7 @@ export const CapacityBar = <T extends number | bigint>({
         <div className="flex w-full gap-0.5">
           <div
             className="h-3 rounded-l border bg-accent-secondary border-accent-secondary"
-            style={{ width: formattedPercentUsed }}
+            style={{ width: `${pct.toFixed(2)}%` }}
           ></div>
           <div className="h-3 grow rounded-r border bg-info-secondary border-info-secondary"></div>
         </div>

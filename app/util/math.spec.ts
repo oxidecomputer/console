@@ -7,7 +7,7 @@
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
-import { displayBigNum, round, splitDecimal, toEngNotation } from './math'
+import { displayBigNum, percentage, round, splitDecimal, toEngNotation } from './math'
 import { GiB } from './units'
 
 function roundTest() {
@@ -33,6 +33,40 @@ function roundTest() {
 }
 
 it('round', roundTest)
+
+it.each([
+  [2, 5, 40],
+  [1, 2, 50],
+  [3, 4, 75],
+  [7, 10, 70],
+  [1, 3, 33.33],
+  [1, 7, 14.29],
+  [5, 8, 62.5],
+  [3, 9, 33.33],
+  [45847389, 349848380, 13.1],
+  [19403, 9, 215588.89],
+  [1n, 2n, 50],
+  [3n, 4n, 75],
+  [7n, 10n, 70],
+  // want to make sure we try it with IPv6 scale numbers
+  [7n, 123849839483423987n, 0],
+  [2n ** 80n, 2n ** 81n, 50],
+  [2n ** 80n, (9n * 2n ** 81n) / 7n, 38.88],
+  [39340938283493007n, 12387938n, 317574549400.33],
+  // also negatives, why not
+  [-1, 2, -50],
+  [-3, 4, -75],
+  [-7, 10, -70],
+  [-1, 3, -33.33],
+  [-1, 7, -14.29],
+  [-5, 8, -62.5],
+  [-3, 9, -33.33],
+  [-1n, 2n, -50],
+  [-3n, 4n, -75],
+  [-7n, 10n, -70],
+])('percentage %d / %d -> %d', (top, bottom, perc) => {
+  expect(percentage(top, bottom)).toBeCloseTo(perc, 2)
+})
 
 describe('with default locale', () => {
   it.each([
