@@ -84,7 +84,7 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
         <JumpToButton />
       </div>
       {children}
-      {pathname.split('/')[1] !== 'settings' && <ProfileLinks />}
+      {pathname.split('/')[1] !== 'settings' && <ProfileLinks className="lg+:hidden" />}
     </>
   )
 
@@ -138,7 +138,7 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
   }
 }
 
-export const ProfileLinks = () => {
+export const ProfileLinks = ({ className }: { className?: string }) => {
   const { me } = useCurrentUser()
 
   const logout = useApiMutation('logout', {
@@ -151,7 +151,7 @@ export const ProfileLinks = () => {
   })
 
   return (
-    <div className="lg+:hidden">
+    <div className={cn(className, '')}>
       <Divider />
       <Sidebar.Nav heading={me.displayName || 'User'}>
         <NavLinkItem to={pb.profile()}>
@@ -161,8 +161,8 @@ export const ProfileLinks = () => {
         <NavLinkItem to={pb.sshKeys()}>
           <Key16Icon /> SSH Keys
         </NavLinkItem>
-        <NavButtonItem onClick={() => logout.mutate({})}>
-          <SignOut16Icon /> Sign out
+        <NavButtonItem onClick={() => logout.mutate({})} className="lg+:hidden">
+          <SignOut16Icon /> Sign Out
         </NavButtonItem>
       </Sidebar.Nav>
     </div>
@@ -246,6 +246,7 @@ export const NavButtonItem = (props: {
   onClick: () => void
   children: React.ReactNode
   disabled?: boolean
+  className?: string
 }) => (
   <li>
     <button
@@ -255,7 +256,8 @@ export const NavButtonItem = (props: {
         {
           'pointer-events-none text-disabled': props.disabled,
         },
-        'w-full'
+        'w-full',
+        props.className
       )}
     >
       {props.children}

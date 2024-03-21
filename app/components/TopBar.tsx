@@ -118,7 +118,7 @@ export function TopBar({ children }: { children: React.ReactNode }) {
                 </DropdownMenu.Item>
                 {loggedIn ? (
                   <DropdownMenu.Item onSelect={() => logout.mutate({})}>
-                    Sign out
+                    Sign Out
                   </DropdownMenu.Item>
                 ) : (
                   <DropdownMenu.Item onSelect={() => navToLogin({ includeCurrent: true })}>
