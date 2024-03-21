@@ -103,10 +103,10 @@ const MetricsTab = () => {
 
   return (
     <>
-      <div className="mb-3 mt-8 flex justify-between gap-3">
+      <div className="mb-4 flex justify-between md-:flex-col md-:gap-2">
         <Listbox
           selected={filterId}
-          className="w-64"
+          className="lg+:w-64 md-:!w-full xl-:w-40"
           aria-labelledby="filter-id-label"
           name="filter-id"
           items={siloItems}
@@ -118,7 +118,7 @@ const MetricsTab = () => {
 
       {intervalPicker}
 
-      <div className="mb-12 space-y-12">
+      <div className="space-y-12 md+:mb-12">
         <SystemMetric
           {...commonProps}
           metricName="cpus_provisioned"

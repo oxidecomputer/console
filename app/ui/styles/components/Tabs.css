@@ -15,15 +15,12 @@
     overflow-x: auto;
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
-    position: sticky;
-    top: var(--navigation-height);
-    @apply z-popover mb-0 bg-default;
   }
 }
 
 /* We apply this to the next item not the tab bar so that
 the sticky tab bar finishes at the correct point */
-.ox-tabs .ox-tabs-list + * {
+.ox-tabs > div:not(.ox-tabs-list) {
   @apply mt-8;
 }
 
@@ -32,11 +29,12 @@ the sticky tab bar finishes at the correct point */
 }
 
 .ox-tabs-list {
-  @apply flex bg-transparent;
+  top: var(--navigation-height);
+  @apply sticky z-popover flex bg-transparent bg-default;
 }
 
 .ox-tabs-list:after {
-  @apply block w-full border-b border-secondary md-:w-[var(--content-gutter)] md-:min-w-max md-:flex-shrink-0;
+  @apply block w-full flex-grow border-b border-secondary md-:w-[var(--content-gutter)] md-:min-w-max md-:flex-shrink-0;
   content: ' ';
 }
 .ox-tabs.full-width .ox-tabs-list:before {

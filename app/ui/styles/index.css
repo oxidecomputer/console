@@ -66,10 +66,6 @@
     @apply min-h-full;
   }
 
-  .msw-banner .pagination {
-    @apply bottom-10;
-  }
-
   .msw-banner #content_pane {
     @apply pb-10;
   }

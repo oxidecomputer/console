@@ -70,7 +70,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
         >
           <div
             className={cn(
-              'relative flex w-[17rem] items-center px-3 text-sans-md md-:hidden'
+              'relative flex w-[17rem] items-center px-3 text-sans-md lg-:hidden'
             )}
           >
             {label}

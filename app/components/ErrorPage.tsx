@@ -32,11 +32,11 @@ export function ErrorPage({ children }: Props) {
           to="/"
           className="flex items-center p-6 text-mono-sm text-secondary hover:text-default"
         >
-          <PrevArrow12Icon title="Select" className="mr-2 w-2 text-tertiary" />
+          <PrevArrow12Icon title="Select" className="mr-2 text-tertiary" />
           Back to console
         </Link>
       </div>
-      <div className="absolute left-1/2 top-1/2 flex w-96 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center space-y-4 rounded-lg border p-8 !bg-raise border-secondary elevation-3">
+      <div className="absolute left-1/2 top-1/2 flex w-96 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center space-y-4 rounded-lg border p-8 !bg-raise border-secondary elevation-3 md-:w-[calc(100%-(var(--content-gutter)*2))]">
         <div className="my-2 flex h-12 w-12 items-center justify-center">
           <div className="absolute h-12 w-12 rounded-full opacity-20 bg-destructive motion-safe:animate-[ping_2s_cubic-bezier(0,0,0.2,1)_infinite]" />
           <Error12Icon className="relative h-8 w-8 text-error" />

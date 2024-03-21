@@ -32,6 +32,7 @@ import { useForm, useVpcSelector } from '~/hooks'
 import { Badge } from '~/ui/lib/Badge'
 import { Button } from '~/ui/lib/Button'
 import { FormDivider } from '~/ui/lib/Divider'
+import { FieldLabel } from '~/ui/lib/FieldLabel'
 import * as MiniTable from '~/ui/lib/MiniTable'
 import { KEYS } from '~/ui/util/keys'
 
@@ -448,7 +449,9 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
       <FormDivider />
 
       <fieldset className="space-y-0.5">
-        <legend>Protocols</legend>
+        <div className="mb-2">
+          <FieldLabel>Protocols</FieldLabel>
+        </div>
         <div>
           <CheckboxField name="protocols" value="TCP" control={control}>
             TCP

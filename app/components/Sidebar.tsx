@@ -128,7 +128,7 @@ export const ProfileLinks = () => {
   })
 
   return (
-    <div className="md+:hidden">
+    <div className="lg+:hidden">
       <Divider />
       <Sidebar.Nav heading={me.displayName || 'User'}>
         <NavLinkItem to={pb.profile()}>
