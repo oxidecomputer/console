@@ -21,7 +21,7 @@
     "skipLibCheck": true,
     "sourceMap": true,
     "strict": true,
-    "target": "es2015",
+    "target": "es2020",
     "types": ["node", "vite/client", "vitest/importMeta", "react/canary"]
   },
   "exclude": ["tools/deno"]

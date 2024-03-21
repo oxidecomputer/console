@@ -68,6 +68,7 @@ export function IpPoolAddRangeSideModalForm() {
     onSuccess(_range) {
       // refetch list of projects in sidebar
       queryClient.invalidateQueries('ipPoolRangeList')
+      queryClient.invalidateQueries('ipPoolUtilizationView')
       addToast({ content: 'IP range added' })
       onDismiss()
     },

@@ -11,6 +11,7 @@ import { Link, Outlet, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
   apiQueryClient,
+  parseIpUtilization,
   useApiMutation,
   useApiQuery,
   useApiQueryClient,
@@ -18,8 +19,13 @@ import {
   type IpPoolRange,
   type IpPoolSiloLink,
 } from '@oxide/api'
-import { Networking24Icon, Success12Icon } from '@oxide/design-system/icons/react'
+import {
+  IpGlobal16Icon,
+  Networking24Icon,
+  Success12Icon,
+} from '@oxide/design-system/icons/react'
 
+import { CapacityBar } from '~/components/CapacityBar'
 import { ExternalLink } from '~/components/ExternalLink'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { HL } from '~/components/HL'
@@ -55,6 +61,9 @@ IpPoolPage.loader = async function ({ params }: LoaderFunctionArgs) {
       path: { pool },
       query: { limit: 25 }, // match QueryTable
     }),
+    apiQueryClient.prefetchQuery('ipPoolUtilizationView', {
+      path: { pool },
+    }),
 
     // fetch silos and preload into RQ cache so fetches by ID in SiloNameFromId
     // can be mostly instant yet gracefully fall back to fetching individually
@@ -76,6 +85,7 @@ export function IpPoolPage() {
       <PageHeader>
         <PageTitle icon={<Networking24Icon />}>{pool.name}</PageTitle>
       </PageHeader>
+      <UtilizationBars />
       <QueryParamTabs className="full-width" defaultValue="ranges">
         <Tabs.List>
           <Tabs.Trigger value="ranges">IP ranges</Tabs.Trigger>
@@ -93,6 +103,43 @@ export function IpPoolPage() {
   )
 }
 
+function UtilizationBars() {
+  const { pool } = useIpPoolSelector()
+  const { data } = usePrefetchedApiQuery('ipPoolUtilizationView', { path: { pool } })
+  const { ipv4, ipv6 } = parseIpUtilization(data)
+
+  if (ipv4.capacity === 0 && ipv6.capacity === 0n) return null
+
+  return (
+    <div className="-mt-8 mb-8 flex min-w-min flex-col gap-3 lg+:flex-row">
+      {ipv4.capacity > 0 && (
+        <CapacityBar
+          icon={<IpGlobal16Icon />}
+          title="IPv4"
+          provisioned={ipv4.allocated}
+          capacity={ipv4.capacity}
+          provisionedLabel="Allocated"
+          capacityLabel="Capacity"
+          unit="IPs"
+          includeUnit={false}
+        />
+      )}
+      {ipv6.capacity > 0 && (
+        <CapacityBar
+          icon={<IpGlobal16Icon />}
+          title="IPv6"
+          provisioned={ipv6.allocated}
+          capacity={ipv6.capacity}
+          provisionedLabel="Allocated"
+          capacityLabel="Capacity"
+          unit="IPs"
+          includeUnit={false}
+        />
+      )}
+    </div>
+  )
+}
+
 function IpRangesTable() {
   const { pool } = useIpPoolSelector()
   const { Table, Column } = useQueryTable('ipPoolRangeList', { path: { pool } })
@@ -101,6 +148,7 @@ function IpRangesTable() {
   const removeRange = useApiMutation('ipPoolRangeRemove', {
     onSuccess() {
       queryClient.invalidateQueries('ipPoolRangeList')
+      queryClient.invalidateQueries('ipPoolUtilizationView')
     },
   })
   const emptyState = (

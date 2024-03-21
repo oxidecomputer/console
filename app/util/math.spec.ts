@@ -7,7 +7,7 @@
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
-import { round, splitDecimal } from './math'
+import { displayBigNum, percentage, round, splitDecimal, toEngNotation } from './math'
 import { GiB } from './units'
 
 function roundTest() {
@@ -34,6 +34,40 @@ function roundTest() {
 
 it('round', roundTest)
 
+it.each([
+  [2, 5, 40],
+  [1, 2, 50],
+  [3, 4, 75],
+  [7, 10, 70],
+  [1, 3, 33.33],
+  [1, 7, 14.29],
+  [5, 8, 62.5],
+  [3, 9, 33.33],
+  [45847389, 349848380, 13.1],
+  [19403, 9, 215588.89],
+  [1n, 2n, 50],
+  [3n, 4n, 75],
+  [7n, 10n, 70],
+  // want to make sure we try it with IPv6 scale numbers
+  [7n, 123849839483423987n, 0],
+  [2n ** 80n, 2n ** 81n, 50],
+  [2n ** 80n, (9n * 2n ** 81n) / 7n, 38.88],
+  [39340938283493007n, 12387938n, 317574549400.33],
+  // also negatives, why not
+  [-1, 2, -50],
+  [-3, 4, -75],
+  [-7, 10, -70],
+  [-1, 3, -33.33],
+  [-1, 7, -14.29],
+  [-5, 8, -62.5],
+  [-3, 9, -33.33],
+  [-1n, 2n, -50],
+  [-3n, 4n, -75],
+  [-7n, 10n, -70],
+])('percentage %d / %d -> %d', (top, bottom, perc) => {
+  expect(percentage(top, bottom)).toBeCloseTo(perc, 2)
+})
+
 describe('with default locale', () => {
   it.each([
     [0.23, ['0', '.23']],
@@ -58,6 +92,22 @@ describe('with default locale', () => {
     [1000.5, ['1,000', '.5']], // test localeString grouping
   ])('splitDecimal %d -> %s', (input, output) => {
     expect(splitDecimal(input)).toEqual(output)
+  })
+
+  it.each([
+    [0n, ['0', false]],
+    [1n, ['1', false]],
+    [155n, ['155', false]],
+    [999999n, ['999,999', false]],
+    [1000000n, ['1M', true]],
+    [1234567n, ['1.2M', true]],
+    [9999999n, ['10M', true]],
+    [492038458320n, ['492B', true]],
+    [894283412938921, ['894.3T', true]],
+    [1293859032098219, ['1.3e15', true]],
+    [23094304823948203952304920342n, ['23.1e27', true]],
+  ])('displayBigNum %d -> %s', (input, output) => {
+    expect(displayBigNum(input)).toEqual(output)
   })
 })
 
@@ -99,10 +149,62 @@ describe('with de-DE locale', () => {
   // rounding must work the same irrespective of locale
   it('round', roundTest)
 
+  it.each([
+    [0n, ['0', false]],
+    [1n, ['1', false]],
+    [155n, ['155', false]],
+    [999999n, ['999,999', false]],
+    [1000000n, ['1 Mio.', true]],
+    [1234567n, ['1,2 Mio.', true]],
+    [9999999n, ['10 Mio.', true]], // note non-breaking space
+    [492038458320n, ['492 Mrd.', true]], // note non-breaking space
+    [894283412938921, ['894,3 Bio.', true]],
+    [1293859032098219, ['1,3e15', true]],
+    [23094304823948203952304920342n, ['23,1e27', true]],
+  ])('displayBigNum %d -> %s', (input, output) => {
+    expect(displayBigNum(input)).toEqual(output)
+  })
+
   afterAll(() => {
     Object.defineProperty(global.navigator, 'language', {
       value: originalLanguage,
       writable: true,
     })
   })
+})
+
+// the point of these tests is to make sure the toLowerCase shenanigan in
+// toEngNotation doesn't go horribly wrong due some obscure locale's concept of
+// engineering notation
+
+const n = 23094304823948203952304920342n
+
+it.each([
+  ['en-US'],
+  ['zh-CN'],
+  ['es-419'],
+  ['en-GB'],
+  ['ja-JP'],
+  ['en-CA'],
+  ['en-IN'],
+  ['ko-KR'],
+])('toEngNotation dots %s', (locale) => {
+  expect(toEngNotation(n, locale)).toEqual('23.1e27')
+})
+
+it.each([
+  ['es-ES'],
+  ['ru-RU'],
+  ['de-DE'],
+  ['fr-FR'],
+  ['pt-BR'],
+  ['fr-CA'],
+  ['it-IT'],
+  ['pl-PL'],
+  ['nl-NL'],
+  ['tr-TR'],
+  ['pt-PT'],
+  // ['ar-SA'], // saudi arabia, arabic script
+])('toEngNotation commas %s', (locale) => {
+  expect(toEngNotation(n, locale)).toEqual('23,1e27')
 })

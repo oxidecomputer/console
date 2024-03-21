@@ -6,30 +6,30 @@
  * Copyright Oxide Computer Company
  */
 
-import { splitDecimal } from '~/util/math'
+import { BigNum } from '~/ui/lib/BigNum'
+import { percentage, splitDecimal } from '~/util/math'
 
-export const CapacityBar = ({
+export const CapacityBar = <T extends number | bigint>({
   icon,
   title,
   unit,
   provisioned,
-  allocated,
-  allocatedLabel,
+  capacity,
+  capacityLabel,
+  provisionedLabel = 'Provisioned',
   includeUnit = true,
 }: {
   icon: JSX.Element
-  title: 'CPU' | 'Memory' | 'Storage'
-  unit: 'nCPUs' | 'GiB' | 'TiB'
-  provisioned: number
-  allocated: number
-  allocatedLabel: string
+  title: string
+  unit: string
+  provisioned: T
+  capacity: T
+  provisionedLabel?: string
+  capacityLabel: string
   includeUnit?: boolean
 }) => {
-  const percentOfAllocatedUsed = (provisioned / allocated) * 100
-
-  const [wholeNumber, decimal] = splitDecimal(percentOfAllocatedUsed)
-
-  const formattedPercentUsed = `${percentOfAllocatedUsed}%`
+  const pct = percentage(provisioned, capacity)
+  const [wholeNumber, decimal] = splitDecimal(pct)
 
   return (
     <div className="w-full min-w-min rounded-lg border border-default">
@@ -39,7 +39,7 @@ export const CapacityBar = ({
           {icon}
         </div>
         <div className="flex flex-grow items-start">
-          <span className="text-mono-sm text-secondary">{title}</span>
+          <span className="!normal-case text-mono-sm text-secondary">{title}</span>
           <span className="ml-1 !normal-case text-mono-sm text-quaternary">({unit})</span>
         </div>
         <div className="flex -translate-y-0.5 items-baseline">
@@ -52,7 +52,7 @@ export const CapacityBar = ({
         <div className="flex w-full gap-0.5">
           <div
             className="h-3 rounded-l border bg-accent-secondary border-accent-secondary"
-            style={{ width: formattedPercentUsed }}
+            style={{ width: `${pct.toFixed(2)}%` }}
           ></div>
           <div className="h-3 grow rounded-r border bg-info-secondary border-info-secondary"></div>
         </div>
@@ -60,16 +60,16 @@ export const CapacityBar = ({
       <div>
         <div className="flex justify-between border-t border-secondary">
           <div className="p-3 text-mono-sm">
-            <div className="text-quaternary">Provisioned</div>
+            <div className="text-quaternary">{provisionedLabel}</div>
             <div className="text-secondary">
-              {provisioned.toLocaleString()}
+              <BigNum num={provisioned} />
               <span className="normal-case">{includeUnit ? ' ' + unit : ''}</span>
             </div>
           </div>
           <div className="p-3 text-mono-sm">
-            <div className="text-quaternary">{allocatedLabel}</div>
-            <div className="text-secondary">
-              {allocated.toLocaleString()}
+            <div className="text-quaternary">{capacityLabel}</div>
+            <div className="!normal-case text-secondary">
+              <BigNum num={capacity} />
               <span className="normal-case">{includeUnit ? ' ' + unit : ''}</span>
             </div>
           </div>
