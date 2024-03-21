@@ -6,7 +6,8 @@
  * Copyright Oxide Computer Company
  */
 
-import { displayBigNum, percentage, splitDecimal } from '~/util/math'
+import { BigNum } from '~/ui/lib/BigNum'
+import { percentage, splitDecimal } from '~/util/math'
 
 export const CapacityBar = <T extends number | bigint>({
   icon,
@@ -61,14 +62,14 @@ export const CapacityBar = <T extends number | bigint>({
           <div className="p-3 text-mono-sm">
             <div className="text-quaternary">{provisionedLabel}</div>
             <div className="text-secondary">
-              {displayBigNum(provisioned)}
+              <BigNum num={provisioned} />
               <span className="normal-case">{includeUnit ? ' ' + unit : ''}</span>
             </div>
           </div>
           <div className="p-3 text-mono-sm">
             <div className="text-quaternary">{capacityLabel}</div>
             <div className="!normal-case text-secondary">
-              {displayBigNum(capacity)}
+              <BigNum num={capacity} />
               <span className="normal-case">{includeUnit ? ' ' + unit : ''}</span>
             </div>
           </div>

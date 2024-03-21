@@ -104,6 +104,8 @@ describe('with default locale', () => {
     [1n, ['1', false]],
     [155n, ['155', false]],
     [999999n, ['999,999', false]],
+    [1000000n, ['1M', true]],
+    [1234567n, ['1.2M', true]],
     [9999999n, ['10M', true]],
     [492038458320n, ['492B', true]],
     [894283412938921, ['894.3T', true]],
@@ -157,6 +159,8 @@ describe('with de-DE locale', () => {
     [1n, ['1', false]],
     [155n, ['155', false]],
     [999999n, ['999,999', false]],
+    [1000000n, ['1 Mio.', true]],
+    [1234567n, ['1.2 Mio', true]],
     [9999999n, ['10 Mio.', true]], // note non-breaking space
     [492038458320n, ['492 Mrd.', true]], // note non-breaking space
     [894283412938921, ['894,3 Bio.', true]],

@@ -67,20 +67,26 @@ export const toEngNotation = (num: number | bigint, locale = navigator.language)
     .format(num)
     .toLowerCase()
 
-/** Boolean represents whether the number was abbreviated */
+/**
+ * Abbreviates big numbers, first in compact mode like 10.2M, then in eng
+ * notation above 10^15. Used internally by BigNum, which you should generally
+ * use instead for display as it includes a tooltip with the full value.
+ *
+ * Boolean represents whether the number was abbreviated.
+ */
 export function displayBigNum(num: bigint | number): [string, boolean] {
   const compact = Intl.NumberFormat(navigator.language, {
     notation: 'compact',
     maximumFractionDigits: 1,
   })
 
-  const abbreviate = num > 1_000_000
+  const abbreviated = num >= 1_000_000
 
-  const result = abbreviate
+  const result = abbreviated
     ? num < 1e15 // this the threshold where compact stops using nice letters. see tests
       ? compact.format(num)
       : toEngNotation(num)
     : num.toLocaleString()
 
-  return [result, abbreviate]
+  return [result, abbreviated]
 }

@@ -21,9 +21,5 @@ export function BigNum({ num, className }: { num: number | bigint; className?: s
 
   if (!abbreviated) return inner
 
-  return (
-    <Tooltip placement="top" content={num.toLocaleString()}>
-      {inner}
-    </Tooltip>
-  )
+  return <Tooltip content={num.toLocaleString()}>{inner}</Tooltip>
 }
