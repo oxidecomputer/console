@@ -70,7 +70,6 @@ type UserRow = {
   id: string
   identityType: IdentityType
   name: string
-  siloRole: RoleKey | undefined
   projectRole: RoleKey | undefined
   roleBadges: { roleSource: string; roleName: RoleKey }[]
 }
@@ -107,7 +106,6 @@ export function ProjectAccessPage() {
           id: userId,
           identityType,
           name,
-          siloRole: siloAccessRow?.roleName,
           projectRole: projectAccessRow?.roleName,
           roleBadges,
         } satisfies UserRow
