@@ -90,11 +90,6 @@ describe('with default locale', () => {
     [1.259, ['1', '.26']], // should correctly round the decimal
     [-50.2, ['-50', '.2']], // should correctly not round down to -51
     [1000.5, ['1,000', '.5']], // test localeString grouping
-
-    // bigints
-    [0n, ['0', '']],
-    [1n, ['1', '']],
-    [49502834980392389834234891248n, ['49,502,834,980,392,389,834,234,891,248', '']],
   ])('splitDecimal %d -> %s', (input, output) => {
     expect(splitDecimal(input)).toEqual(output)
   })
@@ -160,7 +155,7 @@ describe('with de-DE locale', () => {
     [155n, ['155', false]],
     [999999n, ['999,999', false]],
     [1000000n, ['1 Mio.', true]],
-    [1234567n, ['1.2 Mio', true]],
+    [1234567n, ['1,2 Mio.', true]],
     [9999999n, ['10 Mio.', true]], // note non-breaking space
     [492038458320n, ['492 Mrd.', true]], // note non-breaking space
     [894283412938921, ['894,3 Bio.', true]],

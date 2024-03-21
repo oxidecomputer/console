@@ -16,9 +16,7 @@ import { splitOnceBy } from './array'
  * minus sign, group separators [comma in en-US], and of course actual number
  * groups). Those will get joined and the decimal part will be the empty string.
  */
-export function splitDecimal(value: number | bigint): [string, string] {
-  if (typeof value === 'bigint') return [value.toLocaleString(), '']
-
+export function splitDecimal(value: number): [string, string] {
   const nf = Intl.NumberFormat(navigator.language, { maximumFractionDigits: 2 })
   const parts = nf.formatToParts(value)
 
