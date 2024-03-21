@@ -23,7 +23,10 @@ test('IP pool list', async ({ page }) => {
   await expect(table.getByRole('row')).toHaveCount(5) // header + 4 rows
 
   await expectRowVisible(table, { name: 'ip-pool-1', Utilization: '6 / 24' })
-  await expectRowVisible(table, { name: 'ip-pool-2', Utilization: '0 / 6' })
+  await expectRowVisible(table, {
+    name: 'ip-pool-2',
+    Utilization: 'v4' + '0 / 0' + 'v6' + '0 / 32',
+  })
   await expectRowVisible(table, { name: 'ip-pool-3', Utilization: '0 / 0' })
   await expectRowVisible(table, {
     name: 'ip-pool-4',
@@ -133,12 +136,13 @@ test('IP pool create', async ({ page }) => {
 })
 
 test('IP range validation and add', async ({ page }) => {
-  await page.goto('/system/networking/ip-pools/ip-pool-1')
+  await page.goto('/system/networking/ip-pools/ip-pool-2')
 
   // check the utilization bar
-  await expect(page.getByText('IPv4(IPs)25%')).toBeVisible()
-  await expect(page.getByText('Allocated6')).toBeVisible()
-  await expect(page.getByText('Capacity24')).toBeVisible()
+  await expect(page.getByText('IPv4(IPs)')).toBeHidden()
+  await expect(page.getByText('IPv6(IPs)0%')).toBeVisible()
+  await expect(page.getByText('Allocated0')).toBeVisible()
+  await expect(page.getByText('Capacity32')).toBeVisible()
 
   await page.getByRole('link', { name: 'Add range' }).click()
 
@@ -148,10 +152,9 @@ test('IP range validation and add', async ({ page }) => {
   const submit = dialog.getByRole('button', { name: 'Add IP range' })
   const invalidMsg = dialog.getByText('Not a valid IP address')
   // exact to differentiate from same text in help message at the top of the form
-  const sameVersionMsg = dialog.getByText('First and last must be the same version', {
-    exact: true,
-  })
+  const ipv6Msg = dialog.getByText('IPv6 ranges are not yet supported')
 
+  const v4Addr = '192.1.2.3'
   const v6Addr = '2001:db8::1234:5678'
 
   await expect(dialog).toBeVisible()
@@ -162,50 +165,41 @@ test('IP range validation and add', async ({ page }) => {
 
   await expect(invalidMsg).toHaveCount(2)
 
-  // fix last
-  await last.fill('123.4.56.7')
-
-  // first is still bad
-  await expect(invalidMsg).toHaveCount(1)
-
-  // change first to a valid ipv6
-  await first.fill(v6Addr)
-
-  // now we get the error about the same version on first because it has had
-  // an error, so it is now validating onChange, but it doesn't show up on last
-  // until we try to submit
-  await expect(sameVersionMsg).toHaveCount(1)
-  await expect(invalidMsg).toBeHidden()
-
-  await submit.click()
-  await expect(sameVersionMsg).toHaveCount(2)
-
-  // now make last also a v6 and we're good
+  // change last to v6, not allowed
   await last.fill(v6Addr)
+  await expect(invalidMsg).toHaveCount(1)
+  await expect(ipv6Msg).toHaveCount(1)
 
-  // actually first's error doesn't disappear until we blur it or submit
-  await expect(sameVersionMsg).toHaveCount(1)
+  // change first to v6, still not allowed
+  await first.fill(v6Addr)
+  await expect(ipv6Msg).toHaveCount(2)
   await expect(invalidMsg).toBeHidden()
+
+  // now make first v4, then last
+  await first.fill(v4Addr)
+  await expect(ipv6Msg).toHaveCount(1)
+  await last.fill(v4Addr)
+  await expect(ipv6Msg).toBeHidden()
 
   await submit.click()
   await expect(dialog).toBeHidden()
 
   const table = page.getByRole('table')
-  await expectRowVisible(table, { First: v6Addr, Last: v6Addr })
+  await expectRowVisible(table, { First: v4Addr, Last: v4Addr })
 
   // now the utilization bars are split in two
-  await expect(page.getByText('IPv4(IPs)25%')).toBeVisible()
-  await expect(page.getByText('Allocated6')).toBeVisible()
-  await expect(page.getByText('Capacity24')).toBeVisible()
-  await expect(page.getByText('IPv6(IPs)0%')).toBeVisible()
-  await expect(page.getByText('Allocated0')).toBeVisible()
+  await expect(page.getByText('IPv4(IPs)0%')).toBeVisible()
+  await expect(page.getByText('Allocated0')).toHaveCount(2)
   await expect(page.getByText('Capacity1')).toBeVisible()
+
+  await expect(page.getByText('IPv6(IPs)0%')).toBeVisible()
+  await expect(page.getByText('Capacity32')).toBeVisible()
 
   // go back to the pool and verify the utilization column changed
   await page.getByRole('link', { name: 'Networking' }).click()
   await expectRowVisible(table, {
-    name: 'ip-pool-1',
-    Utilization: 'v4' + '6 / 24' + 'v6' + '0 / 1',
+    name: 'ip-pool-2',
+    Utilization: 'v4' + '0 / 1' + 'v6' + '0 / 32',
   })
 })
 
@@ -264,9 +258,13 @@ test('deleting floating IP decrements utilization', async ({ page }) => {
 })
 
 test('no ranges means no utilization bar', async ({ page }) => {
-  await page.goto('/system/networking/ip-pools/ip-pool-2')
+  await page.goto('/system/networking/ip-pools/ip-pool-1')
   await expect(page.getByText('IPv4(IPs)')).toBeVisible()
   await expect(page.getByText('IPv6(IPs)')).toBeHidden()
+
+  await page.goto('/system/networking/ip-pools/ip-pool-2')
+  await expect(page.getByText('IPv4(IPs)')).toBeHidden()
+  await expect(page.getByText('IPv6(IPs)')).toBeVisible()
 
   await page.goto('/system/networking/ip-pools/ip-pool-3')
   await expect(page.getByText('IPv4(IPs)')).toBeHidden()
