@@ -6,33 +6,37 @@
  * Copyright Oxide Computer Company
  */
 
-import { CapacityBar, type CapacityBarProps } from './CapacityBar'
+import { CapacityBar, CapacityBarsRow, type CapacityBarProps } from './CapacityBar'
 
 export const CapacityBars = ({
-  allocated,
   provisioned,
-  allocatedLabel,
+  provisionedLabel,
+  capacity,
+  capacityLabel,
 }: Omit<CapacityBarProps, 'kind'>) => {
   return (
-    <div className="mb-12 flex min-w-min flex-col gap-3 lg+:flex-row">
+    <CapacityBarsRow>
       <CapacityBar
         kind="cpus"
         provisioned={provisioned}
-        allocated={allocated}
-        allocatedLabel={allocatedLabel}
+        provisionedLabel={provisionedLabel}
+        capacity={capacity}
+        capacityLabel={capacityLabel}
       />
       <CapacityBar
         kind="memory"
         provisioned={provisioned}
-        allocated={allocated}
-        allocatedLabel={allocatedLabel}
+        provisionedLabel={provisionedLabel}
+        capacity={capacity}
+        capacityLabel={capacityLabel}
       />
       <CapacityBar
         kind="storage"
         provisioned={provisioned}
-        allocated={allocated}
-        allocatedLabel={allocatedLabel}
+        provisionedLabel={provisionedLabel}
+        capacity={capacity}
+        capacityLabel={capacityLabel}
       />
-    </div>
+    </CapacityBarsRow>
   )
 }

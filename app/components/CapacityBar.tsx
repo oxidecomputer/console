@@ -6,16 +6,58 @@
  * Copyright Oxide Computer Company
  */
 
-import { Cpu16Icon, Ram16Icon, Ssd16Icon } from '@oxide/design-system/icons/react'
+import {
+  Cpu16Icon,
+  IpGlobal16Icon,
+  Ram16Icon,
+  Ssd16Icon,
+} from '@oxide/design-system/icons/react'
 
 import type { VirtualResourceCounts } from '~/api'
 import { classed } from '~/util/classed'
 import { splitDecimal } from '~/util/math'
 import { bytesToGiB, bytesToTiB } from '~/util/units'
 
+type CapacityBarKind = 'cpus' | 'ip4' | 'ip6' | 'memory' | 'storage'
+
+const titleOptions = {
+  cpus: 'CPU',
+  ip4: 'IPv4',
+  ip6: 'IPv6',
+  memory: 'MEMORY',
+  storage: 'STORAGE',
+}
+
+const includeUnitOptions = {
+  cpus: false,
+  ip4: false,
+  ip6: false,
+  memory: true,
+  storage: true,
+}
+
+const unitOptions = {
+  cpus: 'nCPUs',
+  ip4: 'IPs',
+  ip6: 'IPs',
+  memory: 'GiB',
+  storage: 'TiB',
+}
+
+const iconOptions = {
+  cpus: <Cpu16Icon />,
+  ip4: <IpGlobal16Icon />,
+  ip6: <IpGlobal16Icon />,
+  memory: <Ram16Icon />,
+  storage: <Ssd16Icon />,
+}
+
+export const CapacityBarsRow = classed.div`mb-12 flex min-w-min flex-col gap-3 lg+:flex-row`
+
 const CapacityBarContainer = classed.div`w-full min-w-min rounded-lg border border-default`
 const CapacityBarHeader = classed.div`flex p-3`
 const CapacityBarIcon = classed.div`-ml-0.5 mr-1 flex h-6 w-6 items-start justify-center text-accent`
+const CapacityBarFooter = classed.div`flex justify-between border-t border-secondary`
 
 const CapacityBarLabel = ({ label, unit }: { label: string; unit: string }) => (
   <div className="flex flex-grow items-start">
@@ -46,18 +88,18 @@ const CapacityBarChart = ({ percentUsed }: { percentUsed: number }) => (
   </div>
 )
 
-const CapacityBarNumberParts = classed.div`flex justify-between border-t border-secondary`
-
-const CapacityBarNumberPart = ({
+const CapacityBarNumber = ({
+  kind,
   label,
   amount,
   unit,
 }: {
+  kind: CapacityBarKind
   label: string
   amount: number
   unit: string
 }) => {
-  const includeUnit = unit !== unitOptions.cpus
+  const includeUnit = includeUnitOptions[kind]
   return (
     <div className="p-3 text-mono-sm">
       <div className="text-quaternary">{label}</div>
@@ -67,26 +109,6 @@ const CapacityBarNumberPart = ({
       </div>
     </div>
   )
-}
-
-type CapacityBarKind = 'cpus' | 'memory' | 'storage'
-
-const titleOptions = {
-  cpus: 'CPU',
-  memory: 'Memory',
-  storage: 'Storage',
-}
-
-const unitOptions = {
-  cpus: 'nCPUs',
-  memory: 'GiB',
-  storage: 'TiB',
-}
-
-const iconOptions = {
-  cpus: <Cpu16Icon />,
-  memory: <Ram16Icon />,
-  storage: <Ssd16Icon />,
 }
 
 const getCapacityBarSubAmount = (
@@ -105,25 +127,27 @@ const getCapacityBarSubAmount = (
 export type CapacityBarProps = {
   kind: CapacityBarKind
   provisioned: VirtualResourceCounts
-  allocated: VirtualResourceCounts
-  allocatedLabel: 'Quota' | 'Quota (Total)'
+  provisionedLabel: 'Allocated' | 'Provisioned'
+  capacity: VirtualResourceCounts
+  capacityLabel: 'Capacity' | 'Quota' | 'Quota (Total)'
 }
 
 /**
  * Shows a visual representation of the capacity and utilization of a resource.
  * "provisioned" is the amount of the resource being used at this layer of the service
- * "allocated" is the total amount of the resource available to this layer, as defined by the parent layer
+ * "capacity" is the total amount of the resource available to this layer, as defined by the parent layer
  */
 export const CapacityBar = ({
   kind,
   provisioned,
-  allocated,
-  allocatedLabel,
+  provisionedLabel,
+  capacity,
+  capacityLabel,
 }: CapacityBarProps) => {
   const unit = unitOptions[kind]
   const provisionedAmount = getCapacityBarSubAmount(kind, provisioned)
-  const allocatedAmount = getCapacityBarSubAmount(kind, allocated)
-  const percentUsed = (provisionedAmount / allocatedAmount) * 100
+  const capacityAmount = getCapacityBarSubAmount(kind, capacity)
+  const percentUsed = (provisionedAmount / capacityAmount) * 100
 
   return (
     <CapacityBarContainer>
@@ -133,14 +157,20 @@ export const CapacityBar = ({
         <CapacityBarHeroNumber percentUsed={percentUsed} />
       </CapacityBarHeader>
       <CapacityBarChart percentUsed={percentUsed} />
-      <CapacityBarNumberParts>
-        <CapacityBarNumberPart label="Provisioned" amount={provisionedAmount} unit={unit} />
-        <CapacityBarNumberPart
-          label={allocatedLabel}
-          amount={allocatedAmount}
+      <CapacityBarFooter>
+        <CapacityBarNumber
+          kind={kind}
+          label={provisionedLabel}
+          amount={provisionedAmount}
           unit={unit}
         />
-      </CapacityBarNumberParts>
+        <CapacityBarNumber
+          kind={kind}
+          label={capacityLabel}
+          amount={capacityAmount}
+          unit={unit}
+        />
+      </CapacityBarFooter>
     </CapacityBarContainer>
   )
 }

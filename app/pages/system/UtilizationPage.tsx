@@ -50,9 +50,10 @@ export function SystemUtilizationPage() {
       </PageHeader>
 
       <CapacityBars
-        allocated={totalAllocated}
         provisioned={totalProvisioned}
-        allocatedLabel="Quota (Total)"
+        provisionedLabel="Provisioned"
+        capacity={totalAllocated}
+        capacityLabel="Quota (Total)"
       />
       <QueryParamTabs defaultValue="summary" className="full-width">
         <Tabs.List>
