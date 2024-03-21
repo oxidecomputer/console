@@ -243,6 +243,26 @@ test('remove range', async ({ page }) => {
   })
 })
 
+test('deleting floating IP decrements utilization', async ({ page }) => {
+  await page.goto('/system/networking/ip-pools')
+  const table = page.getByRole('table')
+  await expectRowVisible(table, { name: 'ip-pool-1', Utilization: '6 / 24' })
+
+  // go delete a floating IP
+  await page.getByLabel('Switch between system and silo').click()
+  await page.getByRole('menuitem', { name: 'Silo' }).click()
+  await page.getByRole('link', { name: 'mock-project' }).click()
+  await page.getByRole('link', { name: 'Floating IPs' }).click()
+  await clickRowAction(page, 'rootbeer-float', 'Delete')
+  await page.getByRole('button', { name: 'Confirm' }).click()
+
+  // now go back and it's 5. wow
+  await page.getByLabel('Switch between system and silo').click()
+  await page.getByRole('menuitem', { name: 'System' }).click()
+  await page.getByRole('link', { name: 'Networking' }).click()
+  await expectRowVisible(table, { name: 'ip-pool-1', Utilization: '5 / 24' })
+})
+
 test('no ranges means no utilization bar', async ({ page }) => {
   await page.goto('/system/networking/ip-pools/ip-pool-2')
   await expect(page.getByText('IPv4(IPs)')).toBeVisible()
