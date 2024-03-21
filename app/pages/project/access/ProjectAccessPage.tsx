@@ -25,8 +25,8 @@ import {
 import { Access24Icon } from '@oxide/design-system/icons/react'
 
 import { AccessBadge } from '~/components/AccessBadge'
-import { ExpandedCountWithDetails } from '~/components/ExpandedCountWithDetails'
 import { HL } from '~/components/HL'
+import { ListPlusCell } from '~/components/ListPlusCell'
 import {
   ProjectAccessAddUserSideModal,
   ProjectAccessEditUserSideModal,
@@ -133,25 +133,13 @@ export function ProjectAccessPage() {
       }),
       colHelper.accessor('roleBadges', {
         header: 'Role',
-        cell: (props) => {
-          const [first, ...rest] = props.getValue()
-          return (
-            <div className="flex items-baseline gap-2">
-              <AccessBadge role={first.roleName} labelPrefix={first.roleSource} />
-              {rest.length > 0 && (
-                <ExpandedCountWithDetails count={rest.length} title="Other roles">
-                  {rest.map((x) => (
-                    <AccessBadge
-                      key={x.roleSource}
-                      role={x.roleName}
-                      labelPrefix={x.roleSource}
-                    />
-                  ))}
-                </ExpandedCountWithDetails>
-              )}
-            </div>
-          )
-        },
+        cell: (props) => (
+          <ListPlusCell tooltipTitle="Other roles">
+            {props.getValue().map(({ roleName, roleSource }) => (
+              <AccessBadge key={roleSource} role={roleName} labelPrefix={roleSource} />
+            ))}
+          </ListPlusCell>
+        ),
       }),
 
       // TODO: tooltips on disabled elements explaining why
