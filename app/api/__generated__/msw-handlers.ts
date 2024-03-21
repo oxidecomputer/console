@@ -61,6 +61,33 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
+  /** `GET /experimental/v1/probes` */
+  probeList: (params: {
+    query: Api.ProbeListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.ProbeInfoResultsPage>>
+  /** `POST /experimental/v1/probes` */
+  probeCreate: (params: {
+    query: Api.ProbeCreateQueryParams
+    body: Json<Api.ProbeCreate>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.Probe>>
+  /** `GET /experimental/v1/probes/:probe` */
+  probeView: (params: {
+    path: Api.ProbeViewPathParams
+    query: Api.ProbeViewQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.ProbeInfo>>
+  /** `DELETE /experimental/v1/probes/:probe` */
+  probeDelete: (params: {
+    path: Api.ProbeDeletePathParams
+    query: Api.ProbeDeleteQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
   /** `POST /login/:siloName/saml/:providerName` */
   loginSaml: (params: {
     path: Api.LoginSamlPathParams
@@ -785,6 +812,12 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
+  /** `GET /v1/system/ip-pools/:pool/utilization` */
+  ipPoolUtilizationView: (params: {
+    path: Api.IpPoolUtilizationViewPathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.IpPoolUtilization>>
   /** `GET /v1/system/ip-pools-service` */
   ipPoolServiceView: (params: {
     req: Request
@@ -893,6 +926,12 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
+  /** `GET /v1/system/networking/bgp-message-history` */
+  networkingBgpMessageHistory: (params: {
+    query: Api.NetworkingBgpMessageHistoryQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.AggregateBgpMessageHistory>>
   /** `GET /v1/system/networking/bgp-routes-ipv4` */
   networkingBgpImportedRoutesIpv4: (params: {
     query: Api.NetworkingBgpImportedRoutesIpv4QueryParams
@@ -1275,6 +1314,22 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       handler(handlers['deviceAuthConfirm'], null, schema.DeviceAuthVerify)
     ),
     http.post('/device/token', handler(handlers['deviceAccessToken'], null, null)),
+    http.get(
+      '/experimental/v1/probes',
+      handler(handlers['probeList'], schema.ProbeListParams, null)
+    ),
+    http.post(
+      '/experimental/v1/probes',
+      handler(handlers['probeCreate'], schema.ProbeCreateParams, schema.ProbeCreate)
+    ),
+    http.get(
+      '/experimental/v1/probes/:probe',
+      handler(handlers['probeView'], schema.ProbeViewParams, null)
+    ),
+    http.delete(
+      '/experimental/v1/probes/:probe',
+      handler(handlers['probeDelete'], schema.ProbeDeleteParams, null)
+    ),
     http.post(
       '/login/:siloName/saml/:providerName',
       handler(handlers['loginSaml'], schema.LoginSamlParams, null)
@@ -1825,6 +1880,10 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       handler(handlers['ipPoolSiloUnlink'], schema.IpPoolSiloUnlinkParams, null)
     ),
     http.get(
+      '/v1/system/ip-pools/:pool/utilization',
+      handler(handlers['ipPoolUtilizationView'], schema.IpPoolUtilizationViewParams, null)
+    ),
+    http.get(
       '/v1/system/ip-pools-service',
       handler(handlers['ipPoolServiceView'], null, null)
     ),
@@ -1921,6 +1980,14 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       handler(
         handlers['networkingBgpAnnounceSetDelete'],
         schema.NetworkingBgpAnnounceSetDeleteParams,
+        null
+      )
+    ),
+    http.get(
+      '/v1/system/networking/bgp-message-history',
+      handler(
+        handlers['networkingBgpMessageHistory'],
+        schema.NetworkingBgpMessageHistoryParams,
         null
       )
     ),

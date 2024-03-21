@@ -91,9 +91,9 @@ jobs:
         run: npx playwright install-deps
       - name: Run Playwright browser tests
         run: npx playwright test --project=${{matrix.browser}}
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: test-results
+          name: test-results-${{ matrix.browser }}
           path: test-results/
           retention-days: 7
