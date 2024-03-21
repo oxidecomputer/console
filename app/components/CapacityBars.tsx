@@ -6,47 +6,31 @@
  * Copyright Oxide Computer Company
  */
 
-import type { VirtualResourceCounts } from '@oxide/api'
-import { Cpu16Icon, Ram16Icon, Ssd16Icon } from '@oxide/design-system/icons/react'
-
-import { bytesToGiB, bytesToTiB } from '~/util/units'
-
-import { CapacityBar } from './CapacityBar'
+import { CapacityBar, type CapacityBarProps } from './CapacityBar'
 
 export const CapacityBars = ({
   allocated,
   provisioned,
   allocatedLabel,
-}: {
-  allocated: VirtualResourceCounts
-  provisioned: VirtualResourceCounts
-  allocatedLabel: string
-}) => {
+}: Omit<CapacityBarProps, 'kind'>) => {
   return (
     <div className="mb-12 flex min-w-min flex-col gap-3 lg+:flex-row">
       <CapacityBar
-        icon={<Cpu16Icon />}
-        title="CPU"
-        unit="nCPUs"
-        provisioned={provisioned.cpus}
-        allocated={allocated.cpus}
-        includeUnit={false}
+        kind="cpus"
+        provisioned={provisioned}
+        allocated={allocated}
         allocatedLabel={allocatedLabel}
       />
       <CapacityBar
-        icon={<Ram16Icon />}
-        title="Memory"
-        unit="GiB"
-        provisioned={bytesToGiB(provisioned.memory)}
-        allocated={bytesToGiB(allocated.memory)}
+        kind="memory"
+        provisioned={provisioned}
+        allocated={allocated}
         allocatedLabel={allocatedLabel}
       />
       <CapacityBar
-        icon={<Ssd16Icon />}
-        title="Storage"
-        unit="TiB"
-        provisioned={bytesToTiB(provisioned.storage)}
-        allocated={bytesToTiB(allocated.storage)}
+        kind="storage"
+        provisioned={provisioned}
+        allocated={allocated}
         allocatedLabel={allocatedLabel}
       />
     </div>
