@@ -15,9 +15,10 @@ import { useWindowSize } from './use-window-size'
 
 type StoreState = {
   isOpen: boolean
+  isSmallScreen: boolean
 }
 
-const useStore = create<StoreState>(() => ({ isOpen: false }))
+const useStore = create<StoreState>(() => ({ isOpen: false, isSmallScreen: false }))
 
 export function openSidebar() {
   useStore.setState({ isOpen: true })
@@ -41,7 +42,8 @@ export function useMenuState() {
 
   return useStore(
     (store) => ({
-      isOpen: size.width >= 1024 ? true : store.isOpen,
+      isOpen: store.isOpen,
+      isSmallScreen: size.width < 1024,
     }),
     shallow
   )

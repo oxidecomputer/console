@@ -68,7 +68,7 @@ const JumpToButton = () => {
 
 export function Sidebar({ children }: { children: React.ReactNode }) {
   const AnimatedDialogContent = animated(Dialog.Content)
-  const { isOpen } = useMenuState()
+  const { isOpen, isSmallScreen } = useMenuState()
   const config = { tension: 1200, mass: 0.125 }
   const { pathname } = useLocation()
 
@@ -78,41 +78,64 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
     config: isOpen ? config : { duration: 0 },
   })
 
-  return (
+  const SidebarContent = () => (
     <>
-      {transitions(
-        ({ x }, item) =>
-          item && (
-            <Dialog.Root
-              open
-              onOpenChange={(open) => {
-                if (!open) closeSidebar()
-              }}
-              // https://github.com/radix-ui/primitives/issues/1159#issuecomment-1559813266
-              modal={false}
-            >
-              <div
-                aria-hidden
-                className="fixed inset-0 top-[61px] z-10 overflow-auto bg-scrim lg+:hidden"
-              />
-              <AnimatedDialogContent
-                className="fixed z-sideModal flex h-full w-[14.25rem] flex-col border-r text-sans-md text-default border-secondary lg+:!transform-none lg-:inset-y-0 lg-:top-[61px] lg-:bg-default lg-:elevation-2"
-                style={{
-                  transform: x.to((value) => `translate3d(${value}%, 0px, 0px)`),
-                }}
-                forceMount
-              >
-                <div className="mx-3 mt-4">
-                  <JumpToButton />
-                </div>
-                {children}
-                {pathname.split('/')[1] !== 'settings' && <ProfileLinks />}
-              </AnimatedDialogContent>
-            </Dialog.Root>
-          )
-      )}
+      <div className="mx-3 mt-4">
+        <JumpToButton />
+      </div>
+      {children}
+      {pathname.split('/')[1] !== 'settings' && <ProfileLinks />}
     </>
   )
+
+  if (isSmallScreen) {
+    return (
+      <>
+        {transitions(
+          ({ x }, item) =>
+            item && (
+              <Dialog.Root
+                open
+                onOpenChange={(open) => {
+                  if (!open) closeSidebar()
+                }}
+                // Modal needs to be false to be able to click on top bar
+                modal={false}
+              >
+                <div
+                  aria-hidden
+                  className="fixed inset-0 top-[61px] z-10 overflow-auto bg-scrim lg+:hidden"
+                />
+                <AnimatedDialogContent
+                  className="fixed z-sideModal flex h-full w-[14.25rem] flex-col border-r text-sans-md text-default border-secondary lg+:!transform-none lg-:inset-y-0 lg-:top-[61px] lg-:bg-default lg-:elevation-2"
+                  style={{
+                    transform: x.to((value) => `translate3d(${value}%, 0px, 0px)`),
+                  }}
+                  forceMount
+                  onInteractOutside={(e) => {
+                    // We want to handle opening / closing with the menu button ourselves
+                    // Not doing this can result in the two events fighting
+                    if ((e.target as HTMLElement)?.title === 'Sidebar') {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      return null
+                    }
+                  }}
+                >
+                  <SidebarContent />
+                </AnimatedDialogContent>
+              </Dialog.Root>
+            )
+        )}
+      </>
+    )
+  } else {
+    return (
+      <div className="fixed z-sideModal flex h-full w-[14.25rem] flex-col border-r text-sans-md text-default border-secondary lg+:!transform-none lg-:inset-y-0 lg-:top-[61px] lg-:bg-default lg-:elevation-2">
+        <SidebarContent />
+      </div>
+    )
+  }
 }
 
 export const ProfileLinks = () => {

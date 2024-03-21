@@ -50,15 +50,14 @@ export function TopBar({ children }: { children: React.ReactNode }) {
         <Button
           variant="ghost"
           size="icon"
-          className="mr-2 w-8 flex-shrink-0 lg+:hidden"
-          title="Notifications"
-          onClick={(e) => {
+          className="mr-2 w-8 flex-shrink-0 lg+:hidden [&>*]:pointer-events-none"
+          title="Sidebar"
+          onClick={() => {
             if (isOpen) {
               closeSidebar()
             } else {
               openSidebar()
             }
-            e.preventDefault()
           }}
         >
           {isOpen ? (
