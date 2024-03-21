@@ -14,7 +14,7 @@ import { useScrollRestoration } from '~/hooks/use-scroll-restoration'
 import { SkipLinkTarget } from '~/ui/lib/SkipLink'
 import { classed } from '~/util/classed'
 
-export const PageContainer = classed.div`min-h-[100dvh] pt-[var(--navigation-height)] [overscroll-behavior-y:none]`
+export const PageContainer = classed.div`h-full pt-[var(--navigation-height)] [overscroll-behavior-y:none]`
 
 export function ContentPane() {
   const ref = useRef<HTMLDivElement>(null)
@@ -22,7 +22,7 @@ export function ContentPane() {
   return (
     <div
       ref={ref}
-      className="flex h-[calc(100dvh-var(--navigation-height))] flex-col lg+:ml-[var(--sidebar-width)] lg-:col-span-2"
+      className="flex flex-col lg+:ml-[var(--sidebar-width)] lg-:col-span-2"
       id="content_pane"
     >
       <div className="flex flex-grow flex-col pb-8 md-:pb-16">
@@ -31,7 +31,7 @@ export function ContentPane() {
           <Outlet />
         </main>
       </div>
-      <div className="sticky bottom-0 z-popover flex-shrink-0 justify-between overflow-hidden border-t bg-default border-secondary empty:border-t-0">
+      <div className="pagination sticky bottom-0 z-popover flex-shrink-0 justify-between overflow-hidden border-t bg-default border-secondary empty:border-t-0">
         <Pagination.Target />
         <PageActionsTarget />
       </div>

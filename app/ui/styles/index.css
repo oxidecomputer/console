@@ -56,8 +56,22 @@
 
 @layer base {
   html,
-  body {
+  body,
+  #root {
     overscroll-behavior-y: none;
+    @apply h-full;
+  }
+
+  #content_pane {
+    @apply min-h-full;
+  }
+
+  .msw-banner .pagination {
+    @apply bottom-10;
+  }
+
+  .msw-banner #content_pane {
+    @apply pb-10;
   }
 
   body {
