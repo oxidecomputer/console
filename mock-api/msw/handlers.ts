@@ -616,6 +616,12 @@ export const handlers = makeHandlers({
     return json(instance, { status: 202 })
   },
   ipPoolList: ({ query }) => paginated(query, db.ipPools),
+  ipPoolUtilizationView() {
+    return {
+      ipv4: { allocated: 0, capacity: 0 },
+      ipv6: { allocated: '0', capacity: '0' },
+    }
+  },
   siloIpPoolList({ path, query }) {
     const pools = lookup.siloIpPools(path)
     return paginated(query, pools)
@@ -1223,6 +1229,7 @@ export const handlers = makeHandlers({
   networkingBgpConfigDelete: NotImplemented,
   networkingBgpConfigList: NotImplemented,
   networkingBgpImportedRoutesIpv4: NotImplemented,
+  networkingBgpMessageHistory: NotImplemented,
   networkingBgpStatus: NotImplemented,
   networkingLoopbackAddressCreate: NotImplemented,
   networkingLoopbackAddressDelete: NotImplemented,
@@ -1234,6 +1241,10 @@ export const handlers = makeHandlers({
   networkingSwitchPortSettingsDelete: NotImplemented,
   networkingSwitchPortSettingsView: NotImplemented,
   networkingSwitchPortSettingsList: NotImplemented,
+  probeCreate: NotImplemented,
+  probeDelete: NotImplemented,
+  probeList: NotImplemented,
+  probeView: NotImplemented,
   rackView: NotImplemented,
   roleList: NotImplemented,
   roleView: NotImplemented,

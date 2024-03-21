@@ -18,22 +18,26 @@ test('Click through project access page', async ({ page }) => {
   const table = page.locator('table')
   await expectRowVisible(table, {
     Name: 'Hannah Arendt',
+    Type: 'User',
     'Silo role': 'admin',
     'Project role': '',
   })
   await expectRowVisible(table, {
     Name: 'Jacob Klein',
+    Type: 'User',
     'Silo role': '',
     'Project role': 'collaborator',
   })
   await expectRowVisible(table, {
     // no space because expectRowVisible uses textContent, not accessible name
-    Name: 'real-estate-devsGroup',
+    Name: 'real-estate-devs',
+    Type: 'Group',
     'Silo role': 'collaborator',
   })
   await expectRowVisible(table, {
     // no space because expectRowVisible uses textContent, not accessible name
-    Name: 'kernel-devsGroup',
+    Name: 'kernel-devs',
+    Type: 'Group',
     'Silo role': '',
     'Project role': 'viewer',
   })

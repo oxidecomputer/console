@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { format } from 'date-fns'
+import { filesize } from 'filesize'
 import { useMemo } from 'react'
 import { useController, type Control } from 'react-hook-form'
 import { useNavigate, type NavigateFunction } from 'react-router-dom'
@@ -94,9 +95,24 @@ export function CreateDiskSideModalForm({
   )
   const areImagesLoading = projectImages.isPending || siloImages.isPending
 
-  const selectedImageId = form.watch('diskSource.imageId')
-  const selectedImageSize = images.find((image) => image.id === selectedImageId)?.size
-  const imageSizeGiB = selectedImageSize ? bytesToGiB(selectedImageSize) : undefined
+  const snapshotsQuery = useApiQuery('snapshotList', { query: projectSelector })
+  const snapshots = snapshotsQuery.data?.items || []
+
+  // validate disk source size
+  const diskSource = form.watch('diskSource').type
+
+  let validateSizeGiB: number | undefined = undefined
+  if (diskSource === 'snapshot') {
+    const selectedSnapshotId = form.watch('diskSource.snapshotId')
+    const selectedSnapshotSize = snapshots.find(
+      (snapshot) => snapshot.id === selectedSnapshotId
+    )?.size
+    validateSizeGiB = selectedSnapshotSize ? bytesToGiB(selectedSnapshotSize) : undefined
+  } else if (diskSource === 'image') {
+    const selectedImageId = form.watch('diskSource.imageId')
+    const selectedImageSize = images.find((image) => image.id === selectedImageId)?.size
+    validateSizeGiB = selectedImageSize ? bytesToGiB(selectedImageSize) : undefined
+  }
 
   return (
     <SideModalForm
@@ -123,8 +139,8 @@ export function CreateDiskSideModalForm({
         name="size"
         control={form.control}
         validate={(diskSizeGiB: number) => {
-          if (imageSizeGiB && diskSizeGiB < imageSizeGiB) {
-            return `Must be as large as selected image (min. ${imageSizeGiB} GiB)`
+          if (validateSizeGiB && diskSizeGiB < validateSizeGiB) {
+            return `Must be as large as selected ${diskSource} (min. ${validateSizeGiB} GiB)`
           }
         }}
       />
@@ -144,6 +160,7 @@ const DiskSourceField = ({
   const {
     field: { value, onChange },
   } = useController({ control, name: 'diskSource' })
+  const diskSizeField = useController({ control, name: 'size' }).field
 
   return (
     <>
@@ -191,6 +208,14 @@ const DiskSourceField = ({
             isLoading={areImagesLoading}
             items={images.map((i) => toListboxItem(i, true))}
             required
+            onChange={(id) => {
+              const image = images.find((i) => i.id === id)! // if it's selected, it must be present
+              const imageSizeGiB = image.size / GiB
+              if (diskSizeField.value < imageSizeGiB) {
+                const nearest10 = Math.ceil(imageSizeGiB / 10) * 10
+                diskSizeField.onChange(nearest10)
+              }
+            }}
           />
         )}
 
@@ -218,6 +243,7 @@ const SnapshotSelectField = ({ control }: { control: Control<DiskCreate> }) => {
   const snapshotsQuery = useApiQuery('snapshotList', { query: projectSelector })
 
   const snapshots = snapshotsQuery.data?.items || []
+  const diskSizeField = useController({ control, name: 'size' }).field
 
   return (
     <ListboxField
@@ -226,15 +252,18 @@ const SnapshotSelectField = ({ control }: { control: Control<DiskCreate> }) => {
       label="Source snapshot"
       placeholder="Select a snapshot"
       items={snapshots.map((i) => {
+        const formattedSize = filesize(i.size, { base: 2, output: 'object' })
         return {
           value: i.id,
           labelString: `${i.name}`,
           label: (
             <>
               <div>{i.name}</div>
-              <div className="text-secondary">
+              <div className="text-tertiary selected:text-accent-secondary">
                 Created on {format(i.timeCreated, 'MMM d, yyyy')}
-                <DiskNameFromId disk={i.diskId} />
+                <DiskNameFromId disk={i.diskId} />{' '}
+                <span className="mx-1 text-quinary selected:text-accent-disabled">/</span>{' '}
+                {formattedSize.value} {formattedSize.unit}
               </div>
             </>
           ),
@@ -242,6 +271,14 @@ const SnapshotSelectField = ({ control }: { control: Control<DiskCreate> }) => {
       })}
       isLoading={snapshotsQuery.isPending}
       required
+      onChange={(id) => {
+        const snapshot = snapshots.find((i) => i.id === id)! // if it's selected, it must be present
+        const snapshotSizeGiB = snapshot.size / GiB
+        if (diskSizeField.value < snapshotSizeGiB) {
+          const nearest10 = Math.ceil(snapshotSizeGiB / 10) * 10
+          diskSizeField.onChange(nearest10)
+        }
+      }}
     />
   )
 }

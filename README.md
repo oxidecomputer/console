@@ -4,9 +4,9 @@ Web client to the [Oxide API](https://github.com/oxidecomputer/omicron).
 
 ![screenshot of instances list page](docs/readme-screenshot.png)
 
-## [Live demo](https://oxide-console-preview.vercel.app)
+## [Live demo](https://console-preview.oxide.computer)
 
-At https://oxide-console-preview.vercel.app the console is deployed as a static site with a mock API running in a [Service Worker](https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API). You can create mock resources and they will persist across client-side navigations, but they exist only in the browser: nobody else can see them and the mock "DB" is reset on pageload. Request and response bodies in the mock API match the Oxide API's [OpenAPI spec](https://github.com/oxidecomputer/omicron/blob/main/openapi/nexus.json), but behavior is only mocked in as much detail as is required for development and testing of the console and is not fully representative of the real API.
+At https://console-preview.oxide.computer, the console is deployed as a static site with a mock API running in a [Service Worker](https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API). You can create mock resources and they will persist across client-side navigations, but they exist only in the browser: nobody else can see them and the mock "DB" is reset on pageload. Request and response bodies in the mock API match the Oxide API's [OpenAPI spec](https://github.com/oxidecomputer/omicron/blob/main/openapi/nexus.json), but behavior is only mocked in as much detail as is required for development and testing of the console and is not fully representative of the real API.
 
 ## Goals and principles
 

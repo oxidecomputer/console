@@ -74,13 +74,24 @@ export const snapshots: Json<Snapshot>[] = [
     disk_id: 'a6f61e3f-25c1-49b0-a013-ac6a2d98a948',
     state: 'ready',
   },
+  {
+    id: '7fc6ca11-452e-d3e4-9e1c-752ff615abea',
+    name: 'snapshot-heavy',
+    description: '',
+    project_id: project.id,
+    time_created: new Date().toISOString(),
+    time_modified: new Date().toISOString(),
+    size: 1024 * 1024 * 1024 * 20,
+    disk_id: disks[3].id,
+    state: 'ready',
+  },
   ...generatedSnapshots,
 ]
 
 function generateSnapshot(index: number): Json<Snapshot> {
   return {
     id: uuid(),
-    name: `disk-1-snapshot-${index + 5}`,
+    name: `disk-1-snapshot-${index + 6}`,
     description: '',
     project_id: project.id,
     time_created: new Date().toISOString(),

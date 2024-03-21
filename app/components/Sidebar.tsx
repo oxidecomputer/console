@@ -197,23 +197,27 @@ export const NavLinkItem = (props: {
   children: React.ReactNode
   end?: boolean
   disabled?: boolean
-}) => (
-  <li>
-    <NavLink
-      to={props.to}
-      className={({ isActive }) =>
-        cn(linkStyles, {
-          'text-accent !bg-accent-secondary hover:!bg-accent-secondary-hover svg:!text-accent-tertiary':
-            isActive,
-          'pointer-events-none text-disabled': props.disabled,
-        })
-      }
-      end={props.end}
-    >
-      {props.children}
-    </NavLink>
-  </li>
-)
+}) => {
+  // If the current page is the create form for this NavLinkItem's resource, highlight the NavLink in the sidebar
+  const currentPathIsCreateForm = useLocation().pathname.startsWith(`${props.to}-new`)
+  return (
+    <li>
+      <NavLink
+        to={props.to}
+        className={({ isActive }) =>
+          cn(linkStyles, {
+            'text-accent !bg-accent-secondary hover:!bg-accent-secondary-hover svg:!text-accent-tertiary':
+              isActive || currentPathIsCreateForm,
+            'pointer-events-none text-disabled': props.disabled,
+          })
+        }
+        end={props.end}
+      >
+        {props.children}
+      </NavLink>
+    </li>
+  )
+}
 
 export const NavButtonItem = (props: {
   onClick: () => void

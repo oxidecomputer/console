@@ -24,7 +24,6 @@ import {
 } from '@oxide/api'
 import { Access24Icon } from '@oxide/design-system/icons/react'
 
-import { AccessNameCell } from '~/components/AccessNameCell'
 import { HL } from '~/components/HL'
 import { RoleBadgeCell } from '~/components/RoleBadgeCell'
 import {
@@ -39,6 +38,7 @@ import { Button } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions, TableEmptyBox } from '~/ui/lib/Table'
+import { accessTypeLabel } from '~/util/access'
 import { groupBy, isTruthy } from '~/util/array'
 
 const EmptyState = ({ onClick }: { onClick: () => void }) => (
@@ -127,7 +127,11 @@ export function ProjectAccessPage() {
 
   const columns = useMemo(
     () => [
-      colHelper.accessor('name', { header: 'Name', cell: AccessNameCell }),
+      colHelper.accessor('name', { header: 'Name' }),
+      colHelper.accessor('identityType', {
+        header: 'Type',
+        cell: (props) => accessTypeLabel(props.getValue()),
+      }),
       colHelper.accessor('siloRole', {
         header: 'Silo role',
         cell: RoleBadgeCell,
