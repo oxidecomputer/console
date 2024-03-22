@@ -39,6 +39,7 @@ import { Button } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions, TableEmptyBox } from '~/ui/lib/Table'
+import { TipIcon } from '~/ui/lib/TipIcon'
 import { accessTypeLabel, getBadgeColor } from '~/util/access'
 import { groupBy, isTruthy, sortBy } from '~/util/array'
 
@@ -130,7 +131,15 @@ export function ProjectAccessPage() {
         cell: (props) => accessTypeLabel(props.getValue()),
       }),
       colHelper.accessor('roleBadges', {
-        header: 'Role',
+        header: () => (
+          <span className="inline-flex items-center">
+            Role
+            <TipIcon className="ml-2">
+              A user or group&apos;s effective role for this project is the strongest role
+              on either the silo or project.
+            </TipIcon>
+          </span>
+        ),
         cell: (props) => (
           <ListPlusCell tooltipTitle="Other roles">
             {props.getValue().map(({ roleName, roleSource }) => (
