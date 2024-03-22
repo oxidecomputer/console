@@ -18,11 +18,12 @@ import { useTitle } from '~/hooks/use-title'
  */
 export function RootLayout() {
   const title = useTitle()
+  useEffect(() => {
+    document.title = title
+  }, [title])
 
   return (
     <>
-      {/* https://react.dev/reference/react-dom/components/title */}
-      <title>{title}</title>
       <LoadingBar />
       {process.env.MSW_BANNER ? <MswBanner /> : null}
       <Outlet />
