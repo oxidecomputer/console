@@ -12,6 +12,7 @@ import { Cloud24Icon, NextArrow12Icon } from '@oxide/design-system/icons/react'
 
 import { QueryParamTabs } from '~/components/QueryParamTabs'
 import { getSiloSelector, useSiloSelector } from '~/hooks'
+import type { CrumbFunc } from '~/hooks/use-title'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { Badge } from '~/ui/lib/Badge'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -24,7 +25,10 @@ import { formatDateTime } from '~/util/date'
 import { SiloIdpsTab } from './SiloIdpsTab'
 import { SiloIpPoolsTab } from './SiloIpPoolsTab'
 
-SiloPage.loader = async ({ params }: LoaderFunctionArgs) => {
+const crumb: CrumbFunc = (m) => m.params.silo!
+export const handle = { crumb }
+
+export async function loader({ params }: LoaderFunctionArgs) {
   const { silo } = getSiloSelector(params)
   await Promise.all([
     apiQueryClient.prefetchQuery('siloView', { path: { silo } }),
@@ -39,7 +43,8 @@ SiloPage.loader = async ({ params }: LoaderFunctionArgs) => {
   return null
 }
 
-export function SiloPage() {
+Component.displayName = 'SiloPage'
+export function Component() {
   const siloSelector = useSiloSelector()
 
   const { data: silo } = usePrefetchedApiQuery('siloView', { path: siloSelector })
