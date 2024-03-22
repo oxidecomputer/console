@@ -5,30 +5,34 @@
  *
  * Copyright Oxide Computer Company
  */
-import { expect, test, type Page } from './utils'
+import { expect, expectVisible, test, type Page } from './utils'
 
 async function expectScrollTop(page: Page, expected: number) {
-  const container = page.locator('#content_pane')
-  const getScrollTop = () => container.evaluate((el: HTMLElement) => el.scrollTop)
-  await expect.poll(getScrollTop).toBe(expected)
+  await page.waitForFunction((expected) => window.scrollY === expected, expected)
 }
 
 async function scrollTo(page: Page, to: number) {
-  const container = page.locator('#content_pane')
-  await container.evaluate((el: HTMLElement, to) => el.scrollTo(0, to), to)
+  await page.evaluate((y) => {
+    window.scrollTo(0, y)
+  }, to)
 }
 
 test('scroll restore', async ({ page }) => {
-  // open small window to make scrolling easier
-  await page.setViewportSize({ width: 800, height: 500 })
+  // open short window to make scrolling easier
+  // needs to be wide enough to not require the nav to be opened
+  await page.setViewportSize({ width: 1024, height: 500 })
 
   // nav to disks and scroll it
   await page.goto('/projects/mock-project/disks')
+  // this helps us wait till the page is ready to scroll
+  await expectVisible(page, ['role=heading[name*="Disks"]'])
   await expectScrollTop(page, 0)
   await scrollTo(page, 143)
 
   // nav to snapshots
   await page.getByRole('link', { name: 'Snapshots' }).click()
+  await expectVisible(page, ['role=heading[name*="Snapshots"]'])
+  await expect(page).toHaveURL('/projects/mock-project/snapshots')
   await expectScrollTop(page, 0)
 
   // go back to disks, scroll is restored, scroll it some more
