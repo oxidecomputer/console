@@ -6,17 +6,16 @@
  * Copyright Oxide Computer Company
  */
 
-import type { IdentityType } from '~/api'
+import type { IdentityType, RoleKey } from '~/api'
 import type { BadgeColor } from '~/ui/lib/Badge'
 
-export const accessTypeLabel = (identityType: IdentityType) =>
-  identityType === 'silo_group' ? 'Group' : 'User'
+export const identityTypeLabel: Record<IdentityType, string> = {
+  silo_group: 'Group',
+  silo_user: 'User',
+}
 
-export const getBadgeColor = (role: 'admin' | 'collaborator' | 'viewer'): BadgeColor => {
-  const badgeColor = {
-    admin: 'default',
-    collaborator: 'purple',
-    viewer: 'blue',
-  }
-  return badgeColor[role] as BadgeColor
+export const roleColor: Record<RoleKey, BadgeColor> = {
+  admin: 'default',
+  collaborator: 'purple',
+  viewer: 'blue',
 }

@@ -40,7 +40,7 @@ import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions, TableEmptyBox } from '~/ui/lib/Table'
 import { TipIcon } from '~/ui/lib/TipIcon'
-import { accessTypeLabel, getBadgeColor } from '~/util/access'
+import { identityTypeLabel, roleColor } from '~/util/access'
 import { groupBy, isTruthy, sortBy } from '~/util/array'
 
 const EmptyState = ({ onClick }: { onClick: () => void }) => (
@@ -128,7 +128,7 @@ export function ProjectAccessPage() {
       colHelper.accessor('name', { header: 'Name' }),
       colHelper.accessor('identityType', {
         header: 'Type',
-        cell: (props) => accessTypeLabel(props.getValue()),
+        cell: (props) => identityTypeLabel[props.getValue()],
       }),
       colHelper.accessor('roleBadges', {
         header: () => (
@@ -143,7 +143,7 @@ export function ProjectAccessPage() {
         cell: (props) => (
           <ListPlusCell tooltipTitle="Other roles">
             {props.getValue().map(({ roleName, roleSource }) => (
-              <Badge key={roleSource} color={getBadgeColor(roleName)}>
+              <Badge key={roleSource} color={roleColor[roleName]}>
                 {roleSource}.{roleName}
               </Badge>
             ))}

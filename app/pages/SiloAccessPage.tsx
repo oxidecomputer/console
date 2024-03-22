@@ -35,7 +35,7 @@ import { Button } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions, TableEmptyBox } from '~/ui/lib/Table'
-import { accessTypeLabel, getBadgeColor } from '~/util/access'
+import { identityTypeLabel, roleColor } from '~/util/access'
 import { groupBy, isTruthy } from '~/util/array'
 
 const EmptyState = ({ onClick }: { onClick: () => void }) => (
@@ -114,13 +114,13 @@ export function SiloAccessPage() {
       colHelper.accessor('name', { header: 'Name' }),
       colHelper.accessor('identityType', {
         header: 'Type',
-        cell: (props) => accessTypeLabel(props.getValue()),
+        cell: (props) => identityTypeLabel[props.getValue()],
       }),
       colHelper.accessor('siloRole', {
         header: 'Role',
         cell: (props) => {
           const role = props.getValue()
-          return role ? <Badge color={getBadgeColor(role)}>silo.{role}</Badge> : null
+          return role ? <Badge color={roleColor[role]}>silo.{role}</Badge> : null
         },
       }),
       // TODO: tooltips on disabled elements explaining why
