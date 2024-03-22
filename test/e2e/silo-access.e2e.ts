@@ -19,15 +19,14 @@ test('Click through silo access page', async ({ page }) => {
 
   await expectVisible(page, ['role=heading[name*="Access & IAM"]'])
   await expectRowVisible(table, {
-    // no space because expectRowVisible uses textContent, not accessible name
     Name: 'real-estate-devs',
     Type: 'Group',
-    'Silo role': 'collaborator',
+    Role: 'silo.collaborator',
   })
   await expectRowVisible(table, {
     Name: 'Hannah Arendt',
     Type: 'User',
-    'Silo role': 'admin',
+    Role: 'silo.admin',
   })
   await expectNotVisible(page, [`role=cell[name="${user4.display_name}"]`])
 
@@ -59,7 +58,8 @@ test('Click through silo access page', async ({ page }) => {
   // User 3 shows up in the table
   await expectRowVisible(table, {
     Name: 'Jacob Klein',
-    'Silo role': 'collaborator',
+    Role: 'silo.collaborator',
+    Type: 'User',
   })
 
   // now change user 3's role from collab to viewer
@@ -69,14 +69,14 @@ test('Click through silo access page', async ({ page }) => {
     .click()
   await page.click('role=menuitem[name="Change role"]')
 
-  await expectVisible(page, ['role=heading[name*="Change role for Jacob Klein"]'])
+  await expectVisible(page, ['role=heading[name*="Change silo role for Jacob Klein"]'])
   await expectVisible(page, ['button:has-text("Collaborator")'])
 
   await page.click('role=button[name*="Role"]')
   await page.click('role=option[name="Viewer"]')
   await page.click('role=button[name="Update role"]')
 
-  await expectRowVisible(table, { Name: user3.display_name, 'Silo role': 'viewer' })
+  await expectRowVisible(table, { Name: user3.display_name, Role: 'silo.viewer' })
 
   // now delete user 3
   const user3Row = page.getByRole('row', { name: user3.display_name, exact: false })

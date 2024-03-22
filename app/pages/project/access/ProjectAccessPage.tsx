@@ -14,7 +14,7 @@ import {
   apiQueryClient,
   byGroupThenName,
   deleteRole,
-  getEffectiveRole,
+  roleOrder,
   useApiMutation,
   useApiQueryClient,
   usePrefetchedApiQuery,
@@ -25,7 +25,7 @@ import {
 import { Access24Icon } from '@oxide/design-system/icons/react'
 
 import { HL } from '~/components/HL'
-import { RoleBadgeCell } from '~/components/RoleBadgeCell'
+import { ListPlusCell } from '~/components/ListPlusCell'
 import {
   ProjectAccessAddUserSideModal,
   ProjectAccessEditUserSideModal,
@@ -34,12 +34,14 @@ import { getProjectSelector, useProjectSelector } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { getActionsCol } from '~/table/columns/action-col'
 import { Table } from '~/table/Table'
+import { Badge } from '~/ui/lib/Badge'
 import { Button } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions, TableEmptyBox } from '~/ui/lib/Table'
-import { accessTypeLabel } from '~/util/access'
-import { groupBy, isTruthy } from '~/util/array'
+import { TipIcon } from '~/ui/lib/TipIcon'
+import { accessTypeLabel, getBadgeColor } from '~/util/access'
+import { groupBy, isTruthy, sortBy } from '~/util/array'
 
 const EmptyState = ({ onClick }: { onClick: () => void }) => (
   <TableEmptyBox>
@@ -69,9 +71,8 @@ type UserRow = {
   id: string
   identityType: IdentityType
   name: string
-  siloRole: RoleKey | undefined
   projectRole: RoleKey | undefined
-  effectiveRole: RoleKey
+  roleBadges: { roleSource: string; roleName: RoleKey }[]
 }
 
 const colHelper = createColumnHelper<UserRow>()
@@ -92,26 +93,23 @@ export function ProjectAccessPage() {
   const rows = useMemo(() => {
     return groupBy(siloRows.concat(projectRows), (u) => u.id)
       .map(([userId, userAssignments]) => {
-        const siloRole = userAssignments.find((a) => a.roleSource === 'silo')?.roleName
-        const projectRole = userAssignments.find(
-          (a) => a.roleSource === 'project'
-        )?.roleName
-
-        const roles = [siloRole, projectRole].filter(isTruthy)
-
         const { name, identityType } = userAssignments[0]
 
-        const row: UserRow = {
+        const siloAccessRow = userAssignments.find((a) => a.roleSource === 'silo')
+        const projectAccessRow = userAssignments.find((a) => a.roleSource === 'project')
+
+        const roleBadges = sortBy(
+          [siloAccessRow, projectAccessRow].filter(isTruthy),
+          (r) => roleOrder[r.roleName] // sorts strongest role first
+        )
+
+        return {
           id: userId,
           identityType,
           name,
-          siloRole,
-          projectRole,
-          // we know there has to be at least one
-          effectiveRole: getEffectiveRole(roles)!,
-        }
-
-        return row
+          projectRole: projectAccessRow?.roleName,
+          roleBadges,
+        } satisfies UserRow
       })
       .sort(byGroupThenName)
   }, [siloRows, projectRows])
@@ -132,14 +130,27 @@ export function ProjectAccessPage() {
         header: 'Type',
         cell: (props) => accessTypeLabel(props.getValue()),
       }),
-      colHelper.accessor('siloRole', {
-        header: 'Silo role',
-        cell: RoleBadgeCell,
+      colHelper.accessor('roleBadges', {
+        header: () => (
+          <span className="inline-flex items-center">
+            Role
+            <TipIcon className="ml-2">
+              A user or group&apos;s effective role for this project is the strongest role
+              on either the silo or project.
+            </TipIcon>
+          </span>
+        ),
+        cell: (props) => (
+          <ListPlusCell tooltipTitle="Other roles">
+            {props.getValue().map(({ roleName, roleSource }) => (
+              <Badge key={roleSource} color={getBadgeColor(roleName)}>
+                {roleSource}.{roleName}
+              </Badge>
+            ))}
+          </ListPlusCell>
+        ),
       }),
-      colHelper.accessor('projectRole', {
-        header: 'Project role',
-        cell: RoleBadgeCell,
-      }),
+
       // TODO: tooltips on disabled elements explaining why
       getActionsCol((row: UserRow) => [
         {

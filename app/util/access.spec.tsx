@@ -7,9 +7,15 @@
  */
 import { expect, test } from 'vitest'
 
-import { accessTypeLabel } from './access'
+import { accessTypeLabel, getBadgeColor } from './access'
 
 test('accessTypeLabel', () => {
   expect(accessTypeLabel('silo_group')).toEqual('Group')
   expect(accessTypeLabel('silo_user')).toEqual('User')
+})
+
+test('getBadgeColor', () => {
+  expect(getBadgeColor('admin')).toEqual('default')
+  expect(getBadgeColor('collaborator')).toEqual('purple')
+  expect(getBadgeColor('viewer')).toEqual('blue')
 })
