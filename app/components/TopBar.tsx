@@ -11,9 +11,10 @@ import { useNavigate } from 'react-router-dom'
 
 import { navToLogin, useApiMutation } from '@oxide/api'
 import {
-  Close12Icon,
   DirectionDownIcon,
   Info16Icon,
+  MenuClose12Icon,
+  MenuOpen12Icon,
   Profile16Icon,
 } from '@oxide/design-system/icons/react'
 
@@ -61,9 +62,9 @@ export function TopBar({ children }: { children: React.ReactNode }) {
           }}
         >
           {isOpen ? (
-            <Close12Icon className="text-tertiary" />
+            <MenuClose12Icon className="text-tertiary" />
           ) : (
-            <Menu12Icon className="text-tertiary" />
+            <MenuOpen12Icon className="text-tertiary" />
           )}
         </Button>
 
@@ -133,21 +134,3 @@ export function TopBar({ children }: { children: React.ReactNode }) {
     </div>
   )
 }
-
-const Menu12Icon = ({ className }: { className: string }) => (
-  <svg
-    width="12"
-    height="12"
-    viewBox="0 0 12 12"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    className={className}
-  >
-    <path
-      fillRule="evenodd"
-      clipRule="evenodd"
-      d="M1 1.667C1 1.29863 1.29863 1 1.667 1H10.333C10.7014 1 11 1.29863 11 1.667V2.333C11 2.70137 10.7014 3 10.333 3H1.667C1.29863 3 1 2.70137 1 2.333V1.667ZM1 5.667C1 5.29863 1.29863 5 1.667 5H10.333C10.7014 5 11 5.29863 11 5.667V6.333C11 6.70137 10.7014 7 10.333 7H1.667C1.29863 7 1 6.70137 1 6.333V5.667ZM11 9.667C11 9.29863 10.7014 9 10.333 9H1.667C1.29863 9 1 9.29863 1 9.667V10.333C1 10.7014 1.29863 11 1.667 11H10.333C10.7014 11 11 10.7014 11 10.333V9.667Z"
-      fill="currentColor"
-    />
-  </svg>
-)

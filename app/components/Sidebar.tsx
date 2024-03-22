@@ -15,6 +15,7 @@ import {
   Document16Icon,
   Key16Icon,
   Profile16Icon,
+  SignOut16Icon,
 } from '@oxide/design-system/icons/react'
 
 import { navToLogin, useApiMutation } from '~/api'
@@ -168,34 +169,6 @@ export const ProfileLinks = ({ className }: { className?: string }) => {
     </div>
   )
 }
-
-const SignOut16Icon = () => (
-  <svg
-    width="16"
-    height="16"
-    viewBox="0 0 16 16"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path
-      fillRule="evenodd"
-      clipRule="evenodd"
-      d="M7.25 2H3.25H2.75C2.33579 2 2 2.33579 2 2.75V3.25V12V13.25C2 13.6642 2.33579 14 2.75 14H4H7.25C7.66421 14 8 13.6642 8 13.25V12.75C8 12.3358 7.66421 12 7.25 12H4V4H7.25C7.66421 4 8 3.66421 8 3.25V2.75C8 2.33579 7.66421 2 7.25 2ZM13 7.75V8.25C13 8.66421 12.6642 9 12.25 9H7.75C7.33579 9 7 8.66421 7 8.25V7.75C7 7.33579 7.33579 7 7.75 7H12.25C12.6642 7 13 7.33579 13 7.75Z"
-      fill="currentColor"
-    />
-    <rect
-      width="4"
-      height="5"
-      rx="0.75"
-      transform="matrix(4.37114e-08 -1 -1 -4.37114e-08 11 10)"
-      fill="currentColor"
-    />
-    <path
-      d="M14.2679 8.58565C14.6432 8.2854 14.6432 7.71459 14.2679 7.41434L10.6093 4.48741C10.3637 4.29098 10 4.46579 10 4.78023L10 11.2198C10 11.5342 10.3637 11.709 10.6093 11.5126L14.2679 8.58565Z"
-      fill="currentColor"
-    />
-  </svg>
-)
 
 interface SidebarNav {
   children: React.ReactNode
