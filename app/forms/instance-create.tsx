@@ -110,6 +110,7 @@ const useBootDiskItems = (projectSelector: PP.Project) => {
   const { data: disks } = useApiQuery('diskList', {
     query: { ...projectSelector, limit: 1000 },
   })
+
   return (
     disks?.items
       .filter(diskCan.attach)
@@ -383,7 +384,7 @@ export function CreateInstanceForm() {
             Project images
           </Tabs.Trigger>
           <Tabs.Trigger value="disk" disabled={isSubmitting}>
-            Disks
+            Existing disks
           </Tabs.Trigger>
         </Tabs.List>
         {allImages.length === 0 && disks.length === 0 && (
@@ -435,14 +436,15 @@ export function CreateInstanceForm() {
             <div className="flex max-w-lg items-center justify-center rounded-lg border p-6 border-default">
               <EmptyMessage
                 icon={<Storage16Icon />}
-                title="No disks found"
-                body="A disk needs to be created to be used as a boot disk"
+                title="No detached disks found"
+                body="A disk needs to be created and not attached to an instance to be used as a boot disk"
               />
             </div>
           ) : (
             <ListboxField
               label="Disk"
               name="bootDiskSource"
+              description="Existing disks that are not attached to an instance"
               items={disks}
               required
               control={control}
