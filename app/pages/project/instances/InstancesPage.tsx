@@ -9,15 +9,16 @@ import { useMemo } from 'react'
 import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, useApiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
-import { Instances24Icon, Refresh16Icon } from '@oxide/design-system/icons/react'
+import { Instances24Icon } from '@oxide/design-system/icons/react'
 
+import { RefreshButton } from '~/components/RefreshButton'
 import { getProjectSelector, useProjectSelector, useQuickActions } from '~/hooks'
 import { DateCell } from '~/table/cells/DateCell'
 import { InstanceResourceCell } from '~/table/cells/InstanceResourceCell'
 import { InstanceStatusCell } from '~/table/cells/InstanceStatusCell'
 import { linkCell } from '~/table/cells/LinkCell'
 import { useQueryTable } from '~/table/QueryTable'
-import { Button, buttonStyle } from '~/ui/lib/Button'
+import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
@@ -89,14 +90,7 @@ export function InstancesPage() {
         <PageTitle icon={<Instances24Icon />}>Instances</PageTitle>
       </PageHeader>
       <TableActions>
-        <Button
-          size="icon"
-          variant="ghost"
-          onClick={refetchInstances}
-          aria-label="Refresh instances table"
-        >
-          <Refresh16Icon />
-        </Button>
+        <RefreshButton />
         <Link to={pb.instancesNew(projectSelector)} className={buttonStyle({ size: 'sm' })}>
           New Instance
         </Link>
