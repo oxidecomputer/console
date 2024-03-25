@@ -71,6 +71,7 @@ export function CreateFloatingIpSideModalForm() {
   const createFloatingIp = useApiMutation('floatingIpCreate', {
     onSuccess() {
       queryClient.invalidateQueries('floatingIpList')
+      queryClient.invalidateQueries('ipPoolUtilizationView')
       addToast({ content: 'Your Floating IP has been created' })
       navigate(pb.floatingIps(projectSelector))
     },

@@ -8,9 +8,7 @@
 import cn from 'classnames'
 import type { ElementType, PropsWithChildren } from 'react'
 
-import { Question12Icon } from '@oxide/design-system/icons/react'
-
-import { Tooltip } from '~/ui/lib/Tooltip'
+import { TipIcon } from './TipIcon'
 
 interface FieldLabelProps {
   id: string
@@ -43,13 +41,7 @@ export const FieldLabel = ({
           </span>
         )}
       </Component>
-      {tip && (
-        <Tooltip content={tip} placement="top">
-          <button className="svg:pointer-events-none" type="button">
-            <Question12Icon className="text-quinary" />
-          </button>
-        </Tooltip>
-      )}
+      {tip && <TipIcon>{tip}</TipIcon>}
     </div>
   )
 }

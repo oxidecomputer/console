@@ -71,14 +71,14 @@ test('can create a floating IP', async ({ page }) => {
 test('can detach and attach a floating IP', async ({ page }) => {
   // check floating IP is visible on instance detail
   await page.goto('/projects/mock-project/instances/db1')
-  await expect(page.getByText('192.168.64.64')).toBeVisible()
+  await expect(page.getByText('123.4.56.5')).toBeVisible()
 
   // now go detach it
   await page.goto(floatingIpsPage)
 
   await expectRowVisible(page.getByRole('table'), {
     name: 'cola-float',
-    ip: '192.168.64.64',
+    ip: '123.4.56.5',
     'Attached to instance': 'db1',
   })
   await clickRowAction(page, 'cola-float', 'Detach')
@@ -93,7 +93,7 @@ test('can detach and attach a floating IP', async ({ page }) => {
   await page.getByRole('link', { name: 'Instances' }).click()
   await page.getByRole('link', { name: 'db1' }).click()
   await expect(page.getByRole('heading', { name: 'db1' })).toBeVisible()
-  await expect(page.getByText('192.168.64.64')).toBeHidden()
+  await expect(page.getByText('123.4.56.5')).toBeHidden()
 
   // Now click back to floating IPs and reattach it to db1
   await page.getByRole('link', { name: 'Floating IPs' }).click()
@@ -107,7 +107,7 @@ test('can detach and attach a floating IP', async ({ page }) => {
   await expect(page.getByRole('dialog')).toBeHidden()
   await expectRowVisible(page.getByRole('table'), {
     name: 'cola-float',
-    ip: '192.168.64.64',
+    ip: '123.4.56.5',
     'Attached to instance': 'db1',
   })
 })

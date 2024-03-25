@@ -10,7 +10,7 @@ import { useLocation, useNavigation } from 'react-router-dom'
 
 function getScrollPosition(key: string) {
   const pos = window.sessionStorage.getItem(key)
-  return pos && /^[0-9]+$/.test(pos) ? parseInt(pos, 10) : 0
+  return Number(pos) || 0
 }
 
 function setScrollPosition(key: string, pos: number) {
