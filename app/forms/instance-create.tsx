@@ -391,7 +391,7 @@ export function CreateInstanceForm() {
           <Message
             className="mb-8 ml-10 max-w-lg"
             variant="notice"
-            content="Images or disks are required to create a boot disk."
+            content="Images or disks are required to create or attach a boot disk."
           />
         )}
         <Tabs.Content value="silo" className="space-y-4">
@@ -437,7 +437,7 @@ export function CreateInstanceForm() {
               <EmptyMessage
                 icon={<Storage16Icon />}
                 title="No detached disks found"
-                body="A disk needs to be created and not attached to an instance to be used as a boot disk"
+                body="Only detached disks can be used as a boot disk"
               />
             </div>
           ) : (
