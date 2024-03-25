@@ -18,11 +18,9 @@ import {
   INSTANCE_MAX_CPU,
   INSTANCE_MAX_RAM_GiB,
   useApiMutation,
-  useApiQuery,
   useApiQueryClient,
   usePrefetchedApiQuery,
   type InstanceCreate,
-  type PathParams as PP,
 } from '@oxide/api'
 import {
   Images16Icon,
@@ -106,24 +104,17 @@ const baseDefaultValues: InstanceCreateInput = {
   userData: null,
 }
 
-const useBootDiskItems = (projectSelector: PP.Project) => {
-  const { data: disks } = useApiQuery('diskList', {
-    query: { ...projectSelector, limit: 1000 },
-  })
-
-  return (
-    disks?.items
-      .filter(diskCan.attach)
-      .map((disk) => ({ value: disk.name, label: disk.name })) || []
-  )
-}
+const DISK_FETCH_LIMIT = 1000
 
 CreateInstanceForm.loader = async ({ params }: LoaderFunctionArgs) => {
+  const { project } = getProjectSelector(params)
   await Promise.all([
     // fetch both project and silo images
-    apiQueryClient.prefetchQuery('imageList', { query: getProjectSelector(params) }),
+    apiQueryClient.prefetchQuery('imageList', { query: { project } }),
     apiQueryClient.prefetchQuery('imageList', {}),
-    apiQueryClient.prefetchQuery('diskList', {}),
+    apiQueryClient.prefetchQuery('diskList', {
+      query: { project, limit: DISK_FETCH_LIMIT },
+    }),
     apiQueryClient.prefetchQuery('currentUserSshKeyList', {}),
   ])
   return null
@@ -158,7 +149,13 @@ export function CreateInstanceForm() {
 
   const defaultImage = allImages[0]
 
-  const disks = useBootDiskItems(projectSelector)
+  const allDisks = usePrefetchedApiQuery('diskList', {
+    query: { ...projectSelector, limit: DISK_FETCH_LIMIT },
+  }).data.items
+  const disks = useMemo(
+    () => allDisks.filter(diskCan.attach).map(({ name }) => ({ value: name, label: name })),
+    [allDisks]
+  )
 
   const { data: sshKeys } = usePrefetchedApiQuery('currentUserSshKeyList', {})
   const allKeys = useMemo(() => sshKeys.items.map((key) => key.id), [sshKeys])
@@ -400,7 +397,7 @@ export function CreateInstanceForm() {
               <EmptyMessage
                 icon={<Images16Icon />}
                 title="No silo images found"
-                body="Project images need to be promoted to be seen here"
+                body="Promote a project image to see it here"
               />
             </div>
           ) : (
@@ -417,7 +414,7 @@ export function CreateInstanceForm() {
               <EmptyMessage
                 icon={<Images16Icon />}
                 title="No project images found"
-                body="An image needs to be uploaded to be seen here"
+                body="Upload an image to see it here"
                 buttonText="Upload image"
                 onClick={() => navigate(pb.projectImagesNew(projectSelector))}
               />
