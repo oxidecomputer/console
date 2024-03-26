@@ -37,7 +37,7 @@ export const CapacityBar = <T extends number | bigint>({
         <TitleCell icon={icon} title={title} unit={unit} />
         <PctCell pct={pct} />
       </div>
-      <div className="p-3 pt-1">
+      <div className="p-3 pb-4 pt-1">
         <Bar pct={pct} />
       </div>
       <div className="flex justify-between border-t border-secondary">
@@ -92,7 +92,7 @@ type ValueCellProps = {
 function ValueCell({ label, value, unit }: ValueCellProps) {
   return (
     <div className="p-3 text-mono-sm">
-      <div className="text-quaternary">{label}</div>
+      <div className="mb-px text-quaternary">{label}</div>
       <div className="!normal-case text-secondary">
         <BigNum num={value} />
         {unit}
