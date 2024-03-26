@@ -375,10 +375,7 @@ export function CreateInstanceForm() {
           )
           // if the user switches to the disk tab, clear the selected image;
           // if they switch to the same tab that has the defaultImage, select it
-          setValue(
-            'bootDiskSource',
-            defaultSource === 'disk' ? '' : val === defaultSource ? defaultImage?.id : ''
-          )
+          setValue('bootDiskSource', val === defaultSource ? defaultImage?.id : '')
           // clear any form errors
           form.clearErrors('bootDiskSource')
         }}
