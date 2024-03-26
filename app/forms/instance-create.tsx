@@ -68,7 +68,7 @@ export type InstanceCreateInput = Assign<
     disks: DiskTableItem[]
     bootDiskName: string
     bootDiskSize: number
-    bootDiskSourceType: 'disk' | 'image'
+    bootDiskSourceType: 'disk' | 'projectImage' | 'siloImage'
     bootDiskSource: string
     userData: File | null
     // ssh keys are always specified. we do not need the undefined case
@@ -92,7 +92,7 @@ const baseDefaultValues: InstanceCreateInput = {
   bootDiskSize: 10,
 
   bootDiskSource: '',
-  bootDiskSourceType: 'image',
+  bootDiskSourceType: 'siloImage',
 
   disks: [],
   networkInterfaces: { type: 'default' },
@@ -160,8 +160,12 @@ export function CreateInstanceForm() {
   const { data: sshKeys } = usePrefetchedApiQuery('currentUserSshKeyList', {})
   const allKeys = useMemo(() => sshKeys.items.map((key) => key.id), [sshKeys])
 
+  const defaultSource =
+    siloImages.length > 0 ? 'silo' : projectImages.length > 0 ? 'project' : 'disk'
+
   const defaultValues: InstanceCreateInput = {
     ...baseDefaultValues,
+    bootDiskSourceType: defaultSource === 'disk' ? 'disk' : `${defaultSource}Image`,
     bootDiskSource: defaultImage?.id || '',
     sshPublicKeys: allKeys,
     // Use 2x the image size as the default boot disk size
@@ -363,14 +367,20 @@ export function CreateInstanceForm() {
         id="boot-disk-tabs"
         className="full-width"
         // default to the project images tab if there are only project images
-        defaultValue={
-          siloImages.length > 0 ? 'silo' : projectImages.length > 0 ? 'project' : 'disk'
-        }
+        defaultValue={defaultSource}
         onValueChange={(val) => {
           setValue(
             'bootDiskSourceType',
-            val === 'silo' || val === 'project' ? 'image' : 'disk'
+            val === 'silo' ? 'siloImage' : val === 'project' ? 'projectImage' : 'disk'
           )
+          // if the user switches to the disk tab, clear the selected image;
+          // if they switch to the same tab that has the defaultImage, select it
+          setValue(
+            'bootDiskSource',
+            defaultSource === 'disk' ? '' : val === defaultSource ? defaultImage?.id : ''
+          )
+          // clear any form errors
+          form.clearErrors('bootDiskSource')
         }}
       >
         <Tabs.List aria-describedby="boot-disk">
@@ -450,7 +460,8 @@ export function CreateInstanceForm() {
         </Tabs.Content>
       </Tabs.Root>
 
-      {sourceType === 'image' && (
+      {/* siloImage and projectImage sourceTypes have additional fields */}
+      {sourceType.includes('Image') && (
         <>
           <div key="divider" className="!my-12 content-['a']" />
 
