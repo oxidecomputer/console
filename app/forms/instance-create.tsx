@@ -55,8 +55,8 @@ import { RadioCard } from '~/ui/lib/Radio'
 import { Tabs } from '~/ui/lib/Tabs'
 import { TextInputHint } from '~/ui/lib/TextInput'
 import { readBlobAsBase64 } from '~/util/file'
-import { invariant } from '~/util/invariant'
 import { links } from '~/util/links'
+import { nearest10 } from '~/util/math'
 import { pb } from '~/util/path-builder'
 import { GiB } from '~/util/units'
 
@@ -71,7 +71,6 @@ export type InstanceCreateInput = Assign<
     bootDiskName: string
     bootDiskSize: number
     bootDiskSourceType: BootDiskSourceType
-    bootDiskSource: string
     siloImageSource: string
     projectImageSource: string
     diskSource: string
@@ -97,7 +96,6 @@ const baseDefaultValues: InstanceCreateInput = {
   bootDiskSize: 10,
 
   bootDiskSourceType: 'siloImage',
-  bootDiskSource: '',
   siloImageSource: '',
   projectImageSource: '',
   diskSource: '',
@@ -174,44 +172,29 @@ export function CreateInstanceForm() {
   const defaultValues: InstanceCreateInput = {
     ...baseDefaultValues,
     bootDiskSourceType: defaultSource,
-    bootDiskSource: defaultImage?.id || '',
     siloImageSource: siloImages?.[0]?.id || '',
     projectImageSource: projectImages?.[0]?.id || '',
     diskSource: disks?.[0]?.value || '',
     sshPublicKeys: allKeys,
-    // Use 2x the image size as the default boot disk size
-    bootDiskSize: Math.ceil(defaultImage?.size / GiB) * 2 || 10,
+    bootDiskSize: Math.max(nearest10(defaultImage?.size / GiB), 10),
   }
 
   const form = useForm({ defaultValues })
   const { control, setValue } = form
 
+  const bootDiskSourceType = useWatch({ control: control, name: 'bootDiskSourceType' })
   const siloImageSource = useWatch({ control: control, name: 'siloImageSource' })
   const projectImageSource = useWatch({ control: control, name: 'projectImageSource' })
   const diskSource = useWatch({ control: control, name: 'diskSource' })
-  const bootDiskSourceType = useWatch({ control: control, name: 'bootDiskSourceType' })
-  const bootDiskSource = useWatch({ control: control, name: 'bootDiskSource' })
+  const bootDiskSource =
+    bootDiskSourceType === 'siloImage'
+      ? siloImageSource
+      : bootDiskSourceType === 'projectImage'
+        ? projectImageSource
+        : diskSource
   const bootDiskSize = useWatch({ control: control, name: 'bootDiskSize' })
   const image = allImages.find((i) => i.id === bootDiskSource)
   const imageSize = image?.size ? Math.ceil(image.size / GiB) : undefined
-
-  useEffect(() => {
-    bootDiskSourceType === 'siloImage' && setValue('bootDiskSource', siloImageSource)
-    bootDiskSourceType === 'projectImage' && setValue('bootDiskSource', projectImageSource)
-    bootDiskSourceType === 'disk' && setValue('bootDiskSource', diskSource)
-    if (imageSize && imageSize > bootDiskSize) {
-      console.log({ imageSize, bootDiskSize })
-      setValue('bootDiskSize', imageSize * 2)
-    }
-  }, [
-    bootDiskSize,
-    bootDiskSourceType,
-    diskSource,
-    imageSize,
-    projectImageSource,
-    setValue,
-    siloImageSource,
-  ])
 
   useEffect(() => {
     if (createInstance.error) {
@@ -250,7 +233,7 @@ export function CreateInstanceForm() {
 
   const createBootDisk = (values: InstanceCreateInput) => {
     if (values.bootDiskSourceType === 'disk') {
-      return { type: 'attach' as const, name: values.bootDiskSource }
+      return { type: 'attach' as const, name: values.diskSource }
     }
     const source =
       values.bootDiskSourceType === 'siloImage'
@@ -280,17 +263,6 @@ export function CreateInstanceForm() {
           values.presetId === 'custom'
             ? { memory: values.memory, ncpus: values.ncpus }
             : { memory: preset.memory, ncpus: preset.ncpus }
-
-        const isDisk = values.bootDiskSourceType === 'disk'
-        const image = !isDisk && allImages.find((i) => values.bootDiskSource === i.id)
-
-        // There should always be an image or disk present, because …
-        // - The form is disabled unless there are images or disks available.
-        // - The form defaults to including at least one image.
-        invariant(
-          (image && values.bootDiskSize) || (isDisk && values.bootDiskSource),
-          'Expected boot disk to be defined'
-        )
 
         const bootDisk = createBootDisk(values)
 
@@ -429,14 +401,8 @@ export function CreateInstanceForm() {
         defaultValue={defaultSource}
         onValueChange={(val) => {
           setValue('bootDiskSourceType', val as BootDiskSourceType)
-          if (val === 'siloImage') {
-            setValue('bootDiskSource', siloImageSource)
-          }
-          if (val === 'projectImage') {
-            setValue('bootDiskSource', projectImageSource)
-          }
-          if (val === 'disk') {
-            setValue('bootDiskSource', bootDiskSource)
+          if (imageSize && imageSize > bootDiskSize) {
+            setValue('bootDiskSize', nearest10(imageSize))
           }
         }}
       >

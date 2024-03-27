@@ -11,6 +11,7 @@ import type { Image } from '@oxide/api'
 
 import type { InstanceCreateInput } from '~/forms/instance-create'
 import type { ListboxItem } from '~/ui/lib/Listbox'
+import { nearest10 } from '~/util/math'
 import { bytesToGiB, GiB } from '~/util/units'
 
 import { ListboxField } from './ListboxField'
@@ -19,7 +20,7 @@ type ImageSelectFieldProps = {
   images: Image[]
   control: Control<InstanceCreateInput>
   disabled?: boolean
-  name?: 'bootDiskSource' | 'siloImageSource' | 'projectImageSource'
+  name: 'siloImageSource' | 'projectImageSource'
 }
 
 export function BootDiskImageSelectField({
@@ -33,7 +34,7 @@ export function BootDiskImageSelectField({
     <ListboxField
       disabled={disabled}
       control={control}
-      name={name || 'bootDiskSource'}
+      name={name}
       label="Image"
       placeholder="Select an image"
       items={images.map((i) => toListboxItem(i))}
@@ -42,8 +43,7 @@ export function BootDiskImageSelectField({
         const image = images.find((i) => i.id === id)! // if it's selected, it must be present
         const imageSizeGiB = image.size / GiB
         if (diskSizeField.value < imageSizeGiB) {
-          const nearest10 = Math.ceil(imageSizeGiB / 10) * 10
-          diskSizeField.onChange(nearest10)
+          diskSizeField.onChange(nearest10(imageSizeGiB))
         }
       }}
     />

@@ -7,7 +7,14 @@
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
-import { displayBigNum, percentage, round, splitDecimal, toEngNotation } from './math'
+import {
+  displayBigNum,
+  nearest10,
+  percentage,
+  round,
+  splitDecimal,
+  toEngNotation,
+} from './math'
 import { GiB } from './units'
 
 function roundTest() {
@@ -207,4 +214,25 @@ it.each([
   // ['ar-SA'], // saudi arabia, arabic script
 ])('toEngNotation commas %s', (locale) => {
   expect(toEngNotation(n, locale)).toEqual('23,1e27')
+})
+
+it.each([
+  [0, 0],
+  [1, 10],
+  [1.5, 10],
+  [9, 10],
+  [10, 10],
+  [10.0001, 20],
+  [11, 20],
+  [19, 20],
+  [20, 20],
+  [21, 30],
+  [99, 100],
+  [100, 100],
+  [101, 110],
+  [109, 110],
+  [110, 110],
+  [111, 120],
+])('nearest10 %d → %d', (input, output) => {
+  expect(nearest10(input)).toEqual(output)
 })

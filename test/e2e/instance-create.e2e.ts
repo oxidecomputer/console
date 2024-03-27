@@ -272,3 +272,20 @@ test('start with an existing disk, but then switch to a silo image', async ({ pa
   await expectVisible(page, [`h1:has-text("${instanceName}")`, 'text=8 GiB'])
   await expectNotVisible(page, ['text=disk-7'])
 })
+
+test('maintains selected values even when changing tabs', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances-new')
+  await page.getByRole('button', { name: 'Image' }).click()
+  // select the arch option
+  await page.getByRole('option', { name: 'arch-2022-06-01' }).click()
+  // expect to find name of the image on page
+  await expect(page.getByText('arch-2022-06-01')).toBeVisible()
+  // change to a different tab
+  await page.getByRole('tab', { name: 'Existing disks' }).click()
+  // the image should no longer be visible
+  await expect(page.getByText('arch-2022-06-01')).toBeHidden()
+  // change back to the tab with the image
+  await page.getByRole('tab', { name: 'Silo images' }).click()
+  // arch should still be selected
+  await expect(page.getByText('arch-2022-06-01')).toBeVisible()
+})
