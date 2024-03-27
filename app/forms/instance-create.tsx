@@ -72,6 +72,9 @@ export type InstanceCreateInput = Assign<
     bootDiskSize: number
     bootDiskSourceType: BootDiskSourceType
     bootDiskSource: string
+    siloImageSource: string
+    projectImageSource: string
+    diskSource: string
     userData: File | null
     // ssh keys are always specified. we do not need the undefined case
     sshPublicKeys: NonNullable<InstanceCreate['sshPublicKeys']>
@@ -93,8 +96,11 @@ const baseDefaultValues: InstanceCreateInput = {
   bootDiskName: '',
   bootDiskSize: 10,
 
-  bootDiskSource: '',
   bootDiskSourceType: 'siloImage',
+  bootDiskSource: '',
+  siloImageSource: '',
+  projectImageSource: '',
+  diskSource: '',
 
   disks: [],
   networkInterfaces: { type: 'default' },
@@ -169,6 +175,9 @@ export function CreateInstanceForm() {
     ...baseDefaultValues,
     bootDiskSourceType: defaultSource,
     bootDiskSource: defaultImage?.id || '',
+    siloImageSource: siloImages?.[0]?.id || '',
+    projectImageSource: projectImages?.[0]?.id || '',
+    diskSource: disks?.[0]?.value || '',
     sshPublicKeys: allKeys,
     // Use 2x the image size as the default boot disk size
     bootDiskSize: Math.ceil(defaultImage?.size / GiB) * 2 || 10,
@@ -177,9 +186,32 @@ export function CreateInstanceForm() {
   const form = useForm({ defaultValues })
   const { control, setValue } = form
 
-  const imageInput = useWatch({ control: control, name: 'bootDiskSource' })
-  const image = allImages.find((i) => i.id === imageInput)
+  const siloImageSource = useWatch({ control: control, name: 'siloImageSource' })
+  const projectImageSource = useWatch({ control: control, name: 'projectImageSource' })
+  const diskSource = useWatch({ control: control, name: 'diskSource' })
+  const bootDiskSourceType = useWatch({ control: control, name: 'bootDiskSourceType' })
+  const bootDiskSource = useWatch({ control: control, name: 'bootDiskSource' })
+  const bootDiskSize = useWatch({ control: control, name: 'bootDiskSize' })
+  const image = allImages.find((i) => i.id === bootDiskSource)
   const imageSize = image?.size ? Math.ceil(image.size / GiB) : undefined
+
+  useEffect(() => {
+    bootDiskSourceType === 'siloImage' && setValue('bootDiskSource', siloImageSource)
+    bootDiskSourceType === 'projectImage' && setValue('bootDiskSource', projectImageSource)
+    bootDiskSourceType === 'disk' && setValue('bootDiskSource', diskSource)
+    if (imageSize && imageSize > bootDiskSize) {
+      console.log({ imageSize, bootDiskSize })
+      setValue('bootDiskSize', imageSize * 2)
+    }
+  }, [
+    bootDiskSize,
+    bootDiskSourceType,
+    diskSource,
+    imageSize,
+    projectImageSource,
+    setValue,
+    siloImageSource,
+  ])
 
   useEffect(() => {
     if (createInstance.error) {
@@ -196,6 +228,7 @@ export function CreateInstanceForm() {
         label="Disk size"
         name="bootDiskSize"
         control={control}
+        min={imageSize || 1}
         validate={(diskSizeGiB: number) => {
           if (imageSize && diskSizeGiB < imageSize) {
             return `Must be as large as selected image (min. ${imageSize} GiB)`
@@ -214,6 +247,23 @@ export function CreateInstanceForm() {
       />
     </>
   )
+
+  const createBootDisk = (values: InstanceCreateInput) => {
+    if (values.bootDiskSourceType === 'disk') {
+      return { type: 'attach' as const, name: values.bootDiskSource }
+    }
+    const source =
+      values.bootDiskSourceType === 'siloImage'
+        ? values.siloImageSource
+        : values.projectImageSource
+    return {
+      type: 'create' as const,
+      name: values.bootDiskName || genName(values.name, source),
+      description: `Created as a boot disk for ${values.name}`,
+      size: values.bootDiskSize * GiB,
+      diskSource: { type: 'image' as const, imageId: source },
+    }
+  }
 
   return (
     <FullPageForm
@@ -242,22 +292,7 @@ export function CreateInstanceForm() {
           'Expected boot disk to be defined'
         )
 
-        const bootDisk = image
-          ? {
-              type: 'create' as const,
-              // TODO: Determine the pattern of the default boot disk name
-              name: values.bootDiskName || genName(values.name, image.name),
-              description: `Created as a boot disk for ${values.name}`,
-
-              // Minimum size as greater than the image is validated
-              // directly on the boot disk size input
-              size: values.bootDiskSize * GiB,
-              diskSource: {
-                type: 'image' as const,
-                imageId: values.bootDiskSource,
-              },
-            }
-          : { type: 'attach' as const, name: values.bootDiskSource }
+        const bootDisk = createBootDisk(values)
 
         const userData = values.userData
           ? await readBlobAsBase64(values.userData)
@@ -293,16 +328,12 @@ export function CreateInstanceForm() {
       >
         Start Instance
       </CheckboxField>
-
       <FormDivider />
-
       <Form.Heading id="hardware">Hardware</Form.Heading>
-
       <TextInputHint id="hw-gp-help-text" className="mb-12 max-w-xl text-sans-md">
         Pick a pre-configured machine type that offers balanced vCPU and memory for most
         workloads or create a custom machine.
       </TextInputHint>
-
       <Tabs.Root
         id="choose-cpu-ram"
         className="full-width"
@@ -398,11 +429,15 @@ export function CreateInstanceForm() {
         defaultValue={defaultSource}
         onValueChange={(val) => {
           setValue('bootDiskSourceType', val as BootDiskSourceType)
-          // if the user switches to the disk tab, clear the selected image;
-          // if they switch to the same tab that has the defaultImage, select it
-          setValue('bootDiskSource', val === defaultSource ? defaultImage?.id : '')
-          // clear any form errors
-          form.clearErrors('bootDiskSource')
+          if (val === 'siloImage') {
+            setValue('bootDiskSource', siloImageSource)
+          }
+          if (val === 'projectImage') {
+            setValue('bootDiskSource', projectImageSource)
+          }
+          if (val === 'disk') {
+            setValue('bootDiskSource', bootDiskSource)
+          }
         }}
       >
         <Tabs.List aria-describedby="boot-disk">
@@ -447,6 +482,7 @@ export function CreateInstanceForm() {
                 images={siloImages}
                 control={control}
                 disabled={isSubmitting}
+                name="siloImageSource"
               />
               {bootDiskSizeAndName}
             </>
@@ -472,6 +508,7 @@ export function CreateInstanceForm() {
                 images={projectImages}
                 control={control}
                 disabled={isSubmitting}
+                name="projectImageSource"
               />
               {bootDiskSizeAndName}
             </>
@@ -490,7 +527,7 @@ export function CreateInstanceForm() {
           ) : (
             <ListboxField
               label="Disk"
-              name="bootDiskSource"
+              name="diskSource"
               description="Existing disks that are not attached to an instance"
               items={disks}
               required
@@ -499,22 +536,15 @@ export function CreateInstanceForm() {
           )}
         </Tabs.Content>
       </Tabs.Root>
-
       <FormDivider />
       <Form.Heading id="additional-disks">Additional disks</Form.Heading>
-
       <DisksTableField control={control} disabled={isSubmitting} />
-
       <FormDivider />
       <Form.Heading id="authentication">Authentication</Form.Heading>
-
       <SshKeysField control={control} isSubmitting={isSubmitting} />
-
       <FormDivider />
       <Form.Heading id="advanced">Advanced</Form.Heading>
-
       <AdvancedAccordion control={control} isSubmitting={isSubmitting} />
-
       <Form.Actions>
         <Form.Submit loading={createInstance.isPending}>Create instance</Form.Submit>
         <Form.Cancel onClick={() => navigate(pb.instances(projectSelector))} />

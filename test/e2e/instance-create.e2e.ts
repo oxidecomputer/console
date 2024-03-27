@@ -119,24 +119,24 @@ test('can create an instance with custom hardware', async ({ page }) => {
   await page.getByRole('textbox', { name: 'Disk name' }).fill('my-boot-disk')
   const diskSizeInput = page.getByRole('textbox', { name: 'Disk size (GiB)' })
   await diskSizeInput.fill('20')
+  await page.keyboard.press('Tab')
 
   // pick a project image just to show we can
   await page.getByRole('tab', { name: 'Project images' }).click()
   await page.getByRole('button', { name: 'Image' }).click()
   await page.getByRole('option', { name: images[2].name }).click()
+  // the disk size should bot have been changed from what was entered earlier
+  await expect(diskSizeInput).toHaveValue('20')
 
   // test disk size validation against image size
+  // the minimum on the number input will be the size of the image (6GiB),
+  // so manually entering a number less than that will be corrected
   await diskSizeInput.fill('5')
+  await page.keyboard.press('Tab')
+  await expect(diskSizeInput).toHaveValue('6')
 
   const submitButton = page.getByRole('button', { name: 'Create instance' })
   await submitButton.click() // submit to trigger validation
-
-  await expectVisible(page, [
-    'main >> text=Must be as large as selected image (min. 6 GiB)',
-  ])
-  await diskSizeInput.fill('10')
-
-  await submitButton.click()
 
   await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)
 
@@ -157,6 +157,7 @@ test('automatically updates disk size when larger image selected', async ({ page
   // set the disk size larger than it needs to be, to verify it doesn't get reduced
   const diskSizeInput = page.getByRole('textbox', { name: 'Disk size (GiB)' })
   await diskSizeInput.fill('5')
+  await page.keyboard.press('Tab')
 
   // pick a disk image that's smaller than 5GiB (the first project image works [4GiB])
   await page.getByRole('tab', { name: 'Project images' }).click()
@@ -228,4 +229,46 @@ test('shows object not found error on no default pool', async ({ page }) => {
   await page.getByRole('button', { name: 'Create instance' }).click()
 
   await expect(page.getByText('Not found: default IP pool')).toBeVisible()
+})
+
+test('create instance with existing disk', async ({ page }) => {
+  const instanceName = 'my-existing-disk-instance'
+  await page.goto('/projects/mock-project/instances-new')
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
+  await page.getByRole('tab', { name: 'Existing disks' }).click()
+  await page.getByRole('button', { name: 'Create instance' }).click()
+  await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)
+  await expectVisible(page, [`h1:has-text("${instanceName}")`, 'text=8 GiB'])
+  await expectRowVisible(page.getByRole('table'), { name: 'disk-3' })
+})
+
+test('create instance with a different existing disk', async ({ page }) => {
+  const instanceName = 'my-existing-disk-2'
+  await page.goto('/projects/mock-project/instances-new')
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
+  await page.getByRole('tab', { name: 'Existing disks' }).click()
+  // test some keyboard navigation to select existing disk
+  await page.keyboard.press('Tab')
+  await page.keyboard.press('Tab')
+  await page.keyboard.press('Enter') // focus the disk select
+  await page.keyboard.press('ArrowDown')
+  await page.keyboard.press('Enter')
+  await page.getByRole('button', { name: 'Create instance' }).click()
+  await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)
+  await expectVisible(page, [`h1:has-text("${instanceName}")`, 'text=8 GiB'])
+  await expectRowVisible(page.getByRole('table'), { name: 'disk-4' })
+})
+
+test('start with an existing disk, but then switch to a silo image', async ({ page }) => {
+  const instanceName = 'silo-image-instance'
+  await page.goto('/projects/mock-project/instances-new')
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
+  await page.getByRole('tab', { name: 'Existing disks' }).click()
+  await page.getByLabel('Disk', { exact: true }).click()
+  await page.getByRole('option', { name: 'disk-7' }).click()
+  await page.getByRole('tab', { name: 'Silo images' }).click()
+  await page.getByRole('button', { name: 'Create instance' }).click()
+  await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)
+  await expectVisible(page, [`h1:has-text("${instanceName}")`, 'text=8 GiB'])
+  await expectNotVisible(page, ['text=disk-7'])
 })

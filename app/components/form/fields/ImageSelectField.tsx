@@ -19,19 +19,21 @@ type ImageSelectFieldProps = {
   images: Image[]
   control: Control<InstanceCreateInput>
   disabled?: boolean
+  name?: 'bootDiskSource' | 'siloImageSource' | 'projectImageSource'
 }
 
 export function BootDiskImageSelectField({
   images,
   control,
   disabled,
+  name,
 }: ImageSelectFieldProps) {
   const diskSizeField = useController({ control, name: 'bootDiskSize' }).field
   return (
     <ListboxField
       disabled={disabled}
       control={control}
-      name="bootDiskSource"
+      name={name || 'bootDiskSource'}
       label="Image"
       placeholder="Select an image"
       items={images.map((i) => toListboxItem(i))}
