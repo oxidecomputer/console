@@ -107,7 +107,7 @@ export function ProjectAccessEditUserSideModal({
       form={form}
       formType="edit"
       resourceName="role"
-      title={`Change role for ${name}`}
+      title={`Change project role for ${name}`}
       onSubmit={({ roleName }) => {
         updatePolicy.mutate({
           path: { project },

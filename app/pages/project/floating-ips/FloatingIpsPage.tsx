@@ -83,6 +83,7 @@ export function FloatingIpsPage() {
   const deleteFloatingIp = useApiMutation('floatingIpDelete', {
     onSuccess() {
       queryClient.invalidateQueries('floatingIpList')
+      queryClient.invalidateQueries('ipPoolUtilizationView')
       addToast({ content: 'Your floating IP has been deleted' })
     },
   })

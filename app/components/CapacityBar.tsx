@@ -6,74 +6,96 @@
  * Copyright Oxide Computer Company
  */
 
-import { splitDecimal } from '~/util/math'
+import { BigNum } from '~/ui/lib/BigNum'
+import { percentage, splitDecimal } from '~/util/math'
 
-export const CapacityBar = ({
+export const CapacityBar = <T extends number | bigint>({
   icon,
   title,
   unit,
   provisioned,
-  allocated,
-  allocatedLabel,
+  capacity,
+  capacityLabel,
+  provisionedLabel = 'Provisioned',
   includeUnit = true,
 }: {
   icon: JSX.Element
-  title: 'CPU' | 'Memory' | 'Storage'
-  unit: 'nCPUs' | 'GiB' | 'TiB'
-  provisioned: number
-  allocated: number
-  allocatedLabel: string
+  title: string
+  unit: string
+  provisioned: T
+  capacity: T
+  provisionedLabel?: string
+  capacityLabel: string
   includeUnit?: boolean
 }) => {
-  const percentOfAllocatedUsed = (provisioned / allocated) * 100
-
-  const [wholeNumber, decimal] = splitDecimal(percentOfAllocatedUsed)
-
-  const formattedPercentUsed = `${percentOfAllocatedUsed}%`
+  const pct = percentage(provisioned, capacity)
+  const unitElt = includeUnit ? <>&nbsp;{unit}</> : null
 
   return (
     <div className="w-full min-w-min rounded-lg border border-default">
-      <div className="flex p-3">
-        {/* the icon, title, and hero datum */}
-        <div className="-ml-0.5 mr-1 flex h-6 w-6 items-start justify-center text-accent">
-          {icon}
-        </div>
-        <div className="flex flex-grow items-start">
-          <span className="text-mono-sm text-secondary">{title}</span>
-          <span className="ml-1 !normal-case text-mono-sm text-quaternary">({unit})</span>
-        </div>
-        <div className="flex -translate-y-0.5 items-baseline">
-          <div className="font-light text-sans-2xl">{wholeNumber}</div>
-          <div className="text-sans-xl text-quaternary">{decimal}%</div>
-        </div>
+      <div className="flex justify-between p-3">
+        <TitleCell icon={icon} title={title} unit={unit} />
+        <PctCell pct={pct} />
       </div>
-      <div className="p-3 pt-1">
-        {/* the bar */}
-        <div className="flex w-full gap-0.5">
-          <div
-            className="h-3 rounded-l border bg-accent-secondary border-accent-secondary"
-            style={{ width: formattedPercentUsed }}
-          ></div>
-          <div className="h-3 grow rounded-r border bg-info-secondary border-info-secondary"></div>
-        </div>
+      <div className="p-3 pb-4 pt-1">
+        <Bar pct={pct} />
       </div>
-      <div>
-        <div className="flex justify-between border-t border-secondary">
-          <div className="p-3 text-mono-sm">
-            <div className="text-quaternary">Provisioned</div>
-            <div className="text-secondary">
-              {provisioned.toLocaleString()}
-              <span className="normal-case">{includeUnit ? ' ' + unit : ''}</span>
-            </div>
-          </div>
-          <div className="p-3 text-mono-sm">
-            <div className="text-quaternary">{allocatedLabel}</div>
-            <div className="text-secondary">
-              {allocated.toLocaleString()}
-              <span className="normal-case">{includeUnit ? ' ' + unit : ''}</span>
-            </div>
-          </div>
-        </div>
+      <div className="flex justify-between border-t border-secondary">
+        <ValueCell label={provisionedLabel} value={provisioned} unit={unitElt} />
+        <ValueCell label={capacityLabel} value={capacity} unit={unitElt} />
+      </div>
+    </div>
+  )
+}
+
+type TitleCellProps = { icon: JSX.Element; title: string; unit: string }
+function TitleCell({ icon, title, unit }: TitleCellProps) {
+  return (
+    <div>
+      <div className="flex flex-grow items-center">
+        <span className="mr-2 flex h-4 w-4 items-center text-accent">{icon}</span>
+        <span className="!normal-case text-mono-sm text-secondary">{title}</span>
+        <span className="ml-1 !normal-case text-mono-sm text-quaternary">({unit})</span>
+      </div>
+    </div>
+  )
+}
+
+function PctCell({ pct }: { pct: number }) {
+  const [wholeNumber, decimal] = splitDecimal(pct)
+  return (
+    <div className="flex -translate-y-0.5 items-baseline">
+      <div className="font-light text-sans-2xl">{wholeNumber}</div>
+      <div className="text-sans-xl text-quaternary">{decimal}%</div>
+    </div>
+  )
+}
+
+function Bar({ pct }: { pct: number }) {
+  return (
+    <div className="flex w-full gap-0.5">
+      <div
+        className="h-3 rounded-l border bg-accent-secondary border-accent-secondary"
+        style={{ width: `${pct.toFixed(2)}%` }}
+      ></div>
+      <div className="h-3 grow rounded-r border bg-info-secondary border-info-secondary"></div>
+    </div>
+  )
+}
+
+type ValueCellProps = {
+  label: string
+  value: number | bigint
+  unit: React.ReactNode
+}
+
+function ValueCell({ label, value, unit }: ValueCellProps) {
+  return (
+    <div className="p-3 text-mono-sm">
+      <div className="mb-px text-quaternary">{label}</div>
+      <div className="!normal-case text-secondary">
+        <BigNum num={value} />
+        {unit}
       </div>
     </div>
   )

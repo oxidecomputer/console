@@ -12,14 +12,17 @@ import { Link, Outlet, useNavigate } from 'react-router-dom'
 import {
   apiQueryClient,
   useApiMutation,
+  useApiQuery,
   usePrefetchedApiQuery,
   type IpPool,
 } from '@oxide/api'
 import { Networking24Icon } from '@oxide/design-system/icons/react'
 
+import { IpUtilCell } from '~/components/IpPoolUtilization'
 import { useQuickActions } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { DateCell } from '~/table/cells/DateCell'
+import { SkeletonCell } from '~/table/cells/EmptyCell'
 import { linkCell } from '~/table/cells/LinkCell'
 import type { MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
@@ -36,6 +39,13 @@ const EmptyState = () => (
     buttonTo={pb.ipPoolsNew()}
   />
 )
+
+function UtilizationCell({ pool }: { pool: string }) {
+  const { data } = useApiQuery('ipPoolUtilizationView', { path: { pool } })
+
+  if (!data) return <SkeletonCell />
+  return <IpUtilCell {...data} />
+}
 
 IpPoolsTab.loader = async function () {
   await apiQueryClient.prefetchQuery('ipPoolList', { query: { limit: 25 } })
@@ -99,6 +109,12 @@ export function IpPoolsTab() {
       <Table emptyState={<EmptyState />} makeActions={makeActions}>
         <Column accessor="name" cell={linkCell((pool) => pb.ipPool({ pool }))} />
         <Column accessor="description" />
+        <Column
+          accessor="name"
+          id="Utilization"
+          header="Utilization"
+          cell={({ value }) => <UtilizationCell pool={value} />}
+        />
         <Column accessor="timeCreated" header="Created" cell={DateCell} />
       </Table>
       <Outlet />
