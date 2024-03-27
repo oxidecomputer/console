@@ -29,51 +29,73 @@ export const CapacityBar = <T extends number | bigint>({
   includeUnit?: boolean
 }) => {
   const pct = percentage(provisioned, capacity)
-  const [wholeNumber, decimal] = splitDecimal(pct)
+  const unitElt = includeUnit ? <>&nbsp;{unit}</> : null
 
   return (
     <div className="w-full min-w-min rounded-lg border border-default">
-      <div className="flex p-3">
-        {/* the icon, title, and hero datum */}
-        <div className="-ml-0.5 mr-1 flex h-6 w-6 items-start justify-center text-accent">
-          {icon}
-        </div>
-        <div className="flex flex-grow items-start">
-          <span className="!normal-case text-mono-sm text-secondary">{title}</span>
-          <span className="ml-1 !normal-case text-mono-sm text-quaternary">({unit})</span>
-        </div>
-        <div className="flex -translate-y-0.5 items-baseline">
-          <div className="font-light text-sans-2xl">{wholeNumber}</div>
-          <div className="text-sans-xl text-quaternary">{decimal}%</div>
-        </div>
+      <div className="flex justify-between p-3">
+        <TitleCell icon={icon} title={title} unit={unit} />
+        <PctCell pct={pct} />
       </div>
-      <div className="p-3 pt-1">
-        {/* the bar */}
-        <div className="flex w-full gap-0.5">
-          <div
-            className="h-3 rounded-l border bg-accent-secondary border-accent-secondary"
-            style={{ width: `${pct.toFixed(2)}%` }}
-          ></div>
-          <div className="h-3 grow rounded-r border bg-info-secondary border-info-secondary"></div>
-        </div>
+      <div className="p-3 pb-4 pt-1">
+        <Bar pct={pct} />
       </div>
-      <div>
-        <div className="flex justify-between border-t border-secondary">
-          <div className="p-3 text-mono-sm">
-            <div className="text-quaternary">{provisionedLabel}</div>
-            <div className="text-secondary">
-              <BigNum num={provisioned} />
-              <span className="normal-case">{includeUnit ? ' ' + unit : ''}</span>
-            </div>
-          </div>
-          <div className="p-3 text-mono-sm">
-            <div className="text-quaternary">{capacityLabel}</div>
-            <div className="!normal-case text-secondary">
-              <BigNum num={capacity} />
-              <span className="normal-case">{includeUnit ? ' ' + unit : ''}</span>
-            </div>
-          </div>
-        </div>
+      <div className="flex justify-between border-t border-secondary">
+        <ValueCell label={provisionedLabel} value={provisioned} unit={unitElt} />
+        <ValueCell label={capacityLabel} value={capacity} unit={unitElt} />
+      </div>
+    </div>
+  )
+}
+
+type TitleCellProps = { icon: JSX.Element; title: string; unit: string }
+function TitleCell({ icon, title, unit }: TitleCellProps) {
+  return (
+    <div>
+      <div className="flex flex-grow items-center">
+        <span className="mr-2 flex h-4 w-4 items-center text-accent">{icon}</span>
+        <span className="!normal-case text-mono-sm text-secondary">{title}</span>
+        <span className="ml-1 !normal-case text-mono-sm text-quaternary">({unit})</span>
+      </div>
+    </div>
+  )
+}
+
+function PctCell({ pct }: { pct: number }) {
+  const [wholeNumber, decimal] = splitDecimal(pct)
+  return (
+    <div className="flex -translate-y-0.5 items-baseline">
+      <div className="font-light text-sans-2xl">{wholeNumber}</div>
+      <div className="text-sans-xl text-quaternary">{decimal}%</div>
+    </div>
+  )
+}
+
+function Bar({ pct }: { pct: number }) {
+  return (
+    <div className="flex w-full gap-0.5">
+      <div
+        className="h-3 rounded-l border bg-accent-secondary border-accent-secondary"
+        style={{ width: `${pct.toFixed(2)}%` }}
+      ></div>
+      <div className="h-3 grow rounded-r border bg-info-secondary border-info-secondary"></div>
+    </div>
+  )
+}
+
+type ValueCellProps = {
+  label: string
+  value: number | bigint
+  unit: React.ReactNode
+}
+
+function ValueCell({ label, value, unit }: ValueCellProps) {
+  return (
+    <div className="p-3 text-mono-sm">
+      <div className="mb-px text-quaternary">{label}</div>
+      <div className="!normal-case text-secondary">
+        <BigNum num={value} />
+        {unit}
       </div>
     </div>
   )

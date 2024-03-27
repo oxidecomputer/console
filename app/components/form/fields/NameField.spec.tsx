@@ -11,6 +11,7 @@ import { validateName } from './NameField'
 
 describe('validateName', () => {
   const validate = (name: string) => validateName(name, 'Name', true)
+
   it('returns undefined for valid names', () => {
     expect(validate('abc')).toBeUndefined()
     expect(validate('abc-def')).toBeUndefined()
@@ -18,9 +19,14 @@ describe('validateName', () => {
   })
 
   it('detects names starting with something other than lower-case letter', () => {
-    expect(validate('Abc')).toEqual('Must start with a lower-case letter')
     expect(validate('9bc')).toEqual('Must start with a lower-case letter')
-    expect(validate('Abc-')).toEqual('Must start with a lower-case letter')
+  })
+
+  // this fails if we check last letter before we check all chars
+  it('gives correct error on ending with capital letter', () => {
+    expect(validate('freeBSD')).toEqual(
+      'Can only contain lower-case letters, numbers, and dashes'
+    )
   })
 
   it('requires names to end with letter or number', () => {
@@ -29,13 +35,13 @@ describe('validateName', () => {
   })
 
   it('rejects invalid characters', () => {
-    expect(validate('aBc')).toEqual(
-      'Can only contain lower-case letters, numbers, and dashes'
-    )
-    expect(validate('asldk:c')).toEqual(
-      'Can only contain lower-case letters, numbers, and dashes'
-    )
+    const err = 'Can only contain lower-case letters, numbers, and dashes'
+    expect(validate('aBc')).toEqual(err)
+    expect(validate('asldk:c')).toEqual(err)
+    expect(validate('Abc-')).toEqual(err)
+    expect(validate('Abc')).toEqual(err)
   })
+
   it('rejects names that are too long', () => {
     expect(validate('a'.repeat(64))).toEqual('Must be 63 characters or fewer')
   })

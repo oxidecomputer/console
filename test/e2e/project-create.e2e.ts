@@ -35,7 +35,9 @@ test.describe('Project create', () => {
     // submit to trigger validation
     await page.getByRole('button', { name: 'Create project' }).click()
 
-    await expect(page.getByText('Must start with a lower-case letter').nth(0)).toBeVisible()
+    await expect(
+      page.getByText('Can only contain lower-case letters, numbers, and dashes').nth(0)
+    ).toBeVisible()
   })
 
   test('shows form-level error for known server error', async ({ page }) => {
