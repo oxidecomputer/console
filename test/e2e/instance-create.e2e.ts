@@ -247,12 +247,8 @@ test('create instance with a different existing disk', async ({ page }) => {
   await page.goto('/projects/mock-project/instances-new')
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
   await page.getByRole('tab', { name: 'Existing disks' }).click()
-  // test some keyboard navigation to select existing disk
-  await page.keyboard.press('Tab')
-  await page.keyboard.press('Tab')
-  await page.keyboard.press('Enter') // focus the disk select
-  await page.keyboard.press('ArrowDown')
-  await page.keyboard.press('Enter')
+  await page.getByLabel('Disk', { exact: true }).click()
+  await page.getByRole('option', { name: 'disk-4' }).click()
   await page.getByRole('button', { name: 'Create instance' }).click()
   await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)
   await expectVisible(page, [`h1:has-text("${instanceName}")`, 'text=8 GiB'])
