@@ -7,7 +7,7 @@
  */
 
 .hero-rack {
-  @apply absolute left-[calc(50%+40px)] top-[15%] h-[115%] max-h-[1080px] -translate-x-1/2 object-contain md:-mr-10;
+  @apply absolute left-[calc(50%+40px)] top-[15%] h-[115%] max-h-[1080px] -translate-x-1/2 object-contain md-:left-[calc(50%)];
 }
 
 .hero-rack-wrapper {
@@ -28,7 +28,7 @@
   background: linear-gradient(90deg, rgba(42, 46, 49, 0.7) 12.5%, rgba(8, 15, 17, 1) 100%);
 }
 
-@media (max-width: 767px) {
+@media (max-width: 639px) {
   .layout {
     background: radial-gradient(
       200% 100% at 50% 100%,
