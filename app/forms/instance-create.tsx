@@ -21,6 +21,7 @@ import {
   useApiQueryClient,
   usePrefetchedApiQuery,
   type InstanceCreate,
+  type InstanceDiskAttachment,
 } from '@oxide/api'
 import {
   Images16Icon,
@@ -60,6 +61,23 @@ import { nearest10 } from '~/util/math'
 import { pb } from '~/util/path-builder'
 import { GiB } from '~/util/units'
 
+const getBootDiskAttachment = (values: InstanceCreateInput): InstanceDiskAttachment => {
+  if (values.bootDiskSourceType === 'disk') {
+    return { type: 'attach', name: values.diskSource }
+  }
+  const source =
+    values.bootDiskSourceType === 'siloImage'
+      ? values.siloImageSource
+      : values.projectImageSource
+  return {
+    type: 'create',
+    name: values.bootDiskName || genName(values.name, source),
+    description: `Created as a boot disk for ${values.name}`,
+    size: values.bootDiskSize * GiB,
+    diskSource: { type: 'image', imageId: source },
+  }
+}
+
 type BootDiskSourceType = 'siloImage' | 'projectImage' | 'disk'
 
 export type InstanceCreateInput = Assign<
@@ -70,10 +88,13 @@ export type InstanceCreateInput = Assign<
     disks: DiskTableItem[]
     bootDiskName: string
     bootDiskSize: number
+
+    // bootDiskSourceType is a switch picking between the three sources listed below it
     bootDiskSourceType: BootDiskSourceType
     siloImageSource: string
     projectImageSource: string
     diskSource: string
+
     userData: File | null
     // ssh keys are always specified. we do not need the undefined case
     sshPublicKeys: NonNullable<InstanceCreate['sshPublicKeys']>
@@ -231,23 +252,6 @@ export function CreateInstanceForm() {
     </>
   )
 
-  const createBootDisk = (values: InstanceCreateInput) => {
-    if (values.bootDiskSourceType === 'disk') {
-      return { type: 'attach' as const, name: values.diskSource }
-    }
-    const source =
-      values.bootDiskSourceType === 'siloImage'
-        ? values.siloImageSource
-        : values.projectImageSource
-    return {
-      type: 'create' as const,
-      name: values.bootDiskName || genName(values.name, source),
-      description: `Created as a boot disk for ${values.name}`,
-      size: values.bootDiskSize * GiB,
-      diskSource: { type: 'image' as const, imageId: source },
-    }
-  }
-
   return (
     <FullPageForm
       submitDisabled={allImages.length ? undefined : 'Image required'}
@@ -264,7 +268,7 @@ export function CreateInstanceForm() {
             ? { memory: values.memory, ncpus: values.ncpus }
             : { memory: preset.memory, ncpus: preset.ncpus }
 
-        const bootDisk = createBootDisk(values)
+        const bootDisk = getBootDiskAttachment(values)
 
         const userData = values.userData
           ? await readBlobAsBase64(values.userData)
