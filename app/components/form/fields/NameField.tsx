@@ -41,11 +41,11 @@ export const validateName = (name: string, label: string, required: boolean) => 
 
   if (name.length === 0) {
     return `${label} is required`
+  } else if (!/^[a-z0-9-]+$/.test(name)) {
+    return 'Can only contain lower-case letters, numbers, and dashes'
   } else if (!/^[a-z]/.test(name)) {
     return 'Must start with a lower-case letter'
   } else if (!/[a-z0-9]$/.test(name)) {
     return 'Must end with a letter or number'
-  } else if (!/^[a-z0-9-]+$/.test(name)) {
-    return 'Can only contain lower-case letters, numbers, and dashes'
   }
 }
