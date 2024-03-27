@@ -6,7 +6,12 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
-import { Controller, type Control, type FieldPath, type FieldValues } from 'react-hook-form'
+import {
+  useController,
+  type Control,
+  type FieldPath,
+  type FieldValues,
+} from 'react-hook-form'
 
 import { Listbox, type ListboxItem } from '~/ui/lib/Listbox'
 import { capitalize } from '~/util/str'
@@ -50,37 +55,29 @@ export function ListboxField<
 }: ListboxFieldProps<TFieldValues, TName>) {
   // TODO: recreate this logic
   //   validate: (v) => (required && !v ? `${name} is required` : undefined),
+  const { field, fieldState } = useController({ name, control, rules: { required } })
   return (
     <div className={cn('max-w-lg', className)}>
-      <Controller
+      <Listbox
+        description={description}
+        label={label}
+        tooltipText={tooltipText}
+        required={required}
+        placeholder={placeholder}
+        selected={field.value || null}
+        items={items}
+        onChange={(value) => {
+          field.onChange(value)
+          onChange?.(value)
+        }}
+        // required to get required error to trigger on blur
+        // onBlur={field.onBlur}
+        disabled={disabled}
         name={name}
-        rules={{ required }}
-        control={control}
-        render={({ field, fieldState: { error } }) => (
-          <>
-            <Listbox
-              description={description}
-              label={label}
-              tooltipText={tooltipText}
-              required={required}
-              placeholder={placeholder}
-              selected={field.value || null}
-              items={items}
-              onChange={(value) => {
-                field.onChange(value)
-                onChange?.(value)
-              }}
-              // required to get required error to trigger on blur
-              // onBlur={field.onBlur}
-              disabled={disabled}
-              name={name}
-              hasError={error !== undefined}
-              isLoading={isLoading}
-            />
-            <ErrorMessage error={error} label={label} />
-          </>
-        )}
+        hasError={fieldState.error !== undefined}
+        isLoading={isLoading}
       />
+      <ErrorMessage error={fieldState.error} label={label} />
     </div>
   )
 }
