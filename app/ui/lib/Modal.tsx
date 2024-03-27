@@ -59,7 +59,7 @@ export function Modal({ children, onDismiss, title, isOpen }: ModalProps) {
               <Dialog.Portal>
                 <DialogOverlay />
                 <AnimatedDialogContent
-                  className="pointer-events-auto fixed left-1/2 top-1/2 z-modal m-0 flex max-h-[min(800px,80vh)] w-auto min-w-[28rem] max-w-[32rem] flex-col justify-between rounded-lg border p-0 bg-raise border-secondary elevation-2"
+                  className="pointer-events-auto fixed left-1/2 top-1/2 z-modal m-0 flex max-h-[min(800px,80vh)] w-auto max-w-[32rem] flex-col justify-between rounded-lg border p-0 bg-raise border-secondary elevation-2 md+:min-w-[28rem] md-:w-[calc(100vw-2rem)]"
                   aria-labelledby={titleId}
                   style={{
                     transform: y.to((value) => `translate3d(-50%, ${-50 + value}%, 0px)`),

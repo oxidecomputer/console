@@ -86,7 +86,7 @@ export const Toast = ({
   return (
     <div
       className={cn(
-        'relative flex w-96 items-start overflow-hidden rounded-lg p-4',
+        'relative flex w-96 items-start overflow-hidden rounded-lg p-4 md-:w-[calc(100vw-2rem)]',
         color[variant],
         textColor[variant]
       )}

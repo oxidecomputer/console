@@ -54,7 +54,7 @@ export function useIntervalPicker({ enabled, isLoading, fn }: Props) {
     intervalMs: (enabled && intervalPresets[intervalPreset]) || undefined,
     intervalPicker: (
       <div className="mb-12 flex items-center justify-between">
-        <div className="hidden items-center gap-2 text-right text-mono-sm text-quaternary lg+:flex">
+        <div className="flex items-center gap-2 text-right text-mono-sm text-quaternary">
           <Time16Icon className="text-quinary" /> Refreshed {format(lastFetched, 'HH:mm')}
         </div>
         <div className="flex">
@@ -73,7 +73,7 @@ export function useIntervalPicker({ enabled, isLoading, fn }: Props) {
           </button>
           <Listbox
             selected={enabled ? intervalPreset : 'Off'}
-            className="w-24 [&>button]:!rounded-l-none"
+            className="w-24 md-:w-full [&>button]:!rounded-l-none"
             items={intervalItems}
             onChange={setIntervalPreset}
             disabled={!enabled}

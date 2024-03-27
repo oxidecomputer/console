@@ -90,8 +90,13 @@ export function DisksTableField({
           </MiniTable.Table>
         )}
 
-        <div className="space-x-3">
-          <Button size="sm" onClick={() => setShowDiskCreate(true)} disabled={disabled}>
+        <div className="flex gap-3 md-:flex-col">
+          <Button
+            size="sm"
+            onClick={() => setShowDiskCreate(true)}
+            disabled={disabled}
+            className="w-full"
+          >
             Create new disk
           </Button>
           <Button
@@ -99,6 +104,7 @@ export function DisksTableField({
             size="sm"
             onClick={() => setShowDiskAttach(true)}
             disabled={disabled}
+            className="w-full"
           >
             Attach existing disk
           </Button>

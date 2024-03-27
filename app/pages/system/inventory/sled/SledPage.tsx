@@ -37,7 +37,7 @@ export function SledPage() {
         <PageTitle icon={<Racks24Icon />}>Sled</PageTitle>
       </PageHeader>
 
-      <PropertiesTable.Group className="-mt-8 mb-16">
+      <PropertiesTable.Group className="-mt-8 mb-16 md-:mb-10">
         <PropertiesTable>
           <PropertiesTable.Row label="sled id">
             <span className="text-secondary">{sled.id}</span>

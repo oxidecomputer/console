@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useState, type ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 
 import { Info16Icon, NextArrow12Icon } from '@oxide/design-system/icons/react'
 
@@ -29,10 +29,18 @@ function ExternalLink({ href, children }: { href: string; children: ReactNode })
 export function MswBanner() {
   const [isOpen, setIsOpen] = useState(false)
   const closeModal = () => setIsOpen(false)
+
+  useEffect(() => {
+    document.body.classList.add('msw-banner')
+
+    return () => {
+      document.body.classList.remove('msw-banner')
+    }
+  }, [])
+
   return (
     <>
-      {/* The [&+*]:pt-10 style is to ensure the page container isn't pushed out of screen as it uses 100vh for layout */}
-      <label className="absolute z-topBar flex h-10 w-full items-center justify-center text-sans-md text-info-secondary bg-info-secondary [&+*]:pt-10">
+      <label className="fixed bottom-0 z-topBar flex h-10 w-full items-center justify-center text-sans-md text-info-secondary bg-info-secondary [&+*]:pt-[calc(--navigation-height)]">
         <Info16Icon className="mr-2" /> This is a technical preview.
         <button
           className="ml-2 flex items-center gap-0.5 text-sans-md hover:text-info"

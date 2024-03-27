@@ -8,15 +8,14 @@
 import { useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
-import { Folder16Icon, Key16Icon, Profile16Icon } from '@oxide/design-system/icons/react'
+import { Folder16Icon } from '@oxide/design-system/icons/react'
 
 import { TopBar } from '~/components/TopBar'
 import { SiloSystemPicker } from '~/components/TopBarPicker'
 import { useQuickActions } from '~/hooks'
-import { Divider } from '~/ui/lib/Divider'
 import { pb } from '~/util/path-builder'
 
-import { DocsLinkItem, NavLinkItem, Sidebar } from '../components/Sidebar'
+import { DocsLinkItem, NavLinkItem, ProfileLinks, Sidebar } from '../components/Sidebar'
 import { ContentPane, PageContainer } from './helpers'
 
 export function SettingsLayout() {
@@ -53,15 +52,7 @@ export function SettingsLayout() {
           </NavLinkItem>
           <DocsLinkItem />
         </Sidebar.Nav>
-        <Divider />
-        <Sidebar.Nav heading="User">
-          <NavLinkItem to={pb.profile()}>
-            <Profile16Icon /> Profile
-          </NavLinkItem>
-          <NavLinkItem to={pb.sshKeys()}>
-            <Key16Icon /> SSH Keys
-          </NavLinkItem>
-        </Sidebar.Nav>
+        <ProfileLinks />
       </Sidebar>
       <ContentPane />
     </PageContainer>
