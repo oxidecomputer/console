@@ -176,7 +176,7 @@ export function CreateInstanceForm() {
     projectImageSource: projectImages?.[0]?.id || '',
     diskSource: disks?.[0]?.value || '',
     sshPublicKeys: allKeys,
-    bootDiskSize: Math.max(nearest10(defaultImage?.size / GiB), 10),
+    bootDiskSize: nearest10(defaultImage?.size / GiB),
   }
 
   const form = useForm({ defaultValues })
