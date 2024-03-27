@@ -22,7 +22,7 @@ if [ -d "test-results" ] && [ -f "test-results/.run" ] && [ "$RUN_ID" == "$(cat 
 else
     rm -rf test-results
     echo "Attempting to download test failure traces for current branch..."
-    gh run download $RUN_ID
+    gh run download $RUN_ID --dir test-results
     echo $RUN_ID > test-results/.run
 fi
 
