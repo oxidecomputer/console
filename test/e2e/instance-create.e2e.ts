@@ -270,7 +270,9 @@ test('start with an existing disk, but then switch to a silo image', async ({ pa
 })
 
 test('maintains selected values even when changing tabs', async ({ page }) => {
+  const instanceName = 'arch-based-instance'
   await page.goto('/projects/mock-project/instances-new')
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
   await page.getByRole('button', { name: 'Image' }).click()
   // select the arch option
   await page.getByRole('option', { name: 'arch-2022-06-01' }).click()
@@ -284,4 +286,10 @@ test('maintains selected values even when changing tabs', async ({ page }) => {
   await page.getByRole('tab', { name: 'Silo images' }).click()
   // arch should still be selected
   await expect(page.getByText('arch-2022-06-01')).toBeVisible()
+  await page.getByRole('button', { name: 'Create instance' }).click()
+  await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)
+  await expectVisible(page, [`h1:has-text("${instanceName}")`, 'text=8 GiB'])
+  // when a disk name isn't passed in, the generated one uses the ID of the image
+  // so this checks to make sure that the arch-based image was used
+  await expectVisible(page, [`text=${instanceName}-bd6aa051`])
 })
