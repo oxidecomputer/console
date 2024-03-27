@@ -88,3 +88,10 @@ export function displayBigNum(num: bigint | number): [string, boolean] {
 
   return [result, abbreviated]
 }
+
+/**
+ * Gets the closest multiple of 10 larger than the passed-in number
+ */
+export function nearest10(num: number): number {
+  return Math.ceil(num / 10) * 10
+}
