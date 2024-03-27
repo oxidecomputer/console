@@ -40,7 +40,6 @@ import { ProjectLayout } from './layouts/ProjectLayout'
 import { RootLayout } from './layouts/RootLayout'
 import { SettingsLayout } from './layouts/SettingsLayout'
 import { SiloLayout } from './layouts/SiloLayout'
-import { SystemLayout } from './layouts/SystemLayout'
 import { DeviceAuthSuccessPage } from './pages/DeviceAuthSuccessPage'
 import { DeviceAuthVerifyPage } from './pages/DeviceAuthVerifyPage'
 import { LoginPage } from './pages/LoginPage'
@@ -70,19 +69,17 @@ import { InventoryPage } from './pages/system/inventory/InventoryPage'
 import { SledInstancesTab } from './pages/system/inventory/sled/SledInstancesTab'
 import { SledPage } from './pages/system/inventory/sled/SledPage'
 import { SledsTab } from './pages/system/inventory/SledsTab'
+import { lazySystemPage } from './pages/system/lazy'
 import { IpPoolPage } from './pages/system/networking/IpPoolPage'
 import { IpPoolsTab } from './pages/system/networking/IpPoolsTab'
 import { NetworkingPage } from './pages/system/networking/NetworkingPage'
 import { SiloImagesPage } from './pages/system/SiloImagesPage'
-import { SiloPage } from './pages/system/silos/SiloPage'
-import { SilosPage } from './pages/system/silos/SilosPage'
 import { SystemUtilizationPage } from './pages/system/UtilizationPage'
 import { pb } from './util/path-builder'
 
 const projectCrumb: CrumbFunc = (m) => m.params.project!
 const instanceCrumb: CrumbFunc = (m) => m.params.instance!
 const vpcCrumb: CrumbFunc = (m) => m.params.vpc!
-const siloCrumb: CrumbFunc = (m) => m.params.silo!
 const poolCrumb: CrumbFunc = (m) => m.params.pool!
 
 export const routes = createRoutesFromElements(
@@ -118,22 +115,13 @@ export const routes = createRoutesFromElements(
         </Route>
       </Route>
 
-      <Route path="system" element={<SystemLayout />} loader={SystemLayout.loader}>
-        <Route
-          element={<SilosPage />}
-          loader={SilosPage.loader}
-          handle={{ crumb: 'Silos' }}
-        >
+      <Route path="system" lazy={lazySystemPage('SystemLayout')}>
+        <Route lazy={lazySystemPage('SilosPage')} handle={{ crumb: 'Silos' }}>
           <Route path="silos" element={null} />
           <Route path="silos-new" element={<CreateSiloSideModalForm />} />
         </Route>
         <Route path="silos" handle={{ crumb: 'Silos' }}>
-          <Route
-            path=":silo"
-            element={<SiloPage />}
-            loader={SiloPage.loader}
-            handle={{ crumb: siloCrumb }}
-          >
+          <Route path=":silo" lazy={lazySystemPage('SiloPage')}>
             <Route path="idps-new" element={<CreateIdpSideModalForm />} />
             <Route
               path="idps/saml/:provider"

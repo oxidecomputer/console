@@ -41,12 +41,13 @@ const EmptyState = () => (
   />
 )
 
-SilosPage.loader = async () => {
+export async function loader() {
   await apiQueryClient.prefetchQuery('siloList', { query: { limit: 25 } })
   return null
 }
 
-export function SilosPage() {
+Component.displayName = 'SilosPage'
+export function Component() {
   const navigate = useNavigate()
 
   const { Table, Column } = useQueryTable('siloList', {})
