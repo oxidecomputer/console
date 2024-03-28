@@ -2,7 +2,7 @@
 
 ## Setup
 
-The API generation script assumes you have `omicron` and `oxide.ts` cloned under the same parent directory as the console. You should also run `npm install` in `oxide.ts/generator`.
+The API generation script assumes you have `oxide.ts` cloned under the same parent directory as the console and have run `npm install` in there.
 
 ## Instructions
 
