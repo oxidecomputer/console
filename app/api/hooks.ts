@@ -278,6 +278,8 @@ export const wrapQueryClient = <A extends ApiClient>(api: A, queryClient: QueryC
           }),
       ...options,
     }),
+  getQueryState: <M extends keyof A>(method: M, params: Params<A[M]>) =>
+    queryClient.getQueryState([method, params]),
 })
 
 export const getUseApiQueryClient =

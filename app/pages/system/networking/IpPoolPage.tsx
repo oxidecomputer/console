@@ -6,12 +6,14 @@
  * Copyright Oxide Computer Company
  */
 
+import { QueryObserver } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import { Link, Outlet, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
   apiQueryClient,
   parseIpUtilization,
+  queryClient,
   useApiMutation,
   useApiQuery,
   useApiQueryClient,
@@ -49,8 +51,21 @@ import { Tabs } from '~/ui/lib/Tabs'
 import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
+const getState = (pool: string) =>
+  apiQueryClient.getQueryState('ipPoolUtilizationView', { path: { pool } })
+
 IpPoolPage.loader = async function ({ params }: LoaderFunctionArgs) {
   const { pool } = getIpPoolSelector(params)
+  const state = getState(pool)
+  console.log('query state at start of IpPoolPage.loader', state)
+  // Warning: evil.
+  // This cancel covers the rare but very possible situation where we are
+  // navigating from IP pools while the utilization fetch is still running.
+  // TODO: make a typed QueryObserver wrapper
+  const observer = new QueryObserver(queryClient, {
+    queryKey: ['ipPoolUtilizationView', { path: { pool } }],
+  })
+  const unsub = state ? observer.subscribe(() => {}) : undefined
   await Promise.all([
     apiQueryClient.prefetchQuery('ipPoolView', { path: { pool } }),
     apiQueryClient.prefetchQuery('ipPoolSiloList', {
@@ -61,9 +76,15 @@ IpPoolPage.loader = async function ({ params }: LoaderFunctionArgs) {
       path: { pool },
       query: { limit: 25 }, // match QueryTable
     }),
-    apiQueryClient.prefetchQuery('ipPoolUtilizationView', {
-      path: { pool },
-    }),
+    // when wrapping up: change this back to prefetch and stick the cancel before it
+    apiQueryClient
+      .fetchQuery('ipPoolUtilizationView', { path: { pool } })
+      .then((result) => {
+        console.log('after prefetchQuery', result, getState(pool))
+      })
+      .catch((error) => {
+        console.log('after prefetchQuery (error)', error, getState(pool))
+      }),
 
     // fetch silos and preload into RQ cache so fetches by ID in SiloNameFromId
     // can be mostly instant yet gracefully fall back to fetching individually
@@ -74,6 +95,8 @@ IpPoolPage.loader = async function ({ params }: LoaderFunctionArgs) {
       }
     }),
   ])
+  unsub?.()
+  console.log('after Promise.all', getState(pool))
   return null
 }
 
@@ -105,6 +128,7 @@ export function IpPoolPage() {
 
 function UtilizationBars() {
   const { pool } = useIpPoolSelector()
+  console.log('UtilizationBars render', getState(pool))
   const { data } = usePrefetchedApiQuery('ipPoolUtilizationView', { path: { pool } })
   const { ipv4, ipv6 } = parseIpUtilization(data)
 
