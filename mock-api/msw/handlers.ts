@@ -640,8 +640,6 @@ export const handlers = makeHandlers({
     const ipv4sInPool = allIps.filter((ip) => ipInAnyRange(ip, ipv4Ranges)).length
     const ipv6sInPool = allIps.filter((ip) => ipInAnyRange(ip, ipv6Ranges)).length
 
-    await delay(2000)
-
     return {
       ipv4: {
         allocated: ipv4sInPool,

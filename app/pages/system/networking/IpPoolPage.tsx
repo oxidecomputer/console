@@ -77,14 +77,7 @@ IpPoolPage.loader = async function ({ params }: LoaderFunctionArgs) {
       query: { limit: 25 }, // match QueryTable
     }),
     // when wrapping up: change this back to prefetch and stick the cancel before it
-    apiQueryClient
-      .fetchQuery('ipPoolUtilizationView', { path: { pool } })
-      .then((result) => {
-        console.log('after prefetchQuery', result, getState(pool))
-      })
-      .catch((error) => {
-        console.log('after prefetchQuery (error)', error, getState(pool))
-      }),
+    apiQueryClient.prefetchQuery('ipPoolUtilizationView', { path: { pool } }),
 
     // fetch silos and preload into RQ cache so fetches by ID in SiloNameFromId
     // can be mostly instant yet gracefully fall back to fetching individually
