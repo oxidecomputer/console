@@ -5,8 +5,12 @@
  *
  * Copyright Oxide Computer Company
  */
-import { PageHeader, PageTitle, SettingsGroup } from '@oxide/ui'
+import { Link } from 'react-router-dom'
 
+import { EquivalentCliCommand } from '~/components/EquivalentCliCommand'
+import { buttonStyle } from '~/ui/lib/Button'
+import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
+import { SettingsGroup } from '~/ui/lib/SettingsGroup'
 import { Monitoring24Icon } from 'app/components/monitoring/Icons'
 import { RouteTabs, Tab } from 'app/components/RouteTabs'
 import { pb } from 'app/util/path-builder'
@@ -31,8 +35,17 @@ export const SensorTreeTab = () => {
 
 export function ExplorerTab() {
   return (
-    <SettingsGroup title="Explorer" cta={pb.systemMonitoringExplorer()} ctaText="Connect">
-      Enter the rack 3D sensor explorer
-    </SettingsGroup>
+    <SettingsGroup.Container>
+      <SettingsGroup.Body>
+        <SettingsGroup.Title>Explorer</SettingsGroup.Title>
+        Enter the rack 3D sensor explorer
+      </SettingsGroup.Body>
+      <SettingsGroup.Footer>
+        <EquivalentCliCommand command={'oxide'} />
+        <Link to={pb.systemMonitoringExplorer()} className={buttonStyle({ size: 'sm' })}>
+          Connect
+        </Link>
+      </SettingsGroup.Footer>
+    </SettingsGroup.Container>
   )
 }

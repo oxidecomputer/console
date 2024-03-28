@@ -37,7 +37,7 @@
 @import './components/spinner.css';
 @import './components/table.css';
 @import './components/tooltip.css';
-
+@import '/app/pages/system/monitoring/monitoring.css';
 @import './themes/selection.css';
 
 @import 'xterm/css/xterm.css';

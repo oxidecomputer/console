@@ -8,37 +8,33 @@
 import * as Accordion from '@radix-ui/react-accordion'
 import cn from 'classnames'
 import fuzzysort from 'fuzzysort'
-import { useEffect, useMemo, useRef } from 'react'
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-
-import { sensors, type SensorValues } from 'app/components/monitoring/data'
-
-import './monitoring.css'
-
-import { createContext, useContext, useState } from 'react'
 import type { OrthographicCamera } from 'three'
 
 import {
   Add12Icon,
-  Button,
   Close8Icon,
-  EmptyMessage,
   Filter12Icon,
   Logs16Icon,
   NextArrow12Icon,
   PrevArrow12Icon,
   Search16Icon,
-  Tabs,
   Warning12Icon,
-} from '@oxide/ui'
-import { titleCase } from '@oxide/util'
+} from '@oxide/design-system/icons/react'
 
+import { Button } from '~/ui/lib/Button'
+import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { Tabs } from '~/ui/lib/Tabs'
+import { titleCase } from '~/util/str'
 import {
   generateMockSensorData,
   generateSensorValuesArray,
+  sensors,
   temperatureRanges,
+  type SensorValues,
 } from 'app/components/monitoring/data'
-import ExplorerTimeline from 'app/components/monitoring/ExplorerTimeline'
+import { ExplorerTimeline } from 'app/components/monitoring/ExplorerTimeline'
 import { Minus12Icon } from 'app/components/monitoring/Icons'
 import Scene from 'app/components/monitoring/Scene'
 import { useMonitoringStore } from 'app/components/monitoring/Store'

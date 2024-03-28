@@ -9,13 +9,18 @@ import { useDrag } from '@use-gesture/react'
 import cn from 'classnames'
 import { useRef, useState } from 'react'
 
-import { Button, More12Icon, NextArrow12Icon, PrevArrow12Icon } from '@oxide/ui'
+import {
+  More12Icon,
+  NextArrow12Icon,
+  PrevArrow12Icon,
+} from '@oxide/design-system/icons/react'
 
+import { Button } from '~/ui/lib/Button'
 import { useMonitoring } from 'app/pages/system/monitoring/ExplorerPage'
 
 import { sensors, temperatureRanges, type Sensor } from './data'
 
-const ExplorerTimeline = () => {
+export const ExplorerTimeline = () => {
   const { selectedComponent, selectedTime, setSelectedTime, sensorDataArray } =
     useMonitoring()
 
@@ -207,5 +212,3 @@ const SensorTimelineBar = ({
     </div>
   )
 }
-
-export default ExplorerTimeline

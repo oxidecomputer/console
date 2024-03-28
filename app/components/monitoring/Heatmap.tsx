@@ -240,7 +240,7 @@ class SimpleHeat {
 
   constructor(canvas: HTMLCanvasElement) {
     this._canvas = canvas
-    this._ctx = this._canvas.getContext('2d')
+    this._ctx = this._canvas.getContext('2d')!
     this._width = this._canvas.width
     this._height = this._canvas.height
     this._data = []
