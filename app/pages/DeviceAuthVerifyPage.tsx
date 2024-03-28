@@ -9,9 +9,11 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { useApiMutation } from '@oxide/api'
-import { AuthCodeInput, Button, Warning12Icon } from '@oxide/ui'
+import { Warning12Icon } from '@oxide/design-system/icons/react'
 
-import { pb } from 'app/util/path-builder'
+import { AuthCodeInput } from '~/ui/lib/AuthCodeInput'
+import { Button } from '~/ui/lib/Button'
+import { pb } from '~/util/path-builder'
 
 const DASH_AFTER_IDXS = [3]
 
@@ -30,7 +32,7 @@ export function addDashes(dashAfterIdxs: number[], code: string) {
 /**
  * Device authorization verification page
  */
-export default function DeviceAuthVerifyPage() {
+export function DeviceAuthVerifyPage() {
   const navigate = useNavigate()
   const confirmPost = useApiMutation('deviceAuthConfirm', {
     onSuccess: () => {

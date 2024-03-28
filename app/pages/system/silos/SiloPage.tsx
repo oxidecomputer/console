@@ -8,21 +8,18 @@
 import { type LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
-import {
-  Badge,
-  Cloud24Icon,
-  EmptyMessage,
-  NextArrow12Icon,
-  PageHeader,
-  PageTitle,
-  PropertiesTable,
-  TableEmptyBox,
-  Tabs,
-} from '@oxide/ui'
-import { formatDateTime } from '@oxide/util'
+import { Cloud24Icon, NextArrow12Icon } from '@oxide/design-system/icons/react'
 
-import { QueryParamTabs } from 'app/components/QueryParamTabs'
-import { getSiloSelector, useSiloSelector } from 'app/hooks'
+import { QueryParamTabs } from '~/components/QueryParamTabs'
+import { getSiloSelector, useSiloSelector } from '~/hooks'
+import { EmptyCell } from '~/table/cells/EmptyCell'
+import { Badge } from '~/ui/lib/Badge'
+import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
+import { PropertiesTable } from '~/ui/lib/PropertiesTable'
+import { TableEmptyBox } from '~/ui/lib/Table'
+import { Tabs } from '~/ui/lib/Tabs'
+import { formatDateTime } from '~/util/date'
 
 import { SiloIdpsTab } from './SiloIdpsTab'
 import { SiloIpPoolsTab } from './SiloIpPoolsTab'
@@ -61,7 +58,9 @@ export function SiloPage() {
       <PropertiesTable.Group className="mb-16">
         <PropertiesTable>
           <PropertiesTable.Row label="ID">{silo.id}</PropertiesTable.Row>
-          <PropertiesTable.Row label="Description">{silo.description}</PropertiesTable.Row>
+          <PropertiesTable.Row label="Description">
+            {silo.description || <EmptyCell />}
+          </PropertiesTable.Row>
         </PropertiesTable>
         <PropertiesTable>
           <PropertiesTable.Row label="Created">

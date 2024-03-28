@@ -16,23 +16,20 @@ import {
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import {
   Access16Icon,
-  Divider,
   Folder16Icon,
   Images16Icon,
   Instances16Icon,
+  IpGlobal16Icon,
   Networking16Icon,
   Snapshots16Icon,
   Storage16Icon,
-} from '@oxide/ui'
+} from '@oxide/design-system/icons/react'
 
-import { TopBar } from 'app/components/TopBar'
-import {
-  InstancePicker,
-  ProjectPicker,
-  SiloSystemPicker,
-} from 'app/components/TopBarPicker'
-import { getProjectSelector, useProjectSelector, useQuickActions } from 'app/hooks'
-import { pb } from 'app/util/path-builder'
+import { TopBar } from '~/components/TopBar'
+import { InstancePicker, ProjectPicker, SiloSystemPicker } from '~/components/TopBarPicker'
+import { getProjectSelector, useProjectSelector, useQuickActions } from '~/hooks'
+import { Divider } from '~/ui/lib/Divider'
+import { pb } from '~/util/path-builder'
 
 import { DocsLinkItem, NavLinkItem, Sidebar } from '../components/Sidebar'
 import { ContentPane, PageContainer } from './helpers'
@@ -51,7 +48,7 @@ ProjectLayout.loader = async ({ params }: LoaderFunctionArgs) => {
   return null
 }
 
-function ProjectLayout({ overrideContentPane }: ProjectLayoutProps) {
+export function ProjectLayout({ overrideContentPane }: ProjectLayoutProps) {
   const navigate = useNavigate()
   // project will always be there, instance may not
   const projectSelector = useProjectSelector()
@@ -67,7 +64,8 @@ function ProjectLayout({ overrideContentPane }: ProjectLayoutProps) {
           { value: 'Disks', path: pb.disks(projectSelector) },
           { value: 'Snapshots', path: pb.snapshots(projectSelector) },
           { value: 'Images', path: pb.projectImages(projectSelector) },
-          { value: 'Networking', path: pb.vpcs(projectSelector) },
+          { value: 'VPCs', path: pb.vpcs(projectSelector) },
+          { value: 'Floating IPs', path: pb.floatingIps(projectSelector) },
           { value: 'Access & IAM', path: pb.projectAccess(projectSelector) },
         ]
           // filter out the entry for the path we're currently on
@@ -111,7 +109,10 @@ function ProjectLayout({ overrideContentPane }: ProjectLayoutProps) {
             <Images16Icon title="images" /> Images
           </NavLinkItem>
           <NavLinkItem to={pb.vpcs(projectSelector)}>
-            <Networking16Icon /> Networking
+            <Networking16Icon /> VPCs
+          </NavLinkItem>
+          <NavLinkItem to={pb.floatingIps(projectSelector)}>
+            <IpGlobal16Icon /> Floating IPs
           </NavLinkItem>
           <NavLinkItem to={pb.projectAccess(projectSelector)}>
             <Access16Icon title="Access & IAM" /> Access &amp; IAM
@@ -122,5 +123,3 @@ function ProjectLayout({ overrideContentPane }: ProjectLayoutProps) {
     </PageContainer>
   )
 }
-
-export default ProjectLayout

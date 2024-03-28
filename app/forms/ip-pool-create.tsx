@@ -9,10 +9,12 @@ import { useNavigate } from 'react-router-dom'
 
 import { useApiMutation, useApiQueryClient, type IpPoolCreate } from '@oxide/api'
 
-import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
-import { useForm } from 'app/hooks'
-import { addToast } from 'app/stores/toast'
-import { pb } from 'app/util/path-builder'
+import { DescriptionField } from '~/components/form/fields/DescriptionField'
+import { NameField } from '~/components/form/fields/NameField'
+import { SideModalForm } from '~/components/form/SideModalForm'
+import { useForm } from '~/hooks'
+import { addToast } from '~/stores/toast'
+import { pb } from '~/util/path-builder'
 
 const defaultValues: IpPoolCreate = {
   name: '',
@@ -37,9 +39,9 @@ export function CreateIpPoolSideModalForm() {
 
   return (
     <SideModalForm
-      id="create-pool-form"
       form={form}
-      title="Create IP pool"
+      formType="create"
+      resourceName="IP pool"
       onDismiss={onDismiss}
       onSubmit={({ name, description }) => {
         createPool.mutate({ body: { name, description } })

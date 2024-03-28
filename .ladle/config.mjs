@@ -1,3 +1,3 @@
 export default {
-  stories: 'libs/ui/**/*.stories.{js,jsx,ts,tsx}',
+  stories: 'app/ui/lib/**/*.stories.{js,jsx,ts,tsx}',
 }

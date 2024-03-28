@@ -7,10 +7,12 @@
  */
 import cn from 'classnames'
 import { useId } from 'react'
-import { Controller, type FieldPathByValue, type FieldValues } from 'react-hook-form'
+import { useController, type FieldPathByValue, type FieldValues } from 'react-hook-form'
 
-import { FieldLabel, TextInputHint, NumberInput as UINumberField } from '@oxide/ui'
-import { capitalize } from '@oxide/util'
+import { FieldLabel } from '~/ui/lib/FieldLabel'
+import { NumberInput } from '~/ui/lib/NumberInput'
+import { TextInputHint } from '~/ui/lib/TextInput'
+import { capitalize } from '~/util/str'
 
 import { ErrorMessage } from './ErrorMessage'
 import type { TextFieldProps } from './TextField'
@@ -75,33 +77,25 @@ export const NumberFieldInner = <
   const generatedId = useId()
   const id = idProp || generatedId
 
+  const {
+    field,
+    fieldState: { error },
+  } = useController({ name, control, rules: { required, validate } })
+
   return (
-    <Controller
-      name={name}
-      control={control}
-      rules={{ required, validate }}
-      render={({ field, fieldState: { error } }) => {
-        return (
-          <>
-            <UINumberField
-              id={id}
-              error={!!error}
-              aria-labelledby={cn(`${id}-label`, {
-                [`${id}-help-text`]: !!tooltipText,
-              })}
-              aria-describedby={tooltipText ? `${id}-label-tip` : undefined}
-              isDisabled={disabled}
-              maxValue={max ? Number(max) : undefined}
-              minValue={min !== undefined ? Number(min) : undefined}
-              {...field}
-              formatOptions={{
-                useGrouping: false,
-              }}
-            />
-            <ErrorMessage error={error} label={label} />
-          </>
-        )
-      }}
-    />
+    <>
+      <NumberInput
+        id={id}
+        error={!!error}
+        aria-labelledby={cn(`${id}-label`, !!tooltipText && `${id}-help-text`)}
+        aria-describedby={tooltipText ? `${id}-label-tip` : undefined}
+        isDisabled={disabled}
+        maxValue={max ? Number(max) : undefined}
+        minValue={min !== undefined ? Number(min) : undefined}
+        {...field}
+        formatOptions={{ useGrouping: false }}
+      />
+      <ErrorMessage error={error} label={label} />
+    </>
   )
 }

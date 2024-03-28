@@ -9,19 +9,17 @@ import { useState } from 'react'
 import { useController, type Control } from 'react-hook-form'
 
 import { usePrefetchedApiQuery } from '@oxide/api'
-import {
-  Button,
-  Checkbox,
-  Divider,
-  EmptyMessage,
-  FieldLabel,
-  Key16Icon,
-  Message,
-  TextInputHint,
-} from '@oxide/ui'
+import { Key16Icon } from '@oxide/design-system/icons/react'
 
-import type { InstanceCreateInput } from 'app/forms/instance-create'
-import { CreateSSHKeySideModalForm } from 'app/forms/ssh-key-create'
+import type { InstanceCreateInput } from '~/forms/instance-create'
+import { CreateSSHKeySideModalForm } from '~/forms/ssh-key-create'
+import { Button } from '~/ui/lib/Button'
+import { Checkbox } from '~/ui/lib/Checkbox'
+import { Divider } from '~/ui/lib/Divider'
+import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { FieldLabel } from '~/ui/lib/FieldLabel'
+import { Message } from '~/ui/lib/Message'
+import { TextInputHint } from '~/ui/lib/TextInput'
 
 import { CheckboxField } from './CheckboxField'
 import { ErrorMessage } from './ErrorMessage'
@@ -50,7 +48,13 @@ const CloudInitMessage = () => (
   />
 )
 
-export function SshKeysField({ control }: { control: Control<InstanceCreateInput> }) {
+export function SshKeysField({
+  control,
+  isSubmitting,
+}: {
+  control: Control<InstanceCreateInput>
+  isSubmitting: boolean
+}) {
   const keys = usePrefetchedApiQuery('currentUserSshKeyList', {}).data?.items || []
   const [showAddSshKey, setShowAddSshKey] = useState(false)
 
@@ -87,6 +91,7 @@ export function SshKeysField({ control }: { control: Control<InstanceCreateInput
                   control={control}
                   value={key.id}
                   key={key.id}
+                  disabled={isSubmitting}
                 >
                   {key.name}
                 </CheckboxField>
@@ -103,12 +108,18 @@ export function SshKeysField({ control }: { control: Control<InstanceCreateInput
               onChange={() =>
                 onChange(value.length < keys.length ? keys.map((key) => key.id) : [])
               }
+              disabled={isSubmitting}
             >
               <span className="select-none">Select all</span>
             </Checkbox>
 
             <div className="space-x-3">
-              <Button variant="ghost" size="sm" onClick={() => setShowAddSshKey(true)}>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowAddSshKey(true)}
+                disabled={isSubmitting}
+              >
                 Add SSH Key
               </Button>
             </div>
@@ -120,7 +131,9 @@ export function SshKeysField({ control }: { control: Control<InstanceCreateInput
           <EmptyMessage
             icon={<Key16Icon />}
             title="No SSH keys"
-            body="You need to add a SSH key to be able to see it here"
+            body="You need to add a key to be able to see it here"
+            buttonText="Add SSH Key"
+            onClick={() => setShowAddSshKey(true)}
           />
         </div>
       )}

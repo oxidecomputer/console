@@ -10,14 +10,17 @@ import { useIsFetching } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
-import { Divider, Listbox, Metrics24Icon, PageHeader, PageTitle } from '@oxide/ui'
-import { bytesToGiB, bytesToTiB } from '@oxide/util'
+import { Metrics24Icon } from '@oxide/design-system/icons/react'
 
-import { CapacityBars } from 'app/components/CapacityBars'
-import { useDateTimeRangePicker } from 'app/components/form'
-import { useIntervalPicker } from 'app/components/RefetchIntervalPicker'
-import { SiloMetric } from 'app/components/SystemMetric'
-import { useCurrentUser } from 'app/layouts/AuthenticatedLayout'
+import { CapacityBars } from '~/components/CapacityBars'
+import { useDateTimeRangePicker } from '~/components/form/fields/DateTimeRangePicker'
+import { useIntervalPicker } from '~/components/RefetchIntervalPicker'
+import { SiloMetric } from '~/components/SystemMetric'
+import { useCurrentUser } from '~/layouts/AuthenticatedLayout'
+import { Divider } from '~/ui/lib/Divider'
+import { Listbox } from '~/ui/lib/Listbox'
+import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
+import { bytesToGiB, bytesToTiB } from '~/util/units'
 
 const toListboxItem = (x: { name: string; id: string }) => ({ label: x.name, value: x.id })
 

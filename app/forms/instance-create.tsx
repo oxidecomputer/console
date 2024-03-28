@@ -6,8 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import * as Accordion from '@radix-ui/react-accordion'
-import cn from 'classnames'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useWatch, type Control } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 import type { SetRequired } from 'type-fest'
@@ -22,40 +21,38 @@ import {
   usePrefetchedApiQuery,
   type InstanceCreate,
 } from '@oxide/api'
-import {
-  DirectionRightIcon,
-  EmptyMessage,
-  FormDivider,
-  Images16Icon,
-  Instances24Icon,
-  Message,
-  RadioCard,
-  Tabs,
-  TextInputHint,
-} from '@oxide/ui'
-import { GiB, invariant } from '@oxide/util'
+import { Images16Icon, Instances24Icon } from '@oxide/design-system/icons/react'
 
+import { AccordionItem } from '~/components/AccordionItem'
+import { CheckboxField } from '~/components/form/fields/CheckboxField'
+import { DescriptionField } from '~/components/form/fields/DescriptionField'
+import { DiskSizeField } from '~/components/form/fields/DiskSizeField'
 import {
-  CheckboxField,
-  DescriptionField,
-  DiskSizeField,
   DisksTableField,
-  FileField,
-  Form,
-  FullPageForm,
-  ImageSelectField,
-  NameField,
-  NetworkInterfaceField,
-  NumberField,
-  RadioFieldDyn,
-  SshKeysField,
-  TextField,
   type DiskTableItem,
-} from 'app/components/form'
-import { getProjectSelector, useForm, useProjectSelector, useToast } from 'app/hooks'
-import { readBlobAsBase64 } from 'app/util/file'
-import { links } from 'app/util/links'
-import { pb } from 'app/util/path-builder'
+} from '~/components/form/fields/DisksTableField'
+import { FileField } from '~/components/form/fields/FileField'
+import { ImageSelectField } from '~/components/form/fields/ImageSelectField'
+import { NameField } from '~/components/form/fields/NameField'
+import { NetworkInterfaceField } from '~/components/form/fields/NetworkInterfaceField'
+import { NumberField } from '~/components/form/fields/NumberField'
+import { RadioFieldDyn } from '~/components/form/fields/RadioField'
+import { SshKeysField } from '~/components/form/fields/SshKeysField'
+import { TextField } from '~/components/form/fields/TextField'
+import { Form } from '~/components/form/Form'
+import { FullPageForm } from '~/components/form/FullPageForm'
+import { getProjectSelector, useForm, useProjectSelector, useToast } from '~/hooks'
+import { FormDivider } from '~/ui/lib/Divider'
+import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { Message } from '~/ui/lib/Message'
+import { RadioCard } from '~/ui/lib/Radio'
+import { Tabs } from '~/ui/lib/Tabs'
+import { TextInputHint } from '~/ui/lib/TextInput'
+import { readBlobAsBase64 } from '~/util/file'
+import { invariant } from '~/util/invariant'
+import { links } from '~/util/links'
+import { pb } from '~/util/path-builder'
+import { GiB } from '~/util/units'
 
 export type InstanceCreateInput = Assign<
   // API accepts undefined but it's easier if we don't
@@ -279,13 +276,13 @@ export function CreateInstanceForm() {
         </Tabs.Content>
 
         <Tabs.Content value="highCPU">
-          <RadioFieldDyn name="presetId" label="" control={control}>
+          <RadioFieldDyn name="presetId" label="" control={control} disabled={isSubmitting}>
             {renderLargeRadioCards('highCPU')}
           </RadioFieldDyn>
         </Tabs.Content>
 
         <Tabs.Content value="highMemory">
-          <RadioFieldDyn name="presetId" label="" control={control}>
+          <RadioFieldDyn name="presetId" label="" control={control} disabled={isSubmitting}>
             {renderLargeRadioCards('highMemory')}
           </RadioFieldDyn>
         </Tabs.Content>
@@ -380,7 +377,7 @@ export function CreateInstanceForm() {
                 title="No project images found"
                 body="An image needs to be uploaded to be seen here"
                 buttonText="Upload image"
-                onClick={() => navigate(pb.projectImageNew(projectSelector))}
+                onClick={() => navigate(pb.projectImagesNew(projectSelector))}
               />
             </div>
           ) : (
@@ -422,7 +419,7 @@ export function CreateInstanceForm() {
       <FormDivider />
       <Form.Heading id="authentication">Authentication</Form.Heading>
 
-      <SshKeysField control={control} />
+      <SshKeysField control={control} isSubmitting={isSubmitting} />
 
       <FormDivider />
       <Form.Heading id="advanced">Advanced</Form.Heading>
@@ -481,44 +478,10 @@ const AdvancedAccordion = ({
           name="userData"
           label="User Data"
           control={control}
+          disabled={isSubmitting}
         />
       </AccordionItem>
     </Accordion.Root>
-  )
-}
-
-type AccordionItemProps = {
-  value: string
-  isOpen: boolean
-  label: string
-  children: React.ReactNode
-}
-
-function AccordionItem({ value, label, children, isOpen }: AccordionItemProps) {
-  const contentRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    if (isOpen && contentRef.current) {
-      contentRef.current.scrollIntoView({ behavior: 'smooth' })
-    }
-  }, [isOpen])
-
-  return (
-    <Accordion.Item value={value}>
-      <Accordion.Header className="max-w-lg">
-        <Accordion.Trigger className="group flex w-full items-center justify-between border-t py-2 text-sans-xl border-secondary [&>svg]:data-[state=open]:rotate-90">
-          <div className="text-secondary">{label}</div>
-          <DirectionRightIcon className="transition-all text-secondary" />
-        </Accordion.Trigger>
-      </Accordion.Header>
-      <Accordion.Content
-        ref={contentRef}
-        forceMount
-        className={cn('ox-accordion-content overflow-hidden py-8', { hidden: !isOpen })}
-      >
-        {children}
-      </Accordion.Content>
-    </Accordion.Item>
   )
 }
 

@@ -10,6 +10,8 @@ import { createRoutesFromElements, Navigate, Route } from 'react-router-dom'
 import { RouterDataErrorBoundary } from './components/ErrorBoundary'
 import { NotFound } from './components/ErrorPage'
 import { CreateDiskSideModalForm } from './forms/disk-create'
+import { CreateFloatingIpSideModalForm } from './forms/floating-ip-create'
+import { EditFloatingIpSideModalForm } from './forms/floating-ip-edit'
 import { CreateIdpSideModalForm } from './forms/idp/create'
 import { EditIdpSideModalForm } from './forms/idp/edit'
 import {
@@ -29,36 +31,36 @@ import { CreateSnapshotSideModalForm } from './forms/snapshot-create'
 import { CreateSSHKeySideModalForm } from './forms/ssh-key-create'
 import { CreateVpcSideModalForm } from './forms/vpc-create'
 import { EditVpcSideModalForm } from './forms/vpc-edit'
-import type { CrumbFunc } from './hooks/use-crumbs'
+import type { CrumbFunc } from './hooks/use-title'
 import { AuthenticatedLayout } from './layouts/AuthenticatedLayout'
-import AuthLayout from './layouts/AuthLayout'
+import { AuthLayout } from './layouts/AuthLayout'
 import { ExplorerContentPane, SerialConsoleContentPane } from './layouts/helpers'
 import { LoginLayout } from './layouts/LoginLayout'
-import ProjectLayout from './layouts/ProjectLayout'
-import RootLayout from './layouts/RootLayout'
-import SettingsLayout from './layouts/SettingsLayout'
+import { ProjectLayout } from './layouts/ProjectLayout'
+import { RootLayout } from './layouts/RootLayout'
+import { SettingsLayout } from './layouts/SettingsLayout'
 import { SiloLayout } from './layouts/SiloLayout'
-import SystemLayout from './layouts/SystemLayout'
-import DeviceAuthSuccessPage from './pages/DeviceAuthSuccessPage'
-import DeviceAuthVerifyPage from './pages/DeviceAuthVerifyPage'
+import { SystemLayout } from './layouts/SystemLayout'
+import { DeviceAuthSuccessPage } from './pages/DeviceAuthSuccessPage'
+import { DeviceAuthVerifyPage } from './pages/DeviceAuthVerifyPage'
 import { LoginPage } from './pages/LoginPage'
 import { LoginPageSaml } from './pages/LoginPageSaml'
-import {
-  DisksPage,
-  ImagesPage,
-  InstancePage,
-  InstancesPage,
-  ProjectAccessPage,
-  SnapshotsPage,
-  VpcPage,
-  VpcsPage,
-} from './pages/project'
+import { instanceLookupLoader } from './pages/lookups'
+import { ProjectAccessPage } from './pages/project/access/ProjectAccessPage'
+import { DisksPage } from './pages/project/disks/DisksPage'
+import { FloatingIpsPage } from './pages/project/floating-ips/FloatingIpsPage'
+import { ImagesPage } from './pages/project/images/ImagesPage'
+import { InstancePage } from './pages/project/instances/instance/InstancePage'
 import { SerialConsolePage } from './pages/project/instances/instance/SerialConsolePage'
 import { ConnectTab } from './pages/project/instances/instance/tabs/ConnectTab'
 import { MetricsTab } from './pages/project/instances/instance/tabs/MetricsTab'
 import { NetworkingTab } from './pages/project/instances/instance/tabs/NetworkingTab'
 import { StorageTab } from './pages/project/instances/instance/tabs/StorageTab'
-import ProjectsPage from './pages/ProjectsPage'
+import { InstancesPage } from './pages/project/instances/InstancesPage'
+import { SnapshotsPage } from './pages/project/snapshots/SnapshotsPage'
+import { VpcPage } from './pages/project/vpcs/VpcPage/VpcPage'
+import { VpcsPage } from './pages/project/vpcs/VpcsPage'
+import { ProjectsPage } from './pages/ProjectsPage'
 import { ProfilePage } from './pages/settings/ProfilePage'
 import { SSHKeysPage } from './pages/settings/SSHKeysPage'
 import { SiloAccessPage } from './pages/SiloAccessPage'
@@ -79,7 +81,7 @@ import { IpPoolsTab } from './pages/system/networking/IpPoolsTab'
 import { NetworkingPage } from './pages/system/networking/NetworkingPage'
 import { SiloImagesPage } from './pages/system/SiloImagesPage'
 import { SiloPage } from './pages/system/silos/SiloPage'
-import SilosPage from './pages/system/silos/SilosPage'
+import { SilosPage } from './pages/system/silos/SilosPage'
 import { SystemUtilizationPage } from './pages/system/UtilizationPage'
 import { pb } from './util/path-builder'
 
@@ -88,6 +90,7 @@ const instanceCrumb: CrumbFunc = (m) => m.params.instance!
 const vpcCrumb: CrumbFunc = (m) => m.params.vpc!
 const siloCrumb: CrumbFunc = (m) => m.params.silo!
 const sledExplorerCrumb: CrumbFunc = (m) => `Sled ${m.params.sled}`!
+const poolCrumb: CrumbFunc = (m) => m.params.pool!
 
 export const routes = createRoutesFromElements(
   <Route element={<RootLayout />}>
@@ -182,11 +185,7 @@ export const routes = createRoutesFromElements(
         </Route>
         <Route path="health" element={null} handle={{ crumb: 'Health' }} />
         <Route path="update" element={null} handle={{ crumb: 'Update' }} />
-        <Route
-          path="networking"
-          element={<NetworkingPage />}
-          handle={{ crumb: 'Networking' }}
-        >
+        <Route path="networking" element={<NetworkingPage />}>
           <Route
             element={<IpPoolsTab />}
             loader={IpPoolsTab.loader}
@@ -202,12 +201,15 @@ export const routes = createRoutesFromElements(
             />
           </Route>
         </Route>
-        <Route
-          path="networking/ip-pools/:pool"
-          element={<IpPoolPage />}
-          loader={IpPoolPage.loader}
-        >
-          <Route path="ranges-add" element={<IpPoolAddRangeSideModalForm />} />
+        <Route path="networking/ip-pools" handle={{ crumb: 'IP pools' }}>
+          <Route
+            path=":pool"
+            element={<IpPoolPage />}
+            loader={IpPoolPage.loader}
+            handle={{ crumb: poolCrumb }}
+          >
+            <Route path="ranges-add" element={<IpPoolAddRangeSideModalForm />} />
+          </Route>
         </Route>
         <Route path="monitoring" handle={{ crumb: 'Monitoring' }}>
           <Route index element={<Navigate to="sensor-tree" replace />} />
@@ -265,6 +267,15 @@ export const routes = createRoutesFromElements(
           loader={SiloUtilizationPage.loader}
           handle={{ crumb: 'Utilization' }}
         />
+
+        {/* let's do both. what could go wrong*/}
+        <Route
+          path="lookup/instances/:instance"
+          element={null}
+          loader={instanceLookupLoader}
+        />
+        <Route path="lookup/i/:instance" element={null} loader={instanceLookupLoader} />
+
         <Route loader={ProjectsPage.loader} element={<ProjectsPage />}>
           <Route path="projects" handle={{ crumb: 'Projects' }} element={null} />
           <Route
@@ -376,6 +387,21 @@ export const routes = createRoutesFromElements(
           />
         </Route>
 
+        <Route element={<FloatingIpsPage />} loader={FloatingIpsPage.loader}>
+          <Route path="floating-ips" handle={{ crumb: 'Floating IPs' }} element={null} />
+          <Route
+            path="floating-ips-new"
+            element={<CreateFloatingIpSideModalForm />}
+            handle={{ crumb: 'New Floating IP' }}
+          />
+          <Route
+            path="floating-ips/:floatingIp/edit"
+            element={<EditFloatingIpSideModalForm />}
+            loader={EditFloatingIpSideModalForm.loader}
+            handle={{ crumb: 'Edit Floating IP' }}
+          />
+        </Route>
+
         <Route element={<DisksPage />} loader={DisksPage.loader}>
           <Route
             path="disks-new"
@@ -398,7 +424,7 @@ export const routes = createRoutesFromElements(
             handle={{ crumb: 'New snapshot' }}
           />
           <Route
-            path="snapshots/:snapshot/image-new"
+            path="snapshots/:snapshot/images-new"
             element={<CreateImageFromSnapshotSideModalForm />}
             loader={CreateImageFromSnapshotSideModalForm.loader}
             handle={{ crumb: 'Create image from snapshot' }}

@@ -5,21 +5,34 @@
  *
  * Copyright Oxide Computer Company
  */
-import { SettingsGroup } from '@oxide/ui'
 
-import { useInstanceSelector } from 'app/hooks'
-import { pb } from 'app/util/path-builder'
+import { Link } from 'react-router-dom'
+
+import { EquivalentCliCommand } from '~/components/EquivalentCliCommand'
+import { useInstanceSelector } from '~/hooks'
+import { buttonStyle } from '~/ui/lib/Button'
+import { SettingsGroup } from '~/ui/lib/SettingsGroup'
+import { cliCmd } from '~/util/cli-cmd'
+import { pb } from '~/util/path-builder'
 
 export function ConnectTab() {
   const { project, instance } = useInstanceSelector()
 
   return (
-    <SettingsGroup
-      title="Serial Console"
-      cta={pb.serialConsole({ project, instance })}
-      ctaText="Connect"
-    >
-      Connect to your instance&rsquo;s serial console
-    </SettingsGroup>
+    <SettingsGroup.Container>
+      <SettingsGroup.Body>
+        <SettingsGroup.Title>Serial console</SettingsGroup.Title>
+        Connect to your instance&rsquo;s serial console
+      </SettingsGroup.Body>
+      <SettingsGroup.Footer>
+        <EquivalentCliCommand command={cliCmd.serialConsole({ project, instance })} />
+        <Link
+          to={pb.serialConsole({ project, instance })}
+          className={buttonStyle({ size: 'sm' })}
+        >
+          Connect
+        </Link>
+      </SettingsGroup.Footer>
+    </SettingsGroup.Container>
   )
 }

@@ -9,9 +9,12 @@ import { useNavigate } from 'react-router-dom'
 
 import { useApiMutation, useApiQueryClient, type VpcCreate } from '@oxide/api'
 
-import { DescriptionField, NameField, SideModalForm, TextField } from 'app/components/form'
-import { useForm, useProjectSelector, useToast } from 'app/hooks'
-import { pb } from 'app/util/path-builder'
+import { DescriptionField } from '~/components/form/fields/DescriptionField'
+import { NameField } from '~/components/form/fields/NameField'
+import { TextField } from '~/components/form/fields/TextField'
+import { SideModalForm } from '~/components/form/SideModalForm'
+import { useForm, useProjectSelector, useToast } from '~/hooks'
+import { pb } from '~/util/path-builder'
 
 const defaultValues: VpcCreate = {
   name: '',
@@ -44,8 +47,8 @@ export function CreateVpcSideModalForm() {
   return (
     <SideModalForm
       form={form}
-      id="create-vpc-form"
-      title="Create VPC"
+      formType="create"
+      resourceName="VPC"
       onSubmit={(values) => createVpc.mutate({ query: projectSelector, body: values })}
       onDismiss={() => navigate(pb.vpcs(projectSelector))}
       loading={createVpc.isPending}

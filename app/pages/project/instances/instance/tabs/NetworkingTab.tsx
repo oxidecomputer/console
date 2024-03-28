@@ -17,19 +17,25 @@ import {
   usePrefetchedApiQuery,
   type InstanceNetworkInterface,
 } from '@oxide/api'
-import { LinkCell, SkeletonCell, useQueryTable, type MenuAction } from '@oxide/table'
-import { Badge, Button, EmptyMessage, Networking24Icon, Success12Icon } from '@oxide/ui'
+import { Networking24Icon } from '@oxide/design-system/icons/react'
 
-import CreateNetworkInterfaceForm from 'app/forms/network-interface-create'
-import EditNetworkInterfaceForm from 'app/forms/network-interface-edit'
+import { CreateNetworkInterfaceForm } from '~/forms/network-interface-create'
+import { EditNetworkInterfaceForm } from '~/forms/network-interface-edit'
 import {
   getInstanceSelector,
   useInstanceSelector,
   useProjectSelector,
   useToast,
-} from 'app/hooks'
-import { confirmDelete } from 'app/stores/confirm-delete'
-import { pb } from 'app/util/path-builder'
+} from '~/hooks'
+import { confirmDelete } from '~/stores/confirm-delete'
+import { SkeletonCell } from '~/table/cells/EmptyCell'
+import { LinkCell } from '~/table/cells/LinkCell'
+import type { MenuAction } from '~/table/columns/action-col'
+import { useQueryTable } from '~/table/QueryTable'
+import { Badge } from '~/ui/lib/Badge'
+import { Button } from '~/ui/lib/Button'
+import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { pb } from '~/util/path-builder'
 
 import { fancifyStates } from './common'
 
@@ -176,22 +182,20 @@ export function NetworkingTab() {
         Network Interfaces
       </h2>
       <Table labeled-by="nic-label" makeActions={makeActions} emptyState={emptyState}>
-        <Column accessor="name" />
+        <Column
+          accessor={(i) => ({ name: i.name, primary: i.primary })}
+          id="name"
+          cell={({ value: { name, primary } }) => (
+            <>
+              <span>{name}</span>
+              {primary ? <Badge className="ml-2">primary</Badge> : null}
+            </>
+          )}
+        />
         <Column accessor="description" />
         <Column accessor="ip" />
         <Column header="vpc" accessor="vpcId" cell={VpcNameFromId} />
         <Column header="subnet" accessor="subnetId" cell={SubnetNameFromId} />
-        <Column
-          accessor="primary"
-          cell={({ value }) =>
-            value && (
-              <>
-                <Success12Icon className="mr-1 text-accent" />
-                <Badge>primary</Badge>
-              </>
-            )
-          }
-        />
       </Table>
       <div className="mt-4 flex flex-col gap-3">
         <div className="flex gap-3">

@@ -56,7 +56,7 @@ const sleep = async (ms: number) => new Promise((res) => setTimeout(res, ms))
 
 export async function startMockAPI() {
   // dynamic imports to make extremely sure none of this code ends up in the prod bundle
-  const { handlers } = await import('@oxide/api-mocks')
+  const { handlers } = await import('../mock-api/msw/handlers')
   const { http, HttpResponse } = await import('msw')
   const { setupWorker } = await import('msw/browser')
 

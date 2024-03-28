@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { HL } from 'app/components/HL'
+import { HL } from '~/components/HL'
 
 import { useConfirmAction } from './confirm-action'
 

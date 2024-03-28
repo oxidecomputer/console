@@ -7,9 +7,9 @@
  *
  * Copyright Oxide Computer Company
  */
-import * as flags from 'https://deno.land/std@0.208.0/flags/mod.ts'
 import { exists } from 'https://deno.land/std@0.208.0/fs/mod.ts'
-import { $, CommandBuilder } from 'https://deno.land/x/dax@0.35.0/mod.ts'
+import { parseArgs } from 'https://deno.land/std@0.220.1/cli/mod.ts'
+import { $ } from 'https://deno.land/x/dax@0.39.1/mod.ts'
 
 const HELP = `
 Display changes to API client caused by a given Omicron PR. Works by downloading
@@ -21,6 +21,7 @@ Requirements:
 
 Usage:
   ./tools/deno/api-diff.ts [-f] [PR number or commit SHA]
+  ./tools/deno/api-diff.ts [-f] [commit SHA] [commit SHA]
   ./tools/deno/api-diff.ts -h
 
 Flags:
@@ -28,24 +29,13 @@ Flags:
   -h, --help        Show this help message
 
 Parameters:
-  PR number or commit SHA: If left out, interactive picker is shown
+  PR number or commit SHA: If left out, interactive picker is shown.
+  If two positional arguments are passed, we assume they are commits.
 `.trim()
 
-function printHelpAndExit() {
+function printHelpAndExit(): never {
   console.log(HELP)
   Deno.exit()
-}
-
-// inspired by: https://github.com/dsherret/dax/issues/137#issuecomment-1603848769
-declare module 'https://deno.land/x/dax@0.35.0/mod.ts' {
-  interface CommandBuilder {
-    pipe(next: CommandBuilder): CommandBuilder
-  }
-}
-
-CommandBuilder.prototype.pipe = function (next: CommandBuilder): CommandBuilder {
-  const p = this.stdout('piped').spawn()
-  return next.stdin(p.stdout())
 }
 
 // have to do this this way because I couldn't figure out how to get
@@ -65,9 +55,17 @@ async function pickPr() {
   return prNum
 }
 
-async function getCommitRange(arg: string): Promise<{ base: string; head: string }> {
-  if (!arg || /^\d+$/.test(arg)) {
-    const prNum = arg || (await pickPr())
+async function getCommitRange(
+  args: Array<string | number>
+): Promise<{ base: string; head: string }> {
+  // if there are two or more args, assume two commits
+  if (args.length >= 2) {
+    return { base: args[0].toString(), head: args[1].toString() }
+  }
+
+  // if there are no args or the arg is a number, we're talking about a PR
+  if (args.length === 0 || typeof args[0] === 'number') {
+    const prNum = args[0] || (await pickPr())
     const query = `{
       repository(owner: "oxidecomputer", name: "omicron") {
         pullRequest(number: ${prNum}) {
@@ -82,10 +80,11 @@ async function getCommitRange(arg: string): Promise<{ base: string; head: string
   }
 
   // otherwise assume it's a commit
+  const head = args[0]
   const parents =
-    await $`gh api repos/oxidecomputer/omicron/commits/${arg} --jq '.parents'`.json()
+    await $`gh api repos/oxidecomputer/omicron/commits/${head} --jq '.parents'`.json()
   if (parents.length > 1) throw new Error(`Commit has multiple parents:`)
-  return { base: parents[0].sha, head: arg }
+  return { base: parents[0].sha, head }
 }
 
 async function genForCommit(commit: string, force: boolean) {
@@ -112,14 +111,14 @@ if (!$.commandExistsSync('gh')) throw Error('Need gh (GitHub CLI)')
 // prefer difftastic if it exists. https://difftastic.wilfred.me.uk/
 const diffTool = $.commandExistsSync('difft') ? 'difft' : 'diff'
 
-const args = flags.parse(Deno.args, {
+const args = parseArgs(Deno.args, {
   alias: { force: 'f', help: 'h' },
   boolean: ['force', 'help'],
 })
 
 if (args.help) printHelpAndExit()
 
-const { base, head } = await getCommitRange(args._[0])
+const { base, head } = await getCommitRange(args._)
 
 const tmpDirBase = await genForCommit(base, args.force)
 const tmpDirHead = await genForCommit(head, args.force)

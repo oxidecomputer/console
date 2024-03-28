@@ -8,10 +8,10 @@
 import { useState } from 'react'
 
 import { type ApiError } from '@oxide/api'
-import { Modal } from '@oxide/ui'
 
-import { clearConfirmAction, useConfirmAction } from 'app/stores/confirm-action'
-import { addToast } from 'app/stores/toast'
+import { clearConfirmAction, useConfirmAction } from '~/stores/confirm-action'
+import { addToast } from '~/stores/toast'
+import { Modal } from '~/ui/lib/Modal'
 
 export function ConfirmActionModal() {
   const actionConfig = useConfirmAction((state) => state.actionConfig)

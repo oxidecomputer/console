@@ -4,9 +4,9 @@ Web client to the [Oxide API](https://github.com/oxidecomputer/omicron).
 
 ![screenshot of instances list page](docs/readme-screenshot.png)
 
-## [Live demo](https://oxide-console-preview.vercel.app)
+## [Live demo](https://console-preview.oxide.computer)
 
-At https://oxide-console-preview.vercel.app the console is deployed as a static site with a mock API running in a [Service Worker](https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API). You can create mock resources and they will persist across client-side navigations, but they exist only in the browser: nobody else can see them and the mock "DB" is reset on pageload. Request and response bodies in the mock API match the Oxide API's [OpenAPI spec](https://github.com/oxidecomputer/omicron/blob/main/openapi/nexus.json), but behavior is only mocked in as much detail as is required for development and testing of the console and is not fully representative of the real API.
+At https://console-preview.oxide.computer, the console is deployed as a static site with a mock API running in a [Service Worker](https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API). You can create mock resources and they will persist across client-side navigations, but they exist only in the browser: nobody else can see them and the mock "DB" is reset on pageload. Request and response bodies in the mock API match the Oxide API's [OpenAPI spec](https://github.com/oxidecomputer/omicron/blob/main/openapi/nexus.json), but behavior is only mocked in as much detail as is required for development and testing of the console and is not fully representative of the real API.
 
 ## Goals and principles
 
@@ -47,7 +47,7 @@ The web console has no special privileges as an API consumer. Logging in sets a 
 
 ## Directory structure
 
-The app is in [`app`](app). You can see the route structure in [`app/routes.tsx`](app/routes.tsx). In [`libs`](libs) we have a [`ui`](libs/ui) dir where the low-level components live and an [`api`](libs/api) dir where we keep the generated API client and a React Query wrapper for it. These directories are aliased in [`tsconfig.json`](tsconfig.json) for easy import from the main app as `@oxide/ui` and `@oxide/api`, respectively.
+The app is in [`app`](app). You can see the route structure in [`app/routes.tsx`](app/routes.tsx). Also in [`app`](app) we have a [`ui`](app/ui) dir where the low-level components live and an [`api`](app/api) dir where we keep the generated API client and a React Query wrapper for it. The latter is aliased in [`tsconfig.json`](tsconfig.json) for easy import from the main app as `@oxide/api`.
 
 ## Development
 
@@ -75,7 +75,7 @@ and navigate to http://localhost:4000 in the browser. The running app will autom
 #### Specifying non-default user
 
 Pick a user from the list of users in
-[`libs/api-mocks/user.ts`](/libs/api-mocks/user.ts). The one without fleet
+[`mock-api/user.ts`](/mock-api/user.ts). The one without fleet
 viewer permissions is `Hans Jonas`. Open the browser console and run:
 
 ```js
@@ -153,7 +153,7 @@ This will start a preview environment for UI components at `http://localhost:610
 
 ### E2E tests with [Playwright](https://playwright.dev/)
 
-Playwright tests live in [`app/test/e2e`](app/test/e2e/). `npm run e2e` runs the tests in Chrome, Firefox, and Safari, but this is rarely necessary in local dev. `npm run e2ec` is a shortcut for `playwright test --project=chrome`, which runs the tests in Chrome only (the fastest one, useful for local dev). Playwright has an excellent [UI mode](https://playwright.dev/docs/test-ui-mode) for running and debugging tests that you can get to by running `npm run e2e -- --ui`.
+Playwright tests live in [`test/e2e`](test/e2e/). `npm run e2e` runs the tests in Chrome, Firefox, and Safari, but this is rarely necessary in local dev. `npm run e2ec` is a shortcut for `playwright test --project=chrome`, which runs the tests in Chrome only (the fastest one, useful for local dev). Playwright has an excellent [UI mode](https://playwright.dev/docs/test-ui-mode) for running and debugging tests that you can get to by running `npm run e2e -- --ui`.
 
 To debug end-to-end failures on CI, check out the branch with the failure and run `./tools/debug-ci-e2e-fail.sh`. It'll download the latest failures from CI and allow you to open a [playwright trace](https://playwright.dev/docs/trace-viewer-intro#viewing-the-trace) of the failure.
 

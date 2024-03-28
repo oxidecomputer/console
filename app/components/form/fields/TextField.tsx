@@ -8,7 +8,7 @@
 import cn from 'classnames'
 import { useId } from 'react'
 import {
-  Controller,
+  useController,
   type Control,
   type FieldPath,
   type FieldPathValue,
@@ -16,14 +16,14 @@ import {
   type Validate,
 } from 'react-hook-form'
 
+import { FieldLabel } from '~/ui/lib/FieldLabel'
 import {
-  FieldLabel,
   TextInputHint,
   TextInput as UITextField,
   type TextAreaProps as UITextAreaProps,
   type TextInputBaseProps as UITextFieldProps,
-} from '@oxide/ui'
-import { capitalize } from '@oxide/util'
+} from '~/ui/lib/TextInput'
+import { capitalize } from '~/util/str'
 
 import { ErrorMessage } from './ErrorMessage'
 
@@ -118,33 +118,24 @@ export const TextFieldInner = <
 }: TextFieldProps<TFieldValues, TName> & UITextAreaProps) => {
   const generatedId = useId()
   const id = idProp || generatedId
+  const {
+    field: { onChange, ...fieldRest },
+    fieldState: { error },
+  } = useController({ name, control, rules: { required, validate } })
   return (
-    <Controller
-      name={name}
-      control={control}
-      rules={{ required, validate }}
-      render={({ field: { onChange, ...fieldRest }, fieldState: { error } }) => {
-        return (
-          <>
-            <UITextField
-              id={id}
-              title={label}
-              type={type}
-              error={!!error}
-              aria-labelledby={cn(`${id}-label`, {
-                [`${id}-help-text`]: !!tooltipText,
-              })}
-              aria-describedby={tooltipText ? `${id}-label-tip` : undefined}
-              onChange={(e) => {
-                onChange(transform ? transform(e.target.value) : e.target.value)
-              }}
-              {...fieldRest}
-              {...props}
-            />
-            <ErrorMessage error={error} label={label} />
-          </>
-        )
-      }}
-    />
+    <>
+      <UITextField
+        id={id}
+        title={label}
+        type={type}
+        error={!!error}
+        aria-labelledby={cn(`${id}-label`, !!tooltipText && `${id}-help-text`)}
+        aria-describedby={tooltipText ? `${id}-label-tip` : undefined}
+        onChange={(e) => onChange(transform ? transform(e.target.value) : e.target.value)}
+        {...fieldRest}
+        {...props}
+      />
+      <ErrorMessage error={error} label={label} />
+    </>
   )
 }

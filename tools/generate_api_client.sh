@@ -14,7 +14,7 @@ set -o xtrace
 # console and have run `npm install` inside oxide.ts/generator
 
 OMICRON_SHA=$(head -n 1 OMICRON_VERSION)
-GEN_DIR="$PWD/libs/api/__generated__"
+GEN_DIR="$PWD/app/api/__generated__"
 
 # this will be less horrific when the package is published? or maybe not
 npm run --silent --prefix ../oxide.ts gen-from $OMICRON_SHA $GEN_DIR

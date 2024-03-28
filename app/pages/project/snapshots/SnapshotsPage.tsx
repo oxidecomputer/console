@@ -14,27 +14,22 @@ import {
   useApiQueryErrorsAllowed,
   type Snapshot,
 } from '@oxide/api'
-import {
-  DateCell,
-  SizeCell,
-  SkeletonCell,
-  useQueryTable,
-  type MenuAction,
-} from '@oxide/table'
-import {
-  Badge,
-  buttonStyle,
-  EmptyMessage,
-  PageHeader,
-  PageTitle,
-  Snapshots24Icon,
-  TableActions,
-} from '@oxide/ui'
+import { Snapshots24Icon } from '@oxide/design-system/icons/react'
 
-import { SnapshotStatusBadge } from 'app/components/StatusBadge'
-import { getProjectSelector, useProjectSelector } from 'app/hooks'
-import { confirmDelete } from 'app/stores/confirm-delete'
-import { pb } from 'app/util/path-builder'
+import { SnapshotStatusBadge } from '~/components/StatusBadge'
+import { getProjectSelector, useProjectSelector } from '~/hooks'
+import { confirmDelete } from '~/stores/confirm-delete'
+import { DateCell } from '~/table/cells/DateCell'
+import { SkeletonCell } from '~/table/cells/EmptyCell'
+import { SizeCell } from '~/table/cells/SizeCell'
+import type { MenuAction } from '~/table/columns/action-col'
+import { useQueryTable } from '~/table/QueryTable'
+import { Badge } from '~/ui/lib/Badge'
+import { buttonStyle } from '~/ui/lib/Button'
+import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
+import { TableActions } from '~/ui/lib/Table'
+import { pb } from '~/util/path-builder'
 
 const DiskNameFromId = ({ value }: { value: string }) => {
   const { data } = useApiQueryErrorsAllowed('diskView', { path: { disk: value } })
@@ -50,14 +45,37 @@ const EmptyState = () => (
     title="No snapshots"
     body="You need to create a snapshot to be able to see it here"
     buttonText="New snapshot"
-    buttonTo={pb.snapshotNew(useProjectSelector())}
+    buttonTo={pb.snapshotsNew(useProjectSelector())}
   />
 )
 
 SnapshotsPage.loader = async ({ params }: LoaderFunctionArgs) => {
-  await apiQueryClient.prefetchQuery('snapshotList', {
-    query: { ...getProjectSelector(params), limit: 25 },
-  })
+  const { project } = getProjectSelector(params)
+  await Promise.all([
+    apiQueryClient.prefetchQuery('snapshotList', {
+      query: { project, limit: 25 },
+    }),
+
+    // Fetch disks and preload into RQ cache so fetches by ID in DiskNameFromId
+    // can be mostly instant yet gracefully fall back to fetching individually
+    // if we don't fetch them all here. This has to be the *ErrorsAllowed
+    // version of setQueryData because the disk fetchs are also the errors
+    // allowed version. If we use regular setQueryData, nothing blows up; the
+    // data is just never found in the cache. Note that the disks that error
+    // (delete disks) are not prefetched here because they are (obviously) not
+    // in the disk list response.
+    apiQueryClient
+      .fetchQuery('diskList', { query: { project, limit: 200 } })
+      .then((disks) => {
+        for (const disk of disks.items) {
+          apiQueryClient.setQueryDataErrorsAllowed(
+            'diskView',
+            { path: { disk: disk.id } },
+            { type: 'success', data: disk }
+          )
+        }
+      }),
+  ])
   return null
 }
 
@@ -77,7 +95,7 @@ export function SnapshotsPage() {
     {
       label: 'Create image',
       onActivate() {
-        navigate(pb.snapshotImageCreate({ ...projectSelector, snapshot: snapshot.name }))
+        navigate(pb.snapshotImagesNew({ ...projectSelector, snapshot: snapshot.name }))
       },
     },
     {
@@ -99,7 +117,7 @@ export function SnapshotsPage() {
         <PageTitle icon={<Snapshots24Icon />}>Snapshots</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link to={pb.snapshotNew(projectSelector)} className={buttonStyle({ size: 'sm' })}>
+        <Link to={pb.snapshotsNew(projectSelector)} className={buttonStyle({ size: 'sm' })}>
           New Snapshot
         </Link>
       </TableActions>

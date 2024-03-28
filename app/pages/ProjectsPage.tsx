@@ -15,18 +15,18 @@ import {
   usePrefetchedApiQuery,
   type Project,
 } from '@oxide/api'
-import { DateCell, linkCell, useQueryTable, type MenuAction } from '@oxide/table'
-import {
-  buttonStyle,
-  EmptyMessage,
-  Folder24Icon,
-  PageHeader,
-  PageTitle,
-  TableActions,
-} from '@oxide/ui'
+import { Folder24Icon } from '@oxide/design-system/icons/react'
 
-import { confirmDelete } from 'app/stores/confirm-delete'
-import { pb } from 'app/util/path-builder'
+import { confirmDelete } from '~/stores/confirm-delete'
+import { DateCell } from '~/table/cells/DateCell'
+import { linkCell } from '~/table/cells/LinkCell'
+import type { MenuAction } from '~/table/columns/action-col'
+import { useQueryTable } from '~/table/QueryTable'
+import { buttonStyle } from '~/ui/lib/Button'
+import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
+import { TableActions } from '~/ui/lib/Table'
+import { pb } from '~/util/path-builder'
 
 import { useQuickActions } from '../hooks'
 
@@ -36,7 +36,7 @@ const EmptyState = () => (
     title="No projects"
     body="You need to create a project to be able to see it here"
     buttonText="New project"
-    buttonTo={pb.projectNew()}
+    buttonTo={pb.projectsNew()}
   />
 )
 
@@ -45,7 +45,7 @@ ProjectsPage.loader = async () => {
   return null
 }
 
-export default function ProjectsPage() {
+export function ProjectsPage() {
   const navigate = useNavigate()
 
   const queryClient = useApiQueryClient()
@@ -90,7 +90,7 @@ export default function ProjectsPage() {
       () => [
         {
           value: 'New project',
-          onSelect: () => navigate(pb.projectNew()),
+          onSelect: () => navigate(pb.projectsNew()),
         },
         ...(projects?.items || []).map((p) => ({
           value: p.name,
@@ -108,7 +108,7 @@ export default function ProjectsPage() {
         <PageTitle icon={<Folder24Icon />}>Projects</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link to={pb.projectNew()} className={buttonStyle({ size: 'sm' })}>
+        <Link to={pb.projectsNew()} className={buttonStyle({ size: 'sm' })}>
           New Project
         </Link>
       </TableActions>

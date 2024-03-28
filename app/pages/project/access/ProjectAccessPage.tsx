@@ -5,8 +5,8 @@
  *
  * Copyright Oxide Computer Company
  */
-import '@tanstack/react-table'
 
+import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useMemo, useState } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 
@@ -14,7 +14,7 @@ import {
   apiQueryClient,
   byGroupThenName,
   deleteRole,
-  getEffectiveRole,
+  roleOrder,
   useApiMutation,
   useApiQueryClient,
   usePrefetchedApiQuery,
@@ -22,27 +22,26 @@ import {
   type IdentityType,
   type RoleKey,
 } from '@oxide/api'
-import { createColumnHelper, getActionsCol, Table, useReactTable } from '@oxide/table'
-import {
-  Access24Icon,
-  Button,
-  EmptyMessage,
-  PageHeader,
-  PageTitle,
-  TableActions,
-  TableEmptyBox,
-} from '@oxide/ui'
-import { groupBy, isTruthy } from '@oxide/util'
+import { Access24Icon } from '@oxide/design-system/icons/react'
 
-import { AccessNameCell } from 'app/components/AccessNameCell'
-import { HL } from 'app/components/HL'
-import { RoleBadgeCell } from 'app/components/RoleBadgeCell'
+import { HL } from '~/components/HL'
+import { ListPlusCell } from '~/components/ListPlusCell'
 import {
   ProjectAccessAddUserSideModal,
   ProjectAccessEditUserSideModal,
-} from 'app/forms/project-access'
-import { getProjectSelector, useProjectSelector } from 'app/hooks'
-import { confirmDelete } from 'app/stores/confirm-delete'
+} from '~/forms/project-access'
+import { getProjectSelector, useProjectSelector } from '~/hooks'
+import { confirmDelete } from '~/stores/confirm-delete'
+import { getActionsCol } from '~/table/columns/action-col'
+import { Table } from '~/table/Table'
+import { Badge } from '~/ui/lib/Badge'
+import { Button } from '~/ui/lib/Button'
+import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
+import { TableActions, TableEmptyBox } from '~/ui/lib/Table'
+import { TipIcon } from '~/ui/lib/TipIcon'
+import { identityTypeLabel, roleColor } from '~/util/access'
+import { groupBy, isTruthy, sortBy } from '~/util/array'
 
 const EmptyState = ({ onClick }: { onClick: () => void }) => (
   <TableEmptyBox>
@@ -72,9 +71,8 @@ type UserRow = {
   id: string
   identityType: IdentityType
   name: string
-  siloRole: RoleKey | undefined
   projectRole: RoleKey | undefined
-  effectiveRole: RoleKey
+  roleBadges: { roleSource: string; roleName: RoleKey }[]
 }
 
 const colHelper = createColumnHelper<UserRow>()
@@ -95,26 +93,23 @@ export function ProjectAccessPage() {
   const rows = useMemo(() => {
     return groupBy(siloRows.concat(projectRows), (u) => u.id)
       .map(([userId, userAssignments]) => {
-        const siloRole = userAssignments.find((a) => a.roleSource === 'silo')?.roleName
-        const projectRole = userAssignments.find(
-          (a) => a.roleSource === 'project'
-        )?.roleName
-
-        const roles = [siloRole, projectRole].filter(isTruthy)
-
         const { name, identityType } = userAssignments[0]
 
-        const row: UserRow = {
+        const siloAccessRow = userAssignments.find((a) => a.roleSource === 'silo')
+        const projectAccessRow = userAssignments.find((a) => a.roleSource === 'project')
+
+        const roleBadges = sortBy(
+          [siloAccessRow, projectAccessRow].filter(isTruthy),
+          (r) => roleOrder[r.roleName] // sorts strongest role first
+        )
+
+        return {
           id: userId,
           identityType,
           name,
-          siloRole,
-          projectRole,
-          // we know there has to be at least one
-          effectiveRole: getEffectiveRole(roles)!,
-        }
-
-        return row
+          projectRole: projectAccessRow?.roleName,
+          roleBadges,
+        } satisfies UserRow
       })
       .sort(byGroupThenName)
   }, [siloRows, projectRows])
@@ -130,15 +125,32 @@ export function ProjectAccessPage() {
 
   const columns = useMemo(
     () => [
-      colHelper.accessor('name', { header: 'Name', cell: AccessNameCell }),
-      colHelper.accessor('siloRole', {
-        header: 'Silo role',
-        cell: RoleBadgeCell,
+      colHelper.accessor('name', { header: 'Name' }),
+      colHelper.accessor('identityType', {
+        header: 'Type',
+        cell: (props) => identityTypeLabel[props.getValue()],
       }),
-      colHelper.accessor('projectRole', {
-        header: 'Project role',
-        cell: RoleBadgeCell,
+      colHelper.accessor('roleBadges', {
+        header: () => (
+          <span className="inline-flex items-center">
+            Role
+            <TipIcon className="ml-2">
+              A user or group&apos;s effective role for this project is the strongest role
+              on either the silo or project.
+            </TipIcon>
+          </span>
+        ),
+        cell: (props) => (
+          <ListPlusCell tooltipTitle="Other roles">
+            {props.getValue().map(({ roleName, roleSource }) => (
+              <Badge key={roleSource} color={roleColor[roleName]}>
+                {roleSource}.{roleName}
+              </Badge>
+            ))}
+          </ListPlusCell>
+        ),
       }),
+
       // TODO: tooltips on disabled elements explaining why
       getActionsCol((row: UserRow) => [
         {
@@ -174,7 +186,11 @@ export function ProjectAccessPage() {
     [projectPolicy, project, updatePolicy]
   )
 
-  const tableInstance = useReactTable({ columns, data: rows })
+  const tableInstance = useReactTable({
+    columns,
+    data: rows,
+    getCoreRowModel: getCoreRowModel(),
+  })
 
   return (
     <>
@@ -197,6 +213,7 @@ export function ProjectAccessPage() {
         <ProjectAccessEditUserSideModal
           onDismiss={() => setEditingUserRow(null)}
           policy={projectPolicy}
+          name={editingUserRow.name}
           identityId={editingUserRow.id}
           identityType={editingUserRow.identityType}
           defaultValues={{ roleName: editingUserRow.projectRole }}

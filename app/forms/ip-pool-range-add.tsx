@@ -5,16 +5,18 @@
  *
  * Copyright Oxide Computer Company
  */
+import { type FieldErrors } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 
 import { useApiMutation, useApiQueryClient, type IpRange } from '@oxide/api'
-import { Message } from '@oxide/ui'
-import { validateIp } from '@oxide/util'
 
-import { SideModalForm, TextField } from 'app/components/form'
-import { useForm, useIpPoolSelector } from 'app/hooks'
-import { addToast } from 'app/stores/toast'
-import { pb } from 'app/util/path-builder'
+import { TextField } from '~/components/form/fields/TextField'
+import { SideModalForm } from '~/components/form/SideModalForm'
+import { useForm, useIpPoolSelector } from '~/hooks'
+import { addToast } from '~/stores/toast'
+import { Message } from '~/ui/lib/Message'
+import { pb } from '~/util/path-builder'
+import { validateIp } from '~/util/str'
 
 const defaultValues: IpRange = {
   first: '',
@@ -23,10 +25,7 @@ const defaultValues: IpRange = {
 
 const invalidAddressError = { type: 'pattern', message: 'Not a valid IP address' }
 
-const diffVersionError = {
-  type: 'custom',
-  message: 'First and last must be the same version',
-}
+const ipv6Error = { type: 'pattern', message: 'IPv6 ranges are not yet supported' }
 
 /**
  * Pretty straightforward -- make sure IPs are valid and both first and last
@@ -39,21 +38,27 @@ function resolver(values: IpRange) {
   const first = validateIp(values.first)
   const last = validateIp(values.last)
 
-  let errors = undefined
+  const errors: FieldErrors<IpRange> = {}
 
-  if (!first.valid || !last.valid) {
-    errors = {
-      first: first.valid ? undefined : invalidAddressError,
-      last: last.valid ? undefined : invalidAddressError,
-    }
-  } else if ((first.isv4 && last.isv6) || (first.isv6 && last.isv4)) {
-    errors = { first: diffVersionError, last: diffVersionError }
+  if (!first.valid) {
+    errors.first = invalidAddressError
+  } else if (first.isv6) {
+    errors.first = ipv6Error
   }
 
-  // TODO: if we were really cool we could check first <= last but that sounds
-  // like a pain
+  if (!last.valid) {
+    errors.last = invalidAddressError
+  } else if (last.isv6) {
+    errors.last = ipv6Error
+  }
 
-  return errors ? { values: {}, errors } : { values, errors: {} }
+  // TODO: once we support IPv6 we need to check for version mismatch here
+
+  // TODO: if we were really cool we could check first <= last but it would add
+  // 6k gzipped to the bundle with ip-num
+
+  // no errors
+  return Object.keys(errors).length > 0 ? { values: {}, errors } : { values, errors: {} }
 }
 
 export function IpPoolAddRangeSideModalForm() {
@@ -67,6 +72,7 @@ export function IpPoolAddRangeSideModalForm() {
     onSuccess(_range) {
       // refetch list of projects in sidebar
       queryClient.invalidateQueries('ipPoolRangeList')
+      queryClient.invalidateQueries('ipPoolUtilizationView')
       addToast({ content: 'IP range added' })
       onDismiss()
     },
@@ -76,8 +82,9 @@ export function IpPoolAddRangeSideModalForm() {
 
   return (
     <SideModalForm
-      id="add-ip-range-form"
       form={form}
+      formType="create"
+      resourceName="IP range"
       title="Add IP range"
       onDismiss={onDismiss}
       onSubmit={(body) => addRange.mutate({ path: { pool }, body })}
@@ -86,7 +93,7 @@ export function IpPoolAddRangeSideModalForm() {
     >
       <Message
         variant="info"
-        content="IP ranges are inclusive. Addresses can be either IPv4 or IPv6, but first and last must be the same version, and first must be less than or equal to last."
+        content="Only IPv4 ranges are currently supported. Ranges are inclusive, and first must be less than or equal to last."
       />
       <TextField
         name="first"

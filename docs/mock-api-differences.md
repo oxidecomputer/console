@@ -14,7 +14,7 @@ on the callback ensures we are returning the right kind of thing from the
 endpoint.
 
 The manual implementation has an in-memory "database" (see
-[`libs/api-mocks/msw/db.ts`](/libs/api-mocks/msw/db.ts)) which is just a JS
+[`mock-api/msw/db.ts`](/mock-api/msw/db.ts)) which is just a JS
 object with a property for each "table", which is just an array of models. We
 use the generated types to make sure our mock seed data has the correct shape.
 
@@ -35,10 +35,9 @@ the mock server runs in the browser, it gets reset on pageload.
 
 ### Authentication and authorization
 
-This is a big one. At time of writing, we only do one kind of authz check in the
-mock API, and that's whether the user has fleet viewer permission. See
-`requireFleetViewer` in
-[`libs/api-mocks/msw/util.ts`](/libs/api-mocks/msw/util.ts). All
+This is a big one. At time of writing, we only do one kind of authz check in
+the mock API, and that's whether the user has fleet viewer permission. See
+`requireFleetViewer` in [`mock-api/msw/util.ts`](/mock-api/msw/util.ts). All
 operator-related endpoints (i.e., ones that start with `/v1/system`) require
 fleet viewer permissions (at least, but viewer is all we enforce). On other
 resources (i.e., silos and projects) we do not currently do any authz checks in

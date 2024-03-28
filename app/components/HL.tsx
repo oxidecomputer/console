@@ -5,6 +5,6 @@
  *
  * Copyright Oxide Computer Company
  */
-import { classed } from '@oxide/util'
+import { classed } from '~/util/classed'
 
 export const HL = classed.span`text-sans-semi-md text-default`

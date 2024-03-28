@@ -15,26 +15,21 @@ import {
   usePrefetchedApiQuery,
   type Silo,
 } from '@oxide/api'
-import {
-  BooleanCell,
-  DateCell,
-  linkCell,
-  useQueryTable,
-  type MenuAction,
-} from '@oxide/table'
-import {
-  Badge,
-  buttonStyle,
-  Cloud24Icon,
-  EmptyMessage,
-  PageHeader,
-  PageTitle,
-  TableActions,
-} from '@oxide/ui'
+import { Cloud24Icon } from '@oxide/design-system/icons/react'
 
-import { useQuickActions } from 'app/hooks/use-quick-actions'
-import { confirmDelete } from 'app/stores/confirm-delete'
-import { pb } from 'app/util/path-builder'
+import { useQuickActions } from '~/hooks/use-quick-actions'
+import { confirmDelete } from '~/stores/confirm-delete'
+import { BooleanCell } from '~/table/cells/BooleanCell'
+import { DateCell } from '~/table/cells/DateCell'
+import { linkCell } from '~/table/cells/LinkCell'
+import type { MenuAction } from '~/table/columns/action-col'
+import { useQueryTable } from '~/table/QueryTable'
+import { Badge } from '~/ui/lib/Badge'
+import { buttonStyle } from '~/ui/lib/Button'
+import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
+import { TableActions } from '~/ui/lib/Table'
+import { pb } from '~/util/path-builder'
 
 const EmptyState = () => (
   <EmptyMessage
@@ -42,7 +37,7 @@ const EmptyState = () => (
     title="No silos"
     body="You need to create a silo to be able to see it here"
     buttonText="New silo"
-    buttonTo={pb.siloNew()}
+    buttonTo={pb.silosNew()}
   />
 )
 
@@ -51,7 +46,7 @@ SilosPage.loader = async () => {
   return null
 }
 
-export default function SilosPage() {
+export function SilosPage() {
   const navigate = useNavigate()
 
   const { Table, Column } = useQueryTable('siloList', {})
@@ -80,7 +75,7 @@ export default function SilosPage() {
   useQuickActions(
     useMemo(
       () => [
-        { value: 'New silo', onSelect: () => navigate(pb.siloNew()) },
+        { value: 'New silo', onSelect: () => navigate(pb.silosNew()) },
         ...silos.items.map((o) => ({
           value: o.name,
           onSelect: () => navigate(pb.silo({ silo: o.name })),
@@ -97,7 +92,7 @@ export default function SilosPage() {
         <PageTitle icon={<Cloud24Icon />}>Silos</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link to={pb.siloNew()} className={buttonStyle({ size: 'sm' })}>
+        <Link to={pb.silosNew()} className={buttonStyle({ size: 'sm' })}>
           New silo
         </Link>
       </TableActions>

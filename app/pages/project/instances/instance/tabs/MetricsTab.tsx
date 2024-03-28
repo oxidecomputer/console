@@ -15,12 +15,16 @@ import {
   type Cumulativeint64,
   type DiskMetricName,
 } from '@oxide/api'
-import { EmptyMessage, Listbox, Spinner, Storage24Icon, TableEmptyBox } from '@oxide/ui'
+import { Storage24Icon } from '@oxide/design-system/icons/react'
 
-import { useDateTimeRangePicker } from 'app/components/form'
-import { getInstanceSelector, useInstanceSelector } from 'app/hooks'
+import { useDateTimeRangePicker } from '~/components/form/fields/DateTimeRangePicker'
+import { getInstanceSelector, useInstanceSelector } from '~/hooks'
+import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { Listbox } from '~/ui/lib/Listbox'
+import { Spinner } from '~/ui/lib/Spinner'
+import { TableEmptyBox } from '~/ui/lib/Table'
 
-const TimeSeriesChart = React.lazy(() => import('app/components/TimeSeriesChart'))
+const TimeSeriesChart = React.lazy(() => import('~/components/TimeSeriesChart'))
 
 export function getCycleCount(num: number, base: number) {
   let cycleCount = 0
@@ -82,7 +86,7 @@ function DiskMetric({
   let unitForSet = ''
   let label = '(COUNT)'
   if (isBytesChart) {
-    const byteUnits = ['Bytes', 'KiB', 'MiB', 'GiB', 'TiB']
+    const byteUnits = ['BYTES', 'KiB', 'MiB', 'GiB', 'TiB']
     unitForSet = byteUnits[cycleCount]
     label = `(${unitForSet})`
   }

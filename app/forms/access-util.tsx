@@ -12,8 +12,10 @@ import {
   type Policy,
   type RoleKey,
 } from '@oxide/api'
-import { Badge, type ListboxItem } from '@oxide/ui'
-import { capitalize } from '@oxide/util'
+
+import { Badge } from '~/ui/lib/Badge'
+import { type ListboxItem } from '~/ui/lib/Listbox'
+import { capitalize } from '~/util/str'
 
 type AddUserValues = {
   identityId: string
@@ -48,6 +50,7 @@ export type AddRoleModalProps = {
 }
 
 export type EditRoleModalProps = AddRoleModalProps & {
+  name?: string
   identityId: string
   identityType: IdentityType
   defaultValues: { roleName: RoleKey }

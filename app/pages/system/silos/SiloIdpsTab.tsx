@@ -7,11 +7,18 @@
  */
 import { Link, Outlet } from 'react-router-dom'
 
-import { DateCell, DefaultCell, linkCell, TruncateCell, useQueryTable } from '@oxide/table'
-import { Badge, buttonStyle, Cloud24Icon, EmptyMessage } from '@oxide/ui'
+import { Cloud24Icon } from '@oxide/design-system/icons/react'
 
-import { useSiloSelector } from 'app/hooks'
-import { pb } from 'app/util/path-builder'
+import { useSiloSelector } from '~/hooks'
+import { DateCell } from '~/table/cells/DateCell'
+import { DefaultCell } from '~/table/cells/DefaultCell'
+import { linkCell } from '~/table/cells/LinkCell'
+import { TruncateCell } from '~/table/cells/TruncateCell'
+import { useQueryTable } from '~/table/QueryTable'
+import { Badge } from '~/ui/lib/Badge'
+import { buttonStyle } from '~/ui/lib/Button'
+import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { pb } from '~/util/path-builder'
 
 const EmptyState = () => (
   <EmptyMessage icon={<Cloud24Icon />} title="No identity providers" />
@@ -27,7 +34,7 @@ export function SiloIdpsTab() {
   return (
     <>
       <div className="mb-3 flex justify-end space-x-2">
-        <Link to={pb.siloIdpNew(siloSelector)} className={buttonStyle({ size: 'sm' })}>
+        <Link to={pb.siloIdpsNew(siloSelector)} className={buttonStyle({ size: 'sm' })}>
           New provider
         </Link>
       </div>

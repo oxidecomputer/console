@@ -14,9 +14,11 @@ import {
   usePrefetchedApiQuery,
 } from '@oxide/api'
 
-import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
-import { useForm } from 'app/hooks'
-import { pb } from 'app/util/path-builder'
+import { DescriptionField } from '~/components/form/fields/DescriptionField'
+import { NameField } from '~/components/form/fields/NameField'
+import { SideModalForm } from '~/components/form/SideModalForm'
+import { useForm } from '~/hooks'
+import { pb } from '~/util/path-builder'
 
 import { getProjectSelector, useProjectSelector, useToast } from '../hooks'
 
@@ -53,16 +55,15 @@ export function EditProjectSideModalForm() {
 
   return (
     <SideModalForm
-      id="edit-project-form"
       form={form}
-      title="Edit project"
+      formType="edit"
+      resourceName="project"
       onDismiss={onDismiss}
       onSubmit={({ name, description }) => {
         editProject.mutate({ path: projectSelector, body: { name, description } })
       }}
       loading={editProject.isPending}
       submitError={editProject.error}
-      submitLabel="Save changes"
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />

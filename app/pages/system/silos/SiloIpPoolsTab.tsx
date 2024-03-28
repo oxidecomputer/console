@@ -9,25 +9,24 @@
 import { useMemo, useState } from 'react'
 
 import { useApiMutation, useApiQuery, useApiQueryClient, type SiloIpPool } from '@oxide/api'
-import { linkCell, useQueryTable, type MenuAction } from '@oxide/table'
-import {
-  Badge,
-  Button,
-  EmptyMessage,
-  Message,
-  Modal,
-  Networking24Icon,
-  Success12Icon,
-} from '@oxide/ui'
+import { Networking24Icon, Success12Icon } from '@oxide/design-system/icons/react'
 
-import { ExternalLink } from 'app/components/ExternalLink'
-import { ListboxField } from 'app/components/form'
-import { HL } from 'app/components/HL'
-import { useForm, useSiloSelector } from 'app/hooks'
-import { confirmAction } from 'app/stores/confirm-action'
-import { addToast } from 'app/stores/toast'
-import { links } from 'app/util/links'
-import { pb } from 'app/util/path-builder'
+import { ExternalLink } from '~/components/ExternalLink'
+import { ListboxField } from '~/components/form/fields/ListboxField'
+import { HL } from '~/components/HL'
+import { useForm, useSiloSelector } from '~/hooks'
+import { confirmAction } from '~/stores/confirm-action'
+import { addToast } from '~/stores/toast'
+import { linkCell } from '~/table/cells/LinkCell'
+import type { MenuAction } from '~/table/columns/action-col'
+import { useQueryTable } from '~/table/QueryTable'
+import { Badge } from '~/ui/lib/Badge'
+import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { Message } from '~/ui/lib/Message'
+import { Modal } from '~/ui/lib/Modal'
+import { TableControls, TableControlsButton, TableControlsText } from '~/ui/lib/Table'
+import { links } from '~/util/links'
+import { pb } from '~/util/path-builder'
 
 const EmptyState = () => (
   <EmptyMessage
@@ -35,7 +34,7 @@ const EmptyState = () => (
     title="No IP pools"
     body="You need to create an IP pool to be able to see it here"
     buttonText="New IP pool"
-    buttonTo={pb.ipPoolNew()}
+    buttonTo={pb.ipPoolsNew()}
   />
 )
 
@@ -145,17 +144,17 @@ export function SiloIpPoolsTab() {
 
   return (
     <>
-      <div className="mb-8 flex items-end justify-between space-x-2">
-        <p className="mr-8 max-w-2xl text-sans-md text-secondary">
+      <TableControls>
+        <TableControlsText>
           Users in this silo can allocate external IPs from these pools for their instances.
           A silo can have at most one default pool. IPs are allocated from the default pool
           when users ask for one without specifying a pool. Read the docs to learn more
           about <ExternalLink href={links.ipPoolsDocs}>managing IP pools</ExternalLink>.
-        </p>
-        <Button onClick={() => setShowLinkModal(true)} size="sm" className="shrink-0">
+        </TableControlsText>
+        <TableControlsButton onClick={() => setShowLinkModal(true)}>
           Link pool
-        </Button>
-      </div>
+        </TableControlsButton>
+      </TableControls>
       <Table emptyState={<EmptyState />} makeActions={makeActions}>
         <Column accessor="name" cell={linkCell((pool) => pb.ipPool({ pool }))} />
         <Column accessor="description" />

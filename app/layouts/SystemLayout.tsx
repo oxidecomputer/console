@@ -11,19 +11,19 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { apiQueryClient } from '@oxide/api'
 import {
   Cloud16Icon,
-  Divider,
   Metrics16Icon,
   Networking16Icon,
   Storage16Icon,
-} from '@oxide/ui'
+} from '@oxide/design-system/icons/react'
 
-import { trigger404 } from 'app/components/ErrorBoundary'
+import { trigger404 } from '~/components/ErrorBoundary'
+import { TopBar } from '~/components/TopBar'
+import { IpPoolPicker, SiloPicker, SiloSystemPicker } from '~/components/TopBarPicker'
+import { useQuickActions } from '~/hooks'
+import { Divider } from '~/ui/lib/Divider'
+import { pb } from '~/util/path-builder'
 import { Monitoring16Icon } from 'app/components/monitoring/Icons'
 import { DocsLinkItem, NavLinkItem, Sidebar } from 'app/components/Sidebar'
-import { TopBar } from 'app/components/TopBar'
-import { IpPoolPicker, SiloPicker, SiloSystemPicker } from 'app/components/TopBarPicker'
-import { useQuickActions } from 'app/hooks'
-import { pb } from 'app/util/path-builder'
 
 import { useCurrentUser } from './AuthenticatedLayout'
 import { ContentPane, PageContainer } from './helpers'
@@ -58,7 +58,7 @@ type SystemLayoutProps = {
   overrideContentPane?: ReactElement
 }
 
-export default function SystemLayout({ overrideContentPane }: SystemLayoutProps) {
+export function SystemLayout({ overrideContentPane }: SystemLayoutProps) {
   // Only show silo picker if we are looking at a particular silo. The more
   // robust way of doing this would be to make a separate layout for the
   // silo-specific routes in the route config, but it's overkill considering

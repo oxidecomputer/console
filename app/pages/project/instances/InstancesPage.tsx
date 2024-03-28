@@ -9,26 +9,19 @@ import { useMemo } from 'react'
 import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, useApiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
-import {
-  DateCell,
-  InstanceResourceCell,
-  InstanceStatusCell,
-  linkCell,
-  useQueryTable,
-} from '@oxide/table'
-import {
-  Button,
-  buttonStyle,
-  EmptyMessage,
-  Instances24Icon,
-  PageHeader,
-  PageTitle,
-  Refresh16Icon,
-  TableActions,
-} from '@oxide/ui'
+import { Instances24Icon, Refresh16Icon } from '@oxide/design-system/icons/react'
 
-import { getProjectSelector, useProjectSelector, useQuickActions } from 'app/hooks'
-import { pb } from 'app/util/path-builder'
+import { getProjectSelector, useProjectSelector, useQuickActions } from '~/hooks'
+import { DateCell } from '~/table/cells/DateCell'
+import { InstanceResourceCell } from '~/table/cells/InstanceResourceCell'
+import { InstanceStatusCell } from '~/table/cells/InstanceStatusCell'
+import { linkCell } from '~/table/cells/LinkCell'
+import { useQueryTable } from '~/table/QueryTable'
+import { Button, buttonStyle } from '~/ui/lib/Button'
+import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
+import { TableActions } from '~/ui/lib/Table'
+import { pb } from '~/util/path-builder'
 
 import { useMakeInstanceActions } from './actions'
 
@@ -38,7 +31,7 @@ const EmptyState = () => (
     title="No instances"
     body="You need to create an instance to be able to see it here"
     buttonText="New instance"
-    buttonTo={pb.instanceNew(useProjectSelector())}
+    buttonTo={pb.instancesNew(useProjectSelector())}
   />
 )
 
@@ -69,7 +62,7 @@ export function InstancesPage() {
       () => [
         {
           value: 'New instance',
-          onSelect: () => navigate(pb.instanceNew(projectSelector)),
+          onSelect: () => navigate(pb.instancesNew(projectSelector)),
         },
         ...(instances?.items || []).map((i) => ({
           value: i.name,
@@ -104,7 +97,7 @@ export function InstancesPage() {
         >
           <Refresh16Icon />
         </Button>
-        <Link to={pb.instanceNew(projectSelector)} className={buttonStyle({ size: 'sm' })}>
+        <Link to={pb.instancesNew(projectSelector)} className={buttonStyle({ size: 'sm' })}>
           New Instance
         </Link>
       </TableActions>

@@ -8,17 +8,16 @@
 import type { LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient } from '@oxide/api'
-import {
-  DateCell,
-  InstanceResourceCell,
-  useQueryTable,
-  type MenuAction,
-} from '@oxide/table'
-import { EmptyMessage, Instances24Icon } from '@oxide/ui'
-import { pick } from '@oxide/util'
+import { Instances24Icon } from '@oxide/design-system/icons/react'
 
-import { InstanceStatusBadge } from 'app/components/StatusBadge'
-import { requireSledParams, useSledParams } from 'app/hooks'
+import { InstanceStatusBadge } from '~/components/StatusBadge'
+import { requireSledParams, useSledParams } from '~/hooks'
+import { DateCell } from '~/table/cells/DateCell'
+import { InstanceResourceCell } from '~/table/cells/InstanceResourceCell'
+import type { MenuAction } from '~/table/columns/action-col'
+import { useQueryTable } from '~/table/QueryTable'
+import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { pick } from '~/util/object'
 
 const EmptyState = () => {
   return (

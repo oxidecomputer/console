@@ -8,12 +8,18 @@
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
-import { Access16Icon, PropertiesTable, ResourceLabel, Truncate } from '@oxide/ui'
-import { formatDateTime } from '@oxide/util'
+import { Access16Icon } from '@oxide/design-system/icons/react'
 
-import { DescriptionField, NameField, SideModalForm, TextField } from 'app/components/form'
-import { getIdpSelector, useForm, useIdpSelector } from 'app/hooks'
-import { pb } from 'app/util/path-builder'
+import { DescriptionField } from '~/components/form/fields/DescriptionField'
+import { NameField } from '~/components/form/fields/NameField'
+import { TextField } from '~/components/form/fields/TextField'
+import { SideModalForm } from '~/components/form/SideModalForm'
+import { getIdpSelector, useForm, useIdpSelector } from '~/hooks'
+import { PropertiesTable } from '~/ui/lib/PropertiesTable'
+import { ResourceLabel } from '~/ui/lib/SideModal'
+import { Truncate } from '~/ui/lib/Truncate'
+import { formatDateTime } from '~/util/date'
+import { pb } from '~/util/path-builder'
 
 EditIdpSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
   const { silo, provider } = getIdpSelector(params)
@@ -38,8 +44,9 @@ export function EditIdpSideModalForm() {
 
   return (
     <SideModalForm
-      id="edit-idp-form"
       form={form}
+      formType="edit"
+      resourceName="identity provider"
       title="Identity provider"
       onDismiss={onDismiss}
       subtitle={

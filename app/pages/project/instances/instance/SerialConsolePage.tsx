@@ -9,13 +9,16 @@ import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import { api } from '@oxide/api'
-import { Badge, PrevArrow12Icon, Spinner, type BadgeColor } from '@oxide/ui'
+import { PrevArrow12Icon } from '@oxide/design-system/icons/react'
 
-import EquivalentCliCommand from 'app/components/EquivalentCliCommand'
-import { useInstanceSelector } from 'app/hooks'
-import { pb } from 'app/util/path-builder'
+import { EquivalentCliCommand } from '~/components/EquivalentCliCommand'
+import { useInstanceSelector } from '~/hooks'
+import { Badge, type BadgeColor } from '~/ui/lib/Badge'
+import { Spinner } from '~/ui/lib/Spinner'
+import { cliCmd } from '~/util/cli-cmd'
+import { pb } from '~/util/path-builder'
 
-const Terminal = lazy(() => import('app/components/Terminal'))
+const Terminal = lazy(() => import('~/components/Terminal'))
 
 type WsState = 'connecting' | 'open' | 'closed' | 'error'
 
@@ -93,10 +96,6 @@ export function SerialConsolePage() {
     }
   }, [])
 
-  const command = `oxide instance serial console
-  --project ${project}
-  --instance ${instance}`
-
   return (
     <div className="!mx-0 flex h-full max-h-[calc(100vh-60px)] !w-full flex-col">
       <Link
@@ -116,7 +115,7 @@ export function SerialConsolePage() {
       <div className="flex-shrink-0 justify-between overflow-hidden border-t bg-default border-secondary empty:border-t-0">
         <div className="gutter flex h-20 items-center justify-between">
           <div>
-            <EquivalentCliCommand command={command} />
+            <EquivalentCliCommand command={cliCmd.serialConsole({ project, instance })} />
           </div>
 
           <Badge color={statusColor[connectionStatus]}>

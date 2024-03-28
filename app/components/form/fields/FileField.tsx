@@ -5,9 +5,16 @@
  *
  * Copyright Oxide Computer Company
  */
-import { Controller, type Control, type FieldPath, type FieldValues } from 'react-hook-form'
+import {
+  useController,
+  type Control,
+  type FieldPath,
+  type FieldValues,
+} from 'react-hook-form'
 
-import { FieldLabel, FileInput, TextInputHint } from '@oxide/ui'
+import { FieldLabel } from '~/ui/lib/FieldLabel'
+import { FileInput } from '~/ui/lib/FileInput'
+import { TextInputHint } from '~/ui/lib/TextInput'
 
 import { ErrorMessage } from './ErrorMessage'
 
@@ -23,6 +30,7 @@ export function FileField<
   required = false,
   accept,
   description,
+  disabled,
 }: {
   id: string
   name: TName
@@ -32,31 +40,29 @@ export function FileField<
   required?: boolean
   accept?: string
   description?: string | React.ReactNode
+  disabled?: boolean
 }) {
+  const {
+    field: { value: _, ...rest },
+    fieldState: { error },
+  } = useController({ name, control, rules: { required } })
   return (
-    <Controller
-      name={name}
-      control={control}
-      rules={{ required }}
-      render={({ field: { value: _value, ...rest }, fieldState: { error } }) => (
-        <div>
-          <div className="mb-2">
-            <FieldLabel
-              id={`${id}-label`}
-              htmlFor={id}
-              tip={tooltipText}
-              optional={!required}
-            >
-              {label}
-            </FieldLabel>
-            {description && (
-              <TextInputHint id={`${id}-help-text`}>{description}</TextInputHint>
-            )}
-          </div>
-          <FileInput id={id} className="mt-2" accept={accept} {...rest} error={!!error} />
-          <ErrorMessage error={error} label={label} />
-        </div>
-      )}
-    />
+    <div>
+      <div className="mb-2">
+        <FieldLabel id={`${id}-label`} htmlFor={id} tip={tooltipText} optional={!required}>
+          {label}
+        </FieldLabel>
+        {description && <TextInputHint id={`${id}-help-text`}>{description}</TextInputHint>}
+      </div>
+      <FileInput
+        id={id}
+        className="mt-2"
+        accept={accept}
+        disabled={disabled}
+        {...rest}
+        error={!!error}
+      />
+      <ErrorMessage error={error} label={label} />
+    </div>
   )
 }

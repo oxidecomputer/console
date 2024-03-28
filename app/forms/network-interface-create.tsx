@@ -8,17 +8,15 @@
 import { useMemo } from 'react'
 
 import { useApiQuery, type ApiError, type InstanceNetworkInterfaceCreate } from '@oxide/api'
-import { FormDivider } from '@oxide/ui'
 
-import {
-  DescriptionField,
-  ListboxField,
-  NameField,
-  SideModalForm,
-  SubnetListbox,
-  TextField,
-} from 'app/components/form'
-import { useForm, useProjectSelector } from 'app/hooks'
+import { DescriptionField } from '~/components/form/fields/DescriptionField'
+import { ListboxField } from '~/components/form/fields/ListboxField'
+import { NameField } from '~/components/form/fields/NameField'
+import { SubnetListbox } from '~/components/form/fields/SubnetListbox'
+import { TextField } from '~/components/form/fields/TextField'
+import { SideModalForm } from '~/components/form/SideModalForm'
+import { useForm, useProjectSelector } from '~/hooks'
+import { FormDivider } from '~/ui/lib/Divider'
 
 const defaultValues: InstanceNetworkInterfaceCreate = {
   name: '',
@@ -39,7 +37,7 @@ type CreateNetworkInterfaceFormProps = {
  * Can be used with either a `setState` or a real mutation as `onSubmit`, hence
  * the optional `loading` and `submitError`
  */
-export default function CreateNetworkInterfaceForm({
+export function CreateNetworkInterfaceForm({
   onSubmit,
   onDismiss,
   loading,
@@ -54,9 +52,10 @@ export default function CreateNetworkInterfaceForm({
 
   return (
     <SideModalForm
-      id="create-network-interface-form"
-      title="Add network interface"
       form={form}
+      formType="create"
+      resourceName="network interface"
+      title="Add network interface"
       onDismiss={onDismiss}
       onSubmit={onSubmit}
       loading={loading}

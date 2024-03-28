@@ -6,7 +6,8 @@
  * Copyright Oxide Computer Company
  */
 import type { DiskState, InstanceState, SnapshotState } from '@oxide/api'
-import { Badge, type BadgeColor, type BadgeProps } from '@oxide/ui'
+
+import { Badge, type BadgeColor, type BadgeProps } from '~/ui/lib/Badge'
 
 const INSTANCE_COLORS: Record<InstanceState, Pick<BadgeProps, 'color' | 'variant'>> = {
   creating: { color: 'purple', variant: 'solid' },

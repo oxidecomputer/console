@@ -24,7 +24,7 @@ module.exports = {
     fontFamily: false,
     fontSize: false,
   },
-  content: ['./libs/**/*.{ts,tsx,mdx}', './app/**/*.{ts,tsx}'],
+  content: ['./app/**/*.{ts,tsx}'],
   theme: {
     extend: {
       screens: {
@@ -84,11 +84,6 @@ module.exports = {
       )
       addUtilities(textUtilities)
       addUtilities(colorUtilities)
-      addUtilities({
-        '.appearance-textfield': {
-          appearance: 'textfield',
-        },
-      })
       addUtilities(elevationUtilities)
     }),
   ],

@@ -10,17 +10,19 @@ import {
   useApiQueryClient,
   type InstanceNetworkInterface,
 } from '@oxide/api'
-import { pick } from '@oxide/util'
 
-import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
-import { useForm, useInstanceSelector } from 'app/hooks'
+import { DescriptionField } from '~/components/form/fields/DescriptionField'
+import { NameField } from '~/components/form/fields/NameField'
+import { SideModalForm } from '~/components/form/SideModalForm'
+import { useForm, useInstanceSelector } from '~/hooks'
+import { pick } from '~/util/object'
 
 type EditNetworkInterfaceFormProps = {
   editing: InstanceNetworkInterface
   onDismiss: () => void
 }
 
-export default function EditNetworkInterfaceForm({
+export function EditNetworkInterfaceForm({
   onDismiss,
   editing,
 }: EditNetworkInterfaceFormProps) {
@@ -40,9 +42,9 @@ export default function EditNetworkInterfaceForm({
 
   return (
     <SideModalForm
-      id="edit-network-interface-form"
-      title="Edit network interface"
       form={form}
+      formType="edit"
+      resourceName="network interface"
       onDismiss={onDismiss}
       onSubmit={(body) => {
         const interfaceName = defaultValues.name
@@ -54,7 +56,6 @@ export default function EditNetworkInterfaceForm({
       }}
       loading={editNetworkInterface.isPending}
       submitError={editNetworkInterface.error}
-      submitLabel="Save changes"
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />

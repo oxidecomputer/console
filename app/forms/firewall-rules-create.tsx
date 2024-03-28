@@ -18,19 +18,22 @@ import {
   type VpcFirewallRuleTarget,
   type VpcFirewallRuleUpdate,
 } from '@oxide/api'
-import { Badge, Button, Error16Icon, FormDivider, MiniTable } from '@oxide/ui'
+import { Error16Icon } from '@oxide/design-system/icons/react'
 
-import {
-  CheckboxField,
-  DescriptionField,
-  ListboxField,
-  NameField,
-  NumberField,
-  RadioField,
-  SideModalForm,
-  TextField,
-} from 'app/components/form'
-import { useForm, useVpcSelector } from 'app/hooks'
+import { CheckboxField } from '~/components/form/fields/CheckboxField'
+import { DescriptionField } from '~/components/form/fields/DescriptionField'
+import { ListboxField } from '~/components/form/fields/ListboxField'
+import { NameField } from '~/components/form/fields/NameField'
+import { NumberField } from '~/components/form/fields/NumberField'
+import { RadioField } from '~/components/form/fields/RadioField'
+import { TextField } from '~/components/form/fields/TextField'
+import { SideModalForm } from '~/components/form/SideModalForm'
+import { useForm, useVpcSelector } from '~/hooks'
+import { Badge } from '~/ui/lib/Badge'
+import { Button } from '~/ui/lib/Button'
+import { FormDivider } from '~/ui/lib/Divider'
+import * as MiniTable from '~/ui/lib/MiniTable'
+import { KEYS } from '~/ui/util/keys'
 
 export type FirewallRuleValues = {
   enabled: boolean
@@ -234,7 +237,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
           required
           control={targetForm.control}
           onKeyDown={(e) => {
-            if (e.key === 'Enter') {
+            if (e.key === KEYS.enter) {
               e.preventDefault() // prevent full form submission
               submitTarget(e)
             }
@@ -324,7 +327,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
           required
           control={hostForm.control}
           onKeyDown={(e) => {
-            if (e.key === 'Enter') {
+            if (e.key === KEYS.enter) {
               e.preventDefault() // prevent full form submission
               submitHost(e)
             }
@@ -396,7 +399,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
           required
           control={portRangeForm.control}
           onKeyDown={(e) => {
-            if (e.key === 'Enter') {
+            if (e.key === KEYS.enter) {
               e.preventDefault() // prevent full form submission
               submitPortRange(e)
             }
@@ -501,9 +504,10 @@ export function CreateFirewallRuleForm({
 
   return (
     <SideModalForm
-      id="create-firewall-rule-form"
-      title="Add firewall rule"
       form={form}
+      formType="create"
+      resourceName="rule"
+      title="Add firewall rule"
       onDismiss={onDismiss}
       onSubmit={(values) => {
         // TODO: this silently overwrites existing rules with the current name.

@@ -6,10 +6,13 @@
  * Copyright Oxide Computer Company
  */
 import { useApiMutation, useApiQueryClient, type VpcSubnetCreate } from '@oxide/api'
-import { FormDivider } from '@oxide/ui'
 
-import { DescriptionField, NameField, SideModalForm, TextField } from 'app/components/form'
-import { useForm, useVpcSelector } from 'app/hooks'
+import { DescriptionField } from '~/components/form/fields/DescriptionField'
+import { NameField } from '~/components/form/fields/NameField'
+import { TextField } from '~/components/form/fields/TextField'
+import { SideModalForm } from '~/components/form/SideModalForm'
+import { useForm, useVpcSelector } from '~/hooks'
+import { FormDivider } from '~/ui/lib/Divider'
 
 const defaultValues: VpcSubnetCreate = {
   name: '',
@@ -36,9 +39,9 @@ export function CreateSubnetForm({ onDismiss }: CreateSubnetFormProps) {
 
   return (
     <SideModalForm
-      id="create-subnet-form"
-      title="Create subnet"
       form={form}
+      formType="create"
+      resourceName="subnet"
       onDismiss={onDismiss}
       onSubmit={(body) => createSubnet.mutate({ query: vpcSelector, body })}
       loading={createSubnet.isPending}

@@ -7,8 +7,8 @@
  */
 import { Outlet } from 'react-router-dom'
 
-import heroRackImg from 'app/assets/oxide-hero-rack.webp'
-import { OxideLogo } from 'app/components/OxideLogo'
+import heroRackImg from '~/assets/oxide-hero-rack.webp'
+import { OxideLogo } from '~/components/OxideLogo'
 
 export function LoginLayout() {
   return (

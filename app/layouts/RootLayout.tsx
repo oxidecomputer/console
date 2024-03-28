@@ -8,33 +8,19 @@
 import { useEffect, useRef } from 'react'
 import { Outlet, useNavigation } from 'react-router-dom'
 
-import { MswBanner } from 'app/components/MswBanner'
-import { ToastStack } from 'app/components/ToastStack'
-import { useCrumbs } from 'app/hooks/use-crumbs'
-
-function useSetTitle() {
-  const crumbs = useCrumbs()
-  // output
-  // non top-level route: Instances / mock-project / Projects / maze-war / Oxide Console
-  // top-level route: Oxide Console
-  const title = crumbs
-    .slice() // avoid mutating original with reverse()
-    .reverse()
-    .map((item) => item.label)
-    .concat('Oxide Console') // if there are no crumbs, we're still Oxide Console
-    .join(' / ')
-
-  useEffect(() => {
-    document.title = title
-  }, [title])
-}
+import { MswBanner } from '~/components/MswBanner'
+import { ToastStack } from '~/components/ToastStack'
+import { useTitle } from '~/hooks/use-title'
 
 /**
  * Root layout that applies to the entire app. Modify sparingly. It's rare for
  * anything to actually belong here.
  */
-export default function RootLayout() {
-  useSetTitle()
+export function RootLayout() {
+  const title = useTitle()
+  useEffect(() => {
+    document.title = title
+  }, [title])
 
   return (
     <>

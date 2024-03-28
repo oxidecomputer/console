@@ -14,9 +14,11 @@ import {
   usePrefetchedApiQuery,
 } from '@oxide/api'
 
-import { DescriptionField, NameField, SideModalForm } from 'app/components/form'
-import { getIpPoolSelector, useForm, useIpPoolSelector, useToast } from 'app/hooks'
-import { pb } from 'app/util/path-builder'
+import { DescriptionField } from '~/components/form/fields/DescriptionField'
+import { NameField } from '~/components/form/fields/NameField'
+import { SideModalForm } from '~/components/form/SideModalForm'
+import { getIpPoolSelector, useForm, useIpPoolSelector, useToast } from '~/hooks'
+import { pb } from '~/util/path-builder'
 
 EditIpPoolSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
   const { pool } = getIpPoolSelector(params)
@@ -47,16 +49,15 @@ export function EditIpPoolSideModalForm() {
 
   return (
     <SideModalForm
-      id="edit-pool-form"
       form={form}
-      title="Edit IP pool"
+      formType="edit"
+      resourceName="IP pool"
       onDismiss={onDismiss}
       onSubmit={({ name, description }) => {
         editPool.mutate({ path: poolSelector, body: { name, description } })
       }}
       loading={editPool.isPending}
       submitError={editPool.error}
-      submitLabel="Save changes"
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />

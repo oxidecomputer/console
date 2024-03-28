@@ -16,14 +16,12 @@ import {
   type SnapshotCreate,
 } from '@oxide/api'
 
-import {
-  DescriptionField,
-  ListboxField,
-  NameField,
-  SideModalForm,
-} from 'app/components/form'
-import { useForm, useProjectSelector, useToast } from 'app/hooks'
-import { pb } from 'app/util/path-builder'
+import { DescriptionField } from '~/components/form/fields/DescriptionField'
+import { ListboxField } from '~/components/form/fields/ListboxField'
+import { NameField } from '~/components/form/fields/NameField'
+import { SideModalForm } from '~/components/form/SideModalForm'
+import { useForm, useProjectSelector, useToast } from '~/hooks'
+import { pb } from '~/util/path-builder'
 
 const useSnapshotDiskItems = (projectSelector: PP.Project) => {
   const { data: disks } = useApiQuery('diskList', {
@@ -64,9 +62,9 @@ export function CreateSnapshotSideModalForm() {
 
   return (
     <SideModalForm
-      id="create-snapshot-form"
-      title="Create Snapshot"
       form={form}
+      formType="create"
+      resourceName="snapshot"
       onDismiss={onDismiss}
       onSubmit={(values) => {
         createSnapshot.mutate({ query: projectSelector, body: values })

@@ -20,21 +20,22 @@ type Image = Required<PP.Image>
 type Snapshot = Required<PP.Snapshot>
 type SiloImage = Required<PP.SiloImage>
 type IpPool = Required<PP.IpPool>
+type FloatingIp = Required<PP.FloatingIp>
 
 export const pb = {
   projects: () => `/projects`,
-  projectNew: () => `/projects-new`,
+  projectsNew: () => `/projects-new`,
   project: ({ project }: Project) => `${pb.projects()}/${project}`,
   projectEdit: (params: Project) => `${pb.project(params)}/edit`,
 
   projectAccess: (params: Project) => `${pb.project(params)}/access`,
   projectImages: (params: Project) => `${pb.project(params)}/images`,
-  projectImageNew: (params: Project) => `${pb.project(params)}/images-new`,
+  projectImagesNew: (params: Project) => `${pb.project(params)}/images-new`,
   projectImage: (params: Image) => `${pb.projectImages(params)}/${params.image}`,
   projectImageEdit: (params: Image) => `${pb.projectImage(params)}/edit`,
 
   instances: (params: Project) => `${pb.project(params)}/instances`,
-  instanceNew: (params: Project) => `${pb.project(params)}/instances-new`,
+  instancesNew: (params: Project) => `${pb.project(params)}/instances-new`,
   instance: (params: Instance) => `${pb.instances(params)}/${params.instance}`,
 
   /**
@@ -54,18 +55,22 @@ export const pb = {
 
   serialConsole: (params: Instance) => `${pb.instance(params)}/serial-console`,
 
-  diskNew: (params: Project) => `${pb.project(params)}/disks-new`,
+  disksNew: (params: Project) => `${pb.project(params)}/disks-new`,
   disks: (params: Project) => `${pb.project(params)}/disks`,
 
-  snapshotNew: (params: Project) => `${pb.project(params)}/snapshots-new`,
+  snapshotsNew: (params: Project) => `${pb.project(params)}/snapshots-new`,
   snapshots: (params: Project) => `${pb.project(params)}/snapshots`,
-  snapshotImageCreate: (params: Snapshot) =>
-    `${pb.project(params)}/snapshots/${params.snapshot}/image-new`,
+  snapshotImagesNew: (params: Snapshot) =>
+    `${pb.project(params)}/snapshots/${params.snapshot}/images-new`,
 
-  vpcNew: (params: Project) => `${pb.project(params)}/vpcs-new`,
+  vpcsNew: (params: Project) => `${pb.project(params)}/vpcs-new`,
   vpcs: (params: Project) => `${pb.project(params)}/vpcs`,
   vpc: (params: Vpc) => `${pb.vpcs(params)}/${params.vpc}`,
   vpcEdit: (params: Vpc) => `${pb.vpc(params)}/edit`,
+  floatingIps: (params: Project) => `${pb.project(params)}/floating-ips`,
+  floatingIpsNew: (params: Project) => `${pb.project(params)}/floating-ips-new`,
+  floatingIp: (params: FloatingIp) => `${pb.floatingIps(params)}/${params.floatingIp}`,
+  floatingIpEdit: (params: FloatingIp) => `${pb.floatingIp(params)}/edit`,
 
   siloUtilization: () => '/utilization',
   siloAccess: () => '/access',
@@ -88,7 +93,7 @@ export const pb = {
   // there is only one tab on networking and it's IP pools, so we just treat
   // that as the networking route for now
   ipPools: () => '/system/networking/ip-pools',
-  ipPoolNew: () => '/system/networking/ip-pools-new',
+  ipPoolsNew: () => '/system/networking/ip-pools-new',
   ipPool: (params: IpPool) => `${pb.ipPools()}/${params.pool}`,
   ipPoolEdit: (params: IpPool) => `${pb.ipPool(params)}/edit`,
   ipPoolRangeAdd: (params: IpPool) => `${pb.ipPool(params)}/ranges-add`,
@@ -101,15 +106,15 @@ export const pb = {
   sledInstances: ({ sledId }: Sled) => `/system/inventory/sleds/${sledId}/instances`,
 
   silos: () => '/system/silos',
-  siloNew: () => '/system/silos-new',
+  silosNew: () => '/system/silos-new',
   silo: ({ silo }: Silo) => `/system/silos/${silo}`,
   siloIpPools: (params: Silo) => `${pb.silo(params)}?tab=ip-pools`,
-  siloIdpNew: (params: Silo) => `${pb.silo(params)}/idps-new`,
+  siloIdpsNew: (params: Silo) => `${pb.silo(params)}/idps-new`,
   samlIdp: (params: IdentityProvider) => `${pb.silo(params)}/idps/saml/${params.provider}`,
 
   profile: () => '/settings/profile',
   sshKeys: () => '/settings/ssh-keys',
-  sshKeyNew: () => '/settings/ssh-keys-new',
+  sshKeysNew: () => '/settings/ssh-keys-new',
 
   deviceSuccess: () => '/device/success',
 }

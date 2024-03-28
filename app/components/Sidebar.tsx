@@ -6,11 +6,13 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
-import { NavLink } from 'react-router-dom'
+import { NavLink, useLocation } from 'react-router-dom'
 
-import { Action16Icon, Button, Document16Icon, Truncate } from '@oxide/ui'
+import { Action16Icon, Document16Icon } from '@oxide/design-system/icons/react'
 
-import { openQuickActions } from 'app/hooks'
+import { openQuickActions } from '~/hooks'
+import { Button } from '~/ui/lib/Button'
+import { Truncate } from '~/ui/lib/Truncate'
 
 const linkStyles =
   'flex h-7 items-center rounded px-2 text-sans-md hover:bg-hover svg:mr-2 svg:text-quinary text-secondary'
@@ -86,20 +88,24 @@ export const NavLinkItem = (props: {
   children: React.ReactNode
   end?: boolean
   disabled?: boolean
-}) => (
-  <li>
-    <NavLink
-      to={props.to}
-      className={({ isActive }) =>
-        cn(linkStyles, {
-          'text-accent !bg-accent-secondary hover:!bg-accent-secondary-hover svg:!text-accent-tertiary':
-            isActive,
-          'pointer-events-none text-disabled': props.disabled,
-        })
-      }
-      end={props.end}
-    >
-      {props.children}
-    </NavLink>
-  </li>
-)
+}) => {
+  // If the current page is the create form for this NavLinkItem's resource, highlight the NavLink in the sidebar
+  const currentPathIsCreateForm = useLocation().pathname.startsWith(`${props.to}-new`)
+  return (
+    <li>
+      <NavLink
+        to={props.to}
+        className={({ isActive }) =>
+          cn(linkStyles, {
+            'text-accent !bg-accent-secondary hover:!bg-accent-secondary-hover svg:!text-accent-tertiary':
+              isActive || currentPathIsCreateForm,
+            'pointer-events-none text-disabled': props.disabled,
+          })
+        }
+        end={props.end}
+      >
+        {props.children}
+      </NavLink>
+    </li>
+  )
+}

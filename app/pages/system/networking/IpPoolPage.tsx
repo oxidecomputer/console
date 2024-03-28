@@ -11,6 +11,7 @@ import { Link, Outlet, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
   apiQueryClient,
+  parseIpUtilization,
   useApiMutation,
   useApiQuery,
   useApiQueryClient,
@@ -19,35 +20,34 @@ import {
   type IpPoolSiloLink,
 } from '@oxide/api'
 import {
-  DateCell,
-  LinkCell,
-  SkeletonCell,
-  useQueryTable,
-  type MenuAction,
-} from '@oxide/table'
-import {
-  Badge,
-  Button,
-  buttonStyle,
-  EmptyMessage,
-  Message,
-  Modal,
+  IpGlobal16Icon,
   Networking24Icon,
-  PageHeader,
-  PageTitle,
   Success12Icon,
-  Tabs,
-} from '@oxide/ui'
+} from '@oxide/design-system/icons/react'
 
-import { ExternalLink } from 'app/components/ExternalLink'
-import { ListboxField } from 'app/components/form'
-import { HL } from 'app/components/HL'
-import { QueryParamTabs } from 'app/components/QueryParamTabs'
-import { getIpPoolSelector, useForm, useIpPoolSelector } from 'app/hooks'
-import { confirmAction } from 'app/stores/confirm-action'
-import { addToast } from 'app/stores/toast'
-import { links } from 'app/util/links'
-import { pb } from 'app/util/path-builder'
+import { CapacityBar } from '~/components/CapacityBar'
+import { ExternalLink } from '~/components/ExternalLink'
+import { ListboxField } from '~/components/form/fields/ListboxField'
+import { HL } from '~/components/HL'
+import { QueryParamTabs } from '~/components/QueryParamTabs'
+import { getIpPoolSelector, useForm, useIpPoolSelector } from '~/hooks'
+import { confirmAction } from '~/stores/confirm-action'
+import { addToast } from '~/stores/toast'
+import { DateCell } from '~/table/cells/DateCell'
+import { SkeletonCell } from '~/table/cells/EmptyCell'
+import { LinkCell } from '~/table/cells/LinkCell'
+import type { MenuAction } from '~/table/columns/action-col'
+import { useQueryTable } from '~/table/QueryTable'
+import { Badge } from '~/ui/lib/Badge'
+import { buttonStyle } from '~/ui/lib/Button'
+import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { Message } from '~/ui/lib/Message'
+import { Modal } from '~/ui/lib/Modal'
+import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
+import { TableControls, TableControlsButton, TableControlsText } from '~/ui/lib/Table'
+import { Tabs } from '~/ui/lib/Tabs'
+import { links } from '~/util/links'
+import { pb } from '~/util/path-builder'
 
 IpPoolPage.loader = async function ({ params }: LoaderFunctionArgs) {
   const { pool } = getIpPoolSelector(params)
@@ -61,6 +61,18 @@ IpPoolPage.loader = async function ({ params }: LoaderFunctionArgs) {
       path: { pool },
       query: { limit: 25 }, // match QueryTable
     }),
+    apiQueryClient.prefetchQuery('ipPoolUtilizationView', {
+      path: { pool },
+    }),
+
+    // fetch silos and preload into RQ cache so fetches by ID in SiloNameFromId
+    // can be mostly instant yet gracefully fall back to fetching individually
+    // if we don't fetch them all here
+    apiQueryClient.fetchQuery('siloList', { query: { limit: 200 } }).then((silos) => {
+      for (const silo of silos.items) {
+        apiQueryClient.setQueryData('siloView', { path: { silo: silo.id } }, silo)
+      }
+    }),
   ])
   return null
 }
@@ -73,6 +85,7 @@ export function IpPoolPage() {
       <PageHeader>
         <PageTitle icon={<Networking24Icon />}>{pool.name}</PageTitle>
       </PageHeader>
+      <UtilizationBars />
       <QueryParamTabs className="full-width" defaultValue="ranges">
         <Tabs.List>
           <Tabs.Trigger value="ranges">IP ranges</Tabs.Trigger>
@@ -90,6 +103,43 @@ export function IpPoolPage() {
   )
 }
 
+function UtilizationBars() {
+  const { pool } = useIpPoolSelector()
+  const { data } = usePrefetchedApiQuery('ipPoolUtilizationView', { path: { pool } })
+  const { ipv4, ipv6 } = parseIpUtilization(data)
+
+  if (ipv4.capacity === 0 && ipv6.capacity === 0n) return null
+
+  return (
+    <div className="-mt-8 mb-8 flex min-w-min flex-col gap-3 lg+:flex-row">
+      {ipv4.capacity > 0 && (
+        <CapacityBar
+          icon={<IpGlobal16Icon />}
+          title="IPv4"
+          provisioned={ipv4.allocated}
+          capacity={ipv4.capacity}
+          provisionedLabel="Allocated"
+          capacityLabel="Capacity"
+          unit="IPs"
+          includeUnit={false}
+        />
+      )}
+      {ipv6.capacity > 0 && (
+        <CapacityBar
+          icon={<IpGlobal16Icon />}
+          title="IPv6"
+          provisioned={ipv6.allocated}
+          capacity={ipv6.capacity}
+          provisionedLabel="Allocated"
+          capacityLabel="Capacity"
+          unit="IPs"
+          includeUnit={false}
+        />
+      )}
+    </div>
+  )
+}
+
 function IpRangesTable() {
   const { pool } = useIpPoolSelector()
   const { Table, Column } = useQueryTable('ipPoolRangeList', { path: { pool } })
@@ -98,6 +148,7 @@ function IpRangesTable() {
   const removeRange = useApiMutation('ipPoolRangeRemove', {
     onSuccess() {
       queryClient.invalidateQueries('ipPoolRangeList')
+      queryClient.invalidateQueries('ipPoolUtilizationView')
     },
   })
   const emptyState = (
@@ -214,18 +265,18 @@ function LinkedSilosTable() {
 
   return (
     <>
-      <div className="mb-4 flex items-end justify-between space-x-2">
-        <p className="mr-8 max-w-2xl text-sans-md text-secondary">
+      <TableControls>
+        <TableControlsText>
           Users in linked silos can allocate external IPs from this pool for their
           instances. A silo can have at most one default pool. IPs are allocated from the
           default pool when users ask for one without specifying a pool. Read the docs to
           learn more about{' '}
           <ExternalLink href={links.ipPoolsDocs}>managing IP pools</ExternalLink>.
-        </p>
-        <Button onClick={() => setShowLinkModal(true)} size="sm" className="shrink-0">
+        </TableControlsText>
+        <TableControlsButton onClick={() => setShowLinkModal(true)}>
           Link silo
-        </Button>
-      </div>
+        </TableControlsButton>
+      </TableControls>
       <Table emptyState={emptyState} makeActions={makeActions}>
         <Column accessor="siloId" id="Silo" cell={SiloNameFromId} />
         <Column

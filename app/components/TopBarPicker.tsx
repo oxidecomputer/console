@@ -10,19 +10,19 @@ import { Link } from 'react-router-dom'
 
 import { useApiQuery, type Project } from '@oxide/api'
 import {
-  Button,
-  DropdownMenu,
   Folder16Icon,
-  Identicon,
   SelectArrows6Icon,
   Success12Icon,
-  Truncate,
-  Wrap,
-} from '@oxide/ui'
+} from '@oxide/design-system/icons/react'
 
-import { useInstanceSelector, useIpPoolSelector, useSiloSelector } from 'app/hooks'
-import { useCurrentUser } from 'app/layouts/AuthenticatedLayout'
-import { pb } from 'app/util/path-builder'
+import { useInstanceSelector, useIpPoolSelector, useSiloSelector } from '~/hooks'
+import { useCurrentUser } from '~/layouts/AuthenticatedLayout'
+import { Button } from '~/ui/lib/Button'
+import { DropdownMenu } from '~/ui/lib/DropdownMenu'
+import { Identicon } from '~/ui/lib/Identicon'
+import { Truncate } from '~/ui/lib/Truncate'
+import { Wrap } from '~/ui/util/wrap'
+import { pb } from '~/util/path-builder'
 
 type TopBarPickerItem = {
   label: string
