@@ -8,7 +8,7 @@
 import cn from 'classnames'
 import React, { useId } from 'react'
 import {
-  useController,
+  Controller,
   type Control,
   type FieldPath,
   type FieldValues,
@@ -74,7 +74,6 @@ export function RadioField<
   ...props
 }: RadioFieldProps<TFieldValues, TName>) {
   const id = useId()
-  const { field } = useController({ name, control })
   return (
     <div>
       <div className="mb-2">
@@ -86,26 +85,32 @@ export function RadioField<
         {/* TODO: Figure out where this hint field def should live */}
         {description && <TextInputHint id={`${id}-help-text`}>{description}</TextInputHint>}
       </div>
-      <RadioGroup
-        defaultChecked={field.value}
-        aria-labelledby={cn(`${id}-label`, {
-          [`${id}-help-text`]: !!tooltipText,
-        })}
-        aria-describedby={tooltipText ? `${id}-label-tip` : undefined}
-        onChange={(e) =>
-          parseValue ? field.onChange(parseValue(e.target.value)) : field.onChange(e)
-        }
-        name={field.name}
-        {...props}
-        // TODO: once we get rid of the other use of RadioGroup, change RadioGroup
-        // to take the list of items too
-      >
-        {items.map(({ value, label }) => (
-          <Radio key={value} value={value}>
-            {label}
-          </Radio>
-        ))}
-      </RadioGroup>
+      <Controller
+        name={name}
+        control={control}
+        render={({ field: { onChange, value, name } }) => (
+          <RadioGroup
+            defaultChecked={value}
+            aria-labelledby={cn(`${id}-label`, {
+              [`${id}-help-text`]: !!tooltipText,
+            })}
+            aria-describedby={tooltipText ? `${id}-label-tip` : undefined}
+            onChange={(e) =>
+              parseValue ? onChange(parseValue(e.target.value)) : onChange(e)
+            }
+            name={name}
+            {...props}
+            // TODO: once we get rid of the other use of RadioGroup, change RadioGroup
+            // to take the list of items too
+          >
+            {items.map(({ value, label }) => (
+              <Radio key={value} value={value}>
+                {label}
+              </Radio>
+            ))}
+          </RadioGroup>
+        )}
+      />
     </div>
   )
 }
@@ -137,7 +142,6 @@ export function RadioFieldDyn<
   ...props
 }: RadioFieldDynProps<TFieldValues, TName>) {
   const id = useId()
-  const { field } = useController({ name, control })
   return (
     <div>
       <div className="mb-2">
@@ -149,16 +153,24 @@ export function RadioFieldDyn<
         {/* TODO: Figure out where this hint field def should live */}
         {description && <TextInputHint id={`${id}-help-text`}>{description}</TextInputHint>}
       </div>
-      <RadioGroup
-        defaultChecked={field.value}
-        aria-labelledby={cn(`${id}-label`, !!tooltipText && `${id}-help-text`)}
-        aria-describedby={tooltipText ? `${id}-label-tip` : undefined}
-        onChange={field.onChange}
-        name={field.name}
-        {...props}
-      >
-        {children}
-      </RadioGroup>
+      <Controller
+        name={name}
+        control={control}
+        render={({ field: { onChange, value, name } }) => (
+          <RadioGroup
+            defaultChecked={value}
+            aria-labelledby={cn(`${id}-label`, {
+              [`${id}-help-text`]: !!tooltipText,
+            })}
+            aria-describedby={tooltipText ? `${id}-label-tip` : undefined}
+            onChange={onChange}
+            name={name}
+            {...props}
+          >
+            {children}
+          </RadioGroup>
+        )}
+      />
     </div>
   )
 }

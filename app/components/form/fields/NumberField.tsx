@@ -7,7 +7,7 @@
  */
 import cn from 'classnames'
 import { useId } from 'react'
-import { useController, type FieldPathByValue, type FieldValues } from 'react-hook-form'
+import { Controller, type FieldPathByValue, type FieldValues } from 'react-hook-form'
 
 import { FieldLabel } from '~/ui/lib/FieldLabel'
 import { NumberInput } from '~/ui/lib/NumberInput'
@@ -77,25 +77,33 @@ export const NumberFieldInner = <
   const generatedId = useId()
   const id = idProp || generatedId
 
-  const {
-    field,
-    fieldState: { error },
-  } = useController({ name, control, rules: { required, validate } })
-
   return (
-    <>
-      <NumberInput
-        id={id}
-        error={!!error}
-        aria-labelledby={cn(`${id}-label`, !!tooltipText && `${id}-help-text`)}
-        aria-describedby={tooltipText ? `${id}-label-tip` : undefined}
-        isDisabled={disabled}
-        maxValue={max ? Number(max) : undefined}
-        minValue={min !== undefined ? Number(min) : undefined}
-        {...field}
-        formatOptions={{ useGrouping: false }}
-      />
-      <ErrorMessage error={error} label={label} />
-    </>
+    <Controller
+      name={name}
+      control={control}
+      rules={{ required, validate }}
+      render={({ field, fieldState: { error } }) => {
+        return (
+          <>
+            <NumberInput
+              id={id}
+              error={!!error}
+              aria-labelledby={cn(`${id}-label`, {
+                [`${id}-help-text`]: !!tooltipText,
+              })}
+              aria-describedby={tooltipText ? `${id}-label-tip` : undefined}
+              isDisabled={disabled}
+              maxValue={max ? Number(max) : undefined}
+              minValue={min !== undefined ? Number(min) : undefined}
+              {...field}
+              formatOptions={{
+                useGrouping: false,
+              }}
+            />
+            <ErrorMessage error={error} label={label} />
+          </>
+        )
+      }}
+    />
   )
 }

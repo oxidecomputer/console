@@ -8,7 +8,7 @@
 import cn from 'classnames'
 import { useId } from 'react'
 import {
-  useController,
+  Controller,
   type Control,
   type FieldPath,
   type FieldPathValue,
@@ -118,24 +118,33 @@ export const TextFieldInner = <
 }: TextFieldProps<TFieldValues, TName> & UITextAreaProps) => {
   const generatedId = useId()
   const id = idProp || generatedId
-  const {
-    field: { onChange, ...fieldRest },
-    fieldState: { error },
-  } = useController({ name, control, rules: { required, validate } })
   return (
-    <>
-      <UITextField
-        id={id}
-        title={label}
-        type={type}
-        error={!!error}
-        aria-labelledby={cn(`${id}-label`, !!tooltipText && `${id}-help-text`)}
-        aria-describedby={tooltipText ? `${id}-label-tip` : undefined}
-        onChange={(e) => onChange(transform ? transform(e.target.value) : e.target.value)}
-        {...fieldRest}
-        {...props}
-      />
-      <ErrorMessage error={error} label={label} />
-    </>
+    <Controller
+      name={name}
+      control={control}
+      rules={{ required, validate }}
+      render={({ field: { onChange, ...fieldRest }, fieldState: { error } }) => {
+        return (
+          <>
+            <UITextField
+              id={id}
+              title={label}
+              type={type}
+              error={!!error}
+              aria-labelledby={cn(`${id}-label`, {
+                [`${id}-help-text`]: !!tooltipText,
+              })}
+              aria-describedby={tooltipText ? `${id}-label-tip` : undefined}
+              onChange={(e) => {
+                onChange(transform ? transform(e.target.value) : e.target.value)
+              }}
+              {...fieldRest}
+              {...props}
+            />
+            <ErrorMessage error={error} label={label} />
+          </>
+        )
+      }}
+    />
   )
 }
