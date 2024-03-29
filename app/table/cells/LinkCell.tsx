@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import type { CellContext } from '@tanstack/react-table'
 import { Link } from 'react-router-dom'
 
 import { classed } from '~/util/classed'
@@ -20,6 +21,13 @@ const Pusher = classed.div`absolute inset-0 right-px group-hover:bg-raise`
 export const linkCell =
   (makeHref: (value: string) => string) =>
   ({ value }: Cell<string>) => {
+    return <LinkCell to={makeHref(value)}>{value}</LinkCell>
+  }
+
+export const makeLinkCell =
+  (makeHref: (value: string) => string) =>
+  <T, U extends string>(props: CellContext<T, U>) => {
+    const value = props.getValue()
     return <LinkCell to={makeHref(value)}>{value}</LinkCell>
   }
 
