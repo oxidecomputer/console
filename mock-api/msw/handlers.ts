@@ -622,7 +622,7 @@ export const handlers = makeHandlers({
     return json(instance, { status: 202 })
   },
   ipPoolList: ({ query }) => paginated(query, db.ipPools),
-  ipPoolUtilizationView({ path }) {
+  async ipPoolUtilizationView({ path }) {
     const pool = lookup.ipPool(path)
     const ranges = db.ipPoolRanges
       .filter((r) => r.ip_pool_id === pool.id)
@@ -639,6 +639,8 @@ export const handlers = makeHandlers({
 
     const ipv4sInPool = allIps.filter((ip) => ipInAnyRange(ip, ipv4Ranges)).length
     const ipv6sInPool = allIps.filter((ip) => ipInAnyRange(ip, ipv6Ranges)).length
+
+    await delay(3000)
 
     return {
       ipv4: {
