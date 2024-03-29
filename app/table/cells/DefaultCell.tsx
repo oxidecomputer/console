@@ -13,6 +13,6 @@ export const DefaultCell = ({ value }: Cell<string>) => (
   <span className="text-secondary">{value}</span>
 )
 
-export const defaultCell = <T, U extends React.ReactNode>(props: CellContext<T, U>) => (
+export const defaultCell = <T, U extends string>(props: CellContext<T, U>) => (
   <span className="text-secondary">{props.getValue()}</span>
 )

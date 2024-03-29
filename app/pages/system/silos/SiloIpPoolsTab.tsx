@@ -18,7 +18,6 @@ import { HL } from '~/components/HL'
 import { useForm, useSiloSelector } from '~/hooks'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
-import { defaultCell } from '~/table/cells/DefaultCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { useQueryTable2 } from '~/table/QueryTable2'
@@ -51,7 +50,7 @@ const colHelper = createColumnHelper<SiloIpPool>()
 
 const staticCols = [
   colHelper.accessor('name', { cell: makeLinkCell((pool) => pb.ipPool({ pool })) }),
-  colHelper.accessor('description', { cell: defaultCell }),
+  colHelper.accessor('description', {}),
   colHelper.accessor('isDefault', {
     header: 'Default',
     cell: (props) => (props.getValue() ? <DefaultBadge /> : null),
