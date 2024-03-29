@@ -25,7 +25,7 @@ import { confirmDelete } from '~/stores/confirm-delete'
 import { DateCell } from '~/table/cells/DateCell'
 import { defaultCell } from '~/table/cells/DefaultCell'
 import { SkeletonCell } from '~/table/cells/EmptyCell'
-import { LinkCell } from '~/table/cells/LinkCell'
+import { makeLinkCell } from '~/table/cells/LinkCell'
 import { getActionsCol, type MenuAction } from '~/table/columns/action-col'
 import { useQueryTable2 } from '~/table/QueryTable2'
 import { buttonStyle } from '~/ui/lib/Button'
@@ -52,11 +52,7 @@ function UtilizationCell({ pool }: { pool: string }) {
 const colHelper = createColumnHelper<IpPool>()
 
 const staticColumns = [
-  colHelper.accessor('name', {
-    cell: (props) => (
-      <LinkCell to={pb.ipPool({ pool: props.getValue() })}>{props.getValue()}</LinkCell>
-    ),
-  }),
+  colHelper.accessor('name', { cell: makeLinkCell((pool) => pb.ipPool({ pool })) }),
   colHelper.accessor('description', { cell: defaultCell }),
   colHelper.accessor('name', {
     id: 'Utilization',
