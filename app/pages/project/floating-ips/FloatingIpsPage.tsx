@@ -104,8 +104,16 @@ export function FloatingIpsPage() {
 
   const makeActions = useCallback(
     (floatingIp: FloatingIp): MenuAction[] => {
-      const getInstanceName = (instanceId: string) =>
-        instances.items.find((i) => i.id === instanceId)?.name
+      const instanceName = floatingIp.instanceId
+        ? instances.items.find((i) => i.id === floatingIp.instanceId)?.name
+        : undefined
+      // handling the rather unlikely case where the instance is not in the 1000 we fetched
+      const fromInstance = instanceName ? (
+        <>
+          {' ' /* important */}
+          from instance <HL>{instanceName}</HL>
+        </>
+      ) : null
 
       const isAttachedToAnInstance = !!floatingIp.instanceId
       const attachOrDetachAction = isAttachedToAnInstance
@@ -120,17 +128,12 @@ export function FloatingIpsPage() {
                     query: { project },
                   }),
                 modalTitle: 'Detach Floating IP',
+                // instanceName! non-null because we only see this if there is an instance
                 modalContent: (
                   <p>
-                    Are you sure you want to detach floating IP <HL>{floatingIp.name}</HL>{' '}
-                    from instance{' '}
-                    <HL>
-                      {
-                        // instanceId is guaranteed to be non-null here
-                        getInstanceName(floatingIp.instanceId!)
-                      }
-                    </HL>
-                    ? The instance will no longer be reachable at <HL>{floatingIp.ip}</HL>.
+                    Are you sure you want to detach floating IP <HL>{floatingIp.name}</HL>
+                    {fromInstance}? The instance will no longer be reachable at{' '}
+                    <HL>{floatingIp.ip}</HL>.
                   </p>
                 ),
                 errorTitle: 'Error detaching floating IP',
