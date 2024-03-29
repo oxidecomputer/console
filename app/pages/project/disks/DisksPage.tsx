@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { createColumnHelper } from '@tanstack/react-table'
-import { useCallback, useMemo } from 'react'
+import { useCallback } from 'react'
 import { Link, Outlet, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
@@ -26,7 +26,7 @@ import { DateCell } from '~/table/cells/DateCell'
 import { defaultCell } from '~/table/cells/DefaultCell'
 import { InstanceLinkCell } from '~/table/cells/InstanceLinkCell'
 import { SizeCell } from '~/table/cells/SizeCell'
-import { getActionsCol, type MenuAction } from '~/table/columns/action-col'
+import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { useQueryTable2 } from '~/table/QueryTable2'
 import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -158,7 +158,7 @@ export function DisksPage() {
     [addToast, createSnapshot, deleteDisk, project]
   )
 
-  const columns = useMemo(() => [...staticCols, getActionsCol(makeActions)], [makeActions])
+  const columns = useColsWithActions(staticCols, makeActions)
 
   return (
     <>

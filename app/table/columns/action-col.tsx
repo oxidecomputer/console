@@ -7,6 +7,7 @@
  */
 import type { ColumnDef } from '@tanstack/react-table'
 import cn from 'classnames'
+import { useMemo } from 'react'
 
 import { More12Icon } from '@oxide/design-system/icons/react'
 
@@ -22,6 +23,16 @@ export type MenuAction = {
   onActivate: () => void
   disabled?: false | React.ReactNode
   className?: string
+}
+
+/** Convenience helper to combine regular cols with actions col and memoize */
+export function useColsWithActions<TData extends { id?: string }>(
+  /** Should be static or memoized */
+  columns: ColumnDef<TData, any>[], // eslint-disable-line @typescript-eslint/no-explicit-any
+  /** Must be memoized to avoid re-renders */
+  makeActions: MakeActions<TData>
+) {
+  return useMemo(() => [...columns, getActionsCol(makeActions)], [columns, makeActions])
 }
 
 export const getActionsCol = <TData extends { id?: string }>(

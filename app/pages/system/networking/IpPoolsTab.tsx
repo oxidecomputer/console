@@ -26,7 +26,7 @@ import { DateCell } from '~/table/cells/DateCell'
 import { defaultCell } from '~/table/cells/DefaultCell'
 import { SkeletonCell } from '~/table/cells/EmptyCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
-import { getActionsCol, type MenuAction } from '~/table/columns/action-col'
+import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { useQueryTable2 } from '~/table/QueryTable2'
 import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -103,10 +103,7 @@ export function IpPoolsTab() {
     [deletePool, navigate]
   )
 
-  const columns = useMemo(
-    () => [...staticColumns, getActionsCol(makeActions)],
-    [makeActions]
-  )
+  const columns = useColsWithActions(staticColumns, makeActions)
 
   useQuickActions(
     useMemo(
