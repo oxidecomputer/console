@@ -36,7 +36,7 @@ interface UseQueryTableResult<Item extends Record<string, unknown>> {
  * table level options and a `Column` component which governs the individual column
  * configuration
  */
-export const useQueryTable2 = <A extends ApiListMethods, M extends keyof A>(
+export const useQueryTable = <A extends ApiListMethods, M extends keyof A>(
   query: M,
   params: Params<A[M]>,
   options?: Omit<UseQueryOptions<Result<A[M]>, ApiError>, 'queryKey' | 'queryFn'>

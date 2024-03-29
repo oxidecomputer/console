@@ -26,7 +26,7 @@ import { DateCell } from '~/table/cells/DateCell'
 import { SkeletonCell } from '~/table/cells/EmptyCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
-import { useQueryTable2 } from '~/table/QueryTable2'
+import { useQueryTable } from '~/table/QueryTable2'
 import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { pb } from '~/util/path-builder'
@@ -71,7 +71,7 @@ IpPoolsTab.loader = async function () {
 
 export function IpPoolsTab() {
   const navigate = useNavigate()
-  const { Table } = useQueryTable2('ipPoolList', {})
+  const { Table } = useQueryTable('ipPoolList', {})
   const { data: pools } = usePrefetchedApiQuery('ipPoolList', { query: { limit: 25 } })
 
   const deletePool = useApiMutation('ipPoolDelete', {

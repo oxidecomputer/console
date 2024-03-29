@@ -20,7 +20,7 @@ import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
-import { useQueryTable2 } from '~/table/QueryTable2'
+import { useQueryTable } from '~/table/QueryTable2'
 import { Badge } from '~/ui/lib/Badge'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
@@ -60,7 +60,7 @@ const staticCols = [
 export function SiloIpPoolsTab() {
   const { silo } = useSiloSelector()
   const [showLinkModal, setShowLinkModal] = useState(false)
-  const { Table } = useQueryTable2('siloIpPoolList', { path: { silo } })
+  const { Table } = useQueryTable('siloIpPoolList', { path: { silo } })
   const queryClient = useApiQueryClient()
 
   // Fetch 1000 to we can be sure to get them all. There should only be a few
