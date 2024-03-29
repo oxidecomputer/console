@@ -5,7 +5,8 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useState } from 'react'
+import { createColumnHelper } from '@tanstack/react-table'
+import { useCallback, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
@@ -26,8 +27,9 @@ import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { InstanceLinkCell } from '~/table/cells/InstanceLinkCell'
-import type { MenuAction } from '~/table/columns/action-col'
-import { useQueryTable } from '~/table/QueryTable'
+import { makeLinkCell } from '~/table/cells/LinkCell'
+import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
+import { useQueryTable2 } from '~/table/QueryTable2'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Listbox } from '~/ui/lib/Listbox'
 import { Message } from '~/ui/lib/Message'
@@ -68,8 +70,6 @@ export function FloatingIpsPage() {
     query: { project },
   })
   const navigate = useNavigate()
-  const getInstanceName = (instanceId: string) =>
-    instances.items.find((i) => i.id === instanceId)?.name
 
   const floatingIpDetach = useApiMutation('floatingIpDetach', {
     onSuccess() {
@@ -88,76 +88,102 @@ export function FloatingIpsPage() {
     },
   })
 
-  const makeActions = (floatingIp: FloatingIp): MenuAction[] => {
-    const isAttachedToAnInstance = !!floatingIp.instanceId
-    const attachOrDetachAction = isAttachedToAnInstance
-      ? {
-          label: 'Detach',
-          onActivate: () =>
-            confirmAction({
-              actionType: 'danger',
-              doAction: () =>
-                floatingIpDetach.mutateAsync({
-                  path: { floatingIp: floatingIp.name },
-                  query: { project },
-                }),
-              modalTitle: 'Detach Floating IP',
-              modalContent: (
-                <p>
-                  Are you sure you want to detach floating IP <HL>{floatingIp.name}</HL>{' '}
-                  from instance{' '}
-                  <HL>
-                    {
-                      // instanceId is guaranteed to be non-null here
-                      getInstanceName(floatingIp.instanceId!)
-                    }
-                  </HL>
-                  ? The instance will no longer be reachable at <HL>{floatingIp.ip}</HL>.
-                </p>
-              ),
-              errorTitle: 'Error detaching floating IP',
-            }),
-        }
-      : {
-          label: 'Attach',
-          onActivate() {
-            setFloatingIpToModify(floatingIp)
-          },
-        }
-    return [
-      {
-        label: 'Edit',
-        onActivate: () => {
-          apiQueryClient.setQueryData(
-            'floatingIpView',
-            {
-              path: { floatingIp: floatingIp.name },
-              query: { project },
-            },
-            floatingIp
-          )
-          navigate(pb.floatingIpEdit({ project, floatingIp: floatingIp.name }))
-        },
-      },
-      attachOrDetachAction,
-      {
-        label: 'Delete',
-        disabled: isAttachedToAnInstance
-          ? 'This floating IP must be detached from the instance before it can be deleted'
-          : false,
-        onActivate: confirmDelete({
-          doDelete: () =>
-            deleteFloatingIp.mutateAsync({
-              path: { floatingIp: floatingIp.name },
-              query: { project },
-            }),
-          label: floatingIp.name,
-        }),
-      },
-    ]
-  }
+  const colHelper = createColumnHelper<FloatingIp>()
 
-  const { Table, Column } = useQueryTable('floatingIpList', { query: { project } })
+  const staticCols = [
+    colHelper.accessor('name', {
+      cell: makeLinkCell((name) => pb.floatingIp({ floatingIp: name, project })),
+    }),
+    colHelper.accessor('description', {}),
+    colHelper.accessor('ip', {}),
+    colHelper.accessor('instanceId', {
+      cell: (props) => <InstanceLinkCell instanceId={props.getValue()} />,
+      header: 'Attached to instance',
+    }),
+  ]
+
+  const makeActions = useCallback(
+    (floatingIp: FloatingIp): MenuAction[] => {
+      const instanceName = floatingIp.instanceId
+        ? instances.items.find((i) => i.id === floatingIp.instanceId)?.name
+        : undefined
+      // handling the rather unlikely case where the instance is not in the 1000 we fetched
+      const fromInstance = instanceName ? (
+        <>
+          {' ' /* important */}
+          from instance <HL>{instanceName}</HL>
+        </>
+      ) : null
+
+      const isAttachedToAnInstance = !!floatingIp.instanceId
+      const attachOrDetachAction = isAttachedToAnInstance
+        ? {
+            label: 'Detach',
+            onActivate: () =>
+              confirmAction({
+                actionType: 'danger',
+                doAction: () =>
+                  floatingIpDetach.mutateAsync({
+                    path: { floatingIp: floatingIp.name },
+                    query: { project },
+                  }),
+                modalTitle: 'Detach Floating IP',
+                // instanceName! non-null because we only see this if there is an instance
+                modalContent: (
+                  <p>
+                    Are you sure you want to detach floating IP <HL>{floatingIp.name}</HL>
+                    {fromInstance}? The instance will no longer be reachable at{' '}
+                    <HL>{floatingIp.ip}</HL>.
+                  </p>
+                ),
+                errorTitle: 'Error detaching floating IP',
+              }),
+          }
+        : {
+            label: 'Attach',
+            onActivate() {
+              setFloatingIpToModify(floatingIp)
+            },
+          }
+      return [
+        {
+          label: 'Edit',
+          onActivate: () => {
+            apiQueryClient.setQueryData(
+              'floatingIpView',
+              {
+                path: { floatingIp: floatingIp.name },
+                query: { project },
+              },
+              floatingIp
+            )
+            navigate(pb.floatingIpEdit({ project, floatingIp: floatingIp.name }))
+          },
+        },
+        attachOrDetachAction,
+        {
+          label: 'Delete',
+          disabled: isAttachedToAnInstance
+            ? 'This floating IP must be detached from the instance before it can be deleted'
+            : false,
+          onActivate: confirmDelete({
+            doDelete: () =>
+              deleteFloatingIp.mutateAsync({
+                path: { floatingIp: floatingIp.name },
+                query: { project },
+              }),
+            label: floatingIp.name,
+          }),
+        },
+      ]
+    },
+    [deleteFloatingIp, floatingIpDetach, navigate, project, instances]
+  )
+
+  const { Table } = useQueryTable2('floatingIpList', { query: { project } })
+
+  const columns = useColsWithActions(staticCols, makeActions)
+
   return (
     <>
       <PageHeader>
@@ -173,16 +199,7 @@ export function FloatingIpsPage() {
           New Floating IP
         </TableControlsLink>
       </TableControls>
-      <Table emptyState={<EmptyState />} makeActions={makeActions}>
-        <Column accessor="name" />
-        <Column accessor="description" />
-        <Column accessor="ip" />
-        <Column
-          accessor="instanceId"
-          header="Attached to instance"
-          cell={InstanceLinkCell}
-        />
-      </Table>
+      <Table emptyState={<EmptyState />} columns={columns} />
       <Outlet />
       {floatingIpToModify && (
         <AttachFloatingIpModal

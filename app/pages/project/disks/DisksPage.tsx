@@ -23,7 +23,6 @@ import { DiskStatusBadge } from '~/components/StatusBadge'
 import { getProjectSelector, useProjectSelector, useToast } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { DateCell } from '~/table/cells/DateCell'
-import { defaultCell } from '~/table/cells/DefaultCell'
 import { InstanceLinkCell } from '~/table/cells/InstanceLinkCell'
 import { SizeCell } from '~/table/cells/SizeCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
@@ -74,13 +73,16 @@ DisksPage.loader = async ({ params }: LoaderFunctionArgs) => {
 const colHelper = createColumnHelper<Disk>()
 
 const staticCols = [
-  colHelper.accessor('name', { cell: defaultCell }),
+  colHelper.accessor('name', {}),
   // sneaky: rather than looking at particular states, just look at
   // whether it has an instance field
-  colHelper.accessor((disk) => ('instance' in disk.state ? disk.state.instance : null), {
-    header: 'Attached to',
-    cell: (props) => <InstanceLinkCell value={props.getValue()} />,
-  }),
+  colHelper.accessor(
+    (disk) => ('instance' in disk.state ? disk.state.instance : undefined),
+    {
+      header: 'Attached to',
+      cell: (props) => <InstanceLinkCell instanceId={props.getValue()} />,
+    }
+  ),
   colHelper.accessor('size', { cell: (props) => <SizeCell value={props.getValue()} /> }),
   colHelper.accessor('state.state', {
     header: 'Status',

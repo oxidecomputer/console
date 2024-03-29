@@ -23,7 +23,6 @@ import { IpUtilCell } from '~/components/IpPoolUtilization'
 import { useQuickActions } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { DateCell } from '~/table/cells/DateCell'
-import { defaultCell } from '~/table/cells/DefaultCell'
 import { SkeletonCell } from '~/table/cells/EmptyCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
@@ -53,7 +52,7 @@ const colHelper = createColumnHelper<IpPool>()
 
 const staticColumns = [
   colHelper.accessor('name', { cell: makeLinkCell((pool) => pb.ipPool({ pool })) }),
-  colHelper.accessor('description', { cell: defaultCell }),
+  colHelper.accessor('description', {}),
   colHelper.accessor('name', {
     id: 'Utilization',
     header: 'Utilization',

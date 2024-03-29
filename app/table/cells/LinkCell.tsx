@@ -24,6 +24,12 @@ export const linkCell =
     return <LinkCell to={makeHref(value)}>{value}</LinkCell>
   }
 
+/**
+ * Because this returns a component, it should only be used in a static context
+ * or memoized with useCallback. It should not be used unmemoized inside the
+ * render loop. It's probably better to inline the contents directly at the call
+ * site if it needs to be called inside render.
+ */
 export const makeLinkCell =
   (makeHref: (value: string) => string) =>
   <T, U extends string>(props: CellContext<T, U>) => {
