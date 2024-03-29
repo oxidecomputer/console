@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { Link, Outlet, type LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, useApiMutation, useApiQueryClient, type Image } from '@oxide/api'
@@ -59,20 +59,26 @@ export function ImagesPage() {
     },
   })
 
-  const makeActions = (image: Image): MenuAction[] => [
-    {
-      label: 'Promote',
-      onActivate: () => setPromoteImageName(image.name),
-    },
-    {
-      label: 'Delete',
-      onActivate: confirmDelete({
-        doDelete: () =>
-          deleteImage.mutateAsync({ path: { image: image.name }, query: projectSelector }),
-        label: image.name,
-      }),
-    },
-  ]
+  const makeActions = useCallback(
+    (image: Image): MenuAction[] => [
+      {
+        label: 'Promote',
+        onActivate: () => setPromoteImageName(image.name),
+      },
+      {
+        label: 'Delete',
+        onActivate: confirmDelete({
+          doDelete: () =>
+            deleteImage.mutateAsync({
+              path: { image: image.name },
+              query: projectSelector,
+            }),
+          label: image.name,
+        }),
+      },
+    ],
+    [deleteImage, projectSelector]
+  )
 
   return (
     <>

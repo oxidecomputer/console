@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useCallback } from 'react'
 import { Link, Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
@@ -81,8 +82,8 @@ SnapshotsPage.loader = async ({ params }: LoaderFunctionArgs) => {
 
 export function SnapshotsPage() {
   const queryClient = useApiQueryClient()
-  const projectSelector = useProjectSelector()
-  const { Table, Column } = useQueryTable('snapshotList', { query: projectSelector })
+  const { project } = useProjectSelector()
+  const { Table, Column } = useQueryTable('snapshotList', { query: { project } })
   const navigate = useNavigate()
 
   const deleteSnapshot = useApiMutation('snapshotDelete', {
@@ -91,33 +92,35 @@ export function SnapshotsPage() {
     },
   })
 
-  const makeActions = (snapshot: Snapshot): MenuAction[] => [
-    {
-      label: 'Create image',
-      onActivate() {
-        navigate(pb.snapshotImagesNew({ ...projectSelector, snapshot: snapshot.name }))
+  const makeActions = useCallback(
+    (snapshot: Snapshot): MenuAction[] => [
+      {
+        label: 'Create image',
+        onActivate() {
+          navigate(pb.snapshotImagesNew({ project, snapshot: snapshot.name }))
+        },
       },
-    },
-    {
-      label: 'Delete',
-      onActivate: confirmDelete({
-        doDelete: () =>
-          deleteSnapshot.mutateAsync({
-            path: { snapshot: snapshot.name },
-            query: projectSelector,
-          }),
-        label: snapshot.name,
-      }),
-    },
-  ]
-
+      {
+        label: 'Delete',
+        onActivate: confirmDelete({
+          doDelete: () =>
+            deleteSnapshot.mutateAsync({
+              path: { snapshot: snapshot.name },
+              query: { project },
+            }),
+          label: snapshot.name,
+        }),
+      },
+    ],
+    [deleteSnapshot, navigate, project]
+  )
   return (
     <>
       <PageHeader>
         <PageTitle icon={<Snapshots24Icon />}>Snapshots</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link to={pb.snapshotsNew(projectSelector)} className={buttonStyle({ size: 'sm' })}>
+        <Link to={pb.snapshotsNew({ project })} className={buttonStyle({ size: 'sm' })}>
           New Snapshot
         </Link>
       </TableActions>

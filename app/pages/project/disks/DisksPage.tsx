@@ -26,7 +26,7 @@ import { DateCell } from '~/table/cells/DateCell'
 import { InstanceLinkCell } from '~/table/cells/InstanceLinkCell'
 import { SizeCell } from '~/table/cells/SizeCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
-import { useQueryTable2 } from '~/table/QueryTable2'
+import { useQueryTable } from '~/table/QueryTable2'
 import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
@@ -97,7 +97,7 @@ const staticCols = [
 export function DisksPage() {
   const queryClient = useApiQueryClient()
   const { project } = useProjectSelector()
-  const { Table } = useQueryTable2('diskList', { query: { project } })
+  const { Table } = useQueryTable('diskList', { query: { project } })
   const addToast = useToast()
 
   const deleteDisk = useApiMutation('diskDelete', {

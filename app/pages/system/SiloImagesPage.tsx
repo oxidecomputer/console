@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { type FieldValues } from 'react-hook-form'
 import { Outlet } from 'react-router-dom'
 
@@ -65,19 +65,22 @@ export function SiloImagesPage() {
     },
   })
 
-  const makeActions = (image: Image): MenuAction[] => [
-    {
-      label: 'Demote',
-      onActivate: () => setDemoteImage(image),
-    },
-    {
-      label: 'Delete',
-      onActivate: confirmDelete({
-        doDelete: () => deleteImage.mutateAsync({ path: { image: image.name } }),
-        label: image.name,
-      }),
-    },
-  ]
+  const makeActions = useCallback(
+    (image: Image): MenuAction[] => [
+      {
+        label: 'Demote',
+        onActivate: () => setDemoteImage(image),
+      },
+      {
+        label: 'Delete',
+        onActivate: confirmDelete({
+          doDelete: () => deleteImage.mutateAsync({ path: { image: image.name } }),
+          label: image.name,
+        }),
+      },
+    ],
+    [deleteImage]
+  )
 
   return (
     <>

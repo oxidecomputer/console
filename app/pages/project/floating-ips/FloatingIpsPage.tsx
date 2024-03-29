@@ -29,7 +29,7 @@ import { addToast } from '~/stores/toast'
 import { InstanceLinkCell } from '~/table/cells/InstanceLinkCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
-import { useQueryTable2 } from '~/table/QueryTable2'
+import { useQueryTable } from '~/table/QueryTable2'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Listbox } from '~/ui/lib/Listbox'
 import { Message } from '~/ui/lib/Message'
@@ -180,7 +180,7 @@ export function FloatingIpsPage() {
     [deleteFloatingIp, floatingIpDetach, navigate, project, instances]
   )
 
-  const { Table } = useQueryTable2('floatingIpList', { query: { project } })
+  const { Table } = useQueryTable('floatingIpList', { query: { project } })
 
   const columns = useColsWithActions(staticCols, makeActions)
 
