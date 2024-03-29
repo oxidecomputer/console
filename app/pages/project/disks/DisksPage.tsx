@@ -76,10 +76,13 @@ const staticCols = [
   colHelper.accessor('name', {}),
   // sneaky: rather than looking at particular states, just look at
   // whether it has an instance field
-  colHelper.accessor((disk) => ('instance' in disk.state ? disk.state.instance : null), {
-    header: 'Attached to',
-    cell: (props) => <InstanceLinkCell value={props.getValue()} />,
-  }),
+  colHelper.accessor(
+    (disk) => ('instance' in disk.state ? disk.state.instance : undefined),
+    {
+      header: 'Attached to',
+      cell: (props) => <InstanceLinkCell value={props.getValue()} />,
+    }
+  ),
   colHelper.accessor('size', { cell: (props) => <SizeCell value={props.getValue()} /> }),
   colHelper.accessor('state.state', {
     header: 'Status',
