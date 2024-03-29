@@ -5,14 +5,8 @@
  *
  * Copyright Oxide Computer Company
  */
-import type { CellContext } from '@tanstack/react-table'
-
 import type { Cell } from './Cell'
 
 export const DefaultCell = ({ value }: Cell<string>) => (
   <span className="text-secondary">{value}</span>
-)
-
-export const defaultCell = <T, U extends string>(props: CellContext<T, U>) => (
-  <span className="text-secondary">{props.getValue()}</span>
 )

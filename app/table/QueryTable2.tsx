@@ -25,7 +25,6 @@ import { usePagination } from '~/hooks/use-pagination'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableEmptyBox } from '~/ui/lib/Table'
 
-import { defaultCell } from './cells/DefaultCell'
 import { Table } from './Table'
 
 interface UseQueryTableResult<Item extends Record<string, unknown>> {
@@ -91,7 +90,6 @@ const makeQueryTable = <Item extends Record<string, unknown>>(
 
     const table = useReactTable({
       columns,
-      defaultColumn: { cell: defaultCell },
       data: tableData,
       getRowId,
       getCoreRowModel: getCoreRowModel(),
