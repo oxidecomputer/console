@@ -14,7 +14,7 @@ import { pb } from '~/util/path-builder'
 import { SkeletonCell } from './EmptyCell'
 import { LinkCell } from './LinkCell'
 
-export const InstanceLinkCell = ({ value: instanceId }: { value?: string }) => {
+export const InstanceLinkCell = ({ instanceId }: { instanceId?: string }) => {
   const { project } = useProjectSelector()
   const { data: instance } = useApiQuery(
     'instanceView',
@@ -22,6 +22,7 @@ export const InstanceLinkCell = ({ value: instanceId }: { value?: string }) => {
     { enabled: !!instanceId }
   )
 
+  // has to be after the hooks because hooks can't be executed conditionally
   if (!instanceId) return null
   if (!instance) return <SkeletonCell />
 

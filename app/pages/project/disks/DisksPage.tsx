@@ -80,7 +80,7 @@ const staticCols = [
     (disk) => ('instance' in disk.state ? disk.state.instance : undefined),
     {
       header: 'Attached to',
-      cell: (props) => <InstanceLinkCell value={props.getValue()} />,
+      cell: (props) => <InstanceLinkCell instanceId={props.getValue()} />,
     }
   ),
   colHelper.accessor('size', { cell: (props) => <SizeCell value={props.getValue()} /> }),

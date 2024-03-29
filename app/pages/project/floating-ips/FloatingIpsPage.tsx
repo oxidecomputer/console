@@ -97,7 +97,7 @@ export function FloatingIpsPage() {
     colHelper.accessor('description', {}),
     colHelper.accessor('ip', {}),
     colHelper.accessor('instanceId', {
-      cell: (props) => <InstanceLinkCell value={props.getValue()} />,
+      cell: (props) => <InstanceLinkCell instanceId={props.getValue()} />,
       header: 'Attached to instance',
     }),
   ]
