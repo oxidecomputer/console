@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 
 import {
@@ -62,28 +62,31 @@ export function ProjectsPage() {
     },
   })
 
-  const makeActions = (project: Project): MenuAction[] => [
-    {
-      label: 'Edit',
-      onActivate: () => {
-        // the edit view has its own loader, but we can make the modal open
-        // instantaneously by preloading the fetch result
-        apiQueryClient.setQueryData(
-          'projectView',
-          { path: { project: project.name } },
-          project
-        )
-        navigate(pb.projectEdit({ project: project.name }))
+  const makeActions = useCallback(
+    (project: Project): MenuAction[] => [
+      {
+        label: 'Edit',
+        onActivate: () => {
+          // the edit view has its own loader, but we can make the modal open
+          // instantaneously by preloading the fetch result
+          apiQueryClient.setQueryData(
+            'projectView',
+            { path: { project: project.name } },
+            project
+          )
+          navigate(pb.projectEdit({ project: project.name }))
+        },
       },
-    },
-    {
-      label: 'Delete',
-      onActivate: confirmDelete({
-        doDelete: () => deleteProject.mutateAsync({ path: { project: project.name } }),
-        label: project.name,
-      }),
-    },
-  ]
+      {
+        label: 'Delete',
+        onActivate: confirmDelete({
+          doDelete: () => deleteProject.mutateAsync({ path: { project: project.name } }),
+          label: project.name,
+        }),
+      },
+    ],
+    [deleteProject, navigate]
+  )
 
   useQuickActions(
     useMemo(

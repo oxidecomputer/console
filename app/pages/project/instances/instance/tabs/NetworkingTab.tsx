@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
@@ -122,48 +122,55 @@ export function NetworkingTab() {
   })
   const canUpdateNic = instanceCan.updateNic(instance)
 
-  const makeActions = (nic: InstanceNetworkInterface): MenuAction[] => [
-    {
-      label: 'Make primary',
-      onActivate() {
-        editNic.mutate({
-          path: { interface: nic.name },
-          query: instanceSelector,
-          body: { ...nic, primary: true },
-        })
+  const makeActions = useCallback(
+    (nic: InstanceNetworkInterface): MenuAction[] => [
+      {
+        label: 'Make primary',
+        onActivate() {
+          editNic.mutate({
+            path: { interface: nic.name },
+            query: instanceSelector,
+            body: { ...nic, primary: true },
+          })
+        },
+        disabled: nic.primary
+          ? 'This network interface is already set as primary'
+          : !canUpdateNic && (
+              <>
+                The instance must be {updateNicStates} to change its primary network
+                interface
+              </>
+            ),
       },
-      disabled: nic.primary
-        ? 'This network interface is already set as primary'
-        : !canUpdateNic && (
-            <>
-              The instance must be {updateNicStates} to change its primary network interface
-            </>
-          ),
-    },
-    {
-      label: 'Edit',
-      onActivate() {
-        setEditing(nic)
+      {
+        label: 'Edit',
+        onActivate() {
+          setEditing(nic)
+        },
+        disabled: !canUpdateNic && (
+          <>
+            The instance must be {updateNicStates} before editing a network interface&apos;s
+            settings
+          </>
+        ),
       },
-      disabled: !canUpdateNic && (
-        <>
-          The instance must be {updateNicStates} before editing a network interface&apos;s
-          settings
-        </>
-      ),
-    },
-    {
-      label: 'Delete',
-      onActivate: confirmDelete({
-        doDelete: () =>
-          deleteNic.mutateAsync({ path: { interface: nic.name }, query: instanceSelector }),
-        label: nic.name,
-      }),
-      disabled: !canUpdateNic && (
-        <>The instance must be {updateNicStates} to delete a network interface</>
-      ),
-    },
-  ]
+      {
+        label: 'Delete',
+        onActivate: confirmDelete({
+          doDelete: () =>
+            deleteNic.mutateAsync({
+              path: { interface: nic.name },
+              query: instanceSelector,
+            }),
+          label: nic.name,
+        }),
+        disabled: !canUpdateNic && (
+          <>The instance must be {updateNicStates} to delete a network interface</>
+        ),
+      },
+    ],
+    [canUpdateNic, deleteNic, editNic, instanceSelector]
+  )
 
   const emptyState = (
     <EmptyMessage

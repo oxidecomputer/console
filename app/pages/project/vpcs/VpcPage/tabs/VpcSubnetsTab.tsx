@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 
 import { useApiMutation, useApiQueryClient, type VpcSubnet } from '@oxide/api'
 
@@ -34,20 +34,23 @@ export const VpcSubnetsTab = () => {
     },
   })
 
-  const makeActions = (subnet: VpcSubnet): MenuAction[] => [
-    {
-      label: 'Edit',
-      onActivate: () => setEditing(subnet),
-    },
-    // TODO: only show if you have permission to do this
-    {
-      label: 'Delete',
-      onActivate: confirmDelete({
-        doDelete: () => deleteSubnet.mutateAsync({ path: { subnet: subnet.id } }),
-        label: subnet.name,
-      }),
-    },
-  ]
+  const makeActions = useCallback(
+    (subnet: VpcSubnet): MenuAction[] => [
+      {
+        label: 'Edit',
+        onActivate: () => setEditing(subnet),
+      },
+      // TODO: only show if you have permission to do this
+      {
+        label: 'Delete',
+        onActivate: confirmDelete({
+          doDelete: () => deleteSubnet.mutateAsync({ path: { subnet: subnet.id } }),
+          label: subnet.name,
+        }),
+      },
+    ],
+    [deleteSubnet]
+  )
 
   const emptyState = (
     <EmptyMessage

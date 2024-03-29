@@ -38,6 +38,9 @@ SledInstancesTab.loader = async ({ params }: LoaderFunctionArgs) => {
   return null
 }
 
+// passing in empty function because we still want the copy ID button
+const makeActions = (): MenuAction[] => []
+
 export function SledInstancesTab() {
   const { sledId } = useSledParams()
   const { Table, Column } = useQueryTable(
@@ -45,8 +48,6 @@ export function SledInstancesTab() {
     { path: { sledId }, query: { limit: 25 } },
     { placeholderData: (x) => x }
   )
-
-  const makeActions = (): MenuAction[] => []
 
   return (
     <Table emptyState={<EmptyState />} makeActions={makeActions}>

@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 
 import {
@@ -62,15 +62,18 @@ export function SilosPage() {
     },
   })
 
-  const makeActions = (silo: Silo): MenuAction[] => [
-    {
-      label: 'Delete',
-      onActivate: confirmDelete({
-        doDelete: () => deleteSilo.mutateAsync({ path: { silo: silo.name } }),
-        label: silo.name,
-      }),
-    },
-  ]
+  const makeActions = useCallback(
+    (silo: Silo): MenuAction[] => [
+      {
+        label: 'Delete',
+        onActivate: confirmDelete({
+          doDelete: () => deleteSilo.mutateAsync({ path: { silo: silo.name } }),
+          label: silo.name,
+        }),
+      },
+    ],
+    [deleteSilo]
+  )
 
   useQuickActions(
     useMemo(

@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { Link, Outlet, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
@@ -161,32 +161,35 @@ function IpRangesTable() {
     />
   )
 
-  const makeRangeActions = ({ range }: IpPoolRange): MenuAction[] => [
-    {
-      label: 'Remove',
-      className: 'destructive',
-      onActivate: () =>
-        confirmAction({
-          doAction: () =>
-            removeRange.mutateAsync({
-              path: { pool },
-              body: range,
-            }),
-          errorTitle: 'Could not remove range',
-          modalTitle: 'Confirm remove range',
-          modalContent: (
-            <p>
-              Are you sure you want to remove range{' '}
-              <HL>
-                {range.first}&ndash;{range.last}
-              </HL>{' '}
-              from the pool? This will fail if the range has any addresses in use.
-            </p>
-          ),
-          actionType: 'danger',
-        }),
-    },
-  ]
+  const makeRangeActions = useCallback(
+    ({ range }: IpPoolRange): MenuAction[] => [
+      {
+        label: 'Remove',
+        className: 'destructive',
+        onActivate: () =>
+          confirmAction({
+            doAction: () =>
+              removeRange.mutateAsync({
+                path: { pool },
+                body: range,
+              }),
+            errorTitle: 'Could not remove range',
+            modalTitle: 'Confirm remove range',
+            modalContent: (
+              <p>
+                Are you sure you want to remove range{' '}
+                <HL>
+                  {range.first}&ndash;{range.last}
+                </HL>{' '}
+                from the pool? This will fail if the range has any addresses in use.
+              </p>
+            ),
+            actionType: 'danger',
+          }),
+      },
+    ],
+    [pool, removeRange]
+  )
 
   return (
     <>
@@ -223,33 +226,36 @@ function LinkedSilosTable() {
     },
   })
 
-  const makeActions = (link: IpPoolSiloLink): MenuAction[] => [
-    {
-      label: 'Unlink',
-      className: 'destructive',
-      onActivate() {
-        confirmAction({
-          doAction: () =>
-            unlinkSilo.mutateAsync({ path: { silo: link.siloId, pool: link.ipPoolId } }),
-          modalTitle: 'Confirm unlink silo',
-          // Would be nice to reference the silo by name like we reference the
-          // pool by name on unlink in the silo pools list, but it's a pain to
-          // get the name here. Could use useQueries to get all the names, and
-          // RQ would dedupe the requests since they're already being fetched
-          // for the table. Not worth it right now.
-          modalContent: (
-            <p>
-              Are you sure you want to unlink the silo? Users in this silo will no longer be
-              able to allocate IPs from this pool. Unlink will fail if there are any IPs
-              from the pool in use in this silo.
-            </p>
-          ),
-          errorTitle: 'Could not unlink silo',
-          actionType: 'danger',
-        })
+  const makeActions = useCallback(
+    (link: IpPoolSiloLink): MenuAction[] => [
+      {
+        label: 'Unlink',
+        className: 'destructive',
+        onActivate() {
+          confirmAction({
+            doAction: () =>
+              unlinkSilo.mutateAsync({ path: { silo: link.siloId, pool: link.ipPoolId } }),
+            modalTitle: 'Confirm unlink silo',
+            // Would be nice to reference the silo by name like we reference the
+            // pool by name on unlink in the silo pools list, but it's a pain to
+            // get the name here. Could use useQueries to get all the names, and
+            // RQ would dedupe the requests since they're already being fetched
+            // for the table. Not worth it right now.
+            modalContent: (
+              <p>
+                Are you sure you want to unlink the silo? Users in this silo will no longer
+                be able to allocate IPs from this pool. Unlink will fail if there are any
+                IPs from the pool in use in this silo.
+              </p>
+            ),
+            errorTitle: 'Could not unlink silo',
+            actionType: 'danger',
+          })
+        },
       },
-    },
-  ]
+    ],
+    [unlinkSilo]
+  )
 
   const [showLinkModal, setShowLinkModal] = useState(false)
 

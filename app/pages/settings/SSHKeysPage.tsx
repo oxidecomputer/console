@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useCallback } from 'react'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 
 import { apiQueryClient, useApiMutation, useApiQueryClient, type SshKey } from '@oxide/api'
@@ -37,15 +38,18 @@ export function SSHKeysPage() {
     },
   })
 
-  const makeActions = (sshKey: SshKey): MenuAction[] => [
-    {
-      label: 'Delete',
-      onActivate: confirmDelete({
-        doDelete: () => deleteSshKey.mutateAsync({ path: { sshKey: sshKey.name } }),
-        label: sshKey.name,
-      }),
-    },
-  ]
+  const makeActions = useCallback(
+    (sshKey: SshKey): MenuAction[] => [
+      {
+        label: 'Delete',
+        onActivate: confirmDelete({
+          doDelete: () => deleteSshKey.mutateAsync({ path: { sshKey: sshKey.name } }),
+          label: sshKey.name,
+        }),
+      },
+    ],
+    [deleteSshKey]
+  )
 
   return (
     <>
