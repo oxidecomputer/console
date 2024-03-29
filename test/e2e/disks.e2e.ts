@@ -15,16 +15,16 @@ test('List disks and snapshot', async ({ page }) => {
 
   // check one attached and one not attached
   await expectRowVisible(table, {
-    'Attached To': 'db1',
+    'Attached to': 'db1',
     name: 'disk-1',
-    Size: '2 GiB',
-    status: 'attached',
+    size: '2 GiB',
+    Status: 'attached',
   })
   await expectRowVisible(table, {
-    'Attached To': '',
+    'Attached to': '',
     name: 'disk-3',
-    Size: '6 GiB',
-    status: 'detached',
+    size: '6 GiB',
+    Status: 'detached',
   })
 
   await clickRowAction(page, 'disk-1 db1', 'Snapshot')
