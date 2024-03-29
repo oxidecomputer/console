@@ -23,7 +23,7 @@ import { IpUtilCell } from '~/components/IpPoolUtilization'
 import { useQuickActions } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { DateCell } from '~/table/cells/DateCell'
-import { DefaultCell } from '~/table/cells/DefaultCell'
+import { defaultCell } from '~/table/cells/DefaultCell'
 import { SkeletonCell } from '~/table/cells/EmptyCell'
 import { LinkCell } from '~/table/cells/LinkCell'
 import { getActionsCol, type MenuAction } from '~/table/columns/action-col'
@@ -57,9 +57,7 @@ const staticColumns = [
       <LinkCell to={pb.ipPool({ pool: props.getValue() })}>{props.getValue()}</LinkCell>
     ),
   }),
-  colHelper.accessor('description', {
-    cell: (props) => <DefaultCell value={props.getValue()} />,
-  }),
+  colHelper.accessor('description', { cell: defaultCell }),
   colHelper.accessor('name', {
     id: 'Utilization',
     header: 'Utilization',
