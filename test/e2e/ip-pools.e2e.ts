@@ -49,6 +49,9 @@ test('IP pool silo list', async ({ page }) => {
   const siloLink = page.getByRole('link', { name: 'maze-war' })
   await siloLink.click()
   await expect(page).toHaveURL('/system/silos/maze-war?tab=ip-pools')
+  // these asserts are mostly here to kill some time before goBack
+  await expectRowVisible(table, { name: 'ip-pool-1', Default: 'default' })
+  await expectRowVisible(table, { name: 'ip-pool-2' })
   await page.goBack()
 
   // unlink silo and the row is gone
