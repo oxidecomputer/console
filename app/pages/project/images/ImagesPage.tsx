@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useState } from 'react'
 import { Link, Outlet, type LoaderFunctionArgs } from 'react-router-dom'
 
@@ -14,10 +15,10 @@ import { Images24Icon } from '@oxide/design-system/icons/react'
 import { getProjectSelector, useProjectSelector, useToast } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { DateCell } from '~/table/cells/DateCell'
-import { linkCell } from '~/table/cells/LinkCell'
+import { makeLinkCell } from '~/table/cells/LinkCell'
 import { SizeCell } from '~/table/cells/SizeCell'
-import type { MenuAction } from '~/table/columns/action-col'
-import { useQueryTable } from '~/table/QueryTable'
+import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
+import { useQueryTable } from '~/table/QueryTable2'
 import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
@@ -46,11 +47,27 @@ ImagesPage.loader = async ({ params }: LoaderFunctionArgs) => {
 
 export function ImagesPage() {
   const projectSelector = useProjectSelector()
-  const { Table, Column } = useQueryTable('imageList', { query: projectSelector })
+  const { Table } = useQueryTable('imageList', { query: projectSelector })
   const queryClient = useApiQueryClient()
   const addToast = useToast()
 
   const [promoteImageName, setPromoteImageName] = useState<string | null>(null)
+
+  const columnHelper = createColumnHelper<Image>()
+  const staticCols = [
+    columnHelper.accessor('name', {
+      cell: makeLinkCell((image) => pb.projectImageEdit({ ...projectSelector, image })),
+    }),
+    columnHelper.accessor('description', {}),
+    columnHelper.accessor('size', {
+      header: 'Size',
+      cell: (props) => <SizeCell value={props.getValue()} />,
+    }),
+    columnHelper.accessor('timeCreated', {
+      header: 'Created',
+      cell: (props) => <DateCell value={props.getValue()} />,
+    }),
+  ]
 
   const deleteImage = useApiMutation('imageDelete', {
     onSuccess(_data, variables) {
@@ -80,6 +97,8 @@ export function ImagesPage() {
     [deleteImage, projectSelector]
   )
 
+  const columns = useColsWithActions(staticCols, makeActions)
+
   return (
     <>
       <PageHeader>
@@ -93,15 +112,7 @@ export function ImagesPage() {
           Upload image
         </Link>
       </TableActions>
-      <Table emptyState={<EmptyState />} makeActions={makeActions}>
-        <Column
-          accessor="name"
-          cell={linkCell((image) => pb.projectImageEdit({ ...projectSelector, image }))}
-        />
-        <Column accessor="description" />
-        <Column accessor="size" cell={SizeCell} />
-        <Column accessor="timeCreated" header="Created" cell={DateCell} />
-      </Table>
+      <Table emptyState={<EmptyState />} columns={columns} />
       {promoteImageName && (
         <PromoteImageModal
           onDismiss={() => setPromoteImageName(null)}

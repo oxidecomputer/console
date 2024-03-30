@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 
@@ -19,9 +20,9 @@ import { Folder24Icon } from '@oxide/design-system/icons/react'
 
 import { confirmDelete } from '~/stores/confirm-delete'
 import { DateCell } from '~/table/cells/DateCell'
-import { linkCell } from '~/table/cells/LinkCell'
-import type { MenuAction } from '~/table/columns/action-col'
-import { useQueryTable } from '~/table/QueryTable'
+import { makeLinkCell } from '~/table/cells/LinkCell'
+import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
+import { useQueryTable } from '~/table/QueryTable2'
 import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
@@ -49,10 +50,22 @@ export function ProjectsPage() {
   const navigate = useNavigate()
 
   const queryClient = useApiQueryClient()
-  const { Table, Column } = useQueryTable('projectList', {})
+  const { Table } = useQueryTable('projectList', {})
   const { data: projects } = usePrefetchedApiQuery('projectList', {
     query: { limit: 25 }, // limit to match QueryTable
   })
+
+  const colHelper = createColumnHelper<Project>()
+  const staticCols = [
+    colHelper.accessor('name', {
+      cell: makeLinkCell((project) => pb.instances({ project })),
+    }),
+    colHelper.accessor('description', {}),
+    colHelper.accessor('timeCreated', {
+      header: 'created',
+      cell: (props) => <DateCell value={props.getValue()} />,
+    }),
+  ]
 
   const deleteProject = useApiMutation('projectDelete', {
     onSuccess() {
@@ -105,6 +118,7 @@ export function ProjectsPage() {
     )
   )
 
+  const columns = useColsWithActions(staticCols, makeActions)
   return (
     <>
       <PageHeader>
@@ -115,11 +129,7 @@ export function ProjectsPage() {
           New Project
         </Link>
       </TableActions>
-      <Table emptyState={<EmptyState />} makeActions={makeActions}>
-        <Column accessor="name" cell={linkCell((project) => pb.instances({ project }))} />
-        <Column accessor="description" />
-        <Column accessor="timeCreated" header="Created" cell={DateCell} />
-      </Table>
+      <Table emptyState={<EmptyState />} columns={columns} />
       <Outlet />
     </>
   )
