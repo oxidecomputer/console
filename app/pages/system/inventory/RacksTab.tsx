@@ -5,10 +5,12 @@
  *
  * Copyright Oxide Computer Company
  */
-import { apiQueryClient } from '@oxide/api'
+import { createColumnHelper } from '@tanstack/react-table'
+
+import { apiQueryClient, type Rack } from '@oxide/api'
 import { Racks24Icon } from '@oxide/design-system/icons/react'
 
-import { useQueryTable } from '~/table/QueryTable'
+import { useQueryTable } from '~/table/QueryTable2'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 
 const EmptyState = () => {
@@ -29,13 +31,14 @@ RacksTab.loader = async () => {
 }
 
 export function RacksTab() {
-  const { Table, Column } = useQueryTable('rackList', {})
+  const { Table } = useQueryTable('rackList', {})
+
+  const colHelper = createColumnHelper<Rack>()
+  const staticCols = [colHelper.accessor('id', {})]
 
   return (
     <>
-      <Table emptyState={<EmptyState />}>
-        <Column accessor="id" />
-      </Table>
+      <Table emptyState={<EmptyState />} columns={staticCols} />
     </>
   )
 }
