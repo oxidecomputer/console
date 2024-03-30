@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useState } from 'react'
 
 import { useApiMutation, useApiQueryClient, type VpcSubnet } from '@oxide/api'
@@ -15,8 +16,8 @@ import { useVpcSelector } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { DateCell } from '~/table/cells/DateCell'
 import { TwoLineCell } from '~/table/cells/TwoLineCell'
-import type { MenuAction } from '~/table/columns/action-col'
-import { useQueryTable } from '~/table/QueryTable'
+import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
+import { useQueryTable } from '~/table/QueryTable2'
 import { Button } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 
@@ -24,9 +25,22 @@ export const VpcSubnetsTab = () => {
   const vpcSelector = useVpcSelector()
   const queryClient = useApiQueryClient()
 
-  const { Table, Column } = useQueryTable('vpcSubnetList', { query: vpcSelector })
+  const { Table } = useQueryTable('vpcSubnetList', { query: vpcSelector })
   const [creating, setCreating] = useState(false)
   const [editing, setEditing] = useState<VpcSubnet | null>(null)
+
+  const colHelper = createColumnHelper<VpcSubnet>()
+  const staticCols = [
+    colHelper.accessor('name', {}),
+    colHelper.accessor((vpc) => [vpc.ipv4Block, vpc.ipv6Block], {
+      header: 'IP Block',
+      cell: (info) => <TwoLineCell value={[info.getValue()[0], info.getValue()[1]]} />,
+    }),
+    colHelper.accessor('timeCreated', {
+      header: 'created',
+      cell: (props) => <DateCell value={props.getValue()} />,
+    }),
+  ]
 
   const deleteSubnet = useApiMutation('vpcSubnetDelete', {
     onSuccess() {
@@ -52,6 +66,8 @@ export const VpcSubnetsTab = () => {
     [deleteSubnet]
   )
 
+  const columns = useColsWithActions(staticCols, makeActions)
+
   const emptyState = (
     <EmptyMessage
       title="No VPC subnets"
@@ -70,16 +86,7 @@ export const VpcSubnetsTab = () => {
         {creating && <CreateSubnetForm onDismiss={() => setCreating(false)} />}
         {editing && <EditSubnetForm editing={editing} onDismiss={() => setEditing(null)} />}
       </div>
-      <Table makeActions={makeActions} emptyState={emptyState}>
-        <Column accessor="name" />
-        <Column
-          id="ip-block"
-          header="IP Block"
-          accessor={(vpc) => [vpc.ipv4Block, vpc.ipv6Block]}
-          cell={TwoLineCell}
-        />
-        <Column accessor="timeCreated" header="Created" cell={DateCell} />
-      </Table>
+      <Table emptyState={emptyState} columns={columns} />
     </>
   )
 }
