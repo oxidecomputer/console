@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
 import { Link, Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
@@ -20,9 +21,9 @@ import { Networking24Icon } from '@oxide/design-system/icons/react'
 import { getProjectSelector, useProjectSelector, useQuickActions } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { DateCell } from '~/table/cells/DateCell'
-import { linkCell } from '~/table/cells/LinkCell'
-import type { MenuAction } from '~/table/columns/action-col'
-import { useQueryTable } from '~/table/QueryTable'
+import { makeLinkCell } from '~/table/cells/LinkCell'
+import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
+import { useQueryTable } from '~/table/QueryTable2'
 import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
@@ -53,6 +54,17 @@ export function VpcsPage() {
   // to have same params as QueryTable
   const { data: vpcs } = usePrefetchedApiQuery('vpcList', { query: { project, limit: 25 } })
   const navigate = useNavigate()
+
+  const colHelper = createColumnHelper<Vpc>()
+  const staticCols = [
+    colHelper.accessor('name', { cell: makeLinkCell((vpc) => pb.vpc({ project, vpc })) }),
+    colHelper.accessor('dnsName', { header: 'DNS name' }),
+    colHelper.accessor('description', {}),
+    colHelper.accessor('timeCreated', {
+      header: 'created',
+      cell: (props) => <DateCell value={props.getValue()} />,
+    }),
+  ]
 
   const deleteVpc = useApiMutation('vpcDelete', {
     onSuccess() {
@@ -97,7 +109,8 @@ export function VpcsPage() {
     )
   )
 
-  const { Table, Column } = useQueryTable('vpcList', { query: { project } })
+  const columns = useColsWithActions(staticCols, makeActions)
+  const { Table } = useQueryTable('vpcList', { query: { project } })
   return (
     <>
       <PageHeader>
@@ -108,12 +121,7 @@ export function VpcsPage() {
           New Vpc
         </Link>
       </TableActions>
-      <Table emptyState={<EmptyState />} makeActions={makeActions}>
-        <Column accessor="name" cell={linkCell((vpc) => pb.vpc({ project, vpc }))} />
-        <Column accessor="dnsName" header="DNS name" />
-        <Column accessor="description" />
-        <Column accessor="timeCreated" header="Created" cell={DateCell} />
-      </Table>
+      <Table emptyState={<EmptyState />} columns={columns} />
       <Outlet />
     </>
   )
