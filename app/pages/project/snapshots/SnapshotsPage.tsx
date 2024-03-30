@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback } from 'react'
 import { Link, Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
@@ -23,8 +24,8 @@ import { confirmDelete } from '~/stores/confirm-delete'
 import { DateCell } from '~/table/cells/DateCell'
 import { SkeletonCell } from '~/table/cells/EmptyCell'
 import { SizeCell } from '~/table/cells/SizeCell'
-import type { MenuAction } from '~/table/columns/action-col'
-import { useQueryTable } from '~/table/QueryTable'
+import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
+import { useQueryTable } from '~/table/QueryTable2'
 import { Badge } from '~/ui/lib/Badge'
 import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -83,8 +84,25 @@ SnapshotsPage.loader = async ({ params }: LoaderFunctionArgs) => {
 export function SnapshotsPage() {
   const queryClient = useApiQueryClient()
   const { project } = useProjectSelector()
-  const { Table, Column } = useQueryTable('snapshotList', { query: { project } })
+  const { Table } = useQueryTable('snapshotList', { query: { project } })
   const navigate = useNavigate()
+
+  const colHelper = createColumnHelper<Snapshot>()
+  const staticCols = [
+    colHelper.accessor('name', {}),
+    colHelper.accessor('description', {}),
+    colHelper.accessor('diskId', {
+      cell: (info) => <DiskNameFromId value={info.getValue()} />,
+    }),
+    colHelper.accessor('state', {
+      cell: (info) => <SnapshotStatusBadge status={info.getValue()} />,
+    }),
+    colHelper.accessor('size', { cell: (info) => <SizeCell value={info.getValue()} /> }),
+    colHelper.accessor('timeCreated', {
+      header: 'created',
+      cell: (props) => <DateCell value={props.getValue()} />,
+    }),
+  ]
 
   const deleteSnapshot = useApiMutation('snapshotDelete', {
     onSuccess() {
@@ -114,6 +132,7 @@ export function SnapshotsPage() {
     ],
     [deleteSnapshot, navigate, project]
   )
+  const columns = useColsWithActions(staticCols, makeActions)
   return (
     <>
       <PageHeader>
@@ -124,17 +143,7 @@ export function SnapshotsPage() {
           New Snapshot
         </Link>
       </TableActions>
-      <Table emptyState={<EmptyState />} makeActions={makeActions}>
-        <Column accessor="name" />
-        <Column accessor="description" />
-        <Column id="disk" accessor="diskId" cell={DiskNameFromId} />
-        <Column
-          accessor="state"
-          cell={({ value }) => <SnapshotStatusBadge status={value} />}
-        />
-        <Column accessor="size" cell={SizeCell} />
-        <Column accessor="timeCreated" id="Created" cell={DateCell} />
-      </Table>
+      <Table emptyState={<EmptyState />} columns={columns} />
       <Outlet />
     </>
   )
