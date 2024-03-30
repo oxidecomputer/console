@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useState } from 'react'
 import { type LoaderFunctionArgs } from 'react-router-dom'
 
@@ -30,8 +31,8 @@ import {
 import { confirmDelete } from '~/stores/confirm-delete'
 import { SkeletonCell } from '~/table/cells/EmptyCell'
 import { LinkCell } from '~/table/cells/LinkCell'
-import type { MenuAction } from '~/table/columns/action-col'
-import { useQueryTable } from '~/table/QueryTable'
+import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
+import { useQueryTable } from '~/table/QueryTable2'
 import { Badge } from '~/ui/lib/Badge'
 import { Button } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -122,6 +123,29 @@ export function NetworkingTab() {
   })
   const canUpdateNic = instanceCan.updateNic(instance)
 
+  const colHelper = createColumnHelper<InstanceNetworkInterface>()
+  const staticCols = [
+    colHelper.accessor((i) => ({ name: i.name, primary: i.primary }), {
+      header: 'name',
+      cell: (info) => (
+        <>
+          <span>{info.getValue().name}</span>
+          {info.getValue().primary ? <Badge className="ml-2">primary</Badge> : null}
+        </>
+      ),
+    }),
+    colHelper.accessor('description', {}),
+    colHelper.accessor('ip', {}),
+    colHelper.accessor('vpcId', {
+      header: 'vpc',
+      cell: (info) => <VpcNameFromId value={info.getValue()} />,
+    }),
+    colHelper.accessor('subnetId', {
+      header: 'subnet',
+      cell: (info) => <SubnetNameFromId value={info.getValue()} />,
+    }),
+  ]
+
   const makeActions = useCallback(
     (nic: InstanceNetworkInterface): MenuAction[] => [
       {
@@ -180,30 +204,18 @@ export function NetworkingTab() {
     />
   )
 
-  const { Table, Column } = useQueryTable('instanceNetworkInterfaceList', {
+  const { Table } = useQueryTable('instanceNetworkInterfaceList', {
     query: instanceSelector,
   })
+
+  const columns = useColsWithActions(staticCols, makeActions)
+
   return (
     <>
       <h2 id="nic-label" className="mb-4 text-mono-sm text-secondary">
         Network Interfaces
       </h2>
-      <Table labeled-by="nic-label" makeActions={makeActions} emptyState={emptyState}>
-        <Column
-          accessor={(i) => ({ name: i.name, primary: i.primary })}
-          id="name"
-          cell={({ value: { name, primary } }) => (
-            <>
-              <span>{name}</span>
-              {primary ? <Badge className="ml-2">primary</Badge> : null}
-            </>
-          )}
-        />
-        <Column accessor="description" />
-        <Column accessor="ip" />
-        <Column header="vpc" accessor="vpcId" cell={VpcNameFromId} />
-        <Column header="subnet" accessor="subnetId" cell={SubnetNameFromId} />
-      </Table>
+      <Table labeled-by="nic-label" emptyState={emptyState} columns={columns} />
       <div className="mt-4 flex flex-col gap-3">
         <div className="flex gap-3">
           <Button
