@@ -5,11 +5,13 @@
  *
  * Copyright Oxide Computer Company
  */
-import { apiQueryClient } from '@oxide/api'
+import { createColumnHelper } from '@tanstack/react-table'
+
+import { apiQueryClient, type PhysicalDisk } from '@oxide/api'
 import { Racks24Icon } from '@oxide/design-system/icons/react'
 
 import { LabelCell } from '~/table/cells/LabelCell'
-import { useQueryTable } from '~/table/QueryTable'
+import { useQueryTable } from '~/table/QueryTable2'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 
 const EmptyState = () => {
@@ -28,21 +30,22 @@ DisksTab.loader = async () => {
 }
 
 export function DisksTab() {
-  const { Table, Column } = useQueryTable('physicalDiskList', {})
+  const { Table } = useQueryTable('physicalDiskList', {})
+  const colHelper = createColumnHelper<PhysicalDisk>()
+  const staticCols = [
+    colHelper.accessor('id', {}),
+    colHelper.accessor((d) => (d.formFactor === 'u2' ? 'U.2' : 'M.2'), {
+      header: 'Form factor',
+      id: 'form-factor',
+      cell: (info) => <LabelCell value={info.getValue()} />,
+    }),
+    colHelper.accessor('model', { header: 'model number' }),
+    colHelper.accessor('serial', { header: 'serial number' }),
+  ]
 
   return (
     <>
-      <Table emptyState={<EmptyState />}>
-        <Column accessor="id" />
-        <Column
-          id="form-factor"
-          accessor={(d) => (d.formFactor === 'u2' ? 'U.2' : 'M.2')}
-          header="Form factor"
-          cell={LabelCell}
-        />
-        <Column accessor="model" header="model number" />
-        <Column accessor="serial" header="serial number" />
-      </Table>
+      <Table emptyState={<EmptyState />} columns={staticCols} />
     </>
   )
 }
