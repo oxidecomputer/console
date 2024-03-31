@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
+import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
 import { Link, Outlet, type LoaderFunctionArgs } from 'react-router-dom'
 
@@ -36,8 +37,8 @@ import { addToast } from '~/stores/toast'
 import { DateCell } from '~/table/cells/DateCell'
 import { SkeletonCell } from '~/table/cells/EmptyCell'
 import { LinkCell } from '~/table/cells/LinkCell'
-import type { MenuAction } from '~/table/columns/action-col'
-import { useQueryTable } from '~/table/QueryTable'
+import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
+import { useQueryTable } from '~/table/QueryTable2'
 import { Badge } from '~/ui/lib/Badge'
 import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -142,8 +143,18 @@ function UtilizationBars() {
 
 function IpRangesTable() {
   const { pool } = useIpPoolSelector()
-  const { Table, Column } = useQueryTable('ipPoolRangeList', { path: { pool } })
+  const { Table } = useQueryTable('ipPoolRangeList', { path: { pool } })
   const queryClient = useApiQueryClient()
+
+  const colHelper = createColumnHelper<IpPoolRange>()
+  const staticCols = [
+    colHelper.accessor('range.first', { header: 'First' }),
+    colHelper.accessor('range.last', { header: 'Last' }),
+    colHelper.accessor('timeCreated', {
+      header: 'created',
+      cell: (props) => <DateCell value={props.getValue()} />,
+    }),
+  ]
 
   const removeRange = useApiMutation('ipPoolRangeRemove', {
     onSuccess() {
@@ -190,6 +201,7 @@ function IpRangesTable() {
     ],
     [pool, removeRange]
   )
+  const columns = useColsWithActions(staticCols, makeRangeActions)
 
   return (
     <>
@@ -198,11 +210,7 @@ function IpRangesTable() {
           Add range
         </Link>
       </div>
-      <Table emptyState={emptyState} makeActions={makeRangeActions}>
-        <Column accessor="range.first" header="First" />
-        <Column accessor="range.last" header="Last" />
-        <Column accessor="timeCreated" header="Created" cell={DateCell} />
-      </Table>
+      <Table emptyState={emptyState} columns={columns} />
     </>
   )
 }
@@ -218,7 +226,30 @@ function SiloNameFromId({ value: siloId }: { value: string }) {
 function LinkedSilosTable() {
   const poolSelector = useIpPoolSelector()
   const queryClient = useApiQueryClient()
-  const { Table, Column } = useQueryTable('ipPoolSiloList', { path: poolSelector })
+  const { Table } = useQueryTable('ipPoolSiloList', { path: poolSelector })
+
+  const colHelper = createColumnHelper<IpPoolSiloLink>()
+  const staticCols = [
+    colHelper.accessor('siloId', {
+      header: 'silo',
+      cell: (info) => <SiloNameFromId value={info.getValue()} />,
+    }),
+    colHelper.accessor('isDefault', {
+      header: 'Pool is silo default?',
+      id: 'default',
+      cell: (info) => {
+        const value = info.getValue()
+        return (
+          value && (
+            <>
+              <Success12Icon className="mr-1 text-accent" />
+              <Badge>default</Badge>
+            </>
+          )
+        )
+      },
+    }),
+  ]
 
   const unlinkSilo = useApiMutation('ipPoolSiloUnlink', {
     onSuccess() {
@@ -269,6 +300,7 @@ function LinkedSilosTable() {
     />
   )
 
+  const columns = useColsWithActions(staticCols, makeActions)
   return (
     <>
       <TableControls>
@@ -283,22 +315,7 @@ function LinkedSilosTable() {
           Link silo
         </TableControlsButton>
       </TableControls>
-      <Table emptyState={emptyState} makeActions={makeActions}>
-        <Column accessor="siloId" id="Silo" cell={SiloNameFromId} />
-        <Column
-          accessor="isDefault"
-          id="Default"
-          header="Pool is silo default?"
-          cell={({ value }) =>
-            value && (
-              <>
-                <Success12Icon className="mr-1 text-accent" />
-                <Badge>default</Badge>
-              </>
-            )
-          }
-        />
-      </Table>
+      <Table emptyState={emptyState} columns={columns} />
       {showLinkModal && <LinkSiloModal onDismiss={() => setShowLinkModal(false)} />}
     </>
   )
