@@ -199,7 +199,7 @@ export function FloatingIpsPage() {
           New Floating IP
         </TableControlsLink>
       </TableControls>
-      <Table emptyState={<EmptyState />} columns={columns} />
+      <Table columns={columns} emptyState={<EmptyState />} />
       <Outlet />
       {floatingIpToModify && (
         <AttachFloatingIpModal

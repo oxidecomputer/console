@@ -179,7 +179,7 @@ export function SiloIpPoolsTab() {
           Link pool
         </TableControlsButton>
       </TableControls>
-      <Table emptyState={<EmptyState />} columns={columns}></Table>
+      <Table columns={columns} emptyState={<EmptyState />} />
       {showLinkModal && <LinkPoolModal onDismiss={() => setShowLinkModal(false)} />}
     </>
   )

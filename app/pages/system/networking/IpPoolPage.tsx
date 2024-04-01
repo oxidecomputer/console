@@ -210,7 +210,7 @@ function IpRangesTable() {
           Add range
         </Link>
       </div>
-      <Table emptyState={emptyState} columns={columns} />
+      <Table columns={columns} emptyState={emptyState} />
     </>
   )
 }
@@ -232,22 +232,19 @@ function LinkedSilosTable() {
   const staticCols = [
     colHelper.accessor('siloId', {
       header: 'silo',
+      id: 'Silo',
       cell: (info) => <SiloNameFromId value={info.getValue()} />,
     }),
     colHelper.accessor('isDefault', {
       header: 'Pool is silo default?',
-      id: 'default',
-      cell: (info) => {
-        const value = info.getValue()
-        return (
-          value && (
-            <>
-              <Success12Icon className="mr-1 text-accent" />
-              <Badge>default</Badge>
-            </>
-          )
-        )
-      },
+      id: 'Default',
+      cell: (info) =>
+        info.getValue() && (
+          <>
+            <Success12Icon className="mr-1 text-accent" />
+            <Badge>default</Badge>
+          </>
+        ),
     }),
   ]
 
@@ -315,7 +312,7 @@ function LinkedSilosTable() {
           Link silo
         </TableControlsButton>
       </TableControls>
-      <Table emptyState={emptyState} columns={columns} />
+      <Table columns={columns} emptyState={emptyState} />
       {showLinkModal && <LinkSiloModal onDismiss={() => setShowLinkModal(false)} />}
     </>
   )

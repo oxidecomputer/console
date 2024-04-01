@@ -121,7 +121,7 @@ export function VpcsPage() {
           New Vpc
         </Link>
       </TableActions>
-      <Table emptyState={<EmptyState />} columns={columns} />
+      <Table columns={columns} emptyState={<EmptyState />} />
       <Outlet />
     </>
   )

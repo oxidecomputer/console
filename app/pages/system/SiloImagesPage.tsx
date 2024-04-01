@@ -108,7 +108,7 @@ export function SiloImagesPage() {
           Promote image
         </Button>
       </TableActions>
-      <Table emptyState={<EmptyState />} columns={columns} />
+      <Table columns={columns} emptyState={<EmptyState />} />
       {showModal && <PromoteImageModal onDismiss={() => setShowModal(false)} />}
       {demoteImage && (
         <DemoteImageModal onDismiss={() => setDemoteImage(null)} image={demoteImage} />

@@ -112,7 +112,7 @@ export function ImagesPage() {
           Upload image
         </Link>
       </TableActions>
-      <Table emptyState={<EmptyState />} columns={columns} />
+      <Table columns={columns} emptyState={<EmptyState />} />
       {promoteImageName && (
         <PromoteImageModal
           onDismiss={() => setPromoteImageName(null)}

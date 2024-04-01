@@ -129,7 +129,7 @@ export function ProjectsPage() {
           New Project
         </Link>
       </TableActions>
-      <Table emptyState={<EmptyState />} columns={columns} />
+      <Table columns={columns} emptyState={<EmptyState />} />
       <Outlet />
     </>
   )

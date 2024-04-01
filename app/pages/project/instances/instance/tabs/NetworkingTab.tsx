@@ -215,7 +215,7 @@ export function NetworkingTab() {
       <h2 id="nic-label" className="mb-4 text-mono-sm text-secondary">
         Network Interfaces
       </h2>
-      <Table labeled-by="nic-label" emptyState={emptyState} columns={columns} />
+      <Table labeled-by="nic-label" columns={columns} emptyState={emptyState} />
       <div className="mt-4 flex flex-col gap-3">
         <div className="flex gap-3">
           <Button

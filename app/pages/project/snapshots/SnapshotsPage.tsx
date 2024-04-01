@@ -143,7 +143,7 @@ export function SnapshotsPage() {
           New Snapshot
         </Link>
       </TableActions>
-      <Table emptyState={<EmptyState />} columns={columns} />
+      <Table columns={columns} emptyState={<EmptyState />} />
       <Outlet />
     </>
   )

@@ -84,7 +84,7 @@ export function SSHKeysPage() {
           Add SSH key
         </Link>
       </TableActions>
-      <Table emptyState={emptyState} columns={columns} />
+      <Table columns={columns} emptyState={emptyState} />
       <Outlet />
     </>
   )

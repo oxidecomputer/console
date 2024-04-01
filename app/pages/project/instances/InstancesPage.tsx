@@ -136,7 +136,7 @@ export function InstancesPage() {
           New Instance
         </Link>
       </TableActions>
-      <Table emptyState={<EmptyState />} columns={columns} />
+      <Table columns={columns} emptyState={<EmptyState />} />
     </>
   )
 }

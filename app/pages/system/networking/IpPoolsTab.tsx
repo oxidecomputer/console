@@ -128,7 +128,7 @@ export function IpPoolsTab() {
           New IP Pool
         </Link>
       </div>
-      <Table emptyState={<EmptyState />} columns={columns} />
+      <Table columns={columns} emptyState={<EmptyState />} />
       <Outlet />
     </>
   )
