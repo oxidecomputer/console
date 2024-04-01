@@ -61,6 +61,7 @@ import { SnapshotsPage } from './pages/project/snapshots/SnapshotsPage'
 import { VpcPage } from './pages/project/vpcs/VpcPage/VpcPage'
 import { VpcsPage } from './pages/project/vpcs/VpcsPage'
 import { ProjectsPage } from './pages/ProjectsPage'
+import { DebugLog } from './pages/settings/DebugLog'
 import { ProfilePage } from './pages/settings/ProfilePage'
 import { SSHKeysPage } from './pages/settings/SSHKeysPage'
 import { SiloAccessPage } from './pages/SiloAccessPage'
@@ -116,6 +117,7 @@ export const routes = createRoutesFromElements(
             handle={{ crumb: 'New SSH key' }}
           />
         </Route>
+        <Route path="debug" element={<DebugLog />} />
       </Route>
 
       <Route path="system" element={<SystemLayout />} loader={SystemLayout.loader}>
