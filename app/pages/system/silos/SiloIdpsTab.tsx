@@ -13,7 +13,6 @@ import { Cloud24Icon } from '@oxide/design-system/icons/react'
 import type { IdentityProvider } from '~/api'
 import { useSiloSelector } from '~/hooks'
 import { DateCell } from '~/table/cells/DateCell'
-import { DefaultCell } from '~/table/cells/DefaultCell'
 import { LinkCell } from '~/table/cells/LinkCell'
 import { TruncateCell } from '~/table/cells/TruncateCell'
 import { useQueryTable } from '~/table/QueryTable2'
@@ -36,16 +35,12 @@ export function SiloIdpsTab() {
   const colHelper = createColumnHelper<IdentityProvider>()
   const staticCols = [
     // TODO: this link will only really work for saml IdPs.
-    colHelper.accessor((i) => ({ name: i.name, providerType: i.providerType }), {
-      header: 'name',
+    colHelper.accessor('name', {
       cell: (info) => {
-        const { name, providerType } = info.getValue()
-        return providerType === 'saml' ? (
-          <LinkCell to={pb.samlIdp({ ...siloSelector, provider: info.getValue().name })}>
-            {name}
-          </LinkCell>
-        ) : (
-          <DefaultCell value={name} />
+        const provider = info.getValue()
+        if (info.row.original.providerType !== 'saml') return provider
+        return (
+          <LinkCell to={pb.samlIdp({ ...siloSelector, provider })}>{provider}</LinkCell>
         )
       },
     }),
