@@ -14,7 +14,7 @@ import type { IdentityProvider } from '~/api'
 import { useSiloSelector } from '~/hooks'
 import { DateCell } from '~/table/cells/DateCell'
 import { DefaultCell } from '~/table/cells/DefaultCell'
-import { makeLinkCell } from '~/table/cells/LinkCell'
+import { LinkCell } from '~/table/cells/LinkCell'
 import { TruncateCell } from '~/table/cells/TruncateCell'
 import { useQueryTable } from '~/table/QueryTable2'
 import { Badge } from '~/ui/lib/Badge'
@@ -33,31 +33,21 @@ export function SiloIdpsTab() {
     query: siloSelector,
   })
 
-  // Only SAML IdPs have a detail view API endpoint, so only SAML IdPs
-  // get a link to the detail view. This is a little awkward to do with
-  // linkCell as currently designed — probably worth a small rework
-  // TODO: This isn't actually rendering the linkCell as intended
-  const IdpNameCell = ({
-    name,
-    providerType,
-  }: Pick<IdentityProvider, 'name' | 'providerType'>) =>
-    providerType === 'saml' ? (
-      <>{makeLinkCell((name) => pb.samlIdp({ ...siloSelector, provider: name }))}</>
-    ) : (
-      <DefaultCell value={name} />
-    )
-
   const colHelper = createColumnHelper<IdentityProvider>()
   const staticCols = [
     // TODO: this link will only really work for saml IdPs.
     colHelper.accessor((i) => ({ name: i.name, providerType: i.providerType }), {
       header: 'name',
-      cell: (info) => (
-        <IdpNameCell
-          name={info.getValue().name}
-          providerType={info.getValue().providerType}
-        />
-      ),
+      cell: (info) => {
+        const { name, providerType } = info.getValue()
+        return providerType === 'saml' ? (
+          <LinkCell to={pb.samlIdp({ ...siloSelector, provider: info.getValue().name })}>
+            {name}
+          </LinkCell>
+        ) : (
+          <DefaultCell value={name} />
+        )
+      },
     }),
     colHelper.accessor('description', {
       cell: (info) => <TruncateCell value={info.getValue()} maxLength={48} />,
