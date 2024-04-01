@@ -16,7 +16,7 @@ import { requireSledParams, useSledParams } from '~/hooks'
 import { DateCell } from '~/table/cells/DateCell'
 import { InstanceResourceCell } from '~/table/cells/InstanceResourceCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
-import { useQueryTable } from '~/table/QueryTable2'
+import { useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { pick } from '~/util/object'
 

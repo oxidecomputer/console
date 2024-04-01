@@ -10,7 +10,7 @@ import { createColumnHelper } from '@tanstack/react-table'
 import { apiQueryClient, type Rack } from '@oxide/api'
 import { Racks24Icon } from '@oxide/design-system/icons/react'
 
-import { useQueryTable } from '~/table/QueryTable2'
+import { useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 
 const EmptyState = () => {

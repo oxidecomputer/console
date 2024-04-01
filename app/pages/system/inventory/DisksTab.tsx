@@ -11,7 +11,7 @@ import { apiQueryClient, type PhysicalDisk } from '@oxide/api'
 import { Racks24Icon } from '@oxide/design-system/icons/react'
 
 import { LabelCell } from '~/table/cells/LabelCell'
-import { useQueryTable } from '~/table/QueryTable2'
+import { useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 
 const EmptyState = () => {

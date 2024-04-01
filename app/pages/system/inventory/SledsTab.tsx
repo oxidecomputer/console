@@ -11,7 +11,7 @@ import { apiQueryClient, type Sled } from '@oxide/api'
 import { Racks24Icon } from '@oxide/design-system/icons/react'
 
 import { makeLinkCell } from '~/table/cells/LinkCell'
-import { useQueryTable } from '~/table/QueryTable2'
+import { useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { pb } from '~/util/path-builder'
 
