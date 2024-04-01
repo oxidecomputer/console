@@ -56,11 +56,11 @@ const staticColumns = [
   colHelper.accessor('name', {
     id: 'Utilization',
     header: 'Utilization',
-    cell: (props) => <UtilizationCell pool={props.getValue()} />,
+    cell: (info) => <UtilizationCell pool={info.getValue()} />,
   }),
   colHelper.accessor('timeCreated', {
     header: 'Created',
-    cell: (props) => <DateCell value={props.getValue()} />,
+    cell: (info) => <DateCell value={info.getValue()} />,
   }),
 ]
 

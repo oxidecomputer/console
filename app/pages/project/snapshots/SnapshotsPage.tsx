@@ -100,7 +100,7 @@ export function SnapshotsPage() {
     colHelper.accessor('size', { cell: (info) => <SizeCell value={info.getValue()} /> }),
     colHelper.accessor('timeCreated', {
       header: 'created',
-      cell: (props) => <DateCell value={props.getValue()} />,
+      cell: (info) => <DateCell value={info.getValue()} />,
     }),
   ]
 

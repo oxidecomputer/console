@@ -80,17 +80,17 @@ const staticCols = [
     (disk) => ('instance' in disk.state ? disk.state.instance : undefined),
     {
       header: 'Attached to',
-      cell: (props) => <InstanceLinkCell instanceId={props.getValue()} />,
+      cell: (info) => <InstanceLinkCell instanceId={info.getValue()} />,
     }
   ),
-  colHelper.accessor('size', { cell: (props) => <SizeCell value={props.getValue()} /> }),
+  colHelper.accessor('size', { cell: (info) => <SizeCell value={info.getValue()} /> }),
   colHelper.accessor('state.state', {
     header: 'Status',
-    cell: (props) => <DiskStatusBadge status={props.getValue()} />,
+    cell: (info) => <DiskStatusBadge status={info.getValue()} />,
   }),
   colHelper.accessor('timeCreated', {
     header: 'Created',
-    cell: (props) => <DateCell value={props.getValue()} />,
+    cell: (info) => <DateCell value={info.getValue()} />,
   }),
 ]
 

@@ -148,7 +148,7 @@ function IpRangesTable() {
     colHelper.accessor('range.last', { header: 'Last' }),
     colHelper.accessor('timeCreated', {
       header: 'created',
-      cell: (props) => <DateCell value={props.getValue()} />,
+      cell: (info) => <DateCell value={info.getValue()} />,
     }),
   ]
 

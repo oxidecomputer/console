@@ -62,7 +62,7 @@ export function VpcsPage() {
     colHelper.accessor('description', {}),
     colHelper.accessor('timeCreated', {
       header: 'created',
-      cell: (props) => <DateCell value={props.getValue()} />,
+      cell: (info) => <DateCell value={info.getValue()} />,
     }),
   ]
 

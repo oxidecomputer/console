@@ -53,7 +53,7 @@ export function SiloIdpsTab() {
     }),
     colHelper.accessor('timeCreated', {
       header: 'created',
-      cell: (props) => <DateCell value={props.getValue()} />,
+      cell: (info) => <DateCell value={info.getValue()} />,
     }),
   ]
 

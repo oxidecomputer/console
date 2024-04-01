@@ -69,7 +69,7 @@ export function SiloImagesPage() {
     colHelper.accessor('size', { cell: (info) => <SizeCell value={info.getValue()} /> }),
     colHelper.accessor('timeCreated', {
       header: 'Created',
-      cell: (props) => <DateCell value={props.getValue()} />,
+      cell: (info) => <DateCell value={info.getValue()} />,
     }),
   ]
 

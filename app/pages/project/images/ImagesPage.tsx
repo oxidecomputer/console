@@ -61,11 +61,11 @@ export function ImagesPage() {
     columnHelper.accessor('description', {}),
     columnHelper.accessor('size', {
       header: 'Size',
-      cell: (props) => <SizeCell value={props.getValue()} />,
+      cell: (info) => <SizeCell value={info.getValue()} />,
     }),
     columnHelper.accessor('timeCreated', {
       header: 'Created',
-      cell: (props) => <DateCell value={props.getValue()} />,
+      cell: (info) => <DateCell value={info.getValue()} />,
     }),
   ]
 

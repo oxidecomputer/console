@@ -39,7 +39,7 @@ export function SSHKeysPage() {
     colHelper.accessor('description', {}),
     colHelper.accessor('timeModified', {
       header: 'Last updated',
-      cell: (props) => <DateCell value={props.getValue()} />,
+      cell: (info) => <DateCell value={info.getValue()} />,
     }),
   ]
 
