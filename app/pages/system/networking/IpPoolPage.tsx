@@ -20,11 +20,7 @@ import {
   type IpPoolRange,
   type IpPoolSiloLink,
 } from '@oxide/api'
-import {
-  IpGlobal16Icon,
-  Networking24Icon,
-  Success12Icon,
-} from '@oxide/design-system/icons/react'
+import { IpGlobal16Icon, Networking24Icon } from '@oxide/design-system/icons/react'
 
 import { CapacityBar } from '~/components/CapacityBar'
 import { ExternalLink } from '~/components/ExternalLink'
@@ -35,11 +31,11 @@ import { getIpPoolSelector, useForm, useIpPoolSelector } from '~/hooks'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
 import { DateCell } from '~/table/cells/DateCell'
+import { DefaultPoolCell } from '~/table/cells/DefaultPoolCell'
 import { SkeletonCell } from '~/table/cells/EmptyCell'
 import { LinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable2'
-import { Badge } from '~/ui/lib/Badge'
 import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
@@ -231,20 +227,12 @@ function LinkedSilosTable() {
   const colHelper = createColumnHelper<IpPoolSiloLink>()
   const staticCols = [
     colHelper.accessor('siloId', {
-      header: 'silo',
-      id: 'Silo',
+      header: 'Silo',
       cell: (info) => <SiloNameFromId value={info.getValue()} />,
     }),
     colHelper.accessor('isDefault', {
       header: 'Pool is silo default?',
-      id: 'Default',
-      cell: (info) =>
-        info.getValue() && (
-          <>
-            <Success12Icon className="mr-1 text-accent" />
-            <Badge>default</Badge>
-          </>
-        ),
+      cell: (info) => <DefaultPoolCell value={info.getValue()} />,
     }),
   ]
 
