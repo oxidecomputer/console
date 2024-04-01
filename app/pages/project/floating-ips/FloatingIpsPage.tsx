@@ -27,7 +27,6 @@ import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { InstanceLinkCell } from '~/table/cells/InstanceLinkCell'
-import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -91,9 +90,7 @@ export function FloatingIpsPage() {
   const colHelper = createColumnHelper<FloatingIp>()
 
   const staticCols = [
-    colHelper.accessor('name', {
-      cell: makeLinkCell((name) => pb.floatingIp({ floatingIp: name, project })),
-    }),
+    colHelper.accessor('name', {}),
     colHelper.accessor('description', {}),
     colHelper.accessor('ip', {}),
     colHelper.accessor('instanceId', {
