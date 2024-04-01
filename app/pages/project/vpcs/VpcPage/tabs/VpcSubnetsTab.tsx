@@ -32,13 +32,13 @@ export const VpcSubnetsTab = () => {
   const colHelper = createColumnHelper<VpcSubnet>()
   const staticCols = [
     colHelper.accessor('name', {}),
-    colHelper.accessor((vpc) => [vpc.ipv4Block, vpc.ipv6Block], {
+    colHelper.accessor((vpc) => [vpc.ipv4Block, vpc.ipv6Block] as const, {
       header: 'IP Block',
-      cell: (info) => <TwoLineCell value={[info.getValue()[0], info.getValue()[1]]} />,
+      cell: (info) => <TwoLineCell value={[...info.getValue()]} />,
     }),
     colHelper.accessor('timeCreated', {
       header: 'created',
-      cell: (props) => <DateCell value={props.getValue()} />,
+      cell: (info) => <DateCell value={info.getValue()} />,
     }),
   ]
 
