@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { createColumnHelper } from '@tanstack/react-table'
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { Link, Outlet, type LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, useApiMutation, useApiQueryClient, type Image } from '@oxide/api'
@@ -17,7 +17,7 @@ import { confirmDelete } from '~/stores/confirm-delete'
 import { DateCell } from '~/table/cells/DateCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { SizeCell } from '~/table/cells/SizeCell'
-import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
+import { getActionsCol, type MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
 import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -37,6 +37,8 @@ const EmptyState = () => (
   />
 )
 
+const columnHelper = createColumnHelper<Image>()
+
 ImagesPage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project } = getProjectSelector(params)
   await apiQueryClient.prefetchQuery('imageList', {
@@ -52,22 +54,6 @@ export function ImagesPage() {
   const addToast = useToast()
 
   const [promoteImageName, setPromoteImageName] = useState<string | null>(null)
-
-  const columnHelper = createColumnHelper<Image>()
-  const staticCols = [
-    columnHelper.accessor('name', {
-      cell: makeLinkCell((image) => pb.projectImageEdit({ ...projectSelector, image })),
-    }),
-    columnHelper.accessor('description', {}),
-    columnHelper.accessor('size', {
-      header: 'size',
-      cell: (info) => <SizeCell value={info.getValue()} />,
-    }),
-    columnHelper.accessor('timeCreated', {
-      header: 'created',
-      cell: (info) => <DateCell value={info.getValue()} />,
-    }),
-  ]
 
   const deleteImage = useApiMutation('imageDelete', {
     onSuccess(_data, variables) {
@@ -97,7 +83,23 @@ export function ImagesPage() {
     [deleteImage, projectSelector]
   )
 
-  const columns = useColsWithActions(staticCols, makeActions)
+  const columns = useMemo(() => {
+    return [
+      columnHelper.accessor('name', {
+        cell: makeLinkCell((image) => pb.projectImageEdit({ ...projectSelector, image })),
+      }),
+      columnHelper.accessor('description', {}),
+      columnHelper.accessor('size', {
+        header: 'size',
+        cell: (info) => <SizeCell value={info.getValue()} />,
+      }),
+      columnHelper.accessor('timeCreated', {
+        header: 'created',
+        cell: (info) => <DateCell value={info.getValue()} />,
+      }),
+      getActionsCol(makeActions),
+    ]
+  }, [projectSelector, makeActions])
 
   return (
     <>
