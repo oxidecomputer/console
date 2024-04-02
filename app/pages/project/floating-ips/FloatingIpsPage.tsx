@@ -62,7 +62,7 @@ FloatingIpsPage.loader = async ({ params }: LoaderFunctionArgs) => {
 }
 
 const colHelper = createColumnHelper<FloatingIp>()
-const floatingIpsStaticCols = [
+const staticCols = [
   colHelper.accessor('name', {}),
   colHelper.accessor('description', {}),
   colHelper.accessor('ip', {}),
@@ -178,7 +178,7 @@ export function FloatingIpsPage() {
 
   const { Table } = useQueryTable('floatingIpList', { query: { project } })
 
-  const columns = useColsWithActions(floatingIpsStaticCols, makeActions)
+  const columns = useColsWithActions(staticCols, makeActions)
 
   return (
     <>

@@ -53,7 +53,7 @@ SiloImagesPage.loader = async () => {
 }
 
 const colHelper = createColumnHelper<Image>()
-const siloImagesStaticCols = [
+const staticCols = [
   colHelper.accessor('name', {
     cell: makeLinkCell((image) => pb.siloImageEdit({ image })),
   }),
@@ -95,7 +95,7 @@ export function SiloImagesPage() {
     [deleteImage]
   )
 
-  const columns = useColsWithActions(siloImagesStaticCols, makeActions)
+  const columns = useColsWithActions(staticCols, makeActions)
   return (
     <>
       <PageHeader>

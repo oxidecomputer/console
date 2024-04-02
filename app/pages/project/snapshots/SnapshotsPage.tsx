@@ -82,7 +82,7 @@ SnapshotsPage.loader = async ({ params }: LoaderFunctionArgs) => {
 }
 
 const colHelper = createColumnHelper<Snapshot>()
-const snapshotsPageStaticCols = [
+const staticCols = [
   colHelper.accessor('name', {}),
   colHelper.accessor('description', {}),
   colHelper.accessor('diskId', {
@@ -133,7 +133,7 @@ export function SnapshotsPage() {
     ],
     [deleteSnapshot, navigate, project]
   )
-  const columns = useColsWithActions(snapshotsPageStaticCols, makeActions)
+  const columns = useColsWithActions(staticCols, makeActions)
   return (
     <>
       <PageHeader>

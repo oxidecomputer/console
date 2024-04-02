@@ -47,7 +47,7 @@ ProjectsPage.loader = async () => {
 }
 
 const colHelper = createColumnHelper<Project>()
-const projectsPageStaticCols = [
+const staticCols = [
   colHelper.accessor('name', {
     cell: makeLinkCell((project) => pb.instances({ project })),
   }),
@@ -118,7 +118,7 @@ export function ProjectsPage() {
     )
   )
 
-  const columns = useColsWithActions(projectsPageStaticCols, makeActions)
+  const columns = useColsWithActions(staticCols, makeActions)
   return (
     <>
       <PageHeader>

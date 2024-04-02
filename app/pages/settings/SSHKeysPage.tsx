@@ -28,7 +28,7 @@ SSHKeysPage.loader = async () => {
 }
 
 const colHelper = createColumnHelper<SshKey>()
-const sshKeysStaticCols = [
+const staticCols = [
   colHelper.accessor('name', {}),
   colHelper.accessor('description', {}),
   colHelper.accessor('timeModified', {
@@ -72,7 +72,7 @@ export function SSHKeysPage() {
     />
   )
 
-  const columns = useColsWithActions(sshKeysStaticCols, makeActions)
+  const columns = useColsWithActions(staticCols, makeActions)
 
   return (
     <>

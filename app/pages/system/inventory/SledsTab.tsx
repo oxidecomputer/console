@@ -33,7 +33,7 @@ SledsTab.loader = async () => {
 }
 
 const colHelper = createColumnHelper<Sled>()
-const sledsTabStaticCols = [
+const staticCols = [
   colHelper.accessor('id', {
     cell: makeLinkCell((sledId) => pb.sled({ sledId })),
   }),
@@ -45,5 +45,5 @@ const sledsTabStaticCols = [
 
 export function SledsTab() {
   const { Table } = useQueryTable('sledList', {}, { placeholderData: (x) => x })
-  return <Table emptyState={<EmptyState />} columns={sledsTabStaticCols} />
+  return <Table emptyState={<EmptyState />} columns={staticCols} />
 }
