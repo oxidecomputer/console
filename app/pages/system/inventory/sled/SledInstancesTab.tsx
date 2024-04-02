@@ -53,7 +53,6 @@ export function SledInstancesTab() {
   const staticCols = [
     colHelper.accessor((i) => pick(i, 'name', 'siloName', 'projectName'), {
       header: 'name',
-      id: 'name',
       cell: (info) => {
         const value = info.getValue()
         return (

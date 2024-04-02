@@ -36,7 +36,6 @@ export function DisksTab() {
     colHelper.accessor('id', {}),
     colHelper.accessor((d) => (d.formFactor === 'u2' ? 'U.2' : 'M.2'), {
       header: 'Form factor',
-      id: 'form-factor',
       cell: (info) => <Badge>{info.getValue()}</Badge>,
     }),
     colHelper.accessor('model', { header: 'model number' }),

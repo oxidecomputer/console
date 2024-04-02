@@ -54,7 +54,6 @@ const staticColumns = [
   colHelper.accessor('name', { cell: makeLinkCell((pool) => pb.ipPool({ pool })) }),
   colHelper.accessor('description', {}),
   colHelper.accessor('name', {
-    id: 'Utilization',
     header: 'Utilization',
     cell: (info) => <UtilizationCell pool={info.getValue()} />,
   }),

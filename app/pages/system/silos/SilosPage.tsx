@@ -67,7 +67,7 @@ export function SilosPage() {
       cell: (info) => <BooleanCell isTrue={info.getValue()} />,
     }),
     colHelper.accessor((silo) => silo.identityMode, {
-      id: 'Identity mode',
+      header: 'Identity mode',
       cell: (info) => <Badge>{info.getValue().replace('_', ' ')}</Badge>,
     }),
     colHelper.accessor('timeCreated', {
