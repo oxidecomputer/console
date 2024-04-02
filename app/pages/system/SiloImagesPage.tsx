@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
 import { type FieldValues } from 'react-hook-form'
 import { Outlet } from 'react-router-dom'
@@ -24,9 +25,9 @@ import { useForm, useToast } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { DateCell } from '~/table/cells/DateCell'
-import { linkCell } from '~/table/cells/LinkCell'
+import { makeLinkCell } from '~/table/cells/LinkCell'
 import { SizeCell } from '~/table/cells/SizeCell'
-import type { MenuAction } from '~/table/columns/action-col'
+import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
 import { Button } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -51,10 +52,22 @@ SiloImagesPage.loader = async () => {
   return null
 }
 
-export function SiloImagesPage() {
-  const { Table, Column } = useQueryTable('imageList', {})
-  const [showModal, setShowModal] = useState(false)
+const colHelper = createColumnHelper<Image>()
+const staticCols = [
+  colHelper.accessor('name', {
+    cell: makeLinkCell((image) => pb.siloImageEdit({ image })),
+  }),
+  colHelper.accessor('description', {}),
+  colHelper.accessor('size', { cell: (info) => <SizeCell value={info.getValue()} /> }),
+  colHelper.accessor('timeCreated', {
+    header: 'Created',
+    cell: (info) => <DateCell value={info.getValue()} />,
+  }),
+]
 
+export function SiloImagesPage() {
+  const { Table } = useQueryTable('imageList', {})
+  const [showModal, setShowModal] = useState(false)
   const [demoteImage, setDemoteImage] = useState<Image | null>(null)
 
   const queryClient = useApiQueryClient()
@@ -82,6 +95,7 @@ export function SiloImagesPage() {
     [deleteImage]
   )
 
+  const columns = useColsWithActions(staticCols, makeActions)
   return (
     <>
       <PageHeader>
@@ -92,12 +106,7 @@ export function SiloImagesPage() {
           Promote image
         </Button>
       </TableActions>
-      <Table emptyState={<EmptyState />} makeActions={makeActions}>
-        <Column accessor="name" cell={linkCell((image) => pb.siloImageEdit({ image }))} />
-        <Column accessor="description" />
-        <Column accessor="size" cell={SizeCell} />
-        <Column accessor="timeCreated" header="Created" cell={DateCell} />
-      </Table>
+      <Table columns={columns} emptyState={<EmptyState />} />
       {showModal && <PromoteImageModal onDismiss={() => setShowModal(false)} />}
       {demoteImage && (
         <DemoteImageModal onDismiss={() => setDemoteImage(null)} image={demoteImage} />

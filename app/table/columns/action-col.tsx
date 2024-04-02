@@ -26,7 +26,7 @@ export type MenuAction = {
 }
 
 /** Convenience helper to combine regular cols with actions col and memoize */
-export function useColsWithActions<TData extends { id?: string }>(
+export function useColsWithActions<TData extends Record<string, unknown>>(
   /** Should be static or memoized */
   columns: ColumnDef<TData, any>[], // eslint-disable-line @typescript-eslint/no-explicit-any
   /** Must be memoized to avoid re-renders */
@@ -35,7 +35,7 @@ export function useColsWithActions<TData extends { id?: string }>(
   return useMemo(() => [...columns, getActionsCol(makeActions)], [columns, makeActions])
 }
 
-export const getActionsCol = <TData extends { id?: string }>(
+export const getActionsCol = <TData extends Record<string, unknown>>(
   makeActions: MakeActions<TData>
 ): ColumnDef<TData> => {
   return {
@@ -49,7 +49,7 @@ export const getActionsCol = <TData extends { id?: string }>(
     cell: ({ row }) => {
       // TODO: control flow here has always confused me, would like to straighten it out
       const actions = makeActions(row.original)
-      const id = row.original.id
+      const id = typeof row.original.id === 'string' ? row.original.id : null
       return (
         <DropdownMenu.Root>
           {/* TODO: This name should not suck; future us, make it so! */}

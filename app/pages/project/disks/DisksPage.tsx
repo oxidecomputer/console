@@ -26,7 +26,7 @@ import { DateCell } from '~/table/cells/DateCell'
 import { InstanceLinkCell } from '~/table/cells/InstanceLinkCell'
 import { SizeCell } from '~/table/cells/SizeCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
-import { useQueryTable } from '~/table/QueryTable2'
+import { useQueryTable } from '~/table/QueryTable'
 import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
@@ -80,17 +80,17 @@ const staticCols = [
     (disk) => ('instance' in disk.state ? disk.state.instance : undefined),
     {
       header: 'Attached to',
-      cell: (props) => <InstanceLinkCell instanceId={props.getValue()} />,
+      cell: (info) => <InstanceLinkCell instanceId={info.getValue()} />,
     }
   ),
-  colHelper.accessor('size', { cell: (props) => <SizeCell value={props.getValue()} /> }),
+  colHelper.accessor('size', { cell: (info) => <SizeCell value={info.getValue()} /> }),
   colHelper.accessor('state.state', {
     header: 'Status',
-    cell: (props) => <DiskStatusBadge status={props.getValue()} />,
+    cell: (info) => <DiskStatusBadge status={info.getValue()} />,
   }),
   colHelper.accessor('timeCreated', {
     header: 'Created',
-    cell: (props) => <DateCell value={props.getValue()} />,
+    cell: (info) => <DateCell value={info.getValue()} />,
   }),
 ]
 
@@ -172,7 +172,7 @@ export function DisksPage() {
           New Disk
         </Link>
       </TableActions>
-      <Table emptyState={<EmptyState />} columns={columns} />
+      <Table columns={columns} emptyState={<EmptyState />} />
       <Outlet />
     </>
   )

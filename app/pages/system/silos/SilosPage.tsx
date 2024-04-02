@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 
@@ -21,8 +22,8 @@ import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { BooleanCell } from '~/table/cells/BooleanCell'
 import { DateCell } from '~/table/cells/DateCell'
-import { linkCell } from '~/table/cells/LinkCell'
-import type { MenuAction } from '~/table/columns/action-col'
+import { makeLinkCell } from '~/table/cells/LinkCell'
+import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
 import { Badge } from '~/ui/lib/Badge'
 import { buttonStyle } from '~/ui/lib/Button'
@@ -41,6 +42,25 @@ const EmptyState = () => (
   />
 )
 
+const colHelper = createColumnHelper<Silo>()
+const staticCols = [
+  colHelper.accessor('name', {
+    cell: (info) => makeLinkCell((name) => pb.silo({ silo: name }))(info),
+  }),
+  colHelper.accessor('description', {}),
+  colHelper.accessor('discoverable', {
+    cell: (info) => <BooleanCell isTrue={info.getValue()} />,
+  }),
+  colHelper.accessor((silo) => silo.identityMode, {
+    header: 'Identity mode',
+    cell: (info) => <Badge>{info.getValue().replace('_', ' ')}</Badge>,
+  }),
+  colHelper.accessor('timeCreated', {
+    header: 'created',
+    cell: (info) => <DateCell value={info.getValue()} />,
+  }),
+]
+
 SilosPage.loader = async () => {
   await apiQueryClient.prefetchQuery('siloList', { query: { limit: 25 } })
   return null
@@ -49,7 +69,7 @@ SilosPage.loader = async () => {
 export function SilosPage() {
   const navigate = useNavigate()
 
-  const { Table, Column } = useQueryTable('siloList', {})
+  const { Table } = useQueryTable('siloList', {})
   const queryClient = useApiQueryClient()
 
   const { data: silos } = usePrefetchedApiQuery('siloList', {
@@ -89,6 +109,8 @@ export function SilosPage() {
     )
   )
 
+  const columns = useColsWithActions(staticCols, makeActions)
+
   return (
     <>
       <PageHeader>
@@ -99,17 +121,7 @@ export function SilosPage() {
           New silo
         </Link>
       </TableActions>
-      <Table emptyState={<EmptyState />} makeActions={makeActions}>
-        <Column accessor="name" cell={linkCell((silo) => pb.silo({ silo }))} />
-        <Column accessor="description" />
-        <Column accessor="discoverable" cell={BooleanCell} />
-        <Column
-          id="Identity mode"
-          accessor={(silo) => silo.identityMode}
-          cell={({ value }) => <Badge>{value.replace('_', ' ')}</Badge>}
-        />
-        <Column accessor="timeModified" header="Last updated" cell={DateCell} />
-      </Table>
+      <Table columns={columns} emptyState={<EmptyState />} />
       <Outlet />
     </>
   )

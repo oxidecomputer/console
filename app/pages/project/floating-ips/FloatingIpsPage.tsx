@@ -27,9 +27,8 @@ import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { InstanceLinkCell } from '~/table/cells/InstanceLinkCell'
-import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
-import { useQueryTable } from '~/table/QueryTable2'
+import { useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Listbox } from '~/ui/lib/Listbox'
 import { Message } from '~/ui/lib/Message'
@@ -62,6 +61,17 @@ FloatingIpsPage.loader = async ({ params }: LoaderFunctionArgs) => {
   return null
 }
 
+const colHelper = createColumnHelper<FloatingIp>()
+const staticCols = [
+  colHelper.accessor('name', {}),
+  colHelper.accessor('description', {}),
+  colHelper.accessor('ip', {}),
+  colHelper.accessor('instanceId', {
+    cell: (info) => <InstanceLinkCell instanceId={info.getValue()} />,
+    header: 'Attached to instance',
+  }),
+]
+
 export function FloatingIpsPage() {
   const [floatingIpToModify, setFloatingIpToModify] = useState<FloatingIp | null>(null)
   const queryClient = useApiQueryClient()
@@ -87,20 +97,6 @@ export function FloatingIpsPage() {
       addToast({ content: 'Your floating IP has been deleted' })
     },
   })
-
-  const colHelper = createColumnHelper<FloatingIp>()
-
-  const staticCols = [
-    colHelper.accessor('name', {
-      cell: makeLinkCell((name) => pb.floatingIp({ floatingIp: name, project })),
-    }),
-    colHelper.accessor('description', {}),
-    colHelper.accessor('ip', {}),
-    colHelper.accessor('instanceId', {
-      cell: (props) => <InstanceLinkCell instanceId={props.getValue()} />,
-      header: 'Attached to instance',
-    }),
-  ]
 
   const makeActions = useCallback(
     (floatingIp: FloatingIp): MenuAction[] => {
@@ -199,7 +195,7 @@ export function FloatingIpsPage() {
           New Floating IP
         </TableControlsLink>
       </TableControls>
-      <Table emptyState={<EmptyState />} columns={columns} />
+      <Table columns={columns} emptyState={<EmptyState />} />
       <Outlet />
       {floatingIpToModify && (
         <AttachFloatingIpModal

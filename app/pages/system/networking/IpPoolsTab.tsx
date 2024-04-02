@@ -26,7 +26,7 @@ import { DateCell } from '~/table/cells/DateCell'
 import { SkeletonCell } from '~/table/cells/EmptyCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
-import { useQueryTable } from '~/table/QueryTable2'
+import { useQueryTable } from '~/table/QueryTable'
 import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { pb } from '~/util/path-builder'
@@ -54,13 +54,12 @@ const staticColumns = [
   colHelper.accessor('name', { cell: makeLinkCell((pool) => pb.ipPool({ pool })) }),
   colHelper.accessor('description', {}),
   colHelper.accessor('name', {
-    id: 'Utilization',
     header: 'Utilization',
-    cell: (props) => <UtilizationCell pool={props.getValue()} />,
+    cell: (info) => <UtilizationCell pool={info.getValue()} />,
   }),
   colHelper.accessor('timeCreated', {
     header: 'Created',
-    cell: (props) => <DateCell value={props.getValue()} />,
+    cell: (info) => <DateCell value={info.getValue()} />,
   }),
 ]
 
@@ -128,7 +127,7 @@ export function IpPoolsTab() {
           New IP Pool
         </Link>
       </div>
-      <Table emptyState={<EmptyState />} columns={columns} />
+      <Table columns={columns} emptyState={<EmptyState />} />
       <Outlet />
     </>
   )

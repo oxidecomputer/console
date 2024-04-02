@@ -114,12 +114,12 @@ export function SiloAccessPage() {
       colHelper.accessor('name', { header: 'Name' }),
       colHelper.accessor('identityType', {
         header: 'Type',
-        cell: (props) => identityTypeLabel[props.getValue()],
+        cell: (info) => identityTypeLabel[info.getValue()],
       }),
       colHelper.accessor('siloRole', {
         header: 'Role',
-        cell: (props) => {
-          const role = props.getValue()
+        cell: (info) => {
+          const role = info.getValue()
           return role ? <Badge color={roleColor[role]}>silo.{role}</Badge> : null
         },
       }),

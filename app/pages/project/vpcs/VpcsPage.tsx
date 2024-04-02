@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
 import { Link, Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
@@ -20,8 +21,8 @@ import { Networking24Icon } from '@oxide/design-system/icons/react'
 import { getProjectSelector, useProjectSelector, useQuickActions } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { DateCell } from '~/table/cells/DateCell'
-import { linkCell } from '~/table/cells/LinkCell'
-import type { MenuAction } from '~/table/columns/action-col'
+import { makeLinkCell } from '~/table/cells/LinkCell'
+import { getActionsCol, type MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
 import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -38,6 +39,8 @@ const EmptyState = () => (
     buttonTo={pb.vpcsNew(useProjectSelector())}
   />
 )
+
+const colHelper = createColumnHelper<Vpc>()
 
 // just as in the vpcList call for the quick actions menu, include limit: 25 to make
 // sure it matches the call in the QueryTable
@@ -97,7 +100,23 @@ export function VpcsPage() {
     )
   )
 
-  const { Table, Column } = useQueryTable('vpcList', { query: { project } })
+  const columns = useMemo(
+    () => [
+      colHelper.accessor('name', {
+        cell: makeLinkCell((vpc) => pb.vpc({ project, vpc })),
+      }),
+      colHelper.accessor('dnsName', { header: 'DNS name' }),
+      colHelper.accessor('description', {}),
+      colHelper.accessor('timeCreated', {
+        header: 'created',
+        cell: (info) => <DateCell value={info.getValue()} />,
+      }),
+      getActionsCol(makeActions),
+    ],
+    [project, makeActions]
+  )
+
+  const { Table } = useQueryTable('vpcList', { query: { project } })
   return (
     <>
       <PageHeader>
@@ -108,12 +127,7 @@ export function VpcsPage() {
           New Vpc
         </Link>
       </TableActions>
-      <Table emptyState={<EmptyState />} makeActions={makeActions}>
-        <Column accessor="name" cell={linkCell((vpc) => pb.vpc({ project, vpc }))} />
-        <Column accessor="dnsName" header="DNS name" />
-        <Column accessor="description" />
-        <Column accessor="timeCreated" header="Created" cell={DateCell} />
-      </Table>
+      <Table columns={columns} emptyState={<EmptyState />} />
       <Outlet />
     </>
   )

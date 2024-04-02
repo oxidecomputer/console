@@ -5,7 +5,8 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useCallback, useState } from 'react'
+import { createColumnHelper } from '@tanstack/react-table'
+import { useCallback, useMemo, useState } from 'react'
 import { Link, Outlet, type LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, useApiMutation, useApiQueryClient, type Image } from '@oxide/api'
@@ -14,9 +15,9 @@ import { Images24Icon } from '@oxide/design-system/icons/react'
 import { getProjectSelector, useProjectSelector, useToast } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { DateCell } from '~/table/cells/DateCell'
-import { linkCell } from '~/table/cells/LinkCell'
+import { makeLinkCell } from '~/table/cells/LinkCell'
 import { SizeCell } from '~/table/cells/SizeCell'
-import type { MenuAction } from '~/table/columns/action-col'
+import { getActionsCol, type MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
 import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -36,6 +37,8 @@ const EmptyState = () => (
   />
 )
 
+const columnHelper = createColumnHelper<Image>()
+
 ImagesPage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project } = getProjectSelector(params)
   await apiQueryClient.prefetchQuery('imageList', {
@@ -46,7 +49,7 @@ ImagesPage.loader = async ({ params }: LoaderFunctionArgs) => {
 
 export function ImagesPage() {
   const projectSelector = useProjectSelector()
-  const { Table, Column } = useQueryTable('imageList', { query: projectSelector })
+  const { Table } = useQueryTable('imageList', { query: projectSelector })
   const queryClient = useApiQueryClient()
   const addToast = useToast()
 
@@ -80,6 +83,24 @@ export function ImagesPage() {
     [deleteImage, projectSelector]
   )
 
+  const columns = useMemo(() => {
+    return [
+      columnHelper.accessor('name', {
+        cell: makeLinkCell((image) => pb.projectImageEdit({ ...projectSelector, image })),
+      }),
+      columnHelper.accessor('description', {}),
+      columnHelper.accessor('size', {
+        header: 'size',
+        cell: (info) => <SizeCell value={info.getValue()} />,
+      }),
+      columnHelper.accessor('timeCreated', {
+        header: 'created',
+        cell: (info) => <DateCell value={info.getValue()} />,
+      }),
+      getActionsCol(makeActions),
+    ]
+  }, [projectSelector, makeActions])
+
   return (
     <>
       <PageHeader>
@@ -93,15 +114,7 @@ export function ImagesPage() {
           Upload image
         </Link>
       </TableActions>
-      <Table emptyState={<EmptyState />} makeActions={makeActions}>
-        <Column
-          accessor="name"
-          cell={linkCell((image) => pb.projectImageEdit({ ...projectSelector, image }))}
-        />
-        <Column accessor="description" />
-        <Column accessor="size" cell={SizeCell} />
-        <Column accessor="timeCreated" header="Created" cell={DateCell} />
-      </Table>
+      <Table columns={columns} emptyState={<EmptyState />} />
       {promoteImageName && (
         <PromoteImageModal
           onDismiss={() => setPromoteImageName(null)}

@@ -10,7 +10,7 @@ import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
 
 import { useApiMutation, useApiQuery, useApiQueryClient, type SiloIpPool } from '@oxide/api'
-import { Networking24Icon, Success12Icon } from '@oxide/design-system/icons/react'
+import { Networking24Icon } from '@oxide/design-system/icons/react'
 
 import { ExternalLink } from '~/components/ExternalLink'
 import { ListboxField } from '~/components/form/fields/ListboxField'
@@ -18,10 +18,10 @@ import { HL } from '~/components/HL'
 import { useForm, useSiloSelector } from '~/hooks'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
+import { DefaultPoolCell } from '~/table/cells/DefaultPoolCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
-import { useQueryTable } from '~/table/QueryTable2'
-import { Badge } from '~/ui/lib/Badge'
+import { useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
@@ -39,13 +39,6 @@ const EmptyState = () => (
   />
 )
 
-const DefaultBadge = () => (
-  <>
-    <Success12Icon className="mr-1 text-accent" />
-    <Badge>default</Badge>
-  </>
-)
-
 const colHelper = createColumnHelper<SiloIpPool>()
 
 const staticCols = [
@@ -53,7 +46,7 @@ const staticCols = [
   colHelper.accessor('description', {}),
   colHelper.accessor('isDefault', {
     header: 'Default',
-    cell: (props) => (props.getValue() ? <DefaultBadge /> : null),
+    cell: (info) => <DefaultPoolCell isDefault={info.getValue()} />,
   }),
 ]
 
@@ -179,7 +172,7 @@ export function SiloIpPoolsTab() {
           Link pool
         </TableControlsButton>
       </TableControls>
-      <Table emptyState={<EmptyState />} columns={columns}></Table>
+      <Table columns={columns} emptyState={<EmptyState />} />
       {showLinkModal && <LinkPoolModal onDismiss={() => setShowLinkModal(false)} />}
     </>
   )
