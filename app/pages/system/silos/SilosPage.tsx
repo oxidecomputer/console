@@ -64,7 +64,7 @@ export function SilosPage() {
     }),
     colHelper.accessor('description', {}),
     colHelper.accessor('discoverable', {
-      cell: (info) => <BooleanCell value={info.getValue()} />,
+      cell: (info) => <BooleanCell isTrue={info.getValue()} />,
     }),
     colHelper.accessor((silo) => silo.identityMode, {
       id: 'Identity mode',
