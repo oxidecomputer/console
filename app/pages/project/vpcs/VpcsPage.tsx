@@ -22,7 +22,7 @@ import { getProjectSelector, useProjectSelector, useQuickActions } from '~/hooks
 import { confirmDelete } from '~/stores/confirm-delete'
 import { DateCell } from '~/table/cells/DateCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
-import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
+import { getActionsCol, type MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
 import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -54,17 +54,6 @@ export function VpcsPage() {
   // to have same params as QueryTable
   const { data: vpcs } = usePrefetchedApiQuery('vpcList', { query: { project, limit: 25 } })
   const navigate = useNavigate()
-
-  const colHelper = createColumnHelper<Vpc>()
-  const staticCols = [
-    colHelper.accessor('name', { cell: makeLinkCell((vpc) => pb.vpc({ project, vpc })) }),
-    colHelper.accessor('dnsName', { header: 'DNS name' }),
-    colHelper.accessor('description', {}),
-    colHelper.accessor('timeCreated', {
-      header: 'created',
-      cell: (info) => <DateCell value={info.getValue()} />,
-    }),
-  ]
 
   const deleteVpc = useApiMutation('vpcDelete', {
     onSuccess() {
@@ -109,7 +98,22 @@ export function VpcsPage() {
     )
   )
 
-  const columns = useColsWithActions(staticCols, makeActions)
+  const columns = useMemo(() => {
+    const colHelper = createColumnHelper<Vpc>()
+    return [
+      colHelper.accessor('name', {
+        cell: makeLinkCell((vpc) => pb.vpc({ project, vpc })),
+      }),
+      colHelper.accessor('dnsName', { header: 'DNS name' }),
+      colHelper.accessor('description', {}),
+      colHelper.accessor('timeCreated', {
+        header: 'created',
+        cell: (info) => <DateCell value={info.getValue()} />,
+      }),
+      getActionsCol(makeActions),
+    ]
+  }, [project, makeActions])
+
   const { Table } = useQueryTable('vpcList', { query: { project } })
   return (
     <>
