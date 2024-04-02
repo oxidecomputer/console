@@ -5,10 +5,12 @@
  *
  * Copyright Oxide Computer Company
  */
-import { apiQueryClient } from '@oxide/api'
+import { createColumnHelper } from '@tanstack/react-table'
+
+import { apiQueryClient, type Sled } from '@oxide/api'
 import { Racks24Icon } from '@oxide/design-system/icons/react'
 
-import { linkCell } from '~/table/cells/LinkCell'
+import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { pb } from '~/util/path-builder'
@@ -30,19 +32,18 @@ SledsTab.loader = async () => {
   return null
 }
 
-export function SledsTab() {
-  const { Table, Column } = useQueryTable('sledList', {}, { placeholderData: (x) => x })
+const colHelper = createColumnHelper<Sled>()
+const staticCols = [
+  colHelper.accessor('id', {
+    cell: makeLinkCell((sledId) => pb.sled({ sledId })),
+  }),
+  // TODO: colHelper.accessor('baseboard.serviceAddress', { header: 'service address' }),
+  colHelper.accessor('baseboard.part', { header: 'part number' }),
+  colHelper.accessor('baseboard.serial', { header: 'serial number' }),
+  colHelper.accessor('baseboard.revision', { header: 'revision' }),
+]
 
-  return (
-    <>
-      <Table emptyState={<EmptyState />}>
-        <Column accessor="id" cell={linkCell((sledId) => pb.sled({ sledId }))} />
-        {/* TODO */}
-        {/* <Column accessor="serviceAddress" header="service address" /> */}
-        <Column accessor="baseboard.part" header="part number" />
-        <Column accessor="baseboard.serial" header="serial number" />
-        <Column accessor="baseboard.revision" header="revision" />
-      </Table>
-    </>
-  )
+export function SledsTab() {
+  const { Table } = useQueryTable('sledList', {}, { placeholderData: (x) => x })
+  return <Table emptyState={<EmptyState />} columns={staticCols} />
 }

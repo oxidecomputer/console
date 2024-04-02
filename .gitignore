@@ -25,5 +25,6 @@
 .DS_Store
 Thumbs.db
 test-results/
+ci-e2e-traces/
 playwright-report/
 .vercel

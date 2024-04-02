@@ -5,7 +5,8 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useState } from 'react'
+import { createColumnHelper } from '@tanstack/react-table'
+import { useCallback, useState } from 'react'
 
 import { useApiMutation, useApiQueryClient, type VpcSubnet } from '@oxide/api'
 
@@ -15,16 +16,29 @@ import { useVpcSelector } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { DateCell } from '~/table/cells/DateCell'
 import { TwoLineCell } from '~/table/cells/TwoLineCell'
-import type { MenuAction } from '~/table/columns/action-col'
+import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
 import { Button } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+
+const colHelper = createColumnHelper<VpcSubnet>()
+const staticCols = [
+  colHelper.accessor('name', {}),
+  colHelper.accessor((vpc) => [vpc.ipv4Block, vpc.ipv6Block] as const, {
+    header: 'IP Block',
+    cell: (info) => <TwoLineCell value={[...info.getValue()]} />,
+  }),
+  colHelper.accessor('timeCreated', {
+    header: 'created',
+    cell: (info) => <DateCell value={info.getValue()} />,
+  }),
+]
 
 export const VpcSubnetsTab = () => {
   const vpcSelector = useVpcSelector()
   const queryClient = useApiQueryClient()
 
-  const { Table, Column } = useQueryTable('vpcSubnetList', { query: vpcSelector })
+  const { Table } = useQueryTable('vpcSubnetList', { query: vpcSelector })
   const [creating, setCreating] = useState(false)
   const [editing, setEditing] = useState<VpcSubnet | null>(null)
 
@@ -34,20 +48,25 @@ export const VpcSubnetsTab = () => {
     },
   })
 
-  const makeActions = (subnet: VpcSubnet): MenuAction[] => [
-    {
-      label: 'Edit',
-      onActivate: () => setEditing(subnet),
-    },
-    // TODO: only show if you have permission to do this
-    {
-      label: 'Delete',
-      onActivate: confirmDelete({
-        doDelete: () => deleteSubnet.mutateAsync({ path: { subnet: subnet.id } }),
-        label: subnet.name,
-      }),
-    },
-  ]
+  const makeActions = useCallback(
+    (subnet: VpcSubnet): MenuAction[] => [
+      {
+        label: 'Edit',
+        onActivate: () => setEditing(subnet),
+      },
+      // TODO: only show if you have permission to do this
+      {
+        label: 'Delete',
+        onActivate: confirmDelete({
+          doDelete: () => deleteSubnet.mutateAsync({ path: { subnet: subnet.id } }),
+          label: subnet.name,
+        }),
+      },
+    ],
+    [deleteSubnet]
+  )
+
+  const columns = useColsWithActions(staticCols, makeActions)
 
   const emptyState = (
     <EmptyMessage
@@ -67,16 +86,7 @@ export const VpcSubnetsTab = () => {
         {creating && <CreateSubnetForm onDismiss={() => setCreating(false)} />}
         {editing && <EditSubnetForm editing={editing} onDismiss={() => setEditing(null)} />}
       </div>
-      <Table makeActions={makeActions} emptyState={emptyState}>
-        <Column accessor="name" />
-        <Column
-          id="ip-block"
-          header="IP Block"
-          accessor={(vpc) => [vpc.ipv4Block, vpc.ipv6Block]}
-          cell={TwoLineCell}
-        />
-        <Column accessor="timeCreated" header="Created" cell={DateCell} />
-      </Table>
+      <Table columns={columns} emptyState={emptyState} />
     </>
   )
 }

@@ -41,6 +41,9 @@ test('IP pool silo list', async ({ page }) => {
   await expect(page).toHaveTitle('ip-pool-1 / IP pools / Oxide Console')
 
   await page.getByRole('tab', { name: 'Linked silos' }).click()
+  // this is here because waiting for the `tab` query param to show up avoids
+  // flake after the goBack bit below
+  await expect(page).toHaveURL('/system/networking/ip-pools/ip-pool-1?tab=silos')
 
   const table = page.getByRole('table')
   await expectRowVisible(table, { Silo: 'maze-war', 'Pool is silo default?': 'default' })

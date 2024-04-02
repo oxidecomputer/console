@@ -128,7 +128,7 @@ export function ProjectAccessPage() {
       colHelper.accessor('name', { header: 'Name' }),
       colHelper.accessor('identityType', {
         header: 'Type',
-        cell: (props) => identityTypeLabel[props.getValue()],
+        cell: (info) => identityTypeLabel[info.getValue()],
       }),
       colHelper.accessor('roleBadges', {
         header: () => (
@@ -140,9 +140,9 @@ export function ProjectAccessPage() {
             </TipIcon>
           </span>
         ),
-        cell: (props) => (
+        cell: (info) => (
           <ListPlusCell tooltipTitle="Other roles">
-            {props.getValue().map(({ roleName, roleSource }) => (
+            {info.getValue().map(({ roleName, roleSource }) => (
               <Badge key={roleSource} color={roleColor[roleName]}>
                 {roleSource}.{roleName}
               </Badge>

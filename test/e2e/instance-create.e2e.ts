@@ -220,7 +220,7 @@ test('add ssh key from instance create form', async ({ page }) => {
   await page.getByLabel('User menu').click()
   await page.getByRole('menuitem', { name: 'Settings' }).click()
   await page.getByRole('link', { name: 'SSH Keys' }).click()
-  await expectRowVisible(page.getByRole('table'), { Name: newKey, Description: 'hi' })
+  await expectRowVisible(page.getByRole('table'), { name: newKey, description: 'hi' })
 })
 
 test('shows object not found error on no default pool', async ({ page }) => {

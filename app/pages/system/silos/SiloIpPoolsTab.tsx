@@ -6,10 +6,11 @@
  * Copyright Oxide Computer Company
  */
 
-import { useMemo, useState } from 'react'
+import { createColumnHelper } from '@tanstack/react-table'
+import { useCallback, useMemo, useState } from 'react'
 
 import { useApiMutation, useApiQuery, useApiQueryClient, type SiloIpPool } from '@oxide/api'
-import { Networking24Icon, Success12Icon } from '@oxide/design-system/icons/react'
+import { Networking24Icon } from '@oxide/design-system/icons/react'
 
 import { ExternalLink } from '~/components/ExternalLink'
 import { ListboxField } from '~/components/form/fields/ListboxField'
@@ -17,10 +18,10 @@ import { HL } from '~/components/HL'
 import { useForm, useSiloSelector } from '~/hooks'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
-import { linkCell } from '~/table/cells/LinkCell'
-import type { MenuAction } from '~/table/columns/action-col'
+import { DefaultPoolCell } from '~/table/cells/DefaultPoolCell'
+import { makeLinkCell } from '~/table/cells/LinkCell'
+import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
-import { Badge } from '~/ui/lib/Badge'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
@@ -38,10 +39,21 @@ const EmptyState = () => (
   />
 )
 
+const colHelper = createColumnHelper<SiloIpPool>()
+
+const staticCols = [
+  colHelper.accessor('name', { cell: makeLinkCell((pool) => pb.ipPool({ pool })) }),
+  colHelper.accessor('description', {}),
+  colHelper.accessor('isDefault', {
+    header: 'Default',
+    cell: (info) => <DefaultPoolCell isDefault={info.getValue()} />,
+  }),
+]
+
 export function SiloIpPoolsTab() {
   const { silo } = useSiloSelector()
   const [showLinkModal, setShowLinkModal] = useState(false)
-  const { Table, Column } = useQueryTable('siloIpPoolList', { path: { silo } })
+  const { Table } = useQueryTable('siloIpPoolList', { path: { silo } })
   const queryClient = useApiQueryClient()
 
   // Fetch 1000 to we can be sure to get them all. There should only be a few
@@ -71,76 +83,81 @@ export function SiloIpPoolsTab() {
   })
 
   // this is all very extra. I'm sorry. it's for the users
-  const makeActions = (pool: SiloIpPool): MenuAction[] => [
-    {
-      label: pool.isDefault ? 'Clear default' : 'Make default',
-      className: pool.isDefault ? 'destructive' : undefined,
-      onActivate() {
-        if (pool.isDefault) {
+  const makeActions = useCallback(
+    (pool: SiloIpPool): MenuAction[] => [
+      {
+        label: pool.isDefault ? 'Clear default' : 'Make default',
+        className: pool.isDefault ? 'destructive' : undefined,
+        onActivate() {
+          if (pool.isDefault) {
+            confirmAction({
+              doAction: () =>
+                updatePoolLink.mutateAsync({
+                  path: { silo, pool: pool.id },
+                  body: { isDefault: false },
+                }),
+              modalTitle: 'Confirm clear default',
+              modalContent: (
+                <p>
+                  Are you sure you want <HL>{pool.name}</HL> to stop being the default pool
+                  for this silo? If there is no default, users in this silo will have to
+                  specify a pool when allocating IPs.
+                </p>
+              ),
+              errorTitle: 'Could not clear default',
+              actionType: 'danger',
+            })
+          } else {
+            const modalContent = defaultPool ? (
+              <p>
+                Are you sure you want to change the default pool from <HL>{defaultPool}</HL>{' '}
+                to <HL>{pool.name}</HL>?
+              </p>
+            ) : (
+              <p>
+                Are you sure you want to make <HL>{pool.name}</HL> the default pool for this
+                silo?
+              </p>
+            )
+            const verb = defaultPool ? 'change' : 'make'
+            confirmAction({
+              doAction: () =>
+                updatePoolLink.mutateAsync({
+                  path: { silo, pool: pool.id },
+                  body: { isDefault: true },
+                }),
+              modalTitle: `Confirm ${verb} default`,
+              modalContent,
+              errorTitle: `Could not ${verb} default`,
+              actionType: 'primary',
+            })
+          }
+        },
+      },
+      {
+        label: 'Unlink',
+        className: 'destructive',
+        onActivate() {
           confirmAction({
-            doAction: () =>
-              updatePoolLink.mutateAsync({
-                path: { silo, pool: pool.id },
-                body: { isDefault: false },
-              }),
-            modalTitle: 'Confirm clear default',
+            doAction: () => unlinkPool.mutateAsync({ path: { silo, pool: pool.id } }),
+            modalTitle: `Confirm unlink pool`,
             modalContent: (
               <p>
-                Are you sure you want <HL>{pool.name}</HL> to stop being the default pool
-                for this silo? If there is no default, users in this silo will have to
-                specify a pool when allocating IPs.
+                Are you sure you want to unlink <HL>{pool.name}</HL>? Users in this silo
+                will no longer be able to allocate IPs from this pool. Unlink will fail if
+                there are any IPs from <HL>{pool.name}</HL> in use in this silo.
               </p>
             ),
-            errorTitle: 'Could not clear default',
+            errorTitle: `Could not unlink pool`,
             actionType: 'danger',
           })
-        } else {
-          const modalContent = defaultPool ? (
-            <p>
-              Are you sure you want to change the default pool from <HL>{defaultPool}</HL>{' '}
-              to <HL>{pool.name}</HL>?
-            </p>
-          ) : (
-            <p>
-              Are you sure you want to make <HL>{pool.name}</HL> the default pool for this
-              silo?
-            </p>
-          )
-          const verb = defaultPool ? 'change' : 'make'
-          confirmAction({
-            doAction: () =>
-              updatePoolLink.mutateAsync({
-                path: { silo, pool: pool.id },
-                body: { isDefault: true },
-              }),
-            modalTitle: `Confirm ${verb} default`,
-            modalContent,
-            errorTitle: `Could not ${verb} default`,
-            actionType: 'primary',
-          })
-        }
+        },
       },
-    },
-    {
-      label: 'Unlink',
-      className: 'destructive',
-      onActivate() {
-        confirmAction({
-          doAction: () => unlinkPool.mutateAsync({ path: { silo, pool: pool.id } }),
-          modalTitle: `Confirm unlink pool`,
-          modalContent: (
-            <p>
-              Are you sure you want to unlink <HL>{pool.name}</HL>? Users in this silo will
-              no longer be able to allocate IPs from this pool. Unlink will fail if there
-              are any IPs from <HL>{pool.name}</HL> in use in this silo.
-            </p>
-          ),
-          errorTitle: `Could not unlink pool`,
-          actionType: 'danger',
-        })
-      },
-    },
-  ]
+    ],
+    [defaultPool, silo, unlinkPool, updatePoolLink]
+  )
+
+  const columns = useColsWithActions(staticCols, makeActions)
 
   return (
     <>
@@ -155,22 +172,7 @@ export function SiloIpPoolsTab() {
           Link pool
         </TableControlsButton>
       </TableControls>
-      <Table emptyState={<EmptyState />} makeActions={makeActions}>
-        <Column accessor="name" cell={linkCell((pool) => pb.ipPool({ pool }))} />
-        <Column accessor="description" />
-        <Column
-          accessor="isDefault"
-          header="Default"
-          cell={({ value }) =>
-            value && (
-              <>
-                <Success12Icon className="mr-1 text-accent" />
-                <Badge>default</Badge>
-              </>
-            )
-          }
-        />
-      </Table>
+      <Table columns={columns} emptyState={<EmptyState />} />
       {showLinkModal && <LinkPoolModal onDismiss={() => setShowLinkModal(false)} />}
     </>
   )

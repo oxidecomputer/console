@@ -5,6 +5,8 @@
  *
  * Copyright Oxide Computer Company
  */
+import { createColumnHelper } from '@tanstack/react-table'
+import { useCallback } from 'react'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 
 import { apiQueryClient, useApiMutation, useApiQueryClient, type SshKey } from '@oxide/api'
@@ -12,7 +14,7 @@ import { Key16Icon, Key24Icon } from '@oxide/design-system/icons/react'
 
 import { confirmDelete } from '~/stores/confirm-delete'
 import { DateCell } from '~/table/cells/DateCell'
-import type { MenuAction } from '~/table/columns/action-col'
+import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
 import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -25,10 +27,20 @@ SSHKeysPage.loader = async () => {
   return null
 }
 
+const colHelper = createColumnHelper<SshKey>()
+const staticCols = [
+  colHelper.accessor('name', {}),
+  colHelper.accessor('description', {}),
+  colHelper.accessor('timeModified', {
+    header: 'Last updated',
+    cell: (info) => <DateCell value={info.getValue()} />,
+  }),
+]
+
 export function SSHKeysPage() {
   const navigate = useNavigate()
 
-  const { Table, Column } = useQueryTable('currentUserSshKeyList', {})
+  const { Table } = useQueryTable('currentUserSshKeyList', {})
   const queryClient = useApiQueryClient()
 
   const deleteSshKey = useApiMutation('currentUserSshKeyDelete', {
@@ -37,15 +49,30 @@ export function SSHKeysPage() {
     },
   })
 
-  const makeActions = (sshKey: SshKey): MenuAction[] => [
-    {
-      label: 'Delete',
-      onActivate: confirmDelete({
-        doDelete: () => deleteSshKey.mutateAsync({ path: { sshKey: sshKey.name } }),
-        label: sshKey.name,
-      }),
-    },
-  ]
+  const makeActions = useCallback(
+    (sshKey: SshKey): MenuAction[] => [
+      {
+        label: 'Delete',
+        onActivate: confirmDelete({
+          doDelete: () => deleteSshKey.mutateAsync({ path: { sshKey: sshKey.name } }),
+          label: sshKey.name,
+        }),
+      },
+    ],
+    [deleteSshKey]
+  )
+
+  const emptyState = (
+    <EmptyMessage
+      icon={<Key16Icon />}
+      title="No SSH keys"
+      body="You need to add a SSH key to be able to see it here"
+      buttonText="Add SSH key"
+      onClick={() => navigate(pb.sshKeysNew())}
+    />
+  )
+
+  const columns = useColsWithActions(staticCols, makeActions)
 
   return (
     <>
@@ -57,22 +84,7 @@ export function SSHKeysPage() {
           Add SSH key
         </Link>
       </TableActions>
-      <Table
-        makeActions={makeActions}
-        emptyState={
-          <EmptyMessage
-            icon={<Key16Icon />}
-            title="No SSH keys"
-            body="You need to add a SSH key to be able to see it here"
-            buttonText="Add SSH key"
-            onClick={() => navigate(pb.sshKeysNew())}
-          />
-        }
-      >
-        <Column accessor="name" header="Name" />
-        <Column accessor="description" header="Description" />
-        <Column accessor="timeModified" header="Last updated" cell={DateCell} />
-      </Table>
+      <Table columns={columns} emptyState={emptyState} />
       <Outlet />
     </>
   )

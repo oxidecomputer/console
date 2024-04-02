@@ -11,10 +11,8 @@
 // "true" because it insists it's a boolean
 import { Disabled12Icon, Success12Icon } from '@oxide/design-system/icons/react'
 
-import type { Cell } from './Cell'
-
-export const BooleanCell = ({ value }: Cell<boolean>) =>
-  value ? (
+export const BooleanCell = ({ isTrue }: { isTrue: boolean }) =>
+  isTrue ? (
     <Success12Icon className="mr-1 text-accent" aria-label="true" />
   ) : (
     <Disabled12Icon className="mr-1 text-notice" aria-label="false" />
