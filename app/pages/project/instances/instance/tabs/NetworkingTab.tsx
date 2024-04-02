@@ -86,6 +86,29 @@ NetworkingTab.loader = async ({ params }: LoaderFunctionArgs) => {
   return null
 }
 
+const colHelper = createColumnHelper<InstanceNetworkInterface>()
+const staticCols = [
+  colHelper.accessor((i) => ({ name: i.name, primary: i.primary }), {
+    header: 'name',
+    cell: (info) => (
+      <>
+        <span>{info.getValue().name}</span>
+        {info.getValue().primary ? <Badge className="ml-2">primary</Badge> : null}
+      </>
+    ),
+  }),
+  colHelper.accessor('description', {}),
+  colHelper.accessor('ip', {}),
+  colHelper.accessor('vpcId', {
+    header: 'vpc',
+    cell: (info) => <VpcNameFromId value={info.getValue()} />,
+  }),
+  colHelper.accessor('subnetId', {
+    header: 'subnet',
+    cell: (info) => <SubnetNameFromId value={info.getValue()} />,
+  }),
+]
+
 const updateNicStates = fancifyStates(instanceCan.updateNic.states)
 
 export function NetworkingTab() {
@@ -122,29 +145,6 @@ export function NetworkingTab() {
     query: { project: instanceSelector.project },
   })
   const canUpdateNic = instanceCan.updateNic(instance)
-
-  const colHelper = createColumnHelper<InstanceNetworkInterface>()
-  const staticCols = [
-    colHelper.accessor((i) => ({ name: i.name, primary: i.primary }), {
-      header: 'name',
-      cell: (info) => (
-        <>
-          <span>{info.getValue().name}</span>
-          {info.getValue().primary ? <Badge className="ml-2">primary</Badge> : null}
-        </>
-      ),
-    }),
-    colHelper.accessor('description', {}),
-    colHelper.accessor('ip', {}),
-    colHelper.accessor('vpcId', {
-      header: 'vpc',
-      cell: (info) => <VpcNameFromId value={info.getValue()} />,
-    }),
-    colHelper.accessor('subnetId', {
-      header: 'subnet',
-      cell: (info) => <SubnetNameFromId value={info.getValue()} />,
-    }),
-  ]
 
   const makeActions = useCallback(
     (nic: InstanceNetworkInterface): MenuAction[] => [
