@@ -10,19 +10,11 @@ import { Link } from 'react-router-dom'
 
 import { classed } from '~/util/classed'
 
-import type { Cell } from './Cell'
-
 const linkClass =
   'link-with-underline group flex h-full w-full items-center text-sans-semi-md'
 
 /** Pushes out the link area to the entire cell for improved clickability™ */
 const Pusher = classed.div`absolute inset-0 right-px group-hover:bg-raise`
-
-export const linkCell =
-  (makeHref: (value: string) => string) =>
-  ({ value }: Cell<string>) => {
-    return <LinkCell to={makeHref(value)}>{value}</LinkCell>
-  }
 
 /**
  * Because this returns a component, it should only be used in a static context

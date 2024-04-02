@@ -92,6 +92,7 @@ export function SnapshotsPage() {
     colHelper.accessor('name', {}),
     colHelper.accessor('description', {}),
     colHelper.accessor('diskId', {
+      header: 'disk',
       cell: (info) => <DiskNameFromId value={info.getValue()} />,
     }),
     colHelper.accessor('state', {
