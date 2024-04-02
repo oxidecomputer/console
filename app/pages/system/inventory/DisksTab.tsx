@@ -5,44 +5,40 @@
  *
  * Copyright Oxide Computer Company
  */
-import { apiQueryClient } from '@oxide/api'
+import { createColumnHelper } from '@tanstack/react-table'
+
+import { apiQueryClient, type PhysicalDisk } from '@oxide/api'
 import { Racks24Icon } from '@oxide/design-system/icons/react'
 
-import { LabelCell } from '~/table/cells/LabelCell'
 import { useQueryTable } from '~/table/QueryTable'
+import { Badge } from '~/ui/lib/Badge'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 
-const EmptyState = () => {
-  return (
-    <EmptyMessage
-      icon={<Racks24Icon />}
-      title="Something went wrong"
-      body="We expected some racks here, but none were found"
-    />
-  )
-}
+const EmptyState = () => (
+  <EmptyMessage
+    icon={<Racks24Icon />}
+    title="Something went wrong"
+    body="We expected some racks here, but none were found"
+  />
+)
 
 DisksTab.loader = async () => {
   await apiQueryClient.prefetchQuery('physicalDiskList', { query: { limit: 25 } })
   return null
 }
 
-export function DisksTab() {
-  const { Table, Column } = useQueryTable('physicalDiskList', {})
+const colHelper = createColumnHelper<PhysicalDisk>()
+const staticCols = [
+  colHelper.accessor('id', {}),
+  colHelper.accessor((d) => (d.formFactor === 'u2' ? 'U.2' : 'M.2'), {
+    header: 'Form factor',
+    cell: (info) => <Badge>{info.getValue()}</Badge>,
+  }),
+  colHelper.accessor('model', { header: 'model number' }),
+  colHelper.accessor('serial', { header: 'serial number' }),
+]
 
-  return (
-    <>
-      <Table emptyState={<EmptyState />}>
-        <Column accessor="id" />
-        <Column
-          id="form-factor"
-          accessor={(d) => (d.formFactor === 'u2' ? 'U.2' : 'M.2')}
-          header="Form factor"
-          cell={LabelCell}
-        />
-        <Column accessor="model" header="model number" />
-        <Column accessor="serial" header="serial number" />
-      </Table>
-    </>
-  )
+export function DisksTab() {
+  const { Table } = useQueryTable('physicalDiskList', {})
+  return <Table emptyState={<EmptyState />} columns={staticCols} />
 }

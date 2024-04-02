@@ -5,6 +5,8 @@
  *
  * Copyright Oxide Computer Company
  */
+import { createColumnHelper } from '@tanstack/react-table'
+import { useCallback } from 'react'
 import { Link, Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
@@ -22,7 +24,7 @@ import { confirmDelete } from '~/stores/confirm-delete'
 import { DateCell } from '~/table/cells/DateCell'
 import { SkeletonCell } from '~/table/cells/EmptyCell'
 import { SizeCell } from '~/table/cells/SizeCell'
-import type { MenuAction } from '~/table/columns/action-col'
+import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
 import { Badge } from '~/ui/lib/Badge'
 import { buttonStyle } from '~/ui/lib/Button'
@@ -79,10 +81,28 @@ SnapshotsPage.loader = async ({ params }: LoaderFunctionArgs) => {
   return null
 }
 
+const colHelper = createColumnHelper<Snapshot>()
+const staticCols = [
+  colHelper.accessor('name', {}),
+  colHelper.accessor('description', {}),
+  colHelper.accessor('diskId', {
+    header: 'disk',
+    cell: (info) => <DiskNameFromId value={info.getValue()} />,
+  }),
+  colHelper.accessor('state', {
+    cell: (info) => <SnapshotStatusBadge status={info.getValue()} />,
+  }),
+  colHelper.accessor('size', { cell: (info) => <SizeCell value={info.getValue()} /> }),
+  colHelper.accessor('timeCreated', {
+    header: 'created',
+    cell: (info) => <DateCell value={info.getValue()} />,
+  }),
+]
+
 export function SnapshotsPage() {
   const queryClient = useApiQueryClient()
-  const projectSelector = useProjectSelector()
-  const { Table, Column } = useQueryTable('snapshotList', { query: projectSelector })
+  const { project } = useProjectSelector()
+  const { Table } = useQueryTable('snapshotList', { query: { project } })
   const navigate = useNavigate()
 
   const deleteSnapshot = useApiMutation('snapshotDelete', {
@@ -91,47 +111,40 @@ export function SnapshotsPage() {
     },
   })
 
-  const makeActions = (snapshot: Snapshot): MenuAction[] => [
-    {
-      label: 'Create image',
-      onActivate() {
-        navigate(pb.snapshotImagesNew({ ...projectSelector, snapshot: snapshot.name }))
+  const makeActions = useCallback(
+    (snapshot: Snapshot): MenuAction[] => [
+      {
+        label: 'Create image',
+        onActivate() {
+          navigate(pb.snapshotImagesNew({ project, snapshot: snapshot.name }))
+        },
       },
-    },
-    {
-      label: 'Delete',
-      onActivate: confirmDelete({
-        doDelete: () =>
-          deleteSnapshot.mutateAsync({
-            path: { snapshot: snapshot.name },
-            query: projectSelector,
-          }),
-        label: snapshot.name,
-      }),
-    },
-  ]
-
+      {
+        label: 'Delete',
+        onActivate: confirmDelete({
+          doDelete: () =>
+            deleteSnapshot.mutateAsync({
+              path: { snapshot: snapshot.name },
+              query: { project },
+            }),
+          label: snapshot.name,
+        }),
+      },
+    ],
+    [deleteSnapshot, navigate, project]
+  )
+  const columns = useColsWithActions(staticCols, makeActions)
   return (
     <>
       <PageHeader>
         <PageTitle icon={<Snapshots24Icon />}>Snapshots</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link to={pb.snapshotsNew(projectSelector)} className={buttonStyle({ size: 'sm' })}>
+        <Link to={pb.snapshotsNew({ project })} className={buttonStyle({ size: 'sm' })}>
           New Snapshot
         </Link>
       </TableActions>
-      <Table emptyState={<EmptyState />} makeActions={makeActions}>
-        <Column accessor="name" />
-        <Column accessor="description" />
-        <Column id="disk" accessor="diskId" cell={DiskNameFromId} />
-        <Column
-          accessor="state"
-          cell={({ value }) => <SnapshotStatusBadge status={value} />}
-        />
-        <Column accessor="size" cell={SizeCell} />
-        <Column accessor="timeCreated" id="Created" cell={DateCell} />
-      </Table>
+      <Table columns={columns} emptyState={<EmptyState />} />
       <Outlet />
     </>
   )

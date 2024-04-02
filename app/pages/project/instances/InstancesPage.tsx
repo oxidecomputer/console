@@ -5,17 +5,24 @@
  *
  * Copyright Oxide Computer Company
  */
+import { createColumnHelper } from '@tanstack/react-table'
 import { useMemo } from 'react'
 import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
-import { apiQueryClient, useApiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
+import {
+  apiQueryClient,
+  useApiQueryClient,
+  usePrefetchedApiQuery,
+  type Instance,
+} from '@oxide/api'
 import { Instances24Icon, Refresh16Icon } from '@oxide/design-system/icons/react'
 
 import { getProjectSelector, useProjectSelector, useQuickActions } from '~/hooks'
 import { DateCell } from '~/table/cells/DateCell'
 import { InstanceResourceCell } from '~/table/cells/InstanceResourceCell'
 import { InstanceStatusCell } from '~/table/cells/InstanceStatusCell'
-import { linkCell } from '~/table/cells/LinkCell'
+import { makeLinkCell } from '~/table/cells/LinkCell'
+import { getActionsCol } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
 import { Button, buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -34,6 +41,8 @@ const EmptyState = () => (
     buttonTo={pb.instancesNew(useProjectSelector())}
   />
 )
+
+const colHelper = createColumnHelper<Instance>()
 
 InstancesPage.loader = async ({ params }: LoaderFunctionArgs) => {
   await apiQueryClient.prefetchQuery('instanceList', {
@@ -75,10 +84,39 @@ export function InstancesPage() {
     )
   )
 
-  const { Table, Column } = useQueryTable(
+  const { Table } = useQueryTable(
     'instanceList',
     { query: projectSelector },
     { placeholderData: (x) => x }
+  )
+
+  const columns = useMemo(
+    () => [
+      colHelper.accessor('name', {
+        cell: makeLinkCell((instance) => pb.instancePage({ ...projectSelector, instance })),
+      }),
+      colHelper.accessor((i) => ({ ncpus: i.ncpus, memory: i.memory }), {
+        header: 'CPU, RAM',
+        cell: (info) => <InstanceResourceCell value={info.getValue()} />,
+      }),
+      colHelper.accessor(
+        (i) => ({
+          runState: i.runState,
+          timeRunStateUpdated: i.timeRunStateUpdated,
+        }),
+        {
+          header: 'status',
+          cell: (info) => <InstanceStatusCell value={info.getValue()} />,
+        }
+      ),
+      colHelper.accessor('hostname', {}),
+      colHelper.accessor('timeCreated', {
+        header: 'created',
+        cell: (info) => <DateCell value={info.getValue()} />,
+      }),
+      getActionsCol(makeActions),
+    ],
+    [projectSelector, makeActions]
   )
 
   if (!instances) return null
@@ -101,28 +139,7 @@ export function InstancesPage() {
           New Instance
         </Link>
       </TableActions>
-      <Table makeActions={makeActions} emptyState={<EmptyState />}>
-        <Column
-          accessor="name"
-          cell={linkCell((instance) => pb.instancePage({ ...projectSelector, instance }))}
-        />
-        <Column
-          id="resources"
-          header="CPU, RAM"
-          accessor={(i) => ({ ncpus: i.ncpus, memory: i.memory })}
-          cell={InstanceResourceCell}
-        />
-        <Column
-          id="status"
-          accessor={(i) => ({
-            runState: i.runState,
-            timeRunStateUpdated: i.timeRunStateUpdated,
-          })}
-          cell={InstanceStatusCell}
-        />
-        <Column accessor="hostname" />
-        <Column accessor="timeCreated" header="created" cell={DateCell} />
-      </Table>
+      <Table columns={columns} emptyState={<EmptyState />} />
     </>
   )
 }

@@ -5,19 +5,19 @@
 #  
 # Copyright Oxide Computer Company
 
-
 set -o errexit # exit if anything fails
 set -o pipefail
 set -o xtrace
 
-# script assumes omicron and oxide.ts are cloned under the same parent dir as
-# console and have run `npm install` inside oxide.ts/generator
+# script assumes oxide.ts is cloned under the same parent dir as console and
+# you've run `npm install` over there
 
 OMICRON_SHA=$(head -n 1 OMICRON_VERSION)
 GEN_DIR="$PWD/app/api/__generated__"
 
-# this will be less horrific when the package is published? or maybe not
-npm run --silent --prefix ../oxide.ts gen-from $OMICRON_SHA $GEN_DIR
+SPEC_URL="https://raw.githubusercontent.com/oxidecomputer/omicron/$OMICRON_SHA/openapi/nexus.json"
+
+npx tsx ../oxide.ts/generator/index.ts $SPEC_URL $GEN_DIR
 npx prettier --write --log-level error "$GEN_DIR"
 
 # hack until we start pulling this from npm. we don't want this file

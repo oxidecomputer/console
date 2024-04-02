@@ -6,7 +6,8 @@
  * Copyright Oxide Computer Company
  */
 
-import { useMemo } from 'react'
+import { createColumnHelper } from '@tanstack/react-table'
+import { useCallback, useMemo } from 'react'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 
 import {
@@ -23,8 +24,8 @@ import { useQuickActions } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { DateCell } from '~/table/cells/DateCell'
 import { SkeletonCell } from '~/table/cells/EmptyCell'
-import { linkCell } from '~/table/cells/LinkCell'
-import type { MenuAction } from '~/table/columns/action-col'
+import { makeLinkCell } from '~/table/cells/LinkCell'
+import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
 import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -47,6 +48,21 @@ function UtilizationCell({ pool }: { pool: string }) {
   return <IpUtilCell {...data} />
 }
 
+const colHelper = createColumnHelper<IpPool>()
+
+const staticColumns = [
+  colHelper.accessor('name', { cell: makeLinkCell((pool) => pb.ipPool({ pool })) }),
+  colHelper.accessor('description', {}),
+  colHelper.accessor('name', {
+    header: 'Utilization',
+    cell: (info) => <UtilizationCell pool={info.getValue()} />,
+  }),
+  colHelper.accessor('timeCreated', {
+    header: 'Created',
+    cell: (info) => <DateCell value={info.getValue()} />,
+  }),
+]
+
 IpPoolsTab.loader = async function () {
   await apiQueryClient.prefetchQuery('ipPoolList', { query: { limit: 25 } })
   return null
@@ -54,7 +70,7 @@ IpPoolsTab.loader = async function () {
 
 export function IpPoolsTab() {
   const navigate = useNavigate()
-  const { Table, Column } = useQueryTable('ipPoolList', {})
+  const { Table } = useQueryTable('ipPoolList', {})
   const { data: pools } = usePrefetchedApiQuery('ipPoolList', { query: { limit: 25 } })
 
   const deletePool = useApiMutation('ipPoolDelete', {
@@ -63,24 +79,29 @@ export function IpPoolsTab() {
     },
   })
 
-  const makeActions = (pool: IpPool): MenuAction[] => [
-    {
-      label: 'Edit',
-      onActivate: () => {
-        // the edit view has its own loader, but we can make the modal open
-        // instantaneously by preloading the fetch result
-        apiQueryClient.setQueryData('ipPoolView', { path: { pool: pool.name } }, pool)
-        navigate(pb.ipPoolEdit({ pool: pool.name }))
+  const makeActions = useCallback(
+    (pool: IpPool): MenuAction[] => [
+      {
+        label: 'Edit',
+        onActivate: () => {
+          // the edit view has its own loader, but we can make the modal open
+          // instantaneously by preloading the fetch result
+          apiQueryClient.setQueryData('ipPoolView', { path: { pool: pool.name } }, pool)
+          navigate(pb.ipPoolEdit({ pool: pool.name }))
+        },
       },
-    },
-    {
-      label: 'Delete',
-      onActivate: confirmDelete({
-        doDelete: () => deletePool.mutateAsync({ path: { pool: pool.name } }),
-        label: pool.name,
-      }),
-    },
-  ]
+      {
+        label: 'Delete',
+        onActivate: confirmDelete({
+          doDelete: () => deletePool.mutateAsync({ path: { pool: pool.name } }),
+          label: pool.name,
+        }),
+      },
+    ],
+    [deletePool, navigate]
+  )
+
+  const columns = useColsWithActions(staticColumns, makeActions)
 
   useQuickActions(
     useMemo(
@@ -106,17 +127,7 @@ export function IpPoolsTab() {
           New IP Pool
         </Link>
       </div>
-      <Table emptyState={<EmptyState />} makeActions={makeActions}>
-        <Column accessor="name" cell={linkCell((pool) => pb.ipPool({ pool }))} />
-        <Column accessor="description" />
-        <Column
-          accessor="name"
-          id="Utilization"
-          header="Utilization"
-          cell={({ value }) => <UtilizationCell pool={value} />}
-        />
-        <Column accessor="timeCreated" header="Created" cell={DateCell} />
-      </Table>
+      <Table columns={columns} emptyState={<EmptyState />} />
       <Outlet />
     </>
   )

@@ -61,7 +61,6 @@ const staticColumns = [
     cell: (info) => <EnabledCell value={info.getValue()} />,
   }),
   colHelper.accessor('timeCreated', {
-    id: 'created',
     header: 'Created',
     cell: (info) => <DateCell value={info.getValue()} />,
   }),

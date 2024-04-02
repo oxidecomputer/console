@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 
@@ -27,7 +28,7 @@ import { getInstanceSelector, useInstanceSelector } from '~/hooks'
 import { addToast } from '~/stores/toast'
 import { DateCell } from '~/table/cells/DateCell'
 import { SizeCell } from '~/table/cells/SizeCell'
-import type { MenuAction } from '~/table/columns/action-col'
+import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
 import { Button } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -50,6 +51,23 @@ StorageTab.loader = async ({ params }: LoaderFunctionArgs) => {
   ])
   return null
 }
+
+const colHelper = createColumnHelper<Disk>()
+const staticCols = [
+  colHelper.accessor('name', { header: 'Name' }),
+  colHelper.accessor('size', {
+    header: 'size',
+    cell: (info) => <SizeCell value={info.getValue()} />,
+  }),
+  colHelper.accessor((row) => row.state.state, {
+    header: 'status',
+    cell: (info) => <DiskStatusBadge status={info.getValue()} />,
+  }),
+  colHelper.accessor('timeCreated', {
+    header: 'created',
+    cell: (info) => <DateCell value={info.getValue()} />,
+  }),
+]
 
 const attachableStates = fancifyStates(instanceCan.attachDisk.states)
 const detachableStates = fancifyStates(instanceCan.detachDisk.states)
@@ -143,7 +161,7 @@ export function StorageTab() {
     },
   })
 
-  const { Table, Column } = useQueryTable('instanceDiskList', instancePathQuery)
+  const { Table } = useQueryTable('instanceDiskList', instancePathQuery)
 
   const emptyState = (
     <EmptyMessage
@@ -153,6 +171,8 @@ export function StorageTab() {
     />
   )
 
+  const columns = useColsWithActions(staticCols, makeActions)
+
   return (
     <>
       <h2 id="disks-label" className="mb-4 text-mono-sm text-secondary">
@@ -160,20 +180,7 @@ export function StorageTab() {
       </h2>
       {/* TODO: need 40px high rows. another table or a flag on Table (ew) */}
 
-      <Table
-        emptyState={emptyState}
-        makeActions={makeActions}
-        aria-labelledby="disks-label"
-      >
-        <Column accessor="name" />
-        <Column header="Size" accessor="size" cell={SizeCell} />
-        <Column
-          id="status"
-          accessor={(row) => row.state.state}
-          cell={({ value }) => <DiskStatusBadge status={value} />}
-        />
-        <Column header="Created" accessor="timeCreated" cell={DateCell} />
-      </Table>
+      <Table emptyState={emptyState} aria-labelledby="disks-label" columns={columns} />
       <div className="mt-4 flex flex-col gap-3">
         <div className="flex gap-3 md-:flex-col">
           <Button

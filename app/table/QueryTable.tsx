@@ -8,20 +8,8 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { hashKey, type UseQueryOptions } from '@tanstack/react-query'
-import {
-  createColumnHelper,
-  getCoreRowModel,
-  useReactTable,
-  type AccessorFn,
-  type DeepKeys,
-} from '@tanstack/react-table'
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  type ComponentType,
-  type ReactElement,
-} from 'react'
+import { getCoreRowModel, useReactTable, type ColumnDef } from '@tanstack/react-table'
+import React, { useCallback, useMemo, type ComponentType } from 'react'
 
 import {
   useApiQuery,
@@ -36,17 +24,11 @@ import { Pagination } from '~/components/Pagination'
 import { usePagination } from '~/hooks/use-pagination'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableEmptyBox } from '~/ui/lib/Table'
-import { isOneOf } from '~/util/children'
-import { invariant } from '~/util/invariant'
 
-import { DefaultCell } from './cells/DefaultCell'
-import { getActionsCol, type MakeActions } from './columns/action-col'
-import { getMultiSelectCol, getSelectCol } from './columns/select-col'
 import { Table } from './Table'
 
 interface UseQueryTableResult<Item extends Record<string, unknown>> {
   Table: ComponentType<QueryTableProps<Item>>
-  Column: ComponentType<QueryTableColumnProps<Item>>
 }
 /**
  * This hook builds a table that's linked to a given query. It's a combination
@@ -65,40 +47,18 @@ export const useQueryTable = <A extends ApiListMethods, M extends keyof A>(
     [query, hashKey(params as any), hashKey(options as any)]
   )
 
-  return { Table, Column: QueryTableColumn }
+  return { Table }
 }
 
 type QueryTableProps<Item> = {
   /** Prints table data in the console when enabled */
   debug?: boolean
   /** Function that produces a list of actions from a row item */
-  makeActions?: MakeActions<Item>
   pagination?: 'inline' | 'page'
   pageSize?: number
-  children: React.ReactNode
   emptyState: React.ReactElement
-} & (
-  | {
-      /**
-       * If present, the table will include a select column and make rows
-       * selectable one at a time.
-       */
-      onSingleSelect: (selection: string) => void
-      onMultiSelect?: never
-    }
-  | {
-      onSingleSelect?: never
-      /**
-       * If present, the table will include a select column and make rows
-       * selectable.
-       */
-      onMultiSelect: (selections: string[]) => void
-    }
-  | {
-      onSingleSelect?: never
-      onMultiSelect?: never
-    }
-)
+  columns: ColumnDef<Item, any>[]
+}
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const makeQueryTable = <Item extends Record<string, unknown>>(
@@ -107,64 +67,13 @@ const makeQueryTable = <Item extends Record<string, unknown>>(
   options: any
 ): ComponentType<QueryTableProps<Item>> =>
   function QueryTable({
-    children,
-    makeActions,
     debug,
     pagination = 'page',
     pageSize = 25,
     emptyState,
-    onSingleSelect,
-    onMultiSelect,
+    columns,
   }: QueryTableProps<Item>) {
-    invariant(
-      isOneOf(children, [QueryTableColumn]),
-      'QueryTable can only have Column as a child'
-    )
-
-    const [rowSelection, setRowSelection] = React.useState({})
-    useEffect(() => {
-      const selected = Object.keys(rowSelection)
-      onSingleSelect?.(selected[0])
-      onMultiSelect?.(selected)
-    }, [rowSelection, onSingleSelect, onMultiSelect])
-
     const { currentPage, goToNextPage, goToPrevPage, hasPrev } = usePagination()
-    const columns = useMemo(() => {
-      const colHelper = createColumnHelper<Item>()
-      const columns = React.Children.toArray(children).map((child) => {
-        const column = { ...(child as ReactElement<QueryTableColumnProps<Item>>).props }
-
-        // QueryTableColumnProps ensures `id` is passed in if and only if
-        // `accessor` is not a string
-        const id =
-          'id' in column
-            ? column.id
-            : typeof column.accessor === 'string'
-              ? column.accessor
-              : undefined // should never happen because id is required if accessor is a function
-
-        return colHelper.accessor(column.accessor, {
-          id: id!, // undefined not really possible, and helper doesn't allow it
-          header: typeof column.header === 'string' ? column.header : id,
-          cell: (info: any) => {
-            const Comp = column.cell || DefaultCell
-            return <Comp value={info.getValue()} />
-          },
-        })
-      })
-
-      if (onSingleSelect) {
-        columns.unshift(getSelectCol())
-      } else if (onMultiSelect) {
-        columns.unshift(getMultiSelectCol())
-      }
-
-      if (makeActions) {
-        columns.push(getActionsCol(makeActions))
-      }
-
-      return columns
-    }, [children, makeActions, onSingleSelect, onMultiSelect])
 
     const { data, isLoading } = useApiQuery(
       query,
@@ -184,13 +93,7 @@ const makeQueryTable = <Item extends Record<string, unknown>>(
       data: tableData,
       getRowId,
       getCoreRowModel: getCoreRowModel(),
-      state: {
-        rowSelection,
-      },
       manualPagination: true,
-      enableRowSelection: !!onSingleSelect,
-      enableMultiRowSelection: !!onMultiSelect,
-      onRowSelectionChange: setRowSelection,
     })
 
     if (debug) console.table((data as { items?: any[] })?.items || data)
@@ -206,11 +109,7 @@ const makeQueryTable = <Item extends Record<string, unknown>>(
 
     return (
       <>
-        <Table
-          table={table}
-          singleSelect={!!onSingleSelect}
-          multiSelect={!!onMultiSelect}
-        />
+        <Table table={table} />
         <Pagination
           inline={pagination === 'inline'}
           pageSize={pageSize}
@@ -223,23 +122,3 @@ const makeQueryTable = <Item extends Record<string, unknown>>(
       </>
     )
   }
-
-export type QueryTableColumnProps<Item extends Record<string, unknown>> = {
-  header?: string | ReactElement
-  /** Use `header` instead */
-  name?: never
-  cell?: ComponentType<{ value: any }>
-} & ( // imitate the way RT works: only pass id if accessor is not a string
-  | {
-      accessor: DeepKeys<Item>
-      id?: string
-    }
-  | {
-      accessor: AccessorFn<Item>
-      id: string
-    }
-)
-
-const QueryTableColumn = <Item extends Record<string, unknown>>(
-  _props: QueryTableColumnProps<Item>
-) => null
