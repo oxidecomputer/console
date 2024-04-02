@@ -27,21 +27,21 @@ SSHKeysPage.loader = async () => {
   return null
 }
 
+const colHelper = createColumnHelper<SshKey>()
+const sshKeysStaticCols = [
+  colHelper.accessor('name', {}),
+  colHelper.accessor('description', {}),
+  colHelper.accessor('timeModified', {
+    header: 'Last updated',
+    cell: (info) => <DateCell value={info.getValue()} />,
+  }),
+]
+
 export function SSHKeysPage() {
   const navigate = useNavigate()
 
   const { Table } = useQueryTable('currentUserSshKeyList', {})
   const queryClient = useApiQueryClient()
-
-  const colHelper = createColumnHelper<SshKey>()
-  const staticCols = [
-    colHelper.accessor('name', {}),
-    colHelper.accessor('description', {}),
-    colHelper.accessor('timeModified', {
-      header: 'Last updated',
-      cell: (info) => <DateCell value={info.getValue()} />,
-    }),
-  ]
 
   const deleteSshKey = useApiMutation('currentUserSshKeyDelete', {
     onSuccess: () => {
@@ -72,7 +72,7 @@ export function SSHKeysPage() {
     />
   )
 
-  const columns = useColsWithActions(staticCols, makeActions)
+  const columns = useColsWithActions(sshKeysStaticCols, makeActions)
 
   return (
     <>

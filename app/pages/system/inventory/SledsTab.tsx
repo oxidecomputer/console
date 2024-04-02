@@ -32,18 +32,18 @@ SledsTab.loader = async () => {
   return null
 }
 
+const colHelper = createColumnHelper<Sled>()
+const sledsTabStaticCols = [
+  colHelper.accessor('id', {
+    cell: makeLinkCell((sledId) => pb.sled({ sledId })),
+  }),
+  // TODO: colHelper.accessor('baseboard.serviceAddress', { header: 'service address' }),
+  colHelper.accessor('baseboard.part', { header: 'part number' }),
+  colHelper.accessor('baseboard.serial', { header: 'serial number' }),
+  colHelper.accessor('baseboard.revision', { header: 'revision' }),
+]
+
 export function SledsTab() {
   const { Table } = useQueryTable('sledList', {}, { placeholderData: (x) => x })
-  const colHelper = createColumnHelper<Sled>()
-  const staticCols = [
-    colHelper.accessor('id', {
-      cell: makeLinkCell((sledId) => pb.sled({ sledId })),
-    }),
-    // TODO: colHelper.accessor('baseboard.serviceAddress', { header: 'service address' }),
-    colHelper.accessor('baseboard.part', { header: 'part number' }),
-    colHelper.accessor('baseboard.serial', { header: 'serial number' }),
-    colHelper.accessor('baseboard.revision', { header: 'revision' }),
-  ]
-
-  return <Table emptyState={<EmptyState />} columns={staticCols} />
+  return <Table emptyState={<EmptyState />} columns={sledsTabStaticCols} />
 }

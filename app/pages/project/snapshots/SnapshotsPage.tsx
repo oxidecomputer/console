@@ -81,29 +81,29 @@ SnapshotsPage.loader = async ({ params }: LoaderFunctionArgs) => {
   return null
 }
 
+const colHelper = createColumnHelper<Snapshot>()
+const snapshotsPageStaticCols = [
+  colHelper.accessor('name', {}),
+  colHelper.accessor('description', {}),
+  colHelper.accessor('diskId', {
+    header: 'disk',
+    cell: (info) => <DiskNameFromId value={info.getValue()} />,
+  }),
+  colHelper.accessor('state', {
+    cell: (info) => <SnapshotStatusBadge status={info.getValue()} />,
+  }),
+  colHelper.accessor('size', { cell: (info) => <SizeCell value={info.getValue()} /> }),
+  colHelper.accessor('timeCreated', {
+    header: 'created',
+    cell: (info) => <DateCell value={info.getValue()} />,
+  }),
+]
+
 export function SnapshotsPage() {
   const queryClient = useApiQueryClient()
   const { project } = useProjectSelector()
   const { Table } = useQueryTable('snapshotList', { query: { project } })
   const navigate = useNavigate()
-
-  const colHelper = createColumnHelper<Snapshot>()
-  const staticCols = [
-    colHelper.accessor('name', {}),
-    colHelper.accessor('description', {}),
-    colHelper.accessor('diskId', {
-      header: 'disk',
-      cell: (info) => <DiskNameFromId value={info.getValue()} />,
-    }),
-    colHelper.accessor('state', {
-      cell: (info) => <SnapshotStatusBadge status={info.getValue()} />,
-    }),
-    colHelper.accessor('size', { cell: (info) => <SizeCell value={info.getValue()} /> }),
-    colHelper.accessor('timeCreated', {
-      header: 'created',
-      cell: (info) => <DateCell value={info.getValue()} />,
-    }),
-  ]
 
   const deleteSnapshot = useApiMutation('snapshotDelete', {
     onSuccess() {
@@ -133,7 +133,7 @@ export function SnapshotsPage() {
     ],
     [deleteSnapshot, navigate, project]
   )
-  const columns = useColsWithActions(staticCols, makeActions)
+  const columns = useColsWithActions(snapshotsPageStaticCols, makeActions)
   return (
     <>
       <PageHeader>

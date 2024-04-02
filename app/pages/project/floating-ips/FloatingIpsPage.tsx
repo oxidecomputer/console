@@ -61,6 +61,17 @@ FloatingIpsPage.loader = async ({ params }: LoaderFunctionArgs) => {
   return null
 }
 
+const colHelper = createColumnHelper<FloatingIp>()
+const floatingIpsStaticCols = [
+  colHelper.accessor('name', {}),
+  colHelper.accessor('description', {}),
+  colHelper.accessor('ip', {}),
+  colHelper.accessor('instanceId', {
+    cell: (info) => <InstanceLinkCell instanceId={info.getValue()} />,
+    header: 'Attached to instance',
+  }),
+]
+
 export function FloatingIpsPage() {
   const [floatingIpToModify, setFloatingIpToModify] = useState<FloatingIp | null>(null)
   const queryClient = useApiQueryClient()
@@ -86,18 +97,6 @@ export function FloatingIpsPage() {
       addToast({ content: 'Your floating IP has been deleted' })
     },
   })
-
-  const colHelper = createColumnHelper<FloatingIp>()
-
-  const staticCols = [
-    colHelper.accessor('name', {}),
-    colHelper.accessor('description', {}),
-    colHelper.accessor('ip', {}),
-    colHelper.accessor('instanceId', {
-      cell: (info) => <InstanceLinkCell instanceId={info.getValue()} />,
-      header: 'Attached to instance',
-    }),
-  ]
 
   const makeActions = useCallback(
     (floatingIp: FloatingIp): MenuAction[] => {
@@ -179,7 +178,7 @@ export function FloatingIpsPage() {
 
   const { Table } = useQueryTable('floatingIpList', { query: { project } })
 
-  const columns = useColsWithActions(staticCols, makeActions)
+  const columns = useColsWithActions(floatingIpsStaticCols, makeActions)
 
   return (
     <>

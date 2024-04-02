@@ -46,6 +46,18 @@ ProjectsPage.loader = async () => {
   return null
 }
 
+const colHelper = createColumnHelper<Project>()
+const projectsPageStaticCols = [
+  colHelper.accessor('name', {
+    cell: makeLinkCell((project) => pb.instances({ project })),
+  }),
+  colHelper.accessor('description', {}),
+  colHelper.accessor('timeCreated', {
+    header: 'created',
+    cell: (info) => <DateCell value={info.getValue()} />,
+  }),
+]
+
 export function ProjectsPage() {
   const navigate = useNavigate()
 
@@ -54,18 +66,6 @@ export function ProjectsPage() {
   const { data: projects } = usePrefetchedApiQuery('projectList', {
     query: { limit: 25 }, // limit to match QueryTable
   })
-
-  const colHelper = createColumnHelper<Project>()
-  const staticCols = [
-    colHelper.accessor('name', {
-      cell: makeLinkCell((project) => pb.instances({ project })),
-    }),
-    colHelper.accessor('description', {}),
-    colHelper.accessor('timeCreated', {
-      header: 'created',
-      cell: (info) => <DateCell value={info.getValue()} />,
-    }),
-  ]
 
   const deleteProject = useApiMutation('projectDelete', {
     onSuccess() {
@@ -118,7 +118,7 @@ export function ProjectsPage() {
     )
   )
 
-  const columns = useColsWithActions(staticCols, makeActions)
+  const columns = useColsWithActions(projectsPageStaticCols, makeActions)
   return (
     <>
       <PageHeader>
