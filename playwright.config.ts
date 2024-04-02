@@ -22,7 +22,7 @@ export default {
   timeout: 2 * 60 * 1000, // 2 minutes, surely overkill
   fullyParallel: true,
   use: {
-    trace: 'retain-on-failure',
+    trace: 'on-first-retry',
     baseURL: 'http://localhost:4009',
   },
   projects: [

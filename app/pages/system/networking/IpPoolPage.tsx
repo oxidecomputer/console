@@ -6,7 +6,8 @@
  * Copyright Oxide Computer Company
  */
 
-import { useMemo, useState } from 'react'
+import { createColumnHelper } from '@tanstack/react-table'
+import { useCallback, useMemo, useState } from 'react'
 import { Link, Outlet, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
@@ -19,11 +20,7 @@ import {
   type IpPoolRange,
   type IpPoolSiloLink,
 } from '@oxide/api'
-import {
-  IpGlobal16Icon,
-  Networking24Icon,
-  Success12Icon,
-} from '@oxide/design-system/icons/react'
+import { IpGlobal16Icon, Networking24Icon } from '@oxide/design-system/icons/react'
 
 import { CapacityBar } from '~/components/CapacityBar'
 import { ExternalLink } from '~/components/ExternalLink'
@@ -34,11 +31,11 @@ import { getIpPoolSelector, useForm, useIpPoolSelector } from '~/hooks'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
 import { DateCell } from '~/table/cells/DateCell'
+import { DefaultPoolCell } from '~/table/cells/DefaultPoolCell'
 import { SkeletonCell } from '~/table/cells/EmptyCell'
 import { LinkCell } from '~/table/cells/LinkCell'
-import type { MenuAction } from '~/table/columns/action-col'
+import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
-import { Badge } from '~/ui/lib/Badge'
 import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
@@ -140,9 +137,19 @@ function UtilizationBars() {
   )
 }
 
+const ipRangesColHelper = createColumnHelper<IpPoolRange>()
+const ipRangesStaticCols = [
+  ipRangesColHelper.accessor('range.first', { header: 'First' }),
+  ipRangesColHelper.accessor('range.last', { header: 'Last' }),
+  ipRangesColHelper.accessor('timeCreated', {
+    header: 'created',
+    cell: (info) => <DateCell value={info.getValue()} />,
+  }),
+]
+
 function IpRangesTable() {
   const { pool } = useIpPoolSelector()
-  const { Table, Column } = useQueryTable('ipPoolRangeList', { path: { pool } })
+  const { Table } = useQueryTable('ipPoolRangeList', { path: { pool } })
   const queryClient = useApiQueryClient()
 
   const removeRange = useApiMutation('ipPoolRangeRemove', {
@@ -161,32 +168,36 @@ function IpRangesTable() {
     />
   )
 
-  const makeRangeActions = ({ range }: IpPoolRange): MenuAction[] => [
-    {
-      label: 'Remove',
-      className: 'destructive',
-      onActivate: () =>
-        confirmAction({
-          doAction: () =>
-            removeRange.mutateAsync({
-              path: { pool },
-              body: range,
-            }),
-          errorTitle: 'Could not remove range',
-          modalTitle: 'Confirm remove range',
-          modalContent: (
-            <p>
-              Are you sure you want to remove range{' '}
-              <HL>
-                {range.first}&ndash;{range.last}
-              </HL>{' '}
-              from the pool? This will fail if the range has any addresses in use.
-            </p>
-          ),
-          actionType: 'danger',
-        }),
-    },
-  ]
+  const makeRangeActions = useCallback(
+    ({ range }: IpPoolRange): MenuAction[] => [
+      {
+        label: 'Remove',
+        className: 'destructive',
+        onActivate: () =>
+          confirmAction({
+            doAction: () =>
+              removeRange.mutateAsync({
+                path: { pool },
+                body: range,
+              }),
+            errorTitle: 'Could not remove range',
+            modalTitle: 'Confirm remove range',
+            modalContent: (
+              <p>
+                Are you sure you want to remove range{' '}
+                <HL>
+                  {range.first}&ndash;{range.last}
+                </HL>{' '}
+                from the pool? This will fail if the range has any addresses in use.
+              </p>
+            ),
+            actionType: 'danger',
+          }),
+      },
+    ],
+    [pool, removeRange]
+  )
+  const columns = useColsWithActions(ipRangesStaticCols, makeRangeActions)
 
   return (
     <>
@@ -195,11 +206,7 @@ function IpRangesTable() {
           Add range
         </Link>
       </div>
-      <Table emptyState={emptyState} makeActions={makeRangeActions}>
-        <Column accessor="range.first" header="First" />
-        <Column accessor="range.last" header="Last" />
-        <Column accessor="timeCreated" header="Created" cell={DateCell} />
-      </Table>
+      <Table columns={columns} emptyState={emptyState} />
     </>
   )
 }
@@ -212,10 +219,22 @@ function SiloNameFromId({ value: siloId }: { value: string }) {
   return <LinkCell to={pb.siloIpPools({ silo: silo.name })}>{silo.name}</LinkCell>
 }
 
+const silosColHelper = createColumnHelper<IpPoolSiloLink>()
+const silosStaticCols = [
+  silosColHelper.accessor('siloId', {
+    header: 'Silo',
+    cell: (info) => <SiloNameFromId value={info.getValue()} />,
+  }),
+  silosColHelper.accessor('isDefault', {
+    header: 'Pool is silo default?',
+    cell: (info) => <DefaultPoolCell isDefault={info.getValue()} />,
+  }),
+]
+
 function LinkedSilosTable() {
   const poolSelector = useIpPoolSelector()
   const queryClient = useApiQueryClient()
-  const { Table, Column } = useQueryTable('ipPoolSiloList', { path: poolSelector })
+  const { Table } = useQueryTable('ipPoolSiloList', { path: poolSelector })
 
   const unlinkSilo = useApiMutation('ipPoolSiloUnlink', {
     onSuccess() {
@@ -223,33 +242,36 @@ function LinkedSilosTable() {
     },
   })
 
-  const makeActions = (link: IpPoolSiloLink): MenuAction[] => [
-    {
-      label: 'Unlink',
-      className: 'destructive',
-      onActivate() {
-        confirmAction({
-          doAction: () =>
-            unlinkSilo.mutateAsync({ path: { silo: link.siloId, pool: link.ipPoolId } }),
-          modalTitle: 'Confirm unlink silo',
-          // Would be nice to reference the silo by name like we reference the
-          // pool by name on unlink in the silo pools list, but it's a pain to
-          // get the name here. Could use useQueries to get all the names, and
-          // RQ would dedupe the requests since they're already being fetched
-          // for the table. Not worth it right now.
-          modalContent: (
-            <p>
-              Are you sure you want to unlink the silo? Users in this silo will no longer be
-              able to allocate IPs from this pool. Unlink will fail if there are any IPs
-              from the pool in use in this silo.
-            </p>
-          ),
-          errorTitle: 'Could not unlink silo',
-          actionType: 'danger',
-        })
+  const makeActions = useCallback(
+    (link: IpPoolSiloLink): MenuAction[] => [
+      {
+        label: 'Unlink',
+        className: 'destructive',
+        onActivate() {
+          confirmAction({
+            doAction: () =>
+              unlinkSilo.mutateAsync({ path: { silo: link.siloId, pool: link.ipPoolId } }),
+            modalTitle: 'Confirm unlink silo',
+            // Would be nice to reference the silo by name like we reference the
+            // pool by name on unlink in the silo pools list, but it's a pain to
+            // get the name here. Could use useQueries to get all the names, and
+            // RQ would dedupe the requests since they're already being fetched
+            // for the table. Not worth it right now.
+            modalContent: (
+              <p>
+                Are you sure you want to unlink the silo? Users in this silo will no longer
+                be able to allocate IPs from this pool. Unlink will fail if there are any
+                IPs from the pool in use in this silo.
+              </p>
+            ),
+            errorTitle: 'Could not unlink silo',
+            actionType: 'danger',
+          })
+        },
       },
-    },
-  ]
+    ],
+    [unlinkSilo]
+  )
 
   const [showLinkModal, setShowLinkModal] = useState(false)
 
@@ -263,6 +285,7 @@ function LinkedSilosTable() {
     />
   )
 
+  const columns = useColsWithActions(silosStaticCols, makeActions)
   return (
     <>
       <TableControls>
@@ -277,22 +300,7 @@ function LinkedSilosTable() {
           Link silo
         </TableControlsButton>
       </TableControls>
-      <Table emptyState={emptyState} makeActions={makeActions}>
-        <Column accessor="siloId" id="Silo" cell={SiloNameFromId} />
-        <Column
-          accessor="isDefault"
-          id="Default"
-          header="Pool is silo default?"
-          cell={({ value }) =>
-            value && (
-              <>
-                <Success12Icon className="mr-1 text-accent" />
-                <Badge>default</Badge>
-              </>
-            )
-          }
-        />
-      </Table>
+      <Table columns={columns} emptyState={emptyState} />
       {showLinkModal && <LinkSiloModal onDismiss={() => setShowLinkModal(false)} />}
     </>
   )

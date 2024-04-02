@@ -5,16 +5,17 @@
  *
  * Copyright Oxide Computer Company
  */
+import { createColumnHelper } from '@tanstack/react-table'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 
-import { apiQueryClient } from '@oxide/api'
+import { apiQueryClient, type SledInstance } from '@oxide/api'
 import { Instances24Icon } from '@oxide/design-system/icons/react'
 
 import { InstanceStatusBadge } from '~/components/StatusBadge'
 import { requireSledParams, useSledParams } from '~/hooks'
 import { DateCell } from '~/table/cells/DateCell'
 import { InstanceResourceCell } from '~/table/cells/InstanceResourceCell'
-import type { MenuAction } from '~/table/columns/action-col'
+import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { pick } from '~/util/object'
@@ -38,42 +39,50 @@ SledInstancesTab.loader = async ({ params }: LoaderFunctionArgs) => {
   return null
 }
 
+// passing in empty function because we still want the copy ID button
+const makeActions = (): MenuAction[] => []
+
+const colHelper = createColumnHelper<SledInstance>()
+const staticCols = [
+  colHelper.accessor((i) => pick(i, 'name', 'siloName', 'projectName'), {
+    header: 'name',
+    cell: (info) => {
+      const value = info.getValue()
+      return (
+        <div className="space-y-0.5">
+          <div className="text-quaternary">{`${value.siloName} / ${value.projectName}`}</div>
+          <div className="text-default">{value.name}</div>
+        </div>
+      )
+    },
+  }),
+  colHelper.accessor('state', {
+    header: 'status',
+    cell: (info) => <InstanceStatusBadge key="run-state" status={info.getValue()} />,
+  }),
+  colHelper.accessor((i) => pick(i, 'memory', 'ncpus'), {
+    header: 'specs',
+    cell: (info) => <InstanceResourceCell value={info.getValue()} />,
+  }),
+  colHelper.accessor('timeCreated', {
+    header: 'created',
+    cell: (info) => <DateCell value={info.getValue()} />,
+  }),
+  colHelper.accessor('timeModified', {
+    header: 'modified',
+    cell: (info) => <DateCell value={info.getValue()} />,
+  }),
+]
+
 export function SledInstancesTab() {
   const { sledId } = useSledParams()
-  const { Table, Column } = useQueryTable(
+  const { Table } = useQueryTable(
     'sledInstanceList',
     { path: { sledId }, query: { limit: 25 } },
     { placeholderData: (x) => x }
   )
 
-  const makeActions = (): MenuAction[] => []
+  const columns = useColsWithActions(staticCols, makeActions)
 
-  return (
-    <Table emptyState={<EmptyState />} makeActions={makeActions}>
-      <Column
-        id="name"
-        accessor={(i) => pick(i, 'name', 'siloName', 'projectName')}
-        cell={({ value }) => {
-          return (
-            <div className="space-y-0.5">
-              <div className="text-quaternary">{`${value.siloName} / ${value.projectName}`}</div>
-              <div className="text-default">{value.name}</div>
-            </div>
-          )
-        }}
-      />
-      <Column
-        id="status"
-        accessor="state"
-        cell={({ value }) => <InstanceStatusBadge key="run-state" status={value} />}
-      />
-      <Column
-        id="specs"
-        accessor={(i) => pick(i, 'memory', 'ncpus')}
-        cell={InstanceResourceCell}
-      />
-      <Column id="created" accessor="timeCreated" cell={DateCell} />
-      <Column id="modified" accessor="timeModified" cell={DateCell} />
-    </Table>
-  )
+  return <Table columns={columns} emptyState={<EmptyState />} />
 }

@@ -5,7 +5,8 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useMemo } from 'react'
+import { createColumnHelper } from '@tanstack/react-table'
+import { useCallback, useMemo } from 'react'
 import { Link, Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
@@ -20,8 +21,8 @@ import { Networking24Icon } from '@oxide/design-system/icons/react'
 import { getProjectSelector, useProjectSelector, useQuickActions } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { DateCell } from '~/table/cells/DateCell'
-import { linkCell } from '~/table/cells/LinkCell'
-import type { MenuAction } from '~/table/columns/action-col'
+import { makeLinkCell } from '~/table/cells/LinkCell'
+import { getActionsCol, type MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
 import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -39,21 +40,21 @@ const EmptyState = () => (
   />
 )
 
+const colHelper = createColumnHelper<Vpc>()
+
 // just as in the vpcList call for the quick actions menu, include limit: 25 to make
 // sure it matches the call in the QueryTable
 VpcsPage.loader = async ({ params }: LoaderFunctionArgs) => {
-  await apiQueryClient.prefetchQuery('vpcList', {
-    query: { ...getProjectSelector(params), limit: 25 },
-  })
+  const { project } = getProjectSelector(params)
+  await apiQueryClient.prefetchQuery('vpcList', { query: { project, limit: 25 } })
   return null
 }
 
 export function VpcsPage() {
   const queryClient = useApiQueryClient()
-  const projectSelector = useProjectSelector()
-  const { data: vpcs } = usePrefetchedApiQuery('vpcList', {
-    query: { ...projectSelector, limit: 25 }, // to have same params as QueryTable
-  })
+  const { project } = useProjectSelector()
+  // to have same params as QueryTable
+  const { data: vpcs } = usePrefetchedApiQuery('vpcList', { query: { project, limit: 25 } })
   const navigate = useNavigate()
 
   const deleteVpc = useApiMutation('vpcDelete', {
@@ -62,60 +63,71 @@ export function VpcsPage() {
     },
   })
 
-  const makeActions = (vpc: Vpc): MenuAction[] => [
-    {
-      label: 'Edit',
-      onActivate() {
-        apiQueryClient.setQueryData(
-          'vpcView',
-          { path: { vpc: vpc.name }, query: projectSelector },
-          vpc
-        )
-        navigate(pb.vpcEdit({ ...projectSelector, vpc: vpc.name }), { state: vpc })
+  const makeActions = useCallback(
+    (vpc: Vpc): MenuAction[] => [
+      {
+        label: 'Edit',
+        onActivate() {
+          apiQueryClient.setQueryData(
+            'vpcView',
+            { path: { vpc: vpc.name }, query: { project } },
+            vpc
+          )
+          navigate(pb.vpcEdit({ project, vpc: vpc.name }), { state: vpc })
+        },
       },
-    },
-    {
-      label: 'Delete',
-      onActivate: confirmDelete({
-        doDelete: () =>
-          deleteVpc.mutateAsync({ path: { vpc: vpc.name }, query: projectSelector }),
-        label: vpc.name,
-      }),
-    },
-  ]
+      {
+        label: 'Delete',
+        onActivate: confirmDelete({
+          doDelete: () =>
+            deleteVpc.mutateAsync({ path: { vpc: vpc.name }, query: { project } }),
+          label: vpc.name,
+        }),
+      },
+    ],
+    [deleteVpc, navigate, project]
+  )
 
   useQuickActions(
     useMemo(
       () =>
         vpcs.items.map((v) => ({
           value: v.name,
-          onSelect: () => navigate(pb.vpc({ ...projectSelector, vpc: v.name })),
+          onSelect: () => navigate(pb.vpc({ project, vpc: v.name })),
           navGroup: 'Go to VPC',
         })),
-      [projectSelector, vpcs, navigate]
+      [project, vpcs, navigate]
     )
   )
 
-  const { Table, Column } = useQueryTable('vpcList', { query: projectSelector })
+  const columns = useMemo(
+    () => [
+      colHelper.accessor('name', {
+        cell: makeLinkCell((vpc) => pb.vpc({ project, vpc })),
+      }),
+      colHelper.accessor('dnsName', { header: 'DNS name' }),
+      colHelper.accessor('description', {}),
+      colHelper.accessor('timeCreated', {
+        header: 'created',
+        cell: (info) => <DateCell value={info.getValue()} />,
+      }),
+      getActionsCol(makeActions),
+    ],
+    [project, makeActions]
+  )
+
+  const { Table } = useQueryTable('vpcList', { query: { project } })
   return (
     <>
       <PageHeader>
         <PageTitle icon={<Networking24Icon />}>VPCs</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link to={pb.vpcsNew(projectSelector)} className={buttonStyle({ size: 'sm' })}>
+        <Link to={pb.vpcsNew({ project })} className={buttonStyle({ size: 'sm' })}>
           New Vpc
         </Link>
       </TableActions>
-      <Table emptyState={<EmptyState />} makeActions={makeActions}>
-        <Column
-          accessor="name"
-          cell={linkCell((vpc) => pb.vpc({ ...projectSelector, vpc }))}
-        />
-        <Column accessor="dnsName" header="DNS name" />
-        <Column accessor="description" />
-        <Column accessor="timeCreated" header="Created" cell={DateCell} />
-      </Table>
+      <Table columns={columns} emptyState={<EmptyState />} />
       <Outlet />
     </>
   )

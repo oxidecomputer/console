@@ -622,7 +622,7 @@ export const handlers = makeHandlers({
     return json(instance, { status: 202 })
   },
   ipPoolList: ({ query }) => paginated(query, db.ipPools),
-  ipPoolUtilizationView({ path }) {
+  async ipPoolUtilizationView({ path }) {
     const pool = lookup.ipPool(path)
     const ranges = db.ipPoolRanges
       .filter((r) => r.ip_pool_id === pool.id)
