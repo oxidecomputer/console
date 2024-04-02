@@ -54,9 +54,8 @@ StorageTab.loader = async ({ params }: LoaderFunctionArgs) => {
 
 const colHelper = createColumnHelper<Disk>()
 const staticCols = [
-  colHelper.accessor('name', { header: 'Name' }),
+  colHelper.accessor('name', {}),
   colHelper.accessor('size', {
-    header: 'size',
     cell: (info) => <SizeCell value={info.getValue()} />,
   }),
   colHelper.accessor((row) => row.state.state, {
