@@ -10,8 +10,8 @@ import { createColumnHelper } from '@tanstack/react-table'
 import { apiQueryClient, type PhysicalDisk } from '@oxide/api'
 import { Racks24Icon } from '@oxide/design-system/icons/react'
 
-import { LabelCell } from '~/table/cells/LabelCell'
 import { useQueryTable } from '~/table/QueryTable'
+import { Badge } from '~/ui/lib/Badge'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 
 const EmptyState = () => {
@@ -37,7 +37,7 @@ export function DisksTab() {
     colHelper.accessor((d) => (d.formFactor === 'u2' ? 'U.2' : 'M.2'), {
       header: 'Form factor',
       id: 'form-factor',
-      cell: (info) => <LabelCell value={info.getValue()} />,
+      cell: (info) => <Badge>{info.getValue()}</Badge>,
     }),
     colHelper.accessor('model', { header: 'model number' }),
     colHelper.accessor('serial', { header: 'serial number' }),
