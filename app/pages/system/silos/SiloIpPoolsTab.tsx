@@ -46,7 +46,7 @@ const staticCols = [
   colHelper.accessor('description', {}),
   colHelper.accessor('isDefault', {
     header: 'Default',
-    cell: (info) => <DefaultPoolCell value={info.getValue()} />,
+    cell: (info) => <DefaultPoolCell isDefault={info.getValue()} />,
   }),
 ]
 

@@ -232,7 +232,7 @@ function LinkedSilosTable() {
     }),
     colHelper.accessor('isDefault', {
       header: 'Pool is silo default?',
-      cell: (info) => <DefaultPoolCell value={info.getValue()} />,
+      cell: (info) => <DefaultPoolCell isDefault={info.getValue()} />,
     }),
   ]
 
