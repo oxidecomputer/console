@@ -50,6 +50,8 @@ import {
 // client camel-cases the keys and parses date fields. Inside the mock API everything
 // is *JSON type.
 
+let hung = false
+
 export const handlers = makeHandlers({
   ping: () => ({ status: 'ok' }),
   deviceAuthRequest: () => 200,
@@ -192,11 +194,15 @@ export const handlers = makeHandlers({
     disk.state = { state: 'import_ready' }
     return 204
   },
-  diskBulkWriteImport: ({ path, query, body }) => {
+  async diskBulkWriteImport({ path, query, body }) {
     const disk = lookup.disk({ ...path, ...query })
     const diskImport = db.diskBulkImportState.get(disk.id)
     if (!diskImport) throw notFoundErr
     // if (Math.random() < 0.01) throw 400
+    if (body.offset === 5242880 && !hung) {
+      hung = true
+      await delay(30000)
+    }
     diskImport.blocks[body.offset] = true
     return 204
   },

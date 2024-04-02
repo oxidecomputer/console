@@ -37,6 +37,7 @@ import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { Progress } from '~/ui/lib/Progress'
 import { Spinner } from '~/ui/lib/Spinner'
+import { anySignal } from '~/util/abort'
 import { readBlobAsBase64 } from '~/util/file'
 import { invariant } from '~/util/invariant'
 import { pb } from '~/util/path-builder'
@@ -211,7 +212,15 @@ export function CreateImageSideModalForm() {
 
   const createDisk = useApiMutation('diskCreate')
   const startImport = useApiMutation('diskBulkWriteImportStart')
-  const uploadChunk = useApiMutation('diskBulkWriteImport')
+  const uploadChunk = useApiMutation(
+    'diskBulkWriteImport',
+    {},
+    {
+      // AbortSignal.any is too new, just came out in FF and Safar:
+      // https://caniuse.com/mdn-api_abortsignal_any_static
+      signal: anySignal([AbortSignal.timeout(5000), abortController.current?.signal]),
+    }
+  )
 
   // synthetic state for upload step because it consists of multiple requests
   const [syntheticUploadState, setSyntheticUploadState] =
