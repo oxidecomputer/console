@@ -22,7 +22,7 @@ import { DateCell } from '~/table/cells/DateCell'
 import { InstanceResourceCell } from '~/table/cells/InstanceResourceCell'
 import { InstanceStatusCell } from '~/table/cells/InstanceStatusCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
-import { useColsWithActions } from '~/table/columns/action-col'
+import { getActionsCol } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
 import { Button, buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -42,6 +42,8 @@ const EmptyState = () => (
   />
 )
 
+const colHelper = createColumnHelper<Instance>()
+
 InstancesPage.loader = async ({ params }: LoaderFunctionArgs) => {
   await apiQueryClient.prefetchQuery('instanceList', {
     query: { ...getProjectSelector(params), limit: 25 },
@@ -54,32 +56,6 @@ export function InstancesPage() {
 
   const queryClient = useApiQueryClient()
   const refetchInstances = () => queryClient.invalidateQueries('instanceList')
-
-  const colHelper = createColumnHelper<Instance>()
-  const staticCols = [
-    colHelper.accessor('name', {
-      cell: makeLinkCell((instance) => pb.instancePage({ ...projectSelector, instance })),
-    }),
-    colHelper.accessor((i) => ({ ncpus: i.ncpus, memory: i.memory }), {
-      header: 'CPU, RAM',
-      cell: (info) => <InstanceResourceCell value={info.getValue()} />,
-    }),
-    colHelper.accessor(
-      (i) => ({
-        runState: i.runState,
-        timeRunStateUpdated: i.timeRunStateUpdated,
-      }),
-      {
-        header: 'status',
-        cell: (info) => <InstanceStatusCell value={info.getValue()} />,
-      }
-    ),
-    colHelper.accessor('hostname', {}),
-    colHelper.accessor('timeCreated', {
-      header: 'created',
-      cell: (info) => <DateCell value={info.getValue()} />,
-    }),
-  ]
 
   const makeActions = useMakeInstanceActions(projectSelector, {
     onSuccess: refetchInstances,
@@ -114,7 +90,34 @@ export function InstancesPage() {
     { placeholderData: (x) => x }
   )
 
-  const columns = useColsWithActions(staticCols, makeActions)
+  const columns = useMemo(
+    () => [
+      colHelper.accessor('name', {
+        cell: makeLinkCell((instance) => pb.instancePage({ ...projectSelector, instance })),
+      }),
+      colHelper.accessor((i) => ({ ncpus: i.ncpus, memory: i.memory }), {
+        header: 'CPU, RAM',
+        cell: (info) => <InstanceResourceCell value={info.getValue()} />,
+      }),
+      colHelper.accessor(
+        (i) => ({
+          runState: i.runState,
+          timeRunStateUpdated: i.timeRunStateUpdated,
+        }),
+        {
+          header: 'status',
+          cell: (info) => <InstanceStatusCell value={info.getValue()} />,
+        }
+      ),
+      colHelper.accessor('hostname', {}),
+      colHelper.accessor('timeCreated', {
+        header: 'created',
+        cell: (info) => <DateCell value={info.getValue()} />,
+      }),
+      getActionsCol(makeActions),
+    ],
+    [projectSelector, makeActions]
+  )
 
   if (!instances) return null
 

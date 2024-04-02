@@ -42,6 +42,25 @@ const EmptyState = () => (
   />
 )
 
+const colHelper = createColumnHelper<Silo>()
+const staticCols = [
+  colHelper.accessor('name', {
+    cell: (info) => makeLinkCell((name) => pb.silo({ silo: name }))(info),
+  }),
+  colHelper.accessor('description', {}),
+  colHelper.accessor('discoverable', {
+    cell: (info) => <BooleanCell isTrue={info.getValue()} />,
+  }),
+  colHelper.accessor((silo) => silo.identityMode, {
+    header: 'Identity mode',
+    cell: (info) => <Badge>{info.getValue().replace('_', ' ')}</Badge>,
+  }),
+  colHelper.accessor('timeCreated', {
+    header: 'created',
+    cell: (info) => <DateCell value={info.getValue()} />,
+  }),
+]
+
 SilosPage.loader = async () => {
   await apiQueryClient.prefetchQuery('siloList', { query: { limit: 25 } })
   return null
@@ -56,25 +75,6 @@ export function SilosPage() {
   const { data: silos } = usePrefetchedApiQuery('siloList', {
     query: { limit: 25 },
   })
-
-  const colHelper = createColumnHelper<Silo>()
-  const staticCols = [
-    colHelper.accessor('name', {
-      cell: (info) => makeLinkCell((name) => pb.silo({ silo: name }))(info),
-    }),
-    colHelper.accessor('description', {}),
-    colHelper.accessor('discoverable', {
-      cell: (info) => <BooleanCell isTrue={info.getValue()} />,
-    }),
-    colHelper.accessor((silo) => silo.identityMode, {
-      header: 'Identity mode',
-      cell: (info) => <Badge>{info.getValue().replace('_', ' ')}</Badge>,
-    }),
-    colHelper.accessor('timeCreated', {
-      header: 'created',
-      cell: (info) => <DateCell value={info.getValue()} />,
-    }),
-  ]
 
   const deleteSilo = useApiMutation('siloDelete', {
     onSuccess() {

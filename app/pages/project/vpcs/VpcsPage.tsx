@@ -40,6 +40,8 @@ const EmptyState = () => (
   />
 )
 
+const colHelper = createColumnHelper<Vpc>()
+
 // just as in the vpcList call for the quick actions menu, include limit: 25 to make
 // sure it matches the call in the QueryTable
 VpcsPage.loader = async ({ params }: LoaderFunctionArgs) => {
@@ -98,9 +100,8 @@ export function VpcsPage() {
     )
   )
 
-  const columns = useMemo(() => {
-    const colHelper = createColumnHelper<Vpc>()
-    return [
+  const columns = useMemo(
+    () => [
       colHelper.accessor('name', {
         cell: makeLinkCell((vpc) => pb.vpc({ project, vpc })),
       }),
@@ -111,8 +112,9 @@ export function VpcsPage() {
         cell: (info) => <DateCell value={info.getValue()} />,
       }),
       getActionsCol(makeActions),
-    ]
-  }, [project, makeActions])
+    ],
+    [project, makeActions]
+  )
 
   const { Table } = useQueryTable('vpcList', { query: { project } })
   return (
