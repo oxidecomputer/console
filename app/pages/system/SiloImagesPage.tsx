@@ -52,27 +52,25 @@ SiloImagesPage.loader = async () => {
   return null
 }
 
+const colHelper = createColumnHelper<Image>()
+const siloImagesStaticCols = [
+  colHelper.accessor('name', {
+    cell: makeLinkCell((image) => pb.siloImageEdit({ image })),
+  }),
+  colHelper.accessor('description', {}),
+  colHelper.accessor('size', { cell: (info) => <SizeCell value={info.getValue()} /> }),
+  colHelper.accessor('timeCreated', {
+    header: 'Created',
+    cell: (info) => <DateCell value={info.getValue()} />,
+  }),
+]
+
 export function SiloImagesPage() {
   const { Table } = useQueryTable('imageList', {})
   const [showModal, setShowModal] = useState(false)
-
   const [demoteImage, setDemoteImage] = useState<Image | null>(null)
 
   const queryClient = useApiQueryClient()
-
-  const colHelper = createColumnHelper<Image>()
-  const staticCols = [
-    colHelper.accessor('name', {
-      cell: makeLinkCell((image) => pb.siloImageEdit({ image })),
-    }),
-    colHelper.accessor('description', {}),
-    colHelper.accessor('size', { cell: (info) => <SizeCell value={info.getValue()} /> }),
-    colHelper.accessor('timeCreated', {
-      header: 'Created',
-      cell: (info) => <DateCell value={info.getValue()} />,
-    }),
-  ]
-
   const deleteImage = useApiMutation('imageDelete', {
     onSuccess(_data, variables) {
       addToast({ content: `${variables.path.image} has been deleted` })
@@ -97,7 +95,7 @@ export function SiloImagesPage() {
     [deleteImage]
   )
 
-  const columns = useColsWithActions(staticCols, makeActions)
+  const columns = useColsWithActions(siloImagesStaticCols, makeActions)
   return (
     <>
       <PageHeader>

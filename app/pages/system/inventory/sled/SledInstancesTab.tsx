@@ -66,22 +66,18 @@ export function SledInstancesTab() {
     }),
     colHelper.accessor('state', {
       header: 'status',
-      id: 'status',
       cell: (info) => <InstanceStatusBadge key="run-state" status={info.getValue()} />,
     }),
     colHelper.accessor((i) => pick(i, 'memory', 'ncpus'), {
       header: 'specs',
-      id: 'specs',
       cell: (info) => <InstanceResourceCell value={info.getValue()} />,
     }),
     colHelper.accessor('timeCreated', {
       header: 'created',
-      id: 'created',
       cell: (info) => <DateCell value={info.getValue()} />,
     }),
     colHelper.accessor('timeModified', {
       header: 'modified',
-      id: 'modified',
       cell: (info) => <DateCell value={info.getValue()} />,
     }),
   ]
