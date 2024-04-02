@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { createColumnHelper } from '@tanstack/react-table'
+import { useMemo } from 'react'
 import { Link, Outlet } from 'react-router-dom'
 
 import { Cloud24Icon } from '@oxide/design-system/icons/react'
@@ -25,42 +26,43 @@ const EmptyState = () => (
   <EmptyMessage icon={<Cloud24Icon />} title="No identity providers" />
 )
 
+const colHelper = createColumnHelper<IdentityProvider>()
+
 export function SiloIdpsTab() {
-  const siloSelector = useSiloSelector()
+  const { silo } = useSiloSelector()
 
   const { Table } = useQueryTable('siloIdentityProviderList', {
-    query: siloSelector,
+    query: { silo },
   })
 
-  const colHelper = createColumnHelper<IdentityProvider>()
-  const staticCols = [
-    // TODO: this link will only really work for saml IdPs.
-    colHelper.accessor('name', {
-      cell: (info) => {
-        const provider = info.getValue()
-        if (info.row.original.providerType !== 'saml') return provider
-        return (
-          <LinkCell to={pb.samlIdp({ ...siloSelector, provider })}>{provider}</LinkCell>
-        )
-      },
-    }),
-    colHelper.accessor('description', {
-      cell: (info) => <TruncateCell value={info.getValue()} maxLength={48} />,
-    }),
-    colHelper.accessor('providerType', {
-      header: 'Type',
-      cell: (info) => <Badge color="neutral">{info.getValue()}</Badge>,
-    }),
-    colHelper.accessor('timeCreated', {
-      header: 'created',
-      cell: (info) => <DateCell value={info.getValue()} />,
-    }),
-  ]
+  const staticCols = useMemo(
+    () => [
+      colHelper.accessor('name', {
+        cell: (info) => {
+          const provider = info.getValue()
+          if (info.row.original.providerType !== 'saml') return provider
+          return <LinkCell to={pb.samlIdp({ silo, provider })}>{provider}</LinkCell>
+        },
+      }),
+      colHelper.accessor('description', {
+        cell: (info) => <TruncateCell value={info.getValue()} maxLength={48} />,
+      }),
+      colHelper.accessor('providerType', {
+        header: 'Type',
+        cell: (info) => <Badge color="neutral">{info.getValue()}</Badge>,
+      }),
+      colHelper.accessor('timeCreated', {
+        header: 'created',
+        cell: (info) => <DateCell value={info.getValue()} />,
+      }),
+    ],
+    [silo]
+  )
 
   return (
     <>
       <div className="mb-3 flex justify-end space-x-2">
-        <Link to={pb.siloIdpsNew(siloSelector)} className={buttonStyle({ size: 'sm' })}>
+        <Link to={pb.siloIdpsNew({ silo })} className={buttonStyle({ size: 'sm' })}>
           New provider
         </Link>
       </div>

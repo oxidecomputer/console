@@ -21,6 +21,19 @@ import { useQueryTable } from '~/table/QueryTable'
 import { Button } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 
+const colHelper = createColumnHelper<VpcSubnet>()
+const staticCols = [
+  colHelper.accessor('name', {}),
+  colHelper.accessor((vpc) => [vpc.ipv4Block, vpc.ipv6Block] as const, {
+    header: 'IP Block',
+    cell: (info) => <TwoLineCell value={[...info.getValue()]} />,
+  }),
+  colHelper.accessor('timeCreated', {
+    header: 'created',
+    cell: (info) => <DateCell value={info.getValue()} />,
+  }),
+]
+
 export const VpcSubnetsTab = () => {
   const vpcSelector = useVpcSelector()
   const queryClient = useApiQueryClient()
@@ -28,19 +41,6 @@ export const VpcSubnetsTab = () => {
   const { Table } = useQueryTable('vpcSubnetList', { query: vpcSelector })
   const [creating, setCreating] = useState(false)
   const [editing, setEditing] = useState<VpcSubnet | null>(null)
-
-  const colHelper = createColumnHelper<VpcSubnet>()
-  const staticCols = [
-    colHelper.accessor('name', {}),
-    colHelper.accessor((vpc) => [vpc.ipv4Block, vpc.ipv6Block] as const, {
-      header: 'IP Block',
-      cell: (info) => <TwoLineCell value={[...info.getValue()]} />,
-    }),
-    colHelper.accessor('timeCreated', {
-      header: 'created',
-      cell: (info) => <DateCell value={info.getValue()} />,
-    }),
-  ]
 
   const deleteSubnet = useApiMutation('vpcSubnetDelete', {
     onSuccess() {

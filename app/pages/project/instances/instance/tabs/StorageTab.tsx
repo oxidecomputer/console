@@ -52,6 +52,23 @@ StorageTab.loader = async ({ params }: LoaderFunctionArgs) => {
   return null
 }
 
+const colHelper = createColumnHelper<Disk>()
+const staticCols = [
+  colHelper.accessor('name', { header: 'Name' }),
+  colHelper.accessor('size', {
+    header: 'size',
+    cell: (info) => <SizeCell value={info.getValue()} />,
+  }),
+  colHelper.accessor((row) => row.state.state, {
+    header: 'status',
+    cell: (info) => <DiskStatusBadge status={info.getValue()} />,
+  }),
+  colHelper.accessor('timeCreated', {
+    header: 'created',
+    cell: (info) => <DateCell value={info.getValue()} />,
+  }),
+]
+
 const attachableStates = fancifyStates(instanceCan.attachDisk.states)
 const detachableStates = fancifyStates(instanceCan.detachDisk.states)
 
@@ -94,23 +111,6 @@ export function StorageTab() {
   })
 
   const { data: instance } = usePrefetchedApiQuery('instanceView', instancePathQuery)
-
-  const colHelper = createColumnHelper<Disk>()
-  const staticCols = [
-    colHelper.accessor('name', { header: 'Name' }),
-    colHelper.accessor('size', {
-      header: 'size',
-      cell: (info) => <SizeCell value={info.getValue()} />,
-    }),
-    colHelper.accessor((row) => row.state.state, {
-      header: 'status',
-      cell: (info) => <DiskStatusBadge status={info.getValue()} />,
-    }),
-    colHelper.accessor('timeCreated', {
-      header: 'created',
-      cell: (info) => <DateCell value={info.getValue()} />,
-    }),
-  ]
 
   const makeActions = useCallback(
     (disk: Disk): MenuAction[] => [

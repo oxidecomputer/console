@@ -137,20 +137,20 @@ function UtilizationBars() {
   )
 }
 
+const ipRangesColHelper = createColumnHelper<IpPoolRange>()
+const ipRangesStaticCols = [
+  ipRangesColHelper.accessor('range.first', { header: 'First' }),
+  ipRangesColHelper.accessor('range.last', { header: 'Last' }),
+  ipRangesColHelper.accessor('timeCreated', {
+    header: 'created',
+    cell: (info) => <DateCell value={info.getValue()} />,
+  }),
+]
+
 function IpRangesTable() {
   const { pool } = useIpPoolSelector()
   const { Table } = useQueryTable('ipPoolRangeList', { path: { pool } })
   const queryClient = useApiQueryClient()
-
-  const colHelper = createColumnHelper<IpPoolRange>()
-  const staticCols = [
-    colHelper.accessor('range.first', { header: 'First' }),
-    colHelper.accessor('range.last', { header: 'Last' }),
-    colHelper.accessor('timeCreated', {
-      header: 'created',
-      cell: (info) => <DateCell value={info.getValue()} />,
-    }),
-  ]
 
   const removeRange = useApiMutation('ipPoolRangeRemove', {
     onSuccess() {
@@ -197,7 +197,7 @@ function IpRangesTable() {
     ],
     [pool, removeRange]
   )
-  const columns = useColsWithActions(staticCols, makeRangeActions)
+  const columns = useColsWithActions(ipRangesStaticCols, makeRangeActions)
 
   return (
     <>
@@ -219,22 +219,22 @@ function SiloNameFromId({ value: siloId }: { value: string }) {
   return <LinkCell to={pb.siloIpPools({ silo: silo.name })}>{silo.name}</LinkCell>
 }
 
+const silosColHelper = createColumnHelper<IpPoolSiloLink>()
+const silosStaticCols = [
+  silosColHelper.accessor('siloId', {
+    header: 'Silo',
+    cell: (info) => <SiloNameFromId value={info.getValue()} />,
+  }),
+  silosColHelper.accessor('isDefault', {
+    header: 'Pool is silo default?',
+    cell: (info) => <DefaultPoolCell isDefault={info.getValue()} />,
+  }),
+]
+
 function LinkedSilosTable() {
   const poolSelector = useIpPoolSelector()
   const queryClient = useApiQueryClient()
   const { Table } = useQueryTable('ipPoolSiloList', { path: poolSelector })
-
-  const colHelper = createColumnHelper<IpPoolSiloLink>()
-  const staticCols = [
-    colHelper.accessor('siloId', {
-      header: 'Silo',
-      cell: (info) => <SiloNameFromId value={info.getValue()} />,
-    }),
-    colHelper.accessor('isDefault', {
-      header: 'Pool is silo default?',
-      cell: (info) => <DefaultPoolCell isDefault={info.getValue()} />,
-    }),
-  ]
 
   const unlinkSilo = useApiMutation('ipPoolSiloUnlink', {
     onSuccess() {
@@ -285,7 +285,7 @@ function LinkedSilosTable() {
     />
   )
 
-  const columns = useColsWithActions(staticCols, makeActions)
+  const columns = useColsWithActions(silosStaticCols, makeActions)
   return (
     <>
       <TableControls>

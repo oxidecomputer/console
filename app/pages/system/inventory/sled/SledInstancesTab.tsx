@@ -42,6 +42,38 @@ SledInstancesTab.loader = async ({ params }: LoaderFunctionArgs) => {
 // passing in empty function because we still want the copy ID button
 const makeActions = (): MenuAction[] => []
 
+const colHelper = createColumnHelper<SledInstance>()
+const staticCols = [
+  colHelper.accessor((i) => pick(i, 'name', 'siloName', 'projectName'), {
+    header: 'name',
+    cell: (info) => {
+      const value = info.getValue()
+      return (
+        <div className="space-y-0.5">
+          <div className="text-quaternary">{`${value.siloName} / ${value.projectName}`}</div>
+          <div className="text-default">{value.name}</div>
+        </div>
+      )
+    },
+  }),
+  colHelper.accessor('state', {
+    header: 'status',
+    cell: (info) => <InstanceStatusBadge key="run-state" status={info.getValue()} />,
+  }),
+  colHelper.accessor((i) => pick(i, 'memory', 'ncpus'), {
+    header: 'specs',
+    cell: (info) => <InstanceResourceCell value={info.getValue()} />,
+  }),
+  colHelper.accessor('timeCreated', {
+    header: 'created',
+    cell: (info) => <DateCell value={info.getValue()} />,
+  }),
+  colHelper.accessor('timeModified', {
+    header: 'modified',
+    cell: (info) => <DateCell value={info.getValue()} />,
+  }),
+]
+
 export function SledInstancesTab() {
   const { sledId } = useSledParams()
   const { Table } = useQueryTable(
@@ -49,37 +81,6 @@ export function SledInstancesTab() {
     { path: { sledId }, query: { limit: 25 } },
     { placeholderData: (x) => x }
   )
-  const colHelper = createColumnHelper<SledInstance>()
-  const staticCols = [
-    colHelper.accessor((i) => pick(i, 'name', 'siloName', 'projectName'), {
-      header: 'name',
-      cell: (info) => {
-        const value = info.getValue()
-        return (
-          <div className="space-y-0.5">
-            <div className="text-quaternary">{`${value.siloName} / ${value.projectName}`}</div>
-            <div className="text-default">{value.name}</div>
-          </div>
-        )
-      },
-    }),
-    colHelper.accessor('state', {
-      header: 'status',
-      cell: (info) => <InstanceStatusBadge key="run-state" status={info.getValue()} />,
-    }),
-    colHelper.accessor((i) => pick(i, 'memory', 'ncpus'), {
-      header: 'specs',
-      cell: (info) => <InstanceResourceCell value={info.getValue()} />,
-    }),
-    colHelper.accessor('timeCreated', {
-      header: 'created',
-      cell: (info) => <DateCell value={info.getValue()} />,
-    }),
-    colHelper.accessor('timeModified', {
-      header: 'modified',
-      cell: (info) => <DateCell value={info.getValue()} />,
-    }),
-  ]
 
   const columns = useColsWithActions(staticCols, makeActions)
 
