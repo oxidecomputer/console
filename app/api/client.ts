@@ -23,13 +23,6 @@ export const api = new Api({
   host: process.env.NODE_ENV === 'test' ? 'http://testhost' : '',
 })
 
-// add the API client to window for use from the browser JS console. requests
-// will use the session cookie, same as normal API calls
-if (typeof window !== 'undefined') {
-  // @ts-expect-error
-  window.oxide = api.methods
-}
-
 export type ApiMethods = typeof api.methods
 
 export const useApiQuery = getUseApiQuery(api.methods)
