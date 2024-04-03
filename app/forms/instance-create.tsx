@@ -215,7 +215,7 @@ export function CreateInstanceForm() {
         : diskSource
   const bootDiskSize = useWatch({ control: control, name: 'bootDiskSize' })
   const image = allImages.find((i) => i.id === bootDiskSource)
-  const imageSize = image?.size ? Math.ceil(image.size / GiB) : undefined
+  const imageSizeGiB = image?.size ? Math.ceil(image.size / GiB) : undefined
 
   useEffect(() => {
     if (createInstance.error) {
@@ -232,10 +232,10 @@ export function CreateInstanceForm() {
         label="Disk size"
         name="bootDiskSize"
         control={control}
-        min={imageSize || 1}
+        min={imageSizeGiB || 1}
         validate={(diskSizeGiB: number) => {
-          if (imageSize && diskSizeGiB < imageSize) {
-            return `Must be as large as selected image (min. ${imageSize} GiB)`
+          if (imageSizeGiB && diskSizeGiB < imageSizeGiB) {
+            return `Must be as large as selected image (min. ${imageSizeGiB} GiB)`
           }
         }}
         disabled={isSubmitting}
@@ -405,8 +405,8 @@ export function CreateInstanceForm() {
         defaultValue={defaultSource}
         onValueChange={(val) => {
           setValue('bootDiskSourceType', val as BootDiskSourceType)
-          if (imageSize && imageSize > bootDiskSize) {
-            setValue('bootDiskSize', nearest10(imageSize))
+          if (imageSizeGiB && imageSizeGiB > bootDiskSize) {
+            setValue('bootDiskSize', nearest10(imageSizeGiB))
           }
         }}
       >
