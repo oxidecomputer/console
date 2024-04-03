@@ -118,6 +118,8 @@ export const diskCan = mapValues(
     delete: ['detached', 'creating', 'faulted'],
     // TODO: link to API source
     snapshot: ['attached', 'detached'],
+    // https://github.com/oxidecomputer/omicron/blob/4970c71e/nexus/db-queries/src/db/datastore/disk.rs#L169-L172
+    attach: ['creating', 'detached'],
   },
   (states: DiskState['state'][]) => {
     // only have to Pick because we want this to work for both Disk and
