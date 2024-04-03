@@ -13,9 +13,8 @@ import { Cloud24Icon } from '@oxide/design-system/icons/react'
 
 import type { IdentityProvider } from '~/api'
 import { useSiloSelector } from '~/hooks'
-import { DateCell } from '~/table/cells/DateCell'
 import { LinkCell } from '~/table/cells/LinkCell'
-import { TruncateCell } from '~/table/cells/TruncateCell'
+import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { Badge } from '~/ui/lib/Badge'
 import { buttonStyle } from '~/ui/lib/Button'
@@ -44,17 +43,12 @@ export function SiloIdpsTab() {
           return <LinkCell to={pb.samlIdp({ silo, provider })}>{provider}</LinkCell>
         },
       }),
-      colHelper.accessor('description', {
-        cell: (info) => <TruncateCell value={info.getValue()} maxLength={48} />,
-      }),
+      colHelper.accessor('description', Columns.description),
       colHelper.accessor('providerType', {
         header: 'Type',
         cell: (info) => <Badge color="neutral">{info.getValue()}</Badge>,
       }),
-      colHelper.accessor('timeCreated', {
-        header: 'created',
-        cell: (info) => <DateCell value={info.getValue()} />,
-      }),
+      colHelper.accessor('timeCreated', Columns.timeCreated),
     ],
     [silo]
   )

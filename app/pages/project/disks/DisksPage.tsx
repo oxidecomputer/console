@@ -22,10 +22,9 @@ import { Storage24Icon } from '@oxide/design-system/icons/react'
 import { DiskStatusBadge } from '~/components/StatusBadge'
 import { getProjectSelector, useProjectSelector, useToast } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
-import { DateCell } from '~/table/cells/DateCell'
 import { InstanceLinkCell } from '~/table/cells/InstanceLinkCell'
-import { SizeCell } from '~/table/cells/SizeCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
+import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -83,15 +82,12 @@ const staticCols = [
       cell: (info) => <InstanceLinkCell instanceId={info.getValue()} />,
     }
   ),
-  colHelper.accessor('size', { cell: (info) => <SizeCell value={info.getValue()} /> }),
+  colHelper.accessor('size', Columns.size),
   colHelper.accessor('state.state', {
     header: 'Status',
     cell: (info) => <DiskStatusBadge status={info.getValue()} />,
   }),
-  colHelper.accessor('timeCreated', {
-    header: 'Created',
-    cell: (info) => <DateCell value={info.getValue()} />,
-  }),
+  colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
 export function DisksPage() {

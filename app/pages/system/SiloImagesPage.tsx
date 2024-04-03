@@ -24,10 +24,9 @@ import { ListboxField } from '~/components/form/fields/ListboxField'
 import { useForm, useToast } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
-import { DateCell } from '~/table/cells/DateCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
-import { SizeCell } from '~/table/cells/SizeCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
+import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { Button } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -57,12 +56,9 @@ const staticCols = [
   colHelper.accessor('name', {
     cell: makeLinkCell((image) => pb.siloImageEdit({ image })),
   }),
-  colHelper.accessor('description', {}),
-  colHelper.accessor('size', { cell: (info) => <SizeCell value={info.getValue()} /> }),
-  colHelper.accessor('timeCreated', {
-    header: 'Created',
-    cell: (info) => <DateCell value={info.getValue()} />,
-  }),
+  colHelper.accessor('description', Columns.description),
+  colHelper.accessor('size', Columns.size),
+  colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
 export function SiloImagesPage() {

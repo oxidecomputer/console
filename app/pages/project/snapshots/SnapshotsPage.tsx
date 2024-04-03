@@ -21,10 +21,9 @@ import { Snapshots24Icon } from '@oxide/design-system/icons/react'
 import { SnapshotStatusBadge } from '~/components/StatusBadge'
 import { getProjectSelector, useProjectSelector } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
-import { DateCell } from '~/table/cells/DateCell'
 import { SkeletonCell } from '~/table/cells/EmptyCell'
-import { SizeCell } from '~/table/cells/SizeCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
+import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { Badge } from '~/ui/lib/Badge'
 import { buttonStyle } from '~/ui/lib/Button'
@@ -84,7 +83,7 @@ SnapshotsPage.loader = async ({ params }: LoaderFunctionArgs) => {
 const colHelper = createColumnHelper<Snapshot>()
 const staticCols = [
   colHelper.accessor('name', {}),
-  colHelper.accessor('description', {}),
+  colHelper.accessor('description', Columns.description),
   colHelper.accessor('diskId', {
     header: 'disk',
     cell: (info) => <DiskNameFromId value={info.getValue()} />,
@@ -92,11 +91,8 @@ const staticCols = [
   colHelper.accessor('state', {
     cell: (info) => <SnapshotStatusBadge status={info.getValue()} />,
   }),
-  colHelper.accessor('size', { cell: (info) => <SizeCell value={info.getValue()} /> }),
-  colHelper.accessor('timeCreated', {
-    header: 'created',
-    cell: (info) => <DateCell value={info.getValue()} />,
-  }),
+  colHelper.accessor('size', Columns.size),
+  colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
 export function SnapshotsPage() {

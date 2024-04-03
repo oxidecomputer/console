@@ -23,6 +23,12 @@ set -o pipefail
 # First use `find-zone.sh nexus` to find the gimlets running nexus, then run this
 #
 #   ./scp-assets.sh gc21 1234567890abcdef1234567890abcdef12345678
+#
+# If you want to do more than one, use a loop
+#
+#    for gimlet in gc8 gc12 gc21; do
+#      .scp-assets.sh $gimlet 99173b920969e95d9d025d0038b8ffdb4c46c0ec
+#    done
 
 GIMLET="$1"
 COMMIT="$2"

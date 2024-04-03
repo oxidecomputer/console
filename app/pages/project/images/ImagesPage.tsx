@@ -14,10 +14,9 @@ import { Images24Icon } from '@oxide/design-system/icons/react'
 
 import { getProjectSelector, useProjectSelector, useToast } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
-import { DateCell } from '~/table/cells/DateCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
-import { SizeCell } from '~/table/cells/SizeCell'
 import { getActionsCol, type MenuAction } from '~/table/columns/action-col'
+import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -37,7 +36,7 @@ const EmptyState = () => (
   />
 )
 
-const columnHelper = createColumnHelper<Image>()
+const colHelper = createColumnHelper<Image>()
 
 ImagesPage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project } = getProjectSelector(params)
@@ -85,18 +84,12 @@ export function ImagesPage() {
 
   const columns = useMemo(() => {
     return [
-      columnHelper.accessor('name', {
+      colHelper.accessor('name', {
         cell: makeLinkCell((image) => pb.projectImageEdit({ ...projectSelector, image })),
       }),
-      columnHelper.accessor('description', {}),
-      columnHelper.accessor('size', {
-        header: 'size',
-        cell: (info) => <SizeCell value={info.getValue()} />,
-      }),
-      columnHelper.accessor('timeCreated', {
-        header: 'created',
-        cell: (info) => <DateCell value={info.getValue()} />,
-      }),
+      colHelper.accessor('description', Columns.description),
+      colHelper.accessor('size', Columns.size),
+      colHelper.accessor('timeCreated', Columns.timeCreated),
       getActionsCol(makeActions),
     ]
   }, [projectSelector, makeActions])

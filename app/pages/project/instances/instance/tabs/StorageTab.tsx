@@ -26,9 +26,8 @@ import { AttachDiskSideModalForm } from '~/forms/disk-attach'
 import { CreateDiskSideModalForm } from '~/forms/disk-create'
 import { getInstanceSelector, useInstanceSelector } from '~/hooks'
 import { addToast } from '~/stores/toast'
-import { DateCell } from '~/table/cells/DateCell'
-import { SizeCell } from '~/table/cells/SizeCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
+import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { Button } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -55,17 +54,12 @@ StorageTab.loader = async ({ params }: LoaderFunctionArgs) => {
 const colHelper = createColumnHelper<Disk>()
 const staticCols = [
   colHelper.accessor('name', {}),
-  colHelper.accessor('size', {
-    cell: (info) => <SizeCell value={info.getValue()} />,
-  }),
+  colHelper.accessor('size', Columns.size),
   colHelper.accessor((row) => row.state.state, {
     header: 'status',
     cell: (info) => <DiskStatusBadge status={info.getValue()} />,
   }),
-  colHelper.accessor('timeCreated', {
-    header: 'created',
-    cell: (info) => <DateCell value={info.getValue()} />,
-  }),
+  colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
 const attachableStates = fancifyStates(instanceCan.attachDisk.states)
