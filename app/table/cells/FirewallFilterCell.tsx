@@ -14,7 +14,7 @@ import { TypeValueCell } from './TypeValueCell'
 export const FirewallFilterCell = ({ hosts, ports, protocols }: VpcFirewallRuleFilter) => (
   <div className="flex flex-col gap-1">
     <div className="flex flex-wrap gap-1">
-      {hosts?.map((tv, i) => <TypeValueCell key={`${tv}-${i}`} value={tv} />)}
+      {hosts?.map((tv, i) => <TypeValueCell key={`${tv}-${i}`} {...tv} />)}
     </div>
     <div className="flex gap-1">
       {protocols?.map((p, i) => <Badge key={`${p}-${i}`}>{p}</Badge>)}
