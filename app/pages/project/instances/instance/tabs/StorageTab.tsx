@@ -54,12 +54,12 @@ StorageTab.loader = async ({ params }: LoaderFunctionArgs) => {
 const colHelper = createColumnHelper<Disk>()
 const staticCols = [
   colHelper.accessor('name', {}),
-  Columns.size,
+  colHelper.accessor('size', Columns.size),
   colHelper.accessor((row) => row.state.state, {
     header: 'status',
     cell: (info) => <DiskStatusBadge status={info.getValue()} />,
   }),
-  Columns.timeCreated,
+  colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
 const attachableStates = fancifyStates(instanceCan.attachDisk.states)

@@ -28,7 +28,7 @@ const staticCols = [
     header: 'IP Block',
     cell: (info) => <TwoLineCell value={[...info.getValue()]} />,
   }),
-  Columns.timeCreated,
+  colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
 export const VpcSubnetsTab = () => {

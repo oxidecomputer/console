@@ -43,12 +43,12 @@ export function SiloIdpsTab() {
           return <LinkCell to={pb.samlIdp({ silo, provider })}>{provider}</LinkCell>
         },
       }),
-      Columns.description,
+      colHelper.accessor('description', Columns.description),
       colHelper.accessor('providerType', {
         header: 'Type',
         cell: (info) => <Badge color="neutral">{info.getValue()}</Badge>,
       }),
-      Columns.timeCreated,
+      colHelper.accessor('timeCreated', Columns.timeCreated),
     ],
     [silo]
   )

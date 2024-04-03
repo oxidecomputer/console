@@ -110,7 +110,7 @@ export function InstancesPage() {
         }
       ),
       colHelper.accessor('hostname', {}),
-      Columns.timeCreated,
+      colHelper.accessor('timeCreated', Columns.timeCreated),
       getActionsCol(makeActions),
     ],
     [projectSelector, makeActions]

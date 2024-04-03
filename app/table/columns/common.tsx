@@ -19,24 +19,16 @@ type Info<T> = { getValue: () => T }
 export const Columns = {
   /** Truncates text if too long, full text in tooltip */
   description: {
-    accessorKey: 'description',
     cell: (info: Info<string>) => <Truncate text={info.getValue()} maxLength={48} />,
   },
   size: {
-    accessorKey: 'size',
-    // this also does not cause type errors at the call sites
-    // accessorKey: 'siz',
     cell: (info: Info<number>) => <SizeCell value={info.getValue()} />,
-    // this does not cause type errors, so we are screwed
-    // cell: (info: Info<string>) => info.getValue(),
   },
   timeCreated: {
-    accessorKey: 'timeCreated',
     header: 'created',
     cell: (info: Info<Date>) => <DateCell value={info.getValue()} />,
   },
   timeModified: {
-    accessorKey: 'timeModified',
     header: 'modified',
     cell: (info: Info<Date>) => <DateCell value={info.getValue()} />,
   },

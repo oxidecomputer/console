@@ -47,7 +47,7 @@ const staticCols = [
   colHelper.accessor('name', {
     cell: (info) => makeLinkCell((name) => pb.silo({ silo: name }))(info),
   }),
-  Columns.description,
+  colHelper.accessor('description', Columns.description),
   colHelper.accessor('discoverable', {
     cell: (info) => <BooleanCell isTrue={info.getValue()} />,
   }),
@@ -55,7 +55,7 @@ const staticCols = [
     header: 'Identity mode',
     cell: (info) => <Badge>{info.getValue().replace('_', ' ')}</Badge>,
   }),
-  Columns.timeCreated,
+  colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
 SilosPage.loader = async () => {

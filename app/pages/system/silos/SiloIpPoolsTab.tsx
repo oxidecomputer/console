@@ -44,7 +44,7 @@ const colHelper = createColumnHelper<SiloIpPool>()
 
 const staticCols = [
   colHelper.accessor('name', { cell: makeLinkCell((pool) => pb.ipPool({ pool })) }),
-  Columns.description,
+  colHelper.accessor('description', Columns.description),
   colHelper.accessor('isDefault', {
     header: 'Default',
     cell: (info) => <DefaultPoolCell isDefault={info.getValue()} />,

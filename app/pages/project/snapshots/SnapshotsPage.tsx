@@ -83,7 +83,7 @@ SnapshotsPage.loader = async ({ params }: LoaderFunctionArgs) => {
 const colHelper = createColumnHelper<Snapshot>()
 const staticCols = [
   colHelper.accessor('name', {}),
-  Columns.description,
+  colHelper.accessor('description', Columns.description),
   colHelper.accessor('diskId', {
     header: 'disk',
     cell: (info) => <DiskNameFromId value={info.getValue()} />,
@@ -91,8 +91,8 @@ const staticCols = [
   colHelper.accessor('state', {
     cell: (info) => <SnapshotStatusBadge status={info.getValue()} />,
   }),
-  Columns.size,
-  Columns.timeCreated,
+  colHelper.accessor('size', Columns.size),
+  colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
 export function SnapshotsPage() {

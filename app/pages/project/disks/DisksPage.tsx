@@ -82,12 +82,12 @@ const staticCols = [
       cell: (info) => <InstanceLinkCell instanceId={info.getValue()} />,
     }
   ),
-  Columns.size,
+  colHelper.accessor('size', Columns.size),
   colHelper.accessor('state.state', {
     header: 'Status',
     cell: (info) => <DiskStatusBadge status={info.getValue()} />,
   }),
-  Columns.timeCreated,
+  colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
 export function DisksPage() {

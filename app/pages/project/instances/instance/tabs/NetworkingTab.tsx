@@ -98,7 +98,7 @@ const staticCols = [
       </>
     ),
   }),
-  Columns.description,
+  colHelper.accessor('description', Columns.description),
   colHelper.accessor('ip', {}),
   colHelper.accessor('vpcId', {
     header: 'vpc',

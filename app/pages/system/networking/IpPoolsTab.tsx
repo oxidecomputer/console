@@ -52,12 +52,12 @@ const colHelper = createColumnHelper<IpPool>()
 
 const staticColumns = [
   colHelper.accessor('name', { cell: makeLinkCell((pool) => pb.ipPool({ pool })) }),
-  Columns.description,
+  colHelper.accessor('description', Columns.description),
   colHelper.accessor('name', {
     header: 'Utilization',
     cell: (info) => <UtilizationCell pool={info.getValue()} />,
   }),
-  Columns.timeCreated,
+  colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
 IpPoolsTab.loader = async function () {

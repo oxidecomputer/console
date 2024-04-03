@@ -36,7 +36,7 @@ const EmptyState = () => (
   />
 )
 
-const columnHelper = createColumnHelper<Image>()
+const colHelper = createColumnHelper<Image>()
 
 ImagesPage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project } = getProjectSelector(params)
@@ -84,12 +84,12 @@ export function ImagesPage() {
 
   const columns = useMemo(() => {
     return [
-      columnHelper.accessor('name', {
+      colHelper.accessor('name', {
         cell: makeLinkCell((image) => pb.projectImageEdit({ ...projectSelector, image })),
       }),
-      Columns.description,
-      Columns.size,
-      Columns.timeCreated,
+      colHelper.accessor('description', Columns.description),
+      colHelper.accessor('size', Columns.size),
+      colHelper.accessor('timeCreated', Columns.timeCreated),
       getActionsCol(makeActions),
     ]
   }, [projectSelector, makeActions])

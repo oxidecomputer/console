@@ -141,7 +141,7 @@ const ipRangesColHelper = createColumnHelper<IpPoolRange>()
 const ipRangesStaticCols = [
   ipRangesColHelper.accessor('range.first', { header: 'First' }),
   ipRangesColHelper.accessor('range.last', { header: 'Last' }),
-  Columns.timeCreated,
+  colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
 function IpRangesTable() {

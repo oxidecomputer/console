@@ -65,7 +65,7 @@ FloatingIpsPage.loader = async ({ params }: LoaderFunctionArgs) => {
 const colHelper = createColumnHelper<FloatingIp>()
 const staticCols = [
   colHelper.accessor('name', {}),
-  Columns.description,
+  colHelper.accessor('description', Columns.description),
   colHelper.accessor('ip', {}),
   colHelper.accessor('instanceId', {
     cell: (info) => <InstanceLinkCell instanceId={info.getValue()} />,

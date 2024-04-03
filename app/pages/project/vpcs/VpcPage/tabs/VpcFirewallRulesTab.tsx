@@ -66,7 +66,7 @@ const staticColumns = [
     header: 'Status',
     cell: (info) => <EnabledCell value={info.getValue()} />,
   }),
-  Columns.timeCreated,
+  colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
 export const VpcFirewallRulesTab = () => {

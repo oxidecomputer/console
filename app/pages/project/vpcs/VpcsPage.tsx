@@ -106,8 +106,8 @@ export function VpcsPage() {
         cell: makeLinkCell((vpc) => pb.vpc({ project, vpc })),
       }),
       colHelper.accessor('dnsName', { header: 'DNS name' }),
-      Columns.description,
-      Columns.timeCreated,
+      colHelper.accessor('description', Columns.description),
+      colHelper.accessor('timeCreated', Columns.timeCreated),
       getActionsCol(makeActions),
     ],
     [project, makeActions]

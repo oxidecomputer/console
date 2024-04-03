@@ -51,7 +51,11 @@ const nameCol = colHelper.accessor('name', {
   cell: makeLinkCell((project) => pb.instances({ project })),
 })
 
-const staticCols = [nameCol, Columns.description, Columns.timeCreated]
+const staticCols = [
+  nameCol,
+  colHelper.accessor('description', Columns.description),
+  colHelper.accessor('timeCreated', Columns.timeCreated),
+]
 
 export function ProjectsPage() {
   const navigate = useNavigate()

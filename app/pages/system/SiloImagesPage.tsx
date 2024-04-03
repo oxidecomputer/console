@@ -56,9 +56,9 @@ const staticCols = [
   colHelper.accessor('name', {
     cell: makeLinkCell((image) => pb.siloImageEdit({ image })),
   }),
-  Columns.description,
-  Columns.size,
-  Columns.timeCreated,
+  colHelper.accessor('description', Columns.description),
+  colHelper.accessor('size', Columns.size),
+  colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
 export function SiloImagesPage() {

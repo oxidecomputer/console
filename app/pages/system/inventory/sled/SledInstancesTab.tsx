@@ -64,8 +64,8 @@ const staticCols = [
     header: 'specs',
     cell: (info) => <InstanceResourceCell value={info.getValue()} />,
   }),
-  Columns.timeCreated,
-  Columns.timeModified,
+  colHelper.accessor('timeCreated', Columns.timeCreated),
+  colHelper.accessor('timeModified', Columns.timeModified),
 ]
 
 export function SledInstancesTab() {
