@@ -42,7 +42,7 @@ import { pb } from '~/util/path-builder'
 import { fancifyStates } from './common'
 
 const VpcNameFromId = ({ value }: { value: string }) => {
-  const projectSelector = useProjectSelector()
+  const { project } = useProjectSelector()
   const { data: vpc, isError } = useApiQuery(
     'vpcView',
     { path: { vpc: value } },
@@ -54,7 +54,7 @@ const VpcNameFromId = ({ value }: { value: string }) => {
   // be safe
   if (isError) return <Badge color="neutral">Deleted</Badge>
   if (!vpc) return <SkeletonCell />
-  return <LinkCell to={pb.vpc({ ...projectSelector, vpc: vpc.name })}>{vpc.name}</LinkCell>
+  return <LinkCell to={pb.vpc({ project, vpc: vpc.name })}>{vpc.name}</LinkCell>
 }
 
 const SubnetNameFromId = ({ value }: { value: string }) => {

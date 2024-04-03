@@ -47,8 +47,8 @@ ImagesPage.loader = async ({ params }: LoaderFunctionArgs) => {
 }
 
 export function ImagesPage() {
-  const projectSelector = useProjectSelector()
-  const { Table } = useQueryTable('imageList', { query: projectSelector })
+  const { project } = useProjectSelector()
+  const { Table } = useQueryTable('imageList', { query: { project } })
   const queryClient = useApiQueryClient()
   const addToast = useToast()
 
@@ -73,26 +73,26 @@ export function ImagesPage() {
           doDelete: () =>
             deleteImage.mutateAsync({
               path: { image: image.name },
-              query: projectSelector,
+              query: { project },
             }),
           label: image.name,
         }),
       },
     ],
-    [deleteImage, projectSelector]
+    [deleteImage, project]
   )
 
   const columns = useMemo(() => {
     return [
       colHelper.accessor('name', {
-        cell: makeLinkCell((image) => pb.projectImageEdit({ ...projectSelector, image })),
+        cell: makeLinkCell((image) => pb.projectImageEdit({ project, image })),
       }),
       colHelper.accessor('description', Columns.description),
       colHelper.accessor('size', Columns.size),
       colHelper.accessor('timeCreated', Columns.timeCreated),
       getActionsCol(makeActions),
     ]
-  }, [projectSelector, makeActions])
+  }, [project, makeActions])
 
   return (
     <>
@@ -100,10 +100,7 @@ export function ImagesPage() {
         <PageTitle icon={<Images24Icon />}>Images</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link
-          to={pb.projectImagesNew(projectSelector)}
-          className={buttonStyle({ size: 'sm' })}
-        >
+        <Link to={pb.projectImagesNew({ project })} className={buttonStyle({ size: 'sm' })}>
           Upload image
         </Link>
       </TableActions>
@@ -122,7 +119,7 @@ export function ImagesPage() {
 type PromoteModalProps = { onDismiss: () => void; imageName: string }
 
 const PromoteImageModal = ({ onDismiss, imageName }: PromoteModalProps) => {
-  const projectSelector = useProjectSelector()
+  const { project } = useProjectSelector()
   const queryClient = useApiQueryClient()
   const addToast = useToast()
   const promoteImage = useApiMutation('imagePromote', {
@@ -143,7 +140,7 @@ const PromoteImageModal = ({ onDismiss, imageName }: PromoteModalProps) => {
   })
 
   const onAction = () => {
-    promoteImage.mutate({ path: { image: imageName }, query: projectSelector })
+    promoteImage.mutate({ path: { image: imageName }, query: { project } })
   }
 
   return (
