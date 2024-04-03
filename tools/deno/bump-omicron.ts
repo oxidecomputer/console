@@ -34,9 +34,6 @@ const VERSION_FILE = path.join(OMICRON_DIR, 'tools/console_version')
 const GH_MISSING = 'GitHub CLI not found. Please install it and try again.'
 const VERSION_FILE_MISSING = `Omicron console version file at '${VERSION_FILE}' not found. This script assumes Omicron is cloned in a sibling directory next to Console.`
 
-const getUploadAssetsWorkflowId = () =>
-  $`gh run list -L 1 -w 'Upload assets to dl.oxide.computer' --json databaseId --jq '.[0].databaseId'`.text()
-
 /**
  * These lines get printed in an Omicron PR, so any references to commits or
  * issues need to be qualified.
@@ -78,16 +75,20 @@ const shaUrl = `https://dl.oxide.computer/releases/console/${newCommit}.sha256.t
 const shaResp = await fetch(shaUrl)
 
 if (!shaResp.ok) {
+  const workflowId =
+    await $`gh run list -L 1 -w 'Upload assets to dl.oxide.computer' --json databaseId --jq '.[0].databaseId'`.text()
   console.error(
     `
-Failed to fetch console tarball SHA. Either the current commit has not been pushed to origin/main or the CI job that uploads the assets is still running.
+Failed to fetch console tarball SHA. Either the current commit is not on origin/main or the asset upload job is still running.
 
-Run 'gh run watch ${await getUploadAssetsWorkflowId()}' to watch the latest asset upload action.
+Status: ${shaResp.status}
+URL: ${shaUrl}
+Body: ${await shaResp.text()}
+
+Running 'gh run watch ${workflowId}' to watch the current upload action.
 `
   )
-  console.error('URL:', shaUrl)
-  console.error('Status:', shaResp.status)
-  console.error('Body:', await shaResp.text())
+  await $`gh run watch ${workflowId}`
   Deno.exit(1)
 }
 
