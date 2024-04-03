@@ -23,7 +23,7 @@ import { DateCell } from '~/table/cells/DateCell'
 import { EnabledCell } from '~/table/cells/EnabledCell'
 import { FirewallFilterCell } from '~/table/cells/FirewallFilterCell'
 import { ButtonCell } from '~/table/cells/LinkCell'
-import { TypeValueListCell } from '~/table/cells/TypeValueListCell'
+import { TypeValueCell } from '~/table/cells/TypeValueCell'
 import { getActionsCol } from '~/table/columns/action-col'
 import { Table } from '~/table/Table'
 import { Button } from '~/ui/lib/Button'
@@ -50,11 +50,17 @@ const staticColumns = [
   }),
   colHelper.accessor('targets', {
     header: 'Targets',
-    cell: (info) => <TypeValueListCell value={info.getValue()} />,
+    cell: (info) => (
+      <div>
+        {info.getValue().map(({ type, value }) => (
+          <TypeValueCell key={type + '|' + value} type={type} value={value} />
+        ))}
+      </div>
+    ),
   }),
   colHelper.accessor('filters', {
     header: 'Filters',
-    cell: (info) => <FirewallFilterCell value={info.getValue()} />,
+    cell: (info) => <FirewallFilterCell {...info.getValue()} />,
   }),
   colHelper.accessor('status', {
     header: 'Status',

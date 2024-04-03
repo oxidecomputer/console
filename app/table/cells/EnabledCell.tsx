@@ -10,9 +10,7 @@ import { Success12Icon } from '@oxide/design-system/icons/react'
 
 import { Badge } from '~/ui/lib/Badge'
 
-import type { Cell } from './Cell'
-
-export const EnabledCell = ({ value }: Cell<VpcFirewallRuleStatus>) =>
+export const EnabledCell = ({ value }: { value: VpcFirewallRuleStatus }) =>
   value === 'enabled' ? (
     <>
       <Success12Icon className="mr-1 text-accent" />

@@ -7,9 +7,8 @@
  */
 import { format } from 'date-fns'
 
-import type { Cell } from './Cell'
 import { TwoLineCell } from './TwoLineCell'
 
-export const DateCell = ({ value }: Cell<Date>) => (
+export const DateCell = ({ value }: { value: Date }) => (
   <TwoLineCell value={[format(value, 'MMM d, yyyy'), format(value, 'p')]} />
 )
