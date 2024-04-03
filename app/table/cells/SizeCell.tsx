@@ -7,10 +7,8 @@
  */
 import { filesize } from 'filesize'
 
-import type { Cell } from './Cell'
-
 /** Human-readable format for size in bytes */
-export const SizeCell = ({ value: bytes }: Cell<number>) => {
+export const SizeCell = ({ value: bytes }: { value: number }) => {
   const size = filesize(bytes, { base: 2, output: 'object' })
   return (
     <span className="text-secondary">

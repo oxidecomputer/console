@@ -8,14 +8,12 @@
 
 import { Badge } from '~/ui/lib/Badge'
 
-import type { Cell } from './Cell'
-
 export type TypeValue = {
   type: string
   value: string
 }
 
-export const TypeValueCell = ({ value: { type, value } }: Cell<TypeValue>) => (
+export const TypeValueCell = ({ type, value }: TypeValue) => (
   <div className="space-x-1">
     <Badge>{type}</Badge>
     <Badge variant="solid" className="!normal-case">
