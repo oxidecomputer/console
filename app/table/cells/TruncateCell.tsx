@@ -7,14 +7,9 @@
  */
 import { Truncate } from '~/ui/lib/Truncate'
 
-import type { Cell } from './Cell'
+type Props = { value: string; maxLength?: number }
 
-export const TruncateCell = ({
-  value,
-  maxLength = 32,
-}: Cell<string> & {
-  maxLength?: number
-}) => (
+export const TruncateCell = ({ value, maxLength = 32 }: Props) => (
   <span className="text-secondary">
     <Truncate text={value} maxLength={maxLength} />
   </span>

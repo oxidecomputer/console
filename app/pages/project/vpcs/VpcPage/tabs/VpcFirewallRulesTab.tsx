@@ -54,7 +54,7 @@ const staticColumns = [
   }),
   colHelper.accessor('filters', {
     header: 'Filters',
-    cell: (info) => <FirewallFilterCell value={info.getValue()} />,
+    cell: (info) => <FirewallFilterCell {...info.getValue()} />,
   }),
   colHelper.accessor('status', {
     header: 'Status',

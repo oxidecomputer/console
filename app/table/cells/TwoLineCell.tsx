@@ -7,9 +7,8 @@
  */
 import cn from 'classnames'
 
-import type { Cell } from './Cell'
-
-interface TwoLineCellProps extends Cell<[string | JSX.Element, string | JSX.Element]> {
+interface TwoLineCellProps {
+  value: [React.ReactNode, React.ReactNode]
   detailsClass?: string
 }
 

@@ -9,11 +9,9 @@ import { filesize } from 'filesize'
 
 import type { Instance } from '@oxide/api'
 
-import type { Cell } from './Cell'
+type Props = { value: Pick<Instance, 'ncpus' | 'memory'> }
 
-export const InstanceResourceCell = ({
-  value,
-}: Cell<Pick<Instance, 'ncpus' | 'memory'>>) => {
+export const InstanceResourceCell = ({ value }: Props) => {
   const memory = filesize(value.memory, { output: 'object', base: 2 })
   return (
     <div className="space-y-0.5">
