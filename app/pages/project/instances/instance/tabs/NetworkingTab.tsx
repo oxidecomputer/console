@@ -32,6 +32,7 @@ import { confirmDelete } from '~/stores/confirm-delete'
 import { SkeletonCell } from '~/table/cells/EmptyCell'
 import { LinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
+import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { Badge } from '~/ui/lib/Badge'
 import { Button } from '~/ui/lib/Button'
@@ -97,7 +98,7 @@ const staticCols = [
       </>
     ),
   }),
-  colHelper.accessor('description', {}),
+  Columns.description,
   colHelper.accessor('ip', {}),
   colHelper.accessor('vpcId', {
     header: 'vpc',

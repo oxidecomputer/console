@@ -19,12 +19,12 @@ import { CreateFirewallRuleForm } from '~/forms/firewall-rules-create'
 import { EditFirewallRuleForm } from '~/forms/firewall-rules-edit'
 import { useVpcSelector } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
-import { DateCell } from '~/table/cells/DateCell'
 import { EnabledCell } from '~/table/cells/EnabledCell'
 import { FirewallFilterCell } from '~/table/cells/FirewallFilterCell'
 import { ButtonCell } from '~/table/cells/LinkCell'
 import { TypeValueCell } from '~/table/cells/TypeValueCell'
 import { getActionsCol } from '~/table/columns/action-col'
+import { Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
 import { Button } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -66,10 +66,7 @@ const staticColumns = [
     header: 'Status',
     cell: (info) => <EnabledCell value={info.getValue()} />,
   }),
-  colHelper.accessor('timeCreated', {
-    header: 'Created',
-    cell: (info) => <DateCell value={info.getValue()} />,
-  }),
+  Columns.timeCreated,
 ]
 
 export const VpcFirewallRulesTab = () => {

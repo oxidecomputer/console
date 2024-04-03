@@ -18,11 +18,11 @@ import {
 import { Instances24Icon, Refresh16Icon } from '@oxide/design-system/icons/react'
 
 import { getProjectSelector, useProjectSelector, useQuickActions } from '~/hooks'
-import { DateCell } from '~/table/cells/DateCell'
 import { InstanceResourceCell } from '~/table/cells/InstanceResourceCell'
 import { InstanceStatusCell } from '~/table/cells/InstanceStatusCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { getActionsCol } from '~/table/columns/action-col'
+import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { Button, buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -110,10 +110,7 @@ export function InstancesPage() {
         }
       ),
       colHelper.accessor('hostname', {}),
-      colHelper.accessor('timeCreated', {
-        header: 'created',
-        cell: (info) => <DateCell value={info.getValue()} />,
-      }),
+      Columns.timeCreated,
       getActionsCol(makeActions),
     ],
     [projectSelector, makeActions]

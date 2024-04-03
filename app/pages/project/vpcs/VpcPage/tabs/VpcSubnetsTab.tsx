@@ -14,9 +14,9 @@ import { CreateSubnetForm } from '~/forms/subnet-create'
 import { EditSubnetForm } from '~/forms/subnet-edit'
 import { useVpcSelector } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
-import { DateCell } from '~/table/cells/DateCell'
 import { TwoLineCell } from '~/table/cells/TwoLineCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
+import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { Button } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -28,10 +28,7 @@ const staticCols = [
     header: 'IP Block',
     cell: (info) => <TwoLineCell value={[...info.getValue()]} />,
   }),
-  colHelper.accessor('timeCreated', {
-    header: 'created',
-    cell: (info) => <DateCell value={info.getValue()} />,
-  }),
+  Columns.timeCreated,
 ]
 
 export const VpcSubnetsTab = () => {

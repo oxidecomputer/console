@@ -13,9 +13,9 @@ import { Instances24Icon } from '@oxide/design-system/icons/react'
 
 import { InstanceStatusBadge } from '~/components/StatusBadge'
 import { requireSledParams, useSledParams } from '~/hooks'
-import { DateCell } from '~/table/cells/DateCell'
 import { InstanceResourceCell } from '~/table/cells/InstanceResourceCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
+import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { pick } from '~/util/object'
@@ -64,14 +64,8 @@ const staticCols = [
     header: 'specs',
     cell: (info) => <InstanceResourceCell value={info.getValue()} />,
   }),
-  colHelper.accessor('timeCreated', {
-    header: 'created',
-    cell: (info) => <DateCell value={info.getValue()} />,
-  }),
-  colHelper.accessor('timeModified', {
-    header: 'modified',
-    cell: (info) => <DateCell value={info.getValue()} />,
-  }),
+  Columns.timeCreated,
+  Columns.timeModified,
 ]
 
 export function SledInstancesTab() {

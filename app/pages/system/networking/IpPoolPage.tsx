@@ -30,11 +30,11 @@ import { QueryParamTabs } from '~/components/QueryParamTabs'
 import { getIpPoolSelector, useForm, useIpPoolSelector } from '~/hooks'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
-import { DateCell } from '~/table/cells/DateCell'
 import { DefaultPoolCell } from '~/table/cells/DefaultPoolCell'
 import { SkeletonCell } from '~/table/cells/EmptyCell'
 import { LinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
+import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -141,10 +141,7 @@ const ipRangesColHelper = createColumnHelper<IpPoolRange>()
 const ipRangesStaticCols = [
   ipRangesColHelper.accessor('range.first', { header: 'First' }),
   ipRangesColHelper.accessor('range.last', { header: 'Last' }),
-  ipRangesColHelper.accessor('timeCreated', {
-    header: 'created',
-    cell: (info) => <DateCell value={info.getValue()} />,
-  }),
+  Columns.timeCreated,
 ]
 
 function IpRangesTable() {

@@ -21,6 +21,7 @@ import { addToast } from '~/stores/toast'
 import { DefaultPoolCell } from '~/table/cells/DefaultPoolCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
+import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
@@ -43,7 +44,7 @@ const colHelper = createColumnHelper<SiloIpPool>()
 
 const staticCols = [
   colHelper.accessor('name', { cell: makeLinkCell((pool) => pb.ipPool({ pool })) }),
-  colHelper.accessor('description', {}),
+  Columns.description,
   colHelper.accessor('isDefault', {
     header: 'Default',
     cell: (info) => <DefaultPoolCell isDefault={info.getValue()} />,

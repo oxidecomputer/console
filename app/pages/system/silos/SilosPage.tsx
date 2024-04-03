@@ -21,9 +21,9 @@ import { Cloud24Icon } from '@oxide/design-system/icons/react'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { BooleanCell } from '~/table/cells/BooleanCell'
-import { DateCell } from '~/table/cells/DateCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
+import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { Badge } from '~/ui/lib/Badge'
 import { buttonStyle } from '~/ui/lib/Button'
@@ -47,7 +47,7 @@ const staticCols = [
   colHelper.accessor('name', {
     cell: (info) => makeLinkCell((name) => pb.silo({ silo: name }))(info),
   }),
-  colHelper.accessor('description', {}),
+  Columns.description,
   colHelper.accessor('discoverable', {
     cell: (info) => <BooleanCell isTrue={info.getValue()} />,
   }),
@@ -55,10 +55,7 @@ const staticCols = [
     header: 'Identity mode',
     cell: (info) => <Badge>{info.getValue().replace('_', ' ')}</Badge>,
   }),
-  colHelper.accessor('timeCreated', {
-    header: 'created',
-    cell: (info) => <DateCell value={info.getValue()} />,
-  }),
+  Columns.timeCreated,
 ]
 
 SilosPage.loader = async () => {
