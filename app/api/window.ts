@@ -32,11 +32,14 @@ if (typeof window !== 'undefined') {
     schemas: async (search?: string) => {
       const result = await api.methods.timeseriesSchemaList({ query: { limit: 1000 } })
       const data = handleResult(result)
-      if (!search) return data.items
-      return data.items.filter((s) => s.timeseriesName.includes(search))
+
+      let filtered = data.items
+      if (search) {
+        filtered = filtered.filter((s) => s.timeseriesName.includes(search))
+      }
+      // note we both print as table _and_ return in case the caller wants the data
+      console.table(filtered)
+      return filtered
     },
-    schemasTable: async (search?: string) =>
-      // @ts-expect-error
-      console.table(await window.oxql.schemas(search)),
   }
 }
