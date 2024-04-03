@@ -28,6 +28,7 @@ import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { InstanceLinkCell } from '~/table/cells/InstanceLinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
+import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Listbox } from '~/ui/lib/Listbox'
@@ -64,7 +65,7 @@ FloatingIpsPage.loader = async ({ params }: LoaderFunctionArgs) => {
 const colHelper = createColumnHelper<FloatingIp>()
 const staticCols = [
   colHelper.accessor('name', {}),
-  colHelper.accessor('description', {}),
+  colHelper.accessor('description', Columns.description),
   colHelper.accessor('ip', {}),
   colHelper.accessor('instanceId', {
     cell: (info) => <InstanceLinkCell instanceId={info.getValue()} />,

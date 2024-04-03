@@ -20,9 +20,9 @@ import { Networking24Icon } from '@oxide/design-system/icons/react'
 
 import { getProjectSelector, useProjectSelector, useQuickActions } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
-import { DateCell } from '~/table/cells/DateCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { getActionsCol, type MenuAction } from '~/table/columns/action-col'
+import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -106,11 +106,8 @@ export function VpcsPage() {
         cell: makeLinkCell((vpc) => pb.vpc({ project, vpc })),
       }),
       colHelper.accessor('dnsName', { header: 'DNS name' }),
-      colHelper.accessor('description', {}),
-      colHelper.accessor('timeCreated', {
-        header: 'created',
-        cell: (info) => <DateCell value={info.getValue()} />,
-      }),
+      colHelper.accessor('description', Columns.description),
+      colHelper.accessor('timeCreated', Columns.timeCreated),
       getActionsCol(makeActions),
     ],
     [project, makeActions]

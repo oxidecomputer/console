@@ -13,8 +13,8 @@ import { apiQueryClient, useApiMutation, useApiQueryClient, type SshKey } from '
 import { Key16Icon, Key24Icon } from '@oxide/design-system/icons/react'
 
 import { confirmDelete } from '~/stores/confirm-delete'
-import { DateCell } from '~/table/cells/DateCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
+import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -30,11 +30,8 @@ SSHKeysPage.loader = async () => {
 const colHelper = createColumnHelper<SshKey>()
 const staticCols = [
   colHelper.accessor('name', {}),
-  colHelper.accessor('description', {}),
-  colHelper.accessor('timeModified', {
-    header: 'Last updated',
-    cell: (info) => <DateCell value={info.getValue()} />,
-  }),
+  colHelper.accessor('description', Columns.description),
+  colHelper.accessor('timeModified', Columns.timeModified),
 ]
 
 export function SSHKeysPage() {
