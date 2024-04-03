@@ -199,10 +199,14 @@ export const getUseApiMutation =
   <A extends ApiClient>(api: A) =>
   <M extends string & keyof A>(
     method: M,
-    options?: Omit<UseMutationOptions<Result<A[M]>, ApiError, Params<A[M]>>, 'mutationFn'>
+    options?: Omit<
+      UseMutationOptions<Result<A[M]>, ApiError, Params<A[M]> & { signal?: AbortSignal }>,
+      'mutationFn'
+    >
   ) =>
     useMutation({
-      mutationFn: (params) => api[method](params).then(handleResult(method)),
+      mutationFn: ({ signal, ...params }) =>
+        api[method](params, { signal }).then(handleResult(method)),
       // no catch, let unexpected errors bubble up
       ...options,
     })

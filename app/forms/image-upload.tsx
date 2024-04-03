@@ -37,6 +37,7 @@ import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { Progress } from '~/ui/lib/Progress'
 import { Spinner } from '~/ui/lib/Spinner'
+import { anySignal } from '~/util/abort'
 import { readBlobAsBase64 } from '~/util/file'
 import { invariant } from '~/util/invariant'
 import { pb } from '~/util/path-builder'
@@ -392,7 +393,15 @@ export function CreateImageSideModalForm() {
       // all zeros. It turns out this happens a lot.
       if (!isAllZeros(base64EncodedData)) {
         await uploadChunk
-          .mutateAsync({ path, body: { offset, base64EncodedData } })
+          .mutateAsync({
+            path,
+            body: { offset, base64EncodedData },
+            // use both the abort signal for the whole upload and a per-request timeout
+            signal: anySignal([
+              AbortSignal.timeout(30000),
+              abortController.current?.signal,
+            ]),
+          })
           .catch(() => {
             // this needs to throw a regular Error or pRetry gets mad
             throw Error(`Chunk ${i} (offset ${offset}) failed`)
