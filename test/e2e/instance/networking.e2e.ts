@@ -23,7 +23,7 @@ test('Instance networking tab', async ({ page }) => {
   await expect(page.getByRole('link', { name: '123.4.56.0' })).toBeVisible()
 
   // Instance networking tab
-  await page.click('role=tab[name="Network Interfaces"]')
+  await page.click('role=tab[name="Networking"]')
 
   const table = page.locator('table')
   await expectRowVisible(table, { name: 'my-nicprimary' })

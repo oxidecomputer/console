@@ -19,7 +19,7 @@ test('Click through instance page', async ({ page }) => {
     'role=heading[name*=db1]',
     'role=tab[name="Storage"]',
     'role=tab[name="Metrics"]',
-    'role=tab[name="Network Interfaces"]',
+    'role=tab[name="Networking"]',
     'role=cell[name="disk-1"]',
     'role=cell[name="disk-2"]',
     // buttons disabled while instance is running
