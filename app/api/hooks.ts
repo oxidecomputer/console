@@ -23,7 +23,6 @@ import { type SetNonNullable } from 'type-fest'
 import { invariant } from '~/util/invariant'
 
 import type { ApiResult } from './__generated__/Api'
-import { type FetchParams } from './__generated__/http-client'
 import { processServerError, type ApiError } from './errors'
 import { navToLogin } from './nav-to-login'
 
@@ -200,11 +199,14 @@ export const getUseApiMutation =
   <A extends ApiClient>(api: A) =>
   <M extends string & keyof A>(
     method: M,
-    options?: Omit<UseMutationOptions<Result<A[M]>, ApiError, Params<A[M]>>, 'mutationFn'>,
-    fetchParams?: FetchParams
+    options?: Omit<
+      UseMutationOptions<Result<A[M]>, ApiError, Params<A[M]> & { signal?: AbortSignal }>,
+      'mutationFn'
+    >
   ) =>
     useMutation({
-      mutationFn: (params) => api[method](params, fetchParams).then(handleResult(method)),
+      mutationFn: ({ signal, ...params }) =>
+        api[method](params, { signal }).then(handleResult(method)),
       // no catch, let unexpected errors bubble up
       ...options,
     })

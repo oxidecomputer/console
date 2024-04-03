@@ -212,12 +212,7 @@ export function CreateImageSideModalForm() {
 
   const createDisk = useApiMutation('diskCreate')
   const startImport = useApiMutation('diskBulkWriteImportStart')
-  const uploadChunk = useApiMutation(
-    'diskBulkWriteImport',
-    {},
-    // use both the general abort signal for the whole process and a per-request timeout
-    { signal: anySignal([AbortSignal.timeout(30000), abortController.current?.signal]) }
-  )
+  const uploadChunk = useApiMutation('diskBulkWriteImport')
 
   // synthetic state for upload step because it consists of multiple requests
   const [syntheticUploadState, setSyntheticUploadState] =
@@ -398,7 +393,15 @@ export function CreateImageSideModalForm() {
       // all zeros. It turns out this happens a lot.
       if (!isAllZeros(base64EncodedData)) {
         await uploadChunk
-          .mutateAsync({ path, body: { offset, base64EncodedData } })
+          .mutateAsync({
+            path,
+            body: { offset, base64EncodedData },
+            // use both the abort signal for the whole upload and a per-request timeout
+            signal: anySignal([
+              AbortSignal.timeout(30000),
+              abortController.current?.signal,
+            ]),
+          })
           .catch(() => {
             // this needs to throw a regular Error or pRetry gets mad
             throw Error(`Chunk ${i} (offset ${offset}) failed`)
