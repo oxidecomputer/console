@@ -212,38 +212,32 @@ export function NetworkingTab() {
 
   return (
     <>
-      <h2 id="nic-label" className="mb-4 text-mono-sm text-secondary">
-        Network Interfaces
-      </h2>
-      <Table labeled-by="nic-label" columns={columns} emptyState={emptyState} />
-      <div className="mt-4 flex flex-col gap-3">
-        <div className="flex gap-3">
-          <Button
-            size="sm"
-            onClick={() => setCreateModalOpen(true)}
-            disabled={!canUpdateNic}
-            disabledReason={
-              <>Can only create network interface when instance is {updateNicStates}</>
-            }
-          >
-            Add network interface
-          </Button>
-        </div>
-        {!canUpdateNic && (
-          <span className="max-w-xs text-sans-md text-tertiary">
-            A network interface cannot be created or edited unless the instance is{' '}
-            {updateNicStates}.
-          </span>
+      <div className="mb-3 flex items-baseline justify-between">
+        <h2 id="nic-label" className="text-mono-sm text-secondary">
+          Network Interfaces
+        </h2>
+        <Button
+          size="sm"
+          onClick={() => setCreateModalOpen(true)}
+          disabled={!canUpdateNic}
+          disabledReason={
+            <>
+              A network interface cannot be created or edited unless the instance is{' '}
+              {updateNicStates}.
+            </>
+          }
+        >
+          Add network interface
+        </Button>
+        {createModalOpen && (
+          <CreateNetworkInterfaceForm
+            onDismiss={() => setCreateModalOpen(false)}
+            onSubmit={(body) => createNic.mutate({ query: instanceSelector, body })}
+            submitError={createNic.error}
+          />
         )}
       </div>
-
-      {createModalOpen && (
-        <CreateNetworkInterfaceForm
-          onDismiss={() => setCreateModalOpen(false)}
-          onSubmit={(body) => createNic.mutate({ query: instanceSelector, body })}
-          submitError={createNic.error}
-        />
-      )}
+      <Table labeled-by="nic-label" columns={columns} emptyState={emptyState} />
       {editing && (
         <EditNetworkInterfaceForm editing={editing} onDismiss={() => setEditing(null)} />
       )}
