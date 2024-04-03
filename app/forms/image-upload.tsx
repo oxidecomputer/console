@@ -215,11 +215,8 @@ export function CreateImageSideModalForm() {
   const uploadChunk = useApiMutation(
     'diskBulkWriteImport',
     {},
-    {
-      // AbortSignal.any is too new, just came out in FF and Safar:
-      // https://caniuse.com/mdn-api_abortsignal_any_static
-      signal: anySignal([AbortSignal.timeout(5000), abortController.current?.signal]),
-    }
+    // use both the general abort signal for the whole process and a per-request timeout
+    { signal: anySignal([AbortSignal.timeout(30000), abortController.current?.signal]) }
   )
 
   // synthetic state for upload step because it consists of multiple requests
