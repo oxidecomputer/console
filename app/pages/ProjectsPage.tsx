@@ -20,7 +20,7 @@ import { Folder24Icon } from '@oxide/design-system/icons/react'
 
 import { confirmDelete } from '~/stores/confirm-delete'
 import { makeLinkCell } from '~/table/cells/LinkCell'
-import { getActionsCol, type MenuAction } from '~/table/columns/action-col'
+import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { buttonStyle } from '~/ui/lib/Button'
@@ -47,12 +47,10 @@ ProjectsPage.loader = async () => {
 }
 
 const colHelper = createColumnHelper<Project>()
-const nameCol = colHelper.accessor('name', {
-  cell: makeLinkCell((project) => pb.instances({ project })),
-})
-
 const staticCols = [
-  nameCol,
+  colHelper.accessor('name', {
+    cell: makeLinkCell((project) => pb.instances({ project })),
+  }),
   colHelper.accessor('description', Columns.description),
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
@@ -117,7 +115,7 @@ export function ProjectsPage() {
     )
   )
 
-  const columns = useMemo(() => [...staticCols, getActionsCol(makeActions)], [makeActions])
+  const columns = useColsWithActions(staticCols, makeActions)
 
   return (
     <>
