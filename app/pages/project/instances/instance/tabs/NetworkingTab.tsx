@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { createColumnHelper } from '@tanstack/react-table'
+import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useCallback, useState } from 'react'
 import { type LoaderFunctionArgs } from 'react-router-dom'
 
@@ -33,10 +33,11 @@ import { SkeletonCell } from '~/table/cells/EmptyCell'
 import { LinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
-import { useQueryTable } from '~/table/QueryTable'
+import { Table } from '~/table/Table'
 import { Badge } from '~/ui/lib/Badge'
 import { Button } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { TableEmptyBox } from '~/ui/lib/Table'
 import { pb } from '~/util/path-builder'
 
 import { fancifyStates } from './common'
@@ -75,7 +76,8 @@ NetworkingTab.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project, instance } = getInstanceSelector(params)
   await Promise.all([
     apiQueryClient.prefetchQuery('instanceNetworkInterfaceList', {
-      query: { project, instance, limit: 25 },
+      // we want this to cover all NICs; TODO: determine actual limit?
+      query: { project, instance, limit: 1000 },
     }),
     // This is covered by the InstancePage loader but there's no downside to
     // being redundant. If it were removed there, we'd still want it here.
@@ -89,12 +91,12 @@ NetworkingTab.loader = async ({ params }: LoaderFunctionArgs) => {
 
 const colHelper = createColumnHelper<InstanceNetworkInterface>()
 const staticCols = [
-  colHelper.accessor((i) => ({ name: i.name, primary: i.primary }), {
+  colHelper.accessor('name', {
     header: 'name',
     cell: (info) => (
       <>
-        <span>{info.getValue().name}</span>
-        {info.getValue().primary ? <Badge className="ml-2">primary</Badge> : null}
+        <span>{info.getValue()}</span>
+        {info.row.original.primary && <Badge className="ml-2">primary</Badge>}
       </>
     ),
   }),
@@ -127,14 +129,12 @@ export function NetworkingTab() {
       setCreateModalOpen(false)
     },
   })
-
   const deleteNic = useApiMutation('instanceNetworkInterfaceDelete', {
     onSuccess() {
       queryClient.invalidateQueries('instanceNetworkInterfaceList')
       addToast({ content: 'Network interface deleted' })
     },
   })
-
   const editNic = useApiMutation('instanceNetworkInterfaceUpdate', {
     onSuccess() {
       queryClient.invalidateQueries('instanceNetworkInterfaceList')
@@ -197,19 +197,17 @@ export function NetworkingTab() {
     [canUpdateNic, deleteNic, editNic, instanceSelector]
   )
 
-  const emptyState = (
-    <EmptyMessage
-      icon={<Networking24Icon />}
-      title="No network interfaces"
-      body="You need to create a network interface to be able to see it here"
-    />
-  )
-
-  const { Table } = useQueryTable('instanceNetworkInterfaceList', {
-    query: instanceSelector,
-  })
-
   const columns = useColsWithActions(staticCols, makeActions)
+
+  const rows = useApiQuery('instanceNetworkInterfaceList', {
+    query: instanceSelector,
+  }).data?.items
+
+  const tableInstance = useReactTable({
+    columns,
+    data: rows || [],
+    getCoreRowModel: getCoreRowModel(),
+  })
 
   return (
     <>
@@ -238,10 +236,40 @@ export function NetworkingTab() {
           />
         )}
       </div>
-      <Table labeled-by="nic-label" columns={columns} emptyState={emptyState} />
+      {rows?.length && rows.length > 0 ? (
+        <Table aria-labelledby="nic-label" table={tableInstance} />
+      ) : (
+        <TableEmptyBox>
+          <EmptyMessage
+            icon={<Networking24Icon />}
+            title="No network interfaces"
+            body="You need to create a network interface to be able to see it here"
+          />
+        </TableEmptyBox>
+      )}
+
       {editing && (
         <EditNetworkInterfaceForm editing={editing} onDismiss={() => setEditing(null)} />
       )}
+
+      <div className="mb-3 mt-8 flex items-baseline justify-between">
+        <h2 id="attached-ips-label" className="text-mono-sm text-secondary">
+          Attached IPs
+        </h2>
+        <Button
+          size="sm"
+          onClick={() => setCreateModalOpen(true)}
+          disabled={false}
+          disabledReason={
+            <>
+              IP address limit reached for this instance. You can have up to 32 total,
+              including 1 ephemeral IP.
+            </>
+          }
+        >
+          Attach floating IP
+        </Button>
+      </div>
     </>
   )
 }
