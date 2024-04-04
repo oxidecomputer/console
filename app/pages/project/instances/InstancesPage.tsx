@@ -45,24 +45,21 @@ const EmptyState = () => (
 const colHelper = createColumnHelper<Instance>()
 
 InstancesPage.loader = async ({ params }: LoaderFunctionArgs) => {
-  await apiQueryClient.prefetchQuery('instanceList', {
-    query: { ...getProjectSelector(params), limit: 25 },
-  })
+  const { project } = getProjectSelector(params)
+  await apiQueryClient.prefetchQuery('instanceList', { query: { project, limit: 25 } })
   return null
 }
 
 export function InstancesPage() {
-  const projectSelector = useProjectSelector()
+  const { project } = useProjectSelector()
 
   const queryClient = useApiQueryClient()
   const refetchInstances = () => queryClient.invalidateQueries('instanceList')
 
-  const makeActions = useMakeInstanceActions(projectSelector, {
-    onSuccess: refetchInstances,
-  })
+  const makeActions = useMakeInstanceActions({ project }, { onSuccess: refetchInstances })
 
   const { data: instances } = usePrefetchedApiQuery('instanceList', {
-    query: { ...projectSelector, limit: 25 }, // to have same params as QueryTable
+    query: { project, limit: 25 }, // to have same params as QueryTable
   })
 
   const navigate = useNavigate()
@@ -71,29 +68,28 @@ export function InstancesPage() {
       () => [
         {
           value: 'New instance',
-          onSelect: () => navigate(pb.instancesNew(projectSelector)),
+          onSelect: () => navigate(pb.instancesNew({ project })),
         },
         ...(instances?.items || []).map((i) => ({
           value: i.name,
-          onSelect: () =>
-            navigate(pb.instancePage({ ...projectSelector, instance: i.name })),
+          onSelect: () => navigate(pb.instancePage({ project, instance: i.name })),
           navGroup: 'Go to instance',
         })),
       ],
-      [projectSelector, instances, navigate]
+      [project, instances, navigate]
     )
   )
 
   const { Table } = useQueryTable(
     'instanceList',
-    { query: projectSelector },
+    { query: { project } },
     { placeholderData: (x) => x }
   )
 
   const columns = useMemo(
     () => [
       colHelper.accessor('name', {
-        cell: makeLinkCell((instance) => pb.instancePage({ ...projectSelector, instance })),
+        cell: makeLinkCell((instance) => pb.instancePage({ project, instance })),
       }),
       colHelper.accessor((i) => ({ ncpus: i.ncpus, memory: i.memory }), {
         header: 'CPU, RAM',
@@ -113,7 +109,7 @@ export function InstancesPage() {
       colHelper.accessor('timeCreated', Columns.timeCreated),
       getActionsCol(makeActions),
     ],
-    [projectSelector, makeActions]
+    [project, makeActions]
   )
 
   if (!instances) return null
@@ -132,7 +128,7 @@ export function InstancesPage() {
         >
           <Refresh16Icon />
         </Button>
-        <Link to={pb.instancesNew(projectSelector)} className={buttonStyle({ size: 'sm' })}>
+        <Link to={pb.instancesNew({ project })} className={buttonStyle({ size: 'sm' })}>
           New Instance
         </Link>
       </TableActions>

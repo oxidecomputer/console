@@ -1277,6 +1277,7 @@ export const handlers = makeHandlers({
   networkingSwitchPortSettingsDelete: NotImplemented,
   networkingSwitchPortSettingsView: NotImplemented,
   networkingSwitchPortSettingsList: NotImplemented,
+  physicalDiskView: NotImplemented,
   probeCreate: NotImplemented,
   probeDelete: NotImplemented,
   probeList: NotImplemented,
@@ -1297,6 +1298,8 @@ export const handlers = makeHandlers({
   switchView: NotImplemented,
   systemPolicyUpdate: NotImplemented,
   systemQuotasList: NotImplemented,
+  timeseriesQuery: NotImplemented,
+  timeseriesSchemaList: NotImplemented,
   userBuiltinList: NotImplemented,
   userBuiltinView: NotImplemented,
 })

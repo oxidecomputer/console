@@ -206,6 +206,9 @@ export const Baseboard = z.preprocess(
   z.object({ part: z.string(), revision: z.number(), serial: z.string() })
 )
 
+/**
+ * BFD connection mode.
+ */
 export const BfdMode = z.preprocess(
   processResponseBody,
   z.enum(['single_hop', 'multi_hop'])
@@ -1093,6 +1096,22 @@ export const DiskResultsPage = z.preprocess(
 )
 
 /**
+ * A distribution is a sequence of bins and counts in those bins.
+ */
+export const Distributiondouble = z.preprocess(
+  processResponseBody,
+  z.object({ bins: z.number().array(), counts: z.number().min(0).array() })
+)
+
+/**
+ * A distribution is a sequence of bins and counts in those bins.
+ */
+export const Distributionint64 = z.preprocess(
+  processResponseBody,
+  z.object({ bins: z.number().array(), counts: z.number().min(0).array() })
+)
+
+/**
  * Parameters for creating an ephemeral IP address for an instance.
  */
 export const EphemeralIpCreate = z.preprocess(
@@ -1143,6 +1162,61 @@ export const ExternalIpCreate = z.preprocess(
 export const ExternalIpResultsPage = z.preprocess(
   processResponseBody,
   z.object({ items: ExternalIp.array(), nextPage: z.string().optional() })
+)
+
+/**
+ * The `FieldType` identifies the data type of a target or metric field.
+ */
+export const FieldType = z.preprocess(
+  processResponseBody,
+  z.enum([
+    'string',
+    'i8',
+    'u8',
+    'i16',
+    'u16',
+    'i32',
+    'u32',
+    'i64',
+    'u64',
+    'ip_addr',
+    'uuid',
+    'bool',
+  ])
+)
+
+/**
+ * The source from which a field is derived, the target or metric.
+ */
+export const FieldSource = z.preprocess(processResponseBody, z.enum(['target', 'metric']))
+
+/**
+ * The name and type information for a field of a timeseries schema.
+ */
+export const FieldSchema = z.preprocess(
+  processResponseBody,
+  z.object({ fieldType: FieldType, name: z.string(), source: FieldSource })
+)
+
+/**
+ * The `FieldValue` contains the value of a target or metric field.
+ */
+export const FieldValue = z.preprocess(
+  processResponseBody,
+  z.union([
+    z.object({ type: z.enum(['string']), value: z.string() }),
+    z.object({ type: z.enum(['i8']), value: z.number().min(-127).max(127) }),
+    z.object({ type: z.enum(['u8']), value: z.number().min(0).max(255) }),
+    z.object({ type: z.enum(['i16']), value: z.number().min(-32767).max(32767) }),
+    z.object({ type: z.enum(['u16']), value: z.number().min(0).max(65535) }),
+    z.object({ type: z.enum(['i32']), value: z.number().min(-2147483647).max(2147483647) }),
+    z.object({ type: z.enum(['u32']), value: z.number().min(0).max(4294967295) }),
+    z.object({ type: z.enum(['i64']), value: z.number() }),
+    z.object({ type: z.enum(['u64']), value: z.number().min(0) }),
+    z.object({ type: z.enum(['ip_addr']), value: z.string().ip() }),
+    z.object({ type: z.enum(['uuid']), value: z.string().uuid() }),
+    z.object({ type: z.enum(['bool']), value: SafeBoolean }),
+  ])
 )
 
 /**
@@ -1831,6 +1905,14 @@ export const MeasurementResultsPage = z.preprocess(
 )
 
 /**
+ * The type of the metric itself, indicating what its values represent.
+ */
+export const MetricType = z.preprocess(
+  processResponseBody,
+  z.enum(['gauge', 'delta', 'cumulative'])
+)
+
+/**
  * The type of network interface
  */
 export const NetworkInterfaceKind = z.preprocess(
@@ -1878,6 +1960,25 @@ export const Password = z.preprocess(processResponseBody, z.string().max(512))
 export const PhysicalDiskKind = z.preprocess(processResponseBody, z.enum(['m2', 'u2']))
 
 /**
+ * The operator-defined policy of a physical disk.
+ */
+export const PhysicalDiskPolicy = z.preprocess(
+  processResponseBody,
+  z.union([
+    z.object({ kind: z.enum(['in_service']) }),
+    z.object({ kind: z.enum(['expunged']) }),
+  ])
+)
+
+/**
+ * The current state of the disk, as determined by Nexus.
+ */
+export const PhysicalDiskState = z.preprocess(
+  processResponseBody,
+  z.enum(['active', 'decommissioned'])
+)
+
+/**
  * View of a Physical Disk
  *
  * Physical disks reside in a particular sled and are used to store both Instance Disk data as well as internal metadata.
@@ -1888,8 +1989,10 @@ export const PhysicalDisk = z.preprocess(
     formFactor: PhysicalDiskKind,
     id: z.string().uuid(),
     model: z.string(),
+    policy: PhysicalDiskPolicy,
     serial: z.string(),
     sledId: z.string().uuid().optional(),
+    state: PhysicalDiskState,
     timeCreated: z.coerce.date(),
     timeModified: z.coerce.date(),
     vendor: z.string(),
@@ -1907,6 +2010,43 @@ export const PhysicalDiskResultsPage = z.preprocess(
 export const PingStatus = z.preprocess(processResponseBody, z.enum(['ok']))
 
 export const Ping = z.preprocess(processResponseBody, z.object({ status: PingStatus }))
+
+/**
+ * List of data values for one timeseries.
+ *
+ * Each element is an option, where `None` represents a missing sample.
+ */
+export const ValueArray = z.preprocess(
+  processResponseBody,
+  z.union([
+    z.object({ type: z.enum(['integer']), values: z.number().array() }),
+    z.object({ type: z.enum(['double']), values: z.number().array() }),
+    z.object({ type: z.enum(['boolean']), values: SafeBoolean.array() }),
+    z.object({ type: z.enum(['string']), values: z.string().array() }),
+    z.object({ type: z.enum(['integer_distribution']), values: Distributionint64.array() }),
+    z.object({ type: z.enum(['double_distribution']), values: Distributiondouble.array() }),
+  ])
+)
+
+/**
+ * A single list of values, for one dimension of a timeseries.
+ */
+export const Values = z.preprocess(
+  processResponseBody,
+  z.object({ metricType: MetricType, values: ValueArray })
+)
+
+/**
+ * Timepoints and values for one timeseries.
+ */
+export const Points = z.preprocess(
+  processResponseBody,
+  z.object({
+    startTimes: z.coerce.date().array().optional(),
+    timestamps: z.coerce.date().array(),
+    values: Values.array(),
+  })
+)
 
 /**
  * Identity-related metadata that's included in nearly all public API objects
@@ -2739,6 +2879,69 @@ export const SwitchPortSettingsView = z.preprocess(
 export const SwitchResultsPage = z.preprocess(
   processResponseBody,
   z.object({ items: Switch.array(), nextPage: z.string().optional() })
+)
+
+/**
+ * A timeseries contains a timestamped set of values from one source.
+ *
+ * This includes the typed key-value pairs that uniquely identify it, and the set of timestamps and data values from it.
+ */
+export const Timeseries = z.preprocess(
+  processResponseBody,
+  z.object({ fields: z.record(z.string().min(1), FieldValue), points: Points })
+)
+
+/**
+ * A table represents one or more timeseries with the same schema.
+ *
+ * A table is the result of an OxQL query. It contains a name, usually the name of the timeseries schema from which the data is derived, and any number of timeseries, which contain the actual data.
+ */
+export const Table = z.preprocess(
+  processResponseBody,
+  z.object({ name: z.string(), timeseries: z.record(z.string().min(1), Timeseries) })
+)
+
+/**
+ * The name of a timeseries
+ *
+ * Names are constructed by concatenating the target and metric names with ':'. Target and metric names must be lowercase alphanumeric characters with '_' separating words.
+ */
+export const TimeseriesName = z.preprocess(
+  processResponseBody,
+  z
+    .string()
+    .regex(/^(([a-z]+[a-z0-9]*)(_([a-z0-9]+))*):(([a-z]+[a-z0-9]*)(_([a-z0-9]+))*)$/)
+)
+
+/**
+ * A timeseries query string, written in the Oximeter query language.
+ */
+export const TimeseriesQuery = z.preprocess(
+  processResponseBody,
+  z.object({ query: z.string() })
+)
+
+/**
+ * The schema for a timeseries.
+ *
+ * This includes the name of the timeseries, as well as the datum type of its metric and the schema for each field.
+ */
+export const TimeseriesSchema = z.preprocess(
+  processResponseBody,
+  z.object({
+    created: z.coerce.date(),
+    datumType: DatumType,
+    fieldSchema: FieldSchema.array().refine(...uniqueItems),
+    timeseriesName: TimeseriesName,
+  })
+)
+
+/**
+ * A single page of results
+ */
+export const TimeseriesSchemaResultsPage = z.preprocess(
+  processResponseBody,
+  z.object({ items: TimeseriesSchema.array(), nextPage: z.string().optional() })
 )
 
 /**
@@ -4072,6 +4275,16 @@ export const PhysicalDiskListParams = z.preprocess(
   })
 )
 
+export const PhysicalDiskViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      diskId: z.string().uuid(),
+    }),
+    query: z.object({}),
+  })
+)
+
 export const RackListParams = z.preprocess(
   processResponseBody,
   z.object({
@@ -4932,6 +5145,25 @@ export const SiloUtilizationViewParams = z.preprocess(
       silo: NameOrId,
     }),
     query: z.object({}),
+  })
+)
+
+export const TimeseriesQueryParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
+  })
+)
+
+export const TimeseriesSchemaListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+    }),
   })
 )
 

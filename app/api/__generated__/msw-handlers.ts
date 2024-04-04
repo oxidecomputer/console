@@ -601,6 +601,12 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.PhysicalDiskResultsPage>>
+  /** `GET /v1/system/hardware/disks/:diskId` */
+  physicalDiskView: (params: {
+    path: Api.PhysicalDiskViewPathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.PhysicalDisk>>
   /** `GET /v1/system/hardware/racks` */
   rackList: (params: {
     query: Api.RackListQueryParams
@@ -1108,6 +1114,18 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.SiloUtilization>>
+  /** `POST /v1/timeseries/query` */
+  timeseriesQuery: (params: {
+    body: Json<Api.TimeseriesQuery>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
+  /** `GET /v1/timeseries/schema` */
+  timeseriesSchemaList: (params: {
+    query: Api.TimeseriesSchemaListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.TimeseriesSchemaResultsPage>>
   /** `GET /v1/users` */
   userList: (params: {
     query: Api.UserListQueryParams
@@ -1708,6 +1726,10 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       handler(handlers['physicalDiskList'], schema.PhysicalDiskListParams, null)
     ),
     http.get(
+      '/v1/system/hardware/disks/:diskId',
+      handler(handlers['physicalDiskView'], schema.PhysicalDiskViewParams, null)
+    ),
+    http.get(
       '/v1/system/hardware/racks',
       handler(handlers['rackList'], schema.RackListParams, null)
     ),
@@ -2140,6 +2162,14 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
     http.get(
       '/v1/system/utilization/silos/:silo',
       handler(handlers['siloUtilizationView'], schema.SiloUtilizationViewParams, null)
+    ),
+    http.post(
+      '/v1/timeseries/query',
+      handler(handlers['timeseriesQuery'], null, schema.TimeseriesQuery)
+    ),
+    http.get(
+      '/v1/timeseries/schema',
+      handler(handlers['timeseriesSchemaList'], schema.TimeseriesSchemaListParams, null)
     ),
     http.get('/v1/users', handler(handlers['userList'], schema.UserListParams, null)),
     http.get('/v1/utilization', handler(handlers['utilizationView'], null, null)),

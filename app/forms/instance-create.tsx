@@ -151,7 +151,7 @@ export function CreateInstanceForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const queryClient = useApiQueryClient()
   const addToast = useToast()
-  const projectSelector = useProjectSelector()
+  const { project } = useProjectSelector()
   const navigate = useNavigate()
 
   const createInstance = useApiMutation('instanceCreate', {
@@ -161,23 +161,23 @@ export function CreateInstanceForm() {
       // avoid the instance fetch when the instance page loads since we have the data
       queryClient.setQueryData(
         'instanceView',
-        { path: { instance: instance.name }, query: projectSelector },
+        { path: { instance: instance.name }, query: { project } },
         instance
       )
       addToast({ content: 'Your instance has been created' })
-      navigate(pb.instancePage({ ...projectSelector, instance: instance.name }))
+      navigate(pb.instancePage({ project, instance: instance.name }))
     },
   })
 
   const siloImages = usePrefetchedApiQuery('imageList', {}).data.items
-  const projectImages = usePrefetchedApiQuery('imageList', { query: projectSelector }).data
+  const projectImages = usePrefetchedApiQuery('imageList', { query: { project } }).data
     .items
   const allImages = [...siloImages, ...projectImages]
 
   const defaultImage = allImages[0]
 
   const allDisks = usePrefetchedApiQuery('diskList', {
-    query: { ...projectSelector, limit: DISK_FETCH_LIMIT },
+    query: { project, limit: DISK_FETCH_LIMIT },
   }).data.items
   const disks = useMemo(
     () => allDisks.filter(diskCan.attach).map(({ name }) => ({ value: name, label: name })),
@@ -275,7 +275,7 @@ export function CreateInstanceForm() {
           : undefined
 
         await createInstance.mutateAsync({
-          query: projectSelector,
+          query: { project },
           body: {
             name: values.name,
             hostname: values.hostname || values.name,
@@ -469,7 +469,7 @@ export function CreateInstanceForm() {
                 title="No project images found"
                 body="Upload an image to see it here"
                 buttonText="Upload image"
-                onClick={() => navigate(pb.projectImagesNew(projectSelector))}
+                onClick={() => navigate(pb.projectImagesNew({ project }))}
               />
             </div>
           ) : (
@@ -517,7 +517,7 @@ export function CreateInstanceForm() {
       <AdvancedAccordion control={control} isSubmitting={isSubmitting} />
       <Form.Actions>
         <Form.Submit loading={createInstance.isPending}>Create instance</Form.Submit>
-        <Form.Cancel onClick={() => navigate(pb.instances(projectSelector))} />
+        <Form.Cancel onClick={() => navigate(pb.instances({ project }))} />
       </Form.Actions>
     </FullPageForm>
   )

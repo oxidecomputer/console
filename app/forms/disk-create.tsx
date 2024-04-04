@@ -69,7 +69,6 @@ export function CreateDiskSideModalForm({
   onDismiss,
 }: CreateSideModalFormProps) {
   const queryClient = useApiQueryClient()
-  const projectSelector = useProjectSelector()
   const addToast = useToast()
   const navigate = useNavigate()
 
@@ -95,7 +94,7 @@ export function CreateDiskSideModalForm({
   )
   const areImagesLoading = projectImages.isPending || siloImages.isPending
 
-  const snapshotsQuery = useApiQuery('snapshotList', { query: projectSelector })
+  const snapshotsQuery = useApiQuery('snapshotList', { query: { project } })
   const snapshots = snapshotsQuery.data?.items || []
 
   // validate disk source size
@@ -122,7 +121,7 @@ export function CreateDiskSideModalForm({
       onDismiss={() => onDismiss(navigate)}
       onSubmit={({ size, ...rest }) => {
         const body = { size: size * GiB, ...rest }
-        onSubmit ? onSubmit(body) : createDisk.mutate({ query: projectSelector, body })
+        onSubmit ? onSubmit(body) : createDisk.mutate({ query: { project }, body })
       }}
       loading={createDisk.isPending}
       submitError={createDisk.error}
@@ -238,9 +237,8 @@ const DiskNameFromId = ({ disk }: { disk: string }) => {
 }
 
 const SnapshotSelectField = ({ control }: { control: Control<DiskCreate> }) => {
-  const projectSelector = useProjectSelector()
-
-  const snapshotsQuery = useApiQuery('snapshotList', { query: projectSelector })
+  const { project } = useProjectSelector()
+  const snapshotsQuery = useApiQuery('snapshotList', { query: { project } })
 
   const snapshots = snapshotsQuery.data?.items || []
   const diskSizeField = useController({ control, name: 'size' }).field

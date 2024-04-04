@@ -183,13 +183,13 @@ export function FloatingIpsPage() {
 
   return (
     <>
-      <PageHeader>
+      <PageHeader className="!mb-12">
         <PageTitle icon={<IpGlobal24Icon />}>Floating IPs</PageTitle>
       </PageHeader>
       <TableControls>
         <TableControlsText>
           Floating IPs are public IP addresses that can be attached to instances. They allow
-          your instances to be reachable from the internet. Find out more about{' '}
+          your instances to be reachable from the internet. Learn more about{' '}
           <ExternalLink href={links.floatingIpsDocs}>managing floating IPs</ExternalLink>.
         </TableControlsText>
         <TableControlsLink to={pb.floatingIpsNew({ project })}>
