@@ -17,7 +17,7 @@ import { TwoLineCell } from '../cells/TwoLineCell'
 // cells we only care about the return value of getValue
 type Info<T> = { getValue: () => T }
 
-function dateCell(info: Info<Date>) {
+export function dateCell(info: Info<Date>) {
   const date = info.getValue()
   return <TwoLineCell value={[format(date, 'MMM d, yyyy'), format(date, 'p')]} />
 }

@@ -24,7 +24,7 @@ import { invariant } from '~/util/invariant'
 
 import type { ApiResult } from './__generated__/Api'
 import { processServerError, type ApiError } from './errors'
-import { addToLog } from './log'
+import { logError } from './log'
 import { navToLogin } from './nav-to-login'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -49,7 +49,7 @@ const handleResult =
   (method: string) =>
   <Data>(result: ApiResult<Data>) => {
     if (result.type === 'success') return result.data
-    addToLog(result)
+    logError(result)
 
     // if logged out, hit /login to trigger login redirect
     // Exception: 401 on password login POST needs to be handled in-page
