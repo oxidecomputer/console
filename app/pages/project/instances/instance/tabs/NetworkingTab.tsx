@@ -16,10 +16,13 @@ import {
   useApiQuery,
   useApiQueryClient,
   usePrefetchedApiQuery,
+  type ExternalIp,
   type InstanceNetworkInterface,
 } from '@oxide/api'
 import { Networking24Icon } from '@oxide/design-system/icons/react'
 
+import { HL } from '~/components/HL'
+import { TableTitle } from '~/components/TableTitle'
 import { CreateNetworkInterfaceForm } from '~/forms/network-interface-create'
 import { EditNetworkInterfaceForm } from '~/forms/network-interface-edit'
 import {
@@ -28,11 +31,13 @@ import {
   useProjectSelector,
   useToast,
 } from '~/hooks'
+import { AttachFloatingIpModal } from '~/pages/project/floating-ips/AttachFloatingIpModal'
+import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
-import { SkeletonCell } from '~/table/cells/EmptyCell'
+import { EmptyCell, SkeletonCell } from '~/table/cells/EmptyCell'
 import { LinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
-import { Columns } from '~/table/columns/common'
+import { Columns, DescriptionCell } from '~/table/columns/common'
 import { Table } from '~/table/Table'
 import { Badge } from '~/ui/lib/Badge'
 import { Button } from '~/ui/lib/Button'
@@ -79,6 +84,9 @@ NetworkingTab.loader = async ({ params }: LoaderFunctionArgs) => {
       // we want this to cover all NICs; TODO: determine actual limit?
       query: { project, instance, limit: 1000 },
     }),
+    apiQueryClient.prefetchQuery('floatingIpList', {
+      query: { project, limit: 1000 },
+    }),
     // This is covered by the InstancePage loader but there's no downside to
     // being redundant. If it were removed there, we'd still want it here.
     apiQueryClient.prefetchQuery('instanceView', {
@@ -101,7 +109,8 @@ const staticCols = [
     ),
   }),
   colHelper.accessor('description', Columns.description),
-  colHelper.accessor('ip', {}),
+  // TODO: Revisit title of 'Internal' vs. 'Private', etc.
+  colHelper.accessor('ip', { header: 'Internal IP' }),
   colHelper.accessor('vpcId', {
     header: 'vpc',
     cell: (info) => <VpcNameFromId value={info.getValue()} />,
@@ -116,12 +125,21 @@ const updateNicStates = fancifyStates(instanceCan.updateNic.states)
 
 export function NetworkingTab() {
   const instanceSelector = useInstanceSelector()
+  const { instance: instanceName, project } = instanceSelector
 
   const queryClient = useApiQueryClient()
   const addToast = useToast()
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [editing, setEditing] = useState<InstanceNetworkInterface | null>(null)
+  const [attachModalOpen, setAttachModalOpen] = useState(false)
+
+  // Fetch the floating IPs to show in the "Attach floating IP" modal
+  const { data: ips } = usePrefetchedApiQuery('floatingIpList', {
+    query: { project, limit: 1000 },
+  })
+  // Filter out the IPs that are already attached to an instance
+  const availableIps = ips?.items.filter((ip) => !ip.instanceId)
 
   const createNic = useApiMutation('instanceNetworkInterfaceCreate', {
     onSuccess() {
@@ -142,8 +160,8 @@ export function NetworkingTab() {
   })
 
   const { data: instance } = usePrefetchedApiQuery('instanceView', {
-    path: { instance: instanceSelector.instance },
-    query: { project: instanceSelector.project },
+    path: { instance: instanceName },
+    query: { project },
   })
   const canUpdateNic = instanceCan.updateNic(instance)
 
@@ -209,12 +227,91 @@ export function NetworkingTab() {
     getCoreRowModel: getCoreRowModel(),
   })
 
+  // Attached IPs Table
+  const { data: ipData } = useApiQuery('instanceExternalIpList', {
+    path: { instance: instanceName },
+    query: { project },
+  })
+
+  const ipColHelper = createColumnHelper<ExternalIp>()
+  const staticIpCols = [
+    ipColHelper.accessor('ip', {
+      cell: (info) => {
+        // see if info.row.original is an ExternalIp or a FloatingIp
+        const isEphemeral = info.row.original.kind === 'ephemeral'
+        // if the type of the original row is ExternalIp, print the IP
+        return (
+          <>
+            {info.getValue()}
+            {isEphemeral && (
+              <Badge color="neutral" className="ml-1">
+                ephemeral
+              </Badge>
+            )}
+          </>
+        )
+      },
+    }),
+    ipColHelper.accessor('name', {
+      cell: (info) => (info.getValue() ? info.getValue() : <EmptyCell />),
+    }),
+    ipColHelper.accessor((row) => ('description' in row ? row.description : undefined), {
+      header: 'description',
+      cell: (info) => <DescriptionCell text={info.getValue()} />,
+    }),
+  ]
+
+  const floatingIpDetach = useApiMutation('floatingIpDetach', {
+    onSuccess() {
+      queryClient.invalidateQueries('floatingIpList')
+      queryClient.invalidateQueries('instanceExternalIpList')
+      addToast({ content: 'Your floating IP has been detached' })
+    },
+    onError: (err) => {
+      addToast({ title: 'Error', content: err.message, variant: 'error' })
+    },
+  })
+
+  const makeIpActions = useCallback(
+    (externalIp: ExternalIp): MenuAction[] => {
+      if (externalIp.kind === 'floating')
+        return [
+          {
+            label: 'Detach',
+            onActivate: () =>
+              confirmAction({
+                actionType: 'danger',
+                doAction: () =>
+                  floatingIpDetach.mutateAsync({
+                    path: { floatingIp: externalIp.name },
+                    query: { project },
+                  }),
+                modalTitle: 'Detach Floating IP',
+                modalContent: (
+                  <p>
+                    Are you sure you want to detach floating IP <HL>{externalIp.name}</HL>?{' '}
+                    The instance <HL>{instanceName}</HL> will no longer be reachable at{' '}
+                    <HL>{externalIp.ip}</HL>.
+                  </p>
+                ),
+                errorTitle: 'Error detaching floating IP',
+              }),
+          },
+        ]
+      return []
+    },
+    [floatingIpDetach, instanceName, project]
+  )
+
+  const ipTableInstance = useReactTable({
+    columns: useColsWithActions(staticIpCols, makeIpActions),
+    data: ipData?.items || [],
+    getCoreRowModel: getCoreRowModel(),
+  })
   return (
     <>
       <div className="mb-3 flex items-baseline justify-between">
-        <h2 id="nic-label" className="text-mono-sm text-secondary">
-          Network Interfaces
-        </h2>
+        <TableTitle id="nic-label" text="Network Interfaces" />
         <Button
           size="sm"
           onClick={() => setCreateModalOpen(true)}
@@ -253,23 +350,34 @@ export function NetworkingTab() {
       )}
 
       <div className="mb-3 mt-8 flex items-baseline justify-between">
-        <h2 id="attached-ips-label" className="text-mono-sm text-secondary">
-          Attached IPs
-        </h2>
+        <TableTitle id="attached-ips-label" text="External IPs" />
         <Button
           size="sm"
-          onClick={() => setCreateModalOpen(true)}
-          disabled={false}
+          onClick={() => setAttachModalOpen(true)}
+          disabled={availableIps?.length === 0}
           disabledReason={
-            <>
-              IP address limit reached for this instance. You can have up to 32 total,
-              including 1 ephemeral IP.
-            </>
+            availableIps?.length === 0 ? (
+              <>No available floating IPs.</>
+            ) : (
+              <>
+                IP address limit reached for this instance. You can have up to 32 total,
+                including 1 ephemeral IP.
+              </>
+            )
           }
         >
           Attach floating IP
         </Button>
+        {attachModalOpen && (
+          <AttachFloatingIpModal
+            floatingIps={availableIps}
+            instance={instance}
+            onDismiss={() => setAttachModalOpen(false)}
+            project={project}
+          />
+        )}
       </div>
+      <Table aria-labelledby="attached-ips-label" table={ipTableInstance} />
     </>
   )
 }
