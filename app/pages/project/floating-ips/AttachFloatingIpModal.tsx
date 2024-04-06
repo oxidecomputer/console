@@ -15,14 +15,12 @@ import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 
 export const AttachFloatingIpModal = ({
-  floatingIp,
   floatingIps,
   instance,
   project,
   onDismiss,
 }: {
-  floatingIp?: string
-  floatingIps?: Array<FloatingIp>
+  floatingIps: Array<FloatingIp>
   instance: Instance
   project: string
   onDismiss: () => void
@@ -39,7 +37,7 @@ export const AttachFloatingIpModal = ({
       addToast({ title: 'Error', content: err.message, variant: 'error' })
     },
   })
-  const form = useForm({ defaultValues: { floatingIp, instanceId: instance?.id } })
+  const form = useForm({ defaultValues: { floatingIp: '', instanceId: instance?.id } })
 
   return (
     <Modal isOpen title="Attach Floating IP" onDismiss={onDismiss}>
@@ -57,36 +55,34 @@ export const AttachFloatingIpModal = ({
             {instance && (
               <input type="hidden" {...form.register('instanceId')} value={instance.id} />
             )}
-            {floatingIps && (
-              <Listbox
-                name="floatingIp"
-                items={floatingIps.map((ip) => ({
-                  value: ip.id,
-                  label: (
-                    <div className="text-tertiary selected:text-accent-secondary">
-                      <div>{ip.name}</div>
-                      <div className="flex gap-0.5">
-                        <div>{ip.ip}</div>
-                        <span className="mx-1 text-quinary selected:text-accent-disabled">
-                          /
-                        </span>
-                        <div className="flex-grow overflow-hidden overflow-ellipsis whitespace-pre text-left">
-                          {ip.description || '—'}
-                        </div>
+            <Listbox
+              name="floatingIp"
+              items={floatingIps.map((ip) => ({
+                value: ip.id,
+                label: (
+                  <div className="text-tertiary selected:text-accent-secondary">
+                    <div>{ip.name}</div>
+                    <div className="flex gap-0.5">
+                      <div>{ip.ip}</div>
+                      <span className="mx-1 text-quinary selected:text-accent-disabled">
+                        /
+                      </span>
+                      <div className="flex-grow overflow-hidden overflow-ellipsis whitespace-pre text-left">
+                        {ip.description || '—'}
                       </div>
                     </div>
-                  ),
-                  labelString: ip.name,
-                }))}
-                label="Floating IP"
-                onChange={(e) => {
-                  form.setValue('floatingIp', e)
-                }}
-                required
-                placeholder="Select floating IP"
-                selected={form.watch('floatingIp') || floatingIps[0].id}
-              />
-            )}
+                  </div>
+                ),
+                labelString: ip.name,
+              }))}
+              label="Floating IP"
+              onChange={(e) => {
+                form.setValue('floatingIp', e)
+              }}
+              required
+              placeholder="Select floating IP"
+              selected={form.watch('floatingIp')}
+            />
           </form>
         </Modal.Section>
       </Modal.Body>

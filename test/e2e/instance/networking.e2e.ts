@@ -15,7 +15,7 @@ import {
   stopInstance,
 } from '../utils'
 
-test('Instance networking tab', async ({ page }) => {
+test('Instance networking tab — NIC table', async ({ page }) => {
   await page.goto('/projects/mock-project/instances/db1')
 
   // links to VPC and external IPs appear in table
@@ -25,8 +25,9 @@ test('Instance networking tab', async ({ page }) => {
   // Instance networking tab
   await page.click('role=tab[name="Networking"]')
 
-  const table = page.locator('table')
-  await expectRowVisible(table, { name: 'my-nicprimary' })
+  const nicTable = page.getByRole('table', { name: 'Network interfaces' })
+
+  await expectRowVisible(nicTable, { name: 'my-nicprimary' })
 
   // check VPC link in table points to the right page
   await expect(page.locator('role=cell >> role=link[name="mock-vpc"]')).toHaveAttribute(
@@ -60,8 +61,8 @@ test('Instance networking tab', async ({ page }) => {
 
   // Make this interface primary
   await clickRowAction(page, 'nic-2', 'Make primary')
-  await expectRowVisible(table, { name: 'my-nic' })
-  await expectRowVisible(table, { name: 'nic-2primary' })
+  await expectRowVisible(nicTable, { name: 'my-nic' })
+  await expectRowVisible(nicTable, { name: 'nic-2primary' })
 
   // Make an edit to the network interface
   await clickRowAction(page, 'nic-2', 'Edit')
@@ -75,4 +76,44 @@ test('Instance networking tab', async ({ page }) => {
   await clickRowAction(page, 'nic-3', 'Delete')
   await page.getByRole('button', { name: 'Confirm' }).click()
   await expect(nic3).toBeHidden()
+})
+
+test('Instance networking tab — External IPs', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances/db1/network-interfaces')
+  const externalIpTable = page.getByRole('table', { name: 'External IPs' })
+
+  // See list of external IPs
+  await expectRowVisible(externalIpTable, { ip: '123.4.56.0ephemeral' })
+  await expectRowVisible(externalIpTable, { ip: '123.4.56.5' })
+
+  // Attach a new external IP
+  await page.click('role=button[name="Attach floating IP"]')
+  await expectVisible(page, ['role=heading[name="Attach Floating IP"]'])
+
+  // Select the 'rootbeer-float' option
+  const dialog = page.getByRole('dialog')
+  // TODO: this "select the option" syntax is awkward; it's working, but I suspect there's a better way
+  await dialog.getByRole('button', { name: 'Select floating IP' }).click()
+  await page.keyboard.press('ArrowDown')
+  await page.keyboard.press('Enter')
+  // await dialog.getByRole('button', { name: 'rootbeer-float' }).click()
+  // await dialog.getByRole('button', { name: 'rootbeer-float123.4.56.4/A classic.' }).click()
+  await dialog.getByRole('button', { name: 'Attach' }).click()
+
+  // Confirm the modal is gone and the new row is showing on the page
+  await expect(page.getByRole('dialog')).toBeHidden()
+  await expectRowVisible(externalIpTable, { name: 'rootbeer-float' })
+
+  // Verify that the "Attach floating IP" button is disabled, since there shouldn't be any more IPs to attach
+  await expect(page.getByRole('button', { name: 'Attach floating IP' })).toBeDisabled()
+
+  // Detach one of the external IPs
+  await clickRowAction(page, 'cola-float', 'Detach')
+  await page.getByRole('button', { name: 'Confirm' }).click()
+
+  // Since we detached it, we don't expect to see db1 any longer
+  await expect(externalIpTable.getByRole('cell', { name: 'cola-float' })).toBeHidden()
+
+  // And that button shouldbe enabled again
+  await expect(page.getByRole('button', { name: 'Attach floating IP' })).toBeEnabled()
 })

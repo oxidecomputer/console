@@ -236,21 +236,16 @@ export function NetworkingTab() {
   const ipColHelper = createColumnHelper<ExternalIp>()
   const staticIpCols = [
     ipColHelper.accessor('ip', {
-      cell: (info) => {
-        // see if info.row.original is an ExternalIp or a FloatingIp
-        const isEphemeral = info.row.original.kind === 'ephemeral'
-        // if the type of the original row is ExternalIp, print the IP
-        return (
-          <>
-            {info.getValue()}
-            {isEphemeral && (
-              <Badge color="neutral" className="ml-1">
-                ephemeral
-              </Badge>
-            )}
-          </>
-        )
-      },
+      cell: (info) => (
+        <>
+          {info.getValue()}
+          {info.row.original.kind === 'ephemeral' && (
+            <Badge color="neutral" className="ml-2">
+              ephemeral
+            </Badge>
+          )}
+        </>
+      ),
     }),
     ipColHelper.accessor('name', {
       cell: (info) => (info.getValue() ? info.getValue() : <EmptyCell />),
@@ -274,7 +269,7 @@ export function NetworkingTab() {
 
   const makeIpActions = useCallback(
     (externalIp: ExternalIp): MenuAction[] => {
-      if (externalIp.kind === 'floating')
+      if (externalIp.kind === 'floating') {
         return [
           {
             label: 'Detach',
@@ -298,6 +293,8 @@ export function NetworkingTab() {
               }),
           },
         ]
+      }
+      // TODO: Add actions for ephemeral IPs, or hide actions from column
       return []
     },
     [floatingIpDetach, instanceName, project]
