@@ -46,7 +46,7 @@ export function processServerError(method: string, resp: ErrorResult): ApiError 
     if (process.env.NODE_ENV !== 'test') console.error(resp)
     return {
       message: 'Error reading API response',
-      statusCode: resp.statusCode,
+      statusCode: resp.response.status,
     }
   }
 
@@ -76,7 +76,7 @@ export function processServerError(method: string, resp: ErrorResult): ApiError 
   return {
     message,
     errorCode: resp.data.errorCode || undefined,
-    statusCode: resp.statusCode,
+    statusCode: resp.response.status,
   }
 }
 
