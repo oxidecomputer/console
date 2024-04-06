@@ -43,8 +43,8 @@ if (typeof window !== 'undefined') {
     query: async (q: string) => {
       const result = await api.methods.timeseriesQuery({ body: { query: q } })
       const data = handleResult(result)
+      logHeading(data.length + ' timeseries returned')
       for (const table of data) {
-        logHeading(data.length + ' timeseries returned')
         for (const ts of Object.values(table.timeseries)) {
           const fields = Object.entries(ts.fields)
             .map(([k, v]) => `${k}: ${v.value}`)
