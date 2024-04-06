@@ -232,6 +232,7 @@ export function NetworkingTab() {
     path: { instance: instanceName },
     query: { project },
   })
+  const attachedIpCount = ipData?.items?.length || 0
 
   const ipColHelper = createColumnHelper<ExternalIp>()
   const staticIpCols = [
@@ -295,9 +296,18 @@ export function NetworkingTab() {
         ]
       }
       // TODO: Add actions for ephemeral IPs, or hide actions from column
-      return []
+      // Below is a placeholder for now
+      return [
+        {
+          label: 'Copy IP address',
+          onActivate: () => {
+            window.navigator.clipboard.writeText(externalIp.ip)
+            addToast({ content: 'IP address copied to clipboard' })
+          },
+        },
+      ]
     },
-    [floatingIpDetach, instanceName, project]
+    [addToast, floatingIpDetach, instanceName, project]
   )
 
   const ipTableInstance = useReactTable({
@@ -305,6 +315,17 @@ export function NetworkingTab() {
     data: ipData?.items || [],
     getCoreRowModel: getCoreRowModel(),
   })
+
+  const disabledReason =
+    attachedIpCount >= 32 ? (
+      <>
+        IP address limit reached for this instance. You can have up to 32 total, including 1
+        ephemeral IP.
+      </>
+    ) : availableIps?.length === 0 ? (
+      <>No available floating IPs.</>
+    ) : null
+
   return (
     <>
       <div className="mb-3 flex items-baseline justify-between">
@@ -351,17 +372,8 @@ export function NetworkingTab() {
         <Button
           size="sm"
           onClick={() => setAttachModalOpen(true)}
-          disabled={availableIps?.length === 0}
-          disabledReason={
-            availableIps?.length === 0 ? (
-              <>No available floating IPs.</>
-            ) : (
-              <>
-                IP address limit reached for this instance. You can have up to 32 total,
-                including 1 ephemeral IP.
-              </>
-            )
-          }
+          disabled={!!disabledReason}
+          disabledReason={disabledReason}
         >
           Attach floating IP
         </Button>
