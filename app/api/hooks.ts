@@ -51,7 +51,7 @@ const handleResult =
 
     // if logged out, hit /login to trigger login redirect
     // Exception: 401 on password login POST needs to be handled in-page
-    if (result.statusCode === 401 && method !== 'loginLocal') {
+    if (result.response.status === 401 && method !== 'loginLocal') {
       // TODO-usability: for background requests, a redirect to login without
       // warning could come as a surprise to the user, especially because
       // sometimes background requests are not directly triggered by a user
