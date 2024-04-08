@@ -45,6 +45,8 @@ describe('processServerError', () => {
       code: undefined,
       message: 'Hi, you have an error',
       statusCode: 400,
+      errorCode: undefined,
+      requestId: '1',
     })
   })
 
@@ -67,6 +69,7 @@ describe('processServerError', () => {
         errorCode: 'ObjectAlreadyExists',
         message: 'Instance name already exists',
         statusCode: 400,
+        requestId: '2',
       })
     })
 
@@ -76,6 +79,7 @@ describe('processServerError', () => {
         errorCode: 'ObjectAlreadyExists',
         message: 'Thing name already exists',
         statusCode: 400,
+        requestId: '2',
       })
     })
   })
@@ -91,6 +95,7 @@ describe('processServerError', () => {
         errorCode: 'ObjectNotFound',
         message: 'Not found: whatever',
         statusCode: 404,
+        requestId: '2',
       })
     })
   })
@@ -101,6 +106,7 @@ describe('processServerError', () => {
       errorCode: 'WeirdError',
       message: 'Whatever',
       statusCode: 400,
+      requestId: '2',
     })
   })
 })

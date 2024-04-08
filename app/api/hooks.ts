@@ -58,8 +58,29 @@ const handleResult =
       // action, e.g., polling or refetching when window regains focus
       navToLogin({ includeCurrent: true })
     }
+
+    const error = processServerError(method, result)
+
+    // log to the console so it's there in case they open the dev tools, unlike
+    // network tab, which only records if dev tools are already open. but don't
+    // clutter test output
+    if (process.env.NODE_ENV !== 'test') {
+      const consolePage = window.location.pathname + window.location.search
+      // TODO: need to change oxide.ts to put the HTTP method on the result in
+      // order to log it here
+      console.error(
+        `More info about API ${error.statusCode || 'error'} on ${consolePage}
+
+API URL:       ${result.response.url}
+Request ID:    ${error.requestId}
+Error code:    ${error.errorCode}
+Error message: ${error.message}
+`
+      )
+    }
+
     // we need to rethrow because that's how react-query knows it's an error
-    throw processServerError(method, result)
+    throw error
   }
 
 /**

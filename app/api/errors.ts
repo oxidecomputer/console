@@ -18,6 +18,7 @@ export type ApiError = {
   message: string
   errorCode?: string
   statusCode?: number
+  requestId?: string
 }
 
 /**
@@ -42,11 +43,10 @@ export function processServerError(method: string, resp: ErrorResult): ApiError 
   // client error is a JSON parse or processing error and is highly unlikely to
   // be end-user readable
   if (resp.type === 'client_error') {
-    // nice to log but don't clutter test output
-    if (process.env.NODE_ENV !== 'test') console.error(resp)
     return {
       message: 'Error reading API response',
       statusCode: resp.response.status,
+      requestId: undefined,
     }
   }
 
@@ -77,6 +77,7 @@ export function processServerError(method: string, resp: ErrorResult): ApiError 
     message,
     errorCode: resp.data.errorCode || undefined,
     statusCode: resp.response.status,
+    requestId: resp.data.requestId,
   }
 }
 
