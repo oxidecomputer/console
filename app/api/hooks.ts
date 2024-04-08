@@ -68,11 +68,11 @@ const handleResult =
       const consolePage = window.location.pathname + window.location.search
       // TODO: need to change oxide.ts to put the HTTP method on the result in
       // order to log it here
-      // TODO: also add request ID to oxide.ts and show it here
       console.error(
         `More info about API ${error.statusCode || 'error'} on ${consolePage}
 
 API URL:       ${result.response.url}
+Request ID:    ${error.requestId}
 Error code:    ${error.errorCode}
 Error message: ${error.message}
 `

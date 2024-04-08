@@ -18,6 +18,7 @@ export type ApiError = {
   message: string
   errorCode?: string
   statusCode?: number
+  requestId?: string
 }
 
 /**
@@ -45,6 +46,7 @@ export function processServerError(method: string, resp: ErrorResult): ApiError 
     return {
       message: 'Error reading API response',
       statusCode: resp.response.status,
+      requestId: undefined,
     }
   }
 
@@ -75,6 +77,7 @@ export function processServerError(method: string, resp: ErrorResult): ApiError 
     message,
     errorCode: resp.data.errorCode || undefined,
     statusCode: resp.response.status,
+    requestId: resp.data.requestId,
   }
 }
 
