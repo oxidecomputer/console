@@ -71,10 +71,10 @@ const handleResult =
       console.error(
         `More info about API ${error.statusCode || 'error'} on ${consolePage}
 
-API URL:       ${result.response.url}
-Request ID:    ${error.requestId}
-Error code:    ${error.errorCode}
-Error message: ${error.message}
+API URL:        ${result.response.url}
+Request ID:     ${error.requestId}
+Error code:     ${error.errorCode}
+Error message:  ${error.message.replace(/\n/g, '\n' + ' '.repeat('Error message:  '.length))}
 `
       )
     }
