@@ -11,8 +11,7 @@ import { camelToSnake, isNotNull, processResponseBody, snakeify } from './util'
 /** Success responses from the API */
 export type ApiSuccess<Data> = {
   type: 'success'
-  statusCode: number
-  headers: Headers
+  response: Response
   data: Data
 }
 
@@ -29,17 +28,15 @@ export type ErrorResult =
   // 4xx and 5xx responses from the API
   | {
       type: 'error'
-      statusCode: number
-      headers: Headers
+      response: Response
       data: ErrorBody
     }
   // JSON parsing or processing errors within the client. Includes raised Error
   // and response body as a string for debugging.
   | {
       type: 'client_error'
+      response: Response
       error: Error
-      statusCode: number
-      headers: Headers
       text: string
     }
 
@@ -64,8 +61,6 @@ function encodeQueryParam(key: string, value: unknown) {
 }
 
 export async function handleResponse<Data>(response: Response): Promise<ApiResult<Data>> {
-  const common = { statusCode: response.status, headers: response.headers }
-
   const respText = await response.text()
 
   // catch JSON parse or processing errors
@@ -77,25 +72,25 @@ export async function handleResponse<Data>(response: Response): Promise<ApiResul
   } catch (e) {
     return {
       type: 'client_error',
+      response,
       error: e as Error,
       text: respText,
-      ...common,
     }
   }
 
   if (!response.ok) {
     return {
       type: 'error',
+      response,
       data: respJson as ErrorBody,
-      ...common,
     }
   }
 
   // don't validate respJson, just assume it matches the type
   return {
     type: 'success',
+    response,
     data: respJson as Data,
-    ...common,
   }
 }
 

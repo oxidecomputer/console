@@ -93,7 +93,7 @@ export function getTimestamps() {
 }
 
 export const unavailableErr = () =>
-  json({ error_code: 'ServiceUnavailable' }, { status: 503 })
+  json({ error_code: 'ServiceUnavailable', request_id: 'fake-id' }, { status: 503 })
 
 export const NotImplemented = () => {
   // This doesn't just return the response because it broadens the type to be usable

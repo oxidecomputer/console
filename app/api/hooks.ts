@@ -51,15 +51,36 @@ const handleResult =
 
     // if logged out, hit /login to trigger login redirect
     // Exception: 401 on password login POST needs to be handled in-page
-    if (result.statusCode === 401 && method !== 'loginLocal') {
+    if (result.response.status === 401 && method !== 'loginLocal') {
       // TODO-usability: for background requests, a redirect to login without
       // warning could come as a surprise to the user, especially because
       // sometimes background requests are not directly triggered by a user
       // action, e.g., polling or refetching when window regains focus
       navToLogin({ includeCurrent: true })
     }
+
+    const error = processServerError(method, result)
+
+    // log to the console so it's there in case they open the dev tools, unlike
+    // network tab, which only records if dev tools are already open. but don't
+    // clutter test output
+    if (process.env.NODE_ENV !== 'test') {
+      const consolePage = window.location.pathname + window.location.search
+      // TODO: need to change oxide.ts to put the HTTP method on the result in
+      // order to log it here
+      console.error(
+        `More info about API ${error.statusCode || 'error'} on ${consolePage}
+
+API URL:        ${result.response.url}
+Request ID:     ${error.requestId}
+Error code:     ${error.errorCode}
+Error message:  ${error.message.replace(/\n/g, '\n' + ' '.repeat('Error message:  '.length))}
+`
+      )
+    }
+
     // we need to rethrow because that's how react-query knows it's an error
-    throw processServerError(method, result)
+    throw error
   }
 
 /**
