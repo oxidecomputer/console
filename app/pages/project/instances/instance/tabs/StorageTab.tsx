@@ -22,7 +22,6 @@ import {
 import { Storage24Icon } from '@oxide/design-system/icons/react'
 
 import { DiskStatusBadge } from '~/components/StatusBadge'
-import { TableTitle } from '~/components/TableTitle'
 import { AttachDiskSideModalForm } from '~/forms/disk-attach'
 import { CreateDiskSideModalForm } from '~/forms/disk-create'
 import { getInstanceSelector, useInstanceSelector } from '~/hooks'
@@ -32,6 +31,7 @@ import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { Button } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { TableTitle } from '~/ui/lib/Table'
 
 import { fancifyStates } from './common'
 
@@ -169,7 +169,7 @@ export function StorageTab() {
 
   return (
     <>
-      <TableTitle id="disks-label" text="Disks" />
+      <TableTitle id="disks-label">Disks</TableTitle>
       {/* TODO: need 40px high rows. another table or a flag on Table (ew) */}
 
       <Table emptyState={emptyState} aria-labelledby="disks-label" columns={columns} />

@@ -22,7 +22,6 @@ import {
 import { Networking24Icon } from '@oxide/design-system/icons/react'
 
 import { HL } from '~/components/HL'
-import { TableTitle } from '~/components/TableTitle'
 import { CreateNetworkInterfaceForm } from '~/forms/network-interface-create'
 import { EditNetworkInterfaceForm } from '~/forms/network-interface-edit'
 import {
@@ -42,7 +41,7 @@ import { Table } from '~/table/Table'
 import { Badge } from '~/ui/lib/Badge'
 import { Button } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
-import { TableEmptyBox } from '~/ui/lib/Table'
+import { TableEmptyBox, TableTitle } from '~/ui/lib/Table'
 import { pb } from '~/util/path-builder'
 
 import { fancifyStates } from './common'
@@ -329,7 +328,7 @@ export function NetworkingTab() {
   return (
     <>
       <div className="mb-3 flex items-baseline justify-between">
-        <TableTitle id="nic-label" text="Network Interfaces" />
+        <TableTitle id="nic-label">Network Interfaces</TableTitle>
         <Button
           size="sm"
           onClick={() => setCreateModalOpen(true)}
@@ -368,7 +367,7 @@ export function NetworkingTab() {
       )}
 
       <div className="mb-3 mt-8 flex items-baseline justify-between">
-        <TableTitle id="attached-ips-label" text="External IPs" />
+        <TableTitle id="attached-ips-label">External IPs</TableTitle>
         <Button
           size="sm"
           onClick={() => setAttachModalOpen(true)}
