@@ -5333,7 +5333,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Access metrics data
+     * View metrics
      */
     siloMetric: (
       { path, query = {} }: { path: SiloMetricPathParams; query?: SiloMetricQueryParams },
@@ -6194,7 +6194,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Access metrics data
+     * View metrics
      */
     systemMetric: (
       {
@@ -6785,7 +6785,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Run a timeseries query, written OxQL.
+     * Run timeseries query
      */
     timeseriesQuery: ({ body }: { body: TimeseriesQuery }, params: FetchParams = {}) => {
       return this.request<Table[]>({
@@ -6796,7 +6796,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * List available timeseries schema.
+     * List timeseries schemas
      */
     timeseriesSchemaList: (
       { query = {} }: { query?: TimeseriesSchemaListQueryParams },
