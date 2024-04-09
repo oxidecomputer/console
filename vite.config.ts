@@ -8,6 +8,7 @@
 import { resolve } from 'path'
 import basicSsl from '@vitejs/plugin-basic-ssl'
 import react from '@vitejs/plugin-react-swc'
+import { bundleStats } from 'rollup-plugin-bundle-stats'
 import { defineConfig } from 'vite'
 import { createHtmlPlugin } from 'vite-plugin-html'
 import tsconfigPaths from 'vite-tsconfig-paths'
@@ -78,6 +79,11 @@ export default defineConfig(({ mode }) => ({
       input: {
         app: 'index.html',
       },
+      output: {
+        assetFileNames: 'assets/[name].[hash][extname]',
+        chunkFileNames: 'assets/[name].[hash].js',
+        entryFileNames: 'assets/[name].[hash].js',
+      },
     },
   },
   define: {
@@ -98,6 +104,7 @@ export default defineConfig(({ mode }) => ({
     }),
     react(),
     apiMode === 'dogfood' && basicSsl(),
+    bundleStats(),
   ],
   server: {
     port: 4000,
