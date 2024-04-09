@@ -87,6 +87,9 @@ async function getCommitRange(
   return { base: parents[0].sha, head }
 }
 
+const specUrl = (commit: string) =>
+  `https://raw.githubusercontent.com/oxidecomputer/omicron/${commit}/openapi/nexus.json`
+
 async function genForCommit(commit: string, force: boolean) {
   const tmpDir = `/tmp/api-diff/${commit}`
   const alreadyExists = await exists(tmpDir + '/Api.ts')
@@ -95,7 +98,8 @@ async function genForCommit(commit: string, force: boolean) {
   if (force || !alreadyExists) {
     await $`rm -rf ${tmpDir}`
     await $`mkdir -p ${tmpDir}`
-    await $`npm run --silent --prefix ../oxide.ts gen-from ${commit} ${tmpDir}`
+    console.log(`Generating for ${commit}...`)
+    await $`npx tsx ../oxide.ts/generator/index.ts ${specUrl(commit)} ${tmpDir}`
     await $`npx prettier --write --log-level error ${tmpDir}`
   }
 
