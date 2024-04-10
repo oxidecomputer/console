@@ -18,7 +18,7 @@ import {
 import { Button } from '~/ui/lib/Button'
 import { useMonitoring } from 'app/pages/system/monitoring/ExplorerPage'
 
-import { sensors, temperatureRanges, type Sensor } from './data'
+import { sensorRanges, sensors, type Sensor } from './data'
 
 export const ExplorerTimeline = () => {
   const { selectedComponent, selectedTime, setSelectedTime, sensorDataArray } =
@@ -61,7 +61,7 @@ export const ExplorerTimeline = () => {
     { pointer: { keys: false } }
   )
 
-  const sensor = sensors.find((s) => s.label === selectedComponent)
+  const sensor = sensors.find((s) => s.label === selectedComponent?.label)
 
   return (
     <div className="flex select-none flex-col overflow-hidden border-t border-t-secondary">
@@ -131,7 +131,13 @@ export const ExplorerTimeline = () => {
                     key={i}
                     time={i}
                     isHovered={hovered === i}
-                    value={selectedComponent ? sensorValues[selectedComponent] : 100}
+                    value={
+                      selectedComponent
+                        ? selectedComponent.type === 'fan'
+                          ? sensorValues[selectedComponent.label] / 50
+                          : sensorValues[selectedComponent.label]
+                        : 100
+                    }
                     sensorType={sensor ? sensor.type : undefined}
                   />
                 ))}
@@ -182,9 +188,9 @@ const SensorTimelineBar = ({
 }) => {
   const { selectedComponent, selectedTime } = useMonitoring()
   let state = 'normal'
-  if (sensorType && value > temperatureRanges[sensorType][2]) {
+  if (sensorType && value > sensorRanges[sensorType][2]) {
     state = 'urgent'
-  } else if (sensorType && value > temperatureRanges[sensorType][1]) {
+  } else if (sensorType && value > sensorRanges[sensorType][1]) {
     state = 'notice'
   }
 

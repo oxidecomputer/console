@@ -28,15 +28,19 @@ import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Tabs } from '~/ui/lib/Tabs'
 import { titleCase } from '~/util/str'
 import {
+  fans,
+  generateMockFanData,
+  generateMockRegulatorData,
   generateMockSensorData,
   generateSensorValuesArray,
+  regulators,
+  sensorRanges,
   sensors,
-  temperatureRanges,
   type SensorValues,
 } from 'app/components/monitoring/data'
 import { ExplorerTimeline } from 'app/components/monitoring/ExplorerTimeline'
 import { Minus12Icon } from 'app/components/monitoring/Icons'
-import Scene from 'app/components/monitoring/Scene'
+import { Scene } from 'app/components/monitoring/Scene'
 import { useMonitoringStore } from 'app/components/monitoring/Store'
 
 export type CameraSettings = {
@@ -45,11 +49,16 @@ export type CameraSettings = {
   zoom: number
 }
 
+export type SelectedComponent = {
+  type: 'sensor' | 'fan' | 'regulator'
+  label: string
+}
+
 type MonitoringContextType = {
   selectedTime: number | null
   setSelectedTime: (value: number | null) => void
-  selectedComponent: string | null
-  setSelectedComponent: (value: string | null) => void
+  selectedComponent: SelectedComponent | null
+  setSelectedComponent: (value: SelectedComponent | null) => void
   sensorDataArray: SensorValues[]
   sled: number | undefined
   cameraSettings: CameraSettings
@@ -76,7 +85,7 @@ export const useMonitoring = () => useContext(MonitoringContext)
 
 export function ExplorerPage() {
   const [selectedTime, setSelectedTime] = useState<number | null>(20)
-  const [selectedComponent, setSelectedComponent] = useState<string | null>(null)
+  const [selectedComponent, setSelectedComponent] = useState<SelectedComponent | null>(null)
   const [cameraSettings, setCameraSettings] = useState<CameraSettings>(
     defaultState.cameraSettings
   )
@@ -85,8 +94,20 @@ export function ExplorerPage() {
   const sledNum = sled ? parseInt(sled, 10) : undefined
 
   const sensorDataArray = useMemo(() => {
-    const mockData = generateMockSensorData()
-    return generateSensorValuesArray(mockData)
+    const mockSensors = generateMockSensorData()
+    const mockFans = generateMockFanData()
+    const mockRegulators = generateMockRegulatorData()
+
+    const mockFanValues = generateSensorValuesArray(mockFans, fans)
+    const mockRegulatorValues = generateSensorValuesArray(mockRegulators, regulators)
+
+    const arr = generateSensorValuesArray(mockSensors, sensors).map((item, index) => ({
+      ...item,
+      ...mockFanValues[index],
+      ...mockRegulatorValues[index],
+    }))
+
+    return arr
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sled])
 
@@ -141,11 +162,13 @@ export function ExplorerPage() {
               <Button
                 size="sm"
                 variant="secondary"
-                className="w-8"
+                className="w-8 select-none"
                 onClick={() => {
                   if (sled && !selectedComponent) {
                     navigate('/system/monitoring/explorer')
                     fitRack()
+                  } else if (!sled && !selectedComponent) {
+                    navigate('/system/monitoring/sensor-tree')
                   } else {
                     handleBack()
                   }
@@ -158,13 +181,21 @@ export function ExplorerPage() {
                   size="sm"
                   variant="secondary"
                   onClick={() => setSelectedComponent(null)}
+                  className="select-none"
                 >
                   Sled {sled}
                 </Button>
               )}
               {selectedComponent && (
-                <Button size="sm" variant="secondary" className="pointer-events-none">
-                  {selectedComponent}
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  className="pointer-events-none select-none"
+                >
+                  <span className="mr-1 inline-block text-quaternary">
+                    {selectedComponent.type}:{' '}
+                  </span>
+                  {selectedComponent.label}
                 </Button>
               )}
             </div>
@@ -205,17 +236,44 @@ const ExplorerSidebar = () => {
 
   const sensorData = sensorDataArray[selectedTime || 0]
 
-  const allSensors = Object.entries(sensorData).map(([label, value]) => {
-    const sensor = sensors.find((s) => s.label === label)
-    return {
-      label,
-      value,
-      showWarning: sensor ? value > temperatureRanges[sensor.type][1] : false,
-      showUrgent: sensor ? value > temperatureRanges[sensor.type][2] : false,
-    }
-  })
+  const {
+    sensors: sensorArray,
+    fans: fanArray,
+    regulators: regulatorArray,
+  } = useMemo(() => {
+    return Object.entries(sensorData).reduce(
+      (acc, [label, value]) => {
+        const sensor = sensors.find((s) => s.label === label)
+        const item = {
+          label,
+          value,
+          showWarning: sensor ? value > sensorRanges[sensor.type][1] : false,
+          showUrgent: sensor ? value > sensorRanges[sensor.type][2] : false,
+        }
 
-  const results = fuzzysort.go(filterInput, allSensors, { key: 'label' })
+        if (label.startsWith('FAN')) {
+          acc.fans.push(item)
+        } else if (label.startsWith('V')) {
+          acc.regulators.push(item)
+        } else {
+          acc.sensors.push(item)
+        }
+
+        return acc
+      },
+      {
+        sensors: [] as SensorItemType[],
+        fans: [] as SensorItemType[],
+        regulators: [] as SensorItemType[],
+      }
+    )
+  }, [sensorData])
+
+  const results = fuzzysort.go(
+    filterInput,
+    [...sensorArray, ...fanArray, ...regulatorArray],
+    { key: 'label' }
+  )
 
   return (
     <div className="overflow-hidden border-l border-l-secondary">
@@ -250,9 +308,13 @@ const ExplorerSidebar = () => {
                     <SensorItem
                       key={result.target}
                       sensor={result.obj}
-                      isSelected={selectedComponent === result.obj.label}
+                      isSelected={
+                        selectedComponent
+                          ? selectedComponent.label === result.obj.label
+                          : false
+                      }
                       onClick={() => {
-                        setSelectedComponent(result.obj.label)
+                        setSelectedComponent({ type: 'sensor', label: result.obj.label })
                       }}
                     />
                   ))}
@@ -270,9 +332,13 @@ const ExplorerSidebar = () => {
               <Accordion.Root type="multiple" defaultValue={['sensors']}>
                 {sled ? (
                   <>
-                    <SensorGroup value="sensors" items={allSensors} />
-                    <SensorGroup value="fans" items={[]} />
-                    <SensorGroup value="regulators" items={[]} />
+                    <SensorGroup value="sensors" type="sensor" items={sensorArray} />
+                    <SensorGroup value="fans" type="fan" items={fanArray} />
+                    <SensorGroup
+                      value="regulators"
+                      type="regulator"
+                      items={regulatorArray}
+                    />
                   </>
                 ) : (
                   <SledGroup
@@ -299,7 +365,15 @@ type SensorItemType = {
   showUrgent?: boolean
 }
 
-const SensorGroup = ({ value, items }: { value: string; items: SensorItemType[] }) => {
+const SensorGroup = ({
+  value,
+  items,
+  type,
+}: {
+  value: string
+  items: SensorItemType[]
+  type: 'sensor' | 'fan' | 'regulator'
+}) => {
   const { selectedComponent, setSelectedComponent } = useMonitoring()
 
   return (
@@ -318,9 +392,14 @@ const SensorGroup = ({ value, items }: { value: string; items: SensorItemType[] 
           <SensorItem
             key={sensor.label}
             sensor={sensor}
-            isSelected={selectedComponent === sensor.label}
+            isSelected={
+              selectedComponent
+                ? selectedComponent.type === type &&
+                  selectedComponent.label === sensor.label
+                : false
+            }
             onClick={() => {
-              setSelectedComponent(sensor.label)
+              setSelectedComponent({ type, label: sensor.label })
             }}
           />
         ))}

@@ -15,9 +15,9 @@ import {
   normalizedRackSize,
   normalizedSledSize,
   rackSize,
+  sensorRanges,
   sensors,
   sledSize,
-  temperatureRanges,
   type SensorValues,
 } from './data'
 
@@ -73,7 +73,7 @@ const SledHeatmap = ({
         width: (sensor.size.x / sledSize.x) * canvasWidth,
         height: (sensor.size.z / sledSize.z) * canvasHeight,
         value: temperature,
-        max: temperatureRanges[sensor.type][2],
+        max: sensorRanges[sensor.type][2],
         distance: 1,
       })
     }
@@ -176,7 +176,7 @@ const RackHeatmap = ({
           width: (sensor.size[dimension1] / rackSize[dimension1]) * canvasWidth,
           height: (sensor.size[dimension2] / rackSize[dimension2]) * canvasHeight,
           value: temperature,
-          max: temperatureRanges[sensor.type][2],
+          max: sensorRanges[sensor.type][2],
           distance: 0.2,
         })
       }

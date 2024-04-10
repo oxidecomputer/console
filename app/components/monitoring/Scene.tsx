@@ -18,6 +18,7 @@ import {
 } from '@react-three/fiber'
 import {
   useEffect,
+  useMemo,
   useRef,
   useState,
   type Dispatch,
@@ -33,26 +34,33 @@ import {
   type OrthographicCamera as OrthographicCameraType,
 } from 'three'
 
-import { maxZoom, minZoom, useMonitoring } from 'app/pages/system/monitoring/ExplorerPage'
+import {
+  maxZoom,
+  minZoom,
+  useMonitoring,
+  type SelectedComponent,
+} from 'app/pages/system/monitoring/ExplorerPage'
 
 import {
+  fans,
+  generateSensorValue,
   getSledPosition,
   rackSize,
+  sensorRanges,
   sensors,
   sledSize,
-  temperatureRanges,
   type Sensor as SensorType,
   type SensorValues,
 } from './data'
-import { RackHeatmap, SledHeatmap } from './Heatmap'
+import { SledHeatmap } from './Heatmap'
 import { Select } from './Select'
 import { useMonitoringStore } from './Store'
-import { Cuboid, Cylinder, FanLine } from './WireframePrimitives'
+import { Cuboid, Cylinder } from './WireframePrimitives'
 
 const defaultSledZoom = 12
 const defaultRackZoom = 3
 
-const Scene = ({
+export const Scene = ({
   setZoom,
   cameraRef,
 }: {
@@ -60,10 +68,11 @@ const Scene = ({
   cameraRef: RefObject<OrthographicCameraType> | undefined
 }) => {
   const { sled } = useMonitoring()
-
   const { center, position, rotation } = getCameraPositionRotation(
     sled !== undefined ? getSledBounds(sled) : getRackBounds()
   )
+
+  const centerRef = useRef(center)
 
   const defaultCamera = useRef({
     position,
@@ -89,18 +98,20 @@ const Scene = ({
           minZoom={minZoom}
           maxZoom={maxZoom}
           rotateSpeed={1}
-          target={center}
+          target={centerRef.current}
           maxPolarAngle={Math.PI / 2}
         />
-        <Grid
-          cellSize={0.025}
-          sectionSize={0.05}
-          sectionColor="#373F41"
-          scale={100}
-          position={[0, -0.5, 0]}
-          fadeDistance={1000}
-          fadeStrength={0}
-        />
+        {sled === undefined && (
+          <Grid
+            cellSize={0.025}
+            sectionSize={0.05}
+            sectionColor="#373F41"
+            scale={100}
+            position={[0, -0.5, 0]}
+            fadeDistance={1000}
+            fadeStrength={0}
+          />
+        )}
         <SceneInner cameraRef={cameraRef} />
       </Canvas>
     </>
@@ -262,14 +273,25 @@ const Sled = (props: { visible: boolean }) => {
 }
 
 const Rack = (props: { visible: boolean }) => {
-  const { sensorDataArray, selectedTime } = useMonitoring()
-  const sensorData = sensorDataArray[selectedTime || 0]
+  const { sensorDataArray } = useMonitoring()
+
+  // An array that gives us 0-31 in a random order
+  // We can use this to use a random sensor time for each sled
+  // That way we have random data without needing to generate the current data x 32
+  const arr = useMemo(() => {
+    const array = Array.from({ length: 32 }, (_, index) => index)
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      ;[array[i], array[j]] = [array[j], array[i]] // Swap elements
+    }
+    return array
+  }, [])
 
   const sleds = Array.from({ length: 32 })
   const { sled } = useMonitoring()
   return (
     <mesh name="rack">
-      <mesh visible={props.visible}>
+      {/* <mesh visible={props.visible}>
         <RackHeatmap
           position={[0, rackSize.y / 2, rackSize.z / 2]}
           scale={[rackSize.x, rackSize.y, 1]}
@@ -294,12 +316,13 @@ const Rack = (props: { visible: boolean }) => {
           dimension1="x"
           dimension2="z"
         />
-      </mesh>
+      </mesh> */}
       {sleds.map((_, index) => (
         <RackSled
           key={index}
           position={getSledPosition(index) as Vector3}
           index={index}
+          data={sensorDataArray[arr[index]]}
           disabled={!!sled}
           visible={props.visible}
         />
@@ -325,19 +348,34 @@ const RackSled = ({
   index: number
   disabled: boolean
   visible: boolean
+  data: SensorValues
 }) => {
   const navigate = useNavigate()
   const { fitSled } = useMonitoringStore()
   const { setSelectedComponent } = useMonitoring()
+
+  const { color, isUnhealthy } = useMemo(() => {
+    const temperature = generateSensorValue(20, 40, 60)
+    const temperatureRange = sensorRanges['air']
+    const isUnhealthy = temperature >= temperatureRange[1]
+
+    const noticeColor = new Color('#F5B944')
+
+    const color = isUnhealthy ? noticeColor.toHexString() : '#7E8385'
+
+    return { color, isUnhealthy }
+  }, [])
 
   return (
     <Cube
       position={position}
       scale={Object.values(sledSize) as Vector3}
       selectScaleOffset={2.5}
-      color="#7E8385"
+      // color="#7E8385"
+      color={color}
       name={`Sled ${index}`}
       isSelected={false}
+      isUnhealthy={isUnhealthy}
       disabled={disabled}
       transparent={!visible}
       handleClick={(e: ThreeEvent<MouseEvent>) => {
@@ -406,15 +444,6 @@ export function Cube({
 
   return (
     <mesh {...props} name={name} onClick={handleClick}>
-      {/* {isSelected && (
-        <Html className="pointer-events-none w-[240px] rounded border text-sans-md text-tertiary bg-raise border-secondary elevation-2">
-          <div className="border-b px-3 py-2 border-secondary">Jan 6, 2022, 2:46:00 PM</div>
-          <div className="px-3 py-2">
-            <div className="text-sans-semi-md text-secondary">{props.name}</div>
-            <div>32</div>
-          </div>
-        </Html>
-      )} */}
       {/* Roughly shrink the box to smaller than the stroke so it doesn't look smaller
          at different angles */}
       <mesh
@@ -443,38 +472,83 @@ export function Cube({
   )
 }
 
-const Fans = () => (
-  <mesh position={[(sledSize.x / 4) * 2.95, sledSize.y / 2, sledSize.z / 2]}>
-    <Cuboid color="#2D3335" scale={[sledSize.x / 10, sledSize.y, sledSize.z]} />
-    <SpinningFan speed={1} offset={8.5} />
-    <SpinningFan speed={1} />
-    <SpinningFan speed={1} offset={-8.5} />
-  </mesh>
-)
+const Fans = () => {
+  const { selectedComponent, setSelectedComponent } = useMonitoring()
 
-const SpinningFan = ({
-  speed,
-  offset = 0,
-  ...props
-}: { speed: number; offset?: number } & MeshProps) => {
+  return (
+    <mesh position={[(sledSize.x / 4) * 2.95, sledSize.y / 2, sledSize.z / 2]}>
+      <Cuboid color="#2D3335" scale={[sledSize.x / 10, sledSize.y, sledSize.z]} />
+      <Select
+        selected={selectedComponent}
+        setSelected={(value) => setSelectedComponent(value)}
+      >
+        {fans.map((fan) => (
+          <SpinningFan
+            key={fan.label}
+            label={fan.label}
+            position={Object.values(fan.position) as Vector3}
+          />
+        ))}
+      </Select>
+    </mesh>
+  )
+}
+
+const SpinningFan = ({ label, ...props }: { label: string } & MeshProps) => {
+  const { sled, selectedComponent } = useMonitoring()
   const ref = useRef<Mesh>(null)
+  const [hovered, setHover] = useState(false)
+
+  const disabled = sled === undefined
+
+  const speed = 1
+
   useFrame((state, delta) => {
     if (ref.current) {
       ref.current.rotation.y += speed * delta
     }
   })
 
+  useCursor(hovered)
+
+  useEffect(() => {
+    setHover(false)
+  }, [sled])
+
+  const isSelected = label === selectedComponent?.label && selectedComponent?.type === 'fan'
+
+  const radius = 0.05
+  const length = 0.025
+
   return (
     <mesh
-      position={[0, 0, offset]}
+      position={props.position}
       rotation={[0, 0, -Math.PI / 2]}
       {...props}
       scale={sledSize.x}
+      name={`fan ${label}`}
     >
       <mesh ref={ref}>
-        <Cylinder radius={0.025} length={0.025} sides={8} color="#2D3335" />
+        <Cylinder radius={radius} length={length} sides={8} color="#2D3335" />
+        <mesh
+          scale={[radius, length, radius]}
+          onPointerOver={
+            !disabled ? (e) => (e.stopPropagation(), setHover(true)) : undefined
+          }
+          onPointerOut={!disabled ? () => setHover(false) : undefined}
+        >
+          <meshBasicMaterial attach="material" transparent opacity={hovered ? 0.15 : 0.0} />
+          <cylinderGeometry attach="geometry" args={[1, 1, 1, 8]} />
+        </mesh>
+
+        <Cylinder
+          visible={isSelected}
+          radius={radius + 0.005}
+          length={length}
+          sides={8}
+          color="#48D597"
+        />
       </mesh>
-      <FanLine timeOffset={offset} />
     </mesh>
   )
 }
@@ -486,7 +560,7 @@ const Sensor = ({
 }: {
   data: SensorType
   sensorValues: SensorValues
-  selectedComponent: string | null
+  selectedComponent: SelectedComponent | null
 }) => {
   const position = [
     data.position.x + data.size.x / 2,
@@ -495,7 +569,7 @@ const Sensor = ({
   ] as Vector3
 
   const temperature = sensorValues[data.label]
-  const temperatureRange = temperatureRanges[data.type]
+  const temperatureRange = sensorRanges[data.type]
   const isUnhealthy = temperature >= temperatureRange[1]
 
   const noticeColor = new Color('#F5B944')
@@ -508,19 +582,18 @@ const Sensor = ({
 
   const color = isUnhealthy ? unhealthyColor.toHexString() : '#7E8385'
 
-  const isSelected = data.label === selectedComponent
+  const isSelected =
+    data.label === selectedComponent?.label && selectedComponent?.type === 'sensor'
 
   return (
-    <>
-      <Cube
-        scale={Object.values(data.size) as Vector3}
-        position={position}
-        name={data.label}
-        isSelected={isSelected}
-        color={color}
-        isUnhealthy={isUnhealthy}
-      />
-    </>
+    <Cube
+      scale={Object.values(data.size) as Vector3}
+      position={position}
+      name={`sensor ${data.label}`}
+      isSelected={isSelected}
+      color={color}
+      isUnhealthy={isUnhealthy}
+    />
   )
 }
 
@@ -530,5 +603,3 @@ function addToScale(scale: Vector3, offset: number) {
     typeof scale === 'number' ? 1 + (1 / scale) * offset : scale
   ) as [number, number, number]
 }
-
-export default Scene

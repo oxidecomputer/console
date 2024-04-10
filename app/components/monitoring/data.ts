@@ -41,15 +41,17 @@ export function getSledPosition(index: number) {
 }
 
 // sensorType: [healthyMax, healthyMax, unhealthy]
-export const temperatureRanges = {
+export const sensorRanges = {
   cpu: [30, 70, 85],
   u2: [0, 60, 70],
   m2: [0, 60, 70],
   air: [20, 40, 45],
   dimm: [20, 45, 60],
+  fan: [1200, 3200, 4000],
+  regulator: [8, 12, 32],
 } as const
 
-type SensorTypeKeys = keyof typeof temperatureRanges
+type SensorTypeKeys = keyof typeof sensorRanges
 
 export type Sensor = {
   label: string
@@ -277,49 +279,172 @@ export const sensors: Sensor[] = [
   },
 ]
 
+export type Fan = {
+  label: string
+  position: { x: number; y: number; z: number }
+  type: 'fan'
+}
+
+export const fans: Fan[] = [
+  {
+    label: 'FAN_NE',
+    position: { x: -1, y: 0, z: 8 },
+    type: 'fan',
+  },
+  {
+    label: 'FAN_N',
+    position: { x: -1, y: 0, z: 0 },
+    type: 'fan',
+  },
+  {
+    label: 'FAN_NW',
+    position: { x: -1, y: 0, z: -8 },
+    type: 'fan',
+  },
+]
+
+export type Regulator = {
+  label: string
+  type: 'regulator'
+}
+
+export const regulators: Regulator[] = [
+  {
+    label: 'V12_SYS_A2',
+    type: 'regulator',
+  },
+  {
+    label: 'V54_FAN',
+    type: 'regulator',
+  },
+  {
+    label: 'V12_U2A_A0',
+    type: 'regulator',
+  },
+  {
+    label: 'V12_U2B_A0',
+    type: 'regulator',
+  },
+  {
+    label: 'V12_U2C_A0',
+    type: 'regulator',
+  },
+  {
+    label: 'V12_U2D_A0',
+    type: 'regulator',
+  },
+  {
+    label: 'V12_U2E_A0',
+    type: 'regulator',
+  },
+  {
+    label: 'V12_U2F_A0',
+    type: 'regulator',
+  },
+  {
+    label: 'V12_U2G_A0',
+    type: 'regulator',
+  },
+  {
+    label: 'V12_U2H_A0',
+    type: 'regulator',
+  },
+  {
+    label: 'V12_U2I_A0',
+    type: 'regulator',
+  },
+  {
+    label: 'V12_U2J_A0',
+    type: 'regulator',
+  },
+  {
+    label: 'VDD_VCORE',
+    type: 'regulator',
+  },
+]
+
 export type SensorValues = Record<string, number>
 
 export function generateMockSensorData() {
   const mockData: SensorValues = {}
 
   sensors.forEach((sensor) => {
-    const range = temperatureRanges[sensor.type]
+    const range = sensorRanges[sensor.type]
     const normalMin = range[0]
     const normalMax = range[1]
     const unhealthy = range[2]
 
-    // Determine the center of the normal range
-    const normalCenter = (normalMin + normalMax) / 2
-
-    // Randomly decide the value category
-    const rand = Math.random()
-    let value
-
-    // Center of normal
-    let fluctuation = (normalMax - normalMin) * 0.1 * Math.random() // 10% of the normal range
-    fluctuation = fluctuation / 2 + fluctuation
-    if (rand < 1 / 50) {
-      // Close to unhealthy
-      value = unhealthy - (unhealthy - normalMax) * (0.1 * Math.random()) + fluctuation
-    } else if (rand < 1 / 25) {
-      // On the higher end of normal
-      value = normalMax - (normalMax - normalCenter) * (0.25 * Math.random()) + fluctuation
-    } else {
-      value = normalCenter + fluctuation
-    }
-
-    mockData[sensor.label] = Math.round(value * 100) / 100
+    mockData[sensor.label] = generateSensorValue(normalMin, normalMax, unhealthy)
   })
 
   return mockData
 }
 
-export function walkSensorValues(sensorValues: SensorValues): SensorValues {
+export function generateMockFanData() {
+  const mockData: SensorValues = {}
+
+  fans.forEach((fan) => {
+    const normalMin = 1200
+    const normalMax = 3200
+    const unhealthy = 4000
+
+    mockData[fan.label] = generateSensorValue(normalMin, normalMax, unhealthy)
+  })
+
+  return mockData
+}
+
+export function generateMockRegulatorData() {
+  const mockData: SensorValues = {}
+
+  regulators.forEach((regulator) => {
+    const normalMin = 8
+    const normalMax = 12
+    const unhealthy = 32
+
+    mockData[regulator.label] = generateSensorValue(normalMin, normalMax, unhealthy)
+  })
+
+  return mockData
+}
+
+export function generateSensorValue(
+  normalMin: number,
+  normalMax: number,
+  unhealthy: number
+) {
+  // Determine the center of the normal range
+  const normalCenter = (normalMin + normalMax) / 2
+
+  // Randomly decide the value category
+  const rand = Math.random()
+  let value
+
+  // Center of normal
+  let fluctuation = (normalMax - normalMin) * 0.1 * Math.random() // 10% of the normal range
+  fluctuation = fluctuation / 2 + fluctuation
+  if (rand < 1 / 50) {
+    // Close to unhealthy
+    value = unhealthy - (unhealthy - normalMax) * (0.1 * Math.random()) + fluctuation
+  } else if (rand < 1 / 25) {
+    // On the higher end of normal
+    value = normalMax - (normalMax - normalCenter) * (0.25 * Math.random()) + fluctuation
+  } else {
+    value = normalCenter + fluctuation
+  }
+
+  return Math.round(value * 100) / 100
+}
+
+export function walkSensorValues(
+  sensorValues: SensorValues,
+  sensors: Sensor[] | Fan[] | Regulator[]
+): SensorValues {
   const walkedValues: SensorValues = {}
 
   Object.entries(sensorValues).forEach(([label, value]) => {
     const sensor = sensors.find((s) => s.label === label)
-    const tRange = sensor ? temperatureRanges[sensor.type] : [30, 50, 80]
+    const tRange = sensor ? sensorRanges[sensor.type] : [30, 50, 80]
     const midpoint = (tRange[0] + tRange[1]) / 2
 
     // Adjust the probability of direction based on how far the value
@@ -348,13 +473,14 @@ export function walkSensorValues(sensorValues: SensorValues): SensorValues {
 
 export function generateSensorValuesArray(
   initialSensorValues: SensorValues,
+  sensors: Sensor[] | Fan[] | Regulator[],
   steps = 200
 ): SensorValues[] {
   let currentSensorValues = initialSensorValues
   const sensorValuesArray: SensorValues[] = []
 
   for (let i = 0; i < steps; i++) {
-    currentSensorValues = walkSensorValues(currentSensorValues)
+    currentSensorValues = walkSensorValues(currentSensorValues, sensors)
     sensorValuesArray.push(currentSensorValues)
   }
 
@@ -362,3 +488,5 @@ export function generateSensorValuesArray(
 }
 
 export const sensorValues: SensorValues = generateMockSensorData()
+export const fanValues: SensorValues = generateMockFanData()
+export const regulatorValues: SensorValues = generateMockRegulatorData()

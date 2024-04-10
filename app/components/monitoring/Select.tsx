@@ -2,10 +2,12 @@ import type { ThreeEvent } from '@react-three/fiber'
 import { useCallback, useRef, useState } from 'react'
 import type { Group, Object3D } from 'three'
 
+import type { SelectedComponent } from '~/pages/system/monitoring/ExplorerPage'
+
 type Props = JSX.IntrinsicElements['group'] & {
   disabled?: boolean
-  selected: string | null
-  setSelected: (value: string | null) => void
+  selected: SelectedComponent | null
+  setSelected: (value: SelectedComponent | null) => void
 }
 
 export function Select({ children, disabled = false, setSelected, ...props }: Props) {
@@ -37,12 +39,10 @@ export function Select({ children, disabled = false, setSelected, ...props }: Pr
         return
       }
 
-      const name = e.object.name
-
       let object: Object3D | null = null
       if (e.object === undefined) {
         return
-      } else if (e.object && !name) {
+      } else if (e.object && !e.object.name) {
         let tries = 0
         // Traverse the parent hierarchy until you find the nearest element with a "name"
         // Stops at 4 tries so it doesn't traverse the whole scene unecessarily
@@ -57,7 +57,10 @@ export function Select({ children, disabled = false, setSelected, ...props }: Pr
       }
 
       if (object) {
-        setSelected(object.name)
+        const nameAndType = object.name.split(' ')
+        const type = nameAndType[0] as SelectedComponent['type']
+        const name = nameAndType[1]
+        setSelected({ type: type, label: name })
       }
     },
     [disabled, setSelected, mouseDownPosition]
