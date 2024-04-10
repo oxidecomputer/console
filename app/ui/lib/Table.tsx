@@ -141,4 +141,4 @@ export const TableControlsLink = (props: LinkProps) => (
   <Link className={buttonStyle({ size: 'sm' })} {...props} />
 )
 
-export const TableTitle = classed.div`mb-4 text-mono-sm text-secondary`
+export const TableTitle = classed.div`mb-4 text-sans-lg text-secondary`

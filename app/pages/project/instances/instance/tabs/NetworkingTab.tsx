@@ -328,7 +328,7 @@ export function NetworkingTab() {
   return (
     <>
       <div className="mb-3 flex items-baseline justify-between">
-        <TableTitle id="nic-label">Network Interfaces</TableTitle>
+        <TableTitle id="nics-label">Network Interfaces</TableTitle>
         <Button
           size="sm"
           onClick={() => setCreateModalOpen(true)}
@@ -351,7 +351,7 @@ export function NetworkingTab() {
         )}
       </div>
       {rows?.length && rows.length > 0 ? (
-        <Table aria-labelledby="nic-label" table={tableInstance} />
+        <Table aria-labelledby="nics-label" table={tableInstance} />
       ) : (
         <TableEmptyBox>
           <EmptyMessage
