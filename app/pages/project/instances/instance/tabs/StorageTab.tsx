@@ -31,7 +31,6 @@ import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { Button } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
-import { TableControls, TableTitle } from '~/ui/lib/Table'
 
 import { fancifyStates } from './common'
 
@@ -169,12 +168,7 @@ export function StorageTab() {
 
   return (
     <>
-      <TableControls>
-        <TableTitle id="disks-label">Disks</TableTitle>
-      </TableControls>
-      {/* TODO: need 40px high rows. another table or a flag on Table (ew) */}
-
-      <Table emptyState={emptyState} aria-labelledby="disks-label" columns={columns} />
+      <Table emptyState={emptyState} columns={columns} />
       <div className="mt-4 flex flex-col gap-3">
         <div className="flex gap-3">
           <Button
