@@ -20,10 +20,14 @@ function FloatingIpLabel({ fip }: { fip: FloatingIp }) {
       <div>{fip.name}</div>
       <div className="flex gap-0.5">
         <div>{fip.ip}</div>
-        <span className="mx-1 text-quinary selected:text-accent-disabled">/</span>
-        <div className="flex-grow overflow-hidden overflow-ellipsis whitespace-pre text-left">
-          {fip.description || '—'}
-        </div>
+        {fip.description && (
+          <>
+            <span className="mx-1 text-quinary selected:text-accent-disabled">/</span>
+            <div className="flex-grow overflow-hidden overflow-ellipsis whitespace-pre text-left">
+              {fip.description}
+            </div>
+          </>
+        )}
       </div>
     </div>
   )
