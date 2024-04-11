@@ -78,7 +78,7 @@ test('Instance networking tab — NIC table', async ({ page }) => {
   await expect(nic3).toBeHidden()
 })
 
-test('Instance networking tab — External IPs', async ({ page }) => {
+test('Instance networking tab — External IPs', async ({ page }) => {
   await page.goto('/projects/mock-project/instances/db1/network-interfaces')
   const externalIpTable = page.getByRole('table', { name: 'External IPs' })
 
@@ -88,7 +88,7 @@ test('Instance networking tab — External IPs', async ({ page }) => {
 
   // Attach a new external IP
   await page.click('role=button[name="Attach floating IP"]')
-  await expectVisible(page, ['role=heading[name="Attach Floating IP"]'])
+  await expectVisible(page, ['role=heading[name="Attach floating IP"]'])
 
   // Select the 'rootbeer-float' option
   const dialog = page.getByRole('dialog')
