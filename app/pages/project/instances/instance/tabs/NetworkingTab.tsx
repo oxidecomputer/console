@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
@@ -82,6 +82,11 @@ NetworkingTab.loader = async ({ params }: LoaderFunctionArgs) => {
     apiQueryClient.prefetchQuery('floatingIpList', {
       query: { project, limit: 1000 },
     }),
+    // dupe of page-level fetch but that's fine, RQ dedupes
+    apiQueryClient.prefetchQuery('instanceExternalIpList', {
+      path: { instance },
+      query: { project },
+    }),
     // This is covered by the InstancePage loader but there's no downside to
     // being redundant. If it were removed there, we'd still want it here.
     apiQueryClient.prefetchQuery('instanceView', {
@@ -132,7 +137,7 @@ export function NetworkingTab() {
     query: { project, limit: 1000 },
   })
   // Filter out the IPs that are already attached to an instance
-  const availableIps = ips?.items.filter((ip) => !ip.instanceId)
+  const availableIps = useMemo(() => ips.items.filter((ip) => !ip.instanceId), [ips])
 
   const createNic = useApiMutation('instanceNetworkInterfaceCreate', {
     onSuccess() {
@@ -210,9 +215,9 @@ export function NetworkingTab() {
 
   const columns = useColsWithActions(staticCols, makeActions)
 
-  const rows = useApiQuery('instanceNetworkInterfaceList', {
-    query: instanceSelector,
-  }).data?.items
+  const rows = usePrefetchedApiQuery('instanceNetworkInterfaceList', {
+    query: { ...instanceSelector, limit: 1000 },
+  }).data.items
 
   const tableInstance = useReactTable({
     columns,
@@ -221,11 +226,10 @@ export function NetworkingTab() {
   })
 
   // Attached IPs Table
-  const { data: ipData } = useApiQuery('instanceExternalIpList', {
+  const { data: eips } = usePrefetchedApiQuery('instanceExternalIpList', {
     path: { instance: instanceName },
     query: { project },
   })
-  const attachedIpCount = ipData?.items?.length || 0
 
   const ipColHelper = createColumnHelper<ExternalIp>()
   const staticIpCols = [
@@ -303,19 +307,16 @@ export function NetworkingTab() {
 
   const ipTableInstance = useReactTable({
     columns: useColsWithActions(staticIpCols, makeIpActions),
-    data: ipData?.items || [],
+    data: eips?.items || [],
     getCoreRowModel: getCoreRowModel(),
   })
 
   const disabledReason =
-    attachedIpCount >= 32 ? (
-      <>
-        IP address limit reached for this instance. You can have up to 32 total, including 1
-        ephemeral IP.
-      </>
-    ) : availableIps?.length === 0 ? (
-      <>No available floating IPs.</>
-    ) : null
+    eips.items.length >= 32
+      ? 'IP address limit of 32 reached for this instance'
+      : availableIps.length === 0
+        ? 'No available floating IPs'
+        : null
 
   return (
     <>
