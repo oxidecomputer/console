@@ -12,8 +12,9 @@ import { Link, Outlet, type LoaderFunctionArgs } from 'react-router-dom'
 import { apiQueryClient, useApiMutation, useApiQueryClient, type Image } from '@oxide/api'
 import { Images24Icon } from '@oxide/design-system/icons/react'
 
-import { getProjectSelector, useProjectSelector, useToast } from '~/hooks'
+import { getProjectSelector, useProjectSelector } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
+import { addToast } from '~/stores/toast'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { getActionsCol, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
@@ -50,7 +51,6 @@ export function ImagesPage() {
   const { project } = useProjectSelector()
   const { Table } = useQueryTable('imageList', { query: { project } })
   const queryClient = useApiQueryClient()
-  const addToast = useToast()
 
   const [promoteImageName, setPromoteImageName] = useState<string | null>(null)
 
@@ -121,7 +121,7 @@ type PromoteModalProps = { onDismiss: () => void; imageName: string }
 const PromoteImageModal = ({ onDismiss, imageName }: PromoteModalProps) => {
   const { project } = useProjectSelector()
   const queryClient = useApiQueryClient()
-  const addToast = useToast()
+
   const promoteImage = useApiMutation('imagePromote', {
     onSuccess(data) {
       addToast({

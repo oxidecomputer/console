@@ -13,7 +13,8 @@ import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { useForm, useProjectSelector, useToast } from '~/hooks'
+import { useForm, useProjectSelector } from '~/hooks'
+import { addToast } from '~/stores/toast'
 import { pb } from '~/util/path-builder'
 
 const defaultValues: VpcCreate = {
@@ -25,7 +26,6 @@ const defaultValues: VpcCreate = {
 export function CreateVpcSideModalForm() {
   const projectSelector = useProjectSelector()
   const queryClient = useApiQueryClient()
-  const addToast = useToast()
   const navigate = useNavigate()
 
   const createVpc = useApiMutation('vpcCreate', {

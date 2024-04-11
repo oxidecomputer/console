@@ -20,7 +20,8 @@ import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { useForm, useProjectSelector, useToast } from '~/hooks'
+import { useForm, useProjectSelector } from '~/hooks'
+import { addToast } from '~/stores/toast'
 import { pb } from '~/util/path-builder'
 
 const useSnapshotDiskItems = (projectSelector: PP.Project) => {
@@ -43,7 +44,6 @@ const defaultValues: SnapshotCreate = {
 export function CreateSnapshotSideModalForm() {
   const queryClient = useApiQueryClient()
   const projectSelector = useProjectSelector()
-  const addToast = useToast()
   const navigate = useNavigate()
 
   const diskItems = useSnapshotDiskItems(projectSelector)

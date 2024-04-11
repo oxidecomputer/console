@@ -17,7 +17,8 @@ import { RadioField } from '~/components/form/fields/RadioField'
 import { TextField } from '~/components/form/fields/TextField'
 import { TlsCertsField } from '~/components/form/fields/TlsCertsField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { useForm, useToast } from '~/hooks'
+import { useForm } from '~/hooks'
+import { addToast } from '~/stores/toast'
 import { FormDivider } from '~/ui/lib/Divider'
 import { pb } from '~/util/path-builder'
 import { GiB } from '~/util/units'
@@ -50,7 +51,6 @@ function validateQuota(value: number) {
 export function CreateSiloSideModalForm() {
   const navigate = useNavigate()
   const queryClient = useApiQueryClient()
-  const addToast = useToast()
 
   const onDismiss = () => navigate(pb.silos())
 
