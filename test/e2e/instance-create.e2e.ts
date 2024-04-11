@@ -71,7 +71,7 @@ test('can create an instance', async ({ page }) => {
 
   // network tab works
   await page.getByRole('tab', { name: 'Networking' }).click()
-  const table = page.getByRole('table')
+  const table = page.getByRole('table', { name: 'Network interfaces' })
   await expectRowVisible(table, {
     name: 'defaultprimary',
     vpc: 'mock-vpc',

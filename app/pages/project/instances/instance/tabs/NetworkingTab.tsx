@@ -268,8 +268,16 @@ export function NetworkingTab() {
 
   const makeIpActions = useCallback(
     (externalIp: ExternalIp): MenuAction[] => {
+      const copyAction = {
+        label: 'Copy IP address',
+        onActivate: () => {
+          window.navigator.clipboard.writeText(externalIp.ip)
+        },
+      }
+
       if (externalIp.kind === 'floating') {
         return [
+          copyAction,
           {
             label: 'Detach',
             onActivate: () =>
@@ -293,19 +301,9 @@ export function NetworkingTab() {
           },
         ]
       }
-      // TODO: Add actions for ephemeral IPs, or hide actions from column
-      // Below is a placeholder for now
-      return [
-        {
-          label: 'Copy IP address',
-          onActivate: () => {
-            window.navigator.clipboard.writeText(externalIp.ip)
-            addToast({ content: 'IP address copied to clipboard' })
-          },
-        },
-      ]
+      return [copyAction]
     },
-    [addToast, floatingIpDetach, instanceName, project]
+    [floatingIpDetach, instanceName, project]
   )
 
   const ipTableInstance = useReactTable({

@@ -34,9 +34,9 @@ test('can create a NIC with a specified IP address', async ({ page }) => {
   await sidebar.getByRole('button', { name: 'Add network interface' }).click()
   await expect(sidebar).toBeHidden()
 
-  await expectRowVisible(page.getByRole('table'), {
+  await expectRowVisible(page.getByRole('table', { name: 'Network interfaces' }), {
     name: 'nic-1',
-    'Internal IP': '1.2.3.4',
+    'Private IP': '1.2.3.4',
   })
 })
 
@@ -77,8 +77,8 @@ test('can create a NIC with a blank IP address', async ({ page }) => {
   await expect(sidebar).toBeHidden()
 
   // ip address is auto-assigned
-  await expectRowVisible(page.getByRole('table'), {
+  await expectRowVisible(page.getByRole('table', { name: 'Network interfaces' }), {
     name: 'nic-2',
-    'Internal IP': '123.45.68.8',
+    'Private IP': '123.45.68.8',
   })
 })
