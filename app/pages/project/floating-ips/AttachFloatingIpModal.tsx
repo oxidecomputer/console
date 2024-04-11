@@ -9,8 +9,8 @@
 import { useForm } from 'react-hook-form'
 
 import { useApiMutation, useApiQueryClient, type FloatingIp, type Instance } from '~/api'
+import { ListboxField } from '~/components/form/fields/ListboxField'
 import { addToast } from '~/stores/toast'
-import { Listbox } from '~/ui/lib/Listbox'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 
@@ -45,7 +45,7 @@ export const AttachFloatingIpModal = ({
     onSuccess() {
       queryClient.invalidateQueries('floatingIpList')
       queryClient.invalidateQueries('instanceExternalIpList')
-      addToast({ content: 'Your Floating IP has been attached' })
+      addToast({ content: 'Your floating IP has been attached' })
       onDismiss()
     },
     onError: (err) => {
@@ -53,6 +53,7 @@ export const AttachFloatingIpModal = ({
     },
   })
   const form = useForm({ defaultValues: { floatingIp: '' } })
+  const floatingIp = form.watch('floatingIp')
 
   return (
     <Modal isOpen title="Attach floating IP" onDismiss={onDismiss}>
@@ -63,30 +64,27 @@ export const AttachFloatingIpModal = ({
             content={`Instance ‘${instance.name}’ will be reachable at the selected IP address`}
           />
           <form>
-            <Listbox
+            <ListboxField
+              control={form.control}
               name="floatingIp"
+              label="Floating IP"
+              placeholder="Select floating IP"
               items={floatingIps.map((ip) => ({
                 value: ip.id,
                 label: <FloatingIpLabel fip={ip} />,
                 labelString: ip.name,
               }))}
-              label="Floating IP"
-              onChange={(e) => {
-                form.setValue('floatingIp', e)
-              }}
               required
-              placeholder="Select floating IP"
-              selected={form.watch('floatingIp')}
             />
           </form>
         </Modal.Section>
       </Modal.Body>
       <Modal.Footer
         actionText="Attach"
-        disabled={!form.getValues('floatingIp')}
+        disabled={!floatingIp}
         onAction={() =>
           floatingIpAttach.mutate({
-            path: { floatingIp: form.getValues('floatingIp')! },
+            path: { floatingIp },
             query: { project },
             body: { kind: 'instance', parent: instance.id },
           })
