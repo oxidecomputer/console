@@ -24,15 +24,11 @@ import { Networking24Icon } from '@oxide/design-system/icons/react'
 import { HL } from '~/components/HL'
 import { CreateNetworkInterfaceForm } from '~/forms/network-interface-create'
 import { EditNetworkInterfaceForm } from '~/forms/network-interface-edit'
-import {
-  getInstanceSelector,
-  useInstanceSelector,
-  useProjectSelector,
-  useToast,
-} from '~/hooks'
+import { getInstanceSelector, useInstanceSelector, useProjectSelector } from '~/hooks'
 import { AttachFloatingIpModal } from '~/pages/project/floating-ips/AttachFloatingIpModal'
 import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
+import { addToast } from '~/stores/toast'
 import { EmptyCell, SkeletonCell } from '~/table/cells/EmptyCell'
 import { LinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
@@ -126,7 +122,6 @@ export function NetworkingTab() {
   const { instance: instanceName, project } = instanceSelector
 
   const queryClient = useApiQueryClient()
-  const addToast = useToast()
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [editing, setEditing] = useState<InstanceNetworkInterface | null>(null)
