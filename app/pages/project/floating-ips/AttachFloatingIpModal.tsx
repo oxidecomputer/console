@@ -37,7 +37,7 @@ export const AttachFloatingIpModal = ({
       addToast({ title: 'Error', content: err.message, variant: 'error' })
     },
   })
-  const form = useForm({ defaultValues: { floatingIp: '', instanceId: instance?.id } })
+  const form = useForm({ defaultValues: { floatingIp: '' } })
 
   return (
     <Modal isOpen title="Attach Floating IP" onDismiss={onDismiss}>
@@ -45,16 +45,9 @@ export const AttachFloatingIpModal = ({
         <Modal.Section>
           <Message
             variant="info"
-            content={
-              <>
-                The ‘{instance.name}’ instance will be reachable at the selected IP address
-              </>
-            }
-          ></Message>
+            content={`Instance ‘${instance.name}’ will be reachable at the selected IP address`}
+          />
           <form>
-            {instance && (
-              <input type="hidden" {...form.register('instanceId')} value={instance.id} />
-            )}
             <Listbox
               name="floatingIp"
               items={floatingIps.map((ip) => ({
@@ -88,12 +81,12 @@ export const AttachFloatingIpModal = ({
       </Modal.Body>
       <Modal.Footer
         actionText="Attach"
-        disabled={!(form.getValues('floatingIp') && form.getValues('instanceId'))}
+        disabled={!form.getValues('floatingIp')}
         onAction={() =>
           floatingIpAttach.mutate({
             path: { floatingIp: form.getValues('floatingIp')! },
             query: { project },
-            body: { kind: 'instance', parent: form.getValues('instanceId') },
+            body: { kind: 'instance', parent: instance.id },
           })
         }
         onDismiss={onDismiss}
