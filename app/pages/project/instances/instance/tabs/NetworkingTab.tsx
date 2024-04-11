@@ -108,8 +108,7 @@ const staticCols = [
     ),
   }),
   colHelper.accessor('description', Columns.description),
-  // TODO: Revisit title of 'Internal' vs. 'Private', etc.
-  colHelper.accessor('ip', { header: 'Internal IP' }),
+  colHelper.accessor('ip', { header: 'Private IP' }),
   colHelper.accessor('vpcId', {
     header: 'vpc',
     cell: (info) => <VpcNameFromId value={info.getValue()} />,
@@ -328,6 +327,27 @@ export function NetworkingTab() {
   return (
     <>
       <TableControls>
+        <TableTitle id="attached-ips-label">External IPs</TableTitle>
+        <Button
+          size="sm"
+          onClick={() => setAttachModalOpen(true)}
+          disabled={!!disabledReason}
+          disabledReason={disabledReason}
+        >
+          Attach floating IP
+        </Button>
+        {attachModalOpen && (
+          <AttachFloatingIpModal
+            floatingIps={availableIps}
+            instance={instance}
+            onDismiss={() => setAttachModalOpen(false)}
+            project={project}
+          />
+        )}
+      </TableControls>
+      <Table aria-labelledby="attached-ips-label" table={ipTableInstance} />
+
+      <TableControls className="mt-8">
         <TableTitle id="nics-label">Network interfaces</TableTitle>
         <Button
           size="sm"
@@ -365,27 +385,6 @@ export function NetworkingTab() {
       {editing && (
         <EditNetworkInterfaceForm editing={editing} onDismiss={() => setEditing(null)} />
       )}
-
-      <TableControls className="mt-8">
-        <TableTitle id="attached-ips-label">External IPs</TableTitle>
-        <Button
-          size="sm"
-          onClick={() => setAttachModalOpen(true)}
-          disabled={!!disabledReason}
-          disabledReason={disabledReason}
-        >
-          Attach floating IP
-        </Button>
-        {attachModalOpen && (
-          <AttachFloatingIpModal
-            floatingIps={availableIps}
-            instance={instance}
-            onDismiss={() => setAttachModalOpen(false)}
-            project={project}
-          />
-        )}
-      </TableControls>
-      <Table aria-labelledby="attached-ips-label" table={ipTableInstance} />
     </>
   )
 }
