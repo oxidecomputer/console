@@ -131,7 +131,7 @@ export const TableEmptyBox = classed.div`flex h-full max-h-[480px] items-center 
  * Used _outside_ of the `Table`, this element includes a soon-to-be-removed description of the resource inside the table,
  * along with a link to more info, and a button to take action on the resource listed in the table.
  */
-export const TableControls = classed.div`mb-4 flex items-end justify-between space-x-8`
+export const TableControls = classed.div`mb-6 flex items-end justify-between space-x-8`
 export const TableControlsText = classed.p`max-w-2xl text-sans-md text-secondary`
 
 export const TableControlsButton = (props: ButtonProps) => (
@@ -141,4 +141,4 @@ export const TableControlsLink = (props: LinkProps) => (
   <Link className={buttonStyle({ size: 'sm' })} {...props} />
 )
 
-export const TableTitle = classed.div`mb-4 text-sans-lg text-secondary`
+export const TableTitle = classed.div`text-sans-lg text-secondary`

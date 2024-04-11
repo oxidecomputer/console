@@ -41,7 +41,7 @@ import { Table } from '~/table/Table'
 import { Badge } from '~/ui/lib/Badge'
 import { Button } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
-import { TableEmptyBox, TableTitle } from '~/ui/lib/Table'
+import { TableControls, TableEmptyBox, TableTitle } from '~/ui/lib/Table'
 import { pb } from '~/util/path-builder'
 
 import { fancifyStates } from './common'
@@ -327,8 +327,8 @@ export function NetworkingTab() {
 
   return (
     <>
-      <div className="mb-3 flex items-baseline justify-between">
-        <TableTitle id="nics-label">Network Interfaces</TableTitle>
+      <TableControls>
+        <TableTitle id="nics-label">Network interfaces</TableTitle>
         <Button
           size="sm"
           onClick={() => setCreateModalOpen(true)}
@@ -349,7 +349,7 @@ export function NetworkingTab() {
             submitError={createNic.error}
           />
         )}
-      </div>
+      </TableControls>
       {rows?.length && rows.length > 0 ? (
         <Table aria-labelledby="nics-label" table={tableInstance} />
       ) : (
@@ -366,7 +366,7 @@ export function NetworkingTab() {
         <EditNetworkInterfaceForm editing={editing} onDismiss={() => setEditing(null)} />
       )}
 
-      <div className="mb-3 mt-8 flex items-baseline justify-between">
+      <TableControls className="mt-8">
         <TableTitle id="attached-ips-label">External IPs</TableTitle>
         <Button
           size="sm"
@@ -384,7 +384,7 @@ export function NetworkingTab() {
             project={project}
           />
         )}
-      </div>
+      </TableControls>
       <Table aria-labelledby="attached-ips-label" table={ipTableInstance} />
     </>
   )
