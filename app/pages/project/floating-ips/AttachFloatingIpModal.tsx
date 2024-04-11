@@ -14,6 +14,21 @@ import { Listbox } from '~/ui/lib/Listbox'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 
+function FloatingIpLabel({ fip }: { fip: FloatingIp }) {
+  return (
+    <div className="text-tertiary selected:text-accent-secondary">
+      <div>{fip.name}</div>
+      <div className="flex gap-0.5">
+        <div>{fip.ip}</div>
+        <span className="mx-1 text-quinary selected:text-accent-disabled">/</span>
+        <div className="flex-grow overflow-hidden overflow-ellipsis whitespace-pre text-left">
+          {fip.description || '—'}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export const AttachFloatingIpModal = ({
   floatingIps,
   instance,
@@ -52,20 +67,7 @@ export const AttachFloatingIpModal = ({
               name="floatingIp"
               items={floatingIps.map((ip) => ({
                 value: ip.id,
-                label: (
-                  <div className="text-tertiary selected:text-accent-secondary">
-                    <div>{ip.name}</div>
-                    <div className="flex gap-0.5">
-                      <div>{ip.ip}</div>
-                      <span className="mx-1 text-quinary selected:text-accent-disabled">
-                        /
-                      </span>
-                      <div className="flex-grow overflow-hidden overflow-ellipsis whitespace-pre text-left">
-                        {ip.description || '—'}
-                      </div>
-                    </div>
-                  </div>
-                ),
+                label: <FloatingIpLabel fip={ip} />,
                 labelString: ip.name,
               }))}
               label="Floating IP"
