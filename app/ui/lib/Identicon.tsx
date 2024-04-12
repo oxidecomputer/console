@@ -8,11 +8,6 @@
 import md5 from 'md5'
 import { useMemo } from 'react'
 
-const generateIdenticon = (str: string): string => {
-  const pixels = renderPixels(md5(str))
-  return pixelsToSvg(pixels)
-}
-
 type Rectangle = {
   x: number
   y: number
@@ -43,21 +38,12 @@ const renderPixels = (hash: string) => {
   return buffer
 }
 
-const pixelsToSvg = (pixels: Rectangle[]): string => {
-  let xml = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28">
-    <g fill="currentColor">`
+function Pixel(pixel: Rectangle) {
+  if (!pixel.isPixel) return null
 
-  pixels.forEach((pixel) => {
-    if (!pixel.isPixel) return
-
-    const x = pixel.x * 3 + 2 * pixel.x
-    const y = pixel.y * 8 + 2 * pixel.y
-    xml += `<rect x="${x}" y="${y}" width="3" height="8"/>`
-  })
-
-  xml += `</g></svg>`
-
-  return xml
+  const x = pixel.x * 3 + 2 * pixel.x
+  const y = pixel.y * 8 + 2 * pixel.y
+  return <rect key={`${pixel.x}|${pixel.y}`} x={x} y={y} width="3" height="8" />
 }
 
 type IdenticonProps = {
@@ -67,6 +53,16 @@ type IdenticonProps = {
 }
 
 export function Identicon({ name, className }: IdenticonProps) {
-  const content = useMemo(() => generateIdenticon(md5(name)), [name])
-  return <div className={className} dangerouslySetInnerHTML={{ __html: content }} />
+  const pixels = useMemo(() => renderPixels(md5(name)), [name])
+  return (
+    <div className={className}>
+      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28">
+        <g fill="currentColor">
+          {pixels.map((pixel) => (
+            <Pixel key={`${pixel.x}|${pixel.y}`} {...pixel} />
+          ))}
+        </g>
+      </svg>
+    </div>
+  )
 }
