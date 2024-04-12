@@ -291,9 +291,9 @@ export function NetworkingTab() {
                 modalTitle: 'Detach Floating IP',
                 modalContent: (
                   <p>
-                    Are you sure you want to detach floating IP <HL>{externalIp.name}</HL>?{' '}
-                    The instance <HL>{instanceName}</HL> will no longer be reachable at{' '}
-                    <HL>{externalIp.ip}</HL>.
+                    Are you sure you want to detach floating IP <HL>{externalIp.name}</HL>{' '}
+                    from <HL>{instanceName}</HL>? The instance will no longer be reachable
+                    at <HL>{externalIp.ip}</HL>.
                   </p>
                 ),
                 errorTitle: 'Error detaching floating IP',
