@@ -310,7 +310,7 @@ export const routes = createRoutesFromElements(
                 path="network-interfaces"
                 element={<NetworkingTab />}
                 loader={NetworkingTab.loader}
-                handle={{ crumb: 'Network interfaces' }}
+                handle={{ crumb: 'Networking' }}
               />
               <Route
                 path="metrics"

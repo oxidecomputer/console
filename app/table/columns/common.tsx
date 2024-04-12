@@ -11,6 +11,7 @@ import { filesize } from 'filesize'
 
 import { Truncate } from '~/ui/lib/Truncate'
 
+import { EmptyCell } from '../cells/EmptyCell'
 import { TwoLineCell } from '../cells/TwoLineCell'
 
 // the full type of the info arg is CellContext<Row, Item> from RT, but in these
@@ -31,11 +32,14 @@ function sizeCell(info: Info<number>) {
   )
 }
 
+export const DescriptionCell = ({ text }: { text?: string }) =>
+  text ? <Truncate text={text} maxLength={48} /> : <EmptyCell />
+
 /** Columns used in a bunch of tables */
 export const Columns = {
   /** Truncates text if too long, full text in tooltip */
   description: {
-    cell: (info: Info<string>) => <Truncate text={info.getValue()} maxLength={48} />,
+    cell: (info: Info<string | undefined>) => <DescriptionCell text={info.getValue()} />,
   },
   size: { cell: sizeCell },
   timeCreated: { header: 'created', cell: dateCell },

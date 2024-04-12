@@ -261,9 +261,7 @@ export const handlers = makeHandlers({
       }
       floatingIp.name = body.name
     }
-    if (body.description) {
-      floatingIp.description = body.description
-    }
+    floatingIp.description = body.description || ''
     return floatingIp
   },
   floatingIpDelete({ path, query }) {
