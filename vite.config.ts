@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { randomBytes } from 'crypto'
 import { resolve } from 'path'
 import basicSsl from '@vitejs/plugin-basic-ssl'
 import react from '@vitejs/plugin-react-swc'
@@ -12,6 +13,8 @@ import { defineConfig } from 'vite'
 import { createHtmlPlugin } from 'vite-plugin-html'
 import tsconfigPaths from 'vite-tsconfig-paths'
 import { z } from 'zod'
+
+import vercelConfig from './vercel.json'
 
 const ApiMode = z.enum(['msw', 'dogfood', 'nexus'])
 
@@ -67,6 +70,11 @@ const previewMetaTag = [
   },
 ]
 
+const headers = Object.fromEntries(
+  vercelConfig.headers[0].headers.map(({ key, value }) => [key, value])
+)
+const cspNonce = randomBytes(8).toString('hex')
+
 // see https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   build: {
@@ -79,6 +87,8 @@ export default defineConfig(({ mode }) => ({
         app: 'index.html',
       },
     },
+    // prevent inlining assets as `data:`, which is not permitted by our Content-Security-Policy
+    assetsInlineLimit: 0,
   },
   define: {
     'process.env.MSW': JSON.stringify(apiMode === 'msw'),
@@ -99,8 +109,20 @@ export default defineConfig(({ mode }) => ({
     react(),
     apiMode === 'dogfood' && basicSsl(),
   ],
+  html: {
+    cspNonce:
+      mode === 'production'
+        ? // don't include a placeholder nonce in production
+          undefined
+        : // use a CSP nonce to avoid needing to permit 'unsafe-inline' in dev mode
+          cspNonce,
+  },
   server: {
     port: 4000,
+    headers: {
+      ...headers,
+      'content-security-policy': `${headers['content-security-policy']}; script-src 'nonce-${cspNonce}' 'self'`,
+    },
     // these only get hit when MSW doesn't intercept the request
     proxy: {
       '/v1': {
@@ -118,6 +140,9 @@ export default defineConfig(({ mode }) => ({
         ws: true,
       },
     },
+  },
+  preview: {
+    headers: headers,
   },
   test: {
     environment: 'jsdom',
