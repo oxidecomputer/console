@@ -1,8 +1,12 @@
-# CSP headers in development and on Vercel
+# CSP headers in local dev and on Vercel
 
-Note: production headers are set server-side in Nexus. The headers set in this repo are meant to match what is set there (and should be kept in sync as far as possible) but real header changes must be made in the Omicron repo.
+## Why
 
-The base headers are defined in `vercel.json` and then imported into `vite.config.ts` to avoid repeating them.
+Production CSP headers are set server-side in Nexus, so why should we set the headers on Vercel and the Vite dev server too? We are not _that_ concerned about security in those environments. The main reason is so we can know as early as possible in the development process whether a given CSP directive breaks something the web console.
+
+## What
+
+The base headers are defined in `vercel.json` and imported into `vite.config.ts` to avoid repeating them.
 
 The `content-security-policy` is based on the recommendation by the [OWASP Secure Headers Project](https://owasp.org/www-project-secure-headers/index.html) (click the "Best Practices" tab). The directives:
 

@@ -73,8 +73,17 @@ const previewMetaTag = [
 // vercel config is source of truth for headers
 const vercelHeaders = vercelConfig.headers[0].headers
 const headers = Object.fromEntries(vercelHeaders.map((h) => [h.key, h.value]))
+
+// This is only needed for local dev to avoid breaking Vite's script injection.
+// Rather than use unsafe-inline all the time, the nonce approach is much more
+// narrowly scoped and lets us make sure everything *else* works fine without
+// unsafe-inline.
 const cspNonce = randomBytes(8).toString('hex')
-const cspWithNonce = `${headers['content-security-policy']}; script-src 'nonce-${cspNonce}' 'self'`
+const csp = headers['content-security-policy']
+const devHeaders = {
+  ...headers,
+  'content-security-policy': `${csp}; script-src 'nonce-${cspNonce}' 'self'`,
+}
 
 // see https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
@@ -117,7 +126,7 @@ export default defineConfig(({ mode }) => ({
   },
   server: {
     port: 4000,
-    headers: { ...headers, 'content-security-policy': cspWithNonce },
+    headers: devHeaders,
     // these only get hit when MSW doesn't intercept the request
     proxy: {
       '/v1': {
