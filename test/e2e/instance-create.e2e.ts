@@ -239,7 +239,7 @@ test('create instance with existing disk', async ({ page }) => {
   await page.getByRole('button', { name: 'Create instance' }).click()
   await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)
   await expectVisible(page, [`h1:has-text("${instanceName}")`, 'text=8 GiB'])
-  await expectRowVisible(page.getByRole('table'), { name: 'disk-3' })
+  await expectRowVisible(page.getByRole('table'), { Disk: 'disk-3' })
 })
 
 test('create instance with a different existing disk', async ({ page }) => {
@@ -252,7 +252,7 @@ test('create instance with a different existing disk', async ({ page }) => {
   await page.getByRole('button', { name: 'Create instance' }).click()
   await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)
   await expectVisible(page, [`h1:has-text("${instanceName}")`, 'text=8 GiB'])
-  await expectRowVisible(page.getByRole('table'), { name: 'disk-4' })
+  await expectRowVisible(page.getByRole('table'), { Disk: 'disk-4' })
 })
 
 test('start with an existing disk, but then switch to a silo image', async ({ page }) => {
