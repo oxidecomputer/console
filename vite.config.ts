@@ -82,7 +82,7 @@ const cspNonce = randomBytes(8).toString('hex')
 const csp = headers['content-security-policy']
 const devHeaders = {
   ...headers,
-  'content-security-policy': `${csp}; script-src 'nonce-${cspNonce}' 'self'`,
+  'content-security-policy': `${csp}; script-src 'nonce-${cspNonce}' 'self'; style-src 'nonce-${cspNonce}' 'self'`,
 }
 
 // see https://vitejs.dev/config/
