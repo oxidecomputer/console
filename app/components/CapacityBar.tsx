@@ -62,6 +62,16 @@ function TitleCell({ icon, title, unit }: TitleCellProps) {
 }
 
 function PctCell({ pct }: { pct: number }) {
+  // NaN happens when both top and bottom are 0
+  if (Number.isNaN(pct)) {
+    return (
+      <div className="flex -translate-y-0.5 items-baseline text-quaternary">
+        <div className="font-light text-sans-2xl">—</div>
+        <div className="text-sans-xl">%</div>
+      </div>
+    )
+  }
+
   const [wholeNumber, decimal] = splitDecimal(pct)
   return (
     <div className="flex -translate-y-0.5 items-baseline">

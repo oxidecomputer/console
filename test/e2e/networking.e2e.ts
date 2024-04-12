@@ -7,7 +7,7 @@
  */
 import { expect, test } from '@playwright/test'
 
-import { expectNotVisible, expectVisible } from './utils'
+import { closeToast, expectNotVisible, expectVisible } from './utils'
 
 test('Create and edit VPC', async ({ page }) => {
   await page.goto('/projects/mock-project')
@@ -46,7 +46,7 @@ test('Create and edit VPC', async ({ page }) => {
   await page.click('role=button[name="Update VPC"]')
 
   // Close toast, it holds up the test for some reason
-  await page.click('role=button[name="Dismiss notification"]')
+  await closeToast(page)
 
   await expect(page.getByRole('link', { name: 'new-vpc' })).toBeVisible()
 })
