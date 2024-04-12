@@ -38,6 +38,7 @@ import { Badge } from '~/ui/lib/Badge'
 import { Button } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableControls, TableEmptyBox, TableTitle } from '~/ui/lib/Table'
+import { TipIcon } from '~/ui/lib/TipIcon'
 import { pb } from '~/util/path-builder'
 
 import { fancifyStates } from './common'
@@ -233,17 +234,17 @@ export function NetworkingTab() {
 
   const ipColHelper = createColumnHelper<ExternalIp>()
   const staticIpCols = [
-    ipColHelper.accessor('ip', {
-      cell: (info) => (
+    ipColHelper.accessor('ip', {}),
+    ipColHelper.accessor('kind', {
+      header: () => (
         <>
-          {info.getValue()}
-          {info.row.original.kind === 'ephemeral' && (
-            <Badge color="neutral" className="ml-2">
-              ephemeral
-            </Badge>
-          )}
+          Kind
+          <TipIcon className="ml-2">
+            Floating IPs can be detached from this instance and attached to another.
+          </TipIcon>
         </>
       ),
+      cell: (info) => <Badge color="neutral">{info.getValue()}</Badge>,
     }),
     ipColHelper.accessor('name', {
       cell: (info) => (info.getValue() ? info.getValue() : <EmptyCell />),

@@ -83,8 +83,8 @@ test('Instance networking tab — External IPs', async ({ page }) => {
   const externalIpTable = page.getByRole('table', { name: 'External IPs' })
 
   // See list of external IPs
-  await expectRowVisible(externalIpTable, { ip: '123.4.56.0ephemeral' })
-  await expectRowVisible(externalIpTable, { ip: '123.4.56.5' })
+  await expectRowVisible(externalIpTable, { ip: '123.4.56.0', Kind: 'ephemeral' })
+  await expectRowVisible(externalIpTable, { ip: '123.4.56.5', Kind: 'floating' })
 
   // Attach a new external IP
   await page.click('role=button[name="Attach floating IP"]')
