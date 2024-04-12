@@ -101,7 +101,8 @@ export const NotImplemented = () => {
   throw json({ error_code: 'NotImplemented' }, { status: 501 })
 }
 
-export const internalError = () => json({ error_code: 'InternalError' }, { status: 500 })
+export const internalError = (message: string) =>
+  json({ error_code: 'InternalError', message }, { status: 500 })
 
 export const errIfExists = <T extends Record<string, unknown>>(
   collection: T[],

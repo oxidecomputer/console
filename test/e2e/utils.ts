@@ -106,10 +106,16 @@ export async function expectRowVisible(
 export async function stopInstance(page: Page) {
   await page.click('role=button[name="Instance actions"]')
   await page.click('role=menuitem[name="Stop"]')
-  // close toast and wait for it to fade out. for some reason it prevents things
-  // from working, but only in tests as far as we can tell
-  await page.click('role=button[name="Dismiss notification"]')
-  await sleep(2000)
+  await closeToast(page)
+}
+
+/**
+ * Close toast and wait for it to fade out. For some reason it prevents things
+ * from working, but only in tests as far as we can tell.
+ */
+export async function closeToast(page: Page) {
+  await page.getByRole('button', { name: 'Dismiss notification' }).click()
+  await sleep(1000)
 }
 
 /**
