@@ -48,7 +48,8 @@ import { SshKeysField } from '~/components/form/fields/SshKeysField'
 import { TextField } from '~/components/form/fields/TextField'
 import { Form } from '~/components/form/Form'
 import { FullPageForm } from '~/components/form/FullPageForm'
-import { getProjectSelector, useForm, useProjectSelector, useToast } from '~/hooks'
+import { getProjectSelector, useForm, useProjectSelector } from '~/hooks'
+import { addToast } from '~/stores/toast'
 import { FormDivider } from '~/ui/lib/Divider'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
@@ -150,7 +151,6 @@ CreateInstanceForm.loader = async ({ params }: LoaderFunctionArgs) => {
 export function CreateInstanceForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const queryClient = useApiQueryClient()
-  const addToast = useToast()
   const { project } = useProjectSelector()
   const navigate = useNavigate()
 

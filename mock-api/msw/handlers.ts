@@ -261,9 +261,7 @@ export const handlers = makeHandlers({
       }
       floatingIp.name = body.name
     }
-    if (body.description) {
-      floatingIp.description = body.description
-    }
+    floatingIp.description = body.description || ''
     return floatingIp
   },
   floatingIpDelete({ path, query }) {
@@ -1130,7 +1128,7 @@ export const handlers = makeHandlers({
     requireFleetViewer(cookies)
     return paginated(query, db.silos)
   },
-  siloCreate({ body, cookies }) {
+  siloCreate({ body: { quotas, ...body }, cookies }) {
     requireFleetViewer(cookies)
     errIfExists(db.silos, { name: body.name })
     const newSilo: Json<Api.Silo> = {
@@ -1140,6 +1138,8 @@ export const handlers = makeHandlers({
       mapped_fleet_roles: body.mapped_fleet_roles || {},
     }
     db.silos.push(newSilo)
+    db.siloQuotas.push({ silo_id: newSilo.id, ...quotas })
+    db.siloProvisioned.push({ silo_id: newSilo.id, cpus: 0, memory: 0, storage: 0 })
     return json(newSilo, { status: 201 })
   },
   siloView({ path, cookies }) {

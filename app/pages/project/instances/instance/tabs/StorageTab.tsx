@@ -53,7 +53,7 @@ StorageTab.loader = async ({ params }: LoaderFunctionArgs) => {
 
 const colHelper = createColumnHelper<Disk>()
 const staticCols = [
-  colHelper.accessor('name', {}),
+  colHelper.accessor('name', { header: 'Disk' }),
   colHelper.accessor('size', Columns.size),
   colHelper.accessor((row) => row.state.state, {
     header: 'status',
@@ -168,12 +168,7 @@ export function StorageTab() {
 
   return (
     <>
-      <h2 id="disks-label" className="mb-4 text-mono-sm text-secondary">
-        Disks
-      </h2>
-      {/* TODO: need 40px high rows. another table or a flag on Table (ew) */}
-
-      <Table emptyState={emptyState} aria-labelledby="disks-label" columns={columns} />
+      <Table emptyState={emptyState} columns={columns} />
       <div className="mt-4 flex flex-col gap-3">
         <div className="flex gap-3">
           <Button

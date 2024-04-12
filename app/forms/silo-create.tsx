@@ -17,9 +17,11 @@ import { RadioField } from '~/components/form/fields/RadioField'
 import { TextField } from '~/components/form/fields/TextField'
 import { TlsCertsField } from '~/components/form/fields/TlsCertsField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { useForm, useToast } from '~/hooks'
+import { useForm } from '~/hooks'
+import { addToast } from '~/stores/toast'
 import { FormDivider } from '~/ui/lib/Divider'
 import { pb } from '~/util/path-builder'
+import { GiB } from '~/util/units'
 
 export type SiloCreateFormValues = Omit<SiloCreate, 'mappedFleetRoles'> & {
   siloAdminGetsFleetAdmin: boolean
@@ -49,7 +51,6 @@ function validateQuota(value: number) {
 export function CreateSiloSideModalForm() {
   const navigate = useNavigate()
   const queryClient = useApiQueryClient()
-  const addToast = useToast()
 
   const onDismiss = () => navigate(pb.silos())
 
@@ -74,6 +75,7 @@ export function CreateSiloSideModalForm() {
         adminGroupName,
         siloAdminGetsFleetAdmin,
         siloViewerGetsFleetViewer,
+        quotas,
         ...rest
       }) => {
         const mappedFleetRoles: SiloCreate['mappedFleetRoles'] = {}
@@ -88,6 +90,11 @@ export function CreateSiloSideModalForm() {
             // no point setting it to empty string or whitespace
             adminGroupName: adminGroupName?.trim() || undefined,
             mappedFleetRoles,
+            quotas: {
+              cpus: quotas.cpus,
+              memory: quotas.memory * GiB,
+              storage: quotas.storage * GiB,
+            },
             ...rest,
           },
         })

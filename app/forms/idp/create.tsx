@@ -14,7 +14,8 @@ import { FileField } from '~/components/form/fields/FileField'
 import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { useForm, useSiloSelector, useToast } from '~/hooks'
+import { useForm, useSiloSelector } from '~/hooks'
+import { addToast } from '~/stores/toast'
 import { readBlobAsBase64 } from '~/util/file'
 import { pb } from '~/util/path-builder'
 
@@ -43,7 +44,6 @@ const defaultValues: IdpCreateFormValues = {
 export function CreateIdpSideModalForm() {
   const navigate = useNavigate()
   const queryClient = useApiQueryClient()
-  const addToast = useToast()
 
   const { silo } = useSiloSelector()
 

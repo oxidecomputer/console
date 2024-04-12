@@ -192,7 +192,7 @@ export function InstancePage() {
       <RouteTabs fullWidth>
         <Tab to={pb.instanceStorage(instanceSelector)}>Storage</Tab>
         <Tab to={pb.instanceMetrics(instanceSelector)}>Metrics</Tab>
-        <Tab to={pb.nics(instanceSelector)}>Network Interfaces</Tab>
+        <Tab to={pb.nics(instanceSelector)}>Networking</Tab>
         <Tab to={pb.instanceConnect(instanceSelector)}>Connect</Tab>
       </RouteTabs>
     </>

@@ -238,7 +238,7 @@ const AttachFloatingIpModal = ({
   const form = useForm({ defaultValues: { instanceId: '' } })
 
   return (
-    <Modal isOpen title="Attach Floating IP" onDismiss={onDismiss}>
+    <Modal isOpen title="Attach floating IP" onDismiss={onDismiss}>
       <Modal.Body>
         <Modal.Section>
           <Message

@@ -14,13 +14,17 @@ import { Copy12Icon, Success12Icon } from '@oxide/design-system/icons/react'
 
 import { useTimeout } from './use-timeout'
 
-export const CopyToClipboard = ({
-  ariaLabel = 'Click to copy this text',
-  text,
-}: {
+type Props = {
   ariaLabel?: string
   text: string
-}) => {
+  className?: string
+}
+
+export const CopyToClipboard = ({
+  ariaLabel = 'Click to copy',
+  text,
+  className,
+}: Props) => {
   const [hasCopied, setHasCopied] = useState(false)
 
   useTimeout(() => setHasCopied(false), hasCopied ? 2000 : null)
@@ -46,7 +50,9 @@ export const CopyToClipboard = ({
         'relative h-5 w-5 rounded',
         hasCopied
           ? 'text-accent bg-accent-secondary'
-          : 'text-quaternary hover:text-secondary hover:bg-hover'
+          : 'text-quaternary hover:text-secondary hover:bg-hover',
+
+        className
       )}
       onClick={handleCopy}
       type="button"

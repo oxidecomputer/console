@@ -29,7 +29,8 @@ import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
 import { RadioField } from '~/components/form/fields/RadioField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { useForm, useProjectSelector, useToast } from '~/hooks'
+import { useForm, useProjectSelector } from '~/hooks'
+import { addToast } from '~/stores/toast'
 import { FormDivider } from '~/ui/lib/Divider'
 import { FieldLabel } from '~/ui/lib/FieldLabel'
 import { Radio } from '~/ui/lib/Radio'
@@ -69,7 +70,6 @@ export function CreateDiskSideModalForm({
   onDismiss,
 }: CreateSideModalFormProps) {
   const queryClient = useApiQueryClient()
-  const addToast = useToast()
   const navigate = useNavigate()
 
   const createDisk = useApiMutation('diskCreate', {

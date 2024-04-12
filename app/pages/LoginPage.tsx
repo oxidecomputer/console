@@ -12,11 +12,12 @@ import { useApiMutation, type UsernamePasswordCredentials } from '@oxide/api'
 
 import { TextFieldInner } from '~/components/form/fields/TextField'
 import { useForm } from '~/hooks'
+import { addToast } from '~/stores/toast'
 import { Button } from '~/ui/lib/Button'
 import { Identicon } from '~/ui/lib/Identicon'
 import { pb } from '~/util/path-builder'
 
-import { useSiloSelector, useToast } from '../hooks'
+import { useSiloSelector } from '../hooks'
 
 const defaultValues: UsernamePasswordCredentials = {
   username: '',
@@ -27,7 +28,6 @@ const defaultValues: UsernamePasswordCredentials = {
 export function LoginPage() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
-  const addToast = useToast()
   const { silo } = useSiloSelector()
 
   const form = useForm({ defaultValues })
@@ -39,7 +39,7 @@ export function LoginPage() {
       addToast({ title: 'Logged in' })
       navigate(searchParams.get('redirect_uri') || pb.projects())
     }
-  }, [loginPost.isSuccess, navigate, searchParams, addToast])
+  }, [loginPost.isSuccess, navigate, searchParams])
 
   return (
     <>
