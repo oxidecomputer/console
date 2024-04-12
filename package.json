@@ -11,6 +11,7 @@
     "start:msw": "API_MODE=msw vite",
     "start:nexus": "API_MODE=nexus vite",
     "start:dogfood": "API_MODE=dogfood vite",
+    "preview": "API_MODE=msw npm run build && cp mockServiceWorker.js dist/ && vite preview",
     "dev": "API_MODE=msw vite",
     "start:mock-api": "node -r esbuild-register ./tools/start_mock_api.ts",
     "build": "vite build",
