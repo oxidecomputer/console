@@ -70,10 +70,11 @@ const previewMetaTag = [
   },
 ]
 
-const headers = Object.fromEntries(
-  vercelConfig.headers[0].headers.map(({ key, value }) => [key, value])
-)
+// vercel config is source of truth for headers
+const vercelHeaders = vercelConfig.headers[0].headers
+const headers = Object.fromEntries(vercelHeaders.map((h) => [h.key, h.value]))
 const cspNonce = randomBytes(8).toString('hex')
+const cspWithNonce = `${headers['content-security-policy']}; script-src 'nonce-${cspNonce}' 'self'`
 
 // see https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
@@ -110,19 +111,13 @@ export default defineConfig(({ mode }) => ({
     apiMode === 'dogfood' && basicSsl(),
   ],
   html: {
-    cspNonce:
-      mode === 'production'
-        ? // don't include a placeholder nonce in production
-          undefined
-        : // use a CSP nonce to avoid needing to permit 'unsafe-inline' in dev mode
-          cspNonce,
+    // don't include a placeholder nonce in production.
+    // use a CSP nonce in dev to avoid needing to permit 'unsafe-inline'
+    cspNonce: mode === 'production' ? undefined : cspNonce,
   },
   server: {
     port: 4000,
-    headers: {
-      ...headers,
-      'content-security-policy': `${headers['content-security-policy']}; script-src 'nonce-${cspNonce}' 'self'`,
-    },
+    headers: { ...headers, 'content-security-policy': cspWithNonce },
     // these only get hit when MSW doesn't intercept the request
     proxy: {
       '/v1': {
@@ -141,9 +136,7 @@ export default defineConfig(({ mode }) => ({
       },
     },
   },
-  preview: {
-    headers: headers,
-  },
+  preview: { headers },
   test: {
     environment: 'jsdom',
     setupFiles: ['test/unit/setup.ts'],
