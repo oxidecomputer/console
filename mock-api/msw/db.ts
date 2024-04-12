@@ -236,10 +236,14 @@ export const lookup = {
 
 export function utilizationForSilo(silo: Json<Api.Silo>) {
   const quotas = db.siloQuotas.find((q) => q.silo_id === silo.id)
-  if (!quotas) throw internalError()
+  if (!quotas) {
+    throw internalError(`no entry in db.siloQuotas for silo ${silo.name}`)
+  }
 
   const provisioned = db.siloProvisioned.find((p) => p.silo_id === silo.id)
-  if (!provisioned) throw internalError()
+  if (!provisioned) {
+    throw internalError(`no entry in db.siloProvisioned for silo ${silo.name}`)
+  }
 
   return {
     allocated: pick(quotas, 'cpus', 'storage', 'memory'),

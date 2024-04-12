@@ -32,16 +32,17 @@ test('Create silo', async ({ page }) => {
   await page.click('role=link[name="New silo"]')
 
   // fill out form
-  await page.fill('role=textbox[name="Name"]', 'other-silo')
-  await page.fill('role=textbox[name="Description"]', 'definitely a silo')
-  await expect(page.locator('role=checkbox[name="Discoverable"]')).toBeChecked()
-  await page.click('role=checkbox[name="Discoverable"]')
-  await page.click('role=radio[name="Local only"]')
-  await page.fill('role=textbox[name="Admin group name"]', 'admins')
-  await page.click('role=checkbox[name="Grant fleet admin role to silo admins"]')
-  await page.getByRole('textbox', { name: 'CPU quota (nCPUs)' }).fill('3')
-  await page.getByRole('textbox', { name: 'Memory quota (GiB)' }).fill('5')
-  await page.getByRole('textbox', { name: 'Storage quota (GiB)' }).fill('7')
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill('other-silo')
+  await page.getByRole('textbox', { name: 'Description' }).fill('definitely a silo')
+  const discoverable = page.getByRole('checkbox', { name: 'Discoverable' })
+  await expect(discoverable).toBeChecked()
+  await discoverable.click()
+  await page.getByRole('radio', { name: 'Local only' }).click()
+  await page.getByRole('textbox', { name: 'Admin group name' }).fill('admins')
+  await page.getByRole('checkbox', { name: 'Grant fleet admin' }).click()
+  await page.getByRole('textbox', { name: 'CPU quota' }).fill('30')
+  await page.getByRole('textbox', { name: 'Memory quota' }).fill('58')
+  await page.getByRole('textbox', { name: 'Storage quota' }).fill('735')
 
   // Add a TLS cert
   const openCertModalButton = page.getByRole('button', { name: 'Add TLS certificate' })
@@ -111,6 +112,17 @@ test('Create silo', async ({ page }) => {
     page.getByText('Silo adminFleet admin'),
   ])
   await expect(page.getByText('Silo viewerFleet viewer')).toBeHidden()
+
+  await page.goBack()
+
+  // now go check the quotas in its entry in the utilization table
+  await page.getByRole('link', { name: 'Utilization' }).click()
+  await expectRowVisible(page.getByRole('table'), {
+    Silo: 'other-silo',
+    CPU: '30',
+    Memory: '58 GiB',
+    Storage: '0.72 TiB',
+  })
 
   await page.goBack()
 
