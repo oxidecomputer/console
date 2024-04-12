@@ -21,7 +21,7 @@ import { Images24Icon } from '@oxide/design-system/icons/react'
 
 import { toListboxItem } from '~/components/form/fields/ImageSelectField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
-import { useForm, useToast } from '~/hooks'
+import { useForm } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { makeLinkCell } from '~/table/cells/LinkCell'
@@ -119,7 +119,7 @@ const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
   const { control, handleSubmit, watch, resetField } = useForm({ defaultValues })
 
   const queryClient = useApiQueryClient()
-  const addToast = useToast()
+
   const promoteImage = useApiMutation('imagePromote', {
     onSuccess(data) {
       addToast({ content: `${data.name} has been promoted` })
@@ -208,7 +208,7 @@ const DemoteImageModal = ({
   const selectedProject: string | undefined = watch('project')
 
   const queryClient = useApiQueryClient()
-  const addToast = useToast()
+
   const demoteImage = useApiMutation('imageDemote', {
     onSuccess(data) {
       addToast({

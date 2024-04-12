@@ -7,12 +7,11 @@
  */
 import { animated, useTransition } from '@react-spring/web'
 
-import { useToastStore } from '~/stores/toast'
+import { removeToast, useToastStore } from '~/stores/toast'
 import { Toast } from '~/ui/lib/Toast'
 
 export function ToastStack() {
   const toasts = useToastStore((state) => state.toasts)
-  const remove = useToastStore((state) => state.remove)
 
   const transition = useTransition(toasts, {
     keys: (toast) => toast.id,
@@ -36,7 +35,7 @@ export function ToastStack() {
             key={item.id}
             {...item.options}
             onClose={() => {
-              remove(item.id)
+              removeToast(item.id)
               item.options.onClose?.()
             }}
           />

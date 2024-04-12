@@ -17,7 +17,8 @@ import {
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { getFloatingIpSelector, useFloatingIpSelector, useForm, useToast } from 'app/hooks'
+import { addToast } from '~/stores/toast'
+import { getFloatingIpSelector, useFloatingIpSelector, useForm } from 'app/hooks'
 import { pb } from 'app/util/path-builder'
 
 EditFloatingIpSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
@@ -31,7 +32,6 @@ EditFloatingIpSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
 
 export function EditFloatingIpSideModalForm() {
   const queryClient = useApiQueryClient()
-  const addToast = useToast()
   const navigate = useNavigate()
 
   const floatingIpSelector = useFloatingIpSelector()

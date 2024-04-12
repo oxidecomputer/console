@@ -10,12 +10,13 @@ import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/re
 import type { Group } from '@oxide/api'
 import { Settings24Icon } from '@oxide/design-system/icons/react'
 
-import { TextField } from '~/components/form/fields/TextField'
-import { FullPageForm } from '~/components/form/FullPageForm'
-import { useForm } from '~/hooks'
 import { useCurrentUser } from '~/layouts/AuthenticatedLayout'
 import { getActionsCol } from '~/table/columns/action-col'
 import { Table } from '~/table/Table'
+import { CopyToClipboard } from '~/ui/lib/CopyToClipboard'
+import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
+import { PropertiesTable } from '~/ui/lib/PropertiesTable'
+import { TableControls, TableTitle } from '~/ui/lib/Table'
 
 const colHelper = createColumnHelper<Group>()
 
@@ -34,42 +35,30 @@ export function ProfilePage() {
     getCoreRowModel: getCoreRowModel(),
   })
 
-  const form = useForm({
-    defaultValues: {
-      id: me.id,
-    },
-  })
-
   return (
-    <FullPageForm
-      form={form}
-      id="profile-form"
-      title="Profile"
-      icon={<Settings24Icon />}
-      submitError={null}
-      onSubmit={() => Promise.resolve()}
-    >
-      <TextField
-        name="id"
-        label="User ID"
-        required
-        disabled
-        fieldClassName="!cursor-default"
-        value={me.id}
-        control={form.control}
-      />
-      <h2>Groups</h2>
-      <Table table={groupsTable} />
-      <span className="inline-block text-sans-md text-secondary">
-        <span>Your user information is managed by your organization. </span>
+    <>
+      <PageHeader>
+        <PageTitle icon={<Settings24Icon />}>Profile</PageTitle>
+      </PageHeader>
+
+      <PropertiesTable className="-mt-8 mb-16">
+        <PropertiesTable.Row label="Display name">{me.displayName}</PropertiesTable.Row>
+        <PropertiesTable.Row label="User ID">
+          {me.id}
+          <CopyToClipboard className="ml-2" text={me.id} />
+        </PropertiesTable.Row>
+      </PropertiesTable>
+
+      <TableControls>
+        <TableTitle id="groups-label">Groups</TableTitle>
+      </TableControls>
+      <Table table={groupsTable} aria-labelledby="groups-label" />
+      <p className="inline-block max-w-md text-sans-md text-secondary">
+        Your user information is managed by your organization.{' '}
         <span className="md+:block">
-          To update, contact your{' '}
-          <a className="external-link" href="#/">
-            IDP admin
-          </a>
-          .
+          To update your information, contact your administrator.
         </span>
-      </span>
-    </FullPageForm>
+      </p>
+    </>
   )
 }

@@ -20,8 +20,9 @@ import {
 import { Storage24Icon } from '@oxide/design-system/icons/react'
 
 import { DiskStatusBadge } from '~/components/StatusBadge'
-import { getProjectSelector, useProjectSelector, useToast } from '~/hooks'
+import { getProjectSelector, useProjectSelector } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
+import { addToast } from '~/stores/toast'
 import { InstanceLinkCell } from '~/table/cells/InstanceLinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
@@ -94,7 +95,6 @@ export function DisksPage() {
   const queryClient = useApiQueryClient()
   const { project } = useProjectSelector()
   const { Table } = useQueryTable('diskList', { query: { project } })
-  const addToast = useToast()
 
   const deleteDisk = useApiMutation('diskDelete', {
     onSuccess() {
@@ -153,7 +153,7 @@ export function DisksPage() {
           )),
       },
     ],
-    [addToast, createSnapshot, deleteDisk, project]
+    [createSnapshot, deleteDisk, project]
   )
 
   const columns = useColsWithActions(staticCols, makeActions)

@@ -24,7 +24,8 @@ import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { useForm, useProjectSelector, useToast } from '~/hooks'
+import { useForm, useProjectSelector } from '~/hooks'
+import { addToast } from '~/stores/toast'
 import { Badge } from '~/ui/lib/Badge'
 import { Message } from '~/ui/lib/Message'
 import { pb } from '~/util/path-builder'
@@ -65,7 +66,6 @@ export function CreateFloatingIpSideModalForm() {
 
   const queryClient = useApiQueryClient()
   const projectSelector = useProjectSelector()
-  const addToast = useToast()
   const navigate = useNavigate()
 
   const createFloatingIp = useApiMutation('floatingIpCreate', {
