@@ -5,7 +5,12 @@
  *
  * Copyright Oxide Computer Company
  */
+import { Combobox } from '@headlessui/react'
+import cn from 'classnames'
+import { useState } from 'react'
+
 import { useApiQuery, type ApiError } from '@oxide/api'
+import { DirectionDownIcon } from '@oxide/design-system/icons/react'
 
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { SideModalForm } from '~/components/form/SideModalForm'
@@ -42,6 +47,13 @@ export function AttachDiskSideModalForm({
       (d) => d.state.state === 'detached'
     ) || []
 
+  const [selectedDisk, setSelectedDisk] = useState(detachedDisks[0])
+  const [query, setQuery] = useState('')
+  const filteredDisks =
+    query === ''
+      ? detachedDisks
+      : detachedDisks.filter((d) => d.name.includes(query.toLowerCase()))
+
   const form = useForm({ defaultValues })
 
   return (
@@ -62,6 +74,31 @@ export function AttachDiskSideModalForm({
         required
         control={form.control}
       />
+
+      <div className="relative">
+        <Combobox value={selectedDisk} onChange={setSelectedDisk}>
+          <div className="flex h-10 w-full items-center justify-between rounded border text-sans-md bg-default border-default hover:border-hover">
+            <Combobox.Input
+              className="bg-default"
+              onChange={(event) => setQuery(event.target.value)}
+            />
+            <Combobox.Button className="flex items-center pr-2">
+              <DirectionDownIcon className="text-gray-400 h-5 w-5" aria-hidden="true" />
+            </Combobox.Button>
+          </div>
+          <Combobox.Options className="ox-menu bg-default">
+            {filteredDisks.map((d) => (
+              <Combobox.Option
+                key={d.name}
+                value={d.name}
+                className={({ active }) => cn('ox-menu-item', active && 'is-highlighted')}
+              >
+                {d.name}
+              </Combobox.Option>
+            ))}
+          </Combobox.Options>
+        </Combobox>
+      </div>
     </SideModalForm>
   )
 }
