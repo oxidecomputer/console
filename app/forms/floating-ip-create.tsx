@@ -8,7 +8,6 @@
 import * as Accordion from '@radix-ui/react-accordion'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import type { SetRequired } from 'type-fest'
 
 import {
   useApiMutation,
@@ -22,14 +21,12 @@ import { AccordionItem } from '~/components/AccordionItem'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
-import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { useForm, useProjectSelector } from '~/hooks'
 import { addToast } from '~/stores/toast'
 import { Badge } from '~/ui/lib/Badge'
 import { Message } from '~/ui/lib/Message'
 import { pb } from '~/util/path-builder'
-import { validateIp } from '~/util/str'
 
 const toListboxItem = (p: SiloIpPool) => {
   if (!p.isDefault) {
@@ -50,11 +47,10 @@ const toListboxItem = (p: SiloIpPool) => {
   }
 }
 
-const defaultValues: SetRequired<FloatingIpCreate, 'ip'> = {
+const defaultValues: Omit<FloatingIpCreate, 'ip'> = {
   name: '',
   description: '',
   pool: undefined,
-  ip: '',
 }
 
 export function CreateFloatingIpSideModalForm() {
@@ -78,7 +74,6 @@ export function CreateFloatingIpSideModalForm() {
   })
 
   const form = useForm({ defaultValues })
-  const isPoolSelected = !!form.watch('pool')
 
   const [openItems, setOpenItems] = useState<string[]>([])
 
@@ -88,13 +83,7 @@ export function CreateFloatingIpSideModalForm() {
       formType="create"
       resourceName="floating IP"
       onDismiss={() => navigate(pb.floatingIps(projectSelector))}
-      onSubmit={({ ip, ...rest }) => {
-        createFloatingIp.mutate({
-          query: projectSelector,
-          // if address is '', evaluate as false and send as undefined
-          body: { ip: ip || undefined, ...rest },
-        })
-      }}
+      onSubmit={(body) => createFloatingIp.mutate({ query: projectSelector, body })}
       loading={createFloatingIp.isPending}
       submitError={createFloatingIp.error}
     >
@@ -123,16 +112,6 @@ export function CreateFloatingIpSideModalForm() {
             label="IP pool"
             control={form.control}
             placeholder="Select pool"
-          />
-          <TextField
-            name="ip"
-            label="IP address"
-            control={form.control}
-            disabled={!isPoolSelected}
-            transform={(v) => v.replace(/\s/g, '')}
-            validate={(ip) =>
-              ip && !validateIp(ip).valid ? 'Not a valid IP address' : true
-            }
           />
         </AccordionItem>
       </Accordion.Root>
