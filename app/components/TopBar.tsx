@@ -8,13 +8,14 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { navToLogin, useApiMutation } from '@oxide/api'
+import { useApiMutation } from '@oxide/api'
 import {
   DirectionDownIcon,
   Info16Icon,
   Profile16Icon,
 } from '@oxide/design-system/icons/react'
 
+import { navToLogin } from '~/api/nav-to-login'
 import { useCurrentUser } from '~/layouts/AuthenticatedLayout'
 import { Button, buttonStyle } from '~/ui/lib/Button'
 import { DropdownMenu } from '~/ui/lib/DropdownMenu'
@@ -23,12 +24,7 @@ import { pb } from '~/util/path-builder'
 export function TopBar({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate()
   const logout = useApiMutation('logout', {
-    onSuccess: () => {
-      // server will respond to /login with a login redirect
-      // TODO-usability: do we just want to dump them back to login or is there
-      // another page that would make sense, like a logged out homepage
-      navToLogin({ includeCurrent: false })
-    },
+    onSuccess: () => navToLogin({ includeCurrent: false }),
   })
   // fetch happens in loader wrapping all authed pages
   const { me } = useCurrentUser()
