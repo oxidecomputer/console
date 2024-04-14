@@ -9,15 +9,17 @@ import { expect, test } from '@playwright/test'
 
 test('can nav to VpcPage from /', async ({ page }) => {
   await page.goto('/')
-  await page.click('table :text("mock-project")')
-  await page.click('a:has-text("VPCs")')
-  await page.click('a:has-text("mock-vpc")')
-  await expect(page.locator('text=mock-subnet')).toBeVisible()
+  await page.getByRole('table').getByRole('link', { name: 'mock-project' }).click()
+  await page.getByRole('link', { name: 'VPCs' }).click()
+  await page.getByRole('link', { name: 'mock-vpc' }).click()
+  await expect(page.getByRole('tab', { name: 'Firewall rules' })).toBeVisible()
+  await expect(page.getByRole('cell', { name: 'allow-icmp' })).toBeVisible()
   expect(await page.title()).toEqual('mock-vpc / VPCs / mock-project / Oxide Console')
 })
 
 test('can create and delete subnet', async ({ page }) => {
   await page.goto('/projects/mock-project/vpcs/mock-vpc')
+  await page.getByRole('tab', { name: 'Subnets' }).click()
   // only one row in table, the default mock-subnet
   const rows = page.locator('tbody >> tr')
   await expect(rows).toHaveCount(1)
