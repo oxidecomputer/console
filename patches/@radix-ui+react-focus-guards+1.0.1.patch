@@ -1,0 +1,18 @@
+Upstream PR: https://github.com/radix-ui/primitives/pull/2840
+
+diff --git a/node_modules/@radix-ui/react-focus-guards/dist/index.mjs b/node_modules/@radix-ui/react-focus-guards/dist/index.mjs
+index cb0f892..4e56fb8 100644
+--- a/node_modules/@radix-ui/react-focus-guards/dist/index.mjs
++++ b/node_modules/@radix-ui/react-focus-guards/dist/index.mjs
+@@ -27,7 +27,10 @@ function $3db38b7d1fb3fe6a$var$createFocusGuard() {
+     const element = document.createElement('span');
+     element.setAttribute('data-radix-focus-guard', '');
+     element.tabIndex = 0;
+-    element.style.cssText = 'outline: none; opacity: 0; position: fixed; pointer-events: none';
++    element.style.outline = 'none';
++    element.style.opacity = '0';
++    element.style.position = 'fixed';
++    element.style.pointerEvents = 'none';
+     return element;
+ }
+ const $3db38b7d1fb3fe6a$export$be92b6f5f03c0fe9 = $3db38b7d1fb3fe6a$export$ac5b58043b79449b;
