@@ -18,6 +18,10 @@ import { Modal } from '~/ui/lib/Modal'
 // open wins. That's not the worst, but it's really pretty crappy because you
 // can't see what you were doing.
 
+// ah. I think it's the focus on the new modal that triggers onDismiss on the
+// old because it's a focus outside. found that by putting conosle.trace inside
+// the project create onDismiss
+
 export function SessionExpiredModal() {
   const expired = useSessionExpiredStore()
   if (!expired) return null
