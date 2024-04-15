@@ -45,3 +45,23 @@ index 08eda83..e3ef7cb 100644
 -        removeScrollBar ? React.createElement(RemoveScrollBar, { gapMode: "margin" }) : null));
 +    return (React.createElement(React.Fragment, null));
  }
+diff --git a/node_modules/react-remove-scroll/dist/es2015/UI.js b/node_modules/react-remove-scroll/dist/es2015/UI.js
+index 26c94a8..75d91ae 100644
+--- a/node_modules/react-remove-scroll/dist/es2015/UI.js
++++ b/node_modules/react-remove-scroll/dist/es2015/UI.js
+@@ -1,6 +1,5 @@
+ import { __assign, __rest } from "tslib";
+ import * as React from 'react';
+-import { fullWidthClassName, zeroRightClassName } from 'react-remove-scroll-bar/constants';
+ import { useMergeRefs } from 'use-callback-ref';
+ import { effectCar } from './medium';
+ var nothing = function () {
+@@ -29,8 +28,4 @@ RemoveScroll.defaultProps = {
+     removeScrollBar: true,
+     inert: false,
+ };
+-RemoveScroll.classNames = {
+-    fullWidth: fullWidthClassName,
+-    zeroRight: zeroRightClassName,
+-};
+ export { RemoveScroll };
