@@ -6,9 +6,9 @@
  * Copyright Oxide Computer Company
  */
 
-import { format } from 'date-fns/format'
 import { filesize } from 'filesize'
 
+import { DateTime } from '~/ui/lib/DateTime'
 import { Truncate } from '~/ui/lib/Truncate'
 
 import { EmptyCell } from '../cells/EmptyCell'
@@ -18,13 +18,7 @@ import { EmptyCell } from '../cells/EmptyCell'
 type Info<T> = { getValue: () => T }
 
 function dateCell(info: Info<Date>) {
-  const date = info.getValue()
-  return (
-    <time dateTime={date.toISOString()} className="flex flex-wrap gap-x-2">
-      <span>{format(date, 'PP')}</span>
-      <span className="text-quaternary">{format(date, 'p')}</span>
-    </time>
-  )
+  return <DateTime date={info.getValue()} />
 }
 
 function sizeCell(info: Info<number>) {

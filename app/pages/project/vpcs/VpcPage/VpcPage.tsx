@@ -13,10 +13,10 @@ import { Networking24Icon } from '@oxide/design-system/icons/react'
 import { QueryParamTabs } from '~/components/QueryParamTabs'
 import { getVpcSelector, useVpcSelector } from '~/hooks'
 import { EmptyCell } from '~/table/cells/EmptyCell'
+import { DateTime } from '~/ui/lib/DateTime'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { Tabs } from '~/ui/lib/Tabs'
-import { formatDateTime } from '~/util/date'
 
 import { VpcFirewallRulesTab } from './tabs/VpcFirewallRulesTab'
 import { VpcSubnetsTab } from './tabs/VpcSubnetsTab'
@@ -56,10 +56,10 @@ export function VpcPage() {
         </PropertiesTable>
         <PropertiesTable>
           <PropertiesTable.Row label="Created">
-            {formatDateTime(vpc.timeCreated)}
+            <DateTime date={vpc.timeCreated} />
           </PropertiesTable.Row>
           <PropertiesTable.Row label="Last Modified">
-            {formatDateTime(vpc.timeModified)}
+            <DateTime date={vpc.timeModified} />
           </PropertiesTable.Row>
         </PropertiesTable>
       </PropertiesTable.Group>

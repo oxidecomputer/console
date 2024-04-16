@@ -6,10 +6,9 @@
  * Copyright Oxide Computer Company
  */
 import type { Placement } from '@floating-ui/react'
-import { format } from 'date-fns'
 
 import { Tooltip } from '~/ui/lib/Tooltip'
-import { timeAgoAbbr } from '~/util/date'
+import { timeAgoAbbr, toLocaleDateString } from '~/util/date'
 
 export const TimeAgo = ({
   datetime,
@@ -23,7 +22,7 @@ export const TimeAgo = ({
   const content = (
     <div className="flex flex-col">
       <span className="text-tertiary">{tooltipText}</span>
-      <span>{format(datetime, 'MMM d, yyyy p')}</span>
+      <span>{toLocaleDateString(datetime)}</span>
     </div>
   )
   return (

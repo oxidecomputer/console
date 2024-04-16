@@ -8,7 +8,7 @@
 import { subDays, subHours, subMinutes, subSeconds } from 'date-fns'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { timeAgoAbbr } from './date'
+import { timeAgoAbbr, toLocaleDateString, toLocaleTimeString } from './date'
 
 const baseDate = new Date(2021, 5, 7)
 
@@ -53,5 +53,21 @@ describe('timeAgoAbbr', () => {
   it("addSuffix option adds 'ago'", () => {
     expect(timeAgoAbbr(subDays(baseDate, 200), { addSuffix: true })).toEqual('7mo ago')
     expect(timeAgoAbbr(subDays(baseDate, 3), { addSuffix: true })).toEqual('3d ago')
+  })
+
+  it('formats toLocaleDateString', () => {
+    expect(toLocaleDateString(baseDate)).toEqual('Jun 7, 2021')
+    expect(toLocaleDateString(baseDate, 'en-US')).toEqual('Jun 7, 2021')
+    expect(toLocaleDateString(baseDate, 'fr-FR')).toEqual('7 juin 2021')
+    expect(toLocaleDateString(baseDate, 'de-DE')).toEqual('7. Juni 2021')
+    expect(toLocaleDateString(baseDate, 'ja-JP')).toEqual('2021年6月7日')
+  })
+
+  it('formats toLocaleTimeString', () => {
+    expect(toLocaleTimeString(baseDate)).toEqual('12:00 AM')
+    expect(toLocaleTimeString(baseDate, 'en-US')).toEqual('12:00 AM')
+    expect(toLocaleTimeString(baseDate, 'fr-FR')).toEqual('0:00 AM')
+    expect(toLocaleTimeString(baseDate, 'de-DE')).toEqual('0:00 AM')
+    expect(toLocaleTimeString(baseDate, 'ja-JP')).toEqual('午前0:00')
   })
 })
