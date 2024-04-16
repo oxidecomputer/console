@@ -12,7 +12,6 @@ import { filesize } from 'filesize'
 import { Truncate } from '~/ui/lib/Truncate'
 
 import { EmptyCell } from '../cells/EmptyCell'
-import { TwoLineCell } from '../cells/TwoLineCell'
 
 // the full type of the info arg is CellContext<Row, Item> from RT, but in these
 // cells we only care about the return value of getValue
@@ -20,7 +19,12 @@ type Info<T> = { getValue: () => T }
 
 function dateCell(info: Info<Date>) {
   const date = info.getValue()
-  return <TwoLineCell value={[format(date, 'MMM d, yyyy'), format(date, 'p')]} />
+  return (
+    <span className="flex flex-wrap gap-x-2">
+      <span>{format(date, 'MMM d, yyyy')}</span>
+      <span className="text-quaternary">{format(date, 'p')}</span>
+    </span>
+  )
 }
 
 function sizeCell(info: Info<number>) {
