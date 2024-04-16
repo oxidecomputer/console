@@ -44,4 +44,12 @@ export const physicalDisks: Json<PhysicalDisk>[] = [
     form_factor: 'm2',
     serial: 'CA73ANUYLJ9',
   },
+  {
+    ...base,
+    id: 'ba1c3581-b35b-48a5-924a-cb19921dca54',
+    form_factor: 'm2',
+    serial: 'F02106C3R2A',
+    state: 'decommissioned' as const,
+    policy: { kind: 'expunged' as const },
+  },
 ]
