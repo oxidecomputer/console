@@ -6,7 +6,6 @@
  * Copyright Oxide Computer Company
  */
 
-import { formatISO } from 'date-fns'
 import { format } from 'date-fns/format'
 import { filesize } from 'filesize'
 
@@ -21,7 +20,7 @@ type Info<T> = { getValue: () => T }
 function dateCell(info: Info<Date>) {
   const date = info.getValue()
   return (
-    <time dateTime={formatISO(date)} className="flex flex-wrap gap-x-2">
+    <time dateTime={date.toISOString()} className="flex flex-wrap gap-x-2">
       <span>{format(date, 'PP')}</span>
       <span className="text-quaternary">{format(date, 'p')}</span>
     </time>
