@@ -29,6 +29,8 @@ import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
+import { TableActions } from '~/ui/lib/Table'
 import { pb } from '~/util/path-builder'
 
 const EmptyState = () => (
@@ -60,12 +62,12 @@ const staticColumns = [
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
-IpPoolsTab.loader = async function () {
+IpPoolsPage.loader = async function () {
   await apiQueryClient.prefetchQuery('ipPoolList', { query: { limit: 25 } })
   return null
 }
 
-export function IpPoolsTab() {
+export function IpPoolsPage() {
   const navigate = useNavigate()
   const { Table } = useQueryTable('ipPoolList', {})
   const { data: pools } = usePrefetchedApiQuery('ipPoolList', { query: { limit: 25 } })
@@ -119,11 +121,14 @@ export function IpPoolsTab() {
 
   return (
     <>
-      <div className="mb-3 flex justify-end space-x-2">
+      <PageHeader>
+        <PageTitle icon={<Networking24Icon />}>IP Pools</PageTitle>
+      </PageHeader>
+      <TableActions>
         <Link to={pb.ipPoolsNew()} className={buttonStyle({ size: 'sm' })}>
           New IP Pool
         </Link>
-      </div>
+      </TableActions>
       <Table columns={columns} emptyState={<EmptyState />} />
       <Outlet />
     </>
