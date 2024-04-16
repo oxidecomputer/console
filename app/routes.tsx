@@ -71,8 +71,7 @@ import { SledInstancesTab } from './pages/system/inventory/sled/SledInstancesTab
 import { SledPage } from './pages/system/inventory/sled/SledPage'
 import { SledsTab } from './pages/system/inventory/SledsTab'
 import { IpPoolPage } from './pages/system/networking/IpPoolPage'
-import { IpPoolsTab } from './pages/system/networking/IpPoolsTab'
-import { NetworkingPage } from './pages/system/networking/NetworkingPage'
+import { IpPoolsPage } from './pages/system/networking/IpPoolsPage'
 import { SiloImagesPage } from './pages/system/SiloImagesPage'
 import { SiloPage } from './pages/system/silos/SiloPage'
 import { SilosPage } from './pages/system/silos/SilosPage'
@@ -178,10 +177,11 @@ export const routes = createRoutesFromElements(
         </Route>
         <Route path="health" element={null} handle={{ crumb: 'Health' }} />
         <Route path="update" element={null} handle={{ crumb: 'Update' }} />
-        <Route path="networking" element={<NetworkingPage />}>
+        <Route path="networking">
+          <Route index element={<Navigate to="ip-pools" replace />} />
           <Route
-            element={<IpPoolsTab />}
-            loader={IpPoolsTab.loader}
+            element={<IpPoolsPage />}
+            loader={IpPoolsPage.loader}
             handle={{ crumb: 'IP pools' }}
           >
             <Route path="ip-pools" element={null} />

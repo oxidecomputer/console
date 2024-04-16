@@ -83,8 +83,6 @@ export const pb = {
   systemUtilization: () => '/system/utilization',
   systemHealth: () => '/system/health',
 
-  // there is only one tab on networking and it's IP pools, so we just treat
-  // that as the networking route for now
   ipPools: () => '/system/networking/ip-pools',
   ipPoolsNew: () => '/system/networking/ip-pools-new',
   ipPool: (params: IpPool) => `${pb.ipPools()}/${params.pool}`,
