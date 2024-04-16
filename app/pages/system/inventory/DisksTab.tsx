@@ -39,14 +39,14 @@ const staticCols = [
   colHelper.accessor('state', {
     cell: (info) => {
       const state = info.getValue()
-      const color = state === 'active' ? 'default' : 'destructive'
+      const color = state === 'active' ? 'default' : 'neutral'
       return <Badge color={color}>{state}</Badge>
     },
   }),
   colHelper.accessor('policy', {
     cell: (info) => {
       const policy = info.getValue().kind
-      const color = policy === 'in_service' ? 'default' : 'destructive'
+      const color = policy === 'in_service' ? 'default' : 'neutral'
       return <Badge color={color}>{policy.replace(/_/g, ' ')}</Badge>
     },
   }),
