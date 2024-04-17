@@ -24,7 +24,7 @@ import { InstanceStatusCell } from '~/table/cells/InstanceStatusCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { getActionsCol } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
-import { useQueryTable } from '~/table/QueryTable'
+import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
 import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
@@ -47,7 +47,9 @@ const colHelper = createColumnHelper<Instance>()
 
 InstancesPage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project } = getProjectSelector(params)
-  await apiQueryClient.prefetchQuery('instanceList', { query: { project, limit: 25 } })
+  await apiQueryClient.prefetchQuery('instanceList', {
+    query: { project, limit: PAGE_SIZE },
+  })
   return null
 }
 
@@ -60,7 +62,7 @@ export function InstancesPage() {
   const makeActions = useMakeInstanceActions({ project }, { onSuccess: refetchInstances })
 
   const { data: instances } = usePrefetchedApiQuery('instanceList', {
-    query: { project, limit: 25 }, // to have same params as QueryTable
+    query: { project, limit: PAGE_SIZE },
   })
 
   const navigate = useNavigate()

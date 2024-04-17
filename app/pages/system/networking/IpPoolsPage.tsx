@@ -26,7 +26,7 @@ import { SkeletonCell } from '~/table/cells/EmptyCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
-import { useQueryTable } from '~/table/QueryTable'
+import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
 import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
@@ -63,14 +63,16 @@ const staticColumns = [
 ]
 
 IpPoolsPage.loader = async function () {
-  await apiQueryClient.prefetchQuery('ipPoolList', { query: { limit: 25 } })
+  await apiQueryClient.prefetchQuery('ipPoolList', { query: { limit: PAGE_SIZE } })
   return null
 }
 
 export function IpPoolsPage() {
   const navigate = useNavigate()
   const { Table } = useQueryTable('ipPoolList', {})
-  const { data: pools } = usePrefetchedApiQuery('ipPoolList', { query: { limit: 25 } })
+  const { data: pools } = usePrefetchedApiQuery('ipPoolList', {
+    query: { limit: PAGE_SIZE },
+  })
 
   const deletePool = useApiMutation('ipPoolDelete', {
     onSuccess() {
