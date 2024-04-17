@@ -29,7 +29,7 @@ import { addToast } from '~/stores/toast'
 import { InstanceLinkCell } from '~/table/cells/InstanceLinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
-import { useQueryTable } from '~/table/QueryTable'
+import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Listbox } from '~/ui/lib/Listbox'
 import { Message } from '~/ui/lib/Message'
@@ -53,7 +53,7 @@ FloatingIpsPage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project } = getProjectSelector(params)
   await Promise.all([
     apiQueryClient.prefetchQuery('floatingIpList', {
-      query: { project, limit: 25 },
+      query: { project, limit: PAGE_SIZE },
     }),
     apiQueryClient.prefetchQuery('instanceList', {
       query: { project },

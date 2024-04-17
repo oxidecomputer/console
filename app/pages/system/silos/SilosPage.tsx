@@ -24,7 +24,7 @@ import { BooleanCell } from '~/table/cells/BooleanCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
-import { useQueryTable } from '~/table/QueryTable'
+import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
 import { Badge } from '~/ui/lib/Badge'
 import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -59,7 +59,7 @@ const staticCols = [
 ]
 
 SilosPage.loader = async () => {
-  await apiQueryClient.prefetchQuery('siloList', { query: { limit: 25 } })
+  await apiQueryClient.prefetchQuery('siloList', { query: { limit: PAGE_SIZE } })
   return null
 }
 
@@ -70,7 +70,7 @@ export function SilosPage() {
   const queryClient = useApiQueryClient()
 
   const { data: silos } = usePrefetchedApiQuery('siloList', {
-    query: { limit: 25 },
+    query: { limit: PAGE_SIZE },
   })
 
   const deleteSilo = useApiMutation('siloDelete', {

@@ -9,18 +9,17 @@ import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import { Racks24Icon } from '@oxide/design-system/icons/react'
 
 import { RouteTabs, Tab } from '~/components/RouteTabs'
+import { PAGE_SIZE } from '~/table/QueryTable'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { pb } from '~/util/path-builder'
 
 InventoryPage.loader = async () => {
-  await apiQueryClient.prefetchQuery('rackList', {
-    query: { limit: 25 },
-  })
+  await apiQueryClient.prefetchQuery('rackList', { query: { limit: PAGE_SIZE } })
   return null
 }
 
 export function InventoryPage() {
-  const { data: racks } = usePrefetchedApiQuery('rackList', { query: { limit: 25 } })
+  const { data: racks } = usePrefetchedApiQuery('rackList', { query: { limit: PAGE_SIZE } })
   const rack = racks?.items[0]
 
   if (!rack) return null

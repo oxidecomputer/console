@@ -10,7 +10,7 @@ import { createColumnHelper } from '@tanstack/react-table'
 import { apiQueryClient, type PhysicalDisk } from '@oxide/api'
 import { Racks24Icon } from '@oxide/design-system/icons/react'
 
-import { useQueryTable } from '~/table/QueryTable'
+import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
 import { Badge } from '~/ui/lib/Badge'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 
@@ -23,7 +23,7 @@ const EmptyState = () => (
 )
 
 DisksTab.loader = async () => {
-  await apiQueryClient.prefetchQuery('physicalDiskList', { query: { limit: 25 } })
+  await apiQueryClient.prefetchQuery('physicalDiskList', { query: { limit: PAGE_SIZE } })
   return null
 }
 

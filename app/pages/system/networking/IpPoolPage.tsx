@@ -35,7 +35,7 @@ import { SkeletonCell } from '~/table/cells/EmptyCell'
 import { LinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
-import { useQueryTable } from '~/table/QueryTable'
+import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
 import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
@@ -48,19 +48,12 @@ import { pb } from '~/util/path-builder'
 
 IpPoolPage.loader = async function ({ params }: LoaderFunctionArgs) {
   const { pool } = getIpPoolSelector(params)
+  const query = { limit: PAGE_SIZE }
   await Promise.all([
     apiQueryClient.prefetchQuery('ipPoolView', { path: { pool } }),
-    apiQueryClient.prefetchQuery('ipPoolSiloList', {
-      path: { pool },
-      query: { limit: 25 }, // match QueryTable
-    }),
-    apiQueryClient.prefetchQuery('ipPoolRangeList', {
-      path: { pool },
-      query: { limit: 25 }, // match QueryTable
-    }),
-    apiQueryClient.prefetchQuery('ipPoolUtilizationView', {
-      path: { pool },
-    }),
+    apiQueryClient.prefetchQuery('ipPoolSiloList', { path: { pool }, query }),
+    apiQueryClient.prefetchQuery('ipPoolRangeList', { path: { pool }, query }),
+    apiQueryClient.prefetchQuery('ipPoolUtilizationView', { path: { pool } }),
 
     // fetch silos and preload into RQ cache so fetches by ID in SiloNameFromId
     // can be mostly instant yet gracefully fall back to fetching individually
