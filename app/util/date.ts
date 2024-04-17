@@ -5,11 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import {
-  format,
-  formatDistanceToNowStrict,
-  type FormatDistanceToNowStrictOptions,
-} from 'date-fns'
+import { formatDistanceToNowStrict, type FormatDistanceToNowStrictOptions } from 'date-fns'
 
 // locale setup and formatDistance function copied from here and modified
 // https://github.com/date-fns/date-fns/blob/56a3856/src/locale/en-US/_lib/formatDistance/index.js
@@ -47,4 +43,13 @@ export const timeAgoAbbr = (d: Date, options?: FormatDistanceToNowStrictOptions)
     },
   })
 
-export const formatDateTime = (d: Date) => format(d, 'MMM d, yyyy H:mm aa')
+// dateStyle: 'medium' looks like `Apr 16, 2024` for en-US
+export const toLocaleDateString = (d: Date, locale?: string) =>
+  new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(d)
+
+// timeStyle: 'short' looks like `8:33 PM` for en-US
+export const toLocaleTimeString = (d: Date, locale?: string) =>
+  new Intl.DateTimeFormat(locale, { timeStyle: 'short' }).format(d)
+
+export const toLocaleDateTimeString = (d: Date, locale?: string) =>
+  new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short' }).format(d)

@@ -21,10 +21,10 @@ import {
   useProjectImageSelector,
   useSiloImageSelector,
 } from '~/hooks'
+import { DateTime } from '~/ui/lib/DateTime'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { ResourceLabel } from '~/ui/lib/SideModal'
 import { Truncate } from '~/ui/lib/Truncate'
-import { formatDateTime } from '~/util/date'
 import { pb } from '~/util/path-builder'
 import { bytesToGiB } from '~/util/units'
 
@@ -94,10 +94,10 @@ export function EditImageSideModalForm({
           <span className="ml-1 inline-block text-quaternary">GiB</span>
         </PropertiesTable.Row>
         <PropertiesTable.Row label="Created">
-          {formatDateTime(image.timeCreated)}
+          <DateTime date={image.timeCreated} />
         </PropertiesTable.Row>
         <PropertiesTable.Row label="Updated">
-          {formatDateTime(image.timeModified)}
+          <DateTime date={image.timeModified} />
         </PropertiesTable.Row>
       </PropertiesTable>
 

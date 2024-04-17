@@ -6,21 +6,19 @@
  * Copyright Oxide Computer Company
  */
 
-import { format } from 'date-fns/format'
 import { filesize } from 'filesize'
 
+import { DateTime } from '~/ui/lib/DateTime'
 import { Truncate } from '~/ui/lib/Truncate'
 
 import { EmptyCell } from '../cells/EmptyCell'
-import { TwoLineCell } from '../cells/TwoLineCell'
 
 // the full type of the info arg is CellContext<Row, Item> from RT, but in these
 // cells we only care about the return value of getValue
 type Info<T> = { getValue: () => T }
 
 function dateCell(info: Info<Date>) {
-  const date = info.getValue()
-  return <TwoLineCell value={[format(date, 'MMM d, yyyy'), format(date, 'p')]} />
+  return <DateTime date={info.getValue()} />
 }
 
 function sizeCell(info: Info<number>) {

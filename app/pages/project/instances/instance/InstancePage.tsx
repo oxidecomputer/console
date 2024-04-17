@@ -5,7 +5,6 @@
  *
  * Copyright Oxide Computer Company
  */
-import { format } from 'date-fns'
 import { filesize } from 'filesize'
 import { useMemo } from 'react'
 import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
@@ -25,6 +24,7 @@ import { RouteTabs, Tab } from '~/components/RouteTabs'
 import { InstanceStatusBadge } from '~/components/StatusBadge'
 import { getInstanceSelector, useInstanceSelector, useQuickActions } from '~/hooks'
 import { EmptyCell } from '~/table/cells/EmptyCell'
+import { DateTime } from '~/ui/lib/DateTime'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { Truncate } from '~/ui/lib/Truncate'
@@ -172,12 +172,7 @@ export function InstancePage() {
             </span>
           </PropertiesTable.Row>
           <PropertiesTable.Row label="created">
-            <span className="text-secondary">
-              {format(instance.timeCreated, 'MMM d, yyyy')}{' '}
-            </span>
-            <span className="ml-1 text-quaternary">
-              {format(instance.timeCreated, 'p')}
-            </span>
+            <DateTime date={instance.timeCreated} />
           </PropertiesTable.Row>
           <PropertiesTable.Row label="id">
             <span className="overflow-hidden text-ellipsis whitespace-nowrap text-secondary">

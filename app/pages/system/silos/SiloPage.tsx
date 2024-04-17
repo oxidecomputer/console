@@ -14,12 +14,12 @@ import { QueryParamTabs } from '~/components/QueryParamTabs'
 import { getSiloSelector, useSiloSelector } from '~/hooks'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { Badge } from '~/ui/lib/Badge'
+import { DateTime } from '~/ui/lib/DateTime'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { TableEmptyBox } from '~/ui/lib/Table'
 import { Tabs } from '~/ui/lib/Tabs'
-import { formatDateTime } from '~/util/date'
 
 import { SiloIdpsTab } from './SiloIdpsTab'
 import { SiloIpPoolsTab } from './SiloIpPoolsTab'
@@ -64,10 +64,10 @@ export function SiloPage() {
         </PropertiesTable>
         <PropertiesTable>
           <PropertiesTable.Row label="Created">
-            {formatDateTime(silo.timeCreated)}
+            <DateTime date={silo.timeCreated} />
           </PropertiesTable.Row>
           <PropertiesTable.Row label="Last Modified">
-            {formatDateTime(silo.timeModified)}
+            <DateTime date={silo.timeModified} />
           </PropertiesTable.Row>
         </PropertiesTable>
       </PropertiesTable.Group>
