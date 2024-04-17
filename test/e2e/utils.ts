@@ -106,6 +106,7 @@ export async function expectRowVisible(
 export async function stopInstance(page: Page) {
   await page.click('role=button[name="Instance actions"]')
   await page.click('role=menuitem[name="Stop"]')
+  await page.click('role=button[name="Confirm"]')
   await closeToast(page)
 }
 
