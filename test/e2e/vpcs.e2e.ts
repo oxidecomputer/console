@@ -12,6 +12,7 @@ test('can nav to VpcPage from /', async ({ page }) => {
   await page.getByRole('table').getByRole('link', { name: 'mock-project' }).click()
   await page.getByRole('link', { name: 'VPCs' }).click()
   await page.getByRole('link', { name: 'mock-vpc' }).click()
+  await expect(page.getByText('Jan 1, 202112:00 AM')).toBeVisible()
   await expect(page.getByRole('tab', { name: 'Firewall rules' })).toBeVisible()
   await expect(page.getByRole('cell', { name: 'allow-icmp' })).toBeVisible()
   expect(await page.title()).toEqual('mock-vpc / VPCs / mock-project / Oxide Console')

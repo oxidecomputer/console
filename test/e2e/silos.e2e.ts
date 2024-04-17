@@ -28,6 +28,7 @@ test('Create silo', async ({ page }) => {
     // not easy to assert this until we can calculate accessible name instead of text content
     // discoverable: 'true',
   })
+  await expect(page.getByText('Feb 28, 202312:00 AM')).toBeVisible()
 
   await page.click('role=link[name="New silo"]')
 
