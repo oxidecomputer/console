@@ -16,17 +16,14 @@ import { SpinnerLoader } from '~/ui/lib/Spinner'
 export function RefreshButton({ onClick }: { onClick: () => Promise<void> }) {
   const [refreshing, setRefreshing] = useState(false)
 
+  async function refresh() {
+    setRefreshing(true)
+    await onClick()
+    setRefreshing(false)
+  }
+
   return (
-    <Button
-      size="icon"
-      variant="ghost"
-      onClick={async () => {
-        setRefreshing(true)
-        await onClick()
-        setRefreshing(false)
-      }}
-      aria-label="Refresh data"
-    >
+    <Button size="icon" variant="ghost" onClick={refresh} aria-label="Refresh data">
       <SpinnerLoader isLoading={refreshing}>
         <Refresh16Icon />
       </SpinnerLoader>
