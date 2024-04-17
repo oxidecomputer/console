@@ -23,7 +23,7 @@ import { confirmDelete } from '~/stores/confirm-delete'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { getActionsCol, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
-import { useQueryTable } from '~/table/QueryTable'
+import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
 import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
@@ -42,11 +42,11 @@ const EmptyState = () => (
 
 const colHelper = createColumnHelper<Vpc>()
 
-// just as in the vpcList call for the quick actions menu, include limit: 25 to make
+// just as in the vpcList call for the quick actions menu, include limit to make
 // sure it matches the call in the QueryTable
 VpcsPage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project } = getProjectSelector(params)
-  await apiQueryClient.prefetchQuery('vpcList', { query: { project, limit: 25 } })
+  await apiQueryClient.prefetchQuery('vpcList', { query: { project, limit: PAGE_SIZE } })
   return null
 }
 
@@ -54,7 +54,9 @@ export function VpcsPage() {
   const queryClient = useApiQueryClient()
   const { project } = useProjectSelector()
   // to have same params as QueryTable
-  const { data: vpcs } = usePrefetchedApiQuery('vpcList', { query: { project, limit: 25 } })
+  const { data: vpcs } = usePrefetchedApiQuery('vpcList', {
+    query: { project, limit: PAGE_SIZE },
+  })
   const navigate = useNavigate()
 
   const deleteVpc = useApiMutation('vpcDelete', {

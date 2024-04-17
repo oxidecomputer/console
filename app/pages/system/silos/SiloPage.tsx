@@ -13,6 +13,7 @@ import { Cloud24Icon, NextArrow12Icon } from '@oxide/design-system/icons/react'
 import { QueryParamTabs } from '~/components/QueryParamTabs'
 import { getSiloSelector, useSiloSelector } from '~/hooks'
 import { EmptyCell } from '~/table/cells/EmptyCell'
+import { PAGE_SIZE } from '~/table/QueryTable'
 import { Badge } from '~/ui/lib/Badge'
 import { DateTime } from '~/ui/lib/DateTime'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -29,10 +30,10 @@ SiloPage.loader = async ({ params }: LoaderFunctionArgs) => {
   await Promise.all([
     apiQueryClient.prefetchQuery('siloView', { path: { silo } }),
     apiQueryClient.prefetchQuery('siloIdentityProviderList', {
-      query: { silo, limit: 25 }, // match QueryTable
+      query: { silo, limit: PAGE_SIZE },
     }),
     apiQueryClient.prefetchQuery('siloIpPoolList', {
-      query: { limit: 25 }, // match QueryTable
+      query: { limit: PAGE_SIZE },
       path: { silo },
     }),
   ])

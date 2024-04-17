@@ -16,7 +16,7 @@ import { requireSledParams, useSledParams } from '~/hooks'
 import { InstanceResourceCell } from '~/table/cells/InstanceResourceCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
-import { useQueryTable } from '~/table/QueryTable'
+import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { pick } from '~/util/object'
 
@@ -34,7 +34,7 @@ SledInstancesTab.loader = async ({ params }: LoaderFunctionArgs) => {
   const { sledId } = requireSledParams(params)
   await apiQueryClient.prefetchQuery('sledInstanceList', {
     path: { sledId },
-    query: { limit: 25 },
+    query: { limit: PAGE_SIZE },
   })
   return null
 }
@@ -72,7 +72,7 @@ export function SledInstancesTab() {
   const { sledId } = useSledParams()
   const { Table } = useQueryTable(
     'sledInstanceList',
-    { path: { sledId }, query: { limit: 25 } },
+    { path: { sledId }, query: { limit: PAGE_SIZE } },
     { placeholderData: (x) => x }
   )
 
