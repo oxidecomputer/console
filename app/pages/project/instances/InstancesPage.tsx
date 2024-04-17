@@ -15,8 +15,9 @@ import {
   usePrefetchedApiQuery,
   type Instance,
 } from '@oxide/api'
-import { Instances24Icon, Refresh16Icon } from '@oxide/design-system/icons/react'
+import { Instances24Icon } from '@oxide/design-system/icons/react'
 
+import { RefreshButton } from '~/components/RefreshButton'
 import { getProjectSelector, useProjectSelector, useQuickActions } from '~/hooks'
 import { InstanceResourceCell } from '~/table/cells/InstanceResourceCell'
 import { InstanceStatusCell } from '~/table/cells/InstanceStatusCell'
@@ -24,7 +25,7 @@ import { makeLinkCell } from '~/table/cells/LinkCell'
 import { getActionsCol } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
-import { Button, buttonStyle } from '~/ui/lib/Button'
+import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
@@ -120,14 +121,7 @@ export function InstancesPage() {
         <PageTitle icon={<Instances24Icon />}>Instances</PageTitle>
       </PageHeader>
       <TableActions>
-        <Button
-          size="icon"
-          variant="ghost"
-          onClick={refetchInstances}
-          aria-label="Refresh instances table"
-        >
-          <Refresh16Icon />
-        </Button>
+        <RefreshButton onClick={() => apiQueryClient.invalidateQueries('instanceList')} />
         <Link to={pb.instancesNew({ project })} className={buttonStyle({ size: 'sm' })}>
           New Instance
         </Link>

@@ -20,6 +20,7 @@ import { Instances24Icon } from '@oxide/design-system/icons/react'
 
 import { ExternalIps } from '~/components/ExternalIps'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
+import { RefreshButton } from '~/components/RefreshButton'
 import { RouteTabs, Tab } from '~/components/RouteTabs'
 import { InstanceStatusBadge } from '~/components/StatusBadge'
 import { getInstanceSelector, useInstanceSelector, useQuickActions } from '~/hooks'
@@ -35,6 +36,15 @@ import { useMakeInstanceActions } from '../actions'
 function getPrimaryVpcId(nics: InstanceNetworkInterface[]) {
   const nic = nics.find((nic) => nic.primary)
   return nic ? nic.vpcId : undefined
+}
+
+// this is meant to cover everything that we fetch in the page
+function refreshData() {
+  apiQueryClient.invalidateQueries('instanceView')
+  apiQueryClient.invalidateQueries('instanceExternalIpList')
+  apiQueryClient.invalidateQueries('instanceNetworkInterfaceList')
+  apiQueryClient.invalidateQueries('instanceDiskList') // storage tab
+  apiQueryClient.invalidateQueries('diskMetricsList') // metrics tab
 }
 
 InstancePage.loader = async ({ params }: LoaderFunctionArgs) => {
@@ -137,7 +147,10 @@ export function InstancePage() {
     <>
       <PageHeader>
         <PageTitle icon={<Instances24Icon />}>{instance.name}</PageTitle>
-        <MoreActionsMenu label="Instance actions" actions={actions} />
+        <div className="inline-flex gap-2">
+          <RefreshButton onClick={refreshData} />
+          <MoreActionsMenu label="Instance actions" actions={actions} />
+        </div>
       </PageHeader>
       <PropertiesTable.Group className="-mt-8 mb-16">
         <PropertiesTable>
