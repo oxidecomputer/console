@@ -12,20 +12,18 @@ import { Refresh16Icon } from '@oxide/design-system/icons/react'
 
 import { Button } from '~/ui/lib/Button'
 import { SpinnerLoader } from '~/ui/lib/Spinner'
-import { useTimeout } from '~/ui/lib/use-timeout'
 
-export function RefreshButton({ onClick }: { onClick: () => void }) {
-  // fake timer on fetching because it's too annoying to actually track it
+export function RefreshButton({ onClick }: { onClick: () => Promise<void> }) {
   const [refreshing, setRefreshing] = useState(false)
-  useTimeout(() => setRefreshing(false), refreshing ? 500 : null)
 
   return (
     <Button
       size="icon"
       variant="ghost"
-      onClick={() => {
-        onClick()
+      onClick={async () => {
         setRefreshing(true)
+        await onClick()
+        setRefreshing(false)
       }}
       aria-label="Refresh data"
     >
