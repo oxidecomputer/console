@@ -259,7 +259,7 @@ export function ProjectPicker({ project }: { project?: Project }) {
   const { data: projects } = useApiQuery('projectList', { query: { limit: 200 } })
   const items = (projects?.items || []).map(({ name }) => ({
     label: name,
-    to: pb.instances({ project: name }),
+    to: pb.project({ project: name }),
   }))
 
   return (
