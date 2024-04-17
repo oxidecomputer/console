@@ -10,6 +10,8 @@ import { useNavigate } from 'react-router-dom'
 
 import { instanceCan, useApiMutation, type Instance } from '@oxide/api'
 
+import { HL } from '~/components/HL'
+import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import type { MakeActions } from '~/table/columns/action-col'
@@ -65,14 +67,28 @@ export const useMakeInstanceActions = (
         {
           label: 'Stop',
           onActivate() {
-            stopInstance.mutate(instanceParams, {
-              onSuccess: () => addToast({ title: `Stopping instance '${instance.name}'` }),
-              onError: (error) =>
-                addToast({
-                  variant: 'error',
-                  title: `Error stopping instance '${instance.name}'`,
-                  content: error.message,
+            confirmAction({
+              actionType: 'danger',
+              doAction: async () =>
+                stopInstance.mutate(instanceParams, {
+                  onSuccess: () =>
+                    addToast({ title: `Stopping instance '${instance.name}'` }),
+                  onError: (error) =>
+                    addToast({
+                      variant: 'error',
+                      title: `Error stopping instance '${instance.name}'`,
+                      content: error.message,
+                    }),
                 }),
+              modalTitle: 'Confirm stop',
+              modalContent: (
+                <p>
+                  Are you sure you want to stop <HL>{instance.name}</HL>? Stopped instances
+                  retain their IP addresses but no longer have compute resources (vCPU,
+                  memory) allocated to them.
+                </p>
+              ),
+              errorTitle: `Could not stop ${instance.name}`,
             })
           },
           disabled: !instanceCan.stop(instance) && (
