@@ -12,7 +12,6 @@ import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 import {
   apiQueryClient,
   useApiQuery,
-  useApiQueryClient,
   usePrefetchedApiQuery,
   type InstanceNetworkInterface,
 } from '@oxide/api'
@@ -85,11 +84,8 @@ export function InstancePage() {
   const instanceSelector = useInstanceSelector()
 
   const navigate = useNavigate()
-  const queryClient = useApiQueryClient()
   const makeActions = useMakeInstanceActions(instanceSelector, {
-    onSuccess: () => {
-      queryClient.invalidateQueries('instanceView')
-    },
+    onSuccess: refreshData,
     // go to project instances list since there's no more instance
     onDelete: () => navigate(pb.instances(instanceSelector)),
   })
