@@ -64,8 +64,8 @@ describe('timeAgoAbbr', () => {
     expect(toLocaleDateString(baseDate)).toEqual('Jun 7, 2021')
     expect(toLocaleDateString(baseDate, 'en-US')).toEqual('Jun 7, 2021')
     expect(toLocaleDateString(baseDate, 'fr-FR')).toEqual('7 juin 2021')
-    expect(toLocaleDateString(baseDate, 'de-DE')).toEqual('7. Juni 2021')
-    expect(toLocaleDateString(baseDate, 'ja-JP')).toEqual('2021年6月7日')
+    expect(toLocaleDateString(baseDate, 'de-DE')).toEqual('07.06.2021')
+    expect(toLocaleDateString(baseDate, 'ja-JP')).toEqual('2021/06/07')
   })
 
   it('formats toLocaleTimeString', () => {
@@ -80,7 +80,7 @@ describe('timeAgoAbbr', () => {
     expect(toLocaleDateTimeString(baseDate)).toEqual('Jun 7, 2021, 12:00 AM')
     expect(toLocaleDateTimeString(baseDate, 'en-US')).toEqual('Jun 7, 2021, 12:00 AM')
     expect(toLocaleDateTimeString(baseDate, 'fr-FR')).toEqual('7 juin 2021, 00:00')
-    expect(toLocaleDateTimeString(baseDate, 'de-DE')).toEqual('7. Juni 2021, 00:00')
-    expect(toLocaleDateTimeString(baseDate, 'ja-JP')).toEqual('2021年6月7日 0:00')
+    expect(toLocaleDateTimeString(baseDate, 'de-DE')).toEqual('07.06.2021, 00:00')
+    expect(toLocaleDateTimeString(baseDate, 'ja-JP')).toEqual('2021/06/07 0:00')
   })
 })

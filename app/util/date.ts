@@ -43,22 +43,13 @@ export const timeAgoAbbr = (d: Date, options?: FormatDistanceToNowStrictOptions)
     },
   })
 
-const dateOptions = {
-  month: 'short',
-  day: 'numeric',
-  year: 'numeric',
-} satisfies Intl.DateTimeFormatOptions
-
-const timeOptions = {
-  hour: 'numeric',
-  minute: 'numeric',
-} satisfies Intl.DateTimeFormatOptions
-
+// dateStyle: 'medium' looks like `Apr 16, 2024` for en-US
 export const toLocaleDateString = (d: Date, locale?: string) =>
-  new Intl.DateTimeFormat(locale, dateOptions).format(d)
+  new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(d)
 
+// timeStyle: 'short' looks like `8:33 PM` for en-US
 export const toLocaleTimeString = (d: Date, locale?: string) =>
-  new Intl.DateTimeFormat(locale, timeOptions).format(d)
+  new Intl.DateTimeFormat(locale, { timeStyle: 'short' }).format(d)
 
 export const toLocaleDateTimeString = (d: Date, locale?: string) =>
-  new Intl.DateTimeFormat(locale, { ...dateOptions, ...timeOptions }).format(d)
+  new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short' }).format(d)
