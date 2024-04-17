@@ -123,7 +123,7 @@ export function InstancesPage() {
         <PageTitle icon={<Instances24Icon />}>Instances</PageTitle>
       </PageHeader>
       <TableActions>
-        <RefreshButton onClick={() => apiQueryClient.invalidateQueries('instanceList')} />
+        <RefreshButton onClick={refetchInstances} />
         <Link to={pb.instancesNew({ project })} className={buttonStyle({ size: 'sm' })}>
           New Instance
         </Link>

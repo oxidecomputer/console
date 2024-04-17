@@ -6,14 +6,27 @@
  * Copyright Oxide Computer Company
  */
 
+import { useState } from 'react'
+
 import { Refresh16Icon } from '@oxide/design-system/icons/react'
 
 import { Button } from '~/ui/lib/Button'
+import { SpinnerLoader } from '~/ui/lib/Spinner'
 
-export function RefreshButton({ onClick }: { onClick: () => void }) {
+export function RefreshButton({ onClick }: { onClick: () => Promise<void> }) {
+  const [refreshing, setRefreshing] = useState(false)
+
+  async function refresh() {
+    setRefreshing(true)
+    await onClick()
+    setRefreshing(false)
+  }
+
   return (
-    <Button size="icon" variant="ghost" onClick={onClick} aria-label="Refresh data">
-      <Refresh16Icon />
+    <Button size="icon" variant="ghost" onClick={refresh} aria-label="Refresh data">
+      <SpinnerLoader isLoading={refreshing}>
+        <Refresh16Icon />
+      </SpinnerLoader>
     </Button>
   )
 }

@@ -38,12 +38,14 @@ function getPrimaryVpcId(nics: InstanceNetworkInterface[]) {
 }
 
 // this is meant to cover everything that we fetch in the page
-function refreshData() {
-  apiQueryClient.invalidateQueries('instanceView')
-  apiQueryClient.invalidateQueries('instanceExternalIpList')
-  apiQueryClient.invalidateQueries('instanceNetworkInterfaceList')
-  apiQueryClient.invalidateQueries('instanceDiskList') // storage tab
-  apiQueryClient.invalidateQueries('diskMetricsList') // metrics tab
+async function refreshData() {
+  await Promise.all([
+    apiQueryClient.invalidateQueries('instanceView'),
+    apiQueryClient.invalidateQueries('instanceExternalIpList'),
+    apiQueryClient.invalidateQueries('instanceNetworkInterfaceList'),
+    apiQueryClient.invalidateQueries('instanceDiskList'), // storage tab
+    apiQueryClient.invalidateQueries('diskMetricsList'), // metrics tab
+  ])
 }
 
 InstancePage.loader = async ({ params }: LoaderFunctionArgs) => {
