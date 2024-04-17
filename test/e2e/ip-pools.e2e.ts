@@ -33,6 +33,24 @@ test('IP pool list', async ({ page }) => {
   })
 })
 
+test.describe('german locale', () => {
+  test.use({ locale: 'de-DE' })
+
+  test('IP pools list renders bignum with correct locale', async ({ page }) => {
+    await page.goto('/system/networking/ip-pools')
+    const table = page.getByRole('table')
+    await expectRowVisible(table, {
+      name: 'ip-pool-4',
+      Utilization: 'v4' + '0 / 207' + 'v6' + '0 / 18,4e18',
+    })
+  })
+
+  test('IP pool CapacityBar renders bignum with correct locale', async ({ page }) => {
+    await page.goto('/system/networking/ip-pools/ip-pool-4')
+    await expect(page.getByText('Capacity18,4e18')).toBeVisible()
+  })
+})
+
 test('IP pool silo list', async ({ page }) => {
   await page.goto('/system/networking/ip-pools')
 
