@@ -239,9 +239,11 @@ export const wrapQueryClient = <A extends ApiClient>(api: A, queryClient: QueryC
    * accidentally overspecifying and therefore failing to match the desired
    * query. The params argument can be added back in if we ever have a use case
    * for it.
+   *
+   * Passing no arguments will invalidate all queries.
    */
-  invalidateQueries: <M extends keyof A>(method: M, filters?: InvalidateQueryFilters) =>
-    queryClient.invalidateQueries({ queryKey: [method], ...filters }),
+  invalidateQueries: <M extends keyof A>(method?: M, filters?: InvalidateQueryFilters) =>
+    queryClient.invalidateQueries(method ? { queryKey: [method], ...filters } : undefined),
   setQueryData: <M extends keyof A>(method: M, params: Params<A[M]>, data: Result<A[M]>) =>
     queryClient.setQueryData([method, params], data),
   setQueryDataErrorsAllowed: <M extends keyof A>(
