@@ -10,6 +10,8 @@ import { useNavigate } from 'react-router-dom'
 
 import { instanceCan, useApiMutation, type Instance } from '@oxide/api'
 
+import { HL } from '~/components/HL'
+import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import type { MakeActions } from '~/table/columns/action-col'
@@ -65,14 +67,28 @@ export const useMakeInstanceActions = (
         {
           label: 'Stop',
           onActivate() {
-            stopInstance.mutate(instanceParams, {
-              onSuccess: () => addToast({ title: `Stopping instance '${instance.name}'` }),
-              onError: (error) =>
-                addToast({
-                  variant: 'error',
-                  title: `Error stopping instance '${instance.name}'`,
-                  content: error.message,
+            confirmAction({
+              actionType: 'danger',
+              doAction: async () =>
+                stopInstance.mutate(instanceParams, {
+                  onSuccess: () =>
+                    addToast({ title: `Stopping instance '${instance.name}'` }),
+                  onError: (error) =>
+                    addToast({
+                      variant: 'error',
+                      title: `Error stopping instance '${instance.name}'`,
+                      content: error.message,
+                    }),
                 }),
+              modalTitle: 'Confirm stop instance',
+              modalContent: (
+                <p>
+                  Are you sure you want to stop <HL>{instance.name}</HL>? Stopped instances
+                  retain attached disks and IP addresses, but allocated CPU and memory are
+                  freed.
+                </p>
+              ),
+              errorTitle: `Could not stop ${instance.name}`,
             })
           },
           disabled: !instanceCan.stop(instance) && (
@@ -113,6 +129,7 @@ export const useMakeInstanceActions = (
                 },
               }),
             label: instance.name,
+            resourceKind: 'instance',
           }),
           disabled: !instanceCan.delete(instance) && (
             <>Only {fancifyStates(instanceCan.delete.states)} instances can be deleted</>

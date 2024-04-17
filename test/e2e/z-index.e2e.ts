@@ -48,6 +48,7 @@ test('Dropdown content in SidebarModal shows on screen', async ({ page }) => {
   // stop the instance
   await page.getByRole('button', { name: 'Instance actions' }).click()
   await page.getByRole('menuitem', { name: 'Stop' }).click()
+  await page.getByRole('button', { name: 'Confirm' }).click()
 
   // open the add network interface side modal
   await page.getByRole('button', { name: 'Add network interface' }).click()
