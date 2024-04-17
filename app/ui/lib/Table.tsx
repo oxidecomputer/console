@@ -96,8 +96,8 @@ Table.Body = ({ className, children, ...props }: TableBodyProps) => {
 export type TableCellProps = JSX.IntrinsicElements['td'] & {
   height?: 'large' | 'small' | 'auto'
 }
-Table.Cell = ({ height = 'large', className, children, ...props }: TableCellProps) => {
-  const heightClass = height === 'large' ? 'h-16' : height === 'small' ? 'h-8' : ''
+Table.Cell = ({ height = 'small', className, children, ...props }: TableCellProps) => {
+  const heightClass = height === 'small' ? 'h-12' : height === 'large' ? 'h-16' : ''
   return (
     <td
       className={cn(
