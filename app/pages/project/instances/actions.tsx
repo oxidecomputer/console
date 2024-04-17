@@ -80,12 +80,12 @@ export const useMakeInstanceActions = (
                       content: error.message,
                     }),
                 }),
-              modalTitle: 'Confirm stop',
+              modalTitle: 'Confirm stop instance',
               modalContent: (
                 <p>
                   Are you sure you want to stop <HL>{instance.name}</HL>? Stopped instances
-                  retain their IP addresses but no longer have compute resources (vCPU,
-                  memory) allocated to them.
+                  retain attached disks and IP addresses, but allocated CPU and memory are
+                  freed.
                 </p>
               ),
               errorTitle: `Could not stop ${instance.name}`,
@@ -129,6 +129,7 @@ export const useMakeInstanceActions = (
                 },
               }),
             label: instance.name,
+            resourceKind: 'instance',
           }),
           disabled: !instanceCan.delete(instance) && (
             <>Only {fancifyStates(instanceCan.delete.states)} instances can be deleted</>
