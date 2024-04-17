@@ -49,7 +49,7 @@ ProjectsPage.loader = async () => {
 const colHelper = createColumnHelper<Project>()
 const staticCols = [
   colHelper.accessor('name', {
-    cell: makeLinkCell((project) => pb.instances({ project })),
+    cell: makeLinkCell((project) => pb.project({ project })),
   }),
   colHelper.accessor('description', Columns.description),
   colHelper.accessor('timeCreated', Columns.timeCreated),
@@ -107,7 +107,7 @@ export function ProjectsPage() {
         },
         ...(projects?.items || []).map((p) => ({
           value: p.name,
-          onSelect: () => navigate(pb.instances({ project: p.name })),
+          onSelect: () => navigate(pb.project({ project: p.name })),
           navGroup: 'Go to project',
         })),
       ],
