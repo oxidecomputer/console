@@ -8,7 +8,12 @@
 import { subDays, subHours, subMinutes, subSeconds } from 'date-fns'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { timeAgoAbbr, toLocaleDateString, toLocaleTimeString } from './date'
+import {
+  timeAgoAbbr,
+  toLocaleDateString,
+  toLocaleDateTimeString,
+  toLocaleTimeString,
+} from './date'
 
 const baseDate = new Date(2021, 5, 7)
 
@@ -66,8 +71,16 @@ describe('timeAgoAbbr', () => {
   it('formats toLocaleTimeString', () => {
     expect(toLocaleTimeString(baseDate)).toEqual('12:00 AM')
     expect(toLocaleTimeString(baseDate, 'en-US')).toEqual('12:00 AM')
-    expect(toLocaleTimeString(baseDate, 'fr-FR')).toEqual('0:00 AM')
-    expect(toLocaleTimeString(baseDate, 'de-DE')).toEqual('0:00 AM')
-    expect(toLocaleTimeString(baseDate, 'ja-JP')).toEqual('午前0:00')
+    expect(toLocaleTimeString(baseDate, 'fr-FR')).toEqual('00:00')
+    expect(toLocaleTimeString(baseDate, 'de-DE')).toEqual('00:00')
+    expect(toLocaleTimeString(baseDate, 'ja-JP')).toEqual('0:00')
+  })
+
+  it('formats toLocaleDateTimeString', () => {
+    expect(toLocaleDateTimeString(baseDate)).toEqual('Jun 7, 2021, 12:00 AM')
+    expect(toLocaleDateTimeString(baseDate, 'en-US')).toEqual('Jun 7, 2021, 12:00 AM')
+    expect(toLocaleDateTimeString(baseDate, 'fr-FR')).toEqual('7 juin 2021, 00:00')
+    expect(toLocaleDateTimeString(baseDate, 'de-DE')).toEqual('7. Juni 2021, 00:00')
+    expect(toLocaleDateTimeString(baseDate, 'ja-JP')).toEqual('2021年6月7日 0:00')
   })
 })
