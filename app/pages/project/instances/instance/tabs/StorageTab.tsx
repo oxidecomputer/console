@@ -28,7 +28,7 @@ import { getInstanceSelector, useInstanceSelector } from '~/hooks'
 import { addToast } from '~/stores/toast'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
-import { useQueryTable } from '~/table/QueryTable'
+import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
 import { Button } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 
@@ -39,7 +39,7 @@ StorageTab.loader = async ({ params }: LoaderFunctionArgs) => {
   await Promise.all([
     apiQueryClient.prefetchQuery('instanceDiskList', {
       path: { instance },
-      query: { project, limit: 25 }, // querytable
+      query: { project, limit: PAGE_SIZE },
     }),
     // This is covered by the InstancePage loader but there's no downside to
     // being redundant. If it were removed there, we'd still want it here.

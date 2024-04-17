@@ -61,6 +61,8 @@ type QueryTableProps<Item> = {
   columns: ColumnDef<Item, any>[]
 }
 
+export const PAGE_SIZE = 25
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const makeQueryTable = <Item extends Record<string, unknown>>(
   query: any,
@@ -70,7 +72,7 @@ const makeQueryTable = <Item extends Record<string, unknown>>(
   function QueryTable({
     debug,
     pagination = 'page',
-    pageSize = 25,
+    pageSize = PAGE_SIZE,
     rowHeight,
     emptyState,
     columns,

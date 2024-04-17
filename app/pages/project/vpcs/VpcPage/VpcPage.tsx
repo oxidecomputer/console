@@ -13,6 +13,7 @@ import { Networking24Icon } from '@oxide/design-system/icons/react'
 import { QueryParamTabs } from '~/components/QueryParamTabs'
 import { getVpcSelector, useVpcSelector } from '~/hooks'
 import { EmptyCell } from '~/table/cells/EmptyCell'
+import { PAGE_SIZE } from '~/table/QueryTable'
 import { DateTime } from '~/ui/lib/DateTime'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
@@ -29,7 +30,7 @@ VpcPage.loader = async ({ params }: LoaderFunctionArgs) => {
       query: { project, vpc },
     }),
     apiQueryClient.prefetchQuery('vpcSubnetList', {
-      query: { project, vpc, limit: 25 },
+      query: { project, vpc, limit: PAGE_SIZE },
     }),
   ])
   return null

@@ -15,7 +15,7 @@ import { Key16Icon, Key24Icon } from '@oxide/design-system/icons/react'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
-import { useQueryTable } from '~/table/QueryTable'
+import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
 import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
@@ -23,7 +23,9 @@ import { TableActions } from '~/ui/lib/Table'
 import { pb } from '~/util/path-builder'
 
 SSHKeysPage.loader = async () => {
-  await apiQueryClient.prefetchQuery('currentUserSshKeyList', { query: { limit: 25 } })
+  await apiQueryClient.prefetchQuery('currentUserSshKeyList', {
+    query: { limit: PAGE_SIZE },
+  })
   return null
 }
 
