@@ -6,14 +6,32 @@
  * Copyright Oxide Computer Company
  */
 
+import { useState } from 'react'
+
 import { Refresh16Icon } from '@oxide/design-system/icons/react'
 
 import { Button } from '~/ui/lib/Button'
+import { SpinnerLoader } from '~/ui/lib/Spinner'
+import { useTimeout } from '~/ui/lib/use-timeout'
 
 export function RefreshButton({ onClick }: { onClick: () => void }) {
+  // fake timer on fetching because it's too annoying to actually track it
+  const [refreshing, setRefreshing] = useState(false)
+  useTimeout(() => setRefreshing(false), refreshing ? 500 : null)
+
   return (
-    <Button size="icon" variant="ghost" onClick={onClick} aria-label="Refresh data">
-      <Refresh16Icon />
+    <Button
+      size="icon"
+      variant="ghost"
+      onClick={() => {
+        onClick()
+        setRefreshing(true)
+      }}
+      aria-label="Refresh data"
+    >
+      <SpinnerLoader isLoading={refreshing}>
+        <Refresh16Icon />
+      </SpinnerLoader>
     </Button>
   )
 }
