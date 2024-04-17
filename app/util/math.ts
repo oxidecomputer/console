@@ -16,8 +16,8 @@ import { splitOnceBy } from './array'
  * minus sign, group separators [comma in en-US], and of course actual number
  * groups). Those will get joined and the decimal part will be the empty string.
  */
-export function splitDecimal(value: number): [string, string] {
-  const nf = Intl.NumberFormat(navigator.language, { maximumFractionDigits: 2 })
+export function splitDecimal(value: number, locale?: string): [string, string] {
+  const nf = Intl.NumberFormat(locale, { maximumFractionDigits: 2 })
   const parts = nf.formatToParts(value)
 
   const [wholeParts, decimalParts] = splitOnceBy(parts, (p) => p.type === 'decimal')
@@ -58,9 +58,7 @@ export function round(num: number, digits: number) {
   return Number(nf.format(num))
 }
 
-// a separate function because I wanted to test it with a bunch of locales
-// to make sure the toLowerCase thing is ok
-export const toEngNotation = (num: number | bigint, locale = navigator.language) =>
+const toEngNotation = (num: number | bigint, locale?: string) =>
   Intl.NumberFormat(locale, { notation: 'engineering', maximumFractionDigits: 1 })
     .format(num)
     .toLowerCase()
@@ -72,8 +70,12 @@ export const toEngNotation = (num: number | bigint, locale = navigator.language)
  *
  * Boolean represents whether the number was abbreviated.
  */
-export function displayBigNum(num: bigint | number): [string, boolean] {
-  const compact = Intl.NumberFormat(navigator.language, {
+export function displayBigNum(
+  num: bigint | number,
+  /** Argument here for testing purposes. Leave undefined in app code! */
+  locale?: string
+): [string, boolean] {
+  const compact = Intl.NumberFormat(locale, {
     notation: 'compact',
     maximumFractionDigits: 1,
   })
@@ -83,8 +85,8 @@ export function displayBigNum(num: bigint | number): [string, boolean] {
   const result = abbreviated
     ? num < 1e15 // this the threshold where compact stops using nice letters. see tests
       ? compact.format(num)
-      : toEngNotation(num)
-    : num.toLocaleString()
+      : toEngNotation(num, locale)
+    : num.toLocaleString(locale)
 
   return [result, abbreviated]
 }
