@@ -6,10 +6,11 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
-import type { ReactElement, ReactNode } from 'react'
+import { useState, type ReactElement, type ReactNode } from 'react'
 import { Link, type To } from 'react-router-dom'
 
 import {
+  Close12Icon,
   Error12Icon,
   OpenLink12Icon,
   Success12Icon,
@@ -29,6 +30,8 @@ export interface MessageProps {
   }
   // try to use icons from the ___12Icon set, rather than forcing a 16px or 24px icon
   icon?: ReactElement
+  // if the message should be user-dismissable (with localStorage persistence), provide a hideableKey
+  hideableKey?: string
 }
 
 const defaultIcon: Record<Variant, ReactElement> = {
@@ -73,18 +76,24 @@ export const Message = ({
   variant = 'success',
   cta,
   icon,
+  hideableKey,
 }: MessageProps) => {
+  const [hidden, setHidden] = useState(false)
+  if (hidden || (hideableKey && hideableKey in localStorage)) {
+    // the user has dismissed this message, so this component should return nothing
+    return null
+  }
   return (
     <div
       className={cn(
-        'relative flex items-start overflow-hidden rounded-lg p-4 elevation-1',
+        'relative flex items-start gap-2.5 overflow-hidden rounded-lg p-4 elevation-1',
         color[variant],
         textColor[variant],
         className
       )}
     >
       <div className="mt-[2px] flex svg:h-3 svg:w-3">{icon || defaultIcon[variant]}</div>
-      <div className="flex-1 pl-2.5">
+      <div className="flex-1">
         {title && <div className="text-sans-semi-md">{title}</div>}
         <div
           className={cn(
@@ -108,6 +117,17 @@ export const Message = ({
           </Link>
         )}
       </div>
+      {hideableKey && (
+        <button
+          className={linkColor[variant]}
+          onClick={() => {
+            localStorage.setItem(hideableKey, new Date().toISOString())
+            setHidden(true)
+          }}
+        >
+          <Close12Icon />
+        </button>
+      )}
     </div>
   )
 }

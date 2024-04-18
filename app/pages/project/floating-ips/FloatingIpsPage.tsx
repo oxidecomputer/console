@@ -188,9 +188,23 @@ export function FloatingIpsPage() {
       </PageHeader>
       <TableControls>
         <TableControlsText>
-          Floating IPs are public IP addresses that can be attached to instances. They allow
-          your instances to be reachable from the internet. Learn more about{' '}
-          <ExternalLink href={links.floatingIpsDocs}>managing floating IPs</ExternalLink>.
+          <Message
+            variant="info"
+            hideableKey="floatingIpsInfo"
+            content={
+              <>
+                Floating IPs are public IP addresses that can be attached to instances. They
+                allow your instances to be reachable from the internet. Learn more about{' '}
+                <ExternalLink
+                  href={links.floatingIpsDocs}
+                  className="text-info-secondary hover:text-info"
+                >
+                  managing floating IPs
+                </ExternalLink>
+                .
+              </>
+            }
+          />
         </TableControlsText>
         <TableControlsLink to={pb.floatingIpsNew({ project })}>
           New Floating IP
