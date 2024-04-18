@@ -128,7 +128,7 @@ export function InstancesPage() {
           New Instance
         </Link>
       </TableActions>
-      <Table columns={columns} emptyState={<EmptyState />} />
+      <Table columns={columns} emptyState={<EmptyState />} rowHeight="large" />
     </>
   )
 }

@@ -172,41 +172,43 @@ function UsageTab() {
       <Table.Body>
         {siloUtilizations.items.map((silo) => (
           <Table.Row key={silo.siloName}>
-            <Table.Cell width="16%">{silo.siloName}</Table.Cell>
-            <Table.Cell width="14%">
+            <Table.Cell width="16%" height="large">
+              {silo.siloName}
+            </Table.Cell>
+            <Table.Cell width="14%" height="large">
               <UsageCell
                 provisioned={silo.provisioned.cpus}
                 allocated={silo.allocated.cpus}
               />
             </Table.Cell>
-            <Table.Cell width="14%">
+            <Table.Cell width="14%" height="large">
               <UsageCell
                 provisioned={bytesToGiB(silo.provisioned.memory)}
                 allocated={bytesToGiB(silo.allocated.memory)}
                 unit="GiB"
               />
             </Table.Cell>
-            <Table.Cell width="14%">
+            <Table.Cell width="14%" height="large">
               <UsageCell
                 provisioned={bytesToTiB(silo.provisioned.storage)}
                 allocated={bytesToTiB(silo.allocated.storage)}
                 unit="TiB"
               />
             </Table.Cell>
-            <Table.Cell width="14%" className="relative">
+            <Table.Cell width="14%" className="relative" height="large">
               <AvailableCell
                 provisioned={silo.provisioned.cpus}
                 allocated={silo.allocated.cpus}
               />
             </Table.Cell>
-            <Table.Cell width="14%" className="relative">
+            <Table.Cell width="14%" className="relative" height="large">
               <AvailableCell
                 provisioned={bytesToGiB(silo.provisioned.memory)}
                 allocated={bytesToGiB(silo.allocated.memory)}
                 unit="GiB"
               />
             </Table.Cell>
-            <Table.Cell width="14%" className="relative">
+            <Table.Cell width="14%" className="relative" height="large">
               <AvailableCell
                 provisioned={bytesToTiB(silo.provisioned.storage)}
                 allocated={bytesToTiB(silo.allocated.storage)}
