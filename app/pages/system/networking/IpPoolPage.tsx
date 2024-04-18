@@ -41,7 +41,7 @@ import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
-import { TableControls, TableControlsButton, TableControlsText } from '~/ui/lib/Table'
+import { TableActions, TableControlsButton } from '~/ui/lib/Table'
 import { Tabs } from '~/ui/lib/Tabs'
 import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
@@ -278,18 +278,31 @@ function LinkedSilosTable() {
   const columns = useColsWithActions(silosStaticCols, makeActions)
   return (
     <>
-      <TableControls>
-        <TableControlsText>
-          Users in linked silos can allocate external IPs from this pool for their
-          instances. A silo can have at most one default pool. IPs are allocated from the
-          default pool when users ask for one without specifying a pool. Read the docs to
-          learn more about{' '}
-          <ExternalLink href={links.ipPoolsDocs}>managing IP pools</ExternalLink>.
-        </TableControlsText>
+      <Message
+        className="mb-16"
+        variant="info"
+        hideableKey="ipPoolsLinkedSilosInfo"
+        content={
+          <>
+            Users in linked silos can allocate external IPs from this pool for their
+            instances. A silo can have at most one default pool. IPs are allocated from the
+            default pool when users ask for one without specifying a pool. Read the docs to
+            learn more about{' '}
+            <ExternalLink
+              href={links.ipPoolsDocs}
+              className="text-info-secondary hover:text-info"
+            >
+              managing IP pools
+            </ExternalLink>
+            .
+          </>
+        }
+      />
+      <TableActions>
         <TableControlsButton onClick={() => setShowLinkModal(true)}>
           Link silo
         </TableControlsButton>
-      </TableControls>
+      </TableActions>
       <Table columns={columns} emptyState={emptyState} />
       {showLinkModal && <LinkSiloModal onDismiss={() => setShowLinkModal(false)} />}
     </>

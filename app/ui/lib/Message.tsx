@@ -79,7 +79,8 @@ export const Message = ({
   hideableKey,
 }: MessageProps) => {
   const [hidden, setHidden] = useState(false)
-  if (hidden || (hideableKey && hideableKey in localStorage)) {
+  const closedMessages = localStorage.getItem('closedMessages')
+  if (hidden || (hideableKey && closedMessages?.includes(hideableKey))) {
     // the user has dismissed this message, so this component should return nothing
     return null
   }
@@ -121,7 +122,10 @@ export const Message = ({
         <button
           className={linkColor[variant]}
           onClick={() => {
-            localStorage.setItem(hideableKey, new Date().toISOString())
+            localStorage.setItem(
+              'closedMessages',
+              closedMessages ? `${closedMessages},${hideableKey}` : hideableKey
+            )
             setHidden(true)
           }}
         >
