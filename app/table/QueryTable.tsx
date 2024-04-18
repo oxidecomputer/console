@@ -56,7 +56,7 @@ type QueryTableProps<Item> = {
   /** Function that produces a list of actions from a row item */
   pagination?: 'inline' | 'page'
   pageSize?: number
-  rowHeight?: 'small' | 'large' | 'auto'
+  rowHeight?: 'small' | 'large'
   emptyState: React.ReactElement
   columns: ColumnDef<Item, any>[]
 }

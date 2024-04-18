@@ -12,7 +12,7 @@ import { Table as UITable } from '~/ui/lib/Table'
 
 export type TableProps<TData> = JSX.IntrinsicElements['table'] & {
   rowClassName?: string
-  rowHeight?: 'small' | 'large' | 'auto'
+  rowHeight?: 'small' | 'large'
   table: TableInstance<TData>
   singleSelect?: boolean
   multiSelect?: boolean
