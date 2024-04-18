@@ -35,7 +35,7 @@ import { Listbox } from '~/ui/lib/Listbox'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
-import { TableControls, TableControlsLink, TableControlsText } from '~/ui/lib/Table'
+import { TableActions, TableControlsLink } from '~/ui/lib/Table'
 import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
@@ -186,30 +186,29 @@ export function FloatingIpsPage() {
       <PageHeader className="!mb-12">
         <PageTitle icon={<IpGlobal24Icon />}>Floating IPs</PageTitle>
       </PageHeader>
-      <TableControls>
-        <TableControlsText>
-          <Message
-            variant="info"
-            hideableKey="floatingIpsInfo"
-            content={
-              <>
-                Floating IPs are public IP addresses that can be attached to instances. They
-                allow your instances to be reachable from the internet. Learn more about{' '}
-                <ExternalLink
-                  href={links.floatingIpsDocs}
-                  className="text-info-secondary hover:text-info"
-                >
-                  managing floating IPs
-                </ExternalLink>
-                .
-              </>
-            }
-          />
-        </TableControlsText>
+      <Message
+        className="mb-16"
+        variant="info"
+        hideableKey="floatingIpsInfo"
+        content={
+          <>
+            Floating IPs are public IP addresses that can be attached to instances. They
+            allow your instances to be reachable from the internet. Learn more about{' '}
+            <ExternalLink
+              href={links.floatingIpsDocs}
+              className="text-info-secondary hover:text-info"
+            >
+              managing floating IPs
+            </ExternalLink>
+            .
+          </>
+        }
+      />
+      <TableActions>
         <TableControlsLink to={pb.floatingIpsNew({ project })}>
           New Floating IP
         </TableControlsLink>
-      </TableControls>
+      </TableActions>
       <Table columns={columns} emptyState={<EmptyState />} />
       <Outlet />
       {floatingIpToModify && (

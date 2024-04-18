@@ -97,7 +97,7 @@ export const Message = ({
         {title && <div className="text-sans-semi-md">{title}</div>}
         <div
           className={cn(
-            'text-sans-md [&>a]:underline',
+            'max-w-2xl text-sans-md [&>a]:underline',
             title ? secondaryTextColor[variant] : textColor[variant]
           )}
         >
