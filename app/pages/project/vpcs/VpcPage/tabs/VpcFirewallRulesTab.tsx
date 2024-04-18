@@ -151,7 +151,7 @@ export const VpcFirewallRulesTab = () => {
           />
         )}
       </div>
-      {rules.length > 0 ? <Table table={table} /> : emptyState}
+      {rules.length > 0 ? <Table table={table} rowHeight="large" /> : emptyState}
     </>
   )
 }
