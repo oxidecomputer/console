@@ -94,27 +94,24 @@ Table.Body = ({ className, children, ...props }: TableBodyProps) => {
 }
 
 export type TableCellProps = JSX.IntrinsicElements['td'] & { height?: 'small' | 'large' }
-Table.Cell = ({ height = 'small', className, children, ...props }: TableCellProps) => {
-  const heightClasses = { 'h-12': height === 'small', 'h-16': height === 'large' }
-  return (
-    <td
+Table.Cell = ({ height = 'small', className, children, ...props }: TableCellProps) => (
+  <td
+    className={cn(
+      className,
+      'pl-0 text-default border-default children:first:border-l-0 children:last:-mr-[1px]'
+    )}
+    {...props}
+  >
+    <div
       className={cn(
-        className,
-        'pl-0 text-default border-default children:first:border-l-0 children:last:-mr-[1px]'
+        'relative -my-[1px] -mr-[2px] flex items-center border-b border-l p-3 border-secondary',
+        { 'h-12': height === 'small', 'h-16': height === 'large' }
       )}
-      {...props}
     >
-      <div
-        className={cn(
-          'relative -my-[1px] -mr-[2px] flex items-center border-b border-l p-3 border-secondary',
-          heightClasses
-        )}
-      >
-        {children}
-      </div>
-    </td>
-  )
-}
+      {children}
+    </div>
+  </td>
+)
 
 /**
  * Used _outside_ of the `Table`, this element wraps buttons that sit on top
