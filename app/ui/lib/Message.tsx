@@ -120,6 +120,7 @@ export const Message = ({
       </div>
       {hideableKey && (
         <button
+          aria-label="Close information box"
           className={linkColor[variant]}
           onClick={() => {
             localStorage.setItem(
