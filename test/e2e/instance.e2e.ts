@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { expect, test } from '../utils'
+import { expect, test } from './utils'
 
 test('can delete a failed instance', async ({ page }) => {
   await page.goto('/projects/mock-project/instances')
@@ -59,4 +59,15 @@ test('can stop a starting instance', async ({ page }) => {
   await page.getByRole('button', { name: 'Confirm' }).click()
 
   await expect(row.getByRole('cell', { name: /stopped/ })).toBeVisible()
+})
+
+test('delete from instance detail', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances/you-fail')
+
+  await page.getByRole('button', { name: 'Instance actions' }).click()
+  await page.getByRole('menuitem', { name: 'Delete' }).click()
+  await page.getByRole('button', { name: 'Confirm' }).click()
+
+  await expect(page.getByRole('heading', { name: 'Instances' })).toBeVisible()
+  await expect(page).toHaveURL('/projects/mock-project/instances')
 })

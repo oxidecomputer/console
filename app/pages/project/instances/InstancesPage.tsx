@@ -59,7 +59,10 @@ export function InstancesPage() {
   const queryClient = useApiQueryClient()
   const refetchInstances = () => queryClient.invalidateQueries('instanceList')
 
-  const makeActions = useMakeInstanceActions({ project }, { onSuccess: refetchInstances })
+  const makeActions = useMakeInstanceActions(
+    { project },
+    { onSuccess: refetchInstances, onDelete: refetchInstances }
+  )
 
   const { data: instances } = usePrefetchedApiQuery('instanceList', {
     query: { project, limit: PAGE_SIZE },
