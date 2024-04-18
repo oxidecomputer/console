@@ -24,7 +24,7 @@ export function RefreshButton({ onClick }: { onClick: () => Promise<void> }) {
 
   return (
     <Button size="icon" variant="ghost" onClick={refresh} aria-label="Refresh data">
-      <SpinnerLoader isLoading={refreshing}>
+      <SpinnerLoader isLoading={refreshing} minTime={300}>
         <Refresh16Icon />
       </SpinnerLoader>
     </Button>
