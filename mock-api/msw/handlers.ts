@@ -474,10 +474,20 @@ export const handlers = makeHandlers({
       project_id: project.id,
       ...pick(body, 'name', 'description', 'hostname', 'memory', 'ncpus'),
       ...getTimestamps(),
-      run_state: 'running',
+      run_state: 'creating',
       time_run_state_updated: new Date().toISOString(),
     }
+
+    setTimeout(() => {
+      newInstance.run_state = 'starting'
+    }, 1000)
+
+    setTimeout(() => {
+      newInstance.run_state = 'running'
+    }, 5000)
+
     db.instances.push(newInstance)
+
     return json(newInstance, { status: 201 })
   },
   instanceView: ({ path, query }) => lookup.instance({ ...path, ...query }),
@@ -609,13 +619,21 @@ export const handlers = makeHandlers({
   },
   instanceStart({ path, query }) {
     const instance = lookup.instance({ ...path, ...query })
-    instance.run_state = 'running'
+    instance.run_state = 'starting'
+
+    setTimeout(() => {
+      instance.run_state = 'running'
+    }, 3000)
 
     return json(instance, { status: 202 })
   },
   instanceStop({ path, query }) {
     const instance = lookup.instance({ ...path, ...query })
-    instance.run_state = 'stopped'
+    instance.run_state = 'stopping'
+
+    setTimeout(() => {
+      instance.run_state = 'stopped'
+    }, 3000)
 
     return json(instance, { status: 202 })
   },
