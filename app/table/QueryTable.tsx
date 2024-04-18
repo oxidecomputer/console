@@ -73,7 +73,7 @@ const makeQueryTable = <Item extends Record<string, unknown>>(
     debug,
     pagination = 'page',
     pageSize = PAGE_SIZE,
-    rowHeight,
+    rowHeight = 'small',
     emptyState,
     columns,
   }: QueryTableProps<Item>) {

@@ -95,20 +95,20 @@ Table.Body = ({ className, children, ...props }: TableBodyProps) => {
 
 export type TableCellProps = JSX.IntrinsicElements['td'] & { height?: 'small' | 'large' }
 Table.Cell = ({ height = 'small', className, children, ...props }: TableCellProps) => {
-  const heightClass = height === 'small' ? 'h-12' : height === 'large' ? 'h-16' : ''
+  const heightClasses = { 'h-12': height === 'small', 'h-16': height === 'large' }
   return (
     <td
       className={cn(
         className,
         'pl-0 text-default border-default children:first:border-l-0 children:last:-mr-[1px]',
-        heightClass
+        heightClasses
       )}
       {...props}
     >
       <div
         className={cn(
           'relative -my-[1px] -mr-[2px] flex items-center border-b border-l py-3 pl-3 pr-3 border-secondary',
-          heightClass
+          heightClasses
         )}
       >
         {children}

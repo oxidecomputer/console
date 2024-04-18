@@ -21,7 +21,7 @@ export type TableProps<TData> = JSX.IntrinsicElements['table'] & {
 /** Render a React Table table instance */
 export const Table = <TData,>({
   rowClassName,
-  rowHeight,
+  rowHeight = 'small',
   table,
   singleSelect,
   multiSelect,
