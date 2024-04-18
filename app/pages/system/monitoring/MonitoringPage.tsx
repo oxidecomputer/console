@@ -127,7 +127,7 @@ const SensorTreeRow = ({
   return (
     <Accordion.Item
       value={label}
-      className={cn('accordion-item', level !== 0 && 'ml-[20px]')}
+      className={cn('tree-accordion-item', level !== 0 && 'ml-[20px]')}
     >
       <Accordion.Header className="my-1">
         <Accordion.Trigger className="group flex h-[32px] w-full items-center text-default">

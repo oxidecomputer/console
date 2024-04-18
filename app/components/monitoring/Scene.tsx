@@ -352,7 +352,7 @@ const RackSled = ({
 }) => {
   const navigate = useNavigate()
   const { fitSled } = useMonitoringStore()
-  const { setSelectedComponent } = useMonitoring()
+  const { selectedTime, setSelectedComponent } = useMonitoring()
 
   const { color, isUnhealthy } = useMemo(() => {
     const temperature = generateSensorValue(20, 40, 60)
@@ -364,7 +364,8 @@ const RackSled = ({
     const color = isUnhealthy ? noticeColor.toHexString() : '#7E8385'
 
     return { color, isUnhealthy }
-  }, [])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedTime])
 
   return (
     <Cube
@@ -431,7 +432,7 @@ export function Cube({
 
   useCursor(hovered)
 
-  const mixColor = new Color('#080F11')
+  const mixColor = new Color('#101618')
 
   const restingColor = new Color(color).mix(mixColor, 50)
   const hoverColor = color

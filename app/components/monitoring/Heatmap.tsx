@@ -91,7 +91,7 @@ const SledHeatmap = ({
   return (
     <mesh {...props} ref={meshRef}>
       <planeGeometry />
-      <meshBasicMaterial side={DoubleSide} transparent>
+      <meshBasicMaterial side={DoubleSide} toneMapped={false}>
         <canvasTexture
           colorSpace="srgb"
           ref={textureRef}
@@ -409,10 +409,18 @@ export function applyGradient(pixels: Uint8Array, gradient: Uint8Array): void {
   for (let i = 0, len = pixels.length; i < len; i += 4) {
     const j = pixels[i + 3] * 4 // get gradient color from opacity value
 
-    if (j) {
-      pixels[i] = gradient[j]
-      pixels[i + 1] = gradient[j + 1]
-      pixels[i + 2] = gradient[j + 2]
-    }
+    const r = gradient[j]
+    const g = gradient[j + 1]
+    const b = gradient[j + 2]
+    const alpha = pixels[i + 3] / 255
+
+    pixels[i] = lerp(16, r, alpha)
+    pixels[i + 1] = lerp(22, g, alpha)
+    pixels[i + 2] = lerp(24, b, alpha)
+    pixels[i + 3] = 255
   }
+}
+
+function lerp(startValue: number, endValue: number, t: number): number {
+  return startValue + (endValue - startValue) * t
 }

@@ -8,3 +8,7 @@
 .accordion-item[data-state='open'] .arrow {
   @apply rotate-90;
 }
+
+.tree-accordion-item[data-state='open'] > h3 > button > div .arrow {
+  @apply rotate-90;
+}
