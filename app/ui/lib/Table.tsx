@@ -100,14 +100,13 @@ Table.Cell = ({ height = 'small', className, children, ...props }: TableCellProp
     <td
       className={cn(
         className,
-        'pl-0 text-default border-default children:first:border-l-0 children:last:-mr-[1px]',
-        heightClasses
+        'pl-0 text-default border-default children:first:border-l-0 children:last:-mr-[1px]'
       )}
       {...props}
     >
       <div
         className={cn(
-          'relative -my-[1px] -mr-[2px] flex items-center border-b border-l py-3 pl-3 pr-3 border-secondary',
+          'relative -my-[1px] -mr-[2px] flex items-center border-b border-l p-3 border-secondary',
           heightClasses
         )}
       >

@@ -83,7 +83,7 @@ export const VpcSubnetsTab = () => {
         {creating && <CreateSubnetForm onDismiss={() => setCreating(false)} />}
         {editing && <EditSubnetForm editing={editing} onDismiss={() => setEditing(null)} />}
       </div>
-      <Table columns={columns} emptyState={emptyState} />
+      <Table columns={columns} emptyState={emptyState} rowHeight="large" />
     </>
   )
 }
