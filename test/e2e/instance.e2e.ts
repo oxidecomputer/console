@@ -68,6 +68,7 @@ test('delete from instance detail', async ({ page }) => {
   await page.getByRole('menuitem', { name: 'Delete' }).click()
   await page.getByRole('button', { name: 'Confirm' }).click()
 
-  await expect(page.getByRole('heading', { name: 'Instances' })).toBeVisible()
   await expect(page).toHaveURL('/projects/mock-project/instances')
+  await expect(page.getByRole('cell', { name: 'db1' })).toBeVisible()
+  await expect(page.getByRole('cell', { name: 'you-fail' })).toBeHidden()
 })
