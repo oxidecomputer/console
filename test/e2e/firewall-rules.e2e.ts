@@ -90,7 +90,7 @@ test('can create firewall rule', async ({ page }) => {
     Name: 'my-new-rule',
     Priority: '5',
     Targets: 'ip192.168.0.1',
-    Filters: 'instancehost-filter-instanceUDP123-456',
+    Filters: 'instancehost-filter-instanceUDP+1', // port filter is in plus popup
   })
 
   await expect(rows).toHaveCount(5)

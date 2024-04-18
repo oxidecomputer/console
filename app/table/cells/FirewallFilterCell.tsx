@@ -7,22 +7,22 @@
  */
 import type { VpcFirewallRuleFilter } from '@oxide/api'
 
+import { ListPlusCell } from '~/components/ListPlusCell'
 import { Badge } from '~/ui/lib/Badge'
 
 import { TypeValueCell } from './TypeValueCell'
 
-export const FirewallFilterCell = ({ hosts, ports, protocols }: VpcFirewallRuleFilter) => (
-  <div className="flex flex-col gap-1">
-    <div className="flex flex-wrap gap-1">
-      {hosts?.map((tv, i) => <TypeValueCell key={`${tv}-${i}`} {...tv} />)}
-    </div>
-    <div className="flex gap-1">
-      {protocols?.map((p, i) => <Badge key={`${p}-${i}`}>{p}</Badge>)}
-      {ports?.map((p, i) => (
-        <Badge key={`${p}-${i}`} variant="solid">
-          {p}
-        </Badge>
-      ))}
-    </div>
-  </div>
-)
+export const FirewallFilterCell = ({ hosts, ports, protocols }: VpcFirewallRuleFilter) => {
+  const children = [
+    ...(hosts || []).map((tv, i) => <TypeValueCell key={`${tv}-${i}`} {...tv} />),
+    ...(protocols || []).map((p, i) => <Badge key={`${p}-${i}`}>{p}</Badge>),
+    ...(ports || []).map((p, i) => (
+      <TypeValueCell key={`port-${p}-${i}`} type="Port" value={p} />
+    )),
+  ]
+  return (
+    <ListPlusCell numInCell={2} tooltipTitle="Other filters">
+      {children}
+    </ListPlusCell>
+  )
+}

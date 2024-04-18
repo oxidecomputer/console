@@ -9,7 +9,7 @@
 import type { Vpc, VpcFirewallRule, VpcSubnet } from '@oxide/api'
 
 import type { Json } from './json-type'
-import { project } from './project'
+import { project, project2 } from './project'
 
 const time_created = new Date(2021, 0, 1).toISOString()
 const time_modified = new Date(2021, 0, 2).toISOString()
@@ -27,6 +27,20 @@ export const vpc: Json<Vpc> = {
   time_created,
   time_modified,
 }
+
+export const vpc2: Json<Vpc> = {
+  id: 'e54078df-fe72-4673-b36c-a362e3b4e38b',
+  name: 'mock-vpc-2',
+  description: 'a fake vpc',
+  dns_name: 'mock-vpc-2',
+  project_id: project2.id,
+  system_router_id: systemRouterId,
+  ipv6_prefix: 'fdf6:1818:b6e2::/48',
+  time_created,
+  time_modified,
+}
+
+export const vpcs: Json<Vpc[]> = [vpc, vpc2]
 
 export const vpcSubnet: Json<VpcSubnet> = {
   // this is supposed to be flattened into the top level. will fix in API
@@ -49,7 +63,7 @@ export const vpcSubnet2: Json<VpcSubnet> = {
   ipv4_block: '10.1.1.2/24',
 }
 
-export const defaultFirewallRules: Json<VpcFirewallRule[]> = [
+export const firewallRules: Json<VpcFirewallRule[]> = [
   {
     id: 'b74aeea8-1201-4efd-b6ec-011f10a0b176',
     name: 'allow-internal-inbound',
@@ -116,5 +130,27 @@ export const defaultFirewallRules: Json<VpcFirewallRule[]> = [
     time_created,
     time_modified,
     vpc_id: vpc.id,
+  },
+  {
+    id: '097c849e-68c8-43f7-9ceb-b1855c51f178',
+    name: 'lots-of-filters',
+    status: 'enabled',
+    direction: 'inbound',
+    targets: [{ type: 'vpc', value: 'default' }],
+    description: 'we just want to test with lots of filters',
+    filters: {
+      ports: ['3389', '45-89'],
+      protocols: ['TCP'],
+      hosts: [
+        { type: 'instance', value: 'hello-friend' },
+        { type: 'subnet', value: 'my-subnet' },
+        { type: 'ip', value: '148.38.89.5' },
+      ],
+    },
+    action: 'allow',
+    priority: 65534,
+    time_created,
+    time_modified,
+    vpc_id: vpc2.id,
   },
 ]
