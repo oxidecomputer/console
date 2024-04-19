@@ -20,7 +20,7 @@ test('Instance networking tab — NIC table', async ({ page }) => {
 
   // links to VPC and external IPs appear in table
   await expect(page.getByRole('link', { name: 'mock-vpc' })).toBeVisible()
-  await expect(page.getByText('123.4.56.0')).toBeVisible()
+  await expect(page.getByRole('link', { name: '123.4.56.0' })).toBeVisible()
 
   // Instance networking tab
   await page.click('role=tab[name="Networking"]')

@@ -28,7 +28,14 @@ export function ExternalIps({ project, instance }: InstanceSelector) {
       {intersperse(
         ips.map((eip) => (
           <span className="flex items-center" key={eip.ip}>
-            {eip.ip}
+            <a
+              className="link-with-underline text-sans-semi-md"
+              href={`https://${eip.ip}`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              {eip.ip}
+            </a>
             <CopyToClipboard text={eip.ip} />
           </span>
         )),
