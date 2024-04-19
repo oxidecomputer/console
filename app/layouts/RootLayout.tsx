@@ -9,7 +9,7 @@ import { useEffect, useRef } from 'react'
 import { Outlet, useNavigation } from 'react-router-dom'
 
 import { MswBanner } from '~/components/MswBanner'
-import { SessionExpiredModal } from '~/components/SessionExpiredModal'
+import { SessionExpiredToast } from '~/components/SessionExpiredModal'
 import { ToastStack } from '~/components/ToastStack'
 import { useTitle } from '~/hooks/use-title'
 
@@ -29,7 +29,7 @@ export function RootLayout() {
       {process.env.MSW_BANNER ? <MswBanner /> : null}
       <Outlet />
       <ToastStack />
-      <SessionExpiredModal />
+      <SessionExpiredToast />
     </>
   )
 }
