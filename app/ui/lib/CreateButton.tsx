@@ -14,7 +14,7 @@ import { Button, buttonStyle, type ButtonProps } from '~/ui/lib/Button'
 
 export const CreateButton = ({ children, ...props }: ButtonProps) => (
   <Button size="sm" className="shrink-0" {...props}>
-    <AddRoundel12Icon className="mr-2" />
+    <AddRoundel12Icon className="mr-2 text-accent-secondary" />
     {children}
   </Button>
 )
@@ -22,7 +22,7 @@ export const CreateLink = (props: LinkProps) => {
   const { children, ...rest } = props
   return (
     <Link className={buttonStyle({ size: 'sm' })} {...rest}>
-      <AddRoundel12Icon className="mr-2" />
+      <AddRoundel12Icon className="mr-2 text-accent-secondary" />
       {children}
     </Link>
   )
