@@ -25,10 +25,7 @@ export function CreateProjectSideModalForm() {
   const navigate = useNavigate()
   const queryClient = useApiQueryClient()
 
-  const onDismiss = () => {
-    console.trace('onDismiss')
-    navigate(pb.projects())
-  }
+  const onDismiss = () => navigate(pb.projects())
 
   const createProject = useApiMutation('projectCreate', {
     onSuccess(project) {

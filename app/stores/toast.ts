@@ -12,14 +12,35 @@ import type { ToastProps } from '~/ui/lib/Toast'
 
 type Toast = {
   id: string
+  type: 'toast'
   options: Optional<ToastProps, 'onClose'>
 }
 
-export const useToastStore = create<{ toasts: Toast[] }>(() => ({ toasts: [] }))
+type SessionExpired = {
+  id: 'session-expired'
+  type: 'session-expired'
+}
+
+export const useToastStore = create<{ toasts: (Toast | SessionExpired)[] }>(() => ({
+  toasts: [],
+}))
 
 export function addToast(options: Toast['options']) {
-  useToastStore.setState(({ toasts }) => ({ toasts: [...toasts, { id: uuid(), options }] }))
+  useToastStore.setState(({ toasts }) => ({
+    toasts: [...toasts, { id: uuid(), type: 'toast', options }],
+  }))
 }
 export function removeToast(id: Toast['id']) {
   useToastStore.setState(({ toasts }) => ({ toasts: toasts.filter((t) => t.id !== id) }))
+}
+
+export function setSessionExpired() {
+  useToastStore.setState(({ toasts }) => {
+    // there can only be one, so a second call does nothing
+    if (toasts.some((t) => t.type === 'session-expired')) return { toasts }
+
+    return {
+      toasts: [...toasts, { id: 'session-expired', type: 'session-expired' }],
+    }
+  })
 }

@@ -7,37 +7,12 @@
  */
 
 import { announce } from '@react-aria/live-announcer'
-import { animated, useTransition } from '@react-spring/web'
 import { useEffect } from 'react'
 
 import { Error12Icon } from '@oxide/design-system/icons/react'
 
 import { loginUrl } from '~/api/nav-to-login'
-import { useSessionExpiredStore } from '~/stores/session-expired'
 import { buttonStyle } from '~/ui/lib/Button'
-
-import { getStyle, ToastStackContainer, toastTransitionConfig } from './ToastStack'
-
-// TODO: figure out how to prevent this from conflicting with the regular toastStack,
-// probably by putting it in the ToastStack
-
-export function SessionExpiredToast() {
-  const expired = useSessionExpiredStore() || true
-
-  const transition = useTransition(expired, toastTransitionConfig)
-
-  return (
-    <ToastStackContainer>
-      {transition((style, item) =>
-        item ? (
-          <animated.div style={getStyle(style)}>
-            <SessionToast />
-          </animated.div>
-        ) : null
-      )}
-    </ToastStackContainer>
-  )
-}
 
 const title = 'Session expired'
 const content =

@@ -20,7 +20,7 @@ import {
 } from '@tanstack/react-query'
 import { type SetNonNullable } from 'type-fest'
 
-import { setSessionExpired } from '~/stores/session-expired'
+import { setSessionExpired } from '~/stores/toast'
 import { invariant } from '~/util/invariant'
 
 import type { ApiResult } from './__generated__/Api'

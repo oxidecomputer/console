@@ -61,7 +61,6 @@ export const handlers = makeHandlers({
 
   projectList: (params) => paginated(params.query, db.projects),
   projectCreate({ body }) {
-    throw 401
     errIfExists(db.projects, { name: body.name }, 'project')
 
     const newProject: Json<Api.Project> = {
