@@ -63,7 +63,8 @@ export const handlers = makeHandlers({
   deviceAccessToken: () => 200,
   loginLocal: ({ body: { password } }) => (password === 'bad' ? 401 : 200),
   logout: () => {
-    logout()
+    sessionState.loggedOut = true
+    return 204
   },
   groupList: (params) => paginated(params.query, db.userGroups),
   groupView: (params) => lookupById(db.userGroups, params.path.groupId),
