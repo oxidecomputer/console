@@ -7,11 +7,9 @@
  */
 import cn from 'classnames'
 import React, { useRef, type ReactElement } from 'react'
-import { Link, type LinkProps } from 'react-router-dom'
 import SimpleBar from 'simplebar-react'
 
 import { useIsOverflow } from '~/hooks'
-import { Button, buttonStyle, type ButtonProps } from '~/ui/lib/Button'
 import { classed } from '~/util/classed'
 
 export type TableProps = JSX.IntrinsicElements['table']
@@ -127,12 +125,4 @@ export const TableEmptyBox = classed.div`flex h-full max-h-[480px] items-center 
  */
 export const TableControls = classed.div`mb-4 flex items-end justify-between space-x-8`
 export const TableControlsText = classed.p`max-w-2xl text-sans-md text-secondary`
-
-export const TableControlsButton = (props: ButtonProps) => (
-  <Button size="sm" className="shrink-0" {...props} />
-)
-export const TableControlsLink = (props: LinkProps) => (
-  <Link className={buttonStyle({ size: 'sm' })} {...props} />
-)
-
 export const TableTitle = classed.div`text-sans-lg text-default`

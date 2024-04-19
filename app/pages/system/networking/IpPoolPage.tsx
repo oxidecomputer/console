@@ -8,7 +8,7 @@
 
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
-import { Link, Outlet, type LoaderFunctionArgs } from 'react-router-dom'
+import { Outlet, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
   apiQueryClient,
@@ -36,12 +36,12 @@ import { LinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
-import { buttonStyle } from '~/ui/lib/Button'
+import { CreateButton, CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
-import { TableControls, TableControlsButton, TableControlsText } from '~/ui/lib/Table'
+import { TableControls, TableControlsText } from '~/ui/lib/Table'
 import { Tabs } from '~/ui/lib/Tabs'
 import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
@@ -192,9 +192,7 @@ function IpRangesTable() {
   return (
     <>
       <div className="mb-3 flex justify-end space-x-2">
-        <Link to={pb.ipPoolRangeAdd({ pool })} className={buttonStyle({ size: 'sm' })}>
-          Add range
-        </Link>
+        <CreateLink to={pb.ipPoolRangeAdd({ pool })}>Add range</CreateLink>
       </div>
       <Table columns={columns} emptyState={emptyState} />
     </>
@@ -286,9 +284,7 @@ function LinkedSilosTable() {
           learn more about{' '}
           <ExternalLink href={links.ipPoolsDocs}>managing IP pools</ExternalLink>.
         </TableControlsText>
-        <TableControlsButton onClick={() => setShowLinkModal(true)}>
-          Link silo
-        </TableControlsButton>
+        <CreateButton onClick={() => setShowLinkModal(true)}>Link silo</CreateButton>
       </TableControls>
       <Table columns={columns} emptyState={emptyState} />
       {showLinkModal && <LinkSiloModal onDismiss={() => setShowLinkModal(false)} />}
