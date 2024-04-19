@@ -13,9 +13,9 @@ import {
   expectRowVisible,
   expectVisible,
   stopInstance,
-} from '../utils'
+} from './utils'
 
-test('Instance networking tab — NIC table', async ({ page }) => {
+test('Instance networking tab — NIC table', async ({ page }) => {
   await page.goto('/projects/mock-project/instances/db1')
 
   // links to VPC and external IPs appear in table

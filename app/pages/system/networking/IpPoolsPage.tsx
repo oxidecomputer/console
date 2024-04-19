@@ -8,7 +8,7 @@
 
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
-import { Link, Outlet, useNavigate } from 'react-router-dom'
+import { Outlet, useNavigate } from 'react-router-dom'
 
 import {
   apiQueryClient,
@@ -27,7 +27,7 @@ import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
-import { buttonStyle } from '~/ui/lib/Button'
+import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
@@ -127,9 +127,7 @@ export function IpPoolsPage() {
         <PageTitle icon={<Networking24Icon />}>IP Pools</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link to={pb.ipPoolsNew()} className={buttonStyle({ size: 'sm' })}>
-          New IP Pool
-        </Link>
+        <CreateLink to={pb.ipPoolsNew()}>New IP Pool</CreateLink>
       </TableActions>
       <Table columns={columns} emptyState={<EmptyState />} />
       <Outlet />

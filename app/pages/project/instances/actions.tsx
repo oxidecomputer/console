@@ -40,7 +40,8 @@ export const useMakeInstanceActions = (
   const startInstance = useApiMutation('instanceStart', opts)
   const stopInstance = useApiMutation('instanceStop', opts)
   const rebootInstance = useApiMutation('instanceReboot', opts)
-  const deleteInstance = useApiMutation('instanceDelete', opts)
+  // delete has its own
+  const deleteInstance = useApiMutation('instanceDelete', { onSuccess: options.onDelete })
 
   return useCallback(
     (instance) => {
@@ -123,10 +124,8 @@ export const useMakeInstanceActions = (
           onActivate: confirmDelete({
             doDelete: () =>
               deleteInstance.mutateAsync(instanceParams, {
-                onSuccess: () => {
-                  options.onDelete?.()
-                  addToast({ title: `Deleting instance '${instance.name}'` })
-                },
+                onSuccess: () =>
+                  addToast({ title: `Deleting instance '${instance.name}'` }),
               }),
             label: instance.name,
             resourceKind: 'instance',
@@ -138,14 +137,6 @@ export const useMakeInstanceActions = (
         },
       ]
     },
-    [
-      projectSelector,
-      deleteInstance,
-      navigate,
-      options,
-      rebootInstance,
-      startInstance,
-      stopInstance,
-    ]
+    [projectSelector, deleteInstance, navigate, rebootInstance, startInstance, stopInstance]
   )
 }

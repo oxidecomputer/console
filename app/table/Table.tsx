@@ -12,6 +12,7 @@ import { Table as UITable } from '~/ui/lib/Table'
 
 export type TableProps<TData> = JSX.IntrinsicElements['table'] & {
   rowClassName?: string
+  rowHeight?: 'small' | 'large'
   table: TableInstance<TData>
   singleSelect?: boolean
   multiSelect?: boolean
@@ -20,6 +21,7 @@ export type TableProps<TData> = JSX.IntrinsicElements['table'] & {
 /** Render a React Table table instance */
 export const Table = <TData,>({
   rowClassName,
+  rowHeight = 'small',
   table,
   singleSelect,
   multiSelect,
@@ -70,6 +72,7 @@ export const Table = <TData,>({
                 key={cell.column.id}
                 {...(i === 0 ? firstCellProps : {})}
                 className={cell.column.columnDef.meta?.tdClassName}
+                height={rowHeight}
               >
                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
               </UITable.Cell>

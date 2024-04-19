@@ -7,7 +7,7 @@
  */
 import { createColumnHelper } from '@tanstack/react-table'
 import { useMemo } from 'react'
-import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
+import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
   apiQueryClient,
@@ -25,7 +25,7 @@ import { makeLinkCell } from '~/table/cells/LinkCell'
 import { getActionsCol } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
-import { buttonStyle } from '~/ui/lib/Button'
+import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
@@ -59,7 +59,10 @@ export function InstancesPage() {
   const queryClient = useApiQueryClient()
   const refetchInstances = () => queryClient.invalidateQueries('instanceList')
 
-  const makeActions = useMakeInstanceActions({ project }, { onSuccess: refetchInstances })
+  const makeActions = useMakeInstanceActions(
+    { project },
+    { onSuccess: refetchInstances, onDelete: refetchInstances }
+  )
 
   const { data: instances } = usePrefetchedApiQuery('instanceList', {
     query: { project, limit: PAGE_SIZE },
@@ -124,11 +127,9 @@ export function InstancesPage() {
       </PageHeader>
       <TableActions>
         <RefreshButton onClick={refetchInstances} />
-        <Link to={pb.instancesNew({ project })} className={buttonStyle({ size: 'sm' })}>
-          New Instance
-        </Link>
+        <CreateLink to={pb.instancesNew({ project })}>New Instance</CreateLink>
       </TableActions>
-      <Table columns={columns} emptyState={<EmptyState />} />
+      <Table columns={columns} emptyState={<EmptyState />} rowHeight="large" />
     </>
   )
 }

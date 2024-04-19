@@ -7,7 +7,7 @@
  */
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback } from 'react'
-import { Link, Outlet, type LoaderFunctionArgs } from 'react-router-dom'
+import { Outlet, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
   apiQueryClient,
@@ -27,7 +27,7 @@ import { InstanceLinkCell } from '~/table/cells/InstanceLinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
-import { buttonStyle } from '~/ui/lib/Button'
+import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
@@ -164,9 +164,7 @@ export function DisksPage() {
         <PageTitle icon={<Storage24Icon />}>Disks</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link to={pb.disksNew({ project })} className={buttonStyle({ size: 'sm' })}>
-          New Disk
-        </Link>
+        <CreateLink to={pb.disksNew({ project })}>New Disk</CreateLink>
       </TableActions>
       <Table columns={columns} emptyState={<EmptyState />} />
       <Outlet />

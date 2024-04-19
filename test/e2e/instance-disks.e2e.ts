@@ -13,7 +13,7 @@ import {
   expectVisible,
   stopInstance,
   test,
-} from '../utils'
+} from './utils'
 
 test('Attach disk', async ({ page }) => {
   await page.goto('/projects/mock-project/instances/db1')

@@ -7,11 +7,9 @@
  */
 import cn from 'classnames'
 import React, { useRef, type ReactElement } from 'react'
-import { Link, type LinkProps } from 'react-router-dom'
 import SimpleBar from 'simplebar-react'
 
 import { useIsOverflow } from '~/hooks'
-import { Button, buttonStyle, type ButtonProps } from '~/ui/lib/Button'
 import { classed } from '~/util/classed'
 
 export type TableProps = JSX.IntrinsicElements['table']
@@ -93,24 +91,22 @@ Table.Body = ({ className, children, ...props }: TableBodyProps) => {
   )
 }
 
-export type TableCellProps = JSX.IntrinsicElements['td'] & {
-  height?: 'large' | 'small' | 'auto'
-}
-Table.Cell = ({ height = 'large', className, children, ...props }: TableCellProps) => {
-  const heightClass = height === 'large' ? 'h-16' : height === 'small' ? 'h-8' : ''
+export type TableCellProps = JSX.IntrinsicElements['td'] & { height?: 'small' | 'large' }
+Table.Cell = ({ height = 'small', className, children, ...props }: TableCellProps) => {
+  const heightClasses = { 'h-12': height === 'small', 'h-16': height === 'large' }
   return (
     <td
       className={cn(
         className,
         'pl-0 text-default border-default children:first:border-l-0 children:last:-mr-[1px]',
-        heightClass
+        heightClasses
       )}
       {...props}
     >
       <div
         className={cn(
           'relative -my-[1px] -mr-[2px] flex items-center border-b border-l py-3 pl-3 pr-3 border-secondary',
-          heightClass
+          heightClasses
         )}
       >
         {children}
@@ -133,12 +129,4 @@ export const TableEmptyBox = classed.div`flex h-full max-h-[480px] items-center 
  */
 export const TableControls = classed.div`mb-4 flex items-end justify-between space-x-8`
 export const TableControlsText = classed.p`max-w-2xl text-sans-md text-secondary`
-
-export const TableControlsButton = (props: ButtonProps) => (
-  <Button size="sm" className="shrink-0" {...props} />
-)
-export const TableControlsLink = (props: LinkProps) => (
-  <Link className={buttonStyle({ size: 'sm' })} {...props} />
-)
-
 export const TableTitle = classed.div`text-sans-lg text-default`

@@ -56,6 +56,7 @@ type QueryTableProps<Item> = {
   /** Function that produces a list of actions from a row item */
   pagination?: 'inline' | 'page'
   pageSize?: number
+  rowHeight?: 'small' | 'large'
   emptyState: React.ReactElement
   columns: ColumnDef<Item, any>[]
 }
@@ -72,6 +73,7 @@ const makeQueryTable = <Item extends Record<string, unknown>>(
     debug,
     pagination = 'page',
     pageSize = PAGE_SIZE,
+    rowHeight = 'small',
     emptyState,
     columns,
   }: QueryTableProps<Item>) {
@@ -111,7 +113,7 @@ const makeQueryTable = <Item extends Record<string, unknown>>(
 
     return (
       <>
-        <Table table={table} />
+        <Table table={table} rowHeight={rowHeight} />
         <Pagination
           inline={pagination === 'inline'}
           pageSize={pageSize}
