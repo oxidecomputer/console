@@ -103,28 +103,32 @@ function UtilizationBars() {
   return (
     <div className="-mt-8 mb-8 flex min-w-min flex-col gap-3 lg+:flex-row">
       {ipv4.capacity > 0 && (
-        <CapacityBar
-          icon={<IpGlobal16Icon />}
-          title="IPv4"
-          provisioned={ipv4.allocated}
-          capacity={ipv4.capacity}
-          provisionedLabel="Allocated"
-          capacityLabel="Capacity"
-          unit="IPs"
-          includeUnit={false}
-        />
+        <div className="w-full lg+:max-w-[50%]">
+          <CapacityBar
+            icon={<IpGlobal16Icon />}
+            title="IPv4"
+            provisioned={ipv4.allocated}
+            capacity={ipv4.capacity}
+            provisionedLabel="Allocated"
+            capacityLabel="Capacity"
+            unit="IPs"
+            includeUnit={false}
+          />
+        </div>
       )}
       {ipv6.capacity > 0 && (
-        <CapacityBar
-          icon={<IpGlobal16Icon />}
-          title="IPv6"
-          provisioned={ipv6.allocated}
-          capacity={ipv6.capacity}
-          provisionedLabel="Allocated"
-          capacityLabel="Capacity"
-          unit="IPs"
-          includeUnit={false}
-        />
+        <div className="w-full lg+:max-w-[50%]">
+          <CapacityBar
+            icon={<IpGlobal16Icon />}
+            title="IPv6"
+            provisioned={ipv6.allocated}
+            capacity={ipv6.capacity}
+            provisionedLabel="Allocated"
+            capacityLabel="Capacity"
+            unit="IPs"
+            includeUnit={false}
+          />
+        </div>
       )}
     </div>
   )
