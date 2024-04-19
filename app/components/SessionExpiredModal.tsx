@@ -49,14 +49,13 @@ export const SessionToast = () => {
   useEffect(() => announce(title + ' ' + content, 'polite'), [])
   return (
     <div className="relative flex w-[28rem] items-start overflow-hidden rounded-lg p-4 text-sans-md text-error bg-error-300">
-      <div className="mt-[2px] flex svg:h-3 svg:w-3">
+      <div className="mt-[3px] flex svg:h-3 svg:w-3">
         <Error12Icon />
       </div>
       <div className="flex-1 pl-2.5">
-        <div className="mb-1 text-sans-semi-md text-error">{title}</div>
-        <div className="mb-2 text-error-secondary">{content}</div>
+        <div className="mb-0.5 text-sans-semi-md text-error">{title}</div>
+        <div className="mb-3 text-error-secondary">{content}</div>
         <a
-          // className="mt-3 block text-mono-sm text-error-secondary hover:text-error"
           className={buttonStyle({ size: 'sm', variant: 'danger' })}
           href={loginUrl({ includeCurrent: true })}
         >
