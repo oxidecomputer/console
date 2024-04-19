@@ -12,34 +12,11 @@ import { useEffect } from 'react'
 import { Error12Icon } from '@oxide/design-system/icons/react'
 
 import { loginUrl } from '~/api/nav-to-login'
-import { Button } from '~/ui/lib/Button'
+import { buttonStyle } from '~/ui/lib/Button'
 
 const title = 'Session expired'
 const content =
   'Your session has expired. Please sign in again. Any unsubmitted form entries will be discarded.'
-
-function openLoginAndListen() {
-  // don't include current in query string because we don't want a  redirect
-  // back here after in that tab. we just want to close that tab
-
-  // TODO: maybe add a query param that tells the successful login to show a
-  // "close this tab" view after success instead of landing on /
-  const _popup = window.open(loginUrl())
-
-  window.addEventListener(
-    'message',
-    (event) => {
-      // ignore messages from anyone other than ourselves
-      if (event.origin !== window.origin) return
-
-      console.log(event)
-
-      // event.source is popup
-      // event.data is "hi there yourself!  the secret response is: rheeeeet!"
-    },
-    false
-  )
-}
 
 // What is a toast yet not a toast? This thing! It is an extremely simplified toast.
 export const SessionToast = () => {
@@ -53,9 +30,12 @@ export const SessionToast = () => {
       <div className="flex-1 pl-2.5">
         <div className="mb-0.5 text-sans-semi-md text-error">{title}</div>
         <div className="mb-3 text-error-secondary">{content}</div>
-        <Button size="sm" variant="danger" onClick={openLoginAndListen}>
+        <a
+          className={buttonStyle({ size: 'sm', variant: 'danger' })}
+          href={loginUrl({ includeCurrent: true })}
+        >
           Sign in
-        </Button>
+        </a>
       </div>
     </div>
   )

@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { createRoutesFromElements, Navigate, Route } from 'react-router-dom'
+import { createRoutesFromElements, Navigate, redirect, Route } from 'react-router-dom'
 
 import { RouterDataErrorBoundary } from './components/ErrorBoundary'
 import { NotFound } from './components/ErrorPage'
@@ -84,9 +84,35 @@ const vpcCrumb: CrumbFunc = (m) => m.params.vpc!
 const siloCrumb: CrumbFunc = (m) => m.params.silo!
 const poolCrumb: CrumbFunc = (m) => m.params.pool!
 
+// only used in local dev to do what Nexus does in production:
+// 1. redirect from /login to the full login URL for that silo's IdP
+// 2. redirect back to the target page on login success
+let mswLoginRedirects = null
+if (process.env.MSW) {
+  mswLoginRedirects = (
+    <>
+      <Route
+        path="login"
+        loader={({ request }) => {
+          const { search } = new URL(request.url)
+          return redirect('/login/default-silo/saml/mock-idp' + search)
+        }}
+      />
+      <Route
+        path="login/:silo/saml/:provider/redirect"
+        loader={({ request }) => {
+          const { searchParams } = new URL(request.url)
+          return redirect(searchParams.get('redirect_uri') || '/')
+        }}
+      />
+    </>
+  )
+}
+
 export const routes = createRoutesFromElements(
   <Route element={<RootLayout />}>
     <Route path="*" element={<NotFound />} />
+    {mswLoginRedirects}
     <Route element={<LoginLayout />}>
       <Route path="login/:silo/local" element={<LoginPage />} />
       <Route path="login/:silo/saml/:provider" element={<LoginPageSaml />} />

@@ -121,6 +121,8 @@ export const handlers = makeHandlers({
     return paginated(query, disks)
   },
   diskCreate({ body, query }) {
+    if (body.name.endsWith('401')) logout()
+
     const project = lookup.project(query)
 
     errIfExists(db.disks, { name: body.name, project_id: project.id })
