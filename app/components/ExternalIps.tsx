@@ -22,30 +22,18 @@ export function ExternalIps({ project, instance }: InstanceSelector) {
   if (isPending) return <SkeletonCell />
 
   const ips = data?.items
-    ? intersperse(
-        data.items.map((eip) => <IpLink ip={eip.ip} key={eip.ip} />),
+  if (!ips || ips.length === 0) return <EmptyCell />
+  return (
+    <div className="flex items-center gap-1">
+      {intersperse(
+        ips.map((eip) => (
+          <span className="flex items-center" key={eip.ip}>
+            {eip.ip}
+            <CopyToClipboard text={eip.ip} />
+          </span>
+        )),
         <span className="text-quinary"> / </span>
-      )
-    : undefined
-
-  return (
-    <div className="flex items-center gap-1 text-secondary">
-      {ips && ips.length > 0 ? ips : <EmptyCell />}
-      {/* If there's exactly one IP here, render a copy to clipboard button */}
-      {data?.items.length === 1 && <CopyToClipboard text={data.items[0].ip} />}
+      )}
     </div>
-  )
-}
-
-function IpLink({ ip }: { ip: string }) {
-  return (
-    <a
-      className="link-with-underline text-sans-semi-md"
-      href={`https://${ip}`}
-      target="_blank"
-      rel="noreferrer"
-    >
-      {ip}
-    </a>
   )
 }
