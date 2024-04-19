@@ -32,7 +32,7 @@ export const CapacityBar = <T extends number | bigint>({
   const unitElt = includeUnit ? <>&nbsp;{unit}</> : null
 
   return (
-    <div className="w-full min-w-min rounded-lg border border-default">
+    <div className="w-full min-w-min rounded-lg border border-default lg+:max-w-[50%]">
       <div className="flex justify-between p-3">
         <TitleCell icon={icon} title={title} unit={unit} />
         <PctCell pct={pct} />
