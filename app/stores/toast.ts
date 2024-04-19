@@ -10,22 +10,18 @@ import { create } from 'zustand'
 
 import type { ToastProps } from '~/ui/lib/Toast'
 
-type Toast = {
-  id: string
-  type: 'toast'
-  options: Optional<ToastProps, 'onClose'>
-}
+type ToastOptions = Optional<ToastProps, 'onClose'>
 
-type SessionExpired = {
-  id: 'session-expired'
-  type: 'session-expired'
-}
+type Toast =
+  | { type: 'toast'; id: string; options: ToastOptions }
+  | { type: 'session-expired'; id: 'session-expired' }
 
-export const useToastStore = create<{ toasts: (Toast | SessionExpired)[] }>(() => ({
+export const useToastStore = create<{ toasts: Toast[] }>(() => ({
   toasts: [],
 }))
 
-export function addToast(options: Toast['options']) {
+/** Add a regular toast */
+export function addToast(options: ToastOptions) {
   useToastStore.setState(({ toasts }) => ({
     toasts: [...toasts, { id: uuid(), type: 'toast', options }],
   }))
@@ -34,13 +30,13 @@ export function removeToast(id: Toast['id']) {
   useToastStore.setState(({ toasts }) => ({ toasts: toasts.filter((t) => t.id !== id) }))
 }
 
-export function setSessionExpired() {
-  useToastStore.setState(({ toasts }) => {
-    // there can only be one, so a second call does nothing
-    if (toasts.some((t) => t.type === 'session-expired')) return { toasts }
+const sessionExpired: Toast = { id: 'session-expired', type: 'session-expired' }
 
-    return {
-      toasts: [...toasts, { id: 'session-expired', type: 'session-expired' }],
-    }
-  })
+/** Add a session expired toast, which can't be closed */
+export function setSessionExpired() {
+  const { toasts } = useToastStore.getState()
+  // there can only be one, so a second call does nothing
+  if (toasts.some((t) => t.type === 'session-expired')) return
+
+  useToastStore.setState(({ toasts }) => ({ toasts: [...toasts, sessionExpired] }))
 }
