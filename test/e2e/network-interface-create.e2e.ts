@@ -7,16 +7,13 @@
  */
 import { test } from '@playwright/test'
 
-import { expect, expectRowVisible } from './utils'
+import { expect, expectRowVisible, stopInstance } from './utils'
 
 test('can create a NIC with a specified IP address', async ({ page }) => {
   // go to an instance’s Network Interfaces page
   await page.goto('/projects/mock-project/instances/db1/network-interfaces')
 
-  // stop the instance
-  await page.getByRole('button', { name: 'Instance actions' }).click()
-  await page.getByRole('menuitem', { name: 'Stop' }).click()
-  await page.getByRole('button', { name: 'Confirm' }).click()
+  await stopInstance(page)
 
   // open the add network interface side modal
   await page.getByRole('button', { name: 'Add network interface' }).click()
@@ -43,10 +40,7 @@ test('can create a NIC with a blank IP address', async ({ page }) => {
   // go to an instance’s Network Interfaces page
   await page.goto('/projects/mock-project/instances/db1/network-interfaces')
 
-  // stop the instance
-  await page.getByRole('button', { name: 'Instance actions' }).click()
-  await page.getByRole('menuitem', { name: 'Stop' }).click()
-  await page.getByRole('button', { name: 'Confirm' }).click()
+  await stopInstance(page)
 
   // open the add network interface side modal
   await page.getByRole('button', { name: 'Add network interface' }).click()

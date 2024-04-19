@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { expect, test } from './utils'
+import { expect, refreshInstance, sleep, test } from './utils'
 
 test('can delete a failed instance', async ({ page }) => {
   await page.goto('/projects/mock-project/instances')
@@ -36,6 +36,9 @@ test('can stop and delete a running instance', async ({ page }) => {
   await page.getByRole('menuitem', { name: 'Stop' }).click()
   await page.getByRole('button', { name: 'Confirm' }).click()
 
+  await sleep(3000)
+  await refreshInstance(page)
+
   // now it's stopped
   await expect(row.getByRole('cell', { name: /stopped/ })).toBeVisible()
 
@@ -57,6 +60,9 @@ test('can stop a starting instance', async ({ page }) => {
   await row.getByRole('button', { name: 'Row actions' }).click()
   await page.getByRole('menuitem', { name: 'Stop' }).click()
   await page.getByRole('button', { name: 'Confirm' }).click()
+
+  await sleep(3000)
+  await refreshInstance(page)
 
   await expect(row.getByRole('cell', { name: /stopped/ })).toBeVisible()
 })

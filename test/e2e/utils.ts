@@ -104,10 +104,17 @@ export async function expectRowVisible(
 }
 
 export async function stopInstance(page: Page) {
-  await page.click('role=button[name="Instance actions"]')
-  await page.click('role=menuitem[name="Stop"]')
-  await page.click('role=button[name="Confirm"]')
+  await page.getByRole('button', { name: 'Instance actions' }).click()
+  await page.getByRole('menuitem', { name: 'Stop' }).click()
+  await page.getByRole('button', { name: 'Confirm' }).click()
   await closeToast(page)
+  await sleep(1200)
+  await refreshInstance(page)
+  await expect(page.getByText('statusstopped')).toBeVisible()
+}
+
+export async function refreshInstance(page: Page) {
+  await page.getByRole('button', { name: 'Refresh data' }).click()
 }
 
 /**
