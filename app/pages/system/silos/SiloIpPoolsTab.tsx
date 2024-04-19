@@ -27,7 +27,6 @@ import { CreateButton } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
-import { TableActions } from '~/ui/lib/Table'
 import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
@@ -164,7 +163,7 @@ export function SiloIpPoolsTab() {
   return (
     <>
       <Message
-        className="mb-16"
+        className="mb-4"
         variant="info"
         hideableKey="siloIpPoolsInfo"
         content={
@@ -183,9 +182,9 @@ export function SiloIpPoolsTab() {
           </>
         }
       />
-      <TableActions>
+      <div className="mb-3 flex justify-end">
         <CreateButton onClick={() => setShowLinkModal(true)}>Link pool</CreateButton>
-      </TableActions>
+      </div>
       <Table columns={columns} emptyState={<EmptyState />} />
       {showLinkModal && <LinkPoolModal onDismiss={() => setShowLinkModal(false)} />}
     </>
