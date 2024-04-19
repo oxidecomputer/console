@@ -7,7 +7,7 @@
  */
 import { createColumnHelper } from '@tanstack/react-table'
 import { useMemo } from 'react'
-import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
+import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
   apiQueryClient,
@@ -25,10 +25,9 @@ import { makeLinkCell } from '~/table/cells/LinkCell'
 import { getActionsCol } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
-import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
-import { TableActions } from '~/ui/lib/Table'
+import { TableActions, TableControlsLink } from '~/ui/lib/Table'
 import { pb } from '~/util/path-builder'
 
 import { useMakeInstanceActions } from './actions'
@@ -127,9 +126,9 @@ export function InstancesPage() {
       </PageHeader>
       <TableActions>
         <RefreshButton onClick={refetchInstances} />
-        <Link to={pb.instancesNew({ project })} className={buttonStyle({ size: 'sm' })}>
+        <TableControlsLink to={pb.instancesNew({ project })}>
           New Instance
-        </Link>
+        </TableControlsLink>
       </TableActions>
       <Table columns={columns} emptyState={<EmptyState />} rowHeight="large" />
     </>

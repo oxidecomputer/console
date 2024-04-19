@@ -7,7 +7,7 @@
  */
 import { createColumnHelper } from '@tanstack/react-table'
 import { useMemo } from 'react'
-import { Link, Outlet } from 'react-router-dom'
+import { Outlet } from 'react-router-dom'
 
 import { Cloud24Icon } from '@oxide/design-system/icons/react'
 
@@ -17,8 +17,8 @@ import { LinkCell } from '~/table/cells/LinkCell'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { Badge } from '~/ui/lib/Badge'
-import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { TableControlsLink } from '~/ui/lib/Table'
 import { pb } from '~/util/path-builder'
 
 const EmptyState = () => (
@@ -56,9 +56,7 @@ export function SiloIdpsTab() {
   return (
     <>
       <div className="mb-3 flex justify-end space-x-2">
-        <Link to={pb.siloIdpsNew({ silo })} className={buttonStyle({ size: 'sm' })}>
-          New provider
-        </Link>
+        <TableControlsLink to={pb.siloIdpsNew({ silo })}>New provider</TableControlsLink>
       </div>
       <Table emptyState={<EmptyState />} columns={staticCols} />
       <Outlet />

@@ -28,12 +28,11 @@ import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
-import { Button } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
-import { TableActions } from '~/ui/lib/Table'
+import { TableActions, TableControlsButton } from '~/ui/lib/Table'
 import { pb } from '~/util/path-builder'
 
 const EmptyState = () => (
@@ -98,9 +97,9 @@ export function SiloImagesPage() {
         <PageTitle icon={<Images24Icon />}>Silo Images</PageTitle>
       </PageHeader>
       <TableActions>
-        <Button size="sm" onClick={() => setShowModal(true)}>
+        <TableControlsButton onClick={() => setShowModal(true)}>
           Promote image
-        </Button>
+        </TableControlsButton>
       </TableActions>
       <Table columns={columns} emptyState={<EmptyState />} />
       {showModal && <PromoteImageModal onDismiss={() => setShowModal(false)} />}

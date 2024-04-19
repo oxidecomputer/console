@@ -7,7 +7,7 @@
  */
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
-import { Link, Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
+import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
   apiQueryClient,
@@ -24,10 +24,9 @@ import { makeLinkCell } from '~/table/cells/LinkCell'
 import { getActionsCol, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
-import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
-import { TableActions } from '~/ui/lib/Table'
+import { TableActions, TableControlsLink } from '~/ui/lib/Table'
 import { pb } from '~/util/path-builder'
 
 const EmptyState = () => (
@@ -122,9 +121,7 @@ export function VpcsPage() {
         <PageTitle icon={<Networking24Icon />}>VPCs</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link to={pb.vpcsNew({ project })} className={buttonStyle({ size: 'sm' })}>
-          New Vpc
-        </Link>
+        <TableControlsLink to={pb.vpcsNew({ project })}>New Vpc</TableControlsLink>
       </TableActions>
       <Table columns={columns} emptyState={<EmptyState />} />
       <Outlet />

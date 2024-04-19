@@ -18,8 +18,8 @@ import { TwoLineCell } from '~/table/cells/TwoLineCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
-import { Button } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { TableControlsButton } from '~/ui/lib/Table'
 
 const colHelper = createColumnHelper<VpcSubnet>()
 const staticCols = [
@@ -77,9 +77,9 @@ export const VpcSubnetsTab = () => {
   return (
     <>
       <div className="mb-3 flex justify-end space-x-2">
-        <Button size="sm" onClick={() => setCreating(true)}>
+        <TableControlsButton onClick={() => setCreating(true)}>
           New subnet
-        </Button>
+        </TableControlsButton>
         {creating && <CreateSubnetForm onDismiss={() => setCreating(false)} />}
         {editing && <EditSubnetForm editing={editing} onDismiss={() => setEditing(null)} />}
       </div>
