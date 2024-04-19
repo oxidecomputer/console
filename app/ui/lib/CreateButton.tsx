@@ -18,12 +18,10 @@ export const CreateButton = ({ children, ...props }: ButtonProps) => (
     {children}
   </Button>
 )
-export const CreateLink = (props: LinkProps) => {
-  const { children, ...rest } = props
-  return (
-    <Link className={buttonStyle({ size: 'sm' })} {...rest}>
-      <AddRoundel12Icon className="mr-2 text-accent-secondary" />
-      {children}
-    </Link>
-  )
-}
+
+export const CreateLink = ({ children, ...rest }: LinkProps) => (
+  <Link className={buttonStyle({ size: 'sm' })} {...rest}>
+    <AddRoundel12Icon className="mr-2 text-accent-secondary" />
+    {children}
+  </Link>
+)
