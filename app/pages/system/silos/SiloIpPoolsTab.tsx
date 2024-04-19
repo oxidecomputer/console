@@ -27,7 +27,7 @@ import { CreateButton } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
-import { TableControls, TableControlsText } from '~/ui/lib/Table'
+import { TableActions } from '~/ui/lib/Table'
 import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
@@ -163,15 +163,29 @@ export function SiloIpPoolsTab() {
 
   return (
     <>
-      <TableControls>
-        <TableControlsText>
-          Users in this silo can allocate external IPs from these pools for their instances.
-          A silo can have at most one default pool. IPs are allocated from the default pool
-          when users ask for one without specifying a pool. Read the docs to learn more
-          about <ExternalLink href={links.ipPoolsDocs}>managing IP pools</ExternalLink>.
-        </TableControlsText>
+      <Message
+        className="mb-16"
+        variant="info"
+        hideableKey="siloIpPoolsInfo"
+        content={
+          <>
+            Users in this silo can allocate external IPs from these pools for their
+            instances. A silo can have at most one default pool. IPs are allocated from the
+            default pool when users ask for one without specifying a pool. Read the docs to
+            learn more about{' '}
+            <ExternalLink
+              href={links.ipPoolsDocs}
+              className="text-info-secondary hover:text-info"
+            >
+              managing IP pools
+            </ExternalLink>
+            .
+          </>
+        }
+      />
+      <TableActions>
         <CreateButton onClick={() => setShowLinkModal(true)}>Link pool</CreateButton>
-      </TableControls>
+      </TableActions>
       <Table columns={columns} emptyState={<EmptyState />} />
       {showLinkModal && <LinkPoolModal onDismiss={() => setShowLinkModal(false)} />}
     </>
