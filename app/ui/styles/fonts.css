@@ -58,8 +58,9 @@
 @font-face {
   font-family: 'SuisseIntl';
   src:
-    url('../assets/fonts/SuisseIntl-Book-WebS.woff2') format('woff2'),
-    url('../assets/fonts/SuisseIntl-Book-WebS.woff') format('woff');
-  font-weight: 600;
+    url('../assets/fonts/SuisseIntl-Medium-WebS.woff2') format('woff2'),
+    url('../assets/fonts/SuisseIntl-Medium-WebS.woff') format('woff');
+  font-weight: 500;
   font-style: normal;
 }
+

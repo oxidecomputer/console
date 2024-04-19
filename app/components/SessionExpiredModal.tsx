@@ -53,7 +53,7 @@ export const SessionToast = () => {
         <Error12Icon />
       </div>
       <div className="flex-1 pl-2.5">
-        <div className="mb-1 text-error">{title}</div>
+        <div className="mb-1 text-sans-semi-md text-error">{title}</div>
         <div className="mb-2 text-error-secondary">{content}</div>
         <a
           // className="mt-3 block text-mono-sm text-error-secondary hover:text-error"
