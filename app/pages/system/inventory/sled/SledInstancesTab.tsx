@@ -78,5 +78,5 @@ export function SledInstancesTab() {
 
   const columns = useColsWithActions(staticCols, makeActions)
 
-  return <Table columns={columns} emptyState={<EmptyState />} />
+  return <Table columns={columns} emptyState={<EmptyState />} rowHeight="large" />
 }
