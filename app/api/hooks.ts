@@ -49,15 +49,9 @@ const handleResult =
   <Data>(result: ApiResult<Data>) => {
     if (result.type === 'success') return result.data
 
-    // if logged out, hit /login to trigger login redirect
-    // Exception: 401 on password login POST needs to be handled in-page
+    // if logged out, show session expired popup and prompt to log in again
+    // Exception: 401 on password login POST needs to be handled in-form
     if (result.response.status === 401 && method !== 'loginLocal') {
-      // obviously we want something other than nav to login here. ideally
-      // I feel like we should be able to handle this the normal way by just
-      // having the error bubble up to the error boundary, same as anything
-      // else. the problem is I'm not sure you can do that without replacing
-      // the page you're on with the error fallback. if that's the case, this
-      // probably needs to be some kind of zustand store thing that we flip on
       setSessionExpired()
     }
 
