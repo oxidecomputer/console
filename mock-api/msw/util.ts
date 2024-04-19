@@ -95,6 +95,13 @@ export function getTimestamps() {
 export const unavailableErr = () =>
   json({ error_code: 'ServiceUnavailable', request_id: 'fake-id' }, { status: 503 })
 
+export const err401Body = {
+  error_code: 'Unauthenticated',
+  message: 'Missing or invalid credentials',
+  request_id: 'fake-id',
+}
+export const err401 = () => json(err401Body, { status: 401 })
+
 export const NotImplemented = () => {
   // This doesn't just return the response because it broadens the type to be usable
   // directly as a handler

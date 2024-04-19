@@ -56,7 +56,7 @@ const sleep = async (ms: number) => new Promise((res) => setTimeout(res, ms))
 
 export async function startMockAPI() {
   // dynamic imports to make extremely sure none of this code ends up in the prod bundle
-  const { handlers } = await import('../mock-api/msw/handlers')
+  const { handlers, sessionState, err401Body } = await import('../mock-api/msw/handlers')
   const { http, HttpResponse } = await import('msw')
   const { setupWorker } = await import('msw/browser')
 
@@ -69,11 +69,14 @@ export async function startMockAPI() {
       // special header lets client indicate chaos failures so we don't get confused
       return new HttpResponse(null, {
         status: randomStatus(),
-        headers: {
-          'X-Chaos': '',
-        },
+        headers: { 'X-Chaos': '' },
       })
     }
+
+    if (sessionState.loggedOut) {
+      return HttpResponse.json(err401Body, { status: 401 })
+    }
+
     // don't return anything means fall through to the real handlers
   })
 

@@ -31,6 +31,8 @@ import { defaultSilo, toIdp } from '../silo'
 import { db, lookup, lookupById, notFoundErr, utilizationForSilo } from './db'
 import {
   currentUser,
+  err401,
+  err401Body,
   errIfExists,
   errIfInvalidDiskSize,
   getStartAndEndTime,
@@ -45,10 +47,14 @@ import {
   unavailableErr,
 } from './util'
 
-// Note the *JSON types. Those represent actual API request and response bodies,
-// the snake-cased objects coming straight from the API before the generated
-// client camel-cases the keys and parses date fields. Inside the mock API everything
-// is *JSON type.
+// we use this to simulate being logged out. posts with names ending in 401 to
+// certain endpoints trigger logout, which makes all subsequent requests 401
+export const sessionState = { loggedOut: false }
+export { err401Body }
+function logout(): never {
+  sessionState.loggedOut = true
+  throw err401
+}
 
 export const handlers = makeHandlers({
   ping: () => ({ status: 'ok' }),
@@ -56,11 +62,16 @@ export const handlers = makeHandlers({
   deviceAuthConfirm: ({ body }) => (body.user_code === 'ERRO-RABC' ? 400 : 200),
   deviceAccessToken: () => 200,
   loginLocal: ({ body: { password } }) => (password === 'bad' ? 401 : 200),
+  logout: () => {
+    logout()
+  },
   groupList: (params) => paginated(params.query, db.userGroups),
   groupView: (params) => lookupById(db.userGroups, params.path.groupId),
 
   projectList: (params) => paginated(params.query, db.projects),
   projectCreate({ body }) {
+    if (body.name.endsWith('401')) logout()
+
     errIfExists(db.projects, { name: body.name }, 'project')
 
     const newProject: Json<Api.Project> = {
@@ -73,9 +84,8 @@ export const handlers = makeHandlers({
     return json(newProject, { status: 201 })
   },
   projectView: ({ path }) => {
-    if (path.project.endsWith('error-503')) {
-      throw unavailableErr
-    }
+    if (path.project.endsWith('401')) logout()
+    if (path.project.endsWith('503')) throw unavailableErr
 
     return lookup.project({ ...path })
   },
@@ -1250,7 +1260,6 @@ export const handlers = makeHandlers({
   localIdpUserDelete: NotImplemented,
   localIdpUserSetPassword: NotImplemented,
   loginSaml: NotImplemented,
-  logout: NotImplemented,
   networkingAddressLotBlockList: NotImplemented,
   networkingAddressLotCreate: NotImplemented,
   networkingAddressLotDelete: NotImplemented,
