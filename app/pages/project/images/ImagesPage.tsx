@@ -19,11 +19,12 @@ import { makeLinkCell } from '~/table/cells/LinkCell'
 import { getActionsCol, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
+import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
-import { TableActions, TableControlsLink } from '~/ui/lib/Table'
+import { TableActions } from '~/ui/lib/Table'
 import { pb } from '~/util/path-builder'
 
 const EmptyState = () => (
@@ -99,9 +100,7 @@ export function ImagesPage() {
         <PageTitle icon={<Images24Icon />}>Images</PageTitle>
       </PageHeader>
       <TableActions>
-        <TableControlsLink to={pb.projectImagesNew({ project })}>
-          Upload image
-        </TableControlsLink>
+        <CreateLink to={pb.projectImagesNew({ project })}>Upload image</CreateLink>
       </TableActions>
       <Table columns={columns} emptyState={<EmptyState />} />
       {promoteImageName && (

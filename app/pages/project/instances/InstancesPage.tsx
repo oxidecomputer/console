@@ -25,9 +25,10 @@ import { makeLinkCell } from '~/table/cells/LinkCell'
 import { getActionsCol } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
+import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
-import { TableActions, TableControlsLink } from '~/ui/lib/Table'
+import { TableActions } from '~/ui/lib/Table'
 import { pb } from '~/util/path-builder'
 
 import { useMakeInstanceActions } from './actions'
@@ -126,9 +127,7 @@ export function InstancesPage() {
       </PageHeader>
       <TableActions>
         <RefreshButton onClick={refetchInstances} />
-        <TableControlsLink to={pb.instancesNew({ project })}>
-          New Instance
-        </TableControlsLink>
+        <CreateLink to={pb.instancesNew({ project })}>New Instance</CreateLink>
       </TableActions>
       <Table columns={columns} emptyState={<EmptyState />} rowHeight="large" />
     </>

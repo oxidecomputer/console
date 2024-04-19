@@ -27,9 +27,10 @@ import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
+import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
-import { TableActions, TableControlsLink } from '~/ui/lib/Table'
+import { TableActions } from '~/ui/lib/Table'
 import { pb } from '~/util/path-builder'
 
 const EmptyState = () => (
@@ -126,7 +127,7 @@ export function IpPoolsPage() {
         <PageTitle icon={<Networking24Icon />}>IP Pools</PageTitle>
       </PageHeader>
       <TableActions>
-        <TableControlsLink to={pb.ipPoolsNew()}>New IP Pool</TableControlsLink>
+        <CreateLink to={pb.ipPoolsNew()}>New IP Pool</CreateLink>
       </TableActions>
       <Table columns={columns} emptyState={<EmptyState />} />
       <Outlet />

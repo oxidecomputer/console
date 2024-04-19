@@ -26,8 +26,9 @@ import { TypeValueCell } from '~/table/cells/TypeValueCell'
 import { getActionsCol } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
+import { CreateButton } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
-import { TableControlsButton, TableEmptyBox } from '~/ui/lib/Table'
+import { TableEmptyBox } from '~/ui/lib/Table'
 import { sortBy } from '~/util/array'
 import { titleCase } from '~/util/str'
 
@@ -133,9 +134,7 @@ export const VpcFirewallRulesTab = () => {
   return (
     <>
       <div className="mb-3 flex justify-end space-x-2">
-        <TableControlsButton onClick={() => setCreateModalOpen(true)}>
-          New rule
-        </TableControlsButton>
+        <CreateButton onClick={() => setCreateModalOpen(true)}>New rule</CreateButton>
         {createModalOpen && (
           <CreateFirewallRuleForm
             existingRules={rules}

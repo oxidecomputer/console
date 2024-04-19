@@ -31,9 +31,10 @@ import { confirmDelete } from '~/stores/confirm-delete'
 import { getActionsCol } from '~/table/columns/action-col'
 import { Table } from '~/table/Table'
 import { Badge } from '~/ui/lib/Badge'
+import { CreateButton } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
-import { TableActions, TableControlsButton, TableEmptyBox } from '~/ui/lib/Table'
+import { TableActions, TableEmptyBox } from '~/ui/lib/Table'
 import { identityTypeLabel, roleColor } from '~/util/access'
 import { groupBy, isTruthy } from '~/util/array'
 
@@ -164,9 +165,7 @@ export function SiloAccessPage() {
       </PageHeader>
 
       <TableActions>
-        <TableControlsButton onClick={() => setAddModalOpen(true)}>
-          Add user or group
-        </TableControlsButton>
+        <CreateButton onClick={() => setAddModalOpen(true)}>Add user or group</CreateButton>
       </TableActions>
       {siloPolicy && addModalOpen && (
         <SiloAccessAddUserSideModal

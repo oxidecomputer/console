@@ -23,10 +23,11 @@ import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
+import { CreateButton } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
-import { TableControls, TableControlsButton, TableControlsText } from '~/ui/lib/Table'
+import { TableControls, TableControlsText } from '~/ui/lib/Table'
 import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
@@ -169,9 +170,7 @@ export function SiloIpPoolsTab() {
           when users ask for one without specifying a pool. Read the docs to learn more
           about <ExternalLink href={links.ipPoolsDocs}>managing IP pools</ExternalLink>.
         </TableControlsText>
-        <TableControlsButton onClick={() => setShowLinkModal(true)}>
-          Link pool
-        </TableControlsButton>
+        <CreateButton onClick={() => setShowLinkModal(true)}>Link pool</CreateButton>
       </TableControls>
       <Table columns={columns} emptyState={<EmptyState />} />
       {showLinkModal && <LinkPoolModal onDismiss={() => setShowLinkModal(false)} />}
