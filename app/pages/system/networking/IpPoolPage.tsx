@@ -31,16 +31,18 @@ import { getIpPoolSelector, useForm, useIpPoolSelector } from '~/hooks'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
 import { DefaultPoolCell } from '~/table/cells/DefaultPoolCell'
-import { SkeletonCell } from '~/table/cells/EmptyCell'
+import { EmptyCell, SkeletonCell } from '~/table/cells/EmptyCell'
 import { LinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
 import { CreateButton, CreateLink } from '~/ui/lib/CreateButton'
+import { DateTime } from '~/ui/lib/DateTime'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
+import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { TableControls, TableControlsText } from '~/ui/lib/Table'
 import { Tabs } from '~/ui/lib/Tabs'
 import { links } from '~/util/links'
@@ -75,6 +77,32 @@ export function IpPoolPage() {
       <PageHeader>
         <PageTitle icon={<Networking24Icon />}>{pool.name}</PageTitle>
       </PageHeader>
+      <PropertiesTable.Group className="mb-12">
+        <PropertiesTable>
+          <PropertiesTable.Row label="Description">
+            {pool.description || <EmptyCell />}
+          </PropertiesTable.Row>
+          <PropertiesTable.Row label="ID">{pool.id}</PropertiesTable.Row>
+        </PropertiesTable>
+        <PropertiesTable>
+          <PropertiesTable.Row label="Created">
+            <DateTime date={pool.timeCreated} />
+          </PropertiesTable.Row>
+          <PropertiesTable.Row label="Linked Silos">
+            <DateTime date={pool.timeModified} />
+            {/*
+              *
+              *
+              * 
+              ROUGH EDGE: You're working on getting the list of Linked Silos to show up here;
+              haven't started that yet
+              *
+              *
+              *
+            */}
+          </PropertiesTable.Row>
+        </PropertiesTable>
+      </PropertiesTable.Group>
       <UtilizationBars />
       <QueryParamTabs className="full-width" defaultValue="ranges">
         <Tabs.List>
@@ -101,32 +129,43 @@ function UtilizationBars() {
   if (ipv4.capacity === 0 && ipv6.capacity === 0n) return null
 
   return (
-    <div className="-mt-8 mb-8 flex min-w-min flex-col gap-3 lg+:flex-row">
-      {ipv4.capacity > 0 && (
-        <CapacityBar
-          icon={<IpGlobal16Icon />}
-          title="IPv4"
-          provisioned={ipv4.allocated}
-          capacity={ipv4.capacity}
-          provisionedLabel="Allocated"
-          capacityLabel="Capacity"
-          unit="IPs"
-          includeUnit={false}
-        />
-      )}
-      {ipv6.capacity > 0 && (
-        <CapacityBar
-          icon={<IpGlobal16Icon />}
-          title="IPv6"
-          provisioned={ipv6.allocated}
-          capacity={ipv6.capacity}
-          provisionedLabel="Allocated"
-          capacityLabel="Capacity"
-          unit="IPs"
-          includeUnit={false}
-        />
-      )}
-    </div>
+    <>
+      <h2 className="mb-3 flex items-center pl-3 text-mono-xs text-secondary ">
+        Capacity available
+      </h2>
+      <div className="mb-8 flex min-w-min flex-col gap-3 lg+:flex-row">
+        {ipv4.capacity > 0 ? (
+          <CapacityBar
+            icon={<IpGlobal16Icon />}
+            title="IPv4"
+            provisioned={ipv4.allocated}
+            capacity={ipv4.capacity}
+            provisionedLabel="Allocated"
+            capacityLabel="Capacity"
+            unit="IPs"
+            includeUnit={false}
+          />
+        ) : (
+          // necessary for aligning capacity bar with Properties Table
+          <div className="w-full"></div>
+        )}
+        {ipv6.capacity > 0 ? (
+          <CapacityBar
+            icon={<IpGlobal16Icon />}
+            title="IPv6"
+            provisioned={ipv6.allocated}
+            capacity={ipv6.capacity}
+            provisionedLabel="Allocated"
+            capacityLabel="Capacity"
+            unit="IPs"
+            includeUnit={false}
+          />
+        ) : (
+          // necessary for aligning capacity bar with Properties Table
+          <div className="w-full"></div>
+        )}
+      </div>
+    </>
   )
 }
 
