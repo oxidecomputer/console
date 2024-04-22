@@ -88,18 +88,8 @@ export function IpPoolPage() {
           <PropertiesTable.Row label="Created">
             <DateTime date={pool.timeCreated} />
           </PropertiesTable.Row>
-          <PropertiesTable.Row label="Linked Silos">
+          <PropertiesTable.Row label="Last modified">
             <DateTime date={pool.timeModified} />
-            {/*
-              *
-              *
-              * 
-              ROUGH EDGE: You're working on getting the list of Linked Silos to show up here;
-              haven't started that yet
-              *
-              *
-              *
-            */}
           </PropertiesTable.Row>
         </PropertiesTable>
       </PropertiesTable.Group>
