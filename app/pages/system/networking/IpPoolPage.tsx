@@ -120,9 +120,7 @@ function UtilizationBars() {
 
   return (
     <>
-      <h2 className="mb-3 flex items-center pl-3 text-mono-xs text-secondary ">
-        Capacity available
-      </h2>
+      <h2 className="mb-3 pl-3 text-mono-xs text-secondary">Capacity available</h2>
       <div className="mb-8 flex min-w-min flex-col gap-3 lg+:flex-row">
         {ipv4.capacity > 0 ? (
           <CapacityBar
