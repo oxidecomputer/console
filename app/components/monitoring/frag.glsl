@@ -13,10 +13,10 @@ void main() {
     float maxBrightness = 0.0;
     float screenAlpha = 0.0; // Initialize screenAlpha
 
-    float blurRadiusX = 0.3 * u_aspect_ratio;
-    float blurRadiusY = 0.3;
-    float offsetX = -0.02 * u_aspect_ratio;
-    float offsetY = -0.02;
+    float blurRadiusX = 0.6 * u_aspect_ratio;
+    float blurRadiusY = 0.6;
+    float offsetX = 0.02 * u_aspect_ratio;
+    float offsetY = 0.02;
 
     bool isInside = false;
 

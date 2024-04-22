@@ -124,6 +124,9 @@ const createSensorDataTextures = (sensors: Sensor[], sensorValues: SensorValues)
   const temperatureData = new Float32Array(textureWidth * textureHeight * 4) // Only R channel used
 
   sensors.forEach((sensor, index) => {
+    if (sensor.type !== 'air') {
+      return
+    }
     const baseIndex = index * 4 // 4 entries per sensor (RGBA)
     positionSizeData[baseIndex] = sensor.position.x / sledSize.x
     positionSizeData[baseIndex + 1] = sensor.position.z / sledSize.z
@@ -232,7 +235,6 @@ export const ShaderSledHeatmap = ({
     <mesh {...props} ref={meshRef}>
       <planeGeometry />
       <shaderMaterial
-        transparent
         uniforms={uniforms}
         vertexShader={vertexShader}
         fragmentShader={fragmentShader}
