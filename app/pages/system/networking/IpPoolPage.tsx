@@ -120,9 +120,9 @@ function UtilizationBars() {
 
   return (
     <>
-      <h2 className="mb-3 pl-3 text-mono-xs text-secondary">Capacity available</h2>
-      <div className="mb-8 flex min-w-min flex-col gap-3 lg+:flex-row">
-        {ipv4.capacity > 0 ? (
+      <h2 className="mb-3 pl-3 text-mono-xs text-secondary">Utilization</h2>
+      <div className="mb-8 flex min-w-min flex-col gap-4 lg+:flex-row">
+        {ipv4.capacity > 0 && (
           <CapacityBar
             icon={<IpGlobal16Icon />}
             title="IPv4"
@@ -133,11 +133,8 @@ function UtilizationBars() {
             unit="IPs"
             includeUnit={false}
           />
-        ) : (
-          // necessary for aligning capacity bar with Properties Table
-          <div className="w-full"></div>
         )}
-        {ipv6.capacity > 0 ? (
+        {ipv6.capacity > 0 && (
           <CapacityBar
             icon={<IpGlobal16Icon />}
             title="IPv6"
@@ -148,10 +145,10 @@ function UtilizationBars() {
             unit="IPs"
             includeUnit={false}
           />
-        ) : (
-          // necessary for aligning capacity bar with Properties Table
-          <div className="w-full"></div>
         )}
+        {/* necessary for aligning capacity bar with Properties Table */}
+        {((ipv4.capacity > 0 && ipv6.capacity === 0n) ||
+          (ipv4.capacity === 0 && ipv6.capacity > 0n)) && <div className="w-full"></div>}
       </div>
     </>
   )
