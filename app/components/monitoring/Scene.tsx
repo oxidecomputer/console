@@ -399,7 +399,7 @@ export function Cube({
 
   useCursor(hovered)
 
-  const mixColor = new Color('#080F11')
+  const mixColor = new Color('#101618')
 
   const restingColor = new Color(color).mix(mixColor, 50)
   const hoverColor = color
