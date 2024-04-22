@@ -65,6 +65,8 @@ const Scene = ({
     sled !== undefined ? getSledBounds(sled) : getRackBounds()
   )
 
+  const defaultCenter = useRef(center)
+
   const defaultCamera = useRef({
     position,
     rotation,
@@ -88,7 +90,7 @@ const Scene = ({
           minZoom={minZoom}
           maxZoom={maxZoom}
           rotateSpeed={1}
-          target={center}
+          target={defaultCenter.current}
           maxPolarAngle={Math.PI / 2}
         />
         {/* <Grid
