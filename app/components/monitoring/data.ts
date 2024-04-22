@@ -229,7 +229,7 @@ export const sensors: Sensor[] = [
   },
   {
     label: 'DIMM_F1',
-    position: { x: 16, y: 0.8, z: 20.8 },
+    position: { x: 16, y: 0.8, z: 20.4 },
     size: { x: 14.2, y: 3, z: 0.2 },
     type: 'dimm',
   },
