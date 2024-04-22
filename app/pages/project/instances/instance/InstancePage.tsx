@@ -190,7 +190,7 @@ export function InstancePage() {
               {instance.id}
             </span>
           </PropertiesTable.Row>
-          <PropertiesTable.Row label="external IP">
+          <PropertiesTable.Row label="external IPs">
             {<ExternalIps {...instanceSelector} />}
           </PropertiesTable.Row>
         </PropertiesTable>
