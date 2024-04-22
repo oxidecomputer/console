@@ -27,7 +27,7 @@ export function ExternalIps({ project, instance }: InstanceSelector) {
     <div className="flex items-center gap-1">
       {intersperse(
         ips.map((eip) => (
-          <span className="flex items-center" key={eip.ip}>
+          <span className="flex items-center gap-1" key={eip.ip}>
             <a
               className="link-with-underline text-sans-semi-md"
               href={`https://${eip.ip}`}
