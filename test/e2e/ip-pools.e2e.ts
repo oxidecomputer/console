@@ -15,8 +15,7 @@ test('IP pool list', async ({ page }) => {
 
   await expect(page).toHaveTitle('IP pools / Oxide Console')
 
-  await expect(page.getByRole('heading', { name: 'Networking' })).toBeVisible()
-  await expect(page.getByRole('tab', { name: 'IP pools' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'IP Pools' })).toBeVisible()
 
   const table = page.getByRole('table')
 
@@ -31,6 +30,24 @@ test('IP pool list', async ({ page }) => {
   await expectRowVisible(table, {
     name: 'ip-pool-4',
     Utilization: 'v4' + '0 / 207' + 'v6' + '0 / 18.4e18',
+  })
+})
+
+test.describe('german locale', () => {
+  test.use({ locale: 'de-DE' })
+
+  test('IP pools list renders bignum with correct locale', async ({ page }) => {
+    await page.goto('/system/networking/ip-pools')
+    const table = page.getByRole('table')
+    await expectRowVisible(table, {
+      name: 'ip-pool-4',
+      Utilization: 'v4' + '0 / 207' + 'v6' + '0 / 18,4e18',
+    })
+  })
+
+  test('IP pool CapacityBar renders bignum with correct locale', async ({ page }) => {
+    await page.goto('/system/networking/ip-pools/ip-pool-4')
+    await expect(page.getByText('Capacity18,4e18')).toBeVisible()
   })
 })
 
@@ -199,7 +216,7 @@ test('IP range validation and add', async ({ page }) => {
   await expect(page.getByText('Capacity32')).toBeVisible()
 
   // go back to the pool and verify the utilization column changed
-  await page.getByRole('link', { name: 'Networking' }).click()
+  await page.getByRole('link', { name: 'IP Pools' }).click()
   await expectRowVisible(table, {
     name: 'ip-pool-2',
     Utilization: 'v4' + '0 / 1' + 'v6' + '0 / 32',
@@ -233,7 +250,7 @@ test('remove range', async ({ page }) => {
   await expect(page.getByText('Capacity21')).toBeVisible()
 
   // go back to the pool and verify the utilization column changed
-  await page.getByRole('link', { name: 'Networking' }).click()
+  await page.getByRole('link', { name: 'IP Pools' }).click()
   await expectRowVisible(table, {
     name: 'ip-pool-1',
     Utilization: '6 / 21',
@@ -256,7 +273,7 @@ test('deleting floating IP decrements utilization', async ({ page }) => {
   // now go back and it's 5. wow
   await page.getByLabel('Switch between system and silo').click()
   await page.getByRole('menuitem', { name: 'System' }).click()
-  await page.getByRole('link', { name: 'Networking' }).click()
+  await page.getByRole('link', { name: 'IP Pools' }).click()
   await expectRowVisible(table, { name: 'ip-pool-1', Utilization: '5 / 24' })
 })
 

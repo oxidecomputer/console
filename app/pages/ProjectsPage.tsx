@@ -7,7 +7,7 @@
  */
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
-import { Link, Outlet, useNavigate } from 'react-router-dom'
+import { Outlet, useNavigate } from 'react-router-dom'
 
 import {
   apiQueryClient,
@@ -22,8 +22,8 @@ import { confirmDelete } from '~/stores/confirm-delete'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
-import { useQueryTable } from '~/table/QueryTable'
-import { buttonStyle } from '~/ui/lib/Button'
+import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
+import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
@@ -42,14 +42,14 @@ const EmptyState = () => (
 )
 
 ProjectsPage.loader = async () => {
-  await apiQueryClient.prefetchQuery('projectList', { query: { limit: 25 } })
+  await apiQueryClient.prefetchQuery('projectList', { query: { limit: PAGE_SIZE } })
   return null
 }
 
 const colHelper = createColumnHelper<Project>()
 const staticCols = [
   colHelper.accessor('name', {
-    cell: makeLinkCell((project) => pb.instances({ project })),
+    cell: makeLinkCell((project) => pb.project({ project })),
   }),
   colHelper.accessor('description', Columns.description),
   colHelper.accessor('timeCreated', Columns.timeCreated),
@@ -61,7 +61,7 @@ export function ProjectsPage() {
   const queryClient = useApiQueryClient()
   const { Table } = useQueryTable('projectList', {})
   const { data: projects } = usePrefetchedApiQuery('projectList', {
-    query: { limit: 25 }, // limit to match QueryTable
+    query: { limit: PAGE_SIZE },
   })
 
   const deleteProject = useApiMutation('projectDelete', {
@@ -107,7 +107,7 @@ export function ProjectsPage() {
         },
         ...(projects?.items || []).map((p) => ({
           value: p.name,
-          onSelect: () => navigate(pb.instances({ project: p.name })),
+          onSelect: () => navigate(pb.project({ project: p.name })),
           navGroup: 'Go to project',
         })),
       ],
@@ -123,9 +123,7 @@ export function ProjectsPage() {
         <PageTitle icon={<Folder24Icon />}>Projects</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link to={pb.projectsNew()} className={buttonStyle({ size: 'sm' })}>
-          New Project
-        </Link>
+        <CreateLink to={pb.projectsNew()}>New Project</CreateLink>
       </TableActions>
       <Table columns={columns} emptyState={<EmptyState />} />
       <Outlet />

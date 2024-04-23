@@ -5,7 +5,6 @@
  *
  * Copyright Oxide Computer Company
  */
-import { format } from 'date-fns'
 import { filesize } from 'filesize'
 import { useMemo } from 'react'
 import { useController, type Control } from 'react-hook-form'
@@ -35,6 +34,7 @@ import { FormDivider } from '~/ui/lib/Divider'
 import { FieldLabel } from '~/ui/lib/FieldLabel'
 import { Radio } from '~/ui/lib/Radio'
 import { RadioGroup } from '~/ui/lib/RadioGroup'
+import { toLocaleDateString } from '~/util/date'
 import { bytesToGiB, GiB } from '~/util/units'
 
 const blankDiskSource: DiskSource = {
@@ -258,7 +258,7 @@ const SnapshotSelectField = ({ control }: { control: Control<DiskCreate> }) => {
             <>
               <div>{i.name}</div>
               <div className="text-tertiary selected:text-accent-secondary">
-                Created on {format(i.timeCreated, 'MMM d, yyyy')}
+                Created on {toLocaleDateString(i.timeCreated)}
                 <DiskNameFromId disk={i.diskId} />{' '}
                 <span className="mx-1 text-quinary selected:text-accent-disabled">/</span>{' '}
                 {formattedSize.value} {formattedSize.unit}

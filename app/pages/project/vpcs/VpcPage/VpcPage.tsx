@@ -13,10 +13,11 @@ import { Networking24Icon } from '@oxide/design-system/icons/react'
 import { QueryParamTabs } from '~/components/QueryParamTabs'
 import { getVpcSelector, useVpcSelector } from '~/hooks'
 import { EmptyCell } from '~/table/cells/EmptyCell'
+import { PAGE_SIZE } from '~/table/QueryTable'
+import { DateTime } from '~/ui/lib/DateTime'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { Tabs } from '~/ui/lib/Tabs'
-import { formatDateTime } from '~/util/date'
 
 import { VpcFirewallRulesTab } from './tabs/VpcFirewallRulesTab'
 import { VpcSubnetsTab } from './tabs/VpcSubnetsTab'
@@ -29,7 +30,7 @@ VpcPage.loader = async ({ params }: LoaderFunctionArgs) => {
       query: { project, vpc },
     }),
     apiQueryClient.prefetchQuery('vpcSubnetList', {
-      query: { project, vpc, limit: 25 },
+      query: { project, vpc, limit: PAGE_SIZE },
     }),
   ])
   return null
@@ -56,24 +57,24 @@ export function VpcPage() {
         </PropertiesTable>
         <PropertiesTable>
           <PropertiesTable.Row label="Created">
-            {formatDateTime(vpc.timeCreated)}
+            <DateTime date={vpc.timeCreated} />
           </PropertiesTable.Row>
           <PropertiesTable.Row label="Last Modified">
-            {formatDateTime(vpc.timeModified)}
+            <DateTime date={vpc.timeModified} />
           </PropertiesTable.Row>
         </PropertiesTable>
       </PropertiesTable.Group>
 
-      <QueryParamTabs className="full-width" defaultValue="subnets">
+      <QueryParamTabs className="full-width" defaultValue="firewall-rules">
         <Tabs.List>
-          <Tabs.Trigger value="subnets">Subnets</Tabs.Trigger>
           <Tabs.Trigger value="firewall-rules">Firewall Rules</Tabs.Trigger>
+          <Tabs.Trigger value="subnets">Subnets</Tabs.Trigger>
         </Tabs.List>
-        <Tabs.Content value="subnets">
-          <VpcSubnetsTab />
-        </Tabs.Content>
         <Tabs.Content value="firewall-rules">
           <VpcFirewallRulesTab />
+        </Tabs.Content>
+        <Tabs.Content value="subnets">
+          <VpcSubnetsTab />
         </Tabs.Content>
       </QueryParamTabs>
     </>

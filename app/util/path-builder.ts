@@ -22,20 +22,25 @@ type SiloImage = Required<PP.SiloImage>
 type IpPool = Required<PP.IpPool>
 type FloatingIp = Required<PP.FloatingIp>
 
+// this is used as the basis for many routes, but is itself not a route we ever
+// want to link directly to. so we use this to build the routes but pb.project()
+// is different (includes /instances)
+const projectBase = ({ project }: Project) => `${pb.projects()}/${project}`
+
 export const pb = {
   projects: () => `/projects`,
   projectsNew: () => `/projects-new`,
-  project: ({ project }: Project) => `${pb.projects()}/${project}`,
-  projectEdit: (params: Project) => `${pb.project(params)}/edit`,
+  project: (params: Project) => `${projectBase(params)}/instances`,
+  projectEdit: (params: Project) => `${projectBase(params)}/edit`,
 
-  projectAccess: (params: Project) => `${pb.project(params)}/access`,
-  projectImages: (params: Project) => `${pb.project(params)}/images`,
-  projectImagesNew: (params: Project) => `${pb.project(params)}/images-new`,
+  projectAccess: (params: Project) => `${projectBase(params)}/access`,
+  projectImages: (params: Project) => `${projectBase(params)}/images`,
+  projectImagesNew: (params: Project) => `${projectBase(params)}/images-new`,
   projectImage: (params: Image) => `${pb.projectImages(params)}/${params.image}`,
   projectImageEdit: (params: Image) => `${pb.projectImage(params)}/edit`,
 
-  instances: (params: Project) => `${pb.project(params)}/instances`,
-  instancesNew: (params: Project) => `${pb.project(params)}/instances-new`,
+  instances: (params: Project) => `${projectBase(params)}/instances`,
+  instancesNew: (params: Project) => `${projectBase(params)}/instances-new`,
   instance: (params: Instance) => `${pb.instances(params)}/${params.instance}`,
 
   /**
@@ -55,20 +60,20 @@ export const pb = {
 
   serialConsole: (params: Instance) => `${pb.instance(params)}/serial-console`,
 
-  disksNew: (params: Project) => `${pb.project(params)}/disks-new`,
-  disks: (params: Project) => `${pb.project(params)}/disks`,
+  disksNew: (params: Project) => `${projectBase(params)}/disks-new`,
+  disks: (params: Project) => `${projectBase(params)}/disks`,
 
-  snapshotsNew: (params: Project) => `${pb.project(params)}/snapshots-new`,
-  snapshots: (params: Project) => `${pb.project(params)}/snapshots`,
+  snapshotsNew: (params: Project) => `${projectBase(params)}/snapshots-new`,
+  snapshots: (params: Project) => `${projectBase(params)}/snapshots`,
   snapshotImagesNew: (params: Snapshot) =>
-    `${pb.project(params)}/snapshots/${params.snapshot}/images-new`,
+    `${projectBase(params)}/snapshots/${params.snapshot}/images-new`,
 
-  vpcsNew: (params: Project) => `${pb.project(params)}/vpcs-new`,
-  vpcs: (params: Project) => `${pb.project(params)}/vpcs`,
+  vpcsNew: (params: Project) => `${projectBase(params)}/vpcs-new`,
+  vpcs: (params: Project) => `${projectBase(params)}/vpcs`,
   vpc: (params: Vpc) => `${pb.vpcs(params)}/${params.vpc}`,
   vpcEdit: (params: Vpc) => `${pb.vpc(params)}/edit`,
-  floatingIps: (params: Project) => `${pb.project(params)}/floating-ips`,
-  floatingIpsNew: (params: Project) => `${pb.project(params)}/floating-ips-new`,
+  floatingIps: (params: Project) => `${projectBase(params)}/floating-ips`,
+  floatingIpsNew: (params: Project) => `${projectBase(params)}/floating-ips-new`,
   floatingIp: (params: FloatingIp) => `${pb.floatingIps(params)}/${params.floatingIp}`,
   floatingIpEdit: (params: FloatingIp) => `${pb.floatingIp(params)}/edit`,
 
@@ -83,8 +88,6 @@ export const pb = {
   systemUtilization: () => '/system/utilization',
   systemHealth: () => '/system/health',
 
-  // there is only one tab on networking and it's IP pools, so we just treat
-  // that as the networking route for now
   ipPools: () => '/system/networking/ip-pools',
   ipPoolsNew: () => '/system/networking/ip-pools-new',
   ipPool: (params: IpPool) => `${pb.ipPools()}/${params.pool}`,

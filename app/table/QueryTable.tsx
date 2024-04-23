@@ -56,9 +56,12 @@ type QueryTableProps<Item> = {
   /** Function that produces a list of actions from a row item */
   pagination?: 'inline' | 'page'
   pageSize?: number
+  rowHeight?: 'small' | 'large'
   emptyState: React.ReactElement
   columns: ColumnDef<Item, any>[]
 }
+
+export const PAGE_SIZE = 25
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const makeQueryTable = <Item extends Record<string, unknown>>(
@@ -69,7 +72,8 @@ const makeQueryTable = <Item extends Record<string, unknown>>(
   function QueryTable({
     debug,
     pagination = 'page',
-    pageSize = 25,
+    pageSize = PAGE_SIZE,
+    rowHeight = 'small',
     emptyState,
     columns,
   }: QueryTableProps<Item>) {
@@ -109,7 +113,7 @@ const makeQueryTable = <Item extends Record<string, unknown>>(
 
     return (
       <>
-        <Table table={table} />
+        <Table table={table} rowHeight={rowHeight} />
         <Pagination
           inline={pagination === 'inline'}
           pageSize={pageSize}

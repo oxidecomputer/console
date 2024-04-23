@@ -7,7 +7,7 @@
  */
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
-import { Link, Outlet, type LoaderFunctionArgs } from 'react-router-dom'
+import { Outlet, type LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, useApiMutation, useApiQueryClient, type Image } from '@oxide/api'
 import { Images24Icon } from '@oxide/design-system/icons/react'
@@ -18,8 +18,8 @@ import { addToast } from '~/stores/toast'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { getActionsCol, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
-import { useQueryTable } from '~/table/QueryTable'
-import { buttonStyle } from '~/ui/lib/Button'
+import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
+import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
@@ -42,7 +42,7 @@ const colHelper = createColumnHelper<Image>()
 ImagesPage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project } = getProjectSelector(params)
   await apiQueryClient.prefetchQuery('imageList', {
-    query: { project, limit: 25 },
+    query: { project, limit: PAGE_SIZE },
   })
   return null
 }
@@ -100,9 +100,7 @@ export function ImagesPage() {
         <PageTitle icon={<Images24Icon />}>Images</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link to={pb.projectImagesNew({ project })} className={buttonStyle({ size: 'sm' })}>
-          Upload image
-        </Link>
+        <CreateLink to={pb.projectImagesNew({ project })}>Upload image</CreateLink>
       </TableActions>
       <Table columns={columns} emptyState={<EmptyState />} />
       {promoteImageName && (

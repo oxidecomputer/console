@@ -34,7 +34,7 @@ export function CreateProjectSideModalForm() {
       // avoid the project fetch when the project page loads since we have the data
       queryClient.setQueryData('projectView', { path: { project: project.name } }, project)
       addToast({ content: 'Your project has been created' })
-      navigate(pb.instances({ project: project.name }))
+      navigate(pb.project({ project: project.name }))
     },
   })
 

@@ -6,7 +6,6 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
-import { format } from 'date-fns'
 import { useEffect, useState } from 'react'
 
 import { Refresh16Icon, Time16Icon } from '@oxide/design-system/icons/react'
@@ -14,6 +13,7 @@ import { Refresh16Icon, Time16Icon } from '@oxide/design-system/icons/react'
 import { Listbox, type ListboxItem } from '~/ui/lib/Listbox'
 import { SpinnerLoader } from '~/ui/lib/Spinner'
 import { useInterval } from '~/ui/lib/use-interval'
+import { toLocaleTimeString } from '~/util/date'
 
 const intervalPresets = {
   Off: undefined,
@@ -55,7 +55,8 @@ export function useIntervalPicker({ enabled, isLoading, fn }: Props) {
     intervalPicker: (
       <div className="mb-12 flex items-center justify-between">
         <div className="hidden items-center gap-2 text-right text-mono-sm text-quaternary lg+:flex">
-          <Time16Icon className="text-quinary" /> Refreshed {format(lastFetched, 'HH:mm')}
+          <Time16Icon className="text-quinary" /> Refreshed{' '}
+          {toLocaleTimeString(lastFetched)}
         </div>
         <div className="flex">
           <button

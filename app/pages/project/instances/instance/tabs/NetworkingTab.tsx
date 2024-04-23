@@ -35,7 +35,7 @@ import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns, DescriptionCell } from '~/table/columns/common'
 import { Table } from '~/table/Table'
 import { Badge } from '~/ui/lib/Badge'
-import { Button } from '~/ui/lib/Button'
+import { CreateButton } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableControls, TableEmptyBox, TableTitle } from '~/ui/lib/Table'
 import { TipIcon } from '~/ui/lib/TipIcon'
@@ -323,14 +323,13 @@ export function NetworkingTab() {
     <>
       <TableControls>
         <TableTitle id="attached-ips-label">External IPs</TableTitle>
-        <Button
-          size="sm"
+        <CreateButton
           onClick={() => setAttachModalOpen(true)}
           disabled={!!disabledReason}
           disabledReason={disabledReason}
         >
           Attach floating IP
-        </Button>
+        </CreateButton>
         {attachModalOpen && (
           <AttachFloatingIpModal
             floatingIps={availableIps}
@@ -344,8 +343,7 @@ export function NetworkingTab() {
 
       <TableControls className="mt-8">
         <TableTitle id="nics-label">Network interfaces</TableTitle>
-        <Button
-          size="sm"
+        <CreateButton
           onClick={() => setCreateModalOpen(true)}
           disabled={!canUpdateNic}
           disabledReason={
@@ -356,7 +354,7 @@ export function NetworkingTab() {
           }
         >
           Add network interface
-        </Button>
+        </CreateButton>
         {createModalOpen && (
           <CreateNetworkInterfaceForm
             onDismiss={() => setCreateModalOpen(false)}

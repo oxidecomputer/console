@@ -29,13 +29,14 @@ import { addToast } from '~/stores/toast'
 import { InstanceLinkCell } from '~/table/cells/InstanceLinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
-import { useQueryTable } from '~/table/QueryTable'
+import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
+import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Listbox } from '~/ui/lib/Listbox'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
-import { TableControls, TableControlsLink, TableControlsText } from '~/ui/lib/Table'
+import { TableControls, TableControlsText } from '~/ui/lib/Table'
 import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
@@ -53,7 +54,7 @@ FloatingIpsPage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project } = getProjectSelector(params)
   await Promise.all([
     apiQueryClient.prefetchQuery('floatingIpList', {
-      query: { project, limit: 25 },
+      query: { project, limit: PAGE_SIZE },
     }),
     apiQueryClient.prefetchQuery('instanceList', {
       query: { project },
@@ -192,9 +193,7 @@ export function FloatingIpsPage() {
           your instances to be reachable from the internet. Learn more about{' '}
           <ExternalLink href={links.floatingIpsDocs}>managing floating IPs</ExternalLink>.
         </TableControlsText>
-        <TableControlsLink to={pb.floatingIpsNew({ project })}>
-          New Floating IP
-        </TableControlsLink>
+        <CreateLink to={pb.floatingIpsNew({ project })}>New Floating IP</CreateLink>
       </TableControls>
       <Table columns={columns} emptyState={<EmptyState />} />
       <Outlet />

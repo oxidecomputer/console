@@ -51,7 +51,7 @@ test('path builder', () => {
         "ipPoolsNew": "/system/networking/ip-pools-new",
         "nics": "/projects/p/instances/i/network-interfaces",
         "profile": "/settings/profile",
-        "project": "/projects/p",
+        "project": "/projects/p/instances",
         "projectAccess": "/projects/p/access",
         "projectEdit": "/projects/p/edit",
         "projectImage": "/projects/p/images/im",

@@ -8,7 +8,7 @@
 
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
-import { Link, Outlet, useNavigate } from 'react-router-dom'
+import { Outlet, useNavigate } from 'react-router-dom'
 
 import {
   apiQueryClient,
@@ -26,9 +26,11 @@ import { SkeletonCell } from '~/table/cells/EmptyCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
-import { useQueryTable } from '~/table/QueryTable'
-import { buttonStyle } from '~/ui/lib/Button'
+import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
+import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
+import { TableActions } from '~/ui/lib/Table'
 import { pb } from '~/util/path-builder'
 
 const EmptyState = () => (
@@ -60,15 +62,17 @@ const staticColumns = [
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
-IpPoolsTab.loader = async function () {
-  await apiQueryClient.prefetchQuery('ipPoolList', { query: { limit: 25 } })
+IpPoolsPage.loader = async function () {
+  await apiQueryClient.prefetchQuery('ipPoolList', { query: { limit: PAGE_SIZE } })
   return null
 }
 
-export function IpPoolsTab() {
+export function IpPoolsPage() {
   const navigate = useNavigate()
   const { Table } = useQueryTable('ipPoolList', {})
-  const { data: pools } = usePrefetchedApiQuery('ipPoolList', { query: { limit: 25 } })
+  const { data: pools } = usePrefetchedApiQuery('ipPoolList', {
+    query: { limit: PAGE_SIZE },
+  })
 
   const deletePool = useApiMutation('ipPoolDelete', {
     onSuccess() {
@@ -119,11 +123,12 @@ export function IpPoolsTab() {
 
   return (
     <>
-      <div className="mb-3 flex justify-end space-x-2">
-        <Link to={pb.ipPoolsNew()} className={buttonStyle({ size: 'sm' })}>
-          New IP Pool
-        </Link>
-      </div>
+      <PageHeader>
+        <PageTitle icon={<Networking24Icon />}>IP Pools</PageTitle>
+      </PageHeader>
+      <TableActions>
+        <CreateLink to={pb.ipPoolsNew()}>New IP Pool</CreateLink>
+      </TableActions>
       <Table columns={columns} emptyState={<EmptyState />} />
       <Outlet />
     </>

@@ -7,7 +7,7 @@
  */
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
-import { Link, Outlet, useNavigate } from 'react-router-dom'
+import { Outlet, useNavigate } from 'react-router-dom'
 
 import {
   apiQueryClient,
@@ -24,9 +24,9 @@ import { BooleanCell } from '~/table/cells/BooleanCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
-import { useQueryTable } from '~/table/QueryTable'
+import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
 import { Badge } from '~/ui/lib/Badge'
-import { buttonStyle } from '~/ui/lib/Button'
+import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
@@ -59,7 +59,7 @@ const staticCols = [
 ]
 
 SilosPage.loader = async () => {
-  await apiQueryClient.prefetchQuery('siloList', { query: { limit: 25 } })
+  await apiQueryClient.prefetchQuery('siloList', { query: { limit: PAGE_SIZE } })
   return null
 }
 
@@ -70,7 +70,7 @@ export function SilosPage() {
   const queryClient = useApiQueryClient()
 
   const { data: silos } = usePrefetchedApiQuery('siloList', {
-    query: { limit: 25 },
+    query: { limit: PAGE_SIZE },
   })
 
   const deleteSilo = useApiMutation('siloDelete', {
@@ -114,9 +114,7 @@ export function SilosPage() {
         <PageTitle icon={<Cloud24Icon />}>Silos</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link to={pb.silosNew()} className={buttonStyle({ size: 'sm' })}>
-          New silo
-        </Link>
+        <CreateLink to={pb.silosNew()}>New silo</CreateLink>
       </TableActions>
       <Table columns={columns} emptyState={<EmptyState />} />
       <Outlet />

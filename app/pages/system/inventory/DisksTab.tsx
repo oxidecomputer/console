@@ -10,7 +10,7 @@ import { createColumnHelper } from '@tanstack/react-table'
 import { apiQueryClient, type PhysicalDisk } from '@oxide/api'
 import { Racks24Icon } from '@oxide/design-system/icons/react'
 
-import { useQueryTable } from '~/table/QueryTable'
+import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
 import { Badge } from '~/ui/lib/Badge'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 
@@ -23,7 +23,7 @@ const EmptyState = () => (
 )
 
 DisksTab.loader = async () => {
-  await apiQueryClient.prefetchQuery('physicalDiskList', { query: { limit: 25 } })
+  await apiQueryClient.prefetchQuery('physicalDiskList', { query: { limit: PAGE_SIZE } })
   return null
 }
 
@@ -36,6 +36,20 @@ const staticCols = [
   }),
   colHelper.accessor('model', { header: 'model number' }),
   colHelper.accessor('serial', { header: 'serial number' }),
+  colHelper.accessor('policy', {
+    cell: (info) => {
+      const policy = info.getValue().kind
+      const color = policy === 'in_service' ? 'default' : 'neutral'
+      return <Badge color={color}>{policy.replace(/_/g, ' ')}</Badge>
+    },
+  }),
+  colHelper.accessor('state', {
+    cell: (info) => {
+      const state = info.getValue()
+      const color = state === 'active' ? 'default' : 'neutral'
+      return <Badge color={color}>{state}</Badge>
+    },
+  }),
 ]
 
 export function DisksTab() {

@@ -7,7 +7,7 @@
  */
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback } from 'react'
-import { Link, Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
+import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
   apiQueryClient,
@@ -24,9 +24,9 @@ import { confirmDelete } from '~/stores/confirm-delete'
 import { SkeletonCell } from '~/table/cells/EmptyCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
-import { useQueryTable } from '~/table/QueryTable'
+import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
 import { Badge } from '~/ui/lib/Badge'
-import { buttonStyle } from '~/ui/lib/Button'
+import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
@@ -54,7 +54,7 @@ SnapshotsPage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project } = getProjectSelector(params)
   await Promise.all([
     apiQueryClient.prefetchQuery('snapshotList', {
-      query: { project, limit: 25 },
+      query: { project, limit: PAGE_SIZE },
     }),
 
     // Fetch disks and preload into RQ cache so fetches by ID in DiskNameFromId
@@ -136,9 +136,7 @@ export function SnapshotsPage() {
         <PageTitle icon={<Snapshots24Icon />}>Snapshots</PageTitle>
       </PageHeader>
       <TableActions>
-        <Link to={pb.snapshotsNew({ project })} className={buttonStyle({ size: 'sm' })}>
-          New Snapshot
-        </Link>
+        <CreateLink to={pb.snapshotsNew({ project })}>New snapshot</CreateLink>
       </TableActions>
       <Table columns={columns} emptyState={<EmptyState />} />
       <Outlet />
