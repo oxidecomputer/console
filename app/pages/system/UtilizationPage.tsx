@@ -13,7 +13,9 @@ import {
   apiQueryClient,
   FLEET_ID,
   totalUtilization,
+  useApiQuery,
   usePrefetchedApiQuery,
+  type SystemMetricName,
 } from '@oxide/api'
 import { Metrics24Icon } from '@oxide/design-system/icons/react'
 
@@ -70,6 +72,25 @@ export function SystemUtilizationPage() {
   )
 }
 
+/**
+ * Fetch all data in range + last data point _before_ range to use as a starting point
+ */
+function getSystemMetricQuery(
+  metric: SystemMetricName,
+  startTime: Date,
+  endTime: Date,
+  filterId: string
+) {
+  const start = startTime.toISOString().slice(0, -1)
+  const end = endTime.toISOString().slice(0, -1)
+  return `
+    get collection_target:${metric}
+      | filter timestamp >= @${start} && timestamp < @${end} && id == "${filterId}";
+    get collection_target:${metric}
+      | filter timestamp < @${start} && id == "${filterId}" | last 1
+  `
+}
+
 const MetricsTab = () => {
   const { data: silos } = usePrefetchedApiQuery('siloList', {})
 
@@ -100,6 +121,18 @@ const MetricsTab = () => {
     // the way we tell the API we want the fleet is by passing no filter
     silo: filterId === FLEET_ID ? undefined : filterId,
   }
+
+  const { data: allData } = useApiQuery('timeseriesQuery', {
+    body: {
+      query: `{ 
+        ${getSystemMetricQuery('cpus_provisioned', startTime, endTime, filterId)};
+        ${getSystemMetricQuery('ram_provisioned', startTime, endTime, filterId)};
+        ${getSystemMetricQuery('virtual_disk_space_provisioned', startTime, endTime, filterId)}
+      }`,
+    },
+  })
+
+  console.log(allData)
 
   return (
     <>
