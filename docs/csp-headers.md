@@ -11,7 +11,7 @@ The base headers are defined in `vercel.json` and imported into `vite.config.ts`
 The `content-security-policy` is based on the recommendation by the [OWASP Secure Headers Project](https://owasp.org/www-project-secure-headers/index.html) (click the "Best Practices" tab). The directives:
 
 - `default-src 'self'`: By default, restrict all resources to same-origin.
-- `style-src 'unsafe-inline' 'self'`: Restrict CSS to same-origin and inline use. `style=` attributes on React elements seem to count as inline.
+- `style-src 'unsafe-inline' 'self'`: Restrict CSS to same-origin and inline use. See #2183 for eventually removing `'unsafe-inline'`
 - `frame-src 'none'`: Disallow nested browsing contexts (`<frame>` and `<iframe>`).
 - `object-src 'none'`: Disallow `<object>` and `<embed>`.
 - `form-action 'none'`: Disallow submitting any forms with an `action` attribute (none of our forms are the traditional kind and instead post to the server in JS).
