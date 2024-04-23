@@ -79,10 +79,10 @@ export function IpPoolPage() {
       </PageHeader>
       <PropertiesTable.Group className="mb-12">
         <PropertiesTable>
+          <PropertiesTable.Row label="ID">{pool.id}</PropertiesTable.Row>
           <PropertiesTable.Row label="Description">
             {pool.description || <EmptyCell />}
           </PropertiesTable.Row>
-          <PropertiesTable.Row label="ID">{pool.id}</PropertiesTable.Row>
         </PropertiesTable>
         <PropertiesTable>
           <PropertiesTable.Row label="Created">
@@ -120,7 +120,7 @@ function UtilizationBars() {
 
   return (
     <>
-      <h2 className="mb-3 pl-3 text-mono-xs text-secondary">Utilization</h2>
+      <h2 className="mb-3 pl-3 text-mono-sm text-secondary">Utilization</h2>
       <div className="mb-8 flex min-w-min flex-col gap-4 lg+:flex-row">
         {ipv4.capacity > 0 && (
           <CapacityBar
