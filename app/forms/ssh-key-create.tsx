@@ -14,6 +14,7 @@ import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { useForm } from '~/hooks'
+import { addToast } from '~/stores/toast'
 import { pb } from '~/util/path-builder'
 
 const defaultValues: SshKeyCreate = {
@@ -22,13 +23,12 @@ const defaultValues: SshKeyCreate = {
   publicKey: '',
 }
 
-export function CreateSSHKeySideModalForm({
-  onDismiss,
-  message,
-}: {
+type Props = {
   onDismiss?: () => void
   message?: React.ReactNode
-}) {
+}
+
+export function CreateSSHKeySideModalForm({ onDismiss, message }: Props) {
   const queryClient = useApiQueryClient()
   const navigate = useNavigate()
 
@@ -38,6 +38,7 @@ export function CreateSSHKeySideModalForm({
     onSuccess() {
       queryClient.invalidateQueries('currentUserSshKeyList')
       handleDismiss()
+      addToast({ content: 'Your SSH key has been created' })
     },
   })
   const form = useForm({ defaultValues })
