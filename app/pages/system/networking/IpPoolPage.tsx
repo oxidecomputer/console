@@ -146,9 +146,6 @@ function UtilizationBars() {
             includeUnit={false}
           />
         )}
-        {/* necessary for aligning capacity bar with Properties Table */}
-        {((ipv4.capacity > 0 && ipv6.capacity === 0n) ||
-          (ipv4.capacity === 0 && ipv6.capacity > 0n)) && <div className="w-full"></div>}
       </div>
     </>
   )
