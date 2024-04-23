@@ -1,0 +1,68 @@
+diff --git a/node_modules/react-remove-scroll/dist/es2015/SideEffect.js b/node_modules/react-remove-scroll/dist/es2015/SideEffect.js
+index 08eda83..e48ccd6 100644
+--- a/node_modules/react-remove-scroll/dist/es2015/SideEffect.js
++++ b/node_modules/react-remove-scroll/dist/es2015/SideEffect.js
+@@ -1,7 +1,4 @@
+-import { __spreadArray } from "tslib";
+ import * as React from 'react';
+-import { RemoveScrollBar } from 'react-remove-scroll-bar';
+-import { styleSingleton } from 'react-style-singleton';
+ import { nonPassive } from './aggresiveCapture';
+ import { handleScroll, locationCouldBeScrolled } from './handleScroll';
+ export var getTouchXY = function (event) {
+@@ -19,24 +16,11 @@ export function RemoveScrollSideCar(props) {
+     var shouldPreventQueue = React.useRef([]);
+     var touchStartRef = React.useRef([0, 0]);
+     var activeAxis = React.useRef();
+-    var id = React.useState(idCounter++)[0];
+-    var Style = React.useState(function () { return styleSingleton(); })[0];
++    var Style = React.useState({})[0];
+     var lastProps = React.useRef(props);
+     React.useEffect(function () {
+         lastProps.current = props;
+     }, [props]);
+-    React.useEffect(function () {
+-        if (props.inert) {
+-            document.body.classList.add("block-interactivity-".concat(id));
+-            var allow_1 = __spreadArray([props.lockRef.current], (props.shards || []).map(extractRef), true).filter(Boolean);
+-            allow_1.forEach(function (el) { return el.classList.add("allow-interactivity-".concat(id)); });
+-            return function () {
+-                document.body.classList.remove("block-interactivity-".concat(id));
+-                allow_1.forEach(function (el) { return el.classList.remove("allow-interactivity-".concat(id)); });
+-            };
+-        }
+-        return;
+-    }, [props.inert, props.lockRef.current, props.shards]);
+     var shouldCancelEvent = React.useCallback(function (event, parent) {
+         if ('touches' in event && event.touches.length === 2) {
+             return !lastProps.current.allowPinchZoom;
+@@ -139,8 +123,5 @@ export function RemoveScrollSideCar(props) {
+             document.removeEventListener('touchstart', scrollTouchStart, nonPassive);
+         };
+     }, []);
+-    var removeScrollBar = props.removeScrollBar, inert = props.inert;
+-    return (React.createElement(React.Fragment, null,
+-        inert ? React.createElement(Style, { styles: generateStyle(id) }) : null,
+-        removeScrollBar ? React.createElement(RemoveScrollBar, { gapMode: "margin" }) : null));
++    return (React.createElement(React.Fragment, null));
+ }
+diff --git a/node_modules/react-remove-scroll/dist/es2015/UI.js b/node_modules/react-remove-scroll/dist/es2015/UI.js
+index 26c94a8..75d91ae 100644
+--- a/node_modules/react-remove-scroll/dist/es2015/UI.js
++++ b/node_modules/react-remove-scroll/dist/es2015/UI.js
+@@ -1,6 +1,5 @@
+ import { __assign, __rest } from "tslib";
+ import * as React from 'react';
+-import { fullWidthClassName, zeroRightClassName } from 'react-remove-scroll-bar/constants';
+ import { useMergeRefs } from 'use-callback-ref';
+ import { effectCar } from './medium';
+ var nothing = function () {
+@@ -29,8 +28,4 @@ RemoveScroll.defaultProps = {
+     removeScrollBar: true,
+     inert: false,
+ };
+-RemoveScroll.classNames = {
+-    fullWidth: fullWidthClassName,
+-    zeroRight: zeroRightClassName,
+-};
+ export { RemoveScroll };
