@@ -7,7 +7,7 @@
  */
 import { test } from '@playwright/test'
 
-import { expectNotVisible, expectRowVisible, expectVisible } from './utils'
+import { clickRowAction, expectNotVisible, expectRowVisible, expectVisible } from './utils'
 
 test('SSH keys', async ({ page }) => {
   await page.goto('/settings/ssh-keys')
@@ -20,14 +20,12 @@ test('SSH keys', async ({ page }) => {
   ])
 
   // delete the two ssh keys
-  await page.click('role=button[name="Row actions"]')
-  await page.click('role=menuitem[name="Delete"]')
+  await clickRowAction(page, 'm1-macbook-pro', 'Delete')
   await page.getByRole('button', { name: 'Confirm' }).click()
 
   await expectNotVisible(page, ['role=cell[name="m1-macbook-pro"]'])
 
-  await page.click('role=button[name="Row actions"]')
-  await page.click('role=menuitem[name="Delete"]')
+  await clickRowAction(page, 'mac-mini', 'Delete')
   await page.getByRole('button', { name: 'Confirm' }).click()
 
   // should show empty state
