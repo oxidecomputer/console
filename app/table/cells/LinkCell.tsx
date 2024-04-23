@@ -10,8 +10,7 @@ import { Link } from 'react-router-dom'
 
 import { classed } from '~/util/classed'
 
-const linkClass =
-  'link-with-underline group flex h-full w-full items-center text-sans-semi-md'
+const linkClass = 'link-with-underline group flex h-full w-full items-center text-sans-md'
 
 /** Pushes out the link area to the entire cell for improved clickability™ */
 const Pusher = classed.div`absolute inset-0 right-px group-hover:bg-raise`

@@ -166,7 +166,7 @@ export function InstancePage() {
           <PropertiesTable.Row label="vpc">
             {vpc ? (
               <Link
-                className="link-with-underline group text-sans-semi-md"
+                className="link-with-underline group text-sans-md"
                 to={pb.vpc({ project: instanceSelector.project, vpc: vpc.name })}
               >
                 {vpc.name}

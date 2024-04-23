@@ -40,7 +40,7 @@ export function ExternalIps({ project, instance }: InstanceSelector) {
 function IpLink({ ip }: { ip: string }) {
   return (
     <a
-      className="link-with-underline text-sans-semi-md"
+      className="link-with-underline text-sans-md"
       href={`https://${ip}`}
       target="_blank"
       rel="noreferrer"

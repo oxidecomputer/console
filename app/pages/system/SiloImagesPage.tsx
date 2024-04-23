@@ -21,6 +21,7 @@ import { Images24Icon } from '@oxide/design-system/icons/react'
 
 import { toListboxItem } from '~/components/form/fields/ImageSelectField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
+import { HL } from '~/components/HL'
 import { useForm } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
@@ -252,7 +253,7 @@ const DemoteImageModal = ({
             className="space-y-4"
           >
             <p>
-              Demoting: <span className="text-sans-semi-md text-default">{image.name}</span>
+              Demoting: <HL>{image.name}</HL>
             </p>
 
             <Message
