@@ -129,6 +129,7 @@ export const useMakeInstanceActions = (
               }),
             label: instance.name,
             resourceKind: 'instance',
+            extraContent: 'Any attached disks will be detached but not deleted.',
           }),
           disabled: !instanceCan.delete(instance) && (
             <>Only {fancifyStates(instanceCan.delete.states)} instances can be deleted</>
