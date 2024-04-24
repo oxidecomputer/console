@@ -26,7 +26,7 @@ import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
 import { NumberField } from '~/components/form/fields/NumberField'
 import { RadioField } from '~/components/form/fields/RadioField'
-import { TextField } from '~/components/form/fields/TextField'
+import { TextField, TextFieldInner } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { useForm, useVpcSelector } from '~/hooks'
 import { Badge } from '~/ui/lib/Badge'
@@ -34,6 +34,7 @@ import { Button } from '~/ui/lib/Button'
 import { FormDivider } from '~/ui/lib/Divider'
 import { Message } from '~/ui/lib/Message'
 import * as MiniTable from '~/ui/lib/MiniTable'
+import { TextInputHint } from '~/ui/lib/TextInput'
 import { KEYS } from '~/ui/util/keys'
 
 export type FirewallRuleValues = {
@@ -335,6 +336,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
       )}
 
       <FormDivider />
+
       <h3 className="mb-4 text-sans-2xl">Filters</h3>
 
       <Message
@@ -342,39 +344,29 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
         content="Filters reduce the scope of this rule. Without filters, the rule applies to all traffic to the targets (or from the targets, if it's an outbound rule). With multiple filters, it applies to traffic matching all filters."
       />
 
-      <fieldset className="space-y-0.5">
-        <legend className="mb-4 text-sans-lg">Protocol filters</legend>
-        <div>
-          <CheckboxField name="protocols" value="TCP" control={control}>
-            TCP
-          </CheckboxField>
-        </div>
-        <div>
-          <CheckboxField name="protocols" value="UDP" control={control}>
-            UDP
-          </CheckboxField>
-        </div>
-        <div>
-          <CheckboxField name="protocols" value="ICMP" control={control}>
-            ICMP
-          </CheckboxField>
-        </div>
-      </fieldset>
-
       <div className="flex flex-col gap-3">
-        <TextField
-          name="portRange"
-          label="Port filters"
-          description="A single port (1234) or a range (1234-2345)"
-          required
-          control={portRangeForm.control}
-          onKeyDown={(e) => {
-            if (e.key === KEYS.enter) {
-              e.preventDefault() // prevent full form submission
-              submitPortRange(e)
-            }
-          }}
-        />
+        {/* We have to blow this up instead of using TextField to get better 
+            text styling on the label */}
+        <div className="mt-2">
+          <label id="portRange-label" htmlFor="portRange" className="text-sans-lg">
+            Port filters
+          </label>
+          <TextInputHint id="portRange-help-text" className="mb-2">
+            A single port (1234) or a range (1234&ndash;2345)
+          </TextInputHint>
+          <TextFieldInner
+            id="portRange"
+            name="portRange"
+            required
+            control={portRangeForm.control}
+            onKeyDown={(e) => {
+              if (e.key === KEYS.enter) {
+                e.preventDefault() // prevent full form submission
+                submitPortRange(e)
+              }
+            }}
+          />
+        </div>
         <div className="flex justify-end">
           <Button
             variant="ghost"
@@ -415,22 +407,41 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
         </MiniTable.Table>
       )}
 
-      <h3 className="mb-4 text-sans-lg">Host filters</h3>
-      <ListboxField
-        name="type"
-        label="Host type"
-        items={[
-          { value: 'vpc', label: 'VPC' },
-          { value: 'subnet', label: 'VPC Subnet' },
-          { value: 'instance', label: 'Instance' },
-          { value: 'ip', label: 'IP' },
-          { value: 'ip_net', label: 'IP Subnet' },
-        ]}
-        required
-        control={hostForm.control}
-      />
+      <fieldset className="space-y-0.5">
+        <legend className="mb-2 mt-4 text-sans-lg">Protocol filters</legend>
+        <div>
+          <CheckboxField name="protocols" value="TCP" control={control}>
+            TCP
+          </CheckboxField>
+        </div>
+        <div>
+          <CheckboxField name="protocols" value="UDP" control={control}>
+            UDP
+          </CheckboxField>
+        </div>
+        <div>
+          <CheckboxField name="protocols" value="ICMP" control={control}>
+            ICMP
+          </CheckboxField>
+        </div>
+      </fieldset>
 
       <div className="flex flex-col gap-3">
+        <h3 className="mt-4 text-sans-lg">Host filters</h3>
+        <ListboxField
+          name="type"
+          label="Host type"
+          items={[
+            { value: 'vpc', label: 'VPC' },
+            { value: 'subnet', label: 'VPC Subnet' },
+            { value: 'instance', label: 'Instance' },
+            { value: 'ip', label: 'IP' },
+            { value: 'ip_net', label: 'IP Subnet' },
+          ]}
+          required
+          control={hostForm.control}
+        />
+
         {/* For everything but IP this is a name, but for IP it's an IP.
           So we should probably have the label on this field change when the
           host type changes. Also need to confirm that it's just an IP and
@@ -462,46 +473,46 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
             Add host filter
           </Button>
         </div>
-      </div>
 
-      {!!hosts.value.length && (
-        <MiniTable.Table className="mb-4" aria-label="Host filters">
-          <MiniTable.Header>
-            <MiniTable.HeadCell>Type</MiniTable.HeadCell>
-            <MiniTable.HeadCell>Value</MiniTable.HeadCell>
-            {/* For remove button */}
-            <MiniTable.HeadCell className="w-12" />
-          </MiniTable.Header>
-          <MiniTable.Body>
-            {hosts.value.map((h, index) => (
-              <MiniTable.Row
-                tabIndex={0}
-                aria-rowindex={index + 1}
-                aria-label={`Name: ${h.value}, Type: ${h.type}`}
-                key={`${h.type}|${h.value}`}
-              >
-                <MiniTable.Cell>
-                  <Badge variant="solid">{h.type}</Badge>
-                </MiniTable.Cell>
-                <MiniTable.Cell>{h.value}</MiniTable.Cell>
-                <MiniTable.Cell>
-                  <button
-                    onClick={() =>
-                      hosts.onChange(
-                        hosts.value.filter(
-                          (i) => !(i.value === h.value && i.type === h.type)
+        {!!hosts.value.length && (
+          <MiniTable.Table className="mb-4" aria-label="Host filters">
+            <MiniTable.Header>
+              <MiniTable.HeadCell>Type</MiniTable.HeadCell>
+              <MiniTable.HeadCell>Value</MiniTable.HeadCell>
+              {/* For remove button */}
+              <MiniTable.HeadCell className="w-12" />
+            </MiniTable.Header>
+            <MiniTable.Body>
+              {hosts.value.map((h, index) => (
+                <MiniTable.Row
+                  tabIndex={0}
+                  aria-rowindex={index + 1}
+                  aria-label={`Name: ${h.value}, Type: ${h.type}`}
+                  key={`${h.type}|${h.value}`}
+                >
+                  <MiniTable.Cell>
+                    <Badge variant="solid">{h.type}</Badge>
+                  </MiniTable.Cell>
+                  <MiniTable.Cell>{h.value}</MiniTable.Cell>
+                  <MiniTable.Cell>
+                    <button
+                      onClick={() =>
+                        hosts.onChange(
+                          hosts.value.filter(
+                            (i) => !(i.value === h.value && i.type === h.type)
+                          )
                         )
-                      )
-                    }
-                  >
-                    <Error16Icon title={`remove ${h.value}`} />
-                  </button>
-                </MiniTable.Cell>
-              </MiniTable.Row>
-            ))}
-          </MiniTable.Body>
-        </MiniTable.Table>
-      )}
+                      }
+                    >
+                      <Error16Icon title={`remove ${h.value}`} />
+                    </button>
+                  </MiniTable.Cell>
+                </MiniTable.Row>
+              ))}
+            </MiniTable.Body>
+          </MiniTable.Table>
+        )}
+      </div>
 
       {error && (
         <>
