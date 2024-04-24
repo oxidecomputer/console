@@ -23,6 +23,7 @@ import {
 import { IpGlobal16Icon, Networking24Icon } from '@oxide/design-system/icons/react'
 
 import { CapacityBar } from '~/components/CapacityBar'
+import { ContextualDocsModal } from '~/components/ContextualDocsModal'
 import { ExternalLink } from '~/components/ExternalLink'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { HL } from '~/components/HL'
@@ -74,6 +75,21 @@ export function IpPoolPage() {
     <>
       <PageHeader>
         <PageTitle icon={<Networking24Icon />}>{pool.name}</PageTitle>
+        <ContextualDocsModal
+          heading="Learn more about IP pools"
+          icon={<IpGlobal16Icon />}
+          summary="IP pools are logical collections of external IP addresses that let operators control which silos can use which IPs."
+          links={[
+            {
+              href: links.ipPoolsDocs,
+              linkText: 'IP Pool Management',
+            },
+            {
+              href: links.ipPoolsDocs,
+              linkText: 'Other link',
+            },
+          ]}
+        />
       </PageHeader>
       <UtilizationBars />
       <QueryParamTabs className="full-width" defaultValue="ranges">
