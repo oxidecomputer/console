@@ -52,8 +52,14 @@ const staticColumns = [
   colHelper.accessor('targets', {
     header: 'Targets',
     cell: (info) => {
+      const targets = info.getValue()
+      const children = targets.map(({ type, value }) => (
+        <TypeValueCell key={type + '|' + value} type={type} value={value} />
+      ))
+      // if there's going to be overflow anyway, might as well make the cell narrow
+      const numInCell = children.length <= 2 ? 2 : 1
       return (
-        <ListPlusCell numInCell={2} tooltipTitle="Other targets">
+        <ListPlusCell numInCell={numInCell} tooltipTitle="Other targets">
           {info.getValue().map(({ type, value }) => (
             <TypeValueCell key={type + '|' + value} type={type} value={value} />
           ))}
@@ -72,8 +78,10 @@ const staticColumns = [
           <TypeValueCell key={`port-${p}-${i}`} type="Port" value={p} />
         )),
       ]
+      // if there's going to be overflow anyway, might as well make the cell narrow
+      const numInCell = children.length <= 2 ? 2 : 1
       return (
-        <ListPlusCell numInCell={2} tooltipTitle="Other filters">
+        <ListPlusCell numInCell={numInCell} tooltipTitle="Other filters">
           {children}
         </ListPlusCell>
       )
