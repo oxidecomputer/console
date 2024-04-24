@@ -45,7 +45,7 @@ type PortRange = [number, number]
 // null so we can annotate the failure with a reason
 export function parsePortRange(portRange: string): PortRange | null {
   // TODO: pull pattern from openapi spec (requires generator work)
-  const match = /^([0-9]{1,5})((?:-)[0-9]{1,5})?$/.exec(portRange)
+  const match = /^([0-9]{1,5})((?:-)[0-9]{1,5})?$/.exec(portRange.trim())
   if (!match) return null
 
   const p1 = parseInt(match[1], 10)

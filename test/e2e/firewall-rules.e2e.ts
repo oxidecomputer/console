@@ -54,13 +54,27 @@ test('can create firewall rule', async ({ page }) => {
   const hosts = page.getByRole('table', { name: 'Host filters' })
   await expectRowVisible(hosts, { Type: 'instance', Value: 'host-filter-instance' })
 
-  // TODO: test invalid port range once I put an error message in there
-  await page.getByRole('textbox', { name: 'Port filters' }).fill('123-456')
-  await page.getByRole('button', { name: 'Add port filter' }).click()
+  const portRangeField = page.getByRole('textbox', { name: 'Port filters' })
+  const invalidPort = page.getByRole('dialog').getByText('Not a valid port range')
+  const addPortButton = page.getByRole('button', { name: 'Add port filter' })
+  await portRangeField.fill('abc')
+  await expect(invalidPort).toBeHidden()
+  await addPortButton.click()
+  await expect(invalidPort).toBeVisible()
+
+  await portRangeField.fill('123-456')
+  await addPortButton.click()
+  await expect(invalidPort).toBeHidden()
 
   // port range is added to port ranges table
   const ports = page.getByRole('table', { name: 'Port filters' })
   await expectRowVisible(ports, { 'Port ranges': '123-456' })
+
+  const dupePort = page.getByRole('dialog').getByText('Port range already added')
+  await expect(dupePort).toBeHidden()
+  await portRangeField.fill('123-456')
+  // don't need to click because we're already validating onChange
+  await expect(dupePort).toBeVisible()
 
   // check the UDP box
   await page.locator('text=UDP').click()

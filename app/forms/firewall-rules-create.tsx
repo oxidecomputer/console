@@ -172,10 +172,8 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
   const ports = useController({ name: 'ports', control }).field
   const submitPortRange = portRangeForm.handleSubmit(({ portRange }) => {
     const portRangeValue = portRange.trim()
-    // ignore click if invalid or already in the list
-    // TODO: show error instead of ignoring the click
-    if (!parsePortRange(portRangeValue)) return
-    if (ports.value.includes(portRangeValue)) return
+    // at this point we've already validated in validate() that it parses and
+    // that it is not already in the list
     ports.onChange([...ports.value, portRangeValue])
     portRangeForm.reset()
   })
@@ -278,6 +276,8 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
               submitTarget(e)
             }
           }}
+          // TODO: validate here, but it's complicated because it's conditional
+          // on which type is selected
         />
 
         <div className="flex justify-end">
@@ -364,6 +364,10 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
                 e.preventDefault() // prevent full form submission
                 submitPortRange(e)
               }
+            }}
+            validate={(value) => {
+              if (!parsePortRange(value)) return 'Not a valid port range'
+              if (ports.value.includes(value.trim())) return 'Port range already added'
             }}
           />
         </div>
@@ -457,6 +461,8 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
               submitHost(e)
             }
           }}
+          // TODO: validate here, but it's complicated because it's conditional
+          // on which type is selected
         />
 
         <div className="flex justify-end">
