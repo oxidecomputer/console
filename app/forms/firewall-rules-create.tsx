@@ -215,12 +215,6 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
       <NameField name="name" control={control} />
       <DescriptionField name="description" control={control} />
 
-      <NumberField
-        name="priority"
-        description="Must be 0&ndash;65535"
-        required
-        control={control}
-      />
       <RadioField
         name="action"
         column
@@ -239,6 +233,12 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
           { value: 'inbound', label: 'Inbound' },
           { value: 'outbound', label: 'Outbound' },
         ]}
+      />
+      <NumberField
+        name="priority"
+        description="Must be 0&ndash;65535. Lower-numbered rules apply first."
+        required
+        control={control}
       />
 
       <FormDivider />
