@@ -31,7 +31,7 @@ test('can create firewall rule', async ({ page }) => {
   await expect(modal).toBeVisible()
 
   await page.fill('input[name=name]', 'my-new-rule')
-  await page.locator('text=Outbound').click()
+  await page.getByRole('radio', { name: 'Outbound' }).click()
 
   await page.fill('role=textbox[name="Priority"]', '5')
 
@@ -55,18 +55,18 @@ test('can create firewall rule', async ({ page }) => {
   await expectRowVisible(hosts, { Type: 'instance', Value: 'host-filter-instance' })
 
   // TODO: test invalid port range once I put an error message in there
-  await page.fill('role=textbox[name="Port filter"]', '123-456')
+  await page.getByRole('textbox', { name: 'Port filters' }).fill('123-456')
   await page.getByRole('button', { name: 'Add port filter' }).click()
 
   // port range is added to port ranges table
-  const ports = page.getByRole('table', { name: 'Ports' })
-  await expectRowVisible(ports, { Range: '123-456' })
+  const ports = page.getByRole('table', { name: 'Port filters' })
+  await expectRowVisible(ports, { 'Port ranges': '123-456' })
 
   // check the UDP box
   await page.locator('text=UDP').click()
 
   // submit the form
-  await page.locator('text="Add rule"').click()
+  await page.getByRole('button', { name: 'Add rule' }).click()
 
   // modal closes again
   await expect(modal).toBeHidden()

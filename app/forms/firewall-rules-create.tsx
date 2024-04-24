@@ -32,6 +32,7 @@ import { useForm, useVpcSelector } from '~/hooks'
 import { Badge } from '~/ui/lib/Badge'
 import { Button } from '~/ui/lib/Button'
 import { FormDivider } from '~/ui/lib/Divider'
+import { Message } from '~/ui/lib/Message'
 import * as MiniTable from '~/ui/lib/MiniTable'
 import { KEYS } from '~/ui/util/keys'
 
@@ -134,6 +135,37 @@ function getFilterValueProps(hostType: VpcFirewallRuleHostFilter['type']) {
   }
 }
 
+const DocsLinkMessage = () => (
+  <Message
+    variant="info"
+    content={
+      <>
+        Read the{' '}
+        <a
+          href="https://docs.oxide.computer/guides/configuring-guest-networking#_firewall_rules"
+          // don't need color and hover color because message text is already color-info anyway
+          className="underline"
+          target="_blank"
+          rel="noreferrer"
+        >
+          guest networking guide
+        </a>{' '}
+        and{' '}
+        <a
+          href="https://docs.oxide.computer/api/vpc_firewall_rules_update"
+          // don't need color and hover color because message text is already color-info anyway
+          className="underline"
+          target="_blank"
+          rel="noreferrer"
+        >
+          API docs
+        </a>{' '}
+        to learn more about firewall rules.
+      </>
+    }
+  />
+)
+
 export const CommonFields = ({ error, control }: CommonFieldsProps) => {
   const portRangeForm = useForm({ defaultValues: portRangeDefaultValues })
   const ports = useController({ name: 'ports', control }).field
@@ -174,6 +206,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
 
   return (
     <>
+      <DocsLinkMessage />
       {/* omitting value prop makes it a boolean value. beautiful */}
       {/* TODO: better text or heading or tip or something on this checkbox */}
       <CheckboxField name="enabled" control={control}>
@@ -181,8 +214,6 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
       </CheckboxField>
       <NameField name="name" control={control} />
       <DescriptionField name="description" control={control} />
-
-      <FormDivider />
 
       <NumberField
         name="priority"
@@ -214,7 +245,11 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
 
       {/* Really this should be its own <form>, but you can't have a form inside a form,
           so we just stick the submit handler in a button onClick */}
-      <h3 className="mb-4 text-sans-xl">Target</h3>
+      <h3 className="mb-4 text-sans-2xl">Targets</h3>
+      <Message
+        variant="info"
+        content=" Specify instances this rule applies to. For example, target a VPC to make this rule apply to every instance in the VPC. Targets are additive: the rule applies to instances matching any of the specified targets."
+      />
       {/* TODO: make ListboxField smarter with the values like RadioField is */}
       <ListboxField
         name="type"
@@ -300,8 +335,87 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
       )}
 
       <FormDivider />
+      <h3 className="mb-4 text-sans-2xl">Filters</h3>
 
-      <h3 className="mb-4 text-sans-xl">Host filters</h3>
+      <Message
+        variant="info"
+        content="Filters reduce the scope of this rule. Without filters, the rule applies to all traffic to the targets (or from the targets, if it's an outbound rule). With multiple filters, it applies to traffic matching all filters."
+      />
+
+      <fieldset className="space-y-0.5">
+        <legend className="mb-4 text-sans-lg">Protocol filters</legend>
+        <div>
+          <CheckboxField name="protocols" value="TCP" control={control}>
+            TCP
+          </CheckboxField>
+        </div>
+        <div>
+          <CheckboxField name="protocols" value="UDP" control={control}>
+            UDP
+          </CheckboxField>
+        </div>
+        <div>
+          <CheckboxField name="protocols" value="ICMP" control={control}>
+            ICMP
+          </CheckboxField>
+        </div>
+      </fieldset>
+
+      <div className="flex flex-col gap-3">
+        <TextField
+          name="portRange"
+          label="Port filters"
+          description="A single port (1234) or a range (1234-2345)"
+          required
+          control={portRangeForm.control}
+          onKeyDown={(e) => {
+            if (e.key === KEYS.enter) {
+              e.preventDefault() // prevent full form submission
+              submitPortRange(e)
+            }
+          }}
+        />
+        <div className="flex justify-end">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="mr-2.5"
+            disabled={!portRangeForm.formState.isDirty}
+            onClick={() => portRangeForm.reset()}
+          >
+            Clear
+          </Button>
+          <Button size="sm" onClick={submitPortRange}>
+            Add port filter
+          </Button>
+        </div>
+      </div>
+
+      {!!ports.value.length && (
+        <MiniTable.Table className="mb-4" aria-label="Port filters">
+          <MiniTable.Header>
+            <MiniTable.HeadCell>Port ranges</MiniTable.HeadCell>
+            {/* For remove button */}
+            <MiniTable.HeadCell className="w-12" />
+          </MiniTable.Header>
+          <MiniTable.Body>
+            {ports.value.map((p) => (
+              <MiniTable.Row tabIndex={0} aria-label={p} key={p}>
+                <MiniTable.Cell>{p}</MiniTable.Cell>
+                <MiniTable.Cell>
+                  <button
+                    onClick={() => ports.onChange(ports.value.filter((p1) => p1 !== p))}
+                  >
+                    <Error16Icon title={`remove ${p}`} />
+                  </button>
+                </MiniTable.Cell>
+              </MiniTable.Row>
+            ))}
+          </MiniTable.Body>
+        </MiniTable.Table>
+      )}
+
+      <h3 className="mb-4 text-sans-lg">Host filters</h3>
       <ListboxField
         name="type"
         label="Host type"
@@ -388,83 +502,6 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
           </MiniTable.Body>
         </MiniTable.Table>
       )}
-
-      <FormDivider />
-
-      <div className="flex flex-col gap-3">
-        <TextField
-          name="portRange"
-          label="Port filter"
-          description="A single port (1234) or a range (1234-2345)"
-          required
-          control={portRangeForm.control}
-          onKeyDown={(e) => {
-            if (e.key === KEYS.enter) {
-              e.preventDefault() // prevent full form submission
-              submitPortRange(e)
-            }
-          }}
-        />
-        <div className="flex justify-end">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="mr-2.5"
-            disabled={!portRangeForm.formState.isDirty}
-            onClick={() => portRangeForm.reset()}
-          >
-            Clear
-          </Button>
-          <Button size="sm" onClick={submitPortRange}>
-            Add port filter
-          </Button>
-        </div>
-      </div>
-
-      {!!ports.value.length && (
-        <MiniTable.Table className="mb-4" aria-label="Ports">
-          <MiniTable.Header>
-            <MiniTable.HeadCell>Range</MiniTable.HeadCell>
-            {/* For remove button */}
-            <MiniTable.HeadCell className="w-12" />
-          </MiniTable.Header>
-          <MiniTable.Body>
-            {ports.value.map((p) => (
-              <MiniTable.Row tabIndex={0} aria-label={p} key={p}>
-                <MiniTable.Cell>{p}</MiniTable.Cell>
-                <MiniTable.Cell>
-                  <button
-                    onClick={() => ports.onChange(ports.value.filter((p1) => p1 !== p))}
-                  >
-                    <Error16Icon title={`remove ${p}`} />
-                  </button>
-                </MiniTable.Cell>
-              </MiniTable.Row>
-            ))}
-          </MiniTable.Body>
-        </MiniTable.Table>
-      )}
-
-      <FormDivider />
-
-      <fieldset className="space-y-0.5">
-        <legend>Protocols</legend>
-        <div>
-          <CheckboxField name="protocols" value="TCP" control={control}>
-            TCP
-          </CheckboxField>
-        </div>
-        <div>
-          <CheckboxField name="protocols" value="UDP" control={control}>
-            UDP
-          </CheckboxField>
-        </div>
-        <div>
-          <CheckboxField name="protocols" value="ICMP" control={control}>
-            ICMP
-          </CheckboxField>
-        </div>
-      </fieldset>
 
       {error && (
         <>
