@@ -23,6 +23,12 @@ describe('parsePortRange', () => {
       expect(parsePortRange('1-45690')).toEqual([1, 45690])
       expect(parsePortRange('5-5')).toEqual([5, 5])
     })
+
+    it('with surrounding whitespace', () => {
+      expect(parsePortRange('123-456 ')).toEqual([123, 456])
+      expect(parsePortRange('  1-45690')).toEqual([1, 45690])
+      expect(parsePortRange('  5-5  \n')).toEqual([5, 5])
+    })
   })
 
   describe('rejects', () => {
