@@ -15,17 +15,18 @@ import {
   type VpcFirewallRule,
 } from '@oxide/api'
 
+import { ListPlusCell } from '~/components/ListPlusCell'
 import { CreateFirewallRuleForm } from '~/forms/firewall-rules-create'
 import { EditFirewallRuleForm } from '~/forms/firewall-rules-edit'
 import { useVpcSelector } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { EnabledCell } from '~/table/cells/EnabledCell'
-import { FirewallFilterCell } from '~/table/cells/FirewallFilterCell'
 import { ButtonCell } from '~/table/cells/LinkCell'
 import { TypeValueCell } from '~/table/cells/TypeValueCell'
 import { getActionsCol } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
+import { Badge } from '~/ui/lib/Badge'
 import { CreateButton } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableEmptyBox } from '~/ui/lib/Table'
@@ -50,17 +51,33 @@ const staticColumns = [
   }),
   colHelper.accessor('targets', {
     header: 'Targets',
-    cell: (info) => (
-      <div>
-        {info.getValue().map(({ type, value }) => (
-          <TypeValueCell key={type + '|' + value} type={type} value={value} />
-        ))}
-      </div>
-    ),
+    cell: (info) => {
+      return (
+        <ListPlusCell numInCell={2} tooltipTitle="Other targets">
+          {info.getValue().map(({ type, value }) => (
+            <TypeValueCell key={type + '|' + value} type={type} value={value} />
+          ))}
+        </ListPlusCell>
+      )
+    },
   }),
   colHelper.accessor('filters', {
     header: 'Filters',
-    cell: (info) => <FirewallFilterCell {...info.getValue()} />,
+    cell: (info) => {
+      const { hosts, ports, protocols } = info.getValue()
+      const children = [
+        ...(hosts || []).map((tv, i) => <TypeValueCell key={`${tv}-${i}`} {...tv} />),
+        ...(protocols || []).map((p, i) => <Badge key={`${p}-${i}`}>{p}</Badge>),
+        ...(ports || []).map((p, i) => (
+          <TypeValueCell key={`port-${p}-${i}`} type="Port" value={p} />
+        )),
+      ]
+      return (
+        <ListPlusCell numInCell={2} tooltipTitle="Other filters">
+          {children}
+        </ListPlusCell>
+      )
+    },
   }),
   colHelper.accessor('status', {
     header: 'Status',

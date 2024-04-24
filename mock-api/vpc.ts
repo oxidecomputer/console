@@ -131,6 +131,8 @@ export const firewallRules: Json<VpcFirewallRule[]> = [
     time_modified,
     vpc_id: vpc.id,
   },
+  // second mock VPC in other project, meant to test display with lots  of
+  // targets and filters
   {
     id: '097c849e-68c8-43f7-9ceb-b1855c51f178',
     name: 'lots-of-filters',
@@ -147,6 +149,24 @@ export const firewallRules: Json<VpcFirewallRule[]> = [
         { type: 'ip', value: '148.38.89.5' },
       ],
     },
+    action: 'allow',
+    priority: 65534,
+    time_created,
+    time_modified,
+    vpc_id: vpc2.id,
+  },
+  {
+    id: '097c849e-68c8-43f7-9ceb-b1855c51f178',
+    name: 'lots-of-targets',
+    status: 'enabled',
+    direction: 'inbound',
+    targets: [
+      { type: 'instance', value: 'my-inst' },
+      { type: 'ip', value: '125.34.25.2' },
+      { type: 'subnet', value: 'subsubsub' },
+    ],
+    description: 'we just want to test with lots of targets',
+    filters: { ports: ['80'] },
     action: 'allow',
     priority: 65534,
     time_created,
