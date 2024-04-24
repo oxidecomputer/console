@@ -247,7 +247,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
       <h3 className="mb-4 text-sans-2xl">Targets</h3>
       <Message
         variant="info"
-        content=" Specify instances this rule applies to. For example, target a VPC to make this rule apply to every instance in the VPC. Targets are additive: the rule applies to instances matching any of the specified targets."
+        content="Targets determine the instances to which this rule applies. You can target instances directly or specify a VPC, VPC subnet, IP, or IP subnet which will apply the rule to all matching instances. Targets are additive: the rule applies to instances matching any target."
       />
       {/* TODO: make ListboxField smarter with the values like RadioField is */}
       <ListboxField
