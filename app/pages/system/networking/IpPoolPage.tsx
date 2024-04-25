@@ -81,12 +81,8 @@ export function IpPoolPage() {
           summary="IP pools are logical collections of external IP addresses that let operators control which silos can use which IPs."
           links={[
             {
-              href: links.ipPoolsDocs,
+              href: links.systemIpPoolsDocs,
               linkText: 'IP Pool Management',
-            },
-            {
-              href: links.ipPoolsDocs,
-              linkText: 'Other link',
             },
           ]}
         />
@@ -298,7 +294,7 @@ function LinkedSilosTable() {
           instances. A silo can have at most one default pool. IPs are allocated from the
           default pool when users ask for one without specifying a pool. Read the docs to
           learn more about{' '}
-          <ExternalLink href={links.ipPoolsDocs}>managing IP pools</ExternalLink>.
+          <ExternalLink href={links.systemIpPoolsDocs}>managing IP pools</ExternalLink>.
         </TableControlsText>
         <CreateButton onClick={() => setShowLinkModal(true)}>Link silo</CreateButton>
       </TableControls>

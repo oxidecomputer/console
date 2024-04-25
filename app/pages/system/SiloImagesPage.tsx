@@ -17,8 +17,9 @@ import {
   useApiQueryClient,
   type Image,
 } from '@oxide/api'
-import { Images24Icon } from '@oxide/design-system/icons/react'
+import { Images16Icon, Images24Icon } from '@oxide/design-system/icons/react'
 
+import { ContextualDocsModal } from '~/components/ContextualDocsModal'
 import { toListboxItem } from '~/components/form/fields/ImageSelectField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { useForm } from '~/hooks'
@@ -34,6 +35,7 @@ import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
+import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 const EmptyState = () => (
@@ -96,6 +98,17 @@ export function SiloImagesPage() {
     <>
       <PageHeader>
         <PageTitle icon={<Images24Icon />}>Silo Images</PageTitle>
+        <ContextualDocsModal
+          heading="Images"
+          icon={<Images16Icon />}
+          summary="Images are snapshots of virtual machines that can be used to create new instances."
+          links={[
+            {
+              href: links.imagesDocs,
+              linkText: 'Creating and Sharing Images',
+            },
+          ]}
+        />
       </PageHeader>
       <TableActions>
         <Button size="sm" onClick={() => setShowModal(true)}>

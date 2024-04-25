@@ -15,9 +15,10 @@ import {
   totalUtilization,
   usePrefetchedApiQuery,
 } from '@oxide/api'
-import { Metrics24Icon } from '@oxide/design-system/icons/react'
+import { Metrics16Icon, Metrics24Icon } from '@oxide/design-system/icons/react'
 
 import { CapacityBars } from '~/components/CapacityBars'
+import { ContextualDocsModal } from '~/components/ContextualDocsModal'
 import { useDateTimeRangePicker } from '~/components/form/fields/DateTimeRangePicker'
 import { QueryParamTabs } from '~/components/QueryParamTabs'
 import { useIntervalPicker } from '~/components/RefetchIntervalPicker'
@@ -27,6 +28,7 @@ import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { ResourceMeter } from '~/ui/lib/ResourceMeter'
 import { Table } from '~/ui/lib/Table'
 import { Tabs } from '~/ui/lib/Tabs'
+import { links } from '~/util/links'
 import { round } from '~/util/math'
 import { bytesToGiB, bytesToTiB } from '~/util/units'
 
@@ -47,6 +49,17 @@ export function SystemUtilizationPage() {
     <>
       <PageHeader>
         <PageTitle icon={<Metrics24Icon />}>Utilization</PageTitle>
+        <ContextualDocsModal
+          heading="Images"
+          icon={<Metrics16Icon />}
+          summary="System metrics allow you to monitor the allocation and utilization of your resources across silos, including CPU, memory, and storage."
+          links={[
+            {
+              href: links.systemMetricsDocs,
+              linkText: 'System Metrics',
+            },
+          ]}
+        />
       </PageHeader>
 
       <CapacityBars

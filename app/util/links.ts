@@ -9,15 +9,18 @@ export const links: Record<string, string> = {
   accessDocs: 'https://docs.oxide.computer/guides/configuring-access',
   cloudInitFormat: 'https://cloudinit.readthedocs.io/en/latest/explanation/format.html',
   cloudInitExamples: 'https://cloudinit.readthedocs.io/en/latest/reference/examples.html',
-  disksDocs: 'https://docs.oxide.computer/guides/managing-disks-and-snapshots#disks',
+  disksDocs: 'https://docs.oxide.computer/guides/managing-disks-and-snapshots',
+  firewallRulesDocs:
+    'https://docs.oxide.computer/guides/configuring-guest-networking#_firewall_rules',
   floatingIpsDocs: 'https://docs.oxide.computer/guides/managing-floating-ips',
   imagesDocs: 'https://docs.oxide.computer/guides/creating-and-sharing-images',
   instancesDocs: 'https://docs.oxide.computer/guides/managing-instances',
-  ipPoolsDocs: 'https://docs.oxide.computer/guides/operator/ip-pool-management',
   projectsDocs: 'https://docs.oxide.computer/guides/onboarding-projects',
-  siloDocs: 'https://docs.oxide.computer/guides/operator/silo-management',
   snapshotsDocs:
     'https://docs.oxide.computer/guides/managing-disks-and-snapshots#snapshots',
+  systemIpPoolsDocs: 'https://docs.oxide.computer/guides/operator/ip-pool-management',
+  systemMetricsDocs: 'https://docs.oxide.computer/guides/operator/system-metrics',
+  systemSiloDocs: 'https://docs.oxide.computer/guides/operator/silo-management',
   vmsDocs:
     'https://docs.oxide.computer/guides/deploying-workloads#_creating_virtual_machines',
   vpcsDocs: 'https://docs.oxide.computer/guides/configuring-guest-networking',

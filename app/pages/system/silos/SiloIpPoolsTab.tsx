@@ -168,7 +168,8 @@ export function SiloIpPoolsTab() {
           Users in this silo can allocate external IPs from these pools for their instances.
           A silo can have at most one default pool. IPs are allocated from the default pool
           when users ask for one without specifying a pool. Read the docs to learn more
-          about <ExternalLink href={links.ipPoolsDocs}>managing IP pools</ExternalLink>.
+          about{' '}
+          <ExternalLink href={links.systemIpPoolsDocs}>managing IP pools</ExternalLink>.
         </TableControlsText>
         <CreateButton onClick={() => setShowLinkModal(true)}>Link pool</CreateButton>
       </TableControls>

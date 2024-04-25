@@ -8,8 +8,9 @@
 import { type LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
-import { Cloud24Icon, NextArrow12Icon } from '@oxide/design-system/icons/react'
+import { Cloud16Icon, Cloud24Icon, NextArrow12Icon } from '@oxide/design-system/icons/react'
 
+import { ContextualDocsModal } from '~/components/ContextualDocsModal'
 import { QueryParamTabs } from '~/components/QueryParamTabs'
 import { getSiloSelector, useSiloSelector } from '~/hooks'
 import { EmptyCell } from '~/table/cells/EmptyCell'
@@ -21,6 +22,7 @@ import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { TableEmptyBox } from '~/ui/lib/Table'
 import { Tabs } from '~/ui/lib/Tabs'
+import { links } from '~/util/links'
 
 import { SiloIdpsTab } from './SiloIdpsTab'
 import { SiloIpPoolsTab } from './SiloIpPoolsTab'
@@ -54,6 +56,17 @@ export function SiloPage() {
     <>
       <PageHeader>
         <PageTitle icon={<Cloud24Icon />}>{silo.name}</PageTitle>
+        <ContextualDocsModal
+          heading="Silos"
+          icon={<Cloud16Icon />}
+          summary="Silos are collections of resources, designed to provide strict tenancy separation. They have separate UI and API endpoints, separate resource limits, and separate access policies."
+          links={[
+            {
+              href: links.systemSiloDocs,
+              linkText: 'Silo Management',
+            },
+          ]}
+        />
       </PageHeader>
 
       <PropertiesTable.Group className="mb-16">

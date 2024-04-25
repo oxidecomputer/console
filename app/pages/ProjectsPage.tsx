@@ -16,8 +16,9 @@ import {
   usePrefetchedApiQuery,
   type Project,
 } from '@oxide/api'
-import { Folder24Icon } from '@oxide/design-system/icons/react'
+import { Folder16Icon, Folder24Icon } from '@oxide/design-system/icons/react'
 
+import { ContextualDocsModal } from '~/components/ContextualDocsModal'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
@@ -27,6 +28,7 @@ import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
+import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 import { useQuickActions } from '../hooks'
@@ -121,6 +123,17 @@ export function ProjectsPage() {
     <>
       <PageHeader>
         <PageTitle icon={<Folder24Icon />}>Projects</PageTitle>
+        <ContextualDocsModal
+          heading="Projects"
+          icon={<Folder16Icon />}
+          summary="Projects are logical containers for managing compute, storage and network resources within a silo."
+          links={[
+            {
+              href: links.projectsDocs,
+              linkText: 'Managing Projects',
+            },
+          ]}
+        />
       </PageHeader>
       <TableActions>
         <CreateLink to={pb.projectsNew()}>New Project</CreateLink>

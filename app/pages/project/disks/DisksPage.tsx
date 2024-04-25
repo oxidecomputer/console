@@ -170,7 +170,7 @@ export function DisksPage() {
           summary="Disks are persistent block-storage volumes that can be managed independently from VM instances."
           links={[
             {
-              href: links.diskDocs,
+              href: links.disksDocs,
               linkText: 'Managing Disks',
             },
           ]}

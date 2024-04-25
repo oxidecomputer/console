@@ -10,8 +10,9 @@ import { useCallback, useMemo, useState } from 'react'
 import { Outlet, type LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, useApiMutation, useApiQueryClient, type Image } from '@oxide/api'
-import { Images24Icon } from '@oxide/design-system/icons/react'
+import { Images16Icon, Images24Icon } from '@oxide/design-system/icons/react'
 
+import { ContextualDocsModal } from '~/components/ContextualDocsModal'
 import { getProjectSelector, useProjectSelector } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
@@ -25,6 +26,7 @@ import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
+import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 const EmptyState = () => (
@@ -98,6 +100,17 @@ export function ImagesPage() {
     <>
       <PageHeader>
         <PageTitle icon={<Images24Icon />}>Images</PageTitle>
+        <ContextualDocsModal
+          heading="Images"
+          icon={<Images16Icon />}
+          summary="Images are snapshots of virtual machines that can be used to create new instances."
+          links={[
+            {
+              href: links.imagesDocs,
+              linkText: 'Creating and Sharing Images',
+            },
+          ]}
+        />
       </PageHeader>
       <TableActions>
         <CreateLink to={pb.projectImagesNew({ project })}>Upload image</CreateLink>
