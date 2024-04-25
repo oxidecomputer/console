@@ -6,13 +6,8 @@
  * Copyright Oxide Computer Company
  */
 
-import {
-  Popover,
-  type _internal_ComponentPopoverButton,
-  type _internal_ComponentPopoverPanel,
-} from '@headlessui/react'
-import { useState } from 'react'
-import { usePopper } from 'react-popper'
+import { offset, useFloating } from '@floating-ui/react'
+import { Popover } from '@headlessui/react'
 
 import { OpenLink12Icon, Question16Icon } from '@oxide/design-system/icons/react'
 
@@ -46,26 +41,23 @@ export const ContextualDocsModal = ({
   summary,
   links,
 }: ContextualDocsModalProps) => {
-  const [referenceElement, setReferenceElement] = useState()
-  const [popperElement, setPopperElement] = useState()
-  const { styles, attributes } = usePopper(referenceElement, popperElement, {
+  const { refs, floatingStyles } = useFloating({
     placement: 'bottom-end',
-    modifiers: [{ name: 'offset', options: { offset: [0, 6] } }],
+    middleware: [offset(6)],
   })
   return (
     <Popover>
       <Popover.Button
-        ref={setReferenceElement}
-        className="ox-button btn-secondary flex inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-lg px-4 align-top text-mono-sm elevation-1 svg:w-5"
+        ref={refs.setReference}
+        className="ox-button btn-secondary flex h-10 shrink-0 items-center justify-center gap-2 rounded-lg px-4 align-top text-mono-sm elevation-1 svg:w-5"
       >
         <Question16Icon className="text-quaternary" />
         <span>Learn</span>
       </Popover.Button>
       <Popover.Panel
         className="z-10 max-w-md rounded-lg border bg-raise border-secondary elevation-1"
-        ref={setPopperElement}
-        style={styles.popper}
-        {...attributes.popper}
+        ref={refs.setFloating}
+        style={floatingStyles}
       >
         <div className="px-4">
           <h2 className="my-4 flex items-center gap-2">
@@ -83,7 +75,7 @@ export const ContextualDocsModal = ({
         <div className="flex justify-end border-t p-4 border-secondary">
           <ExternalLink
             href="https://docs.oxide.computer/guides/introduction"
-            className="ox-button btn-secondary flex inline-flex h-10 shrink-0 items-center justify-center gap-0.5 rounded-lg px-4 align-top no-underline text-mono-sm elevation-1 svg:w-5"
+            className="ox-button btn-secondary flex h-10 shrink-0 items-center justify-center gap-0.5 rounded-lg px-4 align-top no-underline text-mono-sm elevation-1 svg:w-5"
           >
             <span className="text-secondary">Go to docs</span>
             <OpenLink12Icon className="text-tertiary" />
