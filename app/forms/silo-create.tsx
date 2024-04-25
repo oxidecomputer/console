@@ -113,7 +113,7 @@ export function CreateSiloSideModalForm() {
         label="CPU quota"
         name="quotas.cpus"
         required
-        units="nCPUs"
+        units="vCPUs"
         validate={validateQuota}
       />
       <NumberField
