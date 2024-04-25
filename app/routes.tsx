@@ -258,7 +258,7 @@ export const routes = createRoutesFromElements(
           path="access"
           element={<SiloAccessPage />}
           loader={SiloAccessPage.loader}
-          handle={{ crumb: 'Access & IAM' }}
+          handle={{ crumb: 'Access' }}
         />
       </Route>
 
@@ -413,7 +413,7 @@ export const routes = createRoutesFromElements(
           path="access"
           element={<ProjectAccessPage />}
           loader={ProjectAccessPage.loader}
-          handle={{ crumb: 'Access & IAM' }}
+          handle={{ crumb: 'Access' }}
         />
       </Route>
     </Route>
