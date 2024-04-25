@@ -76,7 +76,7 @@ export function IpPoolPage() {
       <PageHeader>
         <PageTitle icon={<Networking24Icon />}>{pool.name}</PageTitle>
         <ContextualDocsModal
-          heading="Learn more about IP pools"
+          heading="IP pools"
           icon={<IpGlobal16Icon />}
           summary="IP pools are logical collections of external IP addresses that let operators control which silos can use which IPs."
           links={[

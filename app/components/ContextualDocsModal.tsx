@@ -11,8 +11,6 @@ import { Popover } from '@headlessui/react'
 
 import { OpenLink12Icon, Question16Icon } from '@oxide/design-system/icons/react'
 
-import { Message } from '~/ui/lib/Message'
-
 import { ExternalLink } from './ExternalLink'
 
 type ContextualDocsLinkProps = {
@@ -21,9 +19,13 @@ type ContextualDocsLinkProps = {
 }
 
 export const ContextualDocsLink = ({ href, linkText }: ContextualDocsLinkProps) => (
-  <div className="mx-2 border-b py-3 border-secondary last:border-0">
-    <ExternalLink href={href} className="no-underline text-sans-sm !text-default">
-      {linkText} <OpenLink12Icon className="ml-0.5 translate-y-[1px] text-tertiary" />
+  <div className="border-b px-4 py-2 border-secondary last:border-0">
+    <ExternalLink
+      href={href}
+      className="rounded px-2 py-1 no-underline text-sans-md !text-default hover:bg-tertiary"
+    >
+      <span>{linkText}</span>
+      <OpenLink12Icon className="ml-1 text-tertiary" />
     </ExternalLink>
   </div>
 )
@@ -49,10 +51,9 @@ export const ContextualDocsModal = ({
     <Popover>
       <Popover.Button
         ref={refs.setReference}
-        className="ox-button btn-secondary flex h-10 shrink-0 items-center justify-center gap-2 rounded-lg px-4 align-top text-mono-sm elevation-1 svg:w-5"
+        className="ox-button btn-secondary flex h-8 w-9  shrink-0 items-center justify-center gap-2 rounded-lg border align-top text-mono-md bg-raise border-secondary elevation-1 svg:w-5"
       >
-        <Question16Icon className="text-quaternary" />
-        <span>Learn</span>
+        <Question16Icon aria-label="Links to learn more" className="text-quaternary" />
       </Popover.Button>
       <Popover.Panel
         className="z-10 max-w-md rounded-lg border bg-raise border-secondary elevation-1"
@@ -60,26 +61,18 @@ export const ContextualDocsModal = ({
         style={floatingStyles}
       >
         <div className="px-4">
-          <h2 className="my-4 flex items-center gap-2">
+          <h2 className="my-3 flex items-center gap-2 text-sans-md">
             <div className="text-accent-secondary">{icon}</div>
+            <span className="text-tertiary">Learn:</span>
             {heading}
           </h2>
-          <Message variant="info" className="my-4" content={summary} />
+          <p className="my-3 text-sans-md text-secondary">{summary}</p>
         </div>
-        <div className="border-t px-4 border-secondary">
-          <h3 className="mt-4 text-mono-sm text-quaternary">Guides</h3>
+        <div className="border-t border-secondary">
+          <h3 className="mt-3 px-4 text-mono-sm text-quaternary">Guides</h3>
           {links.map((link) => (
             <ContextualDocsLink key={link.href} {...link} />
           ))}
-        </div>
-        <div className="flex justify-end border-t p-4 border-secondary">
-          <ExternalLink
-            href="https://docs.oxide.computer/guides/introduction"
-            className="ox-button btn-secondary flex h-10 shrink-0 items-center justify-center gap-0.5 rounded-lg px-4 align-top no-underline text-mono-sm elevation-1 svg:w-5"
-          >
-            <span className="text-secondary">Go to docs</span>
-            <OpenLink12Icon className="text-tertiary" />
-          </ExternalLink>
         </div>
       </Popover.Panel>
     </Popover>
