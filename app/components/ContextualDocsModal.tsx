@@ -25,7 +25,7 @@ export const ContextualDocsLink = ({ href, linkText }: ContextualDocsLinkProps) 
       className="rounded px-2 py-1 no-underline text-sans-md !text-default hover:bg-tertiary"
     >
       <span>{linkText}</span>
-      <OpenLink12Icon className="ml-1 text-tertiary" />
+      <OpenLink12Icon className="ml-1 translate-y-[1px] text-tertiary " />
     </ExternalLink>
   </div>
 )
@@ -61,8 +61,8 @@ export const ContextualDocsModal = ({
         style={floatingStyles}
       >
         <div className="px-4">
-          <h2 className="my-3 flex items-center gap-2 text-sans-md">
-            <div className="text-accent-secondary">{icon}</div>
+          <h2 className="my-3 flex items-center gap-1 text-sans-md">
+            <div className="mr-0.5 text-accent-secondary">{icon}</div>
             <span className="text-tertiary">Learn:</span>
             {heading}
           </h2>
