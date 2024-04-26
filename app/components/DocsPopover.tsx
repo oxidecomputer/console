@@ -22,15 +22,15 @@ type DocsPopoverLinkProps = {
 }
 
 export const DocsPopoverLink = ({ href, linkText }: DocsPopoverLinkProps) => (
-  <div className="border-b px-4 py-2 border-secondary last:border-0">
-    <ExternalLink
-      href={href}
-      className="rounded px-2 py-1 no-underline text-sans-md !text-default hover:bg-tertiary"
-    >
-      <span>{linkText}</span>
-      <OpenLink12Icon className="ml-1 translate-y-[1px] text-tertiary " />
-    </ExternalLink>
-  </div>
+  <ExternalLink
+    href={href}
+    className="group block border-b px-4 py-2 no-underline border-secondary last:border-0"
+  >
+    <div className="relative inline-block rounded py-1 pl-2 pr-8 text-sans-md !text-default group-hover:bg-tertiary">
+      <span className="inline-block max-w-[300px] truncate align-middle">{linkText}</span>
+      <OpenLink12Icon className="absolute top-1.5 ml-2 translate-y-[1px] text-tertiary" />
+    </div>
+  </ExternalLink>
 )
 
 type DocsPopoverProps = {
@@ -57,7 +57,7 @@ export const DocsPopover = ({ heading, icon, summary, links }: DocsPopoverProps)
         />
       </Popover.Button>
       <Popover.Panel
-        className="z-10 max-w-md rounded-lg border bg-raise border-secondary elevation-1"
+        className="z-10 w-96 rounded-lg border bg-raise border-secondary elevation-1"
         ref={refs.setFloating}
         style={floatingStyles}
       >
