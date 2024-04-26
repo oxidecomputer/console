@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
-import { Racks24Icon } from '@oxide/design-system/icons/react'
+import { Servers16Icon, Servers24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { RouteTabs, Tab } from '~/components/RouteTabs'
@@ -29,10 +29,10 @@ export function InventoryPage() {
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<Racks24Icon />}>Inventory</PageTitle>
+        <PageTitle icon={<Servers24Icon />}>Inventory</PageTitle>
         <DocsPopover
           heading="Sleds and Disks"
-          icon={<Racks24Icon />}
+          icon={<Servers16Icon />}
           summary="Information about the sleds and physical disks in the Oxide rack."
           links={[docLinks.sleds, docLinks.storage]}
         />
