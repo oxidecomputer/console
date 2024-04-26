@@ -36,6 +36,7 @@ import { Message } from '~/ui/lib/Message'
 import * as MiniTable from '~/ui/lib/MiniTable'
 import { TextInputHint } from '~/ui/lib/TextInput'
 import { KEYS } from '~/ui/util/keys'
+import { links } from '~/util/links'
 
 export type FirewallRuleValues = {
   enabled: boolean
@@ -143,7 +144,7 @@ const DocsLinkMessage = () => (
       <>
         Read the{' '}
         <a
-          href="https://docs.oxide.computer/guides/configuring-guest-networking#_firewall_rules"
+          href={links.firewallRulesDocs}
           // don't need color and hover color because message text is already color-info anyway
           className="underline"
           target="_blank"

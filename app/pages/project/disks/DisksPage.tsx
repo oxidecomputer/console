@@ -32,7 +32,7 @@ import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
-import { links } from '~/util/links'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 import { fancifyStates } from '../instances/instance/tabs/common'
@@ -168,12 +168,7 @@ export function DisksPage() {
           heading="Disks"
           icon={<Storage16Icon />}
           summary="Disks are persistent block-storage volumes that can be managed independently from VM instances."
-          links={[
-            {
-              href: links.disksDocs,
-              linkText: 'Managing Disks',
-            },
-          ]}
+          links={[docLinks.disks]}
         />
       </PageHeader>
       <TableActions>

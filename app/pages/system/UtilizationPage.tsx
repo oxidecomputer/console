@@ -28,7 +28,7 @@ import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { ResourceMeter } from '~/ui/lib/ResourceMeter'
 import { Table } from '~/ui/lib/Table'
 import { Tabs } from '~/ui/lib/Tabs'
-import { links } from '~/util/links'
+import { docLinks } from '~/util/links'
 import { round } from '~/util/math'
 import { bytesToGiB, bytesToTiB } from '~/util/units'
 
@@ -53,12 +53,7 @@ export function SystemUtilizationPage() {
           heading="Images"
           icon={<Metrics16Icon />}
           summary="System metrics allow you to monitor the allocation and utilization of your resources across silos, including CPU, memory, and storage."
-          links={[
-            {
-              href: links.systemMetricsDocs,
-              linkText: 'System Metrics',
-            },
-          ]}
+          links={[docLinks.systemMetrics]}
         />
       </PageHeader>
 

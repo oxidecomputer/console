@@ -31,7 +31,7 @@ import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
-import { links } from '~/util/links'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 const DiskNameFromId = ({ value }: { value: string }) => {
@@ -140,12 +140,7 @@ export function SnapshotsPage() {
           heading="Snapshots"
           icon={<Snapshots16Icon />}
           summary="Snapshots are a point-in-time copy of a disk that can be used to create new disks."
-          links={[
-            {
-              href: links.snapshotsDocs,
-              linkText: 'Managing Snapshots',
-            },
-          ]}
+          links={[docLinks.snapshots]}
         />
       </PageHeader>
       <TableActions>

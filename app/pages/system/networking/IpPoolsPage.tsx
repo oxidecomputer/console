@@ -17,8 +17,9 @@ import {
   usePrefetchedApiQuery,
   type IpPool,
 } from '@oxide/api'
-import { Networking24Icon } from '@oxide/design-system/icons/react'
+import { Networking16Icon, Networking24Icon } from '@oxide/design-system/icons/react'
 
+import { ContextualDocsModal } from '~/components/ContextualDocsModal'
 import { IpUtilCell } from '~/components/IpPoolUtilization'
 import { useQuickActions } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
@@ -31,6 +32,7 @@ import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 const EmptyState = () => (
@@ -125,6 +127,12 @@ export function IpPoolsPage() {
     <>
       <PageHeader>
         <PageTitle icon={<Networking24Icon />}>IP Pools</PageTitle>
+        <ContextualDocsModal
+          heading="IP Pools"
+          icon={<Networking16Icon />}
+          summary="IP pools are a collection of IP addresses that can be assigned to VM instances."
+          links={[docLinks.systemIpPools]}
+        />
       </PageHeader>
       <TableActions>
         <CreateLink to={pb.ipPoolsNew()}>New IP Pool</CreateLink>

@@ -22,8 +22,9 @@ import {
   type IdentityType,
   type RoleKey,
 } from '@oxide/api'
-import { Access24Icon } from '@oxide/design-system/icons/react'
+import { Access16Icon, Access24Icon } from '@oxide/design-system/icons/react'
 
+import { ContextualDocsModal } from '~/components/ContextualDocsModal'
 import { HL } from '~/components/HL'
 import { ListPlusCell } from '~/components/ListPlusCell'
 import {
@@ -42,6 +43,7 @@ import { TableActions, TableEmptyBox } from '~/ui/lib/Table'
 import { TipIcon } from '~/ui/lib/TipIcon'
 import { identityTypeLabel, roleColor } from '~/util/access'
 import { groupBy, isTruthy, sortBy } from '~/util/array'
+import { docLinks } from '~/util/links'
 
 const EmptyState = ({ onClick }: { onClick: () => void }) => (
   <TableEmptyBox>
@@ -196,6 +198,12 @@ export function ProjectAccessPage() {
     <>
       <PageHeader>
         <PageTitle icon={<Access24Icon />}>Access &amp; IAM</PageTitle>
+        <ContextualDocsModal
+          heading="Access"
+          icon={<Access16Icon />}
+          summary=""
+          links={[docLinks.access, docLinks.iam]}
+        />
       </PageHeader>
 
       <TableActions>

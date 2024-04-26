@@ -29,7 +29,7 @@ import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
-import { links } from '~/util/links'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 const EmptyState = () => (
@@ -126,12 +126,7 @@ export function VpcsPage() {
           heading="VPCs"
           icon={<Networking16Icon />}
           summary="VPCs are virtual private networks that are scoped within individual projects."
-          links={[
-            {
-              href: links.vpcsDocs,
-              linkText: 'VPCs and Subnets',
-            },
-          ]}
+          links={[docLinks.vpcs]}
         />
       </PageHeader>
       <TableActions>

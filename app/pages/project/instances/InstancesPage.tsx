@@ -30,7 +30,7 @@ import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
-import { links } from '~/util/links'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 import { useMakeInstanceActions } from './actions'
@@ -130,16 +130,7 @@ export function InstancesPage() {
           heading="Instances"
           icon={<Instances16Icon />}
           summary="Instances are virtual machines that run on Oxide."
-          links={[
-            {
-              href: links.instancesDocs,
-              linkText: 'Managing Instances',
-            },
-            {
-              href: links.vmsDocs,
-              linkText: 'Virtual Machines and Deploying Workloads',
-            },
-          ]}
+          links={[docLinks.instances, docLinks.vms]}
         />
       </PageHeader>
       <TableActions>

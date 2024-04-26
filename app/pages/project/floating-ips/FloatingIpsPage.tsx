@@ -42,7 +42,7 @@ import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableControls, TableControlsText } from '~/ui/lib/Table'
-import { links } from '~/util/links'
+import { docLinks, links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 const EmptyState = () => (
@@ -195,12 +195,7 @@ export function FloatingIpsPage() {
           heading="Floating IPs"
           icon={<Networking16Icon />}
           summary="Floating IPs can be assigned to target instances, making it easier to host services from a consistent address."
-          links={[
-            {
-              href: links.floatingIpsDocs,
-              linkText: 'Floating IPs',
-            },
-          ]}
+          links={[docLinks.floatingIps]}
         />
       </PageHeader>
       <TableControls>

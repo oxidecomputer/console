@@ -44,7 +44,7 @@ import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableControls, TableControlsText } from '~/ui/lib/Table'
 import { Tabs } from '~/ui/lib/Tabs'
-import { links } from '~/util/links'
+import { docLinks, links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 IpPoolPage.loader = async function ({ params }: LoaderFunctionArgs) {
@@ -79,12 +79,7 @@ export function IpPoolPage() {
           heading="IP pools"
           icon={<IpGlobal16Icon />}
           summary="IP pools are logical collections of external IP addresses that let operators control which silos can use which IPs."
-          links={[
-            {
-              href: links.systemIpPoolsDocs,
-              linkText: 'IP Pool Management',
-            },
-          ]}
+          links={[docLinks.systemIpPools]}
         />
       </PageHeader>
       <UtilizationBars />

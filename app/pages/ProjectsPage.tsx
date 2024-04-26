@@ -28,7 +28,7 @@ import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
-import { links } from '~/util/links'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 import { useQuickActions } from '../hooks'
@@ -127,12 +127,7 @@ export function ProjectsPage() {
           heading="Projects"
           icon={<Folder16Icon />}
           summary="Projects are logical containers for managing compute, storage and network resources within a silo."
-          links={[
-            {
-              href: links.projectsDocs,
-              linkText: 'Managing Projects',
-            },
-          ]}
+          links={[docLinks.keyConceptsProjects, docLinks.projects]}
         />
       </PageHeader>
       <TableActions>
