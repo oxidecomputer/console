@@ -233,7 +233,8 @@ export function NetworkingTab() {
   })
 
   const ipColHelper = createColumnHelper<ExternalIp>()
-  const staticIpCols = [
+
+  const ephemeralIpCols = [
     ipColHelper.accessor('ip', {}),
     ipColHelper.accessor('kind', {
       header: () => (
@@ -246,6 +247,10 @@ export function NetworkingTab() {
       ),
       cell: (info) => <Badge color="neutral">{info.getValue()}</Badge>,
     }),
+  ]
+
+  const floatingIpCols = [
+    ...ephemeralIpCols,
     ipColHelper.accessor('name', {
       cell: (info) => (info.getValue() ? info.getValue() : <EmptyCell />),
     }),
@@ -306,9 +311,15 @@ export function NetworkingTab() {
     [floatingIpDetach, instanceName, project]
   )
 
+  const data = eips?.items || []
+  // if there are no floating IPs, we can leave off the name and desc cols
+  const cols = data.some((eip) => eip.kind === 'floating')
+    ? floatingIpCols
+    : ephemeralIpCols
+
   const ipTableInstance = useReactTable({
-    columns: useColsWithActions(staticIpCols, makeIpActions),
-    data: eips?.items || [],
+    columns: useColsWithActions(cols, makeIpActions),
+    data,
     getCoreRowModel: getCoreRowModel(),
   })
 
