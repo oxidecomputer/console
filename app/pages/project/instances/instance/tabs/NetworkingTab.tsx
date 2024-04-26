@@ -335,7 +335,6 @@ export function NetworkingTab() {
             floatingIps={availableIps}
             instance={instance}
             onDismiss={() => setAttachModalOpen(false)}
-            project={project}
           />
         )}
       </TableControls>

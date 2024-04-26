@@ -14,6 +14,7 @@ import * as mock from '@oxide/api-mocks'
 
 import { json } from '~/api/__generated__/msw-handlers'
 import { pick } from '~/util/object'
+import { commaSeries } from '~/util/str'
 
 import type { Json } from '../json-type'
 import { internalError } from './util'
@@ -23,6 +24,11 @@ export type NotFound = typeof notFoundBody
 export const notFoundErr = (msg?: string) => {
   const message = msg ? `not found: ${msg}` : 'not found'
   return json({ error_code: 'ObjectNotFound', message } as const, { status: 404 })
+}
+
+export const badSelectorErr = (resource: string, parents: string[]) => {
+  const message = `when ${resource} is specified by ID, ${commaSeries(parents, 'and')} should not be specified`
+  return json({ error_code: 'InvalidRequest', message }, { status: 400 })
 }
 
 export const lookupById = <T extends { id: string }>(table: T[], id: string) => {
@@ -85,7 +91,10 @@ export const lookup = {
   floatingIp({ floatingIp: id, ...projectSelector }: PP.FloatingIp): Json<Api.FloatingIp> {
     if (!id) throw notFoundErr
 
-    if (isUuid(id)) return lookupById(db.floatingIps, id)
+    if (isUuid(id)) {
+      if (projectSelector.project) throw badSelectorErr('floating IP', ['project'])
+      return lookupById(db.floatingIps, id)
+    }
 
     const project = lookup.project(projectSelector)
     const floatingIp = db.floatingIps.find(
