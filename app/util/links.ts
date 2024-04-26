@@ -13,9 +13,10 @@ export const links: Record<string, string> = {
   firewallRulesDocs:
     'https://docs.oxide.computer/guides/configuring-guest-networking#_firewall_rules',
   floatingIpsDocs: 'https://docs.oxide.computer/guides/managing-floating-ips',
-  iamPolicyDocs: 'https://docs.oxide.computer/guides/key-entities-and-concepts#iam-policy',
   imagesDocs: 'https://docs.oxide.computer/guides/creating-and-sharing-images',
   instancesDocs: 'https://docs.oxide.computer/guides/managing-instances',
+  keyConceptsIamPolicyDocs:
+    'https://docs.oxide.computer/guides/key-entities-and-concepts#iam-policy',
   keyConceptsProjectsDocs:
     'https://docs.oxide.computer/guides/key-entities-and-concepts#_projects',
   projectsDocs: 'https://docs.oxide.computer/guides/onboarding-projects',
@@ -37,7 +38,7 @@ export const links: Record<string, string> = {
 export const docLinks = {
   access: {
     href: links.accessDocs,
-    linkText: 'Access',
+    linkText: 'Configuring Access and IAM',
   },
   disks: {
     href: links.disksDocs,
@@ -51,9 +52,9 @@ export const docLinks = {
     href: links.floatingIpsDocs,
     linkText: 'Floating IPs',
   },
-  iam: {
-    href: links.iamPolicyDocs,
-    linkText: 'Identity & Access Management Policy',
+  keyConceptsIam: {
+    href: links.keyConceptsIamPolicyDocs,
+    linkText: 'Key Concepts: Identity & Access Management Policy',
   },
   images: {
     href: links.imagesDocs,

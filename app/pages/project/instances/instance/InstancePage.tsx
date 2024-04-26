@@ -15,8 +15,9 @@ import {
   usePrefetchedApiQuery,
   type InstanceNetworkInterface,
 } from '@oxide/api'
-import { Instances24Icon } from '@oxide/design-system/icons/react'
+import { Instances16Icon, Instances24Icon } from '@oxide/design-system/icons/react'
 
+import { ContextualDocsModal } from '~/components/ContextualDocsModal'
 import { ExternalIps } from '~/components/ExternalIps'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import { RefreshButton } from '~/components/RefreshButton'
@@ -28,6 +29,7 @@ import { DateTime } from '~/ui/lib/DateTime'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { Truncate } from '~/ui/lib/Truncate'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 import { useMakeInstanceActions } from '../actions'
@@ -146,6 +148,12 @@ export function InstancePage() {
       <PageHeader>
         <PageTitle icon={<Instances24Icon />}>{instance.name}</PageTitle>
         <div className="inline-flex gap-2">
+          <ContextualDocsModal
+            heading="Instances"
+            icon={<Instances16Icon />}
+            summary="Instances are virtual machines that run on Oxide."
+            links={[docLinks.instances, docLinks.vms]}
+          />
           <RefreshButton onClick={refreshData} />
           <MoreActionsMenu label="Instance actions" actions={actions} />
         </div>

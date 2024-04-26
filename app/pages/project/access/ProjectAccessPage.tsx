@@ -202,7 +202,7 @@ export function ProjectAccessPage() {
           heading="Access"
           icon={<Access16Icon />}
           summary=""
-          links={[docLinks.access, docLinks.iam]}
+          links={[docLinks.keyConceptsIam, docLinks.access]}
         />
       </PageHeader>
 

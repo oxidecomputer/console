@@ -20,8 +20,9 @@ import {
   type IdentityType,
   type RoleKey,
 } from '@oxide/api'
-import { Access24Icon } from '@oxide/design-system/icons/react'
+import { Access16Icon, Access24Icon } from '@oxide/design-system/icons/react'
 
+import { ContextualDocsModal } from '~/components/ContextualDocsModal'
 import { HL } from '~/components/HL'
 import {
   SiloAccessAddUserSideModal,
@@ -37,6 +38,7 @@ import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions, TableEmptyBox } from '~/ui/lib/Table'
 import { identityTypeLabel, roleColor } from '~/util/access'
 import { groupBy, isTruthy } from '~/util/array'
+import { docLinks } from '~/util/links'
 
 const EmptyState = ({ onClick }: { onClick: () => void }) => (
   <TableEmptyBox>
@@ -162,6 +164,12 @@ export function SiloAccessPage() {
     <>
       <PageHeader>
         <PageTitle icon={<Access24Icon />}>Access &amp; IAM</PageTitle>
+        <ContextualDocsModal
+          heading="Access"
+          icon={<Access16Icon />}
+          summary=""
+          links={[docLinks.keyConceptsIam, docLinks.access]}
+        />
       </PageHeader>
 
       <TableActions>
