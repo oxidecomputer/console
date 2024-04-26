@@ -18,8 +18,7 @@ import {
 test('Attach disk', async ({ page }) => {
   await page.goto('/projects/mock-project/instances/db1')
 
-  const warning =
-    'A disk cannot be added or attached unless the instance is creating or stopped.'
+  const warning = 'The instance must be stopped to add or attach a disk.'
   await expect(page.getByText(warning)).toBeVisible()
 
   const row = page.getByRole('row', { name: 'disk-1', exact: false })
@@ -30,7 +29,7 @@ test('Attach disk', async ({ page }) => {
   await expect(page.getByRole('menuitem', { name: 'Detach' })).toBeDisabled()
   await page.getByRole('menuitem', { name: 'Detach' }).hover()
   await expect(
-    page.getByText('Instance must be in state creating, stopped, or failed')
+    page.getByText('Instance must be stopped before disk can be detached')
   ).toBeVisible()
   await page.keyboard.press('Escape') // close menu
 
