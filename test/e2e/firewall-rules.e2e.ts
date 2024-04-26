@@ -90,13 +90,50 @@ test('can create firewall rule', async ({ page }) => {
     Name: 'my-new-rule',
     Priority: '5',
     Targets: 'ip192.168.0.1',
-    Filters: 'instancehost-filter-instanceUDP123-456',
+    Filters: 'instancehost-filter-instance+2', // UDP and port filters in plus popup
   })
+
+  // scroll table sideways past the filters cell
+  await page.getByText('Enabled').first().scrollIntoViewIfNeeded()
+
+  await page.getByText('+2').hover()
+  const tooltip = page.getByRole('tooltip', { name: 'Other filters UDP Port 123-' })
+  await expect(tooltip).toBeVisible()
 
   await expect(rows).toHaveCount(5)
   for (const name of defaultRules) {
     await expect(page.locator(`text="${name}"`)).toBeVisible()
   }
+})
+
+test('firewall rule targets and filters overflow', async ({ page }) => {
+  await page.goto('/projects/other-project/vpcs/mock-vpc-2')
+
+  await expect(
+    page.getByRole('cell', { name: 'instance my-inst +2', exact: true })
+  ).toBeVisible()
+
+  await page.getByText('+2').hover()
+  await expect(
+    page.getByRole('tooltip', {
+      name: 'Other targets ip 125.34.25.2 subnet subsubsub',
+      exact: true,
+    })
+  ).toBeVisible()
+
+  await expect(
+    page.getByRole('cell', { name: 'instance hello-friend +5', exact: true })
+  ).toBeVisible()
+
+  // scroll table sideways past the filters cell
+  await page.getByText('Enabled').first().scrollIntoViewIfNeeded()
+
+  await page.getByText('+5').hover()
+  const tooltip = page.getByRole('tooltip', {
+    name: 'Other filters subnet my-subnet ip 148.38.89.5 TCP Port 3389 Port 45-89',
+    exact: true,
+  })
+  await expect(tooltip).toBeVisible()
 })
 
 test('firewall rule form targets table', async ({ page }) => {

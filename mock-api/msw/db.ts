@@ -286,8 +286,8 @@ const initDb = {
   snapshots: [...mock.snapshots],
   sshKeys: [...mock.sshKeys],
   users: [...mock.users],
-  vpcFirewallRules: [...mock.defaultFirewallRules],
-  vpcs: [mock.vpc],
+  vpcFirewallRules: [...mock.firewallRules],
+  vpcs: [...mock.vpcs],
   vpcSubnets: [mock.vpcSubnet],
 }
 
