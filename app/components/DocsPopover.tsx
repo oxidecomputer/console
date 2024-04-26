@@ -8,8 +8,11 @@
 
 import { offset, useFloating } from '@floating-ui/react'
 import { Popover } from '@headlessui/react'
+import cn from 'classnames'
 
-import { OpenLink12Icon, Question16Icon } from '@oxide/design-system/icons/react'
+import { OpenLink12Icon, Question12Icon } from '@oxide/design-system/icons/react'
+
+import { buttonStyle } from '~/ui/lib/Button'
 
 import { ExternalLink } from './ExternalLink'
 
@@ -40,15 +43,18 @@ type DocsPopoverProps = {
 export const DocsPopover = ({ heading, icon, summary, links }: DocsPopoverProps) => {
   const { refs, floatingStyles } = useFloating({
     placement: 'bottom-end',
-    middleware: [offset(6)],
+    middleware: [offset(12)],
   })
   return (
     <Popover>
       <Popover.Button
         ref={refs.setReference}
-        className="ox-button btn-secondary flex h-8 w-9  shrink-0 items-center justify-center gap-2 rounded-lg border align-top text-mono-md bg-raise border-secondary elevation-1 svg:w-5"
+        className={cn(buttonStyle({ size: 'sm', variant: 'ghost' }), 'w-9')}
       >
-        <Question16Icon aria-label="Links to learn more" className="text-quaternary" />
+        <Question12Icon
+          aria-label="Links to learn more"
+          className="shrink-0 text-quaternary"
+        />
       </Popover.Button>
       <Popover.Panel
         className="z-10 max-w-md rounded-lg border bg-raise border-secondary elevation-1"
@@ -56,15 +62,15 @@ export const DocsPopover = ({ heading, icon, summary, links }: DocsPopoverProps)
         style={floatingStyles}
       >
         <div className="px-4">
-          <h2 className="my-3 flex items-center gap-1 text-sans-md">
-            <div className="mr-0.5 text-accent-secondary">{icon}</div>
+          <h2 className="mt-4 flex items-center gap-1 text-sans-md">
+            <div className="mr-0.5 flex items-center text-accent-secondary">{icon}</div>
             <span className="text-tertiary">Learn:</span>
             {heading}
           </h2>
-          <p className="my-3 text-sans-md text-secondary">{summary}</p>
+          <p className="mb-3 mt-2 text-sans-md text-secondary">{summary}</p>
         </div>
-        <div className="border-t border-secondary">
-          <h3 className="mt-3 px-4 text-mono-sm text-quaternary">Guides</h3>
+        <div className="border-t pb-1 border-secondary">
+          <h3 className="mb-1 mt-3 px-4 text-mono-sm text-quaternary">Guides</h3>
           {links.map((link) => (
             <DocsPopoverLink key={link.href} {...link} />
           ))}
