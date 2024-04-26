@@ -24,7 +24,6 @@ import { IpGlobal16Icon, Networking24Icon } from '@oxide/design-system/icons/rea
 
 import { CapacityBar } from '~/components/CapacityBar'
 import { DocsPopover } from '~/components/DocsPopover'
-import { ExternalLink } from '~/components/ExternalLink'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { HL } from '~/components/HL'
 import { QueryParamTabs } from '~/components/QueryParamTabs'
@@ -42,9 +41,8 @@ import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
-import { TableControls, TableControlsText } from '~/ui/lib/Table'
 import { Tabs } from '~/ui/lib/Tabs'
-import { docLinks, links } from '~/util/links'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 IpPoolPage.loader = async function ({ params }: LoaderFunctionArgs) {
@@ -198,7 +196,7 @@ function IpRangesTable() {
 
   return (
     <>
-      <div className="mb-3 flex justify-end space-x-2">
+      <div className="mb-3 flex justify-end">
         <CreateLink to={pb.ipPoolRangeAdd({ pool })}>Add range</CreateLink>
       </div>
       <Table columns={columns} emptyState={emptyState} />
@@ -283,16 +281,9 @@ function LinkedSilosTable() {
   const columns = useColsWithActions(silosStaticCols, makeActions)
   return (
     <>
-      <TableControls>
-        <TableControlsText>
-          Users in linked silos can allocate external IPs from this pool for their
-          instances. A silo can have at most one default pool. IPs are allocated from the
-          default pool when users ask for one without specifying a pool. Read the docs to
-          learn more about{' '}
-          <ExternalLink href={links.systemIpPoolsDocs}>managing IP pools</ExternalLink>.
-        </TableControlsText>
+      <div className="mb-3 flex justify-end">
         <CreateButton onClick={() => setShowLinkModal(true)}>Link silo</CreateButton>
-      </TableControls>
+      </div>
       <Table columns={columns} emptyState={emptyState} />
       {showLinkModal && <LinkSiloModal onDismiss={() => setShowLinkModal(false)} />}
     </>

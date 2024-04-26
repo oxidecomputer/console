@@ -21,7 +21,6 @@ import {
 import { IpGlobal16Icon, IpGlobal24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
-import { ExternalLink } from '~/components/ExternalLink'
 import { HL } from '~/components/HL'
 import { getProjectSelector, useProjectSelector } from '~/hooks'
 import { confirmAction } from '~/stores/confirm-action'
@@ -37,8 +36,8 @@ import { Listbox } from '~/ui/lib/Listbox'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
-import { TableControls, TableControlsText } from '~/ui/lib/Table'
-import { docLinks, links } from '~/util/links'
+import { TableActions } from '~/ui/lib/Table'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 const EmptyState = () => (
@@ -185,7 +184,7 @@ export function FloatingIpsPage() {
 
   return (
     <>
-      <PageHeader className="!mb-12">
+      <PageHeader>
         <PageTitle icon={<IpGlobal24Icon />}>Floating IPs</PageTitle>
         <DocsPopover
           heading="Floating IPs"
@@ -194,14 +193,9 @@ export function FloatingIpsPage() {
           links={[docLinks.floatingIps]}
         />
       </PageHeader>
-      <TableControls>
-        <TableControlsText>
-          Floating IPs are public IP addresses that can be attached to instances. They allow
-          your instances to be reachable from the internet. Learn more about{' '}
-          <ExternalLink href={links.floatingIpsDocs}>managing floating IPs</ExternalLink>.
-        </TableControlsText>
+      <TableActions>
         <CreateLink to={pb.floatingIpsNew({ project })}>New Floating IP</CreateLink>
-      </TableControls>
+      </TableActions>
       <Table columns={columns} emptyState={<EmptyState />} />
       <Outlet />
       {floatingIpToModify && (
