@@ -62,12 +62,13 @@ const staticColumns = [
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
-IpPoolsPage.loader = async function () {
+export async function loader() {
   await apiQueryClient.prefetchQuery('ipPoolList', { query: { limit: PAGE_SIZE } })
   return null
 }
 
-export function IpPoolsPage() {
+Component.displayName = 'IpPoolsPage'
+export function Component() {
   const navigate = useNavigate()
   const { Table } = useQueryTable('ipPoolList', {})
   const { data: pools } = usePrefetchedApiQuery('ipPoolList', {

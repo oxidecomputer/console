@@ -30,7 +30,7 @@ const EmptyState = () => {
   )
 }
 
-SledInstancesTab.loader = async ({ params }: LoaderFunctionArgs) => {
+export async function loader({ params }: LoaderFunctionArgs) {
   const { sledId } = requireSledParams(params)
   await apiQueryClient.prefetchQuery('sledInstanceList', {
     path: { sledId },
@@ -68,7 +68,8 @@ const staticCols = [
   colHelper.accessor('timeModified', Columns.timeModified),
 ]
 
-export function SledInstancesTab() {
+Component.displayName = 'SledInstancesTab'
+export function Component() {
   const { sledId } = useSledParams()
   const { Table } = useQueryTable(
     'sledInstanceList',

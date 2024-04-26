@@ -46,7 +46,7 @@ import { Tabs } from '~/ui/lib/Tabs'
 import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
-IpPoolPage.loader = async function ({ params }: LoaderFunctionArgs) {
+export async function loader({ params }: LoaderFunctionArgs) {
   const { pool } = getIpPoolSelector(params)
   const query = { limit: PAGE_SIZE }
   await Promise.all([
@@ -67,7 +67,8 @@ IpPoolPage.loader = async function ({ params }: LoaderFunctionArgs) {
   return null
 }
 
-export function IpPoolPage() {
+Component.displayName = 'IpPoolPage'
+export function Component() {
   const poolSelector = useIpPoolSelector()
   const { data: pool } = usePrefetchedApiQuery('ipPoolView', { path: poolSelector })
   return (

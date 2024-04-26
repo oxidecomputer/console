@@ -22,7 +22,7 @@ const EmptyState = () => (
   />
 )
 
-DisksTab.loader = async () => {
+export async function loader() {
   await apiQueryClient.prefetchQuery('physicalDiskList', { query: { limit: PAGE_SIZE } })
   return null
 }
@@ -52,7 +52,8 @@ const staticCols = [
   }),
 ]
 
-export function DisksTab() {
+Component.displayName = 'DisksTab'
+export function Component() {
   const { Table } = useQueryTable('physicalDiskList', {})
   return <Table emptyState={<EmptyState />} columns={staticCols} />
 }

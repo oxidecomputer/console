@@ -30,7 +30,7 @@ import { Tabs } from '~/ui/lib/Tabs'
 import { round } from '~/util/math'
 import { bytesToGiB, bytesToTiB } from '~/util/units'
 
-SystemUtilizationPage.loader = async () => {
+export async function loader() {
   await Promise.all([
     apiQueryClient.prefetchQuery('siloList', {}),
     apiQueryClient.prefetchQuery('siloUtilizationList', {}),
@@ -38,7 +38,8 @@ SystemUtilizationPage.loader = async () => {
   return null
 }
 
-export function SystemUtilizationPage() {
+Component.displayName = 'SystemUtilizationPage'
+export function Component() {
   const { data: siloUtilizationList } = usePrefetchedApiQuery('siloUtilizationList', {})
 
   const { totalAllocated, totalProvisioned } = totalUtilization(siloUtilizationList.items)

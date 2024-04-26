@@ -40,7 +40,6 @@ import { ProjectLayout } from './layouts/ProjectLayout'
 import { RootLayout } from './layouts/RootLayout'
 import { SettingsLayout } from './layouts/SettingsLayout'
 import { SiloLayout } from './layouts/SiloLayout'
-import { SystemLayout } from './layouts/SystemLayout'
 import { DeviceAuthSuccessPage } from './pages/DeviceAuthSuccessPage'
 import { DeviceAuthVerifyPage } from './pages/DeviceAuthVerifyPage'
 import { LoginPage } from './pages/LoginPage'
@@ -65,23 +64,13 @@ import { ProfilePage } from './pages/settings/ProfilePage'
 import { SSHKeysPage } from './pages/settings/SSHKeysPage'
 import { SiloAccessPage } from './pages/SiloAccessPage'
 import { SiloUtilizationPage } from './pages/SiloUtilizationPage'
-import { DisksTab } from './pages/system/inventory/DisksTab'
-import { InventoryPage } from './pages/system/inventory/InventoryPage'
-import { SledInstancesTab } from './pages/system/inventory/sled/SledInstancesTab'
-import { SledPage } from './pages/system/inventory/sled/SledPage'
-import { SledsTab } from './pages/system/inventory/SledsTab'
-import { IpPoolPage } from './pages/system/networking/IpPoolPage'
-import { IpPoolsPage } from './pages/system/networking/IpPoolsPage'
+import { lazySystemPage, lazySystemPageLoader } from './pages/system/lazy'
 import { SiloImagesPage } from './pages/system/SiloImagesPage'
-import { SiloPage } from './pages/system/silos/SiloPage'
-import { SilosPage } from './pages/system/silos/SilosPage'
-import { SystemUtilizationPage } from './pages/system/UtilizationPage'
 import { pb } from './util/path-builder'
 
 const projectCrumb: CrumbFunc = (m) => m.params.project!
 const instanceCrumb: CrumbFunc = (m) => m.params.instance!
 const vpcCrumb: CrumbFunc = (m) => m.params.vpc!
-const siloCrumb: CrumbFunc = (m) => m.params.silo!
 const poolCrumb: CrumbFunc = (m) => m.params.pool!
 
 export const routes = createRoutesFromElements(
@@ -117,22 +106,13 @@ export const routes = createRoutesFromElements(
         </Route>
       </Route>
 
-      <Route path="system" element={<SystemLayout />} loader={SystemLayout.loader}>
-        <Route
-          element={<SilosPage />}
-          loader={SilosPage.loader}
-          handle={{ crumb: 'Silos' }}
-        >
+      <Route path="system" lazy={lazySystemPage('SystemLayout')}>
+        <Route lazy={lazySystemPage('SilosPage')} handle={{ crumb: 'Silos' }}>
           <Route path="silos" element={null} />
           <Route path="silos-new" element={<CreateSiloSideModalForm />} />
         </Route>
         <Route path="silos" handle={{ crumb: 'Silos' }}>
-          <Route
-            path=":silo"
-            element={<SiloPage />}
-            loader={SiloPage.loader}
-            handle={{ crumb: siloCrumb }}
-          >
+          <Route path=":silo" lazy={lazySystemPage('SiloPage')}>
             <Route path="idps-new" element={<CreateIdpSideModalForm />} />
             <Route
               path="idps/saml/:provider"
@@ -141,49 +121,39 @@ export const routes = createRoutesFromElements(
             />
           </Route>
         </Route>
-        <Route path="issues" element={null} />
         <Route
           path="utilization"
-          element={<SystemUtilizationPage />}
-          loader={SystemUtilizationPage.loader}
+          lazy={lazySystemPage('UtilizationPage')}
           handle={{ crumb: 'Utilization' }}
         />
         <Route
           path="inventory"
-          element={<InventoryPage />}
-          loader={InventoryPage.loader}
+          lazy={lazySystemPage('InventoryPage')}
           handle={{ crumb: 'Inventory' }}
         >
-          <Route index element={<Navigate to="sleds" replace />} loader={SledsTab.loader} />
-          <Route path="sleds" element={<SledsTab />} loader={SledsTab.loader} />
-          <Route path="disks" element={<DisksTab />} loader={DisksTab.loader} />
+          <Route
+            index
+            element={<Navigate to="sleds" replace />}
+            lazy={lazySystemPageLoader('SledsTab')}
+          />
+          <Route path="sleds" lazy={lazySystemPage('SledsTab')} />
+          <Route path="disks" lazy={lazySystemPage('DisksTab')} />
         </Route>
         <Route
           path="inventory/sleds/:sledId"
-          element={<SledPage />}
-          loader={SledPage.loader}
+          lazy={lazySystemPage('SledPage')}
           handle={{ crumb: 'Sleds' }}
         >
           <Route
             index
             element={<Navigate to="instances" replace />}
-            loader={SledInstancesTab.loader}
+            lazy={lazySystemPageLoader('SledInstancesTab')}
           />
-          <Route
-            path="instances"
-            element={<SledInstancesTab />}
-            loader={SledInstancesTab.loader}
-          />
+          <Route path="instances" lazy={lazySystemPage('SledInstancesTab')} />
         </Route>
-        <Route path="health" element={null} handle={{ crumb: 'Health' }} />
-        <Route path="update" element={null} handle={{ crumb: 'Update' }} />
         <Route path="networking">
           <Route index element={<Navigate to="ip-pools" replace />} />
-          <Route
-            element={<IpPoolsPage />}
-            loader={IpPoolsPage.loader}
-            handle={{ crumb: 'IP pools' }}
-          >
+          <Route lazy={lazySystemPage('IpPoolsPage')} handle={{ crumb: 'IP pools' }}>
             <Route path="ip-pools" element={null} />
             <Route path="ip-pools-new" element={<CreateIpPoolSideModalForm />} />
             <Route
@@ -197,8 +167,7 @@ export const routes = createRoutesFromElements(
         <Route path="networking/ip-pools" handle={{ crumb: 'IP pools' }}>
           <Route
             path=":pool"
-            element={<IpPoolPage />}
-            loader={IpPoolPage.loader}
+            lazy={lazySystemPage('IpPoolPage')}
             handle={{ crumb: poolCrumb }}
           >
             <Route path="ranges-add" element={<IpPoolAddRangeSideModalForm />} />

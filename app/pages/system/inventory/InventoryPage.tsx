@@ -13,12 +13,13 @@ import { PAGE_SIZE } from '~/table/QueryTable'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { pb } from '~/util/path-builder'
 
-InventoryPage.loader = async () => {
+export async function loader() {
   await apiQueryClient.prefetchQuery('rackList', { query: { limit: PAGE_SIZE } })
   return null
 }
 
-export function InventoryPage() {
+Component.displayName = 'InventoryPage'
+export function Component() {
   const { data: racks } = usePrefetchedApiQuery('rackList', { query: { limit: PAGE_SIZE } })
   const rack = racks?.items[0]
 
