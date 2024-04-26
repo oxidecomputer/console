@@ -18,11 +18,7 @@ import {
   type FloatingIp,
   type Instance,
 } from '@oxide/api'
-import {
-  IpGlobal24Icon,
-  Networking16Icon,
-  Networking24Icon,
-} from '@oxide/design-system/icons/react'
+import { IpGlobal16Icon, IpGlobal24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { ExternalLink } from '~/components/ExternalLink'
@@ -47,7 +43,7 @@ import { pb } from '~/util/path-builder'
 
 const EmptyState = () => (
   <EmptyMessage
-    icon={<Networking24Icon />}
+    icon={<IpGlobal24Icon />}
     title="No floating IPs"
     body="You need to create a floating IP to be able to see it here"
     buttonText="New Floating IP"
@@ -193,7 +189,7 @@ export function FloatingIpsPage() {
         <PageTitle icon={<IpGlobal24Icon />}>Floating IPs</PageTitle>
         <DocsPopover
           heading="Floating IPs"
-          icon={<Networking16Icon />}
+          icon={<IpGlobal16Icon />}
           summary="Floating IPs can be assigned to target instances, making it easier to host services from a consistent address."
           links={[docLinks.floatingIps]}
         />
