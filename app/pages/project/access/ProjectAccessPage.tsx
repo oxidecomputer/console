@@ -201,7 +201,7 @@ export function ProjectAccessPage() {
         <DocsPopover
           heading="Access"
           icon={<Access16Icon />}
-          summary=""
+          summary="Identity and access management roles determine who can view, edit, or administer this project. Silo roles are inherited from the organization, while project roles are specific to this project."
           links={[docLinks.keyConceptsIam, docLinks.access]}
         />
       </PageHeader>

@@ -167,7 +167,7 @@ export function SiloAccessPage() {
         <DocsPopover
           heading="Access"
           icon={<Access16Icon />}
-          summary=""
+          summary="Silo-level access roles and permissions. Permissions set at the silo level cascade down to all projects within the silo."
           links={[docLinks.keyConceptsIam, docLinks.access]}
         />
       </PageHeader>
