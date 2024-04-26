@@ -17,7 +17,7 @@ import {
 } from '@oxide/api'
 import { Instances16Icon, Instances24Icon } from '@oxide/design-system/icons/react'
 
-import { ContextualDocsModal } from '~/components/ContextualDocsModal'
+import { DocsPopover } from '~/components/DocsPopover'
 import { RefreshButton } from '~/components/RefreshButton'
 import { getProjectSelector, useProjectSelector, useQuickActions } from '~/hooks'
 import { InstanceResourceCell } from '~/table/cells/InstanceResourceCell'
@@ -126,7 +126,7 @@ export function InstancesPage() {
     <>
       <PageHeader>
         <PageTitle icon={<Instances24Icon />}>Instances</PageTitle>
-        <ContextualDocsModal
+        <DocsPopover
           heading="Instances"
           icon={<Instances16Icon />}
           summary="Instances are virtual machines that run on Oxide."

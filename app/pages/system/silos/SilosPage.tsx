@@ -18,7 +18,7 @@ import {
 } from '@oxide/api'
 import { Cloud16Icon, Cloud24Icon } from '@oxide/design-system/icons/react'
 
-import { ContextualDocsModal } from '~/components/ContextualDocsModal'
+import { DocsPopover } from '~/components/DocsPopover'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { BooleanCell } from '~/table/cells/BooleanCell'
@@ -114,7 +114,7 @@ export function SilosPage() {
     <>
       <PageHeader>
         <PageTitle icon={<Cloud24Icon />}>Silos</PageTitle>
-        <ContextualDocsModal
+        <DocsPopover
           heading="Silos"
           icon={<Cloud16Icon />}
           summary="Silos are collections of resources, designed to provide strict tenancy separation. They have separate UI and API endpoints, separate resource limits, and separate access policies."

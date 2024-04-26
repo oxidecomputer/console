@@ -10,7 +10,7 @@ import { type LoaderFunctionArgs } from 'react-router-dom'
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import { Cloud16Icon, Cloud24Icon, NextArrow12Icon } from '@oxide/design-system/icons/react'
 
-import { ContextualDocsModal } from '~/components/ContextualDocsModal'
+import { DocsPopover } from '~/components/DocsPopover'
 import { QueryParamTabs } from '~/components/QueryParamTabs'
 import { getSiloSelector, useSiloSelector } from '~/hooks'
 import { EmptyCell } from '~/table/cells/EmptyCell'
@@ -56,7 +56,7 @@ export function SiloPage() {
     <>
       <PageHeader>
         <PageTitle icon={<Cloud24Icon />}>{silo.name}</PageTitle>
-        <ContextualDocsModal
+        <DocsPopover
           heading="Silos"
           icon={<Cloud16Icon />}
           summary="Silos are collections of resources, designed to provide strict tenancy separation. They have separate UI and API endpoints, separate resource limits, and separate access policies."

@@ -19,7 +19,7 @@ import {
 } from '@oxide/api'
 import { Storage16Icon, Storage24Icon } from '@oxide/design-system/icons/react'
 
-import { ContextualDocsModal } from '~/components/ContextualDocsModal'
+import { DocsPopover } from '~/components/DocsPopover'
 import { DiskStatusBadge } from '~/components/StatusBadge'
 import { getProjectSelector, useProjectSelector } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
@@ -164,7 +164,7 @@ export function DisksPage() {
     <>
       <PageHeader>
         <PageTitle icon={<Storage24Icon />}>Disks</PageTitle>
-        <ContextualDocsModal
+        <DocsPopover
           heading="Disks"
           icon={<Storage16Icon />}
           summary="Disks are persistent block-storage volumes that can be managed independently from VM instances."

@@ -18,7 +18,7 @@ import {
 } from '@oxide/api'
 import { Folder16Icon, Folder24Icon } from '@oxide/design-system/icons/react'
 
-import { ContextualDocsModal } from '~/components/ContextualDocsModal'
+import { DocsPopover } from '~/components/DocsPopover'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
@@ -123,7 +123,7 @@ export function ProjectsPage() {
     <>
       <PageHeader>
         <PageTitle icon={<Folder24Icon />}>Projects</PageTitle>
-        <ContextualDocsModal
+        <DocsPopover
           heading="Projects"
           icon={<Folder16Icon />}
           summary="Projects are logical containers for managing compute, storage and network resources within a silo."

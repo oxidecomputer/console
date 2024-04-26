@@ -22,7 +22,7 @@ import {
 } from '@oxide/api'
 import { Access16Icon, Access24Icon } from '@oxide/design-system/icons/react'
 
-import { ContextualDocsModal } from '~/components/ContextualDocsModal'
+import { DocsPopover } from '~/components/DocsPopover'
 import { HL } from '~/components/HL'
 import {
   SiloAccessAddUserSideModal,
@@ -164,7 +164,7 @@ export function SiloAccessPage() {
     <>
       <PageHeader>
         <PageTitle icon={<Access24Icon />}>Access &amp; IAM</PageTitle>
-        <ContextualDocsModal
+        <DocsPopover
           heading="Access"
           icon={<Access16Icon />}
           summary=""

@@ -12,7 +12,7 @@ import { Outlet, type LoaderFunctionArgs } from 'react-router-dom'
 import { apiQueryClient, useApiMutation, useApiQueryClient, type Image } from '@oxide/api'
 import { Images16Icon, Images24Icon } from '@oxide/design-system/icons/react'
 
-import { ContextualDocsModal } from '~/components/ContextualDocsModal'
+import { DocsPopover } from '~/components/DocsPopover'
 import { getProjectSelector, useProjectSelector } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
@@ -100,7 +100,7 @@ export function ImagesPage() {
     <>
       <PageHeader>
         <PageTitle icon={<Images24Icon />}>Images</PageTitle>
-        <ContextualDocsModal
+        <DocsPopover
           heading="Images"
           icon={<Images16Icon />}
           summary="Images are snapshots of virtual machines that can be used to create new instances."

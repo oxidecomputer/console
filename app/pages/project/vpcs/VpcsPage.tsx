@@ -18,7 +18,7 @@ import {
 } from '@oxide/api'
 import { Networking16Icon, Networking24Icon } from '@oxide/design-system/icons/react'
 
-import { ContextualDocsModal } from '~/components/ContextualDocsModal'
+import { DocsPopover } from '~/components/DocsPopover'
 import { getProjectSelector, useProjectSelector, useQuickActions } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { makeLinkCell } from '~/table/cells/LinkCell'
@@ -122,7 +122,7 @@ export function VpcsPage() {
     <>
       <PageHeader>
         <PageTitle icon={<Networking24Icon />}>VPCs</PageTitle>
-        <ContextualDocsModal
+        <DocsPopover
           heading="VPCs"
           icon={<Networking16Icon />}
           summary="VPCs are virtual private networks that are scoped within individual projects."

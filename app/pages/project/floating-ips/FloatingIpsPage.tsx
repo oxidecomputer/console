@@ -24,7 +24,7 @@ import {
   Networking24Icon,
 } from '@oxide/design-system/icons/react'
 
-import { ContextualDocsModal } from '~/components/ContextualDocsModal'
+import { DocsPopover } from '~/components/DocsPopover'
 import { ExternalLink } from '~/components/ExternalLink'
 import { HL } from '~/components/HL'
 import { getProjectSelector, useProjectSelector } from '~/hooks'
@@ -191,7 +191,7 @@ export function FloatingIpsPage() {
     <>
       <PageHeader className="!mb-12">
         <PageTitle icon={<IpGlobal24Icon />}>Floating IPs</PageTitle>
-        <ContextualDocsModal
+        <DocsPopover
           heading="Floating IPs"
           icon={<Networking16Icon />}
           summary="Floating IPs can be assigned to target instances, making it easier to host services from a consistent address."

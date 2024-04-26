@@ -13,7 +13,7 @@ import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import { Metrics16Icon, Metrics24Icon } from '@oxide/design-system/icons/react'
 
 import { CapacityBars } from '~/components/CapacityBars'
-import { ContextualDocsModal } from '~/components/ContextualDocsModal'
+import { DocsPopover } from '~/components/DocsPopover'
 import { useDateTimeRangePicker } from '~/components/form/fields/DateTimeRangePicker'
 import { useIntervalPicker } from '~/components/RefetchIntervalPicker'
 import { SiloMetric } from '~/components/SystemMetric'
@@ -74,7 +74,7 @@ export function SiloUtilizationPage() {
     <>
       <PageHeader>
         <PageTitle icon={<Metrics24Icon />}>Capacity &amp; Utilization</PageTitle>
-        <ContextualDocsModal
+        <DocsPopover
           heading="Images"
           icon={<Metrics16Icon />}
           summary="System metrics allow you to monitor the allocation and utilization of your resources across silos, including CPU, memory, and storage."

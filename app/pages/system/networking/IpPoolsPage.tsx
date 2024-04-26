@@ -19,7 +19,7 @@ import {
 } from '@oxide/api'
 import { Networking16Icon, Networking24Icon } from '@oxide/design-system/icons/react'
 
-import { ContextualDocsModal } from '~/components/ContextualDocsModal'
+import { DocsPopover } from '~/components/DocsPopover'
 import { IpUtilCell } from '~/components/IpPoolUtilization'
 import { useQuickActions } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
@@ -127,7 +127,7 @@ export function IpPoolsPage() {
     <>
       <PageHeader>
         <PageTitle icon={<Networking24Icon />}>IP Pools</PageTitle>
-        <ContextualDocsModal
+        <DocsPopover
           heading="IP Pools"
           icon={<Networking16Icon />}
           summary="IP pools are a collection of IP addresses that can be assigned to VM instances."

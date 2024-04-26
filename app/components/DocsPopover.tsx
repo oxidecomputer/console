@@ -13,12 +13,12 @@ import { OpenLink12Icon, Question16Icon } from '@oxide/design-system/icons/react
 
 import { ExternalLink } from './ExternalLink'
 
-type ContextualDocsLinkProps = {
+type DocsPopoverLinkProps = {
   href: string
   linkText: string
 }
 
-export const ContextualDocsLink = ({ href, linkText }: ContextualDocsLinkProps) => (
+export const DocsPopoverLink = ({ href, linkText }: DocsPopoverLinkProps) => (
   <div className="border-b px-4 py-2 border-secondary last:border-0">
     <ExternalLink
       href={href}
@@ -30,19 +30,14 @@ export const ContextualDocsLink = ({ href, linkText }: ContextualDocsLinkProps) 
   </div>
 )
 
-type ContextualDocsModalProps = {
+type DocsPopoverProps = {
   heading: React.ReactNode
   icon: JSX.Element
-  links: Array<ContextualDocsLinkProps>
+  links: Array<DocsPopoverLinkProps>
   summary: string
 }
 
-export const ContextualDocsModal = ({
-  heading,
-  icon,
-  summary,
-  links,
-}: ContextualDocsModalProps) => {
+export const DocsPopover = ({ heading, icon, summary, links }: DocsPopoverProps) => {
   const { refs, floatingStyles } = useFloating({
     placement: 'bottom-end',
     middleware: [offset(6)],
@@ -71,7 +66,7 @@ export const ContextualDocsModal = ({
         <div className="border-t border-secondary">
           <h3 className="mt-3 px-4 text-mono-sm text-quaternary">Guides</h3>
           {links.map((link) => (
-            <ContextualDocsLink key={link.href} {...link} />
+            <DocsPopoverLink key={link.href} {...link} />
           ))}
         </div>
       </Popover.Panel>

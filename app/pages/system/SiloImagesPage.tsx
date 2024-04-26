@@ -19,7 +19,7 @@ import {
 } from '@oxide/api'
 import { Images16Icon, Images24Icon } from '@oxide/design-system/icons/react'
 
-import { ContextualDocsModal } from '~/components/ContextualDocsModal'
+import { DocsPopover } from '~/components/DocsPopover'
 import { toListboxItem } from '~/components/form/fields/ImageSelectField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { useForm } from '~/hooks'
@@ -98,7 +98,7 @@ export function SiloImagesPage() {
     <>
       <PageHeader>
         <PageTitle icon={<Images24Icon />}>Silo Images</PageTitle>
-        <ContextualDocsModal
+        <DocsPopover
           heading="Images"
           icon={<Images16Icon />}
           summary="Images are snapshots of virtual machines that can be used to create new instances."

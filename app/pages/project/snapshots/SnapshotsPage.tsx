@@ -18,7 +18,7 @@ import {
 } from '@oxide/api'
 import { Snapshots16Icon, Snapshots24Icon } from '@oxide/design-system/icons/react'
 
-import { ContextualDocsModal } from '~/components/ContextualDocsModal'
+import { DocsPopover } from '~/components/DocsPopover'
 import { SnapshotStatusBadge } from '~/components/StatusBadge'
 import { getProjectSelector, useProjectSelector } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
@@ -136,7 +136,7 @@ export function SnapshotsPage() {
     <>
       <PageHeader>
         <PageTitle icon={<Snapshots24Icon />}>Snapshots</PageTitle>
-        <ContextualDocsModal
+        <DocsPopover
           heading="Snapshots"
           icon={<Snapshots16Icon />}
           summary="Snapshots are a point-in-time copy of a disk that can be used to create new disks."

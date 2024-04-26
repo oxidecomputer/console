@@ -8,7 +8,7 @@
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import { Racks24Icon } from '@oxide/design-system/icons/react'
 
-import { ContextualDocsModal } from '~/components/ContextualDocsModal'
+import { DocsPopover } from '~/components/DocsPopover'
 import { RouteTabs, Tab } from '~/components/RouteTabs'
 import { PAGE_SIZE } from '~/table/QueryTable'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
@@ -30,7 +30,7 @@ export function InventoryPage() {
     <>
       <PageHeader>
         <PageTitle icon={<Racks24Icon />}>Inventory</PageTitle>
-        <ContextualDocsModal
+        <DocsPopover
           heading="Sleds and Disks"
           icon={<Racks24Icon />}
           summary="Information about the sleds and physical disks in the Oxide rack."
