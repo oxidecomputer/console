@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { offset, useFloating } from '@floating-ui/react'
+import { autoUpdate, offset, useFloating } from '@floating-ui/react'
 import { Popover } from '@headlessui/react'
 import cn from 'classnames'
 
@@ -46,6 +46,7 @@ export const DocsPopover = ({ heading, icon, summary, links }: DocsPopoverProps)
   const { refs, floatingStyles } = useFloating({
     placement: 'bottom-end',
     middleware: [offset(12)],
+    whileElementsMounted: autoUpdate,
   })
   return (
     <Popover>
