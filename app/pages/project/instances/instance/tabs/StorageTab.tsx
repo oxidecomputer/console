@@ -176,8 +176,8 @@ export function StorageTab() {
             onClick={() => setShowDiskCreate(true)}
             disabledReason={
               <>
-                Instance must be <span className="text-default">stopped</span> to create a
-                disk
+                Instance must be <span className="text-default">stopped</span> to create and
+                attach a disk
               </>
             }
             disabled={!instanceCan.attachDisk(instance)}
