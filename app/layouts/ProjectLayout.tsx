@@ -115,7 +115,7 @@ export function ProjectLayout({ overrideContentPane }: ProjectLayoutProps) {
             <IpGlobal16Icon /> Floating IPs
           </NavLinkItem>
           <NavLinkItem to={pb.projectAccess(projectSelector)}>
-            <Access16Icon title="Access" /> Access &amp; IAM
+            <Access16Icon title="Access" /> Access
           </NavLinkItem>
         </Sidebar.Nav>
       </Sidebar>

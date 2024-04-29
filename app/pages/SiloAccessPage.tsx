@@ -161,7 +161,7 @@ export function SiloAccessPage() {
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<Access24Icon />}>Access &amp; IAM</PageTitle>
+        <PageTitle icon={<Access24Icon />}>Access</PageTitle>
       </PageHeader>
 
       <TableActions>
