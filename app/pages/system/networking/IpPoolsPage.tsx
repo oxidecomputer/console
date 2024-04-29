@@ -17,7 +17,7 @@ import {
   usePrefetchedApiQuery,
   type IpPool,
 } from '@oxide/api'
-import { Networking16Icon, Networking24Icon } from '@oxide/design-system/icons/react'
+import { IpGlobal16Icon, IpGlobal24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { IpUtilCell } from '~/components/IpPoolUtilization'
@@ -37,7 +37,7 @@ import { pb } from '~/util/path-builder'
 
 const EmptyState = () => (
   <EmptyMessage
-    icon={<Networking24Icon />}
+    icon={<IpGlobal24Icon />}
     title="No IP pools"
     body="You need to create an IP pool to be able to see it here"
     buttonText="New IP pool"
@@ -126,11 +126,11 @@ export function IpPoolsPage() {
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<Networking24Icon />}>IP Pools</PageTitle>
+        <PageTitle icon={<IpGlobal24Icon />}>IP Pools</PageTitle>
         <DocsPopover
           heading="IP Pools"
-          icon={<Networking16Icon />}
-          summary="IP pools are a collection of IP addresses that can be assigned to VM instances."
+          icon={<IpGlobal16Icon />}
+          summary="IP pools are collections of external IP addresses that let you control which silos can use which IPs."
           links={[docLinks.systemIpPools]}
         />
       </PageHeader>

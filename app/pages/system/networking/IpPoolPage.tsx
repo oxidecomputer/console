@@ -20,7 +20,7 @@ import {
   type IpPoolRange,
   type IpPoolSiloLink,
 } from '@oxide/api'
-import { IpGlobal16Icon, Networking24Icon } from '@oxide/design-system/icons/react'
+import { IpGlobal16Icon, IpGlobal24Icon } from '@oxide/design-system/icons/react'
 
 import { CapacityBar } from '~/components/CapacityBar'
 import { DocsPopover } from '~/components/DocsPopover'
@@ -72,11 +72,11 @@ export function IpPoolPage() {
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<Networking24Icon />}>{pool.name}</PageTitle>
+        <PageTitle icon={<IpGlobal24Icon />}>{pool.name}</PageTitle>
         <DocsPopover
-          heading="IP pools"
+          heading="IP Pools"
           icon={<IpGlobal16Icon />}
-          summary="IP pools are logical collections of external IP addresses that let operators control which silos can use which IPs."
+          summary="IP pools are collections of external IP addresses that let you control which silos can use which IPs."
           links={[docLinks.systemIpPools]}
         />
       </PageHeader>
@@ -155,7 +155,7 @@ function IpRangesTable() {
   })
   const emptyState = (
     <EmptyMessage
-      icon={<Networking24Icon />}
+      icon={<IpGlobal24Icon />}
       title="No IP ranges"
       body="Add a range to see it here"
       buttonText="Add range"
@@ -270,7 +270,7 @@ function LinkedSilosTable() {
 
   const emptyState = (
     <EmptyMessage
-      icon={<Networking24Icon />}
+      icon={<IpGlobal24Icon />}
       title="No linked silos"
       body="You can link this pool to a silo to see it here"
       buttonText="Link silo"

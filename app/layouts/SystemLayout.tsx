@@ -11,8 +11,8 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { apiQueryClient } from '@oxide/api'
 import {
   Cloud16Icon,
+  IpGlobal16Icon,
   Metrics16Icon,
-  Networking16Icon,
   Storage16Icon,
 } from '@oxide/design-system/icons/react'
 
@@ -112,7 +112,7 @@ export function SystemLayout() {
             <Storage16Icon /> Inventory
           </NavLinkItem>
           <NavLinkItem to={pb.ipPools()}>
-            <Networking16Icon /> IP Pools
+            <IpGlobal16Icon /> IP Pools
           </NavLinkItem>
         </Sidebar.Nav>
       </Sidebar>
