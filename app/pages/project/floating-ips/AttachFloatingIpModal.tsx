@@ -36,12 +36,10 @@ function FloatingIpLabel({ fip }: { fip: FloatingIp }) {
 export const AttachFloatingIpModal = ({
   floatingIps,
   instance,
-  project,
   onDismiss,
 }: {
   floatingIps: Array<FloatingIp>
   instance: Instance
-  project: string
   onDismiss: () => void
 }) => {
   const queryClient = useApiQueryClient()
@@ -88,8 +86,7 @@ export const AttachFloatingIpModal = ({
         disabled={!floatingIp}
         onAction={() =>
           floatingIpAttach.mutate({
-            path: { floatingIp },
-            query: { project },
+            path: { floatingIp }, // note that this is an ID!
             body: { kind: 'instance', parent: instance.id },
           })
         }

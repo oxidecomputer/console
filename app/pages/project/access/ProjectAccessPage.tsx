@@ -197,7 +197,7 @@ export function ProjectAccessPage() {
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<Access24Icon />}>Access &amp; IAM</PageTitle>
+        <PageTitle icon={<Access24Icon />}>Access</PageTitle>
         <DocsPopover
           heading="Access"
           icon={<Access16Icon />}

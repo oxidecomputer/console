@@ -62,9 +62,6 @@ const staticCols = [
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
-const attachableStates = fancifyStates(instanceCan.attachDisk.states)
-const detachableStates = fancifyStates(instanceCan.detachDisk.states)
-
 export function StorageTab() {
   const [showDiskCreate, setShowDiskCreate] = useState(false)
   const [showDiskAttach, setShowDiskAttach] = useState(false)
@@ -128,7 +125,10 @@ export function StorageTab() {
       {
         label: 'Detach',
         disabled: !instanceCan.detachDisk(instance) && (
-          <>Instance must be in state {detachableStates} before disk can be detached</>
+          <>
+            Instance must be <span className="text-default">stopped</span> before disk can
+            be detached
+          </>
         ),
         onActivate() {
           detachDisk.mutate({ body: { disk: disk.name }, ...instancePathQuery })
@@ -174,7 +174,12 @@ export function StorageTab() {
           <Button
             size="sm"
             onClick={() => setShowDiskCreate(true)}
-            disabledReason={<>Instance must be {attachableStates} to create a disk</>}
+            disabledReason={
+              <>
+                Instance must be <span className="text-default">stopped</span> to create and
+                attach a disk
+              </>
+            }
             disabled={!instanceCan.attachDisk(instance)}
           >
             Create new disk
@@ -183,7 +188,12 @@ export function StorageTab() {
             variant="secondary"
             size="sm"
             onClick={() => setShowDiskAttach(true)}
-            disabledReason={<>Instance must be {attachableStates} to attach a disk</>}
+            disabledReason={
+              <>
+                Instance must be <span className="text-default">stopped</span> to attach a
+                disk
+              </>
+            }
             disabled={!instanceCan.attachDisk(instance)}
           >
             Attach existing disk
@@ -191,7 +201,8 @@ export function StorageTab() {
         </div>
         {!instanceCan.attachDisk(instance) && (
           <span className="max-w-xs text-sans-md text-tertiary">
-            A disk cannot be added or attached unless the instance is {attachableStates}.
+            The instance must be <span className="text-default">stopped</span> to add or
+            attach a disk.
           </span>
         )}
       </div>
