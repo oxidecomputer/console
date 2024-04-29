@@ -189,7 +189,7 @@ export function FloatingIpsPage() {
         <DocsPopover
           heading="Floating IPs"
           icon={<IpGlobal16Icon />}
-          summary="Floating IPs can be assigned to target instances, making it easier to host services from a consistent address."
+          summary="Floating IPs exist independently of instances and can be attached to and detached from them as needed."
           links={[docLinks.floatingIps]}
         />
       </PageHeader>
