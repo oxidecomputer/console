@@ -126,7 +126,7 @@ export function ProjectsPage() {
         <DocsPopover
           heading="Projects"
           icon={<Folder16Icon />}
-          summary="Projects are logical containers for managing compute, storage and network resources within a silo."
+          summary="Projects are containers for managing resources like instances, disks, and VPCs."
           links={[docLinks.keyConceptsProjects, docLinks.projects]}
         />
       </PageHeader>
