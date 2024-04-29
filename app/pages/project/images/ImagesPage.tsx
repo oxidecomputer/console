@@ -103,7 +103,7 @@ export function ImagesPage() {
         <DocsPopover
           heading="Images"
           icon={<Images16Icon />}
-          summary="Images are snapshots of virtual machines that can be used to create new instances."
+          summary="Images are templates of virtual machines that can be used to create new instances."
           links={[docLinks.images]}
         />
       </PageHeader>

@@ -75,7 +75,7 @@ export function SiloUtilizationPage() {
       <PageHeader>
         <PageTitle icon={<Metrics24Icon />}>Capacity &amp; Utilization</PageTitle>
         <DocsPopover
-          heading="Images"
+          heading="Utilization"
           icon={<Metrics16Icon />}
           summary="System metrics allow you to monitor the allocation and utilization of your resources across silos, including CPU, memory, and storage."
           links={[docLinks.systemMetrics]}
