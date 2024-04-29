@@ -167,7 +167,7 @@ export function DisksPage() {
         <DocsPopover
           heading="Disks"
           icon={<Storage16Icon />}
-          summary="Disks are persistent block-storage volumes that can be managed independently from VM instances."
+          summary="Disks are persistent volumes that can be managed independently from VM instances."
           links={[docLinks.disks]}
         />
       </PageHeader>

@@ -54,7 +54,7 @@ export const docLinks = {
   },
   keyConceptsIam: {
     href: links.keyConceptsIamPolicyDocs,
-    linkText: 'Key Concepts: Identity & Access Management Policy',
+    linkText: 'Key Concepts: IAM Policy',
   },
   images: {
     href: links.imagesDocs,
@@ -98,7 +98,7 @@ export const docLinks = {
   },
   vms: {
     href: links.vmsDocs,
-    linkText: 'Virtual Machines and Deploying Workloads',
+    linkText: 'Deploying Workloads',
   },
   vpcs: {
     href: links.vpcsDocs,
