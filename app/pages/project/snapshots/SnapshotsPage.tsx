@@ -139,7 +139,7 @@ export function SnapshotsPage() {
         <DocsPopover
           heading="Snapshots"
           icon={<Snapshots16Icon />}
-          summary="Snapshots are a point-in-time copy of a disk that can be used to create new disks."
+          summary="A snapshot is a lightweight point-in-time copy of a disk that can be used to create an image."
           links={[docLinks.snapshots]}
         />
       </PageHeader>

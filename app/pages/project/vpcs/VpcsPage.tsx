@@ -125,8 +125,8 @@ export function VpcsPage() {
         <DocsPopover
           heading="VPCs"
           icon={<Networking16Icon />}
-          summary="VPCs are virtual private networks that are scoped within individual projects."
-          links={[docLinks.vpcs]}
+          summary="VPCs are private networks that serve to isolate sets of instances from each other. Instances within a VPC can talk to each other over private IP addresses (if firewall rules allow it) but communication between VPCs must happen through external IPs."
+          links={[docLinks.vpcs, docLinks.firewallRules]}
         />
       </PageHeader>
       <TableActions>

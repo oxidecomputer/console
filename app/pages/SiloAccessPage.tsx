@@ -167,7 +167,7 @@ export function SiloAccessPage() {
         <DocsPopover
           heading="Access"
           icon={<Access16Icon />}
-          summary="Roles determine who can view, edit, or administer this silo and the projects within it. Silo roles are inherited from the silo. If a user or group has both a silo and project role, the stronger role takes precedence."
+          summary="Roles determine who can view, edit, or administer this silo and the projects within it. If a user or group has both a silo and project role, the stronger role takes precedence."
           links={[docLinks.keyConceptsIam, docLinks.access]}
         />
       </PageHeader>

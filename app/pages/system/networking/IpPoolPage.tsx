@@ -76,7 +76,7 @@ export function IpPoolPage() {
         <DocsPopover
           heading="IP Pools"
           icon={<IpGlobal16Icon />}
-          summary="IP pools are collections of external IP addresses that let you control which silos can use which IPs."
+          summary="IP pools are collections of external IP addresses that let you control which silos can use which IPs. Users in linked silos can allocate external IPs from this pool for their instances. IPs are allocated from the default pool when users ask for one without specifying a pool."
           links={[docLinks.systemIpPools]}
         />
       </PageHeader>

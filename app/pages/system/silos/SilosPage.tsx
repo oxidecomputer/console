@@ -117,7 +117,7 @@ export function SilosPage() {
         <DocsPopover
           heading="Silos"
           icon={<Cloud16Icon />}
-          summary="Silos are collections of resources, designed to provide strict tenancy separation. They have separate UI and API endpoints, separate resource limits, and separate access policies."
+          summary="Silos provide strict tenancy separation between groups of users. Each silo has its own resource limits and access policies as well as its own subdomain for the web console and API."
           links={[docLinks.systemSilo]}
         />
       </PageHeader>
