@@ -47,6 +47,9 @@ export const DocsPopover = ({ heading, icon, summary, links }: DocsPopoverProps)
     placement: 'bottom-end',
     middleware: [offset(12)],
     whileElementsMounted: autoUpdate,
+    // Needs to be off because it breaks the enter animation
+    // https://floating-ui.com/docs/usefloating#transform
+    transform: false,
   })
   return (
     <Popover>
@@ -57,7 +60,8 @@ export const DocsPopover = ({ heading, icon, summary, links }: DocsPopoverProps)
         <Question12Icon aria-label="Links to docs" className="shrink-0" />
       </Popover.Button>
       <Popover.Panel
-        className="z-10 w-96 rounded-lg border bg-raise border-secondary elevation-1"
+        // DocsPopoverPanel needed for enter animation
+        className="DocsPopoverPanel z-10 w-96 rounded-lg border bg-raise border-secondary elevation-1"
         ref={refs.setFloating}
         style={floatingStyles}
       >
