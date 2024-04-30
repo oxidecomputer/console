@@ -223,7 +223,7 @@ const silosStaticCols = [
     header: () => {
       return (
         <span className="inline-flex items-center gap-2">
-          Pool is silo default?
+          Pool is silo default
           <TipIcon>
             IPs are allocated from the default pool when users ask for an IP without
             specifying a pool.
