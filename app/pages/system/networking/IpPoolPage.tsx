@@ -42,6 +42,7 @@ import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { Tabs } from '~/ui/lib/Tabs'
+import { TipIcon } from '~/ui/lib/TipIcon'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
@@ -76,7 +77,7 @@ export function IpPoolPage() {
         <DocsPopover
           heading="IP Pools"
           icon={<IpGlobal16Icon />}
-          summary="IP pools are collections of external IP addresses that let you control which silos can use which IPs. Users in linked silos can allocate external IPs from this pool for their instances. IPs are allocated from the default pool when users ask for one without specifying a pool."
+          summary="IP pools are collections of external IPs you can assign to silos. When a pool is linked to a silo, users in that silo can allocate IPs from the pool for their instances."
           links={[docLinks.systemIpPools]}
         />
       </PageHeader>
@@ -219,7 +220,17 @@ const silosStaticCols = [
     cell: (info) => <SiloNameFromId value={info.getValue()} />,
   }),
   silosColHelper.accessor('isDefault', {
-    header: 'Pool is silo default?',
+    header: () => {
+      return (
+        <span className="inline-flex items-center gap-2">
+          Pool is silo default?
+          <TipIcon>
+            IPs are allocated from the default pool when users ask for an IP without
+            specifying a pool.
+          </TipIcon>
+        </span>
+      )
+    },
     cell: (info) => <DefaultPoolCell isDefault={info.getValue()} />,
   }),
 ]

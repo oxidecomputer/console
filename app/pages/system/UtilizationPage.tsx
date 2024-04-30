@@ -52,7 +52,7 @@ export function SystemUtilizationPage() {
         <DocsPopover
           heading="Utilization"
           icon={<Metrics16Icon />}
-          summary="System metrics let you monitor utilization of CPU, memory, and storage across silos."
+          summary="System metrics let you monitor utilization of CPU, memory, and storage against silo-level quotas."
           links={[docLinks.systemMetrics]}
         />
       </PageHeader>
