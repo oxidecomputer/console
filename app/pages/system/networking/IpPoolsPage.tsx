@@ -17,8 +17,9 @@ import {
   usePrefetchedApiQuery,
   type IpPool,
 } from '@oxide/api'
-import { Networking24Icon } from '@oxide/design-system/icons/react'
+import { IpGlobal16Icon, IpGlobal24Icon } from '@oxide/design-system/icons/react'
 
+import { DocsPopover } from '~/components/DocsPopover'
 import { IpUtilCell } from '~/components/IpPoolUtilization'
 import { useQuickActions } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
@@ -31,11 +32,12 @@ import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 const EmptyState = () => (
   <EmptyMessage
-    icon={<Networking24Icon />}
+    icon={<IpGlobal24Icon />}
     title="No IP pools"
     body="You need to create an IP pool to be able to see it here"
     buttonText="New IP pool"
@@ -124,7 +126,13 @@ export function IpPoolsPage() {
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<Networking24Icon />}>IP Pools</PageTitle>
+        <PageTitle icon={<IpGlobal24Icon />}>IP Pools</PageTitle>
+        <DocsPopover
+          heading="IP pools"
+          icon={<IpGlobal16Icon />}
+          summary="IP pools are collections of external IPs you can assign to silos. When a pool is linked to a silo, users in that silo can allocate IPs from the pool for their instances."
+          links={[docLinks.systemIpPools]}
+        />
       </PageHeader>
       <TableActions>
         <CreateLink to={pb.ipPoolsNew()}>New IP Pool</CreateLink>

@@ -15,8 +15,9 @@ import {
   usePrefetchedApiQuery,
   type Instance,
 } from '@oxide/api'
-import { Instances24Icon } from '@oxide/design-system/icons/react'
+import { Instances16Icon, Instances24Icon } from '@oxide/design-system/icons/react'
 
+import { DocsPopover } from '~/components/DocsPopover'
 import { RefreshButton } from '~/components/RefreshButton'
 import { getProjectSelector, useProjectSelector, useQuickActions } from '~/hooks'
 import { InstanceResourceCell } from '~/table/cells/InstanceResourceCell'
@@ -29,6 +30,7 @@ import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 import { useMakeInstanceActions } from './actions'
@@ -124,6 +126,12 @@ export function InstancesPage() {
     <>
       <PageHeader>
         <PageTitle icon={<Instances24Icon />}>Instances</PageTitle>
+        <DocsPopover
+          heading="instances"
+          icon={<Instances16Icon />}
+          summary="Instances are virtual machines that run on the Oxide platform."
+          links={[docLinks.instances, docLinks.vms]}
+        />
       </PageHeader>
       <TableActions>
         <RefreshButton onClick={refetchInstances} />

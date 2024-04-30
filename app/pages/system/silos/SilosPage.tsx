@@ -16,8 +16,9 @@ import {
   usePrefetchedApiQuery,
   type Silo,
 } from '@oxide/api'
-import { Cloud24Icon } from '@oxide/design-system/icons/react'
+import { Cloud16Icon, Cloud24Icon } from '@oxide/design-system/icons/react'
 
+import { DocsPopover } from '~/components/DocsPopover'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { BooleanCell } from '~/table/cells/BooleanCell'
@@ -30,6 +31,7 @@ import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 const EmptyState = () => (
@@ -112,6 +114,12 @@ export function SilosPage() {
     <>
       <PageHeader>
         <PageTitle icon={<Cloud24Icon />}>Silos</PageTitle>
+        <DocsPopover
+          heading="silos"
+          icon={<Cloud16Icon />}
+          summary="Silos provide strict tenancy separation between groups of users. Each silo has its own resource limits and access policies as well as its own subdomain for the web console and API."
+          links={[docLinks.systemSilo]}
+        />
       </PageHeader>
       <TableActions>
         <CreateLink to={pb.silosNew()}>New silo</CreateLink>

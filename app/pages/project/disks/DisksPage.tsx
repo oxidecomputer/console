@@ -17,8 +17,9 @@ import {
   useApiQueryClient,
   type Disk,
 } from '@oxide/api'
-import { Storage24Icon } from '@oxide/design-system/icons/react'
+import { Storage16Icon, Storage24Icon } from '@oxide/design-system/icons/react'
 
+import { DocsPopover } from '~/components/DocsPopover'
 import { DiskStatusBadge } from '~/components/StatusBadge'
 import { getProjectSelector, useProjectSelector } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
@@ -31,6 +32,7 @@ import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 import { fancifyStates } from '../instances/instance/tabs/common'
@@ -162,6 +164,12 @@ export function DisksPage() {
     <>
       <PageHeader>
         <PageTitle icon={<Storage24Icon />}>Disks</PageTitle>
+        <DocsPopover
+          heading="disks"
+          icon={<Storage16Icon />}
+          summary="Disks are persistent volumes that can be managed independently from VM instances."
+          links={[docLinks.disks]}
+        />
       </PageHeader>
       <TableActions>
         <CreateLink to={pb.disksNew({ project })}>New Disk</CreateLink>

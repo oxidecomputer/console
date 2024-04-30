@@ -19,6 +19,7 @@ import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { Tabs } from '~/ui/lib/Tabs'
 
+import { VpcDocsPopover } from '../VpcsPage'
 import { VpcFirewallRulesTab } from './tabs/VpcFirewallRulesTab'
 import { VpcSubnetsTab } from './tabs/VpcSubnetsTab'
 
@@ -47,6 +48,7 @@ export function VpcPage() {
     <>
       <PageHeader>
         <PageTitle icon={<Networking24Icon />}>{vpc.name}</PageTitle>
+        <VpcDocsPopover />
       </PageHeader>
       <PropertiesTable.Group className="mb-16">
         <PropertiesTable>

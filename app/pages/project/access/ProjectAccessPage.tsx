@@ -22,8 +22,9 @@ import {
   type IdentityType,
   type RoleKey,
 } from '@oxide/api'
-import { Access24Icon } from '@oxide/design-system/icons/react'
+import { Access16Icon, Access24Icon } from '@oxide/design-system/icons/react'
 
+import { DocsPopover } from '~/components/DocsPopover'
 import { HL } from '~/components/HL'
 import { ListPlusCell } from '~/components/ListPlusCell'
 import {
@@ -42,6 +43,7 @@ import { TableActions, TableEmptyBox } from '~/ui/lib/Table'
 import { TipIcon } from '~/ui/lib/TipIcon'
 import { identityTypeLabel, roleColor } from '~/util/access'
 import { groupBy, isTruthy, sortBy } from '~/util/array'
+import { docLinks } from '~/util/links'
 
 const EmptyState = ({ onClick }: { onClick: () => void }) => (
   <TableEmptyBox>
@@ -196,6 +198,12 @@ export function ProjectAccessPage() {
     <>
       <PageHeader>
         <PageTitle icon={<Access24Icon />}>Access</PageTitle>
+        <DocsPopover
+          heading="access"
+          icon={<Access16Icon />}
+          summary="Roles determine who can view, edit, or administer this project. Silo roles are inherited from the silo. If a user or group has both a silo and project role, the stronger role takes precedence."
+          links={[docLinks.keyConceptsIam, docLinks.access]}
+        />
       </PageHeader>
 
       <TableActions>

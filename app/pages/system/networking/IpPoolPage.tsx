@@ -20,10 +20,10 @@ import {
   type IpPoolRange,
   type IpPoolSiloLink,
 } from '@oxide/api'
-import { IpGlobal16Icon, Networking24Icon } from '@oxide/design-system/icons/react'
+import { IpGlobal16Icon, IpGlobal24Icon } from '@oxide/design-system/icons/react'
 
 import { CapacityBar } from '~/components/CapacityBar'
-import { ExternalLink } from '~/components/ExternalLink'
+import { DocsPopover } from '~/components/DocsPopover'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { HL } from '~/components/HL'
 import { QueryParamTabs } from '~/components/QueryParamTabs'
@@ -41,9 +41,9 @@ import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
-import { TableControls, TableControlsText } from '~/ui/lib/Table'
 import { Tabs } from '~/ui/lib/Tabs'
-import { links } from '~/util/links'
+import { TipIcon } from '~/ui/lib/TipIcon'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 IpPoolPage.loader = async function ({ params }: LoaderFunctionArgs) {
@@ -73,7 +73,13 @@ export function IpPoolPage() {
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<Networking24Icon />}>{pool.name}</PageTitle>
+        <PageTitle icon={<IpGlobal24Icon />}>{pool.name}</PageTitle>
+        <DocsPopover
+          heading="IP pools"
+          icon={<IpGlobal16Icon />}
+          summary="IP pools are collections of external IPs you can assign to silos. When a pool is linked to a silo, users in that silo can allocate IPs from the pool for their instances."
+          links={[docLinks.systemIpPools]}
+        />
       </PageHeader>
       <UtilizationBars />
       <QueryParamTabs className="full-width" defaultValue="ranges">
@@ -150,7 +156,7 @@ function IpRangesTable() {
   })
   const emptyState = (
     <EmptyMessage
-      icon={<Networking24Icon />}
+      icon={<IpGlobal24Icon />}
       title="No IP ranges"
       body="Add a range to see it here"
       buttonText="Add range"
@@ -191,7 +197,7 @@ function IpRangesTable() {
 
   return (
     <>
-      <div className="mb-3 flex justify-end space-x-2">
+      <div className="mb-3 flex justify-end">
         <CreateLink to={pb.ipPoolRangeAdd({ pool })}>Add range</CreateLink>
       </div>
       <Table columns={columns} emptyState={emptyState} />
@@ -214,7 +220,17 @@ const silosStaticCols = [
     cell: (info) => <SiloNameFromId value={info.getValue()} />,
   }),
   silosColHelper.accessor('isDefault', {
-    header: 'Pool is silo default?',
+    header: () => {
+      return (
+        <span className="inline-flex items-center gap-2">
+          Pool is silo default
+          <TipIcon>
+            IPs are allocated from the default pool when users ask for an IP without
+            specifying a pool.
+          </TipIcon>
+        </span>
+      )
+    },
     cell: (info) => <DefaultPoolCell isDefault={info.getValue()} />,
   }),
 ]
@@ -265,7 +281,7 @@ function LinkedSilosTable() {
 
   const emptyState = (
     <EmptyMessage
-      icon={<Networking24Icon />}
+      icon={<IpGlobal24Icon />}
       title="No linked silos"
       body="You can link this pool to a silo to see it here"
       buttonText="Link silo"
@@ -276,16 +292,9 @@ function LinkedSilosTable() {
   const columns = useColsWithActions(silosStaticCols, makeActions)
   return (
     <>
-      <TableControls>
-        <TableControlsText>
-          Users in linked silos can allocate external IPs from this pool for their
-          instances. A silo can have at most one default pool. IPs are allocated from the
-          default pool when users ask for one without specifying a pool. Read the docs to
-          learn more about{' '}
-          <ExternalLink href={links.ipPoolsDocs}>managing IP pools</ExternalLink>.
-        </TableControlsText>
+      <div className="mb-3 flex justify-end">
         <CreateButton onClick={() => setShowLinkModal(true)}>Link silo</CreateButton>
-      </TableControls>
+      </div>
       <Table columns={columns} emptyState={emptyState} />
       {showLinkModal && <LinkSiloModal onDismiss={() => setShowLinkModal(false)} />}
     </>
