@@ -50,7 +50,7 @@ export function SystemUtilizationPage() {
       <PageHeader>
         <PageTitle icon={<Metrics24Icon />}>Utilization</PageTitle>
         <DocsPopover
-          heading="Utilization"
+          heading="utilization"
           icon={<Metrics16Icon />}
           summary="System metrics let you monitor utilization of CPU, memory, and storage against silo-level quotas."
           links={[docLinks.systemMetrics]}

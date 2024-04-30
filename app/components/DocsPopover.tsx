@@ -68,8 +68,7 @@ export const DocsPopover = ({ heading, icon, summary, links }: DocsPopoverProps)
         <div className="px-4">
           <h2 className="mt-4 flex items-center gap-1 text-sans-md">
             <div className="mr-1 flex items-center text-accent-secondary">{icon}</div>
-            <span className="text-tertiary">Learn:</span>
-            {heading}
+            Learn about {heading}
           </h2>
           <p className="mb-3 mt-2 text-sans-md text-secondary">{summary}</p>
         </div>

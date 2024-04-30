@@ -137,7 +137,7 @@ export function SnapshotsPage() {
       <PageHeader>
         <PageTitle icon={<Snapshots24Icon />}>Snapshots</PageTitle>
         <DocsPopover
-          heading="Snapshots"
+          heading="snapshots"
           icon={<Snapshots16Icon />}
           summary="A snapshot is a lightweight point-in-time copy of a disk that can be used to create an image."
           links={[docLinks.snapshots]}

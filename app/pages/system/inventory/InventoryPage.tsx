@@ -31,9 +31,9 @@ export function InventoryPage() {
       <PageHeader>
         <PageTitle icon={<Servers24Icon />}>Inventory</PageTitle>
         <DocsPopover
-          heading="Sleds and Disks"
+          heading="inventory"
           icon={<Servers16Icon />}
-          summary="Information about the sleds and physical disks in the Oxide rack."
+          summary="Information about the physical sleds and disks in the Oxide rack."
           links={[docLinks.sleds, docLinks.storage]}
         />
       </PageHeader>

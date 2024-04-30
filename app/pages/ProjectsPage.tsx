@@ -124,7 +124,7 @@ export function ProjectsPage() {
       <PageHeader>
         <PageTitle icon={<Folder24Icon />}>Projects</PageTitle>
         <DocsPopover
-          heading="Projects"
+          heading="projects"
           icon={<Folder16Icon />}
           summary="Projects are containers for managing resources like instances, disks, and VPCs."
           links={[docLinks.keyConceptsProjects, docLinks.projects]}

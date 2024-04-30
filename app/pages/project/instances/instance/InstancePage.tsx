@@ -149,7 +149,7 @@ export function InstancePage() {
         <PageTitle icon={<Instances24Icon />}>{instance.name}</PageTitle>
         <div className="inline-flex gap-2">
           <DocsPopover
-            heading="Instances"
+            heading="instances"
             icon={<Instances16Icon />}
             summary="Instances are virtual machines that run on the Oxide platform."
             links={[docLinks.instances, docLinks.vms]}

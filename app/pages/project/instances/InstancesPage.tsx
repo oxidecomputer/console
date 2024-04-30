@@ -127,7 +127,7 @@ export function InstancesPage() {
       <PageHeader>
         <PageTitle icon={<Instances24Icon />}>Instances</PageTitle>
         <DocsPopover
-          heading="Instances"
+          heading="instances"
           icon={<Instances16Icon />}
           summary="Instances are virtual machines that run on the Oxide platform."
           links={[docLinks.instances, docLinks.vms]}
