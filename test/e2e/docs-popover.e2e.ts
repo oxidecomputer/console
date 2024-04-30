@@ -13,7 +13,7 @@ test('Show / hide contextual help docs links', async ({ page }) => {
   await page.goto('/projects/mock-project/disks')
 
   // open the contextual help docs links
-  await page.getByLabel('Links to learn more').click()
+  await page.getByLabel('Links to docs').click()
   await expect(managingDisksLink).toBeVisible()
 
   // close the contextual help docs links and verify they're hidden

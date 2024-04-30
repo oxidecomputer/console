@@ -54,10 +54,7 @@ export const DocsPopover = ({ heading, icon, summary, links }: DocsPopoverProps)
         ref={refs.setReference}
         className={cn(buttonStyle({ size: 'sm', variant: 'ghost' }), 'w-9')}
       >
-        <Question12Icon
-          aria-label="Links to learn more"
-          className="shrink-0 text-quaternary"
-        />
+        <Question12Icon aria-label="Links to docs" className="shrink-0" />
       </Popover.Button>
       <Popover.Panel
         className="z-10 w-96 rounded-lg border bg-raise border-secondary elevation-1"
