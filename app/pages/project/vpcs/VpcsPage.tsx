@@ -42,6 +42,15 @@ const EmptyState = () => (
   />
 )
 
+export const VpcDocsPopover = () => (
+  <DocsPopover
+    heading="VPCs"
+    icon={<Networking16Icon />}
+    summary="VPCs are private networks that isolate sets of instances from each other. Instances within a VPC can talk to each other using private IP addresses (if firewall rules allow it) but traffic between VPCs must go through external IPs."
+    links={[docLinks.vpcs, docLinks.firewallRules]}
+  />
+)
+
 const colHelper = createColumnHelper<Vpc>()
 
 // just as in the vpcList call for the quick actions menu, include limit to make
@@ -122,12 +131,7 @@ export function VpcsPage() {
     <>
       <PageHeader>
         <PageTitle icon={<Networking24Icon />}>VPCs</PageTitle>
-        <DocsPopover
-          heading="VPCs"
-          icon={<Networking16Icon />}
-          summary="VPCs are private networks that isolate sets of instances from each other. Instances within a VPC can talk to each other using private IP addresses (if firewall rules allow it) but traffic between VPCs must go through external IPs."
-          links={[docLinks.vpcs, docLinks.firewallRules]}
-        />
+        <VpcDocsPopover />
       </PageHeader>
       <TableActions>
         <CreateLink to={pb.vpcsNew({ project })}>New Vpc</CreateLink>

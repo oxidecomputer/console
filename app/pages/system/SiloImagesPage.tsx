@@ -101,7 +101,7 @@ export function SiloImagesPage() {
         <DocsPopover
           heading="Images"
           icon={<Images16Icon />}
-          summary="Images are templates of virtual machines that can be used to create new instances."
+          summary="Images let you create a new disk based on an existing one. Silo images must be created within a project and then promoted."
           links={[docLinks.images]}
         />
       </PageHeader>
