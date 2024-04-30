@@ -8,7 +8,7 @@
 import { createColumnHelper } from '@tanstack/react-table'
 
 import { apiQueryClient, type Sled } from '@oxide/api'
-import { Racks24Icon } from '@oxide/design-system/icons/react'
+import { Servers24Icon } from '@oxide/design-system/icons/react'
 
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
@@ -18,7 +18,7 @@ import { pb } from '~/util/path-builder'
 const EmptyState = () => {
   return (
     <EmptyMessage
-      icon={<Racks24Icon />}
+      icon={<Servers24Icon />}
       title="Something went wrong"
       body="We expected some racks here, but none were found"
     />

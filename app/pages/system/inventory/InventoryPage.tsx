@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
-import { Racks24Icon } from '@oxide/design-system/icons/react'
+import { Servers24Icon } from '@oxide/design-system/icons/react'
 
 import { RouteTabs, Tab } from '~/components/RouteTabs'
 import { PAGE_SIZE } from '~/table/QueryTable'
@@ -27,7 +27,7 @@ export function InventoryPage() {
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<Racks24Icon />}>Inventory</PageTitle>
+        <PageTitle icon={<Servers24Icon />}>Inventory</PageTitle>
       </PageHeader>
 
       <RouteTabs fullWidth>
