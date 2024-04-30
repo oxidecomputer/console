@@ -13,7 +13,7 @@ import {
   Cloud16Icon,
   Metrics16Icon,
   Networking16Icon,
-  Storage16Icon,
+  Servers16Icon,
 } from '@oxide/design-system/icons/react'
 
 import { trigger404 } from '~/components/ErrorBoundary'
@@ -109,7 +109,7 @@ export function SystemLayout() {
             <Metrics16Icon /> Utilization
           </NavLinkItem>
           <NavLinkItem to={pb.sledInventory()}>
-            <Storage16Icon /> Inventory
+            <Servers16Icon /> Inventory
           </NavLinkItem>
           <NavLinkItem to={pb.ipPools()}>
             <Networking16Icon /> IP Pools

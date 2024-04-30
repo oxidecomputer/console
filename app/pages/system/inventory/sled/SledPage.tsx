@@ -9,7 +9,7 @@ import { filesize } from 'filesize'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
-import { Racks24Icon } from '@oxide/design-system/icons/react'
+import { Servers24Icon } from '@oxide/design-system/icons/react'
 
 import { RouteTabs, Tab } from '~/components/RouteTabs'
 import { requireSledParams, useSledParams } from '~/hooks'
@@ -34,7 +34,7 @@ export function SledPage() {
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<Racks24Icon />}>Sled</PageTitle>
+        <PageTitle icon={<Servers24Icon />}>Sled</PageTitle>
       </PageHeader>
 
       <PropertiesTable.Group className="-mt-8 mb-16">
