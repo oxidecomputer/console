@@ -116,6 +116,22 @@ input[type='number']:focus-visible {
   }
 }
 
+a,
+button,
+.ox-tabs-panel,
+[role='listbox'],
+[role='option'],
+[role='button'],
+input[type='text'],
+input[type='textarea'],
+textarea[type='text'],
+input[type='file'],
+input[type='radio'],
+input[type='checkbox'],
+input[type='number'] {
+  @apply transition-[outline-width] duration-100 ease-out;
+}
+
 a:focus,
 button:focus,
 .ox-tabs-panel:focus,
