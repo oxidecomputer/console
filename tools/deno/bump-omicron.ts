@@ -170,3 +170,7 @@ console.log('PR set to auto-merge when CI passes')
 await $`git checkout main`
 await $`git branch -D ${branchName}`
 console.log('Checked out omicron main, deleted branch', branchName)
+
+// bump omicron tag in console to current commit
+await $`git tag -f -a omicron -m 'pinned commit on omicron main'`
+await $`git push -f origin tag omicron`
