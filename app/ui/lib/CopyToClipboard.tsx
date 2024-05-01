@@ -6,8 +6,8 @@
  * Copyright Oxide Computer Company
  */
 
-import { animated, config, useTransition } from '@react-spring/web'
 import cn from 'classnames'
+import { AnimatePresence, m } from 'framer-motion'
 import { useState } from 'react'
 
 import { Copy12Icon, Success12Icon } from '@oxide/design-system/icons/react'
@@ -18,6 +18,11 @@ type Props = {
   ariaLabel?: string
   text: string
   className?: string
+}
+
+const variants = {
+  hidden: { opacity: 0, scale: 0.75 },
+  visible: { opacity: 1, scale: 1 },
 }
 
 export const CopyToClipboard = ({
@@ -35,14 +40,14 @@ export const CopyToClipboard = ({
     })
   }
 
-  const transitions = useTransition(hasCopied, {
-    from: { opacity: 0, transform: 'scale(0.8)' },
-    enter: { opacity: 1, transform: 'scale(1)' },
-    leave: { opacity: 0, transform: 'scale(0.8)' },
-    config: config.stiff,
-    trail: 100,
-    initial: null,
-  })
+  const animateProps = {
+    className: 'absolute inset-0 flex items-center justify-center',
+    variants,
+    initial: 'hidden',
+    animate: 'visible',
+    exit: 'hidden',
+    transition: { type: 'spring', duration: 0.2, bounce: 0 },
+  }
 
   return (
     <button
@@ -58,14 +63,17 @@ export const CopyToClipboard = ({
       type="button"
       aria-label={hasCopied ? 'Copied' : ariaLabel}
     >
-      {transitions((styles, item) => (
-        <animated.div
-          style={styles}
-          className="absolute inset-0 flex items-center justify-center"
-        >
-          {item ? <Success12Icon /> : <Copy12Icon />}
-        </animated.div>
-      ))}
+      <AnimatePresence mode="wait" initial={false}>
+        {hasCopied ? (
+          <m.span key="checkmark" {...animateProps}>
+            <Success12Icon />
+          </m.span>
+        ) : (
+          <m.span key="copy" {...animateProps}>
+            <Copy12Icon />
+          </m.span>
+        )}
+      </AnimatePresence>
     </button>
   )
 }

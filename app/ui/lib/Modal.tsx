@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import * as Dialog from '@radix-ui/react-dialog'
-import { animated, useTransition } from '@react-spring/web'
+import { m } from 'framer-motion'
 import React, { createContext, forwardRef, useContext, useId } from 'react'
 
 import { Close12Icon } from '@oxide/design-system/icons/react'
@@ -33,61 +33,43 @@ export type ModalProps = {
 
 export function Modal({ children, onDismiss, title, isOpen }: ModalProps) {
   const titleId = useId()
-  const AnimatedDialogContent = animated(Dialog.Content)
-
-  const config = { tension: 650, mass: 0.125 }
-
-  const transitions = useTransition(isOpen, {
-    from: { y: -5 },
-    enter: { y: 0 },
-    config: isOpen ? config : { duration: 0 },
-  })
 
   return (
     <ModalContext.Provider value>
-      {transitions(
-        ({ y }, item) =>
-          item && (
-            <Dialog.Root
-              open
-              onOpenChange={(open) => {
-                if (!open) onDismiss()
-              }}
-              // https://github.com/radix-ui/primitives/issues/1159#issuecomment-1559813266
-              modal={false}
+      <Dialog.Root
+        open={isOpen}
+        onOpenChange={(open) => {
+          if (!open) onDismiss()
+        }}
+        modal={false}
+      >
+        <Dialog.Portal>
+          <DialogOverlay />
+
+          <Dialog.Content asChild>
+            <m.div
+              initial={{ x: '-50%', y: 'calc(-50% - 25px)' }}
+              animate={{ x: '-50%', y: '-50%' }}
+              transition={{ type: 'spring', duration: 0.3, bounce: 0 }}
+              className="pointer-events-auto fixed left-1/2 top-1/2 z-modal m-0 flex max-h-[min(800px,80vh)] w-auto min-w-[28rem] max-w-[32rem] -translate-x-1/2 -translate-x-1/2 -translate-y-1/2 -translate-y-1/2 flex-col justify-between rounded-lg border p-0 bg-raise border-secondary elevation-2"
+              aria-labelledby={titleId}
             >
-              <Dialog.Portal>
-                <DialogOverlay />
-                <AnimatedDialogContent
-                  className="pointer-events-auto fixed left-1/2 top-1/2 z-modal m-0 flex max-h-[min(800px,80vh)] w-auto min-w-[28rem] max-w-[32rem] flex-col justify-between rounded-lg border p-0 bg-raise border-secondary elevation-2"
-                  aria-labelledby={titleId}
-                  style={{
-                    transform: y.to((value) => `translate3d(-50%, ${-50 + value}%, 0px)`),
-                  }}
-                  // Prevents cancel loop on clicking on background over side
-                  // modal to get out of image upload modal. Canceling out of
-                  // confirm dialog returns focus to the dismissable layer,
-                  // which triggers onDismiss again. And again.
-                  // https://github.com/oxidecomputer/console/issues/1745
-                  onFocusOutside={(e) => e.preventDefault()}
-                >
-                  {title && (
-                    <Dialog.Title asChild>
-                      <ModalTitle id={titleId}>{title}</ModalTitle>
-                    </Dialog.Title>
-                  )}
-                  {children}
-                  <Dialog.Close
-                    className="absolute right-2 top-3 flex rounded p-2 hover:bg-hover"
-                    aria-label="Close"
-                  >
-                    <Close12Icon className="text-secondary" />
-                  </Dialog.Close>
-                </AnimatedDialogContent>
-              </Dialog.Portal>
-            </Dialog.Root>
-          )
-      )}
+              {title && (
+                <Dialog.Title asChild>
+                  <ModalTitle id={titleId}>{title}</ModalTitle>
+                </Dialog.Title>
+              )}
+              {children}
+              <Dialog.Close
+                className="absolute right-2 top-3 flex rounded p-2 hover:bg-hover"
+                aria-label="Close"
+              >
+                <Close12Icon className="text-secondary" />
+              </Dialog.Close>
+            </m.div>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
     </ModalContext.Provider>
   )
 }

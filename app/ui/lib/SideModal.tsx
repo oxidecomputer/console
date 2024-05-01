@@ -6,8 +6,8 @@
  * Copyright Oxide Computer Company
  */
 import * as Dialog from '@radix-ui/react-dialog'
-import { animated, useTransition } from '@react-spring/web'
 import cn from 'classnames'
+import { m } from 'framer-motion'
 import React, { createContext, useContext, useRef, type ReactNode } from 'react'
 
 import { Close12Icon, Error12Icon } from '@oxide/design-system/icons/react'
@@ -53,79 +53,66 @@ export function SideModal({
   onDismiss,
   title,
   subtitle,
-  isOpen,
   animate = true,
   errors,
 }: SideModalProps) {
   const titleId = 'side-modal-title'
-  const AnimatedDialogContent = animated(Dialog.Content)
-
-  const config = { tension: 650, mass: 0.125 }
-
-  const transitions = useTransition(isOpen, {
-    from: { x: 50 },
-    enter: { x: 0 },
-    config: isOpen && animate ? config : { duration: 0 },
-  })
 
   return (
     <SideModalContext.Provider value>
-      {transitions(
-        ({ x }, item) =>
-          item && (
-            <Dialog.Root
-              open
-              onOpenChange={(open) => {
-                if (!open) onDismiss()
-              }}
-              // https://github.com/radix-ui/primitives/issues/1159#issuecomment-1559813266
-              modal={false}
+      <Dialog.Root
+        open
+        onOpenChange={(open) => {
+          if (!open) onDismiss()
+        }}
+        // https://github.com/radix-ui/primitives/issues/1159#issuecomment-1559813266
+        modal={false}
+      >
+        <Dialog.Portal>
+          <DialogOverlay />
+          <Dialog.Content asChild>
+            <m.div
+              initial={{ x: animate ? 40 : 0 }}
+              animate={{ x: 0 }}
+              transition={{ type: 'spring', duration: 0.4, bounce: 0 }}
+              className="DialogContent ox-side-modal pointer-events-auto fixed bottom-0 right-0 top-0 z-sideModal m-0 flex w-[32rem] flex-col justify-between border-l p-0 bg-raise border-secondary elevation-2"
+              aria-labelledby={titleId}
             >
-              <Dialog.Portal>
-                <DialogOverlay />
-                <AnimatedDialogContent
-                  className="DialogContent ox-side-modal pointer-events-auto fixed bottom-0 right-0 top-0 z-sideModal m-0 flex w-[32rem] flex-col justify-between border-l p-0 bg-raise border-secondary elevation-2"
-                  aria-labelledby={titleId}
-                  style={{
-                    transform: x.to((value) => `translate3d(${value}%, 0px, 0px)`),
-                  }}
-                >
-                  {title && (
-                    <Dialog.Title asChild>
-                      <>
-                        <SideModal.Title id={titleId} title={title} subtitle={subtitle} />
+              {title && (
+                <Dialog.Title asChild>
+                  <>
+                    <SideModal.Title id={titleId} title={title} subtitle={subtitle} />
 
-                        {errors && errors.length > 0 && (
-                          <div className="mb-6">
-                            <Message
-                              variant="error"
-                              content={
-                                errors.length === 1 ? (
-                                  errors[0]
-                                ) : (
-                                  <>
-                                    <div>{errors.length} issues:</div>
-                                    <ul className="ml-4 list-disc">
-                                      {errors.map((error, idx) => (
-                                        <li key={idx}>{error}</li>
-                                      ))}
-                                    </ul>
-                                  </>
-                                )
-                              }
-                              title={errors.length > 1 ? 'Errors' : 'Error'}
-                            />
-                          </div>
-                        )}
-                      </>
-                    </Dialog.Title>
-                  )}
-                  {children}
-                </AnimatedDialogContent>
-              </Dialog.Portal>
-            </Dialog.Root>
-          )
-      )}
+                    {errors && errors.length > 0 && (
+                      <div className="mb-6">
+                        <Message
+                          variant="error"
+                          content={
+                            errors.length === 1 ? (
+                              errors[0]
+                            ) : (
+                              <>
+                                <div>{errors.length} issues:</div>
+                                <ul className="ml-4 list-disc">
+                                  {errors.map((error, idx) => (
+                                    <li key={idx}>{error}</li>
+                                  ))}
+                                </ul>
+                              </>
+                            )
+                          }
+                          title={errors.length > 1 ? 'Errors' : 'Error'}
+                        />
+                      </div>
+                    )}
+                  </>
+                </Dialog.Title>
+              )}
+              {children}
+            </m.div>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
     </SideModalContext.Provider>
   )
 }
