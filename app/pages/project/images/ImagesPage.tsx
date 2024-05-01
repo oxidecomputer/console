@@ -10,8 +10,9 @@ import { useCallback, useMemo, useState } from 'react'
 import { Outlet, type LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, useApiMutation, useApiQueryClient, type Image } from '@oxide/api'
-import { Images24Icon } from '@oxide/design-system/icons/react'
+import { Images16Icon, Images24Icon } from '@oxide/design-system/icons/react'
 
+import { DocsPopover } from '~/components/DocsPopover'
 import { getProjectSelector, useProjectSelector } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
@@ -25,6 +26,7 @@ import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 const EmptyState = () => (
@@ -98,6 +100,12 @@ export function ImagesPage() {
     <>
       <PageHeader>
         <PageTitle icon={<Images24Icon />}>Images</PageTitle>
+        <DocsPopover
+          heading="Images"
+          icon={<Images16Icon />}
+          summary="Images let you create a new disk based on an existing one. Images can be uploaded directly or created from a snapshot."
+          links={[docLinks.images]}
+        />
       </PageHeader>
       <TableActions>
         <CreateLink to={pb.projectImagesNew({ project })}>Upload image</CreateLink>

@@ -44,12 +44,14 @@
   }
 }
 
-.DropdownMenuContent {
+.DropdownMenuContent,
+.DocsPopoverPanel {
   animation: slide-down 0.2s var(--ease-out-quad);
 }
 
 @media (prefers-reduced-motion) {
-  .DropdownMenuContent {
+  .DropdownMenuContent,
+  .DocsPopoverPanel {
     animation-name: none;
   }
 }

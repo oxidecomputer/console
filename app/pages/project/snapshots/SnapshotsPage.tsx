@@ -16,8 +16,9 @@ import {
   useApiQueryErrorsAllowed,
   type Snapshot,
 } from '@oxide/api'
-import { Snapshots24Icon } from '@oxide/design-system/icons/react'
+import { Snapshots16Icon, Snapshots24Icon } from '@oxide/design-system/icons/react'
 
+import { DocsPopover } from '~/components/DocsPopover'
 import { SnapshotStatusBadge } from '~/components/StatusBadge'
 import { getProjectSelector, useProjectSelector } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
@@ -30,6 +31,7 @@ import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 const DiskNameFromId = ({ value }: { value: string }) => {
@@ -134,6 +136,12 @@ export function SnapshotsPage() {
     <>
       <PageHeader>
         <PageTitle icon={<Snapshots24Icon />}>Snapshots</PageTitle>
+        <DocsPopover
+          heading="snapshots"
+          icon={<Snapshots16Icon />}
+          summary="A snapshot is a lightweight point-in-time copy of a disk that can be used to create an image."
+          links={[docLinks.snapshots]}
+        />
       </PageHeader>
       <TableActions>
         <CreateLink to={pb.snapshotsNew({ project })}>New snapshot</CreateLink>

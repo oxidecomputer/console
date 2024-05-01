@@ -8,8 +8,9 @@
 import { type LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
-import { Cloud24Icon, NextArrow12Icon } from '@oxide/design-system/icons/react'
+import { Cloud16Icon, Cloud24Icon, NextArrow12Icon } from '@oxide/design-system/icons/react'
 
+import { DocsPopover } from '~/components/DocsPopover'
 import { QueryParamTabs } from '~/components/QueryParamTabs'
 import { getSiloSelector, useSiloSelector } from '~/hooks'
 import { EmptyCell } from '~/table/cells/EmptyCell'
@@ -21,6 +22,7 @@ import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { TableEmptyBox } from '~/ui/lib/Table'
 import { Tabs } from '~/ui/lib/Tabs'
+import { docLinks } from '~/util/links'
 
 import { SiloIdpsTab } from './SiloIdpsTab'
 import { SiloIpPoolsTab } from './SiloIpPoolsTab'
@@ -54,6 +56,12 @@ export function SiloPage() {
     <>
       <PageHeader>
         <PageTitle icon={<Cloud24Icon />}>{silo.name}</PageTitle>
+        <DocsPopover
+          heading="silos"
+          icon={<Cloud16Icon />}
+          summary="Silos provide strict tenancy separation between groups of users. Each silo has its own resource limits and access policies as well as its own subdomain for the web console and API."
+          links={[docLinks.systemSilo, docLinks.systemIpPools, docLinks.access]}
+        />
       </PageHeader>
 
       <PropertiesTable.Group className="mb-16">

@@ -16,8 +16,9 @@ import {
   usePrefetchedApiQuery,
   type Vpc,
 } from '@oxide/api'
-import { Networking24Icon } from '@oxide/design-system/icons/react'
+import { Networking16Icon, Networking24Icon } from '@oxide/design-system/icons/react'
 
+import { DocsPopover } from '~/components/DocsPopover'
 import { getProjectSelector, useProjectSelector, useQuickActions } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { makeLinkCell } from '~/table/cells/LinkCell'
@@ -28,6 +29,7 @@ import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 const EmptyState = () => (
@@ -37,6 +39,15 @@ const EmptyState = () => (
     body="You need to create a VPC to be able to see it here"
     buttonText="New VPC"
     buttonTo={pb.vpcsNew(useProjectSelector())}
+  />
+)
+
+export const VpcDocsPopover = () => (
+  <DocsPopover
+    heading="VPCs"
+    icon={<Networking16Icon />}
+    summary="VPCs are private networks that isolate sets of instances from each other. Instances within a VPC can talk to each other using private IP addresses (if firewall rules allow it) but traffic between VPCs must go through external IPs."
+    links={[docLinks.vpcs, docLinks.firewallRules]}
   />
 )
 
@@ -120,6 +131,7 @@ export function VpcsPage() {
     <>
       <PageHeader>
         <PageTitle icon={<Networking24Icon />}>VPCs</PageTitle>
+        <VpcDocsPopover />
       </PageHeader>
       <TableActions>
         <CreateLink to={pb.vpcsNew({ project })}>New Vpc</CreateLink>

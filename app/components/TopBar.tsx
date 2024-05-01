@@ -9,14 +9,10 @@ import React from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { navToLogin, useApiMutation } from '@oxide/api'
-import {
-  DirectionDownIcon,
-  Info16Icon,
-  Profile16Icon,
-} from '@oxide/design-system/icons/react'
+import { DirectionDownIcon, Profile16Icon } from '@oxide/design-system/icons/react'
 
 import { useCurrentUser } from '~/layouts/AuthenticatedLayout'
-import { Button, buttonStyle } from '~/ui/lib/Button'
+import { Button } from '~/ui/lib/Button'
 import { DropdownMenu } from '~/ui/lib/DropdownMenu'
 import { pb } from '~/util/path-builder'
 
@@ -52,17 +48,7 @@ export function TopBar({ children }: { children: React.ReactNode }) {
       <div className="z-topBar border-b bg-default border-secondary">
         <div className="mx-3 flex h-[60px] shrink-0 items-center justify-between">
           <div className="flex items-center">{otherPickers}</div>
-          <div>
-            <a
-              id="topbar-info-link"
-              href="https://docs.oxide.computer/guides"
-              target="_blank"
-              rel="noreferrer"
-              aria-label="Link to documentation"
-              className={buttonStyle({ size: 'icon', variant: 'secondary' })}
-            >
-              <Info16Icon className="text-quaternary" />
-            </a>
+          <div className="flex items-center gap-2">
             {/* <Button variant="secondary" size="icon" className="ml-2" title="Notifications">
               <Notifications16Icon className="text-quaternary" />
             </Button> */}
@@ -72,7 +58,6 @@ export function TopBar({ children }: { children: React.ReactNode }) {
                   size="sm"
                   variant="secondary"
                   aria-label="User menu"
-                  className="ml-2"
                   innerClassName="space-x-2"
                 >
                   <Profile16Icon className="text-quaternary" />

@@ -16,7 +16,7 @@ import { Table } from '~/table/Table'
 import { CopyToClipboard } from '~/ui/lib/CopyToClipboard'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
-import { TableControls, TableTitle } from '~/ui/lib/Table'
+import { TableTitle } from '~/ui/lib/Table'
 
 const colHelper = createColumnHelper<Group>()
 
@@ -49,9 +49,9 @@ export function ProfilePage() {
         </PropertiesTable.Row>
       </PropertiesTable>
 
-      <TableControls>
-        <TableTitle id="groups-label">Groups</TableTitle>
-      </TableControls>
+      <TableTitle id="groups-label" className="mb-4">
+        Groups
+      </TableTitle>
       <Table table={groupsTable} aria-labelledby="groups-label" />
       <p className="inline-block max-w-md text-sans-md text-secondary">
         Your user information is managed by your organization.{' '}

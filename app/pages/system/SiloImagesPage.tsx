@@ -17,8 +17,9 @@ import {
   useApiQueryClient,
   type Image,
 } from '@oxide/api'
-import { Images24Icon } from '@oxide/design-system/icons/react'
+import { Images16Icon, Images24Icon } from '@oxide/design-system/icons/react'
 
+import { DocsPopover } from '~/components/DocsPopover'
 import { toListboxItem } from '~/components/form/fields/ImageSelectField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { useForm } from '~/hooks'
@@ -34,6 +35,7 @@ import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 const EmptyState = () => (
@@ -96,6 +98,12 @@ export function SiloImagesPage() {
     <>
       <PageHeader>
         <PageTitle icon={<Images24Icon />}>Silo Images</PageTitle>
+        <DocsPopover
+          heading="Images"
+          icon={<Images16Icon />}
+          summary="Images let you create a new disk based on an existing one. Silo images must be created within a project and then promoted."
+          links={[docLinks.images]}
+        />
       </PageHeader>
       <TableActions>
         <Button size="sm" onClick={() => setShowModal(true)}>

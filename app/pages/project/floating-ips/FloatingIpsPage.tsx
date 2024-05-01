@@ -18,9 +18,9 @@ import {
   type FloatingIp,
   type Instance,
 } from '@oxide/api'
-import { IpGlobal24Icon, Networking24Icon } from '@oxide/design-system/icons/react'
+import { IpGlobal16Icon, IpGlobal24Icon } from '@oxide/design-system/icons/react'
 
-import { ExternalLink } from '~/components/ExternalLink'
+import { DocsPopover } from '~/components/DocsPopover'
 import { HL } from '~/components/HL'
 import { getProjectSelector, useProjectSelector } from '~/hooks'
 import { confirmAction } from '~/stores/confirm-action'
@@ -36,13 +36,13 @@ import { Listbox } from '~/ui/lib/Listbox'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
-import { TableControls, TableControlsText } from '~/ui/lib/Table'
-import { links } from '~/util/links'
+import { TableActions } from '~/ui/lib/Table'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 const EmptyState = () => (
   <EmptyMessage
-    icon={<Networking24Icon />}
+    icon={<IpGlobal24Icon />}
     title="No floating IPs"
     body="You need to create a floating IP to be able to see it here"
     buttonText="New Floating IP"
@@ -184,17 +184,18 @@ export function FloatingIpsPage() {
 
   return (
     <>
-      <PageHeader className="!mb-12">
+      <PageHeader>
         <PageTitle icon={<IpGlobal24Icon />}>Floating IPs</PageTitle>
+        <DocsPopover
+          heading="floating IPs"
+          icon={<IpGlobal16Icon />}
+          summary="Floating IPs exist independently of instances and can be attached to and detached from them as needed."
+          links={[docLinks.floatingIps]}
+        />
       </PageHeader>
-      <TableControls>
-        <TableControlsText>
-          Floating IPs are public IP addresses that can be attached to instances. They allow
-          your instances to be reachable from the internet. Learn more about{' '}
-          <ExternalLink href={links.floatingIpsDocs}>managing floating IPs</ExternalLink>.
-        </TableControlsText>
+      <TableActions>
         <CreateLink to={pb.floatingIpsNew({ project })}>New Floating IP</CreateLink>
-      </TableControls>
+      </TableActions>
       <Table columns={columns} emptyState={<EmptyState />} />
       <Outlet />
       {floatingIpToModify && (
