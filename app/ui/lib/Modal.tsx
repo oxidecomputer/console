@@ -46,7 +46,14 @@ export function Modal({ children, onDismiss, title, isOpen }: ModalProps) {
         <Dialog.Portal>
           <DialogOverlay />
 
-          <Dialog.Content asChild>
+          <Dialog.Content
+            asChild // Prevents cancel loop on clicking on background over side
+            // modal to get out of image upload modal. Canceling out of
+            // confirm dialog returns focus to the dismissable layer,
+            // which triggers onDismiss again. And again.
+            // https://github.com/oxidecomputer/console/issues/1745
+            onFocusOutside={(e) => e.preventDefault()}
+          >
             <m.div
               initial={{ x: '-50%', y: 'calc(-50% - 25px)' }}
               animate={{ x: '-50%', y: '-50%' }}
