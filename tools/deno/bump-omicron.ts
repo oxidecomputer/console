@@ -145,6 +145,8 @@ if (!$.commandExistsSync('gh')) throw Error(GH_MISSING)
 await Deno.writeTextFile(VERSION_FILE, newVersionFile)
 console.log('Updated ', VERSION_FILE)
 
+const consoleDir = Deno.cwd()
+
 // cd to omicron, pull main, create new branch, commit changes, push, PR it, go back to
 // main, delete branch
 Deno.chdir(OMICRON_DIR)
@@ -172,5 +174,7 @@ await $`git branch -D ${branchName}`
 console.log('Checked out omicron main, deleted branch', branchName)
 
 // bump omicron tag in console to current commit
+Deno.chdir(consoleDir)
+console.log('Bumping omicron tag in console')
 await $`git tag -f -a omicron -m 'pinned commit on omicron main'`
 await $`git push -f origin tag omicron`
