@@ -65,9 +65,9 @@ const secondaryTextColor: Record<Variant, string> = {
 }
 
 const progressColor: Record<Variant, string> = {
-  success: 'bg-accent-raise',
-  error: 'bg-destructive-raise',
-  info: 'bg-notice-raise',
+  success: 'bg-accent-hover',
+  error: 'bg-destructive-hover',
+  info: 'bg-notice-hover',
 }
 
 export const Toast = ({
