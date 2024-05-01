@@ -32,7 +32,7 @@ export function ErrorPage({ children }: Props) {
           to="/"
           className="flex items-center p-6 text-mono-sm text-secondary hover:text-default"
         >
-          <PrevArrow12Icon title="Select" className="mr-2 w-2 text-tertiary" />
+          <PrevArrow12Icon title="Select" className="mr-2 text-tertiary" />
           Back to console
         </Link>
       </div>
