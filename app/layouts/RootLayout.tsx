@@ -29,8 +29,8 @@ export function RootLayout() {
       {process.env.MSW_BANNER ? <MswBanner /> : null}
       <LazyMotion strict features={domAnimation}>
         <Outlet />
+        <ToastStack />
       </LazyMotion>
-      <ToastStack />
     </>
   )
 }
