@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { domAnimation, LazyMotion } from 'framer-motion'
 import { useEffect, useRef } from 'react'
 import { Outlet, useNavigation } from 'react-router-dom'
 
@@ -26,7 +27,9 @@ export function RootLayout() {
     <>
       <LoadingBar />
       {process.env.MSW_BANNER ? <MswBanner /> : null}
-      <Outlet />
+      <LazyMotion strict features={domAnimation}>
+        <Outlet />
+      </LazyMotion>
       <ToastStack />
     </>
   )
