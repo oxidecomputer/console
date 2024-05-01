@@ -26,7 +26,7 @@ export const DocsPopoverLink = ({ href, linkText }: DocsPopoverLinkProps) => (
     href={href}
     className="group block px-4 no-underline children:last:border-0"
   >
-    <div className="mx-2 border-b py-2 border-secondary">
+    <div className="mx-2 border-b py-1.5 border-secondary">
       <div className="relative -ml-2 inline-block rounded py-1 pl-2 pr-7 text-sans-md !text-default group-hover:bg-tertiary">
         <span className="inline-block max-w-[300px] truncate align-middle">{linkText}</span>
         <OpenLink12Icon className="absolute top-1.5 ml-2 translate-y-[1px] text-tertiary" />
