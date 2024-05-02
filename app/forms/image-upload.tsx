@@ -484,7 +484,7 @@ export function CreateImageSideModalForm() {
 
   const { data: imageValidation } = useQuery({
     queryKey: ['validateImage', ...(file ? [file.name, file.size, file.lastModified] : [])],
-    queryFn: file ? () => performChecks(file) : skipToken,
+    queryFn: file ? () => validateImage(file) : skipToken,
   })
 
   return (
@@ -661,23 +661,23 @@ export function CreateImageSideModalForm() {
 function BlockSizeNotice({
   file,
   blockSize,
-  efiPart,
+  efiPartOffset,
   isBootableCd,
 }: {
   file: File | null
-  blockSize: number | null
-  efiPart: number | null
-  isBootableCd: boolean | null
+  blockSize: number
+  efiPartOffset: number
+  isBootableCd: boolean
 }) {
-  if (!file || (efiPart === -1 && !isBootableCd)) return null
+  if (!file || (efiPartOffset === -1 && !isBootableCd)) return null
 
-  let content = `Detected "EFI PART" marker at offset ${efiPart}, but block size is set to ${blockSize}.`
+  let content = `Detected "EFI PART" marker at offset ${efiPartOffset}, but block size is set to ${blockSize}.`
 
   if (isBootableCd && blockSize === 4096) {
     content = 'Bootable CDs typically use a block size of 2048.'
   }
 
-  if (blockSize !== efiPart) {
+  if (blockSize !== efiPartOffset) {
     return (
       <Message
         variant="info"
@@ -690,27 +690,27 @@ function BlockSizeNotice({
 
 function BootableNotice({
   file,
-  efiPart,
+  efiPartOffset,
   isBootableCd,
   isCompressed,
 }: {
   file: File | null
-  efiPart: number | null
-  isBootableCd: boolean | null
-  isCompressed: boolean | null
+  efiPartOffset: number
+  isBootableCd: boolean
+  isCompressed: boolean
 }) {
   if (!file) return null
 
   // this message should only appear if the image doesn't have a header
   // marker we are looking for and does not appear to be compressed
-  if (((efiPart !== -1 && efiPart !== null) || isBootableCd) && !isCompressed) {
+  if ((efiPartOffset !== -1 || isBootableCd) && !isCompressed) {
     return null
   }
 
   const content = (
     <div className="flex flex-col space-y-2">
       <ul className="ml-4 list-disc">
-        {efiPart === -1 && !isBootableCd && (
+        {efiPartOffset === -1 && !isBootableCd && (
           <li>
             <div>Bootable markers not found at any block size</div>
             <div className="text-info-tertiary">
@@ -792,8 +792,7 @@ async function readAndMatch(
   return await promise
 }
 
-// TODO: use Promise.all for these
-async function checkEfiPart(file: File | null): Promise<number | null> {
+async function checkEfiPart(file: File | null) {
   const offsets = [512, 2048, 4096]
   for (const offset of offsets) {
     const isMatch = await readAndMatch(file, offset, 8, 'EFI PART')
@@ -803,13 +802,12 @@ async function checkEfiPart(file: File | null): Promise<number | null> {
 }
 
 const compressedExts = ['.gz', '.7z', '.qcow2', '.vmdk']
-function usesCompressedExt(fileName: string) {
-  const lowerFileName = fileName.toLowerCase()
-  return compressedExts.some((ext) => lowerFileName.endsWith(ext))
-}
 
-const performChecks = async (file: File) => ({
-  efiPart: await checkEfiPart(file),
-  isBootableCd: await readAndMatch(file, 0x8001, 5, 'CD001'),
-  isCompressed: usesCompressedExt(file.name),
-})
+const validateImage = async (file: File) => {
+  const lowerFileName = file.name.toLowerCase()
+  return {
+    efiPartOffset: await checkEfiPart(file),
+    isBootableCd: await readAndMatch(file, 0x8001, 5, 'CD001'),
+    isCompressed: compressedExts.some((ext) => lowerFileName.endsWith(ext)),
+  }
+}
