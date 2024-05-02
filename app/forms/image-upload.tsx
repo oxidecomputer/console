@@ -9,7 +9,7 @@ import cn from 'classnames'
 import { filesize } from 'filesize'
 import pMap from 'p-map'
 import pRetry from 'p-retry'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import {
@@ -22,6 +22,7 @@ import {
 } from '@oxide/api'
 import {
   Error12Icon,
+  OpenLink12Icon,
   Success12Icon,
   Unauthorized12Icon,
 } from '@oxide/design-system/icons/react'
@@ -40,6 +41,7 @@ import { Spinner } from '~/ui/lib/Spinner'
 import { anySignal } from '~/util/abort'
 import { readBlobAsBase64 } from '~/util/file'
 import { invariant } from '~/util/invariant'
+import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import { GiB, KiB } from '~/util/units'
 
@@ -477,6 +479,79 @@ export function CreateImageSideModalForm() {
 
   const form = useForm({ defaultValues })
   const file = form.watch('imageFile')
+  const blockSize = form.watch('blockSize')
+
+  const { efiPart, isBootableCd, isCompressed } = useValidateImage(file)
+
+  const BlockSizeNotice = () => {
+    if (!file || efiPart === -1) return null
+
+    if (blockSize !== efiPart) {
+      return (
+        <Message
+          variant="info"
+          title="Block size might be set incorrectly"
+          content={`Detected "EFI PART" marker at offset ${efiPart}, but block size is set to ${blockSize}.`}
+        />
+      )
+    }
+  }
+
+  const BootableNotice = () => {
+    if (!file) return null
+
+    // this message should only appear if the image doesn't have a header
+    // marker we are looking for and does not appear to be compressed
+    if (((efiPart !== -1 && efiPart !== null) || isBootableCd) && !isCompressed) {
+      return null
+    }
+
+    const content = (
+      <div className="flex flex-col space-y-2">
+        <ul className="ml-4 list-disc">
+          {efiPart === -1 && !isBootableCd && (
+            <li>
+              <div>Bootable markers not found at any block size</div>
+              <div className="text-info-tertiary">
+                Expected either “EFI PART” marker at offsets 512 / 2048 / 4096 or “CD001” at
+                offset 0x8001 (for a bootable CD).
+              </div>
+            </li>
+          )}
+          {isCompressed && (
+            <li>
+              <div>This might be a compressed image</div>
+              <div className="text-info-tertiary">
+                Only raw, uncompressed images are supported. Files such as qcow2, vmdk,
+                img.gz, iso.7z may not work.
+              </div>
+            </li>
+          )}
+        </ul>
+        <div>
+          Learn more about{' '}
+          <a
+            target="_blank"
+            rel="noreferrer"
+            href={links.preparingImagesDocs}
+            className="inline-flex items-center underline"
+          >
+            preparing images for import
+            <OpenLink12Icon className="ml-1" />
+          </a>
+        </div>
+      </div>
+    )
+
+    return (
+      <Message
+        variant="info"
+        title="This image might not be bootable"
+        className="[&>*]:space-y-2"
+        content={content}
+      />
+    )
+  }
 
   return (
     <SideModalForm
@@ -545,25 +620,31 @@ export function CreateImageSideModalForm() {
        */}
       <TextField name="os" label="OS" control={form.control} required />
       <TextField name="version" control={form.control} required />
-      <RadioField
-        name="blockSize"
-        label="Block size"
-        units="Bytes"
-        control={form.control}
-        parseValue={(val) => parseInt(val, 10) as BlockSize}
-        items={[
-          { label: '512', value: 512 },
-          { label: '2048', value: 2048 },
-          { label: '4096', value: 4096 },
-        ]}
-      />
-      <FileField
-        id="image-file-input"
-        name="imageFile"
-        label="Image file"
-        required
-        control={form.control}
-      />
+      <div className="flex w-full flex-col flex-wrap space-y-4">
+        <RadioField
+          name="blockSize"
+          label="Block size"
+          units="Bytes"
+          control={form.control}
+          parseValue={(val) => parseInt(val, 10) as BlockSize}
+          items={[
+            { label: '512', value: 512 },
+            { label: '2048', value: 2048 },
+            { label: '4096', value: 4096 },
+          ]}
+        />
+        <BlockSizeNotice />
+      </div>
+      <div className="flex w-full flex-col flex-wrap space-y-4">
+        <FileField
+          id="image-file-input"
+          name="imageFile"
+          label="Image file"
+          required
+          control={form.control}
+        />
+        <BootableNotice />
+      </div>
       {file && modalOpen && (
         <Modal isOpen onDismiss={closeModal} title="Image upload progress">
           <Modal.Body className="!p-0">
@@ -639,4 +720,98 @@ export function CreateImageSideModalForm() {
       )}
     </SideModalForm>
   )
+}
+
+const useValidateImage = (
+  file: File | null
+): {
+  efiPart: number | null
+  isBootableCd: boolean | null
+  isCompressed: boolean | null
+} => {
+  const [efiPart, setEfiPart] = useState<number | null>(null)
+  const [isBootableCd, setIsBootableCd] = useState<boolean | null>(null)
+  const [isCompressed, setIsCompressed] = useState<boolean | null>(null)
+
+  useEffect(() => {
+    setEfiPart(null)
+    setIsBootableCd(null)
+    setIsCompressed(null)
+
+    const readAndMatch = async (
+      offset: number,
+      length: number,
+      matchString: string
+    ): Promise<boolean> => {
+      if (!file) return false
+
+      const slice = file.slice(offset, offset + length)
+      const reader = new FileReader()
+
+      const promise = new Promise<boolean>((resolve, reject) => {
+        reader.onloadend = (e) => {
+          if (!e || !e.target) {
+            resolve(false)
+            return
+          }
+
+          if (e.target.readyState === FileReader.DONE) {
+            if (e.target.result instanceof ArrayBuffer) {
+              const actualHeader = String.fromCharCode(...new Uint8Array(e.target.result))
+              resolve(actualHeader === matchString)
+            } else {
+              resolve(false)
+            }
+          }
+        }
+
+        reader.onerror = (error) => {
+          console.error(`Error reading file at offset ${offset}:`, error)
+          reject(error)
+        }
+      })
+
+      reader.readAsArrayBuffer(slice)
+      return await promise
+    }
+
+    const checkEfiPart = async (): Promise<number | null> => {
+      const offsets = [512, 2048, 4096]
+      for (const offset of offsets) {
+        const isMatch = await readAndMatch(offset, 8, 'EFI PART')
+        if (isMatch) return offset
+      }
+      return -1
+    }
+
+    const checkBootableCd = async (): Promise<boolean> => {
+      return await readAndMatch(0x8001, 5, 'CD001')
+    }
+
+    const checkCompression = (fileName: string): boolean => {
+      const lowerFileName = fileName.toLowerCase()
+      return (
+        lowerFileName.endsWith('.qcow2') ||
+        lowerFileName.endsWith('.vmdk') ||
+        lowerFileName.endsWith('.gz') ||
+        lowerFileName.endsWith('.7z')
+      )
+    }
+
+    const performChecks = async () => {
+      if (file) {
+        const efiPartResult = await checkEfiPart()
+        const bootableCdResult = await checkBootableCd()
+        const compressedResult = checkCompression(file.name)
+
+        setEfiPart(efiPartResult)
+        setIsBootableCd(bootableCdResult)
+        setIsCompressed(compressedResult)
+      }
+    }
+
+    performChecks()
+  }, [file])
+
+  return { efiPart, isBootableCd, isCompressed }
 }
