@@ -567,9 +567,7 @@ export function CreateImageSideModalForm() {
             { label: '4096', value: 4096 },
           ]}
         />
-        {imageValidation && (
-          <BlockSizeNotice file={file} {...imageValidation} blockSize={blockSize} />
-        )}
+        {imageValidation && <BlockSizeNotice {...imageValidation} blockSize={blockSize} />}
       </div>
       <div className="flex w-full flex-col flex-wrap space-y-4">
         <FileField
@@ -579,7 +577,7 @@ export function CreateImageSideModalForm() {
           required
           control={form.control}
         />
-        {imageValidation && <BootableNotice file={file} {...imageValidation} />}
+        {imageValidation && <BootableNotice {...imageValidation} />}
       </div>
       {file && modalOpen && (
         <Modal isOpen onDismiss={closeModal} title="Image upload progress">
@@ -659,58 +657,48 @@ export function CreateImageSideModalForm() {
 }
 
 function BlockSizeNotice({
-  file,
   blockSize,
   efiPartOffset,
   isBootableCd,
 }: {
-  file: File | null
   blockSize: number
   efiPartOffset: number
   isBootableCd: boolean
 }) {
-  if (!file || (efiPartOffset === -1 && !isBootableCd)) return null
+  if (efiPartOffset === -1 && !isBootableCd) return null
 
-  let content = `Detected "EFI PART" marker at offset ${efiPartOffset}, but block size is set to ${blockSize}.`
+  // TODO: make sure this logic is correct
 
-  if (isBootableCd && blockSize === 4096) {
-    content = 'Bootable CDs typically use a block size of 2048.'
-  }
+  if (blockSize === efiPartOffset) return null
 
-  if (blockSize !== efiPartOffset) {
-    return (
-      <Message
-        variant="info"
-        title="Block size might be set incorrectly"
-        content={content}
-      />
-    )
-  }
+  const content =
+    isBootableCd && blockSize !== 2048
+      ? 'Bootable CDs typically use a block size of 2048.'
+      : `Detected "EFI PART" marker at offset ${efiPartOffset}, but block size is set to ${blockSize}.`
+
+  return (
+    <Message variant="info" title="Block size might be set incorrectly" content={content} />
+  )
 }
 
 function BootableNotice({
-  file,
   efiPartOffset,
   isBootableCd,
   isCompressed,
 }: {
-  file: File | null
   efiPartOffset: number
   isBootableCd: boolean
   isCompressed: boolean
 }) {
-  if (!file) return null
-
   // this message should only appear if the image doesn't have a header
   // marker we are looking for and does not appear to be compressed
-  if ((efiPartOffset !== -1 || isBootableCd) && !isCompressed) {
-    return null
-  }
+  const efiPartOrBootable = efiPartOffset !== -1 || isBootableCd
+  if (efiPartOrBootable && !isCompressed) return null
 
   const content = (
     <div className="flex flex-col space-y-2">
       <ul className="ml-4 list-disc">
-        {efiPartOffset === -1 && !isBootableCd && (
+        {!efiPartOrBootable && (
           <li>
             <div>Bootable markers not found at any block size</div>
             <div className="text-info-tertiary">
@@ -755,13 +743,11 @@ function BootableNotice({
 }
 
 async function readAndMatch(
-  file: File | null,
+  file: File,
   offset: number,
   length: number,
   matchString: string
 ): Promise<boolean> {
-  if (!file) return false
-
   const slice = file.slice(offset, offset + length)
   const reader = new FileReader()
 
@@ -792,7 +778,7 @@ async function readAndMatch(
   return await promise
 }
 
-async function checkEfiPart(file: File | null) {
+async function getEfiPartOffset(file: File) {
   const offsets = [512, 2048, 4096]
   for (const offset of offsets) {
     const isMatch = await readAndMatch(file, offset, 8, 'EFI PART')
@@ -806,7 +792,7 @@ const compressedExts = ['.gz', '.7z', '.qcow2', '.vmdk']
 const validateImage = async (file: File) => {
   const lowerFileName = file.name.toLowerCase()
   return {
-    efiPartOffset: await checkEfiPart(file),
+    efiPartOffset: await getEfiPartOffset(file),
     isBootableCd: await readAndMatch(file, 0x8001, 5, 'CD001'),
     isCompressed: compressedExts.some((ext) => lowerFileName.endsWith(ext)),
   }
