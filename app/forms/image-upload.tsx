@@ -483,82 +483,6 @@ export function CreateImageSideModalForm() {
 
   const { efiPart, isBootableCd, isCompressed } = useValidateImage(file)
 
-  const BlockSizeNotice = () => {
-    if (!file || (efiPart === -1 && !isBootableCd)) return null
-
-    let content = `Detected "EFI PART" marker at offset ${efiPart}, but block size is set to ${blockSize}.`
-
-    if (isBootableCd && blockSize === 4096) {
-      content = 'Bootable CDs typically use a block size of 2048.'
-    }
-
-    if (blockSize !== efiPart) {
-      return (
-        <Message
-          variant="info"
-          title="Block size might be set incorrectly"
-          content={content}
-        />
-      )
-    }
-  }
-
-  const BootableNotice = () => {
-    if (!file) return null
-
-    // this message should only appear if the image doesn't have a header
-    // marker we are looking for and does not appear to be compressed
-    if (((efiPart !== -1 && efiPart !== null) || isBootableCd) && !isCompressed) {
-      return null
-    }
-
-    const content = (
-      <div className="flex flex-col space-y-2">
-        <ul className="ml-4 list-disc">
-          {efiPart === -1 && !isBootableCd && (
-            <li>
-              <div>Bootable markers not found at any block size</div>
-              <div className="text-info-tertiary">
-                Expected either “EFI PART” marker at offsets 512 / 2048 / 4096 or “CD001” at
-                offset 0x8001 (for a bootable CD).
-              </div>
-            </li>
-          )}
-          {isCompressed && (
-            <li>
-              <div>This might be a compressed image</div>
-              <div className="text-info-tertiary">
-                Only raw, uncompressed images are supported. Files such as qcow2, vmdk,
-                img.gz, iso.7z may not work.
-              </div>
-            </li>
-          )}
-        </ul>
-        <div>
-          Learn more about{' '}
-          <a
-            target="_blank"
-            rel="noreferrer"
-            href={links.preparingImagesDocs}
-            className="inline-flex items-center underline"
-          >
-            preparing images for import
-            <OpenLink12Icon className="ml-1" />
-          </a>
-        </div>
-      </div>
-    )
-
-    return (
-      <Message
-        variant="info"
-        title="This image might not be bootable"
-        className="[&>*]:space-y-2"
-        content={content}
-      />
-    )
-  }
-
   return (
     <SideModalForm
       form={form}
@@ -639,7 +563,12 @@ export function CreateImageSideModalForm() {
             { label: '4096', value: 4096 },
           ]}
         />
-        <BlockSizeNotice />
+        <BlockSizeNotice
+          file={file}
+          efiPart={efiPart}
+          isBootableCd={isBootableCd}
+          blockSize={blockSize}
+        />
       </div>
       <div className="flex w-full flex-col flex-wrap space-y-4">
         <FileField
@@ -649,7 +578,12 @@ export function CreateImageSideModalForm() {
           required
           control={form.control}
         />
-        <BootableNotice />
+        <BootableNotice
+          file={file}
+          efiPart={efiPart}
+          isBootableCd={isBootableCd}
+          isCompressed={isCompressed}
+        />
       </div>
       {file && modalOpen && (
         <Modal isOpen onDismiss={closeModal} title="Image upload progress">
@@ -725,6 +659,102 @@ export function CreateImageSideModalForm() {
         </Modal>
       )}
     </SideModalForm>
+  )
+}
+
+function BlockSizeNotice({
+  file,
+  blockSize,
+  efiPart,
+  isBootableCd,
+}: {
+  file: File | null
+  blockSize: number | null
+  efiPart: number | null
+  isBootableCd: boolean | null
+}) {
+  if (!file || (efiPart === -1 && !isBootableCd)) return null
+
+  let content = `Detected "EFI PART" marker at offset ${efiPart}, but block size is set to ${blockSize}.`
+
+  if (isBootableCd && blockSize === 4096) {
+    content = 'Bootable CDs typically use a block size of 2048.'
+  }
+
+  if (blockSize !== efiPart) {
+    return (
+      <Message
+        variant="info"
+        title="Block size might be set incorrectly"
+        content={content}
+      />
+    )
+  }
+}
+
+function BootableNotice({
+  file,
+  efiPart,
+  isBootableCd,
+  isCompressed,
+}: {
+  file: File | null
+  efiPart: number | null
+  isBootableCd: boolean | null
+  isCompressed: boolean | null
+}) {
+  if (!file) return null
+
+  // this message should only appear if the image doesn't have a header
+  // marker we are looking for and does not appear to be compressed
+  if (((efiPart !== -1 && efiPart !== null) || isBootableCd) && !isCompressed) {
+    return null
+  }
+
+  const content = (
+    <div className="flex flex-col space-y-2">
+      <ul className="ml-4 list-disc">
+        {efiPart === -1 && !isBootableCd && (
+          <li>
+            <div>Bootable markers not found at any block size</div>
+            <div className="text-info-tertiary">
+              Expected either “EFI PART” marker at offsets 512 / 2048 / 4096 or “CD001” at
+              offset 0x8001 (for a bootable CD).
+            </div>
+          </li>
+        )}
+        {isCompressed && (
+          <li>
+            <div>This might be a compressed image</div>
+            <div className="text-info-tertiary">
+              Only raw, uncompressed images are supported. Files such as qcow2, vmdk,
+              img.gz, iso.7z may not work.
+            </div>
+          </li>
+        )}
+      </ul>
+      <div>
+        Learn more about{' '}
+        <a
+          target="_blank"
+          rel="noreferrer"
+          href={links.preparingImagesDocs}
+          className="inline-flex items-center underline"
+        >
+          preparing images for import
+          <OpenLink12Icon className="ml-1" />
+        </a>
+      </div>
+    </div>
+  )
+
+  return (
+    <Message
+      variant="info"
+      title="This image might not be bootable"
+      className="[&>*]:space-y-2"
+      content={content}
+    />
   )
 }
 
