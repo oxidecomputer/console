@@ -5,11 +5,12 @@
  *
  * Copyright Oxide Computer Company
  */
+import { skipToken, useQuery } from '@tanstack/react-query'
 import cn from 'classnames'
 import { filesize } from 'filesize'
 import pMap from 'p-map'
 import pRetry from 'p-retry'
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import {
@@ -481,7 +482,10 @@ export function CreateImageSideModalForm() {
   const file = form.watch('imageFile')
   const blockSize = form.watch('blockSize')
 
-  const { efiPart, isBootableCd, isCompressed } = useValidateImage(file)
+  const { data: imageValidation } = useQuery({
+    queryKey: ['validateImage', ...(file ? [file.name, file.size, file.lastModified] : [])],
+    queryFn: file ? () => performChecks(file) : skipToken,
+  })
 
   return (
     <SideModalForm
@@ -563,12 +567,9 @@ export function CreateImageSideModalForm() {
             { label: '4096', value: 4096 },
           ]}
         />
-        <BlockSizeNotice
-          file={file}
-          efiPart={efiPart}
-          isBootableCd={isBootableCd}
-          blockSize={blockSize}
-        />
+        {imageValidation && (
+          <BlockSizeNotice file={file} {...imageValidation} blockSize={blockSize} />
+        )}
       </div>
       <div className="flex w-full flex-col flex-wrap space-y-4">
         <FileField
@@ -578,12 +579,7 @@ export function CreateImageSideModalForm() {
           required
           control={form.control}
         />
-        <BootableNotice
-          file={file}
-          efiPart={efiPart}
-          isBootableCd={isBootableCd}
-          isCompressed={isCompressed}
-        />
+        {imageValidation && <BootableNotice file={file} {...imageValidation} />}
       </div>
       {file && modalOpen && (
         <Modal isOpen onDismiss={closeModal} title="Image upload progress">
@@ -812,36 +808,8 @@ function usesCompressedExt(fileName: string) {
   return compressedExts.some((ext) => lowerFileName.endsWith(ext))
 }
 
-const useValidateImage = (
-  file: File | null
-): {
-  efiPart: number | null
-  isBootableCd: boolean | null
-  isCompressed: boolean | null
-} => {
-  const [efiPart, setEfiPart] = useState<number | null>(null)
-  const [isBootableCd, setIsBootableCd] = useState<boolean | null>(null)
-  const [isCompressed, setIsCompressed] = useState<boolean | null>(null)
-
-  useEffect(() => {
-    setEfiPart(null)
-    setIsBootableCd(null)
-    setIsCompressed(null)
-
-    const performChecks = async () => {
-      if (file) {
-        const efiPartResult = await checkEfiPart(file)
-        const bootableCdResult = await readAndMatch(file, 0x8001, 5, 'CD001')
-        const compressedResult = usesCompressedExt(file.name)
-
-        setEfiPart(efiPartResult)
-        setIsBootableCd(bootableCdResult)
-        setIsCompressed(compressedResult)
-      }
-    }
-
-    performChecks()
-  }, [file])
-
-  return { efiPart, isBootableCd, isCompressed }
-}
+const performChecks = async (file: File) => ({
+  efiPart: await checkEfiPart(file),
+  isBootableCd: await readAndMatch(file, 0x8001, 5, 'CD001'),
+  isCompressed: usesCompressedExt(file.name),
+})
