@@ -484,14 +484,20 @@ export function CreateImageSideModalForm() {
   const { efiPart, isBootableCd, isCompressed } = useValidateImage(file)
 
   const BlockSizeNotice = () => {
-    if (!file || efiPart === -1) return null
+    if (!file || (efiPart === -1 && !isBootableCd)) return null
+
+    let content = `Detected "EFI PART" marker at offset ${efiPart}, but block size is set to ${blockSize}.`
+
+    if (isBootableCd && blockSize === 4096) {
+      content = 'Bootable CDs typically use a block size of 2048.'
+    }
 
     if (blockSize !== efiPart) {
       return (
         <Message
           variant="info"
           title="Block size might be set incorrectly"
-          content={`Detected "EFI PART" marker at offset ${efiPart}, but block size is set to ${blockSize}.`}
+          content={content}
         />
       )
     }
