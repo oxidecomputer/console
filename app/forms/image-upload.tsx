@@ -757,6 +757,62 @@ function BootableNotice({
     />
   )
 }
+async function readAndMatch(
+  file: File | null,
+  offset: number,
+  length: number,
+  matchString: string
+): Promise<boolean> {
+  if (!file) return false
+
+  const slice = file.slice(offset, offset + length)
+  const reader = new FileReader()
+
+  const promise = new Promise<boolean>((resolve, reject) => {
+    reader.onloadend = (e) => {
+      if (!e || !e.target) {
+        resolve(false)
+        return
+      }
+
+      if (e.target.readyState === FileReader.DONE) {
+        if (e.target.result instanceof ArrayBuffer) {
+          const actualHeader = String.fromCharCode(...new Uint8Array(e.target.result))
+          resolve(actualHeader === matchString)
+        } else {
+          resolve(false)
+        }
+      }
+    }
+
+    reader.onerror = (error) => {
+      console.error(`Error reading file at offset ${offset}:`, error)
+      reject(error)
+    }
+  })
+
+  reader.readAsArrayBuffer(slice)
+  return await promise
+}
+
+async function checkEfiPart(file: File | null): Promise<number | null> {
+  const offsets = [512, 2048, 4096]
+  for (const offset of offsets) {
+    const isMatch = await readAndMatch(file, offset, 8, 'EFI PART')
+    if (isMatch) return offset
+  }
+  return -1
+}
+
+function checkCompression(fileName: string) {
+  const lowerFileName = fileName.toLowerCase()
+  return (
+    lowerFileName.endsWith('.qcow2') ||
+    lowerFileName.endsWith('.vmdk') ||
+    lowerFileName.endsWith('.gz') ||
+    lowerFileName.endsWith('.7z')
+  )
+}
 
 const useValidateImage = (
   file: File | null
@@ -774,70 +830,10 @@ const useValidateImage = (
     setIsBootableCd(null)
     setIsCompressed(null)
 
-    const readAndMatch = async (
-      offset: number,
-      length: number,
-      matchString: string
-    ): Promise<boolean> => {
-      if (!file) return false
-
-      const slice = file.slice(offset, offset + length)
-      const reader = new FileReader()
-
-      const promise = new Promise<boolean>((resolve, reject) => {
-        reader.onloadend = (e) => {
-          if (!e || !e.target) {
-            resolve(false)
-            return
-          }
-
-          if (e.target.readyState === FileReader.DONE) {
-            if (e.target.result instanceof ArrayBuffer) {
-              const actualHeader = String.fromCharCode(...new Uint8Array(e.target.result))
-              resolve(actualHeader === matchString)
-            } else {
-              resolve(false)
-            }
-          }
-        }
-
-        reader.onerror = (error) => {
-          console.error(`Error reading file at offset ${offset}:`, error)
-          reject(error)
-        }
-      })
-
-      reader.readAsArrayBuffer(slice)
-      return await promise
-    }
-
-    const checkEfiPart = async (): Promise<number | null> => {
-      const offsets = [512, 2048, 4096]
-      for (const offset of offsets) {
-        const isMatch = await readAndMatch(offset, 8, 'EFI PART')
-        if (isMatch) return offset
-      }
-      return -1
-    }
-
-    const checkBootableCd = async (): Promise<boolean> => {
-      return await readAndMatch(0x8001, 5, 'CD001')
-    }
-
-    const checkCompression = (fileName: string): boolean => {
-      const lowerFileName = fileName.toLowerCase()
-      return (
-        lowerFileName.endsWith('.qcow2') ||
-        lowerFileName.endsWith('.vmdk') ||
-        lowerFileName.endsWith('.gz') ||
-        lowerFileName.endsWith('.7z')
-      )
-    }
-
     const performChecks = async () => {
       if (file) {
-        const efiPartResult = await checkEfiPart()
-        const bootableCdResult = await checkBootableCd()
+        const efiPartResult = await checkEfiPart(file)
+        const bootableCdResult = await readAndMatch(file, 0x8001, 5, 'CD001')
         const compressedResult = checkCompression(file.name)
 
         setEfiPart(efiPartResult)
