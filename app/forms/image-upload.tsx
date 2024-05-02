@@ -757,6 +757,7 @@ function BootableNotice({
     />
   )
 }
+
 async function readAndMatch(
   file: File | null,
   offset: number,
@@ -795,6 +796,7 @@ async function readAndMatch(
   return await promise
 }
 
+// TODO: use Promise.all for these
 async function checkEfiPart(file: File | null): Promise<number | null> {
   const offsets = [512, 2048, 4096]
   for (const offset of offsets) {
@@ -804,14 +806,10 @@ async function checkEfiPart(file: File | null): Promise<number | null> {
   return -1
 }
 
-function checkCompression(fileName: string) {
+const compressedExts = ['.gz', '.7z', '.qcow2', '.vmdk']
+function usesCompressedExt(fileName: string) {
   const lowerFileName = fileName.toLowerCase()
-  return (
-    lowerFileName.endsWith('.qcow2') ||
-    lowerFileName.endsWith('.vmdk') ||
-    lowerFileName.endsWith('.gz') ||
-    lowerFileName.endsWith('.7z')
-  )
+  return compressedExts.some((ext) => lowerFileName.endsWith(ext))
 }
 
 const useValidateImage = (
@@ -834,7 +832,7 @@ const useValidateImage = (
       if (file) {
         const efiPartResult = await checkEfiPart(file)
         const bootableCdResult = await readAndMatch(file, 0x8001, 5, 'CD001')
-        const compressedResult = checkCompression(file.name)
+        const compressedResult = usesCompressedExt(file.name)
 
         setEfiPart(efiPartResult)
         setIsBootableCd(bootableCdResult)
