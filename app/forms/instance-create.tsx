@@ -538,7 +538,6 @@ const AdvancedAccordion = ({
   // tell, inside AccordionItem, when an accordion is opened so we can scroll its
   // contents into view
   const [openItems, setOpenItems] = useState<string[]>([])
-  // TODO: move to prefetched query
   const { data: allPools } = useApiQuery('projectIpPoolList', { query: { limit: 1000 } })
   const defaultPool = useMemo(
     () => (allPools ? allPools.items.find((p) => p.isDefault)?.name : undefined),
@@ -557,10 +556,10 @@ const AdvancedAccordion = ({
   }, [assignEphemeralIp, selectedPool, control._formValues])
 
   useEffect(() => {
-    if (!selectedPool && defaultPool) {
+    if (defaultPool) {
       setSelectedPool(defaultPool)
     }
-  }, [defaultPool, selectedPool])
+  }, [defaultPool])
 
   return (
     <Accordion.Root
