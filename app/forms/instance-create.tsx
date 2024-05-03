@@ -539,26 +539,28 @@ const AdvancedAccordion = ({
   // contents into view
   const [openItems, setOpenItems] = useState<string[]>([])
   // TODO: move to prefetched query
-  const allPools = useApiQuery('ipPoolList', { query: { limit: 1000 } })
+  const { data: allPools } = useApiQuery('projectIpPoolList', { query: { limit: 1000 } })
+  const defaultPool = useMemo(
+    () => (allPools ? allPools.items.find((p) => p.isDefault)?.name : undefined),
+    [allPools]
+  )
+
   const [assignEphemeralIp, setAssignEphemeralIp] = useState(true)
   const [selectedPool, setSelectedPool] = useState<SetStateAction<string | null>>(
-    allPools?.data?.items[0]?.name || null
+    defaultPool || null
   )
 
   useEffect(() => {
     control._formValues.externalIps = assignEphemeralIp
-      ? [{ type: 'ephemeral' }]
-      : selectedPool
-        ? [{ pool: selectedPool }]
-        : []
+      ? [{ type: 'ephemeral' }, { pool: selectedPool }]
+      : []
   }, [assignEphemeralIp, selectedPool, control._formValues])
 
-  // we need to default to the default pool, but we aren't pulling that info in yet
   useEffect(() => {
-    if (!selectedPool) {
-      setSelectedPool(allPools?.data?.items[0]?.name || null)
+    if (!selectedPool && defaultPool) {
+      setSelectedPool(defaultPool)
     }
-  }, [allPools, selectedPool])
+  }, [defaultPool, selectedPool])
 
   return (
     <Accordion.Root
@@ -597,19 +599,19 @@ const AdvancedAccordion = ({
         </div>
         <Listbox
           name="pools"
-          label="Pools"
+          label="Assign ephemeral IP from pool"
           // this cannot be right
           selected={`${selectedPool}`}
           items={
-            allPools?.data?.items.map((pool) =>
+            allPools?.items.map((pool) =>
               // according to the designs, we need to indicate the default pool, but we don't have that info pulled in yet
               ({
-                label: pool.name,
+                label: `${pool.name}${pool.isDefault ? ' (default)' : ''}`,
                 value: pool.name,
               })
             ) || []
           }
-          disabled={assignEphemeralIp || isSubmitting}
+          disabled={!assignEphemeralIp || isSubmitting}
           required
           onChange={(value) => setSelectedPool(value)}
         />
