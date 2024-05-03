@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import * as Accordion from '@radix-ui/react-accordion'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, type SetStateAction } from 'react'
 import { useWatch, type Control } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 import type { SetRequired } from 'type-fest'
@@ -18,6 +18,7 @@ import {
   INSTANCE_MAX_CPU,
   INSTANCE_MAX_RAM_GiB,
   useApiMutation,
+  useApiQuery,
   useApiQueryClient,
   usePrefetchedApiQuery,
   type InstanceCreate,
@@ -50,8 +51,10 @@ import { Form } from '~/components/form/Form'
 import { FullPageForm } from '~/components/form/FullPageForm'
 import { getProjectSelector, useForm, useProjectSelector } from '~/hooks'
 import { addToast } from '~/stores/toast'
+import { Checkbox } from '~/ui/lib/Checkbox'
 import { FormDivider } from '~/ui/lib/Divider'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { Listbox } from '~/ui/lib/Listbox'
 import { Message } from '~/ui/lib/Message'
 import { RadioCard } from '~/ui/lib/Radio'
 import { Tabs } from '~/ui/lib/Tabs'
@@ -130,6 +133,7 @@ const baseDefaultValues: InstanceCreateInput = {
   start: true,
 
   userData: null,
+  externalIps: [{ type: 'ephemeral' }],
 }
 
 const DISK_FETCH_LIMIT = 1000
@@ -283,7 +287,7 @@ export function CreateInstanceForm() {
             memory: instance.memory * GiB,
             ncpus: instance.ncpus,
             disks: [bootDisk, ...values.disks],
-            externalIps: [{ type: 'ephemeral' }],
+            externalIps: values.externalIps,
             start: values.start,
             networkInterfaces: values.networkInterfaces,
             sshPublicKeys: values.sshPublicKeys,
@@ -534,6 +538,27 @@ const AdvancedAccordion = ({
   // tell, inside AccordionItem, when an accordion is opened so we can scroll its
   // contents into view
   const [openItems, setOpenItems] = useState<string[]>([])
+  // TODO: move to prefetched query
+  const allPools = useApiQuery('ipPoolList', { query: { limit: 1000 } })
+  const [assignEphemeralIp, setAssignEphemeralIp] = useState(true)
+  const [selectedPool, setSelectedPool] = useState<SetStateAction<string | null>>(
+    allPools?.data?.items[0]?.name || null
+  )
+
+  useEffect(() => {
+    control._formValues.externalIps = assignEphemeralIp
+      ? [{ type: 'ephemeral' }]
+      : selectedPool
+        ? [{ pool: selectedPool }]
+        : []
+  }, [assignEphemeralIp, selectedPool, control._formValues])
+
+  // we need to default to the default pool, but we aren't pulling that info in yet
+  useEffect(() => {
+    if (!selectedPool) {
+      setSelectedPool(allPools?.data?.items[0]?.name || null)
+    }
+  }, [allPools, selectedPool])
 
   return (
     <Accordion.Root
@@ -554,6 +579,39 @@ const AdvancedAccordion = ({
           tooltipText="Will be generated if not provided"
           control={control}
           disabled={isSubmitting}
+        />
+
+        <div className="max-w-lg space-y-2">
+          <h2>External IP</h2>
+          <div className="flex items-center gap-2.5">
+            {/* This is currently set as a checkbox, but I'm thinking it should be a radio button, with the options being "ephemeral" or "floating" */}
+            <Checkbox
+              id="assignEphemeralIp"
+              checked={assignEphemeralIp}
+              onChange={() => setAssignEphemeralIp(!assignEphemeralIp)}
+            />
+            <label htmlFor="assignEphemeralIp" className="text-sans-md text-secondary">
+              Assign an ephemeral IP address
+            </label>
+          </div>
+        </div>
+        <Listbox
+          name="pools"
+          label="Pools"
+          // this cannot be right
+          selected={`${selectedPool}`}
+          items={
+            allPools?.data?.items.map((pool) =>
+              // according to the designs, we need to indicate the default pool, but we don't have that info pulled in yet
+              ({
+                label: pool.name,
+                value: pool.name,
+              })
+            ) || []
+          }
+          disabled={assignEphemeralIp || isSubmitting}
+          required
+          onChange={(value) => setSelectedPool(value)}
         />
       </AccordionItem>
       <AccordionItem
