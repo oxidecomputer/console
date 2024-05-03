@@ -18,7 +18,6 @@ import {
   INSTANCE_MAX_CPU,
   INSTANCE_MAX_RAM_GiB,
   useApiMutation,
-  useApiQuery,
   useApiQueryClient,
   usePrefetchedApiQuery,
   type InstanceCreate,
@@ -148,6 +147,7 @@ CreateInstanceForm.loader = async ({ params }: LoaderFunctionArgs) => {
       query: { project, limit: DISK_FETCH_LIMIT },
     }),
     apiQueryClient.prefetchQuery('currentUserSshKeyList', {}),
+    apiQueryClient.prefetchQuery('projectIpPoolList', { query: { limit: 1000 } }),
   ])
   return null
 }
@@ -191,6 +191,14 @@ export function CreateInstanceForm() {
   const { data: sshKeys } = usePrefetchedApiQuery('currentUserSshKeyList', {})
   const allKeys = useMemo(() => sshKeys.items.map((key) => key.id), [sshKeys])
 
+  const { data: allPools } = usePrefetchedApiQuery('projectIpPoolList', {
+    query: { limit: 1000 },
+  })
+  const defaultPool = useMemo(
+    () => (allPools ? allPools.items.find((p) => p.isDefault)?.name : undefined),
+    [allPools]
+  )
+
   const defaultSource =
     siloImages.length > 0 ? 'siloImage' : projectImages.length > 0 ? 'projectImage' : 'disk'
 
@@ -202,6 +210,7 @@ export function CreateInstanceForm() {
     diskSource: disks?.[0]?.value || '',
     sshPublicKeys: allKeys,
     bootDiskSize: nearest10(defaultImage?.size / GiB),
+    externalIps: [{ type: 'ephemeral', pool: defaultPool }],
   }
 
   const form = useForm({ defaultValues })
@@ -518,7 +527,11 @@ export function CreateInstanceForm() {
       <SshKeysField control={control} isSubmitting={isSubmitting} />
       <FormDivider />
       <Form.Heading id="advanced">Advanced</Form.Heading>
-      <AdvancedAccordion control={control} isSubmitting={isSubmitting} />
+      <AdvancedAccordion
+        control={control}
+        isSubmitting={isSubmitting}
+        allPools={allPools.items}
+      />
       <Form.Actions>
         <Form.Submit loading={createInstance.isPending}>Create instance</Form.Submit>
         <Form.Cancel onClick={() => navigate(pb.instances({ project }))} />
@@ -530,23 +543,20 @@ export function CreateInstanceForm() {
 const AdvancedAccordion = ({
   control,
   isSubmitting,
+  allPools,
 }: {
   control: Control<InstanceCreateInput>
   isSubmitting: boolean
+  allPools: Array<{ name: string; isDefault: boolean }>
 }) => {
   // we track this state manually for the sole reason that we need to be able to
   // tell, inside AccordionItem, when an accordion is opened so we can scroll its
   // contents into view
   const [openItems, setOpenItems] = useState<string[]>([])
-  const { data: allPools } = useApiQuery('projectIpPoolList', { query: { limit: 1000 } })
-  const defaultPool = useMemo(
-    () => (allPools ? allPools.items.find((p) => p.isDefault)?.name : undefined),
-    [allPools]
-  )
 
   const [assignEphemeralIp, setAssignEphemeralIp] = useState(true)
   const [selectedPool, setSelectedPool] = useState<SetStateAction<string | null>>(
-    defaultPool || null
+    (allPools.find((p) => p.isDefault) || allPools[0]).name
   )
 
   useEffect(() => {
@@ -554,12 +564,6 @@ const AdvancedAccordion = ({
       ? [{ type: 'ephemeral', pool: selectedPool }]
       : []
   }, [assignEphemeralIp, selectedPool, control._formValues])
-
-  useEffect(() => {
-    if (defaultPool) {
-      setSelectedPool(defaultPool)
-    }
-  }, [defaultPool])
 
   return (
     <Accordion.Root
@@ -602,7 +606,7 @@ const AdvancedAccordion = ({
           // this cannot be right
           selected={`${selectedPool}`}
           items={
-            allPools?.items.map((pool) =>
+            allPools.map((pool) =>
               // according to the designs, we need to indicate the default pool, but we don't have that info pulled in yet
               ({
                 label: `${pool.name}${pool.isDefault ? ' (default)' : ''}`,
