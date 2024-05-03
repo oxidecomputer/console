@@ -6,8 +6,8 @@
  * Copyright Oxide Computer Company
  */
 import * as Accordion from '@radix-ui/react-accordion'
-import { useEffect, useMemo, useState, type SetStateAction } from 'react'
-import { useWatch, type Control } from 'react-hook-form'
+import { useEffect, useMemo, useState } from 'react'
+import { useController, useWatch, type Control } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 import type { SetRequired } from 'type-fest'
 
@@ -553,17 +553,10 @@ const AdvancedAccordion = ({
   // tell, inside AccordionItem, when an accordion is opened so we can scroll its
   // contents into view
   const [openItems, setOpenItems] = useState<string[]>([])
-
-  const [assignEphemeralIp, setAssignEphemeralIp] = useState(true)
-  const [selectedPool, setSelectedPool] = useState<SetStateAction<string | null>>(
-    (allPools.find((p) => p.isDefault) || allPools[0]).name
-  )
-
-  useEffect(() => {
-    control._formValues.externalIps = assignEphemeralIp
-      ? [{ type: 'ephemeral', pool: selectedPool }]
-      : []
-  }, [assignEphemeralIp, selectedPool, control._formValues])
+  const externalIps = useController({ control, name: 'externalIps' })
+  const ephemeralIp = externalIps.field.value?.find((ip) => ip.type === 'ephemeral')
+  const assignEphemeralIp = !!ephemeralIp
+  const selectedPool = ephemeralIp && 'pool' in ephemeralIp ? ephemeralIp.pool : undefined
 
   return (
     <Accordion.Root
@@ -589,11 +582,18 @@ const AdvancedAccordion = ({
         <div className="max-w-lg space-y-2">
           <h2>External IP</h2>
           <div className="flex items-center gap-2.5">
-            {/* This is currently set as a checkbox, but I'm thinking it should be a radio button, with the options being "ephemeral" or "floating" */}
             <Checkbox
               id="assignEphemeralIp"
               checked={assignEphemeralIp}
-              onChange={() => setAssignEphemeralIp(!assignEphemeralIp)}
+              onChange={() => {
+                const newExternalIps = assignEphemeralIp
+                  ? externalIps.field.value?.filter((ip) => ip.type !== 'ephemeral')
+                  : [
+                      ...(externalIps.field.value || []),
+                      { type: 'ephemeral', pool: selectedPool },
+                    ]
+                externalIps.field.onChange(newExternalIps)
+              }}
             />
             <label htmlFor="assignEphemeralIp" className="text-sans-md text-secondary">
               Assign an ephemeral IP address
@@ -603,20 +603,21 @@ const AdvancedAccordion = ({
         <Listbox
           name="pools"
           label="Assign ephemeral IP from pool"
-          // this cannot be right
           selected={`${selectedPool}`}
           items={
-            allPools.map((pool) =>
-              // according to the designs, we need to indicate the default pool, but we don't have that info pulled in yet
-              ({
-                label: `${pool.name}${pool.isDefault ? ' (default)' : ''}`,
-                value: pool.name,
-              })
-            ) || []
+            allPools.map((pool) => ({
+              label: `${pool.name}${pool.isDefault ? ' (default)' : ''}`,
+              value: pool.name,
+            })) || []
           }
           disabled={!assignEphemeralIp || isSubmitting}
           required
-          onChange={(value) => setSelectedPool(value)}
+          onChange={(value) => {
+            const newExternalIps = externalIps.field.value?.map((ip) =>
+              ip.type === 'ephemeral' ? { ...ip, pool: value } : ip
+            )
+            externalIps.field.onChange(newExternalIps)
+          }}
         />
       </AccordionItem>
       <AccordionItem
