@@ -551,7 +551,7 @@ const AdvancedAccordion = ({
 
   useEffect(() => {
     control._formValues.externalIps = assignEphemeralIp
-      ? [{ type: 'ephemeral' }, { pool: selectedPool }]
+      ? [{ type: 'ephemeral', pool: selectedPool }]
       : []
   }, [assignEphemeralIp, selectedPool, control._formValues])
 
