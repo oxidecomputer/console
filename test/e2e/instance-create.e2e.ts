@@ -51,6 +51,22 @@ test('can create an instance', async ({ page }) => {
   await page.getByRole('button', { name: 'Networking' }).click()
   await page.getByRole('button', { name: 'Configuration' }).click()
 
+  // verify that the ip pool selector is visible and default is selected
+  await expect(
+    page.getByRole('checkbox', { name: 'Assign an ephemeral IP address' })
+  ).toBeChecked()
+  await page.getByRole('button', { name: 'ip-pool-1 (default)' }).click()
+  await expect(page.getByRole('option', { name: 'ip-pool-1 (default)' })).toBeEnabled()
+
+  // unchecking the box should disable the selector
+  await page.getByRole('checkbox', { name: 'Assign an ephemeral IP address' }).uncheck()
+  await expect(page.getByRole('button', { name: 'Select an option' })).toBeDisabled()
+
+  // re-checking the box should re-enable the selector, and other options should be selectable
+  await page.getByRole('checkbox', { name: 'Assign an ephemeral IP address' }).check()
+  await page.getByRole('button', { name: 'ip-pool-1 (default)' }).click()
+  await page.getByRole('option', { name: 'ip-pool-2' }).click()
+
   // should be visible in accordion
   await expectVisible(page, [
     'role=radiogroup[name="Network interface"]',

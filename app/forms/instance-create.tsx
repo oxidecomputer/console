@@ -557,6 +557,7 @@ const AdvancedAccordion = ({
   const ephemeralIp = externalIps.field.value?.find((ip) => ip.type === 'ephemeral')
   const assignEphemeralIp = !!ephemeralIp
   const selectedPool = ephemeralIp && 'pool' in ephemeralIp ? ephemeralIp.pool : undefined
+  const defaultPool = allPools.find((pool) => pool.isDefault)?.name
 
   return (
     <Accordion.Root
@@ -580,7 +581,7 @@ const AdvancedAccordion = ({
         />
 
         <div className="max-w-lg space-y-2">
-          <h2>External IP</h2>
+          <h2 className="text-sans-md">External IP</h2>
           <div className="flex items-center gap-2.5">
             <Checkbox
               id="assignEphemeralIp"
@@ -590,35 +591,35 @@ const AdvancedAccordion = ({
                   ? externalIps.field.value?.filter((ip) => ip.type !== 'ephemeral')
                   : [
                       ...(externalIps.field.value || []),
-                      { type: 'ephemeral', pool: selectedPool },
+                      { type: 'ephemeral', pool: selectedPool || defaultPool },
                     ]
                 externalIps.field.onChange(newExternalIps)
               }}
             />
-            <label htmlFor="assignEphemeralIp" className="text-sans-md text-secondary">
+            <label htmlFor="assignEphemeralIp" className="text-sans-md">
               Assign an ephemeral IP address
             </label>
           </div>
+          <Listbox
+            name="pools"
+            label="Assign ephemeral IP from pool"
+            selected={`${allPools.find((pool) => pool.name === selectedPool)?.name}`}
+            items={
+              allPools.map((pool) => ({
+                label: `${pool.name}${pool.isDefault ? ' (default)' : ''}`,
+                value: pool.name,
+              })) || []
+            }
+            disabled={!assignEphemeralIp || isSubmitting}
+            required
+            onChange={(value) => {
+              const newExternalIps = externalIps.field.value?.map((ip) =>
+                ip.type === 'ephemeral' ? { ...ip, pool: value } : ip
+              )
+              externalIps.field.onChange(newExternalIps)
+            }}
+          />
         </div>
-        <Listbox
-          name="pools"
-          label="Assign ephemeral IP from pool"
-          selected={`${selectedPool}`}
-          items={
-            allPools.map((pool) => ({
-              label: `${pool.name}${pool.isDefault ? ' (default)' : ''}`,
-              value: pool.name,
-            })) || []
-          }
-          disabled={!assignEphemeralIp || isSubmitting}
-          required
-          onChange={(value) => {
-            const newExternalIps = externalIps.field.value?.map((ip) =>
-              ip.type === 'ephemeral' ? { ...ip, pool: value } : ip
-            )
-            externalIps.field.onChange(newExternalIps)
-          }}
-        />
       </AccordionItem>
       <AccordionItem
         value="configuration"
