@@ -558,6 +558,7 @@ const AdvancedAccordion = ({
   const assignEphemeralIp = !!ephemeralIp
   const selectedPool = ephemeralIp && 'pool' in ephemeralIp ? ephemeralIp.pool : undefined
   const defaultPool = allPools.find((pool) => pool.isDefault)?.name
+  const defaultPoolLabel = defaultPool ? `${defaultPool} (default)` : 'No pools available'
 
   return (
     <Accordion.Root
@@ -596,13 +597,18 @@ const AdvancedAccordion = ({
                 externalIps.field.onChange(newExternalIps)
               }}
             />
-            <label htmlFor="assignEphemeralIp" className="text-sans-md">
+            <label
+              htmlFor="assignEphemeralIp"
+              className="text-sans-md"
+              aria-label="Assign an ephemeral IP address"
+            >
               Assign an ephemeral IP address
             </label>
           </div>
           <Listbox
             name="pools"
-            label="Assign ephemeral IP from pool"
+            aria-label="Assign ephemeral IP from pool"
+            placeholder={defaultPoolLabel}
             selected={`${allPools.find((pool) => pool.name === selectedPool)?.name}`}
             items={
               allPools.map((pool) => ({
