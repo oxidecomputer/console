@@ -588,9 +588,7 @@ const AdvancedAccordion = ({
             <TextInputHint id="ephemeral-ip-description" className="mb-2">
               Ephemeral IPs are non-permanent, randomly-assigned addresses, dynamically
               allocated from a pool of IPs when the instance is created.{' '}
-              <ExternalLink href={links.externalAddresses}>
-                Learn more about ephemeral IPs.
-              </ExternalLink>
+              <ExternalLink href={links.externalAddresses}>Learn more.</ExternalLink>
             </TextInputHint>
           </h2>
           <div className="flex items-start gap-2.5">
