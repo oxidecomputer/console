@@ -10,6 +10,8 @@ export const links: Record<string, string> = {
   cloudInitFormat: 'https://cloudinit.readthedocs.io/en/latest/explanation/format.html',
   cloudInitExamples: 'https://cloudinit.readthedocs.io/en/latest/reference/examples.html',
   disksDocs: 'https://docs.oxide.computer/guides/managing-disks-and-snapshots',
+  externalAddresses:
+    'https://docs.oxide.computer/guides/operator/ip-pool-management#_external_address_categorization',
   firewallRulesDocs:
     'https://docs.oxide.computer/guides/configuring-guest-networking#_firewall_rules',
   floatingIpsDocs: 'https://docs.oxide.computer/guides/managing-floating-ips',

@@ -37,7 +37,7 @@ export const AccordionItem = ({ children, isOpen, label, value }: AccordionItemP
       <Accordion.Content
         ref={contentRef}
         forceMount
-        className={cn('ox-accordion-content overflow-hidden py-8', { hidden: !isOpen })}
+        className={cn('ox-accordion-content py-8', { hidden: !isOpen })}
       >
         {children}
       </Accordion.Content>

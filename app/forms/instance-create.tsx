@@ -30,6 +30,7 @@ import {
 } from '@oxide/design-system/icons/react'
 
 import { AccordionItem } from '~/components/AccordionItem'
+import { ExternalLink } from '~/components/ExternalLink'
 import { CheckboxField } from '~/components/form/fields/CheckboxField'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { DiskSizeField } from '~/components/form/fields/DiskSizeField'
@@ -50,6 +51,7 @@ import { Form } from '~/components/form/Form'
 import { FullPageForm } from '~/components/form/FullPageForm'
 import { getProjectSelector, useForm, useProjectSelector } from '~/hooks'
 import { addToast } from '~/stores/toast'
+import { Badge } from '~/ui/lib/Badge'
 import { Checkbox } from '~/ui/lib/Checkbox'
 import { FormDivider } from '~/ui/lib/Divider'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -581,8 +583,17 @@ const AdvancedAccordion = ({
         />
 
         <div className="max-w-lg space-y-2">
-          <h2 className="text-sans-md">External IP</h2>
-          <div className="flex items-center gap-2.5">
+          <h2 className="text-sans-md">
+            Ephemeral IP{' '}
+            <TextInputHint id="ephemeral-ip-description" className="mb-2">
+              Ephemeral IPs are non-permanent, randomly-assigned addresses, dynamically
+              allocated from a pool of IPs when the instance is created.{' '}
+              <ExternalLink href={links.externalAddresses}>
+                Learn more about ephemeral IPs.
+              </ExternalLink>
+            </TextInputHint>
+          </h2>
+          <div className="flex items-start gap-2.5">
             <Checkbox
               id="assignEphemeralIp"
               checked={assignEphemeralIp}
@@ -596,34 +607,46 @@ const AdvancedAccordion = ({
                 externalIps.field.onChange(newExternalIps)
               }}
             />
-            <label
-              htmlFor="assignEphemeralIp"
-              className="text-sans-md"
-              aria-label="Assign an ephemeral IP address"
-            >
-              Assign an ephemeral IP address
+            <label htmlFor="assignEphemeralIp" className="text-sans-md">
+              Automatically assign an ephemeral IP address
             </label>
           </div>
-          <Listbox
-            name="pools"
-            aria-label="Assign ephemeral IP from pool"
-            placeholder={defaultPool ? `${defaultPool} (default)` : 'Select pool'}
-            selected={`${allPools.find((pool) => pool.name === selectedPool)?.name}`}
-            items={
-              allPools.map((pool) => ({
-                label: `${pool.name}${pool.isDefault ? ' (default)' : ''}`,
-                value: pool.name,
-              })) || []
-            }
-            disabled={!assignEphemeralIp || isSubmitting}
-            required
-            onChange={(value) => {
-              const newExternalIps = externalIps.field.value?.map((ip) =>
-                ip.type === 'ephemeral' ? { ...ip, pool: value } : ip
-              )
-              externalIps.field.onChange(newExternalIps)
-            }}
-          />
+          {assignEphemeralIp && (
+            <Listbox
+              className="pt-1"
+              name="pools"
+              aria-label="ephemeral IP pool"
+              placeholder={defaultPool ? `${defaultPool} (default)` : 'Select pool'}
+              selected={`${allPools.find((pool) => pool.name === selectedPool)?.name}`}
+              items={
+                allPools.map((pool) => ({
+                  label: (
+                    <div className="flex items-center gap-1">
+                      {pool.name}
+                      {pool.isDefault && (
+                        <Badge
+                          color={selectedPool === pool.name ? 'default' : 'neutral'}
+                          variant={selectedPool === pool.name ? 'solid' : 'default'}
+                        >
+                          default
+                        </Badge>
+                      )}
+                    </div>
+                  ),
+                  labelString: pool.name,
+                  value: pool.name,
+                })) || []
+              }
+              disabled={!assignEphemeralIp || isSubmitting}
+              required
+              onChange={(value) => {
+                const newExternalIps = externalIps.field.value?.map((ip) =>
+                  ip.type === 'ephemeral' ? { ...ip, pool: value } : ip
+                )
+                externalIps.field.onChange(newExternalIps)
+              }}
+            />
+          )}
         </div>
       </AccordionItem>
       <AccordionItem
