@@ -14,8 +14,9 @@ GEN_DIR="$PWD/app/api/__generated__"
 
 SPEC_URL="https://raw.githubusercontent.com/oxidecomputer/omicron/$OMICRON_SHA/openapi/nexus.json"
 
-npx @oxide/openapi-gen-ts@0.1.14 $SPEC_URL $GEN_DIR --features msw
-npx prettier --write --log-level error "$GEN_DIR"
+# use versions of these packages specified in dev deps
+npm run openapi-gen-ts -- $SPEC_URL $GEN_DIR --features msw
+npm run prettier -- --write --log-level error "$GEN_DIR"
 
 cat > $GEN_DIR/OMICRON_VERSION <<EOF
 # generated file. do not update manually. see docs/update-pinned-api.md
