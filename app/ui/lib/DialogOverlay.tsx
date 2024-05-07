@@ -6,8 +6,17 @@
  * Copyright Oxide Computer Company
  */
 
+import { m } from 'framer-motion'
 import { forwardRef } from 'react'
 
 export const DialogOverlay = forwardRef<HTMLDivElement>((_, ref) => (
-  <div ref={ref} aria-hidden className="fixed inset-0 z-10 overflow-auto bg-scrim" />
+  <m.div
+    ref={ref}
+    aria-hidden
+    className="fixed inset-0 z-10 overflow-auto bg-scrim"
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+    transition={{ duration: 0.15, ease: 'easeOut' }}
+  />
 ))

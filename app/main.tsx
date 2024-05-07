@@ -15,7 +15,6 @@ import { queryClient } from '@oxide/api'
 
 import { ConfirmActionModal } from './components/ConfirmActionModal'
 import { ErrorBoundary } from './components/ErrorBoundary'
-import { ReduceMotion } from './hooks'
 // stripped out by rollup in production
 import { startMockAPI } from './msw-mock-api'
 import { routes } from './routes'
@@ -51,7 +50,6 @@ function render() {
         <ErrorBoundary>
           <ConfirmActionModal />
           <SkipLink id="skip-nav" />
-          <ReduceMotion />
           <RouterProvider router={router} />
         </ErrorBoundary>
         {/* <ReactQueryDevtools initialIsOpen={false} /> */}

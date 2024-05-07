@@ -5,8 +5,8 @@
  *
  * Copyright Oxide Computer Company
  */
-import { animated, Globals, useTransition } from '@react-spring/web'
 import cn from 'classnames'
+import { m, useReducedMotion } from 'framer-motion'
 
 import { useTimeout } from './use-timeout'
 
@@ -21,22 +21,24 @@ export const TimeoutIndicator = ({
   onTimeoutEnd,
   className,
 }: TimeoutIndicatorProps) => {
-  const transitions = useTransition(true, {
-    from: { width: '0%' },
-    enter: { width: '100%' },
-    leave: { width: '100%' },
-    config: { duration: timeout },
-  })
+  const shouldReduceMotion = useReducedMotion()
 
   useTimeout(onTimeoutEnd, timeout)
 
-  // Don't show progress bar if reduce motion is turned on
-  if (Globals.skipAnimation) return null
+  return null
 
-  return transitions((styles) => (
-    <animated.div
+  if (shouldReduceMotion) {
+    return null
+  }
+
+  return (
+    <m.div
       className={cn('absolute bottom-0 left-0 h-0.5 w-0', className)}
-      style={styles}
+      initial={{ width: '0%' }}
+      animate={{
+        width: '100%',
+        transition: { duration: timeout / 1000, ease: 'linear' },
+      }}
     />
-  ))
+  )
 }

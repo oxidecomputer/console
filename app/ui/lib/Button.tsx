@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import cn from 'classnames'
+import { m } from 'framer-motion'
 import { forwardRef, type MouseEventHandler, type ReactNode } from 'react'
 
 import { Spinner } from '~/ui/lib/Spinner'
@@ -90,9 +91,14 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         with={<Tooltip content={disabledReason!} ref={ref} />}
       >
         <button
-          className={cn(buttonStyle({ size, variant }), className, {
-            'visually-disabled': isDisabled,
-          })}
+          className={cn(
+            buttonStyle({ size, variant }),
+            className,
+            {
+              'visually-disabled': isDisabled,
+            },
+            'overflow-hidden'
+          )}
           ref={ref}
           type={type}
           onMouseDown={isDisabled ? noop : undefined}
@@ -100,10 +106,26 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           aria-disabled={isDisabled}
           {...rest}
         >
-          {loading && <Spinner className="absolute" variant={variant} />}
-          <span className={cn('flex items-center', innerClassName, { invisible: loading })}>
+          {loading && (
+            <m.span
+              animate={{ opacity: 1, y: '-50%', x: '-50%' }}
+              initial={{ opacity: 0, y: 'calc(-50% - 25px)', x: '-50%' }}
+              transition={{ type: 'spring', duration: 0.3, bounce: 0 }}
+              className="absolute left-1/2 top-1/2"
+            >
+              <Spinner variant={variant} />
+            </m.span>
+          )}
+          <m.span
+            className={cn('flex items-center', innerClassName)}
+            animate={{
+              opacity: loading ? 0 : 1,
+              y: loading ? 25 : 0,
+            }}
+            transition={{ type: 'spring', duration: 0.3, bounce: 0 }}
+          >
             {children}
-          </span>
+          </m.span>
         </button>
       </Wrap>
     )
