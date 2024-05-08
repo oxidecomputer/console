@@ -562,13 +562,6 @@ const AdvancedAccordion = ({
   const selectedPool = ephemeralIp && 'pool' in ephemeralIp ? ephemeralIp.pool : undefined
   const defaultPool = siloPools.find((pool) => pool.isDefault)?.name
 
-  const poolLabel = (pool: { name: string; isDefault: boolean }) => (
-    <div className="flex items-center gap-2">
-      {pool.name}
-      {pool.isDefault && <Badge>default</Badge>}
-    </div>
-  )
-
   return (
     <Accordion.Root
       type="multiple"
@@ -583,14 +576,16 @@ const AdvancedAccordion = ({
       >
         <NetworkInterfaceField control={control} disabled={isSubmitting} />
 
-        <TextField
-          name="hostname"
-          tooltipText="Will be generated if not provided"
-          control={control}
-          disabled={isSubmitting}
-        />
+        <div className="py-2">
+          <TextField
+            name="hostname"
+            tooltipText="Will be generated if not provided"
+            control={control}
+            disabled={isSubmitting}
+          />
+        </div>
 
-        <div className="max-w-lg space-y-2">
+        <div className="flex flex-1 flex-col gap-4">
           <h2 className="text-sans-md">
             Ephemeral IP{' '}
             <TipIcon>
@@ -612,20 +607,24 @@ const AdvancedAccordion = ({
                 externalIps.field.onChange(newExternalIps)
               }}
             />
-            <label htmlFor="assignEphemeralIp" className="text-sans-md">
+            <label htmlFor="assignEphemeralIp" className="text-sans-md text-secondary">
               Allocate and attach an ephemeral IP address
             </label>
           </div>
           {assignEphemeralIp && (
             <Listbox
-              className="pt-1"
               name="pools"
               label="IP pool for ephemeral IP"
               placeholder={defaultPool ? `${defaultPool} (default)` : 'Select pool'}
               selected={`${siloPools.find((pool) => pool.name === selectedPool)?.name}`}
               items={
                 siloPools.map((pool) => ({
-                  label: poolLabel(pool),
+                  label: (
+                    <div className="flex items-center gap-2">
+                      {pool.name}
+                      {pool.isDefault && <Badge>default</Badge>}
+                    </div>
+                  ),
                   value: pool.name,
                 })) || []
               }
