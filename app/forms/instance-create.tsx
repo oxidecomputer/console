@@ -561,6 +561,13 @@ const AdvancedAccordion = ({
   const selectedPool = ephemeralIp && 'pool' in ephemeralIp ? ephemeralIp.pool : undefined
   const defaultPool = allPools.find((pool) => pool.isDefault)?.name
 
+  const poolLabel = (pool: { name: string; isDefault: boolean }) => (
+    <div className="flex items-center gap-1">
+      {pool.name}
+      {pool.isDefault && <Badge>default</Badge>}
+    </div>
+  )
+
   return (
     <Accordion.Root
       type="multiple"
@@ -586,8 +593,8 @@ const AdvancedAccordion = ({
           <h2 className="text-sans-md">
             Ephemeral IP{' '}
             <TextInputHint id="ephemeral-ip-description" className="mb-2">
-              Ephemeral IPs are non-permanent, randomly-assigned addresses, dynamically
-              allocated from a pool of IPs when the instance is created.{' '}
+              Ephemeral IPs are allocated when the instance is created and deallocated when
+              it is deleted.{' '}
               <ExternalLink href={links.externalAddresses}>Learn more.</ExternalLink>
             </TextInputHint>
           </h2>
@@ -618,20 +625,7 @@ const AdvancedAccordion = ({
               selected={`${allPools.find((pool) => pool.name === selectedPool)?.name}`}
               items={
                 allPools.map((pool) => ({
-                  label: (
-                    <div className="flex items-center gap-1">
-                      {pool.name}
-                      {pool.isDefault && (
-                        <Badge
-                          color={selectedPool === pool.name ? 'default' : 'neutral'}
-                          variant={selectedPool === pool.name ? 'solid' : 'default'}
-                        >
-                          default
-                        </Badge>
-                      )}
-                    </div>
-                  ),
-                  labelString: pool.name,
+                  label: poolLabel(pool),
                   value: pool.name,
                 })) || []
               }

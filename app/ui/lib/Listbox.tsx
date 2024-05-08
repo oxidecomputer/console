@@ -26,13 +26,7 @@ import { TextInputHint } from './TextInput'
 
 export type ListboxItem<Value extends string = string> = {
   value: Value
-} & (
-  | { label: string; labelString?: never }
-  // labelString is required when `label` is a `ReactElement` because we
-  // need need a one-line string to display in the button when the item is
-  // selected.
-  | { label: ReactNode; labelString: string }
-)
+} & { label?: string | ReactNode; labelString?: string }
 
 export interface ListboxProps<Value extends string = string> {
   // null is allowed as a default empty value, but onChange will never be called with null
@@ -44,9 +38,9 @@ export interface ListboxProps<Value extends string = string> {
   disabled?: boolean
   hasError?: boolean
   name?: string
-  label?: string
+  label?: React.ReactNode
   tooltipText?: string
-  description?: string | React.ReactNode
+  description?: React.ReactNode
   required?: boolean
   isLoading?: boolean
 }
