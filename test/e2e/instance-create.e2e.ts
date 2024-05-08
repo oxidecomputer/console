@@ -314,3 +314,15 @@ test('maintains selected values even when changing tabs', async ({ page }) => {
   // so this checks to make sure that the arch-based image — with ID `bd6aa051…` — was used
   await expectVisible(page, [`text=${instanceName}-bd6aa051`])
 })
+
+test('does not attach an ephemeral IP when the checkbox is unchecked', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances-new')
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill('no-ephemeral-ip')
+  await page.getByRole('button', { name: 'Networking' }).click()
+  await page
+    .getByRole('checkbox', { name: 'Allocate and attach an ephemeral IP address' })
+    .uncheck()
+  await page.getByRole('button', { name: 'Create instance' }).click()
+  await expect(page).toHaveURL('/projects/mock-project/instances/no-ephemeral-ip/storage')
+  await expect(page.getByText('External IPs—')).toBeVisible()
+})
