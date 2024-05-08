@@ -562,7 +562,7 @@ const AdvancedAccordion = ({
   const defaultPool = allPools.find((pool) => pool.isDefault)?.name
 
   const poolLabel = (pool: { name: string; isDefault: boolean }) => (
-    <div className="flex items-center gap-1">
+    <div className="flex items-center gap-2">
       {pool.name}
       {pool.isDefault && <Badge>default</Badge>}
     </div>
