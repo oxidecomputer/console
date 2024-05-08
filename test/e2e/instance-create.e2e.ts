@@ -52,10 +52,10 @@ test('can create an instance', async ({ page }) => {
   await page.getByRole('button', { name: 'Configuration' }).click()
 
   const assignEphemeralIpCheckbox = page.getByRole('checkbox', {
-    name: 'Automatically assign an ephemeral IP address',
+    name: 'Allocate and attach an ephemeral IP address',
   })
   const assignEphemeralIpButton = page.getByRole('button', {
-    name: 'ephemeral IP pool',
+    name: 'IP pool for ephemeral IP',
   })
 
   // verify that the ip pool selector is visible and default is selected

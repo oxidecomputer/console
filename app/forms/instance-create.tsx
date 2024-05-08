@@ -30,7 +30,6 @@ import {
 } from '@oxide/design-system/icons/react'
 
 import { AccordionItem } from '~/components/AccordionItem'
-import { ExternalLink } from '~/components/ExternalLink'
 import { CheckboxField } from '~/components/form/fields/CheckboxField'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { DiskSizeField } from '~/components/form/fields/DiskSizeField'
@@ -60,6 +59,7 @@ import { Message } from '~/ui/lib/Message'
 import { RadioCard } from '~/ui/lib/Radio'
 import { Tabs } from '~/ui/lib/Tabs'
 import { TextInputHint } from '~/ui/lib/TextInput'
+import { TipIcon } from '~/ui/lib/TipIcon'
 import { readBlobAsBase64 } from '~/util/file'
 import { links } from '~/util/links'
 import { nearest10 } from '~/util/math'
@@ -592,11 +592,10 @@ const AdvancedAccordion = ({
         <div className="max-w-lg space-y-2">
           <h2 className="text-sans-md">
             Ephemeral IP{' '}
-            <TextInputHint id="ephemeral-ip-description" className="mb-2">
+            <TipIcon>
               Ephemeral IPs are allocated when the instance is created and deallocated when
-              it is deleted.{' '}
-              <ExternalLink href={links.externalAddresses}>Learn more.</ExternalLink>
-            </TextInputHint>
+              it is deleted
+            </TipIcon>
           </h2>
           <div className="flex items-start gap-2.5">
             <Checkbox
@@ -613,14 +612,14 @@ const AdvancedAccordion = ({
               }}
             />
             <label htmlFor="assignEphemeralIp" className="text-sans-md">
-              Automatically assign an ephemeral IP address
+              Allocate and attach an ephemeral IP address
             </label>
           </div>
           {assignEphemeralIp && (
             <Listbox
               className="pt-1"
               name="pools"
-              aria-label="ephemeral IP pool"
+              label="IP pool for ephemeral IP"
               placeholder={defaultPool ? `${defaultPool} (default)` : 'Select pool'}
               selected={`${allPools.find((pool) => pool.name === selectedPool)?.name}`}
               items={
