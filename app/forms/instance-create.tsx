@@ -7,7 +7,7 @@
  */
 import * as Accordion from '@radix-ui/react-accordion'
 import { useEffect, useMemo, useState } from 'react'
-import { useWatch, type Control } from 'react-hook-form'
+import { useController, useWatch, type Control } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 import type { SetRequired } from 'type-fest'
 
@@ -50,12 +50,16 @@ import { Form } from '~/components/form/Form'
 import { FullPageForm } from '~/components/form/FullPageForm'
 import { getProjectSelector, useForm, useProjectSelector } from '~/hooks'
 import { addToast } from '~/stores/toast'
+import { Badge } from '~/ui/lib/Badge'
+import { Checkbox } from '~/ui/lib/Checkbox'
 import { FormDivider } from '~/ui/lib/Divider'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { Listbox } from '~/ui/lib/Listbox'
 import { Message } from '~/ui/lib/Message'
 import { RadioCard } from '~/ui/lib/Radio'
 import { Tabs } from '~/ui/lib/Tabs'
 import { TextInputHint } from '~/ui/lib/TextInput'
+import { TipIcon } from '~/ui/lib/TipIcon'
 import { readBlobAsBase64 } from '~/util/file'
 import { links } from '~/util/links'
 import { nearest10 } from '~/util/math'
@@ -130,6 +134,7 @@ const baseDefaultValues: InstanceCreateInput = {
   start: true,
 
   userData: null,
+  externalIps: [{ type: 'ephemeral' }],
 }
 
 const DISK_FETCH_LIMIT = 1000
@@ -144,6 +149,7 @@ CreateInstanceForm.loader = async ({ params }: LoaderFunctionArgs) => {
       query: { project, limit: DISK_FETCH_LIMIT },
     }),
     apiQueryClient.prefetchQuery('currentUserSshKeyList', {}),
+    apiQueryClient.prefetchQuery('projectIpPoolList', { query: { limit: 1000 } }),
   ])
   return null
 }
@@ -187,6 +193,15 @@ export function CreateInstanceForm() {
   const { data: sshKeys } = usePrefetchedApiQuery('currentUserSshKeyList', {})
   const allKeys = useMemo(() => sshKeys.items.map((key) => key.id), [sshKeys])
 
+  // projectIpPoolList fetches the pools linked to the current silo
+  const { data: siloPools } = usePrefetchedApiQuery('projectIpPoolList', {
+    query: { limit: 1000 },
+  })
+  const defaultPool = useMemo(
+    () => (siloPools ? siloPools.items.find((p) => p.isDefault)?.name : undefined),
+    [siloPools]
+  )
+
   const defaultSource =
     siloImages.length > 0 ? 'siloImage' : projectImages.length > 0 ? 'projectImage' : 'disk'
 
@@ -198,6 +213,7 @@ export function CreateInstanceForm() {
     diskSource: disks?.[0]?.value || '',
     sshPublicKeys: allKeys,
     bootDiskSize: nearest10(defaultImage?.size / GiB),
+    externalIps: [{ type: 'ephemeral', pool: defaultPool }],
   }
 
   const form = useForm({ defaultValues })
@@ -283,7 +299,7 @@ export function CreateInstanceForm() {
             memory: instance.memory * GiB,
             ncpus: instance.ncpus,
             disks: [bootDisk, ...values.disks],
-            externalIps: [{ type: 'ephemeral' }],
+            externalIps: values.externalIps,
             start: values.start,
             networkInterfaces: values.networkInterfaces,
             sshPublicKeys: values.sshPublicKeys,
@@ -514,7 +530,11 @@ export function CreateInstanceForm() {
       <SshKeysField control={control} isSubmitting={isSubmitting} />
       <FormDivider />
       <Form.Heading id="advanced">Advanced</Form.Heading>
-      <AdvancedAccordion control={control} isSubmitting={isSubmitting} />
+      <AdvancedAccordion
+        control={control}
+        isSubmitting={isSubmitting}
+        siloPools={siloPools.items}
+      />
       <Form.Actions>
         <Form.Submit loading={createInstance.isPending}>Create instance</Form.Submit>
         <Form.Cancel onClick={() => navigate(pb.instances({ project }))} />
@@ -526,14 +546,21 @@ export function CreateInstanceForm() {
 const AdvancedAccordion = ({
   control,
   isSubmitting,
+  siloPools,
 }: {
   control: Control<InstanceCreateInput>
   isSubmitting: boolean
+  siloPools: Array<{ name: string; isDefault: boolean }>
 }) => {
   // we track this state manually for the sole reason that we need to be able to
   // tell, inside AccordionItem, when an accordion is opened so we can scroll its
   // contents into view
   const [openItems, setOpenItems] = useState<string[]>([])
+  const externalIps = useController({ control, name: 'externalIps' })
+  const ephemeralIp = externalIps.field.value?.find((ip) => ip.type === 'ephemeral')
+  const assignEphemeralIp = !!ephemeralIp
+  const selectedPool = ephemeralIp && 'pool' in ephemeralIp ? ephemeralIp.pool : undefined
+  const defaultPool = siloPools.find((pool) => pool.isDefault)?.name
 
   return (
     <Accordion.Root
@@ -549,12 +576,69 @@ const AdvancedAccordion = ({
       >
         <NetworkInterfaceField control={control} disabled={isSubmitting} />
 
-        <TextField
-          name="hostname"
-          tooltipText="Will be generated if not provided"
-          control={control}
-          disabled={isSubmitting}
-        />
+        <div className="py-2">
+          <TextField
+            name="hostname"
+            tooltipText="Will be generated if not provided"
+            control={control}
+            disabled={isSubmitting}
+          />
+        </div>
+
+        <div className="flex flex-1 flex-col gap-4">
+          <h2 className="text-sans-md">
+            Ephemeral IP{' '}
+            <TipIcon>
+              Ephemeral IPs are allocated when the instance is created and deallocated when
+              it is deleted
+            </TipIcon>
+          </h2>
+          <div className="flex items-start gap-2.5">
+            <Checkbox
+              id="assignEphemeralIp"
+              checked={assignEphemeralIp}
+              onChange={() => {
+                const newExternalIps = assignEphemeralIp
+                  ? externalIps.field.value?.filter((ip) => ip.type !== 'ephemeral')
+                  : [
+                      ...(externalIps.field.value || []),
+                      { type: 'ephemeral', pool: selectedPool || defaultPool },
+                    ]
+                externalIps.field.onChange(newExternalIps)
+              }}
+            />
+            <label htmlFor="assignEphemeralIp" className="text-sans-md text-secondary">
+              Allocate and attach an ephemeral IP address
+            </label>
+          </div>
+          {assignEphemeralIp && (
+            <Listbox
+              name="pools"
+              label="IP pool for ephemeral IP"
+              placeholder={defaultPool ? `${defaultPool} (default)` : 'Select pool'}
+              selected={`${siloPools.find((pool) => pool.name === selectedPool)?.name}`}
+              items={
+                siloPools.map((pool) => ({
+                  label: (
+                    <div className="flex items-center gap-2">
+                      {pool.name}
+                      {pool.isDefault && <Badge>default</Badge>}
+                    </div>
+                  ),
+                  value: pool.name,
+                })) || []
+              }
+              disabled={!assignEphemeralIp || isSubmitting}
+              required
+              onChange={(value) => {
+                const newExternalIps = externalIps.field.value?.map((ip) =>
+                  ip.type === 'ephemeral' ? { ...ip, pool: value } : ip
+                )
+                externalIps.field.onChange(newExternalIps)
+              }}
+            />
+          )}
+        </div>
       </AccordionItem>
       <AccordionItem
         value="configuration"
