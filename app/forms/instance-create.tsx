@@ -193,12 +193,12 @@ export function CreateInstanceForm() {
   const { data: sshKeys } = usePrefetchedApiQuery('currentUserSshKeyList', {})
   const allKeys = useMemo(() => sshKeys.items.map((key) => key.id), [sshKeys])
 
-  const { data: allPools } = usePrefetchedApiQuery('projectIpPoolList', {
+  const { data: siloPools } = usePrefetchedApiQuery('projectIpPoolList', {
     query: { limit: 1000 },
   })
   const defaultPool = useMemo(
-    () => (allPools ? allPools.items.find((p) => p.isDefault)?.name : undefined),
-    [allPools]
+    () => (siloPools ? siloPools.items.find((p) => p.isDefault)?.name : undefined),
+    [siloPools]
   )
 
   const defaultSource =
@@ -532,7 +532,7 @@ export function CreateInstanceForm() {
       <AdvancedAccordion
         control={control}
         isSubmitting={isSubmitting}
-        allPools={allPools.items}
+        siloPools={siloPools.items}
       />
       <Form.Actions>
         <Form.Submit loading={createInstance.isPending}>Create instance</Form.Submit>
@@ -545,11 +545,11 @@ export function CreateInstanceForm() {
 const AdvancedAccordion = ({
   control,
   isSubmitting,
-  allPools,
+  siloPools,
 }: {
   control: Control<InstanceCreateInput>
   isSubmitting: boolean
-  allPools: Array<{ name: string; isDefault: boolean }>
+  siloPools: Array<{ name: string; isDefault: boolean }>
 }) => {
   // we track this state manually for the sole reason that we need to be able to
   // tell, inside AccordionItem, when an accordion is opened so we can scroll its
@@ -559,7 +559,7 @@ const AdvancedAccordion = ({
   const ephemeralIp = externalIps.field.value?.find((ip) => ip.type === 'ephemeral')
   const assignEphemeralIp = !!ephemeralIp
   const selectedPool = ephemeralIp && 'pool' in ephemeralIp ? ephemeralIp.pool : undefined
-  const defaultPool = allPools.find((pool) => pool.isDefault)?.name
+  const defaultPool = siloPools.find((pool) => pool.isDefault)?.name
 
   const poolLabel = (pool: { name: string; isDefault: boolean }) => (
     <div className="flex items-center gap-2">
@@ -621,9 +621,9 @@ const AdvancedAccordion = ({
               name="pools"
               label="IP pool for ephemeral IP"
               placeholder={defaultPool ? `${defaultPool} (default)` : 'Select pool'}
-              selected={`${allPools.find((pool) => pool.name === selectedPool)?.name}`}
+              selected={`${siloPools.find((pool) => pool.name === selectedPool)?.name}`}
               items={
-                allPools.map((pool) => ({
+                siloPools.map((pool) => ({
                   label: poolLabel(pool),
                   value: pool.name,
                 })) || []
