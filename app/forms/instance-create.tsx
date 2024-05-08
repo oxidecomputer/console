@@ -193,6 +193,7 @@ export function CreateInstanceForm() {
   const { data: sshKeys } = usePrefetchedApiQuery('currentUserSshKeyList', {})
   const allKeys = useMemo(() => sshKeys.items.map((key) => key.id), [sshKeys])
 
+  // projectIpPoolList fetches the pools linked to the current silo
   const { data: siloPools } = usePrefetchedApiQuery('projectIpPoolList', {
     query: { limit: 1000 },
   })
