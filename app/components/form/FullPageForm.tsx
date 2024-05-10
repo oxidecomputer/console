@@ -44,6 +44,7 @@ interface FullPageFormProps<TFieldValues extends FieldValues> {
    * constrain the `name` prop to paths in the values object.
    */
   children: ReactNode
+  docsPopover?: ReactNode
 }
 
 const PageActionsContainer = classed.div`flex h-20 items-center gutter`
@@ -59,6 +60,7 @@ export function FullPageForm<TFieldValues extends FieldValues>({
   form,
   onSubmit,
   submitError,
+  docsPopover,
 }: FullPageFormProps<TFieldValues>) {
   const { isSubmitting, isDirty, isSubmitSuccessful } = form.formState
 
@@ -87,6 +89,7 @@ export function FullPageForm<TFieldValues extends FieldValues>({
     <>
       <PageHeader>
         <PageTitle icon={icon}>{title}</PageTitle>
+        {docsPopover}
       </PageHeader>
       <form
         className="ox-form pb-20"

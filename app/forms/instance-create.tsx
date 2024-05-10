@@ -25,11 +25,13 @@ import {
 } from '@oxide/api'
 import {
   Images16Icon,
+  Instances16Icon,
   Instances24Icon,
   Storage16Icon,
 } from '@oxide/design-system/icons/react'
 
 import { AccordionItem } from '~/components/AccordionItem'
+import { DocsPopover } from '~/components/DocsPopover'
 import { CheckboxField } from '~/components/form/fields/CheckboxField'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { DiskSizeField } from '~/components/form/fields/DiskSizeField'
@@ -61,7 +63,7 @@ import { Tabs } from '~/ui/lib/Tabs'
 import { TextInputHint } from '~/ui/lib/TextInput'
 import { TipIcon } from '~/ui/lib/TipIcon'
 import { readBlobAsBase64 } from '~/util/file'
-import { links } from '~/util/links'
+import { docLinks, links } from '~/util/links'
 import { nearest10 } from '~/util/math'
 import { pb } from '~/util/path-builder'
 import { GiB } from '~/util/units'
@@ -309,6 +311,14 @@ export function CreateInstanceForm() {
       }}
       loading={createInstance.isPending}
       submitError={createInstance.error}
+      docsPopover={
+        <DocsPopover
+          heading="instances"
+          icon={<Instances16Icon />}
+          summary="Instances are virtual machines that run on the Oxide platform."
+          links={[docLinks.instances, docLinks.vms]}
+        />
+      }
     >
       <NameField name="name" control={control} disabled={isSubmitting} />
       <DescriptionField name="description" control={control} disabled={isSubmitting} />
