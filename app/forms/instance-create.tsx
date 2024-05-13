@@ -279,7 +279,7 @@ export function CreateInstanceForm() {
           heading="instances"
           icon={<Instances16Icon />}
           summary="Instances are virtual machines that run on the Oxide platform."
-          links={[docLinks.instances, docLinks.vms]}
+          links={[docLinks.instances, docLinks.vms, docLinks.quickStart]}
         />
       </PageHeader>
       <FullPageForm

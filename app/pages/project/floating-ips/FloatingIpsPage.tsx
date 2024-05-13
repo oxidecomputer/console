@@ -59,9 +59,6 @@ FloatingIpsPage.loader = async ({ params }: LoaderFunctionArgs) => {
     apiQueryClient.prefetchQuery('instanceList', {
       query: { project },
     }),
-    apiQueryClient.prefetchQuery('projectIpPoolList', {
-      query: { limit: 1000 },
-    }),
   ])
   return null
 }
