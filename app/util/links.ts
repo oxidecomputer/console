@@ -22,6 +22,7 @@ export const links: Record<string, string> = {
   keyConceptsProjectsDocs:
     'https://docs.oxide.computer/guides/key-entities-and-concepts#_projects',
   projectsDocs: 'https://docs.oxide.computer/guides/onboarding-projects',
+  quickStart: 'https://docs.oxide.computer/guides/quickstart',
   sledDocs:
     'https://docs.oxide.computer/guides/architecture/service-processors#_server_sled',
   snapshotsDocs:
@@ -73,6 +74,10 @@ export const docLinks = {
   projects: {
     href: links.projectsDocs,
     linkText: 'Managing Projects',
+  },
+  quickStart: {
+    href: links.quickStart,
+    linkText: 'Quick Start',
   },
   sleds: {
     href: links.sledDocs,
