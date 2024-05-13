@@ -630,7 +630,7 @@ export interface MSWHandlers {
     body: Json<Api.UninitializedSledId>
     req: Request
     cookies: Record<string, string>
-  }) => Promisable<StatusCode>
+  }) => Promisable<HandlerResult<Api.SledId>>
   /** `GET /v1/system/hardware/sleds/:sledId` */
   sledView: (params: {
     path: Api.SledViewPathParams
@@ -685,6 +685,13 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
+  /** `GET /v1/system/hardware/switch-port/:port/status` */
+  networkingSwitchPortStatus: (params: {
+    path: Api.NetworkingSwitchPortStatusPathParams
+    query: Api.NetworkingSwitchPortStatusQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.SwitchLinkState>>
   /** `GET /v1/system/hardware/switches` */
   switchList: (params: {
     query: Api.SwitchListQueryParams
@@ -879,6 +886,17 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.AddressLotBlockResultsPage>>
+  /** `GET /v1/system/networking/allow-list` */
+  networkingAllowListView: (params: {
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.AllowList>>
+  /** `PUT /v1/system/networking/allow-list` */
+  networkingAllowListUpdate: (params: {
+    body: Json<Api.AllowListUpdate>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.AllowList>>
   /** `POST /v1/system/networking/bfd-disable` */
   networkingBfdDisable: (params: {
     body: Json<Api.BfdSessionDisable>
@@ -1794,6 +1812,14 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       )
     ),
     http.get(
+      '/v1/system/hardware/switch-port/:port/status',
+      handler(
+        handlers['networkingSwitchPortStatus'],
+        schema.NetworkingSwitchPortStatusParams,
+        null
+      )
+    ),
+    http.get(
       '/v1/system/hardware/switches',
       handler(handlers['switchList'], schema.SwitchListParams, null)
     ),
@@ -1952,6 +1978,14 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
         schema.NetworkingAddressLotBlockListParams,
         null
       )
+    ),
+    http.get(
+      '/v1/system/networking/allow-list',
+      handler(handlers['networkingAllowListView'], null, null)
+    ),
+    http.put(
+      '/v1/system/networking/allow-list',
+      handler(handlers['networkingAllowListUpdate'], null, schema.AllowListUpdate)
     ),
     http.post(
       '/v1/system/networking/bfd-disable',
