@@ -4399,7 +4399,7 @@ export class Api extends HttpClient {
      * Create instrumentation probe
      */
     probeCreate: (
-      { query, body }: { query?: ProbeCreateQueryParams; body: ProbeCreate },
+      { query, body }: { query: ProbeCreateQueryParams; body: ProbeCreate },
       params: FetchParams = {}
     ) => {
       return this.request<Probe>({
@@ -4414,7 +4414,7 @@ export class Api extends HttpClient {
      * View instrumentation probe
      */
     probeView: (
-      { path, query }: { path: ProbeViewPathParams; query?: ProbeViewQueryParams },
+      { path, query }: { path: ProbeViewPathParams; query: ProbeViewQueryParams },
       params: FetchParams = {}
     ) => {
       return this.request<ProbeInfo>({
@@ -4428,7 +4428,7 @@ export class Api extends HttpClient {
      * Delete instrumentation probe
      */
     probeDelete: (
-      { path, query }: { path: ProbeDeletePathParams; query?: ProbeDeleteQueryParams },
+      { path, query }: { path: ProbeDeletePathParams; query: ProbeDeleteQueryParams },
       params: FetchParams = {}
     ) => {
       return this.request<void>({
@@ -4520,7 +4520,7 @@ export class Api extends HttpClient {
      * Create a disk
      */
     diskCreate: (
-      { query, body }: { query?: DiskCreateQueryParams; body: DiskCreate },
+      { query, body }: { query: DiskCreateQueryParams; body: DiskCreate },
       params: FetchParams = {}
     ) => {
       return this.request<Disk>({
@@ -4680,7 +4680,7 @@ export class Api extends HttpClient {
      * Create floating IP
      */
     floatingIpCreate: (
-      { query, body }: { query?: FloatingIpCreateQueryParams; body: FloatingIpCreate },
+      { query, body }: { query: FloatingIpCreateQueryParams; body: FloatingIpCreate },
       params: FetchParams = {}
     ) => {
       return this.request<FloatingIp>({
@@ -4873,7 +4873,7 @@ export class Api extends HttpClient {
      * Demote silo image
      */
     imageDemote: (
-      { path, query }: { path: ImageDemotePathParams; query?: ImageDemoteQueryParams },
+      { path, query }: { path: ImageDemotePathParams; query: ImageDemoteQueryParams },
       params: FetchParams = {}
     ) => {
       return this.request<Image>({
@@ -4918,7 +4918,7 @@ export class Api extends HttpClient {
      * Create instance
      */
     instanceCreate: (
-      { query, body }: { query?: InstanceCreateQueryParams; body: InstanceCreate },
+      { query, body }: { query: InstanceCreateQueryParams; body: InstanceCreate },
       params: FetchParams = {}
     ) => {
       return this.request<Instance>({
@@ -5368,7 +5368,7 @@ export class Api extends HttpClient {
         query,
         body,
       }: {
-        query?: InstanceNetworkInterfaceCreateQueryParams
+        query: InstanceNetworkInterfaceCreateQueryParams
         body: InstanceNetworkInterfaceCreate
       },
       params: FetchParams = {}
@@ -5582,7 +5582,7 @@ export class Api extends HttpClient {
      * Create snapshot
      */
     snapshotCreate: (
-      { query, body }: { query?: SnapshotCreateQueryParams; body: SnapshotCreate },
+      { query, body }: { query: SnapshotCreateQueryParams; body: SnapshotCreate },
       params: FetchParams = {}
     ) => {
       return this.request<Snapshot>({
@@ -5802,7 +5802,7 @@ export class Api extends HttpClient {
         body,
       }: {
         path: NetworkingSwitchPortApplySettingsPathParams
-        query?: NetworkingSwitchPortApplySettingsQueryParams
+        query: NetworkingSwitchPortApplySettingsQueryParams
         body: SwitchPortApplySettings
       },
       params: FetchParams = {}
@@ -5824,7 +5824,7 @@ export class Api extends HttpClient {
         query,
       }: {
         path: NetworkingSwitchPortClearSettingsPathParams
-        query?: NetworkingSwitchPortClearSettingsQueryParams
+        query: NetworkingSwitchPortClearSettingsQueryParams
       },
       params: FetchParams = {}
     ) => {
@@ -5877,7 +5877,7 @@ export class Api extends HttpClient {
      * Create user
      */
     localIdpUserCreate: (
-      { query, body }: { query?: LocalIdpUserCreateQueryParams; body: UserCreate },
+      { query, body }: { query: LocalIdpUserCreateQueryParams; body: UserCreate },
       params: FetchParams = {}
     ) => {
       return this.request<User>({
@@ -5895,7 +5895,7 @@ export class Api extends HttpClient {
       {
         path,
         query,
-      }: { path: LocalIdpUserDeletePathParams; query?: LocalIdpUserDeleteQueryParams },
+      }: { path: LocalIdpUserDeletePathParams; query: LocalIdpUserDeleteQueryParams },
       params: FetchParams = {}
     ) => {
       return this.request<void>({
@@ -5915,7 +5915,7 @@ export class Api extends HttpClient {
         body,
       }: {
         path: LocalIdpUserSetPasswordPathParams
-        query?: LocalIdpUserSetPasswordQueryParams
+        query: LocalIdpUserSetPasswordQueryParams
         body: UserPassword
       },
       params: FetchParams = {}
@@ -5935,10 +5935,7 @@ export class Api extends HttpClient {
       {
         query,
         body,
-      }: {
-        query?: SamlIdentityProviderCreateQueryParams
-        body: SamlIdentityProviderCreate
-      },
+      }: { query: SamlIdentityProviderCreateQueryParams; body: SamlIdentityProviderCreate },
       params: FetchParams = {}
     ) => {
       return this.request<SamlIdentityProvider>({
@@ -5958,7 +5955,7 @@ export class Api extends HttpClient {
         query,
       }: {
         path: SamlIdentityProviderViewPathParams
-        query?: SamlIdentityProviderViewQueryParams
+        query: SamlIdentityProviderViewQueryParams
       },
       params: FetchParams = {}
     ) => {
@@ -6341,7 +6338,7 @@ export class Api extends HttpClient {
      * Delete BGP configuration
      */
     networkingBgpConfigDelete: (
-      { query }: { query?: NetworkingBgpConfigDeleteQueryParams },
+      { query }: { query: NetworkingBgpConfigDeleteQueryParams },
       params: FetchParams = {}
     ) => {
       return this.request<void>({
@@ -6355,7 +6352,7 @@ export class Api extends HttpClient {
      * Get originated routes for a BGP configuration
      */
     networkingBgpAnnounceSetList: (
-      { query }: { query?: NetworkingBgpAnnounceSetListQueryParams },
+      { query }: { query: NetworkingBgpAnnounceSetListQueryParams },
       params: FetchParams = {}
     ) => {
       return this.request<BgpAnnouncement[]>({
@@ -6383,7 +6380,7 @@ export class Api extends HttpClient {
      * Delete BGP announce set
      */
     networkingBgpAnnounceSetDelete: (
-      { query }: { query?: NetworkingBgpAnnounceSetDeleteQueryParams },
+      { query }: { query: NetworkingBgpAnnounceSetDeleteQueryParams },
       params: FetchParams = {}
     ) => {
       return this.request<void>({
@@ -6397,7 +6394,7 @@ export class Api extends HttpClient {
      * Get BGP router message history
      */
     networkingBgpMessageHistory: (
-      { query }: { query?: NetworkingBgpMessageHistoryQueryParams },
+      { query }: { query: NetworkingBgpMessageHistoryQueryParams },
       params: FetchParams = {}
     ) => {
       return this.request<AggregateBgpMessageHistory>({
@@ -6411,7 +6408,7 @@ export class Api extends HttpClient {
      * Get imported IPv4 BGP routes
      */
     networkingBgpImportedRoutesIpv4: (
-      { query }: { query?: NetworkingBgpImportedRoutesIpv4QueryParams },
+      { query }: { query: NetworkingBgpImportedRoutesIpv4QueryParams },
       params: FetchParams = {}
     ) => {
       return this.request<BgpImportedRouteIpv4[]>({
@@ -6720,7 +6717,7 @@ export class Api extends HttpClient {
      * Fetch built-in (system) user
      */
     siloUserView: (
-      { path, query }: { path: SiloUserViewPathParams; query?: SiloUserViewQueryParams },
+      { path, query }: { path: SiloUserViewPathParams; query: SiloUserViewQueryParams },
       params: FetchParams = {}
     ) => {
       return this.request<User>({
@@ -6837,7 +6834,7 @@ export class Api extends HttpClient {
      * List firewall rules
      */
     vpcFirewallRulesView: (
-      { query }: { query?: VpcFirewallRulesViewQueryParams },
+      { query }: { query: VpcFirewallRulesViewQueryParams },
       params: FetchParams = {}
     ) => {
       return this.request<VpcFirewallRules>({
@@ -6854,7 +6851,7 @@ export class Api extends HttpClient {
       {
         query,
         body,
-      }: { query?: VpcFirewallRulesUpdateQueryParams; body: VpcFirewallRuleUpdateParams },
+      }: { query: VpcFirewallRulesUpdateQueryParams; body: VpcFirewallRuleUpdateParams },
       params: FetchParams = {}
     ) => {
       return this.request<VpcFirewallRules>({
@@ -6883,7 +6880,7 @@ export class Api extends HttpClient {
      * Create subnet
      */
     vpcSubnetCreate: (
-      { query, body }: { query?: VpcSubnetCreateQueryParams; body: VpcSubnetCreate },
+      { query, body }: { query: VpcSubnetCreateQueryParams; body: VpcSubnetCreate },
       params: FetchParams = {}
     ) => {
       return this.request<VpcSubnet>({
@@ -6986,7 +6983,7 @@ export class Api extends HttpClient {
      * Create VPC
      */
     vpcCreate: (
-      { query, body }: { query?: VpcCreateQueryParams; body: VpcCreate },
+      { query, body }: { query: VpcCreateQueryParams; body: VpcCreate },
       params: FetchParams = {}
     ) => {
       return this.request<Vpc>({
@@ -7066,3 +7063,5 @@ export class Api extends HttpClient {
     },
   }
 }
+
+export default Api
