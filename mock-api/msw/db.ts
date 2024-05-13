@@ -200,6 +200,26 @@ export const lookup = {
         return { ...pool, is_default: link.is_default }
       })
   },
+  siloIpPool(path: PP.Silo & PP.IpPool): Json<Api.SiloIpPool> {
+    const silo = lookup.silo(path)
+    const pool = lookup.ipPool(path)
+
+    // we want to 404 if it exists but isn't in the silo
+    const ipPoolSilo = db.ipPoolSilos.find(
+      (ips) => ips.ip_pool_id === pool.id && ips.silo_id === silo.id
+    )
+    if (!ipPoolSilo) throw notFoundErr
+
+    return { ...pool, is_default: ipPoolSilo.is_default }
+  },
+  siloDefaultIpPool(path: PP.Silo): Json<Api.IpPool> {
+    const silo = lookup.silo(path)
+
+    const link = db.ipPoolSilos.find((ips) => ips.silo_id === silo.id && ips.is_default)
+    if (!link) throw notFoundErr
+
+    return lookupById(db.ipPools, link.ip_pool_id)
+  },
   samlIdp({
     provider: id,
     ...siloSelector

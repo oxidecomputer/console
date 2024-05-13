@@ -11,7 +11,7 @@ import { type IpPool, type IpPoolRange, type IpPoolSiloLink } from '@oxide/api'
 import type { Json } from './json-type'
 import { defaultSilo } from './silo'
 
-const ipPool1: Json<IpPool> = {
+export const ipPool1: Json<IpPool> = {
   id: '69b5c583-74a9-451a-823d-0741c1ec66e2',
   name: 'ip-pool-1',
   description: '',
