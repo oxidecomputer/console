@@ -8,7 +8,10 @@
 import { ErrorBoundary as BaseErrorBoundary } from 'react-error-boundary'
 import { useRouteError } from 'react-router-dom'
 
-import type { ApiError } from '@oxide/api'
+import { useApiMutation } from '~/api/client'
+import { type ApiError } from '~/api/errors'
+import { navToLogin } from '~/api/nav-to-login'
+import { Button } from '~/ui/lib/Button'
 
 import { ErrorPage, NotFound } from './ErrorPage'
 
@@ -27,6 +30,7 @@ function ErrorFallback({ error }: Props) {
       <p className="text-tertiary">
         Please try again. If the problem persists, contact your administrator.
       </p>
+      <SignOutButton className="!mt-4" />
     </ErrorPage>
   )
 }
@@ -39,4 +43,20 @@ export function RouterDataErrorBoundary() {
   // TODO: validate this unknown at runtime _before_ passing to ErrorFallback
   const error = useRouteError() as Props['error']
   return <ErrorFallback error={error} />
+}
+
+export function SignOutButton({ className }: { className?: string }) {
+  const logout = useApiMutation('logout', {
+    onSuccess: () => navToLogin({ includeCurrent: false }),
+  })
+  return (
+    <Button
+      onClick={() => logout.mutate({})}
+      className={className}
+      size="sm"
+      variant="ghost"
+    >
+      Sign out
+    </Button>
+  )
 }
