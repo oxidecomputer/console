@@ -32,7 +32,6 @@ import { InstanceLinkCell } from '~/table/cells/InstanceLinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
-import { Badge } from '~/ui/lib/Badge'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Listbox } from '~/ui/lib/Listbox'
@@ -81,13 +80,12 @@ FloatingIpsPage.loader = async ({ params }: LoaderFunctionArgs) => {
 const IpPoolCell = ({ ipPoolId }: { ipPoolId: string }) => {
   const pool = useApiQuery('projectIpPoolView', { path: { pool: ipPoolId } }).data
   if (!pool) return <EmptyCell />
-  const badge = <Badge color="neutral">{pool.name}</Badge>
   return pool.description ? (
     <Tooltip content={pool.description} placement="right">
-      <span>{badge}</span>
+      <span>{pool.name}</span>
     </Tooltip>
   ) : (
-    badge
+    <>{pool.name}</>
   )
 }
 
