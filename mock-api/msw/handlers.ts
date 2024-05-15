@@ -33,6 +33,7 @@ import {
   currentUser,
   errIfExists,
   errIfInvalidDiskSize,
+  forbiddenErr,
   getStartAndEndTime,
   getTimestamps,
   handleMetrics,
@@ -51,6 +52,7 @@ import {
 // is *JSON type.
 
 export const handlers = makeHandlers({
+  logout: () => 204,
   ping: () => ({ status: 'ok' }),
   deviceAuthRequest: () => 200,
   deviceAuthConfirm: ({ body }) => (body.user_code === 'ERRO-RABC' ? 400 : 200),
@@ -74,7 +76,9 @@ export const handlers = makeHandlers({
   },
   projectView: ({ path }) => {
     if (path.project.endsWith('error-503')) {
-      throw unavailableErr
+      throw unavailableErr()
+    } else if (path.project.endsWith('error-403')) {
+      throw forbiddenErr()
     }
 
     return lookup.project({ ...path })
@@ -1263,7 +1267,6 @@ export const handlers = makeHandlers({
   localIdpUserDelete: NotImplemented,
   localIdpUserSetPassword: NotImplemented,
   loginSaml: NotImplemented,
-  logout: NotImplemented,
   networkingAddressLotBlockList: NotImplemented,
   networkingAddressLotCreate: NotImplemented,
   networkingAddressLotDelete: NotImplemented,
