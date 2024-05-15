@@ -49,6 +49,7 @@ test('can create a floating IP', async ({ page }) => {
   await expectRowVisible(page.getByRole('table'), {
     name: floatingIpName,
     description: 'A description for this Floating IP',
+    'IP pool': 'ip-pool-1',
   })
 })
 

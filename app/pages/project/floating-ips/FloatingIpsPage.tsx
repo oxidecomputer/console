@@ -13,6 +13,7 @@ import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 import {
   apiQueryClient,
   useApiMutation,
+  useApiQuery,
   useApiQueryClient,
   usePrefetchedApiQuery,
   type FloatingIp,
@@ -26,10 +27,12 @@ import { getProjectSelector, useProjectSelector } from '~/hooks'
 import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
+import { EmptyCell } from '~/table/cells/EmptyCell'
 import { InstanceLinkCell } from '~/table/cells/InstanceLinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
+import { Badge } from '~/ui/lib/Badge'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Listbox } from '~/ui/lib/Listbox'
@@ -37,6 +40,7 @@ import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
+import { Tooltip } from '~/ui/lib/Tooltip'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
@@ -59,8 +63,32 @@ FloatingIpsPage.loader = async ({ params }: LoaderFunctionArgs) => {
     apiQueryClient.prefetchQuery('instanceList', {
       query: { project },
     }),
+    apiQueryClient
+      .fetchQuery('projectIpPoolList', { query: { limit: 1000 } })
+      .then((pools) => {
+        for (const pool of pools.items) {
+          apiQueryClient.setQueryData(
+            'projectIpPoolView',
+            { path: { pool: pool.id } },
+            pool
+          )
+        }
+      }),
   ])
   return null
+}
+
+const IpPoolCell = ({ ipPoolId }: { ipPoolId: string }) => {
+  const pool = useApiQuery('projectIpPoolView', { path: { pool: ipPoolId } }).data
+  if (!pool) return <EmptyCell />
+  const badge = <Badge color="neutral">{pool.name}</Badge>
+  return pool.description ? (
+    <Tooltip content={pool.description} placement="right">
+      <span>{badge}</span>
+    </Tooltip>
+  ) : (
+    badge
+  )
 }
 
 const colHelper = createColumnHelper<FloatingIp>()
@@ -68,6 +96,10 @@ const staticCols = [
   colHelper.accessor('name', {}),
   colHelper.accessor('description', Columns.description),
   colHelper.accessor('ip', {}),
+  colHelper.accessor('ipPoolId', {
+    cell: (info) => <IpPoolCell ipPoolId={info.getValue()} />,
+    header: 'IP pool',
+  }),
   colHelper.accessor('instanceId', {
     cell: (info) => <InstanceLinkCell instanceId={info.getValue()} />,
     header: 'Attached to instance',
