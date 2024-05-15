@@ -10,6 +10,8 @@ export const links: Record<string, string> = {
   cloudInitFormat: 'https://cloudinit.readthedocs.io/en/latest/explanation/format.html',
   cloudInitExamples: 'https://cloudinit.readthedocs.io/en/latest/reference/examples.html',
   disksDocs: 'https://docs.oxide.computer/guides/managing-disks-and-snapshots',
+  externalAddresses:
+    'https://docs.oxide.computer/guides/operator/ip-pool-management#_external_address_categorization',
   firewallRulesDocs:
     'https://docs.oxide.computer/guides/configuring-guest-networking#_firewall_rules',
   floatingIpsDocs: 'https://docs.oxide.computer/guides/managing-floating-ips',
@@ -20,6 +22,7 @@ export const links: Record<string, string> = {
   keyConceptsProjectsDocs:
     'https://docs.oxide.computer/guides/key-entities-and-concepts#_projects',
   projectsDocs: 'https://docs.oxide.computer/guides/onboarding-projects',
+  quickStart: 'https://docs.oxide.computer/guides/quickstart',
   sledDocs:
     'https://docs.oxide.computer/guides/architecture/service-processors#_server_sled',
   snapshotsDocs:
@@ -71,6 +74,10 @@ export const docLinks = {
   projects: {
     href: links.projectsDocs,
     linkText: 'Managing Projects',
+  },
+  quickStart: {
+    href: links.quickStart,
+    linkText: 'Quick Start',
   },
   sleds: {
     href: links.sledDocs,

@@ -75,7 +75,7 @@ module.exports = {
     'react/react-in-jsx-scope': 'off',
     'react/prop-types': 'off',
   },
-  ignorePatterns: ['dist/'],
+  ignorePatterns: ['dist/', 'node_modules/'],
   overrides: [
     {
       // default export is needed in config files

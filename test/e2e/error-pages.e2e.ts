@@ -13,6 +13,8 @@ test('Shows 404 page when a resource is not found', async ({ page }) => {
 
   await page.goto('/projects/nonexistent')
   await expect(page.locator('text=Page not found')).toBeVisible()
+
+  await expect(page.getByRole('button', { name: 'Sign out' })).toBeVisible()
 })
 
 test('Shows something went wrong page on other errors', async ({ page }) => {
@@ -31,4 +33,12 @@ test('Shows something went wrong page on other errors', async ({ page }) => {
   const error =
     'Invariant failed: Expected query to be prefetched. Key: ["projectView",{"path":{"project":"error-503"}}]'
   expect(errors.some((e) => e.message.includes(error))).toBeTruthy()
+
+  // test clicking sign out
+  await page.getByRole('button', { name: 'Sign out' }).click()
+  // login route doesn't actually work in the mock setup  (in production this
+  // is handled by nexus, and it's hard to get Vite to do the right thing here
+  // without getting elaborate with middleware), so this is a 404, but we do end
+  // up at the right URL
+  await expect(page).toHaveURL('/login')
 })

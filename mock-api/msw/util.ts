@@ -92,6 +92,9 @@ export function getTimestamps() {
   return { time_created: now, time_modified: now }
 }
 
+export const forbiddenErr = () =>
+  json({ error_code: 'Forbidden', request_id: 'fake-id' }, { status: 403 })
+
 export const unavailableErr = () =>
   json({ error_code: 'ServiceUnavailable', request_id: 'fake-id' }, { status: 503 })
 
