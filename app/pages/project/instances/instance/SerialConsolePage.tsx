@@ -86,12 +86,12 @@ export function SerialConsolePage() {
     const setError = () => setConnectionStatus('error')
 
     ws.current?.addEventListener('open', setOpen)
-    ws.current?.addEventListener('closed', setClosed)
+    ws.current?.addEventListener('close', setClosed)
     ws.current?.addEventListener('error', setError)
 
     return () => {
       ws.current?.removeEventListener('open', setOpen)
-      ws.current?.removeEventListener('closed', setClosed)
+      ws.current?.removeEventListener('close', setClosed)
       ws.current?.removeEventListener('error', setError)
     }
   }, [])
