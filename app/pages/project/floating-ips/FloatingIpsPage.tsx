@@ -95,7 +95,9 @@ const colHelper = createColumnHelper<FloatingIp>()
 const staticCols = [
   colHelper.accessor('name', {}),
   colHelper.accessor('description', Columns.description),
-  colHelper.accessor('ip', {}),
+  colHelper.accessor('ip', {
+    header: 'IP address',
+  }),
   colHelper.accessor('ipPoolId', {
     cell: (info) => <IpPoolCell ipPoolId={info.getValue()} />,
     header: 'IP pool',

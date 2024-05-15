@@ -63,7 +63,7 @@ test('can detach and attach a floating IP', async ({ page }) => {
 
   await expectRowVisible(page.getByRole('table'), {
     name: 'cola-float',
-    ip: '123.4.56.5',
+    'IP address': '123.4.56.5',
     'Attached to instance': 'db1',
   })
   await clickRowAction(page, 'cola-float', 'Detach')
@@ -92,7 +92,7 @@ test('can detach and attach a floating IP', async ({ page }) => {
   await expect(page.getByRole('dialog')).toBeHidden()
   await expectRowVisible(page.getByRole('table'), {
     name: 'cola-float',
-    ip: '123.4.56.5',
+    'IP address': '123.4.56.5',
     'Attached to instance': 'db1',
   })
 })
