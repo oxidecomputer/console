@@ -14,8 +14,7 @@ test('Shows 404 page when a resource is not found', async ({ page }) => {
   await page.goto('/projects/nonexistent')
   await expect(page.locator('text=Page not found')).toBeVisible()
 
-  // no logout button on 404
-  await expect(page.getByRole('button', { name: 'Sign out' })).toBeHidden()
+  await expect(page.getByRole('button', { name: 'Sign out' })).toBeVisible()
 })
 
 test('Shows something went wrong page on other errors', async ({ page }) => {
