@@ -95,7 +95,7 @@ export function DatePicker(props: DatePickerProps) {
                 value={state.timeValue}
                 onChange={handleSetTime}
                 hourCycle={24}
-                className="flex-grow"
+                className="grow"
               />
             </div>
           </Dialog>
