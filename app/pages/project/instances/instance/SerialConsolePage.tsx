@@ -6,13 +6,13 @@
  * Copyright Oxide Computer Company
  */
 import { lazy, Suspense, useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, type LoaderFunctionArgs } from 'react-router-dom'
 
-import { api } from '@oxide/api'
+import { api, apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import { PrevArrow12Icon } from '@oxide/design-system/icons/react'
 
 import { EquivalentCliCommand } from '~/components/EquivalentCliCommand'
-import { useInstanceSelector } from '~/hooks'
+import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
 import { Badge, type BadgeColor } from '~/ui/lib/Badge'
 import { Spinner } from '~/ui/lib/Spinner'
 import { cliCmd } from '~/util/cli-cmd'
@@ -34,6 +34,15 @@ const statusMessage: Record<WsState, string> = {
   open: 'connected',
   closed: 'disconnected',
   error: 'error',
+}
+
+SerialConsolePage.loader = async ({ params }: LoaderFunctionArgs) => {
+  const { project, instance } = getInstanceSelector(params)
+  await apiQueryClient.prefetchQuery('instanceView', {
+    path: { instance },
+    query: { project },
+  })
+  return null
 }
 
 export function SerialConsolePage() {
@@ -109,7 +118,7 @@ export function SerialConsolePage() {
       </Link>
 
       <div className="gutter relative w-full flex-shrink flex-grow overflow-hidden">
-        {connectionStatus !== 'open' && <SerialSkeleton />}
+        <SerialSkeleton state={connectionStatus} />
         <Suspense fallback={null}>{ws.current && <Terminal ws={ws.current} />}</Suspense>
       </div>
       <div className="flex-shrink-0 justify-between overflow-hidden border-t bg-default border-secondary empty:border-t-0">
@@ -127,8 +136,16 @@ export function SerialConsolePage() {
   )
 }
 
-function SerialSkeleton() {
-  const instanceSelector = useInstanceSelector()
+function SerialSkeleton({ state }: { state: WsState }) {
+  const { instance, project } = useInstanceSelector()
+  const { data: _instanceData } = usePrefetchedApiQuery('instanceView', {
+    query: { project },
+    path: { instance },
+  })
+
+  // if the instance is stopped we can say that in the thing
+
+  if (state === 'open') return null
 
   return (
     <div className="relative h-full flex-shrink flex-grow overflow-hidden">
@@ -153,13 +170,14 @@ function SerialSkeleton() {
       <div className="absolute left-1/2 top-1/2 flex w-96 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center space-y-4 rounded-lg border p-12 !bg-raise border-secondary elevation-3">
         <Spinner size="lg" />
 
-        <div className="space-y-2">
-          <p className="text-center text-sans-xl text-default">
-            Connecting to{' '}
-            <Link to={pb.instance(instanceSelector)} className="text-accent-secondary">
-              {instanceSelector.instance}
-            </Link>
-          </p>
+        <div className="text-center">
+          <p className="text-sans-xl">Connecting to</p>
+          <Link
+            className="text-sans-xl text-accent-secondary hover:text-accent"
+            to={pb.instance({ project, instance })}
+          >
+            {instance}
+          </Link>
         </div>
       </div>
     </div>
