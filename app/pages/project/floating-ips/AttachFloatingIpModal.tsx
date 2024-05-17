@@ -74,7 +74,7 @@ export const AttachFloatingIpModal = ({
               items={floatingIps.map((ip) => ({
                 value: ip.id,
                 label: <FloatingIpLabel fip={ip} />,
-                labelString: ip.name,
+                selectedLabel: ip.name,
               }))}
               required
             />

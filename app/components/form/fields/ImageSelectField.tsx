@@ -59,9 +59,9 @@ export function toListboxItem(i: Image, includeProjectSiloIndicator = false): Li
   const formattedSize = `${bytesToGiB(size, 1)} GiB`
 
   // filter out any undefined metadata and create a comma-separated list
-  // for the selected listbox item (shown in labelString)
+  // for the selected listbox item (shown in selectedLabel)
   const condensedImageMetadata = [os, version, formattedSize].filter((i) => !!i).join(', ')
-  const metadataForLabelString = condensedImageMetadata.length
+  const metadataForSelectedLabel = condensedImageMetadata.length
     ? ` (${condensedImageMetadata})`
     : ''
 
@@ -81,7 +81,7 @@ export function toListboxItem(i: Image, includeProjectSiloIndicator = false): Li
     ))
   return {
     value: i.id,
-    labelString: `${name}${metadataForLabelString}`,
+    selectedLabel: `${name}${metadataForSelectedLabel}`,
     label: (
       <>
         <div>{name}</div>
