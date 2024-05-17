@@ -243,7 +243,7 @@ export function CreateInstanceForm() {
     query: { project, limit: 1000 },
   })
   // Filter out the IPs that are already attached to an instance
-  const availableFloatingIps = useMemo(
+  const attachableFloatingIps = useMemo(
     () => floatingIpList.items.filter((ip) => !ip.instanceId),
     [floatingIpList]
   )
@@ -590,7 +590,7 @@ export function CreateInstanceForm() {
         <Form.Heading id="advanced">Advanced</Form.Heading>
         <AdvancedAccordion
           control={control}
-          floatingIpList={availableFloatingIps}
+          attachableFloatingIps={attachableFloatingIps}
           isSubmitting={isSubmitting}
           siloPools={siloPools.items}
         />
@@ -606,12 +606,13 @@ export function CreateInstanceForm() {
 const AdvancedAccordion = ({
   control,
   isSubmitting,
-  floatingIpList,
+  attachableFloatingIps,
   siloPools,
 }: {
   control: Control<InstanceCreateInput>
   isSubmitting: boolean
-  floatingIpList: Array<FloatingIp>
+  // attachableFloatingIps are not yet attached to any instance
+  attachableFloatingIps: Array<FloatingIp>
   siloPools: Array<{ name: string; isDefault: boolean }>
 }) => {
   // we track this state manually for the sole reason that we need to be able to
@@ -628,8 +629,8 @@ const AdvancedAccordion = ({
     (ip) => ip.type === 'floating'
   )
 
-  // To find available floating IPs, we filter out the ones that are already attached
-  const availableFloatingIps = floatingIpList.filter(
+  // To find available floating IPs, we remove the ones that are already committed to this instance
+  const availableFloatingIps = attachableFloatingIps.filter(
     (ip) =>
       !attachedFloatingIps.find(
         (attachedIp) => attachedIp.type === 'floating' && attachedIp.floatingIp === ip.name
@@ -638,7 +639,8 @@ const AdvancedAccordion = ({
   const attachedFloatingIpsData = attachedFloatingIps
     .map(
       (ip) =>
-        ip.type === 'floating' && floatingIpList.find((fip) => fip.name === ip.floatingIp)
+        ip.type === 'floating' &&
+        attachableFloatingIps.find((fip) => fip.name === ip.floatingIp)
     )
     .filter((x) => !!x) as Array<FloatingIp>
 
@@ -843,8 +845,9 @@ const AdvancedAccordion = ({
                         {selectedFloatingIp ? (
                           <HL>
                             {
-                              floatingIpList.find((ip) => ip.name === selectedFloatingIp)
-                                ?.ip
+                              attachableFloatingIps.find(
+                                (ip) => ip.name === selectedFloatingIp
+                              )?.ip
                             }
                           </HL>
                         ) : (
