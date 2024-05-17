@@ -89,6 +89,12 @@ test('path builder', () => {
         "systemUtilization": "/system/utilization",
         "vpc": "/projects/p/vpcs/v",
         "vpcEdit": "/projects/p/vpcs/v/edit",
+        "vpcFirewallRuleEdit": "/projects/p/vpcs/v/firewall-rules/fr/edit",
+        "vpcFirewallRules": "/projects/p/vpcs/v/firewall-rules",
+        "vpcFirewallRulesNew": "/projects/p/vpcs/v/firewall-rules-new",
+        "vpcSubnets": "/projects/p/vpcs/v/subnets",
+        "vpcSubnetsEdit": "/projects/p/vpcs/v/subnets/su/edit",
+        "vpcSubnetsNew": "/projects/p/vpcs/v/subnets-new",
         "vpcs": "/projects/p/vpcs",
         "vpcsNew": "/projects/p/vpcs-new",
       }
