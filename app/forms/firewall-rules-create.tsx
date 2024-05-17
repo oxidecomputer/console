@@ -44,7 +44,7 @@ import { KEYS } from '~/ui/util/keys'
 import { sortBy } from '~/util/array'
 import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
-import { incrementName } from '~/util/template'
+import { incrementName } from '~/util/str'
 
 export type FirewallRuleValues = {
   enabled: boolean
