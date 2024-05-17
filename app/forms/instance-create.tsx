@@ -59,8 +59,8 @@ import { HL } from '~/components/HL'
 import { getProjectSelector, useForm, useProjectSelector } from '~/hooks'
 import { addToast } from '~/stores/toast'
 import { Badge } from '~/ui/lib/Badge'
+import { Button } from '~/ui/lib/Button'
 import { Checkbox } from '~/ui/lib/Checkbox'
-import { CreateButton } from '~/ui/lib/CreateButton'
 import { FormDivider } from '~/ui/lib/Divider'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Listbox } from '~/ui/lib/Listbox'
@@ -73,7 +73,6 @@ import { Slash } from '~/ui/lib/Slash'
 import { Tabs } from '~/ui/lib/Tabs'
 import { TextInputHint } from '~/ui/lib/TextInput'
 import { TipIcon } from '~/ui/lib/TipIcon'
-import { Tooltip } from '~/ui/lib/Tooltip'
 import { readBlobAsBase64 } from '~/util/file'
 import { docLinks, links } from '~/util/links'
 import { nearest10 } from '~/util/math'
@@ -688,24 +687,6 @@ const AdvancedAccordion = ({
     return <>{pool?.name}</>
   }
 
-  const FloatingIpCheckbox = () => (
-    <div className="flex gap-2">
-      <Checkbox
-        id="attachFloatingIps"
-        checked={attachedFloatingIps.length > 0}
-        disabled={attachedFloatingIps.length > 0 || isSubmitting}
-        onChange={() => {
-          isEmptyFloatingIpPlaceholderPresent
-            ? removeFloatingIpPlaceholder()
-            : addFloatingIpPlaceholder()
-        }}
-      />
-      <label htmlFor="attachFloatingIps" className="text-sans-md text-secondary">
-        Attach floating IPs
-      </label>
-    </div>
-  )
-
   return (
     <Accordion.Root
       type="multiple"
@@ -791,59 +772,44 @@ const AdvancedAccordion = ({
               Floating IPs are static IP addresses that can be attached to instances
             </TipIcon>
           </h2>
-          <div className="flex items-start gap-2.5">
-            {attachedFloatingIps.length ? (
-              <Tooltip
-                content="Remove all floating IPs below to uncheck this box"
-                placement="top"
-              >
-                <span>
-                  <FloatingIpCheckbox />
-                </span>
-              </Tooltip>
-            ) : (
-              <FloatingIpCheckbox />
-            )}
-          </div>
           {isFloatingIpAttached && (
-            <>
-              <MiniTable.Table>
-                <MiniTable.Header>
-                  <MiniTable.HeadCell>Name</MiniTable.HeadCell>
-                  <MiniTable.HeadCell>IP</MiniTable.HeadCell>
-                  {/* For remove button */}
-                  <MiniTable.HeadCell className="w-12" />
-                </MiniTable.Header>
-                <MiniTable.Body>
-                  {attachedFloatingIpsData.map((item, index) => (
-                    <MiniTable.Row
-                      tabIndex={0}
-                      aria-rowindex={index + 1}
-                      aria-label={`Name: ${item.name}, IP: ${item.ip}`}
-                      key={item.name}
-                    >
-                      <MiniTable.Cell>{item.name}</MiniTable.Cell>
-                      <MiniTable.Cell>{item.ip}</MiniTable.Cell>
-                      <MiniTable.Cell>
-                        <button
-                          onClick={() => {
-                            detachFloatingIp(item.name)
-                          }}
-                        >
-                          <Error16Icon title={`remove ${item.name}`} />
-                        </button>
-                      </MiniTable.Cell>
-                    </MiniTable.Row>
-                  ))}
-                </MiniTable.Body>
-              </MiniTable.Table>
-              <div>
-                <CreateButton onClick={() => addFloatingIpPlaceholder()}>
-                  Add floating IP
-                </CreateButton>
-              </div>
-            </>
+            <MiniTable.Table>
+              <MiniTable.Header>
+                <MiniTable.HeadCell>Name</MiniTable.HeadCell>
+                <MiniTable.HeadCell>IP</MiniTable.HeadCell>
+                {/* For remove button */}
+                <MiniTable.HeadCell className="w-12" />
+              </MiniTable.Header>
+              <MiniTable.Body>
+                {attachedFloatingIpsData.map((item, index) => (
+                  <MiniTable.Row
+                    tabIndex={0}
+                    aria-rowindex={index + 1}
+                    aria-label={`Name: ${item.name}, IP: ${item.ip}`}
+                    key={item.name}
+                  >
+                    <MiniTable.Cell>{item.name}</MiniTable.Cell>
+                    <MiniTable.Cell>{item.ip}</MiniTable.Cell>
+                    <MiniTable.Cell>
+                      <button
+                        onClick={() => {
+                          detachFloatingIp(item.name)
+                        }}
+                      >
+                        <Error16Icon title={`remove ${item.name}`} />
+                      </button>
+                    </MiniTable.Cell>
+                  </MiniTable.Row>
+                ))}
+              </MiniTable.Body>
+            </MiniTable.Table>
           )}
+          <div>
+            <Button size="sm" className="shrink-0" onClick={addFloatingIpPlaceholder}>
+              Attach floating IP
+            </Button>
+          </div>
+
           {!!attachedFloatingIps.length && (
             <Modal
               isOpen={isEmptyFloatingIpPlaceholderPresent}
