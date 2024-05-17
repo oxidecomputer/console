@@ -71,6 +71,7 @@ import { Slash } from '~/ui/lib/Slash'
 import { Tabs } from '~/ui/lib/Tabs'
 import { TextInputHint } from '~/ui/lib/TextInput'
 import { TipIcon } from '~/ui/lib/TipIcon'
+import { Tooltip } from '~/ui/lib/Tooltip'
 import { readBlobAsBase64 } from '~/util/file'
 import { docLinks, links } from '~/util/links'
 import { nearest10 } from '~/util/math'
@@ -678,7 +679,7 @@ const AdvancedAccordion = ({
     externalIps.field.onChange(newExternalIps)
   }
 
-  const isEmptyFloatingIpContainerPresent = attachedFloatingIps.some(
+  const isEmptyFloatingIpPlaceholderPresent = attachedFloatingIps.some(
     (ip) => ip.type === 'floating' && ip.floatingIp === ''
   )
 
@@ -690,6 +691,24 @@ const AdvancedAccordion = ({
     const pool = useApiQuery('projectIpPoolView', { path: { pool: ipPoolId } }).data
     return <>{pool?.name}</>
   }
+
+  const FloatingIpCheckbox = () => (
+    <div className="flex gap-2">
+      <Checkbox
+        id="attachFloatingIps"
+        checked={attachedFloatingIps.length > 0}
+        disabled={attachedFloatingIps.length > 0 || isSubmitting}
+        onChange={() => {
+          isEmptyFloatingIpPlaceholderPresent
+            ? removeFloatingIpPlaceholder()
+            : addFloatingIpPlaceholder()
+        }}
+      />
+      <label htmlFor="attachFloatingIps" className="text-sans-md text-secondary">
+        Attach floating IPs
+      </label>
+    </div>
+  )
 
   return (
     <Accordion.Root
@@ -777,18 +796,18 @@ const AdvancedAccordion = ({
             </TipIcon>
           </h2>
           <div className="flex items-start gap-2.5">
-            <Checkbox
-              id="attachFloatingIps"
-              checked={!!attachedFloatingIps.length}
-              onChange={() => {
-                isEmptyFloatingIpContainerPresent
-                  ? removeFloatingIpPlaceholder()
-                  : addFloatingIpPlaceholder()
-              }}
-            />
-            <label htmlFor="attachFloatingIps" className="text-sans-md text-secondary">
-              Attach floating IPs
-            </label>
+            {attachedFloatingIps.length ? (
+              <Tooltip
+                content="Remove all floating IPs below to uncheck this box"
+                placement="top"
+              >
+                <span>
+                  <FloatingIpCheckbox />
+                </span>
+              </Tooltip>
+            ) : (
+              <FloatingIpCheckbox />
+            )}
           </div>
           {isFloatingIpAttached && (
             <>
@@ -831,7 +850,7 @@ const AdvancedAccordion = ({
           )}
           {!!attachedFloatingIps.length && (
             <Modal
-              isOpen={isEmptyFloatingIpContainerPresent}
+              isOpen={isEmptyFloatingIpPlaceholderPresent}
               onDismiss={removeFloatingIpPlaceholder}
               title="Attach floating IP"
             >
@@ -892,7 +911,7 @@ const AdvancedAccordion = ({
                     attachFloatingIp(selectedFloatingIp)
                   }
                 }}
-                onDismiss={() => removeFloatingIpPlaceholder()}
+                onDismiss={removeFloatingIpPlaceholder}
               ></Modal.Footer>
             </Modal>
           )}
