@@ -21,6 +21,8 @@ type Snapshot = Required<PP.Snapshot>
 type SiloImage = Required<PP.SiloImage>
 type IpPool = Required<PP.IpPool>
 type FloatingIp = Required<PP.FloatingIp>
+type VpcFirewallRule = Required<PP.VpcFirewallRule>
+type VpcSubnet = Required<PP.VpcSubnet>
 
 // this is used as the basis for many routes, but is itself not a route we ever
 // want to link directly to. so we use this to build the routes but pb.project()
@@ -72,6 +74,17 @@ export const pb = {
   vpcs: (params: Project) => `${projectBase(params)}/vpcs`,
   vpc: (params: Vpc) => `${pb.vpcs(params)}/${params.vpc}`,
   vpcEdit: (params: Vpc) => `${pb.vpc(params)}/edit`,
+
+  vpcFirewallRules: (params: Vpc) => `${pb.vpcs(params)}/${params.vpc}/firewall-rules`,
+  vpcFirewallRulesNew: (params: Vpc) =>
+    `${pb.vpcs(params)}/${params.vpc}/firewall-rules-new`,
+  vpcFirewallRuleEdit: (params: VpcFirewallRule) =>
+    `${pb.vpcs(params)}/${params.vpc}/firewall-rules/${params.firewallRule}/edit`,
+  vpcSubnets: (params: Vpc) => `${pb.vpcs(params)}/${params.vpc}/subnets`,
+  vpcSubnetsNew: (params: Vpc) => `${pb.vpcs(params)}/${params.vpc}/subnets-new`,
+  vpcSubnetsEdit: (params: VpcSubnet) =>
+    `${pb.vpcs(params)}/${params.vpc}/subnets/${params.subnet}/edit`,
+
   floatingIps: (params: Project) => `${projectBase(params)}/floating-ips`,
   floatingIpsNew: (params: Project) => `${projectBase(params)}/floating-ips-new`,
   floatingIp: (params: FloatingIp) => `${pb.floatingIps(params)}/${params.floatingIp}`,

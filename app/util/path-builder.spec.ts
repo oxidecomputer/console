@@ -22,6 +22,8 @@ const params = {
   image: 'im',
   snapshot: 'sn',
   pool: 'pl',
+  firewallRule: 'fr',
+  subnet: 'su',
 }
 
 test('path builder', () => {

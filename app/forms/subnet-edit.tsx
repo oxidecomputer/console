@@ -5,22 +5,50 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useApiMutation, useApiQueryClient, type VpcSubnet } from '@oxide/api'
+import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
+
+import {
+  apiQueryClient,
+  useApiMutation,
+  useApiQueryClient,
+  usePrefetchedApiQuery,
+} from '@oxide/api'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { useForm, useVpcSelector } from '~/hooks'
+import {
+  getVpcSubnetSelector,
+  useForm,
+  useVpcSelector,
+  useVpcSubnetSelector,
+} from '~/hooks'
 import { pick } from '~/util/object'
+import { pb } from '~/util/path-builder'
 
-type EditSubnetFormProps = {
-  onDismiss: () => void
-  editing: VpcSubnet
+EditSubnetForm.loader = async ({ params }: LoaderFunctionArgs) => {
+  const vpcSubnetSelector = getVpcSubnetSelector(params)
+
+  await apiQueryClient.prefetchQuery('vpcSubnetView', {
+    query: { project: vpcSubnetSelector.project, vpc: vpcSubnetSelector.vpc },
+    path: { subnet: vpcSubnetSelector.subnet },
+  })
+
+  return null
 }
 
-export function EditSubnetForm({ onDismiss, editing }: EditSubnetFormProps) {
+export function EditSubnetForm() {
   const vpcSelector = useVpcSelector()
+  const vpcSubnetSelector = useVpcSubnetSelector()
   const queryClient = useApiQueryClient()
+
+  const navigate = useNavigate()
+  const onDismiss = () => navigate(pb.vpcSubnets(vpcSelector))
+
+  const { data: subnet } = usePrefetchedApiQuery('vpcSubnetView', {
+    query: vpcSelector,
+    path: { subnet: vpcSubnetSelector.subnet },
+  })
 
   const updateSubnet = useApiMutation('vpcSubnetUpdate', {
     onSuccess() {
@@ -29,7 +57,7 @@ export function EditSubnetForm({ onDismiss, editing }: EditSubnetFormProps) {
     },
   })
 
-  const defaultValues = pick(editing, 'name', 'description') /* satisfies VpcSubnetUpdate */
+  const defaultValues = pick(subnet, 'name', 'description') /* satisfies VpcSubnetUpdate */
 
   const form = useForm({ defaultValues })
 
@@ -41,7 +69,7 @@ export function EditSubnetForm({ onDismiss, editing }: EditSubnetFormProps) {
       onDismiss={onDismiss}
       onSubmit={(body) => {
         updateSubnet.mutate({
-          path: { subnet: editing.name },
+          path: { subnet: subnet.name },
           query: vpcSelector,
           body,
         })

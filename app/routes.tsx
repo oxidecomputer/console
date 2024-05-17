@@ -10,6 +10,8 @@ import { createRoutesFromElements, Navigate, Route } from 'react-router-dom'
 import { RouterDataErrorBoundary } from './components/ErrorBoundary'
 import { NotFound } from './components/ErrorPage'
 import { CreateDiskSideModalForm } from './forms/disk-create'
+import { CreateFirewallRuleForm } from './forms/firewall-rules-create'
+import { EditFirewallRuleForm } from './forms/firewall-rules-edit'
 import { CreateFloatingIpSideModalForm } from './forms/floating-ip-create'
 import { EditFloatingIpSideModalForm } from './forms/floating-ip-edit'
 import { CreateIdpSideModalForm } from './forms/idp/create'
@@ -29,6 +31,8 @@ import { EditProjectSideModalForm } from './forms/project-edit'
 import { CreateSiloSideModalForm } from './forms/silo-create'
 import { CreateSnapshotSideModalForm } from './forms/snapshot-create'
 import { CreateSSHKeySideModalForm } from './forms/ssh-key-create'
+import { CreateSubnetForm } from './forms/subnet-create'
+import { EditSubnetForm } from './forms/subnet-edit'
 import { CreateVpcSideModalForm } from './forms/vpc-create'
 import { EditVpcSideModalForm } from './forms/vpc-edit'
 import type { CrumbFunc } from './hooks/use-title'
@@ -58,6 +62,8 @@ import { NetworkingTab } from './pages/project/instances/instance/tabs/Networkin
 import { StorageTab } from './pages/project/instances/instance/tabs/StorageTab'
 import { InstancesPage } from './pages/project/instances/InstancesPage'
 import { SnapshotsPage } from './pages/project/snapshots/SnapshotsPage'
+import { VpcFirewallRulesTab } from './pages/project/vpcs/VpcPage/tabs/VpcFirewallRulesTab'
+import { VpcSubnetsTab } from './pages/project/vpcs/VpcPage/tabs/VpcSubnetsTab'
 import { VpcPage } from './pages/project/vpcs/VpcPage/VpcPage'
 import { VpcsPage } from './pages/project/vpcs/VpcsPage'
 import { ProjectsPage } from './pages/ProjectsPage'
@@ -343,12 +349,40 @@ export const routes = createRoutesFromElements(
         </Route>
 
         <Route path="vpcs" handle={{ crumb: 'VPCs' }}>
-          <Route
-            path=":vpc"
-            element={<VpcPage />}
-            loader={VpcPage.loader}
-            handle={{ crumb: vpcCrumb }}
-          />
+          <Route path=":vpc" handle={{ crumb: vpcCrumb }}>
+            <Route index element={<Navigate to="firewall-rules" replace />} />
+            <Route element={<VpcPage />} loader={VpcPage.loader}>
+              <Route element={<VpcFirewallRulesTab />} loader={VpcFirewallRulesTab.loader}>
+                <Route path="firewall-rules" handle={{ crumb: 'Firewall Rules' }} />
+                <Route
+                  path="firewall-rules-new"
+                  element={<CreateFirewallRuleForm />}
+                  loader={CreateFirewallRuleForm.loader}
+                  handle={{ crumb: 'New Firewall Rule' }}
+                />
+                <Route
+                  path="firewall-rules/:firewallRule/edit"
+                  element={<EditFirewallRuleForm />}
+                  loader={EditFirewallRuleForm.loader}
+                  handle={{ crumb: 'Edit Firewall Rule' }}
+                />
+              </Route>
+              <Route element={<VpcSubnetsTab />} loader={VpcSubnetsTab.loader}>
+                <Route path="subnets" handle={{ crumb: 'Subnets' }} />
+                <Route
+                  path="subnets-new"
+                  element={<CreateSubnetForm />}
+                  handle={{ crumb: 'New Subnet' }}
+                />
+                <Route
+                  path="subnets/:subnet/edit"
+                  element={<EditSubnetForm />}
+                  loader={EditSubnetForm.loader}
+                  handle={{ crumb: 'Edit Subnet' }}
+                />
+              </Route>
+            </Route>
+          </Route>
         </Route>
 
         <Route element={<FloatingIpsPage />} loader={FloatingIpsPage.loader}>
