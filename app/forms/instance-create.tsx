@@ -898,6 +898,7 @@ const AdvancedAccordion = ({
                       }}
                       required
                       placeholder="Select floating IP"
+                      noItemsPlaceholder="No floating IPs available"
                       selected={selectedFloatingIp || ''}
                     />
                   </form>
