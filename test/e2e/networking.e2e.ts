@@ -64,7 +64,7 @@ test('Create and edit subnet', async ({ page }) => {
   await page.getByRole('tab', { name: 'Subnets' }).click()
 
   // Create subnet
-  await page.click('role=button[name="New subnet"]')
+  await page.click('role=link[name="New subnet"]')
   await expectVisible(page, [
     'role=heading[name="Create subnet"]',
     'role=button[name="Create subnet"]',

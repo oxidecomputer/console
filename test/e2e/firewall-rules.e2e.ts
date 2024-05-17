@@ -25,7 +25,7 @@ test('can create firewall rule', async ({ page }) => {
   await expect(modal).toBeHidden()
 
   // open modal
-  await page.getByRole('button', { name: 'New rule' }).click()
+  await page.getByRole('link', { name: 'New rule' }).click()
 
   // modal is now open
   await expect(modal).toBeVisible()
@@ -141,7 +141,7 @@ test('firewall rule form targets table', async ({ page }) => {
   await page.getByRole('tab', { name: 'Firewall Rules' }).click()
 
   // open modal
-  await page.getByRole('button', { name: 'New rule' }).click()
+  await page.getByRole('link', { name: 'New rule' }).click()
 
   const targets = page.getByRole('table', { name: 'Targets' })
   const addButton = page.getByRole('button', { name: 'Add target' })
@@ -191,7 +191,7 @@ test('firewall rule form hosts table', async ({ page }) => {
   await page.getByRole('tab', { name: 'Firewall Rules' }).click()
 
   // open modal
-  await page.getByRole('button', { name: 'New rule' }).click()
+  await page.getByRole('link', { name: 'New rule' }).click()
 
   const hosts = page.getByRole('table', { name: 'Host filters' })
   const addButton = page.getByRole('button', { name: 'Add host filter' })
@@ -254,7 +254,7 @@ test('can update firewall rule', async ({ page }) => {
   await expect(modal).toBeHidden()
 
   // can click name cell to edit
-  await page.getByRole('button', { name: 'allow-icmp' }).click()
+  await page.getByRole('link', { name: 'allow-icmp' }).click()
 
   // modal is now open
   await expect(modal).toBeVisible()
