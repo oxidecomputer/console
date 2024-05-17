@@ -7,15 +7,36 @@
  */
 import { expect, test } from '@playwright/test'
 
+import { expectRowVisible } from './utils'
+
 test('can nav to VpcPage from /', async ({ page }) => {
   await page.goto('/')
   await page.getByRole('table').getByRole('link', { name: 'mock-project' }).click()
   await page.getByRole('link', { name: 'VPCs' }).click()
+
+  await expectRowVisible(page.getByRole('table'), {
+    name: 'mock-vpc',
+    'DNS name': 'mock-vpc',
+    description: 'a fake vpc',
+    'Firewall Rules': '4',
+  })
+
+  // click the vpc name cell to go there
   await page.getByRole('link', { name: 'mock-vpc' }).click()
-  await expect(page.getByText('Jan 1, 202112:00 AM')).toBeVisible()
+
+  await expect(page.getByRole('heading', { name: 'mock-vpc' })).toBeVisible()
   await expect(page.getByRole('tab', { name: 'Firewall rules' })).toBeVisible()
   await expect(page.getByRole('cell', { name: 'allow-icmp' })).toBeVisible()
-  expect(await page.title()).toEqual('mock-vpc / VPCs / mock-project / Oxide Console')
+  await expect(page).toHaveURL('/projects/mock-project/vpcs/mock-vpc')
+  await expect(page).toHaveTitle('mock-vpc / VPCs / mock-project / Oxide Console')
+
+  // we can also click the firewall rules cell to get to the VPC detail
+  await page.goBack()
+  await expect(page.getByRole('heading', { name: 'mock-vpc' })).toBeHidden()
+  await expect(page.getByRole('cell', { name: 'allow-icmp' })).toBeHidden()
+  await page.getByRole('link', { name: '4' }).click()
+  await expect(page.getByRole('heading', { name: 'mock-vpc' })).toBeVisible()
+  await expect(page.getByRole('cell', { name: 'allow-icmp' })).toBeVisible()
 })
 
 test('can create and delete subnet', async ({ page }) => {

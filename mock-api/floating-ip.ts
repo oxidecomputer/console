@@ -9,6 +9,7 @@
 import type { FloatingIp } from '@oxide/api'
 
 import { instance } from './instance'
+import { ipPool1 } from './ip-pool'
 import type { Json } from './json-type'
 import { project } from './project'
 
@@ -21,6 +22,7 @@ export const floatingIp: Json<FloatingIp> = {
   description: 'A classic.',
   instance_id: undefined,
   ip: '123.4.56.4',
+  ip_pool_id: ipPool1.id,
   project_id: project.id,
   time_created: new Date().toISOString(),
   time_modified: new Date().toISOString(),
@@ -33,6 +35,7 @@ export const floatingIp2: Json<FloatingIp> = {
   description: 'A favourite.',
   instance_id: instance.id,
   ip: '123.4.56.5',
+  ip_pool_id: ipPool1.id,
   project_id: project.id,
   time_created: new Date().toISOString(),
   time_modified: new Date().toISOString(),

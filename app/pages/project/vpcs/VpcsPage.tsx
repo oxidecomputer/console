@@ -12,6 +12,7 @@ import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 import {
   apiQueryClient,
   useApiMutation,
+  useApiQuery,
   useApiQueryClient,
   usePrefetchedApiQuery,
   type Vpc,
@@ -21,7 +22,8 @@ import { Networking16Icon, Networking24Icon } from '@oxide/design-system/icons/r
 import { DocsPopover } from '~/components/DocsPopover'
 import { getProjectSelector, useProjectSelector, useQuickActions } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
-import { makeLinkCell } from '~/table/cells/LinkCell'
+import { SkeletonCell } from '~/table/cells/EmptyCell'
+import { LinkCell, makeLinkCell } from '~/table/cells/LinkCell'
 import { getActionsCol, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
@@ -50,6 +52,14 @@ export const VpcDocsPopover = () => (
     links={[docLinks.vpcs, docLinks.firewallRules]}
   />
 )
+
+const FirewallRuleCount = ({ project, vpc }: { project: string; vpc: string }) => {
+  const { data } = useApiQuery('vpcFirewallRulesView', { query: { project, vpc } })
+
+  if (!data) return <SkeletonCell /> // loading
+
+  return <LinkCell to={pb.vpc({ project, vpc })}>{data.rules.length}</LinkCell>
+}
 
 const colHelper = createColumnHelper<Vpc>()
 
@@ -120,6 +130,10 @@ export function VpcsPage() {
       }),
       colHelper.accessor('dnsName', { header: 'DNS name' }),
       colHelper.accessor('description', Columns.description),
+      colHelper.accessor('name', {
+        header: 'Firewall Rules',
+        cell: (info) => <FirewallRuleCount project={project} vpc={info.getValue()} />,
+      }),
       colHelper.accessor('timeCreated', Columns.timeCreated),
       getActionsCol(makeActions),
     ],

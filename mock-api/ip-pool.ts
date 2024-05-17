@@ -11,10 +11,10 @@ import { type IpPool, type IpPoolRange, type IpPoolSiloLink } from '@oxide/api'
 import type { Json } from './json-type'
 import { defaultSilo } from './silo'
 
-const ipPool1: Json<IpPool> = {
+export const ipPool1: Json<IpPool> = {
   id: '69b5c583-74a9-451a-823d-0741c1ec66e2',
   name: 'ip-pool-1',
-  description: '',
+  description: 'public IPs',
   time_created: new Date().toISOString(),
   time_modified: new Date().toISOString(),
 }
@@ -22,7 +22,7 @@ const ipPool1: Json<IpPool> = {
 const ipPool2: Json<IpPool> = {
   id: 'af2fbe06-b21d-4364-96b7-a58220bc3242',
   name: 'ip-pool-2',
-  description: '',
+  description: 'VPN IPs',
   time_created: new Date().toISOString(),
   time_modified: new Date().toISOString(),
 }

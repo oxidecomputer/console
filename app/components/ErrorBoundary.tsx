@@ -8,7 +8,7 @@
 import { ErrorBoundary as BaseErrorBoundary } from 'react-error-boundary'
 import { useRouteError } from 'react-router-dom'
 
-import type { ApiError } from '@oxide/api'
+import { type ApiError } from '~/api/errors'
 
 import { ErrorPage, NotFound } from './ErrorPage'
 
