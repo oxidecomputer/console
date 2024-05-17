@@ -700,8 +700,8 @@ function BootableNotice({
       <ul className="ml-4 list-disc">
         {!efiPartOrBootable && (
           <li>
-            <div>Bootable markers not found at any block size</div>
-            <div className="text-info-tertiary">
+            <div>Bootable markers not found at any block size.</div>
+            <div>
               Expected either “EFI PART” marker at offsets 512 / 2048 / 4096 or “CD001” at
               offset 0x8001 (for a bootable CD).
             </div>
@@ -709,8 +709,8 @@ function BootableNotice({
         )}
         {isCompressed && (
           <li>
-            <div>This might be a compressed image</div>
-            <div className="text-info-tertiary">
+            <div>This might be a compressed image.</div>
+            <div>
               Only raw, uncompressed images are supported. Files such as qcow2, vmdk,
               img.gz, iso.7z may not work.
             </div>
