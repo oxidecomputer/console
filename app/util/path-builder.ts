@@ -78,6 +78,8 @@ export const pb = {
   vpcFirewallRules: (params: Vpc) => `${pb.vpcs(params)}/${params.vpc}/firewall-rules`,
   vpcFirewallRulesNew: (params: Vpc) =>
     `${pb.vpcs(params)}/${params.vpc}/firewall-rules-new`,
+  vpcFirewallRulesNewFromTemplate: (params: VpcFirewallRule) =>
+    `${pb.vpcs(params)}/${params.vpc}/firewall-rules-new/${params.firewallRule}`,
   vpcFirewallRuleEdit: (params: VpcFirewallRule) =>
     `${pb.vpcs(params)}/${params.vpc}/firewall-rules/${params.firewallRule}/edit`,
   vpcSubnets: (params: Vpc) => `${pb.vpcs(params)}/${params.vpc}/subnets`,

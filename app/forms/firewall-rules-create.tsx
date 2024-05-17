@@ -7,7 +7,7 @@
  */
 import { useMemo } from 'react'
 import { useController, type Control } from 'react-hook-form'
-import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
+import { useNavigate, useParams, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
   apiQueryClient,
@@ -44,6 +44,7 @@ import { KEYS } from '~/ui/util/keys'
 import { sortBy } from '~/util/array'
 import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
+import { incrementName } from '~/util/template'
 
 export type FirewallRuleValues = {
   enabled: boolean
@@ -74,24 +75,6 @@ export const valuesToRuleUpdate = (values: FirewallRuleValues): VpcFirewallRuleU
   priority: values.priority,
   targets: values.targets,
 })
-
-const defaultValues: FirewallRuleValues = {
-  enabled: true,
-  name: '',
-  description: '',
-
-  priority: 0,
-  action: 'allow',
-  direction: 'inbound',
-
-  // in the request body, these go in a `filters` object. we probably don't
-  // need such nesting here though. not even sure how to do it
-  protocols: [],
-
-  ports: [],
-  hosts: [],
-  targets: [],
-}
 
 type PortRangeFormValues = {
   portRange: string
@@ -562,6 +545,9 @@ export function CreateFirewallRuleForm() {
   const vpcSelector = useVpcSelector()
   const queryClient = useApiQueryClient()
 
+  // To use as a template to base a new rule off
+  const { firewallRule } = useParams()
+
   const navigate = useNavigate()
   const onDismiss = () => navigate(pb.vpcFirewallRules(vpcSelector))
 
@@ -577,6 +563,25 @@ export function CreateFirewallRuleForm() {
     query: vpcSelector,
   })
   const existingRules = useMemo(() => sortBy(data.rules, (r) => r.priority), [data])
+  const originalRule = existingRules.find((rule) => rule.name === firewallRule)
+
+  const defaultValues: FirewallRuleValues = {
+    enabled: originalRule ? originalRule.status === 'enabled' : true,
+    name: originalRule ? incrementName(originalRule.name) : '',
+    description: originalRule ? originalRule.description : '',
+
+    priority: originalRule ? originalRule.priority : 0,
+    action: originalRule ? originalRule.action : 'allow',
+    direction: originalRule ? originalRule.direction : 'inbound',
+
+    // in the request body, these go in a `filters` object. we probably don't
+    // need such nesting here though. not even sure how to do it
+    protocols: originalRule ? originalRule.filters.protocols || [] : [],
+
+    ports: originalRule ? originalRule.filters.ports || [] : [],
+    hosts: originalRule ? originalRule.filters.hosts || [] : [],
+    targets: originalRule ? originalRule.targets : [],
+  }
 
   const form = useForm({ defaultValues })
 

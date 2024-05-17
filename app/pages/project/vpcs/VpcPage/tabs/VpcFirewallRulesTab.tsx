@@ -157,6 +157,17 @@ export function VpcFirewallRulesTab() {
           },
         },
         {
+          label: 'New similar rule',
+          onActivate() {
+            navigate(
+              pb.vpcFirewallRulesNewFromTemplate({
+                ...vpcSelector,
+                firewallRule: rule.name,
+              })
+            )
+          },
+        },
+        {
           label: 'Delete',
           onActivate: confirmDelete({
             doDelete: () =>
