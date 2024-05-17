@@ -21,9 +21,11 @@ import {
   useApiQuery,
   useApiQueryClient,
   usePrefetchedApiQuery,
+  type ExternalIpCreate,
   type FloatingIp,
   type InstanceCreate,
   type InstanceDiskAttachment,
+  type NameOrId,
 } from '@oxide/api'
 import {
   Error16Icon,
@@ -604,6 +606,11 @@ export function CreateInstanceForm() {
   )
 }
 
+// `ip is …` guard is necessary until we upgrade to 5.5, which handles this automatically
+const isFloating = (
+  ip: ExternalIpCreate
+): ip is { type: 'floating'; floatingIp: NameOrId } => ip.type === 'floating'
+
 const AdvancedAccordion = ({
   control,
   isSubmitting,
@@ -626,23 +633,14 @@ const AdvancedAccordion = ({
   const assignEphemeralIp = !!ephemeralIp
   const selectedPool = ephemeralIp && 'pool' in ephemeralIp ? ephemeralIp.pool : undefined
   const defaultPool = siloPools.find((pool) => pool.isDefault)?.name
-  const attachedFloatingIps = (externalIps.field.value || []).filter(
-    (ip) => ip.type === 'floating'
-  )
+  const attachedFloatingIps = (externalIps.field.value || []).filter(isFloating)
 
   // To find available floating IPs, we remove the ones that are already committed to this instance
   const availableFloatingIps = attachableFloatingIps.filter(
-    (ip) =>
-      !attachedFloatingIps.find(
-        (attachedIp) => attachedIp.type === 'floating' && attachedIp.floatingIp === ip.name
-      )
+    (ip) => !attachedFloatingIps.find((attachedIp) => attachedIp.floatingIp === ip.name)
   )
   const attachedFloatingIpsData = attachedFloatingIps
-    .map(
-      (ip) =>
-        ip.type === 'floating' &&
-        attachableFloatingIps.find((fip) => fip.name === ip.floatingIp)
-    )
+    .map((ip) => attachableFloatingIps.find((fip) => fip.name === ip.floatingIp))
     .filter((x) => !!x) as Array<FloatingIp>
 
   const addFloatingIpPlaceholder = () => {
@@ -674,18 +672,16 @@ const AdvancedAccordion = ({
 
   const detachFloatingIp = (name: string) => {
     const newExternalIps = externalIps.field.value?.filter(
-      (ip) => ip.type !== 'floating' || ip.floatingIp !== name
+      (ip) => ip.type === 'ephemeral' || ip.floatingIp !== name
     )
     externalIps.field.onChange(newExternalIps)
   }
 
   const isEmptyFloatingIpPlaceholderPresent = attachedFloatingIps.some(
-    (ip) => ip.type === 'floating' && ip.floatingIp === ''
+    (ip) => ip.floatingIp === ''
   )
 
-  const isFloatingIpAttached = attachedFloatingIps.some(
-    (ip) => ip.type === 'floating' && ip.floatingIp !== ''
-  )
+  const isFloatingIpAttached = attachedFloatingIps.some((ip) => ip.floatingIp !== '')
 
   const PoolName = ({ ipPoolId }: { ipPoolId: string }) => {
     const pool = useApiQuery('projectIpPoolView', { path: { pool: ipPoolId } }).data
