@@ -742,30 +742,20 @@ function BootableNotice({
   )
 }
 
-async function readAndMatch(
-  file: File,
-  offset: number,
-  length: number,
-  matchString: string
-): Promise<boolean> {
-  const slice = file.slice(offset, offset + length)
+async function readAtOffset(file: File, offset: number, length: number) {
   const reader = new FileReader()
 
-  const promise = new Promise<boolean>((resolve, reject) => {
+  const promise = new Promise<string | undefined>((resolve, reject) => {
     reader.onloadend = (e) => {
-      if (!e || !e.target) {
-        resolve(false)
+      if (
+        e.target?.readyState === FileReader.DONE &&
+        // should always be true because we're using readAsArrayBuffer
+        e.target.result instanceof ArrayBuffer
+      ) {
+        resolve(String.fromCharCode(...new Uint8Array(e.target.result)))
         return
       }
-
-      if (e.target.readyState === FileReader.DONE) {
-        if (e.target.result instanceof ArrayBuffer) {
-          const actualHeader = String.fromCharCode(...new Uint8Array(e.target.result))
-          resolve(actualHeader === matchString)
-        } else {
-          resolve(false)
-        }
-      }
+      resolve(undefined)
     }
 
     reader.onerror = (error) => {
@@ -774,14 +764,14 @@ async function readAndMatch(
     }
   })
 
-  reader.readAsArrayBuffer(slice)
-  return await promise
+  reader.readAsArrayBuffer(file.slice(offset, offset + length))
+  return promise
 }
 
 async function getEfiPartOffset(file: File) {
   const offsets = [512, 2048, 4096]
   for (const offset of offsets) {
-    const isMatch = await readAndMatch(file, offset, 8, 'EFI PART')
+    const isMatch = (await readAtOffset(file, offset, 8)) === 'EFI PART'
     if (isMatch) return offset
   }
   return -1
@@ -793,7 +783,7 @@ const validateImage = async (file: File) => {
   const lowerFileName = file.name.toLowerCase()
   return {
     efiPartOffset: await getEfiPartOffset(file),
-    isBootableCd: await readAndMatch(file, 0x8001, 5, 'CD001'),
+    isBootableCd: (await readAtOffset(file, 0x8001, 5)) === 'CD001',
     isCompressed: compressedExts.some((ext) => lowerFileName.endsWith(ext)),
   }
 }
