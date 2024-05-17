@@ -92,6 +92,7 @@ test('path builder', () => {
         "vpcFirewallRuleEdit": "/projects/p/vpcs/v/firewall-rules/fr/edit",
         "vpcFirewallRules": "/projects/p/vpcs/v/firewall-rules",
         "vpcFirewallRulesNew": "/projects/p/vpcs/v/firewall-rules-new",
+        "vpcFirewallRulesNewFromTemplate": "/projects/p/vpcs/v/firewall-rules-new/fr",
         "vpcSubnets": "/projects/p/vpcs/v/subnets",
         "vpcSubnetsEdit": "/projects/p/vpcs/v/subnets/su/edit",
         "vpcSubnetsNew": "/projects/p/vpcs/v/subnets-new",
