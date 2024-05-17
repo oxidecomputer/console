@@ -18,12 +18,15 @@ import {
   INSTANCE_MAX_CPU,
   INSTANCE_MAX_RAM_GiB,
   useApiMutation,
+  useApiQuery,
   useApiQueryClient,
   usePrefetchedApiQuery,
+  type FloatingIp,
   type InstanceCreate,
   type InstanceDiskAttachment,
 } from '@oxide/api'
 import {
+  Error16Icon,
   Images16Icon,
   Instances16Icon,
   Instances24Icon,
@@ -50,16 +53,21 @@ import { SshKeysField } from '~/components/form/fields/SshKeysField'
 import { TextField } from '~/components/form/fields/TextField'
 import { Form } from '~/components/form/Form'
 import { FullPageForm } from '~/components/form/FullPageForm'
+import { HL } from '~/components/HL'
 import { getProjectSelector, useForm, useProjectSelector } from '~/hooks'
 import { addToast } from '~/stores/toast'
 import { Badge } from '~/ui/lib/Badge'
 import { Checkbox } from '~/ui/lib/Checkbox'
+import { CreateButton } from '~/ui/lib/CreateButton'
 import { FormDivider } from '~/ui/lib/Divider'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Listbox } from '~/ui/lib/Listbox'
 import { Message } from '~/ui/lib/Message'
+import * as MiniTable from '~/ui/lib/MiniTable'
+import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { RadioCard } from '~/ui/lib/Radio'
+import { Slash } from '~/ui/lib/Slash'
 import { Tabs } from '~/ui/lib/Tabs'
 import { TextInputHint } from '~/ui/lib/TextInput'
 import { TipIcon } from '~/ui/lib/TipIcon'
@@ -153,6 +161,18 @@ CreateInstanceForm.loader = async ({ params }: LoaderFunctionArgs) => {
     }),
     apiQueryClient.prefetchQuery('currentUserSshKeyList', {}),
     apiQueryClient.prefetchQuery('projectIpPoolList', { query: { limit: 1000 } }),
+    apiQueryClient.prefetchQuery('floatingIpList', { query: { project, limit: 1000 } }),
+    apiQueryClient
+      .fetchQuery('projectIpPoolList', { query: { limit: 1000 } })
+      .then((pools) => {
+        for (const pool of pools.items) {
+          apiQueryClient.setQueryData(
+            'projectIpPoolView',
+            { path: { pool: pool.id } },
+            pool
+          )
+        }
+      }),
   ])
   return null
 }
@@ -218,6 +238,15 @@ export function CreateInstanceForm() {
     bootDiskSize: nearest10(defaultImage?.size / GiB),
     externalIps: [{ type: 'ephemeral', pool: defaultPool }],
   }
+
+  const { data: floatingIpList } = usePrefetchedApiQuery('floatingIpList', {
+    query: { project, limit: 1000 },
+  })
+  // Filter out the IPs that are already attached to an instance
+  const availableFloatingIps = useMemo(
+    () => floatingIpList.items.filter((ip) => !ip.instanceId),
+    [floatingIpList]
+  )
 
   const form = useForm({ defaultValues })
   const { control, setValue } = form
@@ -561,6 +590,7 @@ export function CreateInstanceForm() {
         <Form.Heading id="advanced">Advanced</Form.Heading>
         <AdvancedAccordion
           control={control}
+          floatingIpList={availableFloatingIps}
           isSubmitting={isSubmitting}
           siloPools={siloPools.items}
         />
@@ -576,21 +606,88 @@ export function CreateInstanceForm() {
 const AdvancedAccordion = ({
   control,
   isSubmitting,
+  floatingIpList,
   siloPools,
 }: {
   control: Control<InstanceCreateInput>
   isSubmitting: boolean
+  floatingIpList: Array<FloatingIp>
   siloPools: Array<{ name: string; isDefault: boolean }>
 }) => {
   // we track this state manually for the sole reason that we need to be able to
   // tell, inside AccordionItem, when an accordion is opened so we can scroll its
   // contents into view
   const [openItems, setOpenItems] = useState<string[]>([])
+  const [selectedFloatingIp, setSelectedFloatingIp] = useState<string | undefined>()
   const externalIps = useController({ control, name: 'externalIps' })
   const ephemeralIp = externalIps.field.value?.find((ip) => ip.type === 'ephemeral')
   const assignEphemeralIp = !!ephemeralIp
   const selectedPool = ephemeralIp && 'pool' in ephemeralIp ? ephemeralIp.pool : undefined
   const defaultPool = siloPools.find((pool) => pool.isDefault)?.name
+  const attachedFloatingIps = (externalIps.field.value || []).filter(
+    (ip) => ip.type === 'floating'
+  )
+
+  // To find available floating IPs, we filter out the ones that are already attached
+  const availableFloatingIps = floatingIpList.filter(
+    (ip) =>
+      !attachedFloatingIps.find(
+        (attachedIp) => attachedIp.type === 'floating' && attachedIp.floatingIp === ip.name
+      )
+  )
+  const attachedFloatingIpsData = attachedFloatingIps
+    .map(
+      (ip) =>
+        ip.type === 'floating' && floatingIpList.find((fip) => fip.name === ip.floatingIp)
+    )
+    .filter((x) => !!x) as Array<FloatingIp>
+
+  const addFloatingIpPlaceholder = () => {
+    setSelectedFloatingIp(undefined)
+    const newExternalIps = [
+      ...(externalIps.field.value || []),
+      { type: 'floating', floatingIp: '' },
+    ]
+    externalIps.field.onChange(newExternalIps)
+  }
+
+  const removeFloatingIpPlaceholder = () => {
+    externalIps.field.onChange(
+      externalIps.field.value?.filter(
+        (ip) => ip.type === 'ephemeral' || ip.floatingIp !== ''
+      )
+    )
+  }
+
+  const attachFloatingIp = (name: string) => {
+    const newExternalIps = externalIps.field.value?.map((ip) => {
+      if (ip.type === 'floating' && ip.floatingIp === '') {
+        return { type: 'floating', floatingIp: name }
+      }
+      return ip
+    })
+    externalIps.field.onChange(newExternalIps)
+  }
+
+  const detachFloatingIp = (name: string) => {
+    const newExternalIps = externalIps.field.value?.filter(
+      (ip) => ip.type !== 'floating' || ip.floatingIp !== name
+    )
+    externalIps.field.onChange(newExternalIps)
+  }
+
+  const isEmptyFloatingIpContainerPresent = attachedFloatingIps.some(
+    (ip) => ip.type === 'floating' && ip.floatingIp === ''
+  )
+
+  const isFloatingIpAttached = attachedFloatingIps.some(
+    (ip) => ip.type === 'floating' && ip.floatingIp !== ''
+  )
+
+  const PoolName = ({ ipPoolId }: { ipPoolId: string }) => {
+    const pool = useApiQuery('projectIpPoolView', { path: { pool: ipPoolId } }).data
+    return <>{pool?.name}</>
+  }
 
   return (
     <Accordion.Root
@@ -667,6 +764,134 @@ const AdvancedAccordion = ({
                 externalIps.field.onChange(newExternalIps)
               }}
             />
+          )}
+        </div>
+
+        <div className="flex flex-1 flex-col gap-4">
+          <h2 className="text-sans-md">
+            Floating IPs{' '}
+            <TipIcon>
+              Floating IPs are static IP addresses that can be attached to instances
+            </TipIcon>
+          </h2>
+          <div className="flex items-start gap-2.5">
+            <Checkbox
+              id="attachFloatingIps"
+              checked={!!attachedFloatingIps.length}
+              onChange={() => {
+                isEmptyFloatingIpContainerPresent
+                  ? removeFloatingIpPlaceholder()
+                  : addFloatingIpPlaceholder()
+              }}
+            />
+            <label htmlFor="attachFloatingIps" className="text-sans-md text-secondary">
+              Attach floating IPs
+            </label>
+          </div>
+          {isFloatingIpAttached && (
+            <>
+              <MiniTable.Table>
+                <MiniTable.Header>
+                  <MiniTable.HeadCell>Name</MiniTable.HeadCell>
+                  <MiniTable.HeadCell>IP</MiniTable.HeadCell>
+                  {/* For remove button */}
+                  <MiniTable.HeadCell className="w-12" />
+                </MiniTable.Header>
+                <MiniTable.Body>
+                  {attachedFloatingIpsData.map((item, index) => (
+                    <MiniTable.Row
+                      tabIndex={0}
+                      aria-rowindex={index + 1}
+                      aria-label={`Name: ${item.name}, IP: ${item.ip}`}
+                      key={item.name}
+                    >
+                      <MiniTable.Cell>{item.name}</MiniTable.Cell>
+                      <MiniTable.Cell>{item.ip}</MiniTable.Cell>
+                      <MiniTable.Cell>
+                        <button
+                          onClick={() => {
+                            detachFloatingIp(item.name)
+                          }}
+                        >
+                          <Error16Icon title={`remove ${item.name}`} />
+                        </button>
+                      </MiniTable.Cell>
+                    </MiniTable.Row>
+                  ))}
+                </MiniTable.Body>
+              </MiniTable.Table>
+              <div>
+                <CreateButton onClick={() => addFloatingIpPlaceholder()}>
+                  Add floating IP
+                </CreateButton>
+              </div>
+            </>
+          )}
+          {!!attachedFloatingIps.length && (
+            <Modal
+              isOpen={isEmptyFloatingIpContainerPresent}
+              onDismiss={removeFloatingIpPlaceholder}
+              title="Attach floating IP"
+            >
+              <Modal.Body>
+                <Modal.Section>
+                  <Message
+                    variant="info"
+                    content={
+                      <>
+                        {'This instance will be reachable at '}
+                        {selectedFloatingIp ? (
+                          <HL>
+                            {
+                              floatingIpList.find((ip) => ip.name === selectedFloatingIp)
+                                ?.ip
+                            }
+                          </HL>
+                        ) : (
+                          'the selected IP'
+                        )}
+                      </>
+                    }
+                  ></Message>
+                  <form>
+                    <Listbox
+                      name="floatingIp"
+                      items={availableFloatingIps.map((i) => ({
+                        value: i.name,
+                        label: (
+                          <>
+                            <div>{i.name}</div>
+                            <div className="text-tertiary selected:text-accent-secondary">
+                              <PoolName ipPoolId={i.ipPoolId} />
+                              <Slash />
+                              {i.ip}
+                            </div>
+                          </>
+                        ),
+                        labelString: `${i.name} (${i.ip})`,
+                      }))}
+                      label="Floating IP"
+                      onChange={(e) => {
+                        setSelectedFloatingIp(e)
+                      }}
+                      required
+                      placeholder="Select floating IP"
+                      selected={selectedFloatingIp || ''}
+                    />
+                  </form>
+                </Modal.Section>
+              </Modal.Body>
+              <Modal.Footer
+                actionText="Attach"
+                disabled={!selectedFloatingIp}
+                onAction={() => {
+                  if (selectedFloatingIp) {
+                    attachFloatingIp(selectedFloatingIp)
+                  }
+                }}
+                onDismiss={() => removeFloatingIpPlaceholder()}
+              ></Modal.Footer>
+            </Modal>
           )}
         </div>
       </AccordionItem>

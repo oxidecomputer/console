@@ -34,6 +34,7 @@ import { FormDivider } from '~/ui/lib/Divider'
 import { FieldLabel } from '~/ui/lib/FieldLabel'
 import { Radio } from '~/ui/lib/Radio'
 import { RadioGroup } from '~/ui/lib/RadioGroup'
+import { Slash } from '~/ui/lib/Slash'
 import { toLocaleDateString } from '~/util/date'
 import { bytesToGiB, GiB } from '~/util/units'
 
@@ -259,9 +260,8 @@ const SnapshotSelectField = ({ control }: { control: Control<DiskCreate> }) => {
               <div>{i.name}</div>
               <div className="text-tertiary selected:text-accent-secondary">
                 Created on {toLocaleDateString(i.timeCreated)}
-                <DiskNameFromId disk={i.diskId} />{' '}
-                <span className="mx-1 text-quinary selected:text-accent-disabled">/</span>{' '}
-                {formattedSize.value} {formattedSize.unit}
+                <DiskNameFromId disk={i.diskId} /> <Slash /> {formattedSize.value}{' '}
+                {formattedSize.unit}
               </div>
             </>
           ),
