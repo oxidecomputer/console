@@ -108,7 +108,7 @@ export function SystemLayout() {
           <NavLinkItem to={pb.systemUtilization()}>
             <Metrics16Icon /> Utilization
           </NavLinkItem>
-          <NavLinkItem to={pb.sledInventory()}>
+          <NavLinkItem to={pb.inventory()}>
             <Servers16Icon /> Inventory
           </NavLinkItem>
           <NavLinkItem to={pb.ipPools()}>
