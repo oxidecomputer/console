@@ -26,7 +26,7 @@ import { TextInputHint } from './TextInput'
 
 export type ListboxItem<Value extends string = string> = {
   value: Value
-} & { label?: string | ReactNode; labelString?: string }
+} & { label?: string | ReactNode; selectedLabel?: string }
 
 export interface ListboxProps<Value extends string = string> {
   // null is allowed as a default empty value, but onChange will never be called with null
@@ -123,8 +123,8 @@ export const Listbox = <Value extends string = string>({
             >
               <div className="w-full overflow-hidden overflow-ellipsis whitespace-pre px-3 text-left">
                 {selectedItem ? (
-                  // labelString is one line, which is what we need when label is a ReactNode
-                  selectedItem.labelString || selectedItem.label
+                  // selectedLabel is one line, which is what we need when label is a ReactNode
+                  selectedItem.selectedLabel || selectedItem.label
                 ) : (
                   <span className="text-quaternary">
                     {noItems ? noItemsPlaceholder : placeholder}

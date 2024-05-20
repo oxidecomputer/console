@@ -41,7 +41,7 @@ export const actorToItem = (actor: Actor): ListboxItem => ({
       )}
     </>
   ),
-  labelString: actor.displayName,
+  selectedLabel: actor.displayName,
 })
 
 export type AddRoleModalProps = {
