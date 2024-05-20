@@ -161,6 +161,7 @@ CreateInstanceForm.loader = async ({ params }: LoaderFunctionArgs) => {
       query: { project, limit: DISK_FETCH_LIMIT },
     }),
     apiQueryClient.prefetchQuery('currentUserSshKeyList', {}),
+    apiQueryClient.prefetchQuery('projectIpPoolList', { query: { limit: 1000 } }),
     apiQueryClient.prefetchQuery('floatingIpList', { query: { project, limit: 1000 } }),
   ])
   return null
