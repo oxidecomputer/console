@@ -62,6 +62,7 @@ test('can create an instance', async ({ page }) => {
   await expect(assignEphemeralIpCheckbox).toBeChecked()
   await assignEphemeralIpButton.click()
   await expect(page.getByRole('option', { name: 'ip-pool-1' })).toBeEnabled()
+  await assignEphemeralIpButton.click() // click closes the listbox so we can do more stuff
 
   // unchecking the box should disable the selector
   await assignEphemeralIpCheckbox.uncheck()
