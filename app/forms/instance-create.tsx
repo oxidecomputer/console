@@ -818,25 +818,27 @@ const AdvancedAccordion = ({
             >
               <Modal.Body>
                 <Modal.Section>
-                  <Message
-                    variant="info"
-                    content={
-                      <>
-                        {'This instance will be reachable at '}
-                        {selectedFloatingIp ? (
-                          <HL>
-                            {
-                              attachableFloatingIps.find(
-                                (ip) => ip.name === selectedFloatingIp
-                              )?.ip
-                            }
-                          </HL>
-                        ) : (
-                          'the selected IP'
-                        )}
-                      </>
-                    }
-                  ></Message>
+                  {availableFloatingIps.length > 0 && (
+                    <Message
+                      variant="info"
+                      content={
+                        <>
+                          {'This instance will be reachable at '}
+                          {selectedFloatingIp ? (
+                            <HL>
+                              {
+                                attachableFloatingIps.find(
+                                  (ip) => ip.name === selectedFloatingIp
+                                )?.ip
+                              }
+                            </HL>
+                          ) : (
+                            'the selected IP'
+                          )}
+                        </>
+                      }
+                    />
+                  )}
                   <form>
                     <Listbox
                       name="floatingIp"
@@ -852,7 +854,7 @@ const AdvancedAccordion = ({
                             </div>
                           </>
                         ),
-                        labelString: `${i.name} (${i.ip})`,
+                        selectedLabel: `${i.name} (${i.ip})`,
                       }))}
                       label="Floating IP"
                       onChange={(e) => {
