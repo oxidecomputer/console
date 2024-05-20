@@ -665,16 +665,20 @@ function BlockSizeNotice({
   efiPartOffset: number
   isBootableCd: boolean
 }) {
-  if (efiPartOffset === -1 && !isBootableCd) return null
+  const isEfi = efiPartOffset !== -1
 
-  // TODO: make sure this logic is correct
+  // If the image doesn't look bootable, return null (`BootableNotice` does the work).
+  if (!isEfi && !isBootableCd) return null
+  // If we detect `EFI BOOT` and the block size is set correctly return null.
+  // (This includes hybrid GPT+ISO.)
+  if (isEfi && blockSize === efiPartOffset) return null
+  // If we detect only `CD001` and the block size is set correctly return null.
+  if (!isEfi && isBootableCd && blockSize === 2048) return null
 
-  if (blockSize === efiPartOffset) return null
-
-  const content =
-    isBootableCd && blockSize !== 2048
-      ? 'Bootable CDs typically use a block size of 2048.'
-      : `Detected "EFI PART" marker at offset ${efiPartOffset}, but block size is set to ${blockSize}.`
+  // Block size is set incorrectly. If we detect `EFI BOOT`, always show that warning.
+  const content = isEfi
+    ? `Detected “EFI PART” marker at offset ${efiPartOffset}, but block size is set to ${blockSize}.`
+    : 'Bootable CDs typically use a block size of 2048.'
 
   return (
     <Message variant="info" title="Block size might be set incorrectly" content={content} />
