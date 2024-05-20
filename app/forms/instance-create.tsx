@@ -18,7 +18,6 @@ import {
   INSTANCE_MAX_CPU,
   INSTANCE_MAX_RAM_GiB,
   useApiMutation,
-  useApiQuery,
   useApiQueryClient,
   usePrefetchedApiQuery,
   type ExternalIpCreate,
@@ -162,19 +161,7 @@ CreateInstanceForm.loader = async ({ params }: LoaderFunctionArgs) => {
       query: { project, limit: DISK_FETCH_LIMIT },
     }),
     apiQueryClient.prefetchQuery('currentUserSshKeyList', {}),
-    apiQueryClient.prefetchQuery('projectIpPoolList', { query: { limit: 1000 } }),
     apiQueryClient.prefetchQuery('floatingIpList', { query: { project, limit: 1000 } }),
-    apiQueryClient
-      .fetchQuery('projectIpPoolList', { query: { limit: 1000 } })
-      .then((pools) => {
-        for (const pool of pools.items) {
-          apiQueryClient.setQueryData(
-            'projectIpPoolView',
-            { path: { pool: pool.id } },
-            pool
-          )
-        }
-      }),
   ])
   return null
 }
@@ -682,11 +669,6 @@ const AdvancedAccordion = ({
 
   const isFloatingIpAttached = attachedFloatingIps.some((ip) => ip.floatingIp !== '')
 
-  const PoolName = ({ ipPoolId }: { ipPoolId: string }) => {
-    const pool = useApiQuery('projectIpPoolView', { path: { pool: ipPoolId } }).data
-    return <>{pool?.name}</>
-  }
-
   return (
     <Accordion.Root
       type="multiple"
@@ -846,11 +828,19 @@ const AdvancedAccordion = ({
                         value: i.name,
                         label: (
                           <>
-                            <div>{i.name}</div>
-                            <div className="text-tertiary selected:text-accent-secondary">
-                              <PoolName ipPoolId={i.ipPoolId} />
-                              <Slash />
-                              {i.ip}
+                            <div>
+                              <div>{i.name}</div>
+                              <div className="flex gap-0.5 text-tertiary selected:text-accent-secondary">
+                                <div>{i.ip}</div>
+                                {i.description && (
+                                  <>
+                                    <Slash />
+                                    <div className="grow overflow-hidden overflow-ellipsis whitespace-pre text-left">
+                                      {i.description}
+                                    </div>
+                                  </>
+                                )}
+                              </div>
                             </div>
                           </>
                         ),
