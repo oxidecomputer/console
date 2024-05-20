@@ -88,9 +88,16 @@ export const NavLinkItem = (props: {
   children: React.ReactNode
   end?: boolean
   disabled?: boolean
+  /**
+   * Used for making sure the link highlights for all sub-routes even if it
+   * links to the first sub-route directly, e.g., for route tabs
+   */
+  activePrefix?: string
 }) => {
+  const { pathname } = useLocation()
   // If the current page is the create form for this NavLinkItem's resource, highlight the NavLink in the sidebar
-  const currentPathIsCreateForm = useLocation().pathname.startsWith(`${props.to}-new`)
+  const onCreateFormForPath = pathname.startsWith(`${props.to}-new`)
+  const altActive = props.activePrefix && pathname.startsWith(props.activePrefix)
   return (
     <li>
       <NavLink
@@ -98,7 +105,7 @@ export const NavLinkItem = (props: {
         className={({ isActive }) =>
           cn(linkStyles, {
             'text-accent !bg-accent-secondary hover:!bg-accent-secondary-hover svg:!text-accent-tertiary':
-              isActive || currentPathIsCreateForm,
+              isActive || onCreateFormForPath || altActive,
             'pointer-events-none text-disabled': props.disabled,
           })
         }
