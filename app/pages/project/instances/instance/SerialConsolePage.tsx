@@ -5,13 +5,21 @@
  *
  * Copyright Oxide Computer Company
  */
+import cn from 'classnames'
 import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import { Link, type LoaderFunctionArgs } from 'react-router-dom'
 
-import { api, apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
+import {
+  api,
+  apiQueryClient,
+  instanceCan,
+  usePrefetchedApiQuery,
+  type InstanceState,
+} from '@oxide/api'
 import { PrevArrow12Icon } from '@oxide/design-system/icons/react'
 
 import { EquivalentCliCommand } from '~/components/EquivalentCliCommand'
+import { InstanceStatusBadge } from '~/components/StatusBadge'
 import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
 import { Badge, type BadgeColor } from '~/ui/lib/Badge'
 import { Spinner } from '~/ui/lib/Spinner'
@@ -49,9 +57,16 @@ export function SerialConsolePage() {
   const instanceSelector = useInstanceSelector()
   const { project, instance } = instanceSelector
 
+  const { data: instanceData } = usePrefetchedApiQuery('instanceView', {
+    query: { project },
+    path: { instance },
+  })
+
   const ws = useRef<WebSocket | null>(null)
 
-  const [connectionStatus, setConnectionStatus] = useState<WsState>('connecting')
+  const canConnect = instanceCan.serialConsole(instanceData)
+  const initialState = canConnect ? 'connecting' : 'closed'
+  const [connectionStatus, setConnectionStatus] = useState<WsState>(initialState)
 
   // In dev, React 18 strict mode fires all effects twice for lulz, even ones
   // with no dependencies. In order to prevent the websocket from being killed
@@ -63,6 +78,8 @@ export function SerialConsolePage() {
   // 1a. cleanup runs, nothing happens because socket was not open yet
   // 2.  effect runs, but `ws.current` is truthy, so nothing happens
   useEffect(() => {
+    if (!canConnect) return
+
     // TODO: error handling if this connection fails
     if (!ws.current) {
       const { project, instance } = instanceSelector
@@ -79,7 +96,7 @@ export function SerialConsolePage() {
         ws.current.close()
       }
     }
-  }, [instanceSelector])
+  }, [instanceSelector, canConnect])
 
   // Because this one does not look at ready state, just whether the thing is
   // defined, it will remove the event listeners before the spurious second
@@ -90,6 +107,8 @@ export function SerialConsolePage() {
   // 1a. cleanup runs, event listeners removed
   // 2.  effect runs again, event listeners attached again
   useEffect(() => {
+    if (!canConnect) return // don't bother if instance is not running
+
     const setOpen = () => setConnectionStatus('open')
     const setClosed = () => setConnectionStatus('closed')
     const setError = () => setConnectionStatus('error')
@@ -103,7 +122,7 @@ export function SerialConsolePage() {
       ws.current?.removeEventListener('close', setClosed)
       ws.current?.removeEventListener('error', setError)
     }
-  }, [])
+  }, [canConnect])
 
   return (
     <div className="!mx-0 flex h-full max-h-[calc(100vh-60px)] !w-full flex-col">
@@ -118,7 +137,12 @@ export function SerialConsolePage() {
       </Link>
 
       <div className="gutter relative w-full flex-shrink flex-grow overflow-hidden">
-        <SerialSkeleton state={connectionStatus} />
+        {connectionStatus === 'connecting' && <ConnectingSkeleton />}
+        {/* TODO: handle closed && canConnect */}
+        {/* TODO: handle error */}
+        {connectionStatus === 'closed' && !canConnect && (
+          <CannotConnect instanceState={instanceData.runState} />
+        )}
         <Suspense fallback={null}>{ws.current && <Terminal ws={ws.current} />}</Suspense>
       </div>
       <div className="flex-shrink-0 justify-between overflow-hidden border-t bg-default border-secondary empty:border-t-0">
@@ -136,24 +160,22 @@ export function SerialConsolePage() {
   )
 }
 
-function SerialSkeleton({ state }: { state: WsState }) {
-  const { instance, project } = useInstanceSelector()
-  const { data: _instanceData } = usePrefetchedApiQuery('instanceView', {
-    query: { project },
-    path: { instance },
-  })
-
-  // if the instance is stopped we can say that in the thing
-
-  if (state === 'open') return null
-
+function SerialSkeleton({
+  children,
+  connecting,
+}: {
+  children: React.ReactNode
+  connecting?: boolean
+}) {
   return (
     <div className="relative h-full flex-shrink flex-grow overflow-hidden">
       <div className="h-full space-y-2 overflow-hidden">
         {[...Array(200)].map((_e, i) => (
           <div
             key={i}
-            className="h-4 rounded bg-tertiary motion-safe:animate-pulse"
+            className={cn('h-4 rounded bg-tertiary', {
+              'motion-safe:animate-pulse': connecting,
+            })}
             style={{
               width: `${Math.sin(Math.sin(i)) * 20 + 40}%`,
             }} /* this is silly deterministic way to get random looking lengths */
@@ -167,19 +189,45 @@ function SerialSkeleton({ state }: { state: WsState }) {
           background: 'linear-gradient(180deg, rgba(8, 15, 17, 0) 0%, #080F11 100%)',
         }}
       />
-      <div className="absolute left-1/2 top-1/2 flex w-96 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center space-y-4 rounded-lg border p-12 !bg-raise border-secondary elevation-3">
-        <Spinner size="lg" />
-
-        <div className="text-center">
-          <p className="text-sans-xl">Connecting to</p>
-          <Link
-            className="text-sans-xl text-accent-secondary hover:text-accent"
-            to={pb.instance({ project, instance })}
-          >
-            {instance}
-          </Link>
-        </div>
+      <div className="absolute left-1/2 top-1/2 flex w-96 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-lg border p-12 !bg-raise border-secondary elevation-3">
+        {children}
       </div>
     </div>
   )
 }
+
+function InstanceLink() {
+  const { instance, project } = useInstanceSelector()
+  return (
+    <Link
+      className="text-sans-xl text-accent-secondary hover:text-accent"
+      to={pb.instance({ project, instance })}
+    >
+      {instance}
+    </Link>
+  )
+}
+
+const ConnectingSkeleton = () => (
+  <SerialSkeleton connecting>
+    <Spinner size="lg" />
+    <div className="mt-4 text-center">
+      <p className="text-sans-xl">Connecting to</p>
+      <InstanceLink />
+    </div>
+  </SerialSkeleton>
+)
+
+const CannotConnect = ({ instanceState }: { instanceState: InstanceState }) => (
+  <SerialSkeleton>
+    <p className="flex items-center justify-center text-sans-xl">
+      <span>
+        Instance <InstanceLink /> is
+      </span>
+      <InstanceStatusBadge className="ml-1" status={instanceState} />
+    </p>
+    <p className="mt-2 text-center text-secondary">
+      You can only connect to the serial console on a running instance.
+    </p>
+  </SerialSkeleton>
+)

@@ -102,6 +102,8 @@ export const instanceCan = mapValues(
     attachDisk: ['creating', 'stopped'],
     // https://github.com/oxidecomputer/omicron/blob/8f0cbf0/nexus/db-queries/src/db/datastore/network_interface.rs#L482
     updateNic: ['stopped'],
+    // https://github.com/oxidecomputer/omicron/blob/ebcc2acd/nexus/src/app/instance.rs#L1648-L1676
+    serialConsole: ['running', 'rebooting', 'migrating', 'repairing'],
   },
   // cute way to make it ergonomic to call the test while also making the states
   // available directly
