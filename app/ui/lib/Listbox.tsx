@@ -122,6 +122,15 @@ export const Listbox = <Value extends string = string>({
             <ListboxOptions
               anchor={{ gap: 12 }}
               className={`ox-menu pointer-events-auto ${zIndex} w-[var(--button-width)] overflow-y-auto !outline-none`}
+              // This is to prevent the `useOthersInert` call in ListboxOptions.
+              // Without this, when the listbox options box scrolls under the
+              // top bar (for example) you can click through the top bar to the
+              // options because the topbar (and all other elements) has been
+              // marked "inert", which means it does not catch mouse events.
+              // This would not be necessary if useScrollLock in ListboxOptions
+              // worked, but we suspect it doesn't work because the page as a
+              // whole is not the scroll container.
+              modal={false}
             >
               {items.map((item) => (
                 <ListboxOption
