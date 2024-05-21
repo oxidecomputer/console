@@ -788,7 +788,13 @@ const AdvancedAccordion = ({
             </MiniTable.Table>
           )}
           <div>
-            <Button size="sm" className="shrink-0" onClick={addFloatingIpPlaceholder}>
+            <Button
+              size="sm"
+              className="shrink-0"
+              disabled={availableFloatingIps.length === 0}
+              disabledReason="No floating IPs available"
+              onClick={addFloatingIpPlaceholder}
+            >
               Attach floating IP
             </Button>
           </div>
@@ -801,49 +807,45 @@ const AdvancedAccordion = ({
             >
               <Modal.Body>
                 <Modal.Section>
-                  {availableFloatingIps.length > 0 && (
-                    <Message
-                      variant="info"
-                      content={
-                        <>
-                          {'This instance will be reachable at '}
-                          {selectedFloatingIp ? (
-                            <HL>
-                              {
-                                attachableFloatingIps.find(
-                                  (ip) => ip.name === selectedFloatingIp
-                                )?.ip
-                              }
-                            </HL>
-                          ) : (
-                            'the selected IP'
-                          )}
-                        </>
-                      }
-                    />
-                  )}
+                  <Message
+                    variant="info"
+                    content={
+                      <>
+                        {'This instance will be reachable at '}
+                        {selectedFloatingIp ? (
+                          <HL>
+                            {
+                              attachableFloatingIps.find(
+                                (ip) => ip.name === selectedFloatingIp
+                              )?.ip
+                            }
+                          </HL>
+                        ) : (
+                          'the selected IP'
+                        )}
+                      </>
+                    }
+                  />
                   <form>
                     <Listbox
                       name="floatingIp"
                       items={availableFloatingIps.map((i) => ({
                         value: i.name,
                         label: (
-                          <>
-                            <div>
-                              <div>{i.name}</div>
-                              <div className="flex gap-0.5 text-tertiary selected:text-accent-secondary">
-                                <div>{i.ip}</div>
-                                {i.description && (
-                                  <>
-                                    <Slash />
-                                    <div className="grow overflow-hidden overflow-ellipsis whitespace-pre text-left">
-                                      {i.description}
-                                    </div>
-                                  </>
-                                )}
-                              </div>
+                          <div>
+                            <div>{i.name}</div>
+                            <div className="flex gap-0.5 text-tertiary selected:text-accent-secondary">
+                              <div>{i.ip}</div>
+                              {i.description && (
+                                <>
+                                  <Slash />
+                                  <div className="grow overflow-hidden overflow-ellipsis whitespace-pre text-left">
+                                    {i.description}
+                                  </div>
+                                </>
+                              )}
                             </div>
-                          </>
+                          </div>
                         ),
                         selectedLabel: `${i.name} (${i.ip})`,
                       }))}
@@ -853,7 +855,6 @@ const AdvancedAccordion = ({
                       }}
                       required
                       placeholder="Select floating IP"
-                      noItemsPlaceholder="No floating IPs available"
                       selected={selectedFloatingIp || ''}
                     />
                   </form>
