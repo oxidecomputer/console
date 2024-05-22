@@ -671,6 +671,16 @@ const AdvancedAccordion = ({
 
   const isFloatingIpAttached = attachedFloatingIps.some((ip) => ip.floatingIp !== '')
 
+  const selectedIpAddress = attachableFloatingIps.find(
+    (ip) => ip.name === selectedFloatingIp
+  )?.ip
+  const selectedFloatingIpMessage = (
+    <>
+      This instance will be reachable at{' '}
+      {selectedFloatingIp ? <HL>{selectedIpAddress}</HL> : 'the selected IP'}
+    </>
+  )
+
   return (
     <Accordion.Root
       type="multiple"
@@ -818,25 +828,7 @@ const AdvancedAccordion = ({
             >
               <Modal.Body>
                 <Modal.Section>
-                  <Message
-                    variant="info"
-                    content={
-                      <>
-                        This instance will be reachable at{' '}
-                        {selectedFloatingIp ? (
-                          <HL>
-                            {
-                              attachableFloatingIps.find(
-                                (ip) => ip.name === selectedFloatingIp
-                              )?.ip
-                            }
-                          </HL>
-                        ) : (
-                          'the selected IP'
-                        )}
-                      </>
-                    }
-                  />
+                  <Message variant="info" content={selectedFloatingIpMessage} />
                   <form>
                     <Listbox
                       name="floatingIp"
