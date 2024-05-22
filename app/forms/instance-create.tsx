@@ -31,6 +31,7 @@ import {
   Images16Icon,
   Instances16Icon,
   Instances24Icon,
+  IpGlobal16Icon,
   Storage16Icon,
 } from '@oxide/design-system/icons/react'
 
@@ -232,11 +233,6 @@ export function CreateInstanceForm() {
   const { data: floatingIpList } = usePrefetchedApiQuery('floatingIpList', {
     query: { project, limit: 1000 },
   })
-  // Filter out the IPs that are already attached to an instance
-  const attachableFloatingIps = useMemo(
-    () => floatingIpList.items.filter((ip) => !ip.instanceId),
-    [floatingIpList]
-  )
 
   const form = useForm({ defaultValues })
   const { control, setValue } = form
@@ -580,7 +576,7 @@ export function CreateInstanceForm() {
         <Form.Heading id="advanced">Advanced</Form.Heading>
         <AdvancedAccordion
           control={control}
-          attachableFloatingIps={attachableFloatingIps}
+          floatingIpList={floatingIpList}
           isSubmitting={isSubmitting}
           siloPools={siloPools.items}
         />
@@ -601,13 +597,12 @@ const isFloating = (
 const AdvancedAccordion = ({
   control,
   isSubmitting,
-  attachableFloatingIps,
+  floatingIpList,
   siloPools,
 }: {
   control: Control<InstanceCreateInput>
   isSubmitting: boolean
-  // attachableFloatingIps are not yet attached to any instance
-  attachableFloatingIps: Array<FloatingIp>
+  floatingIpList: { items: Array<FloatingIp> }
   siloPools: Array<{ name: string; isDefault: boolean }>
 }) => {
   // we track this state manually for the sole reason that we need to be able to
@@ -621,6 +616,12 @@ const AdvancedAccordion = ({
   const selectedPool = ephemeralIp && 'pool' in ephemeralIp ? ephemeralIp.pool : undefined
   const defaultPool = siloPools.find((pool) => pool.isDefault)?.name
   const attachedFloatingIps = (externalIps.field.value || []).filter(isFloating)
+
+  // Filter out the IPs that are already attached to an instance
+  const attachableFloatingIps = useMemo(
+    () => floatingIpList.items.filter((ip) => !ip.instanceId),
+    [floatingIpList]
+  )
 
   // To find available floating IPs, we remove the ones that are already committed to this instance
   const availableFloatingIps = attachableFloatingIps.filter(
@@ -787,17 +788,27 @@ const AdvancedAccordion = ({
               </MiniTable.Body>
             </MiniTable.Table>
           )}
-          <div>
-            <Button
-              size="sm"
-              className="shrink-0"
-              disabled={availableFloatingIps.length === 0}
-              disabledReason="No floating IPs available"
-              onClick={addFloatingIpPlaceholder}
-            >
-              Attach floating IP
-            </Button>
-          </div>
+          {floatingIpList.items.length === 0 ? (
+            <div className="flex max-w-lg items-center justify-center rounded-lg border p-6 border-default">
+              <EmptyMessage
+                icon={<IpGlobal16Icon />}
+                title="No floating IPs found"
+                body="Create a floating IP to attach it to this instance"
+              />
+            </div>
+          ) : (
+            <div>
+              <Button
+                size="sm"
+                className="shrink-0"
+                disabled={availableFloatingIps.length === 0}
+                disabledReason="No floating IPs available"
+                onClick={addFloatingIpPlaceholder}
+              >
+                Attach floating IP
+              </Button>
+            </div>
+          )}
 
           {!!attachedFloatingIps.length && (
             <Modal
