@@ -594,6 +594,23 @@ const isFloating = (
   ip: ExternalIpCreate
 ): ip is { type: 'floating'; floatingIp: NameOrId } => ip.type === 'floating'
 
+const FloatingIpLabel = ({ ip }: { ip: FloatingIp }) => (
+  <div>
+    <div>{ip.name}</div>
+    <div className="flex gap-0.5 text-tertiary selected:text-accent-secondary">
+      <div>{ip.ip}</div>
+      {ip.description && (
+        <>
+          <Slash />
+          <div className="grow overflow-hidden overflow-ellipsis whitespace-pre text-left">
+            {ip.description}
+          </div>
+        </>
+      )}
+    </div>
+  </div>
+)
+
 const AdvancedAccordion = ({
   control,
   isSubmitting,
@@ -763,7 +780,8 @@ const AdvancedAccordion = ({
           <h2 className="text-sans-md">
             Floating IPs{' '}
             <TipIcon>
-              Floating IPs are static IP addresses that can be attached to instances
+              Floating IPs exist independently of instances and can be attached to and
+              detached from them as needed.
             </TipIcon>
           </h2>
           {isFloatingIpAttached && (
@@ -834,22 +852,7 @@ const AdvancedAccordion = ({
                       name="floatingIp"
                       items={availableFloatingIps.map((i) => ({
                         value: i.name,
-                        label: (
-                          <div>
-                            <div>{i.name}</div>
-                            <div className="flex gap-0.5 text-tertiary selected:text-accent-secondary">
-                              <div>{i.ip}</div>
-                              {i.description && (
-                                <>
-                                  <Slash />
-                                  <div className="grow overflow-hidden overflow-ellipsis whitespace-pre text-left">
-                                    {i.description}
-                                  </div>
-                                </>
-                              )}
-                            </div>
-                          </div>
-                        ),
+                        label: <FloatingIpLabel ip={i} />,
                         selectedLabel: `${i.name} (${i.ip})`,
                       }))}
                       label="Floating IP"
