@@ -6,15 +6,18 @@
  * Copyright Oxide Computer Company
  */
 
+import cn from 'classnames'
 import { Link, type LinkProps } from 'react-router-dom'
 
 import { AddRoundel12Icon } from '@oxide/design-system/icons/react'
 
 import { Button, buttonStyle, type ButtonProps } from '~/ui/lib/Button'
 
-export const CreateButton = ({ children, ...props }: ButtonProps) => (
-  <Button size="sm" className="shrink-0" {...props}>
-    <AddRoundel12Icon className="mr-2 text-accent-secondary" />
+export const CreateButton = ({ children, disabled, ...props }: ButtonProps) => (
+  <Button size="sm" className="shrink-0" disabled={disabled} {...props}>
+    <AddRoundel12Icon
+      className={cn(disabled ? 'text-accent-disabled' : 'text-accent-secondary', 'mr-2')}
+    />
     {children}
   </Button>
 )
