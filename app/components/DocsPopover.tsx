@@ -6,8 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { autoUpdate, offset, useFloating } from '@floating-ui/react'
-import { Popover } from '@headlessui/react'
+import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react'
 import cn from 'classnames'
 
 import { OpenLink12Icon, Question12Icon } from '@oxide/design-system/icons/react'
@@ -43,27 +42,15 @@ type DocsPopoverProps = {
 }
 
 export const DocsPopover = ({ heading, icon, summary, links }: DocsPopoverProps) => {
-  const { refs, floatingStyles } = useFloating({
-    placement: 'bottom-end',
-    middleware: [offset(12)],
-    whileElementsMounted: autoUpdate,
-    // Needs to be off because it breaks the enter animation
-    // https://floating-ui.com/docs/usefloating#transform
-    transform: false,
-  })
   return (
     <Popover>
-      <Popover.Button
-        ref={refs.setReference}
-        className={cn(buttonStyle({ size: 'sm', variant: 'ghost' }), 'w-9')}
-      >
+      <PopoverButton className={cn(buttonStyle({ size: 'sm', variant: 'ghost' }), 'w-9')}>
         <Question12Icon aria-label="Links to docs" className="shrink-0" />
-      </Popover.Button>
-      <Popover.Panel
+      </PopoverButton>
+      <PopoverPanel
         // DocsPopoverPanel needed for enter animation
         className="DocsPopoverPanel z-10 w-96 rounded-lg border bg-raise border-secondary elevation-1"
-        ref={refs.setFloating}
-        style={floatingStyles}
+        anchor={{ to: 'bottom end', gap: 12 }}
       >
         <div className="px-4">
           <h2 className="mt-4 flex items-center gap-1 text-sans-md">
@@ -78,7 +65,7 @@ export const DocsPopover = ({ heading, icon, summary, links }: DocsPopoverProps)
             <DocsPopoverLink key={link.href} {...link} />
           ))}
         </div>
-      </Popover.Panel>
+      </PopoverPanel>
     </Popover>
   )
 }

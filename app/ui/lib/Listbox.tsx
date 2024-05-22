@@ -6,14 +6,12 @@
  * Copyright Oxide Computer Company
  */
 import {
-  autoUpdate,
-  flip,
-  FloatingPortal,
-  offset,
-  size,
-  useFloating,
-} from '@floating-ui/react'
-import { Listbox as Select } from '@headlessui/react'
+  Listbox as HListbox,
+  Label,
+  ListboxButton,
+  ListboxOption,
+  ListboxOptions,
+} from '@headlessui/react'
 import cn from 'classnames'
 import type { ReactNode } from 'react'
 
@@ -63,21 +61,6 @@ export const Listbox = <Value extends string = string>({
   isLoading = false,
   ...props
 }: ListboxProps<Value>) => {
-  const { refs, floatingStyles } = useFloating({
-    middleware: [
-      offset(12),
-      flip(),
-      size({
-        apply({ rects, elements }) {
-          Object.assign(elements.floating.style, {
-            width: `${rects.reference.width}px`,
-          })
-        },
-      }),
-    ],
-    whileElementsMounted: autoUpdate,
-  })
-
   const selectedItem = selected && items.find((i) => i.value === selected)
   const noItems = !isLoading && items.length === 0
   const isDisabled = disabled || noItems
@@ -85,7 +68,7 @@ export const Listbox = <Value extends string = string>({
 
   return (
     <div className={cn('relative', className)}>
-      <Select
+      <HListbox
         value={selected}
         // you shouldn't ever be able to select null, but we check here anyway
         // to make TS happy so the calling code doesn't have to. note `val !==
@@ -98,14 +81,13 @@ export const Listbox = <Value extends string = string>({
             {label && (
               <div className="mb-2">
                 <FieldLabel id={``} as="div" tip={tooltipText} optional={!required}>
-                  <Select.Label>{label}</Select.Label>
+                  <Label>{label}</Label>
                 </FieldLabel>
                 {description && <TextInputHint id={``}>{description}</TextInputHint>}
               </div>
             )}
-            <Select.Button
+            <ListboxButton
               name={name}
-              ref={refs.setReference}
               className={cn(
                 `flex h-10 w-full items-center justify-between
                     rounded border text-sans-md`,
@@ -138,37 +120,44 @@ export const Listbox = <Value extends string = string>({
               >
                 <SelectArrows6Icon title="Select" className="w-2 text-tertiary" />
               </div>
-            </Select.Button>
-            <FloatingPortal>
-              <Select.Options
-                ref={refs.setFloating}
-                style={floatingStyles}
-                className={`ox-menu pointer-events-auto ${zIndex} overflow-y-auto !outline-none`}
-              >
-                {items.map((item) => (
-                  <Select.Option
-                    key={item.value}
-                    value={item.value}
-                    className="relative border-b border-secondary last:border-0"
-                  >
-                    {({ active, selected }) => (
-                      <div
-                        className={cn(
-                          'ox-menu-item text-secondary',
-                          selected && 'is-selected',
-                          active && 'is-highlighted'
-                        )}
-                      >
-                        {item.label}
-                      </div>
-                    )}
-                  </Select.Option>
-                ))}
-              </Select.Options>
-            </FloatingPortal>
+            </ListboxButton>
+            <ListboxOptions
+              anchor={{ gap: 12 }}
+              className={`ox-menu pointer-events-auto ${zIndex} w-[var(--button-width)] overflow-y-auto !outline-none`}
+              // This is to prevent the `useOthersInert` call in ListboxOptions.
+              // Without this, when the listbox options box scrolls under the
+              // top bar (for example) you can click through the top bar to the
+              // options because the topbar (and all other elements) has been
+              // marked "inert", which means it does not catch mouse events.
+              // This would not be necessary if useScrollLock in ListboxOptions
+              // worked, but we suspect it doesn't work because the page as a
+              // whole is not the scroll container.
+              modal={false}
+            >
+              {items.map((item) => (
+                <ListboxOption
+                  key={item.value}
+                  value={item.value}
+                  className="relative border-b border-secondary last:border-0"
+                >
+                  {({ active, selected }) => (
+                    // TODO: redo active styling with `data-active` somehow
+                    <div
+                      className={cn(
+                        'ox-menu-item text-secondary',
+                        selected && 'is-selected',
+                        active && 'is-highlighted'
+                      )}
+                    >
+                      {item.label}
+                    </div>
+                  )}
+                </ListboxOption>
+              ))}
+            </ListboxOptions>
           </>
         )}
-      </Select>
+      </HListbox>
     </div>
   )
 }
