@@ -626,6 +626,7 @@ const AdvancedAccordion = ({
   // tell, inside AccordionItem, when an accordion is opened so we can scroll its
   // contents into view
   const [openItems, setOpenItems] = useState<string[]>([])
+  const [floatingIpModalOpen, setFloatingIpModalOpen] = useState(false)
   const [selectedFloatingIp, setSelectedFloatingIp] = useState<string | undefined>()
   const externalIps = useController({ control, name: 'externalIps' })
   const ephemeralIp = externalIps.field.value?.find((ip) => ip.type === 'ephemeral')
@@ -648,31 +649,17 @@ const AdvancedAccordion = ({
     .map((ip) => attachableFloatingIps.find((fip) => fip.name === ip.floatingIp))
     .filter((x) => !!x) as Array<FloatingIp>
 
-  const addFloatingIpPlaceholder = () => {
+  const closeFloatingIpModal = () => {
+    setFloatingIpModalOpen(false)
     setSelectedFloatingIp(undefined)
-    const newExternalIps = [
+  }
+
+  const attachFloatingIp = () => {
+    externalIps.field.onChange([
       ...(externalIps.field.value || []),
-      { type: 'floating', floatingIp: '' },
-    ]
-    externalIps.field.onChange(newExternalIps)
-  }
-
-  const removeFloatingIpPlaceholder = () => {
-    externalIps.field.onChange(
-      externalIps.field.value?.filter(
-        (ip) => ip.type === 'ephemeral' || ip.floatingIp !== ''
-      )
-    )
-  }
-
-  const attachFloatingIp = (name: string) => {
-    const newExternalIps = externalIps.field.value?.map((ip) => {
-      if (ip.type === 'floating' && ip.floatingIp === '') {
-        return { type: 'floating', floatingIp: name }
-      }
-      return ip
-    })
-    externalIps.field.onChange(newExternalIps)
+      { type: 'floating', floatingIp: selectedFloatingIp },
+    ])
+    closeFloatingIpModal()
   }
 
   const detachFloatingIp = (name: string) => {
@@ -681,10 +668,6 @@ const AdvancedAccordion = ({
     )
     externalIps.field.onChange(newExternalIps)
   }
-
-  const isEmptyFloatingIpPlaceholderPresent = attachedFloatingIps.some(
-    (ip) => ip.floatingIp === ''
-  )
 
   const isFloatingIpAttached = attachedFloatingIps.some((ip) => ip.floatingIp !== '')
 
@@ -831,53 +814,49 @@ const AdvancedAccordion = ({
                 className="shrink-0"
                 disabled={availableFloatingIps.length === 0}
                 disabledReason="No floating IPs available"
-                onClick={addFloatingIpPlaceholder}
+                onClick={() => setFloatingIpModalOpen(true)}
               >
                 Attach floating IP
               </Button>
             </div>
           )}
 
-          {!!attachedFloatingIps.length && (
-            <Modal
-              isOpen={isEmptyFloatingIpPlaceholderPresent}
-              onDismiss={removeFloatingIpPlaceholder}
-              title="Attach floating IP"
-            >
-              <Modal.Body>
-                <Modal.Section>
-                  <Message variant="info" content={selectedFloatingIpMessage} />
-                  <form>
-                    <Listbox
-                      name="floatingIp"
-                      items={availableFloatingIps.map((i) => ({
-                        value: i.name,
-                        label: <FloatingIpLabel ip={i} />,
-                        selectedLabel: `${i.name} (${i.ip})`,
-                      }))}
-                      label="Floating IP"
-                      onChange={(e) => {
-                        setSelectedFloatingIp(e)
-                      }}
-                      required
-                      placeholder="Select floating IP"
-                      selected={selectedFloatingIp || ''}
-                    />
-                  </form>
-                </Modal.Section>
-              </Modal.Body>
-              <Modal.Footer
-                actionText="Attach"
-                disabled={!selectedFloatingIp}
-                onAction={() => {
-                  if (selectedFloatingIp) {
-                    attachFloatingIp(selectedFloatingIp)
-                  }
-                }}
-                onDismiss={removeFloatingIpPlaceholder}
-              ></Modal.Footer>
-            </Modal>
-          )}
+          <Modal
+            isOpen={floatingIpModalOpen}
+            onDismiss={closeFloatingIpModal}
+            title="Attach floating IP"
+          >
+            <Modal.Body>
+              <Modal.Section>
+                <Message variant="info" content={selectedFloatingIpMessage} />
+                <form>
+                  <Listbox
+                    name="floatingIp"
+                    items={availableFloatingIps.map((i) => ({
+                      value: i.name,
+                      label: <FloatingIpLabel ip={i} />,
+                      selectedLabel: `${i.name} (${i.ip})`,
+                    }))}
+                    label="Floating IP"
+                    onChange={(e) => {
+                      setSelectedFloatingIp(e)
+                    }}
+                    required
+                    placeholder="Select floating IP"
+                    selected={selectedFloatingIp || ''}
+                  />
+                </form>
+              </Modal.Section>
+            </Modal.Body>
+            <Modal.Footer
+              actionText="Attach"
+              disabled={!selectedFloatingIp}
+              onAction={() => {
+                attachFloatingIp()
+              }}
+              onDismiss={closeFloatingIpModal}
+            ></Modal.Footer>
+          </Modal>
         </div>
       </AccordionItem>
       <AccordionItem
