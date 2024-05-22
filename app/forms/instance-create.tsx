@@ -851,9 +851,7 @@ const AdvancedAccordion = ({
             <Modal.Footer
               actionText="Attach"
               disabled={!selectedFloatingIp}
-              onAction={() => {
-                attachFloatingIp()
-              }}
+              onAction={attachFloatingIp}
               onDismiss={closeFloatingIpModal}
             ></Modal.Footer>
           </Modal>
