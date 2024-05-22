@@ -11,9 +11,28 @@ import { useForm } from 'react-hook-form'
 import { useApiMutation, useApiQueryClient, type FloatingIp, type Instance } from '~/api'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { addToast } from '~/stores/toast'
-import { FloatingIpLabel } from '~/ui/lib/ListboxLabels'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
+import { Slash } from '~/ui/lib/Slash'
+
+function FloatingIpLabel({ fip }: { fip: FloatingIp }) {
+  return (
+    <div className="text-tertiary selected:text-accent-secondary">
+      <div>{fip.name}</div>
+      <div className="flex gap-0.5">
+        <div>{fip.ip}</div>
+        {fip.description && (
+          <>
+            <Slash />
+            <div className="grow overflow-hidden overflow-ellipsis whitespace-pre text-left">
+              {fip.description}
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  )
+}
 
 export const AttachFloatingIpModal = ({
   floatingIps,
@@ -55,7 +74,7 @@ export const AttachFloatingIpModal = ({
               placeholder="Select floating IP"
               items={floatingIps.map((ip) => ({
                 value: ip.id,
-                label: <FloatingIpLabel ip={ip} />,
+                label: <FloatingIpLabel fip={ip} />,
                 selectedLabel: ip.name,
               }))}
               required
