@@ -5,7 +5,6 @@
  *
  * Copyright Oxide Computer Company
  */
-import { filesize } from 'filesize'
 import { useMemo } from 'react'
 import { useController, type Control } from 'react-hook-form'
 import { useNavigate, type NavigateFunction } from 'react-router-dom'
@@ -32,10 +31,9 @@ import { useForm, useProjectSelector } from '~/hooks'
 import { addToast } from '~/stores/toast'
 import { FormDivider } from '~/ui/lib/Divider'
 import { FieldLabel } from '~/ui/lib/FieldLabel'
+import { SnapshotLabel } from '~/ui/lib/ListboxLabels'
 import { Radio } from '~/ui/lib/Radio'
 import { RadioGroup } from '~/ui/lib/RadioGroup'
-import { Slash } from '~/ui/lib/Slash'
-import { toLocaleDateString } from '~/util/date'
 import { bytesToGiB, GiB } from '~/util/units'
 
 const blankDiskSource: DiskSource = {
@@ -225,18 +223,6 @@ const DiskSourceField = ({
   )
 }
 
-const DiskNameFromId = ({ disk }: { disk: string }) => {
-  const { data, isPending, isError } = useApiQuery(
-    'diskView',
-    { path: { disk } },
-    // this can 404 if the source disk has been deleted, and that's fine
-    { throwOnError: false }
-  )
-
-  if (isPending || isError) return null
-  return <> from {data.name}</>
-}
-
 const SnapshotSelectField = ({ control }: { control: Control<DiskCreate> }) => {
   const { project } = useProjectSelector()
   const snapshotsQuery = useApiQuery('snapshotList', { query: { project } })
@@ -250,23 +236,11 @@ const SnapshotSelectField = ({ control }: { control: Control<DiskCreate> }) => {
       name="diskSource.snapshotId"
       label="Source snapshot"
       placeholder="Select a snapshot"
-      items={snapshots.map((i) => {
-        const formattedSize = filesize(i.size, { base: 2, output: 'object' })
-        return {
-          value: i.id,
-          selectedLabel: `${i.name}`,
-          label: (
-            <>
-              <div>{i.name}</div>
-              <div className="text-tertiary selected:text-accent-secondary">
-                Created on {toLocaleDateString(i.timeCreated)}
-                <DiskNameFromId disk={i.diskId} /> <Slash /> {formattedSize.value}{' '}
-                {formattedSize.unit}
-              </div>
-            </>
-          ),
-        }
-      })}
+      items={snapshots.map((i) => ({
+        value: i.id,
+        selectedLabel: `${i.name}`,
+        label: <SnapshotLabel snapshot={i} />,
+      }))}
       isLoading={snapshotsQuery.isPending}
       required
       onChange={(id) => {

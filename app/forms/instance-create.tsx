@@ -58,18 +58,17 @@ import { FullPageForm } from '~/components/form/FullPageForm'
 import { HL } from '~/components/HL'
 import { getProjectSelector, useForm, useProjectSelector } from '~/hooks'
 import { addToast } from '~/stores/toast'
-import { Badge } from '~/ui/lib/Badge'
 import { Button } from '~/ui/lib/Button'
 import { Checkbox } from '~/ui/lib/Checkbox'
 import { FormDivider } from '~/ui/lib/Divider'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Listbox } from '~/ui/lib/Listbox'
+import { FloatingIpLabel, PoolLabel } from '~/ui/lib/ListboxLabels'
 import { Message } from '~/ui/lib/Message'
 import * as MiniTable from '~/ui/lib/MiniTable'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { RadioCard } from '~/ui/lib/Radio'
-import { Slash } from '~/ui/lib/Slash'
 import { Tabs } from '~/ui/lib/Tabs'
 import { TextInputHint } from '~/ui/lib/TextInput'
 import { TipIcon } from '~/ui/lib/TipIcon'
@@ -594,23 +593,6 @@ const isFloating = (
   ip: ExternalIpCreate
 ): ip is { type: 'floating'; floatingIp: NameOrId } => ip.type === 'floating'
 
-const FloatingIpLabel = ({ ip }: { ip: FloatingIp }) => (
-  <div>
-    <div>{ip.name}</div>
-    <div className="flex gap-0.5 text-tertiary selected:text-accent-secondary">
-      <div>{ip.ip}</div>
-      {ip.description && (
-        <>
-          <Slash />
-          <div className="grow overflow-hidden overflow-ellipsis whitespace-pre text-left">
-            {ip.description}
-          </div>
-        </>
-      )}
-    </div>
-  </div>
-)
-
 const AdvancedAccordion = ({
   control,
   isSubmitting,
@@ -755,12 +737,7 @@ const AdvancedAccordion = ({
               selected={`${siloPools.find((pool) => pool.name === selectedPool)?.name}`}
               items={
                 siloPools.map((pool) => ({
-                  label: (
-                    <div className="flex items-center gap-2">
-                      {pool.name}
-                      {pool.isDefault && <Badge>default</Badge>}
-                    </div>
-                  ),
+                  label: <PoolLabel pool={pool} />,
                   value: pool.name,
                 })) || []
               }

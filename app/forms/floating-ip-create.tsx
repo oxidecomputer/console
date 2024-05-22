@@ -24,7 +24,7 @@ import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { useForm, useProjectSelector } from '~/hooks'
 import { addToast } from '~/stores/toast'
-import { Badge } from '~/ui/lib/Badge'
+import { PoolLabel } from '~/ui/lib/ListboxLabels'
 import { Message } from '~/ui/lib/Message'
 import { pb } from '~/util/path-builder'
 
@@ -36,14 +36,7 @@ const toListboxItem = (p: SiloIpPool) => {
   return {
     value: p.name,
     selectedLabel: p.name,
-    label: (
-      <>
-        {p.name}{' '}
-        <Badge className="ml-1" color="neutral">
-          default
-        </Badge>
-      </>
-    ),
+    label: <PoolLabel pool={p} />,
   }
 }
 
