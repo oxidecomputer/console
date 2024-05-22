@@ -35,9 +35,13 @@ test('Instance networking tab — NIC table', async ({ page }) => {
     '/projects/mock-project/vpcs/mock-vpc'
   )
 
+  // Ensure that the 'Add network interface' button is disabled when the instance is running
+  await expect(page.getByRole('button', { name: 'Add network interface' })).toBeDisabled()
+
   // Have to stop instance to edit NICs
   await stopInstance(page)
 
+  await expect(page.getByRole('button', { name: 'Add network interface' })).toBeEnabled()
   await page.click('role=button[name="Add network interface"]')
 
   // Add network interface
