@@ -13,10 +13,12 @@ import { AddRoundel12Icon } from '@oxide/design-system/icons/react'
 
 import { Button, buttonStyle, type ButtonProps } from '~/ui/lib/Button'
 
-export const CreateButton = ({ children, disabled, ...props }: ButtonProps) => (
-  <Button size="sm" className="shrink-0" disabled={disabled} {...props}>
+export const CreateButton = ({ children, ...props }: ButtonProps) => (
+  <Button size="sm" className="shrink-0" {...props}>
     <AddRoundel12Icon
-      className={cn(disabled ? 'text-accent-disabled' : 'text-accent-secondary', 'mr-2')}
+      // dim the icon color from the default (text accent) because it looks a
+      // lot brighter than text, but default disabled color is fine
+      className={cn('mr-2', { 'text-accent-secondary': !props.disabled })}
     />
     {children}
   </Button>

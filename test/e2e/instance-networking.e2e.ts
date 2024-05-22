@@ -35,14 +35,16 @@ test('Instance networking tab — NIC table', async ({ page }) => {
     '/projects/mock-project/vpcs/mock-vpc'
   )
 
+  const addNicButton = page.getByRole('button', { name: 'Add network interface' })
+
   // Ensure that the 'Add network interface' button is disabled when the instance is running
-  await expect(page.getByRole('button', { name: 'Add network interface' })).toBeDisabled()
+  await expect(addNicButton).toBeDisabled()
 
   // Have to stop instance to edit NICs
   await stopInstance(page)
 
-  await expect(page.getByRole('button', { name: 'Add network interface' })).toBeEnabled()
-  await page.click('role=button[name="Add network interface"]')
+  await expect(addNicButton).toBeEnabled()
+  await addNicButton.click()
 
   // Add network interface
   // TODO: modal title is not getting hooked up, IDs are wrong
