@@ -822,7 +822,7 @@ const AdvancedAccordion = ({
                     variant="info"
                     content={
                       <>
-                        {'This instance will be reachable at '}
+                        This instance will be reachable at{' '}
                         {selectedFloatingIp ? (
                           <HL>
                             {
