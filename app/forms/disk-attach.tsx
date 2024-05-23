@@ -5,6 +5,9 @@
  *
  * Copyright Oxide Computer Company
  */
+import { Combobox, ComboboxInput, ComboboxOption, ComboboxOptions } from '@headlessui/react'
+import { useState } from 'react'
+
 import { useApiQuery, type ApiError } from '@oxide/api'
 
 import { ListboxField } from '~/components/form/fields/ListboxField'
@@ -44,6 +47,31 @@ export function AttachDiskSideModalForm({
 
   const form = useForm({ defaultValues })
 
+  const people = [
+    { id: 1, name: 'Durward Reynolds' },
+    { id: 2, name: 'Kenton Towne' },
+    { id: 3, name: 'Therese Wunsch' },
+    { id: 4, name: 'Benedict Kessler' },
+    { id: 5, name: 'Katelyn Rohan' },
+  ]
+  const [selectedPerson, setSelectedPerson] = useState(people[0])
+  const [query, setQuery] = useState('')
+
+  console.log(query)
+  const filteredPeople =
+    query === ''
+      ? people
+      : people.filter((person) => {
+          console.log(
+            person,
+            query,
+            person.name.toLowerCase().includes(query.toLowerCase())
+          )
+          return person.name.toLowerCase().includes(query.toLowerCase())
+        })
+
+  console.log(filteredPeople)
+
   return (
     <SideModalForm
       form={form}
@@ -55,6 +83,30 @@ export function AttachDiskSideModalForm({
       submitError={submitError}
       onDismiss={onDismiss}
     >
+      <Combobox
+        value={selectedPerson}
+        onChange={(person: { id: number; name: string }) => {
+          setSelectedPerson(person)
+        }}
+        onClose={() => setQuery('')}
+      >
+        <ComboboxInput
+          aria-label="Assignee"
+          displayValue={(person: { id: number; name: string }) => person?.name}
+          onChange={(event) => setQuery(event.target.value)}
+        />
+        <ComboboxOptions anchor="bottom" className="empty:hidden">
+          {filteredPeople.map((person) => (
+            <ComboboxOption
+              key={person.id}
+              value={person.name}
+              className="data-[focus]:bg-blue-100"
+            >
+              {person.name}
+            </ComboboxOption>
+          ))}
+        </ComboboxOptions>
+      </Combobox>
       <ListboxField
         label="Disk name"
         name="name"

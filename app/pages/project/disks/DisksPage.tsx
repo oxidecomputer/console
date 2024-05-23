@@ -5,8 +5,9 @@
  *
  * Copyright Oxide Computer Company
  */
+import { Combobox, ComboboxInput, ComboboxOption, ComboboxOptions } from '@headlessui/react'
 import { createColumnHelper } from '@tanstack/react-table'
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { Outlet, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
@@ -160,6 +161,27 @@ export function DisksPage() {
 
   const columns = useColsWithActions(staticCols, makeActions)
 
+  type Person = {
+    id: number
+    name: string
+  }
+  const people: Array<Person> = [
+    { id: 1, name: 'Durward Reynolds' },
+    { id: 2, name: 'Kenton Towne' },
+    { id: 3, name: 'Therese Wunsch' },
+    { id: 4, name: 'Benedict Kessler' },
+    { id: 5, name: 'Katelyn Rohan' },
+  ]
+  const [selectedPerson, setSelectedPerson] = useState<Person>(people[0])
+  const [query, setQuery] = useState('')
+
+  const filteredPeople =
+    query === ''
+      ? people
+      : people.filter((person) => {
+          return person.name.toLowerCase().includes(query.toLowerCase())
+        })
+
   return (
     <>
       <PageHeader>
@@ -171,6 +193,28 @@ export function DisksPage() {
           links={[docLinks.disks]}
         />
       </PageHeader>
+      <Combobox
+        value={selectedPerson}
+        onChange={(person: Person) => setSelectedPerson(person)}
+        onClose={() => setQuery('')}
+      >
+        <ComboboxInput
+          aria-label="Assignee"
+          displayValue={(person: Person) => person?.name}
+          onChange={(event) => setQuery(event.target.value)}
+        />
+        <ComboboxOptions anchor="bottom" className="empty:hidden">
+          {filteredPeople.map((person) => (
+            <ComboboxOption
+              key={person.id}
+              value={person}
+              className="data-[focus]:bg-blue-100"
+            >
+              {person.name}
+            </ComboboxOption>
+          ))}
+        </ComboboxOptions>
+      </Combobox>
       <TableActions>
         <CreateLink to={pb.disksNew({ project })}>New Disk</CreateLink>
       </TableActions>
