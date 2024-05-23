@@ -101,6 +101,10 @@ export function StorageTab() {
   })
 
   const { data: instance } = usePrefetchedApiQuery('instanceView', instancePathQuery)
+  const { data: disks } = usePrefetchedApiQuery('instanceDiskList', {
+    path: { instance: instanceName },
+    query: { project, limit: PAGE_SIZE },
+  })
 
   const makeActions = useCallback(
     (disk: Disk): MenuAction[] => [
@@ -218,6 +222,7 @@ export function StorageTab() {
       )}
       {showDiskAttach && (
         <AttachDiskSideModalForm
+          attachedDisks={disks.items.map((d) => d.name)}
           onDismiss={() => setShowDiskAttach(false)}
           onSubmit={({ name }) => {
             attachDisk.mutate({ ...instancePathQuery, body: { disk: name } })

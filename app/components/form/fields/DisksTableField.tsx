@@ -116,6 +116,7 @@ export function DisksTableField({
       )}
       {showDiskAttach && (
         <AttachDiskSideModalForm
+          attachedDisks={items.filter((i) => i.type === 'attach').map((i) => i.name)}
           onDismiss={() => setShowDiskAttach(false)}
           onSubmit={(values) => {
             onChange([...items, { type: 'attach', ...values }])

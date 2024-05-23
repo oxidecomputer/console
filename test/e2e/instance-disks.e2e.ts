@@ -58,6 +58,9 @@ test('Attach disk', async ({ page }) => {
   await expectVisible(page, ['role=dialog >> text="Disk name is required"'])
 
   await page.click('role=button[name*="Disk name"]')
+
+  // disk-1 is already attached, so should not be visible in the list
+  await expectNotVisible(page, ['role=option[name="disk-1"]'])
   await expectVisible(page, ['role=option[name="disk-3"]', 'role=option[name="disk-4"]'])
   await page.click('role=option[name="disk-3"]')
 

@@ -14,6 +14,7 @@ import { useForm, useProjectSelector } from '~/hooks'
 const defaultValues = { name: '' }
 
 type AttachDiskProps = {
+  attachedDisks: string[]
   /** If defined, this overrides the usual mutation */
   onSubmit: (diskAttach: { name: string }) => void
   onDismiss: () => void
@@ -26,6 +27,7 @@ type AttachDiskProps = {
  * the optional `loading` and `submitError`
  */
 export function AttachDiskSideModalForm({
+  attachedDisks,
   onSubmit,
   onDismiss,
   loading,
@@ -39,7 +41,7 @@ export function AttachDiskSideModalForm({
   // TODO: error handling
   const detachedDisks =
     useApiQuery('diskList', { query: projectSelector }).data?.items.filter(
-      (d) => d.state.state === 'detached'
+      (d) => d.state.state === 'detached' && !attachedDisks.includes(d.name)
     ) || []
 
   const form = useForm({ defaultValues })
