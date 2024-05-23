@@ -76,6 +76,34 @@ export const valuesToRuleUpdate = (values: FirewallRuleValues): VpcFirewallRuleU
   targets: values.targets,
 })
 
+/** convert in the opposite direction for when we're creating from existing rule */
+const ruleToValues = (rule: VpcFirewallRule): FirewallRuleValues => ({
+  ...rule,
+  enabled: rule.status === 'enabled',
+  protocols: rule.filters.protocols || [],
+  ports: rule.filters.ports || [],
+  hosts: rule.filters.hosts || [],
+})
+
+/** Empty form for when we're not creating from an existing rule */
+const defaultValuesEmpty: FirewallRuleValues = {
+  enabled: true,
+  name: '',
+  description: '',
+
+  priority: 0,
+  action: 'allow',
+  direction: 'inbound',
+
+  // in the request body, these go in a `filters` object. we probably don't
+  // need such nesting here though. not even sure how to do it
+  protocols: [],
+
+  ports: [],
+  hosts: [],
+  targets: [],
+}
+
 type PortRangeFormValues = {
   portRange: string
 }
@@ -565,23 +593,9 @@ export function CreateFirewallRuleForm() {
   const existingRules = useMemo(() => sortBy(data.rules, (r) => r.priority), [data])
   const originalRule = existingRules.find((rule) => rule.name === firewallRule)
 
-  const defaultValues: FirewallRuleValues = {
-    enabled: originalRule ? originalRule.status === 'enabled' : true,
-    name: originalRule ? incrementName(originalRule.name) : '',
-    description: originalRule ? originalRule.description : '',
-
-    priority: originalRule ? originalRule.priority : 0,
-    action: originalRule ? originalRule.action : 'allow',
-    direction: originalRule ? originalRule.direction : 'inbound',
-
-    // in the request body, these go in a `filters` object. we probably don't
-    // need such nesting here though. not even sure how to do it
-    protocols: originalRule ? originalRule.filters.protocols || [] : [],
-
-    ports: originalRule ? originalRule.filters.ports || [] : [],
-    hosts: originalRule ? originalRule.filters.hosts || [] : [],
-    targets: originalRule ? originalRule.targets : [],
-  }
+  const defaultValues: FirewallRuleValues = originalRule
+    ? ruleToValues({ ...originalRule, name: incrementName(originalRule.name) })
+    : defaultValuesEmpty
 
   const form = useForm({ defaultValues })
 
