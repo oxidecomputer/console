@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { expect, expectRowVisible, test } from './utils'
+import { clickRowAction, expect, expectRowVisible, test } from './utils'
 
 const defaultRules = ['allow-internal-inbound', 'allow-ssh', 'allow-icmp', 'allow-rdp']
 
@@ -308,4 +308,22 @@ test('can update firewall rule', async ({ page }) => {
   for (const name of rest) {
     await expect(page.locator(`text="${name}"`)).toBeVisible()
   }
+})
+
+test('create from existing rule', async ({ page }) => {
+  const url = '/projects/mock-project/vpcs/mock-vpc/firewall-rules'
+  await page.goto(url)
+
+  const modal = page.getByRole('dialog', { name: 'Add firewall rule' })
+  await expect(modal).toBeHidden()
+
+  await clickRowAction(page, 'allow-rdp', 'New similar rule')
+
+  await expect(page).toHaveURL(url + '-new/allow-rdp')
+  await expect(modal).toBeVisible()
+  await expect(page.getByRole('textbox', { name: 'Name', exact: true })).toHaveValue(
+    'allow-rdp-1'
+  )
+
+  // TODO: should assert all the values, really
 })
