@@ -663,10 +663,11 @@ const AdvancedAccordion = ({
   }
 
   const detachFloatingIp = (name: string) => {
-    const newExternalIps = externalIps.field.value?.filter(
-      (ip) => ip.type === 'ephemeral' || ip.floatingIp !== name
+    externalIps.field.onChange(
+      externalIps.field.value?.filter(
+        (ip) => ip.type === 'ephemeral' || ip.floatingIp !== name
+      )
     )
-    externalIps.field.onChange(newExternalIps)
   }
 
   const isFloatingIpAttached = attachedFloatingIps.some((ip) => ip.floatingIp !== '')
