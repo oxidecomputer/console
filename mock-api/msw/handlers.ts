@@ -486,6 +486,33 @@ export const handlers = makeHandlers({
       time_run_state_updated: new Date().toISOString(),
     }
 
+    body.external_ips?.forEach((ip) => {
+      if (ip.type === 'floating') {
+        const floatingIp = lookup.floatingIp({
+          project: project.id,
+          floatingIp: ip.floating_ip,
+        })
+        if (floatingIp.instance_id) {
+          throw 'floating IP cannot be attached to one instance while still attached to another'
+        }
+        floatingIp.instance_id = instanceId
+      } else if (ip.type === 'ephemeral') {
+        const poolId = db.ipPools.find((pool) => pool.name === ip.pool)?.id
+        const range = db.ipPoolRanges.find((range) => range.ip_pool_id === poolId)?.range
+
+        // right now, we're just using the first address in the range, but we'll
+        // want to filter the list of available IPs for the first unused address
+        const firstAvailableAddress = range?.first || '—'
+        db.ephemeralIps.push({
+          instance_id: instanceId,
+          external_ip: {
+            ip: firstAvailableAddress,
+            kind: 'ephemeral',
+          },
+        })
+      }
+    })
+
     setTimeout(() => {
       newInstance.run_state = 'starting'
     }, 1000)

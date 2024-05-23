@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { images } from '@oxide/api-mocks'
+import { floatingIp, images } from '@oxide/api-mocks'
 
 import { expect, expectNotVisible, expectRowVisible, expectVisible, test } from './utils'
 
@@ -329,8 +329,9 @@ test('does not attach an ephemeral IP when the checkbox is unchecked', async ({ 
 })
 
 test('attaches a floating IP; disables button when no IPs available', async ({ page }) => {
+  const instanceName = 'with-floating-ip'
   await page.goto('/projects/mock-project/instances-new')
-  await page.getByRole('textbox', { name: 'Name', exact: true }).fill('with-floating-ip')
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
   await page.getByRole('button', { name: 'Networking' }).click()
   await page.getByRole('button', { name: 'Attach floating IP' }).click()
   await expect(
@@ -344,10 +345,27 @@ test('attaches a floating IP; disables button when no IPs available', async ({ p
   await page.getByRole('button', { name: 'Attach', exact: true }).click()
   await expect(page.getByText('This instance will be reachable at')).toBeHidden()
   await expectRowVisible(page.getByRole('table'), {
-    Name: 'rootbeer-float',
-    IP: '123.4.56.4',
+    Name: floatingIp.name,
+    IP: floatingIp.ip,
   })
   await expect(page.getByRole('button', { name: 'Attach floating IP' })).toBeDisabled()
+  await page.getByRole('button', { name: 'Create instance' }).click()
+
+  await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)
+  await expectVisible(page, [`h1:has-text("${instanceName}")`])
+  await page.getByRole('tab', { name: 'Networking' }).click()
+
+  // ensure External IPs table has rows for the Ephemeral IP and the Floating IP
+  await expectRowVisible(page.getByRole('table'), {
+    ip: '123.4.56.0',
+    Kind: 'ephemeral',
+    name: '—',
+  })
+  await expectRowVisible(page.getByRole('table'), {
+    ip: floatingIp.ip,
+    Kind: 'floating',
+    name: floatingIp.name,
+  })
 })
 
 test('attach a floating IP section has Empty version when no floating IPs exist on the project', async ({
