@@ -333,12 +333,16 @@ test('attaches a floating IP; disables button when no IPs available', async ({ p
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill('with-floating-ip')
   await page.getByRole('button', { name: 'Networking' }).click()
   await page.getByRole('button', { name: 'Attach floating IP' }).click()
-  const modalMessage = page.getByText('This instance will be reachable at the selected IP')
-  await expect(modalMessage).toBeVisible()
+  await expect(
+    page.getByText('This instance will be reachable at the selected IP')
+  ).toBeVisible()
   await page.getByRole('button', { name: 'Select floating ip' }).click()
   await page.getByRole('option', { name: 'rootbeer-float' }).click()
+  await expect(
+    page.getByText('This instance will be reachable at 123.4.56.4')
+  ).toBeVisible()
   await page.getByRole('button', { name: 'Attach', exact: true }).click()
-  await expect(modalMessage).toBeHidden()
+  await expect(page.getByText('This instance will be reachable at')).toBeHidden()
   await expectRowVisible(page.getByRole('table'), {
     Name: 'rootbeer-float',
     IP: '123.4.56.4',
