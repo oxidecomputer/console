@@ -24,10 +24,13 @@ type FloatingIp = Required<PP.FloatingIp>
 type VpcFirewallRule = Required<PP.VpcFirewallRule>
 type VpcSubnet = Required<PP.VpcSubnet>
 
-// this is used as the basis for many routes, but is itself not a route we ever
-// want to link directly to. so we use this to build the routes but pb.project()
-// is different (includes /instances)
+// these are used as the basis for many routes but are not themselves routes we
+// ever want to link to. so we use this to build the routes but pb.project() is
+// different (includes /instances)
 const projectBase = ({ project }: Project) => `${pb.projects()}/${project}`
+const instanceBase = ({ project, instance }: Instance) =>
+  `${pb.instances({ project })}/${instance}`
+const vpcBase = ({ project, vpc }: Vpc) => `${pb.vpcs({ project })}/${vpc}`
 
 export const pb = {
   projects: () => `/projects`,
@@ -43,7 +46,6 @@ export const pb = {
 
   instances: (params: Project) => `${projectBase(params)}/instances`,
   instancesNew: (params: Project) => `${projectBase(params)}/instances-new`,
-  instance: (params: Instance) => `${pb.instances(params)}/${params.instance}`,
 
   /**
    * This route exists as a direct link to the default tab of the instance page. Unfortunately
@@ -52,15 +54,15 @@ export const pb = {
    *
    * @see https://github.com/oxidecomputer/console/pull/1267#discussion_r1016766205
    */
-  instancePage: (params: Instance) => pb.instanceStorage(params),
+  instance: (params: Instance) => pb.instanceStorage(params),
 
-  instanceMetrics: (params: Instance) => `${pb.instance(params)}/metrics`,
-  instanceStorage: (params: Instance) => `${pb.instance(params)}/storage`,
-  instanceConnect: (params: Instance) => `${pb.instance(params)}/connect`,
+  instanceMetrics: (params: Instance) => `${instanceBase(params)}/metrics`,
+  instanceStorage: (params: Instance) => `${instanceBase(params)}/storage`,
+  instanceConnect: (params: Instance) => `${instanceBase(params)}/connect`,
 
-  nics: (params: Instance) => `${pb.instance(params)}/network-interfaces`,
+  nics: (params: Instance) => `${instanceBase(params)}/network-interfaces`,
 
-  serialConsole: (params: Instance) => `${pb.instance(params)}/serial-console`,
+  serialConsole: (params: Instance) => `${instanceBase(params)}/serial-console`,
 
   disksNew: (params: Project) => `${projectBase(params)}/disks-new`,
   disks: (params: Project) => `${projectBase(params)}/disks`,
@@ -72,8 +74,11 @@ export const pb = {
 
   vpcsNew: (params: Project) => `${projectBase(params)}/vpcs-new`,
   vpcs: (params: Project) => `${projectBase(params)}/vpcs`,
-  vpc: (params: Vpc) => `${pb.vpcs(params)}/${params.vpc}`,
-  vpcEdit: (params: Vpc) => `${pb.vpc(params)}/edit`,
+
+  // same deal as instance detail: go straight to first tab
+  vpc: (params: Vpc) => pb.vpcFirewallRules(params),
+
+  vpcEdit: (params: Vpc) => `${vpcBase(params)}/edit`,
 
   vpcFirewallRules: (params: Vpc) => `${pb.vpcs(params)}/${params.vpc}/firewall-rules`,
   vpcFirewallRulesNew: (params: Vpc) =>
