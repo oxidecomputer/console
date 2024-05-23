@@ -350,8 +350,12 @@ export const routes = createRoutesFromElements(
 
         <Route path="vpcs" handle={{ crumb: 'VPCs' }}>
           <Route path=":vpc" handle={{ crumb: vpcCrumb }}>
-            <Route index element={<Navigate to="firewall-rules" replace />} />
             <Route element={<VpcPage />} loader={VpcPage.loader}>
+              <Route
+                index
+                element={<Navigate to="firewall-rules" replace />}
+                loader={VpcFirewallRulesTab.loader}
+              />
               <Route element={<VpcFirewallRulesTab />} loader={VpcFirewallRulesTab.loader}>
                 <Route path="firewall-rules" handle={{ crumb: 'Firewall Rules' }} />
                 <Route
