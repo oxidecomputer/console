@@ -627,7 +627,7 @@ const AdvancedAccordion = ({
   // contents into view
   const [openItems, setOpenItems] = useState<string[]>([])
   const [floatingIpModalOpen, setFloatingIpModalOpen] = useState(false)
-  const [selectedFloatingIp, setSelectedFloatingIp] = useState<string | undefined>()
+  const [selectedFloatingIp, setSelectedFloatingIp] = useState<FloatingIp | undefined>()
   const externalIps = useController({ control, name: 'externalIps' })
   const ephemeralIp = externalIps.field.value?.find((ip) => ip.type === 'ephemeral')
   const assignEphemeralIp = !!ephemeralIp
@@ -657,7 +657,7 @@ const AdvancedAccordion = ({
   const attachFloatingIp = () => {
     externalIps.field.onChange([
       ...(externalIps.field.value || []),
-      { type: 'floating', floatingIp: selectedFloatingIp },
+      { type: 'floating', floatingIp: selectedFloatingIp?.name },
     ])
     closeFloatingIpModal()
   }
@@ -672,13 +672,10 @@ const AdvancedAccordion = ({
 
   const isFloatingIpAttached = attachedFloatingIps.some((ip) => ip.floatingIp !== '')
 
-  const selectedIpAddress = attachableFloatingIps.find(
-    (ip) => ip.name === selectedFloatingIp
-  )?.ip
   const selectedFloatingIpMessage = (
     <>
       This instance will be reachable at{' '}
-      {selectedFloatingIp ? <HL>{selectedIpAddress}</HL> : 'the selected IP'}
+      {selectedFloatingIp ? <HL>{selectedFloatingIp.ip}</HL> : 'the selected IP'}
     </>
   )
 
@@ -839,12 +836,14 @@ const AdvancedAccordion = ({
                       selectedLabel: `${i.name} (${i.ip})`,
                     }))}
                     label="Floating IP"
-                    onChange={(e) => {
-                      setSelectedFloatingIp(e)
+                    onChange={(name) => {
+                      setSelectedFloatingIp(
+                        availableFloatingIps.find((i) => i.name === name)
+                      )
                     }}
                     required
                     placeholder="Select floating IP"
-                    selected={selectedFloatingIp || ''}
+                    selected={selectedFloatingIp?.name || ''}
                   />
                 </form>
               </Modal.Section>
