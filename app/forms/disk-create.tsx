@@ -253,7 +253,7 @@ const SnapshotSelectField = ({ control }: { control: Control<DiskCreate> }) => {
         const formattedSize = filesize(i.size, { base: 2, output: 'object' })
         return {
           value: i.id,
-          labelString: `${i.name}`,
+          selectedLabel: `${i.name}`,
           label: (
             <>
               <div>{i.name}</div>

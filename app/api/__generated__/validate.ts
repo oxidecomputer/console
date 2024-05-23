@@ -49,7 +49,7 @@ export const Ipv6Net = z.preprocess(
   z
     .string()
     .regex(
-      /^([fF][dD])[0-9a-fA-F]{2}:(([0-9a-fA-F]{1,4}:){6}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,6}:)([0-9a-fA-F]{1,4})?\/([0-9]|[1-9][0-9]|1[0-1][0-9]|12[0-8])$/
+      /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))\/([0-9]|[1-9][0-9]|1[0-1][0-9]|12[0-8])$/
     )
 )
 
@@ -196,6 +196,37 @@ export const SwitchBgpHistory = z.preprocess(
 export const AggregateBgpMessageHistory = z.preprocess(
   processResponseBody,
   z.object({ switchHistories: SwitchBgpHistory.array() })
+)
+
+/**
+ * Description of source IPs allowed to reach rack services.
+ */
+export const AllowedSourceIps = z.preprocess(
+  processResponseBody,
+  z.union([
+    z.object({ allow: z.enum(['any']) }),
+    z.object({ allow: z.enum(['list']), ips: IpNet.array() }),
+  ])
+)
+
+/**
+ * Allowlist of IPs or subnets that can make requests to user-facing services.
+ */
+export const AllowList = z.preprocess(
+  processResponseBody,
+  z.object({
+    allowedIps: AllowedSourceIps,
+    timeCreated: z.coerce.date(),
+    timeModified: z.coerce.date(),
+  })
+)
+
+/**
+ * Parameters for updating allowed source IPs
+ */
+export const AllowListUpdate = z.preprocess(
+  processResponseBody,
+  z.object({ allowedIps: AllowedSourceIps })
 )
 
 /**
@@ -353,20 +384,40 @@ export const BgpImportedRouteIpv4 = z.preprocess(
 )
 
 /**
+ * Define policy relating to the import and export of prefixes from a BGP peer.
+ */
+export const ImportExportPolicy = z.preprocess(
+  processResponseBody,
+  z.union([
+    z.object({ type: z.enum(['no_filtering']) }),
+    z.object({ type: z.enum(['allow']), value: IpNet.array() }),
+  ])
+)
+
+/**
  * A BGP peer configuration for an interface. Includes the set of announcements that will be advertised to the peer identified by `addr`. The `bgp_config` parameter is a reference to global BGP parameters. The `interface_name` indicates what interface the peer should be contacted on.
  */
 export const BgpPeer = z.preprocess(
   processResponseBody,
   z.object({
     addr: z.string().ip(),
-    bgpAnnounceSet: NameOrId,
+    allowedExport: ImportExportPolicy,
+    allowedImport: ImportExportPolicy,
     bgpConfig: NameOrId,
+    communities: z.number().min(0).max(4294967295).array(),
     connectRetry: z.number().min(0).max(4294967295),
     delayOpen: z.number().min(0).max(4294967295),
+    enforceFirstAs: SafeBoolean,
     holdTime: z.number().min(0).max(4294967295),
     idleHoldTime: z.number().min(0).max(4294967295),
     interfaceName: z.string(),
     keepalive: z.number().min(0).max(4294967295),
+    localPref: z.number().min(0).max(4294967295).optional(),
+    md5AuthKey: z.string().optional(),
+    minTtl: z.number().min(0).max(255).optional(),
+    multiExitDiscriminator: z.number().min(0).max(4294967295).optional(),
+    remoteAsn: z.number().min(0).max(4294967295).optional(),
+    vlanId: z.number().min(0).max(65535).optional(),
   })
 )
 
@@ -1136,6 +1187,7 @@ export const ExternalIp = z.preprocess(
       id: z.string().uuid(),
       instanceId: z.string().uuid().optional(),
       ip: z.string().ip(),
+      ipPoolId: z.string().uuid(),
       kind: z.enum(['floating']),
       name: Name,
       projectId: z.string().uuid(),
@@ -1274,6 +1326,7 @@ export const FloatingIp = z.preprocess(
     id: z.string().uuid(),
     instanceId: z.string().uuid().optional(),
     ip: z.string().ip(),
+    ipPoolId: z.string().uuid(),
     name: Name,
     projectId: z.string().uuid(),
     timeCreated: z.coerce.date(),
@@ -2274,7 +2327,7 @@ export const SamlIdentityProviderCreate = z.preprocess(
     idpEntityId: z.string(),
     idpMetadataSource: IdpMetadataSource,
     name: Name,
-    signingKeypair: DerEncodedKeyPair.default(null).optional(),
+    signingKeypair: DerEncodedKeyPair.optional(),
     sloUrl: z.string(),
     spClientId: z.string(),
     technicalContactEmail: z.string(),
@@ -2505,6 +2558,11 @@ export const Sled = z.preprocess(
 )
 
 /**
+ * The unique ID of a sled.
+ */
+export const SledId = z.preprocess(processResponseBody, z.object({ id: z.string().uuid() }))
+
+/**
  * An operator's view of an instance running on a given sled
  */
 export const SledInstance = z.preprocess(
@@ -2683,6 +2741,8 @@ export const SwitchInterfaceConfigCreate = z.preprocess(
   z.object({ kind: SwitchInterfaceKind, v6Enabled: SafeBoolean })
 )
 
+export const SwitchLinkState = z.preprocess(processResponseBody, z.record(z.unknown()))
+
 /**
  * A switch port represents a physical external port on a rack switch.
  */
@@ -2716,19 +2776,6 @@ export const SwitchPortAddressConfig = z.preprocess(
 export const SwitchPortApplySettings = z.preprocess(
   processResponseBody,
   z.object({ portSettings: NameOrId })
-)
-
-/**
- * A BGP peer configuration for a port settings object.
- */
-export const SwitchPortBgpPeerConfig = z.preprocess(
-  processResponseBody,
-  z.object({
-    addr: z.string().ip(),
-    bgpConfigId: z.string().uuid(),
-    interfaceName: z.string(),
-    portSettingsId: z.string().uuid(),
-  })
 )
 
 /**
@@ -2769,10 +2816,13 @@ export const SwitchPortConfigCreate = z.preprocess(
 export const SwitchPortLinkConfig = z.preprocess(
   processResponseBody,
   z.object({
+    autoneg: SafeBoolean,
+    fec: LinkFec,
     linkName: z.string(),
     lldpServiceConfigId: z.string().uuid(),
     mtu: z.number().min(0).max(65535),
     portSettingsId: z.string().uuid(),
+    speed: LinkSpeed,
   })
 )
 
@@ -2861,7 +2911,7 @@ export const SwitchPortSettingsView = z.preprocess(
   processResponseBody,
   z.object({
     addresses: SwitchPortAddressConfig.array(),
-    bgpPeers: SwitchPortBgpPeerConfig.array(),
+    bgpPeers: BgpPeer.array(),
     groups: SwitchPortSettingsGroups.array(),
     interfaces: SwitchInterfaceConfig.array(),
     linkLldp: LldpServiceConfig.array(),
@@ -4425,6 +4475,19 @@ export const NetworkingSwitchPortClearSettingsParams = z.preprocess(
   })
 )
 
+export const NetworkingSwitchPortStatusParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      port: Name,
+    }),
+    query: z.object({
+      rackId: z.string().uuid(),
+      switchLocation: Name,
+    }),
+  })
+)
+
 export const SwitchListParams = z.preprocess(
   processResponseBody,
   z.object({
@@ -4748,6 +4811,22 @@ export const NetworkingAddressLotBlockListParams = z.preprocess(
       pageToken: z.string().optional(),
       sortBy: IdSortMode.optional(),
     }),
+  })
+)
+
+export const NetworkingAllowListViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
+  })
+)
+
+export const NetworkingAllowListUpdateParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
   })
 )
 
