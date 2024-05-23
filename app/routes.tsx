@@ -357,7 +357,11 @@ export const routes = createRoutesFromElements(
                 loader={VpcFirewallRulesTab.loader}
               />
               <Route element={<VpcFirewallRulesTab />} loader={VpcFirewallRulesTab.loader}>
-                <Route path="firewall-rules" handle={{ crumb: 'Firewall Rules' }} />
+                <Route
+                  path="firewall-rules"
+                  handle={{ crumb: 'Firewall Rules' }}
+                  element={null}
+                />
                 <Route
                   path="firewall-rules-new"
                   element={<CreateFirewallRuleForm />}
