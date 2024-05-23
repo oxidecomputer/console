@@ -349,3 +349,14 @@ test('attaches a floating IP; disables button when no IPs available', async ({ p
   })
   await expect(page.getByRole('button', { name: 'Attach floating IP' })).toBeDisabled()
 })
+
+test('attach a floating IP section has Empty version when no floating IPs exist on the project', async ({
+  page,
+}) => {
+  await page.goto('/projects/other-project/instances-new')
+  await page.getByRole('button', { name: 'Networking' }).click()
+  await expect(page.getByRole('button', { name: 'Attach floating IP' })).toBeHidden()
+  await expect(
+    page.getByText('Create a floating IP to attach it to this instance')
+  ).toBeVisible()
+})
