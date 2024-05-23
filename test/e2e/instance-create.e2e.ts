@@ -327,3 +327,21 @@ test('does not attach an ephemeral IP when the checkbox is unchecked', async ({ 
   await expect(page).toHaveURL('/projects/mock-project/instances/no-ephemeral-ip/storage')
   await expect(page.getByText('External IPs—')).toBeVisible()
 })
+
+test('attaches a floating IP; disables button when no IPs available', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances-new')
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill('with-floating-ip')
+  await page.getByRole('button', { name: 'Networking' }).click()
+  await page.getByRole('button', { name: 'Attach floating IP' }).click()
+  const modalMessage = page.getByText('This instance will be reachable at the selected IP')
+  await expect(modalMessage).toBeVisible()
+  await page.getByRole('button', { name: 'Select floating ip' }).click()
+  await page.getByRole('option', { name: 'rootbeer-float' }).click()
+  await page.getByRole('button', { name: 'Attach', exact: true }).click()
+  await expect(modalMessage).toBeHidden()
+  await expectRowVisible(page.getByRole('table'), {
+    Name: 'rootbeer-float',
+    IP: '123.4.56.4',
+  })
+  await expect(page.getByRole('button', { name: 'Attach floating IP' })).toBeDisabled()
+})
