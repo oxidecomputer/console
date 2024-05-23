@@ -665,7 +665,7 @@ const AdvancedAccordion = ({
   const detachFloatingIp = (name: string) => {
     externalIps.field.onChange(
       externalIps.field.value?.filter(
-        (ip) => ip.type === 'ephemeral' || ip.floatingIp !== name
+        (ip) => !(ip.type === 'floating' && ip.floatingIp === name)
       )
     )
   }
