@@ -36,7 +36,8 @@ import { usePopoverZIndex } from './SideModal'
 
 export interface TooltipProps {
   delay?: number
-  children?: React.ReactNode
+  /** The target the tooltip hovers near; can not be a raw string. */
+  children?: ReactElement
   /** The text to appear on hover/focus */
   content: string | React.ReactNode
   /**

@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { skipToken, useQuery } from '@tanstack/react-query'
 import cn from 'classnames'
 import { filesize } from 'filesize'
 import pMap from 'p-map'
@@ -22,6 +23,7 @@ import {
 } from '@oxide/api'
 import {
   Error12Icon,
+  OpenLink12Icon,
   Success12Icon,
   Unauthorized12Icon,
 } from '@oxide/design-system/icons/react'
@@ -40,6 +42,7 @@ import { Spinner } from '~/ui/lib/Spinner'
 import { anySignal } from '~/util/abort'
 import { readBlobAsBase64 } from '~/util/file'
 import { invariant } from '~/util/invariant'
+import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 import { GiB, KiB } from '~/util/units'
 
@@ -477,6 +480,12 @@ export function CreateImageSideModalForm() {
 
   const form = useForm({ defaultValues })
   const file = form.watch('imageFile')
+  const blockSize = form.watch('blockSize')
+
+  const { data: imageValidation } = useQuery({
+    queryKey: ['validateImage', ...(file ? [file.name, file.size, file.lastModified] : [])],
+    queryFn: file ? () => validateImage(file) : skipToken,
+  })
 
   return (
     <SideModalForm
@@ -545,25 +554,31 @@ export function CreateImageSideModalForm() {
        */}
       <TextField name="os" label="OS" control={form.control} required />
       <TextField name="version" control={form.control} required />
-      <RadioField
-        name="blockSize"
-        label="Block size"
-        units="Bytes"
-        control={form.control}
-        parseValue={(val) => parseInt(val, 10) as BlockSize}
-        items={[
-          { label: '512', value: 512 },
-          { label: '2048', value: 2048 },
-          { label: '4096', value: 4096 },
-        ]}
-      />
-      <FileField
-        id="image-file-input"
-        name="imageFile"
-        label="Image file"
-        required
-        control={form.control}
-      />
+      <div className="flex w-full flex-col flex-wrap space-y-4">
+        <RadioField
+          name="blockSize"
+          label="Block size"
+          units="Bytes"
+          control={form.control}
+          parseValue={(val) => parseInt(val, 10) as BlockSize}
+          items={[
+            { label: '512', value: 512 },
+            { label: '2048', value: 2048 },
+            { label: '4096', value: 4096 },
+          ]}
+        />
+        {imageValidation && <BlockSizeNotice {...imageValidation} blockSize={blockSize} />}
+      </div>
+      <div className="flex w-full flex-col flex-wrap space-y-4">
+        <FileField
+          id="image-file-input"
+          name="imageFile"
+          label="Image file"
+          required
+          control={form.control}
+        />
+        {imageValidation && <BootableNotice {...imageValidation} />}
+      </div>
       {file && modalOpen && (
         <Modal isOpen onDismiss={closeModal} title="Image upload progress">
           <Modal.Body className="!p-0">
@@ -639,4 +654,140 @@ export function CreateImageSideModalForm() {
       )}
     </SideModalForm>
   )
+}
+
+function BlockSizeNotice({
+  blockSize,
+  efiPartOffset,
+  isBootableCd,
+}: {
+  blockSize: number
+  efiPartOffset: number
+  isBootableCd: boolean
+}) {
+  const isEfi = efiPartOffset !== -1
+
+  // If the image doesn't look bootable, return null (`BootableNotice` does the work).
+  if (!isEfi && !isBootableCd) return null
+  // If we detect `EFI BOOT` and the block size is set correctly return null.
+  // (This includes hybrid GPT+ISO.)
+  if (isEfi && blockSize === efiPartOffset) return null
+  // If we detect only `CD001` and the block size is set correctly return null.
+  if (!isEfi && isBootableCd && blockSize === 2048) return null
+
+  // Block size is set incorrectly. If we detect `EFI BOOT`, always show that warning.
+  const content = isEfi
+    ? `Detected “EFI PART” marker at offset ${efiPartOffset}, but block size is set to ${blockSize}.`
+    : 'Bootable CDs typically use a block size of 2048.'
+
+  return (
+    <Message variant="info" title="Block size might be set incorrectly" content={content} />
+  )
+}
+
+function BootableNotice({
+  efiPartOffset,
+  isBootableCd,
+  isCompressed,
+}: {
+  efiPartOffset: number
+  isBootableCd: boolean
+  isCompressed: boolean
+}) {
+  // this message should only appear if the image doesn't have a header
+  // marker we are looking for and does not appear to be compressed
+  const efiPartOrBootable = efiPartOffset !== -1 || isBootableCd
+  if (efiPartOrBootable && !isCompressed) return null
+
+  const content = (
+    <div className="flex flex-col space-y-2">
+      <ul className="ml-4 list-disc">
+        {!efiPartOrBootable && (
+          <li>
+            <div>Bootable markers not found at any block size.</div>
+            <div>
+              Expected either “EFI PART” marker at offsets 512 / 2048 / 4096 or “CD001” at
+              offset 0x8001 (for a bootable CD).
+            </div>
+          </li>
+        )}
+        {isCompressed && (
+          <li>
+            <div>This might be a compressed image.</div>
+            <div>
+              Only raw, uncompressed images are supported. Files such as qcow2, vmdk,
+              img.gz, iso.7z may not work.
+            </div>
+          </li>
+        )}
+      </ul>
+      <div>
+        Learn more about{' '}
+        <a
+          target="_blank"
+          rel="noreferrer"
+          href={links.preparingImagesDocs}
+          className="inline-flex items-center underline"
+        >
+          preparing images for import
+          <OpenLink12Icon className="ml-1" />
+        </a>
+      </div>
+    </div>
+  )
+
+  return (
+    <Message
+      variant="info"
+      title="This image might not be bootable"
+      className="[&>*]:space-y-2"
+      content={content}
+    />
+  )
+}
+
+async function readAtOffset(file: File, offset: number, length: number) {
+  const reader = new FileReader()
+
+  const promise = new Promise<string | undefined>((resolve, reject) => {
+    reader.onloadend = (e) => {
+      if (
+        e.target?.readyState === FileReader.DONE &&
+        // should always be true because we're using readAsArrayBuffer
+        e.target.result instanceof ArrayBuffer
+      ) {
+        resolve(String.fromCharCode(...new Uint8Array(e.target.result)))
+        return
+      }
+      resolve(undefined)
+    }
+
+    reader.onerror = (error) => {
+      console.error(`Error reading file at offset ${offset}:`, error)
+      reject(error)
+    }
+  })
+
+  reader.readAsArrayBuffer(file.slice(offset, offset + length))
+  return promise
+}
+
+async function getEfiPartOffset(file: File) {
+  const offsets = [512, 2048, 4096]
+  for (const offset of offsets) {
+    const isMatch = (await readAtOffset(file, offset, 8)) === 'EFI PART'
+    if (isMatch) return offset
+  }
+  return -1
+}
+
+const compressedExts = ['.gz', '.7z', '.qcow2', '.vmdk']
+
+const validateImage = async (file: File) => {
+  const lowerFileName = file.name.toLowerCase()
+  return {
+    efiPartOffset: await getEfiPartOffset(file),
+    isBootableCd: (await readAtOffset(file, 0x8001, 5)) === 'CD001',
+    isCompressed: compressedExts.some((ext) => lowerFileName.endsWith(ext)),
+  }
 }

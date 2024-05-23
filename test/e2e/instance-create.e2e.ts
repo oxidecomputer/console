@@ -51,6 +51,28 @@ test('can create an instance', async ({ page }) => {
   await page.getByRole('button', { name: 'Networking' }).click()
   await page.getByRole('button', { name: 'Configuration' }).click()
 
+  const assignEphemeralIpCheckbox = page.getByRole('checkbox', {
+    name: 'Allocate and attach an ephemeral IP address',
+  })
+  const assignEphemeralIpButton = page.getByRole('button', {
+    name: 'IP pool for ephemeral IP',
+  })
+
+  // verify that the ip pool selector is visible and default is selected
+  await expect(assignEphemeralIpCheckbox).toBeChecked()
+  await assignEphemeralIpButton.click()
+  await expect(page.getByRole('option', { name: 'ip-pool-1' })).toBeEnabled()
+  await assignEphemeralIpButton.click() // click closes the listbox so we can do more stuff
+
+  // unchecking the box should disable the selector
+  await assignEphemeralIpCheckbox.uncheck()
+  await expect(assignEphemeralIpButton).toBeHidden()
+
+  // re-checking the box should re-enable the selector, and other options should be selectable
+  await assignEphemeralIpCheckbox.check()
+  await assignEphemeralIpButton.click()
+  await page.getByRole('option', { name: 'ip-pool-2' }).click()
+
   // should be visible in accordion
   await expectVisible(page, [
     'role=radiogroup[name="Network interface"]',
@@ -292,4 +314,16 @@ test('maintains selected values even when changing tabs', async ({ page }) => {
   // when a disk name isn’t assigned, the generated one uses the ID of the image,
   // so this checks to make sure that the arch-based image — with ID `bd6aa051…` — was used
   await expectVisible(page, [`text=${instanceName}-bd6aa051`])
+})
+
+test('does not attach an ephemeral IP when the checkbox is unchecked', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances-new')
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill('no-ephemeral-ip')
+  await page.getByRole('button', { name: 'Networking' }).click()
+  await page
+    .getByRole('checkbox', { name: 'Allocate and attach an ephemeral IP address' })
+    .uncheck()
+  await page.getByRole('button', { name: 'Create instance' }).click()
+  await expect(page).toHaveURL('/projects/mock-project/instances/no-ephemeral-ip/storage')
+  await expect(page.getByText('External IPs—')).toBeVisible()
 })

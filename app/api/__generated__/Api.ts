@@ -176,6 +176,37 @@ export type AggregateBgpMessageHistory = {
 }
 
 /**
+ * Description of source IPs allowed to reach rack services.
+ */
+export type AllowedSourceIps =
+  /** Allow traffic from any external IP address. */
+  | { allow: 'any' }
+  /** Restrict access to a specific set of source IP addresses or subnets.
+
+All others are prevented from reaching rack services. */
+  | { allow: 'list'; ips: IpNet[] }
+
+/**
+ * Allowlist of IPs or subnets that can make requests to user-facing services.
+ */
+export type AllowList = {
+  /** The allowlist of IPs or subnets. */
+  allowedIps: AllowedSourceIps
+  /** Time the list was created. */
+  timeCreated: Date
+  /** Time the list was last modified. */
+  timeModified: Date
+}
+
+/**
+ * Parameters for updating allowed source IPs
+ */
+export type AllowListUpdate = {
+  /** The new list of allowed source IPs. */
+  allowedIps: AllowedSourceIps
+}
+
+/**
  * Properties that uniquely identify an Oxide hardware component
  */
 export type Baseboard = { part: string; revision: number; serial: string }
@@ -339,20 +370,33 @@ export type BgpImportedRouteIpv4 = {
 }
 
 /**
+ * Define policy relating to the import and export of prefixes from a BGP peer.
+ */
+export type ImportExportPolicy =
+  /** Do not perform any filtering. */
+  { type: 'no_filtering' } | { type: 'allow'; value: IpNet[] }
+
+/**
  * A BGP peer configuration for an interface. Includes the set of announcements that will be advertised to the peer identified by `addr`. The `bgp_config` parameter is a reference to global BGP parameters. The `interface_name` indicates what interface the peer should be contacted on.
  */
 export type BgpPeer = {
   /** The address of the host to peer with. */
   addr: string
-  /** The set of announcements advertised by the peer. */
-  bgpAnnounceSet: NameOrId
+  /** Define export policy for a peer. */
+  allowedExport: ImportExportPolicy
+  /** Define import policy for a peer. */
+  allowedImport: ImportExportPolicy
   /** The global BGP configuration used for establishing a session with this peer. */
   bgpConfig: NameOrId
+  /** Include the provided communities in updates sent to the peer. */
+  communities: number[]
   /** How long to to wait between TCP connection retries (seconds). */
   connectRetry: number
   /** How long to delay sending an open request after establishing a TCP session (seconds). */
   delayOpen: number
-  /** How long to hold peer connections between keppalives (seconds). */
+  /** Enforce that the first AS in paths received from this peer is the peer's AS. */
+  enforceFirstAs: boolean
+  /** How long to hold peer connections between keepalives (seconds). */
   holdTime: number
   /** How long to hold a peer in idle before attempting a new session (seconds). */
   idleHoldTime: number
@@ -360,6 +404,18 @@ export type BgpPeer = {
   interfaceName: string
   /** How often to send keepalive requests (seconds). */
   keepalive: number
+  /** Apply a local preference to routes received from this peer. */
+  localPref?: number
+  /** Use the given key for TCP-MD5 authentication with the peer. */
+  md5AuthKey?: string
+  /** Require messages from a peer have a minimum IP time to live field. */
+  minTtl?: number
+  /** Apply the provided multi-exit discriminator (MED) updates sent to the peer. */
+  multiExitDiscriminator?: number
+  /** Require that a peer has a specified ASN. */
+  remoteAsn?: number
+  /** Associate a VLAN ID with a peer. */
+  vlanId?: number
 }
 
 export type BgpPeerConfig = { peers: BgpPeer[] }
@@ -368,7 +424,7 @@ export type BgpPeerConfig = { peers: BgpPeer[] }
  * The current state of a BGP peer.
  */
 export type BgpPeerState =
-  /** Initial state. Refuse all incomming BGP connections. No resources allocated to peer. */
+  /** Initial state. Refuse all incoming BGP connections. No resources allocated to peer. */
   | 'idle'
   /** Waiting for the TCP connection to be completed. */
   | 'connect'
@@ -380,7 +436,7 @@ export type BgpPeerState =
   | 'open_confirm'
   /** Synchronizing with peer. */
   | 'session_setup'
-  /** Session established. Able to exchange update, notification and keepliave messages with peers. */
+  /** Session established. Able to exchange update, notification and keepalive messages with peers. */
   | 'established'
 
 /**
@@ -1024,6 +1080,8 @@ export type ExternalIp =
       instanceId?: string
       /** The IP address held by this resource. */
       ip: string
+      /** The ID of the IP pool this resource belongs to. */
+      ipPoolId: string
       kind: 'floating'
       /** unique, mutable, user-controlled identifier for each resource */
       name: Name
@@ -1148,6 +1206,8 @@ export type FloatingIp = {
   instanceId?: string
   /** The IP address held by this resource. */
   ip: string
+  /** The ID of the IP pool this resource belongs to. */
+  ipPoolId: string
   /** unique, mutable, user-controlled identifier for each resource */
   name: Name
   /** The project this resource exists within. */
@@ -1682,7 +1742,7 @@ export type L4PortRange = string
  * The forward error correction mode of a link.
  */
 export type LinkFec =
-  /** Firecode foward error correction. */
+  /** Firecode forward error correction. */
   | 'firecode'
   /** No forward error correction. */
   | 'none'
@@ -2442,6 +2502,11 @@ export type Sled = {
 }
 
 /**
+ * The unique ID of a sled.
+ */
+export type SledId = { id: string }
+
+/**
  * An operator's view of an instance running on a given sled
  */
 export type SledInstance = {
@@ -2648,6 +2713,8 @@ export type SwitchInterfaceConfigCreate = {
   v6Enabled: boolean
 }
 
+export type SwitchLinkState = Record<string, unknown>
+
 /**
  * A switch port represents a physical external port on a rack switch.
  */
@@ -2684,20 +2751,6 @@ export type SwitchPortAddressConfig = {
 export type SwitchPortApplySettings = {
   /** A name or id to use when applying switch port settings. */
   portSettings: NameOrId
-}
-
-/**
- * A BGP peer configuration for a port settings object.
- */
-export type SwitchPortBgpPeerConfig = {
-  /** The address of the peer. */
-  addr: string
-  /** The id of the global BGP configuration referenced by this peer configuration. */
-  bgpConfigId: string
-  /** The interface name used to establish a peer session. */
-  interfaceName: string
-  /** The port settings object this BGP configuration belongs to. */
-  portSettingsId: string
 }
 
 /**
@@ -2744,6 +2797,10 @@ export type SwitchPortConfigCreate = {
  * A link configuration for a port settings object.
  */
 export type SwitchPortLinkConfig = {
+  /** Whether or not the link has autonegotiation enabled. */
+  autoneg: boolean
+  /** The forward error correction mode of the link. */
+  fec: LinkFec
   /** The name of this link. */
   linkName: string
   /** The link-layer discovery protocol service configuration id for this link. */
@@ -2752,6 +2809,8 @@ export type SwitchPortLinkConfig = {
   mtu: number
   /** The port settings this link configuration belongs to. */
   portSettingsId: string
+  /** The configured speed of the link. */
+  speed: LinkSpeed
 }
 
 /**
@@ -2853,7 +2912,7 @@ export type SwitchPortSettingsView = {
   /** Layer 3 IP address settings. */
   addresses: SwitchPortAddressConfig[]
   /** BGP peer settings. */
-  bgpPeers: SwitchPortBgpPeerConfig[]
+  bgpPeers: BgpPeer[]
   /** Switch port settings included from other switch port settings groups. */
   groups: SwitchPortSettingsGroups[]
   /** Layer 3 interface settings. */
@@ -3894,6 +3953,15 @@ export interface NetworkingSwitchPortClearSettingsQueryParams {
   switchLocation: Name
 }
 
+export interface NetworkingSwitchPortStatusPathParams {
+  port: Name
+}
+
+export interface NetworkingSwitchPortStatusQueryParams {
+  rackId: string
+  switchLocation: Name
+}
+
 export interface SwitchListQueryParams {
   limit?: number
   pageToken?: string
@@ -4399,7 +4467,7 @@ export class Api extends HttpClient {
      * Create instrumentation probe
      */
     probeCreate: (
-      { query, body }: { query?: ProbeCreateQueryParams; body: ProbeCreate },
+      { query, body }: { query: ProbeCreateQueryParams; body: ProbeCreate },
       params: FetchParams = {}
     ) => {
       return this.request<Probe>({
@@ -4414,7 +4482,7 @@ export class Api extends HttpClient {
      * View instrumentation probe
      */
     probeView: (
-      { path, query }: { path: ProbeViewPathParams; query?: ProbeViewQueryParams },
+      { path, query }: { path: ProbeViewPathParams; query: ProbeViewQueryParams },
       params: FetchParams = {}
     ) => {
       return this.request<ProbeInfo>({
@@ -4428,7 +4496,7 @@ export class Api extends HttpClient {
      * Delete instrumentation probe
      */
     probeDelete: (
-      { path, query }: { path: ProbeDeletePathParams; query?: ProbeDeleteQueryParams },
+      { path, query }: { path: ProbeDeletePathParams; query: ProbeDeleteQueryParams },
       params: FetchParams = {}
     ) => {
       return this.request<void>({
@@ -4520,7 +4588,7 @@ export class Api extends HttpClient {
      * Create a disk
      */
     diskCreate: (
-      { query, body }: { query?: DiskCreateQueryParams; body: DiskCreate },
+      { query, body }: { query: DiskCreateQueryParams; body: DiskCreate },
       params: FetchParams = {}
     ) => {
       return this.request<Disk>({
@@ -4680,7 +4748,7 @@ export class Api extends HttpClient {
      * Create floating IP
      */
     floatingIpCreate: (
-      { query, body }: { query?: FloatingIpCreateQueryParams; body: FloatingIpCreate },
+      { query, body }: { query: FloatingIpCreateQueryParams; body: FloatingIpCreate },
       params: FetchParams = {}
     ) => {
       return this.request<FloatingIp>({
@@ -4873,7 +4941,7 @@ export class Api extends HttpClient {
      * Demote silo image
      */
     imageDemote: (
-      { path, query }: { path: ImageDemotePathParams; query?: ImageDemoteQueryParams },
+      { path, query }: { path: ImageDemotePathParams; query: ImageDemoteQueryParams },
       params: FetchParams = {}
     ) => {
       return this.request<Image>({
@@ -4918,7 +4986,7 @@ export class Api extends HttpClient {
      * Create instance
      */
     instanceCreate: (
-      { query, body }: { query?: InstanceCreateQueryParams; body: InstanceCreate },
+      { query, body }: { query: InstanceCreateQueryParams; body: InstanceCreate },
       params: FetchParams = {}
     ) => {
       return this.request<Instance>({
@@ -5368,7 +5436,7 @@ export class Api extends HttpClient {
         query,
         body,
       }: {
-        query?: InstanceNetworkInterfaceCreateQueryParams
+        query: InstanceNetworkInterfaceCreateQueryParams
         body: InstanceNetworkInterfaceCreate
       },
       params: FetchParams = {}
@@ -5582,7 +5650,7 @@ export class Api extends HttpClient {
      * Create snapshot
      */
     snapshotCreate: (
-      { query, body }: { query?: SnapshotCreateQueryParams; body: SnapshotCreate },
+      { query, body }: { query: SnapshotCreateQueryParams; body: SnapshotCreate },
       params: FetchParams = {}
     ) => {
       return this.request<Snapshot>({
@@ -5696,7 +5764,7 @@ export class Api extends HttpClient {
      * Add sled to initialized rack
      */
     sledAdd: ({ body }: { body: UninitializedSledId }, params: FetchParams = {}) => {
-      return this.request<void>({
+      return this.request<SledId>({
         path: `/v1/system/hardware/sleds`,
         method: 'POST',
         body,
@@ -5802,7 +5870,7 @@ export class Api extends HttpClient {
         body,
       }: {
         path: NetworkingSwitchPortApplySettingsPathParams
-        query?: NetworkingSwitchPortApplySettingsQueryParams
+        query: NetworkingSwitchPortApplySettingsQueryParams
         body: SwitchPortApplySettings
       },
       params: FetchParams = {}
@@ -5824,13 +5892,33 @@ export class Api extends HttpClient {
         query,
       }: {
         path: NetworkingSwitchPortClearSettingsPathParams
-        query?: NetworkingSwitchPortClearSettingsQueryParams
+        query: NetworkingSwitchPortClearSettingsQueryParams
       },
       params: FetchParams = {}
     ) => {
       return this.request<void>({
         path: `/v1/system/hardware/switch-port/${path.port}/settings`,
         method: 'DELETE',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Get switch port status
+     */
+    networkingSwitchPortStatus: (
+      {
+        path,
+        query,
+      }: {
+        path: NetworkingSwitchPortStatusPathParams
+        query: NetworkingSwitchPortStatusQueryParams
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SwitchLinkState>({
+        path: `/v1/system/hardware/switch-port/${path.port}/status`,
+        method: 'GET',
         query,
         ...params,
       })
@@ -5877,7 +5965,7 @@ export class Api extends HttpClient {
      * Create user
      */
     localIdpUserCreate: (
-      { query, body }: { query?: LocalIdpUserCreateQueryParams; body: UserCreate },
+      { query, body }: { query: LocalIdpUserCreateQueryParams; body: UserCreate },
       params: FetchParams = {}
     ) => {
       return this.request<User>({
@@ -5895,7 +5983,7 @@ export class Api extends HttpClient {
       {
         path,
         query,
-      }: { path: LocalIdpUserDeletePathParams; query?: LocalIdpUserDeleteQueryParams },
+      }: { path: LocalIdpUserDeletePathParams; query: LocalIdpUserDeleteQueryParams },
       params: FetchParams = {}
     ) => {
       return this.request<void>({
@@ -5915,7 +6003,7 @@ export class Api extends HttpClient {
         body,
       }: {
         path: LocalIdpUserSetPasswordPathParams
-        query?: LocalIdpUserSetPasswordQueryParams
+        query: LocalIdpUserSetPasswordQueryParams
         body: UserPassword
       },
       params: FetchParams = {}
@@ -5935,10 +6023,7 @@ export class Api extends HttpClient {
       {
         query,
         body,
-      }: {
-        query?: SamlIdentityProviderCreateQueryParams
-        body: SamlIdentityProviderCreate
-      },
+      }: { query: SamlIdentityProviderCreateQueryParams; body: SamlIdentityProviderCreate },
       params: FetchParams = {}
     ) => {
       return this.request<SamlIdentityProvider>({
@@ -5958,7 +6043,7 @@ export class Api extends HttpClient {
         query,
       }: {
         path: SamlIdentityProviderViewPathParams
-        query?: SamlIdentityProviderViewQueryParams
+        query: SamlIdentityProviderViewQueryParams
       },
       params: FetchParams = {}
     ) => {
@@ -6272,6 +6357,30 @@ export class Api extends HttpClient {
       })
     },
     /**
+     * Get user-facing services IP allowlist
+     */
+    networkingAllowListView: (_: EmptyObj, params: FetchParams = {}) => {
+      return this.request<AllowList>({
+        path: `/v1/system/networking/allow-list`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Update user-facing services IP allowlist
+     */
+    networkingAllowListUpdate: (
+      { body }: { body: AllowListUpdate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<AllowList>({
+        path: `/v1/system/networking/allow-list`,
+        method: 'PUT',
+        body,
+        ...params,
+      })
+    },
+    /**
      * Disable a BFD session
      */
     networkingBfdDisable: (
@@ -6341,7 +6450,7 @@ export class Api extends HttpClient {
      * Delete BGP configuration
      */
     networkingBgpConfigDelete: (
-      { query }: { query?: NetworkingBgpConfigDeleteQueryParams },
+      { query }: { query: NetworkingBgpConfigDeleteQueryParams },
       params: FetchParams = {}
     ) => {
       return this.request<void>({
@@ -6355,7 +6464,7 @@ export class Api extends HttpClient {
      * Get originated routes for a BGP configuration
      */
     networkingBgpAnnounceSetList: (
-      { query }: { query?: NetworkingBgpAnnounceSetListQueryParams },
+      { query }: { query: NetworkingBgpAnnounceSetListQueryParams },
       params: FetchParams = {}
     ) => {
       return this.request<BgpAnnouncement[]>({
@@ -6383,7 +6492,7 @@ export class Api extends HttpClient {
      * Delete BGP announce set
      */
     networkingBgpAnnounceSetDelete: (
-      { query }: { query?: NetworkingBgpAnnounceSetDeleteQueryParams },
+      { query }: { query: NetworkingBgpAnnounceSetDeleteQueryParams },
       params: FetchParams = {}
     ) => {
       return this.request<void>({
@@ -6397,7 +6506,7 @@ export class Api extends HttpClient {
      * Get BGP router message history
      */
     networkingBgpMessageHistory: (
-      { query }: { query?: NetworkingBgpMessageHistoryQueryParams },
+      { query }: { query: NetworkingBgpMessageHistoryQueryParams },
       params: FetchParams = {}
     ) => {
       return this.request<AggregateBgpMessageHistory>({
@@ -6411,7 +6520,7 @@ export class Api extends HttpClient {
      * Get imported IPv4 BGP routes
      */
     networkingBgpImportedRoutesIpv4: (
-      { query }: { query?: NetworkingBgpImportedRoutesIpv4QueryParams },
+      { query }: { query: NetworkingBgpImportedRoutesIpv4QueryParams },
       params: FetchParams = {}
     ) => {
       return this.request<BgpImportedRouteIpv4[]>({
@@ -6720,7 +6829,7 @@ export class Api extends HttpClient {
      * Fetch built-in (system) user
      */
     siloUserView: (
-      { path, query }: { path: SiloUserViewPathParams; query?: SiloUserViewQueryParams },
+      { path, query }: { path: SiloUserViewPathParams; query: SiloUserViewQueryParams },
       params: FetchParams = {}
     ) => {
       return this.request<User>({
@@ -6837,7 +6946,7 @@ export class Api extends HttpClient {
      * List firewall rules
      */
     vpcFirewallRulesView: (
-      { query }: { query?: VpcFirewallRulesViewQueryParams },
+      { query }: { query: VpcFirewallRulesViewQueryParams },
       params: FetchParams = {}
     ) => {
       return this.request<VpcFirewallRules>({
@@ -6854,7 +6963,7 @@ export class Api extends HttpClient {
       {
         query,
         body,
-      }: { query?: VpcFirewallRulesUpdateQueryParams; body: VpcFirewallRuleUpdateParams },
+      }: { query: VpcFirewallRulesUpdateQueryParams; body: VpcFirewallRuleUpdateParams },
       params: FetchParams = {}
     ) => {
       return this.request<VpcFirewallRules>({
@@ -6883,7 +6992,7 @@ export class Api extends HttpClient {
      * Create subnet
      */
     vpcSubnetCreate: (
-      { query, body }: { query?: VpcSubnetCreateQueryParams; body: VpcSubnetCreate },
+      { query, body }: { query: VpcSubnetCreateQueryParams; body: VpcSubnetCreate },
       params: FetchParams = {}
     ) => {
       return this.request<VpcSubnet>({
@@ -6986,7 +7095,7 @@ export class Api extends HttpClient {
      * Create VPC
      */
     vpcCreate: (
-      { query, body }: { query?: VpcCreateQueryParams; body: VpcCreate },
+      { query, body }: { query: VpcCreateQueryParams; body: VpcCreate },
       params: FetchParams = {}
     ) => {
       return this.request<Vpc>({
@@ -7066,3 +7175,5 @@ export class Api extends HttpClient {
     },
   }
 }
+
+export default Api

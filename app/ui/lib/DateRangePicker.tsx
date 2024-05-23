@@ -96,7 +96,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
                 value={state.timeRange?.start || null}
                 onChange={(v: TimeValue) => state.setTime('start', v)}
                 hourCycle={24}
-                className="flex-shrink-0 flex-grow basis-0"
+                className="shrink-0 grow basis-0"
               />
               <div className="text-quinary">–</div>
               <TimeField
@@ -104,7 +104,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
                 value={state.timeRange?.end || null}
                 onChange={(v: TimeValue) => state.setTime('end', v)}
                 hourCycle={24}
-                className="flex-shrink-0 flex-grow basis-0"
+                className="shrink-0 grow basis-0"
               />
             </div>
           </Dialog>

@@ -8,5 +8,5 @@
 
 export const cliCmd = {
   serialConsole: ({ project, instance }: { project: string; instance: string }) =>
-    `oxide instance serial console\n--project ${project}\n--instance ${instance}`,
+    `oxide instance serial console \\\n--project ${project} \\\n--instance ${instance}`,
 }

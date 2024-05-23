@@ -7,7 +7,7 @@
  */
 
 .ox-menu {
-  @apply max-h-[17.5rem] overflow-y-auto rounded border bg-raise border-secondary elevation-2;
+  @apply !max-h-[17.5rem] overflow-y-auto rounded border bg-raise border-secondary elevation-2;
 }
 
 .ox-menu-item {

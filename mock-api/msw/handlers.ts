@@ -33,6 +33,7 @@ import {
   currentUser,
   errIfExists,
   errIfInvalidDiskSize,
+  forbiddenErr,
   getStartAndEndTime,
   getTimestamps,
   handleMetrics,
@@ -51,6 +52,7 @@ import {
 // is *JSON type.
 
 export const handlers = makeHandlers({
+  logout: () => 204,
   ping: () => ({ status: 'ok' }),
   deviceAuthRequest: () => 200,
   deviceAuthConfirm: ({ body }) => (body.user_code === 'ERRO-RABC' ? 400 : 200),
@@ -74,7 +76,9 @@ export const handlers = makeHandlers({
   },
   projectView: ({ path }) => {
     if (path.project.endsWith('error-503')) {
-      throw unavailableErr
+      throw unavailableErr()
+    } else if (path.project.endsWith('error-403')) {
+      throw forbiddenErr()
     }
 
     return lookup.project({ ...path })
@@ -234,12 +238,16 @@ export const handlers = makeHandlers({
     errIfExists(db.floatingIps, { name: body.name })
 
     // TODO: when IP is specified, use ipInAnyRange to check that it is in the pool
+    const pool = body.pool
+      ? lookup.siloIpPool({ pool: body.pool, silo: defaultSilo.id })
+      : lookup.siloDefaultIpPool({ silo: defaultSilo.id })
 
     const newFloatingIp: Json<Api.FloatingIp> = {
       id: uuid(),
       project_id: project.id,
       // TODO: use ip-num to actually get the next available IP in the pool
       ip: [...Array(4)].map(() => Math.floor(Math.random() * 256)).join('.'),
+      ip_pool_id: pool.id,
       ...body,
       ...getTimestamps(),
     }
@@ -676,17 +684,8 @@ export const handlers = makeHandlers({
     const pools = lookup.siloIpPools({ silo: defaultSilo.id })
     return paginated(query, pools)
   },
-  projectIpPoolView({ path }) {
-    // this will 404 if it doesn't exist at all...
-    const pool = lookup.ipPool(path)
-    // but we also want to 404 if it exists but isn't in the silo
-    const link = db.ipPoolSilos.find(
-      (link) => link.ip_pool_id === pool.id && link.silo_id === defaultSilo.id
-    )
-    if (!link) throw notFoundErr()
-
-    return { ...pool, is_default: link.is_default }
-  },
+  projectIpPoolView: ({ path: { pool } }) =>
+    lookup.siloIpPool({ pool, silo: defaultSilo.id }),
   // TODO: require admin permissions for system IP pool endpoints
   ipPoolView: ({ path }) => lookup.ipPool(path),
   ipPoolSiloList({ path /*query*/ }) {
@@ -1268,11 +1267,12 @@ export const handlers = makeHandlers({
   localIdpUserDelete: NotImplemented,
   localIdpUserSetPassword: NotImplemented,
   loginSaml: NotImplemented,
-  logout: NotImplemented,
   networkingAddressLotBlockList: NotImplemented,
   networkingAddressLotCreate: NotImplemented,
   networkingAddressLotDelete: NotImplemented,
   networkingAddressLotList: NotImplemented,
+  networkingAllowListUpdate: NotImplemented,
+  networkingAllowListView: NotImplemented,
   networkingBfdDisable: NotImplemented,
   networkingBfdEnable: NotImplemented,
   networkingBfdStatus: NotImplemented,
@@ -1295,6 +1295,7 @@ export const handlers = makeHandlers({
   networkingSwitchPortSettingsDelete: NotImplemented,
   networkingSwitchPortSettingsView: NotImplemented,
   networkingSwitchPortSettingsList: NotImplemented,
+  networkingSwitchPortStatus: NotImplemented,
   physicalDiskView: NotImplemented,
   probeCreate: NotImplemented,
   probeDelete: NotImplemented,

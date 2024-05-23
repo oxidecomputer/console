@@ -52,7 +52,7 @@ type TitleCellProps = { icon: JSX.Element; title: string; unit: string }
 function TitleCell({ icon, title, unit }: TitleCellProps) {
   return (
     <div>
-      <div className="flex flex-grow items-center">
+      <div className="flex grow items-center">
         <span className="mr-2 flex h-4 w-4 items-center text-accent">{icon}</span>
         <span className="!normal-case text-mono-sm text-secondary">{title}</span>
         <span className="ml-1 !normal-case text-mono-sm text-quaternary">({unit})</span>
