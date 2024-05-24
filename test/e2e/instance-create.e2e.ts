@@ -291,6 +291,38 @@ test('start with an existing disk, but then switch to a silo image', async ({ pa
   await expectNotVisible(page, ['text=disk-7'])
 })
 
+test('additional disks do not list committed disks as available', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances-new')
+
+  const attachExistingDiskButton = page.getByRole('button', {
+    name: 'Attach existing disk',
+  })
+  const selectAnOption = page.getByRole('button', { name: 'Select an option' })
+  const disk2 = page.getByRole('option', { name: 'disk-2' })
+  const disk3 = page.getByRole('option', { name: 'disk-3' })
+  const disk4 = page.getByRole('option', { name: 'disk-4' })
+
+  await attachExistingDiskButton.click()
+  await selectAnOption.click()
+  // disk-2 is already attached, so should not be visible in the list
+  await expect(disk2).toBeHidden()
+  // disk-3, though, should be present
+  await expect(disk3).toBeVisible()
+  await expect(disk4).toBeVisible()
+
+  // select disk-3 and "attach" it to the instance that will be created
+  await disk3.click()
+  await page.getByRole('button', { name: 'Attach disk' }).click()
+
+  await attachExistingDiskButton.click()
+  await selectAnOption.click()
+  // disk-2 should still be hidden
+  await expect(disk2).toBeHidden()
+  // now disk-3 should be hidden as well
+  await expect(disk3).toBeHidden()
+  await expect(disk4).toBeVisible()
+})
+
 test('maintains selected values even when changing tabs', async ({ page }) => {
   const instanceName = 'arch-based-instance'
   await page.goto('/projects/mock-project/instances-new')
