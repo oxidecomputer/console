@@ -362,7 +362,7 @@ export const handlers = makeHandlers({
     const instances = db.instances.filter((i) => i.project_id === project.id)
     return paginated(query, instances)
   },
-  async instanceCreate({ body, query }) {
+  instanceCreate({ body, query }) {
     const project = lookup.project(query)
 
     if (body.name === 'no-default-pool') {
@@ -646,7 +646,7 @@ export const handlers = makeHandlers({
     return json(instance, { status: 202 })
   },
   ipPoolList: ({ query }) => paginated(query, db.ipPools),
-  async ipPoolUtilizationView({ path }) {
+  ipPoolUtilizationView({ path }) {
     const pool = lookup.ipPool(path)
     const ranges = db.ipPoolRanges
       .filter((r) => r.ip_pool_id === pool.id)

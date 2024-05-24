@@ -72,7 +72,9 @@ const staticColumns = [
     cell: (info) => {
       const { hosts, ports, protocols } = info.getValue()
       const children = [
-        ...(hosts || []).map((tv, i) => <TypeValueCell key={`${tv}-${i}`} {...tv} />),
+        ...(hosts || []).map((tv, i) => (
+          <TypeValueCell key={`host-${tv.type}-${tv.value}-${i}`} {...tv} />
+        )),
         ...(protocols || []).map((p, i) => <Badge key={`${p}-${i}`}>{p}</Badge>),
         ...(ports || []).map((p, i) => (
           <TypeValueCell key={`port-${p}-${i}`} type="Port" value={p} />

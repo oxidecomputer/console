@@ -20,8 +20,8 @@
     "test": "vitest",
     "e2e": "playwright test",
     "e2ec": "playwright test --project=chrome",
-    "lint": "eslint --ext .js,.ts,.tsx,.json .",
-    "lint-fast": "eslint --cache --fix --ext .js,.ts,.tsx,.json .",
+    "lint": "eslint --ext .js,.ts,.tsx app test mock-api",
+    "lint-fast": "npm run lint -- --cache",
     "fmt": "prettier --cache --write . && npm run lint -- --fix",
     "openapi-gen-ts": "openapi-gen-ts",
     "prettier": "prettier",
@@ -132,8 +132,7 @@
     "vitest": "^1.6.0"
   },
   "browserslist": [
-    "defaults",
-    "not IE 11"
+    "defaults"
   ],
   "msw": {
     "workerDirectory": [
@@ -141,6 +140,6 @@
     ]
   },
   "lint-staged": {
-    "*.{js,ts,tsx,json}": "eslint --cache --fix"
+    "*.{js,ts,tsx}": "eslint --cache --fix"
   }
 }

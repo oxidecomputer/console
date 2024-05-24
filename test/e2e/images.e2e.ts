@@ -83,11 +83,11 @@ test('can copy an image ID to clipboard', async ({ page, browserName }) => {
 
   await page.goto('/images')
   await clickRowAction(page, 'ubuntu-22-04', 'Copy ID')
-  await expect(await clipboardText(page)).toEqual('ae46ddf5-a8d5-40fa-bcda-fcac606e3f9b')
+  expect(await clipboardText(page)).toEqual('ae46ddf5-a8d5-40fa-bcda-fcac606e3f9b')
 
   await page.goto('/projects/mock-project/images')
   await clickRowAction(page, 'image-4', 'Copy ID')
-  await expect(await clipboardText(page)).toEqual('d150b87d-eb20-49d2-8b56-ff5564670e8c')
+  expect(await clipboardText(page)).toEqual('d150b87d-eb20-49d2-8b56-ff5564670e8c')
 })
 
 test('can demote an image from silo', async ({ page }) => {

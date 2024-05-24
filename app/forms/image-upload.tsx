@@ -273,7 +273,7 @@ export function CreateImageSideModalForm() {
   // coordinating when to cleanup, we make cleanup idempotent by having it check
   // whether it has already been run, or more concretely before each action,
   // check whether it needs to be done
-  async function closeModal() {
+  function closeModal() {
     if (allDone) {
       backToImages()
       return
