@@ -785,11 +785,7 @@ const AdvancedAccordion = ({
                     <MiniTable.Cell>{item.name}</MiniTable.Cell>
                     <MiniTable.Cell>{item.ip}</MiniTable.Cell>
                     <MiniTable.Cell>
-                      <button
-                        onClick={() => {
-                          detachFloatingIp(item.name)
-                        }}
-                      >
+                      <button type="button" onClick={() => detachFloatingIp(item.name)}>
                         <Error16Icon title={`remove ${item.name}`} />
                       </button>
                     </MiniTable.Cell>
