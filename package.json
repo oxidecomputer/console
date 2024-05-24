@@ -132,8 +132,7 @@
     "vitest": "^1.6.0"
   },
   "browserslist": [
-    "defaults",
-    "not IE 11"
+    "defaults"
   ],
   "msw": {
     "workerDirectory": [
