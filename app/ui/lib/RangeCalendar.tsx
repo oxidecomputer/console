@@ -63,6 +63,7 @@ export const CalendarButton = ({
   isDisabled: boolean
 }) => (
   <button
+    type="button"
     onClick={handleClick}
     disabled={isDisabled}
     className={cn(

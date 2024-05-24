@@ -18,7 +18,6 @@ import {
   type VpcFirewallRuleTarget,
   type VpcFirewallRuleUpdate,
 } from '@oxide/api'
-import { Error16Icon } from '@oxide/design-system/icons/react'
 
 import { CheckboxField } from '~/components/form/fields/CheckboxField'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
@@ -317,19 +316,16 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
                   <Badge variant="solid">{t.type}</Badge>
                 </MiniTable.Cell>
                 <MiniTable.Cell>{t.value}</MiniTable.Cell>
-                <MiniTable.Cell>
-                  <button
-                    onClick={() =>
-                      targets.onChange(
-                        targets.value.filter(
-                          (i) => !(i.value === t.value && i.type === t.type)
-                        )
+                <MiniTable.RemoveCell
+                  onClick={() =>
+                    targets.onChange(
+                      targets.value.filter(
+                        (i) => !(i.value === t.value && i.type === t.type)
                       )
-                    }
-                  >
-                    <Error16Icon title={`remove ${t.value}`} />
-                  </button>
-                </MiniTable.Cell>
+                    )
+                  }
+                  label={`remove target ${t.value}`}
+                />
               </MiniTable.Row>
             ))}
           </MiniTable.Body>
@@ -399,13 +395,10 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
             {ports.value.map((p) => (
               <MiniTable.Row tabIndex={0} aria-label={p} key={p}>
                 <MiniTable.Cell>{p}</MiniTable.Cell>
-                <MiniTable.Cell>
-                  <button
-                    onClick={() => ports.onChange(ports.value.filter((p1) => p1 !== p))}
-                  >
-                    <Error16Icon title={`remove ${p}`} />
-                  </button>
-                </MiniTable.Cell>
+                <MiniTable.RemoveCell
+                  onClick={() => ports.onChange(ports.value.filter((p1) => p1 !== p))}
+                  label={`remove port ${p}`}
+                />
               </MiniTable.Row>
             ))}
           </MiniTable.Body>
@@ -501,19 +494,16 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
                     <Badge variant="solid">{h.type}</Badge>
                   </MiniTable.Cell>
                   <MiniTable.Cell>{h.value}</MiniTable.Cell>
-                  <MiniTable.Cell>
-                    <button
-                      onClick={() =>
-                        hosts.onChange(
-                          hosts.value.filter(
-                            (i) => !(i.value === h.value && i.type === h.type)
-                          )
+                  <MiniTable.RemoveCell
+                    onClick={() =>
+                      hosts.onChange(
+                        hosts.value.filter(
+                          (i) => !(i.value === h.value && i.type === h.type)
                         )
-                      }
-                    >
-                      <Error16Icon title={`remove ${h.value}`} />
-                    </button>
-                  </MiniTable.Cell>
+                      )
+                    }
+                    label={`remove host ${h.value}`}
+                  />
                 </MiniTable.Row>
               ))}
             </MiniTable.Body>

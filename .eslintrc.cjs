@@ -86,6 +86,7 @@ module.exports = {
     radix: 'error',
     'react-hooks/exhaustive-deps': 'error',
     'react-hooks/rules-of-hooks': 'error',
+    'react/button-has-type': 'error',
     'react/jsx-boolean-value': 'error',
     'react/display-name': 'off',
     'react/react-in-jsx-scope': 'off',

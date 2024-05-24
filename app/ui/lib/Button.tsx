@@ -94,6 +94,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
             'visually-disabled': isDisabled,
           })}
           ref={ref}
+          /* eslint-disable-next-line react/button-has-type */
           type={type}
           onMouseDown={isDisabled ? noop : undefined}
           onClick={isDisabled ? noop : onClick}
