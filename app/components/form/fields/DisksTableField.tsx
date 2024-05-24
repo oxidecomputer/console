@@ -80,6 +80,7 @@ export function DisksTableField({
                   <MiniTable.Cell>
                     <button
                       onClick={() => onChange(items.filter((i) => i.name !== item.name))}
+                      type="button"
                     >
                       <Error16Icon title={`remove ${item.name}`} />
                     </button>

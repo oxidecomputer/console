@@ -96,6 +96,7 @@ export function NetworkInterfaceField({
                       <MiniTable.Cell>{item.subnetName}</MiniTable.Cell>
                       <MiniTable.Cell>
                         <button
+                          type="button"
                           onClick={() =>
                             onChange({
                               type: 'create',

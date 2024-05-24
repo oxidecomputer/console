@@ -55,6 +55,7 @@ export function TlsCertsField({ control }: { control: Control<SiloCreateFormValu
                   <MiniTable.Cell>{item.name}</MiniTable.Cell>
                   <MiniTable.Cell>
                     <button
+                      type="button"
                       onClick={() => onChange(items.filter((i) => i.name !== item.name))}
                     >
                       <Error16Icon title={`remove ${item.name}`} />

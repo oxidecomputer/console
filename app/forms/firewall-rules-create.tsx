@@ -319,6 +319,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
                 <MiniTable.Cell>{t.value}</MiniTable.Cell>
                 <MiniTable.Cell>
                   <button
+                    type="button"
                     onClick={() =>
                       targets.onChange(
                         targets.value.filter(
@@ -401,6 +402,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
                 <MiniTable.Cell>{p}</MiniTable.Cell>
                 <MiniTable.Cell>
                   <button
+                    type="button"
                     onClick={() => ports.onChange(ports.value.filter((p1) => p1 !== p))}
                   >
                     <Error16Icon title={`remove ${p}`} />
@@ -503,6 +505,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
                   <MiniTable.Cell>{h.value}</MiniTable.Cell>
                   <MiniTable.Cell>
                     <button
+                      type="button"
                       onClick={() =>
                         hosts.onChange(
                           hosts.value.filter(
