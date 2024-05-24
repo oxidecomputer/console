@@ -108,6 +108,7 @@ export const Toast = ({
         )}
       </div>
       <button
+        type="button"
         aria-label="Dismiss notification"
         className={cn('-m-2 flex h-auto !border-transparent p-2', textColor[variant])}
         onClick={onClose}

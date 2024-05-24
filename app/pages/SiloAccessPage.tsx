@@ -139,7 +139,7 @@ export function SiloAccessPage() {
             doDelete: () =>
               updatePolicy.mutateAsync({
                 // we know policy is there, otherwise there's no row to display
-                body: deleteRole(row.id, siloPolicy!),
+                body: deleteRole(row.id, siloPolicy),
               }),
             label: (
               <span>
