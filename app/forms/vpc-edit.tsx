@@ -40,7 +40,7 @@ export function EditVpcSideModalForm() {
   const onDismiss = () => navigate(pb.vpcs({ project }))
 
   const editVpc = useApiMutation('vpcUpdate', {
-    async onSuccess(vpc) {
+    onSuccess(vpc) {
       queryClient.invalidateQueries('vpcList')
       queryClient.setQueryData(
         'vpcView',

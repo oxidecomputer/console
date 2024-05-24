@@ -70,7 +70,7 @@ export const useMakeInstanceActions = (
           onActivate() {
             confirmAction({
               actionType: 'danger',
-              doAction: async () =>
+              doAction: () =>
                 stopInstance.mutate(instanceParams, {
                   onSuccess: () =>
                     addToast({ title: `Stopping instance '${instance.name}'` }),

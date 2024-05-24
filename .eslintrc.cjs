@@ -12,6 +12,7 @@ module.exports = {
   },
   extends: [
     'eslint:recommended',
+    'plugin:@typescript-eslint/recommended-type-checked',
     'plugin:@typescript-eslint/strict',
     'plugin:@typescript-eslint/stylistic',
     'plugin:jsx-a11y/recommended',
@@ -49,11 +50,16 @@ module.exports = {
       { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
     ],
 
-    // type-aware rules
+    // disabling the type-aware rules we don't like
     // https://typescript-eslint.io/getting-started/typed-linting/
-    '@typescript-eslint/await-thenable': 'error',
-    // '@typescript-eslint/no-floating-promises': 'error',
-    '@typescript-eslint/no-for-in-array': 'error',
+    '@typescript-eslint/no-floating-promises': 'off',
+    '@typescript-eslint/no-misused-promises': 'off',
+    '@typescript-eslint/unbound-method': 'off',
+    '@typescript-eslint/no-unsafe-argument': 'off',
+    '@typescript-eslint/no-unsafe-assignment': 'off',
+    '@typescript-eslint/no-unsafe-call': 'off',
+    '@typescript-eslint/no-unsafe-member-access': 'off',
+    '@typescript-eslint/no-unsafe-return': 'off',
 
     eqeqeq: ['error', 'always', { null: 'ignore' }],
     'import/no-default-export': 'error',

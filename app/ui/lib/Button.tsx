@@ -87,7 +87,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <Wrap
         when={isDisabled && disabledReason}
-        with={<Tooltip content={disabledReason!} ref={ref} />}
+        with={<Tooltip content={disabledReason} ref={ref} />}
       >
         <button
           className={cn(buttonStyle({ size, variant }), className, {
