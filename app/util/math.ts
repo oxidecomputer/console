@@ -43,6 +43,8 @@ export function percentage<T extends number | bigint>(top: T, bottom: T): number
   // be like 10^20 bigger than bottom. In any case, the nice thing is it seems
   // JS runtimes will not overflow when Number is given a huge arg, they just
   // convert to a huge number with reduced precision.
+  // type assertion is necessary according to TS. bug in ts-eslint
+  /* eslint-disable @typescript-eslint/no-unnecessary-type-assertion */
   return Number(((top as bigint) * 10_000n) / (bottom as bigint)) / 100
 }
 

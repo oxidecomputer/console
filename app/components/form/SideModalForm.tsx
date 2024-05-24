@@ -7,7 +7,7 @@
  */
 import { useEffect, useId, type ReactNode } from 'react'
 import type { FieldValues, UseFormReturn } from 'react-hook-form'
-import { useNavigationType } from 'react-router-dom'
+import { NavigationType, useNavigationType } from 'react-router-dom'
 
 import type { ApiError } from '@oxide/api'
 
@@ -57,7 +57,7 @@ type SideModalFormProps<TFieldValues extends FieldValues> = {
  * any way to distinguish between fresh pageload and back/forward.
  */
 export function useShouldAnimateModal() {
-  return useNavigationType() === 'PUSH'
+  return useNavigationType() === NavigationType.Push
 }
 
 export function SideModalForm<TFieldValues extends FieldValues>({
