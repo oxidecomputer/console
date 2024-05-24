@@ -192,7 +192,7 @@ export function CreateInstanceForm() {
     () => allDisks.filter(diskCan.attach).map(({ name }) => ({ value: name, label: name })),
     [allDisks]
   )
-
+  const availableDisks = allDisks.filter((d) => d.state.state === 'detached') || []
   const { data: sshKeys } = usePrefetchedApiQuery('currentUserSshKeyList', {})
   const allKeys = useMemo(() => sshKeys.items.map((key) => key.id), [sshKeys])
 
@@ -553,7 +553,11 @@ export function CreateInstanceForm() {
         </Tabs.Root>
         <FormDivider />
         <Form.Heading id="additional-disks">Additional disks</Form.Heading>
-        <DisksTableField control={control} disabled={isSubmitting} />
+        <DisksTableField
+          control={control}
+          isSubmitting={isSubmitting}
+          availableDisks={availableDisks}
+        />
         <FormDivider />
         <Form.Heading id="authentication">Authentication</Form.Heading>
         <SshKeysField control={control} isSubmitting={isSubmitting} />

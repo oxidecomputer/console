@@ -47,6 +47,7 @@ StorageTab.loader = async ({ params }: LoaderFunctionArgs) => {
       path: { instance },
       query: { project },
     }),
+    apiQueryClient.prefetchQuery('diskList', { query: { project } }),
   ])
   return null
 }
@@ -105,6 +106,12 @@ export function StorageTab() {
     path: { instance: instanceName },
     query: { project, limit: PAGE_SIZE },
   })
+  const attachedDisks = disks.items.map((d) => d.name)
+  const { data: allDisks } = usePrefetchedApiQuery('diskList', { query: { project } })
+  const availableDisks =
+    allDisks.items.filter(
+      (d) => d.state.state === 'detached' && !attachedDisks.includes(d.name)
+    ) || []
 
   const makeActions = useCallback(
     (disk: Disk): MenuAction[] => [
@@ -170,6 +177,15 @@ export function StorageTab() {
 
   const columns = useColsWithActions(staticCols, makeActions)
 
+  const isAttachDisabled = !instanceCan.attachDisk(instance) || availableDisks.length === 0
+  const attachDisabledReason = !instanceCan.attachDisk(instance) ? (
+    <>
+      Instance must be <span className="text-default">stopped</span> to attach a disk
+    </>
+  ) : (
+    'No unattached disks are available'
+  )
+
   return (
     <>
       <Table emptyState={emptyState} columns={columns} />
@@ -192,13 +208,8 @@ export function StorageTab() {
             variant="secondary"
             size="sm"
             onClick={() => setShowDiskAttach(true)}
-            disabledReason={
-              <>
-                Instance must be <span className="text-default">stopped</span> to attach a
-                disk
-              </>
-            }
-            disabled={!instanceCan.attachDisk(instance)}
+            disabled={isAttachDisabled}
+            disabledReason={attachDisabledReason}
           >
             Attach existing disk
           </Button>
@@ -222,7 +233,7 @@ export function StorageTab() {
       )}
       {showDiskAttach && (
         <AttachDiskSideModalForm
-          attachedDisks={disks.items.map((d) => d.name)}
+          availableDiskNames={availableDisks.map((d) => d.name)}
           onDismiss={() => setShowDiskAttach(false)}
           onSubmit={({ name }) => {
             attachDisk.mutate({ ...instancePathQuery, body: { disk: name } })

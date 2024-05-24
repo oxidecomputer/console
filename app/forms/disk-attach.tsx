@@ -5,16 +5,16 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useApiQuery, type ApiError } from '@oxide/api'
+import { type ApiError } from '@oxide/api'
 
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { useForm, useProjectSelector } from '~/hooks'
+import { useForm } from '~/hooks'
 
 const defaultValues = { name: '' }
 
 type AttachDiskProps = {
-  attachedDisks: string[]
+  availableDiskNames: string[]
   /** If defined, this overrides the usual mutation */
   onSubmit: (diskAttach: { name: string }) => void
   onDismiss: () => void
@@ -27,23 +27,12 @@ type AttachDiskProps = {
  * the optional `loading` and `submitError`
  */
 export function AttachDiskSideModalForm({
-  attachedDisks,
+  availableDiskNames,
   onSubmit,
   onDismiss,
   loading,
   submitError = null,
 }: AttachDiskProps) {
-  const projectSelector = useProjectSelector()
-
-  // TODO: loading state? because this fires when the modal opens and not when
-  // they focus the combobox, it will almost always be done by the time they
-  // click in
-  // TODO: error handling
-  const detachedDisks =
-    useApiQuery('diskList', { query: projectSelector }).data?.items.filter(
-      (d) => d.state.state === 'detached' && !attachedDisks.includes(d.name)
-    ) || []
-
   const form = useForm({ defaultValues })
 
   return (
@@ -60,7 +49,7 @@ export function AttachDiskSideModalForm({
       <ListboxField
         label="Disk name"
         name="name"
-        items={detachedDisks.map(({ name }) => ({ value: name, label: name }))}
+        items={availableDiskNames.map((name) => ({ value: name, label: name }))}
         required
         control={form.control}
       />

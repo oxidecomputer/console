@@ -8,7 +8,7 @@
 import { useState } from 'react'
 import { useController, type Control } from 'react-hook-form'
 
-import type { DiskCreate } from '@oxide/api'
+import type { Disk, DiskCreate } from '@oxide/api'
 import { Error16Icon } from '@oxide/design-system/icons/react'
 
 import { AttachDiskSideModalForm } from '~/forms/disk-attach'
@@ -30,10 +30,12 @@ export type DiskTableItem =
  */
 export function DisksTableField({
   control,
-  disabled,
+  isSubmitting,
+  availableDisks,
 }: {
   control: Control<InstanceCreateInput>
-  disabled: boolean
+  isSubmitting: boolean
+  availableDisks: Array<Disk>
 }) {
   const [showDiskCreate, setShowDiskCreate] = useState(false)
   const [showDiskAttach, setShowDiskAttach] = useState(false)
@@ -41,6 +43,16 @@ export function DisksTableField({
   const {
     field: { value: items, onChange },
   } = useController({ control, name: 'disks' })
+
+  const attachedDiskNames = items.map((disk) => disk.name)
+  const availableDiskNames = availableDisks
+    .filter((disk) => !attachedDiskNames.includes(disk.name))
+    .map((disk) => disk.name)
+
+  const noDisksAvailable = availableDiskNames.length === 0
+
+  const disabled = isSubmitting || noDisksAvailable
+  const disabledReason = noDisksAvailable ? 'No unattached disks are available' : undefined
 
   return (
     <>
@@ -91,7 +103,7 @@ export function DisksTableField({
         )}
 
         <div className="space-x-3">
-          <Button size="sm" onClick={() => setShowDiskCreate(true)} disabled={disabled}>
+          <Button size="sm" onClick={() => setShowDiskCreate(true)} disabled={isSubmitting}>
             Create new disk
           </Button>
           <Button
@@ -99,6 +111,7 @@ export function DisksTableField({
             size="sm"
             onClick={() => setShowDiskAttach(true)}
             disabled={disabled}
+            disabledReason={disabledReason}
           >
             Attach existing disk
           </Button>
@@ -116,7 +129,7 @@ export function DisksTableField({
       )}
       {showDiskAttach && (
         <AttachDiskSideModalForm
-          attachedDisks={items.filter((i) => i.type === 'attach').map((i) => i.name)}
+          availableDiskNames={availableDiskNames}
           onDismiss={() => setShowDiskAttach(false)}
           onSubmit={(values) => {
             onChange([...items, { type: 'attach', ...values }])
