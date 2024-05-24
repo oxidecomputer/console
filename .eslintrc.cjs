@@ -6,6 +6,9 @@ module.exports = {
   parser: '@typescript-eslint/parser',
   parserOptions: {
     warnOnUnsupportedTypeScriptVersion: false,
+    // this config is needed for type aware lint rules
+    project: true,
+    tsconfigRootDir: __dirname,
   },
   extends: [
     'eslint:recommended',
@@ -45,6 +48,13 @@ module.exports = {
       'error',
       { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
     ],
+
+    // type-aware rules
+    // https://typescript-eslint.io/getting-started/typed-linting/
+    '@typescript-eslint/await-thenable': 'error',
+    // '@typescript-eslint/no-floating-promises': 'error',
+    '@typescript-eslint/no-for-in-array': 'error',
+
     eqeqeq: ['error', 'always', { null: 'ignore' }],
     'import/no-default-export': 'error',
     'import/no-unresolved': 'off', // plugin doesn't know anything
