@@ -27,7 +27,6 @@ import {
   type NameOrId,
 } from '@oxide/api'
 import {
-  Error16Icon,
   Images16Icon,
   Instances16Icon,
   Instances24Icon,
@@ -784,11 +783,10 @@ const AdvancedAccordion = ({
                   >
                     <MiniTable.Cell>{item.name}</MiniTable.Cell>
                     <MiniTable.Cell>{item.ip}</MiniTable.Cell>
-                    <MiniTable.Cell>
-                      <button type="button" onClick={() => detachFloatingIp(item.name)}>
-                        <Error16Icon title={`remove ${item.name}`} />
-                      </button>
-                    </MiniTable.Cell>
+                    <MiniTable.RemoveCell
+                      onClick={() => detachFloatingIp(item.name)}
+                      label={`remove floating IP ${item.name}`}
+                    />
                   </MiniTable.Row>
                 ))}
               </MiniTable.Body>
