@@ -136,7 +136,7 @@ export function VpcFirewallRulesTab() {
           <LinkCell
             to={pb.vpcFirewallRuleEdit({
               ...vpcSelector,
-              firewallRule: info.row.original.name,
+              rule: info.row.original.name,
             })}
           >
             {info.getValue()}
@@ -151,7 +151,7 @@ export function VpcFirewallRulesTab() {
             navigate(
               pb.vpcFirewallRuleEdit({
                 ...vpcSelector,
-                firewallRule: rule.name,
+                rule: rule.name,
               })
             )
           },

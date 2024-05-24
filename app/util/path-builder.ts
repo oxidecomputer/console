@@ -21,7 +21,7 @@ type Snapshot = Required<PP.Snapshot>
 type SiloImage = Required<PP.SiloImage>
 type IpPool = Required<PP.IpPool>
 type FloatingIp = Required<PP.FloatingIp>
-type VpcFirewallRule = Required<PP.VpcFirewallRule>
+type FirewallRule = Required<PP.FirewallRule>
 type VpcSubnet = Required<PP.VpcSubnet>
 
 // these are used as the basis for many routes but are not themselves routes we
@@ -80,15 +80,13 @@ export const pb = {
 
   vpcEdit: (params: Vpc) => `${vpcBase(params)}/edit`,
 
-  vpcFirewallRules: (params: Vpc) => `${pb.vpcs(params)}/${params.vpc}/firewall-rules`,
-  vpcFirewallRulesNew: (params: Vpc) =>
-    `${pb.vpcs(params)}/${params.vpc}/firewall-rules-new`,
-  vpcFirewallRuleEdit: (params: VpcFirewallRule) =>
-    `${pb.vpcs(params)}/${params.vpc}/firewall-rules/${params.firewallRule}/edit`,
-  vpcSubnets: (params: Vpc) => `${pb.vpcs(params)}/${params.vpc}/subnets`,
-  vpcSubnetsNew: (params: Vpc) => `${pb.vpcs(params)}/${params.vpc}/subnets-new`,
-  vpcSubnetsEdit: (params: VpcSubnet) =>
-    `${pb.vpcs(params)}/${params.vpc}/subnets/${params.subnet}/edit`,
+  vpcFirewallRules: (params: Vpc) => `${vpcBase(params)}/firewall-rules`,
+  vpcFirewallRulesNew: (params: Vpc) => `${vpcBase(params)}/firewall-rules-new`,
+  vpcFirewallRuleEdit: (params: FirewallRule) =>
+    `${pb.vpcFirewallRules(params)}/${params.rule}/edit`,
+  vpcSubnets: (params: Vpc) => `${vpcBase(params)}/subnets`,
+  vpcSubnetsNew: (params: Vpc) => `${vpcBase(params)}/subnets-new`,
+  vpcSubnetsEdit: (params: VpcSubnet) => `${pb.vpcSubnets(params)}/${params.subnet}/edit`,
 
   floatingIps: (params: Project) => `${projectBase(params)}/floating-ips`,
   floatingIpsNew: (params: Project) => `${projectBase(params)}/floating-ips-new`,

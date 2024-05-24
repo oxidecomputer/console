@@ -369,7 +369,7 @@ export const routes = createRoutesFromElements(
                   handle={{ crumb: 'New Firewall Rule' }}
                 />
                 <Route
-                  path="firewall-rules/:firewallRule/edit"
+                  path="firewall-rules/:rule/edit"
                   element={<EditFirewallRuleForm />}
                   loader={EditFirewallRuleForm.loader}
                   handle={{ crumb: 'Edit Firewall Rule' }}
