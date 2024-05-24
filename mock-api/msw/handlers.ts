@@ -28,7 +28,14 @@ import { GiB } from '~/util/units'
 import { genCumulativeI64Data } from '../metrics'
 import { serial } from '../serial'
 import { defaultSilo, toIdp } from '../silo'
-import { db, lookup, lookupById, notFoundErr, utilizationForSilo } from './db'
+import {
+  db,
+  getIpFromPool,
+  lookup,
+  lookupById,
+  notFoundErr,
+  utilizationForSilo,
+} from './db'
 import {
   currentUser,
   errIfExists,
@@ -497,12 +504,7 @@ export const handlers = makeHandlers({
         }
         floatingIp.instance_id = instanceId
       } else if (ip.type === 'ephemeral') {
-        const poolId = db.ipPools.find((pool) => pool.name === ip.pool)?.id
-        const range = db.ipPoolRanges.find((range) => range.ip_pool_id === poolId)?.range
-
-        // right now, we're just using the first address in the range, but we'll
-        // want to filter the list of available IPs for the first unused address
-        const firstAvailableAddress = range?.first || '—'
+        const firstAvailableAddress = getIpFromPool(ip.pool)
         db.ephemeralIps.push({
           instance_id: instanceId,
           external_ip: {

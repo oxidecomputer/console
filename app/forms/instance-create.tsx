@@ -655,10 +655,12 @@ const AdvancedAccordion = ({
   }
 
   const attachFloatingIp = () => {
-    externalIps.field.onChange([
-      ...(externalIps.field.value || []),
-      { type: 'floating', floatingIp: selectedFloatingIp?.name },
-    ])
+    if (selectedFloatingIp) {
+      externalIps.field.onChange([
+        ...(externalIps.field.value || []),
+        { type: 'floating', floatingIp: selectedFloatingIp.name },
+      ])
+    }
     closeFloatingIpModal()
   }
 
