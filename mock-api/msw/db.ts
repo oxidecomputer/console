@@ -38,11 +38,7 @@ export const lookupById = <T extends { id: string }>(table: T[], id: string) => 
 }
 
 export const getIpFromPool = (poolName: string | undefined) => {
-  if (!poolName) throw notFoundErr
-
   const pool = lookup.ipPool({ pool: poolName })
-  if (!pool) throw notFoundErr
-
   const ipPoolRange = db.ipPoolRanges.find((range) => range.ip_pool_id === pool.id)
   if (!ipPoolRange) throw notFoundErr
 

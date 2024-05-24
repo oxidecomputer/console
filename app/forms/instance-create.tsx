@@ -73,6 +73,7 @@ import { Slash } from '~/ui/lib/Slash'
 import { Tabs } from '~/ui/lib/Tabs'
 import { TextInputHint } from '~/ui/lib/TextInput'
 import { TipIcon } from '~/ui/lib/TipIcon'
+import { isTruthy } from '~/util/array'
 import { readBlobAsBase64 } from '~/util/file'
 import { docLinks, links } from '~/util/links'
 import { nearest10 } from '~/util/math'
@@ -229,10 +230,6 @@ export function CreateInstanceForm() {
     bootDiskSize: nearest10(defaultImage?.size / GiB),
     externalIps: [{ type: 'ephemeral', pool: defaultPool }],
   }
-
-  const { data: floatingIpList } = usePrefetchedApiQuery('floatingIpList', {
-    query: { project, limit: 1000 },
-  })
 
   const form = useForm({ defaultValues })
   const { control, setValue } = form
@@ -576,7 +573,6 @@ export function CreateInstanceForm() {
         <Form.Heading id="advanced">Advanced</Form.Heading>
         <AdvancedAccordion
           control={control}
-          floatingIpList={floatingIpList}
           isSubmitting={isSubmitting}
           siloPools={siloPools.items}
         />
@@ -614,12 +610,10 @@ const FloatingIpLabel = ({ ip }: { ip: FloatingIp }) => (
 const AdvancedAccordion = ({
   control,
   isSubmitting,
-  floatingIpList,
   siloPools,
 }: {
   control: Control<InstanceCreateInput>
   isSubmitting: boolean
-  floatingIpList: { items: Array<FloatingIp> }
   siloPools: Array<{ name: string; isDefault: boolean }>
 }) => {
   // we track this state manually for the sole reason that we need to be able to
@@ -635,6 +629,11 @@ const AdvancedAccordion = ({
   const defaultPool = siloPools.find((pool) => pool.isDefault)?.name
   const attachedFloatingIps = (externalIps.field.value || []).filter(isFloating)
 
+  const { project } = useProjectSelector()
+  const { data: floatingIpList } = usePrefetchedApiQuery('floatingIpList', {
+    query: { project, limit: 1000 },
+  })
+
   // Filter out the IPs that are already attached to an instance
   const attachableFloatingIps = useMemo(
     () => floatingIpList.items.filter((ip) => !ip.instanceId),
@@ -647,7 +646,7 @@ const AdvancedAccordion = ({
   )
   const attachedFloatingIpsData = attachedFloatingIps
     .map((ip) => attachableFloatingIps.find((fip) => fip.name === ip.floatingIp))
-    .filter((x) => !!x) as Array<FloatingIp>
+    .filter(isTruthy)
 
   const closeFloatingIpModal = () => {
     setFloatingIpModalOpen(false)
