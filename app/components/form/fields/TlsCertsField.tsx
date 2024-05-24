@@ -10,7 +10,6 @@ import { useController, type Control } from 'react-hook-form'
 import type { Merge } from 'type-fest'
 
 import type { CertificateCreate } from '@oxide/api'
-import { Error16Icon } from '@oxide/design-system/icons/react'
 
 import type { SiloCreateFormValues } from '~/forms/silo-create'
 import { useForm } from '~/hooks'
@@ -53,14 +52,10 @@ export function TlsCertsField({ control }: { control: Control<SiloCreateFormValu
                   key={item.name}
                 >
                   <MiniTable.Cell>{item.name}</MiniTable.Cell>
-                  <MiniTable.Cell>
-                    <button
-                      type="button"
-                      onClick={() => onChange(items.filter((i) => i.name !== item.name))}
-                    >
-                      <Error16Icon title={`remove ${item.name}`} />
-                    </button>
-                  </MiniTable.Cell>
+                  <MiniTable.RemoveCell
+                    onClick={() => onChange(items.filter((i) => i.name !== item.name))}
+                    label={`remove cert ${item.name}`}
+                  />
                 </MiniTable.Row>
               ))}
             </MiniTable.Body>

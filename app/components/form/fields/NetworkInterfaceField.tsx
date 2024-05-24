@@ -12,7 +12,6 @@ import type {
   InstanceNetworkInterfaceAttachment,
   InstanceNetworkInterfaceCreate,
 } from '@oxide/api'
-import { Error16Icon } from '@oxide/design-system/icons/react'
 
 import type { InstanceCreateInput } from '~/forms/instance-create'
 import { CreateNetworkInterfaceForm } from '~/forms/network-interface-create'
@@ -94,19 +93,15 @@ export function NetworkInterfaceField({
                       <MiniTable.Cell>{item.name}</MiniTable.Cell>
                       <MiniTable.Cell>{item.vpcName}</MiniTable.Cell>
                       <MiniTable.Cell>{item.subnetName}</MiniTable.Cell>
-                      <MiniTable.Cell>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            onChange({
-                              type: 'create',
-                              params: value.params.filter((i) => i.name !== item.name),
-                            })
-                          }
-                        >
-                          <Error16Icon title={`remove ${item.name}`} />
-                        </button>
-                      </MiniTable.Cell>
+                      <MiniTable.RemoveCell
+                        onClick={() =>
+                          onChange({
+                            type: 'create',
+                            params: value.params.filter((i) => i.name !== item.name),
+                          })
+                        }
+                        label={`remove network interface ${item.name}`}
+                      />
                     </MiniTable.Row>
                   ))}
                 </MiniTable.Body>
