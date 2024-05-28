@@ -28,7 +28,14 @@ import { GiB } from '~/util/units'
 import { genCumulativeI64Data } from '../metrics'
 import { serial } from '../serial'
 import { defaultSilo, toIdp } from '../silo'
-import { db, lookup, lookupById, notFoundErr, utilizationForSilo } from './db'
+import {
+  db,
+  getIpFromPool,
+  lookup,
+  lookupById,
+  notFoundErr,
+  utilizationForSilo,
+} from './db'
 import {
   currentUser,
   errIfExists,
@@ -485,6 +492,28 @@ export const handlers = makeHandlers({
       run_state: 'creating',
       time_run_state_updated: new Date().toISOString(),
     }
+
+    body.external_ips?.forEach((ip) => {
+      if (ip.type === 'floating') {
+        const floatingIp = lookup.floatingIp({
+          project: project.id,
+          floatingIp: ip.floating_ip,
+        })
+        if (floatingIp.instance_id) {
+          throw 'floating IP cannot be attached to one instance while still attached to another'
+        }
+        floatingIp.instance_id = instanceId
+      } else if (ip.type === 'ephemeral') {
+        const firstAvailableAddress = getIpFromPool(ip.pool)
+        db.ephemeralIps.push({
+          instance_id: instanceId,
+          external_ip: {
+            ip: firstAvailableAddress,
+            kind: 'ephemeral',
+          },
+        })
+      }
+    })
 
     setTimeout(() => {
       newInstance.run_state = 'starting'
