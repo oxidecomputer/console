@@ -17,7 +17,7 @@ type AttachDiskProps = {
   /** If defined, this overrides the usual mutation */
   onSubmit: (diskAttach: { name: string }) => void
   onDismiss: () => void
-  disksToFilter?: string[]
+  diskNamesToExclude?: string[]
   loading?: boolean
   submitError?: ApiError | null
 }
@@ -29,7 +29,7 @@ type AttachDiskProps = {
 export function AttachDiskSideModalForm({
   onSubmit,
   onDismiss,
-  disksToFilter,
+  diskNamesToExclude = [],
   loading,
   submitError = null,
 }: AttachDiskProps) {
@@ -41,7 +41,7 @@ export function AttachDiskSideModalForm({
   // TODO: error handling
   const detachedDisks =
     useApiQuery('diskList', { query: projectSelector }).data?.items.filter(
-      (d) => d.state.state === 'detached' && !disksToFilter?.includes(d.name)
+      (d) => d.state.state === 'detached' && !diskNamesToExclude.includes(d.name)
     ) || []
 
   const form = useForm({ defaultValues })
