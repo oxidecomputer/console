@@ -117,6 +117,7 @@ export function DisksTableField({
             onChange([...items, { type: 'attach', ...values }])
             setShowDiskAttach(false)
           }}
+          diskNamesToExclude={items.filter((i) => i.type === 'attach').map((i) => i.name)}
         />
       )}
     </>
