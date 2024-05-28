@@ -32,6 +32,7 @@ export interface ListboxProps<Value extends string = string> {
   onChange: (value: Value) => void
   items: ListboxItem<Value>[]
   placeholder?: string
+  noItemsPlaceholder?: string
   className?: string
   disabled?: boolean
   hasError?: boolean
@@ -48,6 +49,7 @@ export const Listbox = <Value extends string = string>({
   selected,
   items,
   placeholder = 'Select an option',
+  noItemsPlaceholder = 'No items',
   className,
   onChange,
   hasError = false,
@@ -107,7 +109,7 @@ export const Listbox = <Value extends string = string>({
                   selectedItem.selectedLabel || selectedItem.label
                 ) : (
                   <span className="text-quaternary">
-                    {noItems ? 'No items' : placeholder}
+                    {noItems ? noItemsPlaceholder : placeholder}
                   </span>
                 )}
               </div>

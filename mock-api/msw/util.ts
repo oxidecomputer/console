@@ -117,11 +117,16 @@ export const errIfExists = <T extends Record<string, unknown>>(
       Object.entries(match).every(([key, value]) => item[key] === value)
     )
   ) {
-    const name = 'name' in match ? match.name : 'id' in match ? match.id : '<resource>'
+    const name =
+      'name' in match && match.name
+        ? match.name
+        : 'id' in match && match.id
+          ? match.id
+          : '<resource>'
     throw json(
       {
         error_code: 'ObjectAlreadyExists',
-        message: `already exists: ${resourceLabel} "${name}"`,
+        message: `already exists: ${resourceLabel} "${name.toString()}"`,
       },
       { status: 400 }
     )

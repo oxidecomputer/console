@@ -136,6 +136,7 @@ export function ActionMenu(props: ActionMenuProps) {
 
               {input.length > 0 && (
                 <button
+                  type="button"
                   className="flex items-center py-6 pl-6 pr-4 text-secondary"
                   onClick={() => {
                     setInput('')
@@ -147,6 +148,7 @@ export function ActionMenu(props: ActionMenuProps) {
               )}
 
               <button
+                type="button"
                 onClick={onDismiss}
                 className="flex h-full items-center border-l px-6 align-middle text-mono-sm text-secondary border-secondary"
               >

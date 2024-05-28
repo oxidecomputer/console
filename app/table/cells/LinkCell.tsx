@@ -40,7 +40,7 @@ export function LinkCell({ to, children }: { to: string; children: React.ReactNo
 
 export const ButtonCell = ({ children, ...props }: React.ComponentProps<'button'>) => {
   return (
-    <button className={linkClass} {...props}>
+    <button type="button" className={linkClass} {...props}>
       <Pusher />
       <div className="relative">{children}</div>
     </button>

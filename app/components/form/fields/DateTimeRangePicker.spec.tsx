@@ -97,7 +97,7 @@ describe.skip('custom mode', () => {
     expect(screen.getByRole('button', { name: 'Load' })).toHaveClass('visually-disabled')
   })
 
-  it('clicking load after changing date changes range', async () => {
+  it('clicking load after changing date changes range', () => {
     const { setRange } = renderLastDay()
 
     // expect(screen.getByLabelText('Start time')).toHaveValue(dateForInput(subDays(now, 1)))
@@ -125,7 +125,7 @@ describe.skip('custom mode', () => {
     })
   })
 
-  it('clicking reset after changing inputs resets inputs', async () => {
+  it('clicking reset after changing inputs resets inputs', () => {
     const { setRange } = renderLastDay()
 
     // expect(screen.getByLabelText('Start time')).toHaveValue(dateForInput(subDays(now, 1)))

@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { images } from '@oxide/api-mocks'
+import { floatingIp, images } from '@oxide/api-mocks'
 
 import { expect, expectNotVisible, expectRowVisible, expectVisible, test } from './utils'
 
@@ -291,6 +291,38 @@ test('start with an existing disk, but then switch to a silo image', async ({ pa
   await expectNotVisible(page, ['text=disk-7'])
 })
 
+test('additional disks do not list committed disks as available', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances-new')
+
+  const attachExistingDiskButton = page.getByRole('button', {
+    name: 'Attach existing disk',
+  })
+  const selectAnOption = page.getByRole('button', { name: 'Select an option' })
+  const disk2 = page.getByRole('option', { name: 'disk-2' })
+  const disk3 = page.getByRole('option', { name: 'disk-3' })
+  const disk4 = page.getByRole('option', { name: 'disk-4' })
+
+  await attachExistingDiskButton.click()
+  await selectAnOption.click()
+  // disk-2 is already attached, so should not be visible in the list
+  await expect(disk2).toBeHidden()
+  // disk-3, though, should be present
+  await expect(disk3).toBeVisible()
+  await expect(disk4).toBeVisible()
+
+  // select disk-3 and "attach" it to the instance that will be created
+  await disk3.click()
+  await page.getByRole('button', { name: 'Attach disk' }).click()
+
+  await attachExistingDiskButton.click()
+  await selectAnOption.click()
+  // disk-2 should still be hidden
+  await expect(disk2).toBeHidden()
+  // now disk-3 should be hidden as well
+  await expect(disk3).toBeHidden()
+  await expect(disk4).toBeVisible()
+})
+
 test('maintains selected values even when changing tabs', async ({ page }) => {
   const instanceName = 'arch-based-instance'
   await page.goto('/projects/mock-project/instances-new')
@@ -326,4 +358,73 @@ test('does not attach an ephemeral IP when the checkbox is unchecked', async ({ 
   await page.getByRole('button', { name: 'Create instance' }).click()
   await expect(page).toHaveURL('/projects/mock-project/instances/no-ephemeral-ip/storage')
   await expect(page.getByText('External IPs—')).toBeVisible()
+})
+
+test('attaches a floating IP; disables button when no IPs available', async ({ page }) => {
+  const attachFloatingIpButton = page.getByRole('button', { name: 'Attach floating IP' })
+  const selectFloatingIpButton = page.getByRole('button', { name: 'Select floating ip' })
+  const rootbeerFloatOption = page.getByRole('option', { name: 'rootbeer-float' })
+  const attachButton = page.getByRole('button', { name: 'Attach', exact: true })
+
+  const instanceName = 'with-floating-ip'
+  await page.goto('/projects/mock-project/instances-new')
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
+  await page.getByRole('button', { name: 'Networking' }).click()
+
+  await attachFloatingIpButton.click()
+  await expect(
+    page.getByText('This instance will be reachable at the selected IP')
+  ).toBeVisible()
+  await selectFloatingIpButton.click()
+  await rootbeerFloatOption.click()
+  await expect(
+    page.getByText('This instance will be reachable at 123.4.56.4')
+  ).toBeVisible()
+  await attachButton.click()
+  await expect(page.getByText('This instance will be reachable at')).toBeHidden()
+  await expectRowVisible(page.getByRole('table'), {
+    Name: floatingIp.name,
+    IP: floatingIp.ip,
+  })
+  await expect(attachFloatingIpButton).toBeDisabled()
+
+  // removing the floating IP row should work, and should re-enable the "attach" button
+  await page.getByRole('button', { name: 'remove floating IP rootbeer-float' }).click()
+  await expect(page.getByText(floatingIp.name)).toBeHidden()
+  await expect(attachFloatingIpButton).toBeEnabled()
+
+  // re-attach the floating IP
+  await attachFloatingIpButton.click()
+  await selectFloatingIpButton.click()
+  await rootbeerFloatOption.click()
+  await attachButton.click()
+
+  await page.getByRole('button', { name: 'Create instance' }).click()
+
+  await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)
+  await expectVisible(page, [`h1:has-text("${instanceName}")`])
+  await page.getByRole('tab', { name: 'Networking' }).click()
+
+  // ensure External IPs table has rows for the Ephemeral IP and the Floating IP
+  await expectRowVisible(page.getByRole('table'), {
+    ip: '123.4.56.0',
+    Kind: 'ephemeral',
+    name: '—',
+  })
+  await expectRowVisible(page.getByRole('table'), {
+    ip: floatingIp.ip,
+    Kind: 'floating',
+    name: floatingIp.name,
+  })
+})
+
+test('attach a floating IP section has Empty version when no floating IPs exist on the project', async ({
+  page,
+}) => {
+  await page.goto('/projects/other-project/instances-new')
+  await page.getByRole('button', { name: 'Networking' }).click()
+  await expect(page.getByRole('button', { name: 'Attach floating IP' })).toBeHidden()
+  await expect(
+    page.getByText('Create a floating IP to attach it to this instance')
+  ).toBeVisible()
 })

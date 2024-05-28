@@ -169,7 +169,7 @@ export function ProjectAccessPage() {
               updatePolicy.mutateAsync({
                 path: { project },
                 // we know policy is there, otherwise there's no row to display
-                body: deleteRole(row.id, projectPolicy!),
+                body: deleteRole(row.id, projectPolicy),
               }),
             // TODO: explain that this will not affect the role inherited from
             // the silo or roles inherited from group membership. Ideally we'd

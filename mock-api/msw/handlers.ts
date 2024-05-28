@@ -28,7 +28,14 @@ import { GiB } from '~/util/units'
 import { genCumulativeI64Data } from '../metrics'
 import { serial } from '../serial'
 import { defaultSilo, toIdp } from '../silo'
-import { db, lookup, lookupById, notFoundErr, utilizationForSilo } from './db'
+import {
+  db,
+  getIpFromPool,
+  lookup,
+  lookupById,
+  notFoundErr,
+  utilizationForSilo,
+} from './db'
 import {
   currentUser,
   errIfExists,
@@ -362,7 +369,7 @@ export const handlers = makeHandlers({
     const instances = db.instances.filter((i) => i.project_id === project.id)
     return paginated(query, instances)
   },
-  async instanceCreate({ body, query }) {
+  instanceCreate({ body, query }) {
     const project = lookup.project(query)
 
     if (body.name === 'no-default-pool') {
@@ -485,6 +492,28 @@ export const handlers = makeHandlers({
       run_state: 'creating',
       time_run_state_updated: new Date().toISOString(),
     }
+
+    body.external_ips?.forEach((ip) => {
+      if (ip.type === 'floating') {
+        const floatingIp = lookup.floatingIp({
+          project: project.id,
+          floatingIp: ip.floating_ip,
+        })
+        if (floatingIp.instance_id) {
+          throw 'floating IP cannot be attached to one instance while still attached to another'
+        }
+        floatingIp.instance_id = instanceId
+      } else if (ip.type === 'ephemeral') {
+        const firstAvailableAddress = getIpFromPool(ip.pool)
+        db.ephemeralIps.push({
+          instance_id: instanceId,
+          external_ip: {
+            ip: firstAvailableAddress,
+            kind: 'ephemeral',
+          },
+        })
+      }
+    })
 
     setTimeout(() => {
       newInstance.run_state = 'starting'
@@ -646,7 +675,7 @@ export const handlers = makeHandlers({
     return json(instance, { status: 202 })
   },
   ipPoolList: ({ query }) => paginated(query, db.ipPools),
-  async ipPoolUtilizationView({ path }) {
+  ipPoolUtilizationView({ path }) {
     const pool = lookup.ipPool(path)
     const ranges = db.ipPoolRanges
       .filter((r) => r.ip_pool_id === pool.id)
