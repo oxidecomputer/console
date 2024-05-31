@@ -5,23 +5,14 @@
  *
  * Copyright Oxide Computer Company
  */
-import {
-  Combobox,
-  ComboboxButton,
-  ComboboxInput,
-  ComboboxOption,
-  ComboboxOptions,
-} from '@headlessui/react'
-import cn from 'classnames'
-import { useState } from 'react'
 
 import { useApiQuery, type ApiError } from '@oxide/api'
-import { SelectArrows6Icon } from '@oxide/design-system/icons/react'
 
 // import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { useForm, useProjectSelector } from '~/hooks'
+import { Combobox } from '~/ui/lib/Combobox'
 
 const defaultValues = { name: '' }
 
@@ -58,16 +49,6 @@ export function AttachDiskSideModalForm({
 
   const form = useForm({ defaultValues })
 
-  const [selectedDisk, setSelectedDisk] = useState('')
-  const [query, setQuery] = useState('')
-
-  const filteredDisks =
-    query === ''
-      ? detachedDisks
-      : detachedDisks.filter((disk) => {
-          return disk.name.toLowerCase().includes(query.toLowerCase())
-        })
-
   return (
     <SideModalForm
       form={form}
@@ -79,72 +60,7 @@ export function AttachDiskSideModalForm({
       submitError={submitError}
       onDismiss={onDismiss}
     >
-      <Combobox
-        value={selectedDisk}
-        onChange={(name: string) => {
-          setSelectedDisk(name)
-        }}
-        onClose={() => setQuery('')}
-        defaultValue={selectedDisk}
-      >
-        <div className="flex rounded">
-          <ComboboxInput
-            aria-label="Assignee"
-            displayValue={() => (selectedDisk ? selectedDisk : query)}
-            onChange={(event) => setQuery(event.target.value)}
-            className={`w-full rounded border-none
-          px-3 py-[0.6875rem] !outline-offset-1
-          text-sans-md text-default bg-default
-          placeholder:text-quaternary focus:outline-none disabled:cursor-not-allowed disabled:text-tertiary disabled:bg-disabled`}
-          />
-          <ComboboxButton>
-            <div
-              className="flex h-[calc(100%-12px)] items-center border-l px-3 bg-default border-secondary"
-              aria-hidden
-            >
-              <SelectArrows6Icon title="Select" className="w-2 text-tertiary" />
-            </div>
-          </ComboboxButton>
-        </div>
-        <ComboboxOptions
-          anchor="bottom"
-          className="DropdownMenuContent ox-menu pointer-events-auto relative z-sideModalDropdown overflow-y-auto border-b !outline-none border-secondary last:border-0 empty:hidden"
-        >
-          {filteredDisks.map((disk) => (
-            <ComboboxOption
-              key={disk.id}
-              value={disk.name}
-              className={cn(
-                'DropdownMenuItem ox-menu-item relative border-b text-tertiary border-secondary last:border-0 active:text-accent-secondary selected:text-accent-secondary'
-              )}
-              onSelect={() => {
-                setSelectedDisk(disk.name)
-                setQuery(disk.name)
-              }}
-            >
-              {({ active, selected }) => (
-                // TODO: redo active styling with `data-active` somehow
-                <div
-                  className={cn(
-                    'ox-menu-item text-secondary',
-                    selected && 'is-selected',
-                    active && 'is-highlighted'
-                  )}
-                >
-                  {disk.name}
-                </div>
-              )}
-            </ComboboxOption>
-          ))}
-        </ComboboxOptions>
-      </Combobox>
-      {/* <ComboboxField
-        label="Disk name"
-        name="name"
-        items={detachedDisks.map(({ name }) => ({ value: name, label: name }))}
-        required
-        control={form.control}
-      /> */}
+      <Combobox items={detachedDisks.map(({ name }) => ({ label: name, value: name }))} />
       <ListboxField
         label="Disk name"
         name="name"
