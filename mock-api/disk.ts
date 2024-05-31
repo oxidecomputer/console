@@ -147,8 +147,8 @@ export const disks: Json<Disk>[] = [
     block_size: 2048,
   },
   // put a ton of disks in project 2 so we can use it to test pagination
-  ...new Array(55).fill(0).map((_, i) => {
-    const numStr = (i + 1).toString().padStart(2, '0')
+  ...new Array(2222).fill(0).map((_, i) => {
+    const numStr = (i + 1).toString().padStart(4, '0')
     return {
       id: '9747d936-795d-4d76-8ee0-15561f4cbb' + numStr,
       name: 'disk-' + numStr,
