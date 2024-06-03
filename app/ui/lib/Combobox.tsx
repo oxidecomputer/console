@@ -107,6 +107,7 @@ export const Combobox = ({
                 aria-label="Assignee"
                 displayValue={() => (selected ? selected : query)}
                 onChange={(event) => setQuery(event.target.value)}
+                placeholder="Select a disk"
                 disabled={isDisabled || isLoading}
                 className={cn(
                   `w-full rounded !border-none px-3 py-[0.5rem] !outline-none text-sans-md text-default placeholder:text-quaternary`,
