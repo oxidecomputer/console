@@ -7,6 +7,7 @@
  */
 
 import { cloneElement, type ReactElement } from 'react'
+import * as R from 'remeda'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const identity = (x: any) => x
@@ -14,40 +15,19 @@ const identity = (x: any) => x
 /** Returns a new array sorted by `by`. Assumes return value of `by` is
  * comparable. Default value of `by` is the identity function. */
 export function sortBy<T>(arr: T[], by: (t: T) => any = identity): T[] {
-  const copy = [...arr]
-  copy.sort((a, b) => (by(a) < by(b) ? -1 : by(a) > by(b) ? 1 : 0))
-  return copy
+  return R.sortBy(arr, by)
 }
 
 /** Equivalent to `sortBy(...)[0]` but O(N) */
 export function lowestBy<T>(arr: T[], by: (t: T) => any = identity): T | undefined {
-  if (arr.length === 0) return undefined
-
-  let lowest = arr[0]
-  let lowestScore = by(arr[0])
-  for (let i = 1; i < arr.length; i++) {
-    const score = by(arr[i])
-    if (score < lowestScore) {
-      lowest = arr[i]
-      lowestScore = score
-    }
-  }
-  return lowest
+  return R.firstBy(arr, by)
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
 type GroupKey = string | number | symbol
 
 export function groupBy<T>(arr: T[], by: (t: T) => GroupKey) {
-  const groups: Record<GroupKey, T[]> = {}
-  for (const item of arr) {
-    const key = by(item)
-    if (!(key in groups)) {
-      groups[key] = []
-    }
-    groups[key].push(item)
-  }
-  return Object.entries(groups)
+  return Object.entries(R.groupBy(arr, by))
 }
 
 /**
@@ -55,13 +35,7 @@ export function groupBy<T>(arr: T[], by: (t: T) => GroupKey) {
  * false
  */
 export function partitionBy<T>(arr: T[], by: (t: T) => boolean): [T[], T[]] {
-  const yes: T[] = []
-  const no: T[] = []
-  for (const item of arr) {
-    const target = by(item) ? yes : no
-    target.push(item)
-  }
-  return [yes, no]
+  return R.partition(arr, by)
 }
 
 type Truthy<T> = T extends false | '' | 0 | null | undefined ? never : T
@@ -76,7 +50,7 @@ export function isTruthy<T>(value: T): value is Truthy<T> {
 }
 
 export function sumBy<T>(items: T[], fn: (item: T) => number): number {
-  return items.map(fn).reduce((a, b) => a + b, 0)
+  return R.sumBy(items, fn)
 }
 
 /**
@@ -107,6 +81,5 @@ export function intersperse(
  * Split array at first element where `by` is true. That element lands in the second array.
  */
 export function splitOnceBy<T>(array: T[], by: (t: T) => boolean) {
-  const i = array.findIndex(by)
-  return i === -1 ? [array, []] : [array.slice(0, i), array.slice(i)]
+  return R.splitWhen(array, by)
 }

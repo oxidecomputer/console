@@ -5,22 +5,12 @@
  *
  * Copyright Oxide Computer Company
  */
+import * as R from 'remeda'
 
 export const pick = <T extends Record<string, unknown>, K extends keyof T>(
   obj: T,
   ...keys: K[]
-) =>
-  Object.fromEntries(
-    Object.entries(obj).filter(([key]) => keys.includes(key as never))
-  ) as Pick<T, K>
-
-export const exclude = <T extends Record<string, unknown>, K extends keyof T>(
-  obj: T,
-  ...keys: K[]
-) =>
-  Object.fromEntries(
-    Object.entries(obj).filter(([key]) => !keys.includes(key as never))
-  ) as Exclude<T, K>
+) => R.pick(obj, keys)
 
 export function mapValues<K extends string, V0, V>(
   obj: Record<K, V0>,
