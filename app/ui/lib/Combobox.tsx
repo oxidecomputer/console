@@ -124,6 +124,15 @@ export const Combobox = ({
               anchor="bottom start"
               className="DropdownMenuContent ox-menu pointer-events-auto relative z-sideModalDropdown w-[var(--button-width)] overflow-y-auto border border-b !outline-none border-secondary [--anchor-gap:8px] last:border-0 empty:hidden"
             >
+              {filteredItems.length === 0 && (
+                <ComboboxOption
+                  disabled
+                  value="no-matches"
+                  className="relative border border-secondary"
+                >
+                  <div className="ox-menu-item text-disabled">no items match</div>
+                </ComboboxOption>
+              )}
               {filteredItems.map((item) => (
                 <ComboboxOption
                   key={item.label}

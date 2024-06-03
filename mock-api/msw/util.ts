@@ -46,7 +46,7 @@ export const paginated = <P extends PaginateOptions, I extends { id: string }>(
   params: P,
   items: I[]
 ) => {
-  const { limit = 1000, pageToken } = params || {}
+  const { limit = 100, pageToken } = params || {}
   let startIndex = pageToken ? items.findIndex((i) => i.id === pageToken) : 0
   startIndex = startIndex < 0 ? 0 : startIndex
 
