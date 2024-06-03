@@ -104,7 +104,7 @@ export const Combobox = ({
               )}
             >
               <ComboboxInput
-                aria-label="Assignee"
+                aria-label="Select a disk"
                 displayValue={() => (selected ? selected : query)}
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="Select a disk"
@@ -131,7 +131,7 @@ export const Combobox = ({
                   value="no-matches"
                   className="relative border border-secondary"
                 >
-                  <div className="ox-menu-item text-disabled">no items match</div>
+                  <div className="ox-menu-item !text-disabled">no items match</div>
                 </ComboboxOption>
               )}
               {filteredItems.map((item) => (
