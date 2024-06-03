@@ -9,7 +9,6 @@
 import { useApiQuery, type ApiError } from '@oxide/api'
 
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
-import { ListboxField } from '~/components/form/fields/ListboxField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { useForm, useProjectSelector } from '~/hooks'
 
@@ -63,13 +62,6 @@ export function AttachDiskSideModalForm({
         label="Disk name"
         name="name"
         items={detachedDisks.map(({ name }) => ({ label: name, value: name }))}
-        required
-        control={form.control}
-      />
-      <ListboxField
-        label="Disk name"
-        name="name"
-        items={detachedDisks.map(({ name }) => ({ value: name, label: name }))}
         required
         control={form.control}
       />

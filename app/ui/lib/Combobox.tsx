@@ -91,8 +91,7 @@ export const Combobox = ({
 
             <ComboboxButton
               className={cn(
-                `flex h-10 w-full grow items-center justify-between
-                                      rounded border text-sans-md`,
+                `flex h-10 w-full grow items-center justify-between rounded border text-sans-md`,
                 hasError
                   ? 'focus-error border-error-secondary hover:border-error'
                   : 'border-default hover:border-hover',
@@ -108,8 +107,9 @@ export const Combobox = ({
                 aria-label="Assignee"
                 displayValue={() => (selected ? selected : query)}
                 onChange={(event) => setQuery(event.target.value)}
+                disabled={isDisabled || isLoading}
                 className={cn(
-                  `w-full rounded !border-none px-3 py-[0.5rem] !outline-none text-sans-md text-default placeholder:text-quaternary disabled:cursor-not-allowed disabled:text-tertiary disabled:bg-disabled`,
+                  `w-full rounded !border-none px-3 py-[0.5rem] !outline-none text-sans-md text-default placeholder:text-quaternary`,
                   isDisabled
                     ? 'cursor-not-allowed text-disabled bg-disabled !border-default'
                     : 'bg-default',
