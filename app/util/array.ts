@@ -18,12 +18,6 @@ export function sortBy<T>(arr: T[], by: (t: T) => any = identity): T[] {
   return R.sortBy(arr, by)
 }
 
-/** Equivalent to `sortBy(...)[0]` but O(N) */
-export function lowestBy<T>(arr: T[], by: (t: T) => any = identity): T | undefined {
-  return R.firstBy(arr, by)
-}
-/* eslint-enable @typescript-eslint/no-explicit-any */
-
 type GroupKey = string | number | symbol
 
 export function groupBy<T>(arr: T[], by: (t: T) => GroupKey) {
@@ -36,21 +30,6 @@ export function groupBy<T>(arr: T[], by: (t: T) => GroupKey) {
  */
 export function partitionBy<T>(arr: T[], by: (t: T) => boolean): [T[], T[]] {
   return R.partition(arr, by)
-}
-
-type Truthy<T> = T extends false | '' | 0 | null | undefined ? never : T
-
-/**
- * TS-friendly version of `Boolean` for when you want to filter for truthy
- * values. Use `.filter(isTruthy)` instead of `.filter(Boolean)`. See
- * [StackOverflow](https://stackoverflow.com/a/58110124/604986).
- */
-export function isTruthy<T>(value: T): value is Truthy<T> {
-  return !!value
-}
-
-export function sumBy<T>(items: T[], fn: (item: T) => number): number {
-  return R.sumBy(items, fn)
 }
 
 /**
