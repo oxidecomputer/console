@@ -5,17 +5,19 @@
  *
  * Copyright Oxide Computer Company
  */
+import * as R from 'remeda'
+
 import {
   useApiMutation,
   useApiQueryClient,
   type InstanceNetworkInterface,
+  type InstanceNetworkInterfaceUpdate,
 } from '@oxide/api'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { useForm, useInstanceSelector } from '~/hooks'
-import { pick } from '~/util/object'
 
 type EditNetworkInterfaceFormProps = {
   editing: InstanceNetworkInterface
@@ -36,7 +38,10 @@ export function EditNetworkInterfaceForm({
     },
   })
 
-  const defaultValues = pick(editing, 'name', 'description') // satisfies NetworkInterfaceUpdate
+  const defaultValues = R.pick(editing, [
+    'name',
+    'description',
+  ]) satisfies InstanceNetworkInterfaceUpdate
 
   const form = useForm({ defaultValues })
 

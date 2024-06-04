@@ -25,14 +25,6 @@ export function groupBy<T>(arr: T[], by: (t: T) => GroupKey) {
 }
 
 /**
- * Split a list into two, one with `by(item)` true, the other with `by(item)`
- * false
- */
-export function partitionBy<T>(arr: T[], by: (t: T) => boolean): [T[], T[]] {
-  return R.partition(arr, by)
-}
-
-/**
  * If a conjunction is included, use that instead of `sep` when there are two items.
  */
 export function intersperse(

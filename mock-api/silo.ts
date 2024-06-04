@@ -5,9 +5,10 @@
  *
  * Copyright Oxide Computer Company
  */
+import * as R from 'remeda'
+
 import type { IdentityProvider, SamlIdentityProvider, Silo, SiloQuotas } from '@oxide/api'
 
-import { pick } from '~/util/object'
 import { GiB, TiB } from '~/util/units'
 
 import type { Json } from './json-type'
@@ -107,5 +108,5 @@ export const identityProviders: DbIdp[] = [
  */
 export const toIdp = ({ provider, type }: DbIdp): Json<IdentityProvider> => ({
   provider_type: type,
-  ...pick(provider, 'id', 'name', 'description', 'time_created', 'time_modified'),
+  ...R.pick(provider, ['id', 'name', 'description', 'time_created', 'time_modified']),
 })

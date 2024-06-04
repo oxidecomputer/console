@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { delay } from 'msw'
+import * as R from 'remeda'
 import { v4 as uuid } from 'uuid'
 
 import {
@@ -20,8 +21,6 @@ import {
 } from '@oxide/api'
 
 import { json, makeHandlers, type Json } from '~/api/__generated__/msw-handlers'
-import { partitionBy, sortBy } from '~/util/array'
-import { pick } from '~/util/object'
 import { validateIp } from '~/util/str'
 import { GiB } from '~/util/units'
 
@@ -487,7 +486,7 @@ export const handlers = makeHandlers({
     const newInstance: Json<Api.Instance> = {
       id: instanceId,
       project_id: project.id,
-      ...pick(body, 'name', 'description', 'hostname', 'memory', 'ncpus'),
+      ...R.pick(body, ['name', 'description', 'hostname', 'memory', 'ncpus']),
       ...getTimestamps(),
       run_state: 'creating',
       time_run_state_updated: new Date().toISOString(),
@@ -680,7 +679,7 @@ export const handlers = makeHandlers({
     const ranges = db.ipPoolRanges
       .filter((r) => r.ip_pool_id === pool.id)
       .map((r) => r.range)
-    const [ipv4Ranges, ipv6Ranges] = partitionBy(ranges, (r) => validateIp(r.first).isv4)
+    const [ipv4Ranges, ipv6Ranges] = R.partition(ranges, (r) => validateIp(r.first).isv4)
 
     // in the real backend there are also SNAT IPs, but we don't currently
     // represent those because they are not exposed through the API (except
@@ -864,7 +863,7 @@ export const handlers = makeHandlers({
 
     const role_assignments = db.roleAssignments
       .filter((r) => r.resource_type === 'project' && r.resource_id === project.id)
-      .map((r) => pick(r, 'identity_id', 'identity_type', 'role_name'))
+      .map((r) => R.pick(r, ['identity_id', 'identity_type', 'role_name']))
 
     return { role_assignments }
   },
@@ -874,7 +873,7 @@ export const handlers = makeHandlers({
     const newAssignments = body.role_assignments.map((r) => ({
       resource_type: 'project' as const,
       resource_id: project.id,
-      ...pick(r, 'identity_id', 'identity_type', 'role_name'),
+      ...R.pick(r, ['identity_id', 'identity_type', 'role_name']),
     }))
 
     const unrelatedAssignments = db.roleAssignments.filter(
@@ -1005,7 +1004,7 @@ export const handlers = makeHandlers({
     const vpc = lookup.vpc(query)
     const rules = db.vpcFirewallRules.filter((r) => r.vpc_id === vpc.id)
 
-    return { rules: sortBy(rules, (r) => r.name) }
+    return { rules: R.sortBy(rules, (r) => r.name) }
   },
   vpcFirewallRulesUpdate({ body, query }) {
     const vpc = lookup.vpc(query)
@@ -1023,7 +1022,7 @@ export const handlers = makeHandlers({
       ...rules,
     ]
 
-    return { rules: sortBy(rules, (r) => r.name) }
+    return { rules: R.sortBy(rules, (r) => r.name) }
   },
   vpcSubnetList({ query }) {
     const vpc = lookup.vpc(query)
@@ -1087,7 +1086,7 @@ export const handlers = makeHandlers({
     const siloId = defaultSilo.id
     const role_assignments = db.roleAssignments
       .filter((r) => r.resource_type === 'silo' && r.resource_id === siloId)
-      .map((r) => pick(r, 'identity_id', 'identity_type', 'role_name'))
+      .map((r) => R.pick(r, ['identity_id', 'identity_type', 'role_name']))
 
     return { role_assignments }
   },
@@ -1096,7 +1095,7 @@ export const handlers = makeHandlers({
     const newAssignments = body.role_assignments.map((r) => ({
       resource_type: 'silo' as const,
       resource_id: siloId,
-      ...pick(r, 'identity_id', 'identity_type', 'role_name'),
+      ...R.pick(r, ['identity_id', 'identity_type', 'role_name']),
     }))
 
     const unrelatedAssignments = db.roleAssignments.filter(
@@ -1161,7 +1160,7 @@ export const handlers = makeHandlers({
       db.instances.map((i) => {
         const project = lookupById(db.projects, i.project_id)
         return {
-          ...pick(i, 'id', 'name', 'time_created', 'time_modified', 'memory', 'ncpus'),
+          ...R.pick(i, ['id', 'name', 'time_created', 'time_modified', 'memory', 'ncpus']),
           state: 'running',
           active_sled_id: sled.id,
           project_name: project.name,
@@ -1231,16 +1230,15 @@ export const handlers = makeHandlers({
 
     const provider: Json<SamlIdentityProvider> = {
       id: uuid(),
-      ...pick(
-        body,
+      ...R.pick(body, [
         'name',
         'acs_url',
         'description',
         'idp_entity_id',
         'slo_url',
         'sp_client_id',
-        'technical_contact_email'
-      ),
+        'technical_contact_email',
+      ]),
       public_cert,
       ...getTimestamps(),
     }
@@ -1268,7 +1266,7 @@ export const handlers = makeHandlers({
 
     const role_assignments = db.roleAssignments
       .filter((r) => r.resource_type === 'fleet' && r.resource_id === FLEET_ID)
-      .map((r) => pick(r, 'identity_id', 'identity_type', 'role_name'))
+      .map((r) => R.pick(r, ['identity_id', 'identity_type', 'role_name']))
 
     return { role_assignments }
   },
