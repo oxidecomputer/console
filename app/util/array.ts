@@ -9,15 +9,6 @@
 import { cloneElement, type ReactElement } from 'react'
 import * as R from 'remeda'
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-const identity = (x: any) => x
-
-/** Returns a new array sorted by `by`. Assumes return value of `by` is
- * comparable. Default value of `by` is the identity function. */
-export function sortBy<T>(arr: T[], by: (t: T) => any = identity): T[] {
-  return R.sortBy(arr, by)
-}
-
 type GroupKey = string | number | symbol
 
 export function groupBy<T>(arr: T[], by: (t: T) => GroupKey) {
@@ -46,11 +37,4 @@ export function intersperse(
     }
     return [sep0, item]
   })
-}
-
-/**
- * Split array at first element where `by` is true. That element lands in the second array.
- */
-export function splitOnceBy<T>(array: T[], by: (t: T) => boolean) {
-  return R.splitWhen(array, by)
 }

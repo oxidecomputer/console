@@ -43,7 +43,7 @@ import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions, TableEmptyBox } from '~/ui/lib/Table'
 import { TipIcon } from '~/ui/lib/TipIcon'
 import { identityTypeLabel, roleColor } from '~/util/access'
-import { groupBy, sortBy } from '~/util/array'
+import { groupBy } from '~/util/array'
 import { docLinks } from '~/util/links'
 
 const EmptyState = ({ onClick }: { onClick: () => void }) => (
@@ -101,7 +101,7 @@ export function ProjectAccessPage() {
         const siloAccessRow = userAssignments.find((a) => a.roleSource === 'silo')
         const projectAccessRow = userAssignments.find((a) => a.roleSource === 'project')
 
-        const roleBadges = sortBy(
+        const roleBadges = R.sortBy(
           [siloAccessRow, projectAccessRow].filter(R.isTruthy),
           (r) => roleOrder[r.roleName] // sorts strongest role first
         )

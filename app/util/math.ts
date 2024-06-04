@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { splitOnceBy } from './array'
+import * as R from 'remeda'
 
 /**
  * Get the two parts of a number (before decimal and after-and-including
@@ -20,7 +20,7 @@ export function splitDecimal(value: number, locale?: string): [string, string] {
   const nf = Intl.NumberFormat(locale, { maximumFractionDigits: 2 })
   const parts = nf.formatToParts(value)
 
-  const [wholeParts, decimalParts] = splitOnceBy(parts, (p) => p.type === 'decimal')
+  const [wholeParts, decimalParts] = R.splitWhen(parts, (p) => p.type === 'decimal')
 
   return [
     wholeParts.map((p) => p.value).join(''),
