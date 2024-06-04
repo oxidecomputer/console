@@ -16,6 +16,8 @@ import {
 import { Combobox } from '~/ui/lib/Combobox'
 import { capitalize } from '~/util/str'
 
+import { ErrorMessage } from './ErrorMessage'
+
 type ComboboxItem = { label: string; value: string }
 
 export type ComboboxFieldProps<
@@ -46,7 +48,9 @@ export function ComboboxField<
   control,
   name,
   label = capitalize(name),
+  placeholder,
   required,
+  tooltipText,
   isLoading = false,
   isDisabled,
   onChange,
@@ -58,8 +62,10 @@ export function ComboboxField<
         items={items}
         description={description}
         label={label}
+        placeholder={placeholder}
         required={required}
         selected={field.value || null}
+        tooltipText={tooltipText}
         hasError={fieldState.error !== undefined}
         isLoading={isLoading}
         isDisabled={isDisabled}
@@ -68,6 +74,7 @@ export function ComboboxField<
           onChange?.(value)
         }}
       />
+      <ErrorMessage error={fieldState.error} label={label} />
     </div>
   )
 }

@@ -31,6 +31,8 @@ export interface ComboboxProps<Value extends string = string> {
   items: Array<{ label: string; value: string }>
   selected?: Value | null
   label?: React.ReactNode
+  placeholder?: string
+  tooltipText?: string
   required?: boolean
   hasError?: boolean
   isDisabled?: boolean
@@ -43,6 +45,8 @@ export const Combobox = ({
   items,
   selected,
   label,
+  placeholder,
+  tooltipText,
   required,
   hasError = false,
   isDisabled,
@@ -74,21 +78,14 @@ export const Combobox = ({
           <>
             {label && (
               <div className="mb-2">
-                <FieldLabel
-                  id={`label-for-${label.toLocaleString()}`}
-                  as="div"
-                  optional={!required}
-                >
+                <FieldLabel id="FieldLabel" as="div" tip={tooltipText} optional={!required}>
                   <Label>{label}</Label>
                 </FieldLabel>
                 {description && (
-                  <TextInputHint id={description.toLocaleString()}>
-                    {description}
-                  </TextInputHint>
+                  <TextInputHint id="TextInputHint">{description}</TextInputHint>
                 )}
               </div>
             )}
-
             <ComboboxButton
               className={cn(
                 `flex h-10 w-full grow items-center justify-between rounded border text-sans-md`,
@@ -107,7 +104,7 @@ export const Combobox = ({
                 aria-label="Select a disk"
                 displayValue={() => (selected ? selected : query)}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder="Select a disk"
+                placeholder={placeholder}
                 disabled={isDisabled || isLoading}
                 className={cn(
                   `w-full rounded !border-none px-3 py-[0.5rem] !outline-none text-sans-md text-default placeholder:text-quaternary`,
