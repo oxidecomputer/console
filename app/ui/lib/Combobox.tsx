@@ -56,15 +56,9 @@ export const Combobox = ({
 }: ComboboxProps) => {
   const [query, setQuery] = useState(selected || '')
 
+  const q = query.toLowerCase()
   const filteredItems =
-    query === ''
-      ? items
-      : items.filter((item) => {
-          return (
-            item.label.toLowerCase().includes(query.toLowerCase()) ||
-            item.value.toLowerCase().includes(query.toLowerCase())
-          )
-        })
+    query === '' ? items : items.filter((item) => item.label.toLowerCase().includes(q))
 
   return (
     <>
