@@ -122,22 +122,18 @@ export const Combobox = ({
             <ComboboxOptions
               anchor="bottom start"
               // 14px gap is presumably because it's measured from inside the outline or something
-              className="DropdownMenuContent ox-menu pointer-events-auto relative z-sideModalDropdown w-[var(--button-width)] overflow-y-auto border border-b !outline-none border-secondary [--anchor-gap:14px] last:border-0 empty:hidden"
+              className="DropdownMenuContent ox-menu pointer-events-auto relative z-sideModalDropdown w-[var(--button-width)] overflow-y-auto border !outline-none border-secondary [--anchor-gap:14px] empty:hidden"
             >
               {filteredItems.length === 0 && (
-                <ComboboxOption
-                  disabled
-                  value="no-matches"
-                  className="relative border border-secondary"
-                >
-                  <div className="ox-menu-item !text-disabled">no items match</div>
+                <ComboboxOption disabled value="no-matches" className="relative ">
+                  <div className="ox-menu-item !text-disabled">No items match</div>
                 </ComboboxOption>
               )}
               {filteredItems.map((item) => (
                 <ComboboxOption
                   key={item.label}
                   value={item.label}
-                  className="relative border text-tertiary border-secondary active:text-accent-secondary selected:text-accent-secondary"
+                  className="relative border-b text-tertiary border-secondary last:border-0 active:text-accent-secondary selected:text-accent-secondary"
                   onSelect={() => {
                     onChange(item.label)
                     setQuery(item.label)
