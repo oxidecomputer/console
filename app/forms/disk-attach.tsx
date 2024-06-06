@@ -34,16 +34,11 @@ export function AttachDiskSideModalForm({
   loading,
   submitError = null,
 }: AttachDiskProps) {
-  const projectSelector = useProjectSelector()
+  const { project } = useProjectSelector()
 
-  // TODO: loading state? because this fires when the modal opens and not when
-  // they focus the combobox, it will almost always be done by the time they
-  // click in
-  // TODO: error handling
+  const { data } = useApiQuery('diskList', { query: { project, limit: 1000 } })
   const detachedDisks =
-    useApiQuery('diskList', {
-      query: { ...projectSelector, limit: 1000 },
-    }).data?.items.filter(
+    data?.items.filter(
       (d) => d.state.state === 'detached' && !diskNamesToExclude.includes(d.name)
     ) || []
 

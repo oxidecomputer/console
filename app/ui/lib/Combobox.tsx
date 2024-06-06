@@ -128,7 +128,7 @@ export const Combobox = ({
             <ComboboxOption
               key={item.label}
               value={item.label}
-              className="relative border-b text-tertiary border-secondary last:border-0"
+              className="relative border-b border-secondary last:border-0"
               onSelect={() => {
                 onChange(item.label)
                 setQuery(item.label)
