@@ -15,30 +15,31 @@ import {
   Label,
 } from '@headlessui/react'
 import cn from 'classnames'
-import { useState, type ReactNode } from 'react'
+import { useState } from 'react'
 
 import { SelectArrows6Icon } from '@oxide/design-system/icons/react'
 
 import { FieldLabel } from './FieldLabel'
 import { TextInputHint } from './TextInput'
 
-export type ComboboxItem<Value extends string = string> = {
-  value: Value
-} & { label?: string | ReactNode; selectedLabel?: string }
+type ComboboxItem = { label: string; value: string }
 
-export interface ComboboxProps<Value extends string = string> {
+/** Simple non-generic props shared with ComboboxField */
+export type ComboboxBaseProps = {
   description?: React.ReactNode
-  items: Array<{ label: string; value: string }>
-  selected?: Value | null
-  label?: React.ReactNode
-  placeholder?: string
-  tooltipText?: string
-  required?: boolean
-  hasError?: boolean
   isDisabled?: boolean
   isLoading?: boolean
-  onChange: (value: Value) => void
+  items: ComboboxItem[]
+  label: string
+  placeholder?: string
+  required?: boolean
+  tooltipText?: string
 }
+export type ComboboxProps = {
+  selected: string | null
+  hasError?: boolean
+  onChange: (value: string) => void
+} & ComboboxBaseProps
 
 export const Combobox = ({
   description,
@@ -48,9 +49,9 @@ export const Combobox = ({
   placeholder,
   tooltipText,
   required,
-  hasError = false,
+  hasError,
   isDisabled,
-  isLoading = false,
+  isLoading,
   onChange,
 }: ComboboxProps) => {
   const [query, setQuery] = useState(selected || '')

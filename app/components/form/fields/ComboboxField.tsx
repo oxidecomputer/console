@@ -13,66 +13,45 @@ import {
   type FieldValues,
 } from 'react-hook-form'
 
-import { Combobox } from '~/ui/lib/Combobox'
+import { Combobox, type ComboboxBaseProps } from '~/ui/lib/Combobox'
 import { capitalize } from '~/util/str'
 
 import { ErrorMessage } from './ErrorMessage'
-
-type ComboboxItem = { label: string; value: string }
 
 export type ComboboxFieldProps<
   TFieldValues extends FieldValues,
   TName extends FieldPath<TFieldValues>,
 > = {
   name: TName
-  placeholder?: string
-  className?: string
-  label?: string
-  required?: boolean
-  description?: string | React.ReactNode
-  tooltipText?: string
   control: Control<TFieldValues>
-  disabled?: boolean
-  items: ComboboxItem[]
   onChange?: (value: string | null | undefined) => void
-  isLoading?: boolean
-  isDisabled?: boolean
-}
+} & ComboboxBaseProps
 
 export function ComboboxField<
   TFieldValues extends FieldValues,
   TName extends FieldPath<TFieldValues>,
+  // TODO: constrain TValue to extend string
 >({
-  description,
-  items,
   control,
   name,
   label = capitalize(name),
-  placeholder,
   required,
-  tooltipText,
-  isLoading = false,
-  isDisabled,
   onChange,
+  ...props
 }: ComboboxFieldProps<TFieldValues, TName>) {
   const { field, fieldState } = useController({ name, control, rules: { required } })
   return (
     <div>
       <Combobox
-        items={items}
-        description={description}
         label={label}
-        placeholder={placeholder}
         required={required}
         selected={field.value || null}
-        tooltipText={tooltipText}
         hasError={fieldState.error !== undefined}
-        isLoading={isLoading}
-        isDisabled={isDisabled}
         onChange={(value) => {
           field.onChange(value)
           onChange?.(value)
         }}
+        {...props}
       />
       <ErrorMessage error={fieldState.error} label={label} />
     </div>
