@@ -7,13 +7,13 @@
  */
 // note that isUuid checks for any kind of UUID. strictly speaking, we should
 // only be checking for v4
+import * as R from 'remeda'
 import { validate as isUuid } from 'uuid'
 
 import type { ApiTypes as Api, PathParams as PP } from '@oxide/api'
 import * as mock from '@oxide/api-mocks'
 
 import { json } from '~/api/__generated__/msw-handlers'
-import { pick } from '~/util/object'
 import { commaSeries } from '~/util/str'
 
 import type { Json } from '../json-type'
@@ -287,8 +287,8 @@ export function utilizationForSilo(silo: Json<Api.Silo>) {
   }
 
   return {
-    allocated: pick(quotas, 'cpus', 'storage', 'memory'),
-    provisioned: pick(provisioned, 'cpus', 'storage', 'memory'),
+    allocated: R.pick(quotas, ['cpus', 'storage', 'memory']),
+    provisioned: R.pick(provisioned, ['cpus', 'storage', 'memory']),
     silo_id: silo.id,
     silo_name: silo.name,
   }

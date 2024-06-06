@@ -5,13 +5,19 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useApiMutation, useApiQueryClient, type VpcSubnet } from '@oxide/api'
+import * as R from 'remeda'
+
+import {
+  useApiMutation,
+  useApiQueryClient,
+  type VpcSubnet,
+  type VpcSubnetUpdate,
+} from '@oxide/api'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { useForm, useVpcSelector } from '~/hooks'
-import { pick } from '~/util/object'
 
 type EditSubnetFormProps = {
   onDismiss: () => void
@@ -29,7 +35,7 @@ export function EditSubnetForm({ onDismiss, editing }: EditSubnetFormProps) {
     },
   })
 
-  const defaultValues = pick(editing, 'name', 'description') /* satisfies VpcSubnetUpdate */
+  const defaultValues = R.pick(editing, ['name', 'description']) satisfies VpcSubnetUpdate
 
   const form = useForm({ defaultValues })
 

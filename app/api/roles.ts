@@ -12,8 +12,7 @@
  * it belongs in the API proper.
  */
 import { useMemo } from 'react'
-
-import { lowestBy, sortBy } from '~/util/array'
+import * as R from 'remeda'
 
 import type { FleetRole, IdentityType, ProjectRole, SiloRole } from './__generated__/Api'
 import { usePrefetchedApiQuery } from './client'
@@ -27,12 +26,13 @@ export type RoleKey = FleetRole | SiloRole | ProjectRole
 /** Turn a role order record into a sorted array of strings. */
 // used for displaying lists of roles, like in a <select>
 const flatRoles = (roleOrder: Record<RoleKey, number>): RoleKey[] =>
-  sortBy(Object.keys(roleOrder) as RoleKey[], (role) => roleOrder[role])
+  R.sortBy(Object.keys(roleOrder) as RoleKey[], (role) => roleOrder[role])
 
-// This is a record only to ensure that all RoleKey are covered
+// This is a record only to ensure that all RoleKey are covered. weird order
+// on purpose so allRoles test can confirm sorting works
 export const roleOrder: Record<RoleKey, number> = {
-  admin: 0,
   collaborator: 1,
+  admin: 0,
   viewer: 2,
 }
 
@@ -41,7 +41,7 @@ export const allRoles = flatRoles(roleOrder)
 
 /** Given a list of roles, get the most permissive one */
 export const getEffectiveRole = (roles: RoleKey[]): RoleKey | undefined =>
-  lowestBy(roles, (role) => roleOrder[role])
+  R.firstBy(roles, (role) => roleOrder[role])
 
 ////////////////////////////
 // Policy helpers
