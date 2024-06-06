@@ -15,6 +15,7 @@ import {
   Label,
 } from '@headlessui/react'
 import cn from 'classnames'
+import { matchSorter } from 'match-sorter'
 import { useState } from 'react'
 
 import { SelectArrows6Icon } from '@oxide/design-system/icons/react'
@@ -35,7 +36,8 @@ export type ComboboxBaseProps = {
   required?: boolean
   tooltipText?: string
 }
-export type ComboboxProps = {
+
+type ComboboxProps = {
   selected: string | null
   hasError?: boolean
   onChange: (value: string) => void
@@ -57,14 +59,17 @@ export const Combobox = ({
   const [query, setQuery] = useState(selected || '')
 
   const q = query.toLowerCase()
-  const filteredItems =
-    query === '' ? items : items.filter((item) => item.label.toLowerCase().includes(q))
+  const filteredItems = matchSorter(items, q, {
+    keys: ['value'],
+    sorter: (items) => items, // preserve original order, don't sort by match
+  })
 
   return (
     <>
       <HCombobox
         value={selected}
-        onChange={(val) => val !== null && onChange(val)}
+        // fallback to '' allows clearing field to work
+        onChange={(val) => onChange(val || '')}
         onClose={() => setQuery('')}
         defaultValue={selected}
         disabled={isDisabled || isLoading}
