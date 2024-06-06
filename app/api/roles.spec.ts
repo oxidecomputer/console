@@ -8,6 +8,7 @@
 import { describe, expect, it, test } from 'vitest'
 
 import {
+  allRoles,
   byGroupThenName,
   deleteRole,
   getEffectiveRole,
@@ -153,4 +154,8 @@ test('byGroupThenName sorts as expected', () => {
   const e = { identityType: 'silo_user' as const, name: 'e' }
 
   expect([c, e, b, d, a].sort(byGroupThenName)).toEqual([a, b, c, d, e])
+})
+
+test('allRoles', () => {
+  expect(allRoles).toEqual(['admin', 'collaborator', 'viewer'])
 })

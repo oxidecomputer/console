@@ -7,6 +7,7 @@
  */
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useMemo, useState } from 'react'
+import * as R from 'remeda'
 
 import {
   useApiMutation,
@@ -30,7 +31,6 @@ import { Badge } from '~/ui/lib/Badge'
 import { CreateButton } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableEmptyBox } from '~/ui/lib/Table'
-import { sortBy } from '~/util/array'
 import { titleCase } from '~/util/str'
 
 const colHelper = createColumnHelper<VpcFirewallRule>()
@@ -103,7 +103,7 @@ export const VpcFirewallRulesTab = () => {
   const { data } = usePrefetchedApiQuery('vpcFirewallRulesView', {
     query: vpcSelector,
   })
-  const rules = useMemo(() => sortBy(data.rules, (r) => r.priority), [data])
+  const rules = useMemo(() => R.sortBy(data.rules, (r) => r.priority), [data])
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [editing, setEditing] = useState<VpcFirewallRule | null>(null)
