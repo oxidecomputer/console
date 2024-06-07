@@ -137,7 +137,7 @@ export function SerialConsolePage() {
       </Link>
 
       <div className="gutter relative w-full shrink grow overflow-hidden">
-        {connectionStatus === 'connecting' && <ConnectingSkeleton />}
+        {connectionStatus !== 'connecting' && <ConnectingSkeleton />}
         {connectionStatus === 'error' && <ErrorSkeleton />}
         {connectionStatus === 'closed' && !canConnect && (
           <CannotConnect instanceState={instanceData.runState} />
@@ -197,24 +197,11 @@ function SerialSkeleton({
   )
 }
 
-function InstanceLink() {
-  const { instance, project } = useInstanceSelector()
-  return (
-    <Link
-      className="text-sans-xl text-accent-secondary hover:text-accent"
-      to={pb.instance({ project, instance })}
-    >
-      {instance}
-    </Link>
-  )
-}
-
 const ConnectingSkeleton = () => (
   <SerialSkeleton connecting>
     <Spinner size="lg" />
     <div className="mt-4 text-center">
-      <p className="text-sans-xl">Connecting to</p>
-      <InstanceLink />
+      <p className="text-sans-xl">Connecting to serial console</p>
     </div>
   </SerialSkeleton>
 )
@@ -222,9 +209,7 @@ const ConnectingSkeleton = () => (
 const CannotConnect = ({ instanceState }: { instanceState: InstanceState }) => (
   <SerialSkeleton>
     <p className="flex items-center justify-center text-sans-xl">
-      <span>
-        Instance <InstanceLink /> is
-      </span>
+      <span>The instance is</span>
       <InstanceStatusBadge className="ml-1" status={instanceState} />
     </p>
     <p className="mt-2 text-center text-secondary">
