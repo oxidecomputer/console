@@ -55,11 +55,12 @@ export const Pagination = ({
           className
         )}
       >
-        <span className="flex-inline flex-grow text-tertiary">
+        <span className="flex-inline grow text-tertiary">
           rows per page <PageInput number={pageSize} />
         </span>
         <span className="flex space-x-3">
           <button
+            type="button"
             className={cn(
               hasPrev ? 'text-secondary hover:text-default' : 'text-disabled',
               'flex items-center text-mono-sm'
@@ -73,6 +74,7 @@ export const Pagination = ({
             prev
           </button>
           <button
+            type="button"
             className={cn(
               hasNext ? 'text-secondary hover:text-default' : 'text-disabled',
               'flex items-center text-mono-sm'

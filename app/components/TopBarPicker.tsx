@@ -57,10 +57,7 @@ const TopBarPicker = (props: TopBarPickerProps) => {
           <Wrap
             when={props.to}
             with={
-              <Link
-                to={props.to!}
-                className="-m-1 flex-grow rounded-lg p-1 hover:bg-hover"
-              />
+              <Link to={props.to!} className="-m-1 grow rounded-lg p-1 hover:bg-hover" />
             }
           >
             <div className="flex min-w-[120px] max-w-[185px] items-center pr-2">
@@ -91,7 +88,7 @@ const TopBarPicker = (props: TopBarPickerProps) => {
         )}
 
         {props.items && (
-          <div className="ml-2 flex-shrink-0">
+          <div className="ml-2 shrink-0">
             <DropdownMenu.Trigger
               className="group"
               aria-label={props['aria-label']}

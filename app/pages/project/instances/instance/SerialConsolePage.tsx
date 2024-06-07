@@ -128,7 +128,7 @@ export function SerialConsolePage() {
     <div className="!mx-0 flex h-full max-h-[calc(100vh-60px)] !w-full flex-col">
       <Link
         to={pb.instance(instanceSelector)}
-        className="mx-3 mb-6 mt-3 flex h-10 flex-shrink-0 items-center rounded px-3 bg-accent-secondary"
+        className="mx-3 mb-6 mt-3 flex h-10 shrink-0 items-center rounded px-3 bg-accent-secondary"
       >
         <PrevArrow12Icon className="text-accent-tertiary" />
         <div className="ml-2 text-mono-sm text-accent">
@@ -136,7 +136,7 @@ export function SerialConsolePage() {
         </div>
       </Link>
 
-      <div className="gutter relative w-full flex-shrink flex-grow overflow-hidden">
+      <div className="gutter relative w-full shrink grow overflow-hidden">
         {connectionStatus === 'connecting' && <ConnectingSkeleton />}
         {/* TODO: handle closed && canConnect */}
         {/* TODO: handle error */}
@@ -145,7 +145,7 @@ export function SerialConsolePage() {
         )}
         <Suspense fallback={null}>{ws.current && <Terminal ws={ws.current} />}</Suspense>
       </div>
-      <div className="flex-shrink-0 justify-between overflow-hidden border-t bg-default border-secondary empty:border-t-0">
+      <div className="shrink-0 justify-between overflow-hidden border-t bg-default border-secondary empty:border-t-0">
         <div className="gutter flex h-20 items-center justify-between">
           <div>
             <EquivalentCliCommand command={cliCmd.serialConsole({ project, instance })} />
@@ -168,7 +168,7 @@ function SerialSkeleton({
   connecting?: boolean
 }) {
   return (
-    <div className="relative h-full flex-shrink flex-grow overflow-hidden">
+    <div className="relative h-full shrink grow overflow-hidden">
       <div className="h-full space-y-2 overflow-hidden">
         {[...Array(200)].map((_e, i) => (
           <div

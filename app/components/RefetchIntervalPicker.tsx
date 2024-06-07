@@ -60,6 +60,7 @@ export function useIntervalPicker({ enabled, isLoading, fn }: Props) {
         </div>
         <div className="flex">
           <button
+            type="button"
             className={cn(
               'flex w-10 items-center justify-center rounded-l border-b border-l border-t border-default disabled:cursor-default',
               isLoading && 'hover:bg-hover',

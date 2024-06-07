@@ -5,9 +5,9 @@
  *
  * Copyright Oxide Computer Company
  */
+import { FitAddon } from '@xterm/addon-fit'
+import { Terminal as XTerm, type ITerminalOptions } from '@xterm/xterm'
 import { useEffect, useRef, useState } from 'react'
-import { Terminal as XTerm, type ITerminalOptions } from 'xterm'
-import { FitAddon } from 'xterm-addon-fit'
 
 import { DirectionDownIcon, DirectionUpIcon } from '@oxide/design-system/icons/react'
 

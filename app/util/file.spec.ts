@@ -9,7 +9,7 @@ import { describe, expect, test } from 'vitest'
 
 import { readBlobAsBase64 } from './file'
 
-describe('readBlobAsBase64', async () => {
+describe('readBlobAsBase64', () => {
   test('works with zeros', async () => {
     const blob = new Blob([Buffer.alloc(10)])
     const text = await readBlobAsBase64(blob)

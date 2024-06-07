@@ -7,6 +7,7 @@
  */
 import { createColumnHelper } from '@tanstack/react-table'
 import type { LoaderFunctionArgs } from 'react-router-dom'
+import * as R from 'remeda'
 
 import { apiQueryClient, type SledInstance } from '@oxide/api'
 import { Instances24Icon } from '@oxide/design-system/icons/react'
@@ -18,7 +19,6 @@ import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
-import { pick } from '~/util/object'
 
 const EmptyState = () => {
   return (
@@ -44,7 +44,7 @@ const makeActions = (): MenuAction[] => []
 
 const colHelper = createColumnHelper<SledInstance>()
 const staticCols = [
-  colHelper.accessor((i) => pick(i, 'name', 'siloName', 'projectName'), {
+  colHelper.accessor((i) => R.pick(i, ['name', 'siloName', 'projectName']), {
     header: 'name',
     cell: (info) => {
       const value = info.getValue()
@@ -60,7 +60,7 @@ const staticCols = [
     header: 'status',
     cell: (info) => <InstanceStatusBadge key="run-state" status={info.getValue()} />,
   }),
-  colHelper.accessor((i) => pick(i, 'memory', 'ncpus'), {
+  colHelper.accessor((i) => R.pick(i, ['memory', 'ncpus']), {
     header: 'specs',
     cell: (info) => <InstanceResourceCell value={info.getValue()} />,
   }),

@@ -35,7 +35,7 @@ const toListboxItem = (p: SiloIpPool) => {
   // For the default pool, add a label to the dropdown
   return {
     value: p.name,
-    labelString: p.name,
+    selectedLabel: p.name,
     label: (
       <>
         {p.name}{' '}

@@ -21,13 +21,13 @@ export function ContentPane() {
   useScrollRestoration(ref)
   return (
     <div ref={ref} className="flex flex-col overflow-auto" data-testid="scroll-container">
-      <div className="flex flex-grow flex-col pb-8">
+      <div className="flex grow flex-col pb-8">
         <SkipLinkTarget />
         <main className="[&>*]:gutter">
           <Outlet />
         </main>
       </div>
-      <div className="sticky bottom-0 flex-shrink-0 justify-between overflow-hidden border-t bg-default border-secondary empty:border-t-0">
+      <div className="sticky bottom-0 shrink-0 justify-between overflow-hidden border-t bg-default border-secondary empty:border-t-0">
         <Pagination.Target />
         <PageActionsTarget />
       </div>
@@ -43,7 +43,7 @@ export function ContentPane() {
  */
 export const SerialConsoleContentPane = () => (
   <div className="flex flex-col overflow-auto">
-    <div className="flex flex-grow flex-col">
+    <div className="flex grow flex-col">
       <SkipLinkTarget />
       <main className="[&>*]:gutter h-full">
         <Outlet />

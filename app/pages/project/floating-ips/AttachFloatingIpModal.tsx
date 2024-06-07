@@ -13,6 +13,7 @@ import { ListboxField } from '~/components/form/fields/ListboxField'
 import { addToast } from '~/stores/toast'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
+import { Slash } from '~/ui/lib/Slash'
 
 function FloatingIpLabel({ fip }: { fip: FloatingIp }) {
   return (
@@ -22,8 +23,8 @@ function FloatingIpLabel({ fip }: { fip: FloatingIp }) {
         <div>{fip.ip}</div>
         {fip.description && (
           <>
-            <span className="mx-1 text-quinary selected:text-accent-disabled">/</span>
-            <div className="flex-grow overflow-hidden overflow-ellipsis whitespace-pre text-left">
+            <Slash />
+            <div className="grow overflow-hidden overflow-ellipsis whitespace-pre text-left">
               {fip.description}
             </div>
           </>
@@ -74,7 +75,7 @@ export const AttachFloatingIpModal = ({
               items={floatingIps.map((ip) => ({
                 value: ip.id,
                 label: <FloatingIpLabel fip={ip} />,
-                labelString: ip.name,
+                selectedLabel: ip.name,
               }))}
               required
             />

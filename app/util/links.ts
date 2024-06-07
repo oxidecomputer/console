@@ -16,6 +16,8 @@ export const links: Record<string, string> = {
     'https://docs.oxide.computer/guides/configuring-guest-networking#_firewall_rules',
   floatingIpsDocs: 'https://docs.oxide.computer/guides/managing-floating-ips',
   imagesDocs: 'https://docs.oxide.computer/guides/creating-and-sharing-images',
+  preparingImagesDocs:
+    'https://docs.oxide.computer/guides/creating-and-sharing-images#_preparing_images_for_import',
   instancesDocs: 'https://docs.oxide.computer/guides/managing-instances',
   keyConceptsIamPolicyDocs:
     'https://docs.oxide.computer/guides/key-entities-and-concepts#iam-policy',

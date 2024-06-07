@@ -96,6 +96,7 @@ export const FileInput = forwardRef(
                   ({filesize(file.size, { base: 2, pad: true })})
                 </span>
                 <button
+                  type="button"
                   onClick={handleResetInput}
                   className="pointer-events-auto ml-1 inline-flex rounded p-1 hover:children:text-tertiary"
                   aria-label="Clear file"

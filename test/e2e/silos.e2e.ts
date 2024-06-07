@@ -89,7 +89,7 @@ test('Create silo', async ({ page }) => {
   await expect(page.getByRole('cell', { name: 'test-cert-2', exact: true })).toBeVisible()
 
   // now delete the first
-  await page.getByRole('button', { name: 'remove test-cert', exact: true }).click()
+  await page.getByRole('button', { name: 'remove cert test-cert', exact: true }).click()
   // Cert should not appear after it has been deleted
   await expect(certCell).toBeHidden()
 
