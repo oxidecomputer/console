@@ -162,10 +162,7 @@ export function VpcFirewallRulesTab() {
           label: 'New similar rule',
           onActivate() {
             navigate(
-              pb.vpcFirewallRulesNewFromTemplate({
-                ...vpcSelector,
-                firewallRule: rule.name,
-              })
+              pb.vpcFirewallRulesNewFromTemplate({ ...vpcSelector, rule: rule.name })
             )
           },
         },
