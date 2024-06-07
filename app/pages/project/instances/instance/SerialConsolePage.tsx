@@ -137,7 +137,7 @@ export function SerialConsolePage() {
       </Link>
 
       <div className="gutter relative w-full shrink grow overflow-hidden">
-        {connectionStatus !== 'connecting' && <ConnectingSkeleton />}
+        {connectionStatus === 'connecting' && <ConnectingSkeleton />}
         {connectionStatus === 'error' && <ErrorSkeleton />}
         {connectionStatus === 'closed' && !canConnect && (
           <CannotConnect instanceState={instanceData.runState} />
