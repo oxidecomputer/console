@@ -9,6 +9,7 @@ import { differenceInSeconds, subHours } from 'date-fns'
 // Works without the .js for dev server and prod build in MSW mode, but
 // playwright wants the .js. No idea why, let's just add the .js.
 import { IPv4, IPv6 } from 'ip-num/IPNumber.js'
+import * as R from 'remeda'
 
 import {
   FLEET_ID,
@@ -25,7 +26,6 @@ import {
 } from '@oxide/api'
 
 import { json, type Json } from '~/api/__generated__/msw-handlers'
-import { isTruthy } from '~/util/array'
 import { validateIp } from '~/util/str'
 import { GiB, TiB } from '~/util/units'
 
@@ -117,11 +117,16 @@ export const errIfExists = <T extends Record<string, unknown>>(
       Object.entries(match).every(([key, value]) => item[key] === value)
     )
   ) {
-    const name = 'name' in match ? match.name : 'id' in match ? match.id : '<resource>'
+    const name =
+      'name' in match && match.name
+        ? match.name
+        : 'id' in match && match.id
+          ? match.id
+          : '<resource>'
     throw json(
       {
         error_code: 'ObjectAlreadyExists',
-        message: `already exists: ${resourceLabel} "${name}"`,
+        message: `already exists: ${resourceLabel} "${name.toString()}"`,
       },
       { status: 400 }
     )
@@ -338,7 +343,7 @@ export function userHasRole(
   const userGroupIds = db.groupMemberships
     .filter((gm) => gm.userId === user.id)
     .map((gm) => db.userGroups.find((g) => g.id === gm.groupId))
-    .filter(isTruthy)
+    .filter(R.isTruthy)
     .map((g) => g.id)
 
   /** All actors with *at least* the specified role on the resource */

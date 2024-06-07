@@ -27,7 +27,7 @@ export type ListboxFieldProps<
   className?: string
   label?: string
   required?: boolean
-  description?: string | React.ReactNode | React.ReactNode
+  description?: string | React.ReactNode
   tooltipText?: string
   control: Control<TFieldValues>
   disabled?: boolean

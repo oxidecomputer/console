@@ -76,6 +76,7 @@ function IncrementButton(props: AriaButtonProps<'button'> & { className?: string
 
   return (
     <button
+      type="button"
       {...buttonProps}
       className={cn(
         'flex h-1/2 w-8 items-center justify-center hover:bg-hover',

@@ -22,7 +22,7 @@ const params = {
   image: 'im',
   snapshot: 'sn',
   pool: 'pl',
-  firewallRule: 'fr',
+  rule: 'fr',
   subnet: 'su',
 }
 

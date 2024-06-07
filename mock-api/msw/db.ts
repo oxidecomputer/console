@@ -7,13 +7,13 @@
  */
 // note that isUuid checks for any kind of UUID. strictly speaking, we should
 // only be checking for v4
+import * as R from 'remeda'
 import { validate as isUuid } from 'uuid'
 
 import type { ApiTypes as Api, PathParams as PP } from '@oxide/api'
 import * as mock from '@oxide/api-mocks'
 
 import { json } from '~/api/__generated__/msw-handlers'
-import { pick } from '~/util/object'
 import { commaSeries } from '~/util/str'
 
 import type { Json } from '../json-type'
@@ -35,6 +35,18 @@ export const lookupById = <T extends { id: string }>(table: T[], id: string) => 
   const item = table.find((i) => i.id === id)
   if (!item) throw notFoundErr
   return item
+}
+
+export const getIpFromPool = (poolName: string | undefined) => {
+  const pool = lookup.ipPool({ pool: poolName })
+  const ipPoolRange = db.ipPoolRanges.find((range) => range.ip_pool_id === pool.id)
+  if (!ipPoolRange) throw notFoundErr
+
+  // right now, we're just using the first address in the range, but we'll
+  // want to filter the list of available IPs for the first unused address
+  // also: think through how calling code might want to handle various issues
+  // and what appropriate error codes would be: no ranges? pool is exhausted? etc.
+  return ipPoolRange.range.first
 }
 
 export const lookup = {
@@ -275,8 +287,8 @@ export function utilizationForSilo(silo: Json<Api.Silo>) {
   }
 
   return {
-    allocated: pick(quotas, 'cpus', 'storage', 'memory'),
-    provisioned: pick(provisioned, 'cpus', 'storage', 'memory'),
+    allocated: R.pick(quotas, ['cpus', 'storage', 'memory']),
+    provisioned: R.pick(provisioned, ['cpus', 'storage', 'memory']),
     silo_id: silo.id,
     silo_name: silo.name,
   }

@@ -6,9 +6,13 @@ module.exports = {
   parser: '@typescript-eslint/parser',
   parserOptions: {
     warnOnUnsupportedTypeScriptVersion: false,
+    // this config is needed for type aware lint rules
+    project: true,
+    tsconfigRootDir: __dirname,
   },
   extends: [
     'eslint:recommended',
+    'plugin:@typescript-eslint/recommended-type-checked',
     'plugin:@typescript-eslint/strict',
     'plugin:@typescript-eslint/stylistic',
     'plugin:jsx-a11y/recommended',
@@ -45,6 +49,18 @@ module.exports = {
       'error',
       { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
     ],
+
+    // disabling the type-aware rules we don't like
+    // https://typescript-eslint.io/getting-started/typed-linting/
+    '@typescript-eslint/no-floating-promises': 'off',
+    '@typescript-eslint/no-misused-promises': 'off',
+    '@typescript-eslint/unbound-method': 'off',
+    '@typescript-eslint/no-unsafe-argument': 'off',
+    '@typescript-eslint/no-unsafe-assignment': 'off',
+    '@typescript-eslint/no-unsafe-call': 'off',
+    '@typescript-eslint/no-unsafe-member-access': 'off',
+    '@typescript-eslint/no-unsafe-return': 'off',
+
     eqeqeq: ['error', 'always', { null: 'ignore' }],
     'import/no-default-export': 'error',
     'import/no-unresolved': 'off', // plugin doesn't know anything
@@ -70,6 +86,7 @@ module.exports = {
     radix: 'error',
     'react-hooks/exhaustive-deps': 'error',
     'react-hooks/rules-of-hooks': 'error',
+    'react/button-has-type': 'error',
     'react/jsx-boolean-value': 'error',
     'react/display-name': 'off',
     'react/react-in-jsx-scope': 'off',

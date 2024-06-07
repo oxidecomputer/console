@@ -22,8 +22,7 @@ import { VpcDocsPopover } from '../VpcsPage'
 
 VpcPage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project, vpc } = getVpcSelector(params)
-  apiQueryClient.prefetchQuery('vpcView', { path: { vpc }, query: { project } })
-
+  await apiQueryClient.prefetchQuery('vpcView', { path: { vpc }, query: { project } })
   return null
 }
 

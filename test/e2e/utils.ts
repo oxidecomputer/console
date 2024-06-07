@@ -13,7 +13,10 @@ import { MSW_USER_COOKIE } from '../../mock-api/msw/util'
 
 export * from '@playwright/test'
 
-export async function forEach(loc: Locator, fn: (loc0: Locator, i: number) => void) {
+export async function forEach(
+  loc: Locator,
+  fn: (loc0: Locator, i: number) => Promise<void>
+) {
   const count = await loc.count()
   for (let i = 0; i < count; i++) {
     await fn(loc.nth(i), i)

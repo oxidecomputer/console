@@ -282,6 +282,7 @@ export const routes = createRoutesFromElements(
           <Route path=":instance" handle={{ crumb: instanceCrumb }}>
             <Route
               path="serial-console"
+              loader={SerialConsolePage.loader}
               element={<SerialConsolePage />}
               handle={{ crumb: 'Serial Console' }}
             />
@@ -357,7 +358,11 @@ export const routes = createRoutesFromElements(
                 loader={VpcFirewallRulesTab.loader}
               />
               <Route element={<VpcFirewallRulesTab />} loader={VpcFirewallRulesTab.loader}>
-                <Route path="firewall-rules" handle={{ crumb: 'Firewall Rules' }} />
+                <Route
+                  path="firewall-rules"
+                  handle={{ crumb: 'Firewall Rules' }}
+                  element={null}
+                />
                 <Route
                   path="firewall-rules-new/:firewallRule?"
                   element={<CreateFirewallRuleForm />}
@@ -365,7 +370,7 @@ export const routes = createRoutesFromElements(
                   handle={{ crumb: 'New Firewall Rule' }}
                 />
                 <Route
-                  path="firewall-rules/:firewallRule/edit"
+                  path="firewall-rules/:rule/edit"
                   element={<EditFirewallRuleForm />}
                   loader={EditFirewallRuleForm.loader}
                   handle={{ crumb: 'Edit Firewall Rule' }}

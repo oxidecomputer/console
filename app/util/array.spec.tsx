@@ -8,38 +8,7 @@
 import { type ReactElement } from 'react'
 import { expect, test } from 'vitest'
 
-import { groupBy, intersperse, lowestBy, sortBy, splitOnceBy, sumBy } from './array'
-
-test('sortBy', () => {
-  expect(sortBy(['d', 'b', 'c', 'a'])).toEqual(['a', 'b', 'c', 'd'])
-
-  expect(sortBy([{ x: 'd' }, { x: 'b' }, { x: 'c' }, { x: 'a' }], (o) => o.x)).toEqual([
-    { x: 'a' },
-    { x: 'b' },
-    { x: 'c' },
-    { x: 'd' },
-  ])
-
-  expect(
-    sortBy(
-      [{ x: [0, 0, 0, 0] }, { x: [0, 0, 0] }, { x: [0] }, { x: [0, 0] }],
-      (o) => o.x.length
-    )
-  ).toEqual([{ x: [0] }, { x: [0, 0] }, { x: [0, 0, 0] }, { x: [0, 0, 0, 0] }])
-})
-
-test('lowestBy', () => {
-  expect(lowestBy([{ x: 'd' }, { x: 'b' }, { x: 'c' }, { x: 'a' }], (o) => o.x)).toEqual({
-    x: 'a',
-  })
-
-  expect(
-    lowestBy(
-      [{ x: [0, 0, 0, 0] }, { x: [0, 0, 0] }, { x: [0] }, { x: [0, 0] }],
-      (o) => o.x.length
-    )
-  ).toEqual({ x: [0] })
-})
+import { groupBy, intersperse } from './array'
 
 test('groupBy', () => {
   expect(
@@ -61,11 +30,6 @@ test('groupBy', () => {
     ],
     ['b', [{ x: 'b', y: 2 }]],
   ])
-})
-
-test('sumBy', () => {
-  expect(sumBy([], (x) => x)).toEqual(0)
-  expect(sumBy([{ a: 1 }, { a: 2 }], (x) => x.a)).toEqual(3)
 })
 
 test('intersperse', () => {
@@ -96,11 +60,4 @@ test('intersperse', () => {
   result = intersperse([a, b, c], comma, or)
   expect(result.map(getText)).toEqual(['a', ',', 'b', ',', 'or', 'c'])
   expect(result.map(getKey)).toEqual(['a', 'sep-1', 'b', 'sep-2', 'conj', 'c'])
-})
-
-test('splitOnceBy', () => {
-  expect(splitOnceBy([], () => false)).toEqual([[], []])
-  expect(splitOnceBy([1, 2, 3], () => false)).toEqual([[1, 2, 3], []])
-  expect(splitOnceBy([1, 2, 3], () => true)).toEqual([[], [1, 2, 3]])
-  expect(splitOnceBy([1, 2, 3], (x) => x % 2 === 0)).toEqual([[1], [2, 3]])
 })

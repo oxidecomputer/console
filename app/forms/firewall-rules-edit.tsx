@@ -16,12 +16,7 @@ import {
 } from '@oxide/api'
 
 import { SideModalForm } from '~/components/form/SideModalForm'
-import {
-  getVpcSelector,
-  useForm,
-  useVpcFirewallRuleSelector,
-  useVpcSelector,
-} from '~/hooks'
+import { getVpcSelector, useFirewallRuleSelector, useForm, useVpcSelector } from '~/hooks'
 import { invariant } from '~/util/invariant'
 import { pb } from '~/util/path-builder'
 
@@ -42,18 +37,15 @@ EditFirewallRuleForm.loader = async ({ params }: LoaderFunctionArgs) => {
 }
 
 export function EditFirewallRuleForm() {
-  const vpcFirewallRuleSelector = useVpcFirewallRuleSelector()
+  const { vpc, project, rule } = useFirewallRuleSelector()
   const vpcSelector = useVpcSelector()
   const queryClient = useApiQueryClient()
 
   const { data } = usePrefetchedApiQuery('vpcFirewallRulesView', {
-    query: { project: vpcFirewallRuleSelector.project, vpc: vpcFirewallRuleSelector.vpc },
+    query: { project, vpc },
   })
 
-  const existingRules = data.rules
-  const originalRule = existingRules.find(
-    (rule) => rule.name === vpcFirewallRuleSelector.firewallRule
-  )
+  const originalRule = data.rules.find((r) => r.name === rule)
 
   invariant(originalRule, 'Firewall rule must exist')
 
@@ -97,7 +89,7 @@ export function EditFirewallRuleForm() {
       onSubmit={(values) => {
         // note different filter logic from create: filter out the rule with the
         // *original* name because we need to overwrite that rule
-        const otherRules = existingRules
+        const otherRules = data.rules
           .filter((r) => r.name !== originalRule.name)
           .map(firewallRuleGetToPut)
 
