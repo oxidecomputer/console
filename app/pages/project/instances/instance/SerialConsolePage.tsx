@@ -138,11 +138,12 @@ export function SerialConsolePage() {
 
       <div className="gutter relative w-full shrink grow overflow-hidden">
         {connectionStatus === 'connecting' && <ConnectingSkeleton />}
-        {/* TODO: handle closed && canConnect */}
-        {/* TODO: handle error */}
+        {connectionStatus === 'error' && <ErrorSkeleton />}
         {connectionStatus === 'closed' && !canConnect && (
           <CannotConnect instanceState={instanceData.runState} />
         )}
+        {/* closed && canConnect shouldn't be possible because there's no way to
+         * close an open connection other than leaving the page */}
         <Suspense fallback={null}>{ws.current && <Terminal ws={ws.current} />}</Suspense>
       </div>
       <div className="shrink-0 justify-between overflow-hidden border-t bg-default border-secondary empty:border-t-0">
@@ -229,5 +230,16 @@ const CannotConnect = ({ instanceState }: { instanceState: InstanceState }) => (
     <p className="mt-2 text-center text-secondary">
       You can only connect to the serial console on a running instance.
     </p>
+  </SerialSkeleton>
+)
+
+// TODO: sure would be nice to say something useful about the error, but
+// we don't know what kind of thing we might pull off the error event
+const ErrorSkeleton = () => (
+  <SerialSkeleton>
+    <p className="flex items-center justify-center text-center text-sans-xl">
+      Serial console connection failed
+    </p>
+    <p className="mt-2 text-center text-secondary">Please try again.</p>
   </SerialSkeleton>
 )

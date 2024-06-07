@@ -106,11 +106,11 @@ export default function Terminal({ ws }: TerminalProps) {
     <>
       <div className="h-full w-[calc(100%-3rem)] text-mono-code" ref={terminalRef} />
       <div className="absolute right-0 top-0 space-y-2 text-secondary">
-        <ScrollButton onClick={() => term?.scrollToTop()}>
-          <DirectionUpIcon />
+        <ScrollButton onClick={() => term?.scrollToTop()} aria-label="Scroll to top">
+          <DirectionUpIcon aria-hidden />
         </ScrollButton>
-        <ScrollButton onClick={() => term?.scrollToBottom()}>
-          <DirectionDownIcon />
+        <ScrollButton onClick={() => term?.scrollToBottom()} aria-label="Scroll to bottom">
+          <DirectionDownIcon aria-hidden />
         </ScrollButton>
       </div>
     </>
