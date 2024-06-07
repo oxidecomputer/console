@@ -276,6 +276,7 @@ export const routes = createRoutesFromElements(
           <Route path=":instance" handle={{ crumb: instanceCrumb }}>
             <Route
               path="serial-console"
+              loader={SerialConsolePage.loader}
               element={<SerialConsolePage />}
               handle={{ crumb: 'Serial Console' }}
             />
