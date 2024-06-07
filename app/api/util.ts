@@ -5,9 +5,9 @@
  *
  * Copyright Oxide Computer Company
  */
-/// Helpers for working with API objects
-import { sumBy } from '~/util/array'
-import { mapValues, pick } from '~/util/object'
+
+import * as R from 'remeda'
+
 import { bytesToGiB } from '~/util/units'
 
 import type {
@@ -60,8 +60,7 @@ export function parsePortRange(portRange: string): PortRange | null {
 export const firewallRuleGetToPut = (
   rule: VpcFirewallRule
 ): NoExtraKeys<VpcFirewallRuleUpdate, VpcFirewallRule> =>
-  pick(
-    rule,
+  R.pick(rule, [
     'name',
     'action',
     'description',
@@ -69,8 +68,8 @@ export const firewallRuleGetToPut = (
     'filters',
     'priority',
     'status',
-    'targets'
-  )
+    'targets',
+  ])
 
 /**
  * Generates a valid name given a list of strings. Must be given at least
@@ -90,45 +89,46 @@ export const genName = (...parts: [string, ...string[]]) => {
   )
 }
 
-export const instanceCan = mapValues(
-  {
-    start: ['stopped'],
-    reboot: ['running'],
-    stop: ['running', 'starting'],
-    delete: ['stopped', 'failed'],
-    // https://github.com/oxidecomputer/omicron/blob/9eff6a4/nexus/db-queries/src/db/datastore/disk.rs#L310-L314
-    detachDisk: ['creating', 'stopped', 'failed'],
-    // https://github.com/oxidecomputer/omicron/blob/a7c7a67/nexus/db-queries/src/db/datastore/disk.rs#L183-L184
-    attachDisk: ['creating', 'stopped'],
-    // https://github.com/oxidecomputer/omicron/blob/8f0cbf0/nexus/db-queries/src/db/datastore/network_interface.rs#L482
-    updateNic: ['stopped'],
-  },
-  // cute way to make it ergonomic to call the test while also making the states
-  // available directly
-  (states: InstanceState[]) => {
-    const test = (i: Instance) => states.includes(i.runState)
-    test.states = states
-    return test
-  }
-)
+const instanceActions: Record<string, InstanceState[]> = {
+  start: ['stopped'],
+  reboot: ['running'],
+  stop: ['running', 'starting'],
+  delete: ['stopped', 'failed'],
+  // https://github.com/oxidecomputer/omicron/blob/9eff6a4/nexus/db-queries/src/db/datastore/disk.rs#L310-L314
+  detachDisk: ['creating', 'stopped', 'failed'],
+  // https://github.com/oxidecomputer/omicron/blob/a7c7a67/nexus/db-queries/src/db/datastore/disk.rs#L183-L184
+  attachDisk: ['creating', 'stopped'],
+  // https://github.com/oxidecomputer/omicron/blob/8f0cbf0/nexus/db-queries/src/db/datastore/network_interface.rs#L482
+  updateNic: ['stopped'],
+  // https://github.com/oxidecomputer/omicron/blob/ebcc2acd/nexus/src/app/instance.rs#L1648-L1676
+  serialConsole: ['running', 'rebooting', 'migrating', 'repairing'],
+}
 
-export const diskCan = mapValues(
-  {
-    // https://github.com/oxidecomputer/omicron/blob/4970c71e/nexus/db-queries/src/db/datastore/disk.rs#L578-L582.
-    delete: ['detached', 'creating', 'faulted'],
-    // TODO: link to API source
-    snapshot: ['attached', 'detached'],
-    // https://github.com/oxidecomputer/omicron/blob/4970c71e/nexus/db-queries/src/db/datastore/disk.rs#L169-L172
-    attach: ['creating', 'detached'],
-  },
-  (states: DiskState['state'][]) => {
-    // only have to Pick because we want this to work for both Disk and
-    // Json<Disk>, which we pass to it in the MSW handlers
-    const test = (d: Pick<Disk, 'state'>) => states.includes(d.state.state)
-    test.states = states
-    return test
-  }
-)
+// setting .states is a cute way to make it ergonomic to call the test function
+// while also making the states available directly
+
+export const instanceCan = R.mapValues(instanceActions, (states) => {
+  const test = (i: Instance) => states.includes(i.runState)
+  test.states = states
+  return test
+})
+
+const diskActions: Record<string, DiskState['state'][]> = {
+  // https://github.com/oxidecomputer/omicron/blob/4970c71e/nexus/db-queries/src/db/datastore/disk.rs#L578-L582.
+  delete: ['detached', 'creating', 'faulted'],
+  // TODO: link to API source
+  snapshot: ['attached', 'detached'],
+  // https://github.com/oxidecomputer/omicron/blob/4970c71e/nexus/db-queries/src/db/datastore/disk.rs#L169-L172
+  attach: ['creating', 'detached'],
+}
+
+export const diskCan = R.mapValues(diskActions, (states) => {
+  // only have to Pick because we want this to work for both Disk and
+  // Json<Disk>, which we pass to it in the MSW handlers
+  const test = (d: Pick<Disk, 'state'>) => states.includes(d.state.state)
+  test.states = states
+  return test
+})
 
 /** Hard coded in the API, so we can hard code it here. */
 export const FLEET_ID = '001de000-1334-4000-8000-000000000000'
@@ -141,8 +141,8 @@ export function totalCapacity(
 ) {
   return {
     disk_tib: Math.ceil(FUDGE * sleds.length * 32 * TBtoTiB), // TODO: make more real
-    ram_gib: Math.ceil(bytesToGiB(FUDGE * sumBy(sleds, (s) => s.usablePhysicalRam))),
-    cpu: Math.ceil(FUDGE * sumBy(sleds, (s) => s.usableHardwareThreads)),
+    ram_gib: Math.ceil(bytesToGiB(FUDGE * R.sumBy(sleds, (s) => s.usablePhysicalRam))),
+    cpu: Math.ceil(FUDGE * R.sumBy(sleds, (s) => s.usableHardwareThreads)),
   }
 }
 

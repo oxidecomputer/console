@@ -11,6 +11,7 @@ import type { Image } from '@oxide/api'
 
 import type { InstanceCreateInput } from '~/forms/instance-create'
 import type { ListboxItem } from '~/ui/lib/Listbox'
+import { Slash } from '~/ui/lib/Slash'
 import { nearest10 } from '~/util/math'
 import { bytesToGiB, GiB } from '~/util/units'
 
@@ -49,10 +50,6 @@ export function BootDiskImageSelectField({
     />
   )
 }
-
-const Slash = () => (
-  <span className="mx-1 text-quinary selected:text-accent-disabled">/</span>
-)
 
 export function toListboxItem(i: Image, includeProjectSiloIndicator = false): ListboxItem {
   const { name, os, projectId, size, version } = i

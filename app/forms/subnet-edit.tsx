@@ -6,12 +6,14 @@
  * Copyright Oxide Computer Company
  */
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
+import * as R from 'remeda'
 
 import {
   apiQueryClient,
   useApiMutation,
   useApiQueryClient,
   usePrefetchedApiQuery,
+  type VpcSubnetUpdate,
 } from '@oxide/api'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
@@ -23,7 +25,6 @@ import {
   useVpcSelector,
   useVpcSubnetSelector,
 } from '~/hooks'
-import { pick } from '~/util/object'
 import { pb } from '~/util/path-builder'
 
 EditSubnetForm.loader = async ({ params }: LoaderFunctionArgs) => {
@@ -57,7 +58,7 @@ export function EditSubnetForm() {
     },
   })
 
-  const defaultValues = pick(subnet, 'name', 'description') /* satisfies VpcSubnetUpdate */
+  const defaultValues = R.pick(subnet, ['name', 'description']) satisfies VpcSubnetUpdate
 
   const form = useForm({ defaultValues })
 

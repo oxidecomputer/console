@@ -37,7 +37,7 @@ import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions, TableEmptyBox } from '~/ui/lib/Table'
 import { identityTypeLabel, roleColor } from '~/util/access'
-import { groupBy, isTruthy } from '~/util/array'
+import { groupBy } from '~/util/array'
 import { docLinks } from '~/util/links'
 
 const EmptyState = ({ onClick }: { onClick: () => void }) => (
@@ -84,7 +84,7 @@ export function SiloAccessPage() {
       .map(([userId, userAssignments]) => {
         const siloRole = userAssignments.find((a) => a.roleSource === 'silo')?.roleName
 
-        const roles = [siloRole].filter(isTruthy)
+        const roles = siloRole ? [siloRole] : []
 
         const { name, identityType } = userAssignments[0]
 
@@ -139,7 +139,7 @@ export function SiloAccessPage() {
             doDelete: () =>
               updatePolicy.mutateAsync({
                 // we know policy is there, otherwise there's no row to display
-                body: deleteRole(row.id, siloPolicy!),
+                body: deleteRole(row.id, siloPolicy),
               }),
             label: (
               <span>

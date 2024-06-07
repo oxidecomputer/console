@@ -5,9 +5,9 @@
  *
  * Copyright Oxide Computer Company
  */
+import { FitAddon } from '@xterm/addon-fit'
+import { Terminal as XTerm, type ITerminalOptions } from '@xterm/xterm'
 import { useEffect, useRef, useState } from 'react'
-import { Terminal as XTerm, type ITerminalOptions } from 'xterm'
-import { FitAddon } from 'xterm-addon-fit'
 
 import { DirectionDownIcon, DirectionUpIcon } from '@oxide/design-system/icons/react'
 
@@ -106,11 +106,11 @@ export default function Terminal({ ws }: TerminalProps) {
     <>
       <div className="h-full w-[calc(100%-3rem)] text-mono-code" ref={terminalRef} />
       <div className="absolute right-0 top-0 space-y-2 text-secondary">
-        <ScrollButton onClick={() => term?.scrollToTop()}>
-          <DirectionUpIcon />
+        <ScrollButton onClick={() => term?.scrollToTop()} aria-label="Scroll to top">
+          <DirectionUpIcon aria-hidden />
         </ScrollButton>
-        <ScrollButton onClick={() => term?.scrollToBottom()}>
-          <DirectionDownIcon />
+        <ScrollButton onClick={() => term?.scrollToBottom()} aria-label="Scroll to bottom">
+          <DirectionDownIcon aria-hidden />
         </ScrollButton>
       </div>
     </>

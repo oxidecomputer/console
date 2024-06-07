@@ -8,6 +8,7 @@
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useMemo } from 'react'
 import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
+import * as R from 'remeda'
 
 import {
   apiQueryClient,
@@ -30,7 +31,6 @@ import { Badge } from '~/ui/lib/Badge'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableEmptyBox } from '~/ui/lib/Table'
-import { sortBy } from '~/util/array'
 import { pb } from '~/util/path-builder'
 import { titleCase } from '~/util/str'
 
@@ -73,7 +73,9 @@ const staticColumns = [
     cell: (info) => {
       const { hosts, ports, protocols } = info.getValue()
       const children = [
-        ...(hosts || []).map((tv, i) => <TypeValueCell key={`${tv}-${i}`} {...tv} />),
+        ...(hosts || []).map((tv, i) => (
+          <TypeValueCell key={`host-${tv.type}-${tv.value}-${i}`} {...tv} />
+        )),
         ...(protocols || []).map((p, i) => <Badge key={`${p}-${i}`}>{p}</Badge>),
         ...(ports || []).map((p, i) => (
           <TypeValueCell key={`port-${p}-${i}`} type="Port" value={p} />
@@ -117,7 +119,7 @@ export function VpcFirewallRulesTab() {
   const { data } = usePrefetchedApiQuery('vpcFirewallRulesView', {
     query: vpcSelector,
   })
-  const rules = useMemo(() => sortBy(data.rules, (r) => r.priority), [data])
+  const rules = useMemo(() => R.sortBy(data.rules, (r) => r.priority), [data])
 
   const navigate = useNavigate()
 

@@ -70,16 +70,10 @@ export const useMakeInstanceActions = (
           onActivate() {
             confirmAction({
               actionType: 'danger',
-              doAction: async () =>
-                stopInstance.mutate(instanceParams, {
+              doAction: () =>
+                stopInstance.mutateAsync(instanceParams, {
                   onSuccess: () =>
                     addToast({ title: `Stopping instance '${instance.name}'` }),
-                  onError: (error) =>
-                    addToast({
-                      variant: 'error',
-                      title: `Error stopping instance '${instance.name}'`,
-                      content: error.message,
-                    }),
                 }),
               modalTitle: 'Confirm stop instance',
               modalContent: (
@@ -89,7 +83,7 @@ export const useMakeInstanceActions = (
                   freed.
                 </p>
               ),
-              errorTitle: `Could not stop ${instance.name}`,
+              errorTitle: `Error stopping ${instance.name}`,
             })
           },
           disabled: !instanceCan.stop(instance) && (
