@@ -12,7 +12,7 @@ import { expectObscured, stopInstance } from './utils'
 test('Dropdown content can scroll off page and doesn’t hide TopBar', async ({ page }) => {
   // load the page
   await page.goto('/utilization')
-  await expect(page.getByText('Capacity & Utilization')).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Utilization' })).toBeVisible()
 
   const button = page.getByRole('button', { name: 'All projects' })
 

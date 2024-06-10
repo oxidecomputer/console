@@ -90,9 +90,7 @@ test.describe('System utilization', () => {
 test.describe('Silo utilization', () => {
   test('works for fleet viewer', async ({ page }) => {
     await page.goto('/utilization')
-    await expect(
-      page.getByRole('heading', { name: 'Capacity & Utilization' })
-    ).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Utilization' })).toBeVisible()
     // Capacity bars are showing up
     await expect(page.getByText('Provisioned234 GiB')).toBeVisible()
   })
@@ -100,9 +98,7 @@ test.describe('Silo utilization', () => {
   test('works for dev user', async ({ browser }) => {
     const page = await getPageAsUser(browser, 'Hans Jonas')
     await page.goto('/utilization')
-    await expect(
-      page.getByRole('heading', { name: 'Capacity & Utilization' })
-    ).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Utilization' })).toBeVisible()
     // Capacity bars are showing up
     await expect(page.getByText('Provisioned234 GiB')).toBeVisible()
   })
