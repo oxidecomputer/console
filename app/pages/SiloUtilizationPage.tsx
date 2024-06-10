@@ -73,7 +73,7 @@ export function SiloUtilizationPage() {
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<Metrics24Icon />}>Capacity &amp; Utilization</PageTitle>
+        <PageTitle icon={<Metrics24Icon />}>Utilization</PageTitle>
         <DocsPopover
           heading="utilization"
           icon={<Metrics16Icon />}
