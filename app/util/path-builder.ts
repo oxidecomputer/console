@@ -41,6 +41,7 @@ export const pb = {
 
   instances: (params: Project) => `${projectBase(params)}/instances`,
   instancesNew: (params: Project) => `${projectBase(params)}/instances-new`,
+  /** Don't link directly to this. Use instancePage instead. */
   instance: (params: Instance) => `${pb.instances(params)}/${params.instance}`,
 
   /**
