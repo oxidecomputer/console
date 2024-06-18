@@ -8,7 +8,6 @@
 
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
-import { useController } from 'react-hook-form'
 import { Outlet, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
@@ -352,8 +351,6 @@ function LinkSiloModal({ onDismiss }: { onDismiss: () => void }) {
     [allSilos, linkedSiloIds]
   )
 
-  const siloField = useController({ control, name: 'silo' }).field
-
   return (
     <Modal isOpen onDismiss={onDismiss} title="Link silo">
       <Modal.Body>
@@ -379,7 +376,6 @@ function LinkSiloModal({ onDismiss }: { onDismiss: () => void }) {
               isLoading={linkedSilos.isPending || allSilos.isPending}
               required
               control={control}
-              onChange={(value) => siloField.onChange(value)}
             />
           </form>
         </Modal.Section>

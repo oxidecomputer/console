@@ -8,7 +8,6 @@
 
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
-import { useController } from 'react-hook-form'
 
 import { useApiMutation, useApiQuery, useApiQueryClient, type SiloIpPool } from '@oxide/api'
 import { Networking24Icon } from '@oxide/design-system/icons/react'
@@ -219,8 +218,6 @@ function LinkPoolModal({ onDismiss }: { onDismiss: () => void }) {
     [allPools, linkedPoolIds]
   )
 
-  const poolField = useController({ control, name: 'pool' }).field
-
   return (
     <Modal isOpen onDismiss={onDismiss} title="Link pool">
       <Modal.Body>
@@ -246,7 +243,6 @@ function LinkPoolModal({ onDismiss }: { onDismiss: () => void }) {
               isLoading={linkedPools.isPending || allPools.isPending}
               required
               control={control}
-              onChange={(value) => poolField.onChange(value)}
             />
           </form>
         </Modal.Section>
