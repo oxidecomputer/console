@@ -38,6 +38,7 @@ import {
 import { AccordionItem } from '~/components/AccordionItem'
 import { DocsPopover } from '~/components/DocsPopover'
 import { CheckboxField } from '~/components/form/fields/CheckboxField'
+import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { DiskSizeField } from '~/components/form/fields/DiskSizeField'
 import {
@@ -46,7 +47,6 @@ import {
 } from '~/components/form/fields/DisksTableField'
 import { FileField } from '~/components/form/fields/FileField'
 import { BootDiskImageSelectField as ImageSelectField } from '~/components/form/fields/ImageSelectField'
-import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
 import { NetworkInterfaceField } from '~/components/form/fields/NetworkInterfaceField'
 import { NumberField } from '~/components/form/fields/NumberField'
@@ -551,14 +551,20 @@ export function CreateInstanceForm() {
                 />
               </div>
             ) : (
-              <ListboxField
-                label="Disk"
-                name="diskSource"
-                description="Existing disks that are not attached to an instance"
-                items={disks}
-                required
-                control={control}
-              />
+              <div className="max-w-lg">
+                <ComboboxField
+                  label="Disk"
+                  name="diskSource"
+                  description="Existing disks that are not attached to an instance"
+                  items={disks}
+                  required
+                  control={control}
+                  onChange={(value) => {
+                    value && setValue('diskSource', value)
+                  }}
+                  placeholder="Select a disk"
+                />
+              </div>
             )}
           </Tabs.Content>
         </Tabs.Root>
