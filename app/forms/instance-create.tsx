@@ -551,20 +551,18 @@ export function CreateInstanceForm() {
                 />
               </div>
             ) : (
-              <div className="max-w-lg">
-                <ComboboxField
-                  label="Disk"
-                  name="diskSource"
-                  description="Existing disks that are not attached to an instance"
-                  items={disks}
-                  required
-                  control={control}
-                  onChange={(value) => {
-                    value && setValue('diskSource', value)
-                  }}
-                  placeholder="Select a disk"
-                />
-              </div>
+              <ComboboxField
+                label="Disk"
+                name="diskSource"
+                description="Existing disks that are not attached to an instance"
+                items={disks}
+                required
+                control={control}
+                onChange={(value) => {
+                  value && setValue('diskSource', value)
+                }}
+                placeholder="Select a disk"
+              />
             )}
           </Tabs.Content>
         </Tabs.Root>

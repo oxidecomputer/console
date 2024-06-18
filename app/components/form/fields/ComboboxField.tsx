@@ -41,7 +41,7 @@ export function ComboboxField<
 }: ComboboxFieldProps<TFieldValues, TName>) {
   const { field, fieldState } = useController({ name, control, rules: { required } })
   return (
-    <div>
+    <div className="max-w-lg">
       <Combobox
         label={label}
         required={required}
