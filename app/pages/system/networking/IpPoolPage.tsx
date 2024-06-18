@@ -8,6 +8,7 @@
 
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
+import { useController } from 'react-hook-form'
 import { Outlet, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
@@ -24,7 +25,7 @@ import { IpGlobal16Icon, IpGlobal24Icon } from '@oxide/design-system/icons/react
 
 import { CapacityBar } from '~/components/CapacityBar'
 import { DocsPopover } from '~/components/DocsPopover'
-import { ListboxField } from '~/components/form/fields/ListboxField'
+import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { HL } from '~/components/HL'
 import { QueryParamTabs } from '~/components/QueryParamTabs'
 import { getIpPoolSelector, useForm, useIpPoolSelector } from '~/hooks'
@@ -351,6 +352,8 @@ function LinkSiloModal({ onDismiss }: { onDismiss: () => void }) {
     [allSilos, linkedSiloIds]
   )
 
+  const siloField = useController({ control, name: 'silo' }).field
+
   return (
     <Modal isOpen onDismiss={onDismiss} title="Link silo">
       <Modal.Body>
@@ -368,7 +371,7 @@ function LinkSiloModal({ onDismiss }: { onDismiss: () => void }) {
               content="Users in the selected silo will be able to allocate IPs from this pool."
             />
 
-            <ListboxField
+            <ComboboxField
               placeholder="Select silo"
               name="silo"
               label="Silo"
@@ -376,6 +379,7 @@ function LinkSiloModal({ onDismiss }: { onDismiss: () => void }) {
               isLoading={linkedSilos.isPending || allSilos.isPending}
               required
               control={control}
+              onChange={(value) => siloField.onChange(value)}
             />
           </form>
         </Modal.Section>

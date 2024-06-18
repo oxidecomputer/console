@@ -21,9 +21,10 @@ import { useState } from 'react'
 import { SelectArrows6Icon } from '@oxide/design-system/icons/react'
 
 import { FieldLabel } from './FieldLabel'
+import { usePopoverZIndex } from './SideModal'
 import { TextInputHint } from './TextInput'
 
-type ComboboxItem = { label: string; value: string }
+export type ComboboxItem = { label: string; value: string }
 
 /** Simple non-generic props shared with ComboboxField */
 export type ComboboxBaseProps = {
@@ -63,6 +64,8 @@ export const Combobox = ({
     keys: ['value'],
     sorter: (items) => items, // preserve original order, don't sort by match
   })
+
+  const zIndex = usePopoverZIndex()
 
   return (
     <>
@@ -117,7 +120,8 @@ export const Combobox = ({
         <ComboboxOptions
           anchor="bottom start"
           // 14px gap is presumably because it's measured from inside the outline or something
-          className="DropdownMenuContent ox-menu pointer-events-auto relative z-sideModalDropdown w-[var(--button-width)] overflow-y-auto border !outline-none border-secondary [--anchor-gap:14px] empty:hidden"
+          className={`ox-menu pointer-events-auto ${zIndex} relative w-[var(--button-width)] overflow-y-auto border !outline-none border-secondary [--anchor-gap:14px] empty:hidden`}
+          modal={false}
         >
           {filteredItems.length === 0 && (
             <ComboboxOption disabled value="no-matches" className="relative ">
