@@ -558,9 +558,6 @@ export function CreateInstanceForm() {
                 items={disks}
                 required
                 control={control}
-                onChange={(value) => {
-                  value && setValue('diskSource', value)
-                }}
                 placeholder="Select a disk"
               />
             )}
