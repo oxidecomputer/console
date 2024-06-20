@@ -249,7 +249,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
         variant="info"
         content="Targets determine the instances to which this rule applies. You can target instances directly or specify a VPC, VPC subnet, IP, or IP subnet which will apply the rule to all matching instances. Targets are additive: the rule applies to instances matching any target."
       />
-      {/* TODO: make ComboboxField smarter with the values like RadioField is */}
+      {/* TODO: make ListboxField smarter with the values like RadioField is */}
       <ListboxField
         name="type"
         label="Target type"
