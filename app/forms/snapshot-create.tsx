@@ -16,8 +16,8 @@ import {
   type SnapshotCreate,
 } from '@oxide/api'
 
+import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
-import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { useForm, useProjectSelector } from '~/hooks'
@@ -73,7 +73,13 @@ export function CreateSnapshotSideModalForm() {
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
-      <ListboxField name="disk" items={diskItems} required control={form.control} />
+      <ComboboxField
+        label="Disk"
+        name="disk"
+        items={diskItems}
+        required
+        control={form.control}
+      />
     </SideModalForm>
   )
 }

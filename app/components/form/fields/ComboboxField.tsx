@@ -22,9 +22,11 @@ export type ComboboxFieldProps<
   TFieldValues extends FieldValues,
   TName extends FieldPath<TFieldValues>,
 > = {
+  label?: string
   name: TName
   control: Control<TFieldValues>
   onChange?: (value: string | null | undefined) => void
+  disabled?: boolean
 } & ComboboxBaseProps
 
 export function ComboboxField<
@@ -37,12 +39,14 @@ export function ComboboxField<
   label = capitalize(name),
   required,
   onChange,
+  disabled,
   ...props
 }: ComboboxFieldProps<TFieldValues, TName>) {
   const { field, fieldState } = useController({ name, control, rules: { required } })
   return (
     <div className="max-w-lg">
       <Combobox
+        isDisabled={disabled}
         label={label}
         required={required}
         selected={field.value || null}
