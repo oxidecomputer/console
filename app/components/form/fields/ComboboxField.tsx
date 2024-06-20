@@ -22,7 +22,6 @@ export type ComboboxFieldProps<
   TFieldValues extends FieldValues,
   TName extends FieldPath<TFieldValues>,
 > = {
-  label?: string
   name: TName
   control: Control<TFieldValues>
   onChange?: (value: string | null | undefined) => void
