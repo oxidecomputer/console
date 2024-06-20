@@ -269,7 +269,8 @@ test('create instance with a different existing disk', async ({ page }) => {
   await page.goto('/projects/mock-project/instances-new')
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
   await page.getByRole('tab', { name: 'Existing disks' }).click()
-  await page.getByLabel('Disk', { exact: true }).click()
+  // verify combobox text entry
+  await page.getByPlaceholder('Select a disk').fill('disk-')
   await page.getByRole('option', { name: 'disk-4' }).click()
   await page.getByRole('button', { name: 'Create instance' }).click()
   await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)
