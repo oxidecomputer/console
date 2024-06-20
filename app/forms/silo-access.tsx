@@ -12,7 +12,6 @@ import {
   useApiQueryClient,
 } from '@oxide/api'
 
-import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { useForm } from '~/hooks'
@@ -69,7 +68,7 @@ export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalPr
         required
         control={form.control}
       />
-      <ComboboxField
+      <ListboxField
         name="roleName"
         label="Role"
         items={roleItems}
@@ -113,7 +112,7 @@ export function SiloAccessEditUserSideModal({
       submitError={updatePolicy.error}
       onDismiss={onDismiss}
     >
-      <ComboboxField
+      <ListboxField
         name="roleName"
         label="Role"
         items={roleItems}

@@ -283,7 +283,7 @@ test('start with an existing disk, but then switch to a silo image', async ({ pa
   await page.goto('/projects/mock-project/instances-new')
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
   await page.getByRole('tab', { name: 'Existing disks' }).click()
-  await page.getByLabel('Disk', { exact: true }).click()
+  await page.getByPlaceholder('Select a disk').fill('disk-')
   await page.getByRole('option', { name: 'disk-7' }).click()
   await page.getByRole('tab', { name: 'Silo images' }).click()
   await page.getByRole('button', { name: 'Create instance' }).click()
