@@ -20,8 +20,8 @@ import {
 } from '@oxide/api'
 
 import { CheckboxField } from '~/components/form/fields/CheckboxField'
-import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
+import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
 import { NumberField } from '~/components/form/fields/NumberField'
 import { RadioField } from '~/components/form/fields/RadioField'
@@ -250,7 +250,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
         content="Targets determine the instances to which this rule applies. You can target instances directly or specify a VPC, VPC subnet, IP, or IP subnet which will apply the rule to all matching instances. Targets are additive: the rule applies to instances matching any target."
       />
       {/* TODO: make ComboboxField smarter with the values like RadioField is */}
-      <ComboboxField
+      <ListboxField
         name="type"
         label="Target type"
         items={[
@@ -426,7 +426,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
 
       <div className="flex flex-col gap-3">
         <h3 className="mt-4 text-sans-lg">Host filters</h3>
-        <ComboboxField
+        <ListboxField
           name="type"
           label="Host type"
           items={[
