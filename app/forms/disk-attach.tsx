@@ -5,7 +5,6 @@
  *
  * Copyright Oxide Computer Company
  */
-
 import { useApiQuery, type ApiError } from '@oxide/api'
 
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
