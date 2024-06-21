@@ -171,7 +171,7 @@ export const CommonFields = ({
   error,
   control,
   reservedNames,
-}: CommonFieldsProps & { reservedNames: Array<string> }) => {
+}: CommonFieldsProps & { reservedNames?: Array<string> }) => {
   const portRangeForm = useForm({ defaultValues: portRangeDefaultValues })
   const ports = useController({ name: 'ports', control }).field
   const submitPortRange = portRangeForm.handleSubmit(({ portRange }) => {
