@@ -19,7 +19,7 @@ import {
   type ExternalIp,
   type InstanceNetworkInterface,
 } from '@oxide/api'
-import { Networking24Icon } from '@oxide/design-system/icons/react'
+import { IpGlobal24Icon, Networking24Icon } from '@oxide/design-system/icons/react'
 
 import { HL } from '~/components/HL'
 import { CreateNetworkInterfaceForm } from '~/forms/network-interface-create'
@@ -359,7 +359,17 @@ export function NetworkingTab() {
           />
         )}
       </TableControls>
-      <Table aria-labelledby="attached-ips-label" table={ipTableInstance} />
+      {eips.items.length > 0 ? (
+        <Table aria-labelledby="attached-ips-label" table={ipTableInstance} />
+      ) : (
+        <TableEmptyBox>
+          <EmptyMessage
+            icon={<IpGlobal24Icon />}
+            title="No external IPs"
+            body="You need to attach an external IP to be able to see it here"
+          />
+        </TableEmptyBox>
+      )}
 
       <TableControls className="mt-8">
         <TableTitle id="nics-label">Network interfaces</TableTitle>
