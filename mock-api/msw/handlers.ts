@@ -561,6 +561,13 @@ export const handlers = makeHandlers({
     disk.state = { state: 'detached' }
     return disk
   },
+  instanceEphemeralIpDetach({ path, query }) {
+    const instance = lookup.instance({ ...path, ...query })
+    const ip = db.ephemeralIps.find((eip) => eip.instance_id === instance.id)
+    if (!ip) throw notFoundErr('ephemeral IP')
+    db.ephemeralIps = db.ephemeralIps.filter((eip) => eip !== ip)
+    return 204
+  },
   instanceExternalIpList({ path, query }) {
     const instance = lookup.instance({ ...path, ...query })
 
@@ -1281,7 +1288,6 @@ export const handlers = makeHandlers({
   certificateDelete: NotImplemented,
   certificateList: NotImplemented,
   certificateView: NotImplemented,
-  instanceEphemeralIpDetach: NotImplemented,
   instanceEphemeralIpAttach: NotImplemented,
   instanceMigrate: NotImplemented,
   instanceSerialConsoleStream: NotImplemented,

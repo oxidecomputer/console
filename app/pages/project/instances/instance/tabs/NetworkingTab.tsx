@@ -255,6 +255,16 @@ export function NetworkingTab() {
     }),
   ]
 
+  const ephemeralIpDetach = useApiMutation('instanceEphemeralIpDetach', {
+    onSuccess() {
+      queryClient.invalidateQueries('instanceExternalIpList')
+      addToast({ content: 'Your ephemeral IP has been detached' })
+    },
+    onError: (err) => {
+      addToast({ title: 'Error', content: err.message, variant: 'error' })
+    },
+  })
+
   const floatingIpDetach = useApiMutation('floatingIpDetach', {
     onSuccess() {
       queryClient.invalidateQueries('floatingIpList')
@@ -300,10 +310,35 @@ export function NetworkingTab() {
               }),
           },
         ]
+      } else {
+        return [
+          copyAction,
+          {
+            label: 'Detach',
+            onActivate: () =>
+              confirmAction({
+                actionType: 'danger',
+                doAction: () =>
+                  ephemeralIpDetach.mutateAsync({
+                    path: { instance: instanceName },
+                    query: { project },
+                  }),
+                modalTitle: 'Detach Ephemeral IP',
+                modalContent: (
+                  <p>
+                    Are you sure you want to detach ephemeral IP <HL>{externalIp.ip}</HL>{' '}
+                    from <HL>{instanceName}</HL>? The instance will no longer be reachable
+                    at <HL>{externalIp.ip}</HL>.
+                  </p>
+                ),
+                errorTitle: 'Error detaching ephemeral IP',
+              }),
+          },
+        ]
       }
       return [copyAction]
     },
-    [floatingIpDetach, instanceName, project]
+    [ephemeralIpDetach, floatingIpDetach, instanceName, project]
   )
 
   const ipTableInstance = useReactTable({
