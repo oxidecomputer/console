@@ -9,7 +9,6 @@ import * as Accordion from '@radix-ui/react-accordion'
 import { useEffect, useMemo, useState } from 'react'
 import { useController, useWatch, type Control } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
-import * as R from 'remeda'
 import type { SetRequired } from 'type-fest'
 
 import {
@@ -645,7 +644,7 @@ const AdvancedAccordion = ({
   )
   const attachedFloatingIpsData = attachedFloatingIps
     .map((ip) => attachableFloatingIps.find((fip) => fip.name === ip.floatingIp))
-    .filter(R.isTruthy)
+    .filter((ip) => !!ip)
 
   const closeFloatingIpModal = () => {
     setFloatingIpModalOpen(false)
