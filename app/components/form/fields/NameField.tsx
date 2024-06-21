@@ -18,11 +18,15 @@ export function NameField<
   required = true,
   name,
   label = capitalize(name),
+  reservedNames = [],
   ...textFieldProps
-}: Omit<TextFieldProps<TFieldValues, TName>, 'validate'> & { label?: string }) {
+}: Omit<TextFieldProps<TFieldValues, TName>, 'validate'> & {
+  label?: string
+  reservedNames?: Array<string>
+}) {
   return (
     <TextField
-      validate={(name) => validateName(name, label, required)}
+      validate={(name) => validateName(name, label, required, reservedNames)}
       required={required}
       label={label}
       name={name}
@@ -32,7 +36,12 @@ export function NameField<
 }
 
 // TODO Update JSON schema to match this, add fuzz testing between this and name pattern
-export const validateName = (name: string, label: string, required: boolean) => {
+export const validateName = (
+  name: string,
+  label: string,
+  required: boolean,
+  reservedNames?: Array<string>
+) => {
   if (!required && !name) return
 
   if (name.length > 63) {
@@ -47,5 +56,9 @@ export const validateName = (name: string, label: string, required: boolean) => 
     return 'Must start with a lower-case letter'
   } else if (!/[a-z0-9]$/.test(name)) {
     return 'Must end with a letter or number'
+  }
+
+  if (reservedNames?.includes(name)) {
+    return `${label} is already in use, or is unavailable`
   }
 }

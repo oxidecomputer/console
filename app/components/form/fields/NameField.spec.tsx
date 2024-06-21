@@ -10,7 +10,7 @@ import { describe, expect, it } from 'vitest'
 import { validateName } from './NameField'
 
 describe('validateName', () => {
-  const validate = (name: string) => validateName(name, 'Name', true)
+  const validate = (name: string) => validateName(name, 'Name', true, ['example'])
 
   it('returns undefined for valid names', () => {
     expect(validate('abc')).toBeUndefined()
@@ -44,5 +44,11 @@ describe('validateName', () => {
 
   it('rejects names that are too long', () => {
     expect(validate('a'.repeat(64))).toEqual('Must be 63 characters or fewer')
+  })
+
+  it('rejects reserved names', () => {
+    expect(validate('example')).toEqual('Name is already in use, or is unavailable')
+    expect(validate('exam')).toBeUndefined()
+    expect(validate('example-2')).toBeUndefined()
   })
 })

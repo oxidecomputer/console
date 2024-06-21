@@ -167,7 +167,11 @@ const DocsLinkMessage = () => (
   />
 )
 
-export const CommonFields = ({ error, control }: CommonFieldsProps) => {
+export const CommonFields = ({
+  error,
+  control,
+  reservedNames,
+}: CommonFieldsProps & { reservedNames: Array<string> }) => {
   const portRangeForm = useForm({ defaultValues: portRangeDefaultValues })
   const ports = useController({ name: 'ports', control }).field
   const submitPortRange = portRangeForm.handleSubmit(({ portRange }) => {
@@ -211,7 +215,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
       <CheckboxField name="enabled" control={control}>
         Enabled
       </CheckboxField>
-      <NameField name="name" control={control} />
+      <NameField name="name" control={control} reservedNames={reservedNames} />
       <DescriptionField name="description" control={control} />
 
       <RadioField
@@ -571,7 +575,11 @@ export function CreateFirewallRuleForm({
       submitError={updateRules.error}
       submitLabel="Add rule"
     >
-      <CommonFields error={updateRules.error} control={form.control} />
+      <CommonFields
+        error={updateRules.error}
+        control={form.control}
+        reservedNames={existingRules.map((r) => r.name)}
+      />
     </SideModalForm>
   )
 }
