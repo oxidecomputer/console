@@ -16,7 +16,8 @@ import {
 } from './utils'
 
 test('Instance networking tab — NIC table', async ({ page }) => {
-  await page.goto('/projects/mock-project/instances/db1')
+  const instanceName = 'db1'
+  await page.goto(`/projects/mock-project/instances/${instanceName}`)
 
   // links to VPC and external IPs appear in table
   await expect(page.getByRole('link', { name: 'mock-vpc' })).toBeVisible()
@@ -41,7 +42,7 @@ test('Instance networking tab — NIC table', async ({ page }) => {
   await expect(addNicButton).toBeDisabled()
 
   // Have to stop instance to edit NICs
-  await stopInstance(page)
+  await stopInstance(page, instanceName)
 
   await expect(addNicButton).toBeEnabled()
   await addNicButton.click()

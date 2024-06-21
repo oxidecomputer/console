@@ -16,7 +16,8 @@ import {
 } from './utils'
 
 test('Attach disk', async ({ page }) => {
-  await page.goto('/projects/mock-project/instances/db1')
+  const instanceName = 'db1'
+  await page.goto(`/projects/mock-project/instances/${instanceName}`)
 
   const warning = 'The instance must be stopped to add or attach a disk.'
   await expect(page.getByText(warning)).toBeVisible()
@@ -34,7 +35,7 @@ test('Attach disk', async ({ page }) => {
   await page.keyboard.press('Escape') // close menu
 
   // Have to stop instance to edit disks
-  await stopInstance(page)
+  await stopInstance(page, instanceName)
 
   await expect(page.getByText(warning)).toBeHidden()
 
@@ -68,10 +69,11 @@ test('Attach disk', async ({ page }) => {
 })
 
 test('Detach disk', async ({ page }) => {
-  await page.goto('/projects/mock-project/instances/db1')
+  const instanceName = 'db1'
+  await page.goto(`/projects/mock-project/instances/${instanceName}`)
 
   // Have to stop instance to edit disks
-  await stopInstance(page)
+  await stopInstance(page, instanceName)
 
   const successMsg = page.getByText('Disk detached').nth(0)
   const row = page.getByRole('row', { name: 'disk-1' })

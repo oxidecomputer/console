@@ -106,14 +106,19 @@ export async function expectRowVisible(
     .toEqual(expect.arrayContaining([expect.objectContaining(expectedRow)]))
 }
 
-export async function stopInstance(page: Page) {
-  await page.getByRole('button', { name: 'Instance actions' }).click()
+// stop the instance from the instances list page
+export async function stopInstance(page: Page, instanceName: string) {
+  await page.getByRole('link', { name: 'Instances', exact: false }).click()
+  const row = page.getByRole('row', { name: instanceName, exact: false })
+  await row.getByRole('button', { name: 'Row actions' }).click()
   await page.getByRole('menuitem', { name: 'Stop' }).click()
   await page.getByRole('button', { name: 'Confirm' }).click()
   await closeToast(page)
   await sleep(1200)
   await refreshInstance(page)
-  await expect(page.getByText('statusstopped')).toBeVisible()
+  await expect(page.getByText('stopped')).toBeVisible()
+  // click on the instanceName row to go back to that page
+  await page.getByRole('link', { name: instanceName }).click()
 }
 
 export async function refreshInstance(page: Page) {
