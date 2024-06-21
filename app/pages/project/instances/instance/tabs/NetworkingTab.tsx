@@ -285,57 +285,43 @@ export function NetworkingTab() {
         },
       }
 
-      if (externalIp.kind === 'floating') {
-        return [
-          copyAction,
-          {
-            label: 'Detach',
-            onActivate: () =>
-              confirmAction({
-                actionType: 'danger',
-                doAction: () =>
-                  floatingIpDetach.mutateAsync({
-                    path: { floatingIp: externalIp.name },
-                    query: { project },
-                  }),
-                modalTitle: 'Detach Floating IP',
-                modalContent: (
-                  <p>
-                    Are you sure you want to detach floating IP <HL>{externalIp.name}</HL>{' '}
-                    from <HL>{instanceName}</HL>? The instance will no longer be reachable
-                    at <HL>{externalIp.ip}</HL>.
-                  </p>
-                ),
-                errorTitle: 'Error detaching floating IP',
-              }),
-          },
-        ]
-      } else {
-        return [
-          copyAction,
-          {
-            label: 'Detach',
-            onActivate: () =>
-              confirmAction({
-                actionType: 'danger',
-                doAction: () =>
-                  ephemeralIpDetach.mutateAsync({
-                    path: { instance: instanceName },
-                    query: { project },
-                  }),
-                modalTitle: 'Detach Ephemeral IP',
-                modalContent: (
-                  <p>
-                    Are you sure you want to detach ephemeral IP <HL>{externalIp.ip}</HL>{' '}
-                    from <HL>{instanceName}</HL>? The instance will no longer be reachable
-                    at <HL>{externalIp.ip}</HL>.
-                  </p>
-                ),
-                errorTitle: 'Error detaching ephemeral IP',
-              }),
-          },
-        ]
-      }
+      const doAction =
+        externalIp.kind === 'floating'
+          ? () =>
+              floatingIpDetach.mutateAsync({
+                path: { floatingIp: externalIp.name },
+                query: { project },
+              })
+          : () =>
+              ephemeralIpDetach.mutateAsync({
+                path: { instance: instanceName },
+                query: { project },
+              })
+
+      return [
+        copyAction,
+        {
+          label: 'Detach',
+          onActivate: () =>
+            confirmAction({
+              actionType: 'danger',
+              doAction,
+              modalTitle: `Detach ${externalIp.kind} IP`,
+              modalContent: (
+                <p>
+                  Are you sure you want to detach ${externalIp.kind} IP{' '}
+                  <HL>
+                    {externalIp.kind === 'floating' ? externalIp.name : externalIp.ip}
+                  </HL>{' '}
+                  from <HL>{instanceName}</HL>? The instance will no longer be reachable at{' '}
+                  <HL>{externalIp.ip}</HL>.
+                </p>
+              ),
+              errorTitle: `Error detaching ${externalIp.kind} IP`,
+            }),
+        },
+      ]
+
       return [copyAction]
     },
     [ephemeralIpDetach, floatingIpDetach, instanceName, project]
