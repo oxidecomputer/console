@@ -310,10 +310,14 @@ export function NetworkingTab() {
               modalTitle: `Detach ${capitalize(externalIp.kind)} IP`,
               modalContent: (
                 <p>
-                  Are you sure you want to detach {externalIp.kind} IP{' '}
-                  <HL>
-                    {externalIp.kind === 'floating' ? externalIp.name : externalIp.ip}
-                  </HL>{' '}
+                  Are you sure you want to detach{' '}
+                  {externalIp.kind === 'ephemeral' ? (
+                    'this ephemeral IP'
+                  ) : (
+                    <>
+                      floating IP <HL>{externalIp.name}</HL>
+                    </>
+                  )}{' '}
                   from <HL>{instanceName}</HL>? The instance will no longer be reachable at{' '}
                   <HL>{externalIp.ip}</HL>.
                 </p>
