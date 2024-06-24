@@ -426,9 +426,9 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
 
       <div className="flex flex-col gap-3">
         <h3 className="mt-4 text-sans-lg">Host filters</h3>
+        <Message variant="info" content="Host filters restrict the source of traffic" />
         <ListboxField
           name="type"
-          description="Host filters restrict the source of traffic"
           label="Host type"
           items={[
             { value: 'vpc', label: 'VPC' },
