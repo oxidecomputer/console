@@ -428,6 +428,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
         <h3 className="mt-4 text-sans-lg">Host filters</h3>
         <ListboxField
           name="type"
+          description="Host filters restrict the source of traffic"
           label="Host type"
           items={[
             { value: 'vpc', label: 'VPC' },
