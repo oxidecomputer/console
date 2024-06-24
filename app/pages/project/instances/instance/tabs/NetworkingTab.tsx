@@ -306,7 +306,7 @@ export function NetworkingTab() {
             confirmAction({
               actionType: 'danger',
               doAction,
-              modalTitle: `Confirm detachment of ${externalIp.kind} IP`,
+              modalTitle: `Confirm detach of ${externalIp.kind} IP`,
               modalContent: (
                 <p>
                   Are you sure you want to detach{' '}
