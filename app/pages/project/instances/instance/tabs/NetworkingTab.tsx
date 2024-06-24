@@ -40,7 +40,6 @@ import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableControls, TableEmptyBox, TableTitle } from '~/ui/lib/Table'
 import { TipIcon } from '~/ui/lib/TipIcon'
 import { pb } from '~/util/path-builder'
-import { capitalize } from '~/util/str'
 
 import { fancifyStates } from './common'
 
@@ -307,7 +306,7 @@ export function NetworkingTab() {
             confirmAction({
               actionType: 'danger',
               doAction,
-              modalTitle: `Detach ${capitalize(externalIp.kind)} IP`,
+              modalTitle: `Confirm detachment of ${externalIp.kind} IP`,
               modalContent: (
                 <p>
                   Are you sure you want to detach{' '}
