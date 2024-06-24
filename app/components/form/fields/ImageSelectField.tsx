@@ -32,6 +32,8 @@ export function BootDiskImageSelectField({
 }: ImageSelectFieldProps) {
   const diskSizeField = useController({ control, name: 'bootDiskSize' }).field
   return (
+    // This should be migrated to a `ComboboxField` (and with a `toComboboxItem`), once
+    // we have a combobox that supports more elaborate labels (beyond just strings).
     <ListboxField
       disabled={disabled}
       control={control}

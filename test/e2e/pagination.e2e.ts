@@ -10,7 +10,7 @@ import { expect, test } from '@playwright/test'
 import { expectRowVisible } from './utils'
 
 test('pagination', async ({ page }) => {
-  await page.goto('/projects/other-project/disks')
+  await page.goto('/projects/mock-project/snapshots')
 
   const table = page.getByRole('table')
   const rows = page.getByRole('row')
@@ -18,24 +18,19 @@ test('pagination', async ({ page }) => {
   const prevButton = page.getByRole('button', { name: 'prev', exact: true })
 
   await expect(rows).toHaveCount(26)
-  await expectRowVisible(table, { name: 'disk-01' })
-  await expectRowVisible(table, { name: 'disk-25' })
+  await expectRowVisible(table, { name: 'snapshot-1' })
+  await expectRowVisible(table, { name: 'disk-1-snapshot-24' })
 
   await nextButton.click()
-  await expect(rows).toHaveCount(26)
-  await expectRowVisible(table, { name: 'disk-26' })
-  await expectRowVisible(table, { name: 'disk-50' })
+  await expect(rows).toHaveCount(7)
+  await expectRowVisible(table, { name: 'disk-1-snapshot-25' })
+  await expectRowVisible(table, { name: 'disk-1-snapshot-30' })
 
   await prevButton.click()
   await expect(rows).toHaveCount(26)
-  await expectRowVisible(table, { name: 'disk-01' })
-  await expectRowVisible(table, { name: 'disk-25' })
+  await expectRowVisible(table, { name: 'snapshot-1' })
+  await expectRowVisible(table, { name: 'disk-1-snapshot-24' })
 
   await nextButton.click()
-  await nextButton.click()
-  await expect(rows).toHaveCount(6)
-  await expectRowVisible(table, { name: 'disk-51' })
-  await expectRowVisible(table, { name: 'disk-55' })
-
   await expect(nextButton).toBeDisabled() // no more pages
 })

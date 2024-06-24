@@ -12,7 +12,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { useApiMutation, useApiQuery, useApiQueryClient, type SiloIpPool } from '@oxide/api'
 import { Networking24Icon } from '@oxide/design-system/icons/react'
 
-import { ListboxField } from '~/components/form/fields/ListboxField'
+import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { HL } from '~/components/HL'
 import { useForm, useSiloSelector } from '~/hooks'
 import { confirmAction } from '~/stores/confirm-action'
@@ -235,7 +235,7 @@ function LinkPoolModal({ onDismiss }: { onDismiss: () => void }) {
               content="Users in this silo will be able to allocate IPs from the selected pool."
             />
 
-            <ListboxField
+            <ComboboxField
               placeholder="Select pool"
               name="pool"
               label="IP pool"
