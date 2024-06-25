@@ -563,7 +563,9 @@ export const handlers = makeHandlers({
   },
   instanceEphemeralIpDetach({ path, query }) {
     const instance = lookup.instance({ ...path, ...query })
-    const ip = db.ephemeralIps.find((eip) => eip.instance_id === instance.id)
+    const ip = db.ephemeralIps.find(
+      (eip) => eip.instance_id === instance.id && eip.external_ip.ip === query.ip
+    )
     if (!ip) throw notFoundErr('ephemeral IP')
     db.ephemeralIps = db.ephemeralIps.filter((eip) => eip !== ip)
     return 204
