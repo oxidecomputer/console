@@ -124,6 +124,7 @@ test('Instance networking tab — External IPs', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Attach floating IP' })).toBeEnabled()
 
   // Detach the ephemeral IP
+  await expect(externalIpTable.getByRole('cell', { name: 'ephemeral' })).toBeVisible()
   await clickRowAction(page, 'ephemeral', 'Detach')
   await page.getByRole('button', { name: 'Confirm' }).click()
   await expect(externalIpTable.getByRole('cell', { name: 'ephemeral' })).toBeHidden()
