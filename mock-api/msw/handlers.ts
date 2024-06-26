@@ -563,9 +563,10 @@ export const handlers = makeHandlers({
   },
   instanceEphemeralIpDetach({ path, query }) {
     const instance = lookup.instance({ ...path, ...query })
-    const ip = db.ephemeralIps.find(
-      (eip) => eip.instance_id === instance.id && eip.external_ip.ip === query.ip
-    )
+    // match API logic: find/remove first ephemeral ip attached to instance
+    // https://github.com/oxidecomputer/omicron/blob/d52aad0/nexus/db-queries/src/db/datastore/external_ip.rs#L782-L794
+    // https://github.com/oxidecomputer/omicron/blob/d52aad0/nexus/src/app/sagas/instance_ip_detach.rs#L79-L82
+    const ip = db.ephemeralIps.find((eip) => eip.instance_id === instance.id)
     if (!ip) throw notFoundErr('ephemeral IP')
     db.ephemeralIps = db.ephemeralIps.filter((eip) => eip !== ip)
     return 204

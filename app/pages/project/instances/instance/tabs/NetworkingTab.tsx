@@ -295,7 +295,7 @@ export function NetworkingTab() {
           : () =>
               ephemeralIpDetach.mutateAsync({
                 path: { instance: instanceName },
-                query: { project, ip: externalIp.ip },
+                query: { project },
               })
 
       return [
