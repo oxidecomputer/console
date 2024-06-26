@@ -7,7 +7,7 @@
  */
 import { useApiQuery, type ApiError } from '@oxide/api'
 
-import { ListboxField } from '~/components/form/fields/ListboxField'
+import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { useForm, useProjectSelector } from '~/hooks'
 
@@ -33,14 +33,11 @@ export function AttachDiskSideModalForm({
   loading,
   submitError = null,
 }: AttachDiskProps) {
-  const projectSelector = useProjectSelector()
+  const { project } = useProjectSelector()
 
-  // TODO: loading state? because this fires when the modal opens and not when
-  // they focus the combobox, it will almost always be done by the time they
-  // click in
-  // TODO: error handling
+  const { data } = useApiQuery('diskList', { query: { project, limit: 1000 } })
   const detachedDisks =
-    useApiQuery('diskList', { query: projectSelector }).data?.items.filter(
+    data?.items.filter(
       (d) => d.state.state === 'detached' && !diskNamesToExclude.includes(d.name)
     ) || []
 
@@ -51,14 +48,15 @@ export function AttachDiskSideModalForm({
       form={form}
       formType="create"
       resourceName="disk"
-      title="Attach Disk"
+      title="Attach disk"
       onSubmit={onSubmit}
       loading={loading}
       submitError={submitError}
       onDismiss={onDismiss}
     >
-      <ListboxField
+      <ComboboxField
         label="Disk name"
+        placeholder="Select a disk"
         name="name"
         items={detachedDisks.map(({ name }) => ({ value: name, label: name }))}
         required
