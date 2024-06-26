@@ -559,23 +559,10 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
   )
 }
 
-// TODO: validate priority again
-// export const validationSchema = Yup.object({
-//   priority: Yup.number().integer().min(0).max(65535).required('Required'),
-// })
-
 CreateFirewallRuleForm.loader = async ({ params }: LoaderFunctionArgs) => {
-  const vpcSelector = getVpcSelector(params)
-
-  await Promise.all([
-    apiQueryClient.prefetchQuery('vpcFirewallRulesView', {
-      query: vpcSelector,
-    }),
-    apiQueryClient.prefetchQuery('vpcView', {
-      path: { vpc: vpcSelector.vpc },
-      query: { project: vpcSelector.project },
-    }),
-  ])
+  await apiQueryClient.prefetchQuery('vpcFirewallRulesView', {
+    query: getVpcSelector(params),
+  })
   return null
 }
 
