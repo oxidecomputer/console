@@ -87,13 +87,14 @@ test('Instance networking tab — NIC table', async ({ page }) => {
 test('Instance networking tab — External IPs', async ({ page }) => {
   await page.goto('/projects/mock-project/instances/db1/network-interfaces')
   const externalIpTable = page.getByRole('table', { name: 'External IPs' })
+  const attachFloatingIpButton = page.getByRole('button', { name: 'Attach floating IP' })
 
   // See list of external IPs
   await expectRowVisible(externalIpTable, { ip: '123.4.56.0', Kind: 'ephemeral' })
   await expectRowVisible(externalIpTable, { ip: '123.4.56.5', Kind: 'floating' })
 
   // Attach a new external IP
-  await page.click('role=button[name="Attach floating IP"]')
+  await attachFloatingIpButton.click()
   await expectVisible(page, ['role=heading[name="Attach floating IP"]'])
 
   // Select the 'rootbeer-float' option
@@ -111,17 +112,17 @@ test('Instance networking tab — External IPs', async ({ page }) => {
   await expectRowVisible(externalIpTable, { name: 'rootbeer-float' })
 
   // Verify that the "Attach floating IP" button is disabled, since there shouldn't be any more IPs to attach
-  await expect(page.getByRole('button', { name: 'Attach floating IP' })).toBeDisabled()
+  await expect(attachFloatingIpButton).toBeDisabled()
 
   // Detach one of the external IPs
   await clickRowAction(page, 'cola-float', 'Detach')
   await page.getByRole('button', { name: 'Confirm' }).click()
 
-  // Since we detached it, we don't expect to see db1 any longer
+  // Since we detached it, we don't expect to see the row any longer
   await expect(externalIpTable.getByRole('cell', { name: 'cola-float' })).toBeHidden()
 
   // And that button shouldbe enabled again
-  await expect(page.getByRole('button', { name: 'Attach floating IP' })).toBeEnabled()
+  await expect(attachFloatingIpButton).toBeEnabled()
 
   // Detach the ephemeral IP
   await expect(externalIpTable.getByRole('cell', { name: 'ephemeral' })).toBeVisible()
