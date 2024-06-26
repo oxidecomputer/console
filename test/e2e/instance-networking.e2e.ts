@@ -84,6 +84,87 @@ test('Instance networking tab — NIC table', async ({ page }) => {
   await expect(nic3).toBeHidden()
 })
 
+test('Instance networking tab — Detach / Attach Ephemeral IPs', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances/db1/network-interfaces')
+
+  const attachEphemeralIpButton = page.getByRole('button', { name: 'Attach ephemeral IP' })
+  const externalIpTable = page.getByRole('table', { name: 'External IPs' })
+  const ephemeralCell = externalIpTable.getByRole('cell', { name: 'ephemeral' })
+
+  // We start out with an ephemeral IP attached
+  await expect(ephemeralCell).toBeVisible()
+
+  // The 'Attach ephemeral IP' button should be disabled when there is still an existing ephemeral IP
+  await expect(attachEphemeralIpButton).toBeDisabled()
+  await attachEphemeralIpButton.hover()
+  await expect(
+    page.getByRole('tooltip', { name: 'Ephemeral IP already attached' })
+  ).toBeVisible()
+
+  // Detach the existing ephemeral IP
+  await clickRowAction(page, 'ephemeral', 'Detach')
+  await page.getByRole('button', { name: 'Confirm' }).click()
+  await expect(ephemeralCell).toBeHidden()
+
+  // The 'Attach ephemeral IP' button should be enabled now that the existing ephemeral IP has been detached
+  await expect(attachEphemeralIpButton).toBeEnabled()
+
+  // Attach a new ephemeral IP
+  await attachEphemeralIpButton.click()
+  await expectVisible(page, ['role=heading[name="Attach ephemeral IP"]'])
+  await page.click('role=button[name*="Ephemeral IP"]')
+  await page.click('role=option[name="ip-pool-2"]')
+  await page.click('role=button[name="Attach"]')
+  await expectNotVisible(page, ['role=heading[name="Attach ephemeral IP"]'])
+  await expect(ephemeralCell).toBeVisible()
+
+  // The 'Attach ephemeral IP' button should be disabled after attaching an ephemeral IP
+  await expect(attachEphemeralIpButton).toBeDisabled()
+})
+
+test('Instance networking tab — Attach ephemeral IP tooltip copy', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances/db1/network-interfaces')
+
+  const attachEphemeralIpButton = page.getByRole('button', { name: 'Attach ephemeral IP' })
+  const externalIpTable = page.getByRole('table', { name: 'External IPs' })
+  const ephemeralCell = externalIpTable.getByRole('cell', { name: 'ephemeral' })
+
+  // We start out with an ephemeral IP attached
+  await expect(ephemeralCell).toBeVisible()
+
+  // The 'Attach ephemeral IP' button should be disabled when there is still an existing ephemeral IP
+  // and the tooltip should tell us that it's already attached
+  await expect(attachEphemeralIpButton).toBeDisabled()
+  await attachEphemeralIpButton.hover()
+  await expect(
+    page.getByRole('tooltip', { name: 'Ephemeral IP already attached' })
+  ).toBeVisible()
+
+  // We'll detach the existing ephemeral IP
+  await clickRowAction(page, 'ephemeral', 'Detach')
+  await page.getByRole('button', { name: 'Confirm' }).click()
+  await expect(ephemeralCell).toBeHidden()
+
+  // The button should now be enabled
+  await expect(attachEphemeralIpButton).toBeEnabled()
+
+  // If there are no network interfaces, the button should be disabled
+
+  // Stop the instance to edit NICs
+  await stopInstance(page)
+
+  // Delete the existing NIC
+  await clickRowAction(page, 'my-nic', 'Delete')
+  await page.getByRole('button', { name: 'Confirm' }).click()
+
+  // The 'Attach ephemeral IP' button should be disabled when there are no network interfaces
+  await expect(attachEphemeralIpButton).toBeDisabled()
+
+  // The tooltip should now tell us that a NIC is needed
+  await attachEphemeralIpButton.hover()
+  await expect(page.getByText('A network interface is required')).toBeVisible()
+})
+
 test('Instance networking tab — External IPs', async ({ page }) => {
   await page.goto('/projects/mock-project/instances/db1/network-interfaces')
   const externalIpTable = page.getByRole('table', { name: 'External IPs' })
@@ -123,10 +204,4 @@ test('Instance networking tab — External IPs', async ({ page }) => {
 
   // And that button should be enabled again
   await expect(attachFloatingIpButton).toBeEnabled()
-
-  // Detach the ephemeral IP
-  await expect(externalIpTable.getByRole('cell', { name: 'ephemeral' })).toBeVisible()
-  await clickRowAction(page, 'ephemeral', 'Detach')
-  await page.getByRole('button', { name: 'Confirm' }).click()
-  await expect(externalIpTable.getByRole('cell', { name: 'ephemeral' })).toBeHidden()
 })
