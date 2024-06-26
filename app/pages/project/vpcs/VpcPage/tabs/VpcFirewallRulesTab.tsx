@@ -99,10 +99,7 @@ const staticColumns = [
 
 VpcFirewallRulesTab.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project, vpc } = getVpcSelector(params)
-  await Promise.all([
-    apiQueryClient.prefetchQuery('vpcFirewallRulesView', { query: { project, vpc } }),
-    apiQueryClient.prefetchQuery('vpcView', { path: { vpc }, query: { project } }),
-  ])
+  await apiQueryClient.prefetchQuery('vpcFirewallRulesView', { query: { project, vpc } })
   return null
 }
 

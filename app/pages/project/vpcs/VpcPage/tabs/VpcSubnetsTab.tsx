@@ -31,12 +31,9 @@ const colHelper = createColumnHelper<VpcSubnet>()
 
 VpcSubnetsTab.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project, vpc } = getVpcSelector(params)
-  await Promise.all([
-    apiQueryClient.prefetchQuery('vpcSubnetList', {
-      query: { project, vpc, limit: PAGE_SIZE },
-    }),
-    apiQueryClient.prefetchQuery('vpcView', { path: { vpc }, query: { project } }),
-  ])
+  await apiQueryClient.prefetchQuery('vpcSubnetList', {
+    query: { project, vpc, limit: PAGE_SIZE },
+  })
   return null
 }
 
