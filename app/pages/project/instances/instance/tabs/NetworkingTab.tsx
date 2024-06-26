@@ -25,6 +25,7 @@ import { HL } from '~/components/HL'
 import { CreateNetworkInterfaceForm } from '~/forms/network-interface-create'
 import { EditNetworkInterfaceForm } from '~/forms/network-interface-edit'
 import { getInstanceSelector, useInstanceSelector, useProjectSelector } from '~/hooks'
+import { AttachEphemeralIpModal } from '~/pages/project/floating-ips/AttachEphemeralIpModal'
 import { AttachFloatingIpModal } from '~/pages/project/floating-ips/AttachFloatingIpModal'
 import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
@@ -131,7 +132,8 @@ export function NetworkingTab() {
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [editing, setEditing] = useState<InstanceNetworkInterface | null>(null)
-  const [attachModalOpen, setAttachModalOpen] = useState(false)
+  const [attachEphemeralModalOpen, setAttachEphemeralModalOpen] = useState(false)
+  const [attachFloatingModalOpen, setAttachFloatingModalOpen] = useState(false)
 
   // Fetch the floating IPs to show in the "Attach floating IP" modal
   const { data: ips } = usePrefetchedApiQuery('floatingIpList', {
@@ -295,7 +297,7 @@ export function NetworkingTab() {
           : () =>
               ephemeralIpDetach.mutateAsync({
                 path: { instance: instanceName },
-                query: { project, ip: externalIp.ip },
+                query: { project },
               })
 
       return [
@@ -337,9 +339,14 @@ export function NetworkingTab() {
     getCoreRowModel: getCoreRowModel(),
   })
 
-  const disabledReason =
-    eips.items.length >= 32
-      ? 'IP address limit of 32 reached for this instance'
+  const ephemeralDisabledReason =
+    eips.items.filter((ip) => ip.kind === 'ephemeral').length >= 1
+      ? 'Ephemeral IP already attached'
+      : null
+
+  const floatingDisabledReason =
+    eips.items.filter((ip) => ip.kind === 'floating').length >= 32
+      ? 'Floating IP address limit of 32 reached for this instance'
       : availableIps.length === 0
         ? 'No available floating IPs'
         : null
@@ -348,18 +355,33 @@ export function NetworkingTab() {
     <>
       <TableControls>
         <TableTitle id="attached-ips-label">External IPs</TableTitle>
-        <CreateButton
-          onClick={() => setAttachModalOpen(true)}
-          disabled={!!disabledReason}
-          disabledReason={disabledReason}
-        >
-          Attach floating IP
-        </CreateButton>
-        {attachModalOpen && (
+        <div className="flex gap-3">
+          <CreateButton
+            onClick={() => setAttachEphemeralModalOpen(true)}
+            disabled={!!ephemeralDisabledReason}
+            disabledReason={ephemeralDisabledReason}
+          >
+            Attach ephemeral IP
+          </CreateButton>
+          <CreateButton
+            onClick={() => setAttachFloatingModalOpen(true)}
+            disabled={!!floatingDisabledReason}
+            disabledReason={floatingDisabledReason}
+          >
+            Attach floating IP
+          </CreateButton>
+        </div>
+        {attachEphemeralModalOpen && (
+          <AttachEphemeralIpModal
+            instance={instance}
+            onDismiss={() => setAttachEphemeralModalOpen(false)}
+          />
+        )}
+        {attachFloatingModalOpen && (
           <AttachFloatingIpModal
             floatingIps={availableIps}
             instance={instance}
-            onDismiss={() => setAttachModalOpen(false)}
+            onDismiss={() => setAttachFloatingModalOpen(false)}
           />
         )}
       </TableControls>
