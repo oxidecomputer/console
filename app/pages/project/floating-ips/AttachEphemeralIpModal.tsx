@@ -1,0 +1,97 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
+
+import { useMemo } from 'react'
+import { useForm } from 'react-hook-form'
+
+import { useApiMutation, useApiQuery, useApiQueryClient, type Instance } from '~/api'
+import { ListboxField } from '~/components/form/fields/ListboxField'
+import { useProjectSelector } from '~/hooks'
+import { addToast } from '~/stores/toast'
+import { Badge } from '~/ui/lib/Badge'
+import { Message } from '~/ui/lib/Message'
+import { Modal } from '~/ui/lib/Modal'
+
+export const AttachEphemeralIpModal = ({
+  instance,
+  onDismiss,
+}: {
+  instance: Instance
+  onDismiss: () => void
+}) => {
+  const queryClient = useApiQueryClient()
+  const { project } = useProjectSelector()
+  const { data: siloPools } = useApiQuery('projectIpPoolList', {
+    query: { limit: 1000 },
+  })
+  const defaultPool = useMemo(
+    () => siloPools?.items.find((pool) => pool.isDefault),
+    [siloPools]
+  )
+  const instanceEphemeralIpAttach = useApiMutation('instanceEphemeralIpAttach', {
+    onSuccess() {
+      queryClient.invalidateQueries('instanceExternalIpList')
+      addToast({ content: 'Your ephemeral IP has been attached' })
+      onDismiss()
+    },
+    onError: (err) => {
+      addToast({ title: 'Error', content: err.message, variant: 'error' })
+    },
+  })
+  const form = useForm({ defaultValues: { pool: defaultPool?.name } })
+  const pool = form.watch('pool')
+
+  return (
+    <Modal isOpen title="Attach ephemeral IP" onDismiss={onDismiss}>
+      <Modal.Body>
+        <Modal.Section>
+          <Message
+            variant="info"
+            content="The ephemeral IP will be drawn from the selected pool"
+          />
+          <form>
+            <ListboxField
+              control={form.control}
+              name="pool"
+              label="Ephemeral IP"
+              placeholder={
+                siloPools?.items && siloPools.items.length > 0
+                  ? 'Select pool'
+                  : 'No pools available'
+              }
+              items={
+                siloPools?.items.map((pool) => ({
+                  label: (
+                    <div className="flex items-center gap-2">
+                      {pool.name}
+                      {pool.isDefault && <Badge>default</Badge>}
+                    </div>
+                  ),
+                  value: pool.name,
+                })) || []
+              }
+              required
+            />
+          </form>
+        </Modal.Section>
+      </Modal.Body>
+      <Modal.Footer
+        actionText="Attach"
+        disabled={!pool}
+        onAction={() =>
+          instanceEphemeralIpAttach.mutate({
+            path: { instance: instance.name },
+            query: { project },
+            body: { pool },
+          })
+        }
+        onDismiss={onDismiss}
+      ></Modal.Footer>
+    </Modal>
+  )
+}
