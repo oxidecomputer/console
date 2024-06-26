@@ -561,12 +561,28 @@ export const handlers = makeHandlers({
     disk.state = { state: 'detached' }
     return disk
   },
+  instanceEphemeralIpAttach({ path, query: projectParams, body }) {
+    const instance = lookup.instance({ ...path, ...projectParams })
+    const { pool } = body
+    const firstAvailableAddress = getIpFromPool(pool)
+    const externalIp = {
+      ip: firstAvailableAddress,
+      kind: 'ephemeral' as const,
+    }
+    db.ephemeralIps.push({
+      instance_id: instance.id,
+      external_ip: externalIp,
+    })
+
+    return externalIp
+  },
   instanceEphemeralIpDetach({ path, query }) {
     const instance = lookup.instance({ ...path, ...query })
-    const ip = db.ephemeralIps.find(
-      (eip) => eip.instance_id === instance.id && eip.external_ip.ip === query.ip
-    )
-    if (!ip) throw notFoundErr('ephemeral IP')
+    // match API logic: find/remove first ephemeral ip attached to instance
+    // https://github.com/oxidecomputer/omicron/blob/d52aad0/nexus/db-queries/src/db/datastore/external_ip.rs#L782-L794
+    // https://github.com/oxidecomputer/omicron/blob/d52aad0/nexus/src/app/sagas/instance_ip_detach.rs#L79-L82
+    const ip = db.ephemeralIps.find((eip) => eip.instance_id === instance.id)
+    if (!ip) throw notFoundErr('Could not find an ephemeral IP')
     db.ephemeralIps = db.ephemeralIps.filter((eip) => eip !== ip)
     return 204
   },
@@ -1290,7 +1306,6 @@ export const handlers = makeHandlers({
   certificateDelete: NotImplemented,
   certificateList: NotImplemented,
   certificateView: NotImplemented,
-  instanceEphemeralIpAttach: NotImplemented,
   instanceMigrate: NotImplemented,
   instanceSerialConsoleStream: NotImplemented,
   instanceSshPublicKeyList: NotImplemented,
