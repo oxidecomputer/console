@@ -31,17 +31,11 @@ const colHelper = createColumnHelper<VpcSubnet>()
 
 VpcSubnetsTab.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project, vpc } = getVpcSelector(params)
-
-  const vpcSelector = getVpcSelector(params)
-
   await Promise.all([
     apiQueryClient.prefetchQuery('vpcSubnetList', {
       query: { project, vpc, limit: PAGE_SIZE },
     }),
-    apiQueryClient.prefetchQuery('vpcView', {
-      path: { vpc: vpcSelector.vpc },
-      query: { project: vpcSelector.project },
-    }),
+    apiQueryClient.prefetchQuery('vpcView', { path: { vpc }, query: { project } }),
   ])
   return null
 }
@@ -64,14 +58,8 @@ export function VpcSubnetsTab() {
     (subnet: VpcSubnet): MenuAction[] => [
       {
         label: 'Edit',
-        onActivate: () => {
-          navigate(
-            pb.vpcSubnetsEdit({
-              ...vpcSelector,
-              subnet: subnet.name,
-            })
-          )
-        },
+        onActivate: () =>
+          navigate(pb.vpcSubnetsEdit({ ...vpcSelector, subnet: subnet.name })),
       },
       // TODO: only show if you have permission to do this
       {
@@ -88,12 +76,7 @@ export function VpcSubnetsTab() {
   const columns = useMemo(
     () => [
       colHelper.accessor('name', {
-        cell: makeLinkCell((subnet) =>
-          pb.vpcSubnetsEdit({
-            ...vpcSelector,
-            subnet: subnet,
-          })
-        ),
+        cell: makeLinkCell((subnet) => pb.vpcSubnetsEdit({ ...vpcSelector, subnet })),
       }),
       colHelper.accessor((vpc) => [vpc.ipv4Block, vpc.ipv6Block] as const, {
         header: 'IP Block',
