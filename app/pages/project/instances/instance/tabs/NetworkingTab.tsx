@@ -342,7 +342,9 @@ export function NetworkingTab() {
   const ephemeralDisabledReason =
     eips.items.filter((ip) => ip.kind === 'ephemeral').length >= 1
       ? 'Ephemeral IP already attached'
-      : null
+      : rows.length === 0
+        ? 'A network interface is required to attach an ephemeral IP'
+        : null
 
   const floatingDisabledReason =
     eips.items.filter((ip) => ip.kind === 'floating').length >= 32
