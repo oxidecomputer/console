@@ -6,10 +6,12 @@
  * Copyright Oxide Computer Company
  */
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
+import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 import * as R from 'remeda'
 
 import {
+  apiQueryClient,
   useApiMutation,
   useApiQueryClient,
   usePrefetchedApiQuery,
@@ -17,20 +19,19 @@ import {
 } from '@oxide/api'
 
 import { ListPlusCell } from '~/components/ListPlusCell'
-import { CreateFirewallRuleForm } from '~/forms/firewall-rules-create'
-import { EditFirewallRuleForm } from '~/forms/firewall-rules-edit'
-import { useVpcSelector } from '~/hooks'
+import { getVpcSelector, useVpcSelector } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { EnabledCell } from '~/table/cells/EnabledCell'
-import { ButtonCell } from '~/table/cells/LinkCell'
+import { LinkCell } from '~/table/cells/LinkCell'
 import { TypeValueCell } from '~/table/cells/TypeValueCell'
 import { getActionsCol } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
 import { Badge } from '~/ui/lib/Badge'
-import { CreateButton } from '~/ui/lib/CreateButton'
+import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableEmptyBox } from '~/ui/lib/Table'
+import { pb } from '~/util/path-builder'
 import { titleCase } from '~/util/str'
 
 const colHelper = createColumnHelper<VpcFirewallRule>()
@@ -96,7 +97,13 @@ const staticColumns = [
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
-export const VpcFirewallRulesTab = () => {
+VpcFirewallRulesTab.loader = async ({ params }: LoaderFunctionArgs) => {
+  const { project, vpc } = getVpcSelector(params)
+  await apiQueryClient.prefetchQuery('vpcFirewallRulesView', { query: { project, vpc } })
+  return null
+}
+
+export function VpcFirewallRulesTab() {
   const queryClient = useApiQueryClient()
   const vpcSelector = useVpcSelector()
 
@@ -105,8 +112,7 @@ export const VpcFirewallRulesTab = () => {
   })
   const rules = useMemo(() => R.sortBy(data.rules, (r) => r.priority), [data])
 
-  const [createModalOpen, setCreateModalOpen] = useState(false)
-  const [editing, setEditing] = useState<VpcFirewallRule | null>(null)
+  const navigate = useNavigate()
 
   const updateRules = useApiMutation('vpcFirewallRulesUpdate', {
     onSuccess() {
@@ -120,14 +126,19 @@ export const VpcFirewallRulesTab = () => {
       colHelper.accessor('name', {
         header: 'Name',
         cell: (info) => (
-          <ButtonCell onClick={() => setEditing(info.row.original)}>
+          <LinkCell to={pb.vpcFirewallRuleEdit({ ...vpcSelector, rule: info.getValue() })}>
             {info.getValue()}
-          </ButtonCell>
+          </LinkCell>
         ),
       }),
       ...staticColumns,
       getActionsCol((rule: VpcFirewallRule) => [
-        { label: 'Edit', onActivate: () => setEditing(rule) },
+        {
+          label: 'Edit',
+          onActivate() {
+            navigate(pb.vpcFirewallRuleEdit({ ...vpcSelector, rule: rule.name }))
+          },
+        },
         {
           label: 'Delete',
           onActivate: confirmDelete({
@@ -143,7 +154,7 @@ export const VpcFirewallRulesTab = () => {
         },
       ]),
     ]
-  }, [setEditing, rules, updateRules, vpcSelector])
+  }, [navigate, rules, updateRules, vpcSelector])
 
   const table = useReactTable({ columns, data: rules, getCoreRowModel: getCoreRowModel() })
 
@@ -153,7 +164,7 @@ export const VpcFirewallRulesTab = () => {
         title="No firewall rules"
         body="You need to create a rule to be able to see it here"
         buttonText="New rule"
-        onClick={() => setCreateModalOpen(true)}
+        buttonTo={pb.vpcFirewallRulesNew(vpcSelector)}
       />
     </TableEmptyBox>
   )
@@ -161,22 +172,10 @@ export const VpcFirewallRulesTab = () => {
   return (
     <>
       <div className="mb-3 flex justify-end space-x-2">
-        <CreateButton onClick={() => setCreateModalOpen(true)}>New rule</CreateButton>
-        {createModalOpen && (
-          <CreateFirewallRuleForm
-            existingRules={rules}
-            onDismiss={() => setCreateModalOpen(false)}
-          />
-        )}
-        {editing && (
-          <EditFirewallRuleForm
-            existingRules={rules}
-            originalRule={editing}
-            onDismiss={() => setEditing(null)}
-          />
-        )}
+        <CreateLink to={pb.vpcFirewallRulesNew(vpcSelector)}>New rule</CreateLink>
       </div>
       {rules.length > 0 ? <Table table={table} /> : emptyState}
+      <Outlet />
     </>
   )
 }

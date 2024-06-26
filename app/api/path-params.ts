@@ -16,6 +16,7 @@ export type NetworkInterface = Merge<Instance, { interface?: string }>
 export type Snapshot = Merge<Project, { snapshot?: string }>
 export type Vpc = Merge<Project, { vpc?: string }>
 export type VpcSubnet = Merge<Vpc, { subnet?: string }>
+export type FirewallRule = Merge<Vpc, { rule?: string }>
 export type Silo = { silo?: string }
 export type IdentityProvider = Merge<Silo, { provider: string }>
 export type SystemUpdate = { version: string }

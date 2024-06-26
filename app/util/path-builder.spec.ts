@@ -22,6 +22,8 @@ const params = {
   image: 'im',
   snapshot: 'sn',
   pool: 'pl',
+  rule: 'fr',
+  subnet: 'su',
 }
 
 test('path builder', () => {
@@ -36,10 +38,9 @@ test('path builder', () => {
         "floatingIpEdit": "/projects/p/floating-ips/f/edit",
         "floatingIps": "/projects/p/floating-ips",
         "floatingIpsNew": "/projects/p/floating-ips-new",
-        "instance": "/projects/p/instances/i",
+        "instance": "/projects/p/instances/i/storage",
         "instanceConnect": "/projects/p/instances/i/connect",
         "instanceMetrics": "/projects/p/instances/i/metrics",
-        "instancePage": "/projects/p/instances/i/storage",
         "instanceStorage": "/projects/p/instances/i/storage",
         "instances": "/projects/p/instances",
         "instancesNew": "/projects/p/instances-new",
@@ -85,8 +86,14 @@ test('path builder', () => {
         "systemHealth": "/system/health",
         "systemIssues": "/system/issues",
         "systemUtilization": "/system/utilization",
-        "vpc": "/projects/p/vpcs/v",
+        "vpc": "/projects/p/vpcs/v/firewall-rules",
         "vpcEdit": "/projects/p/vpcs/v/edit",
+        "vpcFirewallRuleEdit": "/projects/p/vpcs/v/firewall-rules/fr/edit",
+        "vpcFirewallRules": "/projects/p/vpcs/v/firewall-rules",
+        "vpcFirewallRulesNew": "/projects/p/vpcs/v/firewall-rules-new",
+        "vpcSubnets": "/projects/p/vpcs/v/subnets",
+        "vpcSubnetsEdit": "/projects/p/vpcs/v/subnets/su/edit",
+        "vpcSubnetsNew": "/projects/p/vpcs/v/subnets-new",
         "vpcs": "/projects/p/vpcs",
         "vpcsNew": "/projects/p/vpcs-new",
       }

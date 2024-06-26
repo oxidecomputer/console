@@ -27,7 +27,7 @@ export const InstanceLinkCell = ({ instanceId }: { instanceId?: string }) => {
   if (!instance) return <SkeletonCell />
 
   return (
-    <LinkCell to={pb.instancePage({ project, instance: instance.name })}>
+    <LinkCell to={pb.instance({ project, instance: instance.name })}>
       {instance.name}
     </LinkCell>
   )
