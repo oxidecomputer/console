@@ -269,7 +269,8 @@ test('create instance with a different existing disk', async ({ page }) => {
   await page.goto('/projects/mock-project/instances-new')
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
   await page.getByRole('tab', { name: 'Existing disks' }).click()
-  await page.getByLabel('Disk', { exact: true }).click()
+  // verify combobox text entry
+  await page.getByPlaceholder('Select a disk').fill('disk-')
   await page.getByRole('option', { name: 'disk-4' }).click()
   await page.getByRole('button', { name: 'Create instance' }).click()
   await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)
@@ -282,7 +283,7 @@ test('start with an existing disk, but then switch to a silo image', async ({ pa
   await page.goto('/projects/mock-project/instances-new')
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
   await page.getByRole('tab', { name: 'Existing disks' }).click()
-  await page.getByLabel('Disk', { exact: true }).click()
+  await page.getByPlaceholder('Select a disk').fill('disk-')
   await page.getByRole('option', { name: 'disk-7' }).click()
   await page.getByRole('tab', { name: 'Silo images' }).click()
   await page.getByRole('button', { name: 'Create instance' }).click()
@@ -297,13 +298,13 @@ test('additional disks do not list committed disks as available', async ({ page 
   const attachExistingDiskButton = page.getByRole('button', {
     name: 'Attach existing disk',
   })
-  const selectAnOption = page.getByRole('button', { name: 'Select an option' })
+  const selectADisk = page.getByPlaceholder('Select a disk')
   const disk2 = page.getByRole('option', { name: 'disk-2' })
   const disk3 = page.getByRole('option', { name: 'disk-3' })
   const disk4 = page.getByRole('option', { name: 'disk-4' })
 
   await attachExistingDiskButton.click()
-  await selectAnOption.click()
+  await selectADisk.click()
   // disk-2 is already attached, so should not be visible in the list
   await expect(disk2).toBeHidden()
   // disk-3, though, should be present
@@ -315,7 +316,7 @@ test('additional disks do not list committed disks as available', async ({ page 
   await page.getByRole('button', { name: 'Attach disk' }).click()
 
   await attachExistingDiskButton.click()
-  await selectAnOption.click()
+  await selectADisk.click()
   // disk-2 should still be hidden
   await expect(disk2).toBeHidden()
   // now disk-3 should be hidden as well
@@ -427,4 +428,41 @@ test('attach a floating IP section has Empty version when no floating IPs exist 
   await expect(
     page.getByText('Create a floating IP to attach it to this instance')
   ).toBeVisible()
+})
+
+test('attaching additional disks allows for combobox filtering', async ({ page }) => {
+  await page.goto('/projects/other-project/instances-new')
+
+  const attachExistingDiskButton = page.getByRole('button', {
+    name: 'Attach existing disk',
+  })
+  const selectADisk = page.getByPlaceholder('Select a disk')
+
+  await attachExistingDiskButton.click()
+  await selectADisk.click()
+  // several disks should be shown
+  await expect(page.getByRole('option', { name: 'disk-0001' })).toBeVisible()
+  await expect(page.getByRole('option', { name: 'disk-0002' })).toBeVisible()
+  await expect(page.getByRole('option', { name: 'disk-1000' })).toBeVisible()
+
+  // type in a string to use as a filter
+  await selectADisk.fill('disk-010')
+  // only disks with that substring should be shown
+  await expect(page.getByRole('option', { name: 'disk-0100' })).toBeVisible()
+  await expect(page.getByRole('option', { name: 'disk-0101' })).toBeVisible()
+  await expect(page.getByRole('option', { name: 'disk-0102' })).toBeVisible()
+  await expect(page.getByRole('option', { name: 'disk-0001' })).toBeHidden()
+  await expect(page.getByRole('option', { name: 'disk-1000' })).toBeHidden()
+
+  // select one
+  await page.getByRole('option', { name: 'disk-0102' }).click()
+
+  // now options hidden and only the selected one is visible in the button/input
+  await expect(page.getByRole('option')).toBeHidden()
+  await expect(page.getByRole('button', { name: 'disk-0102' })).toBeVisible()
+
+  // a random string should give a disabled option
+  await selectADisk.click()
+  await selectADisk.fill('asdf')
+  await expect(page.getByRole('option', { name: 'No items match' })).toBeVisible()
 })

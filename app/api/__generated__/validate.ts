@@ -28,7 +28,7 @@ const SafeBoolean = z.preprocess((v) => (v === 'false' ? false : v), z.coerce.bo
 /**
  * An IPv4 subnet
  *
- * An IPv4 subnet, including prefix and subnet mask
+ * An IPv4 subnet, including prefix and prefix length
  */
 export const Ipv4Net = z.preprocess(
   processResponseBody,
@@ -81,7 +81,11 @@ export const NameOrId = z.preprocess(
  */
 export const Address = z.preprocess(
   processResponseBody,
-  z.object({ address: IpNet, addressLot: NameOrId })
+  z.object({
+    address: IpNet,
+    addressLot: NameOrId,
+    vlanId: z.number().min(0).max(65535).optional(),
+  })
 )
 
 /**
@@ -734,6 +738,7 @@ export const ServiceUsingCertificate = z.preprocess(
 export const Certificate = z.preprocess(
   processResponseBody,
   z.object({
+    cert: z.string(),
     description: z.string(),
     id: z.string().uuid(),
     name: Name,
@@ -2767,6 +2772,7 @@ export const SwitchPortAddressConfig = z.preprocess(
     addressLotBlockId: z.string().uuid(),
     interfaceName: z.string(),
     portSettingsId: z.string().uuid(),
+    vlanId: z.number().min(0).max(65535).optional(),
   })
 )
 

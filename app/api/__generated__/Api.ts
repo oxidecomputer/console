@@ -15,7 +15,7 @@ export type { ApiConfig, ApiResult, ErrorBody, ErrorResult } from './http-client
 /**
  * An IPv4 subnet
  *
- * An IPv4 subnet, including prefix and subnet mask
+ * An IPv4 subnet, including prefix and prefix length
  */
 export type Ipv4Net = string
 
@@ -45,6 +45,8 @@ export type Address = {
   address: IpNet
   /** The address lot this address is drawn from. */
   addressLot: NameOrId
+  /** Optional VLAN ID for this address */
+  vlanId?: number
 }
 
 /**
@@ -706,12 +708,15 @@ export type ServiceUsingCertificate = 'external_api'
  * View of a Certificate
  */
 export type Certificate = {
+  /** PEM-formatted string containing public certificate chain */
+  cert: string
   /** human-readable free-form text about a resource */
   description: string
   /** unique, immutable, system-controlled identifier for each resource */
   id: string
   /** unique, mutable, user-controlled identifier for each resource */
   name: Name
+  /** The service using this certificate */
   service: ServiceUsingCertificate
   /** timestamp when this resource was created */
   timeCreated: Date
@@ -2743,6 +2748,8 @@ export type SwitchPortAddressConfig = {
   interfaceName: string
   /** The port settings object this address configuration belongs to. */
   portSettingsId: string
+  /** An optional VLAN ID */
+  vlanId?: number
 }
 
 /**

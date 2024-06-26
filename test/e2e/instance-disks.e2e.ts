@@ -63,7 +63,7 @@ test('Attach disk', async ({ page }) => {
   await expectVisible(page, ['role=option[name="disk-3"]', 'role=option[name="disk-4"]'])
   await page.click('role=option[name="disk-3"]')
 
-  await page.click('role=button[name="Attach Disk"]')
+  await page.click('role=button[name="Attach disk"]')
   await expectVisible(page, ['role=cell[name="disk-3"]'])
 })
 

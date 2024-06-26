@@ -20,6 +20,7 @@ import {
 import { Images16Icon, Images24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
+import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { toListboxItem } from '~/components/form/fields/ImageSelectField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { useForm } from '~/hooks'
@@ -167,7 +168,7 @@ const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
       <Modal.Body>
         <Modal.Section>
           <form autoComplete="off" onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <ListboxField
+            <ComboboxField
               placeholder="Filter images by project"
               name="project"
               label="Project"
@@ -268,7 +269,7 @@ const DemoteImageModal = ({
               content="Once an image has been demoted it is only visible to the project that it is demoted into. This will not affect disks already created with the image."
             />
 
-            <ListboxField
+            <ComboboxField
               placeholder="Select project for image"
               name="project"
               label="Project"

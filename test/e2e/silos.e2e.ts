@@ -242,8 +242,8 @@ test('Silo IP pools link pool', async ({ page }) => {
   await page.getByRole('button', { name: 'Link pool' }).click()
   await expect(modal).toBeVisible()
 
-  // select silo in listbox and click link
-  await page.getByRole('button', { name: 'Select pool' }).click()
+  // select silo in combobox and click link
+  await page.getByPlaceholder('Select pool').fill('ip-pool')
   await page.getByRole('option', { name: 'ip-pool-3' }).click()
   await modal.getByRole('button', { name: 'Link' }).click()
 

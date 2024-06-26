@@ -1,5 +1,6 @@
 /dist
 /node_modules
+deno.lock
 
 # IDEs and editors
 /.idea
