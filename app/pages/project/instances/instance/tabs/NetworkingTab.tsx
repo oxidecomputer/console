@@ -21,11 +21,12 @@ import {
 } from '@oxide/api'
 import { IpGlobal24Icon, Networking24Icon } from '@oxide/design-system/icons/react'
 
+import { AttachEphemeralIpModal } from '~/components/AttachEphemeralIpModal'
+import { AttachFloatingIpModal } from '~/components/AttachFloatingIpModal'
 import { HL } from '~/components/HL'
 import { CreateNetworkInterfaceForm } from '~/forms/network-interface-create'
 import { EditNetworkInterfaceForm } from '~/forms/network-interface-edit'
 import { getInstanceSelector, useInstanceSelector, useProjectSelector } from '~/hooks'
-import { AttachFloatingIpModal } from '~/pages/project/floating-ips/AttachFloatingIpModal'
 import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
@@ -94,6 +95,10 @@ NetworkingTab.loader = async ({ params }: LoaderFunctionArgs) => {
       path: { instance },
       query: { project },
     }),
+    // This is used in AttachEphemeralIpModal
+    apiQueryClient.prefetchQuery('projectIpPoolList', {
+      query: { limit: 1000 },
+    }),
   ])
   return null
 }
@@ -131,7 +136,8 @@ export function NetworkingTab() {
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [editing, setEditing] = useState<InstanceNetworkInterface | null>(null)
-  const [attachModalOpen, setAttachModalOpen] = useState(false)
+  const [attachEphemeralModalOpen, setAttachEphemeralModalOpen] = useState(false)
+  const [attachFloatingModalOpen, setAttachFloatingModalOpen] = useState(false)
 
   // Fetch the floating IPs to show in the "Attach floating IP" modal
   const { data: ips } = usePrefetchedApiQuery('floatingIpList', {
@@ -216,13 +222,13 @@ export function NetworkingTab() {
 
   const columns = useColsWithActions(staticCols, makeActions)
 
-  const rows = usePrefetchedApiQuery('instanceNetworkInterfaceList', {
+  const nics = usePrefetchedApiQuery('instanceNetworkInterfaceList', {
     query: { ...instanceSelector, limit: 1000 },
   }).data.items
 
   const tableInstance = useReactTable({
     columns,
-    data: rows || [],
+    data: nics || [],
     getCoreRowModel: getCoreRowModel(),
   })
 
@@ -337,9 +343,14 @@ export function NetworkingTab() {
     getCoreRowModel: getCoreRowModel(),
   })
 
-  const disabledReason =
-    eips.items.length >= 32
-      ? 'IP address limit of 32 reached for this instance'
+  // If there's already an ephemeral IP, or if there are no network interfaces,
+  // they shouldn't be able to attach an ephemeral IP
+  const enableEphemeralAttachButton =
+    eips.items.filter((ip) => ip.kind === 'ephemeral').length === 0 && nics.length > 0
+
+  const floatingDisabledReason =
+    eips.items.filter((ip) => ip.kind === 'floating').length >= 32
+      ? 'Floating IP address limit of 32 reached for this instance'
       : availableIps.length === 0
         ? 'No available floating IPs'
         : null
@@ -348,18 +359,33 @@ export function NetworkingTab() {
     <>
       <TableControls>
         <TableTitle id="attached-ips-label">External IPs</TableTitle>
-        <CreateButton
-          onClick={() => setAttachModalOpen(true)}
-          disabled={!!disabledReason}
-          disabledReason={disabledReason}
-        >
-          Attach floating IP
-        </CreateButton>
-        {attachModalOpen && (
+        <div className="flex gap-3">
+          {/*
+            We normally wouldn't hide this button and would just have a disabled state on it,
+            but it is very rare for this button to be necessary, and it would be disabled
+            most of the time, for most users. To reduce clutter on the screen, we're hiding it.
+           */}
+          {enableEphemeralAttachButton && (
+            <CreateButton onClick={() => setAttachEphemeralModalOpen(true)}>
+              Attach ephemeral IP
+            </CreateButton>
+          )}
+          <CreateButton
+            onClick={() => setAttachFloatingModalOpen(true)}
+            disabled={!!floatingDisabledReason}
+            disabledReason={floatingDisabledReason}
+          >
+            Attach floating IP
+          </CreateButton>
+        </div>
+        {attachEphemeralModalOpen && (
+          <AttachEphemeralIpModal onDismiss={() => setAttachEphemeralModalOpen(false)} />
+        )}
+        {attachFloatingModalOpen && (
           <AttachFloatingIpModal
             floatingIps={availableIps}
             instance={instance}
-            onDismiss={() => setAttachModalOpen(false)}
+            onDismiss={() => setAttachFloatingModalOpen(false)}
           />
         )}
       </TableControls>
@@ -370,7 +396,7 @@ export function NetworkingTab() {
           <EmptyMessage
             icon={<IpGlobal24Icon />}
             title="No external IPs"
-            body="You need to attach an external IP to be able to see it here"
+            body="Attach an external IP to see it here"
           />
         </TableEmptyBox>
       )}
@@ -397,14 +423,14 @@ export function NetworkingTab() {
           />
         )}
       </TableControls>
-      {rows?.length && rows.length > 0 ? (
+      {nics.length > 0 ? (
         <Table aria-labelledby="nics-label" table={tableInstance} />
       ) : (
         <TableEmptyBox>
           <EmptyMessage
             icon={<Networking24Icon />}
             title="No network interfaces"
-            body="You need to create a network interface to be able to see it here"
+            body="Create a network interface to see it here"
           />
         </TableEmptyBox>
       )}

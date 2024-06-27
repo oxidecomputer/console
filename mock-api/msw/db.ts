@@ -40,7 +40,7 @@ export const lookupById = <T extends { id: string }>(table: T[], id: string) => 
 export const getIpFromPool = (poolName: string | undefined) => {
   const pool = lookup.ipPool({ pool: poolName })
   const ipPoolRange = db.ipPoolRanges.find((range) => range.ip_pool_id === pool.id)
-  if (!ipPoolRange) throw notFoundErr
+  if (!ipPoolRange) throw notFoundErr('IP pool range')
 
   // right now, we're just using the first address in the range, but we'll
   // want to filter the list of available IPs for the first unused address
@@ -168,12 +168,12 @@ export const lookup = {
     return image
   },
   ipPool({ pool: id }: PP.IpPool): Json<Api.IpPool> {
-    if (!id) throw notFoundErr
+    if (!id) throw notFoundErr('Missing IP pool ID or name')
 
     if (isUuid(id)) return lookupById(db.ipPools, id)
 
     const pool = db.ipPools.find((p) => p.name === id)
-    if (!pool) throw notFoundErr
+    if (!pool) throw notFoundErr('IP pool')
 
     return pool
   },

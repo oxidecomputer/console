@@ -561,6 +561,21 @@ export const handlers = makeHandlers({
     disk.state = { state: 'detached' }
     return disk
   },
+  instanceEphemeralIpAttach({ path, query: projectParams, body }) {
+    const instance = lookup.instance({ ...path, ...projectParams })
+    const { pool } = body
+    const firstAvailableAddress = getIpFromPool(pool)
+    const externalIp = {
+      ip: firstAvailableAddress,
+      kind: 'ephemeral' as const,
+    }
+    db.ephemeralIps.push({
+      instance_id: instance.id,
+      external_ip: externalIp,
+    })
+
+    return externalIp
+  },
   instanceEphemeralIpDetach({ path, query }) {
     const instance = lookup.instance({ ...path, ...query })
     // match API logic: find/remove first ephemeral ip attached to instance
@@ -1291,7 +1306,6 @@ export const handlers = makeHandlers({
   certificateDelete: NotImplemented,
   certificateList: NotImplemented,
   certificateView: NotImplemented,
-  instanceEphemeralIpAttach: NotImplemented,
   instanceMigrate: NotImplemented,
   instanceSerialConsoleStream: NotImplemented,
   instanceSshPublicKeyList: NotImplemented,
