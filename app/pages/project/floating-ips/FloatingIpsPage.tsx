@@ -260,7 +260,7 @@ const AttachFloatingIpModal = ({
   const floatingIpAttach = useApiMutation('floatingIpAttach', {
     onSuccess() {
       queryClient.invalidateQueries('floatingIpList')
-      addToast({ content: 'Your Floating IP has been attached' })
+      addToast({ content: 'Your floating IP has been attached' })
       onDismiss()
     },
     onError: (err) => {
