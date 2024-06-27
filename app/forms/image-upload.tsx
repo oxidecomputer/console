@@ -637,7 +637,7 @@ export function CreateImageSideModalForm() {
                   className={
                     allDone
                       ? 'transition-colors bg-accent-secondary children:text-accent'
-                      : ' transition-colors'
+                      : 'transition-colors'
                   }
                 />
               </div>
