@@ -124,7 +124,7 @@ function DiskMetric({
 
   return (
     <div className="flex w-1/2 grow flex-col">
-      <h2 className="ml-3 flex items-center text-mono-xs text-secondary ">
+      <h2 className="ml-3 flex items-center text-mono-xs text-secondary">
         {title} <div className="ml-1 normal-case text-quaternary">{label}</div>
         {isLoading && <Spinner className="ml-2" />}
       </h2>

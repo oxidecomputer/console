@@ -129,7 +129,7 @@ function DateSegment({
           (segment.maxValue != null && String(segment.maxValue).length + 'ch') || undefined,
       }}
       className={cn(
-        'group group box-content rounded px-[1px] text-right tabular-nums outline-none',
+        'group box-content rounded px-[1px] text-right tabular-nums outline-none',
         !readOnly && 'focus:text-default focus:bg-accent-secondary-hover',
         segment.type === 'timeZoneName' ? 'ml-1 text-sans-sm' : 'text-sans-md'
       )}
