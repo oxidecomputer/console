@@ -218,13 +218,13 @@ export function NetworkingTab() {
 
   const columns = useColsWithActions(staticCols, makeActions)
 
-  const rows = usePrefetchedApiQuery('instanceNetworkInterfaceList', {
+  const nics = usePrefetchedApiQuery('instanceNetworkInterfaceList', {
     query: { ...instanceSelector, limit: 1000 },
   }).data.items
 
   const tableInstance = useReactTable({
     columns,
-    data: rows || [],
+    data: nics || [],
     getCoreRowModel: getCoreRowModel(),
   })
 
@@ -342,7 +342,7 @@ export function NetworkingTab() {
   const ephemeralDisabledReason =
     eips.items.filter((ip) => ip.kind === 'ephemeral').length >= 1
       ? 'Ephemeral IP already attached'
-      : rows.length === 0
+      : nics.length === 0
         ? 'A network interface is required to attach an ephemeral IP'
         : null
 
@@ -421,7 +421,7 @@ export function NetworkingTab() {
           />
         )}
       </TableControls>
-      {rows?.length && rows.length > 0 ? (
+      {nics.length > 0 ? (
         <Table aria-labelledby="nics-label" table={tableInstance} />
       ) : (
         <TableEmptyBox>
