@@ -98,17 +98,8 @@ const staticColumns = [
 ]
 
 VpcFirewallRulesTab.loader = async ({ params }: LoaderFunctionArgs) => {
-  const vpcSelector = getVpcSelector(params)
-
-  await Promise.all([
-    apiQueryClient.prefetchQuery('vpcFirewallRulesView', {
-      query: vpcSelector,
-    }),
-    apiQueryClient.prefetchQuery('vpcView', {
-      path: { vpc: vpcSelector.vpc },
-      query: { project: vpcSelector.project },
-    }),
-  ])
+  const { project, vpc } = getVpcSelector(params)
+  await apiQueryClient.prefetchQuery('vpcFirewallRulesView', { query: { project, vpc } })
   return null
 }
 
@@ -135,12 +126,7 @@ export function VpcFirewallRulesTab() {
       colHelper.accessor('name', {
         header: 'Name',
         cell: (info) => (
-          <LinkCell
-            to={pb.vpcFirewallRuleEdit({
-              ...vpcSelector,
-              rule: info.row.original.name,
-            })}
-          >
+          <LinkCell to={pb.vpcFirewallRuleEdit({ ...vpcSelector, rule: info.getValue() })}>
             {info.getValue()}
           </LinkCell>
         ),
@@ -150,12 +136,7 @@ export function VpcFirewallRulesTab() {
         {
           label: 'Edit',
           onActivate() {
-            navigate(
-              pb.vpcFirewallRuleEdit({
-                ...vpcSelector,
-                rule: rule.name,
-              })
-            )
+            navigate(pb.vpcFirewallRuleEdit({ ...vpcSelector, rule: rule.name }))
           },
         },
         {

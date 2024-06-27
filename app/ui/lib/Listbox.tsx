@@ -140,14 +140,12 @@ export const Listbox = <Value extends string = string>({
                   value={item.value}
                   className="relative border-b border-secondary last:border-0"
                 >
-                  {({ active, selected }) => (
-                    // TODO: redo active styling with `data-active` somehow
+                  {({ focus, selected }) => (
                     <div
-                      className={cn(
-                        'ox-menu-item text-secondary',
-                        selected && 'is-selected',
-                        active && 'is-highlighted'
-                      )}
+                      className={cn('ox-menu-item', {
+                        'is-selected': selected,
+                        'is-highlighted': focus,
+                      })}
                     >
                       {item.label}
                     </div>

@@ -102,7 +102,7 @@ export function ProjectAccessPage() {
         const projectAccessRow = userAssignments.find((a) => a.roleSource === 'project')
 
         const roleBadges = R.sortBy(
-          [siloAccessRow, projectAccessRow].filter(R.isTruthy),
+          [siloAccessRow, projectAccessRow].filter((r) => !!r),
           (r) => roleOrder[r.roleName] // sorts strongest role first
         )
 

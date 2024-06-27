@@ -19,7 +19,7 @@ import {
   type ExternalIp,
   type InstanceNetworkInterface,
 } from '@oxide/api'
-import { Networking24Icon } from '@oxide/design-system/icons/react'
+import { IpGlobal24Icon, Networking24Icon } from '@oxide/design-system/icons/react'
 
 import { HL } from '~/components/HL'
 import { CreateNetworkInterfaceForm } from '~/forms/network-interface-create'
@@ -255,6 +255,16 @@ export function NetworkingTab() {
     }),
   ]
 
+  const ephemeralIpDetach = useApiMutation('instanceEphemeralIpDetach', {
+    onSuccess() {
+      queryClient.invalidateQueries('instanceExternalIpList')
+      addToast({ content: 'Your ephemeral IP has been detached' })
+    },
+    onError: (err) => {
+      addToast({ title: 'Error', content: err.message, variant: 'error' })
+    },
+  })
+
   const floatingIpDetach = useApiMutation('floatingIpDetach', {
     onSuccess() {
       queryClient.invalidateQueries('floatingIpList')
@@ -275,35 +285,50 @@ export function NetworkingTab() {
         },
       }
 
-      if (externalIp.kind === 'floating') {
-        return [
-          copyAction,
-          {
-            label: 'Detach',
-            onActivate: () =>
-              confirmAction({
-                actionType: 'danger',
-                doAction: () =>
-                  floatingIpDetach.mutateAsync({
-                    path: { floatingIp: externalIp.name },
-                    query: { project },
-                  }),
-                modalTitle: 'Detach Floating IP',
-                modalContent: (
-                  <p>
-                    Are you sure you want to detach floating IP <HL>{externalIp.name}</HL>{' '}
-                    from <HL>{instanceName}</HL>? The instance will no longer be reachable
-                    at <HL>{externalIp.ip}</HL>.
-                  </p>
-                ),
-                errorTitle: 'Error detaching floating IP',
-              }),
-          },
-        ]
-      }
+      const doAction =
+        externalIp.kind === 'floating'
+          ? () =>
+              floatingIpDetach.mutateAsync({
+                path: { floatingIp: externalIp.name },
+                query: { project },
+              })
+          : () =>
+              ephemeralIpDetach.mutateAsync({
+                path: { instance: instanceName },
+                query: { project },
+              })
+
+      return [
+        copyAction,
+        {
+          label: 'Detach',
+          onActivate: () =>
+            confirmAction({
+              actionType: 'danger',
+              doAction,
+              modalTitle: `Confirm detach ${externalIp.kind} IP`,
+              modalContent: (
+                <p>
+                  Are you sure you want to detach{' '}
+                  {externalIp.kind === 'ephemeral' ? (
+                    'this ephemeral IP'
+                  ) : (
+                    <>
+                      floating IP <HL>{externalIp.name}</HL>
+                    </>
+                  )}{' '}
+                  from <HL>{instanceName}</HL>? The instance will no longer be reachable at{' '}
+                  <HL>{externalIp.ip}</HL>.
+                </p>
+              ),
+              errorTitle: `Error detaching ${externalIp.kind} IP`,
+            }),
+        },
+      ]
+
       return [copyAction]
     },
-    [floatingIpDetach, instanceName, project]
+    [ephemeralIpDetach, floatingIpDetach, instanceName, project]
   )
 
   const ipTableInstance = useReactTable({
@@ -338,7 +363,17 @@ export function NetworkingTab() {
           />
         )}
       </TableControls>
-      <Table aria-labelledby="attached-ips-label" table={ipTableInstance} />
+      {eips.items.length > 0 ? (
+        <Table aria-labelledby="attached-ips-label" table={ipTableInstance} />
+      ) : (
+        <TableEmptyBox>
+          <EmptyMessage
+            icon={<IpGlobal24Icon />}
+            title="No external IPs"
+            body="You need to attach an external IP to be able to see it here"
+          />
+        </TableEmptyBox>
+      )}
 
       <TableControls className="mt-8">
         <TableTitle id="nics-label">Network interfaces</TableTitle>

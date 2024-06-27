@@ -77,7 +77,6 @@ export const pb = {
 
   // same deal as instance detail: go straight to first tab
   vpc: (params: Vpc) => pb.vpcFirewallRules(params),
-
   vpcEdit: (params: Vpc) => `${vpcBase(params)}/edit`,
 
   vpcFirewallRules: (params: Vpc) => `${vpcBase(params)}/firewall-rules`,

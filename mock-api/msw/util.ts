@@ -9,7 +9,6 @@ import { differenceInSeconds, subHours } from 'date-fns'
 // Works without the .js for dev server and prod build in MSW mode, but
 // playwright wants the .js. No idea why, let's just add the .js.
 import { IPv4, IPv6 } from 'ip-num/IPNumber.js'
-import * as R from 'remeda'
 
 import {
   FLEET_ID,
@@ -343,7 +342,7 @@ export function userHasRole(
   const userGroupIds = db.groupMemberships
     .filter((gm) => gm.userId === user.id)
     .map((gm) => db.userGroups.find((g) => g.id === gm.groupId))
-    .filter(R.isTruthy)
+    .filter((g) => !!g)
     .map((g) => g.id)
 
   /** All actors with *at least* the specified role on the resource */

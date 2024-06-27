@@ -19,36 +19,28 @@ import {
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import {
-  getVpcSubnetSelector,
-  useForm,
-  useVpcSelector,
-  useVpcSubnetSelector,
-} from '~/hooks'
+import { getVpcSubnetSelector, useForm, useVpcSubnetSelector } from '~/hooks'
 import { pb } from '~/util/path-builder'
 
 EditSubnetForm.loader = async ({ params }: LoaderFunctionArgs) => {
-  const vpcSubnetSelector = getVpcSubnetSelector(params)
-
+  const { project, vpc, subnet } = getVpcSubnetSelector(params)
   await apiQueryClient.prefetchQuery('vpcSubnetView', {
-    query: { project: vpcSubnetSelector.project, vpc: vpcSubnetSelector.vpc },
-    path: { subnet: vpcSubnetSelector.subnet },
+    query: { project, vpc },
+    path: { subnet },
   })
-
   return null
 }
 
 export function EditSubnetForm() {
-  const vpcSelector = useVpcSelector()
-  const vpcSubnetSelector = useVpcSubnetSelector()
+  const { project, vpc, subnet: subnetName } = useVpcSubnetSelector()
   const queryClient = useApiQueryClient()
 
   const navigate = useNavigate()
-  const onDismiss = () => navigate(pb.vpcSubnets(vpcSelector))
+  const onDismiss = () => navigate(pb.vpcSubnets({ project, vpc }))
 
   const { data: subnet } = usePrefetchedApiQuery('vpcSubnetView', {
-    query: vpcSelector,
-    path: { subnet: vpcSubnetSelector.subnet },
+    query: { project, vpc },
+    path: { subnet: subnetName },
   })
 
   const updateSubnet = useApiMutation('vpcSubnetUpdate', {
@@ -71,7 +63,7 @@ export function EditSubnetForm() {
       onSubmit={(body) => {
         updateSubnet.mutate({
           path: { subnet: subnet.name },
-          query: vpcSelector,
+          query: { project, vpc },
           body,
         })
       }}

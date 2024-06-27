@@ -15,8 +15,14 @@ import {
   usePrefetchedApiQuery,
 } from '@oxide/api'
 
+import { trigger404 } from '~/components/ErrorBoundary'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { getVpcSelector, useFirewallRuleSelector, useForm, useVpcSelector } from '~/hooks'
+import {
+  getFirewallRuleSelector,
+  useFirewallRuleSelector,
+  useForm,
+  useVpcSelector,
+} from '~/hooks'
 import { invariant } from '~/util/invariant'
 import { pb } from '~/util/path-builder'
 
@@ -27,11 +33,14 @@ import {
 } from './firewall-rules-create'
 
 EditFirewallRuleForm.loader = async ({ params }: LoaderFunctionArgs) => {
-  const vpcSelector = getVpcSelector(params)
+  const { project, vpc, rule } = getFirewallRuleSelector(params)
 
-  await apiQueryClient.prefetchQuery('vpcFirewallRulesView', {
-    query: vpcSelector,
+  const data = await apiQueryClient.fetchQuery('vpcFirewallRulesView', {
+    query: { project, vpc },
   })
+
+  const originalRule = data.rules.find((r) => r.name === rule)
+  if (!originalRule) throw trigger404
 
   return null
 }
@@ -47,6 +56,7 @@ export function EditFirewallRuleForm() {
 
   const originalRule = data.rules.find((r) => r.name === rule)
 
+  // we shouldn't hit this because of the trigger404 in the loader
   invariant(originalRule, 'Firewall rule must exist')
 
   const navigate = useNavigate()

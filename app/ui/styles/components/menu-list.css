@@ -30,6 +30,7 @@
   @apply border-0 text-accent bg-accent-secondary hover:bg-accent-secondary-hover;
 }
 
+/* beautiful ring */
 .ox-menu-item.is-selected:after {
   content: '';
   @apply absolute bottom-0 left-0 right-0 top-0 block rounded border border-accent;

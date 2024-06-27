@@ -327,3 +327,18 @@ test('create from existing rule', async ({ page }) => {
 
   // TODO: should assert all the values, really
 })
+
+const rulePath = '/projects/mock-project/vpcs/mock-vpc/firewall-rules/allow-icmp/edit'
+
+test('can edit rule directly by URL', async ({ page }) => {
+  await page.goto(rulePath)
+  await expect(page.getByRole('dialog', { name: 'Edit rule' })).toBeVisible()
+  await expect(page.getByRole('textbox', { name: 'Name', exact: true })).toHaveValue(
+    'allow-icmp'
+  )
+})
+
+test('404s on edit non-existent rule', async ({ page }) => {
+  await page.goto(rulePath.replace('icmp', 'boop'))
+  await expect(page.getByText('Page not found')).toBeVisible()
+})
