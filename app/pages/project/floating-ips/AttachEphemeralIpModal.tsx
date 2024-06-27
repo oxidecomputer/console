@@ -9,27 +9,16 @@
 import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 
-import {
-  useApiMutation,
-  useApiQueryClient,
-  usePrefetchedApiQuery,
-  type Instance,
-} from '~/api'
+import { useApiMutation, useApiQueryClient, usePrefetchedApiQuery } from '~/api'
 import { ListboxField } from '~/components/form/fields/ListboxField'
-import { useProjectSelector } from '~/hooks'
+import { useInstanceSelector } from '~/hooks'
 import { addToast } from '~/stores/toast'
 import { Badge } from '~/ui/lib/Badge'
 import { Modal } from '~/ui/lib/Modal'
 
-export const AttachEphemeralIpModal = ({
-  instance,
-  onDismiss,
-}: {
-  instance: Instance
-  onDismiss: () => void
-}) => {
+export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void }) => {
   const queryClient = useApiQueryClient()
-  const { project } = useProjectSelector()
+  const { project, instance } = useInstanceSelector()
   const { data: siloPools } = usePrefetchedApiQuery('projectIpPoolList', {
     query: { limit: 1000 },
   })
@@ -85,7 +74,7 @@ export const AttachEphemeralIpModal = ({
         disabled={!pool}
         onAction={() =>
           instanceEphemeralIpAttach.mutate({
-            path: { instance: instance.name },
+            path: { instance },
             query: { project },
             body: { pool },
           })

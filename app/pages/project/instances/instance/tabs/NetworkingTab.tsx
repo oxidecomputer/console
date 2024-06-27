@@ -379,10 +379,7 @@ export function NetworkingTab() {
           </CreateButton>
         </div>
         {attachEphemeralModalOpen && (
-          <AttachEphemeralIpModal
-            instance={instance}
-            onDismiss={() => setAttachEphemeralModalOpen(false)}
-          />
+          <AttachEphemeralIpModal onDismiss={() => setAttachEphemeralModalOpen(false)} />
         )}
         {attachFloatingModalOpen && (
           <AttachFloatingIpModal
