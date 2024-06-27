@@ -14,7 +14,6 @@ import { ListboxField } from '~/components/form/fields/ListboxField'
 import { useProjectSelector } from '~/hooks'
 import { addToast } from '~/stores/toast'
 import { Badge } from '~/ui/lib/Badge'
-import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 
 export const AttachEphemeralIpModal = ({
@@ -50,15 +49,11 @@ export const AttachEphemeralIpModal = ({
     <Modal isOpen title="Attach ephemeral IP" onDismiss={onDismiss}>
       <Modal.Body>
         <Modal.Section>
-          <Message
-            variant="info"
-            content="The ephemeral IP will be drawn from the selected pool"
-          />
           <form>
             <ListboxField
               control={form.control}
               name="pool"
-              label="Ephemeral IP"
+              label="IP pool"
               placeholder={
                 siloPools?.items && siloPools.items.length > 0
                   ? 'Select pool'

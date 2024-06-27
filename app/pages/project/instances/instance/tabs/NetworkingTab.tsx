@@ -95,6 +95,10 @@ NetworkingTab.loader = async ({ params }: LoaderFunctionArgs) => {
       path: { instance },
       query: { project },
     }),
+    // This is used in AttachEphemeralIpModal
+    apiQueryClient.prefetchQuery('projectIpPoolList', {
+      query: { limit: 1000 },
+    }),
   ])
   return null
 }
