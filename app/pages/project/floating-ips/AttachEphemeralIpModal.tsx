@@ -9,7 +9,12 @@
 import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 
-import { useApiMutation, useApiQuery, useApiQueryClient, type Instance } from '~/api'
+import {
+  useApiMutation,
+  useApiQueryClient,
+  usePrefetchedApiQuery,
+  type Instance,
+} from '~/api'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { useProjectSelector } from '~/hooks'
 import { addToast } from '~/stores/toast'
@@ -25,7 +30,7 @@ export const AttachEphemeralIpModal = ({
 }) => {
   const queryClient = useApiQueryClient()
   const { project } = useProjectSelector()
-  const { data: siloPools } = useApiQuery('projectIpPoolList', {
+  const { data: siloPools } = usePrefetchedApiQuery('projectIpPoolList', {
     query: { limit: 1000 },
   })
   const defaultPool = useMemo(
