@@ -122,10 +122,16 @@ test('Instance networking tab — Detach / Attach Ephemeral IPs', async ({ page 
   await expect(attachEphemeralIpButton).toBeDisabled()
 })
 
-test('Instance networking tab — Attach ephemeral IP tooltip copy', async ({ page }) => {
+/*
+// We are currently hiding the 'Attach ephemeral IP' button when it's disabled
+test('Instance networking tab — Attach ephemeral IP - disabled button copy', async ({
+  page,
+}) => {
   await page.goto('/projects/mock-project/instances/db1/network-interfaces')
 
-  const attachEphemeralIpButton = page.getByRole('button', { name: 'Attach ephemeral IP' })
+  const attachEphemeralIpButton = page.getByRole('button', {
+    name: 'Attach ephemeral IP',
+  })
   const externalIpTable = page.getByRole('table', { name: 'External IPs' })
   const ephemeralCell = externalIpTable.getByRole('cell', { name: 'ephemeral' })
 
@@ -166,6 +172,7 @@ test('Instance networking tab — Attach ephemeral IP tooltip copy', async ({ pa
     page.getByRole('tooltip', { name: 'A network interface is required' })
   ).toBeVisible()
 })
+*/
 
 test('Instance networking tab — External IPs', async ({ page }) => {
   await page.goto('/projects/mock-project/instances/db1/network-interfaces')

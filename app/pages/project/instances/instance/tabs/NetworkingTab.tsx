@@ -358,13 +358,16 @@ export function NetworkingTab() {
       <TableControls>
         <TableTitle id="attached-ips-label">External IPs</TableTitle>
         <div className="flex gap-3">
-          <CreateButton
-            onClick={() => setAttachEphemeralModalOpen(true)}
-            disabled={!!ephemeralDisabledReason}
-            disabledReason={ephemeralDisabledReason}
-          >
-            Attach ephemeral IP
-          </CreateButton>
+          {!ephemeralDisabledReason && (
+            <CreateButton
+              onClick={() => setAttachEphemeralModalOpen(true)}
+              // the button shouldn't show up in a disabled state, but just in case
+              disabled={!!ephemeralDisabledReason}
+              disabledReason={ephemeralDisabledReason}
+            >
+              Attach ephemeral IP
+            </CreateButton>
+          )}
           <CreateButton
             onClick={() => setAttachFloatingModalOpen(true)}
             disabled={!!floatingDisabledReason}
