@@ -162,7 +162,9 @@ test('Instance networking tab — Attach ephemeral IP tooltip copy', async ({ pa
 
   // The tooltip should now tell us that a NIC is needed
   await attachEphemeralIpButton.hover()
-  await expect(page.getByText('A network interface is required')).toBeVisible()
+  await expect(
+    page.getByRole('tooltip', { name: 'A network interface is required' })
+  ).toBeVisible()
 })
 
 test('Instance networking tab — External IPs', async ({ page }) => {
