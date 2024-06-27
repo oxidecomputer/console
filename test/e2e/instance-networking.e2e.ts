@@ -79,7 +79,7 @@ test('Instance networking tab — NIC table', async ({ page }) => {
 })
 
 test('Instance networking tab — Detach / Attach Ephemeral IPs', async ({ page }) => {
-  await page.goto('/projects/mock-project/instances/db1/network-interfaces')
+  await page.goto('/projects/mock-project/instances/db1/networking')
 
   const attachEphemeralIpButton = page.getByRole('button', { name: 'Attach ephemeral IP' })
   const externalIpTable = page.getByRole('table', { name: 'External IPs' })
@@ -114,7 +114,7 @@ test('Instance networking tab — Detach / Attach Ephemeral IPs', async ({ page 
 })
 
 test('Instance networking tab — floating IPs', async ({ page }) => {
-  await page.goto('/projects/mock-project/instances/db1/network-interfaces')
+  await page.goto('/projects/mock-project/instances/db1/networking')
   const externalIpTable = page.getByRole('table', { name: 'External IPs' })
   const attachFloatingIpButton = page.getByRole('button', { name: 'Attach floating IP' })
 
