@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import type { Vpc, VpcFirewallRule, VpcSubnet } from '@oxide/api'
+import type { Vpc, VpcFirewallRule, VpcRouter, VpcSubnet } from '@oxide/api'
 
 import type { Json } from './json-type'
 import { project, project2 } from './project'
@@ -172,5 +172,17 @@ export const firewallRules: Json<VpcFirewallRule[]> = [
     time_created,
     time_modified,
     vpc_id: vpc2.id,
+  },
+]
+
+export const vpcRouters: Json<VpcRouter[]> = [
+  {
+    id: '9715d7cf-0e29-4c66-92dc-642961f9a3cb',
+    name: 'default',
+    kind: 'system',
+    description: '',
+    time_created,
+    time_modified,
+    vpc_id: vpc.id,
   },
 ]

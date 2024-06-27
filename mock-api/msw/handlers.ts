@@ -1301,6 +1301,15 @@ export const handlers = makeHandlers({
   },
   siloMetric: handleMetrics,
 
+  vpcRouterList({ query }) {
+    const vpc = lookup.vpc(query)
+    const routers = db.vpcRouters.filter((r) => r.vpc_id === vpc.id)
+    return paginated(query, routers)
+  },
+  vpcRouterRouteList() {
+    return { items: [] }
+  },
+
   // Misc endpoints we're not using yet in the console
   certificateCreate: NotImplemented,
   certificateDelete: NotImplemented,
@@ -1373,10 +1382,8 @@ export const handlers = makeHandlers({
   userBuiltinView: NotImplemented,
   vpcRouterCreate: NotImplemented,
   vpcRouterDelete: NotImplemented,
-  vpcRouterList: NotImplemented,
   vpcRouterRouteCreate: NotImplemented,
   vpcRouterRouteDelete: NotImplemented,
-  vpcRouterRouteList: NotImplemented,
   vpcRouterRouteUpdate: NotImplemented,
   vpcRouterRouteView: NotImplemented,
   vpcRouterUpdate: NotImplemented,

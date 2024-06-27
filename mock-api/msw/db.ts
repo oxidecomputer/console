@@ -327,6 +327,7 @@ const initDb = {
   users: [...mock.users],
   vpcFirewallRules: [...mock.firewallRules],
   vpcs: [...mock.vpcs],
+  vpcRouters: [...mock.vpcRouters],
   vpcSubnets: [mock.vpcSubnet],
 }
 

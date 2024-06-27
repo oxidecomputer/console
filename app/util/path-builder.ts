@@ -83,6 +83,7 @@ export const pb = {
   vpcFirewallRuleEdit: (params: FirewallRule) =>
     `${pb.vpcFirewallRules(params)}/${params.rule}/edit`,
   vpcSubnets: (params: Vpc) => `${vpcBase(params)}/subnets`,
+  vpcRouters: (params: Vpc) => `${vpcBase(params)}/routers`,
   vpcSubnetsNew: (params: Vpc) => `${vpcBase(params)}/subnets-new`,
   vpcSubnetsEdit: (params: VpcSubnet) => `${pb.vpcSubnets(params)}/${params.subnet}/edit`,
 
