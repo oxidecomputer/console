@@ -113,7 +113,7 @@ test('Instance networking tab — Detach / Attach Ephemeral IPs', async ({ page 
   await expect(attachEphemeralIpButton).toBeHidden()
 })
 
-test('Instance networking tab — External IPs', async ({ page }) => {
+test('Instance networking tab — floating IPs', async ({ page }) => {
   await page.goto('/projects/mock-project/instances/db1/network-interfaces')
   const externalIpTable = page.getByRole('table', { name: 'External IPs' })
   const attachFloatingIpButton = page.getByRole('button', { name: 'Attach floating IP' })
