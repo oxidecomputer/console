@@ -5,13 +5,18 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useMemo } from 'react'
 import { useController, type Control } from 'react-hook-form'
+import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
+import * as R from 'remeda'
 
 import {
+  apiQueryClient,
   firewallRuleGetToPut,
   parsePortRange,
   useApiMutation,
   useApiQueryClient,
+  usePrefetchedApiQuery,
   type ApiError,
   type VpcFirewallRule,
   type VpcFirewallRuleHostFilter,
@@ -27,7 +32,8 @@ import { NumberField } from '~/components/form/fields/NumberField'
 import { RadioField } from '~/components/form/fields/RadioField'
 import { TextField, TextFieldInner } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { useForm, useVpcSelector } from '~/hooks'
+import { getVpcSelector, useForm, useVpcSelector } from '~/hooks'
+import { addToast } from '~/stores/toast'
 import { Badge } from '~/ui/lib/Badge'
 import { Button } from '~/ui/lib/Button'
 import { FormDivider } from '~/ui/lib/Divider'
@@ -36,6 +42,7 @@ import * as MiniTable from '~/ui/lib/MiniTable'
 import { TextInputHint } from '~/ui/lib/TextInput'
 import { KEYS } from '~/ui/util/keys'
 import { links } from '~/util/links'
+import { pb } from '~/util/path-builder'
 
 export type FirewallRuleValues = {
   enabled: boolean
@@ -228,6 +235,12 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
         label="Direction of traffic"
         column
         control={control}
+        description={
+          <>
+            An inbound rule applies to traffic <em>to</em> the targets, while an outbound
+            rule applies to traffic <em>from</em> the targets.
+          </>
+        }
         items={[
           { value: 'inbound', label: 'Inbound' },
           { value: 'outbound', label: 'Outbound' },
@@ -247,7 +260,15 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
       <h3 className="mb-4 text-sans-2xl">Targets</h3>
       <Message
         variant="info"
-        content="Targets determine the instances to which this rule applies. You can target instances directly or specify a VPC, VPC subnet, IP, or IP subnet which will apply the rule to all matching instances. Targets are additive: the rule applies to instances matching any target."
+        content={
+          <>
+            Targets determine the instances to which this rule applies. You can target
+            instances directly by name, or specify a VPC, VPC subnet, IP, or IP subnet,
+            which will apply the rule to traffic going to all matching instances. Targets
+            are additive: the rule applies to instances matching{' '}
+            <span className="underline">any</span> target.
+          </>
+        }
       />
       {/* TODO: make ListboxField smarter with the values like RadioField is */}
       <ListboxField
@@ -338,7 +359,14 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
 
       <Message
         variant="info"
-        content="Filters reduce the scope of this rule. Without filters, the rule applies to all traffic to the targets (or from the targets, if it's an outbound rule). With multiple filters, it applies to traffic matching all filters."
+        content={
+          <>
+            Filters reduce the scope of this rule. Without filters, the rule applies to all
+            traffic to the targets (or from the targets, if it&rsquo;s an outbound rule).
+            With multiple filters, the rule applies to traffic matching{' '}
+            <span className="underline">all</span> filters.
+          </>
+        }
       />
 
       <div className="flex flex-col gap-3">
@@ -349,7 +377,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
             Port filters
           </label>
           <TextInputHint id="portRange-help-text" className="mb-2">
-            A single port (1234) or a range (1234&ndash;2345)
+            A single destination port (1234) or a range (1234&ndash;2345)
           </TextInputHint>
           <TextFieldInner
             id="portRange"
@@ -426,6 +454,16 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
 
       <div className="flex flex-col gap-3">
         <h3 className="mt-4 text-sans-lg">Host filters</h3>
+        <Message
+          variant="info"
+          content={
+            <>
+              Host filters match the &ldquo;other end&rdquo; of traffic from the
+              target&rsquo;s perspective: for an inbound rule, they match the source of
+              traffic. For an outbound rule, they match the destination.
+            </>
+          }
+        />
         <ListboxField
           name="type"
           label="Host type"
@@ -521,29 +559,32 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
   )
 }
 
-// TODO: validate priority again
-// export const validationSchema = Yup.object({
-//   priority: Yup.number().integer().min(0).max(65535).required('Required'),
-// })
-
-type CreateFirewallRuleFormProps = {
-  onDismiss: () => void
-  existingRules: VpcFirewallRule[]
+CreateFirewallRuleForm.loader = async ({ params }: LoaderFunctionArgs) => {
+  await apiQueryClient.prefetchQuery('vpcFirewallRulesView', {
+    query: getVpcSelector(params),
+  })
+  return null
 }
 
-export function CreateFirewallRuleForm({
-  onDismiss,
-  existingRules,
-}: CreateFirewallRuleFormProps) {
+export function CreateFirewallRuleForm() {
   const vpcSelector = useVpcSelector()
   const queryClient = useApiQueryClient()
+
+  const navigate = useNavigate()
+  const onDismiss = () => navigate(pb.vpcFirewallRules(vpcSelector))
 
   const updateRules = useApiMutation('vpcFirewallRulesUpdate', {
     onSuccess() {
       queryClient.invalidateQueries('vpcFirewallRulesView')
-      onDismiss()
+      addToast({ content: 'Your firewall rule has been created' })
+      navigate(pb.vpcFirewallRules(vpcSelector))
     },
   })
+
+  const { data } = usePrefetchedApiQuery('vpcFirewallRulesView', {
+    query: vpcSelector,
+  })
+  const existingRules = useMemo(() => R.sortBy(data.rules, (r) => r.priority), [data])
 
   const form = useForm({ defaultValues })
 

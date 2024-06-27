@@ -80,7 +80,7 @@ export function InstancesPage() {
         },
         ...(instances?.items || []).map((i) => ({
           value: i.name,
-          onSelect: () => navigate(pb.instancePage({ project, instance: i.name })),
+          onSelect: () => navigate(pb.instance({ project, instance: i.name })),
           navGroup: 'Go to instance',
         })),
       ],
@@ -97,7 +97,7 @@ export function InstancesPage() {
   const columns = useMemo(
     () => [
       colHelper.accessor('name', {
-        cell: makeLinkCell((instance) => pb.instancePage({ project, instance })),
+        cell: makeLinkCell((instance) => pb.instance({ project, instance })),
       }),
       colHelper.accessor((i) => ({ ncpus: i.ncpus, memory: i.memory }), {
         header: 'CPU, RAM',

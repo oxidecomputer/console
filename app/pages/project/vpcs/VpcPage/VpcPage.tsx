@@ -10,38 +10,27 @@ import type { LoaderFunctionArgs } from 'react-router-dom'
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import { Networking24Icon } from '@oxide/design-system/icons/react'
 
-import { QueryParamTabs } from '~/components/QueryParamTabs'
+import { RouteTabs, Tab } from '~/components/RouteTabs'
 import { getVpcSelector, useVpcSelector } from '~/hooks'
 import { EmptyCell } from '~/table/cells/EmptyCell'
-import { PAGE_SIZE } from '~/table/QueryTable'
 import { DateTime } from '~/ui/lib/DateTime'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
-import { Tabs } from '~/ui/lib/Tabs'
+import { pb } from '~/util/path-builder'
 
 import { VpcDocsPopover } from '../VpcsPage'
-import { VpcFirewallRulesTab } from './tabs/VpcFirewallRulesTab'
-import { VpcSubnetsTab } from './tabs/VpcSubnetsTab'
 
 VpcPage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project, vpc } = getVpcSelector(params)
-  await Promise.all([
-    apiQueryClient.prefetchQuery('vpcView', { path: { vpc }, query: { project } }),
-    apiQueryClient.prefetchQuery('vpcFirewallRulesView', {
-      query: { project, vpc },
-    }),
-    apiQueryClient.prefetchQuery('vpcSubnetList', {
-      query: { project, vpc, limit: PAGE_SIZE },
-    }),
-  ])
+  await apiQueryClient.prefetchQuery('vpcView', { path: { vpc }, query: { project } })
   return null
 }
 
 export function VpcPage() {
-  const { project, vpc: vpcName } = useVpcSelector()
+  const vpcSelector = useVpcSelector()
   const { data: vpc } = usePrefetchedApiQuery('vpcView', {
-    path: { vpc: vpcName },
-    query: { project },
+    path: { vpc: vpcSelector.vpc },
+    query: { project: vpcSelector.project },
   })
 
   return (
@@ -67,18 +56,10 @@ export function VpcPage() {
         </PropertiesTable>
       </PropertiesTable.Group>
 
-      <QueryParamTabs className="full-width" defaultValue="firewall-rules">
-        <Tabs.List>
-          <Tabs.Trigger value="firewall-rules">Firewall Rules</Tabs.Trigger>
-          <Tabs.Trigger value="subnets">Subnets</Tabs.Trigger>
-        </Tabs.List>
-        <Tabs.Content value="firewall-rules">
-          <VpcFirewallRulesTab />
-        </Tabs.Content>
-        <Tabs.Content value="subnets">
-          <VpcSubnetsTab />
-        </Tabs.Content>
-      </QueryParamTabs>
+      <RouteTabs fullWidth>
+        <Tab to={pb.vpcFirewallRules(vpcSelector)}>Firewall Rules</Tab>
+        <Tab to={pb.vpcSubnets(vpcSelector)}>Subnets</Tab>
+      </RouteTabs>
     </>
   )
 }

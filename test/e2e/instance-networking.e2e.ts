@@ -30,9 +30,9 @@ test('Instance networking tab — NIC table', async ({ page }) => {
   await expectRowVisible(nicTable, { name: 'my-nicprimary' })
 
   // check VPC link in table points to the right page
-  await expect(page.locator('role=cell >> role=link[name="mock-vpc"]')).toHaveAttribute(
+  await expect(nicTable.getByRole('link', { name: 'mock-vpc' })).toHaveAttribute(
     'href',
-    '/projects/mock-project/vpcs/mock-vpc'
+    '/projects/mock-project/vpcs/mock-vpc/firewall-rules'
   )
 
   const addNicButton = page.getByRole('button', { name: 'Add network interface' })

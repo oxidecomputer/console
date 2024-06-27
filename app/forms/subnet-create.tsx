@@ -5,6 +5,8 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useNavigate } from 'react-router-dom'
+
 import { useApiMutation, useApiQueryClient, type VpcSubnetCreate } from '@oxide/api'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
@@ -13,6 +15,7 @@ import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { useForm, useVpcSelector } from '~/hooks'
 import { FormDivider } from '~/ui/lib/Divider'
+import { pb } from '~/util/path-builder'
 
 const defaultValues: VpcSubnetCreate = {
   name: '',
@@ -20,13 +23,12 @@ const defaultValues: VpcSubnetCreate = {
   ipv4Block: '',
 }
 
-type CreateSubnetFormProps = {
-  onDismiss: () => void
-}
-
-export function CreateSubnetForm({ onDismiss }: CreateSubnetFormProps) {
+export function CreateSubnetForm() {
   const vpcSelector = useVpcSelector()
   const queryClient = useApiQueryClient()
+
+  const navigate = useNavigate()
+  const onDismiss = () => navigate(pb.vpcSubnets(vpcSelector))
 
   const createSubnet = useApiMutation('vpcSubnetCreate', {
     onSuccess() {
