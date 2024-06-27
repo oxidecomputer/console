@@ -108,7 +108,7 @@ test('Instance networking tab — Detach / Attach Ephemeral IPs', async ({ page 
   // Attach a new ephemeral IP
   await attachEphemeralIpButton.click()
   await expectVisible(page, ['role=heading[name="Attach ephemeral IP"]'])
-  await page.click('role=button[name*="Ephemeral IP"]')
+  await page.click('role=button[name*="IP pool"]')
   await page.click('role=option[name="ip-pool-2"]')
   await page.click('role=button[name="Attach"]')
   await expectNotVisible(page, ['role=heading[name="Attach ephemeral IP"]'])
