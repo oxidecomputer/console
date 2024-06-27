@@ -205,7 +205,7 @@ export const handlers = makeHandlers({
   diskBulkWriteImport: ({ path, query, body }) => {
     const disk = lookup.disk({ ...path, ...query })
     const diskImport = db.diskBulkImportState.get(disk.id)
-    if (!diskImport) throw notFoundErr
+    if (!diskImport) throw notFoundErr(`disk import for disk '${disk.id}'`)
     // if (Math.random() < 0.01) throw 400
     diskImport.blocks[body.offset] = true
     return 204
@@ -838,7 +838,7 @@ export const handlers = makeHandlers({
       .map((r) => r.id)
 
     // if nothing in the DB matches, 404
-    if (idsToDelete.length === 0) throw notFoundErr()
+    if (idsToDelete.length === 0) throw notFoundErr(`IP range ${body.first}-${body.last}`)
 
     db.ipPoolRanges = db.ipPoolRanges.filter((r) => !idsToDelete.includes(r.id))
 
