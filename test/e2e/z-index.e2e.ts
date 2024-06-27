@@ -43,7 +43,7 @@ test('Dropdown content can scroll off page and doesn’t hide TopBar', async ({ 
 
 test('Dropdown content in SidebarModal shows on screen', async ({ page }) => {
   // go to an instance’s Network Interfaces page
-  await page.goto('/projects/mock-project/instances/db1/network-interfaces')
+  await page.goto('/projects/mock-project/instances/db1/networking')
 
   await stopInstance(page)
 
