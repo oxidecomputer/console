@@ -21,8 +21,8 @@ import { internalError } from './util'
 
 const notFoundBody = { error_code: 'ObjectNotFound' } as const
 export type NotFound = typeof notFoundBody
-export const notFoundErr = (msg?: string) => {
-  const message = msg ? `not found: ${msg}` : 'not found'
+export const notFoundErr = (msg: string) => {
+  const message = `not found: ${msg}`
   return json({ error_code: 'ObjectNotFound', message } as const, { status: 404 })
 }
 
@@ -33,14 +33,14 @@ export const badSelectorErr = (resource: string, parents: string[]) => {
 
 export const lookupById = <T extends { id: string }>(table: T[], id: string) => {
   const item = table.find((i) => i.id === id)
-  if (!item) throw notFoundErr
+  if (!item) throw notFoundErr(`by id ${id}`)
   return item
 }
 
 export const getIpFromPool = (poolName: string | undefined) => {
   const pool = lookup.ipPool({ pool: poolName })
   const ipPoolRange = db.ipPoolRanges.find((range) => range.ip_pool_id === pool.id)
-  if (!ipPoolRange) throw notFoundErr
+  if (!ipPoolRange) throw notFoundErr(`IP range for pool '${poolName}'`)
 
   // right now, we're just using the first address in the range, but we'll
   // want to filter the list of available IPs for the first unused address
@@ -51,23 +51,23 @@ export const getIpFromPool = (poolName: string | undefined) => {
 
 export const lookup = {
   project({ project: id }: PP.Project): Json<Api.Project> {
-    if (!id) throw notFoundErr
+    if (!id) throw notFoundErr('no project specified')
 
     if (isUuid(id)) return lookupById(db.projects, id)
 
     const project = db.projects.find((p) => p.name === id)
-    if (!project) throw notFoundErr
+    if (!project) throw notFoundErr(`project '${id}'`)
 
     return project
   },
   instance({ instance: id, ...projectSelector }: PP.Instance): Json<Api.Instance> {
-    if (!id) throw notFoundErr
+    if (!id) throw notFoundErr('no instance specified')
 
     if (isUuid(id)) return lookupById(db.instances, id)
 
     const project = lookup.project(projectSelector)
     const instance = db.instances.find((i) => i.project_id === project.id && i.name === id)
-    if (!instance) throw notFoundErr
+    if (!instance) throw notFoundErr(`instance '${id}'`)
 
     return instance
   },
@@ -75,7 +75,7 @@ export const lookup = {
     interface: id,
     ...instanceSelector
   }: PP.NetworkInterface): Json<Api.InstanceNetworkInterface> {
-    if (!id) throw notFoundErr
+    if (!id) throw notFoundErr('no NIC specified')
 
     if (isUuid(id)) return lookupById(db.networkInterfaces, id)
 
@@ -84,24 +84,24 @@ export const lookup = {
     const nic = db.networkInterfaces.find(
       (n) => n.instance_id === instance.id && n.name === id
     )
-    if (!nic) throw notFoundErr
+    if (!nic) throw notFoundErr(`NIC '${id}'`)
 
     return nic
   },
   disk({ disk: id, ...projectSelector }: PP.Disk): Json<Api.Disk> {
-    if (!id) throw notFoundErr
+    if (!id) throw notFoundErr('no disk specified')
 
     if (isUuid(id)) return lookupById(db.disks, id)
 
     const project = lookup.project(projectSelector)
 
     const disk = db.disks.find((d) => d.project_id === project.id && d.name === id)
-    if (!disk) throw notFoundErr
+    if (!disk) throw notFoundErr(`disk '${id}'`)
 
     return disk
   },
   floatingIp({ floatingIp: id, ...projectSelector }: PP.FloatingIp): Json<Api.FloatingIp> {
-    if (!id) throw notFoundErr
+    if (!id) throw notFoundErr('no floating IP specified')
 
     if (isUuid(id)) {
       if (projectSelector.project) throw badSelectorErr('floating IP', ['project'])
@@ -112,45 +112,45 @@ export const lookup = {
     const floatingIp = db.floatingIps.find(
       (i) => i.project_id === project.id && i.name === id
     )
-    if (!floatingIp) throw notFoundErr
+    if (!floatingIp) throw notFoundErr(`floating IP '${id}'`)
 
     return floatingIp
   },
   snapshot({ snapshot: id, ...projectSelector }: PP.Snapshot): Json<Api.Snapshot> {
-    if (!id) throw notFoundErr
+    if (!id) throw notFoundErr('no snapshot specified')
 
     if (isUuid(id)) return lookupById(db.snapshots, id)
 
     const project = lookup.project(projectSelector)
     const snapshot = db.snapshots.find((i) => i.project_id === project.id && i.name === id)
-    if (!snapshot) throw notFoundErr
+    if (!snapshot) throw notFoundErr(`snapshot '${id}'`)
 
     return snapshot
   },
   vpc({ vpc: id, ...projectSelector }: PP.Vpc): Json<Api.Vpc> {
-    if (!id) throw notFoundErr
+    if (!id) throw notFoundErr('no VPC specified')
 
     if (isUuid(id)) return lookupById(db.vpcs, id)
 
     const project = lookup.project(projectSelector)
     const vpc = db.vpcs.find((v) => v.project_id === project.id && v.name === id)
-    if (!vpc) throw notFoundErr
+    if (!vpc) throw notFoundErr(`vpc '${id}'`)
 
     return vpc
   },
   vpcSubnet({ subnet: id, ...vpcSelector }: PP.VpcSubnet): Json<Api.VpcSubnet> {
-    if (!id) throw notFoundErr
+    if (!id) throw notFoundErr('no subnet specified')
 
     if (isUuid(id)) return lookupById(db.vpcSubnets, id)
 
     const vpc = lookup.vpc(vpcSelector)
     const subnet = db.vpcSubnets.find((s) => s.vpc_id === vpc.id && s.name === id)
-    if (!subnet) throw notFoundErr
+    if (!subnet) throw notFoundErr(`subnet '${id}'`)
 
     return subnet
   },
   image({ image: id, project: projectId }: PP.Image): Json<Api.Image> {
-    if (!id) throw notFoundErr
+    if (!id) throw notFoundErr('no image specified')
 
     if (isUuid(id)) return lookupById(db.images, id)
 
@@ -164,16 +164,16 @@ export const lookup = {
       image = db.images.find((d) => d.project_id === project.id && d.name === id)
     }
 
-    if (!image) throw notFoundErr
+    if (!image) throw notFoundErr(`image '${id}'`)
     return image
   },
   ipPool({ pool: id }: PP.IpPool): Json<Api.IpPool> {
-    if (!id) throw notFoundErr
+    if (!id) throw notFoundErr('no pool specified')
 
     if (isUuid(id)) return lookupById(db.ipPools, id)
 
     const pool = db.ipPools.find((p) => p.name === id)
-    if (!pool) throw notFoundErr
+    if (!pool) throw notFoundErr('IP pool')
 
     return pool
   },
@@ -188,7 +188,7 @@ export const lookup = {
     const ipPoolSilo = db.ipPoolSilos.find(
       (ips) => ips.ip_pool_id === pool.id && ips.silo_id === silo.id
     )
-    if (!ipPoolSilo) throw notFoundErr
+    if (!ipPoolSilo) throw notFoundErr(`link for pool '${poolId}' and silo '${siloId}'`)
 
     return ipPoolSilo
   },
@@ -220,7 +220,9 @@ export const lookup = {
     const ipPoolSilo = db.ipPoolSilos.find(
       (ips) => ips.ip_pool_id === pool.id && ips.silo_id === silo.id
     )
-    if (!ipPoolSilo) throw notFoundErr
+    if (!ipPoolSilo) {
+      throw notFoundErr(`link for pool '${path.pool}' and silo '${path.silo}'`)
+    }
 
     return { ...pool, is_default: ipPoolSilo.is_default }
   },
@@ -228,39 +230,35 @@ export const lookup = {
     const silo = lookup.silo(path)
 
     const link = db.ipPoolSilos.find((ips) => ips.silo_id === silo.id && ips.is_default)
-    if (!link) throw notFoundErr
+    if (!link) throw notFoundErr(`default pool for silo '${path.silo}'`)
 
     return lookupById(db.ipPools, link.ip_pool_id)
   },
-  samlIdp({
-    provider: id,
-    ...siloSelector
-  }: PP.IdentityProvider): Json<Api.SamlIdentityProvider> {
-    if (!id) throw notFoundErr
+  samlIdp({ provider: id, silo }: PP.IdentityProvider): Json<Api.SamlIdentityProvider> {
+    if (!id) throw notFoundErr('no IdP specified')
 
-    const silo = lookup.silo(siloSelector)
+    const dbSilo = lookup.silo({ silo })
 
     const dbIdp = db.identityProviders.find(
       ({ type, siloId, provider }) =>
-        type === 'saml' && siloId === silo.id && provider.name === id
+        type === 'saml' && siloId === dbSilo.id && provider.name === id
     )
 
-    if (!dbIdp) throw notFoundErr
+    if (!dbIdp) throw notFoundErr(`IdP '${id}' for silo '${silo}'`)
 
     return dbIdp.provider
   },
   silo({ silo: id }: PP.Silo): Json<Api.Silo> {
-    if (!id) throw notFoundErr
+    if (!id) throw notFoundErr('silo not specified')
 
     if (isUuid(id)) return lookupById(db.silos, id)
 
     const silo = db.silos.find((o) => o.name === id)
-    if (!silo) throw notFoundErr
+    if (!silo) throw notFoundErr(`silo '${id}'`)
     return silo
   },
   sled({ sledId: id }: PP.Sled): Json<Api.Sled> {
-    if (!id) throw notFoundErr
-
+    if (!id) throw notFoundErr('sled not specified')
     return lookupById(db.sleds, id)
   },
   sshKey({ sshKey: id }: PP.SshKey): Json<Api.SshKey> {
@@ -270,7 +268,7 @@ export const lookup = {
     if (isUuid(id)) return lookupById(userSshKeys, id)
 
     const sshKey = userSshKeys.find((key) => key.name === id)
-    if (!sshKey) throw notFoundErr
+    if (!sshKey) throw notFoundErr(`SSH key '${id}'`)
     return sshKey
   },
 }

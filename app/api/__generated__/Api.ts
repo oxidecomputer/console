@@ -31,7 +31,7 @@ export type IpNet = Ipv4Net | Ipv6Net
 /**
  * A name unique within the parent collection
  *
- * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. Names cannot be a UUID though they may contain a UUID.
+ * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. Names cannot be a UUID, but they may contain a UUID. They can be at most 63 characters long.
  */
 export type Name = string
 
@@ -207,6 +207,21 @@ export type AllowListUpdate = {
   /** The new list of allowed source IPs. */
   allowedIps: AllowedSourceIps
 }
+
+/**
+ * Authorization scope for a timeseries.
+ *
+ * This describes the level at which a user must be authorized to read data from a timeseries. For example, fleet-scoping means the data is only visible to an operator or fleet reader. Project-scoped, on the other hand, indicates that a user will see data limited to the projects on which they have read permissions.
+ */
+export type AuthzScope =
+  /** Timeseries data is limited to fleet readers. */
+  | 'fleet'
+  /** Timeseries data is limited to the authorized silo for a user. */
+  | 'silo'
+  /** Timeseries data is limited to the authorized projects for a user. */
+  | 'project'
+  /** The timeseries is viewable to all without limitation. */
+  | 'viewable_to_all'
 
 /**
  * Properties that uniquely identify an Oxide hardware component
@@ -782,13 +797,24 @@ export type CurrentUser = {
 }
 
 /**
- * Histogram metric
+ * Structure for estimating the p-quantile of a population.
  *
- * A histogram maintains the count of any number of samples, over a set of bins. Bins are specified on construction via their _left_ edges, inclusive. There can't be any "gaps" in the bins, and an additional bin may be added to the left, right, or both so that the bins extend to the entire range of the support.
+ * This is based on the P² algorithm for estimating quantiles using constant space.
  *
- * Note that any gaps, unsorted bins, or non-finite values will result in an error.
+ * The algorithm consists of maintaining five markers: the minimum, the p/2-, p-, and (1 + p)/2 quantiles, and the maximum.
  */
-export type Histogramint8 = { bins: Binint8[]; nSamples: number; startTime: Date }
+export type Quantile = {
+  /** The desired marker positions. */
+  desiredMarkerPositions: number[]
+  /** The heights of the markers. */
+  markerHeights: number[]
+  /** The positions of the markers.
+
+We track sample size in the 5th position, as useful observations won't start until we've filled the heights at the 6th sample anyway This does deviate from the paper, but it's a more useful representation that works according to the paper's algorithm. */
+  markerPositions: number[]
+  /** The p value for the quantile. */
+  p: number
+}
 
 /**
  * Histogram metric
@@ -797,7 +823,30 @@ export type Histogramint8 = { bins: Binint8[]; nSamples: number; startTime: Date
  *
  * Note that any gaps, unsorted bins, or non-finite values will result in an error.
  */
-export type Histogramuint8 = { bins: Binuint8[]; nSamples: number; startTime: Date }
+export type Histogramint8 = {
+  /** The bins of the histogram. */
+  bins: Binint8[]
+  /** The maximum value of all samples in the histogram. */
+  max: number
+  /** The minimum value of all samples in the histogram. */
+  min: number
+  /** The total number of samples in the histogram. */
+  nSamples: number
+  /** p50 Quantile */
+  p50: Quantile
+  /** p95 Quantile */
+  p90: Quantile
+  /** p99 Quantile */
+  p99: Quantile
+  /** M2 for Welford's algorithm for variance calculation.
+
+Read about [Welford's algorithm](https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Welford's_online_algorithm) for more information on the algorithm. */
+  squaredMean: number
+  /** The start time of the histogram. */
+  startTime: Date
+  /** The sum of all samples in the histogram. */
+  sumOfSamples: number
+}
 
 /**
  * Histogram metric
@@ -806,7 +855,30 @@ export type Histogramuint8 = { bins: Binuint8[]; nSamples: number; startTime: Da
  *
  * Note that any gaps, unsorted bins, or non-finite values will result in an error.
  */
-export type Histogramint16 = { bins: Binint16[]; nSamples: number; startTime: Date }
+export type Histogramuint8 = {
+  /** The bins of the histogram. */
+  bins: Binuint8[]
+  /** The maximum value of all samples in the histogram. */
+  max: number
+  /** The minimum value of all samples in the histogram. */
+  min: number
+  /** The total number of samples in the histogram. */
+  nSamples: number
+  /** p50 Quantile */
+  p50: Quantile
+  /** p95 Quantile */
+  p90: Quantile
+  /** p99 Quantile */
+  p99: Quantile
+  /** M2 for Welford's algorithm for variance calculation.
+
+Read about [Welford's algorithm](https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Welford's_online_algorithm) for more information on the algorithm. */
+  squaredMean: number
+  /** The start time of the histogram. */
+  startTime: Date
+  /** The sum of all samples in the histogram. */
+  sumOfSamples: number
+}
 
 /**
  * Histogram metric
@@ -815,7 +887,30 @@ export type Histogramint16 = { bins: Binint16[]; nSamples: number; startTime: Da
  *
  * Note that any gaps, unsorted bins, or non-finite values will result in an error.
  */
-export type Histogramuint16 = { bins: Binuint16[]; nSamples: number; startTime: Date }
+export type Histogramint16 = {
+  /** The bins of the histogram. */
+  bins: Binint16[]
+  /** The maximum value of all samples in the histogram. */
+  max: number
+  /** The minimum value of all samples in the histogram. */
+  min: number
+  /** The total number of samples in the histogram. */
+  nSamples: number
+  /** p50 Quantile */
+  p50: Quantile
+  /** p95 Quantile */
+  p90: Quantile
+  /** p99 Quantile */
+  p99: Quantile
+  /** M2 for Welford's algorithm for variance calculation.
+
+Read about [Welford's algorithm](https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Welford's_online_algorithm) for more information on the algorithm. */
+  squaredMean: number
+  /** The start time of the histogram. */
+  startTime: Date
+  /** The sum of all samples in the histogram. */
+  sumOfSamples: number
+}
 
 /**
  * Histogram metric
@@ -824,7 +919,30 @@ export type Histogramuint16 = { bins: Binuint16[]; nSamples: number; startTime: 
  *
  * Note that any gaps, unsorted bins, or non-finite values will result in an error.
  */
-export type Histogramint32 = { bins: Binint32[]; nSamples: number; startTime: Date }
+export type Histogramuint16 = {
+  /** The bins of the histogram. */
+  bins: Binuint16[]
+  /** The maximum value of all samples in the histogram. */
+  max: number
+  /** The minimum value of all samples in the histogram. */
+  min: number
+  /** The total number of samples in the histogram. */
+  nSamples: number
+  /** p50 Quantile */
+  p50: Quantile
+  /** p95 Quantile */
+  p90: Quantile
+  /** p99 Quantile */
+  p99: Quantile
+  /** M2 for Welford's algorithm for variance calculation.
+
+Read about [Welford's algorithm](https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Welford's_online_algorithm) for more information on the algorithm. */
+  squaredMean: number
+  /** The start time of the histogram. */
+  startTime: Date
+  /** The sum of all samples in the histogram. */
+  sumOfSamples: number
+}
 
 /**
  * Histogram metric
@@ -833,7 +951,30 @@ export type Histogramint32 = { bins: Binint32[]; nSamples: number; startTime: Da
  *
  * Note that any gaps, unsorted bins, or non-finite values will result in an error.
  */
-export type Histogramuint32 = { bins: Binuint32[]; nSamples: number; startTime: Date }
+export type Histogramint32 = {
+  /** The bins of the histogram. */
+  bins: Binint32[]
+  /** The maximum value of all samples in the histogram. */
+  max: number
+  /** The minimum value of all samples in the histogram. */
+  min: number
+  /** The total number of samples in the histogram. */
+  nSamples: number
+  /** p50 Quantile */
+  p50: Quantile
+  /** p95 Quantile */
+  p90: Quantile
+  /** p99 Quantile */
+  p99: Quantile
+  /** M2 for Welford's algorithm for variance calculation.
+
+Read about [Welford's algorithm](https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Welford's_online_algorithm) for more information on the algorithm. */
+  squaredMean: number
+  /** The start time of the histogram. */
+  startTime: Date
+  /** The sum of all samples in the histogram. */
+  sumOfSamples: number
+}
 
 /**
  * Histogram metric
@@ -842,7 +983,30 @@ export type Histogramuint32 = { bins: Binuint32[]; nSamples: number; startTime: 
  *
  * Note that any gaps, unsorted bins, or non-finite values will result in an error.
  */
-export type Histogramint64 = { bins: Binint64[]; nSamples: number; startTime: Date }
+export type Histogramuint32 = {
+  /** The bins of the histogram. */
+  bins: Binuint32[]
+  /** The maximum value of all samples in the histogram. */
+  max: number
+  /** The minimum value of all samples in the histogram. */
+  min: number
+  /** The total number of samples in the histogram. */
+  nSamples: number
+  /** p50 Quantile */
+  p50: Quantile
+  /** p95 Quantile */
+  p90: Quantile
+  /** p99 Quantile */
+  p99: Quantile
+  /** M2 for Welford's algorithm for variance calculation.
+
+Read about [Welford's algorithm](https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Welford's_online_algorithm) for more information on the algorithm. */
+  squaredMean: number
+  /** The start time of the histogram. */
+  startTime: Date
+  /** The sum of all samples in the histogram. */
+  sumOfSamples: number
+}
 
 /**
  * Histogram metric
@@ -851,7 +1015,30 @@ export type Histogramint64 = { bins: Binint64[]; nSamples: number; startTime: Da
  *
  * Note that any gaps, unsorted bins, or non-finite values will result in an error.
  */
-export type Histogramuint64 = { bins: Binuint64[]; nSamples: number; startTime: Date }
+export type Histogramint64 = {
+  /** The bins of the histogram. */
+  bins: Binint64[]
+  /** The maximum value of all samples in the histogram. */
+  max: number
+  /** The minimum value of all samples in the histogram. */
+  min: number
+  /** The total number of samples in the histogram. */
+  nSamples: number
+  /** p50 Quantile */
+  p50: Quantile
+  /** p95 Quantile */
+  p90: Quantile
+  /** p99 Quantile */
+  p99: Quantile
+  /** M2 for Welford's algorithm for variance calculation.
+
+Read about [Welford's algorithm](https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Welford's_online_algorithm) for more information on the algorithm. */
+  squaredMean: number
+  /** The start time of the histogram. */
+  startTime: Date
+  /** The sum of all samples in the histogram. */
+  sumOfSamples: number
+}
 
 /**
  * Histogram metric
@@ -860,7 +1047,30 @@ export type Histogramuint64 = { bins: Binuint64[]; nSamples: number; startTime: 
  *
  * Note that any gaps, unsorted bins, or non-finite values will result in an error.
  */
-export type Histogramfloat = { bins: Binfloat[]; nSamples: number; startTime: Date }
+export type Histogramuint64 = {
+  /** The bins of the histogram. */
+  bins: Binuint64[]
+  /** The maximum value of all samples in the histogram. */
+  max: number
+  /** The minimum value of all samples in the histogram. */
+  min: number
+  /** The total number of samples in the histogram. */
+  nSamples: number
+  /** p50 Quantile */
+  p50: Quantile
+  /** p95 Quantile */
+  p90: Quantile
+  /** p99 Quantile */
+  p99: Quantile
+  /** M2 for Welford's algorithm for variance calculation.
+
+Read about [Welford's algorithm](https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Welford's_online_algorithm) for more information on the algorithm. */
+  squaredMean: number
+  /** The start time of the histogram. */
+  startTime: Date
+  /** The sum of all samples in the histogram. */
+  sumOfSamples: number
+}
 
 /**
  * Histogram metric
@@ -869,7 +1079,62 @@ export type Histogramfloat = { bins: Binfloat[]; nSamples: number; startTime: Da
  *
  * Note that any gaps, unsorted bins, or non-finite values will result in an error.
  */
-export type Histogramdouble = { bins: Bindouble[]; nSamples: number; startTime: Date }
+export type Histogramfloat = {
+  /** The bins of the histogram. */
+  bins: Binfloat[]
+  /** The maximum value of all samples in the histogram. */
+  max: number
+  /** The minimum value of all samples in the histogram. */
+  min: number
+  /** The total number of samples in the histogram. */
+  nSamples: number
+  /** p50 Quantile */
+  p50: Quantile
+  /** p95 Quantile */
+  p90: Quantile
+  /** p99 Quantile */
+  p99: Quantile
+  /** M2 for Welford's algorithm for variance calculation.
+
+Read about [Welford's algorithm](https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Welford's_online_algorithm) for more information on the algorithm. */
+  squaredMean: number
+  /** The start time of the histogram. */
+  startTime: Date
+  /** The sum of all samples in the histogram. */
+  sumOfSamples: number
+}
+
+/**
+ * Histogram metric
+ *
+ * A histogram maintains the count of any number of samples, over a set of bins. Bins are specified on construction via their _left_ edges, inclusive. There can't be any "gaps" in the bins, and an additional bin may be added to the left, right, or both so that the bins extend to the entire range of the support.
+ *
+ * Note that any gaps, unsorted bins, or non-finite values will result in an error.
+ */
+export type Histogramdouble = {
+  /** The bins of the histogram. */
+  bins: Bindouble[]
+  /** The maximum value of all samples in the histogram. */
+  max: number
+  /** The minimum value of all samples in the histogram. */
+  min: number
+  /** The total number of samples in the histogram. */
+  nSamples: number
+  /** p50 Quantile */
+  p50: Quantile
+  /** p95 Quantile */
+  p90: Quantile
+  /** p99 Quantile */
+  p99: Quantile
+  /** M2 for Welford's algorithm for variance calculation.
+
+Read about [Welford's algorithm](https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Welford's_online_algorithm) for more information on the algorithm. */
+  squaredMean: number
+  /** The start time of the histogram. */
+  startTime: Date
+  /** The sum of all samples in the histogram. */
+  sumOfSamples: number
+}
 
 /**
  * The type of an individual datum of a metric.
@@ -1056,14 +1321,38 @@ export type DiskResultsPage = {
 }
 
 /**
- * A distribution is a sequence of bins and counts in those bins.
+ * A distribution is a sequence of bins and counts in those bins, and some statistical information tracked to compute the mean, standard deviation, and quantile estimates.
+ *
+ * Min, max, and the p-* quantiles are treated as optional due to the possibility of distribution operations, like subtraction.
  */
-export type Distributiondouble = { bins: number[]; counts: number[] }
+export type Distributiondouble = {
+  bins: number[]
+  counts: number[]
+  max?: number
+  min?: number
+  p50?: Quantile
+  p90?: Quantile
+  p99?: Quantile
+  squaredMean: number
+  sumOfSamples: number
+}
 
 /**
- * A distribution is a sequence of bins and counts in those bins.
+ * A distribution is a sequence of bins and counts in those bins, and some statistical information tracked to compute the mean, standard deviation, and quantile estimates.
+ *
+ * Min, max, and the p-* quantiles are treated as optional due to the possibility of distribution operations, like subtraction.
  */
-export type Distributionint64 = { bins: number[]; counts: number[] }
+export type Distributionint64 = {
+  bins: number[]
+  counts: number[]
+  max?: number
+  min?: number
+  p50?: Quantile
+  p90?: Quantile
+  p99?: Quantile
+  squaredMean: number
+  sumOfSamples: number
+}
 
 /**
  * Parameters for creating an ephemeral IP address for an instance.
@@ -1144,7 +1433,12 @@ export type FieldSource = 'target' | 'metric'
 /**
  * The name and type information for a field of a timeseries schema.
  */
-export type FieldSchema = { fieldType: FieldType; name: string; source: FieldSource }
+export type FieldSchema = {
+  description: string
+  fieldType: FieldType
+  name: string
+  source: FieldSource
+}
 
 /**
  * The `FieldValue` contains the value of a target or metric field.
@@ -1563,6 +1857,8 @@ export type InstanceNetworkInterface = {
   timeCreated: Date
   /** timestamp when this resource was last modified */
   timeModified: Date
+  /** A set of additional networks that this interface may send and receive traffic on. */
+  transitIps?: IpNet[]
   /** The VPC to which the interface belongs. */
   vpcId: string
 }
@@ -1591,6 +1887,8 @@ If applied to a secondary interface, that interface will become the primary on t
 
 Note that this can only be used to select a new primary interface for an instance. Requests to change the primary interface into a secondary will return an error. */
   primary?: boolean
+  /** A set of additional networks that this interface may send and receive traffic on. */
+  transitIps?: IpNet[]
 }
 
 /**
@@ -1913,6 +2211,7 @@ export type NetworkInterface = {
   primary: boolean
   slot: number
   subnet: IpNet
+  transitIps?: IpNet[]
   vni: Vni
 }
 
@@ -2189,6 +2488,119 @@ export type Route = {
 export type RouteConfig = {
   /** The set of routes assigned to a switch port. */
   routes: Route[]
+}
+
+/**
+ * A `RouteDestination` is used to match traffic with a routing rule, on the destination of that traffic.
+ *
+ * When traffic is to be sent to a destination that is within a given `RouteDestination`, the corresponding `RouterRoute` applies, and traffic will be forward to the `RouteTarget` for that rule.
+ */
+export type RouteDestination =
+  /** Route applies to traffic destined for a specific IP address */
+  | { type: 'ip'; value: string }
+  /** Route applies to traffic destined for a specific IP subnet */
+  | { type: 'ip_net'; value: IpNet }
+  /** Route applies to traffic destined for the given VPC. */
+  | { type: 'vpc'; value: Name }
+  /** Route applies to traffic */
+  | { type: 'subnet'; value: Name }
+
+/**
+ * A `RouteTarget` describes the possible locations that traffic matching a route destination can be sent.
+ */
+export type RouteTarget =
+  /** Forward traffic to a particular IP address. */
+  | { type: 'ip'; value: string }
+  /** Forward traffic to a VPC */
+  | { type: 'vpc'; value: Name }
+  /** Forward traffic to a VPC Subnet */
+  | { type: 'subnet'; value: Name }
+  /** Forward traffic to a specific instance */
+  | { type: 'instance'; value: Name }
+  /** Forward traffic to an internet gateway */
+  | { type: 'internet_gateway'; value: Name }
+  /** Drop matching traffic */
+  | { type: 'drop' }
+
+/**
+ * The kind of a `RouterRoute`
+ *
+ * The kind determines certain attributes such as if the route is modifiable and describes how or where the route was created.
+ */
+export type RouterRouteKind =
+  /** Determines the default destination of traffic, such as whether it goes to the internet or not.
+
+`Destination: An Internet Gateway` `Modifiable: true` */
+  | 'default'
+  /** Automatically added for each VPC Subnet in the VPC
+
+`Destination: A VPC Subnet` `Modifiable: false` */
+  | 'vpc_subnet'
+  /** Automatically added when VPC peering is established
+
+`Destination: A different VPC` `Modifiable: false` */
+  | 'vpc_peering'
+  /** Created by a user; see `RouteTarget`
+
+`Destination: User defined` `Modifiable: true` */
+  | 'custom'
+
+/**
+ * A route defines a rule that governs where traffic should be sent based on its destination.
+ */
+export type RouterRoute = {
+  /** human-readable free-form text about a resource */
+  description: string
+  /** Selects which traffic this routing rule will apply to. */
+  destination: RouteDestination
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** Describes the kind of router. Set at creation. `read-only` */
+  kind: RouterRouteKind
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  /** The location that matched packets should be forwarded to. */
+  target: RouteTarget
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+  /** The ID of the VPC Router to which the route belongs */
+  vpcRouterId: string
+}
+
+/**
+ * Create-time parameters for a `RouterRoute`
+ */
+export type RouterRouteCreate = {
+  description: string
+  /** Selects which traffic this routing rule will apply to. */
+  destination: RouteDestination
+  name: Name
+  /** The location that matched packets should be forwarded to. */
+  target: RouteTarget
+}
+
+/**
+ * A single page of results
+ */
+export type RouterRouteResultsPage = {
+  /** list of items on this page of results */
+  items: RouterRoute[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
+ * Updateable properties of a `RouterRoute`
+ */
+export type RouterRouteUpdate = {
+  description?: string
+  /** Selects which traffic this routing rule will apply to. */
+  destination: RouteDestination
+  name?: Name
+  /** The location that matched packets should be forwarded to. */
+  target: RouteTarget
 }
 
 /**
@@ -2963,6 +3375,11 @@ export type Timeseries = { fields: Record<string, FieldValue>; points: Points }
 export type Table = { name: string; timeseries: Record<string, Timeseries> }
 
 /**
+ * Text descriptions for the target and metric of a timeseries.
+ */
+export type TimeseriesDescription = { metric: string; target: string }
+
+/**
  * The name of a timeseries
  *
  * Names are constructed by concatenating the target and metric names with ':'. Target and metric names must be lowercase alphanumeric characters with '_' separating words.
@@ -2978,15 +3395,24 @@ export type TimeseriesQuery = {
 }
 
 /**
+ * Measurement units for timeseries samples.
+ */
+export type Units = 'count' | 'bytes'
+
+/**
  * The schema for a timeseries.
  *
  * This includes the name of the timeseries, as well as the datum type of its metric and the schema for each field.
  */
 export type TimeseriesSchema = {
+  authzScope: AuthzScope
   created: Date
   datumType: DatumType
+  description: TimeseriesDescription
   fieldSchema: FieldSchema[]
   timeseriesName: TimeseriesName
+  units: Units
+  version: number
 }
 
 /**
@@ -3061,7 +3487,7 @@ export type UserBuiltinResultsPage = {
 /**
  * A name unique within the parent collection
  *
- * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. Names cannot be a UUID though they may contain a UUID.
+ * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. Names cannot be a UUID, but they may contain a UUID. They can be at most 63 characters long.
  */
 export type UserId = string
 
@@ -3271,10 +3697,53 @@ export type VpcResultsPage = {
   nextPage?: string
 }
 
+export type VpcRouterKind = 'system' | 'custom'
+
 /**
- * A VPC subnet represents a logical grouping for instances that allows network traffic between them, within a IPv4 subnetwork or optionall an IPv6 subnetwork.
+ * A VPC router defines a series of rules that indicate where traffic should be sent depending on its destination.
+ */
+export type VpcRouter = {
+  /** human-readable free-form text about a resource */
+  description: string
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  kind: VpcRouterKind
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+  /** The VPC to which the router belongs. */
+  vpcId: string
+}
+
+/**
+ * Create-time parameters for a `VpcRouter`
+ */
+export type VpcRouterCreate = { description: string; name: Name }
+
+/**
+ * A single page of results
+ */
+export type VpcRouterResultsPage = {
+  /** list of items on this page of results */
+  items: VpcRouter[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
+ * Updateable properties of a `VpcRouter`
+ */
+export type VpcRouterUpdate = { description?: string; name?: Name }
+
+/**
+ * A VPC subnet represents a logical grouping for instances that allows network traffic between them, within a IPv4 subnetwork or optionally an IPv6 subnetwork.
  */
 export type VpcSubnet = {
+  /** ID for an attached custom router. */
+  customRouterId?: string
   /** human-readable free-form text about a resource */
   description: string
   /** unique, immutable, system-controlled identifier for each resource */
@@ -3297,6 +3766,10 @@ export type VpcSubnet = {
  * Create-time parameters for a `VpcSubnet`
  */
 export type VpcSubnetCreate = {
+  /** An optional router, used to direct packets sent from hosts in this subnet to any destination address.
+
+Custom routers apply in addition to the VPC-wide *system* router, and have higher priority than the system router for an otherwise equal-prefix-length match. */
+  customRouter?: NameOrId
   description: string
   /** The IPv4 address range for this subnet.
 
@@ -3322,7 +3795,12 @@ export type VpcSubnetResultsPage = {
 /**
  * Updateable properties of a `VpcSubnet`
  */
-export type VpcSubnetUpdate = { description?: string; name?: Name }
+export type VpcSubnetUpdate = {
+  /** An optional router, used to direct packets sent from hosts in this subnet to any destination address. */
+  customRouter?: NameOrId
+  description?: string
+  name?: Name
+}
 
 /**
  * Updateable properties of a `Vpc`
@@ -4286,6 +4764,91 @@ export interface VpcFirewallRulesUpdateQueryParams {
   vpc: NameOrId
 }
 
+export interface VpcRouterRouteListQueryParams {
+  limit?: number
+  pageToken?: string
+  project?: NameOrId
+  router?: NameOrId
+  sortBy?: NameOrIdSortMode
+  vpc?: NameOrId
+}
+
+export interface VpcRouterRouteCreateQueryParams {
+  project?: NameOrId
+  router: NameOrId
+  vpc?: NameOrId
+}
+
+export interface VpcRouterRouteViewPathParams {
+  route: NameOrId
+}
+
+export interface VpcRouterRouteViewQueryParams {
+  project?: NameOrId
+  router: NameOrId
+  vpc?: NameOrId
+}
+
+export interface VpcRouterRouteUpdatePathParams {
+  route: NameOrId
+}
+
+export interface VpcRouterRouteUpdateQueryParams {
+  project?: NameOrId
+  router?: NameOrId
+  vpc?: NameOrId
+}
+
+export interface VpcRouterRouteDeletePathParams {
+  route: NameOrId
+}
+
+export interface VpcRouterRouteDeleteQueryParams {
+  project?: NameOrId
+  router?: NameOrId
+  vpc?: NameOrId
+}
+
+export interface VpcRouterListQueryParams {
+  limit?: number
+  pageToken?: string
+  project?: NameOrId
+  sortBy?: NameOrIdSortMode
+  vpc?: NameOrId
+}
+
+export interface VpcRouterCreateQueryParams {
+  project?: NameOrId
+  vpc: NameOrId
+}
+
+export interface VpcRouterViewPathParams {
+  router: NameOrId
+}
+
+export interface VpcRouterViewQueryParams {
+  project?: NameOrId
+  vpc?: NameOrId
+}
+
+export interface VpcRouterUpdatePathParams {
+  router: NameOrId
+}
+
+export interface VpcRouterUpdateQueryParams {
+  project?: NameOrId
+  vpc?: NameOrId
+}
+
+export interface VpcRouterDeletePathParams {
+  router: NameOrId
+}
+
+export interface VpcRouterDeleteQueryParams {
+  project?: NameOrId
+  vpc?: NameOrId
+}
+
 export interface VpcSubnetListQueryParams {
   limit?: number
   pageToken?: string
@@ -4418,6 +4981,8 @@ export type ApiListMethods = Pick<
   | 'siloUtilizationList'
   | 'timeseriesSchemaList'
   | 'userList'
+  | 'vpcRouterRouteList'
+  | 'vpcRouterList'
   | 'vpcSubnetList'
   | 'vpcList'
 >
@@ -6977,6 +7542,178 @@ export class Api extends HttpClient {
         path: `/v1/vpc-firewall-rules`,
         method: 'PUT',
         body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List routes
+     */
+    vpcRouterRouteList: (
+      { query = {} }: { query?: VpcRouterRouteListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<RouterRouteResultsPage>({
+        path: `/v1/vpc-router-routes`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create route
+     */
+    vpcRouterRouteCreate: (
+      { query, body }: { query: VpcRouterRouteCreateQueryParams; body: RouterRouteCreate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<RouterRoute>({
+        path: `/v1/vpc-router-routes`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch route
+     */
+    vpcRouterRouteView: (
+      {
+        path,
+        query,
+      }: { path: VpcRouterRouteViewPathParams; query: VpcRouterRouteViewQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<RouterRoute>({
+        path: `/v1/vpc-router-routes/${path.route}`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Update route
+     */
+    vpcRouterRouteUpdate: (
+      {
+        path,
+        query = {},
+        body,
+      }: {
+        path: VpcRouterRouteUpdatePathParams
+        query?: VpcRouterRouteUpdateQueryParams
+        body: RouterRouteUpdate
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<RouterRoute>({
+        path: `/v1/vpc-router-routes/${path.route}`,
+        method: 'PUT',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Delete route
+     */
+    vpcRouterRouteDelete: (
+      {
+        path,
+        query = {},
+      }: { path: VpcRouterRouteDeletePathParams; query?: VpcRouterRouteDeleteQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/vpc-router-routes/${path.route}`,
+        method: 'DELETE',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List routers
+     */
+    vpcRouterList: (
+      { query = {} }: { query?: VpcRouterListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<VpcRouterResultsPage>({
+        path: `/v1/vpc-routers`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create VPC router
+     */
+    vpcRouterCreate: (
+      { query, body }: { query: VpcRouterCreateQueryParams; body: VpcRouterCreate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<VpcRouter>({
+        path: `/v1/vpc-routers`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch router
+     */
+    vpcRouterView: (
+      {
+        path,
+        query = {},
+      }: { path: VpcRouterViewPathParams; query?: VpcRouterViewQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<VpcRouter>({
+        path: `/v1/vpc-routers/${path.router}`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Update router
+     */
+    vpcRouterUpdate: (
+      {
+        path,
+        query = {},
+        body,
+      }: {
+        path: VpcRouterUpdatePathParams
+        query?: VpcRouterUpdateQueryParams
+        body: VpcRouterUpdate
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<VpcRouter>({
+        path: `/v1/vpc-routers/${path.router}`,
+        method: 'PUT',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Delete router
+     */
+    vpcRouterDelete: (
+      {
+        path,
+        query = {},
+      }: { path: VpcRouterDeletePathParams; query?: VpcRouterDeleteQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/vpc-routers/${path.router}`,
+        method: 'DELETE',
         query,
         ...params,
       })

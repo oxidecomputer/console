@@ -124,7 +124,7 @@ export const Combobox = ({
           modal={false}
         >
           {filteredItems.length === 0 && (
-            <ComboboxOption disabled value="no-matches" className="relative ">
+            <ComboboxOption disabled value="no-matches" className="relative">
               <div className="ox-menu-item !text-disabled">No items match</div>
             </ComboboxOption>
           )}

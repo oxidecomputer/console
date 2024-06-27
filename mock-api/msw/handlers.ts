@@ -205,7 +205,7 @@ export const handlers = makeHandlers({
   diskBulkWriteImport: ({ path, query, body }) => {
     const disk = lookup.disk({ ...path, ...query })
     const diskImport = db.diskBulkImportState.get(disk.id)
-    if (!diskImport) throw notFoundErr
+    if (!diskImport) throw notFoundErr(`disk import for disk '${disk.id}'`)
     // if (Math.random() < 0.01) throw 400
     diskImport.blocks[body.offset] = true
     return 204
@@ -561,6 +561,21 @@ export const handlers = makeHandlers({
     disk.state = { state: 'detached' }
     return disk
   },
+  instanceEphemeralIpAttach({ path, query: projectParams, body }) {
+    const instance = lookup.instance({ ...path, ...projectParams })
+    const { pool } = body
+    const firstAvailableAddress = getIpFromPool(pool)
+    const externalIp = {
+      ip: firstAvailableAddress,
+      kind: 'ephemeral' as const,
+    }
+    db.ephemeralIps.push({
+      instance_id: instance.id,
+      external_ip: externalIp,
+    })
+
+    return externalIp
+  },
   instanceEphemeralIpDetach({ path, query }) {
     const instance = lookup.instance({ ...path, ...query })
     // match API logic: find/remove first ephemeral ip attached to instance
@@ -823,7 +838,7 @@ export const handlers = makeHandlers({
       .map((r) => r.id)
 
     // if nothing in the DB matches, 404
-    if (idsToDelete.length === 0) throw notFoundErr()
+    if (idsToDelete.length === 0) throw notFoundErr(`IP range ${body.first}-${body.last}`)
 
     db.ipPoolRanges = db.ipPoolRanges.filter((r) => !idsToDelete.includes(r.id))
 
@@ -1291,7 +1306,6 @@ export const handlers = makeHandlers({
   certificateDelete: NotImplemented,
   certificateList: NotImplemented,
   certificateView: NotImplemented,
-  instanceEphemeralIpAttach: NotImplemented,
   instanceMigrate: NotImplemented,
   instanceSerialConsoleStream: NotImplemented,
   instanceSshPublicKeyList: NotImplemented,
@@ -1357,4 +1371,14 @@ export const handlers = makeHandlers({
   timeseriesSchemaList: NotImplemented,
   userBuiltinList: NotImplemented,
   userBuiltinView: NotImplemented,
+  vpcRouterCreate: NotImplemented,
+  vpcRouterDelete: NotImplemented,
+  vpcRouterList: NotImplemented,
+  vpcRouterRouteCreate: NotImplemented,
+  vpcRouterRouteDelete: NotImplemented,
+  vpcRouterRouteList: NotImplemented,
+  vpcRouterRouteUpdate: NotImplemented,
+  vpcRouterRouteView: NotImplemented,
+  vpcRouterUpdate: NotImplemented,
+  vpcRouterView: NotImplemented,
 })
