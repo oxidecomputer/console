@@ -394,7 +394,7 @@ export function NetworkingTab() {
           <EmptyMessage
             icon={<IpGlobal24Icon />}
             title="No external IPs"
-            body="You need to attach an external IP to be able to see it here"
+            body="Attach an external IP to see it here"
           />
         </TableEmptyBox>
       )}
@@ -428,7 +428,7 @@ export function NetworkingTab() {
           <EmptyMessage
             icon={<Networking24Icon />}
             title="No network interfaces"
-            body="You need to create a network interface to be able to see it here"
+            body="Create a network interface to see it here"
           />
         </TableEmptyBox>
       )}
