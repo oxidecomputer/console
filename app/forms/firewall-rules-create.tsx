@@ -234,13 +234,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
       { value: 'instance-4', label: 'instance-four' },
       { value: 'instance-5', label: 'instance-five' },
     ],
-    ip: [
-      { value: 'ip-1', label: 'ip-one' },
-      { value: 'ip-2', label: 'ip-two' },
-      { value: 'ip-3', label: 'ip-three' },
-      { value: 'ip-4', label: 'ip-four' },
-      { value: 'ip-5', label: 'ip-five' },
-    ],
+    ip: [],
     ip_net: [
       { value: 'ip_net-1', label: 'ip_net-one' },
       { value: 'ip_net-2', label: 'ip_net-two' },
