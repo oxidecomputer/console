@@ -1341,9 +1341,10 @@ function validateParams<S extends ZodSchema>(
 
   // if any of the errors come from path params, just 404 — the resource cannot
   // exist if there's no valid name
-  const { issues } = result.error
-  const status = issues.some((e) => e.path[0] === 'path') ? 404 : 400
-  return { paramsErr: json(issues, { status }) }
+  const status = result.error.issues.some((e) => e.path[0] === 'path') ? 404 : 400
+  const error_code = status === 404 ? 'NotFound' : 'InvalidRequest'
+  const message = 'Zod error for params: ' + JSON.stringify(result.error)
+  return { paramsErr: json({ error_code, message }, { status }) }
 }
 
 const handler =
@@ -1364,7 +1365,7 @@ const handler =
     const { params, paramsErr } = paramSchema
       ? validateParams(paramSchema, req, pathParams)
       : { params: {}, paramsErr: undefined }
-    if (paramsErr) return json(paramsErr, { status: 400 })
+    if (paramsErr) return paramsErr
 
     const { path, query } = params
 
@@ -1372,7 +1373,10 @@ const handler =
     if (bodySchema) {
       const rawBody = await req.json()
       const result = bodySchema.transform(snakeify).safeParse(rawBody)
-      if (!result.success) return json(result.error.issues, { status: 400 })
+      if (!result.success) {
+        const message = 'Zod error for body: ' + JSON.stringify(result.error)
+        return json({ error_code: 'InvalidRequest', message }, { status: 400 })
+      }
       body = result.data
     }
 
@@ -1387,9 +1391,6 @@ const handler =
       if (typeof result === 'number') {
         return new HttpResponse(null, { status: result })
       }
-      if (typeof result === 'function') {
-        return result()
-      }
       if (result instanceof Response) {
         return result
       }
@@ -1398,17 +1399,22 @@ const handler =
       if (typeof thrown === 'number') {
         return new HttpResponse(null, { status: thrown })
       }
-      if (typeof thrown === 'function') {
-        return thrown()
-      }
       if (typeof thrown === 'string') {
         return json({ message: thrown }, { status: 400 })
       }
       if (thrown instanceof Response) {
         return thrown
       }
+
+      // if it's not one of those, then we don't know what to do with it
       console.error('Unexpected mock error', thrown)
-      return json({ message: 'Unknown Server Error' }, { status: 500 })
+      if (typeof thrown === 'function') {
+        console.error(
+          "It looks like you've accidentally thrown an error constructor function from a mock handler without calling it!"
+        )
+      }
+      // rethrow so everything breaks because this isn't supposed to happen
+      throw thrown
     }
   }
 
