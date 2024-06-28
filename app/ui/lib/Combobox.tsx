@@ -37,8 +37,7 @@ export type ComboboxBaseProps = {
   description?: React.ReactNode
   isDisabled?: boolean
   isLoading?: boolean
-  // without items, the combobox acts as a regular text input
-  items?: ComboboxItem[]
+  items: ComboboxItem[]
   label: string
   placeholder?: string
   required?: boolean
