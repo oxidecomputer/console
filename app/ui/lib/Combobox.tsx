@@ -20,11 +20,17 @@ import { useState } from 'react'
 
 import { SelectArrows6Icon } from '@oxide/design-system/icons/react'
 
+import { KEYS } from '../util/keys'
 import { FieldLabel } from './FieldLabel'
 import { usePopoverZIndex } from './SideModal'
 import { TextInputHint } from './TextInput'
 
 export type ComboboxItem = { label: string; value: string }
+
+export const toComboboxItem = (value: string, label?: string): ComboboxItem => ({
+  label: label || value,
+  value,
+})
 
 /** Simple non-generic props shared with ComboboxField */
 export type ComboboxBaseProps = {
@@ -115,7 +121,12 @@ export const Combobox = ({
               setQuery(event.target.value)
               onInputChange?.(event.target.value)
             }}
-            onKeyDown={onKeyDown}
+            onKeyDown={(e) => {
+              onKeyDown && onKeyDown(e)
+              if (e.key === KEYS.enter) {
+                setQuery('')
+              }
+            }}
             placeholder={placeholder}
             disabled={isDisabled || isLoading}
             className={cn(

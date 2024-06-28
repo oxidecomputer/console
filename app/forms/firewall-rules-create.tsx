@@ -15,6 +15,7 @@ import {
   firewallRuleGetToPut,
   parsePortRange,
   useApiMutation,
+  useApiQuery,
   useApiQueryClient,
   usePrefetchedApiQuery,
   type ApiError,
@@ -46,6 +47,7 @@ import { addToast } from '~/stores/toast'
 import { PAGE_SIZE } from '~/table/QueryTable'
 import { Badge } from '~/ui/lib/Badge'
 import { Button } from '~/ui/lib/Button'
+import { toComboboxItem } from '~/ui/lib/Combobox'
 import { FormDivider } from '~/ui/lib/Divider'
 import { Message } from '~/ui/lib/Message'
 import * as MiniTable from '~/ui/lib/MiniTable'
@@ -113,6 +115,7 @@ const portRangeDefaultValues: PortRangeFormValues = {
 type HostFormValues = {
   type: VpcFirewallRuleHostFilter['type']
   value: string
+  subnetVpc?: string
 }
 
 const hostDefaultValues: HostFormValues = {
@@ -133,6 +136,7 @@ const targetDefaultValues: TargetFormValues = {
 type CommonFieldsProps = {
   error: ApiError | null
   control: Control<FirewallRuleValues>
+  project: string
   instances: Array<Instance>
   vpcs: Array<Vpc>
 }
@@ -186,7 +190,13 @@ const DocsLinkMessage = () => (
   />
 )
 
-export const CommonFields = ({ error, control, instances, vpcs }: CommonFieldsProps) => {
+export const CommonFields = ({
+  error,
+  control,
+  project,
+  instances,
+  vpcs,
+}: CommonFieldsProps) => {
   const portRangeForm = useForm({ defaultValues: portRangeDefaultValues })
   const ports = useController({ name: 'ports', control }).field
   const submitPortRange = portRangeForm.handleSubmit(({ portRange }) => {
@@ -222,22 +232,25 @@ export const CommonFields = ({ error, control, instances, vpcs }: CommonFieldsPr
     targetForm.reset()
   })
 
+  const queryClient = useApiQueryClient()
+  const hostType = hostForm.watch('type')
+  const hostSubnetVpc = hostForm.watch('subnetVpc')
+
+  const { data: vpcSubnets } = useApiQuery(
+    'vpcSubnetList',
+    { query: { project, vpc: hostSubnetVpc } },
+    { enabled: !!hostSubnetVpc }
+  )
+
   const hostFilterItems = {
     vpc: vpcs.map((v) => ({ value: v.name, label: v.name })),
-    // todo: this should be a list of subnets in the selected VPC,
-    // so we'll need to have the user first specify a VPC and then load these in
-    subnet: [
-      { value: 'subnet-1', label: 'subnet-one' },
-      { value: 'subnet-2', label: 'subnet-two' },
-      { value: 'subnet-3', label: 'subnet-three' },
-      { value: 'subnet-4', label: 'subnet-four' },
-      { value: 'subnet-5', label: 'subnet-five' },
-    ],
-    instance: instances.map((i) => ({ value: i.name, label: i.name })),
+    subnet: vpcSubnets?.items.map((s) => toComboboxItem(s.name)) || [],
+    instance: instances.map((i) => toComboboxItem(i.name)),
     ip: [],
     ip_net: [],
   }
 
+  const isHostFilterInputDisabled = hostType === 'subnet' && !hostSubnetVpc
   return (
     <>
       <DocsLinkMessage />
@@ -280,9 +293,7 @@ export const CommonFields = ({ error, control, instances, vpcs }: CommonFieldsPr
         required
         control={control}
       />
-
       <FormDivider />
-
       {/* Really this should be its own <form>, but you can't have a form inside a form,
           so we just stick the submit handler in a button onClick */}
       <h3 className="mb-4 text-sans-2xl">Targets</h3>
@@ -312,7 +323,6 @@ export const CommonFields = ({ error, control, instances, vpcs }: CommonFieldsPr
         required
         control={targetForm.control}
       />
-
       <div className="flex flex-col gap-3">
         <TextField
           name="value"
@@ -344,7 +354,6 @@ export const CommonFields = ({ error, control, instances, vpcs }: CommonFieldsPr
           </Button>
         </div>
       </div>
-
       {!!targets.value.length && (
         <MiniTable.Table className="mb-4" aria-label="Targets">
           <MiniTable.Header>
@@ -380,11 +389,8 @@ export const CommonFields = ({ error, control, instances, vpcs }: CommonFieldsPr
           </MiniTable.Body>
         </MiniTable.Table>
       )}
-
       <FormDivider />
-
       <h3 className="mb-4 text-sans-2xl">Filters</h3>
-
       <Message
         variant="info"
         content={
@@ -396,7 +402,6 @@ export const CommonFields = ({ error, control, instances, vpcs }: CommonFieldsPr
           </>
         }
       />
-
       <div className="flex flex-col gap-3">
         {/* We have to blow this up instead of using TextField to get better 
             text styling on the label */}
@@ -439,7 +444,6 @@ export const CommonFields = ({ error, control, instances, vpcs }: CommonFieldsPr
           </Button>
         </div>
       </div>
-
       {!!ports.value.length && (
         <MiniTable.Table className="mb-4" aria-label="Port filters">
           <MiniTable.Header>
@@ -460,7 +464,6 @@ export const CommonFields = ({ error, control, instances, vpcs }: CommonFieldsPr
           </MiniTable.Body>
         </MiniTable.Table>
       )}
-
       <fieldset className="space-y-0.5">
         <legend className="mb-2 mt-4 text-sans-lg">Protocol filters</legend>
         <div>
@@ -479,7 +482,6 @@ export const CommonFields = ({ error, control, instances, vpcs }: CommonFieldsPr
           </CheckboxField>
         </div>
       </fieldset>
-
       <div className="flex flex-col gap-3">
         <h3 className="mt-4 text-sans-lg">Host filters</h3>
         <Message
@@ -506,13 +508,32 @@ export const CommonFields = ({ error, control, instances, vpcs }: CommonFieldsPr
           control={hostForm.control}
         />
 
+        {/*
+          If the user is trying to specify a subnet, they must
+          first select the VPC that owns the subnet
+        */}
+        {hostType === 'subnet' && (
+          <ListboxField
+            name="subnetVpc"
+            label="VPC"
+            required
+            control={hostForm.control}
+            items={vpcs.map((v) => toComboboxItem(v.name))}
+            // when this changes, we need to re-fetch the subnet list
+            onChange={() => {
+              queryClient.invalidateQueries('vpcSubnetList')
+            }}
+          />
+        )}
+
         {/* For everything but IP this is a name, but for IP it's an IP.
           So we should probably have the label on this field change when the
           host type changes. Also need to confirm that it's just an IP and
           not a block. */}
         <ComboboxField
+          disabled={isHostFilterInputDisabled}
           name="value"
-          {...getFilterValueProps(hostForm.watch('type'))}
+          {...getFilterValueProps(hostType)}
           required
           control={hostForm.control}
           onKeyDown={(e) => {
@@ -524,7 +545,7 @@ export const CommonFields = ({ error, control, instances, vpcs }: CommonFieldsPr
           onInputChange={(value) => {
             hostForm.setValue('value', value)
           }}
-          items={hostFilterItems[hostForm.watch('type')]}
+          items={hostFilterItems[hostType]}
           showNoMatchPlaceholder={false}
           // TODO: validate here, but it's complicated because it's conditional
           // on which type is selected
@@ -535,7 +556,7 @@ export const CommonFields = ({ error, control, instances, vpcs }: CommonFieldsPr
             variant="ghost"
             size="sm"
             className="mr-2.5"
-            disabled={!hostForm.formState.isDirty}
+            disabled={!hostForm.watch('value').length}
             onClick={() => hostForm.reset()}
           >
             Clear
@@ -581,7 +602,6 @@ export const CommonFields = ({ error, control, instances, vpcs }: CommonFieldsPr
           </MiniTable.Table>
         )}
       </div>
-
       {error && (
         <>
           <FormDivider />
@@ -666,6 +686,7 @@ export function CreateFirewallRuleForm() {
       <CommonFields
         error={updateRules.error}
         control={form.control}
+        project={project}
         instances={instances.items}
         vpcs={vpcs.items}
       />
