@@ -147,7 +147,7 @@ export function SerialConsolePage() {
         <Suspense fallback={null}>{ws.current && <Terminal ws={ws.current} />}</Suspense>
       </div>
       <div className="shrink-0 justify-between overflow-hidden border-t bg-default border-secondary empty:border-t-0">
-        <div className="gutter flex items-center justify-between md-:py-4 md+:h-20">
+        <div className="gutter flex items-center justify-between md+:h-20 md-:py-4">
           <div>
             <EquivalentCliCommand command={cliCmd.serialConsole({ project, instance })} />
           </div>

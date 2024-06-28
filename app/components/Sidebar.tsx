@@ -223,12 +223,11 @@ export const NavButtonItem = (props: {
 }) => (
   <li>
     <button
+      type="button"
       onClick={props.onClick}
       className={cn(
         linkStyles,
-        {
-          'pointer-events-none text-disabled': props.disabled,
-        },
+        { 'pointer-events-none text-disabled': props.disabled },
         'w-full',
         props.className
       )}

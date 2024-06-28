@@ -198,7 +198,7 @@ export function MetricsTab() {
     <>
       <div className="mb-4 flex justify-between md-:flex-col md-:gap-2">
         <Listbox
-          className="xl-:w-40 md-:!w-full lg+:w-64"
+          className="lg+:w-64 md-:!w-full xl-:w-40"
           aria-label="Choose disk"
           name="disk-name"
           selected={diskName}
