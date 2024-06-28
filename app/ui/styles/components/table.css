@@ -293,7 +293,10 @@ Drop shadow appears if content is below a sticky
 cell and the table is overflowing
 */
 .scrolled td:first-of-type,
-.scrolled th:first-of-type,
+.scrolled th:first-of-type {
+  box-shadow: var(--elevation-2);
+}
+
 .overflowing td:last-of-type.action-col,
 .overflowing th:last-of-type.action-col {
   box-shadow: var(--elevation-2);
@@ -308,6 +311,7 @@ cell and the table is overflowing
 .scrolled th:first-of-type {
   clip-path: inset(0px -40px 0px -1px);
 }
+
 .overflowing td:last-of-type.action-col,
 .overflowing th:last-of-type.action-col {
   clip-path: inset(0px -1px 0px -40px);

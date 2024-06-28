@@ -158,7 +158,7 @@ export function InstancePage() {
           <MoreActionsMenu label="Instance actions" actions={actions} />
         </div>
       </PageHeader>
-      <PropertiesTable.Group className="-mt-8 mb-16">
+      <PropertiesTable.Group className="-mt-8 mb-16 md-:mb-10">
         <PropertiesTable>
           <PropertiesTable.Row label="cpu">
             <span className="text-secondary">{instance.ncpus}</span>

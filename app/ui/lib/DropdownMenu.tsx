@@ -28,6 +28,7 @@ export const DropdownMenu = {
   Content: forwardRef(({ className, ...props }: DropdownMenuContentProps, ref: DivRef) => (
     <Content
       {...props}
+      collisionPadding={12}
       // prevents focus ring showing up on trigger when you close the menu
       onCloseAutoFocus={(e) => e.preventDefault()}
       className={cn('DropdownMenuContent', className)}

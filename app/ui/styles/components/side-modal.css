@@ -10,6 +10,12 @@
   --content-gutter: 2rem;
 }
 
+@media (max-width: 768px) {
+  .ox-side-modal {
+    --content-gutter: 1.5rem;
+  }
+}
+
 .ox-side-modal > :not(.body, button, footer),
 .ox-side-modal > .body > * {
   margin-left: var(--content-gutter);

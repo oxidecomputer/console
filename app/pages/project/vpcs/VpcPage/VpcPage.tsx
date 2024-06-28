@@ -39,7 +39,7 @@ export function VpcPage() {
         <PageTitle icon={<Networking24Icon />}>{vpc.name}</PageTitle>
         <VpcDocsPopover />
       </PageHeader>
-      <PropertiesTable.Group className="mb-16">
+      <PropertiesTable.Group className="mb-16 md-:mb-10">
         <PropertiesTable>
           <PropertiesTable.Row label="Description">
             {vpc.description || <EmptyCell />}

@@ -31,7 +31,12 @@ export function EquivalentCliCommand({ command }: { command: string }) {
 
   return (
     <>
-      <Button variant="ghost" size="sm" className="ml-2" onClick={() => setIsOpen(true)}>
+      <Button
+        variant="ghost"
+        size="sm"
+        className="md-:hidden"
+        onClick={() => setIsOpen(true)}
+      >
         Equivalent CLI Command
       </Button>
       <Modal isOpen={isOpen} onDismiss={handleDismiss} title="CLI command">
