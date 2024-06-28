@@ -13,7 +13,10 @@ import { MSW_USER_COOKIE } from '../../mock-api/msw/util'
 
 export * from '@playwright/test'
 
-export async function forEach(loc: Locator, fn: (loc0: Locator, i: number) => void) {
+export async function forEach(
+  loc: Locator,
+  fn: (loc0: Locator, i: number) => Promise<void>
+) {
   const count = await loc.count()
   for (let i = 0; i < count; i++) {
     await fn(loc.nth(i), i)
@@ -104,12 +107,26 @@ export async function expectRowVisible(
 }
 
 export async function stopInstance(page: Page) {
-  await page.click('role=button[name="Instance actions"]')
-  await page.click('role=menuitem[name="Stop"]')
-  // close toast and wait for it to fade out. for some reason it prevents things
-  // from working, but only in tests as far as we can tell
-  await page.click('role=button[name="Dismiss notification"]')
-  await sleep(2000)
+  await page.getByRole('button', { name: 'Instance actions' }).click()
+  await page.getByRole('menuitem', { name: 'Stop' }).click()
+  await page.getByRole('button', { name: 'Confirm' }).click()
+  await closeToast(page)
+  await sleep(1200)
+  await refreshInstance(page)
+  await expect(page.getByText('statusstopped')).toBeVisible()
+}
+
+export async function refreshInstance(page: Page) {
+  await page.getByRole('button', { name: 'Refresh data' }).click()
+}
+
+/**
+ * Close toast and wait for it to fade out. For some reason it prevents things
+ * from working, but only in tests as far as we can tell.
+ */
+export async function closeToast(page: Page) {
+  await page.getByRole('button', { name: 'Dismiss notification' }).click()
+  await sleep(1000)
 }
 
 /**

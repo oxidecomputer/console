@@ -7,15 +7,13 @@
  */
 import { test } from '@playwright/test'
 
-import { expect, expectRowVisible } from './utils'
+import { expect, expectRowVisible, stopInstance } from './utils'
 
 test('can create a NIC with a specified IP address', async ({ page }) => {
   // go to an instance’s Network Interfaces page
-  await page.goto('/projects/mock-project/instances/db1/network-interfaces')
+  await page.goto('/projects/mock-project/instances/db1/networking')
 
-  // stop the instance
-  await page.getByRole('button', { name: 'Instance actions' }).click()
-  await page.getByRole('menuitem', { name: 'Stop' }).click()
+  await stopInstance(page)
 
   // open the add network interface side modal
   await page.getByRole('button', { name: 'Add network interface' }).click()
@@ -34,16 +32,15 @@ test('can create a NIC with a specified IP address', async ({ page }) => {
   await sidebar.getByRole('button', { name: 'Add network interface' }).click()
   await expect(sidebar).toBeHidden()
 
-  await expectRowVisible(page.getByRole('table'), { name: 'nic-1', ip: '1.2.3.4' })
+  const table = page.getByRole('table', { name: 'Network interfaces' })
+  await expectRowVisible(table, { name: 'nic-1', 'Private IP': '1.2.3.4' })
 })
 
 test('can create a NIC with a blank IP address', async ({ page }) => {
   // go to an instance’s Network Interfaces page
-  await page.goto('/projects/mock-project/instances/db1/network-interfaces')
+  await page.goto('/projects/mock-project/instances/db1/networking')
 
-  // stop the instance
-  await page.getByRole('button', { name: 'Instance actions' }).click()
-  await page.getByRole('menuitem', { name: 'Stop' }).click()
+  await stopInstance(page)
 
   // open the add network interface side modal
   await page.getByRole('button', { name: 'Add network interface' }).click()
@@ -63,8 +60,7 @@ test('can create a NIC with a blank IP address', async ({ page }) => {
   await sidebar.getByRole('button', { name: 'Add network interface' }).click()
 
   // it should error out
-  // todo: improve error message from API
-  await expect(sidebar.getByText('Unknown server error')).toBeVisible()
+  await expect(sidebar.getByText('Zod error for body')).toBeVisible()
 
   // make sure the IP address field has spaces in it
   await page.getByLabel('IP Address').fill('    ')
@@ -74,5 +70,6 @@ test('can create a NIC with a blank IP address', async ({ page }) => {
   await expect(sidebar).toBeHidden()
 
   // ip address is auto-assigned
-  await expectRowVisible(page.getByRole('table'), { name: 'nic-2', ip: '123.45.68.8' })
+  const table = page.getByRole('table', { name: 'Network interfaces' })
+  await expectRowVisible(table, { name: 'nic-2', 'Private IP': '123.45.68.8' })
 })

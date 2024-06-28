@@ -22,10 +22,10 @@ export function ContentPane() {
   return (
     <div
       ref={ref}
-      className="flex flex-col lg+:ml-[var(--sidebar-width)] lg-:col-span-2"
+      className="flex flex-col lg-:col-span-2 lg+:ml-[var(--sidebar-width)]"
       id="content_pane"
     >
-      <div className="flex flex-grow flex-col pb-8 md-:pb-16">
+      <div className="flex grow flex-col pb-8 md-:pb-16">
         <SkipLinkTarget />
         <main className="[&>*]:gutter">
           <Outlet />
@@ -47,7 +47,7 @@ export function ContentPane() {
  */
 export const SerialConsoleContentPane = () => (
   <div className="flex flex-col overflow-auto lg-:col-span-2" id="content_pane">
-    <div className="flex flex-grow flex-col">
+    <div className="flex grow flex-col">
       <SkipLinkTarget />
       <main className="[&>*]:gutter h-full">
         <Outlet />

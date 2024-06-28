@@ -15,9 +15,10 @@ import {
   totalUtilization,
   usePrefetchedApiQuery,
 } from '@oxide/api'
-import { Metrics24Icon } from '@oxide/design-system/icons/react'
+import { Metrics16Icon, Metrics24Icon } from '@oxide/design-system/icons/react'
 
 import { CapacityBars } from '~/components/CapacityBars'
+import { DocsPopover } from '~/components/DocsPopover'
 import { useDateTimeRangePicker } from '~/components/form/fields/DateTimeRangePicker'
 import { QueryParamTabs } from '~/components/QueryParamTabs'
 import { useIntervalPicker } from '~/components/RefetchIntervalPicker'
@@ -27,6 +28,7 @@ import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { ResourceMeter } from '~/ui/lib/ResourceMeter'
 import { Table } from '~/ui/lib/Table'
 import { Tabs } from '~/ui/lib/Tabs'
+import { docLinks } from '~/util/links'
 import { round } from '~/util/math'
 import { bytesToGiB, bytesToTiB } from '~/util/units'
 
@@ -47,6 +49,12 @@ export function SystemUtilizationPage() {
     <>
       <PageHeader>
         <PageTitle icon={<Metrics24Icon />}>Utilization</PageTitle>
+        <DocsPopover
+          heading="utilization"
+          icon={<Metrics16Icon />}
+          summary="System metrics let you monitor utilization of CPU, memory, and storage against silo-level quotas."
+          links={[docLinks.systemMetrics]}
+        />
       </PageHeader>
 
       <CapacityBars
@@ -172,41 +180,43 @@ function UsageTab() {
       <Table.Body>
         {siloUtilizations.items.map((silo) => (
           <Table.Row key={silo.siloName}>
-            <Table.Cell width="16%">{silo.siloName}</Table.Cell>
-            <Table.Cell width="14%">
+            <Table.Cell width="16%" height="large">
+              {silo.siloName}
+            </Table.Cell>
+            <Table.Cell width="14%" height="large">
               <UsageCell
                 provisioned={silo.provisioned.cpus}
                 allocated={silo.allocated.cpus}
               />
             </Table.Cell>
-            <Table.Cell width="14%">
+            <Table.Cell width="14%" height="large">
               <UsageCell
                 provisioned={bytesToGiB(silo.provisioned.memory)}
                 allocated={bytesToGiB(silo.allocated.memory)}
                 unit="GiB"
               />
             </Table.Cell>
-            <Table.Cell width="14%">
+            <Table.Cell width="14%" height="large">
               <UsageCell
                 provisioned={bytesToTiB(silo.provisioned.storage)}
                 allocated={bytesToTiB(silo.allocated.storage)}
                 unit="TiB"
               />
             </Table.Cell>
-            <Table.Cell width="14%" className="relative">
+            <Table.Cell width="14%" className="relative" height="large">
               <AvailableCell
                 provisioned={silo.provisioned.cpus}
                 allocated={silo.allocated.cpus}
               />
             </Table.Cell>
-            <Table.Cell width="14%" className="relative">
+            <Table.Cell width="14%" className="relative" height="large">
               <AvailableCell
                 provisioned={bytesToGiB(silo.provisioned.memory)}
                 allocated={bytesToGiB(silo.allocated.memory)}
                 unit="GiB"
               />
             </Table.Cell>
-            <Table.Cell width="14%" className="relative">
+            <Table.Cell width="14%" className="relative" height="large">
               <AvailableCell
                 provisioned={bytesToTiB(silo.provisioned.storage)}
                 allocated={bytesToTiB(silo.allocated.storage)}

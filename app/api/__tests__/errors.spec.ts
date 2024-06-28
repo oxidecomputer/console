@@ -23,21 +23,19 @@ describe('getParseError', () => {
 
 describe('processServerError', () => {
   const makeError = ({
-    statusCode = 400,
+    status = 400,
     errorCode = 'ObjectAlreadyExists',
     message = 'already exists: instance "instance-name"',
   } = {}) => ({
     type: 'error' as const,
-    statusCode,
-    headers: new Headers(),
+    response: new Response(undefined, { status }),
     data: { requestId: '2', errorCode, message },
   })
 
   it('extracts message from parse errors', () => {
     const parseError = {
       type: 'error' as const,
-      statusCode: 400,
-      headers: new Headers(),
+      response: new Response(undefined, { status: 400 }),
       data: {
         requestId: '1',
         message: 'unable to parse JSON body: hi, you have an error at line 129 column 4',
@@ -47,14 +45,15 @@ describe('processServerError', () => {
       code: undefined,
       message: 'Hi, you have an error',
       statusCode: 400,
+      errorCode: undefined,
+      requestId: '1',
     })
   })
 
   it('handles client errors', () => {
     const clientError = {
       type: 'client_error' as const,
-      statusCode: 200,
-      headers: new Headers(),
+      response: new Response(undefined, { status: 200 }),
       text: 'this was not json',
       error: new Error('failed to parse JSON'),
     }
@@ -70,6 +69,7 @@ describe('processServerError', () => {
         errorCode: 'ObjectAlreadyExists',
         message: 'Instance name already exists',
         statusCode: 400,
+        requestId: '2',
       })
     })
 
@@ -79,6 +79,7 @@ describe('processServerError', () => {
         errorCode: 'ObjectAlreadyExists',
         message: 'Thing name already exists',
         statusCode: 400,
+        requestId: '2',
       })
     })
   })
@@ -88,12 +89,13 @@ describe('processServerError', () => {
       const error = makeError({
         errorCode: 'ObjectNotFound',
         message: 'not found: whatever',
-        statusCode: 404,
+        status: 404,
       })
       expect(processServerError('fakeThingCreate', error)).toEqual({
         errorCode: 'ObjectNotFound',
         message: 'Not found: whatever',
         statusCode: 404,
+        requestId: '2',
       })
     })
   })
@@ -104,6 +106,7 @@ describe('processServerError', () => {
       errorCode: 'WeirdError',
       message: 'Whatever',
       statusCode: 400,
+      requestId: '2',
     })
   })
 })

@@ -5,7 +5,6 @@
  *
  * Copyright Oxide Computer Company
  */
-import { format } from 'date-fns'
 import { filesize } from 'filesize'
 import { useMemo } from 'react'
 import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
@@ -13,21 +12,24 @@ import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 import {
   apiQueryClient,
   useApiQuery,
-  useApiQueryClient,
   usePrefetchedApiQuery,
   type InstanceNetworkInterface,
 } from '@oxide/api'
-import { Instances24Icon } from '@oxide/design-system/icons/react'
+import { Instances16Icon, Instances24Icon } from '@oxide/design-system/icons/react'
 
+import { DocsPopover } from '~/components/DocsPopover'
 import { ExternalIps } from '~/components/ExternalIps'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
+import { RefreshButton } from '~/components/RefreshButton'
 import { RouteTabs, Tab } from '~/components/RouteTabs'
 import { InstanceStatusBadge } from '~/components/StatusBadge'
 import { getInstanceSelector, useInstanceSelector, useQuickActions } from '~/hooks'
 import { EmptyCell } from '~/table/cells/EmptyCell'
+import { DateTime } from '~/ui/lib/DateTime'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { Truncate } from '~/ui/lib/Truncate'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 import { useMakeInstanceActions } from '../actions'
@@ -35,6 +37,17 @@ import { useMakeInstanceActions } from '../actions'
 function getPrimaryVpcId(nics: InstanceNetworkInterface[]) {
   const nic = nics.find((nic) => nic.primary)
   return nic ? nic.vpcId : undefined
+}
+
+// this is meant to cover everything that we fetch in the page
+async function refreshData() {
+  await Promise.all([
+    apiQueryClient.invalidateQueries('instanceView'),
+    apiQueryClient.invalidateQueries('instanceExternalIpList'),
+    apiQueryClient.invalidateQueries('instanceNetworkInterfaceList'),
+    apiQueryClient.invalidateQueries('instanceDiskList'), // storage tab
+    apiQueryClient.invalidateQueries('diskMetricsList'), // metrics tab
+  ])
 }
 
 InstancePage.loader = async ({ params }: LoaderFunctionArgs) => {
@@ -75,11 +88,8 @@ export function InstancePage() {
   const instanceSelector = useInstanceSelector()
 
   const navigate = useNavigate()
-  const queryClient = useApiQueryClient()
   const makeActions = useMakeInstanceActions(instanceSelector, {
-    onSuccess: () => {
-      queryClient.invalidateQueries('instanceView')
-    },
+    onSuccess: refreshData,
     // go to project instances list since there's no more instance
     onDelete: () => navigate(pb.instances(instanceSelector)),
   })
@@ -137,7 +147,16 @@ export function InstancePage() {
     <>
       <PageHeader>
         <PageTitle icon={<Instances24Icon />}>{instance.name}</PageTitle>
-        <MoreActionsMenu label="Instance actions" actions={actions} />
+        <div className="inline-flex gap-2">
+          <DocsPopover
+            heading="instances"
+            icon={<Instances16Icon />}
+            summary="Instances are virtual machines that run on the Oxide platform."
+            links={[docLinks.instances, docLinks.vms]}
+          />
+          <RefreshButton onClick={refreshData} />
+          <MoreActionsMenu label="Instance actions" actions={actions} />
+        </div>
       </PageHeader>
       <PropertiesTable.Group className="-mt-8 mb-16 md-:mb-10">
         <PropertiesTable>
@@ -172,19 +191,14 @@ export function InstancePage() {
             </span>
           </PropertiesTable.Row>
           <PropertiesTable.Row label="created">
-            <span className="text-secondary">
-              {format(instance.timeCreated, 'MMM d, yyyy')}{' '}
-            </span>
-            <span className="ml-1 text-quaternary">
-              {format(instance.timeCreated, 'p')}
-            </span>
+            <DateTime date={instance.timeCreated} />
           </PropertiesTable.Row>
           <PropertiesTable.Row label="id">
             <span className="overflow-hidden text-ellipsis whitespace-nowrap text-secondary">
               {instance.id}
             </span>
           </PropertiesTable.Row>
-          <PropertiesTable.Row label="external IP">
+          <PropertiesTable.Row label="external IPs">
             {<ExternalIps {...instanceSelector} />}
           </PropertiesTable.Row>
         </PropertiesTable>
@@ -192,7 +206,7 @@ export function InstancePage() {
       <RouteTabs fullWidth>
         <Tab to={pb.instanceStorage(instanceSelector)}>Storage</Tab>
         <Tab to={pb.instanceMetrics(instanceSelector)}>Metrics</Tab>
-        <Tab to={pb.nics(instanceSelector)}>Network Interfaces</Tab>
+        <Tab to={pb.instanceNetworking(instanceSelector)}>Networking</Tab>
         <Tab to={pb.instanceConnect(instanceSelector)}>Connect</Tab>
       </RouteTabs>
     </>

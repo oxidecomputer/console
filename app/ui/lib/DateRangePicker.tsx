@@ -62,7 +62,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
           type="button"
           className={cn(
             state.isOpen && 'z-10 ring-2',
-            'relative flex h-10  items-center rounded-l rounded-r border text-sans-md border-default focus-within:ring-2 hover:border-raise focus:z-10',
+            'relative flex h-10 items-center rounded-l rounded-r border text-sans-md border-default focus-within:ring-2 hover:border-raise focus:z-10',
             state.isInvalid
               ? 'focus-error border-error ring-error-secondary'
               : 'border-default ring-accent-secondary'
@@ -100,7 +100,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
                 value={state.timeRange?.start || null}
                 onChange={(v: TimeValue) => state.setTime('start', v)}
                 hourCycle={24}
-                className="flex-shrink-0 flex-grow basis-0"
+                className="shrink-0 grow basis-0"
               />
               <div className="text-quinary">–</div>
               <TimeField
@@ -108,7 +108,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
                 value={state.timeRange?.end || null}
                 onChange={(v: TimeValue) => state.setTime('end', v)}
                 hourCycle={24}
-                className="flex-shrink-0 flex-grow basis-0"
+                className="shrink-0 grow basis-0"
               />
             </div>
           </Dialog>

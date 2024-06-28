@@ -5,7 +5,14 @@
  *
  * Copyright Oxide Computer Company
  */
-import { expect, expectRowVisible, getPageAsUser, test } from './utils'
+import {
+  clickRowAction,
+  closeToast,
+  expect,
+  expectRowVisible,
+  getPageAsUser,
+  test,
+} from './utils'
 
 // not trying to get elaborate here. just make sure the pages load, which
 // exercises the loader prefetches and invariant checks
@@ -41,14 +48,49 @@ test.describe('System utilization', () => {
     await page.goto('/system/utilization')
     await expect(page.getByText('Page not found')).toBeVisible()
   })
+
+  test('zero over zero', async ({ page }) => {
+    // easiest way to test this is to create a silo with zero quotas and delete
+    // the other two silos so it's the only one shown on system utilization.
+    // Otherwise we'd have to create a user in the silo to see the utilization
+    // inside the silo
+
+    await page.goto('/system/silos-new')
+    await page.getByRole('textbox', { name: 'Name', exact: true }).fill('all-zeros')
+    // don't need to set silo values, they're zero by default
+    await page.getByRole('button', { name: 'Create silo' }).click()
+
+    await closeToast(page)
+
+    const confirm = page.getByRole('button', { name: 'Confirm' })
+
+    await clickRowAction(page, 'maze-war', 'Delete')
+    await confirm.click()
+    await expect(page.getByRole('cell', { name: 'maze-war' })).toBeHidden()
+
+    await clickRowAction(page, 'myriad', 'Delete')
+    await confirm.click()
+    await expect(page.getByRole('cell', { name: 'myriad' })).toBeHidden()
+
+    await page.getByRole('link', { name: 'Utilization' }).click()
+
+    // all three capacity bars are zeroed out
+    await expect(page.getByText('—%')).toHaveCount(3)
+    await expect(page.getByText('NaN')).toBeHidden()
+
+    await expectRowVisible(page.getByRole('table'), {
+      Silo: 'all-zeros',
+      CPU: '0',
+      Memory: '0 GiB',
+      Storage: '0 TiB',
+    })
+  })
 })
 
 test.describe('Silo utilization', () => {
   test('works for fleet viewer', async ({ page }) => {
     await page.goto('/utilization')
-    await expect(
-      page.getByRole('heading', { name: 'Capacity & Utilization' })
-    ).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Utilization' })).toBeVisible()
     // Capacity bars are showing up
     await expect(page.getByText('Provisioned234 GiB')).toBeVisible()
   })
@@ -56,9 +98,7 @@ test.describe('Silo utilization', () => {
   test('works for dev user', async ({ browser }) => {
     const page = await getPageAsUser(browser, 'Hans Jonas')
     await page.goto('/utilization')
-    await expect(
-      page.getByRole('heading', { name: 'Capacity & Utilization' })
-    ).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Utilization' })).toBeVisible()
     // Capacity bars are showing up
     await expect(page.getByText('Provisioned234 GiB')).toBeVisible()
   })

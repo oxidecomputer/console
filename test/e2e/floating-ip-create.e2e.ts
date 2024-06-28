@@ -6,14 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import {
-  clickRowAction,
-  expect,
-  expectNotVisible,
-  expectRowVisible,
-  expectVisible,
-  test,
-} from './utils'
+import { clickRowAction, expect, expectRowVisible, expectVisible, test } from './utils'
 
 const floatingIpsPage = '/projects/mock-project/floating-ips'
 
@@ -36,28 +29,19 @@ test('can create a floating IP', async ({ page }) => {
     .fill('A description for this Floating IP')
 
   const poolListbox = page.getByRole('button', { name: 'IP pool' })
-  const ipTextbox = page.getByRole('textbox', { name: 'IP address' })
 
   // accordion content should be hidden
-  await expectNotVisible(page, [ipTextbox])
+  await expect(poolListbox).toBeHidden()
 
   // open accordion
   await page.getByRole('button', { name: 'Advanced' }).click()
 
   // accordion content should be visible
-  await expectVisible(page, [poolListbox, ipTextbox])
+  await expect(poolListbox).toBeVisible()
 
-  // test that the IP validation works
+  // choose pool and submit
   await poolListbox.click()
   await page.getByRole('option', { name: 'ip-pool-1' }).click()
-  await ipTextbox.fill('256.256.256.256')
-  await page.getByRole('button', { name: 'Create floating IP' }).click()
-  await expect(page.getByText('Not a valid IP address').first()).toBeVisible()
-
-  // correct IP and submit
-  await ipTextbox.clear()
-  await ipTextbox.fill('12.34.56.78')
-
   await page.getByRole('button', { name: 'Create floating IP' }).click()
 
   await expect(page).toHaveURL(floatingIpsPage)
@@ -65,6 +49,7 @@ test('can create a floating IP', async ({ page }) => {
   await expectRowVisible(page.getByRole('table'), {
     name: floatingIpName,
     description: 'A description for this Floating IP',
+    'IP pool': 'ip-pool-1',
   })
 })
 
@@ -78,7 +63,7 @@ test('can detach and attach a floating IP', async ({ page }) => {
 
   await expectRowVisible(page.getByRole('table'), {
     name: 'cola-float',
-    ip: '123.4.56.5',
+    'IP address': '123.4.56.5',
     'Attached to instance': 'db1',
   })
   await clickRowAction(page, 'cola-float', 'Detach')
@@ -107,7 +92,7 @@ test('can detach and attach a floating IP', async ({ page }) => {
   await expect(page.getByRole('dialog')).toBeHidden()
   await expectRowVisible(page.getByRole('table'), {
     name: 'cola-float',
-    ip: '123.4.56.5',
+    'IP address': '123.4.56.5',
     'Attached to instance': 'db1',
   })
 })

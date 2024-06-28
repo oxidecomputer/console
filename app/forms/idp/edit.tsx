@@ -15,10 +15,10 @@ import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { getIdpSelector, useForm, useIdpSelector } from '~/hooks'
+import { DateTime } from '~/ui/lib/DateTime'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { ResourceLabel } from '~/ui/lib/SideModal'
 import { Truncate } from '~/ui/lib/Truncate'
-import { formatDateTime } from '~/util/date'
 import { pb } from '~/util/path-builder'
 
 EditIdpSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
@@ -62,10 +62,10 @@ export function EditIdpSideModalForm() {
           <Truncate text={idp.id} maxLength={32} hasCopyButton />
         </PropertiesTable.Row>
         <PropertiesTable.Row label="Created">
-          {formatDateTime(idp.timeCreated)}
+          <DateTime date={idp.timeCreated} />
         </PropertiesTable.Row>
         <PropertiesTable.Row label="Updated">
-          {formatDateTime(idp.timeModified)}
+          <DateTime date={idp.timeModified} />
         </PropertiesTable.Row>
       </PropertiesTable>
 

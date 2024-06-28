@@ -17,7 +17,8 @@ import {
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { getVpcSelector, useForm, useToast, useVpcSelector } from '~/hooks'
+import { getVpcSelector, useForm, useVpcSelector } from '~/hooks'
+import { addToast } from '~/stores/toast'
 import { pb } from '~/util/path-builder'
 
 EditVpcSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
@@ -29,7 +30,6 @@ EditVpcSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
 export function EditVpcSideModalForm() {
   const { vpc: vpcName, project } = useVpcSelector()
   const queryClient = useApiQueryClient()
-  const addToast = useToast()
   const navigate = useNavigate()
 
   const { data: vpc } = usePrefetchedApiQuery('vpcView', {
@@ -40,7 +40,7 @@ export function EditVpcSideModalForm() {
   const onDismiss = () => navigate(pb.vpcs({ project }))
 
   const editVpc = useApiMutation('vpcUpdate', {
-    async onSuccess(vpc) {
+    onSuccess(vpc) {
       queryClient.invalidateQueries('vpcList')
       queryClient.setQueryData(
         'vpcView',

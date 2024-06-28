@@ -75,9 +75,11 @@ export const Toast = ({
   content,
   onClose,
   variant = 'success',
-  timeout = 5000,
+  timeout: timeoutArg,
   cta,
 }: ToastProps) => {
+  const defaultTimeout = variant === 'error' ? 15000 : 5000
+  const timeout = timeoutArg === undefined ? defaultTimeout : timeoutArg
   // TODO: consider assertive announce for error toasts
   useEffect(
     () => announce((title || defaultTitle[variant]) + ' ' + content, 'polite'),
@@ -106,6 +108,7 @@ export const Toast = ({
         )}
       </div>
       <button
+        type="button"
         aria-label="Dismiss notification"
         className={cn('-m-2 flex h-auto !border-transparent p-2', textColor[variant])}
         onClick={onClose}

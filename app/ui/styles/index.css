@@ -40,7 +40,7 @@
 
 @import './themes/selection.css';
 
-@import 'xterm/css/xterm.css';
+@import '@xterm/xterm/css/xterm.css';
 
 :root {
   --content-gutter: 2.5rem;

@@ -13,9 +13,10 @@ import { apiQueryClient, useApiMutation, useApiQueryClient, type SshKey } from '
 import { Key16Icon, Key24Icon } from '@oxide/design-system/icons/react'
 
 import { confirmDelete } from '~/stores/confirm-delete'
-import { DateCell } from '~/table/cells/DateCell'
+import { addToast } from '~/stores/toast'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
-import { useQueryTable } from '~/table/QueryTable'
+import { Columns } from '~/table/columns/common'
+import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
 import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
@@ -23,18 +24,17 @@ import { TableActions } from '~/ui/lib/Table'
 import { pb } from '~/util/path-builder'
 
 SSHKeysPage.loader = async () => {
-  await apiQueryClient.prefetchQuery('currentUserSshKeyList', { query: { limit: 25 } })
+  await apiQueryClient.prefetchQuery('currentUserSshKeyList', {
+    query: { limit: PAGE_SIZE },
+  })
   return null
 }
 
 const colHelper = createColumnHelper<SshKey>()
 const staticCols = [
   colHelper.accessor('name', {}),
-  colHelper.accessor('description', {}),
-  colHelper.accessor('timeModified', {
-    header: 'Last updated',
-    cell: (info) => <DateCell value={info.getValue()} />,
-  }),
+  colHelper.accessor('description', Columns.description),
+  colHelper.accessor('timeModified', Columns.timeModified),
 ]
 
 export function SSHKeysPage() {
@@ -46,6 +46,7 @@ export function SSHKeysPage() {
   const deleteSshKey = useApiMutation('currentUserSshKeyDelete', {
     onSuccess: () => {
       queryClient.invalidateQueries('currentUserSshKeyList')
+      addToast({ content: 'Your SSH key has been deleted' })
     },
   })
 

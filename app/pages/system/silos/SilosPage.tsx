@@ -7,7 +7,7 @@
  */
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
-import { Link, Outlet, useNavigate } from 'react-router-dom'
+import { Outlet, useNavigate } from 'react-router-dom'
 
 import {
   apiQueryClient,
@@ -16,20 +16,22 @@ import {
   usePrefetchedApiQuery,
   type Silo,
 } from '@oxide/api'
-import { Cloud24Icon } from '@oxide/design-system/icons/react'
+import { Cloud16Icon, Cloud24Icon } from '@oxide/design-system/icons/react'
 
+import { DocsPopover } from '~/components/DocsPopover'
 import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { BooleanCell } from '~/table/cells/BooleanCell'
-import { DateCell } from '~/table/cells/DateCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
-import { useQueryTable } from '~/table/QueryTable'
+import { Columns } from '~/table/columns/common'
+import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
 import { Badge } from '~/ui/lib/Badge'
-import { buttonStyle } from '~/ui/lib/Button'
+import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 const EmptyState = () => (
@@ -47,7 +49,7 @@ const staticCols = [
   colHelper.accessor('name', {
     cell: (info) => makeLinkCell((name) => pb.silo({ silo: name }))(info),
   }),
-  colHelper.accessor('description', {}),
+  colHelper.accessor('description', Columns.description),
   colHelper.accessor('discoverable', {
     cell: (info) => <BooleanCell isTrue={info.getValue()} />,
   }),
@@ -55,14 +57,11 @@ const staticCols = [
     header: 'Identity mode',
     cell: (info) => <Badge>{info.getValue().replace('_', ' ')}</Badge>,
   }),
-  colHelper.accessor('timeCreated', {
-    header: 'created',
-    cell: (info) => <DateCell value={info.getValue()} />,
-  }),
+  colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
 SilosPage.loader = async () => {
-  await apiQueryClient.prefetchQuery('siloList', { query: { limit: 25 } })
+  await apiQueryClient.prefetchQuery('siloList', { query: { limit: PAGE_SIZE } })
   return null
 }
 
@@ -73,7 +72,7 @@ export function SilosPage() {
   const queryClient = useApiQueryClient()
 
   const { data: silos } = usePrefetchedApiQuery('siloList', {
-    query: { limit: 25 },
+    query: { limit: PAGE_SIZE },
   })
 
   const deleteSilo = useApiMutation('siloDelete', {
@@ -115,11 +114,15 @@ export function SilosPage() {
     <>
       <PageHeader>
         <PageTitle icon={<Cloud24Icon />}>Silos</PageTitle>
+        <DocsPopover
+          heading="silos"
+          icon={<Cloud16Icon />}
+          summary="Silos provide strict tenancy separation between groups of users. Each silo has its own resource limits and access policies as well as its own subdomain for the web console and API."
+          links={[docLinks.systemSilo]}
+        />
       </PageHeader>
       <TableActions>
-        <Link to={pb.silosNew()} className={buttonStyle({ size: 'sm' })}>
-          New silo
-        </Link>
+        <CreateLink to={pb.silosNew()}>New silo</CreateLink>
       </TableActions>
       <Table columns={columns} emptyState={<EmptyState />} />
       <Outlet />

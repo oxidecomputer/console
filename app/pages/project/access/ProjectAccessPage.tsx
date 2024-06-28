@@ -9,6 +9,7 @@
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useMemo, useState } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
+import * as R from 'remeda'
 
 import {
   apiQueryClient,
@@ -22,8 +23,9 @@ import {
   type IdentityType,
   type RoleKey,
 } from '@oxide/api'
-import { Access24Icon } from '@oxide/design-system/icons/react'
+import { Access16Icon, Access24Icon } from '@oxide/design-system/icons/react'
 
+import { DocsPopover } from '~/components/DocsPopover'
 import { HL } from '~/components/HL'
 import { ListPlusCell } from '~/components/ListPlusCell'
 import {
@@ -35,13 +37,14 @@ import { confirmDelete } from '~/stores/confirm-delete'
 import { getActionsCol } from '~/table/columns/action-col'
 import { Table } from '~/table/Table'
 import { Badge } from '~/ui/lib/Badge'
-import { Button } from '~/ui/lib/Button'
+import { CreateButton } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions, TableEmptyBox } from '~/ui/lib/Table'
 import { TipIcon } from '~/ui/lib/TipIcon'
 import { identityTypeLabel, roleColor } from '~/util/access'
-import { groupBy, isTruthy, sortBy } from '~/util/array'
+import { groupBy } from '~/util/array'
+import { docLinks } from '~/util/links'
 
 const EmptyState = ({ onClick }: { onClick: () => void }) => (
   <TableEmptyBox>
@@ -98,8 +101,8 @@ export function ProjectAccessPage() {
         const siloAccessRow = userAssignments.find((a) => a.roleSource === 'silo')
         const projectAccessRow = userAssignments.find((a) => a.roleSource === 'project')
 
-        const roleBadges = sortBy(
-          [siloAccessRow, projectAccessRow].filter(isTruthy),
+        const roleBadges = R.sortBy(
+          [siloAccessRow, projectAccessRow].filter((r) => !!r),
           (r) => roleOrder[r.roleName] // sorts strongest role first
         )
 
@@ -167,7 +170,7 @@ export function ProjectAccessPage() {
               updatePolicy.mutateAsync({
                 path: { project },
                 // we know policy is there, otherwise there's no row to display
-                body: deleteRole(row.id, projectPolicy!),
+                body: deleteRole(row.id, projectPolicy),
               }),
             // TODO: explain that this will not affect the role inherited from
             // the silo or roles inherited from group membership. Ideally we'd
@@ -195,13 +198,17 @@ export function ProjectAccessPage() {
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<Access24Icon />}>Access &amp; IAM</PageTitle>
+        <PageTitle icon={<Access24Icon />}>Access</PageTitle>
+        <DocsPopover
+          heading="access"
+          icon={<Access16Icon />}
+          summary="Roles determine who can view, edit, or administer this project. Silo roles are inherited from the silo. If a user or group has both a silo and project role, the stronger role takes precedence."
+          links={[docLinks.keyConceptsIam, docLinks.access]}
+        />
       </PageHeader>
 
       <TableActions>
-        <Button size="sm" onClick={() => setAddModalOpen(true)}>
-          Add user or group
-        </Button>
+        <CreateButton onClick={() => setAddModalOpen(true)}>Add user or group</CreateButton>
       </TableActions>
       {projectPolicy && addModalOpen && (
         <ProjectAccessAddUserSideModal

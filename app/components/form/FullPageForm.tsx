@@ -5,14 +5,13 @@
  *
  * Copyright Oxide Computer Company
  */
-import { cloneElement, useEffect, type ReactElement, type ReactNode } from 'react'
+import { cloneElement, useEffect, type ReactNode } from 'react'
 import type { FieldValues, UseFormReturn } from 'react-hook-form'
 import { useBlocker, type Blocker } from 'react-router-dom'
 
 import type { ApiError } from '@oxide/api'
 
 import { Modal } from '~/ui/lib/Modal'
-import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { flattenChildren, pluckFirstOfType } from '~/util/children'
 import { classed } from '~/util/classed'
 
@@ -21,8 +20,6 @@ import { PageActions } from '../PageActions'
 
 interface FullPageFormProps<TFieldValues extends FieldValues> {
   id: string
-  title: string
-  icon: ReactElement
   /** Must provide a reason for submit being disabled */
   submitDisabled?: string
   error?: Error
@@ -50,11 +47,9 @@ const PageActionsContainer = classed.div`flex h-20 items-center gutter`
 
 export function FullPageForm<TFieldValues extends FieldValues>({
   id,
-  title,
   children,
   submitDisabled,
   error,
-  icon,
   loading,
   form,
   onSubmit,
@@ -85,9 +80,6 @@ export function FullPageForm<TFieldValues extends FieldValues>({
 
   return (
     <>
-      <PageHeader>
-        <PageTitle icon={icon}>{title}</PageTitle>
-      </PageHeader>
       <form
         className="ox-form pb-20"
         id={id}

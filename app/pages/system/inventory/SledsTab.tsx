@@ -8,17 +8,17 @@
 import { createColumnHelper } from '@tanstack/react-table'
 
 import { apiQueryClient, type Sled } from '@oxide/api'
-import { Racks24Icon } from '@oxide/design-system/icons/react'
+import { Servers24Icon } from '@oxide/design-system/icons/react'
 
 import { makeLinkCell } from '~/table/cells/LinkCell'
-import { useQueryTable } from '~/table/QueryTable'
+import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { pb } from '~/util/path-builder'
 
 const EmptyState = () => {
   return (
     <EmptyMessage
-      icon={<Racks24Icon />}
+      icon={<Servers24Icon />}
       title="Something went wrong"
       body="We expected some racks here, but none were found"
     />
@@ -27,7 +27,7 @@ const EmptyState = () => {
 
 SledsTab.loader = async () => {
   await apiQueryClient.prefetchQuery('sledList', {
-    query: { limit: 25 },
+    query: { limit: PAGE_SIZE },
   })
   return null
 }

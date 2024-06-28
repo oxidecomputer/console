@@ -7,7 +7,7 @@
  */
 import { createColumnHelper } from '@tanstack/react-table'
 import { useMemo } from 'react'
-import { Link, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
+import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
   apiQueryClient,
@@ -15,19 +15,22 @@ import {
   usePrefetchedApiQuery,
   type Instance,
 } from '@oxide/api'
-import { Instances24Icon, Refresh16Icon } from '@oxide/design-system/icons/react'
+import { Instances16Icon, Instances24Icon } from '@oxide/design-system/icons/react'
 
+import { DocsPopover } from '~/components/DocsPopover'
+import { RefreshButton } from '~/components/RefreshButton'
 import { getProjectSelector, useProjectSelector, useQuickActions } from '~/hooks'
-import { DateCell } from '~/table/cells/DateCell'
 import { InstanceResourceCell } from '~/table/cells/InstanceResourceCell'
 import { InstanceStatusCell } from '~/table/cells/InstanceStatusCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { getActionsCol } from '~/table/columns/action-col'
-import { useQueryTable } from '~/table/QueryTable'
-import { Button, buttonStyle } from '~/ui/lib/Button'
+import { Columns } from '~/table/columns/common'
+import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
+import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 import { useMakeInstanceActions } from './actions'
@@ -45,24 +48,26 @@ const EmptyState = () => (
 const colHelper = createColumnHelper<Instance>()
 
 InstancesPage.loader = async ({ params }: LoaderFunctionArgs) => {
+  const { project } = getProjectSelector(params)
   await apiQueryClient.prefetchQuery('instanceList', {
-    query: { ...getProjectSelector(params), limit: 25 },
+    query: { project, limit: PAGE_SIZE },
   })
   return null
 }
 
 export function InstancesPage() {
-  const projectSelector = useProjectSelector()
+  const { project } = useProjectSelector()
 
   const queryClient = useApiQueryClient()
   const refetchInstances = () => queryClient.invalidateQueries('instanceList')
 
-  const makeActions = useMakeInstanceActions(projectSelector, {
-    onSuccess: refetchInstances,
-  })
+  const makeActions = useMakeInstanceActions(
+    { project },
+    { onSuccess: refetchInstances, onDelete: refetchInstances }
+  )
 
   const { data: instances } = usePrefetchedApiQuery('instanceList', {
-    query: { ...projectSelector, limit: 25 }, // to have same params as QueryTable
+    query: { project, limit: PAGE_SIZE },
   })
 
   const navigate = useNavigate()
@@ -71,29 +76,28 @@ export function InstancesPage() {
       () => [
         {
           value: 'New instance',
-          onSelect: () => navigate(pb.instancesNew(projectSelector)),
+          onSelect: () => navigate(pb.instancesNew({ project })),
         },
         ...(instances?.items || []).map((i) => ({
           value: i.name,
-          onSelect: () =>
-            navigate(pb.instancePage({ ...projectSelector, instance: i.name })),
+          onSelect: () => navigate(pb.instance({ project, instance: i.name })),
           navGroup: 'Go to instance',
         })),
       ],
-      [projectSelector, instances, navigate]
+      [project, instances, navigate]
     )
   )
 
   const { Table } = useQueryTable(
     'instanceList',
-    { query: projectSelector },
+    { query: { project } },
     { placeholderData: (x) => x }
   )
 
   const columns = useMemo(
     () => [
       colHelper.accessor('name', {
-        cell: makeLinkCell((instance) => pb.instancePage({ ...projectSelector, instance })),
+        cell: makeLinkCell((instance) => pb.instance({ project, instance })),
       }),
       colHelper.accessor((i) => ({ ncpus: i.ncpus, memory: i.memory }), {
         header: 'CPU, RAM',
@@ -110,13 +114,10 @@ export function InstancesPage() {
         }
       ),
       colHelper.accessor('hostname', {}),
-      colHelper.accessor('timeCreated', {
-        header: 'created',
-        cell: (info) => <DateCell value={info.getValue()} />,
-      }),
+      colHelper.accessor('timeCreated', Columns.timeCreated),
       getActionsCol(makeActions),
     ],
-    [projectSelector, makeActions]
+    [project, makeActions]
   )
 
   if (!instances) return null
@@ -125,21 +126,18 @@ export function InstancesPage() {
     <>
       <PageHeader>
         <PageTitle icon={<Instances24Icon />}>Instances</PageTitle>
+        <DocsPopover
+          heading="instances"
+          icon={<Instances16Icon />}
+          summary="Instances are virtual machines that run on the Oxide platform."
+          links={[docLinks.instances, docLinks.vms]}
+        />
       </PageHeader>
       <TableActions>
-        <Button
-          size="icon"
-          variant="ghost"
-          onClick={refetchInstances}
-          aria-label="Refresh instances table"
-        >
-          <Refresh16Icon />
-        </Button>
-        <Link to={pb.instancesNew(projectSelector)} className={buttonStyle({ size: 'sm' })}>
-          New Instance
-        </Link>
+        <RefreshButton onClick={refetchInstances} />
+        <CreateLink to={pb.instancesNew({ project })}>New Instance</CreateLink>
       </TableActions>
-      <Table columns={columns} emptyState={<EmptyState />} />
+      <Table columns={columns} emptyState={<EmptyState />} rowHeight="large" />
     </>
   )
 }

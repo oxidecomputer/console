@@ -5,6 +5,6 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useToastStore } from '~/stores/toast'
-
-export const useToast = () => useToastStore(({ add }) => add)
+export const Slash = () => (
+  <span className="mx-1 text-quinary selected:text-accent-disabled">/</span>
+)

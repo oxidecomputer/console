@@ -10,11 +10,9 @@ import type { Instance } from '@oxide/api'
 import { InstanceStatusBadge } from '~/components/StatusBadge'
 import { TimeAgo } from '~/components/TimeAgo'
 
-import type { Cell } from './Cell'
+type Props = { value: Pick<Instance, 'runState' | 'timeRunStateUpdated'> }
 
-export const InstanceStatusCell = ({
-  value,
-}: Cell<Pick<Instance, 'runState' | 'timeRunStateUpdated'>>) => {
+export const InstanceStatusCell = ({ value }: Props) => {
   return (
     <div className="flex flex-col">
       <InstanceStatusBadge key="run-state" status={value.runState} />

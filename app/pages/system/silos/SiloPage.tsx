@@ -8,18 +8,21 @@
 import { type LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
-import { Cloud24Icon, NextArrow12Icon } from '@oxide/design-system/icons/react'
+import { Cloud16Icon, Cloud24Icon, NextArrow12Icon } from '@oxide/design-system/icons/react'
 
+import { DocsPopover } from '~/components/DocsPopover'
 import { QueryParamTabs } from '~/components/QueryParamTabs'
 import { getSiloSelector, useSiloSelector } from '~/hooks'
 import { EmptyCell } from '~/table/cells/EmptyCell'
+import { PAGE_SIZE } from '~/table/QueryTable'
 import { Badge } from '~/ui/lib/Badge'
+import { DateTime } from '~/ui/lib/DateTime'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { TableEmptyBox } from '~/ui/lib/Table'
 import { Tabs } from '~/ui/lib/Tabs'
-import { formatDateTime } from '~/util/date'
+import { docLinks } from '~/util/links'
 
 import { SiloIdpsTab } from './SiloIdpsTab'
 import { SiloIpPoolsTab } from './SiloIpPoolsTab'
@@ -29,10 +32,10 @@ SiloPage.loader = async ({ params }: LoaderFunctionArgs) => {
   await Promise.all([
     apiQueryClient.prefetchQuery('siloView', { path: { silo } }),
     apiQueryClient.prefetchQuery('siloIdentityProviderList', {
-      query: { silo, limit: 25 }, // match QueryTable
+      query: { silo, limit: PAGE_SIZE },
     }),
     apiQueryClient.prefetchQuery('siloIpPoolList', {
-      query: { limit: 25 }, // match QueryTable
+      query: { limit: PAGE_SIZE },
       path: { silo },
     }),
   ])
@@ -53,6 +56,12 @@ export function SiloPage() {
     <>
       <PageHeader>
         <PageTitle icon={<Cloud24Icon />}>{silo.name}</PageTitle>
+        <DocsPopover
+          heading="silos"
+          icon={<Cloud16Icon />}
+          summary="Silos provide strict tenancy separation between groups of users. Each silo has its own resource limits and access policies as well as its own subdomain for the web console and API."
+          links={[docLinks.systemSilo, docLinks.systemIpPools, docLinks.access]}
+        />
       </PageHeader>
 
       <PropertiesTable.Group className="mb-16 md-:mb-10">
@@ -64,10 +73,10 @@ export function SiloPage() {
         </PropertiesTable>
         <PropertiesTable>
           <PropertiesTable.Row label="Created">
-            {formatDateTime(silo.timeCreated)}
+            <DateTime date={silo.timeCreated} />
           </PropertiesTable.Row>
           <PropertiesTable.Row label="Last Modified">
-            {formatDateTime(silo.timeModified)}
+            <DateTime date={silo.timeModified} />
           </PropertiesTable.Row>
         </PropertiesTable>
       </PropertiesTable.Group>

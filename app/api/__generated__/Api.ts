@@ -15,7 +15,7 @@ export type { ApiConfig, ApiResult, ErrorBody, ErrorResult } from './http-client
 /**
  * An IPv4 subnet
  *
- * An IPv4 subnet, including prefix and subnet mask
+ * An IPv4 subnet, including prefix and prefix length
  */
 export type Ipv4Net = string
 
@@ -31,7 +31,7 @@ export type IpNet = Ipv4Net | Ipv6Net
 /**
  * A name unique within the parent collection
  *
- * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. Names cannot be a UUID though they may contain a UUID.
+ * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. Names cannot be a UUID, but they may contain a UUID. They can be at most 63 characters long.
  */
 export type Name = string
 
@@ -45,6 +45,8 @@ export type Address = {
   address: IpNet
   /** The address lot this address is drawn from. */
   addressLot: NameOrId
+  /** Optional VLAN ID for this address */
+  vlanId?: number
 }
 
 /**
@@ -176,10 +178,59 @@ export type AggregateBgpMessageHistory = {
 }
 
 /**
+ * Description of source IPs allowed to reach rack services.
+ */
+export type AllowedSourceIps =
+  /** Allow traffic from any external IP address. */
+  | { allow: 'any' }
+  /** Restrict access to a specific set of source IP addresses or subnets.
+
+All others are prevented from reaching rack services. */
+  | { allow: 'list'; ips: IpNet[] }
+
+/**
+ * Allowlist of IPs or subnets that can make requests to user-facing services.
+ */
+export type AllowList = {
+  /** The allowlist of IPs or subnets. */
+  allowedIps: AllowedSourceIps
+  /** Time the list was created. */
+  timeCreated: Date
+  /** Time the list was last modified. */
+  timeModified: Date
+}
+
+/**
+ * Parameters for updating allowed source IPs
+ */
+export type AllowListUpdate = {
+  /** The new list of allowed source IPs. */
+  allowedIps: AllowedSourceIps
+}
+
+/**
+ * Authorization scope for a timeseries.
+ *
+ * This describes the level at which a user must be authorized to read data from a timeseries. For example, fleet-scoping means the data is only visible to an operator or fleet reader. Project-scoped, on the other hand, indicates that a user will see data limited to the projects on which they have read permissions.
+ */
+export type AuthzScope =
+  /** Timeseries data is limited to fleet readers. */
+  | 'fleet'
+  /** Timeseries data is limited to the authorized silo for a user. */
+  | 'silo'
+  /** Timeseries data is limited to the authorized projects for a user. */
+  | 'project'
+  /** The timeseries is viewable to all without limitation. */
+  | 'viewable_to_all'
+
+/**
  * Properties that uniquely identify an Oxide hardware component
  */
 export type Baseboard = { part: string; revision: number; serial: string }
 
+/**
+ * BFD connection mode.
+ */
 export type BfdMode = 'single_hop' | 'multi_hop'
 
 /**
@@ -336,20 +387,33 @@ export type BgpImportedRouteIpv4 = {
 }
 
 /**
+ * Define policy relating to the import and export of prefixes from a BGP peer.
+ */
+export type ImportExportPolicy =
+  /** Do not perform any filtering. */
+  { type: 'no_filtering' } | { type: 'allow'; value: IpNet[] }
+
+/**
  * A BGP peer configuration for an interface. Includes the set of announcements that will be advertised to the peer identified by `addr`. The `bgp_config` parameter is a reference to global BGP parameters. The `interface_name` indicates what interface the peer should be contacted on.
  */
 export type BgpPeer = {
   /** The address of the host to peer with. */
   addr: string
-  /** The set of announcements advertised by the peer. */
-  bgpAnnounceSet: NameOrId
+  /** Define export policy for a peer. */
+  allowedExport: ImportExportPolicy
+  /** Define import policy for a peer. */
+  allowedImport: ImportExportPolicy
   /** The global BGP configuration used for establishing a session with this peer. */
   bgpConfig: NameOrId
+  /** Include the provided communities in updates sent to the peer. */
+  communities: number[]
   /** How long to to wait between TCP connection retries (seconds). */
   connectRetry: number
   /** How long to delay sending an open request after establishing a TCP session (seconds). */
   delayOpen: number
-  /** How long to hold peer connections between keppalives (seconds). */
+  /** Enforce that the first AS in paths received from this peer is the peer's AS. */
+  enforceFirstAs: boolean
+  /** How long to hold peer connections between keepalives (seconds). */
   holdTime: number
   /** How long to hold a peer in idle before attempting a new session (seconds). */
   idleHoldTime: number
@@ -357,6 +421,18 @@ export type BgpPeer = {
   interfaceName: string
   /** How often to send keepalive requests (seconds). */
   keepalive: number
+  /** Apply a local preference to routes received from this peer. */
+  localPref?: number
+  /** Use the given key for TCP-MD5 authentication with the peer. */
+  md5AuthKey?: string
+  /** Require messages from a peer have a minimum IP time to live field. */
+  minTtl?: number
+  /** Apply the provided multi-exit discriminator (MED) updates sent to the peer. */
+  multiExitDiscriminator?: number
+  /** Require that a peer has a specified ASN. */
+  remoteAsn?: number
+  /** Associate a VLAN ID with a peer. */
+  vlanId?: number
 }
 
 export type BgpPeerConfig = { peers: BgpPeer[] }
@@ -365,7 +441,7 @@ export type BgpPeerConfig = { peers: BgpPeer[] }
  * The current state of a BGP peer.
  */
 export type BgpPeerState =
-  /** Initial state. Refuse all incomming BGP connections. No resources allocated to peer. */
+  /** Initial state. Refuse all incoming BGP connections. No resources allocated to peer. */
   | 'idle'
   /** Waiting for the TCP connection to be completed. */
   | 'connect'
@@ -377,7 +453,7 @@ export type BgpPeerState =
   | 'open_confirm'
   /** Synchronizing with peer. */
   | 'session_setup'
-  /** Session established. Able to exchange update, notification and keepliave messages with peers. */
+  /** Session established. Able to exchange update, notification and keepalive messages with peers. */
   | 'established'
 
 /**
@@ -647,12 +723,15 @@ export type ServiceUsingCertificate = 'external_api'
  * View of a Certificate
  */
 export type Certificate = {
+  /** PEM-formatted string containing public certificate chain */
+  cert: string
   /** human-readable free-form text about a resource */
   description: string
   /** unique, immutable, system-controlled identifier for each resource */
   id: string
   /** unique, mutable, user-controlled identifier for each resource */
   name: Name
+  /** The service using this certificate */
   service: ServiceUsingCertificate
   /** timestamp when this resource was created */
   timeCreated: Date
@@ -718,13 +797,24 @@ export type CurrentUser = {
 }
 
 /**
- * Histogram metric
+ * Structure for estimating the p-quantile of a population.
  *
- * A histogram maintains the count of any number of samples, over a set of bins. Bins are specified on construction via their _left_ edges, inclusive. There can't be any "gaps" in the bins, and an additional bin may be added to the left, right, or both so that the bins extend to the entire range of the support.
+ * This is based on the P² algorithm for estimating quantiles using constant space.
  *
- * Note that any gaps, unsorted bins, or non-finite values will result in an error.
+ * The algorithm consists of maintaining five markers: the minimum, the p/2-, p-, and (1 + p)/2 quantiles, and the maximum.
  */
-export type Histogramint8 = { bins: Binint8[]; nSamples: number; startTime: Date }
+export type Quantile = {
+  /** The desired marker positions. */
+  desiredMarkerPositions: number[]
+  /** The heights of the markers. */
+  markerHeights: number[]
+  /** The positions of the markers.
+
+We track sample size in the 5th position, as useful observations won't start until we've filled the heights at the 6th sample anyway This does deviate from the paper, but it's a more useful representation that works according to the paper's algorithm. */
+  markerPositions: number[]
+  /** The p value for the quantile. */
+  p: number
+}
 
 /**
  * Histogram metric
@@ -733,7 +823,30 @@ export type Histogramint8 = { bins: Binint8[]; nSamples: number; startTime: Date
  *
  * Note that any gaps, unsorted bins, or non-finite values will result in an error.
  */
-export type Histogramuint8 = { bins: Binuint8[]; nSamples: number; startTime: Date }
+export type Histogramint8 = {
+  /** The bins of the histogram. */
+  bins: Binint8[]
+  /** The maximum value of all samples in the histogram. */
+  max: number
+  /** The minimum value of all samples in the histogram. */
+  min: number
+  /** The total number of samples in the histogram. */
+  nSamples: number
+  /** p50 Quantile */
+  p50: Quantile
+  /** p95 Quantile */
+  p90: Quantile
+  /** p99 Quantile */
+  p99: Quantile
+  /** M2 for Welford's algorithm for variance calculation.
+
+Read about [Welford's algorithm](https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Welford's_online_algorithm) for more information on the algorithm. */
+  squaredMean: number
+  /** The start time of the histogram. */
+  startTime: Date
+  /** The sum of all samples in the histogram. */
+  sumOfSamples: number
+}
 
 /**
  * Histogram metric
@@ -742,7 +855,30 @@ export type Histogramuint8 = { bins: Binuint8[]; nSamples: number; startTime: Da
  *
  * Note that any gaps, unsorted bins, or non-finite values will result in an error.
  */
-export type Histogramint16 = { bins: Binint16[]; nSamples: number; startTime: Date }
+export type Histogramuint8 = {
+  /** The bins of the histogram. */
+  bins: Binuint8[]
+  /** The maximum value of all samples in the histogram. */
+  max: number
+  /** The minimum value of all samples in the histogram. */
+  min: number
+  /** The total number of samples in the histogram. */
+  nSamples: number
+  /** p50 Quantile */
+  p50: Quantile
+  /** p95 Quantile */
+  p90: Quantile
+  /** p99 Quantile */
+  p99: Quantile
+  /** M2 for Welford's algorithm for variance calculation.
+
+Read about [Welford's algorithm](https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Welford's_online_algorithm) for more information on the algorithm. */
+  squaredMean: number
+  /** The start time of the histogram. */
+  startTime: Date
+  /** The sum of all samples in the histogram. */
+  sumOfSamples: number
+}
 
 /**
  * Histogram metric
@@ -751,7 +887,30 @@ export type Histogramint16 = { bins: Binint16[]; nSamples: number; startTime: Da
  *
  * Note that any gaps, unsorted bins, or non-finite values will result in an error.
  */
-export type Histogramuint16 = { bins: Binuint16[]; nSamples: number; startTime: Date }
+export type Histogramint16 = {
+  /** The bins of the histogram. */
+  bins: Binint16[]
+  /** The maximum value of all samples in the histogram. */
+  max: number
+  /** The minimum value of all samples in the histogram. */
+  min: number
+  /** The total number of samples in the histogram. */
+  nSamples: number
+  /** p50 Quantile */
+  p50: Quantile
+  /** p95 Quantile */
+  p90: Quantile
+  /** p99 Quantile */
+  p99: Quantile
+  /** M2 for Welford's algorithm for variance calculation.
+
+Read about [Welford's algorithm](https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Welford's_online_algorithm) for more information on the algorithm. */
+  squaredMean: number
+  /** The start time of the histogram. */
+  startTime: Date
+  /** The sum of all samples in the histogram. */
+  sumOfSamples: number
+}
 
 /**
  * Histogram metric
@@ -760,7 +919,30 @@ export type Histogramuint16 = { bins: Binuint16[]; nSamples: number; startTime: 
  *
  * Note that any gaps, unsorted bins, or non-finite values will result in an error.
  */
-export type Histogramint32 = { bins: Binint32[]; nSamples: number; startTime: Date }
+export type Histogramuint16 = {
+  /** The bins of the histogram. */
+  bins: Binuint16[]
+  /** The maximum value of all samples in the histogram. */
+  max: number
+  /** The minimum value of all samples in the histogram. */
+  min: number
+  /** The total number of samples in the histogram. */
+  nSamples: number
+  /** p50 Quantile */
+  p50: Quantile
+  /** p95 Quantile */
+  p90: Quantile
+  /** p99 Quantile */
+  p99: Quantile
+  /** M2 for Welford's algorithm for variance calculation.
+
+Read about [Welford's algorithm](https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Welford's_online_algorithm) for more information on the algorithm. */
+  squaredMean: number
+  /** The start time of the histogram. */
+  startTime: Date
+  /** The sum of all samples in the histogram. */
+  sumOfSamples: number
+}
 
 /**
  * Histogram metric
@@ -769,7 +951,30 @@ export type Histogramint32 = { bins: Binint32[]; nSamples: number; startTime: Da
  *
  * Note that any gaps, unsorted bins, or non-finite values will result in an error.
  */
-export type Histogramuint32 = { bins: Binuint32[]; nSamples: number; startTime: Date }
+export type Histogramint32 = {
+  /** The bins of the histogram. */
+  bins: Binint32[]
+  /** The maximum value of all samples in the histogram. */
+  max: number
+  /** The minimum value of all samples in the histogram. */
+  min: number
+  /** The total number of samples in the histogram. */
+  nSamples: number
+  /** p50 Quantile */
+  p50: Quantile
+  /** p95 Quantile */
+  p90: Quantile
+  /** p99 Quantile */
+  p99: Quantile
+  /** M2 for Welford's algorithm for variance calculation.
+
+Read about [Welford's algorithm](https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Welford's_online_algorithm) for more information on the algorithm. */
+  squaredMean: number
+  /** The start time of the histogram. */
+  startTime: Date
+  /** The sum of all samples in the histogram. */
+  sumOfSamples: number
+}
 
 /**
  * Histogram metric
@@ -778,7 +983,30 @@ export type Histogramuint32 = { bins: Binuint32[]; nSamples: number; startTime: 
  *
  * Note that any gaps, unsorted bins, or non-finite values will result in an error.
  */
-export type Histogramint64 = { bins: Binint64[]; nSamples: number; startTime: Date }
+export type Histogramuint32 = {
+  /** The bins of the histogram. */
+  bins: Binuint32[]
+  /** The maximum value of all samples in the histogram. */
+  max: number
+  /** The minimum value of all samples in the histogram. */
+  min: number
+  /** The total number of samples in the histogram. */
+  nSamples: number
+  /** p50 Quantile */
+  p50: Quantile
+  /** p95 Quantile */
+  p90: Quantile
+  /** p99 Quantile */
+  p99: Quantile
+  /** M2 for Welford's algorithm for variance calculation.
+
+Read about [Welford's algorithm](https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Welford's_online_algorithm) for more information on the algorithm. */
+  squaredMean: number
+  /** The start time of the histogram. */
+  startTime: Date
+  /** The sum of all samples in the histogram. */
+  sumOfSamples: number
+}
 
 /**
  * Histogram metric
@@ -787,7 +1015,30 @@ export type Histogramint64 = { bins: Binint64[]; nSamples: number; startTime: Da
  *
  * Note that any gaps, unsorted bins, or non-finite values will result in an error.
  */
-export type Histogramuint64 = { bins: Binuint64[]; nSamples: number; startTime: Date }
+export type Histogramint64 = {
+  /** The bins of the histogram. */
+  bins: Binint64[]
+  /** The maximum value of all samples in the histogram. */
+  max: number
+  /** The minimum value of all samples in the histogram. */
+  min: number
+  /** The total number of samples in the histogram. */
+  nSamples: number
+  /** p50 Quantile */
+  p50: Quantile
+  /** p95 Quantile */
+  p90: Quantile
+  /** p99 Quantile */
+  p99: Quantile
+  /** M2 for Welford's algorithm for variance calculation.
+
+Read about [Welford's algorithm](https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Welford's_online_algorithm) for more information on the algorithm. */
+  squaredMean: number
+  /** The start time of the histogram. */
+  startTime: Date
+  /** The sum of all samples in the histogram. */
+  sumOfSamples: number
+}
 
 /**
  * Histogram metric
@@ -796,7 +1047,30 @@ export type Histogramuint64 = { bins: Binuint64[]; nSamples: number; startTime: 
  *
  * Note that any gaps, unsorted bins, or non-finite values will result in an error.
  */
-export type Histogramfloat = { bins: Binfloat[]; nSamples: number; startTime: Date }
+export type Histogramuint64 = {
+  /** The bins of the histogram. */
+  bins: Binuint64[]
+  /** The maximum value of all samples in the histogram. */
+  max: number
+  /** The minimum value of all samples in the histogram. */
+  min: number
+  /** The total number of samples in the histogram. */
+  nSamples: number
+  /** p50 Quantile */
+  p50: Quantile
+  /** p95 Quantile */
+  p90: Quantile
+  /** p99 Quantile */
+  p99: Quantile
+  /** M2 for Welford's algorithm for variance calculation.
+
+Read about [Welford's algorithm](https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Welford's_online_algorithm) for more information on the algorithm. */
+  squaredMean: number
+  /** The start time of the histogram. */
+  startTime: Date
+  /** The sum of all samples in the histogram. */
+  sumOfSamples: number
+}
 
 /**
  * Histogram metric
@@ -805,7 +1079,62 @@ export type Histogramfloat = { bins: Binfloat[]; nSamples: number; startTime: Da
  *
  * Note that any gaps, unsorted bins, or non-finite values will result in an error.
  */
-export type Histogramdouble = { bins: Bindouble[]; nSamples: number; startTime: Date }
+export type Histogramfloat = {
+  /** The bins of the histogram. */
+  bins: Binfloat[]
+  /** The maximum value of all samples in the histogram. */
+  max: number
+  /** The minimum value of all samples in the histogram. */
+  min: number
+  /** The total number of samples in the histogram. */
+  nSamples: number
+  /** p50 Quantile */
+  p50: Quantile
+  /** p95 Quantile */
+  p90: Quantile
+  /** p99 Quantile */
+  p99: Quantile
+  /** M2 for Welford's algorithm for variance calculation.
+
+Read about [Welford's algorithm](https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Welford's_online_algorithm) for more information on the algorithm. */
+  squaredMean: number
+  /** The start time of the histogram. */
+  startTime: Date
+  /** The sum of all samples in the histogram. */
+  sumOfSamples: number
+}
+
+/**
+ * Histogram metric
+ *
+ * A histogram maintains the count of any number of samples, over a set of bins. Bins are specified on construction via their _left_ edges, inclusive. There can't be any "gaps" in the bins, and an additional bin may be added to the left, right, or both so that the bins extend to the entire range of the support.
+ *
+ * Note that any gaps, unsorted bins, or non-finite values will result in an error.
+ */
+export type Histogramdouble = {
+  /** The bins of the histogram. */
+  bins: Bindouble[]
+  /** The maximum value of all samples in the histogram. */
+  max: number
+  /** The minimum value of all samples in the histogram. */
+  min: number
+  /** The total number of samples in the histogram. */
+  nSamples: number
+  /** p50 Quantile */
+  p50: Quantile
+  /** p95 Quantile */
+  p90: Quantile
+  /** p99 Quantile */
+  p99: Quantile
+  /** M2 for Welford's algorithm for variance calculation.
+
+Read about [Welford's algorithm](https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Welford's_online_algorithm) for more information on the algorithm. */
+  squaredMean: number
+  /** The start time of the histogram. */
+  startTime: Date
+  /** The sum of all samples in the histogram. */
+  sumOfSamples: number
+}
 
 /**
  * The type of an individual datum of a metric.
@@ -992,6 +1321,40 @@ export type DiskResultsPage = {
 }
 
 /**
+ * A distribution is a sequence of bins and counts in those bins, and some statistical information tracked to compute the mean, standard deviation, and quantile estimates.
+ *
+ * Min, max, and the p-* quantiles are treated as optional due to the possibility of distribution operations, like subtraction.
+ */
+export type Distributiondouble = {
+  bins: number[]
+  counts: number[]
+  max?: number
+  min?: number
+  p50?: Quantile
+  p90?: Quantile
+  p99?: Quantile
+  squaredMean: number
+  sumOfSamples: number
+}
+
+/**
+ * A distribution is a sequence of bins and counts in those bins, and some statistical information tracked to compute the mean, standard deviation, and quantile estimates.
+ *
+ * Min, max, and the p-* quantiles are treated as optional due to the possibility of distribution operations, like subtraction.
+ */
+export type Distributionint64 = {
+  bins: number[]
+  counts: number[]
+  max?: number
+  min?: number
+  p50?: Quantile
+  p90?: Quantile
+  p99?: Quantile
+  squaredMean: number
+  sumOfSamples: number
+}
+
+/**
  * Parameters for creating an ephemeral IP address for an instance.
  */
 export type EphemeralIpCreate = {
@@ -1011,6 +1374,8 @@ export type ExternalIp =
       instanceId?: string
       /** The IP address held by this resource. */
       ip: string
+      /** The ID of the IP pool this resource belongs to. */
+      ipPoolId: string
       kind: 'floating'
       /** unique, mutable, user-controlled identifier for each resource */
       name: Name
@@ -1042,6 +1407,55 @@ export type ExternalIpResultsPage = {
   /** token used to fetch the next page of results (if any) */
   nextPage?: string
 }
+
+/**
+ * The `FieldType` identifies the data type of a target or metric field.
+ */
+export type FieldType =
+  | 'string'
+  | 'i8'
+  | 'u8'
+  | 'i16'
+  | 'u16'
+  | 'i32'
+  | 'u32'
+  | 'i64'
+  | 'u64'
+  | 'ip_addr'
+  | 'uuid'
+  | 'bool'
+
+/**
+ * The source from which a field is derived, the target or metric.
+ */
+export type FieldSource = 'target' | 'metric'
+
+/**
+ * The name and type information for a field of a timeseries schema.
+ */
+export type FieldSchema = {
+  description: string
+  fieldType: FieldType
+  name: string
+  source: FieldSource
+}
+
+/**
+ * The `FieldValue` contains the value of a target or metric field.
+ */
+export type FieldValue =
+  | { type: 'string'; value: string }
+  | { type: 'i8'; value: number }
+  | { type: 'u8'; value: number }
+  | { type: 'i16'; value: number }
+  | { type: 'u16'; value: number }
+  | { type: 'i32'; value: number }
+  | { type: 'u32'; value: number }
+  | { type: 'i64'; value: number }
+  | { type: 'u64'; value: number }
+  | { type: 'ip_addr'; value: string }
+  | { type: 'uuid'; value: string }
+  | { type: 'bool'; value: boolean }
 
 /**
  * Parameters for finalizing a disk
@@ -1091,6 +1505,8 @@ export type FloatingIp = {
   instanceId?: string
   /** The IP address held by this resource. */
   ip: string
+  /** The ID of the IP pool this resource belongs to. */
+  ipPoolId: string
   /** unique, mutable, user-controlled identifier for each resource */
   name: Name
   /** The project this resource exists within. */
@@ -1441,6 +1857,8 @@ export type InstanceNetworkInterface = {
   timeCreated: Date
   /** timestamp when this resource was last modified */
   timeModified: Date
+  /** A set of additional networks that this interface may send and receive traffic on. */
+  transitIps?: IpNet[]
   /** The VPC to which the interface belongs. */
   vpcId: string
 }
@@ -1469,6 +1887,8 @@ If applied to a secondary interface, that interface will become the primary on t
 
 Note that this can only be used to select a new primary interface for an instance. Requests to change the primary interface into a secondary will return an error. */
   primary?: boolean
+  /** A set of additional networks that this interface may send and receive traffic on. */
+  transitIps?: IpNet[]
 }
 
 /**
@@ -1625,7 +2045,7 @@ export type L4PortRange = string
  * The forward error correction mode of a link.
  */
 export type LinkFec =
-  /** Firecode foward error correction. */
+  /** Firecode forward error correction. */
   | 'firecode'
   /** No forward error correction. */
   | 'none'
@@ -1753,6 +2173,17 @@ export type MeasurementResultsPage = {
 }
 
 /**
+ * The type of the metric itself, indicating what its values represent.
+ */
+export type MetricType =
+  /** The value represents an instantaneous measurement in time. */
+  | 'gauge'
+  /** The value represents a difference between two points in time. */
+  | 'delta'
+  /** The value represents an accumulation between two points in time. */
+  | 'cumulative'
+
+/**
  * The type of network interface
  */
 export type NetworkInterfaceKind =
@@ -1780,6 +2211,7 @@ export type NetworkInterface = {
   primary: boolean
   slot: number
   subnet: IpNet
+  transitIps?: IpNet[]
   vni: Vni
 }
 
@@ -1796,6 +2228,30 @@ export type Password = string
 export type PhysicalDiskKind = 'm2' | 'u2'
 
 /**
+ * The operator-defined policy of a physical disk.
+ */
+export type PhysicalDiskPolicy =
+  /** The operator has indicated that the disk is in-service. */
+  | { kind: 'in_service' }
+  /** The operator has indicated that the disk has been permanently removed from service.
+
+This is a terminal state: once a particular disk ID is expunged, it will never return to service. (The actual hardware may be reused, but it will be treated as a brand-new disk.)
+
+An expunged disk is always non-provisionable. */
+  | { kind: 'expunged' }
+
+/**
+ * The current state of the disk, as determined by Nexus.
+ */
+export type PhysicalDiskState =
+  /** The disk is currently active, and has resources allocated on it. */
+  | 'active'
+  /** The disk has been permanently removed from service.
+
+This is a terminal state: once a particular disk ID is decommissioned, it will never return to service. (The actual hardware may be reused, but it will be treated as a brand-new disk.) */
+  | 'decommissioned'
+
+/**
  * View of a Physical Disk
  *
  * Physical disks reside in a particular sled and are used to store both Instance Disk data as well as internal metadata.
@@ -1805,9 +2261,13 @@ export type PhysicalDisk = {
   /** unique, immutable, system-controlled identifier for each resource */
   id: string
   model: string
+  /** The operator-defined policy for a physical disk. */
+  policy: PhysicalDiskPolicy
   serial: string
   /** The sled to which this disk is attached, if any. */
   sledId?: string
+  /** The current state Nexus believes the disk to be in. */
+  state: PhysicalDiskState
   /** timestamp when this resource was created */
   timeCreated: Date
   /** timestamp when this resource was last modified */
@@ -1831,6 +2291,29 @@ export type Ping = {
   /** Whether the external API is reachable. Will always be Ok if the endpoint returns anything at all. */
   status: PingStatus
 }
+
+/**
+ * List of data values for one timeseries.
+ *
+ * Each element is an option, where `None` represents a missing sample.
+ */
+export type ValueArray =
+  | { type: 'integer'; values: number[] }
+  | { type: 'double'; values: number[] }
+  | { type: 'boolean'; values: boolean[] }
+  | { type: 'string'; values: string[] }
+  | { type: 'integer_distribution'; values: Distributionint64[] }
+  | { type: 'double_distribution'; values: Distributiondouble[] }
+
+/**
+ * A single list of values, for one dimension of a timeseries.
+ */
+export type Values = { metricType: MetricType; values: ValueArray }
+
+/**
+ * Timepoints and values for one timeseries.
+ */
+export type Points = { startTimes?: Date[]; timestamps: Date[]; values: Values[] }
 
 /**
  * Identity-related metadata that's included in nearly all public API objects
@@ -2005,6 +2488,119 @@ export type Route = {
 export type RouteConfig = {
   /** The set of routes assigned to a switch port. */
   routes: Route[]
+}
+
+/**
+ * A `RouteDestination` is used to match traffic with a routing rule, on the destination of that traffic.
+ *
+ * When traffic is to be sent to a destination that is within a given `RouteDestination`, the corresponding `RouterRoute` applies, and traffic will be forward to the `RouteTarget` for that rule.
+ */
+export type RouteDestination =
+  /** Route applies to traffic destined for a specific IP address */
+  | { type: 'ip'; value: string }
+  /** Route applies to traffic destined for a specific IP subnet */
+  | { type: 'ip_net'; value: IpNet }
+  /** Route applies to traffic destined for the given VPC. */
+  | { type: 'vpc'; value: Name }
+  /** Route applies to traffic */
+  | { type: 'subnet'; value: Name }
+
+/**
+ * A `RouteTarget` describes the possible locations that traffic matching a route destination can be sent.
+ */
+export type RouteTarget =
+  /** Forward traffic to a particular IP address. */
+  | { type: 'ip'; value: string }
+  /** Forward traffic to a VPC */
+  | { type: 'vpc'; value: Name }
+  /** Forward traffic to a VPC Subnet */
+  | { type: 'subnet'; value: Name }
+  /** Forward traffic to a specific instance */
+  | { type: 'instance'; value: Name }
+  /** Forward traffic to an internet gateway */
+  | { type: 'internet_gateway'; value: Name }
+  /** Drop matching traffic */
+  | { type: 'drop' }
+
+/**
+ * The kind of a `RouterRoute`
+ *
+ * The kind determines certain attributes such as if the route is modifiable and describes how or where the route was created.
+ */
+export type RouterRouteKind =
+  /** Determines the default destination of traffic, such as whether it goes to the internet or not.
+
+`Destination: An Internet Gateway` `Modifiable: true` */
+  | 'default'
+  /** Automatically added for each VPC Subnet in the VPC
+
+`Destination: A VPC Subnet` `Modifiable: false` */
+  | 'vpc_subnet'
+  /** Automatically added when VPC peering is established
+
+`Destination: A different VPC` `Modifiable: false` */
+  | 'vpc_peering'
+  /** Created by a user; see `RouteTarget`
+
+`Destination: User defined` `Modifiable: true` */
+  | 'custom'
+
+/**
+ * A route defines a rule that governs where traffic should be sent based on its destination.
+ */
+export type RouterRoute = {
+  /** human-readable free-form text about a resource */
+  description: string
+  /** Selects which traffic this routing rule will apply to. */
+  destination: RouteDestination
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  /** Describes the kind of router. Set at creation. `read-only` */
+  kind: RouterRouteKind
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  /** The location that matched packets should be forwarded to. */
+  target: RouteTarget
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+  /** The ID of the VPC Router to which the route belongs */
+  vpcRouterId: string
+}
+
+/**
+ * Create-time parameters for a `RouterRoute`
+ */
+export type RouterRouteCreate = {
+  description: string
+  /** Selects which traffic this routing rule will apply to. */
+  destination: RouteDestination
+  name: Name
+  /** The location that matched packets should be forwarded to. */
+  target: RouteTarget
+}
+
+/**
+ * A single page of results
+ */
+export type RouterRouteResultsPage = {
+  /** list of items on this page of results */
+  items: RouterRoute[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
+ * Updateable properties of a `RouterRoute`
+ */
+export type RouterRouteUpdate = {
+  description?: string
+  /** Selects which traffic this routing rule will apply to. */
+  destination: RouteDestination
+  name?: Name
+  /** The location that matched packets should be forwarded to. */
+  target: RouteTarget
 }
 
 /**
@@ -2323,6 +2919,11 @@ export type Sled = {
 }
 
 /**
+ * The unique ID of a sled.
+ */
+export type SledId = { id: string }
+
+/**
  * An operator's view of an instance running on a given sled
  */
 export type SledInstance = {
@@ -2529,6 +3130,8 @@ export type SwitchInterfaceConfigCreate = {
   v6Enabled: boolean
 }
 
+export type SwitchLinkState = Record<string, unknown>
+
 /**
  * A switch port represents a physical external port on a rack switch.
  */
@@ -2557,6 +3160,8 @@ export type SwitchPortAddressConfig = {
   interfaceName: string
   /** The port settings object this address configuration belongs to. */
   portSettingsId: string
+  /** An optional VLAN ID */
+  vlanId?: number
 }
 
 /**
@@ -2565,20 +3170,6 @@ export type SwitchPortAddressConfig = {
 export type SwitchPortApplySettings = {
   /** A name or id to use when applying switch port settings. */
   portSettings: NameOrId
-}
-
-/**
- * A BGP peer configuration for a port settings object.
- */
-export type SwitchPortBgpPeerConfig = {
-  /** The address of the peer. */
-  addr: string
-  /** The id of the global BGP configuration referenced by this peer configuration. */
-  bgpConfigId: string
-  /** The interface name used to establish a peer session. */
-  interfaceName: string
-  /** The port settings object this BGP configuration belongs to. */
-  portSettingsId: string
 }
 
 /**
@@ -2625,6 +3216,10 @@ export type SwitchPortConfigCreate = {
  * A link configuration for a port settings object.
  */
 export type SwitchPortLinkConfig = {
+  /** Whether or not the link has autonegotiation enabled. */
+  autoneg: boolean
+  /** The forward error correction mode of the link. */
+  fec: LinkFec
   /** The name of this link. */
   linkName: string
   /** The link-layer discovery protocol service configuration id for this link. */
@@ -2633,6 +3228,8 @@ export type SwitchPortLinkConfig = {
   mtu: number
   /** The port settings this link configuration belongs to. */
   portSettingsId: string
+  /** The configured speed of the link. */
+  speed: LinkSpeed
 }
 
 /**
@@ -2734,7 +3331,7 @@ export type SwitchPortSettingsView = {
   /** Layer 3 IP address settings. */
   addresses: SwitchPortAddressConfig[]
   /** BGP peer settings. */
-  bgpPeers: SwitchPortBgpPeerConfig[]
+  bgpPeers: BgpPeer[]
   /** Switch port settings included from other switch port settings groups. */
   groups: SwitchPortSettingsGroups[]
   /** Layer 3 interface settings. */
@@ -2759,6 +3356,71 @@ export type SwitchPortSettingsView = {
 export type SwitchResultsPage = {
   /** list of items on this page of results */
   items: Switch[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
+ * A timeseries contains a timestamped set of values from one source.
+ *
+ * This includes the typed key-value pairs that uniquely identify it, and the set of timestamps and data values from it.
+ */
+export type Timeseries = { fields: Record<string, FieldValue>; points: Points }
+
+/**
+ * A table represents one or more timeseries with the same schema.
+ *
+ * A table is the result of an OxQL query. It contains a name, usually the name of the timeseries schema from which the data is derived, and any number of timeseries, which contain the actual data.
+ */
+export type Table = { name: string; timeseries: Record<string, Timeseries> }
+
+/**
+ * Text descriptions for the target and metric of a timeseries.
+ */
+export type TimeseriesDescription = { metric: string; target: string }
+
+/**
+ * The name of a timeseries
+ *
+ * Names are constructed by concatenating the target and metric names with ':'. Target and metric names must be lowercase alphanumeric characters with '_' separating words.
+ */
+export type TimeseriesName = string
+
+/**
+ * A timeseries query string, written in the Oximeter query language.
+ */
+export type TimeseriesQuery = {
+  /** A timeseries query string, written in the Oximeter query language. */
+  query: string
+}
+
+/**
+ * Measurement units for timeseries samples.
+ */
+export type Units = 'count' | 'bytes'
+
+/**
+ * The schema for a timeseries.
+ *
+ * This includes the name of the timeseries, as well as the datum type of its metric and the schema for each field.
+ */
+export type TimeseriesSchema = {
+  authzScope: AuthzScope
+  created: Date
+  datumType: DatumType
+  description: TimeseriesDescription
+  fieldSchema: FieldSchema[]
+  timeseriesName: TimeseriesName
+  units: Units
+  version: number
+}
+
+/**
+ * A single page of results
+ */
+export type TimeseriesSchemaResultsPage = {
+  /** list of items on this page of results */
+  items: TimeseriesSchema[]
   /** token used to fetch the next page of results (if any) */
   nextPage?: string
 }
@@ -2825,7 +3487,7 @@ export type UserBuiltinResultsPage = {
 /**
  * A name unique within the parent collection
  *
- * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. Names cannot be a UUID though they may contain a UUID.
+ * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. Names cannot be a UUID, but they may contain a UUID. They can be at most 63 characters long.
  */
 export type UserId = string
 
@@ -3035,10 +3697,53 @@ export type VpcResultsPage = {
   nextPage?: string
 }
 
+export type VpcRouterKind = 'system' | 'custom'
+
 /**
- * A VPC subnet represents a logical grouping for instances that allows network traffic between them, within a IPv4 subnetwork or optionall an IPv6 subnetwork.
+ * A VPC router defines a series of rules that indicate where traffic should be sent depending on its destination.
+ */
+export type VpcRouter = {
+  /** human-readable free-form text about a resource */
+  description: string
+  /** unique, immutable, system-controlled identifier for each resource */
+  id: string
+  kind: VpcRouterKind
+  /** unique, mutable, user-controlled identifier for each resource */
+  name: Name
+  /** timestamp when this resource was created */
+  timeCreated: Date
+  /** timestamp when this resource was last modified */
+  timeModified: Date
+  /** The VPC to which the router belongs. */
+  vpcId: string
+}
+
+/**
+ * Create-time parameters for a `VpcRouter`
+ */
+export type VpcRouterCreate = { description: string; name: Name }
+
+/**
+ * A single page of results
+ */
+export type VpcRouterResultsPage = {
+  /** list of items on this page of results */
+  items: VpcRouter[]
+  /** token used to fetch the next page of results (if any) */
+  nextPage?: string
+}
+
+/**
+ * Updateable properties of a `VpcRouter`
+ */
+export type VpcRouterUpdate = { description?: string; name?: Name }
+
+/**
+ * A VPC subnet represents a logical grouping for instances that allows network traffic between them, within a IPv4 subnetwork or optionally an IPv6 subnetwork.
  */
 export type VpcSubnet = {
+  /** ID for an attached custom router. */
+  customRouterId?: string
   /** human-readable free-form text about a resource */
   description: string
   /** unique, immutable, system-controlled identifier for each resource */
@@ -3061,6 +3766,10 @@ export type VpcSubnet = {
  * Create-time parameters for a `VpcSubnet`
  */
 export type VpcSubnetCreate = {
+  /** An optional router, used to direct packets sent from hosts in this subnet to any destination address.
+
+Custom routers apply in addition to the VPC-wide *system* router, and have higher priority than the system router for an otherwise equal-prefix-length match. */
+  customRouter?: NameOrId
   description: string
   /** The IPv4 address range for this subnet.
 
@@ -3086,7 +3795,12 @@ export type VpcSubnetResultsPage = {
 /**
  * Updateable properties of a `VpcSubnet`
  */
-export type VpcSubnetUpdate = { description?: string; name?: Name }
+export type VpcSubnetUpdate = {
+  /** An optional router, used to direct packets sent from hosts in this subnet to any destination address. */
+  customRouter?: NameOrId
+  description?: string
+  name?: Name
+}
 
 /**
  * Updateable properties of a `Vpc`
@@ -3646,6 +4360,10 @@ export interface PhysicalDiskListQueryParams {
   sortBy?: IdSortMode
 }
 
+export interface PhysicalDiskViewPathParams {
+  diskId: string
+}
+
 export interface RackListQueryParams {
   limit?: number
   pageToken?: string
@@ -3716,6 +4434,15 @@ export interface NetworkingSwitchPortClearSettingsPathParams {
 }
 
 export interface NetworkingSwitchPortClearSettingsQueryParams {
+  rackId: string
+  switchLocation: Name
+}
+
+export interface NetworkingSwitchPortStatusPathParams {
+  port: Name
+}
+
+export interface NetworkingSwitchPortStatusQueryParams {
   rackId: string
   switchLocation: Name
 }
@@ -4015,6 +4742,11 @@ export interface SiloUtilizationViewPathParams {
   silo: NameOrId
 }
 
+export interface TimeseriesSchemaListQueryParams {
+  limit?: number
+  pageToken?: string
+}
+
 export interface UserListQueryParams {
   group?: string
   limit?: number
@@ -4030,6 +4762,91 @@ export interface VpcFirewallRulesViewQueryParams {
 export interface VpcFirewallRulesUpdateQueryParams {
   project?: NameOrId
   vpc: NameOrId
+}
+
+export interface VpcRouterRouteListQueryParams {
+  limit?: number
+  pageToken?: string
+  project?: NameOrId
+  router?: NameOrId
+  sortBy?: NameOrIdSortMode
+  vpc?: NameOrId
+}
+
+export interface VpcRouterRouteCreateQueryParams {
+  project?: NameOrId
+  router: NameOrId
+  vpc?: NameOrId
+}
+
+export interface VpcRouterRouteViewPathParams {
+  route: NameOrId
+}
+
+export interface VpcRouterRouteViewQueryParams {
+  project?: NameOrId
+  router: NameOrId
+  vpc?: NameOrId
+}
+
+export interface VpcRouterRouteUpdatePathParams {
+  route: NameOrId
+}
+
+export interface VpcRouterRouteUpdateQueryParams {
+  project?: NameOrId
+  router?: NameOrId
+  vpc?: NameOrId
+}
+
+export interface VpcRouterRouteDeletePathParams {
+  route: NameOrId
+}
+
+export interface VpcRouterRouteDeleteQueryParams {
+  project?: NameOrId
+  router?: NameOrId
+  vpc?: NameOrId
+}
+
+export interface VpcRouterListQueryParams {
+  limit?: number
+  pageToken?: string
+  project?: NameOrId
+  sortBy?: NameOrIdSortMode
+  vpc?: NameOrId
+}
+
+export interface VpcRouterCreateQueryParams {
+  project?: NameOrId
+  vpc: NameOrId
+}
+
+export interface VpcRouterViewPathParams {
+  router: NameOrId
+}
+
+export interface VpcRouterViewQueryParams {
+  project?: NameOrId
+  vpc?: NameOrId
+}
+
+export interface VpcRouterUpdatePathParams {
+  router: NameOrId
+}
+
+export interface VpcRouterUpdateQueryParams {
+  project?: NameOrId
+  vpc?: NameOrId
+}
+
+export interface VpcRouterDeletePathParams {
+  router: NameOrId
+}
+
+export interface VpcRouterDeleteQueryParams {
+  project?: NameOrId
+  vpc?: NameOrId
 }
 
 export interface VpcSubnetListQueryParams {
@@ -4162,7 +4979,10 @@ export type ApiListMethods = Pick<
   | 'siloUserList'
   | 'userBuiltinList'
   | 'siloUtilizationList'
+  | 'timeseriesSchemaList'
   | 'userList'
+  | 'vpcRouterRouteList'
+  | 'vpcRouterList'
   | 'vpcSubnetList'
   | 'vpcList'
 >
@@ -4219,7 +5039,7 @@ export class Api extends HttpClient {
      * Create instrumentation probe
      */
     probeCreate: (
-      { query, body }: { query?: ProbeCreateQueryParams; body: ProbeCreate },
+      { query, body }: { query: ProbeCreateQueryParams; body: ProbeCreate },
       params: FetchParams = {}
     ) => {
       return this.request<Probe>({
@@ -4234,7 +5054,7 @@ export class Api extends HttpClient {
      * View instrumentation probe
      */
     probeView: (
-      { path, query }: { path: ProbeViewPathParams; query?: ProbeViewQueryParams },
+      { path, query }: { path: ProbeViewPathParams; query: ProbeViewQueryParams },
       params: FetchParams = {}
     ) => {
       return this.request<ProbeInfo>({
@@ -4248,7 +5068,7 @@ export class Api extends HttpClient {
      * Delete instrumentation probe
      */
     probeDelete: (
-      { path, query }: { path: ProbeDeletePathParams; query?: ProbeDeleteQueryParams },
+      { path, query }: { path: ProbeDeletePathParams; query: ProbeDeleteQueryParams },
       params: FetchParams = {}
     ) => {
       return this.request<void>({
@@ -4340,7 +5160,7 @@ export class Api extends HttpClient {
      * Create a disk
      */
     diskCreate: (
-      { query, body }: { query?: DiskCreateQueryParams; body: DiskCreate },
+      { query, body }: { query: DiskCreateQueryParams; body: DiskCreate },
       params: FetchParams = {}
     ) => {
       return this.request<Disk>({
@@ -4483,7 +5303,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * List all floating IPs
+     * List floating IPs
      */
     floatingIpList: (
       { query = {} }: { query?: FloatingIpListQueryParams },
@@ -4500,7 +5320,7 @@ export class Api extends HttpClient {
      * Create floating IP
      */
     floatingIpCreate: (
-      { query, body }: { query?: FloatingIpCreateQueryParams; body: FloatingIpCreate },
+      { query, body }: { query: FloatingIpCreateQueryParams; body: FloatingIpCreate },
       params: FetchParams = {}
     ) => {
       return this.request<FloatingIp>({
@@ -4693,7 +5513,7 @@ export class Api extends HttpClient {
      * Demote silo image
      */
     imageDemote: (
-      { path, query }: { path: ImageDemotePathParams; query?: ImageDemoteQueryParams },
+      { path, query }: { path: ImageDemotePathParams; query: ImageDemoteQueryParams },
       params: FetchParams = {}
     ) => {
       return this.request<Image>({
@@ -4738,7 +5558,7 @@ export class Api extends HttpClient {
      * Create instance
      */
     instanceCreate: (
-      { query, body }: { query?: InstanceCreateQueryParams; body: InstanceCreate },
+      { query, body }: { query: InstanceCreateQueryParams; body: InstanceCreate },
       params: FetchParams = {}
     ) => {
       return this.request<Instance>({
@@ -5024,7 +5844,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * List all IP pools
+     * List IP pools
      */
     projectIpPoolList: (
       { query = {} }: { query?: ProjectIpPoolListQueryParams },
@@ -5153,7 +5973,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Access metrics data
+     * View metrics
      */
     siloMetric: (
       { path, query = {} }: { path: SiloMetricPathParams; query?: SiloMetricQueryParams },
@@ -5188,7 +6008,7 @@ export class Api extends HttpClient {
         query,
         body,
       }: {
-        query?: InstanceNetworkInterfaceCreateQueryParams
+        query: InstanceNetworkInterfaceCreateQueryParams
         body: InstanceNetworkInterfaceCreate
       },
       params: FetchParams = {}
@@ -5402,7 +6222,7 @@ export class Api extends HttpClient {
      * Create snapshot
      */
     snapshotCreate: (
-      { query, body }: { query?: SnapshotCreateQueryParams; body: SnapshotCreate },
+      { query, body }: { query: SnapshotCreateQueryParams; body: SnapshotCreate },
       params: FetchParams = {}
     ) => {
       return this.request<Snapshot>({
@@ -5462,6 +6282,19 @@ export class Api extends HttpClient {
       })
     },
     /**
+     * Get a physical disk
+     */
+    physicalDiskView: (
+      { path }: { path: PhysicalDiskViewPathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<PhysicalDisk>({
+        path: `/v1/system/hardware/disks/${path.diskId}`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
      * List racks
      */
     rackList: (
@@ -5503,7 +6336,7 @@ export class Api extends HttpClient {
      * Add sled to initialized rack
      */
     sledAdd: ({ body }: { body: UninitializedSledId }, params: FetchParams = {}) => {
-      return this.request<void>({
+      return this.request<SledId>({
         path: `/v1/system/hardware/sleds`,
         method: 'POST',
         body,
@@ -5609,7 +6442,7 @@ export class Api extends HttpClient {
         body,
       }: {
         path: NetworkingSwitchPortApplySettingsPathParams
-        query?: NetworkingSwitchPortApplySettingsQueryParams
+        query: NetworkingSwitchPortApplySettingsQueryParams
         body: SwitchPortApplySettings
       },
       params: FetchParams = {}
@@ -5631,13 +6464,33 @@ export class Api extends HttpClient {
         query,
       }: {
         path: NetworkingSwitchPortClearSettingsPathParams
-        query?: NetworkingSwitchPortClearSettingsQueryParams
+        query: NetworkingSwitchPortClearSettingsQueryParams
       },
       params: FetchParams = {}
     ) => {
       return this.request<void>({
         path: `/v1/system/hardware/switch-port/${path.port}/settings`,
         method: 'DELETE',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Get switch port status
+     */
+    networkingSwitchPortStatus: (
+      {
+        path,
+        query,
+      }: {
+        path: NetworkingSwitchPortStatusPathParams
+        query: NetworkingSwitchPortStatusQueryParams
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<SwitchLinkState>({
+        path: `/v1/system/hardware/switch-port/${path.port}/status`,
+        method: 'GET',
         query,
         ...params,
       })
@@ -5684,7 +6537,7 @@ export class Api extends HttpClient {
      * Create user
      */
     localIdpUserCreate: (
-      { query, body }: { query?: LocalIdpUserCreateQueryParams; body: UserCreate },
+      { query, body }: { query: LocalIdpUserCreateQueryParams; body: UserCreate },
       params: FetchParams = {}
     ) => {
       return this.request<User>({
@@ -5702,7 +6555,7 @@ export class Api extends HttpClient {
       {
         path,
         query,
-      }: { path: LocalIdpUserDeletePathParams; query?: LocalIdpUserDeleteQueryParams },
+      }: { path: LocalIdpUserDeletePathParams; query: LocalIdpUserDeleteQueryParams },
       params: FetchParams = {}
     ) => {
       return this.request<void>({
@@ -5722,7 +6575,7 @@ export class Api extends HttpClient {
         body,
       }: {
         path: LocalIdpUserSetPasswordPathParams
-        query?: LocalIdpUserSetPasswordQueryParams
+        query: LocalIdpUserSetPasswordQueryParams
         body: UserPassword
       },
       params: FetchParams = {}
@@ -5742,10 +6595,7 @@ export class Api extends HttpClient {
       {
         query,
         body,
-      }: {
-        query?: SamlIdentityProviderCreateQueryParams
-        body: SamlIdentityProviderCreate
-      },
+      }: { query: SamlIdentityProviderCreateQueryParams; body: SamlIdentityProviderCreate },
       params: FetchParams = {}
     ) => {
       return this.request<SamlIdentityProvider>({
@@ -5765,7 +6615,7 @@ export class Api extends HttpClient {
         query,
       }: {
         path: SamlIdentityProviderViewPathParams
-        query?: SamlIdentityProviderViewQueryParams
+        query: SamlIdentityProviderViewQueryParams
       },
       params: FetchParams = {}
     ) => {
@@ -6001,7 +6851,7 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Access metrics data
+     * View metrics
      */
     systemMetric: (
       {
@@ -6079,6 +6929,30 @@ export class Api extends HttpClient {
       })
     },
     /**
+     * Get user-facing services IP allowlist
+     */
+    networkingAllowListView: (_: EmptyObj, params: FetchParams = {}) => {
+      return this.request<AllowList>({
+        path: `/v1/system/networking/allow-list`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Update user-facing services IP allowlist
+     */
+    networkingAllowListUpdate: (
+      { body }: { body: AllowListUpdate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<AllowList>({
+        path: `/v1/system/networking/allow-list`,
+        method: 'PUT',
+        body,
+        ...params,
+      })
+    },
+    /**
      * Disable a BFD session
      */
     networkingBfdDisable: (
@@ -6110,7 +6984,7 @@ export class Api extends HttpClient {
      * Get BFD status
      */
     networkingBfdStatus: (_: EmptyObj, params: FetchParams = {}) => {
-      return this.request<void>({
+      return this.request<BfdStatus[]>({
         path: `/v1/system/networking/bfd-status`,
         method: 'GET',
         ...params,
@@ -6148,7 +7022,7 @@ export class Api extends HttpClient {
      * Delete BGP configuration
      */
     networkingBgpConfigDelete: (
-      { query }: { query?: NetworkingBgpConfigDeleteQueryParams },
+      { query }: { query: NetworkingBgpConfigDeleteQueryParams },
       params: FetchParams = {}
     ) => {
       return this.request<void>({
@@ -6162,10 +7036,10 @@ export class Api extends HttpClient {
      * Get originated routes for a BGP configuration
      */
     networkingBgpAnnounceSetList: (
-      { query }: { query?: NetworkingBgpAnnounceSetListQueryParams },
+      { query }: { query: NetworkingBgpAnnounceSetListQueryParams },
       params: FetchParams = {}
     ) => {
-      return this.request<void>({
+      return this.request<BgpAnnouncement[]>({
         path: `/v1/system/networking/bgp-announce`,
         method: 'GET',
         query,
@@ -6190,7 +7064,7 @@ export class Api extends HttpClient {
      * Delete BGP announce set
      */
     networkingBgpAnnounceSetDelete: (
-      { query }: { query?: NetworkingBgpAnnounceSetDeleteQueryParams },
+      { query }: { query: NetworkingBgpAnnounceSetDeleteQueryParams },
       params: FetchParams = {}
     ) => {
       return this.request<void>({
@@ -6204,7 +7078,7 @@ export class Api extends HttpClient {
      * Get BGP router message history
      */
     networkingBgpMessageHistory: (
-      { query }: { query?: NetworkingBgpMessageHistoryQueryParams },
+      { query }: { query: NetworkingBgpMessageHistoryQueryParams },
       params: FetchParams = {}
     ) => {
       return this.request<AggregateBgpMessageHistory>({
@@ -6218,10 +7092,10 @@ export class Api extends HttpClient {
      * Get imported IPv4 BGP routes
      */
     networkingBgpImportedRoutesIpv4: (
-      { query }: { query?: NetworkingBgpImportedRoutesIpv4QueryParams },
+      { query }: { query: NetworkingBgpImportedRoutesIpv4QueryParams },
       params: FetchParams = {}
     ) => {
-      return this.request<void>({
+      return this.request<BgpImportedRouteIpv4[]>({
         path: `/v1/system/networking/bgp-routes-ipv4`,
         method: 'GET',
         query,
@@ -6232,7 +7106,7 @@ export class Api extends HttpClient {
      * Get BGP peer status
      */
     networkingBgpStatus: (_: EmptyObj, params: FetchParams = {}) => {
-      return this.request<void>({
+      return this.request<BgpPeerStatus[]>({
         path: `/v1/system/networking/bgp-status`,
         method: 'GET',
         ...params,
@@ -6527,7 +7401,7 @@ export class Api extends HttpClient {
      * Fetch built-in (system) user
      */
     siloUserView: (
-      { path, query }: { path: SiloUserViewPathParams; query?: SiloUserViewQueryParams },
+      { path, query }: { path: SiloUserViewPathParams; query: SiloUserViewQueryParams },
       params: FetchParams = {}
     ) => {
       return this.request<User>({
@@ -6592,6 +7466,31 @@ export class Api extends HttpClient {
       })
     },
     /**
+     * Run timeseries query
+     */
+    timeseriesQuery: ({ body }: { body: TimeseriesQuery }, params: FetchParams = {}) => {
+      return this.request<Table[]>({
+        path: `/v1/timeseries/query`,
+        method: 'POST',
+        body,
+        ...params,
+      })
+    },
+    /**
+     * List timeseries schemas
+     */
+    timeseriesSchemaList: (
+      { query = {} }: { query?: TimeseriesSchemaListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<TimeseriesSchemaResultsPage>({
+        path: `/v1/timeseries/schema`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
      * List users
      */
     userList: (
@@ -6619,7 +7518,7 @@ export class Api extends HttpClient {
      * List firewall rules
      */
     vpcFirewallRulesView: (
-      { query }: { query?: VpcFirewallRulesViewQueryParams },
+      { query }: { query: VpcFirewallRulesViewQueryParams },
       params: FetchParams = {}
     ) => {
       return this.request<VpcFirewallRules>({
@@ -6636,13 +7535,185 @@ export class Api extends HttpClient {
       {
         query,
         body,
-      }: { query?: VpcFirewallRulesUpdateQueryParams; body: VpcFirewallRuleUpdateParams },
+      }: { query: VpcFirewallRulesUpdateQueryParams; body: VpcFirewallRuleUpdateParams },
       params: FetchParams = {}
     ) => {
       return this.request<VpcFirewallRules>({
         path: `/v1/vpc-firewall-rules`,
         method: 'PUT',
         body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List routes
+     */
+    vpcRouterRouteList: (
+      { query = {} }: { query?: VpcRouterRouteListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<RouterRouteResultsPage>({
+        path: `/v1/vpc-router-routes`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create route
+     */
+    vpcRouterRouteCreate: (
+      { query, body }: { query: VpcRouterRouteCreateQueryParams; body: RouterRouteCreate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<RouterRoute>({
+        path: `/v1/vpc-router-routes`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch route
+     */
+    vpcRouterRouteView: (
+      {
+        path,
+        query,
+      }: { path: VpcRouterRouteViewPathParams; query: VpcRouterRouteViewQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<RouterRoute>({
+        path: `/v1/vpc-router-routes/${path.route}`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Update route
+     */
+    vpcRouterRouteUpdate: (
+      {
+        path,
+        query = {},
+        body,
+      }: {
+        path: VpcRouterRouteUpdatePathParams
+        query?: VpcRouterRouteUpdateQueryParams
+        body: RouterRouteUpdate
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<RouterRoute>({
+        path: `/v1/vpc-router-routes/${path.route}`,
+        method: 'PUT',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Delete route
+     */
+    vpcRouterRouteDelete: (
+      {
+        path,
+        query = {},
+      }: { path: VpcRouterRouteDeletePathParams; query?: VpcRouterRouteDeleteQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/vpc-router-routes/${path.route}`,
+        method: 'DELETE',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * List routers
+     */
+    vpcRouterList: (
+      { query = {} }: { query?: VpcRouterListQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<VpcRouterResultsPage>({
+        path: `/v1/vpc-routers`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Create VPC router
+     */
+    vpcRouterCreate: (
+      { query, body }: { query: VpcRouterCreateQueryParams; body: VpcRouterCreate },
+      params: FetchParams = {}
+    ) => {
+      return this.request<VpcRouter>({
+        path: `/v1/vpc-routers`,
+        method: 'POST',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Fetch router
+     */
+    vpcRouterView: (
+      {
+        path,
+        query = {},
+      }: { path: VpcRouterViewPathParams; query?: VpcRouterViewQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<VpcRouter>({
+        path: `/v1/vpc-routers/${path.router}`,
+        method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Update router
+     */
+    vpcRouterUpdate: (
+      {
+        path,
+        query = {},
+        body,
+      }: {
+        path: VpcRouterUpdatePathParams
+        query?: VpcRouterUpdateQueryParams
+        body: VpcRouterUpdate
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<VpcRouter>({
+        path: `/v1/vpc-routers/${path.router}`,
+        method: 'PUT',
+        body,
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Delete router
+     */
+    vpcRouterDelete: (
+      {
+        path,
+        query = {},
+      }: { path: VpcRouterDeletePathParams; query?: VpcRouterDeleteQueryParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<void>({
+        path: `/v1/vpc-routers/${path.router}`,
+        method: 'DELETE',
         query,
         ...params,
       })
@@ -6665,7 +7736,7 @@ export class Api extends HttpClient {
      * Create subnet
      */
     vpcSubnetCreate: (
-      { query, body }: { query?: VpcSubnetCreateQueryParams; body: VpcSubnetCreate },
+      { query, body }: { query: VpcSubnetCreateQueryParams; body: VpcSubnetCreate },
       params: FetchParams = {}
     ) => {
       return this.request<VpcSubnet>({
@@ -6768,7 +7839,7 @@ export class Api extends HttpClient {
      * Create VPC
      */
     vpcCreate: (
-      { query, body }: { query?: VpcCreateQueryParams; body: VpcCreate },
+      { query, body }: { query: VpcCreateQueryParams; body: VpcCreate },
       params: FetchParams = {}
     ) => {
       return this.request<Vpc>({
@@ -6848,3 +7919,5 @@ export class Api extends HttpClient {
     },
   }
 }
+
+export default Api

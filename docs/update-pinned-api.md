@@ -1,9 +1,5 @@
 # Updating the pinned API version
 
-## Setup
-
-The API generation script assumes you have `oxide.ts` cloned under the same parent directory as the console and have run `npm install` in there.
-
 ## Instructions
 
 1. Update [`OMICRON_VERSION`](/OMICRON_VERSION) with new Omicron commit hash

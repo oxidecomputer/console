@@ -11,6 +11,8 @@ import type { Image } from '@oxide/api'
 
 import type { InstanceCreateInput } from '~/forms/instance-create'
 import type { ListboxItem } from '~/ui/lib/Listbox'
+import { Slash } from '~/ui/lib/Slash'
+import { nearest10 } from '~/util/math'
 import { bytesToGiB, GiB } from '~/util/units'
 
 import { ListboxField } from './ListboxField'
@@ -19,15 +21,24 @@ type ImageSelectFieldProps = {
   images: Image[]
   control: Control<InstanceCreateInput>
   disabled?: boolean
+  name: 'siloImageSource' | 'projectImageSource'
 }
 
-export function ImageSelectField({ images, control, disabled }: ImageSelectFieldProps) {
+export function BootDiskImageSelectField({
+  images,
+  control,
+  disabled,
+  name,
+}: ImageSelectFieldProps) {
   const diskSizeField = useController({ control, name: 'bootDiskSize' }).field
   return (
+    // This should be migrated to a `ComboboxField` (and with a `toComboboxItem`), once
+    // we have a combobox that supports more elaborate labels (beyond just strings).
     <ListboxField
       disabled={disabled}
       control={control}
-      name="image"
+      name={name}
+      label="Image"
       placeholder="Select an image"
       items={images.map((i) => toListboxItem(i))}
       required
@@ -35,26 +46,21 @@ export function ImageSelectField({ images, control, disabled }: ImageSelectField
         const image = images.find((i) => i.id === id)! // if it's selected, it must be present
         const imageSizeGiB = image.size / GiB
         if (diskSizeField.value < imageSizeGiB) {
-          const nearest10 = Math.ceil(imageSizeGiB / 10) * 10
-          diskSizeField.onChange(nearest10)
+          diskSizeField.onChange(nearest10(imageSizeGiB))
         }
       }}
     />
   )
 }
 
-const Slash = () => (
-  <span className="mx-1 text-quinary selected:text-accent-disabled">/</span>
-)
-
 export function toListboxItem(i: Image, includeProjectSiloIndicator = false): ListboxItem {
   const { name, os, projectId, size, version } = i
   const formattedSize = `${bytesToGiB(size, 1)} GiB`
 
   // filter out any undefined metadata and create a comma-separated list
-  // for the selected listbox item (shown in labelString)
+  // for the selected listbox item (shown in selectedLabel)
   const condensedImageMetadata = [os, version, formattedSize].filter((i) => !!i).join(', ')
-  const metadataForLabelString = condensedImageMetadata.length
+  const metadataForSelectedLabel = condensedImageMetadata.length
     ? ` (${condensedImageMetadata})`
     : ''
 
@@ -74,7 +80,7 @@ export function toListboxItem(i: Image, includeProjectSiloIndicator = false): Li
     ))
   return {
     value: i.id,
-    labelString: `${name}${metadataForLabelString}`,
+    selectedLabel: `${name}${metadataForSelectedLabel}`,
     label: (
       <>
         <div>{name}</div>

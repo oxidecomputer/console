@@ -26,10 +26,9 @@ import { AttachDiskSideModalForm } from '~/forms/disk-attach'
 import { CreateDiskSideModalForm } from '~/forms/disk-create'
 import { getInstanceSelector, useInstanceSelector } from '~/hooks'
 import { addToast } from '~/stores/toast'
-import { DateCell } from '~/table/cells/DateCell'
-import { SizeCell } from '~/table/cells/SizeCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
-import { useQueryTable } from '~/table/QueryTable'
+import { Columns } from '~/table/columns/common'
+import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
 import { Button } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 
@@ -40,7 +39,7 @@ StorageTab.loader = async ({ params }: LoaderFunctionArgs) => {
   await Promise.all([
     apiQueryClient.prefetchQuery('instanceDiskList', {
       path: { instance },
-      query: { project, limit: 25 }, // querytable
+      query: { project, limit: PAGE_SIZE },
     }),
     // This is covered by the InstancePage loader but there's no downside to
     // being redundant. If it were removed there, we'd still want it here.
@@ -54,23 +53,14 @@ StorageTab.loader = async ({ params }: LoaderFunctionArgs) => {
 
 const colHelper = createColumnHelper<Disk>()
 const staticCols = [
-  colHelper.accessor('name', { header: 'Name' }),
-  colHelper.accessor('size', {
-    header: 'size',
-    cell: (info) => <SizeCell value={info.getValue()} />,
-  }),
+  colHelper.accessor('name', { header: 'Disk' }),
+  colHelper.accessor('size', Columns.size),
   colHelper.accessor((row) => row.state.state, {
     header: 'status',
     cell: (info) => <DiskStatusBadge status={info.getValue()} />,
   }),
-  colHelper.accessor('timeCreated', {
-    header: 'created',
-    cell: (info) => <DateCell value={info.getValue()} />,
-  }),
+  colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
-
-const attachableStates = fancifyStates(instanceCan.attachDisk.states)
-const detachableStates = fancifyStates(instanceCan.detachDisk.states)
 
 export function StorageTab() {
   const [showDiskCreate, setShowDiskCreate] = useState(false)
@@ -135,7 +125,10 @@ export function StorageTab() {
       {
         label: 'Detach',
         disabled: !instanceCan.detachDisk(instance) && (
-          <>Instance must be in state {detachableStates} before disk can be detached</>
+          <>
+            Instance must be <span className="text-default">stopped</span> before disk can
+            be detached
+          </>
         ),
         onActivate() {
           detachDisk.mutate({ body: { disk: disk.name }, ...instancePathQuery })
@@ -175,18 +168,18 @@ export function StorageTab() {
 
   return (
     <>
-      <h2 id="disks-label" className="mb-4 text-mono-sm text-secondary">
-        Disks
-      </h2>
-      {/* TODO: need 40px high rows. another table or a flag on Table (ew) */}
-
-      <Table emptyState={emptyState} aria-labelledby="disks-label" columns={columns} />
+      <Table emptyState={emptyState} columns={columns} />
       <div className="mt-4 flex flex-col gap-3">
         <div className="flex gap-3 md-:flex-col">
           <Button
             size="sm"
             onClick={() => setShowDiskCreate(true)}
-            disabledReason={<>Instance must be {attachableStates} to create a disk</>}
+            disabledReason={
+              <>
+                Instance must be <span className="text-default">stopped</span> to create and
+                attach a disk
+              </>
+            }
             disabled={!instanceCan.attachDisk(instance)}
             className="md-:w-full"
           >
@@ -196,7 +189,12 @@ export function StorageTab() {
             variant="secondary"
             size="sm"
             onClick={() => setShowDiskAttach(true)}
-            disabledReason={<>Instance must be {attachableStates} to attach a disk</>}
+            disabledReason={
+              <>
+                Instance must be <span className="text-default">stopped</span> to attach a
+                disk
+              </>
+            }
             disabled={!instanceCan.attachDisk(instance)}
             className="md-:w-full"
           >
@@ -205,7 +203,8 @@ export function StorageTab() {
         </div>
         {!instanceCan.attachDisk(instance) && (
           <span className="max-w-xs text-sans-md text-tertiary">
-            A disk cannot be added or attached unless the instance is {attachableStates}.
+            The instance must be <span className="text-default">stopped</span> to add or
+            attach a disk.
           </span>
         )}
       </div>

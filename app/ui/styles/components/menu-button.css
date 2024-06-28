@@ -10,8 +10,7 @@
   @apply z-30 min-w-[14rem] rounded border p-0 bg-raise border-secondary;
 
   & .DropdownMenuItem {
-    @apply block cursor-pointer select-none border-b py-2 pl-3 pr-6 text-left
-           text-sans-md text-secondary border-secondary last-of-type:border-b-0;
+    @apply block cursor-pointer select-none border-b py-2 pl-3 pr-6 text-left text-sans-md text-secondary border-secondary last-of-type:border-b-0;
 
     &.destructive {
       @apply text-destructive;
@@ -44,12 +43,14 @@
   }
 }
 
-.DropdownMenuContent {
+.DropdownMenuContent,
+.DocsPopoverPanel {
   animation: slide-down 0.2s ease;
 }
 
 @media (prefers-reduced-motion) {
-  .DropdownMenuContent {
+  .DropdownMenuContent,
+  .DocsPopoverPanel {
     animation-name: none;
   }
 }

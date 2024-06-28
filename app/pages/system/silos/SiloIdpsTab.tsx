@@ -7,18 +7,17 @@
  */
 import { createColumnHelper } from '@tanstack/react-table'
 import { useMemo } from 'react'
-import { Link, Outlet } from 'react-router-dom'
+import { Outlet } from 'react-router-dom'
 
 import { Cloud24Icon } from '@oxide/design-system/icons/react'
 
 import type { IdentityProvider } from '~/api'
 import { useSiloSelector } from '~/hooks'
-import { DateCell } from '~/table/cells/DateCell'
 import { LinkCell } from '~/table/cells/LinkCell'
-import { TruncateCell } from '~/table/cells/TruncateCell'
+import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
 import { Badge } from '~/ui/lib/Badge'
-import { buttonStyle } from '~/ui/lib/Button'
+import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { pb } from '~/util/path-builder'
 
@@ -44,17 +43,12 @@ export function SiloIdpsTab() {
           return <LinkCell to={pb.samlIdp({ silo, provider })}>{provider}</LinkCell>
         },
       }),
-      colHelper.accessor('description', {
-        cell: (info) => <TruncateCell value={info.getValue()} maxLength={48} />,
-      }),
+      colHelper.accessor('description', Columns.description),
       colHelper.accessor('providerType', {
         header: 'Type',
         cell: (info) => <Badge color="neutral">{info.getValue()}</Badge>,
       }),
-      colHelper.accessor('timeCreated', {
-        header: 'created',
-        cell: (info) => <DateCell value={info.getValue()} />,
-      }),
+      colHelper.accessor('timeCreated', Columns.timeCreated),
     ],
     [silo]
   )
@@ -62,9 +56,7 @@ export function SiloIdpsTab() {
   return (
     <>
       <div className="mb-3 flex justify-end space-x-2">
-        <Link to={pb.siloIdpsNew({ silo })} className={buttonStyle({ size: 'sm' })}>
-          New provider
-        </Link>
+        <CreateLink to={pb.siloIdpsNew({ silo })}>New provider</CreateLink>
       </div>
       <Table emptyState={<EmptyState />} columns={staticCols} />
       <Outlet />

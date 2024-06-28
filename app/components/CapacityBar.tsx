@@ -32,7 +32,7 @@ export const CapacityBar = <T extends number | bigint>({
   const unitElt = includeUnit ? <>&nbsp;{unit}</> : null
 
   return (
-    <div className="w-full min-w-min rounded-lg border border-default">
+    <div className="w-full min-w-min rounded-lg border border-default lg+:max-w-[50%]">
       <div className="flex justify-between p-3">
         <TitleCell icon={icon} title={title} unit={unit} />
         <PctCell pct={pct} />
@@ -52,7 +52,7 @@ type TitleCellProps = { icon: JSX.Element; title: string; unit: string }
 function TitleCell({ icon, title, unit }: TitleCellProps) {
   return (
     <div>
-      <div className="flex flex-grow items-center">
+      <div className="flex grow items-center">
         <span className="mr-2 flex h-4 w-4 items-center text-accent">{icon}</span>
         <span className="!normal-case text-mono-sm text-secondary">{title}</span>
         <span className="ml-1 !normal-case text-mono-sm text-quaternary">({unit})</span>
@@ -62,6 +62,16 @@ function TitleCell({ icon, title, unit }: TitleCellProps) {
 }
 
 function PctCell({ pct }: { pct: number }) {
+  // NaN happens when both top and bottom are 0
+  if (Number.isNaN(pct)) {
+    return (
+      <div className="flex -translate-y-0.5 items-baseline text-quaternary">
+        <div className="font-light text-sans-2xl">—</div>
+        <div className="text-sans-xl">%</div>
+      </div>
+    )
+  }
+
   const [wholeNumber, decimal] = splitDecimal(pct)
   return (
     <div className="flex -translate-y-0.5 items-baseline">

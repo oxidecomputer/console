@@ -51,15 +51,36 @@ const handleResult =
 
     // if logged out, hit /login to trigger login redirect
     // Exception: 401 on password login POST needs to be handled in-page
-    if (result.statusCode === 401 && method !== 'loginLocal') {
+    if (result.response.status === 401 && method !== 'loginLocal') {
       // TODO-usability: for background requests, a redirect to login without
       // warning could come as a surprise to the user, especially because
       // sometimes background requests are not directly triggered by a user
       // action, e.g., polling or refetching when window regains focus
       navToLogin({ includeCurrent: true })
     }
+
+    const error = processServerError(method, result)
+
+    // log to the console so it's there in case they open the dev tools, unlike
+    // network tab, which only records if dev tools are already open. but don't
+    // clutter test output
+    if (process.env.NODE_ENV !== 'test') {
+      const consolePage = window.location.pathname + window.location.search
+      // TODO: need to change oxide.ts to put the HTTP method on the result in
+      // order to log it here
+      console.error(
+        `More info about API ${error.statusCode || 'error'} on ${consolePage}
+
+API URL:        ${result.response.url}
+Request ID:     ${error.requestId}
+Error code:     ${error.errorCode}
+Error message:  ${error.message.replace(/\n/g, '\n' + ' '.repeat('Error message:  '.length))}
+`
+      )
+    }
+
     // we need to rethrow because that's how react-query knows it's an error
-    throw processServerError(method, result)
+    throw error
   }
 
 /**
@@ -199,10 +220,14 @@ export const getUseApiMutation =
   <A extends ApiClient>(api: A) =>
   <M extends string & keyof A>(
     method: M,
-    options?: Omit<UseMutationOptions<Result<A[M]>, ApiError, Params<A[M]>>, 'mutationFn'>
+    options?: Omit<
+      UseMutationOptions<Result<A[M]>, ApiError, Params<A[M]> & { signal?: AbortSignal }>,
+      'mutationFn'
+    >
   ) =>
     useMutation({
-      mutationFn: (params) => api[method](params).then(handleResult(method)),
+      mutationFn: ({ signal, ...params }) =>
+        api[method](params, { signal }).then(handleResult(method)),
       // no catch, let unexpected errors bubble up
       ...options,
     })
@@ -214,9 +239,11 @@ export const wrapQueryClient = <A extends ApiClient>(api: A, queryClient: QueryC
    * accidentally overspecifying and therefore failing to match the desired
    * query. The params argument can be added back in if we ever have a use case
    * for it.
+   *
+   * Passing no arguments will invalidate all queries.
    */
-  invalidateQueries: <M extends keyof A>(method: M, filters?: InvalidateQueryFilters) =>
-    queryClient.invalidateQueries({ queryKey: [method], ...filters }),
+  invalidateQueries: <M extends keyof A>(method?: M, filters?: InvalidateQueryFilters) =>
+    queryClient.invalidateQueries(method ? { queryKey: [method], ...filters } : undefined),
   setQueryData: <M extends keyof A>(method: M, params: Params<A[M]>, data: Result<A[M]>) =>
     queryClient.setQueryData([method, params], data),
   setQueryDataErrorsAllowed: <M extends keyof A>(

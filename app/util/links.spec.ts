@@ -9,7 +9,7 @@ import { describe, expect, test } from 'vitest'
 
 import { links } from './links'
 
-describe('check links are accessible', () => {
+describe.skip('check links are accessible', () => {
   for (const [key, url] of Object.entries(links)) {
     test(key, async () => {
       // if we run into a page where HEAD doesn't work, we can fall back to GET

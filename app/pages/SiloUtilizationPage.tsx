@@ -10,9 +10,10 @@ import { useIsFetching } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
-import { Metrics24Icon } from '@oxide/design-system/icons/react'
+import { Metrics16Icon, Metrics24Icon } from '@oxide/design-system/icons/react'
 
 import { CapacityBars } from '~/components/CapacityBars'
+import { DocsPopover } from '~/components/DocsPopover'
 import { useDateTimeRangePicker } from '~/components/form/fields/DateTimeRangePicker'
 import { useIntervalPicker } from '~/components/RefetchIntervalPicker'
 import { SiloMetric } from '~/components/SystemMetric'
@@ -20,6 +21,7 @@ import { useCurrentUser } from '~/layouts/AuthenticatedLayout'
 import { Divider } from '~/ui/lib/Divider'
 import { Listbox } from '~/ui/lib/Listbox'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
+import { docLinks } from '~/util/links'
 import { bytesToGiB, bytesToTiB } from '~/util/units'
 
 const toListboxItem = (x: { name: string; id: string }) => ({ label: x.name, value: x.id })
@@ -71,7 +73,13 @@ export function SiloUtilizationPage() {
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<Metrics24Icon />}>Capacity &amp; Utilization</PageTitle>
+        <PageTitle icon={<Metrics24Icon />}>Utilization</PageTitle>
+        <DocsPopover
+          heading="utilization"
+          icon={<Metrics16Icon />}
+          summary="System metrics let you monitor utilization of CPU, memory, and storage."
+          links={[docLinks.systemMetrics]}
+        />
       </PageHeader>
 
       <CapacityBars

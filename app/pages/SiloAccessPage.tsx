@@ -20,8 +20,9 @@ import {
   type IdentityType,
   type RoleKey,
 } from '@oxide/api'
-import { Access24Icon } from '@oxide/design-system/icons/react'
+import { Access16Icon, Access24Icon } from '@oxide/design-system/icons/react'
 
+import { DocsPopover } from '~/components/DocsPopover'
 import { HL } from '~/components/HL'
 import {
   SiloAccessAddUserSideModal,
@@ -31,12 +32,13 @@ import { confirmDelete } from '~/stores/confirm-delete'
 import { getActionsCol } from '~/table/columns/action-col'
 import { Table } from '~/table/Table'
 import { Badge } from '~/ui/lib/Badge'
-import { Button } from '~/ui/lib/Button'
+import { CreateButton } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions, TableEmptyBox } from '~/ui/lib/Table'
 import { identityTypeLabel, roleColor } from '~/util/access'
-import { groupBy, isTruthy } from '~/util/array'
+import { groupBy } from '~/util/array'
+import { docLinks } from '~/util/links'
 
 const EmptyState = ({ onClick }: { onClick: () => void }) => (
   <TableEmptyBox>
@@ -82,7 +84,7 @@ export function SiloAccessPage() {
       .map(([userId, userAssignments]) => {
         const siloRole = userAssignments.find((a) => a.roleSource === 'silo')?.roleName
 
-        const roles = [siloRole].filter(isTruthy)
+        const roles = siloRole ? [siloRole] : []
 
         const { name, identityType } = userAssignments[0]
 
@@ -137,7 +139,7 @@ export function SiloAccessPage() {
             doDelete: () =>
               updatePolicy.mutateAsync({
                 // we know policy is there, otherwise there's no row to display
-                body: deleteRole(row.id, siloPolicy!),
+                body: deleteRole(row.id, siloPolicy),
               }),
             label: (
               <span>
@@ -161,13 +163,17 @@ export function SiloAccessPage() {
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<Access24Icon />}>Access &amp; IAM</PageTitle>
+        <PageTitle icon={<Access24Icon />}>Access</PageTitle>
+        <DocsPopover
+          heading="access"
+          icon={<Access16Icon />}
+          summary="Roles determine who can view, edit, or administer this silo and the projects within it. If a user or group has both a silo and project role, the stronger role takes precedence."
+          links={[docLinks.keyConceptsIam, docLinks.access]}
+        />
       </PageHeader>
 
       <TableActions>
-        <Button size="sm" onClick={() => setAddModalOpen(true)}>
-          Add user or group
-        </Button>
+        <CreateButton onClick={() => setAddModalOpen(true)}>Add user or group</CreateButton>
       </TableActions>
       {siloPolicy && addModalOpen && (
         <SiloAccessAddUserSideModal

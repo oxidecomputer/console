@@ -601,6 +601,12 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.PhysicalDiskResultsPage>>
+  /** `GET /v1/system/hardware/disks/:diskId` */
+  physicalDiskView: (params: {
+    path: Api.PhysicalDiskViewPathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.PhysicalDisk>>
   /** `GET /v1/system/hardware/racks` */
   rackList: (params: {
     query: Api.RackListQueryParams
@@ -624,7 +630,7 @@ export interface MSWHandlers {
     body: Json<Api.UninitializedSledId>
     req: Request
     cookies: Record<string, string>
-  }) => Promisable<StatusCode>
+  }) => Promisable<HandlerResult<Api.SledId>>
   /** `GET /v1/system/hardware/sleds/:sledId` */
   sledView: (params: {
     path: Api.SledViewPathParams
@@ -679,6 +685,13 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
+  /** `GET /v1/system/hardware/switch-port/:port/status` */
+  networkingSwitchPortStatus: (params: {
+    path: Api.NetworkingSwitchPortStatusPathParams
+    query: Api.NetworkingSwitchPortStatusQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.SwitchLinkState>>
   /** `GET /v1/system/hardware/switches` */
   switchList: (params: {
     query: Api.SwitchListQueryParams
@@ -873,6 +886,17 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.AddressLotBlockResultsPage>>
+  /** `GET /v1/system/networking/allow-list` */
+  networkingAllowListView: (params: {
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.AllowList>>
+  /** `PUT /v1/system/networking/allow-list` */
+  networkingAllowListUpdate: (params: {
+    body: Json<Api.AllowListUpdate>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.AllowList>>
   /** `POST /v1/system/networking/bfd-disable` */
   networkingBfdDisable: (params: {
     body: Json<Api.BfdSessionDisable>
@@ -889,7 +913,7 @@ export interface MSWHandlers {
   networkingBfdStatus: (params: {
     req: Request
     cookies: Record<string, string>
-  }) => Promisable<StatusCode>
+  }) => Promisable<HandlerResult<Api.BfdStatus[]>>
   /** `GET /v1/system/networking/bgp` */
   networkingBgpConfigList: (params: {
     query: Api.NetworkingBgpConfigListQueryParams
@@ -913,7 +937,7 @@ export interface MSWHandlers {
     query: Api.NetworkingBgpAnnounceSetListQueryParams
     req: Request
     cookies: Record<string, string>
-  }) => Promisable<StatusCode>
+  }) => Promisable<HandlerResult<Api.BgpAnnouncement[]>>
   /** `POST /v1/system/networking/bgp-announce` */
   networkingBgpAnnounceSetCreate: (params: {
     body: Json<Api.BgpAnnounceSetCreate>
@@ -937,12 +961,12 @@ export interface MSWHandlers {
     query: Api.NetworkingBgpImportedRoutesIpv4QueryParams
     req: Request
     cookies: Record<string, string>
-  }) => Promisable<StatusCode>
+  }) => Promisable<HandlerResult<Api.BgpImportedRouteIpv4[]>>
   /** `GET /v1/system/networking/bgp-status` */
   networkingBgpStatus: (params: {
     req: Request
     cookies: Record<string, string>
-  }) => Promisable<StatusCode>
+  }) => Promisable<HandlerResult<Api.BgpPeerStatus[]>>
   /** `GET /v1/system/networking/loopback-address` */
   networkingLoopbackAddressList: (params: {
     query: Api.NetworkingLoopbackAddressListQueryParams
@@ -1108,6 +1132,18 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.SiloUtilization>>
+  /** `POST /v1/timeseries/query` */
+  timeseriesQuery: (params: {
+    body: Json<Api.TimeseriesQuery>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.Table[]>>
+  /** `GET /v1/timeseries/schema` */
+  timeseriesSchemaList: (params: {
+    query: Api.TimeseriesSchemaListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.TimeseriesSchemaResultsPage>>
   /** `GET /v1/users` */
   userList: (params: {
     query: Api.UserListQueryParams
@@ -1132,6 +1168,76 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.VpcFirewallRules>>
+  /** `GET /v1/vpc-router-routes` */
+  vpcRouterRouteList: (params: {
+    query: Api.VpcRouterRouteListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.RouterRouteResultsPage>>
+  /** `POST /v1/vpc-router-routes` */
+  vpcRouterRouteCreate: (params: {
+    query: Api.VpcRouterRouteCreateQueryParams
+    body: Json<Api.RouterRouteCreate>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.RouterRoute>>
+  /** `GET /v1/vpc-router-routes/:route` */
+  vpcRouterRouteView: (params: {
+    path: Api.VpcRouterRouteViewPathParams
+    query: Api.VpcRouterRouteViewQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.RouterRoute>>
+  /** `PUT /v1/vpc-router-routes/:route` */
+  vpcRouterRouteUpdate: (params: {
+    path: Api.VpcRouterRouteUpdatePathParams
+    query: Api.VpcRouterRouteUpdateQueryParams
+    body: Json<Api.RouterRouteUpdate>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.RouterRoute>>
+  /** `DELETE /v1/vpc-router-routes/:route` */
+  vpcRouterRouteDelete: (params: {
+    path: Api.VpcRouterRouteDeletePathParams
+    query: Api.VpcRouterRouteDeleteQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
+  /** `GET /v1/vpc-routers` */
+  vpcRouterList: (params: {
+    query: Api.VpcRouterListQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.VpcRouterResultsPage>>
+  /** `POST /v1/vpc-routers` */
+  vpcRouterCreate: (params: {
+    query: Api.VpcRouterCreateQueryParams
+    body: Json<Api.VpcRouterCreate>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.VpcRouter>>
+  /** `GET /v1/vpc-routers/:router` */
+  vpcRouterView: (params: {
+    path: Api.VpcRouterViewPathParams
+    query: Api.VpcRouterViewQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.VpcRouter>>
+  /** `PUT /v1/vpc-routers/:router` */
+  vpcRouterUpdate: (params: {
+    path: Api.VpcRouterUpdatePathParams
+    query: Api.VpcRouterUpdateQueryParams
+    body: Json<Api.VpcRouterUpdate>
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.VpcRouter>>
+  /** `DELETE /v1/vpc-routers/:router` */
+  vpcRouterDelete: (params: {
+    path: Api.VpcRouterDeletePathParams
+    query: Api.VpcRouterDeleteQueryParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<StatusCode>
   /** `GET /v1/vpc-subnets` */
   vpcSubnetList: (params: {
     query: Api.VpcSubnetListQueryParams
@@ -1235,9 +1341,10 @@ function validateParams<S extends ZodSchema>(
 
   // if any of the errors come from path params, just 404 — the resource cannot
   // exist if there's no valid name
-  const { issues } = result.error
-  const status = issues.some((e) => e.path[0] === 'path') ? 404 : 400
-  return { paramsErr: json(issues, { status }) }
+  const status = result.error.issues.some((e) => e.path[0] === 'path') ? 404 : 400
+  const error_code = status === 404 ? 'NotFound' : 'InvalidRequest'
+  const message = 'Zod error for params: ' + JSON.stringify(result.error)
+  return { paramsErr: json({ error_code, message }, { status }) }
 }
 
 const handler =
@@ -1258,7 +1365,7 @@ const handler =
     const { params, paramsErr } = paramSchema
       ? validateParams(paramSchema, req, pathParams)
       : { params: {}, paramsErr: undefined }
-    if (paramsErr) return json(paramsErr, { status: 400 })
+    if (paramsErr) return paramsErr
 
     const { path, query } = params
 
@@ -1266,7 +1373,10 @@ const handler =
     if (bodySchema) {
       const rawBody = await req.json()
       const result = bodySchema.transform(snakeify).safeParse(rawBody)
-      if (!result.success) return json(result.error.issues, { status: 400 })
+      if (!result.success) {
+        const message = 'Zod error for body: ' + JSON.stringify(result.error)
+        return json({ error_code: 'InvalidRequest', message }, { status: 400 })
+      }
       body = result.data
     }
 
@@ -1281,9 +1391,6 @@ const handler =
       if (typeof result === 'number') {
         return new HttpResponse(null, { status: result })
       }
-      if (typeof result === 'function') {
-        return result()
-      }
       if (result instanceof Response) {
         return result
       }
@@ -1292,17 +1399,22 @@ const handler =
       if (typeof thrown === 'number') {
         return new HttpResponse(null, { status: thrown })
       }
-      if (typeof thrown === 'function') {
-        return thrown()
-      }
       if (typeof thrown === 'string') {
         return json({ message: thrown }, { status: 400 })
       }
       if (thrown instanceof Response) {
         return thrown
       }
+
+      // if it's not one of those, then we don't know what to do with it
       console.error('Unexpected mock error', thrown)
-      return json({ message: 'Unknown Server Error' }, { status: 500 })
+      if (typeof thrown === 'function') {
+        console.error(
+          "It looks like you've accidentally thrown an error constructor function from a mock handler without calling it!"
+        )
+      }
+      // rethrow so everything breaks because this isn't supposed to happen
+      throw thrown
     }
   }
 
@@ -1708,6 +1820,10 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       handler(handlers['physicalDiskList'], schema.PhysicalDiskListParams, null)
     ),
     http.get(
+      '/v1/system/hardware/disks/:diskId',
+      handler(handlers['physicalDiskView'], schema.PhysicalDiskViewParams, null)
+    ),
+    http.get(
       '/v1/system/hardware/racks',
       handler(handlers['rackList'], schema.RackListParams, null)
     ),
@@ -1768,6 +1884,14 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       handler(
         handlers['networkingSwitchPortClearSettings'],
         schema.NetworkingSwitchPortClearSettingsParams,
+        null
+      )
+    ),
+    http.get(
+      '/v1/system/hardware/switch-port/:port/status',
+      handler(
+        handlers['networkingSwitchPortStatus'],
+        schema.NetworkingSwitchPortStatusParams,
         null
       )
     ),
@@ -1930,6 +2054,14 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
         schema.NetworkingAddressLotBlockListParams,
         null
       )
+    ),
+    http.get(
+      '/v1/system/networking/allow-list',
+      handler(handlers['networkingAllowListView'], null, null)
+    ),
+    http.put(
+      '/v1/system/networking/allow-list',
+      handler(handlers['networkingAllowListUpdate'], null, schema.AllowListUpdate)
     ),
     http.post(
       '/v1/system/networking/bfd-disable',
@@ -2141,6 +2273,14 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       '/v1/system/utilization/silos/:silo',
       handler(handlers['siloUtilizationView'], schema.SiloUtilizationViewParams, null)
     ),
+    http.post(
+      '/v1/timeseries/query',
+      handler(handlers['timeseriesQuery'], null, schema.TimeseriesQuery)
+    ),
+    http.get(
+      '/v1/timeseries/schema',
+      handler(handlers['timeseriesSchemaList'], schema.TimeseriesSchemaListParams, null)
+    ),
     http.get('/v1/users', handler(handlers['userList'], schema.UserListParams, null)),
     http.get('/v1/utilization', handler(handlers['utilizationView'], null, null)),
     http.get(
@@ -2154,6 +2294,62 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
         schema.VpcFirewallRulesUpdateParams,
         schema.VpcFirewallRuleUpdateParams
       )
+    ),
+    http.get(
+      '/v1/vpc-router-routes',
+      handler(handlers['vpcRouterRouteList'], schema.VpcRouterRouteListParams, null)
+    ),
+    http.post(
+      '/v1/vpc-router-routes',
+      handler(
+        handlers['vpcRouterRouteCreate'],
+        schema.VpcRouterRouteCreateParams,
+        schema.RouterRouteCreate
+      )
+    ),
+    http.get(
+      '/v1/vpc-router-routes/:route',
+      handler(handlers['vpcRouterRouteView'], schema.VpcRouterRouteViewParams, null)
+    ),
+    http.put(
+      '/v1/vpc-router-routes/:route',
+      handler(
+        handlers['vpcRouterRouteUpdate'],
+        schema.VpcRouterRouteUpdateParams,
+        schema.RouterRouteUpdate
+      )
+    ),
+    http.delete(
+      '/v1/vpc-router-routes/:route',
+      handler(handlers['vpcRouterRouteDelete'], schema.VpcRouterRouteDeleteParams, null)
+    ),
+    http.get(
+      '/v1/vpc-routers',
+      handler(handlers['vpcRouterList'], schema.VpcRouterListParams, null)
+    ),
+    http.post(
+      '/v1/vpc-routers',
+      handler(
+        handlers['vpcRouterCreate'],
+        schema.VpcRouterCreateParams,
+        schema.VpcRouterCreate
+      )
+    ),
+    http.get(
+      '/v1/vpc-routers/:router',
+      handler(handlers['vpcRouterView'], schema.VpcRouterViewParams, null)
+    ),
+    http.put(
+      '/v1/vpc-routers/:router',
+      handler(
+        handlers['vpcRouterUpdate'],
+        schema.VpcRouterUpdateParams,
+        schema.VpcRouterUpdate
+      )
+    ),
+    http.delete(
+      '/v1/vpc-routers/:router',
+      handler(handlers['vpcRouterDelete'], schema.VpcRouterDeleteParams, null)
     ),
     http.get(
       '/v1/vpc-subnets',

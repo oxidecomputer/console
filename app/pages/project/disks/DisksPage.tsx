@@ -7,7 +7,7 @@
  */
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback } from 'react'
-import { Link, Outlet, type LoaderFunctionArgs } from 'react-router-dom'
+import { Outlet, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
   apiQueryClient,
@@ -17,20 +17,22 @@ import {
   useApiQueryClient,
   type Disk,
 } from '@oxide/api'
-import { Storage24Icon } from '@oxide/design-system/icons/react'
+import { Storage16Icon, Storage24Icon } from '@oxide/design-system/icons/react'
 
+import { DocsPopover } from '~/components/DocsPopover'
 import { DiskStatusBadge } from '~/components/StatusBadge'
-import { getProjectSelector, useProjectSelector, useToast } from '~/hooks'
+import { getProjectSelector, useProjectSelector } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
-import { DateCell } from '~/table/cells/DateCell'
+import { addToast } from '~/stores/toast'
 import { InstanceLinkCell } from '~/table/cells/InstanceLinkCell'
-import { SizeCell } from '~/table/cells/SizeCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
-import { useQueryTable } from '~/table/QueryTable'
-import { buttonStyle } from '~/ui/lib/Button'
+import { Columns } from '~/table/columns/common'
+import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
+import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 import { fancifyStates } from '../instances/instance/tabs/common'
@@ -49,7 +51,7 @@ DisksPage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project } = getProjectSelector(params)
   await Promise.all([
     apiQueryClient.prefetchQuery('diskList', {
-      query: { project, limit: 25 },
+      query: { project, limit: PAGE_SIZE },
     }),
 
     // fetch instances and preload into RQ cache so fetches by ID in
@@ -83,22 +85,18 @@ const staticCols = [
       cell: (info) => <InstanceLinkCell instanceId={info.getValue()} />,
     }
   ),
-  colHelper.accessor('size', { cell: (info) => <SizeCell value={info.getValue()} /> }),
+  colHelper.accessor('size', Columns.size),
   colHelper.accessor('state.state', {
     header: 'Status',
     cell: (info) => <DiskStatusBadge status={info.getValue()} />,
   }),
-  colHelper.accessor('timeCreated', {
-    header: 'Created',
-    cell: (info) => <DateCell value={info.getValue()} />,
-  }),
+  colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
 export function DisksPage() {
   const queryClient = useApiQueryClient()
   const { project } = useProjectSelector()
   const { Table } = useQueryTable('diskList', { query: { project } })
-  const addToast = useToast()
 
   const deleteDisk = useApiMutation('diskDelete', {
     onSuccess() {
@@ -157,7 +155,7 @@ export function DisksPage() {
           )),
       },
     ],
-    [addToast, createSnapshot, deleteDisk, project]
+    [createSnapshot, deleteDisk, project]
   )
 
   const columns = useColsWithActions(staticCols, makeActions)
@@ -166,11 +164,15 @@ export function DisksPage() {
     <>
       <PageHeader>
         <PageTitle icon={<Storage24Icon />}>Disks</PageTitle>
+        <DocsPopover
+          heading="disks"
+          icon={<Storage16Icon />}
+          summary="Disks are persistent volumes that can be managed independently from VM instances."
+          links={[docLinks.disks]}
+        />
       </PageHeader>
       <TableActions>
-        <Link to={pb.disksNew({ project })} className={buttonStyle({ size: 'sm' })}>
-          New Disk
-        </Link>
+        <CreateLink to={pb.disksNew({ project })}>New Disk</CreateLink>
       </TableActions>
       <Table columns={columns} emptyState={<EmptyState />} />
       <Outlet />

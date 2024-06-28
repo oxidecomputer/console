@@ -13,22 +13,30 @@ import { Tooltip } from '~/ui/lib/Tooltip'
 type ListPlusCellProps = {
   tooltipTitle: string
   children: React.ReactNode
+  /** The number of items to show in the cell vs. in the popup */
+  numInCell?: number
 }
 
 /**
  * Gives a count with a tooltip that expands to show details when the user hovers over it
  */
-export const ListPlusCell = ({ tooltipTitle, children }: ListPlusCellProps) => {
-  const [first, ...rest] = React.Children.toArray(children)
+export const ListPlusCell = ({
+  tooltipTitle,
+  children,
+  numInCell = 1,
+}: ListPlusCellProps) => {
+  const array = React.Children.toArray(children)
+  const inCell = array.slice(0, numInCell)
+  const rest = array.slice(numInCell)
   const content = (
     <div>
       <div className="mb-2">{tooltipTitle}</div>
-      {...rest}
+      <div className="flex flex-col items-start gap-2">{...rest}</div>
     </div>
   )
   return (
     <div className="flex items-baseline gap-2">
-      {first}
+      {inCell}
       {rest.length > 0 && (
         <Tooltip content={content} placement="bottom">
           <div className="text-mono-sm">+{rest.length}</div>

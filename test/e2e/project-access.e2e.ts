@@ -11,10 +11,10 @@ import { expect, expectNotVisible, expectRowVisible, expectVisible, test } from 
 
 test('Click through project access page', async ({ page }) => {
   await page.goto('/projects/mock-project')
-  await page.click('role=link[name*="Access & IAM"]')
+  await page.click('role=link[name*="Access"]')
 
   // page is there, we see user 1 and 3 but not 2 or 4
-  await expectVisible(page, ['role=heading[name*="Access & IAM"]'])
+  await expectVisible(page, ['role=heading[name*="Access"]'])
   const table = page.locator('table')
   await expectRowVisible(table, {
     Name: 'Hannah Arendt',

@@ -25,13 +25,13 @@ test('can create firewall rule', async ({ page }) => {
   await expect(modal).toBeHidden()
 
   // open modal
-  await page.getByRole('button', { name: 'New rule' }).click()
+  await page.getByRole('link', { name: 'New rule' }).click()
 
   // modal is now open
   await expect(modal).toBeVisible()
 
   await page.fill('input[name=name]', 'my-new-rule')
-  await page.locator('text=Outbound').click()
+  await page.getByRole('radio', { name: 'Outbound' }).click()
 
   await page.fill('role=textbox[name="Priority"]', '5')
 
@@ -54,19 +54,33 @@ test('can create firewall rule', async ({ page }) => {
   const hosts = page.getByRole('table', { name: 'Host filters' })
   await expectRowVisible(hosts, { Type: 'instance', Value: 'host-filter-instance' })
 
-  // TODO: test invalid port range once I put an error message in there
-  await page.fill('role=textbox[name="Port filter"]', '123-456')
-  await page.getByRole('button', { name: 'Add port filter' }).click()
+  const portRangeField = page.getByRole('textbox', { name: 'Port filters' })
+  const invalidPort = page.getByRole('dialog').getByText('Not a valid port range')
+  const addPortButton = page.getByRole('button', { name: 'Add port filter' })
+  await portRangeField.fill('abc')
+  await expect(invalidPort).toBeHidden()
+  await addPortButton.click()
+  await expect(invalidPort).toBeVisible()
+
+  await portRangeField.fill('123-456')
+  await addPortButton.click()
+  await expect(invalidPort).toBeHidden()
 
   // port range is added to port ranges table
-  const ports = page.getByRole('table', { name: 'Ports' })
-  await expectRowVisible(ports, { Range: '123-456' })
+  const ports = page.getByRole('table', { name: 'Port filters' })
+  await expectRowVisible(ports, { 'Port ranges': '123-456' })
+
+  const dupePort = page.getByRole('dialog').getByText('Port range already added')
+  await expect(dupePort).toBeHidden()
+  await portRangeField.fill('123-456')
+  // don't need to click because we're already validating onChange
+  await expect(dupePort).toBeVisible()
 
   // check the UDP box
   await page.locator('text=UDP').click()
 
   // submit the form
-  await page.locator('text="Add rule"').click()
+  await page.getByRole('button', { name: 'Add rule' }).click()
 
   // modal closes again
   await expect(modal).toBeHidden()
@@ -76,8 +90,15 @@ test('can create firewall rule', async ({ page }) => {
     Name: 'my-new-rule',
     Priority: '5',
     Targets: 'ip192.168.0.1',
-    Filters: 'instancehost-filter-instanceUDP123-456',
+    Filters: 'instancehost-filter-instance+2', // UDP and port filters in plus popup
   })
+
+  // scroll table sideways past the filters cell
+  await page.getByText('Enabled').first().scrollIntoViewIfNeeded()
+
+  await page.getByText('+2').hover()
+  const tooltip = page.getByRole('tooltip', { name: 'Other filters UDP Port 123-' })
+  await expect(tooltip).toBeVisible()
 
   await expect(rows).toHaveCount(5)
   for (const name of defaultRules) {
@@ -85,12 +106,42 @@ test('can create firewall rule', async ({ page }) => {
   }
 })
 
+test('firewall rule targets and filters overflow', async ({ page }) => {
+  await page.goto('/projects/other-project/vpcs/mock-vpc-2')
+
+  await expect(
+    page.getByRole('cell', { name: 'instance my-inst +2', exact: true })
+  ).toBeVisible()
+
+  await page.getByText('+2').hover()
+  await expect(
+    page.getByRole('tooltip', {
+      name: 'Other targets ip 125.34.25.2 subnet subsubsub',
+      exact: true,
+    })
+  ).toBeVisible()
+
+  await expect(
+    page.getByRole('cell', { name: 'instance hello-friend +5', exact: true })
+  ).toBeVisible()
+
+  // scroll table sideways past the filters cell
+  await page.getByText('Enabled').first().scrollIntoViewIfNeeded()
+
+  await page.getByText('+5').hover()
+  const tooltip = page.getByRole('tooltip', {
+    name: 'Other filters subnet my-subnet ip 148.38.89.5 TCP Port 3389 Port 45-89',
+    exact: true,
+  })
+  await expect(tooltip).toBeVisible()
+})
+
 test('firewall rule form targets table', async ({ page }) => {
   await page.goto('/projects/mock-project/vpcs/mock-vpc')
   await page.getByRole('tab', { name: 'Firewall Rules' }).click()
 
   // open modal
-  await page.getByRole('button', { name: 'New rule' }).click()
+  await page.getByRole('link', { name: 'New rule' }).click()
 
   const targets = page.getByRole('table', { name: 'Targets' })
   const addButton = page.getByRole('button', { name: 'Add target' })
@@ -140,7 +191,7 @@ test('firewall rule form hosts table', async ({ page }) => {
   await page.getByRole('tab', { name: 'Firewall Rules' }).click()
 
   // open modal
-  await page.getByRole('button', { name: 'New rule' }).click()
+  await page.getByRole('link', { name: 'New rule' }).click()
 
   const hosts = page.getByRole('table', { name: 'Host filters' })
   const addButton = page.getByRole('button', { name: 'Add host filter' })
@@ -203,7 +254,7 @@ test('can update firewall rule', async ({ page }) => {
   await expect(modal).toBeHidden()
 
   // can click name cell to edit
-  await page.getByRole('button', { name: 'allow-icmp' }).click()
+  await page.getByRole('link', { name: 'allow-icmp' }).click()
 
   // modal is now open
   await expect(modal).toBeVisible()
@@ -257,4 +308,19 @@ test('can update firewall rule', async ({ page }) => {
   for (const name of rest) {
     await expect(page.locator(`text="${name}"`)).toBeVisible()
   }
+})
+
+const rulePath = '/projects/mock-project/vpcs/mock-vpc/firewall-rules/allow-icmp/edit'
+
+test('can edit rule directly by URL', async ({ page }) => {
+  await page.goto(rulePath)
+  await expect(page.getByRole('dialog', { name: 'Edit rule' })).toBeVisible()
+  await expect(page.getByRole('textbox', { name: 'Name', exact: true })).toHaveValue(
+    'allow-icmp'
+  )
+})
+
+test('404s on edit non-existent rule', async ({ page }) => {
+  await page.goto(rulePath.replace('icmp', 'boop'))
+  await expect(page.getByText('Page not found')).toBeVisible()
 })

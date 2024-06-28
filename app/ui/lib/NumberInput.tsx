@@ -49,10 +49,7 @@ export const NumberInput = React.forwardRef<
         {...inputProps}
         ref={mergeRefs([forwardedRef, inputRef])}
         className={cn(
-          `w-full rounded border-none px-3
-      py-[0.6875rem] !outline-offset-1 text-sans-md
-      text-default bg-default placeholder:text-quaternary
-      focus:outline-none disabled:cursor-not-allowed disabled:text-tertiary disabled:bg-disabled`,
+          `w-full rounded border-none px-3 py-[0.6875rem] !outline-offset-1 text-sans-md text-default bg-default placeholder:text-quaternary focus:outline-none disabled:cursor-not-allowed disabled:text-tertiary disabled:bg-disabled`,
           props.error && 'focus-error',
           props.isDisabled && 'text-disabled bg-disabled'
         )}
@@ -76,6 +73,7 @@ function IncrementButton(props: AriaButtonProps<'button'> & { className?: string
 
   return (
     <button
+      type="button"
       {...buttonProps}
       className={cn(
         'flex h-1/2 w-8 items-center justify-center hover:bg-hover',

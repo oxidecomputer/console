@@ -5,9 +5,9 @@
  *
  * Copyright Oxide Computer Company
  */
-import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
-import { displayBigNum, percentage, round, splitDecimal, toEngNotation } from './math'
+import { displayBigNum, nearest10, percentage, round, splitDecimal } from './math'
 import { GiB } from './units'
 
 function roundTest() {
@@ -112,15 +112,6 @@ describe('with default locale', () => {
 })
 
 describe('with de-DE locale', () => {
-  const originalLanguage = global.navigator.language
-
-  beforeAll(() => {
-    Object.defineProperty(global.navigator, 'language', {
-      value: 'de-DE',
-      writable: true,
-    })
-  })
-
   it.each([
     [0.23, ['0', ',23']],
     [0.236, ['0', ',24']],
@@ -143,17 +134,14 @@ describe('with de-DE locale', () => {
     [-50.2, ['-50', ',2']], // should correctly not round down to -51
     [1000.5, ['1.000', ',5']], // test localeString grouping
   ])('splitDecimal %d -> %s', (input, output) => {
-    expect(splitDecimal(input)).toEqual(output)
+    expect(splitDecimal(input, 'de-DE')).toEqual(output)
   })
-
-  // rounding must work the same irrespective of locale
-  it('round', roundTest)
 
   it.each([
     [0n, ['0', false]],
     [1n, ['1', false]],
     [155n, ['155', false]],
-    [999999n, ['999,999', false]],
+    [999999n, ['999.999', false]],
     [1000000n, ['1 Mio.', true]],
     [1234567n, ['1,2 Mio.', true]],
     [9999999n, ['10 Mio.', true]], // note non-breaking space
@@ -162,14 +150,7 @@ describe('with de-DE locale', () => {
     [1293859032098219, ['1,3e15', true]],
     [23094304823948203952304920342n, ['23,1e27', true]],
   ])('displayBigNum %d -> %s', (input, output) => {
-    expect(displayBigNum(input)).toEqual(output)
-  })
-
-  afterAll(() => {
-    Object.defineProperty(global.navigator, 'language', {
-      value: originalLanguage,
-      writable: true,
-    })
+    expect(displayBigNum(input, 'de-DE')).toEqual(output)
   })
 })
 
@@ -188,8 +169,8 @@ it.each([
   ['en-CA'],
   ['en-IN'],
   ['ko-KR'],
-])('toEngNotation dots %s', (locale) => {
-  expect(toEngNotation(n, locale)).toEqual('23.1e27')
+])('displayBigNum dots %s', (locale) => {
+  expect(displayBigNum(n, locale)).toEqual(['23.1e27', true])
 })
 
 it.each([
@@ -205,6 +186,27 @@ it.each([
   ['tr-TR'],
   ['pt-PT'],
   // ['ar-SA'], // saudi arabia, arabic script
-])('toEngNotation commas %s', (locale) => {
-  expect(toEngNotation(n, locale)).toEqual('23,1e27')
+])('displayBigNum commas %s', (locale) => {
+  expect(displayBigNum(n, locale)).toEqual(['23,1e27', true])
+})
+
+it.each([
+  [0, 0],
+  [1, 10],
+  [1.5, 10],
+  [9, 10],
+  [10, 10],
+  [10.0001, 20],
+  [11, 20],
+  [19, 20],
+  [20, 20],
+  [21, 30],
+  [99, 100],
+  [100, 100],
+  [101, 110],
+  [109, 110],
+  [110, 110],
+  [111, 120],
+])('nearest10 %d → %d', (input, output) => {
+  expect(nearest10(input)).toEqual(output)
 })

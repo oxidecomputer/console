@@ -7,12 +7,12 @@
  */
 import { expect, test } from '@playwright/test'
 
-import { expectObscured } from './utils'
+import { expectObscured, stopInstance } from './utils'
 
 test('Dropdown content can scroll off page and doesn’t hide TopBar', async ({ page }) => {
   // load the page
   await page.goto('/utilization')
-  await expect(page.getByText('Capacity & Utilization')).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Utilization' })).toBeVisible()
 
   const button = page.getByRole('button', { name: 'All projects' })
 
@@ -43,11 +43,9 @@ test('Dropdown content can scroll off page and doesn’t hide TopBar', async ({ 
 
 test('Dropdown content in SidebarModal shows on screen', async ({ page }) => {
   // go to an instance’s Network Interfaces page
-  await page.goto('/projects/mock-project/instances/db1/network-interfaces')
+  await page.goto('/projects/mock-project/instances/db1/networking')
 
-  // stop the instance
-  await page.getByRole('button', { name: 'Instance actions' }).click()
-  await page.getByRole('menuitem', { name: 'Stop' }).click()
+  await stopInstance(page)
 
   // open the add network interface side modal
   await page.getByRole('button', { name: 'Add network interface' }).click()

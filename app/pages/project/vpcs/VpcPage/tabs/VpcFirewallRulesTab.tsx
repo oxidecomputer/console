@@ -6,30 +6,32 @@
  * Copyright Oxide Computer Company
  */
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
+import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
+import * as R from 'remeda'
 
 import {
+  apiQueryClient,
   useApiMutation,
   useApiQueryClient,
   usePrefetchedApiQuery,
   type VpcFirewallRule,
 } from '@oxide/api'
 
-import { CreateFirewallRuleForm } from '~/forms/firewall-rules-create'
-import { EditFirewallRuleForm } from '~/forms/firewall-rules-edit'
-import { useVpcSelector } from '~/hooks'
+import { ListPlusCell } from '~/components/ListPlusCell'
+import { getVpcSelector, useVpcSelector } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
-import { DateCell } from '~/table/cells/DateCell'
 import { EnabledCell } from '~/table/cells/EnabledCell'
-import { FirewallFilterCell } from '~/table/cells/FirewallFilterCell'
-import { ButtonCell } from '~/table/cells/LinkCell'
-import { TypeValueListCell } from '~/table/cells/TypeValueListCell'
+import { LinkCell } from '~/table/cells/LinkCell'
+import { TypeValueCell } from '~/table/cells/TypeValueCell'
 import { getActionsCol } from '~/table/columns/action-col'
+import { Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
-import { Button } from '~/ui/lib/Button'
+import { Badge } from '~/ui/lib/Badge'
+import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableEmptyBox } from '~/ui/lib/Table'
-import { sortBy } from '~/util/array'
+import { pb } from '~/util/path-builder'
 import { titleCase } from '~/util/str'
 
 const colHelper = createColumnHelper<VpcFirewallRule>()
@@ -50,33 +52,67 @@ const staticColumns = [
   }),
   colHelper.accessor('targets', {
     header: 'Targets',
-    cell: (info) => <TypeValueListCell value={info.getValue()} />,
+    cell: (info) => {
+      const targets = info.getValue()
+      const children = targets.map(({ type, value }) => (
+        <TypeValueCell key={type + '|' + value} type={type} value={value} />
+      ))
+      // if there's going to be overflow anyway, might as well make the cell narrow
+      const numInCell = children.length <= 2 ? 2 : 1
+      return (
+        <ListPlusCell numInCell={numInCell} tooltipTitle="Other targets">
+          {info.getValue().map(({ type, value }) => (
+            <TypeValueCell key={type + '|' + value} type={type} value={value} />
+          ))}
+        </ListPlusCell>
+      )
+    },
   }),
   colHelper.accessor('filters', {
     header: 'Filters',
-    cell: (info) => <FirewallFilterCell value={info.getValue()} />,
+    cell: (info) => {
+      const { hosts, ports, protocols } = info.getValue()
+      const children = [
+        ...(hosts || []).map((tv, i) => (
+          <TypeValueCell key={`host-${tv.type}-${tv.value}-${i}`} {...tv} />
+        )),
+        ...(protocols || []).map((p, i) => <Badge key={`${p}-${i}`}>{p}</Badge>),
+        ...(ports || []).map((p, i) => (
+          <TypeValueCell key={`port-${p}-${i}`} type="Port" value={p} />
+        )),
+      ]
+      // if there's going to be overflow anyway, might as well make the cell narrow
+      const numInCell = children.length <= 2 ? 2 : 1
+      return (
+        <ListPlusCell numInCell={numInCell} tooltipTitle="Other filters">
+          {children}
+        </ListPlusCell>
+      )
+    },
   }),
   colHelper.accessor('status', {
     header: 'Status',
     cell: (info) => <EnabledCell value={info.getValue()} />,
   }),
-  colHelper.accessor('timeCreated', {
-    header: 'Created',
-    cell: (info) => <DateCell value={info.getValue()} />,
-  }),
+  colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
-export const VpcFirewallRulesTab = () => {
+VpcFirewallRulesTab.loader = async ({ params }: LoaderFunctionArgs) => {
+  const { project, vpc } = getVpcSelector(params)
+  await apiQueryClient.prefetchQuery('vpcFirewallRulesView', { query: { project, vpc } })
+  return null
+}
+
+export function VpcFirewallRulesTab() {
   const queryClient = useApiQueryClient()
   const vpcSelector = useVpcSelector()
 
   const { data } = usePrefetchedApiQuery('vpcFirewallRulesView', {
     query: vpcSelector,
   })
-  const rules = useMemo(() => sortBy(data.rules, (r) => r.priority), [data])
+  const rules = useMemo(() => R.sortBy(data.rules, (r) => r.priority), [data])
 
-  const [createModalOpen, setCreateModalOpen] = useState(false)
-  const [editing, setEditing] = useState<VpcFirewallRule | null>(null)
+  const navigate = useNavigate()
 
   const updateRules = useApiMutation('vpcFirewallRulesUpdate', {
     onSuccess() {
@@ -90,14 +126,19 @@ export const VpcFirewallRulesTab = () => {
       colHelper.accessor('name', {
         header: 'Name',
         cell: (info) => (
-          <ButtonCell onClick={() => setEditing(info.row.original)}>
+          <LinkCell to={pb.vpcFirewallRuleEdit({ ...vpcSelector, rule: info.getValue() })}>
             {info.getValue()}
-          </ButtonCell>
+          </LinkCell>
         ),
       }),
       ...staticColumns,
       getActionsCol((rule: VpcFirewallRule) => [
-        { label: 'Edit', onActivate: () => setEditing(rule) },
+        {
+          label: 'Edit',
+          onActivate() {
+            navigate(pb.vpcFirewallRuleEdit({ ...vpcSelector, rule: rule.name }))
+          },
+        },
         {
           label: 'Delete',
           onActivate: confirmDelete({
@@ -113,7 +154,7 @@ export const VpcFirewallRulesTab = () => {
         },
       ]),
     ]
-  }, [setEditing, rules, updateRules, vpcSelector])
+  }, [navigate, rules, updateRules, vpcSelector])
 
   const table = useReactTable({ columns, data: rules, getCoreRowModel: getCoreRowModel() })
 
@@ -123,7 +164,7 @@ export const VpcFirewallRulesTab = () => {
         title="No firewall rules"
         body="You need to create a rule to be able to see it here"
         buttonText="New rule"
-        onClick={() => setCreateModalOpen(true)}
+        buttonTo={pb.vpcFirewallRulesNew(vpcSelector)}
       />
     </TableEmptyBox>
   )
@@ -131,24 +172,10 @@ export const VpcFirewallRulesTab = () => {
   return (
     <>
       <div className="mb-3 flex justify-end space-x-2">
-        <Button size="sm" onClick={() => setCreateModalOpen(true)}>
-          New rule
-        </Button>
-        {createModalOpen && (
-          <CreateFirewallRuleForm
-            existingRules={rules}
-            onDismiss={() => setCreateModalOpen(false)}
-          />
-        )}
-        {editing && (
-          <EditFirewallRuleForm
-            existingRules={rules}
-            originalRule={editing}
-            onDismiss={() => setEditing(null)}
-          />
-        )}
+        <CreateLink to={pb.vpcFirewallRulesNew(vpcSelector)}>New rule</CreateLink>
       </div>
       {rules.length > 0 ? <Table table={table} /> : emptyState}
+      <Outlet />
     </>
   )
 }

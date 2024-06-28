@@ -7,24 +7,26 @@
  */
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
-import { Link, Outlet, type LoaderFunctionArgs } from 'react-router-dom'
+import { Outlet, type LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, useApiMutation, useApiQueryClient, type Image } from '@oxide/api'
-import { Images24Icon } from '@oxide/design-system/icons/react'
+import { Images16Icon, Images24Icon } from '@oxide/design-system/icons/react'
 
-import { getProjectSelector, useProjectSelector, useToast } from '~/hooks'
+import { DocsPopover } from '~/components/DocsPopover'
+import { getProjectSelector, useProjectSelector } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
-import { DateCell } from '~/table/cells/DateCell'
+import { addToast } from '~/stores/toast'
 import { makeLinkCell } from '~/table/cells/LinkCell'
-import { SizeCell } from '~/table/cells/SizeCell'
 import { getActionsCol, type MenuAction } from '~/table/columns/action-col'
-import { useQueryTable } from '~/table/QueryTable'
-import { buttonStyle } from '~/ui/lib/Button'
+import { Columns } from '~/table/columns/common'
+import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
+import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 const EmptyState = () => (
@@ -37,21 +39,20 @@ const EmptyState = () => (
   />
 )
 
-const columnHelper = createColumnHelper<Image>()
+const colHelper = createColumnHelper<Image>()
 
 ImagesPage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project } = getProjectSelector(params)
   await apiQueryClient.prefetchQuery('imageList', {
-    query: { project, limit: 25 },
+    query: { project, limit: PAGE_SIZE },
   })
   return null
 }
 
 export function ImagesPage() {
-  const projectSelector = useProjectSelector()
-  const { Table } = useQueryTable('imageList', { query: projectSelector })
+  const { project } = useProjectSelector()
+  const { Table } = useQueryTable('imageList', { query: { project } })
   const queryClient = useApiQueryClient()
-  const addToast = useToast()
 
   const [promoteImageName, setPromoteImageName] = useState<string | null>(null)
 
@@ -74,45 +75,40 @@ export function ImagesPage() {
           doDelete: () =>
             deleteImage.mutateAsync({
               path: { image: image.name },
-              query: projectSelector,
+              query: { project },
             }),
           label: image.name,
         }),
       },
     ],
-    [deleteImage, projectSelector]
+    [deleteImage, project]
   )
 
   const columns = useMemo(() => {
     return [
-      columnHelper.accessor('name', {
-        cell: makeLinkCell((image) => pb.projectImageEdit({ ...projectSelector, image })),
+      colHelper.accessor('name', {
+        cell: makeLinkCell((image) => pb.projectImageEdit({ project, image })),
       }),
-      columnHelper.accessor('description', {}),
-      columnHelper.accessor('size', {
-        header: 'size',
-        cell: (info) => <SizeCell value={info.getValue()} />,
-      }),
-      columnHelper.accessor('timeCreated', {
-        header: 'created',
-        cell: (info) => <DateCell value={info.getValue()} />,
-      }),
+      colHelper.accessor('description', Columns.description),
+      colHelper.accessor('size', Columns.size),
+      colHelper.accessor('timeCreated', Columns.timeCreated),
       getActionsCol(makeActions),
     ]
-  }, [projectSelector, makeActions])
+  }, [project, makeActions])
 
   return (
     <>
       <PageHeader>
         <PageTitle icon={<Images24Icon />}>Images</PageTitle>
+        <DocsPopover
+          heading="Images"
+          icon={<Images16Icon />}
+          summary="Images let you create a new disk based on an existing one. Images can be uploaded directly or created from a snapshot."
+          links={[docLinks.images]}
+        />
       </PageHeader>
       <TableActions>
-        <Link
-          to={pb.projectImagesNew(projectSelector)}
-          className={buttonStyle({ size: 'sm' })}
-        >
-          Upload image
-        </Link>
+        <CreateLink to={pb.projectImagesNew({ project })}>Upload image</CreateLink>
       </TableActions>
       <Table columns={columns} emptyState={<EmptyState />} />
       {promoteImageName && (
@@ -129,9 +125,9 @@ export function ImagesPage() {
 type PromoteModalProps = { onDismiss: () => void; imageName: string }
 
 const PromoteImageModal = ({ onDismiss, imageName }: PromoteModalProps) => {
-  const projectSelector = useProjectSelector()
+  const { project } = useProjectSelector()
   const queryClient = useApiQueryClient()
-  const addToast = useToast()
+
   const promoteImage = useApiMutation('imagePromote', {
     onSuccess(data) {
       addToast({
@@ -150,7 +146,7 @@ const PromoteImageModal = ({ onDismiss, imageName }: PromoteModalProps) => {
   })
 
   const onAction = () => {
-    promoteImage.mutate({ path: { image: imageName }, query: projectSelector })
+    promoteImage.mutate({ path: { image: imageName }, query: { project } })
   }
 
   return (

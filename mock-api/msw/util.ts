@@ -25,7 +25,6 @@ import {
 } from '@oxide/api'
 
 import { json, type Json } from '~/api/__generated__/msw-handlers'
-import { isTruthy } from '~/util/array'
 import { validateIp } from '~/util/str'
 import { GiB, TiB } from '~/util/units'
 
@@ -92,8 +91,11 @@ export function getTimestamps() {
   return { time_created: now, time_modified: now }
 }
 
+export const forbiddenErr = () =>
+  json({ error_code: 'Forbidden', request_id: 'fake-id' }, { status: 403 })
+
 export const unavailableErr = () =>
-  json({ error_code: 'ServiceUnavailable' }, { status: 503 })
+  json({ error_code: 'ServiceUnavailable', request_id: 'fake-id' }, { status: 503 })
 
 export const NotImplemented = () => {
   // This doesn't just return the response because it broadens the type to be usable
@@ -101,7 +103,8 @@ export const NotImplemented = () => {
   throw json({ error_code: 'NotImplemented' }, { status: 501 })
 }
 
-export const internalError = () => json({ error_code: 'InternalError' }, { status: 500 })
+export const internalError = (message: string) =>
+  json({ error_code: 'InternalError', message }, { status: 500 })
 
 export const errIfExists = <T extends Record<string, unknown>>(
   collection: T[],
@@ -113,11 +116,16 @@ export const errIfExists = <T extends Record<string, unknown>>(
       Object.entries(match).every(([key, value]) => item[key] === value)
     )
   ) {
-    const name = 'name' in match ? match.name : 'id' in match ? match.id : '<resource>'
+    const name =
+      'name' in match && match.name
+        ? match.name
+        : 'id' in match && match.id
+          ? match.id
+          : '<resource>'
     throw json(
       {
         error_code: 'ObjectAlreadyExists',
-        message: `already exists: ${resourceLabel} "${name}"`,
+        message: `already exists: ${resourceLabel} "${name.toString()}"`,
       },
       { status: 400 }
     )
@@ -334,7 +342,7 @@ export function userHasRole(
   const userGroupIds = db.groupMemberships
     .filter((gm) => gm.userId === user.id)
     .map((gm) => db.userGroups.find((g) => g.id === gm.groupId))
-    .filter(isTruthy)
+    .filter((g) => !!g)
     .map((g) => g.id)
 
   /** All actors with *at least* the specified role on the resource */

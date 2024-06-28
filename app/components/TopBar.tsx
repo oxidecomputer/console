@@ -27,12 +27,7 @@ import { pb } from '~/util/path-builder'
 export function TopBar({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate()
   const logout = useApiMutation('logout', {
-    onSuccess: () => {
-      // server will respond to /login with a login redirect
-      // TODO-usability: do we just want to dump them back to login or is there
-      // another page that would make sense, like a logged out homepage
-      navToLogin({ includeCurrent: false })
-    },
+    onSuccess: () => navToLogin({ includeCurrent: false }),
   })
   // fetch happens in loader wrapping all authed pages
   const { me } = useCurrentUser()
@@ -51,7 +46,7 @@ export function TopBar({ children }: { children: React.ReactNode }) {
         <Button
           variant="ghost"
           size="icon"
-          className="mr-2 w-8 flex-shrink-0 lg+:hidden [&>*]:pointer-events-none"
+          className="mr-2 w-8 shrink-0 lg+:hidden [&>*]:pointer-events-none"
           title="Sidebar"
           onClick={() => {
             if (isOpen) {

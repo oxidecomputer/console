@@ -8,7 +8,7 @@
 
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
-import { Link, Outlet, useNavigate } from 'react-router-dom'
+import { Outlet, useNavigate } from 'react-router-dom'
 
 import {
   apiQueryClient,
@@ -17,23 +17,27 @@ import {
   usePrefetchedApiQuery,
   type IpPool,
 } from '@oxide/api'
-import { Networking24Icon } from '@oxide/design-system/icons/react'
+import { IpGlobal16Icon, IpGlobal24Icon } from '@oxide/design-system/icons/react'
 
+import { DocsPopover } from '~/components/DocsPopover'
 import { IpUtilCell } from '~/components/IpPoolUtilization'
 import { useQuickActions } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
-import { DateCell } from '~/table/cells/DateCell'
 import { SkeletonCell } from '~/table/cells/EmptyCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
-import { useQueryTable } from '~/table/QueryTable'
-import { buttonStyle } from '~/ui/lib/Button'
+import { Columns } from '~/table/columns/common'
+import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
+import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
+import { TableActions } from '~/ui/lib/Table'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 const EmptyState = () => (
   <EmptyMessage
-    icon={<Networking24Icon />}
+    icon={<IpGlobal24Icon />}
     title="No IP pools"
     body="You need to create an IP pool to be able to see it here"
     buttonText="New IP pool"
@@ -52,26 +56,25 @@ const colHelper = createColumnHelper<IpPool>()
 
 const staticColumns = [
   colHelper.accessor('name', { cell: makeLinkCell((pool) => pb.ipPool({ pool })) }),
-  colHelper.accessor('description', {}),
+  colHelper.accessor('description', Columns.description),
   colHelper.accessor('name', {
     header: 'Utilization',
     cell: (info) => <UtilizationCell pool={info.getValue()} />,
   }),
-  colHelper.accessor('timeCreated', {
-    header: 'Created',
-    cell: (info) => <DateCell value={info.getValue()} />,
-  }),
+  colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
-IpPoolsTab.loader = async function () {
-  await apiQueryClient.prefetchQuery('ipPoolList', { query: { limit: 25 } })
+IpPoolsPage.loader = async function () {
+  await apiQueryClient.prefetchQuery('ipPoolList', { query: { limit: PAGE_SIZE } })
   return null
 }
 
-export function IpPoolsTab() {
+export function IpPoolsPage() {
   const navigate = useNavigate()
   const { Table } = useQueryTable('ipPoolList', {})
-  const { data: pools } = usePrefetchedApiQuery('ipPoolList', { query: { limit: 25 } })
+  const { data: pools } = usePrefetchedApiQuery('ipPoolList', {
+    query: { limit: PAGE_SIZE },
+  })
 
   const deletePool = useApiMutation('ipPoolDelete', {
     onSuccess() {
@@ -122,11 +125,18 @@ export function IpPoolsTab() {
 
   return (
     <>
-      <div className="mb-3 flex justify-end space-x-2">
-        <Link to={pb.ipPoolsNew()} className={buttonStyle({ size: 'sm' })}>
-          New IP Pool
-        </Link>
-      </div>
+      <PageHeader>
+        <PageTitle icon={<IpGlobal24Icon />}>IP Pools</PageTitle>
+        <DocsPopover
+          heading="IP pools"
+          icon={<IpGlobal16Icon />}
+          summary="IP pools are collections of external IPs you can assign to silos. When a pool is linked to a silo, users in that silo can allocate IPs from the pool for their instances."
+          links={[docLinks.systemIpPools]}
+        />
+      </PageHeader>
+      <TableActions>
+        <CreateLink to={pb.ipPoolsNew()}>New IP Pool</CreateLink>
+      </TableActions>
       <Table columns={columns} emptyState={<EmptyState />} />
       <Outlet />
     </>

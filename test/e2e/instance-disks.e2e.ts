@@ -13,13 +13,12 @@ import {
   expectVisible,
   stopInstance,
   test,
-} from '../utils'
+} from './utils'
 
 test('Attach disk', async ({ page }) => {
   await page.goto('/projects/mock-project/instances/db1')
 
-  const warning =
-    'A disk cannot be added or attached unless the instance is creating or stopped.'
+  const warning = 'The instance must be stopped to add or attach a disk.'
   await expect(page.getByText(warning)).toBeVisible()
 
   const row = page.getByRole('row', { name: 'disk-1', exact: false })
@@ -30,7 +29,7 @@ test('Attach disk', async ({ page }) => {
   await expect(page.getByRole('menuitem', { name: 'Detach' })).toBeDisabled()
   await page.getByRole('menuitem', { name: 'Detach' }).hover()
   await expect(
-    page.getByText('Instance must be in state creating, stopped, or failed')
+    page.getByText('Instance must be stopped before disk can be detached')
   ).toBeVisible()
   await page.keyboard.press('Escape') // close menu
 
@@ -59,10 +58,12 @@ test('Attach disk', async ({ page }) => {
   await expectVisible(page, ['role=dialog >> text="Disk name is required"'])
 
   await page.click('role=button[name*="Disk name"]')
+  // disk-1 is already attached, so should not be visible in the list
+  await expectNotVisible(page, ['role=option[name="disk-1"]'])
   await expectVisible(page, ['role=option[name="disk-3"]', 'role=option[name="disk-4"]'])
   await page.click('role=option[name="disk-3"]')
 
-  await page.click('role=button[name="Attach Disk"]')
+  await page.click('role=button[name="Attach disk"]')
   await expectVisible(page, ['role=cell[name="disk-3"]'])
 })
 

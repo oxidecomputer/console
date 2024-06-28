@@ -12,8 +12,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { useApiMutation, useApiQuery, useApiQueryClient, type SiloIpPool } from '@oxide/api'
 import { Networking24Icon } from '@oxide/design-system/icons/react'
 
-import { ExternalLink } from '~/components/ExternalLink'
-import { ListboxField } from '~/components/form/fields/ListboxField'
+import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { HL } from '~/components/HL'
 import { useForm, useSiloSelector } from '~/hooks'
 import { confirmAction } from '~/stores/confirm-action'
@@ -21,12 +20,12 @@ import { addToast } from '~/stores/toast'
 import { DefaultPoolCell } from '~/table/cells/DefaultPoolCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
+import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
+import { CreateButton } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
-import { TableControls, TableControlsButton, TableControlsText } from '~/ui/lib/Table'
-import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 const EmptyState = () => (
@@ -43,7 +42,7 @@ const colHelper = createColumnHelper<SiloIpPool>()
 
 const staticCols = [
   colHelper.accessor('name', { cell: makeLinkCell((pool) => pb.ipPool({ pool })) }),
-  colHelper.accessor('description', {}),
+  colHelper.accessor('description', Columns.description),
   colHelper.accessor('isDefault', {
     header: 'Default',
     cell: (info) => <DefaultPoolCell isDefault={info.getValue()} />,
@@ -161,17 +160,9 @@ export function SiloIpPoolsTab() {
 
   return (
     <>
-      <TableControls>
-        <TableControlsText>
-          Users in this silo can allocate external IPs from these pools for their instances.
-          A silo can have at most one default pool. IPs are allocated from the default pool
-          when users ask for one without specifying a pool. Read the docs to learn more
-          about <ExternalLink href={links.ipPoolsDocs}>managing IP pools</ExternalLink>.
-        </TableControlsText>
-        <TableControlsButton onClick={() => setShowLinkModal(true)}>
-          Link pool
-        </TableControlsButton>
-      </TableControls>
+      <div className="mb-3 flex justify-end">
+        <CreateButton onClick={() => setShowLinkModal(true)}>Link pool</CreateButton>
+      </div>
       <Table columns={columns} emptyState={<EmptyState />} />
       {showLinkModal && <LinkPoolModal onDismiss={() => setShowLinkModal(false)} />}
     </>
@@ -244,7 +235,7 @@ function LinkPoolModal({ onDismiss }: { onDismiss: () => void }) {
               content="Users in this silo will be able to allocate IPs from the selected pool."
             />
 
-            <ListboxField
+            <ComboboxField
               placeholder="Select pool"
               name="pool"
               label="IP pool"

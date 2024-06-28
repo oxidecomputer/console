@@ -7,7 +7,7 @@
  */
 import { expect, test } from '@playwright/test'
 
-import { expectNotVisible, expectVisible } from './utils'
+import { closeToast, expectNotVisible, expectVisible } from './utils'
 
 test('Create and edit VPC', async ({ page }) => {
   await page.goto('/projects/mock-project')
@@ -46,7 +46,7 @@ test('Create and edit VPC', async ({ page }) => {
   await page.click('role=button[name="Update VPC"]')
 
   // Close toast, it holds up the test for some reason
-  await page.click('role=button[name="Dismiss notification"]')
+  await closeToast(page)
 
   await expect(page.getByRole('link', { name: 'new-vpc' })).toBeVisible()
 })
@@ -57,16 +57,14 @@ test('Create and edit subnet', async ({ page }) => {
   // VPC detail, subnets tab
   await expectVisible(page, [
     'role=heading[name*="mock-vpc"]',
-    'role=tab[name="Subnets"]',
-    // 'role=tab[name="System Routes"]',
-    // 'role=tab[name="Routers"]',
     'role=tab[name="Firewall Rules"]',
-    'role=cell[name="mock-subnet"]',
-    // TODO: assert minitable contents
+    'role=cell[name="allow-icmp"]',
   ])
 
+  await page.getByRole('tab', { name: 'Subnets' }).click()
+
   // Create subnet
-  await page.click('role=button[name="New subnet"]')
+  await page.click('role=link[name="New subnet"]')
   await expectVisible(page, [
     'role=heading[name="Create subnet"]',
     'role=button[name="Create subnet"]',

@@ -7,27 +7,31 @@
  */
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
-import { Link, Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
+import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
   apiQueryClient,
   useApiMutation,
+  useApiQuery,
   useApiQueryClient,
   usePrefetchedApiQuery,
   type Vpc,
 } from '@oxide/api'
-import { Networking24Icon } from '@oxide/design-system/icons/react'
+import { Networking16Icon, Networking24Icon } from '@oxide/design-system/icons/react'
 
+import { DocsPopover } from '~/components/DocsPopover'
 import { getProjectSelector, useProjectSelector, useQuickActions } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
-import { DateCell } from '~/table/cells/DateCell'
-import { makeLinkCell } from '~/table/cells/LinkCell'
+import { SkeletonCell } from '~/table/cells/EmptyCell'
+import { LinkCell, makeLinkCell } from '~/table/cells/LinkCell'
 import { getActionsCol, type MenuAction } from '~/table/columns/action-col'
-import { useQueryTable } from '~/table/QueryTable'
-import { buttonStyle } from '~/ui/lib/Button'
+import { Columns } from '~/table/columns/common'
+import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
+import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 const EmptyState = () => (
@@ -40,13 +44,30 @@ const EmptyState = () => (
   />
 )
 
+export const VpcDocsPopover = () => (
+  <DocsPopover
+    heading="VPCs"
+    icon={<Networking16Icon />}
+    summary="VPCs are private networks that isolate sets of instances from each other. Instances within a VPC can talk to each other using private IP addresses (if firewall rules allow it) but traffic between VPCs must go through external IPs."
+    links={[docLinks.vpcs, docLinks.firewallRules]}
+  />
+)
+
+const FirewallRuleCount = ({ project, vpc }: { project: string; vpc: string }) => {
+  const { data } = useApiQuery('vpcFirewallRulesView', { query: { project, vpc } })
+
+  if (!data) return <SkeletonCell /> // loading
+
+  return <LinkCell to={pb.vpc({ project, vpc })}>{data.rules.length}</LinkCell>
+}
+
 const colHelper = createColumnHelper<Vpc>()
 
-// just as in the vpcList call for the quick actions menu, include limit: 25 to make
+// just as in the vpcList call for the quick actions menu, include limit to make
 // sure it matches the call in the QueryTable
 VpcsPage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project } = getProjectSelector(params)
-  await apiQueryClient.prefetchQuery('vpcList', { query: { project, limit: 25 } })
+  await apiQueryClient.prefetchQuery('vpcList', { query: { project, limit: PAGE_SIZE } })
   return null
 }
 
@@ -54,7 +75,9 @@ export function VpcsPage() {
   const queryClient = useApiQueryClient()
   const { project } = useProjectSelector()
   // to have same params as QueryTable
-  const { data: vpcs } = usePrefetchedApiQuery('vpcList', { query: { project, limit: 25 } })
+  const { data: vpcs } = usePrefetchedApiQuery('vpcList', {
+    query: { project, limit: PAGE_SIZE },
+  })
   const navigate = useNavigate()
 
   const deleteVpc = useApiMutation('vpcDelete', {
@@ -106,11 +129,12 @@ export function VpcsPage() {
         cell: makeLinkCell((vpc) => pb.vpc({ project, vpc })),
       }),
       colHelper.accessor('dnsName', { header: 'DNS name' }),
-      colHelper.accessor('description', {}),
-      colHelper.accessor('timeCreated', {
-        header: 'created',
-        cell: (info) => <DateCell value={info.getValue()} />,
+      colHelper.accessor('description', Columns.description),
+      colHelper.accessor('name', {
+        header: 'Firewall Rules',
+        cell: (info) => <FirewallRuleCount project={project} vpc={info.getValue()} />,
       }),
+      colHelper.accessor('timeCreated', Columns.timeCreated),
       getActionsCol(makeActions),
     ],
     [project, makeActions]
@@ -121,11 +145,10 @@ export function VpcsPage() {
     <>
       <PageHeader>
         <PageTitle icon={<Networking24Icon />}>VPCs</PageTitle>
+        <VpcDocsPopover />
       </PageHeader>
       <TableActions>
-        <Link to={pb.vpcsNew({ project })} className={buttonStyle({ size: 'sm' })}>
-          New Vpc
-        </Link>
+        <CreateLink to={pb.vpcsNew({ project })}>New Vpc</CreateLink>
       </TableActions>
       <Table columns={columns} emptyState={<EmptyState />} />
       <Outlet />

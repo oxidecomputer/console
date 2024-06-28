@@ -66,7 +66,7 @@ export function ProjectLayout({ overrideContentPane }: ProjectLayoutProps) {
           { value: 'Images', path: pb.projectImages(projectSelector) },
           { value: 'VPCs', path: pb.vpcs(projectSelector) },
           { value: 'Floating IPs', path: pb.floatingIps(projectSelector) },
-          { value: 'Access & IAM', path: pb.projectAccess(projectSelector) },
+          { value: 'Access', path: pb.projectAccess(projectSelector) },
         ]
           // filter out the entry for the path we're currently on
           .filter((i) => i.path !== pathname)
@@ -115,7 +115,7 @@ export function ProjectLayout({ overrideContentPane }: ProjectLayoutProps) {
             <IpGlobal16Icon /> Floating IPs
           </NavLinkItem>
           <NavLinkItem to={pb.projectAccess(projectSelector)}>
-            <Access16Icon title="Access & IAM" /> Access &amp; IAM
+            <Access16Icon title="Access" /> Access
           </NavLinkItem>
         </Sidebar.Nav>
       </Sidebar>

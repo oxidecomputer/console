@@ -43,6 +43,7 @@ export function MswBanner() {
       <label className="fixed bottom-0 z-topBar flex h-10 w-full items-center justify-center text-sans-md text-info-secondary bg-info-secondary [&+*]:pt-[calc(--navigation-height)]">
         <Info16Icon className="mr-2" /> This is a technical preview.
         <button
+          type="button"
           className="ml-2 flex items-center gap-0.5 text-sans-md hover:text-info"
           onClick={() => setIsOpen(true)}
         >

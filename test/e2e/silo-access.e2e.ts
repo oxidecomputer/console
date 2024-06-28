@@ -15,9 +15,9 @@ test('Click through silo access page', async ({ page }) => {
   const table = page.locator('role=table')
 
   // page is there, we see user 1 and 2 but not 3
-  await page.click('role=link[name*="Access & IAM"]')
+  await page.click('role=link[name*="Access"]')
 
-  await expectVisible(page, ['role=heading[name*="Access & IAM"]'])
+  await expectVisible(page, ['role=heading[name*="Access"]'])
   await expectRowVisible(table, {
     Name: 'real-estate-devs',
     Type: 'Group',

@@ -10,42 +10,34 @@ import type { LoaderFunctionArgs } from 'react-router-dom'
 import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import { Networking24Icon } from '@oxide/design-system/icons/react'
 
-import { QueryParamTabs } from '~/components/QueryParamTabs'
+import { RouteTabs, Tab } from '~/components/RouteTabs'
 import { getVpcSelector, useVpcSelector } from '~/hooks'
 import { EmptyCell } from '~/table/cells/EmptyCell'
+import { DateTime } from '~/ui/lib/DateTime'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
-import { Tabs } from '~/ui/lib/Tabs'
-import { formatDateTime } from '~/util/date'
+import { pb } from '~/util/path-builder'
 
-import { VpcFirewallRulesTab } from './tabs/VpcFirewallRulesTab'
-import { VpcSubnetsTab } from './tabs/VpcSubnetsTab'
+import { VpcDocsPopover } from '../VpcsPage'
 
 VpcPage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project, vpc } = getVpcSelector(params)
-  await Promise.all([
-    apiQueryClient.prefetchQuery('vpcView', { path: { vpc }, query: { project } }),
-    apiQueryClient.prefetchQuery('vpcFirewallRulesView', {
-      query: { project, vpc },
-    }),
-    apiQueryClient.prefetchQuery('vpcSubnetList', {
-      query: { project, vpc, limit: 25 },
-    }),
-  ])
+  await apiQueryClient.prefetchQuery('vpcView', { path: { vpc }, query: { project } })
   return null
 }
 
 export function VpcPage() {
-  const { project, vpc: vpcName } = useVpcSelector()
+  const vpcSelector = useVpcSelector()
   const { data: vpc } = usePrefetchedApiQuery('vpcView', {
-    path: { vpc: vpcName },
-    query: { project },
+    path: { vpc: vpcSelector.vpc },
+    query: { project: vpcSelector.project },
   })
 
   return (
     <>
       <PageHeader>
         <PageTitle icon={<Networking24Icon />}>{vpc.name}</PageTitle>
+        <VpcDocsPopover />
       </PageHeader>
       <PropertiesTable.Group className="mb-16 md-:mb-10">
         <PropertiesTable>
@@ -56,26 +48,18 @@ export function VpcPage() {
         </PropertiesTable>
         <PropertiesTable>
           <PropertiesTable.Row label="Created">
-            {formatDateTime(vpc.timeCreated)}
+            <DateTime date={vpc.timeCreated} />
           </PropertiesTable.Row>
           <PropertiesTable.Row label="Last Modified">
-            {formatDateTime(vpc.timeModified)}
+            <DateTime date={vpc.timeModified} />
           </PropertiesTable.Row>
         </PropertiesTable>
       </PropertiesTable.Group>
 
-      <QueryParamTabs className="full-width" defaultValue="subnets">
-        <Tabs.List>
-          <Tabs.Trigger value="subnets">Subnets</Tabs.Trigger>
-          <Tabs.Trigger value="firewall-rules">Firewall Rules</Tabs.Trigger>
-        </Tabs.List>
-        <Tabs.Content value="subnets">
-          <VpcSubnetsTab />
-        </Tabs.Content>
-        <Tabs.Content value="firewall-rules">
-          <VpcFirewallRulesTab />
-        </Tabs.Content>
-      </QueryParamTabs>
+      <RouteTabs fullWidth>
+        <Tab to={pb.vpcFirewallRules(vpcSelector)}>Firewall Rules</Tab>
+        <Tab to={pb.vpcSubnets(vpcSelector)}>Subnets</Tab>
+      </RouteTabs>
     </>
   )
 }

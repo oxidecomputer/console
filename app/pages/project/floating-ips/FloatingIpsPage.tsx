@@ -13,34 +13,39 @@ import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 import {
   apiQueryClient,
   useApiMutation,
+  useApiQuery,
   useApiQueryClient,
   usePrefetchedApiQuery,
   type FloatingIp,
   type Instance,
 } from '@oxide/api'
-import { IpGlobal24Icon, Networking24Icon } from '@oxide/design-system/icons/react'
+import { IpGlobal16Icon, IpGlobal24Icon } from '@oxide/design-system/icons/react'
 
-import { ExternalLink } from '~/components/ExternalLink'
+import { DocsPopover } from '~/components/DocsPopover'
 import { HL } from '~/components/HL'
 import { getProjectSelector, useProjectSelector } from '~/hooks'
 import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
+import { EmptyCell } from '~/table/cells/EmptyCell'
 import { InstanceLinkCell } from '~/table/cells/InstanceLinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
-import { useQueryTable } from '~/table/QueryTable'
+import { Columns } from '~/table/columns/common'
+import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
+import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Listbox } from '~/ui/lib/Listbox'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
-import { TableControls, TableControlsLink, TableControlsText } from '~/ui/lib/Table'
-import { links } from '~/util/links'
+import { TableActions } from '~/ui/lib/Table'
+import { Tooltip } from '~/ui/lib/Tooltip'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 const EmptyState = () => (
   <EmptyMessage
-    icon={<Networking24Icon />}
+    icon={<IpGlobal24Icon />}
     title="No floating IPs"
     body="You need to create a floating IP to be able to see it here"
     buttonText="New Floating IP"
@@ -52,20 +57,49 @@ FloatingIpsPage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project } = getProjectSelector(params)
   await Promise.all([
     apiQueryClient.prefetchQuery('floatingIpList', {
-      query: { project, limit: 25 },
+      query: { project, limit: PAGE_SIZE },
     }),
     apiQueryClient.prefetchQuery('instanceList', {
       query: { project },
     }),
+    apiQueryClient
+      .fetchQuery('projectIpPoolList', { query: { limit: 1000 } })
+      .then((pools) => {
+        for (const pool of pools.items) {
+          apiQueryClient.setQueryData(
+            'projectIpPoolView',
+            { path: { pool: pool.id } },
+            pool
+          )
+        }
+      }),
   ])
   return null
+}
+
+const IpPoolCell = ({ ipPoolId }: { ipPoolId: string }) => {
+  const pool = useApiQuery('projectIpPoolView', { path: { pool: ipPoolId } }).data
+  if (!pool) return <EmptyCell />
+  return pool.description ? (
+    <Tooltip content={pool.description} placement="right">
+      <span>{pool.name}</span>
+    </Tooltip>
+  ) : (
+    <>{pool.name}</>
+  )
 }
 
 const colHelper = createColumnHelper<FloatingIp>()
 const staticCols = [
   colHelper.accessor('name', {}),
-  colHelper.accessor('description', {}),
-  colHelper.accessor('ip', {}),
+  colHelper.accessor('description', Columns.description),
+  colHelper.accessor('ip', {
+    header: 'IP address',
+  }),
+  colHelper.accessor('ipPoolId', {
+    cell: (info) => <IpPoolCell ipPoolId={info.getValue()} />,
+    header: 'IP pool',
+  }),
   colHelper.accessor('instanceId', {
     cell: (info) => <InstanceLinkCell instanceId={info.getValue()} />,
     header: 'Attached to instance',
@@ -184,17 +218,16 @@ export function FloatingIpsPage() {
     <>
       <PageHeader>
         <PageTitle icon={<IpGlobal24Icon />}>Floating IPs</PageTitle>
+        <DocsPopover
+          heading="floating IPs"
+          icon={<IpGlobal16Icon />}
+          summary="Floating IPs exist independently of instances and can be attached to and detached from them as needed."
+          links={[docLinks.floatingIps]}
+        />
       </PageHeader>
-      <TableControls>
-        <TableControlsText>
-          Floating IPs are public IP addresses that can be attached to instances. They allow
-          your instances to be reachable from the internet. Find out more about{' '}
-          <ExternalLink href={links.floatingIpsDocs}>managing floating IPs</ExternalLink>.
-        </TableControlsText>
-        <TableControlsLink to={pb.floatingIpsNew({ project })}>
-          New Floating IP
-        </TableControlsLink>
-      </TableControls>
+      <TableActions>
+        <CreateLink to={pb.floatingIpsNew({ project })}>New Floating IP</CreateLink>
+      </TableActions>
       <Table columns={columns} emptyState={<EmptyState />} />
       <Outlet />
       {floatingIpToModify && (
@@ -227,7 +260,7 @@ const AttachFloatingIpModal = ({
   const floatingIpAttach = useApiMutation('floatingIpAttach', {
     onSuccess() {
       queryClient.invalidateQueries('floatingIpList')
-      addToast({ content: 'Your Floating IP has been attached' })
+      addToast({ content: 'Your floating IP has been attached' })
       onDismiss()
     },
     onError: (err) => {
@@ -237,7 +270,7 @@ const AttachFloatingIpModal = ({
   const form = useForm({ defaultValues: { instanceId: '' } })
 
   return (
-    <Modal isOpen title="Attach Floating IP" onDismiss={onDismiss}>
+    <Modal isOpen title="Attach floating IP" onDismiss={onDismiss}>
       <Modal.Body>
         <Modal.Section>
           <Message

@@ -84,15 +84,8 @@ export async function startMockAPI() {
     // pass through to the server
     onUnhandledRequest(req) {
       const path = new URL(req.url).pathname
-      // Files that get pulled in dynamic imports. It is expected that MSW will
-      // not handle them and they fall through to the dev server, so warning
-      // about them is just noise.
-      const ignore = [
-        path.startsWith('/app'),
-        path.startsWith('/libs'),
-        path.startsWith('/node_modules'),
-      ].some(Boolean)
-      if (!ignore) {
+      // only warn on unhandled requests that are actually to API paths
+      if (path.startsWith('/v1/')) {
         // message format copied from MSW source
         console.warn(`[MSW] Warning: captured an API request without a matching request handler:
 

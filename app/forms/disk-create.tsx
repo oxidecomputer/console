@@ -5,7 +5,6 @@
  *
  * Copyright Oxide Computer Company
  */
-import { format } from 'date-fns'
 import { filesize } from 'filesize'
 import { useMemo } from 'react'
 import { useController, type Control } from 'react-hook-form'
@@ -29,11 +28,14 @@ import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
 import { RadioField } from '~/components/form/fields/RadioField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { useForm, useProjectSelector, useToast } from '~/hooks'
+import { useForm, useProjectSelector } from '~/hooks'
+import { addToast } from '~/stores/toast'
 import { FormDivider } from '~/ui/lib/Divider'
 import { FieldLabel } from '~/ui/lib/FieldLabel'
 import { Radio } from '~/ui/lib/Radio'
 import { RadioGroup } from '~/ui/lib/RadioGroup'
+import { Slash } from '~/ui/lib/Slash'
+import { toLocaleDateString } from '~/util/date'
 import { bytesToGiB, GiB } from '~/util/units'
 
 const blankDiskSource: DiskSource = {
@@ -69,8 +71,6 @@ export function CreateDiskSideModalForm({
   onDismiss,
 }: CreateSideModalFormProps) {
   const queryClient = useApiQueryClient()
-  const projectSelector = useProjectSelector()
-  const addToast = useToast()
   const navigate = useNavigate()
 
   const createDisk = useApiMutation('diskCreate', {
@@ -95,7 +95,7 @@ export function CreateDiskSideModalForm({
   )
   const areImagesLoading = projectImages.isPending || siloImages.isPending
 
-  const snapshotsQuery = useApiQuery('snapshotList', { query: projectSelector })
+  const snapshotsQuery = useApiQuery('snapshotList', { query: { project } })
   const snapshots = snapshotsQuery.data?.items || []
 
   // validate disk source size
@@ -122,7 +122,7 @@ export function CreateDiskSideModalForm({
       onDismiss={() => onDismiss(navigate)}
       onSubmit={({ size, ...rest }) => {
         const body = { size: size * GiB, ...rest }
-        onSubmit ? onSubmit(body) : createDisk.mutate({ query: projectSelector, body })
+        onSubmit ? onSubmit(body) : createDisk.mutate({ query: { project }, body })
       }}
       loading={createDisk.isPending}
       submitError={createDisk.error}
@@ -238,9 +238,8 @@ const DiskNameFromId = ({ disk }: { disk: string }) => {
 }
 
 const SnapshotSelectField = ({ control }: { control: Control<DiskCreate> }) => {
-  const projectSelector = useProjectSelector()
-
-  const snapshotsQuery = useApiQuery('snapshotList', { query: projectSelector })
+  const { project } = useProjectSelector()
+  const snapshotsQuery = useApiQuery('snapshotList', { query: { project } })
 
   const snapshots = snapshotsQuery.data?.items || []
   const diskSizeField = useController({ control, name: 'size' }).field
@@ -255,15 +254,14 @@ const SnapshotSelectField = ({ control }: { control: Control<DiskCreate> }) => {
         const formattedSize = filesize(i.size, { base: 2, output: 'object' })
         return {
           value: i.id,
-          labelString: `${i.name}`,
+          selectedLabel: `${i.name}`,
           label: (
             <>
               <div>{i.name}</div>
               <div className="text-tertiary selected:text-accent-secondary">
-                Created on {format(i.timeCreated, 'MMM d, yyyy')}
-                <DiskNameFromId disk={i.diskId} />{' '}
-                <span className="mx-1 text-quinary selected:text-accent-disabled">/</span>{' '}
-                {formattedSize.value} {formattedSize.unit}
+                Created on {toLocaleDateString(i.timeCreated)}
+                <DiskNameFromId disk={i.diskId} /> <Slash /> {formattedSize.value}{' '}
+                {formattedSize.unit}
               </div>
             </>
           ),

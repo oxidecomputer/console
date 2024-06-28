@@ -7,18 +7,18 @@
  */
 import { createColumnHelper } from '@tanstack/react-table'
 import type { LoaderFunctionArgs } from 'react-router-dom'
+import * as R from 'remeda'
 
 import { apiQueryClient, type SledInstance } from '@oxide/api'
 import { Instances24Icon } from '@oxide/design-system/icons/react'
 
 import { InstanceStatusBadge } from '~/components/StatusBadge'
 import { requireSledParams, useSledParams } from '~/hooks'
-import { DateCell } from '~/table/cells/DateCell'
 import { InstanceResourceCell } from '~/table/cells/InstanceResourceCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
-import { useQueryTable } from '~/table/QueryTable'
+import { Columns } from '~/table/columns/common'
+import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
-import { pick } from '~/util/object'
 
 const EmptyState = () => {
   return (
@@ -34,7 +34,7 @@ SledInstancesTab.loader = async ({ params }: LoaderFunctionArgs) => {
   const { sledId } = requireSledParams(params)
   await apiQueryClient.prefetchQuery('sledInstanceList', {
     path: { sledId },
-    query: { limit: 25 },
+    query: { limit: PAGE_SIZE },
   })
   return null
 }
@@ -44,7 +44,7 @@ const makeActions = (): MenuAction[] => []
 
 const colHelper = createColumnHelper<SledInstance>()
 const staticCols = [
-  colHelper.accessor((i) => pick(i, 'name', 'siloName', 'projectName'), {
+  colHelper.accessor((i) => R.pick(i, ['name', 'siloName', 'projectName']), {
     header: 'name',
     cell: (info) => {
       const value = info.getValue()
@@ -60,29 +60,23 @@ const staticCols = [
     header: 'status',
     cell: (info) => <InstanceStatusBadge key="run-state" status={info.getValue()} />,
   }),
-  colHelper.accessor((i) => pick(i, 'memory', 'ncpus'), {
+  colHelper.accessor((i) => R.pick(i, ['memory', 'ncpus']), {
     header: 'specs',
     cell: (info) => <InstanceResourceCell value={info.getValue()} />,
   }),
-  colHelper.accessor('timeCreated', {
-    header: 'created',
-    cell: (info) => <DateCell value={info.getValue()} />,
-  }),
-  colHelper.accessor('timeModified', {
-    header: 'modified',
-    cell: (info) => <DateCell value={info.getValue()} />,
-  }),
+  colHelper.accessor('timeCreated', Columns.timeCreated),
+  colHelper.accessor('timeModified', Columns.timeModified),
 ]
 
 export function SledInstancesTab() {
   const { sledId } = useSledParams()
   const { Table } = useQueryTable(
     'sledInstanceList',
-    { path: { sledId }, query: { limit: 25 } },
+    { path: { sledId }, query: { limit: PAGE_SIZE } },
     { placeholderData: (x) => x }
   )
 
   const columns = useColsWithActions(staticCols, makeActions)
 
-  return <Table columns={columns} emptyState={<EmptyState />} />
+  return <Table columns={columns} emptyState={<EmptyState />} rowHeight="large" />
 }

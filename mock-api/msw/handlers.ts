@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { delay } from 'msw'
+import * as R from 'remeda'
 import { v4 as uuid } from 'uuid'
 
 import {
@@ -20,19 +21,25 @@ import {
 } from '@oxide/api'
 
 import { json, makeHandlers, type Json } from '~/api/__generated__/msw-handlers'
-import { partitionBy, sortBy } from '~/util/array'
-import { pick } from '~/util/object'
 import { validateIp } from '~/util/str'
 import { GiB } from '~/util/units'
 
 import { genCumulativeI64Data } from '../metrics'
 import { serial } from '../serial'
 import { defaultSilo, toIdp } from '../silo'
-import { db, lookup, lookupById, notFoundErr, utilizationForSilo } from './db'
+import {
+  db,
+  getIpFromPool,
+  lookup,
+  lookupById,
+  notFoundErr,
+  utilizationForSilo,
+} from './db'
 import {
   currentUser,
   errIfExists,
   errIfInvalidDiskSize,
+  forbiddenErr,
   getStartAndEndTime,
   getTimestamps,
   handleMetrics,
@@ -51,6 +58,7 @@ import {
 // is *JSON type.
 
 export const handlers = makeHandlers({
+  logout: () => 204,
   ping: () => ({ status: 'ok' }),
   deviceAuthRequest: () => 200,
   deviceAuthConfirm: ({ body }) => (body.user_code === 'ERRO-RABC' ? 400 : 200),
@@ -74,7 +82,9 @@ export const handlers = makeHandlers({
   },
   projectView: ({ path }) => {
     if (path.project.endsWith('error-503')) {
-      throw unavailableErr
+      throw unavailableErr()
+    } else if (path.project.endsWith('error-403')) {
+      throw forbiddenErr()
     }
 
     return lookup.project({ ...path })
@@ -195,7 +205,7 @@ export const handlers = makeHandlers({
   diskBulkWriteImport: ({ path, query, body }) => {
     const disk = lookup.disk({ ...path, ...query })
     const diskImport = db.diskBulkImportState.get(disk.id)
-    if (!diskImport) throw notFoundErr
+    if (!diskImport) throw notFoundErr(`disk import for disk '${disk.id}'`)
     // if (Math.random() < 0.01) throw 400
     diskImport.blocks[body.offset] = true
     return 204
@@ -234,12 +244,16 @@ export const handlers = makeHandlers({
     errIfExists(db.floatingIps, { name: body.name })
 
     // TODO: when IP is specified, use ipInAnyRange to check that it is in the pool
+    const pool = body.pool
+      ? lookup.siloIpPool({ pool: body.pool, silo: defaultSilo.id })
+      : lookup.siloDefaultIpPool({ silo: defaultSilo.id })
 
     const newFloatingIp: Json<Api.FloatingIp> = {
       id: uuid(),
       project_id: project.id,
       // TODO: use ip-num to actually get the next available IP in the pool
       ip: [...Array(4)].map(() => Math.floor(Math.random() * 256)).join('.'),
+      ip_pool_id: pool.id,
       ...body,
       ...getTimestamps(),
     }
@@ -261,9 +275,7 @@ export const handlers = makeHandlers({
       }
       floatingIp.name = body.name
     }
-    if (body.description) {
-      floatingIp.description = body.description
-    }
+    floatingIp.description = body.description || ''
     return floatingIp
   },
   floatingIpDelete({ path, query }) {
@@ -356,7 +368,7 @@ export const handlers = makeHandlers({
     const instances = db.instances.filter((i) => i.project_id === project.id)
     return paginated(query, instances)
   },
-  async instanceCreate({ body, query }) {
+  instanceCreate({ body, query }) {
     const project = lookup.project(query)
 
     if (body.name === 'no-default-pool') {
@@ -474,12 +486,44 @@ export const handlers = makeHandlers({
     const newInstance: Json<Api.Instance> = {
       id: instanceId,
       project_id: project.id,
-      ...pick(body, 'name', 'description', 'hostname', 'memory', 'ncpus'),
+      ...R.pick(body, ['name', 'description', 'hostname', 'memory', 'ncpus']),
       ...getTimestamps(),
-      run_state: 'running',
+      run_state: 'creating',
       time_run_state_updated: new Date().toISOString(),
     }
+
+    body.external_ips?.forEach((ip) => {
+      if (ip.type === 'floating') {
+        const floatingIp = lookup.floatingIp({
+          project: project.id,
+          floatingIp: ip.floating_ip,
+        })
+        if (floatingIp.instance_id) {
+          throw 'floating IP cannot be attached to one instance while still attached to another'
+        }
+        floatingIp.instance_id = instanceId
+      } else if (ip.type === 'ephemeral') {
+        const firstAvailableAddress = getIpFromPool(ip.pool)
+        db.ephemeralIps.push({
+          instance_id: instanceId,
+          external_ip: {
+            ip: firstAvailableAddress,
+            kind: 'ephemeral',
+          },
+        })
+      }
+    })
+
+    setTimeout(() => {
+      newInstance.run_state = 'starting'
+    }, 1000)
+
+    setTimeout(() => {
+      newInstance.run_state = 'running'
+    }, 5000)
+
     db.instances.push(newInstance)
+
     return json(newInstance, { status: 201 })
   },
   instanceView: ({ path, query }) => lookup.instance({ ...path, ...query }),
@@ -516,6 +560,31 @@ export const handlers = makeHandlers({
     const disk = lookup.disk({ ...projectParams, disk: body.disk })
     disk.state = { state: 'detached' }
     return disk
+  },
+  instanceEphemeralIpAttach({ path, query: projectParams, body }) {
+    const instance = lookup.instance({ ...path, ...projectParams })
+    const { pool } = body
+    const firstAvailableAddress = getIpFromPool(pool)
+    const externalIp = {
+      ip: firstAvailableAddress,
+      kind: 'ephemeral' as const,
+    }
+    db.ephemeralIps.push({
+      instance_id: instance.id,
+      external_ip: externalIp,
+    })
+
+    return externalIp
+  },
+  instanceEphemeralIpDetach({ path, query }) {
+    const instance = lookup.instance({ ...path, ...query })
+    // match API logic: find/remove first ephemeral ip attached to instance
+    // https://github.com/oxidecomputer/omicron/blob/d52aad0/nexus/db-queries/src/db/datastore/external_ip.rs#L782-L794
+    // https://github.com/oxidecomputer/omicron/blob/d52aad0/nexus/src/app/sagas/instance_ip_detach.rs#L79-L82
+    const ip = db.ephemeralIps.find((eip) => eip.instance_id === instance.id)
+    if (!ip) throw notFoundErr(`ephemeral IP for instance ${instance.name}`)
+    db.ephemeralIps = db.ephemeralIps.filter((eip) => eip !== ip)
+    return 204
   },
   instanceExternalIpList({ path, query }) {
     const instance = lookup.instance({ ...path, ...query })
@@ -601,7 +670,7 @@ export const handlers = makeHandlers({
 
     setTimeout(() => {
       instance.run_state = 'running'
-    }, 3000)
+    }, 1000)
 
     return json(instance, { status: 202 })
   },
@@ -611,23 +680,31 @@ export const handlers = makeHandlers({
   },
   instanceStart({ path, query }) {
     const instance = lookup.instance({ ...path, ...query })
-    instance.run_state = 'running'
+    instance.run_state = 'starting'
+
+    setTimeout(() => {
+      instance.run_state = 'running'
+    }, 1000)
 
     return json(instance, { status: 202 })
   },
   instanceStop({ path, query }) {
     const instance = lookup.instance({ ...path, ...query })
-    instance.run_state = 'stopped'
+    instance.run_state = 'stopping'
+
+    setTimeout(() => {
+      instance.run_state = 'stopped'
+    }, 1000)
 
     return json(instance, { status: 202 })
   },
   ipPoolList: ({ query }) => paginated(query, db.ipPools),
-  async ipPoolUtilizationView({ path }) {
+  ipPoolUtilizationView({ path }) {
     const pool = lookup.ipPool(path)
     const ranges = db.ipPoolRanges
       .filter((r) => r.ip_pool_id === pool.id)
       .map((r) => r.range)
-    const [ipv4Ranges, ipv6Ranges] = partitionBy(ranges, (r) => validateIp(r.first).isv4)
+    const [ipv4Ranges, ipv6Ranges] = R.partition(ranges, (r) => validateIp(r.first).isv4)
 
     // in the real backend there are also SNAT IPs, but we don't currently
     // represent those because they are not exposed through the API (except
@@ -660,17 +737,8 @@ export const handlers = makeHandlers({
     const pools = lookup.siloIpPools({ silo: defaultSilo.id })
     return paginated(query, pools)
   },
-  projectIpPoolView({ path }) {
-    // this will 404 if it doesn't exist at all...
-    const pool = lookup.ipPool(path)
-    // but we also want to 404 if it exists but isn't in the silo
-    const link = db.ipPoolSilos.find(
-      (link) => link.ip_pool_id === pool.id && link.silo_id === defaultSilo.id
-    )
-    if (!link) throw notFoundErr()
-
-    return { ...pool, is_default: link.is_default }
-  },
+  projectIpPoolView: ({ path: { pool } }) =>
+    lookup.siloIpPool({ pool, silo: defaultSilo.id }),
   // TODO: require admin permissions for system IP pool endpoints
   ipPoolView: ({ path }) => lookup.ipPool(path),
   ipPoolSiloList({ path /*query*/ }) {
@@ -770,7 +838,7 @@ export const handlers = makeHandlers({
       .map((r) => r.id)
 
     // if nothing in the DB matches, 404
-    if (idsToDelete.length === 0) throw notFoundErr()
+    if (idsToDelete.length === 0) throw notFoundErr(`IP range ${body.first}-${body.last}`)
 
     db.ipPoolRanges = db.ipPoolRanges.filter((r) => !idsToDelete.includes(r.id))
 
@@ -820,7 +888,7 @@ export const handlers = makeHandlers({
 
     const role_assignments = db.roleAssignments
       .filter((r) => r.resource_type === 'project' && r.resource_id === project.id)
-      .map((r) => pick(r, 'identity_id', 'identity_type', 'role_name'))
+      .map((r) => R.pick(r, ['identity_id', 'identity_type', 'role_name']))
 
     return { role_assignments }
   },
@@ -830,7 +898,7 @@ export const handlers = makeHandlers({
     const newAssignments = body.role_assignments.map((r) => ({
       resource_type: 'project' as const,
       resource_id: project.id,
-      ...pick(r, 'identity_id', 'identity_type', 'role_name'),
+      ...R.pick(r, ['identity_id', 'identity_type', 'role_name']),
     }))
 
     const unrelatedAssignments = db.roleAssignments.filter(
@@ -961,7 +1029,7 @@ export const handlers = makeHandlers({
     const vpc = lookup.vpc(query)
     const rules = db.vpcFirewallRules.filter((r) => r.vpc_id === vpc.id)
 
-    return { rules: sortBy(rules, (r) => r.name) }
+    return { rules: R.sortBy(rules, (r) => r.name) }
   },
   vpcFirewallRulesUpdate({ body, query }) {
     const vpc = lookup.vpc(query)
@@ -979,7 +1047,7 @@ export const handlers = makeHandlers({
       ...rules,
     ]
 
-    return { rules: sortBy(rules, (r) => r.name) }
+    return { rules: R.sortBy(rules, (r) => r.name) }
   },
   vpcSubnetList({ query }) {
     const vpc = lookup.vpc(query)
@@ -1043,7 +1111,7 @@ export const handlers = makeHandlers({
     const siloId = defaultSilo.id
     const role_assignments = db.roleAssignments
       .filter((r) => r.resource_type === 'silo' && r.resource_id === siloId)
-      .map((r) => pick(r, 'identity_id', 'identity_type', 'role_name'))
+      .map((r) => R.pick(r, ['identity_id', 'identity_type', 'role_name']))
 
     return { role_assignments }
   },
@@ -1052,7 +1120,7 @@ export const handlers = makeHandlers({
     const newAssignments = body.role_assignments.map((r) => ({
       resource_type: 'silo' as const,
       resource_id: siloId,
-      ...pick(r, 'identity_id', 'identity_type', 'role_name'),
+      ...R.pick(r, ['identity_id', 'identity_type', 'role_name']),
     }))
 
     const unrelatedAssignments = db.roleAssignments.filter(
@@ -1117,7 +1185,7 @@ export const handlers = makeHandlers({
       db.instances.map((i) => {
         const project = lookupById(db.projects, i.project_id)
         return {
-          ...pick(i, 'id', 'name', 'time_created', 'time_modified', 'memory', 'ncpus'),
+          ...R.pick(i, ['id', 'name', 'time_created', 'time_modified', 'memory', 'ncpus']),
           state: 'running',
           active_sled_id: sled.id,
           project_name: project.name,
@@ -1130,7 +1198,7 @@ export const handlers = makeHandlers({
     requireFleetViewer(cookies)
     return paginated(query, db.silos)
   },
-  siloCreate({ body, cookies }) {
+  siloCreate({ body: { quotas, ...body }, cookies }) {
     requireFleetViewer(cookies)
     errIfExists(db.silos, { name: body.name })
     const newSilo: Json<Api.Silo> = {
@@ -1140,6 +1208,8 @@ export const handlers = makeHandlers({
       mapped_fleet_roles: body.mapped_fleet_roles || {},
     }
     db.silos.push(newSilo)
+    db.siloQuotas.push({ silo_id: newSilo.id, ...quotas })
+    db.siloProvisioned.push({ silo_id: newSilo.id, cpus: 0, memory: 0, storage: 0 })
     return json(newSilo, { status: 201 })
   },
   siloView({ path, cookies }) {
@@ -1185,16 +1255,15 @@ export const handlers = makeHandlers({
 
     const provider: Json<SamlIdentityProvider> = {
       id: uuid(),
-      ...pick(
-        body,
+      ...R.pick(body, [
         'name',
         'acs_url',
         'description',
         'idp_entity_id',
         'slo_url',
         'sp_client_id',
-        'technical_contact_email'
-      ),
+        'technical_contact_email',
+      ]),
       public_cert,
       ...getTimestamps(),
     }
@@ -1222,7 +1291,7 @@ export const handlers = makeHandlers({
 
     const role_assignments = db.roleAssignments
       .filter((r) => r.resource_type === 'fleet' && r.resource_id === FLEET_ID)
-      .map((r) => pick(r, 'identity_id', 'identity_type', 'role_name'))
+      .map((r) => R.pick(r, ['identity_id', 'identity_type', 'role_name']))
 
     return { role_assignments }
   },
@@ -1237,8 +1306,6 @@ export const handlers = makeHandlers({
   certificateDelete: NotImplemented,
   certificateList: NotImplemented,
   certificateView: NotImplemented,
-  instanceEphemeralIpDetach: NotImplemented,
-  instanceEphemeralIpAttach: NotImplemented,
   instanceMigrate: NotImplemented,
   instanceSerialConsoleStream: NotImplemented,
   instanceSshPublicKeyList: NotImplemented,
@@ -1250,11 +1317,12 @@ export const handlers = makeHandlers({
   localIdpUserDelete: NotImplemented,
   localIdpUserSetPassword: NotImplemented,
   loginSaml: NotImplemented,
-  logout: NotImplemented,
   networkingAddressLotBlockList: NotImplemented,
   networkingAddressLotCreate: NotImplemented,
   networkingAddressLotDelete: NotImplemented,
   networkingAddressLotList: NotImplemented,
+  networkingAllowListUpdate: NotImplemented,
+  networkingAllowListView: NotImplemented,
   networkingBfdDisable: NotImplemented,
   networkingBfdEnable: NotImplemented,
   networkingBfdStatus: NotImplemented,
@@ -1277,6 +1345,8 @@ export const handlers = makeHandlers({
   networkingSwitchPortSettingsDelete: NotImplemented,
   networkingSwitchPortSettingsView: NotImplemented,
   networkingSwitchPortSettingsList: NotImplemented,
+  networkingSwitchPortStatus: NotImplemented,
+  physicalDiskView: NotImplemented,
   probeCreate: NotImplemented,
   probeDelete: NotImplemented,
   probeList: NotImplemented,
@@ -1297,6 +1367,18 @@ export const handlers = makeHandlers({
   switchView: NotImplemented,
   systemPolicyUpdate: NotImplemented,
   systemQuotasList: NotImplemented,
+  timeseriesQuery: NotImplemented,
+  timeseriesSchemaList: NotImplemented,
   userBuiltinList: NotImplemented,
   userBuiltinView: NotImplemented,
+  vpcRouterCreate: NotImplemented,
+  vpcRouterDelete: NotImplemented,
+  vpcRouterList: NotImplemented,
+  vpcRouterRouteCreate: NotImplemented,
+  vpcRouterRouteDelete: NotImplemented,
+  vpcRouterRouteList: NotImplemented,
+  vpcRouterRouteUpdate: NotImplemented,
+  vpcRouterRouteView: NotImplemented,
+  vpcRouterUpdate: NotImplemented,
+  vpcRouterView: NotImplemented,
 })

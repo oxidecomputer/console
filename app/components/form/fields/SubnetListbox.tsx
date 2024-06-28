@@ -11,12 +11,12 @@ import { useApiQuery } from '@oxide/api'
 
 import { useProjectSelector } from '~/hooks'
 
-import { ListboxField, type ListboxFieldProps } from './ListboxField'
+import { ComboboxField, type ComboboxFieldProps } from './ComboboxField'
 
 type SubnetListboxProps<
   TFieldValues extends FieldValues,
   TName extends FieldPath<TFieldValues>,
-> = Omit<ListboxFieldProps<TFieldValues, TName>, 'items'> & {
+> = Omit<ComboboxFieldProps<TFieldValues, TName>, 'items'> & {
   vpcNameField: FieldPath<TFieldValues>
 }
 
@@ -47,7 +47,7 @@ export function SubnetListbox<
     ).data?.items || []
 
   return (
-    <ListboxField
+    <ComboboxField
       {...fieldProps}
       items={subnets.map(({ name }) => ({ value: name, label: name }))}
       disabled={!vpcExists}

@@ -6,41 +6,42 @@
  * Copyright Oxide Computer Company
  */
 import { createColumnHelper } from '@tanstack/react-table'
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo } from 'react'
+import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
-import { useApiMutation, useApiQueryClient, type VpcSubnet } from '@oxide/api'
+import {
+  apiQueryClient,
+  useApiMutation,
+  useApiQueryClient,
+  type VpcSubnet,
+} from '@oxide/api'
 
-import { CreateSubnetForm } from '~/forms/subnet-create'
-import { EditSubnetForm } from '~/forms/subnet-edit'
-import { useVpcSelector } from '~/hooks'
+import { getVpcSelector, useVpcSelector } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
-import { DateCell } from '~/table/cells/DateCell'
+import { makeLinkCell } from '~/table/cells/LinkCell'
 import { TwoLineCell } from '~/table/cells/TwoLineCell'
-import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
-import { useQueryTable } from '~/table/QueryTable'
-import { Button } from '~/ui/lib/Button'
+import { getActionsCol, type MenuAction } from '~/table/columns/action-col'
+import { Columns } from '~/table/columns/common'
+import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
+import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { pb } from '~/util/path-builder'
 
 const colHelper = createColumnHelper<VpcSubnet>()
-const staticCols = [
-  colHelper.accessor('name', {}),
-  colHelper.accessor((vpc) => [vpc.ipv4Block, vpc.ipv6Block] as const, {
-    header: 'IP Block',
-    cell: (info) => <TwoLineCell value={[...info.getValue()]} />,
-  }),
-  colHelper.accessor('timeCreated', {
-    header: 'created',
-    cell: (info) => <DateCell value={info.getValue()} />,
-  }),
-]
 
-export const VpcSubnetsTab = () => {
+VpcSubnetsTab.loader = async ({ params }: LoaderFunctionArgs) => {
+  const { project, vpc } = getVpcSelector(params)
+  await apiQueryClient.prefetchQuery('vpcSubnetList', {
+    query: { project, vpc, limit: PAGE_SIZE },
+  })
+  return null
+}
+
+export function VpcSubnetsTab() {
   const vpcSelector = useVpcSelector()
   const queryClient = useApiQueryClient()
 
   const { Table } = useQueryTable('vpcSubnetList', { query: vpcSelector })
-  const [creating, setCreating] = useState(false)
-  const [editing, setEditing] = useState<VpcSubnet | null>(null)
 
   const deleteSubnet = useApiMutation('vpcSubnetDelete', {
     onSuccess() {
@@ -48,11 +49,14 @@ export const VpcSubnetsTab = () => {
     },
   })
 
+  const navigate = useNavigate()
+
   const makeActions = useCallback(
     (subnet: VpcSubnet): MenuAction[] => [
       {
         label: 'Edit',
-        onActivate: () => setEditing(subnet),
+        onActivate: () =>
+          navigate(pb.vpcSubnetsEdit({ ...vpcSelector, subnet: subnet.name })),
       },
       // TODO: only show if you have permission to do this
       {
@@ -63,30 +67,43 @@ export const VpcSubnetsTab = () => {
         }),
       },
     ],
-    [deleteSubnet]
+    [navigate, deleteSubnet, vpcSelector]
   )
 
-  const columns = useColsWithActions(staticCols, makeActions)
+  const columns = useMemo(
+    () => [
+      colHelper.accessor('name', {
+        cell: makeLinkCell((subnet) => pb.vpcSubnetsEdit({ ...vpcSelector, subnet })),
+      }),
+      colHelper.accessor((vpc) => [vpc.ipv4Block, vpc.ipv6Block] as const, {
+        header: 'IP Block',
+        cell: (info) => <TwoLineCell value={[...info.getValue()]} />,
+      }),
+      colHelper.accessor('timeCreated', Columns.timeCreated),
+      getActionsCol(makeActions),
+    ],
+    [vpcSelector, makeActions]
+  )
+
+  // const columns = useColsWithActions(staticCols, makeActions)
 
   const emptyState = (
     <EmptyMessage
       title="No VPC subnets"
       body="You need to create a subnet to be able to see it here"
       buttonText="New subnet"
-      onClick={() => setCreating(true)}
+      buttonTo={pb.vpcSubnetsNew(vpcSelector)}
     />
   )
 
   return (
     <>
       <div className="mb-3 flex justify-end space-x-2">
-        <Button size="sm" onClick={() => setCreating(true)}>
-          New subnet
-        </Button>
-        {creating && <CreateSubnetForm onDismiss={() => setCreating(false)} />}
-        {editing && <EditSubnetForm editing={editing} onDismiss={() => setEditing(null)} />}
+        <CreateLink to={pb.vpcSubnetsNew(vpcSelector)}>New subnet</CreateLink>
       </div>
-      <Table columns={columns} emptyState={emptyState} />
+
+      <Table columns={columns} emptyState={emptyState} rowHeight="large" />
+      <Outlet />
     </>
   )
 }

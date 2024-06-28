@@ -17,24 +17,26 @@ import {
   useApiQueryClient,
   type Image,
 } from '@oxide/api'
-import { Images24Icon } from '@oxide/design-system/icons/react'
+import { Images16Icon, Images24Icon } from '@oxide/design-system/icons/react'
 
+import { DocsPopover } from '~/components/DocsPopover'
+import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { toListboxItem } from '~/components/form/fields/ImageSelectField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
-import { useForm, useToast } from '~/hooks'
+import { useForm } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
-import { DateCell } from '~/table/cells/DateCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
-import { SizeCell } from '~/table/cells/SizeCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
-import { useQueryTable } from '~/table/QueryTable'
+import { Columns } from '~/table/columns/common'
+import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
 import { Button } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 const EmptyState = () => (
@@ -47,7 +49,7 @@ const EmptyState = () => (
 
 SiloImagesPage.loader = async () => {
   await apiQueryClient.prefetchQuery('imageList', {
-    query: { limit: 25 },
+    query: { limit: PAGE_SIZE },
   })
   return null
 }
@@ -57,12 +59,9 @@ const staticCols = [
   colHelper.accessor('name', {
     cell: makeLinkCell((image) => pb.siloImageEdit({ image })),
   }),
-  colHelper.accessor('description', {}),
-  colHelper.accessor('size', { cell: (info) => <SizeCell value={info.getValue()} /> }),
-  colHelper.accessor('timeCreated', {
-    header: 'Created',
-    cell: (info) => <DateCell value={info.getValue()} />,
-  }),
+  colHelper.accessor('description', Columns.description),
+  colHelper.accessor('size', Columns.size),
+  colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
 export function SiloImagesPage() {
@@ -100,6 +99,12 @@ export function SiloImagesPage() {
     <>
       <PageHeader>
         <PageTitle icon={<Images24Icon />}>Silo Images</PageTitle>
+        <DocsPopover
+          heading="Images"
+          icon={<Images16Icon />}
+          summary="Images let you create a new disk based on an existing one. Silo images must be created within a project and then promoted."
+          links={[docLinks.images]}
+        />
       </PageHeader>
       <TableActions>
         <Button size="sm" onClick={() => setShowModal(true)}>
@@ -123,7 +128,7 @@ const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
   const { control, handleSubmit, watch, resetField } = useForm({ defaultValues })
 
   const queryClient = useApiQueryClient()
-  const addToast = useToast()
+
   const promoteImage = useApiMutation('imagePromote', {
     onSuccess(data) {
       addToast({ content: `${data.name} has been promoted` })
@@ -163,7 +168,7 @@ const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
       <Modal.Body>
         <Modal.Section>
           <form autoComplete="off" onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <ListboxField
+            <ComboboxField
               placeholder="Filter images by project"
               name="project"
               label="Project"
@@ -212,7 +217,7 @@ const DemoteImageModal = ({
   const selectedProject: string | undefined = watch('project')
 
   const queryClient = useApiQueryClient()
-  const addToast = useToast()
+
   const demoteImage = useApiMutation('imageDemote', {
     onSuccess(data) {
       addToast({
@@ -264,7 +269,7 @@ const DemoteImageModal = ({
               content="Once an image has been demoted it is only visible to the project that it is demoted into. This will not affect disks already created with the image."
             />
 
-            <ListboxField
+            <ComboboxField
               placeholder="Select project for image"
               name="project"
               label="Project"

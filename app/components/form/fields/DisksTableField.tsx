@@ -9,7 +9,6 @@ import { useState } from 'react'
 import { useController, type Control } from 'react-hook-form'
 
 import type { DiskCreate } from '@oxide/api'
-import { Error16Icon } from '@oxide/design-system/icons/react'
 
 import { AttachDiskSideModalForm } from '~/forms/disk-attach'
 import { CreateDiskSideModalForm } from '~/forms/disk-create'
@@ -77,13 +76,10 @@ export function DisksTableField({
                       </>
                     )}
                   </MiniTable.Cell>
-                  <MiniTable.Cell>
-                    <button
-                      onClick={() => onChange(items.filter((i) => i.name !== item.name))}
-                    >
-                      <Error16Icon title={`remove ${item.name}`} />
-                    </button>
-                  </MiniTable.Cell>
+                  <MiniTable.RemoveCell
+                    onClick={() => onChange(items.filter((i) => i.name !== item.name))}
+                    label={`remove disk ${item.name}`}
+                  />
                 </MiniTable.Row>
               ))}
             </MiniTable.Body>
@@ -127,6 +123,7 @@ export function DisksTableField({
             onChange([...items, { type: 'attach', ...values }])
             setShowDiskAttach(false)
           }}
+          diskNamesToExclude={items.filter((i) => i.type === 'attach').map((i) => i.name)}
         />
       )}
     </>

@@ -123,7 +123,7 @@ function DiskMetric({
   }
 
   return (
-    <div className="flex flex-grow flex-col lg+:w-1/2">
+    <div className="flex grow flex-col lg+:w-1/2">
       <h2 className="mb-3 ml-3 flex items-center text-mono-xs text-secondary">
         {title} <div className="ml-1 normal-case text-quaternary">{label}</div>
         {isLoading && <Spinner className="ml-2" />}
@@ -198,7 +198,7 @@ export function MetricsTab() {
     <>
       <div className="mb-4 flex justify-between md-:flex-col md-:gap-2">
         <Listbox
-          className="lg+:w-64 md-:!w-full xl-:w-40"
+          className="xl-:w-40 md-:!w-full lg+:w-64"
           aria-label="Choose disk"
           name="disk-name"
           selected={diskName}

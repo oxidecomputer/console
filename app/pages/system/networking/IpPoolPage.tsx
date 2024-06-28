@@ -8,7 +8,7 @@
 
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
-import { Link, Outlet, type LoaderFunctionArgs } from 'react-router-dom'
+import { Outlet, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
   apiQueryClient,
@@ -20,47 +20,40 @@ import {
   type IpPoolRange,
   type IpPoolSiloLink,
 } from '@oxide/api'
-import { IpGlobal16Icon, Networking24Icon } from '@oxide/design-system/icons/react'
+import { IpGlobal16Icon, IpGlobal24Icon } from '@oxide/design-system/icons/react'
 
 import { CapacityBar } from '~/components/CapacityBar'
-import { ExternalLink } from '~/components/ExternalLink'
-import { ListboxField } from '~/components/form/fields/ListboxField'
+import { DocsPopover } from '~/components/DocsPopover'
+import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { HL } from '~/components/HL'
 import { QueryParamTabs } from '~/components/QueryParamTabs'
 import { getIpPoolSelector, useForm, useIpPoolSelector } from '~/hooks'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
-import { DateCell } from '~/table/cells/DateCell'
 import { DefaultPoolCell } from '~/table/cells/DefaultPoolCell'
 import { SkeletonCell } from '~/table/cells/EmptyCell'
 import { LinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
-import { useQueryTable } from '~/table/QueryTable'
-import { buttonStyle } from '~/ui/lib/Button'
+import { Columns } from '~/table/columns/common'
+import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
+import { CreateButton, CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
-import { TableControls, TableControlsButton, TableControlsText } from '~/ui/lib/Table'
 import { Tabs } from '~/ui/lib/Tabs'
-import { links } from '~/util/links'
+import { TipIcon } from '~/ui/lib/TipIcon'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 IpPoolPage.loader = async function ({ params }: LoaderFunctionArgs) {
   const { pool } = getIpPoolSelector(params)
+  const query = { limit: PAGE_SIZE }
   await Promise.all([
     apiQueryClient.prefetchQuery('ipPoolView', { path: { pool } }),
-    apiQueryClient.prefetchQuery('ipPoolSiloList', {
-      path: { pool },
-      query: { limit: 25 }, // match QueryTable
-    }),
-    apiQueryClient.prefetchQuery('ipPoolRangeList', {
-      path: { pool },
-      query: { limit: 25 }, // match QueryTable
-    }),
-    apiQueryClient.prefetchQuery('ipPoolUtilizationView', {
-      path: { pool },
-    }),
+    apiQueryClient.prefetchQuery('ipPoolSiloList', { path: { pool }, query }),
+    apiQueryClient.prefetchQuery('ipPoolRangeList', { path: { pool }, query }),
+    apiQueryClient.prefetchQuery('ipPoolUtilizationView', { path: { pool } }),
 
     // fetch silos and preload into RQ cache so fetches by ID in SiloNameFromId
     // can be mostly instant yet gracefully fall back to fetching individually
@@ -80,7 +73,13 @@ export function IpPoolPage() {
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<Networking24Icon />}>{pool.name}</PageTitle>
+        <PageTitle icon={<IpGlobal24Icon />}>{pool.name}</PageTitle>
+        <DocsPopover
+          heading="IP pools"
+          icon={<IpGlobal16Icon />}
+          summary="IP pools are collections of external IPs you can assign to silos. When a pool is linked to a silo, users in that silo can allocate IPs from the pool for their instances."
+          links={[docLinks.systemIpPools]}
+        />
       </PageHeader>
       <UtilizationBars />
       <QueryParamTabs className="full-width" defaultValue="ranges">
@@ -141,10 +140,7 @@ const ipRangesColHelper = createColumnHelper<IpPoolRange>()
 const ipRangesStaticCols = [
   ipRangesColHelper.accessor('range.first', { header: 'First' }),
   ipRangesColHelper.accessor('range.last', { header: 'Last' }),
-  ipRangesColHelper.accessor('timeCreated', {
-    header: 'created',
-    cell: (info) => <DateCell value={info.getValue()} />,
-  }),
+  ipRangesColHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
 function IpRangesTable() {
@@ -160,7 +156,7 @@ function IpRangesTable() {
   })
   const emptyState = (
     <EmptyMessage
-      icon={<Networking24Icon />}
+      icon={<IpGlobal24Icon />}
       title="No IP ranges"
       body="Add a range to see it here"
       buttonText="Add range"
@@ -201,10 +197,8 @@ function IpRangesTable() {
 
   return (
     <>
-      <div className="mb-3 flex justify-end space-x-2">
-        <Link to={pb.ipPoolRangeAdd({ pool })} className={buttonStyle({ size: 'sm' })}>
-          Add range
-        </Link>
+      <div className="mb-3 flex justify-end">
+        <CreateLink to={pb.ipPoolRangeAdd({ pool })}>Add range</CreateLink>
       </div>
       <Table columns={columns} emptyState={emptyState} />
     </>
@@ -226,7 +220,17 @@ const silosStaticCols = [
     cell: (info) => <SiloNameFromId value={info.getValue()} />,
   }),
   silosColHelper.accessor('isDefault', {
-    header: 'Pool is silo default?',
+    header: () => {
+      return (
+        <span className="inline-flex items-center gap-2">
+          Pool is silo default
+          <TipIcon>
+            IPs are allocated from the default pool when users ask for an IP without
+            specifying a pool.
+          </TipIcon>
+        </span>
+      )
+    },
     cell: (info) => <DefaultPoolCell isDefault={info.getValue()} />,
   }),
 ]
@@ -277,7 +281,7 @@ function LinkedSilosTable() {
 
   const emptyState = (
     <EmptyMessage
-      icon={<Networking24Icon />}
+      icon={<IpGlobal24Icon />}
       title="No linked silos"
       body="You can link this pool to a silo to see it here"
       buttonText="Link silo"
@@ -288,18 +292,9 @@ function LinkedSilosTable() {
   const columns = useColsWithActions(silosStaticCols, makeActions)
   return (
     <>
-      <TableControls>
-        <TableControlsText>
-          Users in linked silos can allocate external IPs from this pool for their
-          instances. A silo can have at most one default pool. IPs are allocated from the
-          default pool when users ask for one without specifying a pool. Read the docs to
-          learn more about{' '}
-          <ExternalLink href={links.ipPoolsDocs}>managing IP pools</ExternalLink>.
-        </TableControlsText>
-        <TableControlsButton onClick={() => setShowLinkModal(true)}>
-          Link silo
-        </TableControlsButton>
-      </TableControls>
+      <div className="mb-3 flex justify-end">
+        <CreateButton onClick={() => setShowLinkModal(true)}>Link silo</CreateButton>
+      </div>
       <Table columns={columns} emptyState={emptyState} />
       {showLinkModal && <LinkSiloModal onDismiss={() => setShowLinkModal(false)} />}
     </>
@@ -373,7 +368,7 @@ function LinkSiloModal({ onDismiss }: { onDismiss: () => void }) {
               content="Users in the selected silo will be able to allocate IPs from this pool."
             />
 
-            <ListboxField
+            <ComboboxField
               placeholder="Select silo"
               name="silo"
               label="Silo"

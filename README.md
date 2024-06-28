@@ -94,40 +94,6 @@ One way to run everything is to use the `tools/start_api.sh` script, which uses 
 ../console/tools/start_api.sh
 ```
 
-<details>
-<summary>Configuring tmux</summary
-
-Because running the API requires running two programs plus the populate data script, we use tmux to split the terminal into panes so we can see the log output of all three. tmux has its own complicated set of [keyboard shortcuts](https://tmuxcheatsheet.com/). A good way to avoid having to deal with that if you want to poke around in the server logs is to create `~/.tmux.conf` that looks like this:
-
-```
-set -g mouse on
-```
-
-This will let you click to focus a pane and scrolling output with the mouse will automatically work. If you do want to use the shortcuts, here's a `tmux.conf` to make it a little more vim-like:
-
-```shell
-# change leader key from ctrl-b to ctrl-a
-unbind C-b
-set-option -g prefix C-a
-bind-key C-a send-prefix
-
-# ctrl-a v makes a vertical split, ctrl-a h make a horizontal split
-bind v split-window -h
-bind s split-window -v
-unbind '"'
-unbind %
-
-# ctrl-a h/j/k/l move between panes
-bind h select-pane -L
-bind j select-pane -D
-bind k select-pane -U
-bind l select-pane -R
-
-set -g mouse on
-```
-
-</details>
-
 ### Run local dev server against the dogfood rack
 
 1. Get on the VPN

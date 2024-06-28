@@ -7,7 +7,7 @@
  */
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
-import { Link, Outlet, useNavigate } from 'react-router-dom'
+import { Outlet, useNavigate } from 'react-router-dom'
 
 import {
   apiQueryClient,
@@ -16,17 +16,19 @@ import {
   usePrefetchedApiQuery,
   type Project,
 } from '@oxide/api'
-import { Folder24Icon } from '@oxide/design-system/icons/react'
+import { Folder16Icon, Folder24Icon } from '@oxide/design-system/icons/react'
 
+import { DocsPopover } from '~/components/DocsPopover'
 import { confirmDelete } from '~/stores/confirm-delete'
-import { DateCell } from '~/table/cells/DateCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
-import { useQueryTable } from '~/table/QueryTable'
-import { buttonStyle } from '~/ui/lib/Button'
+import { Columns } from '~/table/columns/common'
+import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
+import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 import { useQuickActions } from '../hooks'
@@ -42,20 +44,17 @@ const EmptyState = () => (
 )
 
 ProjectsPage.loader = async () => {
-  await apiQueryClient.prefetchQuery('projectList', { query: { limit: 25 } })
+  await apiQueryClient.prefetchQuery('projectList', { query: { limit: PAGE_SIZE } })
   return null
 }
 
 const colHelper = createColumnHelper<Project>()
 const staticCols = [
   colHelper.accessor('name', {
-    cell: makeLinkCell((project) => pb.instances({ project })),
+    cell: makeLinkCell((project) => pb.project({ project })),
   }),
-  colHelper.accessor('description', {}),
-  colHelper.accessor('timeCreated', {
-    header: 'created',
-    cell: (info) => <DateCell value={info.getValue()} />,
-  }),
+  colHelper.accessor('description', Columns.description),
+  colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
 export function ProjectsPage() {
@@ -64,7 +63,7 @@ export function ProjectsPage() {
   const queryClient = useApiQueryClient()
   const { Table } = useQueryTable('projectList', {})
   const { data: projects } = usePrefetchedApiQuery('projectList', {
-    query: { limit: 25 }, // limit to match QueryTable
+    query: { limit: PAGE_SIZE },
   })
 
   const deleteProject = useApiMutation('projectDelete', {
@@ -110,7 +109,7 @@ export function ProjectsPage() {
         },
         ...(projects?.items || []).map((p) => ({
           value: p.name,
-          onSelect: () => navigate(pb.instances({ project: p.name })),
+          onSelect: () => navigate(pb.project({ project: p.name })),
           navGroup: 'Go to project',
         })),
       ],
@@ -119,15 +118,20 @@ export function ProjectsPage() {
   )
 
   const columns = useColsWithActions(staticCols, makeActions)
+
   return (
     <>
       <PageHeader>
         <PageTitle icon={<Folder24Icon />}>Projects</PageTitle>
+        <DocsPopover
+          heading="projects"
+          icon={<Folder16Icon />}
+          summary="Projects are containers for managing resources like instances, disks, and VPCs."
+          links={[docLinks.keyConceptsProjects, docLinks.projects]}
+        />
       </PageHeader>
       <TableActions>
-        <Link to={pb.projectsNew()} className={buttonStyle({ size: 'sm' })}>
-          New Project
-        </Link>
+        <CreateLink to={pb.projectsNew()}>New Project</CreateLink>
       </TableActions>
       <Table columns={columns} emptyState={<EmptyState />} />
       <Outlet />

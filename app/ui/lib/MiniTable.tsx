@@ -5,6 +5,8 @@
  *
  * Copyright Oxide Computer Company
  */
+import Error16Icon from '@oxide/design-system/icons/react/Error16Icon'
+
 import { classed } from '~/util/classed'
 
 import { Table as BigTable } from './Table'
@@ -32,3 +34,13 @@ export const Cell = ({ children }: Children) => {
     </td>
   )
 }
+
+// followed this for icon in button best practices
+// https://www.sarasoueidan.com/blog/accessible-icon-buttons/
+export const RemoveCell = ({ onClick, label }: { onClick: () => void; label: string }) => (
+  <Cell>
+    <button type="button" onClick={onClick} aria-label={label}>
+      <Error16Icon aria-hidden focusable="false" />
+    </button>
+  </Cell>
+)

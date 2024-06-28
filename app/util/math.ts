@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { splitOnceBy } from './array'
+import * as R from 'remeda'
 
 /**
  * Get the two parts of a number (before decimal and after-and-including
@@ -16,11 +16,11 @@ import { splitOnceBy } from './array'
  * minus sign, group separators [comma in en-US], and of course actual number
  * groups). Those will get joined and the decimal part will be the empty string.
  */
-export function splitDecimal(value: number): [string, string] {
-  const nf = Intl.NumberFormat(navigator.language, { maximumFractionDigits: 2 })
+export function splitDecimal(value: number, locale?: string): [string, string] {
+  const nf = Intl.NumberFormat(locale, { maximumFractionDigits: 2 })
   const parts = nf.formatToParts(value)
 
-  const [wholeParts, decimalParts] = splitOnceBy(parts, (p) => p.type === 'decimal')
+  const [wholeParts, decimalParts] = R.splitWhen(parts, (p) => p.type === 'decimal')
 
   return [
     wholeParts.map((p) => p.value).join(''),
@@ -43,6 +43,8 @@ export function percentage<T extends number | bigint>(top: T, bottom: T): number
   // be like 10^20 bigger than bottom. In any case, the nice thing is it seems
   // JS runtimes will not overflow when Number is given a huge arg, they just
   // convert to a huge number with reduced precision.
+  // type assertion is necessary according to TS. bug in ts-eslint
+  /* eslint-disable @typescript-eslint/no-unnecessary-type-assertion */
   return Number(((top as bigint) * 10_000n) / (bottom as bigint)) / 100
 }
 
@@ -58,9 +60,7 @@ export function round(num: number, digits: number) {
   return Number(nf.format(num))
 }
 
-// a separate function because I wanted to test it with a bunch of locales
-// to make sure the toLowerCase thing is ok
-export const toEngNotation = (num: number | bigint, locale = navigator.language) =>
+const toEngNotation = (num: number | bigint, locale?: string) =>
   Intl.NumberFormat(locale, { notation: 'engineering', maximumFractionDigits: 1 })
     .format(num)
     .toLowerCase()
@@ -72,8 +72,12 @@ export const toEngNotation = (num: number | bigint, locale = navigator.language)
  *
  * Boolean represents whether the number was abbreviated.
  */
-export function displayBigNum(num: bigint | number): [string, boolean] {
-  const compact = Intl.NumberFormat(navigator.language, {
+export function displayBigNum(
+  num: bigint | number,
+  /** Argument here for testing purposes. Leave undefined in app code! */
+  locale?: string
+): [string, boolean] {
+  const compact = Intl.NumberFormat(locale, {
     notation: 'compact',
     maximumFractionDigits: 1,
   })
@@ -83,8 +87,15 @@ export function displayBigNum(num: bigint | number): [string, boolean] {
   const result = abbreviated
     ? num < 1e15 // this the threshold where compact stops using nice letters. see tests
       ? compact.format(num)
-      : toEngNotation(num)
-    : num.toLocaleString()
+      : toEngNotation(num, locale)
+    : num.toLocaleString(locale)
 
   return [result, abbreviated]
+}
+
+/**
+ * Gets the closest multiple of 10 larger than the passed-in number
+ */
+export function nearest10(num: number): number {
+  return Math.ceil(num / 10) * 10
 }

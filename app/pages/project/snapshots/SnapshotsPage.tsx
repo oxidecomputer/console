@@ -7,7 +7,7 @@
  */
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback } from 'react'
-import { Link, Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
+import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
   apiQueryClient,
@@ -16,21 +16,22 @@ import {
   useApiQueryErrorsAllowed,
   type Snapshot,
 } from '@oxide/api'
-import { Snapshots24Icon } from '@oxide/design-system/icons/react'
+import { Snapshots16Icon, Snapshots24Icon } from '@oxide/design-system/icons/react'
 
+import { DocsPopover } from '~/components/DocsPopover'
 import { SnapshotStatusBadge } from '~/components/StatusBadge'
 import { getProjectSelector, useProjectSelector } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
-import { DateCell } from '~/table/cells/DateCell'
 import { SkeletonCell } from '~/table/cells/EmptyCell'
-import { SizeCell } from '~/table/cells/SizeCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
-import { useQueryTable } from '~/table/QueryTable'
+import { Columns } from '~/table/columns/common'
+import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
 import { Badge } from '~/ui/lib/Badge'
-import { buttonStyle } from '~/ui/lib/Button'
+import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 const DiskNameFromId = ({ value }: { value: string }) => {
@@ -55,7 +56,7 @@ SnapshotsPage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project } = getProjectSelector(params)
   await Promise.all([
     apiQueryClient.prefetchQuery('snapshotList', {
-      query: { project, limit: 25 },
+      query: { project, limit: PAGE_SIZE },
     }),
 
     // Fetch disks and preload into RQ cache so fetches by ID in DiskNameFromId
@@ -84,7 +85,7 @@ SnapshotsPage.loader = async ({ params }: LoaderFunctionArgs) => {
 const colHelper = createColumnHelper<Snapshot>()
 const staticCols = [
   colHelper.accessor('name', {}),
-  colHelper.accessor('description', {}),
+  colHelper.accessor('description', Columns.description),
   colHelper.accessor('diskId', {
     header: 'disk',
     cell: (info) => <DiskNameFromId value={info.getValue()} />,
@@ -92,11 +93,8 @@ const staticCols = [
   colHelper.accessor('state', {
     cell: (info) => <SnapshotStatusBadge status={info.getValue()} />,
   }),
-  colHelper.accessor('size', { cell: (info) => <SizeCell value={info.getValue()} /> }),
-  colHelper.accessor('timeCreated', {
-    header: 'created',
-    cell: (info) => <DateCell value={info.getValue()} />,
-  }),
+  colHelper.accessor('size', Columns.size),
+  colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
 
 export function SnapshotsPage() {
@@ -138,11 +136,15 @@ export function SnapshotsPage() {
     <>
       <PageHeader>
         <PageTitle icon={<Snapshots24Icon />}>Snapshots</PageTitle>
+        <DocsPopover
+          heading="snapshots"
+          icon={<Snapshots16Icon />}
+          summary="A snapshot is a lightweight point-in-time copy of a disk that can be used to create an image."
+          links={[docLinks.snapshots]}
+        />
       </PageHeader>
       <TableActions>
-        <Link to={pb.snapshotsNew({ project })} className={buttonStyle({ size: 'sm' })}>
-          New Snapshot
-        </Link>
+        <CreateLink to={pb.snapshotsNew({ project })}>New snapshot</CreateLink>
       </TableActions>
       <Table columns={columns} emptyState={<EmptyState />} />
       <Outlet />

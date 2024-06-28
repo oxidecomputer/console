@@ -47,8 +47,7 @@ the sticky tab bar finishes at the correct point */
 }
 
 .ox-tab {
-  @apply h-10 space-x-2 whitespace-nowrap border-b px-1.5 pb-1 pt-2
-  uppercase !no-underline text-mono-sm text-tertiary border-secondary;
+  @apply h-10 space-x-2 whitespace-nowrap border-b px-1.5 pb-1 pt-2 uppercase !no-underline text-mono-sm text-tertiary border-secondary;
 }
 
 .ox-tab[data-state='active'],
