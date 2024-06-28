@@ -25,6 +25,7 @@ import {
 } from '@oxide/api'
 
 import { CheckboxField } from '~/components/form/fields/CheckboxField'
+import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
@@ -209,6 +210,45 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
     targets.onChange([...targets.value, { type, value }])
     targetForm.reset()
   })
+
+  // todo: replace this dummy data with actual vpc, etc. data
+  const items = {
+    vpc: [
+      { value: 'vpc-1', label: 'vpc-one' },
+      { value: 'vpc-2', label: 'vpc-two' },
+      { value: 'vpc-3', label: 'vpc-three' },
+      { value: 'vpc-4', label: 'vpc-four' },
+      { value: 'vpc-5', label: 'vpc-five' },
+    ],
+    subnet: [
+      { value: 'subnet-1', label: 'subnet-one' },
+      { value: 'subnet-2', label: 'subnet-two' },
+      { value: 'subnet-3', label: 'subnet-three' },
+      { value: 'subnet-4', label: 'subnet-four' },
+      { value: 'subnet-5', label: 'subnet-five' },
+    ],
+    instance: [
+      { value: 'instance-1', label: 'instance-one' },
+      { value: 'instance-2', label: 'instance-two' },
+      { value: 'instance-3', label: 'instance-three' },
+      { value: 'instance-4', label: 'instance-four' },
+      { value: 'instance-5', label: 'instance-five' },
+    ],
+    ip: [
+      { value: 'ip-1', label: 'ip-one' },
+      { value: 'ip-2', label: 'ip-two' },
+      { value: 'ip-3', label: 'ip-three' },
+      { value: 'ip-4', label: 'ip-four' },
+      { value: 'ip-5', label: 'ip-five' },
+    ],
+    ip_net: [
+      { value: 'ip_net-1', label: 'ip_net-one' },
+      { value: 'ip_net-2', label: 'ip_net-two' },
+      { value: 'ip_net-3', label: 'ip_net-three' },
+      { value: 'ip_net-4', label: 'ip_net-four' },
+      { value: 'ip_net-5', label: 'ip_net-five' },
+    ],
+  }
 
   return (
     <>
@@ -482,7 +522,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
           So we should probably have the label on this field change when the
           host type changes. Also need to confirm that it's just an IP and
           not a block. */}
-        <TextField
+        <ComboboxField
           name="value"
           {...getFilterValueProps(hostForm.watch('type'))}
           required
@@ -493,6 +533,11 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
               submitHost(e)
             }
           }}
+          onInputChange={(value) => {
+            hostForm.setValue('value', value)
+          }}
+          items={items[hostForm.watch('type')]}
+          showNoMatchPlaceholder={false}
           // TODO: validate here, but it's complicated because it's conditional
           // on which type is selected
         />

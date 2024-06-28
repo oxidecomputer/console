@@ -36,6 +36,11 @@ export type ComboboxBaseProps = {
   placeholder?: string
   required?: boolean
   tooltipText?: string
+  onInputChange?: (value: string) => void
+  onKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void
+  // set to false in situations where the user should be able to type in new values
+  // to decide: should we even give a placeholder / warning?
+  showNoMatchPlaceholder?: boolean
 }
 
 type ComboboxProps = {
@@ -56,6 +61,9 @@ export const Combobox = ({
   isDisabled,
   isLoading,
   onChange,
+  onInputChange,
+  onKeyDown,
+  showNoMatchPlaceholder = true,
 }: ComboboxProps) => {
   const [query, setQuery] = useState(selected || '')
 
@@ -102,7 +110,11 @@ export const Combobox = ({
           <ComboboxInput
             aria-label="Select a disk"
             displayValue={() => (selected ? selected : query)}
-            onChange={(event) => setQuery(event.target.value)}
+            onChange={(event) => {
+              setQuery(event.target.value)
+              onInputChange?.(event.target.value)
+            }}
+            onKeyDown={onKeyDown}
             placeholder={placeholder}
             disabled={isDisabled || isLoading}
             className={cn(
@@ -123,7 +135,7 @@ export const Combobox = ({
           className={`ox-menu pointer-events-auto ${zIndex} relative w-[var(--button-width)] overflow-y-auto border !outline-none border-secondary [--anchor-gap:14px] empty:hidden`}
           modal={false}
         >
-          {filteredItems.length === 0 && (
+          {showNoMatchPlaceholder && filteredItems.length === 0 && (
             <ComboboxOption disabled value="no-matches" className="relative">
               <div className="ox-menu-item !text-disabled">No items match</div>
             </ComboboxOption>
