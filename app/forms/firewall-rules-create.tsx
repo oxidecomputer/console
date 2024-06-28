@@ -18,6 +18,8 @@ import {
   useApiQueryClient,
   usePrefetchedApiQuery,
   type ApiError,
+  type Instance,
+  type Vpc,
   type VpcFirewallRule,
   type VpcFirewallRuleHostFilter,
   type VpcFirewallRuleTarget,
@@ -33,8 +35,15 @@ import { NumberField } from '~/components/form/fields/NumberField'
 import { RadioField } from '~/components/form/fields/RadioField'
 import { TextField, TextFieldInner } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { getVpcSelector, useForm, useVpcSelector } from '~/hooks'
+import {
+  getProjectSelector,
+  getVpcSelector,
+  useForm,
+  useProjectSelector,
+  useVpcSelector,
+} from '~/hooks'
 import { addToast } from '~/stores/toast'
+import { PAGE_SIZE } from '~/table/QueryTable'
 import { Badge } from '~/ui/lib/Badge'
 import { Button } from '~/ui/lib/Button'
 import { FormDivider } from '~/ui/lib/Divider'
@@ -124,6 +133,8 @@ const targetDefaultValues: TargetFormValues = {
 type CommonFieldsProps = {
   error: ApiError | null
   control: Control<FirewallRuleValues>
+  instances: Array<Instance>
+  vpcs: Array<Vpc>
 }
 
 function getFilterValueProps(hostType: VpcFirewallRuleHostFilter['type']) {
@@ -175,7 +186,7 @@ const DocsLinkMessage = () => (
   />
 )
 
-export const CommonFields = ({ error, control }: CommonFieldsProps) => {
+export const CommonFields = ({ error, control, instances, vpcs }: CommonFieldsProps) => {
   const portRangeForm = useForm({ defaultValues: portRangeDefaultValues })
   const ports = useController({ name: 'ports', control }).field
   const submitPortRange = portRangeForm.handleSubmit(({ portRange }) => {
@@ -211,15 +222,10 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
     targetForm.reset()
   })
 
-  // todo: replace this dummy data with actual vpc, etc. data
-  const items = {
-    vpc: [
-      { value: 'vpc-1', label: 'vpc-one' },
-      { value: 'vpc-2', label: 'vpc-two' },
-      { value: 'vpc-3', label: 'vpc-three' },
-      { value: 'vpc-4', label: 'vpc-four' },
-      { value: 'vpc-5', label: 'vpc-five' },
-    ],
+  const hostFilterItems = {
+    vpc: vpcs.map((v) => ({ value: v.name, label: v.name })),
+    // todo: this should be a list of subnets in the selected VPC,
+    // so we'll need to have the user first specify a VPC and then load these in
     subnet: [
       { value: 'subnet-1', label: 'subnet-one' },
       { value: 'subnet-2', label: 'subnet-two' },
@@ -227,21 +233,9 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
       { value: 'subnet-4', label: 'subnet-four' },
       { value: 'subnet-5', label: 'subnet-five' },
     ],
-    instance: [
-      { value: 'instance-1', label: 'instance-one' },
-      { value: 'instance-2', label: 'instance-two' },
-      { value: 'instance-3', label: 'instance-three' },
-      { value: 'instance-4', label: 'instance-four' },
-      { value: 'instance-5', label: 'instance-five' },
-    ],
+    instance: instances.map((i) => ({ value: i.name, label: i.name })),
     ip: [],
-    ip_net: [
-      { value: 'ip_net-1', label: 'ip_net-one' },
-      { value: 'ip_net-2', label: 'ip_net-two' },
-      { value: 'ip_net-3', label: 'ip_net-three' },
-      { value: 'ip_net-4', label: 'ip_net-four' },
-      { value: 'ip_net-5', label: 'ip_net-five' },
-    ],
+    ip_net: [],
   }
 
   return (
@@ -530,7 +524,7 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
           onInputChange={(value) => {
             hostForm.setValue('value', value)
           }}
-          items={items[hostForm.watch('type')]}
+          items={hostFilterItems[hostForm.watch('type')]}
           showNoMatchPlaceholder={false}
           // TODO: validate here, but it's complicated because it's conditional
           // on which type is selected
@@ -599,13 +593,22 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
 }
 
 CreateFirewallRuleForm.loader = async ({ params }: LoaderFunctionArgs) => {
-  await apiQueryClient.prefetchQuery('vpcFirewallRulesView', {
-    query: getVpcSelector(params),
-  })
+  const { project } = getProjectSelector(params)
+  await Promise.all([
+    apiQueryClient.prefetchQuery('vpcFirewallRulesView', {
+      query: getVpcSelector(params),
+    }),
+    apiQueryClient.prefetchQuery('instanceList', {
+      query: { project, limit: PAGE_SIZE },
+    }),
+    apiQueryClient.prefetchQuery('vpcList', { query: { project, limit: PAGE_SIZE } }),
+  ])
+
   return null
 }
 
 export function CreateFirewallRuleForm() {
+  const { project } = useProjectSelector()
   const vpcSelector = useVpcSelector()
   const queryClient = useApiQueryClient()
 
@@ -620,10 +623,19 @@ export function CreateFirewallRuleForm() {
     },
   })
 
-  const { data } = usePrefetchedApiQuery('vpcFirewallRulesView', {
+  const { data: vpcFirewallRules } = usePrefetchedApiQuery('vpcFirewallRulesView', {
     query: vpcSelector,
   })
-  const existingRules = useMemo(() => R.sortBy(data.rules, (r) => r.priority), [data])
+  const existingRules = useMemo(
+    () => R.sortBy(vpcFirewallRules.rules, (r) => r.priority),
+    [vpcFirewallRules]
+  )
+  const { data: instances } = usePrefetchedApiQuery('instanceList', {
+    query: { project, limit: PAGE_SIZE },
+  })
+  const { data: vpcs } = usePrefetchedApiQuery('vpcList', {
+    query: { project, limit: PAGE_SIZE },
+  })
 
   const form = useForm({ defaultValues })
 
@@ -651,7 +663,12 @@ export function CreateFirewallRuleForm() {
       submitError={updateRules.error}
       submitLabel="Add rule"
     >
-      <CommonFields error={updateRules.error} control={form.control} />
+      <CommonFields
+        error={updateRules.error}
+        control={form.control}
+        instances={instances.items}
+        vpcs={vpcs.items}
+      />
     </SideModalForm>
   )
 }
