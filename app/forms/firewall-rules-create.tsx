@@ -7,7 +7,7 @@
  */
 import { useMemo } from 'react'
 import { useController, type Control } from 'react-hook-form'
-import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
+import { useNavigate, useParams, type LoaderFunctionArgs } from 'react-router-dom'
 import * as R from 'remeda'
 
 import {
@@ -43,6 +43,7 @@ import { TextInputHint } from '~/ui/lib/TextInput'
 import { KEYS } from '~/ui/util/keys'
 import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
+import { incrementName } from '~/util/str'
 
 export type FirewallRuleValues = {
   enabled: boolean
@@ -74,7 +75,17 @@ export const valuesToRuleUpdate = (values: FirewallRuleValues): VpcFirewallRuleU
   targets: values.targets,
 })
 
-const defaultValues: FirewallRuleValues = {
+/** convert in the opposite direction for when we're creating from existing rule */
+const ruleToValues = (rule: VpcFirewallRule): FirewallRuleValues => ({
+  ...rule,
+  enabled: rule.status === 'enabled',
+  protocols: rule.filters.protocols || [],
+  ports: rule.filters.ports || [],
+  hosts: rule.filters.hosts || [],
+})
+
+/** Empty form for when we're not creating from an existing rule */
+const defaultValuesEmpty: FirewallRuleValues = {
   enabled: true,
   name: '',
   description: '',
@@ -570,6 +581,9 @@ export function CreateFirewallRuleForm() {
   const vpcSelector = useVpcSelector()
   const queryClient = useApiQueryClient()
 
+  // To use as a template to base a new rule off
+  const { firewallRule } = useParams()
+
   const navigate = useNavigate()
   const onDismiss = () => navigate(pb.vpcFirewallRules(vpcSelector))
 
@@ -585,6 +599,11 @@ export function CreateFirewallRuleForm() {
     query: vpcSelector,
   })
   const existingRules = useMemo(() => R.sortBy(data.rules, (r) => r.priority), [data])
+  const originalRule = existingRules.find((rule) => rule.name === firewallRule)
+
+  const defaultValues: FirewallRuleValues = originalRule
+    ? ruleToValues({ ...originalRule, name: incrementName(originalRule.name) })
+    : defaultValuesEmpty
 
   const form = useForm({ defaultValues })
 

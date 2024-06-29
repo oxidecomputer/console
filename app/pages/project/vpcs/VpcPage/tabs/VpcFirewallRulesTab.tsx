@@ -140,6 +140,14 @@ export function VpcFirewallRulesTab() {
           },
         },
         {
+          label: 'New similar rule',
+          onActivate() {
+            navigate(
+              pb.vpcFirewallRulesNewFromTemplate({ ...vpcSelector, rule: rule.name })
+            )
+          },
+        },
+        {
           label: 'Delete',
           onActivate: confirmDelete({
             doDelete: () =>
