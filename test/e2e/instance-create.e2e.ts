@@ -7,7 +7,20 @@
  */
 import { floatingIp, images } from '@oxide/api-mocks'
 
-import { expect, expectNotVisible, expectRowVisible, expectVisible, test } from './utils'
+import {
+  expect,
+  expectNotVisible,
+  expectRowVisible,
+  expectVisible,
+  test,
+  type Page,
+} from './utils'
+
+const pickAProjectImage = async (page: Page, index = 0) => {
+  await page.getByRole('tab', { name: 'Project images' }).click()
+  await page.getByRole('button', { name: 'Image' }).click()
+  await page.getByRole('option', { name: images[index].name }).click()
+}
 
 test('can create an instance', async ({ page }) => {
   await page.goto('/projects/mock-project/instances')
@@ -36,9 +49,7 @@ test('can create an instance', async ({ page }) => {
   await diskSizeInput.fill('20')
 
   // pick a project image just to show we can
-  await page.getByRole('tab', { name: 'Project images' }).click()
-  await page.getByRole('button', { name: 'Image' }).click()
-  await page.getByRole('option', { name: images[2].name }).click()
+  await pickAProjectImage(page, 2)
 
   // should be hidden in accordion
   await expectNotVisible(page, [
@@ -144,9 +155,7 @@ test('can create an instance with custom hardware', async ({ page }) => {
   await page.keyboard.press('Tab')
 
   // pick a project image just to show we can
-  await page.getByRole('tab', { name: 'Project images' }).click()
-  await page.getByRole('button', { name: 'Image' }).click()
-  await page.getByRole('option', { name: images[2].name }).click()
+  await pickAProjectImage(page, 2)
   // the disk size should bot have been changed from what was entered earlier
   await expect(diskSizeInput).toHaveValue('20')
 
@@ -182,16 +191,13 @@ test('automatically updates disk size when larger image selected', async ({ page
   await page.keyboard.press('Tab')
 
   // pick a disk image that's smaller than 5GiB (the first project image works [4GiB])
-  await page.getByRole('tab', { name: 'Project images' }).click()
-  await page.getByRole('button', { name: 'Image' }).click()
-  await page.getByRole('option', { name: images[0].name }).click()
+  await pickAProjectImage(page, 0)
 
   // test that it still says 5, as that's larger than the given image
   await expect(diskSizeInput).toHaveValue('5')
 
   // pick a disk image that's larger than 5GiB (the third project image works [6GiB])
-  await page.getByRole('button', { name: 'Image' }).click()
-  await page.getByRole('option', { name: images[2].name }).click()
+  await pickAProjectImage(page, 2)
 
   // test that it has been automatically increased to next-largest incremement of 10
   await expect(diskSizeInput).toHaveValue('10')
