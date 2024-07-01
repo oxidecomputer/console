@@ -62,8 +62,10 @@ if (!go) {
   Deno.exit()
 }
 
-for (const num of gimletNums) {
+async function deploy(num: string) {
   console.log(`Deploying to gimlet ${num}...`)
   await $`./tools/dogfood/scp-assets.sh gc${num} ${TARBALL_FILE}`
-  console.log()
+  console.log(`Done with gimlet ${num}...`)
 }
+
+await Promise.all(gimletNums.map(deploy))
