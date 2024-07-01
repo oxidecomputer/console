@@ -66,7 +66,6 @@ module.exports = {
   plugins: [
     plugin(({ addVariant, addUtilities, variants }) => {
       addVariant('children', '& > *')
-      addVariant('between', '& > * + *')
       addVariant('selected', '.is-selected &')
       addVariant('disabled', ['&.visually-disabled', '&:disabled'])
       addUtilities(
