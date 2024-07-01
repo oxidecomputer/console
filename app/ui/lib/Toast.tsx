@@ -93,7 +93,7 @@ export const Toast = ({
         textColor[variant]
       )}
     >
-      <div className="mt-[2px] flex svg:h-3 svg:w-3">{icon[variant]}</div>
+      <div className="mt-[2px] flex [&>svg]:h-3 [&>svg]:w-3">{icon[variant]}</div>
       <div className="flex-1 pl-2.5">
         <div className="text-sans-semi-md">{title || defaultTitle[variant]}</div>
         <div className={cn('text-sans-md', secondaryTextColor[variant])}>{content}</div>

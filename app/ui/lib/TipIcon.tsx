@@ -19,7 +19,7 @@ export function TipIcon({ children, className }: TipIconProps) {
   return (
     <Tooltip content={children} placement="top">
       <button
-        className={cn('inline-flex svg:pointer-events-none', className)}
+        className={cn('inline-flex [&>svg]:pointer-events-none', className)}
         type="button"
       >
         <Question12Icon className="text-quinary" />

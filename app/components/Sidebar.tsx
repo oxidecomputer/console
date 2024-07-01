@@ -15,7 +15,7 @@ import { Button } from '~/ui/lib/Button'
 import { Truncate } from '~/ui/lib/Truncate'
 
 const linkStyles =
-  'flex h-7 items-center rounded px-2 text-sans-md hover:bg-hover svg:mr-2 svg:text-quinary text-secondary'
+  'flex h-7 items-center rounded px-2 text-sans-md hover:bg-hover [&>svg]:mr-2 [&>svg]:text-quinary text-secondary'
 
 // TODO: this probably doesn't go to the docs root. maybe it even opens a
 // menu with links to several relevant docs for the page
@@ -97,7 +97,7 @@ export const NavLinkItem = (props: {
         to={props.to}
         className={({ isActive }) =>
           cn(linkStyles, {
-            'text-accent !bg-accent-secondary hover:!bg-accent-secondary-hover svg:!text-accent-tertiary':
+            'text-accent !bg-accent-secondary hover:!bg-accent-secondary-hover [&>svg]:!text-accent-tertiary':
               isActive || currentPathIsCreateForm,
             'pointer-events-none text-disabled': props.disabled,
           })
