@@ -221,9 +221,6 @@ export function CreateInstanceForm() {
   const defaultValues: InstanceCreateInput = {
     ...baseDefaultValues,
     bootDiskSourceType: defaultSource,
-    siloImageSource: siloImages?.[0]?.id || '',
-    projectImageSource: projectImages?.[0]?.id || '',
-    diskSource: disks?.[0]?.value || '',
     sshPublicKeys: allKeys,
     bootDiskSize: nearest10(defaultImage?.size / GiB),
     externalIps: [{ type: 'ephemeral', pool: defaultPool }],
