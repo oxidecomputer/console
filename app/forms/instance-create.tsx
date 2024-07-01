@@ -729,7 +729,7 @@ const AdvancedAccordion = ({
             <Listbox
               name="pools"
               label="IP pool for ephemeral IP"
-              placeholder={defaultPool ? `${defaultPool} (default)` : 'Select pool'}
+              placeholder={defaultPool ? `${defaultPool} (default)` : 'Select a pool'}
               selected={`${siloPools.find((pool) => pool.name === selectedPool)?.name}`}
               items={
                 siloPools.map((pool) => ({
@@ -838,7 +838,7 @@ const AdvancedAccordion = ({
                       )
                     }}
                     required
-                    placeholder="Select floating IP"
+                    placeholder="Select a floating IP"
                     selected={selectedFloatingIp?.name || ''}
                   />
                 </form>

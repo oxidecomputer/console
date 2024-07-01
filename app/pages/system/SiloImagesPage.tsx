@@ -169,7 +169,7 @@ const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
         <Modal.Section>
           <form autoComplete="off" onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <ComboboxField
-              placeholder="Filter images by project"
+              placeholder="Select a project"
               name="project"
               label="Project"
               items={projectItems}
