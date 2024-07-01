@@ -41,8 +41,13 @@ function render() {
   // This means RR is best thought of as an external store that runs
   // independently of the React render lifecycle.
   const router = createBrowserRouter(routes, {
-    // https://reactrouter.com/en/main/guides/api-development-strategy#current-future-flags
-    future: { v7_normalizeFormMethod: true },
+    // https://reactrouter.com/en/6.24.0/upgrading/future
+    future: {
+      v7_fetcherPersist: true,
+      v7_normalizeFormMethod: true,
+      v7_partialHydration: true,
+      v7_relativeSplatPath: true,
+    },
   })
 
   root.render(
@@ -52,7 +57,13 @@ function render() {
           <ConfirmActionModal />
           <SkipLink id="skip-nav" />
           <ReduceMotion />
-          <RouterProvider router={router} />
+          <RouterProvider
+            router={router}
+            // this breaks the scroll restore test. turn it on after we change
+            // the layout so the whole page scrolls and switch back to RR's
+            // built in useScrollRestoration
+            // future={{ v7_startTransition: true }}
+          />
         </ErrorBoundary>
         {/* <ReactQueryDevtools initialIsOpen={false} /> */}
       </QueryClientProvider>

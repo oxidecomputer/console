@@ -60,8 +60,7 @@ test('can create a NIC with a blank IP address', async ({ page }) => {
   await sidebar.getByRole('button', { name: 'Add network interface' }).click()
 
   // it should error out
-  // todo: improve error message from API
-  await expect(sidebar.getByText('Unknown server error')).toBeVisible()
+  await expect(sidebar.getByText('Zod error for body')).toBeVisible()
 
   // make sure the IP address field has spaces in it
   await page.getByLabel('IP Address').fill('    ')
