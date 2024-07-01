@@ -115,6 +115,7 @@ test('can create an instance', async ({ page }) => {
 test('duplicate instance name produces visible error', async ({ page }) => {
   await page.goto('/projects/mock-project/instances-new')
   await page.fill('input[name=name]', 'db1')
+  await pickAProjectImage(page, 0)
   await page.locator('button:has-text("Create instance")').click()
   await expect(page.getByText('Instance name already exists')).toBeVisible()
 })
@@ -217,6 +218,7 @@ test('automatically updates disk size when larger image selected', async ({ page
 test('with disk name already taken', async ({ page }) => {
   await page.goto('/projects/mock-project/instances-new')
   await page.fill('input[name=name]', 'my-instance')
+  await pickAProjectImage(page, 0)
   await page.fill('input[name=bootDiskName]', 'disk-1')
 
   await page.getByRole('button', { name: 'Create instance' }).click()
