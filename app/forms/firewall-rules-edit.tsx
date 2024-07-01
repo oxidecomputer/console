@@ -23,6 +23,7 @@ import {
   useForm,
   useVpcSelector,
 } from '~/hooks'
+import { PAGE_SIZE } from '~/table/QueryTable'
 import { invariant } from '~/util/invariant'
 import { pb } from '~/util/path-builder'
 
@@ -35,11 +36,17 @@ import {
 EditFirewallRuleForm.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project, vpc, rule } = getFirewallRuleSelector(params)
 
-  const data = await apiQueryClient.fetchQuery('vpcFirewallRulesView', {
+  const firewallRules = await apiQueryClient.fetchQuery('vpcFirewallRulesView', {
     query: { project, vpc },
   })
+  await Promise.all([
+    apiQueryClient.prefetchQuery('instanceList', {
+      query: { project, limit: PAGE_SIZE },
+    }),
+    apiQueryClient.prefetchQuery('vpcList', { query: { project, limit: PAGE_SIZE } }),
+  ])
 
-  const originalRule = data.rules.find((r) => r.name === rule)
+  const originalRule = firewallRules.rules.find((r) => r.name === rule)
   if (!originalRule) throw trigger404
 
   return null
@@ -50,11 +57,17 @@ export function EditFirewallRuleForm() {
   const vpcSelector = useVpcSelector()
   const queryClient = useApiQueryClient()
 
-  const { data } = usePrefetchedApiQuery('vpcFirewallRulesView', {
+  const { data: firewallRules } = usePrefetchedApiQuery('vpcFirewallRulesView', {
     query: { project, vpc },
   })
+  const { data: instances } = usePrefetchedApiQuery('instanceList', {
+    query: { project, limit: PAGE_SIZE },
+  })
+  const { data: vpcs } = usePrefetchedApiQuery('vpcList', {
+    query: { project, limit: PAGE_SIZE },
+  })
 
-  const originalRule = data.rules.find((r) => r.name === rule)
+  const originalRule = firewallRules.rules.find((r) => r.name === rule)
 
   // we shouldn't hit this because of the trigger404 in the loader
   invariant(originalRule, 'Firewall rule must exist')
@@ -99,7 +112,7 @@ export function EditFirewallRuleForm() {
       onSubmit={(values) => {
         // note different filter logic from create: filter out the rule with the
         // *original* name because we need to overwrite that rule
-        const otherRules = data.rules
+        const otherRules = firewallRules.rules
           .filter((r) => r.name !== originalRule.name)
           .map(firewallRuleGetToPut)
 
@@ -115,7 +128,13 @@ export function EditFirewallRuleForm() {
       loading={updateRules.isPending}
       submitError={updateRules.error}
     >
-      <CommonFields error={updateRules.error} control={form.control} />
+      <CommonFields
+        error={updateRules.error}
+        control={form.control}
+        project={project}
+        instances={instances.items}
+        vpcs={vpcs.items}
+      />
     </SideModalForm>
   )
 }

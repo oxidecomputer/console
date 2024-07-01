@@ -45,10 +45,10 @@ test('can create firewall rule', async ({ page }) => {
   await expectRowVisible(targets, { Type: 'ip', Value: '192.168.0.1' })
 
   // add host filter instance "host-filter-instance"
-  await page.locator('role=button[name*="Host type"]').click()
-  await page.locator('role=option[name="Instance"]').click()
-  await page.fill('role=textbox[name="Instance name"]', 'host-filter-instance')
-  await page.locator('text="Add host filter"').click()
+  await page.getByRole('button', { name: 'Host type' }).click()
+  await page.getByRole('option', { name: 'Instance' }).click()
+  await page.getByRole('combobox', { name: 'Instance name' }).fill('host-filter-instance')
+  await page.getByRole('button', { name: 'Add host filter' }).click()
 
   // host is added to hosts table
   const hosts = page.getByRole('table', { name: 'Host filters' })
