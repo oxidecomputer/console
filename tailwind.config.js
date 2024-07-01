@@ -65,9 +65,6 @@ module.exports = {
   },
   plugins: [
     plugin(({ addVariant, addUtilities, variants }) => {
-      // imitation of the twin.macro svg: variant. svg:text-green-500 puts green
-      // on an SVG that's an immediate child of the element
-      addVariant('svg', '& > svg')
       addVariant('children', '& > *')
       addVariant('between', '& > * + *')
       addVariant('selected', '.is-selected &')
