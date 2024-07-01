@@ -71,7 +71,7 @@ module.exports = {
       addVariant('children', '& > *')
       addVariant('between', '& > * + *')
       addVariant('selected', '.is-selected &')
-      addVariant('disabled', '&.visually-disabled, &:disabled')
+      addVariant('disabled', ['&.visually-disabled', '&:disabled'])
       addUtilities(
         Array.from({ length: 12 }, (_, i) => i)
           .map((i) => ({
