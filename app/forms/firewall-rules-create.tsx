@@ -536,12 +536,6 @@ export const CommonFields = ({
           {...getFilterValueProps(hostType)}
           required
           control={hostForm.control}
-          onKeyDown={(e) => {
-            if (e.key === KEYS.enter) {
-              e.preventDefault() // prevent full form submission
-              submitHost(e)
-            }
-          }}
           onInputChange={(value) => {
             hostForm.setValue('value', value)
           }}

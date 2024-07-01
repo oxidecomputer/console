@@ -20,7 +20,6 @@ import { useState } from 'react'
 
 import { SelectArrows6Icon } from '@oxide/design-system/icons/react'
 
-import { KEYS } from '../util/keys'
 import { FieldLabel } from './FieldLabel'
 import { usePopoverZIndex } from './SideModal'
 import { TextInputHint } from './TextInput'
@@ -43,7 +42,6 @@ export type ComboboxBaseProps = {
   required?: boolean
   tooltipText?: string
   onInputChange?: (value: string) => void
-  onKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void
   // set to false in situations where the user should be able to type in new values
   // to decide: should we even give a placeholder / warning?
   showNoMatchPlaceholder?: boolean
@@ -68,7 +66,6 @@ export const Combobox = ({
   isLoading,
   onChange,
   onInputChange,
-  onKeyDown,
   showNoMatchPlaceholder = true,
 }: ComboboxProps) => {
   const [query, setQuery] = useState(selected || '')
@@ -119,12 +116,6 @@ export const Combobox = ({
             onChange={(event) => {
               setQuery(event.target.value)
               onInputChange?.(event.target.value)
-            }}
-            onKeyDown={(e) => {
-              onKeyDown && onKeyDown(e)
-              if (e.key === KEYS.enter) {
-                setQuery('')
-              }
             }}
             placeholder={placeholder}
             disabled={isDisabled || isLoading}
