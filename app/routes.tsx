@@ -63,6 +63,7 @@ import { StorageTab } from './pages/project/instances/instance/tabs/StorageTab'
 import { InstancesPage } from './pages/project/instances/InstancesPage'
 import { SnapshotsPage } from './pages/project/snapshots/SnapshotsPage'
 import { VpcFirewallRulesTab } from './pages/project/vpcs/VpcPage/tabs/VpcFirewallRulesTab'
+import { VpcRoutersTab } from './pages/project/vpcs/VpcPage/tabs/VpcRoutersTab'
 import { VpcSubnetsTab } from './pages/project/vpcs/VpcPage/tabs/VpcSubnetsTab'
 import { VpcPage } from './pages/project/vpcs/VpcPage/VpcPage'
 import { VpcsPage } from './pages/project/vpcs/VpcsPage'
@@ -389,6 +390,9 @@ export const routes = createRoutesFromElements(
                   loader={EditSubnetForm.loader}
                   handle={{ crumb: 'Edit Subnet' }}
                 />
+              </Route>
+              <Route element={<VpcRoutersTab />} loader={VpcRoutersTab.loader}>
+                <Route path="routers" handle={{ crumb: 'Routers' }} />
               </Route>
             </Route>
           </Route>

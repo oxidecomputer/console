@@ -59,6 +59,7 @@ export function VpcPage() {
       <RouteTabs fullWidth>
         <Tab to={pb.vpcFirewallRules(vpcSelector)}>Firewall Rules</Tab>
         <Tab to={pb.vpcSubnets(vpcSelector)}>Subnets</Tab>
+        <Tab to={pb.vpcRouters(vpcSelector)}>Routers</Tab>
       </RouteTabs>
     </>
   )
