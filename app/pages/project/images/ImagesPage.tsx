@@ -33,7 +33,7 @@ const EmptyState = () => (
   <EmptyMessage
     icon={<Images24Icon />}
     title="No images"
-    body="You need to create an image to be able to see it here"
+    body="Create an image to see it here"
     // buttonText="New image"
     // buttonTo="new"
   />

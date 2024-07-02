@@ -160,7 +160,7 @@ export function StorageTab() {
     <EmptyMessage
       icon={<Storage24Icon />}
       title="No disks"
-      body="You need to attach a disk to this instance to be able to see it here"
+      body="Attach a disk to this instance to see it here"
     />
   )
 

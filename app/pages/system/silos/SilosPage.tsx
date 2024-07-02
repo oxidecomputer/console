@@ -38,7 +38,7 @@ const EmptyState = () => (
   <EmptyMessage
     icon={<Cloud24Icon />}
     title="No silos"
-    body="You need to create a silo to be able to see it here"
+    body="Create a silo to see it here"
     buttonText="New silo"
     buttonTo={pb.silosNew()}
   />

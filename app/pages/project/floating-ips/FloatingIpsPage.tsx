@@ -47,7 +47,7 @@ const EmptyState = () => (
   <EmptyMessage
     icon={<IpGlobal24Icon />}
     title="No floating IPs"
-    body="You need to create a floating IP to be able to see it here"
+    body="Create a floating IP to see it here"
     buttonText="New Floating IP"
     buttonTo={pb.floatingIpsNew(useProjectSelector())}
   />
