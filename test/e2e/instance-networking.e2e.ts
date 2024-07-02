@@ -17,7 +17,7 @@ test('Instance networking tab — NIC table', async ({ page }) => {
   await expect(page.getByRole('link', { name: '123.4.56.0' })).toBeVisible()
 
   // Instance networking tab
-  await page.click('role=tab[name="Networking"]')
+  await page.getByRole('tab', { name: 'Networking' }).click()
 
   const nicTable = page.getByRole('table', { name: 'Network interfaces' })
 
@@ -44,20 +44,20 @@ test('Instance networking tab — NIC table', async ({ page }) => {
   // TODO: modal title is not getting hooked up, IDs are wrong
   await expectVisible(page, [
     'role=heading[name="Add network interface"]',
-    'role=textbox[name="Name"]',
     'role=textbox[name="Description"]',
-    'role=button[name*="VPC"]', // listbox
-    'role=button[name*="Subnet"]', // listbox
     'role=textbox[name="IP Address"]',
   ])
 
-  await page.fill('role=textbox[name="Name"]', 'nic-2')
-  await page.click('role=button[name*="VPC"]')
-  await page.click('role=option[name="mock-vpc"]')
-  await page.click('role=button[name*="Subnet"]')
-  await page.click('role=option[name="mock-subnet"]')
-  await page.click('role=dialog >> role=button[name="Add network interface"]')
-  await expectVisible(page, ['role=cell[name="nic-2"]'])
+  await page.getByRole('textbox', { name: 'Name' }).fill('nic-2')
+  await page.getByLabel('VPC', { exact: true }).click()
+  await page.getByRole('option', { name: 'mock-vpc' }).click()
+  await page.getByLabel('Subnet').click()
+  await page.getByRole('option', { name: 'mock-subnet' }).click()
+  await page
+    .getByRole('dialog')
+    .getByRole('button', { name: 'Add network interface' })
+    .click()
+  await expect(page.getByRole('cell', { name: 'nic-2' })).toBeVisible()
 
   // Make this interface primary
   await clickRowAction(page, 'nic-2', 'Make primary')
@@ -66,8 +66,8 @@ test('Instance networking tab — NIC table', async ({ page }) => {
 
   // Make an edit to the network interface
   await clickRowAction(page, 'nic-2', 'Edit')
-  await page.fill('role=textbox[name="Name"]', 'nic-3')
-  await page.click('role=button[name="Update network interface"]')
+  await page.getByRole('textbox', { name: 'Name' }).fill('nic-3')
+  await page.getByRole('button', { name: 'Update network interface' }).click()
   await expect(page.getByRole('cell', { name: 'nic-2' })).toBeHidden()
   const nic3 = page.getByRole('cell', { name: 'nic-3' })
   await expect(nic3).toBeVisible()

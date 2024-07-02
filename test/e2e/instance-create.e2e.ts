@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { floatingIp, images } from '@oxide/api-mocks'
+import { floatingIp } from '@oxide/api-mocks'
 
 import {
   expect,
@@ -18,13 +18,13 @@ import {
 
 const selectASiloImage = async (page: Page, name: string) => {
   await page.getByRole('tab', { name: 'Silo images' }).click()
-  await page.getByRole('button', { name: 'Select an image' }).click()
+  await page.getByLabel('Image', { exact: true }).click()
   await page.getByRole('option', { name }).click()
 }
 
 const selectAProjectImage = async (page: Page, name: string) => {
   await page.getByRole('tab', { name: 'Project images' }).click()
-  await page.getByRole('button', { name: 'Select an image' }).click()
+  await page.getByLabel('Image', { exact: true }).click()
   await page.getByRole('option', { name }).click()
 }
 
@@ -216,8 +216,7 @@ test('automatically updates disk size when larger image selected', async ({ page
   await expect(diskSizeInput).toHaveValue('10')
 
   // pick another image, just to verify that the diskSizeInput stays as it was
-  await page.getByRole('button', { name: 'Image' }).click()
-  await page.getByRole('option', { name: images[1].name }).click()
+  await selectAProjectImage(page, 'image-2')
   await expect(diskSizeInput).toHaveValue('10')
 
   const submitButton = page.getByRole('button', { name: 'Create instance' })
