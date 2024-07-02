@@ -41,7 +41,7 @@ const EmptyState = () => (
   <EmptyMessage
     icon={<Storage24Icon />}
     title="No disks"
-    body="You need to create a disk to be able to see it here"
+    body="Create a disk to see it here"
     buttonText="New disk"
     buttonTo={pb.disksNew(useProjectSelector())}
   />
