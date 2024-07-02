@@ -18,6 +18,7 @@ type SubnetListboxProps<
   TName extends FieldPath<TFieldValues>,
 > = Omit<ListboxFieldProps<TFieldValues, TName>, 'items'> & {
   vpcNameField: FieldPath<TFieldValues>
+  noItemsPlaceholder?: string
 }
 
 /**
@@ -30,7 +31,12 @@ type SubnetListboxProps<
 export function SubnetListbox<
   TFieldValues extends FieldValues,
   TName extends FieldPath<TFieldValues>,
->({ vpcNameField, control, ...fieldProps }: SubnetListboxProps<TFieldValues, TName>) {
+>({
+  vpcNameField,
+  control,
+  noItemsPlaceholder,
+  ...fieldProps
+}: SubnetListboxProps<TFieldValues, TName>) {
   const projectSelector = useProjectSelector()
 
   const [vpcName] = useWatch({ control, name: [vpcNameField] })
@@ -53,7 +59,7 @@ export function SubnetListbox<
       disabled={!vpcExists}
       control={control}
       placeholder="Select a subnet"
-      noItemsPlaceholder="Select a VPC to see subnets"
+      noItemsPlaceholder={noItemsPlaceholder}
     />
   )
 }

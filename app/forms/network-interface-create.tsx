@@ -79,6 +79,9 @@ export function CreateNetworkInterfaceForm({
         vpcNameField="vpcName"
         required
         control={form.control}
+        noItemsPlaceholder={
+          form.watch('vpcName') ? 'No subnets found' : 'Select a VPC to see subnets'
+        }
       />
       <TextField
         name="ip"
