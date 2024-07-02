@@ -20,7 +20,7 @@ test('can create a NIC with a specified IP address', async ({ page }) => {
 
   // fill out the form
   await page.getByLabel('Name').fill('nic-1')
-  await page.getByRole('button', { name: 'VPC' }).first().click()
+  await page.getByLabel('VPC', { exact: true }).click()
   await page.getByRole('option', { name: 'mock-vpc' }).click()
   await page.getByRole('button', { name: 'Subnet' }).click()
   await page.getByRole('option', { name: 'mock-subnet' }).click()
