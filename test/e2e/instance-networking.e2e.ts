@@ -129,7 +129,7 @@ test('Instance networking tab — floating IPs', async ({ page }) => {
   // Select the 'rootbeer-float' option
   const dialog = page.getByRole('dialog')
   // TODO: this "select the option" syntax is awkward; it's working, but I suspect there's a better way
-  await dialog.getByRole('button', { name: 'Select floating IP' }).click()
+  await dialog.getByRole('button', { name: 'Select a floating IP' }).click()
   await page.keyboard.press('ArrowDown')
   await page.keyboard.press('Enter')
   // await dialog.getByRole('button', { name: 'rootbeer-float' }).click()
