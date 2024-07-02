@@ -111,7 +111,7 @@ export function CreateFloatingIpSideModalForm() {
             items={(allPools?.items || []).map((p) => toListboxItem(p))}
             label="IP pool"
             control={form.control}
-            placeholder="Select pool"
+            placeholder="Select a pool"
           />
         </AccordionItem>
       </Accordion.Root>

@@ -290,7 +290,7 @@ const AttachFloatingIpModal = ({
                 form.setValue('instanceId', e)
               }}
               required
-              placeholder="Select instance"
+              placeholder="Select an instance"
               selected={form.watch('instanceId')}
             />
           </form>

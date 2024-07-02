@@ -50,7 +50,7 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
               label="IP pool"
               placeholder={
                 siloPools?.items && siloPools.items.length > 0
-                  ? 'Select pool'
+                  ? 'Select a pool'
                   : 'No pools available'
               }
               items={

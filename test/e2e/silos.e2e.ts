@@ -243,7 +243,7 @@ test('Silo IP pools link pool', async ({ page }) => {
   await expect(modal).toBeVisible()
 
   // select silo in combobox and click link
-  await page.getByPlaceholder('Select pool').fill('ip-pool')
+  await page.getByPlaceholder('Select a pool').fill('ip-pool')
   await page.getByRole('option', { name: 'ip-pool-3' }).click()
   await modal.getByRole('button', { name: 'Link' }).click()
 

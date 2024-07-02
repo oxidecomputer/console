@@ -71,7 +71,7 @@ export const AttachFloatingIpModal = ({
               control={form.control}
               name="floatingIp"
               label="Floating IP"
-              placeholder="Select floating IP"
+              placeholder="Select a floating IP"
               items={floatingIps.map((ip) => ({
                 value: ip.id,
                 label: <FloatingIpLabel fip={ip} />,
