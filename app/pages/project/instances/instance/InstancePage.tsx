@@ -23,7 +23,7 @@ import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import { RefreshButton } from '~/components/RefreshButton'
 import { RouteTabs, Tab } from '~/components/RouteTabs'
 import { InstanceStatusBadge } from '~/components/StatusBadge'
-import { getInstanceSelector, useInstanceSelector, useQuickActions } from '~/hooks'
+import { getInstanceSelector, useInstanceSelector } from '~/hooks'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { DateTime } from '~/ui/lib/DateTime'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
@@ -128,18 +128,6 @@ export function InstancePage() {
     ],
     [instance, makeActions]
   )
-  const quickActions = useMemo(
-    () =>
-      actions
-        // in the quick menu we do not show disabled actions
-        .filter((a) => !a.disabled)
-        // append "instance" to labels
-        // TODO: if these were in an "Instance actions" subsection they might not
-        // need the suffix for clarity
-        .map((a) => ({ onSelect: a.onActivate, value: a.label })),
-    [actions]
-  )
-  useQuickActions(quickActions)
 
   const memory = filesize(instance.memory, { output: 'object', base: 2 })
 
