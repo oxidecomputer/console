@@ -771,25 +771,21 @@ const AdvancedAccordion = ({
                 <MiniTable.HeadCell className="w-12" />
               </MiniTable.Header>
               <MiniTable.Body>
-                {attachedFloatingIpsData.map((item, index) =>
-                  item ? (
-                    <MiniTable.Row
-                      tabIndex={0}
-                      aria-rowindex={index + 1}
-                      aria-label={`Name: ${item.name}, IP: ${item.ip}`}
-                      key={item.name}
-                    >
-                      <MiniTable.Cell>{item.name}</MiniTable.Cell>
-                      <MiniTable.Cell>{item.ip}</MiniTable.Cell>
-                      <MiniTable.RemoveCell
-                        onClick={() => detachFloatingIp(item.name)}
-                        label={`remove floating IP ${item.name}`}
-                      />
-                    </MiniTable.Row>
-                  ) : (
-                    <></>
-                  )
-                )}
+                {attachedFloatingIpsData.map((item, index) => (
+                  <MiniTable.Row
+                    tabIndex={0}
+                    aria-rowindex={index + 1}
+                    aria-label={`Name: ${item.name}, IP: ${item.ip}`}
+                    key={item.name}
+                  >
+                    <MiniTable.Cell>{item.name}</MiniTable.Cell>
+                    <MiniTable.Cell>{item.ip}</MiniTable.Cell>
+                    <MiniTable.RemoveCell
+                      onClick={() => detachFloatingIp(item.name)}
+                      label={`remove floating IP ${item.name}`}
+                    />
+                  </MiniTable.Row>
+                ))}
               </MiniTable.Body>
             </MiniTable.Table>
           )}
