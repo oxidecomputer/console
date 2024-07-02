@@ -76,6 +76,7 @@ export function CreateSnapshotSideModalForm() {
       <ComboboxField
         label="Disk"
         name="disk"
+        placeholder="Select a disk"
         items={diskItems}
         required
         control={form.control}
