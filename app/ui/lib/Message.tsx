@@ -68,6 +68,7 @@ const linkColor: Record<Variant, string> = {
 
 export const Message = ({
   title,
+  // TODO: convert content to a children prop
   content,
   className,
   variant = 'success',
