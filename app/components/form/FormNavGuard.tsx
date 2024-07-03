@@ -4,7 +4,8 @@
  * file, you can obtain one at https://mozilla.org/MPL/2.0/.
  *
  * Copyright Oxide Computer Company
- */ import { useEffect } from 'react'
+ */
+import { useEffect } from 'react'
 import { type FieldValues, type UseFormReturn } from 'react-hook-form'
 import { useBlocker } from 'react-router-dom'
 
