@@ -5,18 +5,17 @@
  *
  * Copyright Oxide Computer Company
  */
-import { cloneElement, useEffect, type ReactNode } from 'react'
+import { cloneElement, type ReactNode } from 'react'
 import type { FieldValues, UseFormReturn } from 'react-hook-form'
-import { useBlocker } from 'react-router-dom'
 
 import type { ApiError } from '@oxide/api'
 
+import { FormNavGuard } from '~/components/form/FormNavGuard'
 import { flattenChildren, pluckFirstOfType } from '~/util/children'
 import { classed } from '~/util/classed'
 
 import { Form } from '../form/Form'
 import { PageActions } from '../PageActions'
-import { ConfirmNavigation } from './ConfirmNavigation'
 
 interface FullPageFormProps<TFieldValues extends FieldValues> {
   id: string
@@ -55,26 +54,7 @@ export function FullPageForm<TFieldValues extends FieldValues>({
   onSubmit,
   submitError,
 }: FullPageFormProps<TFieldValues>) {
-  const { isSubmitting, isDirty, isSubmitSuccessful } = form.formState
-
-  // Confirms with the user if they want to navigate away if the form is
-  // dirty. Does not intercept everything e.g. refreshes or closing the tab
-  // but serves to reduce the possibility of a user accidentally losing their
-  // progress.
-  const blocker = useBlocker(isDirty && !isSubmitSuccessful)
-
-  // Gating on !isSubmitSuccessful above makes the blocker stop blocking nav
-  // after a successful submit. However, this can take a little time (there is a
-  // render in between when isSubmitSuccessful is true but the blocker is still
-  // ready to block), so we also have this useEffect that lets blocked requests
-  // through if submit is succesful but the blocker hasn't gotten a chance to
-  // stop blocking yet.
-  useEffect(() => {
-    if (blocker.state === 'blocked' && isSubmitSuccessful) {
-      blocker.proceed()
-    }
-  }, [blocker, isSubmitSuccessful])
-
+  const { isSubmitting } = form.formState
   const childArray = flattenChildren(children)
   const actions = pluckFirstOfType(childArray, Form.Actions)
 
@@ -98,12 +78,8 @@ export function FullPageForm<TFieldValues extends FieldValues>({
         autoComplete="off"
       >
         {childArray}
+        <FormNavGuard form={form} />
       </form>
-
-      {/* rendering of the modal must be gated on isSubmitSuccessful because
-          there is a brief moment where isSubmitSuccessful is true but the proceed() 
-          hasn't fired yet, which means we get a brief flash of this modal */}
-      {!isSubmitSuccessful && <ConfirmNavigation blocker={blocker} />}
 
       {actions && (
         <PageActions>

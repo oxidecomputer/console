@@ -7,14 +7,13 @@
  */
 import { useEffect, useId, type ReactNode } from 'react'
 import type { FieldValues, UseFormReturn } from 'react-hook-form'
-import { NavigationType, useBlocker, useNavigationType } from 'react-router-dom'
+import { NavigationType, useNavigationType } from 'react-router-dom'
 
 import type { ApiError } from '@oxide/api'
 
+import { FormNavGuard } from '~/components/form/FormNavGuard'
 import { Button } from '~/ui/lib/Button'
 import { SideModal } from '~/ui/lib/SideModal'
-
-import { ConfirmNavigation } from './ConfirmNavigation'
 
 type CreateFormProps = {
   formType: 'create'
@@ -77,7 +76,7 @@ export function SideModalForm<TFieldValues extends FieldValues>({
   subtitle,
 }: SideModalFormProps<TFieldValues>) {
   const id = useId()
-  const { isSubmitting, isDirty, isSubmitSuccessful } = form.formState
+  const { isSubmitting } = form.formState
 
   useEffect(() => {
     if (submitError?.errorCode === 'ObjectAlreadyExists' && 'name' in form.getValues()) {
@@ -85,24 +84,6 @@ export function SideModalForm<TFieldValues extends FieldValues>({
       form.setError('name', { message: 'Name already exists' })
     }
   }, [submitError, form])
-
-  // Confirms with the user if they want to navigate away if the form is
-  // dirty. Does not intercept everything e.g. refreshes or closing the tab
-  // but serves to reduce the possibility of a user accidentally losing their
-  // progress.
-  const blocker = useBlocker(isDirty && !isSubmitSuccessful)
-
-  // Gating on !isSubmitSuccessful above makes the blocker stop blocking nav
-  // after a successful submit. However, this can take a little time (there is a
-  // render in between when isSubmitSuccessful is true but the blocker is still
-  // ready to block), so we also have this useEffect that lets blocked requests
-  // through if submit is succesful but the blocker hasn't gotten a chance to
-  // stop blocking yet.
-  useEffect(() => {
-    if (blocker.state === 'blocked' && isSubmitSuccessful) {
-      blocker.proceed()
-    }
-  }, [blocker, isSubmitSuccessful])
 
   const label =
     formType === 'edit'
@@ -135,6 +116,7 @@ export function SideModalForm<TFieldValues extends FieldValues>({
           }}
         >
           {children}
+          <FormNavGuard form={form} />
         </form>
       </SideModal.Body>
       <SideModal.Footer error={!!submitError}>
@@ -154,7 +136,6 @@ export function SideModalForm<TFieldValues extends FieldValues>({
           </Button>
         )}
       </SideModal.Footer>
-      {!isSubmitSuccessful && <ConfirmNavigation blocker={blocker} />}
     </SideModal>
   )
 }
