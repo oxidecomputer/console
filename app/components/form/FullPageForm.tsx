@@ -7,16 +7,16 @@
  */
 import { cloneElement, useEffect, type ReactNode } from 'react'
 import type { FieldValues, UseFormReturn } from 'react-hook-form'
-import { useBlocker, type Blocker } from 'react-router-dom'
+import { useBlocker } from 'react-router-dom'
 
 import type { ApiError } from '@oxide/api'
 
-import { Modal } from '~/ui/lib/Modal'
 import { flattenChildren, pluckFirstOfType } from '~/util/children'
 import { classed } from '~/util/classed'
 
 import { Form } from '../form/Form'
 import { PageActions } from '../PageActions'
+import { ConfirmNavigation } from './ConfirmNavigation'
 
 interface FullPageFormProps<TFieldValues extends FieldValues> {
   id: string
@@ -120,23 +120,3 @@ export function FullPageForm<TFieldValues extends FieldValues>({
     </>
   )
 }
-
-const ConfirmNavigation = ({ blocker }: { blocker: Blocker }) => (
-  <Modal
-    isOpen={blocker.state === 'blocked'}
-    onDismiss={() => blocker.reset?.()}
-    title="Confirm navigation"
-  >
-    <Modal.Section>
-      Are you sure you want to leave this page? <br /> You will lose all progress on this
-      form.
-    </Modal.Section>
-    <Modal.Footer
-      onDismiss={() => blocker.reset?.()}
-      onAction={() => blocker.proceed?.()}
-      cancelText="Continue editing"
-      actionText="Leave this page"
-      actionType="danger"
-    />
-  </Modal>
-)
