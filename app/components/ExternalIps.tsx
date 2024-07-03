@@ -8,8 +8,8 @@
 
 import { useApiQuery } from '@oxide/api'
 
-import { IpLink } from '~/components/IpLink'
 import { EmptyCell, SkeletonCell } from '~/table/cells/EmptyCell'
+import { IpLink } from '~/ui/lib/IpLink'
 import { intersperse } from '~/util/array'
 
 type InstanceSelector = { project: string; instance: string }
