@@ -99,7 +99,7 @@ export function ImagesPage() {
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<Images24Icon />}>Images</PageTitle>
+        <PageTitle icon={<Images24Icon />}>Project Images</PageTitle>
         <DocsPopover
           heading="Images"
           icon={<Images16Icon />}
