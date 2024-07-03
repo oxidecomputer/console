@@ -5,21 +5,18 @@
  *
  * Copyright Oxide Computer Company
  */
-
 import { CopyToClipboard } from '~/ui/lib/CopyToClipboard'
 
-export const IpLink = ({ ip }: { ip: string }) => {
-  return (
-    <span className="flex items-center gap-1" key={ip}>
-      <a
-        className="link-with-underline text-sans-semi-md"
-        href={`https://${ip}`}
-        target="_blank"
-        rel="noreferrer"
-      >
-        {ip}
-      </a>
-      <CopyToClipboard text={ip} />
-    </span>
-  )
-}
+export const IpLink = ({ ip }: { ip: string }) => (
+  <span className="flex items-center gap-1">
+    <a
+      className="link-with-underline text-sans-semi-md"
+      href={`https://${ip}`}
+      target="_blank"
+      rel="noreferrer"
+    >
+      {ip}
+    </a>
+    <CopyToClipboard text={ip} />
+  </span>
+)
