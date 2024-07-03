@@ -24,6 +24,7 @@ import { IpGlobal24Icon, Networking24Icon } from '@oxide/design-system/icons/rea
 import { AttachEphemeralIpModal } from '~/components/AttachEphemeralIpModal'
 import { AttachFloatingIpModal } from '~/components/AttachFloatingIpModal'
 import { HL } from '~/components/HL'
+import { IpLink } from '~/components/IpLink'
 import { CreateNetworkInterfaceForm } from '~/forms/network-interface-create'
 import { EditNetworkInterfaceForm } from '~/forms/network-interface-edit'
 import { getInstanceSelector, useInstanceSelector, useProjectSelector } from '~/hooks'
@@ -240,7 +241,9 @@ export function NetworkingTab() {
 
   const ipColHelper = createColumnHelper<ExternalIp>()
   const staticIpCols = [
-    ipColHelper.accessor('ip', {}),
+    ipColHelper.accessor('ip', {
+      cell: (info) => <IpLink ip={info.getValue()} />,
+    }),
     ipColHelper.accessor('kind', {
       header: () => (
         <>
