@@ -20,6 +20,7 @@ import { SideModalForm } from '~/components/form/SideModalForm'
 import { useForm } from '~/hooks'
 import { addToast } from '~/stores/toast'
 import { FormDivider } from '~/ui/lib/Divider'
+import { Message } from '~/ui/lib/Message'
 import { pb } from '~/util/path-builder'
 import { GiB } from '~/util/units'
 
@@ -102,6 +103,7 @@ export function CreateSiloSideModalForm() {
       loading={createSilo.isPending}
       submitError={createSilo.error}
     >
+      <Message variant="info" content={<HelpMessage />} />
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
       <CheckboxField name="discoverable" control={form.control}>
@@ -139,7 +141,7 @@ export function CreateSiloSideModalForm() {
         column
         control={form.control}
         items={[
-          { value: 'saml_jit', label: 'SAML JIT' },
+          { value: 'saml_jit', label: 'SAML' },
           { value: 'local_only', label: 'Local only' },
         ]}
       />
@@ -162,5 +164,23 @@ export function CreateSiloSideModalForm() {
       <FormDivider />
       <TlsCertsField control={form.control} />
     </SideModalForm>
+  )
+}
+
+function HelpMessage() {
+  return (
+    <>
+      Read the{' '}
+      <a
+        href="https://docs.oxide.computer/guides/operator/silo-management"
+        // don't need color and hover color because message text is already color-info anyway
+        className="underline"
+        target="_blank"
+        rel="noreferrer"
+      >
+        Silo Management
+      </a>{' '}
+      guide to learn more.
+    </>
   )
 }
