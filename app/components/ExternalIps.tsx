@@ -8,10 +8,9 @@
 
 import { useApiQuery } from '@oxide/api'
 
+import { IpLink } from '~/components/IpLink'
 import { EmptyCell, SkeletonCell } from '~/table/cells/EmptyCell'
 import { intersperse } from '~/util/array'
-
-import { IpLink } from './IpLink'
 
 type InstanceSelector = { project: string; instance: string }
 
