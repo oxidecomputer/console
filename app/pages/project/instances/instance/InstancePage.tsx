@@ -140,7 +140,7 @@ export function InstancePage() {
             heading="instances"
             icon={<Instances16Icon />}
             summary="Instances are virtual machines that run on the Oxide platform."
-            links={[docLinks.instances, docLinks.vms]}
+            links={[docLinks.instances, docLinks.instanceActions]}
           />
           <RefreshButton onClick={refreshData} />
           <MoreActionsMenu label="Instance actions" actions={actions} />

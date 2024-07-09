@@ -130,7 +130,7 @@ export function InstancesPage() {
           heading="instances"
           icon={<Instances16Icon />}
           summary="Instances are virtual machines that run on the Oxide platform."
-          links={[docLinks.instances, docLinks.vms]}
+          links={[docLinks.instances, docLinks.instanceActions]}
         />
       </PageHeader>
       <TableActions>

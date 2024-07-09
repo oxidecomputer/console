@@ -9,7 +9,7 @@ import { expect, test } from './utils'
 
 test('Show / hide contextual help docs links', async ({ page }) => {
   const learnAbout = page.getByText('Learn about disks')
-  const managingDisksLink = page.getByRole('link', { name: 'Managing Disks' })
+  const managingDisksLink = page.getByRole('link', { name: 'Disks and Snapshots' })
 
   await page.goto('/projects/mock-project/disks')
 
