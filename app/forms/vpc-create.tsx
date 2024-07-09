@@ -21,6 +21,7 @@ const defaultValues: VpcCreate = {
   name: '',
   description: '',
   dnsName: '',
+  ipv6Prefix: '',
 }
 
 export function CreateVpcSideModalForm() {
