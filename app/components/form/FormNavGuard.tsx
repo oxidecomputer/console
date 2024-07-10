@@ -35,14 +35,7 @@ export function FormNavGuard<TFieldValues extends FieldValues>({
     }
   }, [blocker, isSubmitSuccessful])
 
-  // Rendering of the modal must be gated on isSubmitSuccessful because
-  // there is a brief moment where isSubmitSuccessful is true but the proceed()
-  // hasn't fired yet, which means we get a brief flash of this modal */}
-  if (isSubmitting || isSubmitSuccessful) {
-    return null
-  }
-
-  return (
+  return isSubmitting || isSubmitSuccessful ? null : (
     <Modal
       isOpen={blocker.state === 'blocked'}
       onDismiss={() => blocker.reset?.()}
