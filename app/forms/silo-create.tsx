@@ -178,7 +178,7 @@ function HelpMessage() {
         target="_blank"
         rel="noreferrer"
       >
-        Silo Management
+        Silos
       </a>{' '}
       guide to learn more.
     </>
