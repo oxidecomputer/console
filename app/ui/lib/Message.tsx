@@ -68,6 +68,7 @@ const linkColor: Record<Variant, string> = {
 
 export const Message = ({
   title,
+  // TODO: convert content to a children prop
   content,
   className,
   variant = 'success',
@@ -83,7 +84,9 @@ export const Message = ({
         className
       )}
     >
-      <div className="mt-[2px] flex svg:h-3 svg:w-3">{icon || defaultIcon[variant]}</div>
+      <div className="mt-[2px] flex [&>svg]:h-3 [&>svg]:w-3">
+        {icon || defaultIcon[variant]}
+      </div>
       <div className="flex-1 pl-2.5">
         {title && <div className="text-sans-semi-md">{title}</div>}
         <div

@@ -45,7 +45,7 @@ jobs:
       - name: Lint
         run: npm run lint
       - name: Test
-        run: VITEST_MAX_THREADS=1 VITEST_MIN_THREADS=1 npm run test run
+        run: npm test run
       - name: Build
         run: npm run build
   playwright:
