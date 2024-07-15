@@ -43,7 +43,7 @@ const EmptyState = () => (
   <EmptyMessage
     icon={<Images24Icon />}
     title="No images"
-    body="You need to promote an image to be able to see it here"
+    body="Promote an image to see it here"
   />
 )
 

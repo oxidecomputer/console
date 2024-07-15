@@ -37,7 +37,7 @@ const EmptyState = () => (
   <EmptyMessage
     icon={<Folder24Icon />}
     title="No projects"
-    body="You need to create a project to be able to see it here"
+    body="Create a project to see it here"
     buttonText="New project"
     buttonTo={pb.projectsNew()}
   />

@@ -162,7 +162,7 @@ export function VpcFirewallRulesTab() {
     <TableEmptyBox>
       <EmptyMessage
         title="No firewall rules"
-        body="You need to create a rule to be able to see it here"
+        body="Create a rule to see it here"
         buttonText="New rule"
         buttonTo={pb.vpcFirewallRulesNew(vpcSelector)}
       />

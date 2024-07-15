@@ -39,7 +39,7 @@ const EmptyState = () => (
   <EmptyMessage
     icon={<Instances24Icon />}
     title="No instances"
-    body="You need to create an instance to be able to see it here"
+    body="Create an instance to see it here"
     buttonText="New instance"
     buttonTo={pb.instancesNew(useProjectSelector())}
   />
@@ -130,7 +130,7 @@ export function InstancesPage() {
           heading="instances"
           icon={<Instances16Icon />}
           summary="Instances are virtual machines that run on the Oxide platform."
-          links={[docLinks.instances, docLinks.vms]}
+          links={[docLinks.instances, docLinks.instanceActions]}
         />
       </PageHeader>
       <TableActions>

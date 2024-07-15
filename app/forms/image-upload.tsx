@@ -543,6 +543,18 @@ export function CreateImageSideModalForm() {
       submitError={formError}
       submitLabel={allDone ? 'Done' : 'Upload image'}
     >
+      <Message
+        variant="info"
+        content={
+          <>
+            Read the{' '}
+            <a target="_blank" rel="noreferrer" href={links.imagesDocs}>
+              Images
+            </a>{' '}
+            guide to learn more about image requirements.
+          </>
+        }
+      />
       <NameField name="imageName" label="Name" control={form.control} />
       <DescriptionField
         name="imageDescription"

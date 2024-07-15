@@ -67,7 +67,7 @@ export function SSHKeysPage() {
     <EmptyMessage
       icon={<Key16Icon />}
       title="No SSH keys"
-      body="You need to add a SSH key to be able to see it here"
+      body="Add a SSH key to see it here"
       buttonText="Add SSH key"
       onClick={() => navigate(pb.sshKeysNew())}
     />

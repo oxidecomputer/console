@@ -90,7 +90,7 @@ export function VpcSubnetsTab() {
   const emptyState = (
     <EmptyMessage
       title="No VPC subnets"
-      body="You need to create a subnet to be able to see it here"
+      body="Create a subnet to see it here"
       buttonText="New subnet"
       buttonTo={pb.vpcSubnetsNew(vpcSelector)}
     />

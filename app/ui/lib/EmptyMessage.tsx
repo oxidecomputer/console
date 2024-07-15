@@ -46,7 +46,9 @@ export function EmptyMessage(props: Props) {
         </div>
       )}
       <h3 className="text-sans-semi-lg">{props.title}</h3>
-      {props.body && <p className="mt-1 text-sans-md text-secondary">{props.body}</p>}
+      {props.body && (
+        <p className="mt-1 text-balance text-sans-md text-secondary">{props.body}</p>
+      )}
       {button}
     </div>
   )
