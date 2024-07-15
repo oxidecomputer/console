@@ -550,7 +550,6 @@ export const CommonFields = ({
             variant="ghost"
             size="sm"
             className="mr-2.5"
-            disabled={!hostForm.watch('value').length}
             onClick={() => hostForm.reset()}
           >
             Clear
