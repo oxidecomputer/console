@@ -322,7 +322,7 @@ test('create from existing rule', async ({ page }) => {
   await expect(page).toHaveURL(url + '-new/allow-rdp')
   await expect(modal).toBeVisible()
   await expect(modal.getByRole('textbox', { name: 'Name', exact: true })).toHaveValue(
-    'allow-rdp-1'
+    'allow-rdp-copy'
   )
 
   await expect(modal.getByRole('checkbox', { name: 'TCP' })).toBeChecked()

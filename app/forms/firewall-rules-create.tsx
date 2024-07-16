@@ -43,7 +43,6 @@ import { TextInputHint } from '~/ui/lib/TextInput'
 import { KEYS } from '~/ui/util/keys'
 import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
-import { incrementName } from '~/util/str'
 
 export type FirewallRuleValues = {
   enabled: boolean
@@ -602,7 +601,7 @@ export function CreateFirewallRuleForm() {
   const originalRule = existingRules.find((rule) => rule.name === firewallRule)
 
   const defaultValues: FirewallRuleValues = originalRule
-    ? ruleToValues({ ...originalRule, name: incrementName(originalRule.name) })
+    ? ruleToValues({ ...originalRule, name: originalRule.name + '-copy' })
     : defaultValuesEmpty
 
   const form = useForm({ defaultValues })

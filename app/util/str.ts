@@ -65,18 +65,3 @@ export const validateIp = (ip: string) => {
   const isv6 = !isv4 && IPV6_REGEX.test(ip)
   return { isv4, isv6, valid: isv4 || isv6 }
 }
-
-export const incrementName = (str: string) => {
-  let name = str
-  const match = name.match(/(.*)-(\d+)$/)
-
-  if (match) {
-    const base = match[1]
-    const num = parseInt(match[2], 10)
-    name = `${base}-${num + 1}`
-  } else {
-    name = `${name}-1`
-  }
-
-  return name
-}

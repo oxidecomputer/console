@@ -7,15 +7,7 @@
  */
 import { describe, expect, it, test } from 'vitest'
 
-import {
-  camelCase,
-  capitalize,
-  commaSeries,
-  incrementName,
-  kebabCase,
-  titleCase,
-  validateIp,
-} from './str'
+import { camelCase, capitalize, commaSeries, kebabCase, titleCase, validateIp } from './str'
 
 describe('capitalize', () => {
   it('capitalizes the first letter', () => {
@@ -147,12 +139,4 @@ test.each([
   'fe08::7:8interface',
 ])('validateIp catches invalid IP: %s', (s) => {
   expect(validateIp(s)).toStrictEqual({ isv4: false, isv6: false, valid: false })
-})
-
-describe('incrementName', () => {
-  it('increments the name', () => {
-    expect(incrementName('increment-name')).toBe('increment-name-1')
-    expect(incrementName('increment-name-1')).toBe('increment-name-2')
-    expect(incrementName('increment-name-99')).toBe('increment-name-100')
-  })
 })
