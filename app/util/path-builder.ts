@@ -79,7 +79,7 @@ export const pb = {
 
   vpcFirewallRules: (params: Vpc) => `${vpcBase(params)}/firewall-rules`,
   vpcFirewallRulesNew: (params: Vpc) => `${vpcBase(params)}/firewall-rules-new`,
-  vpcFirewallRulesNewFromTemplate: (params: FirewallRule) =>
+  vpcFirewallRuleClone: (params: FirewallRule) =>
     `${pb.vpcFirewallRulesNew(params)}/${params.rule}`,
   vpcFirewallRuleEdit: (params: FirewallRule) =>
     `${pb.vpcFirewallRules(params)}/${params.rule}/edit`,

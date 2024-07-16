@@ -142,9 +142,7 @@ export function VpcFirewallRulesTab() {
         {
           label: 'Clone',
           onActivate() {
-            navigate(
-              pb.vpcFirewallRulesNewFromTemplate({ ...vpcSelector, rule: rule.name })
-            )
+            navigate(pb.vpcFirewallRuleClone({ ...vpcSelector, rule: rule.name }))
           },
         },
         {
