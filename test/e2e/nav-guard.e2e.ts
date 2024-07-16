@@ -28,7 +28,7 @@ test('navigating away from SideModal form triggers nav guard', async ({ page }) 
   await page.fill('input[name=name]', floatingIpName)
 
   // form is now dirty, so clicking away should trigger the nav guard
-  // await page.keyboard.press('Escape')
+  // force: true allows us to click even though the "Instances" link is inactive
   await page.getByRole('link', { name: 'Instances' }).click({ force: true })
   await expect(confirmModal).toBeVisible()
 
@@ -37,7 +37,7 @@ test('navigating away from SideModal form triggers nav guard', async ({ page }) 
   await expect(confirmModal).toBeHidden()
   await expect(formModal).toBeVisible()
 
-  // now try to navigate away again
+  // now try to navigate away again; verify that clicking the Escape key also triggers it
   await page.keyboard.press('Escape')
   await expect(confirmModal).toBeVisible()
   await page.getByRole('button', { name: 'Leave form' }).click()
