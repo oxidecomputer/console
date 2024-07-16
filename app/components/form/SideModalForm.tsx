@@ -112,6 +112,9 @@ export function SideModalForm<TFieldValues extends FieldValues>({
             // SideModalForm from inside another form, in which case submitting
             // the inner form submits the outer form unless we stop propagation
             e.stopPropagation()
+            // Important to await here so isSubmitSuccessful doesn't become true
+            // until the submit is actually successful. Note you must use await
+            // mutateAsync() inside onSubmit in order to make this wait
             await form.handleSubmit(onSubmit)(e)
           }}
         >
