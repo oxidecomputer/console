@@ -7,7 +7,7 @@
  */
 import { useMemo } from 'react'
 import { useController, type Control } from 'react-hook-form'
-import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
+import { useNavigate, useParams, type LoaderFunctionArgs } from 'react-router-dom'
 import * as R from 'remeda'
 
 import {
@@ -74,7 +74,17 @@ export const valuesToRuleUpdate = (values: FirewallRuleValues): VpcFirewallRuleU
   targets: values.targets,
 })
 
-const defaultValues: FirewallRuleValues = {
+/** convert in the opposite direction for when we're creating from existing rule */
+const ruleToValues = (rule: VpcFirewallRule): FirewallRuleValues => ({
+  ...rule,
+  enabled: rule.status === 'enabled',
+  protocols: rule.filters.protocols || [],
+  ports: rule.filters.ports || [],
+  hosts: rule.filters.hosts || [],
+})
+
+/** Empty form for when we're not creating from an existing rule */
+const defaultValuesEmpty: FirewallRuleValues = {
   enabled: true,
   name: '',
   description: '',
@@ -585,6 +595,18 @@ export function CreateFirewallRuleForm() {
     query: vpcSelector,
   })
   const existingRules = useMemo(() => R.sortBy(data.rules, (r) => r.priority), [data])
+
+  // The :rule path param is optional. If it is present, we are creating a
+  // rule from an existing one, so we find that rule and copy it into the form
+  // values. Note that if we fail to find the rule by name (which should be
+  // very unlikely) we just pretend we never saw a name in the path and start
+  // from scratch.
+  const { rule: ruleName } = useParams()
+  const originalRule = existingRules.find((rule) => rule.name === ruleName)
+
+  const defaultValues: FirewallRuleValues = originalRule
+    ? ruleToValues({ ...originalRule, name: originalRule.name + '-copy' })
+    : defaultValuesEmpty
 
   const form = useForm({ defaultValues })
 

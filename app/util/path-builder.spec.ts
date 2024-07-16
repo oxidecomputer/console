@@ -88,6 +88,7 @@ test('path builder', () => {
         "systemUtilization": "/system/utilization",
         "vpc": "/projects/p/vpcs/v/firewall-rules",
         "vpcEdit": "/projects/p/vpcs/v/edit",
+        "vpcFirewallRuleClone": "/projects/p/vpcs/v/firewall-rules-new/fr",
         "vpcFirewallRuleEdit": "/projects/p/vpcs/v/firewall-rules/fr/edit",
         "vpcFirewallRules": "/projects/p/vpcs/v/firewall-rules",
         "vpcFirewallRulesNew": "/projects/p/vpcs/v/firewall-rules-new",

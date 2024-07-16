@@ -364,7 +364,7 @@ export const routes = createRoutesFromElements(
                   element={null}
                 />
                 <Route
-                  path="firewall-rules-new"
+                  path="firewall-rules-new/:rule?"
                   element={<CreateFirewallRuleForm />}
                   loader={CreateFirewallRuleForm.loader}
                   handle={{ crumb: 'New Firewall Rule' }}
