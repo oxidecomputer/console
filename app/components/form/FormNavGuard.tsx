@@ -47,8 +47,8 @@ export function FormNavGuard<TFieldValues extends FieldValues>({
       <Modal.Footer
         onDismiss={() => blocker.reset?.()}
         onAction={() => blocker.proceed?.()}
-        cancelText="Continue editing"
-        actionText="Leave this form"
+        cancelText="Keep editing"
+        actionText="Leave form"
         actionType="danger"
       />
     </Modal>
