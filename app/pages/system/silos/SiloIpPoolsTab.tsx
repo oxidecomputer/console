@@ -32,7 +32,7 @@ const EmptyState = () => (
   <EmptyMessage
     icon={<Networking24Icon />}
     title="No IP pools"
-    body="You need to create an IP pool to be able to see it here"
+    body="Create an IP pool to see it here"
     buttonText="New IP pool"
     buttonTo={pb.ipPoolsNew()}
   />
@@ -236,7 +236,7 @@ function LinkPoolModal({ onDismiss }: { onDismiss: () => void }) {
             />
 
             <ComboboxField
-              placeholder="Select pool"
+              placeholder="Select a pool"
               name="pool"
               label="IP pool"
               items={unlinkedPoolItems}

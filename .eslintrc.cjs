@@ -92,7 +92,7 @@ module.exports = {
     'react/react-in-jsx-scope': 'off',
     'react/prop-types': 'off',
   },
-  ignorePatterns: ['dist/', 'node_modules/'],
+  ignorePatterns: ['dist/', 'node_modules/', 'tools/deno/'],
   overrides: [
     {
       // default export is needed in config files

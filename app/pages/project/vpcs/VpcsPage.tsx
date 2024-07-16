@@ -38,7 +38,7 @@ const EmptyState = () => (
   <EmptyMessage
     icon={<Networking24Icon />}
     title="No VPCs"
-    body="You need to create a VPC to be able to see it here"
+    body="Create a VPC to see it here"
     buttonText="New VPC"
     buttonTo={pb.vpcsNew(useProjectSelector())}
   />

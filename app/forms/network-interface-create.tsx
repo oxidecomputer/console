@@ -9,8 +9,8 @@ import { useMemo } from 'react'
 
 import { useApiQuery, type ApiError, type InstanceNetworkInterfaceCreate } from '@oxide/api'
 
-import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
+import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SubnetListbox } from '~/components/form/fields/SubnetListbox'
 import { TextField } from '~/components/form/fields/TextField'
@@ -65,12 +65,13 @@ export function CreateNetworkInterfaceForm({
       <DescriptionField name="description" control={form.control} />
       <FormDivider />
 
-      <ComboboxField
+      <ListboxField
         name="vpcName"
         label="VPC"
         items={vpcs.map(({ name }) => ({ label: name, value: name }))}
         required
         control={form.control}
+        placeholder="Select a VPC"
       />
       <SubnetListbox
         name="subnetName"

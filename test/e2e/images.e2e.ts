@@ -24,7 +24,7 @@ test('can promote an image from silo', async ({ page }) => {
   await expectNotVisible(page, ['role=cell[name="image-1"]'])
 
   // Listboxes are visible
-  await expect(page.getByPlaceholder('Filter images by project')).toBeVisible()
+  await expect(page.getByPlaceholder('Select a project')).toBeVisible()
   await expect(page.locator(`text="Select an image"`)).toBeVisible()
 
   // Notice is visible

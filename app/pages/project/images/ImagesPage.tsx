@@ -33,7 +33,7 @@ const EmptyState = () => (
   <EmptyMessage
     icon={<Images24Icon />}
     title="No images"
-    body="You need to create an image to be able to see it here"
+    body="Create an image to see it here"
     // buttonText="New image"
     // buttonTo="new"
   />
@@ -99,7 +99,7 @@ export function ImagesPage() {
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<Images24Icon />}>Images</PageTitle>
+        <PageTitle icon={<Images24Icon />}>Project Images</PageTitle>
         <DocsPopover
           heading="Images"
           icon={<Images16Icon />}

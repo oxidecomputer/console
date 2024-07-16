@@ -37,7 +37,6 @@ import {
 import { AccordionItem } from '~/components/AccordionItem'
 import { DocsPopover } from '~/components/DocsPopover'
 import { CheckboxField } from '~/components/form/fields/CheckboxField'
-import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { DiskSizeField } from '~/components/form/fields/DiskSizeField'
 import {
@@ -46,6 +45,7 @@ import {
 } from '~/components/form/fields/DisksTableField'
 import { FileField } from '~/components/form/fields/FileField'
 import { BootDiskImageSelectField as ImageSelectField } from '~/components/form/fields/ImageSelectField'
+import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
 import { NetworkInterfaceField } from '~/components/form/fields/NetworkInterfaceField'
 import { NumberField } from '~/components/form/fields/NumberField'
@@ -221,9 +221,6 @@ export function CreateInstanceForm() {
   const defaultValues: InstanceCreateInput = {
     ...baseDefaultValues,
     bootDiskSourceType: defaultSource,
-    siloImageSource: siloImages?.[0]?.id || '',
-    projectImageSource: projectImages?.[0]?.id || '',
-    diskSource: disks?.[0]?.value || '',
     sshPublicKeys: allKeys,
     bootDiskSize: nearest10(defaultImage?.size / GiB),
     externalIps: [{ type: 'ephemeral', pool: defaultPool }],
@@ -289,7 +286,7 @@ export function CreateInstanceForm() {
           heading="instances"
           icon={<Instances16Icon />}
           summary="Instances are virtual machines that run on the Oxide platform."
-          links={[docLinks.instances, docLinks.vms, docLinks.quickStart]}
+          links={[docLinks.instances, docLinks.instanceActions, docLinks.quickStart]}
         />
       </PageHeader>
       <FullPageForm
@@ -550,7 +547,7 @@ export function CreateInstanceForm() {
                 />
               </div>
             ) : (
-              <ComboboxField
+              <ListboxField
                 label="Disk"
                 name="diskSource"
                 description="Existing disks that are not attached to an instance"
@@ -732,7 +729,7 @@ const AdvancedAccordion = ({
             <Listbox
               name="pools"
               label="IP pool for ephemeral IP"
-              placeholder={defaultPool ? `${defaultPool} (default)` : 'Select pool'}
+              placeholder={defaultPool ? `${defaultPool} (default)` : 'Select a pool'}
               selected={`${siloPools.find((pool) => pool.name === selectedPool)?.name}`}
               items={
                 siloPools.map((pool) => ({
@@ -837,7 +834,7 @@ const AdvancedAccordion = ({
                       )
                     }}
                     required
-                    placeholder="Select floating IP"
+                    placeholder="Select a floating IP"
                     selected={selectedFloatingIp?.name || ''}
                   />
                 </form>

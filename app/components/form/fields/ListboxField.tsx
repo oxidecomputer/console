@@ -34,6 +34,7 @@ export type ListboxFieldProps<
   items: ListboxItem[]
   onChange?: (value: string | null | undefined) => void
   isLoading?: boolean
+  noItemsPlaceholder?: string
 }
 
 export function ListboxField<
@@ -52,6 +53,7 @@ export function ListboxField<
   control,
   onChange,
   isLoading,
+  noItemsPlaceholder,
 }: ListboxFieldProps<TFieldValues, TName>) {
   // TODO: recreate this logic
   //   validate: (v) => (required && !v ? `${name} is required` : undefined),
@@ -64,6 +66,7 @@ export function ListboxField<
         tooltipText={tooltipText}
         required={required}
         placeholder={placeholder}
+        noItemsPlaceholder={noItemsPlaceholder}
         selected={field.value || null}
         items={items}
         onChange={(value) => {

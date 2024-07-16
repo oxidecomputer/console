@@ -5,9 +5,34 @@
  *
  * Copyright Oxide Computer Company
  */
-import { floatingIp, images } from '@oxide/api-mocks'
+import { floatingIp } from '@oxide/api-mocks'
 
-import { expect, expectNotVisible, expectRowVisible, expectVisible, test } from './utils'
+import {
+  expect,
+  expectNotVisible,
+  expectRowVisible,
+  expectVisible,
+  test,
+  type Page,
+} from './utils'
+
+const selectASiloImage = async (page: Page, name: string) => {
+  await page.getByRole('tab', { name: 'Silo images' }).click()
+  await page.getByLabel('Image', { exact: true }).click()
+  await page.getByRole('option', { name }).click()
+}
+
+const selectAProjectImage = async (page: Page, name: string) => {
+  await page.getByRole('tab', { name: 'Project images' }).click()
+  await page.getByLabel('Image', { exact: true }).click()
+  await page.getByRole('option', { name }).click()
+}
+
+const selectAnExistingDisk = async (page: Page, name: string) => {
+  await page.getByRole('tab', { name: 'Existing disks' }).click()
+  await page.getByRole('button', { name: 'Select a disk' }).click()
+  await page.getByRole('option', { name }).click()
+}
 
 test('can create an instance', async ({ page }) => {
   await page.goto('/projects/mock-project/instances')
@@ -36,9 +61,7 @@ test('can create an instance', async ({ page }) => {
   await diskSizeInput.fill('20')
 
   // pick a project image just to show we can
-  await page.getByRole('tab', { name: 'Project images' }).click()
-  await page.getByRole('button', { name: 'Image' }).click()
-  await page.getByRole('option', { name: images[2].name }).click()
+  await selectAProjectImage(page, 'image-3')
 
   // should be hidden in accordion
   await expectNotVisible(page, [
@@ -104,6 +127,7 @@ test('can create an instance', async ({ page }) => {
 test('duplicate instance name produces visible error', async ({ page }) => {
   await page.goto('/projects/mock-project/instances-new')
   await page.fill('input[name=name]', 'db1')
+  await selectAProjectImage(page, 'image-1')
   await page.locator('button:has-text("Create instance")').click()
   await expect(page.getByText('Instance name already exists')).toBeVisible()
 })
@@ -144,9 +168,7 @@ test('can create an instance with custom hardware', async ({ page }) => {
   await page.keyboard.press('Tab')
 
   // pick a project image just to show we can
-  await page.getByRole('tab', { name: 'Project images' }).click()
-  await page.getByRole('button', { name: 'Image' }).click()
-  await page.getByRole('option', { name: images[2].name }).click()
+  await selectAProjectImage(page, 'image-3')
   // the disk size should bot have been changed from what was entered earlier
   await expect(diskSizeInput).toHaveValue('20')
 
@@ -182,23 +204,19 @@ test('automatically updates disk size when larger image selected', async ({ page
   await page.keyboard.press('Tab')
 
   // pick a disk image that's smaller than 5GiB (the first project image works [4GiB])
-  await page.getByRole('tab', { name: 'Project images' }).click()
-  await page.getByRole('button', { name: 'Image' }).click()
-  await page.getByRole('option', { name: images[0].name }).click()
+  await selectAProjectImage(page, 'image-1')
 
   // test that it still says 5, as that's larger than the given image
   await expect(diskSizeInput).toHaveValue('5')
 
   // pick a disk image that's larger than 5GiB (the third project image works [6GiB])
-  await page.getByRole('button', { name: 'Image' }).click()
-  await page.getByRole('option', { name: images[2].name }).click()
+  await selectAProjectImage(page, 'image-3')
 
   // test that it has been automatically increased to next-largest incremement of 10
   await expect(diskSizeInput).toHaveValue('10')
 
   // pick another image, just to verify that the diskSizeInput stays as it was
-  await page.getByRole('button', { name: 'Image' }).click()
-  await page.getByRole('option', { name: images[1].name }).click()
+  await selectAProjectImage(page, 'image-2')
   await expect(diskSizeInput).toHaveValue('10')
 
   const submitButton = page.getByRole('button', { name: 'Create instance' })
@@ -211,6 +229,7 @@ test('automatically updates disk size when larger image selected', async ({ page
 test('with disk name already taken', async ({ page }) => {
   await page.goto('/projects/mock-project/instances-new')
   await page.fill('input[name=name]', 'my-instance')
+  await selectAProjectImage(page, 'image-1')
   await page.fill('input[name=bootDiskName]', 'disk-1')
 
   await page.getByRole('button', { name: 'Create instance' }).click()
@@ -248,44 +267,38 @@ test('add ssh key from instance create form', async ({ page }) => {
 test('shows object not found error on no default pool', async ({ page }) => {
   await page.goto('/projects/mock-project/instances-new')
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill('no-default-pool')
+  await selectAProjectImage(page, 'image-1')
   await page.getByRole('button', { name: 'Create instance' }).click()
-
-  await expect(page.getByText('Not found: default IP pool')).toBeVisible()
+  await expect(page.getByText('Not found: default IP pool for current silo')).toBeVisible()
 })
 
 test('create instance with existing disk', async ({ page }) => {
   const instanceName = 'my-existing-disk-instance'
   await page.goto('/projects/mock-project/instances-new')
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
-  await page.getByRole('tab', { name: 'Existing disks' }).click()
+  await selectAnExistingDisk(page, 'disk-3')
   await page.getByRole('button', { name: 'Create instance' }).click()
   await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)
   await expectVisible(page, [`h1:has-text("${instanceName}")`, 'text=8 GiB'])
   await expectRowVisible(page.getByRole('table'), { Disk: 'disk-3' })
 })
 
-test('create instance with a different existing disk', async ({ page }) => {
+test('create instance with a silo image', async ({ page }) => {
   const instanceName = 'my-existing-disk-2'
   await page.goto('/projects/mock-project/instances-new')
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
-  await page.getByRole('tab', { name: 'Existing disks' }).click()
-  // verify combobox text entry
-  await page.getByPlaceholder('Select a disk').fill('disk-')
-  await page.getByRole('option', { name: 'disk-4' }).click()
+  await selectASiloImage(page, 'ubuntu-22-04')
   await page.getByRole('button', { name: 'Create instance' }).click()
   await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)
-  await expectVisible(page, [`h1:has-text("${instanceName}")`, 'text=8 GiB'])
-  await expectRowVisible(page.getByRole('table'), { Disk: 'disk-4' })
+  await expectVisible(page, [`h1:has-text("${instanceName}")`, 'text=10 GiB'])
 })
 
 test('start with an existing disk, but then switch to a silo image', async ({ page }) => {
   const instanceName = 'silo-image-instance'
   await page.goto('/projects/mock-project/instances-new')
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
-  await page.getByRole('tab', { name: 'Existing disks' }).click()
-  await page.getByPlaceholder('Select a disk').fill('disk-')
-  await page.getByRole('option', { name: 'disk-7' }).click()
-  await page.getByRole('tab', { name: 'Silo images' }).click()
+  await selectAnExistingDisk(page, 'disk-7')
+  await selectASiloImage(page, 'ubuntu-22-04')
   await page.getByRole('button', { name: 'Create instance' }).click()
   await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)
   await expectVisible(page, [`h1:has-text("${instanceName}")`, 'text=8 GiB'])
@@ -352,6 +365,7 @@ test('maintains selected values even when changing tabs', async ({ page }) => {
 test('does not attach an ephemeral IP when the checkbox is unchecked', async ({ page }) => {
   await page.goto('/projects/mock-project/instances-new')
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill('no-ephemeral-ip')
+  await selectAProjectImage(page, 'image-1')
   await page.getByRole('button', { name: 'Networking' }).click()
   await page
     .getByRole('checkbox', { name: 'Allocate and attach an ephemeral IP address' })
@@ -363,13 +377,14 @@ test('does not attach an ephemeral IP when the checkbox is unchecked', async ({ 
 
 test('attaches a floating IP; disables button when no IPs available', async ({ page }) => {
   const attachFloatingIpButton = page.getByRole('button', { name: 'Attach floating IP' })
-  const selectFloatingIpButton = page.getByRole('button', { name: 'Select floating ip' })
+  const selectFloatingIpButton = page.getByRole('button', { name: 'Select a floating ip' })
   const rootbeerFloatOption = page.getByRole('option', { name: 'rootbeer-float' })
   const attachButton = page.getByRole('button', { name: 'Attach', exact: true })
 
   const instanceName = 'with-floating-ip'
   await page.goto('/projects/mock-project/instances-new')
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
+  await selectAProjectImage(page, 'image-1')
   await page.getByRole('button', { name: 'Networking' }).click()
 
   await attachFloatingIpButton.click()

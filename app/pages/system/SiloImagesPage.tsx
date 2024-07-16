@@ -43,7 +43,7 @@ const EmptyState = () => (
   <EmptyMessage
     icon={<Images24Icon />}
     title="No images"
-    body="You need to promote an image to be able to see it here"
+    body="Promote an image to see it here"
   />
 )
 
@@ -169,7 +169,7 @@ const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
         <Modal.Section>
           <form autoComplete="off" onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <ComboboxField
-              placeholder="Filter images by project"
+              placeholder="Select a project"
               name="project"
               label="Project"
               items={projectItems}

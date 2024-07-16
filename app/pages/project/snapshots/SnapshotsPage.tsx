@@ -46,7 +46,7 @@ const EmptyState = () => (
   <EmptyMessage
     icon={<Snapshots24Icon />}
     title="No snapshots"
-    body="You need to create a snapshot to be able to see it here"
+    body="Create a snapshot to see it here"
     buttonText="New snapshot"
     buttonTo={pb.snapshotsNew(useProjectSelector())}
   />

@@ -13,17 +13,17 @@ import { OpenLink12Icon, Question12Icon } from '@oxide/design-system/icons/react
 
 import { buttonStyle } from '~/ui/lib/Button'
 
-import { ExternalLink } from './ExternalLink'
-
 type DocsPopoverLinkProps = {
   href: string
   linkText: string
 }
 
 export const DocsPopoverLink = ({ href, linkText }: DocsPopoverLinkProps) => (
-  <ExternalLink
+  <a
     href={href}
-    className="group block px-4 no-underline children:last:border-0"
+    className="group block px-4 children:last:border-0"
+    target="_blank"
+    rel="noreferrer"
   >
     <div className="mx-2 border-b py-1.5 border-secondary">
       <div className="relative -ml-2 inline-block rounded py-1 pl-2 pr-7 text-sans-md !text-default group-hover:bg-tertiary">
@@ -31,7 +31,7 @@ export const DocsPopoverLink = ({ href, linkText }: DocsPopoverLinkProps) => (
         <OpenLink12Icon className="absolute top-1.5 ml-2 translate-y-[1px] text-tertiary" />
       </div>
     </div>
-  </ExternalLink>
+  </a>
 )
 
 type DocsPopoverProps = {

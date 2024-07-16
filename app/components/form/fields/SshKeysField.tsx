@@ -131,7 +131,7 @@ export function SshKeysField({
           <EmptyMessage
             icon={<Key16Icon />}
             title="No SSH keys"
-            body="You need to add a key to be able to see it here"
+            body="Add a key to see it here"
             buttonText="Add SSH Key"
             onClick={() => setShowAddSshKey(true)}
           />
