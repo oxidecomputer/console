@@ -140,6 +140,12 @@ export function VpcFirewallRulesTab() {
           },
         },
         {
+          label: 'Clone',
+          onActivate() {
+            navigate(pb.vpcFirewallRuleClone({ ...vpcSelector, rule: rule.name }))
+          },
+        },
+        {
           label: 'Delete',
           onActivate: confirmDelete({
             doDelete: () =>
