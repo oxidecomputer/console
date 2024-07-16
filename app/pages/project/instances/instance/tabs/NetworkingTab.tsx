@@ -36,6 +36,7 @@ import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns, DescriptionCell } from '~/table/columns/common'
 import { Table } from '~/table/Table'
 import { Badge } from '~/ui/lib/Badge'
+import { CopyableIp } from '~/ui/lib/CopyableIp'
 import { CreateButton } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableControls, TableEmptyBox, TableTitle } from '~/ui/lib/Table'
@@ -115,7 +116,10 @@ const staticCols = [
     ),
   }),
   colHelper.accessor('description', Columns.description),
-  colHelper.accessor('ip', { header: 'Private IP' }),
+  colHelper.accessor('ip', {
+    header: 'Private IP',
+    cell: (info) => <CopyableIp ip={info.getValue()} isLinked={false} />,
+  }),
   colHelper.accessor('vpcId', {
     header: 'vpc',
     cell: (info) => <VpcNameFromId value={info.getValue()} />,
@@ -240,7 +244,9 @@ export function NetworkingTab() {
 
   const ipColHelper = createColumnHelper<ExternalIp>()
   const staticIpCols = [
-    ipColHelper.accessor('ip', {}),
+    ipColHelper.accessor('ip', {
+      cell: (info) => <CopyableIp ip={info.getValue()} />,
+    }),
     ipColHelper.accessor('kind', {
       header: () => (
         <>
