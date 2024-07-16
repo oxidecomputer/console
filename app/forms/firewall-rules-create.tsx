@@ -580,9 +580,6 @@ export function CreateFirewallRuleForm() {
   const vpcSelector = useVpcSelector()
   const queryClient = useApiQueryClient()
 
-  // To use as a template to base a new rule off
-  const { firewallRule } = useParams()
-
   const navigate = useNavigate()
   const onDismiss = () => navigate(pb.vpcFirewallRules(vpcSelector))
 
@@ -598,7 +595,14 @@ export function CreateFirewallRuleForm() {
     query: vpcSelector,
   })
   const existingRules = useMemo(() => R.sortBy(data.rules, (r) => r.priority), [data])
-  const originalRule = existingRules.find((rule) => rule.name === firewallRule)
+
+  // The :rule path param is optional. If it is present, we are creating a
+  // rule from an existing one, so we find that rule and copy it into the form
+  // values. Note that if we fail to find the rule by name (which should be
+  // very unlikely) we just pretend we never saw a name in the path and start
+  // from scratch.
+  const { rule: ruleName } = useParams()
+  const originalRule = existingRules.find((rule) => rule.name === ruleName)
 
   const defaultValues: FirewallRuleValues = originalRule
     ? ruleToValues({ ...originalRule, name: originalRule.name + '-copy' })
