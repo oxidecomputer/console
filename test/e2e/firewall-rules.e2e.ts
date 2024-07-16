@@ -199,23 +199,25 @@ test('firewall rule form hosts table', async ({ page }) => {
   // add hosts with overlapping names and types to test delete
 
   // there are two of these because the targets table also defaults to VPC
-  await page.getByRole('textbox', { name: 'VPC name' }).nth(1).fill('abc')
+  await page.getByRole('combobox', { name: 'VPC' }).fill('abc')
   await addButton.click()
   await expectRowVisible(hosts, { Type: 'vpc', Value: 'abc' })
 
-  await page.getByRole('textbox', { name: 'VPC name' }).nth(1).fill('def')
+  await page.getByRole('combobox', { name: 'VPC' }).fill('def')
   await addButton.click()
   await expectRowVisible(hosts, { Type: 'vpc', Value: 'def' })
 
   await page.getByRole('button', { name: 'Host type' }).click()
   await page.getByRole('option', { name: 'VPC Subnet' }).click()
-  await page.getByRole('textbox', { name: 'Subnet name' }).fill('abc')
+  await page.getByRole('button', { name: 'VPC' }).nth(2).click()
+  await page.getByRole('option', { name: 'mock-vpc' }).click()
+  await page.getByRole('combobox', { name: 'Subnet name' }).fill('abc')
   await addButton.click()
   await expectRowVisible(hosts, { Type: 'subnet', Value: 'abc' })
 
   await page.getByRole('button', { name: 'Host type' }).click()
   await page.getByRole('option', { name: 'IP', exact: true }).click()
-  await page.getByRole('textbox', { name: 'IP address' }).fill('192.168.0.1')
+  await page.getByRole('combobox', { name: 'IP address' }).fill('192.168.0.1')
   await addButton.click()
   await expectRowVisible(hosts, { Type: 'ip', Value: '192.168.0.1' })
 
