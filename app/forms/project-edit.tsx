@@ -59,8 +59,11 @@ export function EditProjectSideModalForm() {
       formType="edit"
       resourceName="project"
       onDismiss={onDismiss}
-      onSubmit={({ name, description }) => {
-        editProject.mutate({ path: projectSelector, body: { name, description } })
+      onSubmit={async ({ name, description }) => {
+        await editProject.mutateAsync({
+          path: projectSelector,
+          body: { name, description },
+        })
       }}
       loading={editProject.isPending}
       submitError={editProject.error}

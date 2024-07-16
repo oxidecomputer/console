@@ -60,8 +60,8 @@ export function EditSubnetForm() {
       formType="edit"
       resourceName="subnet"
       onDismiss={onDismiss}
-      onSubmit={(body) => {
-        updateSubnet.mutate({
+      onSubmit={async (body) => {
+        await updateSubnet.mutateAsync({
           path: { subnet: subnet.name },
           query: { project, vpc },
           body,

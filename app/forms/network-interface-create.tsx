@@ -28,7 +28,7 @@ const defaultValues: InstanceNetworkInterfaceCreate = {
 
 type CreateNetworkInterfaceFormProps = {
   onDismiss: () => void
-  onSubmit: (values: InstanceNetworkInterfaceCreate) => void
+  onSubmit: (values: InstanceNetworkInterfaceCreate) => Promise<void>
   loading?: boolean
   submitError?: ApiError | null
 }

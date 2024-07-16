@@ -60,8 +60,8 @@ export function EditVpcSideModalForm() {
       formType="edit"
       resourceName="VPC"
       onDismiss={onDismiss}
-      onSubmit={({ name, description, dnsName }) => {
-        editVpc.mutate({
+      onSubmit={async ({ name, description, dnsName }) => {
+        await editVpc.mutateAsync({
           path: { vpc: vpcName },
           query: { project },
           body: { name, description, dnsName },

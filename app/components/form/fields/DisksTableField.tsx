@@ -116,6 +116,7 @@ export function DisksTableField({
           onSubmit={(values) => {
             onChange([...items, { type: 'attach', ...values }])
             setShowDiskAttach(false)
+            return Promise.resolve()
           }}
           diskNamesToExclude={items.filter((i) => i.type === 'attach').map((i) => i.name)}
         />

@@ -51,9 +51,9 @@ export function EditNetworkInterfaceForm({
       formType="edit"
       resourceName="network interface"
       onDismiss={onDismiss}
-      onSubmit={(body) => {
+      onSubmit={async (body) => {
         const interfaceName = defaultValues.name
-        editNetworkInterface.mutate({
+        await editNetworkInterface.mutateAsync({
           path: { interface: interfaceName },
           query: instanceSelector,
           body,

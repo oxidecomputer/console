@@ -15,7 +15,7 @@ const defaultValues = { name: '' }
 
 type AttachDiskProps = {
   /** If defined, this overrides the usual mutation */
-  onSubmit: (diskAttach: { name: string }) => void
+  onSubmit: (diskAttach: { name: string }) => Promise<void>
   onDismiss: () => void
   diskNamesToExclude?: string[]
   loading?: boolean

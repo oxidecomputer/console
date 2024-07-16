@@ -424,7 +424,9 @@ export function NetworkingTab() {
         {createModalOpen && (
           <CreateNetworkInterfaceForm
             onDismiss={() => setCreateModalOpen(false)}
-            onSubmit={(body) => createNic.mutate({ query: instanceSelector, body })}
+            onSubmit={async (body) => {
+              await createNic.mutateAsync({ query: instanceSelector, body })
+            }}
             submitError={createNic.error}
           />
         )}

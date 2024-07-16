@@ -46,8 +46,8 @@ export function CreateProjectSideModalForm() {
       formType="create"
       resourceName="project"
       onDismiss={onDismiss}
-      onSubmit={({ name, description }) => {
-        createProject.mutate({ body: { name, description } })
+      onSubmit={async ({ name, description }) => {
+        await createProject.mutateAsync({ body: { name, description } })
       }}
       loading={createProject.isPending}
       submitError={createProject.error}

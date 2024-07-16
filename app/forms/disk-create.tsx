@@ -120,9 +120,11 @@ export function CreateDiskSideModalForm({
       formType="create"
       resourceName="disk"
       onDismiss={() => onDismiss(navigate)}
-      onSubmit={({ size, ...rest }) => {
+      onSubmit={async ({ size, ...rest }) => {
         const body = { size: size * GiB, ...rest }
-        onSubmit ? onSubmit(body) : createDisk.mutate({ query: { project }, body })
+        onSubmit
+          ? onSubmit(body)
+          : await createDisk.mutateAsync({ query: { project }, body })
       }}
       loading={createDisk.isPending}
       submitError={createDisk.error}

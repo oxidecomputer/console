@@ -53,8 +53,8 @@ export function EditIpPoolSideModalForm() {
       formType="edit"
       resourceName="IP pool"
       onDismiss={onDismiss}
-      onSubmit={({ name, description }) => {
-        editPool.mutate({ path: poolSelector, body: { name, description } })
+      onSubmit={async ({ name, description }) => {
+        await editPool.mutateAsync({ path: poolSelector, body: { name, description } })
       }}
       loading={editPool.isPending}
       submitError={editPool.error}

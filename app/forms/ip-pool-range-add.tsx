@@ -87,7 +87,9 @@ export function IpPoolAddRangeSideModalForm() {
       resourceName="IP range"
       title="Add IP range"
       onDismiss={onDismiss}
-      onSubmit={(body) => addRange.mutate({ path: { pool }, body })}
+      onSubmit={async (body) => {
+        await addRange.mutateAsync({ path: { pool }, body })
+      }}
       loading={addRange.isPending}
       submitError={addRange.error}
     >

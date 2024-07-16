@@ -59,8 +59,8 @@ export function EditFloatingIpSideModalForm() {
       formType="edit"
       resourceName="floating IP"
       onDismiss={onDismiss}
-      onSubmit={({ name, description }) => {
-        editFloatingIp.mutate({
+      onSubmit={async ({ name, description }) => {
+        await editFloatingIp.mutateAsync({
           path: { floatingIp: floatingIpSelector.floatingIp },
           query: { project: floatingIpSelector.project },
           body: { name, description },

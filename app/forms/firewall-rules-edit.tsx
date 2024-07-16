@@ -96,14 +96,14 @@ export function EditFirewallRuleForm() {
       formType="edit"
       resourceName="rule"
       onDismiss={onDismiss}
-      onSubmit={(values) => {
+      onSubmit={async (values) => {
         // note different filter logic from create: filter out the rule with the
         // *original* name because we need to overwrite that rule
         const otherRules = data.rules
           .filter((r) => r.name !== originalRule.name)
           .map(firewallRuleGetToPut)
 
-        updateRules.mutate({
+        await updateRules.mutateAsync({
           query: vpcSelector,
           body: {
             rules: [...otherRules, valuesToRuleUpdate(values)],

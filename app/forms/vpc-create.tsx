@@ -50,7 +50,9 @@ export function CreateVpcSideModalForm() {
       form={form}
       formType="create"
       resourceName="VPC"
-      onSubmit={(values) => createVpc.mutate({ query: projectSelector, body: values })}
+      onSubmit={async (values) => {
+        await createVpc.mutateAsync({ query: projectSelector, body: values })
+      }}
       onDismiss={() => navigate(pb.vpcs(projectSelector))}
       loading={createVpc.isPending}
       submitError={createVpc.error}

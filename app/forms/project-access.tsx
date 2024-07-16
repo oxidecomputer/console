@@ -45,7 +45,7 @@ export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModa
       resourceName="role"
       form={form}
       formType="create"
-      onSubmit={({ identityId, roleName }) => {
+      onSubmit={async ({ identityId, roleName }) => {
         // can't happen because roleName is validated not to be '', but TS
         // wants to be sure
         if (roleName === '') return
@@ -53,7 +53,7 @@ export function ProjectAccessAddUserSideModal({ onDismiss, policy }: AddRoleModa
         // actor is guaranteed to be in the list because it came from there
         const identityType = actors.find((a) => a.id === identityId)!.identityType
 
-        updatePolicy.mutate({
+        await updatePolicy.mutateAsync({
           path: { project },
           body: updateRole({ identityId, identityType, roleName }, policy),
         })
@@ -108,8 +108,8 @@ export function ProjectAccessEditUserSideModal({
       formType="edit"
       resourceName="role"
       title={`Change project role for ${name}`}
-      onSubmit={({ roleName }) => {
-        updatePolicy.mutate({
+      onSubmit={async ({ roleName }) => {
+        await updatePolicy.mutateAsync({
           path: { project },
           body: updateRole({ identityId, identityType, roleName }, policy),
         })

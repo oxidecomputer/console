@@ -43,8 +43,8 @@ export function CreateIpPoolSideModalForm() {
       formType="create"
       resourceName="IP pool"
       onDismiss={onDismiss}
-      onSubmit={({ name, description }) => {
-        createPool.mutate({ body: { name, description } })
+      onSubmit={async ({ name, description }) => {
+        await createPool.mutateAsync({ body: { name, description } })
       }}
       loading={createPool.isPending}
       submitError={createPool.error}

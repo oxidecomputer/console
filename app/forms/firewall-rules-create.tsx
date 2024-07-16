@@ -617,13 +617,13 @@ export function CreateFirewallRuleForm() {
       resourceName="rule"
       title="Add firewall rule"
       onDismiss={onDismiss}
-      onSubmit={(values) => {
+      onSubmit={async (values) => {
         // TODO: this silently overwrites existing rules with the current name.
         // we should probably at least warn and confirm, if not reject as invalid
         const otherRules = existingRules
           .filter((r) => r.name !== values.name)
           .map(firewallRuleGetToPut)
-        updateRules.mutate({
+        await updateRules.mutateAsync({
           query: vpcSelector,
           body: {
             rules: [...otherRules, valuesToRuleUpdate(values)],

@@ -219,8 +219,8 @@ export function StorageTab() {
       {showDiskAttach && (
         <AttachDiskSideModalForm
           onDismiss={() => setShowDiskAttach(false)}
-          onSubmit={({ name }) => {
-            attachDisk.mutate({ ...instancePathQuery, body: { disk: name } })
+          onSubmit={async ({ name }) => {
+            await attachDisk.mutateAsync({ ...instancePathQuery, body: { disk: name } })
           }}
           loading={attachDisk.isPending}
           submitError={attachDisk.error}

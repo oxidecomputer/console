@@ -50,7 +50,9 @@ export function CreateSSHKeySideModalForm({ onDismiss, message }: Props) {
       resourceName="SSH key"
       title="Add SSH key"
       onDismiss={handleDismiss}
-      onSubmit={(body) => createSshKey.mutate({ body })}
+      onSubmit={async (body) => {
+        await createSshKey.mutateAsync({ body })
+      }}
       loading={createSshKey.isPending}
       submitError={createSshKey.error}
     >

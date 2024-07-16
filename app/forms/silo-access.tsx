@@ -44,7 +44,7 @@ export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalPr
       resourceName="role"
       title="Add user or group"
       onDismiss={onDismiss}
-      onSubmit={({ identityId, roleName }) => {
+      onSubmit={async ({ identityId, roleName }) => {
         // can't happen because roleName is validated not to be '', but TS
         // wants to be sure
         if (roleName === '') return
@@ -53,7 +53,7 @@ export function SiloAccessAddUserSideModal({ onDismiss, policy }: AddRoleModalPr
         // actor is guaranteed to be in the list because it came from there
         const identityType = actors.find((a) => a.id === identityId)!.identityType
 
-        updatePolicy.mutate({
+        await updatePolicy.mutateAsync({
           body: updateRole({ identityId, identityType, roleName }, policy),
         })
       }}
@@ -103,8 +103,8 @@ export function SiloAccessEditUserSideModal({
       formType="edit"
       resourceName="role"
       title={`Change silo role for ${name}`}
-      onSubmit={({ roleName }) => {
-        updatePolicy.mutate({
+      onSubmit={async ({ roleName }) => {
+        await updatePolicy.mutateAsync({
           body: updateRole({ identityId, identityType, roleName }, policy),
         })
       }}

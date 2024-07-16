@@ -116,6 +116,7 @@ export function NetworkInterfaceField({
                     params: [...value.params, networkInterface],
                   })
                   setShowForm(false)
+                  return Promise.resolve()
                 }}
                 onDismiss={() => setShowForm(false)}
               />

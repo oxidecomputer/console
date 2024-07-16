@@ -45,7 +45,9 @@ export function CreateSubnetForm() {
       formType="create"
       resourceName="subnet"
       onDismiss={onDismiss}
-      onSubmit={(body) => createSubnet.mutate({ query: vpcSelector, body })}
+      onSubmit={async (body) => {
+        await createSubnet.mutateAsync({ query: vpcSelector, body })
+      }}
       loading={createSubnet.isPending}
       submitError={createSubnet.error}
     >

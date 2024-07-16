@@ -66,8 +66,8 @@ export function CreateSnapshotSideModalForm() {
       formType="create"
       resourceName="snapshot"
       onDismiss={onDismiss}
-      onSubmit={(values) => {
-        createSnapshot.mutate({ query: projectSelector, body: values })
+      onSubmit={async (values) => {
+        await createSnapshot.mutateAsync({ query: projectSelector, body: values })
       }}
       submitError={createSnapshot.error}
     >

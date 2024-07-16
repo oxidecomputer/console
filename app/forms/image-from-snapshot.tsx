@@ -75,12 +75,12 @@ export function CreateImageFromSnapshotSideModalForm() {
       title="Create image from snapshot"
       submitLabel="Create image"
       onDismiss={onDismiss}
-      onSubmit={(body) =>
-        createImage.mutate({
+      onSubmit={async (body) => {
+        await createImage.mutateAsync({
           query: { project },
           body: { ...body, source: { type: 'snapshot', id: data.id } },
         })
-      }
+      }}
       submitError={createImage.error}
     >
       <PropertiesTable>

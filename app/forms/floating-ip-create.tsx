@@ -83,7 +83,9 @@ export function CreateFloatingIpSideModalForm() {
       formType="create"
       resourceName="floating IP"
       onDismiss={() => navigate(pb.floatingIps(projectSelector))}
-      onSubmit={(body) => createFloatingIp.mutate({ query: projectSelector, body })}
+      onSubmit={async (body) => {
+        await createFloatingIp.mutateAsync({ query: projectSelector, body })
+      }}
       loading={createFloatingIp.isPending}
       submitError={createFloatingIp.error}
     >

@@ -72,7 +72,7 @@ export function CreateSiloSideModalForm() {
       formType="create"
       resourceName="silo"
       onDismiss={onDismiss}
-      onSubmit={({
+      onSubmit={async ({
         adminGroupName,
         siloAdminGetsFleetAdmin,
         siloViewerGetsFleetViewer,
@@ -86,7 +86,7 @@ export function CreateSiloSideModalForm() {
         if (siloViewerGetsFleetViewer) {
           mappedFleetRoles['viewer'] = ['viewer']
         }
-        createSilo.mutate({
+        await createSilo.mutateAsync({
           body: {
             // no point setting it to empty string or whitespace
             adminGroupName: adminGroupName?.trim() || undefined,
