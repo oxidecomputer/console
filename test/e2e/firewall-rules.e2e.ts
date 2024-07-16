@@ -317,15 +317,28 @@ test('create from existing rule', async ({ page }) => {
   const modal = page.getByRole('dialog', { name: 'Add firewall rule' })
   await expect(modal).toBeHidden()
 
-  await clickRowAction(page, 'allow-rdp', 'New similar rule')
+  await clickRowAction(page, 'allow-rdp', 'Clone')
 
   await expect(page).toHaveURL(url + '-new/allow-rdp')
   await expect(modal).toBeVisible()
-  await expect(page.getByRole('textbox', { name: 'Name', exact: true })).toHaveValue(
+  await expect(modal.getByRole('textbox', { name: 'Name', exact: true })).toHaveValue(
     'allow-rdp-1'
   )
 
-  // TODO: should assert all the values, really
+  await expect(modal.getByRole('checkbox', { name: 'TCP' })).toBeChecked()
+  await expect(modal.getByRole('checkbox', { name: 'UDP' })).not.toBeChecked()
+  await expect(modal.getByRole('checkbox', { name: 'ICMP' })).not.toBeChecked()
+
+  await expect(
+    modal
+      .getByRole('table', { name: 'Port filters' })
+      .getByRole('cell', { name: '3389', exact: true })
+  ).toBeVisible()
+  await expect(
+    modal
+      .getByRole('table', { name: 'Targets' })
+      .getByRole('row', { name: 'Name: default, Type: vpc' })
+  ).toBeVisible()
 })
 
 const rulePath = '/projects/mock-project/vpcs/mock-vpc/firewall-rules/allow-icmp/edit'
