@@ -169,7 +169,8 @@ export function CreateSiloSideModalForm() {
             description={
               <>
                 This group will be created and granted the Silo Admin role.
-                <br />A name is required to assign fleet roles.
+                <br />
+                An admin group name is required to assign fleet roles.
               </>
             }
             control={form.control}
