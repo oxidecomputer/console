@@ -65,6 +65,7 @@ export function CreateSiloSideModalForm() {
   })
 
   const form = useForm({ defaultValues })
+  const identityMode = form.watch('identityMode')
 
   return (
     <SideModalForm
@@ -145,12 +146,14 @@ export function CreateSiloSideModalForm() {
           { value: 'local_only', label: 'Local only' },
         ]}
       />
-      <TextField
-        name="adminGroupName"
-        label="Admin group name"
-        description="This group will be created and granted the Silo Admin role"
-        control={form.control}
-      />
+      {identityMode === 'saml_jit' && (
+        <TextField
+          name="adminGroupName"
+          label="Admin group name"
+          description="This group will be created and granted the Silo Admin role"
+          control={form.control}
+        />
+      )}
       <div>
         <CheckboxField name="siloAdminGetsFleetAdmin" control={form.control}>
           Grant fleet admin role to silo admins
