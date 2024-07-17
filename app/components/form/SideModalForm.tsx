@@ -124,7 +124,7 @@ export function SideModalForm<TFieldValues extends FieldValues>({
         </form>
       </SideModal.Body>
       <SideModal.Footer error={!!submitError}>
-        <Button variant="ghost" size="sm" onClick={guardedDismiss}>
+        <Button variant="ghost" size="sm" onClick={onDismiss}>
           Cancel
         </Button>
         {onSubmit && (
