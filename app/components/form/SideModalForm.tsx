@@ -91,9 +91,9 @@ export function SideModalForm<TFieldValues extends FieldValues>({
       ? `Update ${resourceName}`
       : submitLabel || title || `Create ${resourceName}`
 
+  const { isDirty } = form.formState
   const [showNavGuard, setShowNavGuard] = useState(false)
-  const guardedDismiss = () =>
-    form.formState.isDirty ? setShowNavGuard(true) : onDismiss()
+  const guardedDismiss = () => (isDirty ? setShowNavGuard(true) : onDismiss())
 
   return (
     <SideModal
