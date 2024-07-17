@@ -38,9 +38,18 @@ test('Create silo', async ({ page }) => {
   const discoverable = page.getByRole('checkbox', { name: 'Discoverable' })
   await expect(discoverable).toBeChecked()
   await discoverable.click()
+  await expect(page.getByRole('textbox', { name: 'Admin group name' })).toBeVisible()
+  await page.getByRole('textbox', { name: 'Admin group name' }).fill('admins')
+  await page.getByRole('checkbox', { name: 'Grant fleet admin' }).click()
+  await expect(page.getByRole('textbox', { name: 'Admin group name' })).toHaveValue(
+    'admins'
+  )
+  await expect(page.getByRole('checkbox', { name: 'Grant fleet admin' })).toBeChecked()
   await page.getByRole('radio', { name: 'Local only' }).click()
   await expect(page.getByRole('textbox', { name: 'Admin group name' })).toBeHidden()
   await page.getByRole('radio', { name: 'SAML' }).click()
+  await expect(page.getByRole('textbox', { name: 'Admin group name' })).toHaveValue('')
+  await expect(page.getByRole('checkbox', { name: 'Grant fleet admin' })).not.toBeChecked()
   await page.getByRole('textbox', { name: 'Admin group name' }).fill('admins')
   await page.getByRole('checkbox', { name: 'Grant fleet admin' }).click()
   await page.getByRole('textbox', { name: 'CPU quota' }).fill('30')
