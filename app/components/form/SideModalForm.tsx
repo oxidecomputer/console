@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useEffect, useId, type ReactNode } from 'react'
+import { useEffect, useId, useState, type ReactNode } from 'react'
 import type { FieldValues, UseFormReturn } from 'react-hook-form'
 import { NavigationType, useNavigationType } from 'react-router-dom'
 
@@ -13,6 +13,8 @@ import type { ApiError } from '@oxide/api'
 
 import { Button } from '~/ui/lib/Button'
 import { SideModal } from '~/ui/lib/SideModal'
+
+import { NavGuardModal } from './NavGuardModal'
 
 type CreateFormProps = {
   formType: 'create'
@@ -89,9 +91,13 @@ export function SideModalForm<TFieldValues extends FieldValues>({
       ? `Update ${resourceName}`
       : submitLabel || title || `Create ${resourceName}`
 
+  const [showNavGuard, setShowNavGuard] = useState(false)
+  const guardedDismiss = () =>
+    form.formState.isDirty ? setShowNavGuard(true) : onDismiss()
+
   return (
     <SideModal
-      onDismiss={onDismiss}
+      onDismiss={guardedDismiss}
       isOpen
       title={title || `${formType === 'edit' ? 'Edit' : 'Create'} ${resourceName}`}
       animate={useShouldAnimateModal()}
@@ -118,7 +124,7 @@ export function SideModalForm<TFieldValues extends FieldValues>({
         </form>
       </SideModal.Body>
       <SideModal.Footer error={!!submitError}>
-        <Button variant="ghost" size="sm" onClick={onDismiss}>
+        <Button variant="ghost" size="sm" onClick={guardedDismiss}>
           Cancel
         </Button>
         {onSubmit && (
@@ -134,6 +140,9 @@ export function SideModalForm<TFieldValues extends FieldValues>({
           </Button>
         )}
       </SideModal.Footer>
+      {showNavGuard && (
+        <NavGuardModal onDismiss={() => setShowNavGuard(false)} onAction={onDismiss} />
+      )}
     </SideModal>
   )
 }
