@@ -39,6 +39,8 @@ test('Create silo', async ({ page }) => {
   await expect(discoverable).toBeChecked()
   await discoverable.click()
   await page.getByRole('radio', { name: 'Local only' }).click()
+  await expect(page.getByRole('textbox', { name: 'Admin group name' })).toBeHidden()
+  await page.getByRole('radio', { name: 'SAML' }).click()
   await page.getByRole('textbox', { name: 'Admin group name' }).fill('admins')
   await page.getByRole('checkbox', { name: 'Grant fleet admin' }).click()
   await page.getByRole('textbox', { name: 'CPU quota' }).fill('30')
@@ -99,7 +101,7 @@ test('Create silo', async ({ page }) => {
   await expectRowVisible(table, {
     name: 'other-silo',
     description: 'definitely a silo',
-    'Identity mode': 'local only',
+    'Identity mode': 'saml jit',
     // discoverable: 'false',
   })
   const otherSiloCell = page.getByRole('cell', { name: 'other-silo' })
