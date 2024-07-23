@@ -37,8 +37,8 @@ const staticCols = [
   }),
   colHelper.accessor('model', { header: 'model number' }),
   colHelper.accessor('serial', { header: 'serial number' }),
-  colHelper.accessor('policy', {
-    cell: (info) => <PolicyKindBadge policy={info.getValue().kind} />,
+  colHelper.accessor('policy.kind', {
+    cell: (info) => <PolicyKindBadge kind={info.getValue()} />,
   }),
   colHelper.accessor('state', {
     cell: (info) => <StateBadge state={info.getValue()} />,

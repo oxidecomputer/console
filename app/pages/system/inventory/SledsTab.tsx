@@ -42,8 +42,8 @@ const staticCols = [
   colHelper.accessor('baseboard.part', { header: 'part number' }),
   colHelper.accessor('baseboard.serial', { header: 'serial number' }),
   colHelper.accessor('baseboard.revision', { header: 'revision' }),
-  colHelper.accessor('policy', {
-    cell: (info) => <PolicyKindBadge policy={info.getValue().kind} />,
+  colHelper.accessor('policy.kind', {
+    cell: (info) => <PolicyKindBadge kind={info.getValue()} />,
   }),
   colHelper.accessor('state', {
     cell: (info) => <StateBadge state={info.getValue()} />,

@@ -8,7 +8,9 @@
 import type {
   DiskState,
   InstanceState,
+  PhysicalDiskPolicy,
   PhysicalDiskState,
+  SledPolicy,
   SledState,
   SnapshotState,
 } from '@oxide/api'
@@ -76,10 +78,16 @@ export const SnapshotStatusBadge = (props: {
   </Badge>
 )
 
-export const PolicyKindBadge = ({ policy }: { policy: 'in_service' | 'expunged' }) => {
-  const color = policy === 'in_service' ? 'default' : 'neutral'
-  return <Badge color={color}>{policy.replace(/_/g, ' ')}</Badge>
+type PolicyKind = PhysicalDiskPolicy['kind'] | SledPolicy['kind']
+
+const POLICY_KIND_BADGE_COLORS: Record<PolicyKind, BadgeColor> = {
+  in_service: 'default',
+  expunged: 'neutral',
 }
+
+export const PolicyKindBadge = ({ kind }: { kind: PolicyKind }) => (
+  <Badge color={POLICY_KIND_BADGE_COLORS[kind]}>{kind.replace(/_/g, ' ')}</Badge>
+)
 
 const STATE_BADGE_COLORS: Record<PhysicalDiskState | SledState, BadgeColor> = {
   active: 'default',
