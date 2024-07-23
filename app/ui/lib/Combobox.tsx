@@ -26,6 +26,11 @@ import { TextInputHint } from './TextInput'
 
 export type ComboboxItem = { label: string; value: string }
 
+export const toComboboxItem = (value: string, label?: string): ComboboxItem => ({
+  label: label || value,
+  value,
+})
+
 /** Simple non-generic props shared with ComboboxField */
 export type ComboboxBaseProps = {
   description?: React.ReactNode
@@ -36,6 +41,10 @@ export type ComboboxBaseProps = {
   placeholder?: string
   required?: boolean
   tooltipText?: string
+  onInputChange?: (value: string) => void
+  // set to false in situations where the user should be able to type in new values
+  // to decide: should we even give a placeholder / warning?
+  showNoMatchPlaceholder?: boolean
 }
 
 type ComboboxProps = {
@@ -46,7 +55,7 @@ type ComboboxProps = {
 
 export const Combobox = ({
   description,
-  items,
+  items = [],
   selected,
   label,
   placeholder,
@@ -56,6 +65,8 @@ export const Combobox = ({
   isDisabled,
   isLoading,
   onChange,
+  onInputChange,
+  showNoMatchPlaceholder = true,
 }: ComboboxProps) => {
   const [query, setQuery] = useState(selected || '')
 
@@ -102,7 +113,10 @@ export const Combobox = ({
           <ComboboxInput
             aria-label="Select a disk"
             displayValue={() => (selected ? selected : query)}
-            onChange={(event) => setQuery(event.target.value)}
+            onChange={(event) => {
+              setQuery(event.target.value)
+              onInputChange?.(event.target.value)
+            }}
             placeholder={placeholder}
             disabled={isDisabled || isLoading}
             className={cn(
@@ -113,48 +127,52 @@ export const Combobox = ({
               hasError && 'focus-error'
             )}
           />
-          <div className="flex items-center border-l px-3 border-secondary" aria-hidden>
-            <SelectArrows6Icon title="Select" className="w-2 text-tertiary" />
-          </div>
-        </ComboboxButton>
-        <ComboboxOptions
-          anchor="bottom start"
-          // 14px gap is presumably because it's measured from inside the outline or something
-          className={`ox-menu pointer-events-auto ${zIndex} relative w-[var(--button-width)] overflow-y-auto border !outline-none border-secondary [--anchor-gap:14px] empty:hidden`}
-          modal={false}
-        >
-          {filteredItems.length === 0 && (
-            <ComboboxOption disabled value="no-matches" className="relative">
-              <div className="ox-menu-item !text-disabled">No items match</div>
-            </ComboboxOption>
+          {items.length > 0 && (
+            <div className="flex items-center border-l px-3 border-secondary" aria-hidden>
+              <SelectArrows6Icon title="Select" className="w-2 text-tertiary" />
+            </div>
           )}
-          {filteredItems.map((item) => (
-            <ComboboxOption
-              key={item.label}
-              value={item.label}
-              className="relative border-b border-secondary last:border-0"
-              onSelect={() => {
-                onChange(item.label)
-                setQuery(item.label)
-              }}
-            >
-              {({ focus, selected }) => (
-                // This *could* be done with data-[focus] and data-[selected] instead, but
-                // it would be a lot more verbose. those can only be used with TW classes,
-                // not our .is-selected and .is-highlighted, so we'd have to copy the pieces
-                // of those rules one by one. Better to rely on the shared classes.
-                <div
-                  className={cn('ox-menu-item', {
-                    'is-selected': selected,
-                    'is-highlighted': focus,
-                  })}
-                >
-                  {item.label}
-                </div>
-              )}
-            </ComboboxOption>
-          ))}
-        </ComboboxOptions>
+        </ComboboxButton>
+        {items.length > 0 && (
+          <ComboboxOptions
+            anchor="bottom start"
+            // 14px gap is presumably because it's measured from inside the outline or something
+            className={`ox-menu pointer-events-auto ${zIndex} relative w-[var(--button-width)] overflow-y-auto border !outline-none border-secondary [--anchor-gap:14px] empty:hidden`}
+            modal={false}
+          >
+            {showNoMatchPlaceholder && filteredItems.length === 0 && (
+              <ComboboxOption disabled value="no-matches" className="relative">
+                <div className="ox-menu-item !text-disabled">No items match</div>
+              </ComboboxOption>
+            )}
+            {filteredItems.map((item) => (
+              <ComboboxOption
+                key={item.label}
+                value={item.label}
+                className="relative border-b border-secondary last:border-0"
+                onSelect={() => {
+                  onChange(item.label)
+                  setQuery(item.label)
+                }}
+              >
+                {({ focus, selected }) => (
+                  // This *could* be done with data-[focus] and data-[selected] instead, but
+                  // it would be a lot more verbose. those can only be used with TW classes,
+                  // not our .is-selected and .is-highlighted, so we'd have to copy the pieces
+                  // of those rules one by one. Better to rely on the shared classes.
+                  <div
+                    className={cn('ox-menu-item', {
+                      'is-selected': selected,
+                      'is-highlighted': focus,
+                    })}
+                  >
+                    {item.label}
+                  </div>
+                )}
+              </ComboboxOption>
+            ))}
+          </ComboboxOptions>
+        )}
       </HCombobox>
     </>
   )
