@@ -7,13 +7,27 @@
  */
 import { createColumnHelper } from '@tanstack/react-table'
 
-import { apiQueryClient, type PhysicalDisk } from '@oxide/api'
+import {
+  apiQueryClient,
+  type PhysicalDisk,
+  type PhysicalDiskPolicy,
+  type PhysicalDiskState,
+} from '@oxide/api'
 import { Servers24Icon } from '@oxide/design-system/icons/react'
 
-import { PolicyKindBadge, StateBadge } from '~/components/StatusBadge'
 import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
-import { Badge } from '~/ui/lib/Badge'
+import { Badge, type BadgeColor } from '~/ui/lib/Badge'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+
+const POLICY_KIND_BADGE_COLORS: Record<PhysicalDiskPolicy['kind'], BadgeColor> = {
+  in_service: 'default',
+  expunged: 'neutral',
+}
+
+const STATE_BADGE_COLORS: Record<PhysicalDiskState, BadgeColor> = {
+  active: 'default',
+  decommissioned: 'neutral',
+}
 
 const EmptyState = () => (
   <EmptyMessage
@@ -38,10 +52,14 @@ const staticCols = [
   colHelper.accessor('model', { header: 'model number' }),
   colHelper.accessor('serial', { header: 'serial number' }),
   colHelper.accessor('policy.kind', {
-    cell: (info) => <PolicyKindBadge kind={info.getValue()} />,
+    cell: (info) => (
+      <Badge color={POLICY_KIND_BADGE_COLORS[info.getValue()]}>{info.getValue()}</Badge>
+    ),
   }),
   colHelper.accessor('state', {
-    cell: (info) => <StateBadge state={info.getValue()} />,
+    cell: (info) => (
+      <Badge color={STATE_BADGE_COLORS[info.getValue()]}>{info.getValue()}</Badge>
+    ),
   }),
 ]
 
