@@ -5,7 +5,8 @@
  *
  * Copyright Oxide Computer Company
  */
-import { physicalDisks } from '@oxide/api-mocks'
+
+import { physicalDisks, sleds } from '@oxide/api-mocks'
 
 import { expect, expectRowVisible, expectVisible, test } from './utils'
 
@@ -19,6 +20,25 @@ test('Sled inventory page', async ({ page }) => {
   await expect(sledsTab).toHaveClass(/is-selected/)
 
   const sledsTable = page.getByRole('table')
+  await expectRowVisible(sledsTable, {
+    id: sleds[1].id,
+    'serial number': sleds[1].baseboard.serial,
+    policy: 'in service',
+    state: 'active',
+  })
+  await expectRowVisible(sledsTable, {
+    id: sleds[2].id,
+    'serial number': sleds[2].baseboard.serial,
+    policy: 'expunged',
+    state: 'active',
+  })
+  await expectRowVisible(sledsTable, {
+    id: sleds[3].id,
+    'serial number': sleds[3].baseboard.serial,
+    policy: 'expunged',
+    state: 'decommissioned',
+  })
+
   // Visit the sled detail page of the first sled
   await sledsTable.getByRole('link').first().click()
 
@@ -54,11 +74,13 @@ test('Disk inventory page', async ({ page }) => {
   })
   await expectRowVisible(table, {
     id: physicalDisks[4].id,
+    'Form factor': 'M.2',
     policy: 'expunged',
     state: 'active',
   })
   await expectRowVisible(table, {
     id: physicalDisks[5].id,
+    'Form factor': 'M.2',
     policy: 'expunged',
     state: 'decommissioned',
   })
