@@ -5,7 +5,13 @@
  *
  * Copyright Oxide Computer Company
  */
-import type { DiskState, InstanceState, SnapshotState } from '@oxide/api'
+import type {
+  DiskState,
+  InstanceState,
+  PhysicalDiskState,
+  SledState,
+  SnapshotState,
+} from '@oxide/api'
 
 import { Badge, type BadgeColor, type BadgeProps } from '~/ui/lib/Badge'
 
@@ -68,4 +74,18 @@ export const SnapshotStatusBadge = (props: {
   <Badge color={SNAPSHOT_COLORS[props.status]} className={props.className}>
     {props.status}
   </Badge>
+)
+
+export const PolicyKindBadge = ({ policy }: { policy: 'in_service' | 'expunged' }) => {
+  const color = policy === 'in_service' ? 'default' : 'neutral'
+  return <Badge color={color}>{policy.replace(/_/g, ' ')}</Badge>
+}
+
+const STATE_BADGE_COLORS: Record<PhysicalDiskState | SledState, BadgeColor> = {
+  active: 'default',
+  decommissioned: 'neutral',
+}
+
+export const StateBadge = ({ state }: { state: PhysicalDiskState | SledState }) => (
+  <Badge color={STATE_BADGE_COLORS[state]}>{state}</Badge>
 )

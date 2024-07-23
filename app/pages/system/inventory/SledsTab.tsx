@@ -10,6 +10,7 @@ import { createColumnHelper } from '@tanstack/react-table'
 import { apiQueryClient, type Sled } from '@oxide/api'
 import { Servers24Icon } from '@oxide/design-system/icons/react'
 
+import { PolicyKindBadge, StateBadge } from '~/components/StatusBadge'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -41,6 +42,12 @@ const staticCols = [
   colHelper.accessor('baseboard.part', { header: 'part number' }),
   colHelper.accessor('baseboard.serial', { header: 'serial number' }),
   colHelper.accessor('baseboard.revision', { header: 'revision' }),
+  colHelper.accessor('policy', {
+    cell: (info) => <PolicyKindBadge policy={info.getValue().kind} />,
+  }),
+  colHelper.accessor('state', {
+    cell: (info) => <StateBadge state={info.getValue()} />,
+  }),
 ]
 
 export function SledsTab() {
