@@ -163,7 +163,7 @@ export function CreateSiloSideModalForm() {
       )}
       <FormDivider />
       <div className="space-y-2">
-        <FieldLabel as="h3" id="role-mapping-label">
+        <FieldLabel as="h3" id="role-mapping-label" className="mb-1">
           Role mapping
         </FieldLabel>
         <CheckboxField name="siloAdminGetsFleetAdmin" control={form.control}>
