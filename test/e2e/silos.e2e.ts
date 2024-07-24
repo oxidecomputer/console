@@ -38,9 +38,19 @@ test('Create silo', async ({ page }) => {
   const discoverable = page.getByRole('checkbox', { name: 'Discoverable' })
   await expect(discoverable).toBeChecked()
   await discoverable.click()
-  await page.getByRole('radio', { name: 'Local only' }).click()
+  await expect(page.getByRole('textbox', { name: 'Admin group name' })).toBeVisible()
   await page.getByRole('textbox', { name: 'Admin group name' }).fill('admins')
   await page.getByRole('checkbox', { name: 'Grant fleet admin' }).click()
+  await expect(page.getByRole('textbox', { name: 'Admin group name' })).toHaveValue(
+    'admins'
+  )
+  await expect(page.getByRole('checkbox', { name: 'Grant fleet admin' })).toBeChecked()
+  await page.getByRole('radio', { name: 'Local only' }).click()
+  await expect(page.getByRole('textbox', { name: 'Admin group name' })).toBeHidden()
+  await page.getByRole('radio', { name: 'SAML' }).click()
+  await expect(page.getByRole('textbox', { name: 'Admin group name' })).toHaveValue('')
+  await expect(page.getByRole('checkbox', { name: 'Grant fleet admin' })).toBeChecked()
+  await page.getByRole('textbox', { name: 'Admin group name' }).fill('admins')
   await page.getByRole('textbox', { name: 'CPU quota' }).fill('30')
   await page.getByRole('textbox', { name: 'Memory quota' }).fill('58')
   await page.getByRole('textbox', { name: 'Storage quota' }).fill('735')
@@ -99,7 +109,7 @@ test('Create silo', async ({ page }) => {
   await expectRowVisible(table, {
     name: 'other-silo',
     description: 'definitely a silo',
-    'Identity mode': 'local only',
+    'Identity mode': 'saml jit',
     // discoverable: 'false',
   })
   const otherSiloCell = page.getByRole('cell', { name: 'other-silo' })
