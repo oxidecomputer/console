@@ -21,6 +21,7 @@ import { SideModalForm } from '~/components/form/SideModalForm'
 import { useForm } from '~/hooks'
 import { addToast } from '~/stores/toast'
 import { FormDivider } from '~/ui/lib/Divider'
+import { FieldLabel } from '~/ui/lib/FieldLabel'
 import { Message } from '~/ui/lib/Message'
 import { pb } from '~/util/path-builder'
 import { GiB } from '~/util/units'
@@ -160,7 +161,11 @@ export function CreateSiloSideModalForm() {
           control={form.control}
         />
       )}
+      <FormDivider />
       <div className="space-y-2">
+        <FieldLabel as="h3" id="role-mapping-label">
+          Role mapping
+        </FieldLabel>
         <CheckboxField name="siloAdminGetsFleetAdmin" control={form.control}>
           Grant fleet admin role to silo admins
         </CheckboxField>
