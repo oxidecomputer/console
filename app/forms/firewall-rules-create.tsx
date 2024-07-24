@@ -21,7 +21,6 @@ import {
   type VpcFirewallRule,
   type VpcFirewallRuleHostFilter,
   type VpcFirewallRuleTarget,
-  type VpcFirewallRuleUpdate,
 } from '@oxide/api'
 
 import { CheckboxField } from '~/components/form/fields/CheckboxField'
@@ -44,35 +43,7 @@ import { KEYS } from '~/ui/util/keys'
 import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
-export type FirewallRuleValues = {
-  enabled: boolean
-  priority: number
-  name: string
-  description: string
-  action: VpcFirewallRule['action']
-  direction: VpcFirewallRule['direction']
-
-  protocols: NonNullable<VpcFirewallRule['filters']['protocols']>
-
-  ports: NonNullable<VpcFirewallRule['filters']['ports']>
-  hosts: NonNullable<VpcFirewallRule['filters']['hosts']>
-  targets: VpcFirewallRuleTarget[]
-}
-
-export const valuesToRuleUpdate = (values: FirewallRuleValues): VpcFirewallRuleUpdate => ({
-  name: values.name,
-  status: values.enabled ? 'enabled' : 'disabled',
-  action: values.action,
-  description: values.description,
-  direction: values.direction,
-  filters: {
-    hosts: values.hosts,
-    ports: values.ports,
-    protocols: values.protocols,
-  },
-  priority: values.priority,
-  targets: values.targets,
-})
+import { valuesToRuleUpdate, type FirewallRuleValues } from './firewall-rules-util'
 
 /** convert in the opposite direction for when we're creating from existing rule */
 const ruleToValues = (rule: VpcFirewallRule): FirewallRuleValues => ({

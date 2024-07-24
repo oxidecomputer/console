@@ -26,11 +26,8 @@ import {
 import { invariant } from '~/util/invariant'
 import { pb } from '~/util/path-builder'
 
-import {
-  CommonFields,
-  valuesToRuleUpdate,
-  type FirewallRuleValues,
-} from './firewall-rules-create'
+import { CommonFields } from './firewall-rules-create'
+import { valuesToRuleUpdate, type FirewallRuleValues } from './firewall-rules-util'
 
 EditFirewallRuleForm.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project, vpc, rule } = getFirewallRuleSelector(params)
