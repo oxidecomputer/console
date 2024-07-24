@@ -67,21 +67,12 @@ export function CreateSiloSideModalForm() {
 
   const form = useForm({ defaultValues })
   const identityMode = form.watch('identityMode')
-  const adminGroupName = form.watch('adminGroupName')
   // Clear the adminGroupName if the user selects the "local only" identity mode
   useEffect(() => {
     if (identityMode === 'local_only') {
       form.setValue('adminGroupName', '')
     }
   }, [identityMode, form])
-  // Clear the role assignment checkboxes if the adminGroupName is deleted
-  const fleetRolesDisabled = !adminGroupName
-  useEffect(() => {
-    if (fleetRolesDisabled) {
-      form.setValue('siloAdminGetsFleetAdmin', false)
-      form.setValue('siloViewerGetsFleetViewer', false)
-    }
-  }, [fleetRolesDisabled, form])
   return (
     <SideModalForm
       form={form}
@@ -162,39 +153,29 @@ export function CreateSiloSideModalForm() {
         ]}
       />
       {identityMode === 'saml_jit' && (
-        <>
-          <TextField
-            name="adminGroupName"
-            label="Admin group name"
-            description={
-              <>
-                This group will be created and granted the Silo Admin role.
-                <br />
-                An admin group name is required to assign fleet roles.
-              </>
-            }
-            control={form.control}
-          />
-          <div className="space-y-2">
-            <CheckboxField
-              name="siloAdminGetsFleetAdmin"
-              control={form.control}
-              disabled={fleetRolesDisabled}
-              className="disabled:cursor-not-allowed disabled:bg-disabled"
-            >
-              Grant fleet admin role to silo admins
-            </CheckboxField>
-            <CheckboxField
-              name="siloViewerGetsFleetViewer"
-              control={form.control}
-              disabled={fleetRolesDisabled}
-              className="disabled:cursor-not-allowed disabled:bg-disabled"
-            >
-              Grant fleet viewer role to silo viewers
-            </CheckboxField>
-          </div>
-        </>
+        <TextField
+          name="adminGroupName"
+          label="Admin group name"
+          description="This group will be created and granted the Silo Admin role."
+          control={form.control}
+        />
       )}
+      <div className="space-y-2">
+        <CheckboxField
+          name="siloAdminGetsFleetAdmin"
+          control={form.control}
+          className="disabled:cursor-not-allowed disabled:bg-disabled"
+        >
+          Grant fleet admin role to silo admins
+        </CheckboxField>
+        <CheckboxField
+          name="siloViewerGetsFleetViewer"
+          control={form.control}
+          className="disabled:cursor-not-allowed disabled:bg-disabled"
+        >
+          Grant fleet viewer role to silo viewers
+        </CheckboxField>
+      </div>
       <FormDivider />
       <TlsCertsField control={form.control} />
     </SideModalForm>
