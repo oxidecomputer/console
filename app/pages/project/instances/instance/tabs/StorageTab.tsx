@@ -170,7 +170,7 @@ export function StorageTab() {
     <>
       <Table emptyState={emptyState} columns={columns} />
       <div className="mt-4 flex flex-col gap-3">
-        <div className="flex gap-3">
+        <div className="flex gap-3 md-:flex-col">
           <Button
             size="sm"
             onClick={() => setShowDiskCreate(true)}
@@ -181,6 +181,7 @@ export function StorageTab() {
               </>
             }
             disabled={!instanceCan.attachDisk(instance)}
+            className="md-:w-full"
           >
             Create new disk
           </Button>
@@ -195,6 +196,7 @@ export function StorageTab() {
               </>
             }
             disabled={!instanceCan.attachDisk(instance)}
+            className="md-:w-full"
           >
             Attach existing disk
           </Button>
