@@ -162,16 +162,18 @@ export function CreateSiloSideModalForm() {
         />
       )}
       <FormDivider />
-      <div className="space-y-2">
-        <FieldLabel as="h3" id="role-mapping-label" className="mb-1">
+      <div>
+        <FieldLabel as="h3" id="role-mapping-label" className="mb-3">
           Role mapping
         </FieldLabel>
-        <CheckboxField name="siloAdminGetsFleetAdmin" control={form.control}>
-          Grant fleet admin role to silo admins
-        </CheckboxField>
-        <CheckboxField name="siloViewerGetsFleetViewer" control={form.control}>
-          Grant fleet viewer role to silo viewers
-        </CheckboxField>
+        <div className="space-y-1">
+          <CheckboxField name="siloAdminGetsFleetAdmin" control={form.control}>
+            Grant fleet admin role to silo admins
+          </CheckboxField>
+          <CheckboxField name="siloViewerGetsFleetViewer" control={form.control}>
+            Grant fleet viewer role to silo viewers
+          </CheckboxField>
+        </div>
       </div>
       <FormDivider />
       <TlsCertsField control={form.control} />
