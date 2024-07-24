@@ -161,18 +161,10 @@ export function CreateSiloSideModalForm() {
         />
       )}
       <div className="space-y-2">
-        <CheckboxField
-          name="siloAdminGetsFleetAdmin"
-          control={form.control}
-          className="disabled:cursor-not-allowed disabled:bg-disabled"
-        >
+        <CheckboxField name="siloAdminGetsFleetAdmin" control={form.control}>
           Grant fleet admin role to silo admins
         </CheckboxField>
-        <CheckboxField
-          name="siloViewerGetsFleetViewer"
-          control={form.control}
-          className="disabled:cursor-not-allowed disabled:bg-disabled"
-        >
+        <CheckboxField name="siloViewerGetsFleetViewer" control={form.control}>
           Grant fleet viewer role to silo viewers
         </CheckboxField>
       </div>
