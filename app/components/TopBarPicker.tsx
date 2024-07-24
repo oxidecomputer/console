@@ -21,7 +21,6 @@ import { PAGE_SIZE } from '~/table/QueryTable'
 import { Button } from '~/ui/lib/Button'
 import { DropdownMenu } from '~/ui/lib/DropdownMenu'
 import { Identicon } from '~/ui/lib/Identicon'
-import { Truncate } from '~/ui/lib/Truncate'
 import { Wrap } from '~/ui/util/wrap'
 import { pb } from '~/util/path-builder'
 
@@ -118,8 +117,8 @@ const TopBarPicker = (props: TopBarPickerProps) => {
                 return (
                   <DropdownMenu.Item asChild key={label}>
                     <Link to={to} className={cn({ 'is-selected': isSelected })}>
-                      <span className="flex w-full items-center justify-between">
-                        <Truncate text={label} maxLength={24} />
+                      <span className="flex w-full items-center gap-2">
+                        {label}
                         {isSelected && <Success12Icon className="-mr-3 block" />}
                       </span>
                     </Link>
