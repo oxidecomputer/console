@@ -13,7 +13,6 @@ import { apiQueryClient, useApiQuery } from '~/api'
 import { EquivalentCliCommand } from '~/components/EquivalentCliCommand'
 import { getInstanceSelector, useInstanceSelector, useProjectSelector } from '~/hooks'
 import { buttonStyle } from '~/ui/lib/Button'
-import { CopyToClipboard } from '~/ui/lib/CopyToClipboard'
 import { SettingsGroup } from '~/ui/lib/SettingsGroup'
 import { cliCmd } from '~/util/cli-cmd'
 import { pb } from '~/util/path-builder'
@@ -28,7 +27,7 @@ ConnectTab.loader = async ({ params }: LoaderFunctionArgs) => {
 }
 
 const InlineCode = ({ children }: { children: ReactNode }) => (
-  <code className="inline-flex h-4 items-center whitespace-nowrap rounded-sm px-[3px] py-[1px] !lowercase text-mono-sm text-secondary bg-secondary">
+  <code className="h-4 whitespace-nowrap rounded-sm px-[3px] py-[1px] !lowercase text-mono-sm text-secondary bg-secondary">
     {children}
   </code>
 )
@@ -43,23 +42,18 @@ export function ConnectTab() {
   const floatingIps = externalIps?.items?.filter((ip) => ip.kind === 'floating')
   // default to a floating IP; fall back to ephemeral IP, if it exists
   const externalIp = (floatingIps?.[0] || externalIps?.items?.[0])?.ip
-  const sshCommand = `ssh [username]@${externalIp}`
   const sshCopy = externalIp ? (
-    <div className="space-y-2">
+    <>
       <p>
         If you specified SSH keys when you created this instance, you can connect to it
-        through an external IP:{' '}
-        <InlineCode>
-          {sshCommand}
-          <CopyToClipboard text={sshCommand} />
-        </InlineCode>
+        through an external IP: <InlineCode>ssh [username]@{externalIp}</InlineCode>
       </p>
       <p>
         The <InlineCode>[username]</InlineCode> in the SSH command will depend on your
         instance’s boot disk’s OS, but might be <InlineCode>debian</InlineCode>,{' '}
         <InlineCode>ubuntu</InlineCode>, <InlineCode>arch</InlineCode>, etc.
       </p>
-    </div>
+    </>
   ) : (
     <p>
       If you specified SSH keys when you created this instance, you can create an external
@@ -91,7 +85,21 @@ export function ConnectTab() {
       <SettingsGroup.Container>
         <SettingsGroup.Body>
           <SettingsGroup.Title>SSH</SettingsGroup.Title>
-          {sshCopy}
+          <div className="space-y-3">
+            {sshCopy}
+            <p>
+              For more info:{' '}
+              <Link
+                to="https://docs.oxide.computer/guides/deploying-workloads#_access_via_ssh"
+                className="link-with-underline"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Access via SSH
+              </Link>
+              .
+            </p>
+          </div>
         </SettingsGroup.Body>
       </SettingsGroup.Container>
     </div>
