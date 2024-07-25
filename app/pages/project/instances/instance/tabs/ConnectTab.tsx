@@ -88,16 +88,16 @@ export function ConnectTab() {
           <div className="space-y-3">
             {sshCopy}
             <p>
-              For more info:{' '}
+              Read our{' '}
               <Link
                 to="https://docs.oxide.computer/guides/deploying-workloads#_access_via_ssh"
                 className="link-with-underline"
                 target="_blank"
                 rel="noreferrer"
               >
-                Access via SSH
-              </Link>
-              .
+                SSH guide
+              </Link>{' '}
+              to learn more.
             </p>
           </div>
         </SettingsGroup.Body>
