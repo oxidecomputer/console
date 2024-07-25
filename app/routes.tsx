@@ -328,6 +328,7 @@ export const routes = createRoutesFromElements(
               <Route
                 path="connect"
                 element={<ConnectTab />}
+                loader={ConnectTab.loader}
                 handle={{ crumb: 'Connect' }}
               />
             </Route>
