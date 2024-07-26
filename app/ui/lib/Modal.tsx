@@ -132,9 +132,10 @@ Modal.Footer = ({
 }) => (
   <footer className="flex items-center justify-between border-t px-3 py-3 border-secondary">
     <div className="mr-4">{children}</div>
-    <div className="flex flex-row-reverse gap-2">
-      {/* Note the confirm button is first so it autofocuses when the modal opens,
-          but it displays in the right order because of flex-row-reverse */}
+    <div className="space-x-2">
+      <Button variant="secondary" size="sm" onClick={onDismiss}>
+        {cancelText || 'Cancel'}
+      </Button>
       <Button
         size="sm"
         variant={actionType}
@@ -143,9 +144,6 @@ Modal.Footer = ({
         loading={actionLoading}
       >
         {actionText}
-      </Button>
-      <Button variant="secondary" size="sm" onClick={onDismiss}>
-        {cancelText || 'Cancel'}
       </Button>
     </div>
   </footer>
