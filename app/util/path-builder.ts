@@ -22,6 +22,7 @@ type SiloImage = Required<PP.SiloImage>
 type IpPool = Required<PP.IpPool>
 type FloatingIp = Required<PP.FloatingIp>
 type FirewallRule = Required<PP.FirewallRule>
+type VpcRouter = Required<PP.VpcRouter>
 type VpcSubnet = Required<PP.VpcSubnet>
 
 // these are used as the basis for many routes but are not themselves routes we
@@ -83,6 +84,8 @@ export const pb = {
     `${pb.vpcFirewallRulesNew(params)}/${params.rule}`,
   vpcFirewallRuleEdit: (params: FirewallRule) =>
     `${pb.vpcFirewallRules(params)}/${params.rule}/edit`,
+  vpcRouters: (params: Vpc) => `${vpcBase(params)}/routers`,
+  vpcRouter: (params: VpcRouter) => `${pb.vpcRouters(params)}/${params.router}`,
   vpcSubnets: (params: Vpc) => `${vpcBase(params)}/subnets`,
   vpcSubnetsNew: (params: Vpc) => `${vpcBase(params)}/subnets-new`,
   vpcSubnetsEdit: (params: VpcSubnet) => `${pb.vpcSubnets(params)}/${params.subnet}/edit`,

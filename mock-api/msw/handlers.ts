@@ -1049,6 +1049,26 @@ export const handlers = makeHandlers({
 
     return { rules: R.sortBy(rules, (r) => r.name) }
   },
+  vpcRouterList({ query }) {
+    const vpc = lookup.vpc(query)
+    const routers = db.vpcRouters.filter((r) => r.vpc_id === vpc.id)
+    return paginated(query, routers)
+  },
+  vpcRouterView: ({ path, query }) => lookup.vpcRouter({ ...path, ...query }),
+  // vpcRouterCreate({ body, query }) {
+  //   const vpc = lookup.vpc(query)
+  //   errIfExists(db.vpcRouters, { vpc_id: vpc.id, name: body.name })
+
+  //   const newRouter: Json<Api.VpcRouter> = {
+  //     id: uuid(),
+  //     vpc_id: vpc.id,
+  //     ...body,
+  //     ...getTimestamps(),
+  //   }
+  //   db.vpcRouters.push(newRouter)
+  //   return json(newRouter, { status: 201 })
+  // },
+  vpcRouterRouteView: ({ path, query }) => lookup.vpcRouterRoute({ ...path, ...query }),
   vpcSubnetList({ query }) {
     const vpc = lookup.vpc(query)
     const subnets = db.vpcSubnets.filter((s) => s.vpc_id === vpc.id)
@@ -1373,12 +1393,9 @@ export const handlers = makeHandlers({
   userBuiltinView: NotImplemented,
   vpcRouterCreate: NotImplemented,
   vpcRouterDelete: NotImplemented,
-  vpcRouterList: NotImplemented,
   vpcRouterRouteCreate: NotImplemented,
   vpcRouterRouteDelete: NotImplemented,
   vpcRouterRouteList: NotImplemented,
   vpcRouterRouteUpdate: NotImplemented,
-  vpcRouterRouteView: NotImplemented,
   vpcRouterUpdate: NotImplemented,
-  vpcRouterView: NotImplemented,
 })
