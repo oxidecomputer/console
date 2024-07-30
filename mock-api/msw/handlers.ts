@@ -997,6 +997,8 @@ export const handlers = makeHandlers({
     }
     db.vpcSubnets.push(newSubnet)
 
+    // TODO: create default firewall rules!
+
     return json(newVpc, { status: 201 })
   },
   vpcView: ({ path, query }) => lookup.vpc({ ...path, ...query }),

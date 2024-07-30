@@ -114,23 +114,6 @@ export const firewallRules: Json<VpcFirewallRule[]> = [
     time_modified,
     vpc_id: vpc.id,
   },
-  {
-    id: '5ed562d9-2566-496d-b7b3-7976b04a0b80',
-    name: 'allow-rdp',
-    status: 'enabled',
-    direction: 'inbound',
-    targets: [{ type: 'vpc', value: 'default' }],
-    description: 'allow inbound TCP connections on port 3389 from anywhere',
-    filters: {
-      ports: ['3389'],
-      protocols: ['TCP'],
-    },
-    action: 'allow',
-    priority: 65534,
-    time_created,
-    time_modified,
-    vpc_id: vpc.id,
-  },
   // second mock VPC in other project, meant to test display with lots  of
   // targets and filters
   {

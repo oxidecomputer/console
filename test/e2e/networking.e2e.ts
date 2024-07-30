@@ -97,7 +97,6 @@ test('Create and edit subnet', async ({ page }) => {
   await expectVisible(page, [
     'role=cell[name="allow-icmp"]',
     'role=cell[name="allow-internal-inbound"]',
-    'role=cell[name="allow-rdp"]',
     'role=cell[name="allow-ssh"]',
   ])
 })
