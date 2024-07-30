@@ -23,6 +23,8 @@ export const links = {
     'https://docs.oxide.computer/guides/key-entities-and-concepts#_projects',
   projectsDocs: 'https://docs.oxide.computer/guides/onboarding-projects',
   quickStart: 'https://docs.oxide.computer/guides/quickstart',
+  routersDocs:
+    'https://docs.oxide.computer/guides/configuring-guest-networking#_custom_routers',
   sledDocs:
     'https://docs.oxide.computer/guides/architecture/service-processors#_server_sled',
   snapshotsDocs:
@@ -77,6 +79,10 @@ export const docLinks = {
   quickStart: {
     href: links.quickStart,
     linkText: 'Quick Start',
+  },
+  routers: {
+    href: links.routersDocs,
+    linkText: 'Custom Routers',
   },
   sleds: {
     href: links.sledDocs,

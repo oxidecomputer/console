@@ -12,8 +12,10 @@ import { Outlet, type LoaderFunctionArgs } from 'react-router-dom'
 import { apiQueryClient, usePrefetchedApiQuery, type VpcRouter } from '@oxide/api'
 
 import { getVpcSelector, useVpcSelector } from '~/hooks'
+import { LinkCell } from '~/table/cells/LinkCell'
 import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { pb } from '~/util/path-builder'
 
 const colHelper = createColumnHelper<VpcRouter>()
 
@@ -48,10 +50,14 @@ export function VpcRoutersTab() {
   const columns = useMemo(
     () => [
       colHelper.accessor('name', {
-        cell: (info) => info.getValue(),
+        cell: (info) => (
+          <LinkCell to={pb.vpcRouterEdit({ ...vpcSelector, router: info.getValue() })}>
+            {info.getValue()}
+          </LinkCell>
+        ),
       }),
     ],
-    []
+    [vpcSelector]
   )
 
   return (

@@ -392,15 +392,51 @@ export const routes = createRoutesFromElements(
                   handle={{ crumb: 'Edit Subnet' }}
                 />
               </Route>
-              <Route element={<VpcRoutersTab />} loader={VpcRoutersTab.loader}>
-                <Route path="routers" handle={{ crumb: 'Routers' }} />
-              </Route>
-            </Route>
-            <Route element={<RouterRoutePage />} loader={RouterRoutePage.loader}>
-              <Route path="routes" handle={{ crumb: 'Routes' }} element={null} />
-              {/* create page; follow IpPools example */}
+              {/*               
+        <Route path="networking">
+          <Route index element={<Navigate to="ip-pools" replace />} />
+          <Route
+            element={<IpPoolsPage />}
+            loader={IpPoolsPage.loader}
+            handle={{ crumb: 'IP pools' }}
+          >
+            <Route path="ip-pools" element={null} />
+            <Route path="ip-pools-new" element={<CreateIpPoolSideModalForm />} />
+            <Route
+              path="ip-pools/:pool/edit"
+              element={<EditIpPoolSideModalForm />}
+              loader={EditIpPoolSideModalForm.loader}
+              handle={{ crumb: 'Edit IP pool' }}
+            />
+          </Route>
+        </Route>
+        <Route path="networking/ip-pools" handle={{ crumb: 'IP pools' }}>
+          <Route
+            path=":pool"
+            element={<IpPoolPage />}
+            loader={IpPoolPage.loader}
+            handle={{ crumb: poolCrumb }}
+          >
+            <Route path="ranges-add" element={<IpPoolAddRangeSideModalForm />} />
+          </Route>
+        </Route> */}
+
+              <Route
+                path="routers"
+                element={<VpcRoutersTab />}
+                loader={VpcRoutersTab.loader}
+                handle={{ crumb: 'Routers' }}
+              />
             </Route>
           </Route>
+        </Route>
+        <Route
+          element={<RouterRoutePage />}
+          loader={RouterRoutePage.loader}
+          handle={{ crumb: 'Routes' }}
+          path="vpcs/:vpc/routers/:router"
+        >
+          {/* create page; follow IpPools example */}
         </Route>
         <Route element={<FloatingIpsPage />} loader={FloatingIpsPage.loader}>
           <Route path="floating-ips" handle={{ crumb: 'Floating IPs' }} element={null} />
