@@ -18,7 +18,7 @@ test('can nav to VpcPage from /', async ({ page }) => {
     name: 'mock-vpc',
     'DNS name': 'mock-vpc',
     description: 'a fake vpc',
-    'Firewall Rules': '4',
+    'Firewall Rules': '3',
   })
 
   // click the vpc name cell to go there
@@ -36,7 +36,7 @@ test('can nav to VpcPage from /', async ({ page }) => {
   await page.goBack()
   await expect(page.getByRole('heading', { name: 'mock-vpc' })).toBeHidden()
   await expect(page.getByRole('cell', { name: 'allow-icmp' })).toBeHidden()
-  await page.getByRole('link', { name: '4' }).click()
+  await page.getByRole('link', { name: '3' }).click()
   await expect(page.getByRole('heading', { name: 'mock-vpc' })).toBeVisible()
   await expect(page.getByRole('cell', { name: 'allow-icmp' })).toBeVisible()
 })
