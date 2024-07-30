@@ -329,16 +329,32 @@ test('create from existing rule', async ({ page }) => {
   await expect(modal.getByRole('checkbox', { name: 'UDP' })).not.toBeChecked()
   await expect(modal.getByRole('checkbox', { name: 'ICMP' })).toBeChecked()
 
-  // await expect(
-  //   modal
-  //     .getByRole('table', { name: 'Port filters' })
-  //     .getByRole('cell', { name: '3389', exact: true })
-  // ).toBeVisible()
-  await expect(
-    modal
-      .getByRole('table', { name: 'Targets' })
-      .getByRole('row', { name: 'Name: default, Type: vpc' })
-  ).toBeVisible()
+  // no port filters
+  const portFilters = modal.getByRole('table', { name: 'Port filters' })
+  await expect(portFilters).toBeHidden()
+
+  const targets = modal.getByRole('table', { name: 'Targets' })
+  await expect(targets.getByRole('row', { name: 'Name: default, Type: vpc' })).toBeVisible()
+
+  // close the modal
+  await page.keyboard.press('Escape')
+  await expect(modal).toBeHidden()
+
+  // do it again with a different rule
+  await clickRowAction(page, 'allow-ssh', 'Clone')
+
+  await expect(modal).toBeVisible()
+  await expect(modal.getByRole('textbox', { name: 'Name', exact: true })).toHaveValue(
+    'allow-ssh-copy'
+  )
+
+  await expect(portFilters.getByRole('cell', { name: '22', exact: true })).toBeVisible()
+
+  await expect(modal.getByRole('checkbox', { name: 'TCP' })).toBeChecked()
+  await expect(modal.getByRole('checkbox', { name: 'UDP' })).not.toBeChecked()
+  await expect(modal.getByRole('checkbox', { name: 'ICMP' })).not.toBeChecked()
+
+  await expect(targets.getByRole('row', { name: 'Name: default, Type: vpc' })).toBeVisible()
 })
 
 const rulePath = '/projects/mock-project/vpcs/mock-vpc/firewall-rules/allow-icmp/edit'
