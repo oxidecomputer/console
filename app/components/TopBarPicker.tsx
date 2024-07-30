@@ -115,14 +115,17 @@ const TopBarPicker = (props: TopBarPickerProps) => {
               props.items.map(({ label, to }) => {
                 const isSelected = props.current === label
                 return (
-                  <DropdownMenu.Item asChild key={label}>
-                    <Link to={to} className={cn({ 'is-selected': isSelected })}>
-                      <span className="flex w-full items-center gap-2">
-                        {label}
-                        {isSelected && <Success12Icon className="-mr-3 block" />}
-                      </span>
-                    </Link>
-                  </DropdownMenu.Item>
+                  <DropdownMenu.LinkItem
+                    asChild
+                    key={label}
+                    to={to}
+                    className={cn({ 'is-selected': isSelected })}
+                  >
+                    <span className="flex w-full items-center gap-2">
+                      {label}
+                      {isSelected && <Success12Icon className="-mr-3 block" />}
+                    </span>
+                  </DropdownMenu.LinkItem>
                 )
               })
             ) : (
