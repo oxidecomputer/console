@@ -29,13 +29,19 @@ export const MoreActionsMenu = ({ actions, label }: MoreActionsMenuProps) => {
       <DropdownMenu.Content align="end" className="mt-2">
         {actions.map((a) => (
           <Wrap key={a.label} when={!!a.disabled} with={<Tooltip content={a.disabled} />}>
-            <DropdownMenu.Item
-              className={a.className}
-              disabled={!!a.disabled}
-              onSelect={a.onActivate}
-            >
-              {a.label}
-            </DropdownMenu.Item>
+            {typeof a.onActivate === 'string' ? (
+              <DropdownMenu.LinkItem className={a.className} to={a.onActivate}>
+                {a.label}
+              </DropdownMenu.LinkItem>
+            ) : (
+              <DropdownMenu.Item
+                className={a.className}
+                disabled={!!a.disabled}
+                onSelect={a.onActivate}
+              >
+                {a.label}
+              </DropdownMenu.Item>
+            )}
           </Wrap>
         ))}
       </DropdownMenu.Content>

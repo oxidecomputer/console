@@ -7,7 +7,7 @@
  */
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useMemo } from 'react'
-import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
+import { Outlet, type LoaderFunctionArgs } from 'react-router-dom'
 import * as R from 'remeda'
 
 import {
@@ -112,8 +112,6 @@ export function VpcFirewallRulesTab() {
   })
   const rules = useMemo(() => R.sortBy(data.rules, (r) => r.priority), [data])
 
-  const navigate = useNavigate()
-
   const updateRules = useApiMutation('vpcFirewallRulesUpdate', {
     onSuccess() {
       queryClient.invalidateQueries('vpcFirewallRulesView')
@@ -135,15 +133,11 @@ export function VpcFirewallRulesTab() {
       getActionsCol((rule: VpcFirewallRule) => [
         {
           label: 'Edit',
-          onActivate() {
-            navigate(pb.vpcFirewallRuleEdit({ ...vpcSelector, rule: rule.name }))
-          },
+          onActivate: pb.vpcFirewallRuleEdit({ ...vpcSelector, rule: rule.name }),
         },
         {
           label: 'Clone',
-          onActivate() {
-            navigate(pb.vpcFirewallRuleClone({ ...vpcSelector, rule: rule.name }))
-          },
+          onActivate: pb.vpcFirewallRuleClone({ ...vpcSelector, rule: rule.name }),
         },
         {
           label: 'Delete',
@@ -160,7 +154,7 @@ export function VpcFirewallRulesTab() {
         },
       ]),
     ]
-  }, [navigate, rules, updateRules, vpcSelector])
+  }, [rules, updateRules, vpcSelector])
 
   const table = useReactTable({ columns, data: rules, getCoreRowModel: getCoreRowModel() })
 

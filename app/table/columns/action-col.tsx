@@ -20,7 +20,8 @@ export type MakeActions<Item> = (item: Item) => Array<MenuAction>
 
 export type MenuAction = {
   label: string
-  onActivate: () => void
+  /** If it's a string, it's a URL and we should make it a LinkItem */
+  onActivate: string | (() => void)
   disabled?: false | React.ReactNode
   className?: string
 }
@@ -81,16 +82,28 @@ export const getActionsCol = <TData extends Record<string, unknown>>(
                     with={<Tooltip content={action.disabled} />}
                     key={kebabCase(`action-${action.label}`)}
                   >
-                    <DropdownMenu.Item
-                      className={cn(action.className, {
-                        destructive:
-                          action.label.toLowerCase() === 'delete' && !action.disabled,
-                      })}
-                      onSelect={action.onActivate}
-                      disabled={!!action.disabled}
-                    >
-                      {action.label}
-                    </DropdownMenu.Item>
+                    {typeof action.onActivate === 'string' ? (
+                      <DropdownMenu.LinkItem
+                        className={cn(action.className, {
+                          destructive:
+                            action.label.toLowerCase() === 'delete' && !action.disabled,
+                        })}
+                        to={action.onActivate}
+                      >
+                        {action.label}
+                      </DropdownMenu.LinkItem>
+                    ) : (
+                      <DropdownMenu.Item
+                        className={cn(action.className, {
+                          destructive:
+                            action.label.toLowerCase() === 'delete' && !action.disabled,
+                        })}
+                        onSelect={action.onActivate}
+                        disabled={!!action.disabled}
+                      >
+                        {action.label}
+                      </DropdownMenu.Item>
+                    )}
                   </Wrap>
                 )
               })}

@@ -6,7 +6,6 @@
  * Copyright Oxide Computer Company
  */
 import { useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
 
 import { instanceCan, useApiMutation, type Instance } from '@oxide/api'
 
@@ -32,8 +31,6 @@ export const useMakeInstanceActions = (
   projectSelector: { project: string },
   options: Options = {}
 ): MakeActions<Instance> => {
-  const navigate = useNavigate()
-
   // if you also pass onSuccess to mutate(), this one is not overridden — this
   // one runs first, then the one passed to mutate()
   const opts = { onSuccess: options.onSuccess }
@@ -109,9 +106,7 @@ export const useMakeInstanceActions = (
         },
         {
           label: 'View serial console',
-          onActivate() {
-            navigate(pb.serialConsole(instanceSelector))
-          },
+          onActivate: pb.serialConsole(instanceSelector),
         },
         {
           label: 'Delete',
@@ -132,6 +127,6 @@ export const useMakeInstanceActions = (
         },
       ]
     },
-    [projectSelector, deleteInstance, navigate, rebootInstance, startInstance, stopInstance]
+    [projectSelector, deleteInstance, rebootInstance, startInstance, stopInstance]
   )
 }
