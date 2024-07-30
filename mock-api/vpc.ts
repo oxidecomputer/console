@@ -6,10 +6,13 @@
  * Copyright Oxide Computer Company
  */
 
+import { v4 as uuid } from 'uuid'
+
 import type { Vpc, VpcFirewallRule, VpcSubnet } from '@oxide/api'
 
 import type { Json } from './json-type'
 import { project, project2 } from './project'
+import { getTimestamps } from './util'
 
 const time_created = new Date(2021, 0, 1).toISOString()
 const time_modified = new Date(2021, 0, 2).toISOString()
@@ -63,61 +66,67 @@ export const vpcSubnet2: Json<VpcSubnet> = {
   ipv4_block: '10.1.1.2/24',
 }
 
+export function defaultFirewallRules(vpcId: string): Json<VpcFirewallRule[]> {
+  return [
+    {
+      id: uuid(),
+      vpc_id: vpcId,
+      name: 'allow-internal-inbound',
+      status: 'enabled',
+      direction: 'inbound',
+      targets: [{ type: 'vpc', value: 'default' }],
+      action: 'allow',
+      description:
+        'allow inbound traffic to all instances within the VPC if originated within the VPC',
+      filters: {
+        hosts: [{ type: 'vpc', value: 'default' }],
+      },
+      priority: 65534,
+      ...getTimestamps(),
+    },
+    {
+      id: uuid(),
+      vpc_id: vpcId,
+      name: 'allow-ssh',
+      status: 'enabled',
+      direction: 'inbound',
+      targets: [{ type: 'vpc', value: 'default' }],
+      description: 'allow inbound TCP connections on port 22 from anywhere',
+      filters: {
+        ports: ['22'],
+        protocols: ['TCP'],
+      },
+      action: 'allow',
+      priority: 65534,
+      ...getTimestamps(),
+    },
+    {
+      id: uuid(),
+      vpc_id: vpcId,
+      name: 'allow-icmp',
+      status: 'enabled',
+      direction: 'inbound',
+      targets: [{ type: 'vpc', value: 'default' }],
+      description: 'allow inbound ICMP traffic from anywhere',
+      filters: {
+        protocols: ['ICMP'],
+      },
+      action: 'allow',
+      priority: 65534,
+      ...getTimestamps(),
+    },
+  ]
+}
+
+// usually we try to hard-code resource IDs, but in this case
+// we don't rely on them anywhere and it's easier to wrap up if they're dynamic
+
 export const firewallRules: Json<VpcFirewallRule[]> = [
-  {
-    id: 'b74aeea8-1201-4efd-b6ec-011f10a0b176',
-    name: 'allow-internal-inbound',
-    status: 'enabled',
-    direction: 'inbound',
-    targets: [{ type: 'vpc', value: 'default' }],
-    action: 'allow',
-    description:
-      'allow inbound traffic to all instances within the VPC if originated within the VPC',
-    filters: {
-      hosts: [{ type: 'vpc', value: 'default' }],
-    },
-    priority: 65534,
-    time_created,
-    time_modified,
-    vpc_id: vpc.id,
-  },
-  {
-    id: '9802cd8e-1e59-4fdf-9b40-99c189f7a19b',
-    name: 'allow-ssh',
-    status: 'enabled',
-    direction: 'inbound',
-    targets: [{ type: 'vpc', value: 'default' }],
-    description: 'allow inbound TCP connections on port 22 from anywhere',
-    filters: {
-      ports: ['22'],
-      protocols: ['TCP'],
-    },
-    action: 'allow',
-    priority: 65534,
-    time_created,
-    time_modified,
-    vpc_id: vpc.id,
-  },
-  {
-    id: 'cde07d86-b8c0-49ed-8754-55f1bdee20fe',
-    name: 'allow-icmp',
-    status: 'enabled',
-    direction: 'inbound',
-    targets: [{ type: 'vpc', value: 'default' }],
-    description: 'allow inbound ICMP traffic from anywhere',
-    filters: {
-      protocols: ['ICMP'],
-    },
-    action: 'allow',
-    priority: 65534,
-    time_created,
-    time_modified,
-    vpc_id: vpc.id,
-  },
+  ...defaultFirewallRules(vpc.id),
   // second mock VPC in other project, meant to test display with lots  of
   // targets and filters
   {
-    id: '097c849e-68c8-43f7-9ceb-b1855c51f178',
+    id: uuid(),
     name: 'lots-of-filters',
     status: 'enabled',
     direction: 'inbound',
@@ -139,7 +148,7 @@ export const firewallRules: Json<VpcFirewallRule[]> = [
     vpc_id: vpc2.id,
   },
   {
-    id: '097c849e-68c8-43f7-9ceb-b1855c51f178',
+    id: uuid(),
     name: 'lots-of-targets',
     status: 'enabled',
     direction: 'inbound',

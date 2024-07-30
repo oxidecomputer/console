@@ -27,6 +27,8 @@ import { GiB } from '~/util/units'
 import { genCumulativeI64Data } from '../metrics'
 import { serial } from '../serial'
 import { defaultSilo, toIdp } from '../silo'
+import { getTimestamps } from '../util'
+import { defaultFirewallRules } from '../vpc'
 import {
   db,
   getIpFromPool,
@@ -41,7 +43,6 @@ import {
   errIfInvalidDiskSize,
   forbiddenErr,
   getStartAndEndTime,
-  getTimestamps,
   handleMetrics,
   ipInAnyRange,
   ipRangeLen,
@@ -997,7 +998,8 @@ export const handlers = makeHandlers({
     }
     db.vpcSubnets.push(newSubnet)
 
-    // TODO: create default firewall rules!
+    // populate default firewall rules
+    db.vpcFirewallRules.push(...defaultFirewallRules(newVpc.id))
 
     return json(newVpc, { status: 201 })
   },

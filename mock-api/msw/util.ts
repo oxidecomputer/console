@@ -86,11 +86,6 @@ export function getStartAndEndTime(params: { startTime?: Date; endTime?: Date })
   return { startTime, endTime }
 }
 
-export function getTimestamps() {
-  const now = new Date().toISOString()
-  return { time_created: now, time_modified: now }
-}
-
 export const forbiddenErr = () =>
   json({ error_code: 'Forbidden', request_id: 'fake-id' }, { status: 403 })
 
