@@ -6,49 +6,155 @@
  * Copyright Oxide Computer Company
  */
 
+import { createColumnHelper } from '@tanstack/react-table'
+import { useCallback, useMemo } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 
 import { Networking16Icon, Networking24Icon } from '@oxide/design-system/icons/react'
 
-import { apiQueryClient, usePrefetchedApiQuery } from '~/api'
+import { apiQueryClient, usePrefetchedApiQuery, type RouterRoute } from '~/api'
 import { DocsPopover } from '~/components/DocsPopover'
+import { HL } from '~/components/HL'
+import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import { getVpcRouterSelector, useVpcRouterSelector } from '~/hooks'
-import { PAGE_SIZE } from '~/table/QueryTable'
+import { confirmAction } from '~/stores/confirm-action'
+import { EmptyCell } from '~/table/cells/EmptyCell'
+import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
+import { useQueryTable } from '~/table/QueryTable'
+import { DateTime } from '~/ui/lib/DateTime'
+import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
+import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { docLinks } from '~/util/links'
 
 RouterRoutePage.loader = async function ({ params }: LoaderFunctionArgs) {
   const { project, vpc, router } = getVpcRouterSelector(params)
+  console.log('loader')
   console.log({ project, vpc, router })
-  const query = { limit: PAGE_SIZE }
-  await apiQueryClient.prefetchQuery('vpcRouterView', {
-    path: { router },
-    query: { project, vpc, ...query },
-  })
-  console.log({ params })
+  await Promise.all([
+    apiQueryClient.prefetchQuery('vpcRouterView', {
+      path: { router },
+      query: { project, vpc },
+    }),
+    apiQueryClient.prefetchQuery('vpcRouterRouteList', { query: { project, router, vpc } }),
+  ])
   return null
 }
 
 export function RouterRoutePage() {
-  const query = { limit: PAGE_SIZE }
   const { project, vpc, router } = useVpcRouterSelector()
   const { data: routerData } = usePrefetchedApiQuery('vpcRouterView', {
     path: { router },
-    query: { project, vpc, ...query },
+    query: { project, vpc },
   })
-  console.log({ routerData })
+  // probably don't need to both set routerRoutes and use useQueryTable
+  const { data: routerRoutes } = usePrefetchedApiQuery('vpcRouterRouteList', {
+    query: { project, router, vpc },
+  })
+  console.log({ routerRoutes })
+
+  const actions = useMemo(
+    () => [
+      {
+        label: 'Copy ID',
+        onActivate() {
+          window.navigator.clipboard.writeText(routerData.id || '')
+        },
+      },
+    ],
+    [routerData]
+  )
+  const { Table } = useQueryTable('vpcRouterRouteList', { query: { project, router, vpc } })
+
+  const emptyState = (
+    <EmptyMessage
+      icon={<Networking24Icon />}
+      title="No router routes"
+      body="Add a route to see it here"
+      buttonText="Add route"
+      buttonTo=""
+      // TODO: "add route" button
+      // buttonTo={pb.ipPoolRangeAdd({ pool })}
+    />
+  )
+
+  const routerRoutesColHelper = createColumnHelper<RouterRoute>()
+
+  const routerRoutesStaticCols = [
+    routerRoutesColHelper.accessor('name', { header: 'Name' }),
+    routerRoutesColHelper.accessor('kind', { header: 'Kind' }),
+    routerRoutesColHelper.accessor('target.type', { header: 'Target Type' }),
+    routerRoutesColHelper.accessor('target.value', { header: 'Target Value' }),
+    routerRoutesColHelper.accessor('destination.type', {
+      header: 'Destination Type',
+    }),
+    routerRoutesColHelper.accessor('destination.value', {
+      header: 'Destination Value',
+    }),
+  ]
+
+  const makeRangeActions = useCallback(
+    ({ name }: RouterRoute): MenuAction[] => [
+      {
+        label: 'Remove',
+        className: 'destructive',
+        onActivate: () =>
+          confirmAction({
+            doAction: () => {
+              // remove route
+              console.log('remove route')
+              // removeRange.mutateAsync({
+              //   path: { pool },
+              //   body: range,
+              // }),
+              return Promise.resolve()
+            },
+            errorTitle: 'Could not remove route',
+            modalTitle: 'Confirm remove route',
+            modalContent: (
+              <p>
+                Are you sure you want to remove route <HL>{name}</HL>?
+              </p>
+            ),
+            actionType: 'danger',
+          }),
+      },
+    ],
+    []
+  )
+  const columns = useColsWithActions(routerRoutesStaticCols, makeRangeActions)
+
   return (
     <>
       <PageHeader>
         <PageTitle icon={<Networking24Icon />}>{router}</PageTitle>
-        <DocsPopover
-          heading="Routers"
-          icon={<Networking16Icon />}
-          summary="Routers summary copy TK"
-          links={[docLinks.routers]}
-        />
+        <div className="inline-flex gap-2">
+          <DocsPopover
+            heading="Routers"
+            icon={<Networking16Icon />}
+            summary="Routers summary copy TK"
+            links={[docLinks.routers]}
+          />
+          <MoreActionsMenu label="Instance actions" actions={actions} />
+        </div>
       </PageHeader>
-      <p>More to come here, based on IP Pools page</p>
+      <PropertiesTable.Group className="-mt-8 mb-16">
+        <PropertiesTable>
+          <PropertiesTable.Row label="Description">
+            {routerData.description || <EmptyCell />}
+          </PropertiesTable.Row>
+          <PropertiesTable.Row label="Kind">{routerData.kind}</PropertiesTable.Row>
+        </PropertiesTable>
+        <PropertiesTable>
+          <PropertiesTable.Row label="Created">
+            <DateTime date={routerData.timeCreated} />
+          </PropertiesTable.Row>
+          <PropertiesTable.Row label="Last Modified">
+            <DateTime date={routerData.timeModified} />
+          </PropertiesTable.Row>
+        </PropertiesTable>
+      </PropertiesTable.Group>
+      <Table columns={columns} emptyState={emptyState} />
     </>
   )
 }

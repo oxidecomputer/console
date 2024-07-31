@@ -52,7 +52,7 @@ export const routerRoutes: Json<Array<RouterRoute>> = [
     description: "VPC Subnet route for 'default'",
     time_created: '2024-07-11T17:46:21.161086Z',
     time_modified: '2024-07-11T17:46:21.161086Z',
-    vpc_router_id: '6900c1ab-bc8c-4fed-8499-c8312a05d81f',
+    vpc_router_id: 'fc59fb4d-baad-44a8-b152-9a3c27ae8aa1',
     kind: 'vpc_subnet',
     target: {
       type: 'subnet',
@@ -69,7 +69,7 @@ export const routerRoutes: Json<Array<RouterRoute>> = [
     description: 'The default route of a vpc',
     time_created: '2024-07-11T17:46:21.161086Z',
     time_modified: '2024-07-11T17:46:21.161086Z',
-    vpc_router_id: '6900c1ab-bc8c-4fed-8499-c8312a05d81f',
+    vpc_router_id: 'fc59fb4d-baad-44a8-b152-9a3c27ae8aa1',
     kind: 'default',
     target: {
       type: 'internet_gateway',
@@ -86,7 +86,7 @@ export const routerRoutes: Json<Array<RouterRoute>> = [
     description: 'The default route of a vpc',
     time_created: '2024-07-11T17:46:21.161086Z',
     time_modified: '2024-07-11T17:46:21.161086Z',
-    vpc_router_id: '6900c1ab-bc8c-4fed-8499-c8312a05d81f',
+    vpc_router_id: '7ffc1613-8492-42f1-894b-9ef5c9ba2507',
     kind: 'default',
     target: {
       type: 'internet_gateway',

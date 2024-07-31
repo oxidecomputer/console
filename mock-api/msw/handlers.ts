@@ -1072,6 +1072,18 @@ export const handlers = makeHandlers({
   //   db.vpcRouters.push(newRouter)
   //   return json(newRouter, { status: 201 })
   // },
+
+  /*
+    the following needs to return a paginated list, rather than a spoofed object with { items }
+  */
+  vpcRouterRouteList: ({ query: { project, router, vpc } }) => {
+    const vpcRouter = lookup.vpcRouter({ project, router, vpc })
+    return {
+      items: lookup
+        .vpcRouterRouteList({ project, router, vpc })
+        .filter((r) => r.vpc_router_id === vpcRouter.id),
+    }
+  },
   vpcRouterRouteView: ({ path, query }) => lookup.vpcRouterRoute({ ...path, ...query }),
   vpcSubnetList({ query }) {
     const vpc = lookup.vpc(query)
@@ -1399,7 +1411,6 @@ export const handlers = makeHandlers({
   vpcRouterDelete: NotImplemented,
   vpcRouterRouteCreate: NotImplemented,
   vpcRouterRouteDelete: NotImplemented,
-  vpcRouterRouteList: NotImplemented,
   vpcRouterRouteUpdate: NotImplemented,
   vpcRouterUpdate: NotImplemented,
 })
