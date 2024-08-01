@@ -12,20 +12,30 @@ import type { LoaderFunctionArgs } from 'react-router-dom'
 
 import { Networking16Icon, Networking24Icon } from '@oxide/design-system/icons/react'
 
-import { apiQueryClient, usePrefetchedApiQuery, type RouterRoute } from '~/api'
+import {
+  apiQueryClient,
+  usePrefetchedApiQuery,
+  type RouteDestination,
+  type RouterRoute,
+  type RouteTarget,
+} from '~/api'
 import { DocsPopover } from '~/components/DocsPopover'
 import { HL } from '~/components/HL'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import { getVpcRouterSelector, useVpcRouterSelector } from '~/hooks'
 import { confirmAction } from '~/stores/confirm-action'
 import { EmptyCell } from '~/table/cells/EmptyCell'
+import { TypeValueCell } from '~/table/cells/TypeValueCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { useQueryTable } from '~/table/QueryTable'
+import { Badge } from '~/ui/lib/Badge'
+import { CreateLink } from '~/ui/lib/CreateButton'
 import { DateTime } from '~/ui/lib/DateTime'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { docLinks } from '~/util/links'
+import { pb } from '~/util/path-builder'
 
 RouterRoutePage.loader = async function ({ params }: LoaderFunctionArgs) {
   const { project, vpc, router } = getVpcRouterSelector(params)
@@ -39,6 +49,20 @@ RouterRoutePage.loader = async function ({ params }: LoaderFunctionArgs) {
     apiQueryClient.prefetchQuery('vpcRouterRouteList', { query: { project, router, vpc } }),
   ])
   return null
+}
+
+const RouterRouteTypeValueBadge = ({
+  targetOrDestination,
+}: {
+  // typed this way because of RouteTarget's `{ type: 'drop' }`
+  targetOrDestination: RouteDestination | (Omit<RouteTarget, 'value'> & { value?: string })
+}) => {
+  const { type, value } = targetOrDestination
+  return value ? (
+    <TypeValueCell key={`${type}|value`} type={type} value={value} />
+  ) : (
+    <Badge>{type}</Badge>
+  )
 }
 
 export function RouterRoutePage() {
@@ -83,20 +107,20 @@ export function RouterRoutePage() {
   const routerRoutesStaticCols = [
     routerRoutesColHelper.accessor('name', { header: 'Name' }),
     routerRoutesColHelper.accessor('kind', { header: 'Kind' }),
-    routerRoutesColHelper.accessor('target.type', { header: 'Target Type' }),
-    routerRoutesColHelper.accessor('target.value', { header: 'Target Value' }),
-    routerRoutesColHelper.accessor('destination.type', {
-      header: 'Destination Type',
+    routerRoutesColHelper.accessor('target', {
+      header: 'Target',
+      cell: (info) => <RouterRouteTypeValueBadge targetOrDestination={info.getValue()} />,
     }),
-    routerRoutesColHelper.accessor('destination.value', {
-      header: 'Destination Value',
+    routerRoutesColHelper.accessor('destination', {
+      header: 'Destination',
+      cell: (info) => <RouterRouteTypeValueBadge targetOrDestination={info.getValue()} />,
     }),
   ]
 
   const makeRangeActions = useCallback(
     ({ name }: RouterRoute): MenuAction[] => [
       {
-        label: 'Remove',
+        label: 'Delete',
         className: 'destructive',
         onActivate: () =>
           confirmAction({
@@ -154,6 +178,11 @@ export function RouterRoutePage() {
           </PropertiesTable.Row>
         </PropertiesTable>
       </PropertiesTable.Group>
+      <div className="mb-3 flex justify-end">
+        <CreateLink to={pb.vpcRouterRoutesNew({ project, vpc, router })}>
+          New route
+        </CreateLink>
+      </div>
       <Table columns={columns} emptyState={emptyState} />
     </>
   )

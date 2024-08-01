@@ -23,6 +23,7 @@ type IpPool = Required<PP.IpPool>
 type FloatingIp = Required<PP.FloatingIp>
 type FirewallRule = Required<PP.FirewallRule>
 type VpcRouter = Required<PP.VpcRouter>
+type VpcRouterRoute = Required<PP.VpcRouterRoute>
 type VpcSubnet = Required<PP.VpcSubnet>
 
 // these are used as the basis for many routes but are not themselves routes we
@@ -85,7 +86,13 @@ export const pb = {
   vpcFirewallRuleEdit: (params: FirewallRule) =>
     `${pb.vpcFirewallRules(params)}/${params.rule}/edit`,
   vpcRouters: (params: Vpc) => `${vpcBase(params)}/routers`,
-  vpcRouterEdit: (params: VpcRouter) => `${pb.vpcRouters(params)}/${params.router}`,
+  vpcRoutersNew: (params: Vpc) => `${vpcBase(params)}/routers-new`,
+  vpcRouter: (params: VpcRouter) => `${pb.vpcRouters(params)}/${params.router}`,
+  vpcRouterEdit: (params: VpcRouter) => `${pb.vpcRouter(params)}/edit`,
+  vpcRouterRouteEdit: (params: VpcRouterRoute) =>
+    `${pb.vpcRouter(params)}/${params.route}/edit`,
+  vpcRouterRoutesNew: (params: VpcRouter) => `${pb.vpcRouter(params)}/routes-new`,
+
   vpcSubnets: (params: Vpc) => `${vpcBase(params)}/subnets`,
   vpcSubnetsNew: (params: Vpc) => `${vpcBase(params)}/subnets-new`,
   vpcSubnetsEdit: (params: VpcSubnet) => `${pb.vpcSubnets(params)}/${params.subnet}/edit`,

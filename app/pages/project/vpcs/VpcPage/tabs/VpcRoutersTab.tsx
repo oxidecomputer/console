@@ -14,6 +14,7 @@ import { apiQueryClient, usePrefetchedApiQuery, type VpcRouter } from '@oxide/ap
 import { getVpcSelector, useVpcSelector } from '~/hooks'
 import { LinkCell } from '~/table/cells/LinkCell'
 import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
+import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { pb } from '~/util/path-builder'
 
@@ -51,7 +52,7 @@ export function VpcRoutersTab() {
     () => [
       colHelper.accessor('name', {
         cell: (info) => (
-          <LinkCell to={pb.vpcRouterEdit({ ...vpcSelector, router: info.getValue() })}>
+          <LinkCell to={pb.vpcRouter({ ...vpcSelector, router: info.getValue() })}>
             {info.getValue()}
           </LinkCell>
         ),
@@ -62,8 +63,9 @@ export function VpcRoutersTab() {
 
   return (
     <>
-      <div className="mb-3 flex justify-end space-x-2">New router</div>
-
+      <div className="mb-3 flex justify-end space-x-2">
+        <CreateLink to={pb.vpcRoutersNew({ project, vpc })}>New router</CreateLink>
+      </div>
       <Table columns={columns} emptyState={emptyState} rowHeight="large" />
       <Outlet />
     </>
