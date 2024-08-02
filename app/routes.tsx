@@ -28,6 +28,7 @@ import { EditIpPoolSideModalForm } from './forms/ip-pool-edit'
 import { IpPoolAddRangeSideModalForm } from './forms/ip-pool-range-add'
 import { CreateProjectSideModalForm } from './forms/project-create'
 import { EditProjectSideModalForm } from './forms/project-edit'
+import { CreateRouterRouteSideModalForm } from './forms/router-route-create'
 import { CreateSiloSideModalForm } from './forms/silo-create'
 import { CreateSnapshotSideModalForm } from './forms/snapshot-create'
 import { CreateSSHKeySideModalForm } from './forms/ssh-key-create'
@@ -436,7 +437,11 @@ export const routes = createRoutesFromElements(
           handle={{ crumb: 'Routes' }}
           path="vpcs/:vpc/routers/:router"
         >
-          {/* create page; follow IpPools example */}
+          <Route
+            path="routes-new"
+            element={<CreateRouterRouteSideModalForm />}
+            handle={{ crumb: 'New Route' }}
+          />
         </Route>
         <Route element={<FloatingIpsPage />} loader={FloatingIpsPage.loader}>
           <Route path="floating-ips" handle={{ crumb: 'Floating IPs' }} element={null} />

@@ -55,6 +55,7 @@ const RouterRouteTypeValueBadge = ({ type, value }: { type: string; value?: stri
     .replace('_', ' ')
     .replace('ip net', 'ip network')
     .replace('internet gateway', 'gateway')
+    .replace('subnet', 'VPC subnet')
   return value ? (
     <TypeValueCell key={`${type}|value`} type={typeString} value={value} />
   ) : (
@@ -105,13 +106,16 @@ export function RouterRoutePage() {
 
   const routerRoutesStaticCols = [
     routerRoutesColHelper.accessor('name', { header: 'Name' }),
-    routerRoutesColHelper.accessor('kind', { header: 'Kind' }),
-    routerRoutesColHelper.accessor('target', {
-      header: 'Target',
-      cell: (info) => <RouterRouteTypeValueBadge {...info.getValue()} />,
+    routerRoutesColHelper.accessor('kind', {
+      header: 'Kind',
+      cell: (info) => <Badge color="neutral">{info.getValue()}</Badge>,
     }),
     routerRoutesColHelper.accessor('destination', {
       header: 'Destination',
+      cell: (info) => <RouterRouteTypeValueBadge {...info.getValue()} />,
+    }),
+    routerRoutesColHelper.accessor('target', {
+      header: 'Target',
       cell: (info) => <RouterRouteTypeValueBadge {...info.getValue()} />,
     }),
   ]

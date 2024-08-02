@@ -97,6 +97,22 @@ export const routerRoutes: Json<Array<RouterRoute>> = [
       value: '::/0',
     },
   },
+  {
+    id: '51e50342-790f-4efb-8518-10bf01279515',
+    name: 'drop-local',
+    description: 'Drop all local traffic',
+    time_created: '2024-07-11T17:46:21.161086Z',
+    time_modified: '2024-07-11T17:46:21.161086Z',
+    vpc_router_id: 'fc59fb4d-baad-44a8-b152-9a3c27ae8aa1',
+    kind: 'default',
+    destination: {
+      type: 'ip',
+      value: '192.168.1.1',
+    },
+    target: {
+      type: 'drop',
+    },
+  },
 ]
 
 export const vpcRouter: Json<VpcRouter> = {
