@@ -51,7 +51,10 @@ RouterRoutePage.loader = async function ({ params }: LoaderFunctionArgs) {
 }
 
 const RouterRouteTypeValueBadge = ({ type, value }: { type: string; value?: string }) => {
-  const typeString = type.replace('_', ' ').replace('ip net', 'ip network')
+  const typeString = type
+    .replace('_', ' ')
+    .replace('ip net', 'ip network')
+    .replace('internet gateway', 'gateway')
   return value ? (
     <TypeValueCell key={`${type}|value`} type={typeString} value={value} />
   ) : (
