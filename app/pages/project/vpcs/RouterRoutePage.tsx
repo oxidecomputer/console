@@ -108,7 +108,7 @@ export function RouterRoutePage() {
     routerRoutesColHelper.accessor('name', { header: 'Name' }),
     routerRoutesColHelper.accessor('kind', {
       header: 'Kind',
-      cell: (info) => <Badge color="neutral">{info.getValue()}</Badge>,
+      cell: (info) => <Badge color="neutral">{info.getValue().replace('_', ' ')}</Badge>,
     }),
     routerRoutesColHelper.accessor('destination', {
       header: 'Destination',
