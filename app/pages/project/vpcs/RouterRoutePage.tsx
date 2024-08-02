@@ -14,16 +14,16 @@ import { Networking16Icon, Networking24Icon } from '@oxide/design-system/icons/r
 
 import {
   apiQueryClient,
+  useApiMutation,
   usePrefetchedApiQuery,
-  type RouteDestination,
   type RouterRoute,
-  type RouteTarget,
 } from '~/api'
 import { DocsPopover } from '~/components/DocsPopover'
 import { HL } from '~/components/HL'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import { getVpcRouterSelector, useVpcRouterSelector } from '~/hooks'
 import { confirmAction } from '~/stores/confirm-action'
+import { addToast } from '~/stores/toast'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { TypeValueCell } from '~/table/cells/TypeValueCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
@@ -34,13 +34,12 @@ import { DateTime } from '~/ui/lib/DateTime'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
+import { TableControls, TableTitle } from '~/ui/lib/Table'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 RouterRoutePage.loader = async function ({ params }: LoaderFunctionArgs) {
   const { project, vpc, router } = getVpcRouterSelector(params)
-  console.log('loader')
-  console.log({ project, vpc, router })
   await Promise.all([
     apiQueryClient.prefetchQuery('vpcRouterView', {
       path: { router },
@@ -51,15 +50,10 @@ RouterRoutePage.loader = async function ({ params }: LoaderFunctionArgs) {
   return null
 }
 
-const RouterRouteTypeValueBadge = ({
-  targetOrDestination,
-}: {
-  // typed this way because of RouteTarget's `{ type: 'drop' }`
-  targetOrDestination: RouteDestination | (Omit<RouteTarget, 'value'> & { value?: string })
-}) => {
-  const { type, value } = targetOrDestination
+const RouterRouteTypeValueBadge = ({ type, value }: { type: string; value?: string }) => {
+  const typeString = type.replace('_', ' ').replace('ip net', 'ip network')
   return value ? (
-    <TypeValueCell key={`${type}|value`} type={type} value={value} />
+    <TypeValueCell key={`${type}|value`} type={typeString} value={value} />
   ) : (
     <Badge>{type}</Badge>
   )
@@ -71,11 +65,13 @@ export function RouterRoutePage() {
     path: { router },
     query: { project, vpc },
   })
-  // probably don't need to both set routerRoutes and use useQueryTable
-  const { data: routerRoutes } = usePrefetchedApiQuery('vpcRouterRouteList', {
-    query: { project, router, vpc },
+
+  const deleteRouterRoute = useApiMutation('vpcRouterRouteDelete', {
+    onSuccess() {
+      apiQueryClient.invalidateQueries('vpcRouterRouteList')
+      addToast({ content: 'Your route has been deleted' })
+    },
   })
-  console.log({ routerRoutes })
 
   const actions = useMemo(
     () => [
@@ -109,42 +105,34 @@ export function RouterRoutePage() {
     routerRoutesColHelper.accessor('kind', { header: 'Kind' }),
     routerRoutesColHelper.accessor('target', {
       header: 'Target',
-      cell: (info) => <RouterRouteTypeValueBadge targetOrDestination={info.getValue()} />,
+      cell: (info) => <RouterRouteTypeValueBadge {...info.getValue()} />,
     }),
     routerRoutesColHelper.accessor('destination', {
       header: 'Destination',
-      cell: (info) => <RouterRouteTypeValueBadge targetOrDestination={info.getValue()} />,
+      cell: (info) => <RouterRouteTypeValueBadge {...info.getValue()} />,
     }),
   ]
 
   const makeRangeActions = useCallback(
-    ({ name }: RouterRoute): MenuAction[] => [
+    ({ name, id }: RouterRoute): MenuAction[] => [
       {
         label: 'Delete',
         className: 'destructive',
         onActivate: () =>
           confirmAction({
-            doAction: () => {
-              // remove route
-              console.log('remove route')
-              // removeRange.mutateAsync({
-              //   path: { pool },
-              //   body: range,
-              // }),
-              return Promise.resolve()
-            },
+            doAction: () => deleteRouterRoute.mutateAsync({ path: { route: id } }),
             errorTitle: 'Could not remove route',
             modalTitle: 'Confirm remove route',
             modalContent: (
               <p>
-                Are you sure you want to remove route <HL>{name}</HL>?
+                Are you sure you want to delete route <HL>{name}</HL>?
               </p>
             ),
             actionType: 'danger',
           }),
       },
     ],
-    []
+    [deleteRouterRoute]
   )
   const columns = useColsWithActions(routerRoutesStaticCols, makeRangeActions)
 
@@ -178,11 +166,13 @@ export function RouterRoutePage() {
           </PropertiesTable.Row>
         </PropertiesTable>
       </PropertiesTable.Group>
-      <div className="mb-3 flex justify-end">
+      <TableControls className="mb-3">
+        <TableTitle id="routes-label">Routes</TableTitle>
+
         <CreateLink to={pb.vpcRouterRoutesNew({ project, vpc, router })}>
           New route
         </CreateLink>
-      </div>
+      </TableControls>
       <Table columns={columns} emptyState={emptyState} />
     </>
   )

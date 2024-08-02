@@ -1085,6 +1085,11 @@ export const handlers = makeHandlers({
     }
   },
   vpcRouterRouteView: ({ path, query }) => lookup.vpcRouterRoute({ ...path, ...query }),
+  vpcRouterRouteDelete: ({ path, query }) => {
+    const route = lookup.vpcRouterRoute({ ...path, ...query })
+    db.vpcRouterRoutes = db.vpcRouterRoutes.filter((r) => r.id !== route.id)
+    return 204
+  },
   vpcSubnetList({ query }) {
     const vpc = lookup.vpc(query)
     const subnets = db.vpcSubnets.filter((s) => s.vpc_id === vpc.id)
@@ -1410,7 +1415,6 @@ export const handlers = makeHandlers({
   vpcRouterCreate: NotImplemented,
   vpcRouterDelete: NotImplemented,
   vpcRouterRouteCreate: NotImplemented,
-  vpcRouterRouteDelete: NotImplemented,
   vpcRouterRouteUpdate: NotImplemented,
   vpcRouterUpdate: NotImplemented,
 })
