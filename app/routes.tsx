@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { createRoutesFromElements, Navigate, Route } from 'react-router-dom'
+import { createRoutesFromElements, replace, Route } from 'react-router-dom'
 
 import { RouterDataErrorBoundary } from './components/ErrorBoundary'
 import { NotFound } from './components/ErrorPage'
@@ -160,7 +160,7 @@ export const routes = createRoutesFromElements(
           loader={InventoryPage.loader}
           handle={{ crumb: 'Inventory' }}
         >
-          <Route index element={<Navigate to="sleds" replace />} loader={SledsTab.loader} />
+          <Route index element={null} loader={() => replace('sleds')} />
           <Route path="sleds" element={<SledsTab />} loader={SledsTab.loader} />
           <Route path="disks" element={<DisksTab />} loader={DisksTab.loader} />
         </Route>
@@ -170,11 +170,7 @@ export const routes = createRoutesFromElements(
           loader={SledPage.loader}
           handle={{ crumb: 'Sleds' }}
         >
-          <Route
-            index
-            element={<Navigate to="instances" replace />}
-            loader={SledInstancesTab.loader}
-          />
+          <Route index element={null} loader={() => replace('instances')} />
           <Route
             path="instances"
             element={<SledInstancesTab />}
@@ -184,7 +180,7 @@ export const routes = createRoutesFromElements(
         <Route path="health" element={null} handle={{ crumb: 'Health' }} />
         <Route path="update" element={null} handle={{ crumb: 'Update' }} />
         <Route path="networking">
-          <Route index element={<Navigate to="ip-pools" replace />} />
+          <Route index element={null} loader={() => replace('ip-pools')} />
           <Route
             element={<IpPoolsPage />}
             loader={IpPoolsPage.loader}
@@ -212,10 +208,10 @@ export const routes = createRoutesFromElements(
         </Route>
       </Route>
 
-      <Route index element={<Navigate to={pb.projects()} replace />} />
+      <Route index loader={() => replace(pb.projects())} element={null} />
 
       {/* These are done here instead of nested so we don't flash a layout on 404s */}
-      <Route path="projects/:project" element={<Navigate to="instances" replace />} />
+      <Route path="projects/:project" element={null} loader={() => replace('instances')} />
 
       <Route element={<SiloLayout />}>
         <Route
@@ -305,7 +301,7 @@ export const routes = createRoutesFromElements(
         <Route path="instances" handle={{ crumb: 'Instances' }}>
           <Route index element={<InstancesPage />} loader={InstancesPage.loader} />
           <Route path=":instance" handle={{ crumb: instanceCrumb }}>
-            <Route index element={<Navigate to="storage" replace />} />
+            <Route index element={null} loader={() => replace('storage')} />
             <Route element={<InstancePage />} loader={InstancePage.loader}>
               <Route
                 path="storage"
@@ -352,11 +348,7 @@ export const routes = createRoutesFromElements(
         <Route path="vpcs" handle={{ crumb: 'VPCs' }}>
           <Route path=":vpc" handle={{ crumb: vpcCrumb }}>
             <Route element={<VpcPage />} loader={VpcPage.loader}>
-              <Route
-                index
-                element={<Navigate to="firewall-rules" replace />}
-                loader={VpcFirewallRulesTab.loader}
-              />
+              <Route index element={null} loader={() => replace('firewall-rules')} />
               <Route element={<VpcFirewallRulesTab />} loader={VpcFirewallRulesTab.loader}>
                 <Route
                   path="firewall-rules"
