@@ -27,7 +27,7 @@ import { addToast } from '~/stores/toast'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { TypeValueCell } from '~/table/cells/TypeValueCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
-import { useQueryTable } from '~/table/QueryTable'
+import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
 import { Badge } from '~/ui/lib/Badge'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { DateTime } from '~/ui/lib/DateTime'
@@ -45,7 +45,9 @@ RouterRoutePage.loader = async function ({ params }: LoaderFunctionArgs) {
       path: { router },
       query: { project, vpc },
     }),
-    apiQueryClient.prefetchQuery('vpcRouterRouteList', { query: { project, router, vpc } }),
+    apiQueryClient.prefetchQuery('vpcRouterRouteList', {
+      query: { project, router, vpc, limit: PAGE_SIZE },
+    }),
   ])
   return null
 }
