@@ -28,6 +28,7 @@ import { EditIpPoolSideModalForm } from './forms/ip-pool-edit'
 import { IpPoolAddRangeSideModalForm } from './forms/ip-pool-range-add'
 import { CreateProjectSideModalForm } from './forms/project-create'
 import { EditProjectSideModalForm } from './forms/project-edit'
+import { CreateRouterSideModalForm } from './forms/router-create'
 import { CreateRouterRouteSideModalForm } from './forms/router-route-create'
 import { CreateSiloSideModalForm } from './forms/silo-create'
 import { CreateSnapshotSideModalForm } from './forms/snapshot-create'
@@ -422,12 +423,14 @@ export const routes = createRoutesFromElements(
           </Route>
         </Route> */}
 
-              <Route
-                path="routers"
-                element={<VpcRoutersTab />}
-                loader={VpcRoutersTab.loader}
-                handle={{ crumb: 'Routers' }}
-              />
+              <Route element={<VpcRoutersTab />} loader={VpcRoutersTab.loader}>
+                <Route path="routers" handle={{ crumb: 'Routers' }} element={null} />
+                <Route
+                  path="routers-new"
+                  element={<CreateRouterSideModalForm />}
+                  handle={{ crumb: 'New Router' }}
+                />
+              </Route>
             </Route>
           </Route>
         </Route>

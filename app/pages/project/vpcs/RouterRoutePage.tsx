@@ -8,7 +8,7 @@
 
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
-import type { LoaderFunctionArgs } from 'react-router-dom'
+import { Outlet, type LoaderFunctionArgs } from 'react-router-dom'
 
 import { Networking16Icon, Networking24Icon } from '@oxide/design-system/icons/react'
 
@@ -183,6 +183,7 @@ export function RouterRoutePage() {
         </CreateLink>
       </TableControls>
       <Table columns={columns} emptyState={emptyState} />
+      <Outlet />
     </>
   )
 }
