@@ -9,7 +9,7 @@ import { createColumnHelper } from '@tanstack/react-table'
 import { useMemo } from 'react'
 import { Outlet, type LoaderFunctionArgs } from 'react-router-dom'
 
-import { apiQueryClient, usePrefetchedApiQuery, type VpcRouter } from '@oxide/api'
+import { apiQueryClient, type VpcRouter } from '@oxide/api'
 
 import { getVpcSelector, useVpcSelector } from '~/hooks'
 import { LinkCell } from '~/table/cells/LinkCell'
@@ -31,10 +31,6 @@ VpcRoutersTab.loader = async ({ params }: LoaderFunctionArgs) => {
 export function VpcRoutersTab() {
   const vpcSelector = useVpcSelector()
   const { project, vpc } = vpcSelector
-  const routers = usePrefetchedApiQuery('vpcRouterList', {
-    query: { project, vpc, limit: PAGE_SIZE },
-  })
-  console.log({ routers })
   const { Table } = useQueryTable('vpcRouterList', {
     query: { project, vpc, limit: PAGE_SIZE },
   })

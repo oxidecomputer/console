@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, type NavigateFunction } from 'react-router-dom'
 
 import { useApiMutation, useApiQueryClient, type VpcRouterCreate } from '@oxide/api'
 
@@ -26,10 +26,15 @@ export function CreateRouterSideModalForm() {
   const vpcSelector = useVpcSelector()
   const navigate = useNavigate()
 
+  const onDismiss = (navigate: NavigateFunction) => {
+    navigate(pb.vpcRouters(vpcSelector))
+  }
+
   const createRouter = useApiMutation('vpcRouterCreate', {
     onSuccess() {
       queryClient.invalidateQueries('vpcRouterList')
       addToast({ content: 'Your router has been created' })
+      onDismiss(navigate)
     },
   })
 
@@ -39,8 +44,8 @@ export function CreateRouterSideModalForm() {
     <SideModalForm
       form={form}
       formType="create"
-      resourceName="route"
-      onDismiss={() => navigate(pb.vpcRouters(vpcSelector))}
+      resourceName="router"
+      onDismiss={() => onDismiss(navigate)}
       onSubmit={(body) => createRouter.mutate({ query: vpcSelector, body })}
       loading={createRouter.isPending}
       submitError={createRouter.error}
