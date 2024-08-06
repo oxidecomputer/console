@@ -425,7 +425,14 @@ export const routes = createRoutesFromElements(
         </Route> */}
 
               <Route element={<VpcRoutersTab />} loader={VpcRoutersTab.loader}>
-                <Route path="routers" handle={{ crumb: 'Routers' }} element={null} />
+                <Route path="routers" handle={{ crumb: 'Routers' }} element={null}>
+                  <Route
+                    path=":router/edit"
+                    element={<EditRouterSideModalForm />}
+                    loader={EditRouterSideModalForm.loader}
+                    handle={{ crumb: 'Edit Router' }}
+                  />
+                </Route>
                 <Route
                   path="routers-new"
                   element={<CreateRouterSideModalForm />}
@@ -441,11 +448,6 @@ export const routes = createRoutesFromElements(
           handle={{ crumb: 'Routes' }}
           path="vpcs/:vpc/routers/:router"
         >
-          <Route
-            path="edit"
-            element={<EditRouterSideModalForm />}
-            handle={{ crumb: 'Edit Router' }}
-          />
           <Route
             path="routes-new"
             element={<CreateRouterRouteSideModalForm />}
