@@ -53,6 +53,7 @@ export function VpcRoutersTab() {
           </LinkCell>
         ),
       }),
+      colHelper.accessor('description', { header: 'Description' }),
     ],
     [vpcSelector]
   )

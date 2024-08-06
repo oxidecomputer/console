@@ -60,6 +60,7 @@ export function CreateRouterRouteSideModalForm() {
   })
 
   const form = useForm({ defaultValues })
+  const targetType = form.watch('target.type')
 
   return (
     <SideModalForm
@@ -73,19 +74,20 @@ export function CreateRouterRouteSideModalForm() {
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
-
       <ListboxField
         name="destination.type"
         items={destinationTypes}
         label="Destination type"
         control={form.control}
         placeholder="Select a destination type"
+        required
       />
       <TextField
         name="destination.value"
         label="Destination value"
         control={form.control}
         placeholder="Enter a destination value"
+        required
       />
       <ListboxField
         name="target.type"
@@ -93,13 +95,17 @@ export function CreateRouterRouteSideModalForm() {
         label="Target type"
         control={form.control}
         placeholder="Select a target type"
+        required
       />
-      <TextField
-        name="target.value"
-        label="Target value"
-        control={form.control}
-        placeholder="Enter a target value"
-      />
+      {targetType !== 'drop' && (
+        <TextField
+          name="target.value"
+          label="Target value"
+          control={form.control}
+          placeholder="Enter a target value"
+          required
+        />
+      )}
     </SideModalForm>
   )
 }

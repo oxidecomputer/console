@@ -28,8 +28,6 @@ import { EditIpPoolSideModalForm } from './forms/ip-pool-edit'
 import { IpPoolAddRangeSideModalForm } from './forms/ip-pool-range-add'
 import { CreateProjectSideModalForm } from './forms/project-create'
 import { EditProjectSideModalForm } from './forms/project-edit'
-import { CreateRouterSideModalForm } from './forms/router-create'
-import { CreateRouterRouteSideModalForm } from './forms/router-route-create'
 import { CreateSiloSideModalForm } from './forms/silo-create'
 import { CreateSnapshotSideModalForm } from './forms/snapshot-create'
 import { CreateSSHKeySideModalForm } from './forms/ssh-key-create'
@@ -37,6 +35,9 @@ import { CreateSubnetForm } from './forms/subnet-create'
 import { EditSubnetForm } from './forms/subnet-edit'
 import { CreateVpcSideModalForm } from './forms/vpc-create'
 import { EditVpcSideModalForm } from './forms/vpc-edit'
+import { CreateRouterSideModalForm } from './forms/vpc-router-create'
+import { EditRouterSideModalForm } from './forms/vpc-router-edit'
+import { CreateRouterRouteSideModalForm } from './forms/vpc-router-route-create'
 import type { CrumbFunc } from './hooks/use-title'
 import { AuthenticatedLayout } from './layouts/AuthenticatedLayout'
 import { AuthLayout } from './layouts/AuthLayout'
@@ -440,6 +441,11 @@ export const routes = createRoutesFromElements(
           handle={{ crumb: 'Routes' }}
           path="vpcs/:vpc/routers/:router"
         >
+          <Route
+            path="edit"
+            element={<EditRouterSideModalForm />}
+            handle={{ crumb: 'Edit Router' }}
+          />
           <Route
             path="routes-new"
             element={<CreateRouterRouteSideModalForm />}

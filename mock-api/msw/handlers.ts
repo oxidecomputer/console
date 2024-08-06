@@ -1086,7 +1086,19 @@ export const handlers = makeHandlers({
   //   db.vpcRouters.push(newRouter)
   //   return json(newRouter, { status: 201 })
   // },
+  vpcRouterUpdate({ body, path, query }) {
+    const router = lookup.vpcRouter({ ...path, ...query })
 
+    if (body.name) {
+      router.name = body.name
+    }
+
+    if (typeof body.description === 'string') {
+      router.description = body.description
+    }
+
+    return router
+  },
   /*
     the following needs to return a paginated list, rather than a spoofed object with { items }
   */
@@ -1441,5 +1453,4 @@ export const handlers = makeHandlers({
   userBuiltinView: NotImplemented,
   vpcRouterDelete: NotImplemented,
   vpcRouterRouteUpdate: NotImplemented,
-  vpcRouterUpdate: NotImplemented,
 })

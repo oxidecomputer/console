@@ -72,6 +72,13 @@ export function RouterRoutePage() {
     query: { project, vpc },
   })
 
+  // const editRouterRoute = useApiMutation('vpcRouterRouteUpdate', {
+  //   onSuccess() {
+  //     apiQueryClient.invalidateQueries('vpcRouterRouteList')
+  //     addToast({ content: 'Your route has been updated' })
+  //   },
+  // })
+
   const deleteRouterRoute = useApiMutation('vpcRouterRouteDelete', {
     onSuccess() {
       apiQueryClient.invalidateQueries('vpcRouterRouteList')
