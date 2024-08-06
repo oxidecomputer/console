@@ -1098,6 +1098,19 @@ export const handlers = makeHandlers({
         .filter((r) => r.vpc_router_id === vpcRouter.id),
     }
   },
+  vpcRouterRouteCreate({ body, query }) {
+    const vpcRouter = lookup.vpcRouter(query)
+    const newRoute: Json<Api.RouterRoute> = {
+      id: uuid(),
+      vpc_router_id: vpcRouter.id,
+      // TODO: look into proper setting of `kind`
+      kind: 'default',
+      ...body,
+      ...getTimestamps(),
+    }
+    db.vpcRouterRoutes.push(newRoute)
+    return json(newRoute, { status: 201 })
+  },
   vpcRouterRouteView: ({ path, query }) => lookup.vpcRouterRoute({ ...path, ...query }),
   vpcRouterRouteDelete: ({ path, query }) => {
     const route = lookup.vpcRouterRoute({ ...path, ...query })
@@ -1427,7 +1440,6 @@ export const handlers = makeHandlers({
   userBuiltinList: NotImplemented,
   userBuiltinView: NotImplemented,
   vpcRouterDelete: NotImplemented,
-  vpcRouterRouteCreate: NotImplemented,
   vpcRouterRouteUpdate: NotImplemented,
   vpcRouterUpdate: NotImplemented,
 })

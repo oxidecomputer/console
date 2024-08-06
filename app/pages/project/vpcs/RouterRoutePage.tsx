@@ -95,12 +95,10 @@ export function RouterRoutePage() {
   const emptyState = (
     <EmptyMessage
       icon={<Networking24Icon />}
-      title="No router routes"
+      title="No routes"
       body="Add a route to see it here"
       buttonText="Add route"
-      buttonTo=""
-      // TODO: "add route" button
-      // buttonTo={pb.ipPoolRangeAdd({ pool })}
+      buttonTo={pb.vpcRouterRoutesNew({ project, vpc, router })}
     />
   )
 

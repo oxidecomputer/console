@@ -5,13 +5,14 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, type NavigateFunction } from 'react-router-dom'
 
 import { useApiMutation, useApiQueryClient, type RouterRouteCreate } from '@oxide/api'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
+import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { useForm, useVpcRouterSelector } from '~/hooks'
 import { addToast } from '~/stores/toast'
@@ -32,15 +33,29 @@ const destinationTypes: ListboxItem[] = [
   { value: 'subnet', label: 'subnet' },
 ]
 
+const targetTypes: ListboxItem[] = [
+  { value: 'ip', label: 'IP' },
+  { value: 'vpc', label: 'VPC' },
+  { value: 'subnet', label: 'subnet' },
+  { value: 'instance', label: 'instance' },
+  { value: 'internet_gateway', label: 'Internet gateway' },
+  { value: 'drop', label: 'Drop' },
+]
+
 export function CreateRouterRouteSideModalForm() {
   const queryClient = useApiQueryClient()
-  const routeSelector = useVpcRouterSelector()
+  const routerSelector = useVpcRouterSelector()
   const navigate = useNavigate()
+
+  const onDismiss = (navigate: NavigateFunction) => {
+    navigate(pb.vpcRouter(routerSelector))
+  }
 
   const createRouterRoute = useApiMutation('vpcRouterRouteCreate', {
     onSuccess() {
       queryClient.invalidateQueries('vpcRouterRouteList')
       addToast({ content: 'Your route has been created' })
+      onDismiss(navigate)
     },
   })
 
@@ -51,8 +66,8 @@ export function CreateRouterRouteSideModalForm() {
       form={form}
       formType="create"
       resourceName="route"
-      onDismiss={() => navigate(pb.vpcRouter(routeSelector))}
-      onSubmit={(body) => createRouterRoute.mutate({ query: routeSelector, body })}
+      onDismiss={() => navigate(pb.vpcRouter(routerSelector))}
+      onSubmit={(body) => createRouterRoute.mutate({ query: routerSelector, body })}
       loading={createRouterRoute.isPending}
       submitError={createRouterRoute.error}
     >
@@ -65,6 +80,25 @@ export function CreateRouterRouteSideModalForm() {
         label="Destination type"
         control={form.control}
         placeholder="Select a destination type"
+      />
+      <TextField
+        name="destination.value"
+        label="Destination value"
+        control={form.control}
+        placeholder="Enter a destination value"
+      />
+      <ListboxField
+        name="target.type"
+        items={targetTypes}
+        label="Target type"
+        control={form.control}
+        placeholder="Select a target type"
+      />
+      <TextField
+        name="target.value"
+        label="Target value"
+        control={form.control}
+        placeholder="Enter a target value"
       />
     </SideModalForm>
   )
