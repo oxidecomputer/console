@@ -8,8 +8,13 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { hashKey, type UseQueryOptions } from '@tanstack/react-query'
-import { getCoreRowModel, useReactTable, type ColumnDef } from '@tanstack/react-table'
-import React, { useCallback, useMemo, type ComponentType } from 'react'
+import {
+  getCoreRowModel,
+  getPaginationRowModel,
+  useReactTable,
+  type ColumnDef,
+} from '@tanstack/react-table'
+import React, { useCallback, useMemo, useState, type ComponentType } from 'react'
 
 import {
   useApiQuery,
@@ -21,7 +26,6 @@ import {
 } from '@oxide/api'
 
 import { Pagination } from '~/components/Pagination'
-import { usePagination } from '~/hooks/use-pagination'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableEmptyBox } from '~/ui/lib/Table'
 
@@ -77,13 +81,13 @@ const makeQueryTable = <Item extends Record<string, unknown>>(
     emptyState,
     columns,
   }: QueryTableProps<Item>) {
-    const { currentPage, goToNextPage, goToPrevPage, hasPrev } = usePagination()
+    const [currentPage, setCurrentPage] = useState(0)
 
     const { data, isLoading } = useApiQuery(
       query,
       {
         path: params.path,
-        query: { ...params.query, page_token: currentPage, limit: pageSize },
+        query: { ...params.query, limit: 10000 },
       },
       options
     )
@@ -97,14 +101,28 @@ const makeQueryTable = <Item extends Record<string, unknown>>(
       data: tableData,
       getRowId,
       getCoreRowModel: getCoreRowModel(),
-      manualPagination: true,
+      getPaginationRowModel: getPaginationRowModel(),
+      state: {
+        pagination: {
+          pageIndex: currentPage,
+          pageSize,
+        },
+      },
+      onPaginationChange: (updater) => {
+        if (typeof updater === 'function') {
+          const newState = updater({ pageIndex: currentPage, pageSize })
+          setCurrentPage(newState.pageIndex)
+        }
+      },
+      manualPagination: false,
+      pageCount: Math.ceil(tableData.length / pageSize),
     })
 
     if (debug) console.table((data as { items?: any[] })?.items || data)
 
     if (isLoading) return null
 
-    const isEmpty = tableData.length === 0 && !hasPrev
+    const isEmpty = tableData.length === 0
     if (isEmpty) {
       return (
         <TableEmptyBox>{emptyState || <EmptyMessage title="No results" />}</TableEmptyBox>
@@ -117,11 +135,10 @@ const makeQueryTable = <Item extends Record<string, unknown>>(
         <Pagination
           inline={pagination === 'inline'}
           pageSize={pageSize}
-          hasNext={tableData.length === pageSize}
-          hasPrev={hasPrev}
-          nextPage={(data as any)?.nextPage}
-          onNext={goToNextPage}
-          onPrev={goToPrevPage}
+          currentPage={currentPage}
+          pageCount={table.getPageCount()}
+          onNext={() => table.nextPage()}
+          onPrev={() => table.previousPage()}
         />
       </>
     )

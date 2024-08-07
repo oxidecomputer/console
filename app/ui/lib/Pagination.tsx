@@ -17,7 +17,7 @@ const PageInput = ({ number, className }: PageInputProps) => {
   return (
     <span
       className={cn(
-        'h-4 whitespace-nowrap rounded px-[3px] pb-[3px] pt-[1px] ring-1 ring-inset text-mono-sm text-secondary bg-tertiary ring-secondary',
+        'h-4 whitespace-nowrap rounded px-[3px] pb-[3px] pt-[1px] ring-1 ring-inset text-mono-sm text-secondary ring-secondary',
         className
       )}
     >
@@ -29,23 +29,24 @@ const PageInput = ({ number, className }: PageInputProps) => {
 export interface PaginationProps {
   type?: 'inline' | 'page'
   pageSize: number
-  hasNext: boolean
-  hasPrev: boolean
-  nextPage: string | undefined
-  onNext: (nextPage: string) => void
+  currentPage: number
+  pageCount: number
+  onNext: () => void
   onPrev: () => void
   className?: string
 }
 export const Pagination = ({
   type = 'inline',
   pageSize,
-  hasNext,
-  hasPrev,
-  nextPage,
+  currentPage,
+  pageCount,
   onNext,
   onPrev,
   className,
 }: PaginationProps) => {
+  const hasNext = currentPage < pageCount - 1
+  const hasPrev = currentPage > 0
+
   return (
     <>
       <div
@@ -58,12 +59,12 @@ export const Pagination = ({
         <span className="flex-inline grow text-tertiary">
           rows per page <PageInput number={pageSize} />
         </span>
-        <span className="flex space-x-3">
+        <span className="flex">
           <button
             type="button"
             className={cn(
               hasPrev ? 'text-secondary hover:text-default' : 'text-disabled',
-              'flex items-center text-mono-sm'
+              '-m-2 flex items-center p-2 text-mono-sm'
             )}
             disabled={!hasPrev}
             onClick={onPrev}
@@ -71,19 +72,20 @@ export const Pagination = ({
             <DirectionLeftIcon
               className={cn('mr-1', hasPrev ? 'text-secondary' : 'text-disabled')}
             />
-            prev
+            {currentPage + 1}
           </button>
+          <span className="mx-2 text-quaternary">of</span>
           <button
             type="button"
             className={cn(
               hasNext ? 'text-secondary hover:text-default' : 'text-disabled',
-              'flex items-center text-mono-sm'
+              '-m-2 flex items-center p-2 text-mono-sm'
             )}
             disabled={!hasNext}
             // nextPage will be defined if hasNext is true
-            onClick={onNext.bind(null, nextPage!)}
+            onClick={onNext}
           >
-            next
+            {pageCount}
             <DirectionRightIcon
               className={cn('ml-1', hasNext ? 'text-secondary' : 'text-disabled')}
             />
