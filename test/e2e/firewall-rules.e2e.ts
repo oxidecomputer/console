@@ -371,3 +371,48 @@ test('404s on edit non-existent rule', async ({ page }) => {
   await page.goto(rulePath.replace('icmp', 'boop'))
   await expect(page.getByText('Page not found')).toBeVisible()
 })
+
+// when creating a rule, giving it the same name as an existing rule is an
+// error. if you want to overwrite a rule, you need to edit it
+test('name conflict error on create', async ({ page }) => {
+  await page.goto('/projects/mock-project/vpcs/mock-vpc/firewall-rules-new')
+
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill('allow-ssh')
+
+  const error = page.getByText('Name taken').first()
+  await expect(error).toBeHidden()
+
+  await page.getByRole('button', { name: 'Add rule' }).click()
+  await expect(error).toBeVisible()
+})
+
+// when editing a rule, on the other hand, we only check for conflicts against rules
+// other than the one being edited, because of course its name can stay the same
+test('name conflict error on edit', async ({ page }) => {
+  await page.goto('/projects/mock-project/vpcs/mock-vpc/firewall-rules/allow-icmp/edit')
+
+  // changing the name to one taken by another rule is an error
+  const nameField = page.getByRole('textbox', { name: 'Name', exact: true })
+  await nameField.fill('allow-ssh')
+
+  const error = page.getByText('Name taken').first()
+  await expect(error).toBeHidden()
+
+  await page.getByRole('button', { name: 'Update rule' }).click()
+  await expect(error).toBeVisible()
+
+  // change name back
+  await nameField.fill('allow-icmp')
+
+  // changing a value _without_ changing the name is allowed
+  await page.getByRole('textbox', { name: 'Priority' }).fill('37')
+  await page.getByRole('button', { name: 'Update rule' }).click()
+  await expect(error).toBeHidden()
+  await expectRowVisible(page.getByRole('table'), { Name: 'allow-icmp', Priority: '37' })
+
+  // changing the name to a non-conflicting name is allowed
+  await page.getByRole('link', { name: 'allow-icmp' }).click()
+  await nameField.fill('allow-icmp2')
+  await page.getByRole('button', { name: 'Update rule' }).click()
+  await expectRowVisible(page.getByRole('table'), { Name: 'allow-icmp2', Priority: '37' })
+})

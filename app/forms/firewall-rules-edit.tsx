@@ -96,14 +96,20 @@ export function EditFirewallRuleForm() {
       onSubmit={(values) => {
         // note different filter logic from create: filter out the rule with the
         // *original* name because we need to overwrite that rule
-        const otherRules = data.rules
-          .filter((r) => r.name !== originalRule.name)
-          .map(firewallRuleGetToPut)
+        const otherRules = data.rules.filter((r) => r.name !== originalRule.name)
+
+        // error if name is being changed to something that conflicts with some other rule
+        if (otherRules.find((r) => r.name === values.name)) {
+          form.setError('name', {
+            message: `Name taken. To update an existing rule, edit it directly. Original name: ${originalRule.name}.`,
+          })
+          return
+        }
 
         updateRules.mutate({
           query: vpcSelector,
           body: {
-            rules: [...otherRules, valuesToRuleUpdate(values)],
+            rules: [...otherRules.map(firewallRuleGetToPut), valuesToRuleUpdate(values)],
           },
         })
       }}
