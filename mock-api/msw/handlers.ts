@@ -1099,6 +1099,11 @@ export const handlers = makeHandlers({
 
     return router
   },
+  vpcRouterDelete({ path, query }) {
+    const router = lookup.vpcRouter({ ...path, ...query })
+    db.vpcRouters = db.vpcRouters.filter((r) => r.id !== router.id)
+    return 204
+  },
   /*
     the following needs to return a paginated list, rather than a spoofed object with { items }
   */
@@ -1451,6 +1456,5 @@ export const handlers = makeHandlers({
   timeseriesSchemaList: NotImplemented,
   userBuiltinList: NotImplemented,
   userBuiltinView: NotImplemented,
-  vpcRouterDelete: NotImplemented,
   vpcRouterRouteUpdate: NotImplemented,
 })

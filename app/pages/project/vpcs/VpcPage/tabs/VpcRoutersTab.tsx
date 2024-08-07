@@ -6,13 +6,17 @@
  * Copyright Oxide Computer Company
  */
 import { createColumnHelper } from '@tanstack/react-table'
-import { useMemo } from 'react'
-import { Outlet, type LoaderFunctionArgs } from 'react-router-dom'
+import { useCallback, useMemo } from 'react'
+import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
-import { apiQueryClient, type VpcRouter } from '@oxide/api'
+import { apiQueryClient, useApiMutation, type VpcRouter } from '@oxide/api'
 
 import { getVpcSelector, useVpcSelector } from '~/hooks'
+import { confirmDelete } from '~/stores/confirm-delete'
+import { addToast } from '~/stores/toast'
+import { EmptyCell } from '~/table/cells/EmptyCell'
 import { LinkCell } from '~/table/cells/LinkCell'
+import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -30,6 +34,7 @@ VpcRoutersTab.loader = async ({ params }: LoaderFunctionArgs) => {
 
 export function VpcRoutersTab() {
   const vpcSelector = useVpcSelector()
+  const navigate = useNavigate()
   const { project, vpc } = vpcSelector
   const { Table } = useQueryTable('vpcRouterList', {
     query: { project, vpc, limit: PAGE_SIZE },
@@ -40,11 +45,11 @@ export function VpcRoutersTab() {
       title="No VPC routers"
       body="Create a router to see it here"
       buttonText="New router"
-      buttonTo={'adasd'}
+      buttonTo={pb.vpcRoutersNew({ project, vpc })}
     />
   )
 
-  const columns = useMemo(
+  const staticColumns = useMemo(
     () => [
       colHelper.accessor('name', {
         cell: (info) => (
@@ -53,10 +58,52 @@ export function VpcRoutersTab() {
           </LinkCell>
         ),
       }),
-      colHelper.accessor('description', { header: 'Description' }),
+      colHelper.accessor('description', {
+        header: 'Description',
+        cell: (info) => info.getValue() || <EmptyCell />,
+      }),
     ],
     [vpcSelector]
   )
+
+  const deleteRouter = useApiMutation('vpcRouterDelete', {
+    onSuccess() {
+      apiQueryClient.invalidateQueries('vpcRouterList')
+      addToast({ content: 'Your router has been deleted' })
+    },
+  })
+
+  const makeActions = useCallback(
+    (router: VpcRouter): MenuAction[] => [
+      {
+        label: 'Edit',
+        onActivate: () => {
+          // the edit view has its own loader, but we can make the modal open
+          // instantaneously by preloading the fetch result
+          apiQueryClient.setQueryData(
+            'vpcRouterView',
+            { path: { router: router.name } },
+            router
+          )
+          navigate(pb.vpcRouterEdit({ project, vpc, router: router.name }))
+        },
+      },
+      {
+        label: 'Delete',
+        onActivate: confirmDelete({
+          doDelete: () =>
+            deleteRouter.mutateAsync({
+              path: { router: router.name },
+              query: { project, vpc },
+            }),
+          label: router.name,
+        }),
+      },
+    ],
+    [deleteRouter, project, vpc, navigate]
+  )
+
+  const columns = useColsWithActions(staticColumns, makeActions)
 
   return (
     <>
