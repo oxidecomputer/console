@@ -48,7 +48,7 @@ export const vpcs: Json<Vpc[]> = [vpc, vpc2]
 export const routerRoutes: Json<Array<RouterRoute>> = [
   {
     id: '51e50342-790f-4efb-8518-10bf01279514',
-    name: 'default',
+    name: 'default1',
     description: "VPC Subnet route for 'default'",
     time_created: '2024-07-11T17:46:21.161086Z',
     time_modified: '2024-07-11T17:46:21.161086Z',
