@@ -589,15 +589,25 @@ export function CreateFirewallRuleForm() {
       title="Add firewall rule"
       onDismiss={onDismiss}
       onSubmit={(values) => {
-        // TODO: this silently overwrites existing rules with the current name.
-        // we should probably at least warn and confirm, if not reject as invalid
-        const otherRules = existingRules
-          .filter((r) => r.name !== values.name)
-          .map(firewallRuleGetToPut)
+        // error if name is already in use
+        if (data.rules.find((r) => r.name === values.name)) {
+          // TODO: there should also be a form-level error so if the name is off
+          // screen, it doesn't look like the submit button isn't working. Maybe
+          // instead of setting a root error, it would be more robust to show a
+          // top level error if any errors are found in the form. We might want to
+          // expand the submitError prop on SideModalForm for this
+
+          form.setError('name', {
+            // TODO: might be worth mentioning that the names are unique per VPC as opposed to globally
+            message: 'Name taken. To update an existing rule, edit it directly. ',
+          })
+          return
+        }
+
         updateRules.mutate({
           query: vpcSelector,
           body: {
-            rules: [...otherRules, valuesToRuleUpdate(values)],
+            rules: [...existingRules.map(firewallRuleGetToPut), valuesToRuleUpdate(values)],
           },
         })
       }}
