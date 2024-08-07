@@ -8,7 +8,7 @@
 
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo } from 'react'
-import { Outlet, type LoaderFunctionArgs } from 'react-router-dom'
+import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import { Networking16Icon, Networking24Icon } from '@oxide/design-system/icons/react'
 
@@ -72,13 +72,6 @@ export function RouterRoutePage() {
     query: { project, vpc },
   })
 
-  // const editRouterRoute = useApiMutation('vpcRouterRouteUpdate', {
-  //   onSuccess() {
-  //     apiQueryClient.invalidateQueries('vpcRouterRouteList')
-  //     addToast({ content: 'Your route has been updated' })
-  //   },
-  // })
-
   const deleteRouterRoute = useApiMutation('vpcRouterRouteDelete', {
     onSuccess() {
       apiQueryClient.invalidateQueries('vpcRouterRouteList')
@@ -108,6 +101,7 @@ export function RouterRoutePage() {
       buttonTo={pb.vpcRouterRoutesNew({ project, vpc, router })}
     />
   )
+  const navigate = useNavigate()
 
   const routerRoutesColHelper = createColumnHelper<RouterRoute>()
 
@@ -128,25 +122,39 @@ export function RouterRoutePage() {
   ]
 
   const makeRangeActions = useCallback(
-    ({ name, id }: RouterRoute): MenuAction[] => [
+    (routerRoute: RouterRoute): MenuAction[] => [
+      {
+        label: 'Edit',
+        onActivate: () => {
+          // the edit view has its own loader, but we can make the modal open
+          // instantaneously by preloading the fetch result
+          apiQueryClient.setQueryData(
+            'vpcRouterRouteView',
+            { path: { route: routerRoute.name }, query: { project, vpc, router } },
+            routerRoute
+          )
+          navigate(pb.vpcRouterRouteEdit({ project, vpc, router, route: routerRoute.name }))
+        },
+      },
       {
         label: 'Delete',
         className: 'destructive',
         onActivate: () =>
           confirmAction({
-            doAction: () => deleteRouterRoute.mutateAsync({ path: { route: id } }),
+            doAction: () =>
+              deleteRouterRoute.mutateAsync({ path: { route: routerRoute.id } }),
             errorTitle: 'Could not remove route',
             modalTitle: 'Confirm remove route',
             modalContent: (
               <p>
-                Are you sure you want to delete route <HL>{name}</HL>?
+                Are you sure you want to delete route <HL>{routerRoute.name}</HL>?
               </p>
             ),
             actionType: 'danger',
           }),
       },
     ],
-    [deleteRouterRoute]
+    [navigate, project, vpc, router, deleteRouterRoute]
   )
   const columns = useColsWithActions(routerRoutesStaticCols, makeRangeActions)
 

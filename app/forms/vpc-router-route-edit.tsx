@@ -5,26 +5,29 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useNavigate, type NavigateFunction } from 'react-router-dom'
+import {
+  useNavigate,
+  type LoaderFunctionArgs,
+  type NavigateFunction,
+} from 'react-router-dom'
 
-import { useApiMutation, useApiQueryClient, type RouterRouteCreate } from '@oxide/api'
+import {
+  apiQueryClient,
+  useApiMutation,
+  useApiQueryClient,
+  usePrefetchedApiQuery,
+  type RouterRouteUpdate,
+} from '@oxide/api'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { useForm, useVpcRouterSelector } from '~/hooks'
+import { getVpcRouterRouteSelector, useForm, useVpcRouterRouteSelector } from '~/hooks'
 import { addToast } from '~/stores/toast'
 import type { ListboxItem } from '~/ui/lib/Listbox'
 import { pb } from '~/util/path-builder'
-
-const defaultValues: RouterRouteCreate = {
-  name: '',
-  description: '',
-  destination: { type: 'ip', value: '' },
-  target: { type: 'ip', value: '' },
-}
 
 const destinationTypes: ListboxItem[] = [
   { value: 'ip', label: 'IP' },
@@ -42,19 +45,35 @@ const targetTypes: ListboxItem[] = [
   { value: 'drop', label: 'Drop' },
 ]
 
-export function CreateRouterRouteSideModalForm() {
+EditRouterRouteSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
+  const { project, vpc, router, route } = getVpcRouterRouteSelector(params)
+  await apiQueryClient.prefetchQuery('vpcRouterRouteView', {
+    path: { route },
+    query: { project, vpc, router },
+  })
+  return null
+}
+
+export function EditRouterRouteSideModalForm() {
   const queryClient = useApiQueryClient()
-  const routerSelector = useVpcRouterSelector()
+  const routeSelector = useVpcRouterRouteSelector()
+  const { project, vpc, router: routerName, route: routeName } = routeSelector
   const navigate = useNavigate()
+  const { data: route } = usePrefetchedApiQuery('vpcRouterRouteView', {
+    path: { route: routeName },
+    query: { project, vpc, router: routerName },
+  })
+
+  const defaultValues: RouterRouteUpdate = { ...route }
 
   const onDismiss = (navigate: NavigateFunction) => {
-    navigate(pb.vpcRouter(routerSelector))
+    navigate(pb.vpcRouter({ project, vpc, router: routerName }))
   }
 
-  const createRouterRoute = useApiMutation('vpcRouterRouteCreate', {
+  const updateRouterRoute = useApiMutation('vpcRouterRouteUpdate', {
     onSuccess() {
       queryClient.invalidateQueries('vpcRouterRouteList')
-      addToast({ content: 'Your route has been created' })
+      addToast({ content: 'Your route has been updated' })
       onDismiss(navigate)
     },
   })
@@ -65,12 +84,18 @@ export function CreateRouterRouteSideModalForm() {
   return (
     <SideModalForm
       form={form}
-      formType="create"
+      formType="edit"
       resourceName="route"
-      onDismiss={() => navigate(pb.vpcRouter(routerSelector))}
-      onSubmit={(body) => createRouterRoute.mutate({ query: routerSelector, body })}
-      loading={createRouterRoute.isPending}
-      submitError={createRouterRoute.error}
+      onDismiss={() => onDismiss(navigate)}
+      onSubmit={(body) =>
+        updateRouterRoute.mutate({
+          query: { project, vpc, router: routerName },
+          path: { route: routeName },
+          body,
+        })
+      }
+      loading={updateRouterRoute.isPending}
+      submitError={updateRouterRoute.error}
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />

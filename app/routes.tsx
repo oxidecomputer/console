@@ -38,6 +38,7 @@ import { EditVpcSideModalForm } from './forms/vpc-edit'
 import { CreateRouterSideModalForm } from './forms/vpc-router-create'
 import { EditRouterSideModalForm } from './forms/vpc-router-edit'
 import { CreateRouterRouteSideModalForm } from './forms/vpc-router-route-create'
+import { EditRouterRouteSideModalForm } from './forms/vpc-router-route-edit'
 import type { CrumbFunc } from './hooks/use-title'
 import { AuthenticatedLayout } from './layouts/AuthenticatedLayout'
 import { AuthLayout } from './layouts/AuthLayout'
@@ -452,6 +453,12 @@ export const routes = createRoutesFromElements(
             path="routes-new"
             element={<CreateRouterRouteSideModalForm />}
             handle={{ crumb: 'New Route' }}
+          />
+          <Route
+            path=":route/edit"
+            element={<EditRouterRouteSideModalForm />}
+            loader={EditRouterRouteSideModalForm.loader}
+            handle={{ crumb: 'Edit Route' }}
           />
         </Route>
         <Route element={<FloatingIpsPage />} loader={FloatingIpsPage.loader}>

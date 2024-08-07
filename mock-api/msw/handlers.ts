@@ -1129,6 +1129,16 @@ export const handlers = makeHandlers({
     return json(newRoute, { status: 201 })
   },
   vpcRouterRouteView: ({ path, query }) => lookup.vpcRouterRoute({ ...path, ...query }),
+  vpcRouterRouteUpdate({ body, path, query }) {
+    const route = lookup.vpcRouterRoute({ ...path, ...query })
+    if (body.destination) {
+      route.destination = body.destination
+    }
+    if (body.target) {
+      route.target = body.target
+    }
+    return route
+  },
   vpcRouterRouteDelete: ({ path, query }) => {
     const route = lookup.vpcRouterRoute({ ...path, ...query })
     db.vpcRouterRoutes = db.vpcRouterRoutes.filter((r) => r.id !== route.id)
@@ -1456,5 +1466,4 @@ export const handlers = makeHandlers({
   timeseriesSchemaList: NotImplemented,
   userBuiltinList: NotImplemented,
   userBuiltinView: NotImplemented,
-  vpcRouterRouteUpdate: NotImplemented,
 })
