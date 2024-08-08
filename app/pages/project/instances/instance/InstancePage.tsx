@@ -17,6 +17,7 @@ import {
 } from '@oxide/api'
 import { Instances16Icon, Instances24Icon } from '@oxide/design-system/icons/react'
 
+import { instanceTransitioning } from '~/api/util'
 import { DocsPopover } from '~/components/DocsPopover'
 import { ExternalIps } from '~/components/ExternalIps'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
@@ -29,6 +30,7 @@ import { DateTime } from '~/ui/lib/DateTime'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { Truncate } from '~/ui/lib/Truncate'
+import { useInterval } from '~/ui/lib/use-interval'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
@@ -97,6 +99,11 @@ export function InstancePage() {
   const { data: instance } = usePrefetchedApiQuery('instanceView', {
     path: { instance: instanceSelector.instance },
     query: { project: instanceSelector.project },
+  })
+
+  useInterval({
+    fn: () => apiQueryClient.invalidateQueries('instanceView'),
+    delay: instanceTransitioning(instance) ? 1000 : null,
   })
 
   const { data: nics } = usePrefetchedApiQuery('instanceNetworkInterfaceList', {

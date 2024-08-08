@@ -17,6 +17,7 @@ import {
 } from '@oxide/api'
 import { Instances16Icon, Instances24Icon } from '@oxide/design-system/icons/react'
 
+// import { instanceTransitioning } from '~/api/util'
 import { DocsPopover } from '~/components/DocsPopover'
 import { RefreshButton } from '~/components/RefreshButton'
 import { getProjectSelector, useProjectSelector, useQuickActions } from '~/hooks'
@@ -30,6 +31,7 @@ import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
+// import { useInterval } from '~/ui/lib/use-interval'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
@@ -69,6 +71,14 @@ export function InstancesPage() {
   const { data: instances } = usePrefetchedApiQuery('instanceList', {
     query: { project, limit: PAGE_SIZE },
   })
+
+  // if any instance in the list is transitioning, poll
+  // TODO: figure out this logic. polling requests have the horrible effect of close
+  // any open row actions menus
+  // useInterval({
+  //   fn: () => apiQueryClient.invalidateQueries('instanceList'),
+  //   delay: instances.items.some(instanceTransitioning) ? 1000 : null,
+  // })
 
   const navigate = useNavigate()
   useQuickActions(
