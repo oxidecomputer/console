@@ -24,6 +24,8 @@ const params = {
   pool: 'pl',
   rule: 'fr',
   subnet: 'su',
+  router: 'r',
+  route: 'rr',
 }
 
 test('path builder', () => {
@@ -95,6 +97,11 @@ test('path builder', () => {
         "vpcSubnets": "/projects/p/vpcs/v/subnets",
         "vpcSubnetsEdit": "/projects/p/vpcs/v/subnets/su/edit",
         "vpcSubnetsNew": "/projects/p/vpcs/v/subnets-new",
+        "vpcRouters": "/projects/p/vpcs/v/routers",
+        "vpcRouterEdit": "/projects/p/vpcs/v/routers/r/edit",
+        "vpcRouterRouteEdit": "/projects/p/vpcs/v/routers/r/routes/rr/edit",
+        "vpcRouterRoutesNew": "/projects/p/vpcs/v/routers/r/routes-new",
+        "vpcRoutersNew": "/projects/p/vpcs/v/routers-new",
         "vpcs": "/projects/p/vpcs",
         "vpcsNew": "/projects/p/vpcs-new",
       }

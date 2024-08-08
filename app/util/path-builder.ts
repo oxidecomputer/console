@@ -90,9 +90,7 @@ export const pb = {
   vpcRouter: (params: VpcRouter) => `${pb.vpcRouters(params)}/${params.router}`,
   vpcRouterEdit: (params: VpcRouter) => `${pb.vpcRouter(params)}/edit`,
   vpcRouterRouteEdit: (params: VpcRouterRoute) =>
-    `${pb.vpcRouter(params)}/${params.route}/edit`,
-  vpcRouterRouteDelete: (params: VpcRouterRoute) =>
-    `${pb.vpcRouterRouteEdit(params)}/delete`,
+    `${pb.vpcRouter(params)}/routes/${params.route}/edit`,
   vpcRouterRoutesNew: (params: VpcRouter) => `${pb.vpcRouter(params)}/routes-new`,
 
   vpcSubnets: (params: Vpc) => `${vpcBase(params)}/subnets`,

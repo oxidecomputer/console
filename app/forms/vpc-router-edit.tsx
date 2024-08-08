@@ -46,7 +46,7 @@ export function EditRouterSideModalForm() {
   const navigate = useNavigate()
 
   const onDismiss = (navigate: NavigateFunction) => {
-    navigate(pb.vpcRouter(routerSelector))
+    navigate(pb.vpcRouters({ project, vpc }))
   }
 
   const editRouter = useApiMutation('vpcRouterUpdate', {

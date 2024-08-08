@@ -455,7 +455,7 @@ export const routes = createRoutesFromElements(
             handle={{ crumb: 'New Route' }}
           />
           <Route
-            path=":route/edit"
+            path="routes/:route/edit"
             element={<EditRouterRouteSideModalForm />}
             loader={EditRouterRouteSideModalForm.loader}
             handle={{ crumb: 'Edit Route' }}
