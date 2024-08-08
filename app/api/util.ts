@@ -113,6 +113,15 @@ export const instanceCan = R.mapValues(instanceActions, (states) => {
   return test
 })
 
+export function instanceTransitioning({ runState }: Instance) {
+  return (
+    runState === 'creating' ||
+    runState === 'starting' ||
+    runState === 'stopping' ||
+    runState === 'rebooting'
+  )
+}
+
 const diskActions: Record<string, DiskState['state'][]> = {
   // https://github.com/oxidecomputer/omicron/blob/4970c71e/nexus/db-queries/src/db/datastore/disk.rs#L578-L582.
   delete: ['detached', 'creating', 'faulted'],
