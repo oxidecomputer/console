@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { createRoutesFromElements, replace, Route } from 'react-router-dom'
+import { createRoutesFromElements, redirect, replace, Route } from 'react-router-dom'
 
 import { RouterDataErrorBoundary } from './components/ErrorBoundary'
 import { NotFound } from './components/ErrorPage'
@@ -211,7 +211,7 @@ export const routes = createRoutesFromElements(
       <Route index loader={() => replace(pb.projects())} element={null} />
 
       {/* These are done here instead of nested so we don't flash a layout on 404s */}
-      <Route path="projects/:project" element={null} loader={() => replace('instances')} />
+      <Route path="projects/:project" element={null} loader={() => redirect('instances')} />
 
       <Route element={<SiloLayout />}>
         <Route

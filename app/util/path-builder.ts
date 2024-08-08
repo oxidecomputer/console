@@ -35,7 +35,7 @@ const vpcBase = ({ project, vpc }: Vpc) => `${pb.vpcs({ project })}/${vpc}`
 export const pb = {
   projects: () => `/projects`,
   projectsNew: () => `/projects-new`,
-  project: (params: Project) => `${projectBase(params)}/instances`,
+  project: (params: Project) => projectBase(params),
   projectEdit: (params: Project) => `${projectBase(params)}/edit`,
 
   projectAccess: (params: Project) => `${projectBase(params)}/access`,
