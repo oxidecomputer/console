@@ -26,9 +26,7 @@ export function CreateRouterSideModalForm() {
   const vpcSelector = useVpcSelector()
   const navigate = useNavigate()
 
-  const onDismiss = (navigate: NavigateFunction) => {
-    navigate(pb.vpcRouters(vpcSelector))
-  }
+  const onDismiss = () => navigate(pb.vpcRouters(vpcSelector))
 
   const createRouter = useApiMutation('vpcRouterCreate', {
     onSuccess() {
