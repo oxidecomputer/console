@@ -1073,19 +1073,6 @@ export const handlers = makeHandlers({
     return json(newRouter, { status: 201 })
   },
   vpcRouterView: ({ path, query }) => lookup.vpcRouter({ ...path, ...query }),
-  // vpcRouterCreate({ body, query }) {
-  //   const vpc = lookup.vpc(query)
-  //   errIfExists(db.vpcRouters, { vpc_id: vpc.id, name: body.name })
-
-  //   const newRouter: Json<Api.VpcRouter> = {
-  //     id: uuid(),
-  //     vpc_id: vpc.id,
-  //     ...body,
-  //     ...getTimestamps(),
-  //   }
-  //   db.vpcRouters.push(newRouter)
-  //   return json(newRouter, { status: 201 })
-  // },
   vpcRouterUpdate({ body, path, query }) {
     const router = lookup.vpcRouter({ ...path, ...query })
 
