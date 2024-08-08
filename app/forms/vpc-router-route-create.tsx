@@ -14,9 +14,12 @@ import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
+import {
+  routerRouteDestinationTypes,
+  routerRouteTargetTypes,
+} from '~/forms/vpc-router-route/shared'
 import { useForm, useVpcRouterSelector } from '~/hooks'
 import { addToast } from '~/stores/toast'
-import type { ListboxItem } from '~/ui/lib/Listbox'
 import { pb } from '~/util/path-builder'
 
 const defaultValues: RouterRouteCreate = {
@@ -25,22 +28,6 @@ const defaultValues: RouterRouteCreate = {
   destination: { type: 'ip', value: '' },
   target: { type: 'ip', value: '' },
 }
-
-const destinationTypes: ListboxItem[] = [
-  { value: 'ip', label: 'IP' },
-  { value: 'ip_net', label: 'IP net' },
-  { value: 'vpc', label: 'VPC' },
-  { value: 'subnet', label: 'subnet' },
-]
-
-const targetTypes: ListboxItem[] = [
-  { value: 'ip', label: 'IP' },
-  { value: 'vpc', label: 'VPC' },
-  { value: 'subnet', label: 'subnet' },
-  { value: 'instance', label: 'instance' },
-  { value: 'internet_gateway', label: 'Internet gateway' },
-  { value: 'drop', label: 'Drop' },
-]
 
 export function CreateRouterRouteSideModalForm() {
   const queryClient = useApiQueryClient()
@@ -76,7 +63,7 @@ export function CreateRouterRouteSideModalForm() {
       <DescriptionField name="description" control={form.control} />
       <ListboxField
         name="destination.type"
-        items={destinationTypes}
+        items={routerRouteDestinationTypes}
         label="Destination type"
         control={form.control}
         placeholder="Select a destination type"
@@ -91,7 +78,7 @@ export function CreateRouterRouteSideModalForm() {
       />
       <ListboxField
         name="target.type"
-        items={targetTypes}
+        items={routerRouteTargetTypes}
         label="Target type"
         control={form.control}
         placeholder="Select a target type"

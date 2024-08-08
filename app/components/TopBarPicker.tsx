@@ -235,7 +235,7 @@ export function SiloPicker() {
 export function IpPoolPicker() {
   // picker only shows up when a pool is in scope
   const { pool: poolName } = useIpPoolSelector()
-  const { data } = useApiQuery('ipPoolList', { query: { limit: 10 } })
+  const { data } = useApiQuery('ipPoolList', { query: { limit: PAGE_SIZE } })
   const items = (data?.items || []).map((pool) => ({
     label: pool.name,
     to: pb.ipPool({ pool: pool.name }),
