@@ -14,9 +14,9 @@ import { apiQueryClient, useApiMutation, type VpcRouter } from '@oxide/api'
 import { getVpcSelector, useVpcSelector } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
-import { EmptyCell } from '~/table/cells/EmptyCell'
-import { LinkCell } from '~/table/cells/LinkCell'
+import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
+import { Columns } from '~/table/columns/common'
 import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
@@ -52,16 +52,9 @@ export function VpcRoutersTab() {
   const staticColumns = useMemo(
     () => [
       colHelper.accessor('name', {
-        cell: (info) => (
-          <LinkCell to={pb.vpcRouter({ ...vpcSelector, router: info.getValue() })}>
-            {info.getValue()}
-          </LinkCell>
-        ),
+        cell: makeLinkCell((router) => pb.vpcRouter({ ...vpcSelector, router })),
       }),
-      colHelper.accessor('description', {
-        header: 'Description',
-        cell: (info) => info.getValue() || <EmptyCell />,
-      }),
+      colHelper.accessor('description', Columns.description),
     ],
     [vpcSelector]
   )

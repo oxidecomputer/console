@@ -269,6 +269,7 @@ export function VpcPicker() {
       current={vpc}
       items={items}
       noItemsText="No VPCs found"
+      to={pb.vpc({ project, vpc })}
     />
   )
 }
