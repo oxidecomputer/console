@@ -29,29 +29,35 @@ type Options = {
 }
 
 export const useMakeInstanceActions = (
-  projectSelector: { project: string },
+  { project }: { project: string },
   options: Options = {}
 ): MakeActions<Instance> => {
   const navigate = useNavigate()
 
   // if you also pass onSuccess to mutate(), this one is not overridden — this
-  // one runs first, then the one passed to mutate()
+  // one runs first, then the one passed to mutate().
+  //
+  // We pull out the mutate functions because they are referentially stable,
+  // while the whole useMutation result object is not. The async ones are used
+  // when we need to confirm because the confirm modals want that.
   const opts = { onSuccess: options.onSuccess }
-  const startInstance = useApiMutation('instanceStart', opts)
-  const stopInstance = useApiMutation('instanceStop', opts)
-  const rebootInstance = useApiMutation('instanceReboot', opts)
+  const { mutate: startInstance } = useApiMutation('instanceStart', opts)
+  const { mutateAsync: stopInstanceAsync } = useApiMutation('instanceStop', opts)
+  const { mutate: rebootInstance } = useApiMutation('instanceReboot', opts)
   // delete has its own
-  const deleteInstance = useApiMutation('instanceDelete', { onSuccess: options.onDelete })
+  const { mutateAsync: deleteInstanceAsync } = useApiMutation('instanceDelete', {
+    onSuccess: options.onDelete,
+  })
 
   return useCallback(
     (instance) => {
-      const instanceSelector = { ...projectSelector, instance: instance.name }
-      const instanceParams = { path: { instance: instance.name }, query: projectSelector }
+      const instanceSelector = { project, instance: instance.name }
+      const instanceParams = { path: { instance: instance.name }, query: { project } }
       return [
         {
           label: 'Start',
           onActivate() {
-            startInstance.mutate(instanceParams, {
+            startInstance(instanceParams, {
               onSuccess: () => addToast({ title: `Starting instance '${instance.name}'` }),
               onError: (error) =>
                 addToast({
@@ -71,7 +77,7 @@ export const useMakeInstanceActions = (
             confirmAction({
               actionType: 'danger',
               doAction: () =>
-                stopInstance.mutateAsync(instanceParams, {
+                stopInstanceAsync(instanceParams, {
                   onSuccess: () =>
                     addToast({ title: `Stopping instance '${instance.name}'` }),
                 }),
@@ -93,7 +99,7 @@ export const useMakeInstanceActions = (
         {
           label: 'Reboot',
           onActivate() {
-            rebootInstance.mutate(instanceParams, {
+            rebootInstance(instanceParams, {
               onSuccess: () => addToast({ title: `Rebooting instance '${instance.name}'` }),
               onError: (error) =>
                 addToast({
@@ -117,7 +123,7 @@ export const useMakeInstanceActions = (
           label: 'Delete',
           onActivate: confirmDelete({
             doDelete: () =>
-              deleteInstance.mutateAsync(instanceParams, {
+              deleteInstanceAsync(instanceParams, {
                 onSuccess: () =>
                   addToast({ title: `Deleting instance '${instance.name}'` }),
               }),
@@ -132,6 +138,13 @@ export const useMakeInstanceActions = (
         },
       ]
     },
-    [projectSelector, deleteInstance, navigate, rebootInstance, startInstance, stopInstance]
+    [
+      project,
+      navigate,
+      deleteInstanceAsync,
+      rebootInstance,
+      startInstance,
+      stopInstanceAsync,
+    ]
   )
 }
