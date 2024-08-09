@@ -8,20 +8,49 @@
 
 import type { RouteDestination, RouteTarget } from '~/api'
 
-type DestinationItem = { value: RouteDestination['type']; label: string }
-export const routerRouteDestinationTypes: DestinationItem[] = [
-  { value: 'ip', label: 'IP' },
-  { value: 'ip_net', label: 'IP net' },
-  { value: 'vpc', label: 'VPC' },
-  { value: 'subnet', label: 'subnet' },
-]
+const destTypes: Record<RouteDestination['type'], string> = {
+  ip: 'IP',
+  ip_net: 'IP net',
+  vpc: 'VPC',
+  subnet: 'subnet',
+}
+const targetTypes: Record<RouteTarget['type'], string> = {
+  ip: 'IP',
+  vpc: 'VPC',
+  subnet: 'subnet',
+  instance: 'instance',
+  internet_gateway: 'Internet gateway',
+  drop: 'Drop',
+}
 
-type TargetItem = { value: RouteTarget['type']; label: string }
-export const routerRouteTargetTypes: TargetItem[] = [
-  { value: 'ip', label: 'IP' },
-  { value: 'vpc', label: 'VPC' },
-  { value: 'subnet', label: 'subnet' },
-  { value: 'instance', label: 'instance' },
-  { value: 'internet_gateway', label: 'Internet gateway' },
-  { value: 'drop', label: 'Drop' },
-]
+const toItems = (mapping: Record<string, string>) =>
+  Object.entries(mapping).map(([value, label]) => ({ value, label }))
+
+export const fields = {
+  destType: {
+    name: 'destination.type' as const,
+    items: toItems(destTypes),
+    label: 'Destination type',
+    placeholder: 'Select a destination type',
+    required: true,
+  },
+  destValue: {
+    name: 'destination.value' as const,
+    label: 'Destination value',
+    placeholder: 'Enter a destination value',
+    required: true,
+  },
+  targetType: {
+    name: 'target.type' as const,
+    items: toItems(targetTypes),
+    label: 'Target type',
+    placeholder: 'Select a target type',
+    required: true,
+  },
+  targetValue: {
+    name: 'target.value' as const,
+    label: 'Target value',
+    placeholder: 'Enter a target value',
+    required: true,
+  },
+}

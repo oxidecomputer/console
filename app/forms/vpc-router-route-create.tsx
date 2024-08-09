@@ -14,10 +14,7 @@ import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import {
-  routerRouteDestinationTypes,
-  routerRouteTargetTypes,
-} from '~/forms/vpc-router-route/shared'
+import { fields } from '~/forms/vpc-router-route/shared'
 import { useForm, useVpcRouterSelector } from '~/hooks'
 import { addToast } from '~/stores/toast'
 import { pb } from '~/util/path-builder'
@@ -61,37 +58,11 @@ export function CreateRouterRouteSideModalForm() {
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
-      <ListboxField
-        name="destination.type"
-        items={routerRouteDestinationTypes}
-        label="Destination type"
-        control={form.control}
-        placeholder="Select a destination type"
-        required
-      />
-      <TextField
-        name="destination.value"
-        label="Destination value"
-        control={form.control}
-        placeholder="Enter a destination value"
-        required
-      />
-      <ListboxField
-        name="target.type"
-        items={routerRouteTargetTypes}
-        label="Target type"
-        control={form.control}
-        placeholder="Select a target type"
-        required
-      />
+      <ListboxField {...fields.destType} control={form.control} />
+      <TextField {...fields.destValue} control={form.control} />
+      <ListboxField {...fields.targetType} control={form.control} />
       {targetType !== 'drop' && (
-        <TextField
-          name="target.value"
-          label="Target value"
-          control={form.control}
-          placeholder="Enter a target value"
-          required
-        />
+        <TextField {...fields.targetValue} control={form.control} />
       )}
     </SideModalForm>
   )
