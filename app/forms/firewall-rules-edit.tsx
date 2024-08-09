@@ -87,38 +87,35 @@ export function EditFirewallRuleForm() {
   // TODO: uhhhh how can this happen
   if (Object.keys(originalRule).length === 0) return null
 
+  // note different filter logic from create: filter out the rule with the
+  // *original* name because we need to overwrite that rule
+  const otherRules = data.rules.filter((r) => r.name !== originalRule.name)
+
   return (
     <SideModalForm
       form={form}
       formType="edit"
       resourceName="rule"
       onDismiss={onDismiss}
-      onSubmit={(values) => {
-        // note different filter logic from create: filter out the rule with the
-        // *original* name because we need to overwrite that rule
-        const otherRules = data.rules.filter((r) => r.name !== originalRule.name)
-
-        // error if name is being changed to something that conflicts with some other rule
-        if (otherRules.find((r) => r.name === values.name)) {
-          form.setError('name', {
-            message: `Name taken. To update an existing rule, edit it directly. Original name: ${originalRule.name}.`,
-          })
-          return
-        }
-
+      onSubmit={(values) =>
         updateRules.mutate({
           query: vpcSelector,
           body: {
             rules: [...otherRules.map(firewallRuleGetToPut), valuesToRuleUpdate(values)],
           },
         })
-      }}
+      }
       // validationSchema={validationSchema}
       // validateOnBlur
       loading={updateRules.isPending}
       submitError={updateRules.error}
     >
-      <CommonFields error={updateRules.error} control={form.control} />
+      <CommonFields
+        error={updateRules.error}
+        control={form.control}
+        // error if name is being changed to something that conflicts with some other rule
+        nameTaken={(name) => !!otherRules.find((r) => r.name === name)}
+      />
     </SideModalForm>
   )
 }
