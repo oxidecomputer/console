@@ -15,7 +15,13 @@ import {
   Success12Icon,
 } from '@oxide/design-system/icons/react'
 
-import { useInstanceSelector, useIpPoolSelector, useSiloSelector } from '~/hooks'
+import {
+  useInstanceSelector,
+  useIpPoolSelector,
+  useSiloSelector,
+  useVpcRouterSelector,
+  useVpcSelector,
+} from '~/hooks'
 import { useCurrentUser } from '~/layouts/AuthenticatedLayout'
 import { PAGE_SIZE } from '~/table/QueryTable'
 import { Button } from '~/ui/lib/Button'
@@ -229,7 +235,7 @@ export function SiloPicker() {
 export function IpPoolPicker() {
   // picker only shows up when a pool is in scope
   const { pool: poolName } = useIpPoolSelector()
-  const { data } = useApiQuery('ipPoolList', { query: { limit: 10 } })
+  const { data } = useApiQuery('ipPoolList', { query: { limit: PAGE_SIZE } })
   const items = (data?.items || []).map((pool) => ({
     label: pool.name,
     to: pb.ipPool({ pool: pool.name }),
@@ -242,6 +248,51 @@ export function IpPoolPicker() {
       current={poolName}
       items={items}
       noItemsText="No IP pools found"
+    />
+  )
+}
+
+/** Used when drilling down into a VPC from the Silo view. */
+export function VpcPicker() {
+  // picker only shows up when a VPC is in scope
+  const { project, vpc } = useVpcSelector()
+  const { data } = useApiQuery('vpcList', { query: { project, limit: PAGE_SIZE } })
+  const items = (data?.items || []).map((v) => ({
+    label: v.name,
+    to: pb.vpc({ project, vpc: v.name }),
+  }))
+
+  return (
+    <TopBarPicker
+      aria-label="Switch VPC"
+      category="VPC"
+      current={vpc}
+      items={items}
+      noItemsText="No VPCs found"
+      to={pb.vpc({ project, vpc })}
+    />
+  )
+}
+
+/** Used when drilling down into a VPC Router from the Silo view. */
+export function VpcRouterPicker() {
+  // picker only shows up when a router is in scope
+  const { project, vpc, router } = useVpcRouterSelector()
+  const { data } = useApiQuery('vpcRouterList', {
+    query: { project, vpc, limit: PAGE_SIZE },
+  })
+  const items = (data?.items || []).map((r) => ({
+    label: r.name,
+    to: pb.vpcRouter({ vpc, project, router: r.name }),
+  }))
+
+  return (
+    <TopBarPicker
+      aria-label="Switch router"
+      category="router"
+      current={router}
+      items={items}
+      noItemsText="No routers found"
     />
   )
 }

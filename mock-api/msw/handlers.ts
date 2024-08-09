@@ -1053,6 +1053,83 @@ export const handlers = makeHandlers({
 
     return { rules: R.sortBy(rules, (r) => r.name) }
   },
+  vpcRouterList({ query }) {
+    const vpc = lookup.vpc(query)
+    const routers = db.vpcRouters.filter((r) => r.vpc_id === vpc.id)
+    return paginated(query, routers)
+  },
+  vpcRouterCreate({ body, query }) {
+    const vpc = lookup.vpc(query)
+    errIfExists(db.vpcRouters, { vpc_id: vpc.id, name: body.name })
+
+    const newRouter: Json<Api.VpcRouter> = {
+      id: uuid(),
+      vpc_id: vpc.id,
+      kind: 'custom',
+      ...body,
+      ...getTimestamps(),
+    }
+    db.vpcRouters.push(newRouter)
+    return json(newRouter, { status: 201 })
+  },
+  vpcRouterView: ({ path, query }) => lookup.vpcRouter({ ...path, ...query }),
+  vpcRouterUpdate({ body, path, query }) {
+    const router = lookup.vpcRouter({ ...path, ...query })
+
+    if (body.name) {
+      router.name = body.name
+    }
+
+    if (typeof body.description === 'string') {
+      router.description = body.description
+    }
+
+    return router
+  },
+  vpcRouterDelete({ path, query }) {
+    const router = lookup.vpcRouter({ ...path, ...query })
+    db.vpcRouters = db.vpcRouters.filter((r) => r.id !== router.id)
+    return 204
+  },
+  /*
+    the following needs to return a paginated list, rather than a spoofed object with { items }
+  */
+  vpcRouterRouteList: ({ query: { project, router, vpc } }) => {
+    const vpcRouter = lookup.vpcRouter({ project, router, vpc })
+    return {
+      items: lookup
+        .vpcRouterRouteList({ project, router, vpc })
+        .filter((r) => r.vpc_router_id === vpcRouter.id),
+    }
+  },
+  vpcRouterRouteCreate({ body, query }) {
+    const vpcRouter = lookup.vpcRouter(query)
+    const newRoute: Json<Api.RouterRoute> = {
+      id: uuid(),
+      vpc_router_id: vpcRouter.id,
+      kind: 'custom',
+      ...body,
+      ...getTimestamps(),
+    }
+    db.vpcRouterRoutes.push(newRoute)
+    return json(newRoute, { status: 201 })
+  },
+  vpcRouterRouteView: ({ path, query }) => lookup.vpcRouterRoute({ ...path, ...query }),
+  vpcRouterRouteUpdate({ body, path, query }) {
+    const route = lookup.vpcRouterRoute({ ...path, ...query })
+    if (body.destination) {
+      route.destination = body.destination
+    }
+    if (body.target) {
+      route.target = body.target
+    }
+    return route
+  },
+  vpcRouterRouteDelete: ({ path, query }) => {
+    const route = lookup.vpcRouterRoute({ ...path, ...query })
+    db.vpcRouterRoutes = db.vpcRouterRoutes.filter((r) => r.id !== route.id)
+    return 204
+  },
   vpcSubnetList({ query }) {
     const vpc = lookup.vpc(query)
     const subnets = db.vpcSubnets.filter((s) => s.vpc_id === vpc.id)
@@ -1375,14 +1452,4 @@ export const handlers = makeHandlers({
   timeseriesSchemaList: NotImplemented,
   userBuiltinList: NotImplemented,
   userBuiltinView: NotImplemented,
-  vpcRouterCreate: NotImplemented,
-  vpcRouterDelete: NotImplemented,
-  vpcRouterList: NotImplemented,
-  vpcRouterRouteCreate: NotImplemented,
-  vpcRouterRouteDelete: NotImplemented,
-  vpcRouterRouteList: NotImplemented,
-  vpcRouterRouteUpdate: NotImplemented,
-  vpcRouterRouteView: NotImplemented,
-  vpcRouterUpdate: NotImplemented,
-  vpcRouterView: NotImplemented,
 })

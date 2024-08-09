@@ -138,6 +138,39 @@ export const lookup = {
 
     return vpc
   },
+  vpcRouter({ router: id, ...vpcSelector }: PP.VpcRouter): Json<Api.VpcRouter> {
+    if (!id) throw notFoundErr('no router specified')
+
+    if (isUuid(id)) return lookupById(db.vpcRouters, id)
+
+    const vpc = lookup.vpc(vpcSelector)
+    const router = db.vpcRouters.find((r) => r.vpc_id === vpc.id && r.name === id)
+    if (!router) throw notFoundErr(`router '${id}'`)
+
+    return router
+  },
+  vpcRouterRoute({
+    route: id,
+    ...routerSelector
+  }: PP.VpcRouterRoute): Json<Api.RouterRoute> {
+    if (!id) throw notFoundErr('no route specified')
+
+    if (isUuid(id)) return lookupById(db.vpcRouterRoutes, id)
+
+    const router = lookup.vpcRouter(routerSelector)
+    const route = db.vpcRouterRoutes.find(
+      (r) => r.vpc_router_id === router.id && r.name === id
+    )
+    if (!route) throw notFoundErr(`route '${id}'`)
+
+    return route
+  },
+  vpcRouterRouteList({ project, router, vpc }: PP.VpcRouter): Json<Api.RouterRoute>[] {
+    if (!project) throw notFoundErr('no project specified')
+    if (!router) throw notFoundErr('no router specified')
+    if (!vpc) throw notFoundErr('no VPC specified')
+    return db.vpcRouterRoutes
+  },
   vpcSubnet({ subnet: id, ...vpcSelector }: PP.VpcSubnet): Json<Api.VpcSubnet> {
     if (!id) throw notFoundErr('no subnet specified')
 
@@ -326,6 +359,8 @@ const initDb = {
   sshKeys: [...mock.sshKeys],
   users: [...mock.users],
   vpcFirewallRules: [...mock.firewallRules],
+  vpcRouters: [...mock.vpcRouters],
+  vpcRouterRoutes: [...mock.routerRoutes],
   vpcs: [...mock.vpcs],
   vpcSubnets: [mock.vpcSubnet],
 }

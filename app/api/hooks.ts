@@ -174,7 +174,14 @@ export const getUsePrefetchedApiQuery =
     })
     invariant(
       result.data,
-      `Expected query to be prefetched. Key: ${JSON.stringify(queryKey)}`
+      `Expected query to be prefetched.
+Key: ${JSON.stringify(queryKey)}
+Ensure the following:
+• loader is running
+• query matches in both the loader and the component
+• request isn't erroring-out server-side (check the Networking tab)
+• mock API endpoint is implemented in handlers.ts
+`
     )
     // TS infers non-nullable on a freestanding variable, but doesn't like to do
     // it on a property. So we give it a hint
