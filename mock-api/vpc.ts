@@ -45,10 +45,32 @@ export const vpc2: Json<Vpc> = {
 
 export const vpcs: Json<Vpc[]> = [vpc, vpc2]
 
+export const vpcRouter: Json<VpcRouter> = {
+  id: 'fc59fb4d-baad-44a8-b152-9a3c27ae8aa1',
+  name: 'mock-system-router',
+  description: 'a fake router',
+  time_created: new Date(2024, 0, 1).toISOString(),
+  time_modified: new Date(2024, 0, 2).toISOString(),
+  vpc_id: vpc.id,
+  kind: 'system',
+}
+
+export const vpcRouter2: Json<VpcRouter> = {
+  id: '7ffc1613-8492-42f1-894b-9ef5c9ba2507',
+  name: 'mock-custom-router',
+  description: 'a fake custom router',
+  time_created: new Date(2024, 1, 1).toISOString(),
+  time_modified: new Date(2024, 1, 2).toISOString(),
+  vpc_id: vpc.id,
+  kind: 'custom',
+}
+
+export const vpcRouters: Json<VpcRouter[]> = [vpcRouter, vpcRouter2]
+
 const routeBase = {
   time_created: '2024-07-11T17:46:21.161086Z',
   time_modified: '2024-07-11T17:46:21.161086Z',
-  vpc_router_id: vpc.id,
+  vpc_router_id: vpcRouter.id,
 }
 
 export const routerRoutes: Json<Array<RouterRoute>> = [
@@ -112,28 +134,6 @@ export const routerRoutes: Json<Array<RouterRoute>> = [
     },
   },
 ]
-
-export const vpcRouter: Json<VpcRouter> = {
-  id: 'fc59fb4d-baad-44a8-b152-9a3c27ae8aa1',
-  name: 'mock-system-router',
-  description: 'a fake router',
-  time_created: new Date(2024, 0, 1).toISOString(),
-  time_modified: new Date(2024, 0, 2).toISOString(),
-  vpc_id: vpc.id,
-  kind: 'system',
-}
-
-export const vpcRouter2: Json<VpcRouter> = {
-  id: '7ffc1613-8492-42f1-894b-9ef5c9ba2507',
-  name: 'mock-custom-router',
-  description: 'a fake custom router',
-  time_created: new Date(2024, 1, 1).toISOString(),
-  time_modified: new Date(2024, 1, 2).toISOString(),
-  vpc_id: vpc.id,
-  kind: 'custom',
-}
-
-export const vpcRouters: Json<VpcRouter[]> = [vpcRouter, vpcRouter2]
 
 export const vpcSubnet: Json<VpcSubnet> = {
   // this is supposed to be flattened into the top level. will fix in API
