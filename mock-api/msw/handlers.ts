@@ -1107,8 +1107,7 @@ export const handlers = makeHandlers({
     const newRoute: Json<Api.RouterRoute> = {
       id: uuid(),
       vpc_router_id: vpcRouter.id,
-      // TODO: look into proper setting of `kind`
-      kind: 'default',
+      kind: 'custom',
       ...body,
       ...getTimestamps(),
     }

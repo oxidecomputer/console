@@ -45,14 +45,18 @@ export const vpc2: Json<Vpc> = {
 
 export const vpcs: Json<Vpc[]> = [vpc, vpc2]
 
+const routeBase = {
+  time_created: '2024-07-11T17:46:21.161086Z',
+  time_modified: '2024-07-11T17:46:21.161086Z',
+  vpc_router_id: vpc.id,
+}
+
 export const routerRoutes: Json<Array<RouterRoute>> = [
   {
+    ...routeBase,
     id: '51e50342-790f-4efb-8518-10bf01279514',
     name: 'default1',
     description: "VPC Subnet route for 'default'",
-    time_created: '2024-07-11T17:46:21.161086Z',
-    time_modified: '2024-07-11T17:46:21.161086Z',
-    vpc_router_id: 'fc59fb4d-baad-44a8-b152-9a3c27ae8aa1',
     kind: 'vpc_subnet',
     target: {
       type: 'subnet',
@@ -64,12 +68,10 @@ export const routerRoutes: Json<Array<RouterRoute>> = [
     },
   },
   {
+    ...routeBase,
     id: '4c98cd3b-37be-4754-954f-ca960f7a5c3f',
     name: 'default-v4',
     description: 'The default route of a vpc',
-    time_created: '2024-07-11T17:46:21.161086Z',
-    time_modified: '2024-07-11T17:46:21.161086Z',
-    vpc_router_id: 'fc59fb4d-baad-44a8-b152-9a3c27ae8aa1',
     kind: 'default',
     target: {
       type: 'internet_gateway',
@@ -81,12 +83,10 @@ export const routerRoutes: Json<Array<RouterRoute>> = [
     },
   },
   {
+    ...routeBase,
     id: '83ee96a3-e418-47fd-912e-e5b22c6a29c6',
     name: 'default-v6',
     description: 'The default route of a vpc',
-    time_created: '2024-07-11T17:46:21.161086Z',
-    time_modified: '2024-07-11T17:46:21.161086Z',
-    vpc_router_id: 'fc59fb4d-baad-44a8-b152-9a3c27ae8aa1',
     kind: 'default',
     target: {
       type: 'internet_gateway',
@@ -98,13 +98,11 @@ export const routerRoutes: Json<Array<RouterRoute>> = [
     },
   },
   {
+    ...routeBase,
     id: '51e50342-790f-4efb-8518-10bf01279515',
     name: 'drop-local',
     description: 'Drop all local traffic',
-    time_created: '2024-07-11T17:46:21.161086Z',
-    time_modified: '2024-07-11T17:46:21.161086Z',
-    vpc_router_id: 'fc59fb4d-baad-44a8-b152-9a3c27ae8aa1',
-    kind: 'default',
+    kind: 'custom',
     destination: {
       type: 'ip',
       value: '192.168.1.1',
