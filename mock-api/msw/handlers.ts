@@ -1330,7 +1330,7 @@ export const handlers = makeHandlers({
   networkingBfdDisable: NotImplemented,
   networkingBfdEnable: NotImplemented,
   networkingBfdStatus: NotImplemented,
-  networkingBgpAnnounceSetCreate: NotImplemented,
+  networkingBgpAnnounceSetUpdate: NotImplemented,
   networkingBgpAnnounceSetDelete: NotImplemented,
   networkingBgpAnnounceSetList: NotImplemented,
   networkingBgpConfigCreate: NotImplemented,
