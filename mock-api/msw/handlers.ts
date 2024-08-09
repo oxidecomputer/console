@@ -1097,9 +1097,7 @@ export const handlers = makeHandlers({
   vpcRouterRouteList: ({ query: { project, router, vpc } }) => {
     const vpcRouter = lookup.vpcRouter({ project, router, vpc })
     return {
-      items: lookup
-        .vpcRouterRouteList({ project, router, vpc })
-        .filter((r) => r.vpc_router_id === vpcRouter.id),
+      items: db.vpcRouterRoutes.filter((r) => r.vpc_router_id === vpcRouter.id),
     }
   },
   vpcRouterRouteCreate({ body, query }) {

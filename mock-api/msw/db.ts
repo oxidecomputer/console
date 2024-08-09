@@ -165,12 +165,6 @@ export const lookup = {
 
     return route
   },
-  vpcRouterRouteList({ project, router, vpc }: PP.VpcRouter): Json<Api.RouterRoute>[] {
-    if (!project) throw notFoundErr('no project specified')
-    if (!router) throw notFoundErr('no router specified')
-    if (!vpc) throw notFoundErr('no VPC specified')
-    return db.vpcRouterRoutes
-  },
   vpcSubnet({ subnet: id, ...vpcSelector }: PP.VpcSubnet): Json<Api.VpcSubnet> {
     if (!id) throw notFoundErr('no subnet specified')
 
