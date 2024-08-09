@@ -63,6 +63,7 @@ export type AddressConfig = {
 export type AddressLotKind =
   /** Infrastructure address lots are used for network infrastructure like addresses assigned to rack switches. */
   | 'infra'
+
   /** Pool address lots are used by IP pools. */
   | 'pool'
 
@@ -156,6 +157,7 @@ export type BgpMessageHistory = Record<string, unknown>
 export type SwitchLocation =
   /** Switch in upper slot */
   | 'switch0'
+
   /** Switch in lower slot */
   | 'switch1'
 
@@ -216,10 +218,13 @@ export type AllowListUpdate = {
 export type AuthzScope =
   /** Timeseries data is limited to fleet readers. */
   | 'fleet'
+
   /** Timeseries data is limited to the authorized silo for a user. */
   | 'silo'
+
   /** Timeseries data is limited to the authorized projects for a user. */
   | 'project'
+
   /** The timeseries is viewable to all without limitation. */
   | 'viewable_to_all'
 
@@ -264,10 +269,13 @@ export type BfdSessionEnable = {
 export type BfdState =
   /** A stable down state. Non-responsive to incoming messages. */
   | 'admin_down'
+
   /** The initial state. */
   | 'down'
+
   /** The peer has detected a remote peer in the down state. */
   | 'init'
+
   /** The peer has detected a remote peer in the up or init state while in the init state. */
   | 'up'
 
@@ -443,16 +451,22 @@ export type BgpPeerConfig = { peers: BgpPeer[] }
 export type BgpPeerState =
   /** Initial state. Refuse all incoming BGP connections. No resources allocated to peer. */
   | 'idle'
+
   /** Waiting for the TCP connection to be completed. */
   | 'connect'
+
   /** Trying to acquire peer by listening for and accepting a TCP connection. */
   | 'active'
+
   /** Waiting for open message from peer. */
   | 'open_sent'
+
   /** Waiting for keepaliave or notification from peer. */
   | 'open_confirm'
+
   /** Synchronizing with peer. */
   | 'session_setup'
+
   /** Session established. Able to exchange update, notification and keepalive messages with peers. */
   | 'established'
 
@@ -1701,22 +1715,31 @@ export type InstanceCpuCount = number
 export type InstanceState =
   /** The instance is being created. */
   | 'creating'
+
   /** The instance is currently starting up. */
   | 'starting'
+
   /** The instance is currently running. */
   | 'running'
+
   /** The instance has been requested to stop and a transition to "Stopped" is imminent. */
   | 'stopping'
+
   /** The instance is currently stopped. */
   | 'stopped'
+
   /** The instance is in the process of rebooting - it will remain in the "rebooting" state until the VM is starting once more. */
   | 'rebooting'
+
   /** The instance is in the process of migrating - it will remain in the "migrating" state until the migration process is complete and the destination propolis is ready to continue execution. */
   | 'migrating'
+
   /** The instance is attempting to recover from a failure. */
   | 'repairing'
+
   /** The instance has encountered a failure. */
   | 'failed'
+
   /** The instance has been deleted. */
   | 'destroyed'
 
@@ -2047,8 +2070,10 @@ export type L4PortRange = string
 export type LinkFec =
   /** Firecode forward error correction. */
   | 'firecode'
+
   /** No forward error correction. */
   | 'none'
+
   /** Reed-Solomon forward error correction. */
   | 'rs'
 
@@ -2068,20 +2093,28 @@ export type LldpServiceConfigCreate = {
 export type LinkSpeed =
   /** Zero gigabits per second. */
   | 'speed0_g'
+
   /** 1 gigabit per second. */
   | 'speed1_g'
+
   /** 10 gigabits per second. */
   | 'speed10_g'
+
   /** 25 gigabits per second. */
   | 'speed25_g'
+
   /** 40 gigabits per second. */
   | 'speed40_g'
+
   /** 50 gigabits per second. */
   | 'speed50_g'
+
   /** 100 gigabits per second. */
   | 'speed100_g'
+
   /** 200 gigabits per second. */
   | 'speed200_g'
+
   /** 400 gigabits per second. */
   | 'speed400_g'
 
@@ -2178,8 +2211,10 @@ export type MeasurementResultsPage = {
 export type MetricType =
   /** The value represents an instantaneous measurement in time. */
   | 'gauge'
+
   /** The value represents a difference between two points in time. */
   | 'delta'
+
   /** The value represents an accumulation between two points in time. */
   | 'cumulative'
 
@@ -2246,6 +2281,7 @@ An expunged disk is always non-provisionable. */
 export type PhysicalDiskState =
   /** The disk is currently active, and has resources allocated on it. */
   | 'active'
+
   /** The disk has been permanently removed from service.
 
 This is a terminal state: once a particular disk ID is decommissioned, it will never return to service. (The actual hardware may be reused, but it will be treated as a brand-new disk.) */
@@ -2532,14 +2568,17 @@ export type RouterRouteKind =
 
 `Destination: An Internet Gateway` `Modifiable: true` */
   | 'default'
+
   /** Automatically added for each VPC Subnet in the VPC
 
 `Destination: A VPC Subnet` `Modifiable: false` */
   | 'vpc_subnet'
+
   /** Automatically added when VPC peering is established
 
 `Destination: A different VPC` `Modifiable: false` */
   | 'vpc_peering'
+
   /** Created by a user; see `RouteTarget`
 
 `Destination: User defined` `Modifiable: true` */
@@ -2663,6 +2702,7 @@ export type SamlIdentityProviderCreate = {
 export type SiloIdentityMode =
   /** Users are authenticated with SAML using an external authentication provider.  The system updates information about users and groups only during successful authentication (i.e,. "JIT provisioning" of users and groups). */
   | 'saml_jit'
+
   /** The system is the source of truth about users.  There is no linkage to an external authentication provider or identity provider. */
   | 'local_only'
 
@@ -2864,6 +2904,7 @@ export type SiloUtilizationResultsPage = {
 export type SledProvisionPolicy =
   /** New resources will be provisioned on this sled. */
   | 'provisionable'
+
   /** New resources will not be provisioned on this sled. However, if the sled is currently in service, existing resources will continue to be on this sled unless manually migrated off. */
   | 'non_provisionable'
 
@@ -2890,6 +2931,7 @@ An expunged sled is always non-provisionable. */
 export type SledState =
   /** The sled is currently active, and has resources allocated on it. */
   | 'active'
+
   /** The sled has been permanently removed from service.
 
 This is a terminal state: once a particular sled ID is decommissioned, it will never return to service. (The actual hardware may be reused, but it will be treated as a brand-new sled.) */
@@ -3084,8 +3126,10 @@ export type Switch = {
 export type SwitchInterfaceKind2 =
   /** Primary interfaces are associated with physical links. There is exactly one primary interface per physical link. */
   | 'primary'
+
   /** VLAN interfaces allow physical interfaces to be multiplexed onto multiple logical links, each distinguished by a 12-bit 802.1Q Ethernet tag. */
   | 'vlan'
+
   /** Loopback interfaces are anchors for IP addresses that are not specific to any particular port. */
   | 'loopback'
 
@@ -3178,8 +3222,10 @@ export type SwitchPortApplySettings = {
 export type SwitchPortGeometry2 =
   /** The port contains a single QSFP28 link with four lanes. */
   | 'qsfp28x1'
+
   /** The port contains two QSFP28 links each with two lanes. */
   | 'qsfp28x2'
+
   /** The port contains four SFP28 links each with one lane. */
   | 'sfp28x4'
 
@@ -3199,8 +3245,10 @@ export type SwitchPortConfig = {
 export type SwitchPortGeometry =
   /** The port contains a single QSFP28 link with four lanes. */
   | 'qsfp28x1'
+
   /** The port contains two QSFP28 links each with two lanes. */
   | 'qsfp28x2'
+
   /** The port contains four SFP28 links each with one lane. */
   | 'sfp28x4'
 
@@ -3813,8 +3861,10 @@ export type VpcUpdate = { description?: string; dnsName?: Name; name?: Name }
 export type NameOrIdSortMode =
   /** sort in increasing order of "name" */
   | 'name_ascending'
+
   /** sort in decreasing order of "name" */
   | 'name_descending'
+
   /** sort in increasing order of "id" */
   | 'id_ascending'
 
