@@ -24,9 +24,10 @@ import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { fields } from '~/forms/vpc-router-route/shared'
+import { fields, routeError } from '~/forms/vpc-router-route/shared'
 import { getVpcRouterRouteSelector, useForm, useVpcRouterRouteSelector } from '~/hooks'
 import { addToast } from '~/stores/toast'
+import { Message } from '~/ui/lib/Message'
 import { pb } from '~/util/path-builder'
 
 EditRouterRouteSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
@@ -65,6 +66,15 @@ export function EditRouterRouteSideModalForm() {
   const form = useForm({ defaultValues })
   const targetType = form.watch('target.type')
 
+  let isDisabled = false
+  let disabledReason = ''
+
+  // Can simplify this if there aren't other disabling reasons
+  if (route?.kind === 'vpc_subnet') {
+    isDisabled = true
+    disabledReason = routeError.vpcSubnetNotModifiable
+  }
+
   return (
     <SideModalForm
       form={form}
@@ -81,13 +91,14 @@ export function EditRouterRouteSideModalForm() {
       loading={updateRouterRoute.isPending}
       submitError={updateRouterRoute.error}
     >
-      <NameField name="name" control={form.control} />
-      <DescriptionField name="description" control={form.control} />
-      <ListboxField {...fields.destType} control={form.control} />
-      <TextField {...fields.destValue} control={form.control} />
-      <ListboxField {...fields.targetType} control={form.control} />
+      {isDisabled && <Message variant="info" content={disabledReason} />}
+      <NameField name="name" control={form.control} disabled={isDisabled} />
+      <DescriptionField name="description" control={form.control} disabled={isDisabled} />
+      <ListboxField {...fields.destType} control={form.control} disabled={isDisabled} />
+      <TextField {...fields.destValue} control={form.control} disabled={isDisabled} />
+      <ListboxField {...fields.targetType} control={form.control} disabled={isDisabled} />
       {targetType !== 'drop' && (
-        <TextField {...fields.targetValue} control={form.control} />
+        <TextField {...fields.targetValue} control={form.control} disabled={isDisabled} />
       )}
     </SideModalForm>
   )

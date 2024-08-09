@@ -14,10 +14,11 @@ const destTypes: Record<RouteDestination['type'], string> = {
   vpc: 'VPC',
   subnet: 'subnet',
 }
-const targetTypes: Record<RouteTarget['type'], string> = {
+
+// Subnets cannot be used as a target in custom routers
+const targetTypes: Record<Exclude<RouteTarget['type'], 'subnet'>, string> = {
   ip: 'IP',
   vpc: 'VPC',
-  subnet: 'subnet',
   instance: 'instance',
   internet_gateway: 'Internet gateway',
   drop: 'Drop',
@@ -53,4 +54,9 @@ export const fields = {
     placeholder: 'Enter a target value',
     required: true,
   },
+}
+
+export const routeError = {
+  vpcSubnetNotModifiable:
+    'Routes of type VPC Subnet within the system router are not modifiable',
 }

@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useEffect } from 'react'
 import { useNavigate, type NavigateFunction } from 'react-router-dom'
 
 import { useApiMutation, useApiQueryClient, type RouterRouteCreate } from '@oxide/api'
@@ -45,6 +46,11 @@ export function CreateRouterRouteSideModalForm() {
 
   const form = useForm({ defaultValues })
   const targetType = form.watch('target.type')
+
+  // Clear target value when targetType changes to 'drop'
+  useEffect(() => {
+    targetType === 'drop' && form.setValue('target.value', '')
+  }, [targetType, form])
 
   return (
     <SideModalForm
