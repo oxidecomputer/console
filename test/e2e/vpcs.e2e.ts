@@ -125,6 +125,14 @@ test('can create, update, and delete Route', async ({ page }) => {
   await page.click('text=New route')
   await page.getByRole('textbox', { name: 'name' }).fill('new-route')
   await page.getByRole('textbox', { name: 'Destination value' }).fill('0.0.0.0')
+
+  // we'll set the target in a second, but first verify that selecting internet gateway disables the value
+  await page.getByRole('button', { name: 'Target type' }).click()
+  await page.getByRole('option', { name: 'Internet gateway' }).click()
+  await expect(page.getByRole('textbox', { name: 'Target value' })).toBeDisabled()
+  await expect(page.getByRole('textbox', { name: 'Target value' })).toHaveValue('outbound')
+  await page.getByRole('button', { name: 'Target type' }).click()
+  await page.getByRole('option', { name: 'IP' }).click()
   await page.getByRole('textbox', { name: 'Target value' }).fill('1.1.1.1')
   await page.getByRole('button', { name: 'Create route' }).click()
   await expect(routeRows).toHaveCount(5)
