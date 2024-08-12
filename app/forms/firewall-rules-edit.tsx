@@ -61,8 +61,12 @@ export function EditFirewallRuleForm() {
 
   const updateRules = useApiMutation('vpcFirewallRulesUpdate', {
     onSuccess() {
-      queryClient.invalidateQueries('vpcFirewallRulesView')
+      // Nav before the invalidate because I once saw the above invariant fail
+      // briefly after successful edit (error page flashed but then we land
+      // on the rules list ok) and I think it was a race condition where the
+      // invalidate managed to complete while the modal was still open.
       onDismiss()
+      queryClient.invalidateQueries('vpcFirewallRulesView')
     },
   })
 
