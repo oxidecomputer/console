@@ -79,7 +79,7 @@ export function ListboxField<
         name={name}
         hasError={fieldState.error !== undefined}
         isLoading={isLoading}
-        ref={field.ref}
+        buttonRef={field.ref}
       />
       <ErrorMessage error={fieldState.error} label={label} />
     </div>

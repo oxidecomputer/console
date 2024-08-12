@@ -13,7 +13,7 @@ import {
   ListboxOptions,
 } from '@headlessui/react'
 import cn from 'classnames'
-import { forwardRef, type ForwardedRef, type ReactNode } from 'react'
+import { type ReactNode, type Ref } from 'react'
 
 import { SelectArrows6Icon } from '@oxide/design-system/icons/react'
 
@@ -42,29 +42,28 @@ export interface ListboxProps<Value extends string = string> {
   description?: React.ReactNode
   required?: boolean
   isLoading?: boolean
+  /** Necessary if you want RHF to be able to focus it on error */
+  buttonRef?: Ref<HTMLButtonElement>
 }
 
-export const ListboxInner = <Value extends string = string>(
-  {
-    name,
-    selected,
-    items,
-    placeholder = 'Select an option',
-    noItemsPlaceholder = 'No items',
-    className,
-    onChange,
-    hasError = false,
-    label,
-    tooltipText,
-    description,
-    required,
-    disabled,
-    isLoading = false,
-    ...props
-  }: ListboxProps<Value>,
-  // needed for RHF to focus the button on validation error
-  ref: ForwardedRef<HTMLButtonElement>
-) => {
+export const Listbox = <Value extends string = string>({
+  name,
+  selected,
+  items,
+  placeholder = 'Select an option',
+  noItemsPlaceholder = 'No items',
+  className,
+  onChange,
+  hasError = false,
+  label,
+  tooltipText,
+  description,
+  required,
+  disabled,
+  isLoading = false,
+  buttonRef,
+  ...props
+}: ListboxProps<Value>) => {
   const selectedItem = selected && items.find((i) => i.value === selected)
   const noItems = !isLoading && items.length === 0
   const isDisabled = disabled || noItems
@@ -104,7 +103,7 @@ export const ListboxInner = <Value extends string = string>(
                   : 'bg-default',
                 isDisabled && hasError && '!border-error-secondary'
               )}
-              ref={ref}
+              ref={buttonRef}
               {...props}
             >
               <div className="w-full overflow-hidden overflow-ellipsis whitespace-pre px-3 text-left">
@@ -163,5 +162,3 @@ export const ListboxInner = <Value extends string = string>(
     </div>
   )
 }
-
-export const Listbox = forwardRef(ListboxInner)
