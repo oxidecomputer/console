@@ -161,6 +161,7 @@ function SideModalBody({ children }: { children?: ReactNode }) {
         'body relative h-full overflow-y-auto pb-12 pt-8',
         !scrollStart && 'border-t border-t-secondary'
       )}
+      data-testid="sidemodal-scroll-container"
     >
       {children}
     </div>
