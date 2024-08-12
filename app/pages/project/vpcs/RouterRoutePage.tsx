@@ -155,11 +155,16 @@ export function RouterRoutePage() {
             ),
             actionType: 'danger',
           }),
+        disabled:
+          routerData.kind === 'system' && routeFormMessage.noDeletingRoutesOnSystemRouter,
       },
     ],
-    [navigate, project, vpc, router, deleteRouterRoute]
+    [navigate, project, vpc, router, deleteRouterRoute, routerData]
   )
   const columns = useColsWithActions(routerRoutesStaticCols, makeRangeActions)
+  // user-provided routes cannot be added to a system router
+  // https://github.com/oxidecomputer/omicron/blob/914f5fd7d51f9b060dcc0382a30b607e25df49b2/nexus/src/app/vpc_router.rs#L201-L205
+  const canCreateNewRoute = routerData.kind === 'custom'
 
   return (
     <>
@@ -194,9 +199,11 @@ export function RouterRoutePage() {
       <TableControls className="mb-3">
         <TableTitle id="routes-label">Routes</TableTitle>
 
-        <CreateLink to={pb.vpcRouterRoutesNew({ project, vpc, router })}>
-          New route
-        </CreateLink>
+        {canCreateNewRoute && (
+          <CreateLink to={pb.vpcRouterRoutesNew({ project, vpc, router })}>
+            New route
+          </CreateLink>
+        )}
       </TableControls>
       <Table columns={columns} emptyState={emptyState} />
       <Outlet />
