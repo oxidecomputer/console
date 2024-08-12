@@ -44,124 +44,124 @@ export interface ListboxProps<Value extends string = string> {
   isLoading?: boolean
 }
 
-export const Listbox = forwardRef(
-  <Value extends string = string>(
-    {
-      name,
-      selected,
-      items,
-      placeholder = 'Select an option',
-      noItemsPlaceholder = 'No items',
-      className,
-      onChange,
-      hasError = false,
-      label,
-      tooltipText,
-      description,
-      required,
-      disabled,
-      isLoading = false,
-      ...props
-    }: ListboxProps<Value>,
-    // needed for RHF to focus the button on validation error
-    ref: ForwardedRef<HTMLButtonElement>
-  ) => {
-    const selectedItem = selected && items.find((i) => i.value === selected)
-    const noItems = !isLoading && items.length === 0
-    const isDisabled = disabled || noItems
-    const zIndex = usePopoverZIndex()
+export const ListboxInner = <Value extends string = string>(
+  {
+    name,
+    selected,
+    items,
+    placeholder = 'Select an option',
+    noItemsPlaceholder = 'No items',
+    className,
+    onChange,
+    hasError = false,
+    label,
+    tooltipText,
+    description,
+    required,
+    disabled,
+    isLoading = false,
+    ...props
+  }: ListboxProps<Value>,
+  // needed for RHF to focus the button on validation error
+  ref: ForwardedRef<HTMLButtonElement>
+) => {
+  const selectedItem = selected && items.find((i) => i.value === selected)
+  const noItems = !isLoading && items.length === 0
+  const isDisabled = disabled || noItems
+  const zIndex = usePopoverZIndex()
 
-    return (
-      <div className={cn('relative', className)}>
-        <HListbox
-          value={selected}
-          // you shouldn't ever be able to select null, but we check here anyway
-          // to make TS happy so the calling code doesn't have to. note `val !==
-          // null` because '' is falsy but potentially a valid value
-          onChange={(val) => val !== null && onChange(val)}
-          disabled={isDisabled || isLoading}
-        >
-          {({ open }) => (
-            <>
-              {label && (
-                <div className="mb-2">
-                  <FieldLabel id={``} as="div" tip={tooltipText} optional={!required}>
-                    <Label>{label}</Label>
-                  </FieldLabel>
-                  {description && <TextInputHint id={``}>{description}</TextInputHint>}
-                </div>
+  return (
+    <div className={cn('relative', className)}>
+      <HListbox
+        value={selected}
+        // you shouldn't ever be able to select null, but we check here anyway
+        // to make TS happy so the calling code doesn't have to. note `val !==
+        // null` because '' is falsy but potentially a valid value
+        onChange={(val) => val !== null && onChange(val)}
+        disabled={isDisabled || isLoading}
+      >
+        {({ open }) => (
+          <>
+            {label && (
+              <div className="mb-2">
+                <FieldLabel id={``} as="div" tip={tooltipText} optional={!required}>
+                  <Label>{label}</Label>
+                </FieldLabel>
+                {description && <TextInputHint id={``}>{description}</TextInputHint>}
+              </div>
+            )}
+            <ListboxButton
+              name={name}
+              className={cn(
+                `flex h-10 w-full items-center justify-between rounded border text-sans-md`,
+                hasError
+                  ? 'focus-error border-error-secondary hover:border-error'
+                  : 'border-default hover:border-hover',
+                open && 'ring-2 ring-accent-secondary',
+                open && hasError && 'ring-error-secondary',
+                isDisabled
+                  ? 'cursor-not-allowed text-disabled bg-disabled !border-default'
+                  : 'bg-default',
+                isDisabled && hasError && '!border-error-secondary'
               )}
-              <ListboxButton
-                name={name}
-                className={cn(
-                  `flex h-10 w-full items-center justify-between rounded border text-sans-md`,
-                  hasError
-                    ? 'focus-error border-error-secondary hover:border-error'
-                    : 'border-default hover:border-hover',
-                  open && 'ring-2 ring-accent-secondary',
-                  open && hasError && 'ring-error-secondary',
-                  isDisabled
-                    ? 'cursor-not-allowed text-disabled bg-disabled !border-default'
-                    : 'bg-default',
-                  isDisabled && hasError && '!border-error-secondary'
+              ref={ref}
+              {...props}
+            >
+              <div className="w-full overflow-hidden overflow-ellipsis whitespace-pre px-3 text-left">
+                {selectedItem ? (
+                  // selectedLabel is one line, which is what we need when label is a ReactNode
+                  selectedItem.selectedLabel || selectedItem.label
+                ) : (
+                  <span className="text-quaternary">
+                    {noItems ? noItemsPlaceholder : placeholder}
+                  </span>
                 )}
-                ref={ref}
-                {...props}
+              </div>
+              {!isDisabled && <SpinnerLoader isLoading={isLoading} />}
+              <div
+                className="flex h-[calc(100%-12px)] items-center border-l px-3 border-secondary"
+                aria-hidden
               >
-                <div className="w-full overflow-hidden overflow-ellipsis whitespace-pre px-3 text-left">
-                  {selectedItem ? (
-                    // selectedLabel is one line, which is what we need when label is a ReactNode
-                    selectedItem.selectedLabel || selectedItem.label
-                  ) : (
-                    <span className="text-quaternary">
-                      {noItems ? noItemsPlaceholder : placeholder}
-                    </span>
-                  )}
-                </div>
-                {!isDisabled && <SpinnerLoader isLoading={isLoading} />}
-                <div
-                  className="flex h-[calc(100%-12px)] items-center border-l px-3 border-secondary"
-                  aria-hidden
+                <SelectArrows6Icon title="Select" className="w-2 text-tertiary" />
+              </div>
+            </ListboxButton>
+            <ListboxOptions
+              anchor={{ gap: 12 }}
+              className={`ox-menu pointer-events-auto ${zIndex} w-[var(--button-width)] overflow-y-auto !outline-none`}
+              // This is to prevent the `useOthersInert` call in ListboxOptions.
+              // Without this, when the listbox options box scrolls under the
+              // top bar (for example) you can click through the top bar to the
+              // options because the topbar (and all other elements) has been
+              // marked "inert", which means it does not catch mouse events.
+              // This would not be necessary if useScrollLock in ListboxOptions
+              // worked, but we suspect it doesn't work because the page as a
+              // whole is not the scroll container.
+              modal={false}
+            >
+              {items.map((item) => (
+                <ListboxOption
+                  key={item.value}
+                  value={item.value}
+                  className="relative border-b border-secondary last:border-0"
                 >
-                  <SelectArrows6Icon title="Select" className="w-2 text-tertiary" />
-                </div>
-              </ListboxButton>
-              <ListboxOptions
-                anchor={{ gap: 12 }}
-                className={`ox-menu pointer-events-auto ${zIndex} w-[var(--button-width)] overflow-y-auto !outline-none`}
-                // This is to prevent the `useOthersInert` call in ListboxOptions.
-                // Without this, when the listbox options box scrolls under the
-                // top bar (for example) you can click through the top bar to the
-                // options because the topbar (and all other elements) has been
-                // marked "inert", which means it does not catch mouse events.
-                // This would not be necessary if useScrollLock in ListboxOptions
-                // worked, but we suspect it doesn't work because the page as a
-                // whole is not the scroll container.
-                modal={false}
-              >
-                {items.map((item) => (
-                  <ListboxOption
-                    key={item.value}
-                    value={item.value}
-                    className="relative border-b border-secondary last:border-0"
-                  >
-                    {({ focus, selected }) => (
-                      <div
-                        className={cn('ox-menu-item', {
-                          'is-selected': selected,
-                          'is-highlighted': focus,
-                        })}
-                      >
-                        {item.label}
-                      </div>
-                    )}
-                  </ListboxOption>
-                ))}
-              </ListboxOptions>
-            </>
-          )}
-        </HListbox>
-      </div>
-    )
-  }
-)
+                  {({ focus, selected }) => (
+                    <div
+                      className={cn('ox-menu-item', {
+                        'is-selected': selected,
+                        'is-highlighted': focus,
+                      })}
+                    >
+                      {item.label}
+                    </div>
+                  )}
+                </ListboxOption>
+              ))}
+            </ListboxOptions>
+          </>
+        )}
+      </HListbox>
+    </div>
+  )
+}
+
+export const Listbox = forwardRef(ListboxInner)
