@@ -8,17 +8,16 @@
 
 import type { RouteDestination, RouteTarget } from '~/api'
 
-const destTypes: Record<RouteDestination['type'], string> = {
+// VPCs can not be specified as a destination in custom routers
+const destTypes: Record<Exclude<RouteDestination['type'], 'vpc'>, string> = {
   ip: 'IP',
   ip_net: 'IP net',
-  vpc: 'VPC',
   subnet: 'subnet',
 }
 
-// Subnets cannot be used as a target in custom routers
-const targetTypes: Record<Exclude<RouteTarget['type'], 'subnet'>, string> = {
+// Subnets and VPCs cannot be used as a target in custom routers
+const targetTypes: Record<Exclude<RouteTarget['type'], 'subnet' | 'vpc'>, string> = {
   ip: 'IP',
-  vpc: 'VPC',
   instance: 'instance',
   internet_gateway: 'Internet gateway',
   drop: 'Drop',
