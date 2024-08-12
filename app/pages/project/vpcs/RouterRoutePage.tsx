@@ -21,7 +21,7 @@ import {
 import { DocsPopover } from '~/components/DocsPopover'
 import { HL } from '~/components/HL'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
-import { routeError } from '~/forms/vpc-router-route/shared'
+import { routeFormMessage } from '~/forms/vpc-router-route/shared'
 import { getVpcRouterSelector, useVpcRouterSelector } from '~/hooks'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
@@ -136,7 +136,8 @@ export function RouterRoutePage() {
           )
           navigate(pb.vpcRouterRouteEdit({ project, vpc, router, route: routerRoute.name }))
         },
-        disabled: routerRoute.kind === 'vpc_subnet' && routeError.vpcSubnetNotModifiable,
+        disabled:
+          routerRoute.kind === 'vpc_subnet' && routeFormMessage.vpcSubnetNotModifiable,
       },
       {
         label: 'Delete',

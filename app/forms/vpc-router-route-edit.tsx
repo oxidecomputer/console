@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useEffect } from 'react'
 import {
   useNavigate,
   type LoaderFunctionArgs,
@@ -24,7 +25,11 @@ import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { fields, routeError } from '~/forms/vpc-router-route/shared'
+import {
+  fields,
+  routeFormMessage,
+  targetValueDescription,
+} from '~/forms/vpc-router-route/shared'
 import { getVpcRouterRouteSelector, useForm, useVpcRouterRouteSelector } from '~/hooks'
 import { addToast } from '~/stores/toast'
 import { Message } from '~/ui/lib/Message'
@@ -66,13 +71,20 @@ export function EditRouterRouteSideModalForm() {
   const form = useForm({ defaultValues })
   const targetType = form.watch('target.type')
 
+  useEffect(() => {
+    // Clear target value when targetType changes to 'drop'
+    targetType === 'drop' && form.setValue('target.value', '')
+    // 'outbound' is only valid option when targetType is 'internet_gateway'
+    targetType === 'internet_gateway' && form.setValue('target.value', 'outbound')
+  }, [targetType, form])
+
   let isDisabled = false
   let disabledReason = ''
 
   // Can simplify this if there aren't other disabling reasons
   if (route?.kind === 'vpc_subnet') {
     isDisabled = true
-    disabledReason = routeError.vpcSubnetNotModifiable
+    disabledReason = routeFormMessage.vpcSubnetNotModifiable
   }
 
   return (
@@ -98,7 +110,13 @@ export function EditRouterRouteSideModalForm() {
       <TextField {...fields.destValue} control={form.control} disabled={isDisabled} />
       <ListboxField {...fields.targetType} control={form.control} disabled={isDisabled} />
       {targetType !== 'drop' && (
-        <TextField {...fields.targetValue} control={form.control} disabled={isDisabled} />
+        <TextField
+          {...fields.targetValue}
+          control={form.control}
+          // when targetType is 'internet_gateway', we set it to `outbound` and make it non-editable
+          disabled={isDisabled || targetType === 'internet_gateway'}
+          description={targetValueDescription(targetType)}
+        />
       )}
     </SideModalForm>
   )

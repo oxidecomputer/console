@@ -15,7 +15,7 @@ import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { fields } from '~/forms/vpc-router-route/shared'
+import { fields, targetValueDescription } from '~/forms/vpc-router-route/shared'
 import { useForm, useVpcRouterSelector } from '~/hooks'
 import { addToast } from '~/stores/toast'
 import { pb } from '~/util/path-builder'
@@ -47,9 +47,11 @@ export function CreateRouterRouteSideModalForm() {
   const form = useForm({ defaultValues })
   const targetType = form.watch('target.type')
 
-  // Clear target value when targetType changes to 'drop'
   useEffect(() => {
+    // Clear target value when targetType changes to 'drop'
     targetType === 'drop' && form.setValue('target.value', '')
+    // 'outbound' is only valid option when targetType is 'internet_gateway'
+    targetType === 'internet_gateway' && form.setValue('target.value', 'outbound')
   }, [targetType, form])
 
   return (
@@ -68,7 +70,13 @@ export function CreateRouterRouteSideModalForm() {
       <TextField {...fields.destValue} control={form.control} />
       <ListboxField {...fields.targetType} control={form.control} />
       {targetType !== 'drop' && (
-        <TextField {...fields.targetValue} control={form.control} />
+        <TextField
+          {...fields.targetValue}
+          control={form.control}
+          // when targetType is 'internet_gateway', we set it to `outbound` and make it non-editable
+          disabled={targetType === 'internet_gateway'}
+          description={targetValueDescription(targetType)}
+        />
       )}
     </SideModalForm>
   )

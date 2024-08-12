@@ -9,6 +9,7 @@
 import type { RouteDestination, RouteTarget } from '~/api'
 
 // VPCs can not be specified as a destination in custom routers
+// https://github.com/oxidecomputer/omicron/blob/4f27433d1bca57eb02073a4ea1cd14557f70b8c7/nexus/src/app/vpc_router.rs#L363
 const destTypes: Record<Exclude<RouteDestination['type'], 'vpc'>, string> = {
   ip: 'IP',
   ip_net: 'IP net',
@@ -16,6 +17,7 @@ const destTypes: Record<Exclude<RouteDestination['type'], 'vpc'>, string> = {
 }
 
 // Subnets and VPCs cannot be used as a target in custom routers
+// https://github.com/oxidecomputer/omicron/blob/4f27433d1bca57eb02073a4ea1cd14557f70b8c7/nexus/src/app/vpc_router.rs#L362-L368
 const targetTypes: Record<Exclude<RouteTarget['type'], 'subnet' | 'vpc'>, string> = {
   ip: 'IP',
   instance: 'instance',
@@ -55,7 +57,14 @@ export const fields = {
   },
 }
 
-export const routeError = {
+export const routeFormMessage = {
   vpcSubnetNotModifiable:
     'Routes of type VPC Subnet within the system router are not modifiable',
+  internetGatewayTargetValue:
+    'For ‘Internet gateway’ targets, the value must be ‘outbound’',
 }
+
+export const targetValueDescription = (targetType: RouteTarget['type']) =>
+  targetType === 'internet_gateway'
+    ? routeFormMessage.internetGatewayTargetValue
+    : undefined
