@@ -81,11 +81,12 @@ test('can create, update, and delete Router', async ({ page }) => {
   await page.getByRole('tab', { name: 'Routers' }).click()
 
   // expect to see the list of routers, including mock-system-router and mock-custom-router
-  const tbody = page.getByRole('table').locator('tbody')
+  const table = page.getByRole('table')
+  const tbody = table.locator('tbody')
   const rows = tbody.locator('tr')
   await expect(rows).toHaveCount(2)
-  await expect(rows.getByText('mock-system-router')).toBeVisible()
-  await expect(rows.getByText('mock-custom-router')).toBeVisible()
+  await expectRowVisible(table, { name: 'mock-system-router' })
+  await expectRowVisible(table, { name: 'mock-custom-router' })
 
   // delete mock-custom-router
   const row = page.getByRole('row', { name: 'mock-custom-router' })
@@ -100,7 +101,7 @@ test('can create, update, and delete Router', async ({ page }) => {
   await page.fill('input[name=name]', 'mock-custom-router-2')
   await page.click('button:has-text("Create router")')
   await expect(rows).toHaveCount(2)
-  await expect(rows.getByText('mock-custom-router-2')).toBeVisible()
+  await expectRowVisible(table, { name: 'mock-custom-router-2' })
 
   // click on mock-system-router to go to the router detail page
   await page.getByText('mock-system-router').click()
@@ -120,9 +121,9 @@ test('can’t create or delete Routes on system routers', async ({ page }) => {
   const table = page.getByRole('table')
   const routeRows = table.locator('tbody >> tr')
   await expect(routeRows).toHaveCount(3)
-  await expect(routeRows.getByText('default').first()).toBeVisible()
-  await expect(routeRows.getByText('default-v4')).toBeVisible()
-  await expect(routeRows.getByText('default-v6')).toBeVisible()
+  await expectRowVisible(table, { Name: 'default' })
+  await expectRowVisible(table, { Name: 'default-v4' })
+  await expectRowVisible(table, { Name: 'default-v6' })
   await routeRows.first().getByRole('button', { name: 'Row actions' }).click()
   // can't delete default routes
   await expect(page.getByRole('menuitem', { name: 'Delete' })).toBeDisabled()
@@ -133,7 +134,7 @@ test('can create, update, and delete Route', async ({ page }) => {
   await page.goto('/projects/mock-project/vpcs/mock-vpc/routers/mock-custom-router')
   const table = page.getByRole('table')
   const routeRows = table.locator('tbody >> tr')
-  await expect(routeRows.getByText('drop-local')).toBeVisible()
+  await expectRowVisible(table, { Name: 'drop-local' })
 
   // create a new route
   await page.click('text=New route')
@@ -151,10 +152,10 @@ test('can create, update, and delete Route', async ({ page }) => {
   await page.getByRole('button', { name: 'Create route' }).click()
   await expect(routeRows).toHaveCount(2)
   const newRow = page.getByRole('row', { name: 'new-route' })
-  await expect(newRow).toBeVisible()
+  await expectRowVisible(table, { Name: 'new-route' })
 
   // see the destination value of 0.0.0.0
-  await expect(newRow.getByText('0.0.0.0')).toBeVisible()
+  await expectRowVisible(table, { Destination: 'ip0.0.0.0' })
 
   // update the route by clicking the edit button
   await newRow.getByRole('button', { name: 'Row actions' }).click()
@@ -162,10 +163,10 @@ test('can create, update, and delete Route', async ({ page }) => {
   await page.getByRole('textbox', { name: 'Destination value' }).fill('0.0.0.1')
   await page.getByRole('button', { name: 'Update route' }).click()
   await expect(routeRows).toHaveCount(2)
-  await expect(routeRows.getByText('new-route')).toBeVisible()
+  await expectRowVisible(table, { Name: 'new-route' })
 
   // see the destination value of 0.0.0.1
-  await expect(routeRows.getByText('0.0.0.1')).toBeVisible()
+  await expectRowVisible(table, { Destination: 'ip0.0.0.1' })
 
   // delete the route
   await newRow.getByRole('button', { name: 'Row actions' }).click()
