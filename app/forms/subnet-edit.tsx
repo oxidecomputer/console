@@ -50,7 +50,7 @@ export function EditSubnetForm() {
     },
   })
 
-  const defaultValues = R.pick(subnet, ['name', 'description']) satisfies VpcSubnetUpdate
+  const defaultValues: VpcSubnetUpdate = R.pick(subnet, ['name', 'description'])
 
   const form = useForm({ defaultValues })
 

@@ -16,7 +16,9 @@ import {
   apiQueryClient,
   useApiMutation,
   usePrefetchedApiQuery,
+  type RouteDestination,
   type RouterRoute,
+  type RouteTarget,
 } from '~/api'
 import { DocsPopover } from '~/components/DocsPopover'
 import { HL } from '~/components/HL'
@@ -53,16 +55,28 @@ RouterRoutePage.loader = async function ({ params }: LoaderFunctionArgs) {
   return null
 }
 
-const RouterRouteTypeValueBadge = ({ type, value }: { type: string; value?: string }) => {
-  const typeString = type
-    .replace('_', ' ')
-    .replace('ip net', 'ip network')
-    .replace('internet gateway', 'gateway')
-    .replace('subnet', 'VPC subnet')
+const routeTypes = {
+  drop: 'Drop',
+  ip: 'IP',
+  ip_net: 'IP network',
+  instance: 'Instance',
+  internet_gateway: 'Gateway',
+  subnet: 'VPC subnet',
+  vpc: 'VPC',
+}
+
+// All will have a type and a value except `Drop`, which only has a type
+const RouterRouteTypeValueBadge = ({
+  type,
+  value,
+}: {
+  type: (RouteDestination | RouteTarget)['type']
+  value?: string
+}) => {
   return value ? (
-    <TypeValueCell key={`${type}|value`} type={typeString} value={value} />
+    <TypeValueCell key={`${type}|${value}`} type={routeTypes[type]} value={value} />
   ) : (
-    <Badge>{type}</Badge>
+    <Badge>{routeTypes[type]}</Badge>
   )
 }
 
@@ -177,7 +191,7 @@ export function RouterRoutePage() {
             summary="Routers summary copy TK"
             links={[docLinks.routers]}
           />
-          <MoreActionsMenu label="Instance actions" actions={actions} />
+          <MoreActionsMenu label="Router actions" actions={actions} />
         </div>
       </PageHeader>
       <PropertiesTable.Group className="-mt-8 mb-16">

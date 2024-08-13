@@ -149,20 +149,22 @@ test('can create, update, and delete Route', async ({ page }) => {
   await page.getByRole('textbox', { name: 'Target value' }).fill('1.1.1.1')
   await page.getByRole('button', { name: 'Create route' }).click()
   await expect(routeRows).toHaveCount(2)
-  await expectRowVisible(table, { Name: 'new-route' })
-
-  // see the destination value of 0.0.0.0
-  await expectRowVisible(table, { Destination: 'ip0.0.0.0' })
+  await expectRowVisible(table, {
+    Name: 'new-route',
+    Destination: 'IP0.0.0.0',
+    Target: 'IP1.1.1.1',
+  })
 
   // update the route by clicking the edit button
   await clickRowAction(page, 'new-route', 'Edit')
   await page.getByRole('textbox', { name: 'Destination value' }).fill('0.0.0.1')
   await page.getByRole('button', { name: 'Update route' }).click()
   await expect(routeRows).toHaveCount(2)
-  await expectRowVisible(table, { Name: 'new-route' })
-
-  // see the destination value of 0.0.0.1
-  await expectRowVisible(table, { Destination: 'ip0.0.0.1' })
+  await expectRowVisible(table, {
+    Name: 'new-route',
+    Destination: 'IP0.0.0.1',
+    Target: 'IP1.1.1.1',
+  })
 
   // delete the route
   await clickRowAction(page, 'new-route', 'Delete')

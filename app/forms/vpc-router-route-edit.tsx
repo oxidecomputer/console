@@ -7,6 +7,7 @@
  */
 import { useEffect } from 'react'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
+import * as R from 'remeda'
 
 import {
   apiQueryClient,
@@ -50,7 +51,12 @@ export function EditRouterRouteSideModalForm() {
     query: { project, vpc, router: routerName },
   })
 
-  const defaultValues: RouterRouteUpdate = { ...route }
+  const defaultValues: RouterRouteUpdate = R.pick(route, [
+    'name',
+    'description',
+    'target',
+    'destination',
+  ])
 
   const onDismiss = () => {
     navigate(pb.vpcRouter({ project, vpc, router: routerName }))

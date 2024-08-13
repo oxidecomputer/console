@@ -12,15 +12,15 @@ import type { RouteDestination, RouteTarget } from '~/api'
 // https://github.com/oxidecomputer/omicron/blob/4f27433d1bca57eb02073a4ea1cd14557f70b8c7/nexus/src/app/vpc_router.rs#L363
 const destTypes: Record<Exclude<RouteDestination['type'], 'vpc'>, string> = {
   ip: 'IP',
-  ip_net: 'IP net',
-  subnet: 'subnet',
+  ip_net: 'IP network',
+  subnet: 'Subnet',
 }
 
 // Subnets and VPCs cannot be used as a target in custom routers
 // https://github.com/oxidecomputer/omicron/blob/4f27433d1bca57eb02073a4ea1cd14557f70b8c7/nexus/src/app/vpc_router.rs#L362-L368
 const targetTypes: Record<Exclude<RouteTarget['type'], 'subnet' | 'vpc'>, string> = {
   ip: 'IP',
-  instance: 'instance',
+  instance: 'Instance',
   internet_gateway: 'Internet gateway',
   drop: 'Drop',
 }
