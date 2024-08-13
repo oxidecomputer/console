@@ -199,7 +199,9 @@ export function RouterPage() {
           <PropertiesTable.Row label="Description">
             {routerData.description || <EmptyCell />}
           </PropertiesTable.Row>
-          <PropertiesTable.Row label="Kind">{routerData.kind}</PropertiesTable.Row>
+          <PropertiesTable.Row label="Kind">
+            <Badge color="neutral">{routerData.kind}</Badge>
+          </PropertiesTable.Row>
         </PropertiesTable>
         <PropertiesTable>
           <PropertiesTable.Row label="Created">

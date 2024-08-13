@@ -101,7 +101,7 @@ export const routerRoutes: Json<Array<RouterRoute>> = [
     },
     destination: {
       type: 'ip_net',
-      value: '0.0.0.0/0',
+      value: '192.168.1.0/24',
     },
   },
   {
@@ -116,7 +116,7 @@ export const routerRoutes: Json<Array<RouterRoute>> = [
     },
     destination: {
       type: 'ip_net',
-      value: '::/0',
+      value: '2001:db8:abcd:12::/64',
     },
   },
   {
