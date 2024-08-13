@@ -22,6 +22,7 @@ import {
 import { IpGlobal16Icon, IpGlobal24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
+import { ListboxField } from '~/components/form/fields/ListboxField'
 import { HL } from '~/components/HL'
 import { getProjectSelector, useProjectSelector } from '~/hooks'
 import { confirmAction } from '~/stores/confirm-action'
@@ -34,7 +35,6 @@ import { Columns } from '~/table/columns/common'
 import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
-import { Listbox } from '~/ui/lib/Listbox'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
@@ -268,6 +268,7 @@ const AttachFloatingIpModal = ({
     },
   })
   const form = useForm({ defaultValues: { instanceId: '' } })
+  const instanceId = form.watch('instanceId')
 
   return (
     <Modal isOpen title="Attach floating IP" onDismiss={onDismiss}>
@@ -280,30 +281,27 @@ const AttachFloatingIpModal = ({
                 The selected instance will be reachable at <HL>{address}</HL>
               </>
             }
-          ></Message>
+          />
           <form>
-            <Listbox
+            <ListboxField
+              control={form.control}
               name="instanceId"
               items={instances.map((i) => ({ value: i.id, label: i.name }))}
               label="Instance"
-              onChange={(e) => {
-                form.setValue('instanceId', e)
-              }}
               required
               placeholder="Select an instance"
-              selected={form.watch('instanceId')}
             />
           </form>
         </Modal.Section>
       </Modal.Body>
       <Modal.Footer
         actionText="Attach"
-        disabled={!form.getValues('instanceId')}
+        disabled={!instanceId}
         onAction={() =>
           floatingIpAttach.mutate({
             path: { floatingIp },
             query: { project },
-            body: { kind: 'instance', parent: form.getValues('instanceId') },
+            body: { kind: 'instance', parent: instanceId },
           })
         }
         onDismiss={onDismiss}
