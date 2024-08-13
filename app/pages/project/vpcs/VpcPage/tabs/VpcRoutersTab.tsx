@@ -55,6 +55,7 @@ export function VpcRoutersTab() {
         cell: makeLinkCell((router) => pb.vpcRouter({ ...vpcSelector, router })),
       }),
       colHelper.accessor('description', Columns.description),
+      colHelper.accessor('timeCreated', Columns.timeCreated),
     ],
     [vpcSelector]
   )

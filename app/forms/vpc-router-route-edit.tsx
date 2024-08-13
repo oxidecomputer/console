@@ -6,11 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { useEffect } from 'react'
-import {
-  useNavigate,
-  type LoaderFunctionArgs,
-  type NavigateFunction,
-} from 'react-router-dom'
+import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
   apiQueryClient,
@@ -56,7 +52,7 @@ export function EditRouterRouteSideModalForm() {
 
   const defaultValues: RouterRouteUpdate = { ...route }
 
-  const onDismiss = (navigate: NavigateFunction) => {
+  const onDismiss = () => {
     navigate(pb.vpcRouter({ project, vpc, router: routerName }))
   }
 
@@ -64,7 +60,7 @@ export function EditRouterRouteSideModalForm() {
     onSuccess() {
       queryClient.invalidateQueries('vpcRouterRouteList')
       addToast({ content: 'Your route has been updated' })
-      onDismiss(navigate)
+      onDismiss()
     },
   })
 
@@ -92,7 +88,7 @@ export function EditRouterRouteSideModalForm() {
       form={form}
       formType="edit"
       resourceName="route"
-      onDismiss={() => onDismiss(navigate)}
+      onDismiss={onDismiss}
       onSubmit={(body) =>
         updateRouterRoute.mutate({
           query: { project, vpc, router: routerName },
