@@ -7,7 +7,7 @@
  */
 import { expect, test } from '@playwright/test'
 
-import { expectRowVisible } from './utils'
+import { clickRowAction, expectRowVisible } from './utils'
 
 test('can nav to VpcPage from /', async ({ page }) => {
   await page.goto('/')
@@ -89,9 +89,7 @@ test('can create, update, and delete Router', async ({ page }) => {
   await expectRowVisible(table, { name: 'mock-custom-router' })
 
   // delete mock-custom-router
-  const row = page.getByRole('row', { name: 'mock-custom-router' })
-  await row.getByRole('button', { name: 'Row actions' }).click()
-  await page.getByRole('menuitem', { name: 'Delete' }).click()
+  await clickRowAction(page, 'mock-custom-router', 'Delete')
   await page.getByRole('button', { name: 'Confirm' }).click()
   await expect(rows).toHaveCount(1)
   await expect(rows.getByText('mock-custom-router')).toBeHidden()
@@ -151,15 +149,13 @@ test('can create, update, and delete Route', async ({ page }) => {
   await page.getByRole('textbox', { name: 'Target value' }).fill('1.1.1.1')
   await page.getByRole('button', { name: 'Create route' }).click()
   await expect(routeRows).toHaveCount(2)
-  const newRow = page.getByRole('row', { name: 'new-route' })
   await expectRowVisible(table, { Name: 'new-route' })
 
   // see the destination value of 0.0.0.0
   await expectRowVisible(table, { Destination: 'ip0.0.0.0' })
 
   // update the route by clicking the edit button
-  await newRow.getByRole('button', { name: 'Row actions' }).click()
-  await page.getByRole('menuitem', { name: 'Edit' }).click()
+  await clickRowAction(page, 'new-route', 'Edit')
   await page.getByRole('textbox', { name: 'Destination value' }).fill('0.0.0.1')
   await page.getByRole('button', { name: 'Update route' }).click()
   await expect(routeRows).toHaveCount(2)
@@ -169,9 +165,8 @@ test('can create, update, and delete Route', async ({ page }) => {
   await expectRowVisible(table, { Destination: 'ip0.0.0.1' })
 
   // delete the route
-  await newRow.getByRole('button', { name: 'Row actions' }).click()
-  await page.getByRole('menuitem', { name: 'Delete' }).click()
+  await clickRowAction(page, 'new-route', 'Delete')
   await page.getByRole('button', { name: 'Confirm' }).click()
   await expect(routeRows).toHaveCount(1)
-  await expect(newRow).toBeHidden()
+  await expect(page.getByRole('row', { name: 'new-route' })).toBeHidden()
 })
