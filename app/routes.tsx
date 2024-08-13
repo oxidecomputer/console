@@ -66,7 +66,7 @@ import { NetworkingTab } from './pages/project/instances/instance/tabs/Networkin
 import { StorageTab } from './pages/project/instances/instance/tabs/StorageTab'
 import { InstancesPage } from './pages/project/instances/InstancesPage'
 import { SnapshotsPage } from './pages/project/snapshots/SnapshotsPage'
-import { RouterRoutePage } from './pages/project/vpcs/RouterRoutePage'
+import { RouterPage } from './pages/project/vpcs/RouterPage'
 import { VpcFirewallRulesTab } from './pages/project/vpcs/VpcPage/tabs/VpcFirewallRulesTab'
 import { VpcRoutersTab } from './pages/project/vpcs/VpcPage/tabs/VpcRoutersTab'
 import { VpcSubnetsTab } from './pages/project/vpcs/VpcPage/tabs/VpcSubnetsTab'
@@ -396,35 +396,6 @@ export const routes = createRoutesFromElements(
                   handle={{ crumb: 'Edit Subnet' }}
                 />
               </Route>
-              {/*               
-        <Route path="networking">
-          <Route index element={<Navigate to="ip-pools" replace />} />
-          <Route
-            element={<IpPoolsPage />}
-            loader={IpPoolsPage.loader}
-            handle={{ crumb: 'IP pools' }}
-          >
-            <Route path="ip-pools" element={null} />
-            <Route path="ip-pools-new" element={<CreateIpPoolSideModalForm />} />
-            <Route
-              path="ip-pools/:pool/edit"
-              element={<EditIpPoolSideModalForm />}
-              loader={EditIpPoolSideModalForm.loader}
-              handle={{ crumb: 'Edit IP pool' }}
-            />
-          </Route>
-        </Route>
-        <Route path="networking/ip-pools" handle={{ crumb: 'IP pools' }}>
-          <Route
-            path=":pool"
-            element={<IpPoolPage />}
-            loader={IpPoolPage.loader}
-            handle={{ crumb: poolCrumb }}
-          >
-            <Route path="ranges-add" element={<IpPoolAddRangeSideModalForm />} />
-          </Route>
-        </Route> */}
-
               <Route element={<VpcRoutersTab />} loader={VpcRoutersTab.loader}>
                 <Route path="routers" handle={{ crumb: 'Routers' }} element={null}>
                   <Route
@@ -444,8 +415,8 @@ export const routes = createRoutesFromElements(
           </Route>
         </Route>
         <Route
-          element={<RouterRoutePage />}
-          loader={RouterRoutePage.loader}
+          element={<RouterPage />}
+          loader={RouterPage.loader}
           handle={{ crumb: 'Routes' }}
           path="vpcs/:vpc/routers/:router"
         >
