@@ -104,6 +104,7 @@ const targetDefaultValues: TargetFormValues = {
 type CommonFieldsProps = {
   error: ApiError | null
   control: Control<FirewallRuleValues>
+  nameTaken: (name: string) => boolean
 }
 
 function getFilterValueProps(hostType: VpcFirewallRuleHostFilter['type']) {
@@ -155,7 +156,7 @@ const DocsLinkMessage = () => (
   />
 )
 
-export const CommonFields = ({ error, control }: CommonFieldsProps) => {
+export const CommonFields = ({ error, control, nameTaken }: CommonFieldsProps) => {
   const portRangeForm = useForm({ defaultValues: portRangeDefaultValues })
   const ports = useController({ name: 'ports', control }).field
   const submitPortRange = portRangeForm.handleSubmit(({ portRange }) => {
@@ -199,7 +200,16 @@ export const CommonFields = ({ error, control }: CommonFieldsProps) => {
       <CheckboxField name="enabled" control={control}>
         Enabled
       </CheckboxField>
-      <NameField name="name" control={control} />
+      <NameField
+        name="name"
+        control={control}
+        validate={(name) => {
+          if (nameTaken(name)) {
+            // TODO: might be worth mentioning that the names are unique per VPC as opposed to globally
+            return 'Name taken. To update an existing rule, edit it directly.'
+          }
+        }}
+      />
       <DescriptionField name="description" control={control} />
 
       <RadioField
@@ -589,15 +599,10 @@ export function CreateFirewallRuleForm() {
       title="Add firewall rule"
       onDismiss={onDismiss}
       onSubmit={(values) => {
-        // TODO: this silently overwrites existing rules with the current name.
-        // we should probably at least warn and confirm, if not reject as invalid
-        const otherRules = existingRules
-          .filter((r) => r.name !== values.name)
-          .map(firewallRuleGetToPut)
         updateRules.mutate({
           query: vpcSelector,
           body: {
-            rules: [...otherRules, valuesToRuleUpdate(values)],
+            rules: [...existingRules.map(firewallRuleGetToPut), valuesToRuleUpdate(values)],
           },
         })
       }}
@@ -605,7 +610,18 @@ export function CreateFirewallRuleForm() {
       submitError={updateRules.error}
       submitLabel="Add rule"
     >
-      <CommonFields error={updateRules.error} control={form.control} />
+      <CommonFields
+        error={updateRules.error}
+        control={form.control}
+        // error if name is already in use
+        nameTaken={(name) => !!data.rules.find((r) => r.name === name)}
+
+        // TODO: there should also be a form-level error so if the name is off
+        // screen, it doesn't look like the submit button isn't working. Maybe
+        // instead of setting a root error, it would be more robust to show a
+        // top level error if any errors are found in the form. We might want to
+        // expand the submitError prop on SideModalForm for this
+      />
     </SideModalForm>
   )
 }
