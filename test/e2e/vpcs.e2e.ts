@@ -108,17 +108,31 @@ test('can create, update, and delete Router', async ({ page }) => {
     '/projects/mock-project/vpcs/mock-vpc/routers/mock-system-router'
   )
 })
-test('can create, update, and delete Route', async ({ page }) => {
+
+test('can’t create or delete Routes on system routers', async ({ page }) => {
   // load the router
   await page.goto('/projects/mock-project/vpcs/mock-vpc/routers/mock-system-router')
+
+  // verify that the "new route" link isn't present, since users can't add routes to system routers
+  await expect(page.getByRole('link', { name: 'New route' })).toBeHidden()
 
   // expect to see table of routes
   const table = page.getByRole('table')
   const routeRows = table.locator('tbody >> tr')
-  await expect(routeRows).toHaveCount(4)
-  await expect(routeRows.getByText('default1')).toBeVisible()
+  await expect(routeRows).toHaveCount(3)
+  await expect(routeRows.getByText('default').first()).toBeVisible()
   await expect(routeRows.getByText('default-v4')).toBeVisible()
   await expect(routeRows.getByText('default-v6')).toBeVisible()
+  await routeRows.first().getByRole('button', { name: 'Row actions' }).click()
+  // can't delete default routes
+  await expect(page.getByRole('menuitem', { name: 'Delete' })).toBeDisabled()
+})
+
+test('can create, update, and delete Route', async ({ page }) => {
+  // go to the custom-router-2 page
+  await page.goto('/projects/mock-project/vpcs/mock-vpc/routers/mock-custom-router')
+  const table = page.getByRole('table')
+  const routeRows = table.locator('tbody >> tr')
   await expect(routeRows.getByText('drop-local')).toBeVisible()
 
   // create a new route
@@ -135,7 +149,7 @@ test('can create, update, and delete Route', async ({ page }) => {
   await page.getByRole('option', { name: 'IP' }).click()
   await page.getByRole('textbox', { name: 'Target value' }).fill('1.1.1.1')
   await page.getByRole('button', { name: 'Create route' }).click()
-  await expect(routeRows).toHaveCount(5)
+  await expect(routeRows).toHaveCount(2)
   const newRow = page.getByRole('row', { name: 'new-route' })
   await expect(newRow).toBeVisible()
 
@@ -147,7 +161,7 @@ test('can create, update, and delete Route', async ({ page }) => {
   await page.getByRole('menuitem', { name: 'Edit' }).click()
   await page.getByRole('textbox', { name: 'Destination value' }).fill('0.0.0.1')
   await page.getByRole('button', { name: 'Update route' }).click()
-  await expect(routeRows).toHaveCount(5)
+  await expect(routeRows).toHaveCount(2)
   await expect(routeRows.getByText('new-route')).toBeVisible()
 
   // see the destination value of 0.0.0.1
@@ -157,6 +171,6 @@ test('can create, update, and delete Route', async ({ page }) => {
   await newRow.getByRole('button', { name: 'Row actions' }).click()
   await page.getByRole('menuitem', { name: 'Delete' }).click()
   await page.getByRole('button', { name: 'Confirm' }).click()
-  await expect(routeRows).toHaveCount(4)
+  await expect(routeRows).toHaveCount(1)
   await expect(newRow).toBeHidden()
 })

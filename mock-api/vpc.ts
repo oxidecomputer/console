@@ -45,7 +45,7 @@ export const vpc2: Json<Vpc> = {
 
 export const vpcs: Json<Vpc[]> = [vpc, vpc2]
 
-export const vpcRouter: Json<VpcRouter> = {
+export const defaultRouter: Json<VpcRouter> = {
   id: 'fc59fb4d-baad-44a8-b152-9a3c27ae8aa1',
   name: 'mock-system-router',
   description: 'a fake router',
@@ -55,7 +55,7 @@ export const vpcRouter: Json<VpcRouter> = {
   kind: 'system',
 }
 
-export const vpcRouter2: Json<VpcRouter> = {
+export const customRouter: Json<VpcRouter> = {
   id: '7ffc1613-8492-42f1-894b-9ef5c9ba2507',
   name: 'mock-custom-router',
   description: 'a fake custom router',
@@ -65,19 +65,19 @@ export const vpcRouter2: Json<VpcRouter> = {
   kind: 'custom',
 }
 
-export const vpcRouters: Json<VpcRouter[]> = [vpcRouter, vpcRouter2]
+export const vpcRouters: Json<VpcRouter[]> = [defaultRouter, customRouter]
 
 const routeBase = {
   time_created: '2024-07-11T17:46:21.161086Z',
   time_modified: '2024-07-11T17:46:21.161086Z',
-  vpc_router_id: vpcRouter.id,
+  vpc_router_id: defaultRouter.id,
 }
 
 export const routerRoutes: Json<Array<RouterRoute>> = [
   {
     ...routeBase,
     id: '51e50342-790f-4efb-8518-10bf01279514',
-    name: 'default1',
+    name: 'default',
     description: "VPC Subnet route for 'default'",
     kind: 'vpc_subnet',
     target: {
@@ -121,6 +121,7 @@ export const routerRoutes: Json<Array<RouterRoute>> = [
   },
   {
     ...routeBase,
+    vpc_router_id: customRouter.id,
     id: '51e50342-790f-4efb-8518-10bf01279515',
     name: 'drop-local',
     description: 'Drop all local traffic',
