@@ -31,7 +31,7 @@ test('Shows something went wrong page on other errors', async ({ page }) => {
 
   // but we do see it in the browser console
   const error =
-    'Invariant failed: Expected query to be prefetched. Key: ["projectView",{"path":{"project":"error-503"}}]'
+    'Expected query to be prefetched.\nKey: ["projectView",{"path":{"project":"error-503"}}]'
   expect(errors.some((e) => e.message.includes(error))).toBeTruthy()
 
   // test clicking sign out
