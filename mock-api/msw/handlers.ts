@@ -1079,7 +1079,7 @@ export const handlers = makeHandlers({
       // Error if changing the router name and that router name already exists
       if (body.name !== router.name) {
         errIfExists(db.vpcRouters, {
-          id: router.id,
+          vpc_id: router.vpc_id,
           name: body.name,
         })
       }
