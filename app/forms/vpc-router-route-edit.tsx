@@ -5,7 +5,6 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useEffect } from 'react'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 import * as R from 'remeda'
 
@@ -73,11 +72,6 @@ export function EditRouterRouteSideModalForm() {
   const form = useForm({ defaultValues })
   const targetType = form.watch('target.type')
 
-  useEffect(() => {
-    // 'outbound' is only valid option when targetType is 'internet_gateway'
-    targetType === 'internet_gateway' && form.setValue('target.value', 'outbound')
-  }, [targetType, form])
-
   let isDisabled = false
   let disabledReason = ''
 
@@ -85,6 +79,13 @@ export function EditRouterRouteSideModalForm() {
   if (route?.kind === 'vpc_subnet') {
     isDisabled = true
     disabledReason = routeFormMessage.vpcSubnetNotModifiable
+  }
+
+  const onChangeTargetType = (value: string | null | undefined) => {
+    // 'outbound' is only valid option when targetType is 'internet_gateway'
+    if (value === 'internet_gateway') {
+      form.setValue('target.value', 'outbound')
+    }
   }
 
   return (
@@ -114,7 +115,12 @@ export function EditRouterRouteSideModalForm() {
       <DescriptionField name="description" control={form.control} disabled={isDisabled} />
       <ListboxField {...fields.destType} control={form.control} disabled={isDisabled} />
       <TextField {...fields.destValue} control={form.control} disabled={isDisabled} />
-      <ListboxField {...fields.targetType} control={form.control} disabled={isDisabled} />
+      <ListboxField
+        {...fields.targetType}
+        control={form.control}
+        disabled={isDisabled}
+        onChange={onChangeTargetType}
+      />
       {targetType !== 'drop' && (
         <TextField
           {...fields.targetValue}

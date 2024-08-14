@@ -5,7 +5,6 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { useApiMutation, useApiQueryClient, type RouterRouteCreate } from '@oxide/api'
@@ -47,10 +46,12 @@ export function CreateRouterRouteSideModalForm() {
   const form = useForm({ defaultValues })
   const targetType = form.watch('target.type')
 
-  useEffect(() => {
+  const onChangeTargetType = (value: string | null | undefined) => {
     // 'outbound' is only valid option when targetType is 'internet_gateway'
-    targetType === 'internet_gateway' && form.setValue('target.value', 'outbound')
-  }, [targetType, form])
+    if (value === 'internet_gateway') {
+      form.setValue('target.value', 'outbound')
+    }
+  }
 
   return (
     <SideModalForm
@@ -77,7 +78,11 @@ export function CreateRouterRouteSideModalForm() {
       <DescriptionField name="description" control={form.control} />
       <ListboxField {...fields.destType} control={form.control} />
       <TextField {...fields.destValue} control={form.control} />
-      <ListboxField {...fields.targetType} control={form.control} />
+      <ListboxField
+        {...fields.targetType}
+        control={form.control}
+        onChange={onChangeTargetType}
+      />
       {targetType !== 'drop' && (
         <TextField
           {...fields.targetValue}
