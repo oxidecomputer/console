@@ -399,3 +399,13 @@ function ipInRange(ip: string, { first, last }: IpRange): boolean {
 
 export const ipInAnyRange = (ip: string, ranges: IpRange[]) =>
   ranges.some((range) => ipInRange(ip, range))
+
+export function updateDesc(
+  resource: { description: string },
+  update: { description?: string }
+) {
+  // Can't be `if (update.description)` because you could never set it to ''
+  if (update.description !== undefined) {
+    resource.description = update.description
+  }
+}
