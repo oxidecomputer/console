@@ -85,7 +85,7 @@ export function SSHKeysPage() {
           heading="SSH key management"
           icon={<Key16Icon />}
           summary="SSH Keys are used for authentication when connecting to your instances."
-          links={[docLinks.sshKeys]}
+          links={[docLinks.sshKeyCreate, docLinks.sshKeyManage]}
         />
       </PageHeader>
       <TableActions>
