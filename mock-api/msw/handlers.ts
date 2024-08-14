@@ -1075,15 +1075,17 @@ export const handlers = makeHandlers({
   vpcRouterView: ({ path, query }) => lookup.vpcRouter({ ...path, ...query }),
   vpcRouterUpdate({ body, path, query }) {
     const router = lookup.vpcRouter({ ...path, ...query })
-
     if (body.name) {
+      // Error if changing the router name and that router name already exists
+      if (body.name !== router.name) {
+        errIfExists(db.vpcRouters, {
+          id: router.id,
+          name: body.name,
+        })
+      }
       router.name = body.name
     }
-
-    if (typeof body.description === 'string') {
-      router.description = body.description
-    }
-
+    updateDesc(router, body)
     return router
   },
   vpcRouterDelete({ path, query }) {
@@ -1099,6 +1101,7 @@ export const handlers = makeHandlers({
   },
   vpcRouterRouteCreate({ body, query }) {
     const vpcRouter = lookup.vpcRouter(query)
+    errIfExists(db.vpcRouterRoutes, { vpc_router_id: vpcRouter.id, name: body.name })
     const newRoute: Json<Api.RouterRoute> = {
       id: uuid(),
       vpc_router_id: vpcRouter.id,
@@ -1113,11 +1116,16 @@ export const handlers = makeHandlers({
   vpcRouterRouteUpdate({ body, path, query }) {
     const route = lookup.vpcRouterRoute({ ...path, ...query })
     if (body.name) {
+      // Error if changing the route name and that route name already exists
+      if (body.name !== route.name) {
+        errIfExists(db.vpcRouterRoutes, {
+          vpc_router_id: route.vpc_router_id,
+          name: body.name,
+        })
+      }
       route.name = body.name
     }
-    if (body.description) {
-      route.description = body.description
-    }
+    updateDesc(route, body)
     if (body.destination) {
       route.destination = body.destination
     }

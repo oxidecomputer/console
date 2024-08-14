@@ -117,6 +117,9 @@ export function EditRouterRouteSideModalForm() {
           if (value === 'internet_gateway') {
             form.setValue('target.value', 'outbound')
           }
+          if (value === 'drop') {
+            form.setValue('target.value', '')
+          }
         }}
       />
       {targetType !== 'drop' && (
