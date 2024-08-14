@@ -1112,6 +1112,12 @@ export const handlers = makeHandlers({
   vpcRouterRouteView: ({ path, query }) => lookup.vpcRouterRoute({ ...path, ...query }),
   vpcRouterRouteUpdate({ body, path, query }) {
     const route = lookup.vpcRouterRoute({ ...path, ...query })
+    if (body.name) {
+      route.name = body.name
+    }
+    if (body.description) {
+      route.description = body.description
+    }
     if (body.destination) {
       route.destination = body.destination
     }
