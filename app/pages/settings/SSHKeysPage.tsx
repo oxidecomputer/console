@@ -85,7 +85,7 @@ export function SSHKeysPage() {
           heading="SSH keys"
           icon={<Key16Icon />}
           summary="SSH keys are used to securely access VM instances."
-          links={[docLinks.sshKeyCreate, docLinks.sshKeyManage]}
+          links={[docLinks.sshKeys]}
         />
       </PageHeader>
       <TableActions>

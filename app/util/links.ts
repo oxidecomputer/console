@@ -28,8 +28,6 @@ export const links = {
   snapshotsDocs:
     'https://docs.oxide.computer/guides/managing-disks-and-snapshots#_snapshots',
   sshKeysDocs: 'https://docs.oxide.computer/guides/user-settings#_ssh_keys',
-  sshKeyCreateDocs: 'https://docs.oxide.computer/guides/user-settings#create-ssh-key',
-  sshKeyManageDocs: 'https://docs.oxide.computer/guides/user-settings#manage-ssh-keys',
   storageDocs:
     'https://docs.oxide.computer/guides/architecture/os-hypervisor-storage#_storage',
   systemIpPoolsDocs: 'https://docs.oxide.computer/guides/operator/ip-pool-management',
@@ -92,14 +90,6 @@ export const docLinks = {
   sshKeys: {
     href: links.sshKeysDocs,
     linkText: 'SSH Keys',
-  },
-  sshKeyCreate: {
-    href: links.sshKeyCreateDocs,
-    linkText: 'Create an SSH key',
-  },
-  sshKeyManage: {
-    href: links.sshKeyManageDocs,
-    linkText: 'Manage SSH keys',
   },
   storage: {
     href: links.storageDocs,
