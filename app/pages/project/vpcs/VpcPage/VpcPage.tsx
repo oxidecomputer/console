@@ -12,7 +12,7 @@ import { Networking24Icon } from '@oxide/design-system/icons/react'
 
 import { RouteTabs, Tab } from '~/components/RouteTabs'
 import { getVpcSelector, useVpcSelector } from '~/hooks'
-import { EmptyCell } from '~/table/cells/EmptyCell'
+import { DescriptionCell } from '~/table/cells/DescriptionCell'
 import { DateTime } from '~/ui/lib/DateTime'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
@@ -42,7 +42,7 @@ export function VpcPage() {
       <PropertiesTable.Group className="mb-16">
         <PropertiesTable>
           <PropertiesTable.Row label="Description">
-            {vpc.description || <EmptyCell />}
+            <DescriptionCell text={vpc.description} />
           </PropertiesTable.Row>
           <PropertiesTable.Row label="DNS Name">{vpc.dnsName}</PropertiesTable.Row>
         </PropertiesTable>

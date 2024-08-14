@@ -27,7 +27,7 @@ import { routeFormMessage } from '~/forms/vpc-router-route/shared'
 import { getVpcRouterSelector, useVpcRouterSelector } from '~/hooks'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
-import { EmptyCell } from '~/table/cells/EmptyCell'
+import { DescriptionCell } from '~/table/cells/DescriptionCell'
 import { TypeValueCell } from '~/table/cells/TypeValueCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
@@ -197,7 +197,7 @@ export function RouterPage() {
       <PropertiesTable.Group className="-mt-8 mb-16">
         <PropertiesTable>
           <PropertiesTable.Row label="Description">
-            {routerData.description || <EmptyCell />}
+            <DescriptionCell text={routerData.description} />
           </PropertiesTable.Row>
           <PropertiesTable.Row label="Kind">
             <Badge color="neutral">{routerData.kind}</Badge>
@@ -213,7 +213,7 @@ export function RouterPage() {
         </PropertiesTable>
       </PropertiesTable.Group>
       <TableControls className="mb-3">
-        <TableTitle id="routes-label">Routes</TableTitle>
+        <TableTitle>Routes</TableTitle>
         {canCreateNewRoute ? (
           <CreateLink to={pb.vpcRouterRoutesNew({ project, vpc, router })}>
             New route

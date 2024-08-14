@@ -13,7 +13,7 @@ import { Cloud16Icon, Cloud24Icon, NextArrow12Icon } from '@oxide/design-system/
 import { DocsPopover } from '~/components/DocsPopover'
 import { QueryParamTabs } from '~/components/QueryParamTabs'
 import { getSiloSelector, useSiloSelector } from '~/hooks'
-import { EmptyCell } from '~/table/cells/EmptyCell'
+import { DescriptionCell } from '~/table/cells/DescriptionCell'
 import { PAGE_SIZE } from '~/table/QueryTable'
 import { Badge } from '~/ui/lib/Badge'
 import { DateTime } from '~/ui/lib/DateTime'
@@ -68,7 +68,7 @@ export function SiloPage() {
         <PropertiesTable>
           <PropertiesTable.Row label="ID">{silo.id}</PropertiesTable.Row>
           <PropertiesTable.Row label="Description">
-            {silo.description || <EmptyCell />}
+            <DescriptionCell text={silo.description} />
           </PropertiesTable.Row>
         </PropertiesTable>
         <PropertiesTable>
