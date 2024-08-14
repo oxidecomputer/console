@@ -74,8 +74,6 @@ export function EditRouterRouteSideModalForm() {
   const targetType = form.watch('target.type')
 
   useEffect(() => {
-    // Clear target value when targetType changes to 'drop'
-    targetType === 'drop' && form.setValue('target.value', '')
     // 'outbound' is only valid option when targetType is 'internet_gateway'
     targetType === 'internet_gateway' && form.setValue('target.value', 'outbound')
   }, [targetType, form])
@@ -95,11 +93,17 @@ export function EditRouterRouteSideModalForm() {
       formType="edit"
       resourceName="route"
       onDismiss={onDismiss}
-      onSubmit={(body) =>
+      onSubmit={({ name, description, destination, target }) =>
         updateRouterRoute.mutate({
           query: { project, vpc, router: routerName },
           path: { route: routeName },
-          body,
+          body: {
+            name,
+            description,
+            destination,
+            // drop has no value
+            target: target.type === 'drop' ? { type: target.type } : target,
+          },
         })
       }
       loading={updateRouterRoute.isPending}

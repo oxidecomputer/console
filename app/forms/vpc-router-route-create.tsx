@@ -48,8 +48,6 @@ export function CreateRouterRouteSideModalForm() {
   const targetType = form.watch('target.type')
 
   useEffect(() => {
-    // Clear target value when targetType changes to 'drop'
-    targetType === 'drop' && form.setValue('target.value', '')
     // 'outbound' is only valid option when targetType is 'internet_gateway'
     targetType === 'internet_gateway' && form.setValue('target.value', 'outbound')
   }, [targetType, form])
@@ -60,7 +58,18 @@ export function CreateRouterRouteSideModalForm() {
       formType="create"
       resourceName="route"
       onDismiss={onDismiss}
-      onSubmit={(body) => createRouterRoute.mutate({ query: routerSelector, body })}
+      onSubmit={({ name, description, destination, target }) =>
+        createRouterRoute.mutate({
+          query: routerSelector,
+          body: {
+            name,
+            description,
+            destination,
+            // drop has no value
+            target: target.type === 'drop' ? { type: target.type } : target,
+          },
+        })
+      }
       loading={createRouterRoute.isPending}
       submitError={createRouterRoute.error}
     >
