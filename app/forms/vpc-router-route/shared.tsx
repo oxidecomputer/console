@@ -63,7 +63,7 @@ export const routeFormMessage = {
   internetGatewayTargetValue:
     'For ‘Internet gateway’ targets, the value must be ‘outbound’',
   // https://github.com/oxidecomputer/omicron/blob/914f5fd7d51f9b060dcc0382a30b607e25df49b2/nexus/src/app/vpc_router.rs#L201-L204
-  noNewRoutesOnSystemRouter: 'user-provided routes cannot be added to a system router',
+  noNewRoutesOnSystemRouter: 'User-provided routes cannot be added to a system router',
   // https://github.com/oxidecomputer/omicron/blob/914f5fd7d51f9b060dcc0382a30b607e25df49b2/nexus/src/app/vpc_router.rs#L300-L304
   noDeletingRoutesOnSystemRouter: 'DELETE not allowed on system routes',
 }

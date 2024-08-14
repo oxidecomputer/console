@@ -32,7 +32,7 @@ import { TypeValueCell } from '~/table/cells/TypeValueCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
 import { Badge } from '~/ui/lib/Badge'
-import { CreateLink } from '~/ui/lib/CreateButton'
+import { CreateButton, CreateLink } from '~/ui/lib/CreateButton'
 import { DateTime } from '~/ui/lib/DateTime'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
@@ -214,11 +214,17 @@ export function RouterPage() {
       </PropertiesTable.Group>
       <TableControls className="mb-3">
         <TableTitle id="routes-label">Routes</TableTitle>
-
-        {canCreateNewRoute && (
+        {canCreateNewRoute ? (
           <CreateLink to={pb.vpcRouterRoutesNew({ project, vpc, router })}>
             New route
           </CreateLink>
+        ) : (
+          <CreateButton
+            disabled
+            disabledReason={routeFormMessage.noNewRoutesOnSystemRouter}
+          >
+            New route
+          </CreateButton>
         )}
       </TableControls>
       <Table columns={columns} emptyState={emptyState} />
