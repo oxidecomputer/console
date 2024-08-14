@@ -46,13 +46,6 @@ export function CreateRouterRouteSideModalForm() {
   const form = useForm({ defaultValues })
   const targetType = form.watch('target.type')
 
-  const onChangeTargetType = (value: string | null | undefined) => {
-    // 'outbound' is only valid option when targetType is 'internet_gateway'
-    if (value === 'internet_gateway') {
-      form.setValue('target.value', 'outbound')
-    }
-  }
-
   return (
     <SideModalForm
       form={form}
@@ -81,7 +74,12 @@ export function CreateRouterRouteSideModalForm() {
       <ListboxField
         {...fields.targetType}
         control={form.control}
-        onChange={onChangeTargetType}
+        onChange={(value) => {
+          // 'outbound' is only valid option when targetType is 'internet_gateway'
+          if (value === 'internet_gateway') {
+            form.setValue('target.value', 'outbound')
+          }
+        }}
       />
       {targetType !== 'drop' && (
         <TextField

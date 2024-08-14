@@ -81,13 +81,6 @@ export function EditRouterRouteSideModalForm() {
     disabledReason = routeFormMessage.vpcSubnetNotModifiable
   }
 
-  const onChangeTargetType = (value: string | null | undefined) => {
-    // 'outbound' is only valid option when targetType is 'internet_gateway'
-    if (value === 'internet_gateway') {
-      form.setValue('target.value', 'outbound')
-    }
-  }
-
   return (
     <SideModalForm
       form={form}
@@ -119,7 +112,12 @@ export function EditRouterRouteSideModalForm() {
         {...fields.targetType}
         control={form.control}
         disabled={isDisabled}
-        onChange={onChangeTargetType}
+        onChange={(value) => {
+          // 'outbound' is only valid option when targetType is 'internet_gateway'
+          if (value === 'internet_gateway') {
+            form.setValue('target.value', 'outbound')
+          }
+        }}
       />
       {targetType !== 'drop' && (
         <TextField
