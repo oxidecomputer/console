@@ -11,6 +11,7 @@ import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, useApiMutation, type VpcRouter } from '@oxide/api'
 
+import { routeFormMessage } from '~/forms/vpc-router-route/shared'
 import { getVpcSelector, useVpcSelector } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
@@ -84,14 +85,17 @@ export function VpcRoutersTab() {
       },
       {
         label: 'Delete',
+        className: 'destructive',
         onActivate: confirmDelete({
           doDelete: () =>
             deleteRouter.mutateAsync({
               path: { router: router.name },
               query: { project, vpc },
             }),
+          extraContent: 'This will also delete any routes belonging to this router.',
           label: router.name,
         }),
+        disabled: router.kind === 'system' && routeFormMessage.noDeletingSystemRouters,
       },
     ],
     [deleteRouter, project, vpc, navigate]
