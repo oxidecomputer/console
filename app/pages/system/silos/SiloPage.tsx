@@ -26,11 +26,13 @@ import { docLinks } from '~/util/links'
 
 import { SiloIdpsTab } from './SiloIdpsTab'
 import { SiloIpPoolsTab } from './SiloIpPoolsTab'
+import { SiloQuotasTab } from './SiloQuotasTab'
 
 SiloPage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { silo } = getSiloSelector(params)
   await Promise.all([
     apiQueryClient.prefetchQuery('siloView', { path: { silo } }),
+    apiQueryClient.prefetchQuery('siloQuotasView', { path: { silo } }),
     apiQueryClient.prefetchQuery('siloIdentityProviderList', {
       query: { silo, limit: PAGE_SIZE },
     }),
@@ -85,6 +87,7 @@ export function SiloPage() {
         <Tabs.List>
           <Tabs.Trigger value="idps">Identity Providers</Tabs.Trigger>
           <Tabs.Trigger value="ip-pools">IP Pools</Tabs.Trigger>
+          <Tabs.Trigger value="quotas">Quotas</Tabs.Trigger>
           <Tabs.Trigger value="fleet-roles">Fleet roles</Tabs.Trigger>
         </Tabs.List>
         <Tabs.Content value="idps">
@@ -92,6 +95,9 @@ export function SiloPage() {
         </Tabs.Content>
         <Tabs.Content value="ip-pools">
           <SiloIpPoolsTab />
+        </Tabs.Content>
+        <Tabs.Content value="quotas">
+          <SiloQuotasTab />
         </Tabs.Content>
         <Tabs.Content value="fleet-roles">
           {/* TODO: better empty state explaining that no roles are mapped so nothing will happen */}
