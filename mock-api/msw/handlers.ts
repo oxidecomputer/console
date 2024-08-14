@@ -51,6 +51,7 @@ import {
   requireFleetViewer,
   requireRole,
   unavailableErr,
+  updateDesc,
 } from './util'
 
 // Note the *JSON types. Those represent actual API request and response bodies,
@@ -99,7 +100,7 @@ export const handlers = makeHandlers({
       }
       project.name = body.name
     }
-    project.description = body.description || ''
+    updateDesc(project, body)
 
     return project
   },
@@ -242,7 +243,7 @@ export const handlers = makeHandlers({
   },
   floatingIpCreate({ body, query }) {
     const project = lookup.project(query)
-    errIfExists(db.floatingIps, { name: body.name })
+    errIfExists(db.floatingIps, { name: body.name, project_id: project.id })
 
     // TODO: when IP is specified, use ipInAnyRange to check that it is in the pool
     const pool = body.pool
@@ -276,7 +277,7 @@ export const handlers = makeHandlers({
       }
       floatingIp.name = body.name
     }
-    floatingIp.description = body.description || ''
+    updateDesc(floatingIp, body)
     return floatingIp
   },
   floatingIpDelete({ path, query }) {
@@ -644,7 +645,7 @@ export const handlers = makeHandlers({
     if (body.name) {
       nic.name = body.name
     }
-    nic.description = body.description || ''
+    updateDesc(nic, body)
 
     if (typeof body.primary === 'boolean' && body.primary !== nic.primary) {
       if (nic.primary) {
@@ -880,7 +881,8 @@ export const handlers = makeHandlers({
       }
       pool.name = body.name
     }
-    pool.description = body.description || ''
+
+    updateDesc(pool, body)
 
     return pool
   },
@@ -923,7 +925,7 @@ export const handlers = makeHandlers({
       throw 'Cannot snapshot disk'
     }
 
-    errIfExists(db.snapshots, { name: body.name })
+    errIfExists(db.snapshots, { name: body.name, project_id: project.id })
 
     const disk = lookup.disk({ ...query, disk: body.disk })
     if (!diskCan.snapshot(disk)) {
@@ -973,7 +975,7 @@ export const handlers = makeHandlers({
   },
   vpcCreate({ body, query }) {
     const project = lookup.project(query)
-    errIfExists(db.vpcs, { name: body.name })
+    errIfExists(db.vpcs, { name: body.name, project_id: project.id })
 
     const newVpc: Json<Api.Vpc> = {
       id: uuid(),
@@ -1011,9 +1013,7 @@ export const handlers = makeHandlers({
       vpc.name = body.name
     }
 
-    if (typeof body.description === 'string') {
-      vpc.description = body.description
-    }
+    updateDesc(vpc, body)
 
     if (body.dns_name) {
       vpc.dns_name = body.dns_name
@@ -1083,9 +1083,7 @@ export const handlers = makeHandlers({
     if (body.name) {
       subnet.name = body.name
     }
-    if (typeof body.description === 'string') {
-      subnet.description = body.description
-    }
+    updateDesc(subnet, body)
 
     return subnet
   },
