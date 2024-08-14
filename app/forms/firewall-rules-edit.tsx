@@ -61,8 +61,12 @@ export function EditFirewallRuleForm() {
 
   const updateRules = useApiMutation('vpcFirewallRulesUpdate', {
     onSuccess() {
-      queryClient.invalidateQueries('vpcFirewallRulesView')
+      // Nav before the invalidate because I once saw the above invariant fail
+      // briefly after successful edit (error page flashed but then we land
+      // on the rules list ok) and I think it was a race condition where the
+      // invalidate managed to complete while the modal was still open.
       onDismiss()
+      queryClient.invalidateQueries('vpcFirewallRulesView')
     },
   })
 
@@ -87,32 +91,35 @@ export function EditFirewallRuleForm() {
   // TODO: uhhhh how can this happen
   if (Object.keys(originalRule).length === 0) return null
 
+  // note different filter logic from create: filter out the rule with the
+  // *original* name because we need to overwrite that rule
+  const otherRules = data.rules.filter((r) => r.name !== originalRule.name)
+
   return (
     <SideModalForm
       form={form}
       formType="edit"
       resourceName="rule"
       onDismiss={onDismiss}
-      onSubmit={(values) => {
-        // note different filter logic from create: filter out the rule with the
-        // *original* name because we need to overwrite that rule
-        const otherRules = data.rules
-          .filter((r) => r.name !== originalRule.name)
-          .map(firewallRuleGetToPut)
-
+      onSubmit={(values) =>
         updateRules.mutate({
           query: vpcSelector,
           body: {
-            rules: [...otherRules, valuesToRuleUpdate(values)],
+            rules: [...otherRules.map(firewallRuleGetToPut), valuesToRuleUpdate(values)],
           },
         })
-      }}
+      }
       // validationSchema={validationSchema}
       // validateOnBlur
       loading={updateRules.isPending}
       submitError={updateRules.error}
     >
-      <CommonFields error={updateRules.error} control={form.control} />
+      <CommonFields
+        error={updateRules.error}
+        control={form.control}
+        // error if name is being changed to something that conflicts with some other rule
+        nameTaken={(name) => !!otherRules.find((r) => r.name === name)}
+      />
     </SideModalForm>
   )
 }

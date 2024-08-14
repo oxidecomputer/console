@@ -338,8 +338,6 @@ export function NetworkingTab() {
             }),
         },
       ]
-
-      return [copyAction]
     },
     [ephemeralIpDetach, floatingIpDetach, instanceName, project]
   )
