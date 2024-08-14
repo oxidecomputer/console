@@ -84,7 +84,7 @@ export function SSHKeysPage() {
         <DocsPopover
           heading="SSH key management"
           icon={<Key16Icon />}
-          summary="SSH Keys are used for authentication when connecting to your instances."
+          summary="SSH keys are used to securely access VM instances."
           links={[docLinks.sshKeyCreate, docLinks.sshKeyManage]}
         />
       </PageHeader>
