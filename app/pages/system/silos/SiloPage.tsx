@@ -32,7 +32,7 @@ SiloPage.loader = async ({ params }: LoaderFunctionArgs) => {
   const { silo } = getSiloSelector(params)
   await Promise.all([
     apiQueryClient.prefetchQuery('siloView', { path: { silo } }),
-    apiQueryClient.prefetchQuery('siloQuotasView', { path: { silo } }),
+    apiQueryClient.prefetchQuery('siloUtilizationView', { path: { silo } }),
     apiQueryClient.prefetchQuery('siloIdentityProviderList', {
       query: { silo, limit: PAGE_SIZE },
     }),

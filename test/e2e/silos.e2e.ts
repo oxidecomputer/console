@@ -300,9 +300,21 @@ test('Quotas tab', async ({ page }) => {
   await page.getByRole('tab', { name: 'Quotas' }).click()
 
   const table = page.getByRole('table')
-  await expectRowVisible(table, { Resource: 'CPU', Quota: '50 vCPUs' })
-  await expectRowVisible(table, { Resource: 'Memory', Quota: '300 GiB' })
-  await expectRowVisible(table, { Resource: 'Storage', Quota: '7168 GiB' })
+  await expectRowVisible(table, {
+    Resource: 'CPU',
+    Provisioned: '30 vCPUs',
+    Quota: '50 vCPUs',
+  })
+  await expectRowVisible(table, {
+    Resource: 'Memory',
+    Provisioned: '234 GiB',
+    Quota: '300 GiB',
+  })
+  await expectRowVisible(table, {
+    Resource: 'Storage',
+    Provisioned: '4403.2 GiB',
+    Quota: '7168 GiB',
+  })
 
   const sideModal = page.getByRole('dialog', { name: 'Edit quotas' })
   const edit = page.getByRole('button', { name: 'Edit quotas' })

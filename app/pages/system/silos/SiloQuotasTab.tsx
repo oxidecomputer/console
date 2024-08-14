@@ -29,7 +29,11 @@ const Unit = classed.span`ml-1 text-tertiary`
 
 export function SiloQuotasTab() {
   const { silo } = useSiloSelector()
-  const { data: quotas } = usePrefetchedApiQuery('siloQuotasView', { path: { silo: silo } })
+  const { data: utilization } = usePrefetchedApiQuery('siloUtilizationView', {
+    path: { silo: silo },
+  })
+
+  const { allocated: quotas, provisioned } = utilization
 
   const [editing, setEditing] = useState(false)
 
@@ -40,11 +44,11 @@ export function SiloQuotasTab() {
           Edit quotas
         </Button>
       </div>
-      <Table className="max-w-md">
+      <Table className="max-w-lg">
         <Table.Header>
           <Table.HeaderRow>
             <Table.HeadCell>Resource</Table.HeadCell>
-            {/*<Table.HeadCell>Provisioned</Table.HeadCell>*/}
+            <Table.HeadCell>Provisioned</Table.HeadCell>
             <Table.HeadCell>Quota</Table.HeadCell>
           </Table.HeaderRow>
         </Table.Header>
@@ -52,17 +56,26 @@ export function SiloQuotasTab() {
           <Table.Row>
             <Table.Cell>CPU</Table.Cell>
             <Table.Cell>
+              {provisioned.cpus} <Unit>vCPUs</Unit>
+            </Table.Cell>
+            <Table.Cell>
               {quotas.cpus} <Unit>vCPUs</Unit>
             </Table.Cell>
           </Table.Row>
           <Table.Row>
             <Table.Cell>Memory</Table.Cell>
             <Table.Cell>
+              {bytesToGiB(provisioned.memory)} <Unit>GiB</Unit>
+            </Table.Cell>
+            <Table.Cell>
               {bytesToGiB(quotas.memory)} <Unit>GiB</Unit>
             </Table.Cell>
           </Table.Row>
           <Table.Row>
             <Table.Cell>Storage</Table.Cell>
+            <Table.Cell>
+              {bytesToGiB(provisioned.storage)} <Unit>GiB</Unit>
+            </Table.Cell>
             <Table.Cell>
               {bytesToGiB(quotas.storage)} <Unit>GiB</Unit>
             </Table.Cell>
@@ -76,7 +89,10 @@ export function SiloQuotasTab() {
 
 function EditQuotasForm({ onDismiss }: { onDismiss: () => void }) {
   const { silo } = useSiloSelector()
-  const { data: quotas } = usePrefetchedApiQuery('siloQuotasView', { path: { silo: silo } })
+  const { data: utilization } = usePrefetchedApiQuery('siloUtilizationView', {
+    path: { silo: silo },
+  })
+  const quotas = utilization.allocated
 
   // required because we need to rule out undefined because NumberField hates that
   const defaultValues: Required<SiloQuotasUpdate> = {
@@ -89,7 +105,7 @@ function EditQuotasForm({ onDismiss }: { onDismiss: () => void }) {
 
   const updateQuotas = useApiMutation('siloQuotasUpdate', {
     onSuccess() {
-      apiQueryClient.invalidateQueries('siloQuotasView')
+      apiQueryClient.invalidateQueries('siloUtilizationView')
       onDismiss()
     },
   })
