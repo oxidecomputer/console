@@ -283,3 +283,36 @@ test('form scrolls to name field on already exists error', async ({ page }) => {
   await expect(nameField).toBeInViewport()
   await expect(page.getByText('name already exists').nth(0)).toBeVisible()
 })
+
+test('Quotas tab', async ({ page }) => {
+  await page.goto('/system/silos/maze-war')
+  await page.getByRole('tab', { name: 'Quotas' }).click()
+
+  const table = page.getByRole('table')
+  await expectRowVisible(table, { Resource: 'CPU', Quota: '50 vCPUs' })
+  await expectRowVisible(table, { Resource: 'Memory', Quota: '300 GiB' })
+  await expectRowVisible(table, { Resource: 'Storage', Quota: '7168 GiB' })
+
+  const sideModal = page.getByRole('dialog', { name: 'Edit quotas' })
+  const edit = page.getByRole('button', { name: 'Edit quotas' })
+  const submit = sideModal.getByRole('button', { name: 'Update quotas' })
+
+  await edit.click()
+  await expect(sideModal).toBeVisible()
+
+  // TODO: fix validation on empty field and test that
+  // await page.getByRole('textbox', { name: 'Memory' }).clear()
+  // await submit.click()
+  // await expect(sideModal.getByText('Field cannot be empty')).toBeVisible()
+
+  // only change one
+  await page.getByRole('textbox', { name: 'Memory' }).fill('50')
+  await submit.click()
+
+  await expect(sideModal).toBeHidden()
+
+  // only one changes, the others stay the same
+  await expectRowVisible(table, { Resource: 'CPU', Quota: '50 vCPUs' })
+  await expectRowVisible(table, { Resource: 'Memory', Quota: '50 GiB' })
+  await expectRowVisible(table, { Resource: 'Storage', Quota: '7168 GiB' })
+})

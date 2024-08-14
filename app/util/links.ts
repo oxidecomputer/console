@@ -23,6 +23,8 @@ export const links = {
     'https://docs.oxide.computer/guides/key-entities-and-concepts#_projects',
   projectsDocs: 'https://docs.oxide.computer/guides/onboarding-projects',
   quickStart: 'https://docs.oxide.computer/guides/quickstart',
+  siloQuotasDocs:
+    'https://docs.oxide.computer/guides/operator/silo-management#_silo_resource_quota_management',
   sledDocs:
     'https://docs.oxide.computer/guides/architecture/service-processors#_server_sled',
   snapshotsDocs:
