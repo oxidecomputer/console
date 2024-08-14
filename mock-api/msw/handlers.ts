@@ -48,6 +48,7 @@ import {
   ipRangeLen,
   NotImplemented,
   paginated,
+  requireFleetCollab,
   requireFleetViewer,
   requireRole,
   unavailableErr,
@@ -1231,7 +1232,20 @@ export const handlers = makeHandlers({
     const idps = db.identityProviders.filter(({ siloId }) => siloId === silo.id).map(toIdp)
     return { items: idps }
   },
+  siloQuotasUpdate({ body, path, cookies }) {
+    requireFleetCollab(cookies)
+    const quotas = lookup.siloQuotas(path)
 
+    if (body.cpus !== undefined) quotas.cpus = body.cpus
+    if (body.memory !== undefined) quotas.memory = body.memory
+    if (body.storage !== undefined) quotas.storage = body.storage
+
+    return quotas
+  },
+  siloQuotasView({ path, cookies }) {
+    requireFleetViewer(cookies)
+    return lookup.siloQuotas(path)
+  },
   samlIdentityProviderCreate({ query, body, cookies }) {
     requireFleetViewer(cookies)
     const silo = lookup.silo(query)
@@ -1358,8 +1372,6 @@ export const handlers = makeHandlers({
   roleView: NotImplemented,
   siloPolicyUpdate: NotImplemented,
   siloPolicyView: NotImplemented,
-  siloQuotasUpdate: NotImplemented,
-  siloQuotasView: NotImplemented,
   siloUserList: NotImplemented,
   siloUserView: NotImplemented,
   sledAdd: NotImplemented,

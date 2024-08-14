@@ -257,6 +257,12 @@ export const lookup = {
     if (!silo) throw notFoundErr(`silo '${id}'`)
     return silo
   },
+  siloQuotas(params: PP.Silo): Json<Api.SiloQuotas> {
+    const silo = lookup.silo(params)
+    const quotas = db.siloQuotas.find((q) => q.silo_id === silo.id)
+    if (!quotas) throw internalError(`Silo ${silo.name} has no quotas`)
+    return quotas
+  },
   sled({ sledId: id }: PP.Sled): Json<Api.Sled> {
     if (!id) throw notFoundErr('sled not specified')
     return lookupById(db.sleds, id)
