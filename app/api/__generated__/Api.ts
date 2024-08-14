@@ -3450,9 +3450,15 @@ export type Units =
   | 'bytes'
   | 'seconds'
   | 'nanoseconds'
+  | 'volts'
+  | 'amps'
+  | 'degrees_celcius'
 
   /** No meaningful units, e.g. a dimensionless quanity. */
   | 'none'
+
+  /** Rotations per minute. */
+  | 'rpm'
 
 /**
  * The schema for a timeseries.
