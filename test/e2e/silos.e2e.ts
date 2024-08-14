@@ -51,11 +51,28 @@ test('Create silo', async ({ page }) => {
   await expect(page.getByRole('textbox', { name: 'Admin group name' })).toHaveValue('')
   await expect(page.getByRole('checkbox', { name: 'Grant fleet admin' })).toBeChecked()
   await page.getByRole('textbox', { name: 'Admin group name' }).fill('admins')
+
+  ////////////////////////////
+  // QUOTAS
+  ////////////////////////////
+
+  const cpuQuota = page.getByRole('textbox', { name: 'CPU quota' })
+  const decreaseCpuQuota = page.getByRole('button', { name: 'Decrease CPU quota' })
+
+  // can't go below zero
+  await expect(cpuQuota).toHaveValue('0')
+  await expect(decreaseCpuQuota).toBeDisabled()
+
   await page.getByRole('textbox', { name: 'CPU quota' }).fill('30')
+  await expect(decreaseCpuQuota).toBeEnabled() // now you can decrease it
+
   await page.getByRole('textbox', { name: 'Memory quota' }).fill('58')
   await page.getByRole('textbox', { name: 'Storage quota' }).fill('735')
 
-  // Add a TLS cert
+  ////////////////////////////
+  // TLS CERT
+  ////////////////////////////
+
   const openCertModalButton = page.getByRole('button', { name: 'Add TLS certificate' })
   await openCertModalButton.click()
 
@@ -124,22 +141,16 @@ test('Create silo', async ({ page }) => {
   ])
   await expect(page.getByText('Silo viewerFleet viewer')).toBeHidden()
 
-  await page.goBack()
-
   // now go check the quotas in its entry in the utilization table
-  await page.getByRole('link', { name: 'Utilization' }).click()
-  await expectRowVisible(page.getByRole('table'), {
-    Silo: 'other-silo',
-    CPU: '30',
-    Memory: '58 GiB',
-    Storage: '0.72 TiB',
-  })
+  await page.getByRole('tab', { name: 'Quotas' }).click()
+  await expectRowVisible(table, { Resource: 'CPU', Quota: '30 vCPUs' })
+  await expectRowVisible(table, { Resource: 'Memory', Quota: '58 GiB' })
+  await expectRowVisible(table, { Resource: 'Storage', Quota: '735 GiB' })
 
   await page.goBack()
 
   // now delete it
-  await page.locator('role=button[name="Row actions"]').nth(2).click()
-  await page.click('role=menuitem[name="Delete"]')
+  await clickRowAction(page, 'other-silo', 'Delete')
   await page.getByRole('button', { name: 'Confirm' }).click()
 
   await expect(otherSiloCell).toBeHidden()
@@ -300,13 +311,18 @@ test('Quotas tab', async ({ page }) => {
   await edit.click()
   await expect(sideModal).toBeVisible()
 
-  // TODO: fix validation on empty field and test that
-  // await page.getByRole('textbox', { name: 'Memory' }).clear()
-  // await submit.click()
-  // await expect(sideModal.getByText('Field cannot be empty')).toBeVisible()
+  // test validation on empty field
+  const memory = page.getByRole('textbox', { name: 'Memory' })
+  await memory.clear()
+  await submit.click()
+  await expect(sideModal.getByText('Memory is required')).toBeVisible()
+
+  // try to type in a negative number HAHA YOU CAN'T
+  await memory.fill('-5')
+  await expect(memory).toHaveValue('')
 
   // only change one
-  await page.getByRole('textbox', { name: 'Memory' }).fill('50')
+  await memory.fill('50')
   await submit.click()
 
   await expect(sideModal).toBeHidden()

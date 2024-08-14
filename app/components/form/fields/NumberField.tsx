@@ -45,7 +45,7 @@ export function NumberField<
         )}
       </div>
       {/* passing the generated id is very important for a11y */}
-      <NumberFieldInner name={name} {...props} id={id} />
+      <NumberFieldInner name={name} id={id} label={label} required={required} {...props} />
     </div>
   )
 }
@@ -80,7 +80,18 @@ export const NumberFieldInner = <
   const {
     field,
     fieldState: { error },
-  } = useController({ name, control, rules: { required, validate } })
+  } = useController({
+    name,
+    control,
+    rules: {
+      required,
+      // it seems we need special logic to enforce required on NaN
+      validate(value, values) {
+        if (required && Number.isNaN(value)) return `${label} is required`
+        return validate?.(value, values)
+      },
+    },
+  })
 
   return (
     <>
