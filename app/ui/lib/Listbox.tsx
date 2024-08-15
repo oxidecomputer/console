@@ -13,7 +13,7 @@ import {
   ListboxOptions,
 } from '@headlessui/react'
 import cn from 'classnames'
-import type { ReactNode } from 'react'
+import { type ReactNode, type Ref } from 'react'
 
 import { SelectArrows6Icon } from '@oxide/design-system/icons/react'
 
@@ -42,6 +42,8 @@ export interface ListboxProps<Value extends string = string> {
   description?: React.ReactNode
   required?: boolean
   isLoading?: boolean
+  /** Necessary if you want RHF to be able to focus it on error */
+  buttonRef?: Ref<HTMLButtonElement>
 }
 
 export const Listbox = <Value extends string = string>({
@@ -59,6 +61,7 @@ export const Listbox = <Value extends string = string>({
   required,
   disabled,
   isLoading = false,
+  buttonRef,
   ...props
 }: ListboxProps<Value>) => {
   const selectedItem = selected && items.find((i) => i.value === selected)
@@ -100,6 +103,7 @@ export const Listbox = <Value extends string = string>({
                   : 'bg-default',
                 isDisabled && hasError && '!border-error-secondary'
               )}
+              ref={buttonRef}
               {...props}
             >
               <div className="w-full overflow-hidden overflow-ellipsis whitespace-pre px-3 text-left">

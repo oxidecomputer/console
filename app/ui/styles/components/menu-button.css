@@ -7,10 +7,10 @@
  */
 
 .DropdownMenuContent {
-  @apply z-30 min-w-[14rem] rounded border p-0 bg-raise border-secondary;
+  @apply z-30 min-w-36 rounded border p-0 bg-raise border-secondary;
 
   & .DropdownMenuItem {
-    @apply block cursor-pointer select-none border-b py-2 pl-3 pr-6 text-left text-sans-md text-secondary border-secondary last-of-type:border-b-0;
+    @apply block cursor-pointer select-none border-b py-2 pl-3 pr-6 text-left text-sans-md text-secondary border-secondary last:border-b-0;
 
     &.destructive {
       @apply text-destructive;

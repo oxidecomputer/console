@@ -86,11 +86,6 @@ export function getStartAndEndTime(params: { startTime?: Date; endTime?: Date })
   return { startTime, endTime }
 }
 
-export function getTimestamps() {
-  const now = new Date().toISOString()
-  return { time_created: now, time_modified: now }
-}
-
 export const forbiddenErr = () =>
   json({ error_code: 'Forbidden', request_id: 'fake-id' }, { status: 403 })
 
@@ -404,3 +399,13 @@ function ipInRange(ip: string, { first, last }: IpRange): boolean {
 
 export const ipInAnyRange = (ip: string, ranges: IpRange[]) =>
   ranges.some((range) => ipInRange(ip, range))
+
+export function updateDesc(
+  resource: { description: string },
+  update: { description?: string }
+) {
+  // Can't be `if (update.description)` because you could never set it to ''
+  if (update.description !== undefined) {
+    resource.description = update.description
+  }
+}

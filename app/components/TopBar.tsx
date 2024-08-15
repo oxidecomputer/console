@@ -6,7 +6,6 @@
  * Copyright Oxide Computer Company
  */
 import React from 'react'
-import { useNavigate } from 'react-router-dom'
 
 import { navToLogin, useApiMutation } from '@oxide/api'
 import { DirectionDownIcon, Profile16Icon } from '@oxide/design-system/icons/react'
@@ -17,7 +16,6 @@ import { DropdownMenu } from '~/ui/lib/DropdownMenu'
 import { pb } from '~/util/path-builder'
 
 export function TopBar({ children }: { children: React.ReactNode }) {
-  const navigate = useNavigate()
   const logout = useApiMutation('logout', {
     onSuccess: () => navToLogin({ includeCurrent: false }),
   })
@@ -62,14 +60,8 @@ export function TopBar({ children }: { children: React.ReactNode }) {
                   <DirectionDownIcon className="!w-2.5" />
                 </Button>
               </DropdownMenu.Trigger>
-              <DropdownMenu.Content
-                align="end"
-                sideOffset={8}
-                className="min-w-[12.8125rem]"
-              >
-                <DropdownMenu.Item onSelect={() => navigate(pb.profile())}>
-                  Settings
-                </DropdownMenu.Item>
+              <DropdownMenu.Content align="end" sideOffset={8}>
+                <DropdownMenu.LinkItem to={pb.profile()}>Settings</DropdownMenu.LinkItem>
                 {loggedIn ? (
                   <DropdownMenu.Item onSelect={() => logout.mutate({})}>
                     Sign out

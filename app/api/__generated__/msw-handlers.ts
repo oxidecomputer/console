@@ -938,8 +938,8 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.BgpAnnouncement[]>>
-  /** `POST /v1/system/networking/bgp-announce` */
-  networkingBgpAnnounceSetCreate: (params: {
+  /** `PUT /v1/system/networking/bgp-announce` */
+  networkingBgpAnnounceSetUpdate: (params: {
     body: Json<Api.BgpAnnounceSetCreate>
     req: Request
     cookies: Record<string, string>
@@ -2103,9 +2103,9 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
         null
       )
     ),
-    http.post(
+    http.put(
       '/v1/system/networking/bgp-announce',
-      handler(handlers['networkingBgpAnnounceSetCreate'], null, schema.BgpAnnounceSetCreate)
+      handler(handlers['networkingBgpAnnounceSetUpdate'], null, schema.BgpAnnounceSetCreate)
     ),
     http.delete(
       '/v1/system/networking/bgp-announce',

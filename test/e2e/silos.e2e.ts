@@ -38,9 +38,19 @@ test('Create silo', async ({ page }) => {
   const discoverable = page.getByRole('checkbox', { name: 'Discoverable' })
   await expect(discoverable).toBeChecked()
   await discoverable.click()
-  await page.getByRole('radio', { name: 'Local only' }).click()
+  await expect(page.getByRole('textbox', { name: 'Admin group name' })).toBeVisible()
   await page.getByRole('textbox', { name: 'Admin group name' }).fill('admins')
   await page.getByRole('checkbox', { name: 'Grant fleet admin' }).click()
+  await expect(page.getByRole('textbox', { name: 'Admin group name' })).toHaveValue(
+    'admins'
+  )
+  await expect(page.getByRole('checkbox', { name: 'Grant fleet admin' })).toBeChecked()
+  await page.getByRole('radio', { name: 'Local only' }).click()
+  await expect(page.getByRole('textbox', { name: 'Admin group name' })).toBeHidden()
+  await page.getByRole('radio', { name: 'SAML' }).click()
+  await expect(page.getByRole('textbox', { name: 'Admin group name' })).toHaveValue('')
+  await expect(page.getByRole('checkbox', { name: 'Grant fleet admin' })).toBeChecked()
+  await page.getByRole('textbox', { name: 'Admin group name' }).fill('admins')
   await page.getByRole('textbox', { name: 'CPU quota' }).fill('30')
   await page.getByRole('textbox', { name: 'Memory quota' }).fill('58')
   await page.getByRole('textbox', { name: 'Storage quota' }).fill('735')
@@ -99,7 +109,7 @@ test('Create silo', async ({ page }) => {
   await expectRowVisible(table, {
     name: 'other-silo',
     description: 'definitely a silo',
-    'Identity mode': 'local only',
+    'Identity mode': 'saml jit',
     // discoverable: 'false',
   })
   const otherSiloCell = page.getByRole('cell', { name: 'other-silo' })
@@ -250,4 +260,26 @@ test('Silo IP pools link pool', async ({ page }) => {
   // modal closes and we see the thing in the table
   await expect(modal).toBeHidden()
   await expectRowVisible(table, { name: 'ip-pool-3', Default: '' })
+})
+
+// just a convenient form to test this with because it's tall
+test('form scrolls to name field on already exists error', async ({ page }) => {
+  await page.setViewportSize({ width: 800, height: 400 })
+  await page.goto('/system/silos-new')
+
+  const nameField = page.getByRole('textbox', { name: 'Name', exact: true })
+  await expect(nameField).toBeInViewport()
+
+  await nameField.fill('maze-war')
+
+  // scroll all the way down so the name field is not visible
+  await page
+    .getByTestId('sidemodal-scroll-container')
+    .evaluate((el: HTMLElement, to) => el.scrollTo(0, to), 800)
+  await expect(nameField).not.toBeInViewport()
+
+  await page.getByRole('button', { name: 'Create silo' }).click()
+
+  await expect(nameField).toBeInViewport()
+  await expect(page.getByText('name already exists').nth(0)).toBeVisible()
 })

@@ -1,6 +1,7 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "allowUnreachableCode": false,
     "allowImportingTsExtensions": true,
     "baseUrl": ".",
     "esModuleInterop": true,

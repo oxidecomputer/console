@@ -248,7 +248,11 @@ export const AuthzScope = z.preprocess(
  */
 export const Baseboard = z.preprocess(
   processResponseBody,
-  z.object({ part: z.string(), revision: z.number(), serial: z.string() })
+  z.object({
+    part: z.string(),
+    revision: z.number().min(0).max(4294967295),
+    serial: z.string(),
+  })
 )
 
 /**
@@ -1829,11 +1833,6 @@ export const InstanceSerialConsoleData = z.preprocess(
   z.object({ data: z.number().min(0).max(255).array(), lastByteOffset: z.number().min(0) })
 )
 
-export const IpKind = z.preprocess(
-  processResponseBody,
-  z.enum(['snat', 'floating', 'ephemeral'])
-)
-
 /**
  * A collection of IP ranges. If a pool is linked to a silo, IP addresses from the pool can be allocated within that silo
  */
@@ -1969,7 +1968,7 @@ export const IpPoolUtilization = z.preprocess(
 /**
  * A range of IP ports
  *
- * An inclusive-inclusive range of IP ports. The second port may be omitted to represent a single port
+ * An inclusive-inclusive range of IP ports. The second port may be omitted to represent a single port.
  */
 export const L4PortRange = z.preprocess(
   processResponseBody,
@@ -2263,12 +2262,17 @@ export const ProbeCreate = z.preprocess(
   })
 )
 
+export const ProbeExternalIpKind = z.preprocess(
+  processResponseBody,
+  z.enum(['snat', 'floating', 'ephemeral'])
+)
+
 export const ProbeExternalIp = z.preprocess(
   processResponseBody,
   z.object({
     firstPort: z.number().min(0).max(65535),
     ip: z.string().ip(),
-    kind: IpKind,
+    kind: ProbeExternalIpKind,
     lastPort: z.number().min(0).max(65535),
   })
 )
@@ -3209,7 +3213,22 @@ export const TimeseriesQuery = z.preprocess(
 /**
  * Measurement units for timeseries samples.
  */
-export const Units = z.preprocess(processResponseBody, z.enum(['count', 'bytes']))
+export const Units = z.preprocess(
+  processResponseBody,
+  z.union([
+    z.enum([
+      'count',
+      'bytes',
+      'seconds',
+      'nanoseconds',
+      'volts',
+      'amps',
+      'degrees_celcius',
+    ]),
+    z.enum(['none']),
+    z.enum(['rpm']),
+  ])
+)
 
 /**
  * The schema for a timeseries.
@@ -3277,7 +3296,7 @@ export const User = z.preprocess(
 /**
  * View of a Built-in User
  *
- * A Built-in User is explicitly created as opposed to being derived from an Identify Provider.
+ * Built-in users are identities internal to the system, used when the control plane performs actions autonomously
  */
 export const UserBuiltin = z.preprocess(
   processResponseBody,
@@ -3299,9 +3318,9 @@ export const UserBuiltinResultsPage = z.preprocess(
 )
 
 /**
- * A name unique within the parent collection
+ * A username for a local-only user
  *
- * Names must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. Names cannot be a UUID, but they may contain a UUID. They can be at most 63 characters long.
+ * Usernames must begin with a lower case ASCII letter, be composed exclusively of lowercase ASCII, uppercase ASCII, numbers, and '-', and may not end with a '-'. Usernames cannot be a UUID, but they may contain a UUID. They can be at most 63 characters long.
  */
 export const UserId = z.preprocess(
   processResponseBody,
@@ -3421,7 +3440,7 @@ export const VpcFirewallRuleProtocol = z.preprocess(
 )
 
 /**
- * Filter for a firewall rule. A given packet must match every field that is present for the rule to apply to it. A packet matches a field if any entry in that field matches the packet.
+ * Filters reduce the scope of a firewall rule. Without filters, the rule applies to all packets to the targets (or from the targets, if it's an outbound rule). With multiple filters, the rule applies only to packets matching ALL filters. The maximum number of each type of filter is 256.
  */
 export const VpcFirewallRuleFilter = z.preprocess(
   processResponseBody,
@@ -3438,7 +3457,7 @@ export const VpcFirewallRuleStatus = z.preprocess(
 )
 
 /**
- * A `VpcFirewallRuleTarget` is used to specify the set of `Instance`s to which a firewall rule applies.
+ * A `VpcFirewallRuleTarget` is used to specify the set of instances to which a firewall rule applies. You can target instances directly by name, or specify a VPC, VPC subnet, IP, or IP subnet, which will apply the rule to traffic going to all matching instances. Targets are additive: the rule applies to instances matching ANY target.
  */
 export const VpcFirewallRuleTarget = z.preprocess(
   processResponseBody,
@@ -3490,7 +3509,7 @@ export const VpcFirewallRuleUpdate = z.preprocess(
 )
 
 /**
- * Updateable properties of a `Vpc`'s firewall Note that VpcFirewallRules are implicitly created along with a Vpc, so there is no explicit creation.
+ * Updated list of firewall rules. Will replace all existing rules.
  */
 export const VpcFirewallRuleUpdateParams = z.preprocess(
   processResponseBody,
@@ -5187,7 +5206,7 @@ export const NetworkingBgpAnnounceSetListParams = z.preprocess(
   })
 )
 
-export const NetworkingBgpAnnounceSetCreateParams = z.preprocess(
+export const NetworkingBgpAnnounceSetUpdateParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({}),

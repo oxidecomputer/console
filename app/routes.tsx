@@ -35,6 +35,10 @@ import { CreateSubnetForm } from './forms/subnet-create'
 import { EditSubnetForm } from './forms/subnet-edit'
 import { CreateVpcSideModalForm } from './forms/vpc-create'
 import { EditVpcSideModalForm } from './forms/vpc-edit'
+import { CreateRouterSideModalForm } from './forms/vpc-router-create'
+import { EditRouterSideModalForm } from './forms/vpc-router-edit'
+import { CreateRouterRouteSideModalForm } from './forms/vpc-router-route-create'
+import { EditRouterRouteSideModalForm } from './forms/vpc-router-route-edit'
 import type { CrumbFunc } from './hooks/use-title'
 import { AuthenticatedLayout } from './layouts/AuthenticatedLayout'
 import { AuthLayout } from './layouts/AuthLayout'
@@ -62,7 +66,9 @@ import { NetworkingTab } from './pages/project/instances/instance/tabs/Networkin
 import { StorageTab } from './pages/project/instances/instance/tabs/StorageTab'
 import { InstancesPage } from './pages/project/instances/InstancesPage'
 import { SnapshotsPage } from './pages/project/snapshots/SnapshotsPage'
+import { RouterPage } from './pages/project/vpcs/RouterPage'
 import { VpcFirewallRulesTab } from './pages/project/vpcs/VpcPage/tabs/VpcFirewallRulesTab'
+import { VpcRoutersTab } from './pages/project/vpcs/VpcPage/tabs/VpcRoutersTab'
 import { VpcSubnetsTab } from './pages/project/vpcs/VpcPage/tabs/VpcSubnetsTab'
 import { VpcPage } from './pages/project/vpcs/VpcPage/VpcPage'
 import { VpcsPage } from './pages/project/vpcs/VpcsPage'
@@ -364,7 +370,7 @@ export const routes = createRoutesFromElements(
                   element={null}
                 />
                 <Route
-                  path="firewall-rules-new"
+                  path="firewall-rules-new/:rule?"
                   element={<CreateFirewallRuleForm />}
                   loader={CreateFirewallRuleForm.loader}
                   handle={{ crumb: 'New Firewall Rule' }}
@@ -390,10 +396,42 @@ export const routes = createRoutesFromElements(
                   handle={{ crumb: 'Edit Subnet' }}
                 />
               </Route>
+              <Route element={<VpcRoutersTab />} loader={VpcRoutersTab.loader}>
+                <Route path="routers" handle={{ crumb: 'Routers' }} element={null}>
+                  <Route
+                    path=":router/edit"
+                    element={<EditRouterSideModalForm />}
+                    loader={EditRouterSideModalForm.loader}
+                    handle={{ crumb: 'Edit Router' }}
+                  />
+                </Route>
+                <Route
+                  path="routers-new"
+                  element={<CreateRouterSideModalForm />}
+                  handle={{ crumb: 'New Router' }}
+                />
+              </Route>
             </Route>
           </Route>
         </Route>
-
+        <Route
+          element={<RouterPage />}
+          loader={RouterPage.loader}
+          handle={{ crumb: 'Routes' }}
+          path="vpcs/:vpc/routers/:router"
+        >
+          <Route
+            path="routes-new"
+            element={<CreateRouterRouteSideModalForm />}
+            handle={{ crumb: 'New Route' }}
+          />
+          <Route
+            path="routes/:route/edit"
+            element={<EditRouterRouteSideModalForm />}
+            loader={EditRouterRouteSideModalForm.loader}
+            handle={{ crumb: 'Edit Route' }}
+          />
+        </Route>
         <Route element={<FloatingIpsPage />} loader={FloatingIpsPage.loader}>
           <Route path="floating-ips" handle={{ crumb: 'Floating IPs' }} element={null} />
           <Route

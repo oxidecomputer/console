@@ -7,7 +7,7 @@
  */
 import { useMemo } from 'react'
 import { useController, type Control } from 'react-hook-form'
-import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
+import { useNavigate, useParams, type LoaderFunctionArgs } from 'react-router-dom'
 import * as R from 'remeda'
 
 import {
@@ -24,7 +24,6 @@ import {
   type VpcFirewallRule,
   type VpcFirewallRuleHostFilter,
   type VpcFirewallRuleTarget,
-  type VpcFirewallRuleUpdate,
 } from '@oxide/api'
 
 import { CheckboxField } from '~/components/form/fields/CheckboxField'
@@ -56,37 +55,19 @@ import { KEYS } from '~/ui/util/keys'
 import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
-export type FirewallRuleValues = {
-  enabled: boolean
-  priority: number
-  name: string
-  description: string
-  action: VpcFirewallRule['action']
-  direction: VpcFirewallRule['direction']
+import { valuesToRuleUpdate, type FirewallRuleValues } from './firewall-rules-util'
 
-  protocols: NonNullable<VpcFirewallRule['filters']['protocols']>
-
-  ports: NonNullable<VpcFirewallRule['filters']['ports']>
-  hosts: NonNullable<VpcFirewallRule['filters']['hosts']>
-  targets: VpcFirewallRuleTarget[]
-}
-
-export const valuesToRuleUpdate = (values: FirewallRuleValues): VpcFirewallRuleUpdate => ({
-  name: values.name,
-  status: values.enabled ? 'enabled' : 'disabled',
-  action: values.action,
-  description: values.description,
-  direction: values.direction,
-  filters: {
-    hosts: values.hosts,
-    ports: values.ports,
-    protocols: values.protocols,
-  },
-  priority: values.priority,
-  targets: values.targets,
+/** convert in the opposite direction for when we're creating from existing rule */
+const ruleToValues = (rule: VpcFirewallRule): FirewallRuleValues => ({
+  ...rule,
+  enabled: rule.status === 'enabled',
+  protocols: rule.filters.protocols || [],
+  ports: rule.filters.ports || [],
+  hosts: rule.filters.hosts || [],
 })
 
-const defaultValues: FirewallRuleValues = {
+/** Empty form for when we're not creating from an existing rule */
+const defaultValuesEmpty: FirewallRuleValues = {
   enabled: true,
   name: '',
   description: '',
@@ -139,6 +120,7 @@ type CommonFieldsProps = {
   project: string
   instances: Array<Instance>
   vpcs: Array<Vpc>
+  nameTaken: (name: string) => boolean
 }
 
 function getFilterValueProps(hostType: VpcFirewallRuleHostFilter['type']) {
@@ -193,6 +175,7 @@ const DocsLinkMessage = () => (
 export const CommonFields = ({
   error,
   control,
+  nameTaken,
   project,
   instances,
   vpcs,
@@ -259,7 +242,16 @@ export const CommonFields = ({
       <CheckboxField name="enabled" control={control}>
         Enabled
       </CheckboxField>
-      <NameField name="name" control={control} />
+      <NameField
+        name="name"
+        control={control}
+        validate={(name) => {
+          if (nameTaken(name)) {
+            // TODO: might be worth mentioning that the names are unique per VPC as opposed to globally
+            return 'Name taken. To update an existing rule, edit it directly.'
+          }
+        }}
+      />
       <DescriptionField name="description" control={control} />
 
       <RadioField
@@ -650,6 +642,18 @@ export function CreateFirewallRuleForm() {
     query: { project, limit: PAGE_SIZE },
   })
 
+  // The :rule path param is optional. If it is present, we are creating a
+  // rule from an existing one, so we find that rule and copy it into the form
+  // values. Note that if we fail to find the rule by name (which should be
+  // very unlikely) we just pretend we never saw a name in the path and start
+  // from scratch.
+  const { rule: ruleName } = useParams()
+  const originalRule = existingRules.find((rule) => rule.name === ruleName)
+
+  const defaultValues: FirewallRuleValues = originalRule
+    ? ruleToValues({ ...originalRule, name: originalRule.name + '-copy' })
+    : defaultValuesEmpty
+
   const form = useForm({ defaultValues })
 
   return (
@@ -660,15 +664,10 @@ export function CreateFirewallRuleForm() {
       title="Add firewall rule"
       onDismiss={onDismiss}
       onSubmit={(values) => {
-        // TODO: this silently overwrites existing rules with the current name.
-        // we should probably at least warn and confirm, if not reject as invalid
-        const otherRules = existingRules
-          .filter((r) => r.name !== values.name)
-          .map(firewallRuleGetToPut)
         updateRules.mutate({
           query: vpcSelector,
           body: {
-            rules: [...otherRules, valuesToRuleUpdate(values)],
+            rules: [...existingRules.map(firewallRuleGetToPut), valuesToRuleUpdate(values)],
           },
         })
       }}
@@ -682,6 +681,14 @@ export function CreateFirewallRuleForm() {
         project={project}
         instances={instances.items}
         vpcs={vpcs.items}
+        // error if name is already in use
+        nameTaken={(name) => !!existingRules.find((r) => r.name === name)}
+
+        // TODO: there should also be a form-level error so if the name is off
+        // screen, it doesn't look like the submit button isn't working. Maybe
+        // instead of setting a root error, it would be more robust to show a
+        // top level error if any errors are found in the form. We might want to
+        // expand the submitError prop on SideModalForm for this
       />
     </SideModalForm>
   )

@@ -85,8 +85,6 @@ export function VpcSubnetsTab() {
     [vpcSelector, makeActions]
   )
 
-  // const columns = useColsWithActions(staticCols, makeActions)
-
   const emptyState = (
     <EmptyMessage
       title="No VPC subnets"
