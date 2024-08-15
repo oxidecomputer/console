@@ -3215,7 +3215,19 @@ export const TimeseriesQuery = z.preprocess(
  */
 export const Units = z.preprocess(
   processResponseBody,
-  z.union([z.enum(['count', 'bytes', 'seconds', 'nanoseconds']), z.enum(['none'])])
+  z.union([
+    z.enum([
+      'count',
+      'bytes',
+      'seconds',
+      'nanoseconds',
+      'volts',
+      'amps',
+      'degrees_celcius',
+    ]),
+    z.enum(['none']),
+    z.enum(['rpm']),
+  ])
 )
 
 /**

@@ -26,7 +26,13 @@ import {
 } from '@oxide/design-system/icons/react'
 
 import { TopBar } from '~/components/TopBar'
-import { InstancePicker, ProjectPicker, SiloSystemPicker } from '~/components/TopBarPicker'
+import {
+  InstancePicker,
+  ProjectPicker,
+  SiloSystemPicker,
+  VpcPicker,
+  VpcRouterPicker,
+} from '~/components/TopBarPicker'
 import { getProjectSelector, useProjectSelector, useQuickActions } from '~/hooks'
 import { Divider } from '~/ui/lib/Divider'
 import { pb } from '~/util/path-builder'
@@ -54,7 +60,7 @@ export function ProjectLayout({ overrideContentPane }: ProjectLayoutProps) {
   const projectSelector = useProjectSelector()
   const { data: project } = usePrefetchedApiQuery('projectView', { path: projectSelector })
 
-  const { instance } = useParams()
+  const { instance, router, vpc } = useParams()
   const { pathname } = useLocation()
   useQuickActions(
     useMemo(
@@ -85,6 +91,8 @@ export function ProjectLayout({ overrideContentPane }: ProjectLayoutProps) {
         <SiloSystemPicker value="silo" />
         <ProjectPicker project={project} />
         {instance && <InstancePicker />}
+        {vpc && <VpcPicker />}
+        {router && <VpcRouterPicker />}
       </TopBar>
       <Sidebar>
         <Sidebar.Nav>
