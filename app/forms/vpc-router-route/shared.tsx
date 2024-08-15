@@ -65,7 +65,9 @@ export const routeFormMessage = {
   // https://github.com/oxidecomputer/omicron/blob/914f5fd7d51f9b060dcc0382a30b607e25df49b2/nexus/src/app/vpc_router.rs#L201-L204
   noNewRoutesOnSystemRouter: 'User-provided routes cannot be added to a system router',
   // https://github.com/oxidecomputer/omicron/blob/914f5fd7d51f9b060dcc0382a30b607e25df49b2/nexus/src/app/vpc_router.rs#L300-L304
-  noDeletingRoutesOnSystemRouter: 'System routes can not be deleted',
+  noDeletingRoutesOnSystemRouter: 'System routes cannot be deleted',
+  // https://github.com/oxidecomputer/omicron/blob/914f5fd7d51f9b060dcc0382a30b607e25df49b2/nexus/src/app/vpc_router.rs#L136-L138
+  noDeletingSystemRouters: 'System routers cannot be deleted',
 }
 
 export const targetValueDescription = (targetType: RouteTarget['type']) =>
