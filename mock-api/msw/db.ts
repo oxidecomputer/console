@@ -19,8 +19,6 @@ import { commaSeries } from '~/util/str'
 import type { Json } from '../json-type'
 import { internalError } from './util'
 
-const notFoundBody = { error_code: 'ObjectNotFound' } as const
-export type NotFound = typeof notFoundBody
 export const notFoundErr = (msg: string) => {
   const message = `not found: ${msg}`
   return json({ error_code: 'ObjectNotFound', message } as const, { status: 404 })
