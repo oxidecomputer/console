@@ -39,11 +39,6 @@ export function SiloQuotasTab() {
 
   return (
     <>
-      <div className="mb-3 flex space-x-2">
-        <Button size="sm" onClick={() => setEditing(true)}>
-          Edit quotas
-        </Button>
-      </div>
       <Table className="max-w-lg">
         <Table.Header>
           <Table.HeaderRow>
@@ -82,6 +77,11 @@ export function SiloQuotasTab() {
           </Table.Row>
         </Table.Body>
       </Table>
+      <div className="mt-4 flex space-x-2">
+        <Button size="sm" onClick={() => setEditing(true)}>
+          Edit quotas
+        </Button>
+      </div>
       {editing && <EditQuotasForm onDismiss={() => setEditing(false)} />}
     </>
   )
