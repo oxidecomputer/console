@@ -101,9 +101,10 @@ export function InstancePage() {
     query: { project: instanceSelector.project },
   })
 
+  const shouldPoll = instanceTransitioning(instance)
   useInterval({
     fn: () => apiQueryClient.invalidateQueries('instanceView'),
-    delay: instanceTransitioning(instance) ? 1000 : null,
+    delay: shouldPoll ? 1000 : null,
   })
 
   const { data: nics } = usePrefetchedApiQuery('instanceNetworkInterfaceList', {
@@ -165,6 +166,11 @@ export function InstancePage() {
           </PropertiesTable.Row>
           <PropertiesTable.Row label="status">
             <InstanceStatusBadge status={instance.runState} />
+            {shouldPoll && (
+              <div className="ml-4 flex items-center text-sans-sm text-tertiary">
+                Polling... (ANIMATE ME INSTEAD)
+              </div>
+            )}
           </PropertiesTable.Row>
           <PropertiesTable.Row label="vpc">
             {vpc ? (
