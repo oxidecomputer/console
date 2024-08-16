@@ -108,7 +108,7 @@ const instanceActions: Record<string, InstanceState[]> = {
 // while also making the states available directly
 
 export const instanceCan = R.mapValues(instanceActions, (states) => {
-  const test = (i: Instance) => states.includes(i.runState)
+  const test = (i: { runState: InstanceState }) => states.includes(i.runState)
   test.states = states
   return test
 })
