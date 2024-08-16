@@ -36,7 +36,7 @@ test('can stop and delete a running instance', async ({ page }) => {
   await page.getByRole('menuitem', { name: 'Stop' }).click()
   await page.getByRole('button', { name: 'Confirm' }).click()
 
-  await sleep(3000)
+  await sleep(4000)
   await refreshInstance(page)
 
   // now it's stopped
@@ -61,7 +61,7 @@ test('can stop a starting instance', async ({ page }) => {
   await page.getByRole('menuitem', { name: 'Stop' }).click()
   await page.getByRole('button', { name: 'Confirm' }).click()
 
-  await sleep(3000)
+  await sleep(4000)
   await refreshInstance(page)
 
   await expect(row.getByRole('cell', { name: /stopped/ })).toBeVisible()
