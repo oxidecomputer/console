@@ -147,9 +147,16 @@ export function SerialConsolePage() {
       </Link>
 
       <div className="gutter relative w-full shrink grow overflow-hidden">
-        {connectionStatus === 'connecting' && <ConnectingSkeleton />}
+        {
+          // show connecting state if we are either actually connecting (which
+          // is usually extremely quick) or waiting for the instance to start
+          (connectionStatus === 'connecting' ||
+            (connectionStatus === 'closed' && isStarting(instanceData))) && (
+            <ConnectingSkeleton />
+          )
+        }
         {connectionStatus === 'error' && <ErrorSkeleton />}
-        {connectionStatus === 'closed' && !canConnect && (
+        {connectionStatus === 'closed' && !canConnect && !isStarting(instanceData) && (
           <CannotConnect instance={instanceData} />
         )}
         {/* closed && canConnect shouldn't be possible because there's no way to
@@ -222,10 +229,8 @@ const CannotConnect = ({ instance }: { instance: Instance }) => (
       <span>The instance is </span>
       <InstanceStatusBadge className="ml-1.5" status={instance.runState} />
     </p>
-    <p className="mt-2 text-center text-secondary">
-      {isStarting(instance)
-        ? 'We will try to connect as soon as the instance starts.'
-        : 'You can only connect to the serial console on a running instance.'}
+    <p className="mt-2 text-balance text-center text-secondary">
+      You can only connect to the serial console on a running instance.
     </p>
   </SerialSkeleton>
 )
