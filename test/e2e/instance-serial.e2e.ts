@@ -24,7 +24,7 @@ test('serial console can connect while starting', async ({ page }) => {
   // The message goes from creating to starting and then disappears once
   // the instance is running
   await expect(page.getByText('The instance is creating')).toBeVisible()
-  await expect(page.getByText('We will try to connect')).toBeVisible()
+  await expect(page.getByText('Waiting for the instance to start')).toBeVisible()
   await expect(page.getByText('The instance is starting')).toBeVisible()
   await expect(page.getByText('The instance is')).toBeHidden()
 
