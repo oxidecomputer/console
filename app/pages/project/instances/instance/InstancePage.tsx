@@ -29,8 +29,9 @@ import { EmptyCell } from '~/table/cells/EmptyCell'
 import { DateTime } from '~/ui/lib/DateTime'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
+import { Spinner } from '~/ui/lib/Spinner'
+import { Tooltip } from '~/ui/lib/Tooltip'
 import { Truncate } from '~/ui/lib/Truncate'
-import { useInterval } from '~/ui/lib/use-interval'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
@@ -96,16 +97,19 @@ export function InstancePage() {
     onDelete: () => navigate(pb.instances(instanceSelector)),
   })
 
-  const { data: instance } = usePrefetchedApiQuery('instanceView', {
-    path: { instance: instanceSelector.instance },
-    query: { project: instanceSelector.project },
-  })
+  const { data: instance } = usePrefetchedApiQuery(
+    'instanceView',
+    {
+      path: { instance: instanceSelector.instance },
+      query: { project: instanceSelector.project },
+    },
+    {
+      refetchInterval: ({ state: { data: instance } }) =>
+        instance && instanceTransitioning(instance) ? 1000 : false,
+    }
+  )
 
-  const shouldPoll = instanceTransitioning(instance)
-  useInterval({
-    fn: () => apiQueryClient.invalidateQueries('instanceView'),
-    delay: shouldPoll ? 1000 : null,
-  })
+  const polling = instanceTransitioning(instance)
 
   const { data: nics } = usePrefetchedApiQuery('instanceNetworkInterfaceList', {
     query: {
@@ -165,12 +169,16 @@ export function InstancePage() {
             <span className="ml-1 text-quaternary"> {memory.unit}</span>
           </PropertiesTable.Row>
           <PropertiesTable.Row label="status">
-            <InstanceStatusBadge status={instance.runState} />
-            {shouldPoll && (
-              <div className="ml-4 flex items-center text-sans-sm text-tertiary">
-                Polling... (ANIMATE ME INSTEAD)
-              </div>
-            )}
+            <div className="flex">
+              <InstanceStatusBadge status={instance.runState} />
+              {polling && (
+                <Tooltip content="Auto-refreshing while state changes" delay={150}>
+                  <button type="button">
+                    <Spinner className="ml-2" />
+                  </button>
+                </Tooltip>
+              )}
+            </div>
           </PropertiesTable.Row>
           <PropertiesTable.Row label="vpc">
             {vpc ? (
