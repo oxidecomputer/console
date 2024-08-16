@@ -14,7 +14,7 @@ import {
   apiQueryClient,
   instanceCan,
   usePrefetchedApiQuery,
-  type InstanceState,
+  type Instance,
 } from '@oxide/api'
 import { PrevArrow12Icon } from '@oxide/design-system/icons/react'
 
@@ -53,14 +53,24 @@ SerialConsolePage.loader = async ({ params }: LoaderFunctionArgs) => {
   return null
 }
 
+function isStarting(i: Instance | undefined) {
+  return i?.runState === 'creating' || i?.runState === 'starting'
+}
+
 export function SerialConsolePage() {
   const instanceSelector = useInstanceSelector()
   const { project, instance } = instanceSelector
 
-  const { data: instanceData } = usePrefetchedApiQuery('instanceView', {
-    query: { project },
-    path: { instance },
-  })
+  const { data: instanceData } = usePrefetchedApiQuery(
+    'instanceView',
+    {
+      query: { project },
+      path: { instance },
+    },
+    // if we land here and the instance is starting, we will not be able to
+    // connect, so we poll and connect as soon as it's running.
+    { refetchInterval: (q) => (isStarting(q.state.data) ? 1000 : false) }
+  )
 
   const ws = useRef<WebSocket | null>(null)
 
@@ -140,7 +150,7 @@ export function SerialConsolePage() {
         {connectionStatus === 'connecting' && <ConnectingSkeleton />}
         {connectionStatus === 'error' && <ErrorSkeleton />}
         {connectionStatus === 'closed' && !canConnect && (
-          <CannotConnect instanceState={instanceData.runState} />
+          <CannotConnect instance={instanceData} />
         )}
         {/* closed && canConnect shouldn't be possible because there's no way to
          * close an open connection other than leaving the page */}
@@ -206,14 +216,16 @@ const ConnectingSkeleton = () => (
   </SerialSkeleton>
 )
 
-const CannotConnect = ({ instanceState }: { instanceState: InstanceState }) => (
+const CannotConnect = ({ instance }: { instance: Instance }) => (
   <SerialSkeleton>
     <p className="flex items-center justify-center text-sans-xl">
-      <span>The instance is</span>
-      <InstanceStatusBadge className="ml-1" status={instanceState} />
+      <span>The instance is </span>
+      <InstanceStatusBadge className="ml-1.5" status={instance.runState} />
     </p>
     <p className="mt-2 text-center text-secondary">
-      You can only connect to the serial console on a running instance.
+      {isStarting(instance)
+        ? 'We will try to connect as soon as the instance starts.'
+        : 'You can only connect to the serial console on a running instance.'}
     </p>
   </SerialSkeleton>
 )
