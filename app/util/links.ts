@@ -25,6 +25,8 @@ export const links = {
   quickStart: 'https://docs.oxide.computer/guides/quickstart',
   routersDocs:
     'https://docs.oxide.computer/guides/configuring-guest-networking#_custom_routers',
+  siloQuotasDocs:
+    'https://docs.oxide.computer/guides/operator/silo-management#_silo_resource_quota_management',
   sledDocs:
     'https://docs.oxide.computer/guides/architecture/service-processors#_server_sled',
   snapshotsDocs:
