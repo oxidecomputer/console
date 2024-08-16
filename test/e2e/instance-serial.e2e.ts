@@ -21,10 +21,12 @@ test('serial console can connect while starting', async ({ page }) => {
   await page.getByRole('tab', { name: 'Connect' }).click()
   await page.getByRole('link', { name: 'Connect' }).click()
 
-  // "Connecting" displays and then disappears once the instance is running
-  const connecting = page.getByText('Connecting to serial console')
-  await expect(connecting).toBeVisible()
-  await expect(connecting).toBeHidden()
+  // The message goes from creating to starting and then disappears once
+  // the instance is running
+  await expect(page.getByText('The instance is creating')).toBeVisible()
+  await expect(page.getByText('We will try to connect')).toBeVisible()
+  await expect(page.getByText('The instance is starting')).toBeVisible()
+  await expect(page.getByText('The instance is')).toBeHidden()
 
   // Here it would be nice to test that the serial console connects, but we
   // can't mock websockets with MSW yet: https://github.com/mswjs/msw/pull/2011
