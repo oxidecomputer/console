@@ -107,6 +107,7 @@ const hostDefaultValues: HostFormValues = {
 type TargetFormValues = {
   type: VpcFirewallRuleTarget['type']
   value: string
+  subnetVpc?: string
 }
 
 const targetDefaultValues: TargetFormValues = {
@@ -122,6 +123,14 @@ type CommonFieldsProps = {
   vpcs: Array<Vpc>
   nameTaken: (name: string) => boolean
 }
+
+const targetAndHostItems = [
+  { value: 'vpc', label: 'VPC' },
+  { value: 'subnet', label: 'VPC Subnet' },
+  { value: 'instance', label: 'Instance' },
+  { value: 'ip', label: 'IP' },
+  { value: 'ip_net', label: 'IP subnet' },
+]
 
 function getFilterValueProps(hostType: VpcFirewallRuleHostFilter['type']) {
   switch (hostType) {
@@ -204,6 +213,28 @@ export const CommonFields = ({
 
   const targetForm = useForm({ defaultValues: targetDefaultValues })
   const targets = useController({ name: 'targets', control }).field
+  const targetType = targetForm.watch('type')
+  const targetSubnetVpc = targetForm.watch('subnetVpc')
+
+  const { data: targetVpcSubnets } = useApiQuery(
+    'vpcSubnetList',
+    { query: { project, vpc: targetSubnetVpc } },
+    { enabled: !!targetSubnetVpc }
+  )
+  const targetFilterItems = {
+    vpc: vpcs.map((v) => ({ value: v.name, label: v.name })),
+    subnet:
+      targetVpcSubnets?.items
+        // filter out subnets that are already targets
+        .filter((i) => !targets.value.map((t) => t.value).includes(i.name))
+        .map((s) => toComboboxItem(s.name)) || [],
+    instance: instances.map((i) => toComboboxItem(i.name)),
+    ip: [],
+    ip_net: [],
+  }
+
+  const isTargetFilterInputDisabled = targetType === 'subnet' && !targetSubnetVpc
+
   const submitTarget = targetForm.handleSubmit(({ type, value }) => {
     // TODO: do this with a normal validation
     // ignore click if empty or a duplicate
@@ -219,15 +250,18 @@ export const CommonFields = ({
   const hostType = hostForm.watch('type')
   const hostSubnetVpc = hostForm.watch('subnetVpc')
 
-  const { data: vpcSubnets } = useApiQuery(
+  const { data: hostVpcSubnets } = useApiQuery(
     'vpcSubnetList',
     { query: { project, vpc: hostSubnetVpc } },
     { enabled: !!hostSubnetVpc }
   )
-
   const hostFilterItems = {
     vpc: vpcs.map((v) => ({ value: v.name, label: v.name })),
-    subnet: vpcSubnets?.items.map((s) => toComboboxItem(s.name)) || [],
+    subnet:
+      hostVpcSubnets?.items
+        // filter out subnets that are already targets
+        .filter((i) => !hosts.value.map((h) => h.value).includes(i.name))
+        .map((s) => toComboboxItem(s.name)) || [],
     instance: instances.map((i) => toComboboxItem(i.name)),
     ip: [],
     ip_net: [],
@@ -305,31 +339,66 @@ export const CommonFields = ({
       <ListboxField
         name="type"
         label="Target type"
-        items={[
-          { value: 'vpc', label: 'VPC' },
-          { value: 'subnet', label: 'VPC Subnet' },
-          { value: 'instance', label: 'Instance' },
-          { value: 'ip', label: 'IP' },
-          { value: 'ip_net', label: 'IP subnet' },
-        ]}
+        items={targetAndHostItems}
         required
         control={targetForm.control}
+        onChange={() => {
+          targetForm.setValue('value', '') // clear the value when the type changes
+        }}
       />
       <div className="flex flex-col gap-3">
-        <TextField
-          name="value"
-          {...getFilterValueProps(targetForm.watch('type'))}
-          required
-          control={targetForm.control}
-          onKeyDown={(e) => {
-            if (e.key === KEYS.enter) {
-              e.preventDefault() // prevent full form submission
-              submitTarget(e)
-            }
-          }}
-          // TODO: validate here, but it's complicated because it's conditional
-          // on which type is selected
-        />
+        {/*
+          If the user is trying to specify a subnet, they must
+          first select the VPC that owns the subnet
+        */}
+        {targetType === 'subnet' && (
+          <ListboxField
+            name="subnetVpc"
+            label="VPC"
+            required
+            control={targetForm.control}
+            items={vpcs.map((v) => toComboboxItem(v.name))}
+            // when this changes, we need to re-fetch the subnet list
+            onChange={() => {
+              queryClient.invalidateQueries('vpcSubnetList')
+            }}
+          />
+        )}
+        {/* For everything but IP this is a name, but for IP it's an IP.
+          So we should probably have the label on this field change when the
+          host type changes. Also need to confirm that it's just an IP and
+          not a block. */}
+        {targetType === 'subnet' ? (
+          <ComboboxField
+            disabled={isTargetFilterInputDisabled}
+            name="value"
+            {...getFilterValueProps(targetType)}
+            required
+            control={targetForm.control}
+            onInputChange={(value) => {
+              targetForm.setValue('value', value)
+            }}
+            items={targetFilterItems[targetType]}
+            showNoMatchPlaceholder={false}
+            // TODO: validate here, but it's complicated because it's conditional
+            // on which type is selected
+          />
+        ) : (
+          <TextField
+            name="value"
+            {...getFilterValueProps(targetForm.watch('type'))}
+            required
+            control={targetForm.control}
+            onKeyDown={(e) => {
+              if (e.key === KEYS.enter) {
+                e.preventDefault() // prevent full form submission
+                submitTarget(e)
+              }
+            }}
+            // TODO: validate here, but it's complicated because it's conditional
+            // on which type is selected
+          />
+        )}
 
         <div className="flex justify-end">
           <Button
@@ -489,13 +558,7 @@ export const CommonFields = ({
         <ListboxField
           name="type"
           label="Host type"
-          items={[
-            { value: 'vpc', label: 'VPC' },
-            { value: 'subnet', label: 'VPC Subnet' },
-            { value: 'instance', label: 'Instance' },
-            { value: 'ip', label: 'IP' },
-            { value: 'ip_net', label: 'IP Subnet' },
-          ]}
+          items={targetAndHostItems}
           required
           control={hostForm.control}
         />
