@@ -518,7 +518,7 @@ export const handlers = makeHandlers({
 
     setTimeout(() => {
       newInstance.run_state = 'starting'
-    }, 500)
+    }, 1000)
 
     setTimeout(() => {
       newInstance.run_state = 'running'
@@ -686,7 +686,7 @@ export const handlers = makeHandlers({
 
     setTimeout(() => {
       instance.run_state = 'running'
-    }, 4000)
+    }, 1000)
 
     return json(instance, { status: 202 })
   },
@@ -696,7 +696,7 @@ export const handlers = makeHandlers({
 
     setTimeout(() => {
       instance.run_state = 'stopped'
-    }, 4000)
+    }, 1000)
 
     return json(instance, { status: 202 })
   },

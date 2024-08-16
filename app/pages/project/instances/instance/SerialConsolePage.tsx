@@ -18,13 +18,11 @@ import {
 } from '@oxide/api'
 import { PrevArrow12Icon } from '@oxide/design-system/icons/react'
 
-import { instanceTransitioning } from '~/api/util'
 import { EquivalentCliCommand } from '~/components/EquivalentCliCommand'
 import { InstanceStatusBadge } from '~/components/StatusBadge'
 import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
 import { Badge, type BadgeColor } from '~/ui/lib/Badge'
 import { Spinner } from '~/ui/lib/Spinner'
-import { useInterval } from '~/ui/lib/use-interval'
 import { cliCmd } from '~/util/cli-cmd'
 import { pb } from '~/util/path-builder'
 
@@ -62,14 +60,6 @@ export function SerialConsolePage() {
   const { data: instanceData } = usePrefetchedApiQuery('instanceView', {
     query: { project },
     path: { instance },
-  })
-
-  // if we land here and the instance is starting, we will not be able to
-  // connect, but if we poll until it's running, we can connect as soon as it's
-  // running.
-  useInterval({
-    fn: () => apiQueryClient.invalidateQueries('instanceView'),
-    delay: instanceTransitioning(instanceData) ? 1000 : null,
   })
 
   const ws = useRef<WebSocket | null>(null)
@@ -223,9 +213,7 @@ const CannotConnect = ({ instanceState }: { instanceState: InstanceState }) => (
       <InstanceStatusBadge className="ml-1" status={instanceState} />
     </p>
     <p className="mt-2 text-center text-secondary">
-      {instanceState === 'starting'
-        ? 'We will try to connect as soon as the instance starts.'
-        : 'You can only connect to the serial console on a running instance.'}
+      You can only connect to the serial console on a running instance.
     </p>
   </SerialSkeleton>
 )
