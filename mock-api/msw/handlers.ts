@@ -696,7 +696,7 @@ export const handlers = makeHandlers({
 
     setTimeout(() => {
       instance.run_state = 'stopped'
-    }, 1000)
+    }, 3000)
 
     return json(instance, { status: 202 })
   },
