@@ -22,8 +22,8 @@ test('serial console can connect while starting', async ({ page }) => {
   await page.getByRole('link', { name: 'Connect' }).click()
 
   // The message goes from creating to starting and then disappears once
-  // the instance is running
-  await expect(page.getByText('The instance is creating')).toBeVisible()
+  // the instance is running. skip the check for "creating" because it can
+  // go by quickly
   await expect(page.getByText('Waiting for the instance to start')).toBeVisible()
   await expect(page.getByText('The instance is starting')).toBeVisible()
   await expect(page.getByText('The instance is')).toBeHidden()

@@ -673,7 +673,7 @@ export const handlers = makeHandlers({
 
     setTimeout(() => {
       instance.run_state = 'running'
-    }, 1000)
+    }, 3000)
 
     return json(instance, { status: 202 })
   },
