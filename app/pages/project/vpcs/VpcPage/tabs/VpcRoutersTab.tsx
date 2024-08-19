@@ -108,7 +108,7 @@ export function VpcRoutersTab() {
       <div className="mb-3 flex justify-end space-x-2">
         <CreateLink to={pb.vpcRoutersNew({ project, vpc })}>New router</CreateLink>
       </div>
-      <Table columns={columns} emptyState={emptyState} rowHeight="large" />
+      <Table columns={columns} emptyState={emptyState} />
       <Outlet />
     </>
   )
