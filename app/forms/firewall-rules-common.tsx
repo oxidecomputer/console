@@ -310,8 +310,8 @@ export const CommonFields = ({ error, control, nameTaken }: CommonFieldsProps) =
           <>
             Filters reduce the scope of this rule. Without filters, the rule applies to all
             traffic to the targets (or from the targets, if it&rsquo;s an outbound rule).
-            With multiple filters, the rule applies to traffic matching{' '}
-            <span className="underline">all</span> filters.
+            With multiple filter types, the rule applies to traffic matching at least one
+            filter of <span className="underline">every</span> type.
           </>
         }
       />
