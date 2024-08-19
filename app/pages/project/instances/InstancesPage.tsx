@@ -113,7 +113,6 @@ export function InstancesPage() {
           cell: (info) => <InstanceStatusCell value={info.getValue()} />,
         }
       ),
-      colHelper.accessor('hostname', {}),
       colHelper.accessor('timeCreated', Columns.timeCreated),
       getActionsCol(makeActions),
     ],
