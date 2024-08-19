@@ -111,7 +111,7 @@ export async function stopInstance(page: Page) {
   await page.getByRole('menuitem', { name: 'Stop' }).click()
   await page.getByRole('button', { name: 'Confirm' }).click()
   await closeToast(page)
-  await sleep(1200)
+  await sleep(2000)
   await refreshInstance(page)
   await expect(page.getByText('statusstopped')).toBeVisible()
 }

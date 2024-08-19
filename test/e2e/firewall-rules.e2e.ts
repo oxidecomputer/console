@@ -8,7 +8,7 @@
 
 import { clickRowAction, expect, expectRowVisible, test } from './utils'
 
-const defaultRules = ['allow-internal-inbound', 'allow-ssh', 'allow-icmp', 'allow-rdp']
+const defaultRules = ['allow-internal-inbound', 'allow-ssh', 'allow-icmp']
 
 test('can create firewall rule', async ({ page }) => {
   await page.goto('/projects/mock-project/vpcs/mock-vpc')
@@ -19,7 +19,7 @@ test('can create firewall rule', async ({ page }) => {
     await expect(page.locator(`text="${name}"`)).toBeVisible()
   }
   const rows = page.locator('tbody >> tr')
-  await expect(rows).toHaveCount(4)
+  await expect(rows).toHaveCount(3)
 
   const modal = page.getByRole('dialog', { name: 'Add firewall rule' })
   await expect(modal).toBeHidden()
@@ -100,7 +100,7 @@ test('can create firewall rule', async ({ page }) => {
   const tooltip = page.getByRole('tooltip', { name: 'Other filters UDP Port 123-' })
   await expect(tooltip).toBeVisible()
 
-  await expect(rows).toHaveCount(5)
+  await expect(rows).toHaveCount(4)
   for (const name of defaultRules) {
     await expect(page.locator(`text="${name}"`)).toBeVisible()
   }
@@ -241,7 +241,7 @@ test('can update firewall rule', async ({ page }) => {
   await page.getByRole('tab', { name: 'Firewall Rules' }).click()
 
   const rows = page.locator('tbody >> tr')
-  await expect(rows).toHaveCount(4)
+  await expect(rows).toHaveCount(3)
 
   // allow-icmp is the one we're doing to change
   const oldNameCell = page.locator('td >> text="allow-icmp"')
@@ -298,7 +298,7 @@ test('can update firewall rule', async ({ page }) => {
   await expect(newNameCell).toBeVisible()
   await expect(oldNameCell).toBeHidden()
 
-  await expect(rows).toHaveCount(4)
+  await expect(rows).toHaveCount(3)
 
   // new target shows up in target cell
   await expect(page.locator('text=subnetedit-filter-subnetICMP')).toBeVisible()
@@ -317,28 +317,44 @@ test('create from existing rule', async ({ page }) => {
   const modal = page.getByRole('dialog', { name: 'Add firewall rule' })
   await expect(modal).toBeHidden()
 
-  await clickRowAction(page, 'allow-rdp', 'Clone')
+  await clickRowAction(page, 'allow-icmp', 'Clone')
 
-  await expect(page).toHaveURL(url + '-new/allow-rdp')
+  await expect(page).toHaveURL(url + '-new/allow-icmp')
   await expect(modal).toBeVisible()
   await expect(modal.getByRole('textbox', { name: 'Name', exact: true })).toHaveValue(
-    'allow-rdp-copy'
+    'allow-icmp-copy'
   )
+
+  await expect(modal.getByRole('checkbox', { name: 'TCP' })).not.toBeChecked()
+  await expect(modal.getByRole('checkbox', { name: 'UDP' })).not.toBeChecked()
+  await expect(modal.getByRole('checkbox', { name: 'ICMP' })).toBeChecked()
+
+  // no port filters
+  const portFilters = modal.getByRole('table', { name: 'Port filters' })
+  await expect(portFilters).toBeHidden()
+
+  const targets = modal.getByRole('table', { name: 'Targets' })
+  await expect(targets.getByRole('row', { name: 'Name: default, Type: vpc' })).toBeVisible()
+
+  // close the modal
+  await page.keyboard.press('Escape')
+  await expect(modal).toBeHidden()
+
+  // do it again with a different rule
+  await clickRowAction(page, 'allow-ssh', 'Clone')
+
+  await expect(modal).toBeVisible()
+  await expect(modal.getByRole('textbox', { name: 'Name', exact: true })).toHaveValue(
+    'allow-ssh-copy'
+  )
+
+  await expect(portFilters.getByRole('cell', { name: '22', exact: true })).toBeVisible()
 
   await expect(modal.getByRole('checkbox', { name: 'TCP' })).toBeChecked()
   await expect(modal.getByRole('checkbox', { name: 'UDP' })).not.toBeChecked()
   await expect(modal.getByRole('checkbox', { name: 'ICMP' })).not.toBeChecked()
 
-  await expect(
-    modal
-      .getByRole('table', { name: 'Port filters' })
-      .getByRole('cell', { name: '3389', exact: true })
-  ).toBeVisible()
-  await expect(
-    modal
-      .getByRole('table', { name: 'Targets' })
-      .getByRole('row', { name: 'Name: default, Type: vpc' })
-  ).toBeVisible()
+  await expect(targets.getByRole('row', { name: 'Name: default, Type: vpc' })).toBeVisible()
 })
 
 const rulePath = '/projects/mock-project/vpcs/mock-vpc/firewall-rules/allow-icmp/edit'
@@ -354,4 +370,49 @@ test('can edit rule directly by URL', async ({ page }) => {
 test('404s on edit non-existent rule', async ({ page }) => {
   await page.goto(rulePath.replace('icmp', 'boop'))
   await expect(page.getByText('Page not found')).toBeVisible()
+})
+
+// when creating a rule, giving it the same name as an existing rule is an
+// error. if you want to overwrite a rule, you need to edit it
+test('name conflict error on create', async ({ page }) => {
+  await page.goto('/projects/mock-project/vpcs/mock-vpc/firewall-rules-new')
+
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill('allow-ssh')
+
+  const error = page.getByText('Name taken').first()
+  await expect(error).toBeHidden()
+
+  await page.getByRole('button', { name: 'Add rule' }).click()
+  await expect(error).toBeVisible()
+})
+
+// when editing a rule, on the other hand, we only check for conflicts against rules
+// other than the one being edited, because of course its name can stay the same
+test('name conflict error on edit', async ({ page }) => {
+  await page.goto('/projects/mock-project/vpcs/mock-vpc/firewall-rules/allow-icmp/edit')
+
+  // changing the name to one taken by another rule is an error
+  const nameField = page.getByRole('textbox', { name: 'Name', exact: true })
+  await nameField.fill('allow-ssh')
+
+  const error = page.getByText('Name taken').first()
+  await expect(error).toBeHidden()
+
+  await page.getByRole('button', { name: 'Update rule' }).click()
+  await expect(error).toBeVisible()
+
+  // change name back
+  await nameField.fill('allow-icmp')
+
+  // changing a value _without_ changing the name is allowed
+  await page.getByRole('textbox', { name: 'Priority' }).fill('37')
+  await page.getByRole('button', { name: 'Update rule' }).click()
+  await expect(error).toBeHidden()
+  await expectRowVisible(page.getByRole('table'), { Name: 'allow-icmp', Priority: '37' })
+
+  // changing the name to a non-conflicting name is allowed
+  await page.getByRole('link', { name: 'allow-icmp' }).click()
+  await nameField.fill('allow-icmp2')
+  await page.getByRole('button', { name: 'Update rule' }).click()
+  await expectRowVisible(page.getByRole('table'), { Name: 'allow-icmp2', Priority: '37' })
 })

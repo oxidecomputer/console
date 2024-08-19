@@ -23,10 +23,15 @@ export const links = {
     'https://docs.oxide.computer/guides/key-entities-and-concepts#_projects',
   projectsDocs: 'https://docs.oxide.computer/guides/onboarding-projects',
   quickStart: 'https://docs.oxide.computer/guides/quickstart',
+  routersDocs:
+    'https://docs.oxide.computer/guides/configuring-guest-networking#_custom_routers',
+  siloQuotasDocs:
+    'https://docs.oxide.computer/guides/operator/silo-management#_silo_resource_quota_management',
   sledDocs:
     'https://docs.oxide.computer/guides/architecture/service-processors#_server_sled',
   snapshotsDocs:
     'https://docs.oxide.computer/guides/managing-disks-and-snapshots#_snapshots',
+  sshKeysDocs: 'https://docs.oxide.computer/guides/user-settings#_ssh_keys',
   storageDocs:
     'https://docs.oxide.computer/guides/architecture/os-hypervisor-storage#_storage',
   systemIpPoolsDocs: 'https://docs.oxide.computer/guides/operator/ip-pool-management',
@@ -78,6 +83,10 @@ export const docLinks = {
     href: links.quickStart,
     linkText: 'Quick Start',
   },
+  routers: {
+    href: links.routersDocs,
+    linkText: 'Custom Routers',
+  },
   sleds: {
     href: links.sledDocs,
     linkText: 'Server Sleds',
@@ -85,6 +94,10 @@ export const docLinks = {
   snapshots: {
     href: links.snapshotsDocs,
     linkText: 'Disks and Snapshots',
+  },
+  sshKeys: {
+    href: links.sshKeysDocs,
+    linkText: 'SSH Keys',
   },
   storage: {
     href: links.storageDocs,

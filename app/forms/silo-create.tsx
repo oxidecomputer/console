@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { useApiMutation, useApiQueryClient, type SiloCreate } from '@oxide/api'
@@ -20,6 +21,7 @@ import { SideModalForm } from '~/components/form/SideModalForm'
 import { useForm } from '~/hooks'
 import { addToast } from '~/stores/toast'
 import { FormDivider } from '~/ui/lib/Divider'
+import { FieldLabel } from '~/ui/lib/FieldLabel'
 import { Message } from '~/ui/lib/Message'
 import { pb } from '~/util/path-builder'
 import { GiB } from '~/util/units'
@@ -45,10 +47,6 @@ const defaultValues: SiloCreateFormValues = {
   },
 }
 
-function validateQuota(value: number) {
-  if (value < 0) return 'Must be at least 0'
-}
-
 export function CreateSiloSideModalForm() {
   const navigate = useNavigate()
   const queryClient = useApiQueryClient()
@@ -65,7 +63,13 @@ export function CreateSiloSideModalForm() {
   })
 
   const form = useForm({ defaultValues })
-
+  const identityMode = form.watch('identityMode')
+  // Clear the adminGroupName if the user selects the "local only" identity mode
+  useEffect(() => {
+    if (identityMode === 'local_only') {
+      form.setValue('adminGroupName', '')
+    }
+  }, [identityMode, form])
   return (
     <SideModalForm
       form={form}
@@ -116,7 +120,6 @@ export function CreateSiloSideModalForm() {
         name="quotas.cpus"
         required
         units="vCPUs"
-        validate={validateQuota}
       />
       <NumberField
         control={form.control}
@@ -124,7 +127,6 @@ export function CreateSiloSideModalForm() {
         name="quotas.memory"
         required
         units="GiB"
-        validate={validateQuota}
       />
       <NumberField
         control={form.control}
@@ -132,7 +134,6 @@ export function CreateSiloSideModalForm() {
         name="quotas.storage"
         required
         units="GiB"
-        validate={validateQuota}
       />
       <FormDivider />
       <RadioField
@@ -145,21 +146,27 @@ export function CreateSiloSideModalForm() {
           { value: 'local_only', label: 'Local only' },
         ]}
       />
-      <TextField
-        name="adminGroupName"
-        label="Admin group name"
-        description="This group will be created and granted the Silo Admin role"
-        control={form.control}
-      />
+      {identityMode === 'saml_jit' && (
+        <TextField
+          name="adminGroupName"
+          label="Admin group name"
+          description="This group will be created and granted the Silo Admin role."
+          control={form.control}
+        />
+      )}
+      <FormDivider />
       <div>
-        <CheckboxField name="siloAdminGetsFleetAdmin" control={form.control}>
-          Grant fleet admin role to silo admins
-        </CheckboxField>
-      </div>
-      <div className="!mt-2">
-        <CheckboxField name="siloViewerGetsFleetViewer" control={form.control}>
-          Grant fleet viewer role to silo viewers
-        </CheckboxField>
+        <FieldLabel as="h3" id="role-mapping-label" className="mb-3">
+          Role mapping
+        </FieldLabel>
+        <div className="space-y-1">
+          <CheckboxField name="siloAdminGetsFleetAdmin" control={form.control}>
+            Grant fleet admin role to silo admins
+          </CheckboxField>
+          <CheckboxField name="siloViewerGetsFleetViewer" control={form.control}>
+            Grant fleet viewer role to silo viewers
+          </CheckboxField>
+        </div>
       </div>
       <FormDivider />
       <TlsCertsField control={form.control} />

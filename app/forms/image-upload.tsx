@@ -44,6 +44,7 @@ import { readBlobAsBase64 } from '~/util/file'
 import { invariant } from '~/util/invariant'
 import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
+import { isAllZeros } from '~/util/str'
 import { GiB, KiB } from '~/util/units'
 
 /** Format file size with two decimal points */
@@ -112,12 +113,6 @@ function Step({ children, state, label, className }: StepProps) {
     </div>
   )
 }
-
-/**
- * Does a base64 string represent underlying data that's all zeros, i.e., does
- * it look like `AAAAAAAAAAAAAAAA==`?
- */
-export const isAllZeros = (base64Data: string) => /^A*=*$/.test(base64Data)
 
 const randInt = () => Math.floor(Math.random() * 100000000)
 

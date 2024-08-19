@@ -65,3 +65,9 @@ export const validateIp = (ip: string) => {
   const isv6 = !isv4 && IPV6_REGEX.test(ip)
   return { isv4, isv6, valid: isv4 || isv6 }
 }
+
+/**
+ * Does a base64 string represent underlying data that's all zeros, i.e., does
+ * it look like `AAAAAAAAAAAAAAAA==`?
+ */
+export const isAllZeros = (base64Data: string) => /^A*=*$/.test(base64Data)

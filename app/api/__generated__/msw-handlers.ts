@@ -357,14 +357,6 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
-  /** `POST /v1/instances/:instance/migrate` */
-  instanceMigrate: (params: {
-    path: Api.InstanceMigratePathParams
-    query: Api.InstanceMigrateQueryParams
-    body: Json<Api.InstanceMigrate>
-    req: Request
-    cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.Instance>>
   /** `POST /v1/instances/:instance/reboot` */
   instanceReboot: (params: {
     path: Api.InstanceRebootPathParams
@@ -938,8 +930,8 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.BgpAnnouncement[]>>
-  /** `POST /v1/system/networking/bgp-announce` */
-  networkingBgpAnnounceSetCreate: (params: {
+  /** `PUT /v1/system/networking/bgp-announce` */
+  networkingBgpAnnounceSetUpdate: (params: {
     body: Json<Api.BgpAnnounceSetCreate>
     req: Request
     cookies: Record<string, string>
@@ -1137,7 +1129,7 @@ export interface MSWHandlers {
     body: Json<Api.TimeseriesQuery>
     req: Request
     cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.Table[]>>
+  }) => Promisable<HandlerResult<Api.OxqlQueryResult>>
   /** `GET /v1/timeseries/schema` */
   timeseriesSchemaList: (params: {
     query: Api.TimeseriesSchemaListQueryParams
@@ -1635,14 +1627,6 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       )
     ),
     http.post(
-      '/v1/instances/:instance/migrate',
-      handler(
-        handlers['instanceMigrate'],
-        schema.InstanceMigrateParams,
-        schema.InstanceMigrate
-      )
-    ),
-    http.post(
       '/v1/instances/:instance/reboot',
       handler(handlers['instanceReboot'], schema.InstanceRebootParams, null)
     ),
@@ -2103,9 +2087,9 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
         null
       )
     ),
-    http.post(
+    http.put(
       '/v1/system/networking/bgp-announce',
-      handler(handlers['networkingBgpAnnounceSetCreate'], null, schema.BgpAnnounceSetCreate)
+      handler(handlers['networkingBgpAnnounceSetUpdate'], null, schema.BgpAnnounceSetCreate)
     ),
     http.delete(
       '/v1/system/networking/bgp-announce',
