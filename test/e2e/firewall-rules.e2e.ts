@@ -157,11 +157,17 @@ test('firewall rule form targets table', async ({ page }) => {
   await addButton.click()
   await expectRowVisible(targets, { Type: 'vpc', Value: 'def' })
 
+  // select the target type as VPC Subnet
   await page.getByRole('button', { name: 'Target type' }).click()
   await page.getByRole('option', { name: 'VPC Subnet' }).click()
-  await page.getByRole('textbox', { name: 'Subnet name' }).fill('abc')
+  // select the VPC
+  await page.getByLabel('VPC', { exact: true }).nth(0).click()
+  await page.getByRole('option', { name: 'mock-vpc' }).click()
+  // select the subnet
+  await page.getByRole('combobox', { name: 'Subnet name' }).nth(0).click()
+  await page.getByRole('option', { name: 'mock-subnet' }).click()
   await addButton.click()
-  await expectRowVisible(targets, { Type: 'subnet', Value: 'abc' })
+  await expectRowVisible(targets, { Type: 'subnet', Value: 'mock-subnet' })
 
   await page.getByRole('button', { name: 'Target type' }).click()
   await page.getByRole('option', { name: 'IP', exact: true }).click()
