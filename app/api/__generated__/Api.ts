@@ -1845,11 +1845,6 @@ If not provided, all SSH public keys from the user's profile will be sent. If an
 }
 
 /**
- * Migration parameters for an `Instance`
- */
-export type InstanceMigrate = { dstSledId: string }
-
-/**
  * A MAC address
  *
  * A Media Access Control address, in EUI-48 format
@@ -2249,6 +2244,56 @@ export type NetworkInterface = {
 }
 
 /**
+ * List of data values for one timeseries.
+ *
+ * Each element is an option, where `None` represents a missing sample.
+ */
+export type ValueArray =
+  | { type: 'integer'; values: number[] }
+  | { type: 'double'; values: number[] }
+  | { type: 'boolean'; values: boolean[] }
+  | { type: 'string'; values: string[] }
+  | { type: 'integer_distribution'; values: Distributionint64[] }
+  | { type: 'double_distribution'; values: Distributiondouble[] }
+
+/**
+ * A single list of values, for one dimension of a timeseries.
+ */
+export type Values = {
+  /** The type of this metric. */
+  metricType: MetricType
+  /** The data values. */
+  values: ValueArray
+}
+
+/**
+ * Timepoints and values for one timeseries.
+ */
+export type Points = { startTimes?: Date[]; timestamps: Date[]; values: Values[] }
+
+/**
+ * A timeseries contains a timestamped set of values from one source.
+ *
+ * This includes the typed key-value pairs that uniquely identify it, and the set of timestamps and data values from it.
+ */
+export type Timeseries = { fields: Record<string, FieldValue>; points: Points }
+
+/**
+ * A table represents one or more timeseries with the same schema.
+ *
+ * A table is the result of an OxQL query. It contains a name, usually the name of the timeseries schema from which the data is derived, and any number of timeseries, which contain the actual data.
+ */
+export type Table = { name: string; timeseries: Record<string, Timeseries> }
+
+/**
+ * The result of a successful OxQL query.
+ */
+export type OxqlQueryResult = {
+  /** Tables resulting from the query, each containing timeseries. */
+  tables: Table[]
+}
+
+/**
  * A password used to authenticate a user
  *
  * Passwords may be subject to additional constraints.
@@ -2325,29 +2370,6 @@ export type Ping = {
   /** Whether the external API is reachable. Will always be Ok if the endpoint returns anything at all. */
   status: PingStatus
 }
-
-/**
- * List of data values for one timeseries.
- *
- * Each element is an option, where `None` represents a missing sample.
- */
-export type ValueArray =
-  | { type: 'integer'; values: number[] }
-  | { type: 'double'; values: number[] }
-  | { type: 'boolean'; values: boolean[] }
-  | { type: 'string'; values: string[] }
-  | { type: 'integer_distribution'; values: Distributionint64[] }
-  | { type: 'double_distribution'; values: Distributiondouble[] }
-
-/**
- * A single list of values, for one dimension of a timeseries.
- */
-export type Values = { metricType: MetricType; values: ValueArray }
-
-/**
- * Timepoints and values for one timeseries.
- */
-export type Points = { startTimes?: Date[]; timestamps: Date[]; values: Values[] }
 
 /**
  * Identity-related metadata that's included in nearly all public API objects
@@ -3409,20 +3431,6 @@ export type SwitchResultsPage = {
 }
 
 /**
- * A timeseries contains a timestamped set of values from one source.
- *
- * This includes the typed key-value pairs that uniquely identify it, and the set of timestamps and data values from it.
- */
-export type Timeseries = { fields: Record<string, FieldValue>; points: Points }
-
-/**
- * A table represents one or more timeseries with the same schema.
- *
- * A table is the result of an OxQL query. It contains a name, usually the name of the timeseries schema from which the data is derived, and any number of timeseries, which contain the actual data.
- */
-export type Table = { name: string; timeseries: Record<string, Timeseries> }
-
-/**
  * Text descriptions for the target and metric of a timeseries.
  */
 export type TimeseriesDescription = { metric: string; target: string }
@@ -4211,14 +4219,6 @@ export interface InstanceEphemeralIpDetachPathParams {
 }
 
 export interface InstanceEphemeralIpDetachQueryParams {
-  project?: NameOrId
-}
-
-export interface InstanceMigratePathParams {
-  instance: NameOrId
-}
-
-export interface InstanceMigrateQueryParams {
   project?: NameOrId
 }
 
@@ -5788,29 +5788,6 @@ export class Api extends HttpClient {
       return this.request<void>({
         path: `/v1/instances/${path.instance}/external-ips/ephemeral`,
         method: 'DELETE',
-        query,
-        ...params,
-      })
-    },
-    /**
-     * Migrate an instance
-     */
-    instanceMigrate: (
-      {
-        path,
-        query = {},
-        body,
-      }: {
-        path: InstanceMigratePathParams
-        query?: InstanceMigrateQueryParams
-        body: InstanceMigrate
-      },
-      params: FetchParams = {}
-    ) => {
-      return this.request<Instance>({
-        path: `/v1/instances/${path.instance}/migrate`,
-        method: 'POST',
-        body,
         query,
         ...params,
       })
@@ -7532,7 +7509,7 @@ export class Api extends HttpClient {
      * Run timeseries query
      */
     timeseriesQuery: ({ body }: { body: TimeseriesQuery }, params: FetchParams = {}) => {
-      return this.request<Table[]>({
+      return this.request<OxqlQueryResult>({
         path: `/v1/timeseries/query`,
         method: 'POST',
         body,

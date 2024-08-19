@@ -1752,14 +1752,6 @@ export const InstanceCreate = z.preprocess(
 )
 
 /**
- * Migration parameters for an `Instance`
- */
-export const InstanceMigrate = z.preprocess(
-  processResponseBody,
-  z.object({ dstSledId: z.string().uuid() })
-)
-
-/**
  * A MAC address
  *
  * A Media Access Control address, in EUI-48 format
@@ -2134,6 +2126,71 @@ export const NetworkInterface = z.preprocess(
 )
 
 /**
+ * List of data values for one timeseries.
+ *
+ * Each element is an option, where `None` represents a missing sample.
+ */
+export const ValueArray = z.preprocess(
+  processResponseBody,
+  z.union([
+    z.object({ type: z.enum(['integer']), values: z.number().array() }),
+    z.object({ type: z.enum(['double']), values: z.number().array() }),
+    z.object({ type: z.enum(['boolean']), values: SafeBoolean.array() }),
+    z.object({ type: z.enum(['string']), values: z.string().array() }),
+    z.object({ type: z.enum(['integer_distribution']), values: Distributionint64.array() }),
+    z.object({ type: z.enum(['double_distribution']), values: Distributiondouble.array() }),
+  ])
+)
+
+/**
+ * A single list of values, for one dimension of a timeseries.
+ */
+export const Values = z.preprocess(
+  processResponseBody,
+  z.object({ metricType: MetricType, values: ValueArray })
+)
+
+/**
+ * Timepoints and values for one timeseries.
+ */
+export const Points = z.preprocess(
+  processResponseBody,
+  z.object({
+    startTimes: z.coerce.date().array().optional(),
+    timestamps: z.coerce.date().array(),
+    values: Values.array(),
+  })
+)
+
+/**
+ * A timeseries contains a timestamped set of values from one source.
+ *
+ * This includes the typed key-value pairs that uniquely identify it, and the set of timestamps and data values from it.
+ */
+export const Timeseries = z.preprocess(
+  processResponseBody,
+  z.object({ fields: z.record(z.string().min(1), FieldValue), points: Points })
+)
+
+/**
+ * A table represents one or more timeseries with the same schema.
+ *
+ * A table is the result of an OxQL query. It contains a name, usually the name of the timeseries schema from which the data is derived, and any number of timeseries, which contain the actual data.
+ */
+export const Table = z.preprocess(
+  processResponseBody,
+  z.object({ name: z.string(), timeseries: z.record(z.string().min(1), Timeseries) })
+)
+
+/**
+ * The result of a successful OxQL query.
+ */
+export const OxqlQueryResult = z.preprocess(
+  processResponseBody,
+  z.object({ tables: Table.array() })
+)
+
+/**
  * A password used to authenticate a user
  *
  * Passwords may be subject to additional constraints.
@@ -2196,43 +2253,6 @@ export const PhysicalDiskResultsPage = z.preprocess(
 export const PingStatus = z.preprocess(processResponseBody, z.enum(['ok']))
 
 export const Ping = z.preprocess(processResponseBody, z.object({ status: PingStatus }))
-
-/**
- * List of data values for one timeseries.
- *
- * Each element is an option, where `None` represents a missing sample.
- */
-export const ValueArray = z.preprocess(
-  processResponseBody,
-  z.union([
-    z.object({ type: z.enum(['integer']), values: z.number().array() }),
-    z.object({ type: z.enum(['double']), values: z.number().array() }),
-    z.object({ type: z.enum(['boolean']), values: SafeBoolean.array() }),
-    z.object({ type: z.enum(['string']), values: z.string().array() }),
-    z.object({ type: z.enum(['integer_distribution']), values: Distributionint64.array() }),
-    z.object({ type: z.enum(['double_distribution']), values: Distributiondouble.array() }),
-  ])
-)
-
-/**
- * A single list of values, for one dimension of a timeseries.
- */
-export const Values = z.preprocess(
-  processResponseBody,
-  z.object({ metricType: MetricType, values: ValueArray })
-)
-
-/**
- * Timepoints and values for one timeseries.
- */
-export const Points = z.preprocess(
-  processResponseBody,
-  z.object({
-    startTimes: z.coerce.date().array().optional(),
-    timestamps: z.coerce.date().array(),
-    values: Values.array(),
-  })
-)
 
 /**
  * Identity-related metadata that's included in nearly all public API objects
@@ -3160,26 +3180,6 @@ export const SwitchPortSettingsView = z.preprocess(
 export const SwitchResultsPage = z.preprocess(
   processResponseBody,
   z.object({ items: Switch.array(), nextPage: z.string().optional() })
-)
-
-/**
- * A timeseries contains a timestamped set of values from one source.
- *
- * This includes the typed key-value pairs that uniquely identify it, and the set of timestamps and data values from it.
- */
-export const Timeseries = z.preprocess(
-  processResponseBody,
-  z.object({ fields: z.record(z.string().min(1), FieldValue), points: Points })
-)
-
-/**
- * A table represents one or more timeseries with the same schema.
- *
- * A table is the result of an OxQL query. It contains a name, usually the name of the timeseries schema from which the data is derived, and any number of timeseries, which contain the actual data.
- */
-export const Table = z.preprocess(
-  processResponseBody,
-  z.object({ name: z.string(), timeseries: z.record(z.string().min(1), Timeseries) })
 )
 
 /**
@@ -4200,18 +4200,6 @@ export const InstanceEphemeralIpAttachParams = z.preprocess(
 )
 
 export const InstanceEphemeralIpDetachParams = z.preprocess(
-  processResponseBody,
-  z.object({
-    path: z.object({
-      instance: NameOrId,
-    }),
-    query: z.object({
-      project: NameOrId.optional(),
-    }),
-  })
-)
-
-export const InstanceMigrateParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
