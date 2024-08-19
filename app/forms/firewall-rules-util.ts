@@ -7,6 +7,9 @@
  */
 import type { VpcFirewallRule, VpcFirewallRuleTarget, VpcFirewallRuleUpdate } from '~/api'
 
+// this file is separate from firewall-rules-common because of rules around fast refresh:
+// you can only export components from a file that exports components
+
 export type FirewallRuleValues = {
   enabled: boolean
   priority: number
