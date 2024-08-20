@@ -72,52 +72,47 @@ export function InstancesPage() {
   )
 
   // this is a whole thing. sit down.
+
+  // We initialize this set as empty because we don't have the instances on hand
+  // yet. This is fine because the first fetch will recognize the presence of
+  // any transitioning instances as a change in state and initiate polling
   const transitioningInstances = useRef<Set<string>>(new Set())
-  const pollingStart = useRef<number | null>(Date.now())
+  const pollingStartTime = useRef<number>(Date.now())
 
   const { data: instances, isFetching } = usePrefetchedApiQuery(
     'instanceList',
+    { query: { project, limit: PAGE_SIZE } },
     {
-      query: { project, limit: PAGE_SIZE },
-    },
-    {
-      refetchInterval({ state }) {
-        const currTransitioning = transitioningInstances.current
+      // The point of all this is to poll for a certain amount of time after
+      // some instance in the current page is transitioning. For example, if
+      // you manually stop an instance, its state will change to `stopping`,
+      // which will cause this logic to start polling the list until it lands
+      // in `stopped`, which is not a transitional state. We want polling to
+      // eventually time out so we're not polling forever if an instance is
+      // stuck in starting or whatever.
+      refetchInterval({ state: { data } }) {
+        // these are sets of instance UUIDs
+        const prevTransitioning = transitioningInstances.current
         const nextTransitioning = new Set(
           // data will never actually be undefined because of the prefetch but whatever
-          state.data?.items.filter(instanceTransitioning).map((i) => i.id) || []
+          data?.items.filter(instanceTransitioning).map((i) => i.id) || []
         )
 
         // always update. we don't have to worry about doing this in all the branches below.
         transitioningInstances.current = nextTransitioning
 
-        // if no instances are transitioning, stop polling
-        if (nextTransitioning.size === 0) {
-          pollingStart.current = null
-          return false
+        // if no instances are transitioning, do not poll
+        if (nextTransitioning.size === 0) return false
+
+        // if the set of transitioning instances hasn't changed, we only poll if we haven't hit the timeout
+        if (isSetEqual(prevTransitioning, nextTransitioning)) {
+          const elapsed = Date.now() - pollingStartTime.current
+          return elapsed < POLLING_TIMEOUT ? 1000 : false
         }
 
-        // if we have new transitioning instances, we always restart polling
-        // regardless of whether we were polling before
-        if (!isSetEqual(currTransitioning, nextTransitioning)) {
-          pollingStart.current = Date.now()
-          return 1000
-        }
-
-        // if the set hasn't changed, we still poll unless we've hit the timeout
-        if (
-          pollingStart.current !== null &&
-          Date.now() - pollingStart.current < POLLING_TIMEOUT
-        ) {
-          // don't update pollingStart: we need the timer to keep running down
-          return 1000
-        }
-
-        // at this point we know:
-        // - the set of transitioning instances hasn't changed
-        // - we are no longer within the polling window
-        pollingStart.current = null
-        return false
+        // if we have new transitioning instances, always poll and restart the window
+        pollingStartTime.current = Date.now()
+        return 1000
       },
     }
   )
