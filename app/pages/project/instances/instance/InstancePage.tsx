@@ -94,7 +94,10 @@ export function InstancePage() {
   const makeActions = useMakeInstanceActions(instanceSelector, {
     onSuccess: refreshData,
     // go to project instances list since there's no more instance
-    onDelete: () => navigate(pb.instances(instanceSelector)),
+    onDelete: () => {
+      apiQueryClient.invalidateQueries('instanceList')
+      navigate(pb.instances(instanceSelector))
+    },
   })
 
   const { data: instance } = usePrefetchedApiQuery(

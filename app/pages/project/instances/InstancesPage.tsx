@@ -10,12 +10,7 @@ import { filesize } from 'filesize'
 import { useMemo } from 'react'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
-import {
-  apiQueryClient,
-  useApiQueryClient,
-  usePrefetchedApiQuery,
-  type Instance,
-} from '@oxide/api'
+import { apiQueryClient, usePrefetchedApiQuery, type Instance } from '@oxide/api'
 import { Instances16Icon, Instances24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
@@ -55,11 +50,10 @@ InstancesPage.loader = async ({ params }: LoaderFunctionArgs) => {
   return null
 }
 
+const refetchInstances = () => apiQueryClient.invalidateQueries('instanceList')
+
 export function InstancesPage() {
   const { project } = useProjectSelector()
-
-  const queryClient = useApiQueryClient()
-  const refetchInstances = () => queryClient.invalidateQueries('instanceList')
 
   const makeActions = useMakeInstanceActions(
     { project },
