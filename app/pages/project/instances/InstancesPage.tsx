@@ -57,7 +57,9 @@ InstancesPage.loader = async ({ params }: LoaderFunctionArgs) => {
   return null
 }
 
-const POLLING_TIMEOUT = 5_000 // 30 seconds
+const sec = 1000 // ms, obviously
+const POLL_TIMEOUT = 30 * sec
+const POLL_INTERVAL = 3 * sec
 
 export function InstancesPage() {
   const { project } = useProjectSelector()
@@ -100,7 +102,7 @@ export function InstancesPage() {
             // times out, and then you manually stop it. Without putting the state in the
             // the key, that stop action would not be registered as a change in the set
             // of transitioning instances.
-            .map((i) => i.id + '-' + i.runState)
+            .map((i) => i.id + '|' + i.runState)
         )
 
         // always update. we don't have to worry about doing this in all the branches below.
@@ -112,12 +114,12 @@ export function InstancesPage() {
         // if the set of transitioning instances hasn't changed, we only poll if we haven't hit the timeout
         if (isSetEqual(prevTransitioning, nextTransitioning)) {
           const elapsed = Date.now() - pollingStartTime.current
-          return elapsed < POLLING_TIMEOUT ? 1000 : false
+          return elapsed < POLL_TIMEOUT ? POLL_INTERVAL : false
         }
 
         // if we have new transitioning instances, always poll and restart the window
         pollingStartTime.current = Date.now()
-        return 1000
+        return POLL_INTERVAL
       },
     }
   )
