@@ -15,6 +15,7 @@ import { getInstanceSelector, useInstanceSelector, useProjectSelector } from '~/
 import { buttonStyle } from '~/ui/lib/Button'
 import { SettingsGroup } from '~/ui/lib/SettingsGroup'
 import { cliCmd } from '~/util/cli-cmd'
+import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 ConnectTab.loader = async ({ params }: LoaderFunctionArgs) => {
@@ -27,7 +28,7 @@ ConnectTab.loader = async ({ params }: LoaderFunctionArgs) => {
 }
 
 const InlineCode = ({ children }: { children: ReactNode }) => (
-  <code className="h-4 whitespace-nowrap rounded-sm px-[3px] py-[1px] !lowercase text-mono-sm text-secondary bg-secondary">
+  <code className="h-4 whitespace-nowrap rounded-sm px-[3px] py-[1px] !lowercase text-mono-md text-secondary bg-secondary">
     {children}
   </code>
 )
@@ -43,17 +44,10 @@ export function ConnectTab() {
   // default to a floating IP; fall back to ephemeral IP, if it exists
   const externalIp = (floatingIps?.[0] || externalIps?.items?.[0])?.ip
   const sshCopy = externalIp ? (
-    <>
-      <p>
-        If you specified SSH keys when you created this instance, you can connect to it
-        through an external IP: <InlineCode>ssh [username]@{externalIp}</InlineCode>
-      </p>
-      <p>
-        The <InlineCode>[username]</InlineCode> in the SSH command will depend on your
-        instance’s boot disk’s OS, but might be <InlineCode>debian</InlineCode>,{' '}
-        <InlineCode>ubuntu</InlineCode>, <InlineCode>arch</InlineCode>, etc.
-      </p>
-    </>
+    <p>
+      If you specified SSH keys when you created this instance, you can connect to it
+      through an external IP: <InlineCode>ssh [username]@{externalIp}</InlineCode>
+    </p>
   ) : (
     <p>
       If you specified SSH keys when you created this instance, you can create an external
@@ -90,7 +84,7 @@ export function ConnectTab() {
             <p>
               Read our{' '}
               <Link
-                to="https://docs.oxide.computer/guides/deploying-workloads#_access_via_ssh"
+                to={links.sshKeysDocs}
                 className="link-with-underline"
                 target="_blank"
                 rel="noreferrer"
