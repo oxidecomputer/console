@@ -71,8 +71,7 @@ export function ConnectTab() {
         <SettingsGroup.Body>
           <SettingsGroup.Title>SSH</SettingsGroup.Title>
           <p>
-            If you specified SSH keys when you created this instance, you can connect to it
-            through an external IP:{' '}
+            You may be able to access this instance via SSH:{' '}
             <InlineCode>ssh [username]@{externalIp || '[IP address]'}</InlineCode>
           </p>
           {!externalIp && (
