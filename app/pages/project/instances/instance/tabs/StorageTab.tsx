@@ -123,6 +123,8 @@ export function StorageTab() {
         },
       },
       {
+        // don't bother checking disk state: assume that if it is showing up
+        // in this list, it can be detached
         label: 'Detach',
         disabled: !instanceCan.detachDisk({ runState: instance.runState }) && (
           <>
