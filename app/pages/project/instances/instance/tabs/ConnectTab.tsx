@@ -9,11 +9,11 @@
 import type { ReactNode } from 'react'
 import { Link, type LoaderFunctionArgs } from 'react-router-dom'
 
-import { apiQueryClient, useApiQuery } from '~/api'
+import { apiQueryClient, usePrefetchedApiQuery } from '~/api'
 import { EquivalentCliCommand } from '~/components/EquivalentCliCommand'
-import { getInstanceSelector, useInstanceSelector, useProjectSelector } from '~/hooks'
+import { getInstanceSelector, useInstanceSelector } from '~/hooks'
 import { buttonStyle } from '~/ui/lib/Button'
-import { SettingsGroup } from '~/ui/lib/SettingsGroup'
+import { LearnMore, SettingsGroup } from '~/ui/lib/SettingsGroup'
 import { cliCmd } from '~/util/cli-cmd'
 import { links } from '~/util/links'
 import { pb } from '~/util/path-builder'
@@ -35,29 +35,14 @@ const InlineCode = ({ children }: { children: ReactNode }) => (
 
 export function ConnectTab() {
   const { project, instance } = useInstanceSelector()
-  const { data: externalIps } = useApiQuery('instanceExternalIpList', {
+  const { data: externalIps } = usePrefetchedApiQuery('instanceExternalIpList', {
     path: { instance },
     query: { project },
   })
-  const newFloatingIpLink = pb.floatingIpsNew(useProjectSelector())
-  const floatingIps = externalIps?.items?.filter((ip) => ip.kind === 'floating')
-  // default to a floating IP; fall back to ephemeral IP, if it exists
-  const externalIp = (floatingIps?.[0] || externalIps?.items?.[0])?.ip
-  const sshCopy = externalIp ? (
-    <p>
-      If you specified SSH keys when you created this instance, you can connect to it
-      through an external IP: <InlineCode>ssh [username]@{externalIp}</InlineCode>
-    </p>
-  ) : (
-    <p>
-      If you specified SSH keys when you created this instance, you can create an external
-      IP via the{' '}
-      <Link to={newFloatingIpLink} className="link-with-underline">
-        Floating IPs page
-      </Link>{' '}
-      to connect to your instance via SSH.
-    </p>
-  )
+  const floatingIp = externalIps.items.find((ip) => ip.kind === 'floating')
+  const ephemeralIp = externalIps.items.find((ip) => ip.kind === 'ephemeral')
+  // prefer floating, fall back to ephemeral
+  const externalIp = floatingIp?.ip || ephemeralIp?.ip
 
   return (
     <div className="space-y-6">
@@ -67,34 +52,47 @@ export function ConnectTab() {
           Connect to your instance&rsquo;s serial console
         </SettingsGroup.Body>
         <SettingsGroup.Footer>
-          <EquivalentCliCommand command={cliCmd.serialConsole({ project, instance })} />
-          <Link
-            to={pb.serialConsole({ project, instance })}
-            className={buttonStyle({ size: 'sm' })}
-          >
-            Connect
-          </Link>
+          <div>
+            {/* TODO: CORRECT LINK */}
+            <LearnMore text="Serial Console" href={links.sshKeysDocs} />
+          </div>
+          <div className="flex gap-3">
+            <EquivalentCliCommand command={cliCmd.serialConsole({ project, instance })} />
+            <Link
+              to={pb.serialConsole({ project, instance })}
+              className={buttonStyle({ size: 'sm' })}
+            >
+              Connect
+            </Link>
+          </div>
         </SettingsGroup.Footer>
       </SettingsGroup.Container>
       <SettingsGroup.Container>
         <SettingsGroup.Body>
           <SettingsGroup.Title>SSH</SettingsGroup.Title>
-          <div className="space-y-3">
-            {sshCopy}
-            <p>
-              Read our{' '}
+          <p>
+            If you specified SSH keys when you created this instance, you can connect to it
+            through an external IP:{' '}
+            <InlineCode>ssh [username]@{externalIp || '[IP address]'}</InlineCode>
+          </p>
+          {!externalIp && (
+            <p className="mt-2">
+              This instance has no external IP address. You can add one on the{' '}
               <Link
-                to={links.sshKeysDocs}
                 className="link-with-underline"
-                target="_blank"
-                rel="noreferrer"
+                to={pb.instanceNetworking({ project, instance })}
               >
-                SSH guide
+                networking
               </Link>{' '}
-              to learn more.
+              tab.
             </p>
-          </div>
+          )}
         </SettingsGroup.Body>
+        <SettingsGroup.Footer>
+          <div>
+            <LearnMore text="SSH" href={links.sshKeysDocs} />
+          </div>
+        </SettingsGroup.Footer>
       </SettingsGroup.Container>
     </div>
   )
