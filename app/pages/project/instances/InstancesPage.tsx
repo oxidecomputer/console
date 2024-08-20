@@ -108,7 +108,7 @@ export function InstancesPage() {
         ),
       }),
       colHelper.accessor('memory', {
-        header: 'RAM',
+        header: 'Memory',
         cell: (info) => {
           const memory = filesize(info.getValue(), { output: 'object', base: 2 })
           return (
@@ -119,10 +119,7 @@ export function InstancesPage() {
         },
       }),
       colHelper.accessor(
-        (i) => ({
-          runState: i.runState,
-          timeRunStateUpdated: i.timeRunStateUpdated,
-        }),
+        (i) => ({ runState: i.runState, timeRunStateUpdated: i.timeRunStateUpdated }),
         {
           header: 'status',
           cell: (info) => <InstanceStatusCell value={info.getValue()} />,
