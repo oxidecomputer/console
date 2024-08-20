@@ -326,14 +326,21 @@ export function ProjectPicker({ project }: { project?: Project }) {
 export function InstancePicker() {
   // picker only shows up when an instance is in scope
   const instanceSelector = useInstanceSelector()
-  const { instance } = instanceSelector
-
+  const { project, instance } = instanceSelector
+  const { data: instances } = useApiQuery('instanceList', {
+    query: { project, limit: PAGE_SIZE },
+  })
+  const items = (instances?.items || []).map(({ name }) => ({
+    label: name,
+    to: pb.instance({ project, instance: name }),
+  }))
   return (
     <TopBarPicker
       aria-label="Switch instance"
       category="Instance"
       current={instance}
-      to={pb.instanceStorage(instanceSelector)}
+      to={pb.instance({ project, instance })}
+      items={items}
       noItemsText="No instances found"
     />
   )
