@@ -26,10 +26,8 @@ export const TimeAgo = ({
     </div>
   )
   return (
-    <span className="mt-0.5">
-      <Tooltip content={content} placement={placement}>
-        <span className="text-sans-sm text-tertiary">{timeAgoAbbr(datetime)}</span>
-      </Tooltip>
-    </span>
+    <Tooltip content={content} placement={placement}>
+      <span className="text-sans-sm text-tertiary">{timeAgoAbbr(datetime)}</span>
+    </Tooltip>
   )
 }
