@@ -96,9 +96,10 @@ const instanceActions: Record<string, InstanceState[]> = {
   // https://github.com/oxidecomputer/omicron/blob/6dd9802/nexus/db-queries/src/db/datastore/instance.rs#L865
   delete: ['stopped', 'failed'],
 
-  // TODO: ask greg about this
-  // reboot and stop are kind of weird! in theory you can do it from a bunch of different states
+  // reboot and stop are kind of weird!
   // https://github.com/oxidecomputer/omicron/blob/6dd9802/nexus/src/app/instance.rs#L790-L798
+  // https://github.com/oxidecomputer/propolis/blob/b278193/bin/propolis-server/src/lib/vm/request_queue.rs
+  // https://github.com/oxidecomputer/console/pull/2387#discussion_r1722368236
   reboot: ['running'],
   stop: ['running', 'starting'],
 
