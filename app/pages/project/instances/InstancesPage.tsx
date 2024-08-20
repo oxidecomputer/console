@@ -7,11 +7,12 @@
  */
 import { createColumnHelper } from '@tanstack/react-table'
 import { filesize } from 'filesize'
-import { useMemo } from 'react'
+import { useMemo, useRef } from 'react'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
   apiQueryClient,
+  instanceTransitioning,
   useApiQueryClient,
   usePrefetchedApiQuery,
   type Instance,
@@ -29,7 +30,9 @@ import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
+import { Spinner } from '~/ui/lib/Spinner'
 import { TableActions } from '~/ui/lib/Table'
+import { isSetEqual } from '~/util/array'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
@@ -55,6 +58,8 @@ InstancesPage.loader = async ({ params }: LoaderFunctionArgs) => {
   return null
 }
 
+const POLLING_TIMEOUT = 5_000 // 30 seconds
+
 export function InstancesPage() {
   const { project } = useProjectSelector()
 
@@ -66,9 +71,56 @@ export function InstancesPage() {
     { onSuccess: refetchInstances, onDelete: refetchInstances }
   )
 
-  const { data: instances } = usePrefetchedApiQuery('instanceList', {
-    query: { project, limit: PAGE_SIZE },
-  })
+  // this is a whole thing. sit down.
+  const transitioningInstances = useRef<Set<string>>(new Set())
+  const pollingStart = useRef<number | null>(Date.now())
+
+  const { data: instances, isFetching } = usePrefetchedApiQuery(
+    'instanceList',
+    {
+      query: { project, limit: PAGE_SIZE },
+    },
+    {
+      refetchInterval({ state }) {
+        const currTransitioning = transitioningInstances.current
+        const nextTransitioning = new Set(
+          // data will never actually be undefined because of the prefetch but whatever
+          state.data?.items.filter(instanceTransitioning).map((i) => i.id) || []
+        )
+
+        // always update. we don't have to worry about doing this in all the branches below.
+        transitioningInstances.current = nextTransitioning
+
+        // if no instances are transitioning, stop polling
+        if (nextTransitioning.size === 0) {
+          pollingStart.current = null
+          return false
+        }
+
+        // if we have new transitioning instances, we always restart polling
+        // regardless of whether we were polling before
+        if (!isSetEqual(currTransitioning, nextTransitioning)) {
+          pollingStart.current = Date.now()
+          return 1000
+        }
+
+        // if the set hasn't changed, we still poll unless we've hit the timeout
+        if (
+          pollingStart.current !== null &&
+          Date.now() - pollingStart.current < POLLING_TIMEOUT
+        ) {
+          // don't update pollingStart: we need the timer to keep running down
+          return 1000
+        }
+
+        // at this point we know:
+        // - the set of transitioning instances hasn't changed
+        // - we are no longer within the polling window
+        pollingStart.current = null
+        return false
+      },
+    }
+  )
 
   const navigate = useNavigate()
   useQuickActions(
@@ -145,6 +197,11 @@ export function InstancesPage() {
         />
       </PageHeader>
       <TableActions>
+        {isFetching && (
+          <div>
+            <Spinner />
+          </div>
+        )}
         <RefreshButton onClick={refetchInstances} />
         <CreateLink to={pb.instancesNew({ project })}>New Instance</CreateLink>
       </TableActions>
