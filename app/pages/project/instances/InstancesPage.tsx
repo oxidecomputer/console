@@ -30,7 +30,6 @@ import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
-import { Spinner } from '~/ui/lib/Spinner'
 import { TableActions } from '~/ui/lib/Table'
 import { isSetEqual } from '~/util/array'
 import { docLinks } from '~/util/links'
@@ -79,7 +78,7 @@ export function InstancesPage() {
   const transitioningInstances = useRef<Set<string>>(new Set())
   const pollingStartTime = useRef<number>(Date.now())
 
-  const { data: instances, isFetching } = usePrefetchedApiQuery(
+  const { data: instances } = usePrefetchedApiQuery(
     'instanceList',
     { query: { project, limit: PAGE_SIZE } },
     {
@@ -91,11 +90,17 @@ export function InstancesPage() {
       // eventually time out so we're not polling forever if an instance is
       // stuck in starting or whatever.
       refetchInterval({ state: { data } }) {
-        // these are sets of instance UUIDs
         const prevTransitioning = transitioningInstances.current
         const nextTransitioning = new Set(
-          // data will never actually be undefined because of the prefetch but whatever
-          data?.items.filter(instanceTransitioning).map((i) => i.id) || []
+          // Data will never actually be undefined because of the prefetch but whatever
+          (data?.items || [])
+            .filter(instanceTransitioning)
+            // These are strings of instance ID + current state. This is done because
+            // of the case where an instance is stuck in starting (for example), polling
+            // times out, and then you manually stop it. Without putting the state in the
+            // the key, that stop action would not be registered as a change in the set
+            // of transitioning instances.
+            .map((i) => i.id + '-' + i.runState)
         )
 
         // always update. we don't have to worry about doing this in all the branches below.
@@ -192,11 +197,6 @@ export function InstancesPage() {
         />
       </PageHeader>
       <TableActions>
-        {isFetching && (
-          <div>
-            <Spinner />
-          </div>
-        )}
         <RefreshButton onClick={refetchInstances} />
         <CreateLink to={pb.instancesNew({ project })}>New Instance</CreateLink>
       </TableActions>
