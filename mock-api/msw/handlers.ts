@@ -21,7 +21,8 @@ import {
 } from '@oxide/api'
 
 import { json, makeHandlers, type Json } from '~/api/__generated__/msw-handlers'
-import { validateIp } from '~/util/str'
+import { instanceCan } from '~/api/util'
+import { commaSeries, validateIp } from '~/util/str'
 import { GiB } from '~/util/units'
 
 import { genCumulativeI64Data } from '../metrics'
@@ -557,10 +558,15 @@ export const handlers = makeHandlers({
   },
   instanceDiskDetach({ body, path, query: projectParams }) {
     const instance = lookup.instance({ ...path, ...projectParams })
-    if (instance.run_state !== 'stopped') {
-      throw 'Cannot detach disk from instance that is not stopped'
+    if (!instanceCan.detachDisk({ runState: instance.run_state })) {
+      const states = commaSeries(instanceCan.detachDisk.states, 'or')
+      throw `Can only detach disk from instance that is ${states}`
     }
     const disk = lookup.disk({ ...projectParams, disk: body.disk })
+    if (!diskCan.detach(disk)) {
+      const states = commaSeries(diskCan.detach.states, 'or')
+      throw `Can only detach disk that is ${states}`
+    }
     disk.state = { state: 'detached' }
     return disk
   },

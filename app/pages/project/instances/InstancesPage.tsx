@@ -6,21 +6,16 @@
  * Copyright Oxide Computer Company
  */
 import { createColumnHelper } from '@tanstack/react-table'
+import { filesize } from 'filesize'
 import { useMemo } from 'react'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
-import {
-  apiQueryClient,
-  useApiQueryClient,
-  usePrefetchedApiQuery,
-  type Instance,
-} from '@oxide/api'
+import { apiQueryClient, usePrefetchedApiQuery, type Instance } from '@oxide/api'
 import { Instances16Icon, Instances24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { RefreshButton } from '~/components/RefreshButton'
 import { getProjectSelector, useProjectSelector, useQuickActions } from '~/hooks'
-import { InstanceResourceCell } from '~/table/cells/InstanceResourceCell'
 import { InstanceStatusCell } from '~/table/cells/InstanceStatusCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { getActionsCol } from '~/table/columns/action-col'
@@ -55,11 +50,10 @@ InstancesPage.loader = async ({ params }: LoaderFunctionArgs) => {
   return null
 }
 
+const refetchInstances = () => apiQueryClient.invalidateQueries('instanceList')
+
 export function InstancesPage() {
   const { project } = useProjectSelector()
-
-  const queryClient = useApiQueryClient()
-  const refetchInstances = () => queryClient.invalidateQueries('instanceList')
 
   const makeActions = useMakeInstanceActions(
     { project },
@@ -99,21 +93,32 @@ export function InstancesPage() {
       colHelper.accessor('name', {
         cell: makeLinkCell((instance) => pb.instance({ project, instance })),
       }),
-      colHelper.accessor((i) => ({ ncpus: i.ncpus, memory: i.memory }), {
-        header: 'CPU, RAM',
-        cell: (info) => <InstanceResourceCell value={info.getValue()} />,
+      colHelper.accessor('ncpus', {
+        header: 'CPU',
+        cell: (info) => (
+          <>
+            {info.getValue()} <span className="ml-1 text-quaternary">vCPU</span>
+          </>
+        ),
+      }),
+      colHelper.accessor('memory', {
+        header: 'Memory',
+        cell: (info) => {
+          const memory = filesize(info.getValue(), { output: 'object', base: 2 })
+          return (
+            <>
+              {memory.value} <span className="ml-1 text-quaternary">{memory.unit}</span>
+            </>
+          )
+        },
       }),
       colHelper.accessor(
-        (i) => ({
-          runState: i.runState,
-          timeRunStateUpdated: i.timeRunStateUpdated,
-        }),
+        (i) => ({ runState: i.runState, timeRunStateUpdated: i.timeRunStateUpdated }),
         {
           header: 'status',
           cell: (info) => <InstanceStatusCell value={info.getValue()} />,
         }
       ),
-      colHelper.accessor('hostname', {}),
       colHelper.accessor('timeCreated', Columns.timeCreated),
       getActionsCol(makeActions),
     ],
@@ -137,7 +142,7 @@ export function InstancesPage() {
         <RefreshButton onClick={refetchInstances} />
         <CreateLink to={pb.instancesNew({ project })}>New Instance</CreateLink>
       </TableActions>
-      <Table columns={columns} emptyState={<EmptyState />} rowHeight="large" />
+      <Table columns={columns} emptyState={<EmptyState />} />
     </>
   )
 }
