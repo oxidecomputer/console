@@ -18,8 +18,8 @@ import {
 
 import { getVpcSelector, useVpcSelector } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
-import { CustomRouterLinkCell } from '~/table/cells/CustomRouterLinkCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
+import { RouterLinkCell } from '~/table/cells/RouterLinkCell'
 import { TwoLineCell } from '~/table/cells/TwoLineCell'
 import { getActionsCol, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
@@ -83,7 +83,7 @@ export function VpcSubnetsTab() {
       }),
       colHelper.accessor('customRouterId', {
         header: 'Custom Router',
-        cell: (info) => <CustomRouterLinkCell value={info.getValue()} />,
+        cell: (info) => <RouterLinkCell value={info.getValue()} />,
       }),
       colHelper.accessor('timeCreated', Columns.timeCreated),
       getActionsCol(makeActions),
