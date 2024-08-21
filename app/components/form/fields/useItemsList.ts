@@ -18,7 +18,7 @@ export const useCustomRouterItems = () => {
     return (
       routers?.data?.items
         .filter((item) => item.kind === 'custom')
-        .map((router) => ({ value: router.name, label: router.name })) || []
+        .map((router) => ({ value: router.id, label: router.name })) || []
     )
   }, [routers])
 

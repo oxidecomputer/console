@@ -9,8 +9,8 @@ import { useNavigate } from 'react-router-dom'
 
 import { useApiMutation, useApiQueryClient, type VpcSubnetCreate } from '@oxide/api'
 
-import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
+import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
 import { useCustomRouterItems } from '~/components/form/fields/useItemsList'
@@ -49,14 +49,17 @@ export function CreateSubnetForm() {
       formType="create"
       resourceName="subnet"
       onDismiss={onDismiss}
-      onSubmit={(body) => createSubnet.mutate({ query: vpcSelector, body })}
+      onSubmit={(body) => {
+        console.log({ body })
+        createSubnet.mutate({ query: vpcSelector, body })
+      }}
       loading={createSubnet.isPending}
       submitError={createSubnet.error}
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
       <FormDivider />
-      <ComboboxField
+      <ListboxField
         label="Custom router"
         name="customRouter"
         placeholder="Select a custom router"

@@ -1152,8 +1152,6 @@ export const handlers = makeHandlers({
     return paginated(query, subnets)
   },
 
-  // TODO: See if this is where you add the custom_router_id, or where??
-
   vpcSubnetCreate({ body, query }) {
     const vpc = lookup.vpc(query)
     errIfExists(db.vpcSubnets, { vpc_id: vpc.id, name: body.name })
@@ -1162,7 +1160,10 @@ export const handlers = makeHandlers({
     const newSubnet: Json<Api.VpcSubnet> = {
       id: uuid(),
       vpc_id: vpc.id,
-      ...body,
+      name: body.name,
+      description: body.description || '',
+      ipv4_block: body.ipv4_block || '',
+      custom_router_id: body.custom_router || '',
       // required in subnet create but not in update, so we need a fallback.
       // API says "A random `/64` block will be assigned if one is not
       // provided." Our fallback is not random, but it should be good enough.
@@ -1178,6 +1179,9 @@ export const handlers = makeHandlers({
 
     if (body.name) {
       subnet.name = body.name
+    }
+    if (body.custom_router) {
+      subnet.custom_router_id = body.custom_router
     }
     updateDesc(subnet, body)
 

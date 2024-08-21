@@ -157,7 +157,7 @@ export const vpcSubnet: Json<VpcSubnet> = {
   vpc_id: vpc.id,
   ipv4_block: '10.1.1.1/24',
   ipv6_block: 'fd9b:870a:4245::/64',
-  custom_router_id: customRouter.name,
+  custom_router_id: customRouter.id,
 }
 
 export const vpcSubnet2: Json<VpcSubnet> = {

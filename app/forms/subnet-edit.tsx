@@ -6,7 +6,6 @@
  * Copyright Oxide Computer Company
  */
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
-import * as R from 'remeda'
 
 import {
   apiQueryClient,
@@ -16,8 +15,8 @@ import {
   type VpcSubnetUpdate,
 } from '@oxide/api'
 
-import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
+import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
 import { useCustomRouterItems } from '~/components/form/fields/useItemsList'
 import { SideModalForm } from '~/components/form/SideModalForm'
@@ -53,11 +52,11 @@ export function EditSubnetForm() {
     },
   })
 
-  const defaultValues: VpcSubnetUpdate = R.pick(subnet, [
-    'name',
-    'description',
-    'customRouterId',
-  ])
+  const defaultValues: VpcSubnetUpdate = {
+    name: subnet.name,
+    description: subnet.description,
+    customRouter: subnet.customRouterId,
+  }
 
   const form = useForm({ defaultValues })
   const { isLoading, items } = useCustomRouterItems()
@@ -81,7 +80,7 @@ export function EditSubnetForm() {
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
       <FormDivider />
-      <ComboboxField
+      <ListboxField
         label="Custom router"
         name="customRouter"
         placeholder="Select a custom router"
