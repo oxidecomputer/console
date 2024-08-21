@@ -1180,8 +1180,10 @@ export const handlers = makeHandlers({
     if (body.name) {
       subnet.name = body.name
     }
-    if (body.custom_router) {
+    if (body.custom_router !== undefined) {
       subnet.custom_router_id = body.custom_router
+    } else {
+      subnet.custom_router_id = null
     }
     updateDesc(subnet, body)
 

@@ -60,6 +60,12 @@ export function EditSubnetForm() {
 
   const form = useForm({ defaultValues })
   const { isLoading, items } = useCustomRouterItems()
+  const customRouterValue = form.watch('customRouter')
+  const clearCustomRouter = () => {
+    // Because this is `undefined`, the dropdown isn't behaving correctly; it should revert to the placeholder
+    // It works when the value is '', but that's not a valid value for this field and it trips zod's validator
+    form.setValue('customRouter', undefined)
+  }
 
   return (
     <SideModalForm
@@ -71,7 +77,13 @@ export function EditSubnetForm() {
         updateSubnet.mutate({
           path: { subnet: subnet.name },
           query: { project, vpc },
-          body,
+          body: {
+            name: body.name,
+            description: body.description,
+            // this is currently failing because the API does not accept null for customRouter, but it should
+            // once that is fixed, this should allow clearing the customRouter
+            customRouter: body.customRouter,
+          },
         })
       }}
       loading={updateSubnet.isPending}
@@ -87,6 +99,8 @@ export function EditSubnetForm() {
         isLoading={isLoading}
         items={items}
         control={form.control}
+        isClearable={!!customRouterValue}
+        onClear={clearCustomRouter}
       />
     </SideModalForm>
   )

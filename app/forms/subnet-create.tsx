@@ -21,7 +21,7 @@ import { pb } from '~/util/path-builder'
 
 const defaultValues: VpcSubnetCreate = {
   name: '',
-  customRouter: '',
+  customRouter: undefined,
   description: '',
   ipv4Block: '',
 }
