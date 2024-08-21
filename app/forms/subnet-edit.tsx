@@ -17,9 +17,9 @@ import {
 } from '@oxide/api'
 
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
-import { useCustomRouterItems } from '~/components/form/fields/comboboxHooks'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
+import { useCustomRouterItems } from '~/components/form/fields/useItemsList'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { getVpcSubnetSelector, useForm, useVpcSubnetSelector } from '~/hooks'
 import { FormDivider } from '~/ui/lib/Divider'
@@ -60,7 +60,7 @@ export function EditSubnetForm() {
   ])
 
   const form = useForm({ defaultValues })
-  const customRouterItems = useCustomRouterItems()
+  const { isLoading, items } = useCustomRouterItems()
 
   return (
     <SideModalForm
@@ -85,7 +85,8 @@ export function EditSubnetForm() {
         label="Custom router"
         name="customRouter"
         placeholder="Select a custom router"
-        items={customRouterItems}
+        isLoading={isLoading}
+        items={items}
         control={form.control}
       />
     </SideModalForm>
