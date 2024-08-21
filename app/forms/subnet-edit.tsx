@@ -16,10 +16,13 @@ import {
   type VpcSubnetUpdate,
 } from '@oxide/api'
 
+import { ComboboxField } from '~/components/form/fields/ComboboxField'
+import { useCustomRouterItems } from '~/components/form/fields/comboboxHooks'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { getVpcSubnetSelector, useForm, useVpcSubnetSelector } from '~/hooks'
+import { FormDivider } from '~/ui/lib/Divider'
 import { pb } from '~/util/path-builder'
 
 EditSubnetForm.loader = async ({ params }: LoaderFunctionArgs) => {
@@ -50,9 +53,14 @@ export function EditSubnetForm() {
     },
   })
 
-  const defaultValues: VpcSubnetUpdate = R.pick(subnet, ['name', 'description'])
+  const defaultValues: VpcSubnetUpdate = R.pick(subnet, [
+    'name',
+    'description',
+    'customRouterId',
+  ])
 
   const form = useForm({ defaultValues })
+  const customRouterItems = useCustomRouterItems()
 
   return (
     <SideModalForm
@@ -72,6 +80,14 @@ export function EditSubnetForm() {
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
+      <FormDivider />
+      <ComboboxField
+        label="Custom router"
+        name="customRouter"
+        placeholder="Select a custom router"
+        items={customRouterItems}
+        control={form.control}
+      />
     </SideModalForm>
   )
 }

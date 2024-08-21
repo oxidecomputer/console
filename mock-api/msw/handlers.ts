@@ -1151,6 +1151,9 @@ export const handlers = makeHandlers({
     const subnets = db.vpcSubnets.filter((s) => s.vpc_id === vpc.id)
     return paginated(query, subnets)
   },
+
+  // TODO: See if this is where you add the custom_router_id, or where??
+
   vpcSubnetCreate({ body, query }) {
     const vpc = lookup.vpc(query)
     errIfExists(db.vpcSubnets, { vpc_id: vpc.id, name: body.name })

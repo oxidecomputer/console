@@ -18,6 +18,7 @@ import {
 
 import { getVpcSelector, useVpcSelector } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
+import { EmptyCell } from '~/table/cells/EmptyCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { TwoLineCell } from '~/table/cells/TwoLineCell'
 import { getActionsCol, type MenuAction } from '~/table/columns/action-col'
@@ -78,6 +79,10 @@ export function VpcSubnetsTab() {
       colHelper.accessor((vpc) => [vpc.ipv4Block, vpc.ipv6Block] as const, {
         header: 'IP Block',
         cell: (info) => <TwoLineCell value={[...info.getValue()]} />,
+      }),
+      colHelper.accessor('customRouterId', {
+        header: 'Custom Router',
+        cell: (info) => info.getValue() || <EmptyCell />,
       }),
       colHelper.accessor('timeCreated', Columns.timeCreated),
       getActionsCol(makeActions),

@@ -9,6 +9,8 @@ import { useNavigate } from 'react-router-dom'
 
 import { useApiMutation, useApiQueryClient, type VpcSubnetCreate } from '@oxide/api'
 
+import { ComboboxField } from '~/components/form/fields/ComboboxField'
+import { useCustomRouterItems } from '~/components/form/fields/comboboxHooks'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
@@ -19,6 +21,7 @@ import { pb } from '~/util/path-builder'
 
 const defaultValues: VpcSubnetCreate = {
   name: '',
+  customRouter: '',
   description: '',
   ipv4Block: '',
 }
@@ -38,6 +41,7 @@ export function CreateSubnetForm() {
   })
 
   const form = useForm({ defaultValues })
+  const customRouterItems = useCustomRouterItems()
 
   return (
     <SideModalForm
@@ -51,6 +55,14 @@ export function CreateSubnetForm() {
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
+      <FormDivider />
+      <ComboboxField
+        label="Custom router"
+        name="customRouter"
+        placeholder="Select a custom router"
+        items={customRouterItems}
+        control={form.control}
+      />
       <FormDivider />
       <TextField name="ipv4Block" label="IPv4 block" required control={form.control} />
       <TextField name="ipv6Block" label="IPv6 block" control={form.control} />
