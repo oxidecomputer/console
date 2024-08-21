@@ -83,6 +83,7 @@ export function VpcSubnetsTab() {
       }),
       colHelper.accessor('customRouterId', {
         header: 'Custom Router',
+        // RouterLinkCell needed, as we need to convert the customRouterId to the custom router's name
         cell: (info) => <RouterLinkCell value={info.getValue()} />,
       }),
       colHelper.accessor('timeCreated', Columns.timeCreated),
