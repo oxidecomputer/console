@@ -41,7 +41,7 @@ export function CreateSubnetForm() {
   })
 
   const form = useForm({ defaultValues })
-  const customRouterItems = useCustomRouterItems()
+  const { isLoading, items } = useCustomRouterItems()
 
   return (
     <SideModalForm
@@ -60,7 +60,8 @@ export function CreateSubnetForm() {
         label="Custom router"
         name="customRouter"
         placeholder="Select a custom router"
-        items={customRouterItems}
+        isLoading={isLoading}
+        items={items}
         control={form.control}
       />
       <FormDivider />

@@ -13,12 +13,14 @@ import { useVpcSelector } from '~/hooks'
 
 export const useCustomRouterItems = () => {
   const vpcSelector = useVpcSelector()
-  const { data: routers } = useApiQuery('vpcRouterList', { query: { ...vpcSelector } })
-  return useMemo(() => {
+  const routers = useApiQuery('vpcRouterList', { query: { ...vpcSelector } })
+  const routerItems = useMemo(() => {
     return (
-      routers?.items
+      routers?.data?.items
         .filter((item) => item.kind === 'custom')
         .map((router) => ({ value: router.name, label: router.name })) || []
     )
   }, [routers])
+
+  return { isLoading: routers.isLoading, items: routerItems }
 }
