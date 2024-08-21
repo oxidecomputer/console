@@ -6,8 +6,6 @@
  * Copyright Oxide Computer Company
  */
 
-import { useMemo } from 'react'
-
 import { useApiQuery } from '~/api'
 import { useVpcSelector } from '~/hooks'
 import { Badge } from '~/ui/lib/Badge'
@@ -18,19 +16,21 @@ import { LinkCell } from './LinkCell'
 
 export const RouterLinkCell = ({ value }: { value?: string }) => {
   const { project, vpc } = useVpcSelector()
-  const { data: subnet, isError } = useApiQuery('vpcRouterView', {
-    path: { router: value || '' },
-    query: { project, vpc },
-  })
-  return useMemo(() => {
-    if (!value) return <EmptyCell />
-    // probably not possible but let’s be safe
-    if (isError) return <Badge color="neutral">Deleted</Badge>
-    if (!subnet) return <SkeletonCell /> // loading
-    return (
-      <LinkCell to={pb.vpcRouter({ project, vpc, router: subnet.name })}>
-        {subnet.name}
-      </LinkCell>
-    )
-  }, [value, project, vpc, isError, subnet])
+  const { data: subnet, isError } = useApiQuery(
+    'vpcRouterView',
+    {
+      path: { router: value! },
+      query: { project, vpc },
+    },
+    { enabled: !!value }
+  )
+  if (!value) return <EmptyCell />
+  // probably not possible but let’s be safe
+  if (isError) return <Badge color="neutral">Deleted</Badge>
+  if (!subnet) return <SkeletonCell /> // loading
+  return (
+    <LinkCell to={pb.vpcRouter({ project, vpc, router: subnet.name })}>
+      {subnet.name}
+    </LinkCell>
+  )
 }

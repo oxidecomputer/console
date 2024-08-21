@@ -1161,9 +1161,9 @@ export const handlers = makeHandlers({
       id: uuid(),
       vpc_id: vpc.id,
       name: body.name,
-      description: body.description || '',
-      ipv4_block: body.ipv4_block || '',
-      custom_router_id: body.custom_router || '',
+      description: body.description,
+      ipv4_block: body.ipv4_block,
+      custom_router_id: body.custom_router,
       // required in subnet create but not in update, so we need a fallback.
       // API says "A random `/64` block will be assigned if one is not
       // provided." Our fallback is not random, but it should be good enough.
