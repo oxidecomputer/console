@@ -9,7 +9,6 @@
 import { useController, type Control } from 'react-hook-form'
 
 import {
-  useApiQuery,
   useApiQueryClient,
   type ApiError,
   type Instance,
@@ -21,6 +20,7 @@ import { parsePortRange } from '~/api/util'
 import { CheckboxField } from '~/components/form/fields/CheckboxField'
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
+import { useVpcSubnetItems } from '~/components/form/fields/dropdownItemsList'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
 import { NumberField } from '~/components/form/fields/NumberField'
@@ -171,18 +171,13 @@ export const CommonFields = ({
   const targetType = targetForm.watch('type')
   const targetSubnetVpc = targetForm.watch('subnetVpc')
 
-  const { data: targetVpcSubnets } = useApiQuery(
-    'vpcSubnetList',
-    { query: { project, vpc: targetSubnetVpc } },
-    { enabled: !!targetSubnetVpc }
-  )
+  const { items: targetVpcSubnets } = useVpcSubnetItems({ project, vpc: targetSubnetVpc })
+
   const targetFilterItems = {
     vpc: vpcs.map((v) => ({ value: v.name, label: v.name })),
-    subnet:
-      targetVpcSubnets?.items
-        // filter out subnets that are already targets
-        .filter((i) => !targets.value.map((t) => t.value).includes(i.name))
-        .map((s) => toComboboxItem(s.name)) || [],
+    subnet: targetVpcSubnets?.filter(
+      ({ label }: { label: string }) => !targets.value.map((t) => t.value).includes(label)
+    ),
     instance: instances.map((i) => toComboboxItem(i.name)),
     ip: [],
     ip_net: [],
@@ -205,24 +200,22 @@ export const CommonFields = ({
   const hostType = hostForm.watch('type')
   const hostSubnetVpc = hostForm.watch('subnetVpc')
 
-  const { data: hostVpcSubnets } = useApiQuery(
-    'vpcSubnetList',
-    { query: { project, vpc: hostSubnetVpc } },
-    { enabled: !!hostSubnetVpc }
-  )
+  const { items: hostVpcSubnets } = useVpcSubnetItems({ project, vpc: hostSubnetVpc })
   const hostFilterItems = {
     vpc: vpcs.map((v) => ({ value: v.name, label: v.name })),
-    subnet:
-      hostVpcSubnets?.items
-        // filter out subnets that are already targets
-        .filter((i) => !hosts.value.map((h) => h.value).includes(i.name))
-        .map((s) => toComboboxItem(s.name)) || [],
+    // filter out subnets that are already targets
+    subnet: hostVpcSubnets?.filter(
+      ({ label }: { label: string }) => !hosts.value.map((h) => h.value).includes(label)
+    ),
     instance: instances.map((i) => toComboboxItem(i.name)),
     ip: [],
     ip_net: [],
   }
 
   const isHostFilterInputDisabled = hostType === 'subnet' && !hostSubnetVpc
+
+  // In the firewall rules form, these types get comboboxes instead of text fields
+  const comboboxTypes = ['vpc', 'subnet', 'instance']
 
   return (
     <>
@@ -327,7 +320,7 @@ export const CommonFields = ({
           So we should probably have the label on this field change when the
           host type changes. Also need to confirm that it's just an IP and
           not a block. */}
-        {targetType === 'subnet' ? (
+        {comboboxTypes.includes(targetType) ? (
           <ComboboxField
             disabled={isTargetFilterInputDisabled}
             name="value"
@@ -528,6 +521,7 @@ export const CommonFields = ({
           items={targetAndHostItems}
           required
           control={hostForm.control}
+          onChange={() => hostForm.setValue('value', '')} // clear the value when the type changes
         />
 
         {/*
@@ -552,7 +546,40 @@ export const CommonFields = ({
           So we should probably have the label on this field change when the
           host type changes. Also need to confirm that it's just an IP and
           not a block. */}
-        <ComboboxField
+
+        {comboboxTypes.includes(hostType) ? (
+          <ComboboxField
+            disabled={isHostFilterInputDisabled}
+            name="value"
+            {...getFilterValueProps(hostType)}
+            required
+            control={hostForm.control}
+            onInputChange={(value) => {
+              hostForm.setValue('value', value)
+            }}
+            items={hostFilterItems[hostType]}
+            showNoMatchPlaceholder={false}
+            // TODO: validate here, but it's complicated because it's conditional
+            // on which type is selected
+          />
+        ) : (
+          <TextField
+            name="value"
+            {...getFilterValueProps(hostForm.watch('type'))}
+            required
+            control={hostForm.control}
+            onKeyDown={(e) => {
+              if (e.key === KEYS.enter) {
+                e.preventDefault() // prevent full form submission
+                submitTarget(e)
+              }
+            }}
+            // TODO: validate here, but it's complicated because it's conditional
+            // on which type is selected
+          />
+        )}
+
+        {/* <ComboboxField
           disabled={isHostFilterInputDisabled}
           name="value"
           {...getFilterValueProps(hostType)}
@@ -561,11 +588,12 @@ export const CommonFields = ({
           onInputChange={(value) => {
             hostForm.setValue('value', value)
           }}
+          isLoading={hostVpcSubnetsIsLoading}
           items={hostFilterItems[hostType]}
           showNoMatchPlaceholder={false}
           // TODO: validate here, but it's complicated because it's conditional
           // on which type is selected
-        />
+        /> */}
 
         <div className="flex justify-end">
           <Button
