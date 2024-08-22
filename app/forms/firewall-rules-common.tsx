@@ -135,6 +135,33 @@ const DocsLinkMessage = () => (
   />
 )
 
+const ClearAndAddButton = ({
+  isDirty,
+  onClear,
+  onSubmit,
+  buttonCopy,
+}: {
+  isDirty: boolean
+  onClear: () => void
+  onSubmit: () => void
+  buttonCopy: string
+}) => (
+  <div className="flex justify-end">
+    <Button
+      variant="ghost"
+      size="sm"
+      className="mr-2.5"
+      disabled={!isDirty}
+      onClick={onClear}
+    >
+      Clear
+    </Button>
+    <Button size="sm" onClick={onSubmit}>
+      {buttonCopy}
+    </Button>
+  </div>
+)
+
 export const CommonFields = ({
   error,
   control,
@@ -217,6 +244,128 @@ export const CommonFields = ({
   // In the firewall rules form, these types get comboboxes instead of text fields
   const comboboxTypes = ['vpc', 'subnet', 'instance']
 
+  // The DynamicType and DynamicValue fields allow the user to select the type of
+  // filter (e.g. VPC, subnet, instance) and then input the value of that filter.
+  // TODO: make ListboxField smarter with the values like RadioField is
+  const DynamicTypeField = ({
+    label,
+    control,
+    onChange,
+  }: {
+    label: string
+    control: Control<TargetFormValues | HostFormValues>
+    onChange: () => void
+  }) => (
+    <ListboxField
+      name="type"
+      label={label}
+      required
+      control={control}
+      items={targetAndHostItems}
+      onChange={onChange}
+    />
+  )
+
+  // If the type is 'subnet', the user must first select the VPC that owns the subnet
+  const SubnetVpcField = ({
+    control,
+  }: {
+    control: Control<TargetFormValues | HostFormValues>
+  }) => {
+    return (
+      <ListboxField
+        name="subnetVpc"
+        label="VPC"
+        required
+        control={control}
+        items={vpcs.map((v) => toComboboxItem(v.name))}
+        // when this changes, we need to re-fetch the subnet list
+        onChange={() => {
+          queryClient.invalidateQueries('vpcSubnetList')
+        }}
+      />
+    )
+  }
+
+  const DynamicValueField = ({
+    sectionType,
+    control,
+    items,
+    onInputChange,
+    isDisabled,
+  }: {
+    sectionType: VpcFirewallRuleHostFilter['type']
+    control: Control<TargetFormValues | HostFormValues>
+    items: Array<{ value: string; label: string }>
+    onInputChange?: (value: string) => void
+    isDisabled?: boolean
+  }) =>
+    comboboxTypes.includes(sectionType) ? (
+      <ComboboxField
+        disabled={isDisabled}
+        name="value"
+        {...getFilterValueProps(sectionType)}
+        required
+        control={control}
+        onInputChange={onInputChange}
+        items={items}
+        showNoMatchPlaceholder={false}
+        // TODO: validate here, but it's complicated because it's conditional
+        // on which type is selected
+      />
+    ) : (
+      <TextField
+        name="value"
+        {...getFilterValueProps(sectionType)}
+        required
+        control={control}
+        onKeyDown={(e) => {
+          if (e.key === KEYS.enter) {
+            e.preventDefault() // prevent full form submission
+            submitTarget(e)
+          }
+        }}
+        // TODO: validate here, but it's complicated because it's conditional
+        // on which type is selected
+      />
+    )
+
+  const TypeAndValueTableHeader = () => (
+    <MiniTable.Header>
+      <MiniTable.HeadCell>Type</MiniTable.HeadCell>
+      <MiniTable.HeadCell>Value</MiniTable.HeadCell>
+      {/* For remove button */}
+      <MiniTable.HeadCell className="w-12" />
+    </MiniTable.Header>
+  )
+
+  const TypeAndValueTableRow = ({
+    type,
+    value,
+    index,
+    onRemove,
+    targetOrHost,
+  }: {
+    type: string
+    value: string
+    index: number
+    onRemove: () => void
+    targetOrHost: 'target' | 'host'
+  }) => (
+    <MiniTable.Row
+      tabIndex={0}
+      aria-rowindex={index + 1}
+      aria-label={`Name: ${value}, Type: ${type}`}
+      key={`${type}|${value}`}
+    >
+      <MiniTable.Cell>
+        <Badge variant="solid">{type}</Badge>
+      </MiniTable.Cell>
+      <MiniTable.Cell>{value}</MiniTable.Cell>
+      <MiniTable.RemoveCell onClick={onRemove} label={`remove ${targetOrHost} ${value}`} />
+    </MiniTable.Row>
+  )
+
   return (
     <>
       <DocsLinkMessage />
@@ -273,132 +422,61 @@ export const CommonFields = ({
 
       {/* Really this should be its own <form>, but you can't have a form inside a form,
           so we just stick the submit handler in a button onClick */}
-      <h3 className="mb-4 text-sans-2xl">Targets</h3>
-      <Message
-        variant="info"
-        content={
-          <>
-            Targets determine the instances to which this rule applies. You can target
-            instances directly by name, or specify a VPC, VPC subnet, IP, or IP subnet,
-            which will apply the rule to traffic going to all matching instances. Targets
-            are additive: the rule applies to instances matching{' '}
-            <span className="underline">any</span> target.
-          </>
-        }
-      />
-      {/* TODO: make ListboxField smarter with the values like RadioField is */}
-      <ListboxField
-        name="type"
-        label="Target type"
-        items={targetAndHostItems}
-        required
-        control={targetForm.control}
-        onChange={() => {
-          targetForm.setValue('value', '') // clear the value when the type changes
-        }}
-      />
-
       <div className="flex flex-col gap-3">
-        {/*
-          If the user is trying to specify a subnet, they must
-          first select the VPC that owns the subnet
-        */}
-        {targetType === 'subnet' && (
-          <ListboxField
-            name="subnetVpc"
-            label="VPC"
-            required
-            control={targetForm.control}
-            items={vpcs.map((v) => toComboboxItem(v.name))}
-            // when this changes, we need to re-fetch the subnet list
-            onChange={() => {
-              queryClient.invalidateQueries('vpcSubnetList')
-            }}
-          />
-        )}
-        {/* For everything but IP this is a name, but for IP it's an IP.
-          So we should probably have the label on this field change when the
-          host type changes. Also need to confirm that it's just an IP and
-          not a block. */}
-        {comboboxTypes.includes(targetType) ? (
-          <ComboboxField
-            disabled={isTargetFilterInputDisabled}
-            name="value"
-            {...getFilterValueProps(targetType)}
-            required
-            control={targetForm.control}
-            onInputChange={(value) => {
-              targetForm.setValue('value', value)
-            }}
-            items={targetFilterItems[targetType]}
-            showNoMatchPlaceholder={false}
-            // TODO: validate here, but it's complicated because it's conditional
-            // on which type is selected
-          />
-        ) : (
-          <TextField
-            name="value"
-            {...getFilterValueProps(targetForm.watch('type'))}
-            required
-            control={targetForm.control}
-            onKeyDown={(e) => {
-              if (e.key === KEYS.enter) {
-                e.preventDefault() // prevent full form submission
-                submitTarget(e)
-              }
-            }}
-            // TODO: validate here, but it's complicated because it's conditional
-            // on which type is selected
-          />
-        )}
-
-        <div className="flex justify-end">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="mr-2.5"
-            disabled={!targetForm.formState.isDirty}
-            onClick={() => targetForm.reset()}
-          >
-            Clear
-          </Button>
-          <Button size="sm" onClick={submitTarget}>
-            Add target
-          </Button>
-        </div>
+        <h3 className="mb-4 text-sans-2xl">Targets</h3>
+        <Message
+          variant="info"
+          content={
+            <>
+              Targets determine the instances to which this rule applies. You can target
+              instances directly by name, or specify a VPC, VPC subnet, IP, or IP subnet,
+              which will apply the rule to traffic going to all matching instances. Targets
+              are additive: the rule applies to instances matching{' '}
+              <span className="underline">any</span> target.
+            </>
+          }
+        />
+        <DynamicTypeField
+          label="Target type"
+          control={targetForm.control}
+          onChange={() => {
+            targetForm.setValue('value', '') // clear the value when the type changes
+          }}
+        />
+        {/* If specifying a subnet, they must first select the VPC that owns the subnet */}
+        {targetType === 'subnet' && <SubnetVpcField control={targetForm.control} />}
+        <DynamicValueField
+          sectionType={targetType}
+          control={targetForm.control}
+          items={targetFilterItems[targetType]}
+          onInputChange={(value) => targetForm.setValue('value', value)}
+          isDisabled={isTargetFilterInputDisabled}
+        />
+        <ClearAndAddButton
+          isDirty={targetForm.formState.isDirty}
+          onClear={() => targetForm.reset()}
+          onSubmit={submitTarget}
+          buttonCopy="Add target filter"
+        />
       </div>
 
       {!!targets.value.length && (
         <MiniTable.Table className="mb-4" aria-label="Targets">
-          <MiniTable.Header>
-            <MiniTable.HeadCell>Type</MiniTable.HeadCell>
-            <MiniTable.HeadCell>Value</MiniTable.HeadCell>
-            {/* For remove button */}
-            <MiniTable.HeadCell className="w-12" />
-          </MiniTable.Header>
+          <TypeAndValueTableHeader />
           <MiniTable.Body>
             {targets.value.map((t, index) => (
-              <MiniTable.Row
-                tabIndex={0}
-                aria-rowindex={index + 1}
-                aria-label={`Name: ${t.value}, Type: ${t.type}`}
+              <TypeAndValueTableRow
                 key={`${t.type}|${t.value}`}
-              >
-                <MiniTable.Cell>
-                  <Badge variant="solid">{t.type}</Badge>
-                </MiniTable.Cell>
-                <MiniTable.Cell>{t.value}</MiniTable.Cell>
-                <MiniTable.RemoveCell
-                  onClick={() =>
-                    targets.onChange(
-                      targets.value.filter(
-                        (i) => !(i.value === t.value && i.type === t.type)
-                      )
-                    )
-                  }
-                  label={`remove target ${t.value}`}
-                />
-              </MiniTable.Row>
+                type={t.type}
+                value={t.value}
+                index={index}
+                onRemove={() =>
+                  targets.onChange(
+                    targets.value.filter((i) => !(i.value === t.value && i.type === t.type))
+                  )
+                }
+                targetOrHost="target"
+              />
             ))}
           </MiniTable.Body>
         </MiniTable.Table>
@@ -447,20 +525,12 @@ export const CommonFields = ({
             }}
           />
         </div>
-        <div className="flex justify-end">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="mr-2.5"
-            disabled={!portRangeForm.formState.isDirty}
-            onClick={() => portRangeForm.reset()}
-          >
-            Clear
-          </Button>
-          <Button size="sm" onClick={submitPortRange}>
-            Add port filter
-          </Button>
-        </div>
+        <ClearAndAddButton
+          isDirty={portRangeForm.formState.isDirty}
+          onClear={portRangeForm.reset}
+          onSubmit={submitPortRange}
+          buttonCopy="Add port filter"
+        />
       </div>
 
       {!!ports.value.length && (
@@ -515,132 +585,44 @@ export const CommonFields = ({
             </>
           }
         />
-        <ListboxField
-          name="type"
+        <DynamicTypeField
           label="Host type"
-          items={targetAndHostItems}
-          required
           control={hostForm.control}
           onChange={() => hostForm.setValue('value', '')} // clear the value when the type changes
         />
-
-        {/*
-          If the user is trying to specify a subnet, they must
-          first select the VPC that owns the subnet
-        */}
-        {hostType === 'subnet' && (
-          <ListboxField
-            name="subnetVpc"
-            label="VPC"
-            required
-            control={hostForm.control}
-            items={vpcs.map((v) => toComboboxItem(v.name))}
-            // when this changes, we need to re-fetch the subnet list
-            onChange={() => {
-              queryClient.invalidateQueries('vpcSubnetList')
-            }}
-          />
-        )}
-
-        {/* For everything but IP this is a name, but for IP it's an IP.
-          So we should probably have the label on this field change when the
-          host type changes. Also need to confirm that it's just an IP and
-          not a block. */}
-
-        {comboboxTypes.includes(hostType) ? (
-          <ComboboxField
-            disabled={isHostFilterInputDisabled}
-            name="value"
-            {...getFilterValueProps(hostType)}
-            required
-            control={hostForm.control}
-            onInputChange={(value) => {
-              hostForm.setValue('value', value)
-            }}
-            items={hostFilterItems[hostType]}
-            showNoMatchPlaceholder={false}
-            // TODO: validate here, but it's complicated because it's conditional
-            // on which type is selected
-          />
-        ) : (
-          <TextField
-            name="value"
-            {...getFilterValueProps(hostForm.watch('type'))}
-            required
-            control={hostForm.control}
-            onKeyDown={(e) => {
-              if (e.key === KEYS.enter) {
-                e.preventDefault() // prevent full form submission
-                submitTarget(e)
-              }
-            }}
-            // TODO: validate here, but it's complicated because it's conditional
-            // on which type is selected
-          />
-        )}
-
-        {/* <ComboboxField
-          disabled={isHostFilterInputDisabled}
-          name="value"
-          {...getFilterValueProps(hostType)}
-          required
+        {/* If specifying a subnet, they must first select the VPC that owns the subnet */}
+        {hostType === 'subnet' && <SubnetVpcField control={hostForm.control} />}
+        <DynamicValueField
+          sectionType={hostType}
           control={hostForm.control}
-          onInputChange={(value) => {
-            hostForm.setValue('value', value)
-          }}
-          isLoading={hostVpcSubnetsIsLoading}
           items={hostFilterItems[hostType]}
-          showNoMatchPlaceholder={false}
-          // TODO: validate here, but it's complicated because it's conditional
-          // on which type is selected
-        /> */}
-
-        <div className="flex justify-end">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="mr-2.5"
-            disabled={!hostForm.formState.isDirty}
-            onClick={() => hostForm.reset()}
-          >
-            Clear
-          </Button>
-          <Button size="sm" onClick={submitHost}>
-            Add host filter
-          </Button>
-        </div>
+          onInputChange={(value) => hostForm.setValue('value', value)}
+          isDisabled={isHostFilterInputDisabled}
+        />
+        <ClearAndAddButton
+          isDirty={hostForm.formState.isDirty}
+          onClear={() => hostForm.reset()}
+          onSubmit={submitHost}
+          buttonCopy="Add host filter"
+        />
 
         {!!hosts.value.length && (
           <MiniTable.Table className="mb-4" aria-label="Host filters">
-            <MiniTable.Header>
-              <MiniTable.HeadCell>Type</MiniTable.HeadCell>
-              <MiniTable.HeadCell>Value</MiniTable.HeadCell>
-              {/* For remove button */}
-              <MiniTable.HeadCell className="w-12" />
-            </MiniTable.Header>
+            <TypeAndValueTableHeader />
             <MiniTable.Body>
               {hosts.value.map((h, index) => (
-                <MiniTable.Row
-                  tabIndex={0}
-                  aria-rowindex={index + 1}
-                  aria-label={`Name: ${h.value}, Type: ${h.type}`}
+                <TypeAndValueTableRow
                   key={`${h.type}|${h.value}`}
-                >
-                  <MiniTable.Cell>
-                    <Badge variant="solid">{h.type}</Badge>
-                  </MiniTable.Cell>
-                  <MiniTable.Cell>{h.value}</MiniTable.Cell>
-                  <MiniTable.RemoveCell
-                    onClick={() =>
-                      hosts.onChange(
-                        hosts.value.filter(
-                          (i) => !(i.value === h.value && i.type === h.type)
-                        )
-                      )
-                    }
-                    label={`remove host ${h.value}`}
-                  />
-                </MiniTable.Row>
+                  type={h.type}
+                  value={h.value}
+                  index={index}
+                  onRemove={() =>
+                    hosts.onChange(
+                      hosts.value.filter((i) => !(i.value === h.value && i.type === h.type))
+                    )
+                  }
+                  targetOrHost="host"
+                />
               ))}
             </MiniTable.Body>
           </MiniTable.Table>
