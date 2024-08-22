@@ -63,6 +63,11 @@ test('can create and delete subnet', async ({ page }) => {
 
   await dialog.getByRole('textbox', { name: 'Name' }).fill('mock-subnet-2')
   await dialog.getByRole('textbox', { name: 'IPv4 block' }).fill('10.1.1.2/24')
+
+  // little hack to catch a bug where we weren't handling empty input here properly
+  await dialog.getByRole('textbox', { name: 'IPv6 block' }).fill('abc')
+  await dialog.getByRole('textbox', { name: 'IPv6 block' }).clear()
+
   await dialog.getByRole('button', { name: 'Create subnet' }).click()
 
   await expect(dialog).toBeHidden()

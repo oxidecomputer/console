@@ -6,7 +6,6 @@
  * Copyright Oxide Computer Company
  */
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
-import type { SetRequired } from 'type-fest'
 
 import {
   apiQueryClient,
@@ -57,7 +56,7 @@ export function EditSubnetForm() {
     },
   })
 
-  const defaultValues: SetRequired<VpcSubnetUpdate, 'customRouter'> = {
+  const defaultValues: Required<VpcSubnetUpdate> = {
     name: subnet.name,
     description: subnet.description,
     customRouter: customRouterDataToForm(subnet.customRouterId),
