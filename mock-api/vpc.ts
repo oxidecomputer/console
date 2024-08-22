@@ -65,17 +65,7 @@ export const customRouter: Json<VpcRouter> = {
   kind: 'custom',
 }
 
-export const customRouter2: Json<VpcRouter> = {
-  id: '1ce32917-c940-4d3f-ad97-c62e11901f39',
-  name: 'mock-custom-router-2',
-  description: 'another fake custom router',
-  time_created: new Date(2024, 2, 1).toISOString(),
-  time_modified: new Date(2024, 2, 2).toISOString(),
-  vpc_id: vpc.id,
-  kind: 'custom',
-}
-
-export const vpcRouters: Json<VpcRouter[]> = [defaultRouter, customRouter, customRouter2]
+export const vpcRouters: Json<VpcRouter[]> = [defaultRouter, customRouter]
 
 const routeBase = {
   time_created: '2024-07-11T17:46:21.161086Z',
@@ -157,7 +147,6 @@ export const vpcSubnet: Json<VpcSubnet> = {
   vpc_id: vpc.id,
   ipv4_block: '10.1.1.1/24',
   ipv6_block: 'fd9b:870a:4245::/64',
-  custom_router_id: customRouter.id,
 }
 
 export const vpcSubnet2: Json<VpcSubnet> = {
@@ -166,6 +155,7 @@ export const vpcSubnet2: Json<VpcSubnet> = {
   name: 'mock-subnet-2',
   vpc_id: vpc.id,
   ipv4_block: '10.1.1.2/24',
+  custom_router_id: customRouter.id,
 }
 
 export function defaultFirewallRules(vpcId: string): Json<VpcFirewallRule[]> {
