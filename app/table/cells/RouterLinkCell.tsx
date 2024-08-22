@@ -16,7 +16,7 @@ import { LinkCell } from './LinkCell'
 
 export const RouterLinkCell = ({ value }: { value?: string }) => {
   const { project, vpc } = useVpcSelector()
-  const { data: subnet, isError } = useApiQuery(
+  const { data: router, isError } = useApiQuery(
     'vpcRouterView',
     {
       path: { router: value! },
@@ -27,10 +27,10 @@ export const RouterLinkCell = ({ value }: { value?: string }) => {
   if (!value) return <EmptyCell />
   // probably not possible but let’s be safe
   if (isError) return <Badge color="neutral">Deleted</Badge>
-  if (!subnet) return <SkeletonCell /> // loading
+  if (!router) return <SkeletonCell /> // loading
   return (
-    <LinkCell to={pb.vpcRouter({ project, vpc, router: subnet.name })}>
-      {subnet.name}
+    <LinkCell to={pb.vpcRouter({ project, vpc, router: router.name })}>
+      {router.name}
     </LinkCell>
   )
 }
