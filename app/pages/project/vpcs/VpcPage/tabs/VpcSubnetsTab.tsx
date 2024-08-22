@@ -19,6 +19,7 @@ import {
 import { getVpcSelector, useVpcSelector } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { makeLinkCell } from '~/table/cells/LinkCell'
+import { RouterLinkCell } from '~/table/cells/RouterLinkCell'
 import { TwoLineCell } from '~/table/cells/TwoLineCell'
 import { getActionsCol, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
@@ -75,9 +76,15 @@ export function VpcSubnetsTab() {
       colHelper.accessor('name', {
         cell: makeLinkCell((subnet) => pb.vpcSubnetsEdit({ ...vpcSelector, subnet })),
       }),
+      colHelper.accessor('description', Columns.description),
       colHelper.accessor((vpc) => [vpc.ipv4Block, vpc.ipv6Block] as const, {
         header: 'IP Block',
         cell: (info) => <TwoLineCell value={[...info.getValue()]} />,
+      }),
+      colHelper.accessor('customRouterId', {
+        header: 'Custom Router',
+        // RouterLinkCell needed, as we need to convert the customRouterId to the custom router's name
+        cell: (info) => <RouterLinkCell value={info.getValue()} />,
       }),
       colHelper.accessor('timeCreated', Columns.timeCreated),
       getActionsCol(makeActions),
