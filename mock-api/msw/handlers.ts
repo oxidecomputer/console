@@ -1180,12 +1180,11 @@ export const handlers = makeHandlers({
     if (body.name) {
       subnet.name = body.name
     }
-    if (body.custom_router !== undefined) {
-      subnet.custom_router_id = body.custom_router
-    } else {
-      subnet.custom_router_id = null
-    }
     updateDesc(subnet, body)
+
+    // match the API's arguably undesirable behavior -- key
+    // not present and value of null are treated the same
+    subnet.custom_router_id = body.custom_router
 
     return subnet
   },

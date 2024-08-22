@@ -3811,9 +3811,8 @@ export type VpcRouterUpdate = { description?: string; name?: Name }
  * A VPC subnet represents a logical grouping for instances that allows network traffic between them, within a IPv4 subnetwork or optionally an IPv6 subnetwork.
  */
 export type VpcSubnet = {
-  // THIS IS TEMPORARY; BECAUSE THIS IS A GENERATED FILE, IT NEEDS TO GET CORRECTED IN THE API ITSELF
   /** ID for an attached custom router. */
-  customRouterId?: string | null
+  customRouterId?: string
   /** human-readable free-form text about a resource */
   description: string
   /** unique, immutable, system-controlled identifier for each resource */
@@ -3838,9 +3837,8 @@ export type VpcSubnet = {
 export type VpcSubnetCreate = {
   /** An optional router, used to direct packets sent from hosts in this subnet to any destination address.
 
-// THIS IS TEMPORARY; BECAUSE THIS IS A GENERATED FILE, IT NEEDS TO GET CORRECTED IN THE API ITSELF
 Custom routers apply in addition to the VPC-wide *system* router, and have higher priority than the system router for an otherwise equal-prefix-length match. */
-  customRouter?: NameOrId | null
+  customRouter?: NameOrId
   description: string
   /** The IPv4 address range for this subnet.
 
@@ -3867,9 +3865,8 @@ export type VpcSubnetResultsPage = {
  * Updateable properties of a `VpcSubnet`
  */
 export type VpcSubnetUpdate = {
-  // THIS IS TEMPORARY; BECAUSE THIS IS A GENERATED FILE, IT NEEDS TO GET CORRECTED IN THE API ITSELF
   /** An optional router, used to direct packets sent from hosts in this subnet to any destination address. */
-  customRouter?: NameOrId | null
+  customRouter?: NameOrId
   description?: string
   name?: Name
 }

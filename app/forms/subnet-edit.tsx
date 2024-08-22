@@ -80,8 +80,6 @@ export function EditSubnetForm() {
           body: {
             name: body.name,
             description: body.description,
-            // this is currently failing because the API does not accept null for customRouter, but it should
-            // once that is fixed, this should allow clearing the customRouter
             customRouter: body.customRouter,
           },
         })
