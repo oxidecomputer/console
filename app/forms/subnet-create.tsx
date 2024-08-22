@@ -13,7 +13,7 @@ import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
-import { useCustomRouterItems } from '~/components/form/fields/useItemsList'
+import { NO_ROUTER, useCustomRouterItems } from '~/components/form/fields/useItemsList'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { useForm, useVpcSelector } from '~/hooks'
 import { FormDivider } from '~/ui/lib/Divider'
@@ -21,7 +21,7 @@ import { pb } from '~/util/path-builder'
 
 const defaultValues: VpcSubnetCreate = {
   name: '',
-  customRouter: undefined,
+  customRouter: NO_ROUTER,
   description: '',
   ipv4Block: '',
 }
@@ -49,7 +49,15 @@ export function CreateSubnetForm() {
       formType="create"
       resourceName="subnet"
       onDismiss={onDismiss}
-      onSubmit={(body) => createSubnet.mutate({ query: vpcSelector, body })}
+      onSubmit={(body) =>
+        createSubnet.mutate({
+          query: vpcSelector,
+          body: {
+            ...body,
+            customRouter: body.customRouter === NO_ROUTER ? undefined : body.customRouter,
+          },
+        })
+      }
       loading={createSubnet.isPending}
       submitError={createSubnet.error}
     >
@@ -63,6 +71,7 @@ export function CreateSubnetForm() {
         isLoading={isLoading}
         items={items}
         control={form.control}
+        required
       />
       <FormDivider />
       <TextField name="ipv4Block" label="IPv4 block" required control={form.control} />

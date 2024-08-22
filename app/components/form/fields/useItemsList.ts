@@ -11,16 +11,23 @@ import { useMemo } from 'react'
 import { useApiQuery } from '~/api'
 import { useVpcSelector } from '~/hooks'
 
+/**
+ * Special value indicating no router. Must convert `undefined` to this when
+ * populating form, and must convert this to `undefined` in onSubmit.
+ */
+export const NO_ROUTER = '||no router||'
+
 export const useCustomRouterItems = () => {
   const vpcSelector = useVpcSelector()
-  const routers = useApiQuery('vpcRouterList', { query: { ...vpcSelector } })
-  const routerItems = useMemo(() => {
-    return (
-      routers?.data?.items
-        .filter((item) => item.kind === 'custom')
-        .map((router) => ({ value: router.id, label: router.name })) || []
-    )
-  }, [routers])
+  const { data, isLoading } = useApiQuery('vpcRouterList', { query: { ...vpcSelector } })
 
-  return { isLoading: routers.isLoading, items: routerItems }
+  const routerItems = useMemo(() => {
+    const items = (data?.items || [])
+      .filter((item) => item.kind === 'custom')
+      .map((router) => ({ value: router.id, label: router.name }))
+
+    return [{ value: NO_ROUTER, label: 'None' }, ...items]
+  }, [data])
+
+  return { isLoading, items: routerItems }
 }

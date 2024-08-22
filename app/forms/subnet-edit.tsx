@@ -18,7 +18,7 @@ import {
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
-import { useCustomRouterItems } from '~/components/form/fields/useItemsList'
+import { NO_ROUTER, useCustomRouterItems } from '~/components/form/fields/useItemsList'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { getVpcSubnetSelector, useForm, useVpcSubnetSelector } from '~/hooks'
 import { FormDivider } from '~/ui/lib/Divider'
@@ -55,17 +55,11 @@ export function EditSubnetForm() {
   const defaultValues: VpcSubnetUpdate = {
     name: subnet.name,
     description: subnet.description,
-    customRouter: subnet.customRouterId,
+    customRouter: subnet.customRouterId || NO_ROUTER,
   }
 
   const form = useForm({ defaultValues })
   const { isLoading, items } = useCustomRouterItems()
-  const customRouterValue = form.watch('customRouter')
-  const clearCustomRouter = () => {
-    // Because this is `undefined`, the dropdown isn't behaving correctly; it should revert to the placeholder
-    // It works when the value is '', but that's not a valid value for this field and it trips zod's validator
-    form.setValue('customRouter', undefined)
-  }
 
   return (
     <SideModalForm
@@ -80,7 +74,7 @@ export function EditSubnetForm() {
           body: {
             name: body.name,
             description: body.description,
-            customRouter: body.customRouter,
+            customRouter: body.customRouter === NO_ROUTER ? undefined : body.customRouter,
           },
         })
       }}
@@ -97,8 +91,7 @@ export function EditSubnetForm() {
         isLoading={isLoading}
         items={items}
         control={form.control}
-        isClearable={!!customRouterValue}
-        onClear={clearCustomRouter}
+        required
       />
     </SideModalForm>
   )

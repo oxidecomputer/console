@@ -35,8 +35,6 @@ export type ListboxFieldProps<
   onChange?: (value: string | null | undefined) => void
   isLoading?: boolean
   noItemsPlaceholder?: string
-  isClearable?: boolean
-  onClear?: () => void
 }
 
 export function ListboxField<
@@ -56,8 +54,6 @@ export function ListboxField<
   onChange,
   isLoading,
   noItemsPlaceholder,
-  isClearable,
-  onClear,
 }: ListboxFieldProps<TFieldValues, TName>) {
   // TODO: recreate this logic
   //   validate: (v) => (required && !v ? `${name} is required` : undefined),
@@ -86,11 +82,6 @@ export function ListboxField<
         buttonRef={field.ref}
       />
       <ErrorMessage error={fieldState.error} label={label} />
-      {isClearable && (
-        <button type="button" onClick={onClear}>
-          clear
-        </button>
-      )}
     </div>
   )
 }
