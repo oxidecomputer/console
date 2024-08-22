@@ -74,6 +74,9 @@ export function CreateSubnetForm() {
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
       <FormDivider />
+      <TextField name="ipv4Block" label="IPv4 block" required control={form.control} />
+      <TextField name="ipv6Block" label="IPv6 block" control={form.control} />
+      <FormDivider />
       <ListboxField
         label="Custom router"
         name="customRouter"
@@ -83,9 +86,6 @@ export function CreateSubnetForm() {
         control={form.control}
         required
       />
-      <FormDivider />
-      <TextField name="ipv4Block" label="IPv4 block" required control={form.control} />
-      <TextField name="ipv6Block" label="IPv6 block" control={form.control} />
     </SideModalForm>
   )
 }
