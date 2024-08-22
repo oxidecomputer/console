@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { useNavigate } from 'react-router-dom'
+import type { SetRequired } from 'type-fest'
 
 import { useApiMutation, useApiQueryClient, type VpcSubnetCreate } from '@oxide/api'
 
@@ -13,15 +14,21 @@ import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
-import { NO_ROUTER, useCustomRouterItems } from '~/components/form/fields/useItemsList'
+import {
+  customRouterDataToForm,
+  customRouterFormToData,
+  useCustomRouterItems,
+} from '~/components/form/fields/useItemsList'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { useForm, useVpcSelector } from '~/hooks'
 import { FormDivider } from '~/ui/lib/Divider'
 import { pb } from '~/util/path-builder'
 
-const defaultValues: VpcSubnetCreate = {
+const defaultValues: SetRequired<VpcSubnetCreate, 'customRouter'> = {
   name: '',
-  customRouter: NO_ROUTER,
+  // populate the form field with the value corresponding to an undefined custom
+  // router on a subnet response
+  customRouter: customRouterDataToForm(undefined),
   description: '',
   ipv4Block: '',
 }
@@ -54,7 +61,7 @@ export function CreateSubnetForm() {
           query: vpcSelector,
           body: {
             ...body,
-            customRouter: body.customRouter === NO_ROUTER ? undefined : body.customRouter,
+            customRouter: customRouterFormToData(body.customRouter),
           },
         })
       }

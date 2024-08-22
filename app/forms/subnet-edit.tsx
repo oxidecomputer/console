@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
+import type { SetRequired } from 'type-fest'
 
 import {
   apiQueryClient,
@@ -18,7 +19,11 @@ import {
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
-import { NO_ROUTER, useCustomRouterItems } from '~/components/form/fields/useItemsList'
+import {
+  customRouterDataToForm,
+  customRouterFormToData,
+  useCustomRouterItems,
+} from '~/components/form/fields/useItemsList'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { getVpcSubnetSelector, useForm, useVpcSubnetSelector } from '~/hooks'
 import { FormDivider } from '~/ui/lib/Divider'
@@ -52,10 +57,10 @@ export function EditSubnetForm() {
     },
   })
 
-  const defaultValues: VpcSubnetUpdate = {
+  const defaultValues: SetRequired<VpcSubnetUpdate, 'customRouter'> = {
     name: subnet.name,
     description: subnet.description,
-    customRouter: subnet.customRouterId || NO_ROUTER,
+    customRouter: customRouterDataToForm(subnet.customRouterId),
   }
 
   const form = useForm({ defaultValues })
@@ -74,7 +79,7 @@ export function EditSubnetForm() {
           body: {
             name: body.name,
             description: body.description,
-            customRouter: body.customRouter === NO_ROUTER ? undefined : body.customRouter,
+            customRouter: customRouterFormToData(body.customRouter),
           },
         })
       }}

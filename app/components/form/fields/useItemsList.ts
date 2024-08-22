@@ -12,14 +12,25 @@ import { useApiQuery } from '~/api'
 import { useVpcSelector } from '~/hooks'
 
 /**
- * Special value indicating no router. Must convert `undefined` to this when
- * populating form, and must convert this to `undefined` in onSubmit.
+ * Special value indicating no router. Must use helper functions to convert
+ * `undefined` to this when populating form, and this back to `undefined` in
+ * onSubmit.
  */
-export const NO_ROUTER = '||no router||'
+const NO_ROUTER = '||no router||'
+
+/** Convert form value to value for PUT body */
+export function customRouterFormToData(value: string): string | undefined {
+  return value === NO_ROUTER ? undefined : value
+}
+
+/** Convert value from response body to form value */
+export function customRouterDataToForm(value: string | undefined): string {
+  return value || NO_ROUTER
+}
 
 export const useCustomRouterItems = () => {
   const vpcSelector = useVpcSelector()
-  const { data, isLoading } = useApiQuery('vpcRouterList', { query: { ...vpcSelector } })
+  const { data, isLoading } = useApiQuery('vpcRouterList', { query: vpcSelector })
 
   const routerItems = useMemo(() => {
     const items = (data?.items || [])
