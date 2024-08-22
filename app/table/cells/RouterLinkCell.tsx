@@ -14,17 +14,14 @@ import { pb } from '~/util/path-builder'
 import { EmptyCell, SkeletonCell } from './EmptyCell'
 import { LinkCell } from './LinkCell'
 
-export const RouterLinkCell = ({ value }: { value?: string }) => {
+export const RouterLinkCell = ({ routerId }: { routerId?: string }) => {
   const { project, vpc } = useVpcSelector()
   const { data: router, isError } = useApiQuery(
     'vpcRouterView',
-    {
-      path: { router: value! },
-      query: { project, vpc },
-    },
-    { enabled: !!value }
+    { path: { router: routerId! } }, // it's an ID, so no parent selector
+    { enabled: !!routerId }
   )
-  if (!value) return <EmptyCell />
+  if (!routerId) return <EmptyCell />
   // probably not possible but let’s be safe
   if (isError) return <Badge color="neutral">Deleted</Badge>
   if (!router) return <SkeletonCell /> // loading
