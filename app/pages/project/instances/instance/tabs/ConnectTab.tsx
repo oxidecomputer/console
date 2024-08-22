@@ -6,13 +6,13 @@
  * Copyright Oxide Computer Company
  */
 
-import type { ReactNode } from 'react'
 import { Link, type LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, usePrefetchedApiQuery } from '~/api'
 import { EquivalentCliCommand } from '~/components/EquivalentCliCommand'
 import { getInstanceSelector, useInstanceSelector } from '~/hooks'
 import { buttonStyle } from '~/ui/lib/Button'
+import { InlineCode } from '~/ui/lib/InlineCode'
 import { LearnMore, SettingsGroup } from '~/ui/lib/SettingsGroup'
 import { cliCmd } from '~/util/cli-cmd'
 import { links } from '~/util/links'
@@ -26,12 +26,6 @@ ConnectTab.loader = async ({ params }: LoaderFunctionArgs) => {
   })
   return null
 }
-
-const InlineCode = ({ children }: { children: ReactNode }) => (
-  <code className="h-4 whitespace-nowrap rounded-sm px-[3px] py-[1px] !lowercase text-mono-md text-secondary bg-secondary">
-    {children}
-  </code>
-)
 
 export function ConnectTab() {
   const { project, instance } = useInstanceSelector()
@@ -70,8 +64,8 @@ export function ConnectTab() {
         <SettingsGroup.Body>
           <SettingsGroup.Title>SSH</SettingsGroup.Title>
           <p>
-            You may be able to access this instance via SSH:{' '}
-            <InlineCode>ssh [username]@{externalIp || '[IP address]'}</InlineCode>
+            If your instance allows SSH access, connect with{' '}
+            <InlineCode>ssh [username]@{externalIp || '[external IP]'}</InlineCode>.
           </p>
           {!externalIp && (
             <p className="mt-2">
