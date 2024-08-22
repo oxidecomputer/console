@@ -144,7 +144,7 @@ const DocsLinkMessage = () => (
   />
 )
 
-const ClearAndAddButton = ({
+const ClearAndAddButtons = ({
   isDirty,
   onClear,
   onSubmit,
@@ -314,7 +314,7 @@ export const CommonFields = ({
     onInputChange?: (value: string) => void
     isDisabled?: boolean
   }) =>
-    comboboxTypes.includes(sectionType) ? (
+    comboboxTypes.includes(valueType) ? (
       <ComboboxField
         disabled={isDisabled}
         name="value"
@@ -491,26 +491,16 @@ export const CommonFields = ({
             </>
           }
         />
-        <DynamicTypeField
+        <DynamicTypeAndValueFields
           sectionType="target"
           control={targetForm.control}
-          onChange={() => {
-            targetForm.setValue('value', '') // clear the value when the type changes
-          }}
-        />
-        {/* If specifying a subnet, they must first select the VPC that owns the subnet */}
-        {targetType === 'subnet' && (
-          <SubnetVpcField control={targetForm.control} sectionType="target" />
-        )}
-        <DynamicValueField
+          onTypeChange={() => targetForm.setValue('value', '')}
           valueType={targetType}
-          sectionType="target"
-          control={targetForm.control}
           items={targetFilterItems[targetType]}
           onInputChange={(value) => targetForm.setValue('value', value)}
           isDisabled={isTargetFilterInputDisabled}
         />
-        <ClearAndAddButton
+        <ClearAndAddButtons
           isDirty={targetForm.formState.isDirty}
           onClear={() => targetForm.reset()}
           onSubmit={submitTarget}
@@ -583,7 +573,7 @@ export const CommonFields = ({
             }}
           />
         </div>
-        <ClearAndAddButton
+        <ClearAndAddButtons
           isDirty={portRangeForm.formState.isDirty}
           onClear={portRangeForm.reset}
           onSubmit={submitPortRange}
@@ -643,23 +633,6 @@ export const CommonFields = ({
             </>
           }
         />
-        <DynamicTypeField
-          sectionType="host"
-          control={hostForm.control}
-          onChange={() => hostForm.setValue('value', '')} // clear the value when the type changes
-        />
-        {/* If specifying a subnet, they must first select the VPC that owns the subnet */}
-        {hostType === 'subnet' && (
-          <SubnetVpcField control={hostForm.control} sectionType="host" />
-        )}
-        <DynamicValueField
-          valueType={hostType}
-          sectionType="host"
-          control={hostForm.control}
-          items={hostFilterItems[hostType]}
-          onInputChange={(value) => hostForm.setValue('value', value)}
-          isDisabled={isHostFilterInputDisabled}
-        />
         <DynamicTypeAndValueFields
           sectionType="host"
           control={hostForm.control}
@@ -669,7 +642,7 @@ export const CommonFields = ({
           onInputChange={(value) => hostForm.setValue('value', value)}
           isDisabled={isHostFilterInputDisabled}
         />
-        <ClearAndAddButton
+        <ClearAndAddButtons
           isDirty={hostForm.formState.isDirty}
           onClear={() => hostForm.reset()}
           onSubmit={submitHost}
