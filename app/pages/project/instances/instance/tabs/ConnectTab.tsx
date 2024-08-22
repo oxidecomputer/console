@@ -53,8 +53,7 @@ export function ConnectTab() {
         </SettingsGroup.Body>
         <SettingsGroup.Footer>
           <div>
-            {/* TODO: CORRECT LINK */}
-            <LearnMore text="Serial Console" href={links.sshKeysDocs} />
+            <LearnMore text="Serial Console" href={links.serialConsoleDocs} />
           </div>
           <div className="flex gap-3">
             <EquivalentCliCommand command={cliCmd.serialConsole({ project, instance })} />
@@ -89,7 +88,7 @@ export function ConnectTab() {
         </SettingsGroup.Body>
         <SettingsGroup.Footer>
           <div>
-            <LearnMore text="SSH" href={links.sshKeysDocs} />
+            <LearnMore text="SSH" href={links.sshDocs} />
           </div>
         </SettingsGroup.Footer>
       </SettingsGroup.Container>

@@ -15,11 +15,11 @@ import {
   usePrefetchedApiQuery,
   type InstanceNetworkInterface,
 } from '@oxide/api'
-import { Instances16Icon, Instances24Icon } from '@oxide/design-system/icons/react'
+import { Instances24Icon } from '@oxide/design-system/icons/react'
 
 import { instanceTransitioning } from '~/api/util'
-import { DocsPopover } from '~/components/DocsPopover'
 import { ExternalIps } from '~/components/ExternalIps'
+import { InstanceDocsPopover } from '~/components/InstanceDocsPopover'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import { RefreshButton } from '~/components/RefreshButton'
 import { RouteTabs, Tab } from '~/components/RouteTabs'
@@ -32,7 +32,6 @@ import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { Spinner } from '~/ui/lib/Spinner'
 import { Tooltip } from '~/ui/lib/Tooltip'
 import { Truncate } from '~/ui/lib/Truncate'
-import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 import { useMakeInstanceActions } from '../actions'
@@ -151,12 +150,7 @@ export function InstancePage() {
       <PageHeader>
         <PageTitle icon={<Instances24Icon />}>{instance.name}</PageTitle>
         <div className="inline-flex gap-2">
-          <DocsPopover
-            heading="instances"
-            icon={<Instances16Icon />}
-            summary="Instances are virtual machines that run on the Oxide platform."
-            links={[docLinks.instances, docLinks.instanceActions]}
-          />
+          <InstanceDocsPopover />
           <RefreshButton onClick={refreshData} />
           <MoreActionsMenu label="Instance actions" actions={actions} />
         </div>
