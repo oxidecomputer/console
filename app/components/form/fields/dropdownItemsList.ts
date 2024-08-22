@@ -27,10 +27,11 @@ export const useCustomRouterItems = () => {
 
 // This is a custom hook that returns a list of subnets for a given VPC
 // If no VPC is provided, it will use the VPC from the VPC selector
-export const useVpcSubnetItems = ({ project, vpc }: { project: string; vpc?: string }) => {
+export const useVpcSubnetItems = ({ project, vpc }: { project?: string; vpc?: string }) => {
+  const vpcSelector = useVpcSelector()
   const vpcSubnets = useApiQuery(
     'vpcSubnetList',
-    { query: { project, vpc } },
+    { query: { project: project || vpcSelector.project, vpc: vpc || vpcSelector.vpc } },
     { enabled: !!vpc }
   )
   const vpcSubnetItems = useMemo(() => {

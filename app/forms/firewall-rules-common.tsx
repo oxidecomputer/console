@@ -36,6 +36,7 @@ import * as MiniTable from '~/ui/lib/MiniTable'
 import { TextInputHint } from '~/ui/lib/TextInput'
 import { KEYS } from '~/ui/util/keys'
 import { links } from '~/util/links'
+import { capitalize } from '~/util/str'
 
 import { type FirewallRuleValues } from './firewall-rules-util'
 
@@ -86,20 +87,28 @@ const targetAndHostItems = [
   { value: 'ip_net', label: 'IP subnet' },
 ]
 
-function getFilterValueProps(hostType: VpcFirewallRuleHostFilter['type']) {
+const getFilterValueProps = (
+  hostType: VpcFirewallRuleHostFilter['type'],
+  sectionType: 'target' | 'host'
+) => {
   switch (hostType) {
     case 'vpc':
-      return { label: 'VPC name' }
+      return { label: 'VPC name', ariaLabel: `Select ${sectionType} VPC name` }
     case 'subnet':
-      return { label: 'Subnet name' }
+      return { label: 'Subnet name', ariaLabel: `Select ${sectionType} subnet name` }
     case 'instance':
-      return { label: 'Instance name' }
+      return { label: 'Instance name', ariaLabel: `Select ${sectionType} instance name` }
     case 'ip':
-      return { label: 'IP address', helpText: 'An IPv4 or IPv6 address' }
+      return {
+        label: 'IP address',
+        helpText: 'An IPv4 or IPv6 address',
+        ariaLabel: `Enter ${sectionType} IP address`,
+      }
     case 'ip_net':
       return {
         label: 'IP network',
         helpText: 'Looks like 192.168.0.0/16 or fd00:1122:3344:0001::1/64',
+        ariaLabel: `Enter ${sectionType} IP network`,
       }
   }
 }
@@ -248,17 +257,17 @@ export const CommonFields = ({
   // filter (e.g. VPC, subnet, instance) and then input the value of that filter.
   // TODO: make ListboxField smarter with the values like RadioField is
   const DynamicTypeField = ({
-    label,
+    sectionType,
     control,
     onChange,
   }: {
-    label: string
+    sectionType: 'target' | 'host'
     control: Control<TargetFormValues | HostFormValues>
     onChange: () => void
   }) => (
     <ListboxField
       name="type"
-      label={label}
+      label={`${capitalize(sectionType)} type`}
       required
       control={control}
       items={targetAndHostItems}
@@ -269,13 +278,16 @@ export const CommonFields = ({
   // If the type is 'subnet', the user must first select the VPC that owns the subnet
   const SubnetVpcField = ({
     control,
+    sectionType,
   }: {
     control: Control<TargetFormValues | HostFormValues>
+    sectionType: 'target' | 'host'
   }) => {
     return (
       <ListboxField
         name="subnetVpc"
         label="VPC"
+        aria-label={`Select ${sectionType} VPC`}
         required
         control={control}
         items={vpcs.map((v) => toComboboxItem(v.name))}
@@ -289,12 +301,14 @@ export const CommonFields = ({
 
   const DynamicValueField = ({
     sectionType,
+    valueType,
     control,
     items,
     onInputChange,
     isDisabled,
   }: {
-    sectionType: VpcFirewallRuleHostFilter['type']
+    sectionType: 'target' | 'host'
+    valueType: VpcFirewallRuleHostFilter['type']
     control: Control<TargetFormValues | HostFormValues>
     items: Array<{ value: string; label: string }>
     onInputChange?: (value: string) => void
@@ -304,7 +318,7 @@ export const CommonFields = ({
       <ComboboxField
         disabled={isDisabled}
         name="value"
-        {...getFilterValueProps(sectionType)}
+        {...getFilterValueProps(valueType, sectionType)}
         required
         control={control}
         onInputChange={onInputChange}
@@ -316,7 +330,8 @@ export const CommonFields = ({
     ) : (
       <TextField
         name="value"
-        {...getFilterValueProps(sectionType)}
+        aria-label={``}
+        {...getFilterValueProps(valueType, sectionType)}
         required
         control={control}
         onKeyDown={(e) => {
@@ -329,6 +344,46 @@ export const CommonFields = ({
         // on which type is selected
       />
     )
+
+  const DynamicTypeAndValueFields = ({
+    sectionType,
+    control,
+    onTypeChange,
+    valueType,
+    items,
+    onInputChange,
+    isDisabled,
+  }: {
+    sectionType: 'target' | 'host'
+    control: Control<TargetFormValues | HostFormValues>
+    onTypeChange: () => void
+    valueType: VpcFirewallRuleHostFilter['type']
+    items: Array<{ value: string; label: string }>
+    onInputChange?: (value: string) => void
+    isDisabled?: boolean
+  }) => {
+    return (
+      <>
+        <DynamicTypeField
+          sectionType={sectionType}
+          control={control}
+          onChange={onTypeChange}
+        />
+        {/* If specifying a subnet, they must first select the VPC that owns the subnet */}
+        {hostType === 'subnet' && (
+          <SubnetVpcField control={hostForm.control} sectionType="host" />
+        )}
+        <DynamicValueField
+          valueType={valueType}
+          sectionType={sectionType}
+          control={control}
+          items={items}
+          onInputChange={onInputChange}
+          isDisabled={isDisabled}
+        />
+      </>
+    )
+  }
 
   const TypeAndValueTableHeader = () => (
     <MiniTable.Header>
@@ -437,16 +492,19 @@ export const CommonFields = ({
           }
         />
         <DynamicTypeField
-          label="Target type"
+          sectionType="target"
           control={targetForm.control}
           onChange={() => {
             targetForm.setValue('value', '') // clear the value when the type changes
           }}
         />
         {/* If specifying a subnet, they must first select the VPC that owns the subnet */}
-        {targetType === 'subnet' && <SubnetVpcField control={targetForm.control} />}
+        {targetType === 'subnet' && (
+          <SubnetVpcField control={targetForm.control} sectionType="target" />
+        )}
         <DynamicValueField
-          sectionType={targetType}
+          valueType={targetType}
+          sectionType="target"
           control={targetForm.control}
           items={targetFilterItems[targetType]}
           onInputChange={(value) => targetForm.setValue('value', value)}
@@ -586,15 +644,27 @@ export const CommonFields = ({
           }
         />
         <DynamicTypeField
-          label="Host type"
+          sectionType="host"
           control={hostForm.control}
           onChange={() => hostForm.setValue('value', '')} // clear the value when the type changes
         />
         {/* If specifying a subnet, they must first select the VPC that owns the subnet */}
-        {hostType === 'subnet' && <SubnetVpcField control={hostForm.control} />}
+        {hostType === 'subnet' && (
+          <SubnetVpcField control={hostForm.control} sectionType="host" />
+        )}
         <DynamicValueField
-          sectionType={hostType}
+          valueType={hostType}
+          sectionType="host"
           control={hostForm.control}
+          items={hostFilterItems[hostType]}
+          onInputChange={(value) => hostForm.setValue('value', value)}
+          isDisabled={isHostFilterInputDisabled}
+        />
+        <DynamicTypeAndValueFields
+          sectionType="host"
+          control={hostForm.control}
+          onTypeChange={() => hostForm.setValue('value', '')}
+          valueType={hostType}
           items={hostFilterItems[hostType]}
           onInputChange={(value) => hostForm.setValue('value', value)}
           isDisabled={isHostFilterInputDisabled}
