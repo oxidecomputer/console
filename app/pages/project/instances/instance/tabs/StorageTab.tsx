@@ -73,7 +73,7 @@ export function StorageTab() {
     [instanceName, project]
   )
 
-  const detachDisk = useApiMutation('instanceDiskDetach', {
+  const { mutate: detachDisk } = useApiMutation('instanceDiskDetach', {
     onSuccess() {
       queryClient.invalidateQueries('instanceDiskList')
       addToast({ content: 'Disk detached' })
@@ -86,7 +86,7 @@ export function StorageTab() {
       })
     },
   })
-  const createSnapshot = useApiMutation('snapshotCreate', {
+  const { mutate: createSnapshot } = useApiMutation('snapshotCreate', {
     onSuccess() {
       queryClient.invalidateQueries('snapshotList')
       addToast({ content: 'Snapshot created' })
@@ -112,7 +112,7 @@ export function StorageTab() {
           </>
         ),
         onActivate() {
-          createSnapshot.mutate({
+          createSnapshot({
             query: { project },
             body: {
               name: genName(disk.name),
@@ -123,19 +123,23 @@ export function StorageTab() {
         },
       },
       {
+        // don't bother checking disk state: assume that if it is showing up
+        // in this list, it can be detached
         label: 'Detach',
-        disabled: !instanceCan.detachDisk(instance) && (
+        disabled: !instanceCan.detachDisk({ runState: instance.runState }) && (
           <>
             Instance must be <span className="text-default">stopped</span> before disk can
             be detached
           </>
         ),
         onActivate() {
-          detachDisk.mutate({ body: { disk: disk.name }, ...instancePathQuery })
+          detachDisk({ body: { disk: disk.name }, ...instancePathQuery })
         },
       },
     ],
-    [detachDisk, instance, instancePathQuery, createSnapshot, project]
+    // important to pass instance.runState because instance is not referentially
+    // stable when we are polling when instance is in transition
+    [detachDisk, instance.runState, instancePathQuery, createSnapshot, project]
   )
 
   const attachDisk = useApiMutation('instanceDiskAttach', {

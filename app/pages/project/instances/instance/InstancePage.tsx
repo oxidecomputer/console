@@ -17,6 +17,7 @@ import {
 } from '@oxide/api'
 import { Instances16Icon, Instances24Icon } from '@oxide/design-system/icons/react'
 
+import { instanceTransitioning } from '~/api/util'
 import { DocsPopover } from '~/components/DocsPopover'
 import { ExternalIps } from '~/components/ExternalIps'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
@@ -28,6 +29,8 @@ import { EmptyCell } from '~/table/cells/EmptyCell'
 import { DateTime } from '~/ui/lib/DateTime'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
+import { Spinner } from '~/ui/lib/Spinner'
+import { Tooltip } from '~/ui/lib/Tooltip'
 import { Truncate } from '~/ui/lib/Truncate'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
@@ -91,13 +94,25 @@ export function InstancePage() {
   const makeActions = useMakeInstanceActions(instanceSelector, {
     onSuccess: refreshData,
     // go to project instances list since there's no more instance
-    onDelete: () => navigate(pb.instances(instanceSelector)),
+    onDelete: () => {
+      apiQueryClient.invalidateQueries('instanceList')
+      navigate(pb.instances(instanceSelector))
+    },
   })
 
-  const { data: instance } = usePrefetchedApiQuery('instanceView', {
-    path: { instance: instanceSelector.instance },
-    query: { project: instanceSelector.project },
-  })
+  const { data: instance } = usePrefetchedApiQuery(
+    'instanceView',
+    {
+      path: { instance: instanceSelector.instance },
+      query: { project: instanceSelector.project },
+    },
+    {
+      refetchInterval: ({ state: { data: instance } }) =>
+        instance && instanceTransitioning(instance) ? 1000 : false,
+    }
+  )
+
+  const polling = instanceTransitioning(instance)
 
   const { data: nics } = usePrefetchedApiQuery('instanceNetworkInterfaceList', {
     query: {
@@ -157,7 +172,16 @@ export function InstancePage() {
             <span className="ml-1 text-quaternary"> {memory.unit}</span>
           </PropertiesTable.Row>
           <PropertiesTable.Row label="status">
-            <InstanceStatusBadge status={instance.runState} />
+            <div className="flex">
+              <InstanceStatusBadge status={instance.runState} />
+              {polling && (
+                <Tooltip content="Auto-refreshing while state changes" delay={150}>
+                  <button type="button">
+                    <Spinner className="ml-2" />
+                  </button>
+                </Tooltip>
+              )}
+            </div>
           </PropertiesTable.Row>
           <PropertiesTable.Row label="vpc">
             {vpc ? (

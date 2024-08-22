@@ -363,6 +363,10 @@ export function requireFleetViewer(cookies: Record<string, string>) {
   requireRole(cookies, 'fleet', FLEET_ID, 'viewer')
 }
 
+export function requireFleetCollab(cookies: Record<string, string>) {
+  requireRole(cookies, 'fleet', FLEET_ID, 'collaborator')
+}
+
 /**
  * Determine whether current user has a role on a resource by looking roles
  * for the user as well as for the user's groups. Do nothing if yes, throw 403

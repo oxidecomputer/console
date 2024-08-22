@@ -21,7 +21,8 @@ import {
 } from '@oxide/api'
 
 import { json, makeHandlers, type Json } from '~/api/__generated__/msw-handlers'
-import { validateIp } from '~/util/str'
+import { instanceCan } from '~/api/util'
+import { commaSeries, validateIp } from '~/util/str'
 import { GiB } from '~/util/units'
 
 import { genCumulativeI64Data } from '../metrics'
@@ -48,6 +49,7 @@ import {
   ipRangeLen,
   NotImplemented,
   paginated,
+  requireFleetCollab,
   requireFleetViewer,
   requireRole,
   unavailableErr,
@@ -518,11 +520,11 @@ export const handlers = makeHandlers({
 
     setTimeout(() => {
       newInstance.run_state = 'starting'
-    }, 1000)
+    }, 500)
 
     setTimeout(() => {
       newInstance.run_state = 'running'
-    }, 5000)
+    }, 4000)
 
     db.instances.push(newInstance)
 
@@ -556,10 +558,15 @@ export const handlers = makeHandlers({
   },
   instanceDiskDetach({ body, path, query: projectParams }) {
     const instance = lookup.instance({ ...path, ...projectParams })
-    if (instance.run_state !== 'stopped') {
-      throw 'Cannot detach disk from instance that is not stopped'
+    if (!instanceCan.detachDisk({ runState: instance.run_state })) {
+      const states = commaSeries(instanceCan.detachDisk.states, 'or')
+      throw `Can only detach disk from instance that is ${states}`
     }
     const disk = lookup.disk({ ...projectParams, disk: body.disk })
+    if (!diskCan.detach(disk)) {
+      const states = commaSeries(diskCan.detach.states, 'or')
+      throw `Can only detach disk that is ${states}`
+    }
     disk.state = { state: 'detached' }
     return disk
   },
@@ -672,7 +679,7 @@ export const handlers = makeHandlers({
 
     setTimeout(() => {
       instance.run_state = 'running'
-    }, 1000)
+    }, 3000)
 
     return json(instance, { status: 202 })
   },
@@ -686,7 +693,7 @@ export const handlers = makeHandlers({
 
     setTimeout(() => {
       instance.run_state = 'running'
-    }, 1000)
+    }, 3000)
 
     return json(instance, { status: 202 })
   },
@@ -696,7 +703,7 @@ export const handlers = makeHandlers({
 
     setTimeout(() => {
       instance.run_state = 'stopped'
-    }, 1000)
+    }, 3000)
 
     return json(instance, { status: 202 })
   },
@@ -1317,7 +1324,20 @@ export const handlers = makeHandlers({
     const idps = db.identityProviders.filter(({ siloId }) => siloId === silo.id).map(toIdp)
     return { items: idps }
   },
+  siloQuotasUpdate({ body, path, cookies }) {
+    requireFleetCollab(cookies)
+    const quotas = lookup.siloQuotas(path)
 
+    if (body.cpus !== undefined) quotas.cpus = body.cpus
+    if (body.memory !== undefined) quotas.memory = body.memory
+    if (body.storage !== undefined) quotas.storage = body.storage
+
+    return quotas
+  },
+  siloQuotasView({ path, cookies }) {
+    requireFleetViewer(cookies)
+    return lookup.siloQuotas(path)
+  },
   samlIdentityProviderCreate({ query, body, cookies }) {
     requireFleetViewer(cookies)
     const silo = lookup.silo(query)
@@ -1394,7 +1414,6 @@ export const handlers = makeHandlers({
   certificateDelete: NotImplemented,
   certificateList: NotImplemented,
   certificateView: NotImplemented,
-  instanceMigrate: NotImplemented,
   instanceSerialConsoleStream: NotImplemented,
   instanceSshPublicKeyList: NotImplemented,
   ipPoolServiceRangeAdd: NotImplemented,
@@ -1444,8 +1463,6 @@ export const handlers = makeHandlers({
   roleView: NotImplemented,
   siloPolicyUpdate: NotImplemented,
   siloPolicyView: NotImplemented,
-  siloQuotasUpdate: NotImplemented,
-  siloQuotasView: NotImplemented,
   siloUserList: NotImplemented,
   siloUserView: NotImplemented,
   sledAdd: NotImplemented,

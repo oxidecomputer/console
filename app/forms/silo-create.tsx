@@ -47,10 +47,6 @@ const defaultValues: SiloCreateFormValues = {
   },
 }
 
-function validateQuota(value: number) {
-  if (value < 0) return 'Must be at least 0'
-}
-
 export function CreateSiloSideModalForm() {
   const navigate = useNavigate()
   const queryClient = useApiQueryClient()
@@ -124,7 +120,6 @@ export function CreateSiloSideModalForm() {
         name="quotas.cpus"
         required
         units="vCPUs"
-        validate={validateQuota}
       />
       <NumberField
         control={form.control}
@@ -132,7 +127,6 @@ export function CreateSiloSideModalForm() {
         name="quotas.memory"
         required
         units="GiB"
-        validate={validateQuota}
       />
       <NumberField
         control={form.control}
@@ -140,7 +134,6 @@ export function CreateSiloSideModalForm() {
         name="quotas.storage"
         required
         units="GiB"
-        validate={validateQuota}
       />
       <FormDivider />
       <RadioField

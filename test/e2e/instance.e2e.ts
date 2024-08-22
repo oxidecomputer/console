@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { expect, refreshInstance, sleep, test } from './utils'
+import { expect, expectRowVisible, refreshInstance, sleep, test } from './utils'
 
 test('can delete a failed instance', async ({ page }) => {
   await page.goto('/projects/mock-project/instances')
@@ -36,7 +36,7 @@ test('can stop and delete a running instance', async ({ page }) => {
   await page.getByRole('menuitem', { name: 'Stop' }).click()
   await page.getByRole('button', { name: 'Confirm' }).click()
 
-  await sleep(3000)
+  await sleep(4000)
   await refreshInstance(page)
 
   // now it's stopped
@@ -61,7 +61,7 @@ test('can stop a starting instance', async ({ page }) => {
   await page.getByRole('menuitem', { name: 'Stop' }).click()
   await page.getByRole('button', { name: 'Confirm' }).click()
 
-  await sleep(3000)
+  await sleep(4000)
   await refreshInstance(page)
 
   await expect(row.getByRole('cell', { name: /stopped/ })).toBeVisible()
@@ -77,4 +77,28 @@ test('delete from instance detail', async ({ page }) => {
   await expect(page).toHaveURL('/projects/mock-project/instances')
   await expect(page.getByRole('cell', { name: 'db1' })).toBeVisible()
   await expect(page.getByRole('cell', { name: 'you-fail' })).toBeHidden()
+})
+
+test('instance table', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances')
+
+  const table = page.getByRole('table')
+  await expectRowVisible(table, {
+    name: 'db1',
+    CPU: '2 vCPU',
+    Memory: '4 GiB',
+    status: expect.stringMatching(/^running\d+s$/),
+  })
+  await expectRowVisible(table, {
+    name: 'you-fail',
+    CPU: '4 vCPU',
+    Memory: '6 GiB',
+    status: expect.stringMatching(/^failed\d+s$/),
+  })
+  await expectRowVisible(table, {
+    name: 'not-there-yet',
+    CPU: '2 vCPU',
+    Memory: '8 GiB',
+    status: expect.stringMatching(/^starting\d+s$/),
+  })
 })

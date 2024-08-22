@@ -90,17 +90,31 @@ export const genName = (...parts: [string, ...string[]]) => {
 }
 
 const instanceActions: Record<string, InstanceState[]> = {
+  // https://github.com/oxidecomputer/omicron/blob/6dd9802/nexus/src/app/instance.rs#L1960-L1963
   start: ['stopped'],
-  reboot: ['running'],
-  stop: ['running', 'starting'],
+
+  // https://github.com/oxidecomputer/omicron/blob/6dd9802/nexus/db-queries/src/db/datastore/instance.rs#L865
   delete: ['stopped', 'failed'],
-  // https://github.com/oxidecomputer/omicron/blob/9eff6a4/nexus/db-queries/src/db/datastore/disk.rs#L310-L314
+
+  // reboot and stop are kind of weird!
+  // https://github.com/oxidecomputer/omicron/blob/6dd9802/nexus/src/app/instance.rs#L790-L798
+  // https://github.com/oxidecomputer/propolis/blob/b278193/bin/propolis-server/src/lib/vm/request_queue.rs
+  // https://github.com/oxidecomputer/console/pull/2387#discussion_r1722368236
+  reboot: ['running'], // technically rebooting allowed but too weird to say it
+  stop: ['running', 'starting', 'rebooting'],
+
+  // NoVmm maps to to Stopped:
+  // https://github.com/oxidecomputer/omicron/blob/6dd9802/nexus/db-model/src/instance_state.rs#L55
+
+  // https://github.com/oxidecomputer/omicron/blob/6dd9802/nexus/db-queries/src/db/datastore/disk.rs#L323-L327
   detachDisk: ['creating', 'stopped', 'failed'],
-  // https://github.com/oxidecomputer/omicron/blob/a7c7a67/nexus/db-queries/src/db/datastore/disk.rs#L183-L184
+  // only Creating and NoVmm
+  // https://github.com/oxidecomputer/omicron/blob/6dd9802/nexus/db-queries/src/db/datastore/disk.rs#L185-L188
   attachDisk: ['creating', 'stopped'],
-  // https://github.com/oxidecomputer/omicron/blob/8f0cbf0/nexus/db-queries/src/db/datastore/network_interface.rs#L482
+  // primary nic: https://github.com/oxidecomputer/omicron/blob/6dd9802/nexus/db-queries/src/db/datastore/network_interface.rs#L761-L765
+  // non-primary: https://github.com/oxidecomputer/omicron/blob/6dd9802/nexus/db-queries/src/db/datastore/network_interface.rs#L806-L810
   updateNic: ['stopped'],
-  // https://github.com/oxidecomputer/omicron/blob/ebcc2acd/nexus/src/app/instance.rs#L1648-L1676
+  // https://github.com/oxidecomputer/omicron/blob/6dd9802/nexus/src/app/instance.rs#L1520-L1522
   serialConsole: ['running', 'rebooting', 'migrating', 'repairing'],
 }
 
@@ -108,18 +122,32 @@ const instanceActions: Record<string, InstanceState[]> = {
 // while also making the states available directly
 
 export const instanceCan = R.mapValues(instanceActions, (states) => {
-  const test = (i: Instance) => states.includes(i.runState)
+  const test = (i: { runState: InstanceState }) => states.includes(i.runState)
   test.states = states
   return test
 })
 
+export function instanceTransitioning({ runState }: Instance) {
+  return (
+    runState === 'creating' ||
+    runState === 'starting' ||
+    runState === 'stopping' ||
+    runState === 'rebooting'
+  )
+}
+
 const diskActions: Record<string, DiskState['state'][]> = {
-  // https://github.com/oxidecomputer/omicron/blob/4970c71e/nexus/db-queries/src/db/datastore/disk.rs#L578-L582.
-  delete: ['detached', 'creating', 'faulted'],
-  // TODO: link to API source
+  // this is a weird one because the list of states is dynamic and it includes
+  // 'creating' in the unwind of the disk create saga, but does not include
+  // 'creating' in the disk delete saga, which is what we care about
+  // https://github.com/oxidecomputer/omicron/blob/6dd9802/nexus/src/app/sagas/disk_delete.rs?plain=1#L110
+  delete: ['detached', 'faulted'],
+  // TODO: link to API source. It's hard to determine from the saga code what the rule is here.
   snapshot: ['attached', 'detached'],
-  // https://github.com/oxidecomputer/omicron/blob/4970c71e/nexus/db-queries/src/db/datastore/disk.rs#L169-L172
+  // https://github.com/oxidecomputer/omicron/blob/6dd9802/nexus/db-queries/src/db/datastore/disk.rs#L173-L176
   attach: ['creating', 'detached'],
+  // https://github.com/oxidecomputer/omicron/blob/6dd9802/nexus/db-queries/src/db/datastore/disk.rs#L313-L314
+  detach: ['attached'],
 }
 
 export const diskCan = R.mapValues(diskActions, (states) => {

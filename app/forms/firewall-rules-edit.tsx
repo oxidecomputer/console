@@ -27,7 +27,7 @@ import { PAGE_SIZE } from '~/table/QueryTable'
 import { invariant } from '~/util/invariant'
 import { pb } from '~/util/path-builder'
 
-import { CommonFields } from './firewall-rules-create'
+import { CommonFields } from './firewall-rules-common'
 import { valuesToRuleUpdate, type FirewallRuleValues } from './firewall-rules-util'
 
 EditFirewallRuleForm.loader = async ({ params }: LoaderFunctionArgs) => {

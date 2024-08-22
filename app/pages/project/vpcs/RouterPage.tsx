@@ -188,7 +188,7 @@ export function RouterPage() {
           <DocsPopover
             heading="Routers"
             icon={<Networking16Icon />}
-            summary="Routers summary copy TK"
+            summary="Routers are collections of routes that direct traffic between VPCs and their subnets."
             links={[docLinks.routers]}
           />
           <MoreActionsMenu label="Router actions" actions={actions} />

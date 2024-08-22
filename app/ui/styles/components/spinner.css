@@ -46,6 +46,10 @@
   stroke: var(--content-default);
 }
 
+.spinner-secondary .path {
+  stroke: var(--content-secondary);
+}
+
 .spinner-primary .bg {
   stroke: var(--content-accent);
 }

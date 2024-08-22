@@ -56,16 +56,17 @@ const staticCols = [
       )
     },
   }),
+  // we don't show run state last update time like on project instances because
+  // it's not in this response
   colHelper.accessor('state', {
     header: 'status',
-    cell: (info) => <InstanceStatusBadge key="run-state" status={info.getValue()} />,
+    cell: (info) => <InstanceStatusBadge status={info.getValue()} />,
   }),
   colHelper.accessor((i) => R.pick(i, ['memory', 'ncpus']), {
     header: 'specs',
     cell: (info) => <InstanceResourceCell value={info.getValue()} />,
   }),
   colHelper.accessor('timeCreated', Columns.timeCreated),
-  colHelper.accessor('timeModified', Columns.timeModified),
 ]
 
 export function SledInstancesTab() {
