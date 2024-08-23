@@ -19,7 +19,7 @@ import {
 import { PrevArrow12Icon } from '@oxide/design-system/icons/react'
 
 import { EquivalentCliCommand } from '~/components/EquivalentCliCommand'
-import { InstanceStatusBadge } from '~/components/StatusBadge'
+import { InstanceStateBadge } from '~/components/StateBadge'
 import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
 import { Badge, type BadgeColor } from '~/ui/lib/Badge'
 import { Spinner } from '~/ui/lib/Spinner'
@@ -219,7 +219,7 @@ const CannotConnect = ({ instance }: { instance: Instance }) => (
   <SerialSkeleton animate={isStarting(instance)}>
     <p className="flex items-center justify-center text-sans-xl">
       <span>The instance is </span>
-      <InstanceStatusBadge className="ml-1.5" status={instance.runState} />
+      <InstanceStateBadge className="ml-1.5" state={instance.runState} />
     </p>
     <p className="mt-2 text-balance text-center text-secondary">
       {isStarting(instance)

@@ -23,7 +23,7 @@ import { InstanceDocsPopover } from '~/components/InstanceDocsPopover'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import { RefreshButton } from '~/components/RefreshButton'
 import { RouteTabs, Tab } from '~/components/RouteTabs'
-import { InstanceStatusBadge } from '~/components/StatusBadge'
+import { InstanceStateBadge } from '~/components/StateBadge'
 import { getInstanceSelector, useInstanceSelector } from '~/hooks'
 import { EmptyCell } from '~/table/cells/EmptyCell'
 import { DateTime } from '~/ui/lib/DateTime'
@@ -86,6 +86,8 @@ InstancePage.loader = async ({ params }: LoaderFunctionArgs) => {
   return null
 }
 
+const POLL_INTERVAL = 1000
+
 export function InstancePage() {
   const instanceSelector = useInstanceSelector()
 
@@ -107,7 +109,7 @@ export function InstancePage() {
     },
     {
       refetchInterval: ({ state: { data: instance } }) =>
-        instance && instanceTransitioning(instance) ? 1000 : false,
+        instance && instanceTransitioning(instance) ? POLL_INTERVAL : false,
     }
   )
 
@@ -165,9 +167,9 @@ export function InstancePage() {
             <span className="text-secondary">{memory.value}</span>
             <span className="ml-1 text-quaternary"> {memory.unit}</span>
           </PropertiesTable.Row>
-          <PropertiesTable.Row label="status">
+          <PropertiesTable.Row label="state">
             <div className="flex">
-              <InstanceStatusBadge status={instance.runState} />
+              <InstanceStateBadge state={instance.runState} />
               {polling && (
                 <Tooltip content="Auto-refreshing while state changes" delay={150}>
                   <button type="button">

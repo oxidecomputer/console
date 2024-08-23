@@ -111,13 +111,8 @@ export async function stopInstance(page: Page) {
   await page.getByRole('menuitem', { name: 'Stop' }).click()
   await page.getByRole('button', { name: 'Confirm' }).click()
   await closeToast(page)
-  await sleep(2000)
-  await refreshInstance(page)
-  await expect(page.getByText('statusstopped')).toBeVisible()
-}
-
-export async function refreshInstance(page: Page) {
-  await page.getByRole('button', { name: 'Refresh data' }).click()
+  // don't need to manually refresh because of polling
+  await expect(page.getByText('statestopped')).toBeVisible()
 }
 
 /**

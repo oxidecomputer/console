@@ -20,7 +20,7 @@ import {
 import { Storage16Icon, Storage24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
-import { DiskStatusBadge } from '~/components/StatusBadge'
+import { DiskStateBadge } from '~/components/StateBadge'
 import { getProjectSelector, useProjectSelector } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
@@ -87,8 +87,8 @@ const staticCols = [
   ),
   colHelper.accessor('size', Columns.size),
   colHelper.accessor('state.state', {
-    header: 'Status',
-    cell: (info) => <DiskStatusBadge status={info.getValue()} />,
+    header: 'state',
+    cell: (info) => <DiskStateBadge state={info.getValue()} />,
   }),
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
