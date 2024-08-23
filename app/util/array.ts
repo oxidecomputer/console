@@ -48,3 +48,8 @@ export function isSetEqual<T>(a: Set<T>, b: Set<T>): boolean {
   }
   return true
 }
+
+/** Set `a - b` */
+export function setDiff<T>(a: Set<T>, b: Set<T>): Set<T> {
+  return new Set([...a].filter((x) => !b.has(x)))
+}

@@ -31,7 +31,7 @@ import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
-import { isSetEqual } from '~/util/array'
+import { setDiff } from '~/util/array'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
@@ -108,18 +108,25 @@ export function InstancesPage() {
         // always update. we don't have to worry about doing this in all the branches below.
         transitioningInstances.current = nextTransitioning
 
-        // if no instances are transitioning, do not poll
-        if (nextTransitioning.size === 0) return false
+        // We use this setDiff logic instead of just checking whether the set
+        // has changed because if you have two transitioning instances and
+        // one stops transitioning, then that's a change in the set, but you
+        // shouldn't start polling because of it! What you want to look for is
+        // new transitioning instances.
+        const anyTransitioning = nextTransitioning.size > 0
+        const anyNewTransitioning = setDiff(nextTransitioning, prevTransitioning).size > 0
 
-        // if the set of transitioning instances hasn't changed, we only poll if we haven't hit the timeout
-        if (isSetEqual(prevTransitioning, nextTransitioning)) {
+        if (anyTransitioning) {
+          // if we have new transitioning instances, restart the timeout clock
+          if (anyNewTransitioning) pollingStartTime.current = Date.now()
+
+          // important that elapsed is calculated *after* bumping start time
           const elapsed = Date.now() - pollingStartTime.current
-          return elapsed < POLL_TIMEOUT ? POLL_INTERVAL : false
+          if (elapsed < POLL_TIMEOUT) return POLL_INTERVAL
+          // otherwise fall through to false below
         }
 
-        // if we have new transitioning instances, always poll and restart the window
-        pollingStartTime.current = Date.now()
-        return POLL_INTERVAL
+        return false
       },
     }
   )
