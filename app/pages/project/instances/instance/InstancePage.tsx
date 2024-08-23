@@ -172,7 +172,7 @@ export function InstancePage() {
             <div className="flex">
               <InstanceStatusBadge status={instance.runState} />
               {polling && (
-                <Tooltip content="Auto-refreshing while state changes" delay={150}>
+                <Tooltip content="Auto-refreshing while status changes" delay={150}>
                   <button type="button">
                     <Spinner className="ml-2" />
                   </button>

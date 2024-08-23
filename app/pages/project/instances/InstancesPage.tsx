@@ -31,7 +31,9 @@ import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
+import { Tooltip } from '~/ui/lib/Tooltip'
 import { setDiff } from '~/util/array'
+import { toLocaleTimeString } from '~/util/date'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
@@ -58,8 +60,9 @@ InstancesPage.loader = async ({ params }: LoaderFunctionArgs) => {
 }
 
 const sec = 1000 // ms, obviously
-const POLL_TIMEOUT = 30 * sec
-const POLL_INTERVAL = 3 * sec
+const POLL_FAST_TIMEOUT = 30 * sec
+const POLL_INTERVAL_FAST = 3 * sec
+const POLL_INTERVAL_SLOW = 60 * sec
 
 export function InstancesPage() {
   const { project } = useProjectSelector()
@@ -80,17 +83,17 @@ export function InstancesPage() {
   const transitioningInstances = useRef<Set<string>>(new Set())
   const pollingStartTime = useRef<number>(Date.now())
 
-  const { data: instances } = usePrefetchedApiQuery(
+  const { data: instances, dataUpdatedAt } = usePrefetchedApiQuery(
     'instanceList',
     { query: { project, limit: PAGE_SIZE } },
     {
-      // The point of all this is to poll for a certain amount of time after
-      // some instance in the current page is transitioning. For example, if
-      // you manually stop an instance, its state will change to `stopping`,
-      // which will cause this logic to start polling the list until it lands
-      // in `stopped`, which is not a transitional state. We want polling to
-      // eventually time out so we're not polling forever if an instance is
-      // stuck in starting or whatever.
+      // The point of all this is to poll quickly for a certain amount of time
+      // after some instance in the current page enters a transitional state
+      // like starting or stopping. After that, it will keep polling, but more
+      // slowly. For example, if you stop an instance, its state will change to
+      // `stopping`, which will cause this logic to start polling the list until
+      // it lands in `stopped`, at which point it will stop polling because
+      // `stopped` is not considered transitional.
       refetchInterval({ state: { data } }) {
         const prevTransitioning = transitioningInstances.current
         const nextTransitioning = new Set(
@@ -105,28 +108,20 @@ export function InstancesPage() {
             .map((i) => i.id + '|' + i.runState)
         )
 
-        // always update. we don't have to worry about doing this in all the branches below.
+        // always update the ledger to the current state
         transitioningInstances.current = nextTransitioning
 
-        // We use this setDiff logic instead of just checking whether the set
-        // has changed because if you have two transitioning instances and
-        // one stops transitioning, then that's a change in the set, but you
-        // shouldn't start polling because of it! What you want to look for is
-        // new transitioning instances.
-        const anyTransitioning = nextTransitioning.size > 0
+        // We use this set difference logic instead of set equality because if
+        // you have two transitioning instances and one stops transitioning,
+        // then that's a change in the set, but you shouldn't start polling
+        // fast because of it! What you want to look for is *new* transitioning
+        // instances.
         const anyNewTransitioning = setDiff(nextTransitioning, prevTransitioning).size > 0
+        if (anyNewTransitioning) pollingStartTime.current = Date.now()
 
-        if (anyTransitioning) {
-          // if we have new transitioning instances, restart the timeout clock
-          if (anyNewTransitioning) pollingStartTime.current = Date.now()
-
-          // important that elapsed is calculated *after* bumping start time
-          const elapsed = Date.now() - pollingStartTime.current
-          if (elapsed < POLL_TIMEOUT) return POLL_INTERVAL
-          // otherwise fall through to false below
-        }
-
-        return false
+        // important that elapsed is calculated *after* potentially bumping start time
+        const elapsed = Date.now() - pollingStartTime.current
+        return elapsed < POLL_FAST_TIMEOUT ? POLL_INTERVAL_FAST : POLL_INTERVAL_SLOW
       },
     }
   )
@@ -205,8 +200,20 @@ export function InstancesPage() {
           links={[docLinks.instances, docLinks.instanceActions]}
         />
       </PageHeader>
-      <TableActions>
-        <RefreshButton onClick={refetchInstances} />
+      {/* Avoid changing justify-end on TableActions for this one case. We can
+       * fix this properly when we add refresh and filtering for all tables. */}
+      <TableActions className="!-mt-6 !justify-between">
+        <div className="flex items-center gap-2">
+          <RefreshButton onClick={refetchInstances} />
+          <Tooltip
+            content="Auto-refresh is more frequent after instance actions"
+            delay={150}
+          >
+            <span className="text-sans-sm text-tertiary">
+              Updated {toLocaleTimeString(new Date(dataUpdatedAt))}
+            </span>
+          </Tooltip>
+        </div>
         <CreateLink to={pb.instancesNew({ project })}>New Instance</CreateLink>
       </TableActions>
       <Table columns={columns} emptyState={<EmptyState />} />
