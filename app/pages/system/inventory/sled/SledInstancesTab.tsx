@@ -12,7 +12,7 @@ import * as R from 'remeda'
 import { apiQueryClient, type SledInstance } from '@oxide/api'
 import { Instances24Icon } from '@oxide/design-system/icons/react'
 
-import { InstanceStatusBadge } from '~/components/StatusBadge'
+import { InstanceStateBadge } from '~/components/StateBadge'
 import { requireSledParams, useSledParams } from '~/hooks'
 import { InstanceResourceCell } from '~/table/cells/InstanceResourceCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
@@ -59,8 +59,8 @@ const staticCols = [
   // we don't show run state last update time like on project instances because
   // it's not in this response
   colHelper.accessor('state', {
-    header: 'status',
-    cell: (info) => <InstanceStatusBadge status={info.getValue()} />,
+    header: 'State',
+    cell: (info) => <InstanceStateBadge state={info.getValue()} />,
   }),
   colHelper.accessor((i) => R.pick(i, ['memory', 'ncpus']), {
     header: 'specs',

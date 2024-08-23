@@ -7,15 +7,15 @@
  */
 import type { Instance } from '@oxide/api'
 
-import { InstanceStatusBadge } from '~/components/StatusBadge'
+import { InstanceStateBadge } from '~/components/StateBadge'
 import { TimeAgo } from '~/components/TimeAgo'
 
 type Props = { value: Pick<Instance, 'runState' | 'timeRunStateUpdated'> }
 
-export const InstanceStatusCell = ({ value }: Props) => {
+export const InstanceStateCell = ({ value }: Props) => {
   return (
     <div className="flex items-center gap-1.5">
-      <InstanceStatusBadge status={value.runState} />
+      <InstanceStateBadge state={value.runState} />
       <TimeAgo tooltipText="Run state updated" datetime={value.timeRunStateUpdated} />
     </div>
   )

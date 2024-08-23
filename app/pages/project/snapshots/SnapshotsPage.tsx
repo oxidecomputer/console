@@ -19,7 +19,7 @@ import {
 import { Snapshots16Icon, Snapshots24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
-import { SnapshotStatusBadge } from '~/components/StatusBadge'
+import { SnapshotStateBadge } from '~/components/StateBadge'
 import { getProjectSelector, useProjectSelector } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { SkeletonCell } from '~/table/cells/EmptyCell'
@@ -91,7 +91,7 @@ const staticCols = [
     cell: (info) => <DiskNameFromId value={info.getValue()} />,
   }),
   colHelper.accessor('state', {
-    cell: (info) => <SnapshotStatusBadge status={info.getValue()} />,
+    cell: (info) => <SnapshotStateBadge state={info.getValue()} />,
   }),
   colHelper.accessor('size', Columns.size),
   colHelper.accessor('timeCreated', Columns.timeCreated),

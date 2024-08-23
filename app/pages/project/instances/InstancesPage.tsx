@@ -17,7 +17,7 @@ import { instanceTransitioning } from '~/api/util'
 import { InstanceDocsPopover } from '~/components/InstanceDocsPopover'
 import { RefreshButton } from '~/components/RefreshButton'
 import { getProjectSelector, useProjectSelector, useQuickActions } from '~/hooks'
-import { InstanceStatusCell } from '~/table/cells/InstanceStatusCell'
+import { InstanceStateCell } from '~/table/cells/InstanceStateCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { getActionsCol } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
@@ -176,8 +176,8 @@ export function InstancesPage() {
       colHelper.accessor(
         (i) => ({ runState: i.runState, timeRunStateUpdated: i.timeRunStateUpdated }),
         {
-          header: 'status',
-          cell: (info) => <InstanceStatusCell value={info.getValue()} />,
+          header: 'state',
+          cell: (info) => <InstanceStateCell value={info.getValue()} />,
         }
       ),
       colHelper.accessor('timeCreated', Columns.timeCreated),
