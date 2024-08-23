@@ -77,7 +77,7 @@ test('can stop a starting instance, then start it again', async ({ page }) => {
     status: expect.stringContaining('stopped'),
   })
 
-  await clickRowAction(page, 'not-there-yet', 'Stop')
+  await clickRowAction(page, 'not-there-yet', 'Start')
   await expectRowVisible(table, {
     name: 'not-there-yet',
     status: expect.stringContaining('starting'),
