@@ -42,3 +42,23 @@ export const useCustomRouterItems = () => {
 
   return { isLoading, items: routerItems }
 }
+
+// Get a list of subnets for a given VPC; If no project/VPC is provided, use the VPC from the VpcSelector
+export const useVpcSubnetItems = ({ project, vpc }: { project?: string; vpc?: string }) => {
+  const vpcSelector = useVpcSelector()
+  const vpcSubnets = useApiQuery(
+    'vpcSubnetList',
+    { query: { project: project || vpcSelector.project, vpc: vpc || vpcSelector.vpc } },
+    { enabled: !!vpc }
+  )
+  const vpcSubnetItems = useMemo(() => {
+    return (
+      vpcSubnets?.data?.items.map((subnet) => ({
+        value: subnet.name,
+        label: subnet.name,
+      })) || []
+    )
+  }, [vpcSubnets])
+
+  return { isLoading: vpcSubnets.isLoading, items: vpcSubnetItems }
+}
