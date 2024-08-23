@@ -86,6 +86,8 @@ InstancePage.loader = async ({ params }: LoaderFunctionArgs) => {
   return null
 }
 
+const POLL_INTERVAL = 1000
+
 export function InstancePage() {
   const instanceSelector = useInstanceSelector()
 
@@ -107,7 +109,7 @@ export function InstancePage() {
     },
     {
       refetchInterval: ({ state: { data: instance } }) =>
-        instance && instanceTransitioning(instance) ? 1000 : false,
+        instance && instanceTransitioning(instance) ? POLL_INTERVAL : false,
     }
   )
 
@@ -169,7 +171,7 @@ export function InstancePage() {
             <div className="flex">
               <InstanceStatusBadge status={instance.runState} />
               {polling && (
-                <Tooltip content="Auto-refreshing while state changes" delay={150}>
+                <Tooltip content="Auto-refreshing while status changes" delay={150}>
                   <button type="button">
                     <Spinner className="ml-2" />
                   </button>
