@@ -73,7 +73,7 @@ test('isSetEqual', () => {
   expect(isSetEqual(new Set([{}]), new Set([{}]))).toBe(false)
 })
 
-test.only('setDiff', () => {
+test('setDiff', () => {
   expect(setDiff(new Set(), new Set())).toEqual(new Set())
   expect(setDiff(new Set(['a']), new Set())).toEqual(new Set(['a']))
   expect(setDiff(new Set(), new Set(['a']))).toEqual(new Set())
