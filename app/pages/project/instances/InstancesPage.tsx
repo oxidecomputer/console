@@ -93,7 +93,7 @@ export function InstancesPage() {
       // like starting or stopping. After that, it will keep polling, but more
       // slowly. For example, if you stop an instance, its state will change to
       // `stopping`, which will cause this logic to start polling the list until
-      // it lands in `stopped`, at which point it will stop polling because
+      // it lands in `stopped`, at which point it will poll only slowly because
       // `stopped` is not considered transitional.
       refetchInterval({ state: { data } }) {
         const prevTransitioning = transitioningInstances.current
