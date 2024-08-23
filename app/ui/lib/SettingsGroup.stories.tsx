@@ -8,7 +8,7 @@
 import { Link } from 'react-router-dom'
 
 import { Button, buttonStyle } from './Button'
-import { SettingsGroup } from './SettingsGroup'
+import { LearnMore, SettingsGroup } from './SettingsGroup'
 
 export const Default = () => (
   <SettingsGroup.Container>
@@ -16,9 +16,8 @@ export const Default = () => (
       <SettingsGroup.Title>Serial console</SettingsGroup.Title>
       Connect to your instance&rsquo;s serial console
     </SettingsGroup.Body>
-    <SettingsGroup.Footer
-      docsLink={{ text: 'math', href: 'https://en.wikipedia.org/wiki/Mathematics' }}
-    >
+    <SettingsGroup.Footer>
+      <LearnMore text="math" href="https://en.wikipedia.org/wiki/Mathematics" />
       <Link to="/" className={buttonStyle({ size: 'sm' })}>
         Connect
       </Link>

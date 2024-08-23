@@ -10,16 +10,11 @@ import { filesize } from 'filesize'
 import { useMemo, useRef } from 'react'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
-import {
-  apiQueryClient,
-  instanceTransitioning,
-  useApiQueryClient,
-  usePrefetchedApiQuery,
-  type Instance,
-} from '@oxide/api'
-import { Instances16Icon, Instances24Icon } from '@oxide/design-system/icons/react'
+import { apiQueryClient, usePrefetchedApiQuery, type Instance } from '@oxide/api'
+import { Instances24Icon } from '@oxide/design-system/icons/react'
 
-import { DocsPopover } from '~/components/DocsPopover'
+import { instanceTransitioning } from '~/api/util'
+import { InstanceDocsPopover } from '~/components/InstanceDocsPopover'
 import { RefreshButton } from '~/components/RefreshButton'
 import { getProjectSelector, useProjectSelector, useQuickActions } from '~/hooks'
 import { InstanceStatusCell } from '~/table/cells/InstanceStatusCell'
@@ -34,7 +29,6 @@ import { TableActions } from '~/ui/lib/Table'
 import { Tooltip } from '~/ui/lib/Tooltip'
 import { setDiff } from '~/util/array'
 import { toLocaleTimeString } from '~/util/date'
-import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 import { useMakeInstanceActions } from './actions'
@@ -59,6 +53,8 @@ InstancesPage.loader = async ({ params }: LoaderFunctionArgs) => {
   return null
 }
 
+const refetchInstances = () => apiQueryClient.invalidateQueries('instanceList')
+
 const sec = 1000 // ms, obviously
 const POLL_FAST_TIMEOUT = 30 * sec
 // a little slower than instance detail because this is a bigger response
@@ -67,9 +63,6 @@ const POLL_INTERVAL_SLOW = 60 * sec
 
 export function InstancesPage() {
   const { project } = useProjectSelector()
-
-  const queryClient = useApiQueryClient()
-  const refetchInstances = () => queryClient.invalidateQueries('instanceList')
 
   const makeActions = useMakeInstanceActions(
     { project },
@@ -199,12 +192,7 @@ export function InstancesPage() {
     <>
       <PageHeader>
         <PageTitle icon={<Instances24Icon />}>Instances</PageTitle>
-        <DocsPopover
-          heading="instances"
-          icon={<Instances16Icon />}
-          summary="Instances are virtual machines that run on the Oxide platform."
-          links={[docLinks.instances, docLinks.instanceActions]}
-        />
+        <InstanceDocsPopover />
       </PageHeader>
       {/* Avoid changing justify-end on TableActions for this one case. We can
        * fix this properly when we add refresh and filtering for all tables. */}

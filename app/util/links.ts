@@ -5,6 +5,9 @@
  *
  * Copyright Oxide Computer Company
  */
+
+const remoteAccess = 'https://docs.oxide.computer/guides/remote-access'
+
 export const links = {
   accessDocs: 'https://docs.oxide.computer/guides/configuring-access',
   cloudInitFormat: 'https://cloudinit.readthedocs.io/en/latest/explanation/format.html',
@@ -31,6 +34,8 @@ export const links = {
     'https://docs.oxide.computer/guides/architecture/service-processors#_server_sled',
   snapshotsDocs:
     'https://docs.oxide.computer/guides/managing-disks-and-snapshots#_snapshots',
+  serialConsoleDocs: remoteAccess + '#serial-console',
+  sshDocs: remoteAccess + '#ssh',
   sshKeysDocs: 'https://docs.oxide.computer/guides/user-settings#_ssh_keys',
   storageDocs:
     'https://docs.oxide.computer/guides/architecture/os-hypervisor-storage#_storage',
@@ -82,6 +87,10 @@ export const docLinks = {
   quickStart: {
     href: links.quickStart,
     linkText: 'Quick Start',
+  },
+  remoteAccess: {
+    href: remoteAccess,
+    linkText: 'Remote Access',
   },
   routers: {
     href: links.routersDocs,
