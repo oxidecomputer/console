@@ -22,12 +22,9 @@ const INSTANCE_COLORS: Record<InstanceState, Pick<BadgeProps, 'color' | 'variant
   destroyed: { color: 'neutral', variant: 'solid' },
 }
 
-export const InstanceStatusBadge = (props: {
-  status: InstanceState
-  className?: string
-}) => (
-  <Badge {...INSTANCE_COLORS[props.status]} className={props.className}>
-    {props.status}
+export const InstanceStateBadge = (props: { state: InstanceState; className?: string }) => (
+  <Badge {...INSTANCE_COLORS[props.state]} className={props.className}>
+    {props.state}
   </Badge>
 )
 
@@ -48,9 +45,9 @@ const DISK_COLORS: Record<DiskStateStr, Pick<BadgeProps, 'color' | 'variant'>> =
   finalizing: { color: 'blue', variant: 'solid' },
 }
 
-export const DiskStatusBadge = (props: { status: DiskStateStr; className?: string }) => (
-  <Badge {...DISK_COLORS[props.status]} className={props.className}>
-    {props.status}
+export const DiskStateBadge = (props: { state: DiskStateStr; className?: string }) => (
+  <Badge {...DISK_COLORS[props.state]} className={props.className}>
+    {props.state}
   </Badge>
 )
 
@@ -61,11 +58,8 @@ const SNAPSHOT_COLORS: Record<SnapshotState, BadgeColor> = {
   ready: 'default',
 }
 
-export const SnapshotStatusBadge = (props: {
-  status: SnapshotState
-  className?: string
-}) => (
-  <Badge color={SNAPSHOT_COLORS[props.status]} className={props.className}>
-    {props.status}
+export const SnapshotStateBadge = (props: { state: SnapshotState; className?: string }) => (
+  <Badge color={SNAPSHOT_COLORS[props.state]} className={props.className}>
+    {props.state}
   </Badge>
 )

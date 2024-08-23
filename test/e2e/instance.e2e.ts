@@ -29,7 +29,7 @@ test('can stop and delete a running instance', async ({ page }) => {
   const table = page.getByRole('table')
   await expectRowVisible(table, {
     name: 'db1',
-    status: expect.stringContaining('running'),
+    state: expect.stringContaining('running'),
   })
   const row = page.getByRole('row', { name: 'db1', exact: false })
 
@@ -42,11 +42,11 @@ test('can stop and delete a running instance', async ({ page }) => {
   // polling makes it go stopping and then stopped
   await expectRowVisible(table, {
     name: 'db1',
-    status: expect.stringContaining('stopping'),
+    state: expect.stringContaining('stopping'),
   })
   await expectRowVisible(table, {
     name: 'db1',
-    status: expect.stringContaining('stopped'),
+    state: expect.stringContaining('stopped'),
   })
 
   // now delete
@@ -62,7 +62,7 @@ test('can stop a starting instance, then start it again', async ({ page }) => {
   const table = page.getByRole('table')
   await expectRowVisible(table, {
     name: 'not-there-yet',
-    status: expect.stringContaining('starting'),
+    state: expect.stringContaining('starting'),
   })
 
   await clickRowAction(page, 'not-there-yet', 'Stop')
@@ -70,21 +70,21 @@ test('can stop a starting instance, then start it again', async ({ page }) => {
 
   await expectRowVisible(table, {
     name: 'not-there-yet',
-    status: expect.stringContaining('stopping'),
+    state: expect.stringContaining('stopping'),
   })
   await expectRowVisible(table, {
     name: 'not-there-yet',
-    status: expect.stringContaining('stopped'),
+    state: expect.stringContaining('stopped'),
   })
 
   await clickRowAction(page, 'not-there-yet', 'Start')
   await expectRowVisible(table, {
     name: 'not-there-yet',
-    status: expect.stringContaining('starting'),
+    state: expect.stringContaining('starting'),
   })
   await expectRowVisible(table, {
     name: 'not-there-yet',
-    status: expect.stringContaining('running'),
+    state: expect.stringContaining('running'),
   })
 })
 
@@ -108,18 +108,18 @@ test('instance table', async ({ page }) => {
     name: 'db1',
     CPU: '2 vCPU',
     Memory: '4 GiB',
-    status: expect.stringMatching(/^running\d+s$/),
+    state: expect.stringMatching(/^running\d+s$/),
   })
   await expectRowVisible(table, {
     name: 'you-fail',
     CPU: '4 vCPU',
     Memory: '6 GiB',
-    status: expect.stringMatching(/^failed\d+s$/),
+    state: expect.stringMatching(/^failed\d+s$/),
   })
   await expectRowVisible(table, {
     name: 'not-there-yet',
     CPU: '2 vCPU',
     Memory: '8 GiB',
-    status: expect.stringMatching(/^starting\d+s$/),
+    state: expect.stringMatching(/^starting\d+s$/),
   })
 })

@@ -21,7 +21,7 @@ import {
 } from '@oxide/api'
 import { Storage24Icon } from '@oxide/design-system/icons/react'
 
-import { DiskStatusBadge } from '~/components/StatusBadge'
+import { DiskStateBadge } from '~/components/StateBadge'
 import { AttachDiskSideModalForm } from '~/forms/disk-attach'
 import { CreateDiskSideModalForm } from '~/forms/disk-create'
 import { getInstanceSelector, useInstanceSelector } from '~/hooks'
@@ -56,8 +56,8 @@ const staticCols = [
   colHelper.accessor('name', { header: 'Disk' }),
   colHelper.accessor('size', Columns.size),
   colHelper.accessor((row) => row.state.state, {
-    header: 'status',
-    cell: (info) => <DiskStatusBadge status={info.getValue()} />,
+    header: 'state',
+    cell: (info) => <DiskStateBadge state={info.getValue()} />,
   }),
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
