@@ -61,6 +61,7 @@ InstancesPage.loader = async ({ params }: LoaderFunctionArgs) => {
 
 const sec = 1000 // ms, obviously
 const POLL_FAST_TIMEOUT = 30 * sec
+// a little slower than instance detail because this is a bigger response
 const POLL_INTERVAL_FAST = 3 * sec
 const POLL_INTERVAL_SLOW = 60 * sec
 
