@@ -15,6 +15,7 @@ import {
   type Vpc,
   type VpcFirewallRuleHostFilter,
   type VpcFirewallRuleTarget,
+  type VpcSubnet,
 } from '~/api'
 import { parsePortRange } from '~/api/util'
 import { CheckboxField } from '~/components/form/fields/CheckboxField'
@@ -25,7 +26,7 @@ import { NameField } from '~/components/form/fields/NameField'
 import { NumberField } from '~/components/form/fields/NumberField'
 import { RadioField } from '~/components/form/fields/RadioField'
 import { TextField, TextFieldInner } from '~/components/form/fields/TextField'
-import { useVpcSubnetItems, useVpcSubnets } from '~/components/form/fields/useItemsList'
+import { useVpcSubnets } from '~/components/form/fields/useItemsList'
 import { useForm } from '~/hooks/use-form'
 import { Badge } from '~/ui/lib/Badge'
 import { Button } from '~/ui/lib/Button'
@@ -39,6 +40,17 @@ import { links } from '~/util/links'
 import { capitalize } from '~/util/str'
 
 import { type FirewallRuleValues } from './firewall-rules-util'
+
+type TargetFormValues = {
+  type: VpcFirewallRuleTarget['type']
+  value: string
+  subnetVpc?: string
+}
+
+const targetDefaultValues: TargetFormValues = {
+  type: 'vpc',
+  value: '',
+}
 
 type PortRangeFormValues = {
   portRange: string
@@ -55,17 +67,6 @@ type HostFormValues = {
 }
 
 const hostDefaultValues: HostFormValues = {
-  type: 'vpc',
-  value: '',
-}
-
-type TargetFormValues = {
-  type: VpcFirewallRuleTarget['type']
-  value: string
-  subnetVpc?: string
-}
-
-const targetDefaultValues: TargetFormValues = {
   type: 'vpc',
   value: '',
 }
@@ -186,6 +187,54 @@ const ClearAndAddButtons = ({
   </div>
 )
 
+const TypeAndValueTableHeader = () => (
+  <MiniTable.Header>
+    <MiniTable.HeadCell>Type</MiniTable.HeadCell>
+    <MiniTable.HeadCell>Value</MiniTable.HeadCell>
+    {/* For remove button */}
+    <MiniTable.HeadCell className="w-12" />
+  </MiniTable.Header>
+)
+
+const TypeAndValueTableRow = ({
+  type,
+  value,
+  index,
+  onRemove,
+  targetOrHost,
+}: {
+  type: string
+  value: string
+  index: number
+  onRemove: () => void
+  targetOrHost: 'target' | 'host'
+}) => (
+  <MiniTable.Row
+    tabIndex={0}
+    aria-rowindex={index + 1}
+    aria-label={`Name: ${value}, Type: ${type}`}
+    key={`${type}|${value}`}
+  >
+    <MiniTable.Cell>
+      <Badge variant="solid">{type}</Badge>
+    </MiniTable.Cell>
+    <MiniTable.Cell>{value}</MiniTable.Cell>
+    <MiniTable.RemoveCell onClick={onRemove} label={`remove ${targetOrHost} ${value}`} />
+  </MiniTable.Row>
+)
+
+const availableItems = (
+  committedItems: Array<VpcFirewallRuleTarget | VpcFirewallRuleHostFilter>,
+  // Items is conditional because VPC Subnet fetching isn't 100% guaranteed
+  items?: Array<Vpc | VpcSubnet | Instance>
+) => {
+  if (!items) return []
+  return items
+    .map((i) => i.name)
+    .filter((name) => !committedItems.map((ci) => ci.value).includes(name))
+    .map((name) => toComboboxItem(name))
+}
+
 export const CommonFields = ({
   error,
   control,
@@ -200,13 +249,11 @@ export const CommonFields = ({
   const targetType = targetForm.watch('type')
   const targetSubnetVpc = targetForm.watch('subnetVpc')
   // get the list of subnets for the VPC selected in the form
-  const { items: targetVpcSubnets } = useVpcSubnetItems({ project, vpc: targetSubnetVpc })
+  const { items: targetVpcSubnets } = useVpcSubnets({ project, vpc: targetSubnetVpc })
   const targetFilterItems = {
-    vpc: vpcs.map((v) => toComboboxItem(v.name)),
-    subnet: targetVpcSubnets?.filter(
-      ({ label }: { label: string }) => !targets.value.map((t) => t.value).includes(label)
-    ),
-    instance: instances.map((i) => toComboboxItem(i.name)),
+    vpc: availableItems(targets.value, vpcs),
+    subnet: availableItems(targets.value, targetVpcSubnets),
+    instance: availableItems(targets.value, instances),
     ip: [],
     ip_net: [],
   }
@@ -238,22 +285,10 @@ export const CommonFields = ({
   const hostSubnetVpc = hostForm.watch('subnetVpc')
   // get the list of subnets for the VPC selected in the form
   const { items: hostVpcSubnets } = useVpcSubnets({ project, vpc: hostSubnetVpc })
-  const isNotAlreadyAHost = (name: string) =>
-    !hosts.value.map((h) => h.value).includes(name)
-
-  // ROUGH EDGE: Deduping the map/filter/map below, fleshing out `isNotAlreadyAHost` above
   const hostFilterItems = {
-    vpc: vpcs
-      .map((v) => v.name)
-      // filter out VPCs that are already hosts
-      .filter((name) => isNotAlreadyAHost(name))
-      .map((name) => toComboboxItem(name)),
-    // filter out subnets that are already hosts
-    subnet: hostVpcSubnets?.map((s) => s.name)?.filter((name) => isNotAlreadyAHost(name)),
-    instance: instances
-      .map((i) => i.name)
-      .filter((name) => isNotAlreadyAHost(name))
-      .map((name) => toComboboxItem(name)),
+    vpc: availableItems(hosts.value, vpcs),
+    subnet: availableItems(hosts.value, hostVpcSubnets),
+    instance: availableItems(hosts.value, instances),
     ip: [],
     ip_net: [],
   }
@@ -344,42 +379,6 @@ export const CommonFields = ({
       </>
     )
   }
-
-  const TypeAndValueTableHeader = () => (
-    <MiniTable.Header>
-      <MiniTable.HeadCell>Type</MiniTable.HeadCell>
-      <MiniTable.HeadCell>Value</MiniTable.HeadCell>
-      {/* For remove button */}
-      <MiniTable.HeadCell className="w-12" />
-    </MiniTable.Header>
-  )
-
-  const TypeAndValueTableRow = ({
-    type,
-    value,
-    index,
-    onRemove,
-    targetOrHost,
-  }: {
-    type: string
-    value: string
-    index: number
-    onRemove: () => void
-    targetOrHost: 'target' | 'host'
-  }) => (
-    <MiniTable.Row
-      tabIndex={0}
-      aria-rowindex={index + 1}
-      aria-label={`Name: ${value}, Type: ${type}`}
-      key={`${type}|${value}`}
-    >
-      <MiniTable.Cell>
-        <Badge variant="solid">{type}</Badge>
-      </MiniTable.Cell>
-      <MiniTable.Cell>{value}</MiniTable.Cell>
-      <MiniTable.RemoveCell onClick={onRemove} label={`remove ${targetOrHost} ${value}`} />
-    </MiniTable.Row>
-  )
 
   return (
     <>
