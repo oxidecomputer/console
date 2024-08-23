@@ -117,12 +117,17 @@ export function InstancesPage() {
         // then that's a change in the set, but you shouldn't start polling
         // fast because of it! What you want to look for is *new* transitioning
         // instances.
+        const anyTransitioning = nextTransitioning.size > 0
         const anyNewTransitioning = setDiff(nextTransitioning, prevTransitioning).size > 0
+
+        // if there are new instances in transitioning, restart the timeout window
         if (anyNewTransitioning) pollingStartTime.current = Date.now()
 
         // important that elapsed is calculated *after* potentially bumping start time
         const elapsed = Date.now() - pollingStartTime.current
-        return elapsed < POLL_FAST_TIMEOUT ? POLL_INTERVAL_FAST : POLL_INTERVAL_SLOW
+        return anyTransitioning && elapsed < POLL_FAST_TIMEOUT
+          ? POLL_INTERVAL_FAST
+          : POLL_INTERVAL_SLOW
       },
     }
   )
