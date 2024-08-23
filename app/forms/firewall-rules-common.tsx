@@ -41,58 +41,34 @@ import { capitalize } from '~/util/str'
 
 import { type FirewallRuleValues } from './firewall-rules-util'
 
-type TargetFormValues = {
-  type: VpcFirewallRuleTarget['type']
+/**
+ * This is a large file. The main thing to be aware of is that the firewall rules
+ * form is made up of two main sections: Targets and Filters. Filters, then, has
+ * a few sub-sections (Ports, Protocols, and Hosts).
+ *
+ * The Targets section and the Filters:Hosts section are very similar, so we've
+ * pulled common code to the DynamicTypeAndValueFields and ClearAndAddButtons
+ * components. We also then set up the Targets / Ports / Hosts variables at the
+ * top of the CommonFields component.
+ */
+
+type TargetAndHostFilterType =
+  | VpcFirewallRuleTarget['type']
+  | VpcFirewallRuleHostFilter['type']
+
+type TargetAndHostFormValues = {
+  type: TargetAndHostFilterType
   value: string
   subnetVpc?: string
 }
 
-const targetDefaultValues: TargetFormValues = {
-  type: 'vpc',
-  value: '',
-}
-
-type PortRangeFormValues = {
-  portRange: string
-}
-
-const portRangeDefaultValues: PortRangeFormValues = {
-  portRange: '',
-}
-
-type HostFormValues = {
-  type: VpcFirewallRuleHostFilter['type']
-  value: string
-  subnetVpc?: string
-}
-
-const hostDefaultValues: HostFormValues = {
-  type: 'vpc',
-  value: '',
-}
-
-type CommonFieldsProps = {
-  error: ApiError | null
-  control: Control<FirewallRuleValues>
-  project: string
-  instances: Array<Instance>
-  vpcs: Array<Vpc>
-  nameTaken: (name: string) => boolean
-}
-
-const targetAndHostItems = [
-  { value: 'vpc', label: 'VPC' },
-  { value: 'subnet', label: 'VPC Subnet' },
-  { value: 'instance', label: 'Instance' },
-  { value: 'ip', label: 'IP' },
-  { value: 'ip_net', label: 'IP subnet' },
-]
-
+// these are part of the target and host filter form;
+// the specific values depend on the target or host filter type selected
 const getFilterValueProps = (
-  hostType: VpcFirewallRuleHostFilter['type'],
+  targetOrHostType: TargetAndHostFilterType,
   sectionType: 'target' | 'host'
 ) => {
-  switch (hostType) {
+  switch (targetOrHostType) {
     case 'vpc':
       return {
         label: 'VPC name',
@@ -128,36 +104,94 @@ const getFilterValueProps = (
   }
 }
 
-const DocsLinkMessage = () => (
-  <Message
-    variant="info"
-    content={
-      <>
-        Read the{' '}
-        <a
-          href={links.firewallRulesDocs}
-          // don't need color and hover color because message text is already color-info anyway
-          className="underline"
-          target="_blank"
-          rel="noreferrer"
-        >
-          guest networking guide
-        </a>{' '}
-        and{' '}
-        <a
-          href="https://docs.oxide.computer/api/vpc_firewall_rules_update"
-          // don't need color and hover color because message text is already color-info anyway
-          className="underline"
-          target="_blank"
-          rel="noreferrer"
-        >
-          API docs
-        </a>{' '}
-        to learn more about firewall rules.
-      </>
-    }
-  />
-)
+const DynamicTypeAndValueFields = ({
+  sectionType,
+  control,
+  valueType,
+  items,
+  vpcs,
+  isDisabled,
+  onInputChange,
+  onTypeChange,
+  onSubmitTextField,
+}: {
+  sectionType: 'target' | 'host'
+  control: Control<TargetAndHostFormValues>
+  valueType: TargetAndHostFilterType
+  items: Array<{ value: string; label: string }>
+  vpcs: Array<Vpc>
+  isDisabled?: boolean
+  onInputChange?: (value: string) => void
+  onTypeChange: () => void
+  onSubmitTextField: (e: React.KeyboardEvent<HTMLInputElement>) => void
+}) => {
+  const queryClient = useApiQueryClient()
+  return (
+    <>
+      <ListboxField
+        name="type"
+        label={`${capitalize(sectionType)} type`}
+        required
+        control={control}
+        items={[
+          { value: 'vpc', label: 'VPC' },
+          { value: 'subnet', label: 'VPC Subnet' },
+          { value: 'instance', label: 'Instance' },
+          { value: 'ip', label: 'IP' },
+          { value: 'ip_net', label: 'IP subnet' },
+        ]}
+        onChange={onTypeChange}
+      />
+      {/* If specifying a subnet, they must first select the VPC that owns the subnet */}
+      {valueType === 'subnet' && (
+        <ListboxField
+          name="subnetVpc"
+          label="VPC"
+          aria-label={`Select ${sectionType} VPC`}
+          required
+          control={control}
+          items={vpcs.map((v) => toComboboxItem(v.name))}
+          // when this changes, we need to re-fetch the subnet list
+          onChange={() => {
+            queryClient.invalidateQueries('vpcSubnetList')
+          }}
+          placeholder="Select a VPC"
+        />
+      )}
+      {/* In the firewall rules form, these types get comboboxes instead of text fields */}
+      {['vpc', 'subnet', 'instance'].includes(valueType) ? (
+        <ComboboxField
+          disabled={isDisabled}
+          name="value"
+          {...getFilterValueProps(valueType, sectionType)}
+          required
+          control={control}
+          onInputChange={onInputChange}
+          items={items}
+          showNoMatchPlaceholder={false}
+          // TODO: validate here, but it's complicated because it's conditional
+          // on which type is selected
+        />
+      ) : (
+        <TextField
+          name="value"
+          aria-label={``}
+          {...getFilterValueProps(valueType, sectionType)}
+          required
+          control={control}
+          onKeyDown={(e) => {
+            if (e.key === KEYS.enter) {
+              e.preventDefault() // prevent full form submission
+              onSubmitTextField(e)
+            }
+          }}
+          // TODO: validate here, but it's complicated because it's conditional
+          // on which type is selected
+        />
+      )}
+    </>
+  )
+}
 
 // The "Clear" and "Add …" buttons that appear below the filter input fields
 const ClearAndAddButtons = ({
@@ -235,104 +269,49 @@ const availableItems = (
     .map((name) => toComboboxItem(name))
 }
 
-const DynamicTypeAndValueFields = ({
-  sectionType,
+const ProtocolField = ({
   control,
-  valueType,
-  items,
-  vpcs,
-  isDisabled,
-  onInputChange,
-  onTypeChange,
-  onSubmitTextField,
+  protocol,
 }: {
-  sectionType: 'target' | 'host'
-  control: Control<TargetFormValues | HostFormValues>
-  valueType: VpcFirewallRuleTarget['type'] | VpcFirewallRuleHostFilter['type']
-  items: Array<{ value: string; label: string }>
-  vpcs: Array<Vpc>
-  isDisabled?: boolean
-  onInputChange?: (value: string) => void
-  onTypeChange: () => void
-  onSubmitTextField: (e: React.KeyboardEvent<HTMLInputElement>) => void
+  control: Control<FirewallRuleValues>
+  protocol: 'TCP' | 'UDP' | 'ICMP'
 }) => {
-  const queryClient = useApiQueryClient()
   return (
-    <>
-      <ListboxField
-        name="type"
-        label={`${capitalize(sectionType)} type`}
-        required
-        control={control}
-        items={targetAndHostItems}
-        onChange={onTypeChange}
-      />
-      {/* If specifying a subnet, they must first select the VPC that owns the subnet */}
-      {valueType === 'subnet' && (
-        <ListboxField
-          name="subnetVpc"
-          label="VPC"
-          aria-label={`Select ${sectionType} VPC`}
-          required
-          control={control}
-          items={vpcs.map((v) => toComboboxItem(v.name))}
-          // when this changes, we need to re-fetch the subnet list
-          onChange={() => {
-            queryClient.invalidateQueries('vpcSubnetList')
-          }}
-          placeholder="Select a VPC"
-        />
-      )}
-      {/* In the firewall rules form, these types get comboboxes instead of text fields */}
-      {['vpc', 'subnet', 'instance'].includes(valueType) ? (
-        <ComboboxField
-          disabled={isDisabled}
-          name="value"
-          {...getFilterValueProps(valueType, sectionType)}
-          required
-          control={control}
-          onInputChange={onInputChange}
-          items={items}
-          showNoMatchPlaceholder={false}
-          // TODO: validate here, but it's complicated because it's conditional
-          // on which type is selected
-        />
-      ) : (
-        <TextField
-          name="value"
-          aria-label={``}
-          {...getFilterValueProps(valueType, sectionType)}
-          required
-          control={control}
-          onKeyDown={(e) => {
-            if (e.key === KEYS.enter) {
-              e.preventDefault() // prevent full form submission
-              onSubmitTextField(e)
-            }
-          }}
-          // TODO: validate here, but it's complicated because it's conditional
-          // on which type is selected
-        />
-      )}
-    </>
+    <div>
+      <CheckboxField name="protocols" value={protocol} control={control}>
+        {protocol}
+      </CheckboxField>
+    </div>
   )
 }
 
+type CommonFieldsProps = {
+  control: Control<FirewallRuleValues>
+  project: string
+  instances: Array<Instance>
+  vpcs: Array<Vpc>
+  nameTaken: (name: string) => boolean
+  error: ApiError | null
+}
+
 export const CommonFields = ({
-  error,
   control,
-  nameTaken,
   project,
   instances,
   vpcs,
+  nameTaken,
+  error,
 }: CommonFieldsProps) => {
+  const targetAndHostDefaultValues: TargetAndHostFormValues = { type: 'vpc', value: '' }
+
   // Targets
-  const targetForm = useForm({ defaultValues: targetDefaultValues })
+  const targetForm = useForm({ defaultValues: targetAndHostDefaultValues })
   const targets = useController({ name: 'targets', control }).field
   const targetType = targetForm.watch('type')
   const targetSubnetVpc = targetForm.watch('subnetVpc')
-  // get the list of subnets for the VPC selected in the form
+  // get the list of subnets for the specific VPC selected in the form
   const { items: targetVpcSubnets } = useVpcSubnets({ project, vpc: targetSubnetVpc })
+  // get the list of items that are not already in the list of targets
   const targetItems = {
     vpc: availableItems(targets.value, vpcs),
     subnet: availableItems(targets.value, targetVpcSubnets),
@@ -351,7 +330,7 @@ export const CommonFields = ({
   })
 
   // Ports
-  const portRangeForm = useForm({ defaultValues: portRangeDefaultValues })
+  const portRangeForm = useForm({ defaultValues: { portRange: '' } })
   const ports = useController({ name: 'ports', control }).field
   const submitPortRange = portRangeForm.handleSubmit(({ portRange }) => {
     const portRangeValue = portRange.trim()
@@ -362,12 +341,13 @@ export const CommonFields = ({
   })
 
   // Hosts
-  const hostForm = useForm({ defaultValues: hostDefaultValues })
+  const hostForm = useForm({ defaultValues: targetAndHostDefaultValues })
   const hosts = useController({ name: 'hosts', control }).field
   const hostType = hostForm.watch('type')
   const hostSubnetVpc = hostForm.watch('subnetVpc')
-  // get the list of subnets for the VPC selected in the form
+  // get the list of subnets for the specific PC selected in the form
   const { items: hostVpcSubnets } = useVpcSubnets({ project, vpc: hostSubnetVpc })
+  // get the list of items that are not already in the list of host filters
   const hostFilterItems = {
     vpc: availableItems(hosts.value, vpcs),
     subnet: availableItems(hosts.value, hostVpcSubnets),
@@ -386,7 +366,34 @@ export const CommonFields = ({
 
   return (
     <>
-      <DocsLinkMessage />
+      <Message
+        variant="info"
+        content={
+          <>
+            Read the{' '}
+            <a
+              href={links.firewallRulesDocs}
+              // don't need color and hover color because message text is already color-info anyway
+              className="underline"
+              target="_blank"
+              rel="noreferrer"
+            >
+              guest networking guide
+            </a>{' '}
+            and{' '}
+            <a
+              href="https://docs.oxide.computer/api/vpc_firewall_rules_update"
+              // don't need color and hover color because message text is already color-info anyway
+              className="underline"
+              target="_blank"
+              rel="noreferrer"
+            >
+              API docs
+            </a>{' '}
+            to learn more about firewall rules.
+          </>
+        }
+      />
       {/* omitting value prop makes it a boolean value. beautiful */}
       {/* TODO: better text or heading or tip or something on this checkbox */}
       <CheckboxField name="enabled" control={control}>
@@ -469,7 +476,7 @@ export const CommonFields = ({
           isDirty={targetForm.formState.isDirty}
           onClear={() => targetForm.reset()}
           onSubmit={submitTarget}
-          buttonCopy="Add target filter"
+          buttonCopy="Add target"
         />
       </div>
 
@@ -569,21 +576,9 @@ export const CommonFields = ({
 
       <fieldset className="space-y-0.5">
         <legend className="mb-2 mt-4 text-sans-lg">Protocol filters</legend>
-        <div>
-          <CheckboxField name="protocols" value="TCP" control={control}>
-            TCP
-          </CheckboxField>
-        </div>
-        <div>
-          <CheckboxField name="protocols" value="UDP" control={control}>
-            UDP
-          </CheckboxField>
-        </div>
-        <div>
-          <CheckboxField name="protocols" value="ICMP" control={control}>
-            ICMP
-          </CheckboxField>
-        </div>
+        <ProtocolField control={control} protocol="TCP" />
+        <ProtocolField control={control} protocol="UDP" />
+        <ProtocolField control={control} protocol="ICMP" />
       </fieldset>
 
       <div className="flex flex-col gap-3">
