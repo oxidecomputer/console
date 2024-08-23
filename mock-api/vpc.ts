@@ -155,6 +155,7 @@ export const vpcSubnet2: Json<VpcSubnet> = {
   name: 'mock-subnet-2',
   vpc_id: vpc.id,
   ipv4_block: '10.1.1.2/24',
+  custom_router_id: customRouter.id,
 }
 
 export function defaultFirewallRules(vpcId: string): Json<VpcFirewallRule[]> {

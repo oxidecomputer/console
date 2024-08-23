@@ -1151,6 +1151,7 @@ export const handlers = makeHandlers({
     const subnets = db.vpcSubnets.filter((s) => s.vpc_id === vpc.id)
     return paginated(query, subnets)
   },
+
   vpcSubnetCreate({ body, query }) {
     const vpc = lookup.vpc(query)
     errIfExists(db.vpcSubnets, { vpc_id: vpc.id, name: body.name })
@@ -1159,7 +1160,10 @@ export const handlers = makeHandlers({
     const newSubnet: Json<Api.VpcSubnet> = {
       id: uuid(),
       vpc_id: vpc.id,
-      ...body,
+      name: body.name,
+      description: body.description,
+      ipv4_block: body.ipv4_block,
+      custom_router_id: body.custom_router,
       // required in subnet create but not in update, so we need a fallback.
       // API says "A random `/64` block will be assigned if one is not
       // provided." Our fallback is not random, but it should be good enough.
@@ -1177,6 +1181,10 @@ export const handlers = makeHandlers({
       subnet.name = body.name
     }
     updateDesc(subnet, body)
+
+    // match the API's arguably undesirable behavior -- key
+    // not present and value of null are treated the same
+    subnet.custom_router_id = body.custom_router
 
     return subnet
   },
