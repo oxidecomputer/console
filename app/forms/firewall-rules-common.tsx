@@ -235,6 +235,89 @@ const availableItems = (
     .map((name) => toComboboxItem(name))
 }
 
+const DynamicTypeAndValueFields = ({
+  sectionType,
+  control,
+  valueType,
+  items,
+  vpcs,
+  isDisabled,
+  onInputChange,
+  onTypeChange,
+  onSubmitTextField,
+}: {
+  sectionType: 'target' | 'host'
+  control: Control<TargetFormValues | HostFormValues>
+  valueType: VpcFirewallRuleTarget['type'] | VpcFirewallRuleHostFilter['type']
+  items: Array<{ value: string; label: string }>
+  vpcs: Array<Vpc>
+  isDisabled?: boolean
+  onInputChange?: (value: string) => void
+  onTypeChange: () => void
+  onSubmitTextField: (e: React.KeyboardEvent<HTMLInputElement>) => void
+}) => {
+  const queryClient = useApiQueryClient()
+  return (
+    <>
+      <ListboxField
+        name="type"
+        label={`${capitalize(sectionType)} type`}
+        required
+        control={control}
+        items={targetAndHostItems}
+        onChange={onTypeChange}
+      />
+      {/* If specifying a subnet, they must first select the VPC that owns the subnet */}
+      {valueType === 'subnet' && (
+        <ListboxField
+          name="subnetVpc"
+          label="VPC"
+          aria-label={`Select ${sectionType} VPC`}
+          required
+          control={control}
+          items={vpcs.map((v) => toComboboxItem(v.name))}
+          // when this changes, we need to re-fetch the subnet list
+          onChange={() => {
+            queryClient.invalidateQueries('vpcSubnetList')
+          }}
+          placeholder="Select a VPC"
+        />
+      )}
+      {/* In the firewall rules form, these types get comboboxes instead of text fields */}
+      {['vpc', 'subnet', 'instance'].includes(valueType) ? (
+        <ComboboxField
+          disabled={isDisabled}
+          name="value"
+          {...getFilterValueProps(valueType, sectionType)}
+          required
+          control={control}
+          onInputChange={onInputChange}
+          items={items}
+          showNoMatchPlaceholder={false}
+          // TODO: validate here, but it's complicated because it's conditional
+          // on which type is selected
+        />
+      ) : (
+        <TextField
+          name="value"
+          aria-label={``}
+          {...getFilterValueProps(valueType, sectionType)}
+          required
+          control={control}
+          onKeyDown={(e) => {
+            if (e.key === KEYS.enter) {
+              e.preventDefault() // prevent full form submission
+              onSubmitTextField(e)
+            }
+          }}
+          // TODO: validate here, but it's complicated because it's conditional
+          // on which type is selected
+        />
+      )}
+    </>
+  )
+}
+
 export const CommonFields = ({
   error,
   control,
@@ -250,7 +333,7 @@ export const CommonFields = ({
   const targetSubnetVpc = targetForm.watch('subnetVpc')
   // get the list of subnets for the VPC selected in the form
   const { items: targetVpcSubnets } = useVpcSubnets({ project, vpc: targetSubnetVpc })
-  const targetFilterItems = {
+  const targetItems = {
     vpc: availableItems(targets.value, vpcs),
     subnet: availableItems(targets.value, targetVpcSubnets),
     instance: availableItems(targets.value, instances),
@@ -300,85 +383,6 @@ export const CommonFields = ({
     hosts.onChange([...hosts.value, { type, value }])
     hostForm.reset()
   })
-
-  const DynamicTypeAndValueFields = ({
-    sectionType,
-    control,
-    onTypeChange,
-    valueType,
-    items,
-    onInputChange,
-    isDisabled,
-  }: {
-    sectionType: 'target' | 'host'
-    control: Control<TargetFormValues | HostFormValues>
-    onTypeChange: () => void
-    valueType: VpcFirewallRuleHostFilter['type']
-    items: Array<{ value: string; label: string }>
-    onInputChange?: (value: string) => void
-    isDisabled?: boolean
-  }) => {
-    const queryClient = useApiQueryClient()
-    return (
-      <>
-        <ListboxField
-          name="type"
-          label={`${capitalize(sectionType)} type`}
-          required
-          control={control}
-          items={targetAndHostItems}
-          onChange={onTypeChange}
-        />
-        {/* If specifying a subnet, they must first select the VPC that owns the subnet */}
-        {valueType === 'subnet' && (
-          <ListboxField
-            name="subnetVpc"
-            label="VPC"
-            aria-label={`Select ${sectionType} VPC`}
-            required
-            control={control}
-            items={vpcs.map((v) => toComboboxItem(v.name))}
-            // when this changes, we need to re-fetch the subnet list
-            onChange={() => {
-              queryClient.invalidateQueries('vpcSubnetList')
-            }}
-            placeholder="Select a VPC"
-          />
-        )}
-        {/* In the firewall rules form, these types get comboboxes instead of text fields */}
-        {['vpc', 'subnet', 'instance'].includes(valueType) ? (
-          <ComboboxField
-            disabled={isDisabled}
-            name="value"
-            {...getFilterValueProps(valueType, sectionType)}
-            required
-            control={control}
-            onInputChange={onInputChange}
-            items={items}
-            showNoMatchPlaceholder={false}
-            // TODO: validate here, but it's complicated because it's conditional
-            // on which type is selected
-          />
-        ) : (
-          <TextField
-            name="value"
-            aria-label={``}
-            {...getFilterValueProps(valueType, sectionType)}
-            required
-            control={control}
-            onKeyDown={(e) => {
-              if (e.key === KEYS.enter) {
-                e.preventDefault() // prevent full form submission
-                submitTarget(e)
-              }
-            }}
-            // TODO: validate here, but it's complicated because it's conditional
-            // on which type is selected
-          />
-        )}
-      </>
-    )
-  }
 
   return (
     <>
@@ -453,11 +457,13 @@ export const CommonFields = ({
         <DynamicTypeAndValueFields
           sectionType="target"
           control={targetForm.control}
-          onTypeChange={() => targetForm.setValue('value', '')}
           valueType={targetType}
-          items={targetFilterItems[targetType]}
-          onInputChange={(value) => targetForm.setValue('value', value)}
+          items={targetItems[targetType]}
+          vpcs={vpcs}
           isDisabled={targetType === 'subnet' && !targetSubnetVpc}
+          onTypeChange={() => targetForm.setValue('value', '')}
+          onInputChange={(value) => targetForm.setValue('value', value)}
+          onSubmitTextField={submitTarget}
         />
         <ClearAndAddButtons
           isDirty={targetForm.formState.isDirty}
@@ -595,11 +601,13 @@ export const CommonFields = ({
         <DynamicTypeAndValueFields
           sectionType="host"
           control={hostForm.control}
-          onTypeChange={() => hostForm.setValue('value', '')}
           valueType={hostType}
           items={hostFilterItems[hostType]}
-          onInputChange={(value) => hostForm.setValue('value', value)}
+          vpcs={vpcs}
           isDisabled={hostType === 'subnet' && !hostSubnetVpc}
+          onTypeChange={() => hostForm.setValue('value', '')}
+          onInputChange={(value) => hostForm.setValue('value', value)}
+          onSubmitTextField={submitHost}
         />
         <ClearAndAddButtons
           isDirty={hostForm.formState.isDirty}
