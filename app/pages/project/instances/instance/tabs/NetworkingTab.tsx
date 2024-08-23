@@ -33,7 +33,7 @@ import { addToast } from '~/stores/toast'
 import { EmptyCell, SkeletonCell } from '~/table/cells/EmptyCell'
 import { LinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
-import { Columns, DescriptionCell } from '~/table/columns/common'
+import { Columns, TruncateCell } from '~/table/columns/common'
 import { Table } from '~/table/Table'
 import { Badge } from '~/ui/lib/Badge'
 import { CopyableIp } from '~/ui/lib/CopyableIp'
@@ -263,7 +263,7 @@ export function NetworkingTab() {
     }),
     ipColHelper.accessor((row) => ('description' in row ? row.description : undefined), {
       header: 'description',
-      cell: (info) => <DescriptionCell text={info.getValue()} />,
+      cell: (info) => <TruncateCell text={info.getValue()} />,
     }),
   ]
 

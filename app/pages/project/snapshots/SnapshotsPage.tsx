@@ -18,6 +18,7 @@ import {
 } from '@oxide/api'
 import { Snapshots16Icon, Snapshots24Icon } from '@oxide/design-system/icons/react'
 
+import { SnapshotStateEnumArray } from '~/api/__generated__/validate'
 import { DocsPopover } from '~/components/DocsPopover'
 import { SnapshotStatusBadge } from '~/components/StatusBadge'
 import { getProjectSelector, useProjectSelector } from '~/hooks'
@@ -30,7 +31,6 @@ import { Badge } from '~/ui/lib/Badge'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
-import { TableActions } from '~/ui/lib/Table'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
@@ -84,17 +84,20 @@ SnapshotsPage.loader = async ({ params }: LoaderFunctionArgs) => {
 
 const colHelper = createColumnHelper<Snapshot>()
 const staticCols = [
-  colHelper.accessor('name', {}),
-  colHelper.accessor('description', Columns.description),
+  colHelper.accessor('name', Columns.name),
   colHelper.accessor('diskId', {
     header: 'disk',
     cell: (info) => <DiskNameFromId value={info.getValue()} />,
+    size: 125,
   }),
   colHelper.accessor('state', {
     cell: (info) => <SnapshotStatusBadge status={info.getValue()} />,
+    size: 125,
+    meta: { filterVariant: 'select', options: [...SnapshotStateEnumArray] },
   }),
   colHelper.accessor('size', Columns.size),
   colHelper.accessor('timeCreated', Columns.timeCreated),
+  colHelper.accessor('description', Columns.description),
 ]
 
 export function SnapshotsPage() {
@@ -143,10 +146,11 @@ export function SnapshotsPage() {
           links={[docLinks.snapshots]}
         />
       </PageHeader>
-      <TableActions>
-        <CreateLink to={pb.snapshotsNew({ project })}>New snapshot</CreateLink>
-      </TableActions>
-      <Table columns={columns} emptyState={<EmptyState />} />
+      <Table
+        columns={columns}
+        emptyState={<EmptyState />}
+        actions={<CreateLink to={pb.snapshotsNew({ project })}>New snapshot</CreateLink>}
+      />
       <Outlet />
     </>
   )

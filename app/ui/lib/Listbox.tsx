@@ -42,6 +42,7 @@ export interface ListboxProps<Value extends string = string> {
   description?: React.ReactNode
   required?: boolean
   isLoading?: boolean
+  variant?: 'default' | 'inline'
 }
 
 export const Listbox = <Value extends string = string>({
@@ -59,6 +60,7 @@ export const Listbox = <Value extends string = string>({
   required,
   disabled,
   isLoading = false,
+  variant = 'default',
   ...props
 }: ListboxProps<Value>) => {
   const selectedItem = selected && items.find((i) => i.value === selected)
@@ -89,7 +91,7 @@ export const Listbox = <Value extends string = string>({
             <ListboxButton
               name={name}
               className={cn(
-                `flex h-10 w-full items-center justify-between rounded border text-sans-md`,
+                `flex items-center justify-between rounded border text-sans-md`,
                 hasError
                   ? 'focus-error border-error-secondary hover:border-error'
                   : 'border-default hover:border-hover',
@@ -98,31 +100,40 @@ export const Listbox = <Value extends string = string>({
                 isDisabled
                   ? 'cursor-not-allowed text-disabled bg-disabled !border-default'
                   : 'bg-default',
-                isDisabled && hasError && '!border-error-secondary'
+                isDisabled && hasError && '!border-error-secondary',
+                variant === 'inline' ? 'h-8 w-8 !rounded-l-none' : 'h-10 w-full'
               )}
               {...props}
             >
-              <div className="w-full overflow-hidden overflow-ellipsis whitespace-pre px-3 text-left">
-                {selectedItem ? (
-                  // selectedLabel is one line, which is what we need when label is a ReactNode
-                  selectedItem.selectedLabel || selectedItem.label
-                ) : (
-                  <span className="text-quaternary">
-                    {noItems ? noItemsPlaceholder : placeholder}
-                  </span>
-                )}
-              </div>
+              {variant === 'default' && (
+                <div className="w-full overflow-hidden overflow-ellipsis whitespace-pre px-3 text-left">
+                  {selectedItem ? (
+                    // selectedLabel is one line, which is what we need when label is a ReactNode
+                    selectedItem.selectedLabel || selectedItem.label
+                  ) : (
+                    <span className="text-quaternary">
+                      {noItems ? noItemsPlaceholder : placeholder}
+                    </span>
+                  )}
+                </div>
+              )}
               {!isDisabled && <SpinnerLoader isLoading={isLoading} />}
               <div
-                className="flex h-[calc(100%-12px)] items-center border-l px-3 border-secondary"
+                className={cn(
+                  'flex h-[calc(100%-12px)] items-center px-3',
+                  variant === 'default' && 'border-l px-3 border-default'
+                )}
                 aria-hidden
               >
                 <SelectArrows6Icon title="Select" className="w-2 text-tertiary" />
               </div>
             </ListboxButton>
             <ListboxOptions
-              anchor={{ gap: 12 }}
-              className={`ox-menu pointer-events-auto ${zIndex} w-[var(--button-width)] overflow-y-auto !outline-none`}
+              anchor={{ gap: 12, to: 'bottom start' }}
+              className={cn(
+                `ox-menu pointer-events-auto ${zIndex} overflow-y-auto !outline-none`,
+                variant === 'default' ? 'w-[var(--button-width)]' : 'w-24'
+              )}
               // This is to prevent the `useOthersInert` call in ListboxOptions.
               // Without this, when the listbox options box scrolls under the
               // top bar (for example) you can click through the top bar to the

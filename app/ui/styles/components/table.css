@@ -30,7 +30,7 @@ table.ox-table {
 
   & th,
   & td {
-    min-width: fit-content;
+    /* min-width: fit-content; */
     white-space: nowrap;
     @apply text-secondary;
   }
@@ -55,7 +55,7 @@ table.ox-table {
   */
   & th:last-of-type.action-col,
   & td:last-of-type.action-col {
-    @apply sticky right-0 bg-default;
+    @apply sticky right-0 !min-w-0 bg-default;
   }
   & th:last-of-type.action-col {
     @apply bg-secondary;

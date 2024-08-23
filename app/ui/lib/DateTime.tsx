@@ -9,7 +9,7 @@
 import { toLocaleDateString, toLocaleTimeString } from '~/util/date'
 
 export const DateTime = ({ date, locale }: { date: Date; locale?: string }) => (
-  <time dateTime={date.toISOString()} className="flex flex-wrap gap-x-2">
+  <time dateTime={date.toISOString()} className="!flex flex-wrap gap-x-2">
     <span>{toLocaleDateString(date, locale)}</span>
     <span className="text-quaternary">{toLocaleTimeString(date, locale)}</span>
   </time>

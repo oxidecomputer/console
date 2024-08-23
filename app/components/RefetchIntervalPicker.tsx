@@ -8,7 +8,7 @@
 import cn from 'classnames'
 import { useEffect, useState } from 'react'
 
-import { Refresh16Icon, Time16Icon } from '@oxide/design-system/icons/react'
+import { Refresh16Icon } from '@oxide/design-system/icons/react'
 
 import { Listbox, type ListboxItem } from '~/ui/lib/Listbox'
 import { SpinnerLoader } from '~/ui/lib/Spinner'
@@ -37,9 +37,17 @@ type Props = {
   enabled: boolean
   isLoading: boolean
   fn: () => void
+  className?: string
+  variant?: 'table' | 'metrics'
 }
 
-export function useIntervalPicker({ enabled, isLoading, fn }: Props) {
+export function useIntervalPicker({
+  enabled,
+  isLoading,
+  fn,
+  className,
+  variant = 'metrics',
+}: Props) {
   const [intervalPreset, setIntervalPreset] = useState<IntervalPreset>('10s')
 
   const [lastFetched, setLastFetched] = useState(new Date())
@@ -53,18 +61,15 @@ export function useIntervalPicker({ enabled, isLoading, fn }: Props) {
   return {
     intervalMs: (enabled && intervalPresets[intervalPreset]) || undefined,
     intervalPicker: (
-      <div className="mb-12 flex items-center justify-between">
-        <div className="hidden items-center gap-2 text-right text-mono-sm text-quaternary lg+:flex">
-          <Time16Icon className="text-quinary" /> Refreshed{' '}
-          {toLocaleTimeString(lastFetched)}
-        </div>
+      <div className={cn('flex items-center justify-between', className)}>
         <div className="flex">
           <button
             type="button"
             className={cn(
-              'flex w-10 items-center justify-center rounded-l border-b border-l border-t border-default disabled:cursor-default',
+              'flex w-9 items-center justify-center rounded-l border-b border-l border-t border-default disabled:cursor-default',
               isLoading && 'hover:bg-hover',
-              !enabled && 'cursor-not-allowed bg-disabled'
+              !enabled && 'cursor-not-allowed bg-disabled',
+              variant === 'table' && 'h-8'
             )}
             onClick={fn}
             disabled={isLoading || !enabled}
@@ -75,11 +80,14 @@ export function useIntervalPicker({ enabled, isLoading, fn }: Props) {
           </button>
           <Listbox
             selected={enabled ? intervalPreset : 'Off'}
-            className="w-24 [&>button]:!rounded-l-none"
             items={intervalItems}
             onChange={setIntervalPreset}
             disabled={!enabled}
+            variant="inline"
           />
+        </div>
+        <div className="ml-2 hidden items-center text-right text-sans-sm text-tertiary lg+:flex">
+          Updated {toLocaleTimeString(lastFetched)}
         </div>
       </div>
     ),

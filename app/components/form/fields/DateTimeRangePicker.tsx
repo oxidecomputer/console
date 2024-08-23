@@ -79,7 +79,7 @@ export function useDateTimeRangePicker({
   }
 }
 
-type DateTimeRange = { start: DateValue; end: DateValue }
+export type DateTimeRange = { start: DateValue; end: DateValue }
 
 type DateTimeRangePickerProps = {
   range: DateTimeRange
@@ -89,6 +89,7 @@ type DateTimeRangePickerProps = {
   onRangeChange?: (preset: RangeKeyAll) => void
   minValue?: DateValue | undefined
   maxValue?: DateValue | undefined
+  disableTime?: boolean
 }
 
 export function DateTimeRangePicker({
@@ -99,6 +100,7 @@ export function DateTimeRangePicker({
   minValue,
   maxValue,
   onRangeChange,
+  disableTime = false,
 }: DateTimeRangePickerProps) {
   return (
     <form className="flex">
@@ -126,6 +128,7 @@ export function DateTimeRangePicker({
           maxValue={maxValue}
           hideTimeZone
           className="[&_.rounded-l]:!rounded-l-none [&_button]:!border-l-0"
+          disableTime={disableTime}
         />
       </div>
     </form>

@@ -44,13 +44,15 @@
 }
 
 .DropdownMenuContent,
-.DocsPopoverPanel {
+.DocsPopoverPanel,
+.FiltersPopoverPanel {
   animation: slide-down 0.2s ease;
 }
 
 @media (prefers-reduced-motion) {
   .DropdownMenuContent,
-  .DocsPopoverPanel {
+  .DocsPopoverPanel,
+  .FiltersPopoverPanel {
     animation-name: none;
   }
 }

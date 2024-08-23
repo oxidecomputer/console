@@ -14,7 +14,7 @@ import { disks } from './disk'
 import type { Json } from './json-type'
 import { project } from './project'
 
-const generatedSnapshots: Json<Snapshot>[] = Array.from({ length: 25 }, (_, i) =>
+const generatedSnapshots: Json<Snapshot>[] = Array.from({ length: 521 }, (_, i) =>
   generateSnapshot(i)
 )
 
@@ -89,13 +89,21 @@ export const snapshots: Json<Snapshot>[] = [
 ]
 
 function generateSnapshot(index: number): Json<Snapshot> {
+  const now = new Date()
+  const timeCreated = new Date(
+    now.setMonth(now.getMonth() - Math.abs(Math.random() * 24))
+  ).toISOString()
+  const timeModified = new Date(
+    now.setMonth(now.getMonth() - Math.abs(Math.random() * 24))
+  ).toISOString()
+
   return {
     id: uuid(),
     name: `disk-1-snapshot-${index + 6}`,
     description: '',
     project_id: project.id,
-    time_created: new Date().toISOString(),
-    time_modified: new Date().toISOString(),
+    time_created: timeCreated,
+    time_modified: timeModified,
     size: 1024 * (index + 1),
     disk_id: disks[0].id,
     state: 'ready',
