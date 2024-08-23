@@ -25,7 +25,7 @@ import { NameField } from '~/components/form/fields/NameField'
 import { NumberField } from '~/components/form/fields/NumberField'
 import { RadioField } from '~/components/form/fields/RadioField'
 import { TextField, TextFieldInner } from '~/components/form/fields/TextField'
-import { useVpcSubnetItems } from '~/components/form/fields/useItemsList'
+import { useVpcSubnetItems, useVpcSubnets } from '~/components/form/fields/useItemsList'
 import { useForm } from '~/hooks/use-form'
 import { Badge } from '~/ui/lib/Badge'
 import { Button } from '~/ui/lib/Button'
@@ -194,6 +194,33 @@ export const CommonFields = ({
   instances,
   vpcs,
 }: CommonFieldsProps) => {
+  // Targets
+  const targetForm = useForm({ defaultValues: targetDefaultValues })
+  const targets = useController({ name: 'targets', control }).field
+  const targetType = targetForm.watch('type')
+  const targetSubnetVpc = targetForm.watch('subnetVpc')
+  // get the list of subnets for the VPC selected in the form
+  const { items: targetVpcSubnets } = useVpcSubnetItems({ project, vpc: targetSubnetVpc })
+  const targetFilterItems = {
+    vpc: vpcs.map((v) => toComboboxItem(v.name)),
+    subnet: targetVpcSubnets?.filter(
+      ({ label }: { label: string }) => !targets.value.map((t) => t.value).includes(label)
+    ),
+    instance: instances.map((i) => toComboboxItem(i.name)),
+    ip: [],
+    ip_net: [],
+  }
+  const submitTarget = targetForm.handleSubmit(({ type, value }) => {
+    // TODO: do this with a normal validation
+    // ignore click if empty or a duplicate
+    // TODO: show error instead of ignoring click
+    if (!type || !value) return
+    if (targets.value.some((t) => t.value === value && t.type === type)) return
+    targets.onChange([...targets.value, { type, value }])
+    targetForm.reset()
+  })
+
+  // Ports
   const portRangeForm = useForm({ defaultValues: portRangeDefaultValues })
   const ports = useController({ name: 'ports', control }).field
   const submitPortRange = portRangeForm.handleSubmit(({ portRange }) => {
@@ -204,62 +231,40 @@ export const CommonFields = ({
     portRangeForm.reset()
   })
 
+  // Hosts
   const hostForm = useForm({ defaultValues: hostDefaultValues })
   const hosts = useController({ name: 'hosts', control }).field
+  const hostType = hostForm.watch('type')
+  const hostSubnetVpc = hostForm.watch('subnetVpc')
+  // get the list of subnets for the VPC selected in the form
+  const { items: hostVpcSubnets } = useVpcSubnets({ project, vpc: hostSubnetVpc })
+  const isNotAlreadyAHost = (name: string) =>
+    !hosts.value.map((h) => h.value).includes(name)
+
+  // ROUGH EDGE: Deduping the map/filter/map below, fleshing out `isNotAlreadyAHost` above
+  const hostFilterItems = {
+    vpc: vpcs
+      .map((v) => v.name)
+      // filter out VPCs that are already hosts
+      .filter((name) => isNotAlreadyAHost(name))
+      .map((name) => toComboboxItem(name)),
+    // filter out subnets that are already hosts
+    subnet: hostVpcSubnets?.map((s) => s.name)?.filter((name) => isNotAlreadyAHost(name)),
+    instance: instances
+      .map((i) => i.name)
+      .filter((name) => isNotAlreadyAHost(name))
+      .map((name) => toComboboxItem(name)),
+    ip: [],
+    ip_net: [],
+  }
   const submitHost = hostForm.handleSubmit(({ type, value }) => {
     // ignore click if empty or a duplicate
     // TODO: show error instead of ignoring click
     if (!type || !value) return
     if (hosts.value.some((t) => t.value === value && t.type === type)) return
-
     hosts.onChange([...hosts.value, { type, value }])
     hostForm.reset()
   })
-
-  const targetForm = useForm({ defaultValues: targetDefaultValues })
-  const targets = useController({ name: 'targets', control }).field
-
-  const targetType = targetForm.watch('type')
-  const targetSubnetVpc = targetForm.watch('subnetVpc')
-
-  const { items: targetVpcSubnets } = useVpcSubnetItems({ project, vpc: targetSubnetVpc })
-
-  const targetFilterItems = {
-    vpc: vpcs.map((v) => ({ value: v.name, label: v.name })),
-    subnet: targetVpcSubnets?.filter(
-      ({ label }: { label: string }) => !targets.value.map((t) => t.value).includes(label)
-    ),
-    instance: instances.map((i) => toComboboxItem(i.name)),
-    ip: [],
-    ip_net: [],
-  }
-
-  const submitTarget = targetForm.handleSubmit(({ type, value }) => {
-    // TODO: do this with a normal validation
-    // ignore click if empty or a duplicate
-    // TODO: show error instead of ignoring click
-    if (!type || !value) return
-    if (targets.value.some((t) => t.value === value && t.type === type)) return
-
-    targets.onChange([...targets.value, { type, value }])
-    targetForm.reset()
-  })
-
-  const queryClient = useApiQueryClient()
-  const hostType = hostForm.watch('type')
-  const hostSubnetVpc = hostForm.watch('subnetVpc')
-
-  const { items: hostVpcSubnets } = useVpcSubnetItems({ project, vpc: hostSubnetVpc })
-  const hostFilterItems = {
-    vpc: vpcs.map((v) => ({ value: v.name, label: v.name })),
-    // filter out subnets that are already targets
-    subnet: hostVpcSubnets?.filter(
-      ({ label }: { label: string }) => !hosts.value.map((h) => h.value).includes(label)
-    ),
-    instance: instances.map((i) => toComboboxItem(i.name)),
-    ip: [],
-    ip_net: [],
-  }
 
   const DynamicTypeAndValueFields = ({
     sectionType,
@@ -278,6 +283,7 @@ export const CommonFields = ({
     onInputChange?: (value: string) => void
     isDisabled?: boolean
   }) => {
+    const queryClient = useApiQueryClient()
     return (
       <>
         <ListboxField
