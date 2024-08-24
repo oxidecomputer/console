@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
-import { useController, type Control } from 'react-hook-form'
+import { useController, type Control, type ControllerRenderProps } from 'react-hook-form'
 
 import {
   useApiQueryClient,
@@ -221,42 +221,49 @@ const ClearAndAddButtons = ({
   </div>
 )
 
-const TypeAndValueTableHeader = () => (
-  <MiniTable.Header>
-    <MiniTable.HeadCell>Type</MiniTable.HeadCell>
-    <MiniTable.HeadCell>Value</MiniTable.HeadCell>
-    {/* For remove button */}
-    <MiniTable.HeadCell className="w-12" />
-  </MiniTable.Header>
-)
-
-const TypeAndValueTableRow = ({
-  type,
-  value,
-  index,
-  onRemove,
-  targetOrHost,
-}: {
-  type: string
-  value: string
-  index: number
-  onRemove: () => void
-  targetOrHost: 'target' | 'host'
-}) => (
-  <MiniTable.Row
-    tabIndex={0}
-    aria-rowindex={index + 1}
-    aria-label={`Name: ${value}, Type: ${type}`}
-    key={`${type}|${value}`}
+type TypeAndValueTableProps = {
+  sectionType: 'target' | 'host'
+  items: ControllerRenderProps<FirewallRuleValues, 'targets' | 'hosts'>
+}
+const TypeAndValueTable = ({ sectionType, items }: TypeAndValueTableProps) => (
+  <MiniTable.Table
+    className="mb-4"
+    aria-label={sectionType === 'target' ? 'Targets' : 'Host filters'}
   >
-    <MiniTable.Cell>
-      <Badge variant="solid">{type}</Badge>
-    </MiniTable.Cell>
-    <MiniTable.Cell>{value}</MiniTable.Cell>
-    <MiniTable.RemoveCell onClick={onRemove} label={`remove ${targetOrHost} ${value}`} />
-  </MiniTable.Row>
+    <MiniTable.Header>
+      <MiniTable.HeadCell>Type</MiniTable.HeadCell>
+      <MiniTable.HeadCell>Value</MiniTable.HeadCell>
+      {/* For remove button */}
+      <MiniTable.HeadCell className="w-12" />
+    </MiniTable.Header>
+    <MiniTable.Body>
+      {items.value.map(({ type, value }, index) => (
+        <MiniTable.Row
+          tabIndex={0}
+          aria-rowindex={index + 1}
+          aria-label={`Name: ${value}, Type: ${type}`}
+          key={`${type}|${value}`}
+        >
+          <MiniTable.Cell>
+            <Badge variant="solid">{type}</Badge>
+          </MiniTable.Cell>
+          <MiniTable.Cell>{value}</MiniTable.Cell>
+          <MiniTable.RemoveCell
+            onClick={() =>
+              items.onChange(
+                items.value.filter((i) => !(i.value === value && i.type === type))
+              )
+            }
+            label={`remove ${sectionType} ${value}`}
+          />
+        </MiniTable.Row>
+      ))}
+    </MiniTable.Body>
+  </MiniTable.Table>
 )
 
+// Given an array of committed items (VPCs, Subnets, Instances) and
+// a list of all items, return the items that are available
 const availableItems = (
   committedItems: Array<VpcFirewallRuleTarget | VpcFirewallRuleHostFilter>,
   // Items is conditional because VPC Subnet fetching isn't 100% guaranteed
@@ -264,26 +271,22 @@ const availableItems = (
 ) => {
   if (!items) return []
   return items
-    .map((i) => i.name)
+    .map((item) => item.name)
     .filter((name) => !committedItems.map((ci) => ci.value).includes(name))
     .map((name) => toComboboxItem(name))
 }
 
-const ProtocolField = ({
-  control,
-  protocol,
-}: {
+type ProtocolFieldProps = {
   control: Control<FirewallRuleValues>
   protocol: 'TCP' | 'UDP' | 'ICMP'
-}) => {
-  return (
-    <div>
-      <CheckboxField name="protocols" value={protocol} control={control}>
-        {protocol}
-      </CheckboxField>
-    </div>
-  )
 }
+const ProtocolField = ({ control, protocol }: ProtocolFieldProps) => (
+  <div>
+    <CheckboxField name="protocols" value={protocol} control={control}>
+      {protocol}
+    </CheckboxField>
+  </div>
+)
 
 type CommonFieldsProps = {
   control: Control<FirewallRuleValues>
@@ -479,33 +482,11 @@ export const CommonFields = ({
           buttonCopy="Add target"
         />
       </div>
-
-      {!!targets.value.length && (
-        <MiniTable.Table className="mb-4" aria-label="Targets">
-          <TypeAndValueTableHeader />
-          <MiniTable.Body>
-            {targets.value.map((t, index) => (
-              <TypeAndValueTableRow
-                key={`${t.type}|${t.value}`}
-                type={t.type}
-                value={t.value}
-                index={index}
-                onRemove={() =>
-                  targets.onChange(
-                    targets.value.filter((i) => !(i.value === t.value && i.type === t.type))
-                  )
-                }
-                targetOrHost="target"
-              />
-            ))}
-          </MiniTable.Body>
-        </MiniTable.Table>
-      )}
+      {!!targets.value.length && <TypeAndValueTable sectionType="target" items={targets} />}
 
       <FormDivider />
 
       <h3 className="mb-4 text-sans-2xl">Filters</h3>
-
       <Message
         variant="info"
         content={
@@ -552,7 +533,6 @@ export const CommonFields = ({
           buttonCopy="Add port filter"
         />
       </div>
-
       {!!ports.value.length && (
         <MiniTable.Table className="mb-4" aria-label="Port filters">
           <MiniTable.Header>
@@ -610,29 +590,8 @@ export const CommonFields = ({
           onSubmit={submitHost}
           buttonCopy="Add host filter"
         />
-
-        {!!hosts.value.length && (
-          <MiniTable.Table className="mb-4" aria-label="Host filters">
-            <TypeAndValueTableHeader />
-            <MiniTable.Body>
-              {hosts.value.map((h, index) => (
-                <TypeAndValueTableRow
-                  key={`${h.type}|${h.value}`}
-                  type={h.type}
-                  value={h.value}
-                  index={index}
-                  onRemove={() =>
-                    hosts.onChange(
-                      hosts.value.filter((i) => !(i.value === h.value && i.type === h.type))
-                    )
-                  }
-                  targetOrHost="host"
-                />
-              ))}
-            </MiniTable.Body>
-          </MiniTable.Table>
-        )}
       </div>
+      {!!hosts.value.length && <TypeAndValueTable sectionType="host" items={hosts} />}
 
       {error && (
         <>
