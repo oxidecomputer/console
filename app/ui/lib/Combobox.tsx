@@ -45,6 +45,7 @@ export type ComboboxBaseProps = {
   // set to false in situations where the user should be able to type in new values
   // to decide: should we even give a placeholder / warning?
   showNoMatchPlaceholder?: boolean
+  ariaLabel?: string
 }
 
 type ComboboxProps = {
@@ -67,6 +68,7 @@ export const Combobox = ({
   onChange,
   onInputChange,
   showNoMatchPlaceholder = true,
+  ariaLabel,
 }: ComboboxProps) => {
   const [query, setQuery] = useState(selected || '')
 
@@ -111,7 +113,7 @@ export const Combobox = ({
           )}
         >
           <ComboboxInput
-            aria-label="Select a disk"
+            aria-label={ariaLabel}
             displayValue={() => (selected ? selected : query)}
             onChange={(event) => {
               setQuery(event.target.value)

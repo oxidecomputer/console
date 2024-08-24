@@ -175,7 +175,6 @@ const DynamicTypeAndValueFields = ({
       ) : (
         <TextField
           name="value"
-          aria-label={``}
           {...getFilterValueProps(valueType, sectionType)}
           required
           control={control}
