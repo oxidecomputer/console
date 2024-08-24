@@ -288,15 +288,17 @@ export const handlers = makeHandlers({
 
     return 204
   },
-  floatingIpAttach({ path, query, body }) {
-    const floatingIp = lookup.floatingIp({ ...path, ...query })
-    if (floatingIp.instance_id) {
+  floatingIpAttach({ path: { floatingIp }, query: { project }, body }) {
+    const dbFloatingIp = lookup.floatingIp({ floatingIp, project })
+    if (dbFloatingIp.instance_id) {
       throw 'floating IP cannot be attached to one instance while still attached to another'
     }
-    const instance = lookup.instance({ ...path, ...query, instance: body.parent })
-    floatingIp.instance_id = instance.id
+    // TODO: make sure the logic around when project is passed matches
+    // the API
+    const dbInstance = lookup.instance({ instance: body.parent })
+    dbFloatingIp.instance_id = dbInstance.id
 
-    return floatingIp
+    return dbFloatingIp
   },
   floatingIpDetach({ path, query }) {
     const floatingIp = lookup.floatingIp({ ...path, ...query })
@@ -359,13 +361,15 @@ export const handlers = makeHandlers({
 
     return json(image, { status: 202 })
   },
-  imageDemote({ path, query }) {
-    const image = lookup.image({ ...path, ...query })
-    const project = lookup.project({ ...path, ...query })
+  imageDemote({ path: { image }, query: { project } }) {
+    // TODO: change this to lookup.siloImage when I add that. or at least
+    // check API logic to make sure we match it
+    const dbImage = lookup.image({ image })
+    const dbProject = lookup.project({ project })
 
-    image.project_id = project.id
+    dbImage.project_id = dbProject.id
 
-    return json(image, { status: 202 })
+    return json(dbImage, { status: 202 })
   },
   instanceList({ query }) {
     const project = lookup.project(query)

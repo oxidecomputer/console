@@ -26,15 +26,31 @@ export const notFoundErr = (msg: string) => {
   return json({ error_code: 'ObjectNotFound', message } as const, { status: 404 })
 }
 
-export const badSelectorErr = (resource: string, parents: string[]) => {
-  const message = `when ${resource} is specified by ID, ${commaSeries(parents, 'and')} should not be specified`
-  return json({ error_code: 'InvalidRequest', message }, { status: 400 })
-}
-
 export const lookupById = <T extends { id: string }>(table: T[], id: string) => {
   const item = table.find((i) => i.id === id)
   if (!item) throw notFoundErr(`by id ${id}`)
   return item
+}
+
+/**
+ * Given an object representing (potentially) parent selectors for a resource,
+ * throw an error if any of the keys in that object have truthy values. For
+ * example, if selecting an instance by ID, we would pass in an object with
+ * `project` as the key and error out if and only if `parentSelector.project`
+ * is present.
+ */
+function ensureNoParentSelectors(
+  /** Resource name to be used in error message */
+  resourceLabel: string,
+  parentSelector: Record<string, string | undefined>
+) {
+  const keysWithValues = Object.entries(parentSelector)
+    .filter(([_, v]) => v)
+    .map(([k]) => k)
+  if (keysWithValues.length > 0) {
+    const message = `when ${resourceLabel} is specified by ID, ${commaSeries(keysWithValues, 'and')} should not be specified`
+    throw json({ error_code: 'InvalidRequest', message }, { status: 400 })
+  }
 }
 
 export const getIpFromPool = (poolName: string | undefined) => {
@@ -63,7 +79,10 @@ export const lookup = {
   instance({ instance: id, ...projectSelector }: PP.Instance): Json<Api.Instance> {
     if (!id) throw notFoundErr('no instance specified')
 
-    if (isUuid(id)) return lookupById(db.instances, id)
+    if (isUuid(id)) {
+      ensureNoParentSelectors('instance', projectSelector)
+      return lookupById(db.instances, id)
+    }
 
     const project = lookup.project(projectSelector)
     const instance = db.instances.find((i) => i.project_id === project.id && i.name === id)
@@ -77,7 +96,10 @@ export const lookup = {
   }: PP.NetworkInterface): Json<Api.InstanceNetworkInterface> {
     if (!id) throw notFoundErr('no NIC specified')
 
-    if (isUuid(id)) return lookupById(db.networkInterfaces, id)
+    if (isUuid(id)) {
+      ensureNoParentSelectors('network interface', instanceSelector)
+      return lookupById(db.networkInterfaces, id)
+    }
 
     const instance = lookup.instance(instanceSelector)
 
@@ -91,7 +113,10 @@ export const lookup = {
   disk({ disk: id, ...projectSelector }: PP.Disk): Json<Api.Disk> {
     if (!id) throw notFoundErr('no disk specified')
 
-    if (isUuid(id)) return lookupById(db.disks, id)
+    if (isUuid(id)) {
+      ensureNoParentSelectors('disk', projectSelector)
+      return lookupById(db.disks, id)
+    }
 
     const project = lookup.project(projectSelector)
 
@@ -104,7 +129,7 @@ export const lookup = {
     if (!id) throw notFoundErr('no floating IP specified')
 
     if (isUuid(id)) {
-      if (projectSelector.project) throw badSelectorErr('floating IP', ['project'])
+      ensureNoParentSelectors('floating IP', projectSelector)
       return lookupById(db.floatingIps, id)
     }
 
@@ -119,7 +144,10 @@ export const lookup = {
   snapshot({ snapshot: id, ...projectSelector }: PP.Snapshot): Json<Api.Snapshot> {
     if (!id) throw notFoundErr('no snapshot specified')
 
-    if (isUuid(id)) return lookupById(db.snapshots, id)
+    if (isUuid(id)) {
+      ensureNoParentSelectors('snapshot', projectSelector)
+      return lookupById(db.snapshots, id)
+    }
 
     const project = lookup.project(projectSelector)
     const snapshot = db.snapshots.find((i) => i.project_id === project.id && i.name === id)
@@ -130,7 +158,10 @@ export const lookup = {
   vpc({ vpc: id, ...projectSelector }: PP.Vpc): Json<Api.Vpc> {
     if (!id) throw notFoundErr('no VPC specified')
 
-    if (isUuid(id)) return lookupById(db.vpcs, id)
+    if (isUuid(id)) {
+      ensureNoParentSelectors('vpc', projectSelector)
+      return lookupById(db.vpcs, id)
+    }
 
     const project = lookup.project(projectSelector)
     const vpc = db.vpcs.find((v) => v.project_id === project.id && v.name === id)
@@ -141,7 +172,10 @@ export const lookup = {
   vpcRouter({ router: id, ...vpcSelector }: PP.VpcRouter): Json<Api.VpcRouter> {
     if (!id) throw notFoundErr('no router specified')
 
-    if (isUuid(id)) return lookupById(db.vpcRouters, id)
+    if (isUuid(id)) {
+      ensureNoParentSelectors('router', vpcSelector)
+      return lookupById(db.vpcRouters, id)
+    }
 
     const vpc = lookup.vpc(vpcSelector)
     const router = db.vpcRouters.find((r) => r.vpc_id === vpc.id && r.name === id)
@@ -155,7 +189,10 @@ export const lookup = {
   }: PP.VpcRouterRoute): Json<Api.RouterRoute> {
     if (!id) throw notFoundErr('no route specified')
 
-    if (isUuid(id)) return lookupById(db.vpcRouterRoutes, id)
+    if (isUuid(id)) {
+      ensureNoParentSelectors('route', routerSelector)
+      return lookupById(db.vpcRouterRoutes, id)
+    }
 
     const router = lookup.vpcRouter(routerSelector)
     const route = db.vpcRouterRoutes.find(
@@ -168,7 +205,10 @@ export const lookup = {
   vpcSubnet({ subnet: id, ...vpcSelector }: PP.VpcSubnet): Json<Api.VpcSubnet> {
     if (!id) throw notFoundErr('no subnet specified')
 
-    if (isUuid(id)) return lookupById(db.vpcSubnets, id)
+    if (isUuid(id)) {
+      ensureNoParentSelectors('subnet', vpcSelector)
+      return lookupById(db.vpcSubnets, id)
+    }
 
     const vpc = lookup.vpc(vpcSelector)
     const subnet = db.vpcSubnets.find((s) => s.vpc_id === vpc.id && s.name === id)
@@ -179,8 +219,13 @@ export const lookup = {
   image({ image: id, project: projectId }: PP.Image): Json<Api.Image> {
     if (!id) throw notFoundErr('no image specified')
 
-    if (isUuid(id)) return lookupById(db.images, id)
+    if (isUuid(id)) {
+      ensureNoParentSelectors('image', { project: projectId })
+      return lookupById(db.images, id)
+    }
 
+    // TODO: is this logic right? seems kinda weird. you should be able to look
+    // up either kind by ID. we should probably have two lookup functions
     let image: Json<Api.Image> | undefined
     if (projectId === undefined) {
       // silo image
@@ -264,8 +309,15 @@ export const lookup = {
   samlIdp({ provider: id, silo }: PP.IdentityProvider): Json<Api.SamlIdentityProvider> {
     if (!id) throw notFoundErr('no IdP specified')
 
-    const dbSilo = lookup.silo({ silo })
+    if (isUuid(id)) {
+      ensureNoParentSelectors('identity provider', { silo })
+      return lookupById(
+        db.identityProviders.filter((o) => o.type === 'saml').map((o) => o.provider),
+        id
+      )
+    }
 
+    const dbSilo = lookup.silo({ silo })
     const dbIdp = db.identityProviders.find(
       ({ type, siloId, provider }) =>
         type === 'saml' && siloId === dbSilo.id && provider.name === id
