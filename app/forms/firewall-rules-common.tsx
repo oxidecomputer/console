@@ -64,6 +64,7 @@ type TargetAndHostFormValues = {
 
 // these are part of the target and host filter form;
 // the specific values depend on the target or host filter type selected
+// sectionType used for screenreader clarity, and e2e test targeting
 const getFilterValueProps = (
   targetOrHostType: TargetAndHostFilterType,
   sectionType: 'target' | 'host'
@@ -310,6 +311,7 @@ export const CommonFields = ({
   const targetForm = useForm({ defaultValues: targetAndHostDefaultValues })
   const targets = useController({ name: 'targets', control }).field
   const targetType = targetForm.watch('type')
+  const targetValue = targetForm.watch('value')
   const targetSubnetVpc = targetForm.watch('subnetVpc')
   // get the list of subnets for the specific VPC selected in the form
   const { items: targetVpcSubnets } = useVpcSubnets({ project, vpc: targetSubnetVpc })
@@ -334,6 +336,7 @@ export const CommonFields = ({
   // Ports
   const portRangeForm = useForm({ defaultValues: { portRange: '' } })
   const ports = useController({ name: 'ports', control }).field
+  const portValue = portRangeForm.watch('portRange')
   const submitPortRange = portRangeForm.handleSubmit(({ portRange }) => {
     const portRangeValue = portRange.trim()
     // at this point we've already validated in validate() that it parses and
@@ -346,6 +349,7 @@ export const CommonFields = ({
   const hostForm = useForm({ defaultValues: targetAndHostDefaultValues })
   const hosts = useController({ name: 'hosts', control }).field
   const hostType = hostForm.watch('type')
+  const hostValue = hostForm.watch('value')
   const hostSubnetVpc = hostForm.watch('subnetVpc')
   // get the list of subnets for the specific PC selected in the form
   const { items: hostVpcSubnets } = useVpcSubnets({ project, vpc: hostSubnetVpc })
@@ -475,7 +479,7 @@ export const CommonFields = ({
           onSubmitTextField={submitTarget}
         />
         <ClearAndAddButtons
-          isDirty={targetForm.formState.isDirty}
+          isDirty={!!targetValue}
           onClear={() => targetForm.reset()}
           onSubmit={submitTarget}
           buttonCopy="Add target"
@@ -526,7 +530,7 @@ export const CommonFields = ({
           />
         </div>
         <ClearAndAddButtons
-          isDirty={portRangeForm.formState.isDirty}
+          isDirty={!!portValue}
           onClear={portRangeForm.reset}
           onSubmit={submitPortRange}
           buttonCopy="Add port filter"
@@ -584,7 +588,7 @@ export const CommonFields = ({
           onSubmitTextField={submitHost}
         />
         <ClearAndAddButtons
-          isDirty={hostForm.formState.isDirty}
+          isDirty={!!hostValue}
           onClear={() => hostForm.reset()}
           onSubmit={submitHost}
           buttonCopy="Add host filter"

@@ -6,7 +6,14 @@
  * Copyright Oxide Computer Company
  */
 
-import { clickRowAction, expect, expectRowVisible, test } from './utils'
+import {
+  clickRowAction,
+  expect,
+  expectRowVisible,
+  selectOption,
+  test,
+  type Page,
+} from './utils'
 
 const defaultRules = ['allow-internal-inbound', 'allow-ssh', 'allow-icmp']
 
@@ -38,15 +45,13 @@ test('can create firewall rule', async ({ page }) => {
   // add targets with overlapping names and types to test delete
   const targets = page.getByRole('table', { name: 'Targets' })
 
-  await page.getByRole('button', { name: 'Target type' }).click()
-  await page.getByRole('option', { name: 'IP', exact: true }).click()
+  await selectOption(page, 'Target type', 'IP')
   await page.getByRole('textbox', { name: 'IP address' }).fill('192.168.0.1')
   await page.getByRole('button', { name: 'Add target' }).click()
   await expectRowVisible(targets, { Type: 'ip', Value: '192.168.0.1' })
 
   // add host filter instance "host-filter-instance"
-  await page.getByRole('button', { name: 'Host type' }).click()
-  await page.getByRole('option', { name: 'Instance' }).click()
+  await selectOption(page, 'Host type', 'Instance')
   await page.getByRole('combobox', { name: 'Instance name' }).fill('host-filter-instance')
   await page.getByRole('button', { name: 'Add host filter' }).click()
 
@@ -136,6 +141,15 @@ test('firewall rule targets and filters overflow', async ({ page }) => {
   await expect(tooltip).toBeVisible()
 })
 
+const setupSubnetSelection = async (page: Page, sectionType: 'Host' | 'Target') => {
+  // first by selecting from a dropdown
+  await selectOption(page, `${sectionType} type`, 'VPC Subnet')
+  // select the VPC so you can then add a subnet at the callsite
+  await selectOption(page, 'VPC Select a VPC', 'mock-vpc')
+  // select the subnet from the dropdown
+  // await page.getByRole('option', { name: 'VPC Subnet' }).click()
+}
+
 test('firewall rule form targets table', async ({ page }) => {
   await page.goto('/projects/mock-project/vpcs/mock-vpc')
   await page.getByRole('tab', { name: 'Firewall Rules' }).click()
@@ -144,33 +158,37 @@ test('firewall rule form targets table', async ({ page }) => {
   await page.getByRole('link', { name: 'New rule' }).click()
 
   const targets = page.getByRole('table', { name: 'Targets' })
+  const targetVpcNameField = page.getByRole('combobox', { name: 'VPC name' }).nth(0)
   const addButton = page.getByRole('button', { name: 'Add target' })
 
   // add targets with overlapping names and types to test delete
 
   // there are two of these because the hosts table also defaults to VPC
-  await page.getByRole('textbox', { name: 'VPC name' }).nth(0).fill('abc')
+  await targetVpcNameField.fill('abc')
   await addButton.click()
   await expectRowVisible(targets, { Type: 'vpc', Value: 'abc' })
 
-  await page.getByRole('textbox', { name: 'VPC name' }).nth(0).fill('def')
+  await targetVpcNameField.fill('def')
   await addButton.click()
   await expectRowVisible(targets, { Type: 'vpc', Value: 'def' })
 
-  // select the target type as VPC Subnet
-  await page.getByRole('button', { name: 'Target type' }).click()
-  await page.getByRole('option', { name: 'VPC Subnet' }).click()
-  // select the VPC
-  await page.getByLabel('VPC', { exact: true }).nth(0).click()
-  await page.getByRole('option', { name: 'mock-vpc' }).click()
-  // select the subnet
+  // add VPC Subnet targets
+
+  await setupSubnetSelection(page, 'Target')
+  // and now you can select the option
   await page.getByRole('combobox', { name: 'Subnet name' }).nth(0).click()
   await page.getByRole('option', { name: 'mock-subnet' }).click()
+  // add it and verify that it worked
   await addButton.click()
   await expectRowVisible(targets, { Type: 'subnet', Value: 'mock-subnet' })
 
-  await page.getByRole('button', { name: 'Target type' }).click()
-  await page.getByRole('option', { name: 'IP', exact: true }).click()
+  // now add a subnet by entering text
+  await setupSubnetSelection(page, 'Target')
+  await page.getByRole('combobox', { name: 'Subnet name' }).fill('abc')
+  await addButton.click()
+  await expectRowVisible(targets, { Type: 'subnet', Value: 'abc' })
+
+  await selectOption(page, 'Target type', 'IP')
   await page.getByRole('textbox', { name: 'IP address' }).fill('192.168.0.1')
   await addButton.click()
   await expectRowVisible(targets, { Type: 'ip', Value: '192.168.0.1' })
@@ -180,6 +198,9 @@ test('firewall rule form targets table', async ({ page }) => {
     .getByRole('row')
     .nth(1)
     .getByRole('button', { name: 'remove' })
+  // we start with 6 rows, because the header row counts as one
+  await expect(targets.getByRole('row')).toHaveCount(6)
+  await firstDeleteButton.click()
   await expect(targets.getByRole('row')).toHaveCount(5)
   await firstDeleteButton.click()
   await expect(targets.getByRole('row')).toHaveCount(4)
@@ -200,30 +221,32 @@ test('firewall rule form hosts table', async ({ page }) => {
   await page.getByRole('link', { name: 'New rule' }).click()
 
   const hosts = page.getByRole('table', { name: 'Host filters' })
+  const hostFiltersVpcNameField = page.getByRole('combobox', { name: 'VPC name' }).nth(1)
   const addButton = page.getByRole('button', { name: 'Add host filter' })
 
   // add hosts with overlapping names and types to test delete
 
-  // there are two of these because the targets table also defaults to VPC
-  await page.getByRole('combobox', { name: 'VPC' }).fill('abc')
+  // there are two of these because the target section also defaults to VPC
+  await hostFiltersVpcNameField.fill('abc')
   await addButton.click()
   await expectRowVisible(hosts, { Type: 'vpc', Value: 'abc' })
 
-  await page.getByRole('combobox', { name: 'VPC' }).fill('def')
+  await hostFiltersVpcNameField.fill('def')
   await addButton.click()
   await expectRowVisible(hosts, { Type: 'vpc', Value: 'def' })
 
-  await page.getByRole('button', { name: 'Host type' }).click()
-  await page.getByRole('option', { name: 'VPC Subnet' }).click()
-  await page.getByRole('button', { name: 'VPC' }).nth(2).click()
-  await page.getByRole('option', { name: 'mock-vpc' }).click()
+  await setupSubnetSelection(page, 'Host')
+  await selectOption(page, 'Subnet name', 'mock-subnet')
+  await addButton.click()
+  await expectRowVisible(hosts, { Type: 'subnet', Value: 'mock-subnet' })
+
+  await setupSubnetSelection(page, 'Host')
   await page.getByRole('combobox', { name: 'Subnet name' }).fill('abc')
   await addButton.click()
   await expectRowVisible(hosts, { Type: 'subnet', Value: 'abc' })
 
-  await page.getByRole('button', { name: 'Host type' }).click()
-  await page.getByRole('option', { name: 'IP', exact: true }).click()
-  await page.getByRole('combobox', { name: 'IP address' }).fill('192.168.0.1')
+  await selectOption(page, 'Host type', 'IP')
+  await page.getByRole('textbox', { name: 'IP address' }).fill('192.168.0.1')
   await addButton.click()
   await expectRowVisible(hosts, { Type: 'ip', Value: '192.168.0.1' })
 
@@ -232,6 +255,8 @@ test('firewall rule form hosts table', async ({ page }) => {
     .getByRole('row')
     .nth(1)
     .getByRole('button', { name: 'remove' })
+  await expect(hosts.getByRole('row')).toHaveCount(6)
+  await firstDeleteButton.click()
   await expect(hosts.getByRole('row')).toHaveCount(5)
   await firstDeleteButton.click()
   await expect(hosts.getByRole('row')).toHaveCount(4)
@@ -270,10 +295,10 @@ test('can update firewall rule', async ({ page }) => {
   // TODO: get these by their label when that becomes easier to do
 
   // name is populated
-  await expect(page.locator('input[name=name]')).toHaveValue('allow-icmp')
+  await expect(page.getByRole('textbox', { name: 'Name' })).toHaveValue('allow-icmp')
 
   // priority is populated
-  await expect(page.locator('role=textbox[name=Priority]')).toHaveValue('65534')
+  await expect(page.getByRole('textbox', { name: 'Priority' })).toHaveValue('65534')
 
   // protocol is populated
   await expect(page.locator('label >> text=ICMP')).toBeChecked()
@@ -285,19 +310,20 @@ test('can update firewall rule', async ({ page }) => {
   // screen.getByRole('cell', { name: 'default' })
 
   // update name
-  await page.fill('input[name=name]', 'new-rule-name')
+  await page.getByRole('textbox', { name: 'Name' }).fill('new-rule-name')
 
   // add host filter
-  await page.locator('role=button[name*="Host type"]').click()
-  await page.locator('role=option[name="VPC Subnet"]').click()
-  await page.fill('role=textbox[name="Subnet name"]', 'edit-filter-subnet')
-  await page.locator('text="Add host filter"').click()
+  await setupSubnetSelection(page, 'Host')
+  await page.getByRole('combobox', { name: 'Subnet name' }).fill('edit-filter-subnet')
+  await page.getByRole('button', { name: 'Add host filter' }).click()
 
   // new host is added to hosts table
-  await expect(page.locator('role=cell >> text="edit-filter-subnet"')).toBeVisible()
+  const hosts = page.getByRole('table', { name: 'Host filters' })
+  // await expect(page.locator('role=cell >> text="edit-filter-subnet"')).toBeVisible()
+  await expectRowVisible(hosts, { Type: 'subnet', Value: 'edit-filter-subnet' })
 
   // submit the form
-  await page.locator('text="Update rule"').click()
+  await page.getByRole('button', { name: 'Update rule' }).click()
 
   // modal closes again
   await expect(modal).toBeHidden()

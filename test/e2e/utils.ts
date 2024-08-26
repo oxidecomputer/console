@@ -142,18 +142,24 @@ export async function clickRowAction(page: Page, rowText: string, actionName: st
 
 /**
  * Select an option from a dropdown
- * buttonLocator can either be the drodown's label text or a more elaborate Locator */
+ * buttonLocator can either be the drodown's label text or a more elaborate Locator
+ * optionLocator can either be the drodown's label text or a more elaborate Locator
+ * */
 export async function selectOption(
   page: Page,
   buttonLocator: string | Locator,
-  option: string
+  optionLocator: string | Locator
 ) {
   if (typeof buttonLocator === 'string') {
-    page.getByRole('button', { name: buttonLocator }).click()
+    await page.getByRole('button', { name: buttonLocator }).click()
   } else {
-    buttonLocator.click()
+    await buttonLocator.click()
   }
-  await page.getByRole('option', { name: option }).click()
+  if (typeof optionLocator === 'string') {
+    await page.getByRole('option', { name: optionLocator, exact: true }).click()
+  } else {
+    await optionLocator.click()
+  }
 }
 
 export async function getPageAsUser(
