@@ -64,43 +64,34 @@ type TargetAndHostFormValues = {
 
 // these are part of the target and host filter form;
 // the specific values depend on the target or host filter type selected
-// sectionType used for screenreader clarity, and e2e test targeting
-const getFilterValueProps = (
-  targetOrHostType: TargetAndHostFilterType,
-  sectionType: 'target' | 'host'
-) => {
+const getFilterValueProps = (targetOrHostType: TargetAndHostFilterType) => {
   switch (targetOrHostType) {
     case 'vpc':
       return {
         label: 'VPC name',
         placeholder: 'Select a VPC',
-        ariaLabel: `Select ${sectionType} VPC name`,
       }
     case 'subnet':
       return {
         label: 'Subnet name',
         placeholder: 'Select a VPC subnet',
-        ariaLabel: `Select ${sectionType} subnet name`,
       }
     case 'instance':
       return {
         label: 'Instance name',
         placeholder: 'Select an instance',
-        ariaLabel: `Select ${sectionType} instance name`,
       }
     case 'ip':
       return {
         label: 'IP address',
         helpText: 'An IPv4 or IPv6 address',
         placeholder: 'Enter an IP address',
-        ariaLabel: `Enter ${sectionType} IP address`,
       }
     case 'ip_net':
       return {
         label: 'IP network',
         helpText: 'Looks like 192.168.0.0/16 or fd00:1122:3344:0001::1/64',
         placeholder: 'Enter an IP network',
-        ariaLabel: `Enter ${sectionType} IP network`,
       }
   }
 }
@@ -164,7 +155,7 @@ const DynamicTypeAndValueFields = ({
         <ComboboxField
           disabled={isDisabled}
           name="value"
-          {...getFilterValueProps(valueType, sectionType)}
+          {...getFilterValueProps(valueType)}
           required
           control={control}
           onInputChange={onInputChange}
@@ -176,7 +167,7 @@ const DynamicTypeAndValueFields = ({
       ) : (
         <TextField
           name="value"
-          {...getFilterValueProps(valueType, sectionType)}
+          {...getFilterValueProps(valueType)}
           required
           control={control}
           onKeyDown={(e) => {

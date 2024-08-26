@@ -36,6 +36,9 @@ EditFirewallRuleForm.loader = async ({ params }: LoaderFunctionArgs) => {
   const firewallRules = await apiQueryClient.fetchQuery('vpcFirewallRulesView', {
     query: { project, vpc },
   })
+  const originalRule = firewallRules.rules.find((r) => r.name === rule)
+  if (!originalRule) throw trigger404
+
   await Promise.all([
     apiQueryClient.prefetchQuery('instanceList', {
       query: { project, limit: PAGE_SIZE },
@@ -43,14 +46,11 @@ EditFirewallRuleForm.loader = async ({ params }: LoaderFunctionArgs) => {
     apiQueryClient.prefetchQuery('vpcList', { query: { project, limit: PAGE_SIZE } }),
   ])
 
-  const originalRule = firewallRules.rules.find((r) => r.name === rule)
-  if (!originalRule) throw trigger404
-
   return null
 }
 
 export function EditFirewallRuleForm() {
-  const { vpc, project, rule } = useFirewallRuleSelector()
+  const { project, vpc, rule } = useFirewallRuleSelector()
   const vpcSelector = useVpcSelector()
   const queryClient = useApiQueryClient()
 

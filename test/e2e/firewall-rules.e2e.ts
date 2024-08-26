@@ -12,6 +12,7 @@ import {
   expectRowVisible,
   selectOption,
   test,
+  type Locator,
   type Page,
 } from './utils'
 
@@ -146,8 +147,13 @@ const setupSubnetSelection = async (page: Page, sectionType: 'Host' | 'Target') 
   await selectOption(page, `${sectionType} type`, 'VPC Subnet')
   // select the VPC so you can then add a subnet at the callsite
   await selectOption(page, 'VPC Select a VPC', 'mock-vpc')
-  // select the subnet from the dropdown
-  // await page.getByRole('option', { name: 'VPC Subnet' }).click()
+}
+
+const deleteRowAndVerifyRowCount = async (table: Locator, expectedCount: number) => {
+  const rows = table.getByRole('row')
+  // skip the header row
+  await rows.nth(1).getByRole('button', { name: 'remove' }).click()
+  await expect(rows).toHaveCount(expectedCount)
 }
 
 test('firewall rule form targets table', async ({ page }) => {
@@ -163,7 +169,6 @@ test('firewall rule form targets table', async ({ page }) => {
 
   // add targets with overlapping names and types to test delete
 
-  // there are two of these because the hosts table also defaults to VPC
   await targetVpcNameField.fill('abc')
   await addButton.click()
   await expectRowVisible(targets, { Type: 'vpc', Value: 'abc' })
@@ -173,41 +178,33 @@ test('firewall rule form targets table', async ({ page }) => {
   await expectRowVisible(targets, { Type: 'vpc', Value: 'def' })
 
   // add VPC Subnet targets
+  const subnetNameField = page.getByRole('combobox', { name: 'Subnet name' })
 
+  // add a subnet by selecting from a dropdown
   await setupSubnetSelection(page, 'Target')
-  // and now you can select the option
-  await page.getByRole('combobox', { name: 'Subnet name' }).nth(0).click()
-  await page.getByRole('option', { name: 'mock-subnet' }).click()
-  // add it and verify that it worked
+  await selectOption(page, subnetNameField, 'mock-subnet')
   await addButton.click()
   await expectRowVisible(targets, { Type: 'subnet', Value: 'mock-subnet' })
 
   // now add a subnet by entering text
   await setupSubnetSelection(page, 'Target')
-  await page.getByRole('combobox', { name: 'Subnet name' }).fill('abc')
+  await subnetNameField.fill('abc')
   await addButton.click()
   await expectRowVisible(targets, { Type: 'subnet', Value: 'abc' })
 
+  // add IP target
   await selectOption(page, 'Target type', 'IP')
   await page.getByRole('textbox', { name: 'IP address' }).fill('192.168.0.1')
   await addButton.click()
   await expectRowVisible(targets, { Type: 'ip', Value: '192.168.0.1' })
 
-  // test table row delete, only keep the IP one
-  const firstDeleteButton = targets
-    .getByRole('row')
-    .nth(1)
-    .getByRole('button', { name: 'remove' })
+  // test table row delete; only keep the IP one
   // we start with 6 rows, because the header row counts as one
   await expect(targets.getByRole('row')).toHaveCount(6)
-  await firstDeleteButton.click()
-  await expect(targets.getByRole('row')).toHaveCount(5)
-  await firstDeleteButton.click()
-  await expect(targets.getByRole('row')).toHaveCount(4)
-  await firstDeleteButton.click()
-  await expect(targets.getByRole('row')).toHaveCount(3)
-  await firstDeleteButton.click()
-  await expect(targets.getByRole('row')).toHaveCount(2)
+  await deleteRowAndVerifyRowCount(targets, 5)
+  await deleteRowAndVerifyRowCount(targets, 4)
+  await deleteRowAndVerifyRowCount(targets, 3)
+  await deleteRowAndVerifyRowCount(targets, 2)
 
   // we still have the IP target
   await expectRowVisible(targets, { Type: 'ip', Value: '192.168.0.1' })
@@ -250,20 +247,12 @@ test('firewall rule form hosts table', async ({ page }) => {
   await addButton.click()
   await expectRowVisible(hosts, { Type: 'ip', Value: '192.168.0.1' })
 
-  // test table row delete, only keep the IP one
-  const firstDeleteButton = hosts
-    .getByRole('row')
-    .nth(1)
-    .getByRole('button', { name: 'remove' })
+  // test table row delete; only keep the IP one
   await expect(hosts.getByRole('row')).toHaveCount(6)
-  await firstDeleteButton.click()
-  await expect(hosts.getByRole('row')).toHaveCount(5)
-  await firstDeleteButton.click()
-  await expect(hosts.getByRole('row')).toHaveCount(4)
-  await firstDeleteButton.click()
-  await expect(hosts.getByRole('row')).toHaveCount(3)
-  await firstDeleteButton.click()
-  await expect(hosts.getByRole('row')).toHaveCount(2)
+  await deleteRowAndVerifyRowCount(hosts, 5)
+  await deleteRowAndVerifyRowCount(hosts, 4)
+  await deleteRowAndVerifyRowCount(hosts, 3)
+  await deleteRowAndVerifyRowCount(hosts, 2)
 
   // we still have the IP target
   await expectRowVisible(hosts, { Type: 'ip', Value: '192.168.0.1' })
@@ -276,7 +265,7 @@ test('can update firewall rule', async ({ page }) => {
   const rows = page.locator('tbody >> tr')
   await expect(rows).toHaveCount(3)
 
-  // allow-icmp is the one we're doing to change
+  // allow-icmp is the one we're going to change
   const oldNameCell = page.locator('td >> text="allow-icmp"')
   await expect(oldNameCell).toBeVisible()
 
@@ -291,8 +280,6 @@ test('can update firewall rule', async ({ page }) => {
 
   // modal is now open
   await expect(modal).toBeVisible()
-
-  // TODO: get these by their label when that becomes easier to do
 
   // name is populated
   await expect(page.getByRole('textbox', { name: 'Name' })).toHaveValue('allow-icmp')
@@ -319,7 +306,6 @@ test('can update firewall rule', async ({ page }) => {
 
   // new host is added to hosts table
   const hosts = page.getByRole('table', { name: 'Host filters' })
-  // await expect(page.locator('role=cell >> text="edit-filter-subnet"')).toBeVisible()
   await expectRowVisible(hosts, { Type: 'subnet', Value: 'edit-filter-subnet' })
 
   // submit the form
