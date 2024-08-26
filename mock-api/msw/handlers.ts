@@ -7,7 +7,7 @@
  */
 import { delay } from 'msw'
 import * as R from 'remeda'
-import { v4 as uuid } from 'uuid'
+import { validate as isUuid, v4 as uuid } from 'uuid'
 
 import {
   diskCan,
@@ -293,9 +293,14 @@ export const handlers = makeHandlers({
     if (dbFloatingIp.instance_id) {
       throw 'floating IP cannot be attached to one instance while still attached to another'
     }
-    // TODO: make sure the logic around when project is passed matches
-    // the API
-    const dbInstance = lookup.instance({ instance: body.parent })
+    // Following the API logic here, which says that when the instance is passed
+    // by name, we pull the project ID off the floating IP.
+    //
+    // https://github.com/oxidecomputer/omicron/blob/e434307/nexus/src/app/external_ip.rs#L171-L201
+    const dbInstance = lookup.instance({
+      instance: body.parent,
+      project: isUuid(body.parent) ? undefined : project,
+    })
     dbFloatingIp.instance_id = dbInstance.id
 
     return dbFloatingIp
@@ -362,8 +367,9 @@ export const handlers = makeHandlers({
     return json(image, { status: 202 })
   },
   imageDemote({ path: { image }, query: { project } }) {
-    // TODO: change this to lookup.siloImage when I add that. or at least
-    // check API logic to make sure we match it
+    // unusual case because the project is never used to resolve the image. you
+    // can only demote silo images, and whether we have an image name or ID, if
+    // there is no project specified, the lookup assumes it's a silo image
     const dbImage = lookup.image({ image })
     const dbProject = lookup.project({ project })
 

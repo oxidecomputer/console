@@ -219,21 +219,33 @@ export const lookup = {
   image({ image: id, project: projectId }: PP.Image): Json<Api.Image> {
     if (!id) throw notFoundErr('no image specified')
 
+    // We match the API logic:
+    //
+    //   match image_selector {
+    //     (image ID, no project) =>
+    //       look up image in DB by ID
+    //       if project ID is present, it's a project image, otherwise silo image
+    //     (image Name, project specified) => it's a project image
+    //     (image Name, no project) => it's a silo image
+    //     (image ID, project specified) => error
+    //   }
+    //
+    // https://github.com/oxidecomputer/omicron/blob/219121a/nexus/src/app/image.rs#L32-L76
+
     if (isUuid(id)) {
+      // this matches the error case above
       ensureNoParentSelectors('image', { project: projectId })
       return lookupById(db.images, id)
     }
 
-    // TODO: is this logic right? seems kinda weird. you should be able to look
-    // up either kind by ID. we should probably have two lookup functions
     let image: Json<Api.Image> | undefined
-    if (projectId === undefined) {
-      // silo image
-      image = db.images.find((d) => d.project_id === undefined && d.name === id)
-    } else {
+    if (projectId) {
       // project image
       const project = lookup.project({ project: projectId })
       image = db.images.find((d) => d.project_id === project.id && d.name === id)
+    } else {
+      // silo image
+      image = db.images.find((d) => d.project_id === undefined && d.name === id)
     }
 
     if (!image) throw notFoundErr(`image '${id}'`)
