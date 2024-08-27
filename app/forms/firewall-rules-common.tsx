@@ -160,7 +160,7 @@ const DynamicTypeAndValueFields = ({
           control={control}
           onInputChange={onInputChange}
           items={items}
-          showNoMatchPlaceholder={false}
+          allowNewItems
           // TODO: validate here, but it's complicated because it's conditional
           // on which type is selected
         />

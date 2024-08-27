@@ -147,7 +147,6 @@ export function CreateFirewallRuleForm() {
         vpcs={vpcs.items}
         // error if name is already in use
         nameTaken={(name) => !!existingRules.find((r) => r.name === name)}
-
         // TODO: there should also be a form-level error so if the name is off
         // screen, it doesn't look like the submit button isn't working. Maybe
         // instead of setting a root error, it would be more robust to show a
