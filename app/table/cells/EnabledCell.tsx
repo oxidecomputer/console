@@ -6,7 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import type { VpcFirewallRuleStatus } from '@oxide/api'
-import { Success12Icon } from '@oxide/design-system/icons/react'
+import { Disabled12Icon, Success12Icon } from '@oxide/design-system/icons/react'
 
 import { Badge } from '~/ui/lib/Badge'
 
@@ -18,7 +18,7 @@ export const EnabledCell = ({ value }: { value: VpcFirewallRuleStatus }) =>
     </>
   ) : (
     <>
-      <Success12Icon className="mr-1 text-notice" />
+      <Disabled12Icon className="mr-1 text-notice" />
       <Badge color="notice">Disabled</Badge>
     </>
   )
