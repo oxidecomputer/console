@@ -88,6 +88,7 @@ function LoadingBar() {
             // condition, we'd immediately kill an in-progress loading animation
             // that was about to finish on its own anyway.
             barRef.current?.classList.remove('loading', 'done')
+            // eslint-disable-next-line @typescript-eslint/no-unused-expressions
             barRef.current?.scrollTop
 
             // Kick off the animation

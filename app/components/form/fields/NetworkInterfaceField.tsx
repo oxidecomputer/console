@@ -61,9 +61,11 @@ export function NetworkInterfaceField({
               setOldParams(value.params)
             }
 
-            newType === 'create'
-              ? onChange({ type: newType, params: oldParams })
-              : onChange({ type: newType })
+            if (newType === 'create') {
+              onChange({ type: newType, params: oldParams })
+            } else {
+              onChange({ type: newType })
+            }
           }}
           disabled={disabled}
         >
