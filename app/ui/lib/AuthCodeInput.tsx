@@ -124,7 +124,7 @@ export const AuthCodeInput = forwardRef<AuthCodeRef, AuthCodeProps>(
         .map((input) => input.value)
         .join('')
         .toUpperCase()
-      onChange && onChange(res)
+      onChange?.(res)
     }
 
     const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {

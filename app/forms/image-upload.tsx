@@ -770,8 +770,9 @@ async function readAtOffset(file: File, offset: number, length: number) {
     }
 
     reader.onerror = (error) => {
-      console.error(`Error reading file at offset ${offset}:`, error)
-      reject(error)
+      const msg = `Error reading file at offset ${offset}:`
+      console.error(msg, error)
+      reject(new Error(msg))
     }
   })
 

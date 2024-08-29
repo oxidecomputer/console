@@ -205,7 +205,7 @@ export function MetricsTab() {
           selected={diskName}
           items={diskItems}
           onChange={(val) => {
-            val && setDiskName(val)
+            if (val) setDiskName(val)
           }}
         />
         {dateTimeRangePicker}
