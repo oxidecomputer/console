@@ -223,7 +223,6 @@ test('firewall rule form hosts table', async ({ page }) => {
 
   // add hosts with overlapping names and types to test delete
 
-  // there are two of these because the target section also defaults to VPC
   await hostFiltersVpcNameField.fill('abc')
   await addButton.click()
   await expectRowVisible(hosts, { Type: 'vpc', Value: 'abc' })
