@@ -48,9 +48,10 @@ import { TipIcon } from '~/ui/lib/TipIcon'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
+const query = { limit: PAGE_SIZE }
+
 IpPoolPage.loader = async function ({ params }: LoaderFunctionArgs) {
   const { pool } = getIpPoolSelector(params)
-  const query = { limit: PAGE_SIZE }
   await Promise.all([
     apiQueryClient.prefetchQuery('ipPoolView', { path: { pool } }),
     apiQueryClient.prefetchQuery('ipPoolSiloList', { path: { pool }, query }),
@@ -72,6 +73,10 @@ IpPoolPage.loader = async function ({ params }: LoaderFunctionArgs) {
 export function IpPoolPage() {
   const poolSelector = useIpPoolSelector()
   const { data: pool } = usePrefetchedApiQuery('ipPoolView', { path: poolSelector })
+  const { data: ranges } = usePrefetchedApiQuery('ipPoolRangeList', {
+    path: poolSelector,
+    query,
+  })
   const navigate = useNavigate()
   const deletePool = useApiMutation('ipPoolDelete', {
     onSuccess() {
@@ -95,9 +100,12 @@ export function IpPoolPage() {
           doDelete: () => deletePool.mutateAsync({ path: { pool: pool.name } }),
           label: pool.name,
         }),
+        disabled:
+          !!ranges.items.length && 'IP pool cannot be deleted while it contains IP ranges',
+        className: ranges.items.length ? '' : 'destructive',
       },
     ],
-    [deletePool, navigate, poolSelector, pool.name]
+    [deletePool, navigate, poolSelector, pool.name, ranges.items]
   )
 
   return (
