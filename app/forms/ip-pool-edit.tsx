@@ -35,6 +35,7 @@ export function EditIpPoolSideModalForm() {
   const { data: pool } = usePrefetchedApiQuery('ipPoolView', { path: poolSelector })
 
   const form = useForm({ defaultValues: pool })
+  const onDismiss = () => navigate(pb.ipPool({ pool: poolSelector.pool }))
 
   const editPool = useApiMutation('ipPoolUpdate', {
     onSuccess(_pool) {
@@ -43,13 +44,11 @@ export function EditIpPoolSideModalForm() {
         // as the pool's name has changed, we need to navigate to an updated URL
         navigate(pb.ipPool({ pool: _pool.name }))
       } else {
-        queryClient.invalidateQueries('ipPoolView')
         onDismiss()
       }
       addToast({ content: 'Your IP pool has been updated' })
     },
   })
-  const onDismiss = () => navigate(pb.ipPool({ pool: poolSelector.pool }))
 
   return (
     <SideModalForm
