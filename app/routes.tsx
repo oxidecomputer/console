@@ -198,12 +198,6 @@ export const routes = createRoutesFromElements(
           >
             <Route path="ip-pools" element={null} />
             <Route path="ip-pools-new" element={<CreateIpPoolSideModalForm />} />
-            <Route
-              path="ip-pools/:pool/edit"
-              element={<EditIpPoolSideModalForm />}
-              loader={EditIpPoolSideModalForm.loader}
-              handle={{ crumb: 'Edit IP pool' }}
-            />
           </Route>
         </Route>
         <Route path="networking/ip-pools" handle={{ crumb: 'IP pools' }}>
@@ -213,6 +207,12 @@ export const routes = createRoutesFromElements(
             loader={IpPoolPage.loader}
             handle={{ crumb: poolCrumb }}
           >
+            <Route
+              path="edit"
+              element={<EditIpPoolSideModalForm />}
+              loader={EditIpPoolSideModalForm.loader}
+              handle={{ crumb: 'Edit IP pool' }}
+            />
             <Route path="ranges-add" element={<IpPoolAddRangeSideModalForm />} />
           </Route>
         </Route>
