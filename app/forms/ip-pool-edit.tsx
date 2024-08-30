@@ -39,6 +39,7 @@ export function EditIpPoolSideModalForm() {
   const editPool = useApiMutation('ipPoolUpdate', {
     onSuccess(_pool) {
       if (pool.name !== _pool.name) {
+        queryClient.invalidateQueries('ipPoolList')
         navigate(pb.ipPool({ pool: _pool.name }))
       } else {
         queryClient.invalidateQueries('ipPoolView')

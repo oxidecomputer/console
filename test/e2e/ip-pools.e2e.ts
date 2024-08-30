@@ -173,6 +173,23 @@ test('IP pool create', async ({ page }) => {
   })
 })
 
+test('IP pool edit', async ({ page }) => {
+  await page.goto('/system/networking/ip-pools/ip-pool-3')
+  await page.getByRole('button', { name: 'IP pool actions' }).click()
+  await page.getByRole('menuitem', { name: 'Edit' }).click()
+
+  const modal = page.getByRole('dialog', { name: 'Edit IP pool' })
+  await expect(modal).toBeVisible()
+
+  await page.getByRole('textbox', { name: 'Name' }).fill('updated-pool')
+  await page.getByRole('textbox', { name: 'Description' }).fill('an updated description')
+  await page.getByRole('button', { name: 'Update IP pool' }).click()
+
+  await expect(modal).toBeHidden()
+  await expect(page).toHaveURL('/system/networking/ip-pools/updated-pool')
+  await expect(page.getByRole('heading', { name: 'updated-pool' })).toBeVisible()
+})
+
 test('IP range validation and add', async ({ page }) => {
   await page.goto('/system/networking/ip-pools/ip-pool-2')
 
