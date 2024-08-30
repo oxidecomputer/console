@@ -110,7 +110,7 @@ test('IP pool link silo', async ({ page }) => {
   await expectRowVisible(table, { Silo: 'myriad', 'Pool is silo default': '' })
 })
 
-test('IP pool delete', async ({ page }) => {
+test('IP pool delete from IP Pools list page', async ({ page }) => {
   await page.goto('/system/networking/ip-pools')
 
   // can't delete a pool containing ranges
@@ -130,6 +130,24 @@ test('IP pool delete', async ({ page }) => {
   await expect(page.getByRole('dialog', { name: 'Confirm delete' })).toBeVisible()
   await page.getByRole('button', { name: 'Confirm' }).click()
 
+  await expect(page.getByRole('cell', { name: 'ip-pool-3' })).toBeHidden()
+})
+
+test('IP pool delete from IP Pool view page', async ({ page }) => {
+  // can't delete a pool containing ranges
+  await page.goto('/system/networking/ip-pools/ip-pool-1')
+  await page.getByRole('button', { name: 'IP pool actions' }).click()
+  await expect(page.getByRole('menuitem', { name: 'Delete' })).toBeDisabled()
+
+  // can delete a pool with no ranges
+  await page.goto('/system/networking/ip-pools/ip-pool-3')
+  await page.getByRole('button', { name: 'IP pool actions' }).click()
+  await page.getByRole('menuitem', { name: 'Delete' }).click()
+  await expect(page.getByRole('dialog', { name: 'Confirm delete' })).toBeVisible()
+  await page.getByRole('button', { name: 'Confirm' }).click()
+
+  // get redirected back to the list after successful delete
+  await expect(page).toHaveURL('/system/networking/ip-pools')
   await expect(page.getByRole('cell', { name: 'ip-pool-3' })).toBeHidden()
 })
 
