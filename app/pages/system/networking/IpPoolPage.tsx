@@ -78,7 +78,7 @@ export function IpPoolPage() {
     query,
   })
   const navigate = useNavigate()
-  const deletePool = useApiMutation('ipPoolDelete', {
+  const { mutateAsync: deletePool } = useApiMutation('ipPoolDelete', {
     onSuccess() {
       apiQueryClient.invalidateQueries('ipPoolList')
       navigate(pb.ipPools())
@@ -97,7 +97,7 @@ export function IpPoolPage() {
       {
         label: 'Delete',
         onActivate: confirmDelete({
-          doDelete: () => deletePool.mutateAsync({ path: { pool: pool.name } }),
+          doDelete: () => deletePool({ path: { pool: pool.name } }),
           label: pool.name,
         }),
         disabled:
