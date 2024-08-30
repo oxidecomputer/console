@@ -39,11 +39,12 @@ export function EditIpPoolSideModalForm() {
 
   const editPool = useApiMutation('ipPoolUpdate', {
     onSuccess(_pool) {
+      queryClient.invalidateQueries('ipPoolList')
       if (pool.name !== _pool.name) {
-        queryClient.invalidateQueries('ipPoolList')
         // as the pool's name has changed, we need to navigate to an updated URL
         navigate(pb.ipPool({ pool: _pool.name }))
       } else {
+        queryClient.invalidateQueries('ipPoolView')
         onDismiss()
       }
       addToast({ content: 'Your IP pool has been updated' })
