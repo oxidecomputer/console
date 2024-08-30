@@ -48,7 +48,7 @@ export const vpcs: Json<Vpc[]> = [vpc, vpc2]
 export const defaultRouter: Json<VpcRouter> = {
   id: 'fc59fb4d-baad-44a8-b152-9a3c27ae8aa1',
   name: 'mock-system-router',
-  description: 'a fake router',
+  description: 'Routes are automatically added to this router as VPC subnets are created',
   time_created: new Date(2024, 0, 1).toISOString(),
   time_modified: new Date(2024, 0, 2).toISOString(),
   vpc_id: vpc.id,
