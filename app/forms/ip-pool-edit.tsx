@@ -40,10 +40,11 @@ export function EditIpPoolSideModalForm() {
     onSuccess(_pool) {
       if (pool.name !== _pool.name) {
         queryClient.invalidateQueries('ipPoolList')
+        // as the pool's name has changed, we need to navigate to an updated URL
         navigate(pb.ipPool({ pool: _pool.name }))
       } else {
         queryClient.invalidateQueries('ipPoolView')
-        navigate(pb.ipPool({ pool: pool.name }))
+        onDismiss()
       }
       addToast({ content: 'Your IP pool has been updated' })
     },
