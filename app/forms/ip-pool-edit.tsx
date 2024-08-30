@@ -30,22 +30,26 @@ EditIpPoolSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
 export function EditIpPoolSideModalForm() {
   const queryClient = useApiQueryClient()
   const navigate = useNavigate()
-
   const poolSelector = useIpPoolSelector()
 
-  const onDismiss = () => navigate(pb.ipPools())
-
   const { data: pool } = usePrefetchedApiQuery('ipPoolView', { path: poolSelector })
+
+  const form = useForm({ defaultValues: pool })
+  const onDismiss = () => navigate(pb.ipPool({ pool: poolSelector.pool }))
 
   const editPool = useApiMutation('ipPoolUpdate', {
     onSuccess(_pool) {
       queryClient.invalidateQueries('ipPoolList')
+      if (pool.name !== _pool.name) {
+        // as the pool's name has changed, we need to navigate to an updated URL
+        navigate(pb.ipPool({ pool: _pool.name }))
+      } else {
+        queryClient.invalidateQueries('ipPoolView')
+        onDismiss()
+      }
       addToast({ content: 'Your IP pool has been updated' })
-      onDismiss()
     },
   })
-
-  const form = useForm({ defaultValues: pool })
 
   return (
     <SideModalForm
