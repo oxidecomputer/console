@@ -23,6 +23,7 @@ import { useDateTimeRangePicker } from '~/components/form/fields/DateTimeRangePi
 import { QueryParamTabs } from '~/components/QueryParamTabs'
 import { useIntervalPicker } from '~/components/RefetchIntervalPicker'
 import { SystemMetric } from '~/components/SystemMetric'
+import { LinkCell } from '~/table/cells/LinkCell'
 import { Listbox } from '~/ui/lib/Listbox'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { ResourceMeter } from '~/ui/lib/ResourceMeter'
@@ -30,6 +31,7 @@ import { Table } from '~/ui/lib/Table'
 import { Tabs } from '~/ui/lib/Tabs'
 import { docLinks } from '~/util/links'
 import { round } from '~/util/math'
+import { pb } from '~/util/path-builder'
 import { bytesToGiB, bytesToTiB } from '~/util/units'
 
 SystemUtilizationPage.loader = async () => {
@@ -181,7 +183,7 @@ function UsageTab() {
         {siloUtilizations.items.map((silo) => (
           <Table.Row key={silo.siloName}>
             <Table.Cell width="16%" height="large">
-              {silo.siloName}
+              <LinkCell to={pb.silo({ silo: silo.siloName })}>{silo.siloName}</LinkCell>
             </Table.Cell>
             <Table.Cell width="14%" height="large">
               <UsageCell
