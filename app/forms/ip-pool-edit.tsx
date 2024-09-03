@@ -35,19 +35,21 @@ export function EditIpPoolSideModalForm() {
   const { data: pool } = usePrefetchedApiQuery('ipPoolView', { path: poolSelector })
 
   const form = useForm({ defaultValues: pool })
-  const onDismiss = () => navigate(pb.ipPool({ pool: poolSelector.pool }))
 
   const editPool = useApiMutation('ipPoolUpdate', {
-    onSuccess(_pool) {
+    onSuccess(updatedPool) {
       queryClient.invalidateQueries('ipPoolList')
-      if (pool.name !== _pool.name) {
-        // as the pool's name has changed, we need to navigate to an updated URL
-        navigate(pb.ipPool({ pool: _pool.name }))
-      } else {
-        queryClient.invalidateQueries('ipPoolView')
-        onDismiss()
-      }
+      navigate(pb.ipPool({ pool: updatedPool.name }))
       addToast({ content: 'Your IP pool has been updated' })
+
+      // Only invalidate if we're staying on the same page. If the name
+      // _has_ changed, invalidating ipPoolView causes an error page to flash
+      // while the loader for the target page is running because the current
+      // page's pool gets cleared out while we're still on the page. If we're
+      // navigating to a different page, its query will fetch anew regardless.
+      if (pool.name === updatedPool.name) {
+        queryClient.invalidateQueries('ipPoolView')
+      }
     },
   })
 
@@ -56,7 +58,7 @@ export function EditIpPoolSideModalForm() {
       form={form}
       formType="edit"
       resourceName="IP pool"
-      onDismiss={onDismiss}
+      onDismiss={() => navigate(pb.ipPool({ pool: poolSelector.pool }))}
       onSubmit={({ name, description }) => {
         editPool.mutate({ path: poolSelector, body: { name, description } })
       }}
