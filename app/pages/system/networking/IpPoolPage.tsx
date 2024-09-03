@@ -208,7 +208,7 @@ function IpRangesTable() {
   const makeRangeActions = useCallback(
     ({ range }: IpPoolRange): MenuAction[] => [
       {
-        label: 'Remove',
+        label: 'Delete',
         className: 'destructive',
         onActivate: () =>
           confirmAction({
@@ -217,11 +217,11 @@ function IpRangesTable() {
                 path: { pool },
                 body: range,
               }),
-            errorTitle: 'Could not remove range',
-            modalTitle: 'Confirm remove range',
+            errorTitle: 'Could not delete range',
+            modalTitle: 'Confirm delete range',
             modalContent: (
               <p>
-                Are you sure you want to remove range{' '}
+                Are you sure you want to delete range{' '}
                 <HL>
                   {range.first}&ndash;{range.last}
                 </HL>{' '}

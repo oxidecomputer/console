@@ -258,22 +258,22 @@ test('IP range validation and add', async ({ page }) => {
   })
 })
 
-test('remove range', async ({ page }) => {
+test('delete range', async ({ page }) => {
   await page.goto('/system/networking/ip-pools/ip-pool-1')
 
   const table = page.getByRole('table')
   await expectRowVisible(table, { First: '10.0.0.20', Last: '10.0.0.22' })
   await expect(table.getByRole('row')).toHaveCount(3) // header + 2 rows
 
-  await clickRowAction(page, '10.0.0.20', 'Remove')
+  await clickRowAction(page, '10.0.0.20', 'Delete')
 
-  const confirmModal = page.getByRole('dialog', { name: 'Confirm remove range' })
+  const confirmModal = page.getByRole('dialog', { name: 'Confirm delete range' })
   await expect(confirmModal.getByText('range 10.0.0.20–10.0.0.22')).toBeVisible()
 
   await page.getByRole('button', { name: 'Cancel' }).click()
   await expect(confirmModal).toBeHidden()
 
-  await clickRowAction(page, '10.0.0.20', 'Remove')
+  await clickRowAction(page, '10.0.0.20', 'Delete')
   await confirmModal.getByRole('button', { name: 'Confirm' }).click()
 
   await expect(table.getByRole('cell', { name: '10.0.0.20' })).toBeHidden()
@@ -329,8 +329,8 @@ test('no ranges means no utilization bar', async ({ page }) => {
   await expect(page.getByText('IPv4(IPs)')).toBeVisible()
   await expect(page.getByText('IPv6(IPs)')).toBeVisible()
 
-  await clickRowAction(page, '10.0.0.50', 'Remove')
-  const confirmModal = page.getByRole('dialog', { name: 'Confirm remove range' })
+  await clickRowAction(page, '10.0.0.50', 'Delete')
+  const confirmModal = page.getByRole('dialog', { name: 'Confirm delete range' })
   await confirmModal.getByRole('button', { name: 'Confirm' }).click()
 
   await expect(page.getByText('IPv4(IPs)')).toBeHidden()
