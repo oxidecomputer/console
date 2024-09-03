@@ -38,18 +38,13 @@ export function EditIpPoolSideModalForm() {
 
   const editPool = useApiMutation('ipPoolUpdate', {
     onSuccess(updatedPool) {
-      queryClient.invalidateQueries('ipPoolList')
       navigate(pb.ipPool({ pool: updatedPool.name }))
+      queryClient.invalidateQueries('ipPoolList')
       addToast({ content: 'Your IP pool has been updated' })
-
-      // Only invalidate if we're staying on the same page. If the name
-      // _has_ changed, invalidating ipPoolView causes an error page to flash
-      // while the loader for the target page is running because the current
-      // page's pool gets cleared out while we're still on the page. If we're
-      // navigating to a different page, its query will fetch anew regardless.
-      if (pool.name === updatedPool.name) {
-        queryClient.invalidateQueries('ipPoolView')
-      }
+      // specify params so we only invalidate the one we're navigating to,
+      // avoiding an error page flash due to clearly the current page's pool
+      // while navigating to another one
+      queryClient.invalidateQueries('ipPoolView', { path: { pool: updatedPool.name } })
     },
   })
 

@@ -240,14 +240,12 @@ export const getUseApiMutation =
 
 export const wrapQueryClient = <A extends ApiClient>(api: A, queryClient: QueryClient) => ({
   /**
-   * Note that we only take a single argument, `method`, rather than allowing
-   * the full query key `[query, params]` to be specified. This is to avoid
-   * accidentally overspecifying and therefore failing to match the desired
-   * query. The params argument can be added back in if we ever have a use case
-   * for it.
+   * Even though it's possible to specify params, prefer invalidating by method
+   * alone to avoid accidentally overspecifying and therefore failing to match
+   * the desired query.
    */
-  invalidateQueries: <M extends keyof A>(method: M) =>
-    queryClient.invalidateQueries({ queryKey: [method] }),
+  invalidateQueries: <M extends keyof A>(method: M, params?: Params<A[M]>) =>
+    queryClient.invalidateQueries({ queryKey: params ? [method, params] : [method] }),
   setQueryData: <M extends keyof A>(method: M, params: Params<A[M]>, data: Result<A[M]>) =>
     queryClient.setQueryData([method, params], data),
   setQueryDataErrorsAllowed: <M extends keyof A>(
