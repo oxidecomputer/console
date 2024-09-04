@@ -24,6 +24,7 @@ import { QueryParamTabs } from '~/components/QueryParamTabs'
 import { useIntervalPicker } from '~/components/RefetchIntervalPicker'
 import { SystemMetric } from '~/components/SystemMetric'
 import { LinkCell } from '~/table/cells/LinkCell'
+import { RowActions } from '~/table/columns/action-col'
 import { Listbox } from '~/ui/lib/Listbox'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { ResourceMeter } from '~/ui/lib/ResourceMeter'
@@ -168,6 +169,7 @@ function UsageTab() {
           <Table.HeadCell colSpan={3} data-test-ignore>
             Available
           </Table.HeadCell>
+          <Table.HeadCell data-test-ignore></Table.HeadCell>
         </Table.HeaderRow>
         <Table.HeaderRow>
           <Table.HeadCell data-test-ignore></Table.HeadCell>
@@ -177,6 +179,7 @@ function UsageTab() {
           <Table.HeadCell>CPU</Table.HeadCell>
           <Table.HeadCell>Memory</Table.HeadCell>
           <Table.HeadCell>Storage</Table.HeadCell>
+          <Table.HeadCell data-test-ignore></Table.HeadCell>
         </Table.HeaderRow>
       </Table.Header>
       <Table.Body>
@@ -224,6 +227,9 @@ function UsageTab() {
                 allocated={bytesToTiB(silo.allocated.storage)}
                 unit="TiB"
               />
+            </Table.Cell>
+            <Table.Cell className="action-col w-10 children:p-0" height="large">
+              <RowActions id={silo.siloId} copyIdText="Copy Silo ID" />
             </Table.Cell>
           </Table.Row>
         ))}

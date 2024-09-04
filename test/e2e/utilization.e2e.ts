@@ -7,6 +7,7 @@
  */
 import {
   clickRowAction,
+  clipboardText,
   closeToast,
   expect,
   expectRowVisible,
@@ -39,6 +40,8 @@ test.describe('System utilization', () => {
       Memory: '350 GiB',
       Silo: 'myriad',
     })
+    await clickRowAction(page, 'maze-war', 'Copy Silo ID')
+    expect(await clipboardText(page)).toEqual('6d3a9c06-475e-4f75-b272-c0d0e3f980fa')
 
     await page.getByRole('tab', { name: 'Metrics' }).click()
   })
