@@ -33,18 +33,16 @@ import { valuesToRuleUpdate, type FirewallRuleValues } from './firewall-rules-ut
 EditFirewallRuleForm.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project, vpc, rule } = getFirewallRuleSelector(params)
 
-  const firewallRules = await apiQueryClient.fetchQuery('vpcFirewallRulesView', {
-    query: { project, vpc },
-  })
-  const originalRule = firewallRules.rules.find((r) => r.name === rule)
-  if (!originalRule) throw trigger404
-
-  await Promise.all([
-    apiQueryClient.prefetchQuery('instanceList', {
-      query: { project, limit: PAGE_SIZE },
+  const [firewallRules] = await Promise.all([
+    apiQueryClient.fetchQuery('vpcFirewallRulesView', {
+      query: { project, vpc },
     }),
+    apiQueryClient.prefetchQuery('instanceList', { query: { project, limit: PAGE_SIZE } }),
     apiQueryClient.prefetchQuery('vpcList', { query: { project, limit: PAGE_SIZE } }),
   ])
+
+  const originalRule = firewallRules.rules.find((r) => r.name === rule)
+  if (!originalRule) throw trigger404
 
   return null
 }

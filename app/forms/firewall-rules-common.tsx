@@ -70,22 +70,13 @@ type TargetAndHostFormValues = {
 const getFilterValueProps = (targetOrHostType: TargetAndHostFilterType) => {
   switch (targetOrHostType) {
     case 'vpc':
-      return {
-        label: 'VPC name',
-      }
+      return { label: 'VPC name' }
     case 'subnet':
-      return {
-        label: 'Subnet name',
-      }
+      return { label: 'Subnet name' }
     case 'instance':
-      return {
-        label: 'Instance name',
-      }
+      return { label: 'Instance name' }
     case 'ip':
-      return {
-        label: 'IP address',
-        description: 'Enter an IPv4 or IPv6 address',
-      }
+      return { label: 'IP address', description: 'Enter an IPv4 or IPv6 address' }
     case 'ip_net':
       return {
         label: 'IP network',
@@ -116,6 +107,13 @@ const DynamicTypeAndValueFields = ({
   onSubmitTextField: (e: React.KeyboardEvent<HTMLInputElement>) => void
 }) => {
   const queryClient = useApiQueryClient()
+  const valueTypeLabel = {
+    vpc: 'a VPC',
+    subnet: 'a VPC subnet',
+    instance: 'an instance',
+    ip: 'an IP',
+    ip_net: 'an IP subnet',
+  }[valueType]
   return (
     <>
       <ListboxField
@@ -124,7 +122,7 @@ const DynamicTypeAndValueFields = ({
         control={control}
         items={[
           { value: 'vpc', label: 'VPC' },
-          { value: 'subnet', label: 'VPC Subnet' },
+          { value: 'subnet', label: 'VPC subnet' },
           { value: 'instance', label: 'Instance' },
           { value: 'ip', label: 'IP' },
           { value: 'ip_net', label: 'IP subnet' },
@@ -154,6 +152,13 @@ const DynamicTypeAndValueFields = ({
           isDisabled={isDisabled}
           name="value"
           {...getFilterValueProps(valueType)}
+          description={
+            <>
+              Select an option or enter a custom value;{' '}
+              {sectionType === 'target' ? 'target' : 'host filter'} can match{' '}
+              {valueTypeLabel} created in the future
+            </>
+          }
           control={control}
           onInputChange={onInputChange}
           items={items}
