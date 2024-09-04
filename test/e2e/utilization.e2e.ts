@@ -46,7 +46,10 @@ test.describe('System utilization', () => {
 
   test('can copy silo ID', async ({ page, browserName }) => {
     // eslint-disable-next-line playwright/no-skipped-test
-    test.skip(browserName === 'webkit', 'Works locally in Safari but not in CI.')
+    test.skip(
+      browserName === 'webkit',
+      'navigator.clipboard.readText() works locally in Safari but not in CI.'
+    )
     await page.goto('/system/utilization')
     await clickRowAction(page, 'maze-war', 'Copy Silo ID')
     expect(await clipboardText(page)).toEqual('6d3a9c06-475e-4f75-b272-c0d0e3f980fa')

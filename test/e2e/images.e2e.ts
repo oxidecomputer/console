@@ -76,7 +76,10 @@ test('can promote an image from project', async ({ page }) => {
 
 test('can copy an image ID to clipboard', async ({ page, browserName }) => {
   // eslint-disable-next-line playwright/no-skipped-test
-  test.skip(browserName === 'webkit', 'Works locally in Safari but not in CI.')
+  test.skip(
+    browserName === 'webkit',
+    'navigator.clipboard.readText() works locally in Safari but not in CI.'
+  )
 
   await page.goto('/images')
   await clickRowAction(page, 'ubuntu-22-04', 'Copy ID')
