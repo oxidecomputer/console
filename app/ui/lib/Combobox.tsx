@@ -48,6 +48,7 @@ export type ComboboxBaseProps = {
    */
   allowArbitraryValues?: boolean
   ariaLabel?: string
+  showOptionalTag?: boolean
 }
 
 type ComboboxProps = {
@@ -71,6 +72,7 @@ export const Combobox = ({
   onInputChange,
   allowArbitraryValues = false,
   ariaLabel,
+  showOptionalTag,
 }: ComboboxProps) => {
   const [query, setQuery] = useState(selected || '')
 
@@ -95,7 +97,13 @@ export const Combobox = ({
         {label && (
           // TODO: FieldLabel needs a real ID
           <div className="mb-2">
-            <FieldLabel id="FieldLabel" as="div" tip={tooltipText} optional={!required}>
+            <FieldLabel
+              id="FieldLabel"
+              as="div"
+              tip={tooltipText}
+              optional={!required}
+              showOptionalTag={showOptionalTag}
+            >
               <Label>{label}</Label>
             </FieldLabel>
             {description && <TextInputHint id="TextInputHint">{description}</TextInputHint>}

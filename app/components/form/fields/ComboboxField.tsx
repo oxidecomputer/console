@@ -47,7 +47,6 @@ export function ComboboxField<
       <Combobox
         isDisabled={disabled}
         label={label}
-        required={required}
         selected={field.value || null}
         hasError={fieldState.error !== undefined}
         onChange={(value) => {

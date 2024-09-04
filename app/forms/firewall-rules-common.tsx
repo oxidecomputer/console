@@ -72,28 +72,28 @@ const getFilterValueProps = (targetOrHostType: TargetAndHostFilterType) => {
     case 'vpc':
       return {
         label: 'VPC name',
-        placeholder: 'Select a VPC',
+        placeholder: 'Select a VPC or type to add',
       }
     case 'subnet':
       return {
         label: 'Subnet name',
-        placeholder: 'Select a VPC subnet',
+        placeholder: 'Select a VPC subnet or type to add',
       }
     case 'instance':
       return {
         label: 'Instance name',
-        placeholder: 'Select an instance',
+        placeholder: 'Select an instance or type to add',
       }
     case 'ip':
       return {
         label: 'IP address',
-        helpText: 'An IPv4 or IPv6 address',
+        description: 'An IPv4 or IPv6 address',
         placeholder: 'Enter an IP address',
       }
     case 'ip_net':
       return {
         label: 'IP network',
-        helpText: 'Looks like 192.168.0.0/16 or fd00:1122:3344:0001::1/64',
+        description: 'Looks like 192.168.0.0/16 or fd00:1122:3344:0001::1/64',
         placeholder: 'Enter an IP network',
       }
   }
@@ -164,6 +164,7 @@ const DynamicTypeAndValueFields = ({
           onInputChange={onInputChange}
           items={items}
           allowArbitraryValues
+          showOptionalTag={false}
           // TODO: validate here, but it's complicated because it's conditional
           // on which type is selected
         />
