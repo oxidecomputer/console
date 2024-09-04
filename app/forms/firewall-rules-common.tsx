@@ -126,7 +126,6 @@ const DynamicTypeAndValueFields = ({
       <ListboxField
         name="type"
         label={`${capitalize(sectionType)} type`}
-        required
         control={control}
         items={[
           { value: 'vpc', label: 'VPC' },
@@ -136,6 +135,7 @@ const DynamicTypeAndValueFields = ({
           { value: 'ip_net', label: 'IP subnet' },
         ]}
         onChange={onTypeChange}
+        showOptionalTag={false}
       />
       {/* If specifying a subnet, they must first select the VPC that owns the subnet */}
       {valueType === 'subnet' && (
@@ -143,7 +143,6 @@ const DynamicTypeAndValueFields = ({
           name="subnetVpc"
           label="VPC"
           aria-label={`Select ${sectionType} VPC`}
-          required
           control={control}
           items={vpcs.map((v) => toComboboxItem(v.name))}
           // when this changes, we need to re-fetch the subnet list
@@ -151,6 +150,7 @@ const DynamicTypeAndValueFields = ({
             queryClient.invalidateQueries('vpcSubnetList')
           }}
           placeholder="Select a VPC"
+          showOptionalTag={false}
         />
       )}
       {/* In the firewall rules form, these types get comboboxes instead of text fields */}
@@ -159,7 +159,6 @@ const DynamicTypeAndValueFields = ({
           disabled={isDisabled}
           name="value"
           {...getFilterValueProps(valueType)}
-          required
           control={control}
           onInputChange={onInputChange}
           items={items}
@@ -172,7 +171,6 @@ const DynamicTypeAndValueFields = ({
         <TextField
           name="value"
           {...getFilterValueProps(valueType)}
-          required
           control={control}
           onKeyDown={(e) => {
             if (e.key === KEYS.enter) {
