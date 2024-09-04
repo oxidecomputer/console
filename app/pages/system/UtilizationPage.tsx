@@ -229,7 +229,7 @@ function UsageTab() {
               />
             </Table.Cell>
             <Table.Cell className="action-col w-10 children:p-0" height="large">
-              <RowActions id={silo.siloId} copyIdText="Copy Silo ID" />
+              <RowActions id={silo.siloId} copyIdLabel="Copy Silo ID" />
             </Table.Cell>
           </Table.Row>
         ))}

@@ -55,9 +55,9 @@ export const getActionsCol = <TData extends Record<string, unknown>>(
   }
 }
 
-type RowActionsProps = { id?: string | null; copyIdText?: string; actions?: MenuAction[] }
+type RowActionsProps = { id?: string | null; copyIdLabel?: string; actions?: MenuAction[] }
 
-export const RowActions = ({ id, copyIdText, actions }: RowActionsProps) => {
+export const RowActions = ({ id, copyIdLabel, actions }: RowActionsProps) => {
   return (
     <DropdownMenu.Root>
       {/* TODO: This name should not suck; future us, make it so! */}
@@ -78,7 +78,7 @@ export const RowActions = ({ id, copyIdText, actions }: RowActionsProps) => {
                 window.navigator.clipboard.writeText(id)
               }}
             >
-              {copyIdText || 'Copy ID'}
+              {copyIdLabel || 'Copy ID'}
             </DropdownMenu.Item>
           )}
           {actions?.map((action) => {
