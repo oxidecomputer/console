@@ -19,13 +19,7 @@ import {
 } from '@oxide/api'
 
 import { SideModalForm } from '~/components/form/SideModalForm'
-import {
-  getProjectSelector,
-  getVpcSelector,
-  useForm,
-  useProjectSelector,
-  useVpcSelector,
-} from '~/hooks'
+import { getProjectSelector, getVpcSelector, useForm, useVpcSelector } from '~/hooks'
 import { addToast } from '~/stores/toast'
 import { PAGE_SIZE } from '~/table/QueryTable'
 import { pb } from '~/util/path-builder'
@@ -77,7 +71,6 @@ CreateFirewallRuleForm.loader = async ({ params }: LoaderFunctionArgs) => {
 }
 
 export function CreateFirewallRuleForm() {
-  const { project } = useProjectSelector()
   const vpcSelector = useVpcSelector()
   const queryClient = useApiQueryClient()
 
@@ -99,12 +92,6 @@ export function CreateFirewallRuleForm() {
     () => R.sortBy(vpcFirewallRules.rules, (r) => r.priority),
     [vpcFirewallRules]
   )
-  const { data: instances } = usePrefetchedApiQuery('instanceList', {
-    query: { project, limit: PAGE_SIZE },
-  })
-  const { data: vpcs } = usePrefetchedApiQuery('vpcList', {
-    query: { project, limit: PAGE_SIZE },
-  })
 
   // The :rule path param is optional. If it is present, we are creating a
   // rule from an existing one, so we find that rule and copy it into the form
@@ -140,13 +127,10 @@ export function CreateFirewallRuleForm() {
       submitLabel="Add rule"
     >
       <CommonFields
-        error={updateRules.error}
         control={form.control}
-        project={project}
-        instances={instances.items}
-        vpcs={vpcs.items}
         // error if name is already in use
         nameTaken={(name) => !!existingRules.find((r) => r.name === name)}
+        error={updateRules.error}
         // TODO: there should also be a form-level error so if the name is off
         // screen, it doesn't look like the submit button isn't working. Maybe
         // instead of setting a root error, it would be more robust to show a

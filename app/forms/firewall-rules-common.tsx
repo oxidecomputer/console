@@ -10,6 +10,7 @@ import { useController, type Control, type ControllerRenderProps } from 'react-h
 
 import {
   useApiQueryClient,
+  usePrefetchedApiQuery,
   type ApiError,
   type Instance,
   type Vpc,
@@ -27,7 +28,9 @@ import { NumberField } from '~/components/form/fields/NumberField'
 import { RadioField } from '~/components/form/fields/RadioField'
 import { TextField, TextFieldInner } from '~/components/form/fields/TextField'
 import { useVpcSubnets } from '~/components/form/fields/useItemsList'
+import { useProjectSelector } from '~/hooks'
 import { useForm } from '~/hooks/use-form'
+import { PAGE_SIZE } from '~/table/QueryTable'
 import { Badge } from '~/ui/lib/Badge'
 import { Button } from '~/ui/lib/Button'
 import { toComboboxItem } from '~/ui/lib/Combobox'
@@ -160,7 +163,7 @@ const DynamicTypeAndValueFields = ({
           control={control}
           onInputChange={onInputChange}
           items={items}
-          allowNewItems
+          allowArbitraryValues
           // TODO: validate here, but it's complicated because it's conditional
           // on which type is selected
         />
@@ -281,22 +284,22 @@ const ProtocolField = ({ control, protocol }: ProtocolFieldProps) => (
 
 type CommonFieldsProps = {
   control: Control<FirewallRuleValues>
-  project: string
-  instances: Array<Instance>
-  vpcs: Array<Vpc>
   nameTaken: (name: string) => boolean
   error: ApiError | null
 }
 
-export const CommonFields = ({
-  control,
-  project,
-  instances,
-  vpcs,
-  nameTaken,
-  error,
-}: CommonFieldsProps) => {
+export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) => {
   const targetAndHostDefaultValues: TargetAndHostFormValues = { type: 'vpc', value: '' }
+  const { project } = useProjectSelector()
+  // prefetchedApiQueries below are prefetched in firewall-rules-create and -edit
+  const { data: instancesData } = usePrefetchedApiQuery('instanceList', {
+    query: { project, limit: PAGE_SIZE },
+  })
+  const instances = instancesData?.items ?? []
+  const { data: vpcData } = usePrefetchedApiQuery('vpcList', {
+    query: { project, limit: PAGE_SIZE },
+  })
+  const vpcs = vpcData?.items ?? []
 
   // Targets
   const targetForm = useForm({ defaultValues: targetAndHostDefaultValues })

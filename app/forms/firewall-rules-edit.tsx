@@ -57,12 +57,6 @@ export function EditFirewallRuleForm() {
   const { data: firewallRules } = usePrefetchedApiQuery('vpcFirewallRulesView', {
     query: { project, vpc },
   })
-  const { data: instances } = usePrefetchedApiQuery('instanceList', {
-    query: { project, limit: PAGE_SIZE },
-  })
-  const { data: vpcs } = usePrefetchedApiQuery('vpcList', {
-    query: { project, limit: PAGE_SIZE },
-  })
 
   const originalRule = firewallRules.rules.find((r) => r.name === rule)
 
@@ -128,13 +122,10 @@ export function EditFirewallRuleForm() {
       submitError={updateRules.error}
     >
       <CommonFields
-        error={updateRules.error}
         control={form.control}
-        project={project}
-        instances={instances.items}
-        vpcs={vpcs.items}
         // error if name is being changed to something that conflicts with some other rule
         nameTaken={(name) => !!otherRules.find((r) => r.name === name)}
+        error={updateRules.error}
       />
     </SideModalForm>
   )

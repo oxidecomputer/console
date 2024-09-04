@@ -42,9 +42,11 @@ export type ComboboxBaseProps = {
   required?: boolean
   tooltipText?: string
   onInputChange?: (value: string) => void
-  // pass in allowNewItems as true in situations where the user should be
-  // able to type in new values that aren't in the list (default is false)
-  allowNewItems?: boolean
+  /**
+   * pass in allowArbitraryValues as `true` when the user should be able to
+   * type in new values that aren't in the list [default is `false`]
+   */
+  allowArbitraryValues?: boolean
   ariaLabel?: string
 }
 
@@ -67,7 +69,7 @@ export const Combobox = ({
   isLoading,
   onChange,
   onInputChange,
-  allowNewItems = false,
+  allowArbitraryValues = false,
   ariaLabel,
 }: ComboboxProps) => {
   const [query, setQuery] = useState(selected || '')
@@ -142,7 +144,7 @@ export const Combobox = ({
             className={`ox-menu pointer-events-auto ${zIndex} relative w-[var(--button-width)] overflow-y-auto border !outline-none border-secondary [--anchor-gap:14px] empty:hidden`}
             modal={false}
           >
-            {!allowNewItems && filteredItems.length === 0 && (
+            {!allowArbitraryValues && filteredItems.length === 0 && (
               <ComboboxOption disabled value="no-matches" className="relative">
                 <div className="ox-menu-item !text-disabled">No items match</div>
               </ComboboxOption>
