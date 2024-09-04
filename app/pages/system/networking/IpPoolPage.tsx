@@ -369,7 +369,6 @@ function LinkSiloModal({ onDismiss }: { onDismiss: () => void }) {
             />
 
             <ComboboxField
-              placeholder="Select a silo"
               name="silo"
               label="Silo"
               items={unlinkedSiloItems}

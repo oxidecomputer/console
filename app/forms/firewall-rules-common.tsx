@@ -72,29 +72,24 @@ const getFilterValueProps = (targetOrHostType: TargetAndHostFilterType) => {
     case 'vpc':
       return {
         label: 'VPC name',
-        placeholder: 'Select a VPC or type to add',
       }
     case 'subnet':
       return {
         label: 'Subnet name',
-        placeholder: 'Select a VPC subnet or type to add',
       }
     case 'instance':
       return {
         label: 'Instance name',
-        placeholder: 'Select an instance or type to add',
       }
     case 'ip':
       return {
         label: 'IP address',
-        description: 'An IPv4 or IPv6 address',
-        placeholder: 'Enter an IP address',
+        description: 'Enter an IPv4 or IPv6 address',
       }
     case 'ip_net':
       return {
         label: 'IP network',
         description: 'Looks like 192.168.0.0/16 or fd00:1122:3344:0001::1/64',
-        placeholder: 'Enter an IP network',
       }
   }
 }
@@ -156,7 +151,7 @@ const DynamicTypeAndValueFields = ({
       {/* In the firewall rules form, these types get comboboxes instead of text fields */}
       {['vpc', 'subnet', 'instance'].includes(valueType) ? (
         <ComboboxField
-          disabled={isDisabled}
+          isDisabled={isDisabled}
           name="value"
           {...getFilterValueProps(valueType)}
           control={control}

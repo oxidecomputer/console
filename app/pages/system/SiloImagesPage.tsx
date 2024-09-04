@@ -170,6 +170,7 @@ const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
           <form autoComplete="off" onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <ComboboxField
               placeholder="Select a project"
+              description=""
               name="project"
               label="Project"
               items={projectItems}

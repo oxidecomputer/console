@@ -25,7 +25,7 @@ export type ComboboxFieldProps<
   name: TName
   control: Control<TFieldValues>
   onChange?: (value: string | null | undefined) => void
-  disabled?: boolean
+  allowArbitraryValues?: boolean
 } & ComboboxBaseProps
 
 export function ComboboxField<
@@ -38,15 +38,27 @@ export function ComboboxField<
   label = capitalize(name),
   required,
   onChange,
-  disabled,
+  allowArbitraryValues,
+  placeholder,
+  // Intent is to not show both a placeholder and a description, while still having good defaults; prefer a description to a placeholder
+  // If description is provided, use it
+  // If not, but a placeholder is provided, the default description should be undefined
+  // If no placeholder is provided and arbitrary values are allowed, the default description should be 'Select an option or enter a custom value'
+  // If no placeholder is provided and arbitrary values are not allowed, the default description should be 'Select an option'
+  description = placeholder
+    ? undefined
+    : allowArbitraryValues
+      ? 'Select an option or enter a custom value'
+      : 'Select an option',
   ...props
 }: ComboboxFieldProps<TFieldValues, TName>) {
   const { field, fieldState } = useController({ name, control, rules: { required } })
   return (
     <div className="max-w-lg">
       <Combobox
-        isDisabled={disabled}
         label={label}
+        placeholder={placeholder}
+        description={description}
         required={required}
         selected={field.value || null}
         hasError={fieldState.error !== undefined}
@@ -54,6 +66,7 @@ export function ComboboxField<
           field.onChange(value)
           onChange?.(value)
         }}
+        allowArbitraryValues={allowArbitraryValues}
         {...props}
       />
       <ErrorMessage error={fieldState.error} label={label} />

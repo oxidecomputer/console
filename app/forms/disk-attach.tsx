@@ -57,6 +57,7 @@ export function AttachDiskSideModalForm({
       <ComboboxField
         label="Disk name"
         placeholder="Select a disk"
+        description=""
         name="name"
         items={detachedDisks.map(({ name }) => ({ value: name, label: name }))}
         required

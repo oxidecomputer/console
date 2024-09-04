@@ -77,6 +77,7 @@ export function CreateSnapshotSideModalForm() {
         label="Disk"
         name="disk"
         placeholder="Select a disk"
+        description=""
         items={diskItems}
         required
         control={form.control}

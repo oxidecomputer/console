@@ -236,7 +236,6 @@ function LinkPoolModal({ onDismiss }: { onDismiss: () => void }) {
             />
 
             <ComboboxField
-              placeholder="Select a pool"
               name="pool"
               label="IP pool"
               items={unlinkedPoolItems}
