@@ -26,7 +26,11 @@ import { AttachFloatingIpModal } from '~/components/AttachFloatingIpModal'
 import { HL } from '~/components/HL'
 import { CreateNetworkInterfaceForm } from '~/forms/network-interface-create'
 import { EditNetworkInterfaceForm } from '~/forms/network-interface-edit'
-import { getInstanceSelector, useInstanceSelector, useProjectSelector } from '~/hooks'
+import {
+  getInstanceSelector,
+  useInstanceSelector,
+  useProjectSelector,
+} from '~/hooks/use-params'
 import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'

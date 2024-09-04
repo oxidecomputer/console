@@ -11,7 +11,7 @@ import { useApiQuery, type ApiError } from '@oxide/api'
 
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { useProjectSelector } from '~/hooks'
+import { useProjectSelector } from '~/hooks/use-params'
 
 const defaultValues = { name: '' }
 

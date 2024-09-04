@@ -33,7 +33,8 @@ import {
   VpcPicker,
   VpcRouterPicker,
 } from '~/components/TopBarPicker'
-import { getProjectSelector, useProjectSelector, useQuickActions } from '~/hooks'
+import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
+import { useQuickActions } from '~/hooks/use-quick-actions'
 import { Divider } from '~/ui/lib/Divider'
 import { pb } from '~/util/path-builder'
 

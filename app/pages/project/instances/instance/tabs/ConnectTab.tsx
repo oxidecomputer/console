@@ -10,7 +10,7 @@ import { Link, type LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, usePrefetchedApiQuery } from '~/api'
 import { EquivalentCliCommand } from '~/components/EquivalentCliCommand'
-import { getInstanceSelector, useInstanceSelector } from '~/hooks'
+import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
 import { buttonStyle } from '~/ui/lib/Button'
 import { InlineCode } from '~/ui/lib/InlineCode'
 import { LearnMore, SettingsGroup } from '~/ui/lib/SettingsGroup'

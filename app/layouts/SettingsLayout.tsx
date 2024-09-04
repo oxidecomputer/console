@@ -12,7 +12,7 @@ import { Folder16Icon, Key16Icon, Profile16Icon } from '@oxide/design-system/ico
 
 import { TopBar } from '~/components/TopBar'
 import { SiloSystemPicker } from '~/components/TopBarPicker'
-import { useQuickActions } from '~/hooks'
+import { useQuickActions } from '~/hooks/use-quick-actions'
 import { Divider } from '~/ui/lib/Divider'
 import { pb } from '~/util/path-builder'
 

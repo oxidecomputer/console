@@ -12,7 +12,7 @@ import React, { useRef, type ReactNode } from 'react'
 
 import { Close12Icon, Error12Icon } from '@oxide/design-system/icons/react'
 
-import { useIsOverflow } from '~/hooks'
+import { useIsOverflow } from '~/hooks/use-is-overflow'
 import { Message } from '~/ui/lib/Message'
 import { classed } from '~/util/classed'
 

@@ -20,7 +20,7 @@ import {
   getSiloImageSelector,
   useProjectImageSelector,
   useSiloImageSelector,
-} from '~/hooks'
+} from '~/hooks/use-params'
 import { DateTime } from '~/ui/lib/DateTime'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { ResourceLabel } from '~/ui/lib/SideModal'

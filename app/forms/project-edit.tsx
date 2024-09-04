@@ -18,10 +18,9 @@ import {
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
+import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { pb } from '~/util/path-builder'
-
-import { getProjectSelector, useProjectSelector } from '../hooks'
 
 EditProjectSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project } = getProjectSelector(params)

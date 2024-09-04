@@ -18,7 +18,7 @@ import {
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { useInstanceSelector } from '~/hooks'
+import { useInstanceSelector } from '~/hooks/use-params'
 
 type EditNetworkInterfaceFormProps = {
   editing: InstanceNetworkInterface

@@ -20,7 +20,7 @@ import { trigger404 } from '~/components/ErrorBoundary'
 import { DocsLinkItem, NavLinkItem, Sidebar } from '~/components/Sidebar'
 import { TopBar } from '~/components/TopBar'
 import { IpPoolPicker, SiloPicker, SiloSystemPicker } from '~/components/TopBarPicker'
-import { useQuickActions } from '~/hooks'
+import { useQuickActions } from '~/hooks/use-quick-actions'
 import { Divider } from '~/ui/lib/Divider'
 import { pb } from '~/util/path-builder'
 

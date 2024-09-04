@@ -7,7 +7,7 @@
  */
 
 import { useApiQuery } from '~/api'
-import { useVpcSelector } from '~/hooks'
+import { useVpcSelector } from '~/hooks/use-params'
 import { Badge } from '~/ui/lib/Badge'
 import { pb } from '~/util/path-builder'
 

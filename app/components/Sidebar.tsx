@@ -10,7 +10,7 @@ import { NavLink, useLocation } from 'react-router-dom'
 
 import { Action16Icon, Document16Icon } from '@oxide/design-system/icons/react'
 
-import { openQuickActions } from '~/hooks'
+import { openQuickActions } from '~/hooks/use-quick-actions'
 import { Button } from '~/ui/lib/Button'
 import { Truncate } from '~/ui/lib/Truncate'
 

@@ -8,7 +8,7 @@
 
 import { useApiQuery } from '@oxide/api'
 
-import { useProjectSelector } from '~/hooks'
+import { useProjectSelector } from '~/hooks/use-params'
 import { pb } from '~/util/path-builder'
 
 import { SkeletonCell } from './EmptyCell'
