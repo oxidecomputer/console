@@ -41,10 +41,12 @@ export function ComboboxField<
   allowArbitraryValues,
   placeholder,
   // Intent is to not show both a placeholder and a description, while still having good defaults; prefer a description to a placeholder
-  // If description is provided, use it
-  // If not, but a placeholder is provided, the default description should be undefined
-  // If no placeholder is provided and arbitrary values are allowed, the default description should be 'Select an option or enter a custom value'
-  // If no placeholder is provided and arbitrary values are not allowed, the default description should be 'Select an option'
+  /*
+   * If description is provided, use it.
+   * If not, but a placeholder is provided, the default description should be undefined.
+   * If no placeholder is provided and arbitrary values are allowed, the default description should be 'Select an option or enter a custom value'.
+   * If no placeholder is provided and arbitrary values are not allowed, the default description should be 'Select an option'.
+   */
   description = placeholder
     ? undefined
     : allowArbitraryValues

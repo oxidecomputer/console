@@ -286,14 +286,16 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
   const targetAndHostDefaultValues: TargetAndHostFormValues = { type: 'vpc', value: '' }
   const { project } = useProjectSelector()
   // prefetchedApiQueries below are prefetched in firewall-rules-create and -edit
-  const { data: instancesData } = usePrefetchedApiQuery('instanceList', {
+  const {
+    data: { items: instances },
+  } = usePrefetchedApiQuery('instanceList', {
     query: { project, limit: PAGE_SIZE },
   })
-  const instances = instancesData?.items ?? []
-  const { data: vpcData } = usePrefetchedApiQuery('vpcList', {
+  const {
+    data: { items: vpcs },
+  } = usePrefetchedApiQuery('vpcList', {
     query: { project, limit: PAGE_SIZE },
   })
-  const vpcs = vpcData?.items ?? []
 
   // Targets
   const targetForm = useForm({ defaultValues: targetAndHostDefaultValues })
