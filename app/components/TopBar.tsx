@@ -22,8 +22,6 @@ export function TopBar({ children }: { children: React.ReactNode }) {
   // fetch happens in loader wrapping all authed pages
   const { me } = useCurrentUser()
 
-  const loggedIn = !!me
-
   // toArray filters out nulls, which is essential because the silo/system
   // picker is going to come in null when the user isn't supposed to see it
   const [cornerPicker, ...otherPickers] = React.Children.toArray(children)
@@ -62,15 +60,9 @@ export function TopBar({ children }: { children: React.ReactNode }) {
               </DropdownMenu.Trigger>
               <DropdownMenu.Content align="end" sideOffset={8}>
                 <DropdownMenu.LinkItem to={pb.profile()}>Settings</DropdownMenu.LinkItem>
-                {loggedIn ? (
-                  <DropdownMenu.Item onSelect={() => logout.mutate({})}>
-                    Sign out
-                  </DropdownMenu.Item>
-                ) : (
-                  <DropdownMenu.Item onSelect={() => navToLogin({ includeCurrent: true })}>
-                    Sign In
-                  </DropdownMenu.Item>
-                )}
+                <DropdownMenu.Item onSelect={() => logout.mutate({})}>
+                  Sign out
+                </DropdownMenu.Item>
               </DropdownMenu.Content>
             </DropdownMenu.Root>
           </div>
