@@ -55,9 +55,15 @@ export const getActionsCol = <TData extends Record<string, unknown>>(
   }
 }
 
-type RowActionsProps = { id?: string | null; copyIdLabel?: string; actions?: MenuAction[] }
+type RowActionsProps = {
+  /** If id is provided, a `Copy ID` menu item will be automatically included. */
+  id?: string | null
+  /** Use copyIdLabel to override the default label. */
+  copyIdLabel?: string
+  actions?: MenuAction[]
+}
 
-export const RowActions = ({ id, copyIdLabel, actions }: RowActionsProps) => {
+export const RowActions = ({ id, copyIdLabel = 'Copy ID', actions }: RowActionsProps) => {
   return (
     <DropdownMenu.Root>
       {/* TODO: This name should not suck; future us, make it so! */}
@@ -78,7 +84,7 @@ export const RowActions = ({ id, copyIdLabel, actions }: RowActionsProps) => {
                 window.navigator.clipboard.writeText(id)
               }}
             >
-              {copyIdLabel || 'Copy ID'}
+              {copyIdLabel}
             </DropdownMenu.Item>
           )}
           {actions?.map((action) => {
