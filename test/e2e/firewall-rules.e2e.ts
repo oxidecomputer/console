@@ -144,7 +144,7 @@ test('firewall rule targets and filters overflow', async ({ page }) => {
 
 const setupSubnetSelection = async (page: Page, sectionType: 'Host' | 'Target') => {
   // first by selecting from a dropdown
-  await selectOption(page, `${sectionType} type`, 'VPC Subnet')
+  await selectOption(page, `${sectionType} type`, 'VPC subnet')
   // select the VPC so you can then add a subnet at the callsite
   await selectOption(page, 'VPC Select a VPC', 'mock-vpc')
 }
@@ -177,7 +177,7 @@ test('firewall rule form targets table', async ({ page }) => {
   await addButton.click()
   await expectRowVisible(targets, { Type: 'vpc', Value: 'def' })
 
-  // add VPC Subnet targets
+  // add VPC subnet targets
   const subnetNameField = page.getByRole('combobox', { name: 'Subnet name' })
 
   // add a subnet by selecting from a dropdown
