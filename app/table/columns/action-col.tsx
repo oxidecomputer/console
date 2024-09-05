@@ -56,9 +56,9 @@ export const getActionsCol = <TData extends Record<string, unknown>>(
 }
 
 type RowActionsProps = {
-  /** If id is provided, a `Copy ID` menu item will be automatically included. */
+  /** If `id` is provided, a `Copy ID` menu item will be automatically included. */
   id?: string | null
-  /** Use copyIdLabel to override the default label. */
+  /** Use `copyIdLabel` to override the default label (`Copy ID`). */
   copyIdLabel?: string
   actions?: MenuAction[]
 }
