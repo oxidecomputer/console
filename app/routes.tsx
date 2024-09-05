@@ -348,12 +348,6 @@ export const routes = createRoutesFromElements(
             element={<CreateVpcSideModalForm />}
             handle={{ crumb: 'New VPC' }}
           />
-          <Route
-            path="vpcs/:vpc/edit"
-            element={<EditVpcSideModalForm />}
-            loader={EditVpcSideModalForm.loader}
-            handle={{ crumb: 'Edit VPC' }}
-          />
         </Route>
 
         <Route path="vpcs" handle={{ crumb: 'VPCs' }}>
@@ -365,6 +359,12 @@ export const routes = createRoutesFromElements(
                 loader={VpcFirewallRulesTab.loader}
               />
               <Route element={<VpcFirewallRulesTab />} loader={VpcFirewallRulesTab.loader}>
+                <Route
+                  path="edit"
+                  element={<EditVpcSideModalForm />}
+                  loader={EditVpcSideModalForm.loader}
+                  handle={{ crumb: 'Edit VPC' }}
+                />
                 <Route
                   path="firewall-rules"
                   handle={{ crumb: 'Firewall Rules' }}

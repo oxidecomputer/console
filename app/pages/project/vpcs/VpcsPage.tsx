@@ -22,6 +22,7 @@ import { Networking16Icon, Networking24Icon } from '@oxide/design-system/icons/r
 import { DocsPopover } from '~/components/DocsPopover'
 import { getProjectSelector, useProjectSelector, useQuickActions } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
+import { addToast } from '~/stores/toast'
 import { SkeletonCell } from '~/table/cells/EmptyCell'
 import { LinkCell, makeLinkCell } from '~/table/cells/LinkCell'
 import { getActionsCol, type MenuAction } from '~/table/columns/action-col'
@@ -83,6 +84,7 @@ export function VpcsPage() {
   const deleteVpc = useApiMutation('vpcDelete', {
     onSuccess() {
       queryClient.invalidateQueries('vpcList')
+      addToast({ content: 'VPC deleted' })
     },
   })
 
@@ -147,7 +149,7 @@ export function VpcsPage() {
         <PageTitle icon={<Networking24Icon />}>VPCs</PageTitle>
         <VpcDocsPopover />
       </PageHeader>
-      <TableActions>
+      <TableActions className="!-mt-6">
         <CreateLink to={pb.vpcsNew({ project })}>New Vpc</CreateLink>
       </TableActions>
       <Table columns={columns} emptyState={<EmptyState />} />

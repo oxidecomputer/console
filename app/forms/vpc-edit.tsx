@@ -37,18 +37,22 @@ export function EditVpcSideModalForm() {
     query: { project },
   })
 
-  const onDismiss = () => navigate(pb.vpcs({ project }))
+  const onDismiss = () => navigate(pb.vpc({ project, vpc: vpcName }))
 
   const editVpc = useApiMutation('vpcUpdate', {
-    onSuccess(vpc) {
+    onSuccess(updatedVpc) {
+      navigate(pb.vpc({ project, vpc: updatedVpc.name }))
       queryClient.invalidateQueries('vpcList')
-      queryClient.setQueryData(
-        'vpcView',
-        { path: { vpc: vpc.name }, query: { project } },
-        vpc
-      )
-      addToast({ content: 'Your VPC has been created' })
-      onDismiss()
+
+      // Only invalidate if we're staying on the same page. If the name
+      // _has_ changed, invalidating ipPoolView causes an error page to flash
+      // while the loader for the target page is running because the current
+      // page's pool gets cleared out while we're still on the page. If we're
+      // navigating to a different page, its query will fetch anew regardless.
+      if (vpc.name === updatedVpc.name) {
+        queryClient.invalidateQueries('vpcView')
+      }
+      addToast({ content: 'Your VPC has been updated' })
     },
   })
 
