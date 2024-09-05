@@ -51,7 +51,7 @@ test.describe('System utilization', () => {
       'navigator.clipboard.readText() works locally in Safari but not in CI.'
     )
     await page.goto('/system/utilization')
-    await clickRowAction(page, 'maze-war', 'Copy Silo ID')
+    await clickRowAction(page, 'maze-war', 'Copy silo ID')
     expect(await clipboardText(page)).toEqual('6d3a9c06-475e-4f75-b272-c0d0e3f980fa')
   })
 
