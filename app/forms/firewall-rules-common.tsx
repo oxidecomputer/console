@@ -28,7 +28,7 @@ import { NumberField } from '~/components/form/fields/NumberField'
 import { RadioField } from '~/components/form/fields/RadioField'
 import { TextField, TextFieldInner } from '~/components/form/fields/TextField'
 import { useVpcSubnets } from '~/components/form/fields/useItemsList'
-import { useProjectSelector } from '~/hooks'
+import { useVpcSelector } from '~/hooks'
 import { useForm } from '~/hooks/use-form'
 import { PAGE_SIZE } from '~/table/QueryTable'
 import { Badge } from '~/ui/lib/Badge'
@@ -107,13 +107,6 @@ const DynamicTypeAndValueFields = ({
   onSubmitTextField: (e: React.KeyboardEvent<HTMLInputElement>) => void
 }) => {
   const queryClient = useApiQueryClient()
-  const valueTypeLabel = {
-    vpc: 'a VPC',
-    subnet: 'a VPC subnet',
-    instance: 'an instance',
-    ip: 'an IP',
-    ip_net: 'an IP subnet',
-  }[valueType]
   return (
     <>
       <ListboxField
@@ -152,13 +145,7 @@ const DynamicTypeAndValueFields = ({
           isDisabled={isDisabled}
           name="value"
           {...getFilterValueProps(valueType)}
-          description={
-            <>
-              Select an option or enter a custom value;{' '}
-              {sectionType === 'target' ? 'target' : 'host filter'} can match{' '}
-              {valueTypeLabel} created in the future
-            </>
-          }
+          description="Select an option or enter a custom value"
           control={control}
           onInputChange={onInputChange}
           items={items}
@@ -288,8 +275,13 @@ type CommonFieldsProps = {
 }
 
 export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) => {
-  const targetAndHostDefaultValues: TargetAndHostFormValues = { type: 'vpc', value: '' }
-  const { project } = useProjectSelector()
+  const { project, vpc } = useVpcSelector()
+  const targetAndHostDefaultValues: TargetAndHostFormValues = {
+    type: 'vpc',
+    value: '',
+    // only becomes relevant when the type is 'VPC subnet'; ignored otherwise
+    subnetVpc: vpc,
+  }
   // prefetchedApiQueries below are prefetched in firewall-rules-create and -edit
   const {
     data: { items: instances },
@@ -307,7 +299,7 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
   const targets = useController({ name: 'targets', control }).field
   const targetType = targetForm.watch('type')
   const targetValue = targetForm.watch('value')
-  const targetSubnetVpc = targetForm.watch('subnetVpc')
+  const targetSubnetVpc = targetForm.watch('subnetVpc') || vpc
   // get the list of subnets for the specific VPC selected in the form
   const { items: targetVpcSubnets } = useVpcSubnets({ project, vpc: targetSubnetVpc })
   // get the list of items that are not already in the list of targets
@@ -340,12 +332,12 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
     portRangeForm.reset()
   })
 
-  // Hosts
+  // Host Filters
   const hostForm = useForm({ defaultValues: targetAndHostDefaultValues })
   const hosts = useController({ name: 'hosts', control }).field
   const hostType = hostForm.watch('type')
   const hostValue = hostForm.watch('value')
-  const hostSubnetVpc = hostForm.watch('subnetVpc')
+  const hostSubnetVpc = hostForm.watch('subnetVpc') || vpc
   // get the list of subnets for the specific PC selected in the form
   const { items: hostVpcSubnets } = useVpcSubnets({ project, vpc: hostSubnetVpc })
   // get the list of items that are not already in the list of host filters
