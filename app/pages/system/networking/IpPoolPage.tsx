@@ -8,7 +8,7 @@
 
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
-import { Outlet, type LoaderFunctionArgs } from 'react-router-dom'
+import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
   apiQueryClient,
@@ -26,9 +26,11 @@ import { CapacityBar } from '~/components/CapacityBar'
 import { DocsPopover } from '~/components/DocsPopover'
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { HL } from '~/components/HL'
+import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import { QueryParamTabs } from '~/components/QueryParamTabs'
 import { getIpPoolSelector, useForm, useIpPoolSelector } from '~/hooks'
 import { confirmAction } from '~/stores/confirm-action'
+import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { DefaultPoolCell } from '~/table/cells/DefaultPoolCell'
 import { SkeletonCell } from '~/table/cells/EmptyCell'
@@ -46,9 +48,10 @@ import { TipIcon } from '~/ui/lib/TipIcon'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
+const query = { limit: PAGE_SIZE }
+
 IpPoolPage.loader = async function ({ params }: LoaderFunctionArgs) {
   const { pool } = getIpPoolSelector(params)
-  const query = { limit: PAGE_SIZE }
   await Promise.all([
     apiQueryClient.prefetchQuery('ipPoolView', { path: { pool } }),
     apiQueryClient.prefetchQuery('ipPoolSiloList', { path: { pool }, query }),
@@ -70,16 +73,54 @@ IpPoolPage.loader = async function ({ params }: LoaderFunctionArgs) {
 export function IpPoolPage() {
   const poolSelector = useIpPoolSelector()
   const { data: pool } = usePrefetchedApiQuery('ipPoolView', { path: poolSelector })
+  const { data: ranges } = usePrefetchedApiQuery('ipPoolRangeList', {
+    path: poolSelector,
+    query,
+  })
+  const navigate = useNavigate()
+  const { mutateAsync: deletePool } = useApiMutation('ipPoolDelete', {
+    onSuccess() {
+      apiQueryClient.invalidateQueries('ipPoolList')
+      navigate(pb.ipPools())
+      addToast({ content: 'IP pool deleted' })
+    },
+  })
+
+  const actions = useMemo(
+    () => [
+      {
+        label: 'Edit',
+        onActivate() {
+          navigate(pb.ipPoolEdit(poolSelector))
+        },
+      },
+      {
+        label: 'Delete',
+        onActivate: confirmDelete({
+          doDelete: () => deletePool({ path: { pool: pool.name } }),
+          label: pool.name,
+        }),
+        disabled:
+          !!ranges.items.length && 'IP pool cannot be deleted while it contains IP ranges',
+        className: ranges.items.length ? '' : 'destructive',
+      },
+    ],
+    [deletePool, navigate, poolSelector, pool.name, ranges.items]
+  )
+
   return (
     <>
       <PageHeader>
         <PageTitle icon={<IpGlobal24Icon />}>{pool.name}</PageTitle>
-        <DocsPopover
-          heading="IP pools"
-          icon={<IpGlobal16Icon />}
-          summary="IP pools are collections of external IPs you can assign to silos. When a pool is linked to a silo, users in that silo can allocate IPs from the pool for their instances."
-          links={[docLinks.systemIpPools]}
-        />
+        <div className="inline-flex gap-2">
+          <DocsPopover
+            heading="IP pools"
+            icon={<IpGlobal16Icon />}
+            summary="IP pools are collections of external IPs you can assign to silos. When a pool is linked to a silo, users in that silo can allocate IPs from the pool for their instances."
+            links={[docLinks.systemIpPools]}
+          />
+          <MoreActionsMenu label="IP pool actions" actions={actions} />
+        </div>
       </PageHeader>
       <UtilizationBars />
       <QueryParamTabs className="full-width" defaultValue="ranges">

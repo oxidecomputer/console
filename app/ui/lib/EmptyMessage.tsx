@@ -39,7 +39,7 @@ export function EmptyMessage(props: Props) {
     )
   }
   return (
-    <div className="m-4 flex max-w-[14rem] flex-col items-center text-center">
+    <div className="m-4 flex max-w-[18rem] flex-col items-center text-center">
       {props.icon && (
         <div className="mb-4 rounded p-1 leading-[0] text-accent bg-accent-secondary">
           {props.icon}

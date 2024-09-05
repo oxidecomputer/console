@@ -23,6 +23,7 @@ import { DocsPopover } from '~/components/DocsPopover'
 import { IpUtilCell } from '~/components/IpPoolUtilization'
 import { useQuickActions } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
+import { addToast } from '~/stores/toast'
 import { SkeletonCell } from '~/table/cells/EmptyCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
@@ -79,6 +80,7 @@ export function IpPoolsPage() {
   const deletePool = useApiMutation('ipPoolDelete', {
     onSuccess() {
       apiQueryClient.invalidateQueries('ipPoolList')
+      addToast({ content: 'IP pool deleted' })
     },
   })
 

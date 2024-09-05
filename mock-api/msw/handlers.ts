@@ -7,7 +7,7 @@
  */
 import { delay } from 'msw'
 import * as R from 'remeda'
-import { v4 as uuid } from 'uuid'
+import { validate as isUuid, v4 as uuid } from 'uuid'
 
 import {
   diskCan,
@@ -288,15 +288,22 @@ export const handlers = makeHandlers({
 
     return 204
   },
-  floatingIpAttach({ path, query, body }) {
-    const floatingIp = lookup.floatingIp({ ...path, ...query })
-    if (floatingIp.instance_id) {
+  floatingIpAttach({ path: { floatingIp }, query: { project }, body }) {
+    const dbFloatingIp = lookup.floatingIp({ floatingIp, project })
+    if (dbFloatingIp.instance_id) {
       throw 'floating IP cannot be attached to one instance while still attached to another'
     }
-    const instance = lookup.instance({ ...path, ...query, instance: body.parent })
-    floatingIp.instance_id = instance.id
+    // Following the API logic here, which says that when the instance is passed
+    // by name, we pull the project ID off the floating IP.
+    //
+    // https://github.com/oxidecomputer/omicron/blob/e434307/nexus/src/app/external_ip.rs#L171-L201
+    const dbInstance = lookup.instance({
+      instance: body.parent,
+      project: isUuid(body.parent) ? undefined : project,
+    })
+    dbFloatingIp.instance_id = dbInstance.id
 
-    return floatingIp
+    return dbFloatingIp
   },
   floatingIpDetach({ path, query }) {
     const floatingIp = lookup.floatingIp({ ...path, ...query })
@@ -359,13 +366,16 @@ export const handlers = makeHandlers({
 
     return json(image, { status: 202 })
   },
-  imageDemote({ path, query }) {
-    const image = lookup.image({ ...path, ...query })
-    const project = lookup.project({ ...path, ...query })
+  imageDemote({ path: { image }, query: { project } }) {
+    // unusual case because the project is never used to resolve the image. you
+    // can only demote silo images, and whether we have an image name or ID, if
+    // there is no project specified, the lookup assumes it's a silo image
+    const dbImage = lookup.image({ image })
+    const dbProject = lookup.project({ project })
 
-    image.project_id = project.id
+    dbImage.project_id = dbProject.id
 
-    return json(image, { status: 202 })
+    return json(dbImage, { status: 202 })
   },
   instanceList({ query }) {
     const project = lookup.project(query)
