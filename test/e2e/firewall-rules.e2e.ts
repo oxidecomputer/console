@@ -13,7 +13,6 @@ import {
   selectOption,
   test,
   type Locator,
-  type Page,
 } from './utils'
 
 const defaultRules = ['allow-internal-inbound', 'allow-ssh', 'allow-icmp']
@@ -142,13 +141,6 @@ test('firewall rule targets and filters overflow', async ({ page }) => {
   await expect(tooltip).toBeVisible()
 })
 
-const setupSubnetSelection = async (page: Page, sectionType: 'Host' | 'Target') => {
-  // first by selecting from a dropdown
-  await selectOption(page, `${sectionType} type`, 'VPC subnet')
-  // select the VPC so you can then add a subnet at the callsite
-  await selectOption(page, 'VPC Select a VPC', 'mock-vpc')
-}
-
 const deleteRowAndVerifyRowCount = async (table: Locator, expectedCount: number) => {
   const rows = table.getByRole('row')
   // skip the header row
@@ -181,13 +173,13 @@ test('firewall rule form targets table', async ({ page }) => {
   const subnetNameField = page.getByRole('combobox', { name: 'Subnet name' })
 
   // add a subnet by selecting from a dropdown
-  await setupSubnetSelection(page, 'Target')
+  await selectOption(page, 'Target type', 'VPC subnet')
   await selectOption(page, subnetNameField, 'mock-subnet')
   await addButton.click()
   await expectRowVisible(targets, { Type: 'subnet', Value: 'mock-subnet' })
 
   // now add a subnet by entering text
-  await setupSubnetSelection(page, 'Target')
+  await selectOption(page, 'Target type', 'VPC subnet')
   await subnetNameField.fill('abc')
   await addButton.click()
   await expectRowVisible(targets, { Type: 'subnet', Value: 'abc' })
@@ -231,12 +223,12 @@ test('firewall rule form hosts table', async ({ page }) => {
   await addButton.click()
   await expectRowVisible(hosts, { Type: 'vpc', Value: 'def' })
 
-  await setupSubnetSelection(page, 'Host')
+  await selectOption(page, 'Host type', 'VPC subnet')
   await selectOption(page, 'Subnet name', 'mock-subnet')
   await addButton.click()
   await expectRowVisible(hosts, { Type: 'subnet', Value: 'mock-subnet' })
 
-  await setupSubnetSelection(page, 'Host')
+  await selectOption(page, 'Host type', 'VPC subnet')
   await page.getByRole('combobox', { name: 'Subnet name' }).fill('abc')
   await addButton.click()
   await expectRowVisible(hosts, { Type: 'subnet', Value: 'abc' })
@@ -299,7 +291,7 @@ test('can update firewall rule', async ({ page }) => {
   await page.getByRole('textbox', { name: 'Name' }).fill('new-rule-name')
 
   // add host filter
-  await setupSubnetSelection(page, 'Host')
+  await selectOption(page, 'Host type', 'VPC subnet')
   await page.getByRole('combobox', { name: 'Subnet name' }).fill('edit-filter-subnet')
   await page.getByRole('button', { name: 'Add host filter' }).click()
 
