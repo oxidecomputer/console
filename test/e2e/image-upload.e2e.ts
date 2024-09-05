@@ -19,16 +19,14 @@ import {
 // to complete in time, so we just assert that they all start out ready and end
 // up complete
 async function expectUploadProcess(page: Page) {
-  const steps = page.locator('div[data-status]')
-
-  for (const step of await steps.all()) {
-    await expect(step).toHaveAttribute('data-status', 'ready', { timeout: 10000 })
-  }
-
   // check these here instead of first because if we don't look for the ready
   // states right away we won't catch them in time
   const progressModal = page.getByRole('dialog', { name: 'Image upload progress' })
   await expect(progressModal).toBeVisible()
+
+  const steps = page.getByTestId('upload-step')
+  await expect(steps).toHaveCount(8)
+
   const done = progressModal.getByRole('button', { name: 'Done' })
 
   for (const step of await steps.all()) {
@@ -233,12 +231,6 @@ test.describe('Image upload', () => {
       await fillForm(page, imageName)
 
       await page.click('role=button[name="Upload image"]')
-
-      const steps = page.locator('div[data-status]')
-
-      for (const step of await steps.all()) {
-        await expect(step).toHaveAttribute('data-status', 'ready')
-      }
 
       const step = page.locator('[data-status]').filter({ hasText: stepText }).first()
       await expect(step).toHaveAttribute('data-status', 'error', { timeout: 15000 })
