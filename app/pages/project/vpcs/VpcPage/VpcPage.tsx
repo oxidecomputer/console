@@ -8,7 +8,12 @@
 import { useMemo } from 'react'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
-import { apiQueryClient, useApiMutation, usePrefetchedApiQuery } from '@oxide/api'
+import {
+  apiQueryClient,
+  useApiMutation,
+  useApiQueryClient,
+  usePrefetchedApiQuery,
+} from '@oxide/api'
 import { Networking24Icon } from '@oxide/design-system/icons/react'
 
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
@@ -31,6 +36,7 @@ VpcPage.loader = async ({ params }: LoaderFunctionArgs) => {
 }
 
 export function VpcPage() {
+  const queryClient = useApiQueryClient()
   const navigate = useNavigate()
   const vpcSelector = useVpcSelector()
   const { project, vpc: vpcName } = vpcSelector
@@ -41,8 +47,8 @@ export function VpcPage() {
 
   const { mutateAsync: deleteVpc } = useApiMutation('vpcDelete', {
     onSuccess() {
+      queryClient.invalidateQueries('vpcList')
       navigate(pb.vpcs({ project }))
-      apiQueryClient.invalidateQueries('vpcList')
       addToast({ content: 'VPC deleted' })
     },
   })

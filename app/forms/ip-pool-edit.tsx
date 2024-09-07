@@ -41,15 +41,6 @@ export function EditIpPoolSideModalForm() {
       queryClient.invalidateQueries('ipPoolList')
       navigate(pb.ipPool({ pool: updatedPool.name }))
       addToast({ content: 'Your IP pool has been updated' })
-
-      // Only invalidate if we're staying on the same page. If the name
-      // _has_ changed, invalidating ipPoolView causes an error page to flash
-      // while the loader for the target page is running because the current
-      // page's pool gets cleared out while we're still on the page. If we're
-      // navigating to a different page, its query will fetch anew regardless.
-      if (pool.name === updatedPool.name) {
-        queryClient.invalidateQueries('ipPoolView')
-      }
     },
   })
 
