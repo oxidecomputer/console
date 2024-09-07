@@ -28,7 +28,7 @@ export const FieldLabel = ({
   optional,
   as,
   className,
-  hideOptionalTag = true,
+  hideOptionalTag,
 }: PropsWithChildren<FieldLabelProps>) => {
   const Component = as || 'label'
   return (
