@@ -115,7 +115,7 @@ const DynamicTypeAndValueFields = ({
           { value: 'ip_net', label: 'IP subnet' },
         ]}
         onChange={onTypeChange}
-        showOptionalTag={false}
+        hideOptionalTag
       />
       {/* In the firewall rules form, a few types get comboboxes instead of text fields */}
       {['vpc', 'subnet', 'instance'].includes(valueType) ? (
@@ -128,7 +128,7 @@ const DynamicTypeAndValueFields = ({
           onInputChange={onInputChange}
           items={items}
           allowArbitraryValues
-          showOptionalTag={false}
+          hideOptionalTag
           // TODO: validate here, but it's complicated because it's conditional
           // on which type is selected
         />

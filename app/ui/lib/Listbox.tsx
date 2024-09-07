@@ -44,7 +44,7 @@ export interface ListboxProps<Value extends string = string> {
   isLoading?: boolean
   /** Necessary if you want RHF to be able to focus it on error */
   buttonRef?: Ref<HTMLButtonElement>
-  showOptionalTag?: boolean
+  hideOptionalTag?: boolean
 }
 
 export const Listbox = <Value extends string = string>({
@@ -63,7 +63,7 @@ export const Listbox = <Value extends string = string>({
   disabled,
   isLoading = false,
   buttonRef,
-  showOptionalTag,
+  hideOptionalTag,
   ...props
 }: ListboxProps<Value>) => {
   const selectedItem = selected && items.find((i) => i.value === selected)
@@ -89,8 +89,7 @@ export const Listbox = <Value extends string = string>({
                   id={``}
                   as="div"
                   tip={tooltipText}
-                  optional={!required}
-                  showOptionalTag={showOptionalTag}
+                  optional={!required && !hideOptionalTag}
                 >
                   <Label>{label}</Label>
                 </FieldLabel>

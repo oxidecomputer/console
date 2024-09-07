@@ -35,7 +35,7 @@ export type ComboboxBaseProps = {
   required?: boolean
   tooltipText?: string
   ariaLabel?: string
-  showOptionalTag?: boolean
+  hideOptionalTag?: boolean
   /**
    * Pass in `allowArbitraryValues` as `true` when the user should be able to
    * type in new values that aren't in the list [default is `false`]
@@ -70,7 +70,7 @@ export const Combobox = ({
   onInputChange,
   allowArbitraryValues = false,
   ariaLabel,
-  showOptionalTag,
+  hideOptionalTag,
 }: ComboboxProps) => {
   const [query, setQuery] = useState(selected || '')
 
@@ -99,8 +99,7 @@ export const Combobox = ({
               id="FieldLabel"
               as="div"
               tip={tooltipText}
-              optional={!required}
-              showOptionalTag={showOptionalTag}
+              optional={!required && !hideOptionalTag}
             >
               <Label>{label}</Label>
             </FieldLabel>
