@@ -118,7 +118,7 @@ const DynamicTypeAndValueFields = ({
         hideOptionalTag
       />
       {/* In the firewall rules form, a few types get comboboxes instead of text fields */}
-      {['vpc', 'subnet', 'instance'].includes(valueType) ? (
+      {valueType === 'vpc' || valueType === 'subnet' || valueType === 'instance' ? (
         <ComboboxField
           isDisabled={isDisabled}
           name="value"
