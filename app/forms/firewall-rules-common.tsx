@@ -9,7 +9,6 @@
 import { useController, type Control, type ControllerRenderProps } from 'react-hook-form'
 
 import {
-  useApiQueryClient,
   usePrefetchedApiQuery,
   type ApiError,
   type Instance,
@@ -27,13 +26,11 @@ import { NameField } from '~/components/form/fields/NameField'
 import { NumberField } from '~/components/form/fields/NumberField'
 import { RadioField } from '~/components/form/fields/RadioField'
 import { TextField, TextFieldInner } from '~/components/form/fields/TextField'
-import { useVpcSubnets } from '~/components/form/fields/useItemsList'
 import { useVpcSelector } from '~/hooks'
 import { useForm } from '~/hooks/use-form'
 import { PAGE_SIZE } from '~/table/QueryTable'
 import { Badge } from '~/ui/lib/Badge'
 import { Button } from '~/ui/lib/Button'
-import { toComboboxItem } from '~/ui/lib/Combobox'
 import { FormDivider } from '~/ui/lib/Divider'
 import { Message } from '~/ui/lib/Message'
 import * as MiniTable from '~/ui/lib/MiniTable'
@@ -90,7 +87,6 @@ const DynamicTypeAndValueFields = ({
   control,
   valueType,
   items,
-  vpcs,
   isDisabled,
   onInputChange,
   onTypeChange,
@@ -100,13 +96,11 @@ const DynamicTypeAndValueFields = ({
   control: Control<TargetAndHostFormValues>
   valueType: TargetAndHostFilterType
   items: Array<{ value: string; label: string }>
-  vpcs: Array<Vpc>
   isDisabled?: boolean
   onInputChange?: (value: string) => void
   onTypeChange: () => void
   onSubmitTextField: (e: React.KeyboardEvent<HTMLInputElement>) => void
 }) => {
-  const queryClient = useApiQueryClient()
   return (
     <>
       <ListboxField
@@ -123,23 +117,7 @@ const DynamicTypeAndValueFields = ({
         onChange={onTypeChange}
         showOptionalTag={false}
       />
-      {/* If specifying a subnet, they must first select the VPC that owns the subnet */}
-      {valueType === 'subnet' && (
-        <ListboxField
-          name="subnetVpc"
-          label="VPC"
-          aria-label={`Select ${sectionType} VPC`}
-          control={control}
-          items={vpcs.map((v) => toComboboxItem(v.name))}
-          // when this changes, we need to re-fetch the subnet list
-          onChange={() => {
-            queryClient.invalidateQueries('vpcSubnetList')
-          }}
-          placeholder="Select a VPC"
-          showOptionalTag={false}
-        />
-      )}
-      {/* In the firewall rules form, these types get comboboxes instead of text fields */}
+      {/* In the firewall rules form, a few types get comboboxes instead of text fields */}
       {['vpc', 'subnet', 'instance'].includes(valueType) ? (
         <ComboboxField
           isDisabled={isDisabled}
@@ -246,14 +224,20 @@ const TypeAndValueTable = ({ sectionType, items }: TypeAndValueTableProps) => (
 // a list of all items, return the items that are available
 const availableItems = (
   committedItems: Array<VpcFirewallRuleTarget | VpcFirewallRuleHostFilter>,
-  // Items is conditional because VPC Subnet fetching isn't 100% guaranteed
-  items?: Array<Vpc | VpcSubnet | Instance>
+  itemType: 'vpc' | 'subnet' | 'instance',
+  items: Array<Vpc | VpcSubnet | Instance>
 ) => {
   if (!items) return []
-  return items
-    .map((item) => item.name)
-    .filter((name) => !committedItems.map((ci) => ci.value).includes(name))
-    .map((name) => toComboboxItem(name))
+  return (
+    items
+      .map((item) => item.name)
+      // remove any items that match the committed items on both type and value
+      .filter(
+        (name) =>
+          !committedItems.filter((ci) => ci.type === itemType && ci.value === name).length
+      )
+      .map((name) => ({ label: name, value: name }))
+  )
 }
 
 type ProtocolFieldProps = {
@@ -293,20 +277,20 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
   } = usePrefetchedApiQuery('vpcList', {
     query: { project, limit: PAGE_SIZE },
   })
+  const {
+    data: { items: vpcSubnets },
+  } = usePrefetchedApiQuery('vpcSubnetList', { query: { project, vpc } })
 
   // Targets
   const targetForm = useForm({ defaultValues: targetAndHostDefaultValues })
   const targets = useController({ name: 'targets', control }).field
   const targetType = targetForm.watch('type')
   const targetValue = targetForm.watch('value')
-  const targetSubnetVpc = targetForm.watch('subnetVpc') || vpc
-  // get the list of subnets for the specific VPC selected in the form
-  const { items: targetVpcSubnets } = useVpcSubnets({ project, vpc: targetSubnetVpc })
   // get the list of items that are not already in the list of targets
   const targetItems = {
-    vpc: availableItems(targets.value, vpcs),
-    subnet: availableItems(targets.value, targetVpcSubnets),
-    instance: availableItems(targets.value, instances),
+    vpc: availableItems(targets.value, 'vpc', vpcs),
+    subnet: availableItems(targets.value, 'subnet', vpcSubnets),
+    instance: availableItems(targets.value, 'instance', instances),
     ip: [],
     ip_net: [],
   }
@@ -337,14 +321,11 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
   const hosts = useController({ name: 'hosts', control }).field
   const hostType = hostForm.watch('type')
   const hostValue = hostForm.watch('value')
-  const hostSubnetVpc = hostForm.watch('subnetVpc') || vpc
-  // get the list of subnets for the specific PC selected in the form
-  const { items: hostVpcSubnets } = useVpcSubnets({ project, vpc: hostSubnetVpc })
   // get the list of items that are not already in the list of host filters
   const hostFilterItems = {
-    vpc: availableItems(hosts.value, vpcs),
-    subnet: availableItems(hosts.value, hostVpcSubnets),
-    instance: availableItems(hosts.value, instances),
+    vpc: availableItems(hosts.value, 'vpc', vpcs),
+    subnet: availableItems(hosts.value, 'subnet', vpcSubnets),
+    instance: availableItems(hosts.value, 'instance', instances),
     ip: [],
     ip_net: [],
   }
@@ -459,8 +440,6 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
           control={targetForm.control}
           valueType={targetType}
           items={targetItems[targetType]}
-          vpcs={vpcs}
-          isDisabled={targetType === 'subnet' && !targetSubnetVpc}
           onTypeChange={() => targetForm.setValue('value', '')}
           onInputChange={(value) => targetForm.setValue('value', value)}
           onSubmitTextField={submitTarget}
@@ -568,8 +547,6 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
           control={hostForm.control}
           valueType={hostType}
           items={hostFilterItems[hostType]}
-          vpcs={vpcs}
-          isDisabled={hostType === 'subnet' && !hostSubnetVpc}
           onTypeChange={() => hostForm.setValue('value', '')}
           onInputChange={(value) => hostForm.setValue('value', value)}
           onSubmitTextField={submitHost}

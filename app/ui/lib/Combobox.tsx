@@ -24,31 +24,29 @@ import { FieldLabel } from './FieldLabel'
 import { usePopoverZIndex } from './SideModal'
 import { TextInputHint } from './TextInput'
 
-export type ComboboxItem = { label: string; value: string }
-
-export const toComboboxItem = (value: string, label?: string): ComboboxItem => ({
-  label: label || value,
-  value,
-})
-
 /** Simple non-generic props shared with ComboboxField */
 export type ComboboxBaseProps = {
   description?: React.ReactNode
   isDisabled?: boolean
   isLoading?: boolean
-  items: ComboboxItem[]
+  items: Array<{ label: string; value: string }>
   label: string
   placeholder?: string
   required?: boolean
   tooltipText?: string
-  onInputChange?: (value: string) => void
+  ariaLabel?: string
+  showOptionalTag?: boolean
   /**
-   * pass in allowArbitraryValues as `true` when the user should be able to
+   * Pass in `allowArbitraryValues` as `true` when the user should be able to
    * type in new values that aren't in the list [default is `false`]
    */
   allowArbitraryValues?: boolean
-  ariaLabel?: string
-  showOptionalTag?: boolean
+  /**
+   * Pass in `onInputChange` when an event should be triggered when the user types in the field;
+   * This is distinct from `onChange` which is triggered when the user selects an item from the list.
+   * For example, if a form value should be set when the user types, use `onInputChange`.
+   */
+  onInputChange?: (value: string) => void
 }
 
 type ComboboxProps = {

@@ -39,6 +39,7 @@ EditFirewallRuleForm.loader = async ({ params }: LoaderFunctionArgs) => {
     }),
     apiQueryClient.prefetchQuery('instanceList', { query: { project, limit: PAGE_SIZE } }),
     apiQueryClient.prefetchQuery('vpcList', { query: { project, limit: PAGE_SIZE } }),
+    apiQueryClient.prefetchQuery('vpcSubnetList', { query: { project, vpc } }),
   ])
 
   const originalRule = firewallRules.rules.find((r) => r.name === rule)

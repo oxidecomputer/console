@@ -165,14 +165,16 @@ test('firewall rule form targets table', async ({ page }) => {
   await addButton.click()
   await expectRowVisible(targets, { Type: 'vpc', Value: 'abc' })
 
-  await targetVpcNameField.fill('def')
+  // enter a VPC called 'mock-subnet', even if that doesn't make sense here, to test dropdown later
+  await targetVpcNameField.fill('mock-subnet')
   await addButton.click()
-  await expectRowVisible(targets, { Type: 'vpc', Value: 'def' })
+  await expectRowVisible(targets, { Type: 'vpc', Value: 'mock-subnet' })
 
   // add VPC subnet targets
   const subnetNameField = page.getByRole('combobox', { name: 'Subnet name' })
 
-  // add a subnet by selecting from a dropdown
+  // add a subnet by selecting from a dropdown; make sure 'mock-subnet' is present in the dropdown,
+  // even though VPC:'mock-subnet' has already been added
   await selectOption(page, 'Target type', 'VPC subnet')
   await selectOption(page, subnetNameField, 'mock-subnet')
   await addButton.click()

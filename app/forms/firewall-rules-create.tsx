@@ -19,7 +19,7 @@ import {
 } from '@oxide/api'
 
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { getProjectSelector, getVpcSelector, useForm, useVpcSelector } from '~/hooks'
+import { getVpcSelector, useForm, useVpcSelector } from '~/hooks'
 import { addToast } from '~/stores/toast'
 import { PAGE_SIZE } from '~/table/QueryTable'
 import { pb } from '~/util/path-builder'
@@ -56,7 +56,7 @@ const ruleToValues = (rule: VpcFirewallRule): FirewallRuleValues => ({
 })
 
 CreateFirewallRuleForm.loader = async ({ params }: LoaderFunctionArgs) => {
-  const { project } = getProjectSelector(params)
+  const { project, vpc } = getVpcSelector(params)
   await Promise.all([
     apiQueryClient.prefetchQuery('vpcFirewallRulesView', {
       query: getVpcSelector(params),
@@ -65,6 +65,7 @@ CreateFirewallRuleForm.loader = async ({ params }: LoaderFunctionArgs) => {
       query: { project, limit: PAGE_SIZE },
     }),
     apiQueryClient.prefetchQuery('vpcList', { query: { project, limit: PAGE_SIZE } }),
+    apiQueryClient.prefetchQuery('vpcSubnetList', { query: { project, vpc } }),
   ])
 
   return null

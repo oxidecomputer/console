@@ -25,7 +25,6 @@ export type ComboboxFieldProps<
   name: TName
   control: Control<TFieldValues>
   onChange?: (value: string | null | undefined) => void
-  allowArbitraryValues?: boolean
 } & ComboboxBaseProps
 
 export function ComboboxField<
