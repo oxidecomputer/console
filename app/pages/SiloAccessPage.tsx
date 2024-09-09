@@ -103,7 +103,7 @@ export function SiloAccessPage() {
   }, [siloRows])
 
   const queryClient = useApiQueryClient()
-  const updatePolicy = useApiMutation('policyUpdate', {
+  const { mutateAsync: updatePolicy } = useApiMutation('policyUpdate', {
     onSuccess: () => queryClient.invalidateQueries('policyView'),
     // TODO: handle 403
   })
@@ -137,7 +137,7 @@ export function SiloAccessPage() {
           label: 'Delete',
           onActivate: confirmDelete({
             doDelete: () =>
-              updatePolicy.mutateAsync({
+              updatePolicy({
                 // we know policy is there, otherwise there's no row to display
                 body: deleteRole(row.id, siloPolicy),
               }),

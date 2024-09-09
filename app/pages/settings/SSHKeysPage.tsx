@@ -45,7 +45,7 @@ export function SSHKeysPage() {
   const { Table } = useQueryTable('currentUserSshKeyList', {})
   const queryClient = useApiQueryClient()
 
-  const deleteSshKey = useApiMutation('currentUserSshKeyDelete', {
+  const { mutateAsync: deleteSshKey } = useApiMutation('currentUserSshKeyDelete', {
     onSuccess: () => {
       queryClient.invalidateQueries('currentUserSshKeyList')
       addToast({ content: 'Your SSH key has been deleted' })
@@ -57,7 +57,7 @@ export function SSHKeysPage() {
       {
         label: 'Delete',
         onActivate: confirmDelete({
-          doDelete: () => deleteSshKey.mutateAsync({ path: { sshKey: sshKey.name } }),
+          doDelete: () => deleteSshKey({ path: { sshKey: sshKey.name } }),
           label: sshKey.name,
         }),
       },

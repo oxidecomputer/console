@@ -70,12 +70,12 @@ export function SiloIpPoolsTab() {
     [allPools]
   )
 
-  const updatePoolLink = useApiMutation('ipPoolSiloUpdate', {
+  const { mutateAsync: updatePoolLink } = useApiMutation('ipPoolSiloUpdate', {
     onSuccess() {
       queryClient.invalidateQueries('siloIpPoolList')
     },
   })
-  const unlinkPool = useApiMutation('ipPoolSiloUnlink', {
+  const { mutateAsync: unlinkPool } = useApiMutation('ipPoolSiloUnlink', {
     onSuccess() {
       queryClient.invalidateQueries('siloIpPoolList')
     },
@@ -91,7 +91,7 @@ export function SiloIpPoolsTab() {
           if (pool.isDefault) {
             confirmAction({
               doAction: () =>
-                updatePoolLink.mutateAsync({
+                updatePoolLink({
                   path: { silo, pool: pool.id },
                   body: { isDefault: false },
                 }),
@@ -121,7 +121,7 @@ export function SiloIpPoolsTab() {
             const verb = defaultPool ? 'change' : 'make'
             confirmAction({
               doAction: () =>
-                updatePoolLink.mutateAsync({
+                updatePoolLink({
                   path: { silo, pool: pool.id },
                   body: { isDefault: true },
                 }),
@@ -138,7 +138,7 @@ export function SiloIpPoolsTab() {
         className: 'destructive',
         onActivate() {
           confirmAction({
-            doAction: () => unlinkPool.mutateAsync({ path: { silo, pool: pool.id } }),
+            doAction: () => unlinkPool({ path: { silo, pool: pool.id } }),
             modalTitle: `Confirm unlink pool`,
             modalContent: (
               <p>

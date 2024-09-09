@@ -56,7 +56,7 @@ export function ImagesPage() {
 
   const [promoteImageName, setPromoteImageName] = useState<string | null>(null)
 
-  const deleteImage = useApiMutation('imageDelete', {
+  const { mutateAsync: deleteImage } = useApiMutation('imageDelete', {
     onSuccess(_data, variables) {
       addToast({ content: `${variables.path.image} has been deleted` })
       queryClient.invalidateQueries('imageList')
@@ -73,7 +73,7 @@ export function ImagesPage() {
         label: 'Delete',
         onActivate: confirmDelete({
           doDelete: () =>
-            deleteImage.mutateAsync({
+            deleteImage({
               path: { image: image.name },
               query: { project },
             }),

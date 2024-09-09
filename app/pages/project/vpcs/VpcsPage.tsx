@@ -80,7 +80,7 @@ export function VpcsPage() {
   })
   const navigate = useNavigate()
 
-  const deleteVpc = useApiMutation('vpcDelete', {
+  const { mutateAsync: deleteVpc } = useApiMutation('vpcDelete', {
     onSuccess() {
       queryClient.invalidateQueries('vpcList')
     },
@@ -102,8 +102,7 @@ export function VpcsPage() {
       {
         label: 'Delete',
         onActivate: confirmDelete({
-          doDelete: () =>
-            deleteVpc.mutateAsync({ path: { vpc: vpc.name }, query: { project } }),
+          doDelete: () => deleteVpc({ path: { vpc: vpc.name }, query: { project } }),
           label: vpc.name,
         }),
       },

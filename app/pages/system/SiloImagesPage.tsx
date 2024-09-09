@@ -70,7 +70,7 @@ export function SiloImagesPage() {
   const [demoteImage, setDemoteImage] = useState<Image | null>(null)
 
   const queryClient = useApiQueryClient()
-  const deleteImage = useApiMutation('imageDelete', {
+  const { mutateAsync: deleteImage } = useApiMutation('imageDelete', {
     onSuccess(_data, variables) {
       addToast({ content: `${variables.path.image} has been deleted` })
       queryClient.invalidateQueries('imageList')
@@ -86,7 +86,7 @@ export function SiloImagesPage() {
       {
         label: 'Delete',
         onActivate: confirmDelete({
-          doDelete: () => deleteImage.mutateAsync({ path: { image: image.name } }),
+          doDelete: () => deleteImage({ path: { image: image.name } }),
           label: image.name,
         }),
       },
