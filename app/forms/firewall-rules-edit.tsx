@@ -23,7 +23,6 @@ import {
   useForm,
   useVpcSelector,
 } from '~/hooks'
-import { PAGE_SIZE } from '~/table/QueryTable'
 import { invariant } from '~/util/invariant'
 import { pb } from '~/util/path-builder'
 
@@ -34,11 +33,9 @@ EditFirewallRuleForm.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project, vpc, rule } = getFirewallRuleSelector(params)
 
   const [firewallRules] = await Promise.all([
-    apiQueryClient.fetchQuery('vpcFirewallRulesView', {
-      query: { project, vpc },
-    }),
-    apiQueryClient.prefetchQuery('instanceList', { query: { project, limit: PAGE_SIZE } }),
-    apiQueryClient.prefetchQuery('vpcList', { query: { project, limit: PAGE_SIZE } }),
+    apiQueryClient.fetchQuery('vpcFirewallRulesView', { query: { project, vpc } }),
+    apiQueryClient.prefetchQuery('instanceList', { query: { project, limit: 1000 } }),
+    apiQueryClient.prefetchQuery('vpcList', { query: { project, limit: 1000 } }),
     apiQueryClient.prefetchQuery('vpcSubnetList', { query: { project, vpc } }),
   ])
 

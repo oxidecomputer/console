@@ -28,7 +28,6 @@ import { RadioField } from '~/components/form/fields/RadioField'
 import { TextField, TextFieldInner } from '~/components/form/fields/TextField'
 import { useVpcSelector } from '~/hooks'
 import { useForm } from '~/hooks/use-form'
-import { PAGE_SIZE } from '~/table/QueryTable'
 import { Badge } from '~/ui/lib/Badge'
 import { Button } from '~/ui/lib/Button'
 import { FormDivider } from '~/ui/lib/Divider'
@@ -270,12 +269,12 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
   const {
     data: { items: instances },
   } = usePrefetchedApiQuery('instanceList', {
-    query: { project, limit: PAGE_SIZE },
+    query: { project, limit: 1000 },
   })
   const {
     data: { items: vpcs },
   } = usePrefetchedApiQuery('vpcList', {
-    query: { project, limit: PAGE_SIZE },
+    query: { project, limit: 1000 },
   })
   const {
     data: { items: vpcSubnets },
