@@ -66,7 +66,7 @@ export function ProjectsPage() {
     query: { limit: PAGE_SIZE },
   })
 
-  const deleteProject = useApiMutation('projectDelete', {
+  const { mutateAsync: deleteProject } = useApiMutation('projectDelete', {
     onSuccess() {
       // TODO: figure out if this is invalidating as expected, can we leave out the query
       // altogether, etc. Look at whether limit param matters.
@@ -92,7 +92,7 @@ export function ProjectsPage() {
       {
         label: 'Delete',
         onActivate: confirmDelete({
-          doDelete: () => deleteProject.mutateAsync({ path: { project: project.name } }),
+          doDelete: () => deleteProject({ path: { project: project.name } }),
           label: project.name,
         }),
       },

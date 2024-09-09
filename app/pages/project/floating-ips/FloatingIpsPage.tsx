@@ -115,7 +115,7 @@ export function FloatingIpsPage() {
   })
   const navigate = useNavigate()
 
-  const floatingIpDetach = useApiMutation('floatingIpDetach', {
+  const { mutateAsync: floatingIpDetach } = useApiMutation('floatingIpDetach', {
     onSuccess() {
       queryClient.invalidateQueries('floatingIpList')
       addToast({ content: 'Your floating IP has been detached' })
@@ -124,7 +124,7 @@ export function FloatingIpsPage() {
       addToast({ title: 'Error', content: err.message, variant: 'error' })
     },
   })
-  const deleteFloatingIp = useApiMutation('floatingIpDelete', {
+  const { mutateAsync: deleteFloatingIp } = useApiMutation('floatingIpDelete', {
     onSuccess() {
       queryClient.invalidateQueries('floatingIpList')
       queryClient.invalidateQueries('ipPoolUtilizationView')
@@ -153,7 +153,7 @@ export function FloatingIpsPage() {
               confirmAction({
                 actionType: 'danger',
                 doAction: () =>
-                  floatingIpDetach.mutateAsync({
+                  floatingIpDetach({
                     path: { floatingIp: floatingIp.name },
                     query: { project },
                   }),
@@ -198,7 +198,7 @@ export function FloatingIpsPage() {
             : false,
           onActivate: confirmDelete({
             doDelete: () =>
-              deleteFloatingIp.mutateAsync({
+              deleteFloatingIp({
                 path: { floatingIp: floatingIp.name },
                 query: { project },
               }),

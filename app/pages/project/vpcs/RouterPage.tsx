@@ -87,7 +87,7 @@ export function RouterPage() {
     query: { project, vpc },
   })
 
-  const deleteRouterRoute = useApiMutation('vpcRouterRouteDelete', {
+  const { mutateAsync: deleteRouterRoute } = useApiMutation('vpcRouterRouteDelete', {
     onSuccess() {
       apiQueryClient.invalidateQueries('vpcRouterRouteList')
       addToast({ content: 'Your route has been deleted' })
@@ -158,8 +158,7 @@ export function RouterPage() {
         className: 'destructive',
         onActivate: () =>
           confirmAction({
-            doAction: () =>
-              deleteRouterRoute.mutateAsync({ path: { route: routerRoute.id } }),
+            doAction: () => deleteRouterRoute({ path: { route: routerRoute.id } }),
             errorTitle: 'Could not remove route',
             modalTitle: 'Confirm remove route',
             modalContent: (
