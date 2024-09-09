@@ -77,7 +77,7 @@ export function IpPoolsPage() {
     query: { limit: PAGE_SIZE },
   })
 
-  const deletePool = useApiMutation('ipPoolDelete', {
+  const { mutateAsync: deletePool } = useApiMutation('ipPoolDelete', {
     onSuccess() {
       apiQueryClient.invalidateQueries('ipPoolList')
       addToast({ content: 'IP pool deleted' })
@@ -98,7 +98,7 @@ export function IpPoolsPage() {
       {
         label: 'Delete',
         onActivate: confirmDelete({
-          doDelete: () => deletePool.mutateAsync({ path: { pool: pool.name } }),
+          doDelete: () => deletePool({ path: { pool: pool.name } }),
           label: pool.name,
         }),
       },
