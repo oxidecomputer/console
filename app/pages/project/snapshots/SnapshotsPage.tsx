@@ -103,7 +103,7 @@ export function SnapshotsPage() {
   const { Table } = useQueryTable('snapshotList', { query: { project } })
   const navigate = useNavigate()
 
-  const deleteSnapshot = useApiMutation('snapshotDelete', {
+  const { mutateAsync: deleteSnapshot } = useApiMutation('snapshotDelete', {
     onSuccess() {
       queryClient.invalidateQueries('snapshotList')
     },
@@ -121,7 +121,7 @@ export function SnapshotsPage() {
         label: 'Delete',
         onActivate: confirmDelete({
           doDelete: () =>
-            deleteSnapshot.mutateAsync({
+            deleteSnapshot({
               path: { snapshot: snapshot.name },
               query: { project },
             }),

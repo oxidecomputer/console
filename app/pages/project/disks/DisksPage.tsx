@@ -98,7 +98,7 @@ export function DisksPage() {
   const { project } = useProjectSelector()
   const { Table } = useQueryTable('diskList', { query: { project } })
 
-  const deleteDisk = useApiMutation('diskDelete', {
+  const { mutateAsync: deleteDisk } = useApiMutation('diskDelete', {
     onSuccess() {
       queryClient.invalidateQueries('diskList')
     },
@@ -142,8 +142,7 @@ export function DisksPage() {
       {
         label: 'Delete',
         onActivate: confirmDelete({
-          doDelete: () =>
-            deleteDisk.mutateAsync({ path: { disk: disk.name }, query: { project } }),
+          doDelete: () => deleteDisk({ path: { disk: disk.name }, query: { project } }),
           label: disk.name,
         }),
         disabled:
