@@ -35,6 +35,7 @@ export type ListboxFieldProps<
   onChange?: (value: string | null | undefined) => void
   isLoading?: boolean
   noItemsPlaceholder?: string
+  hideOptionalTag?: boolean
 }
 
 export function ListboxField<
@@ -54,6 +55,7 @@ export function ListboxField<
   onChange,
   isLoading,
   noItemsPlaceholder,
+  hideOptionalTag,
 }: ListboxFieldProps<TFieldValues, TName>) {
   // TODO: recreate this logic
   //   validate: (v) => (required && !v ? `${name} is required` : undefined),
@@ -80,6 +82,7 @@ export function ListboxField<
         hasError={fieldState.error !== undefined}
         isLoading={isLoading}
         buttonRef={field.ref}
+        hideOptionalTag={hideOptionalTag}
       />
       <ErrorMessage error={fieldState.error} label={label} />
     </div>

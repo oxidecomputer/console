@@ -6,17 +6,27 @@
  * Copyright Oxide Computer Company
  */
 
-import { useController, type Control } from 'react-hook-form'
+import { useController, type Control, type ControllerRenderProps } from 'react-hook-form'
 
-import type { ApiError, VpcFirewallRuleHostFilter, VpcFirewallRuleTarget } from '~/api'
+import {
+  usePrefetchedApiQuery,
+  type ApiError,
+  type Instance,
+  type Vpc,
+  type VpcFirewallRuleHostFilter,
+  type VpcFirewallRuleTarget,
+  type VpcSubnet,
+} from '~/api'
 import { parsePortRange } from '~/api/util'
 import { CheckboxField } from '~/components/form/fields/CheckboxField'
+import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
 import { NumberField } from '~/components/form/fields/NumberField'
 import { RadioField } from '~/components/form/fields/RadioField'
 import { TextField, TextFieldInner } from '~/components/form/fields/TextField'
+import { useVpcSelector } from '~/hooks'
 import { useForm } from '~/hooks/use-form'
 import { Badge } from '~/ui/lib/Badge'
 import { Button } from '~/ui/lib/Button'
@@ -26,45 +36,35 @@ import * as MiniTable from '~/ui/lib/MiniTable'
 import { TextInputHint } from '~/ui/lib/TextInput'
 import { KEYS } from '~/ui/util/keys'
 import { links } from '~/util/links'
+import { capitalize } from '~/util/str'
 
 import { type FirewallRuleValues } from './firewall-rules-util'
 
-type PortRangeFormValues = {
-  portRange: string
-}
+/**
+ * This is a large file. The main thing to be aware of is that the firewall rules
+ * form is made up of two main sections: Targets and Filters. Filters, then, has
+ * a few sub-sections (Ports, Protocols, and Hosts).
+ *
+ * The Targets section and the Filters:Hosts section are very similar, so we've
+ * pulled common code to the DynamicTypeAndValueFields and ClearAndAddButtons
+ * components. We also then set up the Targets / Ports / Hosts variables at the
+ * top of the CommonFields component.
+ */
 
-const portRangeDefaultValues: PortRangeFormValues = {
-  portRange: '',
-}
+type TargetAndHostFilterType =
+  | VpcFirewallRuleTarget['type']
+  | VpcFirewallRuleHostFilter['type']
 
-type HostFormValues = {
-  type: VpcFirewallRuleHostFilter['type']
+type TargetAndHostFormValues = {
+  type: TargetAndHostFilterType
   value: string
+  subnetVpc?: string
 }
 
-const hostDefaultValues: HostFormValues = {
-  type: 'vpc',
-  value: '',
-}
-
-type TargetFormValues = {
-  type: VpcFirewallRuleTarget['type']
-  value: string
-}
-
-const targetDefaultValues: TargetFormValues = {
-  type: 'vpc',
-  value: '',
-}
-
-type CommonFieldsProps = {
-  error: ApiError | null
-  control: Control<FirewallRuleValues>
-  nameTaken: (name: string) => boolean
-}
-
-function getFilterValueProps(hostType: VpcFirewallRuleHostFilter['type']) {
-  switch (hostType) {
+// these are part of the target and host filter form;
+// the specific values depend on the target or host filter type selected
+const getFilterValueProps = (targetOrHostType: TargetAndHostFilterType) => {
+  switch (targetOrHostType) {
     case 'vpc':
       return { label: 'VPC name' }
     case 'subnet':
@@ -72,49 +72,241 @@ function getFilterValueProps(hostType: VpcFirewallRuleHostFilter['type']) {
     case 'instance':
       return { label: 'Instance name' }
     case 'ip':
-      return { label: 'IP address', helpText: 'An IPv4 or IPv6 address' }
+      return { label: 'IP address', description: 'Enter an IPv4 or IPv6 address' }
     case 'ip_net':
       return {
         label: 'IP network',
-        helpText: 'Looks like 192.168.0.0/16 or fd00:1122:3344:0001::1/64',
+        description: 'Looks like 192.168.0.0/16 or fd00:1122:3344:0001::1/64',
       }
   }
 }
 
-const DocsLinkMessage = () => (
-  <Message
-    variant="info"
-    content={
-      <>
-        Read the{' '}
-        <a
-          href={links.firewallRulesDocs}
-          // don't need color and hover color because message text is already color-info anyway
-          className="underline"
-          target="_blank"
-          rel="noreferrer"
-        >
-          guest networking guide
-        </a>{' '}
-        and{' '}
-        <a
-          href="https://docs.oxide.computer/api/vpc_firewall_rules_update"
-          // don't need color and hover color because message text is already color-info anyway
-          className="underline"
-          target="_blank"
-          rel="noreferrer"
-        >
-          API docs
-        </a>{' '}
-        to learn more about firewall rules.
-      </>
-    }
-  />
+const DynamicTypeAndValueFields = ({
+  sectionType,
+  control,
+  valueType,
+  items,
+  isDisabled,
+  onInputChange,
+  onTypeChange,
+  onSubmitTextField,
+}: {
+  sectionType: 'target' | 'host'
+  control: Control<TargetAndHostFormValues>
+  valueType: TargetAndHostFilterType
+  items: Array<{ value: string; label: string }>
+  isDisabled?: boolean
+  onInputChange?: (value: string) => void
+  onTypeChange: () => void
+  onSubmitTextField: (e: React.KeyboardEvent<HTMLInputElement>) => void
+}) => {
+  return (
+    <>
+      <ListboxField
+        name="type"
+        label={`${capitalize(sectionType)} type`}
+        control={control}
+        items={[
+          { value: 'vpc', label: 'VPC' },
+          { value: 'subnet', label: 'VPC subnet' },
+          { value: 'instance', label: 'Instance' },
+          { value: 'ip', label: 'IP' },
+          { value: 'ip_net', label: 'IP subnet' },
+        ]}
+        onChange={onTypeChange}
+        hideOptionalTag
+      />
+      {/* In the firewall rules form, a few types get comboboxes instead of text fields */}
+      {valueType === 'vpc' || valueType === 'subnet' || valueType === 'instance' ? (
+        <ComboboxField
+          isDisabled={isDisabled}
+          name="value"
+          {...getFilterValueProps(valueType)}
+          description="Select an option or enter a custom value"
+          control={control}
+          onInputChange={onInputChange}
+          items={items}
+          allowArbitraryValues
+          hideOptionalTag
+          // TODO: validate here, but it's complicated because it's conditional
+          // on which type is selected
+        />
+      ) : (
+        <TextField
+          name="value"
+          {...getFilterValueProps(valueType)}
+          control={control}
+          onKeyDown={(e) => {
+            if (e.key === KEYS.enter) {
+              e.preventDefault() // prevent full form submission
+              onSubmitTextField(e)
+            }
+          }}
+          // TODO: validate here, but it's complicated because it's conditional
+          // on which type is selected
+        />
+      )}
+    </>
+  )
+}
+
+// The "Clear" and "Add …" buttons that appear below the filter input fields
+const ClearAndAddButtons = ({
+  isDirty,
+  onClear,
+  onSubmit,
+  buttonCopy,
+}: {
+  isDirty: boolean
+  onClear: () => void
+  onSubmit: () => void
+  buttonCopy: string
+}) => (
+  <div className="flex justify-end">
+    <Button
+      variant="ghost"
+      size="sm"
+      className="mr-2.5"
+      disabled={!isDirty}
+      onClick={onClear}
+    >
+      Clear
+    </Button>
+    <Button size="sm" onClick={onSubmit}>
+      {buttonCopy}
+    </Button>
+  </div>
 )
 
-export const CommonFields = ({ error, control, nameTaken }: CommonFieldsProps) => {
-  const portRangeForm = useForm({ defaultValues: portRangeDefaultValues })
+type TypeAndValueTableProps = {
+  sectionType: 'target' | 'host'
+  items: ControllerRenderProps<FirewallRuleValues, 'targets' | 'hosts'>
+}
+const TypeAndValueTable = ({ sectionType, items }: TypeAndValueTableProps) => (
+  <MiniTable.Table
+    className="mb-4"
+    aria-label={sectionType === 'target' ? 'Targets' : 'Host filters'}
+  >
+    <MiniTable.Header>
+      <MiniTable.HeadCell>Type</MiniTable.HeadCell>
+      <MiniTable.HeadCell>Value</MiniTable.HeadCell>
+      {/* For remove button */}
+      <MiniTable.HeadCell className="w-12" />
+    </MiniTable.Header>
+    <MiniTable.Body>
+      {items.value.map(({ type, value }, index) => (
+        <MiniTable.Row
+          tabIndex={0}
+          aria-rowindex={index + 1}
+          aria-label={`Name: ${value}, Type: ${type}`}
+          key={`${type}|${value}`}
+        >
+          <MiniTable.Cell>
+            <Badge variant="solid">{type}</Badge>
+          </MiniTable.Cell>
+          <MiniTable.Cell>{value}</MiniTable.Cell>
+          <MiniTable.RemoveCell
+            onClick={() =>
+              items.onChange(
+                items.value.filter((i) => !(i.value === value && i.type === type))
+              )
+            }
+            label={`remove ${sectionType} ${value}`}
+          />
+        </MiniTable.Row>
+      ))}
+    </MiniTable.Body>
+  </MiniTable.Table>
+)
+
+// Given an array of committed items (VPCs, Subnets, Instances) and
+// a list of all items, return the items that are available
+const availableItems = (
+  committedItems: Array<VpcFirewallRuleTarget | VpcFirewallRuleHostFilter>,
+  itemType: 'vpc' | 'subnet' | 'instance',
+  items: Array<Vpc | VpcSubnet | Instance>
+) => {
+  if (!items) return []
+  return (
+    items
+      .map((item) => item.name)
+      // remove any items that match the committed items on both type and value
+      .filter(
+        (name) =>
+          !committedItems.filter((ci) => ci.type === itemType && ci.value === name).length
+      )
+      .map((name) => ({ label: name, value: name }))
+  )
+}
+
+type ProtocolFieldProps = {
+  control: Control<FirewallRuleValues>
+  protocol: 'TCP' | 'UDP' | 'ICMP'
+}
+const ProtocolField = ({ control, protocol }: ProtocolFieldProps) => (
+  <div>
+    <CheckboxField name="protocols" value={protocol} control={control}>
+      {protocol}
+    </CheckboxField>
+  </div>
+)
+
+type CommonFieldsProps = {
+  control: Control<FirewallRuleValues>
+  nameTaken: (name: string) => boolean
+  error: ApiError | null
+}
+
+export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) => {
+  const { project, vpc } = useVpcSelector()
+  const targetAndHostDefaultValues: TargetAndHostFormValues = {
+    type: 'vpc',
+    value: '',
+    // only becomes relevant when the type is 'VPC subnet'; ignored otherwise
+    subnetVpc: vpc,
+  }
+  // prefetchedApiQueries below are prefetched in firewall-rules-create and -edit
+  const {
+    data: { items: instances },
+  } = usePrefetchedApiQuery('instanceList', {
+    query: { project, limit: 1000 },
+  })
+  const {
+    data: { items: vpcs },
+  } = usePrefetchedApiQuery('vpcList', {
+    query: { project, limit: 1000 },
+  })
+  const {
+    data: { items: vpcSubnets },
+  } = usePrefetchedApiQuery('vpcSubnetList', { query: { project, vpc } })
+
+  // Targets
+  const targetForm = useForm({ defaultValues: targetAndHostDefaultValues })
+  const targets = useController({ name: 'targets', control }).field
+  const targetType = targetForm.watch('type')
+  const targetValue = targetForm.watch('value')
+  // get the list of items that are not already in the list of targets
+  const targetItems = {
+    vpc: availableItems(targets.value, 'vpc', vpcs),
+    subnet: availableItems(targets.value, 'subnet', vpcSubnets),
+    instance: availableItems(targets.value, 'instance', instances),
+    ip: [],
+    ip_net: [],
+  }
+  const submitTarget = targetForm.handleSubmit(({ type, value }) => {
+    // TODO: do this with a normal validation
+    // ignore click if empty or a duplicate
+    // TODO: show error instead of ignoring click
+    if (!type || !value) return
+    if (targets.value.some((t) => t.value === value && t.type === type)) return
+    targets.onChange([...targets.value, { type, value }])
+    targetForm.reset()
+  })
+
+  // Ports
+  const portRangeForm = useForm({ defaultValues: { portRange: '' } })
   const ports = useController({ name: 'ports', control }).field
+  const portValue = portRangeForm.watch('portRange')
   const submitPortRange = portRangeForm.handleSubmit(({ portRange }) => {
     const portRangeValue = portRange.trim()
     // at this point we've already validated in validate() that it parses and
@@ -123,34 +315,58 @@ export const CommonFields = ({ error, control, nameTaken }: CommonFieldsProps) =
     portRangeForm.reset()
   })
 
-  const hostForm = useForm({ defaultValues: hostDefaultValues })
+  // Host Filters
+  const hostForm = useForm({ defaultValues: targetAndHostDefaultValues })
   const hosts = useController({ name: 'hosts', control }).field
+  const hostType = hostForm.watch('type')
+  const hostValue = hostForm.watch('value')
+  // get the list of items that are not already in the list of host filters
+  const hostFilterItems = {
+    vpc: availableItems(hosts.value, 'vpc', vpcs),
+    subnet: availableItems(hosts.value, 'subnet', vpcSubnets),
+    instance: availableItems(hosts.value, 'instance', instances),
+    ip: [],
+    ip_net: [],
+  }
   const submitHost = hostForm.handleSubmit(({ type, value }) => {
     // ignore click if empty or a duplicate
     // TODO: show error instead of ignoring click
     if (!type || !value) return
     if (hosts.value.some((t) => t.value === value && t.type === type)) return
-
     hosts.onChange([...hosts.value, { type, value }])
     hostForm.reset()
   })
 
-  const targetForm = useForm({ defaultValues: targetDefaultValues })
-  const targets = useController({ name: 'targets', control }).field
-  const submitTarget = targetForm.handleSubmit(({ type, value }) => {
-    // TODO: do this with a normal validation
-    // ignore click if empty or a duplicate
-    // TODO: show error instead of ignoring click
-    if (!type || !value) return
-    if (targets.value.some((t) => t.value === value && t.type === type)) return
-
-    targets.onChange([...targets.value, { type, value }])
-    targetForm.reset()
-  })
-
   return (
     <>
-      <DocsLinkMessage />
+      <Message
+        variant="info"
+        content={
+          <>
+            Read the{' '}
+            <a
+              href={links.firewallRulesDocs}
+              // don't need color and hover color because message text is already color-info anyway
+              className="underline"
+              target="_blank"
+              rel="noreferrer"
+            >
+              guest networking guide
+            </a>{' '}
+            and{' '}
+            <a
+              href="https://docs.oxide.computer/api/vpc_firewall_rules_update"
+              // don't need color and hover color because message text is already color-info anyway
+              className="underline"
+              target="_blank"
+              rel="noreferrer"
+            >
+              API docs
+            </a>{' '}
+            to learn more about firewall rules.
+          </>
+        }
+      />
       {/* omitting value prop makes it a boolean value. beautiful */}
       {/* TODO: better text or heading or tip or something on this checkbox */}
       <CheckboxField name="enabled" control={control}>
@@ -204,106 +420,41 @@ export const CommonFields = ({ error, control, nameTaken }: CommonFieldsProps) =
 
       {/* Really this should be its own <form>, but you can't have a form inside a form,
           so we just stick the submit handler in a button onClick */}
-      <h3 className="mb-4 text-sans-2xl">Targets</h3>
-      <Message
-        variant="info"
-        content={
-          <>
-            Targets determine the instances to which this rule applies. You can target
-            instances directly by name, or specify a VPC, VPC subnet, IP, or IP subnet,
-            which will apply the rule to traffic going to all matching instances. Targets
-            are additive: the rule applies to instances matching{' '}
-            <span className="underline">any</span> target.
-          </>
-        }
-      />
-      {/* TODO: make ListboxField smarter with the values like RadioField is */}
-      <ListboxField
-        name="type"
-        label="Target type"
-        items={[
-          { value: 'vpc', label: 'VPC' },
-          { value: 'subnet', label: 'VPC Subnet' },
-          { value: 'instance', label: 'Instance' },
-          { value: 'ip', label: 'IP' },
-          { value: 'ip_net', label: 'IP subnet' },
-        ]}
-        required
-        control={targetForm.control}
-      />
-
       <div className="flex flex-col gap-3">
-        <TextField
-          name="value"
-          {...getFilterValueProps(targetForm.watch('type'))}
-          required
-          control={targetForm.control}
-          onKeyDown={(e) => {
-            if (e.key === KEYS.enter) {
-              e.preventDefault() // prevent full form submission
-              submitTarget(e)
-            }
-          }}
-          // TODO: validate here, but it's complicated because it's conditional
-          // on which type is selected
+        <h3 className="mb-4 text-sans-2xl">Targets</h3>
+        <Message
+          variant="info"
+          content={
+            <>
+              Targets determine the instances to which this rule applies. You can target
+              instances directly by name, or specify a VPC, VPC subnet, IP, or IP subnet,
+              which will apply the rule to traffic going to all matching instances. Targets
+              are additive: the rule applies to instances matching{' '}
+              <span className="underline">any</span> target.
+            </>
+          }
         />
-
-        <div className="flex justify-end">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="mr-2.5"
-            disabled={!targetForm.formState.isDirty}
-            onClick={() => targetForm.reset()}
-          >
-            Clear
-          </Button>
-          <Button size="sm" onClick={submitTarget}>
-            Add target
-          </Button>
-        </div>
+        <DynamicTypeAndValueFields
+          sectionType="target"
+          control={targetForm.control}
+          valueType={targetType}
+          items={targetItems[targetType]}
+          onTypeChange={() => targetForm.setValue('value', '')}
+          onInputChange={(value) => targetForm.setValue('value', value)}
+          onSubmitTextField={submitTarget}
+        />
+        <ClearAndAddButtons
+          isDirty={!!targetValue}
+          onClear={() => targetForm.reset()}
+          onSubmit={submitTarget}
+          buttonCopy="Add target"
+        />
       </div>
-
-      {!!targets.value.length && (
-        <MiniTable.Table className="mb-4" aria-label="Targets">
-          <MiniTable.Header>
-            <MiniTable.HeadCell>Type</MiniTable.HeadCell>
-            <MiniTable.HeadCell>Value</MiniTable.HeadCell>
-            {/* For remove button */}
-            <MiniTable.HeadCell className="w-12" />
-          </MiniTable.Header>
-          <MiniTable.Body>
-            {targets.value.map((t, index) => (
-              <MiniTable.Row
-                tabIndex={0}
-                aria-rowindex={index + 1}
-                aria-label={`Name: ${t.value}, Type: ${t.type}`}
-                key={`${t.type}|${t.value}`}
-              >
-                <MiniTable.Cell>
-                  <Badge variant="solid">{t.type}</Badge>
-                </MiniTable.Cell>
-                <MiniTable.Cell>{t.value}</MiniTable.Cell>
-                <MiniTable.RemoveCell
-                  onClick={() =>
-                    targets.onChange(
-                      targets.value.filter(
-                        (i) => !(i.value === t.value && i.type === t.type)
-                      )
-                    )
-                  }
-                  label={`remove target ${t.value}`}
-                />
-              </MiniTable.Row>
-            ))}
-          </MiniTable.Body>
-        </MiniTable.Table>
-      )}
+      {!!targets.value.length && <TypeAndValueTable sectionType="target" items={targets} />}
 
       <FormDivider />
 
       <h3 className="mb-4 text-sans-2xl">Filters</h3>
-
       <Message
         variant="info"
         content={
@@ -343,22 +494,13 @@ export const CommonFields = ({ error, control, nameTaken }: CommonFieldsProps) =
             }}
           />
         </div>
-        <div className="flex justify-end">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="mr-2.5"
-            disabled={!portRangeForm.formState.isDirty}
-            onClick={() => portRangeForm.reset()}
-          >
-            Clear
-          </Button>
-          <Button size="sm" onClick={submitPortRange}>
-            Add port filter
-          </Button>
-        </div>
+        <ClearAndAddButtons
+          isDirty={!!portValue}
+          onClear={portRangeForm.reset}
+          onSubmit={submitPortRange}
+          buttonCopy="Add port filter"
+        />
       </div>
-
       {!!ports.value.length && (
         <MiniTable.Table className="mb-4" aria-label="Port filters">
           <MiniTable.Header>
@@ -382,21 +524,9 @@ export const CommonFields = ({ error, control, nameTaken }: CommonFieldsProps) =
 
       <fieldset className="space-y-0.5">
         <legend className="mb-2 mt-4 text-sans-lg">Protocol filters</legend>
-        <div>
-          <CheckboxField name="protocols" value="TCP" control={control}>
-            TCP
-          </CheckboxField>
-        </div>
-        <div>
-          <CheckboxField name="protocols" value="UDP" control={control}>
-            UDP
-          </CheckboxField>
-        </div>
-        <div>
-          <CheckboxField name="protocols" value="ICMP" control={control}>
-            ICMP
-          </CheckboxField>
-        </div>
+        <ProtocolField control={control} protocol="TCP" />
+        <ProtocolField control={control} protocol="UDP" />
+        <ProtocolField control={control} protocol="ICMP" />
       </fieldset>
 
       <div className="flex flex-col gap-3">
@@ -411,90 +541,23 @@ export const CommonFields = ({ error, control, nameTaken }: CommonFieldsProps) =
             </>
           }
         />
-        <ListboxField
-          name="type"
-          label="Host type"
-          items={[
-            { value: 'vpc', label: 'VPC' },
-            { value: 'subnet', label: 'VPC Subnet' },
-            { value: 'instance', label: 'Instance' },
-            { value: 'ip', label: 'IP' },
-            { value: 'ip_net', label: 'IP Subnet' },
-          ]}
-          required
+        <DynamicTypeAndValueFields
+          sectionType="host"
           control={hostForm.control}
+          valueType={hostType}
+          items={hostFilterItems[hostType]}
+          onTypeChange={() => hostForm.setValue('value', '')}
+          onInputChange={(value) => hostForm.setValue('value', value)}
+          onSubmitTextField={submitHost}
         />
-
-        {/* For everything but IP this is a name, but for IP it's an IP.
-          So we should probably have the label on this field change when the
-          host type changes. Also need to confirm that it's just an IP and
-          not a block. */}
-        <TextField
-          name="value"
-          {...getFilterValueProps(hostForm.watch('type'))}
-          required
-          control={hostForm.control}
-          onKeyDown={(e) => {
-            if (e.key === KEYS.enter) {
-              e.preventDefault() // prevent full form submission
-              submitHost(e)
-            }
-          }}
-          // TODO: validate here, but it's complicated because it's conditional
-          // on which type is selected
+        <ClearAndAddButtons
+          isDirty={!!hostValue}
+          onClear={() => hostForm.reset()}
+          onSubmit={submitHost}
+          buttonCopy="Add host filter"
         />
-
-        <div className="flex justify-end">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="mr-2.5"
-            disabled={!hostForm.formState.isDirty}
-            onClick={() => hostForm.reset()}
-          >
-            Clear
-          </Button>
-          <Button size="sm" onClick={submitHost}>
-            Add host filter
-          </Button>
-        </div>
-
-        {!!hosts.value.length && (
-          <MiniTable.Table className="mb-4" aria-label="Host filters">
-            <MiniTable.Header>
-              <MiniTable.HeadCell>Type</MiniTable.HeadCell>
-              <MiniTable.HeadCell>Value</MiniTable.HeadCell>
-              {/* For remove button */}
-              <MiniTable.HeadCell className="w-12" />
-            </MiniTable.Header>
-            <MiniTable.Body>
-              {hosts.value.map((h, index) => (
-                <MiniTable.Row
-                  tabIndex={0}
-                  aria-rowindex={index + 1}
-                  aria-label={`Name: ${h.value}, Type: ${h.type}`}
-                  key={`${h.type}|${h.value}`}
-                >
-                  <MiniTable.Cell>
-                    <Badge variant="solid">{h.type}</Badge>
-                  </MiniTable.Cell>
-                  <MiniTable.Cell>{h.value}</MiniTable.Cell>
-                  <MiniTable.RemoveCell
-                    onClick={() =>
-                      hosts.onChange(
-                        hosts.value.filter(
-                          (i) => !(i.value === h.value && i.type === h.type)
-                        )
-                      )
-                    }
-                    label={`remove host ${h.value}`}
-                  />
-                </MiniTable.Row>
-              ))}
-            </MiniTable.Body>
-          </MiniTable.Table>
-        )}
       </div>
+      {!!hosts.value.length && <TypeAndValueTable sectionType="host" items={hosts} />}
 
       {error && (
         <>

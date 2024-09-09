@@ -140,6 +140,28 @@ export async function clickRowAction(page: Page, rowText: string, actionName: st
   await page.getByRole('menuitem', { name: actionName }).click()
 }
 
+/**
+ * Select an option from a dropdown
+ * buttonLocator can either be the drodown's label text or a more elaborate Locator
+ * optionLocator can either be the drodown's label text or a more elaborate Locator
+ * */
+export async function selectOption(
+  page: Page,
+  buttonLocator: string | Locator,
+  optionLocator: string | Locator
+) {
+  if (typeof buttonLocator === 'string') {
+    await page.getByRole('button', { name: buttonLocator }).click()
+  } else {
+    await buttonLocator.click()
+  }
+  if (typeof optionLocator === 'string') {
+    await page.getByRole('option', { name: optionLocator, exact: true }).click()
+  } else {
+    await optionLocator.click()
+  }
+}
+
 export async function getPageAsUser(
   browser: Browser,
   user: 'Hans Jonas' | 'Simone de Beauvoir'

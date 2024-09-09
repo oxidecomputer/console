@@ -55,9 +55,14 @@ const ruleToValues = (rule: VpcFirewallRule): FirewallRuleValues => ({
 })
 
 CreateFirewallRuleForm.loader = async ({ params }: LoaderFunctionArgs) => {
-  await apiQueryClient.prefetchQuery('vpcFirewallRulesView', {
-    query: getVpcSelector(params),
-  })
+  const { project, vpc } = getVpcSelector(params)
+  await Promise.all([
+    apiQueryClient.prefetchQuery('vpcFirewallRulesView', { query: { project, vpc } }),
+    apiQueryClient.prefetchQuery('instanceList', { query: { project, limit: 1000 } }),
+    apiQueryClient.prefetchQuery('vpcList', { query: { project, limit: 1000 } }),
+    apiQueryClient.prefetchQuery('vpcSubnetList', { query: { project, vpc } }),
+  ])
+
   return null
 }
 
@@ -76,10 +81,13 @@ export function CreateFirewallRuleForm() {
     },
   })
 
-  const { data } = usePrefetchedApiQuery('vpcFirewallRulesView', {
+  const { data: vpcFirewallRules } = usePrefetchedApiQuery('vpcFirewallRulesView', {
     query: vpcSelector,
   })
-  const existingRules = useMemo(() => R.sortBy(data.rules, (r) => r.priority), [data])
+  const existingRules = useMemo(
+    () => R.sortBy(vpcFirewallRules.rules, (r) => r.priority),
+    [vpcFirewallRules]
+  )
 
   // The :rule path param is optional. If it is present, we are creating a
   // rule from an existing one, so we find that rule and copy it into the form
@@ -115,11 +123,10 @@ export function CreateFirewallRuleForm() {
       submitLabel="Add rule"
     >
       <CommonFields
-        error={updateRules.error}
         control={form.control}
         // error if name is already in use
-        nameTaken={(name) => !!data.rules.find((r) => r.name === name)}
-
+        nameTaken={(name) => !!existingRules.find((r) => r.name === name)}
+        error={updateRules.error}
         // TODO: there should also be a form-level error so if the name is off
         // screen, it doesn't look like the submit button isn't working. Maybe
         // instead of setting a root error, it would be more robust to show a
