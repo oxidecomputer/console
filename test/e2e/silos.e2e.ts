@@ -263,6 +263,10 @@ test('Silo IP pools link pool', async ({ page }) => {
   await page.getByRole('button', { name: 'Link pool' }).click()
   await expect(modal).toBeVisible()
 
+  // verify that combobox's "no items match" appears when addNewItems prop is false or missing
+  await page.getByPlaceholder('Select a pool').fill('x')
+  await expect(page.getByText('No items match')).toBeVisible()
+
   // select silo in combobox and click link
   await page.getByPlaceholder('Select a pool').fill('ip-pool')
   await page.getByRole('option', { name: 'ip-pool-3' }).click()

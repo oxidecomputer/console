@@ -32,26 +32,29 @@ import { valuesToRuleUpdate, type FirewallRuleValues } from './firewall-rules-ut
 EditFirewallRuleForm.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project, vpc, rule } = getFirewallRuleSelector(params)
 
-  const data = await apiQueryClient.fetchQuery('vpcFirewallRulesView', {
-    query: { project, vpc },
-  })
+  const [firewallRules] = await Promise.all([
+    apiQueryClient.fetchQuery('vpcFirewallRulesView', { query: { project, vpc } }),
+    apiQueryClient.prefetchQuery('instanceList', { query: { project, limit: 1000 } }),
+    apiQueryClient.prefetchQuery('vpcList', { query: { project, limit: 1000 } }),
+    apiQueryClient.prefetchQuery('vpcSubnetList', { query: { project, vpc } }),
+  ])
 
-  const originalRule = data.rules.find((r) => r.name === rule)
+  const originalRule = firewallRules.rules.find((r) => r.name === rule)
   if (!originalRule) throw trigger404
 
   return null
 }
 
 export function EditFirewallRuleForm() {
-  const { vpc, project, rule } = useFirewallRuleSelector()
+  const { project, vpc, rule } = useFirewallRuleSelector()
   const vpcSelector = useVpcSelector()
   const queryClient = useApiQueryClient()
 
-  const { data } = usePrefetchedApiQuery('vpcFirewallRulesView', {
+  const { data: firewallRules } = usePrefetchedApiQuery('vpcFirewallRulesView', {
     query: { project, vpc },
   })
 
-  const originalRule = data.rules.find((r) => r.name === rule)
+  const originalRule = firewallRules.rules.find((r) => r.name === rule)
 
   // we shouldn't hit this because of the trigger404 in the loader
   invariant(originalRule, 'Firewall rule must exist')
@@ -93,7 +96,7 @@ export function EditFirewallRuleForm() {
 
   // note different filter logic from create: filter out the rule with the
   // *original* name because we need to overwrite that rule
-  const otherRules = data.rules.filter((r) => r.name !== originalRule.name)
+  const otherRules = firewallRules.rules.filter((r) => r.name !== originalRule.name)
 
   return (
     <SideModalForm
@@ -115,10 +118,10 @@ export function EditFirewallRuleForm() {
       submitError={updateRules.error}
     >
       <CommonFields
-        error={updateRules.error}
         control={form.control}
         // error if name is being changed to something that conflicts with some other rule
         nameTaken={(name) => !!otherRules.find((r) => r.name === name)}
+        error={updateRules.error}
       />
     </SideModalForm>
   )

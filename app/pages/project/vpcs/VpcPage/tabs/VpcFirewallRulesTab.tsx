@@ -114,7 +114,7 @@ export function VpcFirewallRulesTab() {
 
   const navigate = useNavigate()
 
-  const updateRules = useApiMutation('vpcFirewallRulesUpdate', {
+  const { mutateAsync: updateRules } = useApiMutation('vpcFirewallRulesUpdate', {
     onSuccess() {
       queryClient.invalidateQueries('vpcFirewallRulesView')
     },
@@ -149,7 +149,7 @@ export function VpcFirewallRulesTab() {
           label: 'Delete',
           onActivate: confirmDelete({
             doDelete: () =>
-              updateRules.mutateAsync({
+              updateRules({
                 query: vpcSelector,
                 body: {
                   rules: rules.filter((r) => r.id !== rule.id),

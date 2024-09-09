@@ -75,7 +75,7 @@ export function SilosPage() {
     query: { limit: PAGE_SIZE },
   })
 
-  const deleteSilo = useApiMutation('siloDelete', {
+  const { mutateAsync: deleteSilo } = useApiMutation('siloDelete', {
     onSuccess() {
       queryClient.invalidateQueries('siloList')
     },
@@ -86,7 +86,7 @@ export function SilosPage() {
       {
         label: 'Delete',
         onActivate: confirmDelete({
-          doDelete: () => deleteSilo.mutateAsync({ path: { silo: silo.name } }),
+          doDelete: () => deleteSilo({ path: { silo: silo.name } }),
           label: silo.name,
         }),
       },

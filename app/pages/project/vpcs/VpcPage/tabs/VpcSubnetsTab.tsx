@@ -44,7 +44,7 @@ export function VpcSubnetsTab() {
 
   const { Table } = useQueryTable('vpcSubnetList', { query: vpcSelector })
 
-  const deleteSubnet = useApiMutation('vpcSubnetDelete', {
+  const { mutateAsync: deleteSubnet } = useApiMutation('vpcSubnetDelete', {
     onSuccess() {
       queryClient.invalidateQueries('vpcSubnetList')
     },
@@ -63,7 +63,7 @@ export function VpcSubnetsTab() {
       {
         label: 'Delete',
         onActivate: confirmDelete({
-          doDelete: () => deleteSubnet.mutateAsync({ path: { subnet: subnet.id } }),
+          doDelete: () => deleteSubnet({ path: { subnet: subnet.id } }),
           label: subnet.name,
         }),
       },

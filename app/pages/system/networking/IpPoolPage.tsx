@@ -189,7 +189,7 @@ function IpRangesTable() {
   const { Table } = useQueryTable('ipPoolRangeList', { path: { pool } })
   const queryClient = useApiQueryClient()
 
-  const removeRange = useApiMutation('ipPoolRangeRemove', {
+  const { mutateAsync: removeRange } = useApiMutation('ipPoolRangeRemove', {
     onSuccess() {
       queryClient.invalidateQueries('ipPoolRangeList')
       queryClient.invalidateQueries('ipPoolUtilizationView')
@@ -213,7 +213,7 @@ function IpRangesTable() {
         onActivate: () =>
           confirmAction({
             doAction: () =>
-              removeRange.mutateAsync({
+              removeRange({
                 path: { pool },
                 body: range,
               }),
@@ -281,7 +281,7 @@ function LinkedSilosTable() {
   const queryClient = useApiQueryClient()
   const { Table } = useQueryTable('ipPoolSiloList', { path: poolSelector })
 
-  const unlinkSilo = useApiMutation('ipPoolSiloUnlink', {
+  const { mutateAsync: unlinkSilo } = useApiMutation('ipPoolSiloUnlink', {
     onSuccess() {
       queryClient.invalidateQueries('ipPoolSiloList')
     },
@@ -295,7 +295,7 @@ function LinkedSilosTable() {
         onActivate() {
           confirmAction({
             doAction: () =>
-              unlinkSilo.mutateAsync({ path: { silo: link.siloId, pool: link.ipPoolId } }),
+              unlinkSilo({ path: { silo: link.siloId, pool: link.ipPoolId } }),
             modalTitle: 'Confirm unlink silo',
             // Would be nice to reference the silo by name like we reference the
             // pool by name on unlink in the silo pools list, but it's a pain to
