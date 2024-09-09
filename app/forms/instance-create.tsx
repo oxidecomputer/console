@@ -173,7 +173,11 @@ export function CreateInstanceForm() {
   const { project } = useProjectSelector()
   const navigate = useNavigate()
 
-  const createInstance = useApiMutation('instanceCreate', {
+  const {
+    mutateAsync: createInstance,
+    isPending,
+    error,
+  } = useApiMutation('instanceCreate', {
     onSuccess(instance) {
       // refetch list of instances
       queryClient.invalidateQueries('instanceList')
@@ -244,10 +248,10 @@ export function CreateInstanceForm() {
   const imageSizeGiB = image?.size ? Math.ceil(image.size / GiB) : undefined
 
   useEffect(() => {
-    if (createInstance.error) {
+    if (error) {
       setIsSubmitting(false)
     }
-  }, [createInstance.error])
+  }, [error])
 
   // additional form elements for projectImage and siloImage tabs
   const bootDiskSizeAndName = (
@@ -308,7 +312,7 @@ export function CreateInstanceForm() {
             ? await readBlobAsBase64(values.userData)
             : undefined
 
-          await createInstance.mutateAsync({
+          await createInstance({
             query: { project },
             body: {
               name: values.name,
@@ -325,8 +329,8 @@ export function CreateInstanceForm() {
             },
           })
         }}
-        loading={createInstance.isPending}
-        submitError={createInstance.error}
+        loading={isPending}
+        submitError={error}
       >
         <NameField name="name" control={control} disabled={isSubmitting} />
         <DescriptionField name="description" control={control} disabled={isSubmitting} />
@@ -573,7 +577,7 @@ export function CreateInstanceForm() {
           siloPools={siloPools.items}
         />
         <Form.Actions>
-          <Form.Submit loading={createInstance.isPending}>Create instance</Form.Submit>
+          <Form.Submit loading={isPending}>Create instance</Form.Submit>
           <Form.Cancel onClick={() => navigate(pb.instances({ project }))} />
         </Form.Actions>
       </FullPageForm>
