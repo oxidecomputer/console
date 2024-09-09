@@ -17,7 +17,6 @@ interface FieldLabelProps {
   tip?: string
   optional?: boolean
   className?: string
-  hideOptionalTag?: boolean
 }
 
 export const FieldLabel = ({
@@ -28,14 +27,13 @@ export const FieldLabel = ({
   optional,
   as,
   className,
-  hideOptionalTag,
 }: PropsWithChildren<FieldLabelProps>) => {
   const Component = as || 'label'
   return (
     <div className={cn(className, 'flex h-4 items-center space-x-2')}>
       <Component id={id} className="flex items-center text-sans-md" htmlFor={htmlFor}>
         {children}
-        {optional && !hideOptionalTag && (
+        {optional && (
           // Announcing this optional text is unnecessary as the required attribute on the
           // form will be used
           <span className="pl-1 text-tertiary" aria-hidden="true">
