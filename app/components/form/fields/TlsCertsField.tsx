@@ -6,13 +6,12 @@
  * Copyright Oxide Computer Company
  */
 import { useState } from 'react'
-import { useController, type Control } from 'react-hook-form'
+import { useController, useForm, type Control } from 'react-hook-form'
 import type { Merge } from 'type-fest'
 
 import type { CertificateCreate } from '@oxide/api'
 
 import type { SiloCreateFormValues } from '~/forms/silo-create'
-import { useForm } from '~/hooks'
 import { Button } from '~/ui/lib/Button'
 import { FieldLabel } from '~/ui/lib/FieldLabel'
 import * as MiniTable from '~/ui/lib/MiniTable'

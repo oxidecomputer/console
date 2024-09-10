@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 
 import { useApiMutation, useApiQueryClient, type VpcRouterCreate } from '@oxide/api'
@@ -12,7 +13,7 @@ import { useApiMutation, useApiQueryClient, type VpcRouterCreate } from '@oxide/
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { useForm, useVpcSelector } from '~/hooks'
+import { useVpcSelector } from '~/hooks'
 import { addToast } from '~/stores/toast'
 import { pb } from '~/util/path-builder'
 

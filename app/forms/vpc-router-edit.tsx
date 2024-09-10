@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useForm } from 'react-hook-form'
 import {
   useNavigate,
   type LoaderFunctionArgs,
@@ -22,7 +23,7 @@ import {
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { getVpcRouterSelector, useForm, useVpcRouterSelector } from '~/hooks'
+import { getVpcRouterSelector, useVpcRouterSelector } from '~/hooks'
 import { addToast } from '~/stores/toast'
 import { pb } from '~/util/path-builder'
 

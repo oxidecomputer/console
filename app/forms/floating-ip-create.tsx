@@ -7,6 +7,7 @@
  */
 import * as Accordion from '@radix-ui/react-accordion'
 import { useState } from 'react'
+import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 
 import {
@@ -22,7 +23,7 @@ import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { useForm, useProjectSelector } from '~/hooks'
+import { useProjectSelector } from '~/hooks'
 import { addToast } from '~/stores/toast'
 import { Badge } from '~/ui/lib/Badge'
 import { Message } from '~/ui/lib/Message'

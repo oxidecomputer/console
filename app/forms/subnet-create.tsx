@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 
 import { useApiMutation, useApiQueryClient, type VpcSubnetCreate } from '@oxide/api'
@@ -19,7 +20,7 @@ import {
   useCustomRouterItems,
 } from '~/components/form/fields/useItemsList'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { useForm, useVpcSelector } from '~/hooks'
+import { useVpcSelector } from '~/hooks'
 import { FormDivider } from '~/ui/lib/Divider'
 import { pb } from '~/util/path-builder'
 

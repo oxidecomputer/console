@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { useMemo } from 'react'
+import { useForm } from 'react-hook-form'
 
 import { useApiQuery, type ApiError, type InstanceNetworkInterfaceCreate } from '@oxide/api'
 
@@ -15,7 +16,7 @@ import { NameField } from '~/components/form/fields/NameField'
 import { SubnetListbox } from '~/components/form/fields/SubnetListbox'
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { useForm, useProjectSelector } from '~/hooks'
+import { useProjectSelector } from '~/hooks'
 import { FormDivider } from '~/ui/lib/Divider'
 
 const defaultValues: InstanceNetworkInterfaceCreate = {

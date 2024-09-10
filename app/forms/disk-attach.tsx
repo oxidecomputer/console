@@ -5,11 +5,13 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useForm } from 'react-hook-form'
+
 import { useApiQuery, type ApiError } from '@oxide/api'
 
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { useForm, useProjectSelector } from '~/hooks'
+import { useProjectSelector } from '~/hooks'
 
 const defaultValues = { name: '' }
 

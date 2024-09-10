@@ -7,7 +7,7 @@
  */
 import * as Accordion from '@radix-ui/react-accordion'
 import { useEffect, useMemo, useState } from 'react'
-import { useController, useWatch, type Control } from 'react-hook-form'
+import { useController, useForm, useWatch, type Control } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 import type { SetRequired } from 'type-fest'
 
@@ -55,7 +55,7 @@ import { TextField } from '~/components/form/fields/TextField'
 import { Form } from '~/components/form/Form'
 import { FullPageForm } from '~/components/form/FullPageForm'
 import { HL } from '~/components/HL'
-import { getProjectSelector, useForm, useProjectSelector } from '~/hooks'
+import { getProjectSelector, useProjectSelector } from '~/hooks'
 import { addToast } from '~/stores/toast'
 import { Badge } from '~/ui/lib/Badge'
 import { Button } from '~/ui/lib/Button'

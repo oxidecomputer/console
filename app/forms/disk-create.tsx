@@ -7,7 +7,7 @@
  */
 import { filesize } from 'filesize'
 import { useMemo } from 'react'
-import { useController, type Control } from 'react-hook-form'
+import { useController, useForm, type Control } from 'react-hook-form'
 import { useNavigate, type NavigateFunction } from 'react-router-dom'
 
 import {
@@ -28,7 +28,7 @@ import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
 import { RadioField } from '~/components/form/fields/RadioField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { useForm, useProjectSelector } from '~/hooks'
+import { useProjectSelector } from '~/hooks'
 import { addToast } from '~/stores/toast'
 import { FormDivider } from '~/ui/lib/Divider'
 import { FieldLabel } from '~/ui/lib/FieldLabel'

@@ -8,6 +8,7 @@
 
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
+import { useForm } from 'react-hook-form'
 import { Outlet, useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
@@ -28,7 +29,7 @@ import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { HL } from '~/components/HL'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import { QueryParamTabs } from '~/components/QueryParamTabs'
-import { getIpPoolSelector, useForm, useIpPoolSelector } from '~/hooks'
+import { getIpPoolSelector, useIpPoolSelector } from '~/hooks'
 import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
