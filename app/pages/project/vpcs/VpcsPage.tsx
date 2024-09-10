@@ -84,7 +84,7 @@ export function VpcsPage() {
   const { mutateAsync: deleteVpc } = useApiMutation('vpcDelete', {
     onSuccess() {
       queryClient.invalidateQueries('vpcList')
-      addToast({ content: 'VPC deleted' })
+      addToast({ content: 'Your VPC has been deleted' })
     },
   })
 
@@ -148,7 +148,7 @@ export function VpcsPage() {
         <PageTitle icon={<Networking24Icon />}>VPCs</PageTitle>
         <VpcDocsPopover />
       </PageHeader>
-      <TableActions className="!-mt-6">
+      <TableActions>
         <CreateLink to={pb.vpcsNew({ project })}>New Vpc</CreateLink>
       </TableActions>
       <Table columns={columns} emptyState={<EmptyState />} />
