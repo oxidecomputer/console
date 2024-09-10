@@ -59,6 +59,7 @@ test('can edit VPC', async ({ page }) => {
   await page.getByRole('textbox', { name: 'Description' }).fill('updated description')
   await page.getByRole('button', { name: 'Update VPC' }).click()
   await expect(page).toHaveURL('/projects/mock-project/vpcs/mock-vpc-2/firewall-rules')
+  await expect(page.getByText('descriptionupdated')).toBeVisible()
 
   // go to the VPCs list page and verify the name and description change
   await page.getByRole('link', { name: 'VPCs' }).click()
