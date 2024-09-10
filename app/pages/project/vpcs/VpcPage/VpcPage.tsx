@@ -38,8 +38,12 @@ VpcPage.loader = async ({ params }: LoaderFunctionArgs) => {
 export function VpcPage() {
   const queryClient = useApiQueryClient()
   const navigate = useNavigate()
-  const { project, vpc } = useVpcSelector()
-  const { data } = usePrefetchedApiQuery('vpcView', { path: { vpc }, query: { project } })
+  const vpcSelector = useVpcSelector()
+  const { project, vpc: vpcName } = vpcSelector
+  const { data: vpc } = usePrefetchedApiQuery('vpcView', {
+    path: { vpc: vpcName },
+    query: { project },
+  })
 
   const { mutateAsync: deleteVpc } = useApiMutation('vpcDelete', {
     onSuccess() {
@@ -54,26 +58,25 @@ export function VpcPage() {
       {
         label: 'Edit',
         onActivate() {
-          navigate(pb.vpcEdit({ project, vpc }))
+          navigate(pb.vpcEdit(vpcSelector))
         },
       },
       {
         label: 'Delete',
         onActivate: confirmDelete({
-          doDelete: () => deleteVpc({ path: { vpc }, query: { project } }),
-          label: vpc,
+          doDelete: () => deleteVpc({ path: { vpc: vpcName }, query: { project } }),
+          label: vpcName,
         }),
         className: 'destructive',
       },
     ],
-    [deleteVpc, navigate, project, vpc]
+    [deleteVpc, navigate, project, vpcName, vpcSelector]
   )
 
-  const { name, description, dnsName, timeCreated, timeModified } = data
   return (
     <>
       <PageHeader>
-        <PageTitle icon={<Networking24Icon />}>{name}</PageTitle>
+        <PageTitle icon={<Networking24Icon />}>{vpc.name}</PageTitle>
         <div className="inline-flex gap-2">
           <VpcDocsPopover />
           <MoreActionsMenu label="VPC actions" actions={actions} />
@@ -82,24 +85,24 @@ export function VpcPage() {
       <PropertiesTable.Group className="mb-16">
         <PropertiesTable>
           <PropertiesTable.Row label="Description">
-            <DescriptionCell text={description} />
+            <DescriptionCell text={vpc.description} />
           </PropertiesTable.Row>
-          <PropertiesTable.Row label="DNS Name">{dnsName}</PropertiesTable.Row>
+          <PropertiesTable.Row label="DNS Name">{vpc.dnsName}</PropertiesTable.Row>
         </PropertiesTable>
         <PropertiesTable>
           <PropertiesTable.Row label="Created">
-            <DateTime date={timeCreated} />
+            <DateTime date={vpc.timeCreated} />
           </PropertiesTable.Row>
           <PropertiesTable.Row label="Last Modified">
-            <DateTime date={timeModified} />
+            <DateTime date={vpc.timeModified} />
           </PropertiesTable.Row>
         </PropertiesTable>
       </PropertiesTable.Group>
 
       <RouteTabs fullWidth>
-        <Tab to={pb.vpcFirewallRules({ project, vpc })}>Firewall Rules</Tab>
-        <Tab to={pb.vpcSubnets({ project, vpc })}>Subnets</Tab>
-        <Tab to={pb.vpcRouters({ project, vpc })}>Routers</Tab>
+        <Tab to={pb.vpcFirewallRules(vpcSelector)}>Firewall Rules</Tab>
+        <Tab to={pb.vpcSubnets(vpcSelector)}>Subnets</Tab>
+        <Tab to={pb.vpcRouters(vpcSelector)}>Routers</Tab>
       </RouteTabs>
     </>
   )

@@ -46,7 +46,7 @@ export function EditVpcSideModalForm() {
       // Only invalidate if we're staying on the same page. If the name
       // _has_ changed, invalidating vpcView causes an error page to flash
       // while the loader for the target page is running because the current
-      // page's vpc gets cleared out while we're still on the page. If we're
+      // page's VPC gets cleared out while we're still on the page. If we're
       // navigating to a different page, its query will fetch anew regardless.
       if (vpc.name === updatedVpc.name) {
         queryClient.invalidateQueries('vpcView')
