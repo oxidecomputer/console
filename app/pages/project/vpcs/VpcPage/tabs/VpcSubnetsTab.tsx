@@ -16,7 +16,7 @@ import {
   type VpcSubnet,
 } from '@oxide/api'
 
-import { getVpcSelector, useVpcSelector } from '~/hooks'
+import { getVpcSelector, useVpcSelector } from '~/hooks/use-params'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { RouterLinkCell } from '~/table/cells/RouterLinkCell'

@@ -15,7 +15,7 @@ import { Networking24Icon } from '@oxide/design-system/icons/react'
 
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { HL } from '~/components/HL'
-import { useSiloSelector } from '~/hooks'
+import { useSiloSelector } from '~/hooks/use-params'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
 import { DefaultPoolCell } from '~/table/cells/DefaultPoolCell'

@@ -16,7 +16,7 @@ import {
 
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { useProjectSelector } from '~/hooks'
+import { useProjectSelector } from '~/hooks/use-params'
 
 import {
   actorToItem,

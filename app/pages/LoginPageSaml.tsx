@@ -8,10 +8,9 @@
 import cn from 'classnames'
 import { useSearchParams } from 'react-router-dom'
 
+import { useIdpSelector } from '~/hooks/use-params'
 import { buttonStyle } from '~/ui/lib/Button'
 import { Identicon } from '~/ui/lib/Identicon'
-
-import { useIdpSelector } from '../hooks'
 
 /** SAML "login page" that just links to the actual IdP */
 export function LoginPageSaml() {

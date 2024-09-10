@@ -18,7 +18,7 @@ import { Networking24Icon } from '@oxide/design-system/icons/react'
 
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
 import { RouteTabs, Tab } from '~/components/RouteTabs'
-import { getVpcSelector, useVpcSelector } from '~/hooks'
+import { getVpcSelector, useVpcSelector } from '~/hooks/use-params'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { DescriptionCell } from '~/table/cells/DescriptionCell'

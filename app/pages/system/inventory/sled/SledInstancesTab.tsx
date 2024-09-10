@@ -13,7 +13,7 @@ import { apiQueryClient, type SledInstance } from '@oxide/api'
 import { Instances24Icon } from '@oxide/design-system/icons/react'
 
 import { InstanceStateBadge } from '~/components/StateBadge'
-import { requireSledParams, useSledParams } from '~/hooks'
+import { requireSledParams, useSledParams } from '~/hooks/use-params'
 import { InstanceResourceCell } from '~/table/cells/InstanceResourceCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'

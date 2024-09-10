@@ -24,7 +24,7 @@ import { IpGlobal16Icon, IpGlobal24Icon } from '@oxide/design-system/icons/react
 import { DocsPopover } from '~/components/DocsPopover'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { HL } from '~/components/HL'
-import { getProjectSelector, useProjectSelector } from '~/hooks'
+import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'

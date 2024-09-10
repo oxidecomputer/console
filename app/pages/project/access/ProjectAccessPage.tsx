@@ -32,7 +32,7 @@ import {
   ProjectAccessAddUserSideModal,
   ProjectAccessEditUserSideModal,
 } from '~/forms/project-access'
-import { getProjectSelector, useProjectSelector } from '~/hooks'
+import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { getActionsCol } from '~/table/columns/action-col'
 import { Table } from '~/table/Table'

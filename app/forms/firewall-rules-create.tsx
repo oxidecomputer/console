@@ -20,7 +20,7 @@ import {
 } from '@oxide/api'
 
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { getVpcSelector, useVpcSelector } from '~/hooks'
+import { getVpcSelector, useVpcSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { pb } from '~/util/path-builder'
 
