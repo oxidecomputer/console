@@ -45,7 +45,7 @@ export function VpcPage() {
     onSuccess() {
       queryClient.invalidateQueries('vpcList')
       navigate(pb.vpcs({ project }))
-      addToast({ content: 'VPC deleted' })
+      addToast({ content: 'Your VPC has been deleted' })
     },
   })
 
