@@ -12,7 +12,7 @@ import { apiQueryClient, usePrefetchedApiQuery } from '@oxide/api'
 import { Servers24Icon } from '@oxide/design-system/icons/react'
 
 import { RouteTabs, Tab } from '~/components/RouteTabs'
-import { requireSledParams, useSledParams } from '~/hooks'
+import { requireSledParams, useSledParams } from '~/hooks/use-params'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { pb } from '~/util/path-builder'

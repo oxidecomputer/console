@@ -21,7 +21,7 @@ import {
   useSiloSelector,
   useVpcRouterSelector,
   useVpcSelector,
-} from '~/hooks'
+} from '~/hooks/use-params'
 import { useCurrentUser } from '~/layouts/AuthenticatedLayout'
 import { PAGE_SIZE } from '~/table/QueryTable'
 import { Button } from '~/ui/lib/Button'

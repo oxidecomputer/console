@@ -18,7 +18,11 @@ import {
 
 import { trigger404 } from '~/components/ErrorBoundary'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { getFirewallRuleSelector, useFirewallRuleSelector, useVpcSelector } from '~/hooks'
+import {
+  getFirewallRuleSelector,
+  useFirewallRuleSelector,
+  useVpcSelector,
+} from '~/hooks/use-params'
 import { invariant } from '~/util/invariant'
 import { pb } from '~/util/path-builder'
 

@@ -9,7 +9,7 @@
 import { useMemo } from 'react'
 
 import { useApiQuery } from '~/api'
-import { useVpcSelector } from '~/hooks'
+import { useVpcSelector } from '~/hooks/use-params'
 
 /**
  * Special value indicating no router. Must use helper functions to convert

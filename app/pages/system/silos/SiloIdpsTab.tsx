@@ -12,7 +12,7 @@ import { Outlet } from 'react-router-dom'
 import { Cloud24Icon } from '@oxide/design-system/icons/react'
 
 import type { IdentityProvider } from '~/api'
-import { useSiloSelector } from '~/hooks'
+import { useSiloSelector } from '~/hooks/use-params'
 import { LinkCell } from '~/table/cells/LinkCell'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'

@@ -19,7 +19,7 @@ import {
 } from '@oxide/api'
 
 import { ListPlusCell } from '~/components/ListPlusCell'
-import { getVpcSelector, useVpcSelector } from '~/hooks'
+import { getVpcSelector, useVpcSelector } from '~/hooks/use-params'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { EnabledCell } from '~/table/cells/EnabledCell'
 import { LinkCell } from '~/table/cells/LinkCell'

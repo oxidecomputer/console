@@ -20,7 +20,7 @@ import {
   useCustomRouterItems,
 } from '~/components/form/fields/useItemsList'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { useVpcSelector } from '~/hooks'
+import { useVpcSelector } from '~/hooks/use-params'
 import { FormDivider } from '~/ui/lib/Divider'
 import { pb } from '~/util/path-builder'
 

@@ -27,7 +27,7 @@ import {
   routeFormMessage,
   targetValueDescription,
 } from '~/forms/vpc-router-route/shared'
-import { getVpcRouterRouteSelector, useVpcRouterRouteSelector } from '~/hooks'
+import { getVpcRouterRouteSelector, useVpcRouterRouteSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { Message } from '~/ui/lib/Message'
 import { pb } from '~/util/path-builder'
