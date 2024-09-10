@@ -37,8 +37,6 @@ export function EditVpcSideModalForm() {
     query: { project },
   })
 
-  const onDismiss = () => navigate(pb.vpc({ project, vpc: vpcName }))
-
   const editVpc = useApiMutation('vpcUpdate', {
     onSuccess(updatedVpc) {
       queryClient.invalidateQueries('vpcList')
@@ -63,7 +61,7 @@ export function EditVpcSideModalForm() {
       form={form}
       formType="edit"
       resourceName="VPC"
-      onDismiss={onDismiss}
+      onDismiss={() => navigate(pb.vpc({ project, vpc: vpcName }))}
       onSubmit={({ name, description, dnsName }) => {
         editVpc.mutate({
           path: { vpc: vpcName },
