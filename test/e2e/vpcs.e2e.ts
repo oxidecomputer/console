@@ -41,6 +41,36 @@ test('can nav to VpcPage from /', async ({ page }) => {
   await expect(page.getByRole('cell', { name: 'allow-icmp' })).toBeVisible()
 })
 
+test('can edit VPC', async ({ page }) => {
+  // update the VPC name, starting from the VPCs list page
+  await page.goto('/projects/mock-project/vpcs')
+  await expectRowVisible(page.getByRole('table'), { name: 'mock-vpc' })
+  await clickRowAction(page, 'mock-vpc', 'Edit')
+  await expect(page).toHaveURL('/projects/mock-project/vpcs/mock-vpc/edit')
+  await page.getByRole('textbox', { name: 'Name' }).first().fill('mock-vpc-2')
+  await page.getByRole('button', { name: 'Update VPC' }).click()
+  await expect(page).toHaveURL('/projects/mock-project/vpcs/mock-vpc-2/firewall-rules')
+  await expect(page.getByRole('heading', { name: 'mock-vpc-2' })).toBeVisible()
+
+  // now update the VPC description, starting from the VPC view page
+  await page.getByRole('button', { name: 'VPC actions' }).click()
+  await page.getByRole('menuitem', { name: 'Edit' }).click()
+  await expect(page).toHaveURL('/projects/mock-project/vpcs/mock-vpc-2/edit')
+  await page.getByRole('textbox', { name: 'Description' }).fill('updated description')
+  await page.getByRole('button', { name: 'Update VPC' }).click()
+  await expect(page).toHaveURL('/projects/mock-project/vpcs/mock-vpc-2/firewall-rules')
+  await expect(page.getByText('descriptionupdated description')).toBeVisible()
+
+  // go to the VPCs list page and verify the name and description change
+  await page.getByRole('link', { name: 'VPCs' }).click()
+  await expect(page.getByRole('table').locator('tbody >> tr')).toHaveCount(1)
+  await expectRowVisible(page.getByRole('table'), {
+    name: 'mock-vpc-2',
+    'DNS name': 'mock-vpc',
+    description: 'updated description',
+  })
+})
+
 test('can create and delete subnet', async ({ page }) => {
   await page.goto('/projects/mock-project/vpcs/mock-vpc')
   await page.getByRole('tab', { name: 'Subnets' }).click()
