@@ -6,7 +6,12 @@
  * Copyright Oxide Computer Company
  */
 
-import { useController, type Control, type ControllerRenderProps } from 'react-hook-form'
+import {
+  useController,
+  useForm,
+  type Control,
+  type ControllerRenderProps,
+} from 'react-hook-form'
 
 import {
   usePrefetchedApiQuery,
@@ -27,7 +32,6 @@ import { NumberField } from '~/components/form/fields/NumberField'
 import { RadioField } from '~/components/form/fields/RadioField'
 import { TextField, TextFieldInner } from '~/components/form/fields/TextField'
 import { useVpcSelector } from '~/hooks'
-import { useForm } from '~/hooks/use-form'
 import { Badge } from '~/ui/lib/Badge'
 import { Button } from '~/ui/lib/Button'
 import { FormDivider } from '~/ui/lib/Divider'

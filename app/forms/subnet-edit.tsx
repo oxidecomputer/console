@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useForm } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
@@ -24,7 +25,7 @@ import {
   useCustomRouterItems,
 } from '~/components/form/fields/useItemsList'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { getVpcSubnetSelector, useForm, useVpcSubnetSelector } from '~/hooks'
+import { getVpcSubnetSelector, useVpcSubnetSelector } from '~/hooks'
 import { FormDivider } from '~/ui/lib/Divider'
 import { pb } from '~/util/path-builder'
 

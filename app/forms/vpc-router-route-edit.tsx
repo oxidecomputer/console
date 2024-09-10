@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useForm } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 import * as R from 'remeda'
 
@@ -26,7 +27,7 @@ import {
   routeFormMessage,
   targetValueDescription,
 } from '~/forms/vpc-router-route/shared'
-import { getVpcRouterRouteSelector, useForm, useVpcRouterRouteSelector } from '~/hooks'
+import { getVpcRouterRouteSelector, useVpcRouterRouteSelector } from '~/hooks'
 import { addToast } from '~/stores/toast'
 import { Message } from '~/ui/lib/Message'
 import { pb } from '~/util/path-builder'

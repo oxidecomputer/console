@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useForm } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
@@ -17,12 +18,7 @@ import {
 
 import { trigger404 } from '~/components/ErrorBoundary'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import {
-  getFirewallRuleSelector,
-  useFirewallRuleSelector,
-  useForm,
-  useVpcSelector,
-} from '~/hooks'
+import { getFirewallRuleSelector, useFirewallRuleSelector, useVpcSelector } from '~/hooks'
 import { invariant } from '~/util/invariant'
 import { pb } from '~/util/path-builder'
 

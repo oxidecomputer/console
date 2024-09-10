@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { useEffect } from 'react'
+import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 
 import { useApiMutation, useApiQueryClient, type SiloCreate } from '@oxide/api'
@@ -18,7 +19,6 @@ import { RadioField } from '~/components/form/fields/RadioField'
 import { TextField } from '~/components/form/fields/TextField'
 import { TlsCertsField } from '~/components/form/fields/TlsCertsField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { useForm } from '~/hooks'
 import { addToast } from '~/stores/toast'
 import { FormDivider } from '~/ui/lib/Divider'
 import { FieldLabel } from '~/ui/lib/FieldLabel'

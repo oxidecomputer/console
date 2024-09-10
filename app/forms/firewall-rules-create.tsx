@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 import { useMemo } from 'react'
+import { useForm } from 'react-hook-form'
 import { useNavigate, useParams, type LoaderFunctionArgs } from 'react-router-dom'
 import * as R from 'remeda'
 
@@ -19,7 +20,7 @@ import {
 } from '@oxide/api'
 
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { getVpcSelector, useForm, useVpcSelector } from '~/hooks'
+import { getVpcSelector, useVpcSelector } from '~/hooks'
 import { addToast } from '~/stores/toast'
 import { pb } from '~/util/path-builder'
 

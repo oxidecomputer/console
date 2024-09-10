@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 
 import { useApiMutation, useApiQueryClient } from '@oxide/api'
@@ -14,7 +15,7 @@ import { FileField } from '~/components/form/fields/FileField'
 import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { useForm, useSiloSelector } from '~/hooks'
+import { useSiloSelector } from '~/hooks'
 import { addToast } from '~/stores/toast'
 import { readBlobAsBase64 } from '~/util/file'
 import { pb } from '~/util/path-builder'

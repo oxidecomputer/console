@@ -5,6 +5,8 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useForm } from 'react-hook-form'
+
 import {
   updateRole,
   useActorsNotInPolicy,
@@ -14,7 +16,7 @@ import {
 
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { useForm, useProjectSelector } from '~/hooks'
+import { useProjectSelector } from '~/hooks'
 
 import {
   actorToItem,
