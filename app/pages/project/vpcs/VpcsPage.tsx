@@ -133,6 +133,8 @@ export function VpcsPage() {
       colHelper.accessor('dnsName', { header: 'DNS name' }),
       colHelper.accessor('description', Columns.description),
       colHelper.accessor('name', {
+        // ID needed to avoid key collision with other name column
+        id: 'rule-count',
         header: 'Firewall Rules',
         cell: (info) => <FirewallRuleCount project={project} vpc={info.getValue()} />,
       }),
