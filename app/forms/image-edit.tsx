@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useForm } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, usePrefetchedApiQuery, type Image } from '@oxide/api'
@@ -17,7 +18,6 @@ import { SideModalForm } from '~/components/form/SideModalForm'
 import {
   getProjectImageSelector,
   getSiloImageSelector,
-  useForm,
   useProjectImageSelector,
   useSiloImageSelector,
 } from '~/hooks'
