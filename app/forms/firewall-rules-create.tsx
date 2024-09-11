@@ -5,10 +5,8 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate, useParams, type LoaderFunctionArgs } from 'react-router-dom'
-import * as R from 'remeda'
 
 import {
   apiQueryClient,
@@ -82,13 +80,8 @@ export function CreateFirewallRuleForm() {
     },
   })
 
-  const { data: vpcFirewallRules } = usePrefetchedApiQuery('vpcFirewallRulesView', {
-    query: vpcSelector,
-  })
-  const existingRules = useMemo(
-    () => R.sortBy(vpcFirewallRules.rules, (r) => r.priority),
-    [vpcFirewallRules]
-  )
+  const { data } = usePrefetchedApiQuery('vpcFirewallRulesView', { query: vpcSelector })
+  const existingRules = data.rules
 
   // The :rule path param is optional. If it is present, we are creating a
   // rule from an existing one, so we find that rule and copy it into the form
