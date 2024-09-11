@@ -177,7 +177,7 @@ export const getUsePrefetchedApiQuery =
       `Expected query to be prefetched.
 Key: ${JSON.stringify(queryKey)}
 Ensure the following:
-• loader is running
+• loader is called in routes.tsx and is running
 • query matches in both the loader and the component
 • request isn't erroring-out server-side (check the Networking tab)
 • mock API endpoint is implemented in handlers.ts

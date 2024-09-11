@@ -424,6 +424,7 @@ export const routes = createRoutesFromElements(
           <Route
             path="routes-new"
             element={<CreateRouterRouteSideModalForm />}
+            loader={CreateRouterRouteSideModalForm.loader}
             handle={{ crumb: 'New Route' }}
           />
           <Route

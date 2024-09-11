@@ -6,7 +6,10 @@
  * Copyright Oxide Computer Company
  */
 
-import type { RouteDestination, RouteTarget } from '~/api'
+import type { RouteDestination, RouterRouteCreate, RouteTarget } from '~/api'
+
+export type CreateFormValues = RouterRouteCreate
+export type EditFormValues = Required<RouterRouteCreate>
 
 // VPCs can not be specified as a destination in custom routers
 // https://github.com/oxidecomputer/omicron/blob/4f27433d1bca57eb02073a4ea1cd14557f70b8c7/nexus/src/app/vpc_router.rs#L363

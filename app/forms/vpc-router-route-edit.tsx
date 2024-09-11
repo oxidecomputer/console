@@ -14,30 +14,39 @@ import {
   useApiMutation,
   useApiQueryClient,
   usePrefetchedApiQuery,
-  type RouterRouteUpdate,
 } from '@oxide/api'
 
-import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
-import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import {
   fields,
   routeFormMessage,
   targetValueDescription,
+  type EditFormValues,
 } from '~/forms/vpc-router-route/shared'
 import { getVpcRouterRouteSelector, useVpcRouterRouteSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { Message } from '~/ui/lib/Message'
 import { pb } from '~/util/path-builder'
 
+import { VpcRouterRouteCommonFields } from './vpc-router-route-create'
+
 EditRouterRouteSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project, vpc, router, route } = getVpcRouterRouteSelector(params)
-  await apiQueryClient.prefetchQuery('vpcRouterRouteView', {
-    path: { route },
-    query: { project, vpc, router },
-  })
+  await Promise.all([
+    apiQueryClient.prefetchQuery('vpcRouterRouteView', {
+      path: { route },
+      query: { project, vpc, router },
+    }),
+    apiQueryClient.prefetchQuery('vpcSubnetList', {
+      query: { project, vpc, limit: 1000 },
+    }),
+    apiQueryClient.prefetchQuery('instanceList', {
+      query: { project, limit: 1000 },
+    }),
+  ])
+
   return null
 }
 
@@ -51,7 +60,7 @@ export function EditRouterRouteSideModalForm() {
     query: { project, vpc, router: routerName },
   })
 
-  const defaultValues: RouterRouteUpdate = R.pick(route, [
+  const defaultValues: EditFormValues = R.pick(route, [
     'name',
     'description',
     'target',
@@ -105,8 +114,7 @@ export function EditRouterRouteSideModalForm() {
       submitError={updateRouterRoute.error}
     >
       {isDisabled && <Message variant="info" content={disabledReason} />}
-      <NameField name="name" control={form.control} disabled={isDisabled} />
-      <DescriptionField name="description" control={form.control} disabled={isDisabled} />
+      <VpcRouterRouteCommonFields control={form.control} isDisabled={isDisabled} />
       <ListboxField {...fields.destType} control={form.control} disabled={isDisabled} />
       <TextField {...fields.destValue} control={form.control} disabled={isDisabled} />
       <ListboxField
