@@ -12,15 +12,48 @@ test('can delete a failed instance', async ({ page }) => {
 
   await expect(page).toHaveTitle('Instances / mock-project / Oxide Console')
 
-  const row = page.getByRole('row', { name: 'you-fail', exact: false })
-  await expect(row).toBeVisible()
-  await expect(row.getByRole('cell', { name: /failed/ })).toBeVisible()
+  const cell = page.getByRole('cell', { name: 'you-fail' })
+  await expect(cell).toBeVisible() // just to match hidden check at the end
 
-  await row.getByRole('button', { name: 'Row actions' }).click()
-  await page.getByRole('menuitem', { name: 'Delete' }).click()
+  const table = page.getByRole('table')
+  await expectRowVisible(table, {
+    name: 'you-fail',
+    state: expect.stringContaining('failed'),
+  })
+
+  await clickRowAction(page, 'you-fail', 'Delete')
   await page.getByRole('button', { name: 'Confirm' }).click()
 
-  await expect(row).toBeHidden() // bye
+  await expect(cell).toBeHidden() // bye
+})
+
+test('can start a failed instance', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances')
+
+  // check the start button disabled message on a running instance
+  await page
+    .getByRole('row', { name: 'db1', exact: false })
+    .getByRole('button', { name: 'Row actions' })
+    .click()
+  await page.getByRole('menuitem', { name: 'Start' }).hover()
+  await expect(
+    page.getByText('Only stopped or failed instances can be started')
+  ).toBeVisible()
+  await page.keyboard.press('Escape') // get out of the menu
+
+  // now start the failed one
+  const table = page.getByRole('table')
+  await expectRowVisible(table, {
+    name: 'you-fail',
+    state: expect.stringContaining('failed'),
+  })
+
+  await clickRowAction(page, 'you-fail', 'Start')
+
+  await expectRowVisible(table, {
+    name: 'you-fail',
+    state: expect.stringContaining('starting'),
+  })
 })
 
 test('can stop and delete a running instance', async ({ page }) => {
