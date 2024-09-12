@@ -35,7 +35,7 @@ export const routeFormMessage = {
   noDeletingSystemRouters: 'System routers cannot be deleted',
 }
 
-// VPCs can not be specified as a destination in custom routers
+// VPCs cannot be specified as a destination in custom routers
 // https://github.com/oxidecomputer/omicron/blob/4f27433d1bca57eb02073a4ea1cd14557f70b8c7/nexus/src/app/vpc_router.rs#L363
 const destTypes: Record<Exclude<RouteDestination['type'], 'vpc'>, string> = {
   ip: 'IP',
