@@ -62,12 +62,15 @@ export function EditRouterRouteSideModalForm() {
 
   const form = useForm({ defaultValues })
   const targetType = form.watch('target.type')
+  const targetValue = form.watch('target.value')
   const isDisabled = route?.kind === 'vpc_subnet'
-
   useEffect(() => {
     // when targetType is 'internet_gateway', we set it to `outbound`
-    form.setValue('target.value', targetType === 'internet_gateway' ? 'outbound' : '')
-  }, [form, targetType])
+    form.setValue(
+      'target.value',
+      targetType === 'internet_gateway' ? 'outbound' : targetValue
+    )
+  }, [form, targetType, targetValue])
 
   return (
     <SideModalForm
