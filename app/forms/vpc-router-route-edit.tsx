@@ -5,7 +5,6 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 import * as R from 'remeda'
@@ -51,6 +50,8 @@ export function EditRouterRouteSideModalForm() {
     'target',
     'destination',
   ])
+  const form = useForm({ defaultValues })
+  const isDisabled = route?.kind === 'vpc_subnet'
 
   const updateRouterRoute = useApiMutation('vpcRouterRouteUpdate', {
     onSuccess() {
@@ -59,18 +60,6 @@ export function EditRouterRouteSideModalForm() {
       navigate(pb.vpcRouter(routerSelector))
     },
   })
-
-  const form = useForm({ defaultValues })
-  const targetType = form.watch('target.type')
-  const targetValue = form.watch('target.value')
-  const isDisabled = route?.kind === 'vpc_subnet'
-  useEffect(() => {
-    // when targetType is 'internet_gateway', we set it to `outbound`
-    form.setValue(
-      'target.value',
-      targetType === 'internet_gateway' ? 'outbound' : targetValue
-    )
-  }, [form, targetType, targetValue])
 
   return (
     <SideModalForm
@@ -95,11 +84,7 @@ export function EditRouterRouteSideModalForm() {
       submitError={updateRouterRoute.error}
       submitDisabled={isDisabled ? routeFormMessage.vpcSubnetNotModifiable : undefined}
     >
-      <RouteFormFields
-        control={form.control}
-        targetType={targetType}
-        isDisabled={isDisabled}
-      />
+      <RouteFormFields form={form} isDisabled={isDisabled} />
     </SideModalForm>
   )
 }
