@@ -6,7 +6,21 @@
  * Copyright Oxide Computer Company
  */
 
-import type { RouteDestination, RouteTarget } from '~/api'
+import type { Control } from 'react-hook-form'
+
+import type {
+  RouteDestination,
+  RouterRouteCreate,
+  RouterRouteUpdate,
+  RouteTarget,
+} from '~/api'
+import { DescriptionField } from '~/components/form/fields/DescriptionField'
+import { ListboxField } from '~/components/form/fields/ListboxField'
+import { NameField } from '~/components/form/fields/NameField'
+import { TextField } from '~/components/form/fields/TextField'
+import { Message } from '~/ui/lib/Message'
+
+export type RouteFormValues = RouterRouteCreate | Required<RouterRouteUpdate>
 
 // VPCs can not be specified as a destination in custom routers
 // https://github.com/oxidecomputer/omicron/blob/4f27433d1bca57eb02073a4ea1cd14557f70b8c7/nexus/src/app/vpc_router.rs#L363
@@ -74,3 +88,36 @@ export const targetValueDescription = (targetType: RouteTarget['type']) =>
   targetType === 'internet_gateway'
     ? routeFormMessage.internetGatewayTargetValue
     : undefined
+
+type RouteFormFieldsProps = {
+  control: Control<RouteFormValues>
+  targetType: RouteTarget['type']
+  isDisabled?: boolean
+}
+export const RouteFormFields = ({
+  control,
+  targetType,
+  isDisabled,
+}: RouteFormFieldsProps) => {
+  return (
+    <>
+      {isDisabled && (
+        <Message variant="info" content={routeFormMessage.vpcSubnetNotModifiable} />
+      )}
+      <NameField name="name" control={control} disabled={isDisabled} />
+      <DescriptionField name="description" control={control} disabled={isDisabled} />
+      <ListboxField {...fields.destType} control={control} disabled={isDisabled} />
+      <TextField {...fields.destValue} control={control} disabled={isDisabled} />
+      <ListboxField {...fields.targetType} control={control} disabled={isDisabled} />
+      {targetType !== 'drop' && (
+        <TextField
+          {...fields.targetValue}
+          control={control}
+          // when targetType is 'internet_gateway', we set it to `outbound` and make it non-editable
+          disabled={isDisabled || targetType === 'internet_gateway'}
+          description={targetValueDescription(targetType)}
+        />
+      )}
+    </>
+  )
+}

@@ -5,22 +5,19 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 
-import { useApiMutation, useApiQueryClient, type RouterRouteCreate } from '@oxide/api'
+import { useApiMutation, useApiQueryClient } from '@oxide/api'
 
-import { DescriptionField } from '~/components/form/fields/DescriptionField'
-import { ListboxField } from '~/components/form/fields/ListboxField'
-import { NameField } from '~/components/form/fields/NameField'
-import { TextField } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { fields, targetValueDescription } from '~/forms/vpc-router-route/shared'
+import { RouteFormFields, type RouteFormValues } from '~/forms/vpc-router-route-common'
 import { useVpcRouterSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { pb } from '~/util/path-builder'
 
-const defaultValues: RouterRouteCreate = {
+const defaultValues: RouteFormValues = {
   name: '',
   description: '',
   destination: { type: 'ip', value: '' },
@@ -32,27 +29,28 @@ export function CreateRouterRouteSideModalForm() {
   const routerSelector = useVpcRouterSelector()
   const navigate = useNavigate()
 
-  const onDismiss = () => {
-    navigate(pb.vpcRouter(routerSelector))
-  }
-
   const createRouterRoute = useApiMutation('vpcRouterRouteCreate', {
     onSuccess() {
       queryClient.invalidateQueries('vpcRouterRouteList')
       addToast({ content: 'Your route has been created' })
-      onDismiss()
+      navigate(pb.vpcRouter(routerSelector))
     },
   })
 
   const form = useForm({ defaultValues })
   const targetType = form.watch('target.type')
 
+  useEffect(() => {
+    // when targetType is 'internet_gateway', we set it to `outbound`
+    form.setValue('target.value', targetType === 'internet_gateway' ? 'outbound' : '')
+  }, [form, targetType])
+
   return (
     <SideModalForm
       form={form}
       formType="create"
       resourceName="route"
-      onDismiss={onDismiss}
+      onDismiss={() => navigate(pb.vpcRouter(routerSelector))}
       onSubmit={({ name, description, destination, target }) =>
         createRouterRoute.mutate({
           query: routerSelector,
@@ -68,32 +66,7 @@ export function CreateRouterRouteSideModalForm() {
       loading={createRouterRoute.isPending}
       submitError={createRouterRoute.error}
     >
-      <NameField name="name" control={form.control} />
-      <DescriptionField name="description" control={form.control} />
-      <ListboxField {...fields.destType} control={form.control} />
-      <TextField {...fields.destValue} control={form.control} />
-      <ListboxField
-        {...fields.targetType}
-        control={form.control}
-        onChange={(value) => {
-          // 'outbound' is only valid option when targetType is 'internet_gateway'
-          if (value === 'internet_gateway') {
-            form.setValue('target.value', 'outbound')
-          }
-          if (value === 'drop') {
-            form.setValue('target.value', '')
-          }
-        }}
-      />
-      {targetType !== 'drop' && (
-        <TextField
-          {...fields.targetValue}
-          control={form.control}
-          // when targetType is 'internet_gateway', we set it to `outbound` and make it non-editable
-          disabled={targetType === 'internet_gateway'}
-          description={targetValueDescription(targetType)}
-        />
-      )}
+      <RouteFormFields control={form.control} targetType={targetType} />
     </SideModalForm>
   )
 }
