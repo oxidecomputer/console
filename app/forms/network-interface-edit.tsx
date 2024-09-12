@@ -19,6 +19,8 @@ import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { useInstanceSelector } from '~/hooks/use-params'
+import { FormDivider } from '~/ui/lib/Divider'
+import * as MiniTable from '~/ui/lib/MiniTable'
 
 type EditNetworkInterfaceFormProps = {
   editing: InstanceNetworkInterface
@@ -42,9 +44,11 @@ export function EditNetworkInterfaceForm({
   const defaultValues = R.pick(editing, [
     'name',
     'description',
+    'transitIps',
   ]) satisfies InstanceNetworkInterfaceUpdate
 
   const form = useForm({ defaultValues })
+  const transitIps = form.watch('transitIps')
 
   return (
     <SideModalForm
@@ -65,6 +69,34 @@ export function EditNetworkInterfaceForm({
     >
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
+      <FormDivider />
+      {transitIps && (
+        <MiniTable.Table className="mb-4" aria-label="Transit IPs">
+          <MiniTable.Header>
+            <MiniTable.HeadCell>Transit IPs</MiniTable.HeadCell>
+            {/* For remove button */}
+            <MiniTable.HeadCell className="w-12" />
+          </MiniTable.Header>
+          <MiniTable.Body>
+            {transitIps.map((ip, index) => (
+              <MiniTable.Row
+                tabIndex={0}
+                aria-rowindex={index + 1}
+                aria-label={ip}
+                key={ip}
+              >
+                <MiniTable.Cell>{ip}</MiniTable.Cell>
+                <MiniTable.RemoveCell
+                  onClick={() => {
+                    console.log('this does, in fact, need to do something')
+                  }}
+                  label={`remove IP ${ip}`}
+                />
+              </MiniTable.Row>
+            ))}
+          </MiniTable.Body>
+        </MiniTable.Table>
+      )}
     </SideModalForm>
   )
 }
