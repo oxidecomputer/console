@@ -119,17 +119,18 @@ test.describe('Image upload', () => {
 
     await page.click('role=button[name="Upload image"]')
 
+    const progressModal = page.getByRole('dialog', { name: 'Image upload progress' })
+    await expect(progressModal).toBeVisible()
+
     // wait to be in the middle of upload
     const uploadStep = page
-      .locator('div[data-status]')
+      .getByTestId('upload-step')
       .filter({ hasText: 'Upload image file' })
       .first()
     await expect(uploadStep).toHaveAttribute('data-status', 'running')
 
     // form is disabled and semi-hidden
     // await expectNotVisible(page, ['role=textbox[name="Name"]'])
-
-    const progressModal = page.getByRole('dialog', { name: 'Image upload progress' })
 
     page.on('dialog', (dialog) => dialog.accept()) // click yes on the are you sure prompt
     await progressModal.getByRole('button', { name: 'Cancel' }).click()
