@@ -98,26 +98,24 @@ export const RouteFormFields = ({
   control,
   targetType,
   isDisabled,
-}: RouteFormFieldsProps) => {
-  return (
-    <>
-      {isDisabled && (
-        <Message variant="info" content={routeFormMessage.vpcSubnetNotModifiable} />
-      )}
-      <NameField name="name" control={control} disabled={isDisabled} />
-      <DescriptionField name="description" control={control} disabled={isDisabled} />
-      <ListboxField {...fields.destType} control={control} disabled={isDisabled} />
-      <TextField {...fields.destValue} control={control} disabled={isDisabled} />
-      <ListboxField {...fields.targetType} control={control} disabled={isDisabled} />
-      {targetType !== 'drop' && (
-        <TextField
-          {...fields.targetValue}
-          control={control}
-          // when targetType is 'internet_gateway', we set it to `outbound` and make it non-editable
-          disabled={isDisabled || targetType === 'internet_gateway'}
-          description={targetValueDescription(targetType)}
-        />
-      )}
-    </>
-  )
-}
+}: RouteFormFieldsProps) => (
+  <>
+    {isDisabled && (
+      <Message variant="info" content={routeFormMessage.vpcSubnetNotModifiable} />
+    )}
+    <NameField name="name" control={control} disabled={isDisabled} />
+    <DescriptionField name="description" control={control} disabled={isDisabled} />
+    <ListboxField {...fields.destType} control={control} disabled={isDisabled} />
+    <TextField {...fields.destValue} control={control} disabled={isDisabled} />
+    <ListboxField {...fields.targetType} control={control} disabled={isDisabled} />
+    {targetType !== 'drop' && (
+      <TextField
+        {...fields.targetValue}
+        control={control}
+        // 'internet_gateway' targetTypes can only have the value 'outbound', so we disable the field
+        disabled={isDisabled || targetType === 'internet_gateway'}
+        description={targetValueDescription(targetType)}
+      />
+    )}
+  </>
+)
