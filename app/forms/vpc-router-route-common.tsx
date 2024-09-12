@@ -8,12 +8,7 @@
 
 import type { Control } from 'react-hook-form'
 
-import type {
-  RouteDestination,
-  RouterRouteCreate,
-  RouterRouteUpdate,
-  RouteTarget,
-} from '~/api'
+import type { RouterRouteCreate, RouterRouteUpdate, RouteTarget } from '~/api'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
@@ -21,55 +16,6 @@ import { TextField } from '~/components/form/fields/TextField'
 import { Message } from '~/ui/lib/Message'
 
 export type RouteFormValues = RouterRouteCreate | Required<RouterRouteUpdate>
-
-// VPCs can not be specified as a destination in custom routers
-// https://github.com/oxidecomputer/omicron/blob/4f27433d1bca57eb02073a4ea1cd14557f70b8c7/nexus/src/app/vpc_router.rs#L363
-const destTypes: Record<Exclude<RouteDestination['type'], 'vpc'>, string> = {
-  ip: 'IP',
-  ip_net: 'IP network',
-  subnet: 'Subnet',
-}
-
-// Subnets and VPCs cannot be used as a target in custom routers
-// https://github.com/oxidecomputer/omicron/blob/4f27433d1bca57eb02073a4ea1cd14557f70b8c7/nexus/src/app/vpc_router.rs#L362-L368
-const targetTypes: Record<Exclude<RouteTarget['type'], 'subnet' | 'vpc'>, string> = {
-  ip: 'IP',
-  instance: 'Instance',
-  internet_gateway: 'Internet gateway',
-  drop: 'Drop',
-}
-
-const toItems = (mapping: Record<string, string>) =>
-  Object.entries(mapping).map(([value, label]) => ({ value, label }))
-
-export const fields = {
-  destType: {
-    name: 'destination.type' as const,
-    items: toItems(destTypes),
-    label: 'Destination type',
-    placeholder: 'Select a destination type',
-    required: true,
-  },
-  destValue: {
-    name: 'destination.value' as const,
-    label: 'Destination value',
-    placeholder: 'Enter a destination value',
-    required: true,
-  },
-  targetType: {
-    name: 'target.type' as const,
-    items: toItems(targetTypes),
-    label: 'Target type',
-    placeholder: 'Select a target type',
-    required: true,
-  },
-  targetValue: {
-    name: 'target.value' as const,
-    label: 'Target value',
-    placeholder: 'Enter a target value',
-    required: true,
-  },
-}
 
 export const routeFormMessage = {
   vpcSubnetNotModifiable:
@@ -83,11 +29,6 @@ export const routeFormMessage = {
   // https://github.com/oxidecomputer/omicron/blob/914f5fd7d51f9b060dcc0382a30b607e25df49b2/nexus/src/app/vpc_router.rs#L136-L138
   noDeletingSystemRouters: 'System routers cannot be deleted',
 }
-
-export const targetValueDescription = (targetType: RouteTarget['type']) =>
-  targetType === 'internet_gateway'
-    ? routeFormMessage.internetGatewayTargetValue
-    : undefined
 
 type RouteFormFieldsProps = {
   control: Control<RouteFormValues>
@@ -105,16 +46,57 @@ export const RouteFormFields = ({
     )}
     <NameField name="name" control={control} disabled={isDisabled} />
     <DescriptionField name="description" control={control} disabled={isDisabled} />
-    <ListboxField {...fields.destType} control={control} disabled={isDisabled} />
-    <TextField {...fields.destValue} control={control} disabled={isDisabled} />
-    <ListboxField {...fields.targetType} control={control} disabled={isDisabled} />
+    <ListboxField
+      name="destination.type"
+      label="Destination type"
+      control={control}
+      items={[
+        // VPCs can not be specified as a destination in custom routers
+        // https://github.com/oxidecomputer/omicron/blob/4f27433d1bca57eb02073a4ea1cd14557f70b8c7/nexus/src/app/vpc_router.rs#L363
+        { value: 'ip', label: 'IP' },
+        { value: 'ip_net', label: 'IP network' },
+        { value: 'subnet', label: 'Subnet' },
+      ]}
+      placeholder="Select a destination type"
+      required
+      disabled={isDisabled}
+    />
+    <TextField
+      name="destination.value"
+      label="Destination value"
+      control={control}
+      placeholder="Enter a destination value"
+      required
+      disabled={isDisabled}
+    />
+    <ListboxField
+      name="target.type"
+      label="Target type"
+      control={control}
+      items={[
+        // Subnets and VPCs cannot be used as a target in custom routers
+        // https://github.com/oxidecomputer/omicron/blob/4f27433d1bca57eb02073a4ea1cd14557f70b8c7/nexus/src/app/vpc_router.rs#L362-L368
+        { value: 'ip', label: 'IP' },
+        { value: 'instance', label: 'Instance' },
+        { value: 'internet_gateway', label: 'Internet gateway' },
+        { value: 'drop', label: 'Drop' },
+      ]}
+      placeholder="Select a target type"
+      required
+      disabled={isDisabled}
+    />
     {targetType !== 'drop' && (
       <TextField
-        {...fields.targetValue}
+        name="target.value"
+        label="Target value"
         control={control}
+        placeholder="Enter a target value"
+        required
         // 'internet_gateway' targetTypes can only have the value 'outbound', so we disable the field
         disabled={isDisabled || targetType === 'internet_gateway'}
-        description={targetValueDescription(targetType)}
+        description={
+          targetType === 'internet_gateway' && routeFormMessage.internetGatewayTargetValue
+        }
       />
     )}
   </>
