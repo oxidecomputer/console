@@ -8,7 +8,12 @@
 
 import type { UseFormReturn } from 'react-hook-form'
 
-import type { RouterRouteCreate, RouterRouteUpdate } from '~/api'
+import type {
+  RouteDestination,
+  RouterRouteCreate,
+  RouterRouteUpdate,
+  RouteTarget,
+} from '~/api'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
@@ -30,6 +35,26 @@ export const routeFormMessage = {
   noDeletingSystemRouters: 'System routers cannot be deleted',
 }
 
+// VPCs can not be specified as a destination in custom routers
+// https://github.com/oxidecomputer/omicron/blob/4f27433d1bca57eb02073a4ea1cd14557f70b8c7/nexus/src/app/vpc_router.rs#L363
+const destTypes: Record<Exclude<RouteDestination['type'], 'vpc'>, string> = {
+  ip: 'IP',
+  ip_net: 'IP network',
+  subnet: 'Subnet',
+}
+
+// Subnets and VPCs cannot be used as a target in custom routers
+// https://github.com/oxidecomputer/omicron/blob/4f27433d1bca57eb02073a4ea1cd14557f70b8c7/nexus/src/app/vpc_router.rs#L362-L368
+const targetTypes: Record<Exclude<RouteTarget['type'], 'subnet' | 'vpc'>, string> = {
+  ip: 'IP',
+  instance: 'Instance',
+  internet_gateway: 'Internet gateway',
+  drop: 'Drop',
+}
+
+const toItems = (mapping: Record<string, string>) =>
+  Object.entries(mapping).map(([value, label]) => ({ value, label }))
+
 type RouteFormFieldsProps = {
   form: UseFormReturn<RouteFormValues>
   isDisabled?: boolean
@@ -48,13 +73,7 @@ export const RouteFormFields = ({ form, isDisabled }: RouteFormFieldsProps) => {
         name="destination.type"
         label="Destination type"
         control={control}
-        items={[
-          // VPCs can not be specified as a destination in custom routers
-          // https://github.com/oxidecomputer/omicron/blob/4f27433d1bca57eb02073a4ea1cd14557f70b8c7/nexus/src/app/vpc_router.rs#L363
-          { value: 'ip', label: 'IP' },
-          { value: 'ip_net', label: 'IP network' },
-          { value: 'subnet', label: 'Subnet' },
-        ]}
+        items={toItems(destTypes)}
         placeholder="Select a destination type"
         required
         disabled={isDisabled}
@@ -71,14 +90,7 @@ export const RouteFormFields = ({ form, isDisabled }: RouteFormFieldsProps) => {
         name="target.type"
         label="Target type"
         control={control}
-        items={[
-          // Subnets and VPCs cannot be used as a target in custom routers
-          // https://github.com/oxidecomputer/omicron/blob/4f27433d1bca57eb02073a4ea1cd14557f70b8c7/nexus/src/app/vpc_router.rs#L362-L368
-          { value: 'ip', label: 'IP' },
-          { value: 'instance', label: 'Instance' },
-          { value: 'internet_gateway', label: 'Internet gateway' },
-          { value: 'drop', label: 'Drop' },
-        ]}
+        items={toItems(targetTypes)}
         placeholder="Select a target type"
         required
         onChange={(value) => {
