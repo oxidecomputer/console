@@ -7,8 +7,6 @@
  */
 import { expect, test } from '@playwright/test'
 
-import { MiB } from '~/util/units'
-
 import {
   chooseFile,
   clickRowAction,
@@ -89,8 +87,8 @@ test('Create silo', async ({ page }) => {
   // Validation error for missing name + key and cert files
   await expectVisible(page, [certRequired, keyRequired, nameRequired])
 
-  await chooseFile(page, page.getByLabel('Cert', { exact: true }), 0.1 * MiB)
-  await chooseFile(page, page.getByLabel('Key'), 0.1 * MiB)
+  await chooseFile(page, page.getByLabel('Cert', { exact: true }), 'small')
+  await chooseFile(page, page.getByLabel('Key'), 'small')
   const certName = certDialog.getByRole('textbox', { name: 'Name' })
   await certName.fill('test-cert')
 
@@ -110,8 +108,8 @@ test('Create silo', async ({ page }) => {
 
   // Change the name so it's unique
   await certName.fill('test-cert-2')
-  await chooseFile(page, page.getByLabel('Cert', { exact: true }), 0.1 * MiB)
-  await chooseFile(page, page.getByLabel('Key'), 0.1 * MiB)
+  await chooseFile(page, page.getByLabel('Cert', { exact: true }), 'small')
+  await chooseFile(page, page.getByLabel('Key'), 'small')
   await certSubmit.click()
   await expect(page.getByRole('cell', { name: 'test-cert-2', exact: true })).toBeVisible()
 
