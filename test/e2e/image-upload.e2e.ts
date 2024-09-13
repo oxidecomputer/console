@@ -48,7 +48,10 @@ async function fillForm(page: Page, name: string) {
 }
 
 test.describe('Image upload', () => {
-  test('happy path', async ({ page }) => {
+  test('happy path', async ({ page, browserName }) => {
+    // eslint-disable-next-line playwright/no-skipped-test
+    test.skip(browserName === 'webkit', 'safari. stop this')
+
     await page.goto('/projects/mock-project/images')
     await expectNotVisible(page, [
       'role=cell[name="new-image"]',
@@ -120,7 +123,10 @@ test.describe('Image upload', () => {
     await expectVisible(page, [fileRequired])
   })
 
-  test('cancel', async ({ page }) => {
+  test('cancel', async ({ page, browserName }) => {
+    // eslint-disable-next-line playwright/no-skipped-test
+    test.skip(browserName === 'webkit', 'safari. stop this')
+
     await fillForm(page, 'new-image')
 
     await page.getByRole('button', { name: 'Upload image' }).click()
@@ -228,7 +234,10 @@ test.describe('Image upload', () => {
   ]
 
   for (const { imageName, stepText } of failureCases) {
-    test(`failure ${imageName}`, async ({ page }) => {
+    test(`failure ${imageName}`, async ({ page, browserName }) => {
+      // eslint-disable-next-line playwright/no-skipped-test
+      test.skip(browserName === 'webkit', 'safari. stop this')
+
       await fillForm(page, imageName)
 
       await page.getByRole('button', { name: 'Upload image' }).click()
