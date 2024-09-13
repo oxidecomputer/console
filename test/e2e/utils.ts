@@ -195,7 +195,7 @@ export async function expectObscured(locator: Locator) {
 
 export const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
-export async function chooseFile(page: Page, inputLocator: Locator, size = 15 * MiB) {
+export async function chooseFile(page: Page, inputLocator: Locator, size = 1 * MiB) {
   const fileChooserPromise = page.waitForEvent('filechooser')
   await inputLocator.click()
   const fileChooser = await fileChooserPromise
