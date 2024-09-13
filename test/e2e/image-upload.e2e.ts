@@ -24,7 +24,7 @@ async function expectUploadProcess(page: Page) {
   const progressModal = page.getByRole('dialog', { name: 'Image upload progress' })
   await expect(progressModal).toBeVisible()
 
-  const steps = page.getByTestId('upload-step')
+  const steps = page.locator('css=.upload-step')
   await expect(steps).toHaveCount(8)
 
   const done = progressModal.getByRole('button', { name: 'Done' })
@@ -114,10 +114,7 @@ test.describe('Image upload', () => {
     await expectVisible(page, [fileRequired])
   })
 
-  test('cancel', async ({ page, browserName }) => {
-    // eslint-disable-next-line playwright/no-skipped-test
-    test.skip(browserName === 'webkit', 'safari. stop this')
-
+  test('cancel', async ({ page }) => {
     await fillForm(page, 'new-image')
 
     await page.click('role=button[name="Upload image"]')
@@ -126,10 +123,7 @@ test.describe('Image upload', () => {
     await expect(progressModal).toBeVisible()
 
     // wait to be in the middle of upload
-    const uploadStep = page
-      .getByTestId('upload-step')
-      .filter({ hasText: 'Upload image file' })
-      .first()
+    const uploadStep = page.getByTestId('upload-step: Upload image file')
     await expect(uploadStep).toHaveAttribute('data-status', 'running')
 
     // form is disabled and semi-hidden
@@ -196,10 +190,7 @@ test.describe('Image upload', () => {
     await page.click('role=button[name="Upload image"]')
 
     // wait to be in the middle of upload
-    const uploadStep = page
-      .locator('div[data-status]')
-      .filter({ hasText: 'Upload image file' })
-      .first()
+    const uploadStep = page.getByTestId('upload-step: Upload image file')
     await expect(uploadStep).toHaveAttribute('data-status', 'running')
 
     // form is disabled and semi-hidden
@@ -227,7 +218,7 @@ test.describe('Image upload', () => {
     { imageName: 'disk-create-500', stepText: 'Create temporary disk' },
     { imageName: 'import-start-500', stepText: 'Put disk in import mode' },
     { imageName: 'import-stop-500', stepText: 'Get disk out of import mode' },
-    { imageName: 'disk-finalize-500', stepText: 'Finalize disk' },
+    { imageName: 'disk-finalize-500', stepText: 'Finalize disk and create snapshot' },
   ]
 
   for (const { imageName, stepText } of failureCases) {
@@ -236,7 +227,7 @@ test.describe('Image upload', () => {
 
       await page.click('role=button[name="Upload image"]')
 
-      const step = page.locator('[data-status]').filter({ hasText: stepText }).first()
+      const step = page.getByTestId(`upload-step: ${stepText}`)
       await expect(step).toHaveAttribute('data-status', 'error', { timeout: 15000 })
       await expectVisible(page, [
         'text="Something went wrong. Please try again."',
