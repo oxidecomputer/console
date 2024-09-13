@@ -195,7 +195,14 @@ export async function expectObscured(locator: Locator) {
 
 export const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
-export async function chooseFile(page: Page, inputLocator: Locator, size = 3 * MiB) {
+const bigFile = Buffer.alloc(3 * MiB, 'a')
+const smallFile = Buffer.alloc(0.1 * MiB, 'a')
+
+export async function chooseFile(
+  page: Page,
+  inputLocator: Locator,
+  size: 'large' | 'small' = 'large'
+) {
   const fileChooserPromise = page.waitForEvent('filechooser')
   await inputLocator.click()
   const fileChooser = await fileChooserPromise
@@ -204,6 +211,6 @@ export async function chooseFile(page: Page, inputLocator: Locator, size = 3 * M
     mimeType: 'application/octet-stream',
     // fill with nonzero content, otherwise we'll skip the whole thing, which
     // makes the test too fast for playwright to catch anything
-    buffer: Buffer.alloc(size, 'a'),
+    buffer: size === 'large' ? bigFile : smallFile,
   })
 }
