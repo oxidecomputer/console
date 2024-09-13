@@ -42,6 +42,8 @@ export const links = {
   systemIpPoolsDocs: 'https://docs.oxide.computer/guides/operator/ip-pool-management',
   systemMetricsDocs: 'https://docs.oxide.computer/guides/operator/system-metrics',
   systemSiloDocs: 'https://docs.oxide.computer/guides/operator/silo-management',
+  transitIpsDocs:
+    'https://docs.oxide.computer/guides/configuring-guest-networking#_example_4_software_routing_tunnels',
   instancesDocs: 'https://docs.oxide.computer/guides/deploying-workloads',
   vpcsDocs: 'https://docs.oxide.computer/guides/configuring-guest-networking',
 }

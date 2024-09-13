@@ -14,13 +14,47 @@ import {
   type InstanceNetworkInterface,
   type InstanceNetworkInterfaceUpdate,
 } from '@oxide/api'
+import { OpenLink12Icon } from '@oxide/design-system/icons/react'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
+import { TextFieldInner } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { useInstanceSelector } from '~/hooks/use-params'
+import { Button } from '~/ui/lib/Button'
 import { FormDivider } from '~/ui/lib/Divider'
 import * as MiniTable from '~/ui/lib/MiniTable'
+import { TextInputHint } from '~/ui/lib/TextInput'
+import { KEYS } from '~/ui/util/keys'
+import { links } from '~/util/links'
+
+// The "Clear" and "Add …" buttons that appear below the filter input fields
+const ClearAndAddButtons = ({
+  isDirty,
+  onClear,
+  onSubmit,
+  buttonCopy,
+}: {
+  isDirty: boolean
+  onClear: () => void
+  onSubmit: () => void
+  buttonCopy: string
+}) => (
+  <div className="flex justify-end">
+    <Button
+      variant="ghost"
+      size="sm"
+      className="mr-2.5"
+      disabled={!isDirty}
+      onClick={onClear}
+    >
+      Clear
+    </Button>
+    <Button size="sm" onClick={onSubmit}>
+      {buttonCopy}
+    </Button>
+  </div>
+)
 
 type EditNetworkInterfaceFormProps = {
   editing: InstanceNetworkInterface
@@ -48,7 +82,16 @@ export function EditNetworkInterfaceForm({
   ]) satisfies InstanceNetworkInterfaceUpdate
 
   const form = useForm({ defaultValues })
-  const transitIps = form.watch('transitIps')
+  const transitIps = form.watch('transitIps') || []
+
+  const transitIpsForm = useForm({ defaultValues: { transitIp: '' } })
+
+  const submitTransitIp = () => {
+    const transitIp = transitIpsForm.getValues('transitIp')
+    if (!transitIp) return
+    form.setValue('transitIps', [...transitIps, transitIp])
+    transitIpsForm.reset()
+  }
 
   return (
     <SideModalForm
@@ -70,7 +113,46 @@ export function EditNetworkInterfaceForm({
       <NameField name="name" control={form.control} />
       <DescriptionField name="description" control={form.control} />
       <FormDivider />
-      {transitIps && (
+
+      <div className="flex flex-col gap-3">
+        {/* We have to blow this up instead of using TextField to get better text styling on the label */}
+        <div className="mt-2">
+          <label id="transitIps-label" htmlFor="transitIp" className="text-sans-lg">
+            Transit IPs
+          </label>
+          <TextInputHint id="transitIps-help-text" className="mb-2">
+            Enter an IPv4 or IPv6 address, or{' '}
+            <a
+              href={links.transitIpsDocs}
+              className="inline-flex gap-1 children:last:border-0"
+              target="_blank"
+              rel="noreferrer"
+            >
+              learn more about Transit IPs
+              <OpenLink12Icon className="translate-y-[1px] text-tertiary" />
+            </a>
+          </TextInputHint>
+          <TextFieldInner
+            id="transitIp"
+            name="transitIp"
+            required
+            control={transitIpsForm.control}
+            onKeyDown={(e) => {
+              if (e.key === KEYS.enter) {
+                e.preventDefault() // prevent full form submission
+                submitTransitIp()
+              }
+            }}
+          />
+        </div>
+        <ClearAndAddButtons
+          isDirty={!!transitIpsForm.formState.dirtyFields.transitIp}
+          onClear={transitIpsForm.reset}
+          onSubmit={submitTransitIp}
+          buttonCopy="Add Transit IP"
+        />
+      </div>
+      {transitIps.length > 0 && (
         <MiniTable.Table className="mb-4" aria-label="Transit IPs">
           <MiniTable.Header>
             <MiniTable.HeadCell>Transit IPs</MiniTable.HeadCell>
@@ -87,10 +169,13 @@ export function EditNetworkInterfaceForm({
               >
                 <MiniTable.Cell>{ip}</MiniTable.Cell>
                 <MiniTable.RemoveCell
-                  onClick={() => {
-                    console.log('this does, in fact, need to do something')
-                  }}
                   label={`remove IP ${ip}`}
+                  onClick={() => {
+                    form.setValue(
+                      'transitIps',
+                      transitIps.filter((item) => item !== ip)
+                    )
+                  }}
                 />
               </MiniTable.Row>
             ))}

@@ -676,6 +676,10 @@ export const handlers = makeHandlers({
       nic.primary = !!body.primary
     }
 
+    if (body.transit_ips) {
+      nic.transit_ips = body.transit_ips
+    }
+
     return nic
   },
   instanceNetworkInterfaceDelete({ path, query }) {
