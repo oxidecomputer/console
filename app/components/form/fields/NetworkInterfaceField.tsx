@@ -77,13 +77,7 @@ export function NetworkInterfaceField({
           <>
             {value.params.length > 0 && (
               <MiniTable.Table className="pt-2">
-                <MiniTable.Header>
-                  <MiniTable.HeadCell>Name</MiniTable.HeadCell>
-                  <MiniTable.HeadCell>VPC</MiniTable.HeadCell>
-                  <MiniTable.HeadCell>Subnet</MiniTable.HeadCell>
-                  {/* For remove button */}
-                  <MiniTable.HeadCell className="w-12" />
-                </MiniTable.Header>
+                <MiniTable.Header columns={['Name', 'VPC', 'Subnet']} canRemove />
                 <MiniTable.Body>
                   {value.params.map((item, index) => (
                     <MiniTable.Row

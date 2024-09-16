@@ -37,11 +37,7 @@ export function TlsCertsField({ control }: { control: Control<SiloCreateFormValu
         </FieldLabel>
         {!!items.length && (
           <MiniTable.Table className="mb-4">
-            <MiniTable.Header>
-              <MiniTable.HeadCell>Name</MiniTable.HeadCell>
-              {/* For remove button */}
-              <MiniTable.HeadCell className="w-12" />
-            </MiniTable.Header>
+            <MiniTable.Header columns={['Name']} canRemove />
             <MiniTable.Body>
               {items.map((item, index) => (
                 <MiniTable.Row

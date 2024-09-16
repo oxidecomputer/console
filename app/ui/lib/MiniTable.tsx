@@ -15,9 +15,15 @@ type Children = { children: React.ReactNode }
 
 export const Table = classed.table`ox-mini-table w-full border-separate text-sans-md`
 
-export const Header = ({ children }: Children) => (
+type HeaderProps = { columns: string[]; canRemove?: boolean }
+export const Header = ({ columns, canRemove }: HeaderProps) => (
   <BigTable.Header>
-    <BigTable.HeaderRow>{children}</BigTable.HeaderRow>
+    <BigTable.HeaderRow>
+      {columns.map((column) => (
+        <BigTable.HeadCell key={column}>{column}</BigTable.HeadCell>
+      ))}
+      {canRemove && <BigTable.HeadCell className="w-12" />}
+    </BigTable.HeaderRow>
   </BigTable.Header>
 )
 

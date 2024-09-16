@@ -191,12 +191,7 @@ const TypeAndValueTable = ({ sectionType, items }: TypeAndValueTableProps) => (
     className="mb-4"
     aria-label={sectionType === 'target' ? 'Targets' : 'Host filters'}
   >
-    <MiniTable.Header>
-      <MiniTable.HeadCell>Type</MiniTable.HeadCell>
-      <MiniTable.HeadCell>Value</MiniTable.HeadCell>
-      {/* For remove button */}
-      <MiniTable.HeadCell className="w-12" />
-    </MiniTable.Header>
+    <MiniTable.Header columns={['Type', 'Value']} canRemove />
     <MiniTable.Body>
       {items.value.map(({ type, value }, index) => (
         <MiniTable.Row
@@ -507,11 +502,7 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
       </div>
       {!!ports.value.length && (
         <MiniTable.Table className="mb-4" aria-label="Port filters">
-          <MiniTable.Header>
-            <MiniTable.HeadCell>Port ranges</MiniTable.HeadCell>
-            {/* For remove button */}
-            <MiniTable.HeadCell className="w-12" />
-          </MiniTable.Header>
+          <MiniTable.Header columns={['Port ranges']} canRemove />
           <MiniTable.Body>
             {ports.value.map((p) => (
               <MiniTable.Row tabIndex={0} aria-label={p} key={p}>

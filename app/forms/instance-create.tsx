@@ -764,12 +764,7 @@ const AdvancedAccordion = ({
           </h2>
           {isFloatingIpAttached && (
             <MiniTable.Table>
-              <MiniTable.Header>
-                <MiniTable.HeadCell>Name</MiniTable.HeadCell>
-                <MiniTable.HeadCell>IP</MiniTable.HeadCell>
-                {/* For remove button */}
-                <MiniTable.HeadCell className="w-12" />
-              </MiniTable.Header>
+              <MiniTable.Header columns={['Name', 'IP']} canRemove />
               <MiniTable.Body>
                 {attachedFloatingIpsData.map((item, index) => (
                   <MiniTable.Row

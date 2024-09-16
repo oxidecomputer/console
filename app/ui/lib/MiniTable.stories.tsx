@@ -9,11 +9,7 @@ import * as MiniTable from './MiniTable'
 
 export const Default = () => (
   <MiniTable.Table>
-    <MiniTable.Header>
-      <MiniTable.HeadCell>Name</MiniTable.HeadCell>
-      <MiniTable.HeadCell>Source Type</MiniTable.HeadCell>
-      <MiniTable.HeadCell>Size</MiniTable.HeadCell>
-    </MiniTable.Header>
+    <MiniTable.Header columns={['Name', 'Source Type', 'Size']} />
     <MiniTable.Body>
       <MiniTable.Row>
         <MiniTable.Cell>disk-1</MiniTable.Cell>
