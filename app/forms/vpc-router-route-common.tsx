@@ -65,7 +65,7 @@ type RouteFormFieldsProps = {
 export const RouteFormFields = ({ form, isDisabled }: RouteFormFieldsProps) => {
   const routerSelector = useVpcRouterSelector()
   const { project, vpc } = routerSelector
-  // usePrefetchedApiQuery items below are initially fetched in the loaders in the vpc-router-route-create and -edit forms
+  // usePrefetchedApiQuery items below are initially fetched in the loaders in vpc-router-route-create and -edit
   const {
     data: { items: vpcSubnets },
   } = usePrefetchedApiQuery('vpcSubnetList', { query: { project, vpc, limit: 1000 } })
