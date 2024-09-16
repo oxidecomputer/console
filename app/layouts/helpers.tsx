@@ -20,11 +20,7 @@ export function ContentPane() {
   const ref = useRef<HTMLDivElement>(null)
   useScrollRestoration(ref)
   return (
-    <div
-      ref={ref}
-      className="flex flex-col lg-:col-span-2 lg+:ml-[var(--sidebar-width)]"
-      id="content_pane"
-    >
+    <div ref={ref} className="ml-[var(--sidebar-width)] flex flex-col" id="content_pane">
       <div className="flex grow flex-col pb-8 md-:pb-16">
         <SkipLinkTarget />
         <main className="[&>*]:gutter">

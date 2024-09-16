@@ -30,13 +30,12 @@ export function TopBar({ children }: { children: React.ReactNode }) {
   // It's important that this component returns two distinct elements (wrapped in a fragment).
   // Each element will occupy one of the top column slots provided by `PageContainer`.
   return (
-    <>
-      <div className="flex items-center border-b border-r px-3 border-secondary">
+    <div className="fixed top-0 z-topBar col-span-2 flex h-[var(--navigation-height)] w-full bg-default">
+      <div className="flex w-[var(--sidebar-width)] items-center border-b border-r px-3 border-secondary">
         {cornerPicker}
       </div>
-      {/* Height is governed by PageContainer grid */}
-      {/* shrink-0 is needed to prevent getting squished by body content */}
-      <div className="z-topBar border-b bg-default border-secondary">
+      <div className="z-topBar flex-1 border-b bg-default border-secondary">
+        {/* shrink-0 is needed to prevent getting squished by body content */}
         <div className="mx-3 flex h-[60px] shrink-0 items-center justify-between">
           <div className="flex items-center">{otherPickers}</div>
           <div className="flex items-center gap-2">
@@ -68,6 +67,6 @@ export function TopBar({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </div>
-    </>
+    </div>
   )
 }
