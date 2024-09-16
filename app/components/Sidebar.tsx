@@ -108,7 +108,7 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
                   className="fixed inset-0 top-[61px] z-10 overflow-auto bg-scrim lg+:hidden"
                 />
                 <AnimatedDialogContent
-                  className="fixed z-sideModal flex h-full w-[14.25rem] flex-col border-r text-sans-md text-default border-secondary lg-:inset-y-0 lg-:top-[61px] lg-:bg-default lg-:elevation-2 lg+:!transform-none"
+                  className="fixed z-sideModal flex h-full w-[14.25rem] flex-col border-r text-sans-md text-default border-secondary lg+:!transform-none lg-:inset-y-0 lg-:top-[61px] lg-:bg-default lg-:elevation-2"
                   style={{
                     transform: x.to((value) => `translate3d(${value}%, 0px, 0px)`),
                   }}
@@ -132,7 +132,7 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
     )
   } else {
     return (
-      <div className="fixed z-sideModal flex h-full w-[14.25rem] flex-col border-r text-sans-md text-default border-secondary lg-:inset-y-0 lg-:top-[61px] lg-:bg-default lg-:elevation-2 lg+:!transform-none">
+      <div className="fixed z-sideModal flex h-full w-[14.25rem] flex-col border-r text-sans-md text-default border-secondary lg+:!transform-none lg-:inset-y-0 lg-:top-[61px] lg-:bg-default lg-:elevation-2">
         <SidebarContent />
       </div>
     )
