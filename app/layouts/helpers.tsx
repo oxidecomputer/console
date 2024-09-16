@@ -5,22 +5,18 @@
  *
  * Copyright Oxide Computer Company
  */
-import { useRef } from 'react'
 import { Outlet } from 'react-router-dom'
 
 import { PageActionsTarget } from '~/components/PageActions'
 import { Pagination } from '~/components/Pagination'
-import { useScrollRestoration } from '~/hooks/use-scroll-restoration'
 import { SkipLinkTarget } from '~/ui/lib/SkipLink'
 import { classed } from '~/util/classed'
 
 export const PageContainer = classed.div`h-full pt-[var(--navigation-height)] [overscroll-behavior-y:none]`
 
 export function ContentPane() {
-  const ref = useRef<HTMLDivElement>(null)
-  useScrollRestoration(ref)
   return (
-    <div ref={ref} className="ml-[var(--sidebar-width)] flex flex-col" id="content_pane">
+    <div className="ml-[var(--sidebar-width)] flex min-h-full flex-col" id="content_pane">
       <div className="flex grow flex-col pb-8 md-:pb-16">
         <SkipLinkTarget />
         <main className="[&>*]:gutter">
@@ -42,7 +38,7 @@ export function ContentPane() {
  * `<div>` because we don't need it.
  */
 export const SerialConsoleContentPane = () => (
-  <div className="flex flex-col overflow-auto lg-:col-span-2" id="content_pane">
+  <div className="flex min-h-full flex-col overflow-auto" id="content_pane">
     <div className="flex grow flex-col">
       <SkipLinkTarget />
       <main className="[&>*]:gutter h-full">

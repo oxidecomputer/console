@@ -62,10 +62,6 @@
     @apply h-full;
   }
 
-  #content_pane {
-    @apply min-h-full;
-  }
-
   .msw-banner #content_pane {
     @apply pb-10;
   }
