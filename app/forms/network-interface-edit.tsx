@@ -15,45 +15,17 @@ import {
   type InstanceNetworkInterfaceUpdate,
 } from '@oxide/api'
 
+import { ClearAndAddButtons } from '~/components/form/ClearAndAddButtons'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { TextFieldInner } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { useInstanceSelector } from '~/hooks/use-params'
-import { Button } from '~/ui/lib/Button'
 import { FormDivider } from '~/ui/lib/Divider'
 import * as MiniTable from '~/ui/lib/MiniTable'
 import { TextInputHint } from '~/ui/lib/TextInput'
 import { KEYS } from '~/ui/util/keys'
 import { links } from '~/util/links'
-
-// The "Clear" and "Add …" buttons that appear below the filter input fields
-const ClearAndAddButtons = ({
-  isDirty,
-  onClear,
-  onSubmit,
-  buttonCopy,
-}: {
-  isDirty: boolean
-  onClear: () => void
-  onSubmit: () => void
-  buttonCopy: string
-}) => (
-  <div className="flex justify-end">
-    <Button
-      variant="ghost"
-      size="sm"
-      className="mr-2.5"
-      disabled={!isDirty}
-      onClick={onClear}
-    >
-      Clear
-    </Button>
-    <Button size="sm" onClick={onSubmit}>
-      {buttonCopy}
-    </Button>
-  </div>
-)
 
 type EditNetworkInterfaceFormProps = {
   editing: InstanceNetworkInterface
@@ -139,10 +111,10 @@ export function EditNetworkInterfaceForm({
           />
         </div>
         <ClearAndAddButtons
-          isDirty={!!transitIpsForm.formState.dirtyFields.transitIp}
+          addButtonCopy="Add Transit IP"
           onClear={transitIpsForm.reset}
           onSubmit={submitTransitIp}
-          buttonCopy="Add Transit IP"
+          isDirty={!!transitIpsForm.formState.dirtyFields.transitIp}
         />
       </div>
       {transitIps.length > 0 && (

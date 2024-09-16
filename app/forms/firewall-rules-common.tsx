@@ -23,6 +23,7 @@ import {
   type VpcSubnet,
 } from '~/api'
 import { parsePortRange } from '~/api/util'
+import { ClearAndAddButtons } from '~/components/form/ClearAndAddButtons'
 import { CheckboxField } from '~/components/form/fields/CheckboxField'
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
@@ -33,7 +34,6 @@ import { RadioField } from '~/components/form/fields/RadioField'
 import { TextField, TextFieldInner } from '~/components/form/fields/TextField'
 import { useVpcSelector } from '~/hooks/use-params'
 import { Badge } from '~/ui/lib/Badge'
-import { Button } from '~/ui/lib/Button'
 import { FormDivider } from '~/ui/lib/Divider'
 import { Message } from '~/ui/lib/Message'
 import * as MiniTable from '~/ui/lib/MiniTable'
@@ -153,34 +153,6 @@ const DynamicTypeAndValueFields = ({
     </>
   )
 }
-
-// The "Clear" and "Add …" buttons that appear below the filter input fields
-const ClearAndAddButtons = ({
-  isDirty,
-  onClear,
-  onSubmit,
-  buttonCopy,
-}: {
-  isDirty: boolean
-  onClear: () => void
-  onSubmit: () => void
-  buttonCopy: string
-}) => (
-  <div className="flex justify-end">
-    <Button
-      variant="ghost"
-      size="sm"
-      className="mr-2.5"
-      disabled={!isDirty}
-      onClick={onClear}
-    >
-      Clear
-    </Button>
-    <Button size="sm" onClick={onSubmit}>
-      {buttonCopy}
-    </Button>
-  </div>
-)
 
 type TypeAndValueTableProps = {
   sectionType: 'target' | 'host'
@@ -448,10 +420,10 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
           onSubmitTextField={submitTarget}
         />
         <ClearAndAddButtons
-          isDirty={!!targetValue}
+          addButtonCopy="Add target"
           onClear={() => targetForm.reset()}
           onSubmit={submitTarget}
-          buttonCopy="Add target"
+          isDirty={!!targetValue}
         />
       </div>
       {!!targets.value.length && <TypeAndValueTable sectionType="target" items={targets} />}
@@ -499,10 +471,10 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
           />
         </div>
         <ClearAndAddButtons
-          isDirty={!!portValue}
+          addButtonCopy="Add port filter"
           onClear={portRangeForm.reset}
           onSubmit={submitPortRange}
-          buttonCopy="Add port filter"
+          isDirty={!!portValue}
         />
       </div>
       {!!ports.value.length && (
@@ -555,10 +527,10 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
           onSubmitTextField={submitHost}
         />
         <ClearAndAddButtons
-          isDirty={!!hostValue}
+          addButtonCopy="Add host filter"
           onClear={() => hostForm.reset()}
           onSubmit={submitHost}
-          buttonCopy="Add host filter"
+          isDirty={!!hostValue}
         />
       </div>
       {!!hosts.value.length && <TypeAndValueTable sectionType="host" items={hosts} />}
