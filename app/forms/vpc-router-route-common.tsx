@@ -131,8 +131,9 @@ export const RouteFormFields = ({ form, isDisabled }: RouteFormFieldsProps) => {
           name="target.value"
           label="Target value"
           control={control}
-          placeholder="Select a target value"
           items={instances.map(({ name }) => ({ value: name, label: name }))}
+          placeholder="Select a target value"
+          required
         />
       ) : (
         <TextField
