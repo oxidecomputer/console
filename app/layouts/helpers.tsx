@@ -14,20 +14,24 @@ import { useScrollRestoration } from '~/hooks/use-scroll-restoration'
 import { SkipLinkTarget } from '~/ui/lib/SkipLink'
 import { classed } from '~/util/classed'
 
-export const PageContainer = classed.div`grid h-screen grid-cols-[14.25rem,1fr] grid-rows-[60px,1fr]`
+export const PageContainer = classed.div`h-full pt-[var(--navigation-height)] [overscroll-behavior-y:none]`
 
 export function ContentPane() {
   const ref = useRef<HTMLDivElement>(null)
   useScrollRestoration(ref)
   return (
-    <div ref={ref} className="flex flex-col overflow-auto" data-testid="scroll-container">
-      <div className="flex grow flex-col pb-8">
+    <div
+      ref={ref}
+      className="flex flex-col lg-:col-span-2 lg+:ml-[var(--sidebar-width)]"
+      id="content_pane"
+    >
+      <div className="flex grow flex-col pb-8 md-:pb-16">
         <SkipLinkTarget />
         <main className="[&>*]:gutter">
           <Outlet />
         </main>
       </div>
-      <div className="sticky bottom-0 shrink-0 justify-between overflow-hidden border-t bg-default border-secondary empty:border-t-0">
+      <div className="sticky bottom-0 z-popover flex-shrink-0 justify-between overflow-hidden border-t bg-default border-secondary empty:border-t-0">
         <Pagination.Target />
         <PageActionsTarget />
       </div>
@@ -42,7 +46,7 @@ export function ContentPane() {
  * `<div>` because we don't need it.
  */
 export const SerialConsoleContentPane = () => (
-  <div className="flex flex-col overflow-auto">
+  <div className="flex flex-col overflow-auto lg-:col-span-2" id="content_pane">
     <div className="flex grow flex-col">
       <SkipLinkTarget />
       <main className="[&>*]:gutter h-full">
