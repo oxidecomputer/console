@@ -136,18 +136,9 @@ const staticCols = [
   }),
   colHelper.accessor('transitIps', {
     header: 'Transit IPs',
-    cell: (info) => {
-      const transitIps = info.getValue()
-      return transitIps?.length ? (
-        <ListPlusCell numInCell={1}>
-          {transitIps.map((ip) => (
-            <div key={ip}>{ip}</div>
-          ))}
-        </ListPlusCell>
-      ) : (
-        <EmptyCell />
-      )
-    },
+    cell: (info) => (
+      <ListPlusCell>{info.getValue()?.map((ip) => <div key={ip}>{ip}</div>)}</ListPlusCell>
+    ),
   }),
 ]
 
