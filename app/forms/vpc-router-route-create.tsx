@@ -16,17 +16,18 @@ import { useVpcRouterSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { pb } from '~/util/path-builder'
 
+const defaultValues: RouteFormValues = {
+  name: '',
+  description: '',
+  destination: { type: 'ip', value: '' },
+  target: { type: 'ip', value: '' },
+}
+
 export function CreateRouterRouteSideModalForm() {
   const queryClient = useApiQueryClient()
   const routerSelector = useVpcRouterSelector()
   const navigate = useNavigate()
 
-  const defaultValues: RouteFormValues = {
-    name: '',
-    description: '',
-    destination: { type: 'ip', value: '' },
-    target: { type: 'ip', value: '' },
-  }
   const form = useForm({ defaultValues })
 
   const createRouterRoute = useApiMutation('vpcRouterRouteCreate', {
