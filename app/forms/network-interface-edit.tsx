@@ -14,7 +14,6 @@ import {
   type InstanceNetworkInterface,
   type InstanceNetworkInterfaceUpdate,
 } from '@oxide/api'
-import { OpenLink12Icon } from '@oxide/design-system/icons/react'
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
@@ -121,15 +120,9 @@ export function EditNetworkInterfaceForm({
             Transit IPs
           </label>
           <TextInputHint id="transitIps-help-text" className="mb-2">
-            Enter an IPv4 or IPv6 address, or{' '}
-            <a
-              href={links.transitIpsDocs}
-              className="inline-flex gap-1 children:last:border-0"
-              target="_blank"
-              rel="noreferrer"
-            >
-              learn more about Transit IPs
-              <OpenLink12Icon className="translate-y-[1px] text-tertiary" />
+            Enter an IPv4 or IPv6 address.{' '}
+            <a href={links.transitIpsDocs} target="_blank" rel="noreferrer">
+              Learn more about transit IPs.
             </a>
           </TextInputHint>
           <TextFieldInner
