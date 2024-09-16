@@ -14,7 +14,7 @@
  *
  * Original: https://github.com/xtermjs/xterm.js/blob/2fdb4691/addons/xterm-addon-attach/src/AttachAddon.ts
  */
-import type { IDisposable, ITerminalAddon, Terminal } from 'xterm'
+import type { IDisposable, ITerminalAddon, Terminal } from '@xterm/xterm'
 
 export class AttachAddon implements ITerminalAddon {
   private _socket: WebSocket
