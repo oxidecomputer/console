@@ -7,7 +7,7 @@
  */
 import { expect, test } from '@playwright/test'
 
-import { clickRowAction, expectRowVisible } from './utils'
+import { clickRowAction, expectRowVisible, selectOption } from './utils'
 
 test('can nav to VpcPage from /', async ({ page }) => {
   await page.goto('/')
@@ -248,13 +248,16 @@ test('can create, update, and delete Route', async ({ page }) => {
 
   // update the route by clicking the edit button
   await clickRowAction(page, 'new-route', 'Edit')
-  await page.getByRole('textbox', { name: 'Destination value' }).fill('0.0.0.1')
+  // change the destination type to VPC subnet: `mock-subnet`
+  await selectOption(page, 'Destination type', 'Subnet')
+  await selectOption(page, 'Destination value', 'mock-subnet')
+  await page.getByRole('textbox', { name: 'Target value' }).fill('0.0.0.1')
   await page.getByRole('button', { name: 'Update route' }).click()
   await expect(routeRows).toHaveCount(2)
   await expectRowVisible(table, {
     Name: 'new-route',
-    Destination: 'IP0.0.0.1',
-    Target: 'IP1.1.1.1',
+    Destination: 'VPC subnetmock-subnet',
+    Target: 'IP0.0.0.1',
   })
 
   // delete the route
