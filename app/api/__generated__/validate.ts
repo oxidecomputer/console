@@ -2475,7 +2475,7 @@ export const RouteConfig = z.preprocess(
 )
 
 /**
- * A `RouteDestination` is used to match traffic with a routing rule, on the destination of that traffic.
+ * A `RouteDestination` is used to match traffic with a routing rule based on the destination of that traffic.
  *
  * When traffic is to be sent to a destination that is within a given `RouteDestination`, the corresponding `RouterRoute` applies, and traffic will be forward to the `RouteTarget` for that rule.
  */
