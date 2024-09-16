@@ -389,6 +389,14 @@ export const BgpConfigResultsPage = z.preprocess(
 )
 
 /**
+ * The current status of a BGP peer.
+ */
+export const BgpExported = z.preprocess(
+  processResponseBody,
+  z.object({ exports: z.record(z.string().min(1), Ipv4Net.array()) })
+)
+
+/**
  * A route imported from a BGP peer.
  */
 export const BgpImportedRouteIpv4 = z.preprocess(
@@ -1977,11 +1985,19 @@ export const L4PortRange = z.preprocess(
 export const LinkFec = z.preprocess(processResponseBody, z.enum(['firecode', 'none', 'rs']))
 
 /**
- * The LLDP configuration associated with a port. LLDP may be either enabled or disabled, if enabled, an LLDP configuration must be provided by name or id.
+ * The LLDP configuration associated with a port.
  */
-export const LldpServiceConfigCreate = z.preprocess(
+export const LldpLinkConfigCreate = z.preprocess(
   processResponseBody,
-  z.object({ enabled: SafeBoolean, lldpConfig: NameOrId.optional() })
+  z.object({
+    chassisId: z.string().optional(),
+    enabled: SafeBoolean,
+    linkDescription: z.string().optional(),
+    linkName: z.string().optional(),
+    managementIp: z.string().ip().optional(),
+    systemDescription: z.string().optional(),
+    systemName: z.string().optional(),
+  })
 )
 
 /**
@@ -2010,7 +2026,7 @@ export const LinkConfigCreate = z.preprocess(
   z.object({
     autoneg: SafeBoolean,
     fec: LinkFec,
-    lldp: LldpServiceConfigCreate,
+    lldp: LldpLinkConfigCreate,
     mtu: z.number().min(0).max(65535),
     speed: LinkSpeed,
   })
@@ -2019,12 +2035,17 @@ export const LinkConfigCreate = z.preprocess(
 /**
  * A link layer discovery protocol (LLDP) service configuration.
  */
-export const LldpServiceConfig = z.preprocess(
+export const LldpLinkConfig = z.preprocess(
   processResponseBody,
   z.object({
+    chassisId: z.string().optional(),
     enabled: SafeBoolean,
     id: z.string().uuid(),
-    lldpConfigId: z.string().uuid().optional(),
+    linkDescription: z.string().optional(),
+    linkName: z.string().optional(),
+    managementIp: IpNet.optional(),
+    systemDescription: z.string().optional(),
+    systemName: z.string().optional(),
   })
 )
 
@@ -2440,6 +2461,7 @@ export const Route = z.preprocess(
   z.object({
     dst: IpNet,
     gw: z.string().ip(),
+    localPref: z.number().min(0).max(4294967295).optional(),
     vid: z.number().min(0).max(65535).optional(),
   })
 )
@@ -2453,7 +2475,7 @@ export const RouteConfig = z.preprocess(
 )
 
 /**
- * A `RouteDestination` is used to match traffic with a routing rule, on the destination of that traffic.
+ * A `RouteDestination` is used to match traffic with a routing rule based on the destination of that traffic.
  *
  * When traffic is to be sent to a destination that is within a given `RouteDestination`, the corresponding `RouterRoute` applies, and traffic will be forward to the `RouteTarget` for that rule.
  */
@@ -3070,7 +3092,7 @@ export const SwitchPortLinkConfig = z.preprocess(
     autoneg: SafeBoolean,
     fec: LinkFec,
     linkName: z.string(),
-    lldpServiceConfigId: z.string().uuid(),
+    lldpLinkConfigId: z.string().uuid().optional(),
     mtu: z.number().min(0).max(65535),
     portSettingsId: z.string().uuid(),
     speed: LinkSpeed,
@@ -3094,6 +3116,7 @@ export const SwitchPortRouteConfig = z.preprocess(
     dst: IpNet,
     gw: IpNet,
     interfaceName: z.string(),
+    localPref: z.number().min(0).max(4294967295).optional(),
     portSettingsId: z.string().uuid(),
     vlanId: z.number().min(0).max(65535).optional(),
   })
@@ -3165,7 +3188,7 @@ export const SwitchPortSettingsView = z.preprocess(
     bgpPeers: BgpPeer.array(),
     groups: SwitchPortSettingsGroups.array(),
     interfaces: SwitchInterfaceConfig.array(),
-    linkLldp: LldpServiceConfig.array(),
+    linkLldp: LldpLinkConfig.array(),
     links: SwitchPortLinkConfig.array(),
     port: SwitchPortConfig,
     routes: SwitchPortRouteConfig.array(),
@@ -3223,7 +3246,8 @@ export const Units = z.preprocess(
       'nanoseconds',
       'volts',
       'amps',
-      'degrees_celcius',
+      'watts',
+      'degrees_celsius',
     ]),
     z.enum(['none']),
     z.enum(['rpm']),
@@ -5159,7 +5183,6 @@ export const NetworkingBgpConfigListParams = z.preprocess(
     path: z.object({}),
     query: z.object({
       limit: z.number().min(1).max(4294967295).optional(),
-      nameOrId: NameOrId.optional(),
       pageToken: z.string().optional(),
       sortBy: NameOrIdSortMode.optional(),
     }),
@@ -5189,7 +5212,9 @@ export const NetworkingBgpAnnounceSetListParams = z.preprocess(
   z.object({
     path: z.object({}),
     query: z.object({
-      nameOrId: NameOrId,
+      limit: z.number().min(1).max(4294967295).optional(),
+      pageToken: z.string().optional(),
+      sortBy: NameOrIdSortMode.optional(),
     }),
   })
 )
@@ -5205,10 +5230,28 @@ export const NetworkingBgpAnnounceSetUpdateParams = z.preprocess(
 export const NetworkingBgpAnnounceSetDeleteParams = z.preprocess(
   processResponseBody,
   z.object({
-    path: z.object({}),
-    query: z.object({
-      nameOrId: NameOrId,
+    path: z.object({
+      announceSet: NameOrId,
     }),
+    query: z.object({}),
+  })
+)
+
+export const NetworkingBgpAnnouncementListParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      announceSet: NameOrId,
+    }),
+    query: z.object({}),
+  })
+)
+
+export const NetworkingBgpExportedParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({}),
+    query: z.object({}),
   })
 )
 

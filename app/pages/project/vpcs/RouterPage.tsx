@@ -23,7 +23,7 @@ import {
 import { DocsPopover } from '~/components/DocsPopover'
 import { HL } from '~/components/HL'
 import { MoreActionsMenu } from '~/components/MoreActionsMenu'
-import { routeFormMessage } from '~/forms/vpc-router-route/shared'
+import { routeFormMessage } from '~/forms/vpc-router-route-common'
 import { getVpcRouterSelector, useVpcRouterSelector } from '~/hooks/use-params'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'

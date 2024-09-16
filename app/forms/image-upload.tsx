@@ -103,8 +103,8 @@ function Step({ children, state, label, className }: StepProps) {
   return (
     // data-status used only for e2e testing
     <div
-      className={cn('items-top flex gap-2 px-4 py-3', className)}
-      data-testid="upload-step"
+      className={cn('upload-step items-top flex gap-2 px-4 py-3', className)}
+      data-testid={`upload-step: ${label}`}
       data-status={status}
     >
       {/* padding on icon to align it with text since everything is aligned to top */}

@@ -381,6 +381,14 @@ export type BgpConfigResultsPage = {
 }
 
 /**
+ * The current status of a BGP peer.
+ */
+export type BgpExported = {
+  /** Exported routes indexed by peer address. */
+  exports: Record<string, Ipv4Net[]>
+}
+
+/**
  * A route imported from a BGP peer.
  */
 export type BgpImportedRouteIpv4 = {
@@ -2071,13 +2079,23 @@ export type LinkFec =
   | 'rs'
 
 /**
- * The LLDP configuration associated with a port. LLDP may be either enabled or disabled, if enabled, an LLDP configuration must be provided by name or id.
+ * The LLDP configuration associated with a port.
  */
-export type LldpServiceConfigCreate = {
+export type LldpLinkConfigCreate = {
+  /** The LLDP chassis identifier TLV. */
+  chassisId?: string
   /** Whether or not LLDP is enabled. */
   enabled: boolean
-  /** A reference to the LLDP configuration used. Must not be `None` when `enabled` is `true`. */
-  lldpConfig?: NameOrId
+  /** The LLDP link description TLV. */
+  linkDescription?: string
+  /** The LLDP link name TLV. */
+  linkName?: string
+  /** The LLDP management IP TLV. */
+  managementIp?: string
+  /** The LLDP system description TLV. */
+  systemDescription?: string
+  /** The LLDP system name TLV. */
+  systemName?: string
 }
 
 /**
@@ -2120,7 +2138,7 @@ export type LinkConfigCreate = {
   /** The forward error correction mode of the link. */
   fec: LinkFec
   /** The link-layer discovery protocol (LLDP) configuration for the link. */
-  lldp: LldpServiceConfigCreate
+  lldp: LldpLinkConfigCreate
   /** Maximum transmission unit for the link. */
   mtu: number
   /** The speed of the link. */
@@ -2130,13 +2148,23 @@ export type LinkConfigCreate = {
 /**
  * A link layer discovery protocol (LLDP) service configuration.
  */
-export type LldpServiceConfig = {
+export type LldpLinkConfig = {
+  /** The LLDP chassis identifier TLV. */
+  chassisId?: string
   /** Whether or not the LLDP service is enabled. */
   enabled: boolean
   /** The id of this LLDP service instance. */
   id: string
-  /** The link-layer discovery protocol configuration for this service. */
-  lldpConfigId?: string
+  /** The LLDP link description TLV. */
+  linkDescription?: string
+  /** The LLDP link name TLV. */
+  linkName?: string
+  /** The LLDP management IP TLV. */
+  managementIp?: IpNet
+  /** The LLDP system description TLV. */
+  systemDescription?: string
+  /** The LLDP system name TLV. */
+  systemName?: string
 }
 
 /**
@@ -2536,6 +2564,8 @@ export type Route = {
   dst: IpNet
   /** The route gateway. */
   gw: string
+  /** Local preference for route. Higher preference indictes precedence within and across protocols. */
+  localPref?: number
   /** VLAN id the gateway is reachable over. */
   vid?: number
 }
@@ -2549,18 +2579,18 @@ export type RouteConfig = {
 }
 
 /**
- * A `RouteDestination` is used to match traffic with a routing rule, on the destination of that traffic.
+ * A `RouteDestination` is used to match traffic with a routing rule based on the destination of that traffic.
  *
  * When traffic is to be sent to a destination that is within a given `RouteDestination`, the corresponding `RouterRoute` applies, and traffic will be forward to the `RouteTarget` for that rule.
  */
 export type RouteDestination =
-  /** Route applies to traffic destined for a specific IP address */
+  /** Route applies to traffic destined for the specified IP address */
   | { type: 'ip'; value: string }
-  /** Route applies to traffic destined for a specific IP subnet */
+  /** Route applies to traffic destined for the specified IP subnet */
   | { type: 'ip_net'; value: IpNet }
-  /** Route applies to traffic destined for the given VPC. */
+  /** Route applies to traffic destined for the specified VPC */
   | { type: 'vpc'; value: Name }
-  /** Route applies to traffic */
+  /** Route applies to traffic destined for the specified VPC subnet */
   | { type: 'subnet'; value: Name }
 
 /**
@@ -3293,7 +3323,7 @@ export type SwitchPortLinkConfig = {
   /** The name of this link. */
   linkName: string
   /** The link-layer discovery protocol service configuration id for this link. */
-  lldpServiceConfigId: string
+  lldpLinkConfigId?: string
   /** The maximum transmission unit for this link. */
   mtu: number
   /** The port settings this link configuration belongs to. */
@@ -3322,6 +3352,8 @@ export type SwitchPortRouteConfig = {
   gw: IpNet
   /** The interface name this route configuration is assigned to. */
   interfaceName: string
+  /** Local preference indicating priority within and across protocols. */
+  localPref?: number
   /** The port settings object this route configuration belongs to. */
   portSettingsId: string
   /** The VLAN identifier for the route. Use this if the gateway is reachable over an 802.1Q tagged L2 segment. */
@@ -3407,7 +3439,7 @@ export type SwitchPortSettingsView = {
   /** Layer 3 interface settings. */
   interfaces: SwitchInterfaceConfig[]
   /** Link-layer discovery protocol (LLDP) settings. */
-  linkLldp: LldpServiceConfig[]
+  linkLldp: LldpLinkConfig[]
   /** Layer 2 link settings. */
   links: SwitchPortLinkConfig[]
   /** Layer 1 physical port settings. */
@@ -3460,7 +3492,8 @@ export type Units =
   | 'nanoseconds'
   | 'volts'
   | 'amps'
-  | 'degrees_celcius'
+  | 'watts'
+  | 'degrees_celsius'
 
   /** No meaningful units, e.g. a dimensionless quanity. */
   | 'none'
@@ -4662,7 +4695,6 @@ export interface NetworkingAddressLotBlockListQueryParams {
 
 export interface NetworkingBgpConfigListQueryParams {
   limit?: number
-  nameOrId?: NameOrId
   pageToken?: string
   sortBy?: NameOrIdSortMode
 }
@@ -4672,11 +4704,17 @@ export interface NetworkingBgpConfigDeleteQueryParams {
 }
 
 export interface NetworkingBgpAnnounceSetListQueryParams {
-  nameOrId: NameOrId
+  limit?: number
+  pageToken?: string
+  sortBy?: NameOrIdSortMode
 }
 
-export interface NetworkingBgpAnnounceSetDeleteQueryParams {
-  nameOrId: NameOrId
+export interface NetworkingBgpAnnounceSetDeletePathParams {
+  announceSet: NameOrId
+}
+
+export interface NetworkingBgpAnnouncementListPathParams {
+  announceSet: NameOrId
 }
 
 export interface NetworkingBgpMessageHistoryQueryParams {
@@ -5033,6 +5071,7 @@ export type ApiListMethods = Pick<
   | 'networkingAddressLotBlockList'
   | 'networkingBgpConfigList'
   | 'networkingBgpAnnounceSetList'
+  | 'networkingBgpAnnouncementList'
   | 'networkingLoopbackAddressList'
   | 'networkingSwitchPortSettingsList'
   | 'roleList'
@@ -7073,14 +7112,14 @@ export class Api extends HttpClient {
       })
     },
     /**
-     * Get originated routes for a BGP configuration
+     * List BGP announce sets
      */
     networkingBgpAnnounceSetList: (
-      { query }: { query: NetworkingBgpAnnounceSetListQueryParams },
+      { query = {} }: { query?: NetworkingBgpAnnounceSetListQueryParams },
       params: FetchParams = {}
     ) => {
-      return this.request<BgpAnnouncement[]>({
-        path: `/v1/system/networking/bgp-announce`,
+      return this.request<BgpAnnounceSet[]>({
+        path: `/v1/system/networking/bgp-announce-set`,
         method: 'GET',
         query,
         ...params,
@@ -7094,7 +7133,7 @@ export class Api extends HttpClient {
       params: FetchParams = {}
     ) => {
       return this.request<BgpAnnounceSet>({
-        path: `/v1/system/networking/bgp-announce`,
+        path: `/v1/system/networking/bgp-announce-set`,
         method: 'PUT',
         body,
         ...params,
@@ -7104,13 +7143,35 @@ export class Api extends HttpClient {
      * Delete BGP announce set
      */
     networkingBgpAnnounceSetDelete: (
-      { query }: { query: NetworkingBgpAnnounceSetDeleteQueryParams },
+      { path }: { path: NetworkingBgpAnnounceSetDeletePathParams },
       params: FetchParams = {}
     ) => {
       return this.request<void>({
-        path: `/v1/system/networking/bgp-announce`,
+        path: `/v1/system/networking/bgp-announce-set/${path.announceSet}`,
         method: 'DELETE',
-        query,
+        ...params,
+      })
+    },
+    /**
+     * Get originated routes for a specified BGP announce set
+     */
+    networkingBgpAnnouncementList: (
+      { path }: { path: NetworkingBgpAnnouncementListPathParams },
+      params: FetchParams = {}
+    ) => {
+      return this.request<BgpAnnouncement[]>({
+        path: `/v1/system/networking/bgp-announce-set/${path.announceSet}/announcement`,
+        method: 'GET',
+        ...params,
+      })
+    },
+    /**
+     * Get BGP exported routes
+     */
+    networkingBgpExported: (_: EmptyObj, params: FetchParams = {}) => {
+      return this.request<BgpExported>({
+        path: `/v1/system/networking/bgp-exported`,
+        method: 'GET',
         ...params,
       })
     },

@@ -90,8 +90,8 @@ export const genName = (...parts: [string, ...string[]]) => {
 }
 
 const instanceActions: Record<string, InstanceState[]> = {
-  // https://github.com/oxidecomputer/omicron/blob/6dd9802/nexus/src/app/instance.rs#L1960-L1963
-  start: ['stopped'],
+  // https://github.com/oxidecomputer/omicron/blob/0496637/nexus/src/app/instance.rs#L2064
+  start: ['stopped', 'failed'],
 
   // https://github.com/oxidecomputer/omicron/blob/6dd9802/nexus/db-queries/src/db/datastore/instance.rs#L865
   delete: ['stopped', 'failed'],

@@ -924,24 +924,35 @@ export interface MSWHandlers {
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
-  /** `GET /v1/system/networking/bgp-announce` */
+  /** `GET /v1/system/networking/bgp-announce-set` */
   networkingBgpAnnounceSetList: (params: {
     query: Api.NetworkingBgpAnnounceSetListQueryParams
     req: Request
     cookies: Record<string, string>
-  }) => Promisable<HandlerResult<Api.BgpAnnouncement[]>>
-  /** `PUT /v1/system/networking/bgp-announce` */
+  }) => Promisable<HandlerResult<Api.BgpAnnounceSet[]>>
+  /** `PUT /v1/system/networking/bgp-announce-set` */
   networkingBgpAnnounceSetUpdate: (params: {
     body: Json<Api.BgpAnnounceSetCreate>
     req: Request
     cookies: Record<string, string>
   }) => Promisable<HandlerResult<Api.BgpAnnounceSet>>
-  /** `DELETE /v1/system/networking/bgp-announce` */
+  /** `DELETE /v1/system/networking/bgp-announce-set/:announceSet` */
   networkingBgpAnnounceSetDelete: (params: {
-    query: Api.NetworkingBgpAnnounceSetDeleteQueryParams
+    path: Api.NetworkingBgpAnnounceSetDeletePathParams
     req: Request
     cookies: Record<string, string>
   }) => Promisable<StatusCode>
+  /** `GET /v1/system/networking/bgp-announce-set/:announceSet/announcement` */
+  networkingBgpAnnouncementList: (params: {
+    path: Api.NetworkingBgpAnnouncementListPathParams
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.BgpAnnouncement[]>>
+  /** `GET /v1/system/networking/bgp-exported` */
+  networkingBgpExported: (params: {
+    req: Request
+    cookies: Record<string, string>
+  }) => Promisable<HandlerResult<Api.BgpExported>>
   /** `GET /v1/system/networking/bgp-message-history` */
   networkingBgpMessageHistory: (params: {
     query: Api.NetworkingBgpMessageHistoryQueryParams
@@ -2080,7 +2091,7 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       )
     ),
     http.get(
-      '/v1/system/networking/bgp-announce',
+      '/v1/system/networking/bgp-announce-set',
       handler(
         handlers['networkingBgpAnnounceSetList'],
         schema.NetworkingBgpAnnounceSetListParams,
@@ -2088,16 +2099,28 @@ export function makeHandlers(handlers: MSWHandlers): HttpHandler[] {
       )
     ),
     http.put(
-      '/v1/system/networking/bgp-announce',
+      '/v1/system/networking/bgp-announce-set',
       handler(handlers['networkingBgpAnnounceSetUpdate'], null, schema.BgpAnnounceSetCreate)
     ),
     http.delete(
-      '/v1/system/networking/bgp-announce',
+      '/v1/system/networking/bgp-announce-set/:announceSet',
       handler(
         handlers['networkingBgpAnnounceSetDelete'],
         schema.NetworkingBgpAnnounceSetDeleteParams,
         null
       )
+    ),
+    http.get(
+      '/v1/system/networking/bgp-announce-set/:announceSet/announcement',
+      handler(
+        handlers['networkingBgpAnnouncementList'],
+        schema.NetworkingBgpAnnouncementListParams,
+        null
+      )
+    ),
+    http.get(
+      '/v1/system/networking/bgp-exported',
+      handler(handlers['networkingBgpExported'], null, null)
     ),
     http.get(
       '/v1/system/networking/bgp-message-history',

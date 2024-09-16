@@ -206,10 +206,11 @@ export const handlers = makeHandlers({
     disk.state = { state: 'import_ready' }
     return 204
   },
-  diskBulkWriteImport: ({ path, query, body }) => {
+  async diskBulkWriteImport({ path, query, body }) {
     const disk = lookup.disk({ ...path, ...query })
     const diskImport = db.diskBulkImportState.get(disk.id)
     if (!diskImport) throw notFoundErr(`disk import for disk '${disk.id}'`)
+    await delay(1000) // slow it down for the tests
     // if (Math.random() < 0.01) throw 400
     diskImport.blocks[body.offset] = true
     return 204
@@ -1455,12 +1456,14 @@ export const handlers = makeHandlers({
   networkingBfdDisable: NotImplemented,
   networkingBfdEnable: NotImplemented,
   networkingBfdStatus: NotImplemented,
+  networkingBgpAnnouncementList: NotImplemented,
   networkingBgpAnnounceSetUpdate: NotImplemented,
   networkingBgpAnnounceSetDelete: NotImplemented,
   networkingBgpAnnounceSetList: NotImplemented,
   networkingBgpConfigCreate: NotImplemented,
   networkingBgpConfigDelete: NotImplemented,
   networkingBgpConfigList: NotImplemented,
+  networkingBgpExported: NotImplemented,
   networkingBgpImportedRoutesIpv4: NotImplemented,
   networkingBgpMessageHistory: NotImplemented,
   networkingBgpStatus: NotImplemented,
