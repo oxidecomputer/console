@@ -53,13 +53,15 @@ const cardLabelStyles = `
   peer-disabled:bg-disabled peer-disabled:peer-checked:bg-accent-secondary
   peer-checked:peer-disabled:hover:border-accent-secondary peer-disabled:hover:border-default
   peer-disabled:[&>*_.text-secondary]:text-disabled peer-disabled:text-disabled peer-disabled:peer-checked:text-accent-disabled peer-disabled:peer-checked:[&>*_.text-secondary]:text-accent-disabled
+
+  md-:w-full
 `
 
 export function RadioCard({ children, className, ...inputProps }: RadioProps) {
   // HACK: This forces the focus states for storybook stories
   const focus = className?.includes(':focus') ? ':focus' : ''
   return (
-    <label className="inline-flex items-center">
+    <label className="inline-flex items-center md-:w-full">
       <input className={cn(focus, 'peer sr-only')} type="radio" {...inputProps} />
       <span className={cn('ox-radio-card divide-y', cardLabelStyles, className)}>
         {children}

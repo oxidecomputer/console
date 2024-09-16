@@ -66,7 +66,7 @@ export function SiloPage() {
         />
       </PageHeader>
 
-      <PropertiesTable.Group className="mb-16">
+      <PropertiesTable.Group className="mb-16 md-:mb-10">
         <PropertiesTable>
           <PropertiesTable.Row label="ID">{silo.id}</PropertiesTable.Row>
           <PropertiesTable.Row label="Description">

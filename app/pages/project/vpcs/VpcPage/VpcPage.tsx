@@ -82,7 +82,7 @@ export function VpcPage() {
           <MoreActionsMenu label="VPC actions" actions={actions} />
         </div>
       </PageHeader>
-      <PropertiesTable.Group className="mb-16">
+      <PropertiesTable.Group className="mb-16 md-:mb-10">
         <PropertiesTable>
           <PropertiesTable.Row label="Description">
             <DescriptionCell text={vpc.description} />
