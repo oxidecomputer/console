@@ -6,13 +6,13 @@
  * Copyright Oxide Computer Company
  */
 import { useForm } from 'react-hook-form'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
-import { useApiMutation, useApiQueryClient } from '@oxide/api'
+import { apiQueryClient, useApiMutation, useApiQueryClient } from '@oxide/api'
 
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { RouteFormFields, type RouteFormValues } from '~/forms/vpc-router-route-common'
-import { useVpcRouterSelector } from '~/hooks/use-params'
+import { getVpcRouterSelector, useVpcRouterSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { pb } from '~/util/path-builder'
 
@@ -21,6 +21,19 @@ const defaultValues: RouteFormValues = {
   description: '',
   destination: { type: 'ip', value: '' },
   target: { type: 'ip', value: '' },
+}
+
+CreateRouterRouteSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
+  const { project, vpc } = getVpcRouterSelector(params)
+  await Promise.all([
+    apiQueryClient.prefetchQuery('vpcSubnetList', {
+      query: { project, vpc, limit: 1000 },
+    }),
+    apiQueryClient.prefetchQuery('instanceList', {
+      query: { project, limit: 1000 },
+    }),
+  ])
+  return null
 }
 
 export function CreateRouterRouteSideModalForm() {

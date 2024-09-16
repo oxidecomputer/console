@@ -8,16 +8,19 @@
 
 import type { UseFormReturn } from 'react-hook-form'
 
-import type {
-  RouteDestination,
-  RouterRouteCreate,
-  RouterRouteUpdate,
-  RouteTarget,
+import {
+  usePrefetchedApiQuery,
+  type RouteDestination,
+  type RouterRouteCreate,
+  type RouterRouteUpdate,
+  type RouteTarget,
 } from '~/api'
+import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
+import { useVpcRouterSelector } from '~/hooks/use-params'
 import { Message } from '~/ui/lib/Message'
 
 export type RouteFormValues = RouterRouteCreate | Required<RouterRouteUpdate>
@@ -60,7 +63,18 @@ type RouteFormFieldsProps = {
   isDisabled?: boolean
 }
 export const RouteFormFields = ({ form, isDisabled }: RouteFormFieldsProps) => {
+  const routerSelector = useVpcRouterSelector()
+  const { project, vpc } = routerSelector
+  // usePrefetchedApiQuery items below are initially fetched in the loaders in the vpc-router-route-create and -edit forms
+  const {
+    data: { items: vpcSubnets },
+  } = usePrefetchedApiQuery('vpcSubnetList', { query: { project, vpc, limit: 1000 } })
+  const {
+    data: { items: instances },
+  } = usePrefetchedApiQuery('instanceList', { query: { project, limit: 1000 } })
+
   const { control } = form
+  const destinationType = form.watch('destination.type')
   const targetType = form.watch('target.type')
   return (
     <>
@@ -76,16 +90,30 @@ export const RouteFormFields = ({ form, isDisabled }: RouteFormFieldsProps) => {
         items={toItems(destTypes)}
         placeholder="Select a destination type"
         required
+        onChange={() => {
+          form.setValue('destination.value', '')
+        }}
         disabled={isDisabled}
       />
-      <TextField
-        name="destination.value"
-        label="Destination value"
-        control={control}
-        placeholder="Enter a destination value"
-        required
-        disabled={isDisabled}
-      />
+      {destinationType === 'subnet' ? (
+        <ComboboxField
+          name="destination.value"
+          label="Destination value"
+          control={control}
+          items={vpcSubnets.map(({ name }) => ({ value: name, label: name }))}
+          placeholder="Select a destination value"
+          required
+        />
+      ) : (
+        <TextField
+          name="destination.value"
+          label="Destination value"
+          control={control}
+          placeholder="Enter a destination value"
+          required
+          disabled={isDisabled}
+        />
+      )}
       <ListboxField
         name="target.type"
         label="Target type"
@@ -98,7 +126,15 @@ export const RouteFormFields = ({ form, isDisabled }: RouteFormFieldsProps) => {
         }}
         disabled={isDisabled}
       />
-      {targetType !== 'drop' && (
+      {targetType === 'drop' ? null : targetType === 'instance' ? (
+        <ComboboxField
+          name="target.value"
+          label="Target value"
+          control={control}
+          placeholder="Select a target value"
+          items={instances.map(({ name }) => ({ value: name, label: name }))}
+        />
+      ) : (
         <TextField
           name="target.value"
           label="Target value"
