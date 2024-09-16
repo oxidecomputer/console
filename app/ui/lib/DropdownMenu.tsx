@@ -16,8 +16,13 @@ import {
 } from '@radix-ui/react-dropdown-menu'
 import cn from 'classnames'
 import { forwardRef, type ForwardedRef } from 'react'
+import { Link } from 'react-router-dom'
 
 type DivRef = ForwardedRef<HTMLDivElement>
+
+// remove possibility of disabling links for now. if we put it back, make sure
+// to forwardRef on LinkItem so the disabled tooltip can work
+type LinkitemProps = Omit<DropdownMenuItemProps, 'disabled'> & { to: string }
 
 export const DropdownMenu = {
   Root,
@@ -39,4 +44,9 @@ export const DropdownMenu = {
   Item: forwardRef(({ className, ...props }: DropdownMenuItemProps, ref: DivRef) => (
     <Item {...props} className={cn('DropdownMenuItem ox-menu-item', className)} ref={ref} />
   )),
+  LinkItem: ({ className, children, to, ...props }: LinkitemProps) => (
+    <Item {...props} className={cn('DropdownMenuItem ox-menu-item', className)} asChild>
+      <Link to={to}>{children}</Link>
+    </Item>
+  ),
 }

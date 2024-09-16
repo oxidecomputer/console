@@ -22,6 +22,12 @@ export interface CalendarCellProps {
   date: CalendarDate
 }
 
+function isRangeState(
+  state: CalendarState | RangeCalendarState
+): state is RangeCalendarState {
+  return 'highlightedRange' in state
+}
+
 export function CalendarCell({ state, date }: CalendarCellProps) {
   const ref = useRef<HTMLDivElement>(null)
   const {
@@ -36,12 +42,14 @@ export function CalendarCell({ state, date }: CalendarCellProps) {
 
   // The start and end date of the selected range will have
   // an emphasized appearance.
-  const isSelectionStart = (state as RangeCalendarState).highlightedRange
-    ? isSameDay(date, (state as RangeCalendarState).highlightedRange.start)
-    : isSelected
-  const isSelectionEnd = (state as RangeCalendarState).highlightedRange
-    ? isSameDay(date, (state as RangeCalendarState).highlightedRange.end)
-    : isSelected
+  const isSelectionStart =
+    isRangeState(state) && state.highlightedRange
+      ? isSameDay(date, state.highlightedRange.start)
+      : isSelected
+  const isSelectionEnd =
+    isRangeState(state) && state.highlightedRange
+      ? isSameDay(date, state.highlightedRange.end)
+      : isSelected
 
   // We add rounded corners on the left for the first day of the month,
   // the first day of each week, and the start date of the selection.

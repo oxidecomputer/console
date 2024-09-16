@@ -20,8 +20,10 @@ import {
 import { Networking16Icon, Networking24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
-import { getProjectSelector, useProjectSelector, useQuickActions } from '~/hooks'
+import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
+import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
+import { addToast } from '~/stores/toast'
 import { SkeletonCell } from '~/table/cells/EmptyCell'
 import { LinkCell, makeLinkCell } from '~/table/cells/LinkCell'
 import { getActionsCol, type MenuAction } from '~/table/columns/action-col'
@@ -38,7 +40,7 @@ const EmptyState = () => (
   <EmptyMessage
     icon={<Networking24Icon />}
     title="No VPCs"
-    body="You need to create a VPC to be able to see it here"
+    body="Create a VPC to see it here"
     buttonText="New VPC"
     buttonTo={pb.vpcsNew(useProjectSelector())}
   />
@@ -80,9 +82,10 @@ export function VpcsPage() {
   })
   const navigate = useNavigate()
 
-  const deleteVpc = useApiMutation('vpcDelete', {
+  const { mutateAsync: deleteVpc } = useApiMutation('vpcDelete', {
     onSuccess() {
       queryClient.invalidateQueries('vpcList')
+      addToast({ content: 'Your VPC has been deleted' })
     },
   })
 
@@ -102,8 +105,7 @@ export function VpcsPage() {
       {
         label: 'Delete',
         onActivate: confirmDelete({
-          doDelete: () =>
-            deleteVpc.mutateAsync({ path: { vpc: vpc.name }, query: { project } }),
+          doDelete: () => deleteVpc({ path: { vpc: vpc.name }, query: { project } }),
           label: vpc.name,
         }),
       },
@@ -131,6 +133,8 @@ export function VpcsPage() {
       colHelper.accessor('dnsName', { header: 'DNS name' }),
       colHelper.accessor('description', Columns.description),
       colHelper.accessor('name', {
+        // ID needed to avoid key collision with other name column
+        id: 'rule-count',
         header: 'Firewall Rules',
         cell: (info) => <FirewallRuleCount project={project} vpc={info.getValue()} />,
       }),

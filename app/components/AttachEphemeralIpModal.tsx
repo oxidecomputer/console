@@ -11,7 +11,7 @@ import { useForm } from 'react-hook-form'
 
 import { useApiMutation, useApiQueryClient, usePrefetchedApiQuery } from '~/api'
 import { ListboxField } from '~/components/form/fields/ListboxField'
-import { useInstanceSelector } from '~/hooks'
+import { useInstanceSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { Badge } from '~/ui/lib/Badge'
 import { Modal } from '~/ui/lib/Modal'
@@ -50,7 +50,7 @@ export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void })
               label="IP pool"
               placeholder={
                 siloPools?.items && siloPools.items.length > 0
-                  ? 'Select pool'
+                  ? 'Select a pool'
                   : 'No pools available'
               }
               items={

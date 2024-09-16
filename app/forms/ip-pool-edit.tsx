@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useForm } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import {
@@ -17,7 +18,7 @@ import {
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { getIpPoolSelector, useForm, useIpPoolSelector } from '~/hooks'
+import { getIpPoolSelector, useIpPoolSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { pb } from '~/util/path-builder'
 
@@ -30,29 +31,35 @@ EditIpPoolSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
 export function EditIpPoolSideModalForm() {
   const queryClient = useApiQueryClient()
   const navigate = useNavigate()
-
   const poolSelector = useIpPoolSelector()
-
-  const onDismiss = () => navigate(pb.ipPools())
 
   const { data: pool } = usePrefetchedApiQuery('ipPoolView', { path: poolSelector })
 
+  const form = useForm({ defaultValues: pool })
+
   const editPool = useApiMutation('ipPoolUpdate', {
-    onSuccess(_pool) {
+    onSuccess(updatedPool) {
       queryClient.invalidateQueries('ipPoolList')
+      navigate(pb.ipPool({ pool: updatedPool.name }))
       addToast({ content: 'Your IP pool has been updated' })
-      onDismiss()
+
+      // Only invalidate if we're staying on the same page. If the name
+      // _has_ changed, invalidating ipPoolView causes an error page to flash
+      // while the loader for the target page is running because the current
+      // page's pool gets cleared out while we're still on the page. If we're
+      // navigating to a different page, its query will fetch anew regardless.
+      if (pool.name === updatedPool.name) {
+        queryClient.invalidateQueries('ipPoolView')
+      }
     },
   })
-
-  const form = useForm({ defaultValues: pool })
 
   return (
     <SideModalForm
       form={form}
       formType="edit"
       resourceName="IP pool"
-      onDismiss={onDismiss}
+      onDismiss={() => navigate(pb.ipPool({ pool: poolSelector.pool }))}
       onSubmit={({ name, description }) => {
         editPool.mutate({ path: poolSelector, body: { name, description } })
       }}

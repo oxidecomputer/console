@@ -8,13 +8,14 @@
 
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
+import { useForm } from 'react-hook-form'
 
 import { useApiMutation, useApiQuery, useApiQueryClient, type SiloIpPool } from '@oxide/api'
 import { Networking24Icon } from '@oxide/design-system/icons/react'
 
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { HL } from '~/components/HL'
-import { useForm, useSiloSelector } from '~/hooks'
+import { useSiloSelector } from '~/hooks/use-params'
 import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
 import { DefaultPoolCell } from '~/table/cells/DefaultPoolCell'
@@ -32,7 +33,7 @@ const EmptyState = () => (
   <EmptyMessage
     icon={<Networking24Icon />}
     title="No IP pools"
-    body="You need to create an IP pool to be able to see it here"
+    body="Create an IP pool to see it here"
     buttonText="New IP pool"
     buttonTo={pb.ipPoolsNew()}
   />
@@ -70,12 +71,12 @@ export function SiloIpPoolsTab() {
     [allPools]
   )
 
-  const updatePoolLink = useApiMutation('ipPoolSiloUpdate', {
+  const { mutateAsync: updatePoolLink } = useApiMutation('ipPoolSiloUpdate', {
     onSuccess() {
       queryClient.invalidateQueries('siloIpPoolList')
     },
   })
-  const unlinkPool = useApiMutation('ipPoolSiloUnlink', {
+  const { mutateAsync: unlinkPool } = useApiMutation('ipPoolSiloUnlink', {
     onSuccess() {
       queryClient.invalidateQueries('siloIpPoolList')
     },
@@ -91,7 +92,7 @@ export function SiloIpPoolsTab() {
           if (pool.isDefault) {
             confirmAction({
               doAction: () =>
-                updatePoolLink.mutateAsync({
+                updatePoolLink({
                   path: { silo, pool: pool.id },
                   body: { isDefault: false },
                 }),
@@ -121,7 +122,7 @@ export function SiloIpPoolsTab() {
             const verb = defaultPool ? 'change' : 'make'
             confirmAction({
               doAction: () =>
-                updatePoolLink.mutateAsync({
+                updatePoolLink({
                   path: { silo, pool: pool.id },
                   body: { isDefault: true },
                 }),
@@ -138,7 +139,7 @@ export function SiloIpPoolsTab() {
         className: 'destructive',
         onActivate() {
           confirmAction({
-            doAction: () => unlinkPool.mutateAsync({ path: { silo, pool: pool.id } }),
+            doAction: () => unlinkPool({ path: { silo, pool: pool.id } }),
             modalTitle: `Confirm unlink pool`,
             modalContent: (
               <p>
@@ -236,7 +237,7 @@ function LinkPoolModal({ onDismiss }: { onDismiss: () => void }) {
             />
 
             <ComboboxField
-              placeholder="Select pool"
+              placeholder="Select a pool"
               name="pool"
               label="IP pool"
               items={unlinkedPoolItems}

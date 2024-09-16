@@ -19,7 +19,7 @@ import {
 } from '@oxide/api'
 
 import { ListPlusCell } from '~/components/ListPlusCell'
-import { getVpcSelector, useVpcSelector } from '~/hooks'
+import { getVpcSelector, useVpcSelector } from '~/hooks/use-params'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { EnabledCell } from '~/table/cells/EnabledCell'
 import { LinkCell } from '~/table/cells/LinkCell'
@@ -114,7 +114,7 @@ export function VpcFirewallRulesTab() {
 
   const navigate = useNavigate()
 
-  const updateRules = useApiMutation('vpcFirewallRulesUpdate', {
+  const { mutateAsync: updateRules } = useApiMutation('vpcFirewallRulesUpdate', {
     onSuccess() {
       queryClient.invalidateQueries('vpcFirewallRulesView')
     },
@@ -140,10 +140,16 @@ export function VpcFirewallRulesTab() {
           },
         },
         {
+          label: 'Clone',
+          onActivate() {
+            navigate(pb.vpcFirewallRuleClone({ ...vpcSelector, rule: rule.name }))
+          },
+        },
+        {
           label: 'Delete',
           onActivate: confirmDelete({
             doDelete: () =>
-              updateRules.mutateAsync({
+              updateRules({
                 query: vpcSelector,
                 body: {
                   rules: rules.filter((r) => r.id !== rule.id),
@@ -162,7 +168,7 @@ export function VpcFirewallRulesTab() {
     <TableEmptyBox>
       <EmptyMessage
         title="No firewall rules"
-        body="You need to create a rule to be able to see it here"
+        body="Create a rule to see it here"
         buttonText="New rule"
         buttonTo={pb.vpcFirewallRulesNew(vpcSelector)}
       />

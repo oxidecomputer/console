@@ -5,37 +5,44 @@
  *
  * Copyright Oxide Computer Company
  */
-export const links: Record<string, string> = {
+
+const remoteAccess = 'https://docs.oxide.computer/guides/remote-access'
+
+export const links = {
   accessDocs: 'https://docs.oxide.computer/guides/configuring-access',
   cloudInitFormat: 'https://cloudinit.readthedocs.io/en/latest/explanation/format.html',
   cloudInitExamples: 'https://cloudinit.readthedocs.io/en/latest/reference/examples.html',
   disksDocs: 'https://docs.oxide.computer/guides/managing-disks-and-snapshots',
-  externalAddresses:
-    'https://docs.oxide.computer/guides/operator/ip-pool-management#_external_address_categorization',
   firewallRulesDocs:
     'https://docs.oxide.computer/guides/configuring-guest-networking#_firewall_rules',
   floatingIpsDocs: 'https://docs.oxide.computer/guides/managing-floating-ips',
   imagesDocs: 'https://docs.oxide.computer/guides/creating-and-sharing-images',
   preparingImagesDocs:
     'https://docs.oxide.computer/guides/creating-and-sharing-images#_preparing_images_for_import',
-  instancesDocs: 'https://docs.oxide.computer/guides/managing-instances',
+  instanceActionsDocs: 'https://docs.oxide.computer/guides/managing-instances',
   keyConceptsIamPolicyDocs:
     'https://docs.oxide.computer/guides/key-entities-and-concepts#iam-policy',
   keyConceptsProjectsDocs:
     'https://docs.oxide.computer/guides/key-entities-and-concepts#_projects',
   projectsDocs: 'https://docs.oxide.computer/guides/onboarding-projects',
   quickStart: 'https://docs.oxide.computer/guides/quickstart',
+  routersDocs:
+    'https://docs.oxide.computer/guides/configuring-guest-networking#_custom_routers',
+  siloQuotasDocs:
+    'https://docs.oxide.computer/guides/operator/silo-management#_silo_resource_quota_management',
   sledDocs:
     'https://docs.oxide.computer/guides/architecture/service-processors#_server_sled',
   snapshotsDocs:
-    'https://docs.oxide.computer/guides/managing-disks-and-snapshots#snapshots',
+    'https://docs.oxide.computer/guides/managing-disks-and-snapshots#_snapshots',
+  serialConsoleDocs: remoteAccess + '#serial-console',
+  sshDocs: remoteAccess + '#ssh',
+  sshKeysDocs: 'https://docs.oxide.computer/guides/user-settings#_ssh_keys',
   storageDocs:
-    'https://docs.oxide.computer/guides/architecture/os-hypervisor-storage#_physical_layer',
+    'https://docs.oxide.computer/guides/architecture/os-hypervisor-storage#_storage',
   systemIpPoolsDocs: 'https://docs.oxide.computer/guides/operator/ip-pool-management',
   systemMetricsDocs: 'https://docs.oxide.computer/guides/operator/system-metrics',
   systemSiloDocs: 'https://docs.oxide.computer/guides/operator/silo-management',
-  vmsDocs:
-    'https://docs.oxide.computer/guides/deploying-workloads#_creating_virtual_machines',
+  instancesDocs: 'https://docs.oxide.computer/guides/deploying-workloads',
   vpcsDocs: 'https://docs.oxide.computer/guides/configuring-guest-networking',
 }
 
@@ -43,11 +50,11 @@ export const links: Record<string, string> = {
 export const docLinks = {
   access: {
     href: links.accessDocs,
-    linkText: 'Configuring Access and IAM',
+    linkText: 'Access Control',
   },
   disks: {
     href: links.disksDocs,
-    linkText: 'Managing Disks',
+    linkText: 'Disks and Snapshots',
   },
   firewallRules: {
     href: links.firewallRulesDocs,
@@ -59,27 +66,35 @@ export const docLinks = {
   },
   keyConceptsIam: {
     href: links.keyConceptsIamPolicyDocs,
-    linkText: 'Key Concepts: IAM Policy',
+    linkText: 'Key Concepts',
   },
   images: {
     href: links.imagesDocs,
-    linkText: 'Creating and Sharing Images',
+    linkText: 'Images',
   },
-  instances: {
-    href: links.instancesDocs,
-    linkText: 'Managing Instances',
+  instanceActions: {
+    href: links.instanceActionsDocs,
+    linkText: 'Instance Actions',
   },
   keyConceptsProjects: {
     href: links.keyConceptsProjectsDocs,
-    linkText: 'Key Concepts: Projects',
+    linkText: 'Key Concepts',
   },
   projects: {
     href: links.projectsDocs,
-    linkText: 'Managing Projects',
+    linkText: 'Projects',
   },
   quickStart: {
     href: links.quickStart,
     linkText: 'Quick Start',
+  },
+  remoteAccess: {
+    href: remoteAccess,
+    linkText: 'Remote Access',
+  },
+  routers: {
+    href: links.routersDocs,
+    linkText: 'Custom Routers',
   },
   sleds: {
     href: links.sledDocs,
@@ -87,7 +102,11 @@ export const docLinks = {
   },
   snapshots: {
     href: links.snapshotsDocs,
-    linkText: 'Managing Snapshots',
+    linkText: 'Disks and Snapshots',
+  },
+  sshKeys: {
+    href: links.sshKeysDocs,
+    linkText: 'SSH Keys',
   },
   storage: {
     href: links.storageDocs,
@@ -95,22 +114,22 @@ export const docLinks = {
   },
   systemIpPools: {
     href: links.systemIpPoolsDocs,
-    linkText: 'IP Pool Management',
+    linkText: 'IP Pools',
   },
   systemMetrics: {
     href: links.systemMetricsDocs,
-    linkText: 'System Metrics',
+    linkText: 'Metrics',
   },
   systemSilo: {
     href: links.systemSiloDocs,
-    linkText: 'Silo Management',
+    linkText: 'Silos',
   },
-  vms: {
-    href: links.vmsDocs,
-    linkText: 'Deploying Workloads',
+  instances: {
+    href: links.instancesDocs,
+    linkText: 'Instances',
   },
   vpcs: {
     href: links.vpcsDocs,
-    linkText: 'VPCs and Subnets',
+    linkText: 'Networking',
   },
 }

@@ -9,14 +9,14 @@ import { useWatch, type FieldPath, type FieldValues } from 'react-hook-form'
 
 import { useApiQuery } from '@oxide/api'
 
-import { useProjectSelector } from '~/hooks'
+import { useProjectSelector } from '~/hooks/use-params'
 
-import { ComboboxField, type ComboboxFieldProps } from './ComboboxField'
+import { ListboxField, type ListboxFieldProps } from './ListboxField'
 
 type SubnetListboxProps<
   TFieldValues extends FieldValues,
   TName extends FieldPath<TFieldValues>,
-> = Omit<ComboboxFieldProps<TFieldValues, TName>, 'items'> & {
+> = Omit<ListboxFieldProps<TFieldValues, TName>, 'items'> & {
   vpcNameField: FieldPath<TFieldValues>
 }
 
@@ -47,11 +47,13 @@ export function SubnetListbox<
     ).data?.items || []
 
   return (
-    <ComboboxField
+    <ListboxField
       {...fieldProps}
       items={subnets.map(({ name }) => ({ value: name, label: name }))}
       disabled={!vpcExists}
       control={control}
+      placeholder="Select a subnet"
+      noItemsPlaceholder={vpcName ? 'No subnets found' : 'Select a VPC to see subnets'}
     />
   )
 }

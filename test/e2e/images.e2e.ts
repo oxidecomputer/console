@@ -24,7 +24,7 @@ test('can promote an image from silo', async ({ page }) => {
   await expectNotVisible(page, ['role=cell[name="image-1"]'])
 
   // Listboxes are visible
-  await expect(page.getByPlaceholder('Filter images by project')).toBeVisible()
+  await expect(page.getByPlaceholder('Select a project')).toBeVisible()
   await expect(page.locator(`text="Select an image"`)).toBeVisible()
 
   // Notice is visible
@@ -77,8 +77,8 @@ test('can promote an image from project', async ({ page }) => {
 test('can copy an image ID to clipboard', async ({ page, browserName }) => {
   // eslint-disable-next-line playwright/no-skipped-test
   test.skip(
-    browserName === 'firefox' || browserName === 'webkit',
-    'navigator.clipboard.readText() not supported in FF. Works locally in Safari but not in CI.'
+    browserName === 'webkit',
+    'navigator.clipboard.readText() works locally in Safari but not in CI.'
   )
 
   await page.goto('/images')

@@ -12,6 +12,7 @@ import { Link, Outlet, useNavigate } from 'react-router-dom'
 import { apiQueryClient, useApiMutation, useApiQueryClient, type SshKey } from '@oxide/api'
 import { Key16Icon, Key24Icon } from '@oxide/design-system/icons/react'
 
+import { DocsPopover } from '~/components/DocsPopover'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
@@ -21,6 +22,7 @@ import { buttonStyle } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
+import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
 SSHKeysPage.loader = async () => {
@@ -43,7 +45,7 @@ export function SSHKeysPage() {
   const { Table } = useQueryTable('currentUserSshKeyList', {})
   const queryClient = useApiQueryClient()
 
-  const deleteSshKey = useApiMutation('currentUserSshKeyDelete', {
+  const { mutateAsync: deleteSshKey } = useApiMutation('currentUserSshKeyDelete', {
     onSuccess: () => {
       queryClient.invalidateQueries('currentUserSshKeyList')
       addToast({ content: 'Your SSH key has been deleted' })
@@ -55,7 +57,7 @@ export function SSHKeysPage() {
       {
         label: 'Delete',
         onActivate: confirmDelete({
-          doDelete: () => deleteSshKey.mutateAsync({ path: { sshKey: sshKey.name } }),
+          doDelete: () => deleteSshKey({ path: { sshKey: sshKey.name } }),
           label: sshKey.name,
         }),
       },
@@ -67,7 +69,7 @@ export function SSHKeysPage() {
     <EmptyMessage
       icon={<Key16Icon />}
       title="No SSH keys"
-      body="You need to add a SSH key to be able to see it here"
+      body="Add a SSH key to see it here"
       buttonText="Add SSH key"
       onClick={() => navigate(pb.sshKeysNew())}
     />
@@ -79,6 +81,12 @@ export function SSHKeysPage() {
     <>
       <PageHeader>
         <PageTitle icon={<Key24Icon />}>SSH Keys</PageTitle>
+        <DocsPopover
+          heading="SSH keys"
+          icon={<Key16Icon />}
+          summary="SSH keys are used to securely access VM instances."
+          links={[docLinks.sshKeys]}
+        />
       </PageHeader>
       <TableActions>
         <Link className={buttonStyle({ size: 'sm' })} to={pb.sshKeysNew()}>

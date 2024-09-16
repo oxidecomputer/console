@@ -7,7 +7,7 @@
  */
 import { useEffect, useMemo, useState } from 'react'
 
-import { useReducedMotion } from '~/hooks'
+import { useReducedMotion } from '~/hooks/use-reduce-motion'
 
 export function RoundedSector({
   angle,

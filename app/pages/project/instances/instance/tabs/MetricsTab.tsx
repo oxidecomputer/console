@@ -18,7 +18,7 @@ import {
 import { Storage24Icon } from '@oxide/design-system/icons/react'
 
 import { useDateTimeRangePicker } from '~/components/form/fields/DateTimeRangePicker'
-import { getInstanceSelector, useInstanceSelector } from '~/hooks'
+import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Listbox } from '~/ui/lib/Listbox'
 import { Spinner } from '~/ui/lib/Spinner'
@@ -204,7 +204,7 @@ export function MetricsTab() {
           selected={diskName}
           items={diskItems}
           onChange={(val) => {
-            val && setDiskName(val)
+            if (val) setDiskName(val)
           }}
         />
         {dateTimeRangePicker}

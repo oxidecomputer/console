@@ -1,0 +1,8 @@
+# get rid of hooks barrel file
+a0c29a535d17b0f57fa5fa9bee7cca05631885fc
+
+# get rid of useForm wrapper
+a8fcdab9e906f8ff37bb106c20e8364f371c9997
+
+# standardize on ~/ instead of app/
+269c2c82018d09d442a932474d84366a54837068

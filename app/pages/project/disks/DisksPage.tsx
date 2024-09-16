@@ -20,8 +20,8 @@ import {
 import { Storage16Icon, Storage24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
-import { DiskStatusBadge } from '~/components/StatusBadge'
-import { getProjectSelector, useProjectSelector } from '~/hooks'
+import { DiskStateBadge } from '~/components/StateBadge'
+import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { InstanceLinkCell } from '~/table/cells/InstanceLinkCell'
@@ -41,7 +41,7 @@ const EmptyState = () => (
   <EmptyMessage
     icon={<Storage24Icon />}
     title="No disks"
-    body="You need to create a disk to be able to see it here"
+    body="Create a disk to see it here"
     buttonText="New disk"
     buttonTo={pb.disksNew(useProjectSelector())}
   />
@@ -87,8 +87,8 @@ const staticCols = [
   ),
   colHelper.accessor('size', Columns.size),
   colHelper.accessor('state.state', {
-    header: 'Status',
-    cell: (info) => <DiskStatusBadge status={info.getValue()} />,
+    header: 'state',
+    cell: (info) => <DiskStateBadge state={info.getValue()} />,
   }),
   colHelper.accessor('timeCreated', Columns.timeCreated),
 ]
@@ -98,7 +98,7 @@ export function DisksPage() {
   const { project } = useProjectSelector()
   const { Table } = useQueryTable('diskList', { query: { project } })
 
-  const deleteDisk = useApiMutation('diskDelete', {
+  const { mutateAsync: deleteDisk } = useApiMutation('diskDelete', {
     onSuccess() {
       queryClient.invalidateQueries('diskList')
     },
@@ -142,8 +142,7 @@ export function DisksPage() {
       {
         label: 'Delete',
         onActivate: confirmDelete({
-          doDelete: () =>
-            deleteDisk.mutateAsync({ path: { disk: disk.name }, query: { project } }),
+          doDelete: () => deleteDisk({ path: { disk: disk.name }, query: { project } }),
           label: disk.name,
         }),
         disabled:

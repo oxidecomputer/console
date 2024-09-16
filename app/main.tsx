@@ -15,7 +15,7 @@ import { queryClient } from '@oxide/api'
 
 import { ConfirmActionModal } from './components/ConfirmActionModal'
 import { ErrorBoundary } from './components/ErrorBoundary'
-import { ReduceMotion } from './hooks'
+import { ReduceMotion } from './hooks/use-reduce-motion'
 // stripped out by rollup in production
 import { startMockAPI } from './msw-mock-api'
 import { routes } from './routes'
@@ -47,6 +47,7 @@ function render() {
       v7_normalizeFormMethod: true,
       v7_partialHydration: true,
       v7_relativeSplatPath: true,
+      v7_skipActionErrorRevalidation: true,
     },
   })
 

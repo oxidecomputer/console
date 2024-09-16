@@ -32,7 +32,7 @@ import {
   ProjectAccessAddUserSideModal,
   ProjectAccessEditUserSideModal,
 } from '~/forms/project-access'
-import { getProjectSelector, useProjectSelector } from '~/hooks'
+import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { getActionsCol } from '~/table/columns/action-col'
 import { Table } from '~/table/Table'
@@ -118,7 +118,7 @@ export function ProjectAccessPage() {
   }, [siloRows, projectRows])
 
   const queryClient = useApiQueryClient()
-  const updatePolicy = useApiMutation('projectPolicyUpdate', {
+  const { mutateAsync: updatePolicy } = useApiMutation('projectPolicyUpdate', {
     onSuccess: () => queryClient.invalidateQueries('projectPolicyView'),
     // TODO: handle 403
   })
@@ -167,7 +167,7 @@ export function ProjectAccessPage() {
           label: 'Delete',
           onActivate: confirmDelete({
             doDelete: () =>
-              updatePolicy.mutateAsync({
+              updatePolicy({
                 path: { project },
                 // we know policy is there, otherwise there's no row to display
                 body: deleteRole(row.id, projectPolicy),

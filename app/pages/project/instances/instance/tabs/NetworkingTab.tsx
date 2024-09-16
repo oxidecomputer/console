@@ -26,16 +26,22 @@ import { AttachFloatingIpModal } from '~/components/AttachFloatingIpModal'
 import { HL } from '~/components/HL'
 import { CreateNetworkInterfaceForm } from '~/forms/network-interface-create'
 import { EditNetworkInterfaceForm } from '~/forms/network-interface-edit'
-import { getInstanceSelector, useInstanceSelector, useProjectSelector } from '~/hooks'
+import {
+  getInstanceSelector,
+  useInstanceSelector,
+  useProjectSelector,
+} from '~/hooks/use-params'
 import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
+import { DescriptionCell } from '~/table/cells/DescriptionCell'
 import { EmptyCell, SkeletonCell } from '~/table/cells/EmptyCell'
 import { LinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
-import { Columns, DescriptionCell } from '~/table/columns/common'
+import { Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
 import { Badge } from '~/ui/lib/Badge'
+import { CopyableIp } from '~/ui/lib/CopyableIp'
 import { CreateButton } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableControls, TableEmptyBox, TableTitle } from '~/ui/lib/Table'
@@ -115,7 +121,10 @@ const staticCols = [
     ),
   }),
   colHelper.accessor('description', Columns.description),
-  colHelper.accessor('ip', { header: 'Private IP' }),
+  colHelper.accessor('ip', {
+    header: 'Private IP',
+    cell: (info) => <CopyableIp ip={info.getValue()} isLinked={false} />,
+  }),
   colHelper.accessor('vpcId', {
     header: 'vpc',
     cell: (info) => <VpcNameFromId value={info.getValue()} />,
@@ -127,6 +136,31 @@ const staticCols = [
 ]
 
 const updateNicStates = fancifyStates(instanceCan.updateNic.states)
+
+const ipColHelper = createColumnHelper<ExternalIp>()
+const staticIpCols = [
+  ipColHelper.accessor('ip', {
+    cell: (info) => <CopyableIp ip={info.getValue()} />,
+  }),
+  ipColHelper.accessor('kind', {
+    header: () => (
+      <>
+        Kind
+        <TipIcon className="ml-2">
+          Floating IPs can be detached from this instance and attached to another.
+        </TipIcon>
+      </>
+    ),
+    cell: (info) => <Badge color="neutral">{info.getValue()}</Badge>,
+  }),
+  ipColHelper.accessor('name', {
+    cell: (info) => (info.getValue() ? info.getValue() : <EmptyCell />),
+  }),
+  ipColHelper.accessor((row) => ('description' in row ? row.description : undefined), {
+    header: 'description',
+    cell: (info) => <DescriptionCell text={info.getValue()} />,
+  }),
+]
 
 export function NetworkingTab() {
   const instanceSelector = useInstanceSelector()
@@ -152,13 +186,13 @@ export function NetworkingTab() {
       setCreateModalOpen(false)
     },
   })
-  const deleteNic = useApiMutation('instanceNetworkInterfaceDelete', {
+  const { mutateAsync: deleteNic } = useApiMutation('instanceNetworkInterfaceDelete', {
     onSuccess() {
       queryClient.invalidateQueries('instanceNetworkInterfaceList')
       addToast({ content: 'Network interface deleted' })
     },
   })
-  const editNic = useApiMutation('instanceNetworkInterfaceUpdate', {
+  const { mutate: editNic } = useApiMutation('instanceNetworkInterfaceUpdate', {
     onSuccess() {
       queryClient.invalidateQueries('instanceNetworkInterfaceList')
     },
@@ -175,7 +209,7 @@ export function NetworkingTab() {
       {
         label: 'Make primary',
         onActivate() {
-          editNic.mutate({
+          editNic({
             path: { interface: nic.name },
             query: instanceSelector,
             body: { ...nic, primary: true },
@@ -206,7 +240,7 @@ export function NetworkingTab() {
         label: 'Delete',
         onActivate: confirmDelete({
           doDelete: () =>
-            deleteNic.mutateAsync({
+            deleteNic({
               path: { interface: nic.name },
               query: instanceSelector,
             }),
@@ -238,30 +272,7 @@ export function NetworkingTab() {
     query: { project },
   })
 
-  const ipColHelper = createColumnHelper<ExternalIp>()
-  const staticIpCols = [
-    ipColHelper.accessor('ip', {}),
-    ipColHelper.accessor('kind', {
-      header: () => (
-        <>
-          Kind
-          <TipIcon className="ml-2">
-            Floating IPs can be detached from this instance and attached to another.
-          </TipIcon>
-        </>
-      ),
-      cell: (info) => <Badge color="neutral">{info.getValue()}</Badge>,
-    }),
-    ipColHelper.accessor('name', {
-      cell: (info) => (info.getValue() ? info.getValue() : <EmptyCell />),
-    }),
-    ipColHelper.accessor((row) => ('description' in row ? row.description : undefined), {
-      header: 'description',
-      cell: (info) => <DescriptionCell text={info.getValue()} />,
-    }),
-  ]
-
-  const ephemeralIpDetach = useApiMutation('instanceEphemeralIpDetach', {
+  const { mutateAsync: ephemeralIpDetach } = useApiMutation('instanceEphemeralIpDetach', {
     onSuccess() {
       queryClient.invalidateQueries('instanceExternalIpList')
       addToast({ content: 'Your ephemeral IP has been detached' })
@@ -271,7 +282,7 @@ export function NetworkingTab() {
     },
   })
 
-  const floatingIpDetach = useApiMutation('floatingIpDetach', {
+  const { mutateAsync: floatingIpDetach } = useApiMutation('floatingIpDetach', {
     onSuccess() {
       queryClient.invalidateQueries('floatingIpList')
       queryClient.invalidateQueries('instanceExternalIpList')
@@ -294,12 +305,12 @@ export function NetworkingTab() {
       const doAction =
         externalIp.kind === 'floating'
           ? () =>
-              floatingIpDetach.mutateAsync({
+              floatingIpDetach({
                 path: { floatingIp: externalIp.name },
                 query: { project },
               })
           : () =>
-              ephemeralIpDetach.mutateAsync({
+              ephemeralIpDetach({
                 path: { instance: instanceName },
                 query: { project },
               })
@@ -331,8 +342,6 @@ export function NetworkingTab() {
             }),
         },
       ]
-
-      return [copyAction]
     },
     [ephemeralIpDetach, floatingIpDetach, instanceName, project]
   )

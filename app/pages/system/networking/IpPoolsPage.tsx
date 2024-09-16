@@ -21,8 +21,9 @@ import { IpGlobal16Icon, IpGlobal24Icon } from '@oxide/design-system/icons/react
 
 import { DocsPopover } from '~/components/DocsPopover'
 import { IpUtilCell } from '~/components/IpPoolUtilization'
-import { useQuickActions } from '~/hooks'
+import { useQuickActions } from '~/hooks/use-quick-actions'
 import { confirmDelete } from '~/stores/confirm-delete'
+import { addToast } from '~/stores/toast'
 import { SkeletonCell } from '~/table/cells/EmptyCell'
 import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
@@ -39,7 +40,7 @@ const EmptyState = () => (
   <EmptyMessage
     icon={<IpGlobal24Icon />}
     title="No IP pools"
-    body="You need to create an IP pool to be able to see it here"
+    body="Create an IP pool to see it here"
     buttonText="New IP pool"
     buttonTo={pb.ipPoolsNew()}
   />
@@ -76,9 +77,10 @@ export function IpPoolsPage() {
     query: { limit: PAGE_SIZE },
   })
 
-  const deletePool = useApiMutation('ipPoolDelete', {
+  const { mutateAsync: deletePool } = useApiMutation('ipPoolDelete', {
     onSuccess() {
       apiQueryClient.invalidateQueries('ipPoolList')
+      addToast({ content: 'IP pool deleted' })
     },
   })
 
@@ -96,7 +98,7 @@ export function IpPoolsPage() {
       {
         label: 'Delete',
         onActivate: confirmDelete({
-          doDelete: () => deletePool.mutateAsync({ path: { pool: pool.name } }),
+          doDelete: () => deletePool({ path: { pool: pool.name } }),
           label: pool.name,
         }),
       },

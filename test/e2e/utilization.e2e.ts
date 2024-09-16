@@ -7,6 +7,7 @@
  */
 import {
   clickRowAction,
+  clipboardText,
   closeToast,
   expect,
   expectRowVisible,
@@ -41,6 +42,17 @@ test.describe('System utilization', () => {
     })
 
     await page.getByRole('tab', { name: 'Metrics' }).click()
+  })
+
+  test('can copy silo ID', async ({ page, browserName }) => {
+    // eslint-disable-next-line playwright/no-skipped-test
+    test.skip(
+      browserName === 'webkit',
+      'navigator.clipboard.readText() works locally in Safari but not in CI.'
+    )
+    await page.goto('/system/utilization')
+    await clickRowAction(page, 'maze-war', 'Copy silo ID')
+    expect(await clipboardText(page)).toEqual('6d3a9c06-475e-4f75-b272-c0d0e3f980fa')
   })
 
   test('does not appear for dev user', async ({ browser }) => {

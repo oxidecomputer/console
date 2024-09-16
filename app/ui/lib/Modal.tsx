@@ -7,7 +7,7 @@
  */
 import * as Dialog from '@radix-ui/react-dialog'
 import { animated, useTransition } from '@react-spring/web'
-import React, { createContext, forwardRef, useContext, useId } from 'react'
+import React, { forwardRef, useId } from 'react'
 
 import { Close12Icon } from '@oxide/design-system/icons/react'
 
@@ -15,10 +15,7 @@ import { classed } from '~/util/classed'
 
 import { Button } from './Button'
 import { DialogOverlay } from './DialogOverlay'
-
-const ModalContext = createContext(false)
-
-export const useIsInModal = () => useContext(ModalContext)
+import { ModalContext } from './modal-context'
 
 export type ModalProps = {
   title?: string

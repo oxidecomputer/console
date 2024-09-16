@@ -16,9 +16,10 @@ import {
   type VpcSubnet,
 } from '@oxide/api'
 
-import { getVpcSelector, useVpcSelector } from '~/hooks'
+import { getVpcSelector, useVpcSelector } from '~/hooks/use-params'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { makeLinkCell } from '~/table/cells/LinkCell'
+import { RouterLinkCell } from '~/table/cells/RouterLinkCell'
 import { TwoLineCell } from '~/table/cells/TwoLineCell'
 import { getActionsCol, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
@@ -43,7 +44,7 @@ export function VpcSubnetsTab() {
 
   const { Table } = useQueryTable('vpcSubnetList', { query: vpcSelector })
 
-  const deleteSubnet = useApiMutation('vpcSubnetDelete', {
+  const { mutateAsync: deleteSubnet } = useApiMutation('vpcSubnetDelete', {
     onSuccess() {
       queryClient.invalidateQueries('vpcSubnetList')
     },
@@ -62,7 +63,7 @@ export function VpcSubnetsTab() {
       {
         label: 'Delete',
         onActivate: confirmDelete({
-          doDelete: () => deleteSubnet.mutateAsync({ path: { subnet: subnet.id } }),
+          doDelete: () => deleteSubnet({ path: { subnet: subnet.id } }),
           label: subnet.name,
         }),
       },
@@ -75,9 +76,15 @@ export function VpcSubnetsTab() {
       colHelper.accessor('name', {
         cell: makeLinkCell((subnet) => pb.vpcSubnetsEdit({ ...vpcSelector, subnet })),
       }),
+      colHelper.accessor('description', Columns.description),
       colHelper.accessor((vpc) => [vpc.ipv4Block, vpc.ipv6Block] as const, {
         header: 'IP Block',
         cell: (info) => <TwoLineCell value={[...info.getValue()]} />,
+      }),
+      colHelper.accessor('customRouterId', {
+        header: 'Custom Router',
+        // RouterLinkCell needed, as we need to convert the customRouterId to the custom router's name
+        cell: (info) => <RouterLinkCell routerId={info.getValue()} />,
       }),
       colHelper.accessor('timeCreated', Columns.timeCreated),
       getActionsCol(makeActions),
@@ -85,12 +92,10 @@ export function VpcSubnetsTab() {
     [vpcSelector, makeActions]
   )
 
-  // const columns = useColsWithActions(staticCols, makeActions)
-
   const emptyState = (
     <EmptyMessage
       title="No VPC subnets"
-      body="You need to create a subnet to be able to see it here"
+      body="Create a subnet to see it here"
       buttonText="New subnet"
       buttonTo={pb.vpcSubnetsNew(vpcSelector)}
     />

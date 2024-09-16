@@ -9,7 +9,7 @@
 import { useApiQuery } from '@oxide/api'
 
 import { EmptyCell, SkeletonCell } from '~/table/cells/EmptyCell'
-import { CopyToClipboard } from '~/ui/lib/CopyToClipboard'
+import { CopyableIp } from '~/ui/lib/CopyableIp'
 import { intersperse } from '~/util/array'
 
 type InstanceSelector = { project: string; instance: string }
@@ -26,19 +26,7 @@ export function ExternalIps({ project, instance }: InstanceSelector) {
   return (
     <div className="flex items-center gap-1">
       {intersperse(
-        ips.map((eip) => (
-          <span className="flex items-center gap-1" key={eip.ip}>
-            <a
-              className="link-with-underline text-sans-semi-md"
-              href={`https://${eip.ip}`}
-              target="_blank"
-              rel="noreferrer"
-            >
-              {eip.ip}
-            </a>
-            <CopyToClipboard text={eip.ip} />
-          </span>
-        )),
+        ips.map((eip) => <CopyableIp ip={eip.ip} key={eip.ip} />),
         <span className="text-quinary"> / </span>
       )}
     </div>

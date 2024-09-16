@@ -6,9 +6,6 @@
  * Copyright Oxide Computer Company
  */
 
-export * from './use-form'
-export * from './use-is-overflow'
-export * from './use-key'
-export * from './use-params'
-export * from './use-quick-actions'
-export * from './use-reduce-motion'
+import { classed } from '~/util/classed'
+
+export const InlineCode = classed.code`whitespace-nowrap rounded-sm px-[3px] py-[1px] text-mono-sm !normal-case bg-raise border border-secondary mx-px`

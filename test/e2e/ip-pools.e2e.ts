@@ -101,7 +101,7 @@ test('IP pool link silo', async ({ page }) => {
   await expect(modal).toBeVisible()
 
   // select silo in combobox and click link
-  await page.getByPlaceholder('Select silo').fill('m')
+  await page.getByPlaceholder('Select a silo').fill('m')
   await page.getByRole('option', { name: 'myriad' }).click()
   await modal.getByRole('button', { name: 'Link' }).click()
 
@@ -110,7 +110,7 @@ test('IP pool link silo', async ({ page }) => {
   await expectRowVisible(table, { Silo: 'myriad', 'Pool is silo default': '' })
 })
 
-test('IP pool delete', async ({ page }) => {
+test('IP pool delete from IP Pools list page', async ({ page }) => {
   await page.goto('/system/networking/ip-pools')
 
   // can't delete a pool containing ranges
@@ -130,6 +130,24 @@ test('IP pool delete', async ({ page }) => {
   await expect(page.getByRole('dialog', { name: 'Confirm delete' })).toBeVisible()
   await page.getByRole('button', { name: 'Confirm' }).click()
 
+  await expect(page.getByRole('cell', { name: 'ip-pool-3' })).toBeHidden()
+})
+
+test('IP pool delete from IP Pool view page', async ({ page }) => {
+  // can't delete a pool containing ranges
+  await page.goto('/system/networking/ip-pools/ip-pool-1')
+  await page.getByRole('button', { name: 'IP pool actions' }).click()
+  await expect(page.getByRole('menuitem', { name: 'Delete' })).toBeDisabled()
+
+  // can delete a pool with no ranges
+  await page.goto('/system/networking/ip-pools/ip-pool-3')
+  await page.getByRole('button', { name: 'IP pool actions' }).click()
+  await page.getByRole('menuitem', { name: 'Delete' }).click()
+  await expect(page.getByRole('dialog', { name: 'Confirm delete' })).toBeVisible()
+  await page.getByRole('button', { name: 'Confirm' }).click()
+
+  // get redirected back to the list after successful delete
+  await expect(page).toHaveURL('/system/networking/ip-pools')
   await expect(page.getByRole('cell', { name: 'ip-pool-3' })).toBeHidden()
 })
 
@@ -153,6 +171,23 @@ test('IP pool create', async ({ page }) => {
     name: 'another-pool',
     description: 'whatever',
   })
+})
+
+test('IP pool edit', async ({ page }) => {
+  await page.goto('/system/networking/ip-pools/ip-pool-3')
+  await page.getByRole('button', { name: 'IP pool actions' }).click()
+  await page.getByRole('menuitem', { name: 'Edit' }).click()
+
+  const modal = page.getByRole('dialog', { name: 'Edit IP pool' })
+  await expect(modal).toBeVisible()
+
+  await page.getByRole('textbox', { name: 'Name' }).fill('updated-pool')
+  await page.getByRole('textbox', { name: 'Description' }).fill('an updated description')
+  await page.getByRole('button', { name: 'Update IP pool' }).click()
+
+  await expect(modal).toBeHidden()
+  await expect(page).toHaveURL('/system/networking/ip-pools/updated-pool')
+  await expect(page.getByRole('heading', { name: 'updated-pool' })).toBeVisible()
 })
 
 test('IP range validation and add', async ({ page }) => {

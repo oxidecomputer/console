@@ -19,8 +19,8 @@ import {
 } from '@oxide/design-system/icons/react'
 
 import { navToLogin, useApiMutation } from '~/api'
-import { openQuickActions } from '~/hooks'
 import { closeSidebar, useMenuState } from '~/hooks/use-menu-state'
+import { openQuickActions } from '~/hooks/use-quick-actions'
 import { useCurrentUser } from '~/layouts/AuthenticatedLayout'
 import { Button } from '~/ui/lib/Button'
 import { Divider } from '~/ui/lib/Divider'
@@ -28,7 +28,7 @@ import { Truncate } from '~/ui/lib/Truncate'
 import { pb } from '~/util/path-builder'
 
 const linkStyles =
-  'flex h-7 items-center rounded px-2 text-sans-md hover:bg-hover svg:mr-2 svg:text-quinary text-secondary'
+  'flex h-7 items-center rounded px-2 text-sans-md hover:bg-hover [&>svg]:mr-2 [&>svg]:text-quinary text-secondary'
 
 // TODO: this probably doesn't go to the docs root. maybe it even opens a
 // menu with links to several relevant docs for the page
@@ -108,7 +108,7 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
                   className="fixed inset-0 top-[61px] z-10 overflow-auto bg-scrim lg+:hidden"
                 />
                 <AnimatedDialogContent
-                  className="fixed z-sideModal flex h-full w-[14.25rem] flex-col border-r text-sans-md text-default border-secondary lg+:!transform-none lg-:inset-y-0 lg-:top-[61px] lg-:bg-default lg-:elevation-2"
+                  className="fixed z-sideModal flex h-full w-[14.25rem] flex-col border-r text-sans-md text-default border-secondary lg-:inset-y-0 lg-:top-[61px] lg-:bg-default lg-:elevation-2 lg+:!transform-none"
                   style={{
                     transform: x.to((value) => `translate3d(${value}%, 0px, 0px)`),
                   }}
@@ -132,7 +132,7 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
     )
   } else {
     return (
-      <div className="fixed z-sideModal flex h-full w-[14.25rem] flex-col border-r text-sans-md text-default border-secondary lg+:!transform-none lg-:inset-y-0 lg-:top-[61px] lg-:bg-default lg-:elevation-2">
+      <div className="fixed z-sideModal flex h-full w-[14.25rem] flex-col border-r text-sans-md text-default border-secondary lg-:inset-y-0 lg-:top-[61px] lg-:bg-default lg-:elevation-2 lg+:!transform-none">
         <SidebarContent />
       </div>
     )
@@ -202,7 +202,7 @@ export const NavLinkItem = (props: {
         to={props.to}
         className={({ isActive }) =>
           cn(linkStyles, {
-            'text-accent !bg-accent-secondary hover:!bg-accent-secondary-hover svg:!text-accent-tertiary':
+            'text-accent !bg-accent-secondary hover:!bg-accent-secondary-hover [&>svg]:!text-accent-tertiary':
               isActive || currentPathIsCreateForm,
             'pointer-events-none text-disabled': props.disabled,
           })

@@ -12,7 +12,7 @@ import { Folder16Icon } from '@oxide/design-system/icons/react'
 
 import { TopBar } from '~/components/TopBar'
 import { SiloSystemPicker } from '~/components/TopBarPicker'
-import { useQuickActions } from '~/hooks'
+import { useQuickActions } from '~/hooks/use-quick-actions'
 import { pb } from '~/util/path-builder'
 
 import { DocsLinkItem, NavLinkItem, ProfileLinks, Sidebar } from '../components/Sidebar'

@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useForm } from 'react-hook-form'
 import { useNavigate, type LoaderFunctionArgs } from 'react-router-dom'
 
 import { apiQueryClient, usePrefetchedApiQuery, type Image } from '@oxide/api'
@@ -17,15 +18,15 @@ import { SideModalForm } from '~/components/form/SideModalForm'
 import {
   getProjectImageSelector,
   getSiloImageSelector,
-  useForm,
   useProjectImageSelector,
   useSiloImageSelector,
-} from '~/hooks'
+} from '~/hooks/use-params'
 import { DateTime } from '~/ui/lib/DateTime'
 import { PropertiesTable } from '~/ui/lib/PropertiesTable'
 import { ResourceLabel } from '~/ui/lib/SideModal'
 import { Truncate } from '~/ui/lib/Truncate'
 import { pb } from '~/util/path-builder'
+import { capitalize } from '~/util/str'
 import { bytesToGiB } from '~/util/units'
 
 EditProjectImageSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
@@ -69,12 +70,14 @@ export function EditImageSideModalForm({
 }) {
   const navigate = useNavigate()
   const form = useForm({ defaultValues: image })
+  const resourceName = type === 'Project' ? 'project image' : 'silo image'
 
   return (
     <SideModalForm
+      title={capitalize(resourceName)}
       form={form}
       formType="edit"
-      resourceName={type === 'Project' ? 'project image' : 'silo image'}
+      resourceName={resourceName}
       onDismiss={() => navigate(dismissLink)}
       subtitle={
         <ResourceLabel>
@@ -100,7 +103,6 @@ export function EditImageSideModalForm({
           <DateTime date={image.timeModified} />
         </PropertiesTable.Row>
       </PropertiesTable>
-
       <NameField name="name" control={form.control} disabled />
       <DescriptionField name="description" control={form.control} required disabled />
       <TextField name="os" label="OS" control={form.control} required disabled />

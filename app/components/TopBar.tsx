@@ -7,7 +7,6 @@
  */
 import cn from 'classnames'
 import React from 'react'
-import { useNavigate } from 'react-router-dom'
 
 import { navToLogin, useApiMutation } from '@oxide/api'
 import {
@@ -25,14 +24,11 @@ import { DropdownMenu } from '~/ui/lib/DropdownMenu'
 import { pb } from '~/util/path-builder'
 
 export function TopBar({ children }: { children: React.ReactNode }) {
-  const navigate = useNavigate()
   const logout = useApiMutation('logout', {
     onSuccess: () => navToLogin({ includeCurrent: false }),
   })
   // fetch happens in loader wrapping all authed pages
   const { me } = useCurrentUser()
-
-  const loggedIn = !!me
 
   // toArray filters out nulls, which is essential because the silo/system
   // picker is going to come in null when the user isn't supposed to see it
@@ -104,23 +100,11 @@ export function TopBar({ children }: { children: React.ReactNode }) {
                   <DirectionDownIcon className="!w-2.5" />
                 </Button>
               </DropdownMenu.Trigger>
-              <DropdownMenu.Content
-                align="end"
-                sideOffset={8}
-                className="min-w-[12.8125rem]"
-              >
-                <DropdownMenu.Item onSelect={() => navigate(pb.profile())}>
-                  Settings
+              <DropdownMenu.Content align="end" sideOffset={8}>
+                <DropdownMenu.LinkItem to={pb.profile()}>Settings</DropdownMenu.LinkItem>
+                <DropdownMenu.Item onSelect={() => logout.mutate({})}>
+                  Sign out
                 </DropdownMenu.Item>
-                {loggedIn ? (
-                  <DropdownMenu.Item onSelect={() => logout.mutate({})}>
-                    Sign Out
-                  </DropdownMenu.Item>
-                ) : (
-                  <DropdownMenu.Item onSelect={() => navToLogin({ includeCurrent: true })}>
-                    Sign In
-                  </DropdownMenu.Item>
-                )}
               </DropdownMenu.Content>
             </DropdownMenu.Root>
           </div>

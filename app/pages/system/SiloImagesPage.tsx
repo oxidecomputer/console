@@ -7,7 +7,7 @@
  */
 import { createColumnHelper } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
-import { type FieldValues } from 'react-hook-form'
+import { useForm, type FieldValues } from 'react-hook-form'
 import { Outlet } from 'react-router-dom'
 
 import {
@@ -23,7 +23,6 @@ import { DocsPopover } from '~/components/DocsPopover'
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { toListboxItem } from '~/components/form/fields/ImageSelectField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
-import { useForm } from '~/hooks'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
 import { makeLinkCell } from '~/table/cells/LinkCell'
@@ -43,7 +42,7 @@ const EmptyState = () => (
   <EmptyMessage
     icon={<Images24Icon />}
     title="No images"
-    body="You need to promote an image to be able to see it here"
+    body="Promote an image to see it here"
   />
 )
 
@@ -70,7 +69,7 @@ export function SiloImagesPage() {
   const [demoteImage, setDemoteImage] = useState<Image | null>(null)
 
   const queryClient = useApiQueryClient()
-  const deleteImage = useApiMutation('imageDelete', {
+  const { mutateAsync: deleteImage } = useApiMutation('imageDelete', {
     onSuccess(_data, variables) {
       addToast({ content: `${variables.path.image} has been deleted` })
       queryClient.invalidateQueries('imageList')
@@ -86,7 +85,7 @@ export function SiloImagesPage() {
       {
         label: 'Delete',
         onActivate: confirmDelete({
-          doDelete: () => deleteImage.mutateAsync({ path: { image: image.name } }),
+          doDelete: () => deleteImage({ path: { image: image.name } }),
           label: image.name,
         }),
       },
@@ -169,7 +168,7 @@ const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
         <Modal.Section>
           <form autoComplete="off" onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <ComboboxField
-              placeholder="Filter images by project"
+              placeholder="Select a project"
               name="project"
               label="Project"
               items={projectItems}

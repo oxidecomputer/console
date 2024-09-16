@@ -9,7 +9,7 @@ import { Outlet } from 'react-router-dom'
 
 import { apiQueryClient, useApiQueryErrorsAllowed, usePrefetchedApiQuery } from '@oxide/api'
 
-import { QuickActions } from '~/hooks'
+import { QuickActions } from '~/hooks/use-quick-actions'
 import { invariant } from '~/util/invariant'
 
 /**

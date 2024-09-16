@@ -22,8 +22,9 @@ import {
 import { IpGlobal16Icon, IpGlobal24Icon } from '@oxide/design-system/icons/react'
 
 import { DocsPopover } from '~/components/DocsPopover'
+import { ListboxField } from '~/components/form/fields/ListboxField'
 import { HL } from '~/components/HL'
-import { getProjectSelector, useProjectSelector } from '~/hooks'
+import { getProjectSelector, useProjectSelector } from '~/hooks/use-params'
 import { confirmAction } from '~/stores/confirm-action'
 import { confirmDelete } from '~/stores/confirm-delete'
 import { addToast } from '~/stores/toast'
@@ -34,7 +35,6 @@ import { Columns } from '~/table/columns/common'
 import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
 import { CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
-import { Listbox } from '~/ui/lib/Listbox'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
@@ -47,7 +47,7 @@ const EmptyState = () => (
   <EmptyMessage
     icon={<IpGlobal24Icon />}
     title="No floating IPs"
-    body="You need to create a floating IP to be able to see it here"
+    body="Create a floating IP to see it here"
     buttonText="New Floating IP"
     buttonTo={pb.floatingIpsNew(useProjectSelector())}
   />
@@ -115,7 +115,7 @@ export function FloatingIpsPage() {
   })
   const navigate = useNavigate()
 
-  const floatingIpDetach = useApiMutation('floatingIpDetach', {
+  const { mutateAsync: floatingIpDetach } = useApiMutation('floatingIpDetach', {
     onSuccess() {
       queryClient.invalidateQueries('floatingIpList')
       addToast({ content: 'Your floating IP has been detached' })
@@ -124,7 +124,7 @@ export function FloatingIpsPage() {
       addToast({ title: 'Error', content: err.message, variant: 'error' })
     },
   })
-  const deleteFloatingIp = useApiMutation('floatingIpDelete', {
+  const { mutateAsync: deleteFloatingIp } = useApiMutation('floatingIpDelete', {
     onSuccess() {
       queryClient.invalidateQueries('floatingIpList')
       queryClient.invalidateQueries('ipPoolUtilizationView')
@@ -153,7 +153,7 @@ export function FloatingIpsPage() {
               confirmAction({
                 actionType: 'danger',
                 doAction: () =>
-                  floatingIpDetach.mutateAsync({
+                  floatingIpDetach({
                     path: { floatingIp: floatingIp.name },
                     query: { project },
                   }),
@@ -198,7 +198,7 @@ export function FloatingIpsPage() {
             : false,
           onActivate: confirmDelete({
             doDelete: () =>
-              deleteFloatingIp.mutateAsync({
+              deleteFloatingIp({
                 path: { floatingIp: floatingIp.name },
                 query: { project },
               }),
@@ -268,6 +268,7 @@ const AttachFloatingIpModal = ({
     },
   })
   const form = useForm({ defaultValues: { instanceId: '' } })
+  const instanceId = form.watch('instanceId')
 
   return (
     <Modal isOpen title="Attach floating IP" onDismiss={onDismiss}>
@@ -280,30 +281,27 @@ const AttachFloatingIpModal = ({
                 The selected instance will be reachable at <HL>{address}</HL>
               </>
             }
-          ></Message>
+          />
           <form>
-            <Listbox
+            <ListboxField
+              control={form.control}
               name="instanceId"
               items={instances.map((i) => ({ value: i.id, label: i.name }))}
               label="Instance"
-              onChange={(e) => {
-                form.setValue('instanceId', e)
-              }}
               required
-              placeholder="Select instance"
-              selected={form.watch('instanceId')}
+              placeholder="Select an instance"
             />
           </form>
         </Modal.Section>
       </Modal.Body>
       <Modal.Footer
         actionText="Attach"
-        disabled={!form.getValues('instanceId')}
+        disabled={!instanceId}
         onAction={() =>
           floatingIpAttach.mutate({
             path: { floatingIp },
             query: { project },
-            body: { kind: 'instance', parent: form.getValues('instanceId') },
+            body: { kind: 'instance', parent: instanceId },
           })
         }
         onDismiss={onDismiss}

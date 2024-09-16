@@ -6,18 +6,17 @@
  * Copyright Oxide Computer Company
  */
 import { useEffect } from 'react'
+import { useForm } from 'react-hook-form'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import { useApiMutation, type UsernamePasswordCredentials } from '@oxide/api'
 
 import { TextFieldInner } from '~/components/form/fields/TextField'
-import { useForm } from '~/hooks'
+import { useSiloSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { Button } from '~/ui/lib/Button'
 import { Identicon } from '~/ui/lib/Identicon'
 import { pb } from '~/util/path-builder'
-
-import { useSiloSelector } from '../hooks'
 
 const defaultValues: UsernamePasswordCredentials = {
   username: '',

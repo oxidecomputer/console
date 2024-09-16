@@ -6,9 +6,16 @@
  * Copyright Oxide Computer Company
  */
 
-import { expect, expectRowVisible, test } from './utils'
+import {
+  clickRowAction,
+  expect,
+  expectRowVisible,
+  selectOption,
+  test,
+  type Locator,
+} from './utils'
 
-const defaultRules = ['allow-internal-inbound', 'allow-ssh', 'allow-icmp', 'allow-rdp']
+const defaultRules = ['allow-internal-inbound', 'allow-ssh', 'allow-icmp']
 
 test('can create firewall rule', async ({ page }) => {
   await page.goto('/projects/mock-project/vpcs/mock-vpc')
@@ -19,7 +26,7 @@ test('can create firewall rule', async ({ page }) => {
     await expect(page.locator(`text="${name}"`)).toBeVisible()
   }
   const rows = page.locator('tbody >> tr')
-  await expect(rows).toHaveCount(4)
+  await expect(rows).toHaveCount(3)
 
   const modal = page.getByRole('dialog', { name: 'Add firewall rule' })
   await expect(modal).toBeHidden()
@@ -38,17 +45,15 @@ test('can create firewall rule', async ({ page }) => {
   // add targets with overlapping names and types to test delete
   const targets = page.getByRole('table', { name: 'Targets' })
 
-  await page.getByRole('button', { name: 'Target type' }).click()
-  await page.getByRole('option', { name: 'IP', exact: true }).click()
+  await selectOption(page, 'Target type', 'IP')
   await page.getByRole('textbox', { name: 'IP address' }).fill('192.168.0.1')
   await page.getByRole('button', { name: 'Add target' }).click()
   await expectRowVisible(targets, { Type: 'ip', Value: '192.168.0.1' })
 
   // add host filter instance "host-filter-instance"
-  await page.locator('role=button[name*="Host type"]').click()
-  await page.locator('role=option[name="Instance"]').click()
-  await page.fill('role=textbox[name="Instance name"]', 'host-filter-instance')
-  await page.locator('text="Add host filter"').click()
+  await selectOption(page, 'Host type', 'Instance')
+  await page.getByRole('combobox', { name: 'Instance name' }).fill('host-filter-instance')
+  await page.getByRole('button', { name: 'Add host filter' }).click()
 
   // host is added to hosts table
   const hosts = page.getByRole('table', { name: 'Host filters' })
@@ -100,7 +105,7 @@ test('can create firewall rule', async ({ page }) => {
   const tooltip = page.getByRole('tooltip', { name: 'Other filters UDP Port 123-' })
   await expect(tooltip).toBeVisible()
 
-  await expect(rows).toHaveCount(5)
+  await expect(rows).toHaveCount(4)
   for (const name of defaultRules) {
     await expect(page.locator(`text="${name}"`)).toBeVisible()
   }
@@ -136,6 +141,13 @@ test('firewall rule targets and filters overflow', async ({ page }) => {
   await expect(tooltip).toBeVisible()
 })
 
+const deleteRowAndVerifyRowCount = async (table: Locator, expectedCount: number) => {
+  const rows = table.getByRole('row')
+  // skip the header row
+  await rows.nth(1).getByRole('button', { name: 'remove' }).click()
+  await expect(rows).toHaveCount(expectedCount)
+}
+
 test('firewall rule form targets table', async ({ page }) => {
   await page.goto('/projects/mock-project/vpcs/mock-vpc')
   await page.getByRole('tab', { name: 'Firewall Rules' }).click()
@@ -144,43 +156,49 @@ test('firewall rule form targets table', async ({ page }) => {
   await page.getByRole('link', { name: 'New rule' }).click()
 
   const targets = page.getByRole('table', { name: 'Targets' })
+  const targetVpcNameField = page.getByRole('combobox', { name: 'VPC name' }).nth(0)
   const addButton = page.getByRole('button', { name: 'Add target' })
 
   // add targets with overlapping names and types to test delete
 
-  // there are two of these because the hosts table also defaults to VPC
-  await page.getByRole('textbox', { name: 'VPC name' }).nth(0).fill('abc')
+  await targetVpcNameField.fill('abc')
   await addButton.click()
   await expectRowVisible(targets, { Type: 'vpc', Value: 'abc' })
 
-  await page.getByRole('textbox', { name: 'VPC name' }).nth(0).fill('def')
+  // enter a VPC called 'mock-subnet', even if that doesn't make sense here, to test dropdown later
+  await targetVpcNameField.fill('mock-subnet')
   await addButton.click()
-  await expectRowVisible(targets, { Type: 'vpc', Value: 'def' })
+  await expectRowVisible(targets, { Type: 'vpc', Value: 'mock-subnet' })
 
-  await page.getByRole('button', { name: 'Target type' }).click()
-  await page.getByRole('option', { name: 'VPC Subnet' }).click()
-  await page.getByRole('textbox', { name: 'Subnet name' }).fill('abc')
+  // add VPC subnet targets
+  const subnetNameField = page.getByRole('combobox', { name: 'Subnet name' })
+
+  // add a subnet by selecting from a dropdown; make sure 'mock-subnet' is present in the dropdown,
+  // even though VPC:'mock-subnet' has already been added
+  await selectOption(page, 'Target type', 'VPC subnet')
+  await selectOption(page, subnetNameField, 'mock-subnet')
+  await addButton.click()
+  await expectRowVisible(targets, { Type: 'subnet', Value: 'mock-subnet' })
+
+  // now add a subnet by entering text
+  await selectOption(page, 'Target type', 'VPC subnet')
+  await subnetNameField.fill('abc')
   await addButton.click()
   await expectRowVisible(targets, { Type: 'subnet', Value: 'abc' })
 
-  await page.getByRole('button', { name: 'Target type' }).click()
-  await page.getByRole('option', { name: 'IP', exact: true }).click()
+  // add IP target
+  await selectOption(page, 'Target type', 'IP')
   await page.getByRole('textbox', { name: 'IP address' }).fill('192.168.0.1')
   await addButton.click()
   await expectRowVisible(targets, { Type: 'ip', Value: '192.168.0.1' })
 
-  // test table row delete, only keep the IP one
-  const firstDeleteButton = targets
-    .getByRole('row')
-    .nth(1)
-    .getByRole('button', { name: 'remove' })
-  await expect(targets.getByRole('row')).toHaveCount(5)
-  await firstDeleteButton.click()
-  await expect(targets.getByRole('row')).toHaveCount(4)
-  await firstDeleteButton.click()
-  await expect(targets.getByRole('row')).toHaveCount(3)
-  await firstDeleteButton.click()
-  await expect(targets.getByRole('row')).toHaveCount(2)
+  // test table row delete; only keep the IP one
+  // we start with 6 rows, because the header row counts as one
+  await expect(targets.getByRole('row')).toHaveCount(6)
+  await deleteRowAndVerifyRowCount(targets, 5)
+  await deleteRowAndVerifyRowCount(targets, 4)
+  await deleteRowAndVerifyRowCount(targets, 3)
+  await deleteRowAndVerifyRowCount(targets, 2)
 
   // we still have the IP target
   await expectRowVisible(targets, { Type: 'ip', Value: '192.168.0.1' })
@@ -194,43 +212,40 @@ test('firewall rule form hosts table', async ({ page }) => {
   await page.getByRole('link', { name: 'New rule' }).click()
 
   const hosts = page.getByRole('table', { name: 'Host filters' })
+  const hostFiltersVpcNameField = page.getByRole('combobox', { name: 'VPC name' }).nth(1)
   const addButton = page.getByRole('button', { name: 'Add host filter' })
 
   // add hosts with overlapping names and types to test delete
 
-  // there are two of these because the targets table also defaults to VPC
-  await page.getByRole('textbox', { name: 'VPC name' }).nth(1).fill('abc')
+  await hostFiltersVpcNameField.fill('abc')
   await addButton.click()
   await expectRowVisible(hosts, { Type: 'vpc', Value: 'abc' })
 
-  await page.getByRole('textbox', { name: 'VPC name' }).nth(1).fill('def')
+  await hostFiltersVpcNameField.fill('def')
   await addButton.click()
   await expectRowVisible(hosts, { Type: 'vpc', Value: 'def' })
 
-  await page.getByRole('button', { name: 'Host type' }).click()
-  await page.getByRole('option', { name: 'VPC Subnet' }).click()
-  await page.getByRole('textbox', { name: 'Subnet name' }).fill('abc')
+  await selectOption(page, 'Host type', 'VPC subnet')
+  await selectOption(page, 'Subnet name', 'mock-subnet')
+  await addButton.click()
+  await expectRowVisible(hosts, { Type: 'subnet', Value: 'mock-subnet' })
+
+  await selectOption(page, 'Host type', 'VPC subnet')
+  await page.getByRole('combobox', { name: 'Subnet name' }).fill('abc')
   await addButton.click()
   await expectRowVisible(hosts, { Type: 'subnet', Value: 'abc' })
 
-  await page.getByRole('button', { name: 'Host type' }).click()
-  await page.getByRole('option', { name: 'IP', exact: true }).click()
+  await selectOption(page, 'Host type', 'IP')
   await page.getByRole('textbox', { name: 'IP address' }).fill('192.168.0.1')
   await addButton.click()
   await expectRowVisible(hosts, { Type: 'ip', Value: '192.168.0.1' })
 
-  // test table row delete, only keep the IP one
-  const firstDeleteButton = hosts
-    .getByRole('row')
-    .nth(1)
-    .getByRole('button', { name: 'remove' })
-  await expect(hosts.getByRole('row')).toHaveCount(5)
-  await firstDeleteButton.click()
-  await expect(hosts.getByRole('row')).toHaveCount(4)
-  await firstDeleteButton.click()
-  await expect(hosts.getByRole('row')).toHaveCount(3)
-  await firstDeleteButton.click()
-  await expect(hosts.getByRole('row')).toHaveCount(2)
+  // test table row delete; only keep the IP one
+  await expect(hosts.getByRole('row')).toHaveCount(6)
+  await deleteRowAndVerifyRowCount(hosts, 5)
+  await deleteRowAndVerifyRowCount(hosts, 4)
+  await deleteRowAndVerifyRowCount(hosts, 3)
+  await deleteRowAndVerifyRowCount(hosts, 2)
 
   // we still have the IP target
   await expectRowVisible(hosts, { Type: 'ip', Value: '192.168.0.1' })
@@ -241,9 +256,9 @@ test('can update firewall rule', async ({ page }) => {
   await page.getByRole('tab', { name: 'Firewall Rules' }).click()
 
   const rows = page.locator('tbody >> tr')
-  await expect(rows).toHaveCount(4)
+  await expect(rows).toHaveCount(3)
 
-  // allow-icmp is the one we're doing to change
+  // allow-icmp is the one we're going to change
   const oldNameCell = page.locator('td >> text="allow-icmp"')
   await expect(oldNameCell).toBeVisible()
 
@@ -259,13 +274,11 @@ test('can update firewall rule', async ({ page }) => {
   // modal is now open
   await expect(modal).toBeVisible()
 
-  // TODO: get these by their label when that becomes easier to do
-
   // name is populated
-  await expect(page.locator('input[name=name]')).toHaveValue('allow-icmp')
+  await expect(page.getByRole('textbox', { name: 'Name' })).toHaveValue('allow-icmp')
 
   // priority is populated
-  await expect(page.locator('role=textbox[name=Priority]')).toHaveValue('65534')
+  await expect(page.getByRole('textbox', { name: 'Priority' })).toHaveValue('65534')
 
   // protocol is populated
   await expect(page.locator('label >> text=ICMP')).toBeChecked()
@@ -277,19 +290,19 @@ test('can update firewall rule', async ({ page }) => {
   // screen.getByRole('cell', { name: 'default' })
 
   // update name
-  await page.fill('input[name=name]', 'new-rule-name')
+  await page.getByRole('textbox', { name: 'Name' }).fill('new-rule-name')
 
   // add host filter
-  await page.locator('role=button[name*="Host type"]').click()
-  await page.locator('role=option[name="VPC Subnet"]').click()
-  await page.fill('role=textbox[name="Subnet name"]', 'edit-filter-subnet')
-  await page.locator('text="Add host filter"').click()
+  await selectOption(page, 'Host type', 'VPC subnet')
+  await page.getByRole('combobox', { name: 'Subnet name' }).fill('edit-filter-subnet')
+  await page.getByRole('button', { name: 'Add host filter' }).click()
 
   // new host is added to hosts table
-  await expect(page.locator('role=cell >> text="edit-filter-subnet"')).toBeVisible()
+  const hosts = page.getByRole('table', { name: 'Host filters' })
+  await expectRowVisible(hosts, { Type: 'subnet', Value: 'edit-filter-subnet' })
 
   // submit the form
-  await page.locator('text="Update rule"').click()
+  await page.getByRole('button', { name: 'Update rule' }).click()
 
   // modal closes again
   await expect(modal).toBeHidden()
@@ -298,7 +311,7 @@ test('can update firewall rule', async ({ page }) => {
   await expect(newNameCell).toBeVisible()
   await expect(oldNameCell).toBeHidden()
 
-  await expect(rows).toHaveCount(4)
+  await expect(rows).toHaveCount(3)
 
   // new target shows up in target cell
   await expect(page.locator('text=subnetedit-filter-subnetICMP')).toBeVisible()
@@ -308,6 +321,53 @@ test('can update firewall rule', async ({ page }) => {
   for (const name of rest) {
     await expect(page.locator(`text="${name}"`)).toBeVisible()
   }
+})
+
+test('create from existing rule', async ({ page }) => {
+  const url = '/projects/mock-project/vpcs/mock-vpc/firewall-rules'
+  await page.goto(url)
+
+  const modal = page.getByRole('dialog', { name: 'Add firewall rule' })
+  await expect(modal).toBeHidden()
+
+  await clickRowAction(page, 'allow-icmp', 'Clone')
+
+  await expect(page).toHaveURL(url + '-new/allow-icmp')
+  await expect(modal).toBeVisible()
+  await expect(modal.getByRole('textbox', { name: 'Name', exact: true })).toHaveValue(
+    'allow-icmp-copy'
+  )
+
+  await expect(modal.getByRole('checkbox', { name: 'TCP' })).not.toBeChecked()
+  await expect(modal.getByRole('checkbox', { name: 'UDP' })).not.toBeChecked()
+  await expect(modal.getByRole('checkbox', { name: 'ICMP' })).toBeChecked()
+
+  // no port filters
+  const portFilters = modal.getByRole('table', { name: 'Port filters' })
+  await expect(portFilters).toBeHidden()
+
+  const targets = modal.getByRole('table', { name: 'Targets' })
+  await expect(targets.getByRole('row', { name: 'Name: default, Type: vpc' })).toBeVisible()
+
+  // close the modal
+  await page.keyboard.press('Escape')
+  await expect(modal).toBeHidden()
+
+  // do it again with a different rule
+  await clickRowAction(page, 'allow-ssh', 'Clone')
+
+  await expect(modal).toBeVisible()
+  await expect(modal.getByRole('textbox', { name: 'Name', exact: true })).toHaveValue(
+    'allow-ssh-copy'
+  )
+
+  await expect(portFilters.getByRole('cell', { name: '22', exact: true })).toBeVisible()
+
+  await expect(modal.getByRole('checkbox', { name: 'TCP' })).toBeChecked()
+  await expect(modal.getByRole('checkbox', { name: 'UDP' })).not.toBeChecked()
+  await expect(modal.getByRole('checkbox', { name: 'ICMP' })).not.toBeChecked()
+
+  await expect(targets.getByRole('row', { name: 'Name: default, Type: vpc' })).toBeVisible()
 })
 
 const rulePath = '/projects/mock-project/vpcs/mock-vpc/firewall-rules/allow-icmp/edit'
@@ -323,4 +383,49 @@ test('can edit rule directly by URL', async ({ page }) => {
 test('404s on edit non-existent rule', async ({ page }) => {
   await page.goto(rulePath.replace('icmp', 'boop'))
   await expect(page.getByText('Page not found')).toBeVisible()
+})
+
+// when creating a rule, giving it the same name as an existing rule is an
+// error. if you want to overwrite a rule, you need to edit it
+test('name conflict error on create', async ({ page }) => {
+  await page.goto('/projects/mock-project/vpcs/mock-vpc/firewall-rules-new')
+
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill('allow-ssh')
+
+  const error = page.getByText('Name taken').first()
+  await expect(error).toBeHidden()
+
+  await page.getByRole('button', { name: 'Add rule' }).click()
+  await expect(error).toBeVisible()
+})
+
+// when editing a rule, on the other hand, we only check for conflicts against rules
+// other than the one being edited, because of course its name can stay the same
+test('name conflict error on edit', async ({ page }) => {
+  await page.goto('/projects/mock-project/vpcs/mock-vpc/firewall-rules/allow-icmp/edit')
+
+  // changing the name to one taken by another rule is an error
+  const nameField = page.getByRole('textbox', { name: 'Name', exact: true })
+  await nameField.fill('allow-ssh')
+
+  const error = page.getByText('Name taken').first()
+  await expect(error).toBeHidden()
+
+  await page.getByRole('button', { name: 'Update rule' }).click()
+  await expect(error).toBeVisible()
+
+  // change name back
+  await nameField.fill('allow-icmp')
+
+  // changing a value _without_ changing the name is allowed
+  await page.getByRole('textbox', { name: 'Priority' }).fill('37')
+  await page.getByRole('button', { name: 'Update rule' }).click()
+  await expect(error).toBeHidden()
+  await expectRowVisible(page.getByRole('table'), { Name: 'allow-icmp', Priority: '37' })
+
+  // changing the name to a non-conflicting name is allowed
+  await page.getByRole('link', { name: 'allow-icmp' }).click()
+  await nameField.fill('allow-icmp2')
+  await page.getByRole('button', { name: 'Update rule' }).click()
+  await expectRowVisible(page.getByRole('table'), { Name: 'allow-icmp2', Priority: '37' })
 })

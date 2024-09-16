@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useForm } from 'react-hook-form'
 import * as R from 'remeda'
 
 import {
@@ -17,7 +18,7 @@ import {
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
-import { useForm, useInstanceSelector } from '~/hooks'
+import { useInstanceSelector } from '~/hooks/use-params'
 
 type EditNetworkInterfaceFormProps = {
   editing: InstanceNetworkInterface

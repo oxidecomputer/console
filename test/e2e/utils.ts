@@ -111,13 +111,8 @@ export async function stopInstance(page: Page) {
   await page.getByRole('menuitem', { name: 'Stop' }).click()
   await page.getByRole('button', { name: 'Confirm' }).click()
   await closeToast(page)
-  await sleep(1200)
-  await refreshInstance(page)
-  await expect(page.getByText('statusstopped')).toBeVisible()
-}
-
-export async function refreshInstance(page: Page) {
-  await page.getByRole('button', { name: 'Refresh data' }).click()
+  // don't need to manually refresh because of polling
+  await expect(page.getByText('statestopped')).toBeVisible()
 }
 
 /**
@@ -143,6 +138,28 @@ export async function clickRowAction(page: Page, rowText: string, actionName: st
     .getByRole('button', { name: 'Row actions' })
     .click()
   await page.getByRole('menuitem', { name: actionName }).click()
+}
+
+/**
+ * Select an option from a dropdown
+ * buttonLocator can either be the drodown's label text or a more elaborate Locator
+ * optionLocator can either be the drodown's label text or a more elaborate Locator
+ * */
+export async function selectOption(
+  page: Page,
+  buttonLocator: string | Locator,
+  optionLocator: string | Locator
+) {
+  if (typeof buttonLocator === 'string') {
+    await page.getByRole('button', { name: buttonLocator }).click()
+  } else {
+    await buttonLocator.click()
+  }
+  if (typeof optionLocator === 'string') {
+    await page.getByRole('option', { name: optionLocator, exact: true }).click()
+  } else {
+    await optionLocator.click()
+  }
 }
 
 export async function getPageAsUser(
@@ -178,7 +195,14 @@ export async function expectObscured(locator: Locator) {
 
 export const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
-export async function chooseFile(page: Page, inputLocator: Locator, size = 15 * MiB) {
+const bigFile = Buffer.alloc(3 * MiB, 'a')
+const smallFile = Buffer.alloc(0.1 * MiB, 'a')
+
+export async function chooseFile(
+  page: Page,
+  inputLocator: Locator,
+  size: 'large' | 'small' = 'large'
+) {
   const fileChooserPromise = page.waitForEvent('filechooser')
   await inputLocator.click()
   const fileChooser = await fileChooserPromise
@@ -187,6 +211,6 @@ export async function chooseFile(page: Page, inputLocator: Locator, size = 15 * 
     mimeType: 'application/octet-stream',
     // fill with nonzero content, otherwise we'll skip the whole thing, which
     // makes the test too fast for playwright to catch anything
-    buffer: Buffer.alloc(size, 'a'),
+    buffer: size === 'large' ? bigFile : smallFile,
   })
 }

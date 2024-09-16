@@ -24,18 +24,29 @@ import { FieldLabel } from './FieldLabel'
 import { usePopoverZIndex } from './SideModal'
 import { TextInputHint } from './TextInput'
 
-export type ComboboxItem = { label: string; value: string }
-
 /** Simple non-generic props shared with ComboboxField */
 export type ComboboxBaseProps = {
   description?: React.ReactNode
   isDisabled?: boolean
   isLoading?: boolean
-  items: ComboboxItem[]
+  items: Array<{ label: string; value: string }>
   label: string
   placeholder?: string
   required?: boolean
   tooltipText?: string
+  ariaLabel?: string
+  hideOptionalTag?: boolean
+  /**
+   * Pass in `allowArbitraryValues` as `true` when the user should be able to
+   * type in new values that aren't in the list [default is `false`]
+   */
+  allowArbitraryValues?: boolean
+  /**
+   * Pass in `onInputChange` when an event should be triggered when the user types in the field;
+   * This is distinct from `onChange` which is triggered when the user selects an item from the list.
+   * For example, if a form value should be set when the user types, use `onInputChange`.
+   */
+  onInputChange?: (value: string) => void
 }
 
 type ComboboxProps = {
@@ -46,7 +57,7 @@ type ComboboxProps = {
 
 export const Combobox = ({
   description,
-  items,
+  items = [],
   selected,
   label,
   placeholder,
@@ -56,6 +67,10 @@ export const Combobox = ({
   isDisabled,
   isLoading,
   onChange,
+  onInputChange,
+  allowArbitraryValues = false,
+  ariaLabel,
+  hideOptionalTag,
 }: ComboboxProps) => {
   const [query, setQuery] = useState(selected || '')
 
@@ -80,7 +95,12 @@ export const Combobox = ({
         {label && (
           // TODO: FieldLabel needs a real ID
           <div className="mb-2">
-            <FieldLabel id="FieldLabel" as="div" tip={tooltipText} optional={!required}>
+            <FieldLabel
+              id="FieldLabel"
+              as="div"
+              tip={tooltipText}
+              optional={!required && !hideOptionalTag}
+            >
               <Label>{label}</Label>
             </FieldLabel>
             {description && <TextInputHint id="TextInputHint">{description}</TextInputHint>}
@@ -100,9 +120,12 @@ export const Combobox = ({
           )}
         >
           <ComboboxInput
-            aria-label="Select a disk"
+            aria-label={ariaLabel}
             displayValue={() => (selected ? selected : query)}
-            onChange={(event) => setQuery(event.target.value)}
+            onChange={(event) => {
+              setQuery(event.target.value)
+              onInputChange?.(event.target.value)
+            }}
             placeholder={placeholder}
             disabled={isDisabled || isLoading}
             className={cn(
@@ -113,48 +136,52 @@ export const Combobox = ({
               hasError && 'focus-error'
             )}
           />
-          <div className="flex items-center border-l px-3 border-secondary" aria-hidden>
-            <SelectArrows6Icon title="Select" className="w-2 text-tertiary" />
-          </div>
-        </ComboboxButton>
-        <ComboboxOptions
-          anchor="bottom start"
-          // 14px gap is presumably because it's measured from inside the outline or something
-          className={`ox-menu pointer-events-auto ${zIndex} relative w-[var(--button-width)] overflow-y-auto border !outline-none border-secondary [--anchor-gap:14px] empty:hidden`}
-          modal={false}
-        >
-          {filteredItems.length === 0 && (
-            <ComboboxOption disabled value="no-matches" className="relative">
-              <div className="ox-menu-item !text-disabled">No items match</div>
-            </ComboboxOption>
+          {items.length > 0 && (
+            <div className="flex items-center border-l px-3 border-secondary" aria-hidden>
+              <SelectArrows6Icon title="Select" className="w-2 text-tertiary" />
+            </div>
           )}
-          {filteredItems.map((item) => (
-            <ComboboxOption
-              key={item.label}
-              value={item.label}
-              className="relative border-b border-secondary last:border-0"
-              onSelect={() => {
-                onChange(item.label)
-                setQuery(item.label)
-              }}
-            >
-              {({ focus, selected }) => (
-                // This *could* be done with data-[focus] and data-[selected] instead, but
-                // it would be a lot more verbose. those can only be used with TW classes,
-                // not our .is-selected and .is-highlighted, so we'd have to copy the pieces
-                // of those rules one by one. Better to rely on the shared classes.
-                <div
-                  className={cn('ox-menu-item', {
-                    'is-selected': selected,
-                    'is-highlighted': focus,
-                  })}
-                >
-                  {item.label}
-                </div>
-              )}
-            </ComboboxOption>
-          ))}
-        </ComboboxOptions>
+        </ComboboxButton>
+        {items.length > 0 && (
+          <ComboboxOptions
+            anchor="bottom start"
+            // 14px gap is presumably because it's measured from inside the outline or something
+            className={`ox-menu pointer-events-auto ${zIndex} relative w-[var(--button-width)] overflow-y-auto border !outline-none border-secondary [--anchor-gap:14px] empty:hidden`}
+            modal={false}
+          >
+            {!allowArbitraryValues && filteredItems.length === 0 && (
+              <ComboboxOption disabled value="no-matches" className="relative">
+                <div className="ox-menu-item !text-disabled">No items match</div>
+              </ComboboxOption>
+            )}
+            {filteredItems.map((item) => (
+              <ComboboxOption
+                key={item.label}
+                value={item.label}
+                className="relative border-b border-secondary last:border-0"
+                onSelect={() => {
+                  onChange(item.label)
+                  setQuery(item.label)
+                }}
+              >
+                {({ focus, selected }) => (
+                  // This *could* be done with data-[focus] and data-[selected] instead, but
+                  // it would be a lot more verbose. those can only be used with TW classes,
+                  // not our .is-selected and .is-highlighted, so we'd have to copy the pieces
+                  // of those rules one by one. Better to rely on the shared classes.
+                  <div
+                    className={cn('ox-menu-item', {
+                      'is-selected': selected,
+                      'is-highlighted': focus,
+                    })}
+                  >
+                    {item.label}
+                  </div>
+                )}
+              </ComboboxOption>
+            ))}
+          </ComboboxOptions>
+        )}
       </HCombobox>
     </>
   )
