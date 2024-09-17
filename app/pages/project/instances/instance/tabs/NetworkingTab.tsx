@@ -137,7 +137,9 @@ const staticCols = [
   colHelper.accessor('transitIps', {
     header: 'Transit IPs',
     cell: (info) => (
-      <ListPlusCell>{info.getValue()?.map((ip) => <div key={ip}>{ip}</div>)}</ListPlusCell>
+      <ListPlusCell tooltipTitle="Other transit IPs">
+        {info.getValue()?.map((ip) => <div key={ip}>{ip}</div>)}
+      </ListPlusCell>
     ),
   }),
 ]

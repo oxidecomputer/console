@@ -12,7 +12,7 @@ import { EmptyCell } from '~/table/cells/EmptyCell'
 import { Tooltip } from '~/ui/lib/Tooltip'
 
 type ListPlusCellProps = {
-  tooltipTitle?: string
+  tooltipTitle: string
   children: React.ReactNode
   /** The number of items to show in the cell vs. in the popup */
   numInCell?: number
@@ -37,7 +37,7 @@ export const ListPlusCell = ({
   const rest = array.slice(numInCell)
   const content = (
     <div>
-      {tooltipTitle && <div className="mb-2">{tooltipTitle}</div>}
+      <div className="mb-2">{tooltipTitle}</div>
       <div className="flex flex-col items-start gap-2">{...rest}</div>
     </div>
   )
