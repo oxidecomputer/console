@@ -75,7 +75,8 @@ export const RowActions = ({ id, copyIdLabel = 'Copy ID', actions }: RowActionsP
       >
         <More12Icon className="text-tertiary" />
       </DropdownMenu.Trigger>
-      <DropdownMenu.Content anchor="bottom end" className="-mt-3 mr-2">
+      {/* offset moves menu in from the right so it doesn't align with the table border */}
+      <DropdownMenu.Content anchor={{ to: 'bottom end', offset: -6 }} className="-mt-2">
         {id && (
           <DropdownMenu.Item
             onSelect={() => {
