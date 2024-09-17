@@ -55,7 +55,6 @@ export function TopBar({ children }: { children: React.ReactNode }) {
                 </span>
                 <DirectionDownIcon className="!w-2.5" />
               </DropdownMenu.Trigger>
-              {/* TODO: fix hover style + should be able to click anywhere in the menu item */}
               <DropdownMenu.Content gap={8}>
                 <DropdownMenu.LinkItem to={pb.profile()}>Settings</DropdownMenu.LinkItem>
                 <DropdownMenu.Item onSelect={() => logout.mutate({})}>
