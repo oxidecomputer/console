@@ -5,16 +5,15 @@
  *
  * Copyright Oxide Computer Company
  */
-import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import cn from 'classnames'
 import React from 'react'
-import { Link } from 'react-router-dom'
 
 import { navToLogin, useApiMutation } from '@oxide/api'
 import { DirectionDownIcon, Profile16Icon } from '@oxide/design-system/icons/react'
 
 import { useCurrentUser } from '~/layouts/AuthenticatedLayout'
 import { buttonStyle } from '~/ui/lib/Button'
+import * as DropdownMenu from '~/ui/lib/DropdownMenu2'
 import { pb } from '~/util/path-builder'
 
 export function TopBar({ children }: { children: React.ReactNode }) {
@@ -42,11 +41,11 @@ export function TopBar({ children }: { children: React.ReactNode }) {
         <div className="mx-3 flex h-[60px] shrink-0 items-center justify-between">
           <div className="flex items-center">{otherPickers}</div>
           <div className="flex items-center gap-2">
-            <Menu>
-              <MenuButton
+            <DropdownMenu.Root>
+              <DropdownMenu.Trigger
                 className={cn(
-                  'flex items-center gap-2',
-                  buttonStyle({ size: 'sm', variant: 'secondary' })
+                  buttonStyle({ size: 'sm', variant: 'secondary' }),
+                  'flex items-center gap-2'
                 )}
                 aria-label="User menu"
               >
@@ -55,29 +54,15 @@ export function TopBar({ children }: { children: React.ReactNode }) {
                   {me.displayName || 'User'}
                 </span>
                 <DirectionDownIcon className="!w-2.5" />
-              </MenuButton>
+              </DropdownMenu.Trigger>
               {/* TODO: fix hover style + should be able to click anywhere in the menu item */}
-              <MenuItems
-                anchor="bottom end"
-                className="DropdownMenuContent [--anchor-gap:8px]"
-              >
-                {/* TODO: extract Item and LinkItem components*/}
-                <MenuItem>
-                  <Link className="DropdownMenuItem ox-menu-item" to={pb.profile()}>
-                    Settings
-                  </Link>
-                </MenuItem>
-                <MenuItem>
-                  <button
-                    type="button"
-                    onClick={() => logout.mutate({})}
-                    className="DropdownMenuItem ox-menu-item"
-                  >
-                    Sign out
-                  </button>
-                </MenuItem>
-              </MenuItems>
-            </Menu>
+              <DropdownMenu.Content gap={8}>
+                <DropdownMenu.LinkItem to={pb.profile()}>Settings</DropdownMenu.LinkItem>
+                <DropdownMenu.Item onSelect={() => logout.mutate({})}>
+                  Sign out
+                </DropdownMenu.Item>
+              </DropdownMenu.Content>
+            </DropdownMenu.Root>
           </div>
         </div>
       </div>

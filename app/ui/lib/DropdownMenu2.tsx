@@ -1,0 +1,88 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * Copyright Oxide Computer Company
+ */
+
+import {
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuItems,
+  type MenuItemsProps,
+} from '@headlessui/react'
+import cn from 'classnames'
+import { forwardRef, type ForwardedRef, type ReactNode } from 'react'
+import { Link } from 'react-router-dom'
+
+export const Root = Menu
+
+export const Trigger = MenuButton
+
+type ContentProps = {
+  className?: string
+  children: ReactNode
+  anchor?: MenuItemsProps['anchor']
+  portal?: boolean
+  /** Spacing in px, passed as --anchor-gap */
+  gap?: number
+}
+
+export function Content({
+  className,
+  children,
+  portal,
+  anchor = 'bottom end',
+  gap,
+}: ContentProps) {
+  return (
+    <MenuItems
+      anchor={anchor}
+      className={cn('DropdownMenuContent', gap && `[--anchor-gap:${gap}px]`, className)}
+      // necessary to turn off scroll locking so the scrollbar doesn't pop in
+      // and out as menu closes and opens
+      modal={false}
+      portal={portal}
+    >
+      {children}
+    </MenuItems>
+  )
+}
+
+type LinkItemProps = { className?: string; to: string; children: ReactNode }
+
+export function LinkItem({ className, to, children }: LinkItemProps) {
+  return (
+    <MenuItem>
+      <Link className={cn('DropdownMenuItem ox-menu-item', className)} to={to}>
+        {children}
+      </Link>
+    </MenuItem>
+  )
+}
+
+type ButtonRef = ForwardedRef<HTMLButtonElement>
+type ItemProps = {
+  className?: string
+  onSelect?: () => void
+  children: ReactNode
+  disabled?: boolean
+}
+
+// need to forward ref because of tooltips on disabled menu buttons
+export const Item = forwardRef(
+  ({ className, onSelect, children, disabled }: ItemProps, ref: ButtonRef) => (
+    <MenuItem disabled={disabled}>
+      <button
+        type="button"
+        className={cn('DropdownMenuItem ox-menu-item', className)}
+        ref={ref}
+        onClick={onSelect}
+      >
+        {children}
+      </button>
+    </MenuItem>
+  )
+)
