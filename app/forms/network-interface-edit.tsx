@@ -22,6 +22,7 @@ import { TextFieldInner } from '~/components/form/fields/TextField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { useInstanceSelector } from '~/hooks/use-params'
 import { FormDivider } from '~/ui/lib/Divider'
+import { FieldLabel } from '~/ui/lib/FieldLabel'
 import * as MiniTable from '~/ui/lib/MiniTable'
 import { TextInputHint } from '~/ui/lib/TextInput'
 import { KEYS } from '~/ui/util/keys'
@@ -86,11 +87,11 @@ export function EditNetworkInterfaceForm({
       <FormDivider />
 
       <div className="flex flex-col gap-3">
-        {/* We have to blow this up instead of using TextField to get better text styling on the label */}
-        <div className="mt-2">
-          <label id="transitIps-label" htmlFor="transitIp" className="text-sans-lg">
+        {/* We have to blow this up instead of using TextField for better layout control of field and ClearAndAddButtons */}
+        <div>
+          <FieldLabel id="transitIps-label" htmlFor="transitIp" optional>
             Transit IPs
-          </label>
+          </FieldLabel>
           <TextInputHint id="transitIps-help-text" className="mb-2">
             Enter an IPv4 or IPv6 address.{' '}
             <a href={links.transitIpsDocs} target="_blank" rel="noreferrer">
@@ -100,7 +101,6 @@ export function EditNetworkInterfaceForm({
           <TextFieldInner
             id="transitIp"
             name="transitIp"
-            required
             control={transitIpsForm.control}
             onKeyDown={(e) => {
               if (e.key === KEYS.enter) {
