@@ -15,7 +15,7 @@ import {
   type DropdownMenuItemProps,
 } from '@radix-ui/react-dropdown-menu'
 import cn from 'classnames'
-import { forwardRef, type ForwardedRef } from 'react'
+import { forwardRef, type ForwardedRef, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 
 type DivRef = ForwardedRef<HTMLDivElement>
@@ -25,7 +25,7 @@ type DivRef = ForwardedRef<HTMLDivElement>
 type LinkitemProps = Omit<DropdownMenuItemProps, 'disabled'> & { to: string }
 
 export const DropdownMenu = {
-  Root,
+  Root: ({ children }: { children: ReactNode }) => <Root modal={false}>{children}</Root>,
   Trigger,
   Portal,
   // don't need to forward ref here for a particular reason but Radix gives a
