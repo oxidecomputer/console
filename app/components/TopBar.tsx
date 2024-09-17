@@ -5,14 +5,16 @@
  *
  * Copyright Oxide Computer Company
  */
+import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
+import cn from 'classnames'
 import React from 'react'
+import { Link } from 'react-router-dom'
 
 import { navToLogin, useApiMutation } from '@oxide/api'
 import { DirectionDownIcon, Profile16Icon } from '@oxide/design-system/icons/react'
 
 import { useCurrentUser } from '~/layouts/AuthenticatedLayout'
-import { Button } from '~/ui/lib/Button'
-import { DropdownMenu } from '~/ui/lib/DropdownMenu'
+import { buttonStyle } from '~/ui/lib/Button'
 import { pb } from '~/util/path-builder'
 
 export function TopBar({ children }: { children: React.ReactNode }) {
@@ -40,31 +42,42 @@ export function TopBar({ children }: { children: React.ReactNode }) {
         <div className="mx-3 flex h-[60px] shrink-0 items-center justify-between">
           <div className="flex items-center">{otherPickers}</div>
           <div className="flex items-center gap-2">
-            {/* <Button variant="secondary" size="icon" className="ml-2" title="Notifications">
-              <Notifications16Icon className="text-quaternary" />
-            </Button> */}
-            <DropdownMenu.Root>
-              <DropdownMenu.Trigger asChild>
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  aria-label="User menu"
-                  innerClassName="space-x-2"
-                >
-                  <Profile16Icon className="text-quaternary" />
-                  <span className="normal-case text-sans-md text-secondary">
-                    {me.displayName || 'User'}
-                  </span>
-                  <DirectionDownIcon className="!w-2.5" />
-                </Button>
-              </DropdownMenu.Trigger>
-              <DropdownMenu.Content align="end" sideOffset={8}>
-                <DropdownMenu.LinkItem to={pb.profile()}>Settings</DropdownMenu.LinkItem>
-                <DropdownMenu.Item onSelect={() => logout.mutate({})}>
-                  Sign out
-                </DropdownMenu.Item>
-              </DropdownMenu.Content>
-            </DropdownMenu.Root>
+            <Menu>
+              <MenuButton
+                className={cn(
+                  'flex items-center gap-2',
+                  buttonStyle({ size: 'sm', variant: 'secondary' })
+                )}
+                aria-label="User menu"
+              >
+                <Profile16Icon className="text-quaternary" />
+                <span className="normal-case text-sans-md text-secondary">
+                  {me.displayName || 'User'}
+                </span>
+                <DirectionDownIcon className="!w-2.5" />
+              </MenuButton>
+              {/* TODO: fix hover style + should be able to click anywhere in the menu item */}
+              <MenuItems
+                anchor="bottom end"
+                className="DropdownMenuContent [--anchor-gap:8px]"
+              >
+                {/* TODO: extract Item and LinkItem components*/}
+                <MenuItem>
+                  <Link className="DropdownMenuItem ox-menu-item" to={pb.profile()}>
+                    Settings
+                  </Link>
+                </MenuItem>
+                <MenuItem>
+                  <button
+                    type="button"
+                    onClick={() => logout.mutate({})}
+                    className="DropdownMenuItem ox-menu-item"
+                  >
+                    Sign out
+                  </button>
+                </MenuItem>
+              </MenuItems>
+            </Menu>
           </div>
         </div>
       </div>
