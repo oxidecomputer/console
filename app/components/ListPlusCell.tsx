@@ -37,7 +37,7 @@ export const ListPlusCell = ({
   const rest = array.slice(numInCell)
   const content = (
     <div>
-      <div className="mb-2">{tooltipTitle}</div>
+      <div className="mb-2 text-sans-semi-md text-default">{tooltipTitle}</div>
       <div className="flex flex-col items-start gap-2">{...rest}</div>
     </div>
   )
