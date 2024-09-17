@@ -192,8 +192,7 @@ const TypeAndValueTable = ({ sectionType, items }: TypeAndValueTableProps) => (
     aria-label={sectionType === 'target' ? 'Targets' : 'Host filters'}
   >
     <MiniTable.Header>
-      <MiniTable.HeadCell>Type</MiniTable.HeadCell>
-      <MiniTable.HeadCell>Value</MiniTable.HeadCell>
+      {['Type', 'Value'].map((label) => MiniTable.makeHeadCell(label))}
       {/* For remove button */}
       <MiniTable.HeadCell className="w-12" />
     </MiniTable.Header>

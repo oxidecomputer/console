@@ -23,6 +23,10 @@ export const Header = ({ children }: Children) => (
 
 export const HeadCell = BigTable.HeadCell
 
+export const makeHeadCell = (label: string, className?: string) => (
+  <HeadCell className={className}>{label}</HeadCell>
+)
+
 export const Body = classed.tbody``
 
 export const Row = classed.tr`is-selected children:border-default first:children:border-l children:last:border-b last:children:border-r`

@@ -48,9 +48,7 @@ export function DisksTableField({
         {!!items.length && (
           <MiniTable.Table className="mb-4">
             <MiniTable.Header>
-              <MiniTable.HeadCell>Name</MiniTable.HeadCell>
-              <MiniTable.HeadCell>Type</MiniTable.HeadCell>
-              <MiniTable.HeadCell>Size</MiniTable.HeadCell>
+              {['Name', 'Type', 'Size'].map((label) => MiniTable.makeHeadCell(label))}
               {/* For remove button */}
               <MiniTable.HeadCell className="w-12" />
             </MiniTable.Header>

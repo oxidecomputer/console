@@ -10,9 +10,7 @@ import * as MiniTable from './MiniTable'
 export const Default = () => (
   <MiniTable.Table>
     <MiniTable.Header>
-      <MiniTable.HeadCell>Name</MiniTable.HeadCell>
-      <MiniTable.HeadCell>Source Type</MiniTable.HeadCell>
-      <MiniTable.HeadCell>Size</MiniTable.HeadCell>
+      {['Name', 'Source Type', 'Size'].map((label) => MiniTable.makeHeadCell(label))}
     </MiniTable.Header>
     <MiniTable.Body>
       <MiniTable.Row>
