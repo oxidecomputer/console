@@ -38,7 +38,6 @@
     "@oxide/design-system": "^1.4.6",
     "@radix-ui/react-accordion": "^1.2.0",
     "@radix-ui/react-dialog": "^1.0.5",
-    "@radix-ui/react-dropdown-menu": "^2.0.6",
     "@radix-ui/react-focus-guards": "1.0.1",
     "@radix-ui/react-tabs": "^1.1.0",
     "@react-aria/live-announcer": "^3.3.4",

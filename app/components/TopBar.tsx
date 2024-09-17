@@ -13,7 +13,7 @@ import { DirectionDownIcon, Profile16Icon } from '@oxide/design-system/icons/rea
 
 import { useCurrentUser } from '~/layouts/AuthenticatedLayout'
 import { buttonStyle } from '~/ui/lib/Button'
-import * as DropdownMenu from '~/ui/lib/DropdownMenu2'
+import * as DropdownMenu from '~/ui/lib/DropdownMenu'
 import { pb } from '~/util/path-builder'
 
 export function TopBar({ children }: { children: React.ReactNode }) {

@@ -11,7 +11,7 @@ import { useMemo } from 'react'
 
 import { More12Icon } from '@oxide/design-system/icons/react'
 
-import { DropdownMenu } from '~/ui/lib/DropdownMenu'
+import * as DropdownMenu from '~/ui/lib/DropdownMenu'
 import { Tooltip } from '~/ui/lib/Tooltip'
 import { Wrap } from '~/ui/util/wrap'
 import { kebabCase } from '~/util/str'
@@ -75,41 +75,37 @@ export const RowActions = ({ id, copyIdLabel = 'Copy ID', actions }: RowActionsP
       >
         <More12Icon className="text-tertiary" />
       </DropdownMenu.Trigger>
-      {/* portal fixes mysterious z-index issue where menu is behind button */}
-      <DropdownMenu.Portal>
-        <DropdownMenu.Content align="end" className="-mt-3 mr-2">
-          {id && (
-            <DropdownMenu.Item
-              onSelect={() => {
-                window.navigator.clipboard.writeText(id)
-              }}
+      <DropdownMenu.Content anchor="bottom end" className="-mt-3 mr-2">
+        {id && (
+          <DropdownMenu.Item
+            onSelect={() => {
+              window.navigator.clipboard.writeText(id)
+            }}
+          >
+            {copyIdLabel}
+          </DropdownMenu.Item>
+        )}
+        {actions?.map((action) => {
+          // TODO: Tooltip on disabled button broke, probably due to portal
+          return (
+            <Wrap
+              when={!!action.disabled}
+              with={<Tooltip content={action.disabled} />}
+              key={kebabCase(`action-${action.label}`)}
             >
-              {copyIdLabel}
-            </DropdownMenu.Item>
-          )}
-          {actions?.map((action) => {
-            // TODO: Tooltip on disabled button broke, probably due to portal
-            return (
-              <Wrap
-                when={!!action.disabled}
-                with={<Tooltip content={action.disabled} />}
-                key={kebabCase(`action-${action.label}`)}
+              <DropdownMenu.Item
+                className={cn(action.className, {
+                  destructive: action.label.toLowerCase() === 'delete' && !action.disabled,
+                })}
+                onSelect={action.onActivate}
+                disabled={!!action.disabled}
               >
-                <DropdownMenu.Item
-                  className={cn(action.className, {
-                    destructive:
-                      action.label.toLowerCase() === 'delete' && !action.disabled,
-                  })}
-                  onSelect={action.onActivate}
-                  disabled={!!action.disabled}
-                >
-                  {action.label}
-                </DropdownMenu.Item>
-              </Wrap>
-            )
-          })}
-        </DropdownMenu.Content>
-      </DropdownMenu.Portal>
+                {action.label}
+              </DropdownMenu.Item>
+            </Wrap>
+          )
+        })}
+      </DropdownMenu.Content>
     </DropdownMenu.Root>
   )
 }

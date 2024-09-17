@@ -8,7 +8,7 @@
 import { More12Icon } from '@oxide/design-system/icons/react'
 
 import type { MenuAction } from '~/table/columns/action-col'
-import { DropdownMenu } from '~/ui/lib/DropdownMenu'
+import * as DropdownMenu from '~/ui/lib/DropdownMenu'
 import { Tooltip } from '~/ui/lib/Tooltip'
 import { Wrap } from '~/ui/util/wrap'
 
@@ -26,7 +26,7 @@ export const MoreActionsMenu = ({ actions, label }: MoreActionsMenuProps) => {
       >
         <More12Icon className="text-tertiary" />
       </DropdownMenu.Trigger>
-      <DropdownMenu.Content align="end" className="mt-2">
+      <DropdownMenu.Content anchor="bottom end" className="mt-2">
         {actions.map((a) => (
           <Wrap key={a.label} when={!!a.disabled} with={<Tooltip content={a.disabled} />}>
             <DropdownMenu.Item
