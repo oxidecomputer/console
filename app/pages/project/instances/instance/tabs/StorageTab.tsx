@@ -61,6 +61,10 @@ StorageTab.loader = async ({ params }: LoaderFunctionArgs) => {
   return null
 }
 
+// Bit of a hack: by putting the instance state in the row data, we can avoid
+// remaking the row actions callback whenever the instance state changes, which
+// causes the whole table to get re-rendered, which jarringly closes any open
+// row actions menus
 type InstanceDisk = Disk & {
   instanceState: InstanceState
 }
