@@ -7,7 +7,7 @@
  */
 
 .DropdownMenuContent {
-  @apply z-30 min-w-36 rounded border p-0 bg-raise border-secondary;
+  @apply z-popover min-w-36 rounded border p-0 bg-raise border-secondary;
 
   & .DropdownMenuItem {
     @apply block w-full cursor-pointer select-none border-b py-2 pl-3 pr-6 text-left text-sans-md text-secondary border-secondary last:border-b-0;
