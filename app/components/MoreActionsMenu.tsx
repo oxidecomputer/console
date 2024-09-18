@@ -26,7 +26,7 @@ export const MoreActionsMenu = ({ actions, label }: MoreActionsMenuProps) => {
       >
         <More12Icon className="text-tertiary" />
       </DropdownMenu.Trigger>
-      <DropdownMenu.Content anchor="bottom end" className="mt-2">
+      <DropdownMenu.Content className="mt-2">
         {actions.map((a) => (
           <Wrap key={a.label} when={!!a.disabled} with={<Tooltip content={a.disabled} />}>
             <DropdownMenu.Item

@@ -25,18 +25,11 @@ type ContentProps = {
   className?: string
   children: ReactNode
   anchor?: MenuItemsProps['anchor']
-  portal?: boolean
   /** Spacing in px, passed as --anchor-gap */
   gap?: 8
 }
 
-export function Content({
-  className,
-  children,
-  portal,
-  anchor = 'bottom end',
-  gap,
-}: ContentProps) {
+export function Content({ className, children, anchor = 'bottom end', gap }: ContentProps) {
   return (
     <MenuItems
       anchor={anchor}
@@ -45,7 +38,6 @@ export function Content({
       // necessary to turn off scroll locking so the scrollbar doesn't pop in
       // and out as menu closes and opens
       modal={false}
-      portal={portal}
     >
       {children}
     </MenuItems>
