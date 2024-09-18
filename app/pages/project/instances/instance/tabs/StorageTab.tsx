@@ -5,7 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
-import { createColumnHelper } from '@tanstack/react-table'
+import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
 
@@ -28,25 +28,34 @@ import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
-import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
+import { Table } from '~/table/Table'
 import { Button } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
+import { TableEmptyBox } from '~/ui/lib/Table'
 
 import { fancifyStates } from './common'
 
+const EmptyState = () => (
+  <TableEmptyBox>
+    <EmptyMessage
+      icon={<Storage24Icon />}
+      title="No disks"
+      body="Attach a disk to this instance to see it here"
+    />
+  </TableEmptyBox>
+)
+
 StorageTab.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project, instance } = getInstanceSelector(params)
+  const selector = { path: { instance }, query: { project } }
   await Promise.all([
-    apiQueryClient.prefetchQuery('instanceDiskList', {
-      path: { instance },
-      query: { project, limit: PAGE_SIZE },
-    }),
+    // don't bother with page size because this will never paginate. max disks
+    // per instance is 8
+    // https://github.com/oxidecomputer/omicron/blob/40fc3835/nexus/db-queries/src/db/queries/disk.rs#L16-L21
+    apiQueryClient.prefetchQuery('instanceDiskList', selector),
     // This is covered by the InstancePage loader but there's no downside to
     // being redundant. If it were removed there, we'd still want it here.
-    apiQueryClient.prefetchQuery('instanceView', {
-      path: { instance },
-      query: { project },
-    }),
+    apiQueryClient.prefetchQuery('instanceView', selector),
   ])
   return null
 }
@@ -158,21 +167,17 @@ export function StorageTab() {
     },
   })
 
-  const { Table } = useQueryTable('instanceDiskList', instancePathQuery)
+  const { data: disks } = usePrefetchedApiQuery('instanceDiskList', instancePathQuery)
 
-  const emptyState = (
-    <EmptyMessage
-      icon={<Storage24Icon />}
-      title="No disks"
-      body="Attach a disk to this instance to see it here"
-    />
-  )
-
-  const columns = useColsWithActions(staticCols, makeActions)
+  const table = useReactTable({
+    columns: useColsWithActions(staticCols, makeActions),
+    data: disks.items,
+    getCoreRowModel: getCoreRowModel(),
+  })
 
   return (
     <>
-      <Table emptyState={emptyState} columns={columns} />
+      {disks.items.length > 0 ? <Table table={table} /> : <EmptyState />}
       <div className="mt-4 flex flex-col gap-3">
         <div className="flex gap-3">
           <Button
