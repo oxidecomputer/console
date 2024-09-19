@@ -23,7 +23,6 @@ import {
   type VpcSubnet,
 } from '~/api'
 import { parsePortRange } from '~/api/util'
-import { ClearAndAddButtons } from '~/components/form/ClearAndAddButtons'
 import { CheckboxField } from '~/components/form/fields/CheckboxField'
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
@@ -50,9 +49,9 @@ import { type FirewallRuleValues } from './firewall-rules-util'
  * a few sub-sections (Ports, Protocols, and Hosts).
  *
  * The Targets section and the Filters:Hosts section are very similar, so we've
- * pulled common code to the DynamicTypeAndValueFields and ClearAndAddButtons
- * components. We also then set up the Targets / Ports / Hosts variables at the
- * top of the CommonFields component.
+ * pulled common code to the DynamicTypeAndValueFields components.
+ * We also then set up the Targets / Ports / Hosts variables at the top of the
+ * CommonFields component.
  */
 
 type TargetAndHostFilterType =
@@ -419,11 +418,11 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
           onInputChange={(value) => targetForm.setValue('value', value)}
           onSubmitTextField={submitTarget}
         />
-        <ClearAndAddButtons
+        <MiniTable.ClearAndAddButtons
           addButtonCopy="Add target"
+          disableClear={!!targetValue}
           onClear={() => targetForm.reset()}
           onSubmit={submitTarget}
-          isDirty={!!targetValue}
         />
       </div>
       {!!targets.value.length && <TypeAndValueTable sectionType="target" items={targets} />}
@@ -470,11 +469,11 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
             }}
           />
         </div>
-        <ClearAndAddButtons
+        <MiniTable.ClearAndAddButtons
           addButtonCopy="Add port filter"
+          disableClear={!!portValue}
           onClear={portRangeForm.reset}
           onSubmit={submitPortRange}
-          isDirty={!!portValue}
         />
       </div>
       {!!ports.value.length && (
@@ -526,11 +525,11 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
           onInputChange={(value) => hostForm.setValue('value', value)}
           onSubmitTextField={submitHost}
         />
-        <ClearAndAddButtons
+        <MiniTable.ClearAndAddButtons
           addButtonCopy="Add host filter"
+          disableClear={!!hostValue}
           onClear={() => hostForm.reset()}
           onSubmit={submitHost}
-          isDirty={!!hostValue}
         />
       </div>
       {!!hosts.value.length && <TypeAndValueTable sectionType="host" items={hosts} />}

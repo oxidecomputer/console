@@ -15,7 +15,6 @@ import {
   type InstanceNetworkInterfaceUpdate,
 } from '@oxide/api'
 
-import { ClearAndAddButtons } from '~/components/form/ClearAndAddButtons'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { NameField } from '~/components/form/fields/NameField'
 import { TextFieldInner } from '~/components/form/fields/TextField'
@@ -89,10 +88,10 @@ export function EditNetworkInterfaceForm({
       <div className="flex flex-col gap-3">
         {/* We have to blow this up instead of using TextField for better layout control of field and ClearAndAddButtons */}
         <div>
-          <FieldLabel id="transitIps-label" htmlFor="transitIp" optional>
+          <FieldLabel id="transitIp-label" htmlFor="transitIp" optional>
             Transit IPs
           </FieldLabel>
-          <TextInputHint id="transitIps-help-text" className="mb-2">
+          <TextInputHint id="transitIp-help-text" className="mb-2">
             Enter an IPv4 or IPv6 address.{' '}
             <a href={links.transitIpsDocs} target="_blank" rel="noreferrer">
               Learn more about transit IPs.
@@ -110,11 +109,11 @@ export function EditNetworkInterfaceForm({
             }}
           />
         </div>
-        <ClearAndAddButtons
+        <MiniTable.ClearAndAddButtons
           addButtonCopy="Add Transit IP"
+          disableClear={!!transitIpsForm.formState.dirtyFields.transitIp}
           onClear={transitIpsForm.reset}
           onSubmit={submitTransitIp}
-          isDirty={!!transitIpsForm.formState.dirtyFields.transitIp}
         />
       </div>
       {transitIps.length > 0 && (
