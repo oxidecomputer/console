@@ -5,14 +5,15 @@
  *
  * Copyright Oxide Computer Company
  */
+import cn from 'classnames'
 import React from 'react'
 
 import { navToLogin, useApiMutation } from '@oxide/api'
 import { DirectionDownIcon, Profile16Icon } from '@oxide/design-system/icons/react'
 
 import { useCurrentUser } from '~/layouts/AuthenticatedLayout'
-import { Button } from '~/ui/lib/Button'
-import { DropdownMenu } from '~/ui/lib/DropdownMenu'
+import { buttonStyle } from '~/ui/lib/Button'
+import * as DropdownMenu from '~/ui/lib/DropdownMenu'
 import { pb } from '~/util/path-builder'
 
 export function TopBar({ children }: { children: React.ReactNode }) {
@@ -39,25 +40,21 @@ export function TopBar({ children }: { children: React.ReactNode }) {
         <div className="mx-3 flex h-[60px] shrink-0 items-center justify-between">
           <div className="flex items-center">{otherPickers}</div>
           <div className="flex items-center gap-2">
-            {/* <Button variant="secondary" size="icon" className="ml-2" title="Notifications">
-              <Notifications16Icon className="text-quaternary" />
-            </Button> */}
             <DropdownMenu.Root>
-              <DropdownMenu.Trigger asChild>
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  aria-label="User menu"
-                  innerClassName="space-x-2"
-                >
-                  <Profile16Icon className="text-quaternary" />
-                  <span className="normal-case text-sans-md text-secondary">
-                    {me.displayName || 'User'}
-                  </span>
-                  <DirectionDownIcon className="!w-2.5" />
-                </Button>
+              <DropdownMenu.Trigger
+                className={cn(
+                  buttonStyle({ size: 'sm', variant: 'secondary' }),
+                  'flex items-center gap-2'
+                )}
+                aria-label="User menu"
+              >
+                <Profile16Icon className="text-quaternary" />
+                <span className="normal-case text-sans-md text-secondary">
+                  {me.displayName || 'User'}
+                </span>
+                <DirectionDownIcon className="!w-2.5" />
               </DropdownMenu.Trigger>
-              <DropdownMenu.Content align="end" sideOffset={8}>
+              <DropdownMenu.Content gap={8} className="!z-topBarPopover">
                 <DropdownMenu.LinkItem to={pb.profile()}>Settings</DropdownMenu.LinkItem>
                 <DropdownMenu.Item onSelect={() => logout.mutate({})}>
                   Sign out
