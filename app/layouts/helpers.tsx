@@ -12,8 +12,10 @@ import { Pagination } from '~/components/Pagination'
 import { SkipLinkTarget } from '~/ui/lib/SkipLink'
 import { classed } from '~/util/classed'
 
-export const PageContainer = classed.div`h-full pt-[var(--navigation-height)] [overscroll-behavior-y:none]`
+export const PageContainer = classed.div`min-h-screen pt-[var(--navigation-height)] [overscroll-behavior-y:none]`
 
+// TODO: this doesn't go tall enough on a tall screen to get the pagination bar to the bottom
+// http://localhost:4000/projects/mock-project/disks
 export function ContentPane() {
   return (
     <div className="ml-[var(--sidebar-width)] flex min-h-full flex-col" id="content_pane">
@@ -38,7 +40,10 @@ export function ContentPane() {
  * `<div>` because we don't need it.
  */
 export const SerialConsoleContentPane = () => (
-  <div className="flex min-h-full flex-col overflow-auto" id="content_pane">
+  <div
+    className="ml-[var(--sidebar-width)] flex min-h-full flex-col overflow-auto"
+    id="content_pane"
+  >
     <div className="flex grow flex-col">
       <SkipLinkTarget />
       <main className="[&>*]:gutter h-full">

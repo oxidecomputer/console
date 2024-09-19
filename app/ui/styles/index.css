@@ -58,8 +58,7 @@
   html,
   body,
   #root {
-    overscroll-behavior-y: none;
-    @apply h-full;
+    @apply min-h-screen;
   }
 
   .msw-banner #content_pane {
