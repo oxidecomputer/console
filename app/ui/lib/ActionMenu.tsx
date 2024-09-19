@@ -8,7 +8,7 @@
 import * as Dialog from '@radix-ui/react-dialog'
 import cn from 'classnames'
 import { matchSorter } from 'match-sorter'
-import React, { useState } from 'react'
+import { useRef, useState } from 'react'
 
 import { Close12Icon } from '@oxide/design-system/icons/react'
 
@@ -70,9 +70,9 @@ export function ActionMenu(props: ActionMenuProps) {
   const [selectedIdx, setSelectedIdx] = useState(0)
   const selectedItem = itemsInOrder[selectedIdx] as QuickActionItem | undefined
 
-  const divRef = React.createRef<HTMLDivElement>()
-  const ulRef = React.createRef<HTMLUListElement>()
-  const inputRef = React.createRef<HTMLInputElement>()
+  const divRef = useRef<HTMLDivElement>(null)
+  const ulRef = useRef<HTMLUListElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
 
   useSteppedScroll(divRef, ulRef, selectedIdx, LIST_HEIGHT)
 

@@ -67,7 +67,11 @@ export function useSteppedScroll(
         outer.scrollTo({ top: itemBottomScrollTo - outerContainerHeight + 2 })
       }
     }
-    // don't depend on the refs because they get nuked on every render
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [outerContainerHeight, selectedIdx, itemSelector])
+  }, [
+    outerContainerRef,
+    innerContainerRef,
+    outerContainerHeight,
+    selectedIdx,
+    itemSelector,
+  ])
 }
