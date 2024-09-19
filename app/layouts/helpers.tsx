@@ -9,6 +9,7 @@ import { Outlet } from 'react-router-dom'
 
 import { PageActionsTarget } from '~/components/PageActions'
 import { Pagination } from '~/components/Pagination'
+import { useScrollRestoration } from '~/hooks/use-scroll-restoration'
 import { SkipLinkTarget } from '~/ui/lib/SkipLink'
 import { classed } from '~/util/classed'
 
@@ -17,6 +18,7 @@ export const PageContainer = classed.div`min-h-screen pt-[var(--navigation-heigh
 // TODO: this doesn't go tall enough on a tall screen to get the pagination bar to the bottom
 // http://localhost:4000/projects/mock-project/disks
 export function ContentPane() {
+  useScrollRestoration()
   return (
     <div className="ml-[var(--sidebar-width)] flex min-h-full flex-col" id="content_pane">
       <div className="flex grow flex-col pb-8 md-:pb-16">
