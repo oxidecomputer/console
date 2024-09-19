@@ -18,6 +18,7 @@ import {
   useApiQueryClient,
   usePrefetchedApiQuery,
   type Disk,
+  type InstanceState,
 } from '@oxide/api'
 import { Storage24Icon } from '@oxide/design-system/icons/react'
 
@@ -60,7 +61,15 @@ StorageTab.loader = async ({ params }: LoaderFunctionArgs) => {
   return null
 }
 
-const colHelper = createColumnHelper<Disk>()
+// Bit of a hack: by putting the instance state in the row data, we can avoid
+// remaking the row actions callback whenever the instance state changes, which
+// causes the whole table to get re-rendered, which jarringly closes any open
+// row actions menus
+type InstanceDisk = Disk & {
+  instanceState: InstanceState
+}
+
+const colHelper = createColumnHelper<InstanceDisk>()
 const staticCols = [
   colHelper.accessor('name', { header: 'Disk' }),
   colHelper.accessor('size', Columns.size),
@@ -112,7 +121,7 @@ export function StorageTab() {
   const { data: instance } = usePrefetchedApiQuery('instanceView', instancePathQuery)
 
   const makeActions = useCallback(
-    (disk: Disk): MenuAction[] => [
+    (disk: InstanceDisk): MenuAction[] => [
       {
         label: 'Snapshot',
         disabled: !diskCan.snapshot(disk) && (
@@ -135,7 +144,7 @@ export function StorageTab() {
         // don't bother checking disk state: assume that if it is showing up
         // in this list, it can be detached
         label: 'Detach',
-        disabled: !instanceCan.detachDisk({ runState: instance.runState }) && (
+        disabled: !instanceCan.detachDisk({ runState: disk.instanceState }) && (
           <>
             Instance must be <span className="text-default">stopped</span> before disk can
             be detached
@@ -146,9 +155,7 @@ export function StorageTab() {
         },
       },
     ],
-    // important to pass instance.runState because instance is not referentially
-    // stable when we are polling when instance is in transition
-    [detachDisk, instance.runState, instancePathQuery, createSnapshot, project]
+    [detachDisk, instancePathQuery, createSnapshot, project]
   )
 
   const attachDisk = useApiMutation('instanceDiskAttach', {
@@ -169,9 +176,14 @@ export function StorageTab() {
 
   const { data: disks } = usePrefetchedApiQuery('instanceDiskList', instancePathQuery)
 
+  const rows = useMemo(
+    () => disks.items.map((disk) => ({ ...disk, instanceState: instance.runState })),
+    [disks.items, instance.runState]
+  )
+
   const table = useReactTable({
     columns: useColsWithActions(staticCols, makeActions),
-    data: disks.items,
+    data: rows,
     getCoreRowModel: getCoreRowModel(),
   })
 

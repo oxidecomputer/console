@@ -23,7 +23,7 @@ export function ContentPane() {
           <Outlet />
         </main>
       </div>
-      <div className="sticky bottom-0 z-popover flex-shrink-0 justify-between overflow-hidden border-t bg-default border-secondary empty:border-t-0">
+      <div className="sticky bottom-0 z-topBar flex-shrink-0 justify-between overflow-hidden border-t bg-default border-secondary empty:border-t-0">
         <Pagination.Target />
         <PageActionsTarget />
       </div>

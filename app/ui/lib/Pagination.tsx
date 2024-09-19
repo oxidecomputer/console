@@ -27,7 +27,6 @@ const PageInput = ({ number, className }: PageInputProps) => {
 }
 
 export interface PaginationProps {
-  type?: 'inline' | 'page'
   pageSize: number
   hasNext: boolean
   hasPrev: boolean
@@ -37,7 +36,6 @@ export interface PaginationProps {
   className?: string
 }
 export const Pagination = ({
-  type = 'inline',
   pageSize,
   hasNext,
   hasPrev,
@@ -50,7 +48,6 @@ export const Pagination = ({
     <>
       <div
         className={cn(
-          type === 'page' && 'py-5',
           'flex items-center justify-between text-mono-sm text-default bg-default',
           className
         )}
