@@ -48,6 +48,7 @@ module.exports = {
         modal: '40',
         sideModalDropdown: '40',
         sideModal: '30',
+        topBarPopover: '25',
         topBar: '20',
         popover: '10',
         contentDropdown: '10',
