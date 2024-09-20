@@ -20,6 +20,7 @@ import {
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { getVpcSelector, useVpcSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
+import { APPROXIMATELY_EVERYTHING } from '~/util/consts'
 import { pb } from '~/util/path-builder'
 
 import { CommonFields } from './firewall-rules-common'
@@ -57,8 +58,12 @@ CreateFirewallRuleForm.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project, vpc } = getVpcSelector(params)
   await Promise.all([
     apiQueryClient.prefetchQuery('vpcFirewallRulesView', { query: { project, vpc } }),
-    apiQueryClient.prefetchQuery('instanceList', { query: { project, limit: 1000 } }),
-    apiQueryClient.prefetchQuery('vpcList', { query: { project, limit: 1000 } }),
+    apiQueryClient.prefetchQuery('instanceList', {
+      query: { project, limit: APPROXIMATELY_EVERYTHING },
+    }),
+    apiQueryClient.prefetchQuery('vpcList', {
+      query: { project, limit: APPROXIMATELY_EVERYTHING },
+    }),
     apiQueryClient.prefetchQuery('vpcSubnetList', { query: { project, vpc } }),
   ])
 

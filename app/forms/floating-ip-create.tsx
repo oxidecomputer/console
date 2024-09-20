@@ -27,6 +27,7 @@ import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { Badge } from '~/ui/lib/Badge'
 import { Message } from '~/ui/lib/Message'
+import { APPROXIMATELY_EVERYTHING } from '~/util/consts'
 import { pb } from '~/util/path-builder'
 
 const toListboxItem = (p: SiloIpPool) => {
@@ -58,7 +59,7 @@ export function CreateFloatingIpSideModalForm() {
   // Fetch 1000 to we can be sure to get them all. Don't bother prefetching
   // because the list is hidden under the Advanced accordion.
   const { data: allPools } = useApiQuery('projectIpPoolList', {
-    query: { limit: 1000 },
+    query: { limit: APPROXIMATELY_EVERYTHING },
   })
 
   const queryClient = useApiQueryClient()

@@ -23,6 +23,7 @@ import {
   useFirewallRuleSelector,
   useVpcSelector,
 } from '~/hooks/use-params'
+import { APPROXIMATELY_EVERYTHING } from '~/util/consts'
 import { invariant } from '~/util/invariant'
 import { pb } from '~/util/path-builder'
 
@@ -34,8 +35,12 @@ EditFirewallRuleForm.loader = async ({ params }: LoaderFunctionArgs) => {
 
   const [firewallRules] = await Promise.all([
     apiQueryClient.fetchQuery('vpcFirewallRulesView', { query: { project, vpc } }),
-    apiQueryClient.prefetchQuery('instanceList', { query: { project, limit: 1000 } }),
-    apiQueryClient.prefetchQuery('vpcList', { query: { project, limit: 1000 } }),
+    apiQueryClient.prefetchQuery('instanceList', {
+      query: { project, limit: APPROXIMATELY_EVERYTHING },
+    }),
+    apiQueryClient.prefetchQuery('vpcList', {
+      query: { project, limit: APPROXIMATELY_EVERYTHING },
+    }),
     apiQueryClient.prefetchQuery('vpcSubnetList', { query: { project, vpc } }),
   ])
 
