@@ -18,6 +18,7 @@ import {
   usePrefetchedApiQuery,
   type ExternalIp,
   type InstanceNetworkInterface,
+  type InstanceState,
 } from '@oxide/api'
 import { IpGlobal24Icon, Networking24Icon } from '@oxide/design-system/icons/react'
 
@@ -110,7 +111,15 @@ NetworkingTab.loader = async ({ params }: LoaderFunctionArgs) => {
   return null
 }
 
-const colHelper = createColumnHelper<InstanceNetworkInterface>()
+// Bit of a hack: by putting the instance state in the row data, we can avoid
+// remaking the row actions callback whenever the instance state changes, which
+// causes the whole table to get re-rendered, which jarringly closes any open
+// row actions menus
+type NicRow = InstanceNetworkInterface & {
+  instanceState: InstanceState
+}
+
+const colHelper = createColumnHelper<NicRow>()
 const staticCols = [
   colHelper.accessor('name', {
     header: 'name',
@@ -211,56 +220,58 @@ export function NetworkingTab() {
     path: { instance: instanceName },
     query: { project },
   })
-  const canUpdateNic = instanceCan.updateNic(instance)
 
   const makeActions = useCallback(
-    (nic: InstanceNetworkInterface): MenuAction[] => [
-      {
-        label: 'Make primary',
-        onActivate() {
-          editNic({
-            path: { interface: nic.name },
-            query: instanceSelector,
-            body: { ...nic, primary: true },
-          })
-        },
-        disabled: nic.primary
-          ? 'This network interface is already set as primary'
-          : !canUpdateNic && (
-              <>
-                The instance must be {updateNicStates} to change its primary network
-                interface
-              </>
-            ),
-      },
-      {
-        label: 'Edit',
-        onActivate() {
-          setEditing(nic)
-        },
-        disabled: !canUpdateNic && (
-          <>
-            The instance must be {updateNicStates} before editing a network interface&apos;s
-            settings
-          </>
-        ),
-      },
-      {
-        label: 'Delete',
-        onActivate: confirmDelete({
-          doDelete: () =>
-            deleteNic({
+    (nic: NicRow): MenuAction[] => {
+      const canUpdateNic = instanceCan.updateNic({ runState: nic.instanceState })
+      return [
+        {
+          label: 'Make primary',
+          onActivate() {
+            editNic({
               path: { interface: nic.name },
               query: instanceSelector,
-            }),
-          label: nic.name,
-        }),
-        disabled: !canUpdateNic && (
-          <>The instance must be {updateNicStates} to delete a network interface</>
-        ),
-      },
-    ],
-    [canUpdateNic, deleteNic, editNic, instanceSelector]
+              body: { ...nic, primary: true },
+            })
+          },
+          disabled: nic.primary
+            ? 'This network interface is already set as primary'
+            : !canUpdateNic && (
+                <>
+                  The instance must be {updateNicStates} to change its primary network
+                  interface
+                </>
+              ),
+        },
+        {
+          label: 'Edit',
+          onActivate() {
+            setEditing(nic)
+          },
+          disabled: !canUpdateNic && (
+            <>
+              The instance must be {updateNicStates} before editing a network
+              interface&apos;s settings
+            </>
+          ),
+        },
+        {
+          label: 'Delete',
+          onActivate: confirmDelete({
+            doDelete: () =>
+              deleteNic({
+                path: { interface: nic.name },
+                query: instanceSelector,
+              }),
+            label: nic.name,
+          }),
+          disabled: !canUpdateNic && (
+            <>The instance must be {updateNicStates} to delete a network interface</>
+          ),
+        },
+      ]
+    },
+    [deleteNic, editNic, instanceSelector]
   )
 
   const columns = useColsWithActions(staticCols, makeActions)
@@ -269,9 +280,14 @@ export function NetworkingTab() {
     query: { ...instanceSelector, limit: 1000 },
   }).data.items
 
+  const nicRows = useMemo(
+    () => nics.map((nic) => ({ ...nic, instanceState: instance.runState })),
+    [nics, instance]
+  )
+
   const tableInstance = useReactTable({
     columns,
-    data: nics || [],
+    data: nicRows,
     getCoreRowModel: getCoreRowModel(),
   })
 
@@ -423,7 +439,7 @@ export function NetworkingTab() {
         <TableTitle id="nics-label">Network interfaces</TableTitle>
         <CreateButton
           onClick={() => setCreateModalOpen(true)}
-          disabled={!canUpdateNic}
+          disabled={!instanceCan.updateNic(instance)}
           disabledReason={
             <>
               A network interface cannot be created or edited unless the instance is{' '}
