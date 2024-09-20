@@ -12,6 +12,7 @@ import { useApiQuery, type ApiError } from '@oxide/api'
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { useProjectSelector } from '~/hooks/use-params'
+import { ALL_ISH } from '~/util/consts'
 
 const defaultValues = { name: '' }
 
@@ -37,7 +38,9 @@ export function AttachDiskSideModalForm({
 }: AttachDiskProps) {
   const { project } = useProjectSelector()
 
-  const { data } = useApiQuery('diskList', { query: { project, limit: 1000 } })
+  const { data } = useApiQuery('diskList', {
+    query: { project, limit: ALL_ISH },
+  })
   const detachedDisks =
     data?.items.filter(
       (d) => d.state.state === 'detached' && !diskNamesToExclude.includes(d.name)

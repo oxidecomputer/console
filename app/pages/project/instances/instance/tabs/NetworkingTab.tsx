@@ -18,12 +18,14 @@ import {
   usePrefetchedApiQuery,
   type ExternalIp,
   type InstanceNetworkInterface,
+  type InstanceState,
 } from '@oxide/api'
 import { IpGlobal24Icon, Networking24Icon } from '@oxide/design-system/icons/react'
 
 import { AttachEphemeralIpModal } from '~/components/AttachEphemeralIpModal'
 import { AttachFloatingIpModal } from '~/components/AttachFloatingIpModal'
 import { HL } from '~/components/HL'
+import { ListPlusCell } from '~/components/ListPlusCell'
 import { CreateNetworkInterfaceForm } from '~/forms/network-interface-create'
 import { EditNetworkInterfaceForm } from '~/forms/network-interface-edit'
 import {
@@ -46,6 +48,7 @@ import { CreateButton } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableControls, TableEmptyBox, TableTitle } from '~/ui/lib/Table'
 import { TipIcon } from '~/ui/lib/TipIcon'
+import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
 
 import { fancifyStates } from './common'
@@ -85,11 +88,9 @@ NetworkingTab.loader = async ({ params }: LoaderFunctionArgs) => {
   await Promise.all([
     apiQueryClient.prefetchQuery('instanceNetworkInterfaceList', {
       // we want this to cover all NICs; TODO: determine actual limit?
-      query: { project, instance, limit: 1000 },
+      query: { project, instance, limit: ALL_ISH },
     }),
-    apiQueryClient.prefetchQuery('floatingIpList', {
-      query: { project, limit: 1000 },
-    }),
+    apiQueryClient.prefetchQuery('floatingIpList', { query: { project, limit: ALL_ISH } }),
     // dupe of page-level fetch but that's fine, RQ dedupes
     apiQueryClient.prefetchQuery('instanceExternalIpList', {
       path: { instance },
@@ -102,14 +103,20 @@ NetworkingTab.loader = async ({ params }: LoaderFunctionArgs) => {
       query: { project },
     }),
     // This is used in AttachEphemeralIpModal
-    apiQueryClient.prefetchQuery('projectIpPoolList', {
-      query: { limit: 1000 },
-    }),
+    apiQueryClient.prefetchQuery('projectIpPoolList', { query: { limit: ALL_ISH } }),
   ])
   return null
 }
 
-const colHelper = createColumnHelper<InstanceNetworkInterface>()
+// Bit of a hack: by putting the instance state in the row data, we can avoid
+// remaking the row actions callback whenever the instance state changes, which
+// causes the whole table to get re-rendered, which jarringly closes any open
+// row actions menus
+type NicRow = InstanceNetworkInterface & {
+  instanceState: InstanceState
+}
+
+const colHelper = createColumnHelper<NicRow>()
 const staticCols = [
   colHelper.accessor('name', {
     header: 'name',
@@ -132,6 +139,14 @@ const staticCols = [
   colHelper.accessor('subnetId', {
     header: 'subnet',
     cell: (info) => <SubnetNameFromId value={info.getValue()} />,
+  }),
+  colHelper.accessor('transitIps', {
+    header: 'Transit IPs',
+    cell: (info) => (
+      <ListPlusCell tooltipTitle="Other transit IPs">
+        {info.getValue()?.map((ip) => <div key={ip}>{ip}</div>)}
+      </ListPlusCell>
+    ),
   }),
 ]
 
@@ -175,7 +190,7 @@ export function NetworkingTab() {
 
   // Fetch the floating IPs to show in the "Attach floating IP" modal
   const { data: ips } = usePrefetchedApiQuery('floatingIpList', {
-    query: { project, limit: 1000 },
+    query: { project, limit: ALL_ISH },
   })
   // Filter out the IPs that are already attached to an instance
   const availableIps = useMemo(() => ips.items.filter((ip) => !ip.instanceId), [ips])
@@ -202,67 +217,74 @@ export function NetworkingTab() {
     path: { instance: instanceName },
     query: { project },
   })
-  const canUpdateNic = instanceCan.updateNic(instance)
 
   const makeActions = useCallback(
-    (nic: InstanceNetworkInterface): MenuAction[] => [
-      {
-        label: 'Make primary',
-        onActivate() {
-          editNic({
-            path: { interface: nic.name },
-            query: instanceSelector,
-            body: { ...nic, primary: true },
-          })
-        },
-        disabled: nic.primary
-          ? 'This network interface is already set as primary'
-          : !canUpdateNic && (
-              <>
-                The instance must be {updateNicStates} to change its primary network
-                interface
-              </>
-            ),
-      },
-      {
-        label: 'Edit',
-        onActivate() {
-          setEditing(nic)
-        },
-        disabled: !canUpdateNic && (
-          <>
-            The instance must be {updateNicStates} before editing a network interface&apos;s
-            settings
-          </>
-        ),
-      },
-      {
-        label: 'Delete',
-        onActivate: confirmDelete({
-          doDelete: () =>
-            deleteNic({
+    (nic: NicRow): MenuAction[] => {
+      const canUpdateNic = instanceCan.updateNic({ runState: nic.instanceState })
+      return [
+        {
+          label: 'Make primary',
+          onActivate() {
+            editNic({
               path: { interface: nic.name },
               query: instanceSelector,
-            }),
-          label: nic.name,
-        }),
-        disabled: !canUpdateNic && (
-          <>The instance must be {updateNicStates} to delete a network interface</>
-        ),
-      },
-    ],
-    [canUpdateNic, deleteNic, editNic, instanceSelector]
+              body: { ...nic, primary: true },
+            })
+          },
+          disabled: nic.primary
+            ? 'This network interface is already set as primary'
+            : !canUpdateNic && (
+                <>
+                  The instance must be {updateNicStates} to change its primary network
+                  interface
+                </>
+              ),
+        },
+        {
+          label: 'Edit',
+          onActivate() {
+            setEditing(nic)
+          },
+          disabled: !canUpdateNic && (
+            <>
+              The instance must be {updateNicStates} before editing a network
+              interface&apos;s settings
+            </>
+          ),
+        },
+        {
+          label: 'Delete',
+          onActivate: confirmDelete({
+            doDelete: () =>
+              deleteNic({
+                path: { interface: nic.name },
+                query: instanceSelector,
+              }),
+            label: nic.name,
+          }),
+          disabled: !canUpdateNic && (
+            <>The instance must be {updateNicStates} to delete a network interface</>
+          ),
+        },
+      ]
+    },
+    [deleteNic, editNic, instanceSelector]
   )
 
   const columns = useColsWithActions(staticCols, makeActions)
 
   const nics = usePrefetchedApiQuery('instanceNetworkInterfaceList', {
-    query: { ...instanceSelector, limit: 1000 },
+    query: { ...instanceSelector, limit: ALL_ISH },
   }).data.items
+
+  const nicRows = useMemo(
+    () => nics.map((nic) => ({ ...nic, instanceState: instance.runState })),
+    [nics, instance]
+  )
 
   const tableInstance = useReactTable({
     columns,
-    data: nics || [],
+    data: nicRows,
     getCoreRowModel: getCoreRowModel(),
   })
 
@@ -414,7 +436,7 @@ export function NetworkingTab() {
         <TableTitle id="nics-label">Network interfaces</TableTitle>
         <CreateButton
           onClick={() => setCreateModalOpen(true)}
-          disabled={!canUpdateNic}
+          disabled={!instanceCan.updateNic(instance)}
           disabledReason={
             <>
               A network interface cannot be created or edited unless the instance is{' '}

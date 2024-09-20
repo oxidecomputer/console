@@ -9,6 +9,8 @@
 // Here we add some handy stuff to window for use from the browser JS console.
 // requests will use the session cookie, same as normal API calls
 
+import { ALL_ISH } from '~/util/consts'
+
 import { type ApiResult } from './__generated__/http-client'
 import { api } from './client'
 
@@ -58,7 +60,7 @@ if (typeof window !== 'undefined') {
       return data
     },
     schemas: async (search?: string) => {
-      const result = await api.methods.timeseriesSchemaList({ query: { limit: 1000 } })
+      const result = await api.methods.timeseriesSchemaList({ query: { limit: ALL_ISH } })
       const data = handleResult(result)
 
       let filtered = data.items

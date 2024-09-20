@@ -5,47 +5,77 @@
  *
  * Copyright Oxide Computer Company
  */
+
 import {
-  Content,
-  Item,
-  Portal,
-  Root,
-  Trigger,
-  type DropdownMenuContentProps,
-  type DropdownMenuItemProps,
-} from '@radix-ui/react-dropdown-menu'
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuItems,
+  type MenuItemsProps,
+} from '@headlessui/react'
 import cn from 'classnames'
-import { forwardRef, type ForwardedRef } from 'react'
+import { forwardRef, type ForwardedRef, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 
-type DivRef = ForwardedRef<HTMLDivElement>
+export const Root = Menu
 
-// remove possibility of disabling links for now. if we put it back, make sure
-// to forwardRef on LinkItem so the disabled tooltip can work
-type LinkitemProps = Omit<DropdownMenuItemProps, 'disabled'> & { to: string }
+export const Trigger = MenuButton
 
-export const DropdownMenu = {
-  Root,
-  Trigger,
-  Portal,
-  // don't need to forward ref here for a particular reason but Radix gives a
-  // big angry warning if we don't
-  Content: forwardRef(({ className, ...props }: DropdownMenuContentProps, ref: DivRef) => (
-    <Content
-      {...props}
-      // prevents focus ring showing up on trigger when you close the menu
-      onCloseAutoFocus={(e) => e.preventDefault()}
-      className={cn('DropdownMenuContent', className)}
-      ref={ref}
-    />
-  )),
-  // need to forward ref because of tooltips on disabled menu buttons
-  Item: forwardRef(({ className, ...props }: DropdownMenuItemProps, ref: DivRef) => (
-    <Item {...props} className={cn('DropdownMenuItem ox-menu-item', className)} ref={ref} />
-  )),
-  LinkItem: ({ className, children, to, ...props }: LinkitemProps) => (
-    <Item {...props} className={cn('DropdownMenuItem ox-menu-item', className)} asChild>
-      <Link to={to}>{children}</Link>
-    </Item>
-  ),
+type ContentProps = {
+  className?: string
+  children: ReactNode
+  anchor?: MenuItemsProps['anchor']
+  /** Spacing in px, passed as --anchor-gap */
+  gap?: 8
 }
+
+export function Content({ className, children, anchor = 'bottom end', gap }: ContentProps) {
+  return (
+    <MenuItems
+      anchor={anchor}
+      // goofy gap because tailwind hates string interpolation
+      className={cn('DropdownMenuContent', gap === 8 && `[--anchor-gap:8px]`, className)}
+      // necessary to turn off scroll locking so the scrollbar doesn't pop in
+      // and out as menu closes and opens
+      modal={false}
+    >
+      {children}
+    </MenuItems>
+  )
+}
+
+type LinkItemProps = { className?: string; to: string; children: ReactNode }
+
+export function LinkItem({ className, to, children }: LinkItemProps) {
+  return (
+    <MenuItem>
+      <Link className={cn('DropdownMenuItem ox-menu-item', className)} to={to}>
+        {children}
+      </Link>
+    </MenuItem>
+  )
+}
+
+type ButtonRef = ForwardedRef<HTMLButtonElement>
+type ItemProps = {
+  className?: string
+  onSelect?: () => void
+  children: ReactNode
+  disabled?: boolean
+}
+
+// need to forward ref because of tooltips on disabled menu buttons
+export const Item = forwardRef(
+  ({ className, onSelect, children, disabled }: ItemProps, ref: ButtonRef) => (
+    <MenuItem disabled={disabled}>
+      <button
+        type="button"
+        className={cn('DropdownMenuItem ox-menu-item', className)}
+        ref={ref}
+        onClick={onSelect}
+      >
+        {children}
+      </button>
+    </MenuItem>
+  )
+)

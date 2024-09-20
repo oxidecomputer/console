@@ -14,13 +14,7 @@ import {
 
 const Tunnel = tunnel('pagination')
 
-interface PaginationProps extends UIPaginationProps {
-  /** If true pagination will be rendered wherever `Pagination.Target` is included */
-  inline?: boolean
-}
-export function Pagination({ inline = false, ...props }: PaginationProps) {
-  if (inline) return <UIPagination {...props} />
-
+export function Pagination(props: UIPaginationProps) {
   return (
     <Tunnel.In>
       <UIPagination className="gutter h-14 py-5" {...props} />

@@ -5,7 +5,6 @@
  *
  * Copyright Oxide Computer Company
  */
-import cn from 'classnames'
 import { useId } from 'react'
 import {
   useController,
@@ -47,7 +46,7 @@ export interface TextFieldProps<
    * Displayed in a tooltip beside the title. This field should be used
    * for auxiliary context that helps users understand extra context about
    * a field but isn't specifically required to know how to complete the input.
-   * This is announced as an `aria-description`
+   * This is announced as an `aria-description`, immediately following the aria-labelledby text.
    *
    * @see https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Attributes/aria-description
    */
@@ -87,7 +86,7 @@ export function TextField<
         )}
       </div>
       {/* passing the generated id is very important for a11y */}
-      <TextFieldInner name={name} {...props} id={id} />
+      <TextFieldInner name={name} {...props} id={id} tooltipText={tooltipText} />
     </div>
   )
 }
@@ -129,12 +128,17 @@ export const TextFieldInner = <
         title={label}
         type={type}
         error={!!error}
-        aria-labelledby={cn(`${id}-label`, !!tooltipText && `${id}-help-text`)}
-        aria-describedby={tooltipText ? `${id}-label-tip` : undefined}
+        aria-labelledby={`${id}-label ${id}-help-text`}
+        aria-describedby={tooltipText ? `${id}-tooltipText` : undefined}
         onChange={(e) => onChange(transform ? transform(e.target.value) : e.target.value)}
         {...fieldRest}
         {...props}
       />
+      {tooltipText && (
+        <div className="sr-only" id={`${id}-tooltipText`}>
+          {tooltipText}
+        </div>
+      )}
       <ErrorMessage error={error} label={label} />
     </>
   )

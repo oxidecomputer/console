@@ -33,12 +33,12 @@ import { RadioField } from '~/components/form/fields/RadioField'
 import { TextField, TextFieldInner } from '~/components/form/fields/TextField'
 import { useVpcSelector } from '~/hooks/use-params'
 import { Badge } from '~/ui/lib/Badge'
-import { Button } from '~/ui/lib/Button'
 import { FormDivider } from '~/ui/lib/Divider'
 import { Message } from '~/ui/lib/Message'
 import * as MiniTable from '~/ui/lib/MiniTable'
 import { TextInputHint } from '~/ui/lib/TextInput'
 import { KEYS } from '~/ui/util/keys'
+import { ALL_ISH } from '~/util/consts'
 import { links } from '~/util/links'
 import { capitalize } from '~/util/str'
 
@@ -50,9 +50,9 @@ import { type FirewallRuleValues } from './firewall-rules-util'
  * a few sub-sections (Ports, Protocols, and Hosts).
  *
  * The Targets section and the Filters:Hosts section are very similar, so we've
- * pulled common code to the DynamicTypeAndValueFields and ClearAndAddButtons
- * components. We also then set up the Targets / Ports / Hosts variables at the
- * top of the CommonFields component.
+ * pulled common code to the DynamicTypeAndValueFields components.
+ * We also then set up the Targets / Ports / Hosts variables at the top of the
+ * CommonFields component.
  */
 
 type TargetAndHostFilterType =
@@ -154,34 +154,6 @@ const DynamicTypeAndValueFields = ({
   )
 }
 
-// The "Clear" and "Add …" buttons that appear below the filter input fields
-const ClearAndAddButtons = ({
-  isDirty,
-  onClear,
-  onSubmit,
-  buttonCopy,
-}: {
-  isDirty: boolean
-  onClear: () => void
-  onSubmit: () => void
-  buttonCopy: string
-}) => (
-  <div className="flex justify-end">
-    <Button
-      variant="ghost"
-      size="sm"
-      className="mr-2.5"
-      disabled={!isDirty}
-      onClick={onClear}
-    >
-      Clear
-    </Button>
-    <Button size="sm" onClick={onSubmit}>
-      {buttonCopy}
-    </Button>
-  </div>
-)
-
 type TypeAndValueTableProps = {
   sectionType: 'target' | 'host'
   items: ControllerRenderProps<FirewallRuleValues, 'targets' | 'hosts'>
@@ -272,14 +244,10 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
   // prefetchedApiQueries below are prefetched in firewall-rules-create and -edit
   const {
     data: { items: instances },
-  } = usePrefetchedApiQuery('instanceList', {
-    query: { project, limit: 1000 },
-  })
+  } = usePrefetchedApiQuery('instanceList', { query: { project, limit: ALL_ISH } })
   const {
     data: { items: vpcs },
-  } = usePrefetchedApiQuery('vpcList', {
-    query: { project, limit: 1000 },
-  })
+  } = usePrefetchedApiQuery('vpcList', { query: { project, limit: ALL_ISH } })
   const {
     data: { items: vpcSubnets },
   } = usePrefetchedApiQuery('vpcSubnetList', { query: { project, vpc } })
@@ -447,11 +415,11 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
           onInputChange={(value) => targetForm.setValue('value', value)}
           onSubmitTextField={submitTarget}
         />
-        <ClearAndAddButtons
-          isDirty={!!targetValue}
+        <MiniTable.ClearAndAddButtons
+          addButtonCopy="Add target"
+          disableClear={!!targetValue}
           onClear={() => targetForm.reset()}
           onSubmit={submitTarget}
-          buttonCopy="Add target"
         />
       </div>
       {!!targets.value.length && <TypeAndValueTable sectionType="target" items={targets} />}
@@ -498,11 +466,11 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
             }}
           />
         </div>
-        <ClearAndAddButtons
-          isDirty={!!portValue}
+        <MiniTable.ClearAndAddButtons
+          addButtonCopy="Add port filter"
+          disableClear={!!portValue}
           onClear={portRangeForm.reset}
           onSubmit={submitPortRange}
-          buttonCopy="Add port filter"
         />
       </div>
       {!!ports.value.length && (
@@ -554,11 +522,11 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
           onInputChange={(value) => hostForm.setValue('value', value)}
           onSubmitTextField={submitHost}
         />
-        <ClearAndAddButtons
-          isDirty={!!hostValue}
+        <MiniTable.ClearAndAddButtons
+          addButtonCopy="Add host filter"
+          disableClear={!!hostValue}
           onClear={() => hostForm.reset()}
           onSubmit={submitHost}
-          buttonCopy="Add host filter"
         />
       </div>
       {!!hosts.value.length && <TypeAndValueTable sectionType="host" items={hosts} />}

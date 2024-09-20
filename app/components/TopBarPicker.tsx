@@ -24,8 +24,8 @@ import {
 } from '~/hooks/use-params'
 import { useCurrentUser } from '~/layouts/AuthenticatedLayout'
 import { PAGE_SIZE } from '~/table/QueryTable'
-import { Button } from '~/ui/lib/Button'
-import { DropdownMenu } from '~/ui/lib/DropdownMenu'
+import { buttonStyle } from '~/ui/lib/Button'
+import * as DropdownMenu from '~/ui/lib/DropdownMenu'
 import { Identicon } from '~/ui/lib/Identicon'
 import { Wrap } from '~/ui/util/wrap'
 import { pb } from '~/util/path-builder'
@@ -95,14 +95,14 @@ const TopBarPicker = (props: TopBarPickerProps) => {
         {props.items && (
           <div className="ml-2 shrink-0">
             <DropdownMenu.Trigger
-              className="group"
+              className={cn(
+                'group h-[2rem] w-[1.125rem]',
+                buttonStyle({ size: 'icon', variant: 'ghost' })
+              )}
               aria-label={props['aria-label']}
-              asChild
             >
-              <Button size="icon" variant="ghost" className="h-[2rem] w-[1.125rem]">
-                {/* aria-hidden is a tip from the Reach docs */}
-                <SelectArrows6Icon className="text-secondary" aria-hidden />
-              </Button>
+              {/* aria-hidden is a tip from the Reach docs */}
+              <SelectArrows6Icon className="text-secondary" aria-hidden />
             </DropdownMenu.Trigger>
           </div>
         )}
@@ -110,38 +110,36 @@ const TopBarPicker = (props: TopBarPickerProps) => {
       {/* TODO: item size and focus highlight */}
       {/* TODO: popover position should be further right */}
       {props.items && (
-        // portal is necessary to avoid the menu popover getting its own after:
-        // separator thing
-        <DropdownMenu.Portal>
-          <DropdownMenu.Content
-            className="mt-2 max-h-80 min-w-[12.8125rem] overflow-y-auto"
-            align="start"
-          >
-            {props.items.length > 0 ? (
-              props.items.map(({ label, to }) => {
-                const isSelected = props.current === label
-                return (
-                  <DropdownMenu.Item asChild key={label}>
-                    <Link to={to} className={cn({ 'is-selected': isSelected })}>
-                      <span className="flex w-full items-center gap-2">
-                        {label}
-                        {isSelected && <Success12Icon className="-mr-3 block" />}
-                      </span>
-                    </Link>
-                  </DropdownMenu.Item>
-                )
-              })
-            ) : (
-              <DropdownMenu.Item
-                className="!pr-3 !text-center !text-secondary hover:cursor-default"
-                onSelect={() => {}}
-                disabled
-              >
-                {props.noItemsText || 'No items found'}
-              </DropdownMenu.Item>
-            )}
-          </DropdownMenu.Content>
-        </DropdownMenu.Portal>
+        <DropdownMenu.Content
+          className="!z-topBarPopover mt-2 max-h-80 min-w-[12.8125rem] overflow-y-auto"
+          anchor="bottom start"
+        >
+          {props.items.length > 0 ? (
+            props.items.map(({ label, to }) => {
+              const isSelected = props.current === label
+              return (
+                <DropdownMenu.LinkItem
+                  key={label}
+                  to={to}
+                  className={cn({ 'is-selected': isSelected })}
+                >
+                  <span className="flex w-full items-center gap-2">
+                    {label}
+                    {isSelected && <Success12Icon className="-mr-3 block" />}
+                  </span>
+                </DropdownMenu.LinkItem>
+              )
+            })
+          ) : (
+            <DropdownMenu.Item
+              className="!pr-3 !text-center !text-secondary hover:cursor-default"
+              onSelect={() => {}}
+              disabled
+            >
+              {props.noItemsText || 'No items found'}
+            </DropdownMenu.Item>
+          )}
+        </DropdownMenu.Content>
       )}
     </DropdownMenu.Root>
   )
