@@ -101,7 +101,7 @@ export const RouteFormFields = ({ form, isDisabled }: RouteFormFieldsProps) => {
           label="Destination value"
           control={control}
           items={vpcSubnets.map(({ name }) => ({ value: name, label: name }))}
-          placeholder="Select a destination value"
+          placeholder="Select a subnet"
           required
           isDisabled={isDisabled}
         />
@@ -133,7 +133,7 @@ export const RouteFormFields = ({ form, isDisabled }: RouteFormFieldsProps) => {
           label="Target value"
           control={control}
           items={instances.map(({ name }) => ({ value: name, label: name }))}
-          placeholder="Select a target value"
+          placeholder="Select an instance"
           required
           isDisabled={isDisabled}
         />
