@@ -24,6 +24,7 @@ import { IpGlobal24Icon, Networking24Icon } from '@oxide/design-system/icons/rea
 import { AttachEphemeralIpModal } from '~/components/AttachEphemeralIpModal'
 import { AttachFloatingIpModal } from '~/components/AttachFloatingIpModal'
 import { HL } from '~/components/HL'
+import { ListPlusCell } from '~/components/ListPlusCell'
 import { CreateNetworkInterfaceForm } from '~/forms/network-interface-create'
 import { EditNetworkInterfaceForm } from '~/forms/network-interface-edit'
 import {
@@ -132,6 +133,14 @@ const staticCols = [
   colHelper.accessor('subnetId', {
     header: 'subnet',
     cell: (info) => <SubnetNameFromId value={info.getValue()} />,
+  }),
+  colHelper.accessor('transitIps', {
+    header: 'Transit IPs',
+    cell: (info) => (
+      <ListPlusCell tooltipTitle="Other transit IPs">
+        {info.getValue()?.map((ip) => <div key={ip}>{ip}</div>)}
+      </ListPlusCell>
+    ),
   }),
 ]
 
