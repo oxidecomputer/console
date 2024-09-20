@@ -89,9 +89,7 @@ NetworkingTab.loader = async ({ params }: LoaderFunctionArgs) => {
       // we want this to cover all NICs; TODO: determine actual limit?
       query: { project, instance, limit: ALL_ISH },
     }),
-    apiQueryClient.prefetchQuery('floatingIpList', {
-      query: { project, limit: ALL_ISH },
-    }),
+    apiQueryClient.prefetchQuery('floatingIpList', { query: { project, limit: ALL_ISH } }),
     // dupe of page-level fetch but that's fine, RQ dedupes
     apiQueryClient.prefetchQuery('instanceExternalIpList', {
       path: { instance },
@@ -104,9 +102,7 @@ NetworkingTab.loader = async ({ params }: LoaderFunctionArgs) => {
       query: { project },
     }),
     // This is used in AttachEphemeralIpModal
-    apiQueryClient.prefetchQuery('projectIpPoolList', {
-      query: { limit: ALL_ISH },
-    }),
+    apiQueryClient.prefetchQuery('projectIpPoolList', { query: { limit: ALL_ISH } }),
   ])
   return null
 }

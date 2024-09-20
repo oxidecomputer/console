@@ -244,14 +244,10 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
   // prefetchedApiQueries below are prefetched in firewall-rules-create and -edit
   const {
     data: { items: instances },
-  } = usePrefetchedApiQuery('instanceList', {
-    query: { project, limit: ALL_ISH },
-  })
+  } = usePrefetchedApiQuery('instanceList', { query: { project, limit: ALL_ISH } })
   const {
     data: { items: vpcs },
-  } = usePrefetchedApiQuery('vpcList', {
-    query: { project, limit: ALL_ISH },
-  })
+  } = usePrefetchedApiQuery('vpcList', { query: { project, limit: ALL_ISH } })
   const {
     data: { items: vpcSubnets },
   } = usePrefetchedApiQuery('vpcSubnetList', { query: { project, vpc } })

@@ -58,9 +58,7 @@ const defaultValues: Omit<FloatingIpCreate, 'ip'> = {
 export function CreateFloatingIpSideModalForm() {
   // Fetch 1000 to we can be sure to get them all. Don't bother prefetching
   // because the list is hidden under the Advanced accordion.
-  const { data: allPools } = useApiQuery('projectIpPoolList', {
-    query: { limit: ALL_ISH },
-  })
+  const { data: allPools } = useApiQuery('projectIpPoolList', { query: { limit: ALL_ISH } })
 
   const queryClient = useApiQueryClient()
   const projectSelector = useProjectSelector()
