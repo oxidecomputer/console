@@ -8,7 +8,7 @@
 
 import { expect, test } from 'vitest'
 
-import { validateIp } from './ip'
+import { validateIp, validateIpNet } from './ip'
 
 // Small Rust project where we validate that the built-in Ipv4Addr and Ipv6Addr
 // and oxnet's Ipv4Net and Ipv6Net have the same validation behavior as our code.
@@ -76,4 +76,24 @@ const invalid = [
 
 test.each(invalid)('validateIp catches invalid IP: %s', (s) => {
   expect(validateIp(s)).toStrictEqual({ isv4: false, isv6: false, valid: false })
+})
+
+test.each([...v4.concat(v6).map((ip) => ip + '/10'), '2001:db8::/128'])('%s', (s) => {
+  expect(validateIpNet(s).valid).toBe(true)
+})
+
+test.each([
+  ...invalid.map((ip) => ip + '/10'),
+  'abc',
+  '',
+  '1.1.1.1',
+  '1.1.1.1/180',
+  '256.0.0.0/24',
+  '192.168.0.0/33',
+  '192.168.0.0/-1',
+  '192.168.0.0.0/24',
+  '192.168.0/24',
+  '2001:db8::/129',
+])('validateIpNet catches invalid value: %s', (s) => {
+  expect(validateIpNet(s).valid).toBe(false)
 })
