@@ -22,7 +22,8 @@ import {
 
 import { json, makeHandlers, type Json } from '~/api/__generated__/msw-handlers'
 import { instanceCan } from '~/api/util'
-import { commaSeries, validateIp } from '~/util/str'
+import { validateIp } from '~/util/ip'
+import { commaSeries } from '~/util/str'
 import { GiB } from '~/util/units'
 
 import { genCumulativeI64Data } from '../metrics'

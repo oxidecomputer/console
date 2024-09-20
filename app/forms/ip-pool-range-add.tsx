@@ -15,8 +15,8 @@ import { SideModalForm } from '~/components/form/SideModalForm'
 import { useIpPoolSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { Message } from '~/ui/lib/Message'
+import { validateIp } from '~/util/ip'
 import { pb } from '~/util/path-builder'
-import { validateIp } from '~/util/str'
 
 const defaultValues: IpRange = {
   first: '',

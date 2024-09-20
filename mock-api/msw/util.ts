@@ -25,7 +25,7 @@ import {
 } from '@oxide/api'
 
 import { json, type Json } from '~/api/__generated__/msw-handlers'
-import { validateIp } from '~/util/str'
+import { validateIp } from '~/util/ip'
 import { GiB, TiB } from '~/util/units'
 
 import type { DbRoleAssignmentResourceType } from '..'
