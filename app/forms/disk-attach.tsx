@@ -12,7 +12,7 @@ import { useApiQuery, type ApiError } from '@oxide/api'
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { useProjectSelector } from '~/hooks/use-params'
-import { APPROXIMATELY_EVERYTHING } from '~/util/consts'
+import { ALL_ISH } from '~/util/consts'
 
 const defaultValues = { name: '' }
 
@@ -39,7 +39,7 @@ export function AttachDiskSideModalForm({
   const { project } = useProjectSelector()
 
   const { data } = useApiQuery('diskList', {
-    query: { project, limit: APPROXIMATELY_EVERYTHING },
+    query: { project, limit: ALL_ISH },
   })
   const detachedDisks =
     data?.items.filter(

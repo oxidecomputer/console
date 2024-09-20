@@ -38,7 +38,7 @@ import { Message } from '~/ui/lib/Message'
 import * as MiniTable from '~/ui/lib/MiniTable'
 import { TextInputHint } from '~/ui/lib/TextInput'
 import { KEYS } from '~/ui/util/keys'
-import { APPROXIMATELY_EVERYTHING } from '~/util/consts'
+import { ALL_ISH } from '~/util/consts'
 import { links } from '~/util/links'
 import { capitalize } from '~/util/str'
 
@@ -245,12 +245,12 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
   const {
     data: { items: instances },
   } = usePrefetchedApiQuery('instanceList', {
-    query: { project, limit: APPROXIMATELY_EVERYTHING },
+    query: { project, limit: ALL_ISH },
   })
   const {
     data: { items: vpcs },
   } = usePrefetchedApiQuery('vpcList', {
-    query: { project, limit: APPROXIMATELY_EVERYTHING },
+    query: { project, limit: ALL_ISH },
   })
   const {
     data: { items: vpcSubnets },

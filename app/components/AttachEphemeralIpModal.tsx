@@ -15,13 +15,13 @@ import { useInstanceSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { Badge } from '~/ui/lib/Badge'
 import { Modal } from '~/ui/lib/Modal'
-import { APPROXIMATELY_EVERYTHING } from '~/util/consts'
+import { ALL_ISH } from '~/util/consts'
 
 export const AttachEphemeralIpModal = ({ onDismiss }: { onDismiss: () => void }) => {
   const queryClient = useApiQueryClient()
   const { project, instance } = useInstanceSelector()
   const { data: siloPools } = usePrefetchedApiQuery('projectIpPoolList', {
-    query: { limit: APPROXIMATELY_EVERYTHING },
+    query: { limit: ALL_ISH },
   })
   const defaultPool = useMemo(
     () => siloPools?.items.find((pool) => pool.isDefault),

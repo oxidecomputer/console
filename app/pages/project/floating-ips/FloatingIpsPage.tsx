@@ -40,7 +40,7 @@ import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { TableActions } from '~/ui/lib/Table'
 import { Tooltip } from '~/ui/lib/Tooltip'
-import { APPROXIMATELY_EVERYTHING } from '~/util/consts'
+import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
@@ -64,7 +64,7 @@ FloatingIpsPage.loader = async ({ params }: LoaderFunctionArgs) => {
       query: { project },
     }),
     apiQueryClient
-      .fetchQuery('projectIpPoolList', { query: { limit: APPROXIMATELY_EVERYTHING } })
+      .fetchQuery('projectIpPoolList', { query: { limit: ALL_ISH } })
       .then((pools) => {
         for (const pool of pools.items) {
           apiQueryClient.setQueryData(

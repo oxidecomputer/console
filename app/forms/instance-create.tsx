@@ -72,7 +72,7 @@ import { Slash } from '~/ui/lib/Slash'
 import { Tabs } from '~/ui/lib/Tabs'
 import { TextInputHint } from '~/ui/lib/TextInput'
 import { TipIcon } from '~/ui/lib/TipIcon'
-import { APPROXIMATELY_EVERYTHING } from '~/util/consts'
+import { ALL_ISH } from '~/util/consts'
 import { readBlobAsBase64 } from '~/util/file'
 import { docLinks, links } from '~/util/links'
 import { nearest10 } from '~/util/math'
@@ -163,10 +163,10 @@ CreateInstanceForm.loader = async ({ params }: LoaderFunctionArgs) => {
     }),
     apiQueryClient.prefetchQuery('currentUserSshKeyList', {}),
     apiQueryClient.prefetchQuery('projectIpPoolList', {
-      query: { limit: APPROXIMATELY_EVERYTHING },
+      query: { limit: ALL_ISH },
     }),
     apiQueryClient.prefetchQuery('floatingIpList', {
-      query: { project, limit: APPROXIMATELY_EVERYTHING },
+      query: { project, limit: ALL_ISH },
     }),
   ])
   return null
@@ -213,7 +213,7 @@ export function CreateInstanceForm() {
 
   // projectIpPoolList fetches the pools linked to the current silo
   const { data: siloPools } = usePrefetchedApiQuery('projectIpPoolList', {
-    query: { limit: APPROXIMATELY_EVERYTHING },
+    query: { limit: ALL_ISH },
   })
   const defaultPool = useMemo(
     () => (siloPools ? siloPools.items.find((p) => p.isDefault)?.name : undefined),
@@ -632,7 +632,7 @@ const AdvancedAccordion = ({
 
   const { project } = useProjectSelector()
   const { data: floatingIpList } = usePrefetchedApiQuery('floatingIpList', {
-    query: { project, limit: APPROXIMATELY_EVERYTHING },
+    query: { project, limit: ALL_ISH },
   })
 
   // Filter out the IPs that are already attached to an instance

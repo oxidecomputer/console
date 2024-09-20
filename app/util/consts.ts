@@ -6,4 +6,5 @@
  * Copyright Oxide Computer Company
  */
 
-export const APPROXIMATELY_EVERYTHING = 1000
+// Used as a stand-in for "approximately everything" limit value in queries
+export const ALL_ISH = 1000

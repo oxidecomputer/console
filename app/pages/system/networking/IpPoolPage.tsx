@@ -46,7 +46,7 @@ import { Modal } from '~/ui/lib/Modal'
 import { PageHeader, PageTitle } from '~/ui/lib/PageHeader'
 import { Tabs } from '~/ui/lib/Tabs'
 import { TipIcon } from '~/ui/lib/TipIcon'
-import { APPROXIMATELY_EVERYTHING } from '~/util/consts'
+import { ALL_ISH } from '~/util/consts'
 import { docLinks } from '~/util/links'
 import { pb } from '~/util/path-builder'
 
@@ -372,9 +372,9 @@ function LinkSiloModal({ onDismiss }: { onDismiss: () => void }) {
 
   const linkedSilos = useApiQuery('ipPoolSiloList', {
     path: { pool },
-    query: { limit: APPROXIMATELY_EVERYTHING },
+    query: { limit: ALL_ISH },
   })
-  const allSilos = useApiQuery('siloList', { query: { limit: APPROXIMATELY_EVERYTHING } })
+  const allSilos = useApiQuery('siloList', { query: { limit: ALL_ISH } })
 
   // in order to get the list of remaining unlinked silos, we have to get the
   // list of all silos and remove the already linked ones
