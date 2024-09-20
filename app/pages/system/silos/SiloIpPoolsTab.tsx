@@ -27,6 +27,7 @@ import { CreateButton } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
+import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
 
 const EmptyState = () => (
@@ -62,7 +63,7 @@ export function SiloIpPoolsTab() {
   // default that fast anyway.
   const { data: allPools } = useApiQuery('siloIpPoolList', {
     path: { silo },
-    query: { limit: 1000 },
+    query: { limit: ALL_ISH },
   })
 
   // used in change default confirm modal
@@ -198,9 +199,9 @@ function LinkPoolModal({ onDismiss }: { onDismiss: () => void }) {
 
   const linkedPools = useApiQuery('siloIpPoolList', {
     path: { silo },
-    query: { limit: 1000 },
+    query: { limit: ALL_ISH },
   })
-  const allPools = useApiQuery('ipPoolList', { query: { limit: 1000 } })
+  const allPools = useApiQuery('ipPoolList', { query: { limit: ALL_ISH } })
 
   // in order to get the list of remaining unlinked pools, we have to get the
   // list of all pools and remove the already linked ones

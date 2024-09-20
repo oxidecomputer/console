@@ -38,6 +38,7 @@ import { Message } from '~/ui/lib/Message'
 import * as MiniTable from '~/ui/lib/MiniTable'
 import { TextInputHint } from '~/ui/lib/TextInput'
 import { KEYS } from '~/ui/util/keys'
+import { ALL_ISH } from '~/util/consts'
 import { links } from '~/util/links'
 import { capitalize } from '~/util/str'
 
@@ -243,14 +244,10 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
   // prefetchedApiQueries below are prefetched in firewall-rules-create and -edit
   const {
     data: { items: instances },
-  } = usePrefetchedApiQuery('instanceList', {
-    query: { project, limit: 1000 },
-  })
+  } = usePrefetchedApiQuery('instanceList', { query: { project, limit: ALL_ISH } })
   const {
     data: { items: vpcs },
-  } = usePrefetchedApiQuery('vpcList', {
-    query: { project, limit: 1000 },
-  })
+  } = usePrefetchedApiQuery('vpcList', { query: { project, limit: ALL_ISH } })
   const {
     data: { items: vpcSubnets },
   } = usePrefetchedApiQuery('vpcSubnetList', { query: { project, vpc } })

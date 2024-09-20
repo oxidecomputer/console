@@ -23,11 +23,12 @@ import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
+import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
 
 const useSnapshotDiskItems = (projectSelector: PP.Project) => {
   const { data: disks } = useApiQuery('diskList', {
-    query: { ...projectSelector, limit: 1000 },
+    query: { ...projectSelector, limit: ALL_ISH },
   })
   return (
     disks?.items

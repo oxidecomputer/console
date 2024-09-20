@@ -48,6 +48,7 @@ import { CreateButton } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableControls, TableEmptyBox, TableTitle } from '~/ui/lib/Table'
 import { TipIcon } from '~/ui/lib/TipIcon'
+import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
 
 import { fancifyStates } from './common'
@@ -87,11 +88,9 @@ NetworkingTab.loader = async ({ params }: LoaderFunctionArgs) => {
   await Promise.all([
     apiQueryClient.prefetchQuery('instanceNetworkInterfaceList', {
       // we want this to cover all NICs; TODO: determine actual limit?
-      query: { project, instance, limit: 1000 },
+      query: { project, instance, limit: ALL_ISH },
     }),
-    apiQueryClient.prefetchQuery('floatingIpList', {
-      query: { project, limit: 1000 },
-    }),
+    apiQueryClient.prefetchQuery('floatingIpList', { query: { project, limit: ALL_ISH } }),
     // dupe of page-level fetch but that's fine, RQ dedupes
     apiQueryClient.prefetchQuery('instanceExternalIpList', {
       path: { instance },
@@ -104,9 +103,7 @@ NetworkingTab.loader = async ({ params }: LoaderFunctionArgs) => {
       query: { project },
     }),
     // This is used in AttachEphemeralIpModal
-    apiQueryClient.prefetchQuery('projectIpPoolList', {
-      query: { limit: 1000 },
-    }),
+    apiQueryClient.prefetchQuery('projectIpPoolList', { query: { limit: ALL_ISH } }),
   ])
   return null
 }
@@ -193,7 +190,7 @@ export function NetworkingTab() {
 
   // Fetch the floating IPs to show in the "Attach floating IP" modal
   const { data: ips } = usePrefetchedApiQuery('floatingIpList', {
-    query: { project, limit: 1000 },
+    query: { project, limit: ALL_ISH },
   })
   // Filter out the IPs that are already attached to an instance
   const availableIps = useMemo(() => ips.items.filter((ip) => !ip.instanceId), [ips])
@@ -277,7 +274,7 @@ export function NetworkingTab() {
   const columns = useColsWithActions(staticCols, makeActions)
 
   const nics = usePrefetchedApiQuery('instanceNetworkInterfaceList', {
-    query: { ...instanceSelector, limit: 1000 },
+    query: { ...instanceSelector, limit: ALL_ISH },
   }).data.items
 
   const nicRows = useMemo(
