@@ -1755,6 +1755,8 @@ export type InstanceState =
  * View of an Instance
  */
 export type Instance = {
+  /** the ID of the disk used to boot this Instance, if a specific one is assigned. */
+  bootDiskId?: string
   /** human-readable free-form text about a resource */
   description: string
   /** RFC1035-compliant hostname for the Instance. */
@@ -1829,6 +1831,8 @@ If more than one interface is provided, then the first will be designated the pr
  * Create-time parameters for an `Instance`
  */
 export type InstanceCreate = {
+  /** Choice of which disk this instance should boot from. */
+  bootDisk?: NameOrId
   description: string
   /** The disks to be created or attached for this instance. */
   disks?: InstanceDiskAttachment[]
@@ -1936,6 +1940,11 @@ export type InstanceSerialConsoleData = {
   /** The absolute offset since boot (suitable for use as `byte_offset` in a subsequent request) of the last byte returned in `data`. */
   lastByteOffset: number
 }
+
+/**
+ * Parameters of an `Instance` that can be reconfigured after creation.
+ */
+export type InstanceUpdate = { bootDisk?: NameOrId }
 
 /**
  * A collection of IP ranges. If a pool is linked to a silo, IP addresses from the pool can be allocated within that silo
@@ -2579,18 +2588,18 @@ export type RouteConfig = {
 }
 
 /**
- * A `RouteDestination` is used to match traffic with a routing rule based on the destination of that traffic.
+ * A `RouteDestination` is used to match traffic with a routing rule, on the destination of that traffic.
  *
  * When traffic is to be sent to a destination that is within a given `RouteDestination`, the corresponding `RouterRoute` applies, and traffic will be forward to the `RouteTarget` for that rule.
  */
 export type RouteDestination =
-  /** Route applies to traffic destined for the specified IP address */
+  /** Route applies to traffic destined for a specific IP address */
   | { type: 'ip'; value: string }
-  /** Route applies to traffic destined for the specified IP subnet */
+  /** Route applies to traffic destined for a specific IP subnet */
   | { type: 'ip_net'; value: IpNet }
-  /** Route applies to traffic destined for the specified VPC */
+  /** Route applies to traffic destined for the given VPC. */
   | { type: 'vpc'; value: Name }
-  /** Route applies to traffic destined for the specified VPC subnet */
+  /** Route applies to traffic */
   | { type: 'subnet'; value: Name }
 
 /**
@@ -4196,6 +4205,14 @@ export interface InstanceViewQueryParams {
   project?: NameOrId
 }
 
+export interface InstanceUpdatePathParams {
+  instance: NameOrId
+}
+
+export interface InstanceUpdateQueryParams {
+  project?: NameOrId
+}
+
 export interface InstanceDeletePathParams {
   instance: NameOrId
 }
@@ -5684,6 +5701,29 @@ export class Api extends HttpClient {
       return this.request<Instance>({
         path: `/v1/instances/${path.instance}`,
         method: 'GET',
+        query,
+        ...params,
+      })
+    },
+    /**
+     * Update instance
+     */
+    instanceUpdate: (
+      {
+        path,
+        query = {},
+        body,
+      }: {
+        path: InstanceUpdatePathParams
+        query?: InstanceUpdateQueryParams
+        body: InstanceUpdate
+      },
+      params: FetchParams = {}
+    ) => {
+      return this.request<Instance>({
+        path: `/v1/instances/${path.instance}`,
+        method: 'PUT',
+        body,
         query,
         ...params,
       })

@@ -1680,6 +1680,7 @@ export const InstanceState = z.preprocess(
 export const Instance = z.preprocess(
   processResponseBody,
   z.object({
+    bootDiskId: z.string().uuid().optional(),
     description: z.string(),
     hostname: z.string(),
     id: z.string().uuid(),
@@ -1743,6 +1744,7 @@ export const InstanceNetworkInterfaceAttachment = z.preprocess(
 export const InstanceCreate = z.preprocess(
   processResponseBody,
   z.object({
+    bootDisk: NameOrId.default(null).optional(),
     description: z.string(),
     disks: InstanceDiskAttachment.array().default([]).optional(),
     externalIps: ExternalIpCreate.array().default([]).optional(),
@@ -1831,6 +1833,14 @@ export const InstanceResultsPage = z.preprocess(
 export const InstanceSerialConsoleData = z.preprocess(
   processResponseBody,
   z.object({ data: z.number().min(0).max(255).array(), lastByteOffset: z.number().min(0) })
+)
+
+/**
+ * Parameters of an `Instance` that can be reconfigured after creation.
+ */
+export const InstanceUpdate = z.preprocess(
+  processResponseBody,
+  z.object({ bootDisk: NameOrId.optional() })
 )
 
 /**
@@ -2475,7 +2485,7 @@ export const RouteConfig = z.preprocess(
 )
 
 /**
- * A `RouteDestination` is used to match traffic with a routing rule based on the destination of that traffic.
+ * A `RouteDestination` is used to match traffic with a routing rule, on the destination of that traffic.
  *
  * When traffic is to be sent to a destination that is within a given `RouteDestination`, the corresponding `RouterRoute` applies, and traffic will be forward to the `RouteTarget` for that rule.
  */
@@ -4137,6 +4147,18 @@ export const InstanceCreateParams = z.preprocess(
 )
 
 export const InstanceViewParams = z.preprocess(
+  processResponseBody,
+  z.object({
+    path: z.object({
+      instance: NameOrId,
+    }),
+    query: z.object({
+      project: NameOrId.optional(),
+    }),
+  })
+)
+
+export const InstanceUpdateParams = z.preprocess(
   processResponseBody,
   z.object({
     path: z.object({
