@@ -96,9 +96,9 @@ const toItems = (mapping: Record<string, string>) =>
 
 type RouteFormFieldsProps = {
   form: UseFormReturn<RouteFormValues>
-  isDisabled?: boolean
+  disabled?: boolean
 }
-export const RouteFormFields = ({ form, isDisabled }: RouteFormFieldsProps) => {
+export const RouteFormFields = ({ form, disabled }: RouteFormFieldsProps) => {
   const routerSelector = useVpcRouterSelector()
   const { project, vpc } = routerSelector
   // usePrefetchedApiQuery items below are initially fetched in the loaders in vpc-router-route-create and -edit
@@ -118,7 +118,7 @@ export const RouteFormFields = ({ form, isDisabled }: RouteFormFieldsProps) => {
     control,
     placeholder: getDestinationValuePlaceholder(destinationType),
     required: true,
-    disabled: isDisabled,
+    disabled,
     description: getDestinationValueDescription(destinationType),
   }
   const targetValueProps = {
@@ -129,16 +129,16 @@ export const RouteFormFields = ({ form, isDisabled }: RouteFormFieldsProps) => {
     placeholder: getTargetValuePlaceholder(targetType),
     required: true,
     // 'internet_gateway' targetTypes can only have the value 'outbound', so we disable the field
-    disabled: isDisabled || targetType === 'internet_gateway',
+    disabled: disabled || targetType === 'internet_gateway',
     description: getTargetValueDescription(targetType),
   }
   return (
     <>
-      {isDisabled && (
+      {disabled && (
         <Message variant="info" content={routeFormMessage.vpcSubnetNotModifiable} />
       )}
-      <NameField name="name" control={control} disabled={isDisabled} />
-      <DescriptionField name="description" control={control} disabled={isDisabled} />
+      <NameField name="name" control={control} disabled={disabled} />
+      <DescriptionField name="description" control={control} disabled={disabled} />
       <ListboxField
         name="destination.type"
         label="Destination type"
@@ -149,13 +149,12 @@ export const RouteFormFields = ({ form, isDisabled }: RouteFormFieldsProps) => {
         onChange={() => {
           form.setValue('destination.value', '')
         }}
-        disabled={isDisabled}
+        disabled={disabled}
       />
       {destinationType === 'subnet' ? (
         <ComboboxField
           {...destinationValueProps}
           items={vpcSubnets.map(({ name }) => ({ value: name, label: name }))}
-          isDisabled={isDisabled}
         />
       ) : (
         <TextField {...destinationValueProps} />
@@ -170,13 +169,12 @@ export const RouteFormFields = ({ form, isDisabled }: RouteFormFieldsProps) => {
         onChange={(value) => {
           form.setValue('target.value', value === 'internet_gateway' ? 'outbound' : '')
         }}
-        disabled={isDisabled}
+        disabled={disabled}
       />
       {targetType === 'drop' ? null : targetType === 'instance' ? (
         <ComboboxField
           {...targetValueProps}
           items={instances.map(({ name }) => ({ value: name, label: name }))}
-          isDisabled={isDisabled}
         />
       ) : (
         <TextField {...targetValueProps} />

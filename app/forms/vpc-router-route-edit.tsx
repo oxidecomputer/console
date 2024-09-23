@@ -59,7 +59,7 @@ export function EditRouterRouteSideModalForm() {
     'destination',
   ])
   const form = useForm({ defaultValues })
-  const isDisabled = route?.kind === 'vpc_subnet'
+  const disabled = route?.kind === 'vpc_subnet'
 
   const updateRouterRoute = useApiMutation('vpcRouterRouteUpdate', {
     onSuccess() {
@@ -90,9 +90,9 @@ export function EditRouterRouteSideModalForm() {
       }
       loading={updateRouterRoute.isPending}
       submitError={updateRouterRoute.error}
-      submitDisabled={isDisabled ? routeFormMessage.vpcSubnetNotModifiable : undefined}
+      submitDisabled={disabled ? routeFormMessage.vpcSubnetNotModifiable : undefined}
     >
-      <RouteFormFields form={form} isDisabled={isDisabled} />
+      <RouteFormFields form={form} disabled={disabled} />
     </SideModalForm>
   )
 }
