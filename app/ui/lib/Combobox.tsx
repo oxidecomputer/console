@@ -27,7 +27,7 @@ import { TextInputHint } from './TextInput'
 /** Simple non-generic props shared with ComboboxField */
 export type ComboboxBaseProps = {
   description?: React.ReactNode
-  isDisabled?: boolean
+  disabled?: boolean
   isLoading?: boolean
   items: Array<{ label: string; value: string }>
   label: string
@@ -64,7 +64,7 @@ export const Combobox = ({
   tooltipText,
   required,
   hasError,
-  isDisabled,
+  disabled,
   isLoading,
   onChange,
   onInputChange,
@@ -90,7 +90,7 @@ export const Combobox = ({
         onChange={(val) => onChange(val || '')}
         onClose={() => setQuery('')}
         defaultValue={selected}
-        disabled={isDisabled || isLoading}
+        disabled={disabled || isLoading}
       >
         {label && (
           // TODO: FieldLabel needs a real ID
@@ -113,10 +113,10 @@ export const Combobox = ({
               ? 'focus-error border-error-secondary hover:border-error'
               : 'border-default hover:border-hover',
             hasError && 'data-[open]:ring-error-secondary',
-            isDisabled
+            disabled
               ? 'cursor-not-allowed text-disabled bg-disabled !border-default'
               : 'bg-default',
-            isDisabled && hasError && '!border-error-secondary'
+            disabled && hasError && '!border-error-secondary'
           )}
         >
           <ComboboxInput
@@ -127,10 +127,10 @@ export const Combobox = ({
               onInputChange?.(event.target.value)
             }}
             placeholder={placeholder}
-            disabled={isDisabled || isLoading}
+            disabled={disabled || isLoading}
             className={cn(
               `w-full rounded !border-none px-3 py-[0.5rem] !outline-none text-sans-md text-default placeholder:text-quaternary`,
-              isDisabled
+              disabled
                 ? 'cursor-not-allowed text-disabled bg-disabled !border-default'
                 : 'bg-default',
               hasError && 'focus-error'
