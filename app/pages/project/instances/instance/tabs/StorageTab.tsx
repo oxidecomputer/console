@@ -30,6 +30,7 @@ import { addToast } from '~/stores/toast'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
+import { Badge } from '~/ui/lib/Badge'
 import { Button } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableEmptyBox } from '~/ui/lib/Table'
@@ -67,11 +68,22 @@ StorageTab.loader = async ({ params }: LoaderFunctionArgs) => {
 // row actions menus
 type InstanceDisk = Disk & {
   instanceState: InstanceState
+  isBootDisk: boolean
 }
 
 const colHelper = createColumnHelper<InstanceDisk>()
 const staticCols = [
-  colHelper.accessor('name', { header: 'Disk' }),
+  colHelper.accessor('name', {
+    header: 'Disk',
+    cell: (info) => {
+      return (
+        <>
+          <span>{info.getValue()}</span>
+          {info.row.original.isBootDisk && <Badge className="ml-3">Boot</Badge>}
+        </>
+      )
+    },
+  }),
   colHelper.accessor('size', Columns.size),
   colHelper.accessor((row) => row.state.state, {
     header: 'state',
@@ -177,8 +189,13 @@ export function StorageTab() {
   const { data: disks } = usePrefetchedApiQuery('instanceDiskList', instancePathQuery)
 
   const rows = useMemo(
-    () => disks.items.map((disk) => ({ ...disk, instanceState: instance.runState })),
-    [disks.items, instance.runState]
+    () =>
+      disks.items.map((disk) => ({
+        ...disk,
+        instanceState: instance.runState,
+        isBootDisk: instance.bootDiskId === disk.id,
+      })),
+    [disks.items, instance.runState, instance.bootDiskId]
   )
 
   const table = useReactTable({

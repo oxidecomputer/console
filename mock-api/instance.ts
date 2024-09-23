@@ -21,6 +21,7 @@ export const instance: Json<Instance> = {
   hostname: 'oxide.com',
   project_id: project.id,
   run_state: 'running',
+  boot_disk_id: '7f2309a5-13e3-47e0-8a4c-2a3b3bc992fd', // disk-1
   time_created: new Date().toISOString(),
   time_modified: new Date().toISOString(),
   time_run_state_updated: new Date().toISOString(),
