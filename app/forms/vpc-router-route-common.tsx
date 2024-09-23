@@ -10,10 +10,12 @@ import type { UseFormReturn } from 'react-hook-form'
 
 import {
   usePrefetchedApiQuery,
+  type Instance,
   type RouteDestination,
   type RouterRouteCreate,
   type RouterRouteUpdate,
   type RouteTarget,
+  type VpcSubnet,
 } from '~/api'
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
@@ -55,44 +57,44 @@ const targetTypes: Record<Exclude<RouteTarget['type'], 'subnet' | 'vpc'>, string
   drop: 'Drop',
 }
 
-const getDestinationValuePlaceholder = (destinationType: RouteDestination['type']) =>
-  ({
-    ip: 'Enter an IP',
-    ip_net: 'Enter an IP network',
-    subnet: 'Select a subnet',
-    vpc: undefined,
-  })[destinationType]
+const destinationValuePlaceholder: Record<RouteDestination['type'], string | undefined> = {
+  ip: 'Enter an IP',
+  ip_net: 'Enter an IP network',
+  subnet: 'Select a subnet',
+  vpc: undefined,
+}
 
-const getDestinationValueDescription = (destinationType: RouteDestination['type']) =>
-  ({
-    ip: 'An IP address, like 192.168.1.222',
-    ip_net: 'An IP subnet, like 192.168.0.0/16',
-    subnet: undefined,
-    vpc: undefined,
-  })[destinationType]
+const destinationValueDescription: Record<RouteDestination['type'], string | undefined> = {
+  ip: 'An IP address, like 192.168.1.222',
+  ip_net: 'An IP network, like 192.168.0.0/16',
+  subnet: undefined,
+  vpc: undefined,
+}
 
-const getTargetValuePlaceholder = (destinationType: RouteTarget['type']) =>
-  ({
-    ip: 'Enter an IP',
-    instance: 'Select an instance',
-    internet_gateway: undefined,
-    drop: undefined,
-    subnet: undefined,
-    vpc: undefined,
-  })[destinationType]
+/** possible targetTypes needing placeholders are instances or IPs (internet_gateway has no placeholder) */
+const targetValuePlaceholder: Record<RouteTarget['type'], string | undefined> = {
+  ip: 'Enter an IP',
+  instance: 'Select an instance',
+  internet_gateway: undefined,
+  drop: undefined,
+  subnet: undefined,
+  vpc: undefined,
+}
 
-const getTargetValueDescription = (targetType: RouteTarget['type']) =>
-  ({
-    ip: 'An IP address, like 10.0.1.5',
-    instance: undefined,
-    internet_gateway: routeFormMessage.internetGatewayTargetValue,
-    drop: undefined,
-    subnet: undefined,
-    vpc: undefined,
-  })[targetType]
+const targetValueDescription: Record<RouteTarget['type'], string | undefined> = {
+  ip: 'An IP address, like 10.0.1.5',
+  instance: undefined,
+  internet_gateway: routeFormMessage.internetGatewayTargetValue,
+  drop: undefined,
+  subnet: undefined,
+  vpc: undefined,
+}
 
-const toItems = (mapping: Record<string, string>) =>
+const toListboxItems = (mapping: Record<string, string>) =>
   Object.entries(mapping).map(([value, label]) => ({ value, label }))
+
+const toComboboxItems = (items: Array<Instance | VpcSubnet>) =>
+  items.map(({ name }) => ({ value: name, label: name }))
 
 type RouteFormFieldsProps = {
   form: UseFormReturn<RouteFormValues>
@@ -116,21 +118,20 @@ export const RouteFormFields = ({ form, disabled }: RouteFormFieldsProps) => {
     name: 'destination.value' as const,
     label: 'Destination value',
     control,
-    placeholder: getDestinationValuePlaceholder(destinationType),
+    placeholder: destinationValuePlaceholder[destinationType],
     required: true,
     disabled,
-    description: getDestinationValueDescription(destinationType),
+    description: destinationValueDescription[destinationType],
   }
   const targetValueProps = {
     name: 'target.value' as const,
     label: 'Target value',
     control,
-    // possible targetTypes needing placeholders are instances or IPs (internet_gateway has no placeholder)
-    placeholder: getTargetValuePlaceholder(targetType),
+    placeholder: targetValuePlaceholder[targetType],
     required: true,
     // 'internet_gateway' targetTypes can only have the value 'outbound', so we disable the field
     disabled: disabled || targetType === 'internet_gateway',
-    description: getTargetValueDescription(targetType),
+    description: targetValueDescription[targetType],
   }
   return (
     <>
@@ -143,7 +144,7 @@ export const RouteFormFields = ({ form, disabled }: RouteFormFieldsProps) => {
         name="destination.type"
         label="Destination type"
         control={control}
-        items={toItems(destTypes)}
+        items={toListboxItems(destTypes)}
         placeholder="Select a destination type"
         required
         onChange={() => {
@@ -152,10 +153,7 @@ export const RouteFormFields = ({ form, disabled }: RouteFormFieldsProps) => {
         disabled={disabled}
       />
       {destinationType === 'subnet' ? (
-        <ComboboxField
-          {...destinationValueProps}
-          items={vpcSubnets.map(({ name }) => ({ value: name, label: name }))}
-        />
+        <ComboboxField {...destinationValueProps} items={toComboboxItems(vpcSubnets)} />
       ) : (
         <TextField {...destinationValueProps} />
       )}
@@ -163,7 +161,7 @@ export const RouteFormFields = ({ form, disabled }: RouteFormFieldsProps) => {
         name="target.type"
         label="Target type"
         control={control}
-        items={toItems(targetTypes)}
+        items={toListboxItems(targetTypes)}
         placeholder="Select a target type"
         required
         onChange={(value) => {
@@ -172,10 +170,7 @@ export const RouteFormFields = ({ form, disabled }: RouteFormFieldsProps) => {
         disabled={disabled}
       />
       {targetType === 'drop' ? null : targetType === 'instance' ? (
-        <ComboboxField
-          {...targetValueProps}
-          items={instances.map(({ name }) => ({ value: name, label: name }))}
-        />
+        <ComboboxField {...targetValueProps} items={toComboboxItems(instances)} />
       ) : (
         <TextField {...targetValueProps} />
       )}
