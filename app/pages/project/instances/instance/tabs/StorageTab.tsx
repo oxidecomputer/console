@@ -22,10 +22,12 @@ import {
 } from '@oxide/api'
 import { Storage24Icon } from '@oxide/design-system/icons/react'
 
+import { HL } from '~/components/HL'
 import { DiskStateBadge } from '~/components/StateBadge'
 import { AttachDiskSideModalForm } from '~/forms/disk-attach'
 import { CreateDiskSideModalForm } from '~/forms/disk-create'
 import { getInstanceSelector, useInstanceSelector } from '~/hooks/use-params'
+import { confirmAction } from '~/stores/confirm-action'
 import { addToast } from '~/stores/toast'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
@@ -132,6 +134,12 @@ export function StorageTab() {
 
   const { data: instance } = usePrefetchedApiQuery('instanceView', instancePathQuery)
 
+  const { mutateAsync: instanceUpdate } = useApiMutation('instanceUpdate', {
+    onSuccess() {
+      apiQueryClient.invalidateQueries('instanceView')
+    },
+  })
+
   const makeActions = useCallback(
     (disk: InstanceDisk): MenuAction[] => [
       {
@@ -163,11 +171,38 @@ export function StorageTab() {
           </>
         ),
         onActivate() {
-          detachDisk({ body: { disk: disk.name }, ...instancePathQuery })
+          detachDisk({ body: { disk: disk.name }, path: { instance: instance.id } })
+        },
+      },
+      {
+        label: disk.isBootDisk ? 'Unset as boot disk' : 'Set as boot disk',
+        onActivate: () => {
+          const verb = disk.isBootDisk ? 'unset' : 'set'
+          return confirmAction({
+            doAction: () =>
+              instanceUpdate({
+                path: { instance: instance.id },
+                body: { bootDisk: disk.isBootDisk ? undefined : disk.id },
+              }),
+            errorTitle: `Could not ${verb} boot disk`,
+            modalTitle: `Confirm ${verb} boot disk`,
+            // TODO: link to docs in both cases
+            modalContent: disk.isBootDisk ? (
+              <p>
+                Are you sure you want to unset <HL>{disk.name}</HL> as the boot disk? This
+                will TODO COPY RE: WHAT HAPPENS HERE
+              </p>
+            ) : (
+              <p>
+                Are you sure you want to set <HL>{disk.name}</HL> as the boot disk?
+              </p>
+            ),
+            actionType: 'primary',
+          })
         },
       },
     ],
-    [detachDisk, instancePathQuery, createSnapshot, project]
+    [detachDisk, createSnapshot, project, instanceUpdate, instance.id]
   )
 
   const attachDisk = useApiMutation('instanceDiskAttach', {
