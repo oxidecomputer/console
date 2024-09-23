@@ -55,6 +55,42 @@ const targetTypes: Record<Exclude<RouteTarget['type'], 'subnet' | 'vpc'>, string
   drop: 'Drop',
 }
 
+const getDestinationValuePlaceholder = (destinationType: RouteDestination['type']) =>
+  ({
+    ip: 'Enter an IP',
+    ip_net: 'Enter an IP network',
+    subnet: 'Select a subnet',
+    vpc: undefined,
+  })[destinationType]
+
+const getDestinationValueDescription = (destinationType: RouteDestination['type']) =>
+  ({
+    ip: 'An IP address, like 192.168.1.222',
+    ip_net: 'An IP subnet, like 192.168.0.0/16',
+    subnet: undefined,
+    vpc: undefined,
+  })[destinationType]
+
+const getTargetValuePlaceholder = (destinationType: RouteTarget['type']) =>
+  ({
+    ip: 'Enter an IP',
+    instance: 'Select an instance',
+    internet_gateway: undefined,
+    drop: undefined,
+    subnet: undefined,
+    vpc: undefined,
+  })[destinationType]
+
+const getTargetValueDescription = (targetType: RouteTarget['type']) =>
+  ({
+    ip: 'An IP address, like 10.0.1.5',
+    instance: undefined,
+    internet_gateway: routeFormMessage.internetGatewayTargetValue,
+    drop: undefined,
+    subnet: undefined,
+    vpc: undefined,
+  })[targetType]
+
 const toItems = (mapping: Record<string, string>) =>
   Object.entries(mapping).map(([value, label]) => ({ value, label }))
 
@@ -76,22 +112,26 @@ export const RouteFormFields = ({ form, isDisabled }: RouteFormFieldsProps) => {
   const { control } = form
   const destinationType = form.watch('destination.type')
   const targetType = form.watch('target.type')
-  const destinationValuePlaceholder = {
-    ip: 'Enter an IP',
-    ip_net: 'Enter an IP network',
-    subnet: 'Select a subnet',
-    // VPC probably won't ever be used, as VPCs cannot be specified
-    // as a destination in custom routers, but is here for completeness
-    vpc: 'Select a VPC',
-  }[destinationType]
-  const getDestinationValueProps = () => ({
+  const destinationValueProps = {
     name: 'destination.value' as const,
     label: 'Destination value',
     control,
-    placeholder: destinationValuePlaceholder,
+    placeholder: getDestinationValuePlaceholder(destinationType),
     required: true,
-    isDisabled,
-  })
+    disabled: isDisabled,
+    description: getDestinationValueDescription(destinationType),
+  }
+  const targetValueProps = {
+    name: 'target.value' as const,
+    label: 'Target value',
+    control,
+    // possible targetTypes needing placeholders are instances or IPs (internet_gateway has no placeholder)
+    placeholder: getTargetValuePlaceholder(targetType),
+    required: true,
+    // 'internet_gateway' targetTypes can only have the value 'outbound', so we disable the field
+    disabled: isDisabled || targetType === 'internet_gateway',
+    description: getTargetValueDescription(targetType),
+  }
   return (
     <>
       {isDisabled && (
@@ -113,11 +153,12 @@ export const RouteFormFields = ({ form, isDisabled }: RouteFormFieldsProps) => {
       />
       {destinationType === 'subnet' ? (
         <ComboboxField
-          {...getDestinationValueProps()}
+          {...destinationValueProps}
           items={vpcSubnets.map(({ name }) => ({ value: name, label: name }))}
+          isDisabled={isDisabled}
         />
       ) : (
-        <TextField {...getDestinationValueProps()} />
+        <TextField {...destinationValueProps} />
       )}
       <ListboxField
         name="target.type"
@@ -133,27 +174,12 @@ export const RouteFormFields = ({ form, isDisabled }: RouteFormFieldsProps) => {
       />
       {targetType === 'drop' ? null : targetType === 'instance' ? (
         <ComboboxField
-          name="target.value"
-          label="Target value"
-          control={control}
+          {...targetValueProps}
           items={instances.map(({ name }) => ({ value: name, label: name }))}
-          placeholder="Select an instance"
-          required
           isDisabled={isDisabled}
         />
       ) : (
-        <TextField
-          name="target.value"
-          label="Target value"
-          control={control}
-          placeholder="Enter a target value"
-          required
-          // 'internet_gateway' targetTypes can only have the value 'outbound', so we disable the field
-          disabled={isDisabled || targetType === 'internet_gateway'}
-          description={
-            targetType === 'internet_gateway' && routeFormMessage.internetGatewayTargetValue
-          }
-        />
+        <TextField {...targetValueProps} />
       )}
     </>
   )
