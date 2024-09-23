@@ -76,6 +76,22 @@ export const RouteFormFields = ({ form, isDisabled }: RouteFormFieldsProps) => {
   const { control } = form
   const destinationType = form.watch('destination.type')
   const targetType = form.watch('target.type')
+  const destinationValuePlaceholder = {
+    ip: 'Enter an IP',
+    ip_net: 'Enter an IP network',
+    subnet: 'Select a subnet',
+    // VPC probably won't ever be used, as VPCs cannot be specified
+    // as a destination in custom routers, but is here for completeness
+    vpc: 'Select a VPC',
+  }[destinationType]
+  const getDestinationValueProps = () => ({
+    name: 'destination.value' as const,
+    label: 'Destination value',
+    control,
+    placeholder: destinationValuePlaceholder,
+    required: true,
+    isDisabled,
+  })
   return (
     <>
       {isDisabled && (
@@ -97,23 +113,11 @@ export const RouteFormFields = ({ form, isDisabled }: RouteFormFieldsProps) => {
       />
       {destinationType === 'subnet' ? (
         <ComboboxField
-          name="destination.value"
-          label="Destination value"
-          control={control}
+          {...getDestinationValueProps()}
           items={vpcSubnets.map(({ name }) => ({ value: name, label: name }))}
-          placeholder="Select a subnet"
-          required
-          isDisabled={isDisabled}
         />
       ) : (
-        <TextField
-          name="destination.value"
-          label="Destination value"
-          control={control}
-          placeholder="Enter a destination value"
-          required
-          disabled={isDisabled}
-        />
+        <TextField {...getDestinationValueProps()} />
       )}
       <ListboxField
         name="target.type"
