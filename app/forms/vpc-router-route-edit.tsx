@@ -27,11 +27,19 @@ import { addToast } from '~/stores/toast'
 import { pb } from '~/util/path-builder'
 
 EditRouterRouteSideModalForm.loader = async ({ params }: LoaderFunctionArgs) => {
-  const { route, ...routerSelector } = getVpcRouterRouteSelector(params)
-  await apiQueryClient.prefetchQuery('vpcRouterRouteView', {
-    path: { route },
-    query: routerSelector,
-  })
+  const { project, vpc, router, route } = getVpcRouterRouteSelector(params)
+  await Promise.all([
+    apiQueryClient.prefetchQuery('vpcRouterRouteView', {
+      path: { route },
+      query: { project, vpc, router },
+    }),
+    apiQueryClient.prefetchQuery('vpcSubnetList', {
+      query: { project, vpc, limit: 1000 },
+    }),
+    apiQueryClient.prefetchQuery('instanceList', {
+      query: { project, limit: 1000 },
+    }),
+  ])
   return null
 }
 
@@ -51,7 +59,7 @@ export function EditRouterRouteSideModalForm() {
     'destination',
   ])
   const form = useForm({ defaultValues })
-  const isDisabled = route?.kind === 'vpc_subnet'
+  const disabled = route?.kind === 'vpc_subnet'
 
   const updateRouterRoute = useApiMutation('vpcRouterRouteUpdate', {
     onSuccess() {
@@ -82,9 +90,9 @@ export function EditRouterRouteSideModalForm() {
       }
       loading={updateRouterRoute.isPending}
       submitError={updateRouterRoute.error}
-      submitDisabled={isDisabled ? routeFormMessage.vpcSubnetNotModifiable : undefined}
+      submitDisabled={disabled ? routeFormMessage.vpcSubnetNotModifiable : undefined}
     >
-      <RouteFormFields form={form} isDisabled={isDisabled} />
+      <RouteFormFields form={form} disabled={disabled} />
     </SideModalForm>
   )
 }
