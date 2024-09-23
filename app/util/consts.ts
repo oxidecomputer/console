@@ -6,5 +6,5 @@
  * Copyright Oxide Computer Company
  */
 
-// Used as a stand-in for "approximately everything" limit value in queries
+/** Used as a stand-in for "approximately everything" limit value in queries */
 export const ALL_ISH = 1000
