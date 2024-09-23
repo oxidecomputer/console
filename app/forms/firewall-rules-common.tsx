@@ -90,7 +90,7 @@ const DynamicTypeAndValueFields = ({
   control,
   valueType,
   items,
-  isDisabled,
+  disabled,
   onInputChange,
   onTypeChange,
   onSubmitTextField,
@@ -99,7 +99,7 @@ const DynamicTypeAndValueFields = ({
   control: Control<TargetAndHostFormValues>
   valueType: TargetAndHostFilterType
   items: Array<{ value: string; label: string }>
-  isDisabled?: boolean
+  disabled?: boolean
   onInputChange?: (value: string) => void
   onTypeChange: () => void
   onSubmitTextField: (e: React.KeyboardEvent<HTMLInputElement>) => void
@@ -123,7 +123,7 @@ const DynamicTypeAndValueFields = ({
       {/* In the firewall rules form, a few types get comboboxes instead of text fields */}
       {valueType === 'vpc' || valueType === 'subnet' || valueType === 'instance' ? (
         <ComboboxField
-          isDisabled={isDisabled}
+          disabled={disabled}
           name="value"
           {...getFilterValueProps(valueType)}
           description="Select an option or enter a custom value"
