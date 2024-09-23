@@ -542,6 +542,25 @@ export const handlers = makeHandlers({
     return json(newInstance, { status: 201 })
   },
   instanceView: ({ path, query }) => lookup.instance({ ...path, ...query }),
+  instanceUpdate({ path, query, body }) {
+    const instance = lookup.instance({ ...path, ...query })
+
+    if (body.boot_disk) {
+      // Only include project if it's a name, otherwise lookup will error.
+      // This will 404 if the disk doesn't exist, which I think is right.
+      const disk = lookup.disk({
+        disk: body.boot_disk,
+        project: isUuid(body.boot_disk) ? undefined : query.project,
+      })
+
+      instance.boot_disk_id = disk.id
+    } else {
+      // we're clearing the boot disk!
+      instance.boot_disk_id = undefined
+    }
+
+    return instance
+  },
   instanceDelete({ path, query }) {
     const instance = lookup.instance({ ...path, ...query })
     db.instances = db.instances.filter((i) => i.id !== instance.id)
