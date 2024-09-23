@@ -440,6 +440,41 @@ export const handlers = makeHandlers({
       })
     }
 
+    // Validate boot disk against list of disks to create/attach. This must
+    // happen before disks are created/attached because it can throw.
+    if (body.boot_disk) {
+      // if it's an ID, things are annoying
+      if (isUuid(body.boot_disk)) {
+        // it must already exist
+        const disk = lookup.disk({ disk: body.boot_disk })
+        // it must be in this project
+        if (disk.project_id !== project.id) {
+          throw notFoundErr(
+            `boot disk in project '${project.name}' with ID '${body.boot_disk}'`
+          )
+        }
+        // it must be detached because we're going to attach it
+        if (disk.state.state !== 'detached') {
+          throw "When specified boot disk already exists, it must be in state 'detached'"
+        }
+        // it must be in the list of disks to attach! disks are attached by name (currently,
+        // there is an issue to make it NameOrId) so we use the name to make sure it's in the list
+        const inListOfDisksToAttach = (body.disks || []).some((d) => {
+          if (d.type === 'create') return false
+          return disk.name === d.name
+        })
+        if (!inListOfDisksToAttach) {
+          throw 'Specified boot disk must be in the list of disks to attach'
+        }
+      } else {
+        // otherwise it's a name, and we have to make sure it's somewhere in the list
+        const inListOfDisks = (body.disks || []).some((d) => body.boot_disk === d.name)
+        if (!inListOfDisks) {
+          throw `Specified boot disk '${body.boot_disk}' not found in list of disks`
+        }
+      }
+    }
+
     for (const diskParams of body.disks || []) {
       if (diskParams.type === 'create') {
         const { size, name, description, disk_source } = diskParams
@@ -505,6 +540,14 @@ export const handlers = makeHandlers({
       ...getTimestamps(),
       run_state: 'creating',
       time_run_state_updated: new Date().toISOString(),
+      // Note this relies on the disk already existing. This would be risky
+      // without the ton of validation before we do anything with disks.
+      boot_disk_id: body.boot_disk
+        ? lookup.disk({
+            disk: body.boot_disk,
+            project: isUuid(body.boot_disk) ? undefined : project.id,
+          }).id
+        : undefined,
     }
 
     body.external_ips?.forEach((ip) => {

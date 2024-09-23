@@ -318,6 +318,7 @@ export function CreateInstanceForm() {
               memory: instance.memory * GiB,
               ncpus: instance.ncpus,
               disks: [bootDisk, ...values.disks],
+              bootDisk: bootDisk.name,
               externalIps: values.externalIps,
               start: values.start,
               networkInterfaces: values.networkInterfaces,
