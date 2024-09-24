@@ -24,6 +24,7 @@ import { NameField } from '~/components/form/fields/NameField'
 import { TextField } from '~/components/form/fields/TextField'
 import { useVpcRouterSelector } from '~/hooks/use-params'
 import { Message } from '~/ui/lib/Message'
+import { validateIp, validateIpNet } from '~/util/ip'
 
 export type RouteFormValues = RouterRouteCreate | Required<RouterRouteUpdate>
 
@@ -149,13 +150,27 @@ export const RouteFormFields = ({ form, disabled }: RouteFormFieldsProps) => {
         required
         onChange={() => {
           form.setValue('destination.value', '')
+          form.clearErrors('destination.value')
         }}
         disabled={disabled}
       />
       {destinationType === 'subnet' ? (
         <ComboboxField {...destinationValueProps} items={toComboboxItems(vpcSubnets)} />
       ) : (
-        <TextField {...destinationValueProps} />
+        <TextField
+          {...destinationValueProps}
+          validate={(value, formValues) => {
+            const destType = formValues.destination.type
+            if (destType === 'ip_net') {
+              const result = validateIpNet(value)
+              if (result.type === 'error') return result.message
+            } else if (destType === 'ip') {
+              if (!validateIp(value).valid) {
+                return 'Not a valid IP address'
+              }
+            }
+          }}
+        />
       )}
       <ListboxField
         name="target.type"
@@ -166,13 +181,21 @@ export const RouteFormFields = ({ form, disabled }: RouteFormFieldsProps) => {
         required
         onChange={(value) => {
           form.setValue('target.value', value === 'internet_gateway' ? 'outbound' : '')
+          form.clearErrors('target.value')
         }}
         disabled={disabled}
       />
       {targetType === 'drop' ? null : targetType === 'instance' ? (
         <ComboboxField {...targetValueProps} items={toComboboxItems(instances)} />
       ) : (
-        <TextField {...targetValueProps} />
+        <TextField
+          {...targetValueProps}
+          validate={(value, formValues) => {
+            if (formValues.target.type === 'ip' && !validateIp(value).valid) {
+              return 'Not a valid IP address'
+            }
+          }}
+        />
       )}
     </>
   )
