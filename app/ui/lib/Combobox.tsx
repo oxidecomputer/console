@@ -34,6 +34,7 @@ export type ComboboxBaseProps = {
   placeholder?: string
   required?: boolean
   tooltipText?: string
+  ariaLabel?: string
   hideOptionalTag?: boolean
   /**
    * Pass in `allowArbitraryValues` as `true` when the user should be able to
@@ -68,6 +69,7 @@ export const Combobox = ({
   onChange,
   onInputChange,
   allowArbitraryValues = false,
+  ariaLabel,
   hideOptionalTag,
 }: ComboboxProps) => {
   const [query, setQuery] = useState(selected || '')
@@ -119,7 +121,7 @@ export const Combobox = ({
           )}
         >
           <ComboboxInput
-            aria-labelledby={`${id}-label ${id}-help-text`}
+            aria-label={ariaLabel}
             displayValue={() => (selected ? selected : query)}
             onChange={(event) => {
               setQuery(event.target.value)
