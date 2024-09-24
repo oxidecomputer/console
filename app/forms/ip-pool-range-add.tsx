@@ -23,8 +23,6 @@ const defaultValues: IpRange = {
   last: '',
 }
 
-const invalidAddressError = { type: 'pattern', message: 'Not a valid IP address' }
-
 const ipv6Error = { type: 'pattern', message: 'IPv6 ranges are not yet supported' }
 
 /**
@@ -40,15 +38,15 @@ function resolver(values: IpRange) {
 
   const errors: FieldErrors<IpRange> = {}
 
-  if (!first.valid) {
-    errors.first = invalidAddressError
-  } else if (first.isv6) {
+  if (first.type === 'error') {
+    errors.first = { type: 'pattern', message: first.message }
+  } else if (first.type === 'v6') {
     errors.first = ipv6Error
   }
 
-  if (!last.valid) {
-    errors.last = invalidAddressError
-  } else if (last.isv6) {
+  if (last.type === 'error') {
+    errors.last = { type: 'pattern', message: last.message }
+  } else if (last.type === 'v6') {
     errors.last = ipv6Error
   }
 

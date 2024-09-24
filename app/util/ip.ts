@@ -16,10 +16,14 @@ const IPV4_REGEX =
 const IPV6_REGEX =
   /^(?:(?:[\da-f]{1,4}:){7}[\da-f]{1,4}|(?:[\da-f]{1,4}:){1,7}:|(?:[\da-f]{1,4}:){1,6}:[\da-f]{1,4}|(?:[\da-f]{1,4}:){1,5}(?::[\da-f]{1,4}){1,2}|(?:[\da-f]{1,4}:){1,4}(?::[\da-f]{1,4}){1,3}|(?:[\da-f]{1,4}:){1,3}(?::[\da-f]{1,4}){1,4}|(?:[\da-f]{1,4}:){1,2}(?::[\da-f]{1,4}){1,5}|[\da-f]{1,4}:(?::[\da-f]{1,4}){1,6}|:(?:(?::[\da-f]{1,4}){1,7}|:)|fe80:(?::[\da-f]{0,4}){0,4}%[\da-z]+|::(?:f{4}(?::0{1,4})?:)?(?:(?:25[0-5]|(?:2[0-4]|1?\d)?\d)\.){3}(?:25[0-5]|(?:2[0-4]|1?\d)?\d)|(?:[\da-f]{1,4}:){1,4}:(?:(?:25[0-5]|(?:2[0-4]|1?\d)?\d)\.){3}(?:25[0-5]|(?:2[0-4]|1?\d)?\d))$/iu
 
-export function validateIp(ip: string) {
-  const isv4 = IPV4_REGEX.test(ip)
-  const isv6 = !isv4 && IPV6_REGEX.test(ip)
-  return { isv4, isv6, valid: isv4 || isv6 }
+type IpValidation =
+  | { type: 'v4' | 'v6'; address: string }
+  | { type: 'error'; message: string }
+
+export function validateIp(ip: string): IpValidation {
+  if (IPV4_REGEX.test(ip)) return { type: 'v4', address: ip }
+  if (IPV6_REGEX.test(ip)) return { type: 'v6', address: ip }
+  return { type: 'error', message: 'Not a valid IP address' }
 }
 
 // Following oxnet:
@@ -41,24 +45,24 @@ export function validateIpNet(ipNet: string): IpNetValidation {
 
   const [addrStr, widthStr] = splits
 
-  const { isv4, isv6, valid } = validateIp(addrStr)
+  const { type: ipType } = validateIp(addrStr)
 
-  if (!valid) return { type: 'error', message: 'Invalid IP address' }
+  if (ipType === 'error') return { type: 'error', message: 'Invalid IP address' }
 
   if (!/^\d+$/.test(widthStr)) {
     return { type: 'error', message: 'Width must be an integer' }
   }
   const width = parseInt(widthStr, 10)
 
-  if (isv4 && width > 32) {
+  if (ipType === 'v4' && width > 32) {
     return { type: 'error', message: 'Max width for IPv4 is 32' }
   }
-  if (isv6 && width > 128) {
+  if (ipType === 'v6' && width > 128) {
     return { type: 'error', message: 'Max width for IPv6 is 128' }
   }
 
   return {
-    type: isv4 ? 'v4' : 'v6',
+    type: ipType,
     address: addrStr,
     width: width,
   }

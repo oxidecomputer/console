@@ -17,7 +17,7 @@ import { validateIp, validateIpNet } from './ip'
 const v4 = ['123.4.56.7', '1.2.3.4']
 
 test.each(v4)('validateIp catches valid IPV4 / invalid IPV6: %s', (s) => {
-  expect(validateIp(s)).toStrictEqual({ isv4: true, isv6: false, valid: true })
+  expect(validateIp(s)).toStrictEqual({ type: 'v4', address: s })
 })
 
 const v6 = [
@@ -40,7 +40,7 @@ const v6 = [
 ]
 
 test.each(v6)('validateIp catches invalid IPV4 / valid IPV6: %s', (s) => {
-  expect(validateIp(s)).toStrictEqual({ isv4: false, isv6: true, valid: true })
+  expect(validateIp(s).type).toEqual('v6')
 })
 
 const invalid = [
@@ -75,7 +75,7 @@ const invalid = [
 ]
 
 test.each(invalid)('validateIp catches invalid IP: %s', (s) => {
-  expect(validateIp(s)).toStrictEqual({ isv4: false, isv6: false, valid: false })
+  expect(validateIp(s)).toStrictEqual({ type: 'error', message: 'Not a valid IP address' })
 })
 
 test.each(v4.map((ip) => ip + '/10'))('%s', (s) => {

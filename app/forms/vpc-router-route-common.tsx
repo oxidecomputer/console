@@ -165,9 +165,8 @@ export const RouteFormFields = ({ form, disabled }: RouteFormFieldsProps) => {
               const result = validateIpNet(value)
               if (result.type === 'error') return result.message
             } else if (destType === 'ip') {
-              if (!validateIp(value).valid) {
-                return 'Not a valid IP address'
-              }
+              const result = validateIp(value)
+              if (result.type === 'error') return result.message
             }
           }}
         />
@@ -191,8 +190,9 @@ export const RouteFormFields = ({ form, disabled }: RouteFormFieldsProps) => {
         <TextField
           {...targetValueProps}
           validate={(value, formValues) => {
-            if (formValues.target.type === 'ip' && !validateIp(value).valid) {
-              return 'Not a valid IP address'
+            if (formValues.target.type === 'ip') {
+              const result = validateIp(value)
+              if (result.type === 'error') return result.message
             }
           }}
         />

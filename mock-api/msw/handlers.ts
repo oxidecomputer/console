@@ -729,7 +729,10 @@ export const handlers = makeHandlers({
     const ranges = db.ipPoolRanges
       .filter((r) => r.ip_pool_id === pool.id)
       .map((r) => r.range)
-    const [ipv4Ranges, ipv6Ranges] = R.partition(ranges, (r) => validateIp(r.first).isv4)
+    const [ipv4Ranges, ipv6Ranges] = R.partition(
+      ranges,
+      (r) => validateIp(r.first).type === 'v4'
+    )
 
     // in the real backend there are also SNAT IPs, but we don't currently
     // represent those because they are not exposed through the API (except
