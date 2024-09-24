@@ -16,7 +16,7 @@ import {
 } from '@headlessui/react'
 import cn from 'classnames'
 import { matchSorter } from 'match-sorter'
-import { useState } from 'react'
+import { useId, useState } from 'react'
 
 import { SelectArrows6Icon } from '@oxide/design-system/icons/react'
 
@@ -34,7 +34,6 @@ export type ComboboxBaseProps = {
   placeholder?: string
   required?: boolean
   tooltipText?: string
-  ariaLabel?: string
   hideOptionalTag?: boolean
   /**
    * Pass in `allowArbitraryValues` as `true` when the user should be able to
@@ -69,7 +68,6 @@ export const Combobox = ({
   onChange,
   onInputChange,
   allowArbitraryValues = false,
-  ariaLabel,
   hideOptionalTag,
 }: ComboboxProps) => {
   const [query, setQuery] = useState(selected || '')
@@ -81,7 +79,7 @@ export const Combobox = ({
   })
 
   const zIndex = usePopoverZIndex()
-
+  const id = useId()
   return (
     <>
       <HCombobox
@@ -93,17 +91,18 @@ export const Combobox = ({
         disabled={disabled || isLoading}
       >
         {label && (
-          // TODO: FieldLabel needs a real ID
           <div className="mb-2">
             <FieldLabel
-              id="FieldLabel"
+              id={`${id}-label`}
               as="div"
               tip={tooltipText}
               optional={!required && !hideOptionalTag}
             >
               <Label>{label}</Label>
             </FieldLabel>
-            {description && <TextInputHint id="TextInputHint">{description}</TextInputHint>}
+            {description && (
+              <TextInputHint id={`${id}-help-text`}>{description}</TextInputHint>
+            )}
           </div>
         )}
         <ComboboxButton
@@ -120,7 +119,7 @@ export const Combobox = ({
           )}
         >
           <ComboboxInput
-            aria-label={ariaLabel}
+            aria-labelledby={`${id}-label ${id}-help-text`}
             displayValue={() => (selected ? selected : query)}
             onChange={(event) => {
               setQuery(event.target.value)

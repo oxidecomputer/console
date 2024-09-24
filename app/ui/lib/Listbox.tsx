@@ -13,7 +13,7 @@ import {
   ListboxOptions,
 } from '@headlessui/react'
 import cn from 'classnames'
-import { type ReactNode, type Ref } from 'react'
+import { useId, type ReactNode, type Ref } from 'react'
 
 import { SelectArrows6Icon } from '@oxide/design-system/icons/react'
 
@@ -70,7 +70,7 @@ export const Listbox = <Value extends string = string>({
   const noItems = !isLoading && items.length === 0
   const isDisabled = disabled || noItems
   const zIndex = usePopoverZIndex()
-
+  const id = useId()
   return (
     <div className={cn('relative', className)}>
       <HListbox
@@ -86,14 +86,16 @@ export const Listbox = <Value extends string = string>({
             {label && (
               <div className="mb-2">
                 <FieldLabel
-                  id={``}
+                  id={`${id}-label`}
                   as="div"
                   tip={tooltipText}
                   optional={!required && !hideOptionalTag}
                 >
                   <Label>{label}</Label>
                 </FieldLabel>
-                {description && <TextInputHint id={``}>{description}</TextInputHint>}
+                {description && (
+                  <TextInputHint id={`${id}-help-text`}>{description}</TextInputHint>
+                )}
               </div>
             )}
             <ListboxButton
