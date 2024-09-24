@@ -15,7 +15,7 @@ import { SideModalForm } from '~/components/form/SideModalForm'
 import { useIpPoolSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
 import { Message } from '~/ui/lib/Message'
-import { validateIp } from '~/util/ip'
+import { parseIp } from '~/util/ip'
 import { pb } from '~/util/path-builder'
 
 const defaultValues: IpRange = {
@@ -33,8 +33,8 @@ const ipv6Error = { type: 'pattern', message: 'IPv6 ranges are not yet supported
  * regex twice, though.
  */
 function resolver(values: IpRange) {
-  const first = validateIp(values.first)
-  const last = validateIp(values.last)
+  const first = parseIp(values.first)
+  const last = parseIp(values.last)
 
   const errors: FieldErrors<IpRange> = {}
 

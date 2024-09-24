@@ -8,7 +8,7 @@
 
 import { expect, test } from 'vitest'
 
-import { validateIp, validateIpNet } from './ip'
+import { parseIp, parseIpNet } from './ip'
 
 // Small Rust project where we validate that the built-in Ipv4Addr and Ipv6Addr
 // and oxnet's Ipv4Net and Ipv6Net have the same validation behavior as our code.
@@ -16,8 +16,8 @@ import { validateIp, validateIpNet } from './ip'
 
 const v4 = ['123.4.56.7', '1.2.3.4']
 
-test.each(v4)('validateIp catches valid IPV4 / invalid IPV6: %s', (s) => {
-  expect(validateIp(s)).toStrictEqual({ type: 'v4', address: s })
+test.each(v4)('parseIp catches valid IPV4 / invalid IPV6: %s', (s) => {
+  expect(parseIp(s)).toStrictEqual({ type: 'v4', address: s })
 })
 
 const v6 = [
@@ -39,8 +39,8 @@ const v6 = [
   'ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff',
 ]
 
-test.each(v6)('validateIp catches invalid IPV4 / valid IPV6: %s', (s) => {
-  expect(validateIp(s).type).toEqual('v6')
+test.each(v6)('parseIp catches invalid IPV4 / valid IPV6: %s', (s) => {
+  expect(parseIp(s).type).toEqual('v6')
 })
 
 const invalid = [
@@ -75,24 +75,21 @@ const invalid = [
   'fe08::7:8interface',
 ]
 
-test.each(invalid)('validateIp catches invalid IP: %s', (s) => {
-  expect(validateIp(s)).toStrictEqual({ type: 'error', message: 'Not a valid IP address' })
+test.each(invalid)('parseIp catches invalid IP: %s', (s) => {
+  expect(parseIp(s)).toStrictEqual({ type: 'error', message: 'Not a valid IP address' })
 })
 
 test.each(v4.map((ip) => ip + '/10'))('%s', (s) => {
-  expect(validateIpNet(s).type).toBe('v4')
+  expect(parseIpNet(s).type).toBe('v4')
 })
 
 test.each([...v6.map((ip) => ip + '/10'), '2001:db8::/128'])('%s', (s) => {
-  expect(validateIpNet(s).type).toBe('v6')
+  expect(parseIpNet(s).type).toBe('v6')
 })
 
-test.each(invalid.map((ip) => ip + '/10'))(
-  'validateIpNet catches invalid value: %s',
-  (s) => {
-    expect(validateIpNet(s).type).toBe('error')
-  }
-)
+test.each(invalid.map((ip) => ip + '/10'))('parseIpNet catches invalid value: %s', (s) => {
+  expect(parseIpNet(s).type).toBe('error')
+})
 
 const nonsense = 'Must contain an IP address and a width, separated by a /'
 const badWidth = 'Width must be an integer'
@@ -113,6 +110,6 @@ test.each([
   ['fd::/a', badWidth],
   ['1.1.1.1/33', ipv4Width],
   ['fd::/129', ipv6Width],
-])('validateIpNet message: %s', (input, message) => {
-  expect(validateIpNet(input)).toEqual({ type: 'error', message })
+])('parseIpNet message: %s', (input, message) => {
+  expect(parseIpNet(input)).toEqual({ type: 'error', message })
 })

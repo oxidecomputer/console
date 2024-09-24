@@ -16,21 +16,28 @@ const IPV4_REGEX =
 const IPV6_REGEX =
   /^(?:(?:[\da-f]{1,4}:){7}[\da-f]{1,4}|(?:[\da-f]{1,4}:){1,7}:|(?:[\da-f]{1,4}:){1,6}:[\da-f]{1,4}|(?:[\da-f]{1,4}:){1,5}(?::[\da-f]{1,4}){1,2}|(?:[\da-f]{1,4}:){1,4}(?::[\da-f]{1,4}){1,3}|(?:[\da-f]{1,4}:){1,3}(?::[\da-f]{1,4}){1,4}|(?:[\da-f]{1,4}:){1,2}(?::[\da-f]{1,4}){1,5}|[\da-f]{1,4}:(?::[\da-f]{1,4}){1,6}|:(?:(?::[\da-f]{1,4}){1,7}|:)|fe80:(?::[\da-f]{0,4}){0,4}%[\da-z]+|::(?:f{4}(?::0{1,4})?:)?(?:(?:25[0-5]|(?:2[0-4]|1?\d)?\d)\.){3}(?:25[0-5]|(?:2[0-4]|1?\d)?\d)|(?:[\da-f]{1,4}:){1,4}:(?:(?:25[0-5]|(?:2[0-4]|1?\d)?\d)\.){3}(?:25[0-5]|(?:2[0-4]|1?\d)?\d))$/iu
 
-type IpValidation =
-  | { type: 'v4' | 'v6'; address: string }
-  | { type: 'error'; message: string }
+type ParsedIp = { type: 'v4' | 'v6'; address: string } | { type: 'error'; message: string }
 
-export function validateIp(ip: string): IpValidation {
+export function parseIp(ip: string): ParsedIp {
   if (IPV4_REGEX.test(ip)) return { type: 'v4', address: ip }
   if (IPV6_REGEX.test(ip)) return { type: 'v6', address: ip }
   return { type: 'error', message: 'Not a valid IP address' }
+}
+
+/**
+ * Convenience helper that can be plugged into RHF simply as
+ * `validate={validateIp}`
+ */
+export function validateIp(ip: string): string | undefined {
+  const result = parseIp(ip)
+  if (result.type === 'error') return result.message
 }
 
 // Following oxnet:
 // https://github.com/oxidecomputer/oxnet/blob/7dacd265f1bcd0f8b47bd4805250c4f0812da206/src/ipnet.rs#L373-L385
 // https://github.com/oxidecomputer/oxnet/blob/7dacd265f1bcd0f8b47bd4805250c4f0812da206/src/ipnet.rs#L217-L223
 
-type IpNetValidation =
+type ParsedIpNet =
   | { type: 'v4' | 'v6'; address: string; width: number }
   | { type: 'error'; message: string }
 
@@ -39,13 +46,13 @@ const nonsenseError = {
   message: 'Must contain an IP address and a width, separated by a /',
 }
 
-export function validateIpNet(ipNet: string): IpNetValidation {
+export function parseIpNet(ipNet: string): ParsedIpNet {
   const splits = ipNet.split('/')
   if (splits.length !== 2) return nonsenseError
 
   const [addrStr, widthStr] = splits
 
-  const { type: ipType } = validateIp(addrStr)
+  const { type: ipType } = parseIp(addrStr)
 
   if (ipType === 'error') return nonsenseError
   if (widthStr.trim().length === 0) return nonsenseError
@@ -67,4 +74,13 @@ export function validateIpNet(ipNet: string): IpNetValidation {
     address: addrStr,
     width: width,
   }
+}
+
+/**
+ * Convenience helper that can be plugged into RHF simply as
+ * `validate={validateIpNet}`
+ */
+export function validateIpNet(ipNet: string): string | undefined {
+  const result = parseIpNet(ipNet)
+  if (result.type === 'error') return result.message
 }

@@ -159,16 +159,10 @@ export const RouteFormFields = ({ form, disabled }: RouteFormFieldsProps) => {
       ) : (
         <TextField
           {...destinationValueProps}
-          validate={(value, formValues) => {
-            const destType = formValues.destination.type
-            if (destType === 'ip_net') {
-              const result = validateIpNet(value)
-              if (result.type === 'error') return result.message
-            } else if (destType === 'ip') {
-              const result = validateIp(value)
-              if (result.type === 'error') return result.message
-            }
-          }}
+          validate={(value, { destination }) =>
+            (destination.type === 'ip_net' && validateIpNet(value)) ||
+            (destination.type === 'ip' && validateIp(value))
+          }
         />
       )}
       <ListboxField
@@ -189,12 +183,7 @@ export const RouteFormFields = ({ form, disabled }: RouteFormFieldsProps) => {
       ) : (
         <TextField
           {...targetValueProps}
-          validate={(value, formValues) => {
-            if (formValues.target.type === 'ip') {
-              const result = validateIp(value)
-              if (result.type === 'error') return result.message
-            }
-          }}
+          validate={(value, { target }) => target.type === 'ip' && validateIp(value)}
         />
       )}
     </>

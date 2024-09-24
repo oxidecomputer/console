@@ -22,7 +22,7 @@ import {
 
 import { json, makeHandlers, type Json } from '~/api/__generated__/msw-handlers'
 import { instanceCan } from '~/api/util'
-import { validateIp } from '~/util/ip'
+import { parseIp } from '~/util/ip'
 import { commaSeries } from '~/util/str'
 import { GiB } from '~/util/units'
 
@@ -731,7 +731,7 @@ export const handlers = makeHandlers({
       .map((r) => r.range)
     const [ipv4Ranges, ipv6Ranges] = R.partition(
       ranges,
-      (r) => validateIp(r.first).type === 'v4'
+      (r) => parseIp(r.first).type === 'v4'
     )
 
     // in the real backend there are also SNAT IPs, but we don't currently

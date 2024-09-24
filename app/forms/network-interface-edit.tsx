@@ -107,10 +107,7 @@ export function EditNetworkInterfaceForm({
                 submitTransitIp()
               }
             }}
-            validate={(value) => {
-              const result = validateIpNet(value)
-              if (result.type === 'error') return result.message
-            }}
+            validate={validateIpNet}
             placeholder="Enter an IP network"
           />
         </div>
