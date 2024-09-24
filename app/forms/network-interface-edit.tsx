@@ -25,6 +25,7 @@ import { FieldLabel } from '~/ui/lib/FieldLabel'
 import * as MiniTable from '~/ui/lib/MiniTable'
 import { TextInputHint } from '~/ui/lib/TextInput'
 import { KEYS } from '~/ui/util/keys'
+import { validateIpNet } from '~/util/ip'
 import { links } from '~/util/links'
 
 type EditNetworkInterfaceFormProps = {
@@ -57,12 +58,11 @@ export function EditNetworkInterfaceForm({
 
   const transitIpsForm = useForm({ defaultValues: { transitIp: '' } })
 
-  const submitTransitIp = () => {
-    const transitIp = transitIpsForm.getValues('transitIp')
+  const submitTransitIp = transitIpsForm.handleSubmit(({ transitIp }) => {
     if (!transitIp) return
     form.setValue('transitIps', [...transitIps, transitIp])
     transitIpsForm.reset()
-  }
+  })
 
   return (
     <SideModalForm
@@ -92,7 +92,7 @@ export function EditNetworkInterfaceForm({
             Transit IPs
           </FieldLabel>
           <TextInputHint id="transitIp-help-text" className="mb-2">
-            Enter an IPv4 or IPv6 address.{' '}
+            An IP network, like 192.168.0.0/16.{' '}
             <a href={links.transitIpsDocs} target="_blank" rel="noreferrer">
               Learn more about transit IPs.
             </a>
@@ -107,10 +107,16 @@ export function EditNetworkInterfaceForm({
                 submitTransitIp()
               }
             }}
+            validate={(value) => {
+              const result = validateIpNet(value)
+              if (result.type === 'error') return result.message
+            }}
+            placeholder="Enter an IP network"
           />
         </div>
         <MiniTable.ClearAndAddButtons
           addButtonCopy="Add Transit IP"
+          // TODO: calling formState this way may not always trigger a render when it changes
           disableClear={!!transitIpsForm.formState.dirtyFields.transitIp}
           onClear={transitIpsForm.reset}
           onSubmit={submitTransitIp}
