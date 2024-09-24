@@ -30,7 +30,7 @@ const selectAProjectImage = async (page: Page, name: string) => {
 
 const selectAnExistingDisk = async (page: Page, name: string) => {
   await page.getByRole('tab', { name: 'Existing disks' }).click()
-  await page.getByRole('button', { name: 'Select a disk' }).click()
+  await page.getByRole('combobox', { name: 'Disk' }).click()
   await page.getByRole('option', { name }).click()
 }
 
