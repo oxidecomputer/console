@@ -37,6 +37,7 @@ import {
 import { AccordionItem } from '~/components/AccordionItem'
 import { DocsPopover } from '~/components/DocsPopover'
 import { CheckboxField } from '~/components/form/fields/CheckboxField'
+import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { DiskSizeField } from '~/components/form/fields/DiskSizeField'
 import {
@@ -45,7 +46,6 @@ import {
 } from '~/components/form/fields/DisksTableField'
 import { FileField } from '~/components/form/fields/FileField'
 import { BootDiskImageSelectField as ImageSelectField } from '~/components/form/fields/ImageSelectField'
-import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
 import { NetworkInterfaceField } from '~/components/form/fields/NetworkInterfaceField'
 import { NumberField } from '~/components/form/fields/NumberField'
@@ -150,8 +150,6 @@ const baseDefaultValues: InstanceCreateInput = {
   externalIps: [{ type: 'ephemeral' }],
 }
 
-const DISK_FETCH_LIMIT = 1000
-
 CreateInstanceForm.loader = async ({ params }: LoaderFunctionArgs) => {
   const { project } = getProjectSelector(params)
   await Promise.all([
@@ -159,7 +157,7 @@ CreateInstanceForm.loader = async ({ params }: LoaderFunctionArgs) => {
     apiQueryClient.prefetchQuery('imageList', { query: { project } }),
     apiQueryClient.prefetchQuery('imageList', {}),
     apiQueryClient.prefetchQuery('diskList', {
-      query: { project, limit: DISK_FETCH_LIMIT },
+      query: { project, limit: ALL_ISH },
     }),
     apiQueryClient.prefetchQuery('currentUserSshKeyList', {}),
     apiQueryClient.prefetchQuery('projectIpPoolList', { query: { limit: ALL_ISH } }),
@@ -197,7 +195,7 @@ export function CreateInstanceForm() {
   const defaultImage = allImages[0]
 
   const allDisks = usePrefetchedApiQuery('diskList', {
-    query: { project, limit: DISK_FETCH_LIMIT },
+    query: { project, limit: ALL_ISH },
   }).data.items
   const disks = useMemo(
     () => allDisks.filter(diskCan.attach).map(({ name }) => ({ value: name, label: name })),
@@ -548,7 +546,7 @@ export function CreateInstanceForm() {
                 />
               </div>
             ) : (
-              <ListboxField
+              <ComboboxField
                 label="Disk"
                 name="diskSource"
                 description="Existing disks that are not attached to an instance"
