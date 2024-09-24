@@ -159,9 +159,13 @@ export const RouteFormFields = ({ form, disabled }: RouteFormFieldsProps) => {
       ) : (
         <TextField
           {...destinationValueProps}
-          validate={(value, { destination }) =>
-            (destination.type === 'ip_net' && validateIpNet(value)) ||
-            (destination.type === 'ip' && validateIp(value))
+          // it seems this validation function stays registered on the combobox
+          // even when the type is switched to  subnet!!!?!?!?!?!
+          validate={
+            (value, { destination }) =>
+              (destination.type === 'ip_net' && validateIpNet(value)) ||
+              (destination.type === 'ip' && validateIp(value)) ||
+              undefined // false is invalid but true and undefined are valid?????
           }
         />
       )}
@@ -183,7 +187,9 @@ export const RouteFormFields = ({ form, disabled }: RouteFormFieldsProps) => {
       ) : (
         <TextField
           {...targetValueProps}
-          validate={(value, { target }) => target.type === 'ip' && validateIp(value)}
+          validate={(value, { target }) =>
+            (target.type === 'ip' && validateIp(value)) || undefined
+          }
         />
       )}
     </>
