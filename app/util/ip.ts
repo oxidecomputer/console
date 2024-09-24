@@ -34,20 +34,21 @@ type IpNetValidation =
   | { type: 'v4' | 'v6'; address: string; width: number }
   | { type: 'error'; message: string }
 
+const nonsenseError = {
+  type: 'error' as const,
+  message: 'Must contain an IP address and a width, separated by a /',
+}
+
 export function validateIpNet(ipNet: string): IpNetValidation {
   const splits = ipNet.split('/')
-  if (splits.length !== 2) {
-    return {
-      type: 'error',
-      message: 'Must contain an address and a width, separated by a /',
-    }
-  }
+  if (splits.length !== 2) return nonsenseError
 
   const [addrStr, widthStr] = splits
 
   const { type: ipType } = validateIp(addrStr)
 
-  if (ipType === 'error') return { type: 'error', message: 'Invalid IP address' }
+  if (ipType === 'error') return nonsenseError
+  if (widthStr.trim().length === 0) return nonsenseError
 
   if (!/^\d+$/.test(widthStr)) {
     return { type: 'error', message: 'Width must be an integer' }

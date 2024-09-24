@@ -59,6 +59,7 @@ const invalid = [
   '256.0.0.0',
   '260.0.0.0',
   '256.1.1.1',
+  '192.168.0.0.0',
   '2001:0db8:85a3:0000:0000:8a2e:0370:7334 ',
   ' 2001:db8::',
   '1:2:3:4:5:6:7:8:9',
@@ -86,18 +87,32 @@ test.each([...v6.map((ip) => ip + '/10'), '2001:db8::/128'])('%s', (s) => {
   expect(validateIpNet(s).type).toBe('v6')
 })
 
+test.each(invalid.map((ip) => ip + '/10'))(
+  'validateIpNet catches invalid value: %s',
+  (s) => {
+    expect(validateIpNet(s).type).toBe('error')
+  }
+)
+
+const nonsense = 'Must contain an IP address and a width, separated by a /'
+const badWidth = 'Width must be an integer'
+const ipv4Width = 'Max width for IPv4 is 32'
+const ipv6Width = 'Max width for IPv6 is 128'
+
 test.each([
-  ...invalid.map((ip) => ip + '/10'),
-  'abc',
-  '',
-  '1.1.1.1',
-  '1.1.1.1/180',
-  '256.0.0.0/24',
-  '192.168.0.0/33',
-  '192.168.0.0/-1',
-  '192.168.0.0.0/24',
-  '192.168.0/24',
-  '2001:db8::/129',
-])('validateIpNet catches invalid value: %s', (s) => {
-  expect(validateIpNet(s).type).toBe('error')
+  ['', nonsense],
+  ['abc', nonsense],
+  ['/32', nonsense],
+  ['1.1.1.1', nonsense],
+  ['abc/2', nonsense],
+  ['1.1.1.1/', nonsense],
+  ['192.168.0.0.0/24', nonsense],
+  ['fd::/', nonsense],
+  ['1.1.1.1/a', badWidth],
+  ['192.168.0.0/-1', badWidth],
+  ['fd::/a', badWidth],
+  ['1.1.1.1/33', ipv4Width],
+  ['fd::/129', ipv6Width],
+])('validateIpNet message: %s', (input, message) => {
+  expect(validateIpNet(input)).toEqual({ type: 'error', message })
 })
