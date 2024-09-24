@@ -78,8 +78,12 @@ test.each(invalid)('validateIp catches invalid IP: %s', (s) => {
   expect(validateIp(s)).toStrictEqual({ isv4: false, isv6: false, valid: false })
 })
 
-test.each([...v4.concat(v6).map((ip) => ip + '/10'), '2001:db8::/128'])('%s', (s) => {
-  expect(validateIpNet(s).valid).toBe(true)
+test.each(v4.map((ip) => ip + '/10'))('%s', (s) => {
+  expect(validateIpNet(s).type).toBe('v4')
+})
+
+test.each([...v6.map((ip) => ip + '/10'), '2001:db8::/128'])('%s', (s) => {
+  expect(validateIpNet(s).type).toBe('v6')
 })
 
 test.each([
@@ -95,5 +99,5 @@ test.each([
   '192.168.0/24',
   '2001:db8::/129',
 ])('validateIpNet catches invalid value: %s', (s) => {
-  expect(validateIpNet(s).valid).toBe(false)
+  expect(validateIpNet(s).type).toBe('error')
 })
