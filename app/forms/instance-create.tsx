@@ -60,6 +60,7 @@ import { addToast } from '~/stores/toast'
 import { Badge } from '~/ui/lib/Badge'
 import { Button } from '~/ui/lib/Button'
 import { Checkbox } from '~/ui/lib/Checkbox'
+import type { ComboboxItem } from '~/ui/lib/Combobox'
 import { FormDivider } from '~/ui/lib/Divider'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Listbox } from '~/ui/lib/Listbox'
@@ -549,8 +550,8 @@ export function CreateInstanceForm() {
               <ComboboxField
                 label="Disk"
                 name="diskSource"
-                description="Existing disks that are not attached to an instance"
-                items={disks}
+                description="Eixisting disks that are not attached to an instance"
+                items={disks as ComboboxItem[]}
                 required
                 control={control}
                 placeholder="Select a disk"

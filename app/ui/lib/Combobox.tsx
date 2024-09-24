@@ -16,7 +16,7 @@ import {
 } from '@headlessui/react'
 import cn from 'classnames'
 import { matchSorter } from 'match-sorter'
-import { useState } from 'react'
+import { useState, type ReactElement } from 'react'
 
 import { SelectArrows6Icon } from '@oxide/design-system/icons/react'
 
@@ -24,12 +24,26 @@ import { FieldLabel } from './FieldLabel'
 import { usePopoverZIndex } from './SideModal'
 import { TextInputHint } from './TextInput'
 
+/** Comboboxes will either render a list of strings, each with an identical value,
+ *  or a ReactNode for the dropdown and a string for the input-like element.
+ */
+export type ComboboxItem =
+  | {
+      value: string
+      label: string
+      selectedLabel: never
+    }
+  | {
+      value: string
+      label: ReactElement
+      selectedLabel: string
+    }
 /** Simple non-generic props shared with ComboboxField */
 export type ComboboxBaseProps = {
   description?: React.ReactNode
   disabled?: boolean
   isLoading?: boolean
-  items: Array<{ label: string; value: string }>
+  items: Array<ComboboxItem>
   label: string
   placeholder?: string
   required?: boolean
@@ -82,6 +96,11 @@ export const Combobox = ({
 
   const zIndex = usePopoverZIndex()
 
+  const getSelectedLabel = (): string => {
+    const item = items.find((item) => item.value === selected)
+    return item?.selectedLabel || (item?.label as string) || ''
+  }
+
   return (
     <>
       <HCombobox
@@ -89,7 +108,7 @@ export const Combobox = ({
         // fallback to '' allows clearing field to work
         onChange={(val) => onChange(val || '')}
         onClose={() => setQuery('')}
-        defaultValue={selected}
+        defaultValue={getSelectedLabel()}
         disabled={disabled || isLoading}
       >
         {label && (
@@ -121,7 +140,7 @@ export const Combobox = ({
         >
           <ComboboxInput
             aria-label={ariaLabel}
-            displayValue={() => (selected ? selected : query)}
+            displayValue={() => (selected ? getSelectedLabel() : query)}
             onChange={(event) => {
               setQuery(event.target.value)
               onInputChange?.(event.target.value)
@@ -156,12 +175,16 @@ export const Combobox = ({
             )}
             {filteredItems.map((item) => (
               <ComboboxOption
-                key={item.label}
-                value={item.label}
+                // Erase this before PR goes out; just notes to self during development
+                // These had been item.label, but since that might be a ReactNode, we need to use item.value
+                key={item.value}
+                value={item.value}
                 className="relative border-b border-secondary last:border-0"
                 onSelect={() => {
-                  onChange(item.label)
-                  setQuery(item.label)
+                  // Erase this before PR goes out; just notes to self during development
+                  // These had been item.label, but since that might be a ReactNode, we need to use item.value
+                  onChange(getSelectedLabel())
+                  setQuery(getSelectedLabel())
                 }}
               >
                 {({ focus, selected }) => (
@@ -175,7 +198,8 @@ export const Combobox = ({
                       'is-highlighted': focus,
                     })}
                   >
-                    {item.label}
+                    {/* right now this is a string, but we need it to maybe be a ReactNode */}
+                    <>{item.label}</>
                   </div>
                 )}
               </ComboboxOption>

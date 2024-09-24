@@ -10,12 +10,12 @@ import { useController, type Control } from 'react-hook-form'
 import type { Image } from '@oxide/api'
 
 import type { InstanceCreateInput } from '~/forms/instance-create'
-import type { ListboxItem } from '~/ui/lib/Listbox'
+import type { ComboboxItem } from '~/ui/lib/Combobox'
 import { Slash } from '~/ui/lib/Slash'
 import { nearest10 } from '~/util/math'
 import { bytesToGiB, GiB } from '~/util/units'
 
-import { ListboxField } from './ListboxField'
+import { ComboboxField } from './ComboboxField'
 
 type ImageSelectFieldProps = {
   images: Image[]
@@ -23,6 +23,8 @@ type ImageSelectFieldProps = {
   disabled?: boolean
   name: 'siloImageSource' | 'projectImageSource'
 }
+
+// ROUGH EDGE: GETTING THIS FILE TO RENDER THE COMBOBOX CONTENT INSTEAD OF LISTBOX
 
 export function BootDiskImageSelectField({
   images,
@@ -34,13 +36,13 @@ export function BootDiskImageSelectField({
   return (
     // This should be migrated to a `ComboboxField` (and with a `toComboboxItem`), once
     // we have a combobox that supports more elaborate labels (beyond just strings).
-    <ListboxField
+    <ComboboxField
       disabled={disabled}
       control={control}
       name={name}
       label="Image"
       placeholder="Select an image"
-      items={images.map((i) => toListboxItem(i))}
+      items={images.map((i) => toComboboxItem(i))}
       required
       onChange={(id) => {
         const image = images.find((i) => i.id === id)! // if it's selected, it must be present
@@ -53,7 +55,10 @@ export function BootDiskImageSelectField({
   )
 }
 
-export function toListboxItem(i: Image, includeProjectSiloIndicator = false): ListboxItem {
+export function toComboboxItem(
+  i: Image,
+  includeProjectSiloIndicator = false
+): ComboboxItem {
   const { name, os, projectId, size, version } = i
   const formattedSize = `${bytesToGiB(size, 1)} GiB`
 

@@ -33,6 +33,7 @@ import { RadioField } from '~/components/form/fields/RadioField'
 import { TextField, TextFieldInner } from '~/components/form/fields/TextField'
 import { useVpcSelector } from '~/hooks/use-params'
 import { Badge } from '~/ui/lib/Badge'
+import type { ComboboxItem } from '~/ui/lib/Combobox'
 import { FormDivider } from '~/ui/lib/Divider'
 import { Message } from '~/ui/lib/Message'
 import * as MiniTable from '~/ui/lib/MiniTable'
@@ -98,7 +99,7 @@ const DynamicTypeAndValueFields = ({
   sectionType: 'target' | 'host'
   control: Control<TargetAndHostFormValues>
   valueType: TargetAndHostFilterType
-  items: Array<{ value: string; label: string }>
+  items: Array<ComboboxItem>
   disabled?: boolean
   onInputChange?: (value: string) => void
   onTypeChange: () => void
@@ -410,7 +411,7 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
           sectionType="target"
           control={targetForm.control}
           valueType={targetType}
-          items={targetItems[targetType]}
+          items={targetItems[targetType] as ComboboxItem[]}
           onTypeChange={() => targetForm.setValue('value', '')}
           onInputChange={(value) => targetForm.setValue('value', value)}
           onSubmitTextField={submitTarget}
@@ -517,7 +518,7 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
           sectionType="host"
           control={hostForm.control}
           valueType={hostType}
-          items={hostFilterItems[hostType]}
+          items={hostFilterItems[hostType] as ComboboxItem[]}
           onTypeChange={() => hostForm.setValue('value', '')}
           onInputChange={(value) => hostForm.setValue('value', value)}
           onSubmitTextField={submitHost}
