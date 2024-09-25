@@ -33,7 +33,6 @@ export type ComboboxBaseProps = {
   label: string
   placeholder?: string
   required?: boolean
-  tooltipText?: string
   ariaLabel?: string
   hideOptionalTag?: boolean
   /**
@@ -61,7 +60,6 @@ export const Combobox = ({
   selected,
   label,
   placeholder,
-  tooltipText,
   required,
   hasError,
   disabled,
@@ -95,12 +93,7 @@ export const Combobox = ({
         {label && (
           // TODO: FieldLabel needs a real ID
           <div className="mb-2">
-            <FieldLabel
-              id="FieldLabel"
-              as="div"
-              tip={tooltipText}
-              optional={!required && !hideOptionalTag}
-            >
+            <FieldLabel id="FieldLabel" as="div" optional={!required && !hideOptionalTag}>
               <Label>{label}</Label>
             </FieldLabel>
             {description && <TextInputHint id="TextInputHint">{description}</TextInputHint>}

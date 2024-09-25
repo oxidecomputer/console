@@ -28,7 +28,6 @@ export type ListboxFieldProps<
   label?: string
   required?: boolean
   description?: string | React.ReactNode
-  tooltipText?: string
   control: Control<TFieldValues>
   disabled?: boolean
   items: ListboxItem[]
@@ -48,7 +47,6 @@ export function ListboxField<
   label = capitalize(name),
   disabled,
   required,
-  tooltipText,
   description,
   className,
   control,
@@ -65,7 +63,6 @@ export function ListboxField<
       <Listbox
         description={description}
         label={label}
-        tooltipText={tooltipText}
         required={required}
         placeholder={placeholder}
         noItemsPlaceholder={noItemsPlaceholder}

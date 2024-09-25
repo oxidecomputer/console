@@ -35,15 +35,6 @@ export type RadioFieldProps<
    * label when using a screen reader.
    */
   description?: string | React.ReactNode
-  /**
-   * Displayed in a tooltip beside the title. This field should be used
-   * for auxiliary context that helps users understand extra context about
-   * a field but isn't specifically required to know how to complete the input.
-   * This is announced as an `aria-description`
-   *
-   * @see https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Attributes/aria-description
-   */
-  tooltipText?: string
   placeholder?: string
   units?: string
   control: Control<TFieldValues>
@@ -66,7 +57,6 @@ export function RadioField<
   name,
   label = capitalize(name),
   description,
-  tooltipText,
   units,
   control,
   items,
@@ -79,7 +69,7 @@ export function RadioField<
     <div>
       <div className="mb-2">
         {label && (
-          <FieldLabel id={`${id}-label`} tip={tooltipText}>
+          <FieldLabel id={`${id}-label`}>
             {label} {units && <span className="ml-1 text-secondary">({units})</span>}
           </FieldLabel>
         )}
@@ -88,10 +78,7 @@ export function RadioField<
       </div>
       <RadioGroup
         defaultChecked={field.value}
-        aria-labelledby={cn(`${id}-label`, {
-          [`${id}-help-text`]: !!tooltipText,
-        })}
-        aria-describedby={tooltipText ? `${id}-label-tip` : undefined}
+        aria-labelledby={`${id}-label`}
         onChange={(e) =>
           parseValue ? field.onChange(parseValue(e.target.value)) : field.onChange(e)
         }
@@ -130,7 +117,6 @@ export function RadioFieldDyn<
   name,
   label = capitalize(name),
   description,
-  tooltipText,
   units,
   control,
   children,
@@ -142,7 +128,7 @@ export function RadioFieldDyn<
     <div>
       <div className="mb-2">
         {label && (
-          <FieldLabel id={`${id}-label`} tip={tooltipText}>
+          <FieldLabel id={`${id}-label`}>
             {label} {units && <span className="ml-1 text-secondary">({units})</span>}
           </FieldLabel>
         )}
@@ -151,8 +137,7 @@ export function RadioFieldDyn<
       </div>
       <RadioGroup
         defaultChecked={field.value}
-        aria-labelledby={cn(`${id}-label`, !!tooltipText && `${id}-help-text`)}
-        aria-describedby={tooltipText ? `${id}-label-tip` : undefined}
+        aria-labelledby={cn(`${id}-label`)}
         onChange={field.onChange}
         name={field.name}
         {...props}
