@@ -411,7 +411,7 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
           sectionType="target"
           control={targetForm.control}
           valueType={targetType}
-          items={targetItems[targetType] as ComboboxItem[]}
+          items={targetItems[targetType]}
           onTypeChange={() => targetForm.setValue('value', '')}
           onInputChange={(value) => targetForm.setValue('value', value)}
           onSubmitTextField={submitTarget}
@@ -518,7 +518,7 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
           sectionType="host"
           control={hostForm.control}
           valueType={hostType}
-          items={hostFilterItems[hostType] as ComboboxItem[]}
+          items={hostFilterItems[hostType]}
           onTypeChange={() => hostForm.setValue('value', '')}
           onInputChange={(value) => hostForm.setValue('value', value)}
           onSubmitTextField={submitHost}

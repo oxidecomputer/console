@@ -30,7 +30,6 @@ import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
 import { Button } from '~/ui/lib/Button'
-import type { ComboboxItem } from '~/ui/lib/Combobox'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
 import { Modal } from '~/ui/lib/Modal'
@@ -172,7 +171,7 @@ const PromoteImageModal = ({ onDismiss }: { onDismiss: () => void }) => {
               placeholder="Select a project"
               name="project"
               label="Project"
-              items={projectItems as ComboboxItem[]}
+              items={projectItems}
               onChange={() => {
                 resetField('image') // reset image field when the project changes
               }}
@@ -273,7 +272,7 @@ const DemoteImageModal = ({
               placeholder="Select project for image"
               name="project"
               label="Project"
-              items={projectItems as ComboboxItem[]}
+              items={projectItems}
               isLoading={projects.isPending}
               required
               control={control}

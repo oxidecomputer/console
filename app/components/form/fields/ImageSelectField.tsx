@@ -24,8 +24,6 @@ type ImageSelectFieldProps = {
   name: 'siloImageSource' | 'projectImageSource'
 }
 
-// ROUGH EDGE: GETTING THIS FILE TO RENDER THE COMBOBOX CONTENT INSTEAD OF LISTBOX
-
 export function BootDiskImageSelectField({
   images,
   control,

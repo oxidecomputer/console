@@ -16,7 +16,7 @@ import {
 } from '@headlessui/react'
 import cn from 'classnames'
 import { matchSorter } from 'match-sorter'
-import { useState, type ReactElement } from 'react'
+import { useMemo, useState, type ReactElement } from 'react'
 
 import { SelectArrows6Icon } from '@oxide/design-system/icons/react'
 
@@ -24,20 +24,23 @@ import { FieldLabel } from './FieldLabel'
 import { usePopoverZIndex } from './SideModal'
 import { TextInputHint } from './TextInput'
 
-/** Comboboxes will either render a list of strings, each with an identical value,
- *  or a ReactNode for the dropdown and a string for the input-like element.
+/** Combobox Items are either
+ *  1) a label, value, and selectedLabel, in which case the Combobox will render the selectedLabel
+ *  2) a label and value (both strings), in which case the Combobox will render the label
  */
 export type ComboboxItem =
-  | {
-      value: string
-      label: string
-      selectedLabel: never
-    }
-  | {
-      value: string
-      label: ReactElement
-      selectedLabel: string
-    }
+  | { value: string; label: Exclude<ReactElement, string>; selectedLabel: string }
+  | { value: string; label: string; selectedLabel?: never }
+
+const getSelectedLabelFromValue = (
+  items: Array<ComboboxItem>,
+  selectedValue: string
+): string => {
+  const item = items.find((item) => item.value === selectedValue)
+  if (!item) return ''
+  return typeof item.selectedLabel === 'string' ? item.selectedLabel : item.label
+}
+
 /** Simple non-generic props shared with ComboboxField */
 export type ComboboxBaseProps = {
   description?: React.ReactNode
@@ -90,25 +93,24 @@ export const Combobox = ({
 
   const q = query.toLowerCase()
   const filteredItems = matchSorter(items, q, {
-    keys: ['value'],
+    keys: ['selectedLabel', 'label'],
     sorter: (items) => items, // preserve original order, don't sort by match
   })
 
   const zIndex = usePopoverZIndex()
 
-  const getSelectedLabel = (): string => {
-    const item = items.find((item) => item.value === selected)
-    return item?.selectedLabel || (item?.label as string) || ''
-  }
+  const getDisplayValueForSelected = useMemo(() => {
+    return getSelectedLabelFromValue(items, selected || '')
+  }, [items, selected])
 
   return (
     <>
       <HCombobox
-        value={selected}
+        // necessary, as the displayed "value" is not the same as the actual selected item's *value*
+        value={getDisplayValueForSelected}
         // fallback to '' allows clearing field to work
         onChange={(val) => onChange(val || '')}
         onClose={() => setQuery('')}
-        defaultValue={getSelectedLabel()}
         disabled={disabled || isLoading}
       >
         {label && (
@@ -140,7 +142,8 @@ export const Combobox = ({
         >
           <ComboboxInput
             aria-label={ariaLabel}
-            displayValue={() => (selected ? getSelectedLabel() : query)}
+            // this controls what's displayed in the input field
+            displayValue={() => getDisplayValueForSelected}
             onChange={(event) => {
               setQuery(event.target.value)
               onInputChange?.(event.target.value)
@@ -175,17 +178,9 @@ export const Combobox = ({
             )}
             {filteredItems.map((item) => (
               <ComboboxOption
-                // Erase this before PR goes out; just notes to self during development
-                // These had been item.label, but since that might be a ReactNode, we need to use item.value
                 key={item.value}
                 value={item.value}
                 className="relative border-b border-secondary last:border-0"
-                onSelect={() => {
-                  // Erase this before PR goes out; just notes to self during development
-                  // These had been item.label, but since that might be a ReactNode, we need to use item.value
-                  onChange(getSelectedLabel())
-                  setQuery(getSelectedLabel())
-                }}
               >
                 {({ focus, selected }) => (
                   // This *could* be done with data-[focus] and data-[selected] instead, but
