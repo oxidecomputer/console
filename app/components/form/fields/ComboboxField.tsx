@@ -10,7 +10,9 @@ import {
   useController,
   type Control,
   type FieldPath,
+  type FieldPathValue,
   type FieldValues,
+  type Validate,
 } from 'react-hook-form'
 
 import { Combobox, type ComboboxBaseProps } from '~/ui/lib/Combobox'
@@ -25,6 +27,7 @@ export type ComboboxFieldProps<
   name: TName
   control: Control<TFieldValues>
   onChange?: (value: string | null | undefined) => void
+  validate?: Validate<FieldPathValue<TFieldValues, TName>, TFieldValues>
 } & ComboboxBaseProps
 
 export function ComboboxField<
@@ -51,9 +54,14 @@ export function ComboboxField<
     : allowArbitraryValues
       ? 'Select an option or enter a custom value'
       : 'Select an option',
+  validate,
   ...props
 }: ComboboxFieldProps<TFieldValues, TName>) {
-  const { field, fieldState } = useController({ name, control, rules: { required } })
+  const { field, fieldState } = useController({
+    name,
+    control,
+    rules: { required, validate },
+  })
   return (
     <div className="max-w-lg">
       <Combobox

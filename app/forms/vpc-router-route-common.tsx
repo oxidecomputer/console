@@ -123,6 +123,9 @@ export const RouteFormFields = ({ form, disabled }: RouteFormFieldsProps) => {
     required: true,
     disabled,
     description: destinationValueDescription[destinationType],
+    // need a default to prevent the text field validation function from
+    // sticking around when we switch to the combobox
+    validate: () => undefined,
   }
   const targetValueProps = {
     name: 'target.value' as const,
@@ -133,6 +136,9 @@ export const RouteFormFields = ({ form, disabled }: RouteFormFieldsProps) => {
     // 'internet_gateway' targetTypes can only have the value 'outbound', so we disable the field
     disabled: disabled || targetType === 'internet_gateway',
     description: targetValueDescription[targetType],
+    // need a default to prevent the text field validation function from
+    // sticking around when we switch to the combobox
+    validate: () => undefined,
   }
   return (
     <>
@@ -159,13 +165,11 @@ export const RouteFormFields = ({ form, disabled }: RouteFormFieldsProps) => {
       ) : (
         <TextField
           {...destinationValueProps}
-          // it seems this validation function stays registered on the combobox
-          // even when the type is switched to  subnet!!!?!?!?!?!
-          validate={
-            (value, { destination }) =>
-              (destination.type === 'ip_net' && validateIpNet(value)) ||
-              (destination.type === 'ip' && validateIp(value)) ||
-              undefined // false is invalid but true and undefined are valid?????
+          validate={(value, { destination }) =>
+            (destination.type === 'ip_net' && validateIpNet(value)) ||
+            (destination.type === 'ip' && validateIp(value)) ||
+            // false is invalid but true and undefined are valid so we need this
+            undefined
           }
         />
       )}
