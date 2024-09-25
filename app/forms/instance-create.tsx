@@ -550,7 +550,7 @@ export function CreateInstanceForm() {
               <ComboboxField
                 label="Disk"
                 name="diskSource"
-                description="Eixisting disks that are not attached to an instance"
+                description="Existing disks that are not attached to an instance"
                 items={disks as ComboboxItem[]}
                 required
                 control={control}
