@@ -193,8 +193,7 @@ export const Combobox = ({
                       'is-highlighted': focus,
                     })}
                   >
-                    {/* right now this is a string, but we need it to maybe be a ReactNode */}
-                    <>{item.label}</>
+                    {item.label}
                   </div>
                 )}
               </ComboboxOption>
