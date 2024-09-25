@@ -38,21 +38,16 @@ test('can create an instance', async ({ page }) => {
   await page.goto('/projects/mock-project/instances')
   await page.locator('text="New Instance"').click()
 
-  await expectVisible(page, [
-    'role=heading[name*="Create instance"]',
-    'role=heading[name="Hardware"]',
-    'role=heading[name="Boot disk"]',
-    'role=heading[name="Additional disks"]',
-    'role=heading[name="Networking"]',
-    'role=textbox[name="Name"]',
-    'role=textbox[name="Description"]',
-    'role=textbox[name="Disk name"]',
-    'role=textbox[name="Disk size (GiB)"]',
-    'role=button[name="Create instance"]',
-  ])
+  await expect(page.getByRole('heading', { name: /Create instance/ })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Hardware' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Boot disk' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Additional disks' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Networking' })).toBeVisible()
+  await expect(page.getByRole('textbox', { name: 'Description' })).toBeVisible()
+  await expect(page.getByRole('textbox', { name: 'Disk size (GiB)' })).toBeVisible()
 
   const instanceName = 'my-instance'
-  await page.fill('input[name=name]', instanceName)
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
   await page.fill('textarea[name=description]', 'An instance... from space!')
   await page.locator('.ox-radio-card').nth(3).click()
 
@@ -97,11 +92,9 @@ test('can create an instance', async ({ page }) => {
   await page.getByRole('option', { name: 'ip-pool-2' }).click()
 
   // should be visible in accordion
-  await expectVisible(page, [
-    'role=radiogroup[name="Network interface"]',
-    'role=textbox[name="Hostname"]',
-    'text="User Data"',
-  ])
+  await expect(page.getByRole('radiogroup', { name: 'Network interface' })).toBeVisible()
+  await expect(page.getByRole('textbox', { name: 'Hostname' })).toBeVisible()
+  await expect(page.getByLabel('User data')).toBeVisible()
 
   await page.getByRole('button', { name: 'Create instance' }).click()
 
@@ -128,7 +121,7 @@ test('duplicate instance name produces visible error', async ({ page }) => {
   await page.goto('/projects/mock-project/instances-new')
   await page.fill('input[name=name]', 'db1')
   await selectAProjectImage(page, 'image-1')
-  await page.locator('button:has-text("Create instance")').click()
+  await page.getByRole('button', { name: 'Create instance' }).click()
   await expect(page.getByText('Instance name already exists')).toBeVisible()
 })
 
