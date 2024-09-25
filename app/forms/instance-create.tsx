@@ -625,6 +625,8 @@ const AdvancedAccordion = ({
   const defaultPool = siloPools.find((pool) => pool.isDefault)?.name
   const attachedFloatingIps = (externalIps.field.value || []).filter(isFloating)
 
+  const instanceName = useWatch({ control, name: 'name' })
+
   const { project } = useProjectSelector()
   const { data: floatingIpList } = usePrefetchedApiQuery('floatingIpList', {
     query: { project, limit: ALL_ISH },
@@ -696,7 +698,7 @@ const AdvancedAccordion = ({
             description="Will be set to instance name if left blank"
             control={control}
             disabled={isSubmitting}
-            // TODO: setting instance name as placeholder would be snazzy
+            placeholder={instanceName}
           />
         </div>
 

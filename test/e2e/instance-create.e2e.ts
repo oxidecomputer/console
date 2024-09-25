@@ -93,7 +93,11 @@ test('can create an instance', async ({ page }) => {
 
   // should be visible in accordion
   await expect(page.getByRole('radiogroup', { name: 'Network interface' })).toBeVisible()
-  await expect(page.getByRole('textbox', { name: 'Hostname' })).toBeVisible()
+  // we show the default hostname, instance name, as placeholder
+  await expect(page.getByRole('textbox', { name: 'Hostname' })).toHaveAttribute(
+    'placeholder',
+    instanceName
+  )
   await expect(page.getByLabel('User data')).toBeVisible()
 
   await page.getByRole('button', { name: 'Create instance' }).click()
