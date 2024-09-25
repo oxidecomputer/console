@@ -18,13 +18,13 @@ import {
 
 const selectASiloImage = async (page: Page, name: string) => {
   await page.getByRole('tab', { name: 'Silo images' }).click()
-  await page.getByLabel('Image', { exact: true }).click()
+  await page.getByPlaceholder('Select a silo image', { exact: true }).click()
   await page.getByRole('option', { name }).click()
 }
 
 const selectAProjectImage = async (page: Page, name: string) => {
   await page.getByRole('tab', { name: 'Project images' }).click()
-  await page.getByLabel('Image', { exact: true }).click()
+  await page.getByPlaceholder('Select a project image', { exact: true }).click()
   await page.getByRole('option', { name }).click()
 }
 

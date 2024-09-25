@@ -39,7 +39,7 @@ export function BootDiskImageSelectField({
       control={control}
       name={name}
       label="Image"
-      placeholder="Select an image"
+      placeholder={`Select a ${name.split('ImageSource')[0]} image`}
       items={images.map((i) => toComboboxItem(i))}
       required
       onChange={(id) => {
