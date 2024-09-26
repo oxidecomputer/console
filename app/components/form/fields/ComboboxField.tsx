@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
+import { useState } from 'react'
 import {
   useController,
   type Control,
@@ -13,7 +14,11 @@ import {
   type FieldValues,
 } from 'react-hook-form'
 
-import { Combobox, type ComboboxBaseProps } from '~/ui/lib/Combobox'
+import {
+  Combobox,
+  getSelectedLabelFromValue,
+  type ComboboxBaseProps,
+} from '~/ui/lib/Combobox'
 import { capitalize } from '~/util/str'
 
 import { ErrorMessage } from './ErrorMessage'
@@ -51,21 +56,29 @@ export function ComboboxField<
     : allowArbitraryValues
       ? 'Select an option or enter a custom value'
       : 'Select an option',
+  items,
   ...props
 }: ComboboxFieldProps<TFieldValues, TName>) {
   const { field, fieldState } = useController({ name, control, rules: { required } })
+  const [selectedItemLabel, setSelectedItemLabel] = useState(
+    getSelectedLabelFromValue(items, field.value || '')
+  )
+
   return (
     <div className="max-w-lg">
       <Combobox
         label={label}
         placeholder={placeholder}
         description={description}
+        items={items}
         required={required}
-        selected={field.value || null}
+        selectedItemValue={field.value}
+        selectedItemLabel={selectedItemLabel}
         hasError={fieldState.error !== undefined}
         onChange={(value) => {
           field.onChange(value)
           onChange?.(value)
+          setSelectedItemLabel(getSelectedLabelFromValue(items, value))
         }}
         allowArbitraryValues={allowArbitraryValues}
         {...props}

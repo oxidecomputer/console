@@ -16,7 +16,7 @@ import {
 } from '@headlessui/react'
 import cn from 'classnames'
 import { matchSorter } from 'match-sorter'
-import { useMemo, useState, type ReactElement } from 'react'
+import { useState, type ReactElement } from 'react'
 
 import { SelectArrows6Icon } from '@oxide/design-system/icons/react'
 
@@ -32,7 +32,7 @@ export type ComboboxItem =
   | { value: string; label: Exclude<ReactElement, string>; selectedLabel: string }
   | { value: string; label: string; selectedLabel?: never }
 
-const getSelectedLabelFromValue = (
+export const getSelectedLabelFromValue = (
   items: Array<ComboboxItem>,
   selectedValue: string
 ): string => {
@@ -66,7 +66,8 @@ export type ComboboxBaseProps = {
 }
 
 type ComboboxProps = {
-  selected: string | null
+  selectedItemValue: string
+  selectedItemLabel: string
   hasError?: boolean
   onChange: (value: string) => void
 } & ComboboxBaseProps
@@ -74,8 +75,9 @@ type ComboboxProps = {
 export const Combobox = ({
   description,
   items = [],
-  selected,
   label,
+  selectedItemValue,
+  selectedItemLabel = '',
   placeholder,
   required,
   hasError,
@@ -87,25 +89,18 @@ export const Combobox = ({
   ariaLabel,
   hideOptionalTag,
 }: ComboboxProps) => {
-  const [query, setQuery] = useState(selected || '')
-
+  const [query, setQuery] = useState(selectedItemValue || '')
   const q = query.toLowerCase()
   const filteredItems = matchSorter(items, q, {
     keys: ['selectedLabel', 'label'],
     sorter: (items) => items, // preserve original order, don't sort by match
   })
-
   const zIndex = usePopoverZIndex()
-
-  const getDisplayValueForSelected = useMemo(() => {
-    return getSelectedLabelFromValue(items, selected || '')
-  }, [items, selected])
-
   return (
     <>
       <HCombobox
         // necessary, as the displayed "value" is not the same as the actual selected item's *value*
-        value={getDisplayValueForSelected}
+        value={selectedItemLabel}
         // fallback to '' allows clearing field to work
         onChange={(val) => onChange(val || '')}
         onClose={() => setQuery('')}
@@ -136,7 +131,7 @@ export const Combobox = ({
           <ComboboxInput
             aria-label={ariaLabel}
             // this controls what's displayed in the input field
-            displayValue={() => getDisplayValueForSelected}
+            displayValue={() => selectedItemLabel}
             onChange={(event) => {
               setQuery(event.target.value)
               onInputChange?.(event.target.value)
