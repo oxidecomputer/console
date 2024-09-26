@@ -31,15 +31,15 @@ export function BootDiskImageSelectField({
   name,
 }: ImageSelectFieldProps) {
   const diskSizeField = useController({ control, name: 'bootDiskSize' }).field
+  const placeholder =
+    name === 'siloImageSource' ? 'Select a silo image' : 'Select a project image'
   return (
-    // This should be migrated to a `ComboboxField` (and with a `toComboboxItem`), once
-    // we have a combobox that supports more elaborate labels (beyond just strings).
     <ComboboxField
       disabled={disabled}
       control={control}
       name={name}
       label="Image"
-      placeholder={`Select a ${name.split('ImageSource')[0]} image`}
+      placeholder={placeholder}
       items={images.map((i) => toComboboxItem(i))}
       required
       onChange={(id) => {
