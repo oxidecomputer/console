@@ -341,9 +341,7 @@ test('maintains selected values even when changing tabs', async ({ page }) => {
   const instanceName = 'arch-based-instance'
   await page.goto('/projects/mock-project/instances-new')
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
-  await page.getByRole('button', { name: 'Image' }).click()
-  // select the arch option
-  await page.getByRole('option', { name: 'arch-2022-06-01' }).click()
+  await selectASiloImage(page, 'arch-2022-06-01')
   // expect to find name of the image on page
   await expect(page.getByText('arch-2022-06-01')).toBeVisible()
   // change to a different tab
