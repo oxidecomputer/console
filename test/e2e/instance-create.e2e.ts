@@ -497,3 +497,45 @@ test('attaching additional disks allows for combobox filtering', async ({ page }
   await selectADisk.fill('asdf')
   await expect(page.getByRole('option', { name: 'No items match' })).toBeVisible()
 })
+
+test('create instance with additional disks', async ({ page }) => {
+  const instanceName = 'more-disks'
+  await page.goto('/projects/mock-project/instances-new')
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
+  await selectAProjectImage(page, 'image-1')
+
+  // Create a new disk
+  await page.getByRole('button', { name: 'Create new disk' }).click()
+
+  const createForm = page.getByRole('dialog', { name: 'Create disk' })
+  await createForm.getByRole('textbox', { name: 'Name', exact: true }).fill('new-disk-1')
+  await createForm.getByRole('textbox', { name: 'Size (GiB)' }).fill('5')
+  await createForm.getByRole('button', { name: 'Create disk' }).click()
+
+  const disksTable = page.getByRole('table', { name: 'Disks' })
+  await expectRowVisible(disksTable, { Name: 'new-disk-1', Type: 'create', Size: '5GiB' })
+
+  // Attach an existing disk
+  await page.getByRole('button', { name: 'Attach existing disk' }).click()
+  await page.getByRole('button', { name: 'Disk name' }).click()
+  await page.getByRole('option', { name: 'disk-3' }).click()
+  await page.getByRole('button', { name: 'Attach disk' }).click()
+
+  await expectRowVisible(disksTable, { Name: 'disk-3', Type: 'attach', Size: '—' })
+
+  // Create the instance
+  await page.getByRole('button', { name: 'Create instance' }).click()
+
+  // Assert we're on the new instance's storage page
+  await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)
+
+  // Check for the boot disk
+  const bootDiskTable = page.getByRole('table', { name: 'Boot disk' })
+  // name is generated so it's gnarly
+  await expect(bootDiskTable.getByRole('cell', { name: /^more-disks-/ })).toBeVisible()
+
+  // Check for the additional disks
+  const otherDisksTable = page.getByRole('table', { name: 'Other disks' })
+  await expectRowVisible(otherDisksTable, { Disk: 'new-disk-1', size: '5 GiB' })
+  await expectRowVisible(otherDisksTable, { Disk: 'disk-3', size: '6 GiB' })
+})

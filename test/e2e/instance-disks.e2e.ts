@@ -33,22 +33,6 @@ test('Attach disk', async ({ page }) => {
   // Have to stop instance to edit disks
   await stopInstance(page)
 
-  // New disk form
-  const createForm = page.getByRole('dialog', { name: 'Create disk' })
-  await expect(createForm).toBeHidden()
-  await page.getByRole('button', { name: 'Create disk' }).click()
-  await expect(createForm).toBeVisible()
-
-  await expect(createForm.getByRole('textbox', { name: 'Name' })).toBeVisible()
-  await expect(createForm.getByRole('textbox', { name: 'Description' })).toBeVisible()
-  await expect(
-    createForm.getByRole('radiogroup', { name: 'Block size (Bytes)' })
-  ).toBeVisible()
-  await expect(createForm.getByRole('textbox', { name: 'Size (GiB)' })).toBeVisible()
-  await expect(createForm.getByRole('button', { name: 'Create disk' })).toBeVisible()
-
-  await page.click('role=button[name="Cancel"]')
-
   // Attach existing disk form
   await page.click('role=button[name="Attach existing disk"]')
 
@@ -67,7 +51,33 @@ test('Attach disk', async ({ page }) => {
   await expectVisible(page, ['role=cell[name="disk-3"]'])
 })
 
-// TODO: move create form asserts to their own test and actually test the create!
+test('Create disk', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances/db1')
+
+  const row = page.getByRole('cell', { name: 'created-disk' })
+  await expect(row).toBeHidden()
+
+  // Have to stop instance to edit disks
+  await stopInstance(page)
+
+  // New disk form
+  const createForm = page.getByRole('dialog', { name: 'Create disk' })
+  await expect(createForm).toBeHidden()
+  await page.getByRole('button', { name: 'Create disk' }).click()
+  await expect(createForm).toBeVisible()
+
+  await createForm.getByRole('textbox', { name: 'Name' }).fill('created-disk')
+  await expect(createForm.getByRole('textbox', { name: 'Description' })).toBeVisible()
+
+  await page.getByRole('radio', { name: 'Snapshot' }).click()
+  await page.getByRole('button', { name: 'Source snapshot' }).click()
+  await page.getByRole('option', { name: 'snapshot-heavy' }).click()
+
+  await createForm.getByRole('button', { name: 'Create disk' }).click()
+
+  const otherDisksTable = page.getByRole('table', { name: 'Other disks' })
+  await expectRowVisible(otherDisksTable, { Disk: 'created-disk', size: '20 GiB' })
+})
 
 test('Detach disk', async ({ page }) => {
   await page.goto('/projects/mock-project/instances/db1')
