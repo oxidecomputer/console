@@ -23,6 +23,7 @@ import { NameField } from '~/components/form/fields/NameField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { useProjectSelector } from '~/hooks/use-params'
 import { addToast } from '~/stores/toast'
+import { toComboboxItems } from '~/ui/lib/Combobox'
 import { ALL_ISH } from '~/util/consts'
 import { pb } from '~/util/path-builder'
 
@@ -30,11 +31,7 @@ const useSnapshotDiskItems = (projectSelector: PP.Project) => {
   const { data: disks } = useApiQuery('diskList', {
     query: { ...projectSelector, limit: ALL_ISH },
   })
-  return (
-    disks?.items
-      .filter(diskCan.snapshot)
-      .map((disk) => ({ value: disk.name, label: disk.name })) || []
-  )
+  return disks?.items.filter(diskCan.snapshot)
 }
 
 const defaultValues: SnapshotCreate = {
@@ -79,7 +76,7 @@ export function CreateSnapshotSideModalForm() {
         label="Disk"
         name="disk"
         placeholder="Select a disk"
-        items={diskItems}
+        items={toComboboxItems(diskItems)}
         required
         control={form.control}
       />

@@ -12,6 +12,7 @@ import { useApiQuery, type ApiError } from '@oxide/api'
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { SideModalForm } from '~/components/form/SideModalForm'
 import { useProjectSelector } from '~/hooks/use-params'
+import { toComboboxItems } from '~/ui/lib/Combobox'
 import { ALL_ISH } from '~/util/consts'
 
 const defaultValues = { name: '' }
@@ -63,7 +64,7 @@ export function AttachDiskSideModalForm({
         label="Disk name"
         placeholder="Select a disk"
         name="name"
-        items={detachedDisks.map(({ name }) => ({ value: name, label: name }))}
+        items={toComboboxItems(detachedDisks)}
         required
         control={form.control}
       />

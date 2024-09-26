@@ -40,7 +40,7 @@ export function BootDiskImageSelectField({
       name={name}
       label="Image"
       placeholder={placeholder}
-      items={images.map((i) => toComboboxItem(i))}
+      items={images.map((i) => toImageComboboxItem(i))}
       required
       onChange={(id) => {
         const image = images.find((i) => i.id === id)! // if it's selected, it must be present
@@ -53,7 +53,7 @@ export function BootDiskImageSelectField({
   )
 }
 
-export function toComboboxItem(
+export function toImageComboboxItem(
   i: Image,
   includeProjectSiloIndicator = false
 ): ComboboxItem {

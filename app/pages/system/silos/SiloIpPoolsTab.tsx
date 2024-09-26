@@ -23,6 +23,7 @@ import { makeLinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { useQueryTable } from '~/table/QueryTable'
+import { toComboboxItems } from '~/ui/lib/Combobox'
 import { CreateButton } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
@@ -213,9 +214,7 @@ function LinkPoolModal({ onDismiss }: { onDismiss: () => void }) {
   const unlinkedPoolItems = useMemo(
     () =>
       allPools.data && linkedPoolIds
-        ? allPools.data.items
-            .filter((p) => !linkedPoolIds.has(p.id))
-            .map((p) => ({ value: p.name, label: p.name }))
+        ? toComboboxItems(allPools.data.items.filter((p) => !linkedPoolIds.has(p.id)))
         : [],
     [allPools, linkedPoolIds]
   )

@@ -16,30 +16,35 @@ import {
 } from '@headlessui/react'
 import cn from 'classnames'
 import { matchSorter } from 'match-sorter'
-import { useState, type ReactElement } from 'react'
+import { useState, type ReactNode } from 'react'
 
 import { SelectArrows6Icon } from '@oxide/design-system/icons/react'
+
+import type { Disk, Instance, Project, VpcSubnet } from '~/api'
 
 import { FieldLabel } from './FieldLabel'
 import { usePopoverZIndex } from './SideModal'
 import { TextInputHint } from './TextInput'
 
-/** Combobox Items are either
- *  1) a label, value, and selectedLabel, in which case the Combobox will render the selectedLabel
- *  2) a label and value (both strings), in which case the Combobox will render the label
+export type ComboboxItem = { value: string; label: ReactNode; selectedLabel: string }
+
+/** Convert an array of items with a `name` attribute to an array of ComboboxItems
+ *  Useful when the rendered label and value are the same; in more complex cases,
+ *  you may want to create a custom ComboboxItem object (see toImageComboboxItem).
  */
-export type ComboboxItem =
-  | { value: string; label: Exclude<ReactElement, string>; selectedLabel: string }
-  | { value: string; label: string; selectedLabel?: never }
+export const toComboboxItems = (
+  items?: Array<Disk | Instance | Project | VpcSubnet>
+): Array<ComboboxItem> =>
+  items?.map(({ name }) => ({
+    value: name,
+    label: name,
+    selectedLabel: name,
+  })) || []
 
 export const getSelectedLabelFromValue = (
   items: Array<ComboboxItem>,
   selectedValue: string
-): string => {
-  const item = items.find((item) => item.value === selectedValue)
-  if (!item) return ''
-  return typeof item.selectedLabel === 'string' ? item.selectedLabel : item.label
-}
+): string => items.find((item) => item.value === selectedValue)?.selectedLabel || ''
 
 /** Simple non-generic props shared with ComboboxField */
 export type ComboboxBaseProps = {

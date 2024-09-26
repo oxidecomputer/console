@@ -39,6 +39,7 @@ import { LinkCell } from '~/table/cells/LinkCell'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { PAGE_SIZE, useQueryTable } from '~/table/QueryTable'
+import { toComboboxItems } from '~/ui/lib/Combobox'
 import { CreateButton, CreateLink } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Message } from '~/ui/lib/Message'
@@ -387,9 +388,7 @@ function LinkSiloModal({ onDismiss }: { onDismiss: () => void }) {
   const unlinkedSiloItems = useMemo(
     () =>
       allSilos.data && linkedSiloIds
-        ? allSilos.data.items
-            .filter((s) => !linkedSiloIds.has(s.id))
-            .map((s) => ({ value: s.name, label: s.name }))
+        ? toComboboxItems(allSilos.data.items.filter((s) => !linkedSiloIds.has(s.id)))
         : [],
     [allSilos, linkedSiloIds]
   )
