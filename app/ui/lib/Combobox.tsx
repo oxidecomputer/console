@@ -16,30 +16,30 @@ import {
 } from '@headlessui/react'
 import cn from 'classnames'
 import { matchSorter } from 'match-sorter'
-import { useMemo, useState, type ReactElement } from 'react'
+import { useState, type ReactNode } from 'react'
 
 import { SelectArrows6Icon } from '@oxide/design-system/icons/react'
+
+import type { Disk, Instance, Project, VpcSubnet } from '~/api'
 
 import { FieldLabel } from './FieldLabel'
 import { usePopoverZIndex } from './SideModal'
 import { TextInputHint } from './TextInput'
 
-/** Combobox Items are either
- *  1) a label, value, and selectedLabel, in which case the Combobox will render the selectedLabel
- *  2) a label and value (both strings), in which case the Combobox will render the label
- */
-export type ComboboxItem =
-  | { value: string; label: Exclude<ReactElement, string>; selectedLabel: string }
-  | { value: string; label: string; selectedLabel?: never }
+export type ComboboxItem = { value: string; label: ReactNode; selectedLabel: string }
 
-const getSelectedLabelFromValue = (
-  items: Array<ComboboxItem>,
-  selectedValue: string
-): string => {
-  const item = items.find((item) => item.value === selectedValue)
-  if (!item) return ''
-  return typeof item.selectedLabel === 'string' ? item.selectedLabel : item.label
-}
+/** Convert an array of items with a `name` attribute to an array of ComboboxItems
+ *  Useful when the rendered label and value are the same; in more complex cases,
+ *  you may want to create a custom ComboboxItem object (see toImageComboboxItem).
+ */
+export const toComboboxItems = (
+  items: Array<Disk | Instance | Project | VpcSubnet>
+): Array<ComboboxItem> =>
+  items.map(({ name }) => ({
+    value: name,
+    label: name,
+    selectedLabel: name,
+  }))
 
 /** Simple non-generic props shared with ComboboxField */
 export type ComboboxBaseProps = {
@@ -66,7 +66,7 @@ export type ComboboxBaseProps = {
 }
 
 type ComboboxProps = {
-  selected: string | null
+  selected: ComboboxItem | null
   hasError?: boolean
   onChange: (value: string) => void
 } & ComboboxBaseProps
@@ -87,7 +87,8 @@ export const Combobox = ({
   ariaLabel,
   hideOptionalTag,
 }: ComboboxProps) => {
-  const [query, setQuery] = useState(selected || '')
+  const selectedLabel = selected?.selectedLabel || (selected?.label as string) || ''
+  const [query, setQuery] = useState(selectedLabel)
 
   const q = query.toLowerCase()
   const filteredItems = matchSorter(items, q, {
@@ -96,16 +97,11 @@ export const Combobox = ({
   })
 
   const zIndex = usePopoverZIndex()
-
-  const getDisplayValueForSelected = useMemo(() => {
-    return getSelectedLabelFromValue(items, selected || '')
-  }, [items, selected])
-
   return (
     <>
       <HCombobox
         // necessary, as the displayed "value" is not the same as the actual selected item's *value*
-        value={getDisplayValueForSelected}
+        value={selectedLabel}
         // fallback to '' allows clearing field to work
         onChange={(val) => onChange(val || '')}
         onClose={() => setQuery('')}
@@ -136,7 +132,7 @@ export const Combobox = ({
           <ComboboxInput
             aria-label={ariaLabel}
             // this controls what's displayed in the input field
-            displayValue={() => getDisplayValueForSelected}
+            displayValue={() => selectedLabel}
             onChange={(event) => {
               setQuery(event.target.value)
               onInputChange?.(event.target.value)

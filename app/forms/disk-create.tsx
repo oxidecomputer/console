@@ -23,7 +23,7 @@ import {
 
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { DiskSizeField } from '~/components/form/fields/DiskSizeField'
-import { toComboboxItem } from '~/components/form/fields/ImageSelectField'
+import { toImageComboboxItem } from '~/components/form/fields/ImageSelectField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
 import { NameField } from '~/components/form/fields/NameField'
 import { RadioField } from '~/components/form/fields/RadioField'
@@ -210,7 +210,7 @@ const DiskSourceField = ({
             label="Source image"
             placeholder="Select an image"
             isLoading={areImagesLoading}
-            items={images.map((i) => toComboboxItem(i, true))}
+            items={images.map((i) => toImageComboboxItem(i, true))}
             required
             onChange={(id) => {
               const image = images.find((i) => i.id === id)! // if it's selected, it must be present

@@ -33,7 +33,7 @@ import { RadioField } from '~/components/form/fields/RadioField'
 import { TextField, TextFieldInner } from '~/components/form/fields/TextField'
 import { useVpcSelector } from '~/hooks/use-params'
 import { Badge } from '~/ui/lib/Badge'
-import type { ComboboxItem } from '~/ui/lib/Combobox'
+import { toComboboxItems, type ComboboxItem } from '~/ui/lib/Combobox'
 import { FormDivider } from '~/ui/lib/Divider'
 import { Message } from '~/ui/lib/Message'
 import * as MiniTable from '~/ui/lib/MiniTable'
@@ -196,8 +196,8 @@ const TypeAndValueTable = ({ sectionType, items }: TypeAndValueTableProps) => (
   </MiniTable.Table>
 )
 
-// Given an array of committed items (VPCs, Subnets, Instances) and
-// a list of all items, return the items that are available
+/** Given an array of *committed* items (VPCs, Subnets, Instances) and a list of *all* items,
+ *  return the items that are available */
 const availableItems = (
   committedItems: Array<VpcFirewallRuleTarget | VpcFirewallRuleHostFilter>,
   itemType: 'vpc' | 'subnet' | 'instance',
@@ -206,13 +206,11 @@ const availableItems = (
   if (!items) return []
   return (
     items
-      .map((item) => item.name)
       // remove any items that match the committed items on both type and value
       .filter(
-        (name) =>
+        ({ name }) =>
           !committedItems.filter((ci) => ci.type === itemType && ci.value === name).length
       )
-      .map((name) => ({ label: name, value: name }))
   )
 }
 
@@ -411,7 +409,7 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
           sectionType="target"
           control={targetForm.control}
           valueType={targetType}
-          items={targetItems[targetType]}
+          items={toComboboxItems(targetItems[targetType])}
           onTypeChange={() => targetForm.setValue('value', '')}
           onInputChange={(value) => targetForm.setValue('value', value)}
           onSubmitTextField={submitTarget}
@@ -518,7 +516,7 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
           sectionType="host"
           control={hostForm.control}
           valueType={hostType}
-          items={hostFilterItems[hostType]}
+          items={toComboboxItems(hostFilterItems[hostType])}
           onTypeChange={() => hostForm.setValue('value', '')}
           onInputChange={(value) => hostForm.setValue('value', value)}
           onSubmitTextField={submitHost}

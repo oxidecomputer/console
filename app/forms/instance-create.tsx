@@ -60,6 +60,7 @@ import { addToast } from '~/stores/toast'
 import { Badge } from '~/ui/lib/Badge'
 import { Button } from '~/ui/lib/Button'
 import { Checkbox } from '~/ui/lib/Checkbox'
+import { toComboboxItems } from '~/ui/lib/Combobox'
 import { FormDivider } from '~/ui/lib/Divider'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { Listbox } from '~/ui/lib/Listbox'
@@ -197,10 +198,7 @@ export function CreateInstanceForm() {
   const allDisks = usePrefetchedApiQuery('diskList', {
     query: { project, limit: ALL_ISH },
   }).data.items
-  const disks = useMemo(
-    () => allDisks.filter(diskCan.attach).map(({ name }) => ({ value: name, label: name })),
-    [allDisks]
-  )
+  const disks = useMemo(() => toComboboxItems(allDisks.filter(diskCan.attach)), [allDisks])
 
   const { data: sshKeys } = usePrefetchedApiQuery('currentUserSshKeyList', {})
   const allKeys = useMemo(() => sshKeys.items.map((key) => key.id), [sshKeys])
