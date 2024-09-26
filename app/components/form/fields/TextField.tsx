@@ -42,15 +42,6 @@ export interface TextFieldProps<
    * label when using a screen reader.
    */
   description?: string | React.ReactNode
-  /**
-   * Displayed in a tooltip beside the title. This field should be used
-   * for auxiliary context that helps users understand extra context about
-   * a field but isn't specifically required to know how to complete the input.
-   * This is announced as an `aria-description`, immediately following the aria-labelledby text.
-   *
-   * @see https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Attributes/aria-description
-   */
-  tooltipText?: string
   placeholder?: string
   units?: string
   validate?: Validate<FieldPathValue<TFieldValues, TName>, TFieldValues>
@@ -66,7 +57,6 @@ export function TextField<
   name,
   label = capitalize(name),
   units,
-  tooltipText,
   description,
   required,
   ...props
@@ -76,7 +66,7 @@ export function TextField<
   return (
     <div className="max-w-lg">
       <div className="mb-2">
-        <FieldLabel htmlFor={id} id={`${id}-label`} tip={tooltipText} optional={!required}>
+        <FieldLabel htmlFor={id} id={`${id}-label`} optional={!required}>
           {label} {units && <span className="ml-1 text-secondary">({units})</span>}
         </FieldLabel>
         {description && (
@@ -86,7 +76,7 @@ export function TextField<
         )}
       </div>
       {/* passing the generated id is very important for a11y */}
-      <TextFieldInner name={name} {...props} id={id} tooltipText={tooltipText} />
+      <TextFieldInner name={name} {...props} id={id} />
     </div>
   )
 }
@@ -109,7 +99,6 @@ export const TextFieldInner = <
   label = capitalize(name),
   validate,
   control,
-  tooltipText,
   required,
   id: idProp,
   transform,
@@ -129,16 +118,10 @@ export const TextFieldInner = <
         type={type}
         error={!!error}
         aria-labelledby={`${id}-label ${id}-help-text`}
-        aria-describedby={tooltipText ? `${id}-tooltipText` : undefined}
         onChange={(e) => onChange(transform ? transform(e.target.value) : e.target.value)}
         {...fieldRest}
         {...props}
       />
-      {tooltipText && (
-        <div className="sr-only" id={`${id}-tooltipText`}>
-          {tooltipText}
-        </div>
-      )}
       <ErrorMessage error={error} label={label} />
     </>
   )
