@@ -114,6 +114,22 @@ test('can create an instance', async ({ page }) => {
     'text=from space',
   ])
 
+  // instance goes from creating to starting to running as we poll
+  const pollingSpinner = page.getByLabel('Spinner')
+  await expect(pollingSpinner).toBeVisible()
+  await expect(page.getByText('Creating')).toBeVisible()
+  await expect(page.getByText('Starting')).toBeVisible()
+  await expect(page.getByText('Running')).toBeVisible()
+  await expect(pollingSpinner).toBeHidden()
+
+  // boot disk visible, no other disks attached
+  await expect(
+    page
+      .getByRole('table', { name: 'Boot disk' })
+      .getByRole('cell', { name: 'my-boot-disk' })
+  ).toBeVisible()
+  await expect(page.getByText('No other disk')).toBeVisible()
+
   // network tab works
   await page.getByRole('tab', { name: 'Networking' }).click()
   const table = page.getByRole('table', { name: 'Network interfaces' })
