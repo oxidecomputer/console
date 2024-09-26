@@ -8,13 +8,10 @@
 import cn from 'classnames'
 import type { ElementType, PropsWithChildren } from 'react'
 
-import { TipIcon } from './TipIcon'
-
 interface FieldLabelProps {
   id: string
   as?: ElementType
   htmlFor?: string
-  tip?: string
   optional?: boolean
   className?: string
 }
@@ -23,7 +20,6 @@ export const FieldLabel = ({
   id,
   children,
   htmlFor,
-  tip,
   optional,
   as,
   className,
@@ -41,7 +37,6 @@ export const FieldLabel = ({
           </span>
         )}
       </Component>
-      {tip && <TipIcon>{tip}</TipIcon>}
     </div>
   )
 }

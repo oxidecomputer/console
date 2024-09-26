@@ -38,7 +38,6 @@ export interface ListboxProps<Value extends string = string> {
   hasError?: boolean
   name?: string
   label?: React.ReactNode
-  tooltipText?: string
   description?: React.ReactNode
   required?: boolean
   isLoading?: boolean
@@ -57,7 +56,6 @@ export const Listbox = <Value extends string = string>({
   onChange,
   hasError = false,
   label,
-  tooltipText,
   description,
   required,
   disabled,
@@ -85,12 +83,7 @@ export const Listbox = <Value extends string = string>({
           <>
             {label && (
               <div className="mb-2">
-                <FieldLabel
-                  id={``}
-                  as="div"
-                  tip={tooltipText}
-                  optional={!required && !hideOptionalTag}
-                >
+                <FieldLabel id={``} as="div" optional={!required && !hideOptionalTag}>
                   <Label>{label}</Label>
                 </FieldLabel>
                 {description && <TextInputHint id={``}>{description}</TextInputHint>}

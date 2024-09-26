@@ -25,7 +25,6 @@ export function NumberField<
   name,
   label = capitalize(name),
   units,
-  tooltipText,
   description,
   required,
   ...props
@@ -35,7 +34,7 @@ export function NumberField<
   return (
     <div className="max-w-lg">
       <div className="mb-2">
-        <FieldLabel htmlFor={id} id={`${id}-label`} tip={tooltipText} optional={!required}>
+        <FieldLabel htmlFor={id} id={`${id}-label`} optional={!required}>
           {label} {units && <span className="ml-1 text-secondary">({units})</span>}
         </FieldLabel>
         {description && (
@@ -67,7 +66,6 @@ export const NumberFieldInner = <
   label = capitalize(name),
   validate,
   control,
-  tooltipText,
   required,
   id: idProp,
   disabled,
@@ -98,8 +96,7 @@ export const NumberFieldInner = <
       <NumberInput
         id={id}
         error={!!error}
-        aria-labelledby={cn(`${id}-label`, !!tooltipText && `${id}-help-text`)}
-        aria-describedby={tooltipText ? `${id}-label-tip` : undefined}
+        aria-labelledby={cn(`${id}-label`)}
         isDisabled={disabled}
         maxValue={max ? Number(max) : undefined}
         minValue={min !== undefined ? Number(min) : undefined}
