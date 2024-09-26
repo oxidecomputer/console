@@ -635,7 +635,11 @@ export const handlers = makeHandlers({
       const states = commaSeries(instanceCan.detachDisk.states, 'or')
       throw `Can only detach disk from instance that is ${states}`
     }
-    const disk = lookup.disk({ ...projectParams, disk: body.disk })
+    const disk = lookup.disk({
+      disk: body.disk,
+      // use instance project ID because project may not be specified in params
+      project: isUuid(body.disk) ? undefined : instance.project_id,
+    })
     if (!diskCan.detach(disk)) {
       const states = commaSeries(diskCan.detach.states, 'or')
       throw `Can only detach disk that is ${states}`

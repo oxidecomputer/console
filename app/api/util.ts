@@ -96,6 +96,9 @@ const instanceActions: Record<string, InstanceState[]> = {
   // https://github.com/oxidecomputer/omicron/blob/6dd9802/nexus/db-queries/src/db/datastore/instance.rs#L865
   delete: ['stopped', 'failed'],
 
+  // TODO: whence my licence to make such a claim
+  update: ['stopped'],
+
   // reboot and stop are kind of weird!
   // https://github.com/oxidecomputer/omicron/blob/6dd9802/nexus/src/app/instance.rs#L790-L798
   // https://github.com/oxidecomputer/propolis/blob/b278193/bin/propolis-server/src/lib/vm/request_queue.rs

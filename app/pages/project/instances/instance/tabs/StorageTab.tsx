@@ -8,6 +8,7 @@
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { useCallback, useMemo, useState } from 'react'
 import type { LoaderFunctionArgs } from 'react-router-dom'
+import * as R from 'remeda'
 
 import {
   apiQueryClient,
@@ -32,19 +33,29 @@ import { addToast } from '~/stores/toast'
 import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
-import { Badge } from '~/ui/lib/Badge'
 import { Button } from '~/ui/lib/Button'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
-import { TableEmptyBox } from '~/ui/lib/Table'
+import { TableControls, TableEmptyBox, TableTitle } from '~/ui/lib/Table'
 
 import { fancifyStates } from './common'
 
-const EmptyState = () => (
+const BootDiskEmptyState = () => (
   <TableEmptyBox>
     <EmptyMessage
       icon={<Storage24Icon />}
-      title="No disks"
-      body="Attach a disk to this instance to see it here"
+      title="No boot disk set"
+      // TODO: boot order docs link
+      body="Read about boot order LINK HERE"
+    />
+  </TableEmptyBox>
+)
+
+const OtherDisksEmptyState = () => (
+  <TableEmptyBox>
+    <EmptyMessage
+      icon={<Storage24Icon />}
+      title="No other disks"
+      body="Attach a disk to see it here"
     />
   </TableEmptyBox>
 )
@@ -70,22 +81,11 @@ StorageTab.loader = async ({ params }: LoaderFunctionArgs) => {
 // row actions menus
 type InstanceDisk = Disk & {
   instanceState: InstanceState
-  isBootDisk: boolean
 }
 
 const colHelper = createColumnHelper<InstanceDisk>()
 const staticCols = [
-  colHelper.accessor('name', {
-    header: 'Disk',
-    cell: (info) => {
-      return (
-        <>
-          <span>{info.getValue()}</span>
-          {info.row.original.isBootDisk && <Badge className="ml-3">Boot</Badge>}
-        </>
-      )
-    },
-  }),
+  colHelper.accessor('name', { header: 'Disk' }),
   colHelper.accessor('size', Columns.size),
   colHelper.accessor((row) => row.state.state, {
     header: 'state',
@@ -141,67 +141,76 @@ export function StorageTab() {
   })
 
   const makeActions = useCallback(
-    (disk: InstanceDisk): MenuAction[] => [
-      {
-        label: 'Snapshot',
-        disabled: !diskCan.snapshot(disk) && (
-          <>
-            Only disks in state {fancifyStates(diskCan.snapshot.states)} can be snapshotted
-          </>
-        ),
-        onActivate() {
-          createSnapshot({
-            query: { project },
-            body: {
-              name: genName(disk.name),
-              disk: disk.name,
-              description: '',
-            },
-          })
+    // TODO: don't do this, just have two separate lists. come on
+    (isBootDisk: boolean) =>
+      (disk: InstanceDisk): MenuAction[] => [
+        {
+          label: 'Snapshot',
+          disabled: !diskCan.snapshot(disk) && (
+            <>
+              Only disks in state {fancifyStates(diskCan.snapshot.states)} can be
+              snapshotted
+            </>
+          ),
+          onActivate() {
+            createSnapshot({
+              query: { project },
+              body: {
+                name: genName(disk.name),
+                disk: disk.name,
+                description: '',
+              },
+            })
+          },
         },
-      },
-      {
-        // don't bother checking disk state: assume that if it is showing up
-        // in this list, it can be detached
-        label: 'Detach',
-        disabled: !instanceCan.detachDisk({ runState: disk.instanceState }) && (
-          <>
-            Instance must be <span className="text-default">stopped</span> before disk can
-            be detached
-          </>
-        ),
-        onActivate() {
-          detachDisk({ body: { disk: disk.name }, path: { instance: instance.id } })
+        {
+          // don't bother checking disk state: assume that if it is showing up
+          // in this list, it can be detached
+          label: 'Detach',
+          disabled: !instanceCan.detachDisk({ runState: disk.instanceState }) && (
+            <>
+              Instance must be <span className="text-default">stopped</span> before disk can
+              be detached
+            </>
+          ),
+          onActivate() {
+            detachDisk({ body: { disk: disk.name }, path: { instance: instance.id } })
+          },
         },
-      },
-      {
-        label: disk.isBootDisk ? 'Unset as boot disk' : 'Set as boot disk',
-        onActivate: () => {
-          const verb = disk.isBootDisk ? 'unset' : 'set'
-          return confirmAction({
-            doAction: () =>
-              instanceUpdate({
-                path: { instance: instance.id },
-                body: { bootDisk: disk.isBootDisk ? undefined : disk.id },
-              }),
-            errorTitle: `Could not ${verb} boot disk`,
-            modalTitle: `Confirm ${verb} boot disk`,
-            // TODO: link to docs in both cases
-            modalContent: disk.isBootDisk ? (
-              <p>
-                Are you sure you want to unset <HL>{disk.name}</HL> as the boot disk? This
-                will TODO COPY RE: WHAT HAPPENS HERE
-              </p>
-            ) : (
-              <p>
-                Are you sure you want to set <HL>{disk.name}</HL> as the boot disk?
-              </p>
-            ),
-            actionType: 'primary',
-          })
+        {
+          label: isBootDisk ? 'Unset boot disk' : 'Set as boot disk',
+          disabled: !instanceCan.update({ runState: disk.instanceState }) && (
+            <>
+              Instance must be <span className="text-default">stopped</span> before boot
+              disk can be changed
+            </>
+          ),
+          onActivate: () => {
+            const verb = isBootDisk ? 'unset' : 'set'
+            return confirmAction({
+              doAction: () =>
+                instanceUpdate({
+                  path: { instance: instance.id },
+                  body: { bootDisk: isBootDisk ? undefined : disk.id },
+                }),
+              errorTitle: `Could not ${verb} boot disk`,
+              modalTitle: `Confirm ${verb} boot disk`,
+              // TODO: copy + link to docs in both cases
+              modalContent: isBootDisk ? (
+                <p>
+                  Are you sure you want to unset <HL>{disk.name}</HL> as the boot disk? This
+                  will TODO COPY RE: WHAT HAPPENS HERE
+                </p>
+              ) : (
+                <p>
+                  Are you sure you want to set <HL>{disk.name}</HL> as the boot disk?
+                </p>
+              ),
+              actionType: 'primary',
+            })
+          },
         },
-      },
-    ],
+      ],
     [detachDisk, createSnapshot, project, instanceUpdate, instance.id]
   )
 
@@ -223,25 +232,66 @@ export function StorageTab() {
 
   const { data: disks } = usePrefetchedApiQuery('instanceDiskList', instancePathQuery)
 
-  const rows = useMemo(
-    () =>
-      disks.items.map((disk) => ({
-        ...disk,
-        instanceState: instance.runState,
-        isBootDisk: instance.bootDiskId === disk.id,
-      })),
-    [disks.items, instance.runState, instance.bootDiskId]
+  const [bootDisks, otherDisks] = useMemo(
+    () => R.partition(disks.items, (d) => d.id === instance.bootDiskId),
+    [disks.items, instance.bootDiskId]
   )
 
-  const table = useReactTable({
-    columns: useColsWithActions(staticCols, makeActions),
-    data: rows,
+  const bootDisksTable = useReactTable({
+    columns: useColsWithActions(staticCols, makeActions(true)),
+    data: useMemo(
+      () => bootDisks.map((disk) => ({ ...disk, instanceState: instance.runState })),
+      [bootDisks, instance.runState]
+    ),
+    getCoreRowModel: getCoreRowModel(),
+  })
+
+  const otherDisksTable = useReactTable({
+    columns: useColsWithActions(staticCols, makeActions(false)),
+    data: useMemo(
+      () => otherDisks.map((disk) => ({ ...disk, instanceState: instance.runState })),
+      [otherDisks, instance.runState]
+    ),
     getCoreRowModel: getCoreRowModel(),
   })
 
   return (
     <>
-      {disks.items.length > 0 ? <Table table={table} /> : <EmptyState />}
+      <TableControls>
+        <TableTitle id="boot-disks-label">Boot disk</TableTitle>
+      </TableControls>
+      {bootDisks.length > 0 ? (
+        <Table aria-labelledby="boot-disks-label" table={bootDisksTable} />
+      ) : (
+        <BootDiskEmptyState />
+      )}
+      <div className="mt-4 flex flex-col gap-3">
+        <div className="flex gap-3">
+          <Button
+            size="sm"
+            onClick={() => {}}
+            disabledReason={
+              <>
+                Instance must be <span className="text-default">stopped</span> before boot
+                disk can be changed
+              </>
+            }
+            disabled={!instanceCan.attachDisk(instance) || otherDisks.length === 0}
+          >
+            {bootDisks.length > 0 ? 'Change boot disk' : 'Set boot disk'}
+          </Button>
+        </div>
+      </div>
+
+      <TableControls className="mt-12">
+        <TableTitle id="other-disks-label">Other disks</TableTitle>
+      </TableControls>
+      {otherDisks.length > 0 ? (
+        <Table aria-labelledby="other-disks-label" table={otherDisksTable} />
+      ) : (
+        <OtherDisksEmptyState />
+      )}
+
       <div className="mt-4 flex flex-col gap-3">
         <div className="flex gap-3">
           <Button
