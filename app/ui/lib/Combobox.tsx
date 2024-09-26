@@ -20,8 +20,6 @@ import { useState, type ReactNode } from 'react'
 
 import { SelectArrows6Icon } from '@oxide/design-system/icons/react'
 
-import type { Disk, Instance, Project, VpcSubnet } from '~/api'
-
 import { FieldLabel } from './FieldLabel'
 import { usePopoverZIndex } from './SideModal'
 import { TextInputHint } from './TextInput'
@@ -32,9 +30,7 @@ export type ComboboxItem = { value: string; label: ReactNode; selectedLabel: str
  *  Useful when the rendered label and value are the same; in more complex cases,
  *  you may want to create a custom ComboboxItem object (see toImageComboboxItem).
  */
-export const toComboboxItems = (
-  items?: Array<Disk | Instance | Project | VpcSubnet>
-): Array<ComboboxItem> =>
+export const toComboboxItems = (items?: Array<{ name: string }>): Array<ComboboxItem> =>
   items?.map(({ name }) => ({
     value: name,
     label: name,
