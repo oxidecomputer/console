@@ -27,7 +27,7 @@ import { CheckboxField } from '~/components/form/fields/CheckboxField'
 import { ComboboxField } from '~/components/form/fields/ComboboxField'
 import { DescriptionField } from '~/components/form/fields/DescriptionField'
 import { ListboxField } from '~/components/form/fields/ListboxField'
-import { NameField } from '~/components/form/fields/NameField'
+import { NameField, validateName } from '~/components/form/fields/NameField'
 import { NumberField } from '~/components/form/fields/NumberField'
 import { RadioField } from '~/components/form/fields/RadioField'
 import { TextField, TextFieldInner } from '~/components/form/fields/TextField'
@@ -39,6 +39,7 @@ import * as MiniTable from '~/ui/lib/MiniTable'
 import { TextInputHint } from '~/ui/lib/TextInput'
 import { KEYS } from '~/ui/util/keys'
 import { ALL_ISH } from '~/util/consts'
+import { validateIp, validateIpNet } from '~/util/ip'
 import { links } from '~/util/links'
 import { capitalize } from '~/util/str'
 
@@ -132,8 +133,10 @@ const DynamicTypeAndValueFields = ({
           items={items}
           allowArbitraryValues
           hideOptionalTag
-          // TODO: validate here, but it's complicated because it's conditional
-          // on which type is selected
+          validate={(value) =>
+            // TODO: is required false correct here? should this function even have that argument?
+            validateName(value, `${capitalize(sectionType)} name`, false)
+          }
         />
       ) : (
         <TextField
@@ -146,8 +149,11 @@ const DynamicTypeAndValueFields = ({
               onSubmitTextField(e)
             }
           }}
-          // TODO: validate here, but it's complicated because it's conditional
-          // on which type is selected
+          validate={(value) =>
+            (valueType === 'ip' && validateIp(value)) ||
+            (valueType === 'ip_net' && validateIpNet(value)) ||
+            undefined
+          }
         />
       )}
     </>
@@ -272,7 +278,7 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
     if (!type || !value) return
     if (targets.value.some((t) => t.value === value && t.type === type)) return
     targets.onChange([...targets.value, { type, value }])
-    targetForm.reset()
+    targetForm.reset(targetAndHostDefaultValues)
   })
 
   // Ports
@@ -306,7 +312,9 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
     if (!type || !value) return
     if (hosts.value.some((t) => t.value === value && t.type === type)) return
     hosts.onChange([...hosts.value, { type, value }])
-    hostForm.reset()
+    // TODO: something is not resetting right -- if the IP net field is set to
+    // validate on change due to having an error, it stays that way after submit
+    hostForm.reset(targetAndHostDefaultValues)
   })
 
   return (
@@ -411,7 +419,7 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
           control={targetForm.control}
           valueType={targetType}
           items={targetItems[targetType]}
-          onTypeChange={() => targetForm.setValue('value', '')}
+          onTypeChange={() => targetForm.resetField('value')}
           onInputChange={(value) => targetForm.setValue('value', value)}
           onSubmitTextField={submitTarget}
         />
@@ -518,7 +526,7 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
           control={hostForm.control}
           valueType={hostType}
           items={hostFilterItems[hostType]}
-          onTypeChange={() => hostForm.setValue('value', '')}
+          onTypeChange={() => targetForm.resetField('value')}
           onInputChange={(value) => hostForm.setValue('value', value)}
           onSubmitTextField={submitHost}
         />
