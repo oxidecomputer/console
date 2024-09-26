@@ -260,65 +260,66 @@ export function StorageTab() {
     <>
       <TableControls>
         <TableTitle id="boot-disks-label">Boot disk</TableTitle>
-        <div className="flex gap-3">
-          <Button
-            size="sm"
-            onClick={() => {}}
-            disabledReason={
-              <>
-                Instance must be <span className="text-default">stopped</span> to change
-                boot disk
-              </>
-            }
-            disabled={!instanceCan.attachDisk(instance) || otherDisks.length === 0}
-          >
-            {bootDisks.length > 0 ? 'Change boot disk' : 'Set boot disk'}
-          </Button>
-        </div>
       </TableControls>
       {bootDisks.length > 0 ? (
         <Table aria-labelledby="boot-disks-label" table={bootDisksTable} />
       ) : (
         <BootDiskEmptyState />
       )}
-      <div className="mt-4 flex flex-col gap-3"></div>
+      <div className="mt-4 flex gap-3">
+        <Button
+          size="sm"
+          onClick={() => {}}
+          disabledReason={
+            <>
+              Instance must be <span className="text-default">stopped</span> to change boot
+              disk
+            </>
+          }
+          disabled={!instanceCan.attachDisk(instance) || otherDisks.length === 0}
+        >
+          {bootDisks.length > 0 ? 'Change boot disk' : 'Set boot disk'}
+        </Button>
+      </div>
 
-      <TableControls className="mt-8">
+      <TableControls className="mt-12">
         <TableTitle id="other-disks-label">Other disks</TableTitle>
-        <div className="flex gap-3">
-          <CreateButton
-            onClick={() => setShowDiskCreate(true)}
-            disabledReason={
-              <>
-                Instance must be <span className="text-default">stopped</span> to create and
-                attach a disk
-              </>
-            }
-            disabled={!instanceCan.attachDisk(instance)}
-          >
-            Create disk
-          </CreateButton>
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => setShowDiskAttach(true)}
-            disabledReason={
-              <>
-                Instance must be <span className="text-default">stopped</span> to attach a
-                disk
-              </>
-            }
-            disabled={!instanceCan.attachDisk(instance)}
-          >
-            Attach existing disk
-          </Button>
-        </div>
       </TableControls>
+
       {otherDisks.length > 0 ? (
         <Table aria-labelledby="other-disks-label" table={otherDisksTable} />
       ) : (
         <OtherDisksEmptyState />
       )}
+
+      <div className="mt-4 flex gap-3">
+        <CreateButton
+          onClick={() => setShowDiskCreate(true)}
+          disabledReason={
+            <>
+              Instance must be <span className="text-default">stopped</span> to create and
+              attach a disk
+            </>
+          }
+          disabled={!instanceCan.attachDisk(instance)}
+        >
+          Create disk
+        </CreateButton>
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={() => setShowDiskAttach(true)}
+          disabledReason={
+            <>
+              Instance must be <span className="text-default">stopped</span> to attach a
+              disk
+            </>
+          }
+          disabled={!instanceCan.attachDisk(instance)}
+        >
+          Attach existing disk
+        </Button>
+      </div>
 
       {showDiskCreate && (
         <CreateDiskSideModalForm
