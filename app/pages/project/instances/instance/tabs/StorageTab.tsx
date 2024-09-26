@@ -34,6 +34,7 @@ import { useColsWithActions, type MenuAction } from '~/table/columns/action-col'
 import { Columns } from '~/table/columns/common'
 import { Table } from '~/table/Table'
 import { Button } from '~/ui/lib/Button'
+import { CreateButton } from '~/ui/lib/CreateButton'
 import { EmptyMessage } from '~/ui/lib/EmptyMessage'
 import { TableControls, TableEmptyBox, TableTitle } from '~/ui/lib/Table'
 
@@ -259,21 +260,14 @@ export function StorageTab() {
     <>
       <TableControls>
         <TableTitle id="boot-disks-label">Boot disk</TableTitle>
-      </TableControls>
-      {bootDisks.length > 0 ? (
-        <Table aria-labelledby="boot-disks-label" table={bootDisksTable} />
-      ) : (
-        <BootDiskEmptyState />
-      )}
-      <div className="mt-4 flex flex-col gap-3">
         <div className="flex gap-3">
           <Button
             size="sm"
             onClick={() => {}}
             disabledReason={
               <>
-                Instance must be <span className="text-default">stopped</span> before boot
-                disk can be changed
+                Instance must be <span className="text-default">stopped</span> to change
+                boot disk
               </>
             }
             disabled={!instanceCan.attachDisk(instance) || otherDisks.length === 0}
@@ -281,21 +275,18 @@ export function StorageTab() {
             {bootDisks.length > 0 ? 'Change boot disk' : 'Set boot disk'}
           </Button>
         </div>
-      </div>
-
-      <TableControls className="mt-12">
-        <TableTitle id="other-disks-label">Other disks</TableTitle>
       </TableControls>
-      {otherDisks.length > 0 ? (
-        <Table aria-labelledby="other-disks-label" table={otherDisksTable} />
+      {bootDisks.length > 0 ? (
+        <Table aria-labelledby="boot-disks-label" table={bootDisksTable} />
       ) : (
-        <OtherDisksEmptyState />
+        <BootDiskEmptyState />
       )}
+      <div className="mt-4 flex flex-col gap-3"></div>
 
-      <div className="mt-4 flex flex-col gap-3">
+      <TableControls className="mt-8">
+        <TableTitle id="other-disks-label">Other disks</TableTitle>
         <div className="flex gap-3">
-          <Button
-            size="sm"
+          <CreateButton
             onClick={() => setShowDiskCreate(true)}
             disabledReason={
               <>
@@ -305,8 +296,8 @@ export function StorageTab() {
             }
             disabled={!instanceCan.attachDisk(instance)}
           >
-            Create new disk
-          </Button>
+            Create disk
+          </CreateButton>
           <Button
             variant="secondary"
             size="sm"
@@ -322,13 +313,13 @@ export function StorageTab() {
             Attach existing disk
           </Button>
         </div>
-        {!instanceCan.attachDisk(instance) && (
-          <span className="max-w-xs text-sans-md text-tertiary">
-            The instance must be <span className="text-default">stopped</span> to add or
-            attach a disk.
-          </span>
-        )}
-      </div>
+      </TableControls>
+      {otherDisks.length > 0 ? (
+        <Table aria-labelledby="other-disks-label" table={otherDisksTable} />
+      ) : (
+        <OtherDisksEmptyState />
+      )}
+
       {showDiskCreate && (
         <CreateDiskSideModalForm
           onDismiss={() => setShowDiskCreate(false)}

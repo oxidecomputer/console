@@ -18,9 +18,6 @@ import {
 test('Attach disk', async ({ page }) => {
   await page.goto('/projects/mock-project/instances/db1')
 
-  const warning = 'The instance must be stopped to add or attach a disk.'
-  await expect(page.getByText(warning)).toBeVisible()
-
   const row = page.getByRole('row', { name: 'disk-1', exact: false })
   await expect(row).toBeVisible()
 
@@ -36,17 +33,20 @@ test('Attach disk', async ({ page }) => {
   // Have to stop instance to edit disks
   await stopInstance(page)
 
-  await expect(page.getByText(warning)).toBeHidden()
-
   // New disk form
-  await page.click('role=button[name="Create new disk"]')
-  await expectVisible(page, [
-    'role=textbox[name="Name"]',
-    'role=textbox[name="Description"]',
-    'role=radiogroup[name="Block size (Bytes)"]',
-    'role=textbox[name="Size (GiB)"]',
-    'role=button[name="Create disk"]',
-  ])
+  const createForm = page.getByRole('dialog', { name: 'Create disk' })
+  await expect(createForm).toBeHidden()
+  await page.getByRole('button', { name: 'Create disk' }).click()
+  await expect(createForm).toBeVisible()
+
+  await expect(createForm.getByRole('textbox', { name: 'Name' })).toBeVisible()
+  await expect(createForm.getByRole('textbox', { name: 'Description' })).toBeVisible()
+  await expect(
+    createForm.getByRole('radiogroup', { name: 'Block size (Bytes)' })
+  ).toBeVisible()
+  await expect(createForm.getByRole('textbox', { name: 'Size (GiB)' })).toBeVisible()
+  await expect(createForm.getByRole('button', { name: 'Create disk' })).toBeVisible()
+
   await page.click('role=button[name="Cancel"]')
 
   // Attach existing disk form
@@ -66,6 +66,8 @@ test('Attach disk', async ({ page }) => {
   await page.click('role=button[name="Attach disk"]')
   await expectVisible(page, ['role=cell[name="disk-3"]'])
 })
+
+// TODO: move create form asserts to their own test and actually test the create!
 
 test('Detach disk', async ({ page }) => {
   await page.goto('/projects/mock-project/instances/db1')
@@ -103,3 +105,5 @@ test('Snapshot disk', async ({ page }) => {
     disk: 'disk-2',
   })
 })
+
+// TODO: tests for different combinations of boot and other disks
