@@ -55,13 +55,16 @@ export function EditNetworkInterfaceForm({
   const form = useForm({ defaultValues })
   const transitIps = form.watch('transitIps') || []
 
-  const transitIpsForm = useForm({ defaultValues: { transitIp: '' } })
+  const addTransitIpForm = useForm({ defaultValues: { transitIp: '' } })
+  const addTransitIpFieldValue = addTransitIpForm.watch('transitIp').trim()
 
   const submitTransitIp = () => {
-    const transitIp = transitIpsForm.getValues('transitIp')
-    if (!transitIp) return
-    form.setValue('transitIps', [...transitIps, transitIp])
-    transitIpsForm.reset()
+    if (!addTransitIpFieldValue) return
+    // only add the IP if it isn't already in the list of transit IPs
+    if (!transitIps.includes(addTransitIpFieldValue)) {
+      form.setValue('transitIps', [...transitIps, addTransitIpFieldValue])
+    }
+    addTransitIpForm.reset()
   }
 
   return (
@@ -100,7 +103,7 @@ export function EditNetworkInterfaceForm({
           <TextFieldInner
             id="transitIp"
             name="transitIp"
-            control={transitIpsForm.control}
+            control={addTransitIpForm.control}
             onKeyDown={(e) => {
               if (e.key === KEYS.enter) {
                 e.preventDefault() // prevent full form submission
@@ -111,8 +114,8 @@ export function EditNetworkInterfaceForm({
         </div>
         <MiniTable.ClearAndAddButtons
           addButtonCopy="Add Transit IP"
-          disableClear={!!transitIpsForm.formState.dirtyFields.transitIp}
-          onClear={transitIpsForm.reset}
+          disableClear={!addTransitIpFieldValue}
+          onClear={() => addTransitIpForm.reset({ transitIp: '' })}
           onSubmit={submitTransitIp}
         />
       </div>
