@@ -101,7 +101,7 @@ export const Combobox = ({
     <>
       <HCombobox
         // necessary, as the displayed "value" is not the same as the actual selected item's *value*
-        value={selectedItemLabel}
+        value={selectedItemValue}
         // fallback to '' allows clearing field to work
         onChange={(val) => onChange(val || '')}
         onClose={() => setQuery('')}

@@ -63,7 +63,6 @@ export function ComboboxField<
   const [selectedItemLabel, setSelectedItemLabel] = useState(
     getSelectedLabelFromValue(items, field.value || '')
   )
-
   return (
     <div className="max-w-lg">
       <Combobox
@@ -73,7 +72,7 @@ export function ComboboxField<
         items={items}
         required={required}
         selectedItemValue={field.value}
-        selectedItemLabel={selectedItemLabel}
+        selectedItemLabel={field.value.length ? selectedItemLabel : ''}
         hasError={fieldState.error !== undefined}
         onChange={(value) => {
           field.onChange(value)
