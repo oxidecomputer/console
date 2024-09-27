@@ -101,7 +101,7 @@ const instanceActions: Record<string, InstanceState[]> = {
   // https://github.com/oxidecomputer/propolis/blob/b278193/bin/propolis-server/src/lib/vm/request_queue.rs
   // https://github.com/oxidecomputer/console/pull/2387#discussion_r1722368236
   reboot: ['running'], // technically rebooting allowed but too weird to say it
-  stop: ['running', 'starting', 'rebooting'],
+  stop: ['running', 'starting', 'rebooting', 'failed'],
 
   // NoVmm maps to to Stopped:
   // https://github.com/oxidecomputer/omicron/blob/6dd9802/nexus/db-model/src/instance_state.rs#L55
