@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 
@@ -46,6 +47,7 @@ export function CreateSnapshotSideModalForm() {
   const navigate = useNavigate()
 
   const diskItems = useSnapshotDiskItems(projectSelector)
+  const diskItemsForCombobox = useMemo(() => toComboboxItems(diskItems), [diskItems])
 
   const onDismiss = () => navigate(pb.snapshots(projectSelector))
 
@@ -76,7 +78,7 @@ export function CreateSnapshotSideModalForm() {
         label="Disk"
         name="disk"
         placeholder="Select a disk"
-        items={toComboboxItems(diskItems)}
+        items={diskItemsForCombobox}
         required
         control={form.control}
       />

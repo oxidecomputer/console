@@ -5,6 +5,7 @@
  *
  * Copyright Oxide Computer Company
  */
+import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { useApiQuery, type ApiError } from '@oxide/api'
@@ -42,10 +43,15 @@ export function AttachDiskSideModalForm({
   const { data } = useApiQuery('diskList', {
     query: { project, limit: ALL_ISH },
   })
-  const detachedDisks =
-    data?.items.filter(
-      (d) => d.state.state === 'detached' && !diskNamesToExclude.includes(d.name)
-    ) || []
+  const detachedDisks = useMemo(
+    () =>
+      toComboboxItems(
+        data?.items.filter(
+          (d) => d.state.state === 'detached' && !diskNamesToExclude.includes(d.name)
+        )
+      ),
+    [data, diskNamesToExclude]
+  )
 
   const form = useForm({ defaultValues })
 
@@ -64,7 +70,7 @@ export function AttachDiskSideModalForm({
         label="Disk name"
         placeholder="Select a disk"
         name="name"
-        items={toComboboxItems(detachedDisks)}
+        items={detachedDisks}
         required
         control={form.control}
       />

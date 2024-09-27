@@ -78,7 +78,7 @@ export const Combobox = ({
   items = [],
   label,
   selectedItemValue,
-  selectedItemLabel = '',
+  selectedItemLabel,
   placeholder,
   required,
   hasError,
