@@ -131,8 +131,12 @@ export const Combobox = ({
         >
           <ComboboxInput
             aria-label={ariaLabel}
-            // this controls what's displayed in the input field
-            displayValue={() => selectedItemLabel}
+            // displayValue controls what's displayed in the input field.
+            // selectedItemValue is displayed when the user can type in a new value.
+            // Otherwise, use the provided selectedItemLabel
+            displayValue={() =>
+              allowArbitraryValues ? selectedItemValue : selectedItemLabel
+            }
             onChange={(event) => {
               setQuery(event.target.value)
               onInputChange?.(event.target.value)

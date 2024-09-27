@@ -416,7 +416,7 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
         />
         <MiniTable.ClearAndAddButtons
           addButtonCopy="Add target"
-          disableClear={!!targetValue}
+          disableClear={!targetValue}
           onClear={() => targetForm.reset()}
           onSubmit={submitTarget}
         />
@@ -467,7 +467,7 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
         </div>
         <MiniTable.ClearAndAddButtons
           addButtonCopy="Add port filter"
-          disableClear={!!portValue}
+          disableClear={!portValue}
           onClear={portRangeForm.reset}
           onSubmit={submitPortRange}
         />
@@ -523,7 +523,7 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
         />
         <MiniTable.ClearAndAddButtons
           addButtonCopy="Add host filter"
-          disableClear={!!hostValue}
+          disableClear={!hostValue}
           onClear={() => hostForm.reset()}
           onSubmit={submitHost}
         />

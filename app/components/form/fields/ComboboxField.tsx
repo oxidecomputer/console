@@ -72,7 +72,7 @@ export function ComboboxField<
         items={items}
         required={required}
         selectedItemValue={field.value}
-        selectedItemLabel={field.value.length ? selectedItemLabel : ''}
+        selectedItemLabel={selectedItemLabel}
         hasError={fieldState.error !== undefined}
         onChange={(value) => {
           field.onChange(value)
