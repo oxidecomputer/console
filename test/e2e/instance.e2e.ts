@@ -53,9 +53,10 @@ test('can stop a failed instance', async ({ page }) => {
   await page.goto('/projects/mock-project/instances')
   await expect(page).toHaveTitle('Instances / mock-project / Oxide Console')
   await expectInstanceState(page, 'you-fail', 'failed')
-  await clickRowAction(page, 'you-fail', 'Start')
-  await expectInstanceState(page, 'you-fail', 'starting')
-  await expectInstanceState(page, 'you-fail', 'running')
+  await clickRowAction(page, 'you-fail', 'Stop')
+  await page.getByRole('button', { name: 'Confirm' }).click()
+  await expectInstanceState(page, 'you-fail', 'stopping')
+  await expectInstanceState(page, 'you-fail', 'stopped')
 })
 
 test('can stop and delete a running instance', async ({ page }) => {
