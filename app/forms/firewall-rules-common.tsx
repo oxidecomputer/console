@@ -6,6 +6,7 @@
  * Copyright Oxide Computer Company
  */
 
+import { useEffect } from 'react'
 import {
   useController,
   useForm,
@@ -63,7 +64,6 @@ type TargetAndHostFilterType =
 type TargetAndHostFormValues = {
   type: TargetAndHostFilterType
   value: string
-  subnetVpc?: string
 }
 
 // these are part of the target and host filter form;
@@ -239,14 +239,14 @@ type CommonFieldsProps = {
   error: ApiError | null
 }
 
+const targetAndHostDefaultValues: TargetAndHostFormValues = {
+  type: 'vpc',
+  value: '',
+}
+
 export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) => {
   const { project, vpc } = useVpcSelector()
-  const targetAndHostDefaultValues: TargetAndHostFormValues = {
-    type: 'vpc',
-    value: '',
-    // only becomes relevant when the type is 'VPC subnet'; ignored otherwise
-    subnetVpc: vpc,
-  }
+
   // prefetchedApiQueries below are prefetched in firewall-rules-create and -edit
   const {
     data: { items: instances },
@@ -280,6 +280,18 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
     targets.onChange([...targets.value, { type, value }])
     targetForm.reset(targetAndHostDefaultValues)
   })
+  // HACK: we need to reset the target form completely after a successful submit,
+  // including especially `isSubmitted`, because that governs whether we're in
+  // the validate regime (which doesn't validate until submit) or the reValidate
+  // regime (which validate on every keypress). The reset inside `handleSubmit`
+  // doesn't do that for us because `handleSubmit` set `isSubmitted: true` after
+  // running the callback. So we have to watch for a successful submit and call
+  // the reset again here.
+  // https://github.com/react-hook-form/react-hook-form/blob/9a497a70a/src/logic/createFormControl.ts#L1194-L1203
+  const { isSubmitSuccessful: targetSubmitSuccessful } = targetForm.formState
+  useEffect(() => {
+    if (targetSubmitSuccessful) targetForm.reset(targetAndHostDefaultValues)
+  }, [targetSubmitSuccessful, targetForm])
 
   // Ports
   const portRangeForm = useForm({ defaultValues: { portRange: '' } })
@@ -312,10 +324,13 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
     if (!type || !value) return
     if (hosts.value.some((t) => t.value === value && t.type === type)) return
     hosts.onChange([...hosts.value, { type, value }])
-    // TODO: something is not resetting right -- if the IP net field is set to
-    // validate on change due to having an error, it stays that way after submit
     hostForm.reset(targetAndHostDefaultValues)
   })
+  // HACK: see comment above about doing the same for target form
+  const { isSubmitSuccessful: hostSubmitSuccessful } = hostForm.formState
+  useEffect(() => {
+    if (hostSubmitSuccessful) hostForm.reset(targetAndHostDefaultValues)
+  }, [hostSubmitSuccessful, hostForm])
 
   return (
     <>
