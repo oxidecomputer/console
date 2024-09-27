@@ -168,12 +168,14 @@ export function StorageTab() {
           // don't bother checking disk state: assume that if it is showing up
           // in this list, it can be detached
           label: 'Detach',
-          disabled: !instanceCan.detachDisk({ runState: disk.instanceState }) && (
-            <>
-              Instance must be <span className="text-default">stopped</span> before disk can
-              be detached
-            </>
-          ),
+          disabled: isBootDisk
+            ? 'Boot disk must be unset before it can be detached'
+            : !instanceCan.detachDisk({ runState: disk.instanceState }) && (
+                <>
+                  Instance must be <span className="text-default">stopped</span> before disk
+                  can be detached
+                </>
+              ),
           onActivate() {
             detachDisk({ body: { disk: disk.name }, path: { instance: instance.id } })
           },
@@ -266,23 +268,8 @@ export function StorageTab() {
       ) : (
         <BootDiskEmptyState />
       )}
-      <div className="mt-4 flex gap-3">
-        <Button
-          size="sm"
-          onClick={() => {}}
-          disabledReason={
-            <>
-              Instance must be <span className="text-default">stopped</span> to change boot
-              disk
-            </>
-          }
-          disabled={!instanceCan.attachDisk(instance) || otherDisks.length === 0}
-        >
-          {bootDisks.length > 0 ? 'Change boot disk' : 'Set boot disk'}
-        </Button>
-      </div>
 
-      <TableControls className="mt-12">
+      <TableControls className="mt-10">
         <TableTitle id="other-disks-label">Other disks</TableTitle>
       </TableControls>
 
