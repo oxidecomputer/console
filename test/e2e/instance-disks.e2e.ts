@@ -15,20 +15,65 @@ import {
   test,
 } from './utils'
 
-test('Attach disk', async ({ page }) => {
+test('Disabled actions', async ({ page }) => {
   await page.goto('/projects/mock-project/instances/db1')
 
-  const row = page.getByRole('row', { name: 'disk-1', exact: false })
-  await expect(row).toBeVisible()
+  const bootDiskRow = page.getByRole('row', { name: 'disk-1', exact: false })
+  await expect(bootDiskRow).toBeVisible()
 
-  // can't detach, also test fancy construction of disabled tooltip
-  await row.getByRole('button', { name: 'Row actions' }).click()
-  await expect(page.getByRole('menuitem', { name: 'Detach' })).toBeDisabled()
-  await page.getByRole('menuitem', { name: 'Detach' }).hover()
+  // Both buttons disabled, also test fancy tooltip
+
+  await bootDiskRow.getByRole('button', { name: 'Row actions' }).click()
+
+  const detachButton = page.getByRole('menuitem', { name: 'Detach' })
+  const unsetButton = page.getByRole('menuitem', { name: 'Unset' })
+
+  await expect(unsetButton).toBeDisabled()
+  await page.getByRole('menuitem', { name: 'Unset' }).hover()
+  await expect(
+    page.getByText('Instance must be stopped before boot disk can be changed')
+  ).toBeVisible()
+
+  await expect(detachButton).toBeDisabled()
+  await detachButton.hover()
+  await expect(
+    page.getByText('Boot disk must be unset before it can be detached')
+  ).toBeVisible()
+  await page.keyboard.press('Escape') // close menu
+
+  const otherDiskRow = page.getByRole('row', { name: 'disk-2', exact: false })
+  await expect(otherDiskRow).toBeVisible()
+
+  await otherDiskRow.getByRole('button', { name: 'Row actions' }).click()
+
+  const setButton = page.getByRole('menuitem', { name: 'Set as boot disk' })
+  await expect(setButton).toBeDisabled()
+  await setButton.hover()
+  await expect(
+    page.getByText('Instance must be stopped before boot disk can be changed')
+  ).toBeVisible()
+
+  await expect(detachButton).toBeDisabled()
+  await detachButton.hover()
   await expect(
     page.getByText('Instance must be stopped before disk can be detached')
   ).toBeVisible()
   await page.keyboard.press('Escape') // close menu
+
+  // confirm they become enabled when the instance is stopped
+  await stopInstance(page)
+
+  await bootDiskRow.getByRole('button', { name: 'Row actions' }).click()
+  await expect(unsetButton).toBeEnabled()
+  await expect(detachButton).toBeDisabled() // detach is always disabled on boot disk
+
+  await otherDiskRow.getByRole('button', { name: 'Row actions' }).click()
+  await expect(setButton).toBeEnabled()
+  await expect(detachButton).toBeEnabled()
+})
+
+test('Attach disk', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances/db1')
 
   // Have to stop instance to edit disks
   await stopInstance(page)
@@ -86,11 +131,11 @@ test('Detach disk', async ({ page }) => {
   await stopInstance(page)
 
   const successMsg = page.getByText('Disk detached').nth(0)
-  const row = page.getByRole('row', { name: 'disk-1' })
+  const row = page.getByRole('row', { name: 'disk-2' })
   await expect(row).toBeVisible()
   await expect(successMsg).toBeHidden()
 
-  await clickRowAction(page, 'disk-1', 'Detach')
+  await clickRowAction(page, 'disk-2', 'Detach')
   await expect(successMsg).toBeVisible()
   await expect(row).toBeHidden() // disk row goes away
 })
@@ -102,7 +147,7 @@ test('Snapshot disk', async ({ page }) => {
   const successMsg = page.getByText('Snapshot created').nth(0)
   await expect(successMsg).toBeHidden()
 
-  await clickRowAction(page, 'disk-2', 'Snapshot')
+  await clickRowAction(page, 'disk-1', 'Snapshot')
 
   await expect(successMsg).toBeVisible() // we see the toast!
 
@@ -111,8 +156,8 @@ test('Snapshot disk', async ({ page }) => {
   await page.getByRole('button', { name: 'next' }).click()
   const table = page.getByRole('table')
   await expectRowVisible(table, {
-    name: expect.stringMatching(/^disk-2-/),
-    disk: 'disk-2',
+    name: expect.stringMatching(/^disk-1-/),
+    disk: 'disk-1',
   })
 })
 

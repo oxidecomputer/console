@@ -141,80 +141,105 @@ export function StorageTab() {
     },
   })
 
-  const makeActions = useCallback(
-    // TODO: don't do this, just have two separate lists. come on
-    (isBootDisk: boolean) =>
-      (disk: InstanceDisk): MenuAction[] => [
-        {
-          label: 'Snapshot',
-          disabled: !diskCan.snapshot(disk) && (
-            <>
-              Only disks in state {fancifyStates(diskCan.snapshot.states)} can be
-              snapshotted
-            </>
-          ),
-          onActivate() {
-            createSnapshot({
-              query: { project },
-              body: {
-                name: genName(disk.name),
-                disk: disk.name,
-                description: '',
-              },
-            })
-          },
+  // shared between boot and other disks
+  const getSnapshotAction = useCallback(
+    (disk: InstanceDisk) => ({
+      label: 'Snapshot',
+      disabled: !diskCan.snapshot(disk) && (
+        <>Only disks in state {fancifyStates(diskCan.snapshot.states)} can be snapshotted</>
+      ),
+      onActivate() {
+        createSnapshot({
+          query: { project },
+          body: { name: genName(disk.name), disk: disk.name, description: '' },
+        })
+      },
+    }),
+    [createSnapshot, project]
+  )
+
+  const makeBootDiskActions = useCallback(
+    (disk: InstanceDisk): MenuAction[] => [
+      getSnapshotAction(disk),
+      {
+        label: 'Unset as boot disk',
+        disabled: !instanceCan.update({ runState: disk.instanceState }) && (
+          <>
+            Instance must be <span className="text-default">stopped</span> before boot disk
+            can be changed
+          </>
+        ),
+        onActivate: () =>
+          confirmAction({
+            doAction: () =>
+              instanceUpdate({
+                path: { instance: instance.id },
+                body: { bootDisk: undefined },
+              }),
+            errorTitle: 'Could not unset boot disk',
+            modalTitle: 'Confirm unset boot disk',
+            // TODO: copy + link to docs
+            modalContent: (
+              <p>
+                Are you sure you want to unset <HL>{disk.name}</HL> as the boot disk? This
+                will TODO COPY RE: WHAT HAPPENS HERE
+              </p>
+            ),
+            actionType: 'primary',
+          }),
+      },
+      {
+        label: 'Detach',
+        disabled: 'Boot disk must be unset before it can be detached',
+        onActivate() {}, // it's always disabled, so noop is ok
+      },
+    ],
+    [instanceUpdate, instance.id, getSnapshotAction]
+  )
+
+  const makeOtherDiskActions = useCallback(
+    (disk: InstanceDisk): MenuAction[] => [
+      getSnapshotAction(disk),
+      {
+        label: 'Set as boot disk',
+        disabled: !instanceCan.update({ runState: disk.instanceState }) && (
+          <>
+            Instance must be <span className="text-default">stopped</span> before boot disk
+            can be changed
+          </>
+        ),
+        onActivate: () =>
+          confirmAction({
+            doAction: () =>
+              instanceUpdate({
+                path: { instance: instance.id },
+                body: { bootDisk: disk.id },
+              }),
+            errorTitle: 'Could not set boot disk',
+            modalTitle: 'Confirm set boot disk',
+            // TODO: copy + link to docs
+            modalContent: (
+              <p>
+                Are you sure you want to set <HL>{disk.name}</HL> as the boot disk?
+              </p>
+            ),
+            actionType: 'primary',
+          }),
+      },
+      {
+        label: 'Detach',
+        disabled: !instanceCan.detachDisk({ runState: disk.instanceState }) && (
+          <>
+            Instance must be <span className="text-default">stopped</span> before disk can
+            be detached
+          </>
+        ),
+        onActivate() {
+          detachDisk({ body: { disk: disk.name }, path: { instance: instance.id } })
         },
-        {
-          // don't bother checking disk state: assume that if it is showing up
-          // in this list, it can be detached
-          label: 'Detach',
-          disabled: isBootDisk
-            ? 'Boot disk must be unset before it can be detached'
-            : !instanceCan.detachDisk({ runState: disk.instanceState }) && (
-                <>
-                  Instance must be <span className="text-default">stopped</span> before disk
-                  can be detached
-                </>
-              ),
-          onActivate() {
-            detachDisk({ body: { disk: disk.name }, path: { instance: instance.id } })
-          },
-        },
-        {
-          label: isBootDisk ? 'Unset boot disk' : 'Set as boot disk',
-          disabled: !instanceCan.update({ runState: disk.instanceState }) && (
-            <>
-              Instance must be <span className="text-default">stopped</span> before boot
-              disk can be changed
-            </>
-          ),
-          onActivate: () => {
-            const verb = isBootDisk ? 'unset' : 'set'
-            return confirmAction({
-              doAction: () =>
-                instanceUpdate({
-                  path: { instance: instance.id },
-                  body: { bootDisk: isBootDisk ? undefined : disk.id },
-                }),
-              errorTitle: `Could not ${verb} boot disk`,
-              modalTitle: `Confirm ${verb} boot disk`,
-              // TODO: copy + link to docs in both cases
-              modalContent: isBootDisk ? (
-                <p>
-                  Are you sure you want to unset <HL>{disk.name}</HL> as the boot disk? This
-                  will TODO COPY RE: WHAT HAPPENS HERE
-                </p>
-              ) : (
-                <p>
-                  Are you sure you want to set <HL>{disk.name}</HL> as the boot disk?
-                </p>
-              ),
-              actionType: 'primary',
-            })
-          },
-        },
-      ],
-    [detachDisk, createSnapshot, project, instanceUpdate, instance.id]
+      },
+    ],
+    [detachDisk, instanceUpdate, instance.id, getSnapshotAction]
   )
 
   const attachDisk = useApiMutation('instanceDiskAttach', {
@@ -241,7 +266,7 @@ export function StorageTab() {
   )
 
   const bootDisksTable = useReactTable({
-    columns: useColsWithActions(staticCols, makeActions(true)),
+    columns: useColsWithActions(staticCols, makeBootDiskActions),
     data: useMemo(
       () => bootDisks.map((disk) => ({ ...disk, instanceState: instance.runState })),
       [bootDisks, instance.runState]
@@ -250,7 +275,7 @@ export function StorageTab() {
   })
 
   const otherDisksTable = useReactTable({
-    columns: useColsWithActions(staticCols, makeActions(false)),
+    columns: useColsWithActions(staticCols, makeOtherDiskActions),
     data: useMemo(
       () => otherDisks.map((disk) => ({ ...disk, instanceState: instance.runState })),
       [otherDisks, instance.runState]
