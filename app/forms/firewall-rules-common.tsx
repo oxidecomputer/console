@@ -434,7 +434,12 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
           control={targetForm.control}
           valueType={targetType}
           items={targetItems[targetType]}
-          onTypeChange={() => targetForm.resetField('value')}
+          // HACK: reset the whole subform, keeping type (because we just set
+          // it). most importantly, this resets isSubmitted so the form can go
+          // back to validating on submit instead of change
+          onTypeChange={() =>
+            targetForm.reset({ type: targetForm.getValues('type'), value: '' })
+          }
           onInputChange={(value) => targetForm.setValue('value', value)}
           onSubmitTextField={submitTarget}
         />
@@ -541,7 +546,12 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
           control={hostForm.control}
           valueType={hostType}
           items={hostFilterItems[hostType]}
-          onTypeChange={() => targetForm.resetField('value')}
+          // HACK: reset the whole subform, keeping type (because we just set
+          // it). most importantly, this resets isSubmitted so the form can go
+          // back to validating on submit instead of change
+          onTypeChange={() =>
+            hostForm.reset({ type: hostForm.getValues('type'), value: '' })
+          }
           onInputChange={(value) => hostForm.setValue('value', value)}
           onSubmitTextField={submitHost}
         />
