@@ -5,7 +5,14 @@
  *
  * Copyright Oxide Computer Company
  */
-import { clickRowAction, expect, expectRowVisible, test } from './utils'
+import { clickRowAction, expect, expectRowVisible, test, type Page } from './utils'
+
+const expectInstanceState = async (page: Page, instance: string, state: string) => {
+  await expectRowVisible(page.getByRole('table'), {
+    name: instance,
+    state: expect.stringContaining(state),
+  })
+}
 
 test('can delete a failed instance', async ({ page }) => {
   await page.goto('/projects/mock-project/instances')
@@ -14,12 +21,7 @@ test('can delete a failed instance', async ({ page }) => {
 
   const cell = page.getByRole('cell', { name: 'you-fail' })
   await expect(cell).toBeVisible() // just to match hidden check at the end
-
-  const table = page.getByRole('table')
-  await expectRowVisible(table, {
-    name: 'you-fail',
-    state: expect.stringContaining('failed'),
-  })
+  expectInstanceState(page, 'you-fail', 'failed')
 
   await clickRowAction(page, 'you-fail', 'Delete')
   await page.getByRole('button', { name: 'Confirm' }).click()
@@ -42,28 +44,25 @@ test('can start a failed instance', async ({ page }) => {
   await page.keyboard.press('Escape') // get out of the menu
 
   // now start the failed one
-  const table = page.getByRole('table')
-  await expectRowVisible(table, {
-    name: 'you-fail',
-    state: expect.stringContaining('failed'),
-  })
-
+  await expectInstanceState(page, 'you-fail', 'failed')
   await clickRowAction(page, 'you-fail', 'Start')
+  await expectInstanceState(page, 'you-fail', 'starting')
+})
 
-  await expectRowVisible(table, {
-    name: 'you-fail',
-    state: expect.stringContaining('starting'),
-  })
+test('can stop a failed instance', async ({ page }) => {
+  await page.goto('/projects/mock-project/instances')
+  await expect(page).toHaveTitle('Instances / mock-project / Oxide Console')
+  await expectInstanceState(page, 'you-fail', 'failed')
+  await clickRowAction(page, 'you-fail', 'Stop')
+  await page.getByRole('button', { name: 'Confirm' }).click()
+  await expectInstanceState(page, 'you-fail', 'stopping')
+  await expectInstanceState(page, 'you-fail', 'stopped')
 })
 
 test('can stop and delete a running instance', async ({ page }) => {
   await page.goto('/projects/mock-project/instances')
 
-  const table = page.getByRole('table')
-  await expectRowVisible(table, {
-    name: 'db1',
-    state: expect.stringContaining('running'),
-  })
+  await expectInstanceState(page, 'db1', 'running')
   const row = page.getByRole('row', { name: 'db1', exact: false })
 
   // can't delete, can stop
@@ -73,14 +72,8 @@ test('can stop and delete a running instance', async ({ page }) => {
   await page.getByRole('button', { name: 'Confirm' }).click()
 
   // polling makes it go stopping and then stopped
-  await expectRowVisible(table, {
-    name: 'db1',
-    state: expect.stringContaining('stopping'),
-  })
-  await expectRowVisible(table, {
-    name: 'db1',
-    state: expect.stringContaining('stopped'),
-  })
+  await expectInstanceState(page, 'db1', 'stopping')
+  await expectInstanceState(page, 'db1', 'stopped')
 
   // now delete
   await clickRowAction(page, 'db1', 'Delete')
@@ -91,34 +84,17 @@ test('can stop and delete a running instance', async ({ page }) => {
 
 test('can stop a starting instance, then start it again', async ({ page }) => {
   await page.goto('/projects/mock-project/instances')
+  await expect(page).toHaveTitle('Instances / mock-project / Oxide Console')
 
-  const table = page.getByRole('table')
-  await expectRowVisible(table, {
-    name: 'not-there-yet',
-    state: expect.stringContaining('starting'),
-  })
-
+  await expectInstanceState(page, 'not-there-yet', 'starting')
   await clickRowAction(page, 'not-there-yet', 'Stop')
   await page.getByRole('button', { name: 'Confirm' }).click()
-
-  await expectRowVisible(table, {
-    name: 'not-there-yet',
-    state: expect.stringContaining('stopping'),
-  })
-  await expectRowVisible(table, {
-    name: 'not-there-yet',
-    state: expect.stringContaining('stopped'),
-  })
+  await expectInstanceState(page, 'not-there-yet', 'stopping')
+  await expectInstanceState(page, 'not-there-yet', 'stopped')
 
   await clickRowAction(page, 'not-there-yet', 'Start')
-  await expectRowVisible(table, {
-    name: 'not-there-yet',
-    state: expect.stringContaining('starting'),
-  })
-  await expectRowVisible(table, {
-    name: 'not-there-yet',
-    state: expect.stringContaining('running'),
-  })
+  await expectInstanceState(page, 'not-there-yet', 'starting')
+  await expectInstanceState(page, 'not-there-yet', 'running')
 })
 
 test('delete from instance detail', async ({ page }) => {
