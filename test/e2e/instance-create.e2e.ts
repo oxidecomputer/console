@@ -338,21 +338,21 @@ test('maintains selected values even when changing tabs', async ({ page }) => {
   const instanceName = 'arch-based-instance'
   await page.goto('/projects/mock-project/instances-new')
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(instanceName)
-  const combobox = page.getByRole('combobox', { name: 'Image' })
+  const imageSelectCombobox = page.getByRole('combobox', { name: 'Image' })
   // Filter the combobox for a particular silo image
-  await combobox.fill('arch')
+  await imageSelectCombobox.fill('arch')
   // select the image
   await page.getByRole('option', { name: 'arch-2022-06-01' }).click()
   // expect to find name of the image on page
-  await expect(combobox).toHaveValue('arch-2022-06-01 (arch, 2022.06.01, 3 GiB)')
+  await expect(imageSelectCombobox).toHaveValue('arch-2022-06-01 (arch, 2022.06.01, 3 GiB)')
   // change to a different tab
   await page.getByRole('tab', { name: 'Existing disks' }).click()
   // the image should no longer be visible
-  await expect(combobox).toBeHidden()
+  await expect(imageSelectCombobox).toBeHidden()
   // change back to the tab with the image
   await page.getByRole('tab', { name: 'Silo images' }).click()
   // arch should still be selected
-  await expect(combobox).toHaveValue('arch-2022-06-01 (arch, 2022.06.01, 3 GiB)')
+  await expect(imageSelectCombobox).toHaveValue('arch-2022-06-01 (arch, 2022.06.01, 3 GiB)')
   await page.getByRole('button', { name: 'Create instance' }).click()
   await expect(page).toHaveURL(`/projects/mock-project/instances/${instanceName}/storage`)
   await expectVisible(page, [`h1:has-text("${instanceName}")`, 'text=8 GiB'])
