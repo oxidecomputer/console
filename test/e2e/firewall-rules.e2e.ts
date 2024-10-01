@@ -67,6 +67,10 @@ test('can create firewall rule', async ({ page }) => {
   await addPortButton.click()
   await expect(invalidPort).toBeVisible()
 
+  // test clear button
+  await page.getByRole('button', { name: 'Clear' }).nth(1).click()
+  await expect(portRangeField).toHaveValue('')
+
   await portRangeField.fill('123-456')
   await addPortButton.click()
   await expect(invalidPort).toBeHidden()
@@ -233,6 +237,10 @@ test('firewall rule form target validation', async ({ page }) => {
   await addButton.click()
   await expect(ipError).toBeVisible()
 
+  // test clear button
+  await page.getByRole('button', { name: 'Clear' }).first().click()
+  await expect(ipField).toHaveValue('')
+
   // Change back to VPC, enter valid value
   await selectOption(page, 'Target type', 'VPC')
   await expect(ipError).toBeHidden()
@@ -291,6 +299,10 @@ test('firewall rule form host validation', async ({ page }) => {
   await expect(ipError).toBeHidden()
   await addButton.click()
   await expect(ipError).toBeVisible()
+
+  // test clear button
+  await page.getByRole('button', { name: 'Clear' }).nth(2).click()
+  await expect(ipField).toHaveValue('')
 
   // Change back to VPC, enter valid value
   await selectOption(page, 'Host type', 'VPC')

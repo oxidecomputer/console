@@ -261,8 +261,7 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
   // Targets
   const targetForm = useForm({ defaultValues: targetAndHostDefaultValues })
   const targets = useController({ name: 'targets', control }).field
-  const targetType = targetForm.watch('type')
-  const targetValue = targetForm.watch('value')
+  const [targetType, targetValue] = targetForm.watch(['type', 'value'])
   // get the list of items that are not already in the list of targets
   const targetItems = {
     vpc: availableItems(targets.value, 'vpc', vpcs),
@@ -308,8 +307,7 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
   // Host Filters
   const hostForm = useForm({ defaultValues: targetAndHostDefaultValues })
   const hosts = useController({ name: 'hosts', control }).field
-  const hostType = hostForm.watch('type')
-  const hostValue = hostForm.watch('value')
+  const [hostType, hostValue] = hostForm.watch(['type', 'value'])
   // get the list of items that are not already in the list of host filters
   const hostFilterItems = {
     vpc: availableItems(hosts.value, 'vpc', vpcs),
@@ -445,7 +443,7 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
         />
         <MiniTable.ClearAndAddButtons
           addButtonCopy="Add target"
-          disableClear={!!targetValue}
+          disableClear={!targetValue}
           onClear={() => targetForm.reset()}
           onSubmit={submitTarget}
         />
@@ -496,8 +494,8 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
         </div>
         <MiniTable.ClearAndAddButtons
           addButtonCopy="Add port filter"
-          disableClear={!!portValue}
-          onClear={portRangeForm.reset}
+          disableClear={!portValue}
+          onClear={() => portRangeForm.reset()}
           onSubmit={submitPortRange}
         />
       </div>
@@ -557,7 +555,7 @@ export const CommonFields = ({ control, nameTaken, error }: CommonFieldsProps) =
         />
         <MiniTable.ClearAndAddButtons
           addButtonCopy="Add host filter"
-          disableClear={!!hostValue}
+          disableClear={!hostValue}
           onClear={() => hostForm.reset()}
           onSubmit={submitHost}
         />
