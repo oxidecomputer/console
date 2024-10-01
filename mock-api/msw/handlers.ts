@@ -417,12 +417,16 @@ export const handlers = makeHandlers({
      * Eagerly check for disk errors. Execution will stop early and prevent orphaned disks from
      * being created if there's a failure. In omicron this is done automatically via an undo on the saga.
      */
-    for (const diskParams of body.disks || []) {
+    const otherDisks = body.disks || []
+    const allDisks = body.boot_disk ? [body.boot_disk, ...otherDisks] : otherDisks
+    for (const diskParams of allDisks) {
       if (diskParams.type === 'create') {
         errIfExists(db.disks, { name: diskParams.name, project_id: project.id }, 'disk')
         errIfInvalidDiskSize(diskParams)
       } else {
-        lookup.disk({ ...query, disk: diskParams.name })
+        const disk = lookup.disk({ ...query, disk: diskParams.name })
+        if (disk.state.state !== 'detached')
+          throw `Disk '${diskParams.name}' is already attached to an instance`
       }
     }
 
@@ -440,45 +444,11 @@ export const handlers = makeHandlers({
       })
     }
 
-    // Validate boot disk against list of disks to create/attach. This must
-    // happen before disks are created/attached because it can throw.
-    const bootDisk = body.boot_disk?.name
-    if (bootDisk) {
-      // if it's an ID, things are annoying
+    /////////////////////////////////////////////////////////////
+    // DB write stuff starts here
+    /////////////////////////////////////////////////////////////
 
-      // Technically, this can't be an ID right now, but I did all this work to
-      // figure out how to handle IDs before that was changed API side, and I
-      // expect this to become relevant again soon.
-      if (isUuid(bootDisk)) {
-        // it must already exist
-        const disk = lookup.disk({ disk: bootDisk })
-        // it must be in this project
-        if (disk.project_id !== project.id) {
-          throw notFoundErr(`boot disk in project '${project.name}' with ID '${bootDisk}'`)
-        }
-        // it must be detached because we're going to attach it
-        if (disk.state.state !== 'detached') {
-          throw "When specified boot disk already exists, it must be in state 'detached'"
-        }
-        // it must be in the list of disks to attach! disks are attached by name (currently,
-        // there is an issue to make it NameOrId) so we use the name to make sure it's in the list
-        const inListOfDisksToAttach = (body.disks || []).some((d) => {
-          if (d.type === 'create') return false
-          return disk.name === d.name
-        })
-        if (!inListOfDisksToAttach) {
-          throw 'Specified boot disk must be in the list of disks to attach'
-        }
-      } else {
-        // otherwise it's a name, and we have to make sure it's somewhere in the list
-        const inListOfDisks = (body.disks || []).some((d) => bootDisk === d.name)
-        if (!inListOfDisks) {
-          throw `Specified boot disk '${bootDisk}' not found in list of disks`
-        }
-      }
-    }
-
-    for (const diskParams of body.disks || []) {
+    for (const diskParams of allDisks) {
       if (diskParams.type === 'create') {
         const { size, name, description, disk_source } = diskParams
         const newDisk: Json<Api.Disk> = {
@@ -498,6 +468,11 @@ export const handlers = makeHandlers({
         disk.state = { state: 'attached', instance: instanceId }
       }
     }
+
+    // at this point, the boot disk has been created, so just retrieve it again
+    const bootDiskId = body.boot_disk?.name
+      ? lookup.disk({ disk: body.boot_disk.name, project: project.id }).id
+      : undefined
 
     // just use the first VPC in the project and first subnet in the VPC. bit of
     // a hack but not very important
@@ -543,14 +518,7 @@ export const handlers = makeHandlers({
       ...getTimestamps(),
       run_state: 'creating',
       time_run_state_updated: new Date().toISOString(),
-      // Note this relies on the disk already existing. This would be risky
-      // without the ton of validation before we do anything with disks.
-      boot_disk_id: bootDisk
-        ? lookup.disk({
-            disk: bootDisk,
-            project: isUuid(bootDisk) ? undefined : project.id,
-          }).id
-        : undefined,
+      boot_disk_id: bootDiskId,
       auto_restart_enabled: true,
     }
 

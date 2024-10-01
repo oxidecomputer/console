@@ -317,7 +317,7 @@ export function CreateInstanceForm() {
               description: values.description,
               memory: instance.memory * GiB,
               ncpus: instance.ncpus,
-              disks: [bootDisk, ...values.disks],
+              disks: values.disks,
               bootDisk,
               externalIps: values.externalIps,
               start: values.start,
