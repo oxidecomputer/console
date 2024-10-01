@@ -57,10 +57,13 @@ export function EditNetworkInterfaceForm({
   const transitIps = form.watch('transitIps') || []
 
   const transitIpsForm = useForm({ defaultValues: { transitIp: '' } })
+  const transitIpValue = transitIpsForm.watch('transitIp').trim()
 
   const submitTransitIp = transitIpsForm.handleSubmit(({ transitIp }) => {
-    if (!transitIp) return
-    form.setValue('transitIps', [...transitIps, transitIp])
+    // only add the IP if it isn't already in the list of transit IPs
+    if (!transitIps.includes(transitIp)) {
+      form.setValue('transitIps', [...transitIps, transitIp])
+    }
     transitIpsForm.reset()
   })
 
@@ -113,9 +116,8 @@ export function EditNetworkInterfaceForm({
         </div>
         <MiniTable.ClearAndAddButtons
           addButtonCopy="Add Transit IP"
-          // TODO: calling formState this way may not always trigger a render when it changes
-          disableClear={!!transitIpsForm.formState.dirtyFields.transitIp}
-          onClear={transitIpsForm.reset}
+          disableClear={!transitIpValue}
+          onClear={() => transitIpsForm.reset()}
           onSubmit={submitTransitIp}
         />
       </div>
