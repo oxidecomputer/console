@@ -201,6 +201,14 @@ test('Edit network interface - Transit IPs', async ({ page }) => {
   await expect(transitIpField).toHaveValue('')
   await expectRowVisible(transitIpsTable, { 'Transit IPs': '192.168.0.0/16' })
 
+  const dupeError = modal.getByText('Transit IP already in list')
+
+  // try to add the same one again to see the dupe message
+  await transitIpField.fill('192.168.0.0/16')
+  await expect(dupeError).toBeHidden()
+  await addTransitIpButton.click()
+  await expect(dupeError).toBeVisible()
+
   // Submit the form
   await modal.getByRole('button', { name: 'Update network interface' }).click()
 

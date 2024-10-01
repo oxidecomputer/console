@@ -60,10 +60,8 @@ export function EditNetworkInterfaceForm({
   const transitIpValue = transitIpsForm.watch('transitIp').trim()
 
   const submitTransitIp = transitIpsForm.handleSubmit(({ transitIp }) => {
-    // only add the IP if it isn't already in the list of transit IPs
-    if (!transitIps.includes(transitIp)) {
-      form.setValue('transitIps', [...transitIps, transitIp])
-    }
+    // validate has already checked to make sure it's not in the list
+    form.setValue('transitIps', [...transitIps, transitIp])
     transitIpsForm.reset()
   })
 
@@ -110,7 +108,12 @@ export function EditNetworkInterfaceForm({
                 submitTransitIp()
               }
             }}
-            validate={validateIpNet}
+            validate={(value) => {
+              const error = validateIpNet(value)
+              if (error) return error
+
+              if (transitIps.includes(value)) return 'Transit IP already in list'
+            }}
             placeholder="Enter an IP network"
           />
         </div>
